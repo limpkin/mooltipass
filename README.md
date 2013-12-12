@@ -13,5 +13,5 @@ The concept behind this product is to minimize the number of ways your passwords
 The Platform
 -----------
 Mooltipass is composed of one main device and a smartcard.
-On the device are stored your AES-256 encrypted passwords. The smartcard is a read protected EEPROM that needs a PIN code to unlock its contents (AES-256 key + a few websites credentials).
-
+On the device are stored your AES-256 encrypted passwords. The smartcard is a read protected EEPROM that needs a PIN code to unlock its contents (AES-256 key + a few websites credentials). As with your credit card, too many tries will permanently lock the smart card. 
+The mooltipass main components are: a smart card connector, an Arduino compatible microcontroller, a FLASH memory, an OLED screen and its touchscreen panel. The OLED screen provides good contrast and good visibility.

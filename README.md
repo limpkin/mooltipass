@@ -27,3 +27,12 @@ As we're dealing with peoples' credentials, we want to be as careful as possible
 The smart card containing the AES key used for encrypting the password can be cloned using the mooltipass, copying its PIN code as well. The card copy should be stored somewhere safe. As some space is left in the smart card, the user should also be able to store his main email credentials.  
 The encrypted credentials stored in the mooltipass internal flash can be exported.  
 A very convenient functionally suggested by one of Hackaday's readers is also implemented: the ability to generate hashed answers for websites' security questions in case credentials are lost. Only the smartcard is required to use this feature. 
+
+Features suggested by Hackaday readers
+--------------------------------------
+- Have multiple smart cards for multiple users on one mooltipass  
+- Generate a QR code instead of sending the password via HID  
+- Have a hole on the device's side to pour resin  
+- Leave an empty footprint for a BT transceiver  
+- buy a PID from MCS electronics  
+- implement OTP  

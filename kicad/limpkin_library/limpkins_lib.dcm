@@ -1,0 +1,39 @@
+EESchema-DOCLIB  Version 2.0  Date: 09/12/2013 16:56:06
+#
+$CMP BFS520
+D NPN 5 GHz wideband transistor
+F transistors/bipolar/BFR92.pdf
+$ENDCMP
+#
+$CMP DIODE_3
+D Diode simple
+K DEV DIODE
+$ENDCMP
+#
+$CMP FDC6401N
+F transistors/mos/*.*
+$ENDCMP
+#
+$CMP LED_BICOLOUR
+D LED DOUBLE type Bicolore
+K LED
+$ENDCMP
+#
+$CMP MOSFET_N
+F transistors/mos/*.*
+$ENDCMP
+#
+$CMP RJ45-CON
+D RJ45 with transformer + leds
+K RJ45
+$ENDCMP
+#
+$CMP RNET4
+D Resistance
+$ENDCMP
+#
+$CMP RNET8
+D Resistance
+$ENDCMP
+#
+#End Doc Library

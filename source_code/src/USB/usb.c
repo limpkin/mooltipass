@@ -278,10 +278,10 @@ ISR(USB_GEN_vect)
         UEIENX = (1<<RXSTPE);
         usb_configuration = 0;
     }
-    // Detect suspend mode
+    // Detect pseudo suspend mode
     if ((intbits & (1<<SOFI)) && usb_configuration) 
     {
-        activateTimer(TIMER_USB_SUSPEND, 6);
+        activateTimer(TIMER_USB_SUSPEND, 2000);
     }
 }
 

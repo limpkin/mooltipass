@@ -873,6 +873,7 @@ def recoveryProc(epin, epout):
 	login_addresses = list()
 	login_names = list()
 	login_nodes = list()
+	pointed_logins = list()
 
 	# get user profile
 	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
@@ -934,6 +935,7 @@ def recoveryProc(epin, epout):
 					print "Found child node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- login:", "".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0]
 					login_names.append("".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0])
 					login_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+					pointed_logins.append(next_node_addr[0] + next_node_addr[1]*256)
 					login_nodes.append(node_data[DATA_INDEX:])
 
 	# sort service list together with addresses list
@@ -957,6 +959,7 @@ def recoveryProc(epin, epout):
 			# if we can find a child whose address corresponds...
 			if next_child_addr in login_addresses:
 				print "Checked first child for parent", format(service_addresses[i], '#04X'), "at address", format(next_child_addr, '#04X')
+				pointed_logins.remove(next_child_addr)
 			else:
 				print "Wrong first child address for parent", format(service_addresses[i], '#04X'), "at address", format(next_child_addr, '#04X')
 				raw_input("confirm")
@@ -990,6 +993,10 @@ def recoveryProc(epin, epout):
 			# if we can find a child whose address corresponds...
 			if next_node_addr in login_addresses:
 				print "Checked next node for child", format(login_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+				try:
+					pointed_logins.remove(next_node_addr)
+				except:
+					pass
 			else:
 				print "Wrong next node for child", format(login_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
 				raw_input("confirm")
@@ -998,9 +1005,39 @@ def recoveryProc(epin, epout):
 			# if we can find a child whose address corresponds...
 			if prev_node_addr in login_addresses:
 				print "Checked prev node for child", format(login_addresses[i], '#04X'), "at address", format(prev_node_addr, '#04X')
+				try:
+					pointed_logins.remove(prev_node_addr)
+				except:
+					pass
 			else:
 				print "Wrong prev node for child", format(login_addresses[i], '#04X'), "at address", format(prev_node_addr, '#04X')
 				raw_input("confirm")
+				
+	# find if we have child nodes that are not registered
+	if len(pointed_logins) != 0:
+		print "There are orphan child nodes!"
+		for orphan_child in pointed_logins:
+			print "Address:", format(orphan_child, '#04X'), "- login:", login_names[login_addresses.index(orphan_child)]
+			choice = raw_input("Do you want to delete it? (yes/no): ")
+			if choice == "yes":
+				empty_packet = array('B')
+				for i in range(62):
+					empty_packet.append(255)
+				empty_packet[0] = orphan_child & 0x00FF
+				empty_packet[1] = (orphan_child >> 8) & 0x00FF
+				empty_packet[2] = 0
+				sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 62, empty_packet)
+				if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+					print "Error in writing"
+				empty_packet[2] = 1
+				sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 62, empty_packet)
+				if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+					print "Error in writing"
+				empty_packet[2] = 2
+				empty_packet = empty_packet[0:16]
+				sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 17, empty_packet)
+				if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+					print "Error in writing"		
 		
 	# end memory management mode
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)

@@ -23,6 +23,9 @@
  * Created: 08/12/2013 16:50:05
  *  Author: Mathieu Stephan
  */
+/*!	\file 	smartcard.c
+*	\brief	Smart Card low level functions
+*/
 #include <avr/interrupt.h>
 #include "../mooltipass.h"
 #include <util/delay.h>
@@ -50,7 +53,7 @@ void clock_pulse(void)
 	#endif	
 }
 
-/*!	\fn		clock_pulse(void)
+/*!	\fn		inverted_clock_pulse(void)
 *	\brief	Send a 4us L->H clock pulse (datasheet: min 3.3us)
 */
 void inverted_clock_pulse(void)

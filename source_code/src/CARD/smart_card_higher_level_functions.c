@@ -23,6 +23,9 @@
  * Created: 13/01/2014 23:06:54
  *  Author: Mathieu Stephan
  */ 
+/*!	\file 	smart_card_higher_level_functions.c
+*	\brief	Smart Card high level functions
+*/
 #include "../mooltipass.h"
 
 

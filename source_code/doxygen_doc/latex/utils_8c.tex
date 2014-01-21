@@ -1,0 +1,231 @@
+\hypertarget{utils_8c}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/utils.c File Reference}
+\label{utils_8c}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/utils.\-c@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/utils.\-c}}
+}
+
+
+Useful functions.  
+
+
+{\ttfamily \#include \char`\"{}../mooltipass.\-h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint16\-\_\-t \hyperlink{utils_8c_a3b26b57cd3454c05cc2b3b344708bb66}{swap16} (uint16\-\_\-t val)
+\begin{DoxyCompactList}\small\item\em Swap low and high bytes. \end{DoxyCompactList}\item 
+char \hyperlink{utils_8c_a2f565565fad2fa9943a0a56ff6f01a8e}{numchar\-\_\-to\-\_\-char} (unsigned char c)
+\begin{DoxyCompactList}\small\item\em Convert a char value (0 to 9) to be displayed. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_a8d7e8d0268930dcc85fb54d2a17f9002}{hexachar\-\_\-to\-\_\-string} (unsigned char c, char $\ast$string)
+\begin{DoxyCompactList}\small\item\em Convert a char to a string that we can display. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_acae24e7ca108a8a954db5fbbc6f2dc8a}{hexaint\-\_\-to\-\_\-string} (unsigned int c, char $\ast$string)
+\begin{DoxyCompactList}\small\item\em Convert a int to a string that we can display. \end{DoxyCompactList}\item 
+unsigned char \hyperlink{utils_8c_a78be21b0b1659c7e7327be836b562973}{chr\-\_\-strlen} (char $\ast$string)
+\begin{DoxyCompactList}\small\item\em Ported strlen function. \end{DoxyCompactList}\item 
+unsigned int \hyperlink{utils_8c_ab0885f9d21fdf94f2d42544fb83a741d}{int\-\_\-strlen} (char $\ast$string)
+\begin{DoxyCompactList}\small\item\em Ported strlen function. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_a9ae2eebd81d6a10e9937415fef9e9526}{clear\-\_\-string} (char $\ast$string, int nb\-\_\-char)
+\begin{DoxyCompactList}\small\item\em Clear a string. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_a05aff92d4111b87625171ac8dddddd86}{hm\-\_\-str\-\_\-cpy} (char $\ast$source, char $\ast$dest, int nb\-\_\-char)
+\begin{DoxyCompactList}\small\item\em Ported strcpy() with the args inverted. \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_a0dc9cefa1014c5c0bd5964ad112d6069}{char\-\_\-to\-\_\-string} (unsigned char value, char $\ast$string)
+\begin{DoxyCompactList}\small\item\em Convert a char to a string that we can display (numerical form) \end{DoxyCompactList}\item 
+void \hyperlink{utils_8c_a16d061ecadf4ab1e7e2023d862d626a0}{int\-\_\-to\-\_\-string} (unsigned int value, char $\ast$string)
+\begin{DoxyCompactList}\small\item\em Convert a int to a string that we can display (numerical form) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Useful functions. 
+
+\subsection{Function Documentation}
+\hypertarget{utils_8c_a0dc9cefa1014c5c0bd5964ad112d6069}{\index{utils.\-c@{utils.\-c}!char\-\_\-to\-\_\-string@{char\-\_\-to\-\_\-string}}
+\index{char\-\_\-to\-\_\-string@{char\-\_\-to\-\_\-string}!utils.c@{utils.\-c}}
+\subsubsection[{char\-\_\-to\-\_\-string}]{\setlength{\rightskip}{0pt plus 5cm}char\-\_\-to\-\_\-string (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{value, }
+\item[{char $\ast$}]{string}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_a0dc9cefa1014c5c0bd5964ad112d6069}
+
+
+Convert a char to a string that we can display (numerical form) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The char \\
+\hline
+{\em string} & Pointer to the string in which we will write \\
+\hline
+\end{DoxyParams}
+\hypertarget{utils_8c_a78be21b0b1659c7e7327be836b562973}{\index{utils.\-c@{utils.\-c}!chr\-\_\-strlen@{chr\-\_\-strlen}}
+\index{chr\-\_\-strlen@{chr\-\_\-strlen}!utils.c@{utils.\-c}}
+\subsubsection[{chr\-\_\-strlen}]{\setlength{\rightskip}{0pt plus 5cm}chr\-\_\-strlen (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{string}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_a78be21b0b1659c7e7327be836b562973}
+
+
+Ported strlen function. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em string} & The string \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The length 
+\end{DoxyReturn}
+\hypertarget{utils_8c_a9ae2eebd81d6a10e9937415fef9e9526}{\index{utils.\-c@{utils.\-c}!clear\-\_\-string@{clear\-\_\-string}}
+\index{clear\-\_\-string@{clear\-\_\-string}!utils.c@{utils.\-c}}
+\subsubsection[{clear\-\_\-string}]{\setlength{\rightskip}{0pt plus 5cm}clear\-\_\-string (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{string, }
+\item[{int}]{nb\-\_\-char}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_a9ae2eebd81d6a10e9937415fef9e9526}
+
+
+Clear a string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em string} & The string \\
+\hline
+{\em nb\-\_\-char} & Length \\
+\hline
+\end{DoxyParams}
+\hypertarget{utils_8c_a8d7e8d0268930dcc85fb54d2a17f9002}{\index{utils.\-c@{utils.\-c}!hexachar\-\_\-to\-\_\-string@{hexachar\-\_\-to\-\_\-string}}
+\index{hexachar\-\_\-to\-\_\-string@{hexachar\-\_\-to\-\_\-string}!utils.c@{utils.\-c}}
+\subsubsection[{hexachar\-\_\-to\-\_\-string}]{\setlength{\rightskip}{0pt plus 5cm}hexachar\-\_\-to\-\_\-string (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{c, }
+\item[{char $\ast$}]{string}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_a8d7e8d0268930dcc85fb54d2a17f9002}
+
+
+Convert a char to a string that we can display. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em c} & The char \\
+\hline
+{\em string} & Pointer to the string in which we will write \\
+\hline
+\end{DoxyParams}
+\hypertarget{utils_8c_acae24e7ca108a8a954db5fbbc6f2dc8a}{\index{utils.\-c@{utils.\-c}!hexaint\-\_\-to\-\_\-string@{hexaint\-\_\-to\-\_\-string}}
+\index{hexaint\-\_\-to\-\_\-string@{hexaint\-\_\-to\-\_\-string}!utils.c@{utils.\-c}}
+\subsubsection[{hexaint\-\_\-to\-\_\-string}]{\setlength{\rightskip}{0pt plus 5cm}hexaint\-\_\-to\-\_\-string (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{c, }
+\item[{char $\ast$}]{string}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_acae24e7ca108a8a954db5fbbc6f2dc8a}
+
+
+Convert a int to a string that we can display. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em c} & The int \\
+\hline
+{\em string} & Pointer to the string in which we will write \\
+\hline
+\end{DoxyParams}
+\hypertarget{utils_8c_a05aff92d4111b87625171ac8dddddd86}{\index{utils.\-c@{utils.\-c}!hm\-\_\-str\-\_\-cpy@{hm\-\_\-str\-\_\-cpy}}
+\index{hm\-\_\-str\-\_\-cpy@{hm\-\_\-str\-\_\-cpy}!utils.c@{utils.\-c}}
+\subsubsection[{hm\-\_\-str\-\_\-cpy}]{\setlength{\rightskip}{0pt plus 5cm}hm\-\_\-str\-\_\-cpy (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{source, }
+\item[{char $\ast$}]{dest, }
+\item[{int}]{nb\-\_\-char}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_a05aff92d4111b87625171ac8dddddd86}
+
+
+Ported strcpy() with the args inverted. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & Pointer to the source \\
+\hline
+{\em dest} & Pointer to the destination \\
+\hline
+{\em nb\-\_\-char} & Number of chars to copy \\
+\hline
+\end{DoxyParams}
+\hypertarget{utils_8c_ab0885f9d21fdf94f2d42544fb83a741d}{\index{utils.\-c@{utils.\-c}!int\-\_\-strlen@{int\-\_\-strlen}}
+\index{int\-\_\-strlen@{int\-\_\-strlen}!utils.c@{utils.\-c}}
+\subsubsection[{int\-\_\-strlen}]{\setlength{\rightskip}{0pt plus 5cm}int\-\_\-strlen (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{string}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_ab0885f9d21fdf94f2d42544fb83a741d}
+
+
+Ported strlen function. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em string} & The string \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The length 
+\end{DoxyReturn}
+\hypertarget{utils_8c_a16d061ecadf4ab1e7e2023d862d626a0}{\index{utils.\-c@{utils.\-c}!int\-\_\-to\-\_\-string@{int\-\_\-to\-\_\-string}}
+\index{int\-\_\-to\-\_\-string@{int\-\_\-to\-\_\-string}!utils.c@{utils.\-c}}
+\subsubsection[{int\-\_\-to\-\_\-string}]{\setlength{\rightskip}{0pt plus 5cm}int\-\_\-to\-\_\-string (
+\begin{DoxyParamCaption}
+\item[{unsigned int}]{value, }
+\item[{char $\ast$}]{string}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_a16d061ecadf4ab1e7e2023d862d626a0}
+
+
+Convert a int to a string that we can display (numerical form) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The int \\
+\hline
+{\em string} & Pointer to the string in which we will write \\
+\hline
+\end{DoxyParams}
+\hypertarget{utils_8c_a2f565565fad2fa9943a0a56ff6f01a8e}{\index{utils.\-c@{utils.\-c}!numchar\-\_\-to\-\_\-char@{numchar\-\_\-to\-\_\-char}}
+\index{numchar\-\_\-to\-\_\-char@{numchar\-\_\-to\-\_\-char}!utils.c@{utils.\-c}}
+\subsubsection[{numchar\-\_\-to\-\_\-char}]{\setlength{\rightskip}{0pt plus 5cm}numchar\-\_\-to\-\_\-char (
+\begin{DoxyParamCaption}
+\item[{unsigned char}]{c}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_a2f565565fad2fa9943a0a56ff6f01a8e}
+
+
+Convert a char value (0 to 9) to be displayed. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em c} & The char \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Displayable char 
+\end{DoxyReturn}
+\hypertarget{utils_8c_a3b26b57cd3454c05cc2b3b344708bb66}{\index{utils.\-c@{utils.\-c}!swap16@{swap16}}
+\index{swap16@{swap16}!utils.c@{utils.\-c}}
+\subsubsection[{swap16}]{\setlength{\rightskip}{0pt plus 5cm}swap16 (
+\begin{DoxyParamCaption}
+\item[{uint16\-\_\-t}]{val}
+\end{DoxyParamCaption}
+)}}\label{utils_8c_a3b26b57cd3454c05cc2b3b344708bb66}
+
+
+Swap low and high bytes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em val} & The val \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The val 
+\end{DoxyReturn}

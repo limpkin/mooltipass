@@ -23,6 +23,9 @@
  * Created: 08/12/2013 14:16:53
  *  Author: Mathieu Stephan
  */
+/*!	\file 	flash_mem.c
+*	\brief	Flash memory low level functions
+*/
 #include "../mooltipass.h"
 #include <avr/io.h>
 

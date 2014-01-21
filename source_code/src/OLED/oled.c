@@ -23,6 +23,9 @@
  * Created: 08/12/2013 20:46:51
  *  Author: Mathieu Stephan
  */
+/*!	\file 	oled.c
+*	\brief	Oled low level functions
+*/
 #include "../mooltipass.h"
 #include <util/delay.h>
 #include <avr/io.h>

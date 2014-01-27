@@ -482,7 +482,6 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
 
     writeCommand(CMD_WRITE_RAM);
 
-    // build pixel gddramdata
     for (uint16_t yind=0; yind<glyph_height; yind++) {
 	ind = (uint8_t)(yind*glyph_width);
 	uint16_t pixels;
@@ -495,16 +494,18 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
 	}
 
 	// write a pixel row
-	uint8_t pind=0;
 	uint8_t byteCount = byteWidth;
+	uint8_t bit;
+
 	for (pix=0; pix<glyph_width; pix+=4) {
-	    for (pind=0; pind<4; pind++) {
+	    uint8_t pixel = glyph ? pgm_read_byte(glyph++) : 0;
+	    for (bit=0; bit<4; bit++) {
 		pixels &= 0xFFF0;
-		if (pix+pind < glyph_width) {
-		    uint8_t pixel = glyph ? pgm_read_byte(glyph++) : 0;
-		    pixels |= pixel;
+		if (pix+bit < glyph_width) {
+		    pixels |= (pixel >> 4) & 0x0c;	// 2bit glyph pixel -> 4 bit oled pixel
+		    pixel <<= 2;
 		}
-		if (pind == (3-xoff)) {
+		if ((bit & 0x3) == (3-xoff)) {
 		    writeData((uint8_t)(pixels >> 8));
 		    writeData((uint8_t)pixels);
 		    byteCount--;
@@ -521,8 +522,6 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
 	    writeData((uint8_t)pixels);
 	}
 
-	// Include blank spacing pixel 
-	//pixels <<= 4;
 
 	if ((x+glyph_width) & 0x3) {
 	    gddram[y+yind].pixels = pixels;

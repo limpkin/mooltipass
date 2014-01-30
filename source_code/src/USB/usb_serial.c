@@ -67,7 +67,7 @@
 // INF file is needed to load the driver.  These numbers need to
 // match the INF file.
 #define VENDOR_ID		0x16C0
-#define PRODUCT_ID		0x047F
+#define PRODUCT_ID		0x047C
 
 // When you write data, it goes into a USB endpoint buffer, which
 // is transmitted to the PC when it becomes full, or after a timeout

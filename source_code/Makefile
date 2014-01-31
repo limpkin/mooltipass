@@ -1,3 +1,10 @@
+#
+# Makefile
+#
+# Created: 2014-01-29
+# Author: Mikael Albertsson
+#
+
 CC = avr-gcc
 OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump

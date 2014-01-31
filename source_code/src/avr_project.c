@@ -29,6 +29,7 @@
 #include "mooltipass.h"
 #include <util/delay.h>
 #include <avr/io.h>
+#include <stdio.h>
 
 
 /*!	\fn 	disable_jtag(void)
@@ -56,6 +57,8 @@ int main(void)
 	uint8_t temp_buffer[200];
 	char temp_string[20];
 	
+	char james_usb_test[20];
+	
 	/* Set for 16 MHz clock */
 	CPU_PRESCALE(0);
 	
@@ -77,6 +80,22 @@ int main(void)
 	
 	/* Initialize flash */
 	flash_init_result = init_flash_memory();
+
+#ifdef TEST_HID_AND_CDC
+	Show_String("Z",FALSE,2,0);
+	usb_keyboard_press(KEY_S, 0);
+	while(1)
+	{
+			int n = usb_serial_getchar();
+			if (n >= 0) {usb_serial_putchar(n);
+				//for (int i=18;i>0;i--){james[i]=james[i-1];}
+			sprintf(james_usb_test,"%c",n);	
+			Show_String(james_usb_test,FALSE,2,0);
+			usb_keyboard_press((n%25)+4,0);
+			}
+		
+	}
+#endif /* TEST_HID_AND_CDC */
 	
 	//lcd_display_grayscale();
 	if(flash_init_result == RETURN_OK)
@@ -106,6 +125,7 @@ int main(void)
 			else if(card_detection_result == RETURN_CARD_TEST_PB)
 			{
 				// Card test problem...
+				//usb_keyboard_press(KEY_S, 0);				usb_keyboard_press(KEY_J, 0);				usb_keyboard_press(13, 0);
 				Show_String("Card test problem", FALSE, 2, 8);
 				smartcard_removal_functions();
 			}

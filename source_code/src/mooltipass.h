@@ -34,7 +34,8 @@
 #include "GRAPHICS/graphics.h"
 #include "FLASH/flash_mem.h"
 #include "CARD/smartcard.h"
-#include "USB/teensy_usb.h"
+//#include "USB/teensy_usb.h" Using usb_serial.h instead, which has HID+CDC
+#include "USB/usb_serial.h"
 #include "UTILS/utils.h"
 #include "OLED/oled.h"
 #include "interrupts.h"

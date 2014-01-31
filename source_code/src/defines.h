@@ -14,6 +14,9 @@
 /** HARDWARE VERSION **/
 #define	HARDWARE_V1
 
+/** CPU SPEED **/
+#define F_CPU 16000000
+
 /** MACROS **/
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
 

@@ -30,6 +30,8 @@
 // Version 1.0: Initial Release
 // Version 1.1: Add support for Teensy 2.0
 
+#ifdef TEENSY_USB_EXAMPLE
+
 #define USB_SERIAL_PRIVATE_INCLUDE
 #include "teensy_usb.h"
 
@@ -40,8 +42,8 @@
  **************************************************************************/
 
 // You can change these to give your code its own name.
-#define STR_MANUFACTURER	L"MfgName"
-#define STR_PRODUCT		L"Keyboard"
+#define STR_MANUFACTURER	L"Hackaday"
+#define STR_PRODUCT		L"Mooltipass"
 
 
 // Mac OS-X and Linux automatically load the correct drivers.  On
@@ -596,3 +598,4 @@ ISR(USB_COM_vect)
 }
 
 
+#endif /* TEENSY_USB_EXAMPLE */

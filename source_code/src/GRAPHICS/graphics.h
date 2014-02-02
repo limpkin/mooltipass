@@ -26,7 +26,6 @@ void merge_1bit_buffer_to_1bit_picture(unsigned char picture, unsigned char* buf
 void Fill_Block(unsigned char Data, unsigned char Data2, unsigned char column_start, unsigned char end_column, unsigned char row_start, unsigned char row_end);
 void merge_1bit_buffer_to_picture(unsigned char picture, unsigned char* buffer, unsigned char x, unsigned char y, unsigned int width, unsigned char height);
 void Show_BF_Nb_Chars(char* string, unsigned char reverse, unsigned char x, unsigned char y, unsigned char nb_chars, unsigned char line);
-void display_1bit_picture(unsigned char picture, unsigned char x, unsigned char y, unsigned int width, unsigned char height);
 void display_picture(unsigned char picture, unsigned char x, unsigned char y);
 void Show_Big_Font(unsigned char data, unsigned char reverse, unsigned char x, unsigned char y, unsigned char line);
 void Show_Nb_Chars(char* string, unsigned char reverse, unsigned char x, unsigned char y, unsigned char nb_chars);

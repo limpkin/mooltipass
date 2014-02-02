@@ -17,14 +17,11 @@
  *
  * CDDL HEADER END
  */
-/*
- * avr_project.c
- *
- * Created: 08/12/2013 13:54:34
- *  Author: Mathieu Stephan
- */
+
 /*!	\file 	mooltipass.c
 *	\brief	Main file
+*	Created: 08/12/2013 13:54:34
+*	Author: Mathieu Stephan
 */
 #include "mooltipass.h"
 #include <util/delay.h>
@@ -50,36 +47,28 @@ void disable_jtag(void)
 */
 int main(void)
 {
+	
 	RET_TYPE flash_init_result = RETURN_NOK;
 	RET_TYPE card_detection_result;
 	RET_TYPE card_detect_ret;
 	RET_TYPE temp_rettype;
+	
 	uint8_t temp_buffer[200];
 	char temp_string[20];
 	
 	char james_usb_test[20];
 	
-	/* Set for 16 MHz clock */
-	CPU_PRESCALE(0);
+	CPU_PRESCALE(0);	//Set for 16MHz clock
+	_delay_ms(500);		//Let the power settle
 	
-	/* Let the power settle */
-	_delay_ms(500);
 	
-	/* Initialize smart card port */
-	init_smartcard_port();
+	initSMC();	//Init smart card
+	initIRQ();		//Init interrupts	
+	initOLED();	//Init OLED screen
+	flash_init_result = initFlash();	//Init flash memory
 	
-	/* Initialize interrupts */
-	init_interrupts();
-
-	/* Initialize the USB, and then wait for the host to set configuration */
-	usb_init();
+	usb_init();	//Init USB and wait for host to set configuration
 	while(!usb_configured());
-	
-	/* Initialize OLED screen */
-	init_oled_screen();
-	
-	/* Initialize flash */
-	flash_init_result = init_flash_memory();
 
 #ifdef TEST_HID_AND_CDC
 	Show_String("Z",FALSE,2,0);
@@ -102,104 +91,89 @@ int main(void)
 		Show_String("Flash init ok", FALSE, 2, 0);
 	else
 		Show_String("Problem flash init", FALSE, 2, 250);
+	
 	//display_picture(HACKADAY_BMP, 20, 0);
 	//draw_screen_frame();
 	//Show_String("Mooltipass", FALSE, 32, 10);
-	//display_1bit_picture(PWR_BY_COSW, 0, 0, 256, 64);
+	Show_String("No card detected", FALSE, 25, 45);	//If no card is inserted at boot time
 
     while(1)
     {
-		// See if the card has been plugged
-		card_detect_ret = is_card_plugged();
-        if(card_detect_ret == RETURN_JDETECT)
+		card_detect_ret = isCardPlugged();
+		if(card_detect_ret == RETURN_JDETECT)	//card just detected
 		{
-			// Check the card detection result
-			card_detection_result = smartcard_detection_functions();
+			clear_screen();	//clear screen before writing anything new
+			card_detection_result = detectFunctionSMC();	// Get card detection result
 			
-			if(card_detection_result == RETURN_CARD_NDET)
+			if(card_detection_result == RETURN_CARD_NDET)	//This is not a card or card is really broken!
 			{
-				// This is not a card....
 				Show_String("Not a card", FALSE, 2, 8);
-				smartcard_removal_functions();
+				removeFunctionSMC();		//shut down card reader
 			}
-			else if(card_detection_result == RETURN_CARD_TEST_PB)
+			else if(card_detection_result == RETURN_CARD_TEST_PB)	//Card test problem
 			{
-				// Card test problem...
 				//usb_keyboard_press(KEY_S, 0);				usb_keyboard_press(KEY_J, 0);				usb_keyboard_press(13, 0);
 				Show_String("Card test problem", FALSE, 2, 8);
-				smartcard_removal_functions();
+				removeFunctionSMC();
 			}
-			else if(card_detection_result == RETURN_CARD_0_TRIES_LEFT)
+			else if(card_detection_result == RETURN_CARD_0_TRIES_LEFT)	//Card blocked
 			{
-				// Card blocked
 				Show_String("Card blocked", FALSE, 2, 8);
-				smartcard_removal_functions();
+				removeFunctionSMC();
 			}
-			else
+			else // Cars is good! do stuff!
 			{
-				/** Card detected and valid **/
 				// Detect if the card is blank by checking that the manufacturer zone is different from FFFF
 				if(swap16(*(uint16_t*)read_manufacturers_zone(temp_buffer)) == 0xFFFF)
 				{
-					// Non init card, let's transform it into a mooltipass card ! **/
+					//Card is new - transform into mooltipass
 					Show_String("Blank card, transforming...", FALSE, 2, 8);
 					
-					// Try to authenticate with factory pin
-					temp_rettype = security_code_validation(SMARTCARD_FACTORY_PIN);
+					temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);	// Try to authenticate with factory pin
 					
-					if(temp_rettype == RETURN_PIN_OK)
+					if(temp_rettype == RETURN_PIN_OK)	//Card is unlocked - transform
 					{
 						if(perform_card_mooltipass_transformation() == RETURN_OK)
-						{
-							Show_String("Card transformed !", FALSE, 2, 16);
-							_delay_ms(2000);print_smartcard_debug_info();
-						}
+							Show_String("Card transformed!", FALSE, 2, 16);
 						else
-						{
-							Show_String("Couldn't transform card !", FALSE, 2, 16);
-							_delay_ms(2000);print_smartcard_debug_info();
-						}
+							Show_String("Couldn't transform card!", FALSE, 2, 16);
+						_delay_ms(2000); print_smartcard_debug_info();	// show debug info 
 					}
-					else
+					else //Card unlock failed. Show number of tries left
 					{
 						int_to_string(get_number_of_security_code_tries_left(), temp_string);
 						Show_String(temp_string, FALSE, 2, 16);
 						Show_String("tries left, wrong pin", FALSE, 6, 16);
 					}
 				}
-				else
+				else //Card is already converted into a mooltipass
 				{
-					// Already init
-					/** Mooltipass card detected **/
 					Show_String("Mooltipass card detected", FALSE, 2, 8);
 					
-					// Try to unlock it
-					temp_rettype = security_code_validation(SMARTCARD_FACTORY_PIN);
+					temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);	//Try to unlock 
 					
-					if(temp_rettype == RETURN_PIN_OK)
+					if(temp_rettype == RETURN_PIN_OK)	//unlock successful 
 					{
 						// Check that the card is in security mode 2 by reading the SC
-						if(swap16(*(uint16_t*)read_security_code(temp_buffer)) != 0xFFFF)
+						if(swap16(*(uint16_t*)read_security_code(temp_buffer)) != 0xFFFF)	//card is in mode 1 - transform again
 						{
-							// Card in security mode 1, transform it again
 							Show_String("Transforming...", FALSE, 2, 16);
 							perform_card_mooltipass_transformation();
 							_delay_ms(4000);print_smartcard_debug_info();
 						}
-						else
+						else //Everything is in order - proceed
 						{
-							// Everything is ok
 							Show_String("PIN code checked !", FALSE, 2, 16);
 							temp_buffer[0] = 0x80;
 							temp_buffer[1] = 0x00;
-							erase_application_zone1_nzone2(FALSE);
-							write_to_smartcard(736, 16, temp_buffer);
-							erase_application_zone1_nzone2(TRUE);
-							write_to_smartcard(176, 16, temp_buffer);
+							eraseApplicationZonesSMC(FALSE);
+							writeSMC(736, 16, temp_buffer);
+							eraseApplicationZonesSMC(TRUE);
+							writeSMC(176, 16, temp_buffer);
 							_delay_ms(2000);print_smartcard_debug_info();							
 						}						
 					}
-					else
+					else //Unlock failed
 					{
 						int_to_string(get_number_of_security_code_tries_left(), temp_string);
 						Show_String(temp_string, FALSE, 2, 16);
@@ -224,10 +198,11 @@ int main(void)
 				Show_String(temp_string, FALSE, 2+i*5, 8);
 			}*/
 		}
-		else if(card_detect_ret == RETURN_JRELEASED)
+		else if(card_detect_ret == RETURN_JRELEASED)	//card just released
 		{
-			smartcard_removal_functions();
+			removeFunctionSMC();
 			clear_screen();
+			Show_String("Please insert card", FALSE, 2, 8);
 		}
     }
 }

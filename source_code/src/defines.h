@@ -1,9 +1,28 @@
-/*
- * defines.h
+ /* CDDL HEADER START
  *
- * Created: 08/12/2013 14:03:47
- *  Author: limpkin
- */ 
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License (the "License").
+ * You may not use this file except in compliance with the License.
+ *
+ * You can obtain a copy of the license at src/license_cddl-1.0.txt
+ * or http://www.opensolaris.org/os/licensing.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file at src/license_cddl-1.0.txt
+ * If applicable, add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your own identifying
+ * information: Portions Copyright [yyyy] [name of copyright owner]
+ *
+ * CDDL HEADER END
+ */
+
+/*!	\file 	defines.h
+*	\brief	Project definitions
+*	Created: 08/12/2013 14:03:47
+*	Author: Mathieu Stephan
+*/
 
 
 #ifndef DEFINES_H_
@@ -15,7 +34,7 @@
 #define	HARDWARE_V1
 
 /** CPU SPEED **/
-#define F_CPU 16000000
+//#define F_CPU 16000000	//in project definition?
 
 /** MACROS **/
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
@@ -23,7 +42,7 @@
 /** ENUMS **/
 enum card_detect_return_t	{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
 enum pin_check_return_t		{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
-enum detect_return_t		{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
+enum detect_return_t		{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED,RETURN_NO_CHANGE};
 enum return_type			{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 enum spi_type				{SPI_NATIVE, SPI_USART};
 
@@ -102,37 +121,8 @@ enum spi_type				{SPI_NATIVE, SPI_USART};
 #define	OLED_Brightness	0x0A
 #define OLED_Contrast	0x9F
 
-// Mooltipass bitmaps defines
+/** BITMAP DEFINES **/
 #define HACKADAY_BMP				0x00
-
-// Defines bitmaps
-#define	PWR_BY_COSW					0x03
-#define	OIL_TEMP_BMP				0x04
-#define	ACT_TEMP_BMP				0x05
-#define	ECT_TEMP_BMP				0x06
-#define	EGT_TEMP_BMP				0x07
-#define	STOR_BMP					0x08
-#define	NOT_STOR_BMP				0x09
-#define	BAT_BMP						0x10
-#define	AFR_BMP						0x11
-#define	MAP_BMP						0x12
-#define	PRESS_H_BMP					0x13
-#define	RPM_BMP						0x14
-#define	TPS_BMP						0x15
-#define	WARN_VBAT_LOW_BMP			0x16
-#define	WARN_VBAT_HIGH_BMP			0x17
-#define	WARN_OIL_PRESS_LOW_BMP		0x18
-#define	WARN_OIL_PRESS_HIGH_BMP		0x19
-#define	WARN_AFR_LOW_BMP			0x20
-#define	WARN_AFR_HIGH_BMP			0x21
-#define	WARN_MAP_HIGH_BMP			0x22
-#define	WARN_ACT_HIGH_BMP			0x23
-#define	WARN_ECT_HIGH_BMP			0x24
-#define	WARN_EGT_HIGH_BMP			0x25
-#define	WARN_OIL_TEMP_HIGH_BMP		0x26
-#define	WARN_DISCONNECTED_BMP		0x27
-#define	MAP_BOSH_BMP				0x28
-
 
 /** TYPEDEFS **/
 typedef uint8_t RET_TYPE;

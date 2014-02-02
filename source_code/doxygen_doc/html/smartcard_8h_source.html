@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Mooltipass: C:/Users/stephan/Dropbox/Projets/mooltipass/source_code/src/CARD/smartcard.h Source File</title>
+<title>Mooltipass: C:/Users/lina/Documents/GitHub/mooltipass/source_code/src/CARD/smartcard.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -24,7 +24,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Mooltipass
    </div>
-   <div id="projectbrief">Offline Password Keeper Developed on Hackaday</div>
+   <div id="projectbrief">Offline password keeper</div>
   </td>
  </tr>
  </tbody>
@@ -80,7 +80,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_34b56d2b6f2e76de660152d993baf1a2.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_770d1e45642f3cb89174f389ed015f80.html">source_code</a></li><li class="navelem"><a class="el" href="dir_5faa3c327f12db20b730af18a908a578.html">src</a></li><li class="navelem"><a class="el" href="dir_477174b7c53e715be89e40b1dc563297.html">CARD</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_c56ac4f8932da2fd86be056069096cd5.html">GitHub</a></li><li class="navelem"><a class="el" href="dir_59cf0649e5b7edd071f5ce5eb5c24166.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_03209529255f2c12196becd6bde18e42.html">source_code</a></li><li class="navelem"><a class="el" href="dir_b0e44ad39df7bcefcca7fada3e201141.html">src</a></li><li class="navelem"><a class="el" href="dir_23b888301070dd985ac605e4159653ce.html">CARD</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -107,43 +107,37 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment"> *</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"> * CDDL HEADER END</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment"> */</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment"> * smartcard.h</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment"> *</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment"> * Created: 08/12/2013 16:50:23</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment"> *  Author: Mathieu Stephan</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment"> */</span> </div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#ifndef SMARTCARD_H_</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define SMARTCARD_H_</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;uint8_t* <a class="code" href="smartcard_8c.html#a61f17b7f1bc2542102ff5eabf9bf3f7c">read_data_from_smartcard</a>(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#a1c9cc77e1dbe1b4a463ba0a1673a5379">write_to_smartcard</a>(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write);</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#a4c05e9ef4824ad5e80afc178fce92a4a">erase_application_zone1_nzone2</a>(uint8_t zone1_nzone2);</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#a0725d9cd9d6d04f58dff2e09314657bc">blow_man_nissuer_fuse</a>(uint8_t bool_man_nissuer);</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;RET_TYPE <a class="code" href="smartcard_8c.html#a9e6df05c9f3087d8f619e1187fd881bc">security_code_validation</a>(uint16_t code);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;RET_TYPE <a class="code" href="smartcard_8c.html#a40ab7c2931b7de2008c80575e341c966">smartcard_detection_functions</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#a9ba5ce5b310110eac0460cbd0c161d8c">smartcard_removal_functions</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#aed806a480ea34d2c38a4220e5d196aa8">scan_smartcard_detect</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#a4dc33f73066a6e64c5f56caf323d4cec">init_smartcard_port</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;RET_TYPE <a class="code" href="smartcard_8c.html#a7cfb10760e1a39a02371cf4d0231dd20">is_card_plugged</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* SMARTCARD_H_ */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="smartcard_8c_html_a9ba5ce5b310110eac0460cbd0c161d8c"><div class="ttname"><a href="smartcard_8c.html#a9ba5ce5b310110eac0460cbd0c161d8c">smartcard_removal_functions</a></div><div class="ttdeci">void smartcard_removal_functions(void)</div><div class="ttdoc">functions performed once the smart card is removed </div><div class="ttdef"><b>Definition:</b> smartcard.c:542</div></div>
-<div class="ttc" id="smartcard_8c_html_a0725d9cd9d6d04f58dff2e09314657bc"><div class="ttname"><a href="smartcard_8c.html#a0725d9cd9d6d04f58dff2e09314657bc">blow_man_nissuer_fuse</a></div><div class="ttdeci">void blow_man_nissuer_fuse(uint8_t bool_man_nissuer)</div><div class="ttdoc">Blow the manufacturer or issuer fuse. </div><div class="ttdef"><b>Definition:</b> smartcard.c:167</div></div>
-<div class="ttc" id="smartcard_8c_html_a4dc33f73066a6e64c5f56caf323d4cec"><div class="ttname"><a href="smartcard_8c.html#a4dc33f73066a6e64c5f56caf323d4cec">init_smartcard_port</a></div><div class="ttdeci">void init_smartcard_port(void)</div><div class="ttdoc">Initialize smart card port. </div><div class="ttdef"><b>Definition:</b> smartcard.c:566</div></div>
-<div class="ttc" id="smartcard_8c_html_a9e6df05c9f3087d8f619e1187fd881bc"><div class="ttname"><a href="smartcard_8c.html#a9e6df05c9f3087d8f619e1187fd881bc">security_code_validation</a></div><div class="ttdeci">RET_TYPE security_code_validation(uint16_t code)</div><div class="ttdoc">Check security code. </div><div class="ttdef"><b>Definition:</b> smartcard.c:302</div></div>
-<div class="ttc" id="smartcard_8c_html_aed806a480ea34d2c38a4220e5d196aa8"><div class="ttname"><a href="smartcard_8c.html#aed806a480ea34d2c38a4220e5d196aa8">scan_smartcard_detect</a></div><div class="ttdeci">void scan_smartcard_detect(void)</div><div class="ttdoc">card detect debounce called by 1ms interrupt </div><div class="ttdef"><b>Definition:</b> smartcard.c:220</div></div>
-<div class="ttc" id="smartcard_8c_html_a7cfb10760e1a39a02371cf4d0231dd20"><div class="ttname"><a href="smartcard_8c.html#a7cfb10760e1a39a02371cf4d0231dd20">is_card_plugged</a></div><div class="ttdeci">RET_TYPE is_card_plugged(void)</div><div class="ttdoc">Know if a card is plugged. </div><div class="ttdef"><b>Definition:</b> smartcard.c:200</div></div>
-<div class="ttc" id="smartcard_8c_html_a4c05e9ef4824ad5e80afc178fce92a4a"><div class="ttname"><a href="smartcard_8c.html#a4c05e9ef4824ad5e80afc178fce92a4a">erase_application_zone1_nzone2</a></div><div class="ttdeci">void erase_application_zone1_nzone2(uint8_t zone1_nzone2)</div><div class="ttdoc">Set E1 or E2 flag by presenting the correct erase key (always FFFF...) and erase the AZ1 or AZ2...</div><div class="ttdef"><b>Definition:</b> smartcard.c:243</div></div>
-<div class="ttc" id="smartcard_8c_html_a1c9cc77e1dbe1b4a463ba0a1673a5379"><div class="ttname"><a href="smartcard_8c.html#a1c9cc77e1dbe1b4a463ba0a1673a5379">write_to_smartcard</a></div><div class="ttdeci">void write_to_smartcard(uint16_t start_index_bit, uint16_t nb_bits, uint8_t *data_to_write)</div><div class="ttdoc">Write bits to the smart card. </div><div class="ttdef"><b>Definition:</b> smartcard.c:409</div></div>
-<div class="ttc" id="smartcard_8c_html_a61f17b7f1bc2542102ff5eabf9bf3f7c"><div class="ttname"><a href="smartcard_8c.html#a61f17b7f1bc2542102ff5eabf9bf3f7c">read_data_from_smartcard</a></div><div class="ttdeci">uint8_t * read_data_from_smartcard(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t *data_to_receive)</div><div class="ttdoc">Read bytes from the smart card. </div><div class="ttdef"><b>Definition:</b> smartcard.c:458</div></div>
-<div class="ttc" id="smartcard_8c_html_a40ab7c2931b7de2008c80575e341c966"><div class="ttname"><a href="smartcard_8c.html#a40ab7c2931b7de2008c80575e341c966">smartcard_detection_functions</a></div><div class="ttdeci">RET_TYPE smartcard_detection_functions(void)</div><div class="ttdoc">functions performed once the smart card is detected </div><div class="ttdef"><b>Definition:</b> smartcard.c:489</div></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#ifndef SMARTCARD_H_</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define SMARTCARD_H_</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;uint8_t* <a class="code" href="smartcard_8c.html#a1f145e74bb413746f2f1bf3d0a9afe8d">readSMC</a>(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive);</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#ab324702065e86b81a2e561b84f81bb0b">writeSMC</a>(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#ab9b06f5a1c24f2d38da1acf5328ba5ee">blowManufacturerNIssuerFuse</a>(uint8_t bool_man_nissuer);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#aab47186412fabe10831ff2c5e50ef7eb">eraseApplicationZone1NZone2SMC</a>(uint8_t zone1_nzone2);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;RET_TYPE <a class="code" href="smartcard_8c.html#a40d2db6f8dae6d93ab4adfb8b31ec6fc">securityValidationSMC</a>(uint16_t code);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;RET_TYPE <a class="code" href="smartcard_8c.html#a7a1602296f38ddd509d6c4f702c32a82">detectFunctionSMC</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;RET_TYPE <a class="code" href="smartcard_8c.html#a8f3674d61b124fab1355c64654a5e0e6">isCardPlugged</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#ac6da77c515a91ad7d9914159d138c6d0">removeFunctionSMC</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#a6e6262630051d3f40928ac1e3cb533da">scanSMCDectect</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keywordtype">void</span> <a class="code" href="smartcard_8c.html#a86d37cf01eedcc32280754a362def312">initPortSMC</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* SMARTCARD_H_ */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="smartcard_8c_html_a40d2db6f8dae6d93ab4adfb8b31ec6fc"><div class="ttname"><a href="smartcard_8c.html#a40d2db6f8dae6d93ab4adfb8b31ec6fc">securityValidationSMC</a></div><div class="ttdeci">RET_TYPE securityValidationSMC(uint16_t code)</div><div class="ttdoc">Check security code. </div><div class="ttdef"><b>Definition:</b> smartcard.c:296</div></div>
+<div class="ttc" id="smartcard_8c_html_ab9b06f5a1c24f2d38da1acf5328ba5ee"><div class="ttname"><a href="smartcard_8c.html#ab9b06f5a1c24f2d38da1acf5328ba5ee">blowManufacturerNIssuerFuse</a></div><div class="ttdeci">void blowManufacturerNIssuerFuse(uint8_t bool_man_nissuer)</div><div class="ttdoc">Blow the manufacturer or issuer fuse. </div><div class="ttdef"><b>Definition:</b> smartcard.c:161</div></div>
+<div class="ttc" id="smartcard_8c_html_a7a1602296f38ddd509d6c4f702c32a82"><div class="ttname"><a href="smartcard_8c.html#a7a1602296f38ddd509d6c4f702c32a82">detectFunctionSMC</a></div><div class="ttdeci">RET_TYPE detectFunctionSMC(void)</div><div class="ttdoc">functions performed once the smart card is detected </div><div class="ttdef"><b>Definition:</b> smartcard.c:483</div></div>
+<div class="ttc" id="smartcard_8c_html_ac6da77c515a91ad7d9914159d138c6d0"><div class="ttname"><a href="smartcard_8c.html#ac6da77c515a91ad7d9914159d138c6d0">removeFunctionSMC</a></div><div class="ttdeci">void removeFunctionSMC(void)</div><div class="ttdoc">functions performed once the smart card is removed </div><div class="ttdef"><b>Definition:</b> smartcard.c:536</div></div>
+<div class="ttc" id="smartcard_8c_html_a8f3674d61b124fab1355c64654a5e0e6"><div class="ttname"><a href="smartcard_8c.html#a8f3674d61b124fab1355c64654a5e0e6">isCardPlugged</a></div><div class="ttdeci">RET_TYPE isCardPlugged(void)</div><div class="ttdoc">Know if a card is plugged. </div><div class="ttdef"><b>Definition:</b> smartcard.c:194</div></div>
+<div class="ttc" id="smartcard_8c_html_a86d37cf01eedcc32280754a362def312"><div class="ttname"><a href="smartcard_8c.html#a86d37cf01eedcc32280754a362def312">initPortSMC</a></div><div class="ttdeci">void initPortSMC(void)</div><div class="ttdoc">Initialize smart card port. </div><div class="ttdef"><b>Definition:</b> smartcard.c:560</div></div>
+<div class="ttc" id="smartcard_8c_html_aab47186412fabe10831ff2c5e50ef7eb"><div class="ttname"><a href="smartcard_8c.html#aab47186412fabe10831ff2c5e50ef7eb">eraseApplicationZone1NZone2SMC</a></div><div class="ttdeci">void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)</div><div class="ttdoc">Set E1 or E2 flag by presenting the correct erase key (always FFFF...) and erase the AZ1 or AZ2...</div><div class="ttdef"><b>Definition:</b> smartcard.c:237</div></div>
+<div class="ttc" id="smartcard_8c_html_a6e6262630051d3f40928ac1e3cb533da"><div class="ttname"><a href="smartcard_8c.html#a6e6262630051d3f40928ac1e3cb533da">scanSMCDectect</a></div><div class="ttdeci">void scanSMCDectect(void)</div><div class="ttdoc">card detect debounce called by 1ms interrupt </div><div class="ttdef"><b>Definition:</b> smartcard.c:214</div></div>
+<div class="ttc" id="smartcard_8c_html_a1f145e74bb413746f2f1bf3d0a9afe8d"><div class="ttname"><a href="smartcard_8c.html#a1f145e74bb413746f2f1bf3d0a9afe8d">readSMC</a></div><div class="ttdeci">uint8_t * readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t *data_to_receive)</div><div class="ttdoc">Read bytes from the smart card. </div><div class="ttdef"><b>Definition:</b> smartcard.c:452</div></div>
+<div class="ttc" id="smartcard_8c_html_ab324702065e86b81a2e561b84f81bb0b"><div class="ttname"><a href="smartcard_8c.html#ab324702065e86b81a2e561b84f81bb0b">writeSMC</a></div><div class="ttdeci">void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t *data_to_write)</div><div class="ttdoc">Write bits to the smart card. </div><div class="ttdef"><b>Definition:</b> smartcard.c:403</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 21 2014 12:25:21 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Feb 2 2014 07:05:10 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

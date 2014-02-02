@@ -28,15 +28,15 @@
 #ifndef SMARTCARD_H_
 #define SMARTCARD_H_
 
-uint8_t* read_data_from_smartcard(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive);
-void write_to_smartcard(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write);
-void erase_application_zone1_nzone2(uint8_t zone1_nzone2);
+uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive);
+void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write);
+void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2);
 void blow_man_nissuer_fuse(uint8_t bool_man_nissuer);
-RET_TYPE security_code_validation(uint16_t code);
-RET_TYPE smartcard_detection_functions(void);
-void smartcard_removal_functions(void);
-void scan_smartcard_detect(void);
-void init_smartcard_port(void);
-RET_TYPE is_card_plugged(void);
+RET_TYPE securityValidationSMC(uint16_t code);
+RET_TYPE detectFunctionSMC(void);
+void removeFunctionSMC(void);
+void scanSMCDectect(void);
+void initPortSMC(void);
+RET_TYPE isCardPlugged(void);
 
 #endif /* SMARTCARD_H_ */

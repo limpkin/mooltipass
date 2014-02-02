@@ -39,7 +39,7 @@ void lcd_fill_ram(unsigned char data);
 void Set_Partial_Display_Off();
 void init_spi_and_lcd_ports();
 void Set_Write_RAM();
-void init_oled_screen(void);
+void initOLED(void);
 void oled_relieve_slave_select();
 void oled_write_data(uint8_t byte);
 void oled_write_command(uint8_t byte);

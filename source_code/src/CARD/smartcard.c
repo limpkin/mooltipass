@@ -126,10 +126,10 @@ void perform_low_level_write_nerase(uint8_t is_write)
 	#endif	
 }
 
-/*!	\fn		switch_to_spi_mode(void)
+/*!	\fn		setSPIModeSMC(void)
 *	\brief	Activate SPI controller
 */
-void switch_to_spi_mode(void)
+void setSPIModeSMC(void)
 {
 	#if SPI_SMARTCARD == SPI_NATIVE	
 		/* Enable SPI in master mode at 125kbits/s */
@@ -139,10 +139,10 @@ void switch_to_spi_mode(void)
 	#endif	
 }
 
-/*!	\fn		switch_to_bit_mode_and_clear_pgm_rst_signals(void)
+/*!	\fn		setBBModeAndPgmRstSMC(void)
 *	\brief	Switch to big banging, and clear pgm/rst signal for normal operation
 */
-void switch_to_bit_mode_and_clear_pgm_rst_signals(void)
+void setBBModeAndPgmRstSMC(void)
 {
 	#if SPI_SMARTCARD == SPI_NATIVE
 		/* Deactivate SPI port */
@@ -175,7 +175,7 @@ void blow_man_nissuer_fuse(uint8_t bool_man_nissuer)
 		i = 1560;
 		
 	/* Switch to bit banging */
-	switch_to_bit_mode_and_clear_pgm_rst_signals();
+	setBBModeAndPgmRstSMC();
 	
 	/* Get to the good index */
 	while(i--)clock_pulse();
@@ -190,14 +190,14 @@ void blow_man_nissuer_fuse(uint8_t bool_man_nissuer)
 	set_pgm_rst_signals();
 	
 	/* Switch to SPI mode */
-	switch_to_spi_mode();
+	setSPIModeSMC();
 }
 
-/*!	\fn		is_card_plugged(void)
+/*!	\fn		isCardPlugged(void)
 *	\brief	Know if a card is plugged
 *	\return	just released/pressed, (non)detected
 */
-RET_TYPE is_card_plugged(void)
+RET_TYPE isCardPlugged(void)
 {
 	volatile RET_TYPE return_val = button_return;
 	
@@ -214,10 +214,10 @@ RET_TYPE is_card_plugged(void)
 	return return_val;
 }
 
-/*!	\fn		scan_smartcard_detect(void)
+/*!	\fn		scanSMCDectect(void)
 *	\brief	card detect debounce called by 1ms interrupt
 */
-void scan_smartcard_detect(void)
+void scanSMCDectect(void)
 {
 	if(PIN_SC_DET & (1 << PORTID_SC_DET))
 	{
@@ -236,11 +236,11 @@ void scan_smartcard_detect(void)
 	}	
 }
 
-/*!	\fn		erase_application_zone1_nzone2(uint8_t zone1_nzone2)
+/*!	\fn		eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)
 *	\brief	Set E1 or E2 flag by presenting the correct erase key (always FFFF...) and erase the AZ1 or AZ2
 *	\param	zone1_nzone2	Zone 1 or Not Zone 2
 */
-void erase_application_zone1_nzone2(uint8_t zone1_nzone2)
+void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)
 {
 	uint16_t i;
 	
@@ -252,7 +252,7 @@ void erase_application_zone1_nzone2(uint8_t zone1_nzone2)
 	
 	#if SPI_SMARTCARD == SPI_NATIVE
 		/* Switch to bit banging */
-		switch_to_bit_mode_and_clear_pgm_rst_signals();
+		setBBModeAndPgmRstSMC();
 	
 		/* Get to the good EZx */
 		while(i--) inverted_clock_pulse();
@@ -288,18 +288,18 @@ void erase_application_zone1_nzone2(uint8_t zone1_nzone2)
 		set_pgm_rst_signals();
 		
 		/* Switch to SPI mode */
-		switch_to_spi_mode();
+		setSPIModeSMC();
 	#else
 		#error "SPI not supported"
 	#endif		
 }
 
-/*!	\fn		security_code_validation(uint16_t code)
+/*!	\fn		securityValidationSMC(uint16_t code)
 *	\brief	Check security code
 *	\param	code	The code
 *	\return	success_status (see enum)
 */
-RET_TYPE security_code_validation(uint16_t code)
+RET_TYPE securityValidationSMC(uint16_t code)
 {
 	RET_TYPE return_val = RETURN_PIN_NOK_0;
 	uint8_t temp_bool;
@@ -307,7 +307,7 @@ RET_TYPE security_code_validation(uint16_t code)
 	
 	#if SPI_SMARTCARD == SPI_NATIVE
 		/* Switch to bit banging */
-		switch_to_bit_mode_and_clear_pgm_rst_signals();
+		setBBModeAndPgmRstSMC();
 	
 		/* Get to the SC */
 		for(i = 0; i < 80; i++)
@@ -392,7 +392,7 @@ RET_TYPE security_code_validation(uint16_t code)
 		set_pgm_rst_signals();
 		
 		/* Switch to SPI mode */
-		switch_to_spi_mode();
+		setSPIModeSMC();
 	#else
 		#error "SPI not supported"
 	#endif
@@ -400,13 +400,13 @@ RET_TYPE security_code_validation(uint16_t code)
 	return return_val;
 }
 
-/*!	\fn		write_to_smartcard(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write)
+/*!	\fn		writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write)
 *	\brief	Write bits to the smart card
 *	\param	start_index_bit			Where to start writing bits
 *	\param	nb_bits					Number of bits to write
 *	\param	data_to_write			Pointer to the buffer
 */
-void write_to_smartcard(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write)
+void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write)
 {
 	uint16_t current_written_bit = 0;
 	uint8_t masked_bit_to_write = 0;
@@ -414,7 +414,7 @@ void write_to_smartcard(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* dat
 	
 	#if SPI_SMARTCARD == SPI_NATIVE	
 		/* Switch to bit banging */
-		switch_to_bit_mode_and_clear_pgm_rst_signals();
+		setBBModeAndPgmRstSMC();
 		
 		/* Get to the good index, clock pulses */
 		for(i = 0; i < start_index_bit; i++)
@@ -442,20 +442,20 @@ void write_to_smartcard(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* dat
 		set_pgm_rst_signals();
 		
 		/* Switch to SPI mode */
-		switch_to_spi_mode();
+		setSPIModeSMC();
 	#else
 		#error "SPI not supported"
 	#endif	
 }
 
-/*!	\fn		read_data_from_smartcard(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_send_receive)
+/*!	\fn		readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_send_receive)
 *	\brief	Read bytes from the smart card
 *	\param	nb_bytes_total_read		The number of bytes to be read
 *	\param	start_record_index		The index at which we start recording the answer
 *	\param	data_to_receive	Pointer to the buffer
 *	\return	The buffer
 */
-uint8_t* read_data_from_smartcard(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive)
+uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive)
 {
 	uint8_t* return_val = data_to_receive;
 	uint8_t i;
@@ -482,11 +482,11 @@ uint8_t* read_data_from_smartcard(uint8_t nb_bytes_total_read, uint8_t start_rec
 	return return_val;
 }
 
-/*!	\fn		smartcard_detection_functions(void)
+/*!	\fn		detectFunctionSMC(void)
 *	\brief	functions performed once the smart card is detected
 *	\return	The detection result (see enum)
 */
-RET_TYPE smartcard_detection_functions(void)
+RET_TYPE detectFunctionSMC(void)
 {
 	uint8_t data_buffer[2];
 	uint16_t temp_uint;
@@ -504,7 +504,7 @@ RET_TYPE smartcard_detection_functions(void)
 	#if SPI_SMARTCARD == SPI_NATIVE
 		PORTB &= ~((1 << 1) | (1 << 2));
 		DDRB |= (1 << 1) | (1 << 2);
-		switch_to_spi_mode();
+		setSPIModeSMC();
 	#else
 		#error "SPI not supported"
 	#endif
@@ -513,14 +513,14 @@ RET_TYPE smartcard_detection_functions(void)
 	_delay_ms(10);
 	
 	/* Check smart card FZ */
-	read_fabrication_zone(data_buffer);
+	readFabricationZone(data_buffer);
 	if((swap16(*(uint16_t*)data_buffer)) != SMARTCARD_FABRICATION_ZONE)
 		return RETURN_CARD_NDET;
 	
 	/* Perform test write on MTZ... should we use our own rand()? */
 	temp_uint = (uint16_t)rand();
 	write_memory_test_zone((uint8_t*)&temp_uint);
-	if(*(uint16_t*)read_memory_test_zone(data_buffer) != temp_uint)	
+	if(*(uint16_t*)readMemoryTestZone(data_buffer) != temp_uint)	
 		return RETURN_CARD_TEST_PB;
 		
 	/* Read security code attempts counter */
@@ -536,10 +536,10 @@ RET_TYPE smartcard_detection_functions(void)
 	return RETURN_CARD_0_TRIES_LEFT;
 }
 
-/*!	\fn		smartcard_removal_functions(void)
+/*!	\fn		removeFunctionSMC(void)
 *	\brief	functions performed once the smart card is removed
 */
-void smartcard_removal_functions(void)
+void removeFunctionSMC(void)
 {
 	/* Deactivate power to the smart card */
 	PORT_SC_POW |= (1 << PORTID_SC_POW);
@@ -560,10 +560,10 @@ void smartcard_removal_functions(void)
 	#endif
 }
 
-/*!	\fn		init_smartcard_port(void)
+/*!	\fn		initPortSMC(void)
 *	\brief	Initialize smart card port
 */
-void init_smartcard_port(void)
+void initPortSMC(void)
 {
 	/* Setup card detection input with pull-up */
 	DDR_SC_DET &= ~(1 << PORTID_SC_DET);
@@ -583,5 +583,5 @@ void init_smartcard_port(void)
 	#endif	
 	
 	/* Set all output pins as tri-state */
-	smartcard_removal_functions();
+	removeFunctionSMC();
 }

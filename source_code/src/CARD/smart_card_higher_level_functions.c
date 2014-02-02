@@ -75,7 +75,7 @@ RET_TYPE perform_card_mooltipass_transformation(void)
 void perform_card_reinit(void)
 {
 	uint8_t data_buffer[2] = {0xFF, 0xFF};
-	write_to_smartcard(1441, 1, data_buffer);
+	writeSMC(1441, 1, data_buffer);
 	*(uint16_t*)data_buffer = swap16(SMARTCARD_FACTORY_PIN);
 	write_security_code(data_buffer);
 }
@@ -87,7 +87,7 @@ void perform_card_reinit(void)
 */
 uint8_t* read_fabrication_zone(uint8_t* buffer)
 {
-	read_data_from_smartcard(2, 0, buffer);
+	readSMC(2, 0, buffer);
 	return buffer;
 }
 
@@ -98,7 +98,7 @@ uint8_t* read_fabrication_zone(uint8_t* buffer)
 */
 uint8_t* read_issuer_zone(uint8_t* buffer)
 {
-	read_data_from_smartcard(10, 2, buffer);
+	readSMC(10, 2, buffer);
 	return buffer;
 }
 
@@ -108,7 +108,7 @@ uint8_t* read_issuer_zone(uint8_t* buffer)
 */
 void write_issuer_zone(uint8_t* buffer)
 {
-	write_to_smartcard(16, 64, buffer);
+	writeSMC(16, 64, buffer);
 }
 
 /*!	\fn		read_security_code(uint8_t* buffer)
@@ -118,7 +118,7 @@ void write_issuer_zone(uint8_t* buffer)
 */
 uint8_t* read_security_code(uint8_t* buffer)
 {
-	read_data_from_smartcard(12, 10, buffer);
+	readSMC(12, 10, buffer);
 	return buffer;
 }
 
@@ -128,7 +128,7 @@ uint8_t* read_security_code(uint8_t* buffer)
 */
 void write_security_code(uint8_t* buffer)
 {
-	write_to_smartcard(80, 16, buffer);
+	writeSMC(80, 16, buffer);
 }
 
 /*!	\fn		read_security_code_attemps_counter(uint8_t* buffer)
@@ -138,7 +138,7 @@ void write_security_code(uint8_t* buffer)
 */
 uint8_t* read_security_code_attemps_counter(uint8_t* buffer)
 {
-	read_data_from_smartcard(14, 12, buffer);
+	readSMC(14, 12, buffer);
 	return buffer;
 }
 
@@ -149,7 +149,7 @@ uint8_t* read_security_code_attemps_counter(uint8_t* buffer)
 */
 uint8_t* read_code_protected_zone(uint8_t* buffer)
 {
-	read_data_from_smartcard(22, 14, buffer);
+	readSMC(22, 14, buffer);
 	return buffer;
 }
 
@@ -159,7 +159,7 @@ uint8_t* read_code_protected_zone(uint8_t* buffer)
 */
 void write_code_protected_zone(uint8_t* buffer)
 {
-	write_to_smartcard(112, 64, buffer);
+	writeSMC(112, 64, buffer);
 }
 
 /*!	\fn		read_application_zone1_erase_key(uint8_t* buffer)
@@ -169,7 +169,7 @@ void write_code_protected_zone(uint8_t* buffer)
 */
 uint8_t* read_application_zone1_erase_key(uint8_t* buffer)
 {
-	read_data_from_smartcard(92, 86, buffer);
+	readSMC(92, 86, buffer);
 	return buffer;
 }
 
@@ -179,7 +179,7 @@ uint8_t* read_application_zone1_erase_key(uint8_t* buffer)
 */
 void write_application_zone1_erase_key(uint8_t* buffer)
 {
-	write_to_smartcard(688, 48, buffer);
+	writeSMC(688, 48, buffer);
 }
 
 /*!	\fn		read_application_zone2_erase_key(uint8_t* buffer)
@@ -189,7 +189,7 @@ void write_application_zone1_erase_key(uint8_t* buffer)
 */
 uint8_t* read_application_zone2_erase_key(uint8_t* buffer)
 {
-	read_data_from_smartcard(160, 156, buffer);
+	readSMC(160, 156, buffer);
 	return buffer;
 }
 
@@ -199,7 +199,7 @@ uint8_t* read_application_zone2_erase_key(uint8_t* buffer)
 */
 void write_application_zone2_erase_key(uint8_t* buffer)
 {
-	write_to_smartcard(1248, 32, buffer);
+	writeSMC(1248, 32, buffer);
 }
 
 /*!	\fn		read_memory_test_zone(uint8_t* buffer)
@@ -209,7 +209,7 @@ void write_application_zone2_erase_key(uint8_t* buffer)
 */
 uint8_t* read_memory_test_zone(uint8_t* buffer)
 {
-	read_data_from_smartcard(178, 176, buffer);
+	readSMC(178, 176, buffer);
 	return buffer;
 }
 
@@ -219,7 +219,7 @@ uint8_t* read_memory_test_zone(uint8_t* buffer)
 */
 void write_memory_test_zone(uint8_t* buffer)
 {
-	write_to_smartcard(1408, 16, buffer);
+	writeSMC(1408, 16, buffer);
 }
 
 /*!	\fn		read_manufacturers_zone(uint8_t* buffer)
@@ -229,7 +229,7 @@ void write_memory_test_zone(uint8_t* buffer)
 */
 uint8_t* read_manufacturers_zone(uint8_t* buffer)
 {
-	read_data_from_smartcard(180, 178, buffer);
+	readSMC(180, 178, buffer);
 	return buffer;
 }
 
@@ -239,7 +239,7 @@ uint8_t* read_manufacturers_zone(uint8_t* buffer)
 */
 void write_manufacturers_zone(uint8_t* buffer)
 {
-	write_to_smartcard(1424, 16, buffer);
+	writeSMC(1424, 16, buffer);
 }
 
 /*!	\fn		write_manufacturers_fuse(void)
@@ -265,7 +265,7 @@ void set_application_zone1_authenticated_read_and_write_access(void)
 {
 	// Set P1 to 1 to allow write, remove R1 to prevent non authenticated reads
 	uint8_t temp_buffer[2] = {0x80, 0x00};
-	write_to_smartcard(176, 16, temp_buffer);
+	writeSMC(176, 16, temp_buffer);
 }
 
 /*!	\fn		set_application_zone2_authenticated_read_and_write_access(void)
@@ -275,7 +275,7 @@ void set_application_zone2_authenticated_read_and_write_access(void)
 {
 	// Set P2 to 1 to allow write, remove R2 to prevent non authenticated reads
 	uint8_t temp_buffer[2] = {0x80, 0x00};
-	write_to_smartcard(736, 16, temp_buffer);
+	writeSMC(736, 16, temp_buffer);
 }
 
 /*!	\fn		print_smartcard_debug_info(void)
@@ -358,10 +358,10 @@ void print_smartcard_debug_info(void)
 	Show_String(temp_string, FALSE, 29, 40);
 	
 	/* Show first 2 bytes of AZ1 and AZ2 */
-	hexaint_to_string(swap16(*(uint16_t*)read_data_from_smartcard(24,22,data_buffer)), temp_string);
+	hexaint_to_string(swap16(*(uint16_t*)readSMC(24,22,data_buffer)), temp_string);
 	Show_String("AZ1:", FALSE, 2, 56);
 	Show_String(temp_string, FALSE, 11, 56);
-	hexaint_to_string(swap16(*(uint16_t*)read_data_from_smartcard(94,92,data_buffer)), temp_string);
+	hexaint_to_string(swap16(*(uint16_t*)readSMC(94,92,data_buffer)), temp_string);
 	Show_String("AZ2:", FALSE, 20, 56);
 	Show_String(temp_string, FALSE, 29, 56);
 }

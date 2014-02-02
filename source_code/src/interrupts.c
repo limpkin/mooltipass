@@ -32,13 +32,13 @@
 */
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
-	scan_smartcard_detect();										// Scan smart card detect
+	scanSMCDectect();										// Scan smart card detect
 }
 
 /*!	\fn 	init_interrupts(void)
 *	\brief	Initialize the interrupts
 */
-void init_interrupts(void)
+void initIRQ(void)
 {
 	/* Our 1ms interrupt to scan buttons */
 	OCR1AH = 0x07;													// 1 msec interrupt (2000 - 1): 16M/8/2000 = 1kHz

@@ -37,7 +37,7 @@
 *	\param	nb_bytes		The number of bytes
 *	\param	data_to_send_receive	Pointer to the buffer
 */
-void send_data_to_flash(uint8_t nb_bytes_opcode, uint8_t* opcode, uint16_t nb_bytes, uint8_t* data_to_send_receive)
+void sendDataToFlash(uint8_t nb_bytes_opcode, uint8_t* opcode, uint16_t nb_bytes, uint8_t* data_to_send_receive)
 {	
 	/* Read UDR1 contents to clear previous flags */
 	while(UCSR1A & (1<<RXC1))UDR1;
@@ -79,7 +79,7 @@ void send_data_to_flash(uint8_t nb_bytes_opcode, uint8_t* opcode, uint16_t nb_by
 *	\param	block_id		The block ID in the page
 *	\param	buffer			Pointer to the buffer
 */
-void read_credential_block_within_flash_page(uint16_t page_number, uint8_t block_id, uint8_t* buffer)
+void readCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)
 {
 	uint16_t byte_addr;
 	uint8_t opcode[4];
@@ -93,13 +93,13 @@ void read_credential_block_within_flash_page(uint16_t page_number, uint8_t block
 	opcode[2] = ((uint8_t)(page_number<<1)&0x0E) | ((uint8_t)(byte_addr>>8)&0x01);
 	opcode[3] = (uint8_t)byte_addr;
 	
-	send_data_to_flash(4, opcode, CREDENTIAL_BLOCK_SIZE, buffer);
+	sendDataToFlash(4, opcode, CREDENTIAL_BLOCK_SIZE, buffer);
 }
 
 /*!	\fn		wait_for_flash_memory_read_routine(void)
 *	\brief	Wait for the flash to be ready
 */
-void wait_for_flash_memory_read_routine(void)
+void waitForFlash(void)
 {
 	uint8_t opcode[2];
 	uint8_t temp_bool;
@@ -108,7 +108,7 @@ void wait_for_flash_memory_read_routine(void)
 	temp_bool = TRUE;
 	while(temp_bool == TRUE)
 	{
-		send_data_to_flash(1, opcode, 1, opcode+1);
+		sendDataToFlash(1, opcode, 1, opcode+1);
 		if(opcode[1]&READY_FLASH_BITMASK)
 			temp_bool = FALSE;
 	}
@@ -120,7 +120,7 @@ void wait_for_flash_memory_read_routine(void)
 *	\param	block_id		The block ID in the page
 *	\param	buffer			Pointer to the buffer
 */
-void write_credential_block_within_flash_page(uint16_t page_number, uint8_t block_id, uint8_t* buffer)
+void writeCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)
 {
 	uint16_t byte_addr;
 	uint8_t opcode[4];
@@ -134,32 +134,32 @@ void write_credential_block_within_flash_page(uint16_t page_number, uint8_t bloc
 	opcode[1] = (uint8_t)((page_number>>7)&0x03);
 	opcode[2] = ((uint8_t)(page_number<<1)&0x0E);
 	opcode[3] = 0;	
-	send_data_to_flash(4, opcode, 0, opcode);
+	sendDataToFlash(4, opcode, 0, opcode);
 	
 	/* Wait until memory is ready */
-	wait_for_flash_memory_read_routine();
+	waitForFlash();
 	
 	/* Start writing on the buffer and write the page (special opcode, just one command!) */
 	opcode[0] = OPCODE_MMP_PROG_TBUFFER;
 	opcode[1] = (uint8_t)((page_number>>7)&0x03);
 	opcode[2] = ((uint8_t)(page_number<<1)&0x0E) | ((uint8_t)(byte_addr>>8)&0x01);
 	opcode[3] = (uint8_t)byte_addr;
-	send_data_to_flash(4, opcode, CREDENTIAL_BLOCK_SIZE, buffer);
+	sendDataToFlash(4, opcode, CREDENTIAL_BLOCK_SIZE, buffer);
 	
 	/* Wait until memory is ready */
-	wait_for_flash_memory_read_routine();
+	waitForFlash();
 }
 
 /*!	\fn		check_flash_memory_id(void)
 *	\brief	Check the presence of the flash
 *	\return	Success status
 */
-RET_TYPE check_flash_memory_id(void)
+RET_TYPE getFlashID(void)
 {
 	uint8_t data_buffer[5] = {OPCODE_MAN_DEV_ID_READ, 0x00, 0x00, 0x00, 0x00};
 	
 	/* Read flash identification */
-	send_data_to_flash(1, data_buffer, 4, data_buffer+1);
+	sendDataToFlash(1, data_buffer, 4, data_buffer+1);
 	
 	/* Check ID */
 	if((data_buffer[1] != FLASH_MANUF_ID))
@@ -172,7 +172,7 @@ RET_TYPE check_flash_memory_id(void)
 *	\brief	Initialize the flash memory
 *	\return	Success statusDD
 */
-RET_TYPE init_flash_memory(void)
+RET_TYPE initFlash(void)
 {	
 	/* Setup chip select signal */
 	DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
@@ -195,7 +195,7 @@ RET_TYPE init_flash_memory(void)
 	#endif
 	
 	/*  Check flash identification */
-	if(check_flash_memory_id() != RETURN_OK)
+	if(getFlashID() != RETURN_OK)
 		return RETURN_NOK;
 	else
 		return RETURN_OK;

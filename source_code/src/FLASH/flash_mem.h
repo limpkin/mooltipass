@@ -28,10 +28,10 @@
 #ifndef FLASH_MEM_H_
 #define FLASH_MEM_H_
 
-void send_data_to_flash(uint8_t nb_bytes_opcode, uint8_t* opcode, uint16_t nb_bytes, uint8_t* data_to_send_receive);
-void write_credential_block_within_flash_page(uint16_t page_number, uint8_t block_id, uint8_t* buffer);
-void read_credential_block_within_flash_page(uint16_t page_number, uint8_t block_id, uint8_t* buffer);
-RET_TYPE check_flash_memory_id(void);
-RET_TYPE init_flash_memory(void);
+void sendDataToFlash(uint8_t nb_bytes_opcode, uint8_t* opcode, uint16_t nb_bytes, uint8_t* data_to_send_receive);
+void writeCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer);
+void readCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer);
+RET_TYPE getFlashID(void);
+RET_TYPE initFlash(void);
 
 #endif /* FLASH_MEM_H_ */

@@ -1,4 +1,4 @@
- /* CDDL HEADER START
+/* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,11 +17,8 @@
  *
  * CDDL HEADER END
  */
-/*
- * interrupts.c
- *
- * Created: 11/01/2014 11:54:26
- *  Author: Mathieu Stephan
+ /*!	\file 	interrupts.c
+ *		\brief	Interrupts
  */
 #include <avr/interrupt.h>
 #include "mooltipass.h"
@@ -32,7 +29,7 @@
 */
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
-	scanSMCDectect();										// Scan smart card detect
+	scanSMCDectect();												// Scan smart card detect
 }
 
 /*!	\fn 	initIRQ(void)

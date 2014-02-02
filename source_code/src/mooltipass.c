@@ -24,6 +24,7 @@
 */
 #include "mooltipass.h"
 #include <util/delay.h>
+#include <stdlib.h>
 #include <avr/io.h>
 #include <stdio.h>
 
@@ -39,6 +40,11 @@ void disable_jtag(void)
 	temp |= (1<<JTD);
 	MCUCR = temp;
 	MCUCR = temp;
+}
+
+uint16_t mooltipass_rand(void)
+{
+	return (uint16_t)rand();
 }
 
 /*!	\fn 	main(void)
@@ -119,7 +125,7 @@ int main(void)
 			else														// Card is good! do stuff!
 			{
 				// Detect if the card is blank by checking that the manufacturer zone is different from FFFF
-				if(swap16(*(uint16_t*)read_manufacturers_zone(temp_buffer)) == 0xFFFF)
+				if(swap16(*(uint16_t*)readManufacturerZone(temp_buffer)) == 0xFFFF)
 				{
 					// Card is new - transform into mooltipass
 					Show_String("Blank card, transforming...", FALSE, 2, 8);
@@ -132,11 +138,11 @@ int main(void)
 							Show_String("Card transformed!", FALSE, 2, 16);
 						else
 							Show_String("Couldn't transform card!", FALSE, 2, 16);
-						_delay_ms(2000); print_smartcard_debug_info();				// Show debug info 
+						_delay_ms(2000); printSMCDebugInfoToScreen();				// Show debug info 
 					}
 					else															// Card unlock failed. Show number of tries left
 					{
-						int_to_string(get_number_of_security_code_tries_left(), temp_string);
+						int_to_string(getNumberOfSecurityCodeTriesLeft(), temp_string);
 						Show_String(temp_string, FALSE, 2, 16);
 						Show_String("tries left, wrong pin", FALSE, 6, 16);
 					}
@@ -154,7 +160,7 @@ int main(void)
 						{
 							Show_String("Transforming...", FALSE, 2, 16);
 							transformBlankCardIntoMooltipass();
-							_delay_ms(4000);print_smartcard_debug_info();
+							_delay_ms(4000);printSMCDebugInfoToScreen();
 						}
 						else																// Everything is in order - proceed
 						{
@@ -165,19 +171,19 @@ int main(void)
 							writeSMC(736, 16, temp_buffer);
 							eraseApplicationZone1NZone2SMC(TRUE);
 							writeSMC(176, 16, temp_buffer);
-							_delay_ms(2000);print_smartcard_debug_info();							
+							_delay_ms(2000);printSMCDebugInfoToScreen();							
 						}						
 					}
 					else //Unlock failed
 					{
-						int_to_string(get_number_of_security_code_tries_left(), temp_string);
+						int_to_string(getNumberOfSecurityCodeTriesLeft(), temp_string);
 						Show_String(temp_string, FALSE, 2, 16);
 						Show_String("tries left, wrong pin", FALSE, 6, 16);
-						_delay_ms(2000);print_smartcard_debug_info();
+						_delay_ms(2000);printSMCDebugInfoToScreen();
 					}
 				}
 			}
-			//print_smartcard_debug_info();
+			//printSMCDebugInfoToScreen();
 			/*read_credential_block_within_flash_page(2,1,temp_buffer);
 			for(i = 0; i < 10; i++)
 			{

@@ -18,13 +18,13 @@
  * CDDL HEADER END
  */
 /*!	\file 	smart_card_higher_level_functions.c
-*	\brief	Smart Card high level functions
-*/
+ *	\brief	Smart Card high level functions
+ */
 #include "../mooltipass.h"
 
 
 /*!	\fn		transformBlankCardIntoMooltipass(void)
-*	\brief	Transform the card into a mooltipass card (Security mode 1 - Authenticated!)
+*	\brief	Transform the card into a Mooltipass card (Security mode 1 - Authenticated!)
 *	\return	If we succeeded
 */
 RET_TYPE transformBlankCardIntoMooltipass(void)
@@ -48,14 +48,14 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 	
 	/* Write 2014 to the manufacturer zone */
 	*(uint16_t*)temp_buffer = swap16(2014);
-	write_manufacturers_zone(temp_buffer);
+	writeManufacturerZone(temp_buffer);
 	
 	/* Set application zone 1 and zone 2 permissions: read/write when authenticated only */
-	set_application_zone1_authenticated_read_and_write_access();
-	set_application_zone2_authenticated_read_and_write_access();
+	setAuthenticatedReadWriteAccessToZone1();
+	setAuthenticatedReadWriteAccessToZone2();
 	
 	/* Burn manufacturer fuse */
-	write_manufacturers_fuse();
+	writeManufacturerFuse();
 	
 	/* Burn issuer fuse*/
 	write_issuers_fuse();
@@ -207,41 +207,41 @@ uint8_t* readMemoryTestZone(uint8_t* buffer)
 	return buffer;
 }
 
-/*!	\fn		write_memory_test_zone(uint8_t* buffer)
+/*!	\fn		writeMemoryTestZone(uint8_t* buffer)
 *	\brief	Write in the Test zone (security mode 1&2)
 *	\param	buffer	Pointer to a buffer (2 bytes required)
 */
-void write_memory_test_zone(uint8_t* buffer)
+void writeMemoryTestZone(uint8_t* buffer)
 {
 	writeSMC(1408, 16, buffer);
 }
 
-/*!	\fn		read_manufacturers_zone(uint8_t* buffer)
+/*!	\fn		readManufacturerZone(uint8_t* buffer)
 *	\brief	Read the manufacturer zone (security mode 1&2)
 *	\param	buffer	Pointer to a buffer (2 bytes required)
 *	\return	The provided pointer
 */
-uint8_t* read_manufacturers_zone(uint8_t* buffer)
+uint8_t* readManufacturerZone(uint8_t* buffer)
 {
 	readSMC(180, 178, buffer);
 	return buffer;
 }
 
-/*!	\fn		write_manufacturers_zone(uint8_t* buffer)
+/*!	\fn		writeManufacturerZone(uint8_t* buffer)
 *	\brief	Write in the manufacturer zone (security mode 1 - Authenticated!)
 *	\param	buffer	Pointer to a buffer (2 bytes required)
 */
-void write_manufacturers_zone(uint8_t* buffer)
+void writeManufacturerZone(uint8_t* buffer)
 {
 	writeSMC(1424, 16, buffer);
 }
 
-/*!	\fn		write_manufacturers_fuse(void)
+/*!	\fn		writeManufacturerFuse(void)
 *	\brief	Write manufacturer fuse, controlling access to the MFZ
 */
-void write_manufacturers_fuse(void)
+void writeManufacturerFuse(void)
 {
-	blow_man_nissuer_fuse(TRUE);
+	blowManufacturerNIssuerFuse(TRUE);
 }
 
 /*!	\fn		write_issuers_fuse(void)
@@ -249,33 +249,33 @@ void write_manufacturers_fuse(void)
 */
 void write_issuers_fuse(void)
 {
-	blow_man_nissuer_fuse(FALSE);
+	blowManufacturerNIssuerFuse(FALSE);
 }
 
-/*!	\fn		set_application_zone1_authenticated_read_and_write_access(void)
+/*!	\fn		setAuthenticatedReadWriteAccessToZone1(void)
 *	\brief	Function called to only allow reads and writes to the application zone 1 when authenticated
 */
-void set_application_zone1_authenticated_read_and_write_access(void)
+void setAuthenticatedReadWriteAccessToZone1(void)
 {
 	// Set P1 to 1 to allow write, remove R1 to prevent non authenticated reads
 	uint8_t temp_buffer[2] = {0x80, 0x00};
 	writeSMC(176, 16, temp_buffer);
 }
 
-/*!	\fn		set_application_zone2_authenticated_read_and_write_access(void)
+/*!	\fn		setAuthenticatedReadWriteAccessToZone2(void)
 *	\brief	Function called to only allow reads and writes to the application zone 2 when authenticated
 */
-void set_application_zone2_authenticated_read_and_write_access(void)
+void setAuthenticatedReadWriteAccessToZone2(void)
 {
 	// Set P2 to 1 to allow write, remove R2 to prevent non authenticated reads
 	uint8_t temp_buffer[2] = {0x80, 0x00};
 	writeSMC(736, 16, temp_buffer);
 }
 
-/*!	\fn		print_smartcard_debug_info(void)
+/*!	\fn		printSMCDebugInfoToScreen(void)
 *	\brief	Print the card info
 */
-void print_smartcard_debug_info(void)
+void printSMCDebugInfoToScreen(void)
 {
 	uint8_t data_buffer[20];
 	char temp_string[10];
@@ -347,7 +347,7 @@ void print_smartcard_debug_info(void)
 	Show_String(temp_string, FALSE, 11, 40);
 	
 	/* Read MFZ */
-	hexaint_to_string(swap16(*(uint16_t*)read_manufacturers_zone(data_buffer)), temp_string);
+	hexaint_to_string(swap16(*(uint16_t*)readManufacturerZone(data_buffer)), temp_string);
 	Show_String("MFZ:", FALSE, 20, 40);
 	Show_String(temp_string, FALSE, 29, 40);
 	
@@ -360,11 +360,11 @@ void print_smartcard_debug_info(void)
 	Show_String(temp_string, FALSE, 29, 56);
 }
 
-/*!	\fn		get_number_of_security_code_tries_left(void)
+/*!	\fn		getNumberOfSecurityCodeTriesLeft(void)
 *	\brief	Get the number of security code tries left
 *	\return	Number of tries left
 */
-uint8_t get_number_of_security_code_tries_left(void)
+uint8_t getNumberOfSecurityCodeTriesLeft(void)
 {
 	uint8_t temp_buffer[2];
 	uint8_t return_val = 0;

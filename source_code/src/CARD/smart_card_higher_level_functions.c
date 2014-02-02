@@ -1,4 +1,4 @@
- /* CDDL HEADER START
+/* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -19,6 +19,7 @@
  */
 /*!	\file 	smart_card_higher_level_functions.c
  *	\brief	Smart Card high level functions
+ *	Copyright [2014] [Mathieu Stephan]
  */
 #include "../mooltipass.h"
 

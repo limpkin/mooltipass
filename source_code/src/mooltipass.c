@@ -42,6 +42,7 @@ void disable_jtag(void)
 	MCUCR = temp;
 }
 
+// Perhaps move this function in another file later?
 uint16_t mooltipass_rand(void)
 {
 	return (uint16_t)rand();
@@ -147,13 +148,13 @@ int main(void)
 						Show_String("tries left, wrong pin", FALSE, 6, 16);
 					}
 				}
-				else																// Card is already converted into a mooltipass
+				else																	// Card is already converted into a mooltipass
 				{
 					Show_String("Mooltipass card detected", FALSE, 2, 8);
 
-					temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);	// Try to unlock 
+					temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);		// Try to unlock 
 
-					if(temp_rettype == RETURN_PIN_OK)								// Unlock successful 
+					if(temp_rettype == RETURN_PIN_OK)									// Unlock successful 
 					{
 						// Check that the card is in security mode 2 by reading the SC
 						if(swap16(*(uint16_t*)readSecurityCode(temp_buffer)) != 0xFFFF)	// Card is in mode 1 - transform again
@@ -162,7 +163,7 @@ int main(void)
 							transformBlankCardIntoMooltipass();
 							_delay_ms(4000);printSMCDebugInfoToScreen();
 						}
-						else																// Everything is in order - proceed
+						else															// Everything is in order - proceed
 						{
 							Show_String("PIN code checked !", FALSE, 2, 16);
 							temp_buffer[0] = 0x80;
@@ -174,7 +175,7 @@ int main(void)
 							_delay_ms(2000);printSMCDebugInfoToScreen();							
 						}						
 					}
-					else //Unlock failed
+					else																// Unlock failed
 					{
 						int_to_string(getNumberOfSecurityCodeTriesLeft(), temp_string);
 						Show_String(temp_string, FALSE, 2, 16);

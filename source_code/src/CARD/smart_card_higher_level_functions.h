@@ -1,4 +1,4 @@
- /* CDDL HEADER START
+/* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,12 +17,6 @@
  *
  * CDDL HEADER END
  */
-/*
- * smart_card_higher_level_functions.h
- *
- * Created: 13/01/2014 23:07:01
- *  Author: Mathieu Stephan
- */ 
 
 
 #ifndef SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_

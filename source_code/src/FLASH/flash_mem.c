@@ -1,4 +1,4 @@
- /* CDDL HEADER START
+/* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,14 +17,9 @@
  *
  * CDDL HEADER END
  */
-/*
- * flash_mem.c
- *
- * Created: 08/12/2013 14:16:53
- *  Author: Mathieu Stephan
- */
 /*!	\file 	flash_mem.c
 *	\brief	Flash memory low level functions
+*	Copyright [2014] [Mathieu Stephan]
 */
 #include "../mooltipass.h"
 #include <avr/io.h>

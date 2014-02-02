@@ -13,7 +13,7 @@
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
     <AssemblyName>avr_project</AssemblyName>
-    <Name>avr_project</Name>
+    <Name>Mooltipass</Name>
     <RootNamespace>avr_project</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
@@ -136,7 +136,7 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="src\avr_project.c">
+    <Compile Include="src\mooltipass.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\CARD\smartcard.c">

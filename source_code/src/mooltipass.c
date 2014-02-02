@@ -23,7 +23,7 @@
  * Created: 08/12/2013 13:54:34
  *  Author: Mathieu Stephan
  */
-/*!	\file 	avr_project.c
+/*!	\file 	mooltipass.c
 *	\brief	Main file
 */
 #include "mooltipass.h"

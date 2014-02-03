@@ -103,39 +103,19 @@ int main(void)
 		card_detect_ret = isCardPlugged();
 		if(card_detect_ret == RETURN_JDETECT)							// Card just detected
 		{
-			temp_rettype = cardDetectedRoutine();
-			
-			if(temp_rettype == RETURN_MOOLTIPASS_INVALID)				// Invalid card
+			switch(cardDetectedRoutine())
 			{
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			} 
-			else if(temp_rettype == RETURN_MOOLTIPASS_PB)				// Problem with card
-			{
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			}
-			else if(temp_rettype == RETURN_MOOLTIPASS_BLOCKED)			// Card blocked
-			{
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			}
-			else if(temp_rettype == RETURN_MOOLTIPASS_BLANK)			// Blank mooltipass card
-			{
-				// Here we should ask the user to setup his mooltipass card
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			}
-			else if(temp_rettype == RETURN_MOOLTIPASS_USER)				// Configured mooltipass card
-			{
-				// Here we should ask the user for his pin and call mooltipassdetect
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
+				case RETURN_MOOLTIPASS_INVALID:							//Invalid card
+				case RETURN_MOOLTIPASS_PB:								//Problem with card
+				case RETURN_MOOLTIPASS_BLOCKED:							//Card blocked
+				case RETURN_MOOLTIPASS_BLANK:							//Blank mooltipass card
+				case RETURN_MOOLTIPASS_USER:							//Configured mooltipass card - Here we ask the user for his pin and call mooltipassdetect
+					_delay_ms(3000);
+					printSMCDebugInfoToScreen();
+					removeFunctionSMC();									// Shut down card reader
+					break;
+				default:
+				break;	
 			}
 			/*read_credential_block_within_flash_page(2,1,temp_buffer);
 			for(i = 0; i < 10; i++)

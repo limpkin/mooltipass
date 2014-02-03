@@ -476,11 +476,11 @@ uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_
 	return return_val;
 }
 
-/*!	\fn		detectFunctionSMC(void)
+/*!	\fn		firstDetectFunctionSMC(void)
 *	\brief	functions performed once the smart card is detected
 *	\return	The detection result (see enum)
 */
-RET_TYPE detectFunctionSMC(void)
+RET_TYPE firstDetectFunctionSMC(void)
 {
 	uint8_t data_buffer[2];
 	uint16_t temp_uint;
@@ -520,14 +520,13 @@ RET_TYPE detectFunctionSMC(void)
 	/* Read security code attempts counter */
 	switch(getNumberOfSecurityCodeTriesLeft())
 	{
-		case 4: return RETURN_CARD_4_TRIES_LEFT; break;
-		case 3: return RETURN_CARD_3_TRIES_LEFT; break;
-		case 2: return RETURN_CARD_2_TRIES_LEFT; break;
-		case 1: return RETURN_CARD_1_TRIES_LEFT; break;
-		case 0: return RETURN_CARD_0_TRIES_LEFT; break;
+		case 4: return RETURN_CARD_4_TRIES_LEFT;
+		case 3: return RETURN_CARD_3_TRIES_LEFT;
+		case 2: return RETURN_CARD_2_TRIES_LEFT;
+		case 1: return RETURN_CARD_1_TRIES_LEFT;
+		case 0: return RETURN_CARD_0_TRIES_LEFT;
+		default: return RETURN_CARD_0_TRIES_LEFT;
 	}
-	
-	return RETURN_CARD_0_TRIES_LEFT;
 }
 
 /*!	\fn		removeFunctionSMC(void)

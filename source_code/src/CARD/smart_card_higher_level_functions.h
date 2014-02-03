@@ -23,8 +23,11 @@
 #define SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_
 
 uint8_t* readSecurityCodeAttemptsCounters(uint8_t* buffer);
+RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void);
+RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void);
 uint8_t* readApplicationZone1EraseKey(uint8_t* buffer);
 uint8_t* readApplicationZone2EraseKey(uint8_t* buffer);
+RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code);
 void writeApplicationZone2EraseKey(uint8_t* buffer);
 void writeApplicationZone1EraseKey(uint8_t* buffer);
 void setAuthenticatedReadWriteAccessToZone1(void);
@@ -43,6 +46,7 @@ uint8_t* readIssuerZone(uint8_t* buffer);
 void writeSecurityCode(uint8_t* buffer);
 void writeIssuerZone(uint8_t* buffer);
 void printSMCDebugInfoToScreen(void);
+RET_TYPE cardDetectedRoutine(void);
 void writeManufacturerFuse(void);
 void write_issuers_fuse(void);
 void resetBlankCard(void);

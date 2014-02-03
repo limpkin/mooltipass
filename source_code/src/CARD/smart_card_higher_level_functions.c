@@ -23,6 +23,181 @@
  */
 #include "../mooltipass.h"
 
+/*!	\fn		mooltipassDetectedRoutine(uint16_t pin_code)
+*	\brief	Function called when something a mooltipass is inserted into the smartcard slot
+*	\param	pin_code	Mooltipass pin code
+*	\return	If we managed to unlock it / if there is other problem
+*/
+RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
+{
+	uint8_t temp_buffer[2];
+	RET_TYPE temp_rettype;
+	
+	#ifdef DEBUG_SMC_SCREEN_PRINT		
+		char temp_string[20];											// Temp string for displaying text
+	#endif
+	
+	temp_rettype = securityValidationSMC(pin_code);	
+	
+	if(temp_rettype == RETURN_PIN_OK)									// Unlock successful
+	{
+		// Check that the card is in security mode 2 by reading the SC
+		if(swap16(*(uint16_t*)readSecurityCode(temp_buffer)) != 0xFFFF)
+		{
+			// Card is in mode 1... how could this happen?
+			#ifdef DEBUG_SMC_SCREEN_PRINT
+				Show_String("Card in mode 1!", FALSE, 2, 16);
+			#endif
+			return RETURN_MOOLTIPASS_PB;
+		}
+		else															// Everything is in order - proceed
+		{
+			// Check that read / write accesses are correctly configured
+			if((checkAuthenticatedReadWriteAccessToZone1() == RETURN_NOK) || (checkAuthenticatedReadWriteAccessToZone2() == RETURN_NOK))
+			{
+				#ifdef DEBUG_SMC_SCREEN_PRINT
+					Show_String("Bad access settings!", FALSE, 2, 16);
+				#endif
+				return RETURN_MOOLTIPASS_PB;				
+			}
+			else
+			{
+				#ifdef DEBUG_SMC_SCREEN_PRINT
+					Show_String("PIN code checked!", FALSE, 2, 16);
+				#endif
+				return RETURN_MOOLTIPASS_4_TRIES_LEFT;				
+			}
+		}
+	}
+	else																// Unlock failed
+	{		
+		#ifdef DEBUG_SMC_SCREEN_PRINT
+			int_to_string(getNumberOfSecurityCodeTriesLeft(), temp_string);
+			Show_String(temp_string, FALSE, 2, 16);
+			Show_String("tries left, wrong pin", FALSE, 6, 16);
+		#endif
+		
+		switch(getNumberOfSecurityCodeTriesLeft())
+		{
+			case 0 :	return RETURN_MOOLTIPASS_0_TRIES_LEFT;
+			case 1 :	return RETURN_MOOLTIPASS_1_TRIES_LEFT;
+			case 2 :	return RETURN_MOOLTIPASS_2_TRIES_LEFT;
+			case 3 :	return RETURN_MOOLTIPASS_3_TRIES_LEFT;
+			case 4 :	return RETURN_MOOLTIPASS_4_TRIES_LEFT;
+			default :	return RETURN_MOOLTIPASS_0_TRIES_LEFT;
+		}
+	}
+}
+
+/*!	\fn		cardDetectedRoutine(void)
+*	\brief	Function called when something is inserted into the smartcard slot
+*	\return	What the card is / what needs to be done
+*/
+RET_TYPE cardDetectedRoutine(void)
+{
+	RET_TYPE card_detection_result;
+	uint8_t temp_buffer[10];
+	RET_TYPE temp_rettype;
+	uint8_t i;
+	
+	#ifdef DEBUG_SMC_SCREEN_PRINT		
+		char temp_string[20];									// Temp string for displaying text
+		clear_screen();											// Clear screen before writing anything new
+	#endif
+	
+	card_detection_result = firstDetectFunctionSMC();			// Get a first card detection result
+
+	if(card_detection_result == RETURN_CARD_NDET)				// This is not a card
+	{
+		#ifdef DEBUG_SMC_SCREEN_PRINT
+			Show_String("Not a card", FALSE, 2, 8);
+		#endif
+		return RETURN_MOOLTIPASS_INVALID;
+	}
+	else if(card_detection_result == RETURN_CARD_TEST_PB)		// Card test problem
+	{
+		#ifdef DEBUG_SMC_SCREEN_PRINT
+			Show_String("Card test problem", FALSE, 2, 8);
+		#endif
+		return RETURN_MOOLTIPASS_PB;
+	}
+	else if(card_detection_result == RETURN_CARD_0_TRIES_LEFT)	// Card blocked
+	{
+		#ifdef DEBUG_SMC_SCREEN_PRINT
+			Show_String("Card blocked", FALSE, 2, 8);
+		#endif
+		return RETURN_MOOLTIPASS_BLOCKED;
+	}
+	else														// Card is of the correct type and not blocked
+	{
+		// Detect if the card is blank by checking that the manufacturer zone is different from FFFF
+		if(swap16(*(uint16_t*)readManufacturerZone(temp_buffer)) == 0xFFFF)
+		{
+			// Card is new - transform into mooltipass
+			#ifdef DEBUG_SMC_SCREEN_PRINT
+				Show_String("Blank card, transforming...", FALSE, 2, 8);
+			#endif
+
+			// Try to authenticate with factory pin
+			temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);
+
+			if(temp_rettype == RETURN_PIN_OK)					// Card is unlocked - transform
+			{
+				if(transformBlankCardIntoMooltipass() == RETURN_OK)
+				{
+					#ifdef DEBUG_SMC_SCREEN_PRINT
+						Show_String("Card transformed!", FALSE, 2, 16);
+					#endif
+					return RETURN_MOOLTIPASS_BLANK;
+				}
+				else
+				{
+					#ifdef DEBUG_SMC_SCREEN_PRINT
+						Show_String("Couldn't transform card!", FALSE, 2, 16);
+					#endif
+					return RETURN_MOOLTIPASS_PB;
+				}
+			}
+			else															// Card unlock failed. Show number of tries left
+			{
+				#ifdef DEBUG_SMC_SCREEN_PRINT
+					int_to_string(getNumberOfSecurityCodeTriesLeft(), temp_string);
+					Show_String(temp_string, FALSE, 2, 16);
+					Show_String("tries left, wrong pin", FALSE, 6, 16);
+				#endif
+				return RETURN_MOOLTIPASS_PB;
+			}
+		}
+		else																// Card is already converted into a mooltipass
+		{			
+			// Check that the user setup his mooltipass card by checking that the CPZ is different from FFFF....
+			readCodeProtectedZone(temp_buffer);
+			
+			for(i = 0; i < 8; i++)
+			{
+				if(temp_buffer[i] != 0xFF)
+				{
+					#ifdef DEBUG_SMC_SCREEN_PRINT
+						Show_String("Mooltipass card detected", FALSE, 2, 8);
+					#endif
+					return RETURN_MOOLTIPASS_USER;			
+				}
+			}
+			
+			#ifdef DEBUG_SMC_SCREEN_PRINT
+				Show_String("Unconfigured Mooltipass", FALSE, 2, 8);
+			#endif
+
+			// If we're here it means the user hasn't configured his blank mooltipass card, so try to unlock it using the default pin
+			temp_rettype = mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+			
+			if(temp_rettype != RETURN_MOOLTIPASS_4_TRIES_LEFT)
+				return RETURN_MOOLTIPASS_PB;
+			else
+				return RETURN_MOOLTIPASS_BLANK;		
+		}
+	}
+}
 
 /*!	\fn		transformBlankCardIntoMooltipass(void)
 *	\brief	Transform the card into a Mooltipass card (Security mode 1 - Authenticated!)
@@ -40,7 +215,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 	resetBlankCard();
 	
 	/* Set new security password, keep zone 1 and zone 2 security key to FFFF... */
-	*(uint16_t*)temp_buffer = swap16(SMARTCARD_FACTORY_PIN);
+	*(uint16_t*)temp_buffer = swap16(SMARTCARD_DEFAULT_PIN);
 	writeSecurityCode(temp_buffer);
 	
 	/* Write "hackaday" to issuer zone */
@@ -263,6 +438,22 @@ void setAuthenticatedReadWriteAccessToZone1(void)
 	writeSMC(176, 16, temp_buffer);
 }
 
+/*!	\fn		checkAuthenticatedReadWriteAccessToZone1(void)
+*	\brief	Function called to check that only reads and writes are allowed to the application zone 1 when authenticated
+*	\return	OK or NOK
+*/
+RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void)
+{
+	uint8_t temp_buffer[2];
+	
+	readSMC(24, 22, temp_buffer);
+	
+	if((temp_buffer[0] == 0x80) && (temp_buffer[1] == 0x00))
+		return RETURN_OK;
+	else
+		return RETURN_NOK;
+}
+
 /*!	\fn		setAuthenticatedReadWriteAccessToZone2(void)
 *	\brief	Function called to only allow reads and writes to the application zone 2 when authenticated
 */
@@ -273,92 +464,110 @@ void setAuthenticatedReadWriteAccessToZone2(void)
 	writeSMC(736, 16, temp_buffer);
 }
 
+/*!	\fn		checkAuthenticatedReadWriteAccessToZone2(void)
+*	\brief	Function called to check that only reads and writes are allowed to the application zone 2 when authenticated
+*	\return	OK or NOK
+*/
+RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void)
+{
+	uint8_t temp_buffer[2];
+	
+	readSMC(94, 92, temp_buffer);
+	
+	if((temp_buffer[0] == 0x80) && (temp_buffer[1] == 0x00))
+		return RETURN_OK;
+	else
+		return RETURN_NOK;
+}
+
 /*!	\fn		printSMCDebugInfoToScreen(void)
 *	\brief	Print the card info
 */
 void printSMCDebugInfoToScreen(void)
 {
-	uint8_t data_buffer[20];
-	char temp_string[10];
-	uint8_t i;
+	#ifdef DEBUG_SMC_SCREEN_PRINT
+		uint8_t data_buffer[20];
+		char temp_string[10];
+		uint8_t i;
 	
-	/* Clear screen */
-	clear_screen();
+		/* Clear screen */
+		clear_screen();
 	
-	/* Read FZ */
-	hexaint_to_string(swap16(*(uint16_t*)readFabricationZone(data_buffer)), temp_string);
-	Show_String("FZ:", FALSE, 2, 0);
-	Show_String(temp_string, FALSE, 11, 0);
+		/* Read FZ */
+		hexaint_to_string(swap16(*(uint16_t*)readFabricationZone(data_buffer)), temp_string);
+		Show_String("FZ:", FALSE, 2, 0);
+		Show_String(temp_string, FALSE, 11, 0);
 	
-	/* Read SC */
-	hexaint_to_string(swap16(*(uint16_t*)readSecurityCode(data_buffer)), temp_string);
-	Show_String("SC:", FALSE, 20, 0);
-	Show_String(temp_string, FALSE, 29, 0);
+		/* Read SC */
+		hexaint_to_string(swap16(*(uint16_t*)readSecurityCode(data_buffer)), temp_string);
+		Show_String("SC:", FALSE, 20, 0);
+		Show_String(temp_string, FALSE, 29, 0);
 	
-	/* Extrapolate security mode */
-	if(swap16(*(uint16_t*)readSecurityCode(data_buffer)) == 0xFFFF)
-		Show_String("Security mode 2", FALSE, 2, 48);
-	else
-		Show_String("Security mode 1", FALSE, 2, 48);
+		/* Extrapolate security mode */
+		if(swap16(*(uint16_t*)readSecurityCode(data_buffer)) == 0xFFFF)
+			Show_String("Security mode 2", FALSE, 2, 48);
+		else
+			Show_String("Security mode 1", FALSE, 2, 48);
 	
-	/* Read SCAC */
-	hexaint_to_string(swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)), temp_string);
-	Show_String("SCAC:", FALSE, 38, 0);
-	Show_String(temp_string, FALSE, 49, 0);
+		/* Read SCAC */
+		hexaint_to_string(swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)), temp_string);
+		Show_String("SCAC:", FALSE, 38, 0);
+		Show_String(temp_string, FALSE, 49, 0);
 	
-	/* Read IZ */
-	readIssuerZone(data_buffer);
-	Show_String("IZ:", FALSE, 2, 8);
-	for(i = 0; i < 4; i++)
-	{
-		hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-		Show_String(temp_string, FALSE, 11+i*9, 8);
-	}
+		/* Read IZ */
+		readIssuerZone(data_buffer);
+		Show_String("IZ:", FALSE, 2, 8);
+		for(i = 0; i < 4; i++)
+		{
+			hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
+			Show_String(temp_string, FALSE, 11+i*9, 8);
+		}
 	
-	/* Recompose CPZ */
-	readCodeProtectedZone(data_buffer);
-	Show_String("CPZ:", FALSE, 2, 16);
-	for(i = 0; i < 4; i++)
-	{
-		hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-		Show_String(temp_string, FALSE, 11+i*9, 16);
-	}
+		/* Recompose CPZ */
+		readCodeProtectedZone(data_buffer);
+		Show_String("CPZ:", FALSE, 2, 16);
+		for(i = 0; i < 4; i++)
+		{
+			hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
+			Show_String(temp_string, FALSE, 11+i*9, 16);
+		}
 	
-	/* Read EZ1 */
-	readApplicationZone1EraseKey(data_buffer);
-	Show_String("EZ1:", FALSE, 2, 24);
-	for(i = 0; i < 3; i++)
-	{
-		hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-		Show_String(temp_string, FALSE, 11+i*9, 24);
-	}
+		/* Read EZ1 */
+		readApplicationZone1EraseKey(data_buffer);
+		Show_String("EZ1:", FALSE, 2, 24);
+		for(i = 0; i < 3; i++)
+		{
+			hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
+			Show_String(temp_string, FALSE, 11+i*9, 24);
+		}
 	
-	/* Read EZ2 */
-	readApplicationZone2EraseKey(data_buffer);
-	Show_String("EZ2:", FALSE, 2, 32);
-	for(i = 0; i < 2; i++)
-	{
-		hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-		Show_String(temp_string, FALSE, 11+i*9, 32);
-	}
+		/* Read EZ2 */
+		readApplicationZone2EraseKey(data_buffer);
+		Show_String("EZ2:", FALSE, 2, 32);
+		for(i = 0; i < 2; i++)
+		{
+			hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
+			Show_String(temp_string, FALSE, 11+i*9, 32);
+		}
 	
-	/* Read MTZ */
-	hexaint_to_string(swap16(*(uint16_t*)readMemoryTestZone(data_buffer)), temp_string);
-	Show_String("MTZ:", FALSE, 2, 40);
-	Show_String(temp_string, FALSE, 11, 40);
+		/* Read MTZ */
+		hexaint_to_string(swap16(*(uint16_t*)readMemoryTestZone(data_buffer)), temp_string);
+		Show_String("MTZ:", FALSE, 2, 40);
+		Show_String(temp_string, FALSE, 11, 40);
 	
-	/* Read MFZ */
-	hexaint_to_string(swap16(*(uint16_t*)readManufacturerZone(data_buffer)), temp_string);
-	Show_String("MFZ:", FALSE, 20, 40);
-	Show_String(temp_string, FALSE, 29, 40);
+		/* Read MFZ */
+		hexaint_to_string(swap16(*(uint16_t*)readManufacturerZone(data_buffer)), temp_string);
+		Show_String("MFZ:", FALSE, 20, 40);
+		Show_String(temp_string, FALSE, 29, 40);
 	
-	/* Show first 2 bytes of AZ1 and AZ2 */
-	hexaint_to_string(swap16(*(uint16_t*)readSMC(24,22,data_buffer)), temp_string);
-	Show_String("AZ1:", FALSE, 2, 56);
-	Show_String(temp_string, FALSE, 11, 56);
-	hexaint_to_string(swap16(*(uint16_t*)readSMC(94,92,data_buffer)), temp_string);
-	Show_String("AZ2:", FALSE, 20, 56);
-	Show_String(temp_string, FALSE, 29, 56);
+		/* Show first 2 bytes of AZ1 and AZ2 */
+		hexaint_to_string(swap16(*(uint16_t*)readSMC(24,22,data_buffer)), temp_string);
+		Show_String("AZ1:", FALSE, 2, 56);
+		Show_String(temp_string, FALSE, 11, 56);
+		hexaint_to_string(swap16(*(uint16_t*)readSMC(94,92,data_buffer)), temp_string);
+		Show_String("AZ2:", FALSE, 20, 56);
+		Show_String(temp_string, FALSE, 29, 56);
+	#endif
 }
 
 /*!	\fn		getNumberOfSecurityCodeTriesLeft(void)

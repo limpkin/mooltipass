@@ -34,7 +34,7 @@
 #include "GRAPHICS/graphics.h"
 #include "FLASH/flash_mem.h"
 #include "CARD/smartcard.h"
-#include "USB/usb_serial.h"
+#include "USB/usb_serial_hid.h"
 #include "UTILS/utils.h"
 #include "interrupts.h"
 #include "OLED/oled.h"

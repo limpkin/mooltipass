@@ -31,7 +31,7 @@
 // Version 1.7: fix usb_serial_set_control
 
 #define USB_SERIAL_PRIVATE_INCLUDE
-#include "usb_serial.h"
+#include "usb_serial_hid.h"
 
 
 /**************************************************************************

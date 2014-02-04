@@ -48,6 +48,68 @@
 #define OLED_WIDTH 256
 #define OLED_HEIGHT 64
 
+BitmapStream::BitmapStream(const uint8_t pixelDepth, const uint16_t *data, const uint16_t size)
+{
+    _datap = data;
+    _size = size;
+    bitsPerPixel = pixelDepth;
+    mask = (1 << pixelDepth) - 1;
+    _wordsize = 16;
+    _bits = 0;
+    _word = 0xAA55;
+    _count = 0;
+}
+
+/**
+ * Return the next data word from flash
+ * @returns next data word, or 0 if end of data reached
+ */
+uint16_t BitmapStream::getNextWord()
+{
+    if (_size > 0) {
+	return (uint16_t)pgm_read_word(_datap++);
+    } else {
+	return 0;
+    }
+}
+
+/**
+ * Return the next pixel from the bitmap
+ * @returns next pixel, or 0 if end of data reached
+ */
+
+uint8_t BitmapStream::read(void)
+{
+    uint8_t data=0;
+    if (_size > 0) {
+	if (_bits == 0) {
+	    _word = getNextWord();
+	    _bits = _wordsize;
+	}
+	if (_bits >= bitsPerPixel) {
+	    _bits -= bitsPerPixel;
+	    data = (_word >> _bits);
+	} else {
+	    uint8_t offset = bitsPerPixel - _bits;
+	    data = _word << offset;
+	    _bits += _wordsize - bitsPerPixel;
+	    _word = getNextWord();
+	    data |= _word >> _bits;
+	}
+	_size--;
+    }
+    return data & mask;
+}
+
+/**
+ * Returns the number of pixels available to read
+ * @returns next pixel, or 0 if end of data reached
+ */
+uint16_t BitmapStream::available(void)
+{
+    return _size;
+}
+
 OledMP::OledMP(const uint8_t cs, const uint8_t dc, const uint8_t reset)
 {
     _cs = cs;
@@ -452,6 +514,10 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
     // get glyph index
     if (ch >= ' ' && ch <= 0x7f) {
 	gind = pgm_read_byte(&_fontHQ->map[ch - ' ']);
+	if (gind == 255) {
+	    // no character, use space
+	    gind = 0;
+	}
     } else {
 	// default to a space
 	gind = 0;
@@ -481,6 +547,9 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
     setWindow(x, y, x+glyph_width-1, y+glyph_height-1);
 
     writeCommand(CMD_WRITE_RAM);
+
+    // XXX todo: fill unused character space with background
+    // XXX todo: add support for n-bit depth fonts (1 to 4)
 
     for (uint16_t yind=0; yind<glyph_height; yind++) {
 	ind = (uint8_t)(yind*glyph_width);
@@ -533,54 +602,60 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
     }
 
     return (uint8_t)(glyph_width + glyph_offset) + 1;
-    //return (uint8_t)pgm_read_byte(&(_fontHQ->glyphs[gind].width));
 }
 
 
-void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const uint16_t *image)
+void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t depth, const uint16_t *image)
 {
+    uint8_t xoff = x - (x / 4) * 4;
+    uint8_t scale = (1<<depth) - 1;
+
+    BitmapStream bms(depth, image, width*height);
+
     setWindow(x, y, x+width-1, y+height-1);
+
     writeCommand(CMD_WRITE_RAM);
 
-    uint8_t xoff = x - (x / 4) * 4;
-    uint16_t pixels;
-    uint8_t xind;
-    uint8_t byteWidth = (width+3)/4;
-
-    if (xoff == 0) {
-	for (uint8_t yind=0; yind < height; yind++) {
-	    for (xind=0; xind < byteWidth; xind++) {
-		pixels = (uint16_t)pgm_read_byte(&image[yind*byteWidth+xind]) | pgm_read_byte((uint8_t *)&image[yind*byteWidth+xind]+1) << 8;
-		writeData((uint8_t)(pixels >> 8));
-		writeData((uint8_t)pixels);
+    for (uint8_t yind=0; yind < height; yind++) {
+	uint8_t xind = 0;
+	uint16_t pixels = 0;
+	uint8_t xcount = 0;
+	if (xoff != 0) {
+	    // fill the rest of the 4-pixel word from the bitmap
+	    for (; xind < 4-xoff; xind++) {
+		pixels = pixels << 4 | (bms.read() * 15) / scale;
 	    }
-	    gddram[yind].pixels = pixels;
-	    gddram[yind].xaddr = xind-1;
-	}
-    } else {
-	for (uint8_t yind=0; yind < height; yind++) {
 
+	    // Fill existing pixels if available
 	    if ((x/4) == gddram[yind].xaddr) {
-		// get the existing pixel data to handle the overlap
-		pixels = gddram[yind].pixels;
-	    } else {
-		pixels = 0;
-	    }
-
-	    uint16_t imagePixels;
-	    for (xind=0; xind < byteWidth; xind ++) {
-		// image is offset in gddram, so need to merge it with the previous pixel data
-		imagePixels = (uint16_t)pgm_read_byte(&image[yind*byteWidth+xind]) | pgm_read_byte((uint8_t *)&image[yind*byteWidth+xind]+1) << 8;
-
-		pixels |= imagePixels >> (4-xoff) * 4;
-		writeData((uint8_t)(pixels >> 8));
-		writeData((uint8_t)pixels);
-		pixels = imagePixels << 4*xoff;
+		pixels |= gddram[yind].pixels & ~((1 << ((4-xoff)*4))-1);
+	    };
+	    writeData((uint8_t)(pixels >> 8));
+	    writeData((uint8_t)pixels);
+	    xcount++;
+	}
+	for (; xind < width; xind+=4) {
+	    for (uint8_t pind=0; pind<4; pind++) {
+		pixels <<= 4;
+		if (xind+pind < width) {
+		    uint8_t pix = bms.read();
+		    pixels |= (pix * 15) / scale;
+		}
 	    }
 	    writeData((uint8_t)(pixels >> 8));
 	    writeData((uint8_t)pixels);
-	    gddram[yind].pixels = pixels;
-	    gddram[yind].xaddr = xind-1;
+	    xcount++;
 	}
+	gddram[yind].pixels = pixels;
+	gddram[yind].xaddr = xind-1;
     }
 }
+
+void OledMP::bitmapDraw(uint8_t x, uint8_t y, const void *image)
+{
+    const bitmap_t *bitmap = (const bitmap_t *)image;
+
+    bitmapDraw(x, y, pgm_read_byte(&bitmap->width), pgm_read_byte(&bitmap->height), pgm_read_byte(&bitmap->depth), bitmap->data);
+}
+
+

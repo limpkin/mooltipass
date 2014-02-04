@@ -26,8 +26,6 @@
 #include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
-#include <stdio.h>
-
 
 /*!	\fn 	disable_jtag(void)
 *	\brief	Disable the JTAG module

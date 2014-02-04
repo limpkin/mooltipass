@@ -32,7 +32,6 @@
 
 #include "usb_serial_hid.h"
 
-
 /**************************************************************************
  *
  *  Configurable Options
@@ -105,7 +104,7 @@
 // is where you can make such changes.  The AT90USB162 has only 176 bytes
 // of DPRAM (USB buffers) and only endpoints 3 & 4 can double buffer.
 
-#define ENDPOINT0_SIZE		32 //? 16
+#define ENDPOINT0_SIZE		32 //? 16 may be enough.
 
 #define CDC_ACM_ENDPOINT	2
 #define CDC_RX_ENDPOINT		3
@@ -137,7 +136,6 @@ static const uint8_t PROGMEM endpoint_config_table[] = {
 	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(CDC_ACM_SIZE) | CDC_ACM_BUFFER,
 	1, EP_TYPE_BULK_OUT,      EP_SIZE(CDC_RX_SIZE) | CDC_RX_BUFFER,
 	1, EP_TYPE_BULK_IN,       EP_SIZE(CDC_TX_SIZE) | CDC_TX_BUFFER,
-	
 	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(KEYBOARD_SIZE) | KEYBOARD_BUFFER
 };
 
@@ -158,7 +156,7 @@ static const uint8_t PROGMEM device_descriptor[] = {
 	18,					// bLength
 	1,					// bDescriptorType
 	0x00, 0x02,				// bcdUSB
-	0,					// bDeviceClass
+	0,					// bDeviceClass 0 because we are a composite device.
 	0,					// bDeviceSubClass
 	0,					// bDeviceProtocol
 	ENDPOINT0_SIZE,				// bMaxPacketSize0
@@ -207,10 +205,8 @@ static const uint8_t PROGMEM keyboard_hid_report_desc[] = {
 	0xc0                 // End Collection
 };
 
-#define CONFIG1_DESC_SIZE (9+9+5+5+4+5+7+9+7+7   +9+9+7)
-//#define KEYBOARD_HID_DESC_OFFSET (9+9)
-#define KEYBOARD_HID_DESC_OFFSET (9+9+5+5+4+5+7+9+7+7   +9)
-
+#define CONFIG1_DESC_SIZE (9+9+5+5+4+5+7+9+7+7+9+9+7)
+#define KEYBOARD_HID_DESC_OFFSET (9+9+5+5+4+5+7+9+7+7+9)
 
 static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
 	// configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
@@ -286,8 +282,6 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
 	0x02,					// bmAttributes (0x02=bulk)
 	CDC_TX_SIZE, 0,				// wMaxPacketSize
 	0,					// bInterval
-	
-	
 	
 	// interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
 	9,					// bLength
@@ -806,7 +800,7 @@ int8_t usb_serial_write(const uint8_t *buffer, uint16_t size)
 // USB devices only transmit when the host allows, so the best
 // we can do is release the FIFO buffer for when the host wants it
 /*!	\fn		usb_serial_flush_output(void)
-*	\brief	Immediately elease FIFO buffer for host to read.
+*	\brief	Immediately release FIFO buffer for host to read.
 */
 void usb_serial_flush_output(void)
 {
@@ -967,7 +961,6 @@ ISR(USB_GEN_vect)
 	}
 }
 
-
 // Misc functions to wait for ready and send/receive packets
 static inline void usb_wait_in_ready(void)
 {
@@ -985,8 +978,6 @@ static inline void usb_ack_out(void)
 {
 	UEINTX = ~(1<<RXOUTI);
 }
-
-
 
 // USB Endpoint Interrupt - endpoint 0 is handled here.  The
 // other endpoints are manipulated by the user-callable
@@ -1075,7 +1066,7 @@ ISR(USB_COM_vect)
 			transmit_flush_timer = 0;
 			usb_send_in();
 			cfg = endpoint_config_table;
-			for (i=1; i<=ENDPOINT_CONFIG_ENTRIES; i++) { //This is increased to 6 because there is an additional endpoint.
+			for (i=1; i<=ENDPOINT_CONFIG_ENTRIES; i++) {
 				UENUM = i;
 				en = pgm_read_byte(cfg++);
 				UECONX = en;

@@ -67,19 +67,19 @@ int main(void)
 	initOLED();							// Init OLED screen after enum
 	flash_init_result = initFlash();	// Init flash memory
 
-	_delay_ms(1000);
-#if 1
-	Show_String("Z",FALSE,2,0);
-	usb_keyboard_press(KEY_S, 0);
+//#define TEST_HID_AND_CDC
+#ifdef TEST_HID_AND_CDC
+	//Show_String("Z",FALSE,2,0);
+	//usb_keyboard_press(KEY_S, 0);
 	while(1)
 	{
-usb_serial_putchar(144);
-			int n = usb_serial_getchar();
-			if (n >= 0) {usb_serial_putchar(n);
-			//sprintf(james_usb_test,"%c",n);	
-			Show_String("ARSE",FALSE,2,0);
-			usb_keyboard_press(n,0);
-			}
+		int n = usb_serial_getchar();
+		if (n >= 0)
+		{
+			usb_serial_putchar(n);	
+			Show_String((char*)&n,FALSE,2,0);
+			//usb_keyboard_press(n,0);
+		}
 
 	}
 #endif /* TEST_HID_AND_CDC */

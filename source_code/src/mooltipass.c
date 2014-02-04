@@ -60,8 +60,6 @@ int main(void)
 	uint8_t temp_buffer[200];
 	char temp_string[20];
 
-	char james_usb_test[20];
-
 	CPU_PRESCALE(0);					// Set for 16MHz clock
 	_delay_ms(500);						// Let the power settle
 	initPortSMC();						// Init smart card Port
@@ -78,7 +76,6 @@ int main(void)
 	{
 			int n = usb_serial_getchar();
 			if (n >= 0) {usb_serial_putchar(n);
-				//for (int i=18;i>0;i--){james[i]=james[i-1];}
 			sprintf(james_usb_test,"%c",n);	
 			Show_String(james_usb_test,FALSE,2,0);
 			usb_keyboard_press((n%25)+4,0);

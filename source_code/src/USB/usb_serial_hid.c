@@ -30,7 +30,6 @@
 // Version 1.6: fix zero length packet bug
 // Version 1.7: fix usb_serial_set_control
 
-#define USB_SERIAL_PRIVATE_INCLUDE
 #include "usb_serial_hid.h"
 
 
@@ -53,7 +52,7 @@
 // same COM port number because Windows remembers serial numbers.
 //
 // On Mac OS-X, a device file is created automatically which
-// incorperates the serial number, eg, /dev/cu-usbmodem12341
+// incorporates the serial number, eg, /dev/cu-usbmodem12341
 //
 // Linux by default ignores the serial number, and creates device
 // files named /dev/ttyACM0, /dev/ttyACM1... in the order connected.
@@ -80,13 +79,13 @@
 
 // If the PC is connected but not "listening", this is the length
 // of time before usb_serial_getchar() returns with an error.  This
-// is roughly equivilant to a real UART simply transmitting the
+// is roughly equivalent to a real UART simply transmitting the
 // bits on a wire where nobody is listening, except you get an error
 // code which you can ignore for serial-like discard of data, or
 // use to know your data wasn't sent.
 #define TRANSMIT_TIMEOUT	25   /* in milliseconds */
 
-// USB devices are supposed to implment a halt feature, which is
+// USB devices are supposed to implement a halt feature, which is
 // rarely (if ever) used.  If you comment this line out, the halt
 // code will be removed, saving 116 bytes of space (gcc 4.3.0).
 // This is not strictly USB compliant, but works with all major
@@ -107,7 +106,6 @@
 // of DPRAM (USB buffers) and only endpoints 3 & 4 can double buffer.
 
 #define ENDPOINT0_SIZE		32 //? 16
-//#define ENDPOINT1_SIZE		32
 
 #define CDC_ACM_ENDPOINT	2
 #define CDC_RX_ENDPOINT		3

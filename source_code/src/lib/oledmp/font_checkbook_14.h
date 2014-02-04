@@ -421,6 +421,7 @@ const uint8_t checkbook_14_0x3f[] __attribute__((__progmem__)) = {   /* '?' widt
 
 const uint8_t checkbook_14_0x41[] __attribute__((__progmem__)) = {   /* 'A' width: 11 */
      0x0b,  0xff,  0xf0,             /* [  ********] */
+     0x0b,  0xff,  0xf0,             /* [  ********] */
      0x0f,  0x00,  0xf0,             /* [  **    **] */
      0x0f,  0x00,  0xf0,             /* [  **    **] */
      0x0f,  0x00,  0xf0,             /* [  **    **] */
@@ -1271,7 +1272,7 @@ const glyph_t checkbook_14[] __attribute__((__progmem__)) = {
     {  5,  4, 10,  0,  6, checkbook_14_0x3a }, /* ':' */ 
     {  5,  4, 13,  0,  6, checkbook_14_0x3b }, /* ';' */ 
     {  9,  7, 16,  1,  0, checkbook_14_0x3f }, /* '?' */ 
-    { 11, 10, 15,  0,  1, checkbook_14_0x41 }, /* 'A' */ 
+    { 11, 10, 16,  0,  0, checkbook_14_0x41 }, /* 'A' */ 
     { 11, 10, 16,  0,  0, checkbook_14_0x42 }, /* 'B' */ 
     { 10,  9, 16,  0,  0, checkbook_14_0x43 }, /* 'C' */ 
     { 11, 10, 16,  0,  0, checkbook_14_0x44 }, /* 'D' */ 

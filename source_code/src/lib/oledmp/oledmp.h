@@ -33,6 +33,7 @@
 
 #include "fstr.h"
 #include "fonts.h"
+#include "bitmap.h"
 
 /**************************************************
 *    LM320Y-256064 (SSD1322 driver)
@@ -107,6 +108,23 @@
 #define LCD_CHAR_COLS 28
 #define LCD_CHAR_ROWS 5
 
+class BitmapStream {
+public:
+    BitmapStream(const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size);
+    uint8_t read(void);
+    uint16_t available(void);
+    uint8_t bitsPerPixel;	// number of bits per pixel
+    uint8_t mask;		// pixel mask for returned data
+private:
+    uint16_t getNextWord(void);
+    const uint16_t *_datap;	// Next data word to read
+    uint16_t _size;		// number of pixels
+    uint8_t _bits;		// current offset in data word
+    uint8_t _wordsize;		// number of bits per data word
+    uint16_t _word;
+    uint16_t _count;
+};
+
 class OledMP {
 public:
     OledMP(const uint8_t cs, const uint8_t dc, const uint8_t reset);
@@ -120,7 +138,8 @@ public:
     void clear();
     void reset();
 
-    void bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const uint16_t *image);
+    void bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t depth, const uint16_t *image);
+    void bitmapDraw(uint8_t x, uint8_t y, const void *image);
 
     void setWindow(uint8_t x, uint8_t y, uint8_t xend, uint8_t yend);
     void setFont(uint8_t font);

@@ -181,7 +181,7 @@ AVRTOOLSPATH ?= $(subst :, , $(PATH)) $(ARDUINODIR)/hardware/tools \
 	$(ARDUINODIR)/hardware/tools/avr/bin
 
 # default path to find libraries
-LIBRARYPATH ?= libraries libs $(SKETCHBOOKDIR)/libraries $(ARDUINODIR)/libraries
+LIBRARYPATH ?= $(ADD_LIBRARYPATH) libraries libs $(SKETCHBOOKDIR)/libraries $(ARDUINODIR)/libraries
 
 # default serial device to a poor guess (something that might be an arduino)
 SERIALDEVGUESS := 0

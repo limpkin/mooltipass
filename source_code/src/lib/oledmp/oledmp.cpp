@@ -489,8 +489,10 @@ uint8_t OledMP::glyphHeight()
  * @param colour - foreground colour
  * @param bg - background colour
  * @returns width of the glyph
- * @note currently only works with fixed width glyphs due to display buffer used
- *       to determine the adjacent glyph when updating a shared cell (two pixels per byte)
+ * @note to conserve memory the pixel buffer kept in RAM is only 16 bits wide by 64.  It
+ *       keeps track of the right-most GDDRAM cell written.
+ *       This means the buffer will only work when writing new graphical data to the
+ *       right of the last data written (e.g. when drawing a line of text).
  */
 uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg)
 {
@@ -605,6 +607,19 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
 }
 
 
+/**
+ * Draw a rectangular bitmap on the screen at x,y.
+ * @param x - x position for the bitmap
+ * @param y - y position for the bitmap (0=top, 63=bottom)
+ * @param width - width of bitmap in pixels
+ * @param height - height of bitmap in pixels
+ * @param depth - number of bits per pixel (1 to 4)
+ * @param image - pointer to the image data in flash
+ * @note to conserve memory the pixel buffer kept in RAM is only 16 bits wide by 64.  It
+ *       keeps track of the right-most GDDRAM cell written.
+ *       This means the buffer will only work when writing new graphical data to the
+ *       right of the last data written (e.g. when drawing a line of text).
+ */
 void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t depth, const uint16_t *image)
 {
     uint8_t xoff = x - (x / 4) * 4;
@@ -651,6 +666,12 @@ void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uin
     }
 }
 
+/**
+ * Draw a rectangular bitmap on the screen at x,y.
+ * @param x - x position for the bitmap
+ * @param y - y position for the bitmap (0=top, 63=bottom)
+ * @param image - pointer to a bitmap_t image data structure
+ */
 void OledMP::bitmapDraw(uint8_t x, uint8_t y, const void *image)
 {
     const bitmap_t *bitmap = (const bitmap_t *)image;

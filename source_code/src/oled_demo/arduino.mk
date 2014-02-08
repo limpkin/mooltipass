@@ -338,10 +338,12 @@ upload: target
 		echo; }
 ifeq "$(BOARD_BOOTLOADER_PATH)" "caterina"
 	stty $(STTYFARG) $(SERIALDEV) speed 1200
-	sleep 1
+	#sleep 1
+	./reset.py $(SERIALDEV)
 else
 	stty $(STTYFARG) $(SERIALDEV) hupcl
 endif
+	echo "$(AVRDUDE) $(AVRDUDEFLAGS) -U flash:w:$(TARGET).hex:i"
 	$(AVRDUDE) $(AVRDUDEFLAGS) -U flash:w:$(TARGET).hex:i
 
 clean:

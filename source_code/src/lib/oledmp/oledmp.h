@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <avr/pgmspace.h>
+#include <spi.h>
 
 #include "fstr.h"
 #include "fonts.h"
@@ -105,20 +106,17 @@
 #define CMD_DISPLAY_ENHANCEMENT_B	0xD1
 #define CMD_SET_COMMAND_LOCK		0xFD
 
-#define LCD_CHAR_COLS 28
-#define LCD_CHAR_ROWS 5
-
 class BitmapStream {
 public:
     BitmapStream(const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size);
     uint8_t read(void);
     uint16_t available(void);
-    uint8_t bitsPerPixel;	// number of bits per pixel
     uint8_t mask;		// pixel mask for returned data
 private:
-    uint16_t getNextWord(void);
+    uint8_t bitsPerPixel;	// number of bits per pixel
     const uint16_t *_datap;	// Next data word to read
     uint16_t _size;		// number of pixels
+    uint16_t getNextWord(void);
     uint8_t _bits;		// current offset in data word
     uint8_t _wordsize;		// number of bits per data word
     uint16_t _word;
@@ -127,7 +125,8 @@ private:
 
 class OledMP {
 public:
-    OledMP(const uint8_t cs, const uint8_t dc, const uint8_t reset);
+    OledMP(const uint8_t cs, const uint8_t dc, const uint8_t reset, const uint8_t power, SPI &spi) :
+	_cs(cs), _dc(dc), _reset(reset), _power(power), _spi(spi) {};
     void begin(uint8_t font=FONT_DEFAULT);
     void init(void);
     void writeCommand(uint8_t reg);
@@ -168,14 +167,15 @@ public:
     bool wrap;
 
  private:
+    uint8_t _cs;		// chip select
+    uint8_t _dc;		// data vs command
+    uint8_t _reset;
+    uint8_t _power;		// 12V nEnable
     uint8_t volatile *port_cs;
     uint8_t volatile *port_dc;
     char _printBuf[64];	// scratch buffer for printf
     uint8_t pin_cs;
     uint8_t pin_dc;
-    uint8_t _cs;		// chip select
-    uint8_t _dc;		// data vs command
-    uint8_t _reset;
     uint8_t end_x;
     uint8_t end_y;
     uint8_t cur_col;
@@ -192,6 +192,7 @@ public:
     void writeByte(uint8_t data);
 
     font_t *_fontHQ;
+    SPI &_spi;
 };
 
 #endif

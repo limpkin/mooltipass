@@ -27,7 +27,6 @@
  * @file OledMP Mooltipass 256x64x4 OLED display driver
  */
 
-#include <SPI.h>
 #include "oledmp.h"
 
 #include <avr/pgmspace.h>
@@ -48,11 +47,45 @@
 #define OLED_WIDTH 256
 #define OLED_HEIGHT 64
 
-BitmapStream::BitmapStream(const uint8_t pixelDepth, const uint16_t *data, const uint16_t size)
+/*
+ * OLED initialisation sequence
+ */
+static const uint8_t oledInit[] __attribute__((__progmem__)) = {
+    CMD_SET_COMMAND_LOCK,            1, 0x12, /* Unlock OLED driver IC*/
+    CMD_SET_DISPLAY_OFF,             0,
+    CMD_SET_CLOCK_DIVIDER,           1, 0x91,
+    CMD_SET_MULTIPLEX_RATIO,         1, 0x3F, /*duty = 1/64*,64 COMS are enabled*/
+    CMD_SET_DISPLAY_OFFSET,          1, 0x00,
+    CMD_SET_DISPLAY_START_LINE,      1, 0x00, /*set start line position*/
+    CMD_SET_REMAP,                   2, 0x14, // Horizontal address increment,
+                                              // Disable Column Address Re-map,
+					      // Enable Nibble Re-map,Scan from COM[N-1] to COM0,
+					      // Disable COM Split Odd Even
+                                        0x11, // Enable Dual COM mode
+    CMD_SET_GPIO, 		     1, 0x00,
+    CMD_SET_FUNCTION_SELECTION,      1, 0x01, /* selection external VDD */
+    CMD_DISPLAY_ENHANCEMENT,         2, 0xA0, /* enables the external VSL*/
+                                        0xfd, /* 0xfd,Enhanced low GS display quality;default is 0xb5(normal),*/
+    CMD_SET_CONTRAST_CURRENT,        1, 0xff, /* default is 0x7f*/
+    CMD_MASTER_CURRENT_CONTROL,      1, 0x0f,
+    /* writeCommand(0xB9); GRAY TABLE,linear Gray Scale*/
+    CMD_SET_PHASE_LENGTH,            1, 0xE2,  /*default is 0x74*/
+    CMD_DISPLAY_ENHANCEMENT_B,       2, 0x82, 0x20,
+#define ALTERNATE_OLED_VERSION
+#ifdef ALTERNATE_OLED_VERSION
+    CMD_SET_PRECHARGE_VOLTAGE,       1, 0x08, /* 0.3xVcc */
+    CMD_SET_SECOND_PRECHARGE_PERIOD, 1, 0x0F, /* 15 clocks */
+#else
+    CMD_SET_PRECHARGE_VOLTAGE,       1, 0x1F, /* 0.6xVcc */
+    CMD_SET_SECOND_PRECHARGE_PERIOD, 1, 0x08, /* default */
+#endif
+    CMD_SET_VCOMH_VOLTAGE,           1, 0x07, /*0.86xVcc;default is 0x04*/
+    CMD_SET_DISPLAY_MODE_NORMAL,     0
+};
+
+BitmapStream::BitmapStream(const uint8_t pixelDepth, const uint16_t *data, const uint16_t size) :
+    bitsPerPixel(pixelDepth), _datap(data), _size(size)
 {
-    _datap = data;
-    _size = size;
-    bitsPerPixel = pixelDepth;
     mask = (1 << pixelDepth) - 1;
     _wordsize = 16;
     _bits = 0;
@@ -110,22 +143,24 @@ uint16_t BitmapStream::available(void)
     return _size;
 }
 
-OledMP::OledMP(const uint8_t cs, const uint8_t dc, const uint8_t reset)
+#if 0
+OledMP::OledMP(
+	uint8_t volatile *cs_port,
+	const uint8_t cs_pin,
+	uint8_t volatile *dc_port,
+	const uint8_t dc_pin,
+	uint8_t volatile *reset_port,
+	const uint8_t reset_pin,
+	uint8_t volatile *power_port,
+	const uint8_t power)
 {
-    _cs = cs;
-    _dc = dc;
-    _reset = reset;
-    foreground = 15;
-    background = 0;
-    cur_x = 0;
-    cur_y = 0;
-    end_x = 0;
-    end_y = 0;
-    wrap = true;
-    _offset = 0;
-    _bufHeight = OLED_HEIGHT;
-    _fontHQ = NULL;
 }
+
+OledMP::OledMP(const uint8_t cs, const uint8_t dc, const uint8_t reset, const uint8_t power)
+{
+    _power = power;
+}
+#endif
 
 void OledMP::setColour(uint8_t colour)
 {
@@ -196,6 +231,17 @@ void OledMP::setXY(uint8_t col, uint8_t row)
 
 void OledMP::begin(uint8_t font)
 {
+    foreground = 15;
+    background = 0;
+    cur_x = 0;
+    cur_y = 0;
+    end_x = 0;
+    end_y = 0;
+    wrap = true;
+    _offset = 0;
+    _bufHeight = OLED_HEIGHT;
+    _fontHQ = NULL;
+
     setFont(font);
     port_cs = portOutputRegister(digitalPinToPort(_cs));
     pin_cs = digitalPinToBitMask(_cs);
@@ -205,7 +251,9 @@ void OledMP::begin(uint8_t font)
     pinMode(_cs, OUTPUT);
     pinMode(_dc, OUTPUT);
     pinMode(_reset, OUTPUT);
-    digitalWrite(_cs,HIGH);
+    pinMode(_power, OUTPUT);
+    digitalWrite(_power, HIGH);
+    pinHigh(port_cs, pin_cs);
 
     reset();
     init();
@@ -224,64 +272,16 @@ void OledMP::begin(uint8_t font)
 void OledMP::init()
 {
 
-    writeCommand(CMD_SET_COMMAND_LOCK);
-    writeData(0x12); /* Unlock OLED driver IC*/
+    for (uint16_t ind=0; ind < sizeof(oledInit); ) {
+	writeCommand(pgm_read_byte(&oledInit[ind++]));
+	uint8_t dataSize = pgm_read_byte(&oledInit[ind++]);
+	while (dataSize--) {
+	    writeData(pgm_read_byte(&oledInit[ind++]));
+	}
+    }
 
-    writeCommand(CMD_SET_DISPLAY_OFF);
-
-    writeCommand(CMD_SET_CLOCK_DIVIDER);
-    writeData(0x91);
-
-    writeCommand(CMD_SET_MULTIPLEX_RATIO);
-    writeData(0x3F); /*duty = 1/64*,64 COMS are enabled*/
-
-    writeCommand(CMD_SET_DISPLAY_OFFSET);
-    writeData(0x00);
-
-    writeCommand(CMD_SET_DISPLAY_START_LINE); /*set start line position*/
-    writeData(0x00);
-
-    writeCommand(CMD_SET_REMAP);
-    writeData(0x14);	//Horizontal address increment,Disable Column Address Re-map,Enable Nibble Re-map,Scan from COM[N-1] to COM0,Disable COM Split Odd Even
-    writeData(0x11);	//Enable Dual COM mode
-
-    /*writeCommand(0xB5); //GPIO
-
-    writeCommand(0x00); */
-
-    writeCommand(CMD_SET_FUNCTION_SELECTION);
-    writeData(0x01); /* selection external VDD */
-
-    writeCommand(CMD_DISPLAY_ENHANCEMENT);
-    writeData(0xA0);	/*enables the external VSL*/
-    writeData(0xfd);	/*0xfd,Enhanced low GS display quality;default is 0xb5(normal),*/
-
-    writeCommand(CMD_SET_CONTRAST_CURRENT);
-    writeData(0xff); /* 0xff */	/*default is 0x7f*/
-
-    writeCommand(CMD_MASTER_CURRENT_CONTROL); 
-    writeData(0x0f);	/*default is 0x0f*/
-
-    /* writeCommand(0xB9); GRAY TABLE,linear Gray Scale*/
-
-    writeCommand(CMD_SET_PHASE_LENGTH);
-    writeData(0xE2);	 /*default is 0x74*/
-
-    writeCommand(CMD_DISPLAY_ENHANCEMENT_B);
-    writeData(0x82);	 /*Reserved;default is 0xa2(normal)*/
-    writeData(0x20);
-
-    writeCommand(CMD_SET_PRECHARGE_VOLTAGE);
-    writeData(0x1F);	 /*0.6xVcc*/
-
-    writeCommand(CMD_SET_SECOND_PRECHARGE_PERIOD);
-    writeData(0x08);	 /*default*/
-
-    writeCommand(CMD_SET_VCOMH_VOLTAGE	);
-    writeData(0x07);	 /*0.86xVcc;default is 0x04*/
-
-    writeCommand(CMD_SET_DISPLAY_MODE_NORMAL);
-
+    digitalWrite(_power, LOW);
+    delay(2000);
     writeCommand(CMD_SET_DISPLAY_ON);
 }
 
@@ -293,7 +293,7 @@ void OledMP::writeCommand(uint8_t reg)
 {
     pinLow(port_cs, pin_cs);
     pinLow(port_dc, pin_dc);
-    SPI.transfer(reg);
+    _spi.transfer(reg);
     pinHigh(port_cs, pin_cs);
 }
 
@@ -305,7 +305,7 @@ void OledMP::writeData(uint8_t data)
 {
     pinLow(port_cs, pin_cs);
     pinHigh(port_dc, pin_dc);
-    SPI.transfer(data);
+    _spi.transfer(data);
     pinHigh(port_cs, pin_cs);
 }
 
@@ -441,7 +441,7 @@ void OledMP::clear()
 void OledMP::reset()
 {
     digitalWrite(_reset,LOW);
-    delay(10);
+    delay(100);
     digitalWrite(_reset,HIGH);
     delay(10);
 }

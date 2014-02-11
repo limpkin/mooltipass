@@ -21,10 +21,15 @@
 *	\brief	Smart Card low level functions
 *	Copyright [2014] [Mathieu Stephan]
 */
+#include "smartcard.h"
+
 #include <avr/interrupt.h>
-#include "../mooltipass.h"
 #include <util/delay.h>
 #include <avr/io.h>
+
+#include "../mooltipass.h"
+#include "../UTILS/utils.h"
+#include "smart_card_higher_level_functions.h"
 
 /** Counter for successive card detects **/
 volatile uint8_t card_detect_counter;
@@ -483,6 +488,7 @@ uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_
 RET_TYPE firstDetectFunctionSMC(void)
 {
 	uint8_t data_buffer[2];
+	uint16_t *data_buf16 = (uint16_t*)data_buffer;
 	uint16_t temp_uint;
 	
 	/* Enable power to the card */
@@ -508,7 +514,7 @@ RET_TYPE firstDetectFunctionSMC(void)
 	
 	/* Check smart card FZ */
 	readFabricationZone(data_buffer);
-	if((swap16(*(uint16_t*)data_buffer)) != SMARTCARD_FABRICATION_ZONE)
+	if((swap16(*data_buf16)) != SMARTCARD_FABRICATION_ZONE)
 		return RETURN_CARD_NDET;
 	
 	/* Perform test write on MTZ... */

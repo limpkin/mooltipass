@@ -21,8 +21,7 @@
  *		\brief	Interrupts
  */
 #include <avr/interrupt.h>
-#include "mooltipass.h"
-
+#include "CARD/smartcard.h"
 
 /*!	\fn		ISR(TIMER1_COMPA_vect)
 *	\brief	Interrupt called every ms

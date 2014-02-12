@@ -21,8 +21,8 @@ pcb_component_height = 3.0;
 card_slot_height = 6.5;
 card_slot_length = 60.0;
 
-oled_width = 28.5;
-oled_length = 88.0;
+oled_width = 28.2;
+oled_length = 88.6;
 oled_offset = 1.5;
 oled_thickness = 2.2;
 oled_flex_clearance = 3.0;

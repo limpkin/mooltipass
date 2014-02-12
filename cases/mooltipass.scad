@@ -21,7 +21,7 @@ pcb_component_height = 3.0;
 card_slot_height = 6.5;
 card_slot_length = 60.0;
 
-oled_width = 28.0;
+oled_width = 28.5;
 oled_length = 88.0;
 oled_offset = 1.5;
 oled_thickness = 2.2;
@@ -69,15 +69,15 @@ module case(top, bottom)
 	// screw holes
 	translate([8, width-7, -0.01]) {
 	    cylinder(r=m3_nut_diameter/2, h=m3_nut_height, $fn=6);
-	    translate([0, 0, 0.01+m3_nut_height+0.2])
-		cylinder(r=m3_diameter/2, h=height-m3_cap_height-m3_nut_height-0.4, $fn=30);
+	    translate([0, 0, 0.01+m3_nut_height+0.3])
+		cylinder(r=m3_diameter/2, h=height-m3_cap_height-m3_nut_height-0.5, $fn=30);
 	    translate([0, 0, 0.01+height-m3_cap_height])
 		cylinder(r=m3_cap_diameter/2, h=m3_cap_height+0.01, $fn=30);
 	}
 	translate([length-8, width-7, -0.01]) {
 	    cylinder(r=m3_nut_diameter/2, h=m3_nut_height, $fn=6);
-	    translate([0, 0, 0.01+m3_nut_height+0.2])
-		cylinder(r=m3_diameter/2, h=height-m3_cap_height-m3_nut_height-0.4, $fn=30);
+	    #translate([0, 0, 0.01+m3_nut_height+0.3])
+		cylinder(r=m3_diameter/2, h=height-m3_cap_height-m3_nut_height-0.5, $fn=30);
 	    translate([0, 0, 0.01+height-m3_cap_height])
 		cylinder(r=m3_cap_diameter/2, h=m3_cap_height+0.01, $fn=30);
 	}

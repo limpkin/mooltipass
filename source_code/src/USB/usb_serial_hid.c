@@ -30,9 +30,7 @@
 // Version 1.6: fix zero length packet bug
 // Version 1.7: fix usb_serial_set_control
 
-#define USB_SERIAL_PRIVATE_INCLUDE
-#include "usb_serial.h"
-
+#include "usb_serial_hid.h"
 
 /**************************************************************************
  *
@@ -53,7 +51,7 @@
 // same COM port number because Windows remembers serial numbers.
 //
 // On Mac OS-X, a device file is created automatically which
-// incorperates the serial number, eg, /dev/cu-usbmodem12341
+// incorporates the serial number, eg, /dev/cu-usbmodem12341
 //
 // Linux by default ignores the serial number, and creates device
 // files named /dev/ttyACM0, /dev/ttyACM1... in the order connected.
@@ -80,13 +78,13 @@
 
 // If the PC is connected but not "listening", this is the length
 // of time before usb_serial_getchar() returns with an error.  This
-// is roughly equivilant to a real UART simply transmitting the
+// is roughly equivalent to a real UART simply transmitting the
 // bits on a wire where nobody is listening, except you get an error
 // code which you can ignore for serial-like discard of data, or
 // use to know your data wasn't sent.
 #define TRANSMIT_TIMEOUT	25   /* in milliseconds */
 
-// USB devices are supposed to implment a halt feature, which is
+// USB devices are supposed to implement a halt feature, which is
 // rarely (if ever) used.  If you comment this line out, the halt
 // code will be removed, saving 116 bytes of space (gcc 4.3.0).
 // This is not strictly USB compliant, but works with all major
@@ -106,8 +104,7 @@
 // is where you can make such changes.  The AT90USB162 has only 176 bytes
 // of DPRAM (USB buffers) and only endpoints 3 & 4 can double buffer.
 
-#define ENDPOINT0_SIZE		32 //? 16
-//#define ENDPOINT1_SIZE		32
+#define ENDPOINT0_SIZE		32 //? 16 may be enough.
 
 #define CDC_ACM_ENDPOINT	2
 #define CDC_RX_ENDPOINT		3
@@ -133,12 +130,12 @@
 #define KEYBOARD_SIZE		8
 #define KEYBOARD_BUFFER		EP_SINGLE_BUFFER
 
+#define ENDPOINT_CONFIG_ENTRIES	5 //number of endpoints in endpoint_config_table.
 static const uint8_t PROGMEM endpoint_config_table[] = {
 	0,
 	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(CDC_ACM_SIZE) | CDC_ACM_BUFFER,
 	1, EP_TYPE_BULK_OUT,      EP_SIZE(CDC_RX_SIZE) | CDC_RX_BUFFER,
 	1, EP_TYPE_BULK_IN,       EP_SIZE(CDC_TX_SIZE) | CDC_TX_BUFFER,
-	
 	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(KEYBOARD_SIZE) | KEYBOARD_BUFFER
 };
 
@@ -159,7 +156,7 @@ static const uint8_t PROGMEM device_descriptor[] = {
 	18,					// bLength
 	1,					// bDescriptorType
 	0x00, 0x02,				// bcdUSB
-	0,					// bDeviceClass
+	0,					// bDeviceClass 0 because we are a composite device.
 	0,					// bDeviceSubClass
 	0,					// bDeviceProtocol
 	ENDPOINT0_SIZE,				// bMaxPacketSize0
@@ -208,10 +205,8 @@ static const uint8_t PROGMEM keyboard_hid_report_desc[] = {
 	0xc0                 // End Collection
 };
 
-#define CONFIG1_DESC_SIZE (9+9+5+5+4+5+7+9+7+7   +9+9+7)
-//#define KEYBOARD_HID_DESC_OFFSET (9+9)
-#define KEYBOARD_HID_DESC_OFFSET (9+9+5+5+4+5+7+9+7+7   +9)
-
+#define CONFIG1_DESC_SIZE (9+9+5+5+4+5+7+9+7+7+9+9+7)
+#define KEYBOARD_HID_DESC_OFFSET (9+9+5+5+4+5+7+9+7+7+9)
 
 static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
 	// configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
@@ -287,8 +282,6 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
 	0x02,					// bmAttributes (0x02=bulk)
 	CDC_TX_SIZE, 0,				// wMaxPacketSize
 	0,					// bInterval
-	
-	
 	
 	// interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
 	9,					// bLength
@@ -418,7 +411,13 @@ volatile uint8_t keyboard_leds=0;
  *  Public Functions - these are the API intended for the user
  *
  **************************************************************************/
-// perform a single keystroke
+
+/*!	\fn		usb_keyboard_press(uint8_t key, uint8_t modifier)
+*	\brief	Perform a single keystroke.
+*	\param	key			The key to be "pressed".
+*	\param	modifier	The AND of all modifier keys to be pressed.
+*	\return	0 for success, return value of usb_keyboard_send() if error.
+*/
 int8_t usb_keyboard_press(uint8_t key, uint8_t modifier)
 {
 	int8_t r;
@@ -432,7 +431,10 @@ int8_t usb_keyboard_press(uint8_t key, uint8_t modifier)
 	return usb_keyboard_send();
 }
 
-// send the contents of keyboard_keys and keyboard_modifier_keys
+/*!	\fn		usb_keyboard_send(void)
+*	\brief	Send the contents of keyboard_keys and keyboard_modifier_keys.
+*	\return	0 for success, -1 for error.
+*/
 int8_t usb_keyboard_send(void)
 {
 	uint8_t i, intr_state, timeout;
@@ -466,7 +468,9 @@ int8_t usb_keyboard_send(void)
 	return 0;
 }
 
-// initialize USB serial
+/*!	\fn		usb_init(void)
+*	\brief	Initialize USB communication.
+*/
 void usb_init(void)
 {
 	HW_CONFIG();
@@ -481,14 +485,19 @@ void usb_init(void)
 	sei();
 }
 
-// return 0 if the USB is not configured, or the configuration
-// number selected by the HOST
+/*!	\fn		usb_configured(void)
+*	\brief	Return 0 if the USB is not configured, or the configuration
+*			number selected by the HOST.
+*/
 uint8_t usb_configured(void)
 {
 	return usb_configuration;
 }
 
-// get the next character, or -1 if nothing received
+/*!	\fn		usb_serial_getchar(void)
+*	\brief	Get the next character.
+*	\return	Next character, or -1 if nothing received.
+*/
 int16_t usb_serial_getchar(void)
 {
 	uint8_t c, intr_state;
@@ -522,7 +531,10 @@ int16_t usb_serial_getchar(void)
 	return c;
 }
 
-// number of bytes available in the receive buffer
+/*!	\fn		usb_serial_available(void)
+*	\brief	Returns number of bytes available in the receive buffer.
+*	\return	Number of bytes available in the receive buffer.
+*/
 uint8_t usb_serial_available(void)
 {
 	uint8_t n=0, i, intr_state;
@@ -541,7 +553,9 @@ uint8_t usb_serial_available(void)
 	return n;
 }
 
-// discard any buffered input
+/*!	\fn		usb_serial_flush_input(void)
+*	\brief	Discard any buffered input.
+*/
 void usb_serial_flush_input(void)
 {
 	uint8_t intr_state;
@@ -557,7 +571,11 @@ void usb_serial_flush_input(void)
 	}
 }
 
-// transmit a character.  0 returned on success, -1 on error
+/*!	\fn		usb_serial_putchar(uint8_t c)
+*	\brief	Transmit a character.
+*	\param	c	Character to be transmitted.
+*	\return	0 on success, -1 on error.
+*/
 int8_t usb_serial_putchar(uint8_t c)
 {
 	uint8_t timeout, intr_state;
@@ -606,9 +624,11 @@ int8_t usb_serial_putchar(uint8_t c)
 	return 0;
 }
 
-
-// transmit a character, but do not wait if the buffer is full,
-//   0 returned on success, -1 on buffer full or error 
+/*!	\fn		usb_serial_putchar_nowait(uint8_t c)
+*	\brief	Transmit a character but do not wait if buffer is full.
+*	\param	c	Character to be transmitted.
+*	\return	0 on success, -1 on buffer full or error.
+*/
 int8_t usb_serial_putchar_nowait(uint8_t c)
 {
 	uint8_t intr_state;
@@ -631,8 +651,6 @@ int8_t usb_serial_putchar_nowait(uint8_t c)
 	return 0;
 }
 
-// transmit a buffer.
-//  0 returned on success, -1 on error
 // This function is optimized for speed!  Each call takes approx 6.1 us overhead
 // plus 0.25 us per byte.  12 Mbit/sec USB has 8.67 us per-packet overhead and
 // takes 0.67 us per byte.  If called with 64 byte packet-size blocks, this function
@@ -642,7 +660,12 @@ int8_t usb_serial_putchar_nowait(uint8_t c)
 // can also be limited by how quickly the PC-based software reads data, as the host
 // controller in the PC will not allocate bandwitdh without a pending read request.
 // (thanks to Victor Suarez for testing and feedback and initial code)
-
+/*!	\fn		usb_serial_write(const uint8_t *buffer, uint16_t size)
+*	\brief	Transmit a buffer.
+*	\param	*buffer	Pointer to buffer to be transmitted.
+*	\param	size	Size of buffer to be transmitted.
+*	\return	0 on success, -1 on error.
+*/
 int8_t usb_serial_write(const uint8_t *buffer, uint16_t size)
 {
 	uint8_t timeout, intr_state, write_size;
@@ -773,11 +796,12 @@ int8_t usb_serial_write(const uint8_t *buffer, uint16_t size)
 	return 0;
 }
 
-
-// immediately transmit any buffered output.
 // This doesn't actually transmit the data - that is impossible!
 // USB devices only transmit when the host allows, so the best
 // we can do is release the FIFO buffer for when the host wants it
+/*!	\fn		usb_serial_flush_output(void)
+*	\brief	Immediately release FIFO buffer for host to read.
+*/
 void usb_serial_flush_output(void)
 {
 	uint8_t intr_state;
@@ -813,16 +837,26 @@ uint8_t usb_serial_get_numbits(void)
 {
 	return cdc_line_coding[6];
 }
+
+/*!	\fn		usb_serial_get_control(void)
+*	\brief	Get control settings cached in ram.
+*	\return	Control settings.
+*/
 uint8_t usb_serial_get_control(void)
 {
 	return cdc_line_rtsdtr;
 }
-// write the control signals, DCD, DSR, RI, etc
+ 
 // There is no CTS signal.  If software on the host has transmitted
 // data to you but you haven't been calling the getchar function,
 // it remains buffered (either here or on the host) and can not be
 // lost because you weren't listening at the right time, like it
 // would in real serial communication.
+/*!	\fn		usb_serial_set_control(uint8_t signals)
+*	\brief	Write the control signals, DCD, DSR, RI, etc.
+*	\param	signals	Signals.
+*	\return	0 on success, -1 on error.
+*/
 int8_t usb_serial_set_control(uint8_t signals)
 {
 	uint8_t intr_state;
@@ -875,9 +909,11 @@ ISR(USB_GEN_vect)
 	uint8_t i;
 	static uint8_t div4=0;
 	
-        intbits = UDINT;
-        UDINT = 0;
-        if (intbits & (1<<EORSTI)) {
+	intbits = UDINT;
+	UDINT = 0;
+
+	if (intbits & (1<<EORSTI))
+	{
 		UENUM = 0;
 		UECONX = 1;
 		UECFG0X = EP_TYPE_CONTROL;
@@ -885,46 +921,50 @@ ISR(USB_GEN_vect)
 		UEIENX = (1<<RXSTPE);
 		usb_configuration = 0;
 		cdc_line_rtsdtr = 0;
-        }
-	if (intbits & (1<<SOFI)) {
-		if (usb_configuration) {
+	}
+	
+	if (intbits & (1<<SOFI))
+	{
+		if (usb_configuration)
+		{
 			t = transmit_flush_timer;
-			if (t) {
+			if (t)
+			{
 				transmit_flush_timer = --t;
-				if (!t) {
+				if (!t)
+				{
 					UENUM = CDC_TX_ENDPOINT;
 					UEINTX = 0x3A;
 				}
 			}
 		}
 		
-
-if (keyboard_idle_config && (++div4 & 3) == 0) {
-	UENUM = KEYBOARD_ENDPOINT;
-	if (UEINTX & (1<<RWAL)) {
-		keyboard_idle_count++;
-		if (keyboard_idle_count == keyboard_idle_config) {
-			keyboard_idle_count = 0;
-			UEDATX = keyboard_modifier_keys;
-			UEDATX = 0;
-			for (i=0; i<6; i++) {
-				UEDATX = keyboard_keys[i];
+		if (keyboard_idle_config && (++div4 & 3) == 0)
+		{
+			UENUM = KEYBOARD_ENDPOINT;
+			if (UEINTX & (1<<RWAL))
+			{
+				keyboard_idle_count++;
+				if (keyboard_idle_count == keyboard_idle_config)
+				{
+					keyboard_idle_count = 0;
+					UEDATX = keyboard_modifier_keys;
+					UEDATX = 0;
+					for (i=0; i<6; i++)
+					{
+						UEDATX = keyboard_keys[i];
+					}
+					UEINTX = 0x3A;
+				}
 			}
-			UEINTX = 0x3A;
-		}
-	}
-}		
-		
-		
-		
+		}			
 	}
 }
-
 
 // Misc functions to wait for ready and send/receive packets
 static inline void usb_wait_in_ready(void)
 {
-	while (!(UEINTX & (1<<TXINI))) ;
+	while (!(UEINTX & (1<<TXINI)));
 }
 static inline void usb_send_in(void)
 {
@@ -932,14 +972,12 @@ static inline void usb_send_in(void)
 }
 static inline void usb_wait_receive_out(void)
 {
-	while (!(UEINTX & (1<<RXOUTI))) ;
+	while (!(UEINTX & (1<<RXOUTI)));
 }
 static inline void usb_ack_out(void)
 {
 	UEINTX = ~(1<<RXOUTI);
 }
-
-
 
 // USB Endpoint Interrupt - endpoint 0 is handled here.  The
 // other endpoints are manipulated by the user-callable
@@ -947,9 +985,9 @@ static inline void usb_ack_out(void)
 //
 ISR(USB_COM_vect)
 {
-        uint8_t intbits;
+    uint8_t intbits;
 	const uint8_t *list;
-        const uint8_t *cfg;
+    const uint8_t *cfg;
 	uint8_t i, n, len, en;
 	uint8_t *p;
 	uint8_t bmRequestType;
@@ -961,8 +999,9 @@ ISR(USB_COM_vect)
 	const uint8_t *desc_addr;
 	uint8_t	desc_length;
 
-        UENUM = 0;
-        intbits = UEINTX;
+    UENUM = 0;
+    intbits = UEINTX;
+	
         if (intbits & (1<<RXSTPI)) {
                 bmRequestType = UEDATX;
                 bRequest = UEDATX;
@@ -1027,7 +1066,7 @@ ISR(USB_COM_vect)
 			transmit_flush_timer = 0;
 			usb_send_in();
 			cfg = endpoint_config_table;
-			for (i=1; i<6; i++) { //This is increased to 6 because there is an additional endpoint.
+			for (i=1; i<=ENDPOINT_CONFIG_ENTRIES; i++) {
 				UENUM = i;
 				en = pgm_read_byte(cfg++);
 				UECONX = en;
@@ -1153,9 +1192,6 @@ ISR(USB_COM_vect)
 			}
 		}
 	}		
-		
-		
+				
 	UECONX = (1<<STALLRQ) | (1<<EPEN);	// stall
 }
-
-

@@ -1,7 +1,10 @@
-#ifndef usb_serial_h__
-#define usb_serial_h__
+#ifndef usb_serial_hid_h__
+#define usb_serial_hid_h__
 
 #include <stdint.h>
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#include <avr/interrupt.h>
 
 // setup
 void usb_init(void);			// initialize everything
@@ -161,20 +164,6 @@ int8_t usb_serial_set_control(uint8_t signals); // set DSR, DCD, RI, etc
 #define USB_SERIAL_PARITY_ERR		0x20
 #define USB_SERIAL_OVERRUN_ERR		0x40
 
-// This file does not include the HID debug functions, so these empty
-// macros replace them with nothing, so users can compile code that
-// has calls to these functions.
-#define usb_debug_putchar(c)
-#define usb_debug_flush_output()
-
-
-
-// Everything below this point is only intended for usb_serial.c
-#ifdef USB_SERIAL_PRIVATE_INCLUDE
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-
 #define EP_TYPE_CONTROL			0x00
 #define EP_TYPE_BULK_IN			0x81
 #define EP_TYPE_BULK_OUT		0x80
@@ -238,5 +227,5 @@ int8_t usb_serial_set_control(uint8_t signals); // set DSR, DCD, RI, etc
 #define CDC_SET_LINE_CODING		0x20
 #define CDC_GET_LINE_CODING		0x21
 #define CDC_SET_CONTROL_LINE_STATE	0x22
-#endif
+
 #endif

@@ -34,9 +34,11 @@
 #include "GRAPHICS/graphics.h"
 #include "FLASH/flash_mem.h"
 #include "CARD/smartcard.h"
-#include "USB/teensy_usb.h"
+#include "USB/usb_serial_hid.h"
 #include "UTILS/utils.h"
-#include "OLED/oled.h"
 #include "interrupts.h"
+#include "OLED/oled.h"
+
+uint16_t mooltipass_rand(void);
 
 #endif /* MOOLTIPASS_H_ */

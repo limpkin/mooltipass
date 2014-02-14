@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Mooltipass: C:/Users/stephan/Dropbox/Projets/mooltipass/source_code/src/FLASH/flash_mem.c File Reference</title>
+<title>Mooltipass: C:/Users/lina/Documents/GitHub/mooltipass/source_code/src/FLASH/flash_mem.c File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -24,7 +24,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Mooltipass
    </div>
-   <div id="projectbrief">Offline Password Keeper Developed on Hackaday</div>
+   <div id="projectbrief">Offline password keeper</div>
   </td>
  </tr>
  </tbody>
@@ -80,7 +80,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_34b56d2b6f2e76de660152d993baf1a2.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_770d1e45642f3cb89174f389ed015f80.html">source_code</a></li><li class="navelem"><a class="el" href="dir_5faa3c327f12db20b730af18a908a578.html">src</a></li><li class="navelem"><a class="el" href="dir_e123052337b816cd4e9ba11faacf4f71.html">FLASH</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_c56ac4f8932da2fd86be056069096cd5.html">GitHub</a></li><li class="navelem"><a class="el" href="dir_59cf0649e5b7edd071f5ce5eb5c24166.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_03209529255f2c12196becd6bde18e42.html">source_code</a></li><li class="navelem"><a class="el" href="dir_b0e44ad39df7bcefcca7fada3e201141.html">src</a></li><li class="navelem"><a class="el" href="dir_00c4c035795cbe5f5f8fa6694a36ec56.html">FLASH</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -91,42 +91,42 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Flash memory low level functions.  
+<p>Flash memory low level functions Copyright [2014] [Mathieu Stephan].  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;../mooltipass.h&quot;</code><br/>
 <code>#include &lt;avr/io.h&gt;</code><br/>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ab93a93cfbd67d346f685712029a9ea86"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#ab93a93cfbd67d346f685712029a9ea86">send_data_to_flash</a> (uint8_t nb_bytes_opcode, uint8_t *opcode, uint16_t nb_bytes, uint8_t *data_to_send_receive)</td></tr>
-<tr class="memdesc:ab93a93cfbd67d346f685712029a9ea86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send bytes to the flash memory... beware, buffer contents will be changed!  <a href="#ab93a93cfbd67d346f685712029a9ea86">More...</a><br/></td></tr>
-<tr class="separator:ab93a93cfbd67d346f685712029a9ea86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc034f482d33b093f02b2d67e16b52d4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#adc034f482d33b093f02b2d67e16b52d4">read_credential_block_within_flash_page</a> (uint16_t page_number, uint8_t block_id, uint8_t *buffer)</td></tr>
-<tr class="memdesc:adc034f482d33b093f02b2d67e16b52d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a block of credentials.  <a href="#adc034f482d33b093f02b2d67e16b52d4">More...</a><br/></td></tr>
-<tr class="separator:adc034f482d33b093f02b2d67e16b52d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2c733a18c8b6388d46f00dc5008817e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac2c733a18c8b6388d46f00dc5008817e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#ac2c733a18c8b6388d46f00dc5008817e">wait_for_flash_memory_read_routine</a> (void)</td></tr>
-<tr class="memdesc:ac2c733a18c8b6388d46f00dc5008817e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for the flash to be ready. <br/></td></tr>
-<tr class="separator:ac2c733a18c8b6388d46f00dc5008817e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86dcb73fa8d7e375861a6d0f259397b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#a86dcb73fa8d7e375861a6d0f259397b4">write_credential_block_within_flash_page</a> (uint16_t page_number, uint8_t block_id, uint8_t *buffer)</td></tr>
-<tr class="memdesc:a86dcb73fa8d7e375861a6d0f259397b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a block of credentials.  <a href="#a86dcb73fa8d7e375861a6d0f259397b4">More...</a><br/></td></tr>
-<tr class="separator:a86dcb73fa8d7e375861a6d0f259397b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a7d3b7ee54d94a34a59b7ed898a90c0"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#a0a7d3b7ee54d94a34a59b7ed898a90c0">check_flash_memory_id</a> (void)</td></tr>
-<tr class="memdesc:a0a7d3b7ee54d94a34a59b7ed898a90c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check the presence of the flash.  <a href="#a0a7d3b7ee54d94a34a59b7ed898a90c0">More...</a><br/></td></tr>
-<tr class="separator:a0a7d3b7ee54d94a34a59b7ed898a90c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5c18a78d6de9ba25b6ad0d6a73c515a9"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#a5c18a78d6de9ba25b6ad0d6a73c515a9">init_flash_memory</a> (void)</td></tr>
-<tr class="memdesc:a5c18a78d6de9ba25b6ad0d6a73c515a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the flash memory.  <a href="#a5c18a78d6de9ba25b6ad0d6a73c515a9">More...</a><br/></td></tr>
-<tr class="separator:a5c18a78d6de9ba25b6ad0d6a73c515a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affd5147b64d2ee3bbc74e6c940683c6e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#affd5147b64d2ee3bbc74e6c940683c6e">sendDataToFlash</a> (uint8_t nb_bytes_opcode, uint8_t *opcode, uint16_t nb_bytes, uint8_t *data_to_send_receive)</td></tr>
+<tr class="memdesc:affd5147b64d2ee3bbc74e6c940683c6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send bytes to the flash memory... beware, buffer contents will be changed!  <a href="#affd5147b64d2ee3bbc74e6c940683c6e">More...</a><br/></td></tr>
+<tr class="separator:affd5147b64d2ee3bbc74e6c940683c6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a943bf471830f72ec542d5b37ae030160"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#a943bf471830f72ec542d5b37ae030160">readCredentialBlock</a> (uint16_t page_number, uint8_t block_id, uint8_t *buffer)</td></tr>
+<tr class="memdesc:a943bf471830f72ec542d5b37ae030160"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a block of credentials.  <a href="#a943bf471830f72ec542d5b37ae030160">More...</a><br/></td></tr>
+<tr class="separator:a943bf471830f72ec542d5b37ae030160"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e8a5c9034044f422af36e4033deeb65"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e8a5c9034044f422af36e4033deeb65"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#a1e8a5c9034044f422af36e4033deeb65">waitForFlash</a> (void)</td></tr>
+<tr class="memdesc:a1e8a5c9034044f422af36e4033deeb65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for the flash to be ready. <br/></td></tr>
+<tr class="separator:a1e8a5c9034044f422af36e4033deeb65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3af3151e4e79e82e5daec836a16ec607"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#a3af3151e4e79e82e5daec836a16ec607">writeCredentialBlock</a> (uint16_t page_number, uint8_t block_id, uint8_t *buffer)</td></tr>
+<tr class="memdesc:a3af3151e4e79e82e5daec836a16ec607"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a block of credentials.  <a href="#a3af3151e4e79e82e5daec836a16ec607">More...</a><br/></td></tr>
+<tr class="separator:a3af3151e4e79e82e5daec836a16ec607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80d6fcc1bf2a1dbdc4f6462cac22c219"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#a80d6fcc1bf2a1dbdc4f6462cac22c219">checkFlashID</a> (void)</td></tr>
+<tr class="memdesc:a80d6fcc1bf2a1dbdc4f6462cac22c219"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check the presence of the flash.  <a href="#a80d6fcc1bf2a1dbdc4f6462cac22c219">More...</a><br/></td></tr>
+<tr class="separator:a80d6fcc1bf2a1dbdc4f6462cac22c219"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a555b58a0dfede24e6ed8b169b24ffc64"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flash__mem_8c.html#a555b58a0dfede24e6ed8b169b24ffc64">initFlash</a> (void)</td></tr>
+<tr class="memdesc:a555b58a0dfede24e6ed8b169b24ffc64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the flash memory.  <a href="#a555b58a0dfede24e6ed8b169b24ffc64">More...</a><br/></td></tr>
+<tr class="separator:a555b58a0dfede24e6ed8b169b24ffc64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Flash memory low level functions. </p>
+<div class="textblock"><p>Flash memory low level functions Copyright [2014] [Mathieu Stephan]. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a0a7d3b7ee54d94a34a59b7ed898a90c0"></a>
+<a class="anchor" id="a80d6fcc1bf2a1dbdc4f6462cac22c219"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">check_flash_memory_id </td>
+          <td class="memname">checkFlashID </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -140,12 +140,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flas
 
 </div>
 </div>
-<a class="anchor" id="a5c18a78d6de9ba25b6ad0d6a73c515a9"></a>
+<a class="anchor" id="a555b58a0dfede24e6ed8b169b24ffc64"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">init_flash_memory </td>
+          <td class="memname">initFlash </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -159,12 +159,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flas
 
 </div>
 </div>
-<a class="anchor" id="adc034f482d33b093f02b2d67e16b52d4"></a>
+<a class="anchor" id="a943bf471830f72ec542d5b37ae030160"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">read_credential_block_within_flash_page </td>
+          <td class="memname">readCredentialBlock </td>
           <td>(</td>
           <td class="paramtype">uint16_t&#160;</td>
           <td class="paramname"><em>page_number</em>, </td>
@@ -201,12 +201,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flas
 
 </div>
 </div>
-<a class="anchor" id="ab93a93cfbd67d346f685712029a9ea86"></a>
+<a class="anchor" id="affd5147b64d2ee3bbc74e6c940683c6e"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">send_data_to_flash </td>
+          <td class="memname">sendDataToFlash </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
           <td class="paramname"><em>nb_bytes_opcode</em>, </td>
@@ -250,12 +250,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flas
 
 </div>
 </div>
-<a class="anchor" id="a86dcb73fa8d7e375861a6d0f259397b4"></a>
+<a class="anchor" id="a3af3151e4e79e82e5daec836a16ec607"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">write_credential_block_within_flash_page </td>
+          <td class="memname">writeCredentialBlock </td>
           <td>(</td>
           <td class="paramtype">uint16_t&#160;</td>
           <td class="paramname"><em>page_number</em>, </td>
@@ -295,7 +295,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="flas
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 21 2014 12:25:21 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Feb 2 2014 07:05:10 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

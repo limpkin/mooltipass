@@ -1,4 +1,4 @@
- /* CDDL HEADER START
+/* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,40 +17,38 @@
  *
  * CDDL HEADER END
  */
-/*
- * smart_card_higher_level_functions.h
- *
- * Created: 13/01/2014 23:07:01
- *  Author: Mathieu Stephan
- */ 
 
 
 #ifndef SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_
 #define SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_
 
-uint8_t* read_fabrication_zone(uint8_t* buffer);
-uint8_t* read_issuer_zone(uint8_t* buffer);
-void write_issuer_zone(uint8_t* buffer);
-uint8_t* read_security_code(uint8_t* buffer);
-void write_security_code(uint8_t* buffer);
-uint8_t* read_security_code_attemps_counter(uint8_t* buffer);
-uint8_t* read_code_protected_zone(uint8_t* buffer);
-void write_code_protected_zone(uint8_t* buffer);
-uint8_t* read_application_zone1_erase_key(uint8_t* buffer);
-void write_application_zone1_erase_key(uint8_t* buffer);
-uint8_t* read_application_zone2_erase_key(uint8_t* buffer);
-void write_application_zone2_erase_key(uint8_t* buffer);
-uint8_t* read_memory_test_zone(uint8_t* buffer);
-void write_memory_test_zone(uint8_t* buffer);
-uint8_t* read_manufacturers_zone(uint8_t* buffer);
-void write_manufacturers_zone(uint8_t* buffer);
-void perform_card_reinit(void);
-void write_manufacturers_fuse(void);
+uint8_t* readSecurityCodeAttemptsCounters(uint8_t* buffer);
+RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void);
+RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void);
+uint8_t* readApplicationZone1EraseKey(uint8_t* buffer);
+uint8_t* readApplicationZone2EraseKey(uint8_t* buffer);
+RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code);
+void writeApplicationZone2EraseKey(uint8_t* buffer);
+void writeApplicationZone1EraseKey(uint8_t* buffer);
+void setAuthenticatedReadWriteAccessToZone1(void);
+void setAuthenticatedReadWriteAccessToZone2(void);
+uint8_t* readCodeProtectedZone(uint8_t* buffer);
+RET_TYPE transformBlankCardIntoMooltipass(void);
+uint8_t* readManufacturerZone(uint8_t* buffer);
+uint8_t getNumberOfSecurityCodeTriesLeft(void);
+uint8_t* readFabricationZone(uint8_t* buffer);
+void writeCodeProtectedZone(uint8_t* buffer);
+uint8_t* readMemoryTestZone(uint8_t* buffer);
+void writeManufacturerZone(uint8_t* buffer);
+uint8_t* readSecurityCode(uint8_t* buffer);
+void writeMemoryTestZone(uint8_t* buffer);
+uint8_t* readIssuerZone(uint8_t* buffer);
+void writeSecurityCode(uint8_t* buffer);
+void writeIssuerZone(uint8_t* buffer);
+void printSMCDebugInfoToScreen(void);
+RET_TYPE cardDetectedRoutine(void);
+void writeManufacturerFuse(void);
 void write_issuers_fuse(void);
-void print_smartcard_debug_info(void);
-uint8_t get_number_of_security_code_tries_left(void);
-RET_TYPE perform_card_mooltipass_transformation(void);
-void set_application_zone1_authenticated_read_and_write_access(void);
-void set_application_zone2_authenticated_read_and_write_access(void);
+void resetBlankCard(void);
 
 #endif /* SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_ */

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['erase_5fapplication_5fzone1_5fnzone2',['erase_application_zone1_nzone2',['../smartcard_8c.html#a4c05e9ef4824ad5e80afc178fce92a4a',1,'smartcard.c']]]
+  ['eraseapplicationzone1nzone2smc',['eraseApplicationZone1NZone2SMC',['../smartcard_8c.html#aab47186412fabe10831ff2c5e50ef7eb',1,'smartcard.c']]]
 ];

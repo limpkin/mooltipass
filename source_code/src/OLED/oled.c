@@ -317,7 +317,7 @@ void lcd_fill_ram(uint8_t data)
 	}
 }
 
-void init_oled_screen(void)
+void initOLED(void)
 {	
 	/* Setup output signals, all at one by default */
 	PORT_OLED_SS |= (1 << PORTID_OLED_SS);

@@ -24,7 +24,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Mooltipass
    </div>
-   <div id="projectbrief">Offline Password Keeper Developed on Hackaday</div>
+   <div id="projectbrief">Offline password keeper</div>
   </td>
  </tr>
  </tbody>
@@ -88,6 +88,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="#index_p"><span>p</span></a></li>
       <li><a href="#index_r"><span>r</span></a></li>
       <li><a href="#index_s"><span>s</span></a></li>
+      <li><a href="#index_t"><span>t</span></a></li>
       <li class="current"><a href="#index_w"><span>w</span></a></li>
     </ul>
   </div>
@@ -117,8 +118,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_b"></a>- b -</h3><ul>
-<li>blow_man_nissuer_fuse()
-: <a class="el" href="smartcard_8c.html#a0725d9cd9d6d04f58dff2e09314657bc">smartcard.c</a>
+<li>blowManufacturerNIssuerFuse()
+: <a class="el" href="smartcard_8c.html#ab9b06f5a1c24f2d38da1acf5328ba5ee">smartcard.c</a>
 </li>
 <li>button_return
 : <a class="el" href="smartcard_8c.html#aaa57e33d72c7dafa663ac64b70b024a2">smartcard.c</a>
@@ -133,14 +134,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>char_to_string()
 : <a class="el" href="utils_8c.html#a0dc9cefa1014c5c0bd5964ad112d6069">utils.c</a>
 </li>
-<li>check_flash_memory_id()
-: <a class="el" href="flash__mem_8c.html#a0a7d3b7ee54d94a34a59b7ed898a90c0">flash_mem.c</a>
+<li>checkFlashID()
+: <a class="el" href="flash__mem_8c.html#a80d6fcc1bf2a1dbdc4f6462cac22c219">flash_mem.c</a>
 </li>
 <li>chr_strlen()
 : <a class="el" href="utils_8c.html#a78be21b0b1659c7e7327be836b562973">utils.c</a>
-</li>
-<li>clear_pgm_rst_signals()
-: <a class="el" href="smartcard_8c.html#a3a5ded4db23f528ea5db87e3eeb79db4">smartcard.c</a>
 </li>
 <li>clear_screen()
 : <a class="el" href="graphics_8c.html#abe4dfe974413db0749ae0cf0dadb91b0">graphics.c</a>
@@ -148,15 +146,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>clear_string()
 : <a class="el" href="utils_8c.html#a9ae2eebd81d6a10e9937415fef9e9526">utils.c</a>
 </li>
-<li>clock_pulse()
-: <a class="el" href="smartcard_8c.html#ad45f12158afa06c17ffcef7c24dbfd3c">smartcard.c</a>
+<li>clearPgmRstSignals()
+: <a class="el" href="smartcard_8c.html#a4b199cccbcc01e2d6fe0f9935f60d5e1">smartcard.c</a>
+</li>
+<li>clockPulseSMC()
+: <a class="el" href="smartcard_8c.html#a0ec95b1d2105b04b261b99f3e6506966">smartcard.c</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_d"></a>- d -</h3><ul>
+<li>detectFunctionSMC()
+: <a class="el" href="smartcard_8c.html#a7a1602296f38ddd509d6c4f702c32a82">smartcard.c</a>
+</li>
 <li>disable_jtag()
-: <a class="el" href="avr__project_8c.html#ad504d32be0055a0ca60528abbf9f8ebf">avr_project.c</a>
+: <a class="el" href="mooltipass_8c.html#ad504d32be0055a0ca60528abbf9f8ebf">mooltipass.c</a>
 </li>
 <li>display_1bit_picture()
 : <a class="el" href="graphics_8c.html#a217f40161ef97e1e8a322d23ded598b0">graphics.c</a>
@@ -171,8 +175,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_e"></a>- e -</h3><ul>
-<li>erase_application_zone1_nzone2()
-: <a class="el" href="smartcard_8c.html#a4c05e9ef4824ad5e80afc178fce92a4a">smartcard.c</a>
+<li>eraseApplicationZone1NZone2SMC()
+: <a class="el" href="smartcard_8c.html#aab47186412fabe10831ff2c5e50ef7eb">smartcard.c</a>
 </li>
 </ul>
 
@@ -185,8 +189,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_g"></a>- g -</h3><ul>
-<li>get_number_of_security_code_tries_left()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#acc48ef09c99eaa7a335b1c2447ac833d">smart_card_higher_level_functions.c</a>
+<li>getNumberOfSecurityCodeTriesLeft()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#ae494310cfa8dc0185aee9d4d0ccf0ded">smart_card_higher_level_functions.c</a>
 </li>
 </ul>
 
@@ -205,11 +209,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_i"></a>- i -</h3><ul>
-<li>init_flash_memory()
-: <a class="el" href="flash__mem_8c.html#a5c18a78d6de9ba25b6ad0d6a73c515a9">flash_mem.c</a>
+<li>initFlash()
+: <a class="el" href="flash__mem_8c.html#a555b58a0dfede24e6ed8b169b24ffc64">flash_mem.c</a>
 </li>
-<li>init_smartcard_port()
-: <a class="el" href="smartcard_8c.html#a4dc33f73066a6e64c5f56caf323d4cec">smartcard.c</a>
+<li>initIRQ()
+: <a class="el" href="interrupts_8c.html#ae8fec399574aff9eb9b38b57d9a7d14d">interrupts.c</a>
+</li>
+<li>initPortSMC()
+: <a class="el" href="smartcard_8c.html#a86d37cf01eedcc32280754a362def312">smartcard.c</a>
 </li>
 <li>int_strlen()
 : <a class="el" href="utils_8c.html#ab0885f9d21fdf94f2d42544fb83a741d">utils.c</a>
@@ -217,11 +224,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>int_to_string()
 : <a class="el" href="utils_8c.html#a16d061ecadf4ab1e7e2023d862d626a0">utils.c</a>
 </li>
-<li>inverted_clock_pulse()
-: <a class="el" href="smartcard_8c.html#a6472b5d74d0edfd9d9ae61406ab02da1">smartcard.c</a>
+<li>invertedClockPulseSMC()
+: <a class="el" href="smartcard_8c.html#ab022be0e7dcbcdae695f60641b609e6e">smartcard.c</a>
 </li>
-<li>is_card_plugged()
-: <a class="el" href="smartcard_8c.html#a7cfb10760e1a39a02371cf4d0231dd20">smartcard.c</a>
+<li>isCardPlugged()
+: <a class="el" href="smartcard_8c.html#a8f3674d61b124fab1355c64654a5e0e6">smartcard.c</a>
+</li>
+<li>ISR()
+: <a class="el" href="interrupts_8c.html#ad39420cdd896dd12c68e36313139d0a5">interrupts.c</a>
 </li>
 </ul>
 
@@ -235,7 +245,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <h3><a class="anchor" id="index_m"></a>- m -</h3><ul>
 <li>main()
-: <a class="el" href="avr__project_8c.html#a568b3afc214ba30be5bf526d6b27b611">avr_project.c</a>
+: <a class="el" href="mooltipass_8c.html#a568b3afc214ba30be5bf526d6b27b611">mooltipass.c</a>
 </li>
 </ul>
 
@@ -248,76 +258,82 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_p"></a>- p -</h3><ul>
-<li>perform_card_mooltipass_transformation()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#ac23c99ca5f4617bb7f9303913e524ef9">smart_card_higher_level_functions.c</a>
+<li>performLowLevelWriteNErase()
+: <a class="el" href="smartcard_8c.html#a4aa11ef137e825d206aba775664bfcf3">smartcard.c</a>
 </li>
-<li>perform_card_reinit()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a5ede5ac707413f26aade0a1fdd8792a5">smart_card_higher_level_functions.c</a>
-</li>
-<li>perform_low_level_write_nerase()
-: <a class="el" href="smartcard_8c.html#ae2f3879dc0c722efb4862e0b02b4e990">smartcard.c</a>
-</li>
-<li>print_smartcard_debug_info()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a0cfc3729ead0c6451e7f03eeea155141">smart_card_higher_level_functions.c</a>
+<li>printSMCDebugInfoToScreen()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a1e70078c5fc83c4a4508a9f80dba4fc7">smart_card_higher_level_functions.c</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_r"></a>- r -</h3><ul>
-<li>read_application_zone1_erase_key()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a2fcf8191b38a025ed2d4168f5d4f2a17">smart_card_higher_level_functions.c</a>
+<li>readApplicationZone1EraseKey()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#aa114d024b1c4bde9dcab77878b030e85">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_application_zone2_erase_key()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a8cd6d39f293c84ed895926ea27a22615">smart_card_higher_level_functions.c</a>
+<li>readApplicationZone2EraseKey()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#afc3a1356ebd232417392dfb0a8bb32e2">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_code_protected_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#ac089b0465c3c2450ade3218666c9a970">smart_card_higher_level_functions.c</a>
+<li>readCodeProtectedZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#af1c29b879c62774da8d7c660caccab40">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_credential_block_within_flash_page()
-: <a class="el" href="flash__mem_8c.html#adc034f482d33b093f02b2d67e16b52d4">flash_mem.c</a>
+<li>readCredentialBlock()
+: <a class="el" href="flash__mem_8c.html#a943bf471830f72ec542d5b37ae030160">flash_mem.c</a>
 </li>
-<li>read_data_from_smartcard()
-: <a class="el" href="smartcard_8c.html#a61f17b7f1bc2542102ff5eabf9bf3f7c">smartcard.c</a>
+<li>readFabricationZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a5fd5bbec32131b872c2a612b883bc00b">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_fabrication_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#ad5a46cd018b5c98853a5449dd28c0ded">smart_card_higher_level_functions.c</a>
+<li>readIssuerZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#ae1d9e97e1a8b2718d50a660a9b291bc2">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_issuer_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a4dd7d5d235e91f07e0e7daca99b05ce3">smart_card_higher_level_functions.c</a>
+<li>readManufacturerZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#accbf3fb1d94ade85ce80a59c66aa6a0b">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_manufacturers_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a4715f9185721a50991187379e61058c3">smart_card_higher_level_functions.c</a>
+<li>readMemoryTestZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a6693624f859532ae77452a81092a3aa3">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_memory_test_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a93870615434245e28b624bf39298c606">smart_card_higher_level_functions.c</a>
+<li>readSecurityCode()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a143d2798b80c58363c9cc4a834903bee">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_security_code()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a009c74e58a2408677aec59f7fd9612cd">smart_card_higher_level_functions.c</a>
+<li>readSecurityCodeAttemptsCounters()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#adb9108073c8b4b115d5954445f9762af">smart_card_higher_level_functions.c</a>
 </li>
-<li>read_security_code_attemps_counter()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a2386839f513cc9a19dc6354a945d4433">smart_card_higher_level_functions.c</a>
+<li>readSMC()
+: <a class="el" href="smartcard_8c.html#a1f145e74bb413746f2f1bf3d0a9afe8d">smartcard.c</a>
+</li>
+<li>removeFunctionSMC()
+: <a class="el" href="smartcard_8c.html#ac6da77c515a91ad7d9914159d138c6d0">smartcard.c</a>
+</li>
+<li>resetBlankCard()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#aa765848846e8970caa0dc4b147643a7a">smart_card_higher_level_functions.c</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
-<li>scan_smartcard_detect()
-: <a class="el" href="smartcard_8c.html#aed806a480ea34d2c38a4220e5d196aa8">smartcard.c</a>
+<li>scanSMCDectect()
+: <a class="el" href="smartcard_8c.html#a6e6262630051d3f40928ac1e3cb533da">smartcard.c</a>
 </li>
-<li>security_code_validation()
-: <a class="el" href="smartcard_8c.html#a9e6df05c9f3087d8f619e1187fd881bc">smartcard.c</a>
+<li>securityValidationSMC()
+: <a class="el" href="smartcard_8c.html#a40d2db6f8dae6d93ab4adfb8b31ec6fc">smartcard.c</a>
 </li>
-<li>send_data_to_flash()
-: <a class="el" href="flash__mem_8c.html#ab93a93cfbd67d346f685712029a9ea86">flash_mem.c</a>
+<li>sendDataToFlash()
+: <a class="el" href="flash__mem_8c.html#affd5147b64d2ee3bbc74e6c940683c6e">flash_mem.c</a>
 </li>
-<li>set_application_zone1_authenticated_read_and_write_access()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a00632e1f41b8cd0bdc9addd0e7eb65c5">smart_card_higher_level_functions.c</a>
+<li>setAuthenticatedReadWriteAccessToZone1()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a5db7aa4e74b13c2c5885ebaeb4d5ee44">smart_card_higher_level_functions.c</a>
 </li>
-<li>set_application_zone2_authenticated_read_and_write_access()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a127786690d96d2be735ecef006f88bc2">smart_card_higher_level_functions.c</a>
+<li>setAuthenticatedReadWriteAccessToZone2()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#ac24f5049a7dc3678cf4e626997abd423">smart_card_higher_level_functions.c</a>
 </li>
-<li>set_pgm_rst_signals()
-: <a class="el" href="smartcard_8c.html#aed4dc955fe0e698b5917d8b20ceb2f54">smartcard.c</a>
+<li>setBBModeAndPgmRstSMC()
+: <a class="el" href="smartcard_8c.html#a0686788099ac2dbeb3d8549a3a2ed4d6">smartcard.c</a>
+</li>
+<li>setPgmRstSignals()
+: <a class="el" href="smartcard_8c.html#aef96c0dfd3b886b7fd542ab908b2ba29">smartcard.c</a>
+</li>
+<li>setSPIModeSMC()
+: <a class="el" href="smartcard_8c.html#a9e51b7fbfdaaa845ef57c79191630094">smartcard.c</a>
 </li>
 <li>Show_BF_Nb_Chars()
 : <a class="el" href="graphics_8c.html#af124f59c4be2df80389a483615a0e7ee">graphics.c</a>
@@ -337,66 +353,61 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>Show_String()
 : <a class="el" href="graphics_8c.html#ae456e39a849a01290b88d54674a29f2b">graphics.c</a>
 </li>
-<li>smartcard_detection_functions()
-: <a class="el" href="smartcard_8c.html#a40ab7c2931b7de2008c80575e341c966">smartcard.c</a>
-</li>
-<li>smartcard_removal_functions()
-: <a class="el" href="smartcard_8c.html#a9ba5ce5b310110eac0460cbd0c161d8c">smartcard.c</a>
-</li>
 <li>swap16()
 : <a class="el" href="utils_8c.html#a3b26b57cd3454c05cc2b3b344708bb66">utils.c</a>
 </li>
-<li>switch_to_bit_mode_and_clear_pgm_rst_signals()
-: <a class="el" href="smartcard_8c.html#a8aedff4d1017d9bfb619402fa09cead8">smartcard.c</a>
-</li>
-<li>switch_to_spi_mode()
-: <a class="el" href="smartcard_8c.html#a8766459f78612212cb8eb3f0bfc25849">smartcard.c</a>
+</ul>
+
+
+<h3><a class="anchor" id="index_t"></a>- t -</h3><ul>
+<li>transformBlankCardIntoMooltipass()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a08acefad14505738a8b5aafb9f97312f">smart_card_higher_level_functions.c</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_w"></a>- w -</h3><ul>
-<li>wait_for_flash_memory_read_routine()
-: <a class="el" href="flash__mem_8c.html#ac2c733a18c8b6388d46f00dc5008817e">flash_mem.c</a>
-</li>
-<li>write_application_zone1_erase_key()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a36e37095b7562e8e95abcc9c37eab309">smart_card_higher_level_functions.c</a>
-</li>
-<li>write_application_zone2_erase_key()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a2ecc2e279354d61e2ebbf320b3bffdae">smart_card_higher_level_functions.c</a>
-</li>
-<li>write_code_protected_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#af6e361950f5718900f36e61966c116e3">smart_card_higher_level_functions.c</a>
-</li>
-<li>write_credential_block_within_flash_page()
-: <a class="el" href="flash__mem_8c.html#a86dcb73fa8d7e375861a6d0f259397b4">flash_mem.c</a>
-</li>
-<li>write_issuer_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a91979dccbabae81b16ff57887aaa0689">smart_card_higher_level_functions.c</a>
+<li>waitForFlash()
+: <a class="el" href="flash__mem_8c.html#a1e8a5c9034044f422af36e4033deeb65">flash_mem.c</a>
 </li>
 <li>write_issuers_fuse()
 : <a class="el" href="smart__card__higher__level__functions_8c.html#a4c8d6cddbd4c647f0d4aaf4bfb7094e1">smart_card_higher_level_functions.c</a>
 </li>
-<li>write_manufacturers_fuse()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a28a6c325efcd105c7aa278db077977ac">smart_card_higher_level_functions.c</a>
+<li>writeApplicationZone1EraseKey()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a6880d385434c157a7c33940e483ee0f3">smart_card_higher_level_functions.c</a>
 </li>
-<li>write_manufacturers_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a869c3fe895ff95a63c5d003032ab9c7a">smart_card_higher_level_functions.c</a>
+<li>writeApplicationZone2EraseKey()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a2d437e1c612be5050c8ef3b622440c3f">smart_card_higher_level_functions.c</a>
 </li>
-<li>write_memory_test_zone()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#a89f7e82d3a49e4b71d1e4f384d75a247">smart_card_higher_level_functions.c</a>
+<li>writeCodeProtectedZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a8e52507fa438bbb794fc6e1d36398647">smart_card_higher_level_functions.c</a>
 </li>
-<li>write_security_code()
-: <a class="el" href="smart__card__higher__level__functions_8c.html#aebca1d05d278d2cf79f9b0e98af8f43f">smart_card_higher_level_functions.c</a>
+<li>writeCredentialBlock()
+: <a class="el" href="flash__mem_8c.html#a3af3151e4e79e82e5daec836a16ec607">flash_mem.c</a>
 </li>
-<li>write_to_smartcard()
-: <a class="el" href="smartcard_8c.html#a1c9cc77e1dbe1b4a463ba0a1673a5379">smartcard.c</a>
+<li>writeIssuerZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#aaed89b61a459e1aff83e5d25781a71cc">smart_card_higher_level_functions.c</a>
+</li>
+<li>writeManufacturerFuse()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#a8e2dbac02af2437018e0e9a636fe1a96">smart_card_higher_level_functions.c</a>
+</li>
+<li>writeManufacturerZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#ac3e956423efc401426590dd15dfad2c5">smart_card_higher_level_functions.c</a>
+</li>
+<li>writeMemoryTestZone()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#aaea6e5b5a5624c12f0d79523f7040d79">smart_card_higher_level_functions.c</a>
+</li>
+<li>writeSecurityCode()
+: <a class="el" href="smart__card__higher__level__functions_8c.html#adc65a6ccb96da4e6065e46442bb59322">smart_card_higher_level_functions.c</a>
+</li>
+<li>writeSMC()
+: <a class="el" href="smartcard_8c.html#ab324702065e86b81a2e561b84f81bb0b">smartcard.c</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 21 2014 12:25:21 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Feb 2 2014 07:05:10 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

@@ -1,15 +1,36 @@
-/*
- * defines.h
+ /* CDDL HEADER START
  *
- * Created: 08/12/2013 14:03:47
- *  Author: limpkin
- */ 
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License (the "License").
+ * You may not use this file except in compliance with the License.
+ *
+ * You can obtain a copy of the license at src/license_cddl-1.0.txt
+ * or http://www.opensolaris.org/os/licensing.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file at src/license_cddl-1.0.txt
+ * If applicable, add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your own identifying
+ * information: Portions Copyright [yyyy] [name of copyright owner]
+ *
+ * CDDL HEADER END
+ */
+/* \file 	defines.h
+ * \brief	Project definitions
+ *  Created: 11/01/2014 11:54:26
+ *  Author: Mathieu Stephan
+ */
 
 
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
 #include <stdint.h>
+
+/** DEBUG PRINTS **/
+#define DEBUG_SMC_SCREEN_PRINT
 
 /** HARDWARE VERSION **/
 #define	HARDWARE_V1
@@ -18,11 +39,12 @@
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
 
 /** ENUMS **/
-enum card_detect_return_t	{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
-enum pin_check_return_t		{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
-enum detect_return_t		{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
-enum return_type			{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
-enum spi_type				{SPI_NATIVE, SPI_USART};
+enum mooltipass_detect_return_t	{RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB, RETURN_MOOLTIPASS_BLOCKED, RETURN_MOOLTIPASS_BLANK, RETURN_MOOLTIPASS_USER, RETURN_MOOLTIPASS_4_TRIES_LEFT,  RETURN_MOOLTIPASS_3_TRIES_LEFT,  RETURN_MOOLTIPASS_2_TRIES_LEFT,  RETURN_MOOLTIPASS_1_TRIES_LEFT, RETURN_MOOLTIPASS_0_TRIES_LEFT};
+enum card_detect_return_t		{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
+enum pin_check_return_t			{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
+enum detect_return_t			{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
+enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
+enum spi_type					{SPI_NATIVE, SPI_USART};
 
 /** DEFINES FLASH **/
 #define CREDENTIAL_BLOCK_SIZE		88
@@ -37,7 +59,7 @@ enum spi_type				{SPI_NATIVE, SPI_USART};
 /** DEFINES SMART CARD **/
 #define SMARTCARD_FABRICATION_ZONE	0x0F0F
 #define SMARTCARD_FACTORY_PIN		0xF0F0
-#define SMARTCARD_DEFAULT_PIN		0xDEAD
+#define SMARTCARD_DEFAULT_PIN		0xF0F0
 
 /** DEFINES FIRMWARE **/
 #define FALSE			0

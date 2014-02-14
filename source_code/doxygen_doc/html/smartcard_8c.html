@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Mooltipass: C:/Users/stephan/Dropbox/Projets/mooltipass/source_code/src/CARD/smartcard.c File Reference</title>
+<title>Mooltipass: C:/Users/lina/Documents/GitHub/mooltipass/source_code/src/CARD/smartcard.c File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -24,7 +24,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Mooltipass
    </div>
-   <div id="projectbrief">Offline Password Keeper Developed on Hackaday</div>
+   <div id="projectbrief">Offline password keeper</div>
   </td>
  </tr>
  </tbody>
@@ -80,7 +80,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_34b56d2b6f2e76de660152d993baf1a2.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_770d1e45642f3cb89174f389ed015f80.html">source_code</a></li><li class="navelem"><a class="el" href="dir_5faa3c327f12db20b730af18a908a578.html">src</a></li><li class="navelem"><a class="el" href="dir_477174b7c53e715be89e40b1dc563297.html">CARD</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_c56ac4f8932da2fd86be056069096cd5.html">GitHub</a></li><li class="navelem"><a class="el" href="dir_59cf0649e5b7edd071f5ce5eb5c24166.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_03209529255f2c12196becd6bde18e42.html">source_code</a></li><li class="navelem"><a class="el" href="dir_b0e44ad39df7bcefcca7fada3e201141.html">src</a></li><li class="navelem"><a class="el" href="dir_23b888301070dd985ac605e4159653ce.html">CARD</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -92,76 +92,75 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Smart Card low level functions.  
+<p>Smart Card low level functions Copyright [2014] [Mathieu Stephan].  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;avr/interrupt.h&gt;</code><br/>
 <code>#include &quot;../mooltipass.h&quot;</code><br/>
 <code>#include &lt;util/delay.h&gt;</code><br/>
 <code>#include &lt;avr/io.h&gt;</code><br/>
-<code>#include &lt;stdlib.h&gt;</code><br/>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ad45f12158afa06c17ffcef7c24dbfd3c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad45f12158afa06c17ffcef7c24dbfd3c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#ad45f12158afa06c17ffcef7c24dbfd3c">clock_pulse</a> (void)</td></tr>
-<tr class="memdesc:ad45f12158afa06c17ffcef7c24dbfd3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a 4us H-&gt;L clock pulse (datasheet: min 3.3us) <br/></td></tr>
-<tr class="separator:ad45f12158afa06c17ffcef7c24dbfd3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6472b5d74d0edfd9d9ae61406ab02da1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6472b5d74d0edfd9d9ae61406ab02da1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a6472b5d74d0edfd9d9ae61406ab02da1">inverted_clock_pulse</a> (void)</td></tr>
-<tr class="memdesc:a6472b5d74d0edfd9d9ae61406ab02da1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a 4us L-&gt;H clock pulse (datasheet: min 3.3us) <br/></td></tr>
-<tr class="separator:a6472b5d74d0edfd9d9ae61406ab02da1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a5ded4db23f528ea5db87e3eeb79db4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a5ded4db23f528ea5db87e3eeb79db4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a3a5ded4db23f528ea5db87e3eeb79db4">clear_pgm_rst_signals</a> (void)</td></tr>
-<tr class="memdesc:a3a5ded4db23f528ea5db87e3eeb79db4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear PGM / RST signal for normal operation mode. <br/></td></tr>
-<tr class="separator:a3a5ded4db23f528ea5db87e3eeb79db4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed4dc955fe0e698b5917d8b20ceb2f54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed4dc955fe0e698b5917d8b20ceb2f54"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#aed4dc955fe0e698b5917d8b20ceb2f54">set_pgm_rst_signals</a> (void)</td></tr>
-<tr class="memdesc:aed4dc955fe0e698b5917d8b20ceb2f54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set PGM / RST signal for standby mode. <br/></td></tr>
-<tr class="separator:aed4dc955fe0e698b5917d8b20ceb2f54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2f3879dc0c722efb4862e0b02b4e990"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#ae2f3879dc0c722efb4862e0b02b4e990">perform_low_level_write_nerase</a> (uint8_t is_write)</td></tr>
-<tr class="memdesc:ae2f3879dc0c722efb4862e0b02b4e990"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a write or erase operation.  <a href="#ae2f3879dc0c722efb4862e0b02b4e990">More...</a><br/></td></tr>
-<tr class="separator:ae2f3879dc0c722efb4862e0b02b4e990"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8766459f78612212cb8eb3f0bfc25849"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8766459f78612212cb8eb3f0bfc25849"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a8766459f78612212cb8eb3f0bfc25849">switch_to_spi_mode</a> (void)</td></tr>
-<tr class="memdesc:a8766459f78612212cb8eb3f0bfc25849"><td class="mdescLeft">&#160;</td><td class="mdescRight">Activate SPI controller. <br/></td></tr>
-<tr class="separator:a8766459f78612212cb8eb3f0bfc25849"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8aedff4d1017d9bfb619402fa09cead8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8aedff4d1017d9bfb619402fa09cead8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a8aedff4d1017d9bfb619402fa09cead8">switch_to_bit_mode_and_clear_pgm_rst_signals</a> (void)</td></tr>
-<tr class="memdesc:a8aedff4d1017d9bfb619402fa09cead8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Switch to big banging, and clear pgm/rst signal for normal operation. <br/></td></tr>
-<tr class="separator:a8aedff4d1017d9bfb619402fa09cead8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0725d9cd9d6d04f58dff2e09314657bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a0725d9cd9d6d04f58dff2e09314657bc">blow_man_nissuer_fuse</a> (uint8_t bool_man_nissuer)</td></tr>
-<tr class="memdesc:a0725d9cd9d6d04f58dff2e09314657bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Blow the manufacturer or issuer fuse.  <a href="#a0725d9cd9d6d04f58dff2e09314657bc">More...</a><br/></td></tr>
-<tr class="separator:a0725d9cd9d6d04f58dff2e09314657bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7cfb10760e1a39a02371cf4d0231dd20"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a7cfb10760e1a39a02371cf4d0231dd20">is_card_plugged</a> (void)</td></tr>
-<tr class="memdesc:a7cfb10760e1a39a02371cf4d0231dd20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Know if a card is plugged.  <a href="#a7cfb10760e1a39a02371cf4d0231dd20">More...</a><br/></td></tr>
-<tr class="separator:a7cfb10760e1a39a02371cf4d0231dd20"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed806a480ea34d2c38a4220e5d196aa8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed806a480ea34d2c38a4220e5d196aa8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#aed806a480ea34d2c38a4220e5d196aa8">scan_smartcard_detect</a> (void)</td></tr>
-<tr class="memdesc:aed806a480ea34d2c38a4220e5d196aa8"><td class="mdescLeft">&#160;</td><td class="mdescRight">card detect debounce called by 1ms interrupt <br/></td></tr>
-<tr class="separator:aed806a480ea34d2c38a4220e5d196aa8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c05e9ef4824ad5e80afc178fce92a4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a4c05e9ef4824ad5e80afc178fce92a4a">erase_application_zone1_nzone2</a> (uint8_t zone1_nzone2)</td></tr>
-<tr class="memdesc:a4c05e9ef4824ad5e80afc178fce92a4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set E1 or E2 flag by presenting the correct erase key (always FFFF...) and erase the AZ1 or AZ2.  <a href="#a4c05e9ef4824ad5e80afc178fce92a4a">More...</a><br/></td></tr>
-<tr class="separator:a4c05e9ef4824ad5e80afc178fce92a4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e6df05c9f3087d8f619e1187fd881bc"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a9e6df05c9f3087d8f619e1187fd881bc">security_code_validation</a> (uint16_t code)</td></tr>
-<tr class="memdesc:a9e6df05c9f3087d8f619e1187fd881bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check security code.  <a href="#a9e6df05c9f3087d8f619e1187fd881bc">More...</a><br/></td></tr>
-<tr class="separator:a9e6df05c9f3087d8f619e1187fd881bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c9cc77e1dbe1b4a463ba0a1673a5379"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a1c9cc77e1dbe1b4a463ba0a1673a5379">write_to_smartcard</a> (uint16_t start_index_bit, uint16_t nb_bits, uint8_t *data_to_write)</td></tr>
-<tr class="memdesc:a1c9cc77e1dbe1b4a463ba0a1673a5379"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write bits to the smart card.  <a href="#a1c9cc77e1dbe1b4a463ba0a1673a5379">More...</a><br/></td></tr>
-<tr class="separator:a1c9cc77e1dbe1b4a463ba0a1673a5379"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61f17b7f1bc2542102ff5eabf9bf3f7c"><td class="memItemLeft" align="right" valign="top">uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a61f17b7f1bc2542102ff5eabf9bf3f7c">read_data_from_smartcard</a> (uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t *data_to_receive)</td></tr>
-<tr class="memdesc:a61f17b7f1bc2542102ff5eabf9bf3f7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read bytes from the smart card.  <a href="#a61f17b7f1bc2542102ff5eabf9bf3f7c">More...</a><br/></td></tr>
-<tr class="separator:a61f17b7f1bc2542102ff5eabf9bf3f7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40ab7c2931b7de2008c80575e341c966"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a40ab7c2931b7de2008c80575e341c966">smartcard_detection_functions</a> (void)</td></tr>
-<tr class="memdesc:a40ab7c2931b7de2008c80575e341c966"><td class="mdescLeft">&#160;</td><td class="mdescRight">functions performed once the smart card is detected  <a href="#a40ab7c2931b7de2008c80575e341c966">More...</a><br/></td></tr>
-<tr class="separator:a40ab7c2931b7de2008c80575e341c966"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ba5ce5b310110eac0460cbd0c161d8c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9ba5ce5b310110eac0460cbd0c161d8c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a9ba5ce5b310110eac0460cbd0c161d8c">smartcard_removal_functions</a> (void)</td></tr>
-<tr class="memdesc:a9ba5ce5b310110eac0460cbd0c161d8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">functions performed once the smart card is removed <br/></td></tr>
-<tr class="separator:a9ba5ce5b310110eac0460cbd0c161d8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4dc33f73066a6e64c5f56caf323d4cec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4dc33f73066a6e64c5f56caf323d4cec"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a4dc33f73066a6e64c5f56caf323d4cec">init_smartcard_port</a> (void)</td></tr>
-<tr class="memdesc:a4dc33f73066a6e64c5f56caf323d4cec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize smart card port. <br/></td></tr>
-<tr class="separator:a4dc33f73066a6e64c5f56caf323d4cec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ec95b1d2105b04b261b99f3e6506966"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0ec95b1d2105b04b261b99f3e6506966"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a0ec95b1d2105b04b261b99f3e6506966">clockPulseSMC</a> (void)</td></tr>
+<tr class="memdesc:a0ec95b1d2105b04b261b99f3e6506966"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a 4us H-&gt;L clock pulse (datasheet: min 3.3us) <br/></td></tr>
+<tr class="separator:a0ec95b1d2105b04b261b99f3e6506966"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab022be0e7dcbcdae695f60641b609e6e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab022be0e7dcbcdae695f60641b609e6e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#ab022be0e7dcbcdae695f60641b609e6e">invertedClockPulseSMC</a> (void)</td></tr>
+<tr class="memdesc:ab022be0e7dcbcdae695f60641b609e6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send a 4us L-&gt;H clock pulse (datasheet: min 3.3us) <br/></td></tr>
+<tr class="separator:ab022be0e7dcbcdae695f60641b609e6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b199cccbcc01e2d6fe0f9935f60d5e1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b199cccbcc01e2d6fe0f9935f60d5e1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a4b199cccbcc01e2d6fe0f9935f60d5e1">clearPgmRstSignals</a> (void)</td></tr>
+<tr class="memdesc:a4b199cccbcc01e2d6fe0f9935f60d5e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear PGM / RST signal for normal operation mode. <br/></td></tr>
+<tr class="separator:a4b199cccbcc01e2d6fe0f9935f60d5e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef96c0dfd3b886b7fd542ab908b2ba29"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef96c0dfd3b886b7fd542ab908b2ba29"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#aef96c0dfd3b886b7fd542ab908b2ba29">setPgmRstSignals</a> (void)</td></tr>
+<tr class="memdesc:aef96c0dfd3b886b7fd542ab908b2ba29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set PGM / RST signal for standby mode. <br/></td></tr>
+<tr class="separator:aef96c0dfd3b886b7fd542ab908b2ba29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4aa11ef137e825d206aba775664bfcf3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a4aa11ef137e825d206aba775664bfcf3">performLowLevelWriteNErase</a> (uint8_t is_write)</td></tr>
+<tr class="memdesc:a4aa11ef137e825d206aba775664bfcf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a write or erase operation.  <a href="#a4aa11ef137e825d206aba775664bfcf3">More...</a><br/></td></tr>
+<tr class="separator:a4aa11ef137e825d206aba775664bfcf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e51b7fbfdaaa845ef57c79191630094"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9e51b7fbfdaaa845ef57c79191630094"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a9e51b7fbfdaaa845ef57c79191630094">setSPIModeSMC</a> (void)</td></tr>
+<tr class="memdesc:a9e51b7fbfdaaa845ef57c79191630094"><td class="mdescLeft">&#160;</td><td class="mdescRight">Activate SPI controller. <br/></td></tr>
+<tr class="separator:a9e51b7fbfdaaa845ef57c79191630094"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0686788099ac2dbeb3d8549a3a2ed4d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0686788099ac2dbeb3d8549a3a2ed4d6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a0686788099ac2dbeb3d8549a3a2ed4d6">setBBModeAndPgmRstSMC</a> (void)</td></tr>
+<tr class="memdesc:a0686788099ac2dbeb3d8549a3a2ed4d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Switch to big banging, and clear pgm/rst signal for normal operation. <br/></td></tr>
+<tr class="separator:a0686788099ac2dbeb3d8549a3a2ed4d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9b06f5a1c24f2d38da1acf5328ba5ee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#ab9b06f5a1c24f2d38da1acf5328ba5ee">blowManufacturerNIssuerFuse</a> (uint8_t bool_man_nissuer)</td></tr>
+<tr class="memdesc:ab9b06f5a1c24f2d38da1acf5328ba5ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Blow the manufacturer or issuer fuse.  <a href="#ab9b06f5a1c24f2d38da1acf5328ba5ee">More...</a><br/></td></tr>
+<tr class="separator:ab9b06f5a1c24f2d38da1acf5328ba5ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f3674d61b124fab1355c64654a5e0e6"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a8f3674d61b124fab1355c64654a5e0e6">isCardPlugged</a> (void)</td></tr>
+<tr class="memdesc:a8f3674d61b124fab1355c64654a5e0e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Know if a card is plugged.  <a href="#a8f3674d61b124fab1355c64654a5e0e6">More...</a><br/></td></tr>
+<tr class="separator:a8f3674d61b124fab1355c64654a5e0e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e6262630051d3f40928ac1e3cb533da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e6262630051d3f40928ac1e3cb533da"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a6e6262630051d3f40928ac1e3cb533da">scanSMCDectect</a> (void)</td></tr>
+<tr class="memdesc:a6e6262630051d3f40928ac1e3cb533da"><td class="mdescLeft">&#160;</td><td class="mdescRight">card detect debounce called by 1ms interrupt <br/></td></tr>
+<tr class="separator:a6e6262630051d3f40928ac1e3cb533da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab47186412fabe10831ff2c5e50ef7eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#aab47186412fabe10831ff2c5e50ef7eb">eraseApplicationZone1NZone2SMC</a> (uint8_t zone1_nzone2)</td></tr>
+<tr class="memdesc:aab47186412fabe10831ff2c5e50ef7eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set E1 or E2 flag by presenting the correct erase key (always FFFF...) and erase the AZ1 or AZ2.  <a href="#aab47186412fabe10831ff2c5e50ef7eb">More...</a><br/></td></tr>
+<tr class="separator:aab47186412fabe10831ff2c5e50ef7eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40d2db6f8dae6d93ab4adfb8b31ec6fc"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a40d2db6f8dae6d93ab4adfb8b31ec6fc">securityValidationSMC</a> (uint16_t code)</td></tr>
+<tr class="memdesc:a40d2db6f8dae6d93ab4adfb8b31ec6fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check security code.  <a href="#a40d2db6f8dae6d93ab4adfb8b31ec6fc">More...</a><br/></td></tr>
+<tr class="separator:a40d2db6f8dae6d93ab4adfb8b31ec6fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab324702065e86b81a2e561b84f81bb0b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#ab324702065e86b81a2e561b84f81bb0b">writeSMC</a> (uint16_t start_index_bit, uint16_t nb_bits, uint8_t *data_to_write)</td></tr>
+<tr class="memdesc:ab324702065e86b81a2e561b84f81bb0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write bits to the smart card.  <a href="#ab324702065e86b81a2e561b84f81bb0b">More...</a><br/></td></tr>
+<tr class="separator:ab324702065e86b81a2e561b84f81bb0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f145e74bb413746f2f1bf3d0a9afe8d"><td class="memItemLeft" align="right" valign="top">uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a1f145e74bb413746f2f1bf3d0a9afe8d">readSMC</a> (uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t *data_to_receive)</td></tr>
+<tr class="memdesc:a1f145e74bb413746f2f1bf3d0a9afe8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read bytes from the smart card.  <a href="#a1f145e74bb413746f2f1bf3d0a9afe8d">More...</a><br/></td></tr>
+<tr class="separator:a1f145e74bb413746f2f1bf3d0a9afe8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a1602296f38ddd509d6c4f702c32a82"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a7a1602296f38ddd509d6c4f702c32a82">detectFunctionSMC</a> (void)</td></tr>
+<tr class="memdesc:a7a1602296f38ddd509d6c4f702c32a82"><td class="mdescLeft">&#160;</td><td class="mdescRight">functions performed once the smart card is detected  <a href="#a7a1602296f38ddd509d6c4f702c32a82">More...</a><br/></td></tr>
+<tr class="separator:a7a1602296f38ddd509d6c4f702c32a82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6da77c515a91ad7d9914159d138c6d0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac6da77c515a91ad7d9914159d138c6d0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#ac6da77c515a91ad7d9914159d138c6d0">removeFunctionSMC</a> (void)</td></tr>
+<tr class="memdesc:ac6da77c515a91ad7d9914159d138c6d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">functions performed once the smart card is removed <br/></td></tr>
+<tr class="separator:ac6da77c515a91ad7d9914159d138c6d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86d37cf01eedcc32280754a362def312"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86d37cf01eedcc32280754a362def312"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a86d37cf01eedcc32280754a362def312">initPortSMC</a> (void)</td></tr>
+<tr class="memdesc:a86d37cf01eedcc32280754a362def312"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize smart card port. <br/></td></tr>
+<tr class="separator:a86d37cf01eedcc32280754a362def312"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -171,14 +170,14 @@ Variables</h2></td></tr>
 <tr class="separator:aaa57e33d72c7dafa663ac64b70b024a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Smart Card low level functions. </p>
+<div class="textblock"><p>Smart Card low level functions Copyright [2014] [Mathieu Stephan]. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a0725d9cd9d6d04f58dff2e09314657bc"></a>
+<a class="anchor" id="ab9b06f5a1c24f2d38da1acf5328ba5ee"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">blow_man_nissuer_fuse </td>
+          <td class="memname">blowManufacturerNIssuerFuse </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
           <td class="paramname"><em>bool_man_nissuer</em></td><td>)</td>
@@ -197,12 +196,31 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4c05e9ef4824ad5e80afc178fce92a4a"></a>
+<a class="anchor" id="a7a1602296f38ddd509d6c4f702c32a82"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">erase_application_zone1_nzone2 </td>
+          <td class="memname">detectFunctionSMC </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>functions performed once the smart card is detected </p>
+<dl class="section return"><dt>Returns</dt><dd>The detection result (see enum) </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aab47186412fabe10831ff2c5e50ef7eb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">eraseApplicationZone1NZone2SMC </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
           <td class="paramname"><em>zone1_nzone2</em></td><td>)</td>
@@ -221,12 +239,12 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a7cfb10760e1a39a02371cf4d0231dd20"></a>
+<a class="anchor" id="a8f3674d61b124fab1355c64654a5e0e6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">is_card_plugged </td>
+          <td class="memname">isCardPlugged </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -240,12 +258,12 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae2f3879dc0c722efb4862e0b02b4e990"></a>
+<a class="anchor" id="a4aa11ef137e825d206aba775664bfcf3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">perform_low_level_write_nerase </td>
+          <td class="memname">performLowLevelWriteNErase </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
           <td class="paramname"><em>is_write</em></td><td>)</td>
@@ -264,12 +282,12 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a61f17b7f1bc2542102ff5eabf9bf3f7c"></a>
+<a class="anchor" id="a1f145e74bb413746f2f1bf3d0a9afe8d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">read_data_from_smartcard </td>
+          <td class="memname">readSMC </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
           <td class="paramname"><em>nb_bytes_total_read</em>, </td>
@@ -307,12 +325,12 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a9e6df05c9f3087d8f619e1187fd881bc"></a>
+<a class="anchor" id="a40d2db6f8dae6d93ab4adfb8b31ec6fc"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">security_code_validation </td>
+          <td class="memname">securityValidationSMC </td>
           <td>(</td>
           <td class="paramtype">uint16_t&#160;</td>
           <td class="paramname"><em>code</em></td><td>)</td>
@@ -332,31 +350,12 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a40ab7c2931b7de2008c80575e341c966"></a>
+<a class="anchor" id="ab324702065e86b81a2e561b84f81bb0b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">smartcard_detection_functions </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>functions performed once the smart card is detected </p>
-<dl class="section return"><dt>Returns</dt><dd>The detection result (see enum) </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a1c9cc77e1dbe1b4a463ba0a1673a5379"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">write_to_smartcard </td>
+          <td class="memname">writeSMC </td>
           <td>(</td>
           <td class="paramtype">uint16_t&#160;</td>
           <td class="paramname"><em>start_index_bit</em>, </td>
@@ -423,7 +422,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 21 2014 12:25:21 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Feb 2 2014 07:05:10 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

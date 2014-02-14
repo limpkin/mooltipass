@@ -1,82 +1,82 @@
-\hypertarget{smart__card__higher__level__functions_8c}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.c File Reference}
-\label{smart__card__higher__level__functions_8c}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\hypertarget{smart__card__higher__level__functions_8c}{\section{C\-:/\-Users/lina/\-Documents/\-Git\-Hub/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.c File Reference}
+\label{smart__card__higher__level__functions_8c}\index{C\-:/\-Users/lina/\-Documents/\-Git\-Hub/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{C\-:/\-Users/lina/\-Documents/\-Git\-Hub/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
 }
 
 
-Smart Card high level functions.  
+Smart Card high level functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
 
 
 {\ttfamily \#include \char`\"{}../mooltipass.\-h\char`\"{}}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-R\-E\-T\-\_\-\-T\-Y\-P\-E \hyperlink{smart__card__higher__level__functions_8c_ac23c99ca5f4617bb7f9303913e524ef9}{perform\-\_\-card\-\_\-mooltipass\-\_\-transformation} (void)
-\begin{DoxyCompactList}\small\item\em Transform the card into a mooltipass card (Security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-\hypertarget{smart__card__higher__level__functions_8c_a5ede5ac707413f26aade0a1fdd8792a5}{void \hyperlink{smart__card__higher__level__functions_8c_a5ede5ac707413f26aade0a1fdd8792a5}{perform\-\_\-card\-\_\-reinit} (void)}\label{smart__card__higher__level__functions_8c_a5ede5ac707413f26aade0a1fdd8792a5}
+R\-E\-T\-\_\-\-T\-Y\-P\-E \hyperlink{smart__card__higher__level__functions_8c_a08acefad14505738a8b5aafb9f97312f}{transform\-Blank\-Card\-Into\-Mooltipass} (void)
+\begin{DoxyCompactList}\small\item\em Transform the card into a Mooltipass card (Security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
+\hypertarget{smart__card__higher__level__functions_8c_aa765848846e8970caa0dc4b147643a7a}{void \hyperlink{smart__card__higher__level__functions_8c_aa765848846e8970caa0dc4b147643a7a}{reset\-Blank\-Card} (void)}\label{smart__card__higher__level__functions_8c_aa765848846e8970caa0dc4b147643a7a}
 
 \begin{DoxyCompactList}\small\item\em Reinitialize the card to its default settings \& default pin (Security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_ad5a46cd018b5c98853a5449dd28c0ded}{read\-\_\-fabrication\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a5fd5bbec32131b872c2a612b883bc00b}{read\-Fabrication\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the fabrication zone (security mode 1\&2) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a4dd7d5d235e91f07e0e7daca99b05ce3}{read\-\_\-issuer\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_ae1d9e97e1a8b2718d50a660a9b291bc2}{read\-Issuer\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the issuer zone (security mode 1\&2) \end{DoxyCompactList}\item 
-void \hyperlink{smart__card__higher__level__functions_8c_a91979dccbabae81b16ff57887aaa0689}{write\-\_\-issuer\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+void \hyperlink{smart__card__higher__level__functions_8c_aaed89b61a459e1aff83e5d25781a71cc}{write\-Issuer\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Write in the issuer zone (security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a009c74e58a2408677aec59f7fd9612cd}{read\-\_\-security\-\_\-code} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a143d2798b80c58363c9cc4a834903bee}{read\-Security\-Code} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the security code (security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-void \hyperlink{smart__card__higher__level__functions_8c_aebca1d05d278d2cf79f9b0e98af8f43f}{write\-\_\-security\-\_\-code} (uint8\-\_\-t $\ast$buffer)
+void \hyperlink{smart__card__higher__level__functions_8c_adc65a6ccb96da4e6065e46442bb59322}{write\-Security\-Code} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Write a new security code (security mode 1\&2 -\/ Authenticated!) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a2386839f513cc9a19dc6354a945d4433}{read\-\_\-security\-\_\-code\-\_\-attemps\-\_\-counter} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_adb9108073c8b4b115d5954445f9762af}{read\-Security\-Code\-Attempts\-Counters} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the number of code attempts left (security mode 1\&2) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_ac089b0465c3c2450ade3218666c9a970}{read\-\_\-code\-\_\-protected\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_af1c29b879c62774da8d7c660caccab40}{read\-Code\-Protected\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the code protected zone (security mode 1\&2 -\/ Authenticated!) \end{DoxyCompactList}\item 
-void \hyperlink{smart__card__higher__level__functions_8c_af6e361950f5718900f36e61966c116e3}{write\-\_\-code\-\_\-protected\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+void \hyperlink{smart__card__higher__level__functions_8c_a8e52507fa438bbb794fc6e1d36398647}{write\-Code\-Protected\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Write in the code protected zone (security mode 1\&2 -\/ Authenticated!) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a2fcf8191b38a025ed2d4168f5d4f2a17}{read\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_aa114d024b1c4bde9dcab77878b030e85}{read\-Application\-Zone1\-Erase\-Key} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the application zone1 erase key (security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-void \hyperlink{smart__card__higher__level__functions_8c_a36e37095b7562e8e95abcc9c37eab309}{write\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key} (uint8\-\_\-t $\ast$buffer)
+void \hyperlink{smart__card__higher__level__functions_8c_a6880d385434c157a7c33940e483ee0f3}{write\-Application\-Zone1\-Erase\-Key} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Write the application zone1 erase key (security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a8cd6d39f293c84ed895926ea27a22615}{read\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_afc3a1356ebd232417392dfb0a8bb32e2}{read\-Application\-Zone2\-Erase\-Key} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the application zone2 erase key (security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-void \hyperlink{smart__card__higher__level__functions_8c_a2ecc2e279354d61e2ebbf320b3bffdae}{write\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key} (uint8\-\_\-t $\ast$buffer)
+void \hyperlink{smart__card__higher__level__functions_8c_a2d437e1c612be5050c8ef3b622440c3f}{write\-Application\-Zone2\-Erase\-Key} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Write the application zone2 erase key (security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a93870615434245e28b624bf39298c606}{read\-\_\-memory\-\_\-test\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a6693624f859532ae77452a81092a3aa3}{read\-Memory\-Test\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the Test zone (security mode 1\&2) \end{DoxyCompactList}\item 
-void \hyperlink{smart__card__higher__level__functions_8c_a89f7e82d3a49e4b71d1e4f384d75a247}{write\-\_\-memory\-\_\-test\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+void \hyperlink{smart__card__higher__level__functions_8c_aaea6e5b5a5624c12f0d79523f7040d79}{write\-Memory\-Test\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Write in the Test zone (security mode 1\&2) \end{DoxyCompactList}\item 
-uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_a4715f9185721a50991187379e61058c3}{read\-\_\-manufacturers\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+uint8\-\_\-t $\ast$ \hyperlink{smart__card__higher__level__functions_8c_accbf3fb1d94ade85ce80a59c66aa6a0b}{read\-Manufacturer\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Read the manufacturer zone (security mode 1\&2) \end{DoxyCompactList}\item 
-void \hyperlink{smart__card__higher__level__functions_8c_a869c3fe895ff95a63c5d003032ab9c7a}{write\-\_\-manufacturers\-\_\-zone} (uint8\-\_\-t $\ast$buffer)
+void \hyperlink{smart__card__higher__level__functions_8c_ac3e956423efc401426590dd15dfad2c5}{write\-Manufacturer\-Zone} (uint8\-\_\-t $\ast$buffer)
 \begin{DoxyCompactList}\small\item\em Write in the manufacturer zone (security mode 1 -\/ Authenticated!) \end{DoxyCompactList}\item 
-\hypertarget{smart__card__higher__level__functions_8c_a28a6c325efcd105c7aa278db077977ac}{void \hyperlink{smart__card__higher__level__functions_8c_a28a6c325efcd105c7aa278db077977ac}{write\-\_\-manufacturers\-\_\-fuse} (void)}\label{smart__card__higher__level__functions_8c_a28a6c325efcd105c7aa278db077977ac}
+\hypertarget{smart__card__higher__level__functions_8c_a8e2dbac02af2437018e0e9a636fe1a96}{void \hyperlink{smart__card__higher__level__functions_8c_a8e2dbac02af2437018e0e9a636fe1a96}{write\-Manufacturer\-Fuse} (void)}\label{smart__card__higher__level__functions_8c_a8e2dbac02af2437018e0e9a636fe1a96}
 
 \begin{DoxyCompactList}\small\item\em Write manufacturer fuse, controlling access to the M\-F\-Z. \end{DoxyCompactList}\item 
 \hypertarget{smart__card__higher__level__functions_8c_a4c8d6cddbd4c647f0d4aaf4bfb7094e1}{void \hyperlink{smart__card__higher__level__functions_8c_a4c8d6cddbd4c647f0d4aaf4bfb7094e1}{write\-\_\-issuers\-\_\-fuse} (void)}\label{smart__card__higher__level__functions_8c_a4c8d6cddbd4c647f0d4aaf4bfb7094e1}
 
 \begin{DoxyCompactList}\small\item\em Write issuers fuse, setting the A\-T88\-S\-C102 into Security Mode 2, we need to be authenticated here. \end{DoxyCompactList}\item 
-\hypertarget{smart__card__higher__level__functions_8c_a00632e1f41b8cd0bdc9addd0e7eb65c5}{void \hyperlink{smart__card__higher__level__functions_8c_a00632e1f41b8cd0bdc9addd0e7eb65c5}{set\-\_\-application\-\_\-zone1\-\_\-authenticated\-\_\-read\-\_\-and\-\_\-write\-\_\-access} (void)}\label{smart__card__higher__level__functions_8c_a00632e1f41b8cd0bdc9addd0e7eb65c5}
+\hypertarget{smart__card__higher__level__functions_8c_a5db7aa4e74b13c2c5885ebaeb4d5ee44}{void \hyperlink{smart__card__higher__level__functions_8c_a5db7aa4e74b13c2c5885ebaeb4d5ee44}{set\-Authenticated\-Read\-Write\-Access\-To\-Zone1} (void)}\label{smart__card__higher__level__functions_8c_a5db7aa4e74b13c2c5885ebaeb4d5ee44}
 
 \begin{DoxyCompactList}\small\item\em Function called to only allow reads and writes to the application zone 1 when authenticated. \end{DoxyCompactList}\item 
-\hypertarget{smart__card__higher__level__functions_8c_a127786690d96d2be735ecef006f88bc2}{void \hyperlink{smart__card__higher__level__functions_8c_a127786690d96d2be735ecef006f88bc2}{set\-\_\-application\-\_\-zone2\-\_\-authenticated\-\_\-read\-\_\-and\-\_\-write\-\_\-access} (void)}\label{smart__card__higher__level__functions_8c_a127786690d96d2be735ecef006f88bc2}
+\hypertarget{smart__card__higher__level__functions_8c_ac24f5049a7dc3678cf4e626997abd423}{void \hyperlink{smart__card__higher__level__functions_8c_ac24f5049a7dc3678cf4e626997abd423}{set\-Authenticated\-Read\-Write\-Access\-To\-Zone2} (void)}\label{smart__card__higher__level__functions_8c_ac24f5049a7dc3678cf4e626997abd423}
 
 \begin{DoxyCompactList}\small\item\em Function called to only allow reads and writes to the application zone 2 when authenticated. \end{DoxyCompactList}\item 
-\hypertarget{smart__card__higher__level__functions_8c_a0cfc3729ead0c6451e7f03eeea155141}{void \hyperlink{smart__card__higher__level__functions_8c_a0cfc3729ead0c6451e7f03eeea155141}{print\-\_\-smartcard\-\_\-debug\-\_\-info} (void)}\label{smart__card__higher__level__functions_8c_a0cfc3729ead0c6451e7f03eeea155141}
+\hypertarget{smart__card__higher__level__functions_8c_a1e70078c5fc83c4a4508a9f80dba4fc7}{void \hyperlink{smart__card__higher__level__functions_8c_a1e70078c5fc83c4a4508a9f80dba4fc7}{print\-S\-M\-C\-Debug\-Info\-To\-Screen} (void)}\label{smart__card__higher__level__functions_8c_a1e70078c5fc83c4a4508a9f80dba4fc7}
 
 \begin{DoxyCompactList}\small\item\em Print the card info. \end{DoxyCompactList}\item 
-uint8\-\_\-t \hyperlink{smart__card__higher__level__functions_8c_acc48ef09c99eaa7a335b1c2447ac833d}{get\-\_\-number\-\_\-of\-\_\-security\-\_\-code\-\_\-tries\-\_\-left} (void)
+uint8\-\_\-t \hyperlink{smart__card__higher__level__functions_8c_ae494310cfa8dc0185aee9d4d0ccf0ded}{get\-Number\-Of\-Security\-Code\-Tries\-Left} (void)
 \begin{DoxyCompactList}\small\item\em Get the number of security code tries left. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Smart Card high level functions. 
+Smart Card high level functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
 
 \subsection{Function Documentation}
-\hypertarget{smart__card__higher__level__functions_8c_acc48ef09c99eaa7a335b1c2447ac833d}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!get\-\_\-number\-\_\-of\-\_\-security\-\_\-code\-\_\-tries\-\_\-left@{get\-\_\-number\-\_\-of\-\_\-security\-\_\-code\-\_\-tries\-\_\-left}}
-\index{get\-\_\-number\-\_\-of\-\_\-security\-\_\-code\-\_\-tries\-\_\-left@{get\-\_\-number\-\_\-of\-\_\-security\-\_\-code\-\_\-tries\-\_\-left}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{get\-\_\-number\-\_\-of\-\_\-security\-\_\-code\-\_\-tries\-\_\-left}]{\setlength{\rightskip}{0pt plus 5cm}get\-\_\-number\-\_\-of\-\_\-security\-\_\-code\-\_\-tries\-\_\-left (
+\hypertarget{smart__card__higher__level__functions_8c_ae494310cfa8dc0185aee9d4d0ccf0ded}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!get\-Number\-Of\-Security\-Code\-Tries\-Left@{get\-Number\-Of\-Security\-Code\-Tries\-Left}}
+\index{get\-Number\-Of\-Security\-Code\-Tries\-Left@{get\-Number\-Of\-Security\-Code\-Tries\-Left}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{get\-Number\-Of\-Security\-Code\-Tries\-Left}]{\setlength{\rightskip}{0pt plus 5cm}get\-Number\-Of\-Security\-Code\-Tries\-Left (
 \begin{DoxyParamCaption}
 \item[{void}]{}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_acc48ef09c99eaa7a335b1c2447ac833d}
+)}}\label{smart__card__higher__level__functions_8c_ae494310cfa8dc0185aee9d4d0ccf0ded}
 
 
 Get the number of security code tries left. 
@@ -84,27 +84,13 @@ Get the number of security code tries left.
 \begin{DoxyReturn}{Returns}
 Number of tries left 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_ac23c99ca5f4617bb7f9303913e524ef9}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!perform\-\_\-card\-\_\-mooltipass\-\_\-transformation@{perform\-\_\-card\-\_\-mooltipass\-\_\-transformation}}
-\index{perform\-\_\-card\-\_\-mooltipass\-\_\-transformation@{perform\-\_\-card\-\_\-mooltipass\-\_\-transformation}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{perform\-\_\-card\-\_\-mooltipass\-\_\-transformation}]{\setlength{\rightskip}{0pt plus 5cm}perform\-\_\-card\-\_\-mooltipass\-\_\-transformation (
-\begin{DoxyParamCaption}
-\item[{void}]{}
-\end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_ac23c99ca5f4617bb7f9303913e524ef9}
-
-
-Transform the card into a mooltipass card (Security mode 1 -\/ Authenticated!) 
-
-\begin{DoxyReturn}{Returns}
-If we succeeded 
-\end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_a2fcf8191b38a025ed2d4168f5d4f2a17}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key@{read\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key}}
-\index{read\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key@{read\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key (
+\hypertarget{smart__card__higher__level__functions_8c_aa114d024b1c4bde9dcab77878b030e85}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Application\-Zone1\-Erase\-Key@{read\-Application\-Zone1\-Erase\-Key}}
+\index{read\-Application\-Zone1\-Erase\-Key@{read\-Application\-Zone1\-Erase\-Key}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Application\-Zone1\-Erase\-Key}]{\setlength{\rightskip}{0pt plus 5cm}read\-Application\-Zone1\-Erase\-Key (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a2fcf8191b38a025ed2d4168f5d4f2a17}
+)}}\label{smart__card__higher__level__functions_8c_aa114d024b1c4bde9dcab77878b030e85}
 
 
 Read the application zone1 erase key (security mode 1 -\/ Authenticated!) 
@@ -117,13 +103,13 @@ Read the application zone1 erase key (security mode 1 -\/ Authenticated!)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_a8cd6d39f293c84ed895926ea27a22615}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key@{read\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key}}
-\index{read\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key@{read\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key (
+\hypertarget{smart__card__higher__level__functions_8c_afc3a1356ebd232417392dfb0a8bb32e2}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Application\-Zone2\-Erase\-Key@{read\-Application\-Zone2\-Erase\-Key}}
+\index{read\-Application\-Zone2\-Erase\-Key@{read\-Application\-Zone2\-Erase\-Key}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Application\-Zone2\-Erase\-Key}]{\setlength{\rightskip}{0pt plus 5cm}read\-Application\-Zone2\-Erase\-Key (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a8cd6d39f293c84ed895926ea27a22615}
+)}}\label{smart__card__higher__level__functions_8c_afc3a1356ebd232417392dfb0a8bb32e2}
 
 
 Read the application zone2 erase key (security mode 1 -\/ Authenticated!) 
@@ -136,13 +122,13 @@ Read the application zone2 erase key (security mode 1 -\/ Authenticated!)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_ac089b0465c3c2450ade3218666c9a970}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-code\-\_\-protected\-\_\-zone@{read\-\_\-code\-\_\-protected\-\_\-zone}}
-\index{read\-\_\-code\-\_\-protected\-\_\-zone@{read\-\_\-code\-\_\-protected\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-code\-\_\-protected\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-code\-\_\-protected\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_af1c29b879c62774da8d7c660caccab40}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Code\-Protected\-Zone@{read\-Code\-Protected\-Zone}}
+\index{read\-Code\-Protected\-Zone@{read\-Code\-Protected\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Code\-Protected\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-Code\-Protected\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_ac089b0465c3c2450ade3218666c9a970}
+)}}\label{smart__card__higher__level__functions_8c_af1c29b879c62774da8d7c660caccab40}
 
 
 Read the code protected zone (security mode 1\&2 -\/ Authenticated!) 
@@ -155,13 +141,13 @@ Read the code protected zone (security mode 1\&2 -\/ Authenticated!)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_ad5a46cd018b5c98853a5449dd28c0ded}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-fabrication\-\_\-zone@{read\-\_\-fabrication\-\_\-zone}}
-\index{read\-\_\-fabrication\-\_\-zone@{read\-\_\-fabrication\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-fabrication\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-fabrication\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_a5fd5bbec32131b872c2a612b883bc00b}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Fabrication\-Zone@{read\-Fabrication\-Zone}}
+\index{read\-Fabrication\-Zone@{read\-Fabrication\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Fabrication\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-Fabrication\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_ad5a46cd018b5c98853a5449dd28c0ded}
+)}}\label{smart__card__higher__level__functions_8c_a5fd5bbec32131b872c2a612b883bc00b}
 
 
 Read the fabrication zone (security mode 1\&2) 
@@ -174,13 +160,13 @@ Read the fabrication zone (security mode 1\&2)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_a4dd7d5d235e91f07e0e7daca99b05ce3}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-issuer\-\_\-zone@{read\-\_\-issuer\-\_\-zone}}
-\index{read\-\_\-issuer\-\_\-zone@{read\-\_\-issuer\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-issuer\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-issuer\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_ae1d9e97e1a8b2718d50a660a9b291bc2}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Issuer\-Zone@{read\-Issuer\-Zone}}
+\index{read\-Issuer\-Zone@{read\-Issuer\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Issuer\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-Issuer\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a4dd7d5d235e91f07e0e7daca99b05ce3}
+)}}\label{smart__card__higher__level__functions_8c_ae1d9e97e1a8b2718d50a660a9b291bc2}
 
 
 Read the issuer zone (security mode 1\&2) 
@@ -193,13 +179,13 @@ Read the issuer zone (security mode 1\&2)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_a4715f9185721a50991187379e61058c3}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-manufacturers\-\_\-zone@{read\-\_\-manufacturers\-\_\-zone}}
-\index{read\-\_\-manufacturers\-\_\-zone@{read\-\_\-manufacturers\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-manufacturers\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-manufacturers\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_accbf3fb1d94ade85ce80a59c66aa6a0b}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Manufacturer\-Zone@{read\-Manufacturer\-Zone}}
+\index{read\-Manufacturer\-Zone@{read\-Manufacturer\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Manufacturer\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-Manufacturer\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a4715f9185721a50991187379e61058c3}
+)}}\label{smart__card__higher__level__functions_8c_accbf3fb1d94ade85ce80a59c66aa6a0b}
 
 
 Read the manufacturer zone (security mode 1\&2) 
@@ -212,13 +198,13 @@ Read the manufacturer zone (security mode 1\&2)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_a93870615434245e28b624bf39298c606}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-memory\-\_\-test\-\_\-zone@{read\-\_\-memory\-\_\-test\-\_\-zone}}
-\index{read\-\_\-memory\-\_\-test\-\_\-zone@{read\-\_\-memory\-\_\-test\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-memory\-\_\-test\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-memory\-\_\-test\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_a6693624f859532ae77452a81092a3aa3}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Memory\-Test\-Zone@{read\-Memory\-Test\-Zone}}
+\index{read\-Memory\-Test\-Zone@{read\-Memory\-Test\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Memory\-Test\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}read\-Memory\-Test\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a93870615434245e28b624bf39298c606}
+)}}\label{smart__card__higher__level__functions_8c_a6693624f859532ae77452a81092a3aa3}
 
 
 Read the Test zone (security mode 1\&2) 
@@ -231,13 +217,13 @@ Read the Test zone (security mode 1\&2)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_a009c74e58a2408677aec59f7fd9612cd}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-security\-\_\-code@{read\-\_\-security\-\_\-code}}
-\index{read\-\_\-security\-\_\-code@{read\-\_\-security\-\_\-code}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-security\-\_\-code}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-security\-\_\-code (
+\hypertarget{smart__card__higher__level__functions_8c_a143d2798b80c58363c9cc4a834903bee}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Security\-Code@{read\-Security\-Code}}
+\index{read\-Security\-Code@{read\-Security\-Code}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Security\-Code}]{\setlength{\rightskip}{0pt plus 5cm}read\-Security\-Code (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a009c74e58a2408677aec59f7fd9612cd}
+)}}\label{smart__card__higher__level__functions_8c_a143d2798b80c58363c9cc4a834903bee}
 
 
 Read the security code (security mode 1 -\/ Authenticated!) 
@@ -250,13 +236,13 @@ Read the security code (security mode 1 -\/ Authenticated!)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_a2386839f513cc9a19dc6354a945d4433}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-\_\-security\-\_\-code\-\_\-attemps\-\_\-counter@{read\-\_\-security\-\_\-code\-\_\-attemps\-\_\-counter}}
-\index{read\-\_\-security\-\_\-code\-\_\-attemps\-\_\-counter@{read\-\_\-security\-\_\-code\-\_\-attemps\-\_\-counter}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{read\-\_\-security\-\_\-code\-\_\-attemps\-\_\-counter}]{\setlength{\rightskip}{0pt plus 5cm}read\-\_\-security\-\_\-code\-\_\-attemps\-\_\-counter (
+\hypertarget{smart__card__higher__level__functions_8c_adb9108073c8b4b115d5954445f9762af}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!read\-Security\-Code\-Attempts\-Counters@{read\-Security\-Code\-Attempts\-Counters}}
+\index{read\-Security\-Code\-Attempts\-Counters@{read\-Security\-Code\-Attempts\-Counters}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{read\-Security\-Code\-Attempts\-Counters}]{\setlength{\rightskip}{0pt plus 5cm}read\-Security\-Code\-Attempts\-Counters (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a2386839f513cc9a19dc6354a945d4433}
+)}}\label{smart__card__higher__level__functions_8c_adb9108073c8b4b115d5954445f9762af}
 
 
 Read the number of code attempts left (security mode 1\&2) 
@@ -269,13 +255,27 @@ Read the number of code attempts left (security mode 1\&2)
 \begin{DoxyReturn}{Returns}
 The provided pointer 
 \end{DoxyReturn}
-\hypertarget{smart__card__higher__level__functions_8c_a36e37095b7562e8e95abcc9c37eab309}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key@{write\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key}}
-\index{write\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key@{write\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{write\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key}]{\setlength{\rightskip}{0pt plus 5cm}write\-\_\-application\-\_\-zone1\-\_\-erase\-\_\-key (
+\hypertarget{smart__card__higher__level__functions_8c_a08acefad14505738a8b5aafb9f97312f}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!transform\-Blank\-Card\-Into\-Mooltipass@{transform\-Blank\-Card\-Into\-Mooltipass}}
+\index{transform\-Blank\-Card\-Into\-Mooltipass@{transform\-Blank\-Card\-Into\-Mooltipass}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{transform\-Blank\-Card\-Into\-Mooltipass}]{\setlength{\rightskip}{0pt plus 5cm}transform\-Blank\-Card\-Into\-Mooltipass (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}\label{smart__card__higher__level__functions_8c_a08acefad14505738a8b5aafb9f97312f}
+
+
+Transform the card into a Mooltipass card (Security mode 1 -\/ Authenticated!) 
+
+\begin{DoxyReturn}{Returns}
+If we succeeded 
+\end{DoxyReturn}
+\hypertarget{smart__card__higher__level__functions_8c_a6880d385434c157a7c33940e483ee0f3}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-Application\-Zone1\-Erase\-Key@{write\-Application\-Zone1\-Erase\-Key}}
+\index{write\-Application\-Zone1\-Erase\-Key@{write\-Application\-Zone1\-Erase\-Key}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{write\-Application\-Zone1\-Erase\-Key}]{\setlength{\rightskip}{0pt plus 5cm}write\-Application\-Zone1\-Erase\-Key (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a36e37095b7562e8e95abcc9c37eab309}
+)}}\label{smart__card__higher__level__functions_8c_a6880d385434c157a7c33940e483ee0f3}
 
 
 Write the application zone1 erase key (security mode 1 -\/ Authenticated!) 
@@ -285,13 +285,13 @@ Write the application zone1 erase key (security mode 1 -\/ Authenticated!)
 {\em buffer} & Pointer to a buffer (6 bytes required) \\
 \hline
 \end{DoxyParams}
-\hypertarget{smart__card__higher__level__functions_8c_a2ecc2e279354d61e2ebbf320b3bffdae}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key@{write\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key}}
-\index{write\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key@{write\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{write\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key}]{\setlength{\rightskip}{0pt plus 5cm}write\-\_\-application\-\_\-zone2\-\_\-erase\-\_\-key (
+\hypertarget{smart__card__higher__level__functions_8c_a2d437e1c612be5050c8ef3b622440c3f}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-Application\-Zone2\-Erase\-Key@{write\-Application\-Zone2\-Erase\-Key}}
+\index{write\-Application\-Zone2\-Erase\-Key@{write\-Application\-Zone2\-Erase\-Key}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{write\-Application\-Zone2\-Erase\-Key}]{\setlength{\rightskip}{0pt plus 5cm}write\-Application\-Zone2\-Erase\-Key (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a2ecc2e279354d61e2ebbf320b3bffdae}
+)}}\label{smart__card__higher__level__functions_8c_a2d437e1c612be5050c8ef3b622440c3f}
 
 
 Write the application zone2 erase key (security mode 1 -\/ Authenticated!) 
@@ -301,13 +301,13 @@ Write the application zone2 erase key (security mode 1 -\/ Authenticated!)
 {\em buffer} & Pointer to a buffer (4 bytes required) \\
 \hline
 \end{DoxyParams}
-\hypertarget{smart__card__higher__level__functions_8c_af6e361950f5718900f36e61966c116e3}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-\_\-code\-\_\-protected\-\_\-zone@{write\-\_\-code\-\_\-protected\-\_\-zone}}
-\index{write\-\_\-code\-\_\-protected\-\_\-zone@{write\-\_\-code\-\_\-protected\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{write\-\_\-code\-\_\-protected\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}write\-\_\-code\-\_\-protected\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_a8e52507fa438bbb794fc6e1d36398647}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-Code\-Protected\-Zone@{write\-Code\-Protected\-Zone}}
+\index{write\-Code\-Protected\-Zone@{write\-Code\-Protected\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{write\-Code\-Protected\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}write\-Code\-Protected\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_af6e361950f5718900f36e61966c116e3}
+)}}\label{smart__card__higher__level__functions_8c_a8e52507fa438bbb794fc6e1d36398647}
 
 
 Write in the code protected zone (security mode 1\&2 -\/ Authenticated!) 
@@ -317,13 +317,13 @@ Write in the code protected zone (security mode 1\&2 -\/ Authenticated!)
 {\em buffer} & Pointer to a buffer (8 bytes required) \\
 \hline
 \end{DoxyParams}
-\hypertarget{smart__card__higher__level__functions_8c_a91979dccbabae81b16ff57887aaa0689}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-\_\-issuer\-\_\-zone@{write\-\_\-issuer\-\_\-zone}}
-\index{write\-\_\-issuer\-\_\-zone@{write\-\_\-issuer\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{write\-\_\-issuer\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}write\-\_\-issuer\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_aaed89b61a459e1aff83e5d25781a71cc}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-Issuer\-Zone@{write\-Issuer\-Zone}}
+\index{write\-Issuer\-Zone@{write\-Issuer\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{write\-Issuer\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}write\-Issuer\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a91979dccbabae81b16ff57887aaa0689}
+)}}\label{smart__card__higher__level__functions_8c_aaed89b61a459e1aff83e5d25781a71cc}
 
 
 Write in the issuer zone (security mode 1 -\/ Authenticated!) 
@@ -333,13 +333,13 @@ Write in the issuer zone (security mode 1 -\/ Authenticated!)
 {\em buffer} & Pointer to a buffer (8 bytes required) \\
 \hline
 \end{DoxyParams}
-\hypertarget{smart__card__higher__level__functions_8c_a869c3fe895ff95a63c5d003032ab9c7a}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-\_\-manufacturers\-\_\-zone@{write\-\_\-manufacturers\-\_\-zone}}
-\index{write\-\_\-manufacturers\-\_\-zone@{write\-\_\-manufacturers\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{write\-\_\-manufacturers\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}write\-\_\-manufacturers\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_ac3e956423efc401426590dd15dfad2c5}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-Manufacturer\-Zone@{write\-Manufacturer\-Zone}}
+\index{write\-Manufacturer\-Zone@{write\-Manufacturer\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{write\-Manufacturer\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}write\-Manufacturer\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a869c3fe895ff95a63c5d003032ab9c7a}
+)}}\label{smart__card__higher__level__functions_8c_ac3e956423efc401426590dd15dfad2c5}
 
 
 Write in the manufacturer zone (security mode 1 -\/ Authenticated!) 
@@ -349,13 +349,13 @@ Write in the manufacturer zone (security mode 1 -\/ Authenticated!)
 {\em buffer} & Pointer to a buffer (2 bytes required) \\
 \hline
 \end{DoxyParams}
-\hypertarget{smart__card__higher__level__functions_8c_a89f7e82d3a49e4b71d1e4f384d75a247}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-\_\-memory\-\_\-test\-\_\-zone@{write\-\_\-memory\-\_\-test\-\_\-zone}}
-\index{write\-\_\-memory\-\_\-test\-\_\-zone@{write\-\_\-memory\-\_\-test\-\_\-zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{write\-\_\-memory\-\_\-test\-\_\-zone}]{\setlength{\rightskip}{0pt plus 5cm}write\-\_\-memory\-\_\-test\-\_\-zone (
+\hypertarget{smart__card__higher__level__functions_8c_aaea6e5b5a5624c12f0d79523f7040d79}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-Memory\-Test\-Zone@{write\-Memory\-Test\-Zone}}
+\index{write\-Memory\-Test\-Zone@{write\-Memory\-Test\-Zone}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{write\-Memory\-Test\-Zone}]{\setlength{\rightskip}{0pt plus 5cm}write\-Memory\-Test\-Zone (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_a89f7e82d3a49e4b71d1e4f384d75a247}
+)}}\label{smart__card__higher__level__functions_8c_aaea6e5b5a5624c12f0d79523f7040d79}
 
 
 Write in the Test zone (security mode 1\&2) 
@@ -365,13 +365,13 @@ Write in the Test zone (security mode 1\&2)
 {\em buffer} & Pointer to a buffer (2 bytes required) \\
 \hline
 \end{DoxyParams}
-\hypertarget{smart__card__higher__level__functions_8c_aebca1d05d278d2cf79f9b0e98af8f43f}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-\_\-security\-\_\-code@{write\-\_\-security\-\_\-code}}
-\index{write\-\_\-security\-\_\-code@{write\-\_\-security\-\_\-code}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
-\subsubsection[{write\-\_\-security\-\_\-code}]{\setlength{\rightskip}{0pt plus 5cm}write\-\_\-security\-\_\-code (
+\hypertarget{smart__card__higher__level__functions_8c_adc65a6ccb96da4e6065e46442bb59322}{\index{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}!write\-Security\-Code@{write\-Security\-Code}}
+\index{write\-Security\-Code@{write\-Security\-Code}!smart_card_higher_level_functions.c@{smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-c}}
+\subsubsection[{write\-Security\-Code}]{\setlength{\rightskip}{0pt plus 5cm}write\-Security\-Code (
 \begin{DoxyParamCaption}
 \item[{uint8\-\_\-t $\ast$}]{buffer}
 \end{DoxyParamCaption}
-)}}\label{smart__card__higher__level__functions_8c_aebca1d05d278d2cf79f9b0e98af8f43f}
+)}}\label{smart__card__higher__level__functions_8c_adc65a6ccb96da4e6065e46442bb59322}
 
 
 Write a new security code (security mode 1\&2 -\/ Authenticated!) 

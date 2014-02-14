@@ -17,17 +17,11 @@
  *
  * CDDL HEADER END
  */
-/*
- * interrupts.h
- *
- * Created: 11/01/2014 11:54:39
- *  Author: Mathieu Stephan
- */ 
 
 
 #ifndef INTERRUPTS_H_
 #define INTERRUPTS_H_
 
-void init_interrupts(void);
+void initIRQ(void);
 
 #endif /* INTERRUPTS_H_ */

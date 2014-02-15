@@ -440,18 +440,22 @@ $(ARDUINOLIB): $(ARDUINOLIBOBJS)
 	$(AR) rcs $@ $?
 
 .lib/%.c.o: %.c
+	@echo "mkdir -p $(dir $@)"
 	mkdir -p $(dir $@)
 	$(COMPILE.c) -o $@ $<
 
 .lib/%.cpp.o: %.cpp
+	@echo "mkdir -p $(dir $@)"
 	mkdir -p $(dir $@)
 	$(COMPILE.cpp) -o $@ $<
 
 .lib/%.cc.o: %.cc
+	@echo "mkdir -p $(dir $@)"
 	mkdir -p $(dir $@)
 	$(COMPILE.cpp) -o $@ $<
 
 .lib/%.C.o: %.C
+	@echo "mkdir -p $(dir $@)"
 	mkdir -p $(dir $@)
 	$(COMPILE.cpp) -o $@ $<
 

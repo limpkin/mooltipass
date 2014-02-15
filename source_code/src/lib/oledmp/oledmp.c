@@ -331,7 +331,7 @@ void oled_setRowAddr(uint8_t start, uint8_t end)
  * @param xend - end row
  * @param yend - end column
  */
-void oled_setWindow(uint8_t x, uint8_t y, uint8_t xend, uint8_t yend)
+void oled_setWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend)
 {
     oled_setColumnAddr(MIN_SEG + x / 4, MIN_SEG + xend / 4);
     oled_setRowAddr(y, yend);
@@ -607,7 +607,7 @@ uint8_t oled_glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t 
  *       This means the buffer will only work when writing new graphical data to the
  *       right of the last data written (e.g. when drawing a line of text).
  */
-void oled_bitmapDrawRaw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t depth, const uint16_t *image)
+void oled_bitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uint8_t depth, const uint16_t *image)
 {
     uint8_t xoff = x - (x / 4) * 4;
     uint8_t scale = (1<<depth) - 1;
@@ -620,7 +620,7 @@ void oled_bitmapDrawRaw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uin
     oled_writeCommand(CMD_WRITE_RAM);
 
     for (uint8_t yind=0; yind < height; yind++) {
-	uint8_t xind = 0;
+	uint16_t xind = 0;
 	uint16_t pixels = 0;
 	uint8_t xcount = 0;
 	if (xoff != 0) {

@@ -6,7 +6,7 @@
 #define RED_SPHERE_HEIGHT 64
 
 const struct {
-    uint8_t width;
+    uint16_t width;
     uint8_t height;
     uint8_t depth;
     uint16_t dataSize;

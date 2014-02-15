@@ -21,6 +21,7 @@
 *	\brief	Graphical functions
 */
 #include "../mooltipass.h"
+#include "../OLED/oled.h"
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
@@ -134,7 +135,7 @@ void lcd_display_grayscale()
 */
 void Show_Font57(unsigned char data, unsigned char reverse, unsigned char x, unsigned char y)
 {
-	unsigned char *Src_Pointer;
+	const unsigned char *Src_Pointer;
 	unsigned char i,j,Font,MSB_1,LSB_1,MSB_2,LSB_2;
 
 	if(data < 0x20 || data > 0x8C)
@@ -260,7 +261,7 @@ void Show_Nb_Chars(char* string, unsigned char reverse, unsigned char x, unsigne
 */
 void Show_Big_Font(unsigned char data, unsigned char reverse, unsigned char x, unsigned char y, unsigned char line)
 {
-	unsigned char *Src_Pointer;
+	const unsigned char *Src_Pointer;
 	unsigned char temp,i,j;
 
 	if(data == 127 || data == 0x20)
@@ -408,7 +409,7 @@ void Show_BF_Nb_Chars(char* string, unsigned char reverse, unsigned char x, unsi
 void display_picture(unsigned char picture, unsigned char x, unsigned char y)
 {
 	unsigned char width, height;
-	unsigned char* src_pointer;
+	const unsigned char* src_pointer;
 	unsigned char i,j;
 
 	if(picture == HACKADAY_BMP)
@@ -445,7 +446,7 @@ void display_picture(unsigned char picture, unsigned char x, unsigned char y)
 void display_1bit_picture(unsigned char picture, unsigned char x, unsigned char y, unsigned int width, unsigned char height)
 {
 	unsigned char temp,data,i,j;
-	unsigned char* src_pointer;
+	const unsigned char* src_pointer;
 	
 	Set_Column_Address(OLED_Shift + (x >> 2), OLED_Shift + (width  >> 2) + (x >> 2) - 1);	
 	Set_Row_Address(y, y + height - 1);

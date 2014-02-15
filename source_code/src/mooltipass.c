@@ -23,6 +23,13 @@
 *	Author: Mathieu Stephan
 */
 #include "mooltipass.h"
+#include "interrupts.h"
+#include "CARD/smartcard.h"
+#include "CARD/smart_card_higher_level_functions.h"
+#include "USB/usb_serial_hid.h"
+#include "OLED/oled.h"
+#include "FLASH/flash_mem.h"
+#include "GRAPHICS/graphics.h"
 #include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
@@ -54,9 +61,6 @@ int main(void)
 	RET_TYPE flash_init_result = RETURN_NOK;
 	RET_TYPE card_detect_ret;
 	RET_TYPE temp_rettype;
-
-	uint8_t temp_buffer[200];
-	char temp_string[20];
 
 	CPU_PRESCALE(0);					// Set for 16MHz clock
 	_delay_ms(500);						// Let the power settle

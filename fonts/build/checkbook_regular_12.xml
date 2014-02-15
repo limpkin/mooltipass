@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Font size="12" family="Checkbook" height="16" style="Regular">
+ <Char width="5" offset="0 14" rect="1 15 0 0" code=" "/>
+ <Char width="4" offset="0 0" rect="2 1 4 14" code="!"/>
+ <Char width="8" offset="0 0" rect="7 1 7 16" code="$"/>
+ <Char width="10" offset="0 1" rect="15 2 9 13" code="%"/>
+ <Char width="10" offset="2 1" rect="25 2 8 15" code="&amp;"/>
+ <Char width="3" offset="1 0" rect="34 1 1 5" code="'"/>
+ <Char width="5" offset="2 0" rect="36 1 3 15" code="("/>
+ <Char width="5" offset="0 0" rect="40 1 4 15" code=")"/>
+ <Char width="5" offset="1 0" rect="45 1 3 5" code="*"/>
+ <Char width="4" offset="1 11" rect="49 12 2 6" code=","/>
+ <Char width="4" offset="1 12" rect="52 13 2 2" code="."/>
+ <Char width="9" offset="1 0" rect="55 1 7 14" code="/"/>
+ <Char width="11" offset="1 1" rect="63 2 9 13" code="0"/>
+ <Char width="7" offset="0 0" rect="73 1 7 14" code="1"/>
+ <Char width="7" offset="1 1" rect="81 2 5 13" code="2"/>
+ <Char width="8" offset="0 1" rect="87 2 9 13" code="3"/>
+ <Char width="10" offset="1 0" rect="97 1 8 14" code="4"/>
+ <Char width="8" offset="0 1" rect="106 2 7 13" code="5"/>
+ <Char width="10" offset="1 1" rect="114 2 8 13" code="6"/>
+ <Char width="9" offset="1 1" rect="1 20 7 13" code="7"/>
+ <Char width="11" offset="2 1" rect="9 20 9 13" code="8"/>
+ <Char width="10" offset="1 1" rect="19 20 8 13" code="9"/>
+ <Char width="4" offset="1 5" rect="28 24 2 9" code=":"/>
+ <Char width="4" offset="1 7" rect="31 26 2 10" code=";"/>
+ <Char width="8" offset="1 1" rect="34 20 6 13" code="?"/>
+ <Char width="10" offset="2 1" rect="41 20 7 13" code="A"/>
+ <Char width="10" offset="1 1" rect="49 20 8 13" code="B"/>
+ <Char width="9" offset="1 1" rect="58 20 7 13" code="C"/>
+ <Char width="10" offset="1 1" rect="66 20 8 13" code="D"/>
+ <Char width="8" offset="2 1" rect="75 20 6 13" code="E"/>
+ <Char width="8" offset="0 1" rect="82 20 8 13" code="F">
+  <Kerning advance="-1" id=","/>
+  <Kerning advance="-1" id="."/>
+ </Char>
+ <Char width="10" offset="1 1" rect="91 20 8 13" code="G"/>
+ <Char width="10" offset="1 0" rect="100 19 8 14" code="H"/>
+ <Char width="4" offset="0 0" rect="109 19 3 14" code="I"/>
+ <Char width="10" offset="2 0" rect="113 19 7 14" code="J"/>
+ <Char width="10" offset="1 0" rect="1 37 9 14" code="K"/>
+ <Char width="8" offset="0 0" rect="11 37 8 14" code="L"/>
+ <Char width="12" offset="1 0" rect="20 37 10 14" code="M"/>
+ <Char width="10" offset="1 0" rect="31 37 8 14" code="N"/>
+ <Char width="10" offset="1 1" rect="40 38 8 13" code="O"/>
+ <Char width="9" offset="1 1" rect="49 38 7 13" code="P">
+  <Kerning advance="-1" id=","/>
+  <Kerning advance="-1" id="."/>
+ </Char>
+ <Char width="10" offset="2 1" rect="57 38 7 15" code="Q"/>
+ <Char width="10" offset="1 1" rect="65 38 8 13" code="R"/>
+ <Char width="9" offset="1 1" rect="74 38 7 13" code="S"/>
+ <Char width="10" offset="0 1" rect="82 38 10 13" code="T"/>
+ <Char width="9" offset="1 0" rect="93 37 7 14" code="U"/>
+ <Char width="9" offset="1 0" rect="101 37 7 14" code="V"/>
+ <Char width="12" offset="1 0" rect="109 37 10 14" code="W"/>
+ <Char width="9" offset="1 0" rect="1 54 7 14" code="X"/>
+ <Char width="9" offset="1 0" rect="9 54 7 14" code="Y"/>
+ <Char width="10" offset="1 1" rect="17 55 8 14" code="Z"/>
+ <Char width="6" offset="1 6" rect="26 60 4 8" code="a"/>
+ <Char width="6" offset="1 6" rect="31 60 4 8" code="b"/>
+ <Char width="6" offset="0 6" rect="36 60 5 8" code="c"/>
+ <Char width="6" offset="1 6" rect="42 60 4 8" code="d"/>
+ <Char width="5" offset="1 6" rect="47 60 4 8" code="e"/>
+ <Char width="5" offset="0 6" rect="52 60 5 8" code="f"/>
+ <Char width="6" offset="1 6" rect="58 60 4 8" code="g"/>
+ <Char width="6" offset="0 6" rect="63 60 5 8" code="h"/>
+ <Char width="3" offset="-1 6" rect="69 60 3 8" code="i"/>
+ <Char width="7" offset="1 6" rect="73 60 5 8" code="j"/>
+ <Char width="7" offset="1 6" rect="79 60 6 8" code="k"/>
+ <Char width="5" offset="-1 6" rect="86 60 6 8" code="l"/>
+ <Char width="7" offset="0 6" rect="93 60 6 9" code="m"/>
+ <Char width="7" offset="0 6" rect="100 60 6 8" code="n"/>
+ <Char width="6" offset="0 6" rect="107 60 5 8" code="o"/>
+ <Char width="6" offset="1 6" rect="113 60 4 8" code="p"/>
+ <Char width="6" offset="1 6" rect="118 60 4 10" code="q"/>
+ <Char width="7" offset="1 6" rect="1 72 5 8" code="r"/>
+ <Char width="6" offset="0 6" rect="7 72 5 8" code="s"/>
+ <Char width="6" offset="0 6" rect="13 72 6 8" code="t"/>
+ <Char width="6" offset="0 6" rect="20 72 5 8" code="u"/>
+ <Char width="6" offset="0 6" rect="26 72 5 8" code="v"/>
+ <Char width="7" offset="1 5" rect="32 71 5 9" code="w"/>
+ <Char width="6" offset="0 6" rect="38 72 5 8" code="x"/>
+ <Char width="6" offset="0 6" rect="44 72 5 8" code="y"/>
+ <Char width="6" offset="0 6" rect="50 72 5 9" code="z"/>
+</Font>

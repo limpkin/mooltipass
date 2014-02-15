@@ -228,4 +228,4 @@ int8_t usb_serial_set_control(uint8_t signals); // set DSR, DCD, RI, etc
 #define CDC_GET_LINE_CODING		0x21
 #define CDC_SET_CONTROL_LINE_STATE	0x22
 
-#endif
+#endif // usb_serial_hid_h__

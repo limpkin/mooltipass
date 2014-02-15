@@ -28,16 +28,9 @@
 #ifndef MOOLTIPASS_H_
 #define MOOLTIPASS_H_
 
-#include "defines.h"
+#include <stdint.h>
 
-#include "CARD/smart_card_higher_level_functions.h"
-#include "GRAPHICS/graphics.h"
-#include "FLASH/flash_mem.h"
-#include "CARD/smartcard.h"
-#include "USB/usb_serial_hid.h"
-#include "UTILS/utils.h"
-#include "interrupts.h"
-#include "OLED/oled.h"
+#include "defines.h"
 
 uint16_t mooltipass_rand(void);
 

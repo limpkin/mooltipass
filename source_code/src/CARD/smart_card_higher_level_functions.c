@@ -21,7 +21,11 @@
  *	\brief	Smart Card high level functions
  *	Copyright [2014] [Mathieu Stephan]
  */
-#include "../mooltipass.h"
+#include "smart_card_higher_level_functions.h"
+
+#include "../UTILS/utils.h"
+#include "../GRAPHICS/graphics.h"
+#include "smartcard.h"
 
 /*!	\fn		mooltipassDetectedRoutine(uint16_t pin_code)
 *	\brief	Function called when something a mooltipass is inserted into the smartcard slot
@@ -206,6 +210,7 @@ RET_TYPE cardDetectedRoutine(void)
 RET_TYPE transformBlankCardIntoMooltipass(void)
 {
 	uint8_t temp_buffer[20];
+	uint16_t *temp_buf16 = (uint16_t*)temp_buffer;
 	
 	/* Check that the security code is readable, ensuring that we are in security mode 1 with SV flag */
 	if(swap16(*(uint16_t*)readSecurityCode(temp_buffer)) == 0xFFFF)
@@ -215,7 +220,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 	resetBlankCard();
 	
 	/* Set new security password, keep zone 1 and zone 2 security key to FFFF... */
-	*(uint16_t*)temp_buffer = swap16(SMARTCARD_DEFAULT_PIN);
+	*temp_buf16 = swap16(SMARTCARD_DEFAULT_PIN);
 	writeSecurityCode(temp_buffer);
 	
 	/* Write "hackaday" to issuer zone */
@@ -223,7 +228,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 	writeIssuerZone(temp_buffer);
 	
 	/* Write 2014 to the manufacturer zone */
-	*(uint16_t*)temp_buffer = swap16(2014);
+	*temp_buf16 = swap16(2014);
 	writeManufacturerZone(temp_buffer);
 	
 	/* Set application zone 1 and zone 2 permissions: read/write when authenticated only */
@@ -245,8 +250,9 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 void resetBlankCard(void)
 {
 	uint8_t data_buffer[2] = {0xFF, 0xFF};
+	uint16_t *data_buf16 = (uint16_t*)data_buffer;
 	writeSMC(1441, 1, data_buffer);
-	*(uint16_t*)data_buffer = swap16(SMARTCARD_FACTORY_PIN);
+	*data_buf16 = swap16(SMARTCARD_FACTORY_PIN);
 	writeSecurityCode(data_buffer);
 }
 

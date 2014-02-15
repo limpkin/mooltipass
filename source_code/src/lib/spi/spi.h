@@ -2,7 +2,10 @@
 #define _SPI_H_
 
 #include <stdio.h>
-#include <Arduino.h>
+#include <stdint.h>
+#include <avr/pgmspace.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 /* 
  * BAUD = Fosc / 2*(URR1 + 1)
@@ -29,7 +32,7 @@ private:
     uint16_t _baud;
 };
 
-byte SPI::transfer(byte data) 
+uint8_t SPI::transfer(uint8_t data) 
 {
     /* Wait for empty transmit buffer */
     while ( !( UCSR1A & (1<<UDRE1)) );

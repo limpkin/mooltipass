@@ -281,7 +281,7 @@ void OledMP::init()
     }
 
     digitalWrite(_power, LOW);
-    delay(2000);
+    //delay(2000);
     writeCommand(CMD_SET_DISPLAY_ON);
 }
 
@@ -497,7 +497,6 @@ uint8_t OledMP::glyphHeight()
 uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg)
 {
     uint8_t pix;
-    int ind;
     const uint8_t *glyph;
     uint8_t glyph_width;
     uint8_t glyph_height;
@@ -554,7 +553,6 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
     // XXX todo: add support for n-bit depth fonts (1 to 4)
 
     for (uint16_t yind=0; yind<glyph_height; yind++) {
-	ind = (uint8_t)(yind*glyph_width);
 	uint16_t pixels;
 	// check for shared pixel data to the left
 	if ((x/4) == gddram[y+yind].xaddr) {
@@ -643,10 +641,14 @@ void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uin
 
 	    // Fill existing pixels if available
 	    if ((x/4) == gddram[yind].xaddr) {
-		pixels |= gddram[yind].pixels & ~((1 << ((4-xoff)*4))-1);
+		pixels |= gddram[yind].pixels;
 	    };
 	    writeData((uint8_t)(pixels >> 8));
 	    writeData((uint8_t)pixels);
+	    if (pixels != 0) {
+		gddram[yind].pixels = pixels;
+		gddram[yind].xaddr = (x/4)+xcount;
+	    }
 	    xcount++;
 	}
 	for (; xind < width; xind+=4) {
@@ -657,12 +659,18 @@ void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uin
 		    pixels |= (pix * 15) / scale;
 		}
 	    }
+	    // Fill existing pixels if available
+	    if (((x+xind)/4) == gddram[yind].xaddr) {
+		pixels |= gddram[yind].pixels;
+	    };
 	    writeData((uint8_t)(pixels >> 8));
 	    writeData((uint8_t)pixels);
+	    if (pixels != 0) {
+		gddram[yind].pixels = pixels;
+		gddram[yind].xaddr = (x/4)+xcount;
+	    }
 	    xcount++;
 	}
-	gddram[yind].pixels = pixels;
-	gddram[yind].xaddr = xind-1;
     }
 }
 

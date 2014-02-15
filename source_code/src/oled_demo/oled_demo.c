@@ -6,7 +6,7 @@
 #include <spi.h>
 #include <oledmp.h>
 #include <util/delay.h>
-#include "jack.h"
+#include "had_mooltipass.h"
 #include "aqua.h"
 #include "sphere.h"
 #include "hackaday.h"
@@ -32,37 +32,40 @@ int main()
     oled_setContrast(255);
 
     while (1) {
+	oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
+	_delay_ms(5000);
+	oled_clear();
 
 #if 1
-    oled_bitmapDraw(0,0, &image_hackaday);
-    oled_setXY(72,37);
-    oled_printf_P(PSTR("HACK A DAY"));
-    oled_setXY(108,4);
-    oled_printf_P(PSTR("Mooltipass"));
-    oled_bitmapDraw(192,0, &image_gear);
+	oled_bitmapDraw(0,0, &image_hackaday);
+	oled_setXY(72,37);
+	oled_printf_P(PSTR("HACK A DAY"));
+	oled_setXY(108,4);
+	oled_printf_P(PSTR("Mooltipass"));
+	oled_bitmapDraw(192,0, &image_gear);
 #endif
 
-    _delay_ms(5000);
-    oled_clear();
+	_delay_ms(5000);
+	oled_clear();
 
 #if 1
-    oled_bitmapDraw(0,0, &image_hackaday);
-    oled_bitmapDraw(60,0, &image_sphere);
-    oled_bitmapDraw(116,0, &image_aqua);
-    oled_bitmapDraw(192,0, &image_gear);
+	oled_bitmapDraw(0,0, &image_hackaday);
+	oled_bitmapDraw(60,0, &image_sphere);
+	oled_bitmapDraw(116,0, &image_aqua);
+	oled_bitmapDraw(192,0, &image_gear);
 #endif
 
-    _delay_ms(5000);
-    oled_clear();
+	_delay_ms(5000);
+	oled_clear();
 
 #if 1
-    oled_printf_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-    oled_printf_P(PSTR("abcdefghijklmnopqrstuvwxyz\n"));
-    oled_printf_P(PSTR("01234567890"));
-    oled_printf_P(PSTR("!$%%&'()*,./:;?"));
+	oled_printf_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+	oled_printf_P(PSTR("abcdefghijklmnopqrstuvwxyz\n"));
+	oled_printf_P(PSTR("01234567890"));
+	oled_printf_P(PSTR("!$%%&'()*,./:;?"));
 #endif
-    _delay_ms(5000);
-    oled_clear();
+	_delay_ms(5000);
+	oled_clear();
     }
 
     while (1);

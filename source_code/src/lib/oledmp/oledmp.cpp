@@ -28,6 +28,7 @@
  */
 
 #include "oledmp.h"
+#include <util/delay.h>
 
 #include <avr/pgmspace.h>
 /* Work around a bug with PROGMEM and PSTR where the compiler always
@@ -143,25 +144,6 @@ uint16_t BitmapStream::available(void)
     return _size;
 }
 
-#if 0
-OledMP::OledMP(
-	uint8_t volatile *cs_port,
-	const uint8_t cs_pin,
-	uint8_t volatile *dc_port,
-	const uint8_t dc_pin,
-	uint8_t volatile *reset_port,
-	const uint8_t reset_pin,
-	uint8_t volatile *power_port,
-	const uint8_t power)
-{
-}
-
-OledMP::OledMP(const uint8_t cs, const uint8_t dc, const uint8_t reset, const uint8_t power)
-{
-    _power = power;
-}
-#endif
-
 void OledMP::setColour(uint8_t colour)
 {
     foreground = colour & 0x0F;
@@ -229,6 +211,29 @@ void OledMP::setXY(uint8_t col, uint8_t row)
 }
 
 
+/**
+ * Set pin input or output mode with optional pullup for inputs
+ * @param port - the port the pin is on
+ * @param pin  - the pin mask for the pin (i.e. 1 << pin_number)
+ * @param mode - INPUT or OUTPUT
+ * @param pullup - pullup enabled for input if true
+ */
+void pinMode(uint8_t volatile *port, const uint8_t pin, uint8_t mode, bool pullup)
+{
+    uint8_t volatile *dataDir = port-1;
+
+    if (mode == INPUT) {
+	*dataDir &= ~pin;
+	if (pullup) {
+	    *port |= pin;
+	} else {
+	    *port &= ~pin;
+	}
+    } else if (mode == OUTPUT) {
+	*dataDir |= pin;
+    }
+}
+
 void OledMP::begin(uint8_t font)
 {
     foreground = 15;
@@ -243,17 +248,13 @@ void OledMP::begin(uint8_t font)
     _fontHQ = NULL;
 
     setFont(font);
-    port_cs = portOutputRegister(digitalPinToPort(_cs));
-    pin_cs = digitalPinToBitMask(_cs);
-    port_dc = portOutputRegister(digitalPinToPort(_dc));
-    pin_dc = digitalPinToBitMask(_dc);
-
-    pinMode(_cs, OUTPUT);
-    pinMode(_dc, OUTPUT);
-    pinMode(_reset, OUTPUT);
-    pinMode(_power, OUTPUT);
-    digitalWrite(_power, HIGH);
-    pinHigh(port_cs, pin_cs);
+    
+    pinMode(port_cs, _cs, OUTPUT);
+    pinMode(port_dc, _dc, OUTPUT);
+    pinMode(port_reset, _reset, OUTPUT);
+    pinMode(port_power, _power, OUTPUT);
+    pinHigh(port_power, _power);
+    pinHigh(port_cs, _cs);
 
     reset();
     init();
@@ -280,8 +281,7 @@ void OledMP::init()
 	}
     }
 
-    digitalWrite(_power, LOW);
-    //delay(2000);
+    pinLow(port_power, _power);	 // 12V power on
     writeCommand(CMD_SET_DISPLAY_ON);
 }
 
@@ -291,10 +291,10 @@ void OledMP::init()
  */
 void OledMP::writeCommand(uint8_t reg)
 {
-    pinLow(port_cs, pin_cs);
-    pinLow(port_dc, pin_dc);
+    pinLow(port_cs, _cs);
+    pinLow(port_dc, _dc);
     _spi.transfer(reg);
-    pinHigh(port_cs, pin_cs);
+    pinHigh(port_cs, _cs);
 }
 
 /**
@@ -303,10 +303,10 @@ void OledMP::writeCommand(uint8_t reg)
  */
 void OledMP::writeData(uint8_t data)
 {
-    pinLow(port_cs, pin_cs);
-    pinHigh(port_dc, pin_dc);
+    pinLow(port_cs, _cs);
+    pinHigh(port_dc, _dc);
     _spi.transfer(data);
-    pinHigh(port_cs, pin_cs);
+    pinHigh(port_cs, _cs);
 }
 
 /**
@@ -419,7 +419,6 @@ void OledMP::fill(uint8_t colour)
 	    writeData(colour);
 	}
     }
-    delay(1);
 }
 
 /**
@@ -440,10 +439,10 @@ void OledMP::clear()
  */
 void OledMP::reset()
 {
-    digitalWrite(_reset,LOW);
-    delay(100);
-    digitalWrite(_reset,HIGH);
-    delay(10);
+    pinLow(port_reset, _reset);
+    _delay_ms(100);
+    pinHigh(port_reset, _reset);
+    _delay_ms(10);
 }
 
 

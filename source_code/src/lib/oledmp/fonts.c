@@ -20,51 +20,21 @@
 
 /* Copyright (c) 2014 Darran Hunt. All rights reserved. */
 
-#ifndef FONTS_H_
-#define FONTS_H_
+#include "fonts.h"
+#include "fontdefs.h"
 
-#include <stdlib.h>
-#include <stdint.h>
-
-// Font selection
-#undef FONT_CHECKBOOK_12
-#define FONT_CHECKBOOK_14
-#undef FONT_PROFONT_10_100DPI
-#undef FONT_PROFONT_10_72DPI
-#define FONT_DEFAULT font_CHECKBOOK_14
-//#define FONT_DEFAULT font_PROFONT_10_100DPI
-
-typedef struct {
-    uint8_t width;		// Width of glyph data in pixels
-    uint8_t xrect;		// x width of rectangle
-    uint8_t yrect;		// y height of rectangle
-    int8_t xoffset;		// x offset of glyph in rectangle
-    int8_t yoffset;		// y offset of glyph in rectangle
-    const uint8_t *glyph;	// glyph pixel data
-} glyph_t;
-
-typedef struct {
-    const glyph_t *glyphs;
-    const uint8_t *map;
-    uint8_t height;
-} font_t;
-
-
-typedef enum {
+font_t fontsHQ[] = {
 #ifdef FONT_CHECKBOOK_12
-    font_CHECKBOOK_12,
+    { checkbook_12, checkbook_12_asciimap, CHECKBOOK_12_HEIGHT },
 #endif
 #ifdef FONT_CHECKBOOK_14
-    font_CHECKBOOK_14,
+    { checkbook_14, checkbook_14_asciimap, CHECKBOOK_14_HEIGHT },
 #endif
 #ifdef FONT_PROFONT_10_100DPI
-    font_PROFONT_10_100DPI,
+    { profont_10_100, profont_10_100_asciimap, PROFONT_10_100_HEIGHT },
 #endif
 #ifdef FONT_PROFONT_10_72DPI
-    font_PROFONT_10_72DPI,
+    { profont_10_72, profont_10_72_asciimap, PROFONT_10_72_HEIGHT },
 #endif
-} font_e;
+};
 
-extern font_t fontsHQ[];
-
-#endif

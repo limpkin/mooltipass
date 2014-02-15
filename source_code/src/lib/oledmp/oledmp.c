@@ -1,52 +1,82 @@
-/*-
- * Copyright (c) 2014 Darran Hunt (darran [at] hunt dot net dot nz)
- * All rights reserved.
+/* CDDL HEADER START
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License (the "License").
+ * You may not use this file except in compliance with the License.
  *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
- * THE CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * You can obtain a copy of the license at src/license_cddl-1.0.txt
+ * or http://www.opensolaris.org/os/licensing.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file at src/license_cddl-1.0.txt
+ * If applicable, add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your own identifying
+ * information: Portions Copyright [yyyy] [name of copyright owner]
+ *
+ * CDDL HEADER END
  */
+
+/* Copyright (c) 2014 Darran Hunt. All rights reserved. */
+
+/*!	\file 	oledmp.c
+*	\brief	Mooltipass SSD1322 256x64x16 OLED display library
+*	Created: 15/2/2014
+*	Author: Darran Hunt
+*/
 
 /**
  * @file OledMP Mooltipass 256x64x4 OLED display driver
  */
 
-#include "oledmp.h"
+#include <stdio.h>
 #include <util/delay.h>
-
 #include <avr/pgmspace.h>
-/* Work around a bug with PROGMEM and PSTR where the compiler always
- * generates warnings.
- */
-#undef PROGMEM 
-#define PROGMEM __attribute__(( section(".progmem.data") )) 
-#undef PSTR 
-#define PSTR(s) (__extension__({static prog_char __c[] PROGMEM = (s); &__c[0];})) 
 
-#define pinLow(port, pin)	*port &= ~pin
-#define pinHigh(port, pin)	*port |= pin
+#include "oledmp.h"
+#include "bitstream.h"
 
-#define MIN_SEG 28
-#define MAX_SEG 91
+#define MIN_SEG 28		// minimum visable OLED 4-pixel segment
+#define MAX_SEG 91		// maximum visable OLED 4-pixel segment
 
 #define OLED_WIDTH 256
 #define OLED_HEIGHT 64
+
+#define pinLow(port, pin)	*port &= ~pin		// set a pin output low
+#define pinHigh(port, pin)	*port |= pin		// set a pin output high
+
+static uint8_t volatile *port_cs;
+static uint8_t _cs;
+static uint8_t volatile *port_dc;
+static uint8_t _dc;
+static uint8_t volatile *port_reset;
+static uint8_t _reset;
+static uint8_t volatile *port_power;
+static uint8_t _power;
+static char _printBuf[64];	// scratch buffer for printf
+static uint8_t end_x;
+static uint8_t end_y;
+static uint8_t _offset;
+static uint8_t _bufHeight;
+
+// pixel buffer to allow merging of adjacent image data.
+// To conserve memory, only one GDDRAM word is kept per display line.
+// The library assumes the display will be filled left to right, and
+// hence it only needs to merge the rightmost data with the next write
+// on that line.
+static struct {
+    uint8_t xaddr;
+    uint16_t pixels;
+} gddram[LCDHEIGHT];
+
+static font_t *_fontHQ;
+
+static uint8_t cur_x;
+static uint8_t cur_y;
+static uint8_t foreground;
+static uint8_t background;
+static bool wrap;
 
 /*
  * OLED initialisation sequence
@@ -84,132 +114,6 @@ static const uint8_t oledInit[] __attribute__((__progmem__)) = {
     CMD_SET_DISPLAY_MODE_NORMAL,     0
 };
 
-BitmapStream::BitmapStream(const uint8_t pixelDepth, const uint16_t *data, const uint16_t size) :
-    bitsPerPixel(pixelDepth), _datap(data), _size(size)
-{
-    mask = (1 << pixelDepth) - 1;
-    _wordsize = 16;
-    _bits = 0;
-    _word = 0xAA55;
-    _count = 0;
-}
-
-/**
- * Return the next data word from flash
- * @returns next data word, or 0 if end of data reached
- */
-uint16_t BitmapStream::getNextWord()
-{
-    if (_size > 0) {
-	return (uint16_t)pgm_read_word(_datap++);
-    } else {
-	return 0;
-    }
-}
-
-/**
- * Return the next pixel from the bitmap
- * @returns next pixel, or 0 if end of data reached
- */
-
-uint8_t BitmapStream::read(void)
-{
-    uint8_t data=0;
-    if (_size > 0) {
-	if (_bits == 0) {
-	    _word = getNextWord();
-	    _bits = _wordsize;
-	}
-	if (_bits >= bitsPerPixel) {
-	    _bits -= bitsPerPixel;
-	    data = (_word >> _bits);
-	} else {
-	    uint8_t offset = bitsPerPixel - _bits;
-	    data = _word << offset;
-	    _bits += _wordsize - bitsPerPixel;
-	    _word = getNextWord();
-	    data |= _word >> _bits;
-	}
-	_size--;
-    }
-    return data & mask;
-}
-
-/**
- * Returns the number of pixels available to read
- * @returns next pixel, or 0 if end of data reached
- */
-uint16_t BitmapStream::available(void)
-{
-    return _size;
-}
-
-void OledMP::setColour(uint8_t colour)
-{
-    foreground = colour & 0x0F;
-}
-
-void OledMP::setBackground(uint8_t colour)
-{
-    background = colour & 0x0F;
-}
-
-void OledMP::setContrast(uint8_t contrast)
-{
-    writeCommand(CMD_SET_CONTRAST_CURRENT);
-    writeData(contrast);
-}
-
-void OledMP::putstr(char *str)
-{
-    char ch;
-
-    while ((ch=*str++) != 0) {
-	if (ch == '\n') {
-	    cur_y += glyphHeight();
-	    cur_x = 0;
-	} else if (ch == '\r') {
-	    // skip em
-	} else {
-	    uint8_t width = glyphWidth(ch);
-	    if (wrap && ((cur_x + width) > OLED_WIDTH)) {
-		cur_y += glyphHeight();
-		cur_x = 0;
-	    }
-	    cur_x += glyphDraw(cur_x, cur_y, ch, foreground, background);
-	}
-    }
-}
-
-
-int OledMP::printf(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = vsnprintf(_printBuf, sizeof(_printBuf), fmt, ap);
-      
-    putstr(_printBuf);
-
-    return ret;
-} 
-
-int OledMP::printf(const __fstr *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = vsnprintf_P(_printBuf, sizeof(_printBuf), (const char *)fmt, ap);
-      
-    putstr(_printBuf);
-
-    return ret;
-} 
-
-void OledMP::setXY(uint8_t col, uint8_t row)
-{
-    cur_x = col;
-    cur_y = row;
-}
-
 
 /**
  * Set pin input or output mode with optional pullup for inputs
@@ -234,8 +138,27 @@ void pinMode(uint8_t volatile *port, const uint8_t pin, uint8_t mode, bool pullu
     }
 }
 
-void OledMP::begin(uint8_t font)
+
+void oled_begin(
+	uint8_t volatile *cs_port,
+	const uint8_t cs,
+	uint8_t volatile *dc_port,
+	const uint8_t dc,
+	uint8_t volatile *reset_port,
+	const uint8_t reset,
+	uint8_t volatile *power_port,
+	const uint8_t power,
+	uint8_t font)
 {
+    port_cs = cs_port;
+    _cs = 1<<cs;
+    port_dc = dc_port;
+    _dc = 1<<dc;
+    port_reset = reset_port;
+    _reset = 1<<reset;
+    port_power = power_port;
+    _power = 1<<power;
+
     foreground = 15;
     background = 0;
     cur_x = 0;
@@ -247,53 +170,120 @@ void OledMP::begin(uint8_t font)
     _bufHeight = OLED_HEIGHT;
     _fontHQ = NULL;
 
-    setFont(font);
+    oled_setFont(font);
     
-    pinMode(port_cs, _cs, OUTPUT);
-    pinMode(port_dc, _dc, OUTPUT);
-    pinMode(port_reset, _reset, OUTPUT);
-    pinMode(port_power, _power, OUTPUT);
+    pinMode(port_cs, _cs, OUTPUT, false);
+    pinMode(port_dc, _dc, OUTPUT, false);
+    pinMode(port_reset, _reset, OUTPUT, false);
+    pinMode(port_power, _power, OUTPUT, false);
     pinHigh(port_power, _power);
     pinHigh(port_cs, _cs);
 
-    reset();
-    init();
+    oled_reset();
+    oled_init();
 
     for (uint8_t ind=0; ind<LCDHEIGHT; ind++) {
 	gddram[ind].xaddr = 0;
 	gddram[ind].pixels = 0;
     }
 
-    clear();
+    oled_clear();
 }
+
+void oled_setColour(uint8_t colour)
+{
+    foreground = colour & 0x0F;
+}
+
+void oled_setBackground(uint8_t colour)
+{
+    background = colour & 0x0F;
+}
+
+void oled_setContrast(uint8_t contrast)
+{
+    oled_writeCommand(CMD_SET_CONTRAST_CURRENT);
+    oled_writeData(contrast);
+}
+
+void oled_putstr(char *str)
+{
+    char ch;
+
+    while ((ch=*str++) != 0) {
+	if (ch == '\n') {
+	    cur_y += oled_glyphHeight();
+	    cur_x = 0;
+	} else if (ch == '\r') {
+	    // skip em
+	} else {
+	    uint8_t width = oled_glyphWidth(ch);
+	    if (wrap && ((cur_x + width) > OLED_WIDTH)) {
+		cur_y += oled_glyphHeight();
+		cur_x = 0;
+	    }
+	    cur_x += oled_glyphDraw(cur_x, cur_y, ch, foreground, background);
+	}
+    }
+}
+
+
+int oled_printf(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = vsnprintf(_printBuf, sizeof(_printBuf), fmt, ap);
+      
+    oled_putstr(_printBuf);
+
+    return ret;
+} 
+
+int oled_printf_P(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = vsnprintf_P(_printBuf, sizeof(_printBuf), (const char *)fmt, ap);
+      
+    oled_putstr(_printBuf);
+
+    return ret;
+} 
+
+void oled_setXY(uint8_t col, uint8_t row)
+{
+    cur_x = col;
+    cur_y = row;
+}
+
 
 /**
  * Initialise the OLED hardware and get it ready for use.
  */
-void OledMP::init()
+void oled_init()
 {
 
     for (uint16_t ind=0; ind < sizeof(oledInit); ) {
-	writeCommand(pgm_read_byte(&oledInit[ind++]));
+	oled_writeCommand(pgm_read_byte(&oledInit[ind++]));
 	uint8_t dataSize = pgm_read_byte(&oledInit[ind++]);
 	while (dataSize--) {
-	    writeData(pgm_read_byte(&oledInit[ind++]));
+	    oled_writeData(pgm_read_byte(&oledInit[ind++]));
 	}
     }
 
     pinLow(port_power, _power);	 // 12V power on
-    writeCommand(CMD_SET_DISPLAY_ON);
+    oled_writeCommand(CMD_SET_DISPLAY_ON);
 }
 
 /**
  * Write a command or register address to the display
  * @param reg - the command or register to write
  */
-void OledMP::writeCommand(uint8_t reg)
+void oled_writeCommand(uint8_t reg)
 {
     pinLow(port_cs, _cs);
     pinLow(port_dc, _dc);
-    _spi.transfer(reg);
+    spi_transfer(reg);
     pinHigh(port_cs, _cs);
 }
 
@@ -301,11 +291,11 @@ void OledMP::writeCommand(uint8_t reg)
  * Write a byte of data to the display
  * @param data - data to write
  */
-void OledMP::writeData(uint8_t data)
+void oled_writeData(uint8_t data)
 {
     pinLow(port_cs, _cs);
     pinHigh(port_dc, _dc);
-    _spi.transfer(data);
+    spi_transfer(data);
     pinHigh(port_cs, _cs);
 }
 
@@ -314,11 +304,11 @@ void OledMP::writeData(uint8_t data)
  * @param start - start column
  * @param end - end column
  */
-void OledMP::setColumnAddr(uint8_t start, uint8_t end)
+void oled_setColumnAddr(uint8_t start, uint8_t end)
 {
-    writeCommand(CMD_SET_COLUMN_ADDR);
-    writeData(start);
-    writeData(end);
+    oled_writeCommand(CMD_SET_COLUMN_ADDR);
+    oled_writeData(start);
+    oled_writeData(end);
 }
 
 /**
@@ -326,11 +316,11 @@ void OledMP::setColumnAddr(uint8_t start, uint8_t end)
  * @param start - start row
  * @param end - end row
  */
-void OledMP::setRowAddr(uint8_t start, uint8_t end)
+void oled_setRowAddr(uint8_t start, uint8_t end)
 {
-    writeCommand(CMD_SET_ROW_ADDR);
-    writeData(start);
-    writeData(end);
+    oled_writeCommand(CMD_SET_ROW_ADDR);
+    oled_writeData(start);
+    oled_writeData(end);
 }
 
 /**
@@ -341,10 +331,10 @@ void OledMP::setRowAddr(uint8_t start, uint8_t end)
  * @param xend - end row
  * @param yend - end column
  */
-void OledMP::setWindow(uint8_t x, uint8_t y, uint8_t xend, uint8_t yend)
+void oled_setWindow(uint8_t x, uint8_t y, uint8_t xend, uint8_t yend)
 {
-    setColumnAddr(MIN_SEG + x / 4, MIN_SEG + xend / 4);
-    setRowAddr(y, yend);
+    oled_setColumnAddr(MIN_SEG + x / 4, MIN_SEG + xend / 4);
+    oled_setRowAddr(y, yend);
     //cur_x = x;
     end_x = xend;
     //cur_y = y;
@@ -356,10 +346,10 @@ void OledMP::setWindow(uint8_t x, uint8_t y, uint8_t xend, uint8_t yend)
  * Effectively moves y=0 to the offset y row.  The display wraps around to y=63.
  * @param offset - set y origin to this offset
  */
-void OledMP::setOffset(uint8_t offset)
+void oled_setOffset(uint8_t offset)
 {
-    writeCommand(CMD_SET_DISPLAY_OFFSET);
-    writeData(offset);
+    oled_writeCommand(CMD_SET_DISPLAY_OFFSET);
+    oled_writeData(offset);
     _offset = offset;
 }
 
@@ -367,22 +357,22 @@ void OledMP::setOffset(uint8_t offset)
  * Get the current display offset (y origin).
  * @returns current y offset
  */
-uint8_t OledMP::getOffset(void)
+uint8_t oled_getOffset(void)
 {
     return _offset;
 }
 
-void OledMP::setBufHeight(uint8_t rows)
+void oled_setBufHeight(uint8_t rows)
 {
     if (rows < LCDHEIGHT) {
 	return;
     }
-    writeCommand(CMD_SET_MULTIPLEX_RATIO);
-    writeData(rows & 0x7F);
+    oled_writeCommand(CMD_SET_MULTIPLEX_RATIO);
+    oled_writeData(rows & 0x7F);
     _bufHeight = rows;
 }
 
-uint8_t OledMP::getBufHeight(void)
+uint8_t oled_getBufHeight(void)
 {
     return _bufHeight;
 }
@@ -392,7 +382,7 @@ uint8_t OledMP::getBufHeight(void)
  * Set the font to use
  * @param font - new font to use
  */
-void OledMP::setFont(uint8_t font)
+void oled_setFont(uint8_t font)
 {
     _fontHQ = &fontsHQ[font];
 }
@@ -403,20 +393,20 @@ void OledMP::setFont(uint8_t font)
  * every pixel to the colour.
  * @param colour - fill the display with this colour.
  */
-void OledMP::fill(uint8_t colour)
+void oled_fill(uint8_t colour)
 {
     uint8_t x,y;
-    setColumnAddr(MIN_SEG, MAX_SEG);	// SEG0 - SEG479
-    setRowAddr(0, 63);	
+    oled_setColumnAddr(MIN_SEG, MAX_SEG);	// SEG0 - SEG479
+    oled_setRowAddr(0, 63);	
 
     colour = (colour & 0x0F) | (colour << 4);;
 
-    writeCommand(CMD_WRITE_RAM);
+    oled_writeCommand(CMD_WRITE_RAM);
     for(y=0; y<64; y++)
     {
 	for(x=0; x<64; x++) {
-	    writeData(colour);
-	    writeData(colour);
+	    oled_writeData(colour);
+	    oled_writeData(colour);
 	}
     }
 }
@@ -424,9 +414,9 @@ void OledMP::fill(uint8_t colour)
 /**
  * Clear the display by setting every pixel to the background colour.
  */
-void OledMP::clear()
+void oled_clear()
 {
-    fill(background);
+    oled_fill(background);
 
     for (uint8_t ind=0; ind<LCDHEIGHT; ind++) {
 	gddram[ind].xaddr = 0;
@@ -437,7 +427,7 @@ void OledMP::clear()
 /**
  * Reset the OLED display.
  */
-void OledMP::reset()
+void oled_reset()
 {
     pinLow(port_reset, _reset);
     _delay_ms(100);
@@ -451,7 +441,7 @@ void OledMP::reset()
  * @param ch - return the width of this character
  * @returns width of the glyph
  */
-uint8_t OledMP::glyphWidth(char ch)
+uint8_t oled_glyphWidth(char ch)
 {
     if (_fontHQ) {
 	uint8_t gind;
@@ -471,7 +461,7 @@ uint8_t OledMP::glyphWidth(char ch)
  * Return the height of the current font. All characters in a font are the same height.
  * @returns height of the glyph font
  */
-uint8_t OledMP::glyphHeight()
+uint8_t oled_glyphHeight()
 {
     if (_fontHQ) {
 	return _fontHQ->height;
@@ -493,7 +483,7 @@ uint8_t OledMP::glyphHeight()
  *       This means the buffer will only work when writing new graphical data to the
  *       right of the last data written (e.g. when drawing a line of text).
  */
-uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg)
+uint8_t oled_glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg)
 {
     uint8_t pix;
     const uint8_t *glyph;
@@ -544,9 +534,9 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
 
     byteWidth = (x+glyph_width-1)/4 - (x/4) + 1;
 
-    setWindow(x, y, x+glyph_width-1, y+glyph_height-1);
+    oled_setWindow(x, y, x+glyph_width-1, y+glyph_height-1);
 
-    writeCommand(CMD_WRITE_RAM);
+    oled_writeCommand(CMD_WRITE_RAM);
 
     // XXX todo: fill unused character space with background
     // XXX todo: add support for n-bit depth fonts (1 to 4)
@@ -574,8 +564,8 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
 		    pixel <<= 2;
 		}
 		if ((bit & 0x3) == (3-xoff)) {
-		    writeData((uint8_t)(pixels >> 8));
-		    writeData((uint8_t)pixels);
+		    oled_writeData((uint8_t)(pixels >> 8));
+		    oled_writeData((uint8_t)pixels);
 		    byteCount--;
 		} else {
 		    pixels <<= 4;
@@ -586,8 +576,8 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
 	if (byteCount != 0) {
 	    // write final pixels
 	    pixels <<= (3-xoff)*4;
-	    writeData((uint8_t)(pixels >> 8));
-	    writeData((uint8_t)pixels);
+	    oled_writeData((uint8_t)(pixels >> 8));
+	    oled_writeData((uint8_t)pixels);
 	}
 
 
@@ -617,16 +607,17 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
  *       This means the buffer will only work when writing new graphical data to the
  *       right of the last data written (e.g. when drawing a line of text).
  */
-void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t depth, const uint16_t *image)
+void oled_bitmapDrawRaw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t depth, const uint16_t *image)
 {
     uint8_t xoff = x - (x / 4) * 4;
     uint8_t scale = (1<<depth) - 1;
 
-    BitmapStream bms(depth, image, width*height);
+    bitstream_t bs;
+    bs_init(&bs, depth, image, width*height);
 
-    setWindow(x, y, x+width-1, y+height-1);
+    oled_setWindow(x, y, x+width-1, y+height-1);
 
-    writeCommand(CMD_WRITE_RAM);
+    oled_writeCommand(CMD_WRITE_RAM);
 
     for (uint8_t yind=0; yind < height; yind++) {
 	uint8_t xind = 0;
@@ -635,15 +626,15 @@ void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uin
 	if (xoff != 0) {
 	    // fill the rest of the 4-pixel word from the bitmap
 	    for (; xind < 4-xoff; xind++) {
-		pixels = pixels << 4 | (bms.read() * 15) / scale;
+		pixels = pixels << 4 | (bs_read(&bs) * 15) / scale;
 	    }
 
 	    // Fill existing pixels if available
 	    if ((x/4) == gddram[yind].xaddr) {
 		pixels |= gddram[yind].pixels;
 	    };
-	    writeData((uint8_t)(pixels >> 8));
-	    writeData((uint8_t)pixels);
+	    oled_writeData((uint8_t)(pixels >> 8));
+	    oled_writeData((uint8_t)pixels);
 	    if (pixels != 0) {
 		gddram[yind].pixels = pixels;
 		gddram[yind].xaddr = (x/4)+xcount;
@@ -654,7 +645,7 @@ void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uin
 	    for (uint8_t pind=0; pind<4; pind++) {
 		pixels <<= 4;
 		if (xind+pind < width) {
-		    uint8_t pix = bms.read();
+		    uint8_t pix = bs_read(&bs);
 		    pixels |= (pix * 15) / scale;
 		}
 	    }
@@ -662,8 +653,8 @@ void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uin
 	    if (((x+xind)/4) == gddram[yind].xaddr) {
 		pixels |= gddram[yind].pixels;
 	    };
-	    writeData((uint8_t)(pixels >> 8));
-	    writeData((uint8_t)pixels);
+	    oled_writeData((uint8_t)(pixels >> 8));
+	    oled_writeData((uint8_t)pixels);
 	    if (pixels != 0) {
 		gddram[yind].pixels = pixels;
 		gddram[yind].xaddr = (x/4)+xcount;
@@ -679,11 +670,11 @@ void OledMP::bitmapDraw(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uin
  * @param y - y position for the bitmap (0=top, 63=bottom)
  * @param image - pointer to a bitmap_t image data structure
  */
-void OledMP::bitmapDraw(uint8_t x, uint8_t y, const void *image)
+void oled_bitmapDraw(uint8_t x, uint8_t y, const void *image)
 {
     const bitmap_t *bitmap = (const bitmap_t *)image;
 
-    bitmapDraw(x, y, pgm_read_byte(&bitmap->width), pgm_read_byte(&bitmap->height), pgm_read_byte(&bitmap->depth), bitmap->data);
+    oled_bitmapDrawRaw(x, y, pgm_read_byte(&bitmap->width), pgm_read_byte(&bitmap->height), pgm_read_byte(&bitmap->depth), bitmap->data);
 }
 
 

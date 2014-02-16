@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-05-31 BZR 4019)-stable date = 06/01/2014 23:51:02
+Cmp-Mod V01 Created by CvPcb (2013-05-31 BZR 4019)-stable date = 16/02/2014 18:01:33
 
 BeginCmp
 TimeStamp = /5289A0B1;
@@ -206,7 +206,7 @@ EndCmp
 BeginCmp
 TimeStamp = /528CBF00;
 Reference = CON2;
-ValeurCmp = USB-MICRO-B2;
+ValeurCmp = CON_10118194-0001LF;
 IdModule  = CONUSB_10118194;
 EndCmp
 
@@ -232,10 +232,31 @@ IdModule  = SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /528AD6F9;
+TimeStamp = /53010982;
 Reference = P1;
-ValeurCmp = CONN_4;
-IdModule  = SIL-4;
+ValeurCmp = CONN_8;
+IdModule  = CON_8_THROUGH;
+EndCmp
+
+BeginCmp
+TimeStamp = /53010957;
+Reference = P2;
+ValeurCmp = CONN_6;
+IdModule  = CON_6_THROUGH;
+EndCmp
+
+BeginCmp
+TimeStamp = /53010939;
+Reference = P3;
+ValeurCmp = CONN_10;
+IdModule  = CON_10_THROUGH;
+EndCmp
+
+BeginCmp
+TimeStamp = /53010948;
+Reference = P4;
+ValeurCmp = CONN_8;
+IdModule  = CON_8_THROUGH;
 EndCmp
 
 BeginCmp
@@ -256,6 +277,13 @@ BeginCmp
 TimeStamp = /528A0DAE;
 Reference = Q3;
 ValeurCmp = MOS_P;
+IdModule  = SOT23GDS_L;
+EndCmp
+
+BeginCmp
+TimeStamp = /53013A00;
+Reference = Q4;
+ValeurCmp = MOS_N;
 IdModule  = SOT23GDS_L;
 EndCmp
 
@@ -323,31 +351,24 @@ IdModule  = SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /5288B6E9;
+TimeStamp = /5301349D;
 Reference = R11;
 ValeurCmp = 10k;
 IdModule  = SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /5288D7CB;
-Reference = SW1;
-ValeurCmp = SW_PUSH;
-IdModule  = BUTTON_TL3315;
-EndCmp
-
-BeginCmp
 TimeStamp = /528979CD;
 Reference = U1;
-ValeurCmp = CON_FPC_30;
+ValeurCmp = CON_SFV30R-2STE1HLF;
 IdModule  = CON_FPC30;
 EndCmp
 
 BeginCmp
-TimeStamp = /5288DAFF;
+TimeStamp = /5300E777;
 Reference = U2;
-ValeurCmp = CON_SMARTC;
-IdModule  = CONSMART_SFV30R;
+ValeurCmp = CON_7312P0225A13LF;
+IdModule  = CONSMART_7312P022XA13LF;
 EndCmp
 
 BeginCmp
@@ -374,8 +395,15 @@ EndCmp
 BeginCmp
 TimeStamp = /52A5ED5F;
 Reference = U6;
-ValeurCmp = AT45DB011D;
+ValeurCmp = AT45DB011D-SSH;
 IdModule  = SO8E;
+EndCmp
+
+BeginCmp
+TimeStamp = /5300F41E;
+Reference = U7;
+ValeurCmp = CON_STACK_9;
+IdModule  = CON_STACK9_DB9_9S_1V;
 EndCmp
 
 BeginCmp

@@ -5,13 +5,39 @@
 # Author: Mikael Albertsson
 #
 
-CC      := avr-gcc
-OBJCOPY := avr-objcopy
-OBJDUMP := avr-objdump
-SIZE    := avr-size
+CROSS   ?= /usr/local/CrossPack-AVR-20130212/bin/avr-
+CC      := $(CROSS)gcc
+LD      := $(CROSS)gcc
+OBJCOPY := $(CROSS)objcopy
+OBJDUMP := $(CROSS)objdump
+SIZE    := $(CROSS)size
+AR      := $(CROSS)ar
+
+BASEDIR := $(PWD)
+
+LIBS := -lm -lmooltipass
+
+# library sources for the mooltipass library
+LIBRARIES := CARD FLASH USB OLED UTILS GRAPHICS
+#LIBRARIES := oledmp spi CARD FLASH USB
+
+# Search paths for the mooltipass libraries
+LIBRARYPATHS := $(BASEDIR)/src $(BASEDIR)/src/lib
+
+# get full path for each library
+LIBDIRS := $(foreach path, $(LIBRARYPATHS), \
+    		   $(foreach lib, $(LIBRARIES),  \
+		   $(wildcard $(path)/$(lib)/.)))
+
+LIBOBJS := $(foreach dir, $(LIBDIRS), $(patsubst %.c, build/%.o, $(wildcard $(addprefix $(dir)/, *.c))))
+MOOLTIPASS_LIB := build/libmooltipass.a
+
+SRCS := $(wildcard $(BASEDIR)/src/*.c)
+OBJECTS := $(patsubst %.c, build/%.o, $(SRCS))
+DEPS := $(patsubst %, deps/%.dep, $(SRCS))
 
 # Object files and target name.
-OBJECTS := src/mooltipass.o \
+#OBJECTS := src/mooltipass.o \
 		   src/CARD/smartcard.o \
 		   src/CARD/smart_card_higher_level_functions.o \
 		   src/FLASH/flash_mem.o \
@@ -32,7 +58,10 @@ CONFIG  ?= RELEASE
 DEFINES := F_CPU=16000000UL F_USB=16000000UL
 
 CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections
-LDFLAGS := -lm -Wl,-gc-sections
+CFLAGS += -std=gnu99
+LDFLAGS := -Wl,-gc-sections
+
+CFLAGS += -I$(BASEDIR)/src $(addprefix -I , $(LIBDIRS))
 
 ifeq ($(CONFIG), RELEASE)
   DEFINES += NDEBUG
@@ -60,13 +89,20 @@ size:
 %.d: %.c
 	@set -e; $(CC) -M -MT '$(<:.c=.o)' $(CFLAGS) $< | sed -e 's,\($*\)\.o[ :]*,\1.o $@: ,g' > $@
 
+build/%.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 # Include the auto-generated make files that gcc generated in the %.d rule
 # above.
 -include $(OBJECTS:.o=.d)
 
 # Target to link the object files into the final hex file.
-$(TARGET).elf: $(OBJECTS)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+$(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
+	@echo "objs: $(OBJECTS)"
+	@echo ""
+	@echo "Linking $@"
+	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) -L$(BASEDIR)/build $(LIBS)
 
 # Extract the sections that should be in the .hex file from the .elf file.
 %.hex: %.elf
@@ -80,6 +116,9 @@ $(TARGET).elf: $(OBJECTS)
 %.lss: %.elf
 	$(OBJDUMP) -h -S -z $< > $@
 
+$(MOOLTIPASS_LIB): $(LIBOBJS)
+	$(AR) rcs $@ $?
+
 .PHONY: fuses flash clean
 # Target to set the fuses of the mooltipass device.
 fuses:
@@ -89,7 +128,8 @@ fuses:
 
 # Target to flash the hex image to the mooltipass device.
 flash: $(TARGET).hex
-	avrdude -p $(MCU) -U flash:w:$<:i
+	avrdude $(AVRDUDEFLAGS) -p $(MCU) -U flash:w:$<:i
 
 clean:
 	-rm -f $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET).hex $(TARGET).eep $(TARGET).lss $(TARGET).elf
+	-rm -rf build

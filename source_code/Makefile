@@ -5,7 +5,7 @@
 # Author: Mikael Albertsson
 #
 
-CROSS   ?= /usr/local/CrossPack-AVR-20130212/bin/avr-
+CROSS   ?= avr-
 CC      := $(CROSS)gcc
 LD      := $(CROSS)gcc
 OBJCOPY := $(CROSS)objcopy

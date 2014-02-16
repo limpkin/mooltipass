@@ -96,7 +96,7 @@ static const uint8_t oledInit[] __attribute__((__progmem__)) = {
     CMD_SET_FUNCTION_SELECTION,      1, 0x01, /* selection external VDD */
     CMD_DISPLAY_ENHANCEMENT,         2, 0xA0, /* enables the external VSL*/
                                         0xfd, /* 0xfd,Enhanced low GS display quality;default is 0xb5(normal),*/
-    CMD_SET_CONTRAST_CURRENT,        1, 0xff, /* default is 0x7f*/
+    CMD_SET_CONTRAST_CURRENT,        1, 0x7f, /* default is 0x7f*/
     CMD_MASTER_CURRENT_CONTROL,      1, 0x0f,
     /* writeCommand(0xB9); GRAY TABLE,linear Gray Scale*/
     CMD_SET_PHASE_LENGTH,            1, 0xE2,  /*default is 0x74*/

@@ -35,7 +35,7 @@ int main()
     initPortSMC();				// Init smart card Port
     initIRQ();					// Init interrupts	
     usb_init();					// Init USB controller
-    while(!usb_configured());			// Wait for host to set configuration	
+    //while(!usb_configured());			// Wait for host to set configuration	
 
     spi_begin(SPI_BAUD_8_MHZ);
     oled_begin(&PORTD, OLED_CS, &PORTD, OLED_DC, &PORTD, OLED_nRESET, &PORTB, OLED_nENABLE_12V, FONT_DEFAULT);	

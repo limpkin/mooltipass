@@ -30,7 +30,6 @@
  * @file OledMP Mooltipass 256x64x4 OLED display driver
  */
 
-#include <stdio.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 

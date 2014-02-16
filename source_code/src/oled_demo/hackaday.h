@@ -9,10 +9,11 @@ const struct {
     uint16_t width;
     uint8_t height;
     uint8_t depth;
+    uint8_t flags;
     uint16_t dataSize;
     uint16_t data[1040];
 } image_hackaday __attribute__((__progmem__)) = {
-    HACKADAY_WIDTH, HACKADAY_HEIGHT, 4, 1040,
+    HACKADAY_WIDTH, HACKADAY_HEIGHT, 4, 0, 1040,
     {
    /* 0 */ 0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  
     0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  

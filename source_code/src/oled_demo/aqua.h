@@ -9,10 +9,11 @@ const struct {
     uint16_t width;
     uint8_t height;
     uint8_t depth;
+    uint8_t flags;
     uint16_t dataSize;
     uint16_t data[1232];
 } image_aqua __attribute__((__progmem__)) = {
-    AQUA_WIDTH, AQUA_HEIGHT, 4, 1232,
+    AQUA_WIDTH, AQUA_HEIGHT, 4, 0, 1232,
     {
    /* 0 */ 0xcdcc,  0xcdcd,  0xcdcc,  0xdccd,  0xcccc,  0xcccd,  0xcccc,  0xcccc,  
     0xcccc,  0xcccc,  0xcbcc,  0xbccc,  0xcccc,  0xcccc,  0xcccc,  0xcccb,  

@@ -9,10 +9,11 @@ const struct {
     uint16_t width;
     uint8_t height;
     uint8_t depth;
+    uint8_t flags;
     uint16_t dataSize;
     uint16_t data[1088];
 } image_red_sphere __attribute__((__progmem__)) = {
-    RED_SPHERE_WIDTH, RED_SPHERE_HEIGHT, 4, 1088,
+    RED_SPHERE_WIDTH, RED_SPHERE_HEIGHT, 4, 0, 1088,
     {
    /* 0 */ 0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  
     0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  

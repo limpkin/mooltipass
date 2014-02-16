@@ -18,6 +18,7 @@
 #endif
 #include "hackaday.h"
 #include "gear.h"
+//#include "qrcode.h"
 
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
 
@@ -42,16 +43,32 @@ int main()
 
     oled_setColour(2);
     oled_setBackground(0);
-    //oled_setContrast(80);
-    oled_setContrast(255);
+    oled_setContrast(80);
+    //oled_setContrast(255);
+    
+ 
+#if 0
+    oled_bitmapDraw(0,0, &image_qrcode);
+    oled_setXY(72,10);
+    oled_printf_P(PSTR("MOOLTIPASS"));
+    oled_setXY(72,40);
+    oled_printf_P(PSTR("Developed on Hackaday"));
+
+#else
 
     while (1) {
+#if 1
 	oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
 	_delay_ms(5000);
+	oled_clear();
+#endif
 
+
+#if 2
 	oled_bitmapDraw(0,0, &image_HaD_Mooltipass_2);
 	_delay_ms(5000);
 	oled_clear();
+#endif
 
 #if 1
 	oled_bitmapDraw(0,0, &image_hackaday);
@@ -84,6 +101,7 @@ int main()
 	_delay_ms(5000);
 	oled_clear();
     }
+#endif
 
     while (1);
 }

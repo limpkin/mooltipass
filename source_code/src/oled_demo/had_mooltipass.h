@@ -9,10 +9,11 @@ const struct {
     uint16_t width;
     uint8_t height;
     uint8_t depth;
+    uint8_t flags;
     uint16_t dataSize;
     uint16_t data[4096];
 } image_HaD_Mooltipass __attribute__((__progmem__)) = {
-    HAD_MOOLTIPASS_WIDTH, HAD_MOOLTIPASS_HEIGHT, 4, 4096,
+    HAD_MOOLTIPASS_WIDTH, HAD_MOOLTIPASS_HEIGHT, 4, 0, 4096,
     {
    /* 0 */ 0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  
     0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  

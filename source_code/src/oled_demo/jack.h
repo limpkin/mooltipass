@@ -9,10 +9,11 @@ const struct {
     uint16_t width;
     uint8_t height;
     uint8_t depth;
+    uint8_t flags;
     uint16_t dataSize;
     uint16_t data[625];
 } image_jack __attribute__((__progmem__)) = {
-    JACK_WIDTH, JACK_HEIGHT, 4, 625,
+    JACK_WIDTH, JACK_HEIGHT, 4, 0, 625,
     {
    /* 0 */ 0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  
     0x0000,  0x0000,  0x0000,  0x0000, 

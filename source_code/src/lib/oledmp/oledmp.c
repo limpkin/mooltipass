@@ -161,10 +161,6 @@ void oled_begin(
 
     foreground = 15;
     background = 0;
-    cur_x = 0;
-    cur_y = 0;
-    end_x = 0;
-    end_y = 0;
     wrap = true;
     _offset = 0;
     _bufHeight = OLED_HEIGHT;
@@ -422,6 +418,11 @@ void oled_clear()
 	gddram[ind].xaddr = 0;
 	gddram[ind].pixels = 0;
     }
+
+    cur_x = 0;
+    cur_y = 0;
+    end_x = 0;
+    end_y = 0;
 }
 
 /**
@@ -674,7 +675,7 @@ void oled_bitmapDraw(uint8_t x, uint8_t y, const void *image)
 {
     const bitmap_t *bitmap = (const bitmap_t *)image;
 
-    oled_bitmapDrawRaw(x, y, pgm_read_byte(&bitmap->width), pgm_read_byte(&bitmap->height), pgm_read_byte(&bitmap->depth), bitmap->data);
+    oled_bitmapDrawRaw(x, y, pgm_read_word(&bitmap->width), pgm_read_byte(&bitmap->height), pgm_read_byte(&bitmap->depth), bitmap->data);
 }
 
 

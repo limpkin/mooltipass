@@ -32,7 +32,6 @@
 #undef FONT_PROFONT_10_100DPI
 #undef FONT_PROFONT_10_72DPI
 #define FONT_DEFAULT font_CHECKBOOK_14
-//#define FONT_DEFAULT font_PROFONT_10_100DPI
 
 typedef struct {
     uint8_t width;		// Width of glyph data in pixels

@@ -1,0 +1,31 @@
+    Sum
+2   343
+3   676
+4  1026
+5  1344
+6  1713
+7  2058
+8  1813
+9  1379
+10 1039
+11  685
+12  338
+
+	Chi-squared test for given probabilities
+
+data:  Dice.data.freq$Sum 
+X-squared = 6.1629, df = 10, p-value = 0.8014
+
+  Independent.Rolls
+1              4105
+2              4100
+3              4181
+4              4085
+5              4212
+6              4145
+
+	Chi-squared test for given probabilities
+
+data:  Independent.Rolls.freq 
+X-squared = 3.073, df = 5, p-value = 0.6887
+

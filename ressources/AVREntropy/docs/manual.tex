@@ -1,0 +1,173 @@
+\documentclass[10pt]{report}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{beramono}
+\renewcommand*\familydefault{\ttdefault}
+\usepackage{listings}
+\usepackage[letterpaper,left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{indentfirst}
+\usepackage{natbib}
+\graphicspath{{./}}
+\title{Entropy Library Documentation}
+\author{Walter Anderson}
+\date{June 2012}
+
+\lstset{
+ language=C++,
+ showstringspaces=false,
+ formfeed=\newpage,
+ tabsize=4,
+ commentstyle=\itshape,
+ basicstyle=\ttfamily,
+ moredelim=[il][\large\textbf]{\#\# },
+ morekeywords={models}
+}
+     
+\newcommand{\code}[2]{
+ \hrulefill
+ \subsection*{#1}
+ \lstinputlisting{#2}
+ \vspace{2em}
+}
+
+\begin{document}
+\pagenumbering{roman}
+\maketitle
+\tableofcontents
+\chapter{Introduction}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\section{Background}
+
+The Arduino currently lacks a means of obtaining true random numbers.  One pre-existing library exists, TrueRandom, but a review of the performance and code 
+base confirms that the TrueRandom library does not make use of a truly random entropy source (the unconnected analog pin) \cite{Krisston2011} which is further biased by methods
+which introduce additional biases into the results which it does return.  When using the Arduino's pseudo-random number generator, random(), will produce a 
+predictable sequence of numbers unless some random mechanism is used to seed it.  The manual recommends using the results from an unconnected analog pin; 
+however, there is ample evidence that this mechanism does not introduce much randomness to the sequences produced by the internal psuedo-random number generator.
+
+The purpose of this library is to provide a mechanism to produce a series of true random numbers based upon the entropy associated with the jitter of the 
+AVR's watch dog timer, and the standard Timer 1. \cite{Pedersen2006} Since this mechanism produces entropy at a relatively slow rate (approximately 8 bytes per second) its best use
+is as a seed value to the internal pseudo-random number generator or for those demands that do not require large numbers of random numbers, such as generating
+cryptographically secure passwords. \cite{Hlavac2010}
+
+Preliminary testing indicates that this mechanism produces cryptographically secure random numbers, but the mechanism is subject to potential biases introduced by
+alterations to the host environment.  Prior to deploying this library it is suggested that the end-user perform any testing required to establish that the specific
+implementation will meet the user's needs.
+
+\section{Testing}
+
+The underlying mechanism that the library uses to generate true random numbers were tested on a number of different arduino devices; leonardo, uno, uno (smd), and
+the mega (R3).  Details of this preliminary testing is available \cite{ARDWDTRN} which was also the source of the idea for the mechanism used by this library. The early
+tests performed on this library used methods published by John Walker. \cite{Walker2011} The raw data used in the testing of the mechanism is available from 
+http://http://code.google.com/p/avr-hardware-random-number-generation/downloads/list
+
+The library has been tested ...
+
+\chapter{Usage}
+
+The library directory should be placed in your libraries sub-folder where your Arduino IDE is configured to keep your sketches.  When you first place this library, you 
+will need to re-start your Arduino IDE in order for it to recognize the new library.
+
+To use the library, you will need to include the libraries header file, Entropy.h in your sketch.  Prior to calling any of the entropy retrieval methods, you need to 
+initialize the library using its Initialize method.
+
+The library only produces uniformly distributed integers (bytes, ints, and longs).  If other distributions are needed it is recommended that the user consult an 
+appropriate reference \cite{Matloff2006} on generating different distributions.  One of the examples provided with the library demonstrates how to convert the random 
+long integer returned by this library into a uniformly distributed random floating point in the range of [0,1].
+
+\section{Initialize()}
+
+This method configures the AVR's watch dog timer and set-ups the internal structures nescessary to convert the hardware timer's jitter into an unbiased stream of 
+entropy.  This method should only be called once, in the setup function of your sketch.  After this method is executed, it will take the Arduino approximately
+five hunder milli-seconds before the first unsigned long (32-bit) random integer is available.
+
+For this reason, the call to the initialize method should occur fairly early in the set-up function, allowing ample time to perform other set-up activities, before
+requesting any entropy.
+
+\code{Initialize Example}{initialize_example.ino}
+
+\section{available()}
+
+This method returns an unsigned char value that represents the number of unsigned long integers in the entropy pool.  Since the entropy retrieval methods (random) 
+will block any further program execution until at least one value exists in the entropy pool, this function should be used to only call the retrieval methods when entropy is 
+available.
+
+\code{available() Example}{available_example.ino}
+
+\section{random()}
+
+The random method is the mechanism to retrieve the generated entropy.  It comes in three flavors, of which, this one returns a single unsigned long (32-bit) integer value in the range
+of 0 to 0xFFFFFFFF.  Since this method will prevent any further program execution until a value is available to return, it can take up to a maximum of 500 milliseconds to execute.  If
+the delay is not desirable, the available method can be used to test if entropy is available prior to calling this method.  If desired the returned value can be cast from unsigned to
+signed if needed. 
+
+The library does not produce floating point random values but if those are wanted, it is a simple matter to use the value returned by this method to produce a random floating point value.
+
+\code{random() Example}{available_example.ino}
+
+\section{random(max)}
+
+The random method is the mechanism to retrieve the generated entropy.  It comes in three flavors, of which, this one returns a single unsigned long (32-bit) integer value in the range
+of [0,max).  Note that the returned value will always be less than max.  The returned value can be cast to any integer type that will contain the result.  In other words, if max is 256
+or less the returned value can be stored in a char variable or an unsigned char variable, depending upon whether negative values are required. Similiarly, if max is 65536 or less the 
+returned value can be stored in a int or unsigned int, again depending upon whether negative numbers are required.  
+
+Like the previous implementation of this method described, this method will prevent any further program execution until a value is available to return.  This method behaves differently
+from the previous if max is less than 256 or max is less than 65536.  In the first case the 32-bit unsigned integer in the entropy pool is broken into four byte sized integers. 
+Consequently four byte sized values are returned for every 32-bit integer in the entropy pool.  In a similar way, values less than 65536 but greater than or equal to 256 will return 
+two 16-bit integer values for every 32-bit integer in the entropy pool.  Note that the latter means that the method will need to use two bytes of the entropy to provide a uniformly
+distributed random byte (max = 256).  This is nescessary to allow the function to maintain uniform distribution of returned values for other values of max...  More detail is available 
+as comments in the library code.
+
+\code{random(max) Example}{random_max_example.ino}
+
+\section{random(min,max)}
+
+The random method is the mechanism to retrieve the generated entropy.  It comes in three flavors, of which, this one returns a single unsigned long (32-bit) integer value in the range
+of [min,max).  Note that the returned value will always be greater than or equal to min and less than max.  The returned value can be cast to any integer type that will contain the 
+result.  In other words, if max is 256 or less the returned value can be stored in a char variable or an unsigned char variable, depending upon whether negative values are required. 
+Similiarly, if max is 65536 or less the returned value can be stored in a int or unsigned int, again depending upon whether negative numbers are required.  
+
+This function is useful for simulating the role of dice, or the drawing of cards, etc..  Like the previous implementation of this method described, this method will prevent any further 
+program execution until a value is available to return.  This method behaves differently from the previous if (max-min) is less than 256 or (max-min) is less than 65536.  In the first case the 
+32-bit unsigned integer in the entropy pool is broken into four byte sized integers. Consequently four byte sized values are returned for every 32-bit integer in the entropy pool.  In
+a similar way, value differences less than 65536 but greater than or equal to 256 will return two 16-bit integer values for every 32-bit integer in the entropy pool. 
+
+\section{randomByte()} 
+
+This method is included to overcome the efficiency problem mentioned when attempting to retrieve a full byte of entropy using the random(256) method.  Since that method will need to consume 
+two full bytes from the entropy stream to return a single byte of entropy this method was included for the special case, where a single complete byte of entropy is needed at a time.  This allows 
+four such bytes to be returned from each entropy value, rather than two.  In all other ways it behaves in a manner consistent with the random() method.
+
+\section{randomWord()}
+
+This method is included to overcome the efficiency problem mentioned when attempting to retrieve a full word (16-bit integer) of entropy using the random(65536) method.  Since that method will
+need to consume four bytes from the entropy stream to return only two bytes, this method was included for the special case where a single integer is needed.  This allows two such integers to be 
+returned from each entropy value, rather than only one.  In all other ways it behaves in a manner consistent with the random() method.
+
+\code{random(min,max) Example}{random_minmax_example.ino}
+
+\chapter{Library Source}
+
+\section{Header}
+
+\code{Entropy.h}{../Entropy.h}
+
+\section{Code}
+
+\code{Entropy.cpp}{../Entropy.cpp}
+
+\section{Keywords}
+
+\code{keywords.txt}{../keywords.txt}
+
+\section{Software license}
+
+\code{}{../gpl.txt}
+
+\bibliographystyle{plainnat}
+
+\bibliography{research}
+
+\end{document}

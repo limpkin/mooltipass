@@ -1,0 +1,16 @@
+\contentsline {chapter}{\numberline {1}Introduction}{1}
+\contentsline {section}{\numberline {1.1}Background}{1}
+\contentsline {section}{\numberline {1.2}Testing}{1}
+\contentsline {chapter}{\numberline {2}Usage}{2}
+\contentsline {section}{\numberline {2.1}Initialize()}{2}
+\contentsline {section}{\numberline {2.2}available()}{3}
+\contentsline {section}{\numberline {2.3}random()}{3}
+\contentsline {section}{\numberline {2.4}random(max)}{4}
+\contentsline {section}{\numberline {2.5}random(min,max)}{4}
+\contentsline {section}{\numberline {2.6}randomByte()}{5}
+\contentsline {section}{\numberline {2.7}randomWord()}{5}
+\contentsline {chapter}{\numberline {3}Library Source}{6}
+\contentsline {section}{\numberline {3.1}Header}{6}
+\contentsline {section}{\numberline {3.2}Code}{7}
+\contentsline {section}{\numberline {3.3}Keywords}{11}
+\contentsline {section}{\numberline {3.4}Software license}{12}

@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-05-31 BZR 4019)-stable date = 16/02/2014 22:55:07
+Cmp-Mod V01 Created by CvPcb (2013-05-31 BZR 4019)-stable date = 17/02/2014 10:00:29
 
 BeginCmp
 TimeStamp = /5289A0B1;
@@ -197,13 +197,6 @@ IdModule  = SM0603_Capa;
 EndCmp
 
 BeginCmp
-TimeStamp = /5288B86E;
-Reference = CON1;
-ValeurCmp = AVR-ISP-6;
-IdModule  = pin_array_3x2;
-EndCmp
-
-BeginCmp
 TimeStamp = /528CBF00;
 Reference = CON2;
 ValeurCmp = CON_10118194-0001LF;
@@ -257,6 +250,34 @@ TimeStamp = /53010948;
 Reference = P4;
 ValeurCmp = CONN_8;
 IdModule  = CON_8_THROUGH;
+EndCmp
+
+BeginCmp
+TimeStamp = /5301D44B;
+Reference = P5;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M3_SMALL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5301D462;
+Reference = P6;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M3_SMALL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5301D468;
+Reference = P7;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M3_SMALL;
+EndCmp
+
+BeginCmp
+TimeStamp = /5301D46E;
+Reference = P8;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M3_SMALL;
 EndCmp
 
 BeginCmp

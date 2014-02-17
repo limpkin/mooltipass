@@ -1,6 +1,7 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
+#include "mooltipass.h"
 #include <stdint.h>
 #include <avr/io.h>
 

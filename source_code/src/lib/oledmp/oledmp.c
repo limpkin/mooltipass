@@ -34,6 +34,7 @@
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 
+#include "low_level_utils.h"
 #include "oledmp.h"
 #include "bitstream.h"
 
@@ -42,15 +43,11 @@
 #error "SPI not implemented"
 #endif
 
-
 #define MIN_SEG 28		// minimum visable OLED 4-pixel segment
 #define MAX_SEG 91		// maximum visable OLED 4-pixel segment
 
 #define OLED_WIDTH 256
 #define OLED_HEIGHT 64
-
-#define pinLow(port, pin)	*port &= ~pin		// set a pin output low
-#define pinHigh(port, pin)	*port |= pin		// set a pin output high
 
 static uint8_t volatile *port_cs;
 static uint8_t _cs;
@@ -119,31 +116,6 @@ static const uint8_t oledInit[] __attribute__((__progmem__)) = {
     CMD_SET_VCOMH_VOLTAGE,           1, 0x07, /*0.86xVcc;default is 0x04*/
     CMD_SET_DISPLAY_MODE_NORMAL,     0
 };
-
-
-/**
- * Set pin input or output mode with optional pullup for inputs
- * @param port - the port the pin is on
- * @param pin  - the pin mask for the pin (i.e. 1 << pin_number)
- * @param mode - INPUT or OUTPUT
- * @param pullup - pullup enabled for input if true
- */
-void pinMode(uint8_t volatile *port, const uint8_t pin, uint8_t mode, bool pullup)
-{
-    uint8_t volatile *dataDir = port-1;
-
-    if (mode == INPUT) {
-	*dataDir &= ~pin;
-	if (pullup) {
-	    *port |= pin;
-	} else {
-	    *port &= ~pin;
-	}
-    } else if (mode == OUTPUT) {
-	*dataDir |= pin;
-    }
-}
-
 
 void oled_begin(
 	uint8_t volatile *cs_port,

@@ -111,13 +111,6 @@
 #define CMD_DISPLAY_ENHANCEMENT_B	0xD1
 #define CMD_SET_COMMAND_LOCK		0xFD
 
-#ifndef INPUT
-#define INPUT 0
-#define OUTPUT 1
-#endif
-
-void pinMode(uint8_t volatile *port, const uint8_t pin, uint8_t mode, bool pullup);
-
 void oled_begin(uint8_t volatile *cs_port,    const uint8_t cs,
        uint8_t volatile *dc_port,    const uint8_t dc,
        uint8_t volatile *reset_port, const uint8_t reset,

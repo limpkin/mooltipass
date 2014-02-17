@@ -5,6 +5,8 @@
 # Author: Mikael Albertsson
 #
 
+BASEDIR = ../../source_code
+
 CROSS   ?= avr-
 CC      := $(CROSS)gcc
 LD      := $(CROSS)gcc
@@ -20,7 +22,7 @@ LIBS := -lm -lmooltipass
 LIBRARIES := oledmp spi CARD FLASH USB UTILS
 
 # Search paths for the mooltipass libraries
-LIBRARYPATHS := src src/lib
+LIBRARYPATHS := $(BASEDIR)/src $(BASEDIR)/src/lib
 
 # get full path for each library
 LIBDIRS := $(foreach path, $(LIBRARYPATHS), \
@@ -30,7 +32,7 @@ LIBDIRS := $(foreach path, $(LIBRARYPATHS), \
 LIBOBJS := $(foreach dir, $(LIBDIRS), $(patsubst %.c, build/%.o, $(wildcard $(addprefix $(dir)/, *.c))))
 MOOLTIPASS_LIB := build/libmooltipass.a
 
-SRCS := $(wildcard src/oled_demo/*.c) src/interrupts.c
+SRCS := $(wildcard *.c) $(BASEDIR)/src/interrupts.c
 OBJS := $(patsubst %.c, build/%.o, $(SRCS))
 DEPS := $(patsubst %, deps/%.dep, $(SRCS))
 
@@ -49,7 +51,7 @@ CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
 CFLAGS += -std=gnu99
 LDFLAGS := -Wl,-gc-sections
 
-CFLAGS += -Isrc $(addprefix -I , $(LIBDIRS))
+CFLAGS += -I$(BASEDIR)/src $(addprefix -I , $(LIBDIRS))
 
 ifeq ($(CONFIG), RELEASE)
   DEFINES += NDEBUG

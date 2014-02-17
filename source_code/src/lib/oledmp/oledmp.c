@@ -30,11 +30,18 @@
  * @file OledMP Mooltipass 256x64x4 OLED display driver
  */
 
+#include "mooltipass.h"
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 
 #include "oledmp.h"
 #include "bitstream.h"
+
+// Make sure the USART SPI is selected
+#if SPI_OLED != SPI_USART
+#error "SPI not implemented"
+#endif
+
 
 #define MIN_SEG 28		// minimum visable OLED 4-pixel segment
 #define MAX_SEG 91		// maximum visable OLED 4-pixel segment

@@ -44,7 +44,9 @@ enum card_detect_return_t		{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4
 enum pin_check_return_t			{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum detect_return_t			{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
 enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
-enum spi_type					{SPI_NATIVE, SPI_USART};
+
+#define SPI_NATIVE	1
+#define SPI_USART	2
 
 /** DEFINES FLASH **/
 #define CREDENTIAL_BLOCK_SIZE		88

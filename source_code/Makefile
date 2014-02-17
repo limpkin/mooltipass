@@ -13,8 +13,6 @@ OBJDUMP := $(CROSS)objdump
 SIZE    := $(CROSS)size
 AR      := $(CROSS)ar
 
-BASEDIR := $(PWD)
-
 LIBS := -lm -lmooltipass
 
 # library sources for the mooltipass library
@@ -22,7 +20,7 @@ LIBRARIES := CARD FLASH USB OLED UTILS GRAPHICS
 #LIBRARIES := oledmp spi CARD FLASH USB
 
 # Search paths for the mooltipass libraries
-LIBRARYPATHS := $(BASEDIR)/src $(BASEDIR)/src/lib
+LIBRARYPATHS := src src/lib
 
 # get full path for each library
 LIBDIRS := $(foreach path, $(LIBRARYPATHS), \
@@ -32,7 +30,7 @@ LIBDIRS := $(foreach path, $(LIBRARYPATHS), \
 LIBOBJS := $(foreach dir, $(LIBDIRS), $(patsubst %.c, build/%.o, $(wildcard $(addprefix $(dir)/, *.c))))
 MOOLTIPASS_LIB := build/libmooltipass.a
 
-SRCS := $(wildcard $(BASEDIR)/src/*.c)
+SRCS := $(wildcard src/*.c)
 OBJECTS := $(patsubst %.c, build/%.o, $(SRCS))
 DEPS := $(patsubst %, deps/%.dep, $(SRCS))
 
@@ -61,7 +59,7 @@ CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
 CFLAGS += -std=gnu99
 LDFLAGS := -Wl,-gc-sections
 
-CFLAGS += -I$(BASEDIR)/src $(addprefix -I , $(LIBDIRS))
+CFLAGS += -Isrc $(addprefix -I , $(LIBDIRS))
 
 ifeq ($(CONFIG), RELEASE)
   DEFINES += NDEBUG
@@ -102,7 +100,7 @@ $(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
 	@echo "objs: $(OBJECTS)"
 	@echo ""
 	@echo "Linking $@"
-	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) -L$(BASEDIR)/build $(LIBS)
+	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) -Lbuild $(LIBS)
 
 # Extract the sections that should be in the .hex file from the .elf file.
 %.hex: %.elf

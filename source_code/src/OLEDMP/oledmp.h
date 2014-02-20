@@ -39,7 +39,7 @@
 #include "bitmap.h"
 
 /**************************************************
-*    LM320Y-256064 (SSD1322 driver)
+*    SSD1322 driver for 256x16x4 OLED display
 *
 *    Pin   Function     SPI connections
 *    ----+------------+----------

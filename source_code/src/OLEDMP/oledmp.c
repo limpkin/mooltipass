@@ -30,6 +30,7 @@
  * @file OledMP Mooltipass 256x64x4 OLED display driver
  */
 
+#include <stdio.h>
 #include "mooltipass.h"
 #include <util/delay.h>
 #include <avr/pgmspace.h>
@@ -43,21 +44,22 @@
 #error "SPI not implemented"
 #endif
 
+// OLED specific port and pin definitions
+#define OLED_PORT_CS	&PORTD
+#define OLED_PORT_DC	&PORTD
+#define OLED_PORT_RESET &PORTD
+#define OLED_PORT_POWER &PORTB
+#define OLED_CS		(1<<6)		// PD6 OLED chip select pin mask
+#define OLED_DC		(1<<7)		// PD7 OLED data / command select pin mask
+#define OLED_nRESET	(1<<1)		// PD1 OLED reset pin mask
+#define OLED_POWER	(1<<7)		// PB7 OLED 12V power enable pin mask
+
 #define MIN_SEG 28		// minimum visable OLED 4-pixel segment
 #define MAX_SEG 91		// maximum visable OLED 4-pixel segment
 
 #define OLED_WIDTH 256
 #define OLED_HEIGHT 64
 
-static uint8_t volatile *port_cs;
-static uint8_t _cs;
-static uint8_t volatile *port_dc;
-static uint8_t _dc;
-static uint8_t volatile *port_reset;
-static uint8_t _reset;
-static uint8_t volatile *port_power;
-static uint8_t _power;
-static char _printBuf[64];	// scratch buffer for printf
 static uint8_t end_x;
 static uint8_t end_y;
 static uint8_t _offset;
@@ -117,26 +119,13 @@ static const uint8_t oledInit[] __attribute__((__progmem__)) = {
     CMD_SET_DISPLAY_MODE_NORMAL,     0
 };
 
-void oled_begin(
-	uint8_t volatile *cs_port,
-	const uint8_t cs,
-	uint8_t volatile *dc_port,
-	const uint8_t dc,
-	uint8_t volatile *reset_port,
-	const uint8_t reset,
-	uint8_t volatile *power_port,
-	const uint8_t power,
-	uint8_t font)
-{
-    port_cs = cs_port;
-    _cs = 1<<cs;
-    port_dc = dc_port;
-    _dc = 1<<dc;
-    port_reset = reset_port;
-    _reset = 1<<reset;
-    port_power = power_port;
-    _power = 1<<power;
 
+/**
+ * Initialise the OLED controller and prep the display
+ * for use.
+ */
+void oled_begin(uint8_t font)
+{
     foreground = 15;
     background = 0;
     wrap = true;
@@ -146,12 +135,12 @@ void oled_begin(
 
     oled_setFont(font);
     
-    pinMode(port_cs, _cs, OUTPUT, false);
-    pinMode(port_dc, _dc, OUTPUT, false);
-    pinMode(port_reset, _reset, OUTPUT, false);
-    pinMode(port_power, _power, OUTPUT, false);
-    pinHigh(port_power, _power);
-    pinHigh(port_cs, _cs);
+    pinMode(OLED_PORT_CS, OLED_CS, OUTPUT, false);
+    pinMode(OLED_PORT_DC, OLED_DC, OUTPUT, false);
+    pinMode(OLED_PORT_RESET, OLED_nRESET, OUTPUT, false);
+    pinMode(OLED_PORT_POWER, OLED_POWER, OUTPUT, false);
+    pinHigh(OLED_PORT_POWER, OLED_POWER);
+    pinHigh(OLED_PORT_CS, OLED_CS);
 
     oled_reset();
     oled_init();
@@ -169,17 +158,31 @@ void oled_setColour(uint8_t colour)
     foreground = colour & 0x0F;
 }
 
+/**
+ * Set the contrast (brightness) level for the screen.
+ * @param contrast - level from 0 (min) to 255 (max)
+ */
 void oled_setBackground(uint8_t colour)
 {
     background = colour & 0x0F;
 }
 
+/**
+ * Set the contrast (brightness) level for the screen.
+ * @param contrast - level from 0 (min) to 255 (max)
+ */
 void oled_setContrast(uint8_t contrast)
 {
     oled_writeCommand(CMD_SET_CONTRAST_CURRENT);
     oled_writeData(contrast);
 }
 
+/**
+ * print an ASCIIZ string to the screen at the current X and
+ * Y position. X and Y position is updated after the print
+ * operation, with X wrapping if necessary.
+ * @param str - pointer to the string in RAM.
+ */
 void oled_putstr(char *str)
 {
     char ch;
@@ -202,28 +205,54 @@ void oled_putstr(char *str)
 }
 
 
+/**
+ * print a printf formated string and arguments to the screen starting
+ * at the current X and Y position. X and Y position is updated
+ * after the print operation, with X wrapping if necessary.
+ * @param fmt - pointer to the printf format string in RAM
+ * @returns the number of characters printed
+ * @note maxium output is limited to 64 characters
+ */
 int oled_printf(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = vsnprintf(_printBuf, sizeof(_printBuf), fmt, ap);
+    char printBuf[64];	// scratch buffer for printf
+
+    int ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
       
-    oled_putstr(_printBuf);
+    oled_putstr(printBuf);
 
     return ret;
 } 
 
+/**
+ * print a printf formated string and arguments to the screen starting
+ * at the current X and Y position. X and Y position is updated
+ * after the print operation, with X wrapping if necessary.
+ * @param fmt - pointer to the printf format string in progmem
+ * @returns the number of characters printed
+ * @note maxium output is limited to 64 characters per call
+ */
 int oled_printf_P(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = vsnprintf_P(_printBuf, sizeof(_printBuf), (const char *)fmt, ap);
+    char printBuf[64];	// scratch buffer for printf
+
+    int ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
       
-    oled_putstr(_printBuf);
+    oled_putstr(printBuf);
 
     return ret;
 } 
 
+
+/**
+ * Set the current X and Y position in the display
+ * @param col - X (column position)
+ * @param row - Y (row position)
+ */
 void oled_setXY(uint8_t col, uint8_t row)
 {
     cur_x = col;
@@ -245,7 +274,7 @@ void oled_init()
 	}
     }
 
-    pinLow(port_power, _power);	 // 12V power on
+    pinLow(OLED_PORT_POWER, OLED_POWER);	 // 12V power on
     oled_writeCommand(CMD_SET_DISPLAY_ON);
 }
 
@@ -255,10 +284,10 @@ void oled_init()
  */
 void oled_writeCommand(uint8_t reg)
 {
-    pinLow(port_cs, _cs);
-    pinLow(port_dc, _dc);
+    pinLow(OLED_PORT_CS, OLED_CS);
+    pinLow(OLED_PORT_DC, OLED_DC);
     spi_transfer(reg);
-    pinHigh(port_cs, _cs);
+    pinHigh(OLED_PORT_CS, OLED_CS);
 }
 
 /**
@@ -267,10 +296,10 @@ void oled_writeCommand(uint8_t reg)
  */
 void oled_writeData(uint8_t data)
 {
-    pinLow(port_cs, _cs);
-    pinHigh(port_dc, _dc);
+    pinLow(OLED_PORT_CS, OLED_CS);
+    pinHigh(OLED_PORT_DC, OLED_DC);
     spi_transfer(data);
-    pinHigh(port_cs, _cs);
+    pinHigh(OLED_PORT_CS, OLED_CS);
 }
 
 /**
@@ -408,9 +437,9 @@ void oled_clear()
  */
 void oled_reset()
 {
-    pinLow(port_reset, _reset);
+    pinLow(OLED_PORT_RESET, OLED_nRESET);
     _delay_ms(100);
-    pinHigh(port_reset, _reset);
+    pinHigh(OLED_PORT_RESET, OLED_nRESET);
     _delay_ms(10);
 }
 
@@ -454,8 +483,8 @@ uint8_t oled_glyphHeight()
  * @param x - x position to start glyph (x=0 for left, x=256-glyphWidth() for right)
  * @param y - y position to start glyph (y=0 for top, y=64-glyphHeight() for bottom)
  * @param ch - the character to draw
- * @param colour - foreground colour
- * @param bg - background colour
+ * @param colour - foreground colour [deprecated]
+ * @param bg - background colour [deprecated]
  * @returns width of the glyph
  * @note to conserve memory the pixel buffer kept in RAM is only 16 bits wide by 64.  It
  *       keeps track of the right-most GDDRAM cell written.

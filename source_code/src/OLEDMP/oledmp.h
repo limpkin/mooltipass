@@ -111,11 +111,7 @@
 #define CMD_DISPLAY_ENHANCEMENT_B	0xD1
 #define CMD_SET_COMMAND_LOCK		0xFD
 
-void oled_begin(uint8_t volatile *cs_port,    const uint8_t cs,
-       uint8_t volatile *dc_port,    const uint8_t dc,
-       uint8_t volatile *reset_port, const uint8_t reset,
-       uint8_t volatile *power_port, const uint8_t power,
-       uint8_t font);
+void oled_begin(uint8_t font);
 void oled_init(void);
 void oled_writeCommand(uint8_t reg);
 void oled_writeData(uint8_t data);

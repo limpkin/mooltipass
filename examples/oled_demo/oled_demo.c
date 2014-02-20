@@ -22,11 +22,6 @@
 
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
 
-uint8_t const OLED_CS =		 6;	// PD6 (D12)
-uint8_t const OLED_DC =		 7;	// PD7 (D6)
-uint8_t const OLED_nRESET =	 1;	// PD1 (D2)
-uint8_t const OLED_nENABLE_12V = 7;	// PB7 (D11)
-
 uint32_t count=0;
 
 int main()
@@ -39,7 +34,7 @@ int main()
     //while(!usb_configured());			// Wait for host to set configuration	
 
     spi_begin(SPI_BAUD_8_MHZ);
-    oled_begin(&PORTD, OLED_CS, &PORTD, OLED_DC, &PORTD, OLED_nRESET, &PORTB, OLED_nENABLE_12V, FONT_DEFAULT);	
+    oled_begin(FONT_DEFAULT);	
 
     oled_setColour(2);
     oled_setBackground(0);

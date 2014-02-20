@@ -19,7 +19,7 @@ LIBS := -lm -lmooltipass
 
 # library sources for the mooltipass library
 #LIBRARIES := CARD FLASH USB OLED UTILS GRAPHICS
-LIBRARIES := oledmp spi CARD FLASH USB UTILS
+LIBRARIES := OLEDMP SPI CARD FLASH USB UTILS
 
 # Search paths for the mooltipass libraries
 LIBRARYPATHS := $(BASEDIR)/src $(BASEDIR)/src/lib

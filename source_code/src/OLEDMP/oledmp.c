@@ -634,7 +634,7 @@ void oled_bitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, ui
 	if (xoff != 0) {
 	    // fill the rest of the 4-pixel word from the bitmap
 	    for (; xind < 4-xoff; xind++) {
-		pixels = pixels << 4 | (bs_read(&bs) * 15) / scale;
+		pixels = pixels << 4 | (bs_read(&bs,1) * 15) / scale;
 	    }
 
 	    // Fill existing pixels if available
@@ -653,7 +653,7 @@ void oled_bitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, ui
 	    for (uint8_t pind=0; pind<4; pind++) {
 		pixels <<= 4;
 		if (xind+pind < width) {
-		    uint8_t pix = bs_read(&bs);
+		    uint8_t pix = bs_read(&bs,1);
 		    pixels |= (pix * 15) / scale;
 		}
 	    }

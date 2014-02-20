@@ -43,7 +43,7 @@ typedef struct {
 } bitstream_t;
 
 void bs_init(bitstream_t *bs, const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size);
-uint8_t bs_read(bitstream_t *bs);
+uint16_t bs_read(bitstream_t *bs, uint8_t numPixels);
 uint16_t bs_available(bitstream_t *bs);
 
 #endif

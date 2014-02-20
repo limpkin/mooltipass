@@ -68,30 +68,35 @@ uint16_t bs_getNextWord(bitstream_t *bs)
 /**
  * Return the next pixel from the bitmap
  * @param bs - pointer to initialised bitstream context to read the next pixel from
+ * @param numPixes - the number of pixels to read,
  * @returns next pixel, or 0 if end of data reached
  */
 
-uint8_t bs_read(bitstream_t *bs)
+uint16_t bs_read(bitstream_t *bs, uint8_t numPixels)
 {
-    uint8_t data=0;
-    if (bs->_size > 0) {
-	if (bs->_bits == 0) {
-	    bs->_word = bs_getNextWord(bs);
-	    bs->_bits = bs->_wordsize;
+    uint16_t data=0;
+
+    while (numPixels--) {
+	data <<= bs->bitsPerPixel;
+	if (bs->_size > 0) {
+	    if (bs->_bits == 0) {
+		bs->_word = bs_getNextWord(bs);
+		bs->_bits = bs->_wordsize;
+	    }
+	    if (bs->_bits >= bs->bitsPerPixel) {
+		bs->_bits -= bs->bitsPerPixel;
+		data |= (bs->_word >> bs->_bits) & bs->mask;
+	    } else {
+		uint8_t offset = bs->bitsPerPixel - bs->_bits;
+		data |= (bs->_word << offset & bs->mask);
+		bs->_bits += bs->_wordsize - bs->bitsPerPixel;
+		bs->_word = bs_getNextWord(bs);
+		data |= bs->_word >> bs->_bits;
+	    }
+	    bs->_size--;
 	}
-	if (bs->_bits >= bs->bitsPerPixel) {
-	    bs->_bits -= bs->bitsPerPixel;
-	    data = (bs->_word >> bs->_bits);
-	} else {
-	    uint8_t offset = bs->bitsPerPixel - bs->_bits;
-	    data = bs->_word << offset;
-	    bs->_bits += bs->_wordsize - bs->bitsPerPixel;
-	    bs->_word = bs_getNextWord(bs);
-	    data |= bs->_word >> bs->_bits;
-	}
-	bs->_size--;
     }
-    return data & bs->mask;
+    return data;
 }
 
 /**

@@ -29,7 +29,6 @@
 
 #include <stdint.h>
 
-
 /** DEBUG PRINTS **/
 // Used for the smart card debug prints
 #define DEBUG_SMC_SCREEN_PRINT
@@ -158,7 +157,6 @@ enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 #define	WARN_OIL_TEMP_HIGH_BMP		0x26
 #define	WARN_DISCONNECTED_BMP		0x27
 #define	MAP_BOSH_BMP				0x28
-
 
 /** TYPEDEFS **/
 typedef uint8_t RET_TYPE;

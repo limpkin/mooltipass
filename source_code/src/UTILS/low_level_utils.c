@@ -23,7 +23,6 @@
 /*!	\file 	low_level_utils.c
 *	\brief	Low level MCU helper functions
 */
-
 #include "low_level_utils.h"
 
 /**

@@ -23,6 +23,7 @@
 #define SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_
 
 #include "../defines.h"
+#include <stdlib.h>
 
 uint8_t* readSecurityCodeAttemptsCounters(uint8_t* buffer);
 RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void);

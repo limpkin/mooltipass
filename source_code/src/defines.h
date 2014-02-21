@@ -29,25 +29,27 @@
 
 #include <stdint.h>
 
+
 /** DEBUG PRINTS **/
+// Used for the smart card debug prints
 #define DEBUG_SMC_SCREEN_PRINT
 
 /** HARDWARE VERSION **/
 #define	HARDWARE_V1
 
 /** MACROS **/
-#define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
+#define CPU_PRESCALE(n)		(CLKPR = 0x80, CLKPR = (n))
 
-/** ENUMS **/
+/** ASM "ENUMS" **/
+#define SPI_NATIVE			1
+#define SPI_USART			2
+
+/** C ENUMS **/
 enum mooltipass_detect_return_t	{RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB, RETURN_MOOLTIPASS_BLOCKED, RETURN_MOOLTIPASS_BLANK, RETURN_MOOLTIPASS_USER, RETURN_MOOLTIPASS_4_TRIES_LEFT,  RETURN_MOOLTIPASS_3_TRIES_LEFT,  RETURN_MOOLTIPASS_2_TRIES_LEFT,  RETURN_MOOLTIPASS_1_TRIES_LEFT, RETURN_MOOLTIPASS_0_TRIES_LEFT};
 enum card_detect_return_t		{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
 enum pin_check_return_t			{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum detect_return_t			{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
 enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
-
-/** ENUMS IN DEFINE TYPE **/
-#define SPI_NATIVE	1
-#define SPI_USART	2
 
 /** DEFINES FLASH **/
 #define CREDENTIAL_BLOCK_SIZE		88
@@ -65,8 +67,8 @@ enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 #define SMARTCARD_DEFAULT_PIN		0xF0F0
 
 /** DEFINES FIRMWARE **/
-#define FALSE			0
-#define TRUE			(!FALSE)
+#define FALSE				0
+#define TRUE				(!FALSE)
 
 /** DEFINES PORTS **/
 #ifdef HARDWARE_V1
@@ -114,20 +116,20 @@ enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 #endif
 
 /** DEFINES HARDWARE **/
-#define FLASH_MANUF_ID	0x1F
-#define SMARTCARD_FZ	0x00
+#define FLASH_MANUF_ID		0x1F
+#define SMARTCARD_FZ		0x00
 
 /** DEFINES OLED SCREEN **/
-#define	OLED_Shift		0x1C
-#define OLED_Max_Column	0x3F			// 256/4-1
-#define OLED_Max_Row	0x3F			// 64-1
-#define	OLED_Brightness	0x0A
-#define OLED_Contrast	0x9F
-#define OLED_WIDTH		256
-#define OLED_HEIGHT		64
+#define	OLED_Shift			0x1C
+#define OLED_Max_Column		0x3F			// 256/4-1
+#define OLED_Max_Row		0x3F			// 64-1
+#define	OLED_Brightness		0x0A
+#define OLED_Contrast		0x9F
+#define OLED_WIDTH			256
+#define OLED_HEIGHT			64
 
 // Mooltipass bitmaps defines
-#define HACKADAY_BMP				0x00
+#define HACKADAY_BMP		0x00
 
 // Defines bitmaps
 #define	PWR_BY_COSW					0x03

@@ -21,15 +21,13 @@
 *	\brief	Smart Card low level functions
 *	Copyright [2014] [Mathieu Stephan]
 */
-#include "smartcard.h"
-
-#include <avr/interrupt.h>
-#include <util/delay.h>
-#include <avr/io.h>
-
-#include "../mooltipass.h"
-#include "../UTILS/utils.h"
 #include "smart_card_higher_level_functions.h"
+#include <avr/interrupt.h>
+#include "../mooltipass.h"
+#include <util/delay.h>
+#include "smartcard.h"
+#include <avr/io.h>
+#include "utils.h"
 
 /** Counter for successive card detects **/
 volatile uint8_t card_detect_counter;

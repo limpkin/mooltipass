@@ -22,10 +22,10 @@
  *	Copyright [2014] [Mathieu Stephan]
  */
 #include "smart_card_higher_level_functions.h"
-
-#include "../UTILS/utils.h"
-#include "../GRAPHICS/graphics.h"
 #include "smartcard.h"
+#include "graphics.h"
+#include "utils.h"
+
 
 /*!	\fn		mooltipassDetectedRoutine(uint16_t pin_code)
 *	\brief	Function called when something a mooltipass is inserted into the smartcard slot

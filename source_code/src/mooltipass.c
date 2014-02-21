@@ -22,17 +22,18 @@
 *	Created: 08/12/2013 13:54:34
 *	Author: Mathieu Stephan
 */
+#include "smart_card_higher_level_functions.h"
+#include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "interrupts.h"
-#include "CARD/smartcard.h"
-#include "CARD/smart_card_higher_level_functions.h"
-#include "USB/usb_serial_hid.h"
-#include "OLED/oled.h"
-#include "FLASH/flash_mem.h"
-#include "GRAPHICS/graphics.h"
+#include "smartcard.h"
+#include "flash_mem.h"
+#include "graphics.h"
+#include "oled.h"
 #include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
+
 
 /*!	\fn 	disable_jtag(void)
 *	\brief	Disable the JTAG module
@@ -64,12 +65,12 @@ int main(void)
 
 	CPU_PRESCALE(0);					// Set for 16MHz clock
 	_delay_ms(500);						// Let the power settle
-	initPortSMC();						// Init smart card Port
-	initIRQ();							// Init interrupts	
-	usb_init();							// Init USB controller
+	initPortSMC();						// Initialize smart card Port
+	initIRQ();							// Initialize interrupts	
+	usb_init();							// Initialize USB controller
 	while(!usb_configured());			// Wait for host to set configuration	
-	initOLED();							// Init OLED screen after enum
-	flash_init_result = initFlash();	// Init flash memory
+	initOLED();							// Initialize OLED screen after enum
+	flash_init_result = initFlash();	// Initialize flash memory
 
 //#define TEST_HID_AND_CDC
 #ifdef TEST_HID_AND_CDC

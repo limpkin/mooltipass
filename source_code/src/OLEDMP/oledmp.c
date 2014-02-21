@@ -31,7 +31,7 @@
  */
 
 #include <stdio.h>
-#include "mooltipass.h"
+#include "../mooltipass.h"
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 
@@ -45,20 +45,17 @@
 #endif
 
 // OLED specific port and pin definitions
-#define OLED_PORT_CS	&PORTD
-#define OLED_PORT_DC	&PORTD
-#define OLED_PORT_RESET &PORTD
-#define OLED_PORT_POWER &PORTB
-#define OLED_CS		(1<<6)		// PD6 OLED chip select pin mask
-#define OLED_DC		(1<<7)		// PD7 OLED data / command select pin mask
-#define OLED_nRESET	(1<<1)		// PD1 OLED reset pin mask
-#define OLED_POWER	(1<<7)		// PB7 OLED 12V power enable pin mask
+#define OLED_PORT_CS	&PORT_OLED_SS
+#define OLED_PORT_DC	&PORT_OLED_DnC
+#define OLED_PORT_RESET &PORT_OLED_nR
+#define OLED_PORT_POWER &PORT_OLED_POW
+#define OLED_CS		(1<<PORTID_OLED_SS)
+#define OLED_DC		(1<<PORTID_OLED_DnC)
+#define OLED_nRESET	(1<<PORTID_OLED_nR)
+#define OLED_POWER	(1<<PORTID_OLED_POW)
 
 #define MIN_SEG 28		// minimum visable OLED 4-pixel segment
 #define MAX_SEG 91		// maximum visable OLED 4-pixel segment
-
-#define OLED_WIDTH 256
-#define OLED_HEIGHT 64
 
 static uint8_t end_x;
 static uint8_t end_y;

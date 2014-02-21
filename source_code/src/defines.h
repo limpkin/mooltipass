@@ -45,6 +45,7 @@ enum pin_check_return_t			{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RE
 enum detect_return_t			{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
 enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 
+/** ENUMS IN DEFINE TYPE **/
 #define SPI_NATIVE	1
 #define SPI_USART	2
 
@@ -122,6 +123,8 @@ enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 #define OLED_Max_Row	0x3F			// 64-1
 #define	OLED_Brightness	0x0A
 #define OLED_Contrast	0x9F
+#define OLED_WIDTH		256
+#define OLED_HEIGHT		64
 
 // Mooltipass bitmaps defines
 #define HACKADAY_BMP				0x00

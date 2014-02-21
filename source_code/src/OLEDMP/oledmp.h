@@ -73,9 +73,6 @@
 *
 **************************************************/
 
-#define LCDWIDTH                  256
-#define LCDHEIGHT                 64
-
 /*
  * SSD1322 commands
  */

@@ -70,7 +70,7 @@ static uint8_t _bufHeight;
 static struct {
     uint8_t xaddr;
     uint16_t pixels;
-} gddram[LCDHEIGHT];
+} gddram[OLED_HEIGHT];
 
 static font_t *_fontHQ;
 
@@ -142,7 +142,7 @@ void oled_begin(uint8_t font)
     oled_reset();
     oled_init();
 
-    for (uint8_t ind=0; ind<LCDHEIGHT; ind++) {
+    for (uint8_t ind=0; ind<OLED_HEIGHT; ind++) {
 	gddram[ind].xaddr = 0;
 	gddram[ind].pixels = 0;
     }
@@ -364,7 +364,7 @@ uint8_t oled_getOffset(void)
 
 void oled_setBufHeight(uint8_t rows)
 {
-    if (rows < LCDHEIGHT) {
+    if (rows < OLED_HEIGHT) {
 	return;
     }
     oled_writeCommand(CMD_SET_MULTIPLEX_RATIO);
@@ -418,7 +418,7 @@ void oled_clear()
 {
     oled_fill(background);
 
-    for (uint8_t ind=0; ind<LCDHEIGHT; ind++) {
+    for (uint8_t ind=0; ind<OLED_HEIGHT; ind++) {
 	gddram[ind].xaddr = 0;
 	gddram[ind].pixels = 0;
     }

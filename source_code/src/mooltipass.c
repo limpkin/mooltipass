@@ -95,10 +95,11 @@ int main(void)
 	else
 		Show_String("Problem flash init", FALSE, 2, 250);
 
-	//display_picture(HACKADAY_BMP, 20, 0);
+	clear_screen();
+	display_picture(HACKADAY_BMP, 20, 0);
 	//draw_screen_frame();
-	//Show_String("Mooltipass", FALSE, 32, 10);
-	Show_String("No card detected", FALSE, 25, 45);	//If no card is inserted at boot time
+	Show_String("Mooltipass", FALSE, 32, 10);
+	//Show_String("No card detected", FALSE, 25, 45);	//If no card is inserted at boot time
 
     while(1)
     {

@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-05-31 BZR 4019)-stable date = 17/02/2014 10:00:29
+Cmp-Mod V01 Created by CvPcb (2013-05-31 BZR 4019)-stable date = 23/02/2014 18:43:55
 
 BeginCmp
 TimeStamp = /5289A0B1;
@@ -379,10 +379,17 @@ IdModule  = SM0603_Resistor;
 EndCmp
 
 BeginCmp
-TimeStamp = /5301349D;
+TimeStamp = /530A36EC;
 Reference = R11;
-ValeurCmp = 10k;
-IdModule  = SM0603_Resistor;
+ValeurCmp = 2k2;
+IdModule  = SM0603_Capa;
+EndCmp
+
+BeginCmp
+TimeStamp = /530A36E6;
+Reference = R12;
+ValeurCmp = 2k2;
+IdModule  = SM0603_Capa;
 EndCmp
 
 BeginCmp
@@ -400,9 +407,9 @@ IdModule  = CONSMART_7312P022XA13LF;
 EndCmp
 
 BeginCmp
-TimeStamp = /53013171;
+TimeStamp = /5309220A;
 Reference = U3;
-ValeurCmp = IP4234CZ6,125_ALT;
+ValeurCmp = IP4234CZ6,125;
 IdModule  = tsot-6;
 EndCmp
 

@@ -83,8 +83,6 @@ int main(void)
 	oled_clear();
 	flash_init_result = initFlash();	// Initialize flash memory
 
-    while (!(usb_serial_get_control() & USB_SERIAL_DTR)) /* wait for terminal to connect */ ;
-
 //#define TEST_HID_AND_CDC
 #ifdef TEST_HID_AND_CDC
 	//Show_String("Z",FALSE,2,0);

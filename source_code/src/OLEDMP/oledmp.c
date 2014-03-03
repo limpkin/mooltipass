@@ -32,7 +32,6 @@
 
 #include <stdio.h>
 #include "mooltipass.h"
-#include "usb_serial.h"
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 
@@ -46,6 +45,9 @@
 #endif
 
 #undef OLED_DEBUG
+#ifdef OLED_DEBUG
+#include "usb_serial.h"
+#endif
 
 // OLED specific port and pin definitions
 #define OLED_PORT_CS	&PORT_OLED_SS
@@ -200,7 +202,9 @@ void oled_putch(char ch)
         usb_printf_P(PSTR("oled_putch('%c')\n"), ch);
 #endif
         if (wrap && ((cur_x + width) > OLED_WIDTH)) {
+#ifdef OLED_DEBUG
             usb_printf_P(PSTR("wrap at y=%d x=%d, '%c' width %d\n"),cur_y,cur_x,ch,width);
+#endif
             cur_y += oled_glyphHeight();
             cur_x = 0;
         }

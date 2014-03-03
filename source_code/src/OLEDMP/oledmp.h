@@ -132,13 +132,16 @@ void oled_setBufHeight(uint8_t rows);
 uint8_t oled_getBufHeight(void);
 
 void oled_setXY(uint8_t col, uint8_t row);
+void oled_setX(uint8_t col);
 
 uint8_t oled_glyphWidth(char ch);
 uint8_t oled_glyphHeight();
 uint8_t oled_glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg);
 
-void oled_putstr(char *str);
-int oled_printf(const char* fmt, ...);
-int oled_printf_P(const char *fmt, ...);
+void oled_putch(char ch);
+void oled_putstr(const char *str);
+void oled_putstr_P(const char *str);
+int oled_printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+int oled_printf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 #endif

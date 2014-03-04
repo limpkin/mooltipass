@@ -502,12 +502,12 @@ void printSMCDebugInfoToScreen(void)
     /* Clear screen */
     oled_clear();
 
-    /* Read FZ */
+    /* Read FZ, SC, and SCAC */
     oled_setXY(0,0);
     oled_printf_P(PSTR("FZ:  %04X SC:  %04X SCAC: %04X\n"),
             swap16(*(uint16_t *)readFabricationZone(data_buffer)),
             swap16(*(uint16_t *)readSecurityCode(data_buffer)),
-            *(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer));
+            swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)));
 
     /* Read IZ */
     readIssuerZone(data_buffer);
@@ -545,7 +545,7 @@ void printSMCDebugInfoToScreen(void)
     }
     oled_putstr_P(PSTR("\n"));
 
-    /* Read MTZ */
+    /* Read MTZ and MFZ */
     oled_printf_P(PSTR("MTZ: %04X MFZ: %04X\n"),
             swap16(*(uint16_t*)readMemoryTestZone(data_buffer)),
             swap16(*(uint16_t*)readManufacturerZone(data_buffer)));
@@ -559,90 +559,8 @@ void printSMCDebugInfoToScreen(void)
             swap16(*(uint16_t*)readSMC(94,92,data_buffer)));
 
 #endif
-#if 0
-    uint8_t data_buffer[20];
-    char temp_string[10];
-    uint8_t i;
-
-    /* Clear screen */
-    clear_screen();
-
-    /* Read FZ */
-    hexaint_to_string(swap16(*(uint16_t*)readFabricationZone(data_buffer)), temp_string);
-    Show_String("FZ:", FALSE, 2, 0);
-    Show_String(temp_string, FALSE, 11, 0);
-
-    /* Read SC */
-    hexaint_to_string(swap16(*(uint16_t*)readSecurityCode(data_buffer)), temp_string);
-    Show_String("SC:", FALSE, 20, 0);
-    Show_String(temp_string, FALSE, 29, 0);
-
-    /* Extrapolate security mode */
-    if(swap16(*(uint16_t*)readSecurityCode(data_buffer)) == 0xFFFF)
-        Show_String("Security mode 2", FALSE, 2, 48);
-    else
-        Show_String("Security mode 1", FALSE, 2, 48);
-
-    /* Read SCAC */
-    hexaint_to_string(swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)), temp_string);
-    Show_String("SCAC:", FALSE, 38, 0);
-    Show_String(temp_string, FALSE, 49, 0);
-
-    /* Read IZ */
-    readIssuerZone(data_buffer);
-    Show_String("IZ:", FALSE, 2, 8);
-    for(i = 0; i < 4; i++)
-    {
-        hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-        Show_String(temp_string, FALSE, 11+i*9, 8);
-    }
-
-    /* Recompose CPZ */
-    readCodeProtectedZone(data_buffer);
-    Show_String("CPZ:", FALSE, 2, 16);
-    for(i = 0; i < 4; i++)
-    {
-        hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-        Show_String(temp_string, FALSE, 11+i*9, 16);
-    }
-
-    /* Read EZ1 */
-    readApplicationZone1EraseKey(data_buffer);
-    Show_String("EZ1:", FALSE, 2, 24);
-    for(i = 0; i < 3; i++)
-    {
-        hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-        Show_String(temp_string, FALSE, 11+i*9, 24);
-    }
-
-    /* Read EZ2 */
-    readApplicationZone2EraseKey(data_buffer);
-    Show_String("EZ2:", FALSE, 2, 32);
-    for(i = 0; i < 2; i++)
-    {
-        hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-        Show_String(temp_string, FALSE, 11+i*9, 32);
-    }
-
-    /* Read MTZ */
-    hexaint_to_string(swap16(*(uint16_t*)readMemoryTestZone(data_buffer)), temp_string);
-    Show_String("MTZ:", FALSE, 2, 40);
-    Show_String(temp_string, FALSE, 11, 40);
-
-    /* Read MFZ */
-    hexaint_to_string(swap16(*(uint16_t*)readManufacturerZone(data_buffer)), temp_string);
-    Show_String("MFZ:", FALSE, 20, 40);
-    Show_String(temp_string, FALSE, 29, 40);
-
-    /* Show first 2 bytes of AZ1 and AZ2 */
-    hexaint_to_string(swap16(*(uint16_t*)readSMC(24,22,data_buffer)), temp_string);
-    Show_String("AZ1:", FALSE, 2, 56);
-    Show_String(temp_string, FALSE, 11, 56);
-    hexaint_to_string(swap16(*(uint16_t*)readSMC(94,92,data_buffer)), temp_string);
-    Show_String("AZ2:", FALSE, 20, 56);
-    Show_String(temp_string, FALSE, 29, 56);
-#endif
 }
+
 
 	/*!	\fn		getNumberOfSecurityCodeTriesLeft(void)
 *	\brief	Get the number of security code tries left

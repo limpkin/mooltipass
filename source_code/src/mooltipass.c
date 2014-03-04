@@ -105,15 +105,15 @@ int main(void)
 #ifdef NESSIE_TEST_VECTORS
 while(1)
 {
-	// msg into oled display
-	oled_setXY(2,0);
+    // msg into oled display
+    oled_setXY(2,0);
     oled_putstr_P(PSTR("send s to start nessie test"));
-	
+
     int input = usb_serial_getchar();
-	
-	nessieOutput = &usb_serial_putchar;
-	
-	// show nessie test vectors after sending s or S chars
+
+    nessieOutput = &usb_serial_putchar;
+
+    // show nessie test vectors after sending s or S chars
     if (input == 's' || input == 'S')
     {
         nessieTest(1);

@@ -110,7 +110,6 @@ int main(void)
     }
 
     oled_clear();
-
     oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
 
     while (1)
@@ -171,8 +170,7 @@ int main(void)
 		{
 			removeFunctionSMC();
 			oled_clear();
-            oled_setXY(2,8);
-			oled_putstr_P(PSTR("Please insert card"));
+            oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
 		}
     }
 }

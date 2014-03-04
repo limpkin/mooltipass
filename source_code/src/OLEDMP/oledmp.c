@@ -263,6 +263,7 @@ int oled_printf(const char *fmt, ...)
       
     oled_putstr(printBuf);
 
+    va_end(ap);
     return ret;
 } 
 
@@ -284,6 +285,7 @@ int oled_printf_P(const char *fmt, ...)
       
     oled_putstr(printBuf);
 
+    va_end(ap);
     return ret;
 } 
 

@@ -62,10 +62,12 @@
 #define MIN_SEG 28		// minimum visable OLED 4-pixel segment
 #define MAX_SEG 91		// maximum visable OLED 4-pixel segment
 
-static uint8_t end_x;
-static uint8_t end_y;
-static uint8_t _offset;
-static uint8_t _bufHeight;
+/*
+ * Module Local globals
+ */
+
+static uint8_t oled_offset;
+static uint8_t oled_bufHeight;
 
 // pixel buffer to allow merging of adjacent image data.
 // To conserve memory, only one GDDRAM word is kept per display line.
@@ -77,13 +79,11 @@ static struct {
     uint16_t pixels;
 } gddram[OLED_HEIGHT];
 
-static font_t *_fontHQ;
-
-static uint8_t cur_x;
-static uint8_t cur_y;
-static uint8_t foreground;
-static uint8_t background;
-static bool wrap;
+static font_t *oled_fontp;      //*< Current font
+static uint8_t oled_cur_x;
+static uint8_t oled_cur_y;
+static uint8_t oled_foreground;
+static uint8_t oled_background;
 
 /*
  * OLED initialisation sequence
@@ -128,12 +128,11 @@ static const uint8_t oledInit[] __attribute__((__progmem__)) = {
  */
 void oled_begin(uint8_t font)
 {
-    foreground = 15;
-    background = 0;
-    wrap = true;
-    _offset = 0;
-    _bufHeight = OLED_HEIGHT;
-    _fontHQ = NULL;
+    oled_foreground = 15;
+    oled_background = 0;
+    oled_offset = 0;
+    oled_bufHeight = OLED_HEIGHT;
+    oled_fontp = NULL;
 
     oled_setFont(font);
     
@@ -157,7 +156,7 @@ void oled_begin(uint8_t font)
 
 void oled_setColour(uint8_t colour)
 {
-    foreground = colour & 0x0F;
+    oled_foreground = colour & 0x0F;
 }
 
 /**
@@ -166,7 +165,7 @@ void oled_setColour(uint8_t colour)
  */
 void oled_setBackground(uint8_t colour)
 {
-    background = colour & 0x0F;
+    oled_background = colour & 0x0F;
 }
 
 /**
@@ -192,23 +191,23 @@ void oled_setContrast(uint8_t contrast)
 void oled_putch(char ch)
 {
     if (ch == '\n') {
-        cur_y += oled_glyphHeight();
-        cur_x = 0;
+        oled_cur_y += oled_glyphHeight();
+        oled_cur_x = 0;
     } else if (ch == '\r') {
-        cur_x = 0;
+        oled_cur_x = 0;
     } else {
         uint8_t width = oled_glyphWidth(ch);
 #ifdef OLED_DEBUG
         usb_printf_P(PSTR("oled_putch('%c')\n"), ch);
 #endif
-        if (wrap && ((cur_x + width) > OLED_WIDTH)) {
+        if ((oled_cur_x + width) > OLED_WIDTH) {
 #ifdef OLED_DEBUG
-            usb_printf_P(PSTR("wrap at y=%d x=%d, '%c' width %d\n"),cur_y,cur_x,ch,width);
+            usb_printf_P(PSTR("wrap at y=%d x=%d, '%c' width %d\n"),oled_cur_y,oled_cur_x,ch,width);
 #endif
-            cur_y += oled_glyphHeight();
-            cur_x = 0;
+            oled_cur_y += oled_glyphHeight();
+            oled_cur_x = 0;
         }
-        cur_x += oled_glyphDraw(cur_x, cur_y, ch, foreground, background);
+        oled_cur_x += oled_glyphDraw(oled_cur_x, oled_cur_y, ch, oled_foreground, oled_background);
     }
 }
 
@@ -296,8 +295,8 @@ int oled_printf_P(const char *fmt, ...)
  */
 void oled_setXY(uint8_t col, uint8_t row)
 {
-    cur_x = col;
-    cur_y = row;
+    oled_cur_x = col;
+    oled_cur_y = row;
 }
 
 /**
@@ -306,7 +305,7 @@ void oled_setXY(uint8_t col, uint8_t row)
  */
 void oled_setX(uint8_t col)
 {
-    cur_x = col;
+    oled_cur_x = col;
 }
 
 
@@ -388,10 +387,6 @@ void oled_setWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend)
 {
     oled_setColumnAddr(MIN_SEG + x / 4, MIN_SEG + xend / 4);
     oled_setRowAddr(y, yend);
-    //cur_x = x;
-    end_x = xend;
-    //cur_y = y;
-    end_y = yend;
 }
 
 /**
@@ -403,7 +398,7 @@ void oled_setOffset(uint8_t offset)
 {
     oled_writeCommand(CMD_SET_DISPLAY_OFFSET);
     oled_writeData(offset);
-    _offset = offset;
+    oled_offset = offset;
 }
 
 /**
@@ -412,7 +407,7 @@ void oled_setOffset(uint8_t offset)
  */
 uint8_t oled_getOffset(void)
 {
-    return _offset;
+    return oled_offset;
 }
 
 void oled_setBufHeight(uint8_t rows)
@@ -422,12 +417,12 @@ void oled_setBufHeight(uint8_t rows)
     }
     oled_writeCommand(CMD_SET_MULTIPLEX_RATIO);
     oled_writeData(rows & 0x7F);
-    _bufHeight = rows;
+    oled_bufHeight = rows;
 }
 
 uint8_t oled_getBufHeight(void)
 {
-    return _bufHeight;
+    return oled_bufHeight;
 }
 
 
@@ -437,7 +432,7 @@ uint8_t oled_getBufHeight(void)
  */
 void oled_setFont(uint8_t font)
 {
-    _fontHQ = &fontsHQ[font];
+    oled_fontp = &fontsHQ[font];
 }
 
 
@@ -468,17 +463,15 @@ void oled_fill(uint8_t colour)
  */
 void oled_clear()
 {
-    oled_fill(background);
+    oled_fill(oled_background);
 
     for (uint8_t ind=0; ind<OLED_HEIGHT; ind++) {
         gddram[ind].xaddr = 0;
         gddram[ind].pixels = 0;
     }
 
-    cur_x = 0;
-    cur_y = 0;
-    end_x = 0;
-    end_y = 0;
+    oled_cur_x = 0;
+    oled_cur_y = 0;
 }
 
 /**
@@ -500,19 +493,19 @@ void oled_reset()
  */
 uint8_t oled_glyphWidth(char ch)
 {
-    if (_fontHQ) {
-        uint8_t width = _fontHQ->fixedWidth;
+    if (oled_fontp) {
+        uint8_t width = oled_fontp->fixedWidth;
         if (width) {
             return width;
         } else {
             uint8_t gind;
             if (ch >= ' ' && ch <= 0x7f) {
-                gind = pgm_read_byte(&_fontHQ->map[ch - ' ']);
+                gind = pgm_read_byte(&oled_fontp->map[ch - ' ']);
             } else {
                 // default to a space
                 gind = 0;
             }
-            return (uint8_t)pgm_read_byte(&(_fontHQ->fontData.glyphs[gind].width));
+            return (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].width));
         }
     } else {
         return 0;
@@ -525,8 +518,8 @@ uint8_t oled_glyphWidth(char ch)
  */
 uint8_t oled_glyphHeight()
 {
-    if (_fontHQ) {
-        return _fontHQ->height + (_fontHQ->fixedWidth ?  1 : 0);
+    if (oled_fontp) {
+        return oled_fontp->height + (oled_fontp->fixedWidth ?  1 : 0);
     } else {
         return 0;
     }
@@ -567,7 +560,7 @@ static uint16_t glyph_getPixel(uint16_t x, uint16_t y, uint8_t width, uint8_t de
  * @param x - x position to start glyph (x=0 for left, x=256-glyphWidth() for right)
  * @param y - y position to start glyph (y=0 for top, y=64-glyphHeight() for bottom)
  * @param ch - the character to draw
- * @param colour - foreground colour [deprecated]
+ * @param colour - colour [deprecated]
  * @param bg - background colour [deprecated]
  * @returns width of the glyph
  * @note to conserve memory the pixel buffer kept in RAM is only 16 bits wide by 64.  It
@@ -589,7 +582,7 @@ uint8_t oled_glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t 
     usb_printf_P(PSTR("oled_glyphDraw(x=%d,y=%d,ch='%c')\n"), x, y, ch);
 #endif
 
-    if (_fontHQ == NULL) {
+    if (oled_fontp == NULL) {
         return 0;
     }
 
@@ -600,7 +593,7 @@ uint8_t oled_glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t 
 
     // get glyph index
     if (ch >= ' ' && ch <= 0x7f) {  // XXX replace with size of asciimap
-        gind = pgm_read_byte(&_fontHQ->map[ch - ' ']);
+        gind = pgm_read_byte(&oled_fontp->map[ch - ' ']);
         if (gind == 255) {
             // no character, use space
             gind = 0;
@@ -610,31 +603,31 @@ uint8_t oled_glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t 
         gind = 0;
     }
 
-    glyph_depth = _fontHQ->depth;
-    glyph_width = _fontHQ->fixedWidth;
+    glyph_depth = oled_fontp->depth;
+    glyph_width = oled_fontp->fixedWidth;
     if (glyph_width) {
         // Fixed width font
-        glyph_height = _fontHQ->height;
+        glyph_height = oled_fontp->height;
         glyph_offset = 0;
-        glyph = _fontHQ->fontData.bitmaps + gind*((glyph_width+7)/8) * glyph_height;
+        glyph = oled_fontp->fontData.bitmaps + gind*((glyph_width+7)/8) * glyph_height;
 #ifdef OLED_DEBUG
         usb_printf_P(PSTR("    glyph 0x%04x index %d\n"), 
-                (uint16_t)_fontHQ->fontData.bitmaps, gind*((glyph_width+7)/8) * glyph_height);
+                (uint16_t)oled_fontp->fontData.bitmaps, gind*((glyph_width+7)/8) * glyph_height);
 #endif
     } else {
         // proportional width font
-        glyph = (const uint8_t *)pgm_read_word(&_fontHQ->fontData.glyphs[gind].glyph);
+        glyph = (const uint8_t *)pgm_read_word(&oled_fontp->fontData.glyphs[gind].glyph);
         if (glyph == NULL) {
             // space character, just fill in the gddram buffer and output background pixels
-            glyph_width = (uint8_t)pgm_read_byte(&(_fontHQ->fontData.glyphs[gind].width));
-            glyph_height = _fontHQ->height;
+            glyph_width = (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].width));
+            glyph_height = oled_fontp->height;
             glyph_offset = 0;
         } else {
-            glyph_width = (uint8_t)pgm_read_byte(&(_fontHQ->fontData.glyphs[gind].xrect));
-            glyph_height = (uint8_t)pgm_read_byte(&(_fontHQ->fontData.glyphs[gind].yrect));
-            glyph_offset = (int8_t)pgm_read_byte(&(_fontHQ->fontData.glyphs[gind].xoffset));
+            glyph_width = (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].xrect));
+            glyph_height = (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].yrect));
+            glyph_offset = (int8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].xoffset));
             x += glyph_offset;
-            y += (int8_t) pgm_read_byte(&(_fontHQ->fontData.glyphs[gind].yoffset));
+            y += (int8_t) pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].yoffset));
             if (x < 0) {
                 x = 0;
             }

@@ -70,17 +70,15 @@ int main(void)
 	initIRQ();							// Initialize interrupts	
 	usb_init();							// Initialize USB controller
 
-    // set up OLED
 	spi_begin(SPI_BAUD_8_MHZ);
+	while(!usb_configured());			// Wait for host to set configuration	
+
+    // set up OLED now that USB is receiving full 500mA.
 	oled_begin(FONT_DEFAULT);	
 	oled_setColour(15);
 	oled_setBackground(0);
 	oled_setContrast(OLED_Contrast);
 
-    oled_putstr_P(PSTR("Connect USB to continue\n"));
-
-	while(!usb_configured());			// Wait for host to set configuration	
-	oled_clear();
 	flash_init_result = initFlash();	// Initialize flash memory
 
 //#define TEST_HID_AND_CDC

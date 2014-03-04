@@ -546,11 +546,12 @@ static uint16_t glyph_getPixel(uint16_t x, uint16_t y, uint8_t width, uint8_t de
     }
 
 #ifdef OLED_DEBUG
-    uint16_t pixel = (cacheByte >> (bit - (depth-1)) & mask) << (4-depth);
+    uint16_t pixel = ((cacheByte >> (bit - (depth-1)) & mask) * ((oled_foreground<<1) / depth)) >> 1;
     usb_printf_P(PSTR("    getPixel(x=%d,y=%d) bit=%d ind=%d data=0x%02x -> 0x%04x\n"), x, y, bit, ind, cacheByte, pixel);
     return pixel;
 #else
-    return (cacheByte >> (bit - (depth-1)) & mask) << (4-depth);
+    //return (cacheByte >> (bit - (depth-1)) & mask) << (4-depth);
+    return ((cacheByte >> (bit - (depth-1)) & mask) * ((oled_foreground<<1) / depth)) >> 1;
 #endif
 }
 

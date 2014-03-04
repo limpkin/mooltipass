@@ -23,6 +23,7 @@
 *	Author: Mathieu Stephan
 */
 #include "smart_card_higher_level_functions.h"
+#include "aes256_nessie_test.h"
 #include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "interrupts.h"
@@ -99,6 +100,33 @@ int main(void)
 
 	}
 #endif /* TEST_HID_AND_CDC */
+
+//#define NESSIE_TEST_VECTORS
+#ifdef NESSIE_TEST_VECTORS
+while(1)
+{
+	// msg into oled display
+	oled_setXY(2,0);
+    oled_putstr_P(PSTR("send s to start nessie test"));
+	
+    int input = usb_serial_getchar();
+	
+	nessieOutput = &usb_serial_putchar;
+	
+	// show nessie test vectors after sending s or S chars
+    if (input == 's' || input == 'S')
+    {
+        nessieTest(1);
+        nessieTest(2);
+        nessieTest(3);
+        nessieTest(4);
+        nessieTest(5);
+        nessieTest(6);
+        nessieTest(7);
+        nessieTest(8);
+    }
+}
+#endif
 
 	//lcd_display_grayscale();
     if (flash_init_result == RETURN_OK) {

@@ -16,8 +16,11 @@ AS      := $(CROSS)as
 
 LIBS := -lm -lmooltipass
 
-LIBDIRS := $(addprefix src/, CARD FLASH USB SPI OLEDMP UTILS)
+LIBDIRS := $(addprefix src/, CARD FLASH USB SPI OLEDMP UTILS AES)
 LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
+
+AESDIRS := $(addprefix src/, AES AES/aes AES/gf256mul)
+AESOBJS := $(foreach lib, $(AESDIRS),$(patsubst src/%.S,build/%.o, $(wildcard $(lib)/*.S)))
 
 MOOLTIPASS_LIB := build/libmooltipass.a
 
@@ -38,7 +41,7 @@ CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
 CFLAGS  += -std=gnu99
 LDFLAGS := -Wl,-gc-sections
 
-CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))
+CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS) $(AESDIRS))
 
 ifeq ($(CONFIG), RELEASE)
   DEFINES += NDEBUG
@@ -81,6 +84,10 @@ build/%.o: src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+build/%.o: src/%.S
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 # Include the auto-generated make files that gcc generated in the %.d rule
 # above.
 -include $(OBJECTS:.o=.d) $(LIBOBJS:.o=.d)
@@ -104,7 +111,7 @@ $(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
 %.lss: %.elf
 	$(OBJDUMP) -h -S -z $< > $@
 
-$(MOOLTIPASS_LIB): $(LIBOBJS)
+$(MOOLTIPASS_LIB): $(LIBOBJS) $(AESOBJS)
 	$(AR) rcs $@ $?
 
 .PHONY: fuses flash clean upload

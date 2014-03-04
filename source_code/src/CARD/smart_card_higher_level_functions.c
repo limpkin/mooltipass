@@ -23,7 +23,7 @@
  */
 #include "smart_card_higher_level_functions.h"
 #include "smartcard.h"
-#include "graphics.h"
+#include "oledmp.h"
 #include "utils.h"
 
 
@@ -37,10 +37,6 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
 	uint8_t temp_buffer[2];
 	RET_TYPE temp_rettype;
 	
-	#ifdef DEBUG_SMC_SCREEN_PRINT		
-		char temp_string[20];											// Temp string for displaying text
-	#endif
-	
 	temp_rettype = securityValidationSMC(pin_code);	
 	
 	if(temp_rettype == RETURN_PIN_OK)									// Unlock successful
@@ -49,9 +45,10 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
 		if(swap16(*(uint16_t*)readSecurityCode(temp_buffer)) != 0xFFFF)
 		{
 			// Card is in mode 1... how could this happen?
-			#ifdef DEBUG_SMC_SCREEN_PRINT
-				Show_String("Card in mode 1!", FALSE, 2, 16);
-			#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+            oled_setXY(2,16);
+			oled_putstr_P(PSTR("Card in mode 1!"));
+#endif
 			return RETURN_MOOLTIPASS_PB;
 		}
 		else															// Everything is in order - proceed
@@ -59,27 +56,28 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
 			// Check that read / write accesses are correctly configured
 			if((checkAuthenticatedReadWriteAccessToZone1() == RETURN_NOK) || (checkAuthenticatedReadWriteAccessToZone2() == RETURN_NOK))
 			{
-				#ifdef DEBUG_SMC_SCREEN_PRINT
-					Show_String("Bad access settings!", FALSE, 2, 16);
-				#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+                oled_setXY(2,16);
+                oled_putstr_P(PSTR("Bad access settings!"));
+#endif
 				return RETURN_MOOLTIPASS_PB;				
 			}
 			else
 			{
-				#ifdef DEBUG_SMC_SCREEN_PRINT
-					Show_String("PIN code checked!", FALSE, 2, 16);
-				#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+                oled_setXY(2,16);
+                oled_putstr_P(PSTR("PIN code checked!"));
+#endif
 				return RETURN_MOOLTIPASS_4_TRIES_LEFT;				
 			}
 		}
 	}
 	else																// Unlock failed
 	{		
-		#ifdef DEBUG_SMC_SCREEN_PRINT
-			int_to_string(getNumberOfSecurityCodeTriesLeft(), temp_string);
-			Show_String(temp_string, FALSE, 2, 16);
-			Show_String("tries left, wrong pin", FALSE, 6, 16);
-		#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+        oled_setXY(2,16);
+        oled_printf_P(PSTR("%d tries left, wrong pin"),getNumberOfSecurityCodeTriesLeft());
+#endif
 		
 		switch(getNumberOfSecurityCodeTriesLeft())
 		{
@@ -104,32 +102,34 @@ RET_TYPE cardDetectedRoutine(void)
 	RET_TYPE temp_rettype;
 	uint8_t i;
 	
-	#ifdef DEBUG_SMC_SCREEN_PRINT		
-		char temp_string[20];									// Temp string for displaying text
-		clear_screen();											// Clear screen before writing anything new
-	#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT		
+		oled_clear();											// Clear screen before writing anything new
+#endif
 	
 	card_detection_result = firstDetectFunctionSMC();			// Get a first card detection result
 
 	if(card_detection_result == RETURN_CARD_NDET)				// This is not a card
 	{
-		#ifdef DEBUG_SMC_SCREEN_PRINT
-			Show_String("Not a card", FALSE, 2, 8);
-		#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+        oled_setXY(2,8);
+        oled_putstr_P(PSTR("Not a card"));
+#endif
 		return RETURN_MOOLTIPASS_INVALID;
 	}
 	else if(card_detection_result == RETURN_CARD_TEST_PB)		// Card test problem
 	{
-		#ifdef DEBUG_SMC_SCREEN_PRINT
-			Show_String("Card test problem", FALSE, 2, 8);
-		#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+        oled_setXY(2,8);
+        oled_putstr_P(PSTR("Card test problem"));
+#endif
 		return RETURN_MOOLTIPASS_PB;
 	}
 	else if(card_detection_result == RETURN_CARD_0_TRIES_LEFT)	// Card blocked
 	{
-		#ifdef DEBUG_SMC_SCREEN_PRINT
-			Show_String("Card blocked", FALSE, 2, 8);
-		#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+        oled_setXY(2,8);
+        oled_putstr_P(PSTR("Card blocked"));
+#endif
 		return RETURN_MOOLTIPASS_BLOCKED;
 	}
 	else														// Card is of the correct type and not blocked
@@ -138,9 +138,10 @@ RET_TYPE cardDetectedRoutine(void)
 		if(swap16(*(uint16_t*)readManufacturerZone(temp_buffer)) == 0xFFFF)
 		{
 			// Card is new - transform into mooltipass
-			#ifdef DEBUG_SMC_SCREEN_PRINT
-				Show_String("Blank card, transforming...", FALSE, 2, 8);
-			#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+            oled_setXY(2,8);
+            oled_putstr_P(PSTR("Blank card, transforming..."));
+#endif
 
 			// Try to authenticate with factory pin
 			temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);
@@ -149,26 +150,27 @@ RET_TYPE cardDetectedRoutine(void)
 			{
 				if(transformBlankCardIntoMooltipass() == RETURN_OK)
 				{
-					#ifdef DEBUG_SMC_SCREEN_PRINT
-						Show_String("Card transformed!", FALSE, 2, 16);
-					#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+                    oled_setXY(2,16);
+                    oled_putstr_P(PSTR("Card transformed!"));
+#endif
 					return RETURN_MOOLTIPASS_BLANK;
 				}
 				else
 				{
-					#ifdef DEBUG_SMC_SCREEN_PRINT
-						Show_String("Couldn't transform card!", FALSE, 2, 16);
-					#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+                    oled_setXY(2,16);
+                    oled_putstr_P(PSTR("Couldn't transform card!"));
+#endif
 					return RETURN_MOOLTIPASS_PB;
 				}
 			}
 			else															// Card unlock failed. Show number of tries left
 			{
-				#ifdef DEBUG_SMC_SCREEN_PRINT
-					int_to_string(getNumberOfSecurityCodeTriesLeft(), temp_string);
-					Show_String(temp_string, FALSE, 2, 16);
-					Show_String("tries left, wrong pin", FALSE, 6, 16);
-				#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+                oled_setXY(2,16);
+                oled_printf_P(PSTR("%d tries left, wrong pin"),getNumberOfSecurityCodeTriesLeft());
+#endif
 				return RETURN_MOOLTIPASS_PB;
 			}
 		}
@@ -181,16 +183,18 @@ RET_TYPE cardDetectedRoutine(void)
 			{
 				if(temp_buffer[i] != 0xFF)
 				{
-					#ifdef DEBUG_SMC_SCREEN_PRINT
-						Show_String("Mooltipass card detected", FALSE, 2, 8);
-					#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+                    oled_setXY(2,8);
+                    oled_putstr_P(PSTR("Mooltipass card detected"));
+#endif
 					return RETURN_MOOLTIPASS_USER;			
 				}
 			}
 			
-			#ifdef DEBUG_SMC_SCREEN_PRINT
-				Show_String("Unconfigured Mooltipass", FALSE, 2, 8);
-			#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+            oled_setXY(2,8);
+            oled_putstr_P(PSTR("Unconfigured Mooltipass"));
+#endif
 
 			// If we're here it means the user hasn't configured his blank mooltipass card, so try to unlock it using the default pin
 			temp_rettype = mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
@@ -491,92 +495,74 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void)
 */
 void printSMCDebugInfoToScreen(void)
 {
-	#ifdef DEBUG_SMC_SCREEN_PRINT
-		uint8_t data_buffer[20];
-		char temp_string[10];
-		uint8_t i;
-	
-		/* Clear screen */
-		clear_screen();
-	
-		/* Read FZ */
-		hexaint_to_string(swap16(*(uint16_t*)readFabricationZone(data_buffer)), temp_string);
-		Show_String("FZ:", FALSE, 2, 0);
-		Show_String(temp_string, FALSE, 11, 0);
-	
-		/* Read SC */
-		hexaint_to_string(swap16(*(uint16_t*)readSecurityCode(data_buffer)), temp_string);
-		Show_String("SC:", FALSE, 20, 0);
-		Show_String(temp_string, FALSE, 29, 0);
-	
-		/* Extrapolate security mode */
-		if(swap16(*(uint16_t*)readSecurityCode(data_buffer)) == 0xFFFF)
-			Show_String("Security mode 2", FALSE, 2, 48);
-		else
-			Show_String("Security mode 1", FALSE, 2, 48);
-	
-		/* Read SCAC */
-		hexaint_to_string(swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)), temp_string);
-		Show_String("SCAC:", FALSE, 38, 0);
-		Show_String(temp_string, FALSE, 49, 0);
-	
-		/* Read IZ */
-		readIssuerZone(data_buffer);
-		Show_String("IZ:", FALSE, 2, 8);
-		for(i = 0; i < 4; i++)
-		{
-			hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-			Show_String(temp_string, FALSE, 11+i*9, 8);
-		}
-	
-		/* Recompose CPZ */
-		readCodeProtectedZone(data_buffer);
-		Show_String("CPZ:", FALSE, 2, 16);
-		for(i = 0; i < 4; i++)
-		{
-			hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-			Show_String(temp_string, FALSE, 11+i*9, 16);
-		}
-	
-		/* Read EZ1 */
-		readApplicationZone1EraseKey(data_buffer);
-		Show_String("EZ1:", FALSE, 2, 24);
-		for(i = 0; i < 3; i++)
-		{
-			hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-			Show_String(temp_string, FALSE, 11+i*9, 24);
-		}
-	
-		/* Read EZ2 */
-		readApplicationZone2EraseKey(data_buffer);
-		Show_String("EZ2:", FALSE, 2, 32);
-		for(i = 0; i < 2; i++)
-		{
-			hexaint_to_string(swap16(*(uint16_t*)(data_buffer+i*2)), temp_string);
-			Show_String(temp_string, FALSE, 11+i*9, 32);
-		}
-	
-		/* Read MTZ */
-		hexaint_to_string(swap16(*(uint16_t*)readMemoryTestZone(data_buffer)), temp_string);
-		Show_String("MTZ:", FALSE, 2, 40);
-		Show_String(temp_string, FALSE, 11, 40);
-	
-		/* Read MFZ */
-		hexaint_to_string(swap16(*(uint16_t*)readManufacturerZone(data_buffer)), temp_string);
-		Show_String("MFZ:", FALSE, 20, 40);
-		Show_String(temp_string, FALSE, 29, 40);
-	
-		/* Show first 2 bytes of AZ1 and AZ2 */
-		hexaint_to_string(swap16(*(uint16_t*)readSMC(24,22,data_buffer)), temp_string);
-		Show_String("AZ1:", FALSE, 2, 56);
-		Show_String(temp_string, FALSE, 11, 56);
-		hexaint_to_string(swap16(*(uint16_t*)readSMC(94,92,data_buffer)), temp_string);
-		Show_String("AZ2:", FALSE, 20, 56);
-		Show_String(temp_string, FALSE, 29, 56);
-	#endif
+#ifdef DEBUG_SMC_SCREEN_PRINT
+    uint8_t data_buffer[20];
+    uint8_t i;
+
+    /* Clear screen */
+    oled_clear();
+
+    /* Read FZ, SC, and SCAC */
+    oled_setXY(0,0);
+    oled_printf_P(PSTR("FZ:  %04X SC:  %04X SCAC: %04X\n"),
+            swap16(*(uint16_t *)readFabricationZone(data_buffer)),
+            swap16(*(uint16_t *)readSecurityCode(data_buffer)),
+            swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)));
+
+    /* Read IZ */
+    readIssuerZone(data_buffer);
+    oled_putstr_P(PSTR("IZ:  "));
+    for (i = 0; i < 4; i++)
+    {
+        oled_printf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    oled_putstr_P(PSTR("\n"));
+
+    /* Recompose CPZ */
+    readCodeProtectedZone(data_buffer);
+    oled_putstr_P(PSTR("CPZ: "));
+    for (i = 0; i < 4; i++)
+    {
+        oled_printf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    oled_putstr_P(PSTR("\n"));
+
+    /* Read EZ1 */
+    readApplicationZone1EraseKey(data_buffer);
+    oled_putstr_P(PSTR("EZ1: "));
+    for (i = 0; i < 3; i++)
+    {
+        oled_printf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    oled_putstr_P(PSTR("\n"));
+
+    /* Read EZ2 */
+    readApplicationZone2EraseKey(data_buffer);
+    oled_putstr_P(PSTR("EZ2: "));
+    for (i = 0; i < 2; i++)
+    {
+        oled_printf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    oled_putstr_P(PSTR("\n"));
+
+    /* Read MTZ and MFZ */
+    oled_printf_P(PSTR("MTZ: %04X MFZ: %04X\n"),
+            swap16(*(uint16_t*)readMemoryTestZone(data_buffer)),
+            swap16(*(uint16_t*)readManufacturerZone(data_buffer)));
+
+    /* Extrapolate security mode */
+    oled_printf_P(PSTR("Security mode %c\n"), (*(uint16_t *)readSecurityCode(data_buffer) == 0xFFFF) ? '2' : '1');
+
+    /* Show first 2 bytes of AZ1 and AZ2 */
+    oled_printf_P(PSTR("AZ1: %04X AZ2: %04X\n"),
+            swap16(*(uint16_t*)readSMC(24,22,data_buffer)),
+            swap16(*(uint16_t*)readSMC(94,92,data_buffer)));
+
+#endif
 }
 
-/*!	\fn		getNumberOfSecurityCodeTriesLeft(void)
+
+	/*!	\fn		getNumberOfSecurityCodeTriesLeft(void)
 *	\brief	Get the number of security code tries left
 *	\return	Number of tries left
 */

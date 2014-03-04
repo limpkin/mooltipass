@@ -13,5 +13,8 @@
 #ifdef FONT_PROFONT_10_72DPI
 #include "font_profont_10_72dpi.h"
 #endif
+#ifdef FONT_MONO_5x7
+#include "font_mono_5x7.h"
+#endif
 
 #endif

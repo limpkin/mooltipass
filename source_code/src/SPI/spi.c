@@ -6,6 +6,10 @@
 #define MISO2 2		// PD2
 #define MOSI2 3		// PD3
 
+/**
+ * Initialise the SPI USART interface to the specified data rate
+ * @param baud - frequency to run the SPI interface at
+ */
 void spi_begin(uint16_t baud)
 {
     // enable pins
@@ -21,6 +25,10 @@ void spi_begin(uint16_t baud)
     UBRR1 = baud;  // Set baud rate (must be done after TX is enabled)
 }
 
+/**
+ * change the SPI USART interface data rate
+ * @param baud - frequency to run the SPI interface at
+ */
 void spi_setBaud(uint16_t baud)
 {
     UBRR1 = baud;

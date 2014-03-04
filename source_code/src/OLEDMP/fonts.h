@@ -25,13 +25,16 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 // Font selection
 #undef FONT_CHECKBOOK_12
-#define FONT_CHECKBOOK_14
+#undef FONT_CHECKBOOK_14
 #undef FONT_PROFONT_10_100DPI
 #undef FONT_PROFONT_10_72DPI
-#define FONT_DEFAULT font_CHECKBOOK_14
+#define FONT_MONO_5x7
+#define FONT_DEFAULT font_MONO_5x7
+//#define FONT_DEFAULT font_CHECKBOOK_14
 
 typedef struct {
     uint8_t width;		// Width of glyph data in pixels
@@ -43,11 +46,15 @@ typedef struct {
 } glyph_t;
 
 typedef struct {
-    const glyph_t *glyphs;
-    const uint8_t *map;
-    uint8_t height;
+    uint8_t height;         //*< height of font
+    uint8_t fixedWidth;	    //*< width of font, 0 = proportional font
+    uint8_t depth;	    //*< Number of bits per pixel
+    const uint8_t *map;     //*< ASCII to font map
+    union {
+        const glyph_t *glyphs;   //*< variable width font data
+        const uint8_t *bitmaps;  //*< fixed width font data
+    } fontData;
 } font_t;
-
 
 typedef enum {
 #ifdef FONT_CHECKBOOK_12
@@ -61,6 +68,9 @@ typedef enum {
 #endif
 #ifdef FONT_PROFONT_10_72DPI
     font_PROFONT_10_72DPI,
+#endif
+#ifdef FONT_MONO_5x7
+    font_MONO_5x7,
 #endif
 } font_e;
 

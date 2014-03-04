@@ -1,7 +1,7 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
-#include "../mooltipass.h"
+#include "mooltipass.h"
 #include <stdint.h>
 #include <avr/io.h>
 
@@ -24,6 +24,11 @@ void spi_begin(uint16_t baud);
 void spi_setBaud(uint16_t baud);
 inline static uint8_t spi_transfer(uint8_t data);
 
+/**
+ * send and receive a byte of data via the SPI USART interface.
+ * @param data - the byte to send
+ * @returns the received byte
+ */
 uint8_t spi_transfer(uint8_t data) 
 {
     /* Wait for empty transmit buffer */

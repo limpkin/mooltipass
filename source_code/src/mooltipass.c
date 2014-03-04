@@ -28,12 +28,13 @@
 #include "interrupts.h"
 #include "smartcard.h"
 #include "flash_mem.h"
-#include "graphics.h"
-#include "oled.h"
+#include "oledmp.h"
+#include "spi.h"
 #include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
 
+#include "had_mooltipass.h"
 
 /*!	\fn 	disable_jtag(void)
 *	\brief	Disable the JTAG module
@@ -68,8 +69,16 @@ int main(void)
 	initPortSMC();						// Initialize smart card Port
 	initIRQ();							// Initialize interrupts	
 	usb_init();							// Initialize USB controller
+
+	spi_begin(SPI_BAUD_8_MHZ);
 	while(!usb_configured());			// Wait for host to set configuration	
-	initOLED();							// Initialize OLED screen after enum
+
+    // set up OLED now that USB is receiving full 500mA.
+	oled_begin(FONT_DEFAULT);	
+	oled_setColour(15);
+	oled_setBackground(0);
+	oled_setContrast(OLED_Contrast);
+
 	flash_init_result = initFlash();	// Initialize flash memory
 
 //#define TEST_HID_AND_CDC
@@ -82,7 +91,9 @@ int main(void)
 		if (n >= 0)
 		{
 			usb_serial_putchar(n);	
-			Show_String((char*)&n,FALSE,2,0);
+            oled_setXY(2,0);
+            oled_putch((char)n);
+
 			//usb_keyboard_press(n,0);
 		}
 
@@ -90,18 +101,18 @@ int main(void)
 #endif /* TEST_HID_AND_CDC */
 
 	//lcd_display_grayscale();
-	if(flash_init_result == RETURN_OK)
-		Show_String("Flash init ok", FALSE, 2, 0);
-	else
-		Show_String("Problem flash init", FALSE, 2, 250);
+    if (flash_init_result == RETURN_OK) {
+        oled_setXY(2,0);
+        oled_putstr_P(PSTR("Flash init ok"));
+    } else {
+        oled_setXY(2,0);
+        oled_putstr_P(PSTR("Problem flash init"));
+    }
 
-	clear_screen();
-	display_picture(HACKADAY_BMP, 20, 0);
-	//draw_screen_frame();
-	Show_String("Mooltipass", FALSE, 32, 10);
-	//Show_String("No card detected", FALSE, 25, 45);	//If no card is inserted at boot time
+    oled_clear();
+    oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
 
-    while(1)
+    while (1)
     {
 		card_detect_ret = isCardPlugged();
 		if(card_detect_ret == RETURN_JDETECT)							// Card just detected
@@ -155,11 +166,11 @@ int main(void)
 				Show_String(temp_string, FALSE, 2+i*5, 8);
 			}*/
 		}
-		else if(card_detect_ret == RETURN_JRELEASED)	//card just released
+		else if (card_detect_ret == RETURN_JRELEASED)	//card just released
 		{
 			removeFunctionSMC();
-			clear_screen();
-			Show_String("Please insert card", FALSE, 2, 8);
+			oled_clear();
+            oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
 		}
     }
 }

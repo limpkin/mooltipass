@@ -16,7 +16,7 @@ AS      := $(CROSS)as
 
 LIBS := -lm -lmooltipass
 
-LIBDIRS := $(addprefix src/, CARD FLASH USB OLED UTILS GRAPHICS)
+LIBDIRS := $(addprefix src/, CARD FLASH USB SPI OLEDMP UTILS)
 LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
 
 MOOLTIPASS_LIB := build/libmooltipass.a
@@ -107,7 +107,7 @@ $(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
 $(MOOLTIPASS_LIB): $(LIBOBJS)
 	$(AR) rcs $@ $?
 
-.PHONY: fuses flash clean
+.PHONY: fuses flash clean upload
 # Target to set the fuses of the mooltipass device.
 fuses:
 	avrdude -p $(MCU) -U lfuse:w:0xff:m
@@ -117,6 +117,10 @@ fuses:
 # Target to flash the hex image to the mooltipass device.
 flash: $(TARGET).hex
 	avrdude $(AVRDUDEFLAGS) -p $(MCU) -U flash:w:$<:i
+
+upload: $(TARGET).hex
+	avrdude $(AVRDUDEFLAGS) -p $(MCU) -U flash:w:$<:i
+
 
 clean:
 	-rm -f $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET).hex $(TARGET).eep $(TARGET).lss $(TARGET).elf

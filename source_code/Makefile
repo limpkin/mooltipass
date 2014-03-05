@@ -35,7 +35,7 @@ CONFIG  ?= RELEASE
 DEFINES := F_CPU=16000000UL F_USB=16000000UL
 
 CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections
-CFLAGS  += -std=gnu99
+CFLAGS  += -std=gnu99 -Werror
 LDFLAGS := -Wl,-gc-sections
 
 CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))

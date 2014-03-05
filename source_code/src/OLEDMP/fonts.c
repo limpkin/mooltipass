@@ -38,7 +38,7 @@ font_t fontsHQ[] = {
     { PROFONT_10_72_HEIGHT,  0, 2, profont_10_72_asciimap, { .glyphs=profont_10_72} },
 #endif
 #ifdef FONT_MONO_5x7
-    { FONT_MONO_5x7_HEIGHT,  5, 1, font_mono_5x7_asciimap, { .bitmaps=font_mono_5x7} },
+    { FONT_MONO_5x7_HEIGHT,  5, 1, font_mono_5x7_asciimap, { .bitmaps=(uint8_t *)font_mono_5x7} },
 #endif
 };
 

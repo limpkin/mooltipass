@@ -464,7 +464,7 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void)
 
     readSMC(24, 22, temp_buffer);
 
-    if ((temp_buffer[0] == 0x80) && (temp_buffer[1] == 0x00
+    if ((temp_buffer[0] == 0x80) && (temp_buffer[1] == 0x00))
     {
         return RETURN_OK;
     }

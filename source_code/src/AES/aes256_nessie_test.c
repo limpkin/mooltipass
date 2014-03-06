@@ -31,10 +31,13 @@
 *	Author: Miguel A. Borrego
 */
 
+#ifdef NESSIE_TEST_VECTORS
+
 #include <stdint.h>
 #include <avr/io.h>
 #include "aes256_nessie_test.h"
 #include "aes.h"
+#include "utils.h"
 
 //global var, function pointer to the output char function
 void (*nessieOutput)(char ch) = 0;
@@ -81,32 +84,6 @@ static void printCharTimes(char c, uint8_t times)
     }
 }
 
-/*!	\fn 	static char hexaToAscii(uint8_t input)
-*	\brief	Convert the lower nibble of hexa number to his ascii 
-*           representation. Usefull to print hexadecimal
-*           values trought UART.\n
-*           For example: hexaToAscii(0x0A) would return ascii 'A'.
-* 
-*   \param  uint8_t input - The value to be converted
-*   \return char - The ascii representation of the lower nibble of the input
-*/
-static char hexaToAscii(uint8_t input)
-{
-
-	input &= 0x0F;
-	
-	if (input < 10)
-	{
-		input = input + '0';
-	}
-	else
-	{
-		input = input + 'A' - 10;
-	}
-
-	return (char)input;
-}
-
 /*!	\fn 	static void printHex(uint8_t *ptr, uint8_t size)
 *	\brief	Print hexadecimal representation of an array of uint8_t.
 * 
@@ -116,11 +93,12 @@ static char hexaToAscii(uint8_t input)
 static void printHex(uint8_t *ptr, uint8_t size)
 {
 	uint8_t i;
+    char str[3];
 	
 	for(i=0; i<size; i++)
 	{
-		TEST_OUTPUT_CHAR(hexaToAscii(ptr[i]>>4));
-		TEST_OUTPUT_CHAR(hexaToAscii(ptr[i]&0x0F));
+		hexachar_to_string(ptr[i], str);
+        TEST_OUTPUT_STRING(str);
 	}
 }
 
@@ -131,37 +109,10 @@ static void printHex(uint8_t *ptr, uint8_t size)
 */
 static void printUint8(uint8_t num)
 {
-    // store temporally result
-    uint8_t units, tens, hundreds;
-    uint8_t temp;
-    
-    temp = num;
-    
-    units = temp%10;
-    temp = temp/10;
-    
-    tens = temp%10;
-    temp = temp/10;
-    
-    hundreds = temp%10;
-    temp = temp/10;
-    
-    if(num < 10)
-    {
-        TEST_OUTPUT_CHAR((char)(units+'0'));
-    }
-    else if(num < 100)
-    {
-        TEST_OUTPUT_CHAR((char)(tens+'0'));
-        TEST_OUTPUT_CHAR((char)(units+'0'));
-    }
-    else
-    {
-        TEST_OUTPUT_CHAR((char)(hundreds+'0'));
-        TEST_OUTPUT_CHAR((char)(tens+'0'));
-        TEST_OUTPUT_CHAR((char)(units+'0'));
-    }
-    
+    // uint8_t to string
+    char str[4]; // 3ch + '\0'
+    char_to_string((unsigned char)num, str);
+    TEST_OUTPUT_STRING(str);
 }
 
 /*!	\fn 	static void printTestHeader(uint8_t num)
@@ -608,3 +559,5 @@ void nessieTest(uint8_t setnum)
     } /* end for loop */
     
 } /* end nessieTest call */
+
+#endif

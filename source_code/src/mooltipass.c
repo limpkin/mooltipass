@@ -101,7 +101,7 @@ int main(void)
 	}
 #endif /* TEST_HID_AND_CDC */
 
-#define NESSIE_TEST_VECTORS
+//#define NESSIE_TEST_VECTORS
 #ifdef NESSIE_TEST_VECTORS
 while(1)
 {

@@ -17,10 +17,10 @@
  *
  * CDDL HEADER END
  */
-/*!	\file 	mooltipass.c
-*	\brief	Main file
-*	Created: 08/12/2013 13:54:34
-*	Author: Mathieu Stephan
+/*! \file   mooltipass.c
+*   \brief  Main file
+*   Created: 08/12/2013 13:54:34
+*   Author: Mathieu Stephan
 */
 #include "smart_card_higher_level_functions.h"
 #include "aes256_nessie_test.h"
@@ -37,168 +37,170 @@
 
 #include "had_mooltipass.h"
 
-/*!	\fn 	disable_jtag(void)
-*	\brief	Disable the JTAG module
+
+/*! \fn     disable_jtag(void)
+*   \brief  Disable the JTAG module
 */
 void disable_jtag(void)
 {
-	unsigned char temp;
+    unsigned char temp;
 
-	temp = MCUCR;
-	temp |= (1<<JTD);
-	MCUCR = temp;
-	MCUCR = temp;
+    temp = MCUCR;
+    temp |= (1<<JTD);
+    MCUCR = temp;
+    MCUCR = temp;
 }
 
 // Perhaps move this function in another file later?
 uint16_t mooltipass_rand(void)
 {
-	return (uint16_t)rand();
+    return (uint16_t)rand();
 }
 
-/*!	\fn 	main(void)
-*	\brief	Main function
+/*! \fn     main(void)
+*   \brief  Main function
 */
 int main(void)
 {
-	RET_TYPE flash_init_result = RETURN_NOK;
-	RET_TYPE card_detect_ret;
-	RET_TYPE temp_rettype;
+    RET_TYPE flash_init_result = RETURN_NOK;
+    RET_TYPE card_detect_ret;
+    RET_TYPE temp_rettype;
 
-	CPU_PRESCALE(0);					// Set for 16MHz clock
-	_delay_ms(500);						// Let the power settle
-	initPortSMC();						// Initialize smart card Port
-	initIRQ();							// Initialize interrupts	
-	usb_init();							// Initialize USB controller
+    CPU_PRESCALE(0);                    // Set for 16MHz clock
+    _delay_ms(500);                     // Let the power settle
+    initPortSMC();                      // Initialize smart card Port
+    initIRQ();                          // Initialize interrupts
+    usb_init();                         // Initialize USB controller
 
-	spi_begin(SPI_BAUD_8_MHZ);
-	while(!usb_configured());			// Wait for host to set configuration	
+    spi_begin(SPI_BAUD_8_MHZ);
+    while(!usb_configured());           // Wait for host to set configuration
 
     // set up OLED now that USB is receiving full 500mA.
-	oled_begin(FONT_DEFAULT);	
-	oled_setColour(15);
-	oled_setBackground(0);
-	oled_setContrast(OLED_Contrast);
+    oled_begin(FONT_DEFAULT);
+    oled_setColour(15);
+    oled_setBackground(0);
+    oled_setContrast(OLED_Contrast);
 
-	flash_init_result = initFlash();	// Initialize flash memory
+    flash_init_result = initFlash();    // Initialize flash memory
 
-//#define TEST_HID_AND_CDC
-#ifdef TEST_HID_AND_CDC
-	//Show_String("Z",FALSE,2,0);
-	//usb_keyboard_press(KEY_S, 0);
-	while(1)
-	{
-		int n = usb_serial_getchar();
-		if (n >= 0)
-		{
-			usb_serial_putchar(n);	
+    //#define TEST_HID_AND_CDC
+    #ifdef TEST_HID_AND_CDC
+        //Show_String("Z",FALSE,2,0);
+        //usb_keyboard_press(KEY_S, 0);
+        while(1)
+        {
+            int n = usb_serial_getchar();
+            if (n >= 0)
+            {
+                usb_serial_putchar(n);
+                oled_setXY(2,0);
+                oled_putch((char)n);
+
+                //usb_keyboard_press(n,0);
+            }
+
+        }
+    #endif /* TEST_HID_AND_CDC */
+
+    #ifdef NESSIE_TEST_VECTORS
+        while(1)
+        {
+            // msg into oled display
             oled_setXY(2,0);
-            oled_putch((char)n);
+            oled_putstr_P(PSTR("send s to start nessie test"));
 
-			//usb_keyboard_press(n,0);
-		}
+            int input = usb_serial_getchar();
 
-	}
-#endif /* TEST_HID_AND_CDC */
+            nessieOutput = &usb_serial_putchar;
 
-//#define NESSIE_TEST_VECTORS
-#ifdef NESSIE_TEST_VECTORS
-while(1)
-{
-    // msg into oled display
-    oled_setXY(2,0);
-    oled_putstr_P(PSTR("send s to start nessie test"));
+            // show nessie test vectors after sending s or S chars
+            if (input == 's' || input == 'S')
+            {
+                nessieTest(1);
+                nessieTest(2);
+                nessieTest(3);
+                nessieTest(4);
+                nessieTest(5);
+                nessieTest(6);
+                nessieTest(7);
+                nessieTest(8);
+            }
+        }
+    #endif
 
-    int input = usb_serial_getchar();
-
-    nessieOutput = &usb_serial_putchar;
-
-    // show nessie test vectors after sending s or S chars
-    if (input == 's' || input == 'S')
+    if (flash_init_result == RETURN_OK) 
     {
-        nessieTest(1);
-        nessieTest(2);
-        nessieTest(3);
-        nessieTest(4);
-        nessieTest(5);
-        nessieTest(6);
-        nessieTest(7);
-        nessieTest(8);
-    }
-}
-#endif
-
-	//lcd_display_grayscale();
-    if (flash_init_result == RETURN_OK) {
         oled_setXY(2,0);
         oled_putstr_P(PSTR("Flash init ok"));
-    } else {
+    } 
+    else 
+    {
         oled_setXY(2,0);
         oled_putstr_P(PSTR("Problem flash init"));
     }
-
+    _delay_ms(1000);
     oled_clear();
     oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
 
     while (1)
     {
-		card_detect_ret = isCardPlugged();
-		if(card_detect_ret == RETURN_JDETECT)							// Card just detected
-		{
-			temp_rettype = cardDetectedRoutine();
-			
-			if(temp_rettype == RETURN_MOOLTIPASS_INVALID)				// Invalid card
-			{
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			} 
-			else if(temp_rettype == RETURN_MOOLTIPASS_PB)				// Problem with card
-			{
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			}
-			else if(temp_rettype == RETURN_MOOLTIPASS_BLOCKED)			// Card blocked
-			{
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			}
-			else if(temp_rettype == RETURN_MOOLTIPASS_BLANK)			// Blank mooltipass card
-			{
-				// Here we should ask the user to setup his mooltipass card
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			}
-			else if(temp_rettype == RETURN_MOOLTIPASS_USER)				// Configured mooltipass card
-			{
-				// Here we should ask the user for his pin and call mooltipassdetect
-				_delay_ms(3000);
-				printSMCDebugInfoToScreen();
-				removeFunctionSMC();									// Shut down card reader
-			}
-			/*read_credential_block_within_flash_page(2,1,temp_buffer);
-			for(i = 0; i < 10; i++)
-			{
-				hexachar_to_string(temp_buffer[i], temp_string);
-				Show_String(temp_string, FALSE, 2+i*5, 0);
-			}
-			temp_buffer[3] = 0x0A;
-			write_credential_block_within_flash_page(2,1, temp_buffer);
-			read_credential_block_within_flash_page(2,1,temp_buffer);
-			for(i = 0; i < 10; i++)
-			{
-				hexachar_to_string(temp_buffer[i], temp_string);
-				Show_String(temp_string, FALSE, 2+i*5, 8);
-			}*/
-		}
-		else if (card_detect_ret == RETURN_JRELEASED)	//card just released
-		{
-			removeFunctionSMC();
-			oled_clear();
+        card_detect_ret = isCardPlugged();
+        if (card_detect_ret == RETURN_JDETECT)                           // Card just detected
+        {
+            temp_rettype = cardDetectedRoutine();
+
+            if (temp_rettype == RETURN_MOOLTIPASS_INVALID)               // Invalid card
+            {
+                _delay_ms(3000);
+                printSMCDebugInfoToScreen();
+                removeFunctionSMC();                                    // Shut down card reader
+            }
+            else if (temp_rettype == RETURN_MOOLTIPASS_PB)               // Problem with card
+            {
+                _delay_ms(3000);
+                printSMCDebugInfoToScreen();
+                removeFunctionSMC();                                    // Shut down card reader
+            }
+            else if (temp_rettype == RETURN_MOOLTIPASS_BLOCKED)          // Card blocked
+            {
+                _delay_ms(3000);
+                printSMCDebugInfoToScreen();
+                removeFunctionSMC();                                    // Shut down card reader
+            }
+            else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)            // Blank mooltipass card
+            {
+                // Here we should ask the user to setup his mooltipass card
+                _delay_ms(3000);
+                printSMCDebugInfoToScreen();
+                removeFunctionSMC();                                    // Shut down card reader
+            }
+            else if (temp_rettype == RETURN_MOOLTIPASS_USER)             // Configured mooltipass card
+            {
+                // Here we should ask the user for his pin and call mooltipassdetect
+                _delay_ms(3000);
+                printSMCDebugInfoToScreen();
+                removeFunctionSMC();                                    // Shut down card reader
+            }
+            /*read_credential_block_within_flash_page(2,1,temp_buffer);
+            for(i = 0; i < 10; i++)
+            {
+                hexachar_to_string(temp_buffer[i], temp_string);
+                Show_String(temp_string, FALSE, 2+i*5, 0);
+            }
+            temp_buffer[3] = 0x0A;
+            write_credential_block_within_flash_page(2,1, temp_buffer);
+            read_credential_block_within_flash_page(2,1,temp_buffer);
+            for(i = 0; i < 10; i++)
+            {
+                hexachar_to_string(temp_buffer[i], temp_string);
+                Show_String(temp_string, FALSE, 2+i*5, 8);
+            }*/
+        }
+        else if (card_detect_ret == RETURN_JRELEASED)   //card just released
+        {
+            removeFunctionSMC();
+            oled_clear();
             oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
-		}
+        }
     }
 }

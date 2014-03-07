@@ -31,8 +31,6 @@
 *	Author: Miguel A. Borrego
 */
 
-#ifdef NESSIE_TEST_VECTORS
-
 #include <stdint.h>
 #include <avr/io.h>
 #include "aes256_nessie_test.h"
@@ -40,7 +38,7 @@
 #include "utils.h"
 
 //global var, function pointer to the output char function
-void (*nessieOutput)(char ch) = 0;
+int8_t (*nessieOutput)(uint8_t ch) = 0;
 
 /*! Here the #defines for the output representation of the test
 *   it can be a UART or CDC USB driver, Oled display ...
@@ -50,10 +48,10 @@ void (*nessieOutput)(char ch) = 0;
 
 static void uartSendChar(char data)
 {
-	if(nessieOutput != 0)
-	{
-		nessieOutput(data);
-	}
+    if(nessieOutput != 0)
+    {
+        nessieOutput(data);
+    }
 }
 #endif
 
@@ -92,14 +90,14 @@ static void printCharTimes(char c, uint8_t times)
 */
 static void printHex(uint8_t *ptr, uint8_t size)
 {
-	uint8_t i;
+    uint8_t i;
     char str[3];
-	
-	for(i=0; i<size; i++)
-	{
-		hexachar_to_string(ptr[i], str);
+    
+    for(i=0; i<size; i++)
+    {
+        hexachar_to_string(ptr[i], str);
         TEST_OUTPUT_STRING(str);
-	}
+    }
 }
 
 /*!	\fn 	static void printUint8(uint8_t num)
@@ -128,7 +126,7 @@ static void printTestHeader(uint8_t num)
 {
     TEST_OUTPUT_STRING("Test vectors -- set ");
     printUint8(num);
-	TEST_OUTPUT_STRING("\n=====================\n\n");
+    TEST_OUTPUT_STRING("\n=====================\n\n");
 }
 
 /*!	\fn 	static void printTestVectorHeader(uint8_t num1, uint8_t num2)
@@ -261,7 +259,7 @@ static void printTest100Times(uint8_t *data)
 {
     printCharTimes(' ', 12);
     TEST_OUTPUT_STRING("Iterated 100 times=");		
-	printHex(data,16);
+    printHex(data,16);
     TEST_OUTPUT_CHAR('\n');
 }
 
@@ -277,7 +275,7 @@ static void printTest1000Times(uint8_t *data)
 {
     printCharTimes(' ', 11);
     TEST_OUTPUT_STRING("Iterated 1000 times=");		
-	printHex(data,16);
+    printHex(data,16);
     TEST_OUTPUT_CHAR('\n');
 }
 
@@ -341,26 +339,26 @@ static void GenerateOutput5to8(uint8_t *key, uint8_t *data)
     // the context where the round keys are stored
     aes256_ctx_t ctx;
     
-	// Print the Key
-	printTestKey(key);
+    // Print the Key
+    printTestKey(key);
 
     // init aes with the key to be used
-	aes256_init(key, &ctx);
-	aes256_dec(data, &ctx);
-	
-	// Print first encoded value
-	aes256_enc(data, &ctx);
+    aes256_init(key, &ctx);
+    aes256_dec(data, &ctx);
+    
+    // Print first encoded value
+    aes256_enc(data, &ctx);
     printTestCipher(data);
 
-	// Print first decoded value
-	aes256_dec(data, &ctx);
+    // Print first decoded value
+    aes256_dec(data, &ctx);
     printTestPlain(data);
 
-	// Print first decoded value
-	aes256_enc(data, &ctx);
+    // Print first decoded value
+    aes256_enc(data, &ctx);
     printTestEncrypted(data);
-	
-	// newline
+    
+    // newline
     TEST_OUTPUT_CHAR('\n');
 }
 
@@ -431,10 +429,10 @@ void nessieTest(uint8_t setnum)
         printTestVectorHeader(setnum, (uint8_t)i);
         
         // Reset key
-		arraySet(key, 0, 32);
+        arraySet(key, 0, 32);
 
-		// Reset data
-		arraySet(data, 0, 16);
+        // Reset data
+        arraySet(data, 0, 16);
         
         // Switch to setup the key and data 
         switch(setnum)
@@ -559,5 +557,3 @@ void nessieTest(uint8_t setnum)
     } /* end for loop */
     
 } /* end nessieTest call */
-
-#endif

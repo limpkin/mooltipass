@@ -17,22 +17,18 @@
  *
  * CDDL HEADER END
  */
-/*!	\file 	aes256_nessie_test.h
-*	\brief	Different functions to check AES256 against nessie test vectors
+/*!	\file 	aes256_ctr.h
+*	\brief	AES256CTR encryption
 * 
-*	Created: 16/02/2014 13:54:34
+*	Created: 06/03/2014 14:17:00
 *	Author: Miguel A. Borrego
 */
 
-#ifndef __AES256_NESSIE_TEST_H__
-#define __AES256_NESSIE_TEST_H__
-
-#include <stdint.h>
-
-//function pointer to the output char function
-int8_t (*nessieOutput)(uint8_t ch);
+#ifndef __AES_256_CTR_H__
+#define __AES_256_CTR_H__
 
 // prototype functions
-void nessieTest(uint8_t setnum);
+void aes256CtrEnc(const void *iv, const void *key, void *text);
+void aes256CtrDec(const void *iv, const void *key, void *text);
 
-#endif /*__AES256_NESSIE_TEST_H__*/
+#endif

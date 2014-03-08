@@ -33,6 +33,7 @@
 
 #include <stdint.h>
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 #include "aes256_nessie_test.h"
 #include "aes.h"
 #include "utils.h"
@@ -43,29 +44,46 @@ int8_t (*nessieOutput)(uint8_t ch) = 0;
 /*! Here the #defines for the output representation of the test
 *   it can be a UART or CDC USB driver, Oled display ...
 */
-#ifndef TEST_OUTPUT_CHAR
-#define TEST_OUTPUT_CHAR    uartSendChar
 
-static void uartSendChar(char data)
+/*!	\fn 	static void printChar(char data)
+*	\brief	Print a char to the passing the value to nessieOutput function ptr.
+* 
+*   \param  char data - char to be printed
+*/
+static void printChar(char data)
 {
     if(nessieOutput != 0)
     {
         nessieOutput(data);
     }
 }
-#endif
 
-#ifndef TEST_OUTPUT_STRING
-#define TEST_OUTPUT_STRING  uartSendString
-
-static void uartSendString(char* data)
+/*!	\fn 	static void printString(char* data)
+*	\brief	Print a string
+* 
+*   \param  char *data - pointer to string
+*/
+static void printString(char* data)
 {
     while(*data != 0)
     {
-        TEST_OUTPUT_CHAR(*data++);
+        printChar(*data++);
     }
 }
-#endif
+
+/*!	\fn 	static void printStringP(const PROGMEM char* data)
+*	\brief	Print a string using FLASH stored data
+* 
+*   \param  const PROGMEM char* data - pointer to flash string
+*/
+static void printStringP(const char *data)
+{
+    char c;
+    while((c = pgm_read_byte(data++)))
+    {
+        printChar(c);
+    }
+}
 
 /*!	\fn 	static void printCharTimes(char c, uint8_t times)
 *	\brief	Print a n times.\n
@@ -78,7 +96,7 @@ static void printCharTimes(char c, uint8_t times)
 {
     while(times--)
     {
-        TEST_OUTPUT_CHAR(c);
+        printChar(c);
     }
 }
 
@@ -96,7 +114,7 @@ static void printHex(uint8_t *ptr, uint8_t size)
     for(i=0; i<size; i++)
     {
         hexachar_to_string(ptr[i], str);
-        TEST_OUTPUT_STRING(str);
+        printString(str);
     }
 }
 
@@ -110,7 +128,7 @@ static void printUint8(uint8_t num)
     // uint8_t to string
     char str[4]; // 3ch + '\0'
     char_to_string((unsigned char)num, str);
-    TEST_OUTPUT_STRING(str);
+    printString(str);
 }
 
 /*!	\fn 	static void printTestHeader(uint8_t num)
@@ -124,9 +142,9 @@ static void printUint8(uint8_t num)
 */
 static void printTestHeader(uint8_t num)
 {
-    TEST_OUTPUT_STRING("Test vectors -- set ");
+    printStringP(PSTR("Test vectors -- set "));
     printUint8(num);
-    TEST_OUTPUT_STRING("\n=====================\n\n");
+    printStringP(PSTR("\n=====================\n\n"));
 }
 
 /*!	\fn 	static void printTestVectorHeader(uint8_t num1, uint8_t num2)
@@ -140,22 +158,22 @@ static void printTestHeader(uint8_t num)
 */
 static void printTestVectorHeader(uint8_t num1, uint8_t num2)
 {
-    TEST_OUTPUT_STRING("Set ");
+    printStringP(PSTR("Set "));
     printUint8(num1);
-    TEST_OUTPUT_STRING(", vector#");
+    printStringP(PSTR(", vector#"));
     
     // Place a space in hundreds or tens position if num2 hundreds or tens
     // value are 0.
     if(num2<100)
     {
-        TEST_OUTPUT_CHAR(' ');
+        printChar(' ');
         if(num2 < 10)
         {
-            TEST_OUTPUT_CHAR(' ');
+            printChar(' ');
         }
     }
     printUint8(num2);
-    TEST_OUTPUT_STRING(":\n");
+    printStringP(PSTR(":\n"));
 }
 
 /*!	\fn 	static void printTestKey(uint8_t* key)
@@ -171,12 +189,12 @@ static void printTestKey(uint8_t *key)
 {
     // Print the Key in hex
     printCharTimes(' ', 27);
-    TEST_OUTPUT_STRING("key=");
+    printStringP(PSTR("key="));
     printHex(key,16);
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
     printCharTimes(' ', 31);
     printHex(&key[16],16);
-    TEST_OUTPUT_CHAR('\n'); 
+    printChar('\n'); 
 }
 
 /*!	\fn 	static void printTestPlain(uint8_t *data)
@@ -191,9 +209,9 @@ static void printTestPlain(uint8_t *data)
 {
     // Print plain in hex
     printCharTimes(' ', 25);
-    TEST_OUTPUT_STRING("plain=");
+    printStringP(PSTR("plain="));
     printHex(data,16);
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
 }
 
 /*!	\fn 	static void printTestCipher(uint8_t *cipher)
@@ -208,9 +226,9 @@ void printTestCipher(uint8_t *cipher)
 {
     // Print cipher in hex
     printCharTimes(' ', 24);
-    TEST_OUTPUT_STRING("cipher=");
+    printStringP(PSTR("cipher="));
     printHex(cipher,16);
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
 }
 
 /*!	\fn 	static void printTestDecrypted(uint8_t *decrypted)
@@ -225,9 +243,9 @@ static void printTestDecrypted(uint8_t *decrypted)
 {
     // Print decrypted in hex
     printCharTimes(' ', 21);
-    TEST_OUTPUT_STRING("decrypted=");
+    printStringP(PSTR("decrypted="));
     printHex(decrypted,16);
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
 }
 
 /*!	\fn 	static void printTestEncrypted(uint8_t *encrypted)
@@ -242,9 +260,9 @@ static void printTestEncrypted(uint8_t *encrypted)
 {
     // Print encrypted in hex
     printCharTimes(' ', 21);
-    TEST_OUTPUT_STRING("encrypted=");
+    printStringP(PSTR("encrypted="));
     printHex(encrypted,16);
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
 }
 
 /*!	\fn 	static void printTest100Times(uint8_t *data)
@@ -258,9 +276,9 @@ static void printTestEncrypted(uint8_t *encrypted)
 static void printTest100Times(uint8_t *data)
 {
     printCharTimes(' ', 12);
-    TEST_OUTPUT_STRING("Iterated 100 times=");		
+    printStringP(PSTR("Iterated 100 times="));		
     printHex(data,16);
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
 }
 
 /*!	\fn 	static void printTest1000Times(uint8_t *data)
@@ -274,9 +292,9 @@ static void printTest100Times(uint8_t *data)
 static void printTest1000Times(uint8_t *data)
 {
     printCharTimes(' ', 11);
-    TEST_OUTPUT_STRING("Iterated 1000 times=");		
+    printStringP(PSTR("Iterated 1000 times="));		
     printHex(data,16);
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
 }
 
 /*!	\fn 	static void GenerateOutput1to4(uint8_t *key, uint8_t *data)
@@ -325,7 +343,7 @@ static void GenerateOutput1to4(uint8_t *key, uint8_t *data)
     }
     
     // Add newline
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
 }
 
 /*!	\fn 	static void GenerateOutput5to8(uint8_t *key, uint8_t *data)
@@ -359,7 +377,7 @@ static void GenerateOutput5to8(uint8_t *key, uint8_t *data)
     printTestEncrypted(data);
     
     // newline
-    TEST_OUTPUT_CHAR('\n');
+    printChar('\n');
 }
 
 /*!	\fn 	static void arraySet(uint8_t *array, uint8_t value, uint8_t size)

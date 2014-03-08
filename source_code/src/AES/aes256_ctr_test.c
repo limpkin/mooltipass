@@ -26,19 +26,11 @@
 
 #include "aes.h"
 #include "aes256_ctr.h"
+#include <avr/pgmspace.h>
 #include "usb_serial_hid.h"
 #include "utils.h"
 
-// function pointer to output char function
-int8_t (*ctrTestOutput)(uint8_t c) = 0;
-
-static uint8_t key[32] = { 0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b,
-0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 
-0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4 };
-
-static uint8_t iv[16] = { 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 
-0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
-
+// Test vector, key and iv
 static uint8_t v1[16] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 
 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a };
 
@@ -51,7 +43,17 @@ static uint8_t v3[16] = { 0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11, 0xe5,
 static uint8_t v4[16] = { 0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17, 0xad, 
 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10 };
 
-/*!	\fn 	static void printText(char *ptr)
+static uint8_t key[32] = { 0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b,
+0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 
+0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4 };
+
+static uint8_t iv[16] = { 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 
+0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
+
+// function pointer to output char function
+int8_t (*ctrTestOutput)(uint8_t c) = 0;
+
+/*!	\fn 	static void printChar(char data)
 *	\brief	Print a char using ctrTestOutput function pointer
 * 
 *   \param  char data - The char to be printed
@@ -74,6 +76,20 @@ static void printText(char *ptr)
     while(*ptr != 0)
     {
             printChar(*ptr++);
+    }
+}
+
+/*!	\fn 	static void printTextP(const PROGMEM char* data)
+*	\brief	Print a string using FLASH stored data
+* 
+*   \param  const PROGMEM char* data - pointer to flash string
+*/
+static void printTextP(const char *data)
+{
+    char c;
+    while((c = pgm_read_byte(data++)))
+    {
+        printChar(c);
     }
 }
 
@@ -102,7 +118,7 @@ static void printHex(uint8_t *ptr, uint8_t size)
 */
 static void printCipherText(uint8_t *data)
 {
-    printText("\nCiphertext     ");
+    printTextP(PSTR("\nCiphertext     "));
     printHex(data, 16);
 }
 
@@ -113,7 +129,7 @@ static void printCipherText(uint8_t *data)
 */
 static void printPlainText(uint8_t *data)
 {
-    printText("\nPlaintext      ");
+    printTextP(PSTR("\nPlaintext      "));
     printHex(data, 16);
 }
 
@@ -124,7 +140,7 @@ static void printPlainText(uint8_t *data)
 */
 static void printInputBlock(uint8_t *ivector)
 {
-    printText("\nInput Block    ");
+    printTextP(PSTR("\nInput Block    "));
     printHex(ivector, 16);
 }
 
@@ -135,9 +151,9 @@ static void printInputBlock(uint8_t *ivector)
 */
 static void printKey(uint8_t *data)
 {
-    printText("\nKey            ");
+    printTextP(PSTR("\nKey            "));
     printHex(data, 16);
-    printText("\n               ");
+    printTextP(PSTR("\n               "));
     printHex(&data[16],16);
 }
 
@@ -149,7 +165,7 @@ static void printKey(uint8_t *data)
 static void printBlock(uint8_t num)
 {
     char str[4];
-    printText("\nBlock #");
+    printTextP(PSTR("\nBlock #"));
     char_to_string(num, str);
     printText(str);
 }
@@ -198,9 +214,9 @@ static void printDecryptTest(uint8_t *ivector, uint8_t *key, uint8_t *plaintext)
 *           page 57
 */
 void aes256CtrTest(void)
-{
+{    
     // Encrypt init string
-    printText("CTR-AES256Encrypt");
+    printTextP(PSTR("CTR-AES256Encrypt"));
     
     // Print key
     printKey(key);
@@ -226,7 +242,7 @@ void aes256CtrTest(void)
     printEncryptTest(iv, key, v4);
 
     // Decrypt init string
-    printText("\n\nCTR-AES256Decrypt");
+    printTextP(PSTR("\n\nCTR-AES256Decrypt"));
 
     // print key
     printKey(key);

@@ -37,12 +37,12 @@
 */
 static void xor(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 {
-	while(nbytes--)
-	{
-		*dest ^= *src;
-		dest++;
-		src++;
-	}
+    while(nbytes--)
+    {
+        *dest ^= *src;
+        dest++;
+        src++;
+    }
 }
 
 /*!	\fn 	void aes256CtrEnc(const void *iv, const void *key, void *text)
@@ -57,21 +57,21 @@ void aes256CtrEnc(const void *iv, const void *key, void *text)
 {
     // the context where the round keys are stored
     aes256_ctx_t ctx;
-	
-	// copy iv to ivcopy
-	uint8_t ivcopy[16];
-	
-	memcpy(ivcopy, iv, 16);
-	
-	// init aes256
-	aes256_init(key, &ctx);
 
-	// encrypt ivcopy and key, then store the result in ivcopy
-	aes256_enc(ivcopy, &ctx);
-	
-	// xor encoded ivcopy with text
-	xor(text, ivcopy, 16);
-    
+    // copy iv to ivcopy
+    uint8_t ivcopy[16];
+
+    memcpy(ivcopy, iv, 16);
+
+    // init aes256
+    aes256_init(key, &ctx);
+
+    // encrypt ivcopy and key, then store the result in ivcopy
+    aes256_enc(ivcopy, &ctx);
+
+    // xor encoded ivcopy with text
+    xor(text, ivcopy, 16);
+
     // remove any trace of ivcopy
     memset(ivcopy, 0, 16);
 }
@@ -86,6 +86,6 @@ void aes256CtrEnc(const void *iv, const void *key, void *text)
 */
 void aes256CtrDec(const void *iv, const void *key, void *text)
 {
-	// Decrypt is the same operation as encrypt
-	aes256CtrEnc(iv, key, text);
+    // Decrypt is the same operation as encrypt
+    aes256CtrEnc(iv, key, text);
 }

@@ -71,6 +71,9 @@ void aes256CtrEnc(const void *iv, const void *key, void *text)
 	
 	// xor encoded ivcopy with text
 	xor(text, ivcopy, 16);
+    
+    // remove any trace of ivcopy
+    memset(ivcopy, 0, 16);
 }
 
 /*!	\fn 	void aes256CtrDec(const void *iv, const void *key, void *text)

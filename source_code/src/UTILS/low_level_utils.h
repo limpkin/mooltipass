@@ -17,7 +17,6 @@
  *
  * CDDL HEADER END
  */
-
 /* Copyright (c) 2014 Darran Hunt. All rights reserved. */
 
 /*!	\file 	low_level_utils.h
@@ -36,6 +35,6 @@
 #define pinLow(port, pin)	*port &= ~pin		// set a pin output low
 #define pinHigh(port, pin)	*port |= pin		// set a pin output high
 
-void pinMode(uint8_t volatile *port, const uint8_t pin, uint8_t mode, bool pullup);
+void pinMode(uint8_t volatile* port, const uint8_t pin, uint8_t mode, bool pullup);
 
 #endif

@@ -42,17 +42,6 @@ xREDUCER = 25
 aes256_enc:
 	ldi r20, 14
 	rjmp aes_encrypt_core
-
-.global aes192_enc
-aes192_enc:
-	ldi r20, 12
-	rjmp aes_encrypt_core
-
-.global aes128_enc
-aes128_enc:
-	ldi r20, 10
-
-
 /*
   void aes_encrypt_core(aes_cipher_state_t* state, const aes_genctx_t* ks, uint8_t rounds)
 */

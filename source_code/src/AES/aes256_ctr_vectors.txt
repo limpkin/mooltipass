@@ -1,0 +1,39 @@
+CTR-AES256Encrypt
+Key            603deb1015ca71be2b73aef0857d7781
+               1f352c073b6108d72d9810a30914dff4
+Block #1
+Input Block    f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff
+Plaintext      6bc1bee22e409f96e93d7e117393172a
+Ciphertext     601ec313775789a5b7a7f504bbf3d228
+Block #2
+Input Block    f0f1f2f3f4f5f6f7f8f9fafbfcfdff00
+Plaintext      ae2d8a571e03ac9c9eb76fac45af8e51
+Ciphertext     f443e3ca4d62b59aca84e990cacaf5c5
+Block #3
+Input Block    f0f1f2f3f4f5f6f7f8f9fafbfcfdff01
+Plaintext      30c81c46a35ce411e5fbc1191a0a52ef
+Ciphertext     2b0930daa23de94ce87017ba2d84988d
+Block #4
+Input Block    f0f1f2f3f4f5f6f7f8f9fafbfcfdff02
+Plaintext      f69f2445df4f9b17ad2b417be66c3710
+Ciphertext     dfc9c58db67aada613c2dd08457941a6
+
+CTR-AES256Decrypt
+Key            603deb1015ca71be2b73aef0857d7781
+               1f352c073b6108d72d9810a30914dff4
+Block #1
+Input Block    f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff
+Ciphertext     601ec313775789a5b7a7f504bbf3d228
+Plaintext      6bc1bee22e409f96e93d7e117393172a
+Block #2
+Input Block    f0f1f2f3f4f5f6f7f8f9fafbfcfdff00
+Ciphertext     f443e3ca4d62b59aca84e990cacaf5c5
+Plaintext      ae2d8a571e03ac9c9eb76fac45af8e51
+Block #3
+Input Block    f0f1f2f3f4f5f6f7f8f9fafbfcfdff01
+Ciphertext     2b0930daa23de94ce87017ba2d84988d
+Plaintext      30c81c46a35ce411e5fbc1191a0a52ef
+Block #4
+Input Block    f0f1f2f3f4f5f6f7f8f9fafbfcfdff02
+Ciphertext     dfc9c58db67aada613c2dd08457941a6
+Plaintext      f69f2445df4f9b17ad2b417be66c3710

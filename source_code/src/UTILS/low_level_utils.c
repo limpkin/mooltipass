@@ -17,11 +17,10 @@
  *
  * CDDL HEADER END
  */
-
 /* Copyright (c) 2014 Darran Hunt. All rights reserved. */
 
-/*!	\file 	low_level_utils.c
-*	\brief	Low level MCU helper functions
+/*! \file   low_level_utils.c
+*   \brief  Low level MCU helper functions
 */
 #include "low_level_utils.h"
 
@@ -32,19 +31,25 @@
  * @param mode - INPUT or OUTPUT
  * @param pullup - pullup enabled for input if true
  */
-void pinMode(uint8_t volatile *port, const uint8_t pin, uint8_t mode, bool pullup)
+void pinMode(uint8_t volatile* port, const uint8_t pin, uint8_t mode, bool pullup)
 {
-    uint8_t volatile *dataDir = port-1;
+    uint8_t volatile* dataDir = port-1;
 
-    if (mode == INPUT) {
-	*dataDir &= ~pin;
-	if (pullup) {
-	    *port |= pin;
-	} else {
-	    *port &= ~pin;
-	}
-    } else if (mode == OUTPUT) {
-	*dataDir |= pin;
+    if (mode == INPUT) 
+    {
+        *dataDir &= ~pin;
+        if (pullup) 
+        {
+            *port |= pin;
+        }
+        else 
+        {
+            *port &= ~pin;
+        }
+    }
+    else if (mode == OUTPUT)
+    {
+        *dataDir |= pin;
     }
 }
 

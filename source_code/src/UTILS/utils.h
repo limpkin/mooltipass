@@ -20,8 +20,7 @@
 
 
 #ifndef UTILS_H_
-#define UTILS_H_
- 
+#define UTILS_H_ 
  
 void hexachar_to_string(unsigned char c, char* string);
 void char_to_string(unsigned char value, char* string);

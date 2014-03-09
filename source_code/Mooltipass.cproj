@@ -125,6 +125,9 @@
   <avrgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>../src</Value>
+      <Value>../src/AES</Value>
+      <Value>../src/AES/aes</Value>
+      <Value>../src/AES/gf256mul</Value>
       <Value>../src/CARD</Value>
       <Value>../src/FLASH</Value>
       <Value>../src/GRAPHICS</Value>
@@ -144,6 +147,11 @@
       <Value>libm</Value>
     </ListValues>
   </avrgcc.linker.libraries.Libraries>
+  <avrgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>../src/AES</Value>
+    </ListValues>
+  </avrgcc.assembler.general.IncludePaths>
 </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
@@ -166,6 +174,9 @@
   <avrgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>../src</Value>
+      <Value>../src/AES</Value>
+      <Value>../src/AES/aes</Value>
+      <Value>../src/AES/gf256mul</Value>
       <Value>../src/CARD</Value>
       <Value>../src/FLASH</Value>
       <Value>../src/GRAPHICS</Value>
@@ -186,11 +197,88 @@
       <Value>libm</Value>
     </ListValues>
   </avrgcc.linker.libraries.Libraries>
+  <avrgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>../src/AES</Value>
+    </ListValues>
+  </avrgcc.assembler.general.IncludePaths>
   <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
 </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="src\AES\aes256_ctr.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes256_ctr.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes256_ctr_test.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes256_ctr_test.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes256_nessie_test.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes256_nessie_test.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes256_dec.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes256_enc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_dec-asm.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_dec-asm_faster.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_dec.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_enc-asm.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_enc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_invsbox-asm.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_invsbox.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_keyschedule-asm.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_keyschedule.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_sbox-asm.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_sbox.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\aes\aes_types.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\avr-asm-macros.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\gf256mul\gf256mul.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\AES\gf256mul\gf256mul.S">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\CARD\smartcard.c">
       <SubType>compile</SubType>
     </Compile>
@@ -308,14 +396,25 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src" />
+    <Folder Include="src\AES\aes" />
+    <Folder Include="src\AES\gf256mul" />
     <Folder Include="src\CARD\" />
     <Folder Include="src\FLASH" />
     <Folder Include="src\GRAPHICS" />
+    <Folder Include="src\AES" />
     <Folder Include="src\SPI" />
     <Folder Include="src\OLEDMP" />
     <Folder Include="src\OLED" />
     <Folder Include="src\USB" />
     <Folder Include="src\UTILS\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\AES\aes256_ctr_vectors.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\AES\aes256_nessie_test.txt">
+      <SubType>compile</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

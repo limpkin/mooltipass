@@ -63,10 +63,13 @@ void aes256CtrEnc(const void *iv, const void *key, void *text)
 
     // temp var
     uint8_t i;
+    uint8_t *ptr;
+
+    ptr = (uint8_t*)iv;
 
     for(i = 0; i < 16; i++)
     {
-        ivcopy[i] = iv[i];
+        ivcopy[i] = *ptr++;
     }
 
     // init aes256

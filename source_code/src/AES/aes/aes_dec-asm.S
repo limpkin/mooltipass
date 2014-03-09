@@ -53,17 +53,6 @@ gf256mul:
 aes256_dec:
 	ldi r20, 14
 	rjmp aes_decrypt_core
-
-.global aes192_dec
-aes192_dec:
-	ldi r20, 12
-	rjmp aes_decrypt_core
-
-.global aes128_dec
-aes128_dec:
-	ldi r20, 10
-
-
 /*
   void aes_decrypt_core(aes_cipher_state_t* state, const aes_genctx_t* ks, uint8_t rounds)
 */

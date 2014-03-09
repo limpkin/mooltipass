@@ -33,20 +33,6 @@ aes256_init:
 	ldi r23, hi8(256)
 	ldi r22, lo8(256)
 	rjmp aes_init
-	
-.global aes192_init
-aes192_init:
-	movw r20, r22
-	ldi r23, hi8(192)
-	ldi r22, lo8(192)
-	rjmp aes_init
-	
-.global aes128_init
-aes128_init:
-	movw r20, r22
-	clr r23
-	ldi r22, 128
-
 /* 
 void aes_init(const void* key, uint16_t keysize_b, aes_genctx_t* ctx){
 	uint8_t hi,i,nk, next_nk;

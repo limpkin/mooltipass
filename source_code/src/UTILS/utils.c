@@ -53,16 +53,24 @@ void hexachar_to_string(unsigned char c, char* string)
     unsigned char temp = c & 0x0F;
 
     if(temp > 9)
+    {
         string[1] = temp + 0x37;
+    }
     else
+    {
         string[1] = temp + 0x30;
+    }
 
     temp = (c >> 4) & 0x0F;
 
     if(temp > 9)
+    {
         string[0] = temp + 0x37;
+    }
     else
+    {
         string[0] = temp + 0x30;
+    }
 
     string[2] = 0x00;
 }
@@ -90,7 +98,9 @@ unsigned char chr_strlen(char* string)                      // A light version o
     unsigned char i = 0;
 
     while(*string++)
+    {
         i++;
+    }
 
     return i;
 }
@@ -105,7 +115,9 @@ unsigned int int_strlen(char* string)                       // A light version o
     unsigned int i = 0;
 
     while(*string++)
+    {
         i++;
+    }
 
     return i;
 }
@@ -120,7 +132,9 @@ void clear_string(char* string, int nb_char)
     unsigned int i;
 
     for(i = 0; i < nb_char; i++)
+    {
         string[i] = 0;
+    }
 }
 
 /*! \fn     hm_str_cpy(char* source, char* dest, int nb_char)
@@ -134,7 +148,9 @@ void hm_str_cpy(char* source, char* dest, int nb_char)
     unsigned int i;
 
     for(i = 0; i < nb_char; i++)
+    {
         dest[i] = source[i];
+    }
 }
 
 /*! \fn     char_to_string(unsigned char value, char* string)

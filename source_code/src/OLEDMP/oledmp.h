@@ -20,7 +20,7 @@
 
 /* Copyright (c) 2014, Darran Hunt. All rights reserved. */
 
-/*!	\file 	oled.h
+/*!	\file 	oledmp.h
 *	\brief	OLED library header
 *	Created: 15/2/2014
 *	Author: Darran Hunt

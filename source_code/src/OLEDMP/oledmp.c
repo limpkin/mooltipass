@@ -26,10 +26,6 @@
 *	Author: Darran Hunt
 */
 
-/**
- * @file OledMP Mooltipass 256x64x4 OLED display driver
- */
-
 #include <stdio.h>
 #include "mooltipass.h"
 #include <util/delay.h>

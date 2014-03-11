@@ -297,15 +297,6 @@
     <Compile Include="src\FLASH\flash_mem.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\GRAPHICS\bitmaps.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\GRAPHICS\graphics.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\GRAPHICS\graphics.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\had_mooltipass.h">
       <SubType>compile</SubType>
     </Compile>
@@ -360,12 +351,6 @@
     <Compile Include="src\OLEDMP\oledmp.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\OLED\oled.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\OLED\oled.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\SPI\spi.c">
       <SubType>compile</SubType>
     </Compile>
@@ -397,11 +382,9 @@
     <Folder Include="src\AES\gf256mul" />
     <Folder Include="src\CARD\" />
     <Folder Include="src\FLASH" />
-    <Folder Include="src\GRAPHICS" />
     <Folder Include="src\AES" />
     <Folder Include="src\SPI" />
     <Folder Include="src\OLEDMP" />
-    <Folder Include="src\OLED" />
     <Folder Include="src\USB" />
     <Folder Include="src\UTILS\" />
   </ItemGroup>

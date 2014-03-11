@@ -1,0 +1,41 @@
+\hypertarget{low__level__utils_8c}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/low\-\_\-level\-\_\-utils.c File Reference}
+\label{low__level__utils_8c}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/low\-\_\-level\-\_\-utils.\-c@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/low\-\_\-level\-\_\-utils.\-c}}
+}
+
+
+Low level M\-C\-U helper functions.  
+
+
+{\ttfamily \#include \char`\"{}low\-\_\-level\-\_\-utils.\-h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{low__level__utils_8c_a1b926ca234fee6a8ca5840a88047a09e}{pin\-Mode} (uint8\-\_\-t volatile $\ast$port, const uint8\-\_\-t pin, uint8\-\_\-t mode, bool pullup)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Low level M\-C\-U helper functions. 
+
+\subsection{Function Documentation}
+\hypertarget{low__level__utils_8c_a1b926ca234fee6a8ca5840a88047a09e}{\index{low\-\_\-level\-\_\-utils.\-c@{low\-\_\-level\-\_\-utils.\-c}!pin\-Mode@{pin\-Mode}}
+\index{pin\-Mode@{pin\-Mode}!low_level_utils.c@{low\-\_\-level\-\_\-utils.\-c}}
+\subsubsection[{pin\-Mode}]{\setlength{\rightskip}{0pt plus 5cm}void pin\-Mode (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t volatile $\ast$}]{port, }
+\item[{const uint8\-\_\-t}]{pin, }
+\item[{uint8\-\_\-t}]{mode, }
+\item[{bool}]{pullup}
+\end{DoxyParamCaption}
+)}}\label{low__level__utils_8c_a1b926ca234fee6a8ca5840a88047a09e}
+Set pin input or output mode with optional pullup for inputs 
+\begin{DoxyParams}{Parameters}
+{\em port} & -\/ the port the pin is on \\
+\hline
+{\em pin} & -\/ the pin mask for the pin (i.\-e. 1 $<$$<$ pin\-\_\-number) \\
+\hline
+{\em mode} & -\/ I\-N\-P\-U\-T or O\-U\-T\-P\-U\-T \\
+\hline
+{\em pullup} & -\/ pullup enabled for input if true \\
+\hline
+\end{DoxyParams}

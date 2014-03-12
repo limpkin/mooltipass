@@ -50,13 +50,13 @@ static uint8_t key[32] = { 0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b,
 static uint8_t iv[16] = { 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 
 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
 
-// function pointer to output char function
+/*! function pointer to output char function */
 int8_t (*ctrTestOutput)(uint8_t c) = 0;
 
 /*!	\fn 	static void printChar(char data)
 *	\brief	Print a char using ctrTestOutput function pointer
 * 
-*   \param  char data - The char to be printed
+*   \param  data - The char to be printed
 */
 static void printChar(char data)
 {
@@ -69,7 +69,7 @@ static void printChar(char data)
 /*!	\fn 	static void printText(char *ptr)
 *	\brief	Print a string
 * 
-*   \param  uint8_t *ptr - The pointer to string
+*   \param  ptr - The pointer to string
 */
 static void printText(char *ptr)
 {
@@ -79,10 +79,10 @@ static void printText(char *ptr)
     }
 }
 
-/*!	\fn 	static void printTextP(const PROGMEM char* data)
+/*!	\fn 	static void printTextP(const char *data)
 *	\brief	Print a string using FLASH stored data
 * 
-*   \param  const PROGMEM char* data - pointer to flash string
+*   \param  data - pointer to flash string
 */
 static void printTextP(const char *data)
 {

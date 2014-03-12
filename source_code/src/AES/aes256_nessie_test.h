@@ -29,7 +29,7 @@
 
 #include <stdint.h>
 
-//function pointer to the output char function
+/*! \brief function pointer to the output function */
 int8_t (*nessieOutput)(uint8_t ch);
 
 // prototype functions

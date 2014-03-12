@@ -31,9 +31,9 @@
 /*!	\fn 	static void xor(uint8_t* dest, uint8_t* src, uint8_t nbytes)
 *	\brief	Do xor between dest and src and save it inside dest
 * 
-*   \param  uint8_t *dest - destination of xor
-*   \param  uint8_t *src - source of xor data
-*   \param  uint8_t nbytes - number of bytes to be xored between dest and src
+*   \param  dest - destination of xor
+*   \param  src - source of xor data
+*   \param  nbytes - number of bytes to be xored between dest and src
 */
 static void xor(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 {
@@ -48,10 +48,10 @@ static void xor(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 /*!	\fn 	void aes256CtrEnc(const void *iv, const void *key, void *text)
 *	\brief	Encrypt a 16 byte block using CTR encryption
 * 
-*   \param  const void *iv - pointer to initialization vector, size 
+*   \param  iv - pointer to initialization vector, size 
 *           must be 16 bytes
-*   \param  const void *key - pointer to key, size must be 32 bytes
-*   \param  void *text - plainText to be encrypted, size must be 16 bytes.
+*   \param  key - pointer to key, size must be 32 bytes
+*   \param  text - plainText to be encrypted, size must be 16 bytes.
 */
 void aes256CtrEnc(const void *iv, const void *key, void *text)
 {
@@ -90,10 +90,10 @@ void aes256CtrEnc(const void *iv, const void *key, void *text)
 /*!	\fn 	void aes256CtrDec(const void *iv, const void *key, void *text)
 *	\brief	Decrypt a 16 byte block using CTR encryption
 * 
-*   \param  const void *iv - pointer to initialization vector, size 
+*   \param  iv - pointer to initialization vector, size 
 *           must be 16 bytes
-*   \param  const void *key - pointer to key, size must be 32 bytes
-*   \param  void *text - cipherText to be decrypted, size must be 16 bytes.
+*   \param  key - pointer to key, size must be 32 bytes
+*   \param  text - cipherText to be decrypted, size must be 16 bytes.
 */
 void aes256CtrDec(const void *iv, const void *key, void *text)
 {

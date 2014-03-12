@@ -18,7 +18,7 @@
  * CDDL HEADER END
  */
 /*!	\file 	aes256_ctr.h
-*	\brief	AES256CTR encryption
+*	\brief	AES256CTR encryption Header
 * 
 *	Created: 06/03/2014 14:17:00
 *	Author: Miguel A. Borrego

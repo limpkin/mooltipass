@@ -18,14 +18,11 @@
  * CDDL HEADER END
  */
 /*!	\file 	aes256_nessie_test.c
-*	\brief	Different functions to check AES256 against nessie test vectors. \n
-*           It takes 16 minutes to do all tests at 16Mhz. \n
-* 
+*	\brief	Different functions to check AES256 using nessie test vectors. \n
 *           see https://www.cosic.esat.kuleuven.be/nessie/testvectors/ \n
-*           Block Cipher -> Rijndael -> key size 256. \n
-* 
-*           To verify the output of tests, log them into a file and see 
-*           differences with a diff viewer. \n
+*           Block Cipher -> Rijndael -> key size 256. \n 
+*           To verify the output of tests, do a log with output 
+*           and see differences with a diff viewer. \n
 * 
 *	Created: 16/02/2014 13:54:34
 *	Author: Miguel A. Borrego
@@ -38,17 +35,15 @@
 #include "aes.h"
 #include "utils.h"
 
-//global var, function pointer to the output char function
-int8_t (*nessieOutput)(uint8_t ch) = 0;
-
-/*! Here the #defines for the output representation of the test
-*   it can be a UART or CDC USB driver, Oled display ...
-*/
+/*! \var int8_t (*nessieOutput)(uint8_t ch)
+ *  \brief function pointer to the output function 
+ */
+int8_t (*nessieOutput)(uint8_t ch);
 
 /*!	\fn 	static void printChar(char data)
 *	\brief	Print a char to the passing the value to nessieOutput function ptr.
 * 
-*   \param  char data - char to be printed
+*   \param  data - char to be printed
 */
 static void printChar(char data)
 {
@@ -61,7 +56,7 @@ static void printChar(char data)
 /*!	\fn 	static void printString(char* data)
 *	\brief	Print a string
 * 
-*   \param  char *data - pointer to string
+*   \param  data - pointer to string
 */
 static void printString(char* data)
 {
@@ -71,10 +66,10 @@ static void printString(char* data)
     }
 }
 
-/*!	\fn 	static void printStringP(const PROGMEM char* data)
+/*!	\fn 	static void printStringP(const char *data)
 *	\brief	Print a string using FLASH stored data
 * 
-*   \param  const PROGMEM char* data - pointer to flash string
+*   \param  data - pointer to flash string
 */
 static void printStringP(const char *data)
 {
@@ -89,8 +84,8 @@ static void printStringP(const char *data)
 *	\brief	Print a n times.\n
 *           For example: printCharTimes('1', 5) would print '11111'.
 * 
-*   \param  char c - The ascii char
-*   \param  uint8_t times - The number of times to be printed
+*   \param  c - The ascii char
+*   \param  times - The number of times to be printed
 */
 static void printCharTimes(char c, uint8_t times)
 {
@@ -103,8 +98,8 @@ static void printCharTimes(char c, uint8_t times)
 /*!	\fn 	static void printHex(uint8_t *ptr, uint8_t size)
 *	\brief	Print hexadecimal representation of an array of uint8_t.
 * 
-*   \param  uint8_t *ptr - The pointer to the array of uint8_t
-*   \param  uint8_t size - The size of the array
+*   \param  ptr - Pointer to array of uint8_t
+*   \param  size - Size of array
 */
 static void printHex(uint8_t *ptr, uint8_t size)
 {
@@ -121,7 +116,7 @@ static void printHex(uint8_t *ptr, uint8_t size)
 /*!	\fn 	static void printUint8(uint8_t num)
 *	\brief	Print decimal representation of uint8_t.
 * 
-*   \param  uint8_t num - The number to print
+*   \param  num - The number to print
 */
 static void printUint8(uint8_t num)
 {
@@ -138,7 +133,7 @@ static void printUint8(uint8_t num)
 *           'Test vectors -- set 1'
 *           '====================='
 * 
-*   \param  uint8_t num - The number to print after 'set' word
+*   \param  num - The number to print after 'set' word
 */
 static void printTestHeader(uint8_t num)
 {
@@ -153,8 +148,8 @@ static void printTestHeader(uint8_t num)
 *
 *           'Set 1, vector#  0:'
 * 
-*   \param  uint8_t num1 - The Set number
-*   \param  uint8_t num2 - The Vector number
+*   \param  num1 - The Set number
+*   \param  num2 - The Vector number
 */
 static void printTestVectorHeader(uint8_t num1, uint8_t num2)
 {
@@ -183,7 +178,7 @@ static void printTestVectorHeader(uint8_t num1, uint8_t num2)
 *           'key=00000000000000000000000000000000
 *            00000000000000000000000000000000'
 * 
-*   \param  uint8_t *key - Pointer to key array
+*   \param  key - Pointer to key array
 */
 static void printTestKey(uint8_t *key)
 {
@@ -203,7 +198,7 @@ static void printTestKey(uint8_t *key)
 *
 *           'plain=00000000000000000000000000000000'
 * 
-*   \param  uint8_t *data - Pointer to data array
+*   \param  data - Pointer to data array
 */
 static void printTestPlain(uint8_t *data)
 {
@@ -220,9 +215,9 @@ static void printTestPlain(uint8_t *data)
 *
 *           'cipher=E35A6DCB19B201A01EBCFA8AA22B5759'
 * 
-*   \param  uint8_t *cipher - Pointer to cipher array
+*   \param  cipher - Pointer to cipher array
 */
-void printTestCipher(uint8_t *cipher)
+static void printTestCipher(uint8_t *cipher)
 {
     // Print cipher in hex
     printCharTimes(' ', 24);
@@ -237,7 +232,7 @@ void printTestCipher(uint8_t *cipher)
 *
 *           'decrypted=00000000000000000000000000000000'
 * 
-*   \param  uint8_t *decrypted - Pointer to decrypted array
+*   \param  decrypted - Pointer to decrypted array
 */
 static void printTestDecrypted(uint8_t *decrypted)
 {
@@ -254,7 +249,7 @@ static void printTestDecrypted(uint8_t *decrypted)
 *
 *           'encrypted=E35A6DCB19B201A01EBCFA8AA22B5759'
 * 
-*   \param  uint8_t *encrypted - Pointer to encrypted array
+*   \param  encrypted - Pointer to encrypted array
 */
 static void printTestEncrypted(uint8_t *encrypted)
 {
@@ -271,7 +266,7 @@ static void printTestEncrypted(uint8_t *encrypted)
 *
 *           'Iterated100times==E35A6DCB19B201A01EBCFA8AA22B5759'
 * 
-*   \param  uint8_t *data - Pointer to data array
+*   \param  data - Pointer to data array
 */
 static void printTest100Times(uint8_t *data)
 {
@@ -287,7 +282,7 @@ static void printTest100Times(uint8_t *data)
 *
 *           'Iterated1000times==E35A6DCB19B201A01EBCFA8AA22B5759'
 * 
-*   \param  uint8_t *data - Pointer to data array
+*   \param  data - Pointer to data array
 */
 static void printTest1000Times(uint8_t *data)
 {
@@ -300,8 +295,8 @@ static void printTest1000Times(uint8_t *data)
 /*!	\fn 	static void GenerateOutput1to4(uint8_t *key, uint8_t *data)
 *	\brief	Generate output from Nessie test 1 to 4.
 * 
-*   \param  uint8_t *key - Pointer to key array
-*   \param  uint8_t *data - Pointer to data array
+*   \param  key - Pointer to key array
+*   \param  data - Pointer to data array
 */
 static void GenerateOutput1to4(uint8_t *key, uint8_t *data)
 {
@@ -349,8 +344,8 @@ static void GenerateOutput1to4(uint8_t *key, uint8_t *data)
 /*!	\fn 	static void GenerateOutput5to8(uint8_t *key, uint8_t *data)
 *	\brief	Generate output from Nessie test 5 to 8
 * 
-*   \param  uint8_t *key - Pointer to key array
-*   \param  uint8_t *data - Pointer to data array
+*   \param  key - Pointer to key array
+*   \param  data - Pointer to data array
 */
 static void GenerateOutput5to8(uint8_t *key, uint8_t *data)
 {
@@ -384,9 +379,9 @@ static void GenerateOutput5to8(uint8_t *key, uint8_t *data)
 *	\brief	The same function as memset created to avoid including standard
 *           libraries.
 * 
-*   \param  uint8_t array - pointer to the array to set
-*   \param  uint8_t value - value to load into each array byte
-*   \param  uint8_t size - size of array
+*   \param  array - pointer to the array to set
+*   \param  value - value to load into each array byte
+*   \param  size - size of array
 */
 static void arraySet(uint8_t *array, uint8_t value, uint8_t size)
 {
@@ -401,7 +396,7 @@ static void arraySet(uint8_t *array, uint8_t value, uint8_t size)
 /*!	\fn 	void nessieTest(uint8_t setnum)
 *	\brief	Perform desired nessie test. Test from 1 to 8
 * 
-*   \param  uint8_t setnum - Number of test from 1 to 8
+*   \param  setnum - Number of test from 1 to 8
 */
 void nessieTest(uint8_t setnum)
 {

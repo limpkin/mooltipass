@@ -1,15 +1,18 @@
-\hypertarget{smartcard_8c}{\section{C\-:/\-Users/lina/\-Documents/\-Git\-Hub/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smartcard.c File Reference}
-\label{smartcard_8c}\index{C\-:/\-Users/lina/\-Documents/\-Git\-Hub/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smartcard.\-c@{C\-:/\-Users/lina/\-Documents/\-Git\-Hub/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smartcard.\-c}}
+\hypertarget{smartcard_8c}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smartcard.c File Reference}
+\label{smartcard_8c}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smartcard.\-c@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-C\-A\-R\-D/smartcard.\-c}}
 }
 
 
 Smart Card low level functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
 
 
+{\ttfamily \#include \char`\"{}smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-h\char`\"{}}\\*
 {\ttfamily \#include $<$avr/interrupt.\-h$>$}\\*
 {\ttfamily \#include \char`\"{}../mooltipass.\-h\char`\"{}}\\*
 {\ttfamily \#include $<$util/delay.\-h$>$}\\*
+{\ttfamily \#include \char`\"{}smartcard.\-h\char`\"{}}\\*
 {\ttfamily \#include $<$avr/io.\-h$>$}\\*
+{\ttfamily \#include \char`\"{}utils.\-h\char`\"{}}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
@@ -48,7 +51,7 @@ void \hyperlink{smartcard_8c_ab324702065e86b81a2e561b84f81bb0b}{write\-S\-M\-C} 
 \begin{DoxyCompactList}\small\item\em Write bits to the smart card. \end{DoxyCompactList}\item 
 uint8\-\_\-t $\ast$ \hyperlink{smartcard_8c_a1f145e74bb413746f2f1bf3d0a9afe8d}{read\-S\-M\-C} (uint8\-\_\-t nb\-\_\-bytes\-\_\-total\-\_\-read, uint8\-\_\-t start\-\_\-record\-\_\-index, uint8\-\_\-t $\ast$data\-\_\-to\-\_\-receive)
 \begin{DoxyCompactList}\small\item\em Read bytes from the smart card. \end{DoxyCompactList}\item 
-R\-E\-T\-\_\-\-T\-Y\-P\-E \hyperlink{smartcard_8c_a7a1602296f38ddd509d6c4f702c32a82}{detect\-Function\-S\-M\-C} (void)
+R\-E\-T\-\_\-\-T\-Y\-P\-E \hyperlink{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}{first\-Detect\-Function\-S\-M\-C} (void)
 \begin{DoxyCompactList}\small\item\em functions performed once the smart card is detected \end{DoxyCompactList}\item 
 \hypertarget{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}{void \hyperlink{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}{remove\-Function\-S\-M\-C} (void)}\label{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}
 
@@ -85,20 +88,6 @@ Blow the manufacturer or issuer fuse.
 {\em bool\-\_\-man\-\_\-nissuer} & Boolean to indicate if we blow the manufacturer fuse \\
 \hline
 \end{DoxyParams}
-\hypertarget{smartcard_8c_a7a1602296f38ddd509d6c4f702c32a82}{\index{smartcard.\-c@{smartcard.\-c}!detect\-Function\-S\-M\-C@{detect\-Function\-S\-M\-C}}
-\index{detect\-Function\-S\-M\-C@{detect\-Function\-S\-M\-C}!smartcard.c@{smartcard.\-c}}
-\subsubsection[{detect\-Function\-S\-M\-C}]{\setlength{\rightskip}{0pt plus 5cm}detect\-Function\-S\-M\-C (
-\begin{DoxyParamCaption}
-\item[{void}]{}
-\end{DoxyParamCaption}
-)}}\label{smartcard_8c_a7a1602296f38ddd509d6c4f702c32a82}
-
-
-functions performed once the smart card is detected 
-
-\begin{DoxyReturn}{Returns}
-The detection result (see enum) 
-\end{DoxyReturn}
 \hypertarget{smartcard_8c_aab47186412fabe10831ff2c5e50ef7eb}{\index{smartcard.\-c@{smartcard.\-c}!erase\-Application\-Zone1\-N\-Zone2\-S\-M\-C@{erase\-Application\-Zone1\-N\-Zone2\-S\-M\-C}}
 \index{erase\-Application\-Zone1\-N\-Zone2\-S\-M\-C@{erase\-Application\-Zone1\-N\-Zone2\-S\-M\-C}!smartcard.c@{smartcard.\-c}}
 \subsubsection[{erase\-Application\-Zone1\-N\-Zone2\-S\-M\-C}]{\setlength{\rightskip}{0pt plus 5cm}erase\-Application\-Zone1\-N\-Zone2\-S\-M\-C (
@@ -115,6 +104,20 @@ Set E1 or E2 flag by presenting the correct erase key (always F\-F\-F\-F...) and
 {\em zone1\-\_\-nzone2} & Zone 1 or Not Zone 2 \\
 \hline
 \end{DoxyParams}
+\hypertarget{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}{\index{smartcard.\-c@{smartcard.\-c}!first\-Detect\-Function\-S\-M\-C@{first\-Detect\-Function\-S\-M\-C}}
+\index{first\-Detect\-Function\-S\-M\-C@{first\-Detect\-Function\-S\-M\-C}!smartcard.c@{smartcard.\-c}}
+\subsubsection[{first\-Detect\-Function\-S\-M\-C}]{\setlength{\rightskip}{0pt plus 5cm}first\-Detect\-Function\-S\-M\-C (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}\label{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}
+
+
+functions performed once the smart card is detected 
+
+\begin{DoxyReturn}{Returns}
+The detection result (see enum) 
+\end{DoxyReturn}
 \hypertarget{smartcard_8c_a8f3674d61b124fab1355c64654a5e0e6}{\index{smartcard.\-c@{smartcard.\-c}!is\-Card\-Plugged@{is\-Card\-Plugged}}
 \index{is\-Card\-Plugged@{is\-Card\-Plugged}!smartcard.c@{smartcard.\-c}}
 \subsubsection[{is\-Card\-Plugged}]{\setlength{\rightskip}{0pt plus 5cm}is\-Card\-Plugged (
@@ -164,7 +167,7 @@ Read bytes from the smart card.
 \hline
 {\em start\-\_\-record\-\_\-index} & The index at which we start recording the answer \\
 \hline
-{\em data\-\_\-to\-\_\-receive} & Pointer to the buffer \\
+{\em $\ast$data\-\_\-to\-\_\-receive} & Pointer to the buffer \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}

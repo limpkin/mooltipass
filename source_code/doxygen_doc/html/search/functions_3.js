@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['eraseapplicationzone1nzone2smc',['eraseApplicationZone1NZone2SMC',['../smartcard_8c.html#aab47186412fabe10831ff2c5e50ef7eb',1,'smartcard.c']]]
+  ['disable_5fjtag',['disable_jtag',['../mooltipass_8c.html#ad504d32be0055a0ca60528abbf9f8ebf',1,'mooltipass.c']]]
 ];

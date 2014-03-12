@@ -20,7 +20,7 @@
 
 /* Copyright (c) 2014 Darran Hunt. All rights reserved. */
 
-/*!	\file 	bitsream.c
+/*!	\file 	bitstream.c
 *	\brief	Bitmap streamer library. Allows a raw packed bitmap to be read as a sequence
 *	        of pixels.
 *	Created: 15/2/2014

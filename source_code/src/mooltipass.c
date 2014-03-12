@@ -73,7 +73,7 @@ int main(void)
     initIRQ();                          // Initialize interrupts
     usb_init();                         // Initialize USB controller
 
-    spi_begin(SPI_BAUD_8_MHZ);
+    spiUsartBegin(SPI_RATE_8_MHZ);
     while(!usb_configured());           // Wait for host to set configuration
 
     // set up OLED now that USB is receiving full 500mA.

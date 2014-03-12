@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Mooltipass: C:/Users/lina/Documents/GitHub/mooltipass/source_code/src/CARD/smartcard.c File Reference</title>
+<title>Mooltipass: C:/Users/stephan/Dropbox/Projets/mooltipass/source_code/src/CARD/smartcard.c File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -24,7 +24,7 @@
   <td style="padding-left: 0.5em;">
    <div id="projectname">Mooltipass
    </div>
-   <div id="projectbrief">Offline password keeper</div>
+   <div id="projectbrief">Offline Password Keeper Developed on Hackaday</div>
   </td>
  </tr>
  </tbody>
@@ -80,7 +80,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_c56ac4f8932da2fd86be056069096cd5.html">GitHub</a></li><li class="navelem"><a class="el" href="dir_59cf0649e5b7edd071f5ce5eb5c24166.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_03209529255f2c12196becd6bde18e42.html">source_code</a></li><li class="navelem"><a class="el" href="dir_b0e44ad39df7bcefcca7fada3e201141.html">src</a></li><li class="navelem"><a class="el" href="dir_23b888301070dd985ac605e4159653ce.html">CARD</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_34b56d2b6f2e76de660152d993baf1a2.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_770d1e45642f3cb89174f389ed015f80.html">source_code</a></li><li class="navelem"><a class="el" href="dir_5faa3c327f12db20b730af18a908a578.html">src</a></li><li class="navelem"><a class="el" href="dir_477174b7c53e715be89e40b1dc563297.html">CARD</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -94,10 +94,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p>Smart Card low level functions Copyright [2014] [Mathieu Stephan].  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;avr/interrupt.h&gt;</code><br/>
+<div class="textblock"><code>#include &quot;smart_card_higher_level_functions.h&quot;</code><br/>
+<code>#include &lt;avr/interrupt.h&gt;</code><br/>
 <code>#include &quot;../mooltipass.h&quot;</code><br/>
 <code>#include &lt;util/delay.h&gt;</code><br/>
+<code>#include &quot;smartcard.h&quot;</code><br/>
 <code>#include &lt;avr/io.h&gt;</code><br/>
+<code>#include &quot;utils.h&quot;</code><br/>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -150,9 +153,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smar
 <tr class="memitem:a1f145e74bb413746f2f1bf3d0a9afe8d"><td class="memItemLeft" align="right" valign="top">uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a1f145e74bb413746f2f1bf3d0a9afe8d">readSMC</a> (uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t *data_to_receive)</td></tr>
 <tr class="memdesc:a1f145e74bb413746f2f1bf3d0a9afe8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read bytes from the smart card.  <a href="#a1f145e74bb413746f2f1bf3d0a9afe8d">More...</a><br/></td></tr>
 <tr class="separator:a1f145e74bb413746f2f1bf3d0a9afe8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7a1602296f38ddd509d6c4f702c32a82"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a7a1602296f38ddd509d6c4f702c32a82">detectFunctionSMC</a> (void)</td></tr>
-<tr class="memdesc:a7a1602296f38ddd509d6c4f702c32a82"><td class="mdescLeft">&#160;</td><td class="mdescRight">functions performed once the smart card is detected  <a href="#a7a1602296f38ddd509d6c4f702c32a82">More...</a><br/></td></tr>
-<tr class="separator:a7a1602296f38ddd509d6c4f702c32a82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ae9d75ff5ea3ba973c64cc162177f18"><td class="memItemLeft" align="right" valign="top">RET_TYPE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#a9ae9d75ff5ea3ba973c64cc162177f18">firstDetectFunctionSMC</a> (void)</td></tr>
+<tr class="memdesc:a9ae9d75ff5ea3ba973c64cc162177f18"><td class="mdescLeft">&#160;</td><td class="mdescRight">functions performed once the smart card is detected  <a href="#a9ae9d75ff5ea3ba973c64cc162177f18">More...</a><br/></td></tr>
+<tr class="separator:a9ae9d75ff5ea3ba973c64cc162177f18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6da77c515a91ad7d9914159d138c6d0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac6da77c515a91ad7d9914159d138c6d0"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="smartcard_8c.html#ac6da77c515a91ad7d9914159d138c6d0">removeFunctionSMC</a> (void)</td></tr>
 <tr class="memdesc:ac6da77c515a91ad7d9914159d138c6d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">functions performed once the smart card is removed <br/></td></tr>
@@ -196,25 +199,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a7a1602296f38ddd509d6c4f702c32a82"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">detectFunctionSMC </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>functions performed once the smart card is detected </p>
-<dl class="section return"><dt>Returns</dt><dd>The detection result (see enum) </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="aab47186412fabe10831ff2c5e50ef7eb"></a>
 <div class="memitem">
 <div class="memproto">
@@ -236,6 +220,25 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a9ae9d75ff5ea3ba973c64cc162177f18"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">firstDetectFunctionSMC </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>functions performed once the smart card is detected </p>
+<dl class="section return"><dt>Returns</dt><dd>The detection result (see enum) </dd></dl>
 
 </div>
 </div>
@@ -317,7 +320,7 @@ Variables</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">nb_bytes_total_read</td><td>The number of bytes to be read </td></tr>
     <tr><td class="paramname">start_record_index</td><td>The index at which we start recording the answer </td></tr>
-    <tr><td class="paramname">data_to_receive</td><td>Pointer to the buffer </td></tr>
+    <tr><td class="paramname">*data_to_receive</td><td>Pointer to the buffer </td></tr>
   </table>
   </dd>
 </dl>
@@ -422,7 +425,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Feb 2 2014 07:05:10 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 11 2014 10:38:37 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

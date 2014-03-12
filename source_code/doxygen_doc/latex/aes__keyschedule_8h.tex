@@ -1,0 +1,64 @@
+\hypertarget{aes__keyschedule_8h}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes/aes\-\_\-keyschedule.h File Reference}
+\label{aes__keyschedule_8h}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes/aes\-\_\-keyschedule.\-h@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes/aes\-\_\-keyschedule.\-h}}
+}
+{\ttfamily \#include \char`\"{}aes\-\_\-types.\-h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{aes__keyschedule_8h_a12fe2c92a2377ecee3de64face18a724}{aes\-\_\-init} (const void $\ast$key, uint16\-\_\-t keysize\-\_\-b, \hyperlink{structaes__genctx__t}{aes\-\_\-genctx\-\_\-t} $\ast$ctx)
+\begin{DoxyCompactList}\small\item\em initialize the keyschedule \end{DoxyCompactList}\item 
+void \hyperlink{aes__keyschedule_8h_a326bf60f4d24a2862f7986ac2ccf093e}{aes256\-\_\-init} (const void $\ast$key, \hyperlink{structaes256__ctx__t}{aes256\-\_\-ctx\-\_\-t} $\ast$ctx)
+\begin{DoxyCompactList}\small\item\em initialize the keyschedule for 256 bit key \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\href{mailto:daniel.otte@rub.de}{\tt daniel.\-otte@rub.\-de} \begin{DoxyAuthor}{Author}
+Daniel Otte 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2008-\/12-\/30  G\-P\-Lv3 or later 
+\end{DoxyDate}
+
+
+\subsection{Function Documentation}
+\hypertarget{aes__keyschedule_8h_a326bf60f4d24a2862f7986ac2ccf093e}{\index{aes\-\_\-keyschedule.\-h@{aes\-\_\-keyschedule.\-h}!aes256\-\_\-init@{aes256\-\_\-init}}
+\index{aes256\-\_\-init@{aes256\-\_\-init}!aes_keyschedule.h@{aes\-\_\-keyschedule.\-h}}
+\subsubsection[{aes256\-\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\-\_\-init (
+\begin{DoxyParamCaption}
+\item[{const void $\ast$}]{key, }
+\item[{{\bf aes256\-\_\-ctx\-\_\-t} $\ast$}]{ctx}
+\end{DoxyParamCaption}
+)}}\label{aes__keyschedule_8h_a326bf60f4d24a2862f7986ac2ccf093e}
+
+
+initialize the keyschedule for 256 bit key 
+
+This function computes the keyschedule from a given 256 bit key and stores it in the context variable 
+\begin{DoxyParams}{Parameters}
+{\em key} & pointer to the key material \\
+\hline
+{\em ctx} & pointer to the context where the keyschedule should be stored \\
+\hline
+\end{DoxyParams}
+\hypertarget{aes__keyschedule_8h_a12fe2c92a2377ecee3de64face18a724}{\index{aes\-\_\-keyschedule.\-h@{aes\-\_\-keyschedule.\-h}!aes\-\_\-init@{aes\-\_\-init}}
+\index{aes\-\_\-init@{aes\-\_\-init}!aes_keyschedule.h@{aes\-\_\-keyschedule.\-h}}
+\subsubsection[{aes\-\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}void aes\-\_\-init (
+\begin{DoxyParamCaption}
+\item[{const void $\ast$}]{key, }
+\item[{uint16\-\_\-t}]{keysize\-\_\-b, }
+\item[{{\bf aes\-\_\-genctx\-\_\-t} $\ast$}]{ctx}
+\end{DoxyParamCaption}
+)}}\label{aes__keyschedule_8h_a12fe2c92a2377ecee3de64face18a724}
+
+
+initialize the keyschedule 
+
+This function computes the keyschedule from a given key with a given length and stores it in the context variable 
+\begin{DoxyParams}{Parameters}
+{\em key} & pointer to the key material \\
+\hline
+{\em keysize\-\_\-b} & length of the key in bits (valid are 128, 192 and 256) \\
+\hline
+{\em ctx} & pointer to the context where the keyschedule should be stor \\
+\hline
+\end{DoxyParams}

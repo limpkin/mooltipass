@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['char_5fto_5fstring',['char_to_string',['../utils_8c.html#a0dc9cefa1014c5c0bd5964ad112d6069',1,'utils.c']]],
-  ['checkflashid',['checkFlashID',['../flash__mem_8c.html#a80d6fcc1bf2a1dbdc4f6462cac22c219',1,'flash_mem.c']]],
-  ['chr_5fstrlen',['chr_strlen',['../utils_8c.html#a78be21b0b1659c7e7327be836b562973',1,'utils.c']]],
-  ['clear_5fscreen',['clear_screen',['../graphics_8c.html#abe4dfe974413db0749ae0cf0dadb91b0',1,'graphics.c']]],
-  ['clear_5fstring',['clear_string',['../utils_8c.html#a9ae2eebd81d6a10e9937415fef9e9526',1,'utils.c']]],
-  ['clearpgmrstsignals',['clearPgmRstSignals',['../smartcard_8c.html#a4b199cccbcc01e2d6fe0f9935f60d5e1',1,'smartcard.c']]],
-  ['clockpulsesmc',['clockPulseSMC',['../smartcard_8c.html#a0ec95b1d2105b04b261b99f3e6506966',1,'smartcard.c']]]
+  ['blowmanufacturernissuerfuse',['blowManufacturerNIssuerFuse',['../smartcard_8c.html#ab9b06f5a1c24f2d38da1acf5328ba5ee',1,'smartcard.c']]],
+  ['bs_5favailable',['bs_available',['../bitstream_8c.html#a9a586a86db3bb1e24b6a9528a4eab848',1,'bs_available(bitstream_t *bs):&#160;bitstream.c'],['../bitstream_8h.html#a9a586a86db3bb1e24b6a9528a4eab848',1,'bs_available(bitstream_t *bs):&#160;bitstream.c']]],
+  ['bs_5fgetnextword',['bs_getNextWord',['../bitstream_8c.html#ac963fdb002e33ad30c1b0c2e6e3281e0',1,'bitstream.c']]],
+  ['bs_5finit',['bs_init',['../bitstream_8c.html#a865acda2607844a4bc7113ffe7378030',1,'bs_init(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, const uint16_t size):&#160;bitstream.c'],['../bitstream_8h.html#a8acb3fa99362713d13f6776b1b6d68ef',1,'bs_init(bitstream_t *bs, const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size):&#160;bitstream.c']]],
+  ['bs_5fread',['bs_read',['../bitstream_8c.html#a7de63986315b2e7df7e640878155897f',1,'bs_read(bitstream_t *bs, uint8_t numPixels):&#160;bitstream.c'],['../bitstream_8h.html#a7de63986315b2e7df7e640878155897f',1,'bs_read(bitstream_t *bs, uint8_t numPixels):&#160;bitstream.c']]]
 ];

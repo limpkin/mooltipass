@@ -8,9 +8,9 @@
 
 /**
  * Initialise the SPI USART interface to the specified data rate
- * @param baud - frequency to run the SPI interface at
+ * @param rate frequency to run the SPI interface at
  */
-void spi_begin(uint16_t baud)
+void spiUsartBegin(uint16_t rate)
 {
     // enable pins
     UBRR1 = 0;
@@ -22,15 +22,15 @@ void spi_begin(uint16_t baud)
     // Set MSPI mode of operation and SPI data mode 0.
     UCSR1C = (1 << UMSEL11) | (1 << UMSEL10) | (0 << UCPOL1) | (0 << UCPHA1);
     UCSR1B = (1<<RXEN1)|(1<<TXEN1);  // Enable receiver and transmitter
-    UBRR1 = baud;  // Set baud rate (must be done after TX is enabled)
+    UBRR1 = rate;  // Set data rate (must be done after TX is enabled)
 }
 
 /**
  * change the SPI USART interface data rate
- * @param baud - frequency to run the SPI interface at
+ * @param rate - frequency to run the SPI interface at
  */
-void spi_setBaud(uint16_t baud)
+void spiUsartSetRate(uint16_t rate)
 {
-    UBRR1 = baud;
+    UBRR1 = rate;
 }
 

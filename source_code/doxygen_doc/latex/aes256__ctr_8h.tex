@@ -1,9 +1,9 @@
-\hypertarget{aes256__ctr_8h}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-ctr.h File Reference}
-\label{aes256__ctr_8h}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-ctr.\-h@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-ctr.\-h}}
+\hypertarget{aes256__ctr_8h}{\section{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-ctr.h File Reference}
+\label{aes256__ctr_8h}\index{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-ctr.\-h@{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-ctr.\-h}}
 }
 
 
-A\-E\-S256\-C\-T\-R encryption.  
+A\-E\-S256\-C\-T\-R encryption Header.  
 
 
 \subsection*{Functions}
@@ -16,7 +16,7 @@ void \hyperlink{aes256__ctr_8h_a7110eed2c5ccdde68746ab88aa61db23}{aes256\-Ctr\-D
 
 
 \subsection{Detailed Description}
-A\-E\-S256\-C\-T\-R encryption. Created\-: 06/03/2014 14\-:17\-:00 Author\-: Miguel A. Borrego 
+A\-E\-S256\-C\-T\-R encryption Header. Created\-: 06/03/2014 14\-:17\-:00 Author\-: Miguel A. Borrego 
 
 \subsection{Function Documentation}
 \hypertarget{aes256__ctr_8h_a7110eed2c5ccdde68746ab88aa61db23}{\index{aes256\-\_\-ctr.\-h@{aes256\-\_\-ctr.\-h}!aes256\-Ctr\-Dec@{aes256\-Ctr\-Dec}}
@@ -34,11 +34,11 @@ Decrypt a 16 byte block using C\-T\-R encryption.
 
 
 \begin{DoxyParams}{Parameters}
-{\em const} & void $\ast$iv -\/ pointer to initialization vector, size must be 16 bytes \\
+{\em iv} & -\/ pointer to initialization vector, size must be 16 bytes \\
 \hline
-{\em const} & void $\ast$key -\/ pointer to key, size must be 32 bytes \\
+{\em key} & -\/ pointer to key, size must be 32 bytes \\
 \hline
-{\em void} & $\ast$text -\/ cipher\-Text to be decrypted, size must be 16 bytes. \\
+{\em text} & -\/ cipher\-Text to be decrypted, size must be 16 bytes. \\
 \hline
 \end{DoxyParams}
 \hypertarget{aes256__ctr_8h_a1f18aa407030e0b8e3c1eac1801b0570}{\index{aes256\-\_\-ctr.\-h@{aes256\-\_\-ctr.\-h}!aes256\-Ctr\-Enc@{aes256\-Ctr\-Enc}}
@@ -56,10 +56,10 @@ Encrypt a 16 byte block using C\-T\-R encryption.
 
 
 \begin{DoxyParams}{Parameters}
-{\em const} & void $\ast$iv -\/ pointer to initialization vector, size must be 16 bytes \\
+{\em iv} & -\/ pointer to initialization vector, size must be 16 bytes \\
 \hline
-{\em const} & void $\ast$key -\/ pointer to key, size must be 32 bytes \\
+{\em key} & -\/ pointer to key, size must be 32 bytes \\
 \hline
-{\em void} & $\ast$text -\/ plain\-Text to be encrypted, size must be 16 bytes. \\
+{\em text} & -\/ plain\-Text to be encrypted, size must be 16 bytes. \\
 \hline
 \end{DoxyParams}

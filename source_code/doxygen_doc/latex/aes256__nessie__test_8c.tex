@@ -1,10 +1,12 @@
-\hypertarget{aes256__nessie__test_8c}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.c File Reference}
-\label{aes256__nessie__test_8c}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.\-c@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.\-c}}
+\hypertarget{aes256__nessie__test_8c}{\section{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.c File Reference}
+\label{aes256__nessie__test_8c}\index{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.\-c@{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.\-c}}
 }
 
 
-Different functions to check A\-E\-S256 against nessie test vectors. \par
- It takes 16 minutes to do all tests at 16\-Mhz. \par
+Different functions to check A\-E\-S256 using nessie test vectors. \par
+ see \href{https://www.cosic.esat.kuleuven.be/nessie/testvectors/}{\tt https\-://www.\-cosic.\-esat.\-kuleuven.\-be/nessie/testvectors/} \par
+ Block Cipher -\/$>$ Rijndael -\/$>$ key size 256. \par
+ To verify the output of tests, do a log with output and see differences with a diff viewer. \par
 .  
 
 
@@ -17,26 +19,22 @@ Different functions to check A\-E\-S256 against nessie test vectors. \par
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \hyperlink{aes256__nessie__test_8c_a68da3a69dfba11bf33d839def2d56c86}{print\-Test\-Cipher} (uint8\-\_\-t $\ast$cipher)
-\begin{DoxyCompactList}\small\item\em Print cipher string and cipher value in hexa, example calling print\-Test\-Cipher(cipher)\-:\par
-. \end{DoxyCompactList}\item 
 void \hyperlink{aes256__nessie__test_8c_abf33d91f9bb149acff9822a07a88bcbb}{nessie\-Test} (uint8\-\_\-t setnum)
 \begin{DoxyCompactList}\small\item\em Perform desired nessie test. Test from 1 to 8. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{aes256__nessie__test_8c_a2c9dc8c0f771afa9b660dc4ad5f77f02}{int8\-\_\-t($\ast$ {\bfseries nessie\-Output} )(uint8\-\_\-t ch)=0}\label{aes256__nessie__test_8c_a2c9dc8c0f771afa9b660dc4ad5f77f02}
+\hypertarget{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}{int8\-\_\-t($\ast$ \hyperlink{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}{nessie\-Output} )(uint8\-\_\-t ch)}\label{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}
 
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em function pointer to the output function \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Different functions to check A\-E\-S256 against nessie test vectors. \par
- It takes 16 minutes to do all tests at 16\-Mhz. \par
-. see \href{https://www.cosic.esat.kuleuven.be/nessie/testvectors/}{\tt https\-://www.\-cosic.\-esat.\-kuleuven.\-be/nessie/testvectors/} \par
+Different functions to check A\-E\-S256 using nessie test vectors. \par
+ see \href{https://www.cosic.esat.kuleuven.be/nessie/testvectors/}{\tt https\-://www.\-cosic.\-esat.\-kuleuven.\-be/nessie/testvectors/} \par
  Block Cipher -\/$>$ Rijndael -\/$>$ key size 256. \par
- To verify the output of tests, log them into a file and see differences with a diff viewer. \par
- Created\-: 16/02/2014 13\-:54\-:34 Author\-: Miguel A. Borrego 
+ To verify the output of tests, do a log with output and see differences with a diff viewer. \par
+. Created\-: 16/02/2014 13\-:54\-:34 Author\-: Miguel A. Borrego 
 
 \subsection{Function Documentation}
 \hypertarget{aes256__nessie__test_8c_abf33d91f9bb149acff9822a07a88bcbb}{\index{aes256\-\_\-nessie\-\_\-test.\-c@{aes256\-\_\-nessie\-\_\-test.\-c}!nessie\-Test@{nessie\-Test}}
@@ -52,25 +50,6 @@ Perform desired nessie test. Test from 1 to 8.
 
 
 \begin{DoxyParams}{Parameters}
-{\em uint8\-\_\-t} & setnum -\/ Number of test from 1 to 8 \\
-\hline
-\end{DoxyParams}
-\hypertarget{aes256__nessie__test_8c_a68da3a69dfba11bf33d839def2d56c86}{\index{aes256\-\_\-nessie\-\_\-test.\-c@{aes256\-\_\-nessie\-\_\-test.\-c}!print\-Test\-Cipher@{print\-Test\-Cipher}}
-\index{print\-Test\-Cipher@{print\-Test\-Cipher}!aes256_nessie_test.c@{aes256\-\_\-nessie\-\_\-test.\-c}}
-\subsubsection[{print\-Test\-Cipher}]{\setlength{\rightskip}{0pt plus 5cm}static void print\-Test\-Cipher (
-\begin{DoxyParamCaption}
-\item[{uint8\-\_\-t $\ast$}]{cipher}
-\end{DoxyParamCaption}
-)}}\label{aes256__nessie__test_8c_a68da3a69dfba11bf33d839def2d56c86}
-
-
-Print cipher string and cipher value in hexa, example calling print\-Test\-Cipher(cipher)\-:\par
-. 
-
-'cipher=E35\-A6\-D\-C\-B19\-B201\-A01\-E\-B\-C\-F\-A8\-A\-A22\-B5759'
-
-
-\begin{DoxyParams}{Parameters}
-{\em uint8\-\_\-t} & $\ast$cipher -\/ Pointer to cipher array \\
+{\em setnum} & -\/ Number of test from 1 to 8 \\
 \hline
 \end{DoxyParams}

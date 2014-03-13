@@ -5,9 +5,9 @@ var searchData=
   ['bitstream_2eh',['bitstream.h',['../bitstream_8h.html',1,'']]],
   ['bitstream_5ft',['bitstream_t',['../structbitstream__t.html',1,'']]],
   ['blowmanufacturernissuerfuse',['blowManufacturerNIssuerFuse',['../smartcard_8c.html#ab9b06f5a1c24f2d38da1acf5328ba5ee',1,'smartcard.c']]],
-  ['bs_5favailable',['bs_available',['../bitstream_8c.html#a9a586a86db3bb1e24b6a9528a4eab848',1,'bs_available(bitstream_t *bs):&#160;bitstream.c'],['../bitstream_8h.html#a9a586a86db3bb1e24b6a9528a4eab848',1,'bs_available(bitstream_t *bs):&#160;bitstream.c']]],
-  ['bs_5fgetnextword',['bs_getNextWord',['../bitstream_8c.html#ac963fdb002e33ad30c1b0c2e6e3281e0',1,'bitstream.c']]],
-  ['bs_5finit',['bs_init',['../bitstream_8c.html#a865acda2607844a4bc7113ffe7378030',1,'bs_init(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, const uint16_t size):&#160;bitstream.c'],['../bitstream_8h.html#a8acb3fa99362713d13f6776b1b6d68ef',1,'bs_init(bitstream_t *bs, const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size):&#160;bitstream.c']]],
-  ['bs_5fread',['bs_read',['../bitstream_8c.html#a7de63986315b2e7df7e640878155897f',1,'bs_read(bitstream_t *bs, uint8_t numPixels):&#160;bitstream.c'],['../bitstream_8h.html#a7de63986315b2e7df7e640878155897f',1,'bs_read(bitstream_t *bs, uint8_t numPixels):&#160;bitstream.c']]],
+  ['bsavailable',['bsAvailable',['../bitstream_8c.html#a3f619bc8d5758e70e659208fc858138b',1,'bsAvailable(bitstream_t *bs):&#160;bitstream.c'],['../bitstream_8h.html#a3f619bc8d5758e70e659208fc858138b',1,'bsAvailable(bitstream_t *bs):&#160;bitstream.c']]],
+  ['bsgetnextword',['bsGetNextWord',['../bitstream_8c.html#a1cbadfcdfc196cc43b13922290aceb67',1,'bitstream.c']]],
+  ['bsinit',['bsInit',['../bitstream_8c.html#abc2fc58b28a65eafe47ab27d086c8851',1,'bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, const uint16_t size):&#160;bitstream.c'],['../bitstream_8h.html#a73b57a464a0537fd29f26300ebd9f563',1,'bsInit(bitstream_t *bs, const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size):&#160;bitstream.c']]],
+  ['bsread',['bsRead',['../bitstream_8c.html#aa232ce5aedebf3e7c9062882fca31a95',1,'bsRead(bitstream_t *bs, uint8_t numPixels):&#160;bitstream.c'],['../bitstream_8h.html#aa232ce5aedebf3e7c9062882fca31a95',1,'bsRead(bitstream_t *bs, uint8_t numPixels):&#160;bitstream.c']]],
   ['button_5freturn',['button_return',['../smartcard_8c.html#aaa57e33d72c7dafa663ac64b70b024a2',1,'smartcard.c']]]
 ];

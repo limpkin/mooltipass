@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Mooltipass: C:/Users/stephan/Dropbox/Projets/mooltipass/source_code/src/AES/aes256_nessie_test.c File Reference</title>
+<title>Mooltipass: C:/Users/limpkin/Dropbox/Projets/mooltipass/source_code/src/AES/aes256_nessie_test.c File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,7 +80,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_34b56d2b6f2e76de660152d993baf1a2.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_770d1e45642f3cb89174f389ed015f80.html">source_code</a></li><li class="navelem"><a class="el" href="dir_5faa3c327f12db20b730af18a908a578.html">src</a></li><li class="navelem"><a class="el" href="dir_c6ac6eff82f80f92f2d3a7f7eb478541.html">AES</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_b5deb4d1a5d4c844515917d512a246e9.html">mooltipass</a></li><li class="navelem"><a class="el" href="dir_e12bf32e657b865978aa5752bc1268a9.html">source_code</a></li><li class="navelem"><a class="el" href="dir_6e4ac5a2809beea3099b04537cd2551a.html">src</a></li><li class="navelem"><a class="el" href="dir_5a40d2aea91775147c18e84dbe8af543.html">AES</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -92,8 +92,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Different functions to check AES256 against nessie test vectors. <br/>
- It takes 16 minutes to do all tests at 16Mhz. <br/>
+<p>Different functions to check AES256 using nessie test vectors. <br/>
+ see <a href="https://www.cosic.esat.kuleuven.be/nessie/testvectors/">https://www.cosic.esat.kuleuven.be/nessie/testvectors/</a> <br/>
+ Block Cipher -&gt; Rijndael -&gt; key size 256. <br/>
+ To verify the output of tests, do a log with output and see differences with a diff viewer. <br/>
 .  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stdint.h&gt;</code><br/>
@@ -105,28 +107,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a68da3a69dfba11bf33d839def2d56c86"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="aes256__nessie__test_8c.html#a68da3a69dfba11bf33d839def2d56c86">printTestCipher</a> (uint8_t *cipher)</td></tr>
-<tr class="memdesc:a68da3a69dfba11bf33d839def2d56c86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print cipher string and cipher value in hexa, example calling printTestCipher(cipher):<br/>
-.  <a href="#a68da3a69dfba11bf33d839def2d56c86">More...</a><br/></td></tr>
-<tr class="separator:a68da3a69dfba11bf33d839def2d56c86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf33d91f9bb149acff9822a07a88bcbb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="aes256__nessie__test_8c.html#abf33d91f9bb149acff9822a07a88bcbb">nessieTest</a> (uint8_t setnum)</td></tr>
 <tr class="memdesc:abf33d91f9bb149acff9822a07a88bcbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform desired nessie test. Test from 1 to 8.  <a href="#abf33d91f9bb149acff9822a07a88bcbb">More...</a><br/></td></tr>
 <tr class="separator:abf33d91f9bb149acff9822a07a88bcbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a2c9dc8c0f771afa9b660dc4ad5f77f02"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c9dc8c0f771afa9b660dc4ad5f77f02"></a>
-int8_t(*&#160;</td><td class="memItemRight" valign="bottom"><b>nessieOutput</b> )(uint8_t ch)=0</td></tr>
-<tr class="separator:a2c9dc8c0f771afa9b660dc4ad5f77f02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a484b7c84d270511984849d9d5ef55a39"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a484b7c84d270511984849d9d5ef55a39"></a>
+int8_t(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="aes256__nessie__test_8c.html#a484b7c84d270511984849d9d5ef55a39">nessieOutput</a> )(uint8_t ch)</td></tr>
+<tr class="memdesc:a484b7c84d270511984849d9d5ef55a39"><td class="mdescLeft">&#160;</td><td class="mdescRight">function pointer to the output function <br/></td></tr>
+<tr class="separator:a484b7c84d270511984849d9d5ef55a39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Different functions to check AES256 against nessie test vectors. <br/>
- It takes 16 minutes to do all tests at 16Mhz. <br/>
-. </p>
-<p>see <a href="https://www.cosic.esat.kuleuven.be/nessie/testvectors/">https://www.cosic.esat.kuleuven.be/nessie/testvectors/</a> <br/>
+<div class="textblock"><p>Different functions to check AES256 using nessie test vectors. <br/>
+ see <a href="https://www.cosic.esat.kuleuven.be/nessie/testvectors/">https://www.cosic.esat.kuleuven.be/nessie/testvectors/</a> <br/>
  Block Cipher -&gt; Rijndael -&gt; key size 256. <br/>
- To verify the output of tests, log them into a file and see differences with a diff viewer. <br/>
- Created: 16/02/2014 13:54:34 Author: Miguel A. Borrego </p>
+ To verify the output of tests, do a log with output and see differences with a diff viewer. <br/>
+. </p>
+<p>Created: 16/02/2014 13:54:34 Author: Miguel A. Borrego </p>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="abf33d91f9bb149acff9822a07a88bcbb"></a>
 <div class="memitem">
@@ -145,33 +143,7 @@ int8_t(*&#160;</td><td class="memItemRight" valign="bottom"><b>nessieOutput</b> 
 <p>Perform desired nessie test. Test from 1 to 8. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">uint8_t</td><td>setnum - Number of test from 1 to 8 </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a class="anchor" id="a68da3a69dfba11bf33d839def2d56c86"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void printTestCipher </td>
-          <td>(</td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>cipher</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Print cipher string and cipher value in hexa, example calling printTestCipher(cipher):<br/>
-. </p>
-<p>'cipher=E35A6DCB19B201A01EBCFA8AA22B5759'</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">uint8_t</td><td>*cipher - Pointer to cipher array </td></tr>
+    <tr><td class="paramname">setnum</td><td>- Number of test from 1 to 8 </td></tr>
   </table>
   </dd>
 </dl>
@@ -181,7 +153,7 @@ int8_t(*&#160;</td><td class="memItemRight" valign="bottom"><b>nessieOutput</b> 
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 11 2014 10:38:37 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Mar 13 2014 23:23:46 for Mooltipass by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

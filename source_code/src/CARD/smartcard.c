@@ -26,6 +26,7 @@
 #include "../mooltipass.h"
 #include <util/delay.h>
 #include "smartcard.h"
+#include "defines.h"
 #include <avr/io.h>
 #include "utils.h"
 
@@ -228,7 +229,11 @@ RET_TYPE isCardPlugged(void)
 */
 void scanSMCDectect(void)
 {
+#if defined(HARDWARE_V1)
     if (PIN_SC_DET & (1 << PORTID_SC_DET))
+#elif defined(HARDWARE_OLIVIER_V1)
+    if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
+#endif
     {
         if (card_detect_counter != 0xFF)
         {

@@ -35,6 +35,7 @@
 
 /** HARDWARE VERSION **/
 #define	HARDWARE_V1
+//#define HARDWARE_OLIVIER_V1
 
 /** MACROS **/
 #define CPU_PRESCALE(n)		(CLKPR = 0x80, CLKPR = (n))
@@ -112,6 +113,49 @@ enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 	#define PORTID_OLED_POW	PORTB7
 	#define PORT_OLED_POW	PORTB
 	#define DDR_OLED_POW	DDRB
+#endif
+#ifdef	HARDWARE_OLIVIER_V1
+	// SPIs
+	#define SPI_SMARTCARD	SPI_NATIVE
+	#define	SPI_FLASH		SPI_USART
+	#define SPI_OLED		SPI_USART
+	// Slave Select Flash
+	#define PORTID_FLASH_nS	PORTB7
+	#define PORT_FLASH_nS	PORTB
+	#define DDR_FLASH_nS	DDRB
+	// Detect smart card
+	#define PORTID_SC_DET	PORTF5
+	#define PORT_SC_DET		PORTF
+	#define DDR_SC_DET		DDRF
+	#define PIN_SC_DET		PINF
+	// Smart card program
+	#define PORTID_SC_PGM	PORTC6
+	#define PORT_SC_PGM		PORTC
+	#define DDR_SC_PGM		DDRC
+	// Smart card power enable
+	#define PORTID_SC_POW	PORTB4
+	#define PORT_SC_POW		PORTB
+	#define DDR_SC_POW		DDRB
+	// Smart card reset
+	#define PORTID_SC_RST	PORTE6
+	#define PORT_SC_RST		PORTE
+	#define DDR_SC_RST		DDRE
+	// OLED Data / Command
+	#define PORTID_OLED_DnC	PORTD7
+	#define PORT_OLED_DnC	PORTD
+	#define DDR_OLED_DnC	DDRD
+	// OLED Slave Select
+	#define PORTID_OLED_SS	PORTD6
+	#define PORT_OLED_SS	PORTD
+	#define DDR_OLED_SS		DDRD
+	// OLED reset
+	#define PORTID_OLED_nR	PORTD4
+	#define PORT_OLED_nR	PORTD
+	#define DDR_OLED_nR		DDRD
+	// Power enable to the OLED
+	#define PORTID_OLED_POW	PORTE2
+	#define PORT_OLED_POW	PORTE
+	#define DDR_OLED_POW	DDRE
 #endif
 
 /** DEFINES HARDWARE **/

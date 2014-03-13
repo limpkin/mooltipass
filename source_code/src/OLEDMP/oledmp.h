@@ -108,40 +108,40 @@
 #define CMD_DISPLAY_ENHANCEMENT_B	0xD1
 #define CMD_SET_COMMAND_LOCK		0xFD
 
-void oled_begin(uint8_t font);
-void oled_init(void);
-void oled_writeCommand(uint8_t reg);
-void oled_writeData(uint8_t data);
-void oled_setColumnAddr(uint8_t start, uint8_t end);
-void oled_setRowAddr(uint8_t start, uint8_t end);
-void oled_fill(uint8_t colour);
-void oled_clear();
-void oled_reset();
+void oledBegin(uint8_t font);
+void oledInit(void);
+void oledWriteCommand(uint8_t reg);
+void oledWriteData(uint8_t data);
+void oledSetColumnAddr(uint8_t start, uint8_t end);
+void oledSetRowAddr(uint8_t start, uint8_t end);
+void oledFill(uint8_t colour);
+void oledClear();
+void oledReset();
 
-void oled_bitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uint8_t depth, const uint16_t *image);
-void oled_bitmapDraw(uint8_t x, uint8_t y, const void *image);
+void oledBitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uint8_t depth, const uint16_t *image);
+void oledBitmapDraw(uint8_t x, uint8_t y, const void *image);
 
-void oled_setWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend);
-void oled_setFont(uint8_t font);
-void oled_setColour(uint8_t colour);
-void oled_setContrast(uint8_t contrast);
-void oled_setBackground(uint8_t colour);
-void oled_setOffset(uint8_t offset);
-uint8_t oled_getOffset(void);
-void oled_setBufHeight(uint8_t rows);
-uint8_t oled_getBufHeight(void);
+void oledSetWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend);
+void oledSetFont(uint8_t font);
+void oledSetColour(uint8_t colour);
+void oledSetContrast(uint8_t contrast);
+void oledSetBackground(uint8_t colour);
+void oledSetOffset(uint8_t offset);
+uint8_t oledGetOffset(void);
+void oledSetBufHeight(uint8_t rows);
+uint8_t oledGetBufHeight(void);
 
-void oled_setXY(uint8_t col, uint8_t row);
-void oled_setX(uint8_t col);
+void oledSetXY(uint8_t col, uint8_t row);
+void oledSetX(uint8_t col);
 
-uint8_t oled_glyphWidth(char ch);
-uint8_t oled_glyphHeight();
-uint8_t oled_glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg);
+uint8_t oledGlyphWidth(char ch);
+uint8_t oledGlyphHeight();
+uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg);
 
-void oled_putch(char ch);
-void oled_putstr(const char *str);
-void oled_putstr_P(const char *str);
-int oled_printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-int oled_printf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+void oledPutch(char ch);
+void oledPutstr(const char *str);
+void oledPutstr_P(const char *str);
+int oledPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+int oledPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 #endif

@@ -39,7 +39,7 @@
  * @note the bitmap data must be packed into 16 bit words, and pixels are packed
  *       across words when they do not fully fit
  */
-void bs_init(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, const uint16_t size)
+void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, const uint16_t size)
 {
     bs->bitsPerPixel = pixelDepth;
     bs->_datap = data;
@@ -56,7 +56,7 @@ void bs_init(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, co
  * @param bs - pointer to initialised bitstream context to get the next word from
  * @returns next data word, or 0 if end of data reached
  */
-uint16_t bs_getNextWord(bitstream_t *bs)
+uint16_t bsGetNextWord(bitstream_t *bs)
 {
     if (bs->_size > 0) {
 	return (uint16_t)pgm_read_word(bs->_datap++);
@@ -72,7 +72,7 @@ uint16_t bs_getNextWord(bitstream_t *bs)
  * @returns next pixel, or 0 if end of data reached
  */
 
-uint16_t bs_read(bitstream_t *bs, uint8_t numPixels)
+uint16_t bsRead(bitstream_t *bs, uint8_t numPixels)
 {
     uint16_t data=0;
 
@@ -80,7 +80,7 @@ uint16_t bs_read(bitstream_t *bs, uint8_t numPixels)
 	data <<= bs->bitsPerPixel;
 	if (bs->_size > 0) {
 	    if (bs->_bits == 0) {
-		bs->_word = bs_getNextWord(bs);
+		bs->_word = bsGetNextWord(bs);
 		bs->_bits = bs->_wordsize;
 	    }
 	    if (bs->_bits >= bs->bitsPerPixel) {
@@ -90,7 +90,7 @@ uint16_t bs_read(bitstream_t *bs, uint8_t numPixels)
 		uint8_t offset = bs->bitsPerPixel - bs->_bits;
 		data |= (bs->_word << offset & bs->mask);
 		bs->_bits += bs->_wordsize - bs->bitsPerPixel;
-		bs->_word = bs_getNextWord(bs);
+		bs->_word = bsGetNextWord(bs);
 		data |= bs->_word >> bs->_bits;
 	    }
 	    bs->_size--;
@@ -104,7 +104,7 @@ uint16_t bs_read(bitstream_t *bs, uint8_t numPixels)
  * @param bs - pointer to initialised bitstream context to check available pixels with
  * @returns number of pixels available to read
  */
-uint16_t bs_available(bitstream_t *bs)
+uint16_t bsAvailable(bitstream_t *bs)
 {
     return bs->_size;
 }

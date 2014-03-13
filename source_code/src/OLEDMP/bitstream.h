@@ -42,8 +42,8 @@ typedef struct {
     uint16_t _count;
 } bitstream_t;
 
-void bs_init(bitstream_t *bs, const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size);
-uint16_t bs_read(bitstream_t *bs, uint8_t numPixels);
-uint16_t bs_available(bitstream_t *bs);
+void bsInit(bitstream_t *bs, const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size);
+uint16_t bsRead(bitstream_t *bs, uint8_t numPixels);
+uint16_t bsAvailable(bitstream_t *bs);
 
 #endif

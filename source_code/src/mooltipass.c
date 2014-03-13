@@ -77,10 +77,10 @@ int main(void)
     while(!usb_configured());           // Wait for host to set configuration
 
     // set up OLED now that USB is receiving full 500mA.
-    oled_begin(FONT_DEFAULT);
-    oled_setColour(15);
-    oled_setBackground(0);
-    oled_setContrast(OLED_Contrast);
+    oledBegin(FONT_DEFAULT);
+    oledSetColour(15);
+    oledSetBackground(0);
+    oledSetContrast(OLED_Contrast);
 
     flash_init_result = initFlash();    // Initialize flash memory
 
@@ -94,8 +94,8 @@ int main(void)
             if (n >= 0)
             {
                 usb_serial_putchar(n);
-                oled_setXY(2,0);
-                oled_putch((char)n);
+                oledSetXY(2,0);
+                ole_putch((char)n);
 
                 //usb_keyboard_press(n,0);
             }
@@ -108,8 +108,8 @@ int main(void)
         while(1)
         {
             // msg into oled display
-            oled_setXY(2,0);
-            oled_putstr_P(PSTR("send s to start nessie test"));
+            oledSetXY(2,0);
+            oledPutstr_P(PSTR("send s to start nessie test"));
 
             int input0 = usb_serial_getchar();
 
@@ -135,8 +135,8 @@ int main(void)
         while(1)
         {
             // msg into oled display
-            oled_setXY(2,0);
-            oled_putstr_P(PSTR("send s to start CTR test"));
+            oledSetXY(2,0);
+            oledPutstr_P(PSTR("send s to start CTR test"));
 
             int input1 = usb_serial_getchar();
 
@@ -150,19 +150,18 @@ int main(void)
         }
     #endif
 
+    oledSetXY(2,0);
     if (flash_init_result == RETURN_OK) 
     {
-        oled_setXY(2,0);
-        oled_putstr_P(PSTR("Flash init ok"));
+        oledPutstr_P(PSTR("Flash init ok"));
     } 
     else 
     {
-        oled_setXY(2,0);
-        oled_putstr_P(PSTR("Problem flash init"));
+        oledPutstr_P(PSTR("Problem flash init"));
     }
     _delay_ms(1000);
-    oled_clear();
-    oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
+    oledClear();
+    oledBitmapDraw(0,0, &image_HaD_Mooltipass);
 
     while (1)
     {
@@ -221,8 +220,8 @@ int main(void)
         else if (card_detect_ret == RETURN_JRELEASED)   //card just released
         {
             removeFunctionSMC();
-            oled_clear();
-            oled_bitmapDraw(0,0, &image_HaD_Mooltipass);
+            oledClear();
+            oledBitmapDraw(0,0, &image_HaD_Mooltipass);
         }
     }
 }

@@ -58,10 +58,13 @@ void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, con
  */
 uint16_t bsGetNextWord(bitstream_t *bs)
 {
-    if (bs->_size > 0) {
-	return (uint16_t)pgm_read_word(bs->_datap++);
-    } else {
-	return 0;
+    if (bs->_size > 0)
+    {
+        return (uint16_t)pgm_read_word(bs->_datap++);
+    }
+    else
+    {
+        return 0;
     }
 }
 
@@ -76,25 +79,31 @@ uint16_t bsRead(bitstream_t *bs, uint8_t numPixels)
 {
     uint16_t data=0;
 
-    while (numPixels--) {
-	data <<= bs->bitsPerPixel;
-	if (bs->_size > 0) {
-	    if (bs->_bits == 0) {
-		bs->_word = bsGetNextWord(bs);
-		bs->_bits = bs->_wordsize;
-	    }
-	    if (bs->_bits >= bs->bitsPerPixel) {
-		bs->_bits -= bs->bitsPerPixel;
-		data |= (bs->_word >> bs->_bits) & bs->mask;
-	    } else {
-		uint8_t offset = bs->bitsPerPixel - bs->_bits;
-		data |= (bs->_word << offset & bs->mask);
-		bs->_bits += bs->_wordsize - bs->bitsPerPixel;
-		bs->_word = bsGetNextWord(bs);
-		data |= bs->_word >> bs->_bits;
-	    }
-	    bs->_size--;
-	}
+    while (numPixels--)
+    {
+        data <<= bs->bitsPerPixel;
+        if (bs->_size > 0)
+        {
+            if (bs->_bits == 0)
+            {
+                bs->_word = bsGetNextWord(bs);
+                bs->_bits = bs->_wordsize;
+            }
+            if (bs->_bits >= bs->bitsPerPixel)
+            {
+                bs->_bits -= bs->bitsPerPixel;
+                data |= (bs->_word >> bs->_bits) & bs->mask;
+            }
+            else
+            {
+                uint8_t offset = bs->bitsPerPixel - bs->_bits;
+                data |= (bs->_word << offset & bs->mask);
+                bs->_bits += bs->_wordsize - bs->bitsPerPixel;
+                bs->_word = bsGetNextWord(bs);
+                data |= bs->_word >> bs->_bits;
+            }
+            bs->_size--;
+        }
     }
     return data;
 }

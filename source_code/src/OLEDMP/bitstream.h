@@ -31,12 +31,13 @@
 
 #include <stdint.h>
 
-typedef struct {
-    uint8_t mask;		// pixel mask for returned data
+typedef struct
+{
+    uint8_t mask;		    // pixel mask for returned data
     uint8_t bitsPerPixel;	// number of bits per pixel
     const uint16_t *_datap;	// Next data word to read
-    uint16_t _size;		// number of pixels
-    uint8_t _bits;		// current offset in data word
+    uint16_t _size;		    // number of pixels
+    uint8_t _bits;		    // current offset in data word
     uint8_t _wordsize;		// number of bits per data word
     uint16_t _word;
     uint16_t _count;

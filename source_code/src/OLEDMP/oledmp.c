@@ -20,10 +20,10 @@
 
 /* Copyright (c) 2014 Darran Hunt. All rights reserved. */
 
-/*!	\file 	oledmp.c
-*	\brief	Mooltipass SSD1322 256x64x16 OLED display library
-*	Created: 15/2/2014
-*	Author: Darran Hunt
+/*! \file   oledmp.c
+*   \brief  Mooltipass SSD1322 256x64x16 OLED display library
+*   Created: 15/2/2014
+*   Author: Darran Hunt
 */
 
 #include <avr/pgmspace.h>
@@ -46,17 +46,17 @@
 #endif
 
 // OLED specific port and pin definitions
-#define OLED_PORT_CS	    &PORT_OLED_SS
-#define OLED_PORT_DC	    &PORT_OLED_DnC
+#define OLED_PORT_CS        &PORT_OLED_SS
+#define OLED_PORT_DC        &PORT_OLED_DnC
 #define OLED_PORT_RESET     &PORT_OLED_nR
 #define OLED_PORT_POWER     &PORT_OLED_POW
-#define OLED_CS		        (1<<PORTID_OLED_SS)
-#define OLED_DC		        (1<<PORTID_OLED_DnC)
-#define OLED_nRESET	        (1<<PORTID_OLED_nR)
-#define OLED_POWER	        (1<<PORTID_OLED_POW)
+#define OLED_CS             (1<<PORTID_OLED_SS)
+#define OLED_DC             (1<<PORTID_OLED_DnC)
+#define OLED_nRESET         (1<<PORTID_OLED_nR)
+#define OLED_POWER          (1<<PORTID_OLED_POW)
 
-#define MIN_SEG 28	    	// minimum visable OLED 4-pixel segment
-#define MAX_SEG 91	    	// maximum visable OLED 4-pixel segment
+#define MIN_SEG 28          // minimum visable OLED 4-pixel segment
+#define MAX_SEG 91          // maximum visable OLED 4-pixel segment
 
 /*
  * Module Local globals
@@ -98,7 +98,7 @@ static const uint8_t oled_init[] __attribute__((__progmem__)) =
                                                 // Enable Nibble Re-map,Scan from COM[N-1] to COM0,
                                                 // Disable COM Split Odd Even
                                         0x11,   // Enable Dual COM mode
-    CMD_SET_GPIO, 		             1, 0x00,   
+    CMD_SET_GPIO,                    1, 0x00,   
     CMD_SET_FUNCTION_SELECTION,      1, 0x01,   /* selection external VDD */
     CMD_DISPLAY_ENHANCEMENT,         2, 0xA0,   /* enables the external VSL*/
                                         0xfd,   /* 0xfd,Enhanced low GS display quality;default is 0xb5(normal),*/
@@ -264,7 +264,7 @@ int oledPrintf(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    char printBuf[64];	// scratch buffer for printf
+    char printBuf[64];  // scratch buffer for printf
 
     int ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
       
@@ -286,7 +286,7 @@ int oledPrintf_P(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    char printBuf[64];	// scratch buffer for printf
+    char printBuf[64];  // scratch buffer for printf
 
     int ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
       
@@ -334,7 +334,7 @@ void oledInit()
         }
     }
 
-    pinLow(OLED_PORT_POWER, OLED_POWER);	 // 12V power on
+    pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
     oledWriteCommand(CMD_SET_DISPLAY_ON);
 }
 
@@ -456,8 +456,8 @@ void oledSetFont(uint8_t font)
 void oledFill(uint8_t colour)
 {
     uint8_t x,y;
-    oledSetColumnAddr(MIN_SEG, MAX_SEG);	// SEG0 - SEG479
-    oledSetRowAddr(0, 63);	
+    oledSetColumnAddr(MIN_SEG, MAX_SEG);    // SEG0 - SEG479
+    oledSetRowAddr(0, 63);  
 
     colour = (colour & 0x0F) | (colour << 4);;
 

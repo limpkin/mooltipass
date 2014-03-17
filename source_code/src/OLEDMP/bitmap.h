@@ -25,12 +25,12 @@
 
 typedef struct bitmap_s 
 {
-    uint16_t width;	    //*< width of image in pixels
-    uint8_t height;	    //*< height of image in pixels
-    uint8_t depth;	    //*< Number of bits per pixel
-    uint8_t flags;	    //*< Flags defining data format
+    uint16_t width;     //*< width of image in pixels
+    uint8_t height;     //*< height of image in pixels
+    uint8_t depth;      //*< Number of bits per pixel
+    uint8_t flags;      //*< Flags defining data format
     uint16_t dataSize;  //*< number of words in data
-    uint16_t data[];	//*< pointer to the image data
+    uint16_t data[];    //*< pointer to the image data
 } bitmap_t;
 
 

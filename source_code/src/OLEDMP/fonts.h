@@ -38,19 +38,19 @@
 
 typedef struct
 {
-    uint8_t width;		    // Width of glyph data in pixels
-    uint8_t xrect;	    	// x width of rectangle
-    uint8_t yrect;	    	// y height of rectangle
-    int8_t xoffset;		    // x offset of glyph in rectangle
-    int8_t yoffset;		    // y offset of glyph in rectangle
-    const uint8_t *glyph;	// glyph pixel data
+    uint8_t width;          // Width of glyph data in pixels
+    uint8_t xrect;          // x width of rectangle
+    uint8_t yrect;          // y height of rectangle
+    int8_t xoffset;         // x offset of glyph in rectangle
+    int8_t yoffset;         // y offset of glyph in rectangle
+    const uint8_t *glyph;   // glyph pixel data
 } glyph_t;
 
 typedef struct
 {
     uint8_t height;         //*< height of font
-    uint8_t fixedWidth;	    //*< width of font, 0 = proportional font
-    uint8_t depth;	        //*< Number of bits per pixel
+    uint8_t fixedWidth;     //*< width of font, 0 = proportional font
+    uint8_t depth;          //*< Number of bits per pixel
     const uint8_t *map;     //*< ASCII to font map
     union
     {

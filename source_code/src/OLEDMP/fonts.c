@@ -24,21 +24,22 @@
 #include "fontdefs.h"
 
 /* { height, fixedWidth, depth, &map, &glyph/&bitmaps } */
-font_t fontsHQ[] = {
-#ifdef FONT_CHECKBOOK_12
-    { CHECKBOOK_12_HEIGHT,   0, 2, checkbook_12_asciimap, { .glyphs=checkbook_12} },
-#endif
-#ifdef FONT_CHECKBOOK_14
-    { CHECKBOOK_14_HEIGHT,   0, 2, checkbook_14_asciimap, { .glyphs=checkbook_14} },
-#endif
-#ifdef FONT_PROFONT_10_100DPI
-    { PROFONT_10_100_HEIGHT, 0, 2, profont_10_100_asciimap, { .glyphs=profont_10_100} },
-#endif
-#ifdef FONT_PROFONT_10_72DPI
-    { PROFONT_10_72_HEIGHT,  0, 2, profont_10_72_asciimap, { .glyphs=profont_10_72} },
-#endif
-#ifdef FONT_MONO_5x7
-    { FONT_MONO_5x7_HEIGHT,  5, 1, font_mono_5x7_asciimap, { .bitmaps=(uint8_t *)font_mono_5x7} },
-#endif
+font_t fontsHQ[] = 
+{
+    #ifdef FONT_CHECKBOOK_12
+        { CHECKBOOK_12_HEIGHT,   0, 2, checkbook_12_asciimap, { .glyphs=checkbook_12} },
+    #endif
+    #ifdef FONT_CHECKBOOK_14
+        { CHECKBOOK_14_HEIGHT,   0, 2, checkbook_14_asciimap, { .glyphs=checkbook_14} },
+    #endif
+    #ifdef FONT_PROFONT_10_100DPI
+        { PROFONT_10_100_HEIGHT, 0, 2, profont_10_100_asciimap, { .glyphs=profont_10_100} },
+    #endif
+    #ifdef FONT_PROFONT_10_72DPI
+        { PROFONT_10_72_HEIGHT,  0, 2, profont_10_72_asciimap, { .glyphs=profont_10_72} },
+    #endif
+    #ifdef FONT_MONO_5x7
+        { FONT_MONO_5x7_HEIGHT,  5, 1, font_mono_5x7_asciimap, { .bitmaps=(uint8_t *)font_mono_5x7} },
+    #endif
 };
 

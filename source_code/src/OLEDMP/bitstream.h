@@ -20,10 +20,10 @@
 
 /* Copyright (c) 2014, Darran Hunt. All rights reserved. */
 
-/*!	\file 	bitstream.h
-*	\brief	OLED library header
-*	Created: 15/2/2014
-*	Author: Darran Hunt
+/*! \file   bitstream.h
+*   \brief  OLED library header
+*   Created: 15/2/2014
+*   Author: Darran Hunt
 */
 
 #ifndef BITSTREAM_H_
@@ -33,12 +33,12 @@
 
 typedef struct
 {
-    uint8_t mask;		    // pixel mask for returned data
-    uint8_t bitsPerPixel;	// number of bits per pixel
-    const uint16_t *_datap;	// Next data word to read
-    uint16_t _size;		    // number of pixels
-    uint8_t _bits;		    // current offset in data word
-    uint8_t _wordsize;		// number of bits per data word
+    uint8_t mask;           // pixel mask for returned data
+    uint8_t bitsPerPixel;   // number of bits per pixel
+    const uint16_t *_datap; // Next data word to read
+    uint16_t _size;         // number of pixels
+    uint8_t _bits;          // current offset in data word
+    uint8_t _wordsize;      // number of bits per data word
     uint16_t _word;
     uint16_t _count;
 } bitstream_t;

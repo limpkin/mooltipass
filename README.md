@@ -38,29 +38,29 @@ Features suggested by Hackaday readers
 
 Frequently Asked Questions
 --------------------------
-**How expensive will the Mooltipass be?**
-Price is one of our main constraints when designing the Mooltipass. It's still too early to tell the final price of this project, especially given that it will depend on how many people are willing to buy it.
-In the meantime, you can still have a look at our current Bill of Materials located in the kicad folder.
-
-**Why not making the device tiny?**
-The Mooltipass is intended for many different persons. Having a normally sized OLED screen provides good readability and therefore better user experience. 
-The device also includes Arduino headers that will allow any Arduino shield to be connected to it. Hence, we made the Mooltipass as small as possible while keeping great features.
-
-**Why are you using both a smart card and a main Mooltipass device?**
-There are many reasons, the main one being that it is much easier to carry a smart card around than any other object. 
-This smart card is a secure element that contains your credentials' encryption key, it is cheap and may be cloned without compromising the system security.
-
-**What if I loose my smartcard?**
-Ideally, you should have at least two copies of your smartcard, stored in different places. The Mooltipass allows the user to clone his smartcard, provided that the card PIN is correctly entered.
-
-**What if I loose my Mooltipass device?**
-Your encrypted credentials can be exported to either your computer or the Mooltipass official website. If you loose your device, you may purchase another one and restore your credentials.
-
-**Can I use it on Windows/Linux/Mac?**
-No drivers are required to use the Mooltipass. It is recognized as a standard USB keyboard that will enter passwords for you.
-
-**Can I use on my computer/laptop/phone/tablet...?**
-All devices (including smart phones and tablet PCs) include a USB host capable port. The Mooltipass will work with all of them.
+**How expensive will the Mooltipass be?**  
+Price is one of our main constraints when designing the Mooltipass. It's still too early to tell the final price of this project, especially given that it will depend on how many people are willing to buy it.  
+In the meantime, you can still have a look at our current Bill of Materials located in the kicad folder.  
+  
+**Why not making the device tiny?**  
+The Mooltipass is intended for many different persons. Having a normally sized OLED screen provides good readability and therefore better user experience.   
+The device also includes Arduino headers that will allow any Arduino shield to be connected to it. Hence, we made the Mooltipass as small as possible while keeping great features.  
+  
+**Why are you using both a smart card and a main Mooltipass device?**  
+There are many reasons, the main one being that it is much easier to carry a smart card around than any other object.   
+This smart card is a secure element that contains your credentials' encryption key, it is cheap and may be cloned without compromising the system security.  
+  
+**What if I loose my smartcard?**  
+Ideally, you should have at least two copies of your smartcard, stored in different places. The Mooltipass allows the user to clone his smartcard, provided that the card PIN is correctly entered.  
+  
+**What if I loose my Mooltipass device?**  
+Your encrypted credentials can be exported to either your computer or the Mooltipass official website. If you loose your device, you may purchase another one and restore your credentials.  
+  
+**Can I use it on Windows/Linux/Mac?**  
+No drivers are required to use the Mooltipass. It is recognized as a standard USB keyboard that will enter passwords for you.  
+  
+**Can I use on my computer/laptop/phone/tablet...?**  
+All devices (including smart phones and tablet PCs) include a USB host capable port. The Mooltipass will work with all of them.  
 
 
 

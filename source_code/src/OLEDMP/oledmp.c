@@ -31,6 +31,7 @@
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 
+#include "usb_serial_hid.h"
 #include "low_level_utils.h"
 #include "oledmp.h"
 #include "bitstream.h"
@@ -720,7 +721,6 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 void oledBitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uint8_t depth, const uint16_t *image)
 {
     uint8_t xoff = x - (x / 4) * 4;
-    uint8_t scale = (1<<depth) - 1;
 
     bitstream_t bs;
     bsInit(&bs, depth, image, width*height);
@@ -735,14 +735,13 @@ void oledBitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uin
         uint8_t xcount = 0;
         if (xoff != 0) {
             // fill the rest of the 4-pixel word from the bitmap
-            for (; xind < 4-xoff; xind++) {
-                pixels = pixels << 4 | (bsRead(&bs,1) * 15) / scale;
-            }
+            pixels = bsRead(&bs, 4-xoff);
 
             // Fill existing pixels if available
             if ((x/4) == gddram[yind].xaddr) {
                 pixels |= gddram[yind].pixels;
             };
+
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);
             if (pixels != 0) {
@@ -752,12 +751,10 @@ void oledBitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uin
             xcount++;
         }
         for (; xind < width; xind+=4) {
-            for (uint8_t pind=0; pind<4; pind++) {
-                pixels <<= 4;
-                if (xind+pind < width) {
-                    uint8_t pix = bsRead(&bs,1);
-                    pixels |= (pix * 15) / scale;
-                }
+            if (xind+4 < width) {
+                pixels = bsRead(&bs,4);
+            } else {
+                pixels = bsRead(&bs,width-xind);
             }
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);

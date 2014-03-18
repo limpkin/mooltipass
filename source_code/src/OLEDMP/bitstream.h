@@ -40,9 +40,10 @@ typedef struct {
     uint8_t _wordsize;		// number of bits per data word
     uint16_t _word;
     uint16_t _count;
+    uint8_t _scale;
 } bitstream_t;
 
-void bsInit(bitstream_t *bs, const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size);
+void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, const uint16_t size);
 uint16_t bsRead(bitstream_t *bs, uint8_t numPixels);
 uint16_t bsAvailable(bitstream_t *bs);
 

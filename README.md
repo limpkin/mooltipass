@@ -61,7 +61,6 @@ No drivers are required to use the Mooltipass. It is recognized as a standard US
 **Can I use on my computer/laptop/phone/tablet...?**  
 All devices (including smart phones and tablet PCs) include a USB host capable port. The Mooltipass will work with all of them.  
 
-**How secure is the Mooltipass?**
-Security has a price. We therefore designed the system to provide the best price/security compromise possible. It will be perfect for individuals but may not be suited for security professionals.  
-A detailed risk analysis can be found inside the GitHub repository but rest assured that we're using most recent encryption algorithms.  
+**How secure is the Mooltipass?**  
+Security has a price. We therefore designed the system to provide the best price/security compromise possible. It will be perfect for individuals but may not be suited for security professionals. A detailed risk analysis can be found inside the GitHub repository but rest assured that we're using most recent encryption algorithms.  
 

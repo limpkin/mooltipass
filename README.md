@@ -47,8 +47,7 @@ The Mooltipass is intended for many different persons. Having a normally sized O
 The device also includes Arduino headers that will allow any Arduino shield to be connected to it. Hence, we made the Mooltipass as small as possible while keeping great features.  
   
 **Why are you using both a smart card and a main Mooltipass device?**  
-There are many reasons, the main one being that it is much easier to carry a smart card around than any other object.   
-This smart card is a secure element that contains your credentials' encryption key, it is cheap and may be cloned without compromising the system security.  
+There are many reasons, the main one being that it is much easier to carry a smart card around than any other object. This smart card is a secure element that contains your credentials' encryption key, it is cheap and may be cloned without compromising the system security.  
   
 **What if I loose my smartcard?**  
 Ideally, you should have at least two copies of your smartcard, stored in different places. The Mooltipass allows the user to clone his smartcard, provided that the card PIN is correctly entered.  
@@ -62,5 +61,7 @@ No drivers are required to use the Mooltipass. It is recognized as a standard US
 **Can I use on my computer/laptop/phone/tablet...?**  
 All devices (including smart phones and tablet PCs) include a USB host capable port. The Mooltipass will work with all of them.  
 
-
+**How secure is the Mooltipass?**
+Security has a price. We therefore designed the system to provide the best price/security compromise possible. It will be perfect for individuals but may not be suited for security professionals.  
+A detailed risk analysis can be found inside the GitHub repository but rest assured that we're using most recent encryption algorithms.  
 

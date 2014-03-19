@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source C:/Users/stephan/Dropbox/Projets/mooltipass/kicad/olivier_design_v1/mooltipass.sch)
-    (date "14/03/2014 13:52:09")
+    (date "19/03/2014 11:51:18")
     (tool "eeschema (2013-07-07 BZR 4022)-stable"))
   (components
     (comp (ref U4)

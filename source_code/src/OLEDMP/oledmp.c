@@ -42,9 +42,6 @@
 #endif
 
 #undef OLED_DEBUG
-#ifdef OLED_DEBUG
-#include "usb_serial.h"
-#endif
 
 // OLED specific port and pin definitions
 #define OLED_PORT_CS	&PORT_OLED_SS
@@ -195,11 +192,11 @@ void oledPutch(char ch)
     } else {
         uint8_t width = oledGlyphWidth(ch);
 #ifdef OLED_DEBUG
-        usb_printf_P(PSTR("oled_putch('%c')\n"), ch);
+        usbPrintf_P(PSTR("oled_putch('%c')\n"), ch);
 #endif
         if ((oled_cur_x + width) > OLED_WIDTH) {
 #ifdef OLED_DEBUG
-            usb_printf_P(PSTR("wrap at y=%d x=%d, '%c' width %d\n"),oled_cur_y,oled_cur_x,ch,width);
+            usbPrintf_P(PSTR("wrap at y=%d x=%d, '%c' width %d\n"),oled_cur_y,oled_cur_x,ch,width);
 #endif
             oled_cur_y += oledGlyphHeight();
             oled_cur_x = 0;
@@ -384,6 +381,9 @@ void oledSetRowAddr(uint8_t start, uint8_t end)
  */
 void oledSetWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend)
 {
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("    setColAddr(min=%d,max=%d)\n"), MIN_SEG + x / 4, MIN_SEG + xend / 4);
+#endif
     oledSetColumnAddr(MIN_SEG + x / 4, MIN_SEG + xend / 4);
     oledSetRowAddr(y, yend);
 }
@@ -524,36 +524,6 @@ uint8_t oledGlyphHeight()
     }
 }
 
-static uint16_t glyph_getPixel(uint16_t x, uint16_t y, uint8_t width, uint8_t depth, const uint8_t *data)
-{
-    if (x >= width) {
-        return 0;
-    }
-
-    static const uint8_t *cacheData = NULL;
-    static uint8_t cacheByte=0;
-    static uint8_t cacheInd=255;
-
-    uint8_t ind = y*((width*depth+7)/8) + x*depth/8;
-    uint8_t bit = 7 - (x*depth) % 8;
-    uint8_t mask = (1<<depth) - 1;
-
-    if ((cacheData != data) || (cacheInd != ind)) {
-        cacheByte = data ? pgm_read_byte(&data[ind]) : 0;
-        cacheInd = ind;
-        cacheData = data;
-    }
-
-#ifdef OLED_DEBUG
-    uint16_t pixel = ((cacheByte >> (bit - (depth-1)) & mask) * ((oled_foreground<<1) / depth)) >> 1;
-    usb_printf_P(PSTR("    getPixel(x=%d,y=%d) bit=%d ind=%d data=0x%02x -> 0x%04x\n"), x, y, bit, ind, cacheByte, pixel);
-    return pixel;
-#else
-    //return (cacheByte >> (bit - (depth-1)) & mask) << (4-depth);
-    return ((cacheByte >> (bit - (depth-1)) & mask) * ((oled_foreground<<1) / depth)) >> 1;
-#endif
-}
-
 
 /**
  * Draw a character glyph on the screen at x,y.
@@ -570,16 +540,18 @@ static uint16_t glyph_getPixel(uint16_t x, uint16_t y, uint8_t width, uint8_t de
  */
 uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg)
 {
-    uint8_t xoff = x - (x / 4) * 4;
+    uint8_t xoff;
     const uint8_t *glyph;
     uint8_t glyph_width;
     uint8_t glyph_height;
     uint8_t glyph_depth;
     int8_t glyph_offset;
+    int8_t glyph_shift;
     uint8_t gind;
+    uint16_t pixel_scale;
 
 #ifdef OLED_DEBUG
-    usb_printf_P(PSTR("oled_glyphDraw(x=%d,y=%d,ch='%c')\n"), x, y, ch);
+    usbPrintf_P(PSTR("oled_glyphDraw(x=%d,y=%d,ch='%c')\n"), x, y, ch);
 #endif
 
     if (oled_fontp == NULL) {
@@ -604,14 +576,16 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
     }
 
     glyph_depth = oled_fontp->depth;
+    glyph_shift = 8 - glyph_depth;
     glyph_width = oled_fontp->fixedWidth;
+    pixel_scale = (oled_foreground<<1) / ((1<<glyph_depth)-1);
     if (glyph_width) {
         // Fixed width font
         glyph_height = oled_fontp->height;
         glyph_offset = 0;
         glyph = oled_fontp->fontData.bitmaps + gind*((glyph_width+7)/8) * glyph_height;
 #ifdef OLED_DEBUG
-        usb_printf_P(PSTR("    glyph 0x%04x index %d\n"), 
+        usbPrintf_P(PSTR("    glyph 0x%04x index %d\n"), 
                 (uint16_t)oled_fontp->fontData.bitmaps, gind*((glyph_width+7)/8) * glyph_height);
 #endif
     } else {
@@ -636,14 +610,17 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             }
         }
     }
+    xoff = x - (x / 4) * 4;
 #ifdef OLED_DEBUG
-    usb_printf_P(PSTR("    glyph width %d height %d depth %d\n"), glyph_width, glyph_height, glyph_depth);
+    usbPrintf_P(PSTR("    glyph width %d height %d depth %d xoff %d\n"), glyph_width, glyph_height, glyph_depth, xoff);
 #endif
 
     if ((y+glyph_height) > OLED_HEIGHT) {
         glyph_height = OLED_HEIGHT-y+1;
     }
-
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("    window(x1=%d,y1=%d,x2=%d,y2=%d)\n"), x, y, x+glyph_width-1, y+glyph_height-1);
+#endif
     oledSetWindow(x, y, x+glyph_width-1, y+glyph_height-1);
 
     oledWriteCommand(CMD_WRITE_RAM);
@@ -655,16 +632,27 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
         uint16_t xind = 0;
         uint16_t pixels = 0;
         uint8_t xcount = 0;
+        uint8_t glyph_pixels = 0;
+        uint8_t glyph_byte = 0;
         if (xoff != 0) {
             // fill the rest of the 4-pixel word from the bitmap
             for (; xind < 4-xoff; xind++) {
-                pixels = pixels << 4 | glyph_getPixel(xind, yind, glyph_width, glyph_depth, glyph);
+                if (glyph_pixels <= 0) {
+                    glyph_byte = pgm_read_byte(glyph++);
+                    glyph_pixels = 8 / glyph_depth;
+#ifdef OLED_DEBUG
+                    usbPrintf_P(PSTR("    byte 0x%02x pixels %d\n"), glyph_byte, glyph_pixels);
+#endif
+                }
+                pixels = pixels << 4 | (((glyph_byte >> glyph_shift) * pixel_scale) >> 1);
+                glyph_byte <<= glyph_depth;
+                glyph_pixels--;
             }
 
             // Fill existing pixels if available
             if ((x/4) == gddram[yind+y].xaddr) {
 #ifdef OLED_DEBUG
-                usb_printf_P(PSTR("    pixel 0x%04x | gddram[%d][%d] 0x%04x\n"), 
+                usbPrintf_P(PSTR("    pixel 0x%04x | gddram[%d][%d] 0x%04x\n"), 
                         pixels, yind+y, gddram[yind+y].xaddr, gddram[yind+y].pixels);
 #endif
                 pixels |= gddram[yind+y].pixels;
@@ -672,7 +660,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);
 #ifdef OLED_DEBUG
-            usb_printf_P(PSTR("    pixels = 0x%04x, xoff=%d\n"), pixels, xoff);
+            usbPrintf_P(PSTR("    pixels = 0x%04x, xoff=%d\n"), pixels, xoff);
 #endif
             if (pixels != 0) {
                 gddram[yind+y].pixels = pixels;
@@ -684,13 +672,22 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             for (uint8_t pind=0; pind<4; pind++) {
                 pixels <<= 4;
                 if (xind+pind < glyph_width) {
-                    pixels |= glyph_getPixel(xind+pind, yind, glyph_width, glyph_depth, glyph);
+                    if (glyph_pixels <= 0) {
+                        glyph_byte = pgm_read_byte(glyph++);
+                        glyph_pixels = 8 / glyph_depth;
+#ifdef OLED_DEBUG
+                    usbPrintf_P(PSTR("    byte 0x%02x pixels %d\n"), glyph_byte, glyph_pixels);
+#endif
+                    }
+                    pixels |= ((glyph_byte >> glyph_shift) * pixel_scale) >> 1;
+                    glyph_byte <<= glyph_depth;
+                    glyph_pixels--;
                 }
             }
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);
 #ifdef OLED_DEBUG
-            usb_printf_P(PSTR("    pixels = 0x%04x, yind=%d, xind=%d\n"), pixels, yind, xind);
+            usbPrintf_P(PSTR("    pixels = 0x%04x, yind=%d, xind=%d\n"), pixels, yind, xind);
 #endif
             if (pixels != 0) {
                 gddram[yind+y].pixels = pixels;

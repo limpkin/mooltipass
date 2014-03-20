@@ -118,7 +118,7 @@ void oledFill(uint8_t colour);
 void oledClear();
 void oledReset();
 
-void oledBitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uint8_t depth, const uint16_t *image);
+void oledBitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uint8_t depth, uint8_t flags, const uint16_t *image);
 void oledBitmapDraw(uint8_t x, uint8_t y, const void *image);
 
 void oledSetWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend);

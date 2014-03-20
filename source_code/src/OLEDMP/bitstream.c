@@ -39,10 +39,11 @@
  * @note the bitmap data must be packed into 16 bit words, and pixels are packed
  *       across words when they do not fully fit
  */
-void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, const uint16_t size)
+void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, const uint16_t *data, const uint16_t size)
 {
     bs->bitsPerPixel = pixelDepth;
     bs->_datap = data;
+    bs->_cdatap = (const uint8_t *)data;
     bs->_size = size;
     bs->mask = (1 << pixelDepth) - 1;
     bs->_wordsize = 16;
@@ -50,6 +51,7 @@ void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, con
     bs->_word = 0xAA55;
     bs->_count = 0;
     bs->_scale = (1<<pixelDepth) - 1;
+    bs->_flags = flags;
 }
 
 /**
@@ -59,12 +61,29 @@ void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, con
  */
 static uint16_t bsGetNextWord(bitstream_t *bs)
 {
-    if (bs->_size > 0) {
+    if (bs->_count < bs->_size) {
+        bs->_count++;
         return (uint16_t)pgm_read_word(bs->_datap++);
     } else {
         return 0;
     }
 }
+
+/**
+ * Return the next data byte from flash
+ * @param bs - pointer to initialised bitstream context to get the next word from
+ * @returns next data word, or 0 if end of data reached
+ */
+static uint8_t bsGetNextByte(bitstream_t *bs)
+{
+    if (bs->_count < bs->_size) {
+        bs->_count++;
+        return pgm_read_byte(bs->_cdatap++);
+    } else {
+        return 0;
+    }
+}
+
 
 /**
  * Return the next pixel from the bitmap
@@ -73,14 +92,25 @@ static uint16_t bsGetNextWord(bitstream_t *bs)
  * @returns next pixel, or 0 if end of data reached
  * @note returned pixes are 4 bits each
  */
-
 uint16_t bsRead(bitstream_t *bs, uint8_t numPixels)
 {
     uint16_t data=0;
-
-    while (numPixels--) {
-        data <<= 4;
-        if (bs->_size > 0) {
+    if (bs->_flags) {
+        while (numPixels--) {
+            data <<= 4;
+            if (bs->_bits == 0) {
+                uint8_t byte = bsGetNextByte(bs);
+                bs->_bits = (byte >> 4) + 1;
+                bs->_pixel = byte & 0x0F;
+            }
+            if (bs->_bits) {
+                data |= bs->_pixel;
+                bs->_bits--;
+            }
+        }
+    } else {
+        while (numPixels--) {
+            data <<= 4;
             if (bs->_bits == 0) {
                 bs->_word = bsGetNextWord(bs);
                 bs->_bits = bs->_wordsize;
@@ -95,7 +125,32 @@ uint16_t bsRead(bitstream_t *bs, uint8_t numPixels)
                 bs->_word = bsGetNextWord(bs);
                 data |= ((bs->_word >> bs->_bits) * 15) / bs->mask;
             }
-            bs->_size--;
+        }
+    }
+    return data;
+}
+
+/**
+ * Return the next pixel from the RLE compressed bitmap
+ * @param bs - pointer to initialised bitstream context to read the next pixel from
+ * @param numPixes - the number of pixels to read,
+ * @returns next pixel, or 0 if end of data reached
+ * @note returned pixes are 4 bits each
+ */
+uint16_t bsCompressedRead(bitstream_t *bs, uint8_t numPixels)
+{
+    uint16_t data=0;
+
+    while (numPixels--) {
+        data <<= 4;
+        if (bs->_bits == 0) {
+            uint8_t byte = bsGetNextByte(bs);
+            bs->_bits = (byte >> 4) + 1;
+            bs->_pixel = byte & 0x0F;
+        }
+        if (bs->_bits) {
+            data |= bs->_pixel;
+            bs->_bits--;
         }
     }
     return data;

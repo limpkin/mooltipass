@@ -704,7 +704,6 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 }
 
 
-
 /**
  * Draw a rectangular bitmap on the screen at x,y.
  * @param x - x position for the bitmap
@@ -718,12 +717,12 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
  *       This means the buffer will only work when writing new graphical data to the
  *       right of the last data written (e.g. when drawing a line of text).
  */
-void oledBitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uint8_t depth, const uint16_t *image)
+void oledBitmapDrawRaw(uint8_t x, uint8_t y, uint16_t width, uint8_t height, uint8_t depth, uint8_t flags, const uint16_t *image)
 {
     uint8_t xoff = x - (x / 4) * 4;
 
     bitstream_t bs;
-    bsInit(&bs, depth, image, width*height);
+    bsInit(&bs, depth, flags, image, width*height);
 
     oledSetWindow(x, y, x+width-1, y+height-1);
 
@@ -777,7 +776,8 @@ void oledBitmapDraw(uint8_t x, uint8_t y, const void *image)
 {
     const bitmap_t *bitmap = (const bitmap_t *)image;
 
-    oledBitmapDrawRaw(x, y, pgm_read_word(&bitmap->width), pgm_read_byte(&bitmap->height), pgm_read_byte(&bitmap->depth), bitmap->data);
+    oledBitmapDrawRaw(x, y, pgm_read_word(&bitmap->width), pgm_read_byte(&bitmap->height),
+            pgm_read_byte(&bitmap->depth), pgm_read_byte(&bitmap->flags), bitmap->data);
 }
 
 

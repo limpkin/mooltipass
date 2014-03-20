@@ -30,6 +30,7 @@
 // Version 1.6: fix zero length packet bug
 // Version 1.7: fix usb_serial_set_control
 
+#include <stdio.h>
 #include "usb_serial_hid.h"
 
 /**************************************************************************
@@ -1196,3 +1197,80 @@ ISR(USB_COM_vect)
 				
 	UECONX = (1<<STALLRQ) | (1<<EPEN);	// stall
 }
+
+/**
+ * print an progmem ASCIIZ string to the usb serial port.
+ * @param str - pointer to the string in FLASH.
+ */
+void usbPutstr_P(const char *str)
+{
+    char ch;
+
+    ch = pgm_read_byte(str++);
+    while (ch != 0) {
+        usb_serial_putchar(ch);	
+        if (ch == '\n') {
+            usb_serial_putchar('\r');	
+        }
+        ch = pgm_read_byte(str++);
+    }
+}
+
+
+/**
+ * print an ASCIIZ string to the usb serial port.
+ * @param str - pointer to the string in RAM.
+ */
+void usbPutstr(const char *str)
+{
+    char ch;
+
+    while ((ch=*str++) != 0) {
+        usb_serial_putchar(ch);	
+        if (ch == '\n') {
+            usb_serial_putchar('\r');	
+        }
+    }
+}
+
+
+/**
+ * print a printf formated string and arguments to the serial port.
+ * @param fmt - pointer to the printf format string in RAM
+ * @returns the number of characters printed
+ * @note maxium output is limited to 64 characters
+ */
+int usbPrintf(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char printBuf[64];	// scratch buffer for printf
+
+    int ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
+      
+    usbPutstr(printBuf);
+
+    return ret;
+} 
+
+/**
+ * print a printf formated string and arguments to the usb serial port.
+ * @param fmt - pointer to the printf format string in progmem
+ * @returns the number of characters printed
+ * @note maxium output is limited to 64 characters per call
+ */
+int usbPrintf_P(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char printBuf[64];	// scratch buffer for printf
+
+    int ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
+      
+    usbPutstr(printBuf);
+
+    return ret;
+} 
+
+
+

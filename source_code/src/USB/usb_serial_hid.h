@@ -2,6 +2,7 @@
 #define usb_serial_hid_h__
 
 #include <stdint.h>
+#include <stdarg.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
@@ -137,6 +138,11 @@ int8_t usb_serial_putchar_nowait(uint8_t c);  // transmit a character, do not wa
 int8_t usb_serial_write(const uint8_t *buffer, uint16_t size); // transmit a buffer
 void usb_serial_flush_output(void);	// immediately transmit any buffered output
 
+void usb_putstr(const char *str);
+void usb_putstr_P(const char *str);
+int usb_printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+int usb_printf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+
 // serial parameters
 uint32_t usb_serial_get_baud(void);	// get the baud rate
 uint8_t usb_serial_get_stopbits(void);	// get the number of stop bits
@@ -227,5 +233,10 @@ int8_t usb_serial_set_control(uint8_t signals); // set DSR, DCD, RI, etc
 #define CDC_SET_LINE_CODING		0x20
 #define CDC_GET_LINE_CODING		0x21
 #define CDC_SET_CONTROL_LINE_STATE	0x22
+
+void usbPutstr(const char *str);
+void usbPutstr_P(const char *str);
+int usbPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+int usbPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 #endif // usb_serial_hid_h__

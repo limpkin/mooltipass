@@ -22,14 +22,36 @@
  */
 #include <avr/interrupt.h>
 #include "CARD/smartcard.h"
+#include "interrupts.h"
+
+static volatile uint32_t msecTicks = 0;
 
 /*!	\fn		ISR(TIMER1_COMPA_vect)
 *	\brief	Interrupt called every ms
 */
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
+    msecTicks++;
 	scanSMCDectect();												// Scan smart card detect
 }
+
+
+/*!	\fn		millis()
+*	\brief	Return the number of milliseconds since power up
+*	\returns the number of milliseconds since power up
+*/
+unsigned long millis()
+{
+    uint8_t reg = SREG;
+    uint32_t ms;
+    cli();
+    ms = msecTicks;
+
+    SREG = reg;
+
+    return ms;
+}
+
 
 /*!	\fn 	initIRQ(void)
 *	\brief	Initialize the interrupts

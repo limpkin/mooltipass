@@ -275,6 +275,17 @@ F 3 "~" H 6350 2300 30  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
+L R R3
+U 1 1 5329CE84
+P 6350 1600
+F 0 "R3" V 6400 1850 40  0000 C CNN
+F 1 "R" V 6357 1601 40  0000 C CNN
+F 2 "~" V 6280 1600 30  0000 C CNN
+F 3 "~" H 6350 1600 30  0000 C CNN
+	1    6350 1600
+	0    -1   -1   0   
+$EndComp
+$Comp
 L R R1
 U 1 1 5329CE8A
 P 6350 1500
@@ -304,7 +315,7 @@ Wire Wire Line
 Wire Wire Line
 	5950 1800 7500 1800
 Wire Wire Line
-	5950 1600 7500 1600
+	5950 1600 6100 1600
 Wire Wire Line
 	5950 1500 6100 1500
 Wire Wire Line
@@ -315,6 +326,8 @@ Wire Wire Line
 	7500 2400 6600 2400
 Wire Wire Line
 	6600 2300 7500 2300
+Wire Wire Line
+	7500 1600 6600 1600
 Wire Wire Line
 	6600 1500 7500 1500
 Text Label 7500 2600 2    60   ~ 0
@@ -722,6 +735,4 @@ Text Label 7900 3300 0    60   ~ 0
 KEY4
 Text Label 8400 1750 0    60   ~ 0
 KEY3
-Text Label 7900 3400 0    60   ~ 0
-KEY10
 $EndSCHEMATC

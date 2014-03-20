@@ -64,3 +64,6 @@ Most devices (including smart phones and tablet PCs) include a USB host capable 
 **How secure is the Mooltipass?**  
 Security has a price. We therefore designed the system to provide the best price/security compromise possible. It will be perfect for individuals but may not be suited for security professionals. A detailed risk analysis will soon be uploaded to the GitHub repository but rest assured that we're using most secure encryption algorithms.  
 
+Contact us
+----------
+You may contact the development team via the official Google group here: https://groups.google.com/forum/?hl=en#!forum/mooltipass

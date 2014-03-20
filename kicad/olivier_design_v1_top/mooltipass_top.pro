@@ -1,4 +1,4 @@
-update=19/03/2014 14:27:33
+update=19/03/2014 23:29:55
 version=1
 last_client=pcbnew
 [cvpcb]
@@ -6,10 +6,12 @@ version=1
 NetIExt=net
 [cvpcb/libraries]
 EquName1=devcms
+[general]
+version=1
 [eeschema]
 version=1
-LibDir=
-NetFmtName=
+LibDir=../../../_kicad_lib
+NetFmtName=PcbnewAdvanced
 RptD_X=0
 RptD_Y=100
 RptLab=1
@@ -45,16 +47,15 @@ LibName27=opto
 LibName28=atmel
 LibName29=contrib
 LibName30=valves
-[general]
-version=1
+LibName31=limpkins_lib
 [pcbnew]
 version=1
-LastNetListRead=
+LastNetListRead=mooltipass_top.net
 UseCmpFile=1
-PadDrill=0.600000000000
-PadDrillOvalY=0.600000000000
-PadSizeH=1.500000000000
-PadSizeV=1.500000000000
+PadDrill=0.000000000000
+PadDrillOvalY=0.000000000000
+PadSizeH=1.000000000000
+PadSizeV=1.000000000000
 PcbTextSizeV=1.500000000000
 PcbTextSizeH=1.500000000000
 PcbTextThickness=0.300000000000
@@ -67,7 +68,7 @@ DrawSegmentWidth=0.200000000000
 BoardOutlineThickness=0.100000000000
 ModuleOutlineThickness=0.150000000000
 [pcbnew/libraries]
-LibDir=
+LibDir=../../../_kicad_lib
 LibName1=sockets
 LibName2=connect
 LibName3=discret
@@ -84,5 +85,4 @@ LibName13=led
 LibName14=dip_sockets
 LibName15=pga_sockets
 LibName16=valves
-LibName17=C:/Users/stephan/Downloads/touchwheel
-LibName18=C:/Users/stephan/Downloads/touchwheel (2)
+LibName17=limpkins_lib

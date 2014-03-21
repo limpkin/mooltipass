@@ -1,4 +1,4 @@
-update=19/03/2014 23:29:55
+update=21/03/2014 11:27:23
 version=1
 last_client=pcbnew
 [cvpcb]
@@ -54,14 +54,14 @@ LastNetListRead=mooltipass_top.net
 UseCmpFile=1
 PadDrill=0.000000000000
 PadDrillOvalY=0.000000000000
-PadSizeH=1.000000000000
-PadSizeV=1.000000000000
+PadSizeH=0.100000000000
+PadSizeV=0.100000000000
 PcbTextSizeV=1.500000000000
 PcbTextSizeH=1.500000000000
 PcbTextThickness=0.300000000000
-ModuleTextSizeV=1.000000000000
-ModuleTextSizeH=1.000000000000
-ModuleTextSizeThickness=0.150000000000
+ModuleTextSizeV=0.500000000000
+ModuleTextSizeH=0.500000000000
+ModuleTextSizeThickness=0.125000000000
 SolderMaskClearance=0.000000000000
 SolderMaskMinWidth=0.000000000000
 DrawSegmentWidth=0.200000000000

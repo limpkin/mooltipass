@@ -138,11 +138,6 @@ int8_t usb_serial_putchar_nowait(uint8_t c);  // transmit a character, do not wa
 int8_t usb_serial_write(const uint8_t *buffer, uint16_t size); // transmit a buffer
 void usb_serial_flush_output(void);	// immediately transmit any buffered output
 
-void usb_putstr(const char *str);
-void usb_putstr_P(const char *str);
-int usb_printf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-int usb_printf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
-
 // serial parameters
 uint32_t usb_serial_get_baud(void);	// get the baud rate
 uint8_t usb_serial_get_stopbits(void);	// get the number of stop bits

@@ -794,7 +794,9 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
         usbPrintf_P(PSTR("    glyph 0x%04x index %d\n"), 
                 (uint16_t)oled_fontp->fontData.bitmaps, gind*((glyph_width+7)/8) * glyph_height);
 #endif
-    } else {
+    }
+    else 
+    {
         // proportional width font
         glyph = (const uint8_t *)pgm_read_word(&oled_fontp->fontData.glyphs[gind].glyph);
         if (glyph == NULL) 

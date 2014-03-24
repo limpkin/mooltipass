@@ -228,7 +228,8 @@ void int_to_string(unsigned int value, char* string)
 
 void delay_ms(uint16_t ms) 
 { 
-    while (ms--) {
+    while (ms--) 
+    {
         _delay_ms(1); 
     }
 }

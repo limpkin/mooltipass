@@ -103,10 +103,9 @@ RET_TYPE cardDetectedRoutine(void)
     uint8_t i;
 
     #ifdef DEBUG_SMC_SCREEN_PRINT
-        oledClear();                     // Clear screen before writing anything new
+        oledClear();                                            // Clear screen before writing anything new
         oledFlipBuffers(OLED_SCROLL_DOWN,0);
         oledWriteActiveBuffer();
-        //oledFlipWriteBuffer();  // write to active screen XXX oledWriteActiveBuffer()
     #endif
 
     card_detection_result = firstDetectFunctionSMC();           // Get a first card detection result

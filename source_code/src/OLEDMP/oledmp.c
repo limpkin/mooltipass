@@ -643,7 +643,7 @@ void oledScrollClear(uint8_t options)
     }
     else 
     {
-        for (unt8_t y=0; y<OLED_HEIGHT; y++) 
+        for (uint8_t y=0; y<OLED_HEIGHT; y++) 
         {
             oledSetWindow(0, y, OLED_WIDTH-1, y);
             oledWriteCommand(CMD_WRITE_RAM);

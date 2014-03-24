@@ -30,6 +30,7 @@
 #define BITSTREAM_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct {
     uint8_t mask;		// pixel mask for returned data
@@ -44,9 +45,10 @@ typedef struct {
     uint8_t _scale;
     uint8_t _pixel;
     uint8_t _flags;
+    bool flash;
 } bitstream_t;
 
-void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, const uint16_t *data, const uint16_t size);
+void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, const uint16_t *data, const uint16_t size, bool flash);
 uint16_t bsRead(bitstream_t *bs, uint8_t numPixels);
 uint16_t bsAvailable(bitstream_t *bs);
 

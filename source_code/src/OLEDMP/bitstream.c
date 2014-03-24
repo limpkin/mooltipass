@@ -29,6 +29,9 @@
 
 #include <avr/pgmspace.h>
 #include "bitstream.h"
+#include "usb_serial_hid.h"
+
+#undef DEBUG_BS
 
 /**
  * Initialise a bitstream ready for use
@@ -39,7 +42,7 @@
  * @note the bitmap data must be packed into 16 bit words, and pixels are packed
  *       across words when they do not fully fit
  */
-void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, const uint16_t *data, const uint16_t size)
+void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, const uint16_t *data, const uint16_t size, bool flash)
 {
     bs->bitsPerPixel = pixelDepth;
     bs->_datap = data;
@@ -52,6 +55,10 @@ void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, cons
     bs->_count = 0;
     bs->_scale = (1<<pixelDepth) - 1;
     bs->_flags = flags;
+    bs->flash = flash;
+#ifdef DEBUG_BS
+    usbPrintf_P(PSTR("bitmap: data %p, depth %d, size %d\n"), data, pixelDepth, size);
+#endif
 }
 
 /**
@@ -63,7 +70,11 @@ static uint16_t bsGetNextWord(bitstream_t *bs)
 {
     if (bs->_count < bs->_size) {
         bs->_count++;
-        return (uint16_t)pgm_read_word(bs->_datap++);
+        if (bs->flash) {
+            return (uint16_t)pgm_read_word(bs->_datap++);
+        } else {
+            return *bs->_datap++;
+        }
     } else {
         return 0;
     }
@@ -78,7 +89,11 @@ static uint8_t bsGetNextByte(bitstream_t *bs)
 {
     if (bs->_count < bs->_size) {
         bs->_count++;
-        return pgm_read_byte(bs->_cdatap++);
+        if (bs->flash) {
+            return pgm_read_byte(bs->_cdatap++);
+        } else {
+            return *bs->_cdatap++;
+        }
     } else {
         return 0;
     }
@@ -118,12 +133,20 @@ uint16_t bsRead(bitstream_t *bs, uint8_t numPixels)
             if (bs->_bits >= bs->bitsPerPixel) {
                 bs->_bits -= bs->bitsPerPixel;
                 data |= (((bs->_word >> bs->_bits) & bs->mask) * 15) / bs->mask;
+#ifdef DEBUG_BS
+                usbPrintf_P(PSTR("pixel: 0x%x (bits=%d, word=0x%04x)\n"), (((bs->_word >> bs->_bits) & bs->mask) * 15) / bs->mask,
+                        bs->_bits, bs->_word);
+#endif
             } else {
                 uint8_t offset = bs->bitsPerPixel - bs->_bits;
                 data |= (bs->_word << offset & bs->mask);
                 bs->_bits += bs->_wordsize - bs->bitsPerPixel;
                 bs->_word = bsGetNextWord(bs);
                 data |= ((bs->_word >> bs->_bits) * 15) / bs->mask;
+#ifdef DEBUG_BS
+                usbPrintf_P(PSTR("pixel: 0x%x (bits=%d, word=0x%04x) new word\n"), (((bs->_word >> bs->_bits) & bs->mask) * 15) / bs->mask,
+                        bs->_bits, bs->_word);
+#endif
             }
         }
     }

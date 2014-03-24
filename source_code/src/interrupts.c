@@ -40,14 +40,14 @@ ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 
 *	\brief	Return the number of milliseconds since power up
 *	\returns the number of milliseconds since power up
 */
-unsigned long millis()
+uint32_t millis()
 {
     uint8_t reg = SREG;
     uint32_t ms;
     cli();
     ms = msecTicks;
 
-    SREG = reg;
+    SREG = reg;        // restore original interrupt state (may already be disabled)
 
     return ms;
 }

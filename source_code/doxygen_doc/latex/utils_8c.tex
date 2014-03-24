@@ -1,5 +1,5 @@
-\hypertarget{utils_8c}{\section{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/utils.c File Reference}
-\label{utils_8c}\index{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/utils.\-c@{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-U\-T\-I\-L\-S/utils.\-c}}
+\hypertarget{utils_8c}{\section{src/\-U\-T\-I\-L\-S/utils.c File Reference}
+\label{utils_8c}\index{src/\-U\-T\-I\-L\-S/utils.\-c@{src/\-U\-T\-I\-L\-S/utils.\-c}}
 }
 
 
@@ -7,6 +7,7 @@ Useful functions.
 
 
 {\ttfamily \#include \char`\"{}../mooltipass.\-h\char`\"{}}\\*
+{\ttfamily \#include $<$util/delay.\-h$>$}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
@@ -29,7 +30,10 @@ void \hyperlink{utils_8c_a05aff92d4111b87625171ac8dddddd86}{hm\-\_\-str\-\_\-cpy
 void \hyperlink{utils_8c_a0dc9cefa1014c5c0bd5964ad112d6069}{char\-\_\-to\-\_\-string} (unsigned char value, char $\ast$string)
 \begin{DoxyCompactList}\small\item\em Convert a char to a string that we can display (numerical form) \end{DoxyCompactList}\item 
 void \hyperlink{utils_8c_a16d061ecadf4ab1e7e2023d862d626a0}{int\-\_\-to\-\_\-string} (unsigned int value, char $\ast$string)
-\begin{DoxyCompactList}\small\item\em Convert a int to a string that we can display (numerical form) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Convert a int to a string that we can display (numerical form) \end{DoxyCompactList}\item 
+\hypertarget{utils_8c_aa0dce6d249d81fb85b082273270ba710}{void {\bfseries delay\-\_\-ms} (uint16\-\_\-t ms)}\label{utils_8c_aa0dce6d249d81fb85b082273270ba710}
+
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}

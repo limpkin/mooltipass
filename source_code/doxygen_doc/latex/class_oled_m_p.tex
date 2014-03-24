@@ -1,0 +1,351 @@
+\hypertarget{class_oled_m_p}{\section{Oled\-M\-P Class Reference}
+\label{class_oled_m_p}\index{Oled\-M\-P@{Oled\-M\-P}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_oled_m_p_a28d0d43a1a47653e1895af615579eeab}{{\bfseries Oled\-M\-P} (uint8\-\_\-t volatile $\ast$cs\-\_\-port, const uint8\-\_\-t cs, uint8\-\_\-t volatile $\ast$dc\-\_\-port, const uint8\-\_\-t dc, uint8\-\_\-t volatile $\ast$reset\-\_\-port, const uint8\-\_\-t \hyperlink{class_oled_m_p_ad20897c5c8bd47f5d4005989bead0e55}{reset}, uint8\-\_\-t volatile $\ast$power\-\_\-port, const uint8\-\_\-t power, \hyperlink{class_s_p_i}{S\-P\-I} \&spi)}\label{class_oled_m_p_a28d0d43a1a47653e1895af615579eeab}
+
+\item 
+\hypertarget{class_oled_m_p_a4eb052247c935a88f6e9428266b51077}{void {\bfseries begin} (uint8\-\_\-t font=F\-O\-N\-T\-\_\-\-D\-E\-F\-A\-U\-L\-T)}\label{class_oled_m_p_a4eb052247c935a88f6e9428266b51077}
+
+\item 
+void \hyperlink{class_oled_m_p_a2858154e2009b0e6e616f313177762bc}{init} (void)
+\item 
+void \hyperlink{class_oled_m_p_a8e6db26d87dd03220df176e0fca84274}{write\-Command} (uint8\-\_\-t reg)
+\item 
+void \hyperlink{class_oled_m_p_a0b7f79fe8ba1e0df0ea9a0b86d22a7f5}{write\-Data} (uint8\-\_\-t data)
+\item 
+void \hyperlink{class_oled_m_p_ab6d02b5a344d527b11e20482d66d017b}{set\-Column\-Addr} (uint8\-\_\-t start, uint8\-\_\-t end)
+\item 
+void \hyperlink{class_oled_m_p_af5896d9b31d48b65060f3e8d14fbd9bb}{set\-Row\-Addr} (uint8\-\_\-t start, uint8\-\_\-t end)
+\item 
+void \hyperlink{class_oled_m_p_a87cf6ceb4f1f60b6d8dfdcffdc17b693}{fill} (uint8\-\_\-t colour)
+\item 
+void \hyperlink{class_oled_m_p_ac8bb3912a3ce86b15842e79d0b421204}{clear} ()
+\item 
+void \hyperlink{class_oled_m_p_ad20897c5c8bd47f5d4005989bead0e55}{reset} ()
+\item 
+void \hyperlink{class_oled_m_p_af09ad4556321caf31c307537d66af1ac}{bitmap\-Draw} (uint8\-\_\-t x, uint8\-\_\-t y, uint8\-\_\-t width, uint8\-\_\-t height, uint8\-\_\-t depth, const uint16\-\_\-t $\ast$image)
+\item 
+void \hyperlink{class_oled_m_p_a510b35a68e77ab1177e5628b007ae6d0}{bitmap\-Draw} (uint8\-\_\-t x, uint8\-\_\-t y, const void $\ast$image)
+\item 
+void \hyperlink{class_oled_m_p_aec49e8d614e1d8f4013da1910061ee93}{set\-Window} (uint8\-\_\-t x, uint8\-\_\-t y, uint8\-\_\-t xend, uint8\-\_\-t yend)
+\item 
+void \hyperlink{class_oled_m_p_a9aaa84e447229c6e59b5fd4ceadba69c}{set\-Font} (uint8\-\_\-t font)
+\item 
+\hypertarget{class_oled_m_p_a82185ccc3af2d3c88f15d3755e067e28}{void {\bfseries set\-Colour} (uint8\-\_\-t colour)}\label{class_oled_m_p_a82185ccc3af2d3c88f15d3755e067e28}
+
+\item 
+\hypertarget{class_oled_m_p_a9a0717cf854563eb4eac46e98069b19e}{void {\bfseries set\-Contrast} (uint8\-\_\-t contrast)}\label{class_oled_m_p_a9a0717cf854563eb4eac46e98069b19e}
+
+\item 
+\hypertarget{class_oled_m_p_ad15386fa077d57da7709ea0f9a47035e}{void {\bfseries set\-Background} (uint8\-\_\-t colour)}\label{class_oled_m_p_ad15386fa077d57da7709ea0f9a47035e}
+
+\item 
+void \hyperlink{class_oled_m_p_a3c2f056e15eebc7ed251d2063b9ea548}{set\-Offset} (uint8\-\_\-t offset)
+\item 
+uint8\-\_\-t \hyperlink{class_oled_m_p_a21f3e0429d9d1e3b3b35e14c43a2cc14}{get\-Offset} (void)
+\item 
+\hypertarget{class_oled_m_p_a1536d8b4e6dc717bbb136e0ea9d2f153}{void {\bfseries set\-Buf\-Height} (uint8\-\_\-t rows)}\label{class_oled_m_p_a1536d8b4e6dc717bbb136e0ea9d2f153}
+
+\item 
+\hypertarget{class_oled_m_p_a06cc11528c85c48902d331d44c7afd86}{uint8\-\_\-t {\bfseries get\-Buf\-Height} (void)}\label{class_oled_m_p_a06cc11528c85c48902d331d44c7afd86}
+
+\item 
+\hypertarget{class_oled_m_p_aa8c53db9152479c10b06f570eec26b72}{void {\bfseries set\-X\-Y} (uint8\-\_\-t col, uint8\-\_\-t row)}\label{class_oled_m_p_aa8c53db9152479c10b06f570eec26b72}
+
+\item 
+uint8\-\_\-t \hyperlink{class_oled_m_p_aecffe0ea3966e0b8f68d513fa056f766}{glyph\-Width} (char ch)
+\item 
+uint8\-\_\-t \hyperlink{class_oled_m_p_a0f6a30b9ad24c745c65b3928f277b368}{glyph\-Height} ()
+\item 
+uint8\-\_\-t \hyperlink{class_oled_m_p_a5af45cadc3caefdfa23793b65da9e6bd}{glyph\-Draw} (int16\-\_\-t x, int16\-\_\-t y, char ch, uint16\-\_\-t colour, uint16\-\_\-t bg)
+\item 
+\hypertarget{class_oled_m_p_aa29c51ab6873e2a10328425becb4d3c0}{void {\bfseries putstr} (char $\ast$str)}\label{class_oled_m_p_aa29c51ab6873e2a10328425becb4d3c0}
+
+\item 
+\hypertarget{class_oled_m_p_a55f3d956bb2ba20b5059e9e25484a47f}{int {\bfseries printf} (const char $\ast$fmt,...)}\label{class_oled_m_p_a55f3d956bb2ba20b5059e9e25484a47f}
+
+\item 
+\hypertarget{class_oled_m_p_a1675bc561e97e62b320138568c1f9019}{int {\bfseries printf} (const \-\_\-\-\_\-fstr $\ast$fmt,...)}\label{class_oled_m_p_a1675bc561e97e62b320138568c1f9019}
+
+\end{DoxyCompactItemize}
+\subsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_oled_m_p_a614e21210283a0349e7d0f3664cb4fcc}{uint8\-\_\-t {\bfseries cur\-\_\-x}}\label{class_oled_m_p_a614e21210283a0349e7d0f3664cb4fcc}
+
+\item 
+\hypertarget{class_oled_m_p_a750f0a088d07af56503b05e9ec44fc0d}{uint8\-\_\-t {\bfseries cur\-\_\-y}}\label{class_oled_m_p_a750f0a088d07af56503b05e9ec44fc0d}
+
+\item 
+\hypertarget{class_oled_m_p_ad3a594835767d6f5153f32b21f8bceae}{uint8\-\_\-t {\bfseries foreground}}\label{class_oled_m_p_ad3a594835767d6f5153f32b21f8bceae}
+
+\item 
+\hypertarget{class_oled_m_p_a0b8baf146d1dc5de3c1ffdf59895e29f}{uint8\-\_\-t {\bfseries background}}\label{class_oled_m_p_a0b8baf146d1dc5de3c1ffdf59895e29f}
+
+\item 
+\hypertarget{class_oled_m_p_ad694781c319f7ac04c4b381152b4abaf}{bool {\bfseries wrap}}\label{class_oled_m_p_ad694781c319f7ac04c4b381152b4abaf}
+
+\item 
+\hypertarget{class_oled_m_p_ab5c03ca5f91bb568c2658ec46d2cf128}{uint8\-\_\-t {\bfseries xaddr}}\label{class_oled_m_p_ab5c03ca5f91bb568c2658ec46d2cf128}
+
+\item 
+\hypertarget{class_oled_m_p_aaeb0fae85cfcb99e49c11f3f125179a6}{uint16\-\_\-t {\bfseries pixels}}\label{class_oled_m_p_aaeb0fae85cfcb99e49c11f3f125179a6}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_oled_m_p_af09ad4556321caf31c307537d66af1ac}{\index{Oled\-M\-P@{Oled\-M\-P}!bitmap\-Draw@{bitmap\-Draw}}
+\index{bitmap\-Draw@{bitmap\-Draw}!OledMP@{Oled\-M\-P}}
+\subsubsection[{bitmap\-Draw}]{\setlength{\rightskip}{0pt plus 5cm}void bitmap\-Draw (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{x, }
+\item[{uint8\-\_\-t}]{y, }
+\item[{uint8\-\_\-t}]{width, }
+\item[{uint8\-\_\-t}]{height, }
+\item[{uint8\-\_\-t}]{depth, }
+\item[{const uint16\-\_\-t $\ast$}]{image}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_af09ad4556321caf31c307537d66af1ac}
+Draw a rectangular bitmap on the screen at x,y. 
+\begin{DoxyParams}{Parameters}
+{\em x} & -\/ x position for the bitmap \\
+\hline
+{\em y} & -\/ y position for the bitmap (0=top, 63=bottom) \\
+\hline
+{\em width} & -\/ width of bitmap in pixels \\
+\hline
+{\em height} & -\/ height of bitmap in pixels \\
+\hline
+{\em depth} & -\/ number of bits per pixel (1 to 4) \\
+\hline
+{\em image} & -\/ pointer to the image data in flash \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+to conserve memory the pixel buffer kept in R\-A\-M is only 16 bits wide by 64. It keeps track of the right-\/most G\-D\-D\-R\-A\-M cell written. This means the buffer will only work when writing new graphical data to the right of the last data written (e.\-g. when drawing a line of text). 
+\end{DoxyNote}
+\hypertarget{class_oled_m_p_a510b35a68e77ab1177e5628b007ae6d0}{\index{Oled\-M\-P@{Oled\-M\-P}!bitmap\-Draw@{bitmap\-Draw}}
+\index{bitmap\-Draw@{bitmap\-Draw}!OledMP@{Oled\-M\-P}}
+\subsubsection[{bitmap\-Draw}]{\setlength{\rightskip}{0pt plus 5cm}void bitmap\-Draw (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{x, }
+\item[{uint8\-\_\-t}]{y, }
+\item[{const void $\ast$}]{image}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a510b35a68e77ab1177e5628b007ae6d0}
+Draw a rectangular bitmap on the screen at x,y. 
+\begin{DoxyParams}{Parameters}
+{\em x} & -\/ x position for the bitmap \\
+\hline
+{\em y} & -\/ y position for the bitmap (0=top, 63=bottom) \\
+\hline
+{\em image} & -\/ pointer to a bitmap\-\_\-t image data structure \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_oled_m_p_ac8bb3912a3ce86b15842e79d0b421204}{\index{Oled\-M\-P@{Oled\-M\-P}!clear@{clear}}
+\index{clear@{clear}!OledMP@{Oled\-M\-P}}
+\subsubsection[{clear}]{\setlength{\rightskip}{0pt plus 5cm}void clear (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_ac8bb3912a3ce86b15842e79d0b421204}
+Clear the display by setting every pixel to the background colour. \hypertarget{class_oled_m_p_a87cf6ceb4f1f60b6d8dfdcffdc17b693}{\index{Oled\-M\-P@{Oled\-M\-P}!fill@{fill}}
+\index{fill@{fill}!OledMP@{Oled\-M\-P}}
+\subsubsection[{fill}]{\setlength{\rightskip}{0pt plus 5cm}void fill (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{colour}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a87cf6ceb4f1f60b6d8dfdcffdc17b693}
+Fill the display with the specified colour by setting every pixel to the colour. 
+\begin{DoxyParams}{Parameters}
+{\em colour} & -\/ fill the display with this colour. \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_oled_m_p_a21f3e0429d9d1e3b3b35e14c43a2cc14}{\index{Oled\-M\-P@{Oled\-M\-P}!get\-Offset@{get\-Offset}}
+\index{get\-Offset@{get\-Offset}!OledMP@{Oled\-M\-P}}
+\subsubsection[{get\-Offset}]{\setlength{\rightskip}{0pt plus 5cm}uint8\-\_\-t get\-Offset (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a21f3e0429d9d1e3b3b35e14c43a2cc14}
+Get the current display offset (y origin). \begin{DoxyReturn}{Returns}
+current y offset 
+\end{DoxyReturn}
+\hypertarget{class_oled_m_p_a5af45cadc3caefdfa23793b65da9e6bd}{\index{Oled\-M\-P@{Oled\-M\-P}!glyph\-Draw@{glyph\-Draw}}
+\index{glyph\-Draw@{glyph\-Draw}!OledMP@{Oled\-M\-P}}
+\subsubsection[{glyph\-Draw}]{\setlength{\rightskip}{0pt plus 5cm}uint8\-\_\-t glyph\-Draw (
+\begin{DoxyParamCaption}
+\item[{int16\-\_\-t}]{x, }
+\item[{int16\-\_\-t}]{y, }
+\item[{char}]{ch, }
+\item[{uint16\-\_\-t}]{colour, }
+\item[{uint16\-\_\-t}]{bg}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a5af45cadc3caefdfa23793b65da9e6bd}
+Draw a character glyph on the screen at x,y. 
+\begin{DoxyParams}{Parameters}
+{\em x} & -\/ x position to start glyph (x=0 for left, x=256-\/glyph\-Width() for right) \\
+\hline
+{\em y} & -\/ y position to start glyph (y=0 for top, y=64-\/glyph\-Height() for bottom) \\
+\hline
+{\em ch} & -\/ the character to draw \\
+\hline
+{\em colour} & -\/ foreground colour \\
+\hline
+{\em bg} & -\/ background colour \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+width of the glyph 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+to conserve memory the pixel buffer kept in R\-A\-M is only 16 bits wide by 64. It keeps track of the right-\/most G\-D\-D\-R\-A\-M cell written. This means the buffer will only work when writing new graphical data to the right of the last data written (e.\-g. when drawing a line of text). 
+\end{DoxyNote}
+\hypertarget{class_oled_m_p_a0f6a30b9ad24c745c65b3928f277b368}{\index{Oled\-M\-P@{Oled\-M\-P}!glyph\-Height@{glyph\-Height}}
+\index{glyph\-Height@{glyph\-Height}!OledMP@{Oled\-M\-P}}
+\subsubsection[{glyph\-Height}]{\setlength{\rightskip}{0pt plus 5cm}uint8\-\_\-t glyph\-Height (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a0f6a30b9ad24c745c65b3928f277b368}
+Return the height of the current font. All characters in a font are the same height. \begin{DoxyReturn}{Returns}
+height of the glyph font 
+\end{DoxyReturn}
+\hypertarget{class_oled_m_p_aecffe0ea3966e0b8f68d513fa056f766}{\index{Oled\-M\-P@{Oled\-M\-P}!glyph\-Width@{glyph\-Width}}
+\index{glyph\-Width@{glyph\-Width}!OledMP@{Oled\-M\-P}}
+\subsubsection[{glyph\-Width}]{\setlength{\rightskip}{0pt plus 5cm}uint8\-\_\-t glyph\-Width (
+\begin{DoxyParamCaption}
+\item[{char}]{ch}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_aecffe0ea3966e0b8f68d513fa056f766}
+Return the width of the specified character in the current font. 
+\begin{DoxyParams}{Parameters}
+{\em ch} & -\/ return the width of this character \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+width of the glyph 
+\end{DoxyReturn}
+\hypertarget{class_oled_m_p_a2858154e2009b0e6e616f313177762bc}{\index{Oled\-M\-P@{Oled\-M\-P}!init@{init}}
+\index{init@{init}!OledMP@{Oled\-M\-P}}
+\subsubsection[{init}]{\setlength{\rightskip}{0pt plus 5cm}void init (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a2858154e2009b0e6e616f313177762bc}
+Initialise the O\-L\-E\-D hardware and get it ready for use. \hypertarget{class_oled_m_p_ad20897c5c8bd47f5d4005989bead0e55}{\index{Oled\-M\-P@{Oled\-M\-P}!reset@{reset}}
+\index{reset@{reset}!OledMP@{Oled\-M\-P}}
+\subsubsection[{reset}]{\setlength{\rightskip}{0pt plus 5cm}void reset (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_ad20897c5c8bd47f5d4005989bead0e55}
+Reset the O\-L\-E\-D display. \hypertarget{class_oled_m_p_ab6d02b5a344d527b11e20482d66d017b}{\index{Oled\-M\-P@{Oled\-M\-P}!set\-Column\-Addr@{set\-Column\-Addr}}
+\index{set\-Column\-Addr@{set\-Column\-Addr}!OledMP@{Oled\-M\-P}}
+\subsubsection[{set\-Column\-Addr}]{\setlength{\rightskip}{0pt plus 5cm}void set\-Column\-Addr (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{start, }
+\item[{uint8\-\_\-t}]{end}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_ab6d02b5a344d527b11e20482d66d017b}
+Set the current pixel data column start and end address 
+\begin{DoxyParams}{Parameters}
+{\em start} & -\/ start column \\
+\hline
+{\em end} & -\/ end column \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_oled_m_p_a9aaa84e447229c6e59b5fd4ceadba69c}{\index{Oled\-M\-P@{Oled\-M\-P}!set\-Font@{set\-Font}}
+\index{set\-Font@{set\-Font}!OledMP@{Oled\-M\-P}}
+\subsubsection[{set\-Font}]{\setlength{\rightskip}{0pt plus 5cm}void set\-Font (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{font}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a9aaa84e447229c6e59b5fd4ceadba69c}
+Set the font to use 
+\begin{DoxyParams}{Parameters}
+{\em font} & -\/ new font to use \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_oled_m_p_a3c2f056e15eebc7ed251d2063b9ea548}{\index{Oled\-M\-P@{Oled\-M\-P}!set\-Offset@{set\-Offset}}
+\index{set\-Offset@{set\-Offset}!OledMP@{Oled\-M\-P}}
+\subsubsection[{set\-Offset}]{\setlength{\rightskip}{0pt plus 5cm}void set\-Offset (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{offset}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a3c2f056e15eebc7ed251d2063b9ea548}
+Set the display pixel row offset. Can be used to scroll the display. Effectively moves y=0 to the offset y row. The display wraps around to y=63. 
+\begin{DoxyParams}{Parameters}
+{\em offset} & -\/ set y origin to this offset \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_oled_m_p_af5896d9b31d48b65060f3e8d14fbd9bb}{\index{Oled\-M\-P@{Oled\-M\-P}!set\-Row\-Addr@{set\-Row\-Addr}}
+\index{set\-Row\-Addr@{set\-Row\-Addr}!OledMP@{Oled\-M\-P}}
+\subsubsection[{set\-Row\-Addr}]{\setlength{\rightskip}{0pt plus 5cm}void set\-Row\-Addr (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{start, }
+\item[{uint8\-\_\-t}]{end}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_af5896d9b31d48b65060f3e8d14fbd9bb}
+Set the current pixel data row start and end address 
+\begin{DoxyParams}{Parameters}
+{\em start} & -\/ start row \\
+\hline
+{\em end} & -\/ end row \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_oled_m_p_aec49e8d614e1d8f4013da1910061ee93}{\index{Oled\-M\-P@{Oled\-M\-P}!set\-Window@{set\-Window}}
+\index{set\-Window@{set\-Window}!OledMP@{Oled\-M\-P}}
+\subsubsection[{set\-Window}]{\setlength{\rightskip}{0pt plus 5cm}void set\-Window (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{x, }
+\item[{uint8\-\_\-t}]{y, }
+\item[{uint8\-\_\-t}]{xend, }
+\item[{uint8\-\_\-t}]{yend}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_aec49e8d614e1d8f4013da1910061ee93}
+Set the current pixel data window. Data writes will update only this section of the display. 
+\begin{DoxyParams}{Parameters}
+{\em x} & -\/ start row \\
+\hline
+{\em y} & -\/ start column \\
+\hline
+{\em xend} & -\/ end row \\
+\hline
+{\em yend} & -\/ end column \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_oled_m_p_a8e6db26d87dd03220df176e0fca84274}{\index{Oled\-M\-P@{Oled\-M\-P}!write\-Command@{write\-Command}}
+\index{write\-Command@{write\-Command}!OledMP@{Oled\-M\-P}}
+\subsubsection[{write\-Command}]{\setlength{\rightskip}{0pt plus 5cm}void write\-Command (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{reg}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a8e6db26d87dd03220df176e0fca84274}
+Write a command or register address to the display 
+\begin{DoxyParams}{Parameters}
+{\em reg} & -\/ the command or register to write \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_oled_m_p_a0b7f79fe8ba1e0df0ea9a0b86d22a7f5}{\index{Oled\-M\-P@{Oled\-M\-P}!write\-Data@{write\-Data}}
+\index{write\-Data@{write\-Data}!OledMP@{Oled\-M\-P}}
+\subsubsection[{write\-Data}]{\setlength{\rightskip}{0pt plus 5cm}void write\-Data (
+\begin{DoxyParamCaption}
+\item[{uint8\-\_\-t}]{data}
+\end{DoxyParamCaption}
+)}}\label{class_oled_m_p_a0b7f79fe8ba1e0df0ea9a0b86d22a7f5}
+Write a byte of data to the display 
+\begin{DoxyParams}{Parameters}
+{\em data} & -\/ data to write \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+src/lib/oledmp.\-arduino/oledmp.\-h\item 
+src/lib/oledmp.\-arduino/oledmp.\-cpp\end{DoxyCompactItemize}

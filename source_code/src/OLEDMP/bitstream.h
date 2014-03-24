@@ -33,7 +33,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct {
+typedef struct 
+{
     uint8_t mask;               // pixel mask for returned data
     uint8_t bitsPerPixel;       // number of bits per pixel
     const uint16_t *_datap;     // Next data word to read

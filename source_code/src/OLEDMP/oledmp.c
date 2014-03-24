@@ -74,7 +74,8 @@ static uint8_t oled_displayBuffer = 0;
 // on that line.
 // Note that the buffer is twice the OLED height, supporting 
 // the second hidden screen buffer.
-static struct {
+static struct 
+{
     uint8_t xaddr;
     uint16_t pixels;
 } gddram[OLED_HEIGHT*2];
@@ -88,7 +89,8 @@ static uint8_t oled_background;
 /*
  * OLED initialisation sequence
  */
-static const uint8_t oled_init[] __attribute__((__progmem__)) = {
+static const uint8_t oled_init[] __attribute__((__progmem__)) = 
+{
     CMD_SET_COMMAND_LOCK,            1, 0x12, /* Unlock OLED driver IC*/
     CMD_SET_DISPLAY_OFF,             0,
     CMD_SET_CLOCK_DIVIDER,           1, 0x91,

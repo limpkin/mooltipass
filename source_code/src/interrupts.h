@@ -22,6 +22,10 @@
 #ifndef INTERRUPTS_H_
 #define INTERRUPTS_H_
 
+#include <stdint.h>
+
 void initIRQ(void);
+
+uint32_t millis();
 
 #endif /* INTERRUPTS_H_ */

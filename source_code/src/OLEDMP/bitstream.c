@@ -20,47 +20,92 @@
 
 /* Copyright (c) 2014 Darran Hunt. All rights reserved. */
 
-/*! \file   bitstream.c
-*   \brief  Bitmap streamer library. Allows a raw packed bitmap to be read as a sequence
-*           of pixels.
-*   Created: 15/2/2014
-*   Author: Darran Hunt
+/*!	\file 	bitstream.c
+*	\brief	Bitmap streamer library. Allows a raw packed bitmap to be read as a sequence
+*	        of pixels.
+*	Created: 15/2/2014
+*	Author: Darran Hunt
 */
 
 #include <avr/pgmspace.h>
 #include "bitstream.h"
+#include "usb_serial_hid.h"
+
+#undef DEBUG_BS
 
 /**
  * Initialise a bitstream ready for use
  * @param bs - pointer to the bitstream context to be used for the new bitmap
  * @param pixelDepth - number of bits per pixel in the bitmap
+ * @param flags - bitmap format options (e.g. BS_RLE for compressed bitmap)
  * @param data - pointer to the bitmap data (16 bit words with packed pixels)
  * @param size - number of pixels in the bitmap data
  * @note the bitmap data must be packed into 16 bit words, and pixels are packed
  *       across words when they do not fully fit
  */
-void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint16_t *data, const uint16_t size)
+void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, const uint16_t *data, const uint16_t size, bool flash)
 {
     bs->bitsPerPixel = pixelDepth;
     bs->_datap = data;
+    bs->_cdatap = (const uint8_t *)data;
     bs->_size = size;
     bs->mask = (1 << pixelDepth) - 1;
     bs->_wordsize = 16;
     bs->_bits = 0;
     bs->_word = 0xAA55;
     bs->_count = 0;
+    bs->_flags = flags;
+    bs->flash = flash;
+#ifdef DEBUG_BS
+    usbPrintf_P(PSTR("bitmap: data %p, depth %d, size %d\n"), data, pixelDepth, size);
+#endif
 }
 
 /**
  * Return the next data word from flash
  * @param bs - pointer to initialised bitstream context to get the next word from
+ * @returns next data word.
+ * @note when no more data is available in the bitstream, calls to this function will
+ * return 0. Also note that 0 does not indicate an end of the bitstream.
+ */
+static inline uint16_t bsGetNextWord(bitstream_t *bs)
+{
+    if (bs->_count < bs->_size) 
+    {
+        bs->_count++;
+        if (bs->flash) 
+        {
+            return (uint16_t)pgm_read_word(bs->_datap++);
+        }
+        else 
+        {
+            return *bs->_datap++;
+        }
+    } 
+    else 
+    {
+        return 0;
+    }
+}
+
+/**
+ * Return the next data byte from flash
+ * @param bs - pointer to initialised bitstream context to get the next word from
  * @returns next data word, or 0 if end of data reached
  */
-uint16_t bsGetNextWord(bitstream_t *bs)
+static inline uint8_t bsGetNextByte(bitstream_t *bs)
 {
-    if (bs->_size > 0)
+    if (bs->_count < bs->_size) 
     {
-        return (uint16_t)pgm_read_word(bs->_datap++);
+        bs->_count++;
+        if (bs->flash) 
+        {
+            return pgm_read_byte(bs->_cdatap++);
+        }
+        else 
+        {
+            return *bs->_cdatap++;
+        }
     }
     else
     {
@@ -68,41 +113,95 @@ uint16_t bsGetNextWord(bitstream_t *bs)
     }
 }
 
+
 /**
  * Return the next pixel from the bitmap
  * @param bs - pointer to initialised bitstream context to read the next pixel from
  * @param numPixes - the number of pixels to read,
  * @returns next pixel, or 0 if end of data reached
+ * @note returned pixes are 4 bits each
  */
-
 uint16_t bsRead(bitstream_t *bs, uint8_t numPixels)
 {
     uint16_t data=0;
-
-    while (numPixels--)
+    if (bs->_flags & BS_RLE) 
     {
-        data <<= bs->bitsPerPixel;
-        if (bs->_size > 0)
+        while (numPixels--) 
         {
-            if (bs->_bits == 0)
+            data <<= 4;
+            if (bs->_bits == 0) 
+            {
+                uint8_t byte = bsGetNextByte(bs);
+                bs->_bits = (byte >> 4) + 1;
+                bs->_pixel = byte & 0x0F;
+            }
+            if (bs->_bits) 
+            {
+                data |= bs->_pixel;
+                bs->_bits--;
+            }
+        }
+    }
+    else
+    {
+        while (numPixels--) 
+        {
+            data <<= 4;
+            if (bs->_bits == 0) 
             {
                 bs->_word = bsGetNextWord(bs);
                 bs->_bits = bs->_wordsize;
             }
-            if (bs->_bits >= bs->bitsPerPixel)
+            if (bs->_bits >= bs->bitsPerPixel) 
             {
                 bs->_bits -= bs->bitsPerPixel;
-                data |= (bs->_word >> bs->_bits) & bs->mask;
+                data |= (((bs->_word >> bs->_bits) & bs->mask) * 15) / bs->mask;
+#ifdef DEBUG_BS
+                usbPrintf_P(PSTR("pixel: 0x%x (bits=%d, word=0x%04x)\n"), (((bs->_word >> bs->_bits) & bs->mask) * 15) / bs->mask,
+                        bs->_bits, bs->_word);
+#endif
             }
-            else
+            else 
             {
                 uint8_t offset = bs->bitsPerPixel - bs->_bits;
                 data |= (bs->_word << offset & bs->mask);
                 bs->_bits += bs->_wordsize - bs->bitsPerPixel;
                 bs->_word = bsGetNextWord(bs);
-                data |= bs->_word >> bs->_bits;
+                data |= ((bs->_word >> bs->_bits) * 15) / bs->mask;
+#ifdef DEBUG_BS
+                usbPrintf_P(PSTR("pixel: 0x%x (bits=%d, word=0x%04x) new word\n"), (((bs->_word >> bs->_bits) & bs->mask) * 15) / bs->mask,
+                        bs->_bits, bs->_word);
+#endif
             }
-            bs->_size--;
+        }
+    }
+    return data;
+}
+
+/**
+ * Return the next pixel from the RLE compressed bitmap
+ * @param bs - pointer to initialised bitstream context to read the next pixel from
+ * @param numPixes - the number of pixels to read,
+ * @returns next pixel, or 0 if end of data reached
+ * @note returned pixes are 4 bits each
+ */
+uint16_t bsCompressedRead(bitstream_t *bs, uint8_t numPixels)
+{
+    uint16_t data=0;
+
+    while (numPixels--) 
+    {
+        data <<= 4;
+        if (bs->_bits == 0) 
+        {
+            uint8_t byte = bsGetNextByte(bs);
+            bs->_bits = (byte >> 4) + 1;
+            bs->_pixel = byte & 0x0F;
+        }
+        if (bs->_bits) 
+        {
+            data |= bs->_pixel;
+            bs->_bits--;
         }
     }
     return data;

@@ -103,7 +103,9 @@ RET_TYPE cardDetectedRoutine(void)
     uint8_t i;
 
     #ifdef DEBUG_SMC_SCREEN_PRINT
-        oledClear();                                           // Clear screen before writing anything new
+        oledClear();                                            // Clear screen before writing anything new
+        oledFlipBuffers(OLED_SCROLL_DOWN,0);
+        oledWriteActiveBuffer();
     #endif
 
     card_detection_result = firstDetectFunctionSMC();           // Get a first card detection result
@@ -513,7 +515,6 @@ void printSMCDebugInfoToScreen(void)
         uint8_t data_buffer[20];
         uint8_t i;
 
-        /* Clear screen */
         oledClear();
 
         /* Read FZ, SC, and SCAC */
@@ -572,6 +573,7 @@ void printSMCDebugInfoToScreen(void)
                 swap16(*(uint16_t*)readSMC(24,22,data_buffer)),
                 swap16(*(uint16_t*)readSMC(94,92,data_buffer)));
 
+        oledFlipBuffers(OLED_SCROLL_UP,10);
     #endif
 }
 

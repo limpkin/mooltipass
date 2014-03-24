@@ -20,30 +20,38 @@
 
 /* Copyright (c) 2014, Darran Hunt. All rights reserved. */
 
-/*! \file   bitstream.h
-*   \brief  OLED library header
-*   Created: 15/2/2014
-*   Author: Darran Hunt
-*/
+/*!
+ * \file    bitstream.h
+ * \brief   OLED library header
+ * Created: 15/2/2014
+ * Author:  Darran Hunt
+ */
 
 #ifndef BITSTREAM_H_
 #define BITSTREAM_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
-typedef struct
+typedef struct 
 {
-    uint8_t mask;           // pixel mask for returned data
-    uint8_t bitsPerPixel;   // number of bits per pixel
-    const uint16_t *_datap; // Next data word to read
-    uint16_t _size;         // number of pixels
-    uint8_t _bits;          // current offset in data word
-    uint8_t _wordsize;      // number of bits per data word
-    uint16_t _word;
-    uint16_t _count;
+    uint8_t mask;               //*< pixel mask for returned data
+    uint8_t bitsPerPixel;       //*< number of bits per pixel
+    const uint16_t *_datap;     //*< Next data word to read
+    const uint8_t *_cdatap;     //*< Next compressed byte to read
+    uint16_t _size;             //*< number of pixels
+    uint8_t _bits;              //*< current offset in data word
+    uint8_t _wordsize;          //*< number of bits per data word
+    uint16_t _word;             //*< current bitmap word
+    uint16_t _count;            //*< number of bytes / words read
+    uint8_t _pixel;             //*< current pixel for RLE decompress
+    uint8_t _flags;		//*< format flags.  E.g. RLE=1
+    bool flash;
 } bitstream_t;
 
-void bsInit(bitstream_t *bs, const uint8_t bitsPerPixel, const uint16_t *data, const uint16_t size);
+#define BS_RLE	0x01		//*< Bitmap is compressed using run-length compression
+
+void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, const uint16_t *data, const uint16_t size, bool flash);
 uint16_t bsRead(bitstream_t *bs, uint8_t numPixels);
 uint16_t bsAvailable(bitstream_t *bs);
 

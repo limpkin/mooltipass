@@ -21,6 +21,7 @@
 *   \brief  Useful functions
 */
 #include "../mooltipass.h"
+#include <util/delay.h>
 
 
 /*! \fn     swap16(uint16_t val)
@@ -223,4 +224,12 @@ void int_to_string(unsigned int value, char* string)
     }
 
     string[index] = 0x00;
+}
+
+void delay_ms(uint16_t ms) 
+{ 
+    while (ms--) 
+    {
+        _delay_ms(1); 
+    }
 }

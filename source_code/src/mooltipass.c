@@ -81,6 +81,7 @@ int main(void)
     oledSetColour(15);
     oledSetBackground(0);
     oledSetContrast(OLED_Contrast);
+    oledSetScrollSpeed(3);
 
     flash_init_result = initFlash();    // Initialize flash memory
 
@@ -159,9 +160,16 @@ int main(void)
     {
         oledPutstr_P(PSTR("Problem flash init"));
     }
+
     _delay_ms(1000);
     oledClear();
-    oledBitmapDraw(0,0, &image_HaD_Mooltipass);
+    oledWriteInactiveBuffer();
+
+    // write bitmap to inactive buffer and make the buffer 
+    // active by scrolling it up.
+    // Note: writing is automatically switch to inactive buffer
+    oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
+    oledClear();    // clear inactive buffer
 
     while (1)
     {
@@ -169,6 +177,11 @@ int main(void)
         if (card_detect_ret == RETURN_JDETECT)                           // Card just detected
         {
             temp_rettype = cardDetectedRoutine();
+#ifdef DEBUG_SMC_SCREEN_PRINT
+            //oledFlipBuffers(OLED_SCROLL_DOWN,0);
+            oledWriteInactiveBuffer();
+            oledClear();
+#endif
 
             if (temp_rettype == RETURN_MOOLTIPASS_INVALID)               // Invalid card
             {
@@ -216,12 +229,10 @@ int main(void)
                 hexachar_to_string(temp_buffer[i], temp_string);
                 Show_String(temp_string, FALSE, 2+i*5, 8);
             }*/
-        }
-        else if (card_detect_ret == RETURN_JRELEASED)   //card just released
+        } else if (card_detect_ret == RETURN_JRELEASED)   //card just released
         {
+            oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
             removeFunctionSMC();
-            oledClear();
-            oledBitmapDraw(0,0, &image_HaD_Mooltipass);
         }
     }
 }

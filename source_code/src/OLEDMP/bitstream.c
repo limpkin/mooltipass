@@ -37,6 +37,7 @@
  * Initialise a bitstream ready for use
  * @param bs - pointer to the bitstream context to be used for the new bitmap
  * @param pixelDepth - number of bits per pixel in the bitmap
+ * @param flags - bitmap format options (e.g. BS_RLE for compressed bitmap)
  * @param data - pointer to the bitmap data (16 bit words with packed pixels)
  * @param size - number of pixels in the bitmap data
  * @note the bitmap data must be packed into 16 bit words, and pixels are packed
@@ -53,7 +54,6 @@ void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, cons
     bs->_bits = 0;
     bs->_word = 0xAA55;
     bs->_count = 0;
-    bs->_scale = (1<<pixelDepth) - 1;
     bs->_flags = flags;
     bs->flash = flash;
 #ifdef DEBUG_BS
@@ -124,7 +124,7 @@ static inline uint8_t bsGetNextByte(bitstream_t *bs)
 uint16_t bsRead(bitstream_t *bs, uint8_t numPixels)
 {
     uint16_t data=0;
-    if (bs->_flags) 
+    if (bs->_flags & BS_RLE) 
     {
         while (numPixels--) 
         {

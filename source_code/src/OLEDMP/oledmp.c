@@ -436,19 +436,23 @@ int oledPrintf_P(const char *fmt, ...)
  * @param col - X (column position)
  * @param row - Y (row position)
  */
-void oledSetXY(uint8_t col, uint8_t row)
+void oledSetXY(uint8_t x, uint8_t y)
 {
-    oled_cur_x[oled_writeBuffer] = col;
-    oled_cur_y[oled_writeBuffer] = row;
+    if (y >= OLED_HEIGHT*2) {
+        y = OLED_HEIGHT*2 - 1;
+    }
+
+    oled_cur_x[oled_writeBuffer] = x;
+    oled_cur_y[oled_writeBuffer] = y;
 }
 
 /**
  * Set the current X position in the display
  * @param col - X (column position)
  */
-void oledSetX(uint8_t col)
+void oledSetX(uint8_t x)
 {
-    oled_cur_x[oled_writeBuffer] = col;
+    oled_cur_x[oled_writeBuffer] = x;
 }
 
 

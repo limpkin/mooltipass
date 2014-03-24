@@ -64,7 +64,9 @@ void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, cons
 /**
  * Return the next data word from flash
  * @param bs - pointer to initialised bitstream context to get the next word from
- * @returns next data word, or 0 if end of data reached
+ * @returns next data word.
+ * @note when no more data is available in the bitstream, calls to this function will
+ * return 0. Also note that 0 does not indicate an end of the bitstream.
  */
 static uint16_t bsGetNextWord(bitstream_t *bs)
 {

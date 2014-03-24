@@ -69,6 +69,7 @@ int main(void)
 
     CPU_PRESCALE(0);                    // Set for 16MHz clock
     _delay_ms(500);                     // Let the power settle
+    disable_jtag();                     // Disable JTAG to gain access to pins
     initPortSMC();                      // Initialize smart card Port
     initIRQ();                          // Initialize interrupts
     usb_init();                         // Initialize USB controller

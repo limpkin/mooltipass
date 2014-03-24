@@ -1,5 +1,5 @@
-\hypertarget{bitstream_8c}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.c File Reference}
-\label{bitstream_8c}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.\-c@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.\-c}}
+\hypertarget{bitstream_8c}{\section{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.c File Reference}
+\label{bitstream_8c}\index{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.\-c@{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.\-c}}
 }
 
 
@@ -11,13 +11,13 @@ Bitmap streamer library. Allows a raw packed bitmap to be read as a sequence of 
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \hyperlink{bitstream_8c_a865acda2607844a4bc7113ffe7378030}{bs\-\_\-init} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs, const uint8\-\_\-t pixel\-Depth, const uint16\-\_\-t $\ast$data, const uint16\-\_\-t size)
+void \hyperlink{bitstream_8c_abc2fc58b28a65eafe47ab27d086c8851}{bs\-Init} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs, const uint8\-\_\-t pixel\-Depth, const uint16\-\_\-t $\ast$data, const uint16\-\_\-t size)
 \item 
-uint16\-\_\-t \hyperlink{bitstream_8c_ac963fdb002e33ad30c1b0c2e6e3281e0}{bs\-\_\-get\-Next\-Word} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs)
+uint16\-\_\-t \hyperlink{bitstream_8c_a1cbadfcdfc196cc43b13922290aceb67}{bs\-Get\-Next\-Word} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs)
 \item 
-uint16\-\_\-t \hyperlink{bitstream_8c_a7de63986315b2e7df7e640878155897f}{bs\-\_\-read} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs, uint8\-\_\-t num\-Pixels)
+uint16\-\_\-t \hyperlink{bitstream_8c_aa232ce5aedebf3e7c9062882fca31a95}{bs\-Read} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs, uint8\-\_\-t num\-Pixels)
 \item 
-uint16\-\_\-t \hyperlink{bitstream_8c_a9a586a86db3bb1e24b6a9528a4eab848}{bs\-\_\-available} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs)
+uint16\-\_\-t \hyperlink{bitstream_8c_a3f619bc8d5758e70e659208fc858138b}{bs\-Available} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs)
 \end{DoxyCompactItemize}
 
 
@@ -25,13 +25,13 @@ uint16\-\_\-t \hyperlink{bitstream_8c_a9a586a86db3bb1e24b6a9528a4eab848}{bs\-\_\
 Bitmap streamer library. Allows a raw packed bitmap to be read as a sequence of pixels. Created\-: 15/2/2014 Author\-: Darran Hunt. 
 
 \subsection{Function Documentation}
-\hypertarget{bitstream_8c_a9a586a86db3bb1e24b6a9528a4eab848}{\index{bitstream.\-c@{bitstream.\-c}!bs\-\_\-available@{bs\-\_\-available}}
-\index{bs\-\_\-available@{bs\-\_\-available}!bitstream.c@{bitstream.\-c}}
-\subsubsection[{bs\-\_\-available}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-\_\-available (
+\hypertarget{bitstream_8c_a3f619bc8d5758e70e659208fc858138b}{\index{bitstream.\-c@{bitstream.\-c}!bs\-Available@{bs\-Available}}
+\index{bs\-Available@{bs\-Available}!bitstream.c@{bitstream.\-c}}
+\subsubsection[{bs\-Available}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-Available (
 \begin{DoxyParamCaption}
 \item[{{\bf bitstream\-\_\-t} $\ast$}]{bs}
 \end{DoxyParamCaption}
-)}}\label{bitstream_8c_a9a586a86db3bb1e24b6a9528a4eab848}
+)}}\label{bitstream_8c_a3f619bc8d5758e70e659208fc858138b}
 Returns the number of pixels available to read 
 \begin{DoxyParams}{Parameters}
 {\em bs} & -\/ pointer to initialised bitstream context to check available pixels with \\
@@ -40,13 +40,13 @@ Returns the number of pixels available to read
 \begin{DoxyReturn}{Returns}
 number of pixels available to read 
 \end{DoxyReturn}
-\hypertarget{bitstream_8c_ac963fdb002e33ad30c1b0c2e6e3281e0}{\index{bitstream.\-c@{bitstream.\-c}!bs\-\_\-get\-Next\-Word@{bs\-\_\-get\-Next\-Word}}
-\index{bs\-\_\-get\-Next\-Word@{bs\-\_\-get\-Next\-Word}!bitstream.c@{bitstream.\-c}}
-\subsubsection[{bs\-\_\-get\-Next\-Word}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-\_\-get\-Next\-Word (
+\hypertarget{bitstream_8c_a1cbadfcdfc196cc43b13922290aceb67}{\index{bitstream.\-c@{bitstream.\-c}!bs\-Get\-Next\-Word@{bs\-Get\-Next\-Word}}
+\index{bs\-Get\-Next\-Word@{bs\-Get\-Next\-Word}!bitstream.c@{bitstream.\-c}}
+\subsubsection[{bs\-Get\-Next\-Word}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-Get\-Next\-Word (
 \begin{DoxyParamCaption}
 \item[{{\bf bitstream\-\_\-t} $\ast$}]{bs}
 \end{DoxyParamCaption}
-)}}\label{bitstream_8c_ac963fdb002e33ad30c1b0c2e6e3281e0}
+)}}\label{bitstream_8c_a1cbadfcdfc196cc43b13922290aceb67}
 Return the next data word from flash 
 \begin{DoxyParams}{Parameters}
 {\em bs} & -\/ pointer to initialised bitstream context to get the next word from \\
@@ -55,16 +55,16 @@ Return the next data word from flash
 \begin{DoxyReturn}{Returns}
 next data word, or 0 if end of data reached 
 \end{DoxyReturn}
-\hypertarget{bitstream_8c_a865acda2607844a4bc7113ffe7378030}{\index{bitstream.\-c@{bitstream.\-c}!bs\-\_\-init@{bs\-\_\-init}}
-\index{bs\-\_\-init@{bs\-\_\-init}!bitstream.c@{bitstream.\-c}}
-\subsubsection[{bs\-\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}void bs\-\_\-init (
+\hypertarget{bitstream_8c_abc2fc58b28a65eafe47ab27d086c8851}{\index{bitstream.\-c@{bitstream.\-c}!bs\-Init@{bs\-Init}}
+\index{bs\-Init@{bs\-Init}!bitstream.c@{bitstream.\-c}}
+\subsubsection[{bs\-Init}]{\setlength{\rightskip}{0pt plus 5cm}void bs\-Init (
 \begin{DoxyParamCaption}
 \item[{{\bf bitstream\-\_\-t} $\ast$}]{bs, }
 \item[{const uint8\-\_\-t}]{pixel\-Depth, }
 \item[{const uint16\-\_\-t $\ast$}]{data, }
 \item[{const uint16\-\_\-t}]{size}
 \end{DoxyParamCaption}
-)}}\label{bitstream_8c_a865acda2607844a4bc7113ffe7378030}
+)}}\label{bitstream_8c_abc2fc58b28a65eafe47ab27d086c8851}
 Initialise a bitstream ready for use 
 \begin{DoxyParams}{Parameters}
 {\em bs} & -\/ pointer to the bitstream context to be used for the new bitmap \\
@@ -79,14 +79,14 @@ Initialise a bitstream ready for use
 \begin{DoxyNote}{Note}
 the bitmap data must be packed into 16 bit words, and pixels are packed across words when they do not fully fit 
 \end{DoxyNote}
-\hypertarget{bitstream_8c_a7de63986315b2e7df7e640878155897f}{\index{bitstream.\-c@{bitstream.\-c}!bs\-\_\-read@{bs\-\_\-read}}
-\index{bs\-\_\-read@{bs\-\_\-read}!bitstream.c@{bitstream.\-c}}
-\subsubsection[{bs\-\_\-read}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-\_\-read (
+\hypertarget{bitstream_8c_aa232ce5aedebf3e7c9062882fca31a95}{\index{bitstream.\-c@{bitstream.\-c}!bs\-Read@{bs\-Read}}
+\index{bs\-Read@{bs\-Read}!bitstream.c@{bitstream.\-c}}
+\subsubsection[{bs\-Read}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-Read (
 \begin{DoxyParamCaption}
 \item[{{\bf bitstream\-\_\-t} $\ast$}]{bs, }
 \item[{uint8\-\_\-t}]{num\-Pixels}
 \end{DoxyParamCaption}
-)}}\label{bitstream_8c_a7de63986315b2e7df7e640878155897f}
+)}}\label{bitstream_8c_aa232ce5aedebf3e7c9062882fca31a95}
 Return the next pixel from the bitmap 
 \begin{DoxyParams}{Parameters}
 {\em bs} & -\/ pointer to initialised bitstream context to read the next pixel from \\

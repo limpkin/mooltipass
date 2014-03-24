@@ -36,42 +36,46 @@
 #define FONT_DEFAULT font_MONO_5x7
 //#define FONT_DEFAULT font_CHECKBOOK_14
 
-typedef struct {
-    uint8_t width;		// Width of glyph data in pixels
-    uint8_t xrect;		// x width of rectangle
-    uint8_t yrect;		// y height of rectangle
-    int8_t xoffset;		// x offset of glyph in rectangle
-    int8_t yoffset;		// y offset of glyph in rectangle
-    const uint8_t *glyph;	// glyph pixel data
+typedef struct
+{
+    uint8_t width;          // Width of glyph data in pixels
+    uint8_t xrect;          // x width of rectangle
+    uint8_t yrect;          // y height of rectangle
+    int8_t xoffset;         // x offset of glyph in rectangle
+    int8_t yoffset;         // y offset of glyph in rectangle
+    const uint8_t *glyph;   // glyph pixel data
 } glyph_t;
 
-typedef struct {
+typedef struct
+{
     uint8_t height;         //*< height of font
-    uint8_t fixedWidth;	    //*< width of font, 0 = proportional font
-    uint8_t depth;	    //*< Number of bits per pixel
+    uint8_t fixedWidth;     //*< width of font, 0 = proportional font
+    uint8_t depth;          //*< Number of bits per pixel
     const uint8_t *map;     //*< ASCII to font map
-    union {
+    union
+    {
         const glyph_t *glyphs;   //*< variable width font data
         const uint8_t *bitmaps;  //*< fixed width font data
     } fontData;
 } font_t;
 
-typedef enum {
-#ifdef FONT_CHECKBOOK_12
-    font_CHECKBOOK_12,
-#endif
-#ifdef FONT_CHECKBOOK_14
-    font_CHECKBOOK_14,
-#endif
-#ifdef FONT_PROFONT_10_100DPI
-    font_PROFONT_10_100DPI,
-#endif
-#ifdef FONT_PROFONT_10_72DPI
-    font_PROFONT_10_72DPI,
-#endif
-#ifdef FONT_MONO_5x7
-    font_MONO_5x7,
-#endif
+typedef enum 
+{
+    #ifdef FONT_CHECKBOOK_12
+        font_CHECKBOOK_12,
+    #endif
+    #ifdef FONT_CHECKBOOK_14
+        font_CHECKBOOK_14,
+    #endif
+    #ifdef FONT_PROFONT_10_100DPI
+        font_PROFONT_10_100DPI,
+    #endif
+    #ifdef FONT_PROFONT_10_72DPI
+        font_PROFONT_10_72DPI,
+    #endif
+    #ifdef FONT_MONO_5x7
+        font_MONO_5x7,
+    #endif
 } font_e;
 
 extern font_t fontsHQ[];

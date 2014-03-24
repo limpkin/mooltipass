@@ -1,5 +1,5 @@
-\hypertarget{bitstream_8h}{\section{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.h File Reference}
-\label{bitstream_8h}\index{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.\-h@{C\-:/\-Users/stephan/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.\-h}}
+\hypertarget{bitstream_8h}{\section{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.h File Reference}
+\label{bitstream_8h}\index{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.\-h@{C\-:/\-Users/limpkin/\-Dropbox/\-Projets/mooltipass/source\-\_\-code/src/\-O\-L\-E\-D\-M\-P/bitstream.\-h}}
 }
 
 
@@ -15,11 +15,11 @@ struct \hyperlink{structbitstream__t}{bitstream\-\_\-t}
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \hyperlink{bitstream_8h_a8acb3fa99362713d13f6776b1b6d68ef}{bs\-\_\-init} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs, const uint8\-\_\-t bits\-Per\-Pixel, const uint16\-\_\-t $\ast$data, const uint16\-\_\-t size)
+void \hyperlink{bitstream_8h_a73b57a464a0537fd29f26300ebd9f563}{bs\-Init} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs, const uint8\-\_\-t bits\-Per\-Pixel, const uint16\-\_\-t $\ast$data, const uint16\-\_\-t size)
 \item 
-uint16\-\_\-t \hyperlink{bitstream_8h_a7de63986315b2e7df7e640878155897f}{bs\-\_\-read} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs, uint8\-\_\-t num\-Pixels)
+uint16\-\_\-t \hyperlink{bitstream_8h_aa232ce5aedebf3e7c9062882fca31a95}{bs\-Read} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs, uint8\-\_\-t num\-Pixels)
 \item 
-uint16\-\_\-t \hyperlink{bitstream_8h_a9a586a86db3bb1e24b6a9528a4eab848}{bs\-\_\-available} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs)
+uint16\-\_\-t \hyperlink{bitstream_8h_a3f619bc8d5758e70e659208fc858138b}{bs\-Available} (\hyperlink{structbitstream__t}{bitstream\-\_\-t} $\ast$bs)
 \end{DoxyCompactItemize}
 
 
@@ -27,13 +27,13 @@ uint16\-\_\-t \hyperlink{bitstream_8h_a9a586a86db3bb1e24b6a9528a4eab848}{bs\-\_\
 O\-L\-E\-D library header Created\-: 15/2/2014 Author\-: Darran Hunt. 
 
 \subsection{Function Documentation}
-\hypertarget{bitstream_8h_a9a586a86db3bb1e24b6a9528a4eab848}{\index{bitstream.\-h@{bitstream.\-h}!bs\-\_\-available@{bs\-\_\-available}}
-\index{bs\-\_\-available@{bs\-\_\-available}!bitstream.h@{bitstream.\-h}}
-\subsubsection[{bs\-\_\-available}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-\_\-available (
+\hypertarget{bitstream_8h_a3f619bc8d5758e70e659208fc858138b}{\index{bitstream.\-h@{bitstream.\-h}!bs\-Available@{bs\-Available}}
+\index{bs\-Available@{bs\-Available}!bitstream.h@{bitstream.\-h}}
+\subsubsection[{bs\-Available}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-Available (
 \begin{DoxyParamCaption}
 \item[{{\bf bitstream\-\_\-t} $\ast$}]{bs}
 \end{DoxyParamCaption}
-)}}\label{bitstream_8h_a9a586a86db3bb1e24b6a9528a4eab848}
+)}}\label{bitstream_8h_a3f619bc8d5758e70e659208fc858138b}
 Returns the number of pixels available to read 
 \begin{DoxyParams}{Parameters}
 {\em bs} & -\/ pointer to initialised bitstream context to check available pixels with \\
@@ -42,16 +42,16 @@ Returns the number of pixels available to read
 \begin{DoxyReturn}{Returns}
 number of pixels available to read 
 \end{DoxyReturn}
-\hypertarget{bitstream_8h_a8acb3fa99362713d13f6776b1b6d68ef}{\index{bitstream.\-h@{bitstream.\-h}!bs\-\_\-init@{bs\-\_\-init}}
-\index{bs\-\_\-init@{bs\-\_\-init}!bitstream.h@{bitstream.\-h}}
-\subsubsection[{bs\-\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}void bs\-\_\-init (
+\hypertarget{bitstream_8h_a73b57a464a0537fd29f26300ebd9f563}{\index{bitstream.\-h@{bitstream.\-h}!bs\-Init@{bs\-Init}}
+\index{bs\-Init@{bs\-Init}!bitstream.h@{bitstream.\-h}}
+\subsubsection[{bs\-Init}]{\setlength{\rightskip}{0pt plus 5cm}void bs\-Init (
 \begin{DoxyParamCaption}
 \item[{{\bf bitstream\-\_\-t} $\ast$}]{bs, }
 \item[{const uint8\-\_\-t}]{pixel\-Depth, }
 \item[{const uint16\-\_\-t $\ast$}]{data, }
 \item[{const uint16\-\_\-t}]{size}
 \end{DoxyParamCaption}
-)}}\label{bitstream_8h_a8acb3fa99362713d13f6776b1b6d68ef}
+)}}\label{bitstream_8h_a73b57a464a0537fd29f26300ebd9f563}
 Initialise a bitstream ready for use 
 \begin{DoxyParams}{Parameters}
 {\em bs} & -\/ pointer to the bitstream context to be used for the new bitmap \\
@@ -66,14 +66,14 @@ Initialise a bitstream ready for use
 \begin{DoxyNote}{Note}
 the bitmap data must be packed into 16 bit words, and pixels are packed across words when they do not fully fit 
 \end{DoxyNote}
-\hypertarget{bitstream_8h_a7de63986315b2e7df7e640878155897f}{\index{bitstream.\-h@{bitstream.\-h}!bs\-\_\-read@{bs\-\_\-read}}
-\index{bs\-\_\-read@{bs\-\_\-read}!bitstream.h@{bitstream.\-h}}
-\subsubsection[{bs\-\_\-read}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-\_\-read (
+\hypertarget{bitstream_8h_aa232ce5aedebf3e7c9062882fca31a95}{\index{bitstream.\-h@{bitstream.\-h}!bs\-Read@{bs\-Read}}
+\index{bs\-Read@{bs\-Read}!bitstream.h@{bitstream.\-h}}
+\subsubsection[{bs\-Read}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t bs\-Read (
 \begin{DoxyParamCaption}
 \item[{{\bf bitstream\-\_\-t} $\ast$}]{bs, }
 \item[{uint8\-\_\-t}]{num\-Pixels}
 \end{DoxyParamCaption}
-)}}\label{bitstream_8h_a7de63986315b2e7df7e640878155897f}
+)}}\label{bitstream_8h_aa232ce5aedebf3e7c9062882fca31a95}
 Return the next pixel from the bitmap 
 \begin{DoxyParams}{Parameters}
 {\em bs} & -\/ pointer to initialised bitstream context to read the next pixel from \\

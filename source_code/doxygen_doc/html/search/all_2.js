@@ -9,5 +9,6 @@ var searchData=
   ['chr_5fstrlen',['chr_strlen',['../utils_8c.html#a78be21b0b1659c7e7327be836b562973',1,'utils.c']]],
   ['clear_5fstring',['clear_string',['../utils_8c.html#a9ae2eebd81d6a10e9937415fef9e9526',1,'utils.c']]],
   ['clearpgmrstsignals',['clearPgmRstSignals',['../smartcard_8c.html#a4b199cccbcc01e2d6fe0f9935f60d5e1',1,'smartcard.c']]],
-  ['clockpulsesmc',['clockPulseSMC',['../smartcard_8c.html#a0ec95b1d2105b04b261b99f3e6506966',1,'smartcard.c']]]
+  ['clockpulsesmc',['clockPulseSMC',['../smartcard_8c.html#a0ec95b1d2105b04b261b99f3e6506966',1,'smartcard.c']]],
+  ['ctrtestoutput',['ctrTestOutput',['../aes256__ctr__test_8c.html#aba6194606f5ba83f3c49b64377f6e5c3',1,'aes256_ctr_test.c']]]
 ];

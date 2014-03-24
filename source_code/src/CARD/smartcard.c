@@ -26,6 +26,7 @@
 #include "../mooltipass.h"
 #include <util/delay.h>
 #include "smartcard.h"
+#include "defines.h"
 #include <avr/io.h>
 #include "utils.h"
 
@@ -228,7 +229,11 @@ RET_TYPE isCardPlugged(void)
 */
 void scanSMCDectect(void)
 {
+#if defined(HARDWARE_V1)
     if (PIN_SC_DET & (1 << PORTID_SC_DET))
+#elif defined(HARDWARE_OLIVIER_V1)
+    if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
+#endif
     {
         if (card_detect_counter != 0xFF)
         {
@@ -495,7 +500,7 @@ void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write
 *   \brief  Read bytes from the smart card
 *   \param  nb_bytes_total_read     The number of bytes to be read
 *   \param  start_record_index      The index at which we start recording the answer
-*   \param  *data_to_receive        Pointer to the buffer
+*   \param  data_to_receive        Pointer to the buffer
 *   \return The buffer
 */
 uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive)

@@ -1207,9 +1207,11 @@ void usbPutstr_P(const char *str)
     char ch;
 
     ch = pgm_read_byte(str++);
-    while (ch != 0) {
+    while (ch != 0) 
+    {
         usb_serial_putchar(ch);	
-        if (ch == '\n') {
+        if (ch == '\n') 
+        {
             usb_serial_putchar('\r');	
         }
         ch = pgm_read_byte(str++);
@@ -1225,9 +1227,11 @@ void usbPutstr(const char *str)
 {
     char ch;
 
-    while ((ch=*str++) != 0) {
+    while ((ch=*str++) != 0) 
+    {
         usb_serial_putchar(ch);	
-        if (ch == '\n') {
+        if (ch == '\n') 
+        {
             usb_serial_putchar('\r');	
         }
     }

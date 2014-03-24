@@ -230,7 +230,8 @@ int main(void)
                 hexachar_to_string(temp_buffer[i], temp_string);
                 Show_String(temp_string, FALSE, 2+i*5, 8);
             }*/
-        } else if (card_detect_ret == RETURN_JRELEASED)   //card just released
+        }
+        else if (card_detect_ret == RETURN_JRELEASED)   //card just released
         {
             oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
             removeFunctionSMC();

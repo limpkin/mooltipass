@@ -35,10 +35,16 @@ count:  4096
 
 The count: 4096 is the number of 16-bit words used by the uncompressed bitmap image; 8KB in this case. The output file is bitmap.h, and the bitmap data structure in the file is called image_had_mooltipass (from the --name option).
 
-###Same example with run-length compression:
+###Example with run-length compression:
+
+Use gimp to convert this:
+![alt text](https://github.com/harlequin-tech/mooltipass/blob/master/bitmaps/HaD_Mooltipass.png Hackaday Mooltipass Logo) into [HaD_Mooltipass.h](https://github.com/harlequin-tech/mooltipass/blob/master/bitmaps/HaD_Mooltipass.h).
+
+Then use the bitmap.py command to convert HaD_Mooltipass.h into [had_mooltipass.h](https://github.com/harlequin-tech/mooltipass/blob/master/source_code/src/had_mooltipass.h)
 ```
-./bitmap.py --input HaD_Mooltipass.h --output bitmap.h -n had_mooltipass --bitdepth 4 --compress
+./bitmap.py --input HaD_Mooltipass.h --output had_mooltipass.h -n had_mooltipass --bitdepth 4 --compress
 count:  3840
 ```
+
 
 In this case the count is the number of bytes used by the compressed bit image; 3.8KB. The amount of compression is very dependent on the image and how many horizontal runs of the same pixel are in the image. The best possible case would be a 8 to 1 compression. Compressed bitmaps also have the benefit of taking less time to display on the screen.

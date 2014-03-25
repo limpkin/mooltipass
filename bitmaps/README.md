@@ -42,7 +42,7 @@ Use gimp to convert this:
 
 Then use the [bitmap.py](https://github.com/harlequin-tech/mooltipass/blob/master/bitmaps/bitmap.py) python script to convert [HaD_Mooltipass.h](https://github.com/harlequin-tech/mooltipass/blob/master/bitmaps/HaD_Mooltipass.h) into [had_mooltipass.h](https://github.com/harlequin-tech/mooltipass/blob/master/source_code/src/had_mooltipass.h)
 ```
-./bitmap.py --input HaD_Mooltipass.h --output had_mooltipass.h -n had_mooltipass --bitdepth 4 --compress
+./bitmap.py --input HaD_Mooltipass.h --output had_mooltipass.h --name HaD_Mooltipass --bitdepth 4 --compress
 count:  3840
 ```
 

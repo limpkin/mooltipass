@@ -3,6 +3,7 @@
 The bitmap format supported by the OLEDMP library in the Mooltipass project supports bitmaps up to 256x64 pixels in size and 1, 2, 3, or 4 bits per pixel (greyscale).
 
 To format a bitmap for use in the mooltipass project, you can use the <a href="http://www.gimp.org">GIMP GNU Image Manipulation Program</a> (available for Linux, OSX, Windows, etc).  
+
 1. Scale or crop the image so it fits within the 256x64 size limit or to the size you want it to be.
 2. Convert the image to grayscale (image->mode->grayscale)
 3. Convert the image to an indexed image (image->mode->indexed) and select either 2, 4, 8, or 16 colour levels (1-bit pixels, 2-bit, 3-bit, or 4-bit pixels).  

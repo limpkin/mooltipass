@@ -23,10 +23,10 @@ Options:
                           input header file
     -c, --compress        compress output
     -b BITDEPTH, --bitdepth=BITDEPTH
-			  number of bits per pixel (default: 4)
+                          number of bits per pixel (default: 4)
 ```
 
-Example conversion of a 256x64 image with 16 colours per pixel (4-bit pixels)
+###Example conversion of a 256x64 image with 16 colours per pixel (4-bit pixels)
 ```
 ./bitmap.py --input HaD_Mooltipass.h --output bitmap.h --name had_mooltipass --bitdepth 4
 count:  4096
@@ -34,7 +34,7 @@ count:  4096
 
 The count: 4096 is the number of 16-bit words used by the uncompressed bitmap image; 8KB in this case. The output file is bitmap.h, and the bitmap data structure in the file is called image_had_mooltipass (from the --name option).
 
-Same example with run-lenght compression:
+###Same example with run-length compression:
 ```
 ./bitmap.py --input HaD_Mooltipass.h --output bitmap.h -n had_mooltipass --bitdepth 4 --compress
 count:  3840

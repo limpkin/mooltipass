@@ -175,15 +175,15 @@ int main(void)
     while (1)
     {
         card_detect_ret = isCardPlugged();
-        if (card_detect_ret == RETURN_JDETECT)							// Card just detected
+        if (card_detect_ret == RETURN_JDETECT)                          // Card just detected
         {
             temp_rettype = cardDetectedRoutine();
-			
-			#ifdef DEBUG_SMC_SCREEN_PRINT
-				//oledFlipBuffers(OLED_SCROLL_DOWN,0);
-				oledWriteInactiveBuffer();
-				oledClear();
-			#endif
+            
+            #ifdef DEBUG_SMC_SCREEN_PRINT
+                //oledFlipBuffers(OLED_SCROLL_DOWN,0);
+                oledWriteInactiveBuffer();
+                oledClear();
+            #endif
 
             if (temp_rettype == RETURN_MOOLTIPASS_INVALID)              // Invalid card
             {
@@ -205,28 +205,28 @@ int main(void)
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
             {
-				// TO REMOVE, TESTS!
-				//eraseApplicationZone1NZone2SMC(TRUE);
-				//setAuthenticatedReadWriteAccessToZone1();
-				uint8_t bufbuf[256/8];
-				uint8_t i;
-				for (i = 0; i < (256/8); i++)
-				{
-					bufbuf[i] = 0xA0;
-				}
-				if(writeAES256BitsKey(bufbuf) == RETURN_OK)
-				{
-					 oledSetXY(2,0);
-					 oledPutstr_P(PSTR("AES Key written "));
-					 oledFlipBuffers(OLED_SCROLL_DOWN,0);
-				}
-				else
-				{
-					oledSetXY(2,32);
-					oledPutstr_P(PSTR("AES Key PB Write "));
-					oledFlipBuffers(OLED_SCROLL_DOWN,0);
-				}
-				
+                // TO REMOVE, TESTS!
+                //eraseApplicationZone1NZone2SMC(TRUE);
+                //setAuthenticatedReadWriteAccessToZone1();
+                uint8_t bufbuf[256/8];
+                uint8_t i;
+                for (i = 0; i < (256/8); i++)
+                {
+                    bufbuf[i] = 0xA0;
+                }
+                if(writeAES256BitsKey(bufbuf) == RETURN_OK)
+                {
+                     oledSetXY(2,0);
+                     oledPutstr_P(PSTR("AES Key written "));
+                     oledFlipBuffers(OLED_SCROLL_DOWN,0);
+                }
+                else
+                {
+                    oledSetXY(2,32);
+                    oledPutstr_P(PSTR("AES Key PB Write "));
+                    oledFlipBuffers(OLED_SCROLL_DOWN,0);
+                }
+                
                 // Here we should ask the user to setup his mooltipass card
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();

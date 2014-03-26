@@ -262,28 +262,28 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 */
 void readAES256BitsKey(uint8_t* buffer)
 {
-	readSMC(24 + (256/8), 24, buffer);
+    readSMC(24 + (256/8), 24, buffer);
 }
 
 /*! \fn     writeAES256BitsKey(void)
 *   \brief  Write the AES 256 bits key to the card
-*	\return	Operation success
+*   \return Operation success
 */
 RET_TYPE writeAES256BitsKey(uint8_t* buffer)
 {
-	uint8_t temp_buffer[256/8];
-	
-	writeSMC(192, 256, buffer);
-	readAES256BitsKey(temp_buffer);
-	
-	if (hm_uint8_strncmp(buffer, temp_buffer, 256/8) == 0)
-	{
-		return RETURN_OK;
-	}
-	else
-	{
-		return RETURN_NOK;
-	}
+    uint8_t temp_buffer[256/8];
+    
+    writeSMC(192, 256, buffer);
+    readAES256BitsKey(temp_buffer);
+    
+    if (hm_uint8_strncmp(buffer, temp_buffer, 256/8) == 0)
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
 }
 
 /*! \fn     resetBlankCard(void)
@@ -478,15 +478,15 @@ void write_issuers_fuse(void)
 
 /*! \fn     setAuthenticatedReadWriteAccessToZone1(void)
 *   \brief  Function called to only allow reads and writes to the application zone 1 when authenticated
-*	\return Operation success
+*   \return Operation success
 */
 RET_TYPE setAuthenticatedReadWriteAccessToZone1(void)
 {
     // Set P1 to 1 to allow write, remove R1 to prevent non authenticated reads
     uint8_t temp_buffer[2] = {0x80, 0x00};
     writeSMC(176, 16, temp_buffer);
-	
-	return checkAuthenticatedReadWriteAccessToZone1();
+    
+    return checkAuthenticatedReadWriteAccessToZone1();
 }
 
 /*! \fn     checkAuthenticatedReadWriteAccessToZone1(void)
@@ -511,15 +511,15 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void)
 
 /*! \fn     setAuthenticatedReadWriteAccessToZone2(void)
 *   \brief  Function called to only allow reads and writes to the application zone 2 when authenticated
-*	\return Operation success
+*   \return Operation success
 */
 RET_TYPE setAuthenticatedReadWriteAccessToZone2(void)
 {
     // Set P2 to 1 to allow write, remove R2 to prevent non authenticated reads
     uint8_t temp_buffer[2] = {0x80, 0x00};
     writeSMC(736, 16, temp_buffer);
-	
-	return checkAuthenticatedReadWriteAccessToZone2();
+    
+    return checkAuthenticatedReadWriteAccessToZone2();
 }
 
 /*! \fn     checkAuthenticatedReadWriteAccessToZone2(void)
@@ -642,18 +642,18 @@ uint8_t getNumberOfSecurityCodeTriesLeft(void)
 */
 uint8_t getNumberOfAZ2WritesLeft(void)
 {
-	uint8_t temp_buffer[16];
-	uint8_t return_val = 0;
-	uint8_t i;
+    uint8_t temp_buffer[16];
+    uint8_t return_val = 0;
+    uint8_t i;
 
-	readSMC(176, 160, temp_buffer);
-	for(i = 0; i < 128; i++)
-	{
-		if ((temp_buffer[i>>3] >> (i&0x07)) & 0x01)
-		{
-			return_val++;
-		}
-	}
+    readSMC(176, 160, temp_buffer);
+    for(i = 0; i < 128; i++)
+    {
+        if ((temp_buffer[i>>3] >> (i&0x07)) & 0x01)
+        {
+            return_val++;
+        }
+    }
 
-	return return_val;	
+    return return_val;  
 }

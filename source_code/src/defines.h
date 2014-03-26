@@ -37,6 +37,9 @@
 #define	HARDWARE_V1
 //#define HARDWARE_OLIVIER_V1
 
+/** SMARTCARD FUSE VERSION **/
+#define SMARTCARD_FUSE_V1
+
 /** MACROS **/
 #define CPU_PRESCALE(n)		(CLKPR = 0x80, CLKPR = (n))
 

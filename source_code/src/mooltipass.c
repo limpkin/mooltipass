@@ -175,46 +175,69 @@ int main(void)
     while (1)
     {
         card_detect_ret = isCardPlugged();
-        if (card_detect_ret == RETURN_JDETECT)                           // Card just detected
+        if (card_detect_ret == RETURN_JDETECT)                          // Card just detected
         {
             temp_rettype = cardDetectedRoutine();
-#ifdef DEBUG_SMC_SCREEN_PRINT
-            //oledFlipBuffers(OLED_SCROLL_DOWN,0);
-            oledWriteInactiveBuffer();
-            oledClear();
-#endif
+            
+            #ifdef DEBUG_SMC_SCREEN_PRINT
+                //oledFlipBuffers(OLED_SCROLL_DOWN,0);
+                oledWriteInactiveBuffer();
+                oledClear();
+            #endif
 
-            if (temp_rettype == RETURN_MOOLTIPASS_INVALID)               // Invalid card
+            if (temp_rettype == RETURN_MOOLTIPASS_INVALID)              // Invalid card
             {
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
-            else if (temp_rettype == RETURN_MOOLTIPASS_PB)               // Problem with card
+            else if (temp_rettype == RETURN_MOOLTIPASS_PB)              // Problem with card
             {
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
-            else if (temp_rettype == RETURN_MOOLTIPASS_BLOCKED)          // Card blocked
+            else if (temp_rettype == RETURN_MOOLTIPASS_BLOCKED)         // Card blocked
             {
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
-            else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)            // Blank mooltipass card
+            else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
             {
+                // TO REMOVE, TESTS!
+                //eraseApplicationZone1NZone2SMC(TRUE);
+                //setAuthenticatedReadWriteAccessToZone1();
+                uint8_t bufbuf[256/8];
+                uint8_t i;
+                for (i = 0; i < (256/8); i++)
+                {
+                    bufbuf[i] = 0xA0;
+                }
+                if(writeAES256BitsKey(bufbuf) == RETURN_OK)
+                {
+                     oledSetXY(2,0);
+                     oledPutstr_P(PSTR("AES Key written "));
+                     oledFlipBuffers(OLED_SCROLL_DOWN,0);
+                }
+                else
+                {
+                    oledSetXY(2,32);
+                    oledPutstr_P(PSTR("AES Key PB Write "));
+                    oledFlipBuffers(OLED_SCROLL_DOWN,0);
+                }
+                
                 // Here we should ask the user to setup his mooltipass card
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
-                removeFunctionSMC();                                    // Shut down card reader
+                removeFunctionSMC();                                     // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_USER)             // Configured mooltipass card
             {
                 // Here we should ask the user for his pin and call mooltipassdetect
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
-                removeFunctionSMC();                                    // Shut down card reader
+                removeFunctionSMC();                                     // Shut down card reader
             }
             /*read_credential_block_within_flash_page(2,1,temp_buffer);
             for(i = 0; i < 10; i++)

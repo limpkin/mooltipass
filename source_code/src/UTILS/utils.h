@@ -22,6 +22,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_ 
  
+ uint8_t hm_uint8_strncmp(uint8_t* buffer1, uint8_t* buffer2, uint8_t nb_chars);
 void hexachar_to_string(unsigned char c, char* string);
 void char_to_string(unsigned char value, char* string);
 void hm_str_cpy(char* source, char* dest, int nb_char);

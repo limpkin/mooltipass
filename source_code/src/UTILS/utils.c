@@ -226,6 +226,31 @@ void int_to_string(unsigned int value, char* string)
     string[index] = 0x00;
 }
 
+/*! \fn		hm_uint8_strncmp(uint8_t* buffer1, uint8_t* buffer2, uint8_t nb_chars)
+*   \brief  A simplified strncmp
+*   \param  buffer1   First buffer to compare
+*   \param  buffer2   Second buffer to compare
+*   \param  nb_chars  Number of uint8 to compare
+*/
+uint8_t hm_uint8_strncmp(uint8_t* buffer1, uint8_t* buffer2, uint8_t nb_chars)
+{
+	uint8_t i = 0;
+	
+	for (i = 0; i < nb_chars; i++)
+	{
+		if (*buffer1++ != *buffer2++)
+		{
+			return i+1;
+		}
+	}
+	
+	return 0;
+}
+
+/*! \fn     delay_ms(uint16_t ms) 
+*   \brief  ms delay routine
+*   \param  ms   The number of milliseconds
+*/
 void delay_ms(uint16_t ms) 
 { 
     while (ms--) 

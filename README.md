@@ -1,7 +1,7 @@
 Mooltipass project github
 =========================
 
-This is the github repository dedicated to the mooltipass project. It contains all resources that were used and generated for this community driven product.
+This is the github repository dedicated to the mooltipass project. It contains all resources that were used and generated for this community driven product. You may find all the Hackaday articles using this link: http://hackaday.com/tag/developed-on-hackaday/
 
 
 What is the mooltipass project?

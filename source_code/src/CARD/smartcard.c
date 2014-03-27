@@ -87,7 +87,7 @@ void setPgmRstSignals(void)
 }
 
 /*! \fn     performLowLevelWriteNErase(uint8_t is_write)
-*   \brief  Perform a write or erase operation
+*   \brief  Perform a write or erase operation on the smart card
 *   \param  is_write    Boolean to indicate if it is a write
 */
 void performLowLevelWriteNErase(uint8_t is_write)
@@ -129,7 +129,7 @@ void performLowLevelWriteNErase(uint8_t is_write)
 }
 
 /*! \fn     setSPIModeSMC(void)
-*   \brief  Activate SPI controller
+*   \brief  Activate SPI controller for the SMC
 */
 void setSPIModeSMC(void)
 {
@@ -264,6 +264,9 @@ void scanSMCDectect(void)
 */
 void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)
 {
+    #ifdef SMARTCARD_FUSE_V1        
+        uint8_t temp_bool;
+    #endif
     uint16_t i;
 
     /* Which index to go to */
@@ -310,6 +313,37 @@ void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)
         _delay_us(3);
         PORTB &= ~(1 << 2);
         _delay_us(3);
+        
+        /* In smart card fuse V1 (early versions sent to beta testers), EC2EN is not blown so we're limited to 128 erase operations... */
+        #ifdef SMARTCARD_FUSE_V1
+            if (zone1_nzone2 == FALSE)
+            {               
+                i = 0;
+                temp_bool = TRUE;
+                /* Write one of the four SCAC bits to 0 and check if successful */
+                while((temp_bool == TRUE) && (i < 128))
+                {
+                    /* If one of the four bits is at 1, write a 0 */
+                    if (PINB & (1 << 3))
+                    {
+                        /* Set write command */
+                        performLowLevelWriteNErase(TRUE);
+
+                        /* Wait for the smart card to output a 0 */
+                        while(PINB & (1 << 3));
+
+                        /* Exit loop */
+                        temp_bool = FALSE;
+                    }
+                    else
+                    {
+                        /* Clock pulse */
+                        clockPulseSMC();
+                        i++;
+                    }
+                }
+            }
+        #endif
 
         /* Erase AZ1/AZ2 */
         performLowLevelWriteNErase(FALSE);

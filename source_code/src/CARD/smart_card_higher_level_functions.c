@@ -21,7 +21,6 @@
  *  \brief  Smart Card high level functions
  *  Copyright [2014] [Mathieu Stephan]
  */
-// TODO: BLOW EC2EN FUSE when setting up the mooltipass...
 #include "smart_card_higher_level_functions.h"
 #include "smartcard.h"
 #include "oledmp.h"
@@ -104,12 +103,12 @@ RET_TYPE cardDetectedRoutine(void)
     uint8_t i;
 
     #ifdef DEBUG_SMC_SCREEN_PRINT
-        oledClear();                                             // Clear screen before writing anything new
+        oledClear();                                            // Clear screen before writing anything new
         oledFlipBuffers(OLED_SCROLL_DOWN,0);
         oledWriteActiveBuffer();
     #endif
 
-    card_detection_result = firstDetectFunctionSMC();            // Get a first card detection result
+    card_detection_result = firstDetectFunctionSMC();           // Get a first card detection result
 
     if (card_detection_result == RETURN_CARD_NDET)               // This is not a card
     {
@@ -255,35 +254,6 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     write_issuers_fuse();
 
     return RETURN_OK;
-}
-
-/*! \fn     readAES256BitsKey(void)
-*   \brief  Read the AES 256 bits key from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
-*/
-void readAES256BitsKey(uint8_t* buffer)
-{
-    readSMC(24 + (256/8), 24, buffer);
-}
-
-/*! \fn     writeAES256BitsKey(void)
-*   \brief  Write the AES 256 bits key to the card
-*   \return Operation success
-*/
-RET_TYPE writeAES256BitsKey(uint8_t* buffer)
-{
-    uint8_t temp_buffer[256/8];
-    
-    writeSMC(192, 256, buffer);
-    readAES256BitsKey(temp_buffer);
-    
-    if (hm_uint8_strncmp(buffer, temp_buffer, 256/8) == 0)
-    {
-        return RETURN_OK;
-    }
-    else
-    {
-        return RETURN_NOK;
-    }
 }
 
 /*! \fn     resetBlankCard(void)
@@ -478,15 +448,12 @@ void write_issuers_fuse(void)
 
 /*! \fn     setAuthenticatedReadWriteAccessToZone1(void)
 *   \brief  Function called to only allow reads and writes to the application zone 1 when authenticated
-*   \return Operation success
 */
-RET_TYPE setAuthenticatedReadWriteAccessToZone1(void)
+void setAuthenticatedReadWriteAccessToZone1(void)
 {
     // Set P1 to 1 to allow write, remove R1 to prevent non authenticated reads
     uint8_t temp_buffer[2] = {0x80, 0x00};
     writeSMC(176, 16, temp_buffer);
-    
-    return checkAuthenticatedReadWriteAccessToZone1();
 }
 
 /*! \fn     checkAuthenticatedReadWriteAccessToZone1(void)
@@ -511,15 +478,12 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void)
 
 /*! \fn     setAuthenticatedReadWriteAccessToZone2(void)
 *   \brief  Function called to only allow reads and writes to the application zone 2 when authenticated
-*   \return Operation success
 */
-RET_TYPE setAuthenticatedReadWriteAccessToZone2(void)
+void setAuthenticatedReadWriteAccessToZone2(void)
 {
     // Set P2 to 1 to allow write, remove R2 to prevent non authenticated reads
     uint8_t temp_buffer[2] = {0x80, 0x00};
     writeSMC(736, 16, temp_buffer);
-    
-    return checkAuthenticatedReadWriteAccessToZone2();
 }
 
 /*! \fn     checkAuthenticatedReadWriteAccessToZone2(void)
@@ -605,16 +569,16 @@ void printSMCDebugInfoToScreen(void)
         oledPrintf_P(PSTR("Security mode %c\n"), (*(uint16_t *)readSecurityCode(data_buffer) == 0xFFFF) ? '2' : '1');
 
         /* Show first 2 bytes of AZ1 and AZ2 */
-        oledPrintf_P(PSTR("AZ1: %04X AZ2: %04X EC2: %02X\n"),
+        oledPrintf_P(PSTR("AZ1: %04X AZ2: %04X\n"),
                 swap16(*(uint16_t*)readSMC(24,22,data_buffer)),
-                swap16(*(uint16_t*)readSMC(94,92,data_buffer)),
-                getNumberOfAZ2WritesLeft());
+                swap16(*(uint16_t*)readSMC(94,92,data_buffer)));
 
         oledFlipBuffers(OLED_SCROLL_UP,10);
     #endif
 }
 
-/*! \fn     getNumberOfSecurityCodeTriesLeft(void)
+
+    /*! \fn     getNumberOfSecurityCodeTriesLeft(void)
 *   \brief  Get the number of security code tries left
 *   \return Number of tries left
 */
@@ -634,26 +598,4 @@ uint8_t getNumberOfSecurityCodeTriesLeft(void)
     }
 
     return return_val;
-}
-
-/*! \fn     getNumberOfAZ2WritesLeft(void)
-*   \brief  Get the number of AZ2 writes left in case EC2 is not blown
-*   \return Number of tries left
-*/
-uint8_t getNumberOfAZ2WritesLeft(void)
-{
-    uint8_t temp_buffer[16];
-    uint8_t return_val = 0;
-    uint8_t i;
-
-    readSMC(176, 160, temp_buffer);
-    for(i = 0; i < 128; i++)
-    {
-        if ((temp_buffer[i>>3] >> (i&0x07)) & 0x01)
-        {
-            return_val++;
-        }
-    }
-
-    return return_val;  
 }

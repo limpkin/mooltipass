@@ -25,8 +25,7 @@
 */
 
 #include "aes.h"
-#include <stdint.h>
-#include <string.h>
+#include "aes256_ctr.h"
 
 /*!	\fn 	static void xor(uint8_t* dest, uint8_t* src, uint8_t nbytes)
 *	\brief	Do xor between dest and src and save it inside dest
@@ -45,7 +44,7 @@ static void xor(uint8_t *dest, uint8_t *src, uint8_t nbytes)
     }
 }
 
-/*!	\fn 	void aes256CtrEnc(const void *iv, const void *key, void *text)
+/*!	\fn 	void aes256CtrEncBlock(const void *iv, const void *key, void *text)
 *	\brief	Encrypt a 16 byte block using CTR encryption
 * 
 *   \param  iv - pointer to initialization vector, size 
@@ -53,7 +52,7 @@ static void xor(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 *   \param  key - pointer to key, size must be 32 bytes
 *   \param  text - plainText to be encrypted, size must be 16 bytes.
 */
-void aes256CtrEnc(const void *iv, const void *key, void *text)
+void aes256CtrEncBlock(const void *iv, const void *key, void *text)
 {
     // the context where the round keys are stored
     aes256_ctx_t ctx;
@@ -75,7 +74,7 @@ void aes256CtrEnc(const void *iv, const void *key, void *text)
     // init aes256
     aes256_init(key, &ctx);
 
-    // encrypt ivcopy and key, then store the result in ivcopy
+    // encrypt ivcopy with key, then store the result in ivcopy
     aes256_enc(ivcopy, &ctx);
 
     // xor encoded ivcopy with text
@@ -87,7 +86,7 @@ void aes256CtrEnc(const void *iv, const void *key, void *text)
     }
 }
 
-/*!	\fn 	void aes256CtrDec(const void *iv, const void *key, void *text)
+/*!	\fn 	void aes256CtrDecBlock(const void *iv, const void *key, void *text)
 *	\brief	Decrypt a 16 byte block using CTR encryption
 * 
 *   \param  iv - pointer to initialization vector, size 
@@ -95,8 +94,100 @@ void aes256CtrEnc(const void *iv, const void *key, void *text)
 *   \param  key - pointer to key, size must be 32 bytes
 *   \param  text - cipherText to be decrypted, size must be 16 bytes.
 */
-void aes256CtrDec(const void *iv, const void *key, void *text)
+void aes256CtrDecBlock(const void *iv, const void *key, void *text)
 {
     // Decrypt is the same operation as encrypt
-    aes256CtrEnc(iv, key, text);
+    aes256CtrEncBlock(iv, key, text);
+}
+
+/*!	\fn 	void aes256CtrInit(aes256CtrCtx *ctx, const uint8_t *key, const uint8_t *iv, size_t ivLen)
+*	\brief	Init CTR encryption and save key and iv inside ctx
+* 
+*   \param  ctx - context to save iv and key information
+*   \param  iv - pointer to initialization vector, size must be 16 bytes or lower.
+*   \param  key - pointer to key, size must be 32 bytes
+*/
+void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen)
+{
+	uint8_t i;
+
+	// copy key inside CTX
+	for (i=0; i<32; i++)
+	{
+		ctx->key[i] = key[i];
+	}
+
+	// ivLen must be 16 or lower
+	if (ivLen > 16)
+	{
+		return;
+	}
+
+	// copy iv inside CTX
+	for (i=0; i<ivLen; i++)
+	{
+		ctx->ctr[i] = iv[i];
+	}
+
+	// zero rest of bytes of ctx->iv.
+	for (i=ivLen; i<16; i++)
+	{
+		ctx->ctr[i] = 0x00;
+	}
+}
+
+/*!	\fn 	void incrementCtr(uint8_t *ctr)
+*	\brief	Increment ctr by 1
+* 
+*   \param  ctr - pointer to counter+iv, size must be 16 bytes.
+*/
+void incrementCtr(uint8_t *ctr)
+{
+    uint8_t i;
+
+    i = 15;
+    while (ctr[i]++ == 0xFF) 
+    {
+        if (i == 0)
+        {
+            break;
+        }
+
+        i--;
+    }
+}
+
+/*!	\fn 	aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
+*	\brief	Encrypt data and save it in data.
+* 
+*   \param  data - pointer to data, this is also the location to store encrypted data
+*   \param  dataLen - size of data, must be multiple of 16.
+*/
+void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
+{
+    uint16_t i;
+
+    // dataLen must be multiple of 16 !
+    if(dataLen%16 != 0)
+    {
+        return;
+    }
+
+    // start encryption/decryption
+    for (i=0; i<dataLen; i+=16)
+    {
+        aes256CtrEncBlock(ctx->ctr, ctx->key, &data[i]);
+        incrementCtr(ctx->ctr);
+    }
+}
+
+/*!	\fn 	aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
+*	\brief	Decrypt data and save it in data.
+* 
+*   \param  data - pointer to data, this is also the location to store encrypted data
+*   \param  dataLen - size of data, must be multiple of 16.
+*/
+void aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
+{
+	aes256CtrEncrypt(ctx, data, dataLen);
 }

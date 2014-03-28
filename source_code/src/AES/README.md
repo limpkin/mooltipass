@@ -70,7 +70,7 @@ The output of all nessieTest functions are formatted in the same way as the file
 
 3- CTR block encryption
 -----------------------
-The passwords stored on the mooltipass will be encrypted using CTR block encryption, more information in: <a href="http://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_.28CTR.29"> Counter CTR </a>. We must decide how to generate the initialization vector formed by nounce+counter but the basic functionality to encrypt a block using CTR is already done, so here's an example of use of CTR block encryption.
+The passwords stored on the mooltipass will be encrypted using CTR block encryption, more information in: <a href="http://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_.28CTR.29"> Counter CTR </a>. We must decide how to generate the initialization vector. Here's an example of use of CTR encryption and decryption.
 
 ```
 static uint8_t key[32] = { 0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b,
@@ -81,7 +81,7 @@ static uint8_t iv[16] = { 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8,
 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
 
 
-char pass[16] = "this is my pass";
+char text[32] = "this is my pass to encrypt";
 
 void main(void)
 {
@@ -89,46 +89,30 @@ void main(void)
 		Stuff here
 	*/
 
-	aes256CtrEnc(ivector, key, pass);
+    // Declare aes256 context variable
+    aes256CtrCtx_t ctx;
+
+    // Save key and initialization vector inside context
+    aes256CtrInit(&ctx, key, iv, 16);
+
+	aes256CtrEncrypt(&ctx, key, text, sizeof(text));
 	// here array pass has been encrypted
+
+    /*
+        Before decrypt is necessary to initialize the context another time
+        due to ctx->ctr value is being modified during encrypt 
+        (it's value is being incremented on each block encrypt operation)
+    */
+
+    // Save key and initialization vector inside context
+    aes256CtrInit(&ctx, key, iv, 16);
 	
-	aes256CtrDec(ivector, key, pass);
-	// decrypting pass using the same key and ivector make pass to be "this is my pass" again.
+	aes256CtrDecrypt(&ctx, key, text, sizeof(text));
+	// decrypting make text to be "this is my pass to encrypt" again.
 }
 ```
-The length of the data input block in aes256CtrEnc and aes256CtrDec must be 16 byte. Our current password size and length is 32 byte so here's an example to encrypt a string greater than 16 bytes.
+Data input in aes256CtrEncrypt and aes256CtrDecrypt must be multiple of 16 bytes length.
 
-```
-char pass[32] = "this is my greater password";
-
-void main(void)
-{
-	/*
-		Stuff here
-	*/
-
-	aes256CtrEnc(ivector, key, &pass[0]);
-	// here pass[0..15] has been encrypted
-
-	/*
-		Here we must increment ivector
-	*/
-	aes256CtrEnc(ivector, key, &pass[16]);
-	// here pass[16..31] has been encrypted
-	
-	/*
-		Decrement ivector
-	*/
-	aes256CtrDec(ivector, key, &pass[0]);
-	// pass[0..15] decrypted to "this is my great"
-
-	/*
-		Increment ivector
-	*/
-	aes256CtrDec(ivector, key, &pass[16]);
-	// pass[16..31] decrypted to "er password"
-}
-```
 
 As said, we like to test our code and verify it has no bugs so... you can test CTR encryption implementation by using <b>aes256_ctr_test.c</b> functions and doing a diff against <b>aes256_ctr_test.txt</b>. CTR vectors used in aes256CtrTest are from <a href="http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf"> http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf</a>.
 ```

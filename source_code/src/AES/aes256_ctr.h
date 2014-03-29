@@ -28,17 +28,22 @@
 #define __AES_256_CTR_H__
 
 #include <stdint.h>
+#include "aes.h"
 
 // CTX data type
 typedef struct
 {
-	uint8_t key[32];
+	aes256_ctx_t aesCtx;
 	uint8_t ctr[16];
+	uint8_t cipherstream[16];
+	int cipherstreamUsed;
 }aes256CtrCtx_t;
 
 // STREAM CTR functions
 void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen);
+void aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen);
 void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen);
 void aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen);
+void aes256CtrClean(aes256CtrCtx_t *ctx);
 
 #endif

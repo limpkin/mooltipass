@@ -53,8 +53,6 @@ static void xor(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 */
 void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen)
 {
-	uint8_t i;
-
 	// ivLen must be 16 or lower
 	if (ivLen > 16)
 	{

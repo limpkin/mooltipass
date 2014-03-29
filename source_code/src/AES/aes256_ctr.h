@@ -27,8 +27,18 @@
 #ifndef __AES_256_CTR_H__
 #define __AES_256_CTR_H__
 
-// prototype functions
-void aes256CtrEnc(const void *iv, const void *key, void *text);
-void aes256CtrDec(const void *iv, const void *key, void *text);
+#include <stdint.h>
+
+// CTX data type
+typedef struct
+{
+	uint8_t key[32];
+	uint8_t ctr[16];
+}aes256CtrCtx_t;
+
+// STREAM CTR functions
+void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen);
+void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen);
+void aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen);
 
 #endif

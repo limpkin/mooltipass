@@ -170,42 +170,42 @@ static void printBlock(uint8_t num)
     printText(str);
 }
 
-/*!	\fn 	static void printEncryptTest(uint8_t *ivector, 
-*                                        uint8_t *key, 
-*                                        uint8_t *plaintext)
-*	\brief	Print the text of encryption
+/*!	\fn 	static void printDecryptTest(aes256CtrCtx_t *ctx, 
+*                                        uint8_t *plaintext, 
+*                                        uint16_t size)
+*	\brief	Print the text of decryption
 * 
-*   \param  uint8_t *ivector - pointer to initialization vector
-*   \param  uint8_t *key - pointer to aes key to be used in encryption
-*   \param  uint8_t *plaintext - pointer to text to encrypt
+*   \param  ctx - pointer to context
+*   \param  plaintext - pointer to data to be encrypted
+*   \param  size - size of data to encrypt
 */
-static void printEncryptTest(uint8_t *ivector, uint8_t *key, uint8_t *plaintext)
+static void printEncryptTest(aes256CtrCtx_t *ctx, uint8_t *plaintext, uint16_t size)
 {
-    printInputBlock(ivector);
+    printInputBlock(ctx->ctr);
     printPlainText(plaintext);
 
     // encrypt
-    aes256CtrEnc(ivector, key, plaintext);
+    aes256CtrEncrypt(ctx, plaintext, size);
     printCipherText(plaintext);
 }
 
-/*!	\fn 	static void printDecryptTest(uint8_t *ivector, 
-*                                        uint8_t *key, 
-*                                        uint8_t *plaintext)
+/*!	\fn 	static void printDecryptTest(aes256CtrCtx_t *ctx, 
+*                                        uint8_t *plaintext, 
+*                                        uint16_t size)
 *	\brief	Print the text of decryption
 * 
-*   \param  uint8_t *ivector - pointer to initialization vector
-*   \param  uint8_t *key - pointer to aes key to be used in encryption
-*   \param  uint8_t *plaintext - pointer to text to decrypt
+*   \param  ctx - pointer to context
+*   \param  plaintext - pointer to data to be decrypted
+*   \param  size - size of data to decrypt
 */
-static void printDecryptTest(uint8_t *ivector, uint8_t *key, uint8_t *plaintext)
+static void printDecryptTest(aes256CtrCtx_t *ctx, uint8_t *plaintext, uint16_t size)
 {
-    printInputBlock(ivector);
-    printCipherText(plaintext);
+    printInputBlock(ctx->ctr);
+    printPlainText(plaintext);
 
     // decrypt
-    aes256CtrDec(ivector, key, plaintext);
-    printPlainText(plaintext);
+    aes256CtrDecrypt(ctx, plaintext, size);
+    printCipherText(plaintext);
 }
 
 /*!	\fn 	void aes256CtrTest(void)
@@ -214,7 +214,12 @@ static void printDecryptTest(uint8_t *ivector, uint8_t *key, uint8_t *plaintext)
 *           page 57
 */
 void aes256CtrTest(void)
-{    
+{
+    // init
+    aes256CtrCtx_t ctx;
+
+    aes256CtrInit(&ctx, key, iv, 16);
+
     // Encrypt init string
     printTextP(PSTR("CTR-AES256Encrypt"));
     
@@ -223,49 +228,41 @@ void aes256CtrTest(void)
 
     // Encrypt TEST 1
     printBlock(1);
-    printEncryptTest(iv, key, v1); 
+    printEncryptTest(&ctx, v1, 16);
     
     // Encrypt TEST 2
     printBlock(2);
-    iv[14]=0xff;
-    iv[15]=0x00;
-    printEncryptTest(iv, key, v2);
+    printEncryptTest(&ctx, v2, 16);
     
     // Encrypt TEST 3
     printBlock(3);
-    iv[15]++;
-    printEncryptTest(iv, key, v3);
+    printEncryptTest(&ctx, v3, 16);
 
     // Encrypt TEST 4
     printBlock(4);
-    iv[15]++;
-    printEncryptTest(iv, key, v4);
+    printEncryptTest(&ctx, v4, 16);
 
     // Decrypt init string
     printTextP(PSTR("\n\nCTR-AES256Decrypt"));
 
+    aes256CtrInit(&ctx, key, iv, 16);
+
     // print key
     printKey(key);
 
-    // Decrypt TEST 1
-    iv[14] = 0xfe;
-    iv[15] = 0xff;
+    // Encrypt TEST 1
     printBlock(1);
-    printDecryptTest(iv, key, v1);
-
-    // Decrypt TEST 2
-    printBlock(2);
-    iv[14]=0xff;
-    iv[15]=0x00;
-    printDecryptTest(iv, key, v2);
+    printDecryptTest(&ctx, v1, 16);
     
-    // Decrypt TEST 3
+    // Encrypt TEST 2
+    printBlock(2);
+    printDecryptTest(&ctx, v2, 16);
+    
+    // Encrypt TEST 3
     printBlock(3);
-    iv[15]++;
-    printDecryptTest(iv, key, v3);
+    printDecryptTest(&ctx, v3, 16);
 
-    // Decrypt TEST 4
+    // Encrypt TEST 4
     printBlock(4);
-    iv[15]++;
-    printDecryptTest(iv, key, v4);
+    printDecryptTest(&ctx, v4, 16);
 }

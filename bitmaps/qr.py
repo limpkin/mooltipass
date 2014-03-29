@@ -78,7 +78,7 @@ qrVersion = [
     (39, 173, 22496, 6743, 4087, 2809),
     (40, 177, 23648, 7089, 4296, 2953)]
 
-parser = OptionParser(usage = 'usage: %prog [options]')
+parser = OptionParser(usage = 'usage: %prog [options] "phrase"\n        Generates a QR Code png bitmap for the text phrase')
 parser.add_option('-v', '--version', help='QR version 1-{} (default 2: 25x25)'.format(len(qrVersion)),
                   dest='version', default=2)
 parser.add_option('', '--boxsize', help='width data box in pixels (default: 2)', type='int', dest='boxsize', default=2)
@@ -88,6 +88,9 @@ parser.add_option('-o', '--output', help='output png filename (default: qr.png)'
 
 if options.version < 1 or options.version > len(qrVersion):
     parser.error('version must be a value from 1 to {}'.format(len(qrVersion)))
+
+if len(args) == 0:
+    parser.error('missing phrase to encode in the QR Code image')
 
 def main():
     # Version 2 with L error correction supports

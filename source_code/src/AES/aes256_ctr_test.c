@@ -245,7 +245,7 @@ void aes256CtrTest(void)
     // Decrypt init string
     printTextP(PSTR("\n\nCTR-AES256Decrypt"));
 
-    aes256CtrInit(&ctx, key, iv, 16);
+    aes256CtrSetIv(&ctx, iv, 16);
 
     // print key
     printKey(key);

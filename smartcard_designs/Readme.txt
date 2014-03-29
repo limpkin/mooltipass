@@ -4,3 +4,5 @@ Until a vendor is chosen the placement of the smartcard block is not sufficientl
 A temporary png is also enclosed.
 
 Use this template to lay out graphics for sample smartcard designs.
+
+additional resources like svg versions of hackaday logo might also be in here...

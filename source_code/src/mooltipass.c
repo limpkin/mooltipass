@@ -205,7 +205,7 @@ int main(void)
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
             {   
-                // Here we should ask the user to setup his mooltipass card
+                // Here we should ask the user to setup his mooltipass card and then call writeCodeProtectedZone() with 8 bytes
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                     // Shut down card reader

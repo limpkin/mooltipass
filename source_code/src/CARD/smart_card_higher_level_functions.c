@@ -257,6 +257,14 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     return RETURN_OK;
 }
 
+/*! \fn     writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer)
+*   \brief  Write to one application zone and check what we wrote
+*   \param  addr    Address in bits of the place to write
+*   \param  nb_bits Number of bits to write
+*   \param  buffer  Buffer containing the data to write
+*   \param  temp_buffer A temporary buffer having the same size as buffer
+*   \return If we succeeded
+*/
 RET_TYPE writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer)
 {    
     writeSMC(addr, nb_bits, buffer);

@@ -25,6 +25,7 @@
 #include "../defines.h"
 #include <stdlib.h>
 
+RET_TYPE writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer);
 uint8_t* readSecurityCodeAttemptsCounters(uint8_t* buffer);
 RET_TYPE writeMooltipassWebsitePassword(uint8_t* buffer);
 RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void);
@@ -60,5 +61,31 @@ RET_TYPE cardDetectedRoutine(void);
 void writeManufacturerFuse(void);
 void write_issuers_fuse(void);
 void resetBlankCard(void);
+
+/*
+                SMART CARD MEMORY MAP
+                
+Bit Address                 Description                 Bits    Words
+0–15            Fabrication Zone (FZ)                   16      1
+16–79           Issuer Zone (IZ)                        64      4
+80–95           Security Code (SC)                      16      1
+96–111          Security Code Attempts counter (SCAC)   16      1
+112–175         Code Protected Zone (CPZ)               64      4
+176–687         Application Zone 1 (AZ1)                512     32
+688–735         Application Zone 1 Erase Key (EZ1)      48      3
+736–1247        Application Zone 2 (AZ2)                512     32
+1248–1279       Application Zone 2 Erase Key (EZ2)      32      2
+1280–1407       Application Zone 2 Erase Counter (EC2)  128     8
+1408–1423       Memory Test Zone (MTZ)                  16      1
+1424–1439       Manufacturer’s Zone (MFZ)               16      1
+1440–1455       Block Write/Erase                       16      1
+1456–1471       MANUFACTURER’S FUSE                     16      1
+1529            EC2EN FUSE (Controls use of EC2)        1
+1552 - 1567     ISSUER FUSE                             161
+
+AZ1 composition (bits): 16 reserved + 256 AES key + 240 MTP password
+AZ2 composition (bits): 16 reserved + 496 MTP login
+
+*/
 
 #endif /* SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_ */

@@ -148,7 +148,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
             ctx->cipherstreamAvailable = 16;
         }
 
-        uint8_t thisLoop = dataLen - i;
+        uint16_t thisLoop = dataLen - i;
 
         // in this go we can only do at most cipherStreamAvailable bytes
         if(thisLoop > ctx->cipherstreamAvailable)

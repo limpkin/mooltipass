@@ -257,33 +257,81 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     return RETURN_OK;
 }
 
-/*! \fn     readAES256BitsKey(void)
-*   \brief  Read the AES 256 bits key from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
-*/
-void readAES256BitsKey(uint8_t* buffer)
-{
-    readSMC(24 + (256/8), 24, buffer);
-}
-
-/*! \fn     writeAES256BitsKey(void)
-*   \brief  Write the AES 256 bits key to the card
-*   \return Operation success
-*/
-RET_TYPE writeAES256BitsKey(uint8_t* buffer)
-{
-    uint8_t temp_buffer[256/8];
+RET_TYPE writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer)
+{    
+    writeSMC(addr, nb_bits, buffer);
+    readSMC((addr + nb_bits) >> 3, (addr >> 3), temp_buffer);
     
-    writeSMC(192, 256, buffer);
-    readAES256BitsKey(temp_buffer);
-    
-    if (hm_uint8_strncmp(buffer, temp_buffer, 256/8) == 0)
+    if (hm_uint8_strncmp(buffer, temp_buffer, (nb_bits >> 3)) == 0)
     {
         return RETURN_OK;
     }
     else
     {
         return RETURN_NOK;
-    }
+    }    
+}
+
+/*! \fn     readAES256BitsKey(uint8_t* buffer)
+*   \brief  Read the AES 256 bits key from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
+*   \param  buffer  Buffer to store the AES key
+*/
+void readAES256BitsKey(uint8_t* buffer)
+{
+    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH)/8, (SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED)/8, buffer);
+}
+
+/*! \fn     writeAES256BitsKey(uint8_t* buffer)
+*   \brief  Write the AES 256 bits key to the card
+*   \param  buffer  Buffer containing the AES key
+*   \return Operation success
+*/
+RET_TYPE writeAES256BitsKey(uint8_t* buffer)
+{
+    uint8_t temp_buffer[AES_KEY_LENGTH/8];
+    return writeToApplicationZoneAndCheck(SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED, AES_KEY_LENGTH, buffer, temp_buffer);
+}
+
+/*! \fn     readMooltipassWebsitePassword(uint8_t* buffer)
+*   \brief  Read the Mooltipass website password from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
+*   \param  buffer  Buffer to store the password
+*/
+void readMooltipassWebsitePassword(uint8_t* buffer)
+{
+    // We take the space left in AZ1 -> 30 bytes (512 - 256 - 16 = 30 bytes)
+    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH + SMARTCARD_MTP_PASS_LENGTH)/8, (SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH)/8, buffer);
+}
+
+/*! \fn     writeMooltipassWebsitePassword(uint8_t* buffer)
+*   \brief  Write the Mooltipass website password to the card
+*   \param  buffer  Buffer containing the password
+*   \return Operation success
+*/
+RET_TYPE writeMooltipassWebsitePassword(uint8_t* buffer)
+{
+    uint8_t temp_buffer[SMARTCARD_MTP_PASS_LENGTH/8];
+    return writeToApplicationZoneAndCheck(SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH, SMARTCARD_MTP_PASS_LENGTH, buffer, temp_buffer);
+}
+
+/*! \fn     readMooltipassWebsiteLogin(uint8_t* buffer)
+*   \brief  Read the Mooltipass website login from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
+*   \param  buffer  Buffer to store the login
+*/
+void readMooltipassWebsiteLogin(uint8_t* buffer)
+{
+    // We take the space left in AZ2 -> 62 bytes (512 - 16 = 62 bytes)
+    readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ2_BIT_RESERVED + SMARTCARD_MTP_LOGIN_LENGTH)/8, (SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ2_BIT_RESERVED)/8, buffer);
+}
+
+/*! \fn     writeMooltipassWebsiteLogin(uint8_t* buffer)
+*   \brief  Write the Mooltipass website login to the card
+*   \param  buffer  Buffer containing the login
+*   \return Operation success
+*/
+RET_TYPE writeMooltipassWebsiteLogin(uint8_t* buffer)
+{
+    uint8_t temp_buffer[SMARTCARD_MTP_LOGIN_LENGTH/8];
+    return writeToApplicationZoneAndCheck(SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ2_BIT_RESERVED, SMARTCARD_MTP_LOGIN_LENGTH, buffer, temp_buffer);
 }
 
 /*! \fn     resetBlankCard(void)

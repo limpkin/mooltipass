@@ -494,9 +494,25 @@ void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write
         /* Switch to bit banging */
         setBBModeAndPgmRstSMC();
 
-        /* Get to the good index, clock pulses */
-        for(i = 0; i < start_index_bit; i++)
+        /* Try to not erase AZ1 if EZ1 is 0xFFFFFFF... and we're writing the first bit of the AZ2 */
+        if (start_index_bit >= SMARTCARD_AZ2_BIT_START)
+        {
+            /* Clock pulses until AZ2 start - 1 */
+            for(i = 0; i < SMARTCARD_AZ2_BIT_START - 1; i++)
+                clockPulseSMC();            
+            PORTB |= (1 << 2);
             clockPulseSMC();
+            PORTB &= ~(1 << 2);
+            /* Clock for the rest */
+            for(i = 0; i < (start_index_bit - SMARTCARD_AZ2_BIT_START); i++)
+                clockPulseSMC();            
+        }
+        else
+        {
+            /* Get to the good index, clock pulses */
+            for(i = 0; i < start_index_bit; i++)
+                clockPulseSMC();
+        }
 
         /* Start writing */
         for(current_written_bit = 0; current_written_bit < nb_bits; current_written_bit++)

@@ -41,11 +41,16 @@
 #define SMARTCARD_FUSE_V1
 
 /** MACROS **/
-#define CPU_PRESCALE(n)		(CLKPR = 0x80, CLKPR = (n))
+#define CPU_PRESCALE(n)		    (CLKPR = 0x80, CLKPR = (n))
+
+/** DEFINES FIRMWARE **/
+#define FALSE				    0
+#define TRUE				    (!FALSE)
+#define AES_KEY_LENGTH          256
 
 /** ASM "ENUMS" **/
-#define SPI_NATIVE			1
-#define SPI_USART			2
+#define SPI_NATIVE			    1
+#define SPI_USART2              2
 
 /** C ENUMS **/
 enum mooltipass_detect_return_t	{RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB, RETURN_MOOLTIPASS_BLOCKED, RETURN_MOOLTIPASS_BLANK, RETURN_MOOLTIPASS_USER, RETURN_MOOLTIPASS_4_TRIES_LEFT,  RETURN_MOOLTIPASS_3_TRIES_LEFT,  RETURN_MOOLTIPASS_2_TRIES_LEFT,  RETURN_MOOLTIPASS_1_TRIES_LEFT, RETURN_MOOLTIPASS_0_TRIES_LEFT};
@@ -53,8 +58,12 @@ enum card_detect_return_t		{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4
 enum pin_check_return_t			{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum detect_return_t			{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
 enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
+    
+/** TYPEDEFS **/
+typedef uint8_t RET_TYPE;
 
 /** DEFINES FLASH **/
+#define FLASH_MANUF_ID		        0x1F
 #define CREDENTIAL_BLOCK_SIZE		88
 #define READY_FLASH_BITMASK			0x80
 #define	OPCODE_MAN_DEV_ID_READ		0x9F
@@ -68,10 +77,13 @@ enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 #define SMARTCARD_FABRICATION_ZONE	0x0F0F
 #define SMARTCARD_FACTORY_PIN		0xF0F0
 #define SMARTCARD_DEFAULT_PIN		0xF0F0
-
-/** DEFINES FIRMWARE **/
-#define FALSE				0
-#define TRUE				(!FALSE)
+#define SMARTCARD_AZ_BIT_LENGTH     512
+#define SMARTCARD_AZ1_BIT_START     176
+#define SMARTCARD_AZ1_BIT_RESERVED  16
+#define SMARTCARD_MTP_PASS_LENGTH   (SMARTCARD_AZ_BIT_LENGTH - SMARTCARD_AZ1_BIT_RESERVED - AES_KEY_LENGTH)
+#define SMARTCARD_AZ2_BIT_START     736
+#define SMARTCARD_AZ2_BIT_RESERVED  16
+#define SMARTCARD_MTP_LOGIN_LENGTH  (SMARTCARD_AZ_BIT_LENGTH - SMARTCARD_AZ2_BIT_RESERVED)
 
 /** DEFINES PORTS **/
 #ifdef HARDWARE_V1
@@ -161,10 +173,6 @@ enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 	#define DDR_OLED_POW	DDRE
 #endif
 
-/** DEFINES HARDWARE **/
-#define FLASH_MANUF_ID		0x1F
-#define SMARTCARD_FZ		0x00
-
 /** DEFINES OLED SCREEN **/
 #define	OLED_Shift			0x1C
 #define OLED_Max_Column		0x3F			// 256/4-1
@@ -176,36 +184,5 @@ enum return_type				{RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
 
 // Mooltipass bitmaps defines
 #define HACKADAY_BMP		0x00
-
-// Defines bitmaps
-#define	PWR_BY_COSW					0x03
-#define	OIL_TEMP_BMP				0x04
-#define	ACT_TEMP_BMP				0x05
-#define	ECT_TEMP_BMP				0x06
-#define	EGT_TEMP_BMP				0x07
-#define	STOR_BMP					0x08
-#define	NOT_STOR_BMP				0x09
-#define	BAT_BMP						0x10
-#define	AFR_BMP						0x11
-#define	MAP_BMP						0x12
-#define	PRESS_H_BMP					0x13
-#define	RPM_BMP						0x14
-#define	TPS_BMP						0x15
-#define	WARN_VBAT_LOW_BMP			0x16
-#define	WARN_VBAT_HIGH_BMP			0x17
-#define	WARN_OIL_PRESS_LOW_BMP		0x18
-#define	WARN_OIL_PRESS_HIGH_BMP		0x19
-#define	WARN_AFR_LOW_BMP			0x20
-#define	WARN_AFR_HIGH_BMP			0x21
-#define	WARN_MAP_HIGH_BMP			0x22
-#define	WARN_ACT_HIGH_BMP			0x23
-#define	WARN_ECT_HIGH_BMP			0x24
-#define	WARN_EGT_HIGH_BMP			0x25
-#define	WARN_OIL_TEMP_HIGH_BMP		0x26
-#define	WARN_DISCONNECTED_BMP		0x27
-#define	MAP_BOSH_BMP				0x28
-
-/** TYPEDEFS **/
-typedef uint8_t RET_TYPE;
 
 #endif /* DEFINES_H_ */

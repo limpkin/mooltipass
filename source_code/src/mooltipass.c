@@ -193,6 +193,10 @@ int main(void)
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_PB)              // Problem with card
             {
+                eraseApplicationZone1NZone2SMC(TRUE);
+                eraseApplicationZone1NZone2SMC(FALSE);
+                setAuthenticatedReadWriteAccessToZone1();
+                setAuthenticatedReadWriteAccessToZone2();
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
@@ -206,26 +210,47 @@ int main(void)
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
             {
                 // TO REMOVE, TESTS!
-                //eraseApplicationZone1NZone2SMC(TRUE);
-                //setAuthenticatedReadWriteAccessToZone1();
-                uint8_t bufbuf[256/8];
+                eraseApplicationZone1NZone2SMC(TRUE);
+                eraseApplicationZone1NZone2SMC(FALSE);
+                setAuthenticatedReadWriteAccessToZone1();
+                setAuthenticatedReadWriteAccessToZone2();
+                uint8_t bufbuf[70];
                 uint8_t i;
-                for (i = 0; i < (256/8); i++)
+                for (i = 0; i < 70; i++)
                 {
-                    bufbuf[i] = 0xA0;
+                    bufbuf[i] = 0x8F;
                 }
                 if(writeAES256BitsKey(bufbuf) == RETURN_OK)
                 {
                      oledSetXY(2,0);
                      oledPutstr_P(PSTR("AES Key written "));
-                     oledFlipBuffers(OLED_SCROLL_DOWN,0);
                 }
                 else
                 {
-                    oledSetXY(2,32);
-                    oledPutstr_P(PSTR("AES Key PB Write "));
-                    oledFlipBuffers(OLED_SCROLL_DOWN,0);
+                    oledSetXY(2,0);
+                    oledPutstr_P(PSTR("AES Key PB write "));
                 }
+                if(writeMooltipassWebsiteLogin(bufbuf) == RETURN_OK)
+                {
+                     oledSetXY(2,16);
+                     oledPutstr_P(PSTR("MTP login written "));
+                }
+                else
+                {
+                    oledSetXY(2,16);
+                    oledPutstr_P(PSTR("MTP login PB write "));
+                }
+                if(writeMooltipassWebsitePassword(bufbuf) == RETURN_OK)
+                {
+                     oledSetXY(2,8);
+                     oledPutstr_P(PSTR("MTP pass written "));
+                }
+                else
+                {
+                    oledSetXY(2,8);
+                    oledPutstr_P(PSTR("MTP pass PB write "));
+                }
+                oledFlipBuffers(OLED_SCROLL_DOWN,0);
                 
                 // Here we should ask the user to setup his mooltipass card
                 _delay_ms(3000);
@@ -234,25 +259,11 @@ int main(void)
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_USER)             // Configured mooltipass card
             {
-                // Here we should ask the user for his pin and call mooltipassdetect
+                // Here we should ask the user for his pin and call mooltipassDetectedRoutine
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                     // Shut down card reader
             }
-            /*read_credential_block_within_flash_page(2,1,temp_buffer);
-            for(i = 0; i < 10; i++)
-            {
-                hexachar_to_string(temp_buffer[i], temp_string);
-                Show_String(temp_string, FALSE, 2+i*5, 0);
-            }
-            temp_buffer[3] = 0x0A;
-            write_credential_block_within_flash_page(2,1, temp_buffer);
-            read_credential_block_within_flash_page(2,1,temp_buffer);
-            for(i = 0; i < 10; i++)
-            {
-                hexachar_to_string(temp_buffer[i], temp_string);
-                Show_String(temp_string, FALSE, 2+i*5, 8);
-            }*/
         }
         else if (card_detect_ret == RETURN_JRELEASED)   //card just released
         {

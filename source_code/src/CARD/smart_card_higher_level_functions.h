@@ -26,15 +26,19 @@
 #include <stdlib.h>
 
 uint8_t* readSecurityCodeAttemptsCounters(uint8_t* buffer);
+RET_TYPE writeMooltipassWebsitePassword(uint8_t* buffer);
 RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void);
 RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void);
 uint8_t* readApplicationZone1EraseKey(uint8_t* buffer);
 uint8_t* readApplicationZone2EraseKey(uint8_t* buffer);
+RET_TYPE writeMooltipassWebsiteLogin(uint8_t* buffer);
 RET_TYPE setAuthenticatedReadWriteAccessToZone1(void);
 RET_TYPE setAuthenticatedReadWriteAccessToZone2(void);
 RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code);
+void readMooltipassWebsitePassword(uint8_t* buffer);
 void writeApplicationZone2EraseKey(uint8_t* buffer);
 void writeApplicationZone1EraseKey(uint8_t* buffer);
+void readMooltipassWebsiteLogin(uint8_t* buffer);
 uint8_t* readCodeProtectedZone(uint8_t* buffer);
 RET_TYPE transformBlankCardIntoMooltipass(void);
 uint8_t* readManufacturerZone(uint8_t* buffer);

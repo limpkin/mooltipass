@@ -193,10 +193,6 @@ int main(void)
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_PB)              // Problem with card
             {
-                eraseApplicationZone1NZone2SMC(TRUE);
-                eraseApplicationZone1NZone2SMC(FALSE);
-                setAuthenticatedReadWriteAccessToZone1();
-                setAuthenticatedReadWriteAccessToZone2();
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
@@ -208,50 +204,7 @@ int main(void)
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
-            {
-                // TO REMOVE, TESTS!
-                eraseApplicationZone1NZone2SMC(TRUE);
-                eraseApplicationZone1NZone2SMC(FALSE);
-                setAuthenticatedReadWriteAccessToZone1();
-                setAuthenticatedReadWriteAccessToZone2();
-                uint8_t bufbuf[70];
-                uint8_t i;
-                for (i = 0; i < 70; i++)
-                {
-                    bufbuf[i] = 0x8F;
-                }
-                if(writeAES256BitsKey(bufbuf) == RETURN_OK)
-                {
-                     oledSetXY(2,0);
-                     oledPutstr_P(PSTR("AES Key written "));
-                }
-                else
-                {
-                    oledSetXY(2,0);
-                    oledPutstr_P(PSTR("AES Key PB write "));
-                }
-                if(writeMooltipassWebsiteLogin(bufbuf) == RETURN_OK)
-                {
-                     oledSetXY(2,16);
-                     oledPutstr_P(PSTR("MTP login written "));
-                }
-                else
-                {
-                    oledSetXY(2,16);
-                    oledPutstr_P(PSTR("MTP login PB write "));
-                }
-                if(writeMooltipassWebsitePassword(bufbuf) == RETURN_OK)
-                {
-                     oledSetXY(2,8);
-                     oledPutstr_P(PSTR("MTP pass written "));
-                }
-                else
-                {
-                    oledSetXY(2,8);
-                    oledPutstr_P(PSTR("MTP pass PB write "));
-                }
-                oledFlipBuffers(OLED_SCROLL_DOWN,0);
-                
+            {   
                 // Here we should ask the user to setup his mooltipass card
                 _delay_ms(3000);
                 printSMCDebugInfoToScreen();

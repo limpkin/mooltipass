@@ -36,7 +36,7 @@ typedef struct
 	aes256_ctx_t aesCtx;
 	uint8_t ctr[16];
 	uint8_t cipherstream[16];
-	int cipherstreamUsed;
+	uint8_t cipherstreamAvailable;
 }aes256CtrCtx_t;
 
 // STREAM CTR functions

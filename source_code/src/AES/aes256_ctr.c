@@ -74,7 +74,7 @@ void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, u
 */
 void aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen)
 {
-	int i;
+	uint8_t i;
 
 	// ivLen must be 16 or lower
 	if (ivLen > 16)
@@ -95,7 +95,7 @@ void aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen)
 	}
 
 	// invalidate cipherstream cache
-	ctx->cipherstreamUsed = -1;
+	ctx->cipherstreamAvailable = 0;
 }
 
 /*!	\fn 	void incrementCtr(uint8_t *ctr)
@@ -129,14 +129,12 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 {
     uint16_t i;
 
-    // Loop will advance by a variable amount: 16 - ctx->cipherstreamUsed in the
+    // Loop will advance by a variable amount: ctx->cipherstreamAvailable in the
     // first round, 16 then, dataLen - i in the last round.
     for (i=0; i<dataLen; )
     {
-        int thisLoop = dataLen - i;
-
         // if we need new cipherstream, calculate it
-        if(ctx->cipherstreamUsed < 0 || ctx->cipherstreamUsed >= 16)
+        if(ctx->cipherstreamAvailable == 0)
         {
             int j;
             for(j = 0; j < 16; j++)
@@ -147,22 +145,24 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
             // encrypt ctr with key, then store the result in cipherstream
             aes256_enc(ctx->cipherstream, &(ctx->aesCtx));
 
-            ctx->cipherstreamUsed = 0;
+            ctx->cipherstreamAvailable = 16;
         }
 
-        // in this loop we can only operate on 16-ctx->cipherstreamUsed bytes
-        if(thisLoop > 16 - ctx->cipherstreamUsed)
+        uint8_t thisLoop = dataLen - i;
+
+        // in this go we can only do at most cipherStreamAvailable bytes
+        if(thisLoop > ctx->cipherstreamAvailable)
         {
-            thisLoop = 16 - ctx->cipherstreamUsed;
+            thisLoop = ctx->cipherstreamAvailable;
         }
 
         // do the actual encryption/decryption, update state
-        xor(data + i, ctx->cipherstream + ctx->cipherstreamUsed, thisLoop);
+        xor(data + i, ctx->cipherstream + 16 - ctx->cipherstreamAvailable, thisLoop);
         i += thisLoop;
-        ctx->cipherstreamUsed += thisLoop;
+        ctx->cipherstreamAvailable -= thisLoop;
 
         // if the cached cipherstream is fully used, increment ctr
-        if(ctx->cipherstreamUsed >= 16)
+        if(ctx->cipherstreamAvailable == 0)
         {
             incrementCtr(ctx->ctr);
         }
@@ -188,7 +188,7 @@ void aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 void aes256CtrClean(aes256CtrCtx_t *ctx)
 {
 	uint8_t *ptr = (uint8_t*)ctx;
-	int i;
+	uint16_t i;
 	for(i=0; i<sizeof(*ctx); i++)
 	{
 		*ptr++ = 0;

@@ -29,6 +29,7 @@
 #ifndef OLEDMP_H_
 #define OLEDMP_H_
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdarg.h>
@@ -108,12 +109,21 @@
 #define CMD_DISPLAY_ENHANCEMENT_B               0xD1
 #define CMD_SET_COMMAND_LOCK                    0xFD
 
+/* CMD_SET_REMAP mode bit options */
+#define OLED_REMAP_ADDR_INC_COL   0x00 // increment column after each write
+#define OLED_REMAP_ADDR_INC_ROW   0x01 // increment row after each write
+#define OLED_REMAP_COL_ADDR       0x02 // reamap column address to inverse
+#define OLED_REMAP_NIBBLES        0x04 // Use big-endian for nibble map
+#define OLED_REMAP_SCAN_TOP_DOWN  0x00 // Scan from top down
+#define OLED_REMAP_SCAN_BOTTOM_UP 0x10 // Scan from bottom up
+
 void oledBegin(uint8_t font);
 void oledInit(void);
 void oledWriteCommand(uint8_t reg);
 void oledWriteData(uint8_t data);
 void oledSetColumnAddr(uint8_t start, uint8_t end);
 void oledSetRowAddr(uint8_t start, uint8_t end);
+void oledSetRemap(uint8_t mode);
 void oledFill(uint8_t colour);
 void oledClear();
 void oledScrollClear(uint8_t options);
@@ -164,9 +174,6 @@ uint8_t oledGlyphHeight();
 uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg);
 
 void oledPutch(char ch);
-void oledPutstr(const char *str);
-void oledPutstr_P(const char *str);
-int oledPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-int oledPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+int oledFputc(char ch, FILE *stream);
 
 #endif

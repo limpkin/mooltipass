@@ -311,6 +311,13 @@ void oledSetContrast(uint8_t contrast)
     oledWriteData(contrast);
 }
 
+void oledSetRemap(uint8_t mode)
+{
+    oledWriteCommand(CMD_SET_REMAP);
+    oledWriteData(mode & 0x1F);
+    oledWriteData(0x11);    // Dual COM mode
+
+}
 
 /**
  * print an character on the screen at the current X and
@@ -351,84 +358,12 @@ void oledPutch(char ch)
 }
 
 
-/**
- * print an progmem ASCIIZ string to the screen at the current X
- * and Y position. X and Y position is updated after the print
- * operation, with X wrapping if necessary.
- * @param str - pointer to the string in FLASH.
- */
-void oledPutstr_P(const char *str)
+int oledFputc(char ch, FILE *stream)
 {
-    char ch;
-    ch = pgm_read_byte(str++);
-    while (ch != 0) 
-    {
-        oledPutch(ch);
-        ch = pgm_read_byte(str++);
-    }
+    oledPutch((char)ch);
+
+    return ch;
 }
-
-
-/**
- * print an ASCIIZ string to the screen at the current X and
- * Y position. X and Y position is updated after the print
- * operation, with X wrapping if necessary.
- * @param str - pointer to the string in RAM.
- */
-void oledPutstr(const char *str)
-{
-    char ch;
-
-    while ((ch=*str++) != 0) 
-    {
-        oledPutch(ch);
-    }
-}
-
-
-/**
- * print a printf formated string and arguments to the screen starting
- * at the current X and Y position. X and Y position is updated
- * after the print operation, with X wrapping if necessary.
- * @param fmt - pointer to the printf format string in RAM
- * @returns the number of characters printed
- * @note maxium output is limited to 64 characters
- */
-int oledPrintf(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    char printBuf[64];	// scratch buffer for printf
-
-    int ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
-      
-    oledPutstr(printBuf);
-
-    va_end(ap);
-    return ret;
-} 
-
-/**
- * print a printf formated string and arguments to the screen starting
- * at the current X and Y position. X and Y position is updated
- * after the print operation, with X wrapping if necessary.
- * @param fmt - pointer to the printf format string in progmem
- * @returns the number of characters printed
- * @note maxium output is limited to 64 characters per call
- */
-int oledPrintf_P(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    char printBuf[64];	// scratch buffer for printf
-
-    int ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
-      
-    oledPutstr(printBuf);
-
-    va_end(ap);
-    return ret;
-} 
 
 
 /**

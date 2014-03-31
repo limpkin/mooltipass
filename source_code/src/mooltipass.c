@@ -22,6 +22,8 @@
 *   Created: 08/12/2013 13:54:34
 *   Author: Mathieu Stephan
 */
+
+#include <stdio.h>
 #include "smart_card_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
@@ -38,6 +40,8 @@
 
 #include "had_mooltipass.h"
 
+// Setup a stream for printf/puts operations via the OLEDMP library
+static FILE oledStdout = FDEV_SETUP_STREAM(oledFputc, NULL, _FDEV_SETUP_WRITE);
 
 /*! \fn     disable_jtag(void)
 *   \brief  Disable the JTAG module
@@ -74,6 +78,8 @@ int main(void)
     initIRQ();                          // Initialize interrupts
     usb_init();                         // Initialize USB controller
 
+    stdout = &oledStdout;               // Use oled display as stdout
+
     spiUsartBegin(SPI_RATE_8_MHZ);
     while(!usb_configured());           // Wait for host to set configuration
 
@@ -97,7 +103,7 @@ int main(void)
             {
                 usb_serial_putchar(n);
                 oledSetXY(2,0);
-                ole_putch((char)n);
+                oledPutch((char)n);
 
                 //usb_keyboard_press(n,0);
             }
@@ -111,7 +117,7 @@ int main(void)
         {
             // msg into oled display
             oledSetXY(2,0);
-            oledPutstr_P(PSTR("send s to start nessie test"));
+            printf_P(PSTR("send s to start nessie test"));
 
             int input0 = usb_serial_getchar();
 
@@ -138,7 +144,7 @@ int main(void)
         {
             // msg into oled display
             oledSetXY(2,0);
-            oledPutstr_P(PSTR("send s to start CTR test"));
+            printf_P(PSTR("send s to start CTR test"));
 
             int input1 = usb_serial_getchar();
 
@@ -155,11 +161,11 @@ int main(void)
     oledSetXY(2,0);
     if (flash_init_result == RETURN_OK) 
     {
-        oledPutstr_P(PSTR("Flash init ok"));
+        printf_P(PSTR("Flash init ok"));
     } 
     else 
     {
-        oledPutstr_P(PSTR("Problem flash init"));
+        printf_P(PSTR("Problem flash init"));
     }
 
     _delay_ms(1000);
@@ -171,6 +177,7 @@ int main(void)
     // Note: writing is automatically switch to inactive buffer
     oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
     oledClear();    // clear inactive buffer
+
 
     while (1)
     {

@@ -298,6 +298,12 @@
     <Compile Include="src\FLASH\flash_mem.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\FLASH\flash_test.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\FLASH\flash_test.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\had_mooltipass.h">
       <SubType>compile</SubType>
     </Compile>

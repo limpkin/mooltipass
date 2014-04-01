@@ -57,6 +57,15 @@
 #define MIN_SEG 28		// minimum visable OLED 4-pixel segment
 #define MAX_SEG 91		// maximum visable OLED 4-pixel segment
 
+static int oledFputc(char ch, FILE *stream);
+
+/*
+ * Module Globals
+ */
+// Stream for printf/puts operations via the OLEDMP library
+FILE oledStdout = FDEV_SETUP_STREAM(oledFputc, NULL, _FDEV_SETUP_WRITE);
+
+
 /*
  * Module Local globals
  */
@@ -158,6 +167,11 @@ void oledBegin(uint8_t font)
     oledSetWriteBuffer(1);
     oledClear();
     oledSetWriteBuffer(0);
+
+    // Map stdout to use the OLED display.
+    // This means that printf(), printf_P(), puts(), puts_P(), etc 
+    // will all output to the OLED display.
+    stdout = &oledStdout;
 }
 
 
@@ -358,6 +372,14 @@ void oledPutch(char ch)
 }
 
 
+/**
+ * Stream putchar implementation.  This is used to implement
+ * a FILE stream for stdout enabling printf() and printf_P()
+ * to output to the OLED display
+ * @param ch - the character to print
+ * @param stream - stream to print on (not used).
+ * @note this is aninternal function
+ */
 int oledFputc(char ch, FILE *stream)
 {
     oledPutch((char)ch);

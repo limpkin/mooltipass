@@ -174,6 +174,5 @@ uint8_t oledGlyphHeight();
 uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg);
 
 void oledPutch(char ch);
-int oledFputc(char ch, FILE *stream);
 
 #endif

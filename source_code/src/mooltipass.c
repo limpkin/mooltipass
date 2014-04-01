@@ -40,9 +40,6 @@
 
 #include "had_mooltipass.h"
 
-// Setup a stream for printf/puts operations via the OLEDMP library
-static FILE oledStdout = FDEV_SETUP_STREAM(oledFputc, NULL, _FDEV_SETUP_WRITE);
-
 /*! \fn     disable_jtag(void)
 *   \brief  Disable the JTAG module
 */
@@ -77,8 +74,6 @@ int main(void)
     initPortSMC();                      // Initialize smart card Port
     initIRQ();                          // Initialize interrupts
     usb_init();                         // Initialize USB controller
-
-    stdout = &oledStdout;               // Use oled display as stdout
 
     spiUsartBegin(SPI_RATE_8_MHZ);
     while(!usb_configured());           // Wait for host to set configuration

@@ -1,4 +1,4 @@
- /* CDDL HEADER START
+/* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,21 +17,33 @@
  *
  * CDDL HEADER END
  */
-/*
- * flash_mem.h
- *
- * Created: 08/12/2013 14:16:34
- *  Author: Mathieu Stephan
- */ 
 
+/* Copyright (c) 2014, Michael Neiderhauser. All rights reserved. */
+
+/*!  \file     flash_mem.h
+*    \brief    Mooltipass Flash IC Library Header
+*    Created:  31/3/2014
+*    Author:   Michael Neiderhauser
+*/
 
 #ifndef FLASH_MEM_H_
 #define FLASH_MEM_H_
 
-void sendDataToFlash(uint8_t nb_bytes_opcode, uint8_t* opcode, uint16_t nb_bytes, uint8_t* data_to_send_receive);
-void writeCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer);
-void readCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer);
+RET_TYPE sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer);
+RET_TYPE waitForFlash(void);
 RET_TYPE checkFlashID(void);
 RET_TYPE initFlash(void);
+
+// Erase Functions
+RET_TYPE sectorZeroErase(uint8_t sectorNumber);
+RET_TYPE sectorErase(uint8_t sectorNumber);
+RET_TYPE blockErase(uint16_t blockNumber);
+RET_TYPE pageErase(uint16_t pageNumber);
+
+RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data);
+RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data);
+
+//void readCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)__attribute__((deprecated));
+
 
 #endif /* FLASH_MEM_H_ */

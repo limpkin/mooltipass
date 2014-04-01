@@ -17,181 +17,361 @@
  *
  * CDDL HEADER END
  */
-/*!	\file 	flash_mem.c
-*	\brief	Flash memory low level functions
-*	Copyright [2014] [Mathieu Stephan]
+
+/* Copyright (c) 2014, Michael Neiderhauser. All rights reserved. */
+
+/*!  \file     flash_mem.c
+*    \brief    Mooltipass Flash IC Library
+*    Created:  31/3/2014
+*    Author:   Michael Neiderhauser
 */
+
 #include "../mooltipass.h"
 #include <avr/io.h>
 
-
-/*!	\fn		sendDataToFlash(uint8_t nb_bytes_opcode, uint8_t* opcode, uint16_t nb_bytes, uint8_t* data_to_send_receive)
-*	\brief	Send bytes to the flash memory... beware, buffer contents will be changed!
-*	\param	nb_bytes_opcode	The number of bytes for the opcode
-*	\param	opcode			Pointer to the opcode
-*	\param	nb_bytes		The number of bytes
-*	\param	data_to_send_receive	Pointer to the buffer
+/*!  \fn       sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer)
+*    \brief    Send bytes to the flash memory. WARNING THE DATA IN THE BUFFER MAY BE DESTROYED
+*    \param    opcodeSize        The number of bytes for the opcode
+*    \param    opcode            Pointer to the opcode
+*    \param    bufferSize        The number of bytes
+*    \param    buffer            Pointer to the buffer
+*    \return   Success status
 */
-void sendDataToFlash(uint8_t nb_bytes_opcode, uint8_t* opcode, uint16_t nb_bytes, uint8_t* data_to_send_receive)
-{	
-	/* Read UDR1 contents to clear previous flags */
-	while(UCSR1A & (1<<RXC1))UDR1;
-	
-	/* Assert chip select */
-	PORT_FLASH_nS &= ~(1 << PORTID_FLASH_nS);	
-	
-	while(nb_bytes_opcode--)
-	{
-		/* Wait for empty transmit buffer */
-		while(!(UCSR1A & (1 << UDRE1)));
-		/* Put data into buffer, sends the data */
-		UDR1 = *(opcode++);
-		/* Wait for data to be received */
-		while(!(UCSR1A & (1<<RXC1)));
-		/* Read received data to clear flag */
-		UDR1;
-	}
-	
-	while(nb_bytes--)
-	{
-		/* Wait for empty transmit buffer */
-		while(!(UCSR1A & (1 << UDRE1)));
-		/* Put data into buffer, sends the data */
-		UDR1 = *data_to_send_receive;
-		/* Wait for data to be received */
-		while(!(UCSR1A & (1<<RXC1)));
-		/* Store received data */
-		*(data_to_send_receive++) = UDR1;
-	}
-	
-	/* Deassert chip select */
-	PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
-}
-
-/*!	\fn		readCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)
-*	\brief	Read a block of credentials
-*	\param	page_number		Page number in the flash
-*	\param	block_id		The block ID in the page
-*	\param	buffer			Pointer to the buffer
-*/
-void readCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)
+RET_TYPE sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer)
 {
-	uint16_t byte_addr;
-	uint8_t opcode[4];
-	
-	/* Compute the byte address based on the block ID */
-	byte_addr = block_id;
-	byte_addr *= CREDENTIAL_BLOCK_SIZE;
-	
-	opcode[0] = OPCODE_LOWF_READ;
-	opcode[1] = (uint8_t)((page_number>>7)&0x03);
-	opcode[2] = ((uint8_t)(page_number<<1)&0x0E) | ((uint8_t)(byte_addr>>8)&0x01);
-	opcode[3] = (uint8_t)byte_addr;
-	
-	sendDataToFlash(4, opcode, CREDENTIAL_BLOCK_SIZE, buffer);
-}
+    /* Read UDR1 contents to clear previous flags */
+    while(UCSR1A & (1<<RXC1))UDR1;
 
-/*!	\fn		waitForFlash(void)
-*	\brief	Wait for the flash to be ready
+    /* Assert chip select */
+    PORT_FLASH_nS &= ~(1 << PORTID_FLASH_nS);
+
+    while(opcodeSize--)
+    {
+        /* Wait for empty transmit buffer */
+        while(!(UCSR1A & (1 << UDRE1)));
+        /* Put data into buffer, sends the data */
+        UDR1 = *(opcode++);
+        /* Wait for data to be received */
+        while(!(UCSR1A & (1<<RXC1)));
+        /* Read received data to clear flag */
+        UDR1;
+    }
+
+    while(bufferSize--)
+    {
+        /* Wait for empty transmit buffer */
+        while(!(UCSR1A & (1 << UDRE1)));
+        /* Put data into buffer, sends the data */
+        UDR1 = *buffer;
+        /* Wait for data to be received */
+        while(!(UCSR1A & (1<<RXC1)));
+        /* Store received data */
+        *(buffer++) = UDR1;
+    }
+
+    /* Deassert chip select */
+    PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
+    return RETURN_OK;
+} // End sendDataToFlash
+
+/*!  \fn      waitForFlash(void)
+*    \brief   Wait for the flash to be ready (poll status register)
+*    \return  Success status
 */
-void waitForFlash(void)
+RET_TYPE waitForFlash(void)
 {
-	uint8_t opcode[2];
-	uint8_t temp_bool;
-	
-	opcode[0] = OPCODE_READ_STAT_REG;
-	temp_bool = TRUE;
-	while(temp_bool == TRUE)
-	{
-		sendDataToFlash(1, opcode, 1, opcode+1);
-		if(opcode[1]&READY_FLASH_BITMASK)
-			temp_bool = FALSE;
-	}
-}
+    uint8_t opcode[2];
+    uint8_t tempBool;
+    
+    opcode[0] = FLASH_OPCODE_READ_STAT_REG;
+    tempBool = TRUE;
+    while(tempBool == TRUE)
+    {
+        sendDataToFlash(1, opcode, 1, opcode+1);
+        if(opcode[1]&FLASH_READY_BITMASK)
+        tempBool = FALSE;
+    }
+    return RETURN_OK;
+} // End waitForFlash
 
-/*!	\fn		writeCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)
-*	\brief	Write a block of credentials
-*	\param	page_number		Page number in the flash
-*	\param	block_id		The block ID in the page
-*	\param	buffer			Pointer to the buffer
-*/
-void writeCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)
-{
-	uint16_t byte_addr;
-	uint8_t opcode[4];
-	
-	/* Compute the byte address based on the block ID */
-	byte_addr = block_id;
-	byte_addr *= CREDENTIAL_BLOCK_SIZE;
-	
-	/* Perform a main memory page to buffer transfer */
-	opcode[0] = OPCODE_MAINP_TO_BUFFER;
-	opcode[1] = (uint8_t)((page_number>>7)&0x03);
-	opcode[2] = ((uint8_t)(page_number<<1)&0x0E);
-	opcode[3] = 0;	
-	sendDataToFlash(4, opcode, 0, opcode);
-	
-	/* Wait until memory is ready */
-	waitForFlash();
-	
-	/* Start writing on the buffer and write the page (special opcode, just one command!) */
-	opcode[0] = OPCODE_MMP_PROG_TBUFFER;
-	opcode[1] = (uint8_t)((page_number>>7)&0x03);
-	opcode[2] = ((uint8_t)(page_number<<1)&0x0E) | ((uint8_t)(byte_addr>>8)&0x01);
-	opcode[3] = (uint8_t)byte_addr;
-	sendDataToFlash(4, opcode, CREDENTIAL_BLOCK_SIZE, buffer);
-	
-	/* Wait until memory is ready */
-	waitForFlash();
-}
-
-/*!	\fn		checkFlashID(void)
-*	\brief	Check the presence of the flash
-*	\return	Success status
+/*!  \fn        checkFlashID(void)
+*    \brief     Check the presence of the flash (manf info)
+*    \return    Success status
 */
 RET_TYPE checkFlashID(void)
 {
-	uint8_t data_buffer[5] = {OPCODE_MAN_DEV_ID_READ, 0x00, 0x00, 0x00, 0x00};
-	
-	/* Read flash identification */
-	sendDataToFlash(1, data_buffer, 4, data_buffer+1);
-	
-	/* Check ID */
-	if((data_buffer[1] != FLASH_MANUF_ID))
-		return RETURN_NOK;
-	else
-		return RETURN_OK;
-}
+    uint8_t dataBuffer[5] = {FLASH_OPCODE_READ_DEV_INFO , 0x00, 0x00, 0x00, 0x00};
+    
+    /* Read flash identification */
+    sendDataToFlash(1, dataBuffer, 4, dataBuffer+1);
+    
+    /* Check ID */
+    if((dataBuffer[1] != FLASH_MANUF_ID) || (dataBuffer[2] != MAN_FAM_DEN_VAL))
+    {
+        return RETURN_NOK;
+    }
+    else
+    {
+        return RETURN_OK;
+    }
+} // End checkFlashID
 
-/*!	\fn		initFlash(void)
-*	\brief	Initialize the flash memory
-*	\return	Success statusDD
+/*!  \fn        initFlash(void)
+*    \brief     Initialize the flash memory (Sets up SPI)
+*    \return    Success statusDD
 */
 RET_TYPE initFlash(void)
-{	
-	/* Setup chip select signal */
-	DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
-	PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
-	
-	/* Setup SPI interface */
-	#if SPI_OLED == SPI_USART
-		if(!(UCSR1B & (1 << TXEN1)))
-		{
-			DDRD |= (1 << 3) | (1 << 5);												// MOSI & SCK as ouputs
-			DDRD &= ~(1 << 2);															// MISO as input
-			PORTD &= ~(1 << 2);															// Disable pull-up
-			UBRR1 = 0x00;																// Set USART baud divider to 0
-			UCSR1C = (1 << UMSEL11) | (1 << UMSEL10) | (1 << UCPOL1) | (1 << UCSZ10);	// Enable USART1 as Master SPI mode 3
-			UCSR1B = (1 << TXEN1) | (1 << RXEN1);										// Enable receiver and transmitter
-			UBRR1 = 0x00;																// Set USART baud divider to 0, final baud rate 8Mbit/s			
-		}
-	#else
-		#error "SPI not implemented"
-	#endif
-	
-	/*  Check flash identification */
-	if(checkFlashID() != RETURN_OK)
-		return RETURN_NOK;
-	else
-		return RETURN_OK;
-}
+{
+    /* Setup chip select signal */
+    DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
+    PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
+    
+    /* Setup SPI interface */
+    #if SPI_OLED == SPI_USART
+    if(!(UCSR1B & (1 << TXEN1)))
+    {
+        DDRD |= (1 << 3) | (1 << 5);                                                // MOSI & SCK as ouputs
+        DDRD &= ~(1 << 2);                                                            // MISO as input
+        PORTD &= ~(1 << 2);                                                            // Disable pull-up
+        UBRR1 = 0x00;                                                                // Set USART baud divider to 0
+        UCSR1C = (1 << UMSEL11) | (1 << UMSEL10) | (1 << UCPOL1) | (1 << UCSZ10);    // Enable USART1 as Master SPI mode 3
+        UCSR1B = (1 << TXEN1) | (1 << RXEN1);                                        // Enable receiver and transmitter
+        UBRR1 = 0x00;                                                                // Set USART baud divider to 0, final baud rate 8Mbit/s
+    }
+    #else
+        #error "SPI not implemented"
+    #endif
+    
+    /*  Check flash identification */
+    if(checkFlashID() != RETURN_OK)
+    {
+        return RETURN_NOK;
+    }
+    else
+    {
+        return RETURN_OK;
+    }
+} // End initFlash
+
+/*!  \fn       sectorZeroErase(uint8_t sectorNumber)
+*    \brief    Deletes sub-section of sector 0X (see datasheet)
+*    \param    sectorNumber     The sub-section of sector 0 to erase (0 for 0a, 1 for 0b)
+*    \return   Success status.  Will return RETURN_NOK if sectorNumber is not 0 or 1
+*/
+RET_TYPE sectorZeroErase(uint8_t sectorNumber)
+{
+    uint32_t procBuff = (uint32_t)sectorNumber;
+    uint8_t opcode[4];
+    
+    // Error check parameter sectorNumber
+    if(sectorNumber != FLASH_SECTOR_ZERO_A_CODE || sectorNumber != FLASH_SECTOR_ZERO_B_CODE)
+    {
+        return RETURN_NOK;
+    }
+    
+    // Format procBuff
+    procBuff = (procBuff<<(SECTOR_ERASE_0_SHT_AMT));
+    
+    // Extract procBuff into required 3 address bytes (see datasheet)
+    opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
+    
+    sendDataToFlash(4, opcode, 0, opcode);
+    /* Wait until memory is ready */
+    waitForFlash();
+    return RETURN_OK;
+} // End sectorZeroErase
+
+/*!  \fn       sectorErase(uint16_t sectorNumber)
+*    \brief    Erases a sector of flash memory (see datasheet)
+*    \param    sectorNumber        The sector number in flash to erase
+*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
+*/
+RET_TYPE sectorErase(uint8_t sectorNumber)
+{
+    uint32_t procBuff = (uint32_t)sectorNumber;
+    uint8_t opcode[4];
+    
+    // Error check parameter sectorNumber
+    if((sectorNumber < SECTOR_START) || (sectorNumber > SECTOR_END)) // Ex: 1M -> SECTOR_START = 1, SECTOR_END = 3  sectorNumber must be 1, 2, or 3
+    {
+        return RETURN_NOK;
+    }
+    
+    // Format procBuff
+    procBuff = (procBuff<<(SECTOR_ERASE_N_SHT_AMT));
+    
+    // Extract procBuff into required 3 address bytes (see datasheet)
+    opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
+    
+    sendDataToFlash(4, opcode, 0, opcode);
+    /* Wait until memory is ready */
+    waitForFlash();
+    return RETURN_OK;    
+} // End sectorErase
+
+/*!  \fn       blockErase(uint16_t blockNumber)
+*    \brief    Erases a block of flash memory (see datasheet)
+*    \param    blockNumber       The block number in flash to erase
+*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
+*/
+RET_TYPE blockErase(uint16_t blockNumber)
+{
+    uint32_t procBuff = (uint32_t)blockNumber;
+    uint8_t opcode[4];
+    
+    // Error check parameter blockNumber
+    if(blockNumber >= BLOCK_COUNT)// Ex: 1M -> BLOCK_COUNT = 64.. valid pageNumber 0-63
+    {
+        return RETURN_NOK;
+    }
+    
+    // Format procBuff
+    procBuff = (procBuff<<(BLOCK_ERASE_SHT_AMT));
+    
+    // Extract procBuff into required 3 address bytes (see datasheet)
+    opcode[0] = FLASH_OPCODE_BLOCK_ERASE;
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
+    
+    sendDataToFlash(4, opcode, 0, opcode);
+    /* Wait until memory is ready */
+    waitForFlash();
+    return RETURN_OK;
+} // End blockErase
+
+/*!  \fn       pageErase(uint16_t pageNumber)
+*    \brief    Erases a page of flash memory (see datasheet)
+*    \param    pageNumber        The page number if flash to erase
+*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
+*/
+RET_TYPE pageErase(uint16_t pageNumber)
+{
+    uint32_t procBuff = (uint32_t)pageNumber;
+    uint8_t opcode[4];
+    
+    // Error check parameter pageNumber
+    if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
+    {
+        return RETURN_NOK;
+    }
+    
+    // Format procBuff
+    procBuff = (procBuff<<(PAGE_ERASE_SHT_AMT));
+    
+    // Extract procBuff into required 3 address bytes (see datasheet)
+    opcode[0] = FLASH_OPCODE_PAGE_ERASE;
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
+    
+    sendDataToFlash(4, opcode, 0, opcode);
+    /* Wait until memory is ready */
+    waitForFlash();
+    return RETURN_OK;
+} // End pageErase
+
+/*!  \fn       writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
+*    \brief    Write (dataSize starting at offset of pageNumber of) data to flash (see datasheet)
+*    \param    pageNumber        The page number if flash to write
+*    \param    offset            The byte offset in the page
+*    \param    dataSize          The number of bytes in the buffer to write (size_of buffer to write entire buffer)
+*    \param    data              The buffer (data structure) to write to flash
+*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
+*/
+RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
+{
+    uint8_t opcode[4];
+    uint32_t procBuff = (uint32_t)pageNumber;
+    
+    // Error check the parameter pageNumber
+    if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
+    {
+        return RETURN_INVALID_PARAM;
+    }
+    
+    // Error check the parameters offset and dataSize
+    if((offset + dataSize - 1) >= BYTES_PER_PAGE) // Ex: 1M -> BYTES_PER_PAGE = 264 offset + dataSize MUST be less than 264 (0-263 valid)
+    {
+        return RETURN_INVALID_PARAM;
+    }
+
+    // Shift page address over WRITE_SHT_AMT
+    procBuff = (procBuff<<(WRITE_SHT_AMT));
+    //procBuff = (procBuff<<(WRITE_SHT_AMT)) & 0xFFFFFE00;
+    
+    // Extract procBuff into required 3 address bytes (see datasheet)
+    opcode[0] = FLASH_OPCODE_MAINP_TO_BUF;
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
+    sendDataToFlash(4, opcode, 0, opcode);
+    
+    /* Wait until memory is ready */
+    waitForFlash();
+    
+    // Add offset value
+    procBuff |= (uint32_t)offset;
+    //procBuff |= ((uint32_t)offset) & 0x000001FF;
+
+    
+    // Extract procBuff into required 3 address bytes (see datasheet)
+    opcode[0] = FLASH_OPCODE_MMP_PROG_TBUF;
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
+    sendDataToFlash(4, opcode, dataSize, data);
+    
+    /* Wait until memory is ready */
+    waitForFlash();
+    return RETURN_OK;
+} // End writeDataToFlash
+
+/*!  \fn       readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
+*    \brief    Read (dataSize starting at offset of pageNumber of) flash to data (see datasheet)
+*    \param    pageNumber        The page number if flash to read
+*    \param    offset            The byte offset in the page
+*    \param    dataSize          The number of bytes in the buffer to read (size_of buffer to read entire buffer)
+*    \param    data              The buffer to store data from flash
+*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
+*/
+RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
+{    
+    uint8_t opcode[4];
+    uint32_t procBuff = (uint32_t)pageNumber;
+    
+    // Error check the parameter pageNumber
+    if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
+    {
+        return RETURN_INVALID_PARAM;
+    }
+    
+    // Error check the parameters offset and dataSize
+    if((offset + dataSize - 1) >= BYTES_PER_PAGE) // Ex: 1M -> BYTES_PER_PAGE = 264 offset + dataSize MUST be less than 264 (0-263 valid)
+    {
+        return RETURN_INVALID_PARAM;
+    }
+
+    // Format procBuff
+    procBuff = procBuff << READ_OFFSET_SHT_AMT;  // make room for offset
+    //procBuff = (procBuff<<(READ_OFFSET_SHT_AMT)) & 0xFFFFFE00;
+    procBuff |= (uint32_t)offset; // Add the offset
+    //procBuff |= ((uint32_t)offset) & 0x000001FF;
+    
+    // Extract procBuff into required 3 address bytes (see datasheet)
+    opcode[0] = FLASH_OPCODE_LOWF_READ;
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
+    
+    sendDataToFlash(4, opcode, dataSize, data);
+    /* Wait until memory is ready */
+    waitForFlash();
+    return RETURN_OK;
+} // End readDataFromFlash

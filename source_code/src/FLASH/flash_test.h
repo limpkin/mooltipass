@@ -20,30 +20,28 @@
 
 /* Copyright (c) 2014, Michael Neiderhauser. All rights reserved. */
 
-/*!  \file     flash_mem.h
-*    \brief    Mooltipass Flash IC Library Header
+/*!  \file     flash_test.h
+*    \brief    Mooltipass Flash IC Library Test Functions Header
 *    Created:  31/3/2014
 *    Author:   Michael Neiderhauser
 */
 
-#ifndef FLASH_MEM_H_
-#define FLASH_MEM_H_
+#ifndef FLASH_TEST_H_
+#define FLASH_TEST_H_
 
-RET_TYPE sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer);
-RET_TYPE waitForFlash(void);
-RET_TYPE checkFlashID(void);
-RET_TYPE initFlash(void);
+void initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy);
 
-// Erase Functions
-RET_TYPE sectorZeroErase(uint8_t sectorNumber);
-RET_TYPE sectorErase(uint8_t sectorNumber);
-RET_TYPE blockErase(uint16_t blockNumber);
-RET_TYPE pageErase(uint16_t pageNumber);
+RET_TYPE flashInitTest();
 
-RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data);
-RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data);
+RET_TYPE flashWriteReadTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
+RET_TYPE flashWriteReadOffsetTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
 
-//void readCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)__attribute__((deprecated));
+RET_TYPE flashErasePageTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
+RET_TYPE flashEraseBlockTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
 
+RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
+RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
 
-#endif /* FLASH_MEM_H_ */
+RET_TYPE flashTest();
+
+#endif /* FLASH_TEST_H_ */

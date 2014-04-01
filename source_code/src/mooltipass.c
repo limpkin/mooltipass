@@ -30,6 +30,7 @@
 #include "interrupts.h"
 #include "smartcard.h"
 #include "flash_mem.h"
+#include "flash_test.h"
 #include "oledmp.h"
 #include "spi.h"
 #include <util/delay.h>
@@ -84,6 +85,13 @@ int main(void)
     oledSetContrast(OLED_Contrast);
     oledSetScrollSpeed(3);
 
+    #ifdef TEST_FLASH
+        // runt flash test
+        flashTest();
+        // spin
+        while(1);
+    #endif
+    
     flash_init_result = initFlash();    // Initialize flash memory
 
     //#define TEST_HID_AND_CDC

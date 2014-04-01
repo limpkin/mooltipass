@@ -28,7 +28,6 @@
 #include <spi.h>
 #include <oledmp.h>
 #include <util/delay.h>
-#include "jack.h"
 #include "aqua.h"
 #include "sphere.h"
 #include "hackaday.h"

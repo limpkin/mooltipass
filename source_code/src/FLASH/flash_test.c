@@ -531,7 +531,7 @@ void displayInitForTest()
 {
     oledClear();
     oledSetXY(0,0);
-    oledPutstr_P(PSTR("Flash Test"));
+    printf_P(PSTR("Flash Test"));
     oledSetXY(0,8);
 }
 
@@ -544,19 +544,19 @@ void displayRWCode(RET_TYPE ret)
     oledSetXY(0,24);
     if(ret==RETURN_NO_MATCH)
     {
-        oledPutstr_P(PSTR("NO MATCH"));
+        printf_P(PSTR("NO MATCH"));
     }
     else if(ret==RETURN_READ_ERR)
     {
-        oledPutstr_P(PSTR("READ ERROR"));
+        printf_P(PSTR("READ ERROR"));
     }
     else if(ret==RETURN_WRITE_ERR)
     {
-        oledPutstr_P(PSTR("WRITE ERROR"));
+        printf_P(PSTR("WRITE ERROR"));
     }
     else
     {
-        oledPutstr_P(PSTR("BAD PARAM / UNKNOWN"));
+        printf_P(PSTR("BAD PARAM / UNKNOWN"));
     }
 }
 
@@ -566,7 +566,7 @@ void displayRWCode(RET_TYPE ret)
 void displayPassed()
 {
     oledSetXY(0,16);
-    oledPutstr_P(PSTR("PASSED"));
+    printf_P(PSTR("PASSED"));
     _delay_ms(1000);
 }
 
@@ -576,7 +576,7 @@ void displayPassed()
 void displayFailed()
 {
     oledSetXY(0,16);
-    oledPutstr_P(PSTR("FAILED"));
+    printf_P(PSTR("FAILED"));
 }
 
 /*!  \fn       flashTest()
@@ -591,7 +591,7 @@ RET_TYPE flashTest()
     
     /****************************************** Flash Init Test **********************************************/
     displayInitForTest();
-    oledPutstr_P(PSTR("Flash Init Test"));
+    printf_P(PSTR("Flash Init Test"));
     
     // run test
     ret = flashInitTest();
@@ -609,7 +609,7 @@ RET_TYPE flashTest()
     /************************************** Flash Write / Read Test ******************************************/
     #ifdef RUN_FLASH_TEST_WR
     displayInitForTest();
-    oledPutstr_P(PSTR("Flash Write/Read Test"));
+    printf_P(PSTR("Flash Write/Read Test"));
     
     // run test
     ret = flashWriteReadTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -629,7 +629,7 @@ RET_TYPE flashTest()
     /*********************************** Flash Write / Read Offset Test **************************************/
     #ifdef RUN_FLASH_TEST_WRO
     displayInitForTest();
-    oledPutstr_P(PSTR("Flash Write/Read + Offset Test"));
+    printf_P(PSTR("Flash Write/Read + Offset Test"));
     
     // run test
     ret = flashWriteReadOffsetTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -650,7 +650,7 @@ RET_TYPE flashTest()
     /****************************************** Flash Page Erase *********************************************/
     #ifdef RUN_FLASH_TEST_ERASE_PAGE
     displayInitForTest();
-    oledPutstr_P(PSTR("Flash Erase Page"));
+    printf_P(PSTR("Flash Erase Page"));
     
     // run test
     ret = flashErasePageTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -669,7 +669,7 @@ RET_TYPE flashTest()
     /****************************************** Flash Block Erase ********************************************/
     #ifdef RUN_FLASH_TEST_ERASE_BLOCK
     displayInitForTest();
-    oledPutstr_P(PSTR("Flash Erase Block"));
+    printf_P(PSTR("Flash Erase Block"));
     
     // run test
     ret = flashEraseBlockTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -688,7 +688,7 @@ RET_TYPE flashTest()
     /****************************************** Flash Sector Erase *******************************************/
     #ifdef RUN_FLASH_TEST_ERASE_SECTOR_X
     displayInitForTest();
-    oledPutstr_P(PSTR("Flash Erase Sector X"));
+    printf_P(PSTR("Flash Erase Sector X"));
     
     // run test
     ret = flashEraseBlockTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -707,7 +707,7 @@ RET_TYPE flashTest()
     /*************************************** Flash Sector Zero Erase *****************************************/
     #ifdef RUN_FLASH_TEST_ERASE_SECTOR_0
     displayInitForTest();
-    oledPutstr_P(PSTR("Flash Erase Sector 0"));
+    printf_P(PSTR("Flash Erase Sector 0"));
     
     // run test
     ret = flashEraseBlockTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -729,7 +729,7 @@ RET_TYPE flashTest()
     /*************************************** Flash Suite Passeed *****************************************/
     /*****************************************************************************************************/ 
     displayInitForTest();
-    oledPutstr_P(PSTR("Flash Test Suite"));
+    printf_P(PSTR("Flash Test Suite"));
     displayPassed();
     return ret;
 }

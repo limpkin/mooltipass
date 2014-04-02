@@ -59,8 +59,6 @@ void setup()
 
     oled.setColour(2);
     oled.setBackground(0);
-    //oled.setContrast(80);
-    oled.setContrast(255);
 
     oled.bitmapDraw(0,0, &image_HaD_Mooltipass_2);
 
@@ -69,30 +67,6 @@ void setup()
     oled.printf(F("Mooltipass\n\n"));
     oled.printf(F("Developed on HACK A DAY"));
 
-#if 0
-    oled.bitmapDraw(0,0, &image_hackaday);
-    oled.setXY(72,37);
-    oled.printf(F("HACK A DAY"));
-    oled.setXY(108,4);
-    oled.printf(F("Mooltipass"));
-    oled.bitmapDraw(192,0, &image_gear);
-#endif
-
-
-
-#if 0
-    oled.bitmapDraw(0,0, &image_hackaday);
-    oled.bitmapDraw(60,0, &image_sphere);
-    oled.bitmapDraw(116,0, &image_aqua);
-    oled.bitmapDraw(192,0, &image_gear);
-#endif
-
-#if 0
-    oled.printf(F("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-    oled.printf(F("abcdefghijklmnopqrstuvwxyz\n"));
-    oled.printf(F("01234567890"));
-    oled.printf(F("!$%%&'()*,./:;?"));
-#endif
     Serial.println("Finished");
 }
 

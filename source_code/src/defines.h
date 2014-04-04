@@ -92,7 +92,7 @@ typedef uint8_t RET_TYPE;
     #define MAN_FAM_DEN_VAL 0x22       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 512             // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
-    #define MAP_BYTES 256              // Bytes required to make 'node' usage (map) -> ((PAGE_COUNT * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
+    #define MAP_BYTES 192              // Bytes required to make 'node' usage (map) -> (((PAGE_COUNT - PAGE_PER_SECTOR) * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
     #define MAP_PAGES 1                // Pages required to hold 'node' usage (map) -> CEILING(MAP_BYTES / BYTES_PER_PAGE)
     #define NODE_PARENT_PER_PAGE 4     // Number of parent nodes per page -> BYTES_PER_PAGE / NODE_SIZE_PARENT
     #define BLOCK_COUNT 64             // Number of blocks in the chip
@@ -121,7 +121,7 @@ typedef uint8_t RET_TYPE;
     #define MAN_FAM_DEN_VAL 0x23       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 1024            // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
-    #define MAP_BYTES 512              // Bytes required to make 'node' usage (map) -> ((PAGE_COUNT * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
+    #define MAP_BYTES 448              // Bytes required to make 'node' usage (map) -> (((PAGE_COUNT - PAGE_PER_SECTOR) * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
     #define MAP_PAGES 2                // Pages required to hold 'node' usage (map) -> CEILING(MAP_BYTES / BYTES_PER_PAGE)
     #define NODE_PARENT_PER_PAGE 4     // Number of parent nodes per page -> BYTES_PER_PAGE / NODE_SIZE_PARENT
     #define BLOCK_COUNT 128            // Number of blocks in the chip
@@ -150,7 +150,7 @@ typedef uint8_t RET_TYPE;
     #define MAN_FAM_DEN_VAL 0x24       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 2048            // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
-    #define MAP_BYTES 1024             // Bytes required to make 'node' usage (map) -> ((PAGE_COUNT * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
+    #define MAP_BYTES 896              // Bytes required to make 'node' usage (map) -> (((PAGE_COUNT - PAGE_PER_SECTOR) * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
     #define MAP_PAGES 4                // Pages required to hold 'node' usage (map) -> CEILING(MAP_BYTES / BYTES_PER_PAGE)
     #define NODE_PARENT_PER_PAGE 4     // Number of parent nodes per page -> BYTES_PER_PAGE / NODE_SIZE_PARENT
     #define BLOCK_COUNT 256            // Number of blocks in the chip
@@ -179,7 +179,7 @@ typedef uint8_t RET_TYPE;
     #define MAN_FAM_DEN_VAL 0x25       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 4096            // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
-    #define MAP_BYTES 2048             // Bytes required to make 'node' usage (map) -> ((PAGE_COUNT * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
+    #define MAP_BYTES 1920             // Bytes required to make 'node' usage (map) -> (((PAGE_COUNT - PAGE_PER_SECTOR) * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
     #define MAP_PAGES 8                // Pages required to hold 'node' usage (map) -> CEILING(MAP_BYTES / BYTES_PER_PAGE)
     #define NODE_PARENT_PER_PAGE 4     // Number of parent nodes per page -> BYTES_PER_PAGE / NODE_SIZE_PARENT
     #define BLOCK_COUNT 512            // Number of blocks in the chip
@@ -208,7 +208,7 @@ typedef uint8_t RET_TYPE;
     #define MAN_FAM_DEN_VAL 0x26       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 4096            // Number of pages in the chip
     #define BYTES_PER_PAGE 528         // Bytes per page of the chip
-    #define MAP_BYTES 4096             // Bytes required to make 'node' usage (map) -> ((PAGE_COUNT * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
+    #define MAP_BYTES 3840             // Bytes required to make 'node' usage (map) -> (((PAGE_COUNT - PAGE_PER_SECTOR) * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
     #define MAP_PAGES 8                // Pages required to hold 'node' usage (map) -> CEILING(MAP_BYTES / BYTES_PER_PAGE)
     #define NODE_PARENT_PER_PAGE 8     // Number of parent nodes per page -> BYTES_PER_PAGE / NODE_SIZE_PARENT
     #define BLOCK_COUNT 512            // Number of blocks in the chip
@@ -237,7 +237,7 @@ typedef uint8_t RET_TYPE;
     #define MAN_FAM_DEN_VAL 0x27       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 8192            // Number of pages in the chip
     #define BYTES_PER_PAGE 528         // Bytes per page of the chip
-    #define MAP_BYTES 8192             // Bytes required to make 'node' usage (map) -> ((PAGE_COUNT * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
+    #define MAP_BYTES 8064             // Bytes required to make 'node' usage (map) -> (((PAGE_COUNT - PAGE_PER_SECTOR) * BYTES_PER_PAGE) / NODE_SIZE_PARENT) / 8bits
     #define MAP_PAGES 16               // Pages required to hold 'node' usage (map) -> CEILING(MAP_BYTES / BYTES_PER_PAGE)
     #define NODE_PARENT_PER_PAGE 8     // Number of parent nodes per page -> BYTES_PER_PAGE / NODE_SIZE_PARENT
     #define BLOCK_COUNT 1024           // Number of blocks in the chip
@@ -293,6 +293,15 @@ typedef uint8_t RET_TYPE;
 #define RUN_FLASH_TEST_ERASE_BLOCK
 #define RUN_FLASH_TEST_ERASE_SECTOR_X
 #define RUN_FLASH_TEST_ERASE_SECTOR_0
+
+// Flash Page Mappings
+#define FLASH_PAGE_MAPPING_NODE_META_DATA  0  // Reserving two (2) pages for node management meta data
+#define FLASH_PAGE_MAPPING_NODE_MAP_START  2  // Reserving two (2) pages for node management meta data
+#define FLASH_PAGE_MAPPING_NODE_MAP_END    (FLASH_PAGE_MAPPING_NODE_MAP_START + MAP_PAGES)  // Last page used for node mapping
+#define FLASH_PAGE_MAPPING_GFX_START       (FLASH_PAGE_MAPPING_NODE_MAP_END + 1)  // Start GFX Mapping
+#define FLASH_PAGE_MAPPING_GFX_END         (PAGE_PER_SECTOR) // End GFX Mapping
+#define FLASH_PAGE_MAPPING_GFX_SIZE        (FLASH_PAGE_MAPPING_GFX_END - FLASH_PAGE_MAPPING_GFX_START)
+
 
 /** DEFINES SMART CARD **/
 #define SMARTCARD_FABRICATION_ZONE	0x0F0F

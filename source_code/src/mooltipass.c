@@ -33,6 +33,7 @@
 #include "smartcard.h"
 #include "flash_mem.h"
 #include "flash_test.h"
+#include "node_mgmt.h"
 #include "oledmp.h"
 #include "spi.h"
 #include <util/delay.h>

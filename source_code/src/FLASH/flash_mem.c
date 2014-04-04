@@ -89,7 +89,9 @@ RET_TYPE waitForFlash(void)
     {
         sendDataToFlash(1, opcode, 1, opcode+1);
         if(opcode[1]&FLASH_READY_BITMASK)
-        tempBool = FALSE;
+        {
+            tempBool = FALSE;
+        }            
     }
     return RETURN_OK;
 } // End waitForFlash
@@ -128,16 +130,16 @@ RET_TYPE initFlash(void)
     
     /* Setup SPI interface */
     #if SPI_OLED == SPI_USART
-    if(!(UCSR1B & (1 << TXEN1)))
-    {
-        DDRD |= (1 << 3) | (1 << 5);                                                // MOSI & SCK as ouputs
-        DDRD &= ~(1 << 2);                                                            // MISO as input
-        PORTD &= ~(1 << 2);                                                            // Disable pull-up
-        UBRR1 = 0x00;                                                                // Set USART baud divider to 0
-        UCSR1C = (1 << UMSEL11) | (1 << UMSEL10) | (1 << UCPOL1) | (1 << UCSZ10);    // Enable USART1 as Master SPI mode 3
-        UCSR1B = (1 << TXEN1) | (1 << RXEN1);                                        // Enable receiver and transmitter
-        UBRR1 = 0x00;                                                                // Set USART baud divider to 0, final baud rate 8Mbit/s
-    }
+        if(!(UCSR1B & (1 << TXEN1)))
+        {
+            DDRD |= (1 << 3) | (1 << 5);                                                // MOSI & SCK as ouputs
+            DDRD &= ~(1 << 2);                                                            // MISO as input
+            PORTD &= ~(1 << 2);                                                            // Disable pull-up
+            UBRR1 = 0x00;                                                                // Set USART baud divider to 0
+            UCSR1C = (1 << UMSEL11) | (1 << UMSEL10) | (1 << UCPOL1) | (1 << UCSZ10);    // Enable USART1 as Master SPI mode 3
+            UCSR1B = (1 << TXEN1) | (1 << RXEN1);                                        // Enable receiver and transmitter
+            UBRR1 = 0x00;                                                                // Set USART baud divider to 0, final baud rate 8Mbit/s
+        }
     #else
         #error "SPI not implemented"
     #endif
@@ -170,12 +172,12 @@ RET_TYPE sectorZeroErase(uint8_t sectorNumber)
     }
     
     // Format procBuff
-    procBuff = (procBuff<<(SECTOR_ERASE_0_SHT_AMT));
+    procBuff = (procBuff << (SECTOR_ERASE_0_SHT_AMT));
     
     // Extract procBuff into required 3 address bytes (see datasheet)
     opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
     sendDataToFlash(4, opcode, 0, opcode);
@@ -201,12 +203,12 @@ RET_TYPE sectorErase(uint8_t sectorNumber)
     }
     
     // Format procBuff
-    procBuff = (procBuff<<(SECTOR_ERASE_N_SHT_AMT));
+    procBuff = (procBuff << (SECTOR_ERASE_N_SHT_AMT));
     
     // Extract procBuff into required 3 address bytes (see datasheet)
     opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
     sendDataToFlash(4, opcode, 0, opcode);
@@ -232,12 +234,12 @@ RET_TYPE blockErase(uint16_t blockNumber)
     }
     
     // Format procBuff
-    procBuff = (procBuff<<(BLOCK_ERASE_SHT_AMT));
+    procBuff = (procBuff << (BLOCK_ERASE_SHT_AMT));
     
     // Extract procBuff into required 3 address bytes (see datasheet)
     opcode[0] = FLASH_OPCODE_BLOCK_ERASE;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
     sendDataToFlash(4, opcode, 0, opcode);
@@ -263,12 +265,12 @@ RET_TYPE pageErase(uint16_t pageNumber)
     }
     
     // Format procBuff
-    procBuff = (procBuff<<(PAGE_ERASE_SHT_AMT));
+    procBuff = (procBuff << (PAGE_ERASE_SHT_AMT));
     
     // Extract procBuff into required 3 address bytes (see datasheet)
     opcode[0] = FLASH_OPCODE_PAGE_ERASE;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
     sendDataToFlash(4, opcode, 0, opcode);
@@ -303,13 +305,13 @@ RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSiz
     }
 
     // Shift page address over WRITE_SHT_AMT
-    procBuff = (procBuff<<(WRITE_SHT_AMT));
+    procBuff = (procBuff << (WRITE_SHT_AMT));
     //procBuff = (procBuff<<(WRITE_SHT_AMT)) & 0xFFFFFE00;
     
     // Extract procBuff into required 3 address bytes (see datasheet)
     opcode[0] = FLASH_OPCODE_MAINP_TO_BUF;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     sendDataToFlash(4, opcode, 0, opcode);
     
@@ -323,8 +325,8 @@ RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSiz
     
     // Extract procBuff into required 3 address bytes (see datasheet)
     opcode[0] = FLASH_OPCODE_MMP_PROG_TBUF;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     sendDataToFlash(4, opcode, dataSize, data);
     
@@ -366,8 +368,8 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     
     // Extract procBuff into required 3 address bytes (see datasheet)
     opcode[0] = FLASH_OPCODE_LOWF_READ;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000)>>16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00)>>8);   // Mid byte
+    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
+    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
     sendDataToFlash(4, opcode, dataSize, data);

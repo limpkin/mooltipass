@@ -44,38 +44,38 @@ void initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy)
     uint8_t ctr = 0;
     uint16_t i = 0;
     
-    if(policy==FLASH_TEST_INIT_BUFFER_POLICY_ONE)
+    if(policy == FLASH_TEST_INIT_BUFFER_POLICY_ONE)
     {
         // all 1's
-        for(i = 0; i< bufferSize; i++)
+        for(i = 0; i < bufferSize; i++)
         {
-            buffer[i]=255;
+            buffer[i] = 255;
         }
     }
-    else if(policy==FLASH_TEST_INIT_BUFFER_POLICY_INC)
+    else if(policy == FLASH_TEST_INIT_BUFFER_POLICY_INC)
     {
         // increment
-        for(i = 0; i< bufferSize; i++)
+        for(i = 0; i < bufferSize; i++)
         {
-            buffer[i]=ctr;
+            buffer[i] = ctr;
             // ctr will overflow if > 255
             ctr++;
         }
     }
-    else if(policy==FLASH_TEST_INIT_BUFFER_POLICY_RND)
+    else if(policy == FLASH_TEST_INIT_BUFFER_POLICY_RND)
     {
-        for(i = 0; i< bufferSize; i++)
+        for(i = 0; i < bufferSize; i++)
         {
-            mooltipass_rand();
+            //mooltipass_rand();
             buffer[i] = (uint8_t)mooltipass_rand();
         }
     }
     else
     {
         // all 0's
-        for(i = 0; i< bufferSize; i++)
+        for(i = 0; i < bufferSize; i++)
         {
-            buffer[i]=0;
+            buffer[i] = 0;
         }
     }
 } // End initBuffer
@@ -169,7 +169,7 @@ RET_TYPE flashWriteReadOffsetTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
             memcpy(bufferOut, bufferIn, NODE_SIZE_PARENT);
             
             // calculate offset
-            offset = j*NODE_SIZE_PARENT;
+            offset = j * NODE_SIZE_PARENT;
             
             // write to page + offset.  buffer becomes corrupt 
             ret = writeDataToFlash(i, offset, NODE_SIZE_PARENT, bufferIn);
@@ -189,7 +189,7 @@ RET_TYPE flashWriteReadOffsetTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
             }
             
             // compare buffers
-            for(k=0; k<NODE_SIZE_PARENT; k++)
+            for(k = 0; k < NODE_SIZE_PARENT; k++)
             {
                 // compare ->  bufferIn == bufferOut
                 if(bufferIn[k] != bufferOut[k])
@@ -296,7 +296,7 @@ RET_TYPE flashEraseBlockTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buf
 
     // assuming the flashWriteReadTest passes -> Populate entire flash chip
     ret = flashWriteReadTest(bufferIn, bufferOut, bufferSize);
-    if(ret!=RETURN_OK)
+    if(ret != RETURN_OK)
     {
         //return on error
         return ret;
@@ -306,7 +306,7 @@ RET_TYPE flashEraseBlockTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buf
     for(i = 0; i < BLOCK_COUNT; i++)
     {
         ret = blockErase(i);
-        if(ret!=RETURN_OK)
+        if(ret != RETURN_OK)
         {
             // return on error
             return ret;
@@ -359,7 +359,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
     uint16_t sectorPageOffset = 0;
     
     // for each sector
-    for(i = SECTOR_START; i<=SECTOR_END; i++)
+    for(i = SECTOR_START; i <= SECTOR_END; i++)
     {
         // calculate sector page offset
         sectorPageOffset = PAGE_PER_SECTOR * i; 
@@ -372,7 +372,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
             memcpy(bufferOut, bufferIn, bufferSize);
             
             ret = writeDataToFlash(sectorPageOffset + j, 0, bufferSize, bufferIn);
-            if(ret!=RETURN_OK)
+            if(ret != RETURN_OK)
             {
                 return ret;
             }
@@ -382,7 +382,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
             
             // read data
             ret = readDataFromFlash(sectorPageOffset + j, 0, bufferSize, bufferIn);
-            if(ret!=RETURN_OK)
+            if(ret != RETURN_OK)
             {
                 return ret;
             }
@@ -400,7 +400,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
         
         // issue sector erase
         ret = sectorErase(i);
-        if(ret!=RETURN_OK)
+        if(ret != RETURN_OK)
         {
             return ret;
         }
@@ -413,7 +413,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
         {
             // read flash to bufferIn
             ret = readDataFromFlash(sectorPageOffset + j, 0, bufferSize, bufferIn);
-            if(ret!=RETURN_OK)
+            if(ret != RETURN_OK)
             {
                 return ret;
             }
@@ -455,7 +455,7 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
         
         // write bufferIn to flash -> corrupts buffer
         ret = writeDataToFlash(i, 0, bufferSize, bufferIn);
-        if(ret!=RETURN_OK)
+        if(ret != RETURN_OK)
         {
             return ret;
         }
@@ -465,7 +465,7 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
         
         // read flash to buffer
         ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
-        if(ret!=RETURN_OK)
+        if(ret != RETURN_OK)
         {
             return ret;
         }
@@ -483,14 +483,14 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
     
     // issue erase sector 0a
     ret = sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE);
-    if(ret!=RETURN_OK)
+    if(ret != RETURN_OK)
     {
         return ret;
     }
     
     //issue erase sector 0b
     ret = sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE);
-    if(ret!=RETURN_OK)
+    if(ret != RETURN_OK)
     {
         return ret;
     }
@@ -506,7 +506,7 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
         
         // read page
         ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
-        if(ret!=RETURN_OK)
+        if(ret != RETURN_OK)
         {
             return ret;
         }
@@ -542,15 +542,15 @@ void displayInitForTest()
 void displayRWCode(RET_TYPE ret)
 {
     oledSetXY(0,24);
-    if(ret==RETURN_NO_MATCH)
+    if(ret == RETURN_NO_MATCH)
     {
         printf_P(PSTR("NO MATCH"));
     }
-    else if(ret==RETURN_READ_ERR)
+    else if(ret == RETURN_READ_ERR)
     {
         printf_P(PSTR("READ ERROR"));
     }
-    else if(ret==RETURN_WRITE_ERR)
+    else if(ret == RETURN_WRITE_ERR)
     {
         printf_P(PSTR("WRITE ERROR"));
     }

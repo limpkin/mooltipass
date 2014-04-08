@@ -16,7 +16,7 @@ AS      := $(CROSS)as
 
 LIBS := -lm -lmooltipass
 
-LIBDIRS := $(addprefix src/, CARD FLASH USB SPI OLEDMP UTILS AES)
+LIBDIRS := $(addprefix src/, CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT)
 LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
 
 AESDIRS := $(addprefix src/, AES AES/aes AES/gf256mul)

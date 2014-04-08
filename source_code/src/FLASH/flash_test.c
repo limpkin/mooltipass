@@ -29,6 +29,7 @@
 #include "../mooltipass.h"
 #include "../FLASH/flash_mem.h"
 #include "oledmp.h"
+#include "usb_serial_hid.h"
 #include <avr/io.h>
 #include <string.h> // for memcpy
 #include <util/delay.h> // for delays
@@ -159,7 +160,7 @@ RET_TYPE flashWriteReadOffsetTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
     uint16_t k = 0; // byte count in compare
     
     // for each page in the flash
-    for(i = 0; i < bufferSize; i++)
+    for(i = 0; i < PAGE_COUNT; i++)
     {
         // for each offsetBin in page (1M -> 4 bins -> 264/66)
         for(j = 0; j < offsetsPerPage; j++)
@@ -529,10 +530,16 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
 */
 void displayInitForTest()
 {
-    oledClear();
-    oledSetXY(0,0);
-    printf_P(PSTR("Flash Test"));
-    oledSetXY(0,8);
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        oledClear();
+        oledSetXY(0,0);
+        printf_P(PSTR("Flash Test"));
+        oledSetXY(0,8);
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("\n----Flash Test----\n"));
+    #endif
 }
 
 /*!  \fn       displayRWCode(RET_TYPE ret)
@@ -541,22 +548,49 @@ void displayInitForTest()
 */
 void displayRWCode(RET_TYPE ret)
 {
-    oledSetXY(0,24);
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        oledSetXY(0,24);
+    #endif
+    
     if(ret == RETURN_NO_MATCH)
     {
-        printf_P(PSTR("NO MATCH"));
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+            printf_P(PSTR("NO MATCH"));
+        #endif
+        
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+            usbPrintf_P(PSTR("NO MATCH\n"));
+        #endif
     }
     else if(ret == RETURN_READ_ERR)
     {
-        printf_P(PSTR("READ ERROR"));
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+            printf_P(PSTR("READ ERROR"));
+        #endif
+        
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+            usbPrintf_P(PSTR("READ ERROR\n"));
+        #endif
     }
     else if(ret == RETURN_WRITE_ERR)
     {
-        printf_P(PSTR("WRITE ERROR"));
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+            printf_P(PSTR("WRITE ERROR"));
+        #endif
+        
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+            usbPrintf_P(PSTR("WRITE ERROR\n"));
+        #endif
     }
     else
     {
-        printf_P(PSTR("BAD PARAM / UNKNOWN"));
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+            printf_P(PSTR("BAD PARAM / UNKNOWN"));
+        #endif
+        
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+            usbPrintf_P(PSTR("BAD PARAM / UNKNOWN\n"));
+        #endif
     }
 }
 
@@ -565,8 +599,15 @@ void displayRWCode(RET_TYPE ret)
 */
 void displayPassed()
 {
-    oledSetXY(0,16);
-    printf_P(PSTR("PASSED"));
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        oledSetXY(0,16);
+        printf_P(PSTR("PASSED"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("PASSED\n"));
+    #endif
+    
     _delay_ms(1000);
 }
 
@@ -575,8 +616,14 @@ void displayPassed()
 */
 void displayFailed()
 {
-    oledSetXY(0,16);
-    printf_P(PSTR("FAILED"));
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        oledSetXY(0,16);
+        printf_P(PSTR("FAILED"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("FAILED\n"));
+    #endif
 }
 
 /*!  \fn       flashTest()
@@ -589,9 +636,21 @@ RET_TYPE flashTest()
     
     RET_TYPE ret = RETURN_NOK;
     
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        while (!(usb_serial_get_control() & USB_SERIAL_DTR)); /* wait for terminal to connect */
+        usbPrintf_P(PSTR("START Flash Test Suite %dM Chip\n"), (uint8_t)FLASH_CHIP);
+    #endif
+    
     /****************************************** Flash Init Test **********************************************/
     displayInitForTest();
-    printf_P(PSTR("Flash Init Test"));
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Flash Init Test"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("Flash Init Test\n"));
+    #endif
     
     // run test
     ret = flashInitTest();
@@ -609,7 +668,14 @@ RET_TYPE flashTest()
     /************************************** Flash Write / Read Test ******************************************/
     #ifdef RUN_FLASH_TEST_WR
     displayInitForTest();
-    printf_P(PSTR("Flash Write/Read Test"));
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Flash Write/Read Test"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("Flash Write/Read Test\n"));
+    #endif
     
     // run test
     ret = flashWriteReadTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -629,7 +695,14 @@ RET_TYPE flashTest()
     /*********************************** Flash Write / Read Offset Test **************************************/
     #ifdef RUN_FLASH_TEST_WRO
     displayInitForTest();
-    printf_P(PSTR("Flash Write/Read + Offset Test"));
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Flash Write/Read + Offset Test"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("Flash Write/Read Test + Offset\n"));
+    #endif
     
     // run test
     ret = flashWriteReadOffsetTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -650,7 +723,14 @@ RET_TYPE flashTest()
     /****************************************** Flash Page Erase *********************************************/
     #ifdef RUN_FLASH_TEST_ERASE_PAGE
     displayInitForTest();
-    printf_P(PSTR("Flash Erase Page"));
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Flash Erase Page"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("Flash Erase Page\n"));
+    #endif
     
     // run test
     ret = flashErasePageTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -669,7 +749,14 @@ RET_TYPE flashTest()
     /****************************************** Flash Block Erase ********************************************/
     #ifdef RUN_FLASH_TEST_ERASE_BLOCK
     displayInitForTest();
-    printf_P(PSTR("Flash Erase Block"));
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Flash Erase Block"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("Flash Erase Block\n"));
+    #endif
     
     // run test
     ret = flashEraseBlockTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -688,7 +775,14 @@ RET_TYPE flashTest()
     /****************************************** Flash Sector Erase *******************************************/
     #ifdef RUN_FLASH_TEST_ERASE_SECTOR_X
     displayInitForTest();
-    printf_P(PSTR("Flash Erase Sector X"));
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Flash Erase Sector X"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("Flash Erase Sector X\n"));
+    #endif
     
     // run test
     ret = flashEraseBlockTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -707,7 +801,14 @@ RET_TYPE flashTest()
     /*************************************** Flash Sector Zero Erase *****************************************/
     #ifdef RUN_FLASH_TEST_ERASE_SECTOR_0
     displayInitForTest();
-    printf_P(PSTR("Flash Erase Sector 0"));
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Flash Erase Sector 0"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("Flash Erase Sector 0\n"));
+    #endif
     
     // run test
     ret = flashEraseBlockTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
@@ -729,7 +830,15 @@ RET_TYPE flashTest()
     /*************************************** Flash Suite Passeed *****************************************/
     /*****************************************************************************************************/ 
     displayInitForTest();
-    printf_P(PSTR("Flash Test Suite"));
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Flash Test Suite"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("END Flash Test Suite %dM Chip\n"), (uint8_t)FLASH_CHIP);
+    #endif
+    
     displayPassed();
     return ret;
 }

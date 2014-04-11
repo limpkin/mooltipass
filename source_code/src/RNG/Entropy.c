@@ -35,6 +35,10 @@ volatile uint32_t gWDT_entropy_pool[WDT_POOL_SIZE];
 union ENTROPY_LONG_WORD share_entropy;
 static uint8_t byte_position=0;
 
+//internal prototype functions
+uint8_t EntropyAvailable(void);
+uint32_t EntropyRandom(void);
+
 /*! \fn void EntropyInit(void); 
  *  \brief This function initializes the global variables needed to implement 
  *  circular entropy pool and the buffer that holds the raw Timer 0 values 

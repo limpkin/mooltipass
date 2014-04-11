@@ -164,7 +164,7 @@ int main(void)
         }
     #endif
 
-    #define TEST_RNG
+    //#define TEST_RNG
     #ifdef TEST_RNG 
         while(1)
         {

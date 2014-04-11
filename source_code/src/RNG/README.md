@@ -39,7 +39,7 @@ for(randomNumCtr=0; randomNumCtr<1000000; randomNumCtr++)
 }
 ```
 
-To get the statistics of the binary file we have used the ENT utility <a href="http://www.fourmilab.ch/random/"> ENT Utility </a>. The Fourmilab ENT program is a public domain utility which tests binary data sequences, either as a series of 8 bit bytes, or as a bit stream, with five standard tests for randomness. The output of the ENT utility with the 1 milion binary file is:
+To get the statistics of the binary file we have used the <a href="http://www.fourmilab.ch/random/"> ENT Utility </a>. The Fourmilab ENT program is a public domain utility which tests binary data sequences, either as a series of 8 bit bytes, or as a bit stream, with five standard tests for randomness. The output of the ENT utility with the 1 milion binary file is:
 
 ```
 Entropy = 7.999798 bits per byte.
@@ -55,7 +55,7 @@ Monte Carlo value for Pi is 3.141924568 (error 0.01 percent).
 Serial correlation coefficient is 0.000566 (totally uncorrelated = 0.0).
 ```
 
-It took 2 days to generate 1000000 milion bytes.
+It took 2 days to generate 1 milion bytes.
 
 4 - DESCRIPTION OF FILES
 ------------------------

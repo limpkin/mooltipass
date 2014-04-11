@@ -27,6 +27,7 @@
 #include "smart_card_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
+#include "Entropy.h"
 #include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "interrupts.h"
@@ -36,6 +37,7 @@
 #include "node_mgmt.h"
 #include "oledmp.h"
 #include "spi.h"
+#include "utils.h"
 #include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
@@ -159,6 +161,39 @@ int main(void)
             {
                 aes256CtrTest();
             }
+        }
+    #endif
+
+    #define TEST_RNG
+    #ifdef TEST_RNG 
+        while(1)
+        {
+            // init avrentropy library
+            EntropyInit();
+
+            // msg into oled display
+            oledSetXY(2,0);
+            printf_P(PSTR("send s to start entropy"));
+
+            int input2 = usb_serial_getchar();
+
+            uint32_t randomNumCtr;
+
+            // do nessie test after sending s or S chars
+            if (input2 == 's' || input2 == 'S')
+            {
+                while(EntropyAvailable() < 2);
+                
+                EntropyRandom8();
+
+                usb_serial_putchar(EntropyBytesAvailable());
+
+                for(randomNumCtr=0; randomNumCtr<25; randomNumCtr++)
+                {
+                        usb_serial_putchar(EntropyRandom8());
+                }
+            }
+
         }
     #endif
 

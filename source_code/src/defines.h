@@ -280,7 +280,7 @@ typedef uint8_t RET_TYPE;
 #define FLASH_SECTOR_ZERO_B_CODE      1
 
 // Flash Testing Defines
-#define TEST_FLASH                                   // Comment out to not test flash
+//#define TEST_FLASH                                   // Comment out to not test flash
 //#define FLASH_TEST_DEBUG_OUTPUT_OLED
 #define FLASH_TEST_DEBUG_OUTPUT_USB
 #define FLASH_TEST_INIT_BUFFER_POLICY_ZERO           0

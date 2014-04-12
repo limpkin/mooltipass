@@ -60,12 +60,6 @@ void disable_jtag(void)
     MCUCR = temp;
 }
 
-// Perhaps move this function in another file later?
-uint16_t mooltipass_rand(void)
-{
-    return (uint16_t)rand();
-}
-
 /*! \fn     main(void)
 *   \brief  Main function
 */
@@ -98,6 +92,7 @@ int main(void)
     initPwm();                          // Initialize PWM controller
     initIRQ();                          // Initialize interrupts    
     usb_init();                         // Initialize USB controller
+    entropyInit();                      // Initialize avrentropy library
     while(!usb_configured());           // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 

@@ -45,7 +45,7 @@ typedef enum
 *
 * Note: Do not directly modify these fields.  Node Mgmt will manage this structure
 */
-typedef struct nodeMgmtH
+typedef struct __attribute__((packed)) nodeMgmtH
 {
     uint16_t flags;
     /*
@@ -62,12 +62,12 @@ typedef struct nodeMgmtH
     uint16_t firstChildNode;        /*!< The address of the first child node */
     uint16_t nextFreeChildNode;     /*!< The address of the next child or data node */
     uint16_t maxChildNodeAddress;   /*!< The max address of the heap of the last known child or data node */
-} mgmtHandle __attribute__((__packed__));
+} mgmtHandle;
 
 /*!
 * Struct containing a parent node
 */
-typedef struct parentNode {
+typedef struct __attribute__((packed)) parentNode {
     uint16_t flags;                 /*!< Parent node flags 
                                     * 15 dn 14-> Node type (Always 00 for Parent Node)
                                     * 13 dn 13 -> Valid Bit
@@ -79,12 +79,12 @@ typedef struct parentNode {
     uint16_t prevParentAddress;     /*!< Previous parent node address (Alphabetically) */
     uint16_t nextParentAddress;     /*!< Next parent node address (Alphabetically) */
     uint8_t service[58];            /*!< (ASCII) Text describing service (domain name eg hackaday.com). Used for sorting and searching. */
-} pNode __attribute__ ((__packed__));
+} pNode;
 
 /*!
 * Struct containing a child node
 */
-typedef struct childNode {
+typedef struct __attribute__((packed)) childNode {
     uint16_t flags;                 /*!< Child node flags (0b01 -> credential child node. 0b10 -> start of data sequence)
                                     * 15 dn 14-> Node type
                                     * 13 dn 13 -> Valid Bit
@@ -108,14 +108,14 @@ typedef struct childNode {
     uint8_t ctr[3];                 /*!< Encryption counter */
     uint8_t login[63];              /*!< (ASCII) Text login name (username) */
     uint8_t password[32];           /*!< Encrypted Password */
-} cNode __attribute__ ((__packed__));
+} cNode;
 
 /*!
 * Struct containing a data node
 *
 * Note: Requires plugin for support.  Up to 256 data nodes can be used in sequence
 */
-typedef struct datadNode {
+typedef struct __attribute__((packed)) datadNode {
     uint16_t flags;                 /*!< Data node flags (Always 0b11 for Data Node)
                                     * 15 dn 14-> Node type
                                     * 13 dn 13 -> Valid Bit
@@ -124,7 +124,7 @@ typedef struct datadNode {
                                     */
     uint16_t nextDataAddress;       /*!< Next data node in sequence */
     uint8_t data[128];              /*!< 128 bytes of Large Data Store */
-} dNode __attribute__ ((__packed__));
+} dNode;
 
 
 RET_TYPE obtainNodeManagementHandle(mgmtHandle **h);

@@ -101,11 +101,11 @@ int main(void)
     while(!usb_configured());           // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 
-    // set up OLED now that USB is receiving full 500mA.
+    // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
     oledSetColour(15);
     oledSetBackground(0);
-    oledSetContrast(OLED_Contrast);
+    oledSetContrast(0xFF);
     oledSetScrollSpeed(3);
     oledWriteActiveBuffer();
     
@@ -118,6 +118,7 @@ int main(void)
     flash_init_result = initFlash();    // Initialize flash memory
     afterFlashInitTests();              // Launch the after flash init tests
 
+    // Stop the mooltipass if we can't communicate with the Flash
     if (flash_init_result != RETURN_OK) 
     {
         oledSetXY(2,0);
@@ -131,6 +132,25 @@ int main(void)
     oledWriteInactiveBuffer();
     oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
     oledClear();    // clear inactive buffer
+    
+    // Light up the front panel
+    setPwmDc(0x0200);
+    
+//     uint16_t i;
+//     while(1)
+//     {
+//         for (i = 0; i < 11; i++)
+//         {
+//             setPwmDc(1 << i);
+//             delay_ms(500);
+//         }
+//         delay_ms(500);
+//         for (i = 0; i < 11; i++)
+//         {
+//             setPwmDc(1 << (10-i));
+//             delay_ms(500);
+//         }           
+//     }
 
     while (1)
     {

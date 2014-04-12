@@ -63,4 +63,40 @@ static inline uint8_t spiUsartTransfer(uint8_t data)
     return UDR1;
 }
 
+/**
+ * read a number of bytes from SPI USART interface.
+ * @param data - pointer to buffer to store data in
+ * @param size - number of bytes to read
+ */
+static inline void spiUsartRead(uint8_t *data, uint16_t size) 
+{
+    while (size--) 
+    {
+        /* Wait for empty transmit buffer */
+        while (!(UCSR1A & (1<<UDRE1)));
+        UDR1 = 0;
+        /* Wait for data to be received */
+        while (!(UCSR1A & (1<<RXC1)));
+        *data++ = UDR1;
+    }
+}
+
+/**
+ * write a number of bytes to SPI USART interface.
+ * @param data - pointer to buffer of data to write
+ * @param size - number of bytes to write
+ */
+static inline void spiUsartWrite(uint8_t *data, uint16_t size) 
+{
+    while (size--) 
+    {
+        /* Wait for empty transmit buffer */
+        while (!(UCSR1A & (1<<UDRE1)));
+        UDR1 = *data++;
+        /* Wait for data to be received */
+        while (!(UCSR1A & (1<<RXC1)));
+        UDR1;
+    }
+}
+
 #endif

@@ -25,7 +25,6 @@
 #include <stdint.h>
 
 void initIRQ(void);
-
 uint32_t millis();
 
 #endif /* INTERRUPTS_H_ */

@@ -31,7 +31,7 @@
 #include "utils.h"
 
 /** Counter for successive card detects **/
-volatile uint8_t card_detect_counter;
+volatile uint8_t card_detect_counter = 0;
 /** Current detection state */
 volatile uint8_t button_return;
 
@@ -239,7 +239,7 @@ void scanSMCDectect(void)
         {
             card_detect_counter++;
         }
-        if (card_detect_counter == 150)
+        if (card_detect_counter == 250)
         {
             button_return = RETURN_JDETECT;
         }

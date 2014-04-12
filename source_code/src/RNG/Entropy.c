@@ -19,7 +19,7 @@
 // Edit:
 // April 2014 - Changed Entropy.cpp to Entropy.c, cpp to c functions
 
-#include <Entropy.h>
+#include <entropy.h>
 #include <util/atomic.h>
 
 #define gWDT_buffer_SIZE 32
@@ -69,7 +69,7 @@ void EntropyInit(void)
     _WD_CONTROL_REG |= (1<<_WD_CHANGE_BIT) | (1<<WDE);
     _WD_CONTROL_REG = _BV(WDIE);
 
-    // Turn interupts on
+    // Turn interrupts on
     sei();
 }
 

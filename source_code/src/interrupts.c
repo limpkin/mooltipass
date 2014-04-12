@@ -24,7 +24,9 @@
 #include "CARD/smartcard.h"
 #include "interrupts.h"
 
+// Number of milliseconds since power up
 static volatile uint32_t msecTicks = 0;
+
 
 /*!	\fn		ISR(TIMER1_COMPA_vect)
 *	\brief	Interrupt called every ms
@@ -44,9 +46,9 @@ uint32_t millis()
 {
     uint8_t reg = SREG;
     uint32_t ms;
+    
     cli();
     ms = msecTicks;
-
     SREG = reg;        // restore original interrupt state (may already be disabled)
 
     return ms;

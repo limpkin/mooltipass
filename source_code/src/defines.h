@@ -37,6 +37,9 @@
 #define	HARDWARE_V1
 //#define HARDWARE_OLIVIER_V1
 
+/** PROGRAMMING HARDWARE **/
+//#define AVR_BOOTLOADER_PROGRAMMING
+
 /** SMARTCARD FUSE VERSION **/
 #define SMARTCARD_FUSE_V1
 
@@ -62,6 +65,7 @@ enum flash_ret_t                {RETURN_INVALID_PARAM, RETURN_WRITE_ERR, RETURN_
     
 /** TYPEDEFS **/
 typedef uint8_t RET_TYPE;
+typedef void (*bootloader_f_ptr_type)(void); 
 
 /** DEFINES FLASH **/
 /** DEFINES NODES **/
@@ -73,8 +77,6 @@ typedef uint8_t RET_TYPE;
 #define NODE_TYPE_CHILD 1
 #define NODE_TYPE_CHILD_DATA 2
 #define NODE_TYPE_DATA 3
-
-/** DEFINES FLASH **/
 
 // Chip selection
 #define FLASH_CHIP_1M 1    // Used to identify a 1M Flash Chip (AT45DB011D)
@@ -304,7 +306,6 @@ typedef uint8_t RET_TYPE;
 #define FLASH_PAGE_MAPPING_GFX_END         (PAGE_PER_SECTOR) // End GFX Mapping
 #define FLASH_PAGE_MAPPING_GFX_SIZE        (FLASH_PAGE_MAPPING_GFX_END - FLASH_PAGE_MAPPING_GFX_START)
 
-
 /** DEFINES SMART CARD **/
 #define SMARTCARD_FABRICATION_ZONE	0x0F0F
 #define SMARTCARD_FACTORY_PIN		0xF0F0
@@ -403,6 +404,10 @@ typedef uint8_t RET_TYPE;
 	#define PORTID_OLED_POW	PORTE2
 	#define PORT_OLED_POW	PORTE
 	#define DDR_OLED_POW	DDRE
+    // LED PWM
+    #define PORTID_LED_PWM  PORTC7
+    #define PORT_LED_PWM    PORTC
+    #define DDR_LED_PWM     DDRC
 #endif
 
 /** DEFINES OLED SCREEN **/

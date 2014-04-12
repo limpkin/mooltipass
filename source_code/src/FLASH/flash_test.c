@@ -27,9 +27,12 @@
 */
 
 #include "../mooltipass.h"
+#include "../defines.h"
 #include "../FLASH/flash_mem.h"
 #include "oledmp.h"
 #include "usb_serial_hid.h"
+
+#include <stdint.h>
 #include <avr/io.h>
 #include <string.h> // for memcpy
 #include <util/delay.h> // for delays
@@ -68,7 +71,7 @@ void initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy)
         for(i = 0; i < bufferSize; i++)
         {
             //mooltipass_rand();
-            buffer[i] = (uint8_t)mooltipass_rand();
+            buffer[i] = (uint8_t)rand();
         }
     }
     else

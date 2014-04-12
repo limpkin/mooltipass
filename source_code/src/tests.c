@@ -36,6 +36,7 @@
 */
 void beforeFlashInitTests(void)
 {
+    //#define TEST_FLASH      // Comment out to not test flash
     #ifdef TEST_FLASH
         // run flash test
         flashTest();

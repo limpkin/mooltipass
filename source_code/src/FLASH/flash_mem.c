@@ -26,7 +26,8 @@
 *    Author:   Michael Neiderhauser
 */
 
-#include "../mooltipass.h"
+#include "../defines.h"
+#include <stdint.h>
 #include <avr/io.h>
 
 /*!  \fn       sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer)

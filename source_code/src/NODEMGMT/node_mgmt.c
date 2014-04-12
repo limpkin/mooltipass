@@ -27,3 +27,12 @@
 */
 
 #include "../mooltipass.h"
+#include "flash_mem.h"
+#include "node_mgmt.h"
+
+RET_TYPE obtainNodeManagementHandle(mgmtHandle **h){}
+RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t starting_address){}
+RET_TYPE createParentNode(mgmtHandle *h, pNode * p){}
+RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress){}
+RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress){}
+RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeaddress, deletePolicy policy){}

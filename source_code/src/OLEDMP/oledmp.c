@@ -209,6 +209,12 @@ void oledSetDisplayedBuffer(uint8_t bufferId)
     oledSetDisplayStartLine(OLED_HEIGHT * bufferId);
 }
 
+
+/**
+ * Switch the inactive buffer to the active buffer.
+ * This displays the content of the inactive buffer and
+ * makes it the active buffer.
+ */
 void oledFlipDisplayedBuffer()
 {
     oled_displayBuffer = !oled_displayBuffer;
@@ -323,14 +329,6 @@ void oledSetContrast(uint8_t contrast)
 {
     oledWriteCommand(CMD_SET_CONTRAST_CURRENT);
     oledWriteData(contrast);
-}
-
-void oledSetRemap(uint8_t mode)
-{
-    oledWriteCommand(CMD_SET_REMAP);
-    oledWriteData(mode & 0x1F);
-    oledWriteData(0x11);    // Dual COM mode
-
 }
 
 /**

@@ -123,7 +123,6 @@ void oledWriteCommand(uint8_t reg);
 void oledWriteData(uint8_t data);
 void oledSetColumnAddr(uint8_t start, uint8_t end);
 void oledSetRowAddr(uint8_t start, uint8_t end);
-void oledSetRemap(uint8_t mode);
 void oledFill(uint8_t colour);
 void oledClear();
 void oledScrollClear(uint8_t options);

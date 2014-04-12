@@ -31,9 +31,32 @@
 #include "defines.h"
 #include <stdint.h>
 
-RET_TYPE obtainNodeManagementHandle(mgmtHandle **h){}
-RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t starting_address){}
-RET_TYPE createParentNode(mgmtHandle *h, pNode * p){}
-RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress){}
-RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress){}
-RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeaddress, deletePolicy policy){}
+RET_TYPE obtainNodeManagementHandle(mgmtHandle **h)
+{
+    return 0; 
+}
+
+RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t starting_address)
+{
+    return 0; 
+}
+
+RET_TYPE createParentNode(mgmtHandle *h, pNode * p)
+{
+    return 0; 
+}
+
+RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress)
+{
+    return 0; 
+}
+
+RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
+{
+    return 0; 
+}
+
+RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeaddress, deletePolicy policy)
+{
+    return 0; 
+}

@@ -29,6 +29,9 @@
 #ifndef FLASH_MEM_H_
 #define FLASH_MEM_H_
 
+#include "defines.h"
+#include <stdint.h>
+
 RET_TYPE sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer);
 RET_TYPE waitForFlash(void);
 RET_TYPE checkFlashID(void);

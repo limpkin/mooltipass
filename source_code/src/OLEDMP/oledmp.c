@@ -26,20 +26,20 @@
 *	Author: Darran Hunt
 */
 
-#include <stdio.h>
-#include "mooltipass.h"
-#include <util/delay.h>
 #include <avr/pgmspace.h>
+#include <util/delay.h>
+#include <stdio.h>
 
-#include "usb_serial_hid.h"
 #include "low_level_utils.h"
-#include "oledmp.h"
+#include "usb_serial_hid.h"
 #include "bitstream.h"
+#include "defines.h"
+#include "oledmp.h"
 #include "utils.h"
 
 // Make sure the USART SPI is selected
 #if SPI_OLED != SPI_USART
-#error "SPI not implemented"
+    #error "SPI not implemented"
 #endif
 
 #undef OLED_DEBUG

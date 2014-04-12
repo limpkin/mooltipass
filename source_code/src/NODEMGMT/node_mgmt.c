@@ -26,9 +26,10 @@
 *    Author:   Michael Neiderhauser
 */
 
-#include "../mooltipass.h"
 #include "flash_mem.h"
 #include "node_mgmt.h"
+#include "defines.h"
+#include <stdint.h>
 
 RET_TYPE obtainNodeManagementHandle(mgmtHandle **h){}
 RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t starting_address){}

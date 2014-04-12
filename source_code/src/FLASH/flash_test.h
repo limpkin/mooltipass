@@ -29,6 +29,9 @@
 #ifndef FLASH_TEST_H_
 #define FLASH_TEST_H_
 
+#include "defines.h"
+#include <stdint.h>
+
 void initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy);
 
 RET_TYPE flashInitTest();

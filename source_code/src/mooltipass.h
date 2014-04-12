@@ -28,7 +28,4 @@
 #ifndef MOOLTIPASS_H_
 #define MOOLTIPASS_H_
 
-#include <stdint.h>
-#include "defines.h"
-
 #endif /* MOOLTIPASS_H_ */

@@ -23,9 +23,9 @@
 */
 #include "smart_card_higher_level_functions.h"
 #include <avr/interrupt.h>
-#include "../mooltipass.h"
 #include <util/delay.h>
 #include "smartcard.h"
+#include "entropy.h"
 #include "defines.h"
 #include <avr/io.h>
 #include "utils.h"
@@ -623,7 +623,7 @@ RET_TYPE firstDetectFunctionSMC(void)
     }
 
     /* Perform test write on MTZ... */
-    temp_uint = mooltipass_rand();
+    temp_uint = entropyRandom16();
     writeMemoryTestZone((uint8_t*)&temp_uint);
     if (*(uint16_t*)readMemoryTestZone(data_buffer) != temp_uint)
     {

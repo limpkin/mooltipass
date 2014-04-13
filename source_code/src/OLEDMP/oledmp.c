@@ -331,6 +331,32 @@ void oledSetContrast(uint8_t contrast)
     oledWriteData(contrast);
 }
 
+
+/**
+ * Set remap mode. This defines how the internal
+ * display RAM (GDDRAM) is mapped onto the physical display pixels.
+ * This can be used to set horizontal vs
+ * vertical increment mode, colum
+ * @param mode - level from 0 (min) to 255 (max)
+ *        bit[1] 0 = column address segments left to right
+ *               1 = column address segments right to left
+ *        bit[2] 0 = nibbles direct access
+ *               1 = nibbles endian swapped
+ *        bit[4] 0 = scan rows from top to bottm
+ *               1 = scan rows from bottom to top
+ * @note bit 0, and 5-7 are masked out by the function
+ *       as changing these would damage the operation
+ *       of the library.
+ */
+void oledSetRemap(uint8_t mode)
+{
+    oledWriteCommand(CMD_SET_REMAP);
+    oledWriteData(mode & 0x1E);
+    oledWriteData(0x11);    // Dual COM mode
+
+}
+
+
 /**
  * print an character on the screen at the current X and
  * Y position. X and Y position is updated after the print

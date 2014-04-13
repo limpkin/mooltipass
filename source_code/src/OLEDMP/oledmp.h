@@ -157,6 +157,7 @@ void oledSetWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend);
 void oledSetFont(uint8_t font);
 void oledSetColour(uint8_t colour);
 void oledSetContrast(uint8_t contrast);
+void oledSetRemap(uint8_t mode);
 void oledSetBackground(uint8_t colour);
 void oledSetOffset(uint8_t offset);
 uint8_t oledGetOffset(void);

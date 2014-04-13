@@ -39,6 +39,7 @@
 #include "oledmp.h"
 #include "utils.h"
 #include "tests.h"
+#include "touch.h"
 #include "spi.h"
 #include "pwm.h"
 
@@ -66,6 +67,7 @@ void disable_jtag(void)
 int main(void)
 {
     RET_TYPE flash_init_result = RETURN_NOK;
+    RET_TYPE touch_init_result = RETURN_NOK;
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
 
@@ -92,6 +94,7 @@ int main(void)
     initPwm();                          // Initialize PWM controller
     initIRQ();                          // Initialize interrupts    
     usb_init();                         // Initialize USB controller
+    initI2cPort();                      // Initialize I2C interface
     entropyInit();                      // Initialize avrentropy library
     while(!usb_configured());           // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
@@ -100,7 +103,7 @@ int main(void)
     oledBegin(FONT_DEFAULT);
     oledSetColour(15);
     oledSetBackground(0);
-    oledSetContrast(0xFF);
+    oledSetContrast(0x8F);
     oledSetScrollSpeed(3);
     oledWriteActiveBuffer();
     
@@ -120,6 +123,15 @@ int main(void)
         printf_P(PSTR("Problem flash init"));
         while(1);
     } 
+    
+    // Check if we can initialize the touch sensing element
+    touch_init_result = initTouchSensing();
+    if (touch_init_result != RETURN_OK)
+    {
+        oledSetXY(2,0);
+        printf_P(PSTR("Problem touch init"));
+        delay_ms(2000);
+    }
 
     // write bitmap to inactive buffer and make the buffer 
     // active by scrolling it up.
@@ -129,7 +141,13 @@ int main(void)
     oledClear();    // clear inactive buffer
     
     // Light up the front panel
-    setPwmDc(0x0200);
+    //setPwmDc(0x0200);
+    
+//     uint8_t ttototo = 0;
+//     oledWriteActiveBuffer();
+//     oledSetXY(2,0);
+//     printf("COMM AT42QT: %02X\r\n", readDataFromTS(AT42QT2120_ADDR, 0, &ttototo));
+//     printf("%02x", ttototo);
     
 //     uint16_t i;
 //     while(1)

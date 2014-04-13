@@ -60,7 +60,7 @@ enum mooltipass_detect_return_t	{RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB
 enum card_detect_return_t		{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
 enum pin_check_return_t			{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum detect_return_t			{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
-enum return_type                {RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
+enum return_type                {RETURN_NOK = 0, RETURN_OK = 1, RETURN_NOT_INIT = 2};
 enum flash_ret_t                {RETURN_INVALID_PARAM, RETURN_WRITE_ERR, RETURN_READ_ERR, RETURN_NO_MATCH};
     
 /** TYPEDEFS **/
@@ -317,6 +317,9 @@ typedef void (*bootloader_f_ptr_type)(void);
 #define SMARTCARD_AZ2_BIT_RESERVED  16
 #define SMARTCARD_MTP_LOGIN_LENGTH  (SMARTCARD_AZ_BIT_LENGTH - SMARTCARD_AZ2_BIT_RESERVED)
 
+/** DEFINES TOUCH SENSING **/
+#define AT42QT2120_ID       0x3E
+
 /** DEFINES PORTS **/
 #ifdef HARDWARE_V1
 	// SPIs
@@ -407,6 +410,13 @@ typedef void (*bootloader_f_ptr_type)(void);
     #define PORTID_LED_PWM  PORTC7
     #define PORT_LED_PWM    PORTC
     #define DDR_LED_PWM     DDRC
+    // I2C IOs
+    #define PORTID_I2C_SCL  PORTD0
+    #define PORT_I2C_SCL    PORTD
+    #define DDR_I2C_SCL     DDRD
+    #define PORTID_I2C_SDA  PORTD1
+    #define PORT_I2C_SDA    PORTD
+    #define DDR_I2C_SDA     DDRD
 #endif
 
 /** DEFINES OLED SCREEN **/
@@ -417,6 +427,29 @@ typedef void (*bootloader_f_ptr_type)(void);
 #define OLED_Contrast		0x9F
 #define OLED_WIDTH			256
 #define OLED_HEIGHT			64
+
+/** I2C controller defines **/
+#define I2C_START		    0x08
+#define	I2C_RSTART		    0x10
+#define I2C_SLA_ACK		    0x18
+#define I2C_SLA_NACK	    0x20
+#define I2C_SLAR_ACK	    0x40
+#define I2C_SLAR_NACK	    0x48
+#define	I2C_DATA_ACK	    0x28
+#define	I2C_DATA_NACK	    0x30
+#define	I2C_DATAR_ACK	    0x50
+#define	I2C_DATAR_NACK	    0x58
+#define	I2C_ARB_ERROR       0x38
+
+/** I2C errors defines **/
+#define	I2C_START_ERROR 	RETURN_OK + 1
+#define	I2C_SLA_ERROR	    RETURN_OK + 2
+#define	I2C_DATA_ERROR	    RETURN_OK + 3
+#define	I2C_RSTART_ERR	    RETURN_OK + 4
+#define	I2C_SLAR_ERROR      RETURN_OK + 5
+
+/** I2C addresses defines **/
+#define AT42QT2120_ADDR     (0x1C << 1)
 
 // Mooltipass bitmaps defines
 #define HACKADAY_BMP		0x00

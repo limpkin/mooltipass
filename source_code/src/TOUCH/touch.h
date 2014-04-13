@@ -31,24 +31,24 @@ RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data);
 RET_TYPE initTouchSensing(void);
 void initI2cPort(void);
 
-/*!	\fn		start_condition()
-*	\brief	Generate start condition
+/*! \fn     start_condition()
+*   \brief  Generate start condition
 */
-#define start_condition()		(TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN))
+#define start_condition()       (TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN))
 
-/*!	\fn		stop_condition()
-*	\brief	Generate stop condition
+/*! \fn     stop_condition()
+*   \brief  Generate stop condition
 */
-#define	stop_condition()		(TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO))
+#define stop_condition()        (TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO))
 
-/*!	\fn		clear_twint_flag()
-*	\brief	Clear TWINT flag
+/*! \fn     clear_twint_flag()
+*   \brief  Clear TWINT flag
 */
-#define	clear_twint_flag()		(TWCR = (1<<TWINT) | (1<<TWEN))
+#define clear_twint_flag()      (TWCR = (1<<TWINT) | (1<<TWEN))
 
-/*!	\fn		acknowledge_data()
-*	\brief	Acknowledge received data, ask for a new one
+/*! \fn     acknowledge_data()
+*   \brief  Acknowledge received data, ask for a new one
 */
-#define	acknowledge_data()		(TWCR = (1<<TWINT) | (1<<TWEN) | (1 << TWEA))
+#define acknowledge_data()      (TWCR = (1<<TWINT) | (1<<TWEN) | (1 << TWEA))
 
 #endif /* TOUCH_H_ */

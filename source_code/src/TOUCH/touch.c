@@ -26,231 +26,231 @@
 #include "touch.h"
 
 
-/*!	\fn		waitForTwintFlag(void)
-*	\brief	Wait for TWINT flag, indicating that current task is finished
+/*! \fn     waitForTwintFlag(void)
+*   \brief  Wait for TWINT flag, indicating that current task is finished
 */
 static inline void waitForTwintFlag(void)
 {
     while(!(TWCR & (1<<TWINT)));
 }
 
-/*!	\fn		isStartSendingOk(void)	
-*	\brief	Know if we successfully generated the start condition
-*	\return	RETURN_OK if everything is alright
+/*! \fn     isStartSendingOk(void)
+*   \brief  Know if we successfully generated the start condition
+*   \return RETURN_OK if everything is alright
 */
 static inline RET_TYPE isStartSendingOk(void)
 {
-	if ((TWSR & 0xF8) == I2C_START)
-	{
-		return RETURN_OK;
-    }    
-	else
+    if ((TWSR & 0xF8) == I2C_START)
     {
-		return RETURN_NOK;
-    }    
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
 }
 
-/*!	\fn		isRestartSendingOk(void)	
-*	\brief	Know if we successfully generated the restart condition
-*	\return	RETURN_OK if everything is alright
+/*! \fn     isRestartSendingOk(void)
+*   \brief  Know if we successfully generated the restart condition
+*   \return RETURN_OK if everything is alright
 */
 static inline RET_TYPE isRestartSendingOk(void)
 {
-	if ((TWSR & 0xF8) == I2C_RSTART)
+    if ((TWSR & 0xF8) == I2C_RSTART)
     {
-		return RETURN_OK;
-    }    
-	else
+        return RETURN_OK;
+    }
+    else
     {
-		return RETURN_NOK;
-    }    
+        return RETURN_NOK;
+    }
 }
 
-/*!	\fn		isSlawSendingOk(void)	
-*	\brief	Know if we successfully sent the addr byte
-*	\return	RETURN_OK if everything is alright
+/*! \fn     isSlawSendingOk(void)
+*   \brief  Know if we successfully sent the addr byte
+*   \return RETURN_OK if everything is alright
 */
 static inline RET_TYPE isSlawSendingOk(void)
 {
-	if ((TWSR & 0xF8) == I2C_SLA_ACK)
-	{
-		return RETURN_OK;
-    }    
-	else
+    if ((TWSR & 0xF8) == I2C_SLA_ACK)
     {
-		return RETURN_NOK;
-    }    
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
 }
 
-/*!	\fn		isSlarSendingOk(void)	
-*	\brief	Know if we successfully sent the addr byte (reading mode)
-*	\return	RETURN_OK if everything is alright
+/*! \fn     isSlarSendingOk(void)
+*   \brief  Know if we successfully sent the addr byte (reading mode)
+*   \return RETURN_OK if everything is alright
 */
 static inline RET_TYPE isSlarSendingOk(void)
 {
-	if ((TWSR & 0xF8) == I2C_SLAR_ACK)
-	{
-		return RETURN_OK;
-    }    
-	else
+    if ((TWSR & 0xF8) == I2C_SLAR_ACK)
     {
-		return RETURN_NOK;
-    }    
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
 }
 
-/*!	\fn		isDataSendingOk(void)	
-*	\brief	Know if we successfully sent the data byte
-*	\return	RETURN_OK if everything is alright
+/*! \fn     isDataSendingOk(void)
+*   \brief  Know if we successfully sent the data byte
+*   \return RETURN_OK if everything is alright
 */
 static inline RET_TYPE isDataSendingOk(void)
 {
-	if ((TWSR & 0xF8) == I2C_DATA_ACK)
+    if ((TWSR & 0xF8) == I2C_DATA_ACK)
     {
-		return RETURN_OK;
-    }    
-	else
+        return RETURN_OK;
+    }
+    else
     {
-		return RETURN_NOK;
-    }    
+        return RETURN_NOK;
+    }
 }
 
-/*!	\fn		initiateI2cWrite(uint8_t addr, uint8_t reg)
-*	\brief	Initiate a write process in the at42qt2120
-*	\param	addr        The chip address
-*	\param	reg         The register address
-*	\return	RETURN_OK if everything is alright, the pb code otherwise
+/*! \fn     initiateI2cWrite(uint8_t addr, uint8_t reg)
+*   \brief  Initiate a write process in the at42qt2120
+*   \param  addr        The chip address
+*   \param  reg         The register address
+*   \return RETURN_OK if everything is alright, the pb code otherwise
 */
 RET_TYPE initiateI2cWrite(uint8_t addr, uint8_t reg)
-{	
-	start_condition();
-	waitForTwintFlag();
-	if(!isStartSendingOk())
-	{
-		stop_condition();
-		return I2C_START_ERROR;
-	}
+{
+    start_condition();
+    waitForTwintFlag();
+    if(!isStartSendingOk())
+    {
+        stop_condition();
+        return I2C_START_ERROR;
+    }
 
-	TWDR = addr;
-	clear_twint_flag();
-	waitForTwintFlag();
-	if(!isSlawSendingOk())
-	{
-		stop_condition();
-		return I2C_SLA_ERROR;
-	}
+    TWDR = addr;
+    clear_twint_flag();
+    waitForTwintFlag();
+    if(!isSlawSendingOk())
+    {
+        stop_condition();
+        return I2C_SLA_ERROR;
+    }
 
-	TWDR = reg;
-	clear_twint_flag();
-	waitForTwintFlag();
-	if(!isDataSendingOk())
-	{
-		stop_condition();
-		return I2C_DATA_ERROR;
-	}
+    TWDR = reg;
+    clear_twint_flag();
+    waitForTwintFlag();
+    if(!isDataSendingOk())
+    {
+        stop_condition();
+        return I2C_DATA_ERROR;
+    }
 
-	return RETURN_OK;
+    return RETURN_OK;
 }
 
-/*!	\fn		writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
-*	\brief	Write a byte inside the AT42QT2120
-*	\param	addr		The chip address
-*	\param	reg			The register address
-*	\param	data		The data to write
-*	\return	RETURN_OK if everything is alright, the pb code otherwise
+/*! \fn     writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
+*   \brief  Write a byte inside the AT42QT2120
+*   \param  addr        The chip address
+*   \param  reg         The register address
+*   \param  data        The data to write
+*   \return RETURN_OK if everything is alright, the pb code otherwise
 */
 RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
 {
-	uint8_t ret_val;
-	
-	ret_val = initiateI2cWrite(addr, reg);
-	if(ret_val != RETURN_OK)
+    uint8_t ret_val;
+
+    ret_val = initiateI2cWrite(addr, reg);
+    if(ret_val != RETURN_OK)
     {
-		return ret_val;
-    }        
+        return ret_val;
+    }
 
-	TWDR = data;
-	clear_twint_flag();
-	waitForTwintFlag();
-	if(!isDataSendingOk())
-	{
-		stop_condition();
-		return I2C_DATA_ERROR;
-	}
+    TWDR = data;
+    clear_twint_flag();
+    waitForTwintFlag();
+    if(!isDataSendingOk())
+    {
+        stop_condition();
+        return I2C_DATA_ERROR;
+    }
 
-	stop_condition();
-	return RETURN_OK;
+    stop_condition();
+    return RETURN_OK;
 }
 
-/*!	\fn		initiateI2cRead(uint8_t addr, uint8_t reg)
-*	\brief	Initiate a read process in the at42qt2120
-*	\param	addr        The chip address
-*	\param	reg         The register address
-*	\return	RETURN_OK if everything is alright, the pb code otherwise
+/*! \fn     initiateI2cRead(uint8_t addr, uint8_t reg)
+*   \brief  Initiate a read process in the at42qt2120
+*   \param  addr        The chip address
+*   \param  reg         The register address
+*   \return RETURN_OK if everything is alright, the pb code otherwise
 */
 uint8_t initiateI2cRead(uint8_t addr, uint8_t reg)
 {
-	uint8_t ret_val;
-	
-	ret_val = initiateI2cWrite(addr, reg);
+    uint8_t ret_val;
 
-	if(ret_val != RETURN_OK)
+    ret_val = initiateI2cWrite(addr, reg);
+
+    if(ret_val != RETURN_OK)
     {
-		return ret_val;
-    }    
-	
-	start_condition();
-	waitForTwintFlag();
-	if(!isRestartSendingOk())
-	{
-		stop_condition();
-		return I2C_RSTART_ERR;
-	}
+        return ret_val;
+    }
 
-	TWDR = addr | 0x01;
-	clear_twint_flag();
-	waitForTwintFlag();
-	if(!isSlarSendingOk())
-	{
-		stop_condition();
-		return I2C_SLAR_ERROR;
-	}
+    start_condition();
+    waitForTwintFlag();
+    if(!isRestartSendingOk())
+    {
+        stop_condition();
+        return I2C_RSTART_ERR;
+    }
 
-	return RETURN_OK;
+    TWDR = addr | 0x01;
+    clear_twint_flag();
+    waitForTwintFlag();
+    if(!isSlarSendingOk())
+    {
+        stop_condition();
+        return I2C_SLAR_ERROR;
+    }
+
+    return RETURN_OK;
 }
 
-/*!	\fn		readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data)
-*	\brief	Write a byte inside the AT42QT2120
-*	\param	addr		The chip address
-*	\param	reg			The register address
-*	\param	data		uint8_t pointer in which we write the data
-*	\return	RETURN_OK if everything is alright, the pb code otherwise
+/*! \fn     readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data)
+*   \brief  Write a byte inside the AT42QT2120
+*   \param  addr        The chip address
+*   \param  reg         The register address
+*   \param  data        uint8_t pointer in which we write the data
+*   \return RETURN_OK if everything is alright, the pb code otherwise
 */
 RET_TYPE readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data)
 {
     uint8_t ret_val;
-    
+
     ret_val = initiateI2cRead(addr, reg);
     if(ret_val != RETURN_OK)
     {
         return ret_val;
     }
-    
-	clear_twint_flag();
-	waitForTwintFlag();
-	*data = TWDR;
-	stop_condition();
 
-	return RETURN_OK;
+    clear_twint_flag();
+    waitForTwintFlag();
+    *data = TWDR;
+    stop_condition();
+
+    return RETURN_OK;
 }
 
-/*!	\fn		checkTSPres()
-*	\brief	Check that the AT42QT2120 is here
+/*! \fn     checkTSPres()
+*   \brief  Check that the AT42QT2120 is here
 */
 RET_TYPE checkTSPres(void)
 {
     uint8_t temp_byte, temp_return;
-    
-    temp_return = readDataFromTS(AT42QT2120_ADDR, 0, &temp_byte);    
+
+    temp_return = readDataFromTS(AT42QT2120_ADDR, 0, &temp_byte);
     if (temp_return != RETURN_OK)
     {
         return temp_return;
@@ -262,11 +262,11 @@ RET_TYPE checkTSPres(void)
     else
     {
         return RETURN_OK;
-    }    
+    }
 }
 
-/*!	\fn		initI2cPort()
-*	\brief	Initialize ports & i2c controller
+/*! \fn     initI2cPort()
+*   \brief  Initialize ports & i2c controller
 */
 void initI2cPort(void)
 {
@@ -275,19 +275,19 @@ void initI2cPort(void)
         PORT_I2C_SDA |= (1 << PORTID_I2C_SDA);  // Set I2C ports as output & high
         DDR_I2C_SCL |= (1 << PORTID_I2C_SCL);   // Set I2C ports as output & high
         DDR_I2C_SDA |= (1 << PORTID_I2C_SDA);   // Set I2C ports as output & high
-        TWBR = 3;								// I²C freq = 16Mhz / (16 + 2*TWBR*4^TWPS) = 400KHz
+        TWBR = 3;                               // I²C freq = 16Mhz / (16 + 2*TWBR*4^TWPS) = 400KHz
         clear_twint_flag();                     // Init I²C controller
-    #endif        
+    #endif
 }
 
-/*!	\fn		initTouchSensing()
-*	\brief	Initialize AT42QT2120
+/*! \fn     initTouchSensing()
+*   \brief  Initialize AT42QT2120
 */
 RET_TYPE initTouchSensing(void)
 {
-    #ifndef HARDWARE_V1    
+    #ifndef HARDWARE_V1
         return checkTSPres();
     #else
         return RETURN_NOK;
-    #endif    
+    #endif
 }

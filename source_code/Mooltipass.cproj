@@ -407,6 +407,12 @@
     <Compile Include="src\TOUCH\touch.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\TOUCH\touch_higher_level_functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\TOUCH\touch_higher_level_functions.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\USB\usb_serial_hid.c">
       <SubType>compile</SubType>
     </Compile>

@@ -21,6 +21,7 @@
  *  \brief  Test functions
  *  Copyright [2014] [Mathieu Stephan]
  */
+#include "touch_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
 #include "usb_serial_hid.h"
@@ -29,6 +30,7 @@
 #include "defines.h"
 #include "entropy.h"
 #include "oledmp.h"
+#include "touch.h"
 
 
 /*! \fn     beforeFlashInitTests(void)
@@ -147,5 +149,25 @@ void afterFlashInitTests(void)
             }
 
         }
-    #endif
+    #endif    
+}
+
+void afterTouchInitTests(void)
+{
+    //#define TEST_TS
+    #ifdef TEST_TS
+    uint8_t temp_byte;
+    while(1)
+    {
+        oledSetXY(0,0);
+        readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_byte);
+        printf("POS: %02X\r\n", temp_byte);
+        readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_DET_STAT, &temp_byte);
+        printf("DET STAT: %02X\r\n", temp_byte);
+        readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT1, &temp_byte);
+        printf("DET1: %02X\r\n", temp_byte);
+        readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
+        printf("DET2: %02X\r\n", temp_byte);
+    }
+    #endif    
 }

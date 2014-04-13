@@ -17,39 +17,16 @@
  *
  * CDDL HEADER END
  */
-/*! \file   touch.h
- *  \brief  Touch sensing functions
+/*! \file   touch_higher_level_functions.h
+ *  \brief  Touch higher level sensing functions
  *  Copyright [2014] [Mathieu Stephan]
  */
 
-
-#ifndef TOUCH_H_
-#define TOUCH_H_
+#ifndef TOUCH_HIGHER_LEVEL_FUNCTIONS_H_
+#define TOUCH_HIGHER_LEVEL_FUNCTIONS_H_
 
 #include "defines.h"
 
-RET_TYPE readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data);
-RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data);
-void initI2cPort(void);
+RET_TYPE initTouchSensing(void);
 
-/*! \fn     start_condition()
-*   \brief  Generate start condition
-*/
-#define start_condition()       (TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN))
-
-/*! \fn     stop_condition()
-*   \brief  Generate stop condition
-*/
-#define stop_condition()        (TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO))
-
-/*! \fn     clear_twint_flag()
-*   \brief  Clear TWINT flag
-*/
-#define clear_twint_flag()      (TWCR = (1<<TWINT) | (1<<TWEN))
-
-/*! \fn     acknowledge_data()
-*   \brief  Acknowledge received data, ask for a new one
-*/
-#define acknowledge_data()      (TWCR = (1<<TWINT) | (1<<TWEN) | (1 << TWEA))
-
-#endif /* TOUCH_H_ */
+#endif /* TOUCH_HIGHER_LEVEL_FUNCTIONS_H_ */

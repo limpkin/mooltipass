@@ -27,6 +27,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include "smart_card_higher_level_functions.h"
+#include "touch_higher_level_functions.h"
 #include "had_mooltipass.h"
 #include "usb_serial_hid.h"
 #include "mooltipass.h"
@@ -132,6 +133,9 @@ int main(void)
         printf_P(PSTR("Problem touch init"));
         delay_ms(2000);
     }
+    
+    // Launch the after touch init tests
+    afterTouchInitTests();
 
     // write bitmap to inactive buffer and make the buffer 
     // active by scrolling it up.
@@ -142,12 +146,6 @@ int main(void)
     
     // Light up the front panel
     //setPwmDc(0x0200);
-    
-//     uint8_t ttototo = 0;
-//     oledWriteActiveBuffer();
-//     oledSetXY(2,0);
-//     printf("COMM AT42QT: %02X\r\n", readDataFromTS(AT42QT2120_ADDR, 0, &ttototo));
-//     printf("%02x", ttototo);
     
 //     uint16_t i;
 //     while(1)

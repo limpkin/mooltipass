@@ -160,7 +160,7 @@ RET_TYPE initiateI2cWrite(uint8_t addr, uint8_t reg)
 */
 RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
 {
-    uint8_t ret_val;
+    RET_TYPE ret_val;
 
     ret_val = initiateI2cWrite(addr, reg);
     if(ret_val != RETURN_OK)
@@ -189,10 +189,9 @@ RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
 */
 uint8_t initiateI2cRead(uint8_t addr, uint8_t reg)
 {
-    uint8_t ret_val;
+    RET_TYPE ret_val;
 
     ret_val = initiateI2cWrite(addr, reg);
-
     if(ret_val != RETURN_OK)
     {
         return ret_val;
@@ -227,7 +226,7 @@ uint8_t initiateI2cRead(uint8_t addr, uint8_t reg)
 */
 RET_TYPE readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data)
 {
-    uint8_t ret_val;
+    RET_TYPE ret_val;
 
     ret_val = initiateI2cRead(addr, reg);
     if(ret_val != RETURN_OK)
@@ -243,28 +242,6 @@ RET_TYPE readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data)
     return RETURN_OK;
 }
 
-/*! \fn     checkTSPres()
-*   \brief  Check that the AT42QT2120 is here
-*/
-RET_TYPE checkTSPres(void)
-{
-    uint8_t temp_byte, temp_return;
-
-    temp_return = readDataFromTS(AT42QT2120_ADDR, 0, &temp_byte);
-    if (temp_return != RETURN_OK)
-    {
-        return temp_return;
-    }
-    else if(temp_byte != AT42QT2120_ID)
-    {
-        return RETURN_NOK;
-    }
-    else
-    {
-        return RETURN_OK;
-    }
-}
-
 /*! \fn     initI2cPort()
 *   \brief  Initialize ports & i2c controller
 */
@@ -277,17 +254,5 @@ void initI2cPort(void)
         DDR_I2C_SDA |= (1 << PORTID_I2C_SDA);   // Set I2C ports as output & high
         TWBR = 3;                               // I²C freq = 16Mhz / (16 + 2*TWBR*4^TWPS) = 400KHz
         clear_twint_flag();                     // Init I²C controller
-    #endif
-}
-
-/*! \fn     initTouchSensing()
-*   \brief  Initialize AT42QT2120
-*/
-RET_TYPE initTouchSensing(void)
-{
-    #ifndef HARDWARE_V1
-        return checkTSPres();
-    #else
-        return RETURN_NOK;
     #endif
 }

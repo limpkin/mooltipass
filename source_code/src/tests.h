@@ -11,5 +11,6 @@
 
 void beforeFlashInitTests(void);
 void afterFlashInitTests(void);
+void afterTouchInitTests(void);
 
 #endif /* TESTS_H_ */

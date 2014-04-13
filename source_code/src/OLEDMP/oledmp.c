@@ -335,8 +335,6 @@ void oledSetContrast(uint8_t contrast)
 /**
  * Set remap mode. This defines how the internal
  * display RAM (GDDRAM) is mapped onto the physical display pixels.
- * This can be used to set horizontal vs
- * vertical increment mode, colum
  * @param mode - level from 0 (min) to 255 (max)
  *        bit[1] 0 = column address segments left to right
  *               1 = column address segments right to left

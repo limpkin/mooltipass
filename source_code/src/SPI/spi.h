@@ -1,3 +1,26 @@
+/* CDDL HEADER START
+ *
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License (the "License").
+ * You may not use this file except in compliance with the License.
+ *
+ * You can obtain a copy of the license at src/license_cddl-1.0.txt
+ * or http://www.opensolaris.org/os/licensing.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file at src/license_cddl-1.0.txt
+ * If applicable, add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your own identifying
+ * information: Portions Copyright [yyyy] [name of copyright owner]
+ *
+ * CDDL HEADER END
+ */
+/*! \file   spi.h
+ *  \brief  USART SPI functions
+ *  Copyright [2014] [Darran Hunt]
+ */
 #ifndef _SPI_H_
 #define _SPI_H_
 
@@ -38,6 +61,42 @@ static inline uint8_t spiUsartTransfer(uint8_t data)
     /* Wait for data to be received */
     while (!(UCSR1A & (1<<RXC1)));
     return UDR1;
+}
+
+/**
+ * read a number of bytes from SPI USART interface.
+ * @param data - pointer to buffer to store data in
+ * @param size - number of bytes to read
+ */
+static inline void spiUsartRead(uint8_t *data, uint16_t size) 
+{
+    while (size--) 
+    {
+        /* Wait for empty transmit buffer */
+        while (!(UCSR1A & (1<<UDRE1)));
+        UDR1 = 0;
+        /* Wait for data to be received */
+        while (!(UCSR1A & (1<<RXC1)));
+        *data++ = UDR1;
+    }
+}
+
+/**
+ * write a number of bytes to SPI USART interface.
+ * @param data - pointer to buffer of data to write
+ * @param size - number of bytes to write
+ */
+static inline void spiUsartWrite(uint8_t *data, uint16_t size) 
+{
+    while (size--) 
+    {
+        /* Wait for empty transmit buffer */
+        while (!(UCSR1A & (1<<UDRE1)));
+        UDR1 = *data++;
+        /* Wait for data to be received */
+        while (!(UCSR1A & (1<<RXC1)));
+        UDR1;
+    }
 }
 
 #endif

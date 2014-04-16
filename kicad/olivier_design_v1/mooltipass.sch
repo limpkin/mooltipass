@@ -37,7 +37,7 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "M. Stephan - Offline Password Keeper Schematics (Licensed under CERN OHL V1.2)"
-Date "23 feb 2014"
+Date "12 apr 2014"
 Rev "2"
 Comp ""
 Comment1 ""
@@ -2582,7 +2582,7 @@ Wire Wire Line
 Wire Wire Line
 	4450 5000 3650 5000
 Wire Notes Line
-	4900 8300 4900 4450
+	4900 11100 4900 4450
 Wire Wire Line
 	2700 4850 2700 5000
 Wire Wire Line
@@ -2729,7 +2729,7 @@ $EndComp
 Text Notes 1350 8450 0    60   ~ 0
 5V->3.3V SIGNAL CONVERSION
 Wire Notes Line
-	650  11100 3450 11100
+	650  11100 4900 11100
 Text Notes 9400 4750 0    60   ~ 0
 MAIN MICROCONTROLLER
 $Comp
@@ -2768,4 +2768,8 @@ Connection ~ 8200 5700
 Wire Wire Line
 	8050 5550 8050 5600
 Connection ~ 8050 5600
+Text Notes 3600 8450 0    60   ~ 0
+Max. power consumptions
+Text Notes 3600 8750 0    60   ~ 0
+- LED:\n- SMC: 5mA\n- MCU: 15mA\n- OLED: 130mA\n- TOUCH: 1mA\n- FLASH: 20mA\n- RES NET: 7mA\n\nTOTAL: 178mA
 $EndSCHEMATC

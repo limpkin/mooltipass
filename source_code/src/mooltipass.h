@@ -28,10 +28,4 @@
 #ifndef MOOLTIPASS_H_
 #define MOOLTIPASS_H_
 
-#include <stdint.h>
-
-#include "defines.h"
-
-uint16_t mooltipass_rand(void);
-
 #endif /* MOOLTIPASS_H_ */

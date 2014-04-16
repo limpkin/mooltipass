@@ -18,12 +18,11 @@
 // 
 // Edit:
 // April 2014 - Changed Entropy.cpp to Entropy.c, cpp to c functions
-
-#include <Entropy.h>
 #include <util/atomic.h>
+#include <entropy.h>
 
 #define gWDT_buffer_SIZE 32
-#define WDT_POOL_SIZE 2
+#define WDT_POOL_SIZE 8
 uint8_t gWDT_buffer[gWDT_buffer_SIZE];
 uint8_t gWDT_buffer_position;
 uint8_t gWDT_loop_counter;
@@ -33,44 +32,49 @@ volatile uint8_t gWDT_pool_count;
 volatile uint32_t gWDT_entropy_pool[WDT_POOL_SIZE];
 
 union ENTROPY_LONG_WORD share_entropy;
-static uint8_t byte_position=0;
+static uint16_t word_position = 0;
+static uint8_t byte_position = 0;
 
 //internal prototype functions
-uint8_t EntropyAvailable(void);
-uint32_t EntropyRandom(void);
+uint8_t entropyAvailable(void);
+uint32_t entropyRandom(void);
 
-/*! \fn void EntropyInit(void); 
+
+/*! \fn void entropyInit(void); 
  *  \brief This function initializes the global variables needed to implement 
  *  circular entropy pool and the buffer that holds the raw Timer 0 values 
  *  that are used to create the entropy pool. It initializes Timer0 and after
  *  that, it Initializes the Watch Dog Timer (WDT) to perform an interrupt 
  *  every 2048 clock cycles, (about 16 ms) which is as fast as it can be set.
 */
-void EntropyInit(void)
+void entropyInit(void)
 {
+    uint8_t reg = SREG;
+    
     gWDT_buffer_position=0;
     gWDT_pool_start = 0;
-    gWDT_pool_end = 0;
     gWDT_pool_count = 0;
+    gWDT_pool_end = 0;    
 
-    // configure TIMER0 here
-    // Normal mode, internal clock with no preescaler
+    // Configure TIMER0 here
+    // Normal mode, internal clock with no prescaler
     TCCR0A = 0x00;
     TCCR0B = 0x01;    
 
     // Temporarily turn off interrupts, until WDT configured
     cli();
+    
     // Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR                     
     MCUSR = 0;
     
     // WDT control register, This sets the Watchdog Change Enable (WDCE) flag, 
-    // which is  needed to set the Watchdog system reset (WDE) enable and the 
-    // Watchdog interrupt enable (WDIE)
+    // which is needed to set the Watchdog system reset (WDE) enable and the 
+    // watchdog interrupt enable (WDIE)
     _WD_CONTROL_REG |= (1<<_WD_CHANGE_BIT) | (1<<WDE);
     _WD_CONTROL_REG = _BV(WDIE);
 
-    // Turn interupts on
-    sei();
+    // Restore original interrupt state (may already be disabled)
+    SREG = reg;
 }
 
 /*! \fn uint32_t EntropyRandom(void)
@@ -82,22 +86,29 @@ void EntropyInit(void)
  *  The pool is implemented as an 8 value circular buffer
  *  \return An unsigned 32bit random value from the entropy pool
 */
-uint32_t EntropyRandom(void)
+uint32_t entropyRandom(void)
 {
-    uint8_t waiting;
     uint32_t retVal;
+    
     while (gWDT_pool_count < 1)
-    waiting += 1;
+    {
+        asm("NOP");
+    }
+    
+    byte_position = 0;
+    word_position = 0;
+    
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         retVal = gWDT_entropy_pool[gWDT_pool_start];
         gWDT_pool_start = (gWDT_pool_start + 1) % WDT_POOL_SIZE;
         --gWDT_pool_count;
     }
+    
     return(retVal);
 }
 
-/*! \fn uint8_t EntropyRandom8(void)
+/*! \fn uint8_t entropyRandom8(void)
  *  
  *  \brief This function returns one byte of a single 32-bit entropy value,
  *  while preserving the remaining bytes to be returned upon successive
@@ -106,7 +117,7 @@ uint32_t EntropyRandom(void)
  *  
  *  \return An unsigned 8bit random value
 */
-uint8_t EntropyRandom8(void)
+uint8_t entropyRandom8(void)
 {
     uint8_t retVal8;
 
@@ -114,21 +125,43 @@ uint8_t EntropyRandom8(void)
     // sent out
     if (byte_position == 0)
     {
-        share_entropy.int32 = EntropyRandom();
+        share_entropy.int32 = entropyRandom();
     }
     retVal8 = share_entropy.int8[byte_position++];
     byte_position = byte_position % 4; 
     return(retVal8);
 }
 
-/*! \fn uint8_t EntropyBytesAvailable(void)
+/*! \fn uint8_t entropyRandom16(void)
+ *  
+ *  \brief This function returns two bytes of a single 32-bit entropy value,
+ *  while preserving the remaining bytes to be returned upon successive
+ *  calls to the method.  This makes best use of the available entropy 
+ *  pool when only bytes size chunks of entropy are needed.
+ *  
+ *  \return An unsigned 16bit random value
+*/
+uint16_t entropyRandom16(void)
+{
+    uint16_t retVal16;
+
+    if (word_position == 0)
+    {
+        share_entropy.int32 = entropyRandom();
+    }
+    retVal16 = share_entropy.int16[word_position++];
+    word_position = word_position % 2;
+    return(retVal16);
+}
+
+/*! \fn uint8_t entropyBytesAvailable(void)
  *
  *  \brief This function returns the maximum available bytes from 
  *  the entropy pool and share_entropy variables.
  *
  *  \return the number of random bytes available
 */
-uint8_t EntropyBytesAvailable(void)
+uint8_t entropyBytesAvailable(void)
 {
     uint8_t nbytes = 0;
 
@@ -136,25 +169,25 @@ uint8_t EntropyBytesAvailable(void)
     if(byte_position == 0)
     {
         // EntropyAvailable * 4
-        nbytes = EntropyAvailable() << 2;
+        nbytes = entropyAvailable() << 2;
     }
     else
     {
         // if we have 3 bytes used from share_entropy variable
         // we have 4 - 3 = 1byte available.
-        nbytes = (EntropyAvailable() << 2) + (4-byte_position);
+        nbytes = (entropyAvailable() << 2) + (4-byte_position);
     }
 
     return nbytes;
 }
 
-/*! \fn uint8_t EntropyAvailable(void)
+/*! \fn uint8_t entropyAvailable(void)
  *  \brief This function returns a unsigned char (8-bit) with the number
  *  of unsigned long values in the entropy pool
  *  \return The number of 32bit values inside the pool (for now 2 is the
  *  maximum value)
 */
-uint8_t EntropyAvailable(void)
+uint8_t entropyAvailable(void)
 {
   return(gWDT_pool_count);
 }
@@ -167,7 +200,6 @@ uint8_t EntropyAvailable(void)
  *
  * The pool is implemented as an 8 value circular buffer.
 */
-
 ISR(WDT_vect)
 {
     // Record the Timer 0

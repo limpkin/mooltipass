@@ -19,9 +19,9 @@
 #ifndef Entropy_h
 #define Entropy_h
 
-#include <stdint.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
+#include <stdint.h>
 
 union ENTROPY_LONG_WORD 
 {
@@ -30,9 +30,10 @@ union ENTROPY_LONG_WORD
   uint8_t int8[4];
 };
 
-// prototype functions
-void EntropyInit(void);
-uint8_t EntropyRandom8(void);
-uint8_t EntropyBytesAvailable(void);
+// Function Prototypes
+void entropyInit(void);
+uint8_t entropyRandom8(void);
+uint16_t entropyRandom16(void);
+uint8_t entropyBytesAvailable(void);
 
 #endif

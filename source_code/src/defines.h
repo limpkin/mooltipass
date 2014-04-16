@@ -37,6 +37,9 @@
 #define	HARDWARE_V1
 //#define HARDWARE_OLIVIER_V1
 
+/** PROGRAMMING HARDWARE **/
+//#define AVR_BOOTLOADER_PROGRAMMING
+
 /** SMARTCARD FUSE VERSION **/
 #define SMARTCARD_FUSE_V1
 
@@ -50,18 +53,19 @@
 
 /** ASM "ENUMS" **/
 #define SPI_NATIVE			    1
-#define SPI_USART2              2
+#define SPI_USART               2
 
 /** C ENUMS **/
 enum mooltipass_detect_return_t	{RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB, RETURN_MOOLTIPASS_BLOCKED, RETURN_MOOLTIPASS_BLANK, RETURN_MOOLTIPASS_USER, RETURN_MOOLTIPASS_4_TRIES_LEFT,  RETURN_MOOLTIPASS_3_TRIES_LEFT,  RETURN_MOOLTIPASS_2_TRIES_LEFT,  RETURN_MOOLTIPASS_1_TRIES_LEFT, RETURN_MOOLTIPASS_0_TRIES_LEFT};
 enum card_detect_return_t		{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
 enum pin_check_return_t			{RETURN_PIN_OK, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum detect_return_t			{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
-enum return_type                {RETURN_NOK = 0, RETURN_OK, RETURN_NOT_INIT};
+enum return_type                {RETURN_NOK = 0, RETURN_OK = 1, RETURN_NOT_INIT = 2};
 enum flash_ret_t                {RETURN_INVALID_PARAM, RETURN_WRITE_ERR, RETURN_READ_ERR, RETURN_NO_MATCH};
     
 /** TYPEDEFS **/
 typedef uint8_t RET_TYPE;
+typedef void (*bootloader_f_ptr_type)(void); 
 
 /** DEFINES FLASH **/
 /** DEFINES NODES **/
@@ -73,8 +77,6 @@ typedef uint8_t RET_TYPE;
 #define NODE_TYPE_CHILD 1
 #define NODE_TYPE_CHILD_DATA 2
 #define NODE_TYPE_DATA 3
-
-/** DEFINES FLASH **/
 
 // Chip selection
 #define FLASH_CHIP_1M 1    // Used to identify a 1M Flash Chip (AT45DB011D)
@@ -280,8 +282,7 @@ typedef uint8_t RET_TYPE;
 #define FLASH_SECTOR_ZERO_B_CODE      1
 
 // Flash Testing Defines
-//#define TEST_FLASH                                   // Comment out to not test flash
-//#define FLASH_TEST_DEBUG_OUTPUT_OLED
+#define FLASH_TEST_DEBUG_OUTPUT_OLED
 #define FLASH_TEST_DEBUG_OUTPUT_USB
 #define FLASH_TEST_INIT_BUFFER_POLICY_ZERO           0
 #define FLASH_TEST_INIT_BUFFER_POLICY_ONE            1
@@ -304,7 +305,6 @@ typedef uint8_t RET_TYPE;
 #define FLASH_PAGE_MAPPING_GFX_END         (PAGE_PER_SECTOR) // End GFX Mapping
 #define FLASH_PAGE_MAPPING_GFX_SIZE        (FLASH_PAGE_MAPPING_GFX_END - FLASH_PAGE_MAPPING_GFX_START)
 
-
 /** DEFINES SMART CARD **/
 #define SMARTCARD_FABRICATION_ZONE	0x0F0F
 #define SMARTCARD_FACTORY_PIN		0xF0F0
@@ -316,6 +316,9 @@ typedef uint8_t RET_TYPE;
 #define SMARTCARD_AZ2_BIT_START     736
 #define SMARTCARD_AZ2_BIT_RESERVED  16
 #define SMARTCARD_MTP_LOGIN_LENGTH  (SMARTCARD_AZ_BIT_LENGTH - SMARTCARD_AZ2_BIT_RESERVED)
+
+/** DEFINES TOUCH SENSING **/
+#define AT42QT2120_ID       0x3E
 
 /** DEFINES PORTS **/
 #ifdef HARDWARE_V1
@@ -403,6 +406,17 @@ typedef uint8_t RET_TYPE;
 	#define PORTID_OLED_POW	PORTE2
 	#define PORT_OLED_POW	PORTE
 	#define DDR_OLED_POW	DDRE
+    // LED PWM
+    #define PORTID_LED_PWM  PORTC7
+    #define PORT_LED_PWM    PORTC
+    #define DDR_LED_PWM     DDRC
+    // I2C IOs
+    #define PORTID_I2C_SCL  PORTD0
+    #define PORT_I2C_SCL    PORTD
+    #define DDR_I2C_SCL     DDRD
+    #define PORTID_I2C_SDA  PORTD1
+    #define PORT_I2C_SDA    PORTD
+    #define DDR_I2C_SDA     DDRD
 #endif
 
 /** DEFINES OLED SCREEN **/
@@ -413,6 +427,137 @@ typedef uint8_t RET_TYPE;
 #define OLED_Contrast		0x9F
 #define OLED_WIDTH			256
 #define OLED_HEIGHT			64
+
+/** I2C controller defines **/
+#define I2C_START		    0x08
+#define	I2C_RSTART		    0x10
+#define I2C_SLA_ACK		    0x18
+#define I2C_SLA_NACK	    0x20
+#define I2C_SLAR_ACK	    0x40
+#define I2C_SLAR_NACK	    0x48
+#define	I2C_DATA_ACK	    0x28
+#define	I2C_DATA_NACK	    0x30
+#define	I2C_DATAR_ACK	    0x50
+#define	I2C_DATAR_NACK	    0x58
+#define	I2C_ARB_ERROR       0x38
+
+/** I2C errors defines **/
+#define	I2C_START_ERROR 	RETURN_OK + 1
+#define	I2C_SLA_ERROR	    RETURN_OK + 2
+#define	I2C_DATA_ERROR	    RETURN_OK + 3
+#define	I2C_RSTART_ERR	    RETURN_OK + 4
+#define	I2C_SLAR_ERROR      RETURN_OK + 5
+
+/** I2C addresses / register defines **/
+#define AT42QT2120_ADDR             (0x1C << 1)
+#define AT42QT2120_TDET_MASK        0x01
+#define AT42QT2120_SDET_MASK        0x02
+#define AT42QT2120_TOUCH_KEY_VAL    0x00
+#define AT42QT2120_OUTPUT_L_VAL     0x01
+#define AT42QT2120_OUTPUT_H_VAL     0x03
+#define AT42QT2120_GUARD_VAL        0x10
+#define AT42QT2120_AKS_GP1_MASK     0x04
+
+#define REG_AT42QT_CHIP_ID          0x00
+#define REG_AT42QT_FW_VER           0x01
+#define REG_AT42QT_DET_STAT         0x02
+#define REG_AT42QT_KEY_STAT1        0x03
+#define REG_AT42QT_KEY_STAT2        0x04
+#define REG_AT42QT_SLIDER_POS       0x05
+#define REG_AT42QT_CALIB            0x06
+#define REG_AT42QT_nRESET           0x07
+#define REG_AT42QT_LP               0x08
+#define REG_AT42QT_TTD              0x09
+#define REG_AT42QT_ATD              0x0A
+#define REG_AT42QT_DI               0x0B
+#define REG_AT42QT_TRD              0x0C
+#define REG_AT42QT_DHT              0x0D
+#define REG_AT42QT_SLID_OPT         0x0E
+#define REG_AT42QT_CHARGE_TIME      0x0F
+#define REG_AT42QT_KEY0_DET_THR     0x10
+#define REG_AT42QT_KEY1_DET_THR     0x11
+#define REG_AT42QT_KEY2_DET_THR     0x12
+#define REG_AT42QT_KEY3_DET_THR     0x13
+#define REG_AT42QT_KEY4_DET_THR     0x14
+#define REG_AT42QT_KEY5_DET_THR     0x15
+#define REG_AT42QT_KEY6_DET_THR     0x16
+#define REG_AT42QT_KEY7_DET_THR     0x17
+#define REG_AT42QT_KEY8_DET_THR     0x18
+#define REG_AT42QT_KEY9_DET_THR     0x19
+#define REG_AT42QT_KEY10_DET_THR    0x1A
+#define REG_AT42QT_KEY11_DET_THR    0x1B
+#define REG_AT42QT_KEY0_CTRL        0x1C
+#define REG_AT42QT_KEY1_CTRL        0x1D
+#define REG_AT42QT_KEY2_CTRL        0x1E
+#define REG_AT42QT_KEY3_CTRL        0x1F
+#define REG_AT42QT_KEY4_CTRL        0x20
+#define REG_AT42QT_KEY5_CTRL        0x21
+#define REG_AT42QT_KEY6_CTRL        0x22
+#define REG_AT42QT_KEY7_CTRL        0x23
+#define REG_AT42QT_KEY8_CTRL        0x24
+#define REG_AT42QT_KEY9_CTRL        0x25
+#define REG_AT42QT_KEY10_CTRL       0x26
+#define REG_AT42QT_KEY11_CTRL       0x27
+#define REG_AT42QT_KEY0_PULSE_SCL   0x28
+#define REG_AT42QT_KEY1_PULSE_SCL   0x29
+#define REG_AT42QT_KEY2_PULSE_SCL   0x2A
+#define REG_AT42QT_KEY3_PULSE_SCL   0x2B
+#define REG_AT42QT_KEY4_PULSE_SCL   0x2C
+#define REG_AT42QT_KEY5_PULSE_SCL   0x2D
+#define REG_AT42QT_KEY6_PULSE_SCL   0x2E
+#define REG_AT42QT_KEY7_PULSE_SCL   0x2F
+#define REG_AT42QT_KEY8_PULSE_SCL   0x30
+#define REG_AT42QT_KEY9_PULSE_SCL   0x31
+#define REG_AT42QT_KEY10_PULSE_SCL  0x32
+#define REG_AT42QT_KEY11_PULSE_SCL  0x33
+#define REG_AT42QT_KEY0_SIG_MSB     0x34
+#define REG_AT42QT_KEY0_SIG_LSB     0x35
+#define REG_AT42QT_KEY1_SIG_MSB     0x36
+#define REG_AT42QT_KEY1_SIG_LSB     0x37
+#define REG_AT42QT_KEY2_SIG_MSB     0x38
+#define REG_AT42QT_KEY2_SIG_LSB     0x39
+#define REG_AT42QT_KEY3_SIG_MSB     0x3A
+#define REG_AT42QT_KEY3_SIG_LSB     0x3B
+#define REG_AT42QT_KEY4_SIG_MSB     0x3C
+#define REG_AT42QT_KEY4_SIG_LSB     0x3D
+#define REG_AT42QT_KEY5_SIG_MSB     0x3E
+#define REG_AT42QT_KEY5_SIG_LSB     0x3F
+#define REG_AT42QT_KEY6_SIG_MSB     0x40
+#define REG_AT42QT_KEY6_SIG_LSB     0x41
+#define REG_AT42QT_KEY7_SIG_MSB     0x42
+#define REG_AT42QT_KEY7_SIG_LSB     0x43
+#define REG_AT42QT_KEY8_SIG_MSB     0x44
+#define REG_AT42QT_KEY8_SIG_LSB     0x45
+#define REG_AT42QT_KEY9_SIG_MSB     0x46
+#define REG_AT42QT_KEY9_SIG_LSB     0x47
+#define REG_AT42QT_KEY10_SIG_MSB    0x48
+#define REG_AT42QT_KEY10_SIG_LSB    0x49
+#define REG_AT42QT_KEY11_SIG_MSB    0x4A
+#define REG_AT42QT_KEY11_SIG_LSB    0x4B
+#define REG_AT42QT_REF_DATA0_MSB    0x4C
+#define REG_AT42QT_REF_DATA0_LSB    0x4D
+#define REG_AT42QT_REF_DATA1_MSB    0x4E
+#define REG_AT42QT_REF_DATA1_LSB    0x4F
+#define REG_AT42QT_REF_DATA2_MSB    0x50
+#define REG_AT42QT_REF_DATA2_LSB    0x51
+#define REG_AT42QT_REF_DATA3_MSB    0x52
+#define REG_AT42QT_REF_DATA3_LSB    0x53
+#define REG_AT42QT_REF_DATA4_MSB    0x54
+#define REG_AT42QT_REF_DATA4_LSB    0x55
+#define REG_AT42QT_REF_DATA5_MSB    0x56
+#define REG_AT42QT_REF_DATA5_LSB    0x57
+#define REG_AT42QT_REF_DATA6_MSB    0x58
+#define REG_AT42QT_REF_DATA6_LSB    0x59
+#define REG_AT42QT_REF_DATA7_MSB    0x5A
+#define REG_AT42QT_REF_DATA7_LSB    0x5B
+#define REG_AT42QT_REF_DATA8_MSB    0x5C
+#define REG_AT42QT_REF_DATA8_LSB    0x5D
+#define REG_AT42QT_REF_DATA9_MSB    0x5E
+#define REG_AT42QT_REF_DATA9_LSB    0x5F
+#define REG_AT42QT_REF_DATA10_MSB   0x60
+#define REG_AT42QT_REF_DATA10_LSB   0x61
+#define REG_AT42QT_REF_DATA11_MSB   0x62
+#define REG_AT42QT_REF_DATA11_LSB   0x63
 
 // Mooltipass bitmaps defines
 #define HACKADAY_BMP		0x00

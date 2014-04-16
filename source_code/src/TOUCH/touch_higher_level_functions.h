@@ -17,46 +17,16 @@
  *
  * CDDL HEADER END
  */
+/*! \file   touch_higher_level_functions.h
+ *  \brief  Touch higher level sensing functions
+ *  Copyright [2014] [Mathieu Stephan]
+ */
 
-/* Copyright (c) 2014, Michael Neiderhauser. All rights reserved. */
+#ifndef TOUCH_HIGHER_LEVEL_FUNCTIONS_H_
+#define TOUCH_HIGHER_LEVEL_FUNCTIONS_H_
 
-/*!  \file     node_mgmt.c
-*    \brief    Mooltipass Node Management Library
-*    Created:  03/4/2014
-*    Author:   Michael Neiderhauser
-*/
-
-#include "flash_mem.h"
-#include "node_mgmt.h"
 #include "defines.h"
-#include <stdint.h>
 
-RET_TYPE obtainNodeManagementHandle(mgmtHandle **h)
-{
-    return 0; 
-}
+RET_TYPE initTouchSensing(void);
 
-RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t starting_address)
-{
-    return 0; 
-}
-
-RET_TYPE createParentNode(mgmtHandle *h, pNode * p)
-{
-    return 0; 
-}
-
-RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress)
-{
-    return 0; 
-}
-
-RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
-{
-    return 0; 
-}
-
-RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeaddress, deletePolicy policy)
-{
-    return 0; 
-}
+#endif /* TOUCH_HIGHER_LEVEL_FUNCTIONS_H_ */

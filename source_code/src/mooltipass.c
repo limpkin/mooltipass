@@ -18,31 +18,36 @@
  * CDDL HEADER END
  */
 /*! \file   mooltipass.c
-*   \brief  Main file
-*   Created: 08/12/2013 13:54:34
-*   Author: Mathieu Stephan
-*/
+ *  \brief  main file
+ *  Copyright [2014] [Mathieu Stephan]
+ */
 
+#include <util/delay.h>
+#include <stdlib.h>
+#include <avr/io.h>
 #include <stdio.h>
 #include "smart_card_higher_level_functions.h"
-#include "aes256_nessie_test.h"
-#include "aes256_ctr_test.h"
-#include "Entropy.h"
+#include "touch_higher_level_functions.h"
+#include "had_mooltipass.h"
 #include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "interrupts.h"
 #include "smartcard.h"
 #include "flash_mem.h"
-#include "flash_test.h"
 #include "node_mgmt.h"
+#include "defines.h"
+#include "entropy.h"
 #include "oledmp.h"
-#include "spi.h"
 #include "utils.h"
-#include <util/delay.h>
-#include <stdlib.h>
-#include <avr/io.h>
+#include "tests.h"
+#include "touch.h"
+#include "spi.h"
+#include "pwm.h"
 
-#include "had_mooltipass.h"
+#ifdef AVR_BOOTLOADER_PROGRAMMING
+    bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
+#endif
+
 
 /*! \fn     disable_jtag(void)
 *   \brief  Disable the JTAG module
@@ -57,166 +62,106 @@ void disable_jtag(void)
     MCUCR = temp;
 }
 
-// Perhaps move this function in another file later?
-uint16_t mooltipass_rand(void)
-{
-    return (uint16_t)rand();
-}
-
 /*! \fn     main(void)
 *   \brief  Main function
 */
 int main(void)
 {
     RET_TYPE flash_init_result = RETURN_NOK;
+    RET_TYPE touch_init_result = RETURN_NOK;
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
+
+    #ifdef AVR_BOOTLOADER_PROGRAMMING
+        /* Check if a card is inserted in the Mooltipass to go to the bootloader */
+        disable_jtag();                 // Disable JTAG to gain access to pins
+        DDR_SC_DET &= ~(1 << PORTID_SC_DET);
+        PORT_SC_DET |= (1 << PORTID_SC_DET);
+        _delay_ms(100);    
+        #if defined(HARDWARE_V1)
+        if (PIN_SC_DET & (1 << PORTID_SC_DET))
+        #elif defined(HARDWARE_OLIVIER_V1)
+        if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
+        #endif
+        {
+            start_bootloader();
+        }
+    #endif
 
     CPU_PRESCALE(0);                    // Set for 16MHz clock
     _delay_ms(500);                     // Let the power settle
     disable_jtag();                     // Disable JTAG to gain access to pins
-    initPortSMC();                      // Initialize smart card Port
-    initIRQ();                          // Initialize interrupts
+    initPortSMC();                      // Initialize smart card port
+    initPwm();                          // Initialize PWM controller
+    initIRQ();                          // Initialize interrupts    
     usb_init();                         // Initialize USB controller
-
-    spiUsartBegin(SPI_RATE_8_MHZ);
+    initI2cPort();                      // Initialize I2C interface
+    entropyInit();                      // Initialize avrentropy library
     while(!usb_configured());           // Wait for host to set configuration
+    spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 
-    // set up OLED now that USB is receiving full 500mA.
+    // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
     oledSetColour(15);
     oledSetBackground(0);
-    oledSetContrast(OLED_Contrast);
+    oledSetContrast(0x8F);
     oledSetScrollSpeed(3);
-
-    #ifdef TEST_FLASH
-        // runt flash test
-        flashTest();
-        // spin
-        while(1);
+    oledWriteActiveBuffer();
+    
+    // OLED screen is reversed on Olivier's design
+    #ifdef HARDWARE_OLIVIER_V1
+        oledSetRemap(OLED_REMAP_NIBBLES|OLED_REMAP_COL_ADDR);
     #endif
     
+    beforeFlashInitTests();             // Launch the before flash init tests    
     flash_init_result = initFlash();    // Initialize flash memory
+    afterFlashInitTests();              // Launch the after flash init tests
 
-    //#define TEST_HID_AND_CDC
-    #ifdef TEST_HID_AND_CDC
-        //Show_String("Z",FALSE,2,0);
-        //usb_keyboard_press(KEY_S, 0);
-        while(1)
-        {
-            int n = usb_serial_getchar();
-            if (n >= 0)
-            {
-                usb_serial_putchar(n);
-                oledSetXY(2,0);
-                oledPutch((char)n);
-
-                //usb_keyboard_press(n,0);
-            }
-
-        }
-    #endif /* TEST_HID_AND_CDC */
-
-    //#define NESSIE_TEST_VECTORS
-    #ifdef NESSIE_TEST_VECTORS
-        while(1)
-        {
-            // msg into oled display
-            oledSetXY(2,0);
-            printf_P(PSTR("send s to start nessie test"));
-
-            int input0 = usb_serial_getchar();
-
-            nessieOutput = &usb_serial_putchar;
-
-            // do nessie test after sending s or S chars
-            if (input0 == 's' || input0 == 'S')
-            {
-                nessieTest(1);
-                nessieTest(2);
-                nessieTest(3);
-                nessieTest(4);
-                nessieTest(5);
-                nessieTest(6);
-                nessieTest(7);
-                nessieTest(8);
-            }
-        }
-    #endif
-    
-    //#define CTR_TEST_VECTORS
-    #ifdef CTR_TEST_VECTORS
-        while(1)
-        {
-            // msg into oled display
-            oledSetXY(2,0);
-            printf_P(PSTR("send s to start CTR test"));
-
-            int input1 = usb_serial_getchar();
-
-            ctrTestOutput = &usb_serial_putchar;
-
-            // do ctr test after sending s or S chars
-            if (input1 == 's' || input1 == 'S')
-            {
-                aes256CtrTest();
-            }
-        }
-    #endif
-
-    //#define TEST_RNG
-    #ifdef TEST_RNG 
-        while(1)
-        {
-            // init avrentropy library
-            EntropyInit();
-
-            // msg into oled display
-            oledSetXY(2,0);
-            printf_P(PSTR("send s to start entropy"));
-
-            int input2 = usb_serial_getchar();
-
-            uint32_t randomNumCtr;
-
-            // do nessie test after sending s or S chars
-            if (input2 == 's' || input2 == 'S')
-            {
-                while(EntropyAvailable() < 2);
-                
-                EntropyRandom8();
-
-                usb_serial_putchar(EntropyBytesAvailable());
-
-                for(randomNumCtr=0; randomNumCtr<25; randomNumCtr++)
-                {
-                        usb_serial_putchar(EntropyRandom8());
-                }
-            }
-
-        }
-    #endif
-
-    oledSetXY(2,0);
-    if (flash_init_result == RETURN_OK) 
+    // Stop the mooltipass if we can't communicate with the Flash
+    if (flash_init_result != RETURN_OK) 
     {
-        printf_P(PSTR("Flash init ok"));
-    } 
-    else 
-    {
+        oledSetXY(2,0);
         printf_P(PSTR("Problem flash init"));
+        while(1);
+    } 
+    
+    // Check if we can initialize the touch sensing element
+    touch_init_result = initTouchSensing();
+    if (touch_init_result != RETURN_OK)
+    {
+        oledSetXY(2,0);
+        printf_P(PSTR("Problem touch init"));
+        delay_ms(2000);
     }
-
-    _delay_ms(1000);
-    oledClear();
-    oledWriteInactiveBuffer();
+    
+    // Launch the after touch init tests
+    afterTouchInitTests();
 
     // write bitmap to inactive buffer and make the buffer 
     // active by scrolling it up.
     // Note: writing is automatically switch to inactive buffer
+    oledWriteInactiveBuffer();
     oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
     oledClear();    // clear inactive buffer
-
+    
+    // Light up the front panel
+    //setPwmDc(0x0200);
+    
+//     uint16_t i;
+//     while(1)
+//     {
+//         for (i = 0; i < 11; i++)
+//         {
+//             setPwmDc(1 << i);
+//             delay_ms(500);
+//         }
+//         delay_ms(500);
+//         for (i = 0; i < 11; i++)
+//         {
+//             setPwmDc(1 << (10-i));
+//             delay_ms(500);
+//         }           
+//     }
 
     while (1)
     {

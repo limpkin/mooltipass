@@ -26,20 +26,20 @@
 *	Author: Darran Hunt
 */
 
-#include <stdio.h>
-#include "mooltipass.h"
-#include <util/delay.h>
 #include <avr/pgmspace.h>
+#include <util/delay.h>
+#include <stdio.h>
 
-#include "usb_serial_hid.h"
 #include "low_level_utils.h"
-#include "oledmp.h"
+#include "usb_serial_hid.h"
 #include "bitstream.h"
+#include "defines.h"
+#include "oledmp.h"
 #include "utils.h"
 
 // Make sure the USART SPI is selected
 #if SPI_OLED != SPI_USART
-#error "SPI not implemented"
+    #error "SPI not implemented"
 #endif
 
 #undef OLED_DEBUG
@@ -209,6 +209,12 @@ void oledSetDisplayedBuffer(uint8_t bufferId)
     oledSetDisplayStartLine(OLED_HEIGHT * bufferId);
 }
 
+
+/**
+ * Switch the inactive buffer to the active buffer.
+ * This displays the content of the inactive buffer and
+ * makes it the active buffer.
+ */
 void oledFlipDisplayedBuffer()
 {
     oled_displayBuffer = !oled_displayBuffer;
@@ -325,13 +331,29 @@ void oledSetContrast(uint8_t contrast)
     oledWriteData(contrast);
 }
 
+
+/**
+ * Set remap mode. This defines how the internal
+ * display RAM (GDDRAM) is mapped onto the physical display pixels.
+ * @param mode - level from 0 (min) to 255 (max)
+ *        bit[1] 0 = column address segments left to right
+ *               1 = column address segments right to left
+ *        bit[2] 0 = nibbles direct access
+ *               1 = nibbles endian swapped
+ *        bit[4] 0 = scan rows from top to bottm
+ *               1 = scan rows from bottom to top
+ * @note bit 0, and 5-7 are masked out by the function
+ *       as changing these would damage the operation
+ *       of the library.
+ */
 void oledSetRemap(uint8_t mode)
 {
     oledWriteCommand(CMD_SET_REMAP);
-    oledWriteData(mode & 0x1F);
+    oledWriteData(mode & 0x1E);
     oledWriteData(0x11);    // Dual COM mode
 
 }
+
 
 /**
  * print an character on the screen at the current X and

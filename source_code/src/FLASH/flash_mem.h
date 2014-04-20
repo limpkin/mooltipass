@@ -19,6 +19,7 @@
  */
 
 /* Copyright (c) 2014, Michael Neiderhauser. All rights reserved. */
+/* Copyright (c) 2014, Darran Hunt. All rights reserved. */
 
 /*!  \file     flash_mem.h
 *    \brief    Mooltipass Flash IC Library Header
@@ -29,24 +30,61 @@
 #ifndef FLASH_MEM_H_
 #define FLASH_MEM_H_
 
-#include "defines.h"
-#include <stdint.h>
+#include <stdbool.h>
 
-RET_TYPE sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer);
-RET_TYPE waitForFlash(void);
-RET_TYPE checkFlashID(void);
-RET_TYPE initFlash(void);
+#undef DEBUG_FLASH
+#ifdef DEBUG_FLASH
+#define DPRINTF_P(args...) usbPrintf_P(args)
+#else
+#define DPRINTF_P(args...)
+#endif
 
-// Erase Functions
-RET_TYPE sectorZeroErase(uint8_t sectorNumber);
-RET_TYPE sectorErase(uint8_t sectorNumber);
-RET_TYPE blockErase(uint16_t blockNumber);
-RET_TYPE pageErase(uint16_t pageNumber);
+#define FLASH_FAMILY_MASK         0xE0	// bitmask for family field in flash device ID
+#define FLASH_FAMILY_ID           0x20  // The flash family supported
+#define FLASH_DENSITY_MASK        0x1F  // bitmask for the flash density in the device ID
 
-RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data);
-RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data);
+#define FLASH_OP_PAGE_READ        0xD2	// read one page
+#define FLASH_OP_PAGE_WRITE	  0x82	// write one flash page via memory buffer with auto erase
+#define FLASH_OP_PAGE_ERASE	  0x81	// erase one flash page
+#define FLASH_OP_READ             0x03	// random access continuous read (low freq)
+#define FLASH_OP_BUF_LOAD         0x53	// load memory buffer from page
+#define FLASH_OP_BUF_READ         0xD1	// read from the memory buffer (low freq)
+#define FLASH_OP_BUF_CMP          0x60	// compare memory buffer to page
+#define FLASH_OP_BUF_WRITE        0x84	// write to the memory buffer
+#define FLASH_OP_BUF_ERASE_STORE  0x83	// write the buffer to a flash page, no erase
+#define FLASH_OP_BUF_STORE        0x88	// write the buffer to a flash page, no erase
+#define FLASH_OP_CHIP_ERASE       0xC7, 0x94, 0x80, 0x9A	// erase entire chip
+#define FLASH_OP_GET_STATUS       0xD7	// Read status
+#define FLASH_OP_SECTOR_ERASE     0x7C  // Erase a sector
+#define FLASH_OP_BLOCK_ERASE      0x50  // Erase a block
 
-//void readCredentialBlock(uint16_t page_number, uint8_t block_id, uint8_t* buffer)__attribute__((deprecated));
+#define FLASH_STATUS_BUSY         (1<<7)  // flash status busy bit
 
+#define FLASH_SECTOR_0A           0x0800 // Internal identifier for Sector 0a operations
+#define FLASH_SECTOR_0B		  0x1000 // Internal identifier for Sector 0b operations
 
-#endif /* FLASH_MEM_H_ */
+int flashInit(void);
+int flashCheckId(void);
+int flashBufLoad(uint16_t page);
+void flashBufRead(void *datap, uint16_t offset, uint16_t size);
+void flashRawRead(void *datap, uint32_t addr, uint16_t size);
+int flashPageRead(void *datap, uint16_t page, uint16_t offset, uint16_t size);
+int flashBufStore(uint16_t page);
+int flashBufEraseStore(uint16_t page);
+
+void flashChipErase(void);
+int flashPageErase(uint16_t page);
+int flashBlockErase(uint16_t block);
+int flashSectorErase(uint16_t sector);
+
+void flashBufWrite(void *datap, uint16_t offset, uint16_t size);
+void flashBufFill(void *datap, uint16_t offset, uint16_t size, uint16_t repeat);
+void flashBufSet(uint8_t value, uint16_t offset, uint16_t size);
+
+void flashBufWriteCached(void *datap, uint16_t page, uint16_t offset, uint16_t size);
+void flashBufSetCache(uint16_t page);
+int flashPageWrite(void *datap, uint16_t page, uint16_t offset, uint16_t size);
+bool flashFlushCache(uint16_t page);
+
+void flashPageHexDump(uint16_t page);
+#endif

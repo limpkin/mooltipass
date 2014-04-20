@@ -114,7 +114,7 @@ int main(void)
     #endif
     
     beforeFlashInitTests();             // Launch the before flash init tests    
-    flash_init_result = initFlash();    // Initialize flash memory
+    flash_init_result = flashInit();    // Initialize flash memory
     afterFlashInitTests();              // Launch the after flash init tests
 
     // Stop the mooltipass if we can't communicate with the Flash

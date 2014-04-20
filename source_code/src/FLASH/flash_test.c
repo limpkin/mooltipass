@@ -92,7 +92,7 @@ void initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy)
 RET_TYPE flashInitTest()
 {
     // simply call initFlash
-    return initFlash();    
+    return flashInit();    
 } // End flashInitTest
 
 /*!  \fn       flashWriteReadTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize)
@@ -116,7 +116,7 @@ RET_TYPE flashWriteReadTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buff
         memcpy(bufferOut, bufferIn, bufferSize);
         
         // write bufferIn to flash (Entire page) -> bufferIn becomes corrupt
-        ret = writeDataToFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageWrite(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return RETURN_WRITE_ERR;
@@ -126,7 +126,7 @@ RET_TYPE flashWriteReadTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buff
         initBuffer(bufferIn, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);
         
         // read from flash to bufferIn
-        ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageRead(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return RETURN_READ_ERR;
@@ -176,7 +176,7 @@ RET_TYPE flashWriteReadOffsetTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
             offset = j * NODE_SIZE_PARENT;
             
             // write to page + offset.  buffer becomes corrupt 
-            ret = writeDataToFlash(i, offset, NODE_SIZE_PARENT, bufferIn);
+            ret = flashPageWrite(bufferIn, i, offset, NODE_SIZE_PARENT);
             if(ret != RETURN_OK)
             {
                 return RETURN_WRITE_ERR;
@@ -186,7 +186,7 @@ RET_TYPE flashWriteReadOffsetTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
             initBuffer(bufferIn, NODE_SIZE_PARENT, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);
             
             // read from flash to bufferIn
-            ret = readDataFromFlash(i, offset, NODE_SIZE_PARENT, bufferIn);
+            ret = flashPageRead(bufferIn, i, offset, NODE_SIZE_PARENT);
             if(ret != RETURN_OK)
             {
                 return RETURN_READ_ERR;
@@ -228,7 +228,7 @@ RET_TYPE flashErasePageTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buff
         memcpy(bufferOut, bufferIn, bufferSize);
         
         // write input Buffer to flash -> buffer becomes corrupt
-        ret = writeDataToFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageWrite(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return RETURN_WRITE_ERR;
@@ -238,7 +238,7 @@ RET_TYPE flashErasePageTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buff
         initBuffer(bufferIn, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);
         
         // read from flash to bufferIn
-        ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageRead(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return RETURN_READ_ERR;
@@ -255,7 +255,7 @@ RET_TYPE flashErasePageTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buff
         } // End for each byte in buffer
 
         // send page erase
-        ret = pageErase(i);
+        ret = flashPageErase(i);
         if(ret != RETURN_OK)
         {
             return RETURN_READ_ERR;
@@ -266,7 +266,7 @@ RET_TYPE flashErasePageTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buff
         initBuffer(bufferOut, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ONE);
         
         // read from flash to bufferIn
-        ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageRead(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return RETURN_READ_ERR;
@@ -309,7 +309,7 @@ RET_TYPE flashEraseBlockTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buf
     // for each block issue block erase
     for(i = 0; i < BLOCK_COUNT; i++)
     {
-        ret = blockErase(i);
+        ret = flashBlockErase(i);
         if(ret != RETURN_OK)
         {
             // return on error
@@ -327,7 +327,7 @@ RET_TYPE flashEraseBlockTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buf
         initBuffer(bufferIn, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);
         
         // read from flash to bufferIn
-        ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageRead(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return RETURN_READ_ERR;
@@ -375,7 +375,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
             initBuffer(bufferIn, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_RND);
             memcpy(bufferOut, bufferIn, bufferSize);
             
-            ret = writeDataToFlash(sectorPageOffset + j, 0, bufferSize, bufferIn);
+            ret = flashPageWrite(bufferIn, sectorPageOffset + j, 0, bufferSize);
             if(ret != RETURN_OK)
             {
                 return ret;
@@ -385,7 +385,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
             initBuffer(bufferIn, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);
             
             // read data
-            ret = readDataFromFlash(sectorPageOffset + j, 0, bufferSize, bufferIn);
+            ret = flashPageRead(bufferIn, sectorPageOffset + j, 0, bufferSize);
             if(ret != RETURN_OK)
             {
                 return ret;
@@ -403,7 +403,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
         } // end for each page in sector
         
         // issue sector erase
-        ret = sectorErase(i);
+        ret = flashSectorErase(i);
         if(ret != RETURN_OK)
         {
             return ret;
@@ -416,7 +416,7 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
         for(j = 0; j < PAGE_PER_SECTOR; j++)
         {
             // read flash to bufferIn
-            ret = readDataFromFlash(sectorPageOffset + j, 0, bufferSize, bufferIn);
+            ret = flashPageRead(bufferIn, sectorPageOffset + j, 0, bufferSize);
             if(ret != RETURN_OK)
             {
                 return ret;
@@ -458,7 +458,7 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
         memcpy(bufferOut, bufferIn, bufferSize);
         
         // write bufferIn to flash -> corrupts buffer
-        ret = writeDataToFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageWrite(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return ret;
@@ -468,7 +468,7 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
         initBuffer(bufferIn, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);
         
         // read flash to buffer
-        ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageRead(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return ret;
@@ -486,14 +486,14 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
     } // end for each page in sector
     
     // issue erase sector 0a
-    ret = sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE);
+    ret = flashSectorErase(FLASH_SECTOR_0A);
     if(ret != RETURN_OK)
     {
         return ret;
     }
     
     //issue erase sector 0b
-    ret = sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE);
+    ret = flashSectorErase(FLASH_SECTOR_0B);
     if(ret != RETURN_OK)
     {
         return ret;
@@ -509,7 +509,7 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
         initBuffer(bufferOut, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);   
         
         // read page
-        ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
+        ret = flashPageRead(bufferIn, i, 0, bufferSize);
         if(ret != RETURN_OK)
         {
             return ret;

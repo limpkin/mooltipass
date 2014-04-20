@@ -26,10 +26,10 @@
 *    Author:   Michael Neiderhauser
 */
 
-#include <stdint.h>
-#include "defines.h"
-#include "node_mgmt.h"
 #include "flash_mem.h"
+#include "node_mgmt.h"
+#include "defines.h"
+#include <stdint.h>
 
 RET_TYPE obtainNodeManagementHandle(mgmtHandle **h)
 {

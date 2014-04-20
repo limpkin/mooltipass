@@ -36,7 +36,7 @@
 #include "flash_mem.h"
 #include "node_mgmt.h"
 #include "defines.h"
-#include "entropy.h"
+#include "Entropy.h"
 #include "oledmp.h"
 #include "utils.h"
 #include "tests.h"

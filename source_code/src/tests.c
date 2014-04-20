@@ -28,7 +28,7 @@
 #include "mooltipass.h"
 #include "flash_test.h"
 #include "defines.h"
-#include "entropy.h"
+#include "Entropy.h"
 #include "oledmp.h"
 #include "touch.h"
 

@@ -19,7 +19,7 @@
 // Edit:
 // April 2014 - Changed Entropy.cpp to Entropy.c, cpp to c functions
 #include <util/atomic.h>
-#include <entropy.h>
+#include <Entropy.h>
 
 #define gWDT_buffer_SIZE 32
 #define WDT_POOL_SIZE 8

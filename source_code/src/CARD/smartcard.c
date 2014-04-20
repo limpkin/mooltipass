@@ -25,7 +25,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "smartcard.h"
-#include "entropy.h"
+#include "Entropy.h"
 #include "defines.h"
 #include <avr/io.h>
 #include "utils.h"

@@ -17,8 +17,8 @@
  *
  * CDDL HEADER END
  */
-/* \file 	defines.h
- * \brief	Project definitions
+/* \file    defines.h
+ * \brief   Project definitions
  *  Created: 11/01/2014 11:54:26
  *  Author: Mathieu Stephan
  */
@@ -38,7 +38,7 @@
 
 /** HARDWARE VERSION **/
 // First hardware sent to the contributors
-#define	HARDWARE_V1
+#define HARDWARE_V1
 // Olivier's design hardware, 04/2014
 //#define HARDWARE_OLIVIER_V1
 
@@ -51,31 +51,31 @@
 #define SMARTCARD_FUSE_V1
 
 /** HW MACROS **/
-#define CPU_PRESCALE(n)		    (CLKPR = 0x80, CLKPR = (n))
+#define CPU_PRESCALE(n)         (CLKPR = 0x80, CLKPR = (n))
 
 /** DEFINES FIRMWARE **/
 #define AES_KEY_LENGTH          256
-#define FALSE				    0
-#define TRUE				    (!FALSE)
+#define FALSE                   0
+#define TRUE                    (!FALSE)
 
 /** ASM "ENUMS" **/
-#define SPI_NATIVE			    1
+#define SPI_NATIVE              1
 #define SPI_USART               2
 
 /** C ENUMS **/
-enum mooltipass_detect_return_t	{RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB, RETURN_MOOLTIPASS_BLOCKED, RETURN_MOOLTIPASS_BLANK, RETURN_MOOLTIPASS_USER, RETURN_MOOLTIPASS_4_TRIES_LEFT,  RETURN_MOOLTIPASS_3_TRIES_LEFT,  RETURN_MOOLTIPASS_2_TRIES_LEFT,  RETURN_MOOLTIPASS_1_TRIES_LEFT, RETURN_MOOLTIPASS_0_TRIES_LEFT};
-enum card_detect_return_t		{RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
-enum pin_check_return_t			{RETURN_PIN_OK = 0, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
-enum detect_return_t			{RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
+enum mooltipass_detect_return_t {RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB, RETURN_MOOLTIPASS_BLOCKED, RETURN_MOOLTIPASS_BLANK, RETURN_MOOLTIPASS_USER, RETURN_MOOLTIPASS_4_TRIES_LEFT,  RETURN_MOOLTIPASS_3_TRIES_LEFT,  RETURN_MOOLTIPASS_2_TRIES_LEFT,  RETURN_MOOLTIPASS_1_TRIES_LEFT, RETURN_MOOLTIPASS_0_TRIES_LEFT};
+enum card_detect_return_t       {RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
+enum pin_check_return_t         {RETURN_PIN_OK = 0, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
+enum detect_return_t            {RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
 enum return_type                {RETURN_NOK = -1, RETURN_OK = 0};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};
-    
+
 /** TYPEDEFS **/
 typedef void (*bootloader_f_ptr_type)(void);
 typedef int8_t RET_TYPE;
 
 /** BITMAP DEFINES **/
-#define HACKADAY_BMP		0x00
+#define HACKADAY_BMP        0x00
 
 /** FLASH TEST SELECTION **/
 #define RUN_FLASH_TEST_WR
@@ -87,90 +87,90 @@ typedef int8_t RET_TYPE;
 
 /** DEFINES PORTS **/
 #ifdef HARDWARE_V1
-	// SPIs
-	#define SPI_SMARTCARD	SPI_NATIVE
-	#define	SPI_FLASH		SPI_USART
-	#define SPI_OLED		SPI_USART
-	// Slave Select Flash
-	#define PORTID_FLASH_nS	PORTB4
-	#define PORT_FLASH_nS	PORTB
-	#define DDR_FLASH_nS	DDRB
-	// Detect smart card
-	#define PORTID_SC_DET	PORTB6
-	#define PORT_SC_DET		PORTB
-	#define DDR_SC_DET		DDRB
-	#define PIN_SC_DET		PINB
-	// Smart card program
-	#define PORTID_SC_PGM	PORTC6
-	#define PORT_SC_PGM		PORTC
-	#define DDR_SC_PGM		DDRC
-	// Smart card power enable
-	#define PORTID_SC_POW	PORTE6
-	#define PORT_SC_POW		PORTE
-	#define DDR_SC_POW		DDRE
-	// Smart card reset
-	#define PORTID_SC_RST	PORTB5
-	#define PORT_SC_RST		PORTB
-	#define DDR_SC_RST		DDRB
-	// OLED Data / Command
-	#define PORTID_OLED_DnC	PORTD7
-	#define PORT_OLED_DnC	PORTD
-	#define DDR_OLED_DnC	DDRD
-	// OLED Slave Select
-	#define PORTID_OLED_SS	PORTD6
-	#define PORT_OLED_SS	PORTD
-	#define DDR_OLED_SS		DDRD
-	// OLED reset
-	#define PORTID_OLED_nR	PORTD1
-	#define PORT_OLED_nR	PORTD
-	#define DDR_OLED_nR		DDRD
-	// Power enable to the OLED
-	#define PORTID_OLED_POW	PORTB7
-	#define PORT_OLED_POW	PORTB
-	#define DDR_OLED_POW	DDRB
+    // SPIs
+    #define SPI_SMARTCARD   SPI_NATIVE
+    #define SPI_FLASH       SPI_USART
+    #define SPI_OLED        SPI_USART
+    // Slave Select Flash
+    #define PORTID_FLASH_nS PORTB4
+    #define PORT_FLASH_nS   PORTB
+    #define DDR_FLASH_nS    DDRB
+    // Detect smart card
+    #define PORTID_SC_DET   PORTB6
+    #define PORT_SC_DET     PORTB
+    #define DDR_SC_DET      DDRB
+    #define PIN_SC_DET      PINB
+    // Smart card program
+    #define PORTID_SC_PGM   PORTC6
+    #define PORT_SC_PGM     PORTC
+    #define DDR_SC_PGM      DDRC
+    // Smart card power enable
+    #define PORTID_SC_POW   PORTE6
+    #define PORT_SC_POW     PORTE
+    #define DDR_SC_POW      DDRE
+    // Smart card reset
+    #define PORTID_SC_RST   PORTB5
+    #define PORT_SC_RST     PORTB
+    #define DDR_SC_RST      DDRB
+    // OLED Data / Command
+    #define PORTID_OLED_DnC PORTD7
+    #define PORT_OLED_DnC   PORTD
+    #define DDR_OLED_DnC    DDRD
+    // OLED Slave Select
+    #define PORTID_OLED_SS  PORTD6
+    #define PORT_OLED_SS    PORTD
+    #define DDR_OLED_SS     DDRD
+    // OLED reset
+    #define PORTID_OLED_nR  PORTD1
+    #define PORT_OLED_nR    PORTD
+    #define DDR_OLED_nR     DDRD
+    // Power enable to the OLED
+    #define PORTID_OLED_POW PORTB7
+    #define PORT_OLED_POW   PORTB
+    #define DDR_OLED_POW    DDRB
 #endif
-#ifdef	HARDWARE_OLIVIER_V1
-	// SPIs
-	#define SPI_SMARTCARD	SPI_NATIVE
-	#define	SPI_FLASH		SPI_USART
-	#define SPI_OLED		SPI_USART
-	// Slave Select Flash
-	#define PORTID_FLASH_nS	PORTB7
-	#define PORT_FLASH_nS	PORTB
-	#define DDR_FLASH_nS	DDRB
-	// Detect smart card
-	#define PORTID_SC_DET	PORTF5
-	#define PORT_SC_DET		PORTF
-	#define DDR_SC_DET		DDRF
-	#define PIN_SC_DET		PINF
-	// Smart card program
-	#define PORTID_SC_PGM	PORTC6
-	#define PORT_SC_PGM		PORTC
-	#define DDR_SC_PGM		DDRC
-	// Smart card power enable
-	#define PORTID_SC_POW	PORTB4
-	#define PORT_SC_POW		PORTB
-	#define DDR_SC_POW		DDRB
-	// Smart card reset
-	#define PORTID_SC_RST	PORTE6
-	#define PORT_SC_RST		PORTE
-	#define DDR_SC_RST		DDRE
-	// OLED Data / Command
-	#define PORTID_OLED_DnC	PORTD7
-	#define PORT_OLED_DnC	PORTD
-	#define DDR_OLED_DnC	DDRD
-	// OLED Slave Select
-	#define PORTID_OLED_SS	PORTD6
-	#define PORT_OLED_SS	PORTD
-	#define DDR_OLED_SS		DDRD
-	// OLED reset
-	#define PORTID_OLED_nR	PORTD4
-	#define PORT_OLED_nR	PORTD
-	#define DDR_OLED_nR		DDRD
-	// Power enable to the OLED
-	#define PORTID_OLED_POW	PORTE2
-	#define PORT_OLED_POW	PORTE
-	#define DDR_OLED_POW	DDRE
+#ifdef  HARDWARE_OLIVIER_V1
+    // SPIs
+    #define SPI_SMARTCARD   SPI_NATIVE
+    #define SPI_FLASH       SPI_USART
+    #define SPI_OLED        SPI_USART
+    // Slave Select Flash
+    #define PORTID_FLASH_nS PORTB7
+    #define PORT_FLASH_nS   PORTB
+    #define DDR_FLASH_nS    DDRB
+    // Detect smart card
+    #define PORTID_SC_DET   PORTF5
+    #define PORT_SC_DET     PORTF
+    #define DDR_SC_DET      DDRF
+    #define PIN_SC_DET      PINF
+    // Smart card program
+    #define PORTID_SC_PGM   PORTC6
+    #define PORT_SC_PGM     PORTC
+    #define DDR_SC_PGM      DDRC
+    // Smart card power enable
+    #define PORTID_SC_POW   PORTB4
+    #define PORT_SC_POW     PORTB
+    #define DDR_SC_POW      DDRB
+    // Smart card reset
+    #define PORTID_SC_RST   PORTE6
+    #define PORT_SC_RST     PORTE
+    #define DDR_SC_RST      DDRE
+    // OLED Data / Command
+    #define PORTID_OLED_DnC PORTD7
+    #define PORT_OLED_DnC   PORTD
+    #define DDR_OLED_DnC    DDRD
+    // OLED Slave Select
+    #define PORTID_OLED_SS  PORTD6
+    #define PORT_OLED_SS    PORTD
+    #define DDR_OLED_SS     DDRD
+    // OLED reset
+    #define PORTID_OLED_nR  PORTD4
+    #define PORT_OLED_nR    PORTD
+    #define DDR_OLED_nR     DDRD
+    // Power enable to the OLED
+    #define PORTID_OLED_POW PORTE2
+    #define PORT_OLED_POW   PORTE
+    #define DDR_OLED_POW    DDRE
     // LED PWM
     #define PORTID_LED_PWM  PORTC7
     #define PORT_LED_PWM    PORTC

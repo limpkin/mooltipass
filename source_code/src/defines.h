@@ -30,7 +30,7 @@
 /**************** DEBUG PRINTFS ****************/
 // Used for smart card testing
 #define DEBUG_SMC_SCREEN_PRINT
-// Use for flash testing prints
+// Used for flash testing prints
 #define FLASH_TEST_DEBUG_OUTPUT_USB
 #define FLASH_TEST_DEBUG_OUTPUT_OLED
 

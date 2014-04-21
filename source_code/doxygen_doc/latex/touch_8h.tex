@@ -1,0 +1,147 @@
+\hypertarget{touch_8h}{\section{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+T\+O\+U\+C\+H/touch.h File Reference}
+\label{touch_8h}\index{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+T\+O\+U\+C\+H/touch.\+h@{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+T\+O\+U\+C\+H/touch.\+h}}
+}
+
+
+Touch sensing functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{touch_8h_a4b22ba2f26e18d7a0b9b8d91c9ff1cb8}{I2\+C\+\_\+\+S\+T\+A\+R\+T}~0x08
+\item 
+\hypertarget{touch_8h_a76185e3c73d6bb7e809e44272baaf3f7}{\#define {\bfseries I2\+C\+\_\+\+R\+S\+T\+A\+R\+T}~0x10}\label{touch_8h_a76185e3c73d6bb7e809e44272baaf3f7}
+
+\item 
+\hypertarget{touch_8h_a8cebc8b84065f19edc186f0d7051b59c}{\#define {\bfseries I2\+C\+\_\+\+S\+L\+A\+\_\+\+A\+C\+K}~0x18}\label{touch_8h_a8cebc8b84065f19edc186f0d7051b59c}
+
+\item 
+\hypertarget{touch_8h_a427873454c8d2a651a83d0f2e5a8c651}{\#define {\bfseries I2\+C\+\_\+\+S\+L\+A\+\_\+\+N\+A\+C\+K}~0x20}\label{touch_8h_a427873454c8d2a651a83d0f2e5a8c651}
+
+\item 
+\hypertarget{touch_8h_a4aef296414837656415bbaea80f7afdd}{\#define {\bfseries I2\+C\+\_\+\+S\+L\+A\+R\+\_\+\+A\+C\+K}~0x40}\label{touch_8h_a4aef296414837656415bbaea80f7afdd}
+
+\item 
+\hypertarget{touch_8h_af3620f4dfef03f98172e926ceacc43a0}{\#define {\bfseries I2\+C\+\_\+\+S\+L\+A\+R\+\_\+\+N\+A\+C\+K}~0x48}\label{touch_8h_af3620f4dfef03f98172e926ceacc43a0}
+
+\item 
+\hypertarget{touch_8h_adfcc2160f0dc9f355b9c692dcf7f87a1}{\#define {\bfseries I2\+C\+\_\+\+D\+A\+T\+A\+\_\+\+A\+C\+K}~0x28}\label{touch_8h_adfcc2160f0dc9f355b9c692dcf7f87a1}
+
+\item 
+\hypertarget{touch_8h_aa3fc910095d1b423ba5d6d25c4c3568f}{\#define {\bfseries I2\+C\+\_\+\+D\+A\+T\+A\+\_\+\+N\+A\+C\+K}~0x30}\label{touch_8h_aa3fc910095d1b423ba5d6d25c4c3568f}
+
+\item 
+\hypertarget{touch_8h_a3f814c5d76e9b7c2ec4e7f8e39ffda10}{\#define {\bfseries I2\+C\+\_\+\+D\+A\+T\+A\+R\+\_\+\+A\+C\+K}~0x50}\label{touch_8h_a3f814c5d76e9b7c2ec4e7f8e39ffda10}
+
+\item 
+\hypertarget{touch_8h_afaada44ceccc7171cbe4de802171c81d}{\#define {\bfseries I2\+C\+\_\+\+D\+A\+T\+A\+R\+\_\+\+N\+A\+C\+K}~0x58}\label{touch_8h_afaada44ceccc7171cbe4de802171c81d}
+
+\item 
+\hypertarget{touch_8h_a73fcacd1c489f588a9f4443742320040}{\#define {\bfseries I2\+C\+\_\+\+A\+R\+B\+\_\+\+E\+R\+R\+O\+R}~0x38}\label{touch_8h_a73fcacd1c489f588a9f4443742320040}
+
+\item 
+\#define \hyperlink{touch_8h_ae05b002a716752327a40ca999d82542f}{I2\+C\+\_\+\+S\+T\+A\+R\+T\+\_\+\+E\+R\+R\+O\+R}~R\+E\+T\+U\+R\+N\+\_\+\+O\+K -\/ 1
+\item 
+\hypertarget{touch_8h_a2b172f596f1d9e9dd97f2625b3fc023b}{\#define {\bfseries I2\+C\+\_\+\+S\+L\+A\+\_\+\+E\+R\+R\+O\+R}~R\+E\+T\+U\+R\+N\+\_\+\+O\+K -\/ 2}\label{touch_8h_a2b172f596f1d9e9dd97f2625b3fc023b}
+
+\item 
+\hypertarget{touch_8h_a1136261f85a085feb971e1d9d21bdc51}{\#define {\bfseries I2\+C\+\_\+\+D\+A\+T\+A\+\_\+\+E\+R\+R\+O\+R}~R\+E\+T\+U\+R\+N\+\_\+\+O\+K -\/ 3}\label{touch_8h_a1136261f85a085feb971e1d9d21bdc51}
+
+\item 
+\hypertarget{touch_8h_a185c78927cb8320a47a5b844cf6ca69d}{\#define {\bfseries I2\+C\+\_\+\+R\+S\+T\+A\+R\+T\+\_\+\+E\+R\+R}~R\+E\+T\+U\+R\+N\+\_\+\+O\+K -\/ 4}\label{touch_8h_a185c78927cb8320a47a5b844cf6ca69d}
+
+\item 
+\hypertarget{touch_8h_afe0c1948cfb33e55aabf544882f53c12}{\#define {\bfseries I2\+C\+\_\+\+S\+L\+A\+R\+\_\+\+E\+R\+R\+O\+R}~R\+E\+T\+U\+R\+N\+\_\+\+O\+K -\/ 5}\label{touch_8h_afe0c1948cfb33e55aabf544882f53c12}
+
+\item 
+\hypertarget{touch_8h_a9dc3db66d8a8613a378dee2495bcf5d1}{\#define \hyperlink{touch_8h_a9dc3db66d8a8613a378dee2495bcf5d1}{start\+\_\+condition}()~(T\+W\+C\+R = (1$<$$<$T\+W\+I\+N\+T)$\vert$(1$<$$<$T\+W\+S\+T\+A)$\vert$(1$<$$<$T\+W\+E\+N))}\label{touch_8h_a9dc3db66d8a8613a378dee2495bcf5d1}
+
+\begin{DoxyCompactList}\small\item\em Generate start condition. \end{DoxyCompactList}\item 
+\hypertarget{touch_8h_a49e226c50a55019d8d837f295e48f802}{\#define \hyperlink{touch_8h_a49e226c50a55019d8d837f295e48f802}{stop\+\_\+condition}()~(T\+W\+C\+R = (1$<$$<$T\+W\+I\+N\+T)$\vert$(1$<$$<$T\+W\+E\+N)$\vert$(1$<$$<$T\+W\+S\+T\+O))}\label{touch_8h_a49e226c50a55019d8d837f295e48f802}
+
+\begin{DoxyCompactList}\small\item\em Generate stop condition. \end{DoxyCompactList}\item 
+\hypertarget{touch_8h_a506adc0207a838a99470758b9f42cedd}{\#define \hyperlink{touch_8h_a506adc0207a838a99470758b9f42cedd}{clear\+\_\+twint\+\_\+flag}()~(T\+W\+C\+R = (1$<$$<$T\+W\+I\+N\+T) $\vert$ (1$<$$<$T\+W\+E\+N))}\label{touch_8h_a506adc0207a838a99470758b9f42cedd}
+
+\begin{DoxyCompactList}\small\item\em Clear T\+W\+I\+N\+T flag. \end{DoxyCompactList}\item 
+\hypertarget{touch_8h_a1d24fca23df0529dedeffb2cf140c286}{\#define \hyperlink{touch_8h_a1d24fca23df0529dedeffb2cf140c286}{acknowledge\+\_\+data}()~(T\+W\+C\+R = (1$<$$<$T\+W\+I\+N\+T) $\vert$ (1$<$$<$T\+W\+E\+N) $\vert$ (1 $<$$<$ T\+W\+E\+A))}\label{touch_8h_a1d24fca23df0529dedeffb2cf140c286}
+
+\begin{DoxyCompactList}\small\item\em Acknowledge received data, ask for a new one. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{touch_8h_acc4d072c95ef7c3e2bbdb84bc8bbc93b}{read\+Data\+From\+T\+S} (uint8\+\_\+t addr, uint8\+\_\+t reg, uint8\+\_\+t $\ast$data)
+\begin{DoxyCompactList}\small\item\em Write a byte inside the A\+T42\+Q\+T2120. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{touch_8h_a5ccdb9ac21f909081573f4815a8f6751}{write\+Data\+To\+T\+S} (uint8\+\_\+t addr, uint8\+\_\+t reg, uint8\+\_\+t data)
+\begin{DoxyCompactList}\small\item\em Write a byte inside the A\+T42\+Q\+T2120. \end{DoxyCompactList}\item 
+\hypertarget{touch_8h_a3111043ca7a6ca68d0609e63c4ca4893}{void \hyperlink{touch_8h_a3111043ca7a6ca68d0609e63c4ca4893}{init\+I2c\+Port} (void)}\label{touch_8h_a3111043ca7a6ca68d0609e63c4ca4893}
+
+\begin{DoxyCompactList}\small\item\em Initialize ports \& i2c controller. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Touch sensing functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+
+
+
+\subsection{Macro Definition Documentation}
+\hypertarget{touch_8h_a4b22ba2f26e18d7a0b9b8d91c9ff1cb8}{\index{touch.\+h@{touch.\+h}!I2\+C\+\_\+\+S\+T\+A\+R\+T@{I2\+C\+\_\+\+S\+T\+A\+R\+T}}
+\index{I2\+C\+\_\+\+S\+T\+A\+R\+T@{I2\+C\+\_\+\+S\+T\+A\+R\+T}!touch.\+h@{touch.\+h}}
+\subsubsection[{I2\+C\+\_\+\+S\+T\+A\+R\+T}]{\setlength{\rightskip}{0pt plus 5cm}\#define I2\+C\+\_\+\+S\+T\+A\+R\+T~0x08}}\label{touch_8h_a4b22ba2f26e18d7a0b9b8d91c9ff1cb8}
+I2\+C controller defines \hypertarget{touch_8h_ae05b002a716752327a40ca999d82542f}{\index{touch.\+h@{touch.\+h}!I2\+C\+\_\+\+S\+T\+A\+R\+T\+\_\+\+E\+R\+R\+O\+R@{I2\+C\+\_\+\+S\+T\+A\+R\+T\+\_\+\+E\+R\+R\+O\+R}}
+\index{I2\+C\+\_\+\+S\+T\+A\+R\+T\+\_\+\+E\+R\+R\+O\+R@{I2\+C\+\_\+\+S\+T\+A\+R\+T\+\_\+\+E\+R\+R\+O\+R}!touch.\+h@{touch.\+h}}
+\subsubsection[{I2\+C\+\_\+\+S\+T\+A\+R\+T\+\_\+\+E\+R\+R\+O\+R}]{\setlength{\rightskip}{0pt plus 5cm}\#define I2\+C\+\_\+\+S\+T\+A\+R\+T\+\_\+\+E\+R\+R\+O\+R~R\+E\+T\+U\+R\+N\+\_\+\+O\+K -\/ 1}}\label{touch_8h_ae05b002a716752327a40ca999d82542f}
+I2\+C errors defines 
+
+\subsection{Function Documentation}
+\hypertarget{touch_8h_acc4d072c95ef7c3e2bbdb84bc8bbc93b}{\index{touch.\+h@{touch.\+h}!read\+Data\+From\+T\+S@{read\+Data\+From\+T\+S}}
+\index{read\+Data\+From\+T\+S@{read\+Data\+From\+T\+S}!touch.\+h@{touch.\+h}}
+\subsubsection[{read\+Data\+From\+T\+S}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+P\+E read\+Data\+From\+T\+S (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{addr, }
+\item[{uint8\+\_\+t}]{reg, }
+\item[{uint8\+\_\+t $\ast$}]{data}
+\end{DoxyParamCaption}
+)}}\label{touch_8h_acc4d072c95ef7c3e2bbdb84bc8bbc93b}
+
+
+Write a byte inside the A\+T42\+Q\+T2120. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The chip address \\
+\hline
+{\em reg} & The register address \\
+\hline
+{\em data} & uint8\+\_\+t pointer in which we write the data \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+O\+K if everything is alright, the pb code otherwise 
+\end{DoxyReturn}
+\hypertarget{touch_8h_a5ccdb9ac21f909081573f4815a8f6751}{\index{touch.\+h@{touch.\+h}!write\+Data\+To\+T\+S@{write\+Data\+To\+T\+S}}
+\index{write\+Data\+To\+T\+S@{write\+Data\+To\+T\+S}!touch.\+h@{touch.\+h}}
+\subsubsection[{write\+Data\+To\+T\+S}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+P\+E write\+Data\+To\+T\+S (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{addr, }
+\item[{uint8\+\_\+t}]{reg, }
+\item[{uint8\+\_\+t}]{data}
+\end{DoxyParamCaption}
+)}}\label{touch_8h_a5ccdb9ac21f909081573f4815a8f6751}
+
+
+Write a byte inside the A\+T42\+Q\+T2120. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The chip address \\
+\hline
+{\em reg} & The register address \\
+\hline
+{\em data} & The data to write \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+O\+K if everything is alright, the pb code otherwise 
+\end{DoxyReturn}

@@ -1,0 +1,299 @@
+\hypertarget{flash__mem_8h}{\section{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+mem.h File Reference}
+\label{flash__mem_8h}\index{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+mem.\+h@{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+mem.\+h}}
+}
+
+
+Mooltipass Flash I\+C Library Header Created\+: 31/3/2014 Author\+: Michael Neiderhauser.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{flash__mem_8h_a978227c0201db5a8ea615bddf743a68b}{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T}~66
+\item 
+\hypertarget{flash__mem_8h_a92c893d44102d40998f15c3ee413aa06}{\#define {\bfseries N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+C\+H\+I\+L\+D}~132}\label{flash__mem_8h_a92c893d44102d40998f15c3ee413aa06}
+
+\item 
+\hypertarget{flash__mem_8h_adaee482879fdcd7032f9d405fcb0d731}{\#define {\bfseries N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+D\+A\+T\+A}~132}\label{flash__mem_8h_adaee482879fdcd7032f9d405fcb0d731}
+
+\item 
+\hypertarget{flash__mem_8h_a4425e416dc5eb4dbf67851dc7fc9bc10}{\#define {\bfseries N\+O\+D\+E\+\_\+\+T\+Y\+P\+E\+\_\+\+P\+A\+R\+E\+N\+T}~0}\label{flash__mem_8h_a4425e416dc5eb4dbf67851dc7fc9bc10}
+
+\item 
+\hypertarget{flash__mem_8h_a307ddef1cdf5205a612127624d535afa}{\#define {\bfseries N\+O\+D\+E\+\_\+\+T\+Y\+P\+E\+\_\+\+C\+H\+I\+L\+D}~1}\label{flash__mem_8h_a307ddef1cdf5205a612127624d535afa}
+
+\item 
+\hypertarget{flash__mem_8h_a576e10bab6b2970a7207ca725c5d96ac}{\#define {\bfseries N\+O\+D\+E\+\_\+\+T\+Y\+P\+E\+\_\+\+C\+H\+I\+L\+D\+\_\+\+D\+A\+T\+A}~2}\label{flash__mem_8h_a576e10bab6b2970a7207ca725c5d96ac}
+
+\item 
+\hypertarget{flash__mem_8h_ade282b9359d84555a20bdd8537cad60e}{\#define {\bfseries N\+O\+D\+E\+\_\+\+T\+Y\+P\+E\+\_\+\+D\+A\+T\+A}~3}\label{flash__mem_8h_ade282b9359d84555a20bdd8537cad60e}
+
+\item 
+\hypertarget{flash__mem_8h_a3fa06d38b5f081c98b5caab2d8ff577b}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+C\+H\+I\+P\+\_\+1\+M}~1}\label{flash__mem_8h_a3fa06d38b5f081c98b5caab2d8ff577b}
+
+\item 
+\hypertarget{flash__mem_8h_ae4ead16d4c4d5523371eccaf5d88187d}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+C\+H\+I\+P\+\_\+2\+M}~2}\label{flash__mem_8h_ae4ead16d4c4d5523371eccaf5d88187d}
+
+\item 
+\hypertarget{flash__mem_8h_a1f4bb1f2c1a43a7ee89681cf5290bd1f}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+C\+H\+I\+P\+\_\+4\+M}~4}\label{flash__mem_8h_a1f4bb1f2c1a43a7ee89681cf5290bd1f}
+
+\item 
+\hypertarget{flash__mem_8h_ae54c1ac656d8fe0b2b5c711ce5190756}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+C\+H\+I\+P\+\_\+8\+M}~8}\label{flash__mem_8h_ae54c1ac656d8fe0b2b5c711ce5190756}
+
+\item 
+\hypertarget{flash__mem_8h_a35b147a921b97962c0c856831339b23e}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+C\+H\+I\+P\+\_\+16\+M}~16}\label{flash__mem_8h_a35b147a921b97962c0c856831339b23e}
+
+\item 
+\hypertarget{flash__mem_8h_aae2b337fc6a34ca57775e470f8552fa3}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+C\+H\+I\+P\+\_\+32\+M}~32}\label{flash__mem_8h_aae2b337fc6a34ca57775e470f8552fa3}
+
+\item 
+\hypertarget{flash__mem_8h_a0464e5dd23c640bc6d235effd6c76a58}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+C\+H\+I\+P}~F\+L\+A\+S\+H\+\_\+\+C\+H\+I\+P\+\_\+1\+M}\label{flash__mem_8h_a0464e5dd23c640bc6d235effd6c76a58}
+
+\item 
+\hypertarget{flash__mem_8h_a1e55e5368987106d35b3e824cd63a828}{\#define {\bfseries M\+A\+N\+\_\+\+F\+A\+M\+\_\+\+D\+E\+N\+\_\+\+V\+A\+L}~0x22}\label{flash__mem_8h_a1e55e5368987106d35b3e824cd63a828}
+
+\item 
+\hypertarget{flash__mem_8h_a782f22e23dde7fc39ed8d5e1f4c9b141}{\#define {\bfseries P\+A\+G\+E\+\_\+\+C\+O\+U\+N\+T}~512}\label{flash__mem_8h_a782f22e23dde7fc39ed8d5e1f4c9b141}
+
+\item 
+\hypertarget{flash__mem_8h_a2b520a0a219bb124f24412ed000c323c}{\#define {\bfseries B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E}~264}\label{flash__mem_8h_a2b520a0a219bb124f24412ed000c323c}
+
+\item 
+\hypertarget{flash__mem_8h_a00570fe4a3b381e6b1996f01051a59ff}{\#define {\bfseries M\+A\+P\+\_\+\+B\+Y\+T\+E\+S}~192}\label{flash__mem_8h_a00570fe4a3b381e6b1996f01051a59ff}
+
+\item 
+\hypertarget{flash__mem_8h_a568a76519b998af86e48274e3c4db2af}{\#define {\bfseries M\+A\+P\+\_\+\+P\+A\+G\+E\+S}~1}\label{flash__mem_8h_a568a76519b998af86e48274e3c4db2af}
+
+\item 
+\hypertarget{flash__mem_8h_a4c57012e3f032b1b6ecc8a150e74ba4a}{\#define {\bfseries N\+O\+D\+E\+\_\+\+P\+A\+R\+E\+N\+T\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E}~4}\label{flash__mem_8h_a4c57012e3f032b1b6ecc8a150e74ba4a}
+
+\item 
+\hypertarget{flash__mem_8h_a8b7771bbb0e029e9200b3a7ec9816204}{\#define {\bfseries B\+L\+O\+C\+K\+\_\+\+C\+O\+U\+N\+T}~64}\label{flash__mem_8h_a8b7771bbb0e029e9200b3a7ec9816204}
+
+\item 
+\hypertarget{flash__mem_8h_a615d8c9be2e238ad894f70350f5e75e8}{\#define {\bfseries S\+E\+C\+T\+O\+R\+\_\+\+S\+T\+A\+R\+T}~1}\label{flash__mem_8h_a615d8c9be2e238ad894f70350f5e75e8}
+
+\item 
+\hypertarget{flash__mem_8h_a61ab37a308e16a6b4e2b5adf691eb1fc}{\#define {\bfseries S\+E\+C\+T\+O\+R\+\_\+\+E\+N\+D}~3}\label{flash__mem_8h_a61ab37a308e16a6b4e2b5adf691eb1fc}
+
+\item 
+\hypertarget{flash__mem_8h_a2494f21e4797c699def86fbbbd858fb1}{\#define {\bfseries P\+A\+G\+E\+\_\+\+P\+E\+R\+\_\+\+S\+E\+C\+T\+O\+R}~128}\label{flash__mem_8h_a2494f21e4797c699def86fbbbd858fb1}
+
+\item 
+\hypertarget{flash__mem_8h_af3b374719f74826ac8222c43a2b60d66}{\#define {\bfseries S\+E\+C\+T\+O\+R\+\_\+\+E\+R\+A\+S\+E\+\_\+0\+\_\+\+S\+H\+T\+\_\+\+A\+M\+T}~12}\label{flash__mem_8h_af3b374719f74826ac8222c43a2b60d66}
+
+\item 
+\hypertarget{flash__mem_8h_af772c3b759f90e2ddc0524d6c0052ace}{\#define {\bfseries S\+E\+C\+T\+O\+R\+\_\+\+E\+R\+A\+S\+E\+\_\+\+N\+\_\+\+S\+H\+T\+\_\+\+A\+M\+T}~16}\label{flash__mem_8h_af772c3b759f90e2ddc0524d6c0052ace}
+
+\item 
+\hypertarget{flash__mem_8h_a2203c8d269e36aa0a320c945bf48b0c4}{\#define {\bfseries B\+L\+O\+C\+K\+\_\+\+E\+R\+A\+S\+E\+\_\+\+S\+H\+T\+\_\+\+A\+M\+T}~12}\label{flash__mem_8h_a2203c8d269e36aa0a320c945bf48b0c4}
+
+\item 
+\hypertarget{flash__mem_8h_ab915facf810d4100479718c800131475}{\#define {\bfseries P\+A\+G\+E\+\_\+\+E\+R\+A\+S\+E\+\_\+\+S\+H\+T\+\_\+\+A\+M\+T}~9}\label{flash__mem_8h_ab915facf810d4100479718c800131475}
+
+\item 
+\hypertarget{flash__mem_8h_a4b57513184cb22edee4407e4d48789bf}{\#define {\bfseries W\+R\+I\+T\+E\+\_\+\+S\+H\+T\+\_\+\+A\+M\+T}~9}\label{flash__mem_8h_a4b57513184cb22edee4407e4d48789bf}
+
+\item 
+\hypertarget{flash__mem_8h_a02e1796a2379435ebcaa7c58c703ce28}{\#define {\bfseries R\+E\+A\+D\+\_\+\+O\+F\+F\+S\+E\+T\+\_\+\+S\+H\+T\+\_\+\+A\+M\+T}~9}\label{flash__mem_8h_a02e1796a2379435ebcaa7c58c703ce28}
+
+\item 
+\hypertarget{flash__mem_8h_a4b6d8740dc63c8c7339f8c2ba7b1224d}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+M\+A\+N\+U\+F\+\_\+\+I\+D}~0x1\+F}\label{flash__mem_8h_a4b6d8740dc63c8c7339f8c2ba7b1224d}
+
+\item 
+\hypertarget{flash__mem_8h_a34e690500681e70d90a216e264c4b1ba}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+O\+P\+C\+O\+D\+E\+\_\+\+S\+E\+C\+T\+O\+R\+\_\+\+E\+R\+A\+S\+E}~0x7\+C}\label{flash__mem_8h_a34e690500681e70d90a216e264c4b1ba}
+
+\item 
+\hypertarget{flash__mem_8h_ad841d28db5ff017d32df19ac6540ae52}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+O\+P\+C\+O\+D\+E\+\_\+\+B\+L\+O\+C\+K\+\_\+\+E\+R\+A\+S\+E}~0x50}\label{flash__mem_8h_ad841d28db5ff017d32df19ac6540ae52}
+
+\item 
+\hypertarget{flash__mem_8h_aadd53e6ff5071c36cb85a3d02b53a750}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+O\+P\+C\+O\+D\+E\+\_\+\+P\+A\+G\+E\+\_\+\+E\+R\+A\+S\+E}~0x81}\label{flash__mem_8h_aadd53e6ff5071c36cb85a3d02b53a750}
+
+\item 
+\hypertarget{flash__mem_8h_a3b724068c4e03f77c32ac60d15daebb2}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+O\+P\+C\+O\+D\+E\+\_\+\+R\+E\+A\+D\+\_\+\+S\+T\+A\+T\+\_\+\+R\+E\+G}~0x\+D7}\label{flash__mem_8h_a3b724068c4e03f77c32ac60d15daebb2}
+
+\item 
+\hypertarget{flash__mem_8h_a480a14b02cfb1fb1e3d3703eef99bcd6}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+O\+P\+C\+O\+D\+E\+\_\+\+M\+A\+I\+N\+P\+\_\+\+T\+O\+\_\+\+B\+U\+F}~0x53}\label{flash__mem_8h_a480a14b02cfb1fb1e3d3703eef99bcd6}
+
+\item 
+\hypertarget{flash__mem_8h_a5c183fba90ee25bc628cecad80747243}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+O\+P\+C\+O\+D\+E\+\_\+\+M\+M\+P\+\_\+\+P\+R\+O\+G\+\_\+\+T\+B\+U\+F}~0x82}\label{flash__mem_8h_a5c183fba90ee25bc628cecad80747243}
+
+\item 
+\hypertarget{flash__mem_8h_ac65ac65c9d28a70dec06329d3093125d}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+O\+P\+C\+O\+D\+E\+\_\+\+L\+O\+W\+F\+\_\+\+R\+E\+A\+D}~0x03}\label{flash__mem_8h_ac65ac65c9d28a70dec06329d3093125d}
+
+\item 
+\hypertarget{flash__mem_8h_a5e88558728bd17f16447e5d268ab5470}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+O\+P\+C\+O\+D\+E\+\_\+\+R\+E\+A\+D\+\_\+\+D\+E\+V\+\_\+\+I\+N\+F\+O}~0x9\+F}\label{flash__mem_8h_a5e88558728bd17f16447e5d268ab5470}
+
+\item 
+\hypertarget{flash__mem_8h_a2d14ceb2eb12df58dff5253a86c9cb7e}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+R\+E\+A\+D\+Y\+\_\+\+B\+I\+T\+M\+A\+S\+K}~0x80}\label{flash__mem_8h_a2d14ceb2eb12df58dff5253a86c9cb7e}
+
+\item 
+\hypertarget{flash__mem_8h_a31ea9f82d6006922b0bf370d61090edf}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+S\+E\+C\+T\+O\+R\+\_\+\+Z\+E\+R0\+\_\+\+A\+\_\+\+P\+A\+G\+E\+S}~8}\label{flash__mem_8h_a31ea9f82d6006922b0bf370d61090edf}
+
+\item 
+\hypertarget{flash__mem_8h_a0838fe8b045fc3e992c4718982d2ac4b}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+S\+E\+C\+T\+O\+R\+\_\+\+Z\+E\+R\+O\+\_\+\+A\+\_\+\+C\+O\+D\+E}~0}\label{flash__mem_8h_a0838fe8b045fc3e992c4718982d2ac4b}
+
+\item 
+\hypertarget{flash__mem_8h_ab0042ada6ac2aefeafd13135ccb628cd}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+S\+E\+C\+T\+O\+R\+\_\+\+Z\+E\+R\+O\+\_\+\+B\+\_\+\+C\+O\+D\+E}~1}\label{flash__mem_8h_ab0042ada6ac2aefeafd13135ccb628cd}
+
+\item 
+\hypertarget{flash__mem_8h_a2797c9fd58c7c22c8ff1c7903435f8a0}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+N\+O\+D\+E\+\_\+\+M\+E\+T\+A\+\_\+\+D\+A\+T\+A}~0}\label{flash__mem_8h_a2797c9fd58c7c22c8ff1c7903435f8a0}
+
+\item 
+\hypertarget{flash__mem_8h_a21e0551eac91d626fd520087911bb2c3}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+N\+O\+D\+E\+\_\+\+M\+A\+P\+\_\+\+S\+T\+A\+R\+T}~2}\label{flash__mem_8h_a21e0551eac91d626fd520087911bb2c3}
+
+\item 
+\hypertarget{flash__mem_8h_a64f441a35901098be30401f2c4ec51bb}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+N\+O\+D\+E\+\_\+\+M\+A\+P\+\_\+\+E\+N\+D}~(F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+N\+O\+D\+E\+\_\+\+M\+A\+P\+\_\+\+S\+T\+A\+R\+T + M\+A\+P\+\_\+\+P\+A\+G\+E\+S)}\label{flash__mem_8h_a64f441a35901098be30401f2c4ec51bb}
+
+\item 
+\hypertarget{flash__mem_8h_af114880edd2318b71245adabb1507b6a}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+G\+F\+X\+\_\+\+S\+T\+A\+R\+T}~(F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+N\+O\+D\+E\+\_\+\+M\+A\+P\+\_\+\+E\+N\+D + 1)}\label{flash__mem_8h_af114880edd2318b71245adabb1507b6a}
+
+\item 
+\hypertarget{flash__mem_8h_acc4cde14139850e5cc040da1692d2b42}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+G\+F\+X\+\_\+\+E\+N\+D}~(P\+A\+G\+E\+\_\+\+P\+E\+R\+\_\+\+S\+E\+C\+T\+O\+R)}\label{flash__mem_8h_acc4cde14139850e5cc040da1692d2b42}
+
+\item 
+\hypertarget{flash__mem_8h_a50ba967d3b637b6c5c8b35305e3f48e0}{\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+G\+F\+X\+\_\+\+S\+I\+Z\+E}~(F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+G\+F\+X\+\_\+\+E\+N\+D -\/ F\+L\+A\+S\+H\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+P\+P\+I\+N\+G\+\_\+\+G\+F\+X\+\_\+\+S\+T\+A\+R\+T)}\label{flash__mem_8h_a50ba967d3b637b6c5c8b35305e3f48e0}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{flash__mem_8h_aa58e16776fe4909cffdcd269c30383bc}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries send\+Data\+To\+Flash} (uint8\+\_\+t opcode\+Size, void $\ast$opcode, uint16\+\_\+t buffer\+Size, void $\ast$buffer)}\label{flash__mem_8h_aa58e16776fe4909cffdcd269c30383bc}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8h_a947a8a96ac11b7a09578856fb33a3147}{wait\+For\+Flash} (void)
+\begin{DoxyCompactList}\small\item\em Wait for the flash to be ready (poll status register) \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8h_a23152d785146fd401f60e95e9a4e02d7}{check\+Flash\+I\+D} (void)
+\begin{DoxyCompactList}\small\item\em Check the presence of the flash (manf info) \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8h_a5bf4821e97c58f0d68e4470d6cd4a0af}{init\+Flash} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the flash memory (Sets up S\+P\+I) \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8h_a56fbac18c03bb02de7ccaa56e74e3c7e}{sector\+Zero\+Erase} (uint8\+\_\+t sector\+Number)
+\begin{DoxyCompactList}\small\item\em Deletes sub-\/section of sector 0\+X (see datasheet) \end{DoxyCompactList}\item 
+\hypertarget{flash__mem_8h_a2077f00817a9a75b9c20056fcdb388ce}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries sector\+Erase} (uint8\+\_\+t sector\+Number)}\label{flash__mem_8h_a2077f00817a9a75b9c20056fcdb388ce}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8h_a86c64c5abc55a361e084e2bdec8ae304}{block\+Erase} (uint16\+\_\+t block\+Number)
+\begin{DoxyCompactList}\small\item\em Erases a block of flash memory (see datasheet) \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8h_a77805f83c9a1abb8d80dd015df2c6fbf}{page\+Erase} (uint16\+\_\+t page\+Number)
+\begin{DoxyCompactList}\small\item\em Erases a page of flash memory (see datasheet) \end{DoxyCompactList}\item 
+\hypertarget{flash__mem_8h_a4386898d9384e4a0f4252e87dda60ddc}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries write\+Data\+To\+Flash} (uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)}\label{flash__mem_8h_a4386898d9384e4a0f4252e87dda60ddc}
+
+\item 
+\hypertarget{flash__mem_8h_a564706fa7a89ff4c63f1da38033865ac}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries read\+Data\+From\+Flash} (uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)}\label{flash__mem_8h_a564706fa7a89ff4c63f1da38033865ac}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Mooltipass Flash I\+C Library Header Created\+: 31/3/2014 Author\+: Michael Neiderhauser. 
+
+
+
+\subsection{Macro Definition Documentation}
+\hypertarget{flash__mem_8h_a978227c0201db5a8ea615bddf743a68b}{\index{flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}!N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T@{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T}}
+\index{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T@{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T}!flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}}
+\subsubsection[{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T~66}}\label{flash__mem_8h_a978227c0201db5a8ea615bddf743a68b}
+D\+E\+F\+I\+N\+E\+S F\+L\+A\+S\+H D\+E\+F\+I\+N\+E\+S N\+O\+D\+E\+S 
+
+\subsection{Function Documentation}
+\hypertarget{flash__mem_8h_a86c64c5abc55a361e084e2bdec8ae304}{\index{flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}!block\+Erase@{block\+Erase}}
+\index{block\+Erase@{block\+Erase}!flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}}
+\subsubsection[{block\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+P\+E block\+Erase (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{block\+Number}
+\end{DoxyParamCaption}
+)}}\label{flash__mem_8h_a86c64c5abc55a361e084e2bdec8ae304}
+
+
+Erases a block of flash memory (see datasheet) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em block\+Number} & The block number in flash to erase \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if parameters are out of range. Otherwise will return R\+E\+T\+U\+R\+N\+\_\+\+O\+K. 
+\end{DoxyReturn}
+\hypertarget{flash__mem_8h_a23152d785146fd401f60e95e9a4e02d7}{\index{flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}!check\+Flash\+I\+D@{check\+Flash\+I\+D}}
+\index{check\+Flash\+I\+D@{check\+Flash\+I\+D}!flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}}
+\subsubsection[{check\+Flash\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+P\+E check\+Flash\+I\+D (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}\label{flash__mem_8h_a23152d785146fd401f60e95e9a4e02d7}
+
+
+Check the presence of the flash (manf info) 
+
+\begin{DoxyReturn}{Returns}
+Success status 
+\end{DoxyReturn}
+\hypertarget{flash__mem_8h_a5bf4821e97c58f0d68e4470d6cd4a0af}{\index{flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}!init\+Flash@{init\+Flash}}
+\index{init\+Flash@{init\+Flash}!flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}}
+\subsubsection[{init\+Flash}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+P\+E init\+Flash (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}\label{flash__mem_8h_a5bf4821e97c58f0d68e4470d6cd4a0af}
+
+
+Initialize the flash memory (Sets up S\+P\+I) 
+
+\begin{DoxyReturn}{Returns}
+Success status\+D\+D 
+\end{DoxyReturn}
+\hypertarget{flash__mem_8h_a77805f83c9a1abb8d80dd015df2c6fbf}{\index{flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}!page\+Erase@{page\+Erase}}
+\index{page\+Erase@{page\+Erase}!flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}}
+\subsubsection[{page\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+P\+E page\+Erase (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{page\+Number}
+\end{DoxyParamCaption}
+)}}\label{flash__mem_8h_a77805f83c9a1abb8d80dd015df2c6fbf}
+
+
+Erases a page of flash memory (see datasheet) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em page\+Number} & The page number if flash to erase \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if parameters are out of range. Otherwise will return R\+E\+T\+U\+R\+N\+\_\+\+O\+K. 
+\end{DoxyReturn}
+\hypertarget{flash__mem_8h_a56fbac18c03bb02de7ccaa56e74e3c7e}{\index{flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}!sector\+Zero\+Erase@{sector\+Zero\+Erase}}
+\index{sector\+Zero\+Erase@{sector\+Zero\+Erase}!flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}}
+\subsubsection[{sector\+Zero\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+P\+E sector\+Zero\+Erase (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{sector\+Number}
+\end{DoxyParamCaption}
+)}}\label{flash__mem_8h_a56fbac18c03bb02de7ccaa56e74e3c7e}
+
+
+Deletes sub-\/section of sector 0\+X (see datasheet) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sector\+Number} & The sub-\/section of sector 0 to erase (0 for 0a, 1 for 0b) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if sector\+Number is not 0 or 1 
+\end{DoxyReturn}
+\hypertarget{flash__mem_8h_a947a8a96ac11b7a09578856fb33a3147}{\index{flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}!wait\+For\+Flash@{wait\+For\+Flash}}
+\index{wait\+For\+Flash@{wait\+For\+Flash}!flash\+\_\+mem.\+h@{flash\+\_\+mem.\+h}}
+\subsubsection[{wait\+For\+Flash}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+P\+E wait\+For\+Flash (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}\label{flash__mem_8h_a947a8a96ac11b7a09578856fb33a3147}
+
+
+Wait for the flash to be ready (poll status register) 
+
+\begin{DoxyReturn}{Returns}
+Success status 
+\end{DoxyReturn}

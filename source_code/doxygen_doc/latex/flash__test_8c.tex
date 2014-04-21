@@ -1,0 +1,239 @@
+\hypertarget{flash__test_8c}{\section{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+test.c File Reference}
+\label{flash__test_8c}\index{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+test.\+c@{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+test.\+c}}
+}
+
+
+Mooltipass Flash I\+C Library Test Functions Created\+: 31/3/2014 Author\+: Michael Neiderhauser.  
+
+
+{\ttfamily \#include \char`\"{}../mooltipass.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}../defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}../\+F\+L\+A\+S\+H/flash\+\_\+mem.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oledmp.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb\+\_\+serial\+\_\+hid.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}flash\+\_\+test.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+{\ttfamily \#include $<$avr/io.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include $<$util/delay.\+h$>$}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{flash__test_8c_a52033c01e5f93df36ece5634fbbd1cfe}{init\+Buffer} (uint8\+\_\+t $\ast$buffer, uint16\+\_\+t buffer\+Size, uint8\+\_\+t policy)
+\begin{DoxyCompactList}\small\item\em A helper function that populates a buffer. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__test_8c_a825242537e4fb6490e28fe0d87161f6b}{flash\+Init\+Test} ()
+\begin{DoxyCompactList}\small\item\em A Testing wrapper that tests flash init (reading manf id's) T\+H\+I\+S T\+E\+S\+T M\+U\+S\+T B\+E R\+U\+N -\/$>$ Sets up S\+P\+I. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__test_8c_a7e0002ca7fbfefed8e480ff6b842ba9c}{flash\+Write\+Read\+Test} (uint8\+\_\+t $\ast$buffer\+In, uint8\+\_\+t $\ast$buffer\+Out, uint16\+\_\+t buffer\+Size)
+\begin{DoxyCompactList}\small\item\em A Testing wrapper that tests page write, and page read. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__test_8c_a5d02757412b04bd353a2af39e1aeaf2f}{flash\+Write\+Read\+Offset\+Test} (uint8\+\_\+t $\ast$buffer\+In, uint8\+\_\+t $\ast$buffer\+Out, uint16\+\_\+t buffer\+Size)
+\begin{DoxyCompactList}\small\item\em A Testing wrapper that tests page write, and page read. Uses buffer\+Size / N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T for offset calculation. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__test_8c_a3284ec27528274fdbe9fd42b980c3062}{flash\+Erase\+Page\+Test} (uint8\+\_\+t $\ast$buffer\+In, uint8\+\_\+t $\ast$buffer\+Out, uint16\+\_\+t buffer\+Size)
+\begin{DoxyCompactList}\small\item\em A Testing wrapper that tests erasing all pages in flash. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__test_8c_aa58f85c782c5144f60aa90de028f8ef8}{flash\+Erase\+Block\+Test} (uint8\+\_\+t $\ast$buffer\+In, uint8\+\_\+t $\ast$buffer\+Out, uint16\+\_\+t buffer\+Size)
+\begin{DoxyCompactList}\small\item\em A Testing wrapper that tests erasing all blocks in flash. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__test_8c_a94d258639fe36017f579197e854434c0}{flash\+Erase\+Sector\+X\+Test} (uint8\+\_\+t $\ast$buffer\+In, uint8\+\_\+t $\ast$buffer\+Out, uint16\+\_\+t buffer\+Size)
+\begin{DoxyCompactList}\small\item\em A Testing wrapper that tests erasing S\+E\+C\+T\+O\+R\+\_\+\+S\+T\+A\+R\+T through S\+E\+C\+T\+O\+R\+\_\+\+E\+N\+D. \end{DoxyCompactList}\item 
+\hypertarget{flash__test_8c_a7673dd5cd2d6c44e72afaa4c6db0746c}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries flash\+Erase\+Sector\+Zero\+Test} (uint8\+\_\+t $\ast$buffer\+In, uint8\+\_\+t $\ast$buffer\+Out, uint16\+\_\+t buffer\+Size)}\label{flash__test_8c_a7673dd5cd2d6c44e72afaa4c6db0746c}
+
+\item 
+\hypertarget{flash__test_8c_a532ebaf3622d1926a865d04cd59816e2}{void \hyperlink{flash__test_8c_a532ebaf3622d1926a865d04cd59816e2}{display\+Init\+For\+Test} ()}\label{flash__test_8c_a532ebaf3622d1926a865d04cd59816e2}
+
+\begin{DoxyCompactList}\small\item\em Init O\+L\+E\+D S\+C\+R\+E\+E\+N per test. \end{DoxyCompactList}\item 
+void \hyperlink{flash__test_8c_ab1073406531b134560a7b65a4abf2fca}{display\+R\+W\+Code} (R\+E\+T\+\_\+\+T\+Y\+P\+E ret)
+\begin{DoxyCompactList}\small\item\em display Read/\+Write Return Code \end{DoxyCompactList}\item 
+\hypertarget{flash__test_8c_a4a44819ce53d7e66ed00def3aa029129}{void \hyperlink{flash__test_8c_a4a44819ce53d7e66ed00def3aa029129}{display\+Passed} ()}\label{flash__test_8c_a4a44819ce53d7e66ed00def3aa029129}
+
+\begin{DoxyCompactList}\small\item\em Display P\+A\+S\+S\+E\+D Message (with delay) \end{DoxyCompactList}\item 
+\hypertarget{flash__test_8c_ab1e2a9aab6aa9e385f9a65040b083fc1}{void \hyperlink{flash__test_8c_ab1e2a9aab6aa9e385f9a65040b083fc1}{display\+Failed} ()}\label{flash__test_8c_ab1e2a9aab6aa9e385f9a65040b083fc1}
+
+\begin{DoxyCompactList}\small\item\em Display F\+A\+I\+L\+E\+D Message. \end{DoxyCompactList}\item 
+\hypertarget{flash__test_8c_a55b37be4b6ed79d7c65576ca889bc066}{R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__test_8c_a55b37be4b6ed79d7c65576ca889bc066}{flash\+Test} ()}\label{flash__test_8c_a55b37be4b6ed79d7c65576ca889bc066}
+
+\begin{DoxyCompactList}\small\item\em Primary entry point for flash testing. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Mooltipass Flash I\+C Library Test Functions Created\+: 31/3/2014 Author\+: Michael Neiderhauser. 
+
+
+
+\subsection{Function Documentation}
+\hypertarget{flash__test_8c_ab1073406531b134560a7b65a4abf2fca}{\index{flash\+\_\+test.\+c@{flash\+\_\+test.\+c}!display\+R\+W\+Code@{display\+R\+W\+Code}}
+\index{display\+R\+W\+Code@{display\+R\+W\+Code}!flash\+\_\+test.\+c@{flash\+\_\+test.\+c}}
+\subsubsection[{display\+R\+W\+Code}]{\setlength{\rightskip}{0pt plus 5cm}display\+R\+W\+Code (
+\begin{DoxyParamCaption}
+\item[{R\+E\+T\+\_\+\+T\+Y\+P\+E}]{ret}
+\end{DoxyParamCaption}
+)}}\label{flash__test_8c_ab1073406531b134560a7b65a4abf2fca}
+
+
+display Read/\+Write Return Code 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ret} & return code \\
+\hline
+\end{DoxyParams}
+\hypertarget{flash__test_8c_aa58f85c782c5144f60aa90de028f8ef8}{\index{flash\+\_\+test.\+c@{flash\+\_\+test.\+c}!flash\+Erase\+Block\+Test@{flash\+Erase\+Block\+Test}}
+\index{flash\+Erase\+Block\+Test@{flash\+Erase\+Block\+Test}!flash\+\_\+test.\+c@{flash\+\_\+test.\+c}}
+\subsubsection[{flash\+Erase\+Block\+Test}]{\setlength{\rightskip}{0pt plus 5cm}flash\+Erase\+Block\+Test (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer\+In, }
+\item[{uint8\+\_\+t $\ast$}]{buffer\+Out, }
+\item[{uint16\+\_\+t}]{buffer\+Size}
+\end{DoxyParamCaption}
+)}}\label{flash__test_8c_aa58f85c782c5144f60aa90de028f8ef8}
+
+
+A Testing wrapper that tests erasing all blocks in flash. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer\+In} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Out} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Size} & Should always be B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Test Status 
+\end{DoxyReturn}
+\hypertarget{flash__test_8c_a3284ec27528274fdbe9fd42b980c3062}{\index{flash\+\_\+test.\+c@{flash\+\_\+test.\+c}!flash\+Erase\+Page\+Test@{flash\+Erase\+Page\+Test}}
+\index{flash\+Erase\+Page\+Test@{flash\+Erase\+Page\+Test}!flash\+\_\+test.\+c@{flash\+\_\+test.\+c}}
+\subsubsection[{flash\+Erase\+Page\+Test}]{\setlength{\rightskip}{0pt plus 5cm}flash\+Erase\+Page\+Test (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer\+In, }
+\item[{uint8\+\_\+t $\ast$}]{buffer\+Out, }
+\item[{uint16\+\_\+t}]{buffer\+Size}
+\end{DoxyParamCaption}
+)}}\label{flash__test_8c_a3284ec27528274fdbe9fd42b980c3062}
+
+
+A Testing wrapper that tests erasing all pages in flash. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer\+In} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Out} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Size} & Should always be B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Test Status 
+\end{DoxyReturn}
+\hypertarget{flash__test_8c_a94d258639fe36017f579197e854434c0}{\index{flash\+\_\+test.\+c@{flash\+\_\+test.\+c}!flash\+Erase\+Sector\+X\+Test@{flash\+Erase\+Sector\+X\+Test}}
+\index{flash\+Erase\+Sector\+X\+Test@{flash\+Erase\+Sector\+X\+Test}!flash\+\_\+test.\+c@{flash\+\_\+test.\+c}}
+\subsubsection[{flash\+Erase\+Sector\+X\+Test}]{\setlength{\rightskip}{0pt plus 5cm}flash\+Erase\+Sector\+X\+Test (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer\+In, }
+\item[{uint8\+\_\+t $\ast$}]{buffer\+Out, }
+\item[{uint16\+\_\+t}]{buffer\+Size}
+\end{DoxyParamCaption}
+)}}\label{flash__test_8c_a94d258639fe36017f579197e854434c0}
+
+
+A Testing wrapper that tests erasing S\+E\+C\+T\+O\+R\+\_\+\+S\+T\+A\+R\+T through S\+E\+C\+T\+O\+R\+\_\+\+E\+N\+D. 
+
+A Testing wrapper that tests erasing F\+L\+A\+S\+H\+\_\+\+S\+E\+C\+T\+O\+R\+\_\+\+Z\+E\+R\+O\+\_\+\+A\+\_\+\+C\+O\+D\+E and F\+L\+A\+S\+H\+\_\+\+S\+E\+C\+T\+O\+R\+\_\+\+Z\+E\+R\+O\+\_\+\+B\+\_\+\+C\+O\+D\+E.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer\+In} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Out} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Size} & Should always be B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Test Status 
+\end{DoxyReturn}
+\hypertarget{flash__test_8c_a825242537e4fb6490e28fe0d87161f6b}{\index{flash\+\_\+test.\+c@{flash\+\_\+test.\+c}!flash\+Init\+Test@{flash\+Init\+Test}}
+\index{flash\+Init\+Test@{flash\+Init\+Test}!flash\+\_\+test.\+c@{flash\+\_\+test.\+c}}
+\subsubsection[{flash\+Init\+Test}]{\setlength{\rightskip}{0pt plus 5cm}flash\+Init\+Test (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{flash__test_8c_a825242537e4fb6490e28fe0d87161f6b}
+
+
+A Testing wrapper that tests flash init (reading manf id's) T\+H\+I\+S T\+E\+S\+T M\+U\+S\+T B\+E R\+U\+N -\/$>$ Sets up S\+P\+I. 
+
+\begin{DoxyReturn}{Returns}
+Test Status 
+\end{DoxyReturn}
+\hypertarget{flash__test_8c_a5d02757412b04bd353a2af39e1aeaf2f}{\index{flash\+\_\+test.\+c@{flash\+\_\+test.\+c}!flash\+Write\+Read\+Offset\+Test@{flash\+Write\+Read\+Offset\+Test}}
+\index{flash\+Write\+Read\+Offset\+Test@{flash\+Write\+Read\+Offset\+Test}!flash\+\_\+test.\+c@{flash\+\_\+test.\+c}}
+\subsubsection[{flash\+Write\+Read\+Offset\+Test}]{\setlength{\rightskip}{0pt plus 5cm}flash\+Write\+Read\+Offset\+Test (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer\+In, }
+\item[{uint8\+\_\+t $\ast$}]{buffer\+Out, }
+\item[{uint16\+\_\+t}]{buffer\+Size}
+\end{DoxyParamCaption}
+)}}\label{flash__test_8c_a5d02757412b04bd353a2af39e1aeaf2f}
+
+
+A Testing wrapper that tests page write, and page read. Uses buffer\+Size / N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+N\+T for offset calculation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer\+In} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Out} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Size} & Should always be B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Test Status 
+\end{DoxyReturn}
+\hypertarget{flash__test_8c_a7e0002ca7fbfefed8e480ff6b842ba9c}{\index{flash\+\_\+test.\+c@{flash\+\_\+test.\+c}!flash\+Write\+Read\+Test@{flash\+Write\+Read\+Test}}
+\index{flash\+Write\+Read\+Test@{flash\+Write\+Read\+Test}!flash\+\_\+test.\+c@{flash\+\_\+test.\+c}}
+\subsubsection[{flash\+Write\+Read\+Test}]{\setlength{\rightskip}{0pt plus 5cm}flash\+Write\+Read\+Test (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer\+In, }
+\item[{uint8\+\_\+t $\ast$}]{buffer\+Out, }
+\item[{uint16\+\_\+t}]{buffer\+Size}
+\end{DoxyParamCaption}
+)}}\label{flash__test_8c_a7e0002ca7fbfefed8e480ff6b842ba9c}
+
+
+A Testing wrapper that tests page write, and page read. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer\+In} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Out} & One of the two testing buffers -\/$>$ Should be size of B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+{\em buffer\+Size} & Should always be B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+G\+E \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Test Status 
+\end{DoxyReturn}
+\hypertarget{flash__test_8c_a52033c01e5f93df36ece5634fbbd1cfe}{\index{flash\+\_\+test.\+c@{flash\+\_\+test.\+c}!init\+Buffer@{init\+Buffer}}
+\index{init\+Buffer@{init\+Buffer}!flash\+\_\+test.\+c@{flash\+\_\+test.\+c}}
+\subsubsection[{init\+Buffer}]{\setlength{\rightskip}{0pt plus 5cm}init\+Buffer (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer, }
+\item[{uint16\+\_\+t}]{buffer\+Size, }
+\item[{uint8\+\_\+t}]{policy}
+\end{DoxyParamCaption}
+)}}\label{flash__test_8c_a52033c01e5f93df36ece5634fbbd1cfe}
+
+
+A helper function that populates a buffer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & The buffer to populate \\
+\hline
+{\em buffer\+Size} & The size of the buffer \\
+\hline
+{\em policy} & The population policy. (All Ones, All Zeros, Random, Increment) \\
+\hline
+\end{DoxyParams}

@@ -1,0 +1,127 @@
+\hypertarget{touch_8c}{\section{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+T\+O\+U\+C\+H/touch.c File Reference}
+\label{touch_8c}\index{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+T\+O\+U\+C\+H/touch.\+c@{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+T\+O\+U\+C\+H/touch.\+c}}
+}
+
+
+Touch sensing functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$avr/io.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}touch.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{touch_8c_a249329c5aafbb65cdb8716ceda7ff40c}{initiate\+I2c\+Write} (uint8\+\_\+t addr, uint8\+\_\+t reg)
+\begin{DoxyCompactList}\small\item\em Initiate a write process in the at42qt2120. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{touch_8c_a55e50cc736db1ea28373edf83e5df5b3}{write\+Data\+To\+T\+S} (uint8\+\_\+t addr, uint8\+\_\+t reg, uint8\+\_\+t data)
+\begin{DoxyCompactList}\small\item\em Write a byte inside the A\+T42\+Q\+T2120. \end{DoxyCompactList}\item 
+uint8\+\_\+t \hyperlink{touch_8c_a1692bf2d98755c8873c450e86948f0ca}{initiate\+I2c\+Read} (uint8\+\_\+t addr, uint8\+\_\+t reg)
+\begin{DoxyCompactList}\small\item\em Initiate a read process in the at42qt2120. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{touch_8c_a418dcf16cd9c7f56913af32a102907f5}{read\+Data\+From\+T\+S} (uint8\+\_\+t addr, uint8\+\_\+t reg, uint8\+\_\+t $\ast$data)
+\begin{DoxyCompactList}\small\item\em Write a byte inside the A\+T42\+Q\+T2120. \end{DoxyCompactList}\item 
+\hypertarget{touch_8c_a5ac772eea27f50494a9172425284c696}{void \hyperlink{touch_8c_a5ac772eea27f50494a9172425284c696}{init\+I2c\+Port} (void)}\label{touch_8c_a5ac772eea27f50494a9172425284c696}
+
+\begin{DoxyCompactList}\small\item\em Initialize ports \& i2c controller. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Touch sensing functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+
+
+
+\subsection{Function Documentation}
+\hypertarget{touch_8c_a1692bf2d98755c8873c450e86948f0ca}{\index{touch.\+c@{touch.\+c}!initiate\+I2c\+Read@{initiate\+I2c\+Read}}
+\index{initiate\+I2c\+Read@{initiate\+I2c\+Read}!touch.\+c@{touch.\+c}}
+\subsubsection[{initiate\+I2c\+Read}]{\setlength{\rightskip}{0pt plus 5cm}initiate\+I2c\+Read (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{addr, }
+\item[{uint8\+\_\+t}]{reg}
+\end{DoxyParamCaption}
+)}}\label{touch_8c_a1692bf2d98755c8873c450e86948f0ca}
+
+
+Initiate a read process in the at42qt2120. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The chip address \\
+\hline
+{\em reg} & The register address \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+O\+K if everything is alright, the pb code otherwise 
+\end{DoxyReturn}
+\hypertarget{touch_8c_a249329c5aafbb65cdb8716ceda7ff40c}{\index{touch.\+c@{touch.\+c}!initiate\+I2c\+Write@{initiate\+I2c\+Write}}
+\index{initiate\+I2c\+Write@{initiate\+I2c\+Write}!touch.\+c@{touch.\+c}}
+\subsubsection[{initiate\+I2c\+Write}]{\setlength{\rightskip}{0pt plus 5cm}initiate\+I2c\+Write (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{addr, }
+\item[{uint8\+\_\+t}]{reg}
+\end{DoxyParamCaption}
+)}}\label{touch_8c_a249329c5aafbb65cdb8716ceda7ff40c}
+
+
+Initiate a write process in the at42qt2120. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The chip address \\
+\hline
+{\em reg} & The register address \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+O\+K if everything is alright, the pb code otherwise 
+\end{DoxyReturn}
+\hypertarget{touch_8c_a418dcf16cd9c7f56913af32a102907f5}{\index{touch.\+c@{touch.\+c}!read\+Data\+From\+T\+S@{read\+Data\+From\+T\+S}}
+\index{read\+Data\+From\+T\+S@{read\+Data\+From\+T\+S}!touch.\+c@{touch.\+c}}
+\subsubsection[{read\+Data\+From\+T\+S}]{\setlength{\rightskip}{0pt plus 5cm}read\+Data\+From\+T\+S (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{addr, }
+\item[{uint8\+\_\+t}]{reg, }
+\item[{uint8\+\_\+t $\ast$}]{data}
+\end{DoxyParamCaption}
+)}}\label{touch_8c_a418dcf16cd9c7f56913af32a102907f5}
+
+
+Write a byte inside the A\+T42\+Q\+T2120. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The chip address \\
+\hline
+{\em reg} & The register address \\
+\hline
+{\em data} & uint8\+\_\+t pointer in which we write the data \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+O\+K if everything is alright, the pb code otherwise 
+\end{DoxyReturn}
+\hypertarget{touch_8c_a55e50cc736db1ea28373edf83e5df5b3}{\index{touch.\+c@{touch.\+c}!write\+Data\+To\+T\+S@{write\+Data\+To\+T\+S}}
+\index{write\+Data\+To\+T\+S@{write\+Data\+To\+T\+S}!touch.\+c@{touch.\+c}}
+\subsubsection[{write\+Data\+To\+T\+S}]{\setlength{\rightskip}{0pt plus 5cm}write\+Data\+To\+T\+S (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{addr, }
+\item[{uint8\+\_\+t}]{reg, }
+\item[{uint8\+\_\+t}]{data}
+\end{DoxyParamCaption}
+)}}\label{touch_8c_a55e50cc736db1ea28373edf83e5df5b3}
+
+
+Write a byte inside the A\+T42\+Q\+T2120. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The chip address \\
+\hline
+{\em reg} & The register address \\
+\hline
+{\em data} & The data to write \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+O\+K if everything is alright, the pb code otherwise 
+\end{DoxyReturn}

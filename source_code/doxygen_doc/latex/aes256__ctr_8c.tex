@@ -1,68 +1,92 @@
-\hypertarget{aes256__ctr_8c}{\section{src/\-A\-E\-S/aes256\-\_\-ctr.c File Reference}
-\label{aes256__ctr_8c}\index{src/\-A\-E\-S/aes256\-\_\-ctr.\-c@{src/\-A\-E\-S/aes256\-\_\-ctr.\-c}}
+\hypertarget{aes256__ctr_8c}{\section{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+A\+E\+S/aes256\+\_\+ctr.c File Reference}
+\label{aes256__ctr_8c}\index{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+A\+E\+S/aes256\+\_\+ctr.\+c@{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+A\+E\+S/aes256\+\_\+ctr.\+c}}
 }
 
 
-A\-E\-S256\-C\-T\-R encryption.  
+A\+E\+S256\+C\+T\+R encryption.  
 
 
-{\ttfamily \#include \char`\"{}aes.\-h\char`\"{}}\\*
-{\ttfamily \#include $<$stdint.\-h$>$}\\*
-{\ttfamily \#include $<$string.\-h$>$}\\*
+{\ttfamily \#include \char`\"{}aes.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes256\+\_\+ctr.\+h\char`\"{}}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \hyperlink{aes256__ctr_8c_a1f18aa407030e0b8e3c1eac1801b0570}{aes256\-Ctr\-Enc} (const void $\ast$iv, const void $\ast$key, void $\ast$text)
-\begin{DoxyCompactList}\small\item\em Encrypt a 16 byte block using C\-T\-R encryption. \end{DoxyCompactList}\item 
-void \hyperlink{aes256__ctr_8c_a7110eed2c5ccdde68746ab88aa61db23}{aes256\-Ctr\-Dec} (const void $\ast$iv, const void $\ast$key, void $\ast$text)
-\begin{DoxyCompactList}\small\item\em Decrypt a 16 byte block using C\-T\-R encryption. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\hypertarget{aes256__ctr_8c_aa4f2686541fa31f9ea468e959e6a9dc0}{void {\bfseries aes256\+Ctr\+Init} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, const uint8\+\_\+t $\ast$key, const uint8\+\_\+t $\ast$iv, uint8\+\_\+t iv\+Len)}\label{aes256__ctr_8c_aa4f2686541fa31f9ea468e959e6a9dc0}
+
+\item 
+\hypertarget{aes256__ctr_8c_a3beddc56e21570e0d9470e8184071c3c}{void {\bfseries aes256\+Ctr\+Set\+Iv} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, const uint8\+\_\+t $\ast$iv, uint8\+\_\+t iv\+Len)}\label{aes256__ctr_8c_a3beddc56e21570e0d9470e8184071c3c}
+
+\item 
+void \hyperlink{aes256__ctr_8c_a07f8b76a3f5dc752abbe062272d1b081}{increment\+Ctr} (uint8\+\_\+t $\ast$ctr)
+\begin{DoxyCompactList}\small\item\em Increment ctr by 1. \end{DoxyCompactList}\item 
+void \hyperlink{aes256__ctr_8c_a17cb0f42b75effa1128b3c04e056d6b5}{aes256\+Ctr\+Encrypt} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, uint8\+\_\+t $\ast$data, uint16\+\_\+t data\+Len)
+\begin{DoxyCompactList}\small\item\em Encrypt data and save it in data. \end{DoxyCompactList}\item 
+void \hyperlink{aes256__ctr_8c_a70238436008b000f5161d58c1f6e79d0}{aes256\+Ctr\+Decrypt} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, uint8\+\_\+t $\ast$data, uint16\+\_\+t data\+Len)
+\begin{DoxyCompactList}\small\item\em Decrypt data and save it in data. \end{DoxyCompactList}\item 
+\hypertarget{aes256__ctr_8c_a15abbf0736f0c30d6026f44511ea10d9}{void \hyperlink{aes256__ctr_8c_a15abbf0736f0c30d6026f44511ea10d9}{aes256\+Ctr\+Clean} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx)}\label{aes256__ctr_8c_a15abbf0736f0c30d6026f44511ea10d9}
+
+\begin{DoxyCompactList}\small\item\em Clean the context. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-A\-E\-S256\-C\-T\-R encryption. Created\-: 06/03/2014 14\-:17\-:00 Author\-: Miguel A. Borrego 
+A\+E\+S256\+C\+T\+R encryption. 
+
+Created\+: 06/03/2014 14\+:17\+:00 Author\+: Miguel A. Borrego 
 
 \subsection{Function Documentation}
-\hypertarget{aes256__ctr_8c_a7110eed2c5ccdde68746ab88aa61db23}{\index{aes256\-\_\-ctr.\-c@{aes256\-\_\-ctr.\-c}!aes256\-Ctr\-Dec@{aes256\-Ctr\-Dec}}
-\index{aes256\-Ctr\-Dec@{aes256\-Ctr\-Dec}!aes256_ctr.c@{aes256\-\_\-ctr.\-c}}
-\subsubsection[{aes256\-Ctr\-Dec}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\-Ctr\-Dec (
+\hypertarget{aes256__ctr_8c_a70238436008b000f5161d58c1f6e79d0}{\index{aes256\+\_\+ctr.\+c@{aes256\+\_\+ctr.\+c}!aes256\+Ctr\+Decrypt@{aes256\+Ctr\+Decrypt}}
+\index{aes256\+Ctr\+Decrypt@{aes256\+Ctr\+Decrypt}!aes256\+\_\+ctr.\+c@{aes256\+\_\+ctr.\+c}}
+\subsubsection[{aes256\+Ctr\+Decrypt}]{\setlength{\rightskip}{0pt plus 5cm}aes256\+Ctr\+Decrypt (
 \begin{DoxyParamCaption}
-\item[{const void $\ast$}]{iv, }
-\item[{const void $\ast$}]{key, }
-\item[{void $\ast$}]{text}
+\item[{{\bf aes256\+Ctr\+Ctx\+\_\+t} $\ast$}]{ctx, }
+\item[{uint8\+\_\+t $\ast$}]{data, }
+\item[{uint16\+\_\+t}]{data\+Len}
 \end{DoxyParamCaption}
-)}}\label{aes256__ctr_8c_a7110eed2c5ccdde68746ab88aa61db23}
+)}}\label{aes256__ctr_8c_a70238436008b000f5161d58c1f6e79d0}
 
 
-Decrypt a 16 byte block using C\-T\-R encryption. 
+Decrypt data and save it in data. 
 
 
 \begin{DoxyParams}{Parameters}
-{\em iv} & -\/ pointer to initialization vector, size must be 16 bytes \\
+{\em data} & -\/ pointer to data, this is also the location to store encrypted data \\
 \hline
-{\em key} & -\/ pointer to key, size must be 32 bytes \\
-\hline
-{\em text} & -\/ cipher\-Text to be decrypted, size must be 16 bytes. \\
+{\em data\+Len} & -\/ size of data \\
 \hline
 \end{DoxyParams}
-\hypertarget{aes256__ctr_8c_a1f18aa407030e0b8e3c1eac1801b0570}{\index{aes256\-\_\-ctr.\-c@{aes256\-\_\-ctr.\-c}!aes256\-Ctr\-Enc@{aes256\-Ctr\-Enc}}
-\index{aes256\-Ctr\-Enc@{aes256\-Ctr\-Enc}!aes256_ctr.c@{aes256\-\_\-ctr.\-c}}
-\subsubsection[{aes256\-Ctr\-Enc}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\-Ctr\-Enc (
+\hypertarget{aes256__ctr_8c_a17cb0f42b75effa1128b3c04e056d6b5}{\index{aes256\+\_\+ctr.\+c@{aes256\+\_\+ctr.\+c}!aes256\+Ctr\+Encrypt@{aes256\+Ctr\+Encrypt}}
+\index{aes256\+Ctr\+Encrypt@{aes256\+Ctr\+Encrypt}!aes256\+\_\+ctr.\+c@{aes256\+\_\+ctr.\+c}}
+\subsubsection[{aes256\+Ctr\+Encrypt}]{\setlength{\rightskip}{0pt plus 5cm}aes256\+Ctr\+Encrypt (
 \begin{DoxyParamCaption}
-\item[{const void $\ast$}]{iv, }
-\item[{const void $\ast$}]{key, }
-\item[{void $\ast$}]{text}
+\item[{{\bf aes256\+Ctr\+Ctx\+\_\+t} $\ast$}]{ctx, }
+\item[{uint8\+\_\+t $\ast$}]{data, }
+\item[{uint16\+\_\+t}]{data\+Len}
 \end{DoxyParamCaption}
-)}}\label{aes256__ctr_8c_a1f18aa407030e0b8e3c1eac1801b0570}
+)}}\label{aes256__ctr_8c_a17cb0f42b75effa1128b3c04e056d6b5}
 
 
-Encrypt a 16 byte block using C\-T\-R encryption. 
+Encrypt data and save it in data. 
 
 
 \begin{DoxyParams}{Parameters}
-{\em iv} & -\/ pointer to initialization vector, size must be 16 bytes \\
+{\em data} & -\/ pointer to data, this is also the location to store encrypted data \\
 \hline
-{\em key} & -\/ pointer to key, size must be 32 bytes \\
+{\em data\+Len} & -\/ size of data \\
 \hline
-{\em text} & -\/ plain\-Text to be encrypted, size must be 16 bytes. \\
+\end{DoxyParams}
+\hypertarget{aes256__ctr_8c_a07f8b76a3f5dc752abbe062272d1b081}{\index{aes256\+\_\+ctr.\+c@{aes256\+\_\+ctr.\+c}!increment\+Ctr@{increment\+Ctr}}
+\index{increment\+Ctr@{increment\+Ctr}!aes256\+\_\+ctr.\+c@{aes256\+\_\+ctr.\+c}}
+\subsubsection[{increment\+Ctr}]{\setlength{\rightskip}{0pt plus 5cm}void increment\+Ctr (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{ctr}
+\end{DoxyParamCaption}
+)}}\label{aes256__ctr_8c_a07f8b76a3f5dc752abbe062272d1b081}
+
+
+Increment ctr by 1. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctr} & -\/ pointer to counter+iv, size must be 16 bytes. \\
 \hline
 \end{DoxyParams}

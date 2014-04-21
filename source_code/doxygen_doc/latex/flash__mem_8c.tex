@@ -1,129 +1,147 @@
-\hypertarget{flash__mem_8c}{\section{src/\-F\-L\-A\-S\-H/flash\-\_\-mem.c File Reference}
-\label{flash__mem_8c}\index{src/\-F\-L\-A\-S\-H/flash\-\_\-mem.\-c@{src/\-F\-L\-A\-S\-H/flash\-\_\-mem.\-c}}
+\hypertarget{flash__mem_8c}{\section{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+mem.c File Reference}
+\label{flash__mem_8c}\index{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+mem.\+c@{C\+:/\+Users/limpkin/\+Dropbox/\+Projets/mooltipass/source\+\_\+code/src/\+F\+L\+A\+S\+H/flash\+\_\+mem.\+c}}
 }
 
 
-Flash memory low level functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+Mooltipass Flash I\+C Library Created\+: 31/3/2014 Author\+: Michael Neiderhauser.  
 
 
-{\ttfamily \#include \char`\"{}../mooltipass.\-h\char`\"{}}\\*
-{\ttfamily \#include $<$avr/io.\-h$>$}\\*
+{\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$avr/io.\+h$>$}\\*
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+{\ttfamily \#include $<$spi.\+h$>$}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \hyperlink{flash__mem_8c_affd5147b64d2ee3bbc74e6c940683c6e}{send\-Data\-To\-Flash} (uint8\-\_\-t nb\-\_\-bytes\-\_\-opcode, uint8\-\_\-t $\ast$opcode, uint16\-\_\-t nb\-\_\-bytes, uint8\-\_\-t $\ast$data\-\_\-to\-\_\-send\-\_\-receive)
-\begin{DoxyCompactList}\small\item\em Send bytes to the flash memory... beware, buffer contents will be changed! \end{DoxyCompactList}\item 
-void \hyperlink{flash__mem_8c_a943bf471830f72ec542d5b37ae030160}{read\-Credential\-Block} (uint16\-\_\-t page\-\_\-number, uint8\-\_\-t block\-\_\-id, uint8\-\_\-t $\ast$buffer)
-\begin{DoxyCompactList}\small\item\em Read a block of credentials. \end{DoxyCompactList}\item 
-\hypertarget{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}{void \hyperlink{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}{wait\-For\-Flash} (void)}\label{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}
+\hypertarget{flash__mem_8c_aa58e16776fe4909cffdcd269c30383bc}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries send\+Data\+To\+Flash} (uint8\+\_\+t opcode\+Size, void $\ast$opcode, uint16\+\_\+t buffer\+Size, void $\ast$buffer)}\label{flash__mem_8c_aa58e16776fe4909cffdcd269c30383bc}
 
-\begin{DoxyCompactList}\small\item\em Wait for the flash to be ready. \end{DoxyCompactList}\item 
-void \hyperlink{flash__mem_8c_a3af3151e4e79e82e5daec836a16ec607}{write\-Credential\-Block} (uint16\-\_\-t page\-\_\-number, uint8\-\_\-t block\-\_\-id, uint8\-\_\-t $\ast$buffer)
-\begin{DoxyCompactList}\small\item\em Write a block of credentials. \end{DoxyCompactList}\item 
-R\-E\-T\-\_\-\-T\-Y\-P\-E \hyperlink{flash__mem_8c_a80d6fcc1bf2a1dbdc4f6462cac22c219}{check\-Flash\-I\-D} (void)
-\begin{DoxyCompactList}\small\item\em Check the presence of the flash. \end{DoxyCompactList}\item 
-R\-E\-T\-\_\-\-T\-Y\-P\-E \hyperlink{flash__mem_8c_a555b58a0dfede24e6ed8b169b24ffc64}{init\-Flash} (void)
-\begin{DoxyCompactList}\small\item\em Initialize the flash memory. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}{wait\+For\+Flash} (void)
+\begin{DoxyCompactList}\small\item\em Wait for the flash to be ready (poll status register) \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a80d6fcc1bf2a1dbdc4f6462cac22c219}{check\+Flash\+I\+D} (void)
+\begin{DoxyCompactList}\small\item\em Check the presence of the flash (manf info) \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a555b58a0dfede24e6ed8b169b24ffc64}{init\+Flash} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the flash memory (Sets up S\+P\+I) \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a5c3e6a183eb517d31fd9f5a3c7aca486}{sector\+Zero\+Erase} (uint8\+\_\+t sector\+Number)
+\begin{DoxyCompactList}\small\item\em Deletes sub-\/section of sector 0\+X (see datasheet) \end{DoxyCompactList}\item 
+\hypertarget{flash__mem_8c_a2077f00817a9a75b9c20056fcdb388ce}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries sector\+Erase} (uint8\+\_\+t sector\+Number)}\label{flash__mem_8c_a2077f00817a9a75b9c20056fcdb388ce}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a6fc8592cb75ed97e2fd999031e33060f}{block\+Erase} (uint16\+\_\+t block\+Number)
+\begin{DoxyCompactList}\small\item\em Erases a block of flash memory (see datasheet) \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_ab94e1181e052b66db48980b21504f39b}{page\+Erase} (uint16\+\_\+t page\+Number)
+\begin{DoxyCompactList}\small\item\em Erases a page of flash memory (see datasheet) \end{DoxyCompactList}\item 
+\hypertarget{flash__mem_8c_a4386898d9384e4a0f4252e87dda60ddc}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries write\+Data\+To\+Flash} (uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)}\label{flash__mem_8c_a4386898d9384e4a0f4252e87dda60ddc}
+
+\item 
+\hypertarget{flash__mem_8c_a564706fa7a89ff4c63f1da38033865ac}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries read\+Data\+From\+Flash} (uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)}\label{flash__mem_8c_a564706fa7a89ff4c63f1da38033865ac}
+
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Flash memory low level functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+Mooltipass Flash I\+C Library Created\+: 31/3/2014 Author\+: Michael Neiderhauser. 
+
+
 
 \subsection{Function Documentation}
-\hypertarget{flash__mem_8c_a80d6fcc1bf2a1dbdc4f6462cac22c219}{\index{flash\-\_\-mem.\-c@{flash\-\_\-mem.\-c}!check\-Flash\-I\-D@{check\-Flash\-I\-D}}
-\index{check\-Flash\-I\-D@{check\-Flash\-I\-D}!flash_mem.c@{flash\-\_\-mem.\-c}}
-\subsubsection[{check\-Flash\-I\-D}]{\setlength{\rightskip}{0pt plus 5cm}check\-Flash\-I\-D (
+\hypertarget{flash__mem_8c_a6fc8592cb75ed97e2fd999031e33060f}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!block\+Erase@{block\+Erase}}
+\index{block\+Erase@{block\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{block\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}block\+Erase (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{block\+Number}
+\end{DoxyParamCaption}
+)}}\label{flash__mem_8c_a6fc8592cb75ed97e2fd999031e33060f}
+
+
+Erases a block of flash memory (see datasheet) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em block\+Number} & The block number in flash to erase \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if parameters are out of range. Otherwise will return R\+E\+T\+U\+R\+N\+\_\+\+O\+K. 
+\end{DoxyReturn}
+\hypertarget{flash__mem_8c_a80d6fcc1bf2a1dbdc4f6462cac22c219}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!check\+Flash\+I\+D@{check\+Flash\+I\+D}}
+\index{check\+Flash\+I\+D@{check\+Flash\+I\+D}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{check\+Flash\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}check\+Flash\+I\+D (
 \begin{DoxyParamCaption}
 \item[{void}]{}
 \end{DoxyParamCaption}
 )}}\label{flash__mem_8c_a80d6fcc1bf2a1dbdc4f6462cac22c219}
 
 
-Check the presence of the flash. 
+Check the presence of the flash (manf info) 
 
 \begin{DoxyReturn}{Returns}
 Success status 
 \end{DoxyReturn}
-\hypertarget{flash__mem_8c_a555b58a0dfede24e6ed8b169b24ffc64}{\index{flash\-\_\-mem.\-c@{flash\-\_\-mem.\-c}!init\-Flash@{init\-Flash}}
-\index{init\-Flash@{init\-Flash}!flash_mem.c@{flash\-\_\-mem.\-c}}
-\subsubsection[{init\-Flash}]{\setlength{\rightskip}{0pt plus 5cm}init\-Flash (
+\hypertarget{flash__mem_8c_a555b58a0dfede24e6ed8b169b24ffc64}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!init\+Flash@{init\+Flash}}
+\index{init\+Flash@{init\+Flash}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{init\+Flash}]{\setlength{\rightskip}{0pt plus 5cm}init\+Flash (
 \begin{DoxyParamCaption}
 \item[{void}]{}
 \end{DoxyParamCaption}
 )}}\label{flash__mem_8c_a555b58a0dfede24e6ed8b169b24ffc64}
 
 
-Initialize the flash memory. 
+Initialize the flash memory (Sets up S\+P\+I) 
 
 \begin{DoxyReturn}{Returns}
-Success status\-D\-D 
+Success status\+D\+D 
 \end{DoxyReturn}
-\hypertarget{flash__mem_8c_a943bf471830f72ec542d5b37ae030160}{\index{flash\-\_\-mem.\-c@{flash\-\_\-mem.\-c}!read\-Credential\-Block@{read\-Credential\-Block}}
-\index{read\-Credential\-Block@{read\-Credential\-Block}!flash_mem.c@{flash\-\_\-mem.\-c}}
-\subsubsection[{read\-Credential\-Block}]{\setlength{\rightskip}{0pt plus 5cm}read\-Credential\-Block (
+\hypertarget{flash__mem_8c_ab94e1181e052b66db48980b21504f39b}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!page\+Erase@{page\+Erase}}
+\index{page\+Erase@{page\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{page\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}page\+Erase (
 \begin{DoxyParamCaption}
-\item[{uint16\-\_\-t}]{page\-\_\-number, }
-\item[{uint8\-\_\-t}]{block\-\_\-id, }
-\item[{uint8\-\_\-t $\ast$}]{buffer}
+\item[{uint16\+\_\+t}]{page\+Number}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_a943bf471830f72ec542d5b37ae030160}
+)}}\label{flash__mem_8c_ab94e1181e052b66db48980b21504f39b}
 
 
-Read a block of credentials. 
+Erases a page of flash memory (see datasheet) 
 
 
 \begin{DoxyParams}{Parameters}
-{\em page\-\_\-number} & Page number in the flash \\
-\hline
-{\em block\-\_\-id} & The block I\-D in the page \\
-\hline
-{\em buffer} & Pointer to the buffer \\
+{\em page\+Number} & The page number if flash to erase \\
 \hline
 \end{DoxyParams}
-\hypertarget{flash__mem_8c_affd5147b64d2ee3bbc74e6c940683c6e}{\index{flash\-\_\-mem.\-c@{flash\-\_\-mem.\-c}!send\-Data\-To\-Flash@{send\-Data\-To\-Flash}}
-\index{send\-Data\-To\-Flash@{send\-Data\-To\-Flash}!flash_mem.c@{flash\-\_\-mem.\-c}}
-\subsubsection[{send\-Data\-To\-Flash}]{\setlength{\rightskip}{0pt plus 5cm}send\-Data\-To\-Flash (
+\begin{DoxyReturn}{Returns}
+Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if parameters are out of range. Otherwise will return R\+E\+T\+U\+R\+N\+\_\+\+O\+K. 
+\end{DoxyReturn}
+\hypertarget{flash__mem_8c_a5c3e6a183eb517d31fd9f5a3c7aca486}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!sector\+Zero\+Erase@{sector\+Zero\+Erase}}
+\index{sector\+Zero\+Erase@{sector\+Zero\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{sector\+Zero\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}sector\+Zero\+Erase (
 \begin{DoxyParamCaption}
-\item[{uint8\-\_\-t}]{nb\-\_\-bytes\-\_\-opcode, }
-\item[{uint8\-\_\-t $\ast$}]{opcode, }
-\item[{uint16\-\_\-t}]{nb\-\_\-bytes, }
-\item[{uint8\-\_\-t $\ast$}]{data\-\_\-to\-\_\-send\-\_\-receive}
+\item[{uint8\+\_\+t}]{sector\+Number}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_affd5147b64d2ee3bbc74e6c940683c6e}
+)}}\label{flash__mem_8c_a5c3e6a183eb517d31fd9f5a3c7aca486}
 
 
-Send bytes to the flash memory... beware, buffer contents will be changed! 
+Deletes sub-\/section of sector 0\+X (see datasheet) 
 
 
 \begin{DoxyParams}{Parameters}
-{\em nb\-\_\-bytes\-\_\-opcode} & The number of bytes for the opcode \\
-\hline
-{\em opcode} & Pointer to the opcode \\
-\hline
-{\em nb\-\_\-bytes} & The number of bytes \\
-\hline
-{\em data\-\_\-to\-\_\-send\-\_\-receive} & Pointer to the buffer \\
+{\em sector\+Number} & The sub-\/section of sector 0 to erase (0 for 0a, 1 for 0b) \\
 \hline
 \end{DoxyParams}
-\hypertarget{flash__mem_8c_a3af3151e4e79e82e5daec836a16ec607}{\index{flash\-\_\-mem.\-c@{flash\-\_\-mem.\-c}!write\-Credential\-Block@{write\-Credential\-Block}}
-\index{write\-Credential\-Block@{write\-Credential\-Block}!flash_mem.c@{flash\-\_\-mem.\-c}}
-\subsubsection[{write\-Credential\-Block}]{\setlength{\rightskip}{0pt plus 5cm}write\-Credential\-Block (
+\begin{DoxyReturn}{Returns}
+Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if sector\+Number is not 0 or 1 
+\end{DoxyReturn}
+\hypertarget{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!wait\+For\+Flash@{wait\+For\+Flash}}
+\index{wait\+For\+Flash@{wait\+For\+Flash}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{wait\+For\+Flash}]{\setlength{\rightskip}{0pt plus 5cm}wait\+For\+Flash (
 \begin{DoxyParamCaption}
-\item[{uint16\-\_\-t}]{page\-\_\-number, }
-\item[{uint8\-\_\-t}]{block\-\_\-id, }
-\item[{uint8\-\_\-t $\ast$}]{buffer}
+\item[{void}]{}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_a3af3151e4e79e82e5daec836a16ec607}
+)}}\label{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}
 
 
-Write a block of credentials. 
+Wait for the flash to be ready (poll status register) 
 
-
-\begin{DoxyParams}{Parameters}
-{\em page\-\_\-number} & Page number in the flash \\
-\hline
-{\em block\-\_\-id} & The block I\-D in the page \\
-\hline
-{\em buffer} & Pointer to the buffer \\
-\hline
-\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Success status 
+\end{DoxyReturn}

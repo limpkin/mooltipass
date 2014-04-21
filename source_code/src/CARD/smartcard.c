@@ -32,7 +32,7 @@
 
 /** Counter for successive card detects **/
 volatile uint8_t card_detect_counter = 0;
-/** Current detection state */
+/** Current detection state, see detect_return_t */
 volatile uint8_t button_return;
 
 
@@ -42,9 +42,9 @@ volatile uint8_t button_return;
 void clockPulseSMC(void)
 {
     #if SPI_SMARTCARD == SPI_NATIVE
-        PORTB |= (1 << 1);
+        PORT_SPI_NATIVE |= (1 << SCK_SPI_NATIVE);
         _delay_us(2);
-        PORTB &= ~(1 << 1);
+        PORT_SPI_NATIVE &= ~(1 << SCK_SPI_NATIVE);
         _delay_us(2);
     #else
         #error "SPI not supported"
@@ -57,9 +57,9 @@ void clockPulseSMC(void)
 void invertedClockPulseSMC(void)
 {
     #if SPI_SMARTCARD == SPI_NATIVE
-        PORTB &= ~(1 << 1);
+        PORT_SPI_NATIVE &= ~(1 << SCK_SPI_NATIVE);
         _delay_us(2);
-        PORTB |= (1 << 1);
+        PORT_SPI_NATIVE |= (1 << SCK_SPI_NATIVE);
         _delay_us(2);
     #else
         #error "SPI not supported"
@@ -100,16 +100,16 @@ void performLowLevelWriteNErase(uint8_t is_write)
         /* Set data according to write / erase */
         if (is_write != FALSE)
         {
-            PORTB |= (1 << 2);
+            PORT_SPI_NATIVE |= (1 << MOSI_SPI_NATIVE);
         }
         else
         {
-            PORTB &= ~(1 << 2);
+            PORT_SPI_NATIVE &= ~(1 << MOSI_SPI_NATIVE);
         }
         _delay_us(2);
 
         /* Set clock */
-        PORTB |= (1 << 1);
+        PORT_SPI_NATIVE |= (1 << SCK_SPI_NATIVE);
         _delay_us(2);
 
         /* Release program signal and data, wait for tchp */
@@ -117,11 +117,11 @@ void performLowLevelWriteNErase(uint8_t is_write)
         _delay_ms(4);
 
         /* Release clock */
-        PORTB &= ~(1 << 1);
+        PORT_SPI_NATIVE &= ~(1 << SCK_SPI_NATIVE);
         _delay_us(2);
 
         /* Release data */
-        PORTB &= ~(1 << 2);
+        PORT_SPI_NATIVE &= ~(1 << MOSI_SPI_NATIVE);
         _delay_us(2);
     #else
         #error "SPI not supported"
@@ -151,8 +151,8 @@ void setBBModeAndPgmRstSMC(void)
         SPCR = 0;
 
         /* Clock & data low */
-        PORTB &= ~(1 << 1);
-        PORTB &= ~(1 << 2);
+        PORT_SPI_NATIVE &= ~(1 << SCK_SPI_NATIVE);
+        PORT_SPI_NATIVE &= ~(1 << MOSI_SPI_NATIVE);
         _delay_us(1);
 
         /* Clear PGM and RST signals */
@@ -309,9 +309,9 @@ void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)
         }
 
         /* Bring clock and data low */
-        PORTB &= ~(1 << 1);
+        PORT_SPI_NATIVE &= ~(1 << SCK_SPI_NATIVE);
         _delay_us(3);
-        PORTB &= ~(1 << 2);
+        PORT_SPI_NATIVE &= ~(1 << MOSI_SPI_NATIVE);
         _delay_us(3);
         
         /* In smart card fuse V1 (early versions sent to beta testers), EC2EN is not blown so we're limited to 128 erase operations... */
@@ -324,13 +324,13 @@ void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)
                 while((temp_bool == TRUE) && (i < 128))
                 {
                     /* If one of the four bits is at 1, write a 0 */
-                    if (PINB & (1 << 3))
+                    if (PINB & (1 << MISO_SPI_NATIVE))
                     {
                         /* Set write command */
                         performLowLevelWriteNErase(TRUE);
 
                         /* Wait for the smart card to output a 0 */
-                        while(PINB & (1 << 3));
+                        while(PINB & (1 << MISO_SPI_NATIVE));
 
                         /* Exit loop */
                         temp_bool = FALSE;
@@ -361,7 +361,7 @@ void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)
 /*! \fn     securityValidationSMC(uint16_t code)
 *   \brief  Check security code
 *   \param  code    The code
-*   \return success_status (see enum)
+*   \return success_status (see card_detect_return_t)
 */
 RET_TYPE securityValidationSMC(uint16_t code)
 {
@@ -384,11 +384,11 @@ RET_TYPE securityValidationSMC(uint16_t code)
         {
             if (((code >> (15-i)) & 0x0001) != 0x0000)
             {
-                PORTB &= ~(1 << 2);
+                PORT_SPI_NATIVE &= ~(1 << MOSI_SPI_NATIVE);
             }
             else
             {
-                PORTB |= (1 << 2);
+                PORT_SPI_NATIVE |= (1 << MOSI_SPI_NATIVE);
             }
             _delay_us(2);
 
@@ -397,9 +397,9 @@ RET_TYPE securityValidationSMC(uint16_t code)
         }
 
         /* Bring clock and data low */
-        PORTB &= ~(1 << 1);
+        PORT_SPI_NATIVE &= ~(1 << SCK_SPI_NATIVE);
         _delay_us(3);
-        PORTB &= ~(1 << 2);
+        PORT_SPI_NATIVE &= ~(1 << MOSI_SPI_NATIVE);
         _delay_us(3);
 
         i = 0;
@@ -408,19 +408,19 @@ RET_TYPE securityValidationSMC(uint16_t code)
         while((temp_bool == TRUE) && (i < 4))
         {
             /* If one of the four bits is at 1, write a 0 */
-            if (PINB & (1 << 3))
+            if (PINB & (1 << MISO_SPI_NATIVE))
             {
                 /* Set write command */
                 performLowLevelWriteNErase(TRUE);
 
                 /* Wait for the smart card to output a 0 */
-                while(PINB & (1 << 3));
+                while(PINB & (1 << MISO_SPI_NATIVE));
 
                 /* Now, erase SCAC */
                 performLowLevelWriteNErase(FALSE);
 
                 /* Were we successful? */
-                if (PINB & (1 << 3))
+                if (PINB & (1 << MISO_SPI_NATIVE))
                 {
                     // Success !
                     return_val = RETURN_PIN_OK;
@@ -500,9 +500,9 @@ void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write
             /* Clock pulses until AZ2 start - 1 */
             for(i = 0; i < SMARTCARD_AZ2_BIT_START - 1; i++)
                 clockPulseSMC();            
-            PORTB |= (1 << 2);
+            PORT_SPI_NATIVE |= (1 << MOSI_SPI_NATIVE);
             clockPulseSMC();
-            PORTB &= ~(1 << 2);
+            PORT_SPI_NATIVE &= ~(1 << MOSI_SPI_NATIVE);
             /* Clock for the rest */
             for(i = 0; i < (start_index_bit - SMARTCARD_AZ2_BIT_START); i++)
                 clockPulseSMC();            
@@ -586,7 +586,7 @@ uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_
 
 /*! \fn     firstDetectFunctionSMC(void)
 *   \brief  functions performed once the smart card is detected
-*   \return The detection result (see enum)
+*   \return The detection result (see card_detect_return_t)
 */
 RET_TYPE firstDetectFunctionSMC(void)
 {
@@ -605,8 +605,8 @@ RET_TYPE firstDetectFunctionSMC(void)
 
     /* Activate SPI port */
     #if SPI_SMARTCARD == SPI_NATIVE
-        PORTB &= ~((1 << 1) | (1 << 2));
-        DDRB |= (1 << 1) | (1 << 2);
+        PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
+        DDRB |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
         setSPIModeSMC();
     #else
         #error "SPI not supported"
@@ -659,8 +659,8 @@ void removeFunctionSMC(void)
     /* Deactivate SPI port */
     #if SPI_SMARTCARD == SPI_NATIVE
         SPCR = 0;
-        DDRB &= ~(1 << 1) | (1 << 2);
-        PORTB &= ~((1 << 1) | (1 << 2));
+        DDRB &= ~(1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
+        PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
     #else
         #error "SPI not supported"
     #endif
@@ -681,9 +681,9 @@ void initPortSMC(void)
 
     /* Setup MISO as input, SS as input with pull-up */
     #if SPI_SMARTCARD == SPI_NATIVE
-        DDRB &= ~((1 << 3) | (1 << 0));
-        PORTB &= ~(1 << 3);
-        PORTB |= (1 << 0);
+        DDRB &= ~((1 << MISO_SPI_NATIVE) | (1 << SS_SPI_NATIVE));
+        PORT_SPI_NATIVE &= ~(1 << MISO_SPI_NATIVE);
+        PORT_SPI_NATIVE |= (1 << SS_SPI_NATIVE);
     #else
         #error "SPI not supported"
     #endif

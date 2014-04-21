@@ -53,7 +53,6 @@ void initI2cPort(void);
 #define	I2C_RSTART_ERR	    RETURN_OK - 4
 #define	I2C_SLAR_ERROR      RETURN_OK - 5
 
-
 // Macros
 /*! \fn     start_condition()
 *   \brief  Generate start condition

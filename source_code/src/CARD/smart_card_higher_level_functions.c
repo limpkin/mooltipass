@@ -21,7 +21,7 @@
  *  \brief  Smart Card high level functions
  *  Copyright [2014] [Mathieu Stephan]
  */
-// TODO: BLOW EC2EN FUSE when setting up the mooltipass...
+// TODO: BLOW EC2EN FUSE when setting up the Mooltipass...
 #include "smart_card_higher_level_functions.h"
 #include "smartcard.h"
 #include "oledmp.h"
@@ -29,9 +29,9 @@
 
 
 /*! \fn     mooltipassDetectedRoutine(uint16_t pin_code)
-*   \brief  Function called when something a Mooltipass is inserted into the smart card slot
+*   \brief  Function called when a Mooltipass is inserted into the smart card slot
 *   \param  pin_code    Mooltipass pin code
-*   \return If we managed to unlock it / if there is other problem
+*   \return If we managed to unlock it / if there is other problem (see mooltipass_detect_return_t)
 */
 RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
 {
@@ -93,8 +93,8 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
 }
 
 /*! \fn     cardDetectedRoutine(void)
-*   \brief  Function called when something is inserted into the smartcard slot
-*   \return What the card is / what needs to be done
+*   \brief  Function called when something is inserted into the smart card slot
+*   \return What the card is / what needs to be done (see mooltipass_detect_return_t)
 */
 RET_TYPE cardDetectedRoutine(void)
 {

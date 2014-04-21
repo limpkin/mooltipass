@@ -20,7 +20,7 @@
 /*! \file   utils.c
 *   \brief  Useful functions
 */
-#include "../mooltipass.h"
+#include "mooltipass.h"
 #include <util/delay.h>
 
 

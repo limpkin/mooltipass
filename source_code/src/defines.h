@@ -22,62 +22,60 @@
  *  Created: 11/01/2014 11:54:26
  *  Author: Mathieu Stephan
  */
-
-
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
 #include <stdint.h>
 
-/** DEBUG PRINTFS **/
+/**************** DEBUG PRINTFS ****************/
 // Used for smart card testing
 #define DEBUG_SMC_SCREEN_PRINT
 // Use for flash testing prints
 #define FLASH_TEST_DEBUG_OUTPUT_USB
 #define FLASH_TEST_DEBUG_OUTPUT_OLED
 
-/** HARDWARE VERSION **/
-// First hardware sent to the contributors
+/**************** HARDWARE VERSION ****************/
+// First hardware sent to the contributors, 12/2013
 #define HARDWARE_V1
 // Olivier's design hardware, 04/2014
 //#define HARDWARE_OLIVIER_V1
 
-/** PROGRAMMING HARDWARE **/
-// Uncomment to go to boot loader when smart card inserted at boot
+/**************** PROGRAMMING HARDWARE ****************/
+// Uncomment to go to the original boot loader when smart card inserted at boot
 //#define AVR_BOOTLOADER_PROGRAMMING
 
-/** SMARTCARD FUSE VERSION **/
+/**************** SMARTCARD FUSE VERSION ****************/
 // First smart card sent to the first contributors
 #define SMARTCARD_FUSE_V1
 
-/** HW MACROS **/
+/**************** HW MACROS ****************/
 #define CPU_PRESCALE(n)         (CLKPR = 0x80, CLKPR = (n))
 
-/** DEFINES FIRMWARE **/
+/**************** DEFINES FIRMWARE ****************/
 #define AES_KEY_LENGTH          256
 #define FALSE                   0
 #define TRUE                    (!FALSE)
 
-/** ASM "ENUMS" **/
+/**************** ASM "ENUMS" ****************/
 #define SPI_NATIVE              1
 #define SPI_USART               2
 
-/** C ENUMS **/
+/**************** C ENUMS ****************/
 enum mooltipass_detect_return_t {RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB, RETURN_MOOLTIPASS_BLOCKED, RETURN_MOOLTIPASS_BLANK, RETURN_MOOLTIPASS_USER, RETURN_MOOLTIPASS_4_TRIES_LEFT,  RETURN_MOOLTIPASS_3_TRIES_LEFT,  RETURN_MOOLTIPASS_2_TRIES_LEFT,  RETURN_MOOLTIPASS_1_TRIES_LEFT, RETURN_MOOLTIPASS_0_TRIES_LEFT};
 enum card_detect_return_t       {RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
 enum pin_check_return_t         {RETURN_PIN_OK = 0, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum detect_return_t            {RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
-enum return_type                {RETURN_NOK = -1, RETURN_OK = 0};
+enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};
 
-/** TYPEDEFS **/
+/**************** TYPEDEFS ****************/
 typedef void (*bootloader_f_ptr_type)(void);
 typedef int8_t RET_TYPE;
 
-/** BITMAP DEFINES **/
+/**************** BITMAP DEFINES ****************/
 #define HACKADAY_BMP        0x00
 
-/** FLASH TEST SELECTION **/
+/**************** FLASH TEST SELECTION ****************/
 #define RUN_FLASH_TEST_WR
 #define RUN_FLASH_TEST_WRO
 #define RUN_FLASH_TEST_ERASE_PAGE
@@ -85,12 +83,23 @@ typedef int8_t RET_TYPE;
 #define RUN_FLASH_TEST_ERASE_SECTOR_X
 #define RUN_FLASH_TEST_ERASE_SECTOR_0
 
-/** DEFINES PORTS **/
+/**************** DEFINES PORTS ****************/
 #ifdef HARDWARE_V1
     // SPIs
     #define SPI_SMARTCARD   SPI_NATIVE
     #define SPI_FLASH       SPI_USART
     #define SPI_OLED        SPI_USART
+    #define DDR_SPI_NATIVE  DDRB
+    #define PORT_SPI_NATIVE PORTB
+    #define SS_SPI_NATIVE   PORTB0
+    #define SCK_SPI_NATIVE  PORTB1
+    #define MOSI_SPI_NATIVE PORTB2
+    #define MISO_SPI_NATIVE PORTB3
+    #define DDR_SPI_USART   DDRD
+    #define PORT_SPI_USART  PORTD
+    #define SCK_SPI_USART   PORTD5
+    #define MOSI_SPI_USART  PORTD3
+    #define MISO_SPI_USART  PORTD2
     // Slave Select Flash
     #define PORTID_FLASH_nS PORTB4
     #define PORT_FLASH_nS   PORTB
@@ -134,6 +143,17 @@ typedef int8_t RET_TYPE;
     #define SPI_SMARTCARD   SPI_NATIVE
     #define SPI_FLASH       SPI_USART
     #define SPI_OLED        SPI_USART
+    #define DDR_SPI_NATIVE  DDRB
+    #define PORT_SPI_NATIVE PORTB
+    #define SS_SPI_NATIVE   PORTB0
+    #define SCK_SPI_NATIVE  PORTB1
+    #define MOSI_SPI_NATIVE PORTB2
+    #define MISO_SPI_NATIVE PORTB3
+    #define DDR_SPI_USART   DDRD
+    #define PORT_SPI_USART  PORTD
+    #define SCK_SPI_USART   PORTD5
+    #define MOSI_SPI_USART  PORTD3
+    #define MISO_SPI_USART  PORTD2
     // Slave Select Flash
     #define PORTID_FLASH_nS PORTB7
     #define PORT_FLASH_nS   PORTB

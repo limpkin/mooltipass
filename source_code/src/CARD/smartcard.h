@@ -22,9 +22,10 @@
 #ifndef SMARTCARD_H_
 #define SMARTCARD_H_
 
-#include "../defines.h"
+#include "defines.h"
 #include <stdint.h>
 
+// Prototypes
 uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive);
 void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write);
 void blowManufacturerNIssuerFuse(uint8_t bool_man_nissuer);
@@ -35,5 +36,17 @@ RET_TYPE isCardPlugged(void);
 void removeFunctionSMC(void);
 void scanSMCDectect(void);
 void initPortSMC(void);
+
+// Defines
+#define SMARTCARD_FABRICATION_ZONE	0x0F0F
+#define SMARTCARD_FACTORY_PIN		0xF0F0
+#define SMARTCARD_DEFAULT_PIN		0xF0F0
+#define SMARTCARD_AZ_BIT_LENGTH     512
+#define SMARTCARD_AZ1_BIT_START     176
+#define SMARTCARD_AZ1_BIT_RESERVED  16
+#define SMARTCARD_MTP_PASS_LENGTH   (SMARTCARD_AZ_BIT_LENGTH - SMARTCARD_AZ1_BIT_RESERVED - AES_KEY_LENGTH)
+#define SMARTCARD_AZ2_BIT_START     736
+#define SMARTCARD_AZ2_BIT_RESERVED  16
+#define SMARTCARD_MTP_LOGIN_LENGTH  (SMARTCARD_AZ_BIT_LENGTH - SMARTCARD_AZ2_BIT_RESERVED)
 
 #endif /* SMARTCARD_H_ */

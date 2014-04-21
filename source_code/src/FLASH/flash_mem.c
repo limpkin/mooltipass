@@ -26,10 +26,11 @@
 *    Author:   Michael Neiderhauser
 */
 
-#include "../defines.h"
-#include <spi.h>
-#include <stdint.h>
+#include "flash_mem.h"
+#include "defines.h"
 #include <avr/io.h>
+#include <stdint.h>
+#include <spi.h>
 
 #if SPI_FLASH != SPI_USART
 #error "SPI not implemented"

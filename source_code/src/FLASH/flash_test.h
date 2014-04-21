@@ -47,4 +47,11 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
 
 RET_TYPE flashTest();
 
+
+// Flash Testing Defines
+#define FLASH_TEST_INIT_BUFFER_POLICY_ZERO           0
+#define FLASH_TEST_INIT_BUFFER_POLICY_ONE            1
+#define FLASH_TEST_INIT_BUFFER_POLICY_INC            2
+#define FLASH_TEST_INIT_BUFFER_POLICY_RND            3
+
 #endif /* FLASH_TEST_H_ */

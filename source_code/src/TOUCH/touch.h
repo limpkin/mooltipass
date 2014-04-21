@@ -28,10 +28,33 @@
 
 #include "defines.h"
 
+// Prototypes
 RET_TYPE readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data);
 RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data);
 void initI2cPort(void);
 
+/** I2C controller defines **/
+#define I2C_START		    0x08
+#define	I2C_RSTART		    0x10
+#define I2C_SLA_ACK		    0x18
+#define I2C_SLA_NACK	    0x20
+#define I2C_SLAR_ACK	    0x40
+#define I2C_SLAR_NACK	    0x48
+#define	I2C_DATA_ACK	    0x28
+#define	I2C_DATA_NACK	    0x30
+#define	I2C_DATAR_ACK	    0x50
+#define	I2C_DATAR_NACK	    0x58
+#define	I2C_ARB_ERROR       0x38
+
+/** I2C errors defines **/
+#define	I2C_START_ERROR 	RETURN_OK - 1
+#define	I2C_SLA_ERROR	    RETURN_OK - 2
+#define	I2C_DATA_ERROR	    RETURN_OK - 3
+#define	I2C_RSTART_ERR	    RETURN_OK - 4
+#define	I2C_SLAR_ERROR      RETURN_OK - 5
+
+
+// Macros
 /*! \fn     start_condition()
 *   \brief  Generate start condition
 */

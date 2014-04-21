@@ -31,6 +31,7 @@
 #include "../FLASH/flash_mem.h"
 #include "oledmp.h"
 #include "usb_serial_hid.h"
+#include "flash_test.h"
 
 #include <stdint.h>
 #include <avr/io.h>

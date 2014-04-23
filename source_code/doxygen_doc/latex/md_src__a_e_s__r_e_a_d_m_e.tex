@@ -1,0 +1,95 @@
+\subsection*{1-\/ A\+V\+R C\+R\+Y\+P\+T\+O\+L\+I\+B }
+
+Mooltipass encryption is achieved by A\+V\+R Cryptolib. We can get the libraries and a description of the different files from the author website\+: \href{http://avrcryptolib.das-labor.org/trac/wiki/AES}{\tt A\+E\+S libraries and description}. We are only using the necessary files to get A\+E\+S256 encryption and decryption working, the other files are removed. As you may notice, we are using the A\+S\+M implementation of the library because it's lighter in code size and faster in execution.
+
+How to use the library? how to work with it ? As easy as it sounds, you only have to care about 3 functions\+: aes256\+\_\+init, aes256\+\_\+encrypt and aes256\+\_\+decrypt. Here it is a simple example\+:
+
+``` void aes256\+\_\+test(void) \{ // aes256 is 32 byte key uint8\+\_\+t key\mbox{[}32\mbox{]} = \{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20, 21,22,23,24,25,26,27,28,29,30,31\};
+
+// aes256 is 16 byte data size uint8\+\_\+t data\mbox{[}16\mbox{]} = \char`\"{}text to encrypt\char`\"{};
+
+// declare the context where the round keys are stored \hyperlink{structaes256__ctx__t}{aes256\+\_\+ctx\+\_\+t} ctx;
+
+// Initialize the A\+E\+S256 with the desired key aes256\+\_\+init(key, \&ctx);
+
+// Encrypt data // \char`\"{}text to encrypt\char`\"{} (ascii) -\/$>$ '9798\+D10\+A63\+E4\+E167122\+C4\+C07\+A\+F49\+C3\+A9'(hexa) aes256\+\_\+enc(data, \&ctx);
+
+// Decrypt data // '9798\+D10\+A63\+E4\+E167122\+C4\+C07\+A\+F49\+C3\+A9'(hexa) -\/$>$ \char`\"{}text to encrypt\char`\"{} (ascii) aes256\+\_\+dec(data, \&ctx); \} ```
+
+\subsection*{2-\/ Testing avr-\/cryptolib using nessie test vectors }
+
+After downloading a third party library or resource you must ensure the library performs the function as well as it is claimed. So to satisfy our paranoia against any bug or error with the library, we have checked the encyrption and decryption using different test vectors, called Nessie Test Vectors. There are 8 different sets of test vectors, we have checked A\+E\+S256 against all.
+
+To test A\+E\+S256 using nessie vectors, we have created a file called \hyperlink{aes256__nessie__test_8c}{aes256\+\_\+nessie\+\_\+test.\+c}. This file outputs the results of nessie test into U\+A\+R\+T, U\+S\+B C\+D\+C or whatever function you want. You only have to initialize the function pointer to print the output where you want.
+
+Sample code to print the output through U\+S\+B C\+D\+C\+:
+
+``` \#include \char`\"{}aes256\+\_\+nessie\+\_\+test.\+h\char`\"{}
+
+void \hyperlink{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}{main(void)} \{ /$\ast$ I\+N\+I\+T\+I\+A\+L\+I\+Z\+A\+T\+I\+O\+N O\+F U\+S\+B C\+D\+C $\ast$/
+
+// Redirect nessie\+Output to usb\+\_\+serial\+\_\+putchar nessie\+Output = 
+
+// Test all sets of nessie vectors nessie\+Test(1); nessie\+Test(2); nessie\+Test(3); nessie\+Test(4); nessie\+Test(5); nessie\+Test(6); nessie\+Test(7); nessie\+Test(8); \} ```
+
+Nessie test vectors and output are located in \href{https://www.cosic.esat.kuleuven.be/nessie/testvectors}{\tt https\+://www.\+cosic.\+esat.\+kuleuven.\+be/nessie/testvectors} Block Cipher -\/$>$ Rijndael -\/$>$ key size 256.
+
+The output of all nessie\+Test functions are formatted in the same way as the file {\bfseries aes256\+\_\+nessie\+\_\+test.\+txt}, so... you must save the output (using cutecom or similar hyperterminal program) into a file and check the differences between your file and {\bfseries aes256\+\_\+nessie\+\_\+test.\+txt} using a diff viewer.
+
+\subsection*{3-\/ C\+T\+R block encryption }
+
+The passwords stored on the mooltipass will be encrypted using C\+T\+R block encryption, more information in\+: \href{http://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_.28CTR.29}{\tt Counter C\+T\+R }. We must decide how to generate the initialization vector. Here's an example of use of C\+T\+R encryption and decryption.
+
+``` static uint8\+\_\+t key\mbox{[}32\mbox{]} = \{ 0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4 \};
+
+static uint8\+\_\+t iv\mbox{[}16\mbox{]} = \{ 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff \};
+
+char text\mbox{[}32\mbox{]} = \char`\"{}this is my pass to encrypt\char`\"{};
+
+void \hyperlink{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}{main(void)} \{ /$\ast$ Stuff here $\ast$/
+
+// Declare aes256 context variable \hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} ctx;
+
+// Save key and initialization vector inside context aes256\+Ctr\+Init(\&ctx, key, iv, 16);
+
+aes256\+Ctr\+Encrypt(\&ctx, key, text, sizeof(text)); // here array pass has been encrypted
+
+/$\ast$ Before decrypt is necessary to initialize the context another time due to ctx-\/$>$ctr value is being modified during encrypt (it's value is being incremented on each block encrypt operation) $\ast$/
+
+// Save key and initialization vector inside context aes256\+Ctr\+Init(\&ctx, key, iv, 16);
+
+aes256\+Ctr\+Decrypt(\&ctx, key, text, sizeof(text)); // decrypting make text to be \char`\"{}this is my pass to encrypt\char`\"{} again. \} ``` Data input in aes256\+Ctr\+Encrypt and aes256\+Ctr\+Decrypt must be multiple of 16 bytes length.
+
+As said, we like to test our code and verify it has no bugs so... you can test C\+T\+R encryption implementation by using {\bfseries \hyperlink{aes256__ctr__test_8c}{aes256\+\_\+ctr\+\_\+test.\+c}} functions and doing a diff against {\bfseries aes256\+\_\+ctr\+\_\+test.\+txt}. C\+T\+R vectors used in aes256\+Ctr\+Test are from \href{http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf}{\tt http\+://csrc.\+nist.\+gov/publications/nistpubs/800-\/38a/sp800-\/38a.\+pdf}. ``` void \hyperlink{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}{main(void)} \{ \begin{DoxyVerb}/*
+    INITIALIZATION OF USB CDC
+*/
+
+// Redirect ctrTestOutput to usb_serial_putchar function
+ctrTestOutput = &usb_serial_putchar;
+
+aes256CtrTest();
+\end{DoxyVerb}
+ \} ```
+
+\subsection*{4-\/ Description of files }
+
+
+\begin{DoxyItemize}
+\item A\+V\+R-\/cryptolib files used in this project\+:
+\end{DoxyItemize}
+
+``` aes/aes\+\_\+dec-\/asm.\+S -\/$>$ aes decrypt file aes/aes\+\_\+enc-\/asm.\+S -\/$>$ aes encrypt file aes/aes\+\_\+keyschedule-\/asm.\+S -\/$>$ aes key schedule, see \href{http://en.wikipedia.org/wiki/Rijndael_key_schedule}{\tt http\+://en.\+wikipedia.\+org/wiki/\+Rijndael\+\_\+key\+\_\+schedule} aes/aes\+\_\+sbox-\/asm.\+S -\/$>$ aes substitution box, see \href{http://en.wikipedia.org/wiki/Rijndael_S-box}{\tt http\+://en.\+wikipedia.\+org/wiki/\+Rijndael\+\_\+\+S-\/box} aes/aes\+\_\+invsbox-\/asm.\+S -\/$>$ aes inverse substitution box, see \href{http://en.wikipedia.org/wiki/Rijndael_S-box}{\tt http\+://en.\+wikipedia.\+org/wiki/\+Rijndael\+\_\+\+S-\/box} gf256mul/gf256mul.\+S -\/$>$ Galois Field multiplication, see \href{http://www.samiam.org/galois.html}{\tt http\+://www.\+samiam.\+org/galois.\+html} avr-\/asm-\/macros.\+S -\/$>$ specific macros to work with the library ```
+
+
+\begin{DoxyItemize}
+\item Custom files done by mooltipass team\+:
+\end{DoxyItemize}
+
+``` \hyperlink{aes256__nessie__test_8c}{aes256\+\_\+nessie\+\_\+test.\+c} (only used for test) \hyperlink{aes256__ctr__test_8c}{aes256\+\_\+ctr\+\_\+test.\+c} (only used for test) \hyperlink{aes256__ctr_8c}{aes256\+\_\+ctr.\+c} ```
+
+
+\begin{DoxyItemize}
+\item Files to check aes256\+\_\+enc/dec and aes256\+\_\+ctr tests\+:
+\end{DoxyItemize}
+
+``` aes256\+\_\+nessie\+\_\+test.\+txt aes256\+\_\+ctr\+\_\+test.\+txt ``` 

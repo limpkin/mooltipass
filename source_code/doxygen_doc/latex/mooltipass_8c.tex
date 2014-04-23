@@ -1,38 +1,43 @@
 \hypertarget{mooltipass_8c}{\section{src/mooltipass.c File Reference}
-\label{mooltipass_8c}\index{src/mooltipass.\-c@{src/mooltipass.\-c}}
+\label{mooltipass_8c}\index{src/mooltipass.\+c@{src/mooltipass.\+c}}
 }
 
 
-Main file Created\-: 08/12/2013 13\-:54\-:34 Author\-: Mathieu Stephan.  
+main file Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}  
 
 
-{\ttfamily \#include \char`\"{}smart\-\_\-card\-\_\-higher\-\_\-level\-\_\-functions.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}aes256\-\_\-nessie\-\_\-test.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}aes256\-\_\-ctr\-\_\-test.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}usb\-\_\-serial\-\_\-hid.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}mooltipass.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}interrupts.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}smartcard.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}flash\-\_\-mem.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}oledmp.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}spi.\-h\char`\"{}}\\*
-{\ttfamily \#include $<$util/delay.\-h$>$}\\*
-{\ttfamily \#include $<$stdlib.\-h$>$}\\*
-{\ttfamily \#include $<$avr/io.\-h$>$}\\*
-{\ttfamily \#include \char`\"{}had\-\_\-mooltipass.\-h\char`\"{}}\\*
+{\ttfamily \#include $<$util/delay.\+h$>$}\\*
+{\ttfamily \#include $<$stdlib.\+h$>$}\\*
+{\ttfamily \#include $<$avr/io.\+h$>$}\\*
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}smart\+\_\+card\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}touch\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}had\+\_\+mooltipass.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb\+\_\+serial\+\_\+hid.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}mooltipass.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}interrupts.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}smartcard.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}node\+\_\+mgmt.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}entropy.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oledmp.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}tests.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}touch.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}spi.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}pwm.\+h\char`\"{}}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}{void \hyperlink{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}{disable\-\_\-jtag} (void)}\label{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}
+\hypertarget{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}{void \hyperlink{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}{disable\+\_\+jtag} (void)}\label{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}
 
-\begin{DoxyCompactList}\small\item\em Disable the J\-T\-A\-G module. \end{DoxyCompactList}\item 
-\hypertarget{mooltipass_8c_a2e807a94d2d9ed60bf98cfb536e36f30}{uint16\-\_\-t {\bfseries mooltipass\-\_\-rand} (void)}\label{mooltipass_8c_a2e807a94d2d9ed60bf98cfb536e36f30}
-
-\item 
+\begin{DoxyCompactList}\small\item\em Disable the J\+T\+A\+G module. \end{DoxyCompactList}\item 
 \hypertarget{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}{int \hyperlink{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}{main} (void)}\label{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}
 
 \begin{DoxyCompactList}\small\item\em Main function. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Main file Created\-: 08/12/2013 13\-:54\-:34 Author\-: Mathieu Stephan. 
+main file Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]} 
+

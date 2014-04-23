@@ -1,47 +1,49 @@
-\hypertarget{aes256__nessie__test_8c}{\section{src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.c File Reference}
-\label{aes256__nessie__test_8c}\index{src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.\-c@{src/\-A\-E\-S/aes256\-\_\-nessie\-\_\-test.\-c}}
+\hypertarget{aes256__nessie__test_8c}{\section{src/\+A\+E\+S/aes256\+\_\+nessie\+\_\+test.c File Reference}
+\label{aes256__nessie__test_8c}\index{src/\+A\+E\+S/aes256\+\_\+nessie\+\_\+test.\+c@{src/\+A\+E\+S/aes256\+\_\+nessie\+\_\+test.\+c}}
 }
 
 
-Different functions to check A\-E\-S256 using nessie test vectors. \par
- see \href{https://www.cosic.esat.kuleuven.be/nessie/testvectors/}{\tt https\-://www.\-cosic.\-esat.\-kuleuven.\-be/nessie/testvectors/} \par
- Block Cipher -\/$>$ Rijndael -\/$>$ key size 256. \par
- To verify the output of tests, do a log with output and see differences with a diff viewer. \par
+Different functions to check A\+E\+S256 using nessie test vectors. ~\newline
+ see \href{https://www.cosic.esat.kuleuven.be/nessie/testvectors/}{\tt https\+://www.\+cosic.\+esat.\+kuleuven.\+be/nessie/testvectors/} ~\newline
+ Block Cipher -\/$>$ Rijndael -\/$>$ key size 256. ~\newline
+ To verify the output of tests, do a log with output and see differences with a diff viewer. ~\newline
 .  
 
 
-{\ttfamily \#include $<$stdint.\-h$>$}\\*
-{\ttfamily \#include $<$avr/io.\-h$>$}\\*
-{\ttfamily \#include $<$avr/pgmspace.\-h$>$}\\*
-{\ttfamily \#include \char`\"{}aes256\-\_\-nessie\-\_\-test.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}aes.\-h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}utils.\-h\char`\"{}}\\*
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+{\ttfamily \#include $<$avr/io.\+h$>$}\\*
+{\ttfamily \#include $<$avr/pgmspace.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}aes256\+\_\+nessie\+\_\+test.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \hyperlink{aes256__nessie__test_8c_abf33d91f9bb149acff9822a07a88bcbb}{nessie\-Test} (uint8\-\_\-t setnum)
+void \hyperlink{aes256__nessie__test_8c_abf33d91f9bb149acff9822a07a88bcbb}{nessie\+Test} (uint8\+\_\+t setnum)
 \begin{DoxyCompactList}\small\item\em Perform desired nessie test. Test from 1 to 8. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}{int8\-\_\-t($\ast$ \hyperlink{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}{nessie\-Output} )(uint8\-\_\-t ch)}\label{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}
+\hypertarget{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}{int8\+\_\+t($\ast$ \hyperlink{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}{nessie\+Output} )(uint8\+\_\+t ch)}\label{aes256__nessie__test_8c_a484b7c84d270511984849d9d5ef55a39}
 
 \begin{DoxyCompactList}\small\item\em function pointer to the output function \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Different functions to check A\-E\-S256 using nessie test vectors. \par
- see \href{https://www.cosic.esat.kuleuven.be/nessie/testvectors/}{\tt https\-://www.\-cosic.\-esat.\-kuleuven.\-be/nessie/testvectors/} \par
- Block Cipher -\/$>$ Rijndael -\/$>$ key size 256. \par
- To verify the output of tests, do a log with output and see differences with a diff viewer. \par
-. Created\-: 16/02/2014 13\-:54\-:34 Author\-: Miguel A. Borrego 
+Different functions to check A\+E\+S256 using nessie test vectors. ~\newline
+ see \href{https://www.cosic.esat.kuleuven.be/nessie/testvectors/}{\tt https\+://www.\+cosic.\+esat.\+kuleuven.\+be/nessie/testvectors/} ~\newline
+ Block Cipher -\/$>$ Rijndael -\/$>$ key size 256. ~\newline
+ To verify the output of tests, do a log with output and see differences with a diff viewer. ~\newline
+. 
+
+Created\+: 16/02/2014 13\+:54\+:34 Author\+: Miguel A. Borrego 
 
 \subsection{Function Documentation}
-\hypertarget{aes256__nessie__test_8c_abf33d91f9bb149acff9822a07a88bcbb}{\index{aes256\-\_\-nessie\-\_\-test.\-c@{aes256\-\_\-nessie\-\_\-test.\-c}!nessie\-Test@{nessie\-Test}}
-\index{nessie\-Test@{nessie\-Test}!aes256_nessie_test.c@{aes256\-\_\-nessie\-\_\-test.\-c}}
-\subsubsection[{nessie\-Test}]{\setlength{\rightskip}{0pt plus 5cm}void nessie\-Test (
+\hypertarget{aes256__nessie__test_8c_abf33d91f9bb149acff9822a07a88bcbb}{\index{aes256\+\_\+nessie\+\_\+test.\+c@{aes256\+\_\+nessie\+\_\+test.\+c}!nessie\+Test@{nessie\+Test}}
+\index{nessie\+Test@{nessie\+Test}!aes256\+\_\+nessie\+\_\+test.\+c@{aes256\+\_\+nessie\+\_\+test.\+c}}
+\subsubsection[{nessie\+Test}]{\setlength{\rightskip}{0pt plus 5cm}void nessie\+Test (
 \begin{DoxyParamCaption}
-\item[{uint8\-\_\-t}]{setnum}
+\item[{uint8\+\_\+t}]{setnum}
 \end{DoxyParamCaption}
 )}}\label{aes256__nessie__test_8c_abf33d91f9bb149acff9822a07a88bcbb}
 

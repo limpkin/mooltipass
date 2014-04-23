@@ -26,9 +26,16 @@
 *    Author:   Michael Neiderhauser
 */
 
-#include "../defines.h"
-#include <stdint.h>
+#include "flash_mem.h"
+#include "defines.h"
 #include <avr/io.h>
+#include <stdint.h>
+#include <spi.h>
+
+#if SPI_FLASH != SPI_USART
+#error "SPI not implemented"
+#endif
+
 
 /*!  \fn       sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer)
 *    \brief    Send bytes to the flash memory. WARNING THE DATA IN THE BUFFER MAY BE DESTROYED
@@ -38,36 +45,16 @@
 *    \param    buffer            Pointer to the buffer
 *    \return   Success status
 */
-RET_TYPE sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer)
+RET_TYPE sendDataToFlash(uint8_t opcodeSize, void *opcode, uint16_t bufferSize, void *buffer)
 {
-    /* Read UDR1 contents to clear previous flags */
-    while(UCSR1A & (1<<RXC1))UDR1;
-
     /* Assert chip select */
     PORT_FLASH_nS &= ~(1 << PORTID_FLASH_nS);
 
-    while(opcodeSize--)
+    spiUsartWrite((uint8_t *)opcode, opcodeSize);
+    while (bufferSize--) 
     {
-        /* Wait for empty transmit buffer */
-        while(!(UCSR1A & (1 << UDRE1)));
-        /* Put data into buffer, sends the data */
-        UDR1 = *(opcode++);
-        /* Wait for data to be received */
-        while(!(UCSR1A & (1<<RXC1)));
-        /* Read received data to clear flag */
-        UDR1;
-    }
-
-    while(bufferSize--)
-    {
-        /* Wait for empty transmit buffer */
-        while(!(UCSR1A & (1 << UDRE1)));
-        /* Put data into buffer, sends the data */
-        UDR1 = *buffer;
-        /* Wait for data to be received */
-        while(!(UCSR1A & (1<<RXC1)));
-        /* Store received data */
-        *(buffer++) = UDR1;
+        *(uint8_t *)buffer = spiUsartTransfer(*(uint8_t *)buffer);
+        buffer++;
     }
 
     /* Deassert chip select */
@@ -128,22 +115,6 @@ RET_TYPE initFlash(void)
     /* Setup chip select signal */
     DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
     PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
-    
-    /* Setup SPI interface */
-    #if SPI_OLED == SPI_USART
-        if(!(UCSR1B & (1 << TXEN1)))
-        {
-            DDRD |= (1 << 3) | (1 << 5);                                                // MOSI & SCK as ouputs
-            DDRD &= ~(1 << 2);                                                            // MISO as input
-            PORTD &= ~(1 << 2);                                                            // Disable pull-up
-            UBRR1 = 0x00;                                                                // Set USART baud divider to 0
-            UCSR1C = (1 << UMSEL11) | (1 << UMSEL10) | (1 << UCPOL1) | (1 << UCSZ10);    // Enable USART1 as Master SPI mode 3
-            UCSR1B = (1 << TXEN1) | (1 << RXEN1);                                        // Enable receiver and transmitter
-            UBRR1 = 0x00;                                                                // Set USART baud divider to 0, final baud rate 8Mbit/s
-        }
-    #else
-        #error "SPI not implemented"
-    #endif
     
     /*  Check flash identification */
     if(checkFlashID() != RETURN_OK)
@@ -288,7 +259,7 @@ RET_TYPE pageErase(uint16_t pageNumber)
 *    \param    data              The buffer (data structure) to write to flash
 *    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
 */
-RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
+RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)
 {
     uint8_t opcode[4];
     uint32_t procBuff = (uint32_t)pageNumber;
@@ -344,7 +315,7 @@ RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSiz
 *    \param    data              The buffer to store data from flash
 *    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
 */
-RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
+RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)
 {    
     uint8_t opcode[4];
     uint32_t procBuff = (uint32_t)pageNumber;

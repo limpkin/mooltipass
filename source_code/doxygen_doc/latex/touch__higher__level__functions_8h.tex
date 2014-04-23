@@ -1,0 +1,350 @@
+\hypertarget{touch__higher__level__functions_8h}{\section{src/\+T\+O\+U\+C\+H/touch\+\_\+higher\+\_\+level\+\_\+functions.h File Reference}
+\label{touch__higher__level__functions_8h}\index{src/\+T\+O\+U\+C\+H/touch\+\_\+higher\+\_\+level\+\_\+functions.\+h@{src/\+T\+O\+U\+C\+H/touch\+\_\+higher\+\_\+level\+\_\+functions.\+h}}
+}
+
+
+Touch higher level sensing functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{touch__higher__level__functions_8h_af719861ca7176521834e1b4339891f67}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+I\+D}~0x3\+E}\label{touch__higher__level__functions_8h_af719861ca7176521834e1b4339891f67}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a4d96fe8483862957fc82cf5bbc42d614}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+A\+D\+D\+R}~(0x1\+C $<$$<$ 1)}\label{touch__higher__level__functions_8h_a4d96fe8483862957fc82cf5bbc42d614}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a6afcf2192799a0566f9eaa08805578a3}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+T\+D\+E\+T\+\_\+\+M\+A\+S\+K}~0x01}\label{touch__higher__level__functions_8h_a6afcf2192799a0566f9eaa08805578a3}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a88adaa09b44b5450b227bdcfa7ede8e9}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+S\+D\+E\+T\+\_\+\+M\+A\+S\+K}~0x02}\label{touch__higher__level__functions_8h_a88adaa09b44b5450b227bdcfa7ede8e9}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a3a5d4ea7aa693e0cb0ab1e66ff4bff80}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+T\+O\+U\+C\+H\+\_\+\+K\+E\+Y\+\_\+\+V\+A\+L}~0x00}\label{touch__higher__level__functions_8h_a3a5d4ea7aa693e0cb0ab1e66ff4bff80}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a73843d18465a9a81c1d0317d37872c1e}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+O\+U\+T\+P\+U\+T\+\_\+\+L\+\_\+\+V\+A\+L}~0x01}\label{touch__higher__level__functions_8h_a73843d18465a9a81c1d0317d37872c1e}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_af4668542ba5b48b383b3e300bfe52286}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+O\+U\+T\+P\+U\+T\+\_\+\+H\+\_\+\+V\+A\+L}~0x03}\label{touch__higher__level__functions_8h_af4668542ba5b48b383b3e300bfe52286}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a2e81153a531dade0ec5edd42de7e1818}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+G\+U\+A\+R\+D\+\_\+\+V\+A\+L}~0x10}\label{touch__higher__level__functions_8h_a2e81153a531dade0ec5edd42de7e1818}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_abb9454b8d2e06a3c269d913968478ed2}{\#define {\bfseries A\+T42\+Q\+T2120\+\_\+\+A\+K\+S\+\_\+\+G\+P1\+\_\+\+M\+A\+S\+K}~0x04}\label{touch__higher__level__functions_8h_abb9454b8d2e06a3c269d913968478ed2}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ac35cc0d2eed6d26b288f937c6d319c5a}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+C\+H\+I\+P\+\_\+\+I\+D}~0x00}\label{touch__higher__level__functions_8h_ac35cc0d2eed6d26b288f937c6d319c5a}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a796b73ec67456cd12d4d11ee4f2bc32c}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+F\+W\+\_\+\+V\+E\+R}~0x01}\label{touch__higher__level__functions_8h_a796b73ec67456cd12d4d11ee4f2bc32c}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a8267e6e3d34f2498f3b3c387baea0878}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+D\+E\+T\+\_\+\+S\+T\+A\+T}~0x02}\label{touch__higher__level__functions_8h_a8267e6e3d34f2498f3b3c387baea0878}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a1d88bf76fecf9080323153699103af96}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+T\+A\+T1}~0x03}\label{touch__higher__level__functions_8h_a1d88bf76fecf9080323153699103af96}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a70cc47aca6e072a9079b1cc135c07c3e}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+T\+A\+T2}~0x04}\label{touch__higher__level__functions_8h_a70cc47aca6e072a9079b1cc135c07c3e}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a3f76bce4fed9ab9dadc241e287dcc1ce}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+S\+L\+I\+D\+E\+R\+\_\+\+P\+O\+S}~0x05}\label{touch__higher__level__functions_8h_a3f76bce4fed9ab9dadc241e287dcc1ce}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_afd68a9822dd402add7884b9911ea3ae4}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+C\+A\+L\+I\+B}~0x06}\label{touch__higher__level__functions_8h_afd68a9822dd402add7884b9911ea3ae4}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a67bc9ca1bb61e67813adf0292e048611}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+n\+R\+E\+S\+E\+T}~0x07}\label{touch__higher__level__functions_8h_a67bc9ca1bb61e67813adf0292e048611}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a1662a898466e68bab7e66def59553982}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+L\+P}~0x08}\label{touch__higher__level__functions_8h_a1662a898466e68bab7e66def59553982}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a343b38bc35fef72620604db9e8920104}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+T\+T\+D}~0x09}\label{touch__higher__level__functions_8h_a343b38bc35fef72620604db9e8920104}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a35dd56c0fa1e9200e6a8d3d8f4bff96c}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+A\+T\+D}~0x0\+A}\label{touch__higher__level__functions_8h_a35dd56c0fa1e9200e6a8d3d8f4bff96c}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a7d7456d22a4634dd9e6be91f8024b490}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+D\+I}~0x0\+B}\label{touch__higher__level__functions_8h_a7d7456d22a4634dd9e6be91f8024b490}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ac2a4e0109ce582d84d613f2bd388af1d}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+T\+R\+D}~0x0\+C}\label{touch__higher__level__functions_8h_ac2a4e0109ce582d84d613f2bd388af1d}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ac53cbc9203744ace18dd6fe844dcf366}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+D\+H\+T}~0x0\+D}\label{touch__higher__level__functions_8h_ac53cbc9203744ace18dd6fe844dcf366}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ad096fd1705ec0ef4cc4509b7ff6d7e85}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+S\+L\+I\+D\+\_\+\+O\+P\+T}~0x0\+E}\label{touch__higher__level__functions_8h_ad096fd1705ec0ef4cc4509b7ff6d7e85}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a2a7a309329132f0b1340b4e4f25c56c4}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+C\+H\+A\+R\+G\+E\+\_\+\+T\+I\+M\+E}~0x0\+F}\label{touch__higher__level__functions_8h_a2a7a309329132f0b1340b4e4f25c56c4}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a07c5819c81644493e206443b2ac30736}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y0\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x10}\label{touch__higher__level__functions_8h_a07c5819c81644493e206443b2ac30736}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a0fc43430e7fee5379ba3c8473277dea9}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y1\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x11}\label{touch__higher__level__functions_8h_a0fc43430e7fee5379ba3c8473277dea9}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aad111328bac5499f96092641b7f79358}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y2\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x12}\label{touch__higher__level__functions_8h_aad111328bac5499f96092641b7f79358}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a900ebd8d2f377546edd2b1940159e816}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y3\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x13}\label{touch__higher__level__functions_8h_a900ebd8d2f377546edd2b1940159e816}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a9dbfd360684e9ed0e53849d3c5b56f2b}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y4\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x14}\label{touch__higher__level__functions_8h_a9dbfd360684e9ed0e53849d3c5b56f2b}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ae2346eef89d69893d86e601857bcc50a}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y5\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x15}\label{touch__higher__level__functions_8h_ae2346eef89d69893d86e601857bcc50a}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a82165ab42e0d427d1afb3a4de8cb411f}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y6\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x16}\label{touch__higher__level__functions_8h_a82165ab42e0d427d1afb3a4de8cb411f}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a98a976d688c58da0b1e3fe0cab9654cb}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y7\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x17}\label{touch__higher__level__functions_8h_a98a976d688c58da0b1e3fe0cab9654cb}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a33a2f7e38999372d0ac970ae8f969897}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y8\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x18}\label{touch__higher__level__functions_8h_a33a2f7e38999372d0ac970ae8f969897}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a1dabb8f6323f9d8b0669314db305c344}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y9\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x19}\label{touch__higher__level__functions_8h_a1dabb8f6323f9d8b0669314db305c344}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ad909e87f371fab3288bf271f5d5310ff}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y10\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x1\+A}\label{touch__higher__level__functions_8h_ad909e87f371fab3288bf271f5d5310ff}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a3a0d4df3d0a38d41063f6d1d4540fa75}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y11\+\_\+\+D\+E\+T\+\_\+\+T\+H\+R}~0x1\+B}\label{touch__higher__level__functions_8h_a3a0d4df3d0a38d41063f6d1d4540fa75}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_afdaa34736da7fdc63d82739f513591f3}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y0\+\_\+\+C\+T\+R\+L}~0x1\+C}\label{touch__higher__level__functions_8h_afdaa34736da7fdc63d82739f513591f3}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_adaeea21d7e0c66158cc29d689878c6ee}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y1\+\_\+\+C\+T\+R\+L}~0x1\+D}\label{touch__higher__level__functions_8h_adaeea21d7e0c66158cc29d689878c6ee}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a0c2274321a6267e46f4988f0150d1c72}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y2\+\_\+\+C\+T\+R\+L}~0x1\+E}\label{touch__higher__level__functions_8h_a0c2274321a6267e46f4988f0150d1c72}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a2db4ebb2740f3c70693c0ac51a683844}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y3\+\_\+\+C\+T\+R\+L}~0x1\+F}\label{touch__higher__level__functions_8h_a2db4ebb2740f3c70693c0ac51a683844}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a7d0723c5561c32381f00c2c14e06628f}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y4\+\_\+\+C\+T\+R\+L}~0x20}\label{touch__higher__level__functions_8h_a7d0723c5561c32381f00c2c14e06628f}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a77b17f995a0da077a07de693c1360721}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y5\+\_\+\+C\+T\+R\+L}~0x21}\label{touch__higher__level__functions_8h_a77b17f995a0da077a07de693c1360721}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aa3bc9c71d07b8d2f0e4cae6c13125c0a}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y6\+\_\+\+C\+T\+R\+L}~0x22}\label{touch__higher__level__functions_8h_aa3bc9c71d07b8d2f0e4cae6c13125c0a}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aa8103c6856e9102cb01b9e2b253f4f4a}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y7\+\_\+\+C\+T\+R\+L}~0x23}\label{touch__higher__level__functions_8h_aa8103c6856e9102cb01b9e2b253f4f4a}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aa3fdc304dc44139185185398d0a0331e}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y8\+\_\+\+C\+T\+R\+L}~0x24}\label{touch__higher__level__functions_8h_aa3fdc304dc44139185185398d0a0331e}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a00d8f0d161ac354235adfc5e134c5e60}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y9\+\_\+\+C\+T\+R\+L}~0x25}\label{touch__higher__level__functions_8h_a00d8f0d161ac354235adfc5e134c5e60}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ae38e2a2854d0c055140856f9b5a08e14}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y10\+\_\+\+C\+T\+R\+L}~0x26}\label{touch__higher__level__functions_8h_ae38e2a2854d0c055140856f9b5a08e14}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ad76933977a2e718ec174b31bbb3c1ea6}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y11\+\_\+\+C\+T\+R\+L}~0x27}\label{touch__higher__level__functions_8h_ad76933977a2e718ec174b31bbb3c1ea6}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a37d02895c94a194665f7dff6dbc62bcc}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y0\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x28}\label{touch__higher__level__functions_8h_a37d02895c94a194665f7dff6dbc62bcc}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a24cab9f220c5fab427acbe641de64013}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y1\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x29}\label{touch__higher__level__functions_8h_a24cab9f220c5fab427acbe641de64013}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a9fce6f292129cd5809d62e454b467881}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y2\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x2\+A}\label{touch__higher__level__functions_8h_a9fce6f292129cd5809d62e454b467881}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a6b2f28702f4cdc18361efe5c7ce7c3e1}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y3\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x2\+B}\label{touch__higher__level__functions_8h_a6b2f28702f4cdc18361efe5c7ce7c3e1}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a570104bad93d2a272af4cdd696b76176}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y4\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x2\+C}\label{touch__higher__level__functions_8h_a570104bad93d2a272af4cdd696b76176}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aa3d51ce3aed0e5af4fad7655932d797f}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y5\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x2\+D}\label{touch__higher__level__functions_8h_aa3d51ce3aed0e5af4fad7655932d797f}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ade8ecaebf54bc3f7c4578a4b7b42f7e1}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y6\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x2\+E}\label{touch__higher__level__functions_8h_ade8ecaebf54bc3f7c4578a4b7b42f7e1}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_affbb931a9dad448fc7878f67cd8f70b8}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y7\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x2\+F}\label{touch__higher__level__functions_8h_affbb931a9dad448fc7878f67cd8f70b8}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a046b629df841816826f5b29093cc5dd7}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y8\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x30}\label{touch__higher__level__functions_8h_a046b629df841816826f5b29093cc5dd7}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a7539f40659d61600e73ba180e9ba0f16}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y9\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x31}\label{touch__higher__level__functions_8h_a7539f40659d61600e73ba180e9ba0f16}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a77002f5810287470a62503c7ef2187cf}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y10\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x32}\label{touch__higher__level__functions_8h_a77002f5810287470a62503c7ef2187cf}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ad502b1f804c3cc63114e35af4ed3016a}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y11\+\_\+\+P\+U\+L\+S\+E\+\_\+\+S\+C\+L}~0x33}\label{touch__higher__level__functions_8h_ad502b1f804c3cc63114e35af4ed3016a}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ab3774b8e603162ff3f6917c91096b293}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y0\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x34}\label{touch__higher__level__functions_8h_ab3774b8e603162ff3f6917c91096b293}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a18d3bd7a0c2254313a2a20caf65516ef}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y0\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x35}\label{touch__higher__level__functions_8h_a18d3bd7a0c2254313a2a20caf65516ef}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a7282f0b879450cc35175e5a6c2a8b781}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y1\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x36}\label{touch__higher__level__functions_8h_a7282f0b879450cc35175e5a6c2a8b781}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a6da2054cf7033a66acb2ee7b216846a0}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y1\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x37}\label{touch__higher__level__functions_8h_a6da2054cf7033a66acb2ee7b216846a0}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a72e5970fb176c54dc733d44d8ec14ea7}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y2\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x38}\label{touch__higher__level__functions_8h_a72e5970fb176c54dc733d44d8ec14ea7}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a588387acd12f9a576a3715b16a70d5ff}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y2\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x39}\label{touch__higher__level__functions_8h_a588387acd12f9a576a3715b16a70d5ff}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a818e5e4378bd35a92f019d6067ea41e9}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y3\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x3\+A}\label{touch__higher__level__functions_8h_a818e5e4378bd35a92f019d6067ea41e9}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a414dcf1aa9c8484ac472478861316766}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y3\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x3\+B}\label{touch__higher__level__functions_8h_a414dcf1aa9c8484ac472478861316766}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a7e813d69972e4ac46ef129dcfd3052a8}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y4\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x3\+C}\label{touch__higher__level__functions_8h_a7e813d69972e4ac46ef129dcfd3052a8}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a9a09ccb4e3f608bbc2d186183bf4b024}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y4\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x3\+D}\label{touch__higher__level__functions_8h_a9a09ccb4e3f608bbc2d186183bf4b024}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aae1522dafcdb69e49b3edb21b58c955c}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y5\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x3\+E}\label{touch__higher__level__functions_8h_aae1522dafcdb69e49b3edb21b58c955c}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a863d6b64510752ae659a0a4ee421e2e7}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y5\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x3\+F}\label{touch__higher__level__functions_8h_a863d6b64510752ae659a0a4ee421e2e7}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a045097c4da0c360b9e60ab2c906702c1}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y6\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x40}\label{touch__higher__level__functions_8h_a045097c4da0c360b9e60ab2c906702c1}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a53e5400ea7edf1d63cb7aecd943e4820}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y6\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x41}\label{touch__higher__level__functions_8h_a53e5400ea7edf1d63cb7aecd943e4820}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aefd0f61b67c8f226e000a2e2ed634aa7}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y7\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x42}\label{touch__higher__level__functions_8h_aefd0f61b67c8f226e000a2e2ed634aa7}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a47a76e323618a3c92496f168dbe95161}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y7\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x43}\label{touch__higher__level__functions_8h_a47a76e323618a3c92496f168dbe95161}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_abccbee1ac9c4f99bf8725b10cb4d5959}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y8\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x44}\label{touch__higher__level__functions_8h_abccbee1ac9c4f99bf8725b10cb4d5959}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_acbf691dc06576c3405e793093518fa6b}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y8\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x45}\label{touch__higher__level__functions_8h_acbf691dc06576c3405e793093518fa6b}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a6e138fd0d1cb5c8b7f1e2f931769fbb9}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y9\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x46}\label{touch__higher__level__functions_8h_a6e138fd0d1cb5c8b7f1e2f931769fbb9}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a9d16bcb68be688cd38dd3538a4d1676b}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y9\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x47}\label{touch__higher__level__functions_8h_a9d16bcb68be688cd38dd3538a4d1676b}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a6dad6a7d9e6d5e2ea591c2d376db40a6}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y10\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x48}\label{touch__higher__level__functions_8h_a6dad6a7d9e6d5e2ea591c2d376db40a6}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a5902b0eb3b72d003d6eb99767f482d78}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y10\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x49}\label{touch__higher__level__functions_8h_a5902b0eb3b72d003d6eb99767f482d78}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_af64098a15030ae8c0f89680775636c6f}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y11\+\_\+\+S\+I\+G\+\_\+\+M\+S\+B}~0x4\+A}\label{touch__higher__level__functions_8h_af64098a15030ae8c0f89680775636c6f}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a39bff9ddd3c989f986dc7986da9ef5d6}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+K\+E\+Y11\+\_\+\+S\+I\+G\+\_\+\+L\+S\+B}~0x4\+B}\label{touch__higher__level__functions_8h_a39bff9ddd3c989f986dc7986da9ef5d6}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a780e5722a7bf35fcf37ac90c8f97f87d}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A0\+\_\+\+M\+S\+B}~0x4\+C}\label{touch__higher__level__functions_8h_a780e5722a7bf35fcf37ac90c8f97f87d}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a4275958986bc9f8324463d11a0e7b6b1}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A0\+\_\+\+L\+S\+B}~0x4\+D}\label{touch__higher__level__functions_8h_a4275958986bc9f8324463d11a0e7b6b1}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a98b8934b8d4490e8c1f900362851dc67}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A1\+\_\+\+M\+S\+B}~0x4\+E}\label{touch__higher__level__functions_8h_a98b8934b8d4490e8c1f900362851dc67}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aeaecf56f58fd3e4ddd4af6c476a6c84b}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A1\+\_\+\+L\+S\+B}~0x4\+F}\label{touch__higher__level__functions_8h_aeaecf56f58fd3e4ddd4af6c476a6c84b}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a6c497bbc7938b100c93bbddea4e57cb0}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A2\+\_\+\+M\+S\+B}~0x50}\label{touch__higher__level__functions_8h_a6c497bbc7938b100c93bbddea4e57cb0}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a20315db9e3d1ecb53df1c5aad3d1077c}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A2\+\_\+\+L\+S\+B}~0x51}\label{touch__higher__level__functions_8h_a20315db9e3d1ecb53df1c5aad3d1077c}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_af1aff8ac4c3c9c1ad7100a514b9a122a}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A3\+\_\+\+M\+S\+B}~0x52}\label{touch__higher__level__functions_8h_af1aff8ac4c3c9c1ad7100a514b9a122a}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_af290e0c8bea029f1dc0acfe49e8308ac}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A3\+\_\+\+L\+S\+B}~0x53}\label{touch__higher__level__functions_8h_af290e0c8bea029f1dc0acfe49e8308ac}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a9aaece5cebfc22a83f58d8b7e593e834}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A4\+\_\+\+M\+S\+B}~0x54}\label{touch__higher__level__functions_8h_a9aaece5cebfc22a83f58d8b7e593e834}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a99ab1a80e450914ea2d82a0589061f71}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A4\+\_\+\+L\+S\+B}~0x55}\label{touch__higher__level__functions_8h_a99ab1a80e450914ea2d82a0589061f71}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ae59c6b10e48184dabc5c52e4cf686d2d}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A5\+\_\+\+M\+S\+B}~0x56}\label{touch__higher__level__functions_8h_ae59c6b10e48184dabc5c52e4cf686d2d}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ab636d306b86bf3a6d41f2773729ae1ac}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A5\+\_\+\+L\+S\+B}~0x57}\label{touch__higher__level__functions_8h_ab636d306b86bf3a6d41f2773729ae1ac}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a67d0326767767372a945e46955e31064}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A6\+\_\+\+M\+S\+B}~0x58}\label{touch__higher__level__functions_8h_a67d0326767767372a945e46955e31064}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ae31f36a14d69220db309c6bf8e6e13f3}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A6\+\_\+\+L\+S\+B}~0x59}\label{touch__higher__level__functions_8h_ae31f36a14d69220db309c6bf8e6e13f3}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a6b9f02c75355c75eb9d54b31122f41cd}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A7\+\_\+\+M\+S\+B}~0x5\+A}\label{touch__higher__level__functions_8h_a6b9f02c75355c75eb9d54b31122f41cd}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a0594d369502057eaea1730ad73bed13f}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A7\+\_\+\+L\+S\+B}~0x5\+B}\label{touch__higher__level__functions_8h_a0594d369502057eaea1730ad73bed13f}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a290b2414db1a1991a8f4a729a67cc26f}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A8\+\_\+\+M\+S\+B}~0x5\+C}\label{touch__higher__level__functions_8h_a290b2414db1a1991a8f4a729a67cc26f}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_aeb773e73a49cd0d88a69c846d8982120}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A8\+\_\+\+L\+S\+B}~0x5\+D}\label{touch__higher__level__functions_8h_aeb773e73a49cd0d88a69c846d8982120}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ae86763634fb7a9d8ab5dcd4bcab402e3}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A9\+\_\+\+M\+S\+B}~0x5\+E}\label{touch__higher__level__functions_8h_ae86763634fb7a9d8ab5dcd4bcab402e3}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_acd128c147c9d71f99034977e6d8af610}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A9\+\_\+\+L\+S\+B}~0x5\+F}\label{touch__higher__level__functions_8h_acd128c147c9d71f99034977e6d8af610}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a9cf51280292c2098b781eb694d5788ec}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A10\+\_\+\+M\+S\+B}~0x60}\label{touch__higher__level__functions_8h_a9cf51280292c2098b781eb694d5788ec}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a3cde147b6aee111857800c463320a3c8}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A10\+\_\+\+L\+S\+B}~0x61}\label{touch__higher__level__functions_8h_a3cde147b6aee111857800c463320a3c8}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_ae62c56baf441fa976a66c3f3355c2821}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A11\+\_\+\+M\+S\+B}~0x62}\label{touch__higher__level__functions_8h_ae62c56baf441fa976a66c3f3355c2821}
+
+\item 
+\hypertarget{touch__higher__level__functions_8h_a2ad13258d46e7039bb7b2dc8822a2c37}{\#define {\bfseries R\+E\+G\+\_\+\+A\+T42\+Q\+T\+\_\+\+R\+E\+F\+\_\+\+D\+A\+T\+A11\+\_\+\+L\+S\+B}~0x63}\label{touch__higher__level__functions_8h_a2ad13258d46e7039bb7b2dc8822a2c37}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{touch__higher__level__functions_8h_a5fae983edd7d1c04eb599f8bb6083a5b}{R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{touch__higher__level__functions_8h_a5fae983edd7d1c04eb599f8bb6083a5b}{init\+Touch\+Sensing} (void)}\label{touch__higher__level__functions_8h_a5fae983edd7d1c04eb599f8bb6083a5b}
+
+\begin{DoxyCompactList}\small\item\em Initialize A\+T42\+Q\+T2120. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Touch higher level sensing functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+

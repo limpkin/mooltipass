@@ -117,6 +117,15 @@
 #define OLED_REMAP_SCAN_TOP_DOWN  0x00 // Scan from top down
 #define OLED_REMAP_SCAN_BOTTOM_UP 0x10 // Scan from bottom up
 
+/** DEFINES OLED SCREEN **/
+#define	OLED_Shift			0x1C
+#define OLED_Max_Column		0x3F			// 256/4-1
+#define OLED_Max_Row		0x3F			// 64-1
+#define	OLED_Brightness		0x0A
+#define OLED_Contrast		0x9F
+#define OLED_WIDTH			256
+#define OLED_HEIGHT			64
+
 void oledBegin(uint8_t font);
 void oledInit(void);
 void oledWriteCommand(uint8_t reg);

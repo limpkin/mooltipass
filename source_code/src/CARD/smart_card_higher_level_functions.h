@@ -22,9 +22,10 @@
 #ifndef SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_
 #define SMART_CARD_HIGHER_LEVEL_FUNCTIONS_H_
 
-#include "../defines.h"
+#include "defines.h"
 #include <stdlib.h>
 
+// Prototypes
 RET_TYPE writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer);
 uint8_t* readSecurityCodeAttemptsCounters(uint8_t* buffer);
 RET_TYPE writeMooltipassWebsitePassword(uint8_t* buffer);

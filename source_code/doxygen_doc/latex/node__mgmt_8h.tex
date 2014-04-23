@@ -1,0 +1,167 @@
+\hypertarget{node__mgmt_8h}{\section{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.h File Reference}
+\label{node__mgmt_8h}\index{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.\+h@{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.\+h}}
+}
+
+
+Mooltipass Node Management Library Header Created\+: 03/4/2014 Author\+: Michael Neiderhauser.  
+
+
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}{delete\+Policy} \{ \hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57caffa80f64435086581438e882b7688b79}{delete\+Policy\+Write\+Nothing}, 
+\hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57ca22df85370cafb4d24bcb3c5be017efbf}{delete\+Policy\+Write\+Zeros}, 
+\hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57cae6e68541071b04ccf14dfebe37aa1a20}{delete\+Policy\+Write\+Ones}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{node__mgmt_8h_afd693f96a532bde3a17c596d766141f8}{\+\_\+\+\_\+attribute\+\_\+\+\_\+} ((packed)) node\+Mgmt\+H
+\item 
+\hypertarget{node__mgmt_8h_adcd5f5ea3ef5927cdd8299ac449e68a3}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries obtain\+Node\+Management\+Handle} (mgmt\+Handle $\ast$$\ast$h)}\label{node__mgmt_8h_adcd5f5ea3ef5927cdd8299ac449e68a3}
+
+\item 
+\hypertarget{node__mgmt_8h_acf284983b99d3ecd0bcd08f5ad049bda}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries scan\+Next\+Free\+Parent\+Node} (mgmt\+Handle $\ast$h, uint16\+\_\+t starting\+\_\+address)}\label{node__mgmt_8h_acf284983b99d3ecd0bcd08f5ad049bda}
+
+\item 
+\hypertarget{node__mgmt_8h_a91ff5e25ff1105ae8b42061aa3d41748}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries create\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p)}\label{node__mgmt_8h_a91ff5e25ff1105ae8b42061aa3d41748}
+
+\item 
+\hypertarget{node__mgmt_8h_a7b838308129f2c7af369ba8ef770d45d}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries read\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)}\label{node__mgmt_8h_a7b838308129f2c7af369ba8ef770d45d}
+
+\item 
+\hypertarget{node__mgmt_8h_afe1609d712db51782afa77b969a465da}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries update\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)}\label{node__mgmt_8h_afe1609d712db51782afa77b969a465da}
+
+\item 
+\hypertarget{node__mgmt_8h_a9a17e6ca304d4307008f3e50428a493f}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries delete\+Parent\+Node} (mgmt\+Handle $\ast$h, uint16\+\_\+t parent\+Nodeaddress, \hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}{delete\+Policy} policy)}\label{node__mgmt_8h_a9a17e6ca304d4307008f3e50428a493f}
+
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+typedef \hyperlink{node__mgmt_8h_a720173e80c53ae6b5fa163fd6e81ad27}{\+\_\+\+\_\+attribute\+\_\+\+\_\+}
+\item 
+\hypertarget{node__mgmt_8h_a6d46942c9752d1e904bdad4e3a66be11}{{\bfseries mgmt\+Handle}}\label{node__mgmt_8h_a6d46942c9752d1e904bdad4e3a66be11}
+
+\item 
+\hypertarget{node__mgmt_8h_a08a86d4017e548071d4242d70b1be1ce}{{\bfseries p\+Node}}\label{node__mgmt_8h_a08a86d4017e548071d4242d70b1be1ce}
+
+\item 
+\hypertarget{node__mgmt_8h_ac41242aec66c509b5d6c66aec1bb9f21}{{\bfseries c\+Node}}\label{node__mgmt_8h_ac41242aec66c509b5d6c66aec1bb9f21}
+
+\item 
+\hypertarget{node__mgmt_8h_a84a06b2a441af2ab9c0452ae50020b58}{{\bfseries d\+Node}}\label{node__mgmt_8h_a84a06b2a441af2ab9c0452ae50020b58}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Mooltipass Node Management Library Header Created\+: 03/4/2014 Author\+: Michael Neiderhauser. 
+
+
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}{\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Policy@{delete\+Policy}}
+\index{delete\+Policy@{delete\+Policy}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{delete\+Policy}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf delete\+Policy}}}\label{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}
+Node Deletion Policy E\+N\+U\+M \begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{delete\+Policy\+Write\+Nothing@{delete\+Policy\+Write\+Nothing}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Policy\+Write\+Nothing@{delete\+Policy\+Write\+Nothing}}\item[{\em 
+\hypertarget{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57caffa80f64435086581438e882b7688b79}{delete\+Policy\+Write\+Nothing}\label{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57caffa80f64435086581438e882b7688b79}
+}]Flip valid bit \index{delete\+Policy\+Write\+Zeros@{delete\+Policy\+Write\+Zeros}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Policy\+Write\+Zeros@{delete\+Policy\+Write\+Zeros}}\item[{\em 
+\hypertarget{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57ca22df85370cafb4d24bcb3c5be017efbf}{delete\+Policy\+Write\+Zeros}\label{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57ca22df85370cafb4d24bcb3c5be017efbf}
+}]Write node with all 0's \index{delete\+Policy\+Write\+Ones@{delete\+Policy\+Write\+Ones}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Policy\+Write\+Ones@{delete\+Policy\+Write\+Ones}}\item[{\em 
+\hypertarget{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57cae6e68541071b04ccf14dfebe37aa1a20}{delete\+Policy\+Write\+Ones}\label{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57cae6e68541071b04ccf14dfebe37aa1a20}
+}]Write node with all 1's \end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\hypertarget{node__mgmt_8h_afd693f96a532bde3a17c596d766141f8}{\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\+\_\+\+\_\+attribute\+\_\+\+\_\+}]{\setlength{\rightskip}{0pt plus 5cm}struct \+\_\+\+\_\+attribute\+\_\+\+\_\+ (
+\begin{DoxyParamCaption}
+\item[{(packed)}]{}
+\end{DoxyParamCaption}
+)}}\label{node__mgmt_8h_afd693f96a532bde3a17c596d766141f8}
+Struct containing Node Management Handle
+
+Note\+: Do not directly modify these fields. Node Mgmt will manage this structure
+
+Struct containing a parent node
+
+Struct containing a child node
+
+Struct containing a data node
+
+Note\+: Requires plugin for support. Up to 256 data nodes can be used in sequence $<$ The count of parent nodes (determined @ init)
+
+$<$ The address of the first parent node
+
+$<$ The address of the next parent node
+
+$<$ The max address of the stack of the last known parent node
+
+$<$ The count of child nodes (determined @ init)
+
+$<$ The address of the first child node
+
+$<$ The address of the next child or data node
+
+$<$ The max address of the heap of the last known child or data node
+
+$<$ Parent node flags 15 dn 14-\/$>$ Node type (Always 00 for Parent Node) 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ R\+E\+S\+E\+R\+V\+E\+D 7 dn 4 -\/$>$ User I\+D 3 dn0 -\/$>$ credential type U\+I\+D
+
+$<$ Parent node first child address
+
+$<$ Previous parent node address (Alphabetically)
+
+$<$ Next parent node address (Alphabetically)
+
+$<$ (A\+S\+C\+I\+I) Text describing service (domain name eg hackaday.\+com). Used for sorting and searching.
+
+$<$ Child node flags (0b01 -\/$>$ credential child node. 0b10 -\/$>$ start of data sequence) 15 dn 14-\/$>$ Node type 13 dn 13 -\/$>$ Valid Bit 12 dn 0 -\/$>$ R\+E\+S\+E\+R\+V\+E\+D
+
+$<$ Previous child node address (Alaphabetically)
+
+$<$ Next child node address (Alphabetically)
+
+$<$ (A\+S\+C\+I\+I) Text describing login credentials (wordpress login)
+
+$<$ The date the child node was added to mooltipass (requires plugin) Date Encoding\+: 15 dn 9 -\/$>$ Year (2010 + value) 8 dn 5 -\/$>$ Month 4 dn 0 -\/$>$ Day
+
+$<$ The date the child node was last used on the mooltipass (requires plugin) Date Encoding\+: 15 dn 9 -\/$>$ Year (2010 + value) 8 dn 5 -\/$>$ Month 4 dn 0 -\/$>$ Day
+
+$<$ Encryption counter
+
+$<$ (A\+S\+C\+I\+I) Text login name (username)
+
+$<$ Encrypted Password
+
+$<$ Data node flags (Always 0b11 for Data Node) 15 dn 14-\/$>$ Node type 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ R\+E\+S\+E\+R\+V\+E\+D 7 dn 0 -\/$>$ Data node sequence number
+
+$<$ Next data node in sequence
+
+$<$ 128 bytes of Large Data Store 
+
+\subsection{Variable Documentation}
+\hypertarget{node__mgmt_8h_a720173e80c53ae6b5fa163fd6e81ad27}{\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
+\index{\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\+\_\+\+\_\+attribute\+\_\+\+\_\+}]{\setlength{\rightskip}{0pt plus 5cm}struct \+\_\+\+\_\+attribute\+\_\+\+\_\+}}\label{node__mgmt_8h_a720173e80c53ae6b5fa163fd6e81ad27}
+Struct containing a parent node
+
+Struct containing a child node
+
+Struct containing a data node
+
+Note\+: Requires plugin for support. Up to 256 data nodes can be used in sequence $<$ Parent node flags 15 dn 14-\/$>$ Node type (Always 00 for Parent Node) 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ R\+E\+S\+E\+R\+V\+E\+D 7 dn 4 -\/$>$ User I\+D 3 dn0 -\/$>$ credential type U\+I\+D
+
+$<$ Parent node first child address
+
+$<$ Previous parent node address (Alphabetically)
+
+$<$ Next parent node address (Alphabetically)
+
+$<$ (A\+S\+C\+I\+I) Text describing service (domain name eg hackaday.\+com). Used for sorting and searching. 

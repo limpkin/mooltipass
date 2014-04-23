@@ -21,6 +21,7 @@
  *  \brief  Touch higher level sensing functions
  *  Copyright [2014] [Mathieu Stephan]
  */
+#include "touch_higher_level_functions.h"
 #include "touch.h"
 
 

@@ -30,13 +30,15 @@
 #include <stdint.h>
 #include "aes.h"
 
-// CTX data type
+/*! \struct aes256CtrCtx_t
+*   \brief CTX data type 
+*/
 typedef struct
 {
-	aes256_ctx_t aesCtx;
-	uint8_t ctr[16];
-	uint8_t cipherstream[16];
-	uint8_t cipherstreamAvailable;
+	aes256_ctx_t aesCtx; /*!< aes256 context */
+	uint8_t ctr[16]; /*!< the value of the counter */
+	uint8_t cipherstream[16]; /*!< current ctr encryption output */
+	uint8_t cipherstreamAvailable; /*!< available bytes to xor with new data bytes */
 }aes256CtrCtx_t;
 
 // STREAM CTR functions

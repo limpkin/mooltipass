@@ -44,12 +44,13 @@ static void xor(uint8_t *dest, uint8_t *src, uint8_t nbytes)
     }
 }
 
-/*!	\fn 	void aes256CtrInit(aes256CtrCtx *ctx, const uint8_t *key, const uint8_t *iv, size_t ivLen)
+/*!	\fn 	void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen)
 *	\brief	Init CTR encryption and save key and iv inside ctx
 * 
-*   \param  ctx - context to save iv and key information
-*   \param  iv - pointer to initialization vector, size must be 16 bytes or lower.
+*   \param  ctx - context
 *   \param  key - pointer to key, size must be 32 bytes
+*   \param  iv - pointer to initialization vector, must be 16 or lower.
+*   \param  ivLen - length of initialization vector, must be 16 or lower.
 */
 void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen)
 {
@@ -66,11 +67,12 @@ void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, u
 	aes256CtrSetIv(ctx, iv, ivLen);
 }
 
-/*!	\fn 	void aes256CtrSetIv(aes256CtrCtx *ctx, const uint8_t *iv, size_t ivLen)
+/*!	\fn 	void aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen)
 *	\brief	Re-Init CTR encryption without changing the key
 *
-*   \param  ctx - context to save iv and key information
+*   \param  ctx - context
 *   \param  iv - pointer to initialization vector, size must be 16 bytes or lower.
+*   \param  ivLen - length of initialization vector, must be 16 or lower.
 */
 void aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen)
 {
@@ -122,6 +124,7 @@ void incrementCtr(uint8_t *ctr)
 /*!	\fn 	aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 *	\brief	Encrypt data and save it in data.
 * 
+*   \param  ctx - context
 *   \param  data - pointer to data, this is also the location to store encrypted data
 *   \param  dataLen - size of data
 */
@@ -171,7 +174,8 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 
 /*!	\fn 	aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 *	\brief	Decrypt data and save it in data.
-* 
+*
+*   \param  ctx - context
 *   \param  data - pointer to data, this is also the location to store encrypted data
 *   \param  dataLen - size of data
 */
@@ -184,6 +188,7 @@ void aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 /*!	\fn 	aes256CtrClean(aes256CtrCtx_t *ctx)
 *	\brief	Clean the context
 *
+*   \param  ctx - context
 */
 void aes256CtrClean(aes256CtrCtx_t *ctx)
 {

@@ -30,7 +30,7 @@
 
 #include <stdint.h>
 
-//function pointer to the output char function
+/*! \brief function pointer to the output function */
 int8_t (*ctrTestOutput)(uint8_t c);
 
 // prototype function

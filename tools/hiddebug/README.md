@@ -14,13 +14,22 @@ Example Usage
 Control-C to stop
 
 tomvdb@tommainpc:~/source/mooltipass/tools/hiddebug$ sudo ./hiddebug 
+
 USB Debug Client
+
 dbg: Hello World
+
 dbg: Hello World
+
 dbg: Hello World
+
 dbg: Hello World
+
 dbg: Hello World
+
 dbg: Hello World
+
 ^C
+
 Good Bye
 

@@ -145,7 +145,7 @@ int main(void)
     oledClear();    // clear inactive buffer
     
     // Light up the front panel
-    setPwmDc(0x00FF);
+    setPwmDc(0x0FFF);
     
 //     uint16_t i;
 //     while(1)

@@ -31,6 +31,7 @@
 #include "entropy.h"
 #include "oledmp.h"
 #include "touch.h"
+#include "pwm.h"
 
 
 /*! \fn     beforeFlashInitTests(void)
@@ -157,6 +158,14 @@ void afterTouchInitTests(void)
     //#define TEST_TS
     #ifdef TEST_TS
     uint8_t temp_byte;
+    
+    setPwmDc(0x0FFF);
+    switchOnLeftButonLed();
+    switchOnRightButonLed();
+    switchOnTopLeftWheelLed();
+    switchOnTopRightWheelLed();
+    switchOnBotLeftWheelLed();
+    switchOnBotRightWheelLed();
     while(1)
     {
         oledSetXY(0,0);
@@ -168,6 +177,64 @@ void afterTouchInitTests(void)
         printf("DET1: %02X\r\n", temp_byte);
         readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
         printf("DET2: %02X\r\n", temp_byte);
+        
+        if (isWheelTouched() == RETURN_OK)
+        {
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_byte);
+            
+            if (temp_byte < 0x3F)
+            {
+                switchOffTopRightWheelLed();
+                switchOnTopLeftWheelLed();
+                switchOnBotLeftWheelLed();
+                switchOnBotRightWheelLed();
+            }
+            else if (temp_byte < 0x7F)
+            {
+                switchOffBotRightWheelLed();
+                switchOnTopLeftWheelLed();
+                switchOnTopRightWheelLed();
+                switchOnBotLeftWheelLed();
+            }
+            else if (temp_byte < 0xBF)
+            {
+                switchOffBotLeftWheelLed();
+                switchOnTopLeftWheelLed();
+                switchOnTopRightWheelLed();
+                switchOnBotRightWheelLed();
+            }
+            else
+            {
+                switchOffTopLeftWheelLed();
+                switchOnTopRightWheelLed();
+                switchOnBotLeftWheelLed();
+                switchOnBotRightWheelLed();              
+            }
+        } 
+        else
+        {
+            switchOnTopLeftWheelLed();
+            switchOnTopRightWheelLed();
+            switchOnBotLeftWheelLed();
+            switchOnBotRightWheelLed();
+        }
+        
+        if (isButtonTouched() == RETURN_OK)
+        {
+            if (getTouchedButton() == LEFT_BUTTON)
+            {
+                switchOffLeftButonLed();
+            } 
+            else
+            {
+                switchOffRightButonLed();
+            }
+        }
+        else
+        {
+            switchOnLeftButonLed();
+            switchOnRightButonLed();
+        }
     }
     #endif    
 }

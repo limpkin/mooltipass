@@ -26,9 +26,27 @@
 #define TOUCH_HIGHER_LEVEL_FUNCTIONS_H_
 
 #include "defines.h"
+#include "touch.h"
 
 // Prototypes
+RET_TYPE isWheelTouched(void);
+RET_TYPE isButtonTouched(void);
 RET_TYPE initTouchSensing(void);
+RET_TYPE getTouchedButton(void);
+
+// Macros
+#define switchOnLeftButonLed(void)      writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffLeftButonLed(void)     writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnRightButonLed(void)     writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffRightButonLed(void)    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnTopLeftWheelLed(void)   writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);
+#define switchOffTopLeftWheelLed(void)  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_L_VAL);
+#define switchOnTopRightWheelLed(void)  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_H_VAL);
+#define switchOffTopRightWheelLed(void) writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_L_VAL);
+#define switchOnBotLeftWheelLed(void)   writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_H_VAL);
+#define switchOffBotLeftWheelLed(void)  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_L_VAL);
+#define switchOnBotRightWheelLed(void)  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_H_VAL);
+#define switchOffBotRightWheelLed(void) writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_L_VAL);
 
 // AT42QT2120 ID
 #define AT42QT2120_ID       0x3E

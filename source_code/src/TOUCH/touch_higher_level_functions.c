@@ -22,6 +22,7 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include "touch_higher_level_functions.h"
+#include "defines.h"
 #include "touch.h"
 
 
@@ -31,7 +32,7 @@
 RET_TYPE checkTSPres(void)
 {
     RET_TYPE temp_return;
-    uint8_t temp_byte; 
+    uint8_t temp_byte;
 
     temp_return = readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_CHIP_ID, &temp_byte);
     if (temp_return != RETURN_OK)

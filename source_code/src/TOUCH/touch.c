@@ -124,7 +124,7 @@ RET_TYPE initiateI2cWrite(uint8_t addr, uint8_t reg)
 {
     start_condition();
     waitForTwintFlag();
-    if(!isStartSendingOk())
+    if(isStartSendingOk() != RETURN_OK)
     {
         stop_condition();
         return I2C_START_ERROR;
@@ -133,7 +133,7 @@ RET_TYPE initiateI2cWrite(uint8_t addr, uint8_t reg)
     TWDR = addr;
     clear_twint_flag();
     waitForTwintFlag();
-    if(!isSlawSendingOk())
+    if(isSlawSendingOk() != RETURN_OK)
     {
         stop_condition();
         return I2C_SLA_ERROR;
@@ -142,7 +142,7 @@ RET_TYPE initiateI2cWrite(uint8_t addr, uint8_t reg)
     TWDR = reg;
     clear_twint_flag();
     waitForTwintFlag();
-    if(!isDataSendingOk())
+    if(isDataSendingOk() != RETURN_OK)
     {
         stop_condition();
         return I2C_DATA_ERROR;
@@ -171,7 +171,7 @@ RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
     TWDR = data;
     clear_twint_flag();
     waitForTwintFlag();
-    if(!isDataSendingOk())
+    if(isDataSendingOk() != RETURN_OK)
     {
         stop_condition();
         return I2C_DATA_ERROR;
@@ -187,7 +187,7 @@ RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
 *   \param  reg         The register address
 *   \return RETURN_OK if everything is alright, the pb code otherwise
 */
-uint8_t initiateI2cRead(uint8_t addr, uint8_t reg)
+RET_TYPE initiateI2cRead(uint8_t addr, uint8_t reg)
 {
     RET_TYPE ret_val;
 
@@ -199,7 +199,7 @@ uint8_t initiateI2cRead(uint8_t addr, uint8_t reg)
 
     start_condition();
     waitForTwintFlag();
-    if(!isRestartSendingOk())
+    if(isRestartSendingOk() != RETURN_OK)
     {
         stop_condition();
         return I2C_RSTART_ERR;
@@ -208,7 +208,7 @@ uint8_t initiateI2cRead(uint8_t addr, uint8_t reg)
     TWDR = addr | 0x01;
     clear_twint_flag();
     waitForTwintFlag();
-    if(!isSlarSendingOk())
+    if(isSlarSendingOk() != RETURN_OK)
     {
         stop_condition();
         return I2C_SLAR_ERROR;

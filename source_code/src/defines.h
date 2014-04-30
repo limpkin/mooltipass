@@ -65,6 +65,7 @@ enum mooltipass_detect_return_t {RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB
 enum card_detect_return_t       {RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
 enum pin_check_return_t         {RETURN_PIN_OK = 0, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum detect_return_t            {RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
+enum button_return_t            {LEFT_BUTTON = 0, RIGHT_BUTTON = 1};
 enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};
 

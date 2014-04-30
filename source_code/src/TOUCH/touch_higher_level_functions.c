@@ -28,6 +28,7 @@
 
 /*! \fn     checkTSPres()
 *   \brief  Check that the AT42QT2120 is here
+*   \return RETURN_OK or RETURN_NOK
 */
 RET_TYPE checkTSPres(void)
 {
@@ -49,6 +50,66 @@ RET_TYPE checkTSPres(void)
     }
 }
 
+/*! \fn     isWheelTouched()
+*   \brief  Check if the touch wheel is touched
+*   \return RETURN_OK or RETURN_NOK
+*/
+RET_TYPE isWheelTouched(void)
+{
+    uint8_t temp_byte;
+    
+    readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_DET_STAT, &temp_byte);
+    
+    if (temp_byte & 0x02)
+    {
+        return RETURN_OK;
+    } 
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
+/*! \fn     isButtonTouched()
+*   \brief  Check if the a touch button is touched
+*   \return RETURN_OK or RETURN_NOK
+*/
+RET_TYPE isButtonTouched(void)
+{
+    uint8_t temp_byte;
+    
+    readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_DET_STAT, &temp_byte);
+    
+    if ((temp_byte & 0x01) && !(temp_byte & 0x02))
+    {
+        return RETURN_OK;
+    } 
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
+/*! \fn     getTouchedButton()
+*   \brief  Find which button is touched
+*   \return LEFT_BUTTON or RIGHT_BUTTON
+*/
+RET_TYPE getTouchedButton(void)
+{
+    uint8_t temp_byte;
+    
+    readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
+    
+    if (temp_byte & 0x02)
+    {
+        return LEFT_BUTTON;
+    } 
+    else
+    {
+        return RIGHT_BUTTON;
+    }
+}
+
 /*! \fn     initTouchSensing()
 *   \brief  Initialize AT42QT2120
 */
@@ -62,21 +123,20 @@ RET_TYPE initTouchSensing(void)
             // Perform measurements every 16ms
             writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_LP, 1);
             // Settings for each key
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY1_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY2_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_CTRL, AT42QT2120_GUARD_VAL|AT42QT2120_AKS_GP1_MASK);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_L_VAL);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_L_VAL);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_L_VAL);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_L_VAL);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_L_VAL);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY9_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_L_VAL);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY11_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);
-            // Enable wheel
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_SLID_OPT, 0x40);
-            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_SLID_OPT, 0xC0);
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Wheel
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY1_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Wheel
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY2_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Wheel
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_CTRL, AT42QT2120_GUARD_VAL|AT42QT2120_AKS_GP1_MASK);         // Guard key
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_L_VAL);                              // LED (top right)
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_L_VAL);                              // LED (right button)
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_L_VAL);                              // LED (bottom right)
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_L_VAL);                              // LED (bottom left)
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_L_VAL);                              // LED (left button)
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY9_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Left button
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_L_VAL);                             // LED (top left)
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY11_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);    // Right button
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_SLID_OPT, 0x40);                                                  // Enable wheel
+            writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_SLID_OPT, 0xC0);                                                  // Enable wheel
         } 
         
         return temp_return;

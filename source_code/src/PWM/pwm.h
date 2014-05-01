@@ -9,7 +9,11 @@
 #ifndef PWM_H_
 #define PWM_H_
 
+// Prototypes
 void setPwmDc(uint16_t pwm_value);
 void initPwm();
+
+// Defines
+#define MAX_PWM_VAL 0x7FF
 
 #endif /* PWM_H_ */

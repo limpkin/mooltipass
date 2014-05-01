@@ -104,7 +104,7 @@ int main(void)
     oledBegin(FONT_DEFAULT);
     oledSetColour(15);
     oledSetBackground(0);
-    oledSetContrast(0x8F);
+    oledSetContrast(0xFF);
     oledSetScrollSpeed(3);
     oledWriteActiveBuffer();
     
@@ -144,8 +144,11 @@ int main(void)
     oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
     oledClear();    // clear inactive buffer
     
+    // Launch the after HaD logo display tests
+    afterHadLogoDisplayTests();
+    
     // Light up the front panel
-    setPwmDc(0x0FFF);
+    setPwmDc(MAX_PWM_VAL);
     
 //     uint16_t i;
 //     while(1)

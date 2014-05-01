@@ -21,6 +21,7 @@
  *  \brief  Test functions
  *  Copyright [2014] [Mathieu Stephan]
  */
+ #include <util/delay.h>
 #include "touch_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
@@ -159,7 +160,7 @@ void afterTouchInitTests(void)
     #ifdef TEST_TS
     uint8_t temp_byte;
     
-    setPwmDc(0x0FFF);
+    setPwmDc(MAX_PWM_VAL);
     switchOnLeftButonLed();
     switchOnRightButonLed();
     switchOnTopLeftWheelLed();
@@ -236,5 +237,29 @@ void afterTouchInitTests(void)
             switchOnRightButonLed();
         }
     }
-    #endif    
+    #endif
+}
+
+void afterHadLogoDisplayTests(void)
+{
+    //#define TEST_PWM
+    #ifdef TEST_PWM
+    uint8_t toto = 0;
+    switchOnLeftButonLed();
+    switchOnRightButonLed();
+    switchOnTopLeftWheelLed();
+    switchOnTopRightWheelLed();
+    switchOnBotLeftWheelLed();
+    switchOnBotRightWheelLed();
+    oledWriteActiveBuffer();
+    while(1)
+    {
+        oledSetXY(2,0);
+        printf("%02X", MAX_PWM_VAL >> toto);
+        setPwmDc(MAX_PWM_VAL >> toto);
+        _delay_ms(1000);
+        if(toto++ == 11)
+            toto = 0;
+    }
+    #endif
 }

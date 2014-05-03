@@ -25,6 +25,7 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
+#include <avr/io.h>
 #include <stdint.h>
 
 /**************** DEBUG PRINTFS ****************/
@@ -62,10 +63,11 @@
 
 /**************** C ENUMS ****************/
 enum mooltipass_detect_return_t {RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB, RETURN_MOOLTIPASS_BLOCKED, RETURN_MOOLTIPASS_BLANK, RETURN_MOOLTIPASS_USER, RETURN_MOOLTIPASS_4_TRIES_LEFT,  RETURN_MOOLTIPASS_3_TRIES_LEFT,  RETURN_MOOLTIPASS_2_TRIES_LEFT,  RETURN_MOOLTIPASS_1_TRIES_LEFT, RETURN_MOOLTIPASS_0_TRIES_LEFT};
+enum touch_detect_return_t      {RETURN_NO_CHANGE = 0x00, RETURN_LEFT_PRESSED = 0x01, RETURN_LEFT_RELEASED = 0x02, RETURN_RIGHT_PRESSED = 0x04, RETURN_RIGHT_RELEASED = 0x08, RETURN_WHEEL_PRESSED = 0x10, RETURN_WHEEL_RELEASED = 0x20, RETURN_PROX_DETECTION = 0x40, RETURN_PROX_RELEASED = 0x80};
 enum card_detect_return_t       {RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
 enum pin_check_return_t         {RETURN_PIN_OK = 0, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum detect_return_t            {RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
-enum button_return_t            {LEFT_BUTTON = 0, RIGHT_BUTTON = 1};
+enum button_return_t            {LEFT_BUTTON = 0, RIGHT_BUTTON = 1, GUARD_BUTTON = 2};
 enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};
 
@@ -138,6 +140,10 @@ typedef int8_t RET_TYPE;
     #define PORTID_OLED_POW PORTB7
     #define PORT_OLED_POW   PORTB
     #define DDR_OLED_POW    DDRB
+    // Touch sensing change (dummy one)
+    #define PORTID_TOUCH_C  PORTF6
+    #define PORT_TOUCH_C    PORTF
+    #define DDR_TOUCH_C     DDRF
 #endif
 #ifdef  HARDWARE_OLIVIER_V1
     // SPIs
@@ -203,6 +209,11 @@ typedef int8_t RET_TYPE;
     #define PORTID_I2C_SDA  PORTD1
     #define PORT_I2C_SDA    PORTD
     #define DDR_I2C_SDA     DDRD
+    // Touch sensing change
+    #define PORTID_TOUCH_C  PORTF4
+    #define PORT_TOUCH_C    PORTF
+    #define DDR_TOUCH_C     DDRF
+    #define PIN_TOUCH_C     PINF
 #endif
 
 #endif /* DEFINES_H_ */

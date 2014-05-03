@@ -47,6 +47,8 @@
 #ifdef AVR_BOOTLOADER_PROGRAMMING
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
 #endif
+volatile uint8_t lightsTimerOffFlag = FALSE;
+uint8_t areLightsOn = FALSE;
 
 
 /*! \fn     disable_jtag(void)
@@ -62,13 +64,22 @@ void disable_jtag(void)
     MCUCR = temp;
 }
 
+/*! \fn     setLightsOutFlag(void)
+*   \brief  Function called when the light timer fires
+*/
+void setLightsOutFlag(void)
+{
+    lightsTimerOffFlag = TRUE;
+}
+
 /*! \fn     main(void)
 *   \brief  Main function
 */
 int main(void)
 {
-    RET_TYPE flash_init_result = RETURN_NOK;
-    RET_TYPE touch_init_result = RETURN_NOK;
+    RET_TYPE touch_detect_result;
+    RET_TYPE flash_init_result;
+    RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
 
@@ -147,9 +158,7 @@ int main(void)
     // Launch the after HaD logo display tests
     afterHadLogoDisplayTests();
     
-    // Light up the front panel
-    setPwmDc(MAX_PWM_VAL);
-    
+    // PWM test
 //     uint16_t i;
 //     while(1)
 //     {
@@ -165,10 +174,33 @@ int main(void)
 //             delay_ms(500);
 //         }           
 //     }
-
     while (1)
     {
+        touch_detect_result = touchDetectionRoutine();
         card_detect_ret = isCardPlugged();
+        
+        // No activity, switch off LEDs and activate prox detection
+        if (lightsTimerOffFlag == TRUE)
+        {
+            setPwmDc(0x0000);
+            areLightsOn = FALSE;
+            activateProxDetection();
+            lightsTimerOffFlag = FALSE;
+        }
+        
+        if (touch_detect_result & TOUCH_PRESS_MASK)
+        {
+            activateLightTimer();
+            
+            // If the lights were off, turn them on!
+            if (areLightsOn == FALSE)
+            {
+                setPwmDc(MAX_PWM_VAL);
+                activateGuardKey();
+                areLightsOn = TRUE;
+            }
+        }
+        
         if (card_detect_ret == RETURN_JDETECT)                          // Card just detected
         {
             temp_rettype = cardDetectedRoutine();

@@ -21,6 +21,7 @@
  *  \brief  Test functions
  *  Copyright [2014] [Mathieu Stephan]
  */
+ #include <util/delay.h>
 #include "touch_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
@@ -31,6 +32,7 @@
 #include "entropy.h"
 #include "oledmp.h"
 #include "touch.h"
+#include "pwm.h"
 
 
 /*! \fn     beforeFlashInitTests(void)
@@ -157,6 +159,14 @@ void afterTouchInitTests(void)
     //#define TEST_TS
     #ifdef TEST_TS
     uint8_t temp_byte;
+    
+    setPwmDc(MAX_PWM_VAL);
+    switchOnLeftButonLed();
+    switchOnRightButonLed();
+    switchOnTopLeftWheelLed();
+    switchOnTopRightWheelLed();
+    switchOnBotLeftWheelLed();
+    switchOnBotRightWheelLed();
     while(1)
     {
         oledSetXY(0,0);
@@ -168,6 +178,88 @@ void afterTouchInitTests(void)
         printf("DET1: %02X\r\n", temp_byte);
         readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
         printf("DET2: %02X\r\n", temp_byte);
+        
+        if (isWheelTouched() == RETURN_OK)
+        {
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_byte);
+            
+            if (temp_byte < 0x3F)
+            {
+                switchOffTopRightWheelLed();
+                switchOnTopLeftWheelLed();
+                switchOnBotLeftWheelLed();
+                switchOnBotRightWheelLed();
+            }
+            else if (temp_byte < 0x7F)
+            {
+                switchOffBotRightWheelLed();
+                switchOnTopLeftWheelLed();
+                switchOnTopRightWheelLed();
+                switchOnBotLeftWheelLed();
+            }
+            else if (temp_byte < 0xBF)
+            {
+                switchOffBotLeftWheelLed();
+                switchOnTopLeftWheelLed();
+                switchOnTopRightWheelLed();
+                switchOnBotRightWheelLed();
+            }
+            else
+            {
+                switchOffTopLeftWheelLed();
+                switchOnTopRightWheelLed();
+                switchOnBotLeftWheelLed();
+                switchOnBotRightWheelLed();              
+            }
+        } 
+        else
+        {
+            switchOnTopLeftWheelLed();
+            switchOnTopRightWheelLed();
+            switchOnBotLeftWheelLed();
+            switchOnBotRightWheelLed();
+        }
+        
+        if (isButtonTouched() == RETURN_OK)
+        {
+            if (getTouchedButton() == LEFT_BUTTON)
+            {
+                switchOffLeftButonLed();
+            } 
+            else
+            {
+                switchOffRightButonLed();
+            }
+        }
+        else
+        {
+            switchOnLeftButonLed();
+            switchOnRightButonLed();
+        }
     }
-    #endif    
+    #endif
+}
+
+void afterHadLogoDisplayTests(void)
+{
+    //#define TEST_PWM
+    #ifdef TEST_PWM
+    uint8_t toto = 0;
+    switchOnLeftButonLed();
+    switchOnRightButonLed();
+    switchOnTopLeftWheelLed();
+    switchOnTopRightWheelLed();
+    switchOnBotLeftWheelLed();
+    switchOnBotRightWheelLed();
+    oledWriteActiveBuffer();
+    while(1)
+    {
+        oledSetXY(2,0);
+        printf("%02X", MAX_PWM_VAL >> toto);
+        setPwmDc(MAX_PWM_VAL >> toto);
+        _delay_ms(1000);
+        if(toto++ == 11)
+            toto = 0;
+    }
+    #endif
 }

@@ -83,8 +83,8 @@ int main(void)
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
 
+    /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
-        /* Check if a card is inserted in the Mooltipass to go to the bootloader */
         disable_jtag();                 // Disable JTAG to gain access to pins
         DDR_SC_DET &= ~(1 << PORTID_SC_DET);
         PORT_SC_DET |= (1 << PORTID_SC_DET);
@@ -124,29 +124,91 @@ int main(void)
         oledSetRemap(OLED_REMAP_NIBBLES|OLED_REMAP_COL_ADDR);
     #endif
     
-    beforeFlashInitTests();             // Launch the before flash init tests    
-    flash_init_result = initFlash();    // Initialize flash memory
-    afterFlashInitTests();              // Launch the after flash init tests
-
-    // Stop the mooltipass if we can't communicate with the Flash
-    if (flash_init_result != RETURN_OK) 
+    // Launch the before flash initialization tests
+    beforeFlashInitTests();
+    
+    // Check if we can initialize the Flash memory
+    flash_init_result = initFlash();
+    
+    // Launch the after flash initialization tests
+    afterFlashInitTests();
+    
+    // Check if we can initialize the touch sensing element
+    touch_init_result = initTouchSensing();
+    
+    // Launch the after touch initialization tests
+    afterTouchInitTests();
+    
+    // Test procedure to check that all HW is working
+    //#define HW_TEST_PROC
+    #ifdef HW_TEST_PROC
+        oledSetXY(0,0);        
+        if (flash_init_result == RETURN_OK)
+        {
+            printf_P(PSTR("FLASH OK\r\n"));
+        } 
+        else
+        {
+            printf_P(PSTR("PB FLASH\r\n"));
+        }
+        if (touch_init_result == RETURN_OK)
+        {
+            printf_P(PSTR("TOUCH OK\r\n"));            
+        } 
+        else
+        {
+            printf_P(PSTR("PB TOUCH\r\n"));
+        }
+        printf_P(PSTR("Bring hand close, touch left, wheel, right\r\n"));
+        while(!(touchDetectionRoutine() & RETURN_PROX_DETECTION));
+        printf_P(PSTR("Det, "));
+        activateGuardKey();
+        while(!(touchDetectionRoutine() & RETURN_LEFT_PRESSED));
+        printf_P(PSTR("left, "));
+        while(!(touchDetectionRoutine() & RETURN_WHEEL_PRESSED));
+        printf_P(PSTR("wheel, "));
+        while(!(touchDetectionRoutine() & RETURN_RIGHT_PRESSED));
+        printf_P(PSTR("right!\r\n"));
+        printf_P(PSTR("Insert card\r\n"));
+        while(isCardPlugged() != RETURN_JDETECT);
+        temp_rettype = cardDetectedRoutine();
+        if ((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER))
+        {
+            printf_P(PSTR("CARD OK\r\n"));
+        } 
+        else
+        {
+            printf_P(PSTR("PB CARD\r\n"));
+        }
+        printf_P(PSTR("Check LEDs!\r\n"));
+        switchOnButtonWheelLeds();
+        setPwmDc(MAX_PWM_VAL);
+        if ((flash_init_result == RETURN_OK) && (touch_init_result == RETURN_OK) && ((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
+        {
+            printf_P(PSTR("---- TEST OK !!! ----\r\n"));
+        }
+        else
+        {
+            printf_P(PSTR("---- TEST NOT OK ----\r\n"));
+        }
+        while(1);
+    #endif
+    
+    // Stop the Mooltipass if we can't communicate with the Flash
+    if (flash_init_result != RETURN_OK)
     {
         oledSetXY(2,0);
         printf_P(PSTR("Problem flash init"));
         while(1);
-    } 
+    }
     
-    // Check if we can initialize the touch sensing element
-    touch_init_result = initTouchSensing();
+    // Display error message if we can't communicate with the touch sensing
     if (touch_init_result != RETURN_OK)
     {
         oledSetXY(2,0);
         printf_P(PSTR("Problem touch init"));
         delay_ms(2000);
     }
-    
-    // Launch the after touch init tests
-    afterTouchInitTests();
 
     // write bitmap to inactive buffer and make the buffer 
     // active by scrolling it up.
@@ -158,22 +220,6 @@ int main(void)
     // Launch the after HaD logo display tests
     afterHadLogoDisplayTests();
     
-    // PWM test
-//     uint16_t i;
-//     while(1)
-//     {
-//         for (i = 0; i < 11; i++)
-//         {
-//             setPwmDc(1 << i);
-//             delay_ms(500);
-//         }
-//         delay_ms(500);
-//         for (i = 0; i < 11; i++)
-//         {
-//             setPwmDc(1 << (10-i));
-//             delay_ms(500);
-//         }           
-//     }
     while (1)
     {
         touch_detect_result = touchDetectionRoutine();

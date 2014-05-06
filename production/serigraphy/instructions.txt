@@ -1,0 +1,2 @@
+This is the Mooltipass front panel, aimed to be placed on top of the top PCB and the OLED screen.
+It is 1mm thick, black at some places and lightly tinted (20-25%) at others (see serigraphy_mask.png).

@@ -39,6 +39,7 @@ RET_TYPE nodeAddressTest();
 RET_TYPE userProfileOffsetTest();
 RET_TYPE nodeInitHandle();
 RET_TYPE userProfileAddressTest(mgmtHandle *h);
-RET_TYPE nodeScanFreeParent(mgmtHandle *h);
+RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code);
+
 
 #endif /* FLASH_TEST_H_ */

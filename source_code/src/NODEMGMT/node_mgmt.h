@@ -193,7 +193,7 @@ RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress);              
 RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress);                    // Verified 1M, 2M, 4M, 8M, 16M, and 32M
 
 RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress); // TODO Implement later
-RET_TYPE clearFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress); // TODO Implement later
+RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress); // TODO Implement later
 
 RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress);                   // Done.. Somewhat tested. Not all cases tested.
 

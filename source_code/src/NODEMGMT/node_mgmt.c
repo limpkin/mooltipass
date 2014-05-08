@@ -200,8 +200,6 @@ RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
 {    
     RET_TYPE ret = RETURN_NOK;
     
-    
-    
     if(h == NULL || userIdNum >= NODE_MAX_UID)
     {
         // param error
@@ -289,6 +287,67 @@ RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
     return RETURN_OK;
 }
 
+RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
+{
+    RET_TYPE ret = RETURN_OK;
+    uint16_t page;
+    uint16_t offset;
+    uint16_t addrs[2];
+    
+    addrs[0] = parentAddress;
+    addrs[1] = childAddress;
+    
+    // calculate user profile start
+    ret  = userProfileStartingOffset(h->currentUserId, &page, &offset);
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    
+    // add to offset
+    offset += (favId * 4) + 2;  // each fav is 4 bytes. +2 for starting parent node offset
+    
+    // write to flash
+    ret = writeDataToFlash(page, offset, 4, (void *)addrs);
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+
+    return ret;
+}
+
+
+RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
+{
+    RET_TYPE ret = RETURN_OK;
+    uint16_t page;
+    uint16_t offset;
+    uint16_t addrs[2];
+    
+    // calculate user profile start
+    ret  = userProfileStartingOffset(h->currentUserId, &page, &offset);
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    
+    // add to offset
+    offset += (favId * 4) + 2;  // each fav is 4 bytes. +2 for starting parent node offset
+    
+    // write to flash
+    ret = readDataFromFlash(page, offset, 4, (void *)addrs);
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    
+    // return values to user
+    *parentAddress = addrs[0];
+    *childAddress = addrs[1];
+
+    return ret;
+}
 
 /*!  \fn       scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
 *    \brief    Determines the next parent node location (next write location).
@@ -297,7 +356,7 @@ RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
                NO ERROR CHECKING PERFORMED.
 *    \param    h  The node management handle
 *    \param    startingAddress  The address of the first node to examine
-*    \return   Always returns RET_OK
+*    \return   
 */
 RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
 {
@@ -314,13 +373,13 @@ RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
         // for each possible parent node in the page (changes per flash chip)
         for(nodeItr = nodeNumberFromAddress(startingAddress); nodeItr < NODE_PARENT_PER_PAGE; nodeItr++)
         {
-            //usbPrintf_P(PSTR("2: %u, %u\n"), pageItr, nodeItr);
+            usbPrintf_P(PSTR("2: %u, %u\n"), pageItr, nodeItr);
             // read node flags
             // 2 bytes - fixed size
             ret = readDataFromFlash(pageItr, NODE_SIZE_PARENT*nodeItr, 2, &nodeFlags);
             if(ret != RETURN_OK)
             {
-                //usbPrintf_P(PSTR("3\n"));
+                usbPrintf_P(PSTR("3\n"));
                 return ret;
             }
             
@@ -331,7 +390,7 @@ RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
                 // next free parent node found.
                 // construct address with pageItr (page number) and nodeItr (node number)
                 h->nextFreeParentNode = constructAddress(pageItr, nodeItr);
-                //usbPrintf_P(PSTR("4\n"));
+                usbPrintf_P(PSTR("4\n"));
                 // return early
                 return RETURN_OK;
             } // end valid bit invalid
@@ -340,28 +399,202 @@ RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
                 // if node is valid check node type
                 // if we read something other than a parent node.. memory is colliding. return
                 // stack -> parent nodes, heap-> child / data nodes.  stack will go into heap.. prevent this
-                //usbPrintf_P(PSTR("5\n"));
+                // Returns OK but sets address to null
+                usbPrintf_P(PSTR("5\n"));
                 if(nodeTypeFromFlags(nodeFlags) != NODE_TYPE_PARENT)
                 {
-                    //usbPrintf_P(PSTR("6\n"));
+                    usbPrintf_P(PSTR("6\n"));
                     h->nextFreeParentNode = NODE_ADDR_NULL;
-                    return RETURN_NOK;
+                    return RETURN_OK;
                 } // check for node type
             }// end if valid
         } // end for each possible node
     } // end for each page
     
-    //usbPrintf_P(PSTR("7\n"));
+    usbPrintf_P(PSTR("7\n"));
     
     // we have visited the entire chip (should not happen?)
     // no free nodes found.. set to null
     h->nextFreeParentNode = NODE_ADDR_NULL;
     // Return OK.  Users responsibility to check nextFreeParentNode
-    return RETURN_NOK;
+    return RETURN_OK;
 }
 
 RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
 {
+    RET_TYPE ret = RETURN_OK;
+    uint16_t addr = NODE_ADDR_NULL;
+    pNode memNode;
+    pNode *memNodePtr = &memNode;
+    int8_t res = 0;
+    
+    if((h->nextFreeParentNode) == NODE_ADDR_NULL)
+    {
+        // no space remaining in flash
+        return RETURN_NOK;
+    }
+    
+    if((h->currentUserId) != userIdFromFlags(p->flags))
+    {
+        // cannot create a node with a different user ID
+        return RETURN_NOK;
+    }
+    
+    // set node type
+    nodeTypeToFlags(&(p->flags), NODE_TYPE_PARENT);
+    
+    // set valid bit
+    validBitToFlags(&(p->flags), NODE_VBIT_VALID);
+    
+    p->nextChildAddress = NODE_ADDR_NULL;
+    p->nextParentAddress = NODE_ADDR_NULL;
+    p->prevParentAddress = NODE_ADDR_NULL;
+    
+    // if user has no nodes. this node is the first node
+    if(h->firstParentNode == NODE_ADDR_NULL)
+    {
+        usbPrintf_P(PSTR("First\n"));
+        // write parent node to flash (destructive)
+        ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
+        if(ret != RETURN_OK)
+        {
+            return ret;
+        }
+        
+        // read back from flash
+        ret = readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
+        if(ret != RETURN_OK)
+        {
+            return ret;
+        }
+        
+        // set the starting node address
+        setStartingParent(h, h->nextFreeParentNode);
+        // set next free to null.. scan will happen at the end of the function
+        h->nextFreeParentNode = NODE_ADDR_NULL;
+    }
+    else
+    {
+        // not the first node
+        
+        // get first node address
+        addr = h->firstParentNode;
+        while(addr != NODE_ADDR_NULL)
+        {
+            // read node
+            ret = readParentNode(h, memNodePtr, addr);
+            if(ret != RETURN_OK)
+            {
+                return ret;
+            }
+            
+            // compare nodes (alphabetically) 
+            res = memcmp(p->service, memNodePtr->service, NODE_PARENT_SIZE_OF_SERVICE);
+            if(res > 0)
+            {
+                usbPrintf_P(PSTR("After\n"));
+                // to add parent node comes after current node in memory.. go to next node
+                if(memNodePtr->nextParentAddress == NODE_ADDR_NULL)
+                {
+                    // end of linked list. Set to write node prev and next addr's
+                    p->nextParentAddress = NODE_ADDR_NULL;
+                    p->prevParentAddress = addr; // current memNode Addr
+                    
+                    // write new node to flash
+                    ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
+                    if(ret != RETURN_OK)
+                    {
+                        return ret;
+                    }
+                    
+                    // read back from flash
+                    ret = readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
+                    if(ret != RETURN_OK)
+                    {
+                        return ret;
+                    }
+                    
+                    // set previous last node to point to new node. write to flash
+                    memNodePtr->nextParentAddress = h->nextFreeParentNode;
+                    ret = writeDataToFlash(pageNumberFromAddress(addr), NODE_SIZE_PARENT * nodeNumberFromAddress(addr), NODE_SIZE_PARENT, memNodePtr);
+                    if(ret != RETURN_OK)
+                    {
+                        return ret;
+                    }
+                    
+                    // set loop exit case
+                    addr = NODE_ADDR_NULL; 
+                }
+                else
+                {
+                    // loop and read next node
+                    addr = memNodePtr->nextParentAddress;
+                }
+            }
+            else if(res < 0)
+            {
+                usbPrintf_P(PSTR("Before\n"));
+                // to add parent node comes before current node in memory. Previous node is already not a memcmp match .. write node
+                
+                // set node to write next parent to current node in mem, set prev parent to current node in mems prev parent
+                p->nextParentAddress = addr;
+                p->prevParentAddress = memNodePtr->prevParentAddress;
+                // write new node to flash
+                ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
+                if(ret != RETURN_OK)
+                {
+                    return ret;
+                }
+                
+                // read back from flash
+                ret = readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
+                if(ret != RETURN_OK)
+                {
+                    return ret;
+                }
+                
+                // update current node in mem. set prev parent to address node to write was written to.
+                memNodePtr->prevParentAddress = h->nextFreeParentNode;
+                ret = writeDataToFlash(pageNumberFromAddress(addr), NODE_SIZE_PARENT * nodeNumberFromAddress(addr), NODE_SIZE_PARENT, memNodePtr);
+                if(ret != RETURN_OK)
+                {
+                    return ret;
+                }
+                
+                // read prev node (to node to write)
+                ret = readParentNode(h, memNodePtr, p->prevParentAddress);
+                if(ret != RETURN_OK)
+                {
+                    return ret;
+                }
+                
+                // update prev node to point next parent to addr of node to write node
+                memNodePtr->nextParentAddress = h->nextFreeParentNode;
+                ret = writeDataToFlash(pageNumberFromAddress(addr), NODE_SIZE_PARENT * nodeNumberFromAddress(addr), NODE_SIZE_PARENT, memNodePtr);
+                if(ret != RETURN_OK)
+                {
+                    return ret;
+                }
+                
+                // set handle nextFreeParent to null
+                h->nextFreeParentNode = NODE_ADDR_NULL; // exit case
+            }
+            else
+            {
+                usbPrintf_P(PSTR("Equal\n"));
+                // services match
+                // return nok. Same parent node
+                return RETURN_NOK;
+            } // end cmp results
+        } // end while
+    } // end if first parent
+    
+    ret = scanNextFreeParentNode(h, constructAddress(PAGE_PER_SECTOR, 0));
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    
    return RETURN_OK;
 }
 

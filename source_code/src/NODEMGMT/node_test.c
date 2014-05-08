@@ -363,8 +363,145 @@ RET_TYPE userProfileAddressTest(mgmtHandle *h)
     return RETURN_OK;
 }    
 
+#define NODE_TEST_PARENT_NODE_AOK 0
+#define NODE_TEST_PARENT_NODE_SECTOR_ERASE_ERROR 1
+#define NODE_TEST_PARENT_NODE_MGMT_INIT_ERROR 2
+#define NODE_TEST_PARENT_NODE_PROFILE_SET_STARTING_PARENT 3
+#define NODE_TEST_PARENT_NODE_PROFILE_SET_FAV 4
+#define NODE_TEST_PARENT_NODE_CREATE 5
+#define NODE_TEST_PARENT_NODE_READ 6
+#define NODE_TEST_PARENT_NODE_
+#define NODE_TEST_PARENT_NODE_
+#define NODE_TEST_PARENT_NODE_
 
-
+RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
+{
+    RET_TYPE ret = RETURN_NOK;
+    uint8_t i = 0;
+    pNode parent;
+    pNode *parentPtr = &parent;    
+    
+    // format flash
+    usbPrintf_P(PSTR("Erasing Sectors\n"));
+    for(i = SECTOR_START; i < SECTOR_END; i++)
+    {
+        ret = sectorErase(i);
+        if(ret != RETURN_OK)
+        {
+            *code = NODE_TEST_PARENT_NODE_SECTOR_ERASE_ERROR;
+            return ret;
+        }
+    }
+    
+    // init handle as user 0
+    usbPrintf_P(PSTR("Init Handle\n"));
+    ret = initNodeManagementHandle(h, 0);
+    if(ret != RETURN_OK)
+    {
+        *code = NODE_TEST_PARENT_NODE_MGMT_INIT_ERROR;
+        return ret;
+    }
+   
+    // setup (clear) user profile
+    usbPrintf_P(PSTR("Init Profile\n"));
+    ret = setStartingParent(h, NODE_ADDR_NULL);
+    if(ret != RETURN_OK)
+    {
+        *code = NODE_TEST_PARENT_NODE_PROFILE_SET_STARTING_PARENT;
+        return ret;
+    }
+    
+    for(i = 0; i < USER_MAX_FAV; i++)
+    {
+        ret = setFav(h, i, NODE_ADDR_NULL, NODE_ADDR_NULL);
+        if(ret != RETURN_OK)
+        {
+            *code = NODE_TEST_PARENT_NODE_PROFILE_SET_FAV;
+            return ret;
+        }
+    }
+    
+    if(h->nextFreeParentNode == constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        usbPrintf_P(PSTR("Scan Passed %u %u\n"), pageNumberFromAddress(h->nextFreeParentNode), nodeNumberFromAddress(h->nextFreeParentNode));
+    }
+    else
+    {
+        usbPrintf_P(PSTR("Scan Failed %u %u\n"), pageNumberFromAddress(h->nextFreeParentNode), nodeNumberFromAddress(h->nextFreeParentNode));
+    }
+    
+    // create single parent node
+    usbPrintf_P(PSTR("Creating Parent Node\n"));
+    nodeTypeToFlags(&(parentPtr->flags), NODE_TYPE_PARENT);
+    validBitToFlags(&(parentPtr->flags), NODE_VBIT_VALID);
+    userIdToFlags(&(parentPtr->flags), 0);
+    credentialTypeToFlags(&(parentPtr->flags), 0);
+    
+    parentPtr->nextChildAddress = NODE_ADDR_NULL;
+    parentPtr->nextParentAddress = NODE_ADDR_NULL;
+    parentPtr->prevParentAddress = NODE_ADDR_NULL;
+    
+    for(i = 0; i < NODE_PARENT_SIZE_OF_SERVICE; i++)
+    {
+        parentPtr->service[i] = '\0';
+    }
+    
+    parentPtr->service[0] = 'c';
+    
+    ret = createParentNode(h, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = NODE_TEST_PARENT_NODE_CREATE;
+        return ret;
+    }
+    
+    if(h->firstParentNode == constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        usbPrintf_P(PSTR("Create Passed %u %u\n"), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode));
+    }
+    else
+    {
+        usbPrintf_P(PSTR("Create Failed %u %u\n"), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode));
+    }
+    
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = NODE_TEST_PARENT_NODE_READ;
+        return ret;
+    }
+    
+    if(h->nextFreeParentNode == constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        usbPrintf_P(PSTR("Scan Passed %u %u\n"), pageNumberFromAddress(h->nextFreeParentNode), nodeNumberFromAddress(h->nextFreeParentNode));
+    }
+    else
+    {
+        usbPrintf_P(PSTR("Scan Failed %u %u\n"), pageNumberFromAddress(h->nextFreeParentNode), nodeNumberFromAddress(h->nextFreeParentNode));
+    }
+    
+    parentPtr->service[0] = 'a';
+    
+    ret = createParentNode(h, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = NODE_TEST_PARENT_NODE_CREATE;
+        return ret;
+    }
+    
+    if(h->firstParentNode == constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        usbPrintf_P(PSTR("Create Passed %u %u\n"), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode));
+    }
+    else
+    {
+        usbPrintf_P(PSTR("Create Failed %u %u\n"), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode));
+    }
+    
+    
+    
+    return ret;
+}
 
 
 
@@ -381,10 +518,14 @@ RET_TYPE nodeTest()
     mgmtHandle h;
     mgmtHandle *hp = &h;
     uint16_t flags = 0;
+    hp->flags = flags++;
+    uint8_t ret_code = NODE_TEST_PARENT_NODE_AOK;
     
     RET_TYPE ret = RETURN_NOK;
        
     /****************************************** Node Flag Test **********************************************/
+    //#define NODE_TEST_FLAGS
+    #ifdef NODE_TEST_FLAGS
     displayInitForNodeTest();
    
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
@@ -408,8 +549,11 @@ RET_TYPE nodeTest()
     {
         displayPassedNodeTest();
     }
+    #endif
     
     /****************************************** Address Test **********************************************/
+    //#define NODE_TEST_ADDR
+    #ifdef NODE_TEST_ADDR
     displayInitForNodeTest();
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
@@ -433,8 +577,11 @@ RET_TYPE nodeTest()
     {
         displayPassedNodeTest();
     }
+    #endif
     
     /****************************************** User Profile Offset **********************************************/
+    //#define NODE_TEST_USER_PROFILE_OFFSET
+    #ifdef NODE_TEST_USER_PROFILE_OFFSET
     displayInitForNodeTest();
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
@@ -458,8 +605,11 @@ RET_TYPE nodeTest()
     {
         displayPassedNodeTest();
     }
+    #endif
     
     /****************************************** Node MgMt Init Handle **********************************************/
+    //#define NODE_TEST_MGMT_HANDLE
+    #ifdef NODE_TEST_MGMT_HANDLE
     displayInitForNodeTest();
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
@@ -512,8 +662,6 @@ RET_TYPE nodeTest()
         return ret;
     }
     
-    
-    
     ret = initNodeManagementHandle(hp, 0);
     if(ret != RETURN_OK)
     {
@@ -530,8 +678,11 @@ RET_TYPE nodeTest()
         }
         displayPassedNodeTest();
     }
+    #endif
     
     /****************************************** User Profile Address **********************************************/
+    //#define NODE_TEST_USER_PROFILE
+    #ifdef NODE_TEST_USER_PROFILE
     displayInitForNodeTest();
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
@@ -555,8 +706,11 @@ RET_TYPE nodeTest()
     {
         displayPassedNodeTest();
     }
+    #endif
     
     /****************************************** Node Parent Read **********************************************/
+    //#define NODE_TEST_PARENT_READ
+    #ifdef NODE_TEST_PARENT_READ
     displayInitForNodeTest();
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
@@ -627,8 +781,11 @@ RET_TYPE nodeTest()
         
         displayPassedNodeTest();
     }
+    #endif
     
     /****************************************** Node Parent Update **********************************************/
+    //#define NODE_TEST_PARENT_UPDATE
+    #ifdef NODE_TEST_PARENT_UPDATE
     displayInitForNodeTest();
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
@@ -679,9 +836,49 @@ RET_TYPE nodeTest()
     {        
         displayPassedNodeTest();
     }
+    #endif
     
     
+    
+    
+    
+    
+    
+    /****************************************** Parent Node Test **********************************************/
+    displayInitForNodeTest();
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+    printf_P(PSTR("Parent Node Test"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+    usbPrintf_P(PSTR("Parent Node Test\n"));
+    #endif
+    
+    
+    // run test
+    ret = parentNodeTest(hp, &ret_code);
+    
+    // check result
+    if(ret != RETURN_OK)
+    {
+        displayFailedNodeTest();
+        return ret;
+    }
+    else
+    {
+        displayPassedNodeTest();
+    }
 
    
+   
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("DONE"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("DONE\n"));
+    #endif
+    
     return ret;
 }

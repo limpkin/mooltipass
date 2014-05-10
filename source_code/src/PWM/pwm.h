@@ -17,6 +17,6 @@ void initPwm(void);
 
 // Defines
 #define MAX_PWM_VAL     0x7FF
-#define LIGHT_TIMER_DEL 2000
+#define LIGHT_TIMER_DEL 10000
 
 #endif /* PWM_H_ */

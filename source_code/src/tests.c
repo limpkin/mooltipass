@@ -154,7 +154,7 @@ void afterFlashInitTests(void)
         }
     #endif    
     
-     #define TEST_NODE
+     //#define TEST_NODE
      #ifdef TEST_NODE
          nodeTest();
          // spin

@@ -96,13 +96,11 @@ void displayFailedNodeTest()
 */
 RET_TYPE nodeFlagFunctionTest()
 {
-    //usbPrintf_P(PSTR("%u  -  %u  -  %u\n"),flagsExp, flagsOut, flagsIn);
     uint16_t flagsExp = 0;
     uint16_t flagsIn = 0;
     uint16_t flagsOut = 0;
     
     /* Node Type Test */
-    
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
         usbPrintf_P(PSTR("-Node Type (NT) Test\n"));
     #endif
@@ -294,7 +292,7 @@ RET_TYPE nodeAddressTest()
 }
 
 /*!  \fn       userProfileOffsetTest()
-*    \brief    Test user profile offsets (hardcoded results vector).
+*    \brief    Test user profile offsets (static results vector).
 */
 RET_TYPE userProfileOffsetTest()
 {
@@ -363,23 +361,41 @@ RET_TYPE userProfileAddressTest(mgmtHandle *h)
     return RETURN_OK;
 }    
 
-#define NODE_TEST_PARENT_NODE_AOK 0
-#define NODE_TEST_PARENT_NODE_SECTOR_ERASE_ERROR 1
-#define NODE_TEST_PARENT_NODE_MGMT_INIT_ERROR 2
-#define NODE_TEST_PARENT_NODE_PROFILE_SET_STARTING_PARENT 3
-#define NODE_TEST_PARENT_NODE_PROFILE_SET_FAV 4
-#define NODE_TEST_PARENT_NODE_CREATE 5
-#define NODE_TEST_PARENT_NODE_READ 6
-#define NODE_TEST_PARENT_NODE_
-#define NODE_TEST_PARENT_NODE_
-#define NODE_TEST_PARENT_NODE_
+/*!  \fn       printParentNode(pNode *p)
+*    \brief    A function to print the contents of a parent node
+*    \param    p  The parent node to print
+*/
+void printParentNode(pNode *p)
+{
+    uint8_t i = 0;
+    
+    usbPrintf_P(PSTR("Service: "));
+    for(i = 0; i < NODE_PARENT_SIZE_OF_SERVICE; i++)
+    {
+        if(p->service[i] != '\0')
+        {
+            usbPrintf_P(PSTR("%c"), (char)p->service[i]);
+        }
+    }
+    usbPrintf_P(PSTR("\nPrev Parent (%u, %u)\n"), pageNumberFromAddress(p->prevParentAddress), nodeNumberFromAddress(p->prevParentAddress));
+    usbPrintf_P(PSTR("Next Parent (%u, %u)\n\n"), pageNumberFromAddress(p->nextParentAddress), nodeNumberFromAddress(p->nextParentAddress));
+}
 
+/*!  \fn       parentNodeTest(mgmtHandle *h, uint8_t *code)
+*    \brief    A function to test all functionality of parent nodes
+*    \param    h  The user allocated node management handle
+*    \param    code  The status return code
+*    \return   Status
+*/
 RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
 {
     RET_TYPE ret = RETURN_NOK;
     uint8_t i = 0;
     pNode parent;
-    pNode *parentPtr = &parent;    
+    pNode *parentPtr = &parent; 
+    
+    uint16_t oldHandleNextFreeParenNode;
+    uint16_t oldHandleFirstParentNode;
     
     // format flash
     usbPrintf_P(PSTR("Erasing Sectors\n"));
@@ -388,7 +404,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
         ret = sectorErase(i);
         if(ret != RETURN_OK)
         {
-            *code = NODE_TEST_PARENT_NODE_SECTOR_ERASE_ERROR;
+            *code = PARENT_NODE_TEST_ERASE_ALL_SECTORS_ERROR;
             return ret;
         }
     }
@@ -398,115 +414,978 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     ret = initNodeManagementHandle(h, 0);
     if(ret != RETURN_OK)
     {
-        *code = NODE_TEST_PARENT_NODE_MGMT_INIT_ERROR;
+        *code = PARENT_NODE_TEST_INIT_HANDLE_FUNCTION_FAIL;
         return ret;
     }
-   
+    
     // setup (clear) user profile
+    usbPrintf_P(PSTR("Setup User Profile\n"));
     usbPrintf_P(PSTR("Init Profile\n"));
     ret = setStartingParent(h, NODE_ADDR_NULL);
     if(ret != RETURN_OK)
     {
-        *code = NODE_TEST_PARENT_NODE_PROFILE_SET_STARTING_PARENT;
+        *code = PARENT_NODE_TEST_USER_PROFILE_SET_START_NULL_ERROR;
         return ret;
     }
     
+    usbPrintf_P(PSTR("-Clearing User Favs\n"));
     for(i = 0; i < USER_MAX_FAV; i++)
     {
         ret = setFav(h, i, NODE_ADDR_NULL, NODE_ADDR_NULL);
         if(ret != RETURN_OK)
         {
-            *code = NODE_TEST_PARENT_NODE_PROFILE_SET_FAV;
+            *code = PARENT_NODE_TEST_USER_PROFILE_CLEAR_FAV_ERROR;
             return ret;
         }
     }
     
-    if(h->nextFreeParentNode == constructAddress(PAGE_PER_SECTOR, 0))
+    usbPrintf_P(PSTR("Verify Handle Profile\n"));
+    // Verify the following:
+    // h->currentUserId = 0;
+    // h->firstParentNode = NODE_ADDR_NULL;
+    // h->nextFreeParentNode = (PAGE_PER_SECTOR, 0);
+    
+    if(h->currentUserId != 0)
     {
-        usbPrintf_P(PSTR("Scan Passed %u %u\n"), pageNumberFromAddress(h->nextFreeParentNode), nodeNumberFromAddress(h->nextFreeParentNode));
-    }
-    else
-    {
-        usbPrintf_P(PSTR("Scan Failed %u %u\n"), pageNumberFromAddress(h->nextFreeParentNode), nodeNumberFromAddress(h->nextFreeParentNode));
+        *code = PARENT_NODE_TEST_HANDLE_UID_ERROR;
+        return RETURN_NOK;
     }
     
-    // create single parent node
-    usbPrintf_P(PSTR("Creating Parent Node\n"));
+    if(h->firstParentNode != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_HANDLE_FIRST_PARENT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_HANDLE_FREE_PARENT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /***************************************************** Handle and Profile Setup Complete *****************************************************/
+    // Construct Base Parent Node
+    usbPrintf_P(PSTR("Constructing the base Parent Node\n"));
+    // setup flags (type-> parent, vb-> valid, uid-> 0, cid-> 0)
     nodeTypeToFlags(&(parentPtr->flags), NODE_TYPE_PARENT);
     validBitToFlags(&(parentPtr->flags), NODE_VBIT_VALID);
     userIdToFlags(&(parentPtr->flags), 0);
     credentialTypeToFlags(&(parentPtr->flags), 0);
-    
+    //set node fields to null addr
     parentPtr->nextChildAddress = NODE_ADDR_NULL;
     parentPtr->nextParentAddress = NODE_ADDR_NULL;
     parentPtr->prevParentAddress = NODE_ADDR_NULL;
-    
+    // clear service
     for(i = 0; i < NODE_PARENT_SIZE_OF_SERVICE; i++)
     {
         parentPtr->service[i] = '\0';
     }
     
+    /*
+    Test Plan (Format of the 1M Flash Chip):
+    ---STEP 1---
+      Assuming nextFreeParentNode -> (128, 0) TESTED ABOVE
+      Create Node('c': Addr->(128,0))
+      Check Node('c'):
+        service[0] = 'c';
+        nextParentAddress = NODE_ADDR_NULL;
+        prevParentAddress = NODE_ADDR_NULL;
+      Check Handle:
+        firstParenNode -> (128,0) (expecting change)
+        nextFreeParentNode -> (128,1) (expecting change)
+    ---STEP 2---
+      Assuming nextFreeParentNode -> (128, 1) TESTED IN STEP 1
+      Create Node('m': Addr->(128,1))
+      Check Node('m'):
+        service[0] = 'm';
+        nextParentAddress = NODE_ADDR_NULL; // Should be last Node
+        prevParentAddress = (128,0); // Should point to Node 'c'
+      Read Node('c')
+      Check Node('c'):
+        service[0] = 'c';
+        nextParentAddress = (128,1); // Node 'm'
+        prevParentAddress = NODE_ADDR_NULL; // Still first node
+      Check Handle:
+        firstParenNode -> (128,0) (expecting no change)
+        nextFreeParentNode -> (128,2) (expecting change)
+    ---STEP 3---
+      Assuming nextFreeParentNode -> (128, 2) TESTED IN STEP 2
+      Create Node('k': Addr->(128,2))
+      Check Node('k'): (128,2)
+        service[0] = 'k';
+        nextParentAddress = (128,1); // Should point to Node 'm'
+        prevParentAddress = (128,0); // Should point to Node 'c'
+      Read Node('c')
+      Check Node('c'): (128,0)
+        service[0] = 'c';
+        nextParentAddress = (128,2); // Should point to Node 'k'
+        prevParentAddress = NODE_ADDR_NULL; // Still first node
+      Read Node('m')
+      Check Node('m'): (128,1)
+        service[0] = 'm';
+        nextParentAddress = NODE_ADDR_NULL; // Should point to Node NULL
+        prevParentAddress = (128,2); // Should point to Node 'k'
+      Check Handle:
+        firstParenNode -> (128,0) (expecting no change)
+        nextFreeParentNode -> (128,3) (expecting change)
+    ---STEP 4---
+      Assuming nextFreeParentNode -> (128, 3) TESTED IN STEP 3
+      Create Node('a': Addr->(128,3))
+      Check Node('a'): (128,3)
+        service[0] = 'a';
+        nextParentAddress = (128,0); // Should point to Node 'c'
+        prevParentAddress = NODE_ADDR_NULL; // Should point to Node NULL (First Node)
+      Read Node('c')
+      Check Node('c'): (128,0)
+        service[0] = 'c';
+        nextParentAddress = (128,2); // Should point to Node 'k'
+        prevParentAddress = (128,3); // Should point to Node 'a'
+      Read Node('k')
+      Check Node('k'): (128,2)
+        service[0] = 'k';
+        nextParentAddress = (128,1); // Should point to Node 'm'
+        prevParentAddress = (128,0); // Should point to Node 'c'
+      Read Node('m')
+      Check Node('m'): (128,1)
+        service[0] = 'm';
+        nextParentAddress = NODE_ADDR_NULL; // Should point to Node NULL
+        prevParentAddress = (128,2); // Should point to Node 'k'
+      Check Handle:
+        firstParenNode -> (128,0) (expecting no change)
+        nextFreeParentNode -> (129,0)/(128,4) (expecting change)
+    ---STEP 5---
+      Assuming nextFreeParentNode -> (129,0)/(128,4) TESTED IN STEP 4
+      Delete Node('k': Addr->(128,2)
+      Read Node('a')
+      Check Node('a'): (128,3)
+        service[0] = 'a';
+        nextParentAddress = (128,0); // Should point to Node 'c'
+        prevParentAddress = NODE_ADDR_NULL; // Should point to Node NULL (First Node)
+      Read Node('c')
+      Check Node('c'): (128,0)
+        service[0] = 'c';
+        nextParentAddress = (128,1); // Should point to Node 'm'
+        prevParentAddress = (128,3); // Should point to Node 'a'
+      Read Node('m')
+      Check Node('m'): (128,1)
+        service[0] = 'm';
+        nextParentAddress = NODE_ADDR_NULL; // Should point to Node NULL
+        prevParentAddress = (128,0); // Should point to Node 'c'
+      Check Handle:
+        firstParenNode -> (128,0) (expecting no change)
+        nextFreeParentNode -> (128,2)/(128,2) (expecting change)
+      ---STEP 6---
+        Assuming nextFreeParentNode -> (128,2)TESTED IN STEP 5
+        Delete Node('m': Addr->(128,1)
+        Check Node('a'): (128,3)
+          service[0] = 'a';
+          nextParentAddress = (128,0); // Should point to Node 'c'
+          prevParentAddress = NODE_ADDR_NULL; // Should point to Node NULL (First Node)
+        Read Node('c')
+        Check Node('c'): (128,0)
+          service[0] = 'c';
+          nextParentAddress = NODE_ADDR_NULL; // Should point to Node NULL
+          prevParentAddress = (128,3); // Should point to Node 'a'
+        Check Handle:
+          firstParenNode -> (128,3)
+          nextFreeParentNode -> (128,1)
+      ---STEP 7---
+        Assuming nextFreeParentNode -> (128,1) TESTED IN STEP 6
+        Delete Node('a': Addr->(128,3)
+        Read Node('c')
+        Check Node('c'): (128,0)
+          service[0] = 'c';
+          nextParentAddress = NODE_ADDR_NULL; // Should point to Node NULL
+          prevParentAddress = NODE_ADDR_NULL; // Should point to Node NULL
+        Check Handle:
+          firstParenNode -> (128,0)
+          nextFreeParentNode -> (128,1)
+      ---STEP 8---
+        Assuming nextFreeParentNode -> (128,1) TESTED IN STEP 7
+        Delete Node('c': Addr->(128,0)
+        Check Handle:
+          firstParenNode -> NODE_ADDR_NULL
+          nextFreeParentNode -> (128,0)
+      ---STEP 9---
+        Assuming nextFreeParentNode -> (128,0) TESTED IN STEP 8
+        Create Node('b': Addr->(128, 0))
+        Create Node('a': Addr->(128, 1))
+          Set child address -> (129, 0)
+        Check Handle:
+          firstParentNode -> (128,1)
+          nextFreeParentNode -> (128, 2)
+        Update Node('a': Addr->(128,1))
+          By modifying CID in flags
+        Check Handle:
+          firstParentNode -> (128,1)
+          nextFreeParentNode -> (128, 2)
+        Update Node('a': Addr->(128,1))
+          By modifying service to 'c'
+        Check Node('c': (128, 1))
+          nextParentAddress -> NODE_ADDR_NULL
+          prevParentAddress -> (128, 0)
+          nextChildAddress -> (129, 0)
+        Check Handle:
+          firstParentNode -> (128,0)
+          nextFreeParentNode -> (128, 2)
+    */
+    
+    
+    /**********************************************************FIRST PARENT NODE**********************************************************/
+    usbPrintf_P(PSTR("---STEP 1---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // setup parentPtr for Node 'c'
     parentPtr->service[0] = 'c';
+    
+    // create node (store in flash)
+    ret = createParentNode(h, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_1_CREATE_NODE_ERROR;
+        return ret;
+    }
+    
+    // check the node
+    if(parentPtr->service[0] != 'c')
+    {
+        *code = PARENT_NODE_TEST_STEP_1_CREATE_NODE_VERIFY_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_1_CREATE_NODE_VERIFY_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_1_CREATE_NODE_VERIFY_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // check the handle
+    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,0))
+    {
+        *code = PARENT_NODE_TEST_STEP_1_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        *code = PARENT_NODE_TEST_STEP_1_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************SECOND PARENT NODE**********************************************************/
+    usbPrintf_P(PSTR("---STEP 2---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // setup parentPtr for Node 'm'
+    parentPtr->service[0] = 'm';
+    
+    // create node (store in flash)
+    ret = createParentNode(h, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_2_CREATE_NODE_ERROR;
+        return ret;
+    }
+
+    // check the node 'm'
+    if(parentPtr->service[0] != 'm')
+    {
+        *code = PARENT_NODE_TEST_STEP_2_CREATE_NODE_VERIFY_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_2_CREATE_NODE_VERIFY_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_2_CREATE_NODE_VERIFY_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'c'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_2_READ_NODE_C_ERROR;
+        return ret;
+    }
+    
+    // check the node 'c'
+    if(parentPtr->service[0] != 'c')
+    {
+        *code = PARENT_NODE_TEST_STEP_2_VERIFY_NODE_C_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        *code = PARENT_NODE_TEST_STEP_2_VERIFY_NODE_C_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_2_VERIFY_NODE_C_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // check the handle
+    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,0))
+    {
+        *code = PARENT_NODE_TEST_STEP_2_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 2))
+    {
+        *code = PARENT_NODE_TEST_STEP_2_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************THIRD PARENT NODE**********************************************************/
+    usbPrintf_P(PSTR("---STEP 3---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // setup parentPtr for Node 'k'
+    parentPtr->service[0] = 'k';
+    
+    // create node (store in flash)
+    ret = createParentNode(h, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_3_CREATE_NODE_ERROR;
+        return ret;
+    }
+
+    // check the node 'k'
+    if(parentPtr->service[0] != 'k')
+    {
+        *code = PARENT_NODE_TEST_STEP_3_CREATE_NODE_VERIFY_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR,1))
+    {
+        *code = PARENT_NODE_TEST_STEP_3_CREATE_NODE_VERIFY_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_3_CREATE_NODE_VERIFY_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'c'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_3_READ_NODE_C_ERROR;
+        return ret;
+    }
+    
+    // check the node 'c'
+    if(parentPtr->service[0] != 'c')
+    {
+        *code = PARENT_NODE_TEST_STEP_3_VERIFY_NODE_C_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 2))
+    {
+        *code = PARENT_NODE_TEST_STEP_3_VERIFY_NODE_C_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_3_VERIFY_NODE_C_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'm'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_3_READ_NODE_M_ERROR;
+        return ret;
+    }
+    
+    // check the node 'm'
+    if(parentPtr->service[0] != 'm')
+    {
+        *code = PARENT_NODE_TEST_STEP_3_VERIFY_NODE_M_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_3_VERIFY_NODE_M_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR,2))
+    {
+        *code = PARENT_NODE_TEST_STEP_3_VERIFY_NODE_M_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // check the handle
+    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,0))
+    {
+        *code = PARENT_NODE_TEST_STEP_3_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 3))
+    {
+        *code = PARENT_NODE_TEST_STEP_3_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Fourth PARENT NODE**********************************************************/
+    usbPrintf_P(PSTR("---STEP 4---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // setup parentPtr for Node 'a'
+    parentPtr->service[0] = 'a';
+    
+    // create node (store in flash)
+    ret = createParentNode(h, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_4_CREATE_NODE_ERROR;
+        return ret;
+    }
+
+    // check the node 'a'
+    if(parentPtr->service[0] != 'a')
+    {
+        *code = PARENT_NODE_TEST_STEP_4_CREATE_NODE_VERIFY_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR,0))
+    {
+        *code = PARENT_NODE_TEST_STEP_4_CREATE_NODE_VERIFY_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_4_CREATE_NODE_VERIFY_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'c'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_4_READ_NODE_C_ERROR;
+        return ret;
+    }
+    
+    // check the node 'c'
+    if(parentPtr->service[0] != 'c')
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_C_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 2))
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_C_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 3))
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_C_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'k'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 2));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_4_READ_NODE_K_ERROR;
+        return ret;
+    }
+    
+    // check the node 'k'
+    if(parentPtr->service[0] != 'k')
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_K_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_K_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_K_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'm'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_4_READ_NODE_M_ERROR;
+        return ret;
+    }
+    
+    // check the node 'm'
+    if(parentPtr->service[0] != 'm')
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_M_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_M_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 2))
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_NODE_M_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // check the handle (expecting change)
+    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,3))
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    #if NODE_PARENT_PER_PAGE==4
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR+1, 0))
+    #else
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 4))
+    {
+        *code = PARENT_NODE_TEST_STEP_4_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    #endif
+    
+
+    /**********************************************************DELETE PARENT NODE 'k'**********************************************************/
+    usbPrintf_P(PSTR("---STEP 5---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // delete node 'k'
+    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 2), DELETE_POLICY_WRITE_ONES);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_5_DELETE_NODE_ERROR;
+        return ret;
+    }
+    
+    // read node 'a'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 3));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_5_READ_NODE_A_ERROR;
+        return ret;
+    }
+    
+    // check the node 'a'
+    if(parentPtr->service[0] != 'a')
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_A_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_A_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_A_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'c'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_5_READ_NODE_C_ERROR;
+        return ret;
+    }
+    
+    // check the node 'c'
+    if(parentPtr->service[0] != 'c')
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_C_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_C_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 3))
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_C_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'm'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_5_READ_NODE_M_ERROR;
+        return ret;
+    }
+    
+    // check the node 'm'
+    if(parentPtr->service[0] != 'm')
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_M_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_M_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_NODE_M_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+
+
+    // check the handle
+    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,3))
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 2))
+    {
+        *code = PARENT_NODE_TEST_STEP_5_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************DELETE PARENT NODE 'm'**********************************************************/
+    usbPrintf_P(PSTR("---STEP 6---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // delete node 'm'
+    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 1), DELETE_POLICY_WRITE_ONES);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_6_DELETE_NODE_ERROR;
+        return ret;
+    }
+    
+    // read node 'a'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 3));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_6_READ_NODE_A_ERROR;
+        return ret;
+    }
+    
+    // check the node 'a'
+    if(parentPtr->service[0] != 'a')
+    {
+        *code = PARENT_NODE_TEST_STEP_6_VERIFY_NODE_A_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_6_VERIFY_NODE_A_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_6_VERIFY_NODE_A_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read node 'c'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_6_READ_NODE_C_ERROR;
+        return ret;
+    }
+    
+    // check the node 'c'
+    if(parentPtr->service[0] != 'c')
+    {
+        *code = PARENT_NODE_TEST_STEP_6_VERIFY_NODE_C_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_6_VERIFY_NODE_C_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 3))
+    {
+        *code = PARENT_NODE_TEST_STEP_6_VERIFY_NODE_C_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // check the handle
+    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,3))
+    {
+        *code = PARENT_NODE_TEST_STEP_6_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        *code = PARENT_NODE_TEST_STEP_6_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************DELETE PARENT NODE 'a'**********************************************************/
+    usbPrintf_P(PSTR("---STEP 7---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // delete node 'a'
+    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 3), DELETE_POLICY_WRITE_ONES);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_7_DELETE_NODE_ERROR;
+        return ret;
+    }
+    
+    // read node 'c'
+    ret = readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_7_READ_NODE_C_ERROR;
+        return ret;
+    }
+    
+    // check the node 'c'
+    if(parentPtr->service[0] != 'c')
+    {
+        *code = PARENT_NODE_TEST_STEP_7_VERIFY_NODE_C_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_7_VERIFY_NODE_C_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_7_VERIFY_NODE_C_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // check the handle
+    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_7_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode != oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        *code = PARENT_NODE_TEST_STEP_7_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    
+    /**********************************************************DELETE PARENT NODE 'c'**********************************************************/
+    usbPrintf_P(PSTR("---STEP 8---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // delete node 'c'
+    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 0), DELETE_POLICY_WRITE_ONES);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_8_DELETE_NODE_ERROR;
+        return ret;
+    }
+    
+    // check the handle
+    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_8_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_8_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************UPDATE NODE TEST**********************************************************/
+    usbPrintf_P(PSTR("---STEP 9---\n"));
+    // store old handle vals
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // setup flags (type-> parent, vb-> valid, uid-> 0, cid-> 0)
+    nodeTypeToFlags(&(parentPtr->flags), NODE_TYPE_PARENT);
+    validBitToFlags(&(parentPtr->flags), NODE_VBIT_VALID);
+    userIdToFlags(&(parentPtr->flags), 0);
+    credentialTypeToFlags(&(parentPtr->flags), 0);
+    //set node fields to null addr
+    parentPtr->nextChildAddress = NODE_ADDR_NULL;
+    parentPtr->nextParentAddress = NODE_ADDR_NULL;
+    parentPtr->prevParentAddress = NODE_ADDR_NULL;
+    // clear service
+    for(i = 0; i < NODE_PARENT_SIZE_OF_SERVICE; i++)
+    {
+        parentPtr->service[i] = '\0';
+    }
+    
+    parentPtr->service[0] = 'b';
     
     ret = createParentNode(h, parentPtr);
     if(ret != RETURN_OK)
     {
-        *code = NODE_TEST_PARENT_NODE_CREATE;
+        *code = PARENT_NODE_TEST_STEP_9_CREATE_NODE_B_ERROR;
         return ret;
-    }
-    
-    if(h->firstParentNode == constructAddress(PAGE_PER_SECTOR, 0))
-    {
-        usbPrintf_P(PSTR("Create Passed %u %u\n"), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode));
-    }
-    else
-    {
-        usbPrintf_P(PSTR("Create Failed %u %u\n"), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode));
-    }
-    
-    ret = readParentNode(h, parentPtr, h->firstParentNode);
-    if(ret != RETURN_OK)
-    {
-        *code = NODE_TEST_PARENT_NODE_READ;
-        return ret;
-    }
-    
-    if(h->nextFreeParentNode == constructAddress(PAGE_PER_SECTOR, 1))
-    {
-        usbPrintf_P(PSTR("Scan Passed %u %u\n"), pageNumberFromAddress(h->nextFreeParentNode), nodeNumberFromAddress(h->nextFreeParentNode));
-    }
-    else
-    {
-        usbPrintf_P(PSTR("Scan Failed %u %u\n"), pageNumberFromAddress(h->nextFreeParentNode), nodeNumberFromAddress(h->nextFreeParentNode));
     }
     
     parentPtr->service[0] = 'a';
+    parentPtr->nextChildAddress = constructAddress(PAGE_PER_SECTOR+1, 0);
     
     ret = createParentNode(h, parentPtr);
     if(ret != RETURN_OK)
     {
-        *code = NODE_TEST_PARENT_NODE_CREATE;
+        *code= PARENT_NODE_TEST_STEP_9_CREATE_NODE_A_ERROR;
         return ret;
     }
     
-    if(h->firstParentNode == constructAddress(PAGE_PER_SECTOR, 1))
+    // check the handle
+    if(h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 1))
     {
-        usbPrintf_P(PSTR("Create Passed %u %u\n"), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode));
-    }
-    else
-    {
-        usbPrintf_P(PSTR("Create Failed %u %u\n"), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode));
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_HANDLE_FIRST_NODE_1_ERROR;
+        return RETURN_NOK;
     }
     
+    if(h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 2))
+    {
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_HANDLE_NEXT_FREE_NODE_1_ERROR;
+        return RETURN_NOK;
+    }
     
+    credentialTypeToFlags(&(parentPtr->flags), 2);
+    
+    ret = updateParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_9_UPDATE_NODE_A_1_ERROR;
+        return ret;
+    }
+    
+    // check the handle
+    if(h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_HANDLE_FIRST_NODE_2_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 2))
+    {
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_HANDLE_NEXT_FREE_NODE_2_ERROR;
+        return RETURN_NOK;
+    }
+    
+    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    
+    parentPtr->service[0] = 'c';
+    
+    ret = updateParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_STEP_9_UPDATE_NODE_A_2_ERROR;
+        return ret;
+    }
+    
+    // check the node 'c'
+    if(parentPtr->service[0] != 'c')
+    {
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_NODE_C_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_NODE_C_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_NODE_C_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // check the handle
+    if(h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_HANDLE_FIRST_NODE_3_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 2))
+    {
+        *code = PARENT_NODE_TEST_STEP_9_VERIFY_HANDLE_NEXT_FREE_NODE_3_ERROR;
+        return RETURN_NOK;
+    }
     
     return ret;
 }
-
-
-
-
-
     
 RET_TYPE nodeTest()
 {
@@ -519,7 +1398,7 @@ RET_TYPE nodeTest()
     mgmtHandle *hp = &h;
     uint16_t flags = 0;
     hp->flags = flags++;
-    uint8_t ret_code = NODE_TEST_PARENT_NODE_AOK;
+    parentNodeTestError ret_code = PARENT_NODE_TEST_PARENT_NODE_AOK;
     
     RET_TYPE ret = RETURN_NOK;
        
@@ -708,142 +1587,6 @@ RET_TYPE nodeTest()
     }
     #endif
     
-    /****************************************** Node Parent Read **********************************************/
-    //#define NODE_TEST_PARENT_READ
-    #ifdef NODE_TEST_PARENT_READ
-    displayInitForNodeTest();
-    
-    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
-    printf_P(PSTR("Read Parent Node Test"));
-    #endif
-    
-    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
-    usbPrintf_P(PSTR("Read Parent Node Test\n"));
-    #endif
-    
-    pNode parentNode;
-    pNode *parentNodePtr = &parentNode;
-    
-    // write parent node
-    // construct flags
-    nodeTypeToFlags(&flags, NODE_TYPE_PARENT);
-    validBitToFlags(&flags, NODE_VBIT_VALID);
-    credentialTypeToFlags(&flags,0);
-    userIdToFlags(&flags, h.currentUserId);
-    
-    // set data to parent node
-    parentNode.flags = flags;
-    parentNode.nextChildAddress = constructAddress(PAGE_PER_SECTOR+1, 0);
-    parentNode.nextParentAddress = constructAddress(PAGE_PER_SECTOR, 1);
-    parentNode.prevParentAddress = NODE_ADDR_NULL;
-    
-    for(uint8_t i = 0; i < NODE_PARENT_SIZE_OF_SERVICE; i++)
-    {
-        parentNode.service[i] = i;
-    }
-    
-    // write
-    ret = writeDataToFlash(PAGE_PER_SECTOR, 0, NODE_SIZE_PARENT, parentNodePtr);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
-    
-    // read
-    ret = readParentNode(hp, parentNodePtr, constructAddress(PAGE_PER_SECTOR, 0));
-    // check result
-    if(ret != RETURN_OK)
-    {
-        displayFailedNodeTest();
-        return ret;
-    }
-    else
-    {
-        if(parentNode.flags == flags &&
-        parentNode.nextChildAddress == constructAddress(PAGE_PER_SECTOR+1, 0) &&
-        parentNode.nextParentAddress == constructAddress(PAGE_PER_SECTOR, 1) &&
-        parentNode.prevParentAddress == NODE_ADDR_NULL)
-        {
-            for(uint8_t i = 0; i < NODE_PARENT_SIZE_OF_SERVICE; i++)
-            {
-                if(parentNode.service[i] != i)
-                {
-                    displayFailedNodeTest();
-                    return RETURN_NOK;
-                }
-            }
-        }
-        else
-        {
-            displayFailedNodeTest();
-            return RETURN_NOK;
-        }
-        
-        displayPassedNodeTest();
-    }
-    #endif
-    
-    /****************************************** Node Parent Update **********************************************/
-    //#define NODE_TEST_PARENT_UPDATE
-    #ifdef NODE_TEST_PARENT_UPDATE
-    displayInitForNodeTest();
-    
-    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
-    printf_P(PSTR("Update Parent Node Test"));
-    #endif
-    
-    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
-    usbPrintf_P(PSTR("Update Parent Node Test\n"));
-    #endif
-    
-    // write parent node
-    // construct flags
-    nodeTypeToFlags(&flags, NODE_TYPE_PARENT);
-    validBitToFlags(&flags, NODE_VBIT_VALID);
-    credentialTypeToFlags(&flags,0);
-    userIdToFlags(&flags, h.currentUserId);
-    
-    // set data to parent node
-    parentNode.flags = flags;
-    parentNode.nextChildAddress = constructAddress(PAGE_PER_SECTOR+1, 0);
-    parentNode.nextParentAddress = constructAddress(PAGE_PER_SECTOR, 1);
-    parentNode.prevParentAddress = NODE_ADDR_NULL;
-    
-    for(uint8_t i = 0; i < NODE_PARENT_SIZE_OF_SERVICE; i++)
-    {
-        parentNode.service[i] = i;
-    }
-    
-    // write
-    ret = writeDataToFlash(PAGE_PER_SECTOR, 0, NODE_SIZE_PARENT, parentNodePtr);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
-    
-    // modify node
-    parentNode.service[0] = 255;
-    
-    // read
-    ret = updateParentNode(hp, parentNodePtr, constructAddress(PAGE_PER_SECTOR, 0));
-    // check result
-    if(ret != RETURN_OK)
-    {
-        displayFailedNodeTest();
-        return ret;
-    }
-    else
-    {        
-        displayPassedNodeTest();
-    }
-    #endif
-    
-    
-    
-    
-    
-    
-    
     /****************************************** Parent Node Test **********************************************/
     displayInitForNodeTest();
     
@@ -858,6 +1601,7 @@ RET_TYPE nodeTest()
     
     // run test
     ret = parentNodeTest(hp, &ret_code);
+    usbPrintf_P(PSTR("Parent Node Test returned: %u\n"),ret_code);
     
     // check result
     if(ret != RETURN_OK)
@@ -870,8 +1614,6 @@ RET_TYPE nodeTest()
         displayPassedNodeTest();
     }
 
-   
-   
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
         printf_P(PSTR("DONE"));
     #endif

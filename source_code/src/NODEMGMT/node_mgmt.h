@@ -75,9 +75,9 @@
 */
 typedef enum
 {
-    deletePolicyWriteNothing = 1, /*!< Flip valid bit */
-    deletePolicyWriteZeros = 0x00,   /*!< Write node with all 0's */
-    deletePolicyWriteOnes = 0xff,    /*!< Write node with all 1's */
+    DELETE_POLICY_WRITE_NOTHING = 1, /*!< Flip valid bit */
+    DELETE_POLICY_WRITE_ZEROS = 0x00,   /*!< Write node with all 0's */
+    DELETE_POLICY_WRITE_ONES = 0xff,    /*!< Write node with all 1's */
 } deletePolicy;
 
 /*!

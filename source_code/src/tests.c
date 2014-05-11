@@ -28,6 +28,7 @@
 #include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "flash_test.h"
+#include "node_test.h"
 #include "defines.h"
 #include "entropy.h"
 #include "oledmp.h"
@@ -152,6 +153,13 @@ void afterFlashInitTests(void)
 
         }
     #endif    
+    
+     //#define TEST_NODE
+     #ifdef TEST_NODE
+         nodeTest();
+         // spin
+         while(1);
+     #endif
 }
 
 void afterTouchInitTests(void)

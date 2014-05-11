@@ -220,6 +220,7 @@ int main(void)
     // Launch the after HaD logo display tests
     afterHadLogoDisplayTests();
     
+    
     while (1)
     {
         touch_detect_result = touchDetectionRoutine();

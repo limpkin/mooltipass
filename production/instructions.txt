@@ -1,0 +1,21 @@
+This is the Mooltipass production folder. The Mooltipass is composed of the following elements:
+
+1) Bottom PCB (see gerbers_bottom folder):
+Depending on the case version (thick or slim: Arduino or Non-Arduino compatible) the connectors P1/P2/P3/P4 are populated or not.
+In case of the thick Arduino compatible version, the P3 & P4 connector pins must be less than 1.6mm long due to the smartcard connector placed on the other side of the PCB.
+
+2) Top PCB (see gerbers_top folder):
+This is a PCB containing the capacitive touch wheel, on which should be put the 35mm diameter double sided tape (see 3).
+Its soldermask should be black, and the back of the PCB must be machined (1.2mm deep) following the path shown in the pcb_milling folder.
+
+3) A 35mm diameter double sided tape:
+This small double sided tape must be put on the top PCB touch wheel footprint to guarantee a good contact with the front panel (see 4)
+
+4) A semi transparent front panel (see serigraphy folder):
+This is the front panel put on top of the assembly.
+It is 1mm thick, black at some places and lightly tinted (20-25%) at others.
+
+5) A plastic or aluminium main case (see case folder):
+This is the main case where the two PCBs and OLED screen will be put.
+
+6) A 3.12" Light Blue Monochrome OLED display

@@ -1,0 +1,2 @@
+This folder contains the artwork that is imprinted on the AT88SC102 cards.
+Have a look at the confirmation PDFs for more information.

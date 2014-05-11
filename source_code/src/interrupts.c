@@ -23,6 +23,7 @@
 #include <avr/interrupt.h>
 #include "interrupts.h"
 #include "smartcard.h"
+#include "pwm.h"
 
 // Number of milliseconds since power up
 static volatile uint32_t msecTicks = 0;
@@ -34,6 +35,7 @@ static volatile uint32_t msecTicks = 0;
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
     msecTicks++;
+    lightTimerTick();                                               // Light timer
 	scanSMCDectect();												// Scan smart card detect
 }
 

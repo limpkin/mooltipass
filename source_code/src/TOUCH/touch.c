@@ -248,8 +248,10 @@ RET_TYPE readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data)
 void initI2cPort(void)
 {
     #ifndef HARDWARE_V1
+        PORT_TOUCH_C |= (1 << PORTID_TOUCH_C);  // Touch change pin as input with pullup
         PORT_I2C_SCL |= (1 << PORTID_I2C_SCL);  // Set I2C ports as output & high
         PORT_I2C_SDA |= (1 << PORTID_I2C_SDA);  // Set I2C ports as output & high
+        DDR_TOUCH_C &= ~(1 << PORTID_TOUCH_C);  // Touch change pin as input with pullup
         DDR_I2C_SCL |= (1 << PORTID_I2C_SCL);   // Set I2C ports as output & high
         DDR_I2C_SDA |= (1 << PORTID_I2C_SDA);   // Set I2C ports as output & high
         TWBR = 3;                               // I²C freq = 16Mhz / (16 + 2*TWBR*4^TWPS) = 400KHz

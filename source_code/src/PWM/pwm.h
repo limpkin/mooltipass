@@ -11,9 +11,12 @@
 
 // Prototypes
 void setPwmDc(uint16_t pwm_value);
-void initPwm();
+void activateLightTimer(void);
+void lightTimerTick(void);
+void initPwm(void);
 
 // Defines
-#define MAX_PWM_VAL 0x7FF
+#define MAX_PWM_VAL     0x7FF
+#define LIGHT_TIMER_DEL 10000
 
 #endif /* PWM_H_ */

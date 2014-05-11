@@ -22,13 +22,18 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include <avr/io.h>
+#include "mooltipass.h"
 #include "defines.h"
+#include "pwm.h"
+
+// Our light timer
+volatile uint16_t light_timer = 0;
 
 
 /*!	\fn		initPwm()
 *	\brief	Initialize PWM
 */
-void initPwm()
+void initPwm(void)
 {
     #ifndef HARDWARE_V1
         TC4H = 0x03;                                            // Set TOP to max value (0x03FF);
@@ -51,4 +56,26 @@ void setPwmDc(uint16_t pwm_value)
 {
     TC4H = ~(pwm_value >> 8);
 	OCR4A = ~pwm_value;
+}
+
+/*!	\fn		lightTimerTick(void)
+*	\brief	Function called every ms
+*/
+void lightTimerTick(void)
+{
+    if (light_timer != 0)
+    {
+        if (light_timer-- == 1)
+        {
+            setLightsOutFlag();
+        }
+    }
+}
+
+/*!	\fn		activateLightTimer(void)
+*	\brief	Activate light timer
+*/
+void activateLightTimer(void)
+{
+    light_timer = LIGHT_TIMER_DEL;
 }

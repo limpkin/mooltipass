@@ -196,7 +196,7 @@ RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOf
     
     uint16_t offset = uid * USER_PROFILE_SIZE;
     
-    *page = (uint16_t)((offset/BYTES_PER_PAGE) - ((offset/BYTES_PER_PAGE) % 1));
+    *page = (uint16_t)((offset / BYTES_PER_PAGE) - ((offset / BYTES_PER_PAGE) % 1));
     *pageOffset = (uint16_t)(offset % BYTES_PER_PAGE);
     
     return RETURN_OK;
@@ -678,7 +678,7 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
 RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress)
 {
     RET_TYPE ret = RETURN_OK;
-    ret = readDataFromFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT*nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &(*p));
+    ret = readDataFromFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &(*p));
     if(ret != RETURN_OK)
     {
         return ret;
@@ -845,7 +845,7 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolic
     {
         // set node as invalid.. update
         validBitToFlags(&(ip.flags), NODE_VBIT_INVALID);
-        ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT*nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &ip);
+        ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &ip);
         if(ret != RETURN_OK)
         {
             return ret;
@@ -856,7 +856,7 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolic
         // memset parent node to all 0's.. set valid bit to invalid.. write
         memset(&ip, DELETE_POLICY_WRITE_ONES, NODE_SIZE_PARENT);
         validBitToFlags(&(ip.flags), NODE_VBIT_INVALID); 
-        ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT*nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &ip);
+        ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &ip);
         if(ret != RETURN_OK)
         {
             return ret;
@@ -867,7 +867,7 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolic
         // memset parent node to all 1's.. set valid bit to invalid.. write
         memset(&ip, DELETE_POLICY_WRITE_ZEROS, NODE_SIZE_PARENT);
         validBitToFlags(&(ip.flags), NODE_VBIT_INVALID);
-        ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT*nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &ip);
+        ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &ip);
         if(ret != RETURN_OK)
         {
             return ret;
@@ -888,7 +888,7 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolic
         ip.nextParentAddress = nextAddress;
         
         // update node
-        ret = writeDataToFlash(pageNumberFromAddress(prevAddress), NODE_SIZE_PARENT*nodeNumberFromAddress(prevAddress), NODE_SIZE_PARENT, &ip);
+        ret = writeDataToFlash(pageNumberFromAddress(prevAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(prevAddress), NODE_SIZE_PARENT, &ip);
         if(ret != RETURN_OK)
         {
             return ret;
@@ -908,7 +908,7 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolic
         // set address
         ip.prevParentAddress = prevAddress;
         // update node
-        ret = writeDataToFlash(pageNumberFromAddress(nextAddress), NODE_SIZE_PARENT*nodeNumberFromAddress(nextAddress), NODE_SIZE_PARENT, &ip);
+        ret = writeDataToFlash(pageNumberFromAddress(nextAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(nextAddress), NODE_SIZE_PARENT, &ip);
         if(ret != RETURN_OK)
         {
             return ret;

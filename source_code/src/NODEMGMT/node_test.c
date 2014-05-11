@@ -36,7 +36,6 @@
 #include "node_mgmt.h"
 #include "flash_mem.h"
 
-
 #include <stdint.h>
 #include <avr/io.h>
 #include <string.h> // for memcpy
@@ -49,9 +48,9 @@ void displayInitForNodeTest()
 {
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
     oledClear();
-    oledSetXY(0,0);
+    oledSetXY(0, 0);
     printf_P(PSTR("Node Test"));
-    oledSetXY(0,8);
+    oledSetXY(0, 8);
     #endif
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
@@ -65,7 +64,7 @@ void displayInitForNodeTest()
 void displayPassedNodeTest()
 {
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
-    oledSetXY(0,16);
+    oledSetXY(0, 16);
     printf_P(PSTR("PASSED"));
     #endif
     
@@ -82,7 +81,7 @@ void displayPassedNodeTest()
 void displayFailedNodeTest()
 {
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
-    oledSetXY(0,16);
+    oledSetXY(0, 16);
     printf_P(PSTR("FAILED"));
     #endif
     
@@ -301,8 +300,8 @@ RET_TYPE userProfileOffsetTest()
     uint16_t pageOffset = 0;
     
     #if BYTES_PER_PAGE==264
-        uint16_t pages[] = {0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3};
-        uint16_t offsets[] = {0,66,132,198,0,66,132,198,0,66,132,198,0,66,132,198};
+        uint16_t pages[] = {0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3};
+        uint16_t offsets[] = {0, 66, 132, 198, 0, 66, 132, 198, 0, 66, 132, 198, 0, 66, 132, 198};
     #else
         uint16_t pages[] = {0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1};
         uint16_t offsets[] = {0,66,132,198,264,330,396,462,0,66,132,198,264,330,396,462};
@@ -630,7 +629,6 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
           nextFreeParentNode -> (128, 2)
     */
     
-    
     /**********************************************************FIRST PARENT NODE**********************************************************/
     usbPrintf_P(PSTR("---STEP 1---\n"));
     // store old handle vals
@@ -668,7 +666,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // check the handle
-    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,0))
+    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 0))
     {
         *code = PARENT_NODE_TEST_STEP_1_VERIFY_HANDLE_FIRST_NODE_ERROR;
         return RETURN_NOK;
@@ -744,7 +742,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // check the handle
-    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,0))
+    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 0))
     {
         *code = PARENT_NODE_TEST_STEP_2_VERIFY_HANDLE_FIRST_NODE_ERROR;
         return RETURN_NOK;
@@ -780,7 +778,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
         return RETURN_NOK;
     }
     
-    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR,1))
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 1))
     {
         *code = PARENT_NODE_TEST_STEP_3_CREATE_NODE_VERIFY_NEXT_NODE_ERROR;
         return RETURN_NOK;
@@ -840,14 +838,14 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
         return RETURN_NOK;
     }
     
-    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR,2))
+    if(parentPtr->prevParentAddress != constructAddress(PAGE_PER_SECTOR, 2))
     {
         *code = PARENT_NODE_TEST_STEP_3_VERIFY_NODE_M_PREV_NODE_ERROR;
         return RETURN_NOK;
     }
     
     // check the handle
-    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,0))
+    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 0))
     {
         *code = PARENT_NODE_TEST_STEP_3_VERIFY_HANDLE_FIRST_NODE_ERROR;
         return RETURN_NOK;
@@ -883,7 +881,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
         return RETURN_NOK;
     }
     
-    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR,0))
+    if(parentPtr->nextParentAddress != constructAddress(PAGE_PER_SECTOR, 0))
     {
         *code = PARENT_NODE_TEST_STEP_4_CREATE_NODE_VERIFY_NEXT_NODE_ERROR;
         return RETURN_NOK;
@@ -977,7 +975,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // check the handle (expecting change)
-    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,3))
+    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 3))
     {
         *code = PARENT_NODE_TEST_STEP_4_VERIFY_HANDLE_FIRST_NODE_ERROR;
         return RETURN_NOK;
@@ -1091,7 +1089,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
 
 
     // check the handle
-    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,3))
+    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 3))
     {
         *code = PARENT_NODE_TEST_STEP_5_VERIFY_HANDLE_FIRST_NODE_ERROR;
         return RETURN_NOK;
@@ -1172,7 +1170,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // check the handle
-    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR,3))
+    if(h->firstParentNode != oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 3))
     {
         *code = PARENT_NODE_TEST_STEP_6_VERIFY_HANDLE_FIRST_NODE_ERROR;
         return RETURN_NOK;
@@ -1503,7 +1501,7 @@ RET_TYPE nodeTest()
     // set next free node to next immediate address
     nodeTypeToFlags(&flags, NODE_TYPE_PARENT);
     validBitToFlags(&flags, NODE_VBIT_VALID);
-    credentialTypeToFlags(&flags,0);
+    credentialTypeToFlags(&flags, 0);
     userIdToFlags(&flags, 0);
     
     // write / read sector 1, page 0 (of sector 1), offset node 0, two bytes and flags
@@ -1524,7 +1522,7 @@ RET_TYPE nodeTest()
     // set next free node to next immediate address
     nodeTypeToFlags(&flags, NODE_TYPE_PARENT);
     validBitToFlags(&flags, NODE_VBIT_INVALID);
-    credentialTypeToFlags(&flags,0);
+    credentialTypeToFlags(&flags, 0);
     userIdToFlags(&flags, 0);
     
     // write / read sector 1, page 0 (of sector 1), offset node 1, two bytes and flags

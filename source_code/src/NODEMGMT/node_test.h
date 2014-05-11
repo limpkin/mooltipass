@@ -33,6 +33,9 @@
 #include "node_mgmt.h"
 #include <stdint.h>
 
+/*!
+*  Parent Node Test Error Codes ENUM
+*/
 typedef enum
 {
     PARENT_NODE_TEST_PARENT_NODE_AOK = 0,

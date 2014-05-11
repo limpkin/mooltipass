@@ -28,4 +28,6 @@
 #ifndef MOOLTIPASS_H_
 #define MOOLTIPASS_H_
 
+void setLightsOutFlag(void);
+
 #endif /* MOOLTIPASS_H_ */

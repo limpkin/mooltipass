@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-05-31 BZR 4019)-stable date = 23/02/2014 18:43:55
+Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 06/05/2014 21:20:44
 
 BeginCmp
 TimeStamp = /5289A0B1;
@@ -208,6 +208,13 @@ TimeStamp = /5289BB24;
 Reference = D1;
 ValeurCmp = DIODE;
 IdModule  = SOD-123;
+EndCmp
+
+BeginCmp
+TimeStamp = /5369338E;
+Reference = F1;
+ValeurCmp = FUSE;
+IdModule  = SM1206;
 EndCmp
 
 BeginCmp
@@ -431,7 +438,7 @@ BeginCmp
 TimeStamp = /52A5ED5F;
 Reference = U6;
 ValeurCmp = AT45DB011D-SSH;
-IdModule  = SO8E;
+IdModule  = SO8EN;
 EndCmp
 
 BeginCmp

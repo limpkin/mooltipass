@@ -1,0 +1,1 @@
+In this folder you'll find a picture of the 35mm diameter 0.11mm thick double sided tape meant to be placed between the top PCB and the front panel.

@@ -33,20 +33,30 @@ RET_TYPE isWheelTouched(void);
 RET_TYPE isButtonTouched(void);
 RET_TYPE initTouchSensing(void);
 RET_TYPE getTouchedButton(void);
+RET_TYPE touchDetectionRoutine(void);
 
 // Macros
-#define switchOnLeftButonLed(void)      writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_H_VAL)
-#define switchOffLeftButonLed(void)     writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_L_VAL)
-#define switchOnRightButonLed(void)     writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_H_VAL)
-#define switchOffRightButonLed(void)    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_L_VAL)
-#define switchOnTopLeftWheelLed(void)   writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);
-#define switchOffTopLeftWheelLed(void)  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_L_VAL);
-#define switchOnTopRightWheelLed(void)  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_H_VAL);
-#define switchOffTopRightWheelLed(void) writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_L_VAL);
-#define switchOnBotLeftWheelLed(void)   writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_H_VAL);
-#define switchOffBotLeftWheelLed(void)  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_L_VAL);
-#define switchOnBotRightWheelLed(void)  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_H_VAL);
-#define switchOffBotRightWheelLed(void) writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_L_VAL);
+#define isTouchChangeDetected()     !(PINF & (1 << PORTID_TOUCH_C))
+#define launchCalibrationCycle()    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_CALIB, 0x12)
+#define switchOnLeftButonLed()      writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffLeftButonLed()     writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnRightButonLed()     writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffRightButonLed()    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnTopLeftWheelLed()   writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffTopLeftWheelLed()  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnTopRightWheelLed()  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffTopRightWheelLed() writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnBotLeftWheelLed()   writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffBotLeftWheelLed()  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnBotRightWheelLed()  writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffBotRightWheelLed() writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_L_VAL)
+#define activateGuardKey()          writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_PULSE_SCL, 0x00); writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_CTRL, AT42QT2120_GUARD_VAL|AT42QT2120_AKS_GP1_MASK); launchCalibrationCycle()
+#define activateProxDetection()     writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_PULSE_SCL, 0x73); writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_CTRL, AT42QT2120_AKS_GP1_MASK); launchCalibrationCycle()
+#define switchOffButtonWheelLeds()  switchOffLeftButonLed(); switchOffRightButonLed(); switchOffTopLeftWheelLed(); switchOffTopRightWheelLed(); switchOffBotLeftWheelLed(); switchOffBotRightWheelLed();
+#define switchOnButtonWheelLeds()   switchOnLeftButonLed(); switchOnRightButonLed();  switchOnTopLeftWheelLed(); switchOnTopRightWheelLed(); switchOnBotLeftWheelLed(); switchOnBotRightWheelLed();
+
+// Touch detect defines
+#define TOUCH_PRESS_MASK    (RETURN_LEFT_PRESSED | RETURN_RIGHT_PRESSED | RETURN_WHEEL_PRESSED | RETURN_PROX_DETECTION)
 
 // AT42QT2120 ID
 #define AT42QT2120_ID       0x3E

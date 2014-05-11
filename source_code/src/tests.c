@@ -167,83 +167,44 @@ void afterTouchInitTests(void)
     //#define TEST_TS
     #ifdef TEST_TS
     uint8_t temp_byte;
+    uint16_t temp_uint = 0;
+    RET_TYPE temp_ret_type = RETURN_RIGHT_PRESSED;
     
     setPwmDc(MAX_PWM_VAL);
-    switchOnLeftButonLed();
-    switchOnRightButonLed();
-    switchOnTopLeftWheelLed();
-    switchOnTopRightWheelLed();
-    switchOnBotLeftWheelLed();
-    switchOnBotRightWheelLed();
+    while(!(temp_ret_type & RETURN_LEFT_PRESSED))
+    {
+        if (temp_ret_type != RETURN_NO_CHANGE)
+        {
+            oledSetXY(0,0);
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_byte);
+            printf("POS: %02X\r\n", temp_byte);
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_DET_STAT, &temp_byte);
+            printf("DET STAT: %02X\r\n", temp_byte);
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT1, &temp_byte);
+            printf("DET1: %02X\r\n", temp_byte);
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
+            printf("DET2: %02X\r\n", temp_byte);
+            printf("counter: %04X\r\n", temp_uint++);
+        }
+        temp_ret_type = touchDetectionRoutine();     
+    }
+    activateGuardKey();
     while(1)
     {
-        oledSetXY(0,0);
-        readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_byte);
-        printf("POS: %02X\r\n", temp_byte);
-        readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_DET_STAT, &temp_byte);
-        printf("DET STAT: %02X\r\n", temp_byte);
-        readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT1, &temp_byte);
-        printf("DET1: %02X\r\n", temp_byte);
-        readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
-        printf("DET2: %02X\r\n", temp_byte);
-        
-        if (isWheelTouched() == RETURN_OK)
-        {
+        if (temp_ret_type != RETURN_NO_CHANGE)
+        {            
+            oledSetXY(0,0);
             readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_byte);
-            
-            if (temp_byte < 0x3F)
-            {
-                switchOffTopRightWheelLed();
-                switchOnTopLeftWheelLed();
-                switchOnBotLeftWheelLed();
-                switchOnBotRightWheelLed();
-            }
-            else if (temp_byte < 0x7F)
-            {
-                switchOffBotRightWheelLed();
-                switchOnTopLeftWheelLed();
-                switchOnTopRightWheelLed();
-                switchOnBotLeftWheelLed();
-            }
-            else if (temp_byte < 0xBF)
-            {
-                switchOffBotLeftWheelLed();
-                switchOnTopLeftWheelLed();
-                switchOnTopRightWheelLed();
-                switchOnBotRightWheelLed();
-            }
-            else
-            {
-                switchOffTopLeftWheelLed();
-                switchOnTopRightWheelLed();
-                switchOnBotLeftWheelLed();
-                switchOnBotRightWheelLed();              
-            }
-        } 
-        else
-        {
-            switchOnTopLeftWheelLed();
-            switchOnTopRightWheelLed();
-            switchOnBotLeftWheelLed();
-            switchOnBotRightWheelLed();
+            printf("POS: %02X\r\n", temp_byte);
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_DET_STAT, &temp_byte);
+            printf("DET STAT: %02X\r\n", temp_byte);
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT1, &temp_byte);
+            printf("DET1: %02X\r\n", temp_byte);
+            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
+            printf("DET2: %02X\r\n", temp_byte);
+            printf("counter: %04X\r\n", temp_uint++);
         }
-        
-        if (isButtonTouched() == RETURN_OK)
-        {
-            if (getTouchedButton() == LEFT_BUTTON)
-            {
-                switchOffLeftButonLed();
-            } 
-            else
-            {
-                switchOffRightButonLed();
-            }
-        }
-        else
-        {
-            switchOnLeftButonLed();
-            switchOnRightButonLed();
-        }
+        temp_ret_type = touchDetectionRoutine();
     }
     #endif
 }

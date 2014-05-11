@@ -28,6 +28,7 @@
 #include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "flash_test.h"
+#include "node_test.h"
 #include "defines.h"
 #include "entropy.h"
 #include "oledmp.h"
@@ -54,6 +55,12 @@ void beforeFlashInitTests(void)
 */
 void afterFlashInitTests(void)
 {    
+    //#define TEST_NODE
+    #ifdef TEST_NODE
+        nodeTest();
+        // spin
+        while(1);
+    #endif
     //#define TEST_HID_AND_CDC
     #ifdef TEST_HID_AND_CDC
         //Show_String("Z",FALSE,2,0);

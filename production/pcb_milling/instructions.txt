@@ -1,0 +1,2 @@
+In this folder is contained slots_to_be_milled.dxf that shows which part of the PCB should be milled 1.2mm deep.
+If you use a 2mm tool, the tool path is in 2mm_tool_path.dxf

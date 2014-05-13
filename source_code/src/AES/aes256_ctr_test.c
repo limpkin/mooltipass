@@ -29,6 +29,7 @@
 #include <avr/pgmspace.h>
 #include "usb_serial_hid.h"
 #include "utils.h"
+#include "interrupts.h"
 
 // Test vector, key and iv
 static uint8_t v1[16] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 
@@ -267,4 +268,31 @@ void aes256CtrTest(void)
     // Encrypt TEST 4
     printBlock(4);
     printDecryptTest(&ctx, v4, 16);
+}
+
+/*!	\fn 	uint32_t aes256CtrSpeedTest(void)
+*	\brief	Do 1000 encryptions and return the time needed in ms
+*
+*	\return time elapsed in milliseconds
+*/
+uint32_t aes256CtrSpeedTest(void)
+{
+
+	uint32_t time1;
+
+	uint16_t i;
+
+    // init
+    aes256CtrCtx_t ctx;
+
+    aes256CtrInit(&ctx, key, iv, 16);
+
+	time1 = millis();
+
+	for(i=0; i<1000; i++)
+	{
+		aes256CtrEncrypt(&ctx, v1, 16);
+	}
+
+	return millis()-time1;
 }

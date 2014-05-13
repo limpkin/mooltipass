@@ -19,8 +19,8 @@ LIBS := -lm -lmooltipass
 LIBDIRS := $(addprefix src/, CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH)
 LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
 
-AESDIRS := $(addprefix src/, AES AES/aes AES/gf256mul)
-AESOBJS := $(foreach lib, $(AESDIRS),$(patsubst src/%.S,build/%.o, $(wildcard $(lib)/*.S)))
+#AESDIRS := $(addprefix src/, AES AES/aes AES/gf256mul)
+#AESOBJS := $(foreach lib, $(AESDIRS),$(patsubst src/%.S,build/%.o, $(wildcard $(lib)/*.S)))
 
 MOOLTIPASS_LIB := build/libmooltipass.a
 

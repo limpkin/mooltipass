@@ -127,7 +127,7 @@ void afterFlashInitTests(void)
         }
     #endif
 
-	#define TEST_CTR_SPEED
+	//#define TEST_CTR_SPEED
 	#ifdef TEST_CTR_SPEED
 		// msg into oled display
 		oledSetXY(2,0);

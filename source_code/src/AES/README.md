@@ -1,8 +1,8 @@
-Mooltipass AES description
-==========================
+Mooltipass AES description (to be updated)
+==========================================
 
-1- AVR CRYPTOLIB
-----------------
+1- AVR CRYPTOLIB (depecrated!)
+------------------------------
 Mooltipass encryption is achieved by AVR Cryptolib. We can get the libraries  and a description of the different files from the author website: <a href="http://avrcryptolib.das-labor.org/trac/wiki/AES">AES libraries and description</a>. We are only using the necessary files to get AES256 encryption and decryption working, the other files are removed. As you may notice, we are using the ASM implementation of the library because it's lighter in code size and faster in execution.
 
 How to use the library? how to work  with it ? As easy as it sounds, you only have to care about 3 functions: aes256_init, aes256_encrypt and aes256_decrypt. Here it is a simple example:
@@ -32,8 +32,8 @@ void aes256_test(void)
 }
 ```
 
-2- Testing avr-cryptolib using nessie test vectors
---------------------------------------------------
+2- Testing the library using nessie test vectors
+------------------------------------------------
 After downloading a third party library or resource you must ensure the library performs the function as well as it is claimed. So to satisfy our paranoia against any bug or error with the library, we have checked the encyrption and decryption using different test vectors, called Nessie Test Vectors. There are 8 different sets of test vectors, we have checked AES256 against all. 
 
 To test AES256 using nessie vectors, we have created a file called aes256_nessie_test.c. This file outputs the results of nessie test into UART, USB CDC or whatever function you want. You only have to initialize the function pointer to print the output where you want.
@@ -130,8 +130,8 @@ void main(void)
 }
 ```
 
-4- Description of files
------------------------
+4- Description of files (depecrated)
+------------------------------------
 - AVR-cryptolib files used in this project:
 
 ```

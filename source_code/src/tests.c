@@ -127,25 +127,14 @@ void afterFlashInitTests(void)
         }
     #endif
 
-	//#define TEST_CTR_SPEED
+	#define TEST_CTR_SPEED
 	#ifdef TEST_CTR_SPEED
-		while(1)
-        {
-            // msg into oled display
-            oledSetXY(2,0);
-            printf_P(PSTR("send s to start CTR speed TEST\n"));
-
-            int input1 = usb_serial_getchar();
-
-            ctrTestOutput = &usb_serial_putchar;
-
-            // do ctr test after sending s or S chars
-            if (input1 == 's' || input1 == 'S')
-            {
-				printf_P(PSTR("Time:"));
-                printf("%lu ms", aes256CtrSpeedTest());
-            }
-        }
+		// msg into oled display
+		oledSetXY(2,0);
+		printf_P(PSTR("CTR speed TEST\n"));
+		printf_P(PSTR("Time:"));
+		printf("%lu ms", aes256CtrSpeedTest());
+		while(1);
 	#endif
 
     //#define TEST_RNG

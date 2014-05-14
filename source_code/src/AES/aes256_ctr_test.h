@@ -35,5 +35,6 @@ int8_t (*ctrTestOutput)(uint8_t c);
 
 // prototype function
 void aes256CtrTest(void);
+uint32_t aes256CtrSpeedTest(void);
 
 #endif /*__AES256_CTR_TEST_H__*/

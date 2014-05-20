@@ -3,7 +3,7 @@ Mooltipass AES description (to be updated)
 
 1- AES LIBRARY
 --------------
-In order to avoid conflicts with the GPL license of AVR Cryptolib we have decided to change the AES Library to <a href="http://www.literatecode.com/aes256">AES256 library</a>.
+In order to avoid conflicts with the GPL license of AVR Cryptolib we have decided to change the AES Library to <a href="http://www.literatecode.com/aes256">http://www.literatecode.com/aes256</a>.
 
 To avoid changes in the current CTR implementation we decided to do some #define and avoid changing function names and those things.
 
@@ -22,7 +22,8 @@ const uint8_t sboxinv[256] __attribute__ ((__progmem__)) = {...};
 #define rj_sbox_inv(x) (pgm_read_byte(&sboxinv[x]))
 
 4.Change aes_init function name to aes256_init_ecb
-
+```
+```
 aes.h:
 
 1- Add '#define' inside the header file

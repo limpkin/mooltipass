@@ -1,7 +1,9 @@
 Mooltipass hid debug
 ====================
 
-Simple app to view the debug messages sent over usb hid
+Simple app for two way usb communication with the mooltipass over usb hid
+
+App will request the version on startup and send a ping msg every 10 seconds to the mooltipass
 
 Requirements
 ------------

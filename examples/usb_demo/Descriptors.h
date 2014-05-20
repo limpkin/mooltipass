@@ -55,8 +55,8 @@
 			// Generic HID Interface
 			USB_Descriptor_Interface_t            HID_Interface;
 			USB_HID_Descriptor_HID_t              HID_GenericHID;
-	        	USB_Descriptor_Endpoint_t             HID_ReportINEndpoint;
-	        	USB_Descriptor_Endpoint_t             HID_ReportOUTEndpoint;
+	        USB_Descriptor_Endpoint_t             HID_ReportINEndpoint;
+	        USB_Descriptor_Endpoint_t             HID_ReportOUTEndpoint;
             
 			USB_Descriptor_Interface_t            HID1_KeyboardInterface;
 			USB_HID_Descriptor_HID_t              HID1_KeyboardHID;
@@ -79,9 +79,9 @@
 		#define KEYBOARD_OUT_EPADDR       (ENDPOINT_DIR_OUT | 4)        
 
 		/** Size in bytes of the Generic HID reporting endpoint. */
-		#define GENERIC_EPSIZE            8
+		#define KEYBOARD_EPSIZE            	8
 
-		#define BUFFER_EPSIZE		  32
+		#define BUFFER_EPSIZE		  		64
 
 	/* Function Prototypes: */
 		uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,

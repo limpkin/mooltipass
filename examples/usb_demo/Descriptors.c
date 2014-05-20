@@ -86,8 +86,8 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 
 	.Endpoint0Size          = BUFFER_EPSIZE,
 
-	.VendorID               = 0x16C0,
-	.ProductID              = 0x047C,
+	.VendorID               = 0x16D0,
+	.ProductID              = 0x09A0,
 	.ReleaseNumber          = VERSION_BCD(0,0,1),
 
 	.ManufacturerStrIndex   = 0x01,
@@ -199,7 +199,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 
 			.EndpointAddress        = KEYBOARD_IN_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = GENERIC_EPSIZE,
+			.EndpointSize           = KEYBOARD_EPSIZE,
 			.PollingIntervalMS      = 0x05
 		},
 
@@ -209,7 +209,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 
 			.EndpointAddress        = KEYBOARD_OUT_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-			.EndpointSize           = GENERIC_EPSIZE,
+			.EndpointSize           = KEYBOARD_EPSIZE,
 			.PollingIntervalMS      = 0x05
 		}
 };

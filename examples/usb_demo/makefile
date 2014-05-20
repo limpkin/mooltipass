@@ -21,7 +21,7 @@ TARGET       = mooltipass
 SRC          = $(TARGET).c usb.c Descriptors.c $(LUFA_SRC_USB)
 #LUFA_PATH    = ../../../LUFA/LUFA/LUFA/
 LUFA_PATH = ../../../LUFA140302/LUFA/
-CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/
+CC_FLAGS     = -DINTERRUPT_CONTROL_ENDPOINT -DUSE_LUFA_CONFIG_HEADER -IConfig/
 LD_FLAGS     =
 
 # Default target

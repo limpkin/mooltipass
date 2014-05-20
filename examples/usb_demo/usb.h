@@ -13,10 +13,24 @@
 		
 #include <LUFA/Drivers/USB/USB.h>
 
-int usb_configured(void);
+/* usb mooltipass hid commands */
+#define CMD_DEBUG	0x01
+#define CMD_PING	0x02
+#define CMD_VERSION 0x03
+
+
+/* setup functions */
+int  usb_configured(void);
 void usb_init(void);
 
-void print_debug( char *msg );
+/* send data/keys functions */
+void usb_debug( char *msg );
+int  usb_debug_printf( const char *fmt, ...);
+void usb_send_data( uint8_t cmd, uint8_t len, uint8_t buffer[] );
+void usb_keyboard_press(uint8_t key, uint8_t modifier);
+
+/* process incoming data */
+void usb_check_incoming(void (*processDataCallBack)(uint8_t* incomingData));
 
 void EVENT_USB_Device_Connect(void);
 void EVENT_USB_Device_Disconnect(void);

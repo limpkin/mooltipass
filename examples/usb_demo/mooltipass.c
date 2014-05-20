@@ -31,18 +31,47 @@
 #include "defines.h"
 
 
+void usb_process_incoming(uint8_t* incomingData)
+{
+    // get data len
+    uint8_t datalen = incomingData[0];
+
+    // get data cmd
+    uint8_t datacmd = incomingData[1];
+
+    usb_debug_printf( "Data Received cmd:%i", datacmd );
+
+    uint8_t dataBuffer[62];
+
+    switch(datacmd)
+    {
+        case 0x02: // ping command
+            dataBuffer[0] = 0x02;
+            usb_send_data( CMD_PING, 1, dataBuffer);
+            break;
+
+        case 0x03: // version command
+            dataBuffer[0] = 0x01;   // major version
+            dataBuffer[1] = 0x01;   // minor version
+            usb_send_data( CMD_VERSION, 2, dataBuffer);
+            break;
+
+        break;
+
+    }
+}
+
+
 int main(void)
 {
     CPU_PRESCALE(0);                    // Set for 16MHz clock
     _delay_ms(500);                     // Let the power settle
     usb_init();                         // Initialize USB controller
     while(!usb_configured()); // Wait for host to set configuration
-               
+
     while (1)
     {
-        // needs to be moved to isr timer
-        USB_USBTask();
-	print_debug( "Hello World" );
+        usb_check_incoming(usb_process_incoming);
     }
     
 }

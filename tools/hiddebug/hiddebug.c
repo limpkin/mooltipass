@@ -5,41 +5,77 @@
 #include <stdlib.h>
 #include <hidapi/hidapi.h>
 #include <signal.h>
+#include <sys/time.h>
 
 static int keepRunning = 1;
 
-void intHandler() {
+/* usb mooltipass hid commands */
+#define CMD_DEBUG	0x01
+#define CMD_PING	0x02
+#define CMD_VERSION 0x03
+
+hid_device *handle;
+
+void intHandler() 
+{
     keepRunning = 0;
+}
+
+void pingHandler()
+{
+	// send ping
+	unsigned char buf[65];
+	buf[0] = 0x00;	// endpoint 0
+	buf[1] = 0x00;	// no data
+	buf[2] = CMD_PING;	// send ping
+	hid_write(handle, buf, 65);	
+
+	// restart timer
+  	struct itimerval tout_val;
+  	tout_val.it_interval.tv_sec = 0;
+  	tout_val.it_interval.tv_usec = 0;
+  	tout_val.it_value.tv_sec = 10;
+  	tout_val.it_value.tv_usec = 0;
+  	setitimer(ITIMER_REAL, &tout_val, 0);
+
 }
 
 int main(int argc, char* argv[])
 {
 	int res;
 	unsigned char buf[65];
-	hid_device *handle;
 
 	signal(SIGINT, intHandler);
 
 	wprintf( L"USB Debug Client\n" );
 
+
 	// Initialize the hidapi library
 	res = hid_init();
 
 	// Open the device using the VID, PID,
-	handle = hid_open(0x16C0, 0x047C, NULL);
+	handle = hid_open(0x16D0, 0x09A0, NULL);
+
+  	struct itimerval tout_val;
+  
+  	tout_val.it_interval.tv_sec = 0;
+  	tout_val.it_interval.tv_usec = 0;
+  	tout_val.it_value.tv_sec = 10;
+  	tout_val.it_value.tv_usec = 0;
+  	setitimer(ITIMER_REAL, &tout_val,0);
+
+	signal(SIGALRM,pingHandler);
 
 	// enable non-blocking
 	hid_set_nonblocking(handle, 1);
 
+	buf[0] = 0x00;	// endpoint 0
+	buf[1] = 0x00;	// no data
+	buf[2] = CMD_VERSION;	// send ping
+	res = hid_write(handle, buf, 65);
+
 	while (keepRunning == 1)
 	{
-
-		// Request state (cmd 0x81). The first byte is the report number (0x0).
-		buf[0] = 0x0;
-		buf[1] = 0x81;
-		res = hid_write(handle, buf, 65);
-
-		// Read requested state
 		res = hid_read(handle, buf, 65);
 
 		if ( res > 2 )
@@ -48,10 +84,33 @@ int main(int argc, char* argv[])
 			int cmd = buf[1];
 			buf[size + 2] = '\0';
 
-			if ( cmd == 0x01 )	// debug msg
+			switch( cmd )
 			{
-				unsigned char *msg = buf + 2;
-				wprintf(L"dbg: %s\n", msg);
+				case CMD_DEBUG:	
+				{
+					unsigned char *msg = buf + 2;
+					wprintf(L"dbg: %s\n", msg);
+					break;
+				}
+
+				case CMD_PING:	
+				{
+					wprintf(L"cmd: Ping\n");
+					break;
+				}
+
+				case CMD_VERSION: 	
+				{
+					wprintf(L"cmd: Version %i.%i\n", buf[2], buf[3]);
+					break;
+				}
+
+				default:	
+				{
+					wprintf(L"unknown cmd");
+					break;
+				}
+
 			}
 		}
 	}

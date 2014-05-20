@@ -35,8 +35,8 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 	ConfigSuccess &= Endpoint_ConfigureEndpoint(GENERIC_OUT_EPADDR, EP_TYPE_INTERRUPT, BUFFER_EPSIZE, 1);
 
 	/* Setup Keyboard HID Report Endpoints */
-	ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, GENERIC_EPSIZE, 1);
-	ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPADDR, EP_TYPE_INTERRUPT, GENERIC_EPSIZE, 1);   
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, KEYBOARD_EPSIZE, 1);
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPADDR, EP_TYPE_INTERRUPT, KEYBOARD_EPSIZE, 1);   
 }
 
 void EVENT_USB_Device_ControlRequest(void)
@@ -102,7 +102,7 @@ int usb_configured(void)
     return 0;    
 }
 
-void print_debug( char *msg )
+void usb_debug( char *msg )
 {
 	/* Device must be connected and configured for the task to run */
 	if (USB_DeviceState != DEVICE_STATE_Configured)
@@ -130,8 +130,106 @@ void print_debug( char *msg )
 		/* Finalize the stream transfer to send the last packet */
 		Endpoint_ClearIN();
 	}	
+
+	_delay_ms(200);
+}
+
+int usb_debug_printf( const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char buf[60];
+
+    int ret = vsnprintf(buf, sizeof(buf), fmt, ap);
+	usb_debug(buf);
+
+    return ret;	
 }
 
 
+void usb_send_data( uint8_t cmd, uint8_t len, uint8_t buffer[] )
+{
+	if (USB_DeviceState != DEVICE_STATE_Configured)
+	  return;
+
+	Endpoint_SelectEndpoint(GENERIC_IN_EPADDR);
+
+	if (Endpoint_IsINReady())
+	{
+		uint8_t GenericData[BUFFER_EPSIZE];
+		
+		GenericData[0] = len;
+		GenericData[1] = cmd;
+		
+		for ( int c = 0; c < len; c++ )
+			GenericData[c + 2] = buffer[c];
+
+		Endpoint_Write_Stream_LE(&GenericData, sizeof(GenericData), NULL);
+
+		Endpoint_ClearIN();
+	}
+
+	_delay_ms(200);
+}
+
+/*
+	list of key and modifiers available: http://www.fourwalledcubicle.com/files/LUFA/Doc/140302/html/group___group___u_s_b_class_h_i_d_common.html
+
+	keyboard presses are broken
+*/
+
+void usb_keyboard_press(uint8_t key, uint8_t modifier)
+{
+	USB_KeyboardReport_Data_t        KeyboardReportData;
+
+	// setup keyboard report data
+	memset(&KeyboardReportData, 0, sizeof(USB_KeyboardReport_Data_t));
+
+	// modifier
+	KeyboardReportData.Modifier = modifier;
+	KeyboardReportData.KeyCode[0] = key;
+
+	Endpoint_SelectEndpoint(KEYBOARD_IN_EPADDR);
+
+	if ( Endpoint_IsReadWriteAllowed() )
+	{
+		Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData), NULL);
+		Endpoint_ClearIN();		
+	}
+
+	_delay_ms(200);
+
+}
 
 
+void usb_check_incoming(void (*processDataCallBack)(uint8_t* incomingData))
+{
+	uint8_t dataReceived = -1;
+
+	if (USB_DeviceState != DEVICE_STATE_Configured)
+		return;
+
+	uint8_t GenericData[BUFFER_EPSIZE];
+
+	Endpoint_SelectEndpoint(GENERIC_OUT_EPADDR);
+
+	// packet received?
+	if ( Endpoint_IsOUTReceived() )
+	{
+
+		if ( Endpoint_IsReadWriteAllowed())
+		{
+			Endpoint_Read_Stream_LE( &GenericData, sizeof(GenericData), NULL);
+
+			dataReceived = 1;
+		}
+
+		Endpoint_ClearOUT();
+	}
+
+	if ( dataReceived == 1 )
+	{
+		//usb_process_incoming(GenericData);		
+		processDataCallBack(GenericData);
+	}
+}

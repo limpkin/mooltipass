@@ -1,11 +1,40 @@
 Mooltipass AES description (to be updated)
 ==========================================
 
-1- AVR CRYPTOLIB (depecrated!)
-------------------------------
-Mooltipass encryption is achieved by AVR Cryptolib. We can get the libraries  and a description of the different files from the author website: <a href="http://avrcryptolib.das-labor.org/trac/wiki/AES">AES libraries and description</a>. We are only using the necessary files to get AES256 encryption and decryption working, the other files are removed. As you may notice, we are using the ASM implementation of the library because it's lighter in code size and faster in execution.
+1- AES LIBRARY
+--------------
+In order to avoid conflicts with GPL license of AVR Cryptolib we have decided to change the AES Library to -> <a href=" http://www.literatecode.com/aes256">AES256 library</a>.
 
-How to use the library? how to work  with it ? As easy as it sounds, you only have to care about 3 functions: aes256_init, aes256_encrypt and aes256_decrypt. Here it is a simple example:
+To avoid changes in the current CTR implementation we decided to do some #define and avoid changing function names and those things.
+
+Changes made from the original library to avoid changes in other files:
+```
+aes.c:
+
+1.Uncomment '#define BACK_TO_TABLES'
+
+2.Add sbox and sboxinv to flash memory:
+const uint8_t sbox[256] __attribute__ ((__progmem__)) = {...};
+const uint8_t sboxinv[256] __attribute__ ((__progmem__)) = {...};
+
+3.Modify #define of rj_sbox and rj_sbox_inv
+#define rj_sbox(x)     (pgm_read_byte(&sbox[x]))
+#define rj_sbox_inv(x) (pgm_read_byte(&sboxinv[x]))
+
+4.Change aes_init function to aes256_init_ecb
+
+aes.h:
+
+1- Add those '#define' inside the code
+#define aes256_ctx_t aes256_context
+
+#define aes256_init(x,y)	aes256_init_ecb((y),(uint8_t*)(x))
+#define aes256_enc(x,y)		aes256_encrypt_ecb((y),(uint8_t*)(x))
+#define aes256_dec(x,y)		aes256_decrypt_ecb((y),(uint8_t*)(x))
+
+```
+
+How to use the library? how to work  with it ? As easy as it sounds, you only have to care about 3 functions: aes256_init, aes256_enc and aes256_dec. Here it is a simple example:
 
 ```
 void aes256_test(void)
@@ -130,18 +159,12 @@ void main(void)
 }
 ```
 
-4- Description of files (depecrated)
-------------------------------------
+4- Description of files
+-----------------------
 - AVR-cryptolib files used in this project:
 
 ```
-aes/aes_dec-asm.S 			-> aes decrypt file
-aes/aes_enc-asm.S 			-> aes encrypt file
-aes/aes_keyschedule-asm.S  	-> aes key schedule, 		see http://en.wikipedia.org/wiki/Rijndael_key_schedule
-aes/aes_sbox-asm.S 			-> aes substitution box, 	see http://en.wikipedia.org/wiki/Rijndael_S-box
-aes/aes_invsbox-asm.S 		-> aes inverse substitution box, 	see http://en.wikipedia.org/wiki/Rijndael_S-box
-gf256mul/gf256mul.S			-> Galois Field multiplication, 	see http://www.samiam.org/galois.html
-avr-asm-macros.S			-> specific macros to work with the library
+aes.c -> AES256 implementation from http://www.literatecode.com/aes256 modified a bit 
 ```
 
 - Custom files done by mooltipass team:
@@ -152,7 +175,7 @@ aes256_ctr_test.c 		(only used for test)
 aes256_ctr.c
 ```
 
-- Files to check aes256_enc/dec and aes256_ctr tests:
+- Files to check aes256_nessie and aes256_ctr tests:
 
 ```
 aes256_nessie_test.txt

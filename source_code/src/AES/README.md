@@ -3,7 +3,7 @@ Mooltipass AES description (to be updated)
 
 1- AES LIBRARY
 --------------
-In order to avoid conflicts with the GPL license of AVR Cryptolib we have decided to change the AES Library to <a href=" http://www.literatecode.com/aes256">AES256 library</a>.
+In order to avoid conflicts with the GPL license of AVR Cryptolib we have decided to change the AES Library to <a href="http://www.literatecode.com/aes256">AES256 library</a>.
 
 To avoid changes in the current CTR implementation we decided to do some #define and avoid changing function names and those things.
 

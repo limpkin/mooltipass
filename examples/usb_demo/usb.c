@@ -1,5 +1,6 @@
 
 #include "usb.h"
+#include "usb_cmd_parser.h"
 
 static USB_KeyboardReport_Data_t KeyboardReportData;
 
@@ -202,7 +203,7 @@ void usb_keyboard_press(uint8_t key, uint8_t modifier)
 }
 
 
-void usb_check_incoming(void (*processDataCallBack)(uint8_t* incomingData))
+void usb_check_incoming()
 {
 	uint8_t dataReceived = -1;
 
@@ -229,7 +230,7 @@ void usb_check_incoming(void (*processDataCallBack)(uint8_t* incomingData))
 
 	if ( dataReceived == 1 )
 	{
-		//usb_process_incoming(GenericData);		
-		processDataCallBack(GenericData);
+		usb_process_incoming(GenericData);		
+		//processDataCallBack(GenericData);
 	}
 }

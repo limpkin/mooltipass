@@ -30,7 +30,7 @@ void usb_send_data( uint8_t cmd, uint8_t len, uint8_t buffer[] );
 void usb_keyboard_press(uint8_t key, uint8_t modifier);
 
 /* process incoming data */
-void usb_check_incoming(void (*processDataCallBack)(uint8_t* incomingData));
+void usb_check_incoming(void);
 
 void EVENT_USB_Device_Connect(void);
 void EVENT_USB_Device_Disconnect(void);

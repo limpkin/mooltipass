@@ -563,7 +563,7 @@ void oledOff(void)
 
 
 /**
- * Turn the display off
+ * Turn the display on
  */
 void oledOn(void)
 {

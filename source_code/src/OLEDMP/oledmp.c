@@ -553,6 +553,26 @@ void oledSetFont(uint8_t font)
 
 
 /**
+ * Turn the display off
+ */
+void oledOff(void)
+{
+    oledWriteCommand(CMD_SET_DISPLAY_OFF);
+    pinHigh(OLED_PORT_POWER, OLED_POWER);	 // 12V power off
+}
+
+
+/**
+ * Turn the display on
+ */
+void oledOn(void)
+{
+    oledWriteCommand(CMD_SET_DISPLAY_ON);
+    pinLow(OLED_PORT_POWER, OLED_POWER);	 // 12V power on
+}
+
+
+/**
  * Fill the display with the specified colour by setting
  * every pixel to the colour.
  * @param colour - fill the display with this colour.

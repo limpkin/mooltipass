@@ -136,6 +136,8 @@ void oledFill(uint8_t colour);
 void oledClear();
 void oledScrollClear(uint8_t options);
 void oledReset();
+void oledOff(void);
+void oledOn(void);
 
 #define OLED_SCROLL_UP		1
 #define OLED_SCROLL_DOWN	2

@@ -76,38 +76,6 @@ var gotPermission = function(result) {
 		};
 
 		chrome.usb.interruptTransfer(mp_device, version_info, sendCompleted);
-		/*
-		for (device in devices) {
-			chrome.usb.listInterfaces(devices[device], function(descriptors) {
-				console.log('Found ' + descriptors.length + ' interface descriptors.');
-				if (!descriptors || !descriptors.length) {
-					console.log('No interfaces in device.');
-					return;
-				}
-				for (descriptor in descriptors) {
-					var endpoints = descriptors[descriptor].endpoints;
-					console.log('Found ' + endpoints.length + ' endpoints.');
-					if (!endpoints || !endpoints.length) {
-						console.log('No endpoints in interface.');
-						return;
-					}
-					for (endpoint in endpoints) {
-						if (endpoints[endpoint].direction == "in") {
-							mp_device = devices[device];
-							transfer.endpoint = endpoints[endpoint].address;
-
-							console.log('Found device: ' + mp_device.handle + ', transfer endpoint: ' + transfer.endpoint);
-							chrome.usb.interruptTransfer(mp_device, transfer, onEvent);
-
-							return;
-						}
-					}
-					console.log('No suitable endpoints in device.');
-				}
-				console.log('No device found.');
-			});
-		}
-		*/
 	});
 };
 

@@ -14,7 +14,7 @@ var requestButton = document.getElementById("requestPermission");
 var in_transfer = {
 	direction: 'in',
 	endpoint: 1,
-	length: 65
+	length: 64
 };
 
 var onEvent = function(usbEvent) {
@@ -68,7 +68,7 @@ var gotPermission = function(result) {
 		mp_device = devices[0];
 		chrome.usb.interruptTransfer(mp_device, in_transfer, onEvent);
 
-		var version_cmd = [0x00, 0x00, CMD_PING];
+		var version_cmd = [0x00, CMD_VERSION];
 		var version_info = {
 			direction: 'out',
 			endpoint: 2,

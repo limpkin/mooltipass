@@ -164,43 +164,42 @@ typedef struct __attribute__((packed)) dataNode {
 
 
 /* Helper Functions (flags and address) */
-uint8_t nodeTypeFromFlags(uint16_t flags);                              // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-void  nodeTypeToFlags(uint16_t *flags, uint8_t nodeType);               // Verified 1M, 2M, 4M, 8M, 16M, and 32M
+uint8_t nodeTypeFromFlags(uint16_t flags);
+void  nodeTypeToFlags(uint16_t *flags, uint8_t nodeType);
 
-uint8_t validBitFromFlags(uint16_t flags);                              // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-void validBitToFlags(uint16_t *flags, uint8_t vb);                      // Verified 1M, 2M, 4M, 8M, 16M, and 32M
+uint8_t validBitFromFlags(uint16_t flags);
+void validBitToFlags(uint16_t *flags, uint8_t vb);
 
-uint8_t userIdFromFlags(uint16_t flags);                                // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-void userIdToFlags(uint16_t *flags, uint8_t uid);                       // Verified 1M, 2M, 4M, 8M, 16M, and 32M
+uint8_t userIdFromFlags(uint16_t flags);
+void userIdToFlags(uint16_t *flags, uint8_t uid);
 
-uint8_t credentialTypeFromFlags(uint16_t flags);                        // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-void credentialTypeToFlags(uint16_t *flags, uint8_t credType);          // Verified 1M, 2M, 4M, 8M, 16M, and 32M
+uint8_t credentialTypeFromFlags(uint16_t flags);
+void credentialTypeToFlags(uint16_t *flags, uint8_t credType);
 
-uint8_t dataNodeSequenceNumberFromFlags(uint16_t flags);                // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-void dataNodeSequenceNumberToFlags(uint16_t *flags, uint8_t sid);       // Verified 1M, 2M, 4M, 8M, 16M, and 32M
+uint8_t dataNodeSequenceNumberFromFlags(uint16_t flags);
+void dataNodeSequenceNumberToFlags(uint16_t *flags, uint8_t sid);
 
-uint16_t pageNumberFromAddress(uint16_t addr);                          // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-uint8_t nodeNumberFromAddress(uint16_t addr);                           // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber);     // Verified 1M, 2M, 4M, 8M, 16M, and 32M
+uint16_t pageNumberFromAddress(uint16_t addr);
+uint8_t nodeNumberFromAddress(uint16_t addr);
+uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber);
 
 /* Init Handle */
-RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);    // Verified 1M, 2M, 4M, 8M, 16M, and 32M
+RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);
 
 /* User Memory Functions */
-// TODO user init - needed?
-RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);  // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress);                      // Verified 1M, 2M, 4M, 8M, 16M, and 32M
-RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress);                    // Verified 1M, 2M, 4M, 8M, 16M, and 32M
+RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
+RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress);
+RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress);
 
-RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress); // TODO Implement later
-RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress); // TODO Implement later
+RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress);
+RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);
 
-RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress);                   // Done.. Somewhat tested. Not all cases tested.
+RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress);
 
 RET_TYPE createParentNode(mgmtHandle *h, pNode *p);                                        
-RET_TYPE readParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);              // Done.  Semi-Tested
-RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);             // Done.  Semi-Tested
-RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolicy policy);  //Done.. Will Need Tested
+RET_TYPE readParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
+RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
+RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolicy policy);
 RET_TYPE invalidateParentNode(pNode *p);
 
 #endif /* NODE_MGMT_H_ */

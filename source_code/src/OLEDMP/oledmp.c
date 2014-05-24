@@ -676,6 +676,52 @@ void oledReset()
 
 
 /**
+ * Return the width of a printf formatted string in pixels.
+ * @param fmt - pointer to the printf format string in RAM
+ * @returns the pixel width of the string after parameter substituation
+ * @note maxium string length is limited to 64 characters
+ */
+uint16_t oledGetTextWidth(char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char buf[64];
+    uint16_t width = 0;
+
+    if (vsnprintf(buf, sizeof(buf), fmt, ap) > 0) {
+        for (uint8_t ind=0; buf[ind] != 0; ind++) {
+            width += oledGlyphWidth(buf[ind]);
+        }
+    }
+
+    return width;
+} 
+
+
+/**
+ * Return the width of a printf formatted flash string in pixels.
+ * @param fmt - pointer to the printf format string in progmem
+ * @returns the pixel width of the string after parameter substituation
+ * @note maxium string length is limited to 64 characters
+ */
+uint16_t oledGetTextWidth_P(char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char buf[64];
+    uint16_t width = 0;
+
+    if (vsnprintf_P(buf, sizeof(buf), fmt, ap) > 0) {
+        for (uint8_t ind=0; buf[ind] != 0; ind++) {
+            width += oledGlyphWidth(buf[ind]);
+        }
+    }
+
+    return width;
+} 
+
+
+/**
  * Return the width of the specified character in the current font.
  * @param ch - return the width of this character
  * @returns width of the glyph

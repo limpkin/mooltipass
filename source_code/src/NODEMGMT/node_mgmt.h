@@ -202,4 +202,6 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
 RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolicy policy);
 RET_TYPE invalidateParentNode(pNode *p);
 
+RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress);
+
 #endif /* NODE_MGMT_H_ */

@@ -404,6 +404,8 @@ RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
     uint8_t nodeItr = 0;
     RET_TYPE ret = RETURN_OK;
     
+	// TODO - MAJOR - better handling of stack / heap collision
+	
     // for each page
     for(pageItr = pageNumberFromAddress(startingAddress); pageItr < PAGE_COUNT; pageItr++)
     {
@@ -963,4 +965,100 @@ RET_TYPE invalidateParentNode(pNode *p)
         p->service[i] = 0;
     }
     return RETURN_OK;
+}
+
+/*!  \fn       scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress)
+*    \brief    Determines the next child node location (next write location).
+*              Sets the nextFreeChildNode value in the handle
+*              If no free memory node NODE_ADDR_NULL is set
+*    \param    h  The node management handle
+*    \param    startingAddress  The address of the first node to examine
+*    \return   Status
+*/
+RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress)
+{
+	uint16_t nodeFlags = 0xFFFF;
+	uint16_t pageItr = pageNumberFromAddress(startingAddress);
+	uint8_t nodeItr =  nodeNumberFromAddress(startingAddress);
+	RET_TYPE ret = RETURN_OK;
+	
+	// shift node itr if needed.
+	if(nodeItr % 2 != 0)
+	{
+		// nodeItr is odd. Child node must be aligned on 0, 2 (, 4, 6) index
+		// set nodeItr to max idx (2 or 6)
+		if(NODE_PARENT_PER_PAGE == 4)
+		{
+			// small pages
+			nodeItr = 2;
+		}
+		else
+		{
+			// large pages
+			nodeItr = 6;
+		}
+		
+		// update starting address
+		startingAddress = constructAddress(pageItr, nodeItr);
+	}
+	
+	// TODO - MAJOR - better handling of stack / heap collision
+	
+	// for each page
+	for(pageItr = pageNumberFromAddress(startingAddress); pageItr >= 0; pageItr--)
+	{
+		// for each possible child node in the page (changes per flash chip)
+		// subtract 2 nodes (sizeof(child) = 2*sizeof(parent))
+		for(nodeItr = nodeNumberFromAddress(startingAddress); nodeItr >= 0; nodeItr-=2)
+		{
+			// read node flags
+			// 2 bytes - fixed size
+			ret = readDataFromFlash(pageItr, NODE_SIZE_PARENT*nodeItr, 2, &nodeFlags);
+			if(ret != RETURN_OK)
+			{
+				return ret;
+			}
+			
+			// process node flags
+			// match criteria - valid bit is invalid
+			if(validBitFromFlags(nodeFlags) == NODE_VBIT_INVALID)
+			{
+				// next free child node found.
+				// construct address with pageItr (page number) and nodeItr (node number)
+				h->nextFreeChildNode = constructAddress(pageItr, nodeItr);
+				// return early
+				return RETURN_OK;
+			} // end valid bit invalid
+			else
+			{
+				// if node is valid check node type
+				// if we read something other than a Child node.. memory is colliding. return
+				// stack -> parent nodes, heap-> child / data nodes.  stack will go into heap.. prevent this
+				// Returns OK but sets address to null
+				if(nodeTypeFromFlags(nodeFlags) == NODE_TYPE_PARENT)
+				{
+					h->nextFreeChildNode = NODE_ADDR_NULL;
+					return RETURN_OK;
+				} // check for node type
+			}// end if valid
+			
+			if(nodeItr == 0)
+			{
+				break;  //due to using unsigned.. we must break out of the inner loop
+			}
+		} // end for each possible node
+		
+		if(pageItr == 0)
+		{
+			// should never happen because page 0 is reserved and parent
+			// node collision should happen prior to making it to this case
+			break;  // break out of outer loop
+		}
+	} // end for each page
+	
+	// we have visited the entire chip (should not happen?)
+	// no free nodes found.. set to null
+	h->nextFreeChildNode = NODE_ADDR_NULL;
+	// Return OK.  Users responsibility to check nextFreeParentNode
+	return RETURN_OK;
 }

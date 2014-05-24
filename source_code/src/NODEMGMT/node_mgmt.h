@@ -62,6 +62,10 @@
 #define NODE_ADDR_NODE_MASK 0x0007
 
 #define NODE_PARENT_SIZE_OF_SERVICE 58
+#define NODE_CHILD_SIZE_OF_DESCRIPTION 24
+#define NODE_CHILD_SIZE_OF_LOGIN 63
+#define NODE_CHILD_SIZE_OF_PASSWORD 32
+#define NODE_CHILD_SIZE_OF_CTR 3
 
 #define NODE_MAX_UID 16
 #define NODE_MAX_CRED_TYPE 16
@@ -202,6 +206,13 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
 RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolicy policy);
 RET_TYPE invalidateParentNode(pNode *p);
 
+RET_TYPE invalidateChildNode(cNode *c);
+
 RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress);
+
+RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c);
+RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress);
+//RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
+RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePolicy policy);
 
 #endif /* NODE_MGMT_H_ */

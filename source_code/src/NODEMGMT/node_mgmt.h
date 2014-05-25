@@ -117,7 +117,7 @@ typedef struct __attribute__((packed)) parentNode {
                                     */
     uint16_t prevParentAddress;     /*!< Previous parent node address (Alphabetically) */
     uint16_t nextParentAddress;     /*!< Next parent node address (Alphabetically) */
-	uint16_t nextChildAddress;      /*!< Parent node first child address */
+    uint16_t nextChildAddress;      /*!< Parent node first child address */
     uint8_t service[NODE_PARENT_SIZE_OF_SERVICE];            /*!< (ASCII) Text describing service (domain name eg hackaday.com). Used for sorting and searching. */
 } pNode;
 
@@ -212,7 +212,7 @@ RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress);
 
 RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c);
 RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress);
-//RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
+RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
 RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePolicy policy);
 
 #endif /* NODE_MGMT_H_ */

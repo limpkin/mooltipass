@@ -688,8 +688,10 @@ uint16_t oledGetTextWidth(char *fmt, ...)
     char buf[64];
     uint16_t width = 0;
 
-    if (vsnprintf(buf, sizeof(buf), fmt, ap) > 0) {
-        for (uint8_t ind=0; buf[ind] != 0; ind++) {
+    if (vsnprintf(buf, sizeof(buf), fmt, ap) > 0) 
+    {
+        for (uint8_t ind=0; buf[ind] != 0; ind++) 
+        {
             width += oledGlyphWidth(buf[ind]);
         }
     }
@@ -711,8 +713,10 @@ uint16_t oledGetTextWidth_P(char *fmt, ...)
     char buf[64];
     uint16_t width = 0;
 
-    if (vsnprintf_P(buf, sizeof(buf), fmt, ap) > 0) {
-        for (uint8_t ind=0; buf[ind] != 0; ind++) {
+    if (vsnprintf_P(buf, sizeof(buf), fmt, ap) > 0) 
+    {
+        for (uint8_t ind=0; buf[ind] != 0; ind++) 
+        {
             width += oledGlyphWidth(buf[ind]);
         }
     }
@@ -1039,7 +1043,7 @@ void oledBitmapDrawRaw(
             if ((x/4) == gddram[yind].xaddr) 
             {
                 pixels |= gddram[yind].pixels;
-            };
+            }
 
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);

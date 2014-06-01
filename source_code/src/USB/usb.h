@@ -69,16 +69,20 @@
 #define HID_SET_IDLE            10
 #define HID_SET_PROTOCOL        11
 
+// HID mask
+#define HID_NUM_MASK            1
+#define HID_CAPS_MASK           2
+#define HID_SCROLL_MASK         4
+#define HID_COMPOSE_MASK        8
+#define HID_KANA_MASK           16
+
 /** Function prototypes **/
 void usb_init(void);                                            // initialize everything
 uint8_t usb_configured(void);                                   // is the USB port configured
+uint8_t get_keyboard_leds(void);                                // get keyboard LEDs
 int8_t usb_rawhid_recv(uint8_t* buffer, uint8_t timeout);       // receive a packet, with timeout
 int8_t usb_rawhid_send(uint8_t* buffer, uint8_t timeout);       // send a packet, with timeout
-int8_t usb_keyboard_press(uint8_t key, uint8_t modifier);
-int8_t usb_keyboard_send(void);
-extern uint8_t keyboard_modifier_keys;
-extern uint8_t keyboard_keys[6];
-extern volatile uint8_t keyboard_leds;
+int8_t usb_keyboard_press(uint8_t key, uint8_t modifier);       // send a keyboard press
 
 RET_TYPE usbPutstr(const char *str);
 RET_TYPE usbPutstr_P(const char *str);

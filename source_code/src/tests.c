@@ -25,6 +25,7 @@
 #include "touch_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
+#include "hid_defines.h"
 #include "mooltipass.h"
 #include "flash_test.h"
 #include "node_test.h"
@@ -238,6 +239,22 @@ void afterHadLogoDisplayTests(void)
         _delay_ms(1000);
         if(toto++ == 11)
             toto = 0;
+    }
+    #endif
+    
+    //#define TEST_HID
+    #ifdef TEST_HID
+    while(1)
+    {
+        if (get_keyboard_leds() & HID_CAPS_MASK)
+        {
+            usbPutstr("NOPE!\r\n");
+            while(get_keyboard_leds() & HID_CAPS_MASK)
+            {
+                usb_keyboard_press(KEY_CAPS_LOCK, 0);
+                _delay_ms(30);
+            }
+        }
     }
     #endif
 }

@@ -42,16 +42,16 @@ uint8_t keyboard_keys[6]={0,0,0,0,0,0};
 // protocol setting from the host.  We use exactly the same report
 // either way, so this variable only stores the setting since we
 // are required to be able to report which setting is in use.
-static uint8_t keyboard_protocol=1;
+static uint8_t keyboard_protocol = 1;
 
 // The idle configuration, how often we send the report to the host (ms * 4) even when it hasn't changed
-static uint8_t keyboard_idle_config=125;
+static uint8_t keyboard_idle_config = 125;
 
 // Count until idle timeout
-static uint8_t keyboard_idle_count=0;
+static uint8_t keyboard_idle_count = 0;
 
 // 1=num lock, 2=caps lock, 4=scroll lock, 8=compose, 16=kana
-volatile uint8_t keyboard_leds=0;
+volatile uint8_t keyboard_leds = 0;
 
 // Endpoint configuration table
 static const uint8_t PROGMEM endpoint_config_table[] =
@@ -80,20 +80,6 @@ void usb_init(void)
 uint8_t usb_configured(void)
 {
     return usb_configuration;
-}
-
-// perform a single keystroke
-int8_t usb_keyboard_press(uint8_t key, uint8_t modifier)
-{
-    int8_t r;
-
-    keyboard_modifier_keys = modifier;
-    keyboard_keys[0] = key;
-    r = usb_keyboard_send();
-    if (r) return r;
-    keyboard_modifier_keys = 0;
-    keyboard_keys[0] = 0;
-    return usb_keyboard_send();
 }
 
 // send the contents of keyboard_keys and keyboard_modifier_keys
@@ -142,6 +128,25 @@ int8_t usb_keyboard_send(void)
     keyboard_idle_count = 0;
     SREG = intr_state;
     return 0;
+}
+
+// perform a single keystroke
+int8_t usb_keyboard_press(uint8_t key, uint8_t modifier)
+{
+    int8_t r;
+
+    keyboard_modifier_keys = modifier;
+    keyboard_keys[0] = key;
+    r = usb_keyboard_send();
+    if (r) return r;
+    keyboard_modifier_keys = 0;
+    keyboard_keys[0] = 0;
+    return usb_keyboard_send();
+}
+
+uint8_t get_keyboard_leds(void)
+{
+    return keyboard_leds;
 }
 
 // receive a packet, with timeout

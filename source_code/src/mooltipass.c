@@ -29,7 +29,6 @@
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
 #include "had_mooltipass.h"
-#include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "interrupts.h"
 #include "smartcard.h"
@@ -43,6 +42,7 @@
 #include "touch.h"
 #include "spi.h"
 #include "pwm.h"
+#include "usb.h"
 
 #ifdef AVR_BOOTLOADER_PROGRAMMING
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 

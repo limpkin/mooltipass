@@ -25,7 +25,6 @@
 #include "touch_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
-#include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "flash_test.h"
 #include "node_test.h"
@@ -34,6 +33,7 @@
 #include "oledmp.h"
 #include "touch.h"
 #include "pwm.h"
+#include "usb.h"
 
 
 /*! \fn     beforeFlashInitTests(void)

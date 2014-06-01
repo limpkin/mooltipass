@@ -29,7 +29,7 @@
 #include "flash_mem.h"
 #include "node_mgmt.h"
 #include "defines.h"
-#include "usb_serial_hid.h"
+#include "usb.h"
 #include <string.h>  // For memset
 #include <stdint.h>
 #include <stddef.h>

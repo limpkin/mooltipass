@@ -31,11 +31,11 @@
 #include <stdio.h>
 
 #include "low_level_utils.h"
-#include "usb_serial_hid.h"
 #include "bitstream.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "utils.h"
+#include "usb.h"
 
 // Make sure the USART SPI is selected
 #if SPI_OLED != SPI_USART

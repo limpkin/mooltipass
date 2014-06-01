@@ -26,6 +26,7 @@
 #include "smartcard.h"
 #include "oledmp.h"
 #include "utils.h"
+#include "usb.h"
 
 
 /*! \fn     mooltipassDetectedRoutine(uint16_t pin_code)
@@ -46,9 +47,8 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
         if (swap16(*(uint16_t*)readSecurityCode(temp_buffer)) != 0xFFFF)
         {
             // Card is in mode 1... how could this happen?
-            #ifdef DEBUG_SMC_SCREEN_PRINT
-                oledSetXY(2,16);
-                puts_P(PSTR("Card in mode 1!"));
+            #ifdef DEBUG_SMC_USB_PRINT
+                usbPutstr_P(PSTR("Card in mode 1!\r\n"));
             #endif
             return RETURN_MOOLTIPASS_PB;
         }
@@ -57,17 +57,15 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
             // Check that read / write accesses are correctly configured
             if ((checkAuthenticatedReadWriteAccessToZone1() == RETURN_NOK) || (checkAuthenticatedReadWriteAccessToZone2() == RETURN_NOK))
             {
-                #ifdef DEBUG_SMC_SCREEN_PRINT
-                    oledSetXY(2,16);
-                    puts_P(PSTR("Bad access settings!"));
+                #ifdef DEBUG_SMC_USB_PRINT
+                    usbPutstr_P(PSTR("Bad access settings!\r\n"));
                 #endif
                 return RETURN_MOOLTIPASS_PB;
             }
             else
             {
-                #ifdef DEBUG_SMC_SCREEN_PRINT
-                    oledSetXY(2,16);
-                    puts_P(PSTR("PIN code checked!"));
+                #ifdef DEBUG_SMC_USB_PRINT
+                    usbPutstr_P(PSTR("PIN code checked!\r\n"));
                 #endif
                 return RETURN_MOOLTIPASS_4_TRIES_LEFT;
             }
@@ -75,9 +73,8 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
     }
     else                                                                // Unlock failed
     {
-        #ifdef DEBUG_SMC_SCREEN_PRINT
-            oledSetXY(2,16);
-            printf_P(PSTR("%d tries left, wrong pin"), getNumberOfSecurityCodeTriesLeft());
+        #ifdef DEBUG_SMC_USB_PRINT
+            usbPrintf_P(PSTR("%d tries left, wrong pin\r\n"), getNumberOfSecurityCodeTriesLeft());
         #endif
 
         switch(getNumberOfSecurityCodeTriesLeft())
@@ -103,35 +100,26 @@ RET_TYPE cardDetectedRoutine(void)
     RET_TYPE temp_rettype;
     uint8_t i;
 
-    #ifdef DEBUG_SMC_SCREEN_PRINT
-        oledClear();                                             // Clear screen before writing anything new
-        oledFlipBuffers(OLED_SCROLL_DOWN,0);
-        oledWriteActiveBuffer();
-    #endif
-
     card_detection_result = firstDetectFunctionSMC();            // Get a first card detection result
 
     if (card_detection_result == RETURN_CARD_NDET)               // This is not a card
     {
-        #ifdef DEBUG_SMC_SCREEN_PRINT
-            oledSetXY(2,8);
-            puts_P(PSTR("Not a card"));
+        #ifdef DEBUG_SMC_USB_PRINT
+            usbPutstr_P(PSTR("Not a card\r\n"));
         #endif
         return RETURN_MOOLTIPASS_INVALID;
     }
     else if (card_detection_result == RETURN_CARD_TEST_PB)       // Card test problem
     {
-        #ifdef DEBUG_SMC_SCREEN_PRINT
-            oledSetXY(2,8);
-            puts_P(PSTR("Card test problem"));
+        #ifdef DEBUG_SMC_USB_PRINT
+            usbPutstr_P(PSTR("Card test problem\r\n"));
         #endif
         return RETURN_MOOLTIPASS_PB;
     }
     else if (card_detection_result == RETURN_CARD_0_TRIES_LEFT)  // Card blocked
     {
-        #ifdef DEBUG_SMC_SCREEN_PRINT
-            oledSetXY(2,8);
-            puts_P(PSTR("Card blocked"));
+        #ifdef DEBUG_SMC_USB_PRINT
+            usbPutstr_P(PSTR("Card blocked\r\n"));
         #endif
         return RETURN_MOOLTIPASS_BLOCKED;
     }
@@ -141,9 +129,8 @@ RET_TYPE cardDetectedRoutine(void)
         if (swap16(*(uint16_t*)readManufacturerZone(temp_buffer)) == 0xFFFF)
         {
             // Card is new - transform into mooltipass
-            #ifdef DEBUG_SMC_SCREEN_PRINT
-                oledSetXY(2,8);
-                puts_P(PSTR("Blank card, transforming..."));
+            #ifdef DEBUG_SMC_USB_PRINT
+                usbPutstr_P(PSTR("Blank card, transforming...\r\n"));
             #endif
 
             // Try to authenticate with factory pin
@@ -153,26 +140,23 @@ RET_TYPE cardDetectedRoutine(void)
             {
                 if (transformBlankCardIntoMooltipass() == RETURN_OK)
                 {
-                    #ifdef DEBUG_SMC_SCREEN_PRINT
-                        oledSetXY(2,16);
-                        puts_P(PSTR("Card transformed!"));
+                    #ifdef DEBUG_SMC_USB_PRINT
+                        usbPutstr_P(PSTR("Card transformed!\r\n"));
                     #endif
                     return RETURN_MOOLTIPASS_BLANK;
                 }
                 else
                 {
-                    #ifdef DEBUG_SMC_SCREEN_PRINT
-                        oledSetXY(2,16);
-                        puts_P(PSTR("Couldn't transform card!"));
+                    #ifdef DEBUG_SMC_USB_PRINT
+                        usbPutstr_P(PSTR("Couldn't transform card!\r\n"));
                     #endif
                     return RETURN_MOOLTIPASS_PB;
                 }
             }
             else                                                            // Card unlock failed. Show number of tries left
             {
-                #ifdef DEBUG_SMC_SCREEN_PRINT
-                    oledSetXY(2,16);
-                    printf_P(PSTR("%d tries left, wrong pin"),getNumberOfSecurityCodeTriesLeft());
+                #ifdef DEBUG_SMC_USB_PRINT
+                    usbPrintf_P(PSTR("%d tries left, wrong pin\r\n"),getNumberOfSecurityCodeTriesLeft());
                 #endif
                 return RETURN_MOOLTIPASS_PB;
             }
@@ -186,17 +170,15 @@ RET_TYPE cardDetectedRoutine(void)
             {
                 if (temp_buffer[i] != 0xFF)
                 {
-                    #ifdef DEBUG_SMC_SCREEN_PRINT
-                        oledSetXY(2,8);
-                        puts_P(PSTR("Mooltipass card detected"));
+                    #ifdef DEBUG_SMC_USB_PRINT
+                        usbPutstr_P(PSTR("Mooltipass card detected\r\n"));
                     #endif
                     return RETURN_MOOLTIPASS_USER;
                 }
             }
 
-            #ifdef DEBUG_SMC_SCREEN_PRINT
-                oledSetXY(2,8);
-                puts_P(PSTR("Unconfigured Mooltipass"));
+            #ifdef DEBUG_SMC_USB_PRINT
+                usbPutstr_P(PSTR("Unconfigured Mooltipass\r\n"));
             #endif
 
             // If we're here it means the user hasn't configured his blank mooltipass card, so try to unlock it using the default pin

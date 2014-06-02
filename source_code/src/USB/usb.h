@@ -80,13 +80,13 @@
 void usb_init(void);                                            // initialize everything
 uint8_t usb_configured(void);                                   // is the USB port configured
 uint8_t get_keyboard_leds(void);                                // get keyboard LEDs
-int8_t usb_rawhid_recv(uint8_t* buffer, uint8_t timeout);       // receive a packet, with timeout
-int8_t usb_rawhid_send(uint8_t* buffer, uint8_t timeout);       // send a packet, with timeout
-int8_t usb_keyboard_press(uint8_t key, uint8_t modifier);       // send a keyboard press
+RET_TYPE usb_rawhid_recv(uint8_t* buffer, uint8_t timeout);     // receive a packet, with timeout
+RET_TYPE usb_rawhid_send(uint8_t* buffer, uint8_t timeout);     // send a packet, with timeout
+RET_TYPE usb_keyboard_press(uint8_t key, uint8_t modifier);     // send a keyboard press
 
 RET_TYPE usbPutstr(const char *str);
 RET_TYPE usbPutstr_P(const char *str);
-int usbPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
-int usbPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+uint8_t usbPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
+uint8_t usbPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 #endif

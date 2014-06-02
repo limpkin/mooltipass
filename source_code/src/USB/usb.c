@@ -62,7 +62,9 @@ static const uint8_t PROGMEM endpoint_config_table[] =
     0
 };
 
-// initialize USB
+/*! \fn     musb_init(void)
+*   \brief  USB controller initialization
+*/
 void usb_init(void)
 {
     HW_CONFIG();                    // enable regulator
@@ -76,20 +78,27 @@ void usb_init(void)
     sei();                          // enable interrupts
 }
 
-// return 0 if the USB is not configured, or the configuration number selected by the HOST
+/*! \fn     usb_configured(void)
+*   \brief  Know if the PC has enumerated the mooltipass
+*   \return 0 if not configured, any other value if so
+*/
 uint8_t usb_configured(void)
 {
     return usb_configuration;
 }
 
-// send the contents of keyboard_keys and keyboard_modifier_keys
-int8_t usb_keyboard_send(void)
+// 
+/*! \fn     usb_keyboard_send(void)
+*   \brief  Send the contents of keyboard_keys and keyboard_modifier_keys
+*   \return If we managed to send the keyboard keys
+*/
+RET_TYPE usb_keyboard_send(void)
 {
     uint8_t i, intr_state, timeout;
 
     if (!usb_configuration)
     {
-        return -1;
+        return RETURN_COM_NOK;
     }
     intr_state = SREG;
     cli();
@@ -106,12 +115,12 @@ int8_t usb_keyboard_send(void)
         // has the USB gone offline?
         if (!usb_configuration)
         {
-            return -1;
+            return RETURN_COM_NOK;
         }
         // have we waited too long?
         if (UDFNUML == timeout)
         {
-            return -1;
+            return RETURN_COM_TIMEOUT;
         }
         // get ready to try checking again
         intr_state = SREG;
@@ -127,30 +136,47 @@ int8_t usb_keyboard_send(void)
     UEINTX = 0x3A;
     keyboard_idle_count = 0;
     SREG = intr_state;
-    return 0;
+    return RETURN_COM_TRANSF_OK;
 }
 
-// perform a single keystroke
-int8_t usb_keyboard_press(uint8_t key, uint8_t modifier)
+/*! \fn     usb_keyboard_press(uint8_t key, uint8_t modifier)
+*   \brief  Perform a single keystroke
+*   \param  key         Key to send
+*   \param  modifier    Modifier (alt, shift...)
+*   \return If we managed to send the keyboard key
+*/
+RET_TYPE usb_keyboard_press(uint8_t key, uint8_t modifier)
 {
     int8_t r;
 
     keyboard_modifier_keys = modifier;
     keyboard_keys[0] = key;
     r = usb_keyboard_send();
-    if (r) return r;
+    if (r != RETURN_COM_TRANSF_OK)
+    {
+        return r;
+    }        
     keyboard_modifier_keys = 0;
     keyboard_keys[0] = 0;
     return usb_keyboard_send();
 }
 
+/*! \fn     get_keyboard_leds(void)
+*   \brief  Get keyboard leds
+*   \return The keyboard leds
+*/
 uint8_t get_keyboard_leds(void)
 {
     return keyboard_leds;
 }
 
-// receive a packet, with timeout
-int8_t usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
+/*! \fn     usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
+*   \brief  Receive a packet, with timeout
+*   \param  buffer    Pointer to the buffer to store received data
+*   \param  timeout   Timeout in ms
+*   \return RETURN_COM_TRANSF_OK or RETURN_COM_NOK or RETURN_COM_TIMEOUT
+*/
+RET_TYPE usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
 {
     uint8_t intr_state;
     uint8_t i = 0;
@@ -158,7 +184,7 @@ int8_t usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
     // if we're not online (enumerated and configured), error
     if (!usb_configuration)
     {
-        return -1;
+        return RETURN_COM_NOK;
     }
     intr_state = SREG;
     cli();
@@ -174,11 +200,11 @@ int8_t usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
         SREG = intr_state;
         if (rx_timeout_count == 0)
         {
-            return 0;
+            return RETURN_COM_TIMEOUT;
         }
         if (!usb_configuration)
         {
-            return -1;
+            return RETURN_COM_NOK;
         }
         intr_state = SREG;
         cli();
@@ -191,10 +217,15 @@ int8_t usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
     // release the buffer
     UEINTX = 0x6B;
     SREG = intr_state;
-    return RAWHID_RX_SIZE;
+    return RETURN_COM_TRANSF_OK;
 }
 
-// send a packet, with timeout
+/*! \fn     usb_rawhid_send(uint8_t *buffer, uint8_t timeout)
+*   \brief  Send a packet, with timeout
+*   \param  buffer    Pointer to the buffer to store received data
+*   \param  timeout   Timeout in ms
+*   \return RETURN_TRANSF_COM_OK or RETURN_COM_NOK or RETURN_COM_TIMEOUT
+*/
 int8_t usb_rawhid_send(uint8_t* buffer, uint8_t timeout)
 {
     uint8_t intr_state;
@@ -203,7 +234,7 @@ int8_t usb_rawhid_send(uint8_t* buffer, uint8_t timeout)
     // if we're not online (enumerated and configured), error
     if (!usb_configuration)
     {
-        return -1;
+        return RETURN_COM_NOK;
     }
     intr_state = SREG;
     cli();
@@ -219,11 +250,11 @@ int8_t usb_rawhid_send(uint8_t* buffer, uint8_t timeout)
         SREG = intr_state;
         if (tx_timeout_count == 0)
         {
-            return 0;
+            return RETURN_COM_TIMEOUT;
         }
         if (!usb_configuration)
         {
-            return -1;
+            return RETURN_COM_NOK;
         }
         intr_state = SREG;
         cli();
@@ -237,12 +268,13 @@ int8_t usb_rawhid_send(uint8_t* buffer, uint8_t timeout)
     // transmit it now
     UEINTX = 0x3A;
     SREG = intr_state;
-    return RAWHID_TX_SIZE;
+    return RETURN_COM_TRANSF_OK;
 }
 
-// USB Device Interrupt - handle all device-level events
-// the transmit buffer flushing is triggered by the start of frame
-//
+/*! \fn     ISR(USB_GEN_vect)
+*   \brief  USB Device Interrupt - handle all device-level events
+*           the transmit buffer flushing is triggered by the start of frame
+*/
 ISR(USB_GEN_vect)
 {
     uint8_t intbits, t;
@@ -261,9 +293,15 @@ ISR(USB_GEN_vect)
     if ((intbits & (1<<SOFI)) && usb_configuration)
     {
         t = rx_timeout_count;
-        if (t) rx_timeout_count = --t;
+        if (t)
+        {
+            rx_timeout_count = --t;
+        }            
         t = tx_timeout_count;
-        if (t) tx_timeout_count = --t;
+        if (t)
+        {
+            tx_timeout_count = --t;
+        }            
     }
 }
 
@@ -285,10 +323,11 @@ static inline void usb_ack_out(void)
     UEINTX = ~(1<<RXOUTI);
 }
 
-// USB Endpoint Interrupt - endpoint 0 is handled here.  The
-// other endpoints are manipulated by the user-callable
-// functions, and the start-of-frame interrupt.
-//
+/*! \fn     ISR(USB_COM_vect)
+*   \brief  USB Endpoint Interrupt - endpoint 0 is handled here.  The
+*           other endpoints are manipulated by the user-callable
+*           functions, and the start-of-frame interrupt.
+*/
 ISR(USB_COM_vect)
 {
     uint8_t intbits;
@@ -557,10 +596,11 @@ ISR(USB_COM_vect)
     UECONX = (1<<STALLRQ) | (1<<EPEN);  // stall
 }
 
-/**
- * print an progmem ASCIIZ string to the usb serial port.
- * @param str - pointer to the string in FLASH.
- */
+/*! \fn     usbPutstr_P(const char *str)
+*   \brief  print an progmem ASCIIZ string to the usb serial port.
+*   \param  str     pointer to the string in FLASH.
+*   \return If we managed send the data
+*/
 RET_TYPE usbPutstr_P(const char *str)
 {
     uint8_t buffer[RAWHID_TX_SIZE];
@@ -574,9 +614,9 @@ RET_TYPE usbPutstr_P(const char *str)
         if (i == RAWHID_TX_SIZE)
         {
             i = 0;
-            if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) <= 0)
+            if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
             {
-                return RETURN_NOK;
+                return RETURN_COM_NOK;
             }
         }
     }
@@ -585,17 +625,18 @@ RET_TYPE usbPutstr_P(const char *str)
     if (i != 0)
     {
         memset((void*)buffer + i, 0, RAWHID_TX_SIZE - i);
-        if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) <= 0)
+        if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
         {
-            return RETURN_NOK;
+            return RETURN_COM_NOK;
         }
     }
-    return RETURN_OK;
+    return RETURN_COM_TRANSF_OK;
 }
 
-/**
- * print an ASCIIZ string to the usb serial port.
- * @param str - pointer to the string in RAM.
+ /*! \fn     usbPutstr(const char *str)
+ *   \brief  print an ASCIIZ string to the usb serial port.
+ *   \param  str     pointer to the string in RAM.
+ *   \return If we managed send the data
  */
 RET_TYPE usbPutstr(const char *str)
 {
@@ -609,9 +650,9 @@ RET_TYPE usbPutstr(const char *str)
 
     for (i = 0; i < nb_for_loops; i++)
     {
-        if(usb_rawhid_send((uint8_t*)str+(i*RAWHID_TX_SIZE), USB_WRITE_TIMEOUT) <= 0)
+        if(usb_rawhid_send((uint8_t*)str+(i*RAWHID_TX_SIZE), USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
         {
-            return RETURN_NOK;
+            return RETURN_COM_NOK;
         }
     }
 
@@ -619,50 +660,61 @@ RET_TYPE usbPutstr(const char *str)
     {
         memset((void*)buffer, 0, RAWHID_TX_SIZE);
         memcpy((void*)buffer, (void*)str+(i*RAWHID_TX_SIZE), remaining);
-        if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) <= 0)
+        if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
         {
-            return RETURN_NOK;
+            return RETURN_COM_NOK;
         }
     }
-    return RETURN_OK;
+    return RETURN_COM_TRANSF_OK;
 }
 
-
-/**
- * print a printf formated string and arguments to the serial port.
- * @param fmt - pointer to the printf format string in RAM
- * @returns the number of characters printed
- * @note maxium output is limited to 64 characters
+ /*! \fn     usbPrintf(const char *fmt, ...)
+ *   \brief  print a printf formated string and arguments to the serial port.
+ *   \param  fmt    pointer to the printf format string in RAM
+ *   \return the number of characters printed
+ *   \note   maximum output is limited to 64 characters
  */
-int usbPrintf(const char *fmt, ...)
+uint8_t usbPrintf(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
     char printBuf[64];  // scratch buffer for printf
 
-    int ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
+    uint8_t ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
 
-    usbPutstr(printBuf);
-
-    return ret;
+    if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
+    {
+        return 0;
+    }
+    else
+    {
+        return ret;
+    }
 }
 
-/**
- * print a printf formated string and arguments to the usb serial port.
- * @param fmt - pointer to the printf format string in progmem
- * @returns the number of characters printed
- * @note maxium output is limited to 64 characters per call
+ /*! \fn     usbPrintf_P(const char *fmt, ...)
+ *   \brief  print a printf formated string and arguments to the serial port.
+ *   \param  fmt    pointer to the printf format string in progmem
+ *   \return the number of characters printed
+ *   \note   maximum output is limited to 64 characters
  */
-int usbPrintf_P(const char *fmt, ...)
+uint8_t usbPrintf_P(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
     char printBuf[64];  // scratch buffer for printf
 
-    int ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
+    uint8_t ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
 
     usbPutstr(printBuf);
 
-    return ret;
+    if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
+    {
+        return 0;
+    }
+    else
+    {
+        return ret;
+    }
 }
 

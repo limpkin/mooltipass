@@ -761,7 +761,7 @@ RET_TYPE usbKeybPutStr(char* string)
     
     while((*string) && (temp_ret == RETURN_COM_TRANSF_OK))
     {
-        usbKeybPutChar(*string++);
+        temp_ret = usbKeybPutChar(*string++);
     }
     
     return temp_ret;

@@ -1,4 +1,4 @@
-USB Information
+USB Information (to be updated)
 ===============
 
 The mooltipass will enumerate as a composite hid device with a keyboard and generic hid. The keyboard is used for sending keypresses and the generic hid is used for transmitting data to pc side apps or plugins.

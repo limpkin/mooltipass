@@ -364,6 +364,9 @@
     <Compile Include="src\TOUCH\touch_higher_level_functions.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\USB\hid_defines.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\USB\hid_defines.h">
       <SubType>compile</SubType>
     </Compile>

@@ -244,6 +244,7 @@ void afterHadLogoDisplayTests(void)
     
     //#define TEST_HID
     #ifdef TEST_HID
+    uint8_t i;
     while(1)
     {
         if (get_keyboard_leds() & HID_CAPS_MASK)
@@ -254,6 +255,11 @@ void afterHadLogoDisplayTests(void)
                 usb_keyboard_press(KEY_CAPS_LOCK, 0);
                 _delay_ms(30);
             }
+            for(i = ' '; i < 0x7F; i++)
+            {
+                usbKeybPutChar(i);
+            }
+            usbKeybPutStr("\rBonjour oh grand dieu!\n");
         }
     }
     #endif

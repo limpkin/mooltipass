@@ -19,6 +19,7 @@
  * THE SOFTWARE.
  */
 #include "usb_descriptors.h"
+#include "hid_defines.h"
 #include "defines.h"
 #include "usb.h"
 #include <string.h>
@@ -62,7 +63,7 @@ static const uint8_t PROGMEM endpoint_config_table[] =
     0
 };
 
-/*! \fn     musb_init(void)
+/*! \fn     usb_init(void)
 *   \brief  USB controller initialization
 */
 void usb_init(void)
@@ -633,11 +634,11 @@ RET_TYPE usbPutstr_P(const char *str)
     return RETURN_COM_TRANSF_OK;
 }
 
- /*! \fn     usbPutstr(const char *str)
- *   \brief  print an ASCIIZ string to the usb serial port.
- *   \param  str     pointer to the string in RAM.
- *   \return If we managed send the data
- */
+/*! \fn     usbPutstr(const char *str)
+*   \brief  print an ASCIIZ string to the usb serial port.
+*   \param  str     pointer to the string in RAM.
+*   \return If we managed send the data
+*/
 RET_TYPE usbPutstr(const char *str)
 {
     uint8_t buffer[RAWHID_TX_SIZE];
@@ -668,12 +669,12 @@ RET_TYPE usbPutstr(const char *str)
     return RETURN_COM_TRANSF_OK;
 }
 
- /*! \fn     usbPrintf(const char *fmt, ...)
- *   \brief  print a printf formated string and arguments to the serial port.
- *   \param  fmt    pointer to the printf format string in RAM
- *   \return the number of characters printed
- *   \note   maximum output is limited to 64 characters
- */
+/*! \fn     usbPrintf(const char *fmt, ...)
+*   \brief  print a printf formated string and arguments to the serial port.
+*   \param  fmt    pointer to the printf format string in RAM
+*   \return the number of characters printed
+*   \note   maximum output is limited to 64 characters
+*/
 uint8_t usbPrintf(const char *fmt, ...)
 {
     va_list ap;
@@ -692,12 +693,12 @@ uint8_t usbPrintf(const char *fmt, ...)
     }
 }
 
- /*! \fn     usbPrintf_P(const char *fmt, ...)
- *   \brief  print a printf formated string and arguments to the serial port.
- *   \param  fmt    pointer to the printf format string in progmem
- *   \return the number of characters printed
- *   \note   maximum output is limited to 64 characters
- */
+/*! \fn     usbPrintf_P(const char *fmt, ...)
+*   \brief  print a printf formated string and arguments to the serial port.
+*   \param  fmt    pointer to the printf format string in progmem
+*   \return the number of characters printed
+*   \note   maximum output is limited to 64 characters
+*/
 uint8_t usbPrintf_P(const char *fmt, ...)
 {
     va_list ap;
@@ -716,5 +717,53 @@ uint8_t usbPrintf_P(const char *fmt, ...)
     {
         return ret;
     }
+}
+
+/*! \fn     usbKeybPutChar(char ch)
+*   \brief  press a given char on the keyboard
+*   \param  ch    char to press
+*   \return if the key was sent
+*/
+RET_TYPE usbKeybPutChar(char ch)
+{
+    uint8_t key;
+    
+    if((ch == '\r') || (ch == '\n'))
+    {
+        return usb_keyboard_press(KEY_RETURN, 0);
+    }
+    else if ((ch < ' ') || (ch > '~'))
+    {
+        return RETURN_COM_NOK;
+    }
+    else
+    {
+        key = pgm_read_byte(keyboardLUT_EN+(ch - ' '));
+        if (key & SHIFT_MASK)
+        {
+            return usb_keyboard_press(key & ~SHIFT_MASK, KEY_SHIFT);
+        }
+        else
+        {
+            return usb_keyboard_press(key, 0);
+        }
+    }    
+}
+
+/*! \fn     usbKeybPutStr(char* string)
+*   \brief  press a given text on the keyboard
+*   \param  string    string to press
+*   \return if the string was sent
+*/
+RET_TYPE usbKeybPutStr(char* string)
+{
+    RET_TYPE temp_ret = RETURN_COM_TRANSF_OK;
+    
+    while((*string) && (temp_ret == RETURN_COM_TRANSF_OK))
+    {
+        usbKeybPutChar(*string++);
+    }
+    
+    return temp_ret;
 }
 

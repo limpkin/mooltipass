@@ -65,7 +65,7 @@ void afterFlashInitTests(void)
     //#define TEST_HID_AND_CDC
     #ifdef TEST_HID_AND_CDC
         //Show_String("Z",FALSE,2,0);
-        //usb_keyboard_press(KEY_S, 0);
+        //usbKeyboardPress(KEY_S, 0);
         while(1)
         {
             int n = usb_serial_getchar();
@@ -75,7 +75,7 @@ void afterFlashInitTests(void)
                 oledSetXY(2,0);
                 oledPutch((char)n);
 
-                //usb_keyboard_press(n,0);
+                //usbKeyboardPress(n,0);
             }
 
         }
@@ -242,17 +242,17 @@ void afterHadLogoDisplayTests(void)
     }
     #endif
     
-    //#define TEST_HID
+    #define TEST_HID
     #ifdef TEST_HID
     uint8_t i;
     while(1)
     {
-        if (get_keyboard_leds() & HID_CAPS_MASK)
+        if (getKeyboardLeds() & HID_CAPS_MASK)
         {
             usbPutstr("NOPE!\r\n");
-            while(get_keyboard_leds() & HID_CAPS_MASK)
+            while(getKeyboardLeds() & HID_CAPS_MASK)
             {
-                usb_keyboard_press(KEY_CAPS_LOCK, 0);
+                usbKeyboardPress(KEY_CAPS_LOCK, 0);
                 _delay_ms(30);
             }
             for(i = ' '; i < 0x7F; i++)

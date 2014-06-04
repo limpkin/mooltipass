@@ -63,10 +63,10 @@ static const uint8_t PROGMEM endpoint_config_table[] =
     0
 };
 
-/*! \fn     usb_init(void)
+/*! \fn     initUsb(void)
 *   \brief  USB controller initialization
 */
-void usb_init(void)
+void initUsb(void)
 {
     HW_CONFIG();                    // enable regulator
     USB_FREEZE();                   // enable USB
@@ -79,21 +79,21 @@ void usb_init(void)
     sei();                          // enable interrupts
 }
 
-/*! \fn     usb_configured(void)
+/*! \fn     isUsbConfigured(void)
 *   \brief  Know if the PC has enumerated the mooltipass
 *   \return 0 if not configured, any other value if so
 */
-uint8_t usb_configured(void)
+uint8_t isUsbConfigured(void)
 {
     return usb_configuration;
 }
 
 // 
-/*! \fn     usb_keyboard_send(void)
+/*! \fn     usbKeyboardSend(void)
 *   \brief  Send the contents of keyboard_keys and keyboard_modifier_keys
 *   \return If we managed to send the keyboard keys
 */
-RET_TYPE usb_keyboard_send(void)
+RET_TYPE usbKeyboardSend(void)
 {
     uint8_t i, intr_state, timeout;
 
@@ -140,44 +140,44 @@ RET_TYPE usb_keyboard_send(void)
     return RETURN_COM_TRANSF_OK;
 }
 
-/*! \fn     usb_keyboard_press(uint8_t key, uint8_t modifier)
+/*! \fn     usbKeyboardPress(uint8_t key, uint8_t modifier)
 *   \brief  Perform a single keystroke
 *   \param  key         Key to send
 *   \param  modifier    Modifier (alt, shift...)
 *   \return If we managed to send the keyboard key
 */
-RET_TYPE usb_keyboard_press(uint8_t key, uint8_t modifier)
+RET_TYPE usbKeyboardPress(uint8_t key, uint8_t modifier)
 {
     int8_t r;
 
     keyboard_modifier_keys = modifier;
     keyboard_keys[0] = key;
-    r = usb_keyboard_send();
+    r = usbKeyboardSend();
     if (r != RETURN_COM_TRANSF_OK)
     {
         return r;
     }        
     keyboard_modifier_keys = 0;
     keyboard_keys[0] = 0;
-    return usb_keyboard_send();
+    return usbKeyboardSend();
 }
 
-/*! \fn     get_keyboard_leds(void)
+/*! \fn     getKeyboardLeds(void)
 *   \brief  Get keyboard leds
 *   \return The keyboard leds
 */
-uint8_t get_keyboard_leds(void)
+uint8_t getKeyboardLeds(void)
 {
     return keyboard_leds;
 }
 
-/*! \fn     usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
+/*! \fn     usbRawHidRecv(uint8_t *buffer, uint8_t timeout)
 *   \brief  Receive a packet, with timeout
 *   \param  buffer    Pointer to the buffer to store received data
 *   \param  timeout   Timeout in ms
 *   \return RETURN_COM_TRANSF_OK or RETURN_COM_NOK or RETURN_COM_TIMEOUT
 */
-RET_TYPE usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
+RET_TYPE usbRawHidRecv(uint8_t *buffer, uint8_t timeout)
 {
     uint8_t intr_state;
     uint8_t i = 0;
@@ -221,13 +221,13 @@ RET_TYPE usb_rawhid_recv(uint8_t *buffer, uint8_t timeout)
     return RETURN_COM_TRANSF_OK;
 }
 
-/*! \fn     usb_rawhid_send(uint8_t *buffer, uint8_t timeout)
+/*! \fn     usbRawHidSend(uint8_t *buffer, uint8_t timeout)
 *   \brief  Send a packet, with timeout
 *   \param  buffer    Pointer to the buffer to store received data
 *   \param  timeout   Timeout in ms
 *   \return RETURN_TRANSF_COM_OK or RETURN_COM_NOK or RETURN_COM_TIMEOUT
 */
-int8_t usb_rawhid_send(uint8_t* buffer, uint8_t timeout)
+int8_t usbRawHidSend(uint8_t* buffer, uint8_t timeout)
 {
     uint8_t intr_state;
     uint8_t i;
@@ -615,7 +615,7 @@ RET_TYPE usbPutstr_P(const char *str)
         if (i == RAWHID_TX_SIZE)
         {
             i = 0;
-            if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+            if(usbRawHidSend(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
             {
                 return RETURN_COM_NOK;
             }
@@ -626,7 +626,7 @@ RET_TYPE usbPutstr_P(const char *str)
     if (i != 0)
     {
         memset((void*)buffer + i, 0, RAWHID_TX_SIZE - i);
-        if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+        if(usbRawHidSend(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
         {
             return RETURN_COM_NOK;
         }
@@ -651,7 +651,7 @@ RET_TYPE usbPutstr(const char *str)
 
     for (i = 0; i < nb_for_loops; i++)
     {
-        if(usb_rawhid_send((uint8_t*)str+(i*RAWHID_TX_SIZE), USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+        if(usbRawHidSend((uint8_t*)str+(i*RAWHID_TX_SIZE), USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
         {
             return RETURN_COM_NOK;
         }
@@ -661,7 +661,7 @@ RET_TYPE usbPutstr(const char *str)
     {
         memset((void*)buffer, 0, RAWHID_TX_SIZE);
         memcpy((void*)buffer, (void*)str+(i*RAWHID_TX_SIZE), remaining);
-        if(usb_rawhid_send(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+        if(usbRawHidSend(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
         {
             return RETURN_COM_NOK;
         }
@@ -730,7 +730,7 @@ RET_TYPE usbKeybPutChar(char ch)
     
     if((ch == '\r') || (ch == '\n'))
     {
-        return usb_keyboard_press(KEY_RETURN, 0);
+        return usbKeyboardPress(KEY_RETURN, 0);
     }
     else if ((ch < ' ') || (ch > '~'))
     {
@@ -741,11 +741,11 @@ RET_TYPE usbKeybPutChar(char ch)
         key = pgm_read_byte(keyboardLUT_EN+(ch - ' '));
         if (key & SHIFT_MASK)
         {
-            return usb_keyboard_press(key & ~SHIFT_MASK, KEY_SHIFT);
+            return usbKeyboardPress(key & ~SHIFT_MASK, KEY_SHIFT);
         }
         else
         {
-            return usb_keyboard_press(key, 0);
+            return usbKeyboardPress(key, 0);
         }
     }    
 }

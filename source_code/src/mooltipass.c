@@ -105,10 +105,10 @@ int main(void)
     initPortSMC();                      // Initialize smart card port
     initPwm();                          // Initialize PWM controller
     initIRQ();                          // Initialize interrupts    
-    usb_init();                         // Initialize USB controller
+    initUsb();                         // Initialize USB controller
     initI2cPort();                      // Initialize I2C interface
     entropyInit();                      // Initialize avrentropy library
-    while(!usb_configured());           // Wait for host to set configuration
+    while(!isUsbConfigured());           // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 
     // Set up OLED now that USB is receiving full 500mA.

@@ -242,7 +242,7 @@ void afterHadLogoDisplayTests(void)
     }
     #endif
     
-    #define TEST_HID
+    //#define TEST_HID
     #ifdef TEST_HID
     uint8_t i;
     while(1)

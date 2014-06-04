@@ -376,6 +376,12 @@
     <Compile Include="src\USB\usb.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\USB\usb_cmd_parser.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\USB\usb_cmd_parser.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\USB\usb_descriptors.c">
       <SubType>compile</SubType>
     </Compile>

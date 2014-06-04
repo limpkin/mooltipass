@@ -27,7 +27,7 @@
 #define KEYBOARD_ENDPOINT   3                   // Endpoint number for keyboard
 #define KEYBOARD_SIZE       8                   // Endpoint size for keyboard
 #define KEYBOARD_BUFFER     EP_DOUBLE_BUFFER    // Double buffer
-#define USB_WRITE_TIMEOUT   50                  // Timeout for writting in the pipe
+#define USB_WRITE_TIMEOUT   50                  // Timeout for writing in the pipe
 
 // Endpoint defines
 #define EP_SIZE(s)  ((s) > 32 ? 0x30 : ((s) > 16 ? 0x20 : ((s) > 8  ? 0x10 : 0x00)))
@@ -80,11 +80,11 @@
 void initUsb(void);                                           // initialize everything
 uint8_t isUsbConfigured(void);                                // is the USB port configured
 uint8_t getKeyboardLeds(void);                                // get keyboard LEDs
+RET_TYPE usbKeybPutChar(char ch);							  // type char 
 RET_TYPE usbKeybPutStr(char* string);                         // type string
 RET_TYPE usbRawHidRecv(uint8_t* buffer, uint8_t timeout);     // receive a packet, with timeout
 RET_TYPE usbRawHidSend(uint8_t* buffer, uint8_t timeout);     // send a packet, with timeout
 RET_TYPE usbKeyboardPress(uint8_t key, uint8_t modifier);     // send a keyboard press
-RET_TYPE usbKeybPutChar(char ch);
 RET_TYPE usbPutstr(const char *str);
 RET_TYPE usbPutstr_P(const char *str);
 uint8_t usbPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));

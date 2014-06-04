@@ -29,6 +29,8 @@
 var device_info = { "vendorId": 0x16d0, "productId": 0x09a0 };
 //var device_info = { "vendorId": 0x16c0, "productId": 0x0486 };    // Teensy 3.1
 
+var packetSize = 32;    // number of bytes in an HID packet
+
 // Commands that the MP device can send.
 var CMD_DEBUG   = 0x01
 var CMD_PING    = 0x02
@@ -55,7 +57,7 @@ function initWindow()
     {
         if (connection != -1) {
             console.log('Polling for response...');
-            chrome.hid.receive(connection, 64, onDataReceived);
+            chrome.hid.receive(connection, packetSize, onDataReceived);
         } else {
             console.log('Not connected');
         }
@@ -101,7 +103,7 @@ function onDataReceived(data)
             message.innerHTML += "unknown command";
             break;
     }
-    chrome.hid.receive(connection, 64, onDataReceived);
+    chrome.hid.receive(connection, packetSize, onDataReceived);
 };
 
 
@@ -129,7 +131,7 @@ function onDeviceFound(devices)
             chrome.hid.send(connection, 0, data, function() 
             {
                 console.log('Send complete');
-                chrome.hid.receive(connection, 64, onDataReceived);
+                chrome.hid.receive(connection, packetSize, onDataReceived);
             });
         }
         else 

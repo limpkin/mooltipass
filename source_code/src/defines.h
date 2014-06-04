@@ -35,6 +35,8 @@
 // Used for flash testing prints
 #define FLASH_TEST_DEBUG_OUTPUT_USB
 #define FLASH_TEST_DEBUG_OUTPUT_OLED
+// Used for touch interface
+#define TOUCH_DEBUG_OUTPUT_USB
 
 /**************** HARDWARE VERSION ****************/
 // First hardware sent to the contributors, 12/2013

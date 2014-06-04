@@ -4,14 +4,14 @@
 #include <stdint.h>
 
 /* USB mooltipass hid commands */
-#define CMD_DEBUG		0x01
-#define CMD_PING		0x02
-#define CMD_VERSION		0x03
+#define CMD_DEBUG       0x01
+#define CMD_PING        0x02
+#define CMD_VERSION     0x03
 
 /* Packet format defines */
-#define HID_LEN_FIELD	0x00
-#define HID_TYPE_FIELD	0x01
-#define HID_DATA_START	0x02
+#define HID_LEN_FIELD   0x00
+#define HID_TYPE_FIELD  0x01
+#define HID_DATA_START  0x02
 
 void usbProcessIncoming(uint8_t* incomingData);
 

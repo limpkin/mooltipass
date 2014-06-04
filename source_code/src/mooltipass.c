@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
+#include "usb_cmd_parser.h"
 #include "had_mooltipass.h"
 #include "mooltipass.h"
 #include "interrupts.h"
@@ -77,6 +78,7 @@ void setLightsOutFlag(void)
 */
 int main(void)
 {
+    uint8_t usb_buffer[RAWHID_TX_SIZE];
     RET_TYPE touch_detect_result;
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
@@ -225,6 +227,11 @@ int main(void)
         touch_detect_result = touchDetectionRoutine();
         card_detect_ret = isCardPlugged();
         
+        if(usbRawHidRecv(usb_buffer, USB_READ_TIMEOUT) == RETURN_COM_TRANSF_OK)
+        {
+            usbProcessIncoming(usb_buffer);
+        }
+        
         // No activity, switch off LEDs and activate prox detection
         if (lightsTimerOffFlag == TRUE)
         {
@@ -244,6 +251,15 @@ int main(void)
                 setPwmDc(MAX_PWM_VAL);
                 activateGuardKey();
                 areLightsOn = TRUE;
+            }
+            
+            // If left button is pressed
+            if (touch_detect_result & RETURN_LEFT_PRESSED)
+            {
+                #ifdef TOUCH_DEBUG_OUTPUT_USB
+                    usbPutstr_P(PSTR("LEFT touched\r\n"));
+                    usbKeybPutStr("lapin");
+                #endif
             }
         }
         

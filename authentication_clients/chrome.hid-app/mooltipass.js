@@ -123,15 +123,26 @@ function onDeviceFound(devices)
     console.log('Connecting to device '+devId);
     chrome.hid.connect(devId, function(connectInfo) 
     {
-        if (!chrome.runtime.lastError) {
+        if (!chrome.runtime.lastError) 
+		{
             connection = connectInfo.connectionId;
             var version_cmd = [0x00, CMD_VERSION];
             data = new Uint8Array(version_cmd).buffer;
+			var arraybuf = new ArrayBuffer(packetSize);
+			arraybuf[1] = CMD_PING;
             console.log('sending '+version_cmd);
-            chrome.hid.send(connection, 0, data, function() 
+            chrome.hid.send(connection, 0, arraybuf, function() 
             {
-                console.log('Send complete');
-                chrome.hid.receive(connection, packetSize, onDataReceived);
+				if (!chrome.runtime.lastError) 
+				{
+					console.log('Send complete');
+					chrome.hid.receive(connection, packetSize, onDataReceived);
+				}
+				else
+				{
+				  console.log('Failed to send to device: '+chrome.runtime.lastError.message);
+				  throw chrome.runtime.lastError.message;  
+				}					
             });
         }
         else 

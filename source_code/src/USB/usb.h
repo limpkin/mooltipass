@@ -9,10 +9,18 @@
 #include "defines.h"
 
 /*** DEFINES ***/
+// MOOLTIPASS'
 #define VENDOR_ID           0x16D0              // Vendor ID (from MCS)
 #define PRODUCT_ID          0x09A0              // Product ID (from MCS)
+// MINIBLOQ DuinoBot Kids
+// #define VENDOR_ID           0x03EB              // Vendor ID (DuinoBot Kids)
+// #define PRODUCT_ID          0x204F              // Product ID (DuinoBot Kids)
+// FOR HID LISTEN
 #define RAWHID_USAGE_PAGE   0xFF31              // HID usage page, after 0xFF00: vendor-defined
 #define RAWHID_USAGE        0x0074              // HID usage
+// FOR MINIBLOQ
+// #define RAWHID_USAGE_PAGE   0xFF00              // HID usage page, after 0xFF00: vendor-defined
+// #define RAWHID_USAGE        0x0001              // HID usage
 #define STR_MANUFACTURER    L"Mooltipass"       // Manufacturer string
 #define STR_PRODUCT         L"Mooltipass"       // Product string
 #define ENDPOINT0_SIZE      32                  // Size for endpoint 0
@@ -28,6 +36,7 @@
 #define KEYBOARD_SIZE       8                   // Endpoint size for keyboard
 #define KEYBOARD_BUFFER     EP_DOUBLE_BUFFER    // Double buffer
 #define USB_WRITE_TIMEOUT   50                  // Timeout for writing in the pipe
+#define USB_READ_TIMEOUT    3                   // Timeout for reading in the pipe
 
 // Endpoint defines
 #define EP_SIZE(s)  ((s) > 32 ? 0x30 : ((s) > 16 ? 0x20 : ((s) > 8  ? 0x10 : 0x00)))
@@ -80,7 +89,7 @@
 void initUsb(void);                                           // initialize everything
 uint8_t isUsbConfigured(void);                                // is the USB port configured
 uint8_t getKeyboardLeds(void);                                // get keyboard LEDs
-RET_TYPE usbKeybPutChar(char ch);							  // type char 
+RET_TYPE usbKeybPutChar(char ch);                             // type char 
 RET_TYPE usbKeybPutStr(char* string);                         // type string
 RET_TYPE usbRawHidRecv(uint8_t* buffer, uint8_t timeout);     // receive a packet, with timeout
 RET_TYPE usbRawHidSend(uint8_t* buffer, uint8_t timeout);     // send a packet, with timeout

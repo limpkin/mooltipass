@@ -141,17 +141,17 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] =
     // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
     7,                                  // bLength
     5,                                  // bDescriptorType
-    RAWHID_TX_ENDPOINT | 0x80,          // bEndpointAddress
+    RAWHID_RX_ENDPOINT,                 // bEndpointAddress
     0x03,                               // bmAttributes (0x03=intr)
-    RAWHID_TX_SIZE, 0,                  // wMaxPacketSize
+    RAWHID_RX_SIZE, 0,                  // wMaxPacketSize
     1,                                  // bInterval
 
     // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
     7,                                  // bLength
     5,                                  // bDescriptorType
-    RAWHID_RX_ENDPOINT,                 // bEndpointAddress
+    RAWHID_TX_ENDPOINT | 0x80,          // bEndpointAddress
     0x03,                               // bmAttributes (0x03=intr)
-    RAWHID_RX_SIZE, 0,                  // wMaxPacketSize
+    RAWHID_TX_SIZE, 0,                  // wMaxPacketSize
     1,                                  // bInterval
 
     // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12

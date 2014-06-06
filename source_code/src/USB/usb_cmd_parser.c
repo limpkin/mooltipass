@@ -22,7 +22,7 @@ void usbProcessIncoming(uint8_t* incomingData)
 //         //usbKeybPutStr("lapin");
 //     }
 
-    usbKeybPutStr("   ");
+//    usbKeybPutStr("   ");
 
     switch(datacmd)
     {

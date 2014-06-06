@@ -48,8 +48,11 @@
 #ifdef AVR_BOOTLOADER_PROGRAMMING
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
 #endif
+volatile uint16_t screenTimer = SCREEN_TIMER_DEL;
 volatile uint8_t lightsTimerOffFlag = FALSE;
+volatile uint8_t screenTimerOffFlag = FALSE;
 uint8_t areLightsOn = FALSE;
+uint8_t isScreenOn = TRUE;
 
 
 /*! \fn     disable_jtag(void)
@@ -71,6 +74,35 @@ void disable_jtag(void)
 void setLightsOutFlag(void)
 {
     lightsTimerOffFlag = TRUE;
+}
+
+/*!	\fn		screenTimerTick(void)
+*	\brief	Function called every ms by interrupt
+*/
+void screenTimerTick(void)
+{
+    if (screenTimer != 0)
+    {
+        if (screenTimer-- == 1)
+        {
+           screenTimerOffFlag = TRUE;
+        }
+    }
+}
+
+/*!	\fn		activateScreenTimer(void)
+*	\brief	Activate screen timer
+*/
+void activateScreenTimer(void)
+{
+    uint8_t reg = SREG;
+    
+    if (screenTimer != SCREEN_TIMER_DEL)
+    {
+        cli();
+        screenTimer = SCREEN_TIMER_DEL;
+        SREG = reg;                     // restore original interrupt state (may already be disabled)
+    }
 }
 
 /*! \fn     main(void)
@@ -241,9 +273,18 @@ int main(void)
             lightsTimerOffFlag = FALSE;
         }
         
+        // No activity, switch off screen
+        if (screenTimerOffFlag == TRUE)
+        {
+            oledOff();
+            isScreenOn = FALSE;
+            screenTimerOffFlag = FALSE;
+        }
+        
         if (touch_detect_result & TOUCH_PRESS_MASK)
         {
             activateLightTimer();
+            activateScreenTimer();
             
             // If the lights were off, turn them on!
             if (areLightsOn == FALSE)
@@ -253,12 +294,27 @@ int main(void)
                 areLightsOn = TRUE;
             }
             
+            // If the screen was off, turn it on!
+            if (isScreenOn == FALSE)
+            {
+                oledOn();
+                isScreenOn = TRUE;
+            }
+            
             // If left button is pressed
             if (touch_detect_result & RETURN_LEFT_PRESSED)
             {
                 #ifdef TOUCH_DEBUG_OUTPUT_USB
                     usbPutstr_P(PSTR("LEFT touched\r\n"));
-                    usbKeybPutStr("lapin");
+                #endif
+            }
+            
+            // If right button is pressed
+            if (touch_detect_result & RETURN_RIGHT_PRESSED)
+            {
+                #ifdef TOUCH_DEBUG_OUTPUT_USB
+                    usbPutstr_P(PSTR("RIGHT touched\r\n"));
+                    usbKeybPutStr("LQPIN");
                 #endif
             }
         }

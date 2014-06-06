@@ -28,6 +28,9 @@
 #ifndef MOOLTIPASS_H_
 #define MOOLTIPASS_H_
 
+#define SCREEN_TIMER_DEL    60000
+
+void screenTimerTick(void);
 void setLightsOutFlag(void);
 
 #endif /* MOOLTIPASS_H_ */

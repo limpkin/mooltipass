@@ -1,0 +1,3 @@
+sudo apt-get install dfu-programmer
+sudo dfu-programmer atmega32u4 erase
+sudo dfu-programmer atmega32u4 flash mooltipass.hex

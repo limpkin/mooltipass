@@ -26,12 +26,12 @@
 *    Author:   Michael Neiderhauser
 */
 
-#include "../mooltipass.h"
-#include "../defines.h"
-#include "../FLASH/flash_mem.h"
-#include "oledmp.h"
-#include "usb_serial_hid.h"
+#include "mooltipass.h"
 #include "flash_test.h"
+#include "flash_mem.h"
+#include "defines.h"
+#include "oledmp.h"
+#include "usb.h"
 
 #include <stdint.h>
 #include <avr/io.h>
@@ -641,7 +641,6 @@ RET_TYPE flashTest()
     RET_TYPE ret = RETURN_NOK;
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
-        while (!(usb_serial_get_control() & USB_SERIAL_DTR)); /* wait for terminal to connect */
         usbPrintf_P(PSTR("START Flash Test Suite %dM Chip\n"), (uint8_t)FLASH_CHIP);
     #endif
     

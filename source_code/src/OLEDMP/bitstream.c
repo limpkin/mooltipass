@@ -29,7 +29,7 @@
 
 #include <avr/pgmspace.h>
 #include "bitstream.h"
-#include "usb_serial_hid.h"
+#include "usb.h"
 
 #undef DEBUG_BS
 

@@ -31,11 +31,11 @@
 #include <stdio.h>
 
 #include "low_level_utils.h"
-#include "usb_serial_hid.h"
 #include "bitstream.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "utils.h"
+#include "usb.h"
 
 // Make sure the USART SPI is selected
 #if SPI_OLED != SPI_USART
@@ -676,6 +676,56 @@ void oledReset()
 
 
 /**
+ * Return the width of a printf formatted string in pixels.
+ * @param fmt - pointer to the printf format string in RAM
+ * @returns the pixel width of the string after parameter substituation
+ * @note maxium string length is limited to 64 characters
+ */
+uint16_t oledGetTextWidth(char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char buf[64];
+    uint16_t width = 0;
+
+    if (vsnprintf(buf, sizeof(buf), fmt, ap) > 0) 
+    {
+        for (uint8_t ind=0; buf[ind] != 0; ind++) 
+        {
+            width += oledGlyphWidth(buf[ind]);
+        }
+    }
+
+    return width;
+} 
+
+
+/**
+ * Return the width of a printf formatted flash string in pixels.
+ * @param fmt - pointer to the printf format string in progmem
+ * @returns the pixel width of the string after parameter substituation
+ * @note maxium string length is limited to 64 characters
+ */
+uint16_t oledGetTextWidth_P(char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char buf[64];
+    uint16_t width = 0;
+
+    if (vsnprintf_P(buf, sizeof(buf), fmt, ap) > 0) 
+    {
+        for (uint8_t ind=0; buf[ind] != 0; ind++) 
+        {
+            width += oledGlyphWidth(buf[ind]);
+        }
+    }
+
+    return width;
+} 
+
+
+/**
  * Return the width of the specified character in the current font.
  * @param ch - return the width of this character
  * @returns width of the glyph
@@ -993,7 +1043,7 @@ void oledBitmapDrawRaw(
             if ((x/4) == gddram[yind].xaddr) 
             {
                 pixels |= gddram[yind].pixels;
-            };
+            }
 
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);

@@ -28,8 +28,8 @@
 #include <stdio.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
+#include "usb_cmd_parser.h"
 #include "had_mooltipass.h"
-#include "usb_serial_hid.h"
 #include "mooltipass.h"
 #include "interrupts.h"
 #include "smartcard.h"
@@ -43,6 +43,7 @@
 #include "touch.h"
 #include "spi.h"
 #include "pwm.h"
+#include "usb.h"
 
 #ifdef AVR_BOOTLOADER_PROGRAMMING
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
@@ -77,6 +78,7 @@ void setLightsOutFlag(void)
 */
 int main(void)
 {
+    uint8_t usb_buffer[RAWHID_TX_SIZE];
     RET_TYPE touch_detect_result;
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
@@ -105,10 +107,10 @@ int main(void)
     initPortSMC();                      // Initialize smart card port
     initPwm();                          // Initialize PWM controller
     initIRQ();                          // Initialize interrupts    
-    usb_init();                         // Initialize USB controller
+    initUsb();                         // Initialize USB controller
     initI2cPort();                      // Initialize I2C interface
     entropyInit();                      // Initialize avrentropy library
-    while(!usb_configured());           // Wait for host to set configuration
+    while(!isUsbConfigured());           // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 
     // Set up OLED now that USB is receiving full 500mA.
@@ -225,6 +227,11 @@ int main(void)
         touch_detect_result = touchDetectionRoutine();
         card_detect_ret = isCardPlugged();
         
+        if(usbRawHidRecv(usb_buffer, USB_READ_TIMEOUT) == RETURN_COM_TRANSF_OK)
+        {
+            usbProcessIncoming(usb_buffer);
+        }
+        
         // No activity, switch off LEDs and activate prox detection
         if (lightsTimerOffFlag == TRUE)
         {
@@ -244,6 +251,15 @@ int main(void)
                 setPwmDc(MAX_PWM_VAL);
                 activateGuardKey();
                 areLightsOn = TRUE;
+            }
+            
+            // If left button is pressed
+            if (touch_detect_result & RETURN_LEFT_PRESSED)
+            {
+                #ifdef TOUCH_DEBUG_OUTPUT_USB
+                    usbPutstr_P(PSTR("LEFT touched\r\n"));
+                    usbKeybPutStr("lapin");
+                #endif
             }
         }
         

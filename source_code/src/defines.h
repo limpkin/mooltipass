@@ -31,13 +31,16 @@
 /**************** DEBUG PRINTFS ****************/
 // Used for smart card testing
 #define DEBUG_SMC_SCREEN_PRINT
+#define DEBUG_SMC_USB_PRINT
 // Used for flash testing prints
 #define FLASH_TEST_DEBUG_OUTPUT_USB
 #define FLASH_TEST_DEBUG_OUTPUT_OLED
+// Used for touch interface
+#define TOUCH_DEBUG_OUTPUT_USB
 
 /**************** HARDWARE VERSION ****************/
 // First hardware sent to the contributors, 12/2013
-#define HARDWARE_V1
+//#define HARDWARE_V1
 // Olivier's design hardware, 04/2014
 //#define HARDWARE_OLIVIER_V1
 
@@ -66,6 +69,7 @@ enum mooltipass_detect_return_t {RETURN_MOOLTIPASS_INVALID, RETURN_MOOLTIPASS_PB
 enum touch_detect_return_t      {RETURN_NO_CHANGE = 0x00, RETURN_LEFT_PRESSED = 0x01, RETURN_LEFT_RELEASED = 0x02, RETURN_RIGHT_PRESSED = 0x04, RETURN_RIGHT_RELEASED = 0x08, RETURN_WHEEL_PRESSED = 0x10, RETURN_WHEEL_RELEASED = 0x20, RETURN_PROX_DETECTION = 0x40, RETURN_PROX_RELEASED = 0x80};
 enum card_detect_return_t       {RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_CARD_4_TRIES_LEFT,  RETURN_CARD_3_TRIES_LEFT,  RETURN_CARD_2_TRIES_LEFT,  RETURN_CARD_1_TRIES_LEFT, RETURN_CARD_0_TRIES_LEFT};
 enum pin_check_return_t         {RETURN_PIN_OK = 0, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
+enum usb_com_return_t           {RETURN_COM_NOK = -1, RETURN_COM_TRANSF_OK = 0, RETURN_COM_TIMEOUT = 1};
 enum detect_return_t            {RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
 enum button_return_t            {LEFT_BUTTON = 0, RIGHT_BUTTON = 1, GUARD_BUTTON = 2};
 enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};

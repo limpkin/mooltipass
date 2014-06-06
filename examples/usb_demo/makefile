@@ -37,3 +37,7 @@ include $(LUFA_PATH)/Build/lufa_dfu.mk
 include $(LUFA_PATH)/Build/lufa_hid.mk
 include $(LUFA_PATH)/Build/lufa_avrdude.mk
 include $(LUFA_PATH)/Build/lufa_atprogram.mk
+
+upload: $(TARGET).hex
+	avrdude $(AVRDUDEFLAGS) -p $(MCU) -U flash:w:$<:i
+

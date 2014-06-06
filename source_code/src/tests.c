@@ -25,7 +25,7 @@
 #include "touch_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
-#include "usb_serial_hid.h"
+#include "hid_defines.h"
 #include "mooltipass.h"
 #include "flash_test.h"
 #include "node_test.h"
@@ -34,6 +34,7 @@
 #include "oledmp.h"
 #include "touch.h"
 #include "pwm.h"
+#include "usb.h"
 
 
 /*! \fn     beforeFlashInitTests(void)
@@ -64,7 +65,7 @@ void afterFlashInitTests(void)
     //#define TEST_HID_AND_CDC
     #ifdef TEST_HID_AND_CDC
         //Show_String("Z",FALSE,2,0);
-        //usb_keyboard_press(KEY_S, 0);
+        //usbKeyboardPress(KEY_S, 0);
         while(1)
         {
             int n = usb_serial_getchar();
@@ -74,7 +75,7 @@ void afterFlashInitTests(void)
                 oledSetXY(2,0);
                 oledPutch((char)n);
 
-                //usb_keyboard_press(n,0);
+                //usbKeyboardPress(n,0);
             }
 
         }
@@ -238,6 +239,28 @@ void afterHadLogoDisplayTests(void)
         _delay_ms(1000);
         if(toto++ == 11)
             toto = 0;
+    }
+    #endif
+    
+    //#define TEST_HID
+    #ifdef TEST_HID
+    uint8_t i;
+    while(1)
+    {
+        if (getKeyboardLeds() & HID_CAPS_MASK)
+        {
+            usbPutstr("NOPE!\r\n");
+            while(getKeyboardLeds() & HID_CAPS_MASK)
+            {
+                usbKeyboardPress(KEY_CAPS_LOCK, 0);
+                _delay_ms(30);
+            }
+            for(i = ' '; i < 0x7F; i++)
+            {
+                usbKeybPutChar(i);
+            }
+            usbKeybPutStr("\rBonjour oh grand dieu!\n");
+        }
     }
     #endif
 }

@@ -24,12 +24,12 @@
 *	Author: Miguel A. Borrego
 */
 
-#include "aes.h"
-#include "aes256_ctr.h"
 #include <avr/pgmspace.h>
-#include "usb_serial_hid.h"
-#include "utils.h"
 #include "interrupts.h"
+#include "aes256_ctr.h"
+#include "utils.h"
+#include "usb.h"
+#include "aes.h"
 
 // Test vector, key and iv
 static uint8_t v1[16] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 

@@ -29,11 +29,15 @@
 
 // Font selection
 #undef FONT_CHECKBOOK_12
+//#define FONT_DEFAULT font_CHECKBOOK_12
 #undef FONT_CHECKBOOK_14
+//#define FONT_DEFAULT font_CHECKBOOK_14
 #undef FONT_PROFONT_10
+//#define FONT_DEFAULT font_PROFONT_10
 #define FONT_MONO_5x7
 #define FONT_DEFAULT font_MONO_5x7
-//#define FONT_DEFAULT font_CHECKBOOK_14
+#undef FONT_ROBOTO_MEDIUM_14
+//#define FONT_DEFAULT font_ROBOTO_MEDIUM_14
 
 typedef struct
 {
@@ -74,6 +78,15 @@ typedef enum
     #endif
     #ifdef FONT_MONO_5x7
         font_MONO_5x7,
+    #endif
+    #ifdef FONT_ROBOTO_THIN_14
+        font_ROBOTO_THIN_14,
+    #endif
+      #ifdef FONT_ROBOTO_MEDIUM_14
+        font_ROBOTO_MEDIUM_14,
+    #endif
+    #ifdef FONT_BABYBLUE_MEDIUM_12
+        font_BABYBLUE_MEDIUM_12,
     #endif
 } font_e;
 

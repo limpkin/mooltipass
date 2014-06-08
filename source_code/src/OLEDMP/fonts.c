@@ -41,5 +41,8 @@ font_t fontsHQ[] =
     #ifdef FONT_MONO_5x7
         { FONT_MONO_5x7_HEIGHT,  5, 1, font_mono_5x7_asciimap, { .bitmaps=(uint8_t *)font_mono_5x7} },
     #endif
+    #ifdef FONT_ROBOTO_MEDIUM_14
+        { ROBOTO_MEDIUM_14_HEIGHT,  0, 2, roboto_medium_14_asciimap, { .glyphs=roboto_medium_14} },
+    #endif
 };
 

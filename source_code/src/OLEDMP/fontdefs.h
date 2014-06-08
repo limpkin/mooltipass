@@ -16,5 +16,8 @@
 #ifdef FONT_MONO_5x7
     #include "font_mono_5x7.h"
 #endif
+#ifdef FONT_ROBOTO_MEDIUM_14
+    #include "font_roboto_medium_14.h"
+#endif
 
 #endif

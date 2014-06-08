@@ -7,11 +7,11 @@
 #ifdef FONT_CHECKBOOK_14
     #include "font_checkbook_14.h"
 #endif
+#ifdef FONT_PROFONT_10
+    #include "font_profont_10.h"
+#endif
 #ifdef FONT_PROFONT_10_100DPI
     #include "font_profont_10_100dpi.h"
-#endif
-#ifdef FONT_PROFONT_10_72DPI
-    #include "font_profont_10_72dpi.h"
 #endif
 #ifdef FONT_MONO_5x7
     #include "font_mono_5x7.h"

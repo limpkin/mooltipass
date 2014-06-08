@@ -30,8 +30,7 @@
 // Font selection
 #undef FONT_CHECKBOOK_12
 #undef FONT_CHECKBOOK_14
-#undef FONT_PROFONT_10_100DPI
-#undef FONT_PROFONT_10_72DPI
+#undef FONT_PROFONT_10
 #define FONT_MONO_5x7
 #define FONT_DEFAULT font_MONO_5x7
 //#define FONT_DEFAULT font_CHECKBOOK_14
@@ -67,11 +66,11 @@ typedef enum
     #ifdef FONT_CHECKBOOK_14
         font_CHECKBOOK_14,
     #endif
+    #ifdef FONT_PROFONT_10
+        font_PROFONT_10,
+    #endif
     #ifdef FONT_PROFONT_10_100DPI
         font_PROFONT_10_100DPI,
-    #endif
-    #ifdef FONT_PROFONT_10_72DPI
-        font_PROFONT_10_72DPI,
     #endif
     #ifdef FONT_MONO_5x7
         font_MONO_5x7,

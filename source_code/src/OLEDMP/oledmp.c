@@ -634,6 +634,14 @@ void oledFill(uint8_t colour)
 }
 
 
+/**
+ * Fill a rectangular section of the screen with a specific colour.
+ * @param x starting X coordinate
+ * @param y starting Y coordinate
+ * @param width width of rectangle in pixels
+ * @param height height of rectangle in pixels
+ * @param colour the shade to fill with (0 to 15)
+ */
 void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t colour)
 {
     int16_t y_actual = y + oled_offset;

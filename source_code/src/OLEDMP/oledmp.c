@@ -26,9 +26,27 @@
 *	Author: Darran Hunt
 */
 
+
+/*
+ * Notes
+ * -----
+ *
+ *  - the y index is a index from 0 to 63 and is relative to the current
+ *  - oled_offset. Inactive writes have 64 added.
+ */
+
+
+/*
+ * Updates to do:
+ *
+ * - Condsider that the inactive buffer is whatever is not currently being displayed,
+ *   regardless of the scroll offset.
+ */
+
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "low_level_utils.h"
 #include "bitstream.h"
@@ -57,6 +75,8 @@
 #define MIN_SEG 28		// minimum visable OLED 4-pixel segment
 #define MAX_SEG 91		// maximum visable OLED 4-pixel segment
 
+#define OLED_Y_MASK   (OLED_HEIGHT*2 - 1)     // Maxium y index into OLED buffer
+
 static int oledFputc(char ch, FILE *stream);
 
 /*
@@ -70,9 +90,10 @@ FILE oledStdout = FDEV_SETUP_STREAM(oledFputc, NULL, _FDEV_SETUP_WRITE);
  * Module Local globals
  */
 
-static uint8_t oled_offset;
+static uint8_t oled_offset=0;                // current display offset in GDDRAM
+static uint8_t oled_writeOffset=0;           // offset for writing 
 static uint8_t oled_bufHeight;
-static uint8_t oled_scroll_delay = 5;   // milliseconds between line scroll
+static uint8_t oled_scroll_delay = 10;   // milliseconds between line scroll
 static uint8_t oled_writeBuffer = 0;
 static uint8_t oled_displayBuffer = 0;
 
@@ -94,6 +115,7 @@ static uint8_t oled_cur_x[2] = { 0, 0 };
 static uint8_t oled_cur_y[2] = { 0, 0 };
 static uint8_t oled_foreground;
 static uint8_t oled_background;
+static bool oled_wrap = false;
 
 /*
  * OLED initialisation sequence
@@ -157,16 +179,16 @@ void oledBegin(uint8_t font)
     oledReset();
     oledInit();
 
-    for (uint8_t ind=0; ind<OLED_HEIGHT; ind++) 
+    for (uint8_t ind=0; ind<OLED_HEIGHT*2; ind++) 
     {
         gddram[ind].xaddr = 0;
         gddram[ind].pixels = 0;
     }
 
+    oledWriteInactiveBuffer();
     oledClear();
-    oledSetWriteBuffer(1);
+    oledWriteActiveBuffer();
     oledClear();
-    oledSetWriteBuffer(0);
 
     // Map stdout to use the OLED display.
     // This means that printf(), printf_P(), puts(), puts_P(), etc 
@@ -182,33 +204,27 @@ void oledBegin(uint8_t font)
 void oledSetDisplayStartLine(uint8_t line)
 {
 #ifdef OLED_DEBUG
-    usbPrintf_P(PSTR("oledSetDisplayStartLine(%d)\n"), line & 0x7f);
+    usbPrintf_P(PSTR("oledSetDisplayStartLine(%d)\n"), line & OLED_Y_MASK);
 #endif
+    oled_offset = line & OLED_Y_MASK;
     oledWriteCommand(CMD_SET_DISPLAY_START_LINE);
-    oledWriteData(line & 0x7f); // 127 is the max line, wrap after that
+    oledWriteData(oled_offset);
 }
 
 
 /**
- * Display the specified buffer on the screen.
- * @param bufferId - 0 or 1.
- * @note two buffer are available, either of which can be the target for
- * the bitmap writes,text writes, and clear operations.  Either can 
- * be the actively displayed buffer.
- * The inactive buffer can be used to make updates that can then be
- * instantly show to the user.
+ * Move the start line of the displayed buffer in GDDRAM by the specified offset.
+ * @param offset - the amount to change the start line
  */
-void oledSetDisplayedBuffer(uint8_t bufferId)
+void oledMoveDisplayStartLine(int8_t offset)
 {
-    if (bufferId > 2) 
-    {
-        return;
-    }
-    oled_displayBuffer = bufferId;
-
-    oledSetDisplayStartLine(OLED_HEIGHT * bufferId);
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("oledMoveDisplayStartLine(%d)\n"), offset);
+#endif
+    oled_offset = (oled_offset + offset) & OLED_Y_MASK;
+    oledWriteCommand(CMD_SET_DISPLAY_START_LINE);
+    oledWriteData(oled_offset);
 }
-
 
 /**
  * Switch the inactive buffer to the active buffer.
@@ -218,7 +234,9 @@ void oledSetDisplayedBuffer(uint8_t bufferId)
 void oledFlipDisplayedBuffer()
 {
     oled_displayBuffer = !oled_displayBuffer;
-    oledSetDisplayStartLine(OLED_HEIGHT * oled_displayBuffer);
+    oled_writeBuffer = !oled_writeBuffer;
+    oled_writeOffset = (oled_writeOffset + OLED_HEIGHT) & OLED_Y_MASK;
+    oledMoveDisplayStartLine(OLED_HEIGHT);
 }
 
 
@@ -226,6 +244,7 @@ void oledFlipDisplayedBuffer()
 void oledWriteInactiveBuffer()
 {
     oled_writeBuffer = !oled_displayBuffer;
+    oled_writeOffset = OLED_HEIGHT;
 }
 
 
@@ -233,22 +252,7 @@ void oledWriteInactiveBuffer()
 void oledWriteActiveBuffer()
 {
     oled_writeBuffer = oled_displayBuffer;
-}
-
-
-/**
- * Set the buffer for write operations.  This is the buffer that
- * text and bitmap writes will go to, and the clear operation will clear.
- * @param bufferId - 0 or 1
- */
-void oledSetWriteBuffer(uint8_t bufferId)
-{
-    if (bufferId > 2) 
-    {
-        return;
-    }
-
-    oled_writeBuffer = bufferId;
+    oled_writeOffset = 0;
 }
 
 
@@ -261,35 +265,27 @@ void oledSetWriteBuffer(uint8_t bufferId)
  */
 void oledFlipBuffers(uint8_t mode, uint8_t delay)
 {
-    oled_writeBuffer = !oled_writeBuffer;
-    oled_displayBuffer = !oled_displayBuffer;
-    uint8_t offset = OLED_HEIGHT * oled_writeBuffer;
-
     if (delay == 0) 
     {
         // 0 -> use global scroll delay
         delay = oled_scroll_delay;
     }
-    if (mode == OLED_SCROLL_UP) 
+    if (mode == 0) 
     {
-        for (int8_t yind=1; yind <= OLED_HEIGHT; yind++) 
-        {
-            oledSetDisplayStartLine(offset + yind);
-            delay_ms(delay);
-        }
-    }
-    else if (mode == OLED_SCROLL_DOWN) 
-    {
-        for (int8_t yind=1; yind <= OLED_HEIGHT; yind++) 
-        {
-            oledSetDisplayStartLine(offset - yind);
-            delay_ms(delay);
-        }
+        oledMoveDisplayStartLine(OLED_HEIGHT);
     }
     else 
     {
-        oledSetDisplayStartLine(OLED_HEIGHT * oled_displayBuffer);
+        int8_t offset = (mode == OLED_SCROLL_UP ? 1 : -1);
+        for (uint8_t ind=0; ind<OLED_HEIGHT; ind++) 
+        {
+            oledMoveDisplayStartLine(offset);
+            delay_ms(delay);
+        }
     }
+
+    oled_displayBuffer = !oled_displayBuffer;
+    oled_writeBuffer = !oled_writeBuffer;
 }
 
 
@@ -366,10 +362,47 @@ void oledSetRemap(uint8_t mode)
  */
 void oledPutch(char ch)
 {
+    uint8_t glyphHeight = oledGlyphHeight();
+#ifdef OLED_DEBUG
+    if (isprint(ch)) 
+    {
+        usbPrintf_P(PSTR("oledPutch('%c') x=%d, y=%d, oled_offset=%d, buf=%d\n"), 
+                ch, oled_cur_x[oled_writeBuffer], oled_cur_y[oled_writeBuffer], oled_offset, oled_writeBuffer);
+    }
+    else 
+    {
+        usbPrintf_P(PSTR("oledPutch('0x%02x') x=%d, y=%d, oled_offset=%d, buf=%d\n"),
+                ch, oled_cur_x[oled_writeBuffer], oled_cur_y[oled_writeBuffer], oled_offset, oled_writeBuffer);
+    }
+#endif
+
+    // see if the current offset is offscreen
+    if ((oled_cur_y[oled_writeBuffer] + glyphHeight) > OLED_HEIGHT) 
+    {
+        if (oled_wrap || oled_writeBuffer != oled_displayBuffer)
+        {
+            // Wrap back to the top of the display
+            oled_cur_y[oled_writeBuffer] = 0;
+        }
+        else
+        {
+#ifdef OLED_DEBUG
+            usbPrintf_P(PSTR("oledPutch('0x%02x') scroll x=%d, y=%d, oled_offset=%d, buf=%d\n"),
+                    ch, oled_cur_x[oled_writeBuffer], oled_cur_y[oled_writeBuffer], oled_offset, oled_writeBuffer);
+#endif            
+            oledScrollUp(0, true);
+            oled_cur_y[oled_writeBuffer] -= glyphHeight;
+#ifdef OLED_DEBUG
+            usbPrintf_P(PSTR("oledPutch('0x%02x') scroll completed y=%d, oled_offset=%d, gHeight=%d\n"),
+                    ch, oled_cur_y[oled_writeBuffer], oled_offset, glyphHeight);
+#endif            
+        } 
+    }
+
     if (ch == '\n') 
     {
-        oled_cur_y[oled_writeBuffer] += oledGlyphHeight();
         oled_cur_x[oled_writeBuffer] = 0;
+        oled_cur_y[oled_writeBuffer] += glyphHeight;
     }
     else if (ch == '\r') 
     {
@@ -386,7 +419,7 @@ void oledPutch(char ch)
 #ifdef OLED_DEBUG
             usbPrintf_P(PSTR("wrap at y=%d x=%d, '%c' width %d\n"),oled_cur_y,oled_cur_x[oled_writeBuffer],ch,width);
 #endif
-            oled_cur_y[oled_writeBuffer] += oledGlyphHeight();
+            oled_cur_y[oled_writeBuffer] += glyphHeight;
             oled_cur_x[oled_writeBuffer] = 0;
         }
         oled_cur_x[oled_writeBuffer] += oledGlyphDraw(oled_cur_x[oled_writeBuffer], oled_cur_y[oled_writeBuffer], ch, oled_foreground, oled_background);
@@ -417,7 +450,8 @@ int oledFputc(char ch, FILE *stream)
  */
 void oledSetXY(uint8_t x, uint8_t y)
 {
-    if (y >= OLED_HEIGHT*2) {
+    if (y >= OLED_HEIGHT*2) 
+    {
         y = OLED_HEIGHT*2 - 1;
     }
 
@@ -498,9 +532,13 @@ void oledSetColumnAddr(uint8_t start, uint8_t end)
  */
 void oledSetRowAddr(uint8_t start, uint8_t end)
 {
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("    setRowAddr(start=%d,end=%d)\n"), start & OLED_Y_MASK, end & OLED_Y_MASK);
+#endif
+
     oledWriteCommand(CMD_SET_ROW_ADDR);
-    oledWriteData(start);
-    oledWriteData(end);
+    oledWriteData(start & OLED_Y_MASK);
+    oledWriteData(end & OLED_Y_MASK);
 }
 
 /**
@@ -529,7 +567,6 @@ void oledSetOffset(uint8_t offset)
 {
     oledWriteCommand(CMD_SET_DISPLAY_OFFSET);
     oledWriteData(offset);
-    oled_offset = offset;
 }
 
 /**
@@ -581,7 +618,7 @@ void oledFill(uint8_t colour)
 {
     uint8_t x,y;
     oledSetColumnAddr(MIN_SEG, MAX_SEG);	// SEG0 - SEG479
-    oledSetRowAddr(0+oled_writeBuffer*64, 63+oled_writeBuffer*64);	
+    oledSetRowAddr(oled_writeOffset+oled_offset, oled_writeOffset+oled_offset+(OLED_HEIGHT-1));	
 
     colour = (colour & 0x0F) | (colour << 4);;
 
@@ -596,6 +633,64 @@ void oledFill(uint8_t colour)
     }
 }
 
+
+void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t colour)
+{
+    int16_t y_actual = y + oled_offset;
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("fillXY() x=%u, y=%d, width=%u, height=%u, colour=%u\n"), x, y, width, height, colour);
+#endif
+
+    colour = (colour & 0x0F) | (colour << 4);;
+
+    if (width + x > OLED_WIDTH) 
+    {
+        // overlap on X, split it
+        oledFillXY(x, y, OLED_WIDTH-x, height, colour);
+        width -= OLED_WIDTH - x;
+        x = 0;
+    }
+
+    if (y_actual < 0) 
+    {
+        y_actual += OLED_HEIGHT*2;
+    }
+    y_actual &= OLED_Y_MASK;
+    if (y_actual+height > OLED_HEIGHT*2) 
+    {
+        // fill area overlaps end of GDDRAM, so two fills needed
+        
+        // Fill to the end
+        oledFillXY(x, y_actual-oled_offset, width, OLED_HEIGHT*2 - y_actual, colour);
+
+        // Now fill the rest from the start of the buffer
+        height -= (OLED_HEIGHT*2 - y_actual);
+        y_actual = 0;
+    }
+
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("fill y=%u, to %u\n"), y_actual, y_actual+height-1);
+#endif
+    oledSetWindow(x, y_actual, x+width-1, y_actual+height-1);
+    oledWriteCommand(CMD_WRITE_RAM);
+    for (; height > 0; height--) 
+    {
+        // XXX TODO: handle X non-multiple of 4
+        for (uint8_t xind=0; xind<(width+3)/4; xind++) 
+        {
+            // fill four pixels
+            oledWriteData(colour);
+            oledWriteData(colour);
+        }
+        gddram[y_actual].xaddr = 0;
+        gddram[y_actual].pixels = 0;
+    }
+#ifdef OLED_DEBUG
+        usbPrintf_P(PSTR("fill done"));
+#endif
+}
+
+
 /**
  * Clear the display by setting every pixel to the background colour.
  */
@@ -603,14 +698,30 @@ void oledClear()
 {
     oledFill(oled_background);
 
-    for (uint8_t ind=OLED_HEIGHT * oled_writeBuffer; ind<OLED_HEIGHT*(oled_writeBuffer+1); ind++) 
+    for (uint8_t ind=0; ind<OLED_HEIGHT; ind++)
     {
-        gddram[ind].xaddr = 0;
-        gddram[ind].pixels = 0;
+        gddram[(oled_offset + oled_writeOffset + ind) & OLED_Y_MASK].xaddr = 0;
+        gddram[(oled_offset + oled_writeOffset + ind) & OLED_Y_MASK].pixels = 0;
     }
 
     oled_cur_x[oled_writeBuffer] = 0;
     oled_cur_y[oled_writeBuffer] = 0;
+}
+
+/**
+ * Clear the specified line.  This function sets all the pixels in the
+ * current text line to the background colour.
+ * @param y first row of the text line to clear
+ */
+void oledClearLine(int16_t y)
+{
+    uint8_t gheight = oledGlyphHeight();
+
+#ifdef OLED_DEBUG
+    uint16_t cur_y = (oled_writeOffset + oled_offset + y) & OLED_Y_MASK;
+    usbPrintf_P(PSTR("clearLine() y=%u (%u), oled_offset=%u, oled_writeOffset=%u, gh=%u\n"), y, cur_y, oled_offset, oled_writeOffset, gheight);
+#endif
+    oledFillXY(0, y, OLED_WIDTH, gheight, oled_background);
 }
 
 /**
@@ -627,40 +738,62 @@ void oledScrollClear(uint8_t options)
     {
         for (int8_t y=OLED_HEIGHT-1; y>=0; y--) 
         {
-            oledSetWindow(0, y, OLED_WIDTH-1, y);
+            oledSetWindow(0, y+oled_offset, OLED_WIDTH-1, y+oled_offset);
             oledWriteCommand(CMD_WRITE_RAM);
             for (uint8_t x=0; x<(OLED_WIDTH/4); x++) 
             {
                 oledWriteData(pixels);
                 oledWriteData(pixels);
             }
-            oledSetOffset(y % 64);
+            oledMoveDisplayStartLine(-1);
+            gddram[(y+oled_offset) & OLED_Y_MASK].xaddr = 0;
+            gddram[(y+oled_offset) & OLED_Y_MASK].pixels = 0;
             delay_ms(oled_scroll_delay);
-            gddram[y].xaddr = 0;
-            gddram[y].pixels = 0;
         }
     }
     else 
     {
         for (uint8_t y=0; y<OLED_HEIGHT; y++) 
         {
-            oledSetWindow(0, y, OLED_WIDTH-1, y);
+            oledSetWindow(0, y+oled_offset, OLED_WIDTH-1, y+oled_offset);
             oledWriteCommand(CMD_WRITE_RAM);
             for (uint8_t x=0; x<(OLED_WIDTH/4); x++) 
             {
                 oledWriteData(pixels);
                 oledWriteData(pixels);
             }
-            _delay_us(1000);
-            oledSetOffset((y+1) % 64);
+            //_delay_us(1000);
+            oledMoveDisplayStartLine(1);
+            gddram[(y+oled_offset) & OLED_Y_MASK].xaddr = 0;
+            gddram[(y+oled_offset) & OLED_Y_MASK].pixels = 0;
             delay_ms(oled_scroll_delay);
-            gddram[y].xaddr = 0;
-            gddram[y].pixels = 0;
         }
     }
 
     oled_cur_x[oled_writeBuffer] = 0;
     oled_cur_y[oled_writeBuffer] = 0;
+}
+
+/**
+ * Scroll the display up
+ * @param lines the number of pixel lines to scroll
+ *        Set to 0 for current font height.
+ * @param clear if true then clear the lines that have
+ *        scrolled offscreen
+ */
+void oledScrollUp(uint8_t lines, bool clear)
+{
+    if (lines == 0) 
+    {
+        // defaults to the height of the current font
+        lines = oledGlyphHeight();
+    }
+    oledMoveDisplayStartLine(lines);
+    if (clear) 
+    {
+        // clear the lines that are now offscreen
+        oledClearLine(-lines);
+    }
 }
 
 /**
@@ -881,19 +1014,23 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
     usbPrintf_P(PSTR("    glyph width %d height %d depth %d xoff %d\n"), glyph_width, glyph_height, glyph_depth, xoff);
 #endif
 
+#if 0
     if ((y+glyph_height) > OLED_HEIGHT) 
     {
         glyph_height = OLED_HEIGHT-y+1;
     }
+#endif
 
     // adjust y for the current write buffer target
-    y += OLED_HEIGHT * oled_writeBuffer;
+    y += (oled_offset + oled_writeOffset) & OLED_Y_MASK;
 #ifdef OLED_DEBUG
     usbPrintf_P(PSTR("    window(x1=%d,y1=%d,x2=%d,y2=%d)\n"), x, y, x+glyph_width-1, y+glyph_height-1);
 #endif
-    oledSetWindow(x, y, x+glyph_width-1, y+glyph_height-1);
 
+#if 0
+    oledSetWindow(x, y, x+glyph_width-1, y+glyph_height-1);
     oledWriteCommand(CMD_WRITE_RAM);
+#endif
 
     // XXX todo: fill unused character space with background
     // XXX todo: add support for n-bit depth fonts (1 to 4)
@@ -905,13 +1042,17 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
         uint8_t xcount = 0;
         uint8_t glyph_pixels = 0;
         uint8_t glyph_byte = 0;
+        uint8_t y_actual = (y + yind) & OLED_Y_MASK;
+        oledSetWindow(x, y_actual, x+glyph_width-1, y_actual);
+        oledWriteCommand(CMD_WRITE_RAM);
         if (xoff != 0) 
         {
             // fill the rest of the 4-pixel word from the bitmap
             for (; xind < 4-xoff; xind++) 
             {
-                if (glyph_pixels <= 0) {
-                    glyph_byte = pgm_read_byte(glyph++);
+                if (glyph_pixels <= 0) 
+                {
+                    glyph_byte = glyph ? pgm_read_byte(glyph++) : 0;
                     glyph_pixels = 8 / glyph_depth;
 #ifdef OLED_DEBUG
                     usbPrintf_P(PSTR("    byte 0x%02x pixels %d\n"), glyph_byte, glyph_pixels);
@@ -923,12 +1064,13 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             }
 
             // Fill existing pixels if available
-            if ((x/4) == gddram[yind+y].xaddr) {
+            if ((x/4) == gddram[y_actual].xaddr) 
+            {
 #ifdef OLED_DEBUG
                 usbPrintf_P(PSTR("    pixel 0x%04x | gddram[%d][%d] 0x%04x\n"), 
-                        pixels, yind+y, gddram[yind+y].xaddr, gddram[yind+y].pixels);
+                        pixels, y_actual, gddram[y_actual].xaddr, gddram[y_actual].pixels);
 #endif
-                pixels |= gddram[yind+y].pixels;
+                pixels |= gddram[y_actual].pixels;
             }
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);
@@ -937,8 +1079,8 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 #endif
             if (pixels != 0) 
             {
-                gddram[yind+y].pixels = pixels;
-                gddram[yind+y].xaddr = (x/4)+xcount;
+                gddram[y_actual].pixels = pixels;
+                gddram[y_actual].xaddr = (x/4)+xcount;
             }
             xcount++;
         }
@@ -951,7 +1093,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
                 {
                     if (glyph_pixels <= 0) 
                     {
-                        glyph_byte = pgm_read_byte(glyph++);
+                        glyph_byte = glyph ? pgm_read_byte(glyph++) : 0;
                         glyph_pixels = 8 / glyph_depth;
 #ifdef OLED_DEBUG
                     usbPrintf_P(PSTR("    byte 0x%02x pixels %d\n"), glyph_byte, glyph_pixels);
@@ -965,12 +1107,12 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);
 #ifdef OLED_DEBUG
-            usbPrintf_P(PSTR("    pixels = 0x%04x, yind=%d, xind=%d\n"), pixels, yind, xind);
+            usbPrintf_P(PSTR("    pixels = 0x%04x, yind=%d (%d), xind=%d\n"), pixels, yind, y_actual, xind);
 #endif
             if (pixels != 0) 
             {
-                gddram[yind+y].pixels = pixels;
-                gddram[yind+y].xaddr = (x/4)+xcount;
+                gddram[y_actual].pixels = pixels;
+                gddram[y_actual].xaddr = (x/4)+xcount;
             }
             xcount++;
         }
@@ -1014,7 +1156,7 @@ void oledBitmapDrawRaw(
     bitstream_t bs;
     bsInit(&bs, depth, flags, image, width*height, !(options & OLED_RAM_BITMAP));
 
-    y += OLED_HEIGHT * oled_writeBuffer;
+    y = (y + oled_offset + oled_writeOffset) & OLED_Y_MASK;
 
     if (!(options & (OLED_SCROLL_UP | OLED_SCROLL_DOWN))) 
     {
@@ -1040,17 +1182,17 @@ void oledBitmapDrawRaw(
             pixels = bsRead(&bs, 4-xoff);
 
             // Fill existing pixels if available
-            if ((x/4) == gddram[yind].xaddr) 
+            if ((x/4) == gddram[(y+yind) & OLED_Y_MASK].xaddr) 
             {
-                pixels |= gddram[yind].pixels;
+                pixels |= gddram[(y+yind) & OLED_Y_MASK].pixels;
             }
 
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);
             if (pixels != 0) 
             {
-                gddram[yind].pixels = pixels;
-                gddram[yind].xaddr = (x/4)+xcount;
+                gddram[(y+yind) & OLED_Y_MASK].pixels = pixels;
+                gddram[(y+yind) & OLED_Y_MASK].xaddr = (x/4)+xcount;
             }
             xcount++;
         }
@@ -1068,23 +1210,24 @@ void oledBitmapDrawRaw(
             oledWriteData((uint8_t)pixels);
             if (pixels != 0) 
             {
-                gddram[yind].pixels = pixels;
-                gddram[yind].xaddr = (x/4)+xcount;
+                gddram[(y+yind) & OLED_Y_MASK].pixels = pixels;
+                gddram[(y+yind) & OLED_Y_MASK].xaddr = (x/4)+xcount;
             }
             xcount++;
         }
 
         if (options & OLED_SCROLL_UP) 
         {
-            oledSetDisplayStartLine(y+yind-64+1);
-            //delay_ms(200);
+            oledMoveDisplayStartLine(1);
             delay_ms(oled_scroll_delay);
         }
     }
     if (options & OLED_SCROLL_UP) 
     {
         // alternte buffer is now active
-        oledFlipBuffers(0,0);
+        //oledFlipBuffers(0,0);
+        oled_displayBuffer = !oled_displayBuffer;
+        oled_writeBuffer = !oled_writeBuffer;
     }
 }
 

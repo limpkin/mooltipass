@@ -21,15 +21,17 @@
  *  \brief  main file
  *  Copyright [2014] [Mathieu Stephan]
  */
-
+#include <avr/eeprom.h>
 #include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
 #include <stdio.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
+#include "eeprom_addresses.h"
 #include "usb_cmd_parser.h"
 #include "had_mooltipass.h"
+#include "userhandling.h"
 #include "mooltipass.h"
 #include "interrupts.h"
 #include "smartcard.h"
@@ -148,12 +150,14 @@ void activityDetectedRoutine(void)
 int main(void)
 {
     uint8_t usb_buffer[RAWHID_TX_SIZE];
+    uint8_t* temp_buffer = usb_buffer;
     RET_TYPE touch_detect_result;
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
-    uint8_t reg;
+    uint8_t current_user_id;
+    uint8_t reg, i;
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
@@ -177,11 +181,18 @@ int main(void)
     initPortSMC();                      // Initialize smart card port
     initPwm();                          // Initialize PWM controller
     initIRQ();                          // Initialize interrupts    
-    initUsb();                         // Initialize USB controller
+    initUsb();                          // Initialize USB controller
     initI2cPort();                      // Initialize I2C interface
     entropyInit();                      // Initialize avrentropy library
-    while(!isUsbConfigured());           // Wait for host to set configuration
+    while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
+    
+    // First time initializations
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
+    {
+        firstTimeUserHandlingInit();
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
+    }
 
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
@@ -337,6 +348,7 @@ int main(void)
             wasCapsLockTimerArmed = FALSE;            
         }
         
+        // Touch interface
         if (touch_detect_result & TOUCH_PRESS_MASK)
         {
             activityDetectedRoutine();
@@ -356,17 +368,17 @@ int main(void)
                     usbPutstr_P(PSTR("RIGHT touched\r\n"));
                 #endif
             }
+            
+            // If wheel is pressed
+            if (touch_detect_result & RETURN_WHEEL_PRESSED)
+            {
+            }
         }
         
         if (card_detect_ret == RETURN_JDETECT)                          // Card just detected
         {
             temp_rettype = cardDetectedRoutine();
-            
-            #ifdef DEBUG_SMC_SCREEN_PRINT
-                //oledFlipBuffers(OLED_SCROLL_DOWN,0);
-                oledWriteInactiveBuffer();
-                oledClear();
-            #endif
+            activityDetectedRoutine();
 
             if (temp_rettype == RETURN_MOOLTIPASS_INVALID)              // Invalid card
             {
@@ -386,12 +398,37 @@ int main(void)
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
             {
                 // Here we should ask the user to setup his mooltipass card and then call writeCodeProtectedZone() with 8 bytes
-                printSMCDebugInfoToScreen();
-                removeFunctionSMC();                                     // Shut down card reader
+                // Generate random bytes and store them in the CPZ
+                for(i = 0; i < 8; i++)
+                {
+                    temp_buffer[i] = entropyRandom8();
+                }
+                //writeCodeProtectedZone(temp_buffer);                    // Write in the code protected zone
+                //writeSmartCardCPZForUserId(temp_buffer, 11);            // Store SMC <> user id
+                printSMCDebugInfoToScreen();                            // Print smartcard info
+                removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_USER)             // Configured mooltipass card
             {
                 // Here we should ask the user for his pin and call mooltipassDetectedRoutine
+                readCodeProtectedZone(temp_buffer);
+                #ifdef GENERAL_LOGIC_OUTPUT_USB
+                    usbPrintf_P(PSTR("%d cards\r\n"), getNumberOfKnownCards());
+                    usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
+                #endif
+                if (getUserIdFromSmartCardCPZ(temp_buffer, &current_user_id) == RETURN_OK)
+                {
+                    #ifdef GENERAL_LOGIC_OUTPUT_USB
+                        usbPrintf_P(PSTR("Card ID found with user %d\r\n"), current_user_id);
+                    #endif
+                }
+                else
+                {
+                    #ifdef GENERAL_LOGIC_OUTPUT_USB
+                        usbPutstr_P(PSTR("Card ID not found\r\n"));
+                    #endif
+                }
+                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                     // Shut down card reader
             }

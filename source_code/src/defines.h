@@ -37,6 +37,8 @@
 #define FLASH_TEST_DEBUG_OUTPUT_OLED
 // Used for touch interface
 #define TOUCH_DEBUG_OUTPUT_USB
+// User for general logic
+#define GENERAL_LOGIC_OUTPUT_USB
 
 /**************** HARDWARE VERSION ****************/
 // First hardware sent to the contributors, 12/2013

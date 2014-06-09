@@ -731,6 +731,7 @@ uint8_t usbPrintf(const char *fmt, ...)
     va_start(ap, fmt);
     char printBuf[64];  // scratch buffer for printf
 
+    memset(printBuf, 0, sizeof(printBuf));
     uint8_t ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
 
     if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
@@ -755,9 +756,8 @@ uint8_t usbPrintf_P(const char *fmt, ...)
     va_start(ap, fmt);
     char printBuf[64];  // scratch buffer for printf
 
+    memset(printBuf, 0, sizeof(printBuf));
     uint8_t ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
-
-    usbPutstr(printBuf);
 
     if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
     {

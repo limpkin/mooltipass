@@ -19,6 +19,7 @@
  * THE SOFTWARE.
  */
 #include "usb_descriptors.h"
+#include "usb_cmd_parser.h"
 #include "hid_defines.h"
 #include "defines.h"
 #include "usb.h"
@@ -597,18 +598,24 @@ ISR(USB_COM_vect)
     UECONX = (1<<STALLRQ) | (1<<EPEN);  // stall
 }
 
-/*! \fn     usbPutstr_P(const char *str)
-*   \brief  print an progmem ASCIIZ string to the usb serial port.
-*   \param  str     pointer to the string in FLASH.
+/*! \fn     pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str)
+*   \brief  Send a message to the mooltipass plugin
+*   \param  cmd command UID
+*   \param  len message length
+*   \param  str pointer to the string in FLASH
 *   \return If we managed send the data
 */
-RET_TYPE usbPutstr_P(const char *str)
+RET_TYPE pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str)
 {
     uint8_t buffer[RAWHID_TX_SIZE];
-    uint8_t i = 0;
+    uint8_t i = HID_DATA_START;
+    uint8_t j;
     char ch;
+    
+    buffer[HID_LEN_FIELD] = len;
+    buffer[HID_TYPE_FIELD] = cmd;
 
-    do
+    for(j = 0; j < len; j++)
     {
         ch = pgm_read_byte(str++);
         buffer[i++] = ch;
@@ -621,7 +628,6 @@ RET_TYPE usbPutstr_P(const char *str)
             }
         }
     }
-    while (ch != 0);
 
     if (i != 0)
     {
@@ -631,7 +637,76 @@ RET_TYPE usbPutstr_P(const char *str)
             return RETURN_COM_NOK;
         }
     }
+    return RETURN_COM_TRANSF_OK;    
+}
+
+/*! \fn     pluginSendMessage(uint8_t cmd, uint8_t len, const char* str)
+*   \brief  Send a message to the mooltipass plugin
+*   \param  cmd command UID
+*   \param  len message length
+*   \param  str pointer to the string in RAM
+*   \return If we managed send the data
+*/
+RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str)
+{
+    uint8_t buffer[RAWHID_TX_SIZE];
+    uint8_t nb_for_loops = 0;
+    uint8_t remaining = 0;
+    uint8_t i = 0;
+    
+    memset((void*)buffer, 0, RAWHID_TX_SIZE);
+    buffer[HID_LEN_FIELD] = len;
+    buffer[HID_TYPE_FIELD] = cmd;
+
+    nb_for_loops = (len+HID_DATA_START) / RAWHID_TX_SIZE;
+    remaining = (len+HID_DATA_START) % RAWHID_TX_SIZE;
+
+    for (i = 0; i < nb_for_loops; i++)
+    {
+        if (i == 0)
+        {
+            memcpy((void*)(buffer+2), (void*)str, RAWHID_TX_SIZE-HID_DATA_START);
+            if(usbRawHidSend(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+            {
+                return RETURN_COM_NOK;
+            }
+        } 
+        else
+        {
+            if(usbRawHidSend((uint8_t*)str+(i*RAWHID_TX_SIZE)-HID_DATA_START, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+            {
+                return RETURN_COM_NOK;
+            }
+        }
+    }
+
+    if (remaining != 0)
+    {
+        if (i == 0)
+        {
+            memcpy((void*)buffer+HID_DATA_START, (void*)str, remaining-HID_DATA_START);
+        } 
+        else
+        {
+            memset((void*)buffer, 0, RAWHID_TX_SIZE);
+            memcpy((void*)buffer, (void*)str+(i*RAWHID_TX_SIZE)-HID_DATA_START, remaining);
+        }        
+        if(usbRawHidSend(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+        {
+            return RETURN_COM_NOK;
+        }
+    }
     return RETURN_COM_TRANSF_OK;
+}
+
+/*! \fn     usbPutstr_P(const char *str)
+*   \brief  print an progmem ASCIIZ string to the usb serial port.
+*   \param  str     pointer to the string in FLASH.
+*   \return If we managed send the data
+*/
+RET_TYPE usbPutstr_P(const char *str)
+{
+    return pluginSendMessage_P(CMD_DEBUG, strlen_P(str), str);
 }
 
 /*! \fn     usbPutstr(const char *str)
@@ -641,32 +716,7 @@ RET_TYPE usbPutstr_P(const char *str)
 */
 RET_TYPE usbPutstr(const char *str)
 {
-    uint8_t buffer[RAWHID_TX_SIZE];
-    uint8_t nb_for_loops = 0;
-    uint8_t remaining = 0;
-    uint8_t i = 0;
-
-    nb_for_loops = (strlen(str)+1) / RAWHID_TX_SIZE;
-    remaining = (strlen(str)+1) % RAWHID_TX_SIZE;
-
-    for (i = 0; i < nb_for_loops; i++)
-    {
-        if(usbRawHidSend((uint8_t*)str+(i*RAWHID_TX_SIZE), USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
-        {
-            return RETURN_COM_NOK;
-        }
-    }
-
-    if (remaining != 0)
-    {
-        memset((void*)buffer, 0, RAWHID_TX_SIZE);
-        memcpy((void*)buffer, (void*)str+(i*RAWHID_TX_SIZE), remaining);
-        if(usbRawHidSend(buffer, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
-        {
-            return RETURN_COM_NOK;
-        }
-    }
-    return RETURN_COM_TRANSF_OK;
+    return pluginSendMessage(CMD_DEBUG, strlen(str), str);
 }
 
 /*! \fn     usbPrintf(const char *fmt, ...)

@@ -28,18 +28,14 @@ void usbProcessIncoming(uint8_t* incomingData)
     {
         // ping command
         case CMD_PING :
-            incomingData[HID_LEN_FIELD] = 0;
-            incomingData[HID_TYPE_FIELD] = CMD_PING;
-            usbRawHidSend(incomingData, USB_WRITE_TIMEOUT);
+            pluginSendMessage(CMD_PING, 0, (char*)incomingData);
             break;
 
         // version command
         case CMD_VERSION :
-            incomingData[HID_LEN_FIELD] = 2;
-            incomingData[HID_TYPE_FIELD] = CMD_VERSION;
-            incomingData[HID_DATA_START] = 0x01;
-            incomingData[HID_DATA_START+1] = 0x01;
-            usbRawHidSend(incomingData, USB_WRITE_TIMEOUT);
+            incomingData[0] = 0x01;
+            incomingData[1] = 0x01;
+            pluginSendMessage(CMD_VERSION, 2, (char*)incomingData);
             break;
 
         default : break;

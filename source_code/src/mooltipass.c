@@ -49,8 +49,10 @@
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
 #endif
 volatile uint16_t screenTimer = SCREEN_TIMER_DEL;
+volatile uint8_t wasCapsLockTimerArmed = FALSE;
 volatile uint8_t lightsTimerOffFlag = FALSE;
 volatile uint8_t screenTimerOffFlag = FALSE;
+volatile uint16_t capsLockTimer = 0;
 uint8_t areLightsOn = FALSE;
 uint8_t isScreenOn = TRUE;
 
@@ -90,6 +92,17 @@ void screenTimerTick(void)
     }
 }
 
+/*!	\fn		capsLockTick(void)
+*	\brief	Function called every ms by interrupt
+*/
+void capsLockTick(void)
+{
+    if (capsLockTimer != 0)
+    {
+        capsLockTimer--;
+    }
+}
+
 /*!	\fn		activateScreenTimer(void)
 *	\brief	Activate screen timer
 */
@@ -105,6 +118,30 @@ void activateScreenTimer(void)
     }
 }
 
+/*!	\fn		activityDetectedRoutine(void)
+*	\brief	What to do when user activity has been detected
+*/
+void activityDetectedRoutine(void)
+{
+    activateLightTimer();
+    activateScreenTimer();
+    
+    // If the lights were off, turn them on!
+    if (areLightsOn == FALSE)
+    {
+        setPwmDc(MAX_PWM_VAL);
+        activateGuardKey();
+        areLightsOn = TRUE;
+    }
+    
+    // If the screen was off, turn it on!
+    if (isScreenOn == FALSE)
+    {
+        oledOn();
+        isScreenOn = TRUE;
+    }    
+}
+
 /*! \fn     main(void)
 *   \brief  Main function
 */
@@ -116,6 +153,7 @@ int main(void)
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
+    uint8_t reg;
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
@@ -281,25 +319,27 @@ int main(void)
             screenTimerOffFlag = FALSE;
         }
         
+        // Two quick caps lock presses wake up the device
+        if ((capsLockTimer == 0) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
+        {
+            reg = SREG;
+            cli();
+            wasCapsLockTimerArmed = TRUE;
+            capsLockTimer = CAPS_LOCK_DEL;
+            SREG = reg;
+        }
+        else if ((capsLockTimer != 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        {
+            activityDetectedRoutine();
+        }
+        else if ((capsLockTimer == 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        {
+            wasCapsLockTimerArmed = FALSE;            
+        }
+        
         if (touch_detect_result & TOUCH_PRESS_MASK)
         {
-            activateLightTimer();
-            activateScreenTimer();
-            
-            // If the lights were off, turn them on!
-            if (areLightsOn == FALSE)
-            {
-                setPwmDc(MAX_PWM_VAL);
-                activateGuardKey();
-                areLightsOn = TRUE;
-            }
-            
-            // If the screen was off, turn it on!
-            if (isScreenOn == FALSE)
-            {
-                oledOn();
-                isScreenOn = TRUE;
-            }
+            activityDetectedRoutine();
             
             // If left button is pressed
             if (touch_detect_result & RETURN_LEFT_PRESSED)
@@ -314,7 +354,6 @@ int main(void)
             {
                 #ifdef TOUCH_DEBUG_OUTPUT_USB
                     usbPutstr_P(PSTR("RIGHT touched\r\n"));
-                    usbKeybPutStr("LQPIN");
                 #endif
             }
         }

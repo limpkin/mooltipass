@@ -36,9 +36,10 @@ static volatile uint32_t msecTicks = 0;
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
     msecTicks++;
+    capsLockTick();                                                 // Caps timer
     lightTimerTick();                                               // Light timer
     screenTimerTick();                                              // Screen timer
-	scanSMCDectect();												// Scan smart card detect
+    scanSMCDectect();												// Scan smart card detect
 }
 
 

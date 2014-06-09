@@ -29,7 +29,9 @@
 #define MOOLTIPASS_H_
 
 #define SCREEN_TIMER_DEL    60000
+#define CAPS_LOCK_DEL       400
 
+void capsLockTick(void);
 void screenTimerTick(void);
 void setLightsOutFlag(void);
 

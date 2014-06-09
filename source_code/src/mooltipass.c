@@ -370,33 +370,28 @@ int main(void)
 
             if (temp_rettype == RETURN_MOOLTIPASS_INVALID)              // Invalid card
             {
-                _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_PB)              // Problem with card
             {
-                _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLOCKED)         // Card blocked
             {
-                _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
-            {   
+            {
                 // Here we should ask the user to setup his mooltipass card and then call writeCodeProtectedZone() with 8 bytes
-                _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                     // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_USER)             // Configured mooltipass card
             {
                 // Here we should ask the user for his pin and call mooltipassDetectedRoutine
-                _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                     // Shut down card reader
             }

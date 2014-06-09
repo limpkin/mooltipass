@@ -25,13 +25,18 @@
 #include "defines.h"
 #include <stdint.h>
 
+// DEFINES
+#define MAN_FUSE    0x00
+#define EC2EN_FUSE  0x01
+#define ISSUER_FUSE 0x02
+
 // Prototypes
 uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive);
 void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write);
-void blowManufacturerNIssuerFuse(uint8_t bool_man_nissuer);
 void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2);
 RET_TYPE securityValidationSMC(uint16_t code);
 RET_TYPE firstDetectFunctionSMC(void);
+void blowFuse(uint8_t fuse_name);
 RET_TYPE isCardPlugged(void);
 void removeFunctionSMC(void);
 void scanSMCDectect(void);

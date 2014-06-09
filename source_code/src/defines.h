@@ -50,7 +50,7 @@
 
 /**************** SMARTCARD FUSE VERSION ****************/
 // First smart card sent to the first contributors
-#define SMARTCARD_FUSE_V1
+//#define SMARTCARD_FUSE_V1
 
 /**************** HW MACROS ****************/
 #define CPU_PRESCALE(n)         (CLKPR = 0x80, CLKPR = (n))

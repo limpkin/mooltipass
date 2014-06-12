@@ -22,12 +22,174 @@
 *    Created:  09/6/2014
 *    Author:   Mathieu Stephan
 */
+#include <avr/interrupt.h>
 #include <avr/eeprom.h>
+#include <avr/io.h>
 #include "eeprom_addresses.h"
 #include "userhandling.h"
 #include "smartcard.h"
 #include "defines.h"
+#include "usb.h"
 
+// Credential timer valid flag
+volatile uint8_t credential_timer_valid = FALSE;
+// Credential timer value
+volatile uint16_t credential_timer = 0;
+// Selected login flag (the plugin selected a login)
+uint8_t selected_login_flag = FALSE;
+// Context valid flag (eg we know the current service / website)
+uint8_t context_valid_flag = FALSE;
+
+
+/*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
+*   \brief  Set our current context
+*   \param  name    Name of the desired service / website
+*   \param  length  Length of the string
+*   \return If we found the context
+*/
+RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
+{
+    uint8_t reg;
+    
+    // Look for name inside our flash
+    if (TRUE)
+    {
+        context_valid_flag = TRUE;
+        return RETURN_OK;
+    } 
+    else
+    {
+        cli();
+        credential_timer = 0;
+        context_valid_flag = FALSE;
+        selected_login_flag = FALSE;
+        credential_timer_valid = FALSE;
+        SREG = reg;                     // restore original interrupt state (may already be disabled)
+        return RETURN_NOK;
+    }
+}
+
+/*! \fn     getLoginForContext(uint8_t* buffer)
+*   \brief  Get login for current context
+*   \param  buffer  Buffer to store the login
+*   \return If login was entered
+*/
+RET_TYPE getLoginForContext(uint8_t* buffer)
+{
+    if (context_valid_flag == FALSE)
+    {
+        // Context invalid
+        return RETURN_NOK;
+    } 
+    else
+    {
+        if (credential_timer_valid == FALSE)
+        {
+            // Ask the user for approval
+            return RETURN_NOK;
+        } 
+        else
+        {
+            // Fetch the login and send it
+            // bla bla bla
+            // Send it to the computer via HID
+            // usbKeybPutStr((char*)buffer);
+            return RETURN_OK;
+        }
+    }
+}
+
+/*! \fn     getPasswordForContext(void)
+*   \brief  Get password for current context
+*   \return If password was entered
+*/
+RET_TYPE getPasswordForContext(void)
+{
+    uint8_t reg = SREG;
+
+    if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE))
+    {
+        // Fetch password and send it over USB
+        //usbKeybPutStr();
+        // Clear credential timer
+        cli();
+        credential_timer = 0;
+        credential_timer_valid = FALSE;
+        SREG = reg;                     // restore original interrupt state (may already be disabled)
+        return RETURN_OK; 
+    } 
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
+/*! \fn     setLoginForContext(uint8_t* name, uint8_t length)
+*   \brief  Set login for current context
+*   \param  name    String containing the login
+*   \param  length  String length
+*   \return Operation success or not
+*/
+RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
+{
+    if (context_valid_flag == FALSE)
+    {
+        return RETURN_NOK;
+    } 
+    else
+    {
+        // Look for given login in the flash
+        if (TRUE)
+        {
+            // Select it
+            selected_login_flag = TRUE;
+            return RETURN_OK;
+        } 
+        else
+        {
+            // If doesn't exist, ask user for confirmation to add to flash
+            if (TRUE)
+            {
+                selected_login_flag = TRUE;
+                return RETURN_OK;
+            } 
+            else
+            {
+                selected_login_flag = FALSE;
+                return RETURN_NOK;
+            }
+        }
+    }
+}
+
+/*! \fn     setPasswordForContext(uint8_t* password, uint8_t length)
+*   \brief  Set password for current context
+*   \param  password    String containing the password
+*   \param  length      String length
+*   \return Operation success or not
+*/
+RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
+{
+    if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
+    {
+        // Login not set
+        return RETURN_NOK;
+    } 
+    else
+    {
+        // Ask for password changing approval
+        if (TRUE)
+        {
+            // Store password
+            selected_login_flag = FALSE;
+            return RETURN_OK;
+        } 
+        else
+        {
+            return RETURN_NOK;
+        }
+    }
+}
 
 /*! \fn     firstTimeUserHandlingInit(void)
 *   \brief  First time required intialization

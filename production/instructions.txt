@@ -19,3 +19,7 @@ It is 1mm thick, black at some places and lightly tinted (20-25%) at others.
 This is the main case where the two PCBs and OLED screen will be put.
 
 6) A 3.12" Light Blue Monochrome OLED display
+The current reference is DD-25664BE-3A from Densitron
+
+7) 4x self tapping screws (for Arduino version)
+They maintain the bottom PCB to the case

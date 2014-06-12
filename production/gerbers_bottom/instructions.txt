@@ -1,0 +1,2 @@
+In this folder are containted the gerbers for the bottom PCB.
+The PCB is 4 layers, with a 0.2-1.2-0.2 stackup.

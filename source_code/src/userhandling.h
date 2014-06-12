@@ -35,6 +35,11 @@
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid);
 RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t userid);
+RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
+RET_TYPE setLoginForContext(uint8_t* name, uint8_t length);
+RET_TYPE setCurrentContext(uint8_t* name, uint8_t length);
+RET_TYPE getLoginForContext(uint8_t* buffer);
+RET_TYPE getPasswordForContext(void);
 void firstTimeUserHandlingInit(void);
 uint8_t getNumberOfKnownUsers(void);
 uint8_t getNumberOfKnownCards(void);

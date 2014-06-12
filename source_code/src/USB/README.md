@@ -17,25 +17,44 @@ The following commands are currently implemented:
 
 0x01: send debug message
 ------------------------
-(From plugin/app & Mooltipass): packet data contains the debug message.
+(From Plugin/App & Mooltipass): packet data contains the debug message.
 
 0x02: ping request
 ------------------
-(From plugin/app & Mooltipass): responds with a command packet with the same cmd id, no data in data packet
+(From Plugin/App & Mooltipass): responds with a command packet with the same cmd id, no data in data packet
 
 0x03: version request
 ---------------------
-(From plugin/app & Mooltipass): responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet
+(From Plugin/App & Mooltipass): responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet
 
 0x04: set context
 -----------------
 From plugin/app: this allows the plugin/application to let the mooltipass know the website/service he's currently on
+From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass doesn't know the context, 0x01 if so
 
 0x05: get login
 ---------------
 From plugin/app: request the login for the current context
 
 From Mooltipass: the login if the user has approved the sending of credential / has been authentified, error code otherwise 
+
+0x06: get password
+------------------
+From plugin/app: request the login for the current context
+
+From Mooltipass: the login if the user has approved the sending of credential / has been authentified, error code otherwise 
+
+0x07: set login
+---------------
+From plugin/app: set the login for the current context
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x08: set password
+------------------
+From plugin/app: set the password for the current context
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
 
 Functions

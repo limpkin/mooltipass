@@ -1,7 +1,7 @@
 USB Information
 ===============
 
-The mooltipass will enumerate as a composite hid device with a keyboard and generic hid. The keyboard is used for sending keypresses and the generic hid is used for transmitting data to pc side apps or plugins.
+The mooltipass will enumerate as a composite hid device with a keyboard and generic hid. The keyboard is used for sending keypresses and the generic hid is used for transmitting data to/from pc side apps or plugins.
 
 Data sent over the generic hid is made out of a 64 byte packet. The structure of the packet is as follows:
 
@@ -17,15 +17,24 @@ The following commands are currently implemented:
 
 0x01: send debug message
 ------------------------
-Packet data contains the debug message.
+(From plugin/app & Mooltipass): packet data contains the debug message.
 
 0x02: ping request
 ------------------
-Responds with a command packet with the same cmd id, no data in data packet
+(From plugin/app & Mooltipass): responds with a command packet with the same cmd id, no data in data packet
 
 0x03: version request
 ---------------------
-Responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet
+(From plugin/app & Mooltipass): responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet
+
+0x04: set context
+-----------------
+From plugin/app: this allows the plugin/application to let the mooltipass know the website/service he's currently on
+
+0x05: get login
+---------------
+From plugin/app: request the login for the current context
+From Mooltipass: the login if the user has approved the sending of credential / has been authentified, error code otherwise 
 
 
 Functions

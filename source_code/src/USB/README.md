@@ -34,6 +34,7 @@ From plugin/app: this allows the plugin/application to let the mooltipass know t
 0x05: get login
 ---------------
 From plugin/app: request the login for the current context
+
 From Mooltipass: the login if the user has approved the sending of credential / has been authentified, error code otherwise 
 
 

@@ -29,7 +29,8 @@ The following commands are currently implemented:
 
 0x04: set context
 -----------------
-From plugin/app: this allows the plugin/application to let the mooltipass know the website/service he's currently on
+From Plugin/app: this allows the plugin/application to let the mooltipass know the website/service he's currently on
+
 From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass doesn't know the context, 0x01 if so
 
 0x05: get login
@@ -46,7 +47,7 @@ From Mooltipass: the login if the user has approved the sending of credential / 
 
 0x07: set login
 ---------------
-From plugin/app: set the login for the current context
+From plugin/app: set the login for the current context (either create a credential or select a given credential set)
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 

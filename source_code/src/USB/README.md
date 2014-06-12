@@ -37,7 +37,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass doesn't 
 ---------------
 From plugin/app: request the login for the current context
 
-From Mooltipass: the login if the user has approved the sending of credential / has been authentified, empty packet otherwise. The login is sent via HID at the same time if request valid.
+From Mooltipass: the login if the user has approved the sending of credential / has been authentified, 1 byte 0x00 packet otherwise. The login is sent via HID at the same time if request valid.
 
 0x06: get password
 ------------------

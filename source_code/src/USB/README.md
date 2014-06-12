@@ -1,7 +1,7 @@
 USB Information
 ===============
 
-The mooltipass will enumerate as a composite hid device with a keyboard and generic hid. The keyboard is used for sending keypresses and the generic hid is used for transmitting data to pc side apps or plugins.
+The mooltipass will enumerate as a composite hid device with a keyboard and generic hid. The keyboard is used for sending keypresses and the generic hid is used for transmitting data to/from pc side apps or plugins.
 
 Data sent over the generic hid is made out of a 64 byte packet. The structure of the packet is as follows:
 
@@ -17,15 +17,45 @@ The following commands are currently implemented:
 
 0x01: send debug message
 ------------------------
-Packet data contains the debug message.
+(From Plugin/App & Mooltipass): packet data contains the debug message.
 
 0x02: ping request
 ------------------
-Responds with a command packet with the same cmd id, no data in data packet
+(From Plugin/App & Mooltipass): responds with a command packet with the same cmd id, no data in data packet
 
 0x03: version request
 ---------------------
-Responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet
+(From Plugin/App & Mooltipass): responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet
+
+0x04: set context
+-----------------
+From Plugin/app: this allows the plugin/application to let the mooltipass know the website/service he's currently on
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass doesn't know the context, 0x01 if so
+
+0x05: get login
+---------------
+From plugin/app: request the login for the current context
+
+From Mooltipass: the login if the user has approved the sending of credential / has been authentified, 1 byte 0x00 packet otherwise. The login is sent via HID at the same time if request valid.
+
+0x06: get password
+------------------
+From plugin/app: request the login for the current context
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass didn't send the password, 0x01 if so. The password is sent via HID at the same time if request valid.
+
+0x07: set login
+---------------
+From plugin/app: set the login for the current context (either create a credential or select a given credential set)
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x08: set password
+------------------
+From plugin/app: set the password for the current context
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
 
 Functions

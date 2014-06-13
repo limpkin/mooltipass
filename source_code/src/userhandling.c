@@ -25,6 +25,7 @@
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <avr/io.h>
+#include <string.h>
 #include "eeprom_addresses.h"
 #include "userhandling.h"
 #include "smartcard.h"
@@ -39,6 +40,11 @@ volatile uint16_t credential_timer = 0;
 uint8_t selected_login_flag = FALSE;
 // Context valid flag (eg we know the current service / website)
 uint8_t context_valid_flag = FALSE;
+// TO REMOVE AFTER TESTS
+//////////////////////////////////////////////////////////////////////////
+uint8_t temp_login[64];
+uint8_t temp_pass[64];
+//////////////////////////////////////////////////////////////////////////
 
 
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
@@ -49,11 +55,15 @@ uint8_t context_valid_flag = FALSE;
 */
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 {
-    uint8_t reg;
+    uint8_t reg = SREG;
     
     // Look for name inside our flash
-    if (TRUE)
+    if (strncmp((char*)name, "gmail.com", 9) == 0)
     {
+        // TO ABSOLUTELY REMOVE!!!!
+        //////////////////////////////////////////////////////////////////////////
+        credential_timer_valid = TRUE;
+        //////////////////////////////////////////////////////////////////////////
         context_valid_flag = TRUE;
         return RETURN_OK;
     } 
@@ -93,7 +103,8 @@ RET_TYPE getLoginForContext(uint8_t* buffer)
             // Fetch the login and send it
             // bla bla bla
             // Send it to the computer via HID
-            // usbKeybPutStr((char*)buffer);
+            memcpy(buffer, temp_login, strlen((char*)temp_login));
+            usbKeybPutStr((char*)buffer);
             return RETURN_OK;
         }
     }
@@ -110,11 +121,14 @@ RET_TYPE getPasswordForContext(void)
     if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE))
     {
         // Fetch password and send it over USB
-        //usbKeybPutStr();
+        usbKeybPutStr((char*)temp_pass);
         // Clear credential timer
         cli();
         credential_timer = 0;
-        credential_timer_valid = FALSE;
+        // TO UNCOMMENT
+        //////////////////////////////////////////////////////////////////////////
+        //credential_timer_valid = FALSE;
+        //////////////////////////////////////////////////////////////////////////
         SREG = reg;                     // restore original interrupt state (may already be disabled)
         return RETURN_OK; 
     } 
@@ -142,6 +156,10 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         if (TRUE)
         {
             // Select it
+            // TO REMOVE!!!!
+            //////////////////////////////////////////////////////////////////////////
+            memcpy(temp_login, name, length+1);
+            //////////////////////////////////////////////////////////////////////////
             selected_login_flag = TRUE;
             return RETURN_OK;
         } 
@@ -181,6 +199,10 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         if (TRUE)
         {
             // Store password
+            // TO REMOVE !!!
+            //////////////////////////////////////////////////////////////////////////
+            memcpy(temp_pass, password, length+1);
+            //////////////////////////////////////////////////////////////////////////
             selected_login_flag = FALSE;
             return RETURN_OK;
         } 

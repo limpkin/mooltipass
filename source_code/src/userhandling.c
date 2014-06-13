@@ -103,7 +103,7 @@ RET_TYPE getLoginForContext(uint8_t* buffer)
             // Fetch the login and send it
             // bla bla bla
             // Send it to the computer via HID
-            memcpy(buffer, temp_login, strlen((char*)temp_login));
+            memcpy(buffer, temp_login, strlen((char*)temp_login)+1);
             usbKeybPutStr((char*)buffer);
             return RETURN_OK;
         }

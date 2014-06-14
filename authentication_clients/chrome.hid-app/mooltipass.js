@@ -112,7 +112,7 @@ function arrayToStr(buf)
  */
 function sendString(type, str)
 {
-    var len = 2 + str.length + 1;
+    var len = str.length + 1;
     msg = new ArrayBuffer(packetSize);
     header = new Uint8Array(msg, 0);
     body = new Uint8Array(msg, 2);

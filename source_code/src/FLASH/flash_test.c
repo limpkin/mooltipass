@@ -507,7 +507,7 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
     for(i = 0; i < PAGE_PER_SECTOR; i++)
     {
         // clear bufferIn
-        initBuffer(bufferOut, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);   
+        initBuffer(bufferIn, bufferSize, FLASH_TEST_INIT_BUFFER_POLICY_ZERO);   
         
         // read page
         ret = readDataFromFlash(i, 0, bufferSize, bufferIn);
@@ -814,7 +814,7 @@ RET_TYPE flashTest()
     #endif
     
     // run test
-    ret = flashEraseBlockTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
+	ret = flashEraseSectorZeroTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
     
     // check result
     if(ret != RETURN_OK)

@@ -138,7 +138,7 @@ RET_TYPE sectorZeroErase(uint8_t sectorNumber)
     uint8_t opcode[4];
     
     // Error check parameter sectorNumber
-    if(sectorNumber != FLASH_SECTOR_ZERO_A_CODE || sectorNumber != FLASH_SECTOR_ZERO_B_CODE)
+    if(!(sectorNumber == FLASH_SECTOR_ZERO_A_CODE || sectorNumber == FLASH_SECTOR_ZERO_B_CODE))
     {
         return RETURN_NOK;
     }
@@ -250,6 +250,36 @@ RET_TYPE pageErase(uint16_t pageNumber)
     waitForFlash();
     return RETURN_OK;
 } // End pageErase
+
+/*!  \fn       formatFlash()
+*    \brief    Formats / Erases all of the flash memory using sectorZeroErase and sectorErase. Sets all bits in flash.
+*    \return   Success status.
+*/
+RET_TYPE formatFlash() 
+{
+	RET_TYPE ret = RETURN_OK;
+	
+	ret = sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE); // erase sector 0a
+	if(ret != RETURN_OK)
+	{
+		return ret;
+	}
+	sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE); // erase sector 0b
+	if(ret != RETURN_OK)
+	{
+		return ret;
+	}
+	
+	for(uint8_t i = SECTOR_START; i <= SECTOR_END; i++)
+	{
+		ret = sectorErase(i);
+		if(ret != RETURN_OK)
+		{
+			return ret;
+		}
+	}	
+	return ret;
+}
 
 /*!  \fn       writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
 *    \brief    Write (dataSize starting at offset of pageNumber of) data to flash (see datasheet)

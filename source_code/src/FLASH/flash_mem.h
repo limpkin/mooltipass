@@ -43,6 +43,8 @@ RET_TYPE sectorErase(uint8_t sectorNumber);
 RET_TYPE blockErase(uint16_t blockNumber);
 RET_TYPE pageErase(uint16_t pageNumber);
 
+RET_TYPE formatFlash();
+
 RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);
 RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);
 

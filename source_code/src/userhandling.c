@@ -30,17 +30,22 @@
 #include "userhandling.h"
 #include "smartcard.h"
 #include "defines.h"
-#include "usb.h"
 #include "oledmp.h"
+#include "usb.h"
+#include "aes.h"
 
 // Credential timer valid flag
 volatile uint8_t credential_timer_valid = FALSE;
 // Credential timer value
 volatile uint16_t credential_timer = 0;
+// Current nonce
+uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login flag (the plugin selected a login)
 uint8_t selected_login_flag = FALSE;
 // Context valid flag (eg we know the current service / website)
 uint8_t context_valid_flag = FALSE;
+// AES256 context variable
+aes256CtrCtx_t aesctx;
 // TO REMOVE AFTER TESTS
 //////////////////////////////////////////////////////////////////////////
 char temp_login[64] = {0,};
@@ -284,7 +289,7 @@ RET_TYPE findUserId(uint8_t userid)
 /*! \fn     getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid)
 *   \brief  Get a user ID from card CPZ
 *   \param  buffer      Buffer containing the CPZ
-*   \param  nonce      pointer to where to store the ctr nonce
+*   \param  nonce       pointer to where to store the ctr nonce
 *   \param  userid      pointer to where to store the user id
 *   \return If we found the CPZ
 */
@@ -321,7 +326,7 @@ RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* use
 /*! \fn     writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t userid)
 *   \brief  Add a CPZ<>User id entry
 *   \param  buffer      Buffer containing the CPZ
-*   \param  nonce      Buffer containing the AES CTR nonce
+*   \param  nonce       Buffer containing the AES CTR nonce
 *   \param  userid      user id
 *   \return If we could add the entry
 */
@@ -361,4 +366,21 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
         eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_CARDS_ADDR, getNumberOfKnownCards()+1);
         return RETURN_OK;
     }
+}
+
+/*! \fn     initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
+*   \brief  Initialize our encryption/decryption part
+*   \param  aes_key     Our AES256 key
+*   \param  nonce       The nonce
+*/
+void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
+{
+    uint8_t i;
+    
+    for (i = 0; i < AES256_CTR_LENGTH; i++)
+    {
+        current_nonce[i] = nonce[i];
+    }
+    
+    aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
 }

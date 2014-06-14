@@ -27,18 +27,29 @@
 #include <string.h>
 #include <stdint.h>
 #include "usb.h"
+#include "oledmp.h"
 
 /*! \fn     usbProcessIncoming(uint8_t* incomingData)
 *   \brief  Process the incoming USB packet
 *   \param  incomingData    Pointer to the packet (can be overwritten!)
 */
-void usbProcessIncoming(uint8_t* incomingData)
+void usbProcessIncoming(uint8_t *incomingData)
 {   
     // Get data len
     uint8_t datalen = incomingData[HID_LEN_FIELD];
 
     // Get data cmd
     uint8_t datacmd = incomingData[HID_TYPE_FIELD];
+
+#ifdef DEBUG_USB
+    printf_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
+#endif
+#ifdef DEBUG_USB_MORE
+    for (uint8_t ind=0; ind<8 && ind<2+datalen; ind++) {
+        printf_P(PSTR("0x%02x "), incomingData[ind]);
+    }
+    printf_P(PSTR("\n"));
+#endif
 
 //    usbPrintf_P(PSTR("Data Received cmd: %i"), datacmd);
     
@@ -49,18 +60,25 @@ void usbProcessIncoming(uint8_t* incomingData)
 //     }
 
 //    usbKeybPutStr("   ");
+//
 
     switch(datacmd)
     {
         // ping command
         case CMD_PING :
             pluginSendMessage(CMD_PING, 0, (char*)incomingData);
+#ifdef DEBUG_USB
+            printf_P(PSTR("usb: tx 0x%02x len %d\n"), incomingData[1], incomingData[0]);
+#endif
             break;
 
         // version command
         case CMD_VERSION :
             incomingData[0] = 0x01;
             incomingData[1] = 0x01;
+#ifdef DEBUG_USB
+            printf_P(PSTR("usb: tx 0x%02x len %d\n"), incomingData[1], incomingData[0]);
+#endif
             pluginSendMessage(CMD_VERSION, 2, (char*)incomingData);
             break;
             
@@ -69,6 +87,9 @@ void usbProcessIncoming(uint8_t* incomingData)
             if ((datalen > RAWHID_RX_SIZE - HID_DATA_START) || (datalen == 0))
             {
                 // Wrong data length
+#ifdef DEBUG_USB
+                printf_P(PSTR("setCtx: len %d too big\n"), datalen);
+#endif
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
             } 
@@ -91,7 +112,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // get login
         case CMD_GET_LOGIN :
-            if (getLoginForContext(incomingData) == RETURN_OK)
+            if (getLoginForContext((char *)incomingData) == RETURN_OK)
             {
                 // Use the buffer to store the login...
                 pluginSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData), (char*)incomingData);
@@ -105,15 +126,15 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // get password
         case CMD_GET_PASSWORD :
-            if (getPasswordForContext() == RETURN_OK)
+            if (getPasswordForContext((char *)incomingData) == RETURN_OK)
             {
-                incomingData[0] = 0x01;
+                pluginSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), (char*)incomingData);
             } 
             else
             {
                 incomingData[0] = 0x00;
+                pluginSendMessage(CMD_GET_PASSWORD, 1, (char*)incomingData);
             }
-            pluginSendMessage(CMD_GET_PASSWORD, 1, (char*)incomingData);
             break;
             
         // set login

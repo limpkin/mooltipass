@@ -31,6 +31,7 @@
 #include "smartcard.h"
 #include "defines.h"
 #include "usb.h"
+#include "oledmp.h"
 
 // Credential timer valid flag
 volatile uint8_t credential_timer_valid = FALSE;
@@ -42,8 +43,8 @@ uint8_t selected_login_flag = FALSE;
 uint8_t context_valid_flag = FALSE;
 // TO REMOVE AFTER TESTS
 //////////////////////////////////////////////////////////////////////////
-uint8_t temp_login[64];
-uint8_t temp_pass[64];
+char temp_login[64] = {0,};
+char temp_pass[64] = {0,};
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -58,17 +59,21 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     uint8_t reg = SREG;
     
     // Look for name inside our flash
-    if (strncmp((char*)name, "gmail.com", 9) == 0)
+    if (strcmp((char*)name, "accounts.google.com") == 0)    // should limit to the len of name?
     {
+        printf_P(PSTR("Active: %s\n"), name);
         // TO ABSOLUTELY REMOVE!!!!
         //////////////////////////////////////////////////////////////////////////
         credential_timer_valid = TRUE;
         //////////////////////////////////////////////////////////////////////////
         context_valid_flag = TRUE;
+        temp_login[0] = 0;
+        temp_pass[0] = 0;
         return RETURN_OK;
     } 
     else
     {
+        printf_P(PSTR("Fail: %s\n"), name);
         cli();
         credential_timer = 0;
         context_valid_flag = FALSE;
@@ -84,7 +89,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 *   \param  buffer  Buffer to store the login
 *   \return If login was entered
 */
-RET_TYPE getLoginForContext(uint8_t* buffer)
+RET_TYPE getLoginForContext(char *buffer)
 {
     if (context_valid_flag == FALSE)
     {
@@ -103,8 +108,15 @@ RET_TYPE getLoginForContext(uint8_t* buffer)
             // Fetch the login and send it
             // bla bla bla
             // Send it to the computer via HID
-            memcpy(buffer, temp_login, strlen((char*)temp_login)+1);
-            usbKeybPutStr((char*)buffer);
+            printf_P(PSTR("getLogin\n"));
+            if (temp_login[0] != 0) {
+                strncpy(buffer, temp_login, 64);
+                buffer[63] = 0;
+            } else {
+                strncpy_P(buffer, PSTR("test@gmail.com"), 32);
+                buffer[31] = 0;
+            }
+            //usbKeybPutStr((char*)buffer); 
             return RETURN_OK;
         }
     }
@@ -114,14 +126,23 @@ RET_TYPE getLoginForContext(uint8_t* buffer)
 *   \brief  Get password for current context
 *   \return If password was entered
 */
-RET_TYPE getPasswordForContext(void)
+RET_TYPE getPasswordForContext(char  *buffer)
 {
     uint8_t reg = SREG;
 
     if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE))
     {
         // Fetch password and send it over USB
-        usbKeybPutStr((char*)temp_pass);
+        if (temp_pass[0] != 0) {
+            printf_P(PSTR("getPassword temp\n"));
+            strncpy(buffer, temp_pass, 64);
+            buffer[63] = 0;
+        } else {
+            printf_P(PSTR("getPassword password123\n"));
+            strncpy_P(buffer, PSTR("password123"), 32);
+            buffer[31] = 0;
+        }
+        //usbKeybPutStr((char*)buffer);     // XXX
         // Clear credential timer
         cli();
         credential_timer = 0;

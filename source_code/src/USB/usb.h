@@ -8,6 +8,9 @@
 #include <stdarg.h>
 #include "defines.h"
 
+
+#define DEBUG_USB
+
 /*** DEFINES ***/
 // MOOLTIPASS'
 #define VENDOR_ID           0x16D0              // Vendor ID (from MCS)

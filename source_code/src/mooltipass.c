@@ -21,15 +21,18 @@
  *  \brief  main file
  *  Copyright [2014] [Mathieu Stephan]
  */
-
+#include <avr/eeprom.h>
 #include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
+#include <string.h>
 #include <stdio.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
+#include "eeprom_addresses.h"
 #include "usb_cmd_parser.h"
 #include "had_mooltipass.h"
+#include "userhandling.h"
 #include "mooltipass.h"
 #include "interrupts.h"
 #include "smartcard.h"
@@ -48,8 +51,20 @@
 #ifdef AVR_BOOTLOADER_PROGRAMMING
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
 #endif
+// Screen on timer
+volatile uint16_t screenTimer = SCREEN_TIMER_DEL;
+// Flag to inform if the caps lock timer is armed
+volatile uint8_t wasCapsLockTimerArmed = FALSE;
+// Flag to switch off the lights
 volatile uint8_t lightsTimerOffFlag = FALSE;
+// Flag to switch off the screen
+volatile uint8_t screenTimerOffFlag = FALSE;
+// Caps lock timer
+volatile uint16_t capsLockTimer = 0;
+// Bool to know if lights are on
 uint8_t areLightsOn = FALSE;
+// Bool to know if screen is on
+uint8_t isScreenOn = TRUE;
 
 
 /*! \fn     disable_jtag(void)
@@ -73,17 +88,85 @@ void setLightsOutFlag(void)
     lightsTimerOffFlag = TRUE;
 }
 
+/*!	\fn		screenTimerTick(void)
+*	\brief	Function called every ms by interrupt
+*/
+void screenTimerTick(void)
+{
+    if (screenTimer != 0)
+    {
+        if (screenTimer-- == 1)
+        {
+           screenTimerOffFlag = TRUE;
+        }
+    }
+}
+
+/*!	\fn		capsLockTick(void)
+*	\brief	Function called every ms by interrupt
+*/
+void capsLockTick(void)
+{
+    if (capsLockTimer != 0)
+    {
+        capsLockTimer--;
+    }
+}
+
+/*!	\fn		activateScreenTimer(void)
+*	\brief	Activate screen timer
+*/
+void activateScreenTimer(void)
+{
+    uint8_t reg = SREG;
+    
+    if (screenTimer != SCREEN_TIMER_DEL)
+    {
+        cli();
+        screenTimer = SCREEN_TIMER_DEL;
+        SREG = reg;                     // restore original interrupt state (may already be disabled)
+    }
+}
+
+/*!	\fn		activityDetectedRoutine(void)
+*	\brief	What to do when user activity has been detected
+*/
+void activityDetectedRoutine(void)
+{
+    activateLightTimer();
+    activateScreenTimer();
+    
+    // If the lights were off, turn them on!
+    if (areLightsOn == FALSE)
+    {
+        setPwmDc(MAX_PWM_VAL);
+        activateGuardKey();
+        areLightsOn = TRUE;
+    }
+    
+    // If the screen was off, turn it on!
+    if (isScreenOn == FALSE)
+    {
+        oledOn();
+        isScreenOn = TRUE;
+    }    
+}
+
 /*! \fn     main(void)
 *   \brief  Main function
 */
 int main(void)
 {
+    uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t usb_buffer[RAWHID_TX_SIZE];
+    uint8_t* temp_buffer = usb_buffer;
     RET_TYPE touch_detect_result;
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
+    uint8_t current_user_id;
+    uint8_t reg, i;
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
@@ -107,11 +190,18 @@ int main(void)
     initPortSMC();                      // Initialize smart card port
     initPwm();                          // Initialize PWM controller
     initIRQ();                          // Initialize interrupts    
-    initUsb();                         // Initialize USB controller
+    initUsb();                          // Initialize USB controller
     initI2cPort();                      // Initialize I2C interface
     entropyInit();                      // Initialize avrentropy library
-    while(!isUsbConfigured());           // Wait for host to set configuration
+    while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
+    
+    // First time initializations
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
+    {
+        firstTimeUserHandlingInit();
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
+    }
 
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
@@ -241,67 +331,116 @@ int main(void)
             lightsTimerOffFlag = FALSE;
         }
         
+        // No activity, switch off screen
+        if (screenTimerOffFlag == TRUE)
+        {
+            oledOff();
+            isScreenOn = FALSE;
+            screenTimerOffFlag = FALSE;
+        }
+        
+        // Two quick caps lock presses wake up the device
+        if ((capsLockTimer == 0) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
+        {
+            reg = SREG;
+            cli();
+            wasCapsLockTimerArmed = TRUE;
+            capsLockTimer = CAPS_LOCK_DEL;
+            SREG = reg;
+        }
+        else if ((capsLockTimer != 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        {
+            activityDetectedRoutine();
+        }
+        else if ((capsLockTimer == 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        {
+            wasCapsLockTimerArmed = FALSE;            
+        }
+        
+        // Touch interface
         if (touch_detect_result & TOUCH_PRESS_MASK)
         {
-            activateLightTimer();
-            
-            // If the lights were off, turn them on!
-            if (areLightsOn == FALSE)
-            {
-                setPwmDc(MAX_PWM_VAL);
-                activateGuardKey();
-                areLightsOn = TRUE;
-            }
+            activityDetectedRoutine();
             
             // If left button is pressed
             if (touch_detect_result & RETURN_LEFT_PRESSED)
             {
                 #ifdef TOUCH_DEBUG_OUTPUT_USB
                     usbPutstr_P(PSTR("LEFT touched\r\n"));
-                    usbKeybPutStr("lapin");
                 #endif
+            }
+            
+            // If right button is pressed
+            if (touch_detect_result & RETURN_RIGHT_PRESSED)
+            {
+                #ifdef TOUCH_DEBUG_OUTPUT_USB
+                    usbPutstr_P(PSTR("RIGHT touched\r\n"));
+                #endif
+            }
+            
+            // If wheel is pressed
+            if (touch_detect_result & RETURN_WHEEL_PRESSED)
+            {
             }
         }
         
         if (card_detect_ret == RETURN_JDETECT)                          // Card just detected
         {
             temp_rettype = cardDetectedRoutine();
-            
-            #ifdef DEBUG_SMC_SCREEN_PRINT
-                //oledFlipBuffers(OLED_SCROLL_DOWN,0);
-                oledWriteInactiveBuffer();
-                oledClear();
-            #endif
+            activityDetectedRoutine();
 
             if (temp_rettype == RETURN_MOOLTIPASS_INVALID)              // Invalid card
             {
-                _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_PB)              // Problem with card
             {
-                _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLOCKED)         // Card blocked
             {
-                _delay_ms(3000);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
-            {   
+            {
                 // Here we should ask the user to setup his mooltipass card and then call writeCodeProtectedZone() with 8 bytes
-                _delay_ms(3000);
-                printSMCDebugInfoToScreen();
-                removeFunctionSMC();                                     // Shut down card reader
+                // Generate random bytes and store them in the CPZ
+                for(i = 0; i < 16; i++)
+                {
+                    temp_buffer[i] = entropyRandom8();
+                }
+                //writeCodeProtectedZone(temp_buffer);                    // Write in the code protected zone
+                //writeSmartCardCPZForUserId(temp_buffer, temp_buffer, temp_buffer[0]);// Store SMC CPZ & AES CTR <> user id
+                printSMCDebugInfoToScreen();                            // Print smartcard info
+                removeFunctionSMC();                                    // Shut down card reader
             }
-            else if (temp_rettype == RETURN_MOOLTIPASS_USER)             // Configured mooltipass card
+            else if (temp_rettype == RETURN_MOOLTIPASS_USER)            // Configured mooltipass card
             {
                 // Here we should ask the user for his pin and call mooltipassDetectedRoutine
-                _delay_ms(3000);
+                readCodeProtectedZone(temp_buffer);
+                #ifdef GENERAL_LOGIC_OUTPUT_USB
+                    usbPrintf_P(PSTR("%d cards\r\n"), getNumberOfKnownCards());
+                    usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
+                #endif
+                // See if we know the card and if so fetch the user id & CTR nonce
+                if (getUserIdFromSmartCardCPZ(temp_buffer, temp_ctr_val, &current_user_id) == RETURN_OK)
+                {
+                    #ifdef GENERAL_LOGIC_OUTPUT_USB
+                        usbPrintf_P(PSTR("Card ID found with user %d\r\n"), current_user_id);
+                    #endif
+                }
+                else
+                {
+                    #ifdef GENERAL_LOGIC_OUTPUT_USB
+                        usbPutstr_P(PSTR("Card ID not found\r\n"));
+                    #endif
+                }
+                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                readAES256BitsKey(temp_buffer);
+                initEncryptionHandling(temp_buffer, temp_ctr_val);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                     // Shut down card reader
             }

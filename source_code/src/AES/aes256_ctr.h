@@ -48,4 +48,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen);
 void aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen);
 void aes256CtrClean(aes256CtrCtx_t *ctx);
 
+// DEFINES
+#define AES256_CTR_LENGTH   16
+
 #endif

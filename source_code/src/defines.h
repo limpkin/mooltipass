@@ -37,6 +37,11 @@
 #define FLASH_TEST_DEBUG_OUTPUT_OLED
 // Used for touch interface
 #define TOUCH_DEBUG_OUTPUT_USB
+// User for general logic
+#define GENERAL_LOGIC_OUTPUT_USB
+// Used for USB comms
+#define USB_DEBUG_OUTPUT_OLED
+#define USB_DEBUG_OUTPUT_OLED_MORE
 
 /**************** HARDWARE VERSION ****************/
 // First hardware sent to the contributors, 12/2013
@@ -50,7 +55,7 @@
 
 /**************** SMARTCARD FUSE VERSION ****************/
 // First smart card sent to the first contributors
-#define SMARTCARD_FUSE_V1
+//#define SMARTCARD_FUSE_V1
 
 /**************** HW MACROS ****************/
 #define CPU_PRESCALE(n)         (CLKPR = 0x80, CLKPR = (n))

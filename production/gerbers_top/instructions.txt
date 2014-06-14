@@ -1,0 +1,2 @@
+In this folder are containted the gerbers for the TOP PCB.
+The PCB is 2 layers 1.6mm and has a black soldermask.

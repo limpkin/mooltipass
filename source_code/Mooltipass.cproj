@@ -250,6 +250,9 @@
     <Compile Include="src\defines.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\eeprom_addresses.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\FLASH\flash_mem.c">
       <SubType>compile</SubType>
     </Compile>
@@ -319,9 +322,6 @@
     <Compile Include="src\OLEDMP\font_profont_10_100dpi.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\OLEDMP\font_profont_10_72dpi.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\OLEDMP\oledmp.c">
       <SubType>compile</SubType>
     </Compile>
@@ -386,6 +386,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\USB\usb_descriptors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\userhandling.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\userhandling.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\UTILS\low_level_utils.c">

@@ -22,6 +22,7 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include "mooltipass.h"
 #include "defines.h"
 #include "pwm.h"
@@ -77,5 +78,12 @@ void lightTimerTick(void)
 */
 void activateLightTimer(void)
 {
-    light_timer = LIGHT_TIMER_DEL;
+    uint8_t reg = SREG;
+    
+    if (light_timer != LIGHT_TIMER_DEL)
+    {
+        cli();
+        light_timer = LIGHT_TIMER_DEL;
+        SREG = reg;                     // restore original interrupt state (may already be disabled)        
+    }
 }

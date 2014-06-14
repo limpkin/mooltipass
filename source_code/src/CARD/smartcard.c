@@ -162,22 +162,30 @@ void setBBModeAndPgmRstSMC(void)
     #endif
 }
 
-/*! \fn     blowManufacturerNIssuerFuse(uint8_t bool_man_nissuer)
+/*! \fn     blowFuse(uint8_t fuse_name)
 *   \brief  Blow the manufacturer or issuer fuse
-*   \param  bool_man_nissuer    Boolean to indicate if we blow the manufacturer fuse
+*   \param  fuse_name    Which fuse to blow
 */
-void blowManufacturerNIssuerFuse(uint8_t bool_man_nissuer)
+void blowFuse(uint8_t fuse_name)
 {
     uint16_t i;
 
     /* Set the index to write */
-    if (bool_man_nissuer != FALSE)
+    if (fuse_name == MAN_FUSE)
     {
         i = 1460;
     }
-    else
+    else if (fuse_name == ISSUER_FUSE)
     {
         i = 1560;
+    }
+    else if (fuse_name == EC2EN_FUSE)
+    {
+        i = 1529;
+    }
+    else
+    {
+        i = 0;
     }
 
     /* Switch to bit banging */

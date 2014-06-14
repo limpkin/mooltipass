@@ -21,9 +21,9 @@
  *  \brief  Smart Card high level functions
  *  Copyright [2014] [Mathieu Stephan]
  */
-// TODO: BLOW EC2EN FUSE when setting up the Mooltipass...
 #include "smart_card_higher_level_functions.h"
 #include "smartcard.h"
+#include "defines.h"
 #include "oledmp.h"
 #include "utils.h"
 #include "usb.h"
@@ -232,8 +232,11 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 
     /* Burn manufacturer fuse */
     writeManufacturerFuse();
+    
+    /* Burn EC2EN fuse */
+    write_ec2en_fuse();
 
-    /* Burn issuer fuse*/
+    /* Burn issuer fuse */
     write_issuers_fuse();
 
     return RETURN_OK;
@@ -503,7 +506,7 @@ void writeManufacturerZone(uint8_t* buffer)
 */
 void writeManufacturerFuse(void)
 {
-    blowManufacturerNIssuerFuse(TRUE);
+    blowFuse(MAN_FUSE);
 }
 
 /*! \fn     write_issuers_fuse(void)
@@ -511,7 +514,15 @@ void writeManufacturerFuse(void)
 */
 void write_issuers_fuse(void)
 {
-    blowManufacturerNIssuerFuse(FALSE);
+    blowFuse(ISSUER_FUSE);
+}
+
+/*! \fn     write_ec2en_fuse(void)
+*   \brief  Write ec2en fuse, to be done before blowing issuer fuse
+*/
+void write_ec2en_fuse(void)
+{
+    blowFuse(EC2EN_FUSE);
 }
 
 /*! \fn     setAuthenticatedReadWriteAccessToZone1(void)

@@ -22,6 +22,7 @@
  */
 #include <avr/interrupt.h>
 #include "interrupts.h"
+#include "mooltipass.h"
 #include "smartcard.h"
 #include "pwm.h"
 
@@ -35,8 +36,10 @@ static volatile uint32_t msecTicks = 0;
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
     msecTicks++;
+    capsLockTick();                                                 // Caps timer
     lightTimerTick();                                               // Light timer
-	scanSMCDectect();												// Scan smart card detect
+    screenTimerTick();                                              // Screen timer
+    scanSMCDectect();												// Scan smart card detect
 }
 
 

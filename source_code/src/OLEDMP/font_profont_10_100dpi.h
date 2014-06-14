@@ -2,7 +2,7 @@
  * Font profont_10_100
  */
 
-#define PROFONT_10_100_HEIGHT 17
+#define PROFONT_10_100_HEIGHT 18
 
 const uint8_t profont_10_100_0x21[] __attribute__((__progmem__)) = {   /* '!' width: 9 */
      0xf0,                 /* [**] */

@@ -263,4 +263,12 @@ void afterHadLogoDisplayTests(void)
         }
     }
     #endif
+    
+    //#define TEST_PLUGIN
+    #ifdef TEST_PLUGIN    
+    printf_P(PSTR("Plugin test\n"));
+    oledFlipBuffers(OLED_SCROLL_UP,5);
+    oledClear();    // clear inactive buffer
+    oledWriteActiveBuffer();
+    #endif
 }

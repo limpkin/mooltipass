@@ -1,4 +1,4 @@
- /* CDDL HEADER START
+/* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,22 +17,27 @@
  *
  * CDDL HEADER END
  */
-/*
- * mooltipass.h
- *
- * Created: 04/01/2014 20:32:07
- *  Author: Mathieu Stephan
- */ 
+/*!  \file     eeprom_addresses.h
+*    \brief    Data addresses in EEPROM
+*    Created:  09/6/2014
+*    Author:   Mathieu Stephan
+*/
 
 
-#ifndef MOOLTIPASS_H_
-#define MOOLTIPASS_H_
+#ifndef EEPROM_ADDRESSES_H_
+#define EEPROM_ADDRESSES_H_
 
-#define SCREEN_TIMER_DEL    60000
-#define CAPS_LOCK_DEL       400
+// Eeprom size
+#define EEPROM_SIZE                         1024
 
-void capsLockTick(void);
-void screenTimerTick(void);
-void setLightsOutFlag(void);
+// Boot key
+#define EEP_BOOTKEY_ADDR                    0
+// This is the number of smart cards that we know
+#define EEP_NB_KNOWN_CARDS_ADDR             2
+// This is the number of users that we know
+#define EEP_NB_KNOWN_USERS_ADDR             3
+// This is the EEPROM address where we start to store user_id <> smart card id & AES nonce matches
+#define EEP_SMC_IC_USER_MATCH_START_ADDR    4
 
-#endif /* MOOLTIPASS_H_ */
+
+#endif /* EEPROM_ADDRESSES_H_ */

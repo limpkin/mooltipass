@@ -8,6 +8,13 @@
 #include <stdarg.h>
 #include "defines.h"
 
+/*** MACROS ***/
+#ifdef USB_DEBUG_OUTPUT_OLED
+    #define USBOLEDDPRINTF_P(args...) printf_P(args)
+#else
+    #define USBOLEDDPRINTF_P(args...)
+#endif
+
 /*** DEFINES ***/
 // MOOLTIPASS'
 #define VENDOR_ID           0x16D0              // Vendor ID (from MCS)
@@ -98,5 +105,7 @@ RET_TYPE usbPutstr(const char *str);
 RET_TYPE usbPutstr_P(const char *str);
 uint8_t usbPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 uint8_t usbPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str);
+RET_TYPE pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str);
 
 #endif

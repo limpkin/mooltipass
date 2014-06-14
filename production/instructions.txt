@@ -3,10 +3,12 @@ This is the Mooltipass production folder. The Mooltipass is composed of the foll
 1) Bottom PCB (see gerbers_bottom folder):
 Depending on the case version (thick or slim: Arduino or Non-Arduino compatible) the connectors P1/P2/P3/P4 are populated or not.
 In case of the thick Arduino compatible version, the P3 & P4 connector pins must be less than 1.6mm long due to the smartcard connector placed on the other side of the PCB.
+Specs: 4 layers, 1.6mm, 0.2-1.2-0.2mm stackup
 
 2) Top PCB (see gerbers_top folder):
 This is a PCB containing the capacitive touch wheel, on which should be put the 35mm diameter double sided tape (see 3).
 Its soldermask should be black, and the back of the PCB must be machined (1.2mm deep) following the path shown in the pcb_milling folder.
+Specs: 2 layers, 1.6mm, black soldermask
 
 3) A 35mm diameter double sided tape:
 This small double sided tape must be put on the top PCB touch wheel footprint to guarantee a good contact with the front panel (see 4)
@@ -19,3 +21,21 @@ It is 1mm thick, black at some places and lightly tinted (20-25%) at others.
 This is the main case where the two PCBs and OLED screen will be put.
 
 6) A 3.12" Light Blue Monochrome OLED display
+The current reference is DD-25664BE-3A from Densitron
+
+7) 4x self tapping screws (for Arduino version)
+They maintain the bottom PCB to the case
+
+8) rubber foot to put under the case
+They should be around 6-7mm in diameter and 2mm thick, with double sided tape
+
+
+Assembly and other details:
+- ATMega32U4 programming can be either done before or after assembly
+- Strong glue must be applied at every corner of the case to attach the front panel with the latter
+- The P1/P2/P3/P4 connector pins must be cut so they are less than 1.6mm long (see pictures inside gerbers_bottom folder)
+- 1min functional test must be performed after assembly
+
+Other documentation:
+- http://hackaday.com/2014/06/05/developed-on-hackaday-we-have-final-prototypes/ 
+- http://hackaday.com/2014/04/15/developed-on-hackaday-oliviers-design-rundown/

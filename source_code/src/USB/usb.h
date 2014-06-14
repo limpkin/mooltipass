@@ -8,6 +8,15 @@
 #include <stdarg.h>
 #include "defines.h"
 
+
+#define DEBUG_USB
+#ifdef DEBUG_USB
+#define DPRINTF_P(args...) printf_P(args)
+#else
+#define DPRINTF_P(args...)
+#endif
+
+
 /*** DEFINES ***/
 // MOOLTIPASS'
 #define VENDOR_ID           0x16D0              // Vendor ID (from MCS)

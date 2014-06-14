@@ -42,13 +42,13 @@ void usbProcessIncoming(uint8_t* incomingData)
     // Get data cmd
     uint8_t datacmd = incomingData[HID_TYPE_FIELD];
 
-    DPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
+    USBDPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
     #ifdef DEBUG_USB_MORE
         for (uint8_t ind=0; ind<8 && ind<2+datalen; ind++) 
         {
-            DPRINTF_P(PSTR("0x%02x "), incomingData[ind]);
+            USBDPRINTF_P(PSTR("0x%02x "), incomingData[ind]);
         }
-        DPRINTF_P(PSTR("\n"));
+        USBDPRINTF_P(PSTR("\n"));
     #endif
 
 //    usbPrintf_P(PSTR("Data Received cmd: %i"), datacmd);
@@ -67,14 +67,14 @@ void usbProcessIncoming(uint8_t* incomingData)
         // ping command
         case CMD_PING :
             pluginSendMessage(CMD_PING, 0, (char*)incomingData);
-            DPRINTF_P(PSTR("usb: tx 0x%02x len %d\n"), incomingData[1], incomingData[0]);
+            USBDPRINTF_P(PSTR("usb: tx 0x%02x len %d\n"), incomingData[1], incomingData[0]);
             break;
 
         // version command
         case CMD_VERSION :
             incomingData[0] = 0x01;
             incomingData[1] = 0x01;
-            DPRINTF_P(PSTR("usb: tx 0x%02x len %d\n"), incomingData[1], incomingData[0]);
+            USBDPRINTF_P(PSTR("usb: tx 0x%02x len %d\n"), incomingData[1], incomingData[0]);
             pluginSendMessage(CMD_VERSION, 2, (char*)incomingData);
             break;
             
@@ -83,7 +83,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             if ((datalen > RAWHID_RX_SIZE - HID_DATA_START) || (datalen == 0))
             {
                 // Wrong data length
-                DPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
+                USBDPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
             } 

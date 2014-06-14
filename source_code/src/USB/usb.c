@@ -654,7 +654,7 @@ RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str)
     uint8_t remaining = 0;
     uint8_t i = 0;
 
-    DPRINTF_P(PSTR("usb: tx cmd 0x%02x len %d\n"), cmd, len);
+    USBDPRINTF_P(PSTR("usb: tx cmd 0x%02x len %d\n"), cmd, len);
     
     memset((void*)buffer, 0, RAWHID_TX_SIZE);
     buffer[HID_LEN_FIELD] = len;

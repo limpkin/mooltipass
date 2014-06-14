@@ -391,8 +391,10 @@ function onDeviceFound(devices)
             connection = connectInfo.connectionId;
             var version_cmd = [0x00, CMD_VERSION];
             data = new Uint8Array(version_cmd).buffer;
+			var arraybuf = new ArrayBuffer(packetSize);
+ 			arraybuf[1] = CMD_VERSION;
             console.log('sending '+version_cmd);
-            chrome.hid.send(connection, 0, data, function() 
+            chrome.hid.send(connection, 0, arraybuf, function() 
             {
 				if (!chrome.runtime.lastError) 
 				{

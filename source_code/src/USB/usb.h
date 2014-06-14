@@ -8,14 +8,12 @@
 #include <stdarg.h>
 #include "defines.h"
 
-
-#define DEBUG_USB
+/*** MACROS ***/
 #ifdef DEBUG_USB
-#define DPRINTF_P(args...) printf_P(args)
+    #define USBDPRINTF_P(args...) printf_P(args)
 #else
-#define DPRINTF_P(args...)
+    #define USBDPRINTF_P(args...)
 #endif
-
 
 /*** DEFINES ***/
 // MOOLTIPASS'

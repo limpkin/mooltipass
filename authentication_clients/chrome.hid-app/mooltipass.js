@@ -395,7 +395,6 @@ function onDeviceFound(devices)
             data.set([0, CMD_VERSION], 0);
             console.log('sending '+JSON.stringify(data));
             chrome.hid.send(connection, 0, msg, function() 
-			console.log('buf="'+JSON.stringify(arraybuf)+'"');
             {
 				if (!chrome.runtime.lastError) 
 				{

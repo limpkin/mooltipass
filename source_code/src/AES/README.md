@@ -1,5 +1,5 @@
-Mooltipass AES description (to be updated)
-==========================================
+Mooltipass AES description
+==========================
 
 1- AES LIBRARY
 --------------

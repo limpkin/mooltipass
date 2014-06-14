@@ -113,17 +113,17 @@ function arrayToStr(buf)
 function sendString(type, str)
 {
     var len = 2 + str.length + 1;
-    var cmd = [len, type];
-    header = new Uint8Array(cmd);
-    body = strToArray(str);
-    console.log('body '+JSON.stringify(body));
-    data = new Uint8Array(len);
-    data.set(header, 0);
-    data.set(body, 2);
-    data[data.length - 1] = 0;  // null terminator
-    console.log('cmd '+type+' '+str+' '+JSON.stringify(data));
+    msg = new ArrayBuffer(packetSize);
+    header = new Uint8Array(msg, 0);
+    body = new Uint8Array(msg, 2);
 
-    chrome.hid.send(connection, 0, data.buffer, function() 
+    header.set([len, type], 0);
+    body.set(strToArray(str), 0);
+    body.set[str.length] = 0;  // null terminator
+
+    console.log('body '+JSON.stringify(body));
+
+    chrome.hid.send(connection, 0, msg, function() 
     {
         if (!chrome.runtime.lastError) 
         {
@@ -145,10 +145,11 @@ function sendString(type, str)
  */
 function sendRequest(type)
 {
-    var cmd = [0, type];
-    msg = new Uint8Array(cmd);
+    msg = new ArrayBuffer(packetSize);
+    header = new Uint8Array(msg, 0);
+    header.set([0,type], 0);
 
-    chrome.hid.send(connection, 0, msg.buffer, function() 
+    chrome.hid.send(connection, 0, msg, function() 
     {
         if (!chrome.runtime.lastError) 
         {
@@ -389,14 +390,12 @@ function onDeviceFound(devices)
         if (!chrome.runtime.lastError) 
 		{
             connection = connectInfo.connectionId;
-            var version_cmd = [0x00, CMD_VERSION];
-            data = new Uint8Array(version_cmd).buffer;
-			var arraybuf = new ArrayBuffer(packetSize);
-			arraybuf[0] = 0;
- 			arraybuf[1] = CMD_VERSION;
-            console.log('sending '+version_cmd);
+			msg = new ArrayBuffer(packetSize);
+            data = new Uint8Array(msg);
+            data.set([0, CMD_VERSION], 0);
+            console.log('sending '+JSON.stringify(data));
+            chrome.hid.send(connection, 0, msg, function() 
 			console.log('buf="'+JSON.stringify(arraybuf)+'"');
-            chrome.hid.send(connection, 0, arraybuf, function() 
             {
 				if (!chrome.runtime.lastError) 
 				{

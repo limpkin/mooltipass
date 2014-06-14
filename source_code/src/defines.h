@@ -39,6 +39,8 @@
 #define TOUCH_DEBUG_OUTPUT_USB
 // User for general logic
 #define GENERAL_LOGIC_OUTPUT_USB
+// Used for USB comms
+#define DEBUG_USB
 
 /**************** HARDWARE VERSION ****************/
 // First hardware sent to the contributors, 12/2013

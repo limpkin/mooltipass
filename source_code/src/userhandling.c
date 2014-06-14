@@ -272,7 +272,7 @@ RET_TYPE findUserId(uint8_t userid)
     
     for (i = 0; i < getNumberOfKnownCards(); i++)
     {
-        if (eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH) == userid)
+        if (eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH+AES256_CTR_LENGTH) == userid)
         {
             return RETURN_OK;
         }
@@ -283,11 +283,12 @@ RET_TYPE findUserId(uint8_t userid)
 
 /*! \fn     getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid)
 *   \brief  Get a user ID from card CPZ
-*   \param  buffer  Buffer containing the CPZ
-*   \param  userid  pointed to where to store the user id
+*   \param  buffer      Buffer containing the CPZ
+*   \param  nounce      pointer to where to store the ctr nounce
+*   \param  userid      pointer to where to store the user id
 *   \return If we found the CPZ
 */
-RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid)
+RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nounce, uint8_t* userid)
 {
     uint8_t temp_bool;
     uint8_t i,j;
@@ -304,7 +305,12 @@ RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid)
         }
         if (temp_bool == TRUE)
         {
-            *userid = eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH);
+            // We found the CPZ, store the aes ctr value & the user id
+            for (j = 0; j < AES256_CTR_LENGTH; j++)
+            {
+                nounce[j] = eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH+j);
+            }
+            *userid = eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH+AES256_CTR_LENGTH);
             return RETURN_OK;
         }
     }
@@ -314,34 +320,44 @@ RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid)
 
 /*! \fn     writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t userid)
 *   \brief  Add a CPZ<>User id entry
-*   \param  buffer  Buffer containing the CPZ
-*   \param  userid  user id
+*   \param  buffer      Buffer containing the CPZ
+*   \param  nounce      Buffer containing the AES CTR nounce
+*   \param  userid      user id
 *   \return If we could add the entry
 */
-RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t userid)
+RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nounce, uint8_t userid)
 {
+    uint8_t temp_buffer[AES256_CTR_LENGTH];
     uint8_t i;
-    
-    // Check that we still have space to store
+        
     if (((getNumberOfKnownCards()+1)*SMCID_UID_MATCH_ENTRY_LENGTH) + EEP_SMC_IC_USER_MATCH_START_ADDR >= EEPROM_SIZE)
     {
+        // Check that we still have space to store
         return RETURN_NOK;
     }
-    else if (getUserIdFromSmartCardCPZ(buffer, &i) == RETURN_OK)
+    else if (getUserIdFromSmartCardCPZ(buffer, temp_buffer, &i) == RETURN_OK)
     {
+        // Check if we don't already know the smart card
         return RETURN_NOK;
     }
     else
     {
         if (findUserId(userid) == RETURN_NOK)
         {
+            // Increment the number of users
             eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_USERS_ADDR, getNumberOfKnownUsers()+1);
         }
         for (i = 0; i < SMARTCARD_CPZ_LENGTH; i++)
         {
+            // Store the CPZ
             eeprom_write_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + i, buffer[i]);
         }
-        eeprom_write_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + SMARTCARD_CPZ_LENGTH, userid);
+        for (i = 0; i < AES256_CTR_LENGTH; i++)
+        {
+            // Store the AES CTR value
+            eeprom_write_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + SMARTCARD_CPZ_LENGTH + i, nounce[i]);
+        }
+        eeprom_write_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH, userid);
         eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_CARDS_ADDR, getNumberOfKnownCards()+1);
         return RETURN_OK;
     }

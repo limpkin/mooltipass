@@ -27,14 +27,16 @@
 #ifndef USERHANDLING_H_
 #define USERHANDLING_H_
 
+#include "aes256_ctr.h"
+#include "smartcard.h"
 #include "defines.h"
 
 /** Defines **/
-#define SMCID_UID_MATCH_ENTRY_LENGTH    9
+#define SMCID_UID_MATCH_ENTRY_LENGTH    (1 + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)
 
 /** Prototypes **/
-RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid);
-RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t userid);
+RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nounce, uint8_t* userid);
+RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nounce, uint8_t userid);
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
 RET_TYPE setLoginForContext(uint8_t* name, uint8_t length);
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length);

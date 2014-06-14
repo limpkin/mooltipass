@@ -36,7 +36,7 @@
 #define EEP_NB_KNOWN_CARDS_ADDR             2
 // This is the number of users that we know
 #define EEP_NB_KNOWN_USERS_ADDR             3
-// This is the EEPROM address where we start to store user_id <> smart card id & AES CTR value matches
+// This is the EEPROM address where we start to store user_id <> smart card id & AES nonce matches
 #define EEP_SMC_IC_USER_MATCH_START_ADDR    4
 
 

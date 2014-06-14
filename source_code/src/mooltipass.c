@@ -158,7 +158,7 @@ void activityDetectedRoutine(void)
 */
 int main(void)
 {
-    uint8_t current_nounce[AES256_CTR_LENGTH];
+    uint8_t current_nonce[AES256_CTR_LENGTH];
     //uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t usb_buffer[RAWHID_TX_SIZE];
     uint8_t* temp_buffer = usb_buffer;
@@ -427,8 +427,8 @@ int main(void)
                     usbPrintf_P(PSTR("%d cards\r\n"), getNumberOfKnownCards());
                     usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
                 #endif
-                // See if we know the card and if so fetch the user id & CTR value
-                if (getUserIdFromSmartCardCPZ(temp_buffer, current_nounce, &current_user_id) == RETURN_OK)
+                // See if we know the card and if so fetch the user id & CTR nonce
+                if (getUserIdFromSmartCardCPZ(temp_buffer, current_nonce, &current_user_id) == RETURN_OK)
                 {
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
                         usbPrintf_P(PSTR("Card ID found with user %d\r\n"), current_user_id);
@@ -442,7 +442,7 @@ int main(void)
                 }
                 mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
                 readAES256BitsKey(temp_buffer);
-                aes256CtrInit(&aesctx, temp_buffer, current_nounce, AES256_CTR_LENGTH);
+                aes256CtrInit(&aesctx, temp_buffer, current_nonce, AES256_CTR_LENGTH);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                     // Shut down card reader
             }

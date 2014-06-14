@@ -61,7 +61,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     // Look for name inside our flash
     if (strcmp((char*)name, "accounts.google.com") == 0)    // should limit to the len of name?
     {
-        printf_P(PSTR("Active: %s\n"), name);
+        USBOLEDDPRINTF_P(PSTR("Active: %s\n"), name);
         // TO ABSOLUTELY REMOVE!!!!
         //////////////////////////////////////////////////////////////////////////
         credential_timer_valid = TRUE;
@@ -73,7 +73,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     } 
     else
     {
-        printf_P(PSTR("Fail: %s\n"), name);
+        USBOLEDDPRINTF_P(PSTR("Fail: %s\n"), name);
         cli();
         credential_timer = 0;
         context_valid_flag = FALSE;
@@ -89,7 +89,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 *   \param  buffer  Buffer to store the login
 *   \return If login was entered
 */
-RET_TYPE getLoginForContext(char *buffer)
+RET_TYPE getLoginForContext(char* buffer)
 {
     if (context_valid_flag == FALSE)
     {
@@ -126,7 +126,7 @@ RET_TYPE getLoginForContext(char *buffer)
 *   \brief  Get password for current context
 *   \return If password was entered
 */
-RET_TYPE getPasswordForContext(char  *buffer)
+RET_TYPE getPasswordForContext(char* buffer)
 {
     uint8_t reg = SREG;
 

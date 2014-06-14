@@ -26,9 +26,27 @@
 #include "userhandling.h"
 #include <string.h>
 #include <stdint.h>
-#include "usb.h"
 #include "oledmp.h"
+#include "usb.h"
 
+
+/*! \fn     checkTextField(uint8_t* data, uint8_t len)
+*   \brief  Check that the sent text is correct
+*   \param  data    Pointer to the data
+*   \param  len     Length of the text
+*   \return If the sent text is ok
+*/
+RET_TYPE checkTextField(uint8_t* data, uint8_t len)
+{
+    if ((len > RAWHID_RX_SIZE - HID_DATA_START) || (len == 0) || (len != strlen((char*)data)+1))
+    {
+        return RETURN_NOK;
+    }
+    else
+    {
+        return RETURN_OK;
+    }
+}
 
 /*! \fn     usbProcessIncoming(uint8_t* incomingData)
 *   \brief  Process the incoming USB packet
@@ -42,50 +60,37 @@ void usbProcessIncoming(uint8_t* incomingData)
     // Get data cmd
     uint8_t datacmd = incomingData[HID_TYPE_FIELD];
 
-    USBDPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
-    #ifdef DEBUG_USB_MORE
+    USBOLEDDPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
+    #ifdef USB_DEBUG_OUTPUT_OLED_MORE
         for (uint8_t ind=0; ind<8 && ind<2+datalen; ind++) 
         {
-            USBDPRINTF_P(PSTR("0x%02x "), incomingData[ind]);
+            USBOLEDDPRINTF_P(PSTR("0x%02x "), incomingData[ind]);
         }
-        USBDPRINTF_P(PSTR("\n"));
+        USBOLEDDPRINTF_P(PSTR("\n"));
     #endif
-
-//    usbPrintf_P(PSTR("Data Received cmd: %i"), datacmd);
-    
-//     if (incomingData[0] == 'a')
-//     {
-//         usbPutstr("lapin");
-//         //usbKeybPutStr("lapin");
-//     }
-
-//    usbKeybPutStr("   ");
-//
 
     switch(datacmd)
     {
         // ping command
         case CMD_PING :
             pluginSendMessage(CMD_PING, 0, (char*)incomingData);
-            USBDPRINTF_P(PSTR("usb: tx 0x%02x len %d\n"), incomingData[1], incomingData[0]);
             break;
 
         // version command
         case CMD_VERSION :
             incomingData[0] = 0x01;
             incomingData[1] = 0x01;
-            USBDPRINTF_P(PSTR("usb: tx 0x%02x len %d\n"), incomingData[1], incomingData[0]);
             pluginSendMessage(CMD_VERSION, 2, (char*)incomingData);
             break;
             
         // context command
         case CMD_CONTEXT :
-            if ((datalen > RAWHID_RX_SIZE - HID_DATA_START) || (datalen == 0))
+            if (checkTextField(incomingData+HID_DATA_START, datalen) == RETURN_NOK)
             {
                 // Wrong data length
-                USBDPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
+                USBOLEDDPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
             } 
             else
             {
@@ -120,7 +125,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // get password
         case CMD_GET_PASSWORD :
-            if (getPasswordForContext((char *)incomingData) == RETURN_OK)
+            if (getPasswordForContext((char*)incomingData) == RETURN_OK)
             {
                 pluginSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), (char*)incomingData);
             } 
@@ -133,7 +138,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // set login
         case CMD_SET_LOGIN :
-            if ((datalen > RAWHID_RX_SIZE - HID_DATA_START) || (datalen == 0))
+            if (checkTextField(incomingData+HID_DATA_START, datalen) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
@@ -152,7 +157,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         
         // set password
         case CMD_SET_PASSWORD :
-            if ((datalen > RAWHID_RX_SIZE - HID_DATA_START) || (datalen == 0))
+            if (checkTextField(incomingData+HID_DATA_START, datalen) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;

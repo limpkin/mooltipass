@@ -9,10 +9,10 @@
 #include "defines.h"
 
 /*** MACROS ***/
-#ifdef DEBUG_USB
-    #define USBDPRINTF_P(args...) printf_P(args)
+#ifdef USB_DEBUG_OUTPUT_OLED
+    #define USBOLEDDPRINTF_P(args...) printf_P(args)
 #else
-    #define USBDPRINTF_P(args...)
+    #define USBOLEDDPRINTF_P(args...)
 #endif
 
 /*** DEFINES ***/

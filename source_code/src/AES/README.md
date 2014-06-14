@@ -1,5 +1,5 @@
-Mooltipass AES description (to be updated)
-==========================================
+Mooltipass AES description
+==========================
 
 1- AES LIBRARY
 --------------
@@ -125,19 +125,14 @@ void main(void)
     // Save key and initialization vector inside context
     aes256CtrInit(&ctx, key, iv, 16);
 
-	aes256CtrEncrypt(&ctx, key, text, sizeof(text));
-	// here array pass has been encrypted
+	aes256CtrEncrypt(&ctx, text, sizeof(text));
+	// here array pass has been encrypted inside text
 
     /*
-        Before decrypt is necessary to initialize the context another time
-        due to ctx->ctr value is being modified during encrypt 
-        (it's value is being incremented on each block encrypt operation)
+        Decrypt
     */
-
-    // Save key and initialization vector inside context
-    aes256CtrInit(&ctx, key, iv, 16);
 	
-	aes256CtrDecrypt(&ctx, key, text, sizeof(text));
+	aes256CtrDecrypt(&ctx, text, sizeof(text));
 	// decrypting make text to be "this is my pass to encrypt" again.
 }
 ```
@@ -165,7 +160,7 @@ void main(void)
 - AVR-cryptolib files used in this project:
 
 ```
-aes.c -> AES256 implementation from http://www.literatecode.com/aes256 modified a bit 
+aes.c -> AES256 implementation from http://www.literatecode.com/aes256 (with some things changed) 
 ```
 
 - Custom files done by mooltipass team:

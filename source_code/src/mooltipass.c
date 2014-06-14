@@ -412,8 +412,8 @@ int main(void)
                 {
                     temp_buffer[i] = entropyRandom8();
                 }
-                writeCodeProtectedZone(temp_buffer);                    // Write in the code protected zone
-                writeSmartCardCPZForUserId(temp_buffer, temp_buffer, temp_buffer[0]);// Store SMC CPZ & AES CTR <> user id
+                //writeCodeProtectedZone(temp_buffer);                    // Write in the code protected zone
+                //writeSmartCardCPZForUserId(temp_buffer, temp_buffer, temp_buffer[0]);// Store SMC CPZ & AES CTR <> user id
                 printSMCDebugInfoToScreen();                            // Print smartcard info
                 removeFunctionSMC();                                    // Shut down card reader
             }
@@ -441,7 +441,6 @@ int main(void)
                 mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
                 readAES256BitsKey(temp_buffer);
                 initEncryptionHandling(temp_buffer, temp_ctr_val);
-                memset((void*)temp_buffer, 0, AES_KEY_LENGTH/8);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                     // Shut down card reader
             }

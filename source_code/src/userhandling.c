@@ -383,4 +383,5 @@ void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
     }
     
     aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
+    memset((void*)aes_key, 0, AES_KEY_LENGTH/8);
 }

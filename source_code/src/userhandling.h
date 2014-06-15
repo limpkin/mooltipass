@@ -33,19 +33,22 @@
 
 /** Defines **/
 #define SMCID_UID_MATCH_ENTRY_LENGTH    (1 + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)
+#define CHECK_PASSWORD_TIMER_VAL        4000
 
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);
 RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid);
+RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length);
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
 void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce);
 RET_TYPE setLoginForContext(uint8_t* name, uint8_t length);
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length);
-RET_TYPE getLoginForContext(char *buffer);
 RET_TYPE getPasswordForContext(char  *buffer);
+RET_TYPE getLoginForContext(char *buffer);
 void firstTimeUserHandlingInit(void);
 uint8_t getNumberOfKnownUsers(void);
 uint8_t getNumberOfKnownCards(void);
 RET_TYPE findUserId(uint8_t userid);
+void userHandlingTick(void);
 
 #endif /* USERHANDLING_H_ */

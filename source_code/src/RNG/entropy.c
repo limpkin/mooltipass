@@ -48,9 +48,7 @@ uint32_t entropyRandom(void);
  *  every 2048 clock cycles, (about 16 ms) which is as fast as it can be set.
 */
 void entropyInit(void)
-{
-    uint8_t reg = SREG;
-    
+{    
     gWDT_buffer_position=0;
     gWDT_pool_start = 0;
     gWDT_pool_count = 0;
@@ -61,20 +59,17 @@ void entropyInit(void)
     TCCR0A = 0x00;
     TCCR0B = 0x01;    
 
-    // Temporarily turn off interrupts, until WDT configured
-    cli();
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {    
+        // Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR                     
+        MCUSR = 0;
     
-    // Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR                     
-    MCUSR = 0;
-    
-    // WDT control register, This sets the Watchdog Change Enable (WDCE) flag, 
-    // which is needed to set the Watchdog system reset (WDE) enable and the 
-    // watchdog interrupt enable (WDIE)
-    _WD_CONTROL_REG |= (1<<_WD_CHANGE_BIT) | (1<<WDE);
-    _WD_CONTROL_REG = _BV(WDIE);
-
-    // Restore original interrupt state (may already be disabled)
-    SREG = reg;
+        // WDT control register, This sets the Watchdog Change Enable (WDCE) flag, 
+        // which is needed to set the Watchdog system reset (WDE) enable and the 
+        // watchdog interrupt enable (WDIE)
+        _WD_CONTROL_REG |= (1<<_WD_CHANGE_BIT) | (1<<WDE);
+        _WD_CONTROL_REG = _BV(WDIE);
+    }    
 }
 
 /*! \fn uint32_t EntropyRandom(void)

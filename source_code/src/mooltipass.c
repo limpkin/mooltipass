@@ -21,6 +21,7 @@
  *  \brief  main file
  *  Copyright [2014] [Mathieu Stephan]
  */
+#include <util/atomic.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
 #include <stdlib.h>
@@ -118,13 +119,12 @@ void capsLockTick(void)
 */
 void activateScreenTimer(void)
 {
-    uint8_t reg = SREG;
-    
     if (screenTimer != SCREEN_TIMER_DEL)
     {
-        cli();
-        screenTimer = SCREEN_TIMER_DEL;
-        SREG = reg;                     // restore original interrupt state (may already be disabled)
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            screenTimer = SCREEN_TIMER_DEL;
+        }
     }
 }
 
@@ -166,7 +166,7 @@ int main(void)
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
     uint8_t current_user_id;
-    uint8_t reg, i;
+    uint8_t i;
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
@@ -342,11 +342,11 @@ int main(void)
         // Two quick caps lock presses wake up the device
         if ((capsLockTimer == 0) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
         {
-            reg = SREG;
-            cli();
-            wasCapsLockTimerArmed = TRUE;
-            capsLockTimer = CAPS_LOCK_DEL;
-            SREG = reg;
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            {
+                wasCapsLockTimerArmed = TRUE;
+                capsLockTimer = CAPS_LOCK_DEL;
+            }
         }
         else if ((capsLockTimer != 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
@@ -442,10 +442,10 @@ int main(void)
                 readAES256BitsKey(temp_buffer);
                 initEncryptionHandling(temp_buffer, temp_ctr_val);
                 printSMCDebugInfoToScreen();
-                removeFunctionSMC();                                     // Shut down card reader
+                removeFunctionSMC();                                    // Shut down card reader
             }
         }
-        else if (card_detect_ret == RETURN_JRELEASED)   //card just released
+        else if (card_detect_ret == RETURN_JRELEASED)                   // Card just released
         {
             oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
             removeFunctionSMC();

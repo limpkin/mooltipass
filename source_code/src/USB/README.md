@@ -57,6 +57,12 @@ From plugin/app: set the password for the current context
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x09: check password
+--------------------
+From plugin/app: check the password for the current context
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that password is not correct, 0x01 indicates the password is correct, 0x02 indicates the timer is still running to the request is blocked
+
 
 Functions
 =========

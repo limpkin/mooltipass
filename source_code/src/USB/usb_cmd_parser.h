@@ -2,6 +2,7 @@
 #define _USB_CMD_PARSER_H_
 
 #include <stdint.h>
+#include <usb.h>
 
 /* USB mooltipass hid commands */
 #define CMD_DEBUG           0x01
@@ -18,6 +19,12 @@
 #define HID_LEN_FIELD       0x00
 #define HID_TYPE_FIELD      0x01
 #define HID_DATA_START      0x02
+
+typedef struct {
+    uint8_t len;
+    uint8_t cmd;
+    uint8_t body[RAWHID_RX_SIZE-2];
+} usbMsg_t;
 
 void usbProcessIncoming(uint8_t* incomingData);
 

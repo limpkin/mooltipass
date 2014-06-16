@@ -54,15 +54,17 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len)
 */
 void usbProcessIncoming(uint8_t* incomingData)
 {   
+    usbMsg_t *msg = (usbMsg_t *)incomingData;;
     // Get data len
-    uint8_t datalen = incomingData[HID_LEN_FIELD];
+    uint8_t datalen = msg->len;
 
     // Get data cmd
-    uint8_t datacmd = incomingData[HID_TYPE_FIELD];
+    uint8_t datacmd = msg->cmd;
     
     // Temp ret_type
     RET_TYPE temp_rettype;
 
+#if 0
     USBOLEDDPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
     #ifdef USB_DEBUG_OUTPUT_OLED_MORE
         for (uint8_t ind=0; ind<8 && ind<2+datalen; ind++) 
@@ -71,6 +73,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         }
         USBOLEDDPRINTF_P(PSTR("\n"));
     #endif
+#endif
 
     switch(datacmd)
     {
@@ -88,7 +91,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // context command
         case CMD_CONTEXT :
-            if (checkTextField(incomingData+HID_DATA_START, datalen) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
@@ -97,7 +100,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             } 
             else
             {
-                if (setCurrentContext(incomingData+HID_DATA_START, datalen) == RETURN_OK)
+                if (setCurrentContext(msg->body, datalen) == RETURN_OK)
                 {
                     // Found context
                     incomingData[0] = 0x01;
@@ -141,13 +144,14 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // set login
         case CMD_SET_LOGIN :
-            if (checkTextField(incomingData+HID_DATA_START, datalen) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_SET_LOGIN, 1, (char*)incomingData);
+                break;
             } 
-            if (setLoginForContext(incomingData, datalen) == RETURN_OK)
+            if (setLoginForContext(msg->body, datalen) == RETURN_OK)
             {
                 incomingData[0] = 0x01;                
             } 
@@ -160,18 +164,21 @@ void usbProcessIncoming(uint8_t* incomingData)
         
         // set password
         case CMD_SET_PASSWORD :
-            if (checkTextField(incomingData+HID_DATA_START, datalen) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+                USBOLEDDPRINTF_P(PSTR("set pass: len %d invalid\n"), datalen);
+                break;
             } 
-            if (setPasswordForContext(incomingData, datalen) == RETURN_OK)
+            if (setPasswordForContext(msg->body, datalen) == RETURN_OK)
             {
                 incomingData[0] = 0x01;                
             } 
             else
             {
+                USBOLEDDPRINTF_P(PSTR("set pass: failed\n"));
                 incomingData[0] = 0x00;
             }
             pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
@@ -179,13 +186,14 @@ void usbProcessIncoming(uint8_t* incomingData)
         
         // check password
         case CMD_CHECK_PASSWORD :
-            if (checkTextField(incomingData+HID_DATA_START, datalen) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+                break;
             } 
-            temp_rettype = checkPasswordForContext(incomingData, datalen);
+            temp_rettype = checkPasswordForContext(msg->body, datalen);
             if (temp_rettype == RETURN_PASS_CHECK_NOK)
             {
                 incomingData[0] = 0x00;                

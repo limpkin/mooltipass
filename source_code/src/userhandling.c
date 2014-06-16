@@ -55,6 +55,7 @@ aes256CtrCtx_t aesctx;
 //////////////////////////////////////////////////////////////////////////
 char temp_login[64] = {0,};
 char temp_pass[64] = {0,};
+char context[64] = {0,};
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -96,8 +97,14 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
         credential_timer_valid = TRUE;
         //////////////////////////////////////////////////////////////////////////
         context_valid_flag = TRUE;
-        temp_login[0] = 0;
-        temp_pass[0] = 0;
+        if (strcmp((char*)name, context) != 0)
+        {
+            // new context, reset creds
+            temp_login[0] = 0;
+            temp_pass[0] = 0;
+            strncpy(context, (char *)name, sizeof(context));
+            context[sizeof(context)-1] = 0;
+        }
         return RETURN_OK;
     } 
     else
@@ -162,7 +169,7 @@ RET_TYPE getPasswordForContext(char* buffer)
     {
         // Fetch password and send it over USB
         if (temp_pass[0] != 0) {
-            printf_P(PSTR("getPassword temp\n"));
+            printf_P(PSTR("getPassword \"%s\"\n"), temp_pass);
             strncpy(buffer, temp_pass, 64);
             buffer[63] = 0;
         } else {
@@ -205,10 +212,12 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         // Look for given login in the flash
         if (TRUE)
         {
+            USBOLEDDPRINTF_P(PSTR("set login \"%s\"n"),name);
             // Select it
             // TO REMOVE!!!!
             //////////////////////////////////////////////////////////////////////////
-            memcpy(temp_login, name, length+1);
+            strncpy(temp_login, (char *)name, sizeof(temp_login));
+            temp_login[sizeof(temp_login)-1] = 0;
             //////////////////////////////////////////////////////////////////////////
             selected_login_flag = TRUE;
             return RETURN_OK;
@@ -238,7 +247,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
 */
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 {
-    if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
+    if (/* (selected_login_flag == FALSE) || */ (context_valid_flag == FALSE))
     {
         // Login not set
         return RETURN_NOK;
@@ -248,10 +257,12 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         // Ask for password changing approval
         if (TRUE)
         {
+            USBOLEDDPRINTF_P(PSTR("set password \"%s\"\n"),password);
             // Store password
             // TO REMOVE !!!
             //////////////////////////////////////////////////////////////////////////
-            memcpy(temp_pass, password, length+1);
+            strncpy(temp_pass, (char *)password, sizeof(temp_pass));
+            temp_pass[sizeof(temp_pass)-1] = 0;
             //////////////////////////////////////////////////////////////////////////
             selected_login_flag = FALSE;
             return RETURN_OK;

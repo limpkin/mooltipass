@@ -190,7 +190,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     // Look for name inside our flash
     context_parent_node_addr = searchForServiceName(name, length);
     
-    if ((context_parent_node_addr != NODE_ADDR_NULL) /*&& (smartcard_inserted_unlocked == TRUE)*/)
+    if ((context_parent_node_addr != NODE_ADDR_NULL) && (smartcard_inserted_unlocked == TRUE))
     {
         USBOLEDDPRINTF_P(PSTR("Active: %s\n"), name);
         // TO ABSOLUTELY REMOVE!!!!

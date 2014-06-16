@@ -194,17 +194,6 @@ int main(void)
     entropyInit();                      // Initialize avrentropy library
     while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
-    
-    // First time initializations
-    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xEEAD)
-    {
-        formatFlash();
-        firstTimeUserHandlingInit();
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xEEAD);
-        /////////// TO REMOVE////////////
-        formatUserProfileMemory(15);
-        /////////////////////////////////
-    }
 
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
@@ -227,6 +216,17 @@ int main(void)
     
     // Launch the after flash initialization tests
     afterFlashInitTests();
+    
+    // First time initializations
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xFEAD)
+    {
+        formatFlash();
+        firstTimeUserHandlingInit();
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xFEAD);
+        /////////// TO REMOVE////////////
+        formatUserProfileMemory(15);
+        /////////////////////////////////
+    }
     
     // Check if we can initialize the touch sensing element
     touch_init_result = initTouchSensing();

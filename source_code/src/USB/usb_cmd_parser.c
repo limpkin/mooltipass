@@ -24,6 +24,7 @@
 */
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
+#include "node_mgmt.h"
 #include <string.h>
 #include <stdint.h>
 #include "oledmp.h"
@@ -34,11 +35,12 @@
 *   \brief  Check that the sent text is correct
 *   \param  data    Pointer to the data
 *   \param  len     Length of the text
+*   \param  max_len Max length allowed
 *   \return If the sent text is ok
 */
-RET_TYPE checkTextField(uint8_t* data, uint8_t len)
+RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
 {
-    if ((len > RAWHID_RX_SIZE - HID_DATA_START) || (len == 0) || (len != strlen((char*)data)+1))
+    if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1))
     {
         return RETURN_NOK;
     }
@@ -91,7 +93,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // context command
         case CMD_CONTEXT :
-            if (checkTextField(msg->body, datalen) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
@@ -144,7 +146,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // set login
         case CMD_SET_LOGIN :
-            if (checkTextField(msg->body, datalen) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
@@ -164,7 +166,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         
         // set password
         case CMD_SET_PASSWORD :
-            if (checkTextField(msg->body, datalen) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
@@ -186,7 +188,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         
         // check password
         case CMD_CHECK_PASSWORD :
-            if (checkTextField(msg->body, datalen) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;

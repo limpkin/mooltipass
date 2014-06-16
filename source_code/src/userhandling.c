@@ -324,6 +324,13 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
             // If doesn't exist, ask user for confirmation to add to flash
             if (TRUE)
             {
+                // Copy login into a temp cnode, and create it in the flash
+                memcpy((void*)temp_cnode.login, (void*)name, length);
+                if(createChildNode(&nodeMgmtHandle, context_parent_node_addr, &temp_cnode) == RETURN_NOK)
+                {
+                    return RETURN_NOK;
+                }
+                selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
                 selected_login_flag = TRUE;
                 return RETURN_OK;
             } 
@@ -344,7 +351,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
 */
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 {
-    if (/* (selected_login_flag == FALSE) || */ (context_valid_flag == FALSE))
+    if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
     {
         // Login not set
         return RETURN_NOK;
@@ -354,13 +361,24 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         // Ask for password changing approval
         if (TRUE)
         {
+            // Read parent node
+            if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) == RETURN_NOK)
+            {
+                return RETURN_NOK;
+            }
+            // Read child node
+            if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) == RETURN_NOK)
+            {
+                return RETURN_NOK;
+            }            
+            memcpy((void*)temp_cnode.password, (void*)password, length);
+            // Update child node
+            if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) == RETURN_NOK)
+            {
+                return RETURN_NOK;
+            }
             USBOLEDDPRINTF_P(PSTR("set password \"%s\"\n"),password);
             // Store password
-            // TO REMOVE !!!
-            //////////////////////////////////////////////////////////////////////////
-            strncpy(temp_pass, (char *)password, sizeof(temp_pass));
-            temp_pass[sizeof(temp_pass)-1] = 0;
-            //////////////////////////////////////////////////////////////////////////
             selected_login_flag = FALSE;
             return RETURN_OK;
         } 

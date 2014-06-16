@@ -196,10 +196,14 @@ int main(void)
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
     
     // First time initializations
-    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xEEAD)
     {
+        formatFlash();
         firstTimeUserHandlingInit();
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xEEAD);
+        /////////// TO REMOVE////////////
+        formatUserProfileMemory(15);
+        /////////////////////////////////
     }
 
     // Set up OLED now that USB is receiving full 500mA.
@@ -305,11 +309,16 @@ int main(void)
     // active by scrolling it up.
     // Note: writing is automatically switch to inactive buffer
     oledWriteInactiveBuffer();
-    oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
+    //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
     oledClear();    // clear inactive buffer
     
     // Launch the after HaD logo display tests
     afterHadLogoDisplayTests();
+    
+    /////////////// TO REMOVE ///////////////
+    initUserFlashContext(15);
+    setSmartCardInsertedUnlocked(TRUE);
+    ////////////////////////////////////////    
     
     while (1)
     {
@@ -440,6 +449,7 @@ int main(void)
                     readAES256BitsKey(temp_buffer);
                     initEncryptionHandling(temp_buffer, temp_ctr_val);
                     initUserFlashContext(temp_user_id);
+                    setSmartCardInsertedUnlocked(TRUE);
                 }
                 else
                 {
@@ -453,7 +463,8 @@ int main(void)
         }
         else if (card_detect_ret == RETURN_JRELEASED)                   // Card just released
         {
-            oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
+            //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
+            setSmartCardInsertedUnlocked(FALSE);
             removeFunctionSMC();
         }
     }

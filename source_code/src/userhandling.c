@@ -46,6 +46,8 @@ volatile uint8_t password_check_timer_on = FALSE;
 volatile uint8_t credential_timer_valid = FALSE;
 // Credential timer value
 volatile uint16_t credential_timer_val = 0;
+// Know if the smart card is inserted and unlocked
+uint8_t smartcard_inserted_unlocked = FALSE;
 // Current nonce
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login flag (the plugin selected a login)
@@ -64,13 +66,16 @@ aes256CtrCtx_t aesctx;
 pNode temp_pnode;
 // Child node var
 cNode temp_cnode;
-// TO REMOVE AFTER TESTS
-//////////////////////////////////////////////////////////////////////////
-char temp_login[64] = {0,};
-char temp_pass[64] = {0,};
-char context[64] = {0,};
-//////////////////////////////////////////////////////////////////////////
 
+
+/*! \fn     setSmartCardInsertedUnlocked(uint8_t val)
+*   \brief  let the user handling code know if everything is ok with the smart card
+*   \param  val     The state
+*/
+void setSmartCardInsertedUnlocked(uint8_t val)
+{
+    smartcard_inserted_unlocked = val;
+}
 
 /*! \fn     userHandlingTick(void)
 *   \brief  Function called every ms
@@ -185,7 +190,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     // Look for name inside our flash
     context_parent_node_addr = searchForServiceName(name, length);
     
-    if (context_parent_node_addr != NODE_ADDR_NULL)
+    if ((context_parent_node_addr != NODE_ADDR_NULL) /*&& (smartcard_inserted_unlocked == TRUE)*/)
     {
         USBOLEDDPRINTF_P(PSTR("Active: %s\n"), name);
         // TO ABSOLUTELY REMOVE!!!!
@@ -412,7 +417,17 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
         else
         {
             // Check password in Flash
-            if (strncmp((char*)password, temp_pass, length) == 0)
+            // Read parent node
+            if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) == RETURN_NOK)
+            {
+                return RETURN_PASS_CHECK_NOK;
+            }
+            // Read child node
+            if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) == RETURN_NOK)
+            {
+                return RETURN_PASS_CHECK_NOK;
+            }
+            if (strcmp((char*)temp_cnode.password, (char*)password) == 0)
             {
                 return RETURN_PASS_CHECK_OK;
             }

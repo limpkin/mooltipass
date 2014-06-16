@@ -382,29 +382,36 @@ void printParentNode(pNode *p)
 /*!  \fn       parentNodeTest(mgmtHandle *h, uint8_t *code)
 *    \brief    A function to test all functionality of parent nodes
 *    \param    h  The user allocated node management handle
-*    \param    code  The status return code
+*    \param    code  The status return code (Can be looked up in node_test.h)
 *    \return   Status
 */
 RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
 {
     RET_TYPE ret = RETURN_NOK;
     uint8_t i = 0;
+    // Not useing shared buffer in mgmtHandle.  shared buffer is for node_mgmt lib ONLY
     pNode parent;
     pNode *parentPtr = &parent; 
     
     uint16_t oldHandleNextFreeParenNode;
     uint16_t oldHandleFirstParentNode;
     
-    // format flash
-    usbPrintf_P(PSTR("Erasing Sectors\n"));
-    for(i = SECTOR_START; i < SECTOR_END; i++)
+    // format flash.
+    usbPrintf_P(PSTR("Formatting Flash\n"));
+    ret = formatFlash();
+    if(ret != RETURN_OK)
     {
-        ret = sectorErase(i);
-        if(ret != RETURN_OK)
-        {
-            *code = PARENT_NODE_TEST_ERASE_ALL_SECTORS_ERROR;
-            return ret;
-        }
+        *code = PARENT_NODE_TEST_ERASE_ALL_SECTORS_ERROR;
+        return ret;
+    }
+    
+    // format user profile memory
+    usbPrintf_P(PSTR("Formatting User Profile 0\n"));
+    ret = formatUserProfileMemory(0);
+    if(ret != RETURN_OK)
+    {
+        *code = PARENT_NODE_TEST_INIT_HANDLE_FUNCTION_FAIL;
+        return ret;
     }
     
     // init handle as user 0
@@ -416,25 +423,13 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
         return ret;
     }
     
-    // setup (clear) user profile
+    // setup user profile
     usbPrintf_P(PSTR("Setup User Profile\n"));
-    usbPrintf_P(PSTR("Init Profile\n"));
     ret = setStartingParent(h, NODE_ADDR_NULL);
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_USER_PROFILE_SET_START_NULL_ERROR;
         return ret;
-    }
-    
-    usbPrintf_P(PSTR("-Clearing User Favs\n"));
-    for(i = 0; i < USER_MAX_FAV; i++)
-    {
-        ret = setFav(h, i, NODE_ADDR_NULL, NODE_ADDR_NULL);
-        if(ret != RETURN_OK)
-        {
-            *code = PARENT_NODE_TEST_USER_PROFILE_CLEAR_FAV_ERROR;
-            return ret;
-        }
     }
     
     usbPrintf_P(PSTR("Verify Handle Profile\n"));
@@ -1383,9 +1378,1318 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     
     return ret;
 }
+
+/*!  \fn       childNodeTest(mgmtHandle *h, uint8_t *code)
+*    \brief    A Test to exercise the child node algorithms in the node_mgmt API
+*    \param    h     Node management handle
+*    \param    code  Return status code (value can be easily looked up in the node_test.h file)
+*    \return   Status
+*/
+RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
+{
+    RET_TYPE ret = RETURN_NOK;
+    uint8_t nodeId = 0;
+    uint16_t pageId = 0;
+    pNode parent;
+    pNode *parentPtr = &parent;
+    cNode child ;
+    cNode *childPtr = &child;
     
+    uint16_t oldHandleNextFreeParenNode = 0;
+    uint16_t oldHandleFirstParentNode = 0;
+    uint16_t oldHandleNextFreeChildNode = 0;
+    uint16_t oldParentNextChildNode = 0;
+    
+    // format flash        
+    usbPrintf_P(PSTR("Formatting Flash\n"));
+    ret = formatFlash();
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_FORMAT_FLASH_FAIL;
+        return ret;
+    }
+    
+    // format user profile memory
+    usbPrintf_P(PSTR("Formatting User Profile 0\n"));
+    ret = formatUserProfileMemory(0);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_FORMAT_USER_PROFILE_FAIL;
+        return ret;
+    }
+    
+    // init handle as user 0
+    usbPrintf_P(PSTR("Init Handle\n"));
+    ret = initNodeManagementHandle(h, 0);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_INIT_HANDLE_FUNCTION_FAIL;
+        return ret;
+    }
+    
+    // setup user profile
+    usbPrintf_P(PSTR("Setup User Profile\n"));
+    ret = setStartingParent(h, NODE_ADDR_NULL);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_USER_PROFILE_SET_START_NULL_ERROR;
+        return ret;
+    }
+    
+    usbPrintf_P(PSTR("Verify Handle Profile\n"));
+    // Verify the following:
+    // h->currentUserId = 0;
+    // h->firstParentNode = NODE_ADDR_NULL;
+    // h->nextFreeParentNode = (PAGE_PER_SECTOR, 0);
+    // h->nextFreeChildNode = (PAGE_COUNT-1, cNodeScanStartNode[2 or 6])
+    if(h->currentUserId != 0)
+    {
+        *code = CHILD_NODE_TEST_HANDLE_UID_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->firstParentNode != NODE_ADDR_NULL)
+    {
+        *code = CHILD_NODE_TEST_HANDLE_FIRST_PARENT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = CHILD_NODE_TEST_HANDLE_FREE_PARENT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
+    
+    if(h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        usbPrintf_P(PSTR("handle: %d, %d  Expected %d, %d\n"), pageNumberFromAddress(h->nextFreeChildNode), nodeNumberFromAddress(h->nextFreeChildNode), PAGE_COUNT -1, nodeId);
+        *code = CHILD_NODE_TEST_HANDLE_FREE_CHILD_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /***************************************************** Handle and Profile Setup Complete *****************************************************/
+    
+    /*
+    Test Plan (Format of the 1M Flash Chip)
+    ---STEP 0--- Create Base Parent Node
+      Assuming nextFreeParentNode -> (PAGE_PER_SECTOR, 0) Tested above
+      Create Parent Node ('a': Addr->(PAGE_PER_SECTOR,0))
+      Check Parent Node('a'):
+        service[0] = 'a';
+        nextParentAddress -> NODE_ADDR_NULL
+        prevParentAddress -> NODE_ADDR_NULL
+      Check Handle:
+        firstParentNode -> (PAGE_PER_SECTOR, 0) (expecting change)
+        nextFreeParentNode -> (PAGE_PER_SECTOR, 1) (expecting change)
+    ---STEP 1--- 
+      nodeId = 2
+      Assuming nextFreeChildNode -> (PAGE_COUNT-1, 2)
+      Create Child Node ('c', Addr->(PAGE_COUNT-1, 2))
+      Check Child Node('c'):
+        login[0] = 'c';
+        nextChildAddress -> NODE_ADDR_NULL
+        prevChildAddress -> NODE_ADDR_NULL
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-1, 0)
+      Check Parent:
+        nextChildAddress -> (PAGE_COUNT-1, 2)
+    ---STEP 2---
+      Assuming nextFreeChildNode -> (PAGE_COUNT - 1, 0)
+      Create Child Node ('m' , (PAGE_COUNT - 1, 0))
+      Check Node('m'):
+        login[0] = 'm'
+        nextChildAddress -> NODE_ADDR_NULL
+        prevChildAddress -> (PAGE_COUNT-1, 2)
+      Check Node('c'):
+        login[0]='c'
+        nextChildAddress -> (PAGE_COUNT-1,0)
+        prevChildAddress -> NODE_ADDR_NULL
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-2, 2)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-1, 2)
+    ---STEP 3---
+      Assuming nextFreeChildNode -> (PAGE_COUNT-2, 2)
+      Create Child Node ('k' , (PAGE_COUNT-2, 2))
+      Check Node('k'):
+        login[0] = 'k'
+        nextChildAddress -> (PAGE_COUNT - 1, 0)
+        prevChildAddress -> (PAGE_COUNT-1, 2)
+      Check Node('m'):
+        login[0] = 'm'
+        nextChildAddress -> NODE_ADDR_NULL
+        prevChildAddress -> (PAGE_COUNT-2, 2)
+      Check Node('c'):
+        login[0]='c'
+        nextChildAddress -> (PAGE_COUNT-2, 2)
+        prevChildAddress -> NODE_ADDR_NULL
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-2, 0)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-1, 2)
+    ---STEP 4---
+      Assuming nextFreeChildNode -> (PAGE_COUNT-2, 0)
+      Create Child Node ('a' , (PAGE_COUNT-2, 0))
+      Check Node('a'):
+        login[0] = 'a'
+        nextChildAddress -> (PAGE_COUNT-1, 2)
+        prevChildAddress -> NODE_ADDR_NULL
+      Check Node('k'):
+        login[0] = 'k'
+        nextChildAddress -> (PAGE_COUNT - 1, 0)
+        prevChildAddress -> (PAGE_COUNT-1, 2)
+      Check Node('m'):
+        login[0] = 'm'
+        nextChildAddress -> NODE_ADDR_NULL
+        prevChildAddress -> (PAGE_COUNT-2, 2)
+      Check Node('c'):
+        login[0]='c'
+        nextChildAddress -> (PAGE_COUNT-2, 2)
+        prevChildAddress -> (PAGE_COUNT-2, 0)
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-3, 2)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-2, 0)
+    ---STEP 5---
+      Assuming nextFreeChildNode -> (PAGE_COUNT-2, 0)
+      Delete Child Node ('k' , (PAGE_COUNT-2, 2))
+      Check Node('a'):
+        login[0] = 'a'
+        nextChildAddress -> (PAGE_COUNT-1, 2)
+        prevChildAddress -> NODE_ADDR_NULL
+      Check Node('m'):
+        login[0] = 'm'
+        nextChildAddress -> NODE_ADDR_NULL
+        prevChildAddress -> (PAGE_COUNT-1, 2)
+      Check Node('c'):
+        login[0]='c'
+        nextChildAddress -> (PAGE_COUNT - 1, 0)
+        prevChildAddress -> (PAGE_COUNT-2, 0)
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-2, 2)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-2, 0)
+    ---STEP 6---
+      Assuming nextFreeChildNode -> (PAGE_COUNT-2, 2)
+      Delete Child Node ('m' , (PAGE_COUNT - 1, 0))
+      Check Node('a'):
+        login[0] = 'a'
+        nextChildAddress -> (PAGE_COUNT-1, 2)
+        prevChildAddress -> NODE_ADDR_NULL
+      Check Node('c'):
+        login[0]='c'
+        nextChildAddress ->  NODE_ADDR_NULL
+        prevChildAddress -> (PAGE_COUNT-2, 0)
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-1, 0)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-2, 0)
+    --STEP 7---
+      Assuming nextFreeChildNode -> (PAGE_COUNT-1, 0)
+      Delete Child Node ('a' , (PAGE_COUNT-2, 0))
+      Check Node('c'):
+        login[0]='c'
+        nextChildAddress ->  NODE_ADDR_NULL
+        prevChildAddress ->  NODE_ADDR_NULL
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-1, 0)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-1, 2)
+    --STEP 8---
+      Assuming nextFreeChildNode -> (PAGE_COUNT-1, 0)
+      Delete Child Node ('c' , (PAGE_COUNT-1, 2))
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-1, 2)
+      Check Parent
+        nextChildAddress -> NODE_ADDR_NULL
+    --STEP 9--
+      Assuming nextFreeChildNode -> (PAGE_COUNT-1, 2)
+      Create Node('b', (PAGE_COUNT-1,2))
+      Create Node('a', (PAGE_COUNT-1,0))
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-2,2)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-1,0) // a
+      Update Node('a', (PAGE_COUNT-1,0))
+        via updating description
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-2,2)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-1,0) // a
+      Update Node('a', (PAGE_COUNT-1,0))
+        via updating login[0] = 'c'
+      Check Handle:
+        nextFreeChildNode -> (PAGE_COUNT-2,2)
+      Check Parent
+        nextChildAddress -> (PAGE_COUNT-1,2) // b
+    */
+
+    /**********************************************************FIRST PARENT NODE**********************************************************/
+    usbPrintf_P(PSTR("---Step 0---\n"));
+    // store old handle vars
+    oldHandleNextFreeParenNode = h->nextFreeParentNode;
+    oldHandleFirstParentNode = h->firstParentNode;
+    
+    // setup flags (type-> parent, vb-> valid, uid-> 0, cid-> 0)
+    nodeTypeToFlags(&(parentPtr->flags), NODE_TYPE_PARENT);
+    validBitToFlags(&(parentPtr->flags), NODE_VBIT_VALID);
+    userIdToFlags(&(parentPtr->flags), h->currentUserId);
+    credentialTypeToFlags(&(parentPtr->flags), 0);
+    //set node fields to null addr
+    parentPtr->nextChildAddress = NODE_ADDR_NULL;
+    parentPtr->nextParentAddress = NODE_ADDR_NULL;
+    parentPtr->prevParentAddress = NODE_ADDR_NULL;
+    
+    parentPtr->service[0] = 'a';
+    
+    // create node (store in flash)
+    ret = createParentNode(h, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_0_CREATE_PARENT_NODE_ERROR;
+        return ret;
+    }
+    
+    // check the node
+    if(parentPtr->service[0] != 'a')
+    {
+        *code = CHILD_NODE_TEST_STEP_0_CREATE_PARENT_NODE_VERIFY_SERVICE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->nextParentAddress != NODE_ADDR_NULL)
+    {
+        *code = CHILD_NODE_TEST_STEP_0_CREATE_PARENT_NODE_VERIFY_NEXT_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(parentPtr->prevParentAddress != NODE_ADDR_NULL)
+    {
+        *code = CHILD_NODE_TEST_STEP_0_CREATE_PARENT_NODE_VERIFY_PREV_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // check the handle
+    if(h->firstParentNode == oldHandleFirstParentNode || h->firstParentNode != constructAddress(PAGE_PER_SECTOR, 0))
+    {
+        *code = CHILD_NODE_TEST_STEP_0_CREATE_PARENT_NODE_VERIFY_HANDLE_FIRST_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(h->nextFreeParentNode == oldHandleNextFreeParenNode || h->nextFreeParentNode != constructAddress(PAGE_PER_SECTOR, 1))
+    {
+        *code = CHILD_NODE_TEST_STEP_0_CREATE_PARENT_NODE_VERIFY_HANDLE_NEXT_FREE_NODE_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 1**********************************************************/
+    usbPrintf_P(PSTR("---Step 1---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_1_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    // Setup Child Node Data
+    childPtr->login[0] = 'c';
+    
+    ret = createChildNode(h, h->firstParentNode, childPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_1_CREATE_CHILD_NODE_ERROR;
+        return ret;
+    }
+    
+    // read and verify node
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_1_READ_CHILD_NODE_A_ERROR;
+        return ret;
+    }
+    
+    if(childPtr->nextChildAddress != NODE_ADDR_NULL)
+    {
+        *code = CHILD_NODE_TEST_STEP_1_VERIFY_CHILD_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->prevChildAddress != NODE_ADDR_NULL)
+    {
+        *code = CHILD_NODE_TEST_STEP_1_VERIFY_CHILD_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'c')
+    {
+        *code = CHILD_NODE_TEST_STEP_1_VERIFY_CHILD_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_1_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // TODO Debug why the node in the buffer is not working
+    usbPrintf_P(PSTR("TS Parent Node ADDR: %d,%d Parent Node Set Next Child %d,%d \n "), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode), pageNumberFromAddress(parentPtr->nextChildAddress), nodeNumberFromAddress(parentPtr->nextChildAddress));
+    
+    if(NODE_PARENT_PER_PAGE == 4){ nodeId = 2; } else { nodeId = 6; }
+    if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(PAGE_COUNT - 1, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_1_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ nodeId = 0; } else { nodeId = 4; }
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(PAGE_COUNT - 1, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_1_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 2**********************************************************/
+    usbPrintf_P(PSTR("---Step 2---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_2_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    // Setup Child Node Data
+    childPtr->login[0] = 'm';
+    
+    ret = createChildNode(h, h->firstParentNode, childPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_2_CREATE_CHILD_NODE_ERROR;
+        return ret;
+    }
+    
+    // read and verify node ('m')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_2_READ_CHILD_NODE_M_ERROR;
+        return ret;
+    }
+    
+    if(childPtr->nextChildAddress != NODE_ADDR_NULL)
+    {
+        *code = CHILD_NODE_TEST_STEP_2_VERIFY_CHILD_M_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_2_VERIFY_CHILD_M_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'm')
+    {
+        *code = CHILD_NODE_TEST_STEP_2_VERIFY_CHILD_M_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('c')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_2_READ_CHILD_NODE_C_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_2_VERIFY_CHILD_C_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->prevChildAddress != NODE_ADDR_NULL)
+    {
+        *code = CHILD_NODE_TEST_STEP_2_VERIFY_CHILD_C_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'c')
+    {
+        *code = CHILD_NODE_TEST_STEP_2_VERIFY_CHILD_C_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+        
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_2_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
+    if(parentPtr->nextChildAddress != oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_2_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; }
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_2_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 3**********************************************************/
+    usbPrintf_P(PSTR("---Step 3---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_3_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    // Setup Child Node Data
+    childPtr->login[0] = 'k';
+    
+    ret = createChildNode(h, h->firstParentNode, childPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_3_CREATE_CHILD_NODE_ERROR;
+        return ret;
+    }
+    
+    // read and verify node ('k')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; }
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_3_READ_CHILD_NODE_K_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_K_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_K_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'k')
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_K_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('m')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_3_READ_CHILD_NODE_M_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_M_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_M_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'm')
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_M_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('c')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_3_READ_CHILD_NODE_C_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_C_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_C_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'c')
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_CHILD_C_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_3_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
+    if(parentPtr->nextChildAddress != oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; }
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_3_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 4**********************************************************/
+    usbPrintf_P(PSTR("---Step 4---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_4_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    // Setup Child Node Data
+    childPtr->login[0] = 'a';
+    
+    ret = createChildNode(h, h->firstParentNode, childPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_4_CREATE_CHILD_NODE_ERROR;
+        return ret;
+    }
+    
+    // read and verify node ('a')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_4_READ_CHILD_NODE_A_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_A_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_A_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'a')
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_A_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('k')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_4_READ_CHILD_NODE_K_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_K_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_K_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'k')
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_K_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('m')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_4_READ_CHILD_NODE_M_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_M_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_M_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'm')
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_M_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('c')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_4_READ_CHILD_NODE_C_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_C_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_C_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'c')
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_CHILD_C_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_4_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 3; nodeId = 2; } else { pageId = PAGE_COUNT - 2; nodeId = 6; }
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_4_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 5**********************************************************/
+    usbPrintf_P(PSTR("---Step 5---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_5_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
+    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId), DELETE_POLICY_WRITE_ONES);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_5_DELETE_CHILD_NODE_ERROR;
+        return ret;
+    }
+    
+    // read and verify node ('a')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_5_READ_CHILD_NODE_A_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_A_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_A_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'a')
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_A_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('m')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_5_READ_CHILD_NODE_M_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_M_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_M_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'm')
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_M_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('c')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_5_READ_CHILD_NODE_C_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_C_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_C_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'c')
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_CHILD_C_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_5_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    if(parentPtr->nextChildAddress != oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_5_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 6**********************************************************/
+    usbPrintf_P(PSTR("---Step 6---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_6_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
+    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId), DELETE_POLICY_WRITE_ONES);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_6_DELETE_CHILD_NODE_ERROR;
+        return ret;
+    }
+    
+    // read and verify node ('a')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_6_READ_CHILD_NODE_A_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_6_VERIFY_CHILD_A_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_6_VERIFY_CHILD_A_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'a')
+    {
+        *code = CHILD_NODE_TEST_STEP_6_VERIFY_CHILD_A_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('c')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_6_READ_CHILD_NODE_C_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_6_VERIFY_CHILD_C_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_6_VERIFY_CHILD_C_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'c')
+    {
+        *code = CHILD_NODE_TEST_STEP_6_VERIFY_CHILD_C_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_6_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    if(parentPtr->nextChildAddress != oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_6_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_6_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 7**********************************************************/
+    usbPrintf_P(PSTR("---Step 7---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_7_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
+    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId), DELETE_POLICY_WRITE_ONES);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_7_DELETE_CHILD_NODE_ERROR;
+        return ret;
+    }
+    
+    // read and verify node ('c')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_7_READ_CHILD_NODE_C_ERROR;
+        return ret;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_7_VERIFY_CHILD_C_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(childPtr->prevChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_7_VERIFY_CHILD_C_PREV_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(childPtr->login[0] != 'c')
+    {
+        *code = CHILD_NODE_TEST_STEP_7_VERIFY_CHILD_C_LOGIN_DATA_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_7_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_7_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
+    if(h->nextFreeChildNode != oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_7_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 8**********************************************************/
+    usbPrintf_P(PSTR("---Step 8---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_8_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId), DELETE_POLICY_WRITE_ONES);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_8_DELETE_CHILD_NODE_ERROR;
+        return ret;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_8_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
+    if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_8_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_8_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    /**********************************************************Step 9**********************************************************/
+    usbPrintf_P(PSTR("---Step 9---\n"));
+
+    // read the first / base parent node
+    ret = readParentNode(h, parentPtr, h->firstParentNode);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_READ_PARENT_START_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // store old handle and parent vars
+    oldHandleNextFreeChildNode = h->nextFreeChildNode;
+    oldParentNextChildNode = parentPtr->nextChildAddress;
+    
+    // Setup Child Node Data
+    childPtr->login[0] = 'b';
+    
+    ret = createChildNode(h, h->firstParentNode, childPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_CREATE_CHILD_NODE_B_ERROR;
+        return ret;
+    }
+    
+    // Setup Child Node Data
+    childPtr->login[0] = 'a';
+    
+    ret = createChildNode(h, h->firstParentNode, childPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_CREATE_CHILD_NODE_A_ERROR;
+        return ret;
+    }
+    
+    // no need to test nodes.. all tests above pass to this point
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_READ_PARENT_END_ERROR;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
+    if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_9_VERIFY_PARENT_NEXT_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; }
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_9_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('a')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_READ_CHILD_NODE_A_ERROR;
+        return ret;
+    }
+    
+    // modify (no change)
+    childPtr->description[0] = 'x';
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
+    ret = updateChildNode(h, parentPtr, childPtr, h->firstParentNode, constructAddress(pageId,nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_UPDATE_CHILD_NODE_A_ERROR;
+        return ret;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_READ_PARENT_END_ERROR_2;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
+    if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_9_VERIFY_PARENT_NEXT_CHILD_ERROR_2;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; }
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_9_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR_2;
+        return RETURN_NOK;
+    }
+    
+    // read and verify node ('a')
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
+    ret = readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_READ_CHILD_NODE_A_ERROR_2;
+        return ret;
+    }
+    
+    // modify
+    childPtr->login[0] = 'c';
+    
+    ret = updateChildNode(h, parentPtr, childPtr, h->firstParentNode, constructAddress(pageId,nodeId));
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_UPDATE_CHILD_NODE_A_C_ERROR_2;
+        return ret;
+    }
+    
+    // read and verify parent
+    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
+    if(ret != RETURN_OK)
+    {
+        *code = CHILD_NODE_TEST_STEP_9_READ_PARENT_END_ERROR_3;
+        return RETURN_NOK;
+    }
+    
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // b
+    if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_9_VERIFY_PARENT_NEXT_CHILD_ERROR_3;
+        return RETURN_NOK;
+    }
+    
+    // verify handle
+    if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; }
+    if(h->nextFreeChildNode == oldHandleNextFreeChildNode || h->nextFreeChildNode != constructAddress(pageId, nodeId))
+    {
+        *code = CHILD_NODE_TEST_STEP_9_VERIFY_HANDLE_NEXT_FREE_CHILD_ERROR_3;
+        return RETURN_NOK;
+    }
+    
+    // create Node
+    return RETURN_OK;
+}
+
+/*!  \fn       nodeTest()
+*    \brief    Single entry point to run the node test suite.
+               Uncomment the #define for the corresponding test. (Not enough memory to run all)
+*    \return   Status
+*/
 RET_TYPE nodeTest()
 {
+    //delay_ms(2000);  // Delay to allow the USB HID output to init.  
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
         usbPrintf_P(PSTR("START Node Test Suite %dM Chip\n"), (uint8_t)FLASH_CHIP);
     #endif
@@ -1397,7 +2701,57 @@ RET_TYPE nodeTest()
     parentNodeTestError ret_code = PARENT_NODE_TEST_PARENT_NODE_AOK;
     
     RET_TYPE ret = RETURN_NOK;
-       
+    
+    //#define NODE_TEST_INIT_NODE_MEMORY
+    #ifdef NODE_TEST_INIT_NODE_MEMORY
+    // format flash
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+    printf_P(PSTR("NT - Format Flash"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+    usbPrintf_P(PSTR("NT - Format Flash\n"));
+    #endif
+    
+    ret = formatFlash();
+    //ret = RETURN_OK;
+    // check result
+    if(ret != RETURN_OK)
+    {
+        displayFailedNodeTest();
+        return ret;
+    }
+    else
+    {
+        displayPassedNodeTest();
+    }
+    
+    // format all uid profiles
+    for(uint8_t uid = 0; uid < NODE_MAX_UID; uid++)
+    {
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+        printf_P(PSTR("Formatting User Profile %d"), uid);
+        #endif
+        
+        #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+        usbPrintf_P(PSTR("Formatting User Profile %d\n"), uid);
+        #endif
+        ret = formatUserProfileMemory(uid);
+        if(ret != RETURN_OK) break;
+    }
+    
+    if(ret!= RETURN_OK)
+    {
+         #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+         printf_P(PSTR("Error Formatting UID Profiles"));
+         #endif
+         
+         #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+         usbPrintf_P(PSTR("Error Formatting UID Profiles\n"));
+         #endif
+         return ret;
+    }
+    #endif
     /****************************************** Node Flag Test **********************************************/
     //#define NODE_TEST_FLAGS
     #ifdef NODE_TEST_FLAGS
@@ -1516,6 +2870,11 @@ RET_TYPE nodeTest()
         return ret;
     }
     
+    ret = initNodeManagementHandle(hp, 0);
+    if(hp->firstParentNode == NODE_ADDR_NULL)
+    {
+        usbPrintf_P(PSTR("YAY. Good init\n"));
+    }
     
     // set next free node to next immediate address
     nodeTypeToFlags(&flags, NODE_TYPE_PARENT);
@@ -1584,6 +2943,8 @@ RET_TYPE nodeTest()
     #endif
     
     /****************************************** Parent Node Test **********************************************/
+    //#define NODE_TEST_PARENT_ALL
+    #ifdef NODE_TEST_PARENT_ALL
     displayInitForNodeTest();
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
@@ -1609,13 +2970,44 @@ RET_TYPE nodeTest()
     {
         displayPassedNodeTest();
     }
-
+    #endif
+    
+    /****************************************** Child Node Test **********************************************/
+    #define NODE_TEST_CHILD_ALL
+    #ifdef NODE_TEST_CHILD_ALL
+    displayInitForNodeTest();
+    
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
-        printf_P(PSTR("DONE"));
+    printf_P(PSTR("Child Node Test"));
     #endif
     
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
-        usbPrintf_P(PSTR("DONE\n"));
+    usbPrintf_P(PSTR("Child Node Test\n"));
+    #endif
+    
+    
+    // run test
+    ret = childNodeTest(hp, &ret_code);
+    usbPrintf_P(PSTR("Child Node Test returned: %u\n"),ret_code);
+    
+    // check result
+    if(ret != RETURN_OK)
+    {
+        displayFailedNodeTest();
+        return ret;
+    }
+    else
+    {
+        displayPassedNodeTest();
+    }
+    #endif
+
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
+    printf_P(PSTR("DONE"));
+    #endif
+    
+    #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
+    usbPrintf_P(PSTR("DONE\n"));
     #endif
     
     return ret;

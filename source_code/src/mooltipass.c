@@ -164,8 +164,8 @@ int main(void)
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
-    uint8_t current_user_id;
     RET_TYPE temp_rettype;
+    uint8_t temp_user_id;
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
@@ -405,9 +405,20 @@ int main(void)
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
             {
-                // Here we should ask the user to setup his mooltipass card and then call writeCodeProtectedZone() with 8 bytes
-                // Generate random bytes and store them in the CPZ
-                addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN);       // Create a new user with his new smart card
+                // Here we should ask the user to setup his mooltipass card
+                // Create a new user with his new smart card
+                if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
+                {
+                    #ifdef GENERAL_LOGIC_OUTPUT_USB
+                        usbPutstr_P(PSTR("New user and new card added"));
+                    #endif
+                } 
+                else
+                {
+                    #ifdef GENERAL_LOGIC_OUTPUT_USB
+                        usbPutstr_P(PSTR("Couldn't add new user"));
+                    #endif
+                }
                 printSMCDebugInfoToScreen();                            // Print smartcard info
                 removeFunctionSMC();                                    // Shut down card reader
             }
@@ -420,15 +431,15 @@ int main(void)
                     usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
                 #endif
                 // See if we know the card and if so fetch the user id & CTR nonce
-                if (getUserIdFromSmartCardCPZ(temp_buffer, temp_ctr_val, &current_user_id) == RETURN_OK)
+                if (getUserIdFromSmartCardCPZ(temp_buffer, temp_ctr_val, &temp_user_id) == RETURN_OK)
                 {
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
-                        usbPrintf_P(PSTR("Card ID found with user %d\r\n"), current_user_id);
+                        usbPrintf_P(PSTR("Card ID found with user %d\r\n"), temp_user_id);
                     #endif
                     mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
                     readAES256BitsKey(temp_buffer);
                     initEncryptionHandling(temp_buffer, temp_ctr_val);
-                    initUserFlashContext(current_user_id);
+                    initUserFlashContext(temp_user_id);
                 }
                 else
                 {

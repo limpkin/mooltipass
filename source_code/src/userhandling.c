@@ -50,18 +50,27 @@ volatile uint16_t credential_timer_val = 0;
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login flag (the plugin selected a login)
 uint8_t selected_login_flag = FALSE;
+// Selected login child node address
+uint8_t selected_login_child_node_addr;
 // Context valid flag (eg we know the current service / website)
 uint8_t context_valid_flag = FALSE;
+// Current context parent node address
+uint16_t context_parent_node_addr;
 // Node management handle
 mgmtHandle nodeMgmtHandle;
 // AES256 context variable
 aes256CtrCtx_t aesctx;
+// Parent node var
+pNode temp_pnode;
+// Child node var
+cNode temp_cnode;
 // TO REMOVE AFTER TESTS
 //////////////////////////////////////////////////////////////////////////
 char temp_login[64] = {0,};
 char temp_pass[64] = {0,};
 char context[64] = {0,};
 //////////////////////////////////////////////////////////////////////////
+
 
 /*! \fn     userHandlingTick(void)
 *   \brief  Function called every ms
@@ -84,6 +93,87 @@ void userHandlingTick(void)
     }
 }
 
+/*! \fn     searchForServiceName(uint8_t* name, uint8_t length)
+*   \brief  Find a given service name
+*   \param  name    Name of the service / website
+*   \param  length  Length of the string
+*   \return Address of the found node, NODE_ADDR_NULL otherwise
+*/
+uint16_t searchForServiceName(uint8_t* name, uint8_t length)
+{
+    uint16_t next_node_addr = nodeMgmtHandle.firstParentNode;
+    (void)length;
+    
+    if (next_node_addr == NODE_ADDR_NULL)
+    {
+        return NODE_ADDR_NULL;
+    } 
+    else
+    {        
+        // Start going through the nodes
+        do 
+        {
+            if (readParentNode(&nodeMgmtHandle, &temp_pnode, next_node_addr) == RETURN_NOK)
+            {
+                return NODE_ADDR_NULL;
+            }
+            if (strcmp((char*)temp_pnode.service, (char*)name) == 0)
+            {
+                return next_node_addr;
+            }
+            next_node_addr = temp_pnode.nextParentAddress;
+        } 
+        while (next_node_addr != NODE_ADDR_NULL);
+        
+        // We didn't find the service
+        return NODE_ADDR_NULL;
+    }    
+}
+
+/*! \fn     searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_t length)
+*   \brief  Find a given login for a given parent
+*   \param  parent_addr Parent node address
+*   \param  name        Name of the login
+*   \param  length      Length of the string
+*   \return Address of the found node, NODE_ADDR_NULL otherwise
+*/
+uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_t length)
+{
+    uint16_t next_node_addr;
+    
+    // Read parent node
+    if (readParentNode(&nodeMgmtHandle, &temp_pnode, parent_addr) == RETURN_NOK)
+    {
+        return NODE_ADDR_NULL;
+    }
+    
+    next_node_addr = temp_pnode.nextChildAddress;
+    
+    // Check that there's actually a child node
+    if (next_node_addr == NODE_ADDR_NULL)
+    {
+        return NODE_ADDR_NULL;
+    }
+    
+    // Start going through the nodes
+    do
+    {
+        if (readChildNode(&nodeMgmtHandle, &temp_cnode, next_node_addr) == RETURN_NOK)
+        {
+            return NODE_ADDR_NULL;
+        }
+        if (strcmp((char*)temp_cnode.login, (char*)name) == 0)
+        {
+            return next_node_addr;
+        }
+        next_node_addr = temp_cnode.nextChildAddress;
+    }
+    while (next_node_addr != NODE_ADDR_NULL);
+    
+    // We didn't find the login
+    return NODE_ADDR_NULL;    
+}
+
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
 *   \brief  Set our current context
 *   \param  name    Name of the desired service / website
@@ -93,7 +183,9 @@ void userHandlingTick(void)
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 {
     // Look for name inside our flash
-    if (strcmp((char*)name, "accounts.google.com") == 0)    // should limit to the len of name?
+    context_parent_node_addr = searchForServiceName(name, length);
+    
+    if (context_parent_node_addr != NODE_ADDR_NULL)
     {
         USBOLEDDPRINTF_P(PSTR("Active: %s\n"), name);
         // TO ABSOLUTELY REMOVE!!!!
@@ -101,16 +193,8 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
         credential_timer_valid = TRUE;
         //////////////////////////////////////////////////////////////////////////
         context_valid_flag = TRUE;
-        if (strcmp((char*)name, context) != 0)
-        {
-            // new context, reset creds
-            temp_login[0] = 0;
-            temp_pass[0] = 0;
-            strncpy(context, (char *)name, sizeof(context));
-            context[sizeof(context)-1] = 0;
-        }
         return RETURN_OK;
-    } 
+    }
     else
     {
         USBOLEDDPRINTF_P(PSTR("Fail: %s\n"), name);
@@ -146,17 +230,23 @@ RET_TYPE getLoginForContext(char* buffer)
         } 
         else
         {
-            // Fetch the login and send it
-            // bla bla bla
-            // Send it to the computer via HID
-            printf_P(PSTR("getLogin\n"));
-            if (temp_login[0] != 0) {
-                strncpy(buffer, temp_login, 64);
-                buffer[63] = 0;
-            } else {
-                strncpy_P(buffer, PSTR("test@gmail.com"), 32);
-                buffer[31] = 0;
+            // Read the parent node
+            if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) == RETURN_NOK)
+            {
+                return RETURN_NOK;
             }
+            // Check if there are stored credentials
+            if (temp_pnode.nextChildAddress == NODE_ADDR_NULL)
+            {
+                return RETURN_NOK;
+            }
+            // Read first child node
+            if (readChildNode(&nodeMgmtHandle, &temp_cnode, temp_pnode.nextChildAddress) == RETURN_NOK)
+            {
+                return RETURN_NOK;
+            }
+            USBOLEDDPRINTF_P(PSTR("Get login"));
+            strcpy((char*)buffer, (char*)temp_cnode.login);
             //usbKeybPutStr((char*)buffer); 
             return RETURN_OK;
         }
@@ -172,15 +262,22 @@ RET_TYPE getPasswordForContext(char* buffer)
     if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE))
     {
         // Fetch password and send it over USB
-        if (temp_pass[0] != 0) {
-            printf_P(PSTR("getPassword \"%s\"\n"), temp_pass);
-            strncpy(buffer, temp_pass, 64);
-            buffer[63] = 0;
-        } else {
-            printf_P(PSTR("getPassword password123\n"));
-            strncpy_P(buffer, PSTR("password123"), 32);
-            buffer[31] = 0;
+        // Read the parent node
+        if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) == RETURN_NOK)
+        {
+            return RETURN_NOK;
         }
+        // Check if there are stored credentials
+        if (temp_pnode.nextChildAddress == NODE_ADDR_NULL)
+        {
+            return RETURN_NOK;
+        }
+        if (readChildNode(&nodeMgmtHandle, &temp_cnode, temp_pnode.nextChildAddress) == RETURN_NOK)
+        {
+            return RETURN_NOK;
+        }
+        USBOLEDDPRINTF_P(PSTR("Get password"));
+        strcpy((char*)buffer, (char*)temp_cnode.password);
         //usbKeybPutStr((char*)buffer);     // XXX
         // Clear credential timer
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -214,15 +311,11 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
     else
     {
         // Look for given login in the flash
-        if (TRUE)
+        selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
+                
+        if (selected_login_child_node_addr != NODE_ADDR_NULL)
         {
-            USBOLEDDPRINTF_P(PSTR("set login \"%s\"n"),name);
-            // Select it
-            // TO REMOVE!!!!
-            //////////////////////////////////////////////////////////////////////////
-            strncpy(temp_login, (char *)name, sizeof(temp_login));
-            temp_login[sizeof(temp_login)-1] = 0;
-            //////////////////////////////////////////////////////////////////////////
+            USBOLEDDPRINTF_P(PSTR("set login \"%s\"n"), name);
             selected_login_flag = TRUE;
             return RETURN_OK;
         } 
@@ -491,15 +584,25 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
         temp_nonce[i] = entropyRandom8();
     }
     
-    // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
-    if (writeSmartCardCPZForUserId(temp_cpz, temp_nonce, new_user_id) == RETURN_OK)
-    {
-        return RETURN_OK;
-    } 
-    else
+    // Create user profile in flash
+    if (formatUserProfileMemory(new_user_id) == RETURN_NOK)
     {
         return RETURN_NOK;
     }
+
+    // Initialize node management handle
+    if(initNodeManagementHandle(&nodeMgmtHandle, new_user_id) == RETURN_NOK)
+    {
+        return RETURN_NOK;
+    }
+    
+    // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
+    if (writeSmartCardCPZForUserId(temp_cpz, temp_nonce, new_user_id) == RETURN_NOK)
+    {
+        return RETURN_NOK;
+    }
+    
+    return RETURN_OK;
 }
 
 /*! \fn     initUserFlashContext(uint8_t user_id)

@@ -12,6 +12,7 @@
 #define CMD_GET_PASSWORD    0x06
 #define CMD_SET_LOGIN       0x07
 #define CMD_SET_PASSWORD    0x08
+#define CMD_CHECK_PASSWORD  0x09
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

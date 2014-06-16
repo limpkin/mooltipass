@@ -59,6 +59,9 @@ void usbProcessIncoming(uint8_t* incomingData)
 
     // Get data cmd
     uint8_t datacmd = incomingData[HID_TYPE_FIELD];
+    
+    // Temp ret_type
+    RET_TYPE temp_rettype;
 
     USBOLEDDPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
     #ifdef USB_DEBUG_OUTPUT_OLED_MORE
@@ -172,6 +175,30 @@ void usbProcessIncoming(uint8_t* incomingData)
                 incomingData[0] = 0x00;
             }
             pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+            break;
+        
+        // check password
+        case CMD_CHECK_PASSWORD :
+            if (checkTextField(incomingData+HID_DATA_START, datalen) == RETURN_NOK)
+            {
+                // Wrong data length
+                incomingData[0] = 0x00;
+                pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+            } 
+            temp_rettype = checkPasswordForContext(incomingData, datalen);
+            if (temp_rettype == RETURN_PASS_CHECK_NOK)
+            {
+                incomingData[0] = 0x00;                
+            } 
+            else if(temp_rettype == RETURN_PASS_CHECK_OK)
+            {
+                incomingData[0] = 0x01;
+            }
+            else
+            {
+                incomingData[0] = 0x02;                
+            }
+            pluginSendMessage(CMD_CHECK_PASSWORD, 1, (char*)incomingData);
             break;
 
         default : break;

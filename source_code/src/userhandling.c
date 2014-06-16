@@ -23,6 +23,7 @@
 *    Author:   Mathieu Stephan
 */
 #include <avr/interrupt.h>
+#include <util/atomic.h>
 #include <avr/eeprom.h>
 #include <avr/io.h>
 #include <string.h>
@@ -34,10 +35,14 @@
 #include "usb.h"
 #include "aes.h"
 
+// Password check timer value
+volatile uint16_t password_check_timer_value = 0;
+// Password check timer running flag
+volatile uint8_t password_check_timer_on = FALSE;
 // Credential timer valid flag
 volatile uint8_t credential_timer_valid = FALSE;
 // Credential timer value
-volatile uint16_t credential_timer = 0;
+volatile uint16_t credential_timer_val = 0;
 // Current nonce
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login flag (the plugin selected a login)
@@ -53,6 +58,27 @@ char temp_pass[64] = {0,};
 //////////////////////////////////////////////////////////////////////////
 
 
+/*! \fn     userHandlingTick(void)
+*   \brief  Function called every ms
+*/
+void userHandlingTick(void)
+{
+    if (password_check_timer_value != 0)
+    {
+        if (password_check_timer_value-- == 1)
+        {
+            password_check_timer_on = FALSE;
+        }
+    }
+    if (credential_timer_val != 0)
+    {
+        if (credential_timer_val-- == 1)
+        {
+            credential_timer_valid = FALSE;
+        }
+    }
+}
+
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
 *   \brief  Set our current context
 *   \param  name    Name of the desired service / website
@@ -61,8 +87,6 @@ char temp_pass[64] = {0,};
 */
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 {
-    uint8_t reg = SREG;
-    
     // Look for name inside our flash
     if (strcmp((char*)name, "accounts.google.com") == 0)    // should limit to the len of name?
     {
@@ -79,12 +103,13 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     else
     {
         USBOLEDDPRINTF_P(PSTR("Fail: %s\n"), name);
-        cli();
-        credential_timer = 0;
-        context_valid_flag = FALSE;
-        selected_login_flag = FALSE;
-        credential_timer_valid = FALSE;
-        SREG = reg;                     // restore original interrupt state (may already be disabled)
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            credential_timer_val = 0;
+            context_valid_flag = FALSE;
+            selected_login_flag = FALSE;
+            credential_timer_valid = FALSE;
+        }
         return RETURN_NOK;
     }
 }
@@ -133,8 +158,6 @@ RET_TYPE getLoginForContext(char* buffer)
 */
 RET_TYPE getPasswordForContext(char* buffer)
 {
-    uint8_t reg = SREG;
-
     if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE))
     {
         // Fetch password and send it over USB
@@ -149,13 +172,14 @@ RET_TYPE getPasswordForContext(char* buffer)
         }
         //usbKeybPutStr((char*)buffer);     // XXX
         // Clear credential timer
-        cli();
-        credential_timer = 0;
-        // TO UNCOMMENT
-        //////////////////////////////////////////////////////////////////////////
-        //credential_timer_valid = FALSE;
-        //////////////////////////////////////////////////////////////////////////
-        SREG = reg;                     // restore original interrupt state (may already be disabled)
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            credential_timer_val = 0;
+            // TO UNCOMMENT
+            //////////////////////////////////////////////////////////////////////////
+            //credential_timer_valid = FALSE;
+            //////////////////////////////////////////////////////////////////////////
+        }
         return RETURN_OK; 
     } 
     else
@@ -235,6 +259,46 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         else
         {
             return RETURN_NOK;
+        }
+    }
+}
+
+/*! \fn     checkPasswordForContext(uint8_t* password, uint8_t length)
+*   \brief  Check password for current context
+*   \param  password    String containing the password
+*   \param  length      String length
+*   \return Operation success or not (see pass_check_return_t)
+*/
+RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
+{
+    // If timer is running
+    if (password_check_timer_on == TRUE)
+    {
+        return RETURN_PASS_CHECK_BLOCKED;
+    } 
+    else
+    {
+        // Check if login set and context valid flag
+        if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
+        {
+            return RETURN_PASS_CHECK_NOK;
+        } 
+        else
+        {
+            // Check password in Flash
+            if (strncmp((char*)password, temp_pass, length) == 0)
+            {
+                return RETURN_PASS_CHECK_OK;
+            }
+            else
+            {
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+                {
+                    password_check_timer_on = TRUE;
+                    password_check_timer_value = CHECK_PASSWORD_TIMER_VAL;
+                }
+                return RETURN_PASS_CHECK_NOK;
+            }
         }
     }
 }

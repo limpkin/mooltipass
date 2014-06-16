@@ -22,6 +22,7 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include <avr/io.h>
+#include <util/atomic.h>
 #include <avr/interrupt.h>
 #include "mooltipass.h"
 #include "defines.h"
@@ -78,12 +79,11 @@ void lightTimerTick(void)
 */
 void activateLightTimer(void)
 {
-    uint8_t reg = SREG;
-    
     if (light_timer != LIGHT_TIMER_DEL)
     {
-        cli();
-        light_timer = LIGHT_TIMER_DEL;
-        SREG = reg;                     // restore original interrupt state (may already be disabled)        
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            light_timer = LIGHT_TIMER_DEL;
+        }     
     }
 }

@@ -85,26 +85,6 @@ typedef enum
 } deletePolicy;
 
 /*!
-* Struct containing Node Management Handle
-*
-* Note: Do not directly modify these fields.  Node Mgmt will manage this structure
-*/
-typedef struct __attribute__((packed)) nodeMgmtH
-{
-    uint16_t flags;
-    /*
-    15 dn 0 Free
-    */
-    
-    uint8_t currentUserId;          /*!< The users ID */
-    uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
-    uint16_t nextFreeParentNode;    /*!< The address of the next parent node */
-    uint16_t nextFreeChildNode;     /*!< The address of the next child or data node */
-    
-    // TODO - Cache favorites? 64 additional bytes
-} mgmtHandle;
-
-/*!
 * Struct containing a parent node
 */
 typedef struct __attribute__((packed)) parentNode {
@@ -166,6 +146,28 @@ typedef struct __attribute__((packed)) dataNode {
     uint8_t data[128];              /*!< 128 bytes of Large Data Store */
 } dNode;
 
+/*!
+* Struct containing Node Management Handle
+*
+* Note: Do not directly modify these fields.  Node Mgmt will manage this structure
+*/
+typedef struct __attribute__((packed)) nodeMgmtH
+{
+    uint16_t flags;
+    /*
+    15 dn 0 Free
+    */
+    
+    uint8_t currentUserId;          /*!< The users ID */
+    uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
+    uint16_t nextFreeParentNode;    /*!< The address of the next parent node */
+    uint16_t nextFreeChildNode;     /*!< The address of the next child or data node */
+	pNode parent;                   /*!< A parent node to be used as a buffer for parent nodes in the API */
+	union {
+		cNode child;
+		dNode data;
+	} child;						/*!< A child, child start of data, or child data node to be used as a buffer in the API */
+} mgmtHandle;
 
 /* Helper Functions (flags and address) */
 uint8_t nodeTypeFromFlags(uint16_t flags);
@@ -191,6 +193,7 @@ uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber);
 RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);
 
 /* User Memory Functions */
+RET_TYPE formatUserProfileMemory(uint8_t uid);
 RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
 RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress);
 RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress);

@@ -210,6 +210,28 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             pluginSendMessage(CMD_CHECK_PASSWORD, 1, (char*)incomingData);
             break;
+        
+        // set password
+        case CMD_ADD_CONTEXT :
+            if (checkTextField(msg->body, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
+            {
+                // Wrong data length
+                incomingData[0] = 0x00;
+                pluginSendMessage(CMD_ADD_CONTEXT, 1, (char*)incomingData);
+                USBOLEDDPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
+                break;
+            } 
+            if (addNewContext(msg->body, datalen) == RETURN_OK)
+            {
+                incomingData[0] = 0x01;                
+            } 
+            else
+            {
+                USBOLEDDPRINTF_P(PSTR("add context: failed\n"));
+                incomingData[0] = 0x00;
+            }
+            pluginSendMessage(CMD_ADD_CONTEXT, 1, (char*)incomingData);
+            break;
 
         default : break;
     }

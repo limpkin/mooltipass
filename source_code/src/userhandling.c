@@ -214,6 +214,32 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     }
 }
 
+/*! \fn     addNewContext(uint8_t* name, uint8_t length)
+*   \brief  Add a new context
+*   \param  name    Name of the desired service / website
+*   \param  length  Length of the string
+*   \return If we added the context
+*/
+RET_TYPE addNewContext(uint8_t* name, uint8_t length)
+{
+    // Check if the context doesn't already exist
+    if (searchForServiceName(name, length) != NODE_ADDR_NULL)
+    {
+        return RETURN_NOK;
+    }
+    
+    // Ask for user approval
+    if(TRUE)
+    {
+        memcpy((void*)temp_pnode.service, (void*)name, length);
+        if (createParentNode(&nodeMgmtHandle, &temp_pnode) == RETURN_NOK)
+        {
+            return RETURN_NOK;
+        }
+        return RETURN_OK;
+    }
+}
+
 /*! \fn     getLoginForContext(uint8_t* buffer)
 *   \brief  Get login for current context
 *   \param  buffer  Buffer to store the login

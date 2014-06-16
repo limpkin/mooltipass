@@ -162,11 +162,11 @@ typedef struct __attribute__((packed)) nodeMgmtH
     uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
     uint16_t nextFreeParentNode;    /*!< The address of the next parent node */
     uint16_t nextFreeChildNode;     /*!< The address of the next child or data node */
-	pNode parent;                   /*!< A parent node to be used as a buffer for parent nodes in the API */
-	union {
-		cNode child;
-		dNode data;
-	} child;						/*!< A child, child start of data, or child data node to be used as a buffer in the API */
+    pNode parent;                   /*!< A parent node to be used as a buffer for parent nodes in the API */
+    union {
+        cNode child;
+        dNode data;
+    } child;                        /*!< A child, child start of data, or child data node to be used as a buffer in the API */
 } mgmtHandle;
 
 /* Helper Functions (flags and address) */

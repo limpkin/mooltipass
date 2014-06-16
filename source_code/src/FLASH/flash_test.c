@@ -814,7 +814,7 @@ RET_TYPE flashTest()
     #endif
     
     // run test
-	ret = flashEraseSectorZeroTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
+    ret = flashEraseSectorZeroTest(inputBuffer, outputBuffer, BYTES_PER_PAGE);
     
     // check result
     if(ret != RETURN_OK)

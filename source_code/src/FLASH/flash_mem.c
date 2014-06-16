@@ -257,28 +257,28 @@ RET_TYPE pageErase(uint16_t pageNumber)
 */
 RET_TYPE formatFlash() 
 {
-	RET_TYPE ret = RETURN_OK;
-	
-	ret = sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE); // erase sector 0a
-	if(ret != RETURN_OK)
-	{
-		return ret;
-	}
-	sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE); // erase sector 0b
-	if(ret != RETURN_OK)
-	{
-		return ret;
-	}
-	
-	for(uint8_t i = SECTOR_START; i <= SECTOR_END; i++)
-	{
-		ret = sectorErase(i);
-		if(ret != RETURN_OK)
-		{
-			return ret;
-		}
-	}	
-	return ret;
+    RET_TYPE ret = RETURN_OK;
+    
+    ret = sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE); // erase sector 0a
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE); // erase sector 0b
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    
+    for(uint8_t i = SECTOR_START; i <= SECTOR_END; i++)
+    {
+        ret = sectorErase(i);
+        if(ret != RETURN_OK)
+        {
+            return ret;
+        }
+    }    
+    return ret;
 }
 
 /*!  \fn       writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)

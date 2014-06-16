@@ -57,12 +57,19 @@ var message = null;     // reference to the message div in the app HTML for logg
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
+var context = null;
 
 // map between input field types and mooltipass credential types
-var fieldMap = {
+var getFieldMap = {
     password: CMD_GET_PASSWORD,
     email: CMD_GET_LOGIN,
     username: CMD_GET_LOGIN
+};
+
+var setFieldMap = {
+    password: CMD_SET_PASSWORD,
+    email: CMD_SET_LOGIN,
+    username: CMD_SET_LOGIN
 };
 
 
@@ -190,18 +197,18 @@ function storeField(value)
  */
 function getNextField()
 {
-    if (authReq)
+    if (authReq && authReq.type == 'inputs')
     {
         if (authReq.inputs.length > 0) 
         {
             authReq.pending = authReq.inputs.pop();
             var type = authReq.pending.type;
 
-            if (type in fieldMap)
+            if (type in getFieldMap)
             {
                 console.log('get '+type+' for '+authReq.context+' '+authReq.pending.type);
                 message.innerHTML += 'get '+type+'<br />';
-                sendRequest(fieldMap[type]);
+                sendRequest(getFieldMap[type]);
             }
             else
             {
@@ -213,6 +220,46 @@ function getNextField()
             // no more input fields to fetch from mooltipass, send credentials to the web page
             chrome.runtime.sendMessage(authReq.senderId, {type: 'credentials', fields: authReq.credentials});
             message.innerHTML += 'sent credentials to '+authReq.senderId+'<br />';
+            authReq = null;
+        }
+    }
+    else
+    {
+        message.innerHTML += 'no authReq<br />';
+    }
+}
+
+
+/**
+ * Set the next credential field value from the mooltipass
+ * The pending credential is set to the next one, and
+ * a request is sent to the mooltipass to set its value.
+ */
+function setNextField()
+{
+    if (authReq && authReq.type == 'update')
+    {
+        if (authReq.inputs.length > 0) 
+        {
+            authReq.pending = authReq.inputs.pop();
+            var type = authReq.pending.type;
+
+            if (type in setFieldMap)
+            {
+                console.log('set '+type+' for '+authReq.context+' '+authReq.pending.type+' to '+authReq.pending.value);
+                message.innerHTML += 'set '+type+' = "'+authReq.pending.value+'"<br />';
+                sendString(setFieldMap[type], authReq.pending.value);
+            }
+            else
+            {
+                console.log('setNextField: type "'+authReq.pending.type+'" not supported');
+                authReq.pending = null;
+                getSetField(); // try the next field
+            }
+        } else {
+            // no more input fields to set on mooltipass
+            // XXX todo add an error check / ACK back to the web page?
+            message.innerHTML += 'update finished <br />';
             authReq = null;
         }
     }
@@ -255,23 +302,43 @@ function initWindow()
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
         console.log(sender.tab ?  'from a content script:' + sender.tab.url : 'from the extension');
-        if (request.type == 'inputs') {
-            console.log('URL: '+request.url);
-            console.log('inputs:');
-            for (var i=0; i<request.inputs.length; i++) {
-                console.log('    "'+request.inputs[i].id+'" '+request.inputs[i].type);
-            }
+
+        switch (request.type)
+        {
+            case 'inputs':
+                console.log('URL: '+request.url);
+                console.log('inputs:');
+                for (var ind=0; ind<request.inputs.length; ind++)
+                {
+                    console.log('    "'+request.inputs[ind].id+'" type='+request.inputs[ind].type);
+                }
+                authReq = request;
+                authReq.senderId = sender.id;
+                authReq.credentials = [];
+                if (!context) {
+                    //request.context = getContext(request); URL -> context
+                    context = 'accounts.google.com';
+                }
+                authReq.context = context;
+                break;
+
+            case 'update':
+                authReq = request;
+                authReq.senderId = sender.id;
+                if (!context) {
+                    //request.context = getContext(request); URL -> context
+                    context = 'accounts.google.com';
+                }
+                authReq.context = context;
+                break;
+
+            default:
+                break;
         }
-        
-        authReq = request;
-        authReq.senderId = sender.id;
-        authReq.credentials = [];
-        //request.context = getContext(request); URL -> context
-        authReq.context = 'accounts.google.com';
 
         if (connection) 
         {
-            message.innerHTML = 'Context: "'+authReq.context+'" ';
+            message.innerHTML += 'Context: "'+authReq.context+'" ';
             // get credentials from mooltipass
             sendString(CMD_CONTEXT, authReq.context);
         }
@@ -280,11 +347,12 @@ function initWindow()
             // not currently connected, attempt to connect
             console.log('app: not connected');
             console.log('Connecting to mooltipass...');
-            message.innerHTML = 'Connecting... <br />';
+            message.innerHTML += 'Connecting... <br />';
             chrome.hid.getDevices(device_info, onDeviceFound);
         }
     });
 
+    $("#tabs").tabs();
 };
 
 
@@ -329,20 +397,25 @@ function onDataReceived(data)
             break;
         }
         case CMD_CONTEXT:
-        {
-            if (bytes[2] == 0) 
-            {
-                message.innerHTML += '(existing)<br />';
-            }
-            else
-            {
-                message.innerHTML += '(new)<br />';
-            }
+            message.innerHTML = (bytes[2] == 0) ?
+                message.innerHTML += '(existing)<br />' : message.innerHTML += '(new)<br />';
 
-            // Start getting each input field value
-            getNextField();
+            if (authReq) 
+            {
+                switch (authReq.type)
+                {
+                    case 'inputs':
+                        // Start getting each input field value
+                        getNextField();
+                        break;
+                    case 'update':
+                        setNextField();
+                        break;
+                    default:
+                        break;
+                }
+            }
             break;
-        }
 
         // Input Fields
         case CMD_GET_LOGIN:
@@ -350,16 +423,40 @@ function onDataReceived(data)
         {
             if (len > 1) 
             {
-                message.innerHTML += authReq.pending.type;
-                var value = arrayToStr(new Uint8Array(data.slice(2)));
-                message.innerHTML += ': "'+value+'"<br />';
-                storeField(value);
+                if (authReq && authReq.pending) {
+                    message.innerHTML += authReq.pending.type;
+                    var value = arrayToStr(new Uint8Array(data.slice(2)));
+                    message.innerHTML += ': "'+value+'"<br />';
+                    storeField(value);
+                } else {
+                    // no pending credential request
+                }
             }
             else 
             {
                 message.innerHTML += 'no value found for '+authReq.pending.type+'<br />';
             }
             getNextField();
+            break;
+        }
+
+        // update and set results
+        case CMD_SET_LOGIN:
+        case CMD_SET_PASSWORD:
+        {
+            var type = (authReq && authReq.pending) ? authReq.pending.type : '(unknown type)';
+            if (bytes[2] == 1) 
+            {
+                // success
+                message.innerHTML += 'set '+type+' on mooltipass<br />';
+            }
+            else 
+            {
+                // failed
+                message.innerHTML += 'set failed for '+type+'<br />';
+            }
+            setNextField();
+            
             break;
         }
 
@@ -375,14 +472,17 @@ function onDataReceived(data)
  * Handler invoked when new USB mooltipass devices are found.
  * Connects to the device and sends a version request.
  * @param devices array of device objects
- * @note only device 0 is used, assumes that one mooltipass is present.
+ * @note only the last device is used, assumes that one mooltipass is present.
+ * Stale entries appear to be left in chrome if the mooltipass is removed
+ * and plugged in again, or the firmware is updated.
  */
 function onDeviceFound(devices) 
 {
+    var ind = devices.length - 1;
     console.log('Found ' + devices.length + ' devices.');
-    console.log('Device ' + devices[0].deviceId + ' vendor' + devices[0].vendorId + ' product ' + devices[0].productId);
-    console.log('Device 0 usage 0 usage_page' + devices[0].usages[0].usage_page + ' usage ' + devices[0].usages[0].usage);
-    var devId = devices[0].deviceId;
+    console.log('Device ' + devices[ind].deviceId + ' vendor' + devices[ind].vendorId + ' product ' + devices[ind].productId);
+    console.log('Device usage 0 usage_page' + devices[ind].usages[0].usage_page + ' usage ' + devices[ind].usages[0].usage);
+    var devId = devices[ind].deviceId;
 
     console.log('Connecting to device '+devId);
     chrome.hid.connect(devId, function(connectInfo) 

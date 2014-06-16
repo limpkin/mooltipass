@@ -78,17 +78,24 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
     {
         console.log('back: cont req '+JSON.stringify(request));
         // from content script
-        if (request.type == 'inputs') 
+        switch (request.type) 
         {
-            contentAddr = sender.tab.id;
-            console.log('inputs:');
-            for (var i=0; i<request.inputs.length; i++) 
-            {
-                console.log('    "'+request.inputs[i].id);
-            }
-            sendResponse({type: 'ack'});  // ack
-            console.log('sending to '+mpClient.id);
-            chrome.runtime.sendMessage(mpClient.id, request);
+            case 'inputs':
+                contentAddr = sender.tab.id;
+                console.log('inputs:');
+                for (var i=0; i<request.inputs.length; i++) 
+                {
+                    console.log('    "'+request.inputs[i].id);
+                }
+                sendResponse({type: 'ack'});  // ack
+                console.log('sending to '+mpClient.id);
+                chrome.runtime.sendMessage(mpClient.id, request);
+                break;
+            case 'update':
+                chrome.runtime.sendMessage(mpClient.id, request);
+                break;
+            default:
+                break;
         }
     } else {
         // from app

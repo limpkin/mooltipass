@@ -11,9 +11,11 @@
 	{
             "matches": ["<all_urls>"],
             "js": [
-                    "jquery.js", 
+                    "/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js", 
+		    "/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js",
                     "content.js"
                 ],
+	    "css": ["/jquery-ui-1.10.4.custom/css/trontastic/jquery-ui-1.10.4.custom.min.css"],
 	     "run_at": "document_start"
 	}
     ],

@@ -1,11 +1,35 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <script src="mooltipass.js"></script>
-    </head>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mooltipass Client</title>
+  <link rel="stylesheet" href="/jquery-ui-1.10.4.custom/css/trontastic/jquery-ui-1.10.4.custom.min.css">
+  <script src="/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js"></script>
+  <script src="/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js"></script>
+  <script src="mooltipass.js"></script>
+</head>
+<body>
+ 
+<div id="tabs">
+  <ul>
+    <li><a href="#tabs-1">Main</a></li>
+    <li><a href="#tabs-2">Log</a></li>
+    <li><a href="#tabs-3">Options</a></li>
+  </ul>
+  <div id="tabs-1">
     <body>
         <button id="connect">Connect</button>
-        <button id="receiveResponse">Receive response</button>
-        <div id="message"></div>
+	<button id="receiveResponse">Receive response</button>
+	<div id="message" style="height:370px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>"</div>
     </body>
+  </div>
+  <div id="tabs-2">
+    <p>Placeholder for logging</p>
+  </div>
+  <div id="tabs-3">
+    <p>Placeholder for Configuration Options...</p>
+  </div>
+</div>
+ 
+</body>
 </html>

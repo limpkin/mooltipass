@@ -164,9 +164,8 @@ int main(void)
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
-    RET_TYPE temp_rettype;
     uint8_t current_user_id;
-    uint8_t i;
+    RET_TYPE temp_rettype;
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
@@ -408,12 +407,7 @@ int main(void)
             {
                 // Here we should ask the user to setup his mooltipass card and then call writeCodeProtectedZone() with 8 bytes
                 // Generate random bytes and store them in the CPZ
-                for(i = 0; i < 16; i++)
-                {
-                    temp_buffer[i] = entropyRandom8();
-                }
-                //writeCodeProtectedZone(temp_buffer);                    // Write in the code protected zone
-                //writeSmartCardCPZForUserId(temp_buffer, temp_buffer, temp_buffer[0]);// Store SMC CPZ & AES CTR <> user id
+                addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN);       // Create a new user with his new smart card
                 printSMCDebugInfoToScreen();                            // Print smartcard info
                 removeFunctionSMC();                                    // Shut down card reader
             }
@@ -431,6 +425,10 @@ int main(void)
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
                         usbPrintf_P(PSTR("Card ID found with user %d\r\n"), current_user_id);
                     #endif
+                    mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                    readAES256BitsKey(temp_buffer);
+                    initEncryptionHandling(temp_buffer, temp_ctr_val);
+                    initUserFlashContext(current_user_id);
                 }
                 else
                 {
@@ -438,9 +436,6 @@ int main(void)
                         usbPutstr_P(PSTR("Card ID not found\r\n"));
                     #endif
                 }
-                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
-                readAES256BitsKey(temp_buffer);
-                initEncryptionHandling(temp_buffer, temp_ctr_val);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }

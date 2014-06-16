@@ -53,8 +53,10 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len)
 *   \param  incomingData    Pointer to the packet (can be overwritten!)
 */
 void usbProcessIncoming(uint8_t* incomingData)
-{   
-    usbMsg_t *msg = (usbMsg_t *)incomingData;;
+{
+    // Use message structure
+    usbMsg_t* msg = (usbMsg_t*)incomingData;;
+    
     // Get data len
     uint8_t datalen = msg->len;
 
@@ -64,7 +66,6 @@ void usbProcessIncoming(uint8_t* incomingData)
     // Temp ret_type
     RET_TYPE temp_rettype;
 
-#if 0
     USBOLEDDPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
     #ifdef USB_DEBUG_OUTPUT_OLED_MORE
         for (uint8_t ind=0; ind<8 && ind<2+datalen; ind++) 
@@ -73,7 +74,6 @@ void usbProcessIncoming(uint8_t* incomingData)
         }
         USBOLEDDPRINTF_P(PSTR("\n"));
     #endif
-#endif
 
     switch(datacmd)
     {
@@ -117,7 +117,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // get login
         case CMD_GET_LOGIN :
-            if (getLoginForContext((char *)incomingData) == RETURN_OK)
+            if (getLoginForContext((char*)incomingData) == RETURN_OK)
             {
                 // Use the buffer to store the login...
                 pluginSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData), (char*)incomingData);
@@ -190,7 +190,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;
-                pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+                pluginSendMessage(CMD_CHECK_PASSWORD, 1, (char*)incomingData);
                 break;
             } 
             temp_rettype = checkPasswordForContext(msg->body, datalen);

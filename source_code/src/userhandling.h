@@ -43,6 +43,8 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
 void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce);
 RET_TYPE setLoginForContext(uint8_t* name, uint8_t length);
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length);
+RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code);
+RET_TYPE initUserFlashContext(uint8_t user_id);
 RET_TYPE getPasswordForContext(char  *buffer);
 RET_TYPE getLoginForContext(char *buffer);
 void firstTimeUserHandlingInit(void);

@@ -27,9 +27,12 @@
 #include <avr/eeprom.h>
 #include <avr/io.h>
 #include <string.h>
+#include "smart_card_higher_level_functions.h"
 #include "eeprom_addresses.h"
 #include "userhandling.h"
 #include "smartcard.h"
+#include "node_mgmt.h"
+#include "entropy.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "usb.h"
@@ -49,6 +52,8 @@ uint8_t current_nonce[AES256_CTR_LENGTH];
 uint8_t selected_login_flag = FALSE;
 // Context valid flag (eg we know the current service / website)
 uint8_t context_valid_flag = FALSE;
+// Node management handle
+mgmtHandle nodeMgmtHandle;
 // AES256 context variable
 aes256CtrCtx_t aesctx;
 // TO REMOVE AFTER TESTS
@@ -57,7 +62,6 @@ char temp_login[64] = {0,};
 char temp_pass[64] = {0,};
 char context[64] = {0,};
 //////////////////////////////////////////////////////////////////////////
-
 
 /*! \fn     userHandlingTick(void)
 *   \brief  Function called every ms
@@ -399,7 +403,7 @@ RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* use
 }
 
 /*! \fn     writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t userid)
-*   \brief  Add a CPZ<>User id entry
+*   \brief  Add a CPZ<>User id entry, automatically update number of users / cards
 *   \param  buffer      Buffer containing the CPZ
 *   \param  nonce       Buffer containing the AES CTR nonce
 *   \param  userid      user id
@@ -459,4 +463,58 @@ void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
     
     aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
     memset((void*)aes_key, 0, AES_KEY_LENGTH/8);
+}
+
+/*! \fn     addNewUserAndNewSmartCard(uint16_t pin_code)
+*   \brief  Add a new user with a new smart card
+*   \param  pin_code The new pin code
+*   \return success or not
+*/
+RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
+{
+    uint8_t temp_cpz[SMARTCARD_CPZ_LENGTH];
+    uint8_t temp_nonce[AES256_CTR_LENGTH];
+    uint8_t new_user_id;
+    uint8_t i;
+    
+    // Get new user id
+    new_user_id = getNumberOfKnownUsers();
+    
+    for(i = 0; i < SMARTCARD_CPZ_LENGTH; i++)
+    {
+        temp_cpz[i] = entropyRandom8();
+    }    
+    writeCodeProtectedZone(temp_cpz);                               // Write in the code protected zone
+        
+    for(i = 0; i < AES256_CTR_LENGTH; i++)
+    {
+        temp_nonce[i] = entropyRandom8();
+    }
+    
+    // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
+    if (writeSmartCardCPZForUserId(temp_cpz, temp_nonce, new_user_id) == RETURN_OK)
+    {
+        return RETURN_OK;
+    } 
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
+/*! \fn     initUserFlashContext(uint8_t user_id)
+*   \brief  Initialize our flash context
+*   \param  user_id The user ID
+*   \return success or not
+*/
+RET_TYPE initUserFlashContext(uint8_t user_id)
+{
+    if(initNodeManagementHandle(&nodeMgmtHandle, user_id) == RETURN_NOK)
+    {
+        return RETURN_NOK;
+    }
+    else
+    {
+        return RETURN_OK;
+    }
 }

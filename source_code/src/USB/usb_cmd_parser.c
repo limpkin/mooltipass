@@ -146,7 +146,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // set login
         case CMD_SET_LOGIN :
-            if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen, RAWHID_RX_SIZE - HID_DATA_START) == RETURN_NOK)
             {
                 // Wrong data length
                 incomingData[0] = 0x00;

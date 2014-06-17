@@ -52,12 +52,15 @@ var CMD_GET_LOGIN    = 0x05;
 var CMD_GET_PASSWORD = 0x06;
 var CMD_SET_LOGIN    = 0x07;
 var CMD_SET_PASSWORD = 0x08;
+var CMD_ADD_CONTEXT = 0x0A;
 
 var message = null;     // reference to the message div in the app HTML for logging
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
 var context = null;
+var contextGood = false;
+var createContext = false;
 
 // map between input field types and mooltipass credential types
 var getFieldMap = {
@@ -269,6 +272,25 @@ function setNextField()
     }
 }
 
+function setContext(create)
+{
+    createContext = create;
+    if (connection) 
+    {
+        message.innerHTML += 'Context: "'+authReq.context+'" ';
+        // get credentials from mooltipass
+        contextGood = false;
+        sendString(CMD_CONTEXT, authReq.context);
+    }
+    else 
+    {
+        // not currently connected, attempt to connect
+        console.log('app: not connected');
+        console.log('Connecting to mooltipass...');
+        message.innerHTML += 'Connecting... <br />';
+        chrome.hid.getDevices(device_info, onDeviceFound);
+    }
+}
 
 /**
  * Initialise the app window, setup message handlers.
@@ -307,6 +329,18 @@ function initWindow()
         {
             case 'inputs':
                 console.log('URL: '+request.url);
+
+                // sort the fields so that the login is first
+                request.inputs.sort(function(a, b)
+                {
+                    if (a == 'login')
+                    {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                });
+
                 console.log('inputs:');
                 for (var ind=0; ind<request.inputs.length; ind++)
                 {
@@ -320,6 +354,8 @@ function initWindow()
                     context = 'accounts.google.com';
                 }
                 authReq.context = context;
+
+                setContext(false);
                 break;
 
             case 'update':
@@ -330,26 +366,29 @@ function initWindow()
                     context = 'accounts.google.com';
                 }
                 authReq.context = context;
+
+                // sort the fields so that the login is first
+                authReq.inputs.sort(function(a, b)
+                {
+                    if (a == 'login')
+                    {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                });
+
+                if (!contextGood || (context != authReq.context)) {
+                    setContext(true);
+                } else {
+                    setNextField();
+                }
                 break;
 
             default:
                 break;
         }
 
-        if (connection) 
-        {
-            message.innerHTML += 'Context: "'+authReq.context+'" ';
-            // get credentials from mooltipass
-            sendString(CMD_CONTEXT, authReq.context);
-        }
-        else 
-        {
-            // not currently connected, attempt to connect
-            console.log('app: not connected');
-            console.log('Connecting to mooltipass...');
-            message.innerHTML += 'Connecting... <br />';
-            chrome.hid.getDevices(device_info, onDeviceFound);
-        }
     });
 
     $("#tabs").tabs();
@@ -396,12 +435,45 @@ function onDataReceived(data)
             }
             break;
         }
+        case CMD_ADD_CONTEXT:
+            contextGood = (bytes[2] == 1);
+            if (!contextGood)
+            {
+                message.innerHTML += 'failed to create context '+authReq.context+'<br />';
+            } else {
+                message.innerHTML += 'created context '+authReq.context+'<br />';
+            }
+            if (contextGood && authReq) 
+            {
+                switch (authReq.type)
+                {
+                    case 'inputs':
+                        // Start getting each input field value
+                        getNextField();
+                        break;
+                    case 'update':
+                        setNextField();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+            break;
+
         case CMD_CONTEXT:
-            message.innerHTML = (bytes[2] == 0) ?
-                message.innerHTML += '(existing)<br />' : message.innerHTML += '(new)<br />';
+            contextGood = (bytes[2] == 1);
+            contextGood ? message.innerHTML += '(existing)<br />' : message.innerHTML += '(new)<br />';
 
             if (authReq) 
             {
+                if (!contextGood && createContext) {
+                    createContext = false;
+                    message.innerHTML += 'add new context "'+authReq.context+'"<br />';
+                    sendString(CMD_ADD_CONTEXT, authReq.context);
+                    break;
+                }
+
                 switch (authReq.type)
                 {
                     case 'inputs':

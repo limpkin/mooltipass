@@ -77,6 +77,10 @@ var credFieldsArray = null;
 // see if the field differs from the mooltipass value
 function fieldChanged(field)
 {
+    if (!mpCreds)
+    {
+        return true;
+    }
     for (var ind=0; ind<mpCreds.fields.length; ind++)
     {
         if (mpCreds.fields[ind].id == input.id) {

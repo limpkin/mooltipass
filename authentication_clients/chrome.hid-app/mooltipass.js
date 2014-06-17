@@ -61,6 +61,8 @@ var authReq = null;     // current authentication request
 var context = null;
 var contextGood = false;
 var createContext = false;
+var loginSet = false;
+var loginValue = null;
 
 // map between input field types and mooltipass credential types
 var getFieldMap = {
@@ -209,6 +211,17 @@ function getNextField()
 
             if (type in getFieldMap)
             {
+                if (type == 'password' && !loginSet && loginValue) 
+                {
+                    // need to set the login first
+                    sendString(CMD_SET_LOGIN, loginValue);
+                    return;
+                }
+                if (type == 'login')
+                {
+                    loginSet = false;
+                    loginValue = null;
+                }
                 console.log('get '+type+' for '+authReq.context+' '+authReq.pending.type);
                 message.innerHTML += 'get '+type+'<br />';
                 sendRequest(getFieldMap[type]);
@@ -491,6 +504,9 @@ function onDataReceived(data)
 
         // Input Fields
         case CMD_GET_LOGIN:
+            if ((len > 1) && (loginValue == null)) {
+                loginValue = arrayToStr(new Uint8Array(data.slice(2)));
+            }
         case CMD_GET_PASSWORD:
         {
             if (len > 1) 
@@ -514,6 +530,17 @@ function onDataReceived(data)
 
         // update and set results
         case CMD_SET_LOGIN:
+            if (authReq && authReq.type == 'inputs' && authReq.pending) {
+                if (bytes[2] == 1)
+                {
+                    loginSet = true;
+                    console.log('get '+authReq.pending.type+' for '+authReq.context);
+                    message.innerHTML += 'get '+authReq.pending.type+'<br />';
+                    sendRequest(getFieldMap[authReq.pending.type]);
+                    break;
+                }
+                // fallthrough
+            }
         case CMD_SET_PASSWORD:
         {
             var type = (authReq && authReq.pending) ? authReq.pending.type : '(unknown type)';

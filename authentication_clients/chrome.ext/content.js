@@ -74,6 +74,40 @@ var mpCreds = null;
 var credFields = null;
 var credFieldsArray = null;
 
+// see if the field differs from the mooltipass value
+function fieldChanged(field)
+{
+    for (var ind=0; ind<mpCreds.fields.length; ind++)
+    {
+        if (mpCreds.fields[ind].id == input.id) {
+            if (input.value != mpCreds.fields[ind].value) {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    // field not found, so it is changed
+    return true;
+}
+
+function credentialsChanged(creds)
+{
+    var changed = false;
+    for (var ind=0; ind<creds.length; ind++) 
+    {
+        input = document.getElementById(creds[ind].id);
+        creds[ind].value = input.value;
+        if (fieldChanged(input)) 
+        {
+            changed = true;
+        }
+    }
+    return changed;
+}
+
 function checkSubmittedCredentials()
 {
     if (!credFields) 
@@ -82,43 +116,34 @@ function checkSubmittedCredentials()
         return;
     }
 
-    if (mpCreds) {
+    var updateNeeded = false;
+    if (credFields) {
         // we have some, see if the values differ from what the mooltipass has
-        creds = {};
-        var updates = [];
-        for (var ind=0; ind<mpCreds.fields.length; ind++) 
+        if (credentialsChanged(credFields))
         {
-            input = document.getElementById(mpCreds.fields[ind].id);
-            console.log('check: input '+input.value+' and '+mpCreds.fields[ind].value);
-            if (input.value != mpCreds.fields[ind].value) {
-                console.log('input '+input.id+' value '+input.value+' changed from '+mpCreds.fields[ind].value);
-                updates.push({id: input.id, name: input.name, value: input.value, type: input.type});
-            } else {
-                console.log('input '+input.id+' value '+input.value+' unchanged');
-            }
-        }
-
-        if (updates.length > 0) {
             // Offer to update the mooltpass with the new value(s)
             if (!document.getElementById('mpDialog')) {
                 var layerNode= document.createElement('div');
                 layerNode.setAttribute('id', 'mpDialog');
                 layerNode.setAttribute('title','Mooltipass');
-                var pNode= document.createElement('p');
-                pNode.innerHTML = 'Mooltipass dialog placeholder';
+                var pNode= document.createElement('pop1');
+                pNode.innerHTML = '';
                 layerNode.appendChild(pNode);
                 document.body.appendChild(layerNode);
             }
+            console.log('content: update dialog');
             $( "#mpDialog" ).dialog({
                 resizable: false,
                 height:140,
                 modal: true,
                 buttons: {
                     "Update Mooltipass credentials": function() {
-                        chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: updates});
+                        console.log('popup: update');
+                        chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
                         $( this ).dialog( "close" );
                     },
                     Skip: function() {
+                        console.log('popup: skip');
                         $( this ).dialog( "close" );
                     }
                 }

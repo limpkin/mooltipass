@@ -50,10 +50,10 @@ volatile uint16_t credential_timer_val = 0;
 uint8_t smartcard_inserted_unlocked = FALSE;
 // Current nonce
 uint8_t current_nonce[AES256_CTR_LENGTH];
+// Selected login child node address
+uint16_t selected_login_child_node_addr;
 // Selected login flag (the plugin selected a login)
 uint8_t selected_login_flag = FALSE;
-// Selected login child node address
-uint8_t selected_login_child_node_addr;
 // Context valid flag (eg we know the current service / website)
 uint8_t context_valid_flag = FALSE;
 // Current context parent node address
@@ -190,6 +190,16 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     // Look for name inside our flash
     context_parent_node_addr = searchForServiceName(name, length);
     
+    // Clear all flags
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        credential_timer_val = 0;
+        context_valid_flag = FALSE;
+        selected_login_flag = FALSE;
+        credential_timer_valid = FALSE;
+    }
+    
+    // Do we know this context ?
     if ((context_parent_node_addr != NODE_ADDR_NULL) && (smartcard_inserted_unlocked == TRUE))
     {
         USBOLEDDPRINTF_P(PSTR("Active: %s\n"), name);
@@ -203,13 +213,6 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     else
     {
         USBOLEDDPRINTF_P(PSTR("Fail: %s\n"), name);
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            credential_timer_val = 0;
-            context_valid_flag = FALSE;
-            selected_login_flag = FALSE;
-            credential_timer_valid = FALSE;
-        }
         return RETURN_NOK;
     }
 }
@@ -231,12 +234,17 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     // Ask for user approval
     if(TRUE)
     {
+        userIdToFlags(&temp_pnode.flags, nodeMgmtHandle.currentUserId);
         memcpy((void*)temp_pnode.service, (void*)name, length);
         if (createParentNode(&nodeMgmtHandle, &temp_pnode) == RETURN_NOK)
         {
             return RETURN_NOK;
         }
         return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
     }
 }
 
@@ -257,6 +265,12 @@ RET_TYPE getLoginForContext(char* buffer)
         if (credential_timer_valid == FALSE)
         {
             // Ask the user for approval
+            //////// TO UNCOMMENT /////////////
+//             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+//             {
+//                 credential_timer_val = CREDENTIAL_TIMER_VALIDITY;
+//                 credential_timer_valid = TRUE;
+//             }
             return RETURN_NOK;
         } 
         else
@@ -278,6 +292,9 @@ RET_TYPE getLoginForContext(char* buffer)
             }
             USBOLEDDPRINTF_P(PSTR("Get login"));
             strcpy((char*)buffer, (char*)temp_cnode.login);
+            // Set selected login and launch timer
+            selected_login_child_node_addr = temp_pnode.nextChildAddress;
+            selected_login_flag = TRUE;
             //usbKeybPutStr((char*)buffer); 
             return RETURN_OK;
         }
@@ -290,20 +307,10 @@ RET_TYPE getLoginForContext(char* buffer)
 */
 RET_TYPE getPasswordForContext(char* buffer)
 {
-    if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE))
+    if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE) && (selected_login_flag == TRUE))
     {
-        // Fetch password and send it over USB
-        // Read the parent node
-        if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) == RETURN_NOK)
-        {
-            return RETURN_NOK;
-        }
-        // Check if there are stored credentials
-        if (temp_pnode.nextChildAddress == NODE_ADDR_NULL)
-        {
-            return RETURN_NOK;
-        }
-        if (readChildNode(&nodeMgmtHandle, &temp_cnode, temp_pnode.nextChildAddress) == RETURN_NOK)
+        // Fetch password from selected login and send it over USB
+        if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) == RETURN_NOK)
         {
             return RETURN_NOK;
         }
@@ -341,6 +348,16 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
     } 
     else
     {
+        // Clear current flags
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            credential_timer_val = 0;
+            selected_login_flag = FALSE;
+            ///////////// TO UNCOMMENT /////////
+            //credential_timer_valid = FALSE;
+            ////////////////////////////////////
+        }
+        
         // Look for given login in the flash
         selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
                 
@@ -367,7 +384,6 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
             } 
             else
             {
-                selected_login_flag = FALSE;
                 return RETURN_NOK;
             }
         }
@@ -403,14 +419,12 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
                 return RETURN_NOK;
             }            
             memcpy((void*)temp_cnode.password, (void*)password, length);
-            // Update child node
+            // Update child node to store password
             if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) == RETURN_NOK)
             {
                 return RETURN_NOK;
             }
             USBOLEDDPRINTF_P(PSTR("set password \"%s\"\n"),password);
-            // Store password
-            selected_login_flag = FALSE;
             return RETURN_OK;
         } 
         else
@@ -443,11 +457,6 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
         else
         {
             // Check password in Flash
-            // Read parent node
-            if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) == RETURN_NOK)
-            {
-                return RETURN_PASS_CHECK_NOK;
-            }
             // Read child node
             if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) == RETURN_NOK)
             {

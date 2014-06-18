@@ -218,11 +218,11 @@ int main(void)
     afterFlashInitTests();
     
     // First time initializations
-    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0x1EAD)
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0x3333)
     {
         formatFlash();
         firstTimeUserHandlingInit();
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0x1EAD);
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0x3333);
         /////////// TO REMOVE////////////
         formatUserProfileMemory(15);
         /////////////////////////////////
@@ -317,7 +317,7 @@ int main(void)
     
     /////////////// TO REMOVE ///////////////
     initUserFlashContext(15);
-    setSmartCardInsertedUnlocked(TRUE);
+    setSmartCardInsertedUnlocked(TRUE);    
     ////////////////////////////////////////    
     
     while (1)

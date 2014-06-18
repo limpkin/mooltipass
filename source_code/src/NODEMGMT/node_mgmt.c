@@ -1538,7 +1538,7 @@ RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint
         if(memcmp(&(c->login), &(ic->login), NODE_CHILD_SIZE_OF_LOGIN) == 0)
         {
             // service is identical just rewrite the node
-            ret = writeDataToFlash(pageNumberFromAddress(cAddr), NODE_SIZE_CHILD * nodeNumberFromAddress(cAddr), NODE_SIZE_CHILD, &(*c));
+            ret = writeDataToFlash(pageNumberFromAddress(cAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(cAddr), NODE_SIZE_CHILD, &(*c));
             if(ret != RETURN_OK)
             {
                 return ret;

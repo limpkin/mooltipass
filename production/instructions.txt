@@ -27,7 +27,7 @@ The current reference is DD-25664BE-3A from Densitron
 They maintain the bottom PCB to the case
 
 8) rubber foot to put under the case
-They should be around 6-7mm in diameter and 2mm thick, with double sided tape
+They should be around 5.5mm in diameter and 2mm thick, with double sided tape on one side
 
 
 Assembly and other details:

@@ -118,7 +118,7 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t length)
         // Start going through the nodes
         do 
         {
-            if (readParentNode(&nodeMgmtHandle, &temp_pnode, next_node_addr) == RETURN_NOK)
+            if (readParentNode(&nodeMgmtHandle, &temp_pnode, next_node_addr) != RETURN_OK)
             {
                 return NODE_ADDR_NULL;
             }
@@ -147,7 +147,7 @@ uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_
     uint16_t next_node_addr;
     
     // Read parent node
-    if (readParentNode(&nodeMgmtHandle, &temp_pnode, parent_addr) == RETURN_NOK)
+    if (readParentNode(&nodeMgmtHandle, &temp_pnode, parent_addr) != RETURN_OK)
     {
         return NODE_ADDR_NULL;
     }
@@ -163,7 +163,7 @@ uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_
     // Start going through the nodes
     do
     {
-        if (readChildNode(&nodeMgmtHandle, &temp_cnode, next_node_addr) == RETURN_NOK)
+        if (readChildNode(&nodeMgmtHandle, &temp_cnode, next_node_addr) != RETURN_OK)
         {
             return NODE_ADDR_NULL;
         }
@@ -236,7 +236,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     {
         userIdToFlags(&temp_pnode.flags, nodeMgmtHandle.currentUserId);
         memcpy((void*)temp_pnode.service, (void*)name, length);
-        if (createParentNode(&nodeMgmtHandle, &temp_pnode) == RETURN_NOK)
+        if (createParentNode(&nodeMgmtHandle, &temp_pnode) != RETURN_OK)
         {
             return RETURN_NOK;
         }
@@ -276,7 +276,7 @@ RET_TYPE getLoginForContext(char* buffer)
         else
         {
             // Read the parent node
-            if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) == RETURN_NOK)
+            if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) != RETURN_OK)
             {
                 return RETURN_NOK;
             }
@@ -286,11 +286,11 @@ RET_TYPE getLoginForContext(char* buffer)
                 return RETURN_NOK;
             }
             // Read first child node
-            if (readChildNode(&nodeMgmtHandle, &temp_cnode, temp_pnode.nextChildAddress) == RETURN_NOK)
+            if (readChildNode(&nodeMgmtHandle, &temp_cnode, temp_pnode.nextChildAddress) != RETURN_OK)
             {
                 return RETURN_NOK;
             }
-            USBOLEDDPRINTF_P(PSTR("Get login"));
+            USBOLEDDPRINTF_P(PSTR("Get login "));
             strcpy((char*)buffer, (char*)temp_cnode.login);
             // Set selected login and launch timer
             selected_login_child_node_addr = temp_pnode.nextChildAddress;
@@ -310,11 +310,11 @@ RET_TYPE getPasswordForContext(char* buffer)
     if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE) && (selected_login_flag == TRUE))
     {
         // Fetch password from selected login and send it over USB
-        if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) == RETURN_NOK)
+        if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) != RETURN_OK)
         {
             return RETURN_NOK;
         }
-        USBOLEDDPRINTF_P(PSTR("Get password"));
+        USBOLEDDPRINTF_P(PSTR("Get password "));
         strcpy((char*)buffer, (char*)temp_cnode.password);
         //usbKeybPutStr((char*)buffer);     // XXX
         // Clear credential timer
@@ -374,7 +374,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
             {
                 // Copy login into a temp cnode, and create it in the flash
                 memcpy((void*)temp_cnode.login, (void*)name, length);
-                if(createChildNode(&nodeMgmtHandle, context_parent_node_addr, &temp_cnode) == RETURN_NOK)
+                if(createChildNode(&nodeMgmtHandle, context_parent_node_addr, &temp_cnode) != RETURN_OK)
                 {
                     return RETURN_NOK;
                 }
@@ -409,18 +409,18 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         if (TRUE)
         {
             // Read parent node
-            if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) == RETURN_NOK)
+            if (readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr) != RETURN_OK)
             {
                 return RETURN_NOK;
             }
             // Read child node
-            if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) == RETURN_NOK)
+            if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) != RETURN_OK)
             {
                 return RETURN_NOK;
             }            
             memcpy((void*)temp_cnode.password, (void*)password, length);
             // Update child node to store password
-            if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) == RETURN_NOK)
+            if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
             {
                 return RETURN_NOK;
             }
@@ -458,7 +458,7 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
         {
             // Check password in Flash
             // Read child node
-            if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) == RETURN_NOK)
+            if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) != RETURN_OK)
             {
                 return RETURN_PASS_CHECK_NOK;
             }
@@ -587,7 +587,7 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
     }
     else
     {
-        if (findUserId(userid) == RETURN_NOK)
+        if (findUserId(userid) != RETURN_OK)
         {
             // Increment the number of users
             eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_USERS_ADDR, getNumberOfKnownUsers()+1);
@@ -654,19 +654,19 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     }
     
     // Create user profile in flash
-    if (formatUserProfileMemory(new_user_id) == RETURN_NOK)
+    if (formatUserProfileMemory(new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }
 
     // Initialize node management handle
-    if(initNodeManagementHandle(&nodeMgmtHandle, new_user_id) == RETURN_NOK)
+    if(initNodeManagementHandle(&nodeMgmtHandle, new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }
     
     // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
-    if (writeSmartCardCPZForUserId(temp_cpz, temp_nonce, new_user_id) == RETURN_NOK)
+    if (writeSmartCardCPZForUserId(temp_cpz, temp_nonce, new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }
@@ -681,7 +681,7 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
 */
 RET_TYPE initUserFlashContext(uint8_t user_id)
 {
-    if(initNodeManagementHandle(&nodeMgmtHandle, user_id) == RETURN_NOK)
+    if(initNodeManagementHandle(&nodeMgmtHandle, user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }

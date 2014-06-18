@@ -312,6 +312,7 @@ function initWindow()
 {
     var connectButton = document.getElementById("connect");
     var receiveButton = document.getElementById("receiveResponse");
+    var clearButton = document.getElementById("clear");
     message = document.getElementById("message");
 
     connectButton.addEventListener('click', function() 
@@ -319,6 +320,13 @@ function initWindow()
         console.log('Getting device...');
         chrome.hid.getDevices(device_info, onDeviceFound);
     });
+
+    clearButton.addEventListener('click', function() 
+    {
+        console.log('Clearing log');
+        message.innerHTML = '';
+    });
+
 
 
     receiveButton.addEventListener('click', function() 
@@ -455,23 +463,8 @@ function onDataReceived(data)
                 message.innerHTML += 'failed to create context '+authReq.context+'<br />';
             } else {
                 message.innerHTML += 'created context '+authReq.context+'<br />';
+                sendString(CMD_CONTEXT, authReq.context);
             }
-            if (contextGood && authReq) 
-            {
-                switch (authReq.type)
-                {
-                    case 'inputs':
-                        // Start getting each input field value
-                        getNextField();
-                        break;
-                    case 'update':
-                        setNextField();
-                        break;
-                    default:
-                        break;
-                }
-            }
-            break;
             break;
 
         case CMD_CONTEXT:

@@ -130,7 +130,7 @@ function checkSubmittedCredentials()
                 var layerNode= document.createElement('div');
                 layerNode.setAttribute('id', 'mpDialog');
                 layerNode.setAttribute('title','Mooltipass');
-                var pNode= document.createElement('pop1');
+                var pNode= document.createElement('p');
                 pNode.innerHTML = '';
                 layerNode.appendChild(pNode);
                 document.body.appendChild(layerNode);
@@ -141,19 +141,20 @@ function checkSubmittedCredentials()
                 height:140,
                 modal: true,
                 buttons: {
-                    "Update Mooltipass credentials": function() {
-                        console.log('popup: update');
+                    "Update Mooltipass credentials": function() 
+                    {
                         chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
                         $( this ).dialog( "close" );
                     },
-                    Skip: function() {
-                        console.log('popup: skip');
+                    Skip: function() 
+                    {
                         $( this ).dialog( "close" );
                     }
                 }
             });
+            console.log('content: after update dialog');
+            $("#mpdialog").remove();
         }
-
     } else {
         // we don't have any, see if the user wants to add some
     }

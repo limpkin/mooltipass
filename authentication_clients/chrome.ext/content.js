@@ -138,18 +138,25 @@ function checkSubmittedCredentials()
             }
             console.log('content: update dialog');
             $( "#mpDialog" ).dialog({
-                resizable: false,
-                height:140,
-                modal: true,
+                autoOpen: true,
+                show: {
+                    effect: 'drop',
+                    direction: 'up',
+                    duration: 500 
+                },
+                hide: {
+                    effect: 'puff',
+                    duration: 500
+                },
                 buttons: {
                     "Update Mooltipass credentials": function() 
                     {
                         chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
-                        $( this ).dialog( "close" );
+                        $(this).dialog('close');
                     },
                     Skip: function() 
                     {
-                        $( this ).dialog( "close" );
+                        $(this).dialog('close');
                     }
                 }
             });

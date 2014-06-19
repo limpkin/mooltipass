@@ -315,6 +315,7 @@ function initWindow()
     var connectButton = document.getElementById("connect");
     var receiveButton = document.getElementById("receiveResponse");
     var clearButton = document.getElementById("clear");
+    var clearDebugButton = document.getElementById("clearDebug");
     message = document.getElementById("message");
 
     connectButton.addEventListener('click', function() 
@@ -327,6 +328,11 @@ function initWindow()
     {
         console.log('Clearing log');
         message.innerHTML = '';
+    });
+    clearButton.addEventListener('click', function() 
+    {
+        console.log('Clearing debug');
+        debug.innerHTML = '';
     });
 
 
@@ -447,7 +453,7 @@ function onDataReceived(data)
             {
                     msg += String.fromCharCode(bytes[i+2]);
             }
-            message.innerHTML += "debug: '" + msg + "'<br />\n";
+            debug.innerHTML += msg + '<br />\n';
             break;
         }
         case CMD_PING:

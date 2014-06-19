@@ -127,6 +127,7 @@ function checkSubmittedCredentials()
         {
             // Offer to update the mooltpass with the new value(s)
             if (!document.getElementById('mpDialog')) {
+                console.log('content: creating  dialog div');
                 var layerNode= document.createElement('div');
                 layerNode.setAttribute('id', 'mpDialog');
                 layerNode.setAttribute('title','Mooltipass');
@@ -153,7 +154,6 @@ function checkSubmittedCredentials()
                 }
             });
             console.log('content: after update dialog');
-            $("#mpdialog").remove();
         }
     } else {
         // we don't have any, see if the user wants to add some
@@ -171,7 +171,7 @@ addEventListener('DOMContentLoaded', function f()
         // see if we should store the credentials
         checkSubmittedCredentials();
         // uncomment this line to prevent the credentials being sent to the server
-        //event.preventDefault();
+        event.preventDefault();
     });
     credFields = getCredentialFields();
     // send an array of the input fields to the mooltipass

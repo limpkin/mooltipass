@@ -43,6 +43,8 @@ var device_info = { "vendorId": 0x16d0, "productId": 0x09a0 };      // Mooltipas
 
 var packetSize = 32;    // number of bytes in an HID packet
 
+var reContext = /^\https?\:\/\/([\w.]+)/;
+
 // Commands that the MP device can send.
 var CMD_DEBUG        = 0x01;
 var CMD_PING         = 0x02;
@@ -372,7 +374,13 @@ function initWindow()
                 authReq.credentials = [];
                 if (!context) {
                     //request.context = getContext(request); URL -> context
-                    context = 'accounts.google.com';
+                    match = reContext.exec(request.url);
+                    if (match.length > 0) {
+                        console.log('match: '+JSON.stringify(match));
+                        context = match[1];
+                        console.log('context: '+context);
+                    }
+                    //context = 'accounts.google.com';
                 }
                 authReq.context = context;
 

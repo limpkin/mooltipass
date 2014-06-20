@@ -14,18 +14,45 @@
   <ul>
     <li><a href="#message">Main</a></li>
     <li><a href="#debug">Log</a></li>
-    <li><a href="#options">Options</a></li>
+    <li><a href="#manage">Manage</a></li>
   </ul>
-  <div id="message" style="height:420px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>">
+  <div id="message">
         <button id="connect">Connect</button>
 	<button id="receiveResponse">Receive response</button>
 	<button id="clear">Clear</button>
 	<br />
+	<div id="messageLog" style="height:375px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
    </div>
-   <div id="debug" style="height:420px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>">
+   <div id="debug">
 	<button id="clearDebug">Clear</button>
+	<div id="debugLog" style="height:375px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
    </div>
-   <div id="options" style="height:420px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>">
+   <div id="manage" style="height:420px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>">
+	<h3>Import</h3>
+	<div>
+	    <p>
+	    Import flash credentials and eeprom images to the mooltipass.
+	    </p>
+	    <div id="importProgressbar" style="height:20px"></div>
+	</div>
+	<h3>Export</h3>
+	<div>
+	    <p>
+	    Export flash credentials and eeprom images from the mooltipass.
+	    </p>
+	    <div id="exportProgressbar"></div>
+	</div>
+	<h3>Options</h3>
+	<div>
+	    <p>
+	    Configurations options for the Mooltipass.
+	    </p>
+	    <ul>
+		<li>Option one</li>
+		<li>Option two</li>
+		<li>Option three</li>
+	    </ul>
+	</div>
    </div>
 </div>
  

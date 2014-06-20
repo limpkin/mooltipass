@@ -67,6 +67,7 @@ var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
 var CMD_IMPORT_EEPROM_END   = 0x39; 
 
 var message = null;     // reference to the message div in the app HTML for logging
+var debug = null;       // reference to the hidDebug div in the app HTML for hid debug logging
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
@@ -78,15 +79,15 @@ var loginValue = null;
 
 // map between input field types and mooltipass credential types
 var getFieldMap = {
-    password: CMD_GET_PASSWORD,
-    email: CMD_GET_LOGIN,
-    username: CMD_GET_LOGIN
+    password:   CMD_GET_PASSWORD,
+    email:      CMD_GET_LOGIN,
+    username:   CMD_GET_LOGIN
 };
 
 var setFieldMap = {
-    password: CMD_SET_PASSWORD,
-    email: CMD_SET_LOGIN,
-    username: CMD_SET_LOGIN
+    password:   CMD_SET_PASSWORD,
+    email:      CMD_SET_LOGIN,
+    username:   CMD_SET_LOGIN
 };
 
 
@@ -326,7 +327,8 @@ function initWindow()
     var receiveButton = document.getElementById("receiveResponse");
     var clearButton = document.getElementById("clear");
     var clearDebugButton = document.getElementById("clearDebug");
-    message = document.getElementById("message");
+    message = document.getElementById("messageLog");
+    debug = document.getElementById("debugLog");
 
     connectButton.addEventListener('click', function() 
     {
@@ -436,6 +438,13 @@ function initWindow()
 
     });
 
+	$("#manage").accordion();
+	$("#importProgressbar").progressbar({ value: 50 });
+	$("#exportProgressbar").progressbar({ value: 25 });
+    $("#connect").button();
+    $("#receiveResponse").button();
+    $("#clear").button();
+    $("#clearDebug").button();
     $("#tabs").tabs();
 };
 

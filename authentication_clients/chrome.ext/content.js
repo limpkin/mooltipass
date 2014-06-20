@@ -178,7 +178,7 @@ addEventListener('DOMContentLoaded', function f()
         // see if we should store the credentials
         checkSubmittedCredentials();
         // uncomment this line to prevent the credentials being sent to the server
-        event.preventDefault();
+        //event.preventDefault();
     });
     credFields = getCredentialFields();
     // send an array of the input fields to the mooltipass

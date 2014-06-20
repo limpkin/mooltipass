@@ -10,9 +10,9 @@
 
 /*** MACROS ***/
 #ifdef USB_DEBUG_OUTPUT
-    #define USB_PRINTF_P(args...) usbPrintf_P(args)
+    #define USBDEBUGPRINTF_P(args...) usbPrintf_P(args)
 #else
-    #define USB_PRINTF_P(args...)
+    #define USBDEBUGPRINTF_P(args...)
 #endif
 
 /*** DEFINES ***/

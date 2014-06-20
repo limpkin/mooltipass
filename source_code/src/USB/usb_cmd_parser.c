@@ -40,7 +40,7 @@
 */
 RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
 {
-    if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1))
+    if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1) || (len > (RAWHID_RX_SIZE-HID_DATA_START)))
     {
         return RETURN_NOK;
     }
@@ -68,14 +68,8 @@ void usbProcessIncoming(uint8_t* incomingData)
     // Temp ret_type
     RET_TYPE temp_rettype;
 
-    USB_PRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
-    #ifdef USB_DEBUG_OUTPUT_MORE
-        for (uint8_t ind=0; ind<8 && ind<2+datalen; ind++) 
-        {
-            USB_PRINTF_P(PSTR("0x%02x "), incomingData[ind]);
-        }
-        USB_PRINTF_P(PSTR("\n"));
-    #endif
+    // Debug comms
+    USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
 
     switch(datacmd)
     {
@@ -98,7 +92,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 // Wrong data length
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
-                USB_PRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
+                USBDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
             } 
             else
             {
@@ -171,7 +165,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 // Wrong data length
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
-                USB_PRINTF_P(PSTR("set pass: len %d invalid\n"), datalen);
+                USBDEBUGPRINTF_P(PSTR("set pass: len %d invalid\n"), datalen);
                 break;
             } 
             if (setPasswordForContext(msg->body, datalen) == RETURN_OK)
@@ -180,7 +174,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             } 
             else
             {
-                USB_PRINTF_P(PSTR("set pass: failed\n"));
+                USBDEBUGPRINTF_P(PSTR("set pass: failed\n"));
                 incomingData[0] = 0x00;
             }
             pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
@@ -218,7 +212,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 // Wrong data length
                 incomingData[0] = 0x00;
                 pluginSendMessage(CMD_ADD_CONTEXT, 1, (char*)incomingData);
-                USB_PRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
+                USBDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
                 break;
             } 
             if (addNewContext(msg->body, datalen) == RETURN_OK)
@@ -227,7 +221,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             } 
             else
             {
-                USB_PRINTF_P(PSTR("add context: failed\n"));
+                USBDEBUGPRINTF_P(PSTR("add context: failed\n"));
                 incomingData[0] = 0x00;
             }
             pluginSendMessage(CMD_ADD_CONTEXT, 1, (char*)incomingData);

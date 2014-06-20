@@ -308,9 +308,11 @@ int main(void)
     // write bitmap to inactive buffer and make the buffer 
     // active by scrolling it up.
     // Note: writing is automatically switch to inactive buffer
-    oledWriteInactiveBuffer();
+    // oledWriteInactiveBuffer();
     //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
-    oledClear();    // clear inactive buffer
+    // oledClear();    // clear inactive buffer
+    oledSetXY(26, 16);
+    printf_P(PSTR("Mooooltipass"));
     
     // Launch the after HaD logo display tests
     afterHadLogoDisplayTests();

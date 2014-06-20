@@ -41,7 +41,7 @@
 var device_info = { "vendorId": 0x16d0, "productId": 0x09a0 };      // Mooltipass
 //var device_info = { "vendorId": 0x16c0, "productId": 0x0486 };    // Teensy 3.1
 
-var packetSize = 32;    // number of bytes in an HID packet
+var packetSize = 64;    // number of bytes in an HID packet
 
 var reContext = /^\https?\:\/\/([\w.]+)/;
 

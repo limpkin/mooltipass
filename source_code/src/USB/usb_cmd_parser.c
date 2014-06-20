@@ -22,8 +22,11 @@
 *    Created:  09/6/2014
 *    Author:   Mathieu Stephan
 */
+#include "eeprom_addresses.h"
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
+#include <avr/eeprom.h>
+#include "flash_mem.h"
 #include "node_mgmt.h"
 #include <string.h>
 #include <stdint.h>
@@ -71,7 +74,7 @@ void usbProcessIncoming(uint8_t* incomingData)
     uint8_t plugin_return_value = PLUGIN_BYTE_ERROR;
     
     // Use message structure
-    usbMsg_t* msg = (usbMsg_t*)incomingData;;
+    usbMsg_t* msg = (usbMsg_t*)incomingData;
     
     // Get data len
     uint8_t datalen = msg->len;
@@ -81,6 +84,9 @@ void usbProcessIncoming(uint8_t* incomingData)
     
     // Temp ret_type
     RET_TYPE temp_rettype;
+    
+    // temp loops
+    uint16_t i,j;
 
     // Debug comms
     USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
@@ -221,6 +227,55 @@ void usbProcessIncoming(uint8_t* incomingData)
                 USBDEBUGPRINTF_P(PSTR("add context: failed\n"));
             }
             sendPluginOneByteAnswer(CMD_ADD_CONTEXT, plugin_return_value, incomingData);    
+            break;
+            
+        // export flash contents
+        case CMD_EXPORT_FLASH :
+            for (i = 0; i < PAGE_COUNT; i++)
+            {
+                #if BYTES_PER_PAGE == 264
+                    for (j = 0; j < 4; j++)
+                    {
+                        readDataFromFlash(i, j*55, 55, incomingData);
+                        pluginSendMessage(CMD_EXPORT_FLASH, 55, (char*)incomingData);
+                    }
+                    readDataFromFlash(i, 4*55, 44, incomingData);
+                    pluginSendMessage(CMD_EXPORT_FLASH, 44, (char*)incomingData);
+                #elif BYTES_PER_PAGE == 528
+                    for (j = 0; j < 9; j++)
+                    {
+                        readDataFromFlash(i, j*58, 58, incomingData);
+                        pluginSendMessage(CMD_EXPORT_FLASH, 58, (char*)incomingData);
+                    }
+                    readDataFromFlash(i, 58*9, 6, incomingData);
+                    pluginSendMessage(CMD_EXPORT_FLASH, 6, (char*)incomingData);
+                #else
+                    #error "flash not supported"                
+                #endif
+            }
+            pluginSendMessage(CMD_EXPORT_FLASH_END, 0, (char*)incomingData);
+            break;
+            
+        // export eeprom contents
+        case CMD_EXPORT_EEPROM :
+            #if EEPROM_SIZE == 1024
+                for (i = 0; i < 17; i++)
+                {
+                    for (j = 0; j < 60; j++)
+                    {
+                        incomingData[j] = eeprom_read_byte((uint8_t*)j);
+                    }
+                    pluginSendMessage(CMD_EXPORT_EEPROM, 60, (char*)incomingData);
+                }
+                for (i = 0; i < 4; i++)
+                {
+                    incomingData[i] = eeprom_read_byte((uint8_t*)i+(17*60));
+                }
+                pluginSendMessage(CMD_EXPORT_EEPROM, 4, (char*)incomingData);
+                pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
+            #else
+                #error "eeprom not supported"
+            #endif
             break;
 
         default : break;

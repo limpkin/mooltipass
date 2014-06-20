@@ -31,6 +31,11 @@
 #define HID_TYPE_FIELD      0x01
 #define HID_DATA_START      0x02
 
+/* Packet answers */
+#define PLUGIN_BYTE_ERROR   0x00
+#define PLUGIN_BYTE_OK      0x01
+#define PLUGIN_BYTE_NA      0x02
+
 typedef struct {
     uint8_t len;
     uint8_t cmd;

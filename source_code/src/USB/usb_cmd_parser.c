@@ -27,7 +27,6 @@
 #include "node_mgmt.h"
 #include <string.h>
 #include <stdint.h>
-#include "oledmp.h"
 #include "usb.h"
 
 
@@ -50,12 +49,27 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
     }
 }
 
+/*! \fn     sendPluginOneByteAnswer(uint8_t command, uint8_t answer, uint8_t* data)
+*   \brief  Send a one byte message to the plugin
+*   \param  command The command we're answering
+*   \param  answer  The answer
+*   \param  data    Pointer to the buffer
+*/
+void sendPluginOneByteAnswer(uint8_t command, uint8_t answer, uint8_t* data)
+{
+    data[0] = answer;
+    pluginSendMessage(command, 1, (char*)data);
+}
+
 /*! \fn     usbProcessIncoming(uint8_t* incomingData)
 *   \brief  Process the incoming USB packet
 *   \param  incomingData    Pointer to the packet (can be overwritten!)
 */
 void usbProcessIncoming(uint8_t* incomingData)
-{
+{    
+    // Temp plugin return value
+    uint8_t plugin_return_value = PLUGIN_BYTE_ERROR;
+    
     // Use message structure
     usbMsg_t* msg = (usbMsg_t*)incomingData;;
     
@@ -89,26 +103,18 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_CONTEXT :
             if (checkTextField(msg->body, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
-                // Wrong data length
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
             } 
+            else if (setCurrentContext(msg->body, datalen) == RETURN_OK)
+            {
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
             else
             {
-                if (setCurrentContext(msg->body, datalen) == RETURN_OK)
-                {
-                    // Found context
-                    incomingData[0] = 0x01;
-                    pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
-                } 
-                else
-                {
-                    // Didn't find context
-                    incomingData[0] = 0x00;
-                    pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
-                }
+                plugin_return_value = PLUGIN_BYTE_ERROR;
             }
+            sendPluginOneByteAnswer(CMD_CONTEXT, PLUGIN_BYTE_ERROR, incomingData);
             break;
             
         // get login
@@ -120,8 +126,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             } 
             else
             {
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_GET_LOGIN, 1, (char*)incomingData);
+                sendPluginOneByteAnswer(CMD_GET_LOGIN, PLUGIN_BYTE_ERROR, incomingData);
             }
             break;
             
@@ -133,98 +138,89 @@ void usbProcessIncoming(uint8_t* incomingData)
             } 
             else
             {
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_GET_PASSWORD, 1, (char*)incomingData);
+                 sendPluginOneByteAnswer(CMD_GET_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
             }
             break;
             
         // set login
         case CMD_SET_LOGIN :
-            if (checkTextField(msg->body, datalen, RAWHID_RX_SIZE - HID_DATA_START) == RETURN_NOK)
+            if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
             {
-                // Wrong data length
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_SET_LOGIN, 1, (char*)incomingData);
-                break;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
             } 
-            if (setLoginForContext(msg->body, datalen) == RETURN_OK)
+            else if (setLoginForContext(msg->body, datalen) == RETURN_OK)
             {
-                incomingData[0] = 0x01;                
+                plugin_return_value = PLUGIN_BYTE_OK;
             } 
             else
             {
-                incomingData[0] = 0x00;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
             }
-            pluginSendMessage(CMD_SET_LOGIN, 1, (char*)incomingData);
+            sendPluginOneByteAnswer(CMD_SET_LOGIN, plugin_return_value, incomingData);
             break;
         
         // set password
         case CMD_SET_PASSWORD :
             if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
-                // Wrong data length
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBDEBUGPRINTF_P(PSTR("set pass: len %d invalid\n"), datalen);
-                break;
             } 
-            if (setPasswordForContext(msg->body, datalen) == RETURN_OK)
+            else if (setPasswordForContext(msg->body, datalen) == RETURN_OK)
             {
-                incomingData[0] = 0x01;                
+                plugin_return_value = PLUGIN_BYTE_OK;
             } 
             else
             {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBDEBUGPRINTF_P(PSTR("set pass: failed\n"));
-                incomingData[0] = 0x00;
             }
-            pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+            sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, plugin_return_value, incomingData);
             break;
         
         // check password
         case CMD_CHECK_PASSWORD :
             if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
-                // Wrong data length
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_CHECK_PASSWORD, 1, (char*)incomingData);
+                sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
                 break;
             } 
             temp_rettype = checkPasswordForContext(msg->body, datalen);
             if (temp_rettype == RETURN_PASS_CHECK_NOK)
             {
-                incomingData[0] = 0x00;                
+                plugin_return_value = PLUGIN_BYTE_ERROR;
             } 
             else if(temp_rettype == RETURN_PASS_CHECK_OK)
             {
-                incomingData[0] = 0x01;
+                plugin_return_value = PLUGIN_BYTE_OK;
             }
             else
             {
-                incomingData[0] = 0x02;                
+                plugin_return_value = PLUGIN_BYTE_NA;
             }
-            pluginSendMessage(CMD_CHECK_PASSWORD, 1, (char*)incomingData);
+            sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, plugin_return_value, incomingData); 
             break;
         
         // set password
         case CMD_ADD_CONTEXT :
             if (checkTextField(msg->body, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
-                // Wrong data length
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_ADD_CONTEXT, 1, (char*)incomingData);
+                // Check field
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
-                break;
             } 
-            if (addNewContext(msg->body, datalen) == RETURN_OK)
+            else if (addNewContext(msg->body, datalen) == RETURN_OK)
             {
-                incomingData[0] = 0x01;                
+                // We managed to add a new context
+                plugin_return_value = PLUGIN_BYTE_OK;             
             } 
             else
             {
+                // Couldn't add a new context
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBDEBUGPRINTF_P(PSTR("add context: failed\n"));
-                incomingData[0] = 0x00;
             }
-            pluginSendMessage(CMD_ADD_CONTEXT, 1, (char*)incomingData);
+            sendPluginOneByteAnswer(CMD_ADD_CONTEXT, plugin_return_value, incomingData);    
             break;
 
         default : break;

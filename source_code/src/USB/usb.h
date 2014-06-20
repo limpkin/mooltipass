@@ -28,8 +28,8 @@
 #define RAWHID_INTERFACE    0                   // Interface for the raw HID
 #define RAWHID_TX_ENDPOINT  1                   // Raw HID TX endpoint
 #define RAWHID_RX_ENDPOINT  2                   // Raw HID RX endpoint
-#define RAWHID_TX_SIZE      64                  // Raw HID transmit packet size, revert to 64 soon!
-#define RAWHID_RX_SIZE      64                  // Raw HID receive packet size, revert to 64 soon!
+#define RAWHID_TX_SIZE      64                  // Raw HID transmit packet size
+#define RAWHID_RX_SIZE      64                  // Raw HID receive packet size
 #define RAWHID_TX_BUFFER    EP_DOUBLE_BUFFER    // Double buffer
 #define RAWHID_RX_BUFFER    EP_DOUBLE_BUFFER    // Double buffer
 #define KEYBOARD_INTERFACE  1                   // Interface for keyboard

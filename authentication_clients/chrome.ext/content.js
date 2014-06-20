@@ -112,7 +112,7 @@ function credentialsChanged(creds)
     return changed;
 }
 
-function checkSubmittedCredentials()
+function checkSubmittedCredentials(form)
 {
     if (!credFields) 
     {
@@ -152,10 +152,12 @@ function checkSubmittedCredentials()
                     "Update Mooltipass credentials": function() 
                     {
                         chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
+                        form.submit();
                         $(this).dialog('close');
                     },
                     Skip: function() 
                     {
+                        form.submit();
                         $(this).dialog('close');
                     }
                 }
@@ -167,18 +169,17 @@ function checkSubmittedCredentials()
     }
 }
 
-
 addEventListener('DOMContentLoaded', function f() 
 {
     removeEventListener('DOMContentLoaded', f, false);
     console.log('mooltipass content script triggered');
     var forms = document.getElementsByTagName('form');
     $('form').submit(function(event) {
+        var form = this;
         console.log('checking submitted credentials');
         // see if we should store the credentials
-        checkSubmittedCredentials();
-        // uncomment this line to prevent the credentials being sent to the server
-        //event.preventDefault();
+        checkSubmittedCredentials(form);
+        event.preventDefault();
     });
     credFields = getCredentialFields();
     // send an array of the input fields to the mooltipass

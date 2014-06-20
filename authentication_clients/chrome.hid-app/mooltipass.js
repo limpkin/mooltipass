@@ -329,7 +329,7 @@ function initWindow()
         console.log('Clearing log');
         message.innerHTML = '';
     });
-    clearButton.addEventListener('click', function() 
+    clearDebugButton.addEventListener('click', function() 
     {
         console.log('Clearing debug');
         debug.innerHTML = '';

@@ -202,7 +202,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     // Do we know this context ?
     if ((context_parent_node_addr != NODE_ADDR_NULL) && (smartcard_inserted_unlocked == TRUE))
     {
-        USBOLEDDPRINTF_P(PSTR("Active: %s\n"), name);
+        USB_PRINTF_P(PSTR("Active: %s\n"), name);
         // TO ABSOLUTELY REMOVE!!!!
         //////////////////////////////////////////////////////////////////////////
         credential_timer_valid = TRUE;
@@ -212,7 +212,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     }
     else
     {
-        USBOLEDDPRINTF_P(PSTR("Fail: %s\n"), name);
+        USB_PRINTF_P(PSTR("Fail: %s\n"), name);
         return RETURN_NOK;
     }
 }
@@ -290,7 +290,7 @@ RET_TYPE getLoginForContext(char* buffer)
             {
                 return RETURN_NOK;
             }
-            USBOLEDDPRINTF_P(PSTR("Get login "));
+            USB_PRINTF_P(PSTR("Get login "));
             strcpy((char*)buffer, (char*)temp_cnode.login);
             // Set selected login and launch timer
             selected_login_child_node_addr = temp_pnode.nextChildAddress;
@@ -314,7 +314,7 @@ RET_TYPE getPasswordForContext(char* buffer)
         {
             return RETURN_NOK;
         }
-        USBOLEDDPRINTF_P(PSTR("Get password "));
+        USB_PRINTF_P(PSTR("Get password "));
         strcpy((char*)buffer, (char*)temp_cnode.password);
         //usbKeybPutStr((char*)buffer);     // XXX
         // Clear credential timer
@@ -363,7 +363,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 
         if (selected_login_child_node_addr != NODE_ADDR_NULL)
         {
-            USBOLEDDPRINTF_P(PSTR("set login \"%s\"n"), name);
+            USB_PRINTF_P(PSTR("set login \"%s\"n"), name);
             selected_login_flag = TRUE;
             return RETURN_OK;
         } 
@@ -424,7 +424,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             {
                 return RETURN_NOK;
             }
-            USBOLEDDPRINTF_P(PSTR("set password \"%s\"\n"),password);
+            USB_PRINTF_P(PSTR("set password \"%s\"\n"),password);
             return RETURN_OK;
         } 
         else

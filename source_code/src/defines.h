@@ -40,8 +40,8 @@
 // User for general logic
 #define GENERAL_LOGIC_OUTPUT_USB
 // Used for USB comms
-#define USB_DEBUG_OUTPUT_OLED
-//#define USB_DEBUG_OUTPUT_OLED_MORE
+#define USB_DEBUG_OUTPUT
+//#define USB_DEBUG_OUTPUT_MORE
 
 /**************** HARDWARE VERSION ****************/
 // First hardware sent to the contributors, 12/2013

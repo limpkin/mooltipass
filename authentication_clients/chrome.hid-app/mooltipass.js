@@ -54,7 +54,17 @@ var CMD_GET_LOGIN    = 0x05;
 var CMD_GET_PASSWORD = 0x06;
 var CMD_SET_LOGIN    = 0x07;
 var CMD_SET_PASSWORD = 0x08;
-var CMD_ADD_CONTEXT = 0x0A;
+var CMD_ADD_CONTEXT  = 0x0A;
+var CMD_EXPORT_FLASH        = 0x30;    // resp: 0x30 packets until 0x31
+var CMD_EXPORT_FLASH_END    = 0x31;
+var CMD_IMPORT_FLASH_BEGIN  = 0x32;    // confirmed by 0x32,0x01
+var CMD_IMPORT_FLASH        = 0x33;    // send 4x60 byte + 1x24 byte packets, acked with 0x33,0x01
+var CMD_IMPORT_FLASH_END    = 0x34;
+var CMD_EXPORT_EEPROM       = 0x35;    // resp: 0x35 packets until 0x36
+var CMD_EXPORT_EEPROM_END   = 0x36;
+var CMD_IMPORT_EEPROM_BEGIN = 0x37;    // confirmed by 0x37,0x01
+var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
+var CMD_IMPORT_EEPROM_END   = 0x39; 
 
 var message = null;     // reference to the message div in the app HTML for logging
 

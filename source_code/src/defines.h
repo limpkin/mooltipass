@@ -28,20 +28,20 @@
 #include <avr/io.h>
 #include <stdint.h>
 
+
 /**************** DEBUG PRINTFS ****************/
 // Used for smart card testing
 //#define DEBUG_SMC_SCREEN_PRINT
 #define DEBUG_SMC_USB_PRINT
 // Used for flash testing prints
-#define FLASH_TEST_DEBUG_OUTPUT_USB
-#define FLASH_TEST_DEBUG_OUTPUT_OLED
+//#define FLASH_TEST_DEBUG_OUTPUT_USB
+//#define FLASH_TEST_DEBUG_OUTPUT_OLED
 // Used for touch interface
 //#define TOUCH_DEBUG_OUTPUT_USB
 // User for general logic
 #define GENERAL_LOGIC_OUTPUT_USB
 // Used for USB comms
 #define USB_DEBUG_OUTPUT
-//#define USB_DEBUG_OUTPUT_MORE
 
 /**************** HARDWARE VERSION ****************/
 // First hardware sent to the contributors, 12/2013

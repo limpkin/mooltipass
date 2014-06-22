@@ -294,6 +294,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
+            printSMCDebugInfoToScreen();
             sendPluginOneByteAnswer(CMD_ERASE_SMC, plugin_return_value, incomingData); 
             break;
         }   

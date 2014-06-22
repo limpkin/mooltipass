@@ -664,7 +664,7 @@ RET_TYPE findHighestCtrValueForSelectedUser(void)
             {
                 return RETURN_NOK;
             }
-            if ()
+            if (TRUE)
             {
                 memcpy(highest_ctr_val, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN);
             }
@@ -718,7 +718,7 @@ void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
 */
 RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
 {
-    uint8_t temp_cpz[SMARTCARD_CPZ_LENGTH];
+    uint8_t temp_buffer[AES_KEY_LENGTH/8];
     uint8_t temp_nonce[AES256_CTR_LENGTH];
     uint8_t new_user_id;
     uint8_t i;
@@ -728,9 +728,9 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     
     for(i = 0; i < SMARTCARD_CPZ_LENGTH; i++)
     {
-        temp_cpz[i] = entropyRandom8();
+        temp_buffer[i] = entropyRandom8();
     }    
-    writeCodeProtectedZone(temp_cpz);                               // Write in the code protected zone
+    writeCodeProtectedZone(temp_buffer);                               // Write in the code protected zone
         
     for(i = 0; i < AES256_CTR_LENGTH; i++)
     {
@@ -750,10 +750,20 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     }
     
     // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
-    if (writeSmartCardCPZForUserId(temp_cpz, temp_nonce, new_user_id) != RETURN_OK)
+    if (writeSmartCardCPZForUserId(temp_buffer, temp_nonce, new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }
+    
+    // Generate a new AES key
+    for (i = 0; i < (AES_KEY_LENGTH/8); i++)
+    {
+        temp_buffer[i] = entropyRandom8();
+    }
+    writeAES256BitsKey(temp_buffer);
+    
+    // Initialize encryption handling
+    initEncryptionHandling(temp_buffer, temp_nonce);
     
     return RETURN_OK;
 }

@@ -400,6 +400,8 @@ function initWindow()
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpflash.bin'}, function(entry) {
             exportLog.innerHTML = 'save mpflash.img <br />';
             exportDataEntry = entry;
+            exportData = null;
+            exportProgressBar.progressbar('value', 0);
             sendRequest(CMD_EXPORT_FLASH);
         });
     });
@@ -409,6 +411,8 @@ function initWindow()
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpeeprom.bin'}, function(entry) {
             exportLog.innerHTML = 'save mpeeprom.img <br />';
             exportDataEntry = entry;
+            exportData = null;
+            exportProgressBar.progressbar('value', 0);
             sendRequest(CMD_EXPORT_EEPROM);
         });
     });
@@ -516,6 +520,9 @@ function initWindow()
     $("#clearDebug").button();
     $("#exportFlash").button();
     $("#exportEeprom").button();
+    $("#eraseFlash").button();
+    $("#eraseEeprom").button();
+    $("#eraseSmartcard").button();
     $("#tabs").tabs();
 };
 
@@ -658,7 +665,7 @@ function onDataReceived(data)
 
         case CMD_EXPORT_FLASH:
         case CMD_EXPORT_EEPROM:
-            if (exportData == null)
+            if (!exportData)
             {
                 console.log('new export');
                 if (cmd == CMD_EXPORT_FLASH)

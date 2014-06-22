@@ -23,6 +23,7 @@
 #include "hid_defines.h"
 #include "defines.h"
 #include "usb.h"
+#include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -699,6 +700,31 @@ RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str)
     return RETURN_COM_TRANSF_OK;
 }
 
+/*! \fn     pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str)
+*   \brief  Send a message to the mooltipass plugin
+*   \param  cmd         command UID
+*   \param  len         message length
+*   \param  str         pointer to the string in RAM
+*   \param  nb_retries  number of retries
+*   \return If we managed send the data
+*/
+RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str, uint8_t nb_retries)
+{    
+    while ((nb_retries) && (pluginSendMessage(cmd, len, str) != RETURN_COM_TRANSF_OK))
+    {
+        nb_retries--;
+        _delay_us(111);
+    }
+    if (nb_retries)
+    {
+        return RETURN_COM_TRANSF_OK;
+    } 
+    else
+    {
+        return RETURN_COM_NOK;
+    }
+}
+
 /*! \fn     usbPutstr_P(const char *str)
 *   \brief  print an progmem ASCIIZ string to the usb serial port.
 *   \param  str     pointer to the string in FLASH.
@@ -816,4 +842,3 @@ RET_TYPE usbKeybPutStr(char* string)
     
     return temp_ret;
 }
-

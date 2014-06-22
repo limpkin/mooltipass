@@ -237,23 +237,23 @@ void usbProcessIncoming(uint8_t* incomingData)
                     for (j = 0; j < 4; j++)
                     {
                         readDataFromFlash(i, j*55, 55, incomingData);
-                        pluginSendMessage(CMD_EXPORT_FLASH, 55, (char*)incomingData);
+                        pluginSendMessageWithRetries(CMD_EXPORT_FLASH, 55, (char*)incomingData, 255);
                     }
                     readDataFromFlash(i, 4*55, 44, incomingData);
-                    pluginSendMessage(CMD_EXPORT_FLASH, 44, (char*)incomingData);
+                    pluginSendMessageWithRetries(CMD_EXPORT_FLASH, 44, (char*)incomingData, 255);
                 #elif BYTES_PER_PAGE == 528
                     for (j = 0; j < 9; j++)
                     {
                         readDataFromFlash(i, j*58, 58, incomingData);
-                        pluginSendMessage(CMD_EXPORT_FLASH, 58, (char*)incomingData);
+                        pluginSendMessageWithRetries(CMD_EXPORT_FLASH, 58, (char*)incomingData, 255);
                     }
                     readDataFromFlash(i, 58*9, 6, incomingData);
-                    pluginSendMessage(CMD_EXPORT_FLASH, 6, (char*)incomingData);
+                    pluginSendMessageWithRetries(CMD_EXPORT_FLASH, 6, (char*)incomingData, 255);
                 #else
                     #error "flash not supported"                
                 #endif
             }
-            pluginSendMessage(CMD_EXPORT_FLASH_END, 0, (char*)incomingData);
+            pluginSendMessageWithRetries(CMD_EXPORT_FLASH_END, 0, (char*)incomingData, 255);
             break;
             
         // export eeprom contents
@@ -265,14 +265,14 @@ void usbProcessIncoming(uint8_t* incomingData)
                     {
                         incomingData[j] = eeprom_read_byte((uint8_t*)j);
                     }
-                    pluginSendMessage(CMD_EXPORT_EEPROM, 60, (char*)incomingData);
+                    pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, 60, (char*)incomingData, 255);
                 }
                 for (i = 0; i < 4; i++)
                 {
                     incomingData[i] = eeprom_read_byte((uint8_t*)i+(17*60));
                 }
-                pluginSendMessage(CMD_EXPORT_EEPROM, 4, (char*)incomingData);
-                pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
+                pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, 4, (char*)incomingData, 255);
+                pluginSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData, 255);
             #else
                 #error "eeprom not supported"
             #endif

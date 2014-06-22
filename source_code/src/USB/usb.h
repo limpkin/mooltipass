@@ -101,5 +101,6 @@ uint8_t usbPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 uint8_t usbPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str);
 RET_TYPE pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str);
+RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str, uint8_t nb_retries);
 
 #endif

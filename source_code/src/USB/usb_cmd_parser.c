@@ -32,6 +32,8 @@
 #include <stdint.h>
 #include "usb.h"
 
+#define FLASH_SIZE (PAGE_COUNT * (uint32_t)BYTES_PER_PAGE)
+#define EXPORT_PACKET_SIZE 62   // number of data bytes per export message
 
 /*! \fn     checkTextField(uint8_t* data, uint8_t len)
 *   \brief  Check that the sent text is correct
@@ -230,31 +232,19 @@ void usbProcessIncoming(uint8_t* incomingData)
             break;
             
         // export flash contents
-        case CMD_EXPORT_FLASH :
-            for (i = 0; i < PAGE_COUNT; i++)
-            {
-                #if BYTES_PER_PAGE == 264
-                    for (j = 0; j < 4; j++)
-                    {
-                        readDataFromFlash(i, j*55, 55, incomingData);
-                        pluginSendMessage(CMD_EXPORT_FLASH, 55, (char*)incomingData);
-                    }
-                    readDataFromFlash(i, 4*55, 44, incomingData);
-                    pluginSendMessage(CMD_EXPORT_FLASH, 44, (char*)incomingData);
-                #elif BYTES_PER_PAGE == 528
-                    for (j = 0; j < 9; j++)
-                    {
-                        readDataFromFlash(i, j*58, 58, incomingData);
-                        pluginSendMessage(CMD_EXPORT_FLASH, 58, (char*)incomingData);
-                    }
-                    readDataFromFlash(i, 58*9, 6, incomingData);
-                    pluginSendMessage(CMD_EXPORT_FLASH, 6, (char*)incomingData);
-                #else
-                    #error "flash not supported"                
-                #endif
+        case CMD_EXPORT_FLASH: 
+        {
+            uint8_t size=EXPORT_PACKET_SIZE;
+            for (uint32_t addr=0; addr<FLASH_SIZE; addr+=EXPORT_PACKET_SIZE) {
+                if ((FLASH_SIZE-addr) < EXPORT_PACKET_SIZE) {
+                    size = (uint8_t)(FLASH_SIZE - addr);
+                }
+                flashRawRead(incomingData, addr, size);
+                pluginSendMessage(CMD_EXPORT_FLASH, size, (char*)incomingData);
             }
             pluginSendMessage(CMD_EXPORT_FLASH_END, 0, (char*)incomingData);
             break;
+        }
             
         // export eeprom contents
         case CMD_EXPORT_EEPROM :

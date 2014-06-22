@@ -379,3 +379,30 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     waitForFlash();
     return RETURN_OK;
 } // End readDataFromFlash
+
+/**
+ * Contiguous data read across flash page boundaries
+ * @param    datap  pointer to the buffer to store the read data
+ * @param    addr   byte offset in the flash
+ * @param    size   the number of bytes to read
+ * @return   success status
+ * @note bypasses the memory buffer
+ */
+RET_TYPE flashRawRead(void *datap, uint32_t addr, uint16_t size)
+{
+    uint8_t op[] = {FLASH_OPCODE_LOWF_READ, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};
+    
+    if ((addr+size) >= (uint32_t)BYTES_PER_PAGE*(uint32_t)PAGE_COUNT)
+    {
+        return RETURN_NOK;
+    }        
+        
+    addr = ((addr/BYTES_PER_PAGE) << READ_OFFSET_SHT_AMT) | (addr % BYTES_PER_PAGE);
+
+    /* Read from flash */
+    sendDataToFlash(4, op, size, datap);
+    /* Wait until memory is ready */
+    waitForFlash();
+    
+    return RETURN_OK;
+}

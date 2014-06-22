@@ -668,8 +668,13 @@ function onDataReceived(data)
                 exportProgressBar.progressbar('value', 0);
             }
             // flash packet
-            packet = new Uint8Array(data.slice(2,2+len));
+            packetId = new Uint16Array(data.slice(2,4));
+            packet = new Uint8Array(data.slice(4,2+len));
             exportPacketCount += 1;
+            if (exportPacketCount != packetId[0]) {
+                console.log('error expected packet '+exportPacketCount+' but received '+packetId[0]);
+                exportPacketCount = packetId[0];
+            }
             if ((packet.length + exportDataOffset) > exportDataUint8.length)
             {
                 var overflow = (packet.length + exportDataOffset) - exportDataUint8.length;

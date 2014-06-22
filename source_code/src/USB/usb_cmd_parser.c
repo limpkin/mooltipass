@@ -235,8 +235,10 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_FLASH: 
         {
             uint8_t size=EXPORT_PACKET_SIZE;
-            for (uint32_t addr=0; addr<FLASH_SIZE; addr+=EXPORT_PACKET_SIZE) {
-                if ((FLASH_SIZE-addr) < EXPORT_PACKET_SIZE) {
+            for (uint32_t addr=0; addr<FLASH_SIZE; addr+=EXPORT_PACKET_SIZE) 
+            {
+                if ((FLASH_SIZE-addr) < EXPORT_PACKET_SIZE) 
+                {
                     size = (uint8_t)(FLASH_SIZE - addr);
                 }
                 flashRawRead(incomingData, addr, size);

@@ -32,20 +32,54 @@
 
 console.log('mooltipass content script loaded');
 
+var credentialFieldTypes = {
+    'password':'password',
+    'email':'login',
+    'user_id':'login',
+    'username':'login',
+    'name':'login'
+};
+
 function getCredentialFields() 
 {
-    var fields = ['password', 'email'];
     var elements = document.getElementsByTagName('input');
     var result = [];
 
-    for (var i=0; i<elements.length; i++) {
+    for (var i=0; i<elements.length; i++) 
+    {
         var input = elements[i] 
         var type = input.type.toLowerCase()
-        console.log('input: "'+input.id+'" ('+input.type+') ');
-        if ($.inArray(type, fields) != -1) {
-            console.log('pushed "'+input.id+'" ('+input.type+') ');
-            result.push({id: input.id, type:input.type});
+        var name = input.name.toLowerCase()
+        var id = input.id.toLowerCase()
+
+        var ctype = null;
+
+        if (type in credentialFieldTypes)
+        {
+            ctype = type;
         }
+        else if (name in credentialFieldTypes)
+        {
+            ctype = name;
+        }
+        else if (id in credentialFieldTypes)
+        {
+            ctype = id;
+        }
+
+        if (ctype) {
+            if (input.id)
+            {
+                result.push({id: input.id, type: ctype});
+                console.log('pushed id "'+input.id+'" ('+ctype+') ');
+            }
+            else
+            {
+                console.log('pushed name "'+input.name+'" ('+ctype+') ');
+                result.push({name: input.name, type: ctype});
+            }
+        }
+
     }
 
     return result;
@@ -102,7 +136,16 @@ function credentialsChanged(creds)
     var changed = false;
     for (var ind=0; ind<creds.length; ind++) 
     {
-        input = document.getElementById(creds[ind].id);
+        if ('id' in creds[ind])
+        {
+            console.log('changeCheck: cred '+creds[ind].id);
+            input = document.getElementById(creds[ind].id);
+        }
+        else
+        {
+            console.log('changeCheck: cred '+creds[ind].name);
+            input = document.getElementsByName(creds[ind].name)[0];
+        }
         creds[ind].value = input.value;
         if (fieldChanged(input)) 
         {
@@ -121,6 +164,7 @@ function checkSubmittedCredentials(form)
     }
 
     var updateNeeded = false;
+    console.log('check: creds');
     if (credFields) {
         // we have some, see if the values differ from what the mooltipass has
         if (credentialsChanged(credFields))
@@ -202,8 +246,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
             mpCreds = request;
             // update the inputs
             for (var ind=0; ind<request.fields.length; ind++) {
-                console.log('set: "'+request.fields[ind].id+'" = "'+request.fields[ind].value+'"');
-                document.getElementById(request.fields[ind].id).value = request.fields[ind].value;
+                if ('id' in request.fields[ind]) {
+                    console.log('set: "'+request.fields[ind].id+'" = "'+request.fields[ind].value+'"');
+                    document.getElementById(request.fields[ind].id).value = request.fields[ind].value;
+                } else {
+                    console.log('set: "'+request.fields[ind].name+'" = "'+request.fields[ind].value+'"');
+                    document.getElementsByName(request.fields[ind].name)[0].value = request.fields[ind].value;
+                }
             }
         }
 });

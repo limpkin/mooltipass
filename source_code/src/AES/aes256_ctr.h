@@ -44,6 +44,7 @@ typedef struct
 // USEFUL functions
 void aesIncrementCtr(uint8_t *ctr, uint8_t len);
 void aesCtrAdd(uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff);
+int8_t aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len);
 
 // STREAM CTR functions
 void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen);

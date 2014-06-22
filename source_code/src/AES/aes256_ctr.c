@@ -124,6 +124,42 @@ void aesIncrementCtr(uint8_t *ctr, uint8_t len)
     }
 }
 
+/*! \fn     int8_t aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len)
+*   \brief  compare ctr1 and ctr2
+*
+*   \param  ctr1 - buffer of first ctr
+*   \param  ctr2 - buffer of second ctr
+*   \param  len - length of the ctr, must be the same for ctr1 and ctr2
+*/
+int8_t aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len)
+{
+    // -1 ctr1 < ctr2
+    // 0 same
+    // 1  ctr1 > ctr2
+    int8_t result = 0; // same
+    uint8_t i;
+
+    for(i=0; i<len; i++)
+    {
+        if(ctr1[i] != ctr2[i])
+        {
+            if(ctr1[i] < ctr2[i])
+            {
+                result = -1;
+            }
+            else
+            {
+                result = 1;
+            }
+
+            // go outside the loop
+            break;
+        }
+    }
+    
+    return result;
+}
+
 /*! \fn     void aesCtrAdd( uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff) 
 *   \brief  ctr buffer plus data buffer
 *

@@ -453,7 +453,8 @@ function initWindow()
                 console.log('inputs:');
                 for (var ind=0; ind<request.inputs.length; ind++)
                 {
-                    console.log('    "'+request.inputs[ind].id+'" type='+request.inputs[ind].type);
+                    id = 'id' in request.inputs[ind] ? request.inputs[ind].id : request.inputs[ind].name;
+                    console.log('    "'+id+'" type='+request.inputs[ind].type);
                 }
                 authReq = request;
                 authReq.senderId = sender.id;

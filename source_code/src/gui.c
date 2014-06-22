@@ -121,7 +121,10 @@ void activityDetectedRoutine(void)
 }
 
 void guiMainLoop(void)
-{    
+{   
+    #ifdef HARDWARE_V1
+        return;
+    #endif
     RET_TYPE touch_detect_result = touchDetectionRoutine();
     
     // No activity, switch off LEDs and activate prox detection

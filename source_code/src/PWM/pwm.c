@@ -53,6 +53,8 @@ void initPwm(void)
 */
 void setPwmDc(uint16_t pwm_value)
 {
-    TC4H = ~(pwm_value >> 8);
-	OCR4A = ~pwm_value;
+    #ifndef HARDWARE_V1
+		TC4H = ~(pwm_value >> 8);
+		OCR4A = ~pwm_value;
+    #endif
 }

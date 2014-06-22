@@ -679,8 +679,6 @@ void printSMCDebugInfoToScreen(void)
                 swap16(*(uint16_t*)readSMC(24,22,data_buffer)),
                 swap16(*(uint16_t*)readSMC(94,92,data_buffer)),
                 getNumberOfAZ2WritesLeft());
-
-        oledFlipBuffers(OLED_SCROLL_UP,10);
     #endif
 }
 

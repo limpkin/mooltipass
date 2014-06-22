@@ -31,7 +31,7 @@
 
 /**************** DEBUG PRINTFS ****************/
 // Used for smart card testing
-#define DEBUG_SMC_SCREEN_PRINT
+//#define DEBUG_SMC_SCREEN_PRINT
 #define DEBUG_SMC_USB_PRINT
 // Used for flash testing prints
 //#define FLASH_TEST_DEBUG_OUTPUT_USB
@@ -40,7 +40,7 @@
 //#define TOUCH_DEBUG_OUTPUT_USB
 // User for general logic
 #define GENERAL_LOGIC_OUTPUT_USB
-// Used for USB comms
+// Used for USB communications
 #define USB_DEBUG_OUTPUT
 
 /**************** HARDWARE VERSION ****************/

@@ -149,14 +149,11 @@ int main(void)
     afterFlashInitTests();
     
     // First time initializations
-    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0x3333)
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
     {
         formatFlash();
         firstTimeUserHandlingInit();
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0x3333);
-        /////////// TO REMOVE////////////
-        formatUserProfileMemory(15);
-        /////////////////////////////////
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
     }
     
     // Check if we can initialize the touch sensing element
@@ -242,17 +239,11 @@ int main(void)
     // oledWriteInactiveBuffer();
     //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
     // oledClear();    // clear inactive buffer
-    oledSetXY(26, 16);
+    oledSetXY(85, 0);
     printf_P(PSTR("Mooooltipass"));
-    oledWriteInactiveBuffer();
     
     // Launch the after HaD logo display tests
-    afterHadLogoDisplayTests();
-    
-    /////////////// TO REMOVE ///////////////
-    initUserFlashContext(15);
-    setSmartCardInsertedUnlocked();    
-    ////////////////////////////////////////    
+    afterHadLogoDisplayTests();  
     
     while (1)
     {
@@ -314,6 +305,7 @@ int main(void)
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
                         usbPutstr_P(PSTR("New user and new card added"));
                     #endif
+                    setSmartCardInsertedUnlocked();
                 } 
                 else
                 {
@@ -322,7 +314,6 @@ int main(void)
                     #endif
                 }
                 printSMCDebugInfoToScreen();                            // Print smartcard info
-                removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_USER)            // Configured mooltipass card
             {
@@ -346,18 +337,18 @@ int main(void)
                 }
                 else
                 {
+                    mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                    setSmartCardInsertedUnlocked();
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
                         usbPutstr_P(PSTR("Card ID not found\r\n"));
                     #endif
                 }
                 printSMCDebugInfoToScreen();
-                removeFunctionSMC();                                    // Shut down card reader
             }
         }
         else if (card_detect_ret == RETURN_JRELEASED)                   // Card just released
         {
             //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
-            removeFunctionSMC();
         }
     }
 }

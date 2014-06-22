@@ -159,6 +159,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set login: failed\n"));
             }
             sendPluginOneByteAnswer(CMD_SET_LOGIN, plugin_return_value, incomingData);
             break;
@@ -274,11 +275,6 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_ERASE_FLASH :
         {
             formatFlash();
-            /////////// TO REMOVE////////////
-            formatUserProfileMemory(15);
-            initUserFlashContext(15);
-            setSmartCardInsertedUnlocked();
-            /////////////////////////////////
             sendPluginOneByteAnswer(CMD_ERASE_FLASH, PLUGIN_BYTE_OK, incomingData); 
             break;
         }  
@@ -294,7 +290,6 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
-            printSMCDebugInfoToScreen();
             sendPluginOneByteAnswer(CMD_ERASE_SMC, plugin_return_value, incomingData); 
             break;
         }   

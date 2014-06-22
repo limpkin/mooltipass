@@ -27,13 +27,20 @@
 #ifndef GUI_H_
 #define GUI_H_
 
+#include "node_mgmt.h"
+
 /* Defines */
 #define SCREEN_TIMER_DEL    60000
 #define LIGHT_TIMER_DEL     10000
 
 /* Prototypes */
-void guiMainLoop(void);
-void guiTimerTick(void);
+uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);
+RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service);
+RET_TYPE guiAskForLoginAddApproval(char* name, char* service);
+RET_TYPE guiAskForDomainAddApproval(char* name);
+void informGuiOfCurrentContext(char* context);
 void activityDetectedRoutine(void);
+void guiTimerTick(void);
+void guiMainLoop(void);
 
 #endif /* GUI_H_ */

@@ -28,9 +28,6 @@
 #include "pwm.h"
 #include "gui.h"
 
-// Our light timer
-volatile uint16_t light_timer = 0;
-
 
 /*!	\fn		initPwm()
 *	\brief	Initialize PWM
@@ -58,32 +55,4 @@ void setPwmDc(uint16_t pwm_value)
 {
     TC4H = ~(pwm_value >> 8);
 	OCR4A = ~pwm_value;
-}
-
-/*!	\fn		lightTimerTick(void)
-*	\brief	Function called every ms
-*/
-void lightTimerTick(void)
-{
-    if (light_timer != 0)
-    {
-        if (light_timer-- == 1)
-        {
-            setLightsOutFlag();
-        }
-    }
-}
-
-/*!	\fn		activateLightTimer(void)
-*	\brief	Activate light timer
-*/
-void activateLightTimer(void)
-{
-    if (light_timer != LIGHT_TIMER_DEL)
-    {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            light_timer = LIGHT_TIMER_DEL;
-        }     
-    }
 }

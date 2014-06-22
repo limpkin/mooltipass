@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include "usb.h"
 
+/* Plugin command set define */
+#define DEV_PLUGIN_COMMS
+
 /* USB mooltipass hid commands */
 #define CMD_DEBUG               0x01
 #define CMD_PING                0x02
@@ -26,6 +29,9 @@
 #define CMD_IMPORT_EEPROM_BEGIN 0x37    // confirmed by 0x37,0x01
 #define CMD_IMPORT_EEPROM       0x38    // send packet, acked with 0x38,0x01
 #define CMD_IMPORT_EEPROM_END   0x39
+#define CMD_ERASE_EEPROM        0x40
+#define CMD_ERASE_FLASH         0x41
+#define CMD_ERASE_SMC           0x42
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

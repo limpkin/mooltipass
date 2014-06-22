@@ -29,11 +29,11 @@
 
 /* Defines */
 #define SCREEN_TIMER_DEL    60000
+#define LIGHT_TIMER_DEL     10000
 
 /* Prototypes */
 void guiMainLoop(void);
-void screenTimerTick(void);
-void setLightsOutFlag(void);
+void guiTimerTick(void);
 void activityDetectedRoutine(void);
 
 #endif /* GUI_H_ */

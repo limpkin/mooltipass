@@ -50,6 +50,7 @@
 #include "usb.h"
 #include "gui.h"
 
+// Define the bootloader function
 #ifdef AVR_BOOTLOADER_PROGRAMMING
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
 #endif

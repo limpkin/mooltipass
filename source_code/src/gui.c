@@ -37,30 +37,45 @@ volatile uint16_t screenTimer = SCREEN_TIMER_DEL;
 volatile uint8_t lightsTimerOffFlag = FALSE;
 // Flag to switch off the screen
 volatile uint8_t screenTimerOffFlag = FALSE;
+// Our light timer for the top PCB LEDs
+volatile uint16_t light_timer = 0;
 // Bool to know if lights are on
 uint8_t areLightsOn = FALSE;
 // Bool to know if screen is on
 uint8_t isScreenOn = TRUE;
 
 
-/*! \fn     setLightsOutFlag(void)
-*   \brief  Function called when the light timer fires
-*/
-void setLightsOutFlag(void)
-{
-    lightsTimerOffFlag = TRUE;
-}
-
-/*!	\fn		screenTimerTick(void)
+/*!	\fn		guiTimerTick(void)
 *	\brief	Function called every ms by interrupt
 */
-void screenTimerTick(void)
+void guiTimerTick(void)
 {
+    if (light_timer != 0)
+    {
+        if (light_timer-- == 1)
+        {
+            lightsTimerOffFlag = TRUE;
+        }
+    }
     if (screenTimer != 0)
     {
         if (screenTimer-- == 1)
         {
            screenTimerOffFlag = TRUE;
+        }
+    }
+}
+
+/*!	\fn		activateLightTimer(void)
+*	\brief	Activate light timer
+*/
+void activateLightTimer(void)
+{
+    if (light_timer != LIGHT_TIMER_DEL)
+    {
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            light_timer = LIGHT_TIMER_DEL;
         }
     }
 }

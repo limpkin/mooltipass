@@ -258,7 +258,36 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             pluginSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData, 255);
             break;
-        }            
+        }     
+
+        // Development commands
+#ifdef  DEV_PLUGIN_COMMS            
+        // erase eeprom
+        case CMD_ERASE_EEPROM :
+        {
+            firstTimeUserHandlingInit();
+            sendPluginOneByteAnswer(CMD_ERASE_EEPROM, PLUGIN_BYTE_OK, incomingData); 
+            break;
+        }   
+        // erase flash
+        case CMD_ERASE_FLASH :
+        {
+            formatFlash();
+            /////////// TO REMOVE////////////
+            formatUserProfileMemory(15);
+            initUserFlashContext(15);
+            setSmartCardInsertedUnlocked(TRUE);
+            /////////////////////////////////
+            sendPluginOneByteAnswer(CMD_ERASE_FLASH, PLUGIN_BYTE_OK, incomingData); 
+            break;
+        }  
+        // erase eeprom
+        case CMD_ERASE_SMC :
+        {
+            sendPluginOneByteAnswer(CMD_ERASE_SMC, PLUGIN_BYTE_OK, incomingData); 
+            break;
+        }   
+#endif
 
         default : break;
     }

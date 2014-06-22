@@ -61,6 +61,16 @@
 #define NODE_ADDR_PAGE_MASK 0x1fff
 #define NODE_ADDR_NODE_MASK 0x0007
 
+#define NODE_MGMT_YEAR_SHT 9
+#define NODE_MGMT_YEAR_MASK 0xFE00
+#define NODE_MGMT_YEAR_MASK_FINAL 0x007F
+
+#define NODE_MGMT_MONTH_SHT 5
+#define NODE_MGMT_MONTH_MASK 0x03E0
+#define NODE_MGMT_MONTH_MASK_FINAL 0x000F
+
+#define NODE_MGMT_DAY_MASK_FINAL 0x001F
+
 #define NODE_PARENT_SIZE_OF_SERVICE 58
 #define NODE_CHILD_SIZE_OF_DESCRIPTION 24
 #define NODE_CHILD_SIZE_OF_LOGIN 63
@@ -188,6 +198,9 @@ void dataNodeSequenceNumberToFlags(uint16_t *flags, uint8_t sid);
 uint16_t pageNumberFromAddress(uint16_t addr);
 uint8_t nodeNumberFromAddress(uint16_t addr);
 uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber);
+
+uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day);
+RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day);
 
 /* Init Handle */
 RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);

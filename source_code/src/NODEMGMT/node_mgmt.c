@@ -179,6 +179,34 @@ uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber)
     return ((pageNumber << NODE_ADDR_SHMT) | ((uint16_t)nodeNumber));
 }
 
+/*!  \fn       constructDate(uint8_t year, uint8_t month, uint8_t day)
+*    \brief    Packs a uint16_t type with a date code in format YYYYYYYMMMMDDDDD. Year Offset from 2010
+*    \param    year   The year to pack into the uint16_t
+*    \param    month  The month to pack into the uint16_t
+*    \param    day    The day to pack into the uint16_t
+*    \return   Returns the packed / constructed uint16_t encoding the date
+*/
+uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day)
+{
+    return (day | ((month << NODE_MGMT_MONTH_SHT) & NODE_MGMT_MONTH_MASK) | ((year << NODE_MGMT_YEAR_SHT) & NODE_MGMT_YEAR_MASK));
+}
+
+/*!  \fn       extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
+*    \brief    Unpacks a unint16_t to extract the year, month, and day information in format of YYYYYYYMMMMDDDDD. Year Offset from 2010
+*    \param    year   A pointer to storage for the year
+*    \param    month  A pointer to storage for the month
+*    \param    day    A pointer to storage for the day
+*    \return   RETURN_OK Always
+*/
+
+RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
+{
+    *year = ((date >> NODE_MGMT_YEAR_SHT) & NODE_MGMT_YEAR_MASK_FINAL);
+    *month = ((date >> NODE_MGMT_MONTH_SHT) & NODE_MGMT_MONTH_MASK_FINAL);
+    *day = (date & NODE_MGMT_DAY_MASK_FINAL);
+    return RETURN_OK;
+}
+
 /*!  \fn       formatUserProfileMemory(uint8_t uid)
 *    \brief    Formats the user profile flash memory of user uid
 *    \param    uid  The id of the user to format profile memory
@@ -545,11 +573,14 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
         return RETURN_NOK;
     }
     
+    userIdToFlags(&(p->flags), h->currentUserId);
+    /*
     if((h->currentUserId) != userIdFromFlags(p->flags))
     {
         // cannot create a node with a different user ID
         return RETURN_NOK;
     }
+    */
     
     // set node type
     nodeTypeToFlags(&(p->flags), NODE_TYPE_PARENT);
@@ -1220,10 +1251,10 @@ RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c)
         // error reading parent node
         return ret;
     }
-    
-    if((h->nextFreeChildNode) == NODE_ADDR_NULL)
+
+    if(((h->nextFreeChildNode) == NODE_ADDR_NULL) || pAddr == NODE_ADDR_NULL)
     {
-        // no space remaining in flash
+        // no space remaining in flash or parent node address is null
         return RETURN_NOK;
     }
     

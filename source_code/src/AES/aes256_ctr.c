@@ -171,7 +171,7 @@ int8_t aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len)
 void aesCtrAdd( uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff)
 {
     uint16_t carry = 0;
-    uint8_t i = 15;
+    int8_t i = 15;
     uint8_t j;
 
     if(dataLen > 16) return;
@@ -184,7 +184,7 @@ void aesCtrAdd( uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff)
         i--;
     }
 
-    while( carry > 0 )
+    while( carry > 0 && i != -1 )
     {
         carry = (uint16_t)ctr[i] + carry;
         outBuff[i] = (uint8_t)carry;

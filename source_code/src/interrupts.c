@@ -26,6 +26,7 @@
 #include "mooltipass.h"
 #include "smartcard.h"
 #include "pwm.h"
+#include "gui.h"
 
 // Number of milliseconds since power up
 static volatile uint32_t msecTicks = 0;

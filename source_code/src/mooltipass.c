@@ -48,24 +48,15 @@
 #include "spi.h"
 #include "pwm.h"
 #include "usb.h"
+#include "gui.h"
 
 #ifdef AVR_BOOTLOADER_PROGRAMMING
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
 #endif
-// Screen on timer
-volatile uint16_t screenTimer = SCREEN_TIMER_DEL;
 // Flag to inform if the caps lock timer is armed
 volatile uint8_t wasCapsLockTimerArmed = FALSE;
-// Flag to switch off the lights
-volatile uint8_t lightsTimerOffFlag = FALSE;
-// Flag to switch off the screen
-volatile uint8_t screenTimerOffFlag = FALSE;
 // Caps lock timer
 volatile uint16_t capsLockTimer = 0;
-// Bool to know if lights are on
-uint8_t areLightsOn = FALSE;
-// Bool to know if screen is on
-uint8_t isScreenOn = TRUE;
 
 
 /*! \fn     disable_jtag(void)
@@ -81,28 +72,6 @@ void disable_jtag(void)
     MCUCR = temp;
 }
 
-/*! \fn     setLightsOutFlag(void)
-*   \brief  Function called when the light timer fires
-*/
-void setLightsOutFlag(void)
-{
-    lightsTimerOffFlag = TRUE;
-}
-
-/*!	\fn		screenTimerTick(void)
-*	\brief	Function called every ms by interrupt
-*/
-void screenTimerTick(void)
-{
-    if (screenTimer != 0)
-    {
-        if (screenTimer-- == 1)
-        {
-           screenTimerOffFlag = TRUE;
-        }
-    }
-}
-
 /*!	\fn		capsLockTick(void)
 *	\brief	Function called every ms by interrupt
 */
@@ -114,44 +83,6 @@ void capsLockTick(void)
     }
 }
 
-/*!	\fn		activateScreenTimer(void)
-*	\brief	Activate screen timer
-*/
-void activateScreenTimer(void)
-{
-    if (screenTimer != SCREEN_TIMER_DEL)
-    {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            screenTimer = SCREEN_TIMER_DEL;
-        }
-    }
-}
-
-/*!	\fn		activityDetectedRoutine(void)
-*	\brief	What to do when user activity has been detected
-*/
-void activityDetectedRoutine(void)
-{
-    activateLightTimer();
-    activateScreenTimer();
-    
-    // If the lights were off, turn them on!
-    if (areLightsOn == FALSE)
-    {
-        setPwmDc(MAX_PWM_VAL);
-        activateGuardKey();
-        areLightsOn = TRUE;
-    }
-    
-    // If the screen was off, turn it on!
-    if (isScreenOn == FALSE)
-    {
-        oledOn();
-        isScreenOn = TRUE;
-    }    
-}
-
 /*! \fn     main(void)
 *   \brief  Main function
 */
@@ -160,7 +91,6 @@ int main(void)
     uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t usb_buffer[RAWHID_TX_SIZE];
     uint8_t* temp_buffer = usb_buffer;
-    RET_TYPE touch_detect_result;
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
@@ -324,30 +254,16 @@ int main(void)
     
     while (1)
     {
-        touch_detect_result = touchDetectionRoutine();
         card_detect_ret = isCardPlugged();
         
+        // Call GUI routine
+        guiMainLoop();
+        
+        // Process possible incoming data
         if(usbRawHidRecv(usb_buffer, USB_READ_TIMEOUT) == RETURN_COM_TRANSF_OK)
         {
             usbProcessIncoming(usb_buffer);
-        }
-        
-        // No activity, switch off LEDs and activate prox detection
-        if (lightsTimerOffFlag == TRUE)
-        {
-            setPwmDc(0x0000);
-            areLightsOn = FALSE;
-            activateProxDetection();
-            lightsTimerOffFlag = FALSE;
-        }
-        
-        // No activity, switch off screen
-        if (screenTimerOffFlag == TRUE)
-        {
-            oledOff();
-            isScreenOn = FALSE;
-            screenTimerOffFlag = FALSE;
-        }
+        }  
         
         // Two quick caps lock presses wake up the device
         if ((capsLockTimer == 0) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
@@ -365,33 +281,6 @@ int main(void)
         else if ((capsLockTimer == 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             wasCapsLockTimerArmed = FALSE;            
-        }
-        
-        // Touch interface
-        if (touch_detect_result & TOUCH_PRESS_MASK)
-        {
-            activityDetectedRoutine();
-            
-            // If left button is pressed
-            if (touch_detect_result & RETURN_LEFT_PRESSED)
-            {
-                #ifdef TOUCH_DEBUG_OUTPUT_USB
-                    usbPutstr_P(PSTR("LEFT touched\r\n"));
-                #endif
-            }
-            
-            // If right button is pressed
-            if (touch_detect_result & RETURN_RIGHT_PRESSED)
-            {
-                #ifdef TOUCH_DEBUG_OUTPUT_USB
-                    usbPutstr_P(PSTR("RIGHT touched\r\n"));
-                #endif
-            }
-            
-            // If wheel is pressed
-            if (touch_detect_result & RETURN_WHEEL_PRESSED)
-            {
-            }
         }
         
         if (card_detect_ret == RETURN_JDETECT)                          // Card just detected

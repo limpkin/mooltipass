@@ -28,11 +28,10 @@
 #ifndef MOOLTIPASS_H_
 #define MOOLTIPASS_H_
 
-#define SCREEN_TIMER_DEL    60000
+/* Defines */
 #define CAPS_LOCK_DEL       400
 
+/* Prototypes */
 void capsLockTick(void);
-void screenTimerTick(void);
-void setLightsOutFlag(void);
 
 #endif /* MOOLTIPASS_H_ */

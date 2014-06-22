@@ -24,9 +24,9 @@
 #include <avr/io.h>
 #include <util/atomic.h>
 #include <avr/interrupt.h>
-#include "mooltipass.h"
 #include "defines.h"
 #include "pwm.h"
+#include "gui.h"
 
 // Our light timer
 volatile uint16_t light_timer = 0;

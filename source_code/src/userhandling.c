@@ -263,7 +263,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 RET_TYPE addNewContext(uint8_t* name, uint8_t length)
 {
     // Check if the context doesn't already exist
-    if (searchForServiceName(name, length) != NODE_ADDR_NULL)
+    if ((searchForServiceName(name, length) != NODE_ADDR_NULL) || (context_valid_flag == FALSE))
     {
         USBDEBUGPRINTF_P(PSTR("add context fail\n"));
         return RETURN_NOK;

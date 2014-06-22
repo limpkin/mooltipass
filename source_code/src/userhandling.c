@@ -85,6 +85,10 @@ void setSmartCardInsertedUnlocked(void)
 */
 void clearSmartCardInsertedUnlocked(void)
 {
+    credential_timer_val = 0;
+    context_valid_flag = FALSE;
+    selected_login_flag = FALSE;
+    credential_timer_valid = FALSE;
     smartcard_inserted_unlocked = FALSE;
 }
 

@@ -46,8 +46,8 @@ uint8_t areLightsOn = FALSE;
 uint8_t isScreenOn = TRUE;
 
 
-/*!	\fn		guiTimerTick(void)
-*	\brief	Function called every ms by interrupt
+/*! \fn     guiTimerTick(void)
+*   \brief  Function called every ms by interrupt
 */
 void guiTimerTick(void)
 {
@@ -67,8 +67,8 @@ void guiTimerTick(void)
     }
 }
 
-/*!	\fn		activateLightTimer(void)
-*	\brief	Activate light timer
+/*! \fn     activateLightTimer(void)
+*   \brief  Activate light timer
 */
 void activateLightTimer(void)
 {
@@ -81,8 +81,8 @@ void activateLightTimer(void)
     }
 }
 
-/*!	\fn		activateScreenTimer(void)
-*	\brief	Activate screen timer
+/*! \fn     activateScreenTimer(void)
+*   \brief  Activate screen timer
 */
 void activateScreenTimer(void)
 {
@@ -95,8 +95,8 @@ void activateScreenTimer(void)
     }
 }
 
-/*!	\fn		activityDetectedRoutine(void)
-*	\brief	What to do when user activity has been detected
+/*! \fn     activityDetectedRoutine(void)
+*   \brief  What to do when user activity has been detected
 */
 void activityDetectedRoutine(void)
 {
@@ -168,8 +168,8 @@ void guiMainLoop(void)
     }
 }
 
-/*!	\fn		getTouchUiYesNoAnswer(void))
-*	\brief	Use the capacitive interface to get a yes or no
+/*! \fn     getTouchUiYesNoAnswer(void))
+*   \brief  Use the capacitive interface to get a yes or no
 *   \return Yew or No
 */
 RET_TYPE getTouchUiYesNoAnswer(void)
@@ -196,9 +196,9 @@ RET_TYPE getTouchUiYesNoAnswer(void)
     }
 }
 
-/*!	\fn		informGuiOfCurrentContext(char* context)
+/*! \fn     informGuiOfCurrentContext(char* context)
 *   \param  context String of the context
-*	\brief	Inform the GUI of the current context
+*   \brief  Inform the GUI of the current context
 */
 void informGuiOfCurrentContext(char* context)
 {
@@ -209,9 +209,9 @@ void informGuiOfCurrentContext(char* context)
     printf(context);
 }
 
-/*!	\fn		guiAskForDomainAddApproval(char* name)
+/*! \fn     guiAskForDomainAddApproval(char* name)
 *   \param  context String of the context
-*	\brief	Ask for user approval to add a domain
+*   \brief  Ask for user approval to add a domain
 */
 RET_TYPE guiAskForDomainAddApproval(char* name)
 {
@@ -231,10 +231,10 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     return getTouchUiYesNoAnswer();
 }
 
-/*!	\fn		guiAskForLoginAddApproval(char* name)
+/*! \fn     guiAskForLoginAddApproval(char* name)
 *   \param  name    Login that needs to be added
 *   \param  service Name of the current service
-*	\brief	Ask for user approval to add a login
+*   \brief  Ask for user approval to add a login
 */
 RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
 {
@@ -256,8 +256,8 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     return getTouchUiYesNoAnswer();
 }
 
-/*!	\fn		guiAskForPasswordSet(char* name)
-*	\brief	Ask for user approval to set a password
+/*! \fn     guiAskForPasswordSet(char* name)
+*   \brief  Ask for user approval to set a password
 *   \param  name        The login
 *   \param  password    The new password
 *   \param  service     Service Name
@@ -284,8 +284,8 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
     return getTouchUiYesNoAnswer();
 }
 
-/*!	\fn		guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress)
-*	\brief	Ask for user login selection / approval
+/*! \fn     guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress)
+*   \brief  Ask for user login selection / approval
 *   \param  h                   Pointer to management handle
 *   \param  p                   Pointer to a parent node
 *   \param  c                   Pointer to a child node

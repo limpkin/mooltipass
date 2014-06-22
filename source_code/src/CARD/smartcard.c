@@ -255,8 +255,12 @@ void scanSMCDectect(void)
     }
     else
     {
-        removeFunctionSMC();
-        clearSmartCardInsertedUnlocked();
+        // Smartcard remove functions
+        if (card_detect_counter != 0)
+        {
+            removeFunctionSMC();
+            clearSmartCardInsertedUnlocked();
+        }
         if (button_return == RETURN_DET)
         {
             button_return = RETURN_JRELEASED;

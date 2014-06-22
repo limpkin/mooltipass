@@ -84,9 +84,6 @@ void usbProcessIncoming(uint8_t* incomingData)
     
     // Temp ret_type
     RET_TYPE temp_rettype;
-    
-    // temp loops
-    uint16_t i,j;
 
     // Debug comms
     USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
@@ -231,52 +228,37 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // export flash contents
         case CMD_EXPORT_FLASH :
-            for (i = 0; i < PAGE_COUNT; i++)
+        {
+            uint8_t size = PACKET_EXPORT_SIZE;
+            for (uint32_t addr = 0; addr < FLASH_SIZE; addr+=PACKET_EXPORT_SIZE)
             {
-                #if BYTES_PER_PAGE == 264
-                    for (j = 0; j < 4; j++)
-                    {
-                        readDataFromFlash(i, j*55, 55, incomingData);
-                        pluginSendMessageWithRetries(CMD_EXPORT_FLASH, 55, (char*)incomingData, 255);
-                    }
-                    readDataFromFlash(i, 4*55, 44, incomingData);
-                    pluginSendMessageWithRetries(CMD_EXPORT_FLASH, 44, (char*)incomingData, 255);
-                #elif BYTES_PER_PAGE == 528
-                    for (j = 0; j < 9; j++)
-                    {
-                        readDataFromFlash(i, j*58, 58, incomingData);
-                        pluginSendMessageWithRetries(CMD_EXPORT_FLASH, 58, (char*)incomingData, 255);
-                    }
-                    readDataFromFlash(i, 58*9, 6, incomingData);
-                    pluginSendMessageWithRetries(CMD_EXPORT_FLASH, 6, (char*)incomingData, 255);
-                #else
-                    #error "flash not supported"                
-                #endif
+                if ((FLASH_SIZE - addr) < (uint32_t)PACKET_EXPORT_SIZE)
+                {
+                    size = (uint8_t)(FLASH_SIZE - addr);
+                }
+                flashRawRead(incomingData, addr, size);
+                pluginSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
             }
             pluginSendMessageWithRetries(CMD_EXPORT_FLASH_END, 0, (char*)incomingData, 255);
             break;
+        }            
             
         // export eeprom contents
         case CMD_EXPORT_EEPROM :
-            #if EEPROM_SIZE == 1024
-                for (i = 0; i < 17; i++)
+        {
+            uint8_t size = PACKET_EXPORT_SIZE;
+            for (uint16_t addr = 0; addr < EEPROM_SIZE; addr+=PACKET_EXPORT_SIZE)
+            {
+                if ((EEPROM_SIZE-addr) < PACKET_EXPORT_SIZE)
                 {
-                    for (j = 0; j < 60; j++)
-                    {
-                        incomingData[j] = eeprom_read_byte((uint8_t*)j);
-                    }
-                    pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, 60, (char*)incomingData, 255);
+                    size = (uint8_t)(FLASH_SIZE - addr);
                 }
-                for (i = 0; i < 4; i++)
-                {
-                    incomingData[i] = eeprom_read_byte((uint8_t*)i+(17*60));
-                }
-                pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, 4, (char*)incomingData, 255);
-                pluginSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData, 255);
-            #else
-                #error "eeprom not supported"
-            #endif
+                eeprom_read_block(incomingData, (void *)addr, size);
+                pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
+            }
+            pluginSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData, 255);
             break;
+        }            
 
         default : break;
     }

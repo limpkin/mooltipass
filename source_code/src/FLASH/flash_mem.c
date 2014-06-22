@@ -388,7 +388,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
  * @return   success status
  * @note bypasses the memory buffer
  */
-RET_TYPE flashRawRead(void *datap, uint32_t addr, uint16_t size)
+RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
 {
     uint8_t op[] = {FLASH_OPCODE_LOWF_READ, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};
     

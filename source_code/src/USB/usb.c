@@ -713,7 +713,7 @@ RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str,
     while ((nb_retries) && (pluginSendMessage(cmd, len, str) != RETURN_COM_TRANSF_OK))
     {
         nb_retries--;
-        _delay_us(111);
+        _delay_us(200);
     }
     if (nb_retries)
     {

@@ -1,8 +1,9 @@
 #ifndef _USB_CMD_PARSER_H_
 #define _USB_CMD_PARSER_H_
 
+#include "flash_mem.h"
 #include <stdint.h>
-#include <usb.h>
+#include "usb.h"
 
 /* USB mooltipass hid commands */
 #define CMD_DEBUG               0x01
@@ -36,10 +37,14 @@
 #define PLUGIN_BYTE_OK      0x01
 #define PLUGIN_BYTE_NA      0x02
 
+/* Packet defines */
+#define FLASH_SIZE          ((uint32_t)PAGE_COUNT * (uint32_t)BYTES_PER_PAGE)
+#define PACKET_EXPORT_SIZE  (RAWHID_TX_SIZE-HID_DATA_START)
+
 typedef struct {
     uint8_t len;
     uint8_t cmd;
-    uint8_t body[RAWHID_RX_SIZE-2];
+    uint8_t body[RAWHID_RX_SIZE-HID_DATA_START];
 } usbMsg_t;
 
 void usbProcessIncoming(uint8_t* incomingData);

@@ -13,7 +13,8 @@
             "usbDevices": [
                 { "vendorId": 5840, "productId": 2464 }
             ]
-        }
+        },
+	{"fileSystem": ["write", "retainEntries"]} 
     ],
     "icons": { "16": "mooltipass-16.png", "128": "mooltipass-128.png" }
 }

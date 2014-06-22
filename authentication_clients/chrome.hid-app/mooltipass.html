@@ -28,19 +28,23 @@
 	<div id="debugLog" style="height:375px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
    </div>
    <div id="manage" style="height:420px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>">
+	<h3>Export</h3>
+	<div>
+	    <p>
+	    Export flash credentials and eeprom images from the mooltipass.
+	    </p>
+	    <input type="file" id="exportFileName" style="display:none">
+	    <button id="exportFlash">Export flash</button>
+	    <button id="exportEeprom">Export eeprom</button>
+	    <div id="exportProgressbar"></div>
+	    <div id="exportLog" style="height:100px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
+	</div>
 	<h3>Import</h3>
 	<div>
 	    <p>
 	    Import flash credentials and eeprom images to the mooltipass.
 	    </p>
 	    <div id="importProgressbar" style="height:20px"></div>
-	</div>
-	<h3>Export</h3>
-	<div>
-	    <p>
-	    Export flash credentials and eeprom images from the mooltipass.
-	    </p>
-	    <div id="exportProgressbar"></div>
 	</div>
 	<h3>Options</h3>
 	<div>
@@ -51,6 +55,17 @@
 		<li>Option one</li>
 		<li>Option two</li>
 		<li>Option three</li>
+	    </ul>
+	</div>
+	<h3>Developer</h3>
+	<div>
+	    <p>
+	    Developer options for the Mooltipass.
+	    </p>
+	    <ul>
+		<li><button id="eraseEeprom">Erase eeprom</button></li>
+		<li><button id="eraseFlash">Erase flash</button></li>
+		<li><button id="eraseSmartcard">Erase smartcard</button></li>
 	    </ul>
 	</div>
    </div>

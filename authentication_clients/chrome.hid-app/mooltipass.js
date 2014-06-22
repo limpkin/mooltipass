@@ -43,7 +43,7 @@ var device_info = { "vendorId": 0x16d0, "productId": 0x09a0 };      // Mooltipas
 
 var packetSize = 64;    // number of bytes in an HID packet
 
-var reContext = /^\https?\:\/\/([\w.]+)/;
+var reContext = /^\https?\:\/\/([\w.]+)/;   // URL regex to extract base domain for context
 
 // Commands that the MP device can send.
 var CMD_DEBUG        = 0x01;
@@ -68,6 +68,7 @@ var CMD_IMPORT_EEPROM_END   = 0x39;
 
 var message = null;     // reference to the message div in the app HTML for logging
 var debug = null;       // reference to the hidDebug div in the app HTML for hid debug logging
+var exportLog = null;   // reference to the management tab log
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
@@ -76,6 +77,18 @@ var contextGood = false;
 var createContext = false;
 var loginSet = false;
 var loginValue = null;
+
+var FLASH_PAGE_COUNT = 512;
+var FLASH_PAGE_SIZE = 264;
+var EEPROM_SIZE = 1024;
+
+var exportData = null;        // arraybuffer for receiving exported data
+var exportDataUint8 = null;   // uint8 view of exportData 
+var exportDataEntry = null;   // File entry for flash export
+var exportDataOffset = 0;     // current data offset in arraybuffer
+
+var importProrgessBar = null;
+var exportProgressBar = null;
 
 // map between input field types and mooltipass credential types
 var getFieldMap = {
@@ -318,6 +331,34 @@ function setContext(create)
     }
 }
 
+function saveToEntry(entry, data) 
+{
+    entry.createWriter(function(fileWriter) 
+    {
+        fileWriter.onwriteend = function(e) 
+        {
+            if (this.error)
+            {
+                exportLog.innerHTML += 'Error during write: ' + this.error.toString() + '<br />';
+            }
+            else
+            {
+                if (fileWriter.length === 0) {
+                    // truncate has finished
+                    var blob = new Blob([data], {type: 'application/octet-binary'});
+                    exportLog.innerHTML += 'writing '+data.length+' bytes<br />';
+                    fileWriter.write(blob);
+                    exportLog.innerHTML += 'Save complete<br />';
+                } else {
+                }
+            }
+        }
+        fileWriter.truncate(0);
+    });
+}
+
+
+
 /**
  * Initialise the app window, setup message handlers.
  */
@@ -327,8 +368,11 @@ function initWindow()
     var receiveButton = document.getElementById("receiveResponse");
     var clearButton = document.getElementById("clear");
     var clearDebugButton = document.getElementById("clearDebug");
+    var exportFlashButton = document.getElementById("exportFlash");
+    var exportEepromButton = document.getElementById("exportEeprom");
     message = document.getElementById("messageLog");
     debug = document.getElementById("debugLog");
+    exportLog = document.getElementById("exportLog");
 
     connectButton.addEventListener('click', function() 
     {
@@ -346,8 +390,24 @@ function initWindow()
         console.log('Clearing debug');
         debug.innerHTML = '';
     });
+    
+    exportFlashButton.addEventListener('click', function() 
+    {
+        chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpflash.bin'}, function(entry) {
+            exportLog.innerHTML = 'save mpflash.img <br />';
+            exportDataEntry = entry;
+            sendRequest(CMD_EXPORT_FLASH);
+        });
+    });
 
-
+    exportEepromButton.addEventListener('click', function() 
+    {
+        chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpeeprom.bin'}, function(entry) {
+            exportLog.innerHTML = 'save mpeeprom.img <br />';
+            exportDataEntry = entry;
+            sendRequest(CMD_EXPORT_EEPROM);
+        });
+    });
 
     receiveButton.addEventListener('click', function() 
     {
@@ -390,15 +450,13 @@ function initWindow()
                 authReq = request;
                 authReq.senderId = sender.id;
                 authReq.credentials = [];
-                if (!context) {
-                    //request.context = getContext(request); URL -> context
-                    match = reContext.exec(request.url);
-                    if (match.length > 0) {
-                        console.log('match: '+JSON.stringify(match));
+                //request.context = getContext(request); URL -> context
+                match = reContext.exec(request.url);
+                if (match.length > 0) {
+                    if (context && context != match[1]) {
                         context = match[1];
                         console.log('context: '+context);
                     }
-                    //context = 'accounts.google.com';
                 }
                 authReq.context = context;
 
@@ -408,9 +466,12 @@ function initWindow()
             case 'update':
                 authReq = request;
                 authReq.senderId = sender.id;
-                if (!context) {
-                    //request.context = getContext(request); URL -> context
-                    context = 'accounts.google.com';
+                match = reContext.exec(request.url);
+                if (match.length > 0) {
+                    if (context && context != match[1]) {
+                        context = match[1];
+                        console.log('context: '+context);
+                    }
                 }
                 authReq.context = context;
 
@@ -439,12 +500,14 @@ function initWindow()
     });
 
 	$("#manage").accordion();
-	$("#importProgressbar").progressbar({ value: 50 });
-	$("#exportProgressbar").progressbar({ value: 25 });
+	importProrgessBar = $("#importProgressbar").progressbar({ value: 0 });
+	exportProgressBar = $("#exportProgressbar").progressbar({ value: 0 });
     $("#connect").button();
     $("#receiveResponse").button();
     $("#clear").button();
     $("#clearDebug").button();
+    $("#exportFlash").button();
+    $("#exportEeprom").button();
     $("#tabs").tabs();
 };
 
@@ -461,7 +524,7 @@ function onDataReceived(data)
     var len = bytes[0]
     var cmd = bytes[1]
 
-    console.log('Received data CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(bytes));
+    //console.log('Received data CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(bytes));
 
     switch (cmd) 
     {
@@ -584,6 +647,60 @@ function onDataReceived(data)
             
             break;
         }
+
+        case CMD_EXPORT_FLASH:
+        case CMD_EXPORT_EEPROM:
+            if (exportData == null)
+            {
+                console.log('new export');
+                if (cmd == CMD_EXPORT_FLASH)
+                {
+                    exportData = new ArrayBuffer(FLASH_PAGE_COUNT*FLASH_PAGE_SIZE);
+                }
+                else
+                {
+                    exportData = new ArrayBuffer(EEPROM_SIZE);
+                }
+                exportDataUint8 = new Uint8Array(exportData);
+                exportDataOffset = 0;
+                console.log('new export ready');
+                exportProgressBar.progressbar('value', 0);
+            }
+            // flash packet
+            packet = new Uint8Array(data.slice(2,2+len));
+            if ((packet.length + exportDataOffset) > exportDataUint8.length)
+            {
+                var overflow = (packet.length + exportDataOffset) - exportDataUint8.length;
+                console.log('error packet overflows buffer by '+overflow+' bytes');
+                exportDataOffset += packet.length;
+            } else {
+                exportDataUint8.set(packet, exportDataOffset);
+                exportDataOffset += packet.length;
+                exportProgressBar.progressbar('value', (exportDataOffset * 100) / exportDataUint8.length);
+            }
+            break;
+
+        case CMD_EXPORT_FLASH_END:
+        case CMD_EXPORT_EEPROM_END:
+            if (exportData && exportDataEntry)
+            {
+                exportLog.innerHTML += 'export: saving to file<br />';
+                if (exportDataOffset < exportDataUint8.length)
+                {
+                    console.log('WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes');
+                    exportLog.innerHTML += 'WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes<br />';
+                }
+                saveToEntry(exportDataEntry, exportDataUint8) 
+                exportData = null;
+                exportDataUint8 = null;
+                exportDataOffset = 0;
+                exportDataEntry = null;;
+            }
+            else
+            {
+                exportLog.innerHTML += 'Error received export end ('+cmd+') with no active export<br />';
+            }
+            break;
 
         default:
             message.innerHTML += "unknown command";

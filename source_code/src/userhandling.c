@@ -68,13 +68,23 @@ pNode temp_pnode;
 cNode temp_cnode;
 
 
-/*! \fn     setSmartCardInsertedUnlocked(uint8_t val)
-*   \brief  let the user handling code know if everything is ok with the smart card
-*   \param  val     The state
+/*! \fn     setSmartCardInsertedUnlocked(void)
+*   \brief  set the smartcard is inserted and unlocked
 */
-void setSmartCardInsertedUnlocked(uint8_t val)
+void setSmartCardInsertedUnlocked(void)
 {
-    smartcard_inserted_unlocked = val;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        smartcard_inserted_unlocked = TRUE;
+    }
+}
+
+/*! \fn     clearSmartCardInsertedUnlocked(void)
+*   \brief  set the smartcard is removed (called by interrupt!)
+*/
+void clearSmartCardInsertedUnlocked(void)
+{
+    smartcard_inserted_unlocked = FALSE;
 }
 
 /*! \fn     getSmartCardInsertedUnlocked(void)

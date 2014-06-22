@@ -23,6 +23,7 @@
 */
 #include "smart_card_higher_level_functions.h"
 #include <avr/interrupt.h>
+#include "userhandling.h"
 #include <util/delay.h>
 #include "smartcard.h"
 #include "entropy.h"
@@ -254,6 +255,7 @@ void scanSMCDectect(void)
     }
     else
     {
+        clearSmartCardInsertedUnlocked();
         if (button_return == RETURN_DET)
         {
             button_return = RETURN_JRELEASED;

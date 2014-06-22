@@ -277,7 +277,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             /////////// TO REMOVE////////////
             formatUserProfileMemory(15);
             initUserFlashContext(15);
-            setSmartCardInsertedUnlocked(TRUE);
+            setSmartCardInsertedUnlocked();
             /////////////////////////////////
             sendPluginOneByteAnswer(CMD_ERASE_FLASH, PLUGIN_BYTE_OK, incomingData); 
             break;

@@ -251,7 +251,7 @@ int main(void)
     
     /////////////// TO REMOVE ///////////////
     initUserFlashContext(15);
-    setSmartCardInsertedUnlocked(TRUE);    
+    setSmartCardInsertedUnlocked();    
     ////////////////////////////////////////    
     
     while (1)
@@ -342,7 +342,7 @@ int main(void)
                     readAES256BitsKey(temp_buffer);
                     initEncryptionHandling(temp_buffer, temp_ctr_val);
                     initUserFlashContext(temp_user_id);
-                    setSmartCardInsertedUnlocked(TRUE);
+                    setSmartCardInsertedUnlocked();
                 }
                 else
                 {
@@ -357,7 +357,6 @@ int main(void)
         else if (card_detect_ret == RETURN_JRELEASED)                   // Card just released
         {
             //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
-            setSmartCardInsertedUnlocked(FALSE);
             removeFunctionSMC();
         }
     }

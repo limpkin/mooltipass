@@ -100,16 +100,19 @@ void aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen)
 	ctx->cipherstreamAvailable = 0;
 }
 
-/*!	\fn 	void incrementCtr(uint8_t *ctr)
+/*!	\fn 	void aesIncrementCtr(uint8_t *ctr, uint8_t len)
 *	\brief	Increment ctr by 1
-* 
-*   \param  ctr - pointer to counter+iv, size must be 16 bytes.
+*
+*   \param  ctr - pointer to counter+iv, size must be len bytes
+*   \param  len - the size of the ctr buffer to be incremented
 */
-void incrementCtr(uint8_t *ctr)
+void aesIncrementCtr(uint8_t *ctr, uint8_t len)
 {
     uint8_t i;
 
-    i = 15;
+    if(len == 0) return;
+
+    i = len-1;
     while (ctr[i]++ == 0xFF) 
     {
         if (i == 0)
@@ -119,6 +122,40 @@ void incrementCtr(uint8_t *ctr)
 
         i--;
     }
+}
+
+/*! \fn     void aesCtrAdd( uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff) 
+*   \brief  ctr buffer plus data buffer
+*
+*   \param  ctr - pointer to counter+iv
+*   \param  data - pointer to the counter buffer to add
+*   \param  dataLen - data buffer size in bytes
+*   \param  outBuff - outputBuffer, must be 16 bytes length.
+*/
+void aesCtrAdd( uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff)
+{
+    uint16_t carry = 0;
+    uint8_t i = 15;
+    uint8_t j;
+
+    if(dataLen > 16) return;
+
+    for(j=dataLen; j > 0; j--)
+    {
+        carry = (uint16_t)ctr[i] + (uint16_t)data[j-1] + carry;
+        outBuff[i] = (uint8_t)(carry);
+        carry = (carry >> 8) & 0xFF;
+        i--;
+    }
+
+    while( carry > 0 )
+    {
+        carry = (uint16_t)ctr[i] + carry;
+        outBuff[i] = (uint8_t)carry;
+        carry = (carry >> 8) & 0xFF;
+        i--;
+    }
+
 }
 
 /*!	\fn 	aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
@@ -167,7 +204,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
         // if the cached cipherstream is fully used, increment ctr
         if(ctx->cipherstreamAvailable == 0)
         {
-            incrementCtr(ctx->ctr);
+            aesIncrementCtr(ctx->ctr, 16);
         }
     }
 }

@@ -41,6 +41,10 @@ typedef struct
 	uint8_t cipherstreamAvailable; /*!< available bytes to xor with new data bytes */
 }aes256CtrCtx_t;
 
+// USEFUL functions
+void aesIncrementCtr(uint8_t *ctr, uint8_t len);
+void aesCtrAdd(uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff);
+
 // STREAM CTR functions
 void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen);
 void aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen);

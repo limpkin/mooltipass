@@ -68,7 +68,7 @@ var CMD_IMPORT_EEPROM_END   = 0x39;
 
 var message = null;     // reference to the message div in the app HTML for logging
 var debug = null;       // reference to the hidDebug div in the app HTML for hid debug logging
-var exportLog = null;   // reference to the management tab log
+var manageLog = null;   // reference to the management tab log
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
@@ -80,13 +80,12 @@ var loginValue = null;
 
 var FLASH_PAGE_COUNT = 512;
 var FLASH_PAGE_SIZE = 264;
-var EEPROM_SIZE = 1024;
 
-var exportData = null;        // arraybuffer for receiving exported data
-var exportDataUint8 = null;   // uint8 view of exportData 
-var exportDataEntry = null;   // File entry for flash export
-var exportDataOffset = 0;     // current data offset in arraybuffer
-var exportPacketCount = 0;    // number of packets received from mooltipass
+var flashData = null;   // arraybuffer for receiving exported data
+var flashDataUint8 = null;   // uint8 view of flashData 
+var flashDataEntry = null;  // File entry for flash export
+var flashDataOffset = 0;
+var flashPacketCount = 0;
 
 var importProrgessBar = null;
 var exportProgressBar = null;
@@ -340,16 +339,16 @@ function saveToEntry(entry, data)
         {
             if (this.error)
             {
-                exportLog.innerHTML += 'Error during write: ' + this.error.toString() + '<br />';
+                manageLog.innerHTML += 'Error during write: ' + this.error.toString() + '<br />';
             }
             else
             {
                 if (fileWriter.length === 0) {
                     // truncate has finished
                     var blob = new Blob([data], {type: 'application/octet-binary'});
-                    exportLog.innerHTML += 'writing '+data.length+' bytes<br />';
+                    manageLog.innerHTML += 'writing '+data.length+' bytes<br />';
                     fileWriter.write(blob);
-                    exportLog.innerHTML += 'Save complete<br />';
+                    manageLog.innerHTML += 'Save complete<br />';
                 } else {
                 }
             }
@@ -370,10 +369,9 @@ function initWindow()
     var clearButton = document.getElementById("clear");
     var clearDebugButton = document.getElementById("clearDebug");
     var exportFlashButton = document.getElementById("exportFlash");
-    var exportEepromButton = document.getElementById("exportEeprom");
     message = document.getElementById("messageLog");
     debug = document.getElementById("debugLog");
-    exportLog = document.getElementById("exportLog");
+    manageLog = document.getElementById("manageLog");
 
     connectButton.addEventListener('click', function() 
     {
@@ -392,21 +390,13 @@ function initWindow()
         debug.innerHTML = '';
     });
     
+    //$('#exportButton').click(function() {
     exportFlashButton.addEventListener('click', function() 
     {
-        chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpflash.bin'}, function(entry) {
-            exportLog.innerHTML = 'save mpflash.img <br />';
-            exportDataEntry = entry;
+        chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'flash.img'}, function(entry) {
+            manageLog.innerHTML += 'save flash.img <br />';
+            flashDataEntry = entry;
             sendRequest(CMD_EXPORT_FLASH);
-        });
-    });
-
-    exportEepromButton.addEventListener('click', function() 
-    {
-        chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpeeprom.bin'}, function(entry) {
-            exportLog.innerHTML = 'save mpeeprom.img <br />';
-            exportDataEntry = entry;
-            sendRequest(CMD_EXPORT_EEPROM);
         });
     });
 
@@ -647,60 +637,51 @@ function onDataReceived(data)
             
             break;
         }
-
         case CMD_EXPORT_FLASH:
-        case CMD_EXPORT_EEPROM:
-            if (exportData == null)
+            if (flashData == null)
             {
                 console.log('new export');
-                if (cmd == CMD_EXPORT_FLASH)
-                {
-                    exportData = new ArrayBuffer(FLASH_PAGE_COUNT*FLASH_PAGE_SIZE);
-                }
-                else
-                {
-                    exportData = new ArrayBuffer(EEPROM_SIZE);
-                }
-                exportDataUint8 = new Uint8Array(exportData);
-                exportDataOffset = 0;
-                exportPacketCount = 0;
+                flashData = new ArrayBuffer(FLASH_PAGE_COUNT*FLASH_PAGE_SIZE);
+                flashDataUint8 = new Uint8Array(flashData);
+                flashDataOffset = 0;
+                flashPacketCount = 0;
                 console.log('new export ready');
                 exportProgressBar.progressbar('value', 0);
             }
             // flash packet
             packet = new Uint8Array(data.slice(2,2+len));
-            exportPacketCount += 1;
-            if ((packet.length + exportDataOffset) > exportDataUint8.length)
+            flashPacketCount += 1;
+            //console.log('added packet '+flashPacketCount+' len '+packet.length+' at offset '+flashDataOffset+'/'+flashDataUint8.length);
+            if ((packet.length + flashDataOffset) > flashDataUint8.length)
             {
-                var overflow = (packet.length + exportDataOffset) - exportDataUint8.length;
+                var overflow = (packet.length + flashDataOffset) - flashDataUint8.length;
                 console.log('error packet overflows buffer by '+overflow+' bytes');
-                exportDataOffset += packet.length;
+                flashDataOffset += packet.length;
             } else {
-                exportDataUint8.set(packet, exportDataOffset);
-                exportDataOffset += packet.length;
-                exportProgressBar.progressbar('value', (exportDataOffset * 100) / exportDataUint8.length);
+                flashDataUint8.set(packet, flashDataOffset);
+                flashDataOffset += packet.length;
+                exportProgressBar.progressbar('value', (flashDataOffset * 100) / flashDataUint8.length);
             }
             break;
 
         case CMD_EXPORT_FLASH_END:
-        case CMD_EXPORT_EEPROM_END:
-            if (exportData && exportDataEntry)
+            if (flashData && flashDataEntry)
             {
-                exportLog.innerHTML += 'export: saving to file<br />';
-                if (exportDataOffset < exportDataUint8.length)
+                manageLog.innerHTML += 'flash export: saving to file<br />';
+                if (flashDataOffset < flashDataUint8.length)
                 {
-                    console.log('WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes');
-                    exportLog.innerHTML += 'WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes<br />';
+                    console.log('WARNING: only received '+flashDataOffset+' of '+flashDataUint8.length+' bytes');
+                    manageLog.innerHTML += 'WARNING: only received '+flashDataOffset+' of '+flashDataUint8.length+' bytes<br />';
                 }
-                saveToEntry(exportDataEntry, exportDataUint8) 
-                exportData = null;
-                exportDataUint8 = null;
-                exportDataOffset = 0;
-                exportDataEntry = null;;
+                saveToEntry(flashDataEntry, flashDataUint8) 
+                flashData = null;
+                flashDataUint8 = null;
+                flashDataOffset = 0;
+                flashDataEntry = null;;
             }
             else
             {
-                exportLog.innerHTML += 'Error received export end ('+cmd+') with no active export<br />';
+                manageLog.innerHTML += 'Error received EXPORT_FLASH_END with no active export<br />';
             }
             break;
 

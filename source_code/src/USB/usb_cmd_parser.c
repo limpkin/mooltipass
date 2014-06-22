@@ -87,6 +87,9 @@ void usbProcessIncoming(uint8_t* incomingData)
     // Temp ret_type
     RET_TYPE temp_rettype;
     
+    // temp loops
+    uint16_t i,j;
+
     // Debug comms
     USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
 
@@ -246,21 +249,26 @@ void usbProcessIncoming(uint8_t* incomingData)
         }
             
         // export eeprom contents
-        case CMD_EXPORT_EEPROM:
-        {
-            uint8_t size=EXPORT_PACKET_SIZE;
-            for (uint16_t addr=0; addr<EEPROM_SIZE; addr+=EXPORT_PACKET_SIZE) 
-            {
-                if ((EEPROM_SIZE-addr) < EXPORT_PACKET_SIZE) 
+        case CMD_EXPORT_EEPROM :
+            #if EEPROM_SIZE == 1024
+                for (i = 0; i < 17; i++)
                 {
-                    size = (uint8_t)(FLASH_SIZE - addr);
+                    for (j = 0; j < 60; j++)
+                    {
+                        incomingData[j] = eeprom_read_byte((uint8_t*)j);
+                    }
+                    pluginSendMessage(CMD_EXPORT_EEPROM, 60, (char*)incomingData);
                 }
-                eeprom_read_block(incomingData, (void *)addr, size);
-                pluginSendMessage(CMD_EXPORT_EEPROM, size, (char*)incomingData);
-            }
-            pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
+                for (i = 0; i < 4; i++)
+                {
+                    incomingData[i] = eeprom_read_byte((uint8_t*)i+(17*60));
+                }
+                pluginSendMessage(CMD_EXPORT_EEPROM, 4, (char*)incomingData);
+                pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
+            #else
+                #error "eeprom not supported"
+            #endif
             break;
-        }
 
         default : break;
     }

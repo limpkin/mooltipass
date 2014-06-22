@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="/jquery-ui-1.10.4.custom/css/trontastic/jquery-ui-1.10.4.custom.min.css">
   <script src="/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js"></script>
   <script src="/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js"></script>
-  <script src="/jquery.fileDownload.js"></script>
   <script src="mooltipass.js"></script>
 </head>
 <body>
@@ -29,23 +28,19 @@
 	<div id="debugLog" style="height:375px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
    </div>
    <div id="manage" style="height:420px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>">
-	<h3>Export</h3>
-	<div>
-	    <p>
-	    Export flash credentials and eeprom images from the mooltipass.
-	    </p>
-	    <input type="file" id="exportFileName" style="display:none">
-	    <button id="exportFlash">Export flash</button>
-	    <button id="exportEeprom">Export eeprom</button>
-	    <div id="exportProgressbar"></div>
-	    <div id="manageLog" style="height:100px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
-	</div>
 	<h3>Import</h3>
 	<div>
 	    <p>
 	    Import flash credentials and eeprom images to the mooltipass.
 	    </p>
 	    <div id="importProgressbar" style="height:20px"></div>
+	</div>
+	<h3>Export</h3>
+	<div>
+	    <p>
+	    Export flash credentials and eeprom images from the mooltipass.
+	    </p>
+	    <div id="exportProgressbar"></div>
 	</div>
 	<h3>Options</h3>
 	<div>

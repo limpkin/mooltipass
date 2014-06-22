@@ -54,6 +54,7 @@ var CMD_GET_LOGIN    = 0x05;
 var CMD_GET_PASSWORD = 0x06;
 var CMD_SET_LOGIN    = 0x07;
 var CMD_SET_PASSWORD = 0x08;
+var CMD_CHECK_PASSWORD = 0x09;
 var CMD_ADD_CONTEXT  = 0x0A;
 var CMD_EXPORT_FLASH        = 0x30;    // resp: 0x30 packets until 0x31
 var CMD_EXPORT_FLASH_END    = 0x31;
@@ -65,6 +66,10 @@ var CMD_EXPORT_EEPROM_END   = 0x36;
 var CMD_IMPORT_EEPROM_BEGIN = 0x37;    // confirmed by 0x37,0x01
 var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
 var CMD_IMPORT_EEPROM_END   = 0x39; 
+
+var CMD_ERASE_EEPROM        = 0x40;
+var CMD_ERASE_FLASH         = 0x41;
+var CMD_ERASE_SMC           = 0x42;
 
 var message = null;     // reference to the message div in the app HTML for logging
 var debug = null;       // reference to the hidDebug div in the app HTML for hid debug logging
@@ -374,6 +379,10 @@ function initWindow()
     var clearDebugButton = document.getElementById("clearDebug");
     var exportFlashButton = document.getElementById("exportFlash");
     var exportEepromButton = document.getElementById("exportEeprom");
+    var eraseEepromButton = document.getElementById("eraseEeprom");
+    var eraseFlashButton = document.getElementById("eraseFlash");
+    var eraseSmartcardButton = document.getElementById("eraseSmartcard");
+
     message = document.getElementById("messageLog");
     debug = document.getElementById("debugLog");
     exportLog = document.getElementById("exportLog");
@@ -430,6 +439,60 @@ function initWindow()
         }
     });
 
+    eraseFlashButton.addEventListener('click', function() 
+    {
+        $('#eraseConfirm').dialog({
+            buttons: {
+                "Erase Mooltipass Flash?": function() 
+                {
+                    developerLog.innerHTML = 'Erasing flash... ';
+                    sendRequest(CMD_ERASE_FLASH);
+                    $(this).dialog('close');
+                },
+                Cancel: function() 
+                {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
+    eraseEepromButton.addEventListener('click', function() 
+    {
+        $('#eraseConfirm').dialog({
+            buttons: {
+                "Erase Mooltipass EEPROM?": function() 
+                {
+                    developerLog.innerHTML = 'Erasing EEPROM... ';
+                    sendRequest(CMD_ERASE_EEPROM);
+                    $(this).dialog('close');
+                },
+                Cancel: function() 
+                {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
+    eraseSmartcardButton.addEventListener('click', function() 
+    {
+        $('#eraseConfirm').dialog({
+            buttons: {
+                "Erase Mooltipass Smartcard?": function() 
+                {
+                    developerLog.innerHTML = 'Erasing smartcard... ';
+                    sendRequest(CMD_ERASE_SMC);
+                    $(this).dialog('close');
+                },
+                Cancel: function() 
+                {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
         console.log(sender.tab ?  'from a content script:' + sender.tab.url : 'from the extension');
@@ -466,7 +529,7 @@ function initWindow()
                         context = match[1];
                         console.log('context: '+context);
                     } else {
-                        console.log('not updaing context to '+match[1]);
+                        console.log('not updaing context '+context+' to '+match[1]);
                     }
                 }
                 authReq.context = context;
@@ -479,14 +542,15 @@ function initWindow()
                 authReq.senderId = sender.id;
                 match = reContext.exec(request.url);
                 if (match.length > 0) {
-                    if (!context || context != match[1]) {
-                        context = match[1];
-                        console.log('context: '+context);
-                    } else {
-                        console.log('not updaing context to '+match[1]);
-                    }
+                    authReq.context = match[1];
+                    console.log('auth context: '+authReq.context);
                 }
-                authReq.context = context;
+                console.log('update:');
+                for (var ind=0; ind<request.inputs.length; ind++)
+                {
+                    id = 'id' in request.inputs[ind] ? request.inputs[ind].id : request.inputs[ind].name;
+                    console.log('    "'+id+'" type='+request.inputs[ind].type+', value="'+request.inputs[ind].value);
+                }
 
                 // sort the fields so that the login is first
                 authReq.inputs.sort(function(a, b)
@@ -718,8 +782,17 @@ function onDataReceived(data)
             exportDataEntry = null;;
             break;
 
+        case CMD_ERASE_EEPROM:
+        case CMD_ERASE_FLASH:
+        case CMD_ERASE_SMC:
+            if (developerLog)
+            {
+                developerLog.innerHTML += (bytes[2] == 1) ? 'succeeded<br />' : 'failed<br />'
+            }
+            break;
+
         default:
-            message.innerHTML += "unknown command";
+            message.innerHTML += 'unknown command '+cmd+'<br />';
             break;
     }
     chrome.hid.receive(connection, packetSize, onDataReceived);

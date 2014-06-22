@@ -162,7 +162,6 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t length)
             }
             if (strcmp((char*)temp_pnode.service, (char*)name) == 0)
             {
-                USBDEBUGPRINTF_P(PSTR("FOUND SVC : %04x"), next_node_addr);
                 return next_node_addr;
             }
             next_node_addr = temp_pnode.nextParentAddress;

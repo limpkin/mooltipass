@@ -179,7 +179,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBDEBUGPRINTF_P(PSTR("set pass: failed\n"));
             }
-            sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, plugin_return_value, incomingData);
+            sendPluginOneByteAnswer(CMD_SET_PASSWORD, plugin_return_value, incomingData);
             break;
         
         // check password

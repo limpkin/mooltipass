@@ -33,7 +33,7 @@
 #include "usb.h"
 
 #define FLASH_SIZE (PAGE_COUNT * (uint32_t)BYTES_PER_PAGE)
-#define EXPORT_PACKET_SIZE 60   // number of data bytes per export message
+#define EXPORT_PACKET_SIZE 62   // number of data bytes per export message
 
 /*! \fn     checkTextField(uint8_t* data, uint8_t len)
 *   \brief  Check that the sent text is correct
@@ -232,15 +232,13 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_FLASH: 
         {
             uint8_t size=EXPORT_PACKET_SIZE;
-            uint16_t pkt=1;
             for (uint32_t addr=0; addr<FLASH_SIZE; addr+=EXPORT_PACKET_SIZE) 
             {
                 if ((FLASH_SIZE-addr) < EXPORT_PACKET_SIZE) 
                 {
                     size = (uint8_t)(FLASH_SIZE - addr);
                 }
-                *((uint16_t *)incomingData) = pkt++;
-                flashRawRead(incomingData+2, addr, size);
+                flashRawRead(incomingData, addr, size);
                 pluginSendMessage(CMD_EXPORT_FLASH, size, (char*)incomingData);
             }
             pluginSendMessage(CMD_EXPORT_FLASH_END, 0, (char*)incomingData);
@@ -251,35 +249,16 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_EEPROM:
         {
             uint8_t size=EXPORT_PACKET_SIZE;
-            uint16_t pkt=1;
             for (uint16_t addr=0; addr<EEPROM_SIZE; addr+=EXPORT_PACKET_SIZE) 
             {
                 if ((EEPROM_SIZE-addr) < EXPORT_PACKET_SIZE) 
                 {
                     size = (uint8_t)(FLASH_SIZE - addr);
                 }
-                *((uint16_t *)incomingData) = pkt++;
-                eeprom_read_block(incomingData+2, (void *)addr, size);
-                uint8_t retry=255;
-                while (pluginSendMessage(CMD_EXPORT_EEPROM, size, (char*)incomingData)) 
-                {
-                    if (retry-- == 0) {
-                        // hit max retries... bail out
-                        usbPrintf_P(PSTR("export failed to send packet\n"));
-                        return;
-                    }
-                }
-                //usbPrintf_P(PSTR("sent pkt %u eeprom[%u] %u bytes\n"),pkt++,addr,size);
+                eeprom_read_block(incomingData, (void *)addr, size);
+                pluginSendMessage(CMD_EXPORT_EEPROM, size, (char*)incomingData);
             }
-            uint8_t retry=255;
-            while (pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData)) 
-            {
-                if (retry-- == 0) {
-                    // hit max retries... bail out
-                    usbPrintf_P(PSTR("export failed to send END\n"));
-                    return;
-                }
-            }
+            pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
             break;
         }
 

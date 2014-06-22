@@ -49,8 +49,8 @@ volatile uint8_t credential_timer_valid = FALSE;
 volatile uint16_t credential_timer_val = 0;
 // Know if the smart card is inserted and unlocked
 uint8_t smartcard_inserted_unlocked = FALSE;
-// Current highest CTR value
-uint8_t highest_ctr_val[FLASH_STORAGE_CTR_LEN];
+// Next CTR value for our AES encryption
+uint8_t nextCtrVal[FLASH_STORAGE_CTR_LEN];
 // Current nonce
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login child node address
@@ -341,6 +341,8 @@ RET_TYPE getLoginForContext(char* buffer)
 */
 RET_TYPE getPasswordForContext(char* buffer)
 {
+    uint8_t temp_buffer[AES256_CTR_LENGTH];
+    
     if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE) && (selected_login_flag == TRUE))
     {
         // Fetch password from selected login and send it over USB
@@ -349,7 +351,11 @@ RET_TYPE getPasswordForContext(char* buffer)
             return RETURN_NOK;
         }
         USBDEBUGPRINTF_P(PSTR("Get password "));
-        strcpy((char*)buffer, (char*)temp_cnode.password);        
+        strcpy((char*)buffer, (char*)temp_cnode.password);
+        // AES decryption: add our nonce with the ctr value, set the result, then decrypt
+        aesCtrAdd(current_nonce, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN, temp_buffer);
+        aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
+        aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
         //usbKeybPutStr((char*)buffer);     // XXX
         
         // Clear credential timer
@@ -428,6 +434,8 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
 */
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 {
+/*    uint8_t temp_buffer[AES256_CTR_LENGTH];*/
+    
     if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
     {
         // Login not set
@@ -440,15 +448,30 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         {
             return RETURN_NOK;
         }
+        
         // Read child node
         if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) != RETURN_OK)
         {
             return RETURN_NOK;
         }
+        
+        // Copy the password and put random bytes after the final 0
         memcpy((void*)temp_cnode.password, (void*)password, length);
+        for (uint8_t i = length; i < NODE_CHILD_SIZE_OF_PASSWORD; i++)
+        {
+            temp_cnode.password[i] = entropyRandom8();
+        }
+        
         // Ask for password changing approval
         if (guiAskForPasswordSet((char*)temp_cnode.login, (char*)password, (char*)temp_pnode.service) == RETURN_OK)
-        {           
+        {
+            // AES decryption: add our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
+//             aesCtrAdd(current_nonce, nextCtrVal, FLASH_STORAGE_CTR_LEN, temp_buffer);
+//             aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
+//             aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
+//             aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
+//             aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
+            
             // Update child node to store password
             if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
             {
@@ -648,6 +671,9 @@ RET_TYPE findHighestCtrValueForSelectedUser(void)
     uint8_t found_child_node = FALSE;
     uint16_t next_cnode_addr;
     
+    // Clear next ctr value
+    memset((void*)nextCtrVal, 0x00, FLASH_STORAGE_CTR_LEN);
+    
     // Parent nodes loop
     while (next_pnode_addr != NODE_ADDR_NULL)
     {
@@ -664,9 +690,10 @@ RET_TYPE findHighestCtrValueForSelectedUser(void)
             {
                 return RETURN_NOK;
             }
-            if (TRUE)
+            // Check if the ctr val is higher than ours
+            if (aesCtrCompare(nextCtrVal, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN) == -1)
             {
-                memcpy(highest_ctr_val, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN);
+                memcpy(nextCtrVal, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN);
             }
             found_child_node = TRUE;
             next_cnode_addr = temp_cnode.nextChildAddress;
@@ -675,18 +702,12 @@ RET_TYPE findHighestCtrValueForSelectedUser(void)
         next_pnode_addr = temp_pnode.nextParentAddress;
     }
     
-    // Empty memory, set 0
-    if (found_child_node == FALSE)
-    {
-        for (uint8_t i = 0; i < FLASH_STORAGE_CTR_LEN; i++)
-        {
-            highest_ctr_val[i] = 0;
-        }
-    }
-    else
+    // Found a ctr value, increment nextctrval by 2
+    if (found_child_node == TRUE)
     {
         // Increment max ctr val by 2
-        
+        aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
+        aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
     }
     
     return RETURN_OK;

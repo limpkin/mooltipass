@@ -354,10 +354,7 @@ RET_TYPE getPasswordForContext(char* buffer)
         }
         USBDEBUGPRINTF_P(PSTR("Get password "));
         // AES decryption: add our nonce with the ctr value, set the result, then decrypt
-        USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), current_nonce[0],current_nonce[1],current_nonce[2],current_nonce[3],current_nonce[4],current_nonce[5],current_nonce[6],current_nonce[7],current_nonce[8],current_nonce[9],current_nonce[10],current_nonce[11],current_nonce[12],current_nonce[13],current_nonce[14],current_nonce[15]);    
-        USBDEBUGPRINTF_P(PSTR("ctr node %02x %02x %02x"), temp_cnode.ctr[2], temp_cnode.ctr[1], temp_cnode.ctr[0]);
         aesCtrAdd(current_nonce, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN, temp_buffer);
-        USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), temp_buffer[0],temp_buffer[1],temp_buffer[2],temp_buffer[3],temp_buffer[4],temp_buffer[5],temp_buffer[6],temp_buffer[7],temp_buffer[8],temp_buffer[9],temp_buffer[10],temp_buffer[11],temp_buffer[12],temp_buffer[13],temp_buffer[14],temp_buffer[15]);
         aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
         aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
         strcpy((char*)buffer, (char*)temp_cnode.password);
@@ -471,13 +468,10 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         if (guiAskForPasswordSet((char*)temp_cnode.login, (char*)password, (char*)temp_pnode.service) == RETURN_OK)
         {
             // AES encryption: add our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
-            USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), current_nonce[0],current_nonce[1],current_nonce[2],current_nonce[3],current_nonce[4],current_nonce[5],current_nonce[6],current_nonce[7],current_nonce[8],current_nonce[9],current_nonce[10],current_nonce[11],current_nonce[12],current_nonce[13],current_nonce[14],current_nonce[15]);    
             aesCtrAdd(current_nonce, nextCtrVal, FLASH_STORAGE_CTR_LEN, temp_buffer);
-            USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), temp_buffer[0],temp_buffer[1],temp_buffer[2],temp_buffer[3],temp_buffer[4],temp_buffer[5],temp_buffer[6],temp_buffer[7],temp_buffer[8],temp_buffer[9],temp_buffer[10],temp_buffer[11],temp_buffer[12],temp_buffer[13],temp_buffer[14],temp_buffer[15]);
             aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
             aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
             memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, FLASH_STORAGE_CTR_LEN);
-            USBDEBUGPRINTF_P(PSTR("ctr node %02x %02x %02x"), temp_cnode.ctr[2], temp_cnode.ctr[1], temp_cnode.ctr[0]); 
             aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
             aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
             
@@ -735,8 +729,7 @@ void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
     {
         current_nonce[i] = nonce[i];
     }
-    USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), current_nonce[0],current_nonce[1],current_nonce[2],current_nonce[3],current_nonce[4],current_nonce[5],current_nonce[6],current_nonce[7],current_nonce[8],current_nonce[9],current_nonce[10],current_nonce[11],current_nonce[12],current_nonce[13],current_nonce[14],current_nonce[15]);    
-    
+
     aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
     memset((void*)aes_key, 0, AES_KEY_LENGTH/8);
     findHighestCtrValueForSelectedUser();

@@ -453,9 +453,11 @@ function initWindow()
                 //request.context = getContext(request); URL -> context
                 match = reContext.exec(request.url);
                 if (match.length > 0) {
-                    if (context && context != match[1]) {
+                    if (!context || context != match[1]) {
                         context = match[1];
                         console.log('context: '+context);
+                    } else {
+                        console.log('not updaing context to '+match[1]);
                     }
                 }
                 authReq.context = context;
@@ -468,9 +470,11 @@ function initWindow()
                 authReq.senderId = sender.id;
                 match = reContext.exec(request.url);
                 if (match.length > 0) {
-                    if (context && context != match[1]) {
+                    if (!context || context != match[1]) {
                         context = match[1];
                         console.log('context: '+context);
+                    } else {
+                        console.log('not updaing context to '+match[1]);
                     }
                 }
                 authReq.context = context;

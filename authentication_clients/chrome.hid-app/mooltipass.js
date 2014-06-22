@@ -94,13 +94,17 @@ var exportProgressBar = null;
 var getFieldMap = {
     password:   CMD_GET_PASSWORD,
     email:      CMD_GET_LOGIN,
-    username:   CMD_GET_LOGIN
+    username:   CMD_GET_LOGIN,
+    user_id:    CMD_GET_LOGIN,
+    name:       CMD_SET_LOGIN
 };
 
 var setFieldMap = {
     password:   CMD_SET_PASSWORD,
     email:      CMD_SET_LOGIN,
-    username:   CMD_SET_LOGIN
+    username:   CMD_SET_LOGIN,
+    user_id:    CMD_SET_LOGIN,
+    name:       CMD_SET_LOGIN
 };
 
 
@@ -695,15 +699,15 @@ function onDataReceived(data)
                     exportLog.innerHTML += 'WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes<br />';
                 }
                 saveToEntry(exportDataEntry, exportDataUint8) 
-                exportData = null;
-                exportDataUint8 = null;
-                exportDataOffset = 0;
-                exportDataEntry = null;;
             }
             else
             {
                 exportLog.innerHTML += 'Error received export end ('+cmd+') with no active export<br />';
             }
+            exportData = null;
+            exportDataUint8 = null;
+            exportDataOffset = 0;
+            exportDataEntry = null;;
             break;
 
         default:

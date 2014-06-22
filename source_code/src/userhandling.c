@@ -162,6 +162,7 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t length)
             }
             if (strcmp((char*)temp_pnode.service, (char*)name) == 0)
             {
+                USBDEBUGPRINTF_P(PSTR("FOUND SVC : %04x"), next_node_addr);
                 return next_node_addr;
             }
             next_node_addr = temp_pnode.nextParentAddress;
@@ -265,6 +266,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     // Check if the context doesn't already exist
     if (searchForServiceName(name, length) != NODE_ADDR_NULL)
     {
+        USBDEBUGPRINTF_P(PSTR("add context fail\n"));
         return RETURN_NOK;
     }
     
@@ -284,6 +286,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     }
     else
     {
+        USBDEBUGPRINTF_P(PSTR("add context fail\n"));
         return RETURN_NOK;
     }
 }
@@ -351,11 +354,14 @@ RET_TYPE getPasswordForContext(char* buffer)
             return RETURN_NOK;
         }
         USBDEBUGPRINTF_P(PSTR("Get password "));
-        strcpy((char*)buffer, (char*)temp_cnode.password);
         // AES decryption: add our nonce with the ctr value, set the result, then decrypt
+        USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), current_nonce[0],current_nonce[1],current_nonce[2],current_nonce[3],current_nonce[4],current_nonce[5],current_nonce[6],current_nonce[7],current_nonce[8],current_nonce[9],current_nonce[10],current_nonce[11],current_nonce[12],current_nonce[13],current_nonce[14],current_nonce[15]);    
+        USBDEBUGPRINTF_P(PSTR("ctr node %02x %02x %02x"), temp_cnode.ctr[2], temp_cnode.ctr[1], temp_cnode.ctr[0]);
         aesCtrAdd(current_nonce, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN, temp_buffer);
+        USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), temp_buffer[0],temp_buffer[1],temp_buffer[2],temp_buffer[3],temp_buffer[4],temp_buffer[5],temp_buffer[6],temp_buffer[7],temp_buffer[8],temp_buffer[9],temp_buffer[10],temp_buffer[11],temp_buffer[12],temp_buffer[13],temp_buffer[14],temp_buffer[15]);
         aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
         aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
+        strcpy((char*)buffer, (char*)temp_cnode.password);
         //usbKeybPutStr((char*)buffer);     // XXX
         
         // Clear credential timer
@@ -434,7 +440,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
 */
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 {
-/*    uint8_t temp_buffer[AES256_CTR_LENGTH];*/
+    uint8_t temp_buffer[AES256_CTR_LENGTH];
     
     if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
     {
@@ -465,12 +471,16 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         // Ask for password changing approval
         if (guiAskForPasswordSet((char*)temp_cnode.login, (char*)password, (char*)temp_pnode.service) == RETURN_OK)
         {
-            // AES decryption: add our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
-//             aesCtrAdd(current_nonce, nextCtrVal, FLASH_STORAGE_CTR_LEN, temp_buffer);
-//             aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
-//             aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
-//             aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
-//             aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
+            // AES encryption: add our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
+            USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), current_nonce[0],current_nonce[1],current_nonce[2],current_nonce[3],current_nonce[4],current_nonce[5],current_nonce[6],current_nonce[7],current_nonce[8],current_nonce[9],current_nonce[10],current_nonce[11],current_nonce[12],current_nonce[13],current_nonce[14],current_nonce[15]);    
+            aesCtrAdd(current_nonce, nextCtrVal, FLASH_STORAGE_CTR_LEN, temp_buffer);
+            USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), temp_buffer[0],temp_buffer[1],temp_buffer[2],temp_buffer[3],temp_buffer[4],temp_buffer[5],temp_buffer[6],temp_buffer[7],temp_buffer[8],temp_buffer[9],temp_buffer[10],temp_buffer[11],temp_buffer[12],temp_buffer[13],temp_buffer[14],temp_buffer[15]);
+            aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
+            aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
+            memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, FLASH_STORAGE_CTR_LEN);
+            USBDEBUGPRINTF_P(PSTR("ctr node %02x %02x %02x"), temp_cnode.ctr[2], temp_cnode.ctr[1], temp_cnode.ctr[0]); 
+            aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
+            aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
             
             // Update child node to store password
             if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
@@ -726,6 +736,7 @@ void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
     {
         current_nonce[i] = nonce[i];
     }
+    USBDEBUGPRINTF_P(PSTR("CTR VAL %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"), current_nonce[0],current_nonce[1],current_nonce[2],current_nonce[3],current_nonce[4],current_nonce[5],current_nonce[6],current_nonce[7],current_nonce[8],current_nonce[9],current_nonce[10],current_nonce[11],current_nonce[12],current_nonce[13],current_nonce[14],current_nonce[15]);    
     
     aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
     memset((void*)aes_key, 0, AES_KEY_LENGTH/8);

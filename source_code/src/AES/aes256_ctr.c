@@ -184,7 +184,7 @@ void aesCtrAdd( uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff)
         i--;
     }
 
-    while( carry > 0 && i != -1 )
+    while(i != -1)
     {
         carry = (uint16_t)ctr[i] + carry;
         outBuff[i] = (uint8_t)carry;

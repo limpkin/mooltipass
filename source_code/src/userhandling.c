@@ -49,6 +49,8 @@ volatile uint8_t credential_timer_valid = FALSE;
 volatile uint16_t credential_timer_val = 0;
 // Know if the smart card is inserted and unlocked
 uint8_t smartcard_inserted_unlocked = FALSE;
+// Current highest CTR value
+uint8_t highest_ctr_val[FLASH_STORAGE_CTR_LEN];
 // Current nonce
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login child node address
@@ -636,6 +638,60 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
     }
 }
 
+/*! \fn     findHighestCtrValueForSelectedUser(uint8_t* highest_ctr)
+*   \brief  Find the highest CTR value for the selected user
+*   \return Success status
+*/
+RET_TYPE findHighestCtrValueForSelectedUser(void)
+{
+    uint16_t next_pnode_addr = nodeMgmtHandle.firstParentNode;
+    uint8_t found_child_node = FALSE;
+    uint16_t next_cnode_addr;
+    
+    // Parent nodes loop
+    while (next_pnode_addr != NODE_ADDR_NULL)
+    {
+        if (readParentNode(&nodeMgmtHandle, &temp_pnode, next_pnode_addr) != RETURN_OK)
+        {
+            return RETURN_NOK;
+        }
+        next_cnode_addr = temp_pnode.nextChildAddress;
+        
+        // Children nodes loop
+        while (next_cnode_addr != NODE_ADDR_NULL)
+        {
+            if (readChildNode(&nodeMgmtHandle, &temp_cnode, next_cnode_addr) != RETURN_OK)
+            {
+                return RETURN_NOK;
+            }
+            if ()
+            {
+                memcpy(highest_ctr_val, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN);
+            }
+            found_child_node = TRUE;
+            next_cnode_addr = temp_cnode.nextChildAddress;
+        }
+        
+        next_pnode_addr = temp_pnode.nextParentAddress;
+    }
+    
+    // Empty memory, set 0
+    if (found_child_node == FALSE)
+    {
+        for (uint8_t i = 0; i < FLASH_STORAGE_CTR_LEN; i++)
+        {
+            highest_ctr_val[i] = 0;
+        }
+    }
+    else
+    {
+        // Increment max ctr val by 2
+        
+    }
+    
+    return RETURN_OK;
+}
+
 /*! \fn     initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
 *   \brief  Initialize our encryption/decryption part
 *   \param  aes_key     Our AES256 key
@@ -652,7 +708,7 @@ void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
     
     aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
     memset((void*)aes_key, 0, AES_KEY_LENGTH/8);
-    aes256CtrEncrypt(&aesctx, nonce, 2);
+    findHighestCtrValueForSelectedUser();
 }
 
 /*! \fn     addNewUserAndNewSmartCard(uint16_t pin_code)

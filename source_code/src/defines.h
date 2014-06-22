@@ -47,11 +47,11 @@
 // First hardware sent to the contributors, 12/2013
 //#define HARDWARE_V1
 // Olivier's design hardware, 04/2014
-#define HARDWARE_OLIVIER_V1
+//#define HARDWARE_OLIVIER_V1
 
 /**************** PROGRAMMING HARDWARE ****************/
 // Uncomment to go to the original boot loader when smart card inserted at boot
-#define AVR_BOOTLOADER_PROGRAMMING
+//#define AVR_BOOTLOADER_PROGRAMMING
 
 /**************** SMARTCARD FUSE VERSION ****************/
 // First smart card sent to the first contributors

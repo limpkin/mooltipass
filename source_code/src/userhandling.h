@@ -49,6 +49,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length);
 void setSmartCardInsertedUnlocked(uint8_t val);
 RET_TYPE initUserFlashContext(uint8_t user_id);
 RET_TYPE getPasswordForContext(char  *buffer);
+uint8_t getSmartCardInsertedUnlocked(void);
 RET_TYPE getLoginForContext(char *buffer);
 void firstTimeUserHandlingInit(void);
 uint8_t getNumberOfKnownUsers(void);

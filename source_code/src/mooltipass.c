@@ -244,6 +244,7 @@ int main(void)
     // oledClear();    // clear inactive buffer
     oledSetXY(26, 16);
     printf_P(PSTR("Mooooltipass"));
+    oledWriteInactiveBuffer();
     
     // Launch the after HaD logo display tests
     afterHadLogoDisplayTests();

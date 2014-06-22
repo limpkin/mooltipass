@@ -77,6 +77,15 @@ void setSmartCardInsertedUnlocked(uint8_t val)
     smartcard_inserted_unlocked = val;
 }
 
+/*! \fn     getSmartCardInsertedUnlocked(void)
+*   \brief  know if the smartcard is inserted and unlocked
+*   \return The state
+*/
+uint8_t getSmartCardInsertedUnlocked(void)
+{
+    return smartcard_inserted_unlocked;
+}
+
 /*! \fn     userHandlingTick(void)
 *   \brief  Function called every ms
 */

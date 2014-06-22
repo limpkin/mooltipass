@@ -22,6 +22,7 @@
 *    Created:  09/6/2014
 *    Author:   Mathieu Stephan
 */
+#include "smart_card_higher_level_functions.h"
 #include "eeprom_addresses.h"
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
@@ -284,7 +285,16 @@ void usbProcessIncoming(uint8_t* incomingData)
         // erase eeprom
         case CMD_ERASE_SMC :
         {
-            sendPluginOneByteAnswer(CMD_ERASE_SMC, PLUGIN_BYTE_OK, incomingData); 
+            if (getSmartCardInsertedUnlocked() == TRUE)
+            {
+                eraseSmartCard();
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            sendPluginOneByteAnswer(CMD_ERASE_SMC, plugin_return_value, incomingData); 
             break;
         }   
 #endif

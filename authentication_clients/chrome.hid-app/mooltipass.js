@@ -76,7 +76,6 @@ var authReq = null;     // current authentication request
 var context = null;
 var contextGood = false;
 var createContext = false;
-var loginSet = false;
 var loginValue = null;
 
 var connectMsg = null;  // saved message to send after connecting
@@ -160,7 +159,6 @@ function reset()
     //context = null;
     //contextGood = false;
     //createContext = false;
-    loginSet = false;
     loginValue = null;
 
     exportData = null;        // arraybuffer for receiving exported data
@@ -290,15 +288,8 @@ function getNextField()
 
             if (type in getFieldMap)
             {
-                if (type == 'password' && !loginSet && loginValue) 
-                {
-                    // need to set the login first
-                    sendString(CMD_SET_LOGIN, loginValue);
-                    return;
-                }
                 if (type == 'login')
                 {
-                    loginSet = false;
                     loginValue = null;
                 }
                 console.log('get '+type+' for '+authReq.context+' '+authReq.pending.type);
@@ -397,15 +388,6 @@ function saveToEntry(entry, data)
         }
         fileWriter.truncate(0);
     });
-}
-
-
-function initLog(log)
-{
-    $(log).change(function() {
-        $(log).scrollTop($(log)[0].scrollHeight);
-    });
-
 }
 
 function log(logId, text)
@@ -748,7 +730,6 @@ function onDataReceived(data)
             if (authReq && authReq.type == 'inputs' && authReq.pending) {
                 if (bytes[2] == 1)
                 {
-                    loginSet = true;
                     console.log('get '+authReq.pending.type+' for '+authReq.context);
                     log('#messageLog', 'get '+authReq.pending.type+'\n');
                     sendRequest(getFieldMap[authReq.pending.type]);

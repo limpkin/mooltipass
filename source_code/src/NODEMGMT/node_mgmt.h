@@ -30,10 +30,13 @@
 #ifndef NODE_MGMT_H_
 #define NODE_MGMT_H_
 
-#define NODE_TYPE_PARENT 0
-#define NODE_TYPE_CHILD 1
-#define NODE_TYPE_CHILD_DATA 2
-#define NODE_TYPE_DATA 3
+typedef enum _nodeType 
+{
+    NODE_TYPE_PARENT = 0,
+    NODE_TYPE_CHILD = 1,
+    NODE_TYPE_CHILD_DATA = 2,
+    NODE_TYPE_DATA = 3
+} nodeType;
 
 #define NODE_ADDR_NULL 0x0000
 #define NODE_VBIT_VALID 0
@@ -60,6 +63,16 @@
 #define NODE_ADDR_SHMT 3
 #define NODE_ADDR_PAGE_MASK 0x1fff
 #define NODE_ADDR_NODE_MASK 0x0007
+
+#define NODE_MGMT_YEAR_SHT 9
+#define NODE_MGMT_YEAR_MASK 0xFE00
+#define NODE_MGMT_YEAR_MASK_FINAL 0x007F
+
+#define NODE_MGMT_MONTH_SHT 5
+#define NODE_MGMT_MONTH_MASK 0x03E0
+#define NODE_MGMT_MONTH_MASK_FINAL 0x000F
+
+#define NODE_MGMT_DAY_MASK_FINAL 0x001F
 
 #define NODE_PARENT_SIZE_OF_SERVICE 58
 #define NODE_CHILD_SIZE_OF_DESCRIPTION 24
@@ -189,6 +202,9 @@ uint16_t pageNumberFromAddress(uint16_t addr);
 uint8_t nodeNumberFromAddress(uint16_t addr);
 uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber);
 
+uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day);
+RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day);
+
 /* Init Handle */
 RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);
 
@@ -214,8 +230,11 @@ RET_TYPE invalidateChildNode(cNode *c);
 RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress);
 
 RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c);
+RET_TYPE createChildStartOfDataNode(mgmtHandle *h, uint16_t pAddr, cNode *c, uint8_t dataNodeCount);
 RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress);
 RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
 RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePolicy policy);
+
+
 
 #endif /* NODE_MGMT_H_ */

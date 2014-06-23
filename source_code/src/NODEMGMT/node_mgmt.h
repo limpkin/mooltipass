@@ -30,10 +30,13 @@
 #ifndef NODE_MGMT_H_
 #define NODE_MGMT_H_
 
-#define NODE_TYPE_PARENT 0
-#define NODE_TYPE_CHILD 1
-#define NODE_TYPE_CHILD_DATA 2
-#define NODE_TYPE_DATA 3
+typedef enum _nodeType 
+{
+    NODE_TYPE_PARENT = 0,
+    NODE_TYPE_CHILD = 1,
+    NODE_TYPE_CHILD_DATA = 2,
+    NODE_TYPE_DATA = 3
+} nodeType;
 
 #define NODE_ADDR_NULL 0x0000
 #define NODE_VBIT_VALID 0
@@ -227,8 +230,11 @@ RET_TYPE invalidateChildNode(cNode *c);
 RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress);
 
 RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c);
+RET_TYPE createChildStartOfDataNode(mgmtHandle *h, uint16_t pAddr, cNode *c, uint8_t dataNodeCount);
 RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress);
 RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
 RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePolicy policy);
+
+
 
 #endif /* NODE_MGMT_H_ */

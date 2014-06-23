@@ -71,10 +71,6 @@ var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
 var CMD_ERASE_SMC           = 0x42;
 
-var message = null;     // reference to the message div in the app HTML for logging
-var debug = null;       // reference to the hidDebug div in the app HTML for hid debug logging
-var exportLog = null;   // reference to the management tab log
-
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
 var context = null;
@@ -82,6 +78,8 @@ var contextGood = false;
 var createContext = false;
 var loginSet = false;
 var loginValue = null;
+
+var connectMsg = null;  // saved message to send after connecting
 
 var FLASH_PAGE_COUNT = 512;
 var FLASH_PAGE_SIZE = 264;
@@ -153,6 +151,40 @@ function arrayToStr(buf)
 
 
 /**
+ * reset all state data
+ */
+function reset()
+{
+    connection = null;  // connection to the mooltipass
+    //authReq = null;     // current authentication request
+    //context = null;
+    //contextGood = false;
+    //createContext = false;
+    loginSet = false;
+    loginValue = null;
+
+    exportData = null;        // arraybuffer for receiving exported data
+    exportDataUint8 = null;   // uint8 view of exportData 
+    exportDataEntry = null;   // File entry for flash export
+    exportDataOffset = 0;     // current data offset in arraybuffer
+}
+
+/**
+ * Connect to the mooltipass
+ */
+function connect(msg)
+{
+    reset();
+    console.log('Connecting...');
+    if (msg)
+    {
+        connectMsg = msg;
+    }
+    chrome.hid.getDevices(device_info, onDeviceFound);
+}
+
+
+/**
  * Send a command and string to the mooltipass
  * @param type the command type (e.g. CMD_SET_PASSWORD)
  * @param str the string to send with the command
@@ -170,6 +202,12 @@ function sendString(type, str)
 
     console.log('body '+JSON.stringify(body));
 
+    if (!connection)
+    {
+        connect(msg);
+        return;
+    }
+
     chrome.hid.send(connection, 0, msg, function() 
     {
         if (!chrome.runtime.lastError) 
@@ -180,7 +218,7 @@ function sendString(type, str)
         else
         {
           console.log('Failed to send to device: '+chrome.runtime.lastError.message);
-          throw chrome.runtime.lastError.message;  
+          reset();
         }					
     });
 }
@@ -196,6 +234,12 @@ function sendRequest(type)
     header = new Uint8Array(msg, 0);
     header.set([0,type], 0);
 
+    if (!connection)
+    {
+        connect(msg);
+        return;
+    }
+
     chrome.hid.send(connection, 0, msg, function() 
     {
         if (!chrome.runtime.lastError) 
@@ -205,7 +249,7 @@ function sendRequest(type)
         else
         {
           console.log('Failed to send to device: '+chrome.runtime.lastError.message);
-          throw chrome.runtime.lastError.message;  
+          reset();
         }					
     });
 }
@@ -258,7 +302,7 @@ function getNextField()
                     loginValue = null;
                 }
                 console.log('get '+type+' for '+authReq.context+' '+authReq.pending.type);
-                message.innerHTML += 'get '+type+'<br />';
+                log('#messageLog',  'get '+type+'\n');
                 sendRequest(getFieldMap[type]);
             }
             else
@@ -270,13 +314,13 @@ function getNextField()
         } else {
             // no more input fields to fetch from mooltipass, send credentials to the web page
             chrome.runtime.sendMessage(authReq.senderId, {type: 'credentials', fields: authReq.credentials});
-            message.innerHTML += 'sent credentials to '+authReq.senderId+'<br />';
+            log('#messageLog','sent credentials to '+authReq.senderId+'\n');
             authReq = null;
         }
     }
     else
     {
-        message.innerHTML += 'no authReq<br />';
+        log('#messageLog', 'no authReq\n');
     }
 }
 
@@ -298,7 +342,7 @@ function setNextField()
             if (type in setFieldMap)
             {
                 console.log('set '+type+' for '+authReq.context+' '+authReq.pending.type+' to '+authReq.pending.value);
-                message.innerHTML += 'set '+type+' = "'+authReq.pending.value+'"<br />';
+                log('#messageLog', 'set '+type+' = "'+authReq.pending.value+'"\n');
                 sendString(setFieldMap[type], authReq.pending.value);
             }
             else
@@ -310,34 +354,23 @@ function setNextField()
         } else {
             // no more input fields to set on mooltipass
             // XXX todo add an error check / ACK back to the web page?
-            message.innerHTML += 'update finished <br />';
+            log('#messageLog', 'update finished \n');
             authReq = null;
         }
     }
     else
     {
-        message.innerHTML += 'no authReq<br />';
+        log('#messageLog',  'no authReq\n');
     }
 }
 
 function setContext(create)
 {
     createContext = create;
-    if (connection) 
-    {
-        message.innerHTML += 'Context: "'+authReq.context+'" ';
-        // get credentials from mooltipass
-        contextGood = false;
-        sendString(CMD_CONTEXT, authReq.context);
-    }
-    else 
-    {
-        // not currently connected, attempt to connect
-        console.log('app: not connected');
-        console.log('Connecting to mooltipass...');
-        message.innerHTML += 'Connecting... <br />';
-        chrome.hid.getDevices(device_info, onDeviceFound);
-    }
+    log('#messageLog', 'Set context: "'+authReq.context+'" \n');
+    // get credentials from mooltipass
+    contextGood = false;
+    sendString(CMD_CONTEXT, authReq.context);
 }
 
 function saveToEntry(entry, data) 
@@ -348,16 +381,16 @@ function saveToEntry(entry, data)
         {
             if (this.error)
             {
-                exportLog.innerHTML += 'Error during write: ' + this.error.toString() + '<br />';
+                log('#exportLog', 'Error during write: ' + this.error.toString() + '\n');
             }
             else
             {
                 if (fileWriter.length === 0) {
                     // truncate has finished
                     var blob = new Blob([data], {type: 'application/octet-binary'});
-                    exportLog.innerHTML += 'writing '+data.length+' bytes<br />';
+                    log('#exportLog',  'writing '+data.length+' bytes\n');
                     fileWriter.write(blob);
-                    exportLog.innerHTML += 'Save complete<br />';
+                    log('#exportLog', 'Save complete\n');
                 } else {
                 }
             }
@@ -367,6 +400,24 @@ function saveToEntry(entry, data)
 }
 
 
+function initLog(log)
+{
+    $(log).change(function() {
+        $(log).scrollTop($(log)[0].scrollHeight);
+    });
+
+}
+
+function log(logId, text)
+{
+    var box = $(logId);
+    if (text) {
+        box.val(box.val() + text);
+        box.scrollTop(box[0].scrollHeight);
+    } else {
+        box.val('');
+    }
+}
 
 /**
  * Initialise the app window, setup message handlers.
@@ -374,7 +425,6 @@ function saveToEntry(entry, data)
 function initWindow()
 {
     var connectButton = document.getElementById("connect");
-    var receiveButton = document.getElementById("receiveResponse");
     var clearButton = document.getElementById("clear");
     var clearDebugButton = document.getElementById("clearDebug");
     var exportFlashButton = document.getElementById("exportFlash");
@@ -383,31 +433,21 @@ function initWindow()
     var eraseFlashButton = document.getElementById("eraseFlash");
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
 
-    message = document.getElementById("messageLog");
-    debug = document.getElementById("debugLog");
-    exportLog = document.getElementById("exportLog");
+    // clear contents of logiiiiiis
+    $('#messageLog').html('');
+    $('#debugLog').html('');
+    $('#exportLog').html('');
+    $('#developerLog').html('');
+    var messageLog = $('#messageLog');
 
-    connectButton.addEventListener('click', function() 
-    {
-        console.log('Getting device...');
-        chrome.hid.getDevices(device_info, onDeviceFound);
-    });
-
-    clearButton.addEventListener('click', function() 
-    {
-        console.log('Clearing log');
-        message.innerHTML = '';
-    });
-    clearDebugButton.addEventListener('click', function() 
-    {
-        console.log('Clearing debug');
-        debug.innerHTML = '';
-    });
+    connectButton.addEventListener('click', function() { connect(); });
+    clearButton.addEventListener('click', function() { log('#messageLog'); });
+    clearDebugButton.addEventListener('click', function() {  log('#debugLog'); });
     
     exportFlashButton.addEventListener('click', function() 
     {
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpflash.bin'}, function(entry) {
-            exportLog.innerHTML = 'save mpflash.img <br />';
+            log('#exportLog', 'save mpflash.img\n');
             exportDataEntry = entry;
             exportData = null;
             exportProgressBar.progressbar('value', 0);
@@ -418,25 +458,12 @@ function initWindow()
     exportEepromButton.addEventListener('click', function() 
     {
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpeeprom.bin'}, function(entry) {
-            exportLog.innerHTML = 'save mpeeprom.img <br />';
+            log('#exportLog', 'save mpeeprom.img\n');
             exportDataEntry = entry;
             exportData = null;
             exportProgressBar.progressbar('value', 0);
             sendRequest(CMD_EXPORT_EEPROM);
         });
-    });
-
-    receiveButton.addEventListener('click', function() 
-    {
-        if (connection) 
-        {
-            console.log('Polling for response...');
-            chrome.hid.receive(connection, packetSize, onDataReceived);
-        } 
-        else 
-        {
-            console.log('Not connected');
-        }
     });
 
     eraseFlashButton.addEventListener('click', function() 
@@ -445,7 +472,7 @@ function initWindow()
             buttons: {
                 "Erase Mooltipass Flash?": function() 
                 {
-                    developerLog.innerHTML = 'Erasing flash... ';
+                    log('#developerLog', 'Erasing flash... ');
                     sendRequest(CMD_ERASE_FLASH);
                     $(this).dialog('close');
                 },
@@ -463,7 +490,7 @@ function initWindow()
             buttons: {
                 "Erase Mooltipass EEPROM?": function() 
                 {
-                    developerLog.innerHTML = 'Erasing EEPROM... ';
+                    log('#developerLog', 'Erasing EEPROM... ');
                     sendRequest(CMD_ERASE_EEPROM);
                     $(this).dialog('close');
                 },
@@ -481,7 +508,7 @@ function initWindow()
             buttons: {
                 "Erase Mooltipass Smartcard?": function() 
                 {
-                    developerLog.innerHTML = 'Erasing smartcard... ';
+                    log('#developerLog', 'Erasing smartcard... ');
                     sendRequest(CMD_ERASE_SMC);
                     $(this).dialog('close');
                 },
@@ -576,11 +603,11 @@ function initWindow()
 
     });
 
+    // configure jquery ui elements
 	$("#manage").accordion();
 	importProrgessBar = $("#importProgressbar").progressbar({ value: 0 });
 	exportProgressBar = $("#exportProgressbar").progressbar({ value: 0 });
     $("#connect").button();
-    $("#receiveResponse").button();
     $("#clear").button();
     $("#clearDebug").button();
     $("#exportFlash").button();
@@ -601,10 +628,14 @@ function initWindow()
 function onDataReceived(data) 
 {
     var bytes = new Uint8Array(data);
+    var msg = new Uint8Array(data,2);
     var len = bytes[0]
     var cmd = bytes[1]
 
-    //console.log('Received data CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(bytes));
+    if ((cmd != CMD_DEBUG) && (cmd < CMD_EXPORT_FLASH))
+    {
+        console.log('Received CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(msg));
+    }
 
     switch (cmd) 
     {
@@ -615,20 +646,21 @@ function onDataReceived(data)
             {
                     msg += String.fromCharCode(bytes[i+2]);
             }
-            debug.innerHTML += msg + '<br />\n';
+            log('#debugLog', msg);
             break;
         }
         case CMD_PING:
-            message.innerHTML += "command: ping<br />\n";
+            log('#messageLog', 'command: ping\n');
             break;
         case CMD_VERSION:
         {
             var version = "" + bytes[2] + "." + bytes[3];
-            message.innerHTML += 'Connected to Mooltipass ' + version + '<br />\n';
+            log('#messageLog', 'Connected to Mooltipass ' + version + '\n');
             if (authReq) 
             {
-                message.innerHTML += 'Context: "'+authReq.context+'" ';
+                log('#messageLog', 'Context: "'+authReq.context+'"\n');
                 sendString(CMD_CONTEXT, authReq.context);
+                console.log('Initial set context "'+authReq.context+'"');
             }
             break;
         }
@@ -636,37 +668,51 @@ function onDataReceived(data)
             contextGood = (bytes[2] == 1);
             if (!contextGood)
             {
-                message.innerHTML += 'failed to create context '+authReq.context+'<br />';
+                log('#messageLog',  'failed to create context '+authReq.context+'\n');
             } else {
-                message.innerHTML += 'created context '+authReq.context+'<br />';
+                log('#messageLog', 'created context "'+authReq.context+'" for '+authReq.type+'\n');
+                log('#messageLog', 'setting context "'+authReq.context+'" for '+authReq.type+'\n');
+                console.log('Added context, now set context "'+authReq.context+'" for '+authReq.type);
                 sendString(CMD_CONTEXT, authReq.context);
             }
             break;
 
         case CMD_CONTEXT:
             contextGood = (bytes[2] == 1);
-            contextGood ? message.innerHTML += '(existing)<br />' : message.innerHTML += '(new)<br />';
+
+            if (contextGood) {
+                log('#messageLog', 'Active: "'+authReq.context+'" for '+authReq.type+'\n');
+                console.log('Successfully set context "'+authReq.context+'" for '+authReq.type);
+            } else {
+                console.log('Failed to set context "'+authReq.context+'"');
+                log('#messageLog','Unknown context "'+authReq.context+'" for '+authReq.type+'\n');
+            }
 
             if (authReq) 
             {
-                if (!contextGood && createContext) {
-                    createContext = false;
-                    message.innerHTML += 'add new context "'+authReq.context+'"<br />';
-                    sendString(CMD_ADD_CONTEXT, authReq.context);
-                    break;
-                }
-
-                switch (authReq.type)
+                if (contextGood)
                 {
-                    case 'inputs':
-                        // Start getting each input field value
-                        getNextField();
-                        break;
-                    case 'update':
-                        setNextField();
-                        break;
-                    default:
-                        break;
+                    switch (authReq.type)
+                    {
+                        case 'inputs':
+                            // Start getting each input field value
+                            getNextField();
+                            break;
+                        case 'update':
+                            setNextField();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if (createContext) 
+                {
+                    createContext = false;
+                    log('#messageLog','add new context "'+authReq.context+'" for '+authReq.type+'\n');
+                    sendString(CMD_ADD_CONTEXT, authReq.context);
+                } else {
+                    // failed to set up context
+                    authReq = null;
                 }
             }
             break;
@@ -681,9 +727,9 @@ function onDataReceived(data)
             if (len > 1) 
             {
                 if (authReq && authReq.pending) {
-                    message.innerHTML += authReq.pending.type;
+                    log('#messageLog',  authReq.pending.type);
                     var value = arrayToStr(new Uint8Array(data.slice(2)));
-                    message.innerHTML += ': "'+value+'"<br />';
+                    log('#messageLog', ': "'+value+'"\n');
                     storeField(value);
                 } else {
                     // no pending credential request
@@ -691,7 +737,7 @@ function onDataReceived(data)
             }
             else 
             {
-                message.innerHTML += 'no value found for '+authReq.pending.type+'<br />';
+                log('#messageLog', 'no value found for '+authReq.pending.type+'\n');
             }
             getNextField();
             break;
@@ -704,7 +750,7 @@ function onDataReceived(data)
                 {
                     loginSet = true;
                     console.log('get '+authReq.pending.type+' for '+authReq.context);
-                    message.innerHTML += 'get '+authReq.pending.type+'<br />';
+                    log('#messageLog', 'get '+authReq.pending.type+'\n');
                     sendRequest(getFieldMap[authReq.pending.type]);
                     break;
                 }
@@ -716,12 +762,12 @@ function onDataReceived(data)
             if (bytes[2] == 1) 
             {
                 // success
-                message.innerHTML += 'set '+type+' on mooltipass<br />';
+                log('#messageLog', 'set '+type+' on mooltipass\n');
             }
             else 
             {
                 // failed
-                message.innerHTML += 'set failed for '+type+'<br />';
+                log('#messageLog', 'set failed for '+type+'\n');
             }
             setNextField();
             
@@ -733,20 +779,14 @@ function onDataReceived(data)
             if (!exportData)
             {
                 console.log('new export');
-                if (cmd == CMD_EXPORT_FLASH)
-                {
-                    exportData = new ArrayBuffer(FLASH_PAGE_COUNT*FLASH_PAGE_SIZE);
-                }
-                else
-                {
-                    exportData = new ArrayBuffer(EEPROM_SIZE);
-                }
+                var size = (cmd == CMD_EXPORT_FLASH) ? (FLASH_PAGE_COUNT*FLASH_PAGE_SIZE) : EEPROM_SIZE;
+                exportData = new ArrayBuffer(size);
                 exportDataUint8 = new Uint8Array(exportData);
                 exportDataOffset = 0;
                 console.log('new export ready');
                 exportProgressBar.progressbar('value', 0);
             }
-            // flash packet
+            // data packet
             packet = new Uint8Array(data.slice(2,2+len));
             if ((packet.length + exportDataOffset) > exportDataUint8.length)
             {
@@ -764,17 +804,17 @@ function onDataReceived(data)
         case CMD_EXPORT_EEPROM_END:
             if (exportData && exportDataEntry)
             {
-                exportLog.innerHTML += 'export: saving to file<br />';
+                log('#exportLog', 'export: saving to file\n');
                 if (exportDataOffset < exportDataUint8.length)
                 {
                     console.log('WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes');
-                    exportLog.innerHTML += 'WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes<br />';
+                    log('#exportLog', 'WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes\n');
                 }
                 saveToEntry(exportDataEntry, exportDataUint8) 
             }
             else
             {
-                exportLog.innerHTML += 'Error received export end ('+cmd+') with no active export<br />';
+                log('#exportLog', 'Error received export end ('+cmd+') with no active export\n');
             }
             exportData = null;
             exportDataUint8 = null;
@@ -785,14 +825,11 @@ function onDataReceived(data)
         case CMD_ERASE_EEPROM:
         case CMD_ERASE_FLASH:
         case CMD_ERASE_SMC:
-            if (developerLog)
-            {
-                developerLog.innerHTML += (bytes[2] == 1) ? 'succeeded<br />' : 'failed<br />'
-            }
+            log('#developerLog', (bytes[2] == 1) ? 'succeeded\n' : 'failed\n');
             break;
 
         default:
-            message.innerHTML += 'unknown command '+cmd+'<br />';
+            log('#messageLog', 'unknown command '+cmd+'\n');
             break;
     }
     chrome.hid.receive(connection, packetSize, onDataReceived);
@@ -821,10 +858,21 @@ function onDeviceFound(devices)
         if (!chrome.runtime.lastError) 
 		{
             connection = connectInfo.connectionId;
-			msg = new ArrayBuffer(packetSize);
-            data = new Uint8Array(msg);
-            data.set([0, CMD_VERSION], 0);
-            console.log('sending '+JSON.stringify(data));
+
+            if (connectMsg)
+            {
+                // message pending to send
+                msg = connectMsg;
+                connectMsg = null;
+                console.log('sending '+JSON.stringify(new Uint8Array(msg)));
+            }
+            else
+            {
+                msg = new ArrayBuffer(packetSize);
+                data = new Uint8Array(msg);
+                data.set([0, CMD_VERSION], 0);
+                console.log('sending '+JSON.stringify(data));
+            }
             chrome.hid.send(connection, 0, msg, function() 
             {
 				if (!chrome.runtime.lastError) 

@@ -34,174 +34,194 @@
 #include <stdint.h>
 #include <stddef.h>
 
-// Function Prototype
-RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t, uint8_t dnr);
-RET_TYPE writeReadDataFlash(uint16_t a, uint16_t s, void *d);
+// Private Function Prototypes
+
+// Doc Strings Below
+static RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t, uint8_t dnr);
+static RET_TYPE writeReadDataFlash(uint16_t a, uint16_t s, void *d);
 
 /* Flag Get/Set Helper Functions */
-/*!  \fn       nodeTypeFromFlags(uint16_t flags)
-*    \brief    Gets nodeType from flags  
-*              NO ERROR CHECKING PERFORMED.
-*    \param    flags  The flag field from a node
-*    \return   Node Type Value (0 -> 3)
-*/
+/**
+ * Gets nodeType from flags  
+ * @param   flags           The flags field of a node
+ * @return  nodeType        (as uint8) (NODE_TYPE_PARENT, NODE_TYPE_CHILD, NODE_TYPE_CHILD_DATA, NODE_TYPE_DATA)
+ * @note    No error checking is performed
+ */
 uint8_t nodeTypeFromFlags(uint16_t flags)
 {
     return (uint8_t)(((flags & NODE_F_TYPE_MASK) >>  NODE_F_TYPE_SHMT) & NODE_F_TYPE_MASK_FINAL);
 }
 
-/*!  \fn       nodeTypeToFlags(uint16_t *flags, uint8_t nodeType)
-*    \brief    Sets nodeType in flags  
-*              NO ERROR CHECKING PERFORMED.
-*    \param    flags  The flag field from a node
-*    \param    nodeType  The type of node
-*/
+/**
+ * Sets nodeType to flags  
+ * @param   flags           The flags field of a node
+ * @param   nodeType        (as uint8) (NODE_TYPE_PARENT, NODE_TYPE_CHILD, NODE_TYPE_CHILD_DATA, NODE_TYPE_DATA)
+ * @return  Does not return
+ * @note    No error checking is performed
+ */
 void  nodeTypeToFlags(uint16_t *flags, uint8_t nodeType)
 {
     *flags = (*flags & ~NODE_F_TYPE_MASK) | ((uint16_t)nodeType << NODE_F_TYPE_SHMT);
 }
 
-/*!  \fn       validBitFromFlags(uint16_t flags)
-*    \brief    Gets validBit from flags
-*              NO ERROR CHECKING PERFORMED.
-*    \param    flags  The flag field from a node
-*    \return   valid bit. (NODE_VBIT_VALID, NODE_VBIT_INVALID)
-*/
+/**
+ * Gets the node valid bit from flags  
+ * @param   flags           The flags field of a node
+ * @return  valid bit       as uint8_t
+ * @note    No error checking is performed
+ */
 uint8_t validBitFromFlags(uint16_t flags)
 {
     return (uint8_t)(((flags & NODE_F_VALID_BIT_MASK) >> NODE_F_VALID_BIT_SHMT) & NODE_F_VALID_BIT_MASK_FINAL);
 }
 
-/*!  \fn       validBitToFlags(uint16_t *flags, uint8_t vb)
-*    \brief    Sets validBit in flags    
-*              NO ERROR CHECKING PERFORMED.
-*    \param    flags  The flag field from a node
-*    \param    vb  Valid bit state (NODE_VBIT_VALID, NODE_VBIT_INVALID)
-*/
+/**
+ * Sets the node valid bit to flags  
+ * @param   flags           The flags field of a node
+ * @param   vb              The valid bit state to set in flags (NODE_VBIT_VALID, NODE_VBIT_INVALID)
+ * @return  Does not return
+ * @note    No error checking is performed
+ */
 void validBitToFlags(uint16_t *flags, uint8_t vb)
 {
     *flags = (*flags & (~NODE_F_VALID_BIT_MASK)) | ((uint16_t)vb << NODE_F_VALID_BIT_SHMT);
 }
 
-/*!  \fn       userIdFromFlags(uint16_t flags)
-*    \brief    Gets userId from flags 
-*              NO ERROR CHECKING PERFORMED.
-*    \param    flags  The flag field from a node
-*    \return   User ID Number (0 -> 15)
-*/
+/**
+ * Gets the user id from flags  
+ * @param   flags           The flags field of a node
+ * @return  user id         as uint8_t
+ * @note    No error checking is performed
+ */
 uint8_t userIdFromFlags(uint16_t flags)
 {
     return (uint8_t)(((flags & NODE_F_UID_MASK) >> NODE_F_UID_SHMT) & NODE_F_UID_MASK_FINAL);
 }
 
-/*!  \fn       userIdToFlags(uint16_t *flags, uint8_t vb)
-*    \brief    Sets userId in flags   
-*              NO ERROR CHECKING PERFORMED.
-*    \param    flags  The flag field from a node
-*    \param    uid User ID Number (0 -> 15)
-*/
+/**
+ * Sets the user id to flags  
+ * @param   flags           The flags field of a node
+ * @param   uid             The user id to set in flags (0 up to NODE_MAX_UID)
+ * @return  Does not return
+ * @note    No error checking is performed
+ */
 void userIdToFlags(uint16_t *flags, uint8_t uid)
 {
     *flags = (*flags & (~NODE_F_UID_MASK)) | ((uint16_t)uid << NODE_F_UID_SHMT);
 }
 
-/*!  \fn       credentialTypeFromFlags(uint16_t flags)
-*    \brief    Gets credentialType from flags  
-*              NO ERROR CHECKING PERFORMED. Only use on parent nodes.
-*    \param    flags  The flag field from a node
-*    \return   Credential Type
-*/
+/**
+ * Gets the credential type from flags  
+ * @param   flags           The flags field of a node
+ * @return  cred type       as uint8_t
+ * @note    No error checking is performed
+ */
 uint8_t credentialTypeFromFlags(uint16_t flags)
 {
     return (uint8_t)(flags & NODE_F_CRED_TYPE_MASK);
 }
 
-/*!  \fn       credentialTypeToFlags(uint16_t *flags, uint8_t credType)
-*    \brief    Sets credType in flags   
-*              NO ERROR CHECKING PERFORMED.
-*    \param    flags  The flag field from a node
-*    \param    credType credential Type
-*/
+/**
+ * Sets the credential type to flags  
+ * @param   flags           The flags field of a node
+ * @param   credType        The credential type to set in flags (0 up to NODE_MAX_CRED_TYPE)
+ * @return  Does not return
+ * @note    No error checking is performed
+ */
 void credentialTypeToFlags(uint16_t *flags, uint8_t credType)
 {
     *flags = (*flags & (~NODE_F_CRED_TYPE_MASK)) | ((uint16_t)credType);
 }
 
-/*!  \fn       dataNodeSequenceNumberfromFlags(uint16_t flags)
-*    \brief    Gets the sequence number from flags.  
-*              NO ERROR CHECKING PERFORMED. Only use on data nodes.
-*    \param    flags  The flag field from a node
-*    \return   Sequence Number (0 -> 255)
-*/
+/**
+ * Gets the data sequence number from flags  
+ * @param   flags           The flags field of a node
+ * @return  seq num         as uint8_t (0->255)
+ * @note    No error checking is performed
+ * @note    should only be used with data nodes
+ */
 uint8_t dataNodeSequenceNumberFromFlags(uint16_t flags)
 {
     return (uint8_t)(flags & NODE_F_DATA_SEQ_NUM_MASK);
 }
 
-/*!  \fn       dataNodeSequenceNumberToFlags(uint16_t *flags, uint8_t sid)
-*    \brief    Sets the sequence number in flags 
-*              NO ERROR CHECKING PERFORMED. Only use on data nodes.
-*    \param    flags  The flag field from a node
-*    \param    sid    sequence id
-*/
+/**
+ * Sets the data sequence number to flags  
+ * @param   flags           The flags field of a node
+ * @param   sid             The sequence number to set in flags (0 -> 255)
+ * @return  Does not return
+ * @note    No error checking is performed
+ * @note    should only be used with data nodes
+ */
 void dataNodeSequenceNumberToFlags(uint16_t *flags, uint8_t sid)
 {
     *flags = (*flags & (~NODE_F_DATA_SEQ_NUM_MASK)) | ((uint16_t)sid);
 }
 
-/*!  \fn       pageNumberFromAddress(uint16_t addr)
-*    \brief    Gets the page number from an address.  
-*              NO ERROR CHECKING PERFORMED.
-*    \param    addr  The address used for extraction
-*    \return   Page Number (value varies per flash IC)
-*/
+/**
+ * Extracts a page number from a constructed address
+ * @param   flags           The flags field of a node
+ * @param   addr            The constructed address used for extraction
+ * @return  page num        A page number in flash memory (uin16_t)
+ * @note    No error checking is performed
+ * @note    See design notes for address format
+ * @note    Max Page Number varies per flash size
+ */
 uint16_t pageNumberFromAddress(uint16_t addr)
 {
     return (addr >> NODE_ADDR_SHMT) & NODE_ADDR_PAGE_MASK;
 }
 
-/*!  \fn       nodeNumberFromAddress(uint16_t addr)
-*    \brief    Gets the node number from an address.  
-*              NO ERROR CHECKING PERFORMED.
-*    \param    addr  The address used for extraction
-*    \return   Node Number (value varies per flash IC)
-*/
+/**
+ * Extracts a node number from a constructed address
+ * @param   flags           The flags field of a node
+ * @param   addr            The constructed address used for extraction
+ * @return  node num        A node number of a node in a page in flash memory (uint8_t)
+ * @note    No error checking is performed
+ * @note    See design notes for address format
+ * @note    Max Node Number varies per flash size
+ */
 uint8_t nodeNumberFromAddress(uint16_t addr)
 {
     return (uint8_t)(addr & NODE_ADDR_NODE_MASK);
 }
 
-/*!  \fn       constructAddress(uint16_t pageNumber, uint8_t nodeNumber)
-*    \brief    Constructs a Node Address from a flash page number and node number
-*              NO ERROR CHECKING PERFORMED.
-*    \param    addr  The address used for extraction
-*    \return   Address
-*/
+/**
+ * Constructs an address for node storage in memory consisting of a page number and node number
+ * @param   pageNumber      The page number to be encoded
+ * @param   nodeNumber      The node number to be encoded
+ * @return  address         The constructed / encoded address
+ * @note    No error checking is performed
+ * @note    See design notes for address format
+ * @note    Max Page Number and Node Number vary per flash size
+ */
 uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber)
 {
     return ((pageNumber << NODE_ADDR_SHMT) | ((uint16_t)nodeNumber));
 }
 
-/*!  \fn       constructDate(uint8_t year, uint8_t month, uint8_t day)
-*    \brief    Packs a uint16_t type with a date code in format YYYYYYYMMMMDDDDD. Year Offset from 2010
-*    \param    year   The year to pack into the uint16_t
-*    \param    month  The month to pack into the uint16_t
-*    \param    day    The day to pack into the uint16_t
-*    \return   Returns the packed / constructed uint16_t encoding the date
-*/
+/**
+ * Packs a uint16_t type with a date code in format YYYYYYYMMMMDDDDD. Year Offset from 2010
+ * @param   year            The year to pack into the uint16_t
+ * @param   month           The month to pack into the uint16_t
+ * @param   day             The day to pack into the uint16_t
+ * @return  date            The constructed / encoded date in uint16_t
+ * @note    No error checking is performed
+ */
 uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day)
 {
     return (day | ((month << NODE_MGMT_MONTH_SHT) & NODE_MGMT_MONTH_MASK) | ((year << NODE_MGMT_YEAR_SHT) & NODE_MGMT_YEAR_MASK));
 }
 
-/*!  \fn       extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
-*    \brief    Unpacks a unint16_t to extract the year, month, and day information in format of YYYYYYYMMMMDDDDD. Year Offset from 2010
-*    \param    year   A pointer to storage for the year
-*    \param    month  A pointer to storage for the month
-*    \param    day    A pointer to storage for the day
-*    \return   RETURN_OK Always
-*/
-
+/**
+ * Unpacks a unint16_t to extract the year, month, and day information in format of YYYYYYYMMMMDDDDD. Year Offset from 2010
+ * @param   date            The constructed / encoded date in uint16_t to unpack
+ * @param   year            The unpacked year 
+ * @param   month           The unpacked month
+ * @param   day             The unpacked day
+ * @return  success status
+ * @note    No error checking is performed
+ */
 RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
 {
     *year = ((date >> NODE_MGMT_YEAR_SHT) & NODE_MGMT_YEAR_MASK_FINAL);
@@ -210,11 +230,12 @@ RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
     return RETURN_OK;
 }
 
-/*!  \fn       formatUserProfileMemory(uint8_t uid)
-*    \brief    Formats the user profile flash memory of user uid
-*    \param    uid  The id of the user to format profile memory
-*    \return   Success Status
-*/
+/**
+ * Formats the user profile flash memory of user uid.
+ * @param   uid             The id of the user to format profile memory
+ * @return  success status
+ * @note    Only formats the users starting parent node address and favorites 
+ */
 RET_TYPE formatUserProfileMemory(uint8_t uid)
 {
     uint16_t pageNumber;
@@ -238,13 +259,15 @@ RET_TYPE formatUserProfileMemory(uint8_t uid)
     return ret;
 }
 
-/*!  \fn       userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset)
-*    \brief    Obtains page and page offset for user profile 
-*    \param    uid  The ID number to calculate page and page offset
-*    \param    uid  The page number (pointer) set by this function.
-*    \param    uid  The page offset (pointer) set by this function.
-*    \return   Status
-*/
+/**
+ * Obtains page and page offset for a given user id
+ * @param   uid             The id of the user to perform that profile page and offset calculation (0 up to NODE_MAX_UID)
+ * @param   page            The page containing the user profile
+ * @param   pageOffset      The offset of the page that indicates the start of the user profile
+ * @return  success status
+ * @note    Calculation will take place even if the uid is not valid (no starting parent)
+ * @note    uid must be in range
+ */
 RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset)
 {
     if(uid >= NODE_MAX_UID)
@@ -260,12 +283,13 @@ RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOf
     return RETURN_OK;
 }
 
-/*!  \fn       initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
-*    \brief    Inits the Node Management Handle 
-*    \param    h  A pointer to the user allocated management handle
-*    \param    userIdNum  The id of the user to init the handle for
-*    \return   Status
-*/
+/**
+ * Initializes the Node Management Handle.
+ *   Check userIdNum in range,  reads users profile to get the starting parent node, scans memory for the next free parent and child nodes.
+ * @param   h               The user allocated node management handle
+ * @param   userIdNum       The user id to initialize the handle for (0->NODE_MAX_UID)
+ * @return  success status
+ */
 RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
 {    
     RET_TYPE ret = RETURN_NOK;
@@ -313,12 +337,12 @@ RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
     return RETURN_OK;
 }
 
-/*!  \fn       setStartingParent(mgmtHandle *h, uint16_t parentAddress)
-*    \brief    Sets the users starting parent node both in the handle and flash
-*    \param    h  A pointer to the user allocated management handle
-*    \param    userIdNum  The id of the user to init the handle for
-*    \return   Status
-*/
+/**
+ * Sets the users starting parent node both in the handle and user profile memory portion of flash
+ * @param   h               The user allocated node management handle
+ * @param   parentAddress   The constructed address of the users starting parent node (alphabetically) 
+ * @return  success status
+ */
 RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress)
 {
     RET_TYPE ret = RETURN_NOK;
@@ -360,12 +384,12 @@ RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress)
     return RETURN_OK;
 }
 
-/*!  \fn       readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
-*    \brief    Gets the users starting parent node address from the user profile
-*    \param    h  A pointer to the user allocated management handle
-*    \param    parentAddress  A pointer to the location to store the starting parent address
-*    \return   Status
-*/
+/**
+ * Gets the users starting parent node from the user profile memory portion of flash
+ * @param   h               The user allocated node management handle
+ * @param   parentAddress   The constructed address of the users starting parent node (alphabetically) 
+ * @return  success status
+ */
 RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
 {
     RET_TYPE ret = RETURN_NOK;
@@ -385,14 +409,14 @@ RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
     return RETURN_OK;
 }
 
-/*!  \fn       setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
-*    \brief    Sets a user favorite in the user profile
-*    \param    h  A pointer to the user allocated management handle
-*    \param    favId  The id number of the fav record
-*    \param    parentAddress  The parent node address of the fav
-*    \param    childAddress   The child node address of the fav
-*    \return   Status
-*/
+/**
+ * Sets a user favorite in the user profile
+ * @param   h               The user allocated node management handle
+ * @param   favId           The id number of the fav record
+ * @param   parentAddress   The parent node address of the fav
+ * @param   childAddress    The child node address of the fav
+ * @return  success status
+ */
 RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
 {
     RET_TYPE ret = RETURN_OK;
@@ -428,14 +452,14 @@ RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t c
     return ret;
 }
 
-/*!  \fn       readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
-*    \brief    Gets a user favorite in the user profile
-*    \param    h  A pointer to the user allocated management handle
-*    \param    favId  The id number of the fav record
-*    \param    parentAddress  The parent node address of the fav
-*    \param    childAddress   The child node address of the fav
-*    \return   Status
-*/
+/**
+ * Reads a user favorite from the user profile
+ * @param   h               The user allocated node management handle
+ * @param   favId           The id number of the fav record
+ * @param   parentAddress   The parent node address of the fav
+ * @param   childAddress    The child node address of the fav
+ * @return  success status
+ */
 RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
 {
     RET_TYPE ret = RETURN_OK;
@@ -472,14 +496,14 @@ RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t
     return ret;
 }
 
-/*!  \fn       scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
-*    \brief    Determines the next parent node location (next write location).
-*              Sets the nextFreeParentNode value in the handle
-*              If no free memory node NODE_ADDR_NULL is set
-*    \param    h  The node management handle
-*    \param    startingAddress  The address of the first node to examine
-*    \return   Status
-*/
+/**
+ * Scans flash memory to find the address of the next free parent node (next free write location).
+ *   Sets nextFreeParentNode in the node management handle.  If no free memory, nextFreeParentNode is set to NODE_ADDR_NULL
+ * @param   h               The user allocated node management handle
+ * @param   startingAddress The address of the first node to examine
+ * @return  success status
+ * @note    This operation may take some time
+ */
 RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
 {
     uint16_t nodeFlags = 0xFFFF;
@@ -553,13 +577,14 @@ RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress)
     return RETURN_OK;
 }
 
-/*!  \fn       createParentNode(mgmtHandle *h, pNode *p)
-*    \brief    Writes a parent node to memory (next free via handle) (in alphabetical order)
-*              Modifies the handle after write
-*    \param    h  The node management handle
-*    \param    p  The parent node to write to memory
-*    \return   Status
-*/
+/**
+ * Writes a parent node to memory (next free via handle) (in alphabetical order).
+ *   Scans for nextFreeParentNode after completion.  Modifies the node management handle
+ * @param   h               The user allocated node management handle
+ * @param   p               The parent node to write to memory (nextFreeParentNode)
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
 RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
 {
     RET_TYPE ret = RETURN_OK;
@@ -772,14 +797,13 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
    return RETURN_OK;
 }
 
-/*!  \fn       readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress)
-*    \brief    Reads a parent node from memory
-*              If the node does not have a proper user id. p becomes invalid
-*    \param    h  The node management handle
-*    \param    p  Storage for the node from memory
-*    \param    parentNodeAddress  The address to read in memory
-*    \return   Status
-*/
+/**
+ * Reads a parent node from memory. If the node does not have a proper user id, p should be considered undefined
+ * @param   h               The user allocated node management handle
+ * @param   p               Storage for the node from memory
+ * @param   parentNodeAddress The address to read in memory
+ * @return  success status
+ */
 RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress)
 {
     RET_TYPE ret = RETURN_OK;
@@ -799,14 +823,15 @@ RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress)
     return ret;
 }
 
-/*!  \fn       updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
-*    \brief    Updates a parent node in memory
-*              Handles Re-order
-*    \param    h  The node management handle
-*    \param    p  Contents of node to update
-*    \param    parentNodeAddress  The address to update in memory
-*    \return   Status
-*/
+/**
+ * Updates a parent node in memory. Handles alphabetical reorder of nodes.
+ *   Scans for nextFreeParentNode after completion.  Modifies the node management handle
+ * @param   h               The user allocated node management handle
+ * @param   p               The parent node that has been modified and is requested to be updated in memory
+ * @param   parentNodeAddress The address to read in memory
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
 RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
 {
     RET_TYPE ret = RETURN_OK;
@@ -900,13 +925,14 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
     return ret; 
 }
 
-/*!  \fn       deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolicy policy)
-*    \brief    Deletes a parent node from memory.  This node CANNOT have any children
-*    \param    h  The node management handle
-*    \param    parentNodeAddress  The address to delete in memory
-*    \param    policy  How to handle the delete @ref deletePolicy
-*    \return   Status
-*/
+/**
+ * Deletes a parent node from memory.  This node CANNOT have any children
+ * @param   h               The user allocated node management handle
+ * @param   parentNodeAddress The address to read in memory
+ * @param   policy          How to handle the delete @ref deletePolicy
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
 RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolicy policy)
 {
     RET_TYPE ret = RETURN_OK;
@@ -1051,11 +1077,11 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolic
     return RETURN_OK;
 }
 
-/*!  \fn       invalidateParentNode(pNode *p)
-*    \brief    Sets to contents of a parent node to null
-*    \param    p  The parent node to invalidate
-*    \return   Status
-*/
+/**
+ * Sets to contents of a parent node to null
+ * @param   p               The parent node to invalidate
+ * @return  success status
+ */
 RET_TYPE invalidateParentNode(pNode *p)
 {
     p->flags=0xFF;
@@ -1069,11 +1095,11 @@ RET_TYPE invalidateParentNode(pNode *p)
     return RETURN_OK;
 }
 
-/*!  \fn       invalidateChilNode(cNode *c)
-*    \brief    Sets to contents of a child node to null
-*    \param    c  The child node to invalidate
-*    \return   Status
-*/
+/**
+ * Sets to contents of a child node to null
+ * @param   c               The child node to invalidate
+ * @return  success status
+ */
 RET_TYPE invalidateChildNode(cNode *c)
 {
     uint8_t i = 0;
@@ -1105,14 +1131,14 @@ RET_TYPE invalidateChildNode(cNode *c)
     return RETURN_OK;
 }
 
-/*!  \fn       scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress)
-*    \brief    Determines the next child node location (next write location).
-*              Sets the nextFreeChildNode value in the handle
-*              If no free memory node NODE_ADDR_NULL is set
-*    \param    h  The node management handle
-*    \param    startingAddress  The address of the first node to examine
-*    \return   Status
-*/
+/**
+ * Scans flash memory to find the address of the next free child node (next free write location).
+ *   Sets nextFreeChildNode in the node management handle.  If no free memory, nextFreeChildNode is set to NODE_ADDR_NULL
+ * @param   h               The user allocated node management handle
+ * @param   startingAddress The address of the first node to examine
+ * @return  success status
+ * @note    This operation may take some time
+ */
 RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress)
 {
     uint16_t nodeFlags = 0xFFFF;
@@ -1223,31 +1249,41 @@ RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress)
     return RETURN_OK;
 }
 
-/*!  \fn       createChildNode(mgmtHandle *h, parentNodeAddress pAddr, cNode *c)
-*    \brief    Writes a child node to memory (next free via handle) (in alphabetical order)
-*              Modifies the handle after write
-*    \param    h  The node management handle
-*    \param    pAddr  The parent node address of the child
-*    \param    c  The child node to write to memory
-*    \return   Status
-*/
+/**
+ * Writes a child node to memory (next free via handle) (in alphabetical order).
+ *   Scans for nextFreeChildNode after completion.  Modifies the node management handle
+ * @param   h               The user allocated node management handle
+ * @param   pAddr           The parent node address of the child
+ * @param   p               The child node to write to memory (nextFreeChildNode)
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
 RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c)
 {
     return createChildTypeNode(h, pAddr, (void *)c, NODE_TYPE_CHILD, 0);
 }
 
+/**
+ * Writes a child start of data node to memory (next free via handle) (in alphabetical order).
+ *   Scans for nextFreeChildNode after completion.  Modifies the node management handle
+ * @param   h               The user allocated node management handle
+ * @param   pAddr           The parent node address of the child
+ * @param   p               The child node to write to memory (nextFreeChildNode)
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
 RET_TYPE createChildStartOfDataNode(mgmtHandle *h, uint16_t pAddr, cNode *c, uint8_t dataNodeCount)
 {
     return createChildTypeNode(h, pAddr, c, NODE_TYPE_CHILD_DATA, dataNodeCount);
 }
 
-/*!  \fn       readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress)
-*    \brief    Reads a child node from memory
-*    \param    h  The node management handle
-*    \param    c  Storage for the node from memory
-*    \param    childNodeAddress  The address to read in memory
-*    \return   Status
-*/
+/**
+ * Reads a child or child start of data node from memory.
+ * @param   h               The user allocated node management handle
+ * @param   c               Storage for the node from memory
+ * @param   childNodeAddress The address to read in memory
+ * @return  success status
+ */
 RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress)
 {
     RET_TYPE ret = RETURN_OK;
@@ -1267,17 +1303,17 @@ RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress)
     return ret;
 }
 
-
-/*!  \fn       updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
-*    \brief    Updates a child node in memory
-*              Handles Re-order
-*    \param    h  The node management handle
-*    \param    p  Parent Node of the Child Node
-*    \param    c  Contents of node to update
-*    \param    pAddr  The address to the parent node of the child
-*    \param    cAddr  The address to the child node to update
-*    \return   Status
-*/
+/**
+ * Updates a child or child start of data node in memory. Handles alphabetical reorder of nodes.
+ *   Scans for nextFreeChildNode after completion.  Modifies the node management handle
+ * @param   h               The user allocated node management handle
+ * @param   p               Parent Node of the Child Node
+ * @param   c               Contents of node to update
+ * @param   pAddr           The address to the parent node of the child
+ * @param   cAddr           The address to the child node to update
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
 RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
 {
         RET_TYPE ret = RETURN_OK;
@@ -1348,15 +1384,15 @@ RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint
         return ret;
 }
 
-
-/*!  \fn       deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePolicy policy)
-*    \brief    Deletes a child node from memory.
-*    \param    h  The node management handle
-*    \param    pAddr The address of the parent of the child
-*    \param    cAddr The address of the child
-*    \param    policy  How to handle the delete @ref deletePolicy
-*    \return   Status
-*/
+/**
+ * Deletes a child node from memory. Handles reorder of nodes and update to parent if needed.
+ * @param   h               The user allocated node management handle
+ * @param   pAddr           The address of the parent of the child
+ * @param   cAddr           The address of the child
+ * @param   policy          How to handle the delete @ref deletePolicy
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
 RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePolicy policy)
 {
     // TODO REIMPLEMENT
@@ -1514,6 +1550,17 @@ RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePo
     return RETURN_OK;
 }
 
+/**
+ * Helper function.
+ * Writes a child or child start of data node to memory (next free via handle) (in alphabetical order).
+ *   Scans for nextFreeChildNode after completion.  Modifies the node management handle
+ * @param   h               The user allocated node management handle
+ * @param   pAddr           The parent node address of the child
+ * @param   p               The child node to write to memory (nextFreeChildNode)
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ * @note    TODO. Implement pre-scan / allocation for child start of data nodes
+ */
 RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t, uint8_t dnr)
 {
     RET_TYPE ret = RETURN_OK;
@@ -1777,6 +1824,14 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
 
 }
 
+/**
+ * Helper function.
+ * Writes then reads from memory (avoids destroying memory buffers when writing to flash + saves code store)
+ * @param   a               Theaddress of the node to write to memory
+ * @param   s               The size of the node to write to memory
+ * @param   d               The node buffer (pNode, cNode, dNode etc..)
+ * @return  success status
+ */
 RET_TYPE writeReadDataFlash(uint16_t a, uint16_t s, void *d)
 {
     RET_TYPE ret;

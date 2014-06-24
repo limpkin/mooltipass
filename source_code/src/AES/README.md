@@ -178,3 +178,20 @@ aes256_nessie_test.txt
 aes256_ctr_test.txt
 ```
 
+5- Speed performance
+--------------------
+
+```
+with #define BACK_TO_TABLES enabled
+text     data     bss     dec    hex filename
+1872       0       0    1872     750 aes.o
+
+Time(1000 encryptions): 59433 ms
+
+
+with #define BACK_TO_TABLES disabled
+text    data     bss     dec     hex filename
+2320       0       0    2320     910 aes.o
+
+Time(1000 encryptions): 1204 ms
+```

@@ -272,7 +272,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     // Ask for user approval
     if(guiAskForDomainAddApproval((char*)name) == RETURN_OK)
     {
-        userIdToFlags(&temp_pnode.flags, nodeMgmtHandle.currentUserId);
+        temp_pnode.nextChildAddress = NODE_ADDR_NULL;
         memcpy((void*)temp_pnode.service, (void*)name, length);
         
         // Create parent node for service
@@ -455,10 +455,6 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         {
             return RETURN_NOK;
         }
-        
-        // Print addresses
-        USBDEBUGPRINTF_P(PSTR("ADDR parent: %04x\n"), context_parent_node_addr);
-        USBDEBUGPRINTF_P(PSTR("ADDR child: %04x\n"), selected_login_child_node_addr);
         
         // Copy the password and put random bytes after the final 0
         memcpy((void*)temp_cnode.password, (void*)password, length);

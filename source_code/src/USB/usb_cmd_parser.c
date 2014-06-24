@@ -182,7 +182,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             else if (setPasswordForContext(msg->body, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
-                USBDEBUGPRINTF_P(PSTR("set pass: \"%s\"\n"),msg->body);
+                USBDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body);
             } 
             else
             {

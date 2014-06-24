@@ -325,7 +325,6 @@ RET_TYPE getLoginForContext(char* buffer)
             {
                 return RETURN_NOK;
             }
-            USBDEBUGPRINTF_P(PSTR("Get login "));
             strcpy((char*)buffer, (char*)temp_cnode.login);
             //usbKeybPutStr((char*)buffer); 
             return RETURN_OK;
@@ -410,13 +409,13 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
             if (guiAskForLoginAddApproval((char*)name, (char*)temp_pnode.service) == RETURN_OK)
             {
                 // Copy login into a temp cnode, and create it in the flash
-                USBDEBUGPRINTF_P(PSTR("set login \"%s\"n"), name);
                 memcpy((void*)temp_cnode.login, (void*)name, length);
                 if(createChildNode(&nodeMgmtHandle, context_parent_node_addr, &temp_cnode) != RETURN_OK)
-                {
+                {                    
                     return RETURN_NOK;
                 }
                 selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
+                USBDEBUGPRINTF_P(PSTR("ADDR child: %04x\n"), selected_login_child_node_addr);
                 selected_login_flag = TRUE;
                 return RETURN_OK;
             } 
@@ -457,6 +456,10 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             return RETURN_NOK;
         }
         
+        // Print addresses
+        USBDEBUGPRINTF_P(PSTR("ADDR parent: %04x\n"), context_parent_node_addr);
+        USBDEBUGPRINTF_P(PSTR("ADDR child: %04x\n"), selected_login_child_node_addr);
+        
         // Copy the password and put random bytes after the final 0
         memcpy((void*)temp_cnode.password, (void*)password, length);
         for (uint8_t i = length; i < NODE_CHILD_SIZE_OF_PASSWORD; i++)
@@ -480,7 +483,6 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             {
                 return RETURN_NOK;
             }
-            USBDEBUGPRINTF_P(PSTR("set password \"%s\"\n"),password);
             return RETURN_OK;
         } 
         else

@@ -303,7 +303,7 @@ int main(void)
                 if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
                 {
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
-                        usbPutstr_P(PSTR("New user and new card added"));
+                        usbPutstr_P(PSTR("New user and new card added\n"));
                     #endif
                     setSmartCardInsertedUnlocked();
                 } 

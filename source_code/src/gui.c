@@ -301,7 +301,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     (void)c;
     
     // Read the parent node
-    USBDEBUGPRINTF_P(PSTR("PARENT ADDR : %04x"), parentNodeAddress);
+    USBDEBUGPRINTF_P(PSTR("PARENT ADDR : %04x\n"), parentNodeAddress);
     if (readParentNode(h, p, parentNodeAddress) != RETURN_OK)
     {
         return NODE_ADDR_NULL;
@@ -313,6 +313,6 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         return NODE_ADDR_NULL;
     }
     
-    USBDEBUGPRINTF_P(PSTR("CHILD ADDR : %04x"), p->nextChildAddress);
+    USBDEBUGPRINTF_P(PSTR("CHILD ADDR : %04x\n"), p->nextChildAddress);
     return p->nextChildAddress;
 }

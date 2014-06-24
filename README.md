@@ -50,11 +50,11 @@ The device also includes Arduino headers that will allow any Arduino shield to b
 **Why are you using both a smart card and a main Mooltipass device?**  
 There are many reasons, the main one being that it is much easier to carry a smart card around than any other object. This smart card is a secure element that contains your credentials' encryption key, it is cheap and may be cloned without compromising the system security.  
   
-**What if I loose my smartcard?**  
+**What if I lose my smartcard?**  
 Ideally, you should have at least two copies of your smartcard, stored in different places. The Mooltipass allows the user to clone his smartcard, provided that the card PIN is correctly entered.  
   
-**What if I loose my Mooltipass device?**  
-Your encrypted credentials can be exported to either your computer or the Mooltipass official website. If you loose your device, you may purchase another one and restore your credentials.  
+**What if I lose my Mooltipass device?**  
+Your encrypted credentials can be exported to either your computer or the Mooltipass official website. If you lose your device, you may purchase another one and restore your credentials.  
   
 **Can I use it on Windows/Linux/Mac?**  
 No drivers are required to use the Mooltipass. It is recognized as a standard USB keyboard that will enter passwords for you.  

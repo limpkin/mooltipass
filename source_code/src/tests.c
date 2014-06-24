@@ -132,9 +132,9 @@ void afterFlashInitTests(void)
 	#ifdef TEST_CTR_SPEED
 		// msg into oled display
 		oledSetXY(2,0);
-		printf_P(PSTR("CTR speed TEST\n"));
-		printf_P(PSTR("Time:"));
-		printf("%lu ms", aes256CtrSpeedTest());
+		usbPrintf_P(PSTR("CTR speed TEST with 1000 encryptions\n"));
+		usbPrintf_P(PSTR("Time:"));
+		usbPrintf_P(PSTR("%lu ms"), aes256CtrSpeedTest());
 		while(1);
 	#endif
 

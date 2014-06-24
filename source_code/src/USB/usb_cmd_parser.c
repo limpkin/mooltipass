@@ -87,7 +87,7 @@ void usbProcessIncoming(uint8_t* incomingData)
     RET_TYPE temp_rettype;
 
     // Debug comms
-    USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
+    //USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
 
     switch(datacmd)
     {
@@ -113,12 +113,14 @@ void usbProcessIncoming(uint8_t* incomingData)
             else if (setCurrentContext(msg->body, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
+                USBDEBUGPRINTF_P(PSTR("set context: \"%s\" ok\n"), msg->body);
             }
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set context: \"%s\" failed\n"), msg->body);
             }
-            sendPluginOneByteAnswer(CMD_CONTEXT, PLUGIN_BYTE_ERROR, incomingData);
+            sendPluginOneByteAnswer(CMD_CONTEXT, plugin_return_value, incomingData);
             break;
             
         // get login
@@ -127,10 +129,12 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 // Use the buffer to store the login...
                 pluginSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData), (char*)incomingData);
+                USBDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
             } 
             else
             {
                 sendPluginOneByteAnswer(CMD_GET_LOGIN, PLUGIN_BYTE_ERROR, incomingData);
+                USBDEBUGPRINTF_P(PSTR("get login: failed\n"));
             }
             break;
             
@@ -139,10 +143,12 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (getPasswordForContext((char*)incomingData) == RETURN_OK)
             {
                 pluginSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), (char*)incomingData);
+                USBDEBUGPRINTF_P(PSTR("get pass: \"%s\"\n"),(char *)incomingData);
             } 
             else
             {
                  sendPluginOneByteAnswer(CMD_GET_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
+                USBDEBUGPRINTF_P(PSTR("get pass: failed\n"));
             }
             break;
             
@@ -151,15 +157,17 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" checkTextField failed\n"),msg->body);
             } 
             else if (setLoginForContext(msg->body, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
+                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" ok\n"),msg->body);
             } 
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("set login: failed\n"));
+                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" failed\n"),msg->body);
             }
             sendPluginOneByteAnswer(CMD_SET_LOGIN, plugin_return_value, incomingData);
             break;
@@ -174,6 +182,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             else if (setPasswordForContext(msg->body, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
+                USBDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body);
             } 
             else
             {
@@ -218,12 +227,13 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 // We managed to add a new context
                 plugin_return_value = PLUGIN_BYTE_OK;             
+                USBDEBUGPRINTF_P(PSTR("add context: \"%s\" ok\n"),msg->body);
             } 
             else
             {
                 // Couldn't add a new context
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("add context: failed\n"));
+                USBDEBUGPRINTF_P(PSTR("add context: \"%s\" failed\n"),msg->body);
             }
             sendPluginOneByteAnswer(CMD_ADD_CONTEXT, plugin_return_value, incomingData);    
             break;

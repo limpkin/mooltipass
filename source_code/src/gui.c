@@ -31,6 +31,7 @@
 #include "touch.h"
 #include "pwm.h"
 #include "gui.h"
+#include "usb.h"
 
 // Screen on timer
 volatile uint16_t screenTimer = SCREEN_TIMER_DEL;
@@ -120,7 +121,10 @@ void activityDetectedRoutine(void)
 }
 
 void guiMainLoop(void)
-{    
+{   
+    #ifdef HARDWARE_V1
+        return;
+    #endif
     RET_TYPE touch_detect_result = touchDetectionRoutine();
     
     // No activity, switch off LEDs and activate prox detection
@@ -297,6 +301,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     (void)c;
     
     // Read the parent node
+    USBDEBUGPRINTF_P(PSTR("PARENT ADDR : %04x\n"), parentNodeAddress);
     if (readParentNode(h, p, parentNodeAddress) != RETURN_OK)
     {
         return NODE_ADDR_NULL;
@@ -308,5 +313,6 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         return NODE_ADDR_NULL;
     }
     
+    USBDEBUGPRINTF_P(PSTR("CHILD ADDR : %04x\n"), p->nextChildAddress);
     return p->nextChildAddress;
 }

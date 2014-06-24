@@ -56,10 +56,12 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
 #define NODE_SIZE_CHILD 132
 #define NODE_SIZE_DATA 132
 
+/*
 #define NODE_TYPE_PARENT 0
 #define NODE_TYPE_CHILD 1
 #define NODE_TYPE_CHILD_DATA 2
 #define NODE_TYPE_DATA 3
+*/
 
 // Chip selection
 #define FLASH_CHIP_1M 1    // Used to identify a 1M Flash Chip (AT45DB011D)

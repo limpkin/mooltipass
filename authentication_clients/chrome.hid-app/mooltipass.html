@@ -19,14 +19,15 @@
   </ul>
   <div id="message">
         <button id="connect">Connect</button>
-	<button id="receiveResponse">Receive response</button>
-	<button id="clear">Clear</button>
+	<button id="clear" style="float: right;">Clear</button>
 	<br />
-	<div id="messageLog" style="height:375px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
+	<textarea id="messageLog" style="height:375px; width:340px" class="ui-widget ui-state-default ui-corner-all" disabled >
+	</textarea>
    </div>
    <div id="debug">
-	<button id="clearDebug">Clear</button>
-	<div id="debugLog" style="height:375px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
+        <button id="clearDebug" style="float: right;">Clear</button><br />
+	<textarea id="debugLog" style="height:375px; width:340px" class="ui-widget ui-state-default ui-corner-all" disabled>
+	</textarea>
    </div>
    <div id="manage" style="height:432px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>">
 	<h3>Export</h3>
@@ -38,7 +39,9 @@
 	    <button id="exportFlash">Export flash</button>
 	    <button id="exportEeprom">Export eeprom</button>
 	    <div id="exportProgressbar"></div>
-	    <div id="exportLog" style="height:100px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
+	    <br />
+	    <textarea id="exportLog" style="height:150px; width:300px" class="ui-widget ui-state-default ui-corner-all" disabled>
+	    </textarea>
 	</div>
 	<h3>Import</h3>
 	<div>
@@ -69,7 +72,8 @@
 	<div id="eraseConfirm" title="Mooltipass Erase">
 	    <p></p>
 	</div>
-	<div id="developerLog" style="height:258px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px"></div>
+	<textarea id="developerLog" style="height:259px; width:340px" class="ui-widget ui-state-default ui-corner-all" disabled>
+	</textarea>
    </div>
 </div>
  

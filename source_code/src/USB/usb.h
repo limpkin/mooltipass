@@ -8,27 +8,28 @@
 #include <stdarg.h>
 #include "defines.h"
 
+
+/*** MACROS ***/
+#ifdef USB_DEBUG_OUTPUT
+    #define USBDEBUGPRINTF_P(args...) usbPrintf_P(args)
+#else
+    #define USBDEBUGPRINTF_P(args...)
+#endif
+
 /*** DEFINES ***/
 // MOOLTIPASS'
 #define VENDOR_ID           0x16D0              // Vendor ID (from MCS)
 #define PRODUCT_ID          0x09A0              // Product ID (from MCS)
-// MINIBLOQ DuinoBot Kids
-// #define VENDOR_ID           0x03EB              // Vendor ID (DuinoBot Kids)
-// #define PRODUCT_ID          0x204F              // Product ID (DuinoBot Kids)
-// FOR HID LISTEN
 #define RAWHID_USAGE_PAGE   0xFF31              // HID usage page, after 0xFF00: vendor-defined
 #define RAWHID_USAGE        0x0074              // HID usage
-// FOR MINIBLOQ
-// #define RAWHID_USAGE_PAGE   0xFF00              // HID usage page, after 0xFF00: vendor-defined
-// #define RAWHID_USAGE        0x0001              // HID usage
 #define STR_MANUFACTURER    L"Mooltipass"       // Manufacturer string
 #define STR_PRODUCT         L"Mooltipass"       // Product string
 #define ENDPOINT0_SIZE      32                  // Size for endpoint 0
 #define RAWHID_INTERFACE    0                   // Interface for the raw HID
 #define RAWHID_TX_ENDPOINT  1                   // Raw HID TX endpoint
 #define RAWHID_RX_ENDPOINT  2                   // Raw HID RX endpoint
-#define RAWHID_TX_SIZE      32                  // Raw HID transmit packet size, revert to 64 soon!
-#define RAWHID_RX_SIZE      32                  // Raw HID receive packet size, revert to 64 soon!
+#define RAWHID_TX_SIZE      64                  // Raw HID transmit packet size
+#define RAWHID_RX_SIZE      64                  // Raw HID receive packet size
 #define RAWHID_TX_BUFFER    EP_DOUBLE_BUFFER    // Double buffer
 #define RAWHID_RX_BUFFER    EP_DOUBLE_BUFFER    // Double buffer
 #define KEYBOARD_INTERFACE  1                   // Interface for keyboard
@@ -100,5 +101,6 @@ uint8_t usbPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 uint8_t usbPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str);
 RET_TYPE pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str);
+RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str, uint8_t nb_retries);
 
 #endif

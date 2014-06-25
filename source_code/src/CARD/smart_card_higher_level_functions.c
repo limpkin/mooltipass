@@ -27,6 +27,7 @@
 #include "oledmp.h"
 #include "utils.h"
 #include "usb.h"
+#include <string.h>
 
 
 /*! \fn     mooltipassDetectedRoutine(uint16_t pin_code)
@@ -240,6 +241,26 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     write_issuers_fuse();
 
     return RETURN_OK;
+}
+
+/*! \fn     eraseSmartCard(void)
+*   \brief  Completely erase mooltipass card (Security mode 2 - Authenticated!)
+*/
+void eraseSmartCard(void)
+{
+    uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
+    
+    // Write 0xFF in CPZ
+    memset(temp_buffer, 0xFF, SMARTCARD_CPZ_LENGTH);
+    writeCodeProtectedZone(temp_buffer);
+    
+    // Erase AZ1 & AZ2
+    eraseApplicationZone1NZone2SMC(FALSE);
+    eraseApplicationZone1NZone2SMC(TRUE);
+
+    /* Set application zone 1 and zone 2 permissions: read/write when authenticated only */
+    setAuthenticatedReadWriteAccessToZone1();
+    setAuthenticatedReadWriteAccessToZone2();
 }
 
 /*! \fn     writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer)
@@ -658,8 +679,6 @@ void printSMCDebugInfoToScreen(void)
                 swap16(*(uint16_t*)readSMC(24,22,data_buffer)),
                 swap16(*(uint16_t*)readSMC(94,92,data_buffer)),
                 getNumberOfAZ2WritesLeft());
-
-        oledFlipBuffers(OLED_SCROLL_UP,10);
     #endif
 }
 

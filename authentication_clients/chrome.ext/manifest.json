@@ -1,0 +1,23 @@
+{
+    "name": "Mooltipass Plugin",
+    "description": "Mooltipass password manager plugin",
+    "version": "0.1",
+    "icons": { "16": "mooltipass-16.png", "128": "mooltipass-128.png" },
+    "permissions": [ "contentSettings", "tabs", "management", "notifications" ],
+    "background": {
+	"scripts": ["background.js"]
+    },
+    "content_scripts" : [
+	{
+            "matches": ["<all_urls>"],
+            "js": [
+                    "/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js", 
+		    "/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js",
+                    "content.js"
+                ],
+	    "css": ["/jquery-ui-1.10.4.custom/css/trontastic/jquery-ui-1.10.4.custom.min.css"],
+	     "run_at": "document_start"
+	}
+    ],
+  "manifest_version": 2
+}

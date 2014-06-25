@@ -43,6 +43,9 @@ RET_TYPE sectorErase(uint8_t sectorNumber);
 RET_TYPE blockErase(uint16_t blockNumber);
 RET_TYPE pageErase(uint16_t pageNumber);
 
+RET_TYPE formatFlash();
+
+RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size);
 RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);
 RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);
 
@@ -53,10 +56,12 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
 #define NODE_SIZE_CHILD 132
 #define NODE_SIZE_DATA 132
 
+/*
 #define NODE_TYPE_PARENT 0
 #define NODE_TYPE_CHILD 1
 #define NODE_TYPE_CHILD_DATA 2
 #define NODE_TYPE_DATA 3
+*/
 
 // Chip selection
 #define FLASH_CHIP_1M 1    // Used to identify a 1M Flash Chip (AT45DB011D)
@@ -255,7 +260,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
 #define FLASH_OPCODE_MAINP_TO_BUF     0x53  // Opcode to perform a Main Memory Page to Buffer Transfer
 #define FLASH_OPCODE_MMP_PROG_TBUF    0x82  // Opcode to perform a Main Memory Page Program Through Buffer
 #define FLASH_OPCODE_LOWF_READ        0x03  // Opcode to perform a Continuous Array Read (Low Frequency)
-#define	FLASH_OPCODE_READ_DEV_INFO    0x9F  // Opcode to perform a Manufacturer and Device ID Read
+#define FLASH_OPCODE_READ_DEV_INFO    0x9F  // Opcode to perform a Manufacturer and Device ID Read
 #define FLASH_READY_BITMASK           0x80  // Bitmask used to determine if the chip is ready (poll status register). Used with FLASH_OPCODE_READ_STAT_REG.
 #define FLASH_SECTOR_ZER0_A_PAGES     8
 #define FLASH_SECTOR_ZERO_A_CODE      0

@@ -30,10 +30,13 @@
 #ifndef NODE_MGMT_H_
 #define NODE_MGMT_H_
 
-#define NODE_TYPE_PARENT 0
-#define NODE_TYPE_CHILD 1
-#define NODE_TYPE_CHILD_DATA 2
-#define NODE_TYPE_DATA 3
+typedef enum _nodeType 
+{
+    NODE_TYPE_PARENT = 0,
+    NODE_TYPE_CHILD = 1,
+    NODE_TYPE_CHILD_DATA = 2,
+    NODE_TYPE_DATA = 3
+} nodeType;
 
 #define NODE_ADDR_NULL 0x0000
 #define NODE_VBIT_VALID 0
@@ -61,6 +64,16 @@
 #define NODE_ADDR_PAGE_MASK 0x1fff
 #define NODE_ADDR_NODE_MASK 0x0007
 
+#define NODE_MGMT_YEAR_SHT 9
+#define NODE_MGMT_YEAR_MASK 0xFE00
+#define NODE_MGMT_YEAR_MASK_FINAL 0x007F
+
+#define NODE_MGMT_MONTH_SHT 5
+#define NODE_MGMT_MONTH_MASK 0x03E0
+#define NODE_MGMT_MONTH_MASK_FINAL 0x000F
+
+#define NODE_MGMT_DAY_MASK_FINAL 0x001F
+
 #define NODE_PARENT_SIZE_OF_SERVICE 58
 #define NODE_CHILD_SIZE_OF_DESCRIPTION 24
 #define NODE_CHILD_SIZE_OF_LOGIN 63
@@ -83,26 +96,6 @@ typedef enum
     DELETE_POLICY_WRITE_ZEROS = 0x00,   /*!< Write node with all 0's */
     DELETE_POLICY_WRITE_ONES = 0xff,    /*!< Write node with all 1's */
 } deletePolicy;
-
-/*!
-* Struct containing Node Management Handle
-*
-* Note: Do not directly modify these fields.  Node Mgmt will manage this structure
-*/
-typedef struct __attribute__((packed)) nodeMgmtH
-{
-    uint16_t flags;
-    /*
-    15 dn 0 Free
-    */
-    
-    uint8_t currentUserId;          /*!< The users ID */
-    uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
-    uint16_t nextFreeParentNode;    /*!< The address of the next parent node */
-    uint16_t nextFreeChildNode;     /*!< The address of the next child or data node */
-    
-    // TODO - Cache favorites? 64 additional bytes
-} mgmtHandle;
 
 /*!
 * Struct containing a parent node
@@ -166,6 +159,28 @@ typedef struct __attribute__((packed)) dataNode {
     uint8_t data[128];              /*!< 128 bytes of Large Data Store */
 } dNode;
 
+/*!
+* Struct containing Node Management Handle
+*
+* Note: Do not directly modify these fields.  Node Mgmt will manage this structure
+*/
+typedef struct __attribute__((packed)) nodeMgmtH
+{
+    uint16_t flags;
+    /*
+    15 dn 0 Free
+    */
+    
+    uint8_t currentUserId;          /*!< The users ID */
+    uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
+    uint16_t nextFreeParentNode;    /*!< The address of the next parent node */
+    uint16_t nextFreeChildNode;     /*!< The address of the next child or data node */
+    pNode parent;                   /*!< A parent node to be used as a buffer for parent nodes in the API */
+    union {
+        cNode child;
+        dNode data;
+    } child;                        /*!< A child, child start of data, or child data node to be used as a buffer in the API */
+} mgmtHandle;
 
 /* Helper Functions (flags and address) */
 uint8_t nodeTypeFromFlags(uint16_t flags);
@@ -187,10 +202,14 @@ uint16_t pageNumberFromAddress(uint16_t addr);
 uint8_t nodeNumberFromAddress(uint16_t addr);
 uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber);
 
+uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day);
+RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day);
+
 /* Init Handle */
 RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);
 
 /* User Memory Functions */
+RET_TYPE formatUserProfileMemory(uint8_t uid);
 RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
 RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress);
 RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress);
@@ -211,8 +230,11 @@ RET_TYPE invalidateChildNode(cNode *c);
 RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress);
 
 RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c);
+RET_TYPE createChildStartOfDataNode(mgmtHandle *h, uint16_t pAddr, cNode *c, uint8_t dataNodeCount);
 RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress);
 RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
 RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePolicy policy);
+
+
 
 #endif /* NODE_MGMT_H_ */

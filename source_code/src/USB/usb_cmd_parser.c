@@ -22,33 +22,72 @@
 *    Created:  09/6/2014
 *    Author:   Mathieu Stephan
 */
+#include "smart_card_higher_level_functions.h"
+#include "eeprom_addresses.h"
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
+#include <avr/eeprom.h>
+#include "flash_mem.h"
+#include "node_mgmt.h"
 #include <string.h>
 #include <stdint.h>
 #include "usb.h"
+
+
+/*! \fn     checkTextField(uint8_t* data, uint8_t len)
+*   \brief  Check that the sent text is correct
+*   \param  data    Pointer to the data
+*   \param  len     Length of the text
+*   \param  max_len Max length allowed
+*   \return If the sent text is ok
+*/
+RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
+{
+    if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1) || (len > (RAWHID_RX_SIZE-HID_DATA_START)))
+    {
+        return RETURN_NOK;
+    }
+    else
+    {
+        return RETURN_OK;
+    }
+}
+
+/*! \fn     sendPluginOneByteAnswer(uint8_t command, uint8_t answer, uint8_t* data)
+*   \brief  Send a one byte message to the plugin
+*   \param  command The command we're answering
+*   \param  answer  The answer
+*   \param  data    Pointer to the buffer
+*/
+void sendPluginOneByteAnswer(uint8_t command, uint8_t answer, uint8_t* data)
+{
+    data[0] = answer;
+    pluginSendMessage(command, 1, (char*)data);
+}
 
 /*! \fn     usbProcessIncoming(uint8_t* incomingData)
 *   \brief  Process the incoming USB packet
 *   \param  incomingData    Pointer to the packet (can be overwritten!)
 */
 void usbProcessIncoming(uint8_t* incomingData)
-{   
+{    
+    // Temp plugin return value
+    uint8_t plugin_return_value = PLUGIN_BYTE_ERROR;
+    
+    // Use message structure
+    usbMsg_t* msg = (usbMsg_t*)incomingData;
+    
     // Get data len
-    uint8_t datalen = incomingData[HID_LEN_FIELD];
+    uint8_t datalen = msg->len;
 
     // Get data cmd
-    uint8_t datacmd = incomingData[HID_TYPE_FIELD];
-
-//    usbPrintf_P(PSTR("Data Received cmd: %i"), datacmd);
+    uint8_t datacmd = msg->cmd;
     
-//     if (incomingData[0] == 'a')
-//     {
-//         usbPutstr("lapin");
-//         //usbKeybPutStr("lapin");
-//     }
+    // Temp ret_type
+    RET_TYPE temp_rettype;
 
-//    usbKeybPutStr("   ");
+    // Debug comms
+    //USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
 
     switch(datacmd)
     {
@@ -66,93 +105,205 @@ void usbProcessIncoming(uint8_t* incomingData)
             
         // context command
         case CMD_CONTEXT :
-            if ((datalen > RAWHID_RX_SIZE - HID_DATA_START) || (datalen == 0))
+            if (checkTextField(msg->body, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
-                // Wrong data length
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
             } 
+            else if (setCurrentContext(msg->body, datalen) == RETURN_OK)
+            {
+                plugin_return_value = PLUGIN_BYTE_OK;
+                USBDEBUGPRINTF_P(PSTR("set context: \"%s\" ok\n"), msg->body);
+            }
             else
             {
-                if (setCurrentContext(incomingData+HID_DATA_START, datalen) == RETURN_OK)
-                {
-                    // Found context
-                    incomingData[0] = 0x01;
-                    pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
-                } 
-                else
-                {
-                    // Didn't find context
-                    incomingData[0] = 0x00;
-                    pluginSendMessage(CMD_CONTEXT, 1, (char*)incomingData);
-                }
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set context: \"%s\" failed\n"), msg->body);
             }
+            sendPluginOneByteAnswer(CMD_CONTEXT, plugin_return_value, incomingData);
             break;
             
         // get login
         case CMD_GET_LOGIN :
-            if (getLoginForContext(incomingData) == RETURN_OK)
+            if (getLoginForContext((char*)incomingData) == RETURN_OK)
             {
                 // Use the buffer to store the login...
                 pluginSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData), (char*)incomingData);
+                USBDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
             } 
             else
             {
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_GET_LOGIN, 1, (char*)incomingData);
+                sendPluginOneByteAnswer(CMD_GET_LOGIN, PLUGIN_BYTE_ERROR, incomingData);
+                USBDEBUGPRINTF_P(PSTR("get login: failed\n"));
             }
             break;
             
         // get password
         case CMD_GET_PASSWORD :
-            if (getPasswordForContext() == RETURN_OK)
+            if (getPasswordForContext((char*)incomingData) == RETURN_OK)
             {
-                incomingData[0] = 0x01;
+                pluginSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), (char*)incomingData);
+                USBDEBUGPRINTF_P(PSTR("get pass: \"%s\"\n"),(char *)incomingData);
             } 
             else
             {
-                incomingData[0] = 0x00;
+                 sendPluginOneByteAnswer(CMD_GET_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
+                USBDEBUGPRINTF_P(PSTR("get pass: failed\n"));
             }
-            pluginSendMessage(CMD_GET_PASSWORD, 1, (char*)incomingData);
             break;
             
         // set login
         case CMD_SET_LOGIN :
-            if ((datalen > RAWHID_RX_SIZE - HID_DATA_START) || (datalen == 0))
+            if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
             {
-                // Wrong data length
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_SET_LOGIN, 1, (char*)incomingData);
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" checkTextField failed\n"),msg->body);
             } 
-            if (setLoginForContext(incomingData, datalen) == RETURN_OK)
+            else if (setLoginForContext(msg->body, datalen) == RETURN_OK)
             {
-                incomingData[0] = 0x01;                
+                plugin_return_value = PLUGIN_BYTE_OK;
+                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" ok\n"),msg->body);
             } 
             else
             {
-                incomingData[0] = 0x00;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" failed\n"),msg->body);
             }
-            pluginSendMessage(CMD_SET_LOGIN, 1, (char*)incomingData);
+            sendPluginOneByteAnswer(CMD_SET_LOGIN, plugin_return_value, incomingData);
             break;
         
         // set password
         case CMD_SET_PASSWORD :
-            if ((datalen > RAWHID_RX_SIZE - HID_DATA_START) || (datalen == 0))
+            if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
-                // Wrong data length
-                incomingData[0] = 0x00;
-                pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set pass: len %d invalid\n"), datalen);
             } 
-            if (setPasswordForContext(incomingData, datalen) == RETURN_OK)
+            else if (setPasswordForContext(msg->body, datalen) == RETURN_OK)
             {
-                incomingData[0] = 0x01;                
+                plugin_return_value = PLUGIN_BYTE_OK;
+                USBDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body);
             } 
             else
             {
-                incomingData[0] = 0x00;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set pass: failed\n"));
             }
-            pluginSendMessage(CMD_SET_PASSWORD, 1, (char*)incomingData);
+            sendPluginOneByteAnswer(CMD_SET_PASSWORD, plugin_return_value, incomingData);
             break;
+        
+        // check password
+        case CMD_CHECK_PASSWORD :
+            if (checkTextField(msg->body, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
+            {
+                sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
+                break;
+            } 
+            temp_rettype = checkPasswordForContext(msg->body, datalen);
+            if (temp_rettype == RETURN_PASS_CHECK_NOK)
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            } 
+            else if(temp_rettype == RETURN_PASS_CHECK_OK)
+            {
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_NA;
+            }
+            sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, plugin_return_value, incomingData); 
+            break;
+        
+        // set password
+        case CMD_ADD_CONTEXT :
+            if (checkTextField(msg->body, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
+            {
+                // Check field
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
+            } 
+            else if (addNewContext(msg->body, datalen) == RETURN_OK)
+            {
+                // We managed to add a new context
+                plugin_return_value = PLUGIN_BYTE_OK;             
+                USBDEBUGPRINTF_P(PSTR("add context: \"%s\" ok\n"),msg->body);
+            } 
+            else
+            {
+                // Couldn't add a new context
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBDEBUGPRINTF_P(PSTR("add context: \"%s\" failed\n"),msg->body);
+            }
+            sendPluginOneByteAnswer(CMD_ADD_CONTEXT, plugin_return_value, incomingData);    
+            break;
+            
+        // export flash contents
+        case CMD_EXPORT_FLASH :
+        {
+            uint8_t size = PACKET_EXPORT_SIZE;
+            for (uint32_t addr = 0; addr < FLASH_SIZE; addr+=PACKET_EXPORT_SIZE)
+            {
+                if ((FLASH_SIZE - addr) < (uint32_t)PACKET_EXPORT_SIZE)
+                {
+                    size = (uint8_t)(FLASH_SIZE - addr);
+                }
+                flashRawRead(incomingData, addr, size);
+                pluginSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
+            }
+            pluginSendMessageWithRetries(CMD_EXPORT_FLASH_END, 0, (char*)incomingData, 255);
+            break;
+        }            
+            
+        // export eeprom contents
+        case CMD_EXPORT_EEPROM :
+        {
+            uint8_t size = PACKET_EXPORT_SIZE;
+            for (uint16_t addr = 0; addr < EEPROM_SIZE; addr+=PACKET_EXPORT_SIZE)
+            {
+                if ((EEPROM_SIZE-addr) < PACKET_EXPORT_SIZE)
+                {
+                    size = (uint8_t)(FLASH_SIZE - addr);
+                }
+                eeprom_read_block(incomingData, (void *)addr, size);
+                pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
+            }
+            pluginSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData, 255);
+            break;
+        }     
+
+        // Development commands
+#ifdef  DEV_PLUGIN_COMMS            
+        // erase eeprom
+        case CMD_ERASE_EEPROM :
+        {
+            firstTimeUserHandlingInit();
+            sendPluginOneByteAnswer(CMD_ERASE_EEPROM, PLUGIN_BYTE_OK, incomingData); 
+            break;
+        }   
+        // erase flash
+        case CMD_ERASE_FLASH :
+        {
+            formatFlash();
+            sendPluginOneByteAnswer(CMD_ERASE_FLASH, PLUGIN_BYTE_OK, incomingData); 
+            break;
+        }  
+        // erase eeprom
+        case CMD_ERASE_SMC :
+        {
+            if (getSmartCardInsertedUnlocked() == TRUE)
+            {
+                eraseSmartCard();
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            sendPluginOneByteAnswer(CMD_ERASE_SMC, plugin_return_value, incomingData); 
+            break;
+        }   
+#endif
 
         default : break;
     }

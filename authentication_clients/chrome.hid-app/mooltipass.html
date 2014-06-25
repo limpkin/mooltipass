@@ -1,11 +1,81 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <script src="mooltipass.js"></script>
-    </head>
-    <body>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mooltipass Client</title>
+  <link rel="stylesheet" href="/jquery-ui-1.10.4.custom/css/trontastic/jquery-ui-1.10.4.custom.min.css">
+  <script src="/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js"></script>
+  <script src="/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js"></script>
+  <script src="mooltipass.js"></script>
+</head>
+<body>
+
+<div id="tabs">
+  <ul>
+    <li><a href="#message">Main</a></li>
+    <li><a href="#debug">Log</a></li>
+    <li><a href="#manage">Manage</a></li>
+    <li><a href="#developer">Developer</a></li>
+  </ul>
+  <div id="message">
         <button id="connect">Connect</button>
-        <button id="receiveResponse">Receive response</button>
-        <div id="message"></div>
-    </body>
+	<button id="clear" style="float: right;">Clear</button>
+	<br />
+	<textarea id="messageLog" style="height:375px; width:340px" class="ui-widget ui-state-default ui-corner-all" disabled >
+	</textarea>
+   </div>
+   <div id="debug">
+        <button id="clearDebug" style="float: right;">Clear</button><br />
+	<textarea id="debugLog" style="height:375px; width:340px" class="ui-widget ui-state-default ui-corner-all" disabled>
+	</textarea>
+   </div>
+   <div id="manage" style="height:432px; overflow:auto; overflow-y:auto; overflow-x:none; padding:5px; border:4px double>">
+	<h3>Export</h3>
+	<div>
+	    <p>
+	    Export flash credentials and eeprom images from the mooltipass.
+	    </p>
+	    <input type="file" id="exportFileName" style="display:none">
+	    <button id="exportFlash">Export flash</button>
+	    <button id="exportEeprom">Export eeprom</button>
+	    <div id="exportProgressbar"></div>
+	    <br />
+	    <textarea id="exportLog" style="height:150px; width:300px" class="ui-widget ui-state-default ui-corner-all" disabled>
+	    </textarea>
+	</div>
+	<h3>Import</h3>
+	<div>
+	    <p>
+	    Import flash credentials and eeprom images to the mooltipass.
+	    </p>
+	    <div id="importProgressbar" style="height:20px"></div>
+	</div>
+	<h3>Options</h3>
+	<div>
+	    <p>
+	    Configurations options for the Mooltipass.
+	    </p>
+	    <ul>
+		<li>Option one</li>
+		<li>Option two</li>
+		<li>Option three</li>
+	    </ul>
+	</div>
+   </div>
+   <div id="developer">
+	<p>Developer options for the Mooltipass. </p>
+	<ul>
+	    <li><button id="eraseEeprom">Erase eeprom</button></li>
+	    <li><button id="eraseFlash">Erase flash</button></li>
+	    <li><button id="eraseSmartcard">Erase smartcard</button></li>
+	</ul>
+	<div id="eraseConfirm" title="Mooltipass Erase">
+	    <p></p>
+	</div>
+	<textarea id="developerLog" style="height:259px; width:340px" class="ui-widget ui-state-default ui-corner-all" disabled>
+	</textarea>
+   </div>
+</div>
+ 
+</body>
 </html>

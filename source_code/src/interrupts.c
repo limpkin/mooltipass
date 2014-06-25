@@ -21,10 +21,11 @@
  *		\brief	Interrupts
  */
 #include <avr/interrupt.h>
+#include <util/atomic.h>
 #include "interrupts.h"
 #include "mooltipass.h"
 #include "smartcard.h"
-#include "pwm.h"
+#include "gui.h"
 
 // Number of milliseconds since power up
 static volatile uint32_t msecTicks = 0;
@@ -36,9 +37,8 @@ static volatile uint32_t msecTicks = 0;
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
     msecTicks++;
+    guiTimerTick();                                                 // GUI timer
     capsLockTick();                                                 // Caps timer
-    lightTimerTick();                                               // Light timer
-    screenTimerTick();                                              // Screen timer
     scanSMCDectect();												// Scan smart card detect
 }
 
@@ -49,12 +49,12 @@ ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 
 */
 uint32_t millis()
 {
-    uint8_t reg = SREG;
     uint32_t ms;
     
-    cli();
-    ms = msecTicks;
-    SREG = reg;        // restore original interrupt state (may already be disabled)
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        ms = msecTicks;
+    }
 
     return ms;
 }

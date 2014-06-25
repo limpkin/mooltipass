@@ -21,10 +21,12 @@
  *  \brief  main file
  *  Copyright [2014] [Mathieu Stephan]
  */
+#include <util/atomic.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
+#include <string.h>
 #include <stdio.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
@@ -46,17 +48,16 @@
 #include "spi.h"
 #include "pwm.h"
 #include "usb.h"
+#include "gui.h"
 
+// Define the bootloader function
 #ifdef AVR_BOOTLOADER_PROGRAMMING
     bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
 #endif
-volatile uint16_t screenTimer = SCREEN_TIMER_DEL;
+// Flag to inform if the caps lock timer is armed
 volatile uint8_t wasCapsLockTimerArmed = FALSE;
-volatile uint8_t lightsTimerOffFlag = FALSE;
-volatile uint8_t screenTimerOffFlag = FALSE;
+// Caps lock timer
 volatile uint16_t capsLockTimer = 0;
-uint8_t areLightsOn = FALSE;
-uint8_t isScreenOn = TRUE;
 
 
 /*! \fn     disable_jtag(void)
@@ -72,28 +73,6 @@ void disable_jtag(void)
     MCUCR = temp;
 }
 
-/*! \fn     setLightsOutFlag(void)
-*   \brief  Function called when the light timer fires
-*/
-void setLightsOutFlag(void)
-{
-    lightsTimerOffFlag = TRUE;
-}
-
-/*!	\fn		screenTimerTick(void)
-*	\brief	Function called every ms by interrupt
-*/
-void screenTimerTick(void)
-{
-    if (screenTimer != 0)
-    {
-        if (screenTimer-- == 1)
-        {
-           screenTimerOffFlag = TRUE;
-        }
-    }
-}
-
 /*!	\fn		capsLockTick(void)
 *	\brief	Function called every ms by interrupt
 */
@@ -105,59 +84,19 @@ void capsLockTick(void)
     }
 }
 
-/*!	\fn		activateScreenTimer(void)
-*	\brief	Activate screen timer
-*/
-void activateScreenTimer(void)
-{
-    uint8_t reg = SREG;
-    
-    if (screenTimer != SCREEN_TIMER_DEL)
-    {
-        cli();
-        screenTimer = SCREEN_TIMER_DEL;
-        SREG = reg;                     // restore original interrupt state (may already be disabled)
-    }
-}
-
-/*!	\fn		activityDetectedRoutine(void)
-*	\brief	What to do when user activity has been detected
-*/
-void activityDetectedRoutine(void)
-{
-    activateLightTimer();
-    activateScreenTimer();
-    
-    // If the lights were off, turn them on!
-    if (areLightsOn == FALSE)
-    {
-        setPwmDc(MAX_PWM_VAL);
-        activateGuardKey();
-        areLightsOn = TRUE;
-    }
-    
-    // If the screen was off, turn it on!
-    if (isScreenOn == FALSE)
-    {
-        oledOn();
-        isScreenOn = TRUE;
-    }    
-}
-
 /*! \fn     main(void)
 *   \brief  Main function
 */
 int main(void)
 {
+    uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t usb_buffer[RAWHID_TX_SIZE];
     uint8_t* temp_buffer = usb_buffer;
-    RET_TYPE touch_detect_result;
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
-    uint8_t current_user_id;
-    uint8_t reg, i;
+    uint8_t temp_user_id;
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
@@ -186,13 +125,6 @@ int main(void)
     entropyInit();                      // Initialize avrentropy library
     while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
-    
-    // First time initializations
-    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
-    {
-        firstTimeUserHandlingInit();
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
-    }
 
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
@@ -215,6 +147,14 @@ int main(void)
     
     // Launch the after flash initialization tests
     afterFlashInitTests();
+    
+    // First time initializations
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
+    {
+        formatFlash();
+        firstTimeUserHandlingInit();
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
+    }
     
     // Check if we can initialize the touch sensing element
     touch_init_result = initTouchSensing();
@@ -296,48 +236,36 @@ int main(void)
     // write bitmap to inactive buffer and make the buffer 
     // active by scrolling it up.
     // Note: writing is automatically switch to inactive buffer
-    oledWriteInactiveBuffer();
-    oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
-    oledClear();    // clear inactive buffer
+    // oledWriteInactiveBuffer();
+    //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
+    // oledClear();    // clear inactive buffer
+    oledSetXY(85, 0);
+    printf_P(PSTR("Mooooltipass"));
     
     // Launch the after HaD logo display tests
-    afterHadLogoDisplayTests();
+    afterHadLogoDisplayTests();  
     
     while (1)
     {
-        touch_detect_result = touchDetectionRoutine();
         card_detect_ret = isCardPlugged();
         
+        // Call GUI routine
+        guiMainLoop();
+        
+        // Process possible incoming data
         if(usbRawHidRecv(usb_buffer, USB_READ_TIMEOUT) == RETURN_COM_TRANSF_OK)
         {
             usbProcessIncoming(usb_buffer);
-        }
-        
-        // No activity, switch off LEDs and activate prox detection
-        if (lightsTimerOffFlag == TRUE)
-        {
-            setPwmDc(0x0000);
-            areLightsOn = FALSE;
-            activateProxDetection();
-            lightsTimerOffFlag = FALSE;
-        }
-        
-        // No activity, switch off screen
-        if (screenTimerOffFlag == TRUE)
-        {
-            oledOff();
-            isScreenOn = FALSE;
-            screenTimerOffFlag = FALSE;
-        }
+        }  
         
         // Two quick caps lock presses wake up the device
         if ((capsLockTimer == 0) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
         {
-            reg = SREG;
-            cli();
-            wasCapsLockTimerArmed = TRUE;
-            capsLockTimer = CAPS_LOCK_DEL;
-            SREG = reg;
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            {
+                wasCapsLockTimerArmed = TRUE;
+                capsLockTimer = CAPS_LOCK_DEL;
+            }
         }
         else if ((capsLockTimer != 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
@@ -346,33 +274,6 @@ int main(void)
         else if ((capsLockTimer == 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             wasCapsLockTimerArmed = FALSE;            
-        }
-        
-        // Touch interface
-        if (touch_detect_result & TOUCH_PRESS_MASK)
-        {
-            activityDetectedRoutine();
-            
-            // If left button is pressed
-            if (touch_detect_result & RETURN_LEFT_PRESSED)
-            {
-                #ifdef TOUCH_DEBUG_OUTPUT_USB
-                    usbPutstr_P(PSTR("LEFT touched\r\n"));
-                #endif
-            }
-            
-            // If right button is pressed
-            if (touch_detect_result & RETURN_RIGHT_PRESSED)
-            {
-                #ifdef TOUCH_DEBUG_OUTPUT_USB
-                    usbPutstr_P(PSTR("RIGHT touched\r\n"));
-                #endif
-            }
-            
-            // If wheel is pressed
-            if (touch_detect_result & RETURN_WHEEL_PRESSED)
-            {
-            }
         }
         
         if (card_detect_ret == RETURN_JDETECT)                          // Card just detected
@@ -397,18 +298,24 @@ int main(void)
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
             {
-                // Here we should ask the user to setup his mooltipass card and then call writeCodeProtectedZone() with 8 bytes
-                // Generate random bytes and store them in the CPZ
-                for(i = 0; i < 8; i++)
+                // Here we should ask the user to setup his mooltipass card
+                // Create a new user with his new smart card
+                if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
                 {
-                    temp_buffer[i] = entropyRandom8();
+                    #ifdef GENERAL_LOGIC_OUTPUT_USB
+                        usbPutstr_P(PSTR("New user and new card added\n"));
+                    #endif
+                    setSmartCardInsertedUnlocked();
+                } 
+                else
+                {
+                    #ifdef GENERAL_LOGIC_OUTPUT_USB
+                        usbPutstr_P(PSTR("Couldn't add new user"));
+                    #endif
                 }
-                //writeCodeProtectedZone(temp_buffer);                    // Write in the code protected zone
-                //writeSmartCardCPZForUserId(temp_buffer, 11);            // Store SMC <> user id
                 printSMCDebugInfoToScreen();                            // Print smartcard info
-                removeFunctionSMC();                                    // Shut down card reader
             }
-            else if (temp_rettype == RETURN_MOOLTIPASS_USER)             // Configured mooltipass card
+            else if (temp_rettype == RETURN_MOOLTIPASS_USER)            // Configured mooltipass card
             {
                 // Here we should ask the user for his pin and call mooltipassDetectedRoutine
                 readCodeProtectedZone(temp_buffer);
@@ -416,27 +323,32 @@ int main(void)
                     usbPrintf_P(PSTR("%d cards\r\n"), getNumberOfKnownCards());
                     usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
                 #endif
-                if (getUserIdFromSmartCardCPZ(temp_buffer, &current_user_id) == RETURN_OK)
+                // See if we know the card and if so fetch the user id & CTR nonce
+                if (getUserIdFromSmartCardCPZ(temp_buffer, temp_ctr_val, &temp_user_id) == RETURN_OK)
                 {
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
-                        usbPrintf_P(PSTR("Card ID found with user %d\r\n"), current_user_id);
+                        usbPrintf_P(PSTR("Card ID found with user %d\r\n"), temp_user_id);
                     #endif
+                    mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                    readAES256BitsKey(temp_buffer);
+                    initEncryptionHandling(temp_buffer, temp_ctr_val);
+                    initUserFlashContext(temp_user_id);
+                    setSmartCardInsertedUnlocked();
                 }
                 else
                 {
+                    mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                    setSmartCardInsertedUnlocked();
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
                         usbPutstr_P(PSTR("Card ID not found\r\n"));
                     #endif
                 }
-                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
                 printSMCDebugInfoToScreen();
-                removeFunctionSMC();                                     // Shut down card reader
             }
         }
-        else if (card_detect_ret == RETURN_JRELEASED)   //card just released
+        else if (card_detect_ret == RETURN_JRELEASED)                   // Card just released
         {
-            oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
-            removeFunctionSMC();
+            //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
         }
     }
 }

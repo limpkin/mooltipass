@@ -62,6 +62,7 @@ RET_TYPE cardDetectedRoutine(void);
 void writeManufacturerFuse(void);
 void write_issuers_fuse(void);
 void write_ec2en_fuse(void);
+void eraseSmartCard(void);
 void resetBlankCard(void);
 
 /*

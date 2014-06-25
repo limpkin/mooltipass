@@ -27,22 +27,36 @@
 #ifndef USERHANDLING_H_
 #define USERHANDLING_H_
 
+#include "aes256_ctr.h"
+#include "smartcard.h"
 #include "defines.h"
 
 /** Defines **/
-#define SMCID_UID_MATCH_ENTRY_LENGTH    9
+#define SMCID_UID_MATCH_ENTRY_LENGTH    (1 + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)
+#define CHECK_PASSWORD_TIMER_VAL        4000
+#define CREDENTIAL_TIMER_VALIDITY       1000
+#define FLASH_STORAGE_CTR_LEN           3
 
 /** Prototypes **/
-RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid);
-RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t userid);
+RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);
+RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid);
+RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length);
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
+void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce);
 RET_TYPE setLoginForContext(uint8_t* name, uint8_t length);
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length);
-RET_TYPE getLoginForContext(uint8_t* buffer);
-RET_TYPE getPasswordForContext(void);
+RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code);
+RET_TYPE addNewContext(uint8_t* name, uint8_t length);
+RET_TYPE initUserFlashContext(uint8_t user_id);
+RET_TYPE getPasswordForContext(char  *buffer);
+uint8_t getSmartCardInsertedUnlocked(void);
+RET_TYPE getLoginForContext(char *buffer);
+void clearSmartCardInsertedUnlocked(void);
+void setSmartCardInsertedUnlocked(void);
 void firstTimeUserHandlingInit(void);
 uint8_t getNumberOfKnownUsers(void);
 uint8_t getNumberOfKnownCards(void);
 RET_TYPE findUserId(uint8_t userid);
+void userHandlingTick(void);
 
 #endif /* USERHANDLING_H_ */

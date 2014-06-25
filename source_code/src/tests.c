@@ -132,9 +132,9 @@ void afterFlashInitTests(void)
 	#ifdef TEST_CTR_SPEED
 		// msg into oled display
 		oledSetXY(2,0);
-		printf_P(PSTR("CTR speed TEST\n"));
-		printf_P(PSTR("Time:"));
-		printf("%lu ms", aes256CtrSpeedTest());
+		usbPrintf_P(PSTR("CTR speed TEST with 1000 encryptions\n"));
+		usbPrintf_P(PSTR("Time:"));
+		usbPrintf_P(PSTR("%lu ms"), aes256CtrSpeedTest());
 		while(1);
 	#endif
 
@@ -262,5 +262,13 @@ void afterHadLogoDisplayTests(void)
             usbKeybPutStr("\rBonjour oh grand dieu!\n");
         }
     }
+    #endif
+    
+    //#define TEST_PLUGIN
+    #ifdef TEST_PLUGIN    
+    printf_P(PSTR("Plugin test\n"));
+    oledFlipBuffers(OLED_SCROLL_UP,5);
+    oledClear();    // clear inactive buffer
+    oledWriteActiveBuffer();
     #endif
 }

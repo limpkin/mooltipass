@@ -22,17 +22,15 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include <avr/io.h>
+#include <util/atomic.h>
 #include <avr/interrupt.h>
-#include "mooltipass.h"
 #include "defines.h"
 #include "pwm.h"
-
-// Our light timer
-volatile uint16_t light_timer = 0;
+#include "gui.h"
 
 
-/*!	\fn		initPwm()
-*	\brief	Initialize PWM
+/*! \fn     initPwm()
+*   \brief  Initialize PWM
 */
 void initPwm(void)
 {
@@ -43,47 +41,20 @@ void initPwm(void)
         OCR4A = 0xFF;                                           // Output off by default
         DDR_LED_PWM |= (1 << PORTID_LED_PWM);                   // Enable port, 0 by default
         PORT_LED_PWM &= ~(1 << PORTID_LED_PWM);                 // Enable port, 0 by default
-        TCCR4A = (1 << COM4A1) | (1 << COM4A0) |  (1 << PWM4A);	// Enhanced fast PWM mode, set OC4A on Compare Match, clear OC4A at BOTTOM
+        TCCR4A = (1 << COM4A1) | (1 << COM4A0) |  (1 << PWM4A); // Enhanced fast PWM mode, set OC4A on Compare Match, clear OC4A at BOTTOM
         TCCR4E = (1 << ENHC4);                                  // Enhanced (11 bits) PWM mode
-        TCCR4B = (1 << CS40);						 			// No prescaling
+        TCCR4B = (1 << CS40);                                   // No prescaling
     #endif
 }
 
-/*!	\fn		setPwmDc(uint16_t pwm_value)
-*	\brief	Set PWM duty cycle
-*	\param	pwm_value	The duty cycle
+/*! \fn     setPwmDc(uint16_t pwm_value)
+*   \brief  Set PWM duty cycle
+*   \param  pwm_value   The duty cycle
 */
 void setPwmDc(uint16_t pwm_value)
 {
-    TC4H = ~(pwm_value >> 8);
-	OCR4A = ~pwm_value;
-}
-
-/*!	\fn		lightTimerTick(void)
-*	\brief	Function called every ms
-*/
-void lightTimerTick(void)
-{
-    if (light_timer != 0)
-    {
-        if (light_timer-- == 1)
-        {
-            setLightsOutFlag();
-        }
-    }
-}
-
-/*!	\fn		activateLightTimer(void)
-*	\brief	Activate light timer
-*/
-void activateLightTimer(void)
-{
-    uint8_t reg = SREG;
-    
-    if (light_timer != LIGHT_TIMER_DEL)
-    {
-        cli();
-        light_timer = LIGHT_TIMER_DEL;
-        SREG = reg;                     // restore original interrupt state (may already be disabled)        
-    }
+    #ifndef HARDWARE_V1
+        TC4H = ~(pwm_value >> 8);
+        OCR4A = ~pwm_value;
+    #endif
 }

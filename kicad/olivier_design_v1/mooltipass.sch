@@ -36,7 +36,7 @@ EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
-Title "M. Stephan - Offline Password Keeper Schematics (Licensed under CERN OHL V1.2)"
+Title "M. Stephan - Mooltipass Schematics (Licensed under CERN OHL V1.2)"
 Date "6 may 2014"
 Rev "2"
 Comp ""

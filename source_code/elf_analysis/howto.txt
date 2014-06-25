@@ -1,0 +1,2 @@
+- Download rebol view from here: http://www.rebol.com/download-view.html
+- run avr-nm --size-sort -t decimal Mooltipass.elf > ..\elf_analysis\test.txt

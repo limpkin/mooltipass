@@ -36,15 +36,17 @@
 #error "SPI not implemented"
 #endif
 
-
-/*!  \fn       sendDataToFlash(uint8_t opcodeSize, uint8_t* opcode, uint16_t bufferSize, uint8_t* buffer)
-*    \brief    Send bytes to the flash memory. WARNING THE DATA IN THE BUFFER MAY BE DESTROYED
-*    \param    opcodeSize        The number of bytes for the opcode
-*    \param    opcode            Pointer to the opcode
-*    \param    bufferSize        The number of bytes
-*    \param    buffer            Pointer to the buffer
-*    \return   Success status
-*/
+/**
+ * Send bytes to the flash memory.
+ * @param   opcodeSize      The number of bytes for the opcode
+ * @param   opcode          Pointer to the opcode. Opcode is used to inform the flash of the operation.
+ * @param   bufferSize      The size of the buffer.
+ * @param   buffer          Pointer to the buffer.
+ * @return  success status
+ * @note    The data in the buffer will be destroyed on a write base opcode.
+ * @note    The buffer is used to direct data from flash to a user pointer on read. 
+ * @note    The buffer is used to provide data to the flash on write.
+ */
 RET_TYPE sendDataToFlash(uint8_t opcodeSize, void *opcode, uint16_t bufferSize, void *buffer)
 {
     /* Assert chip select */
@@ -62,10 +64,10 @@ RET_TYPE sendDataToFlash(uint8_t opcodeSize, void *opcode, uint16_t bufferSize, 
     return RETURN_OK;
 } // End sendDataToFlash
 
-/*!  \fn      waitForFlash(void)
-*    \brief   Wait for the flash to be ready (poll status register)
-*    \return  Success status
-*/
+/**
+ * Waits for the flash to be ready (polls the flash chip status register)
+ * @return  success status
+ */
 RET_TYPE waitForFlash(void)
 {
     uint8_t opcode[2];
@@ -84,10 +86,11 @@ RET_TYPE waitForFlash(void)
     return RETURN_OK;
 } // End waitForFlash
 
-/*!  \fn        checkFlashID(void)
-*    \brief     Check the presence of the flash (manf info)
-*    \return    Success status
-*/
+/**
+ * Attempts to read the Manufacturers Information Register.
+ * @note    Performs a comparison to verify the size of the flash chip
+ * @return  success status
+ */
 RET_TYPE checkFlashID(void)
 {
     uint8_t dataBuffer[5] = {FLASH_OPCODE_READ_DEV_INFO , 0x00, 0x00, 0x00, 0x00};
@@ -106,10 +109,10 @@ RET_TYPE checkFlashID(void)
     }
 } // End checkFlashID
 
-/*!  \fn        initFlash(void)
-*    \brief     Initialize the flash memory (Sets up SPI)
-*    \return    Success statusDD
-*/
+/**
+ * Initializes SPI for the Flash Chip
+ * @return  success status
+ */
 RET_TYPE initFlash(void)
 {
     /* Setup chip select signal */
@@ -127,18 +130,19 @@ RET_TYPE initFlash(void)
     }
 } // End initFlash
 
-/*!  \fn       sectorZeroErase(uint8_t sectorNumber)
-*    \brief    Deletes sub-section of sector 0X (see datasheet)
-*    \param    sectorNumber     The sub-section of sector 0 to erase (0 for 0a, 1 for 0b)
-*    \return   Success status.  Will return RETURN_NOK if sectorNumber is not 0 or 1
-*/
+/**
+ * Erases sector 0a if sectorNumber is FLASH_SECTOR_ZERO_A_CODE. Deletes sector 0b if sectorNumber is FLASH_SECTOR_ZERO_B_CODE.
+ * @param   sectorNumber    The sector to erase
+ * @return  success status
+ * @note    Sets all bits in sector to Logic 1 (High)
+ */
 RET_TYPE sectorZeroErase(uint8_t sectorNumber)
 {
     uint32_t procBuff = (uint32_t)sectorNumber;
     uint8_t opcode[4];
     
     // Error check parameter sectorNumber
-    if(sectorNumber != FLASH_SECTOR_ZERO_A_CODE || sectorNumber != FLASH_SECTOR_ZERO_B_CODE)
+    if(!(sectorNumber == FLASH_SECTOR_ZERO_A_CODE || sectorNumber == FLASH_SECTOR_ZERO_B_CODE))
     {
         return RETURN_NOK;
     }
@@ -158,11 +162,12 @@ RET_TYPE sectorZeroErase(uint8_t sectorNumber)
     return RETURN_OK;
 } // End sectorZeroErase
 
-/*!  \fn       sectorErase(uint16_t sectorNumber)
-*    \brief    Erases a sector of flash memory (see datasheet)
-*    \param    sectorNumber        The sector number in flash to erase
-*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
-*/
+/**
+ * Erases sector sectorNumber (SECTOR_START -> SECTOR_END inclusive valid).
+ * @param   sectorNumber    The sector to erase
+ * @return  success status
+ * @note    Sets all bits in sector to Logic 1 (High)
+ */
 RET_TYPE sectorErase(uint8_t sectorNumber)
 {
     uint32_t procBuff = (uint32_t)sectorNumber;
@@ -189,11 +194,12 @@ RET_TYPE sectorErase(uint8_t sectorNumber)
     return RETURN_OK;    
 } // End sectorErase
 
-/*!  \fn       blockErase(uint16_t blockNumber)
-*    \brief    Erases a block of flash memory (see datasheet)
-*    \param    blockNumber       The block number in flash to erase
-*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
-*/
+/**
+ * Erases block blockNumber (0 up to BLOCK_COUNT valid).
+ * @param   blockNumber     The block to erase
+ * @return  success status
+ * @note    Sets all bits in block to Logic 1 (High)
+ */
 RET_TYPE blockErase(uint16_t blockNumber)
 {
     uint32_t procBuff = (uint32_t)blockNumber;
@@ -220,11 +226,12 @@ RET_TYPE blockErase(uint16_t blockNumber)
     return RETURN_OK;
 } // End blockErase
 
-/*!  \fn       pageErase(uint16_t pageNumber)
-*    \brief    Erases a page of flash memory (see datasheet)
-*    \param    pageNumber        The page number if flash to erase
-*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
-*/
+/**
+ * Erases page pageNumber (0 up to PAGE_COUNT valid).
+ * @param   pageNumber      The page to erase
+ * @return  success status
+ * @note    Sets all bits in page to Logic 1 (High)
+ */
 RET_TYPE pageErase(uint16_t pageNumber)
 {
     uint32_t procBuff = (uint32_t)pageNumber;
@@ -251,14 +258,47 @@ RET_TYPE pageErase(uint16_t pageNumber)
     return RETURN_OK;
 } // End pageErase
 
-/*!  \fn       writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
-*    \brief    Write (dataSize starting at offset of pageNumber of) data to flash (see datasheet)
-*    \param    pageNumber        The page number if flash to write
-*    \param    offset            The byte offset in the page
-*    \param    dataSize          The number of bytes in the buffer to write (size_of buffer to write entire buffer)
-*    \param    data              The buffer (data structure) to write to flash
-*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
-*/
+/**
+ * Erases the entirety of spi flash memory by calling the appropriate erase functions.
+ * @return  success status
+ * @note    Sets all bits in spi flash memory to Logic 1 (High)
+ */
+RET_TYPE formatFlash() 
+{
+    RET_TYPE ret = RETURN_OK;
+    
+    ret = sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE); // erase sector 0a
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE); // erase sector 0b
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    
+    for(uint8_t i = SECTOR_START; i <= SECTOR_END; i++)
+    {
+        ret = sectorErase(i);
+        if(ret != RETURN_OK)
+        {
+            return ret;
+        }
+    }    
+    return ret;
+}
+
+/**
+ * Writes a data buffer to flash memory. The data is written starting at offset of a page.  
+ * @param   pageNumber      The target page number of flash memory
+ * @param   offset          The starting byte offset to begin writing in pageNumber
+ * @param   dataSize        The number of bytes to write from the data buffer (assuming the data buffer is sufficiently large)
+ * @param   data            The buffer containing the data to write to flash memory
+ * @return  success status
+ * @note    The buffer will be destroyed.
+ * @note    Function does not allow crossing page boundaries.
+ */
 RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)
 {
     uint8_t opcode[4];
@@ -307,14 +347,15 @@ RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSiz
     return RETURN_OK;
 } // End writeDataToFlash
 
-/*!  \fn       readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, uint8_t* data)
-*    \brief    Read (dataSize starting at offset of pageNumber of) flash to data (see datasheet)
-*    \param    pageNumber        The page number if flash to read
-*    \param    offset            The byte offset in the page
-*    \param    dataSize          The number of bytes in the buffer to read (size_of buffer to read entire buffer)
-*    \param    data              The buffer to store data from flash
-*    \return   Success status.     Will return RETURN_NOK if parameters are out of range. Otherwise will return RETURN_OK.
-*/
+/**
+ * Reads a data buffer of flash memory. The data is read starting at offset of a page.  
+ * @param   pageNumber      The target page number of flash memory
+ * @param   offset          The starting byte offset to begin reading in pageNumber
+ * @param   dataSize        The number of bytes to read from the flash memory into the data buffer (assuming the data buffer is sufficiently large)
+ * @param   data            The buffer used to store the data read from flash
+ * @return  success status
+ * @note    Function does not allow crossing page boundaries.
+ */
 RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)
 {    
     uint8_t opcode[4];
@@ -349,3 +390,31 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     waitForFlash();
     return RETURN_OK;
 } // End readDataFromFlash
+
+/**
+ * Contiguous data read across flash page boundaries
+ * @param   datap           pointer to the buffer to store the read data
+ * @param   addr            byte offset in the flash
+ * @param   size            the number of bytes to read
+ * @return  success status
+ * @note bypasses the memory buffer
+ */
+RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
+{
+    uint8_t op[] = {FLASH_OPCODE_LOWF_READ, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};
+    
+    if ((addr+size) >= (uint32_t)BYTES_PER_PAGE*(uint32_t)PAGE_COUNT)
+    {
+        return RETURN_NOK;
+    }        
+        
+    addr = ((addr/BYTES_PER_PAGE) << READ_OFFSET_SHT_AMT) | (addr % BYTES_PER_PAGE);
+
+    /* Read from flash */
+    sendDataToFlash(4, op, size, datap);
+    /* Wait until memory is ready */
+    waitForFlash();
+    
+    return RETURN_OK;
+}
+

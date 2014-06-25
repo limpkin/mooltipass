@@ -1,2 +1,3 @@
-In this folder are containted the gerbers for the bottom PCB.
+In this folder are contained the gerbers for the bottom PCB.
 The PCB is 4 layers, with a 0.2-1.2-0.2 stackup.
+P1 P2 P3 P4 must have their pins cut to be less than 1.6mm

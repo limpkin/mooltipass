@@ -4,17 +4,92 @@ var device_info = { "vendorId": mp_vendor_id, "productId": mp_product_id };
 
 // Commands that the MP device can send.
 // TODO: Add new commands.
-var CMD_DEBUG   = 0x01
-var CMD_PING    = 0x02
-var CMD_VERSION = 0x03
+var CMD_DEBUG   = 0x01;
+var CMD_PING    = 0x02;
+var CMD_VERSION = 0x03;
+
+// The following error happens when device has been connected but no successful
+// communication has been achieved yet.
+var USB_ERROR_TRANSFER_FAILED = 1;
+var USB_ERROR_DEVICE_DISCONNECTED = 5;
 
 var mp_device = null;
+var setupIntervalID = null;
+var currentState = null;
+
+var USBPermissions = {
+	permissions: [
+		{
+			'usbDevices': [device_info]
+		}
+	]
+};
 
 var in_transfer = {
 	direction: 'in',
 	endpoint: 1,
 	length: 64
 };
+
+
+var state = {
+	// The app does not yet have permission to use USB.
+	request_permissions: { value: 0, name: "Request permissions", color: "black" },
+	// The MP device is not connected to the computer.
+	disconnected:        { value: 1, name: "Disconnected",        color: "#a05050" },
+	// The device is connected but we haven't succeeded in communicating with it yet.
+	connected:           { value: 2, name: "Connected...",        color: "#a0a050" },
+	// The device is connected and ready to service the app.
+	ready:               { value: 3, name: "Ready",               color: "#50a050" }
+};
+
+window.addEventListener('load', windowLoadListener);
+
+function changeState(newState) {
+	var stateSpan = document.getElementById("state");
+	stateSpan.innerHTML = newState.name;
+	stateSpan.style.color = newState.color;
+
+	switch (newState) {
+	case state.request_permissions:
+		showRequestDiv();
+		if (setupIntervalID) {
+			window.clearInterval(setupIntervalID);
+			setupIntervalID = null;
+		}
+		document.getElementById("ping").disabled    = true;
+		document.getElementById("version").disabled = true;
+		break;
+	case state.disconnected:
+		showMainDiv();
+		if (!setupIntervalID) {
+			setupIntervalID = window.setInterval(setupUSBEventHandlers, 1000);
+		}
+		document.getElementById("ping").disabled    = true;
+		document.getElementById("version").disabled = true;
+		break;
+	case state.connected:
+		showMainDiv();
+		if (!setupIntervalID) {
+			setupIntervalID = window.setInterval(setupUSBEventHandlers, 1000);
+		}
+		document.getElementById("ping").disabled    = true;
+		document.getElementById("version").disabled = true;
+		break;
+	case state.ready:
+		showMainDiv();
+		if (setupIntervalID) {
+			window.clearInterval(setupIntervalID);
+			setupIntervalID = null;
+		}
+		document.getElementById("ping").disabled    = false;
+		document.getElementById("version").disabled = false;
+		break;
+	default:
+		errorln("Unknown state");
+		break;
+	}
+}
 
 function message(msg) {
 	message_div = document.getElementById("message");
@@ -41,10 +116,83 @@ function errorln(msg) {
 	error(msg + '<br />\n');
 }
 
-var onEvent = function(usbEvent) {
+function windowLoadListener(ev) {
+	chrome.permissions.contains(USBPermissions, function(result) {
+		if (result) {
+			changeState(state.disconnected);
+		} else {
+			changeState(state.request_permissions);
+		}
+	});
+
+	var pingButton = document.getElementById("ping");
+	pingButton.addEventListener("click", function(ev) {
+		sendCommand(CMD_PING);
+	});
+
+	var versionButton = document.getElementById("version");
+	versionButton.addEventListener("click", function(ev) {
+		sendCommand(CMD_VERSION);
+	});
+
+}
+
+// Function to show the main div, hiding the USB permissions request div.
+function showMainDiv() {
+	var requestDiv = document.getElementById('requestDiv');
+	var mainDiv = document.getElementById('mainDiv');
+	requestDiv.style.display = 'none';
+	mainDiv.style.display = 'block';
+}
+
+// Function to show the permission request div, hiding the main div. We need
+// this because requesting USB permissions can only be done in a method
+// initiated by a user gesture, such as the click-handler of a form button.
+function showRequestDiv() {
+	var requestDiv = document.getElementById('requestDiv');
+	var mainDiv = document.getElementById('mainDiv');
+	requestDiv.style.display = 'block';
+	mainDiv.style.display = 'none';
+
+	var requestButton = document.getElementById('requestPermissionsButton');
+	requestButton.addEventListener('click', function(ev) {
+		chrome.permissions.request(USBPermissions, function(result) {
+			if (result) {
+				changeState(state.disconnected);
+			} else {
+				showMainDiv();
+				errorln('App was not granted the "usbDevices" persionssion');
+			}
+		});
+	});
+}
+
+// Function to set up the USB transfer event handler.
+function setupUSBEventHandlers(result) {
+	console.log('App was granted the "usbDevices" permission.');
+	chrome.usb.findDevices(device_info, function(devices) {
+		console.log('Found ' + devices.length + ' devices.');
+		if (!devices || !devices.length) {
+			return;
+		}
+		mp_device = devices[0];
+		chrome.usb.interruptTransfer(mp_device, in_transfer, onEvent);
+
+		changeState(state.ready);
+	});
+}
+
+// Callback to handle USB transfer events.
+function onEvent(usbEvent) {
 	console.log("onEvent");
 	if (usbEvent.resultCode) {
-		errorln(chrome.runtime.lastError.message + " [onEvent]");
+		if (usbEvent.resultCode == USB_ERROR_TRANSFER_FAILED) {
+			// Device is connected but we failed to send data.
+			changeState(state.connected);
+		} else if (usbEvent.resultCode == USB_ERROR_DEVICE_DISCONNECTED) {
+			changeState(state.disconnected);
+		}
+		console.log(chrome.runtime.lastError.message + "(code: " + usbEvent.resultCode + ") [onEvent]");
 		return;
 	}
 
@@ -77,22 +225,10 @@ var onEvent = function(usbEvent) {
 	}
 
 	chrome.usb.interruptTransfer(mp_device, in_transfer, onEvent);
-};
-
-function showMainDiv() {
-	var requestDiv = document.getElementById('requestDiv');
-	var mainDiv = document.getElementById('mainDiv');
-	requestDiv.style.display = 'none';
-	mainDiv.style.display = 'block';
 }
 
-function showRequestDiv() {
-	var requestDiv = document.getElementById('requestDiv');
-	var mainDiv = document.getElementById('mainDiv');
-	requestDiv.style.display = 'block';
-	mainDiv.style.display = 'none';
-}
-
+// Function to send a command over USB.
+// TODO: Extend the function to allow data with commands.
 function sendCommand(cmd) {
 	var command = [0, cmd];
 	var info = {
@@ -104,62 +240,7 @@ function sendCommand(cmd) {
 	chrome.usb.interruptTransfer(mp_device, info, sendCompleted);
 }
 
-var setupUSBEventHandlers = function(result) {
-	showMainDiv();
-
-	console.log('App was granted the "usbDevices" permission.');
-	chrome.usb.findDevices(device_info, function(devices) {
-		console.log('Found ' + devices.length + ' devices.');
-		if (!devices || !devices.length) {
-			errorln('No Mooltipass device was found.');
-			return;
-		}
-		mp_device = devices[0];
-		chrome.usb.interruptTransfer(mp_device, in_transfer, onEvent);
-		messageln("Mooltipass device found and set up.");
-	});
-};
-
-window.addEventListener('load', function() {
-	var USBPermissions = {
-		permissions: [
-			{
-				'usbDevices': [device_info]
-			}
-		]
-	};
-	chrome.permissions.contains(USBPermissions, function(result) {
-		if (result) {
-			setupUSBEventHandlers();
-		} else {
-			showRequestDiv();
-			var requestButton = document.getElementById('requestPermissionsButton');
-			requestButton.addEventListener('click', function(ev) {
-				chrome.permissions.request(USBPermissions, function(result) {
-					if (result) {
-						setupUSBEventHandlers();
-					} else {
-						showMainDiv();
-						errorln('App was not granted the "usbDevices" persionssion');
-					}
-				});
-			});
-		}
-	});
-
-	// Set up the command button click handlers.
-	var pingButton = document.getElementById("ping");
-	pingButton.addEventListener("click", function(ev) {
-		sendCommand(CMD_PING);
-	});
-
-	var versionButton = document.getElementById("version");
-	versionButton.addEventListener("click", function(ev) {
-		sendCommand(CMD_VERSION);
-	});
-
-});
-
+// Callback to handle the result of sending data over USB.
 function sendCompleted(usbEvent) {
 	if (chrome.runtime.lastError) {
 		console.error("sendCompleted Error:", chrome.runtime.lastError.message);
@@ -171,7 +252,8 @@ function sendCompleted(usbEvent) {
 			console.log("sendCompleted Buffer:", usbEvent.data.byteLength, buf);
 		}
 		if (usbEvent.resultCode !== 0) {
-			errorln("Error writing to device", usbEvent.resultCode);
+			changeState(state.connected);
+			errorln("Error writing to device: " + chrome.runtime.lastError.message);
 		}
 	}
 }

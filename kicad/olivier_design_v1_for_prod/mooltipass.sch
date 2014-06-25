@@ -37,7 +37,7 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "M. Stephan - Mooltipass Schematics (Licensed under CERN OHL V1.2)"
-Date "6 may 2014"
+Date "25 jun 2014"
 Rev "2"
 Comp ""
 Comment1 ""
@@ -698,7 +698,7 @@ L C C1
 U 1 1 5289A0B1
 P 2450 1550
 F 0 "C1" H 2450 1650 40  0000 L CNN
-F 1 "10uF" H 2456 1465 40  0000 L CNN
+F 1 "22uF" H 2456 1465 40  0000 L CNN
 F 2 "~" H 2488 1400 30  0000 C CNN
 F 3 "~" H 2450 1550 60  0000 C CNN
 	1    2450 1550
@@ -1461,7 +1461,7 @@ L C C3
 U 1 1 52CB305A
 P 2700 1550
 F 0 "C3" H 2700 1650 40  0000 L CNN
-F 1 "10uF" H 2706 1465 40  0000 L CNN
+F 1 "22uF" H 2706 1465 40  0000 L CNN
 F 2 "~" H 2738 1400 30  0000 C CNN
 F 3 "~" H 2700 1550 60  0000 C CNN
 	1    2700 1550

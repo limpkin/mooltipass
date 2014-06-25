@@ -616,7 +616,8 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
     // set valid bit
     validBitToFlags(&(p->flags), NODE_VBIT_VALID);
     
-    //p->nextChildAddress = NODE_ADDR_NULL; // Removed for compatability for UpdateParentNode
+    // TODO verify nextChildAddress Fix (modified updateParentNode (backup / restore of next child addr) to allow setting p->nextChildAddress to NODE_ADDR_NULL)
+    p->nextChildAddress = NODE_ADDR_NULL;
     p->nextParentAddress = NODE_ADDR_NULL;
     p->prevParentAddress = NODE_ADDR_NULL;
     
@@ -836,6 +837,8 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
 {
     RET_TYPE ret = RETURN_OK;
     pNode *ip = &(h->parent);
+    uint16_t addr;
+    uint16_t newParentAddr;
     // read the node at parentNodeAddress
     ret = readParentNode(h, ip, parentNodeAddress);
     if(ret != RETURN_OK)
@@ -895,28 +898,52 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
         // no additional error checking. Assuming the node the user wants to write is p.
         // next and prev links will be modified. 
         
-        // nextChildAddress may be updated in p.. if ip contains nextChildAddress.. p will overwrite. but to delete node at address. nextChildAddress must be NULL.
-        // bypass delete security
+        //Backup nextChildAddress from ip.  Must be removed for deleteParentNode function to work
+        addr = ip->nextChildAddress;
+        // remove ip->nextChildAddress in flash mem to allow for deleteParentNode to detect that the parent has no children and can be deleted
         if(ip->nextChildAddress != NODE_ADDR_NULL)
         {
             ip->nextChildAddress = NODE_ADDR_NULL; // bypass delete security measure
             // write node to memory
-            ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
+            ret = writeReadDataFlash(parentNodeAddress, NODE_SIZE_PARENT, ip);
+            //ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
             if(ret != RETURN_OK)
             {
                 return ret;
             }
         }
         
-        // delete node in memory
+        // delete node in memory handles doubly linked list management
         ret = deleteParentNode(h, parentNodeAddress, DELETE_POLICY_WRITE_ONES);
         if(ret != RETURN_OK)
         {
             return ret;
         }
+
+        // backup nextParentAddr (my not be at previous location due to how memory mgmt handles memory)
+        newParentAddr = h->nextFreeParentNode;
         
-        // create node in memory
+        // create node in memory (new node p) handles doubly linked list management
         ret = createParentNode(h, *(&p));
+        if(ret != RETURN_OK)
+        {
+            return ret;
+        }
+
+        // node should be at newParentAddr
+
+        // read written node (into internal buffer)
+        ret = readParentNode(h, ip, newParentAddr);
+        if(ret != RETURN_OK)
+        {
+            return ret;
+        }
+
+        // restore addr backup (modify internal buffer)
+        ip->nextChildAddress = addr;
+        // write node to memory (from internal buffer)
+        ret = writeReadDataFlash(newParentAddr, NODE_SIZE_PARENT, ip);
+        //ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
         if(ret != RETURN_OK)
         {
             return ret;

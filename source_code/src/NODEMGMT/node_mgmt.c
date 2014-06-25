@@ -838,6 +838,7 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
     RET_TYPE ret = RETURN_OK;
     pNode *ip = &(h->parent);
     uint16_t addr;
+    uint16_t newParentAddr;
     // read the node at parentNodeAddress
     ret = readParentNode(h, ip, parentNodeAddress);
     if(ret != RETURN_OK)
@@ -918,6 +919,9 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
         {
             return ret;
         }
+
+        // backup nextParentAddr (my not be at previous location due to how memory mgmt handles memory)
+        newParentAddr = h->nextFreeParentNode;
         
         // create node in memory (new node p) handles doubly linked list management
         ret = createParentNode(h, *(&p));
@@ -926,8 +930,10 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
             return ret;
         }
 
+        // node should be at newParentAddr
+
         // read written node (into internal buffer)
-        ret = readParentNode(h, ip, parentNodeAddress);
+        ret = readParentNode(h, ip, newParentAddr);
         if(ret != RETURN_OK)
         {
             return ret;
@@ -936,8 +942,15 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
         // restore addr backup (modify internal buffer)
         ip->nextChildAddress = addr;
         // write node to memory (from internal buffer)
-        ret = writeReadDataFlash(parentNodeAddress, NODE_SIZE_PARENT, ip);
+        ret = writeReadDataFlash(newParentAddr, NODE_SIZE_PARENT, ip);
         //ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
+        if(ret != RETURN_OK)
+        {
+            return ret;
+        }
+
+        // rescan
+        ret = scanNextFreeParentNode(h, constructAddress(PAGE_PER_SECTOR, 0));
         if(ret != RETURN_OK)
         {
             return ret;

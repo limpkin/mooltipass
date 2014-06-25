@@ -948,13 +948,6 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
         {
             return ret;
         }
-
-        // rescan
-        ret = scanNextFreeParentNode(h, constructAddress(PAGE_PER_SECTOR, 0));
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
     }
     return ret; 
 }

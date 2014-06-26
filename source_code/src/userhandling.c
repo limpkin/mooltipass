@@ -496,6 +496,8 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 */
 RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
 {
+    uint8_t temp_buffer[AES256_CTR_LENGTH];
+    
     // If timer is running
     if (password_check_timer_on == TRUE)
     {
@@ -516,6 +518,10 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
             {
                 return RETURN_PASS_CHECK_NOK;
             }
+            // AES decryption: add our nonce with the ctr value, set the result, then decrypt
+            aesCtrAdd(current_nonce, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN, temp_buffer);
+            aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
+            aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
             if (strcmp((char*)temp_cnode.password, (char*)password) == 0)
             {
                 return RETURN_PASS_CHECK_OK;

@@ -84,8 +84,11 @@ typedef enum _nodeType
 #define NODE_MAX_CRED_TYPE 16
 #define NODE_MAX_DATA 256
 
-#define USER_MAX_FAV 16
-#define USER_PROFILE_SIZE (2+(USER_MAX_FAV*4))
+#define USER_START_NODE_SIZE 2
+#define USER_FAV_SIZE 4
+#define USER_MAX_FAV 15
+#define USER_PROFILE_SIZE (USER_START_NODE_SIZE+(USER_MAX_FAV*USER_FAV_SIZE))
+#define USER_CTR_SIZE 3 // Have 1 byte remaining.. Not included in USER_PROFILE_SIZE
 
 /*!
 *  Node Deletion Policy ENUM 
@@ -216,6 +219,9 @@ RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress);
 
 RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress);
 RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);
+
+RET_TYPE setProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize);
+RET_TYPE readProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize);
 
 RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress);
 

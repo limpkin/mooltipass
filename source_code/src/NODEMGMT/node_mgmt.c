@@ -497,6 +497,80 @@ RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t
 }
 
 /**
+ * Sets the users base CTR in the user profile flash memory
+ * @param   h               The user allocated node management handle
+ * @param   buf             The buffer containing CTR
+ * @param   bufSize         The size of the buffer containing CTR (Most likely 3)
+ * @return  Success status
+ */
+RET_TYPE setProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize)
+{
+    RET_TYPE ret = RETURN_OK;
+    uint16_t page;
+    uint16_t offset;
+
+    if(!buf)
+    {
+        return RETURN_NOK;
+    }
+
+    if(bufSize > USER_CTR_SIZE)
+    {
+        return RETURN_NOK;
+    }
+
+    // calculate user profile start
+    ret  = userProfileStartingOffset(h->currentUserId, &page, &offset);
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+
+    offset += USER_PROFILE_SIZE; // does not include ctr val.. this will set the correct offset
+
+    ret = writeDataToFlash(page, offset, bufSize, buf);
+
+    return ret;
+}
+
+/**
+ * Reads the users base CTR from the user profile flash memory
+ * @param   h               The user allocated node management handle
+ * @param   buf             The buffer to store the read CTR
+ * @param   bufSize         The size of the buffer to store the read CTR (Most likely 3)
+ * @return  Success status
+ */
+RET_TYPE readProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize)
+{
+    RET_TYPE ret = RETURN_OK;
+    uint16_t page;
+    uint16_t offset;
+
+    if(!buf)
+    {
+        return RETURN_NOK;
+    }
+
+    if(bufSize > USER_CTR_SIZE)
+    {
+        return RETURN_NOK;
+    }
+
+    // calculate user profile start
+    ret  = userProfileStartingOffset(h->currentUserId, &page, &offset);
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+
+    offset += USER_PROFILE_SIZE; // does not include ctr val.. this will set the correct offset
+
+    ret = readDataFromFlash(page, offset, bufSize, buf);
+
+    return ret;
+}
+
+/**
  * Scans flash memory to find the address of the next free parent node (next free write location).
  *   Sets nextFreeParentNode in the node management handle.  If no free memory, nextFreeParentNode is set to NODE_ADDR_NULL
  * @param   h               The user allocated node management handle

@@ -356,6 +356,21 @@ RET_TYPE userProfileAddressTest(mgmtHandle *h)
             return RETURN_NOK;
         }
     }
+
+    // CTR Calculation Test
+    initNodeManagementHandle(h, 0);
+    // calculate user profile start
+    ret  = userProfileStartingOffset(h->currentUserId, &pageNumber, &pageOffset);
+    if(ret != RETURN_OK)
+    {
+        return ret;
+    }
+    pageOffset += USER_PROFILE_SIZE; // does not include ctr val.. this will set the correct offset
+    if(pageOffset !=  62)
+    {
+        return RETURN_NOK;
+    }
+
     return RETURN_OK;
 }    
 
@@ -1746,7 +1761,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // TODO Debug why the node in the buffer is not working
-    usbPrintf_P(PSTR("TS Parent Node ADDR: %d,%d Parent Node Set Next Child %d,%d \n "), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode), pageNumberFromAddress(parentPtr->nextChildAddress), nodeNumberFromAddress(parentPtr->nextChildAddress));
+    //usbPrintf_P(PSTR("TS Parent Node ADDR: %d,%d Parent Node Set Next Child %d,%d \n "), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode), pageNumberFromAddress(parentPtr->nextChildAddress), nodeNumberFromAddress(parentPtr->nextChildAddress));
     
     if(NODE_PARENT_PER_PAGE == 4){ nodeId = 2; } else { nodeId = 6; }
     if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(PAGE_COUNT - 1, nodeId))
@@ -2689,7 +2704,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
 */
 RET_TYPE nodeTest()
 {
-    //delay_ms(2000);  // Delay to allow the USB HID output to init.  
+    delay_ms(2000);  // Delay to allow the USB HID output to init.  
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
         usbPrintf_P(PSTR("START Node Test Suite %dM Chip\n"), (uint8_t)FLASH_CHIP);
     #endif
@@ -2915,7 +2930,7 @@ RET_TYPE nodeTest()
     #endif
     
     /****************************************** User Profile Address **********************************************/
-    //#define NODE_TEST_USER_PROFILE
+    #define NODE_TEST_USER_PROFILE
     #ifdef NODE_TEST_USER_PROFILE
     displayInitForNodeTest();
     
@@ -2984,7 +2999,6 @@ RET_TYPE nodeTest()
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
     usbPrintf_P(PSTR("Child Node Test\n"));
     #endif
-    
     
     // run test
     ret = childNodeTest(hp, &ret_code);

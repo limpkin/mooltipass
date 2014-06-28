@@ -40,66 +40,54 @@ var credentialFieldTypes = {
     'name':'login'
 };
 
-function getCredentialFields() 
+
+function getCredential(input)
 {
-    var elements = document.getElementsByTagName('input');
-    var result = [];
+    console.log('getCredential('+input.id+')');
+    var type = input.type.toLowerCase()
+    var name = input.name.toLowerCase()
+    var id = input.id.toLowerCase()
+    var ctype = null;
 
-    for (var i=0; i<elements.length; i++) 
+    if (type in credentialFieldTypes)
     {
-        var input = elements[i] 
-        var type = input.type.toLowerCase()
-        var name = input.name.toLowerCase()
-        var id = input.id.toLowerCase()
-
-        var ctype = null;
-
-        if (type in credentialFieldTypes)
-        {
-            ctype = type;
-        }
-        else if (name in credentialFieldTypes)
-        {
-            ctype = name;
-        }
-        else if (id in credentialFieldTypes)
-        {
-            ctype = id;
-        }
-
-        if (ctype) {
-            if (input.id)
-            {
-                result.push({id: input.id, type: ctype});
-                console.log('pushed id "'+input.id+'" ('+ctype+') ');
-            }
-            else
-            {
-                console.log('pushed name "'+input.name+'" ('+ctype+') ');
-                result.push({name: input.name, type: ctype});
-            }
-        }
-
+        ctype = type;
+    }
+    else if (name in credentialFieldTypes)
+    {
+        ctype = name;
+    }
+    else if (id in credentialFieldTypes)
+    {
+        ctype = id;
     }
 
-    return result;
+    if (ctype) {
+        if (input.id)
+        {
+            return {id: input.id, type: ctype};
+        }
+        else
+        {
+            return {name: input.name, type: ctype}
+        }
+    }
+    return null;
 }
 
-function getSubmitFields() 
+function getCredentialFields() 
 {
-    var fields = ['submit'];
-    var elements = document.getElementsByTagName('input');
     var result = [];
 
-    for (var i=0; i<elements.length; i++) {
-        var input = elements[i] 
-        var type = input.type.toLowerCase()
-        console.log('input: "'+input.id+'" ('+input.type+') ')
-        if ($.inArray(type, fields) != -1) {
-            console.log('sub: pushed "'+input.id+'" ('+input.type+') ')
-            result.push({id: input.id, type: input.type});
+    $('input').each( function(i) 
+    {
+        cred = getCredential(this);
+        if (cred)
+        {
+            console.log('pushed '+JSON.stringify(cred));
+            result.push(cred);
         }
-    }
+    });
 
     return result;
 }
@@ -196,12 +184,12 @@ function checkSubmittedCredentials(form)
                     "Update Mooltipass credentials": function() 
                     {
                         chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
-                        form.submit();
+                        //form.submit();
                         $(this).dialog('close');
                     },
                     Skip: function() 
                     {
-                        form.submit();
+                        //form.submit();
                         $(this).dialog('close');
                     }
                 }
@@ -213,12 +201,23 @@ function checkSubmittedCredentials(form)
     }
 }
 
+function hasSecret(credlist)
+{
+    for (var ind=0; ind<credlist.length; ind++)
+    {
+        if (credlist[ind].type == 'password')
+            return true;
+    }
+    return false;
+}
+
 addEventListener('DOMContentLoaded', function f() 
 {
     removeEventListener('DOMContentLoaded', f, false);
     console.log('mooltipass content script triggered');
     var forms = document.getElementsByTagName('form');
-    $('form').submit(function(event) {
+    $('form').submit(function(event) 
+    {
         var form = this;
         console.log('checking submitted credentials');
         // see if we should store the credentials
@@ -226,15 +225,19 @@ addEventListener('DOMContentLoaded', function f()
         event.preventDefault();
     });
     credFields = getCredentialFields();
+
     // send an array of the input fields to the mooltipass
-    //credFieldsArray =  $.map(credFields, function(value, key) {
-    //      return {id: key, type:value} ;
-    //});
-    if (credFields.length > 0) {
+    if (hasSecret(credFields) 
+    {
         // send a message back to the extension
-        chrome.runtime.sendMessage({type: 'inputs', url: window.location.href, inputs: credFields}, function(response) {
+        chrome.runtime.sendMessage({type: 'inputs', url: window.location.href, inputs: credFields}, function(response) 
+        {
             console.log('content: got response ' + JSON.stringify(response));
         });
+    }
+    else
+    {
+        console.log('no password in credentials, not sending');
     }
 });
 

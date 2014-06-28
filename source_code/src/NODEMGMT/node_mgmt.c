@@ -563,7 +563,7 @@ RET_TYPE readProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize)
         return ret;
     }
 
-    offset += USER_PROFILE_SIZE; // does not include ctr val.. this will set the correct offset
+    offset += USER_PROFILE_SIZE-USER_RES_CTR; // does not include ctr val.. this will set the correct offset
 
     ret = readDataFromFlash(page, offset, bufSize, buf);
 

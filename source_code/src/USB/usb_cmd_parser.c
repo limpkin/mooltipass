@@ -353,7 +353,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             else
             {
                 flash_import_user_space = FALSE;
-                current_flash_import_addr = 0x0000;
+                current_flash_import_addr = GRAPHIC_ZONE_START;
             }
             
             // Ask for user confirmation

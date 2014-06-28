@@ -69,6 +69,36 @@ From plugin/app: add a new context inside the mooltipass
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x30: export flash
+------------------
+From plugin/app: export flash contents. A 0x00 in parameter specifies to send the first bytes in flash while a 0x01 requests for the next packet
+
+From Mooltipass: the bunch of requested data
+
+0x31: export flash end
+----------------------
+From plugin/app: stop flash export
+
+From Mooltipass: end of flash export
+
+0x32: import flash start
+------------------------
+From plugin/app: Request for flash contents sending to Mooltipass. A 0x00 in parameter implies user space while a 0x01 specifies the graphics part of flash
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x35: export eeprom
+-------------------
+From plugin/app: export eeprom contents. A 0x00 in parameter specifies to send the first bytes in flash while a 0x01 requests for the next packet
+
+From Mooltipass: the bunch of requested data
+
+0x36: export eeprom end
+-----------------------
+From plugin/app: stop eeprom export
+
+From Mooltipass: end of eeprom export
+
 
 Functions
 =========

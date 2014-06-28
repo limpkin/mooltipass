@@ -27,7 +27,7 @@
 #include "aes.h"
 #include "aes256_ctr.h"
 
-/*!	\fn 	void xor_vectors(uint8_t* dest, uint8_t* src, uint8_t nbytes)
+/*!	\fn 	void aesXorVectors(uint8_t* dest, uint8_t* src, uint8_t nbytes)
 *	\brief	Do xor between dest and src and save it inside dest
 * 
 *   \param  dest - destination of xor

@@ -44,8 +44,9 @@ RET_TYPE blockErase(uint16_t blockNumber);
 RET_TYPE pageErase(uint16_t pageNumber);
 
 RET_TYPE formatFlash();
-
+RET_TYPE flashWriteBufferToPage(uint16_t page);
 RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size);
+void flashWriteBuffer(uint8_t* datap, uint16_t offset, uint16_t size);
 RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);
 RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);
 
@@ -260,6 +261,8 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
 #define FLASH_OPCODE_MAINP_TO_BUF     0x53  // Opcode to perform a Main Memory Page to Buffer Transfer
 #define FLASH_OPCODE_MMP_PROG_TBUF    0x82  // Opcode to perform a Main Memory Page Program Through Buffer
 #define FLASH_OPCODE_LOWF_READ        0x03  // Opcode to perform a Continuous Array Read (Low Frequency)
+#define FLASH_OPCODE_BUF_WRITE        0x84  // Opcode to write into buffer
+#define FLASH_OPCODE_BUF_TO_PAGE      0x83  // Opcode to write buffer to given page
 #define FLASH_OPCODE_READ_DEV_INFO    0x9F  // Opcode to perform a Manufacturer and Device ID Read
 #define FLASH_READY_BITMASK           0x80  // Bitmask used to determine if the chip is ready (poll status register). Used with FLASH_OPCODE_READ_STAT_REG.
 #define FLASH_SECTOR_ZER0_A_PAGES     8

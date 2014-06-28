@@ -36,6 +36,11 @@
 #include "store.h"
 #include "oledmp.h"
 
+// Current address in flash we need to export
+uint32_t current_flash_export_addr = 0;
+// Current address in eeprom we need to export
+uint16_t current_eeprom_export_addr = 0;
+
 
 /*! \fn     checkTextField(uint8_t* data, uint8_t len)
 *   \brief  Check that the sent text is correct
@@ -152,7 +157,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             } 
             else
             {
-                 sendPluginOneByteAnswer(CMD_GET_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
+                sendPluginOneByteAnswer(CMD_GET_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
                 USBDEBUGPRINTF_P(PSTR("get pass: failed\n"));
             }
             break;
@@ -247,16 +252,39 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_FLASH :
         {
             uint8_t size = PACKET_EXPORT_SIZE;
-            for (uint32_t addr = 0; addr < FLASH_SIZE; addr+=PACKET_EXPORT_SIZE)
+            
+            // Check datalen for arg
+            if (datalen != 1)
             {
-                if ((FLASH_SIZE - addr) < (uint32_t)PACKET_EXPORT_SIZE)
-                {
-                    size = (uint8_t)(FLASH_SIZE - addr);
-                }
-                flashRead(incomingData, addr, size);
-                pluginSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
+                USBDEBUGPRINTF_P(PSTR("export: no param\n"));
+                break;
             }
-            pluginSendMessageWithRetries(CMD_EXPORT_FLASH_END, 0, (char*)incomingData, 255);
+            
+            // Check if the plugin wants a fresh export
+            if (msg->body.data[0] == 0)
+            {
+                // Export start
+                current_flash_export_addr = 0x0000;
+            }
+            
+            // Check if the export address is correct
+            if (current_flash_export_addr >= FLASH_SIZE)
+            {
+                pluginSendMessage(CMD_EXPORT_FLASH_END, 0, (char*)incomingData);
+                USBDEBUGPRINTF_P(PSTR("export: end\n"));
+                break;
+            }
+            
+            // Check how much data we need
+            if ((FLASH_SIZE - current_flash_export_addr) < (uint32_t)PACKET_EXPORT_SIZE)
+            {
+                size = (uint8_t)(FLASH_SIZE - current_flash_export_addr);
+            }
+            
+            // Get a block of data and send it, increment counter
+            flashRawRead(incomingData, current_flash_export_addr, size);
+            pluginSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
+            current_flash_export_addr += size;
             break;
         }            
             
@@ -264,18 +292,43 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_EEPROM :
         {
             uint8_t size = PACKET_EXPORT_SIZE;
-            for (uint16_t addr = 0; addr < EEPROM_SIZE; addr+=PACKET_EXPORT_SIZE)
+            
+            // Check datalen for arg
+            if (datalen != 1)
             {
-                if ((EEPROM_SIZE-addr) < PACKET_EXPORT_SIZE)
-                {
-                    size = (uint8_t)(FLASH_SIZE - addr);
-                }
-                eeprom_read_block(incomingData, (void *)addr, size);
-                pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
+                USBDEBUGPRINTF_P(PSTR("export: no param\n"));
+                break;
             }
-            pluginSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData, 255);
+            
+            // Check if the plugin wants a fresh export
+            if (msg->body.data[0] == 0)
+            {
+                // Export start
+                current_eeprom_export_addr = 0x0000;
+            }
+            
+            // Check if the export address is correct
+            if (current_eeprom_export_addr >= EEPROM_SIZE)
+            {
+                pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
+                USBDEBUGPRINTF_P(PSTR("export: end\n"));
+                break;
+            }
+            
+            // Check how much data we need
+            if ((EEPROM_SIZE - current_eeprom_export_addr) < PACKET_EXPORT_SIZE)
+            {
+                size = (uint8_t)(EEPROM_SIZE - current_eeprom_export_addr);
+            }
+            
+            // Get a block of data and send it, increment counter
+            eeprom_read_block(incomingData, (void*)current_eeprom_export_addr, size);
+            pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
+            current_eeprom_export_addr += size;
             break;
         }     
+        
+        
 
         // Development commands
 #ifdef  DEV_PLUGIN_COMMS            

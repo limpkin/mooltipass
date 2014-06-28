@@ -27,8 +27,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#define USB_DEBUG_OUTPUT
-
 // Zero when we are not configured, non-zero when enumerated
 static volatile uint8_t usb_configuration=0;
 

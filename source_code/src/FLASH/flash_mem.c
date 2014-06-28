@@ -450,5 +450,6 @@ RET_TYPE flashWriteBufferToPage(uint16_t page)
 
     uint8_t op[] = {FLASH_OPCODE_BUF_TO_PAGE, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};
     sendDataToFlash(4, op, 0, 0);
+    waitForFlash();
     return RETURN_OK;
 }

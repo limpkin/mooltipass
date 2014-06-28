@@ -42,8 +42,10 @@ uint32_t current_flash_export_addr = 0;
 uint16_t current_eeprom_export_addr = 0;
 // Bool to specify if we're writing user flash space
 uint8_t flash_import_user_space = FALSE;
-// Current address in flash where we're importing
-uint32_t current_flash_import_addr = 0;
+// Current page in flash where we're importing
+uint16_t current_flash_import_page = 0;
+// Temporary counter to align our data to flash pages
+uint16_t current_flash_import_page_pos = 0;
 // Bool to specify if user approved flash import
 uint8_t flash_import_approved = FALSE;
 
@@ -348,18 +350,19 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (msg->body.data[0] == 0x00)
             {
                 flash_import_user_space = TRUE;
-                current_flash_import_addr = 0x0000;
+                current_flash_import_page = 0x0000;
             } 
             else
             {
                 flash_import_user_space = FALSE;
-                current_flash_import_addr = GRAPHIC_ZONE_START;
+                current_flash_import_page = GRAPHIC_ZONE_PAGE_START;
             }
             
             // Ask for user confirmation
             if (TRUE)
             {
                 flash_import_approved = TRUE;
+                current_flash_import_page_pos = 0;
                 plugin_return_value = PLUGIN_BYTE_OK;
             } 
             else
@@ -367,8 +370,43 @@ void usbProcessIncoming(uint8_t* incomingData)
                 flash_import_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
-            sendPluginOneByteAnswer(CMD_SET_LOGIN, CMD_IMPORT_FLASH_BEGIN, incomingData);
+            sendPluginOneByteAnswer(CMD_IMPORT_FLASH_BEGIN, plugin_return_value, incomingData);
+            break;
         }
+            
+        // import flash contents
+        case CMD_IMPORT_FLASH :
+        {
+            // Check if we actually approved the import, haven't gone over the flash boundaries, if we're correctly aligned page size wise
+            if ((flash_import_approved == FALSE) || (current_flash_import_page >= PAGE_COUNT) || (current_flash_import_page_pos + datalen > BYTES_PER_PAGE))
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            else
+            {
+                flashWriteBuffer(msg->body.data, current_flash_import_page_pos, datalen);
+                current_flash_import_page_pos+= datalen;
+                
+                // If we just filled a page, flush it to the page
+                if (current_flash_import_page_pos == BYTES_PER_PAGE)
+                {
+                    flashWriteBufferToPage(current_flash_import_page);
+                    current_flash_import_page_pos = 0;
+                    current_flash_import_page++;
+                }
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            sendPluginOneByteAnswer(CMD_IMPORT_FLASH, plugin_return_value, incomingData);
+            break;
+        }
+            
+        // end flash import
+        case CMD_EXPORT_FLASH_END :
+        {
+            flash_import_approved = FALSE;
+            sendPluginOneByteAnswer(CMD_EXPORT_FLASH_END, PLUGIN_BYTE_OK, incomingData);
+            break;
+        }            
 
         // Development commands
 #ifdef  DEV_PLUGIN_COMMS            

@@ -87,6 +87,18 @@ From plugin/app: Request for flash contents sending to Mooltipass. A 0x00 in par
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x33: import flash
+------------------
+From plugin/app: A bunch of data to store inside the flash, particularly formatted (see source files)
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x34: import flash end
+----------------------
+From plugin/app: Inform that we finished the flash import
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
 0x35: export eeprom
 -------------------
 From plugin/app: export eeprom contents. A 0x00 in parameter specifies to send the first bytes in flash while a 0x01 requests for the next packet

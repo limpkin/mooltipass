@@ -40,6 +40,12 @@
 uint32_t current_flash_export_addr = 0;
 // Current address in eeprom we need to export
 uint16_t current_eeprom_export_addr = 0;
+// Bool to specify if we're writing user flash space
+uint8_t flash_import_user_space = FALSE;
+// Current address in flash where we're importing
+uint32_t current_flash_import_addr = 0;
+// Bool to specify if user approved flash import
+uint8_t flash_import_approved = FALSE;
 
 
 /*! \fn     checkTextField(uint8_t* data, uint8_t len)
@@ -326,9 +332,43 @@ void usbProcessIncoming(uint8_t* incomingData)
             pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
             current_eeprom_export_addr += size;
             break;
-        }     
-        
-        
+        }
+            
+        // import flash contents
+        case CMD_IMPORT_FLASH_BEGIN :
+        {
+            // Check datalen for arg
+            if (datalen != 1)
+            {
+                USBDEBUGPRINTF_P(PSTR("import: no param\n"));
+                break;
+            }
+            
+            // Check what we want to write
+            if (msg->body.data[0] == 0x00)
+            {
+                flash_import_user_space = TRUE;
+                current_flash_import_addr = 0x0000;
+            } 
+            else
+            {
+                flash_import_user_space = FALSE;
+                current_flash_import_addr = 0x0000;
+            }
+            
+            // Ask for user confirmation
+            if (TRUE)
+            {
+                flash_import_approved = TRUE;
+                plugin_return_value = PLUGIN_BYTE_OK;
+            } 
+            else
+            {
+                flash_import_approved = FALSE;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            sendPluginOneByteAnswer(CMD_SET_LOGIN, CMD_IMPORT_FLASH_BEGIN, incomingData);
+        }
 
         // Development commands
 #ifdef  DEV_PLUGIN_COMMS            

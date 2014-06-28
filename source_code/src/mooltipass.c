@@ -39,6 +39,7 @@
 #include "smartcard.h"
 #include "flash_mem.h"
 #include "node_mgmt.h"
+#include "node_test.h"
 #include "defines.h"
 #include "entropy.h"
 #include "oledmp.h"

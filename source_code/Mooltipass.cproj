@@ -56,7 +56,7 @@
           <JtagDbgClock>249000</JtagDbgClock>
           <SwdClock>249000</SwdClock>
           <JtagProgClock>1000000</JtagProgClock>
-          <IspClock>1250000</IspClock>
+          <IspClock>1000000</IspClock>
           <JtagInChain>false</JtagInChain>
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagDevicesBefore>0</JtagDevicesBefore>

@@ -526,7 +526,7 @@ RET_TYPE setProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize)
         return ret;
     }
 
-    offset += USER_PROFILE_SIZE; // does not include ctr val.. this will set the correct offset
+    offset += USER_PROFILE_SIZE-USER_RES_CTR; // User CTR is at the end
 
     ret = writeDataToFlash(page, offset, bufSize, buf);
 

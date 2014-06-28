@@ -765,7 +765,6 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
 {
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     uint8_t temp_nonce[AES256_CTR_LENGTH];
-    uint8_t temp_user_ctr[USER_CTR_SIZE];
     uint8_t new_user_id;
     uint8_t i;
     
@@ -783,7 +782,7 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
         temp_nonce[i] = entropyRandom8();
     }
     
-    // Create user profile in flash
+    // Create user profile in flash, CTR is set to 0 by library
     if (formatUserProfileMemory(new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
@@ -794,11 +793,6 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     {
         return RETURN_NOK;
     }
-    
-    // Set CTR to 0 and update ctrval
-    memset((void*)temp_user_ctr, 0x00, USER_CTR_SIZE);
-    setProfileCtr(&nodeMgmtHandle, temp_user_ctr, USER_CTR_SIZE);
-    initUserFlashContext(new_user_id);
     
     // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
     if (writeSmartCardCPZForUserId(temp_buffer, temp_nonce, new_user_id) != RETURN_OK)

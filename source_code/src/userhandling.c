@@ -272,7 +272,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     // Ask for user approval
     if(guiAskForDomainAddApproval((char*)name) == RETURN_OK)
     {
-        temp_pnode.nextChildAddress = NODE_ADDR_NULL;
+        // Copy service name inside the parent node
         memcpy((void*)temp_pnode.service, (void*)name, length);
         
         // Create parent node for service
@@ -285,7 +285,6 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     }
     else
     {
-        USBDEBUGPRINTF_P(PSTR("add context fail\n"));
         return RETURN_NOK;
     }
 }
@@ -351,7 +350,7 @@ RET_TYPE getPasswordForContext(char* buffer)
         {
             return RETURN_NOK;
         }
-        USBDEBUGPRINTF_P(PSTR("Get password "));
+        
         // AES decryption: add our nonce with the ctr value, set the result, then decrypt
         aesCtrAdd(current_nonce, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN, temp_buffer);
         aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);

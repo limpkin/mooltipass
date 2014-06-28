@@ -2704,7 +2704,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
 */
 RET_TYPE nodeTest()
 {
-    delay_ms(2000);  // Delay to allow the USB HID output to init.  
+    _delay_ms(2000);  // Delay to allow the USB HID output to init.  
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
         usbPrintf_P(PSTR("START Node Test Suite %dM Chip\n"), (uint8_t)FLASH_CHIP);
     #endif

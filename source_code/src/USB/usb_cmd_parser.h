@@ -32,6 +32,12 @@
 #define CMD_ERASE_EEPROM        0x40
 #define CMD_ERASE_FLASH         0x41
 #define CMD_ERASE_SMC           0x42
+
+#define CMD_ALLOCATE_SLOT       0x43
+#define CMD_WRITE_SLOT          0x44
+#define CMD_ERASE_SLOTS         0x45
+#define CMD_DRAW_SLOT           0x46	// draw a bitmap from a slot
+#define CMD_FLASH_READ          0x47
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00
@@ -50,7 +56,20 @@
 typedef struct {
     uint8_t len;
     uint8_t cmd;
-    uint8_t body[RAWHID_RX_SIZE-HID_DATA_START];
+    union {
+	uint8_t data[RAWHID_RX_SIZE-HID_DATA_START];
+	struct {
+	    uint8_t slotId;
+	    uint8_t data[RAWHID_RX_SIZE-HID_DATA_START-sizeof(uint8_t)];
+	} storeWrite;
+	struct {
+	    uint16_t size;	// number of bytes to allocated in slot
+	} storeAllocate;
+	struct {
+	    uint32_t addr;
+	    uint8_t size;
+	} flashRead;
+    } body;
 } usbMsg_t;
 
 void usbProcessIncoming(uint8_t* incomingData);

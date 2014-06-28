@@ -27,6 +27,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#define USB_DEBUG_OUTPUT
+
 // Zero when we are not configured, non-zero when enumerated
 static volatile uint8_t usb_configuration=0;
 
@@ -614,7 +616,7 @@ RET_TYPE pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str)
     char ch;
 
     #ifdef USB_DEBUG_OUTPUT
-        if (cmd != CMD_DEBUG && cmd < CMD_EXPORT_FLASH) {
+        if ((cmd != CMD_DEBUG && cmd < CMD_EXPORT_FLASH) || (cmd >= CMD_ALLOCATE_SLOT)) {
             if (len) {
                 usbPrintf_P(PSTR("tx: cmd 0x%02x len %d data 0x%02x\n"), cmd, len, *str);
             } else {
@@ -666,7 +668,7 @@ RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str)
     uint8_t i = 0;
 
     #ifdef USB_DEBUG_OUTPUT
-        if (cmd != CMD_DEBUG && cmd < CMD_EXPORT_FLASH) {
+        if ((cmd != CMD_DEBUG && cmd < CMD_EXPORT_FLASH) || (cmd >= CMD_ALLOCATE_SLOT)) {
             if (len) {
                 usbPrintf_P(PSTR("tx: cmd 0x%02x len %d data 0x%02x\n"), cmd, len, *str);
             } else {

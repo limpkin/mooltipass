@@ -29,6 +29,7 @@
 
 #include <avr/pgmspace.h>
 #include "bitstream.h"
+#include "store.h"
 #include "usb.h"
 
 #undef DEBUG_BS
@@ -43,12 +44,22 @@
  * @note the bitmap data must be packed into 16 bit words, and pixels are packed
  *       across words when they do not fully fit
  */
-void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, const uint16_t *data, const uint16_t size, bool flash)
+void bsInit(
+    bitstream_t *bs,
+    const uint8_t pixelDepth,
+    const uint8_t flags,
+    const uint16_t *data,
+    const uint16_t width,
+    const uint8_t height,
+    bool flash,
+    uint8_t slotId)
 {
     bs->bitsPerPixel = pixelDepth;
+    bs->width = width;
+    bs->height = height;
     bs->_datap = data;
     bs->_cdatap = (const uint8_t *)data;
-    bs->_size = size;
+    bs->_size = width * height;
     bs->mask = (1 << pixelDepth) - 1;
     bs->_wordsize = 16;
     bs->_bits = 0;
@@ -56,6 +67,7 @@ void bsInit(bitstream_t *bs, const uint8_t pixelDepth, const uint8_t flags, cons
     bs->_count = 0;
     bs->_flags = flags;
     bs->flash = flash;
+    bs->slotId = slotId;
 #ifdef DEBUG_BS
     usbPrintf_P(PSTR("bitmap: data %p, depth %d, size %d\n"), data, pixelDepth, size);
 #endif
@@ -77,7 +89,13 @@ static inline uint16_t bsGetNextWord(bitstream_t *bs)
         {
             return (uint16_t)pgm_read_word(bs->_datap++);
         }
-        else 
+        else if (bs->slotId)
+        {
+            uint16_t data;
+            storeReadSlot(bs->slotId, (uint16_t)bs->_cdatap + bs->_count*2, 1, &data);
+            return data;
+        }
+        else
         {
             return *bs->_datap++;
         }
@@ -101,6 +119,12 @@ static inline uint8_t bsGetNextByte(bitstream_t *bs)
         if (bs->flash) 
         {
             return pgm_read_byte(bs->_cdatap++);
+        }
+        else if (bs->slotId)
+        {
+            uint8_t data;
+            storeReadSlot(bs->slotId, (uint16_t)bs->_cdatap + bs->_count, 1, &data);
+            return data;
         }
         else 
         {

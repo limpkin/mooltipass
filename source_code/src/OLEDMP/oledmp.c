@@ -54,6 +54,7 @@
 #include "oledmp.h"
 #include "utils.h"
 #include "usb.h"
+#include "store.h"
 
 // Make sure the USART SPI is selected
 #if SPI_OLED != SPI_USART
@@ -594,8 +595,8 @@ void oledSetFont(uint8_t font)
  */
 void oledOff(void)
 {
-    oledWriteCommand(CMD_SET_DISPLAY_OFF);
-    pinHigh(OLED_PORT_POWER, OLED_POWER);	 // 12V power off
+    //oledWriteCommand(CMD_SET_DISPLAY_OFF);
+    //pinHigh(OLED_PORT_POWER, OLED_POWER);	 // 12V power off
 }
 
 
@@ -933,12 +934,13 @@ uint8_t oledGlyphHeight()
  */
 uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg)
 {
+    //glyph_t glyphDef;
     uint8_t xoff;
     const uint8_t *glyph;
     uint8_t glyph_width;
     uint8_t glyph_height;
     uint8_t glyph_depth;
-    int8_t glyph_offset;
+    int8_t glyph_offset = 0;
     int8_t glyph_shift;
     uint8_t gind;
     uint16_t pixel_scale;
@@ -982,7 +984,6 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
     {
         // Fixed width font
         glyph_height = oled_fontp->height;
-        glyph_offset = 0;
         glyph = oled_fontp->fontData.bitmaps + gind*((glyph_width+7)/8) * glyph_height;
 #ifdef OLED_DEBUG
         usbPrintf_P(PSTR("    glyph 0x%04x index %d\n"), 
@@ -991,6 +992,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
     }
     else 
     {
+        //memcpy_PF(&glyphDef, &oled_fontp->fontData.glyphs[gind]);
         // proportional width font
         glyph = (const uint8_t *)pgm_read_word(&oled_fontp->fontData.glyphs[gind].glyph);
         if (glyph == NULL) 
@@ -998,7 +1000,6 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             // space character, just fill in the gddram buffer and output background pixels
             glyph_width = (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].width));
             glyph_height = oled_fontp->height;
-            glyph_offset = 0;
         }
         else 
         {
@@ -1017,7 +1018,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             }
         }
     }
-    xoff = x - (x / 4) * 4;
+    xoff = x % 4;
 #ifdef OLED_DEBUG
     usbPrintf_P(PSTR("    glyph width %d height %d depth %d xoff %d\n"), glyph_width, glyph_height, glyph_depth, xoff);
 #endif
@@ -1035,14 +1036,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
     usbPrintf_P(PSTR("    window(x1=%d,y1=%d,x2=%d,y2=%d)\n"), x, y, x+glyph_width-1, y+glyph_height-1);
 #endif
 
-#if 0
-    oledSetWindow(x, y, x+glyph_width-1, y+glyph_height-1);
-    oledWriteCommand(CMD_WRITE_RAM);
-#endif
-
     // XXX todo: fill unused character space with background
-    // XXX todo: add support for n-bit depth fonts (1 to 4)
-    //
     for (uint8_t yind=0; yind < glyph_height; yind++) 
     {
         uint16_t xind = 0;
@@ -1152,23 +1146,20 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 void oledBitmapDrawRaw(
     uint8_t x,
     uint8_t y,
-    uint16_t width,
-    uint8_t height,
-    uint8_t depth,
-    uint8_t flags,
-    const uint16_t *image,
+    bitstream_t *bs,
     uint8_t options)
 {
+    uint16_t width = bs->width;
+    uint8_t height = bs->height;
     uint8_t xoff = x - (x / 4) * 4;
 
-    bitstream_t bs;
-    bsInit(&bs, depth, flags, image, width*height, !(options & OLED_RAM_BITMAP));
+    usbPrintf_P(PSTR("oled: draw x=%u y=%u width=%u height=%u\n"), x, y, width, height);
 
     y = (y + oled_offset + oled_writeOffset) & OLED_Y_MASK;
 
     if (!(options & (OLED_SCROLL_UP | OLED_SCROLL_DOWN))) 
     {
-        oledSetWindow(x, y, x+width-1, y+height-1);
+        oledSetWindow(x, y, x+bs->width-1, y+height-1);
         oledWriteCommand(CMD_WRITE_RAM);
     }
 
@@ -1187,7 +1178,7 @@ void oledBitmapDrawRaw(
         if (xoff != 0) 
         {
             // fill the rest of the 4-pixel word from the bitmap
-            pixels = bsRead(&bs, 4-xoff);
+            pixels = bsRead(bs, 4-xoff);
 
             // Fill existing pixels if available
             if ((x/4) == gddram[(y+yind) & OLED_Y_MASK].xaddr) 
@@ -1208,11 +1199,11 @@ void oledBitmapDrawRaw(
         {
             if (xind+4 < width) 
             {
-                pixels = bsRead(&bs,4);
+                pixels = bsRead(bs,4);
             }
             else 
             {
-                pixels = bsRead(&bs,width-xind);
+                pixels = bsRead(bs,width-xind);
             }
             oledWriteData((uint8_t)(pixels >> 8));
             oledWriteData((uint8_t)pixels);
@@ -1252,7 +1243,34 @@ void oledBitmapDrawRaw(
 void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options)
 {
     const bitmap_t *bitmap = (const bitmap_t *)image;
+    bitstream_t bs;
 
-    oledBitmapDrawRaw(x, y, pgm_read_word(&bitmap->width), pgm_read_byte(&bitmap->height),
-            pgm_read_byte(&bitmap->depth), pgm_read_byte(&bitmap->flags), bitmap->data, options);
+    bsInit(&bs, pgm_read_word(&bitmap->depth), pgm_read_byte(&bitmap->flags), 
+            bitmap->data, pgm_read_byte(&bitmap->height), pgm_read_byte(&bitmap->depth),
+            !(options & OLED_RAM_BITMAP), 0);
+
+    oledBitmapDrawRaw(x, y, &bs, options);
+}
+
+/**
+ * Draw a bitmap from a Flash storage slot.
+ * @param x - x position for the bitmap
+ * @param y - y position for the bitmap (0=top, 63=bottom)
+ * @param slotId - the storage slot that has the bitmap
+ * @param options - display options:
+ *                OLED_SCROLL_UP - scroll bitmap up
+ *                OLED_SCROLL_DOWN - scroll bitmap up
+ *                0 - don't make bitmap active (unless already drawing to active buffer)
+ */
+void oledBitmapDrawSlot(uint8_t x, uint8_t y, uint8_t slotId, uint8_t options)
+{
+    bitstream_t bs;
+    bitmap_t bitmap;
+    storeReadSlot(slotId, 0, sizeof(bitmap), &bitmap);
+
+    usbPrintf_P(PSTR("Draw bitmap from slot %d\n"), slotId);
+    bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.height, bitmap.depth,
+            !(options & OLED_RAM_BITMAP), slotId);
+
+    oledBitmapDrawRaw(x, y, &bs, options);
 }

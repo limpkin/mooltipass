@@ -38,6 +38,7 @@
 
 #include "fonts.h"
 #include "bitmap.h"
+#include "bitstream.h"
 
 /**************************************************
 *    SSD1322 driver for 256x16x4 OLED display
@@ -149,13 +150,9 @@ void oledOn(void);
 void oledBitmapDrawRaw(
     uint8_t x,
     uint8_t y,
-    uint16_t width,
-    uint8_t height,
-    uint8_t depth,
-    uint8_t flags,
-    const uint16_t *image,
+    bitstream_t *bs,
     uint8_t options);
-void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options);
+void oledBitmapDrawSlot(uint8_t x, uint8_t y, uint8_t slotIdimage, uint8_t options);
 
 void oledSetDisplayStartLine(uint8_t line);
 void oledMoveDisplayStartLine(int8_t offset);

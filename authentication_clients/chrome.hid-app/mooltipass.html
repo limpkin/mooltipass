@@ -12,7 +12,7 @@
 
 <div id="tabs">
   <ul>
-    <li><a href="#message">Main</a></li>
+    <li><a href="#message">Mooltipass</a></li>
     <li><a href="#debug">Log</a></li>
     <li><a href="#manage">Manage</a></li>
     <li><a href="#developer">Developer</a></li>
@@ -38,6 +38,7 @@
 	    <input type="file" id="exportFileName" style="display:none">
 	    <button id="exportFlash">Export flash</button>
 	    <button id="exportEeprom">Export eeprom</button>
+	    <button id="exportStore">Export store</button>
 	    <div id="exportProgressbar"></div>
 	    <br />
 	    <textarea id="exportLog" style="height:150px; width:300px" class="ui-widget ui-state-default ui-corner-all" disabled>
@@ -62,18 +63,30 @@
 	    </ul>
 	</div>
    </div>
-   <div id="developer">
-	<p>Developer options for the Mooltipass. </p>
-	<ul>
-	    <li><button id="eraseEeprom">Erase eeprom</button></li>
-	    <li><button id="eraseFlash">Erase flash</button></li>
-	    <li><button id="eraseSmartcard">Erase smartcard</button></li>
-	</ul>
-	<div id="eraseConfirm" title="Mooltipass Erase">
-	    <p></p>
+   <div id="developer" style="height:416px">
+	<h3>Slot Management</h3>
+	<div>
+	    <p>Upload media files to mooltipass storage slots<p>
+	    <ul>
+		<li><button id="loadSlot">Store file</button></li>
+		<li><button id="eraseSlots">Erase slots</button></li>
+		<li><button id="drawSlot">Draw slot 1</button></li>
+	    </ul>
+	    <div id="uploadProgressbar" style="height:20px"></div>
 	</div>
-	<textarea id="developerLog" style="height:259px; width:340px" class="ui-widget ui-state-default ui-corner-all" disabled>
-	</textarea>
+	<h3>Erase</h3>
+	<div>
+	    <ul>
+	        <li><button id="eraseEeprom" style="width:150px">Erase eeprom</button></li>
+	        <li><button id="eraseFlash" style="width:150px">Erase flash</button></li>
+	        <li><button id="eraseSmartcard" style="width:150px">Erase smartcard</button></li>
+	    </ul>
+	    <div id="eraseConfirm" title="Mooltipass Erase">
+		<p></p>
+	    </div>
+	    <textarea id="developerLog" style="height:100; width:280px" class="ui-widget ui-state-default ui-corner-all" disabled>
+	    </textarea>
+	</div>
    </div>
 </div>
  

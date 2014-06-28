@@ -42,6 +42,7 @@ var device_info = { "vendorId": 0x16d0, "productId": 0x09a0 };      // Mooltipas
 //var device_info = { "vendorId": 0x16c0, "productId": 0x0486 };    // Teensy 3.1
 
 var packetSize = 64;    // number of bytes in an HID packet
+var payloadSize = packetSize - 2;
 
 var reContext = /^\https?\:\/\/([\w.]+)/;   // URL regex to extract base domain for context
 
@@ -70,6 +71,11 @@ var CMD_IMPORT_EEPROM_END   = 0x39;
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
 var CMD_ERASE_SMC           = 0x42;
+var CMD_ALLOCATE_SLOT       = 0x43;
+var CMD_WRITE_SLOT          = 0x44;
+var CMD_ERASE_SLOTS         = 0x45;
+var CMD_DRAW_SLOT           = 0x46;
+var CMD_FLASH_READ          = 0x47;
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
@@ -89,8 +95,12 @@ var exportDataUint8 = null;   // uint8 view of exportData
 var exportDataEntry = null;   // File entry for flash export
 var exportDataOffset = 0;     // current data offset in arraybuffer
 
+var mediaData = null;        // arraybuffer of media file data for slot storage
+var mediaDataOffset = 0;     // current data offset in mediaData array
+
 var importProrgessBar = null;
 var exportProgressBar = null;
+var uploadProgressBar = null;
 
 // map between input field types and mooltipass credential types
 var getFieldMap = {
@@ -113,16 +123,17 @@ var setFieldMap = {
 /**
  * convert a string to a uint8 array
  * @param str the string to convert
- * @returns the uint8 array representing the string
+ * @returns the uint8 array representing the string with a null terminator
  * @note does not support unicode yet
  */
 function strToArray(str) 
 {
-    var buf = new Uint8Array(str.length);
+    var buf = new Uint8Array(str.length+1);
     for (var ind=0; ind<str.length; ind++) 
     {
         buf[ind] = str.charCodeAt(ind);
     }
+    buf[ind] = 0;
     return buf;
 }
  
@@ -183,22 +194,26 @@ function connect(msg)
 
 
 /**
- * Send a command and string to the mooltipass
- * @param type the command type (e.g. CMD_SET_PASSWORD)
- * @param str the string to send with the command
+ * Send a binary message to the mooltipass
+ * @param type the request type to send (e.g. CMD_VERSION)
+ * @param content Uint8 array message content (optional)
  */
-function sendString(type, str)
+function sendRequest(type, content)
 {
-    var len = str.length + 1;
     msg = new ArrayBuffer(packetSize);
     header = new Uint8Array(msg, 0);
     body = new Uint8Array(msg, 2);
 
-    header.set([len, type], 0);
-    body.set(strToArray(str), 0);
-    body.set[str.length] = 0;  // null terminator
-
-    console.log('body '+JSON.stringify(body));
+    if (content)
+    {
+        header.set([content.length, type], 0);
+        body.set(content, 0);
+        log('#messageLog','body '+JSON.stringify(body)+'\n');
+    }
+    else
+    {
+        header.set([0, type], 0);
+    }
 
     if (!connection)
     {
@@ -210,12 +225,12 @@ function sendString(type, str)
     {
         if (!chrome.runtime.lastError) 
         {
-            console.log('Send complete');
+            //log('#messageLog','Send complete\n')
             //chrome.hid.receive(connection, packetSize, onContextAck);
         }
         else
         {
-          console.log('Failed to send to device: '+chrome.runtime.lastError.message);
+          log('#messageLog', 'Failed to send to device: '+chrome.runtime.lastError.message+'\n');
           reset();
         }					
     });
@@ -223,33 +238,36 @@ function sendString(type, str)
 
 
 /**
- * Send a single byte request to the mooltipass
- * @param type the request type to send (e.g. CMD_VERSION)
+ * Send a command and string to the mooltipass
+ * @param type the command type (e.g. CMD_SET_PASSWORD)
+ * @param str the string to send with the command
  */
-function sendRequest(type)
+function sendString(type, str)
 {
-    msg = new ArrayBuffer(packetSize);
-    header = new Uint8Array(msg, 0);
-    header.set([0,type], 0);
+    sendRequest(type, strToArray(str));
+}
 
-    if (!connection)
+
+/**
+ * Send a command and string to the mooltipass
+ * @param type the command type (e.g. CMD_SET_PASSWORD)
+ * @param data array of uint8arrays to combine into a message
+ */
+function sendRequestArray(type, data)
+{
+    payload = new ArrayBuffer(packetSize);
+    body = new Uint8Array(payload, 0);
+    var offset = 0;
+
+    log('#messageLog', 'building request from array length '+data.length+'\n');
+
+    for (var ind=0; ind<data.size; ind++)
     {
-        connect(msg);
-        return;
+        log('#messageLog', 'adding array length '+data[ind].length+' '+JSON.stringify(data[ind])+'\n');
+        body.set(data[ind], offset);
+        offset += data[ind].length;
     }
-
-    chrome.hid.send(connection, 0, msg, function() 
-    {
-        if (!chrome.runtime.lastError) 
-        {
-            console.log('Send complete');
-        }
-        else
-        {
-          console.log('Failed to send to device: '+chrome.runtime.lastError.message);
-          reset();
-        }					
-    });
+    sendRequest(type, body);
 }
 
 
@@ -411,11 +429,15 @@ function initWindow()
     var clearDebugButton = document.getElementById("clearDebug");
     var exportFlashButton = document.getElementById("exportFlash");
     var exportEepromButton = document.getElementById("exportEeprom");
+    var exportStoreButton = document.getElementById("exportStore");
     var eraseEepromButton = document.getElementById("eraseEeprom");
     var eraseFlashButton = document.getElementById("eraseFlash");
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
+    var loadSlotButton = document.getElementById("loadSlot");
+    var eraseSlotsButton = document.getElementById("eraseSlots");
+    var drawSlotButton = document.getElementById("drawSlot");
 
-    // clear contents of logiiiiiis
+    // clear contents of logs
     $('#messageLog').html('');
     $('#debugLog').html('');
     $('#exportLog').html('');
@@ -429,22 +451,44 @@ function initWindow()
     exportFlashButton.addEventListener('click', function() 
     {
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpflash.bin'}, function(entry) {
-            log('#exportLog', 'save mpflash.img\n');
-            exportDataEntry = entry;
-            exportData = null;
-            exportProgressBar.progressbar('value', 0);
-            sendRequest(CMD_EXPORT_FLASH);
+            if (entry)
+            {
+                log('#exportLog', 'save mpflash.img\n');
+                exportDataEntry = entry;
+                exportData = null;
+                exportProgressBar.progressbar('value', 0);
+                sendRequest(CMD_EXPORT_FLASH);
+            }
         });
     });
 
     exportEepromButton.addEventListener('click', function() 
     {
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpeeprom.bin'}, function(entry) {
-            log('#exportLog', 'save mpeeprom.img\n');
-            exportDataEntry = entry;
-            exportData = null;
-            exportProgressBar.progressbar('value', 0);
-            sendRequest(CMD_EXPORT_EEPROM);
+            if (entry)
+            {
+                log('#exportLog', 'save mpeeprom.img\n');
+                exportDataEntry = entry;
+                exportData = null;
+                exportProgressBar.progressbar('value', 0);
+                sendRequest(CMD_EXPORT_EEPROM);
+            }
+        });
+    });
+
+    exportStoreButton.addEventListener('click', function() 
+    {
+        chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'flash.bin'}, function(entry) {
+            if (entry)
+            {
+                log('#exportLog', 'save flash.bin\n');
+                exportDataEntry = entry;
+                exportData = null;
+                exportProgressBar.progressbar('value', 0);
+                var size = payloadSize - 5;
+                args = new Uint8Array([0, 0, 0, 0, payloadSize-5]);
+                sendRequest(CMD_FLASH_READ, args);
+            }
         });
     });
 
@@ -501,6 +545,57 @@ function initWindow()
             }
         });
     });
+
+    loadSlotButton.addEventListener('click', function(e)
+    {
+        chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
+            entry.file(function(file) {
+                var reader = new FileReader();
+
+                reader.onerror = function(e)
+                {
+                    log('#messageLog', 'Failed to read media file\n');
+                    log('#messageLog', e+'\n');
+                };
+                reader.onloadend = function(e) {
+                    mediaData = reader.result;  // keep data in a global for writing to mp
+                    mediaDataOffset = 0;
+                    // Start sending it to the mooltipass
+                    size = new Uint8Array([mediaData.byteLength & 0xFF, mediaData.byteLength >> 8])
+                    log('#messageLog', 'allocating slot for '+mediaData.byteLength+' bytes from media file\n');
+                    sendRequest(CMD_ALLOCATE_SLOT, size);
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        });
+    });
+
+    eraseSlotsButton.addEventListener('click', function()
+    {
+        $('#eraseConfirm').dialog({
+            buttons: {
+                "Erase all storage slots?": function() 
+                {
+                    log('#developerLog', 'Erasing smartcard... ');
+                    sendRequest(CMD_ERASE_SLOTS);
+                    $(this).dialog('close');
+                },
+                Cancel: function() 
+                {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
+    drawSlotButton.addEventListener('click', function()
+    {
+        log('#messageLog', 'Drawing slot 1');
+        slot = new Uint8Array([1]);
+        sendRequest(CMD_DRAW_SLOT, slot);
+    });
+
 
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
@@ -587,16 +682,22 @@ function initWindow()
 
     // configure jquery ui elements
 	$("#manage").accordion();
+	$("#developer").accordion();
 	importProrgessBar = $("#importProgressbar").progressbar({ value: 0 });
 	exportProgressBar = $("#exportProgressbar").progressbar({ value: 0 });
+	uploadProgressBar = $("#uploadProgressbar").progressbar({ value: 0 });
     $("#connect").button();
     $("#clear").button();
     $("#clearDebug").button();
     $("#exportFlash").button();
     $("#exportEeprom").button();
+    $("#exportStore").button();
     $("#eraseFlash").button();
     $("#eraseEeprom").button();
     $("#eraseSmartcard").button();
+    $("#loadSlot").button();
+    $("#eraseSlots").button();
+    $("#drawSlot").button();
     $("#tabs").tabs();
 };
 
@@ -803,10 +904,126 @@ function onDataReceived(data)
             exportDataEntry = null;;
             break;
 
+        case CMD_FLASH_READ:
+        {
+            var res = msg[0];
+            if (res != 1)
+            {
+                log('#exportLog', 'Error reading flash\n');
+                break;
+            }
+            if (!exportData)
+            {
+                console.log('new export');
+                var size = 128*FLASH_PAGE_SIZE;
+                exportData = new ArrayBuffer(size);
+                exportDataUint8 = new Uint8Array(exportData);
+                exportDataOffset = 0;
+                console.log('new export ready');
+                exportProgressBar.progressbar('value', 0);
+            }
+
+            addr = msg[4] << 24 | msg[3] << 16 | msg[2] << 8 | msg[1];
+            var packet = new Uint8Array(data,7, len-5);
+
+            log('#exportLog', 'flash read: addr 0x'+addr.toString(16)+' '+packet.length+' bytes\n');
+
+            if ((packet.length + exportDataOffset) > exportDataUint8.length)
+            {
+                var overflow = (packet.length + exportDataOffset) - exportDataUint8.length;
+                console.log('error packet overflows buffer by '+overflow+' bytes');
+                exportDataOffset += packet.length;
+            } else {
+                exportDataUint8.set(packet, exportDataOffset);
+                exportDataOffset += packet.length;
+                exportProgressBar.progressbar('value', (exportDataOffset * 100) / exportDataUint8.length);
+
+                var size = payloadSize - 5;
+                if (size > (exportData.byteLength - exportDataOffset)) {
+                    size = exportData.byteLength - exportDataOffset;
+                }
+
+                if (size > 0)
+                {
+                    args = new Uint8Array([
+                                exportDataOffset & 0xFF,
+                                (exportDataOffset >> 8) & 0xFF,
+                                (exportDataOffset >> 16) & 0xFF,
+                                (exportDataOffset >> 24) & 0xFF,
+                                size]);
+                    sendRequest(CMD_FLASH_READ, args);
+                }
+                else
+                {
+                    saveToEntry(exportDataEntry, exportDataUint8) 
+                }
+            }
+            break;
+        }
+
         case CMD_ERASE_EEPROM:
         case CMD_ERASE_FLASH:
         case CMD_ERASE_SMC:
             log('#developerLog', (bytes[2] == 1) ? 'succeeded\n' : 'failed\n');
+            break;
+
+        case CMD_ALLOCATE_SLOT: 
+        {
+            var slotId = bytes[2];
+            if (slotId == 0) {
+                log('#messageLog', 'allocate slot failed\n');
+            } else {
+                log('#messageLog', 'allocated slot '+slotId+'\n');
+            }
+            if (slotId > 0)
+            {
+                msg = new ArrayBuffer(Math.min(payloadSize, mediaData.byteLength));
+                data = new Uint8Array(msg);
+                data.set([slotId], 0);
+                data.set(mediaData.slice(0, data.size-1), 1);
+                sendRequest(CMD_WRITE_SLOT, data);
+                mediaDataOffset = data.length;
+                uploadProgressBar.progressbar('value', 0);
+            }
+            break;
+        }
+
+        case CMD_WRITE_SLOT :
+        {
+            var slotId = bytes[3];
+            if (bytes[2] == 1)
+            {
+                if (mediaDataOffset < mediaData.byteLength)
+                {
+                    msg = new ArrayBuffer(Math.min(payloadSize, mediaData.byteLength - mediaDataOffset));
+                    data = new Uint8Array(msg);
+                    data.set([slotId], 0);
+                    data.set(mediaData.slice(mediaDataOffset, data.size-1), 1);
+                    sendRequest(CMD_WRITE_SLOT, data);
+                    mediaDataOffset += data.length;
+                    uploadProgressBar.progressbar('value', (mediaDataOffset * 100) / mediaData.byteLength);
+                }
+                else
+                {
+                    log('#messageLog', 'slot: '+slotId+' finished upload\n');
+                }
+            }
+            else
+            {
+                log('#messageLog', 'slot: '+slotId+' failed to write\n');
+            }
+            break;
+        }
+
+        case CMD_ERASE_SLOTS:
+            if (bytes[2] == 0)
+            {
+                log('#messageLog', 'erase slots failed\n');
+            }
+            else
+            {
+                log('#messageLog', 'erase slots succeeded\n');
+            }
             break;
 
         default:
@@ -864,6 +1081,7 @@ function onDeviceFound(devices)
 				else
 				{
 				  console.log('Failed to send to device: '+chrome.runtime.lastError.message);
+                  log('#messageLog','Unable to connect.\n');
 				  throw chrome.runtime.lastError.message;  
 				}					
             });

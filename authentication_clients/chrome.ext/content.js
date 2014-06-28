@@ -184,12 +184,12 @@ function checkSubmittedCredentials(form)
                     "Update Mooltipass credentials": function() 
                     {
                         chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
-                        //form.submit();
+                        form.submit();
                         $(this).dialog('close');
                     },
                     Skip: function() 
                     {
-                        //form.submit();
+                        form.submit();
                         $(this).dialog('close');
                     }
                 }

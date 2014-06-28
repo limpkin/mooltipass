@@ -208,7 +208,10 @@ function sendRequest(type, content)
     {
         header.set([content.length, type], 0);
         body.set(content, 0);
-        log('#messageLog','body '+JSON.stringify(body)+'\n');
+        if (type != CMD_EXPORT_FLASH && type != CMD_EXPORT_EEPROM)
+        {
+            log('#messageLog','body '+JSON.stringify(body)+'\n');
+        }
     }
     else
     {
@@ -457,7 +460,8 @@ function initWindow()
                 exportDataEntry = entry;
                 exportData = null;
                 exportProgressBar.progressbar('value', 0);
-                sendRequest(CMD_EXPORT_FLASH);
+                args = new Uint8Array([0]);     // restart export from 0
+                sendRequest(CMD_EXPORT_FLASH, args);
             }
         });
     });
@@ -471,7 +475,8 @@ function initWindow()
                 exportDataEntry = entry;
                 exportData = null;
                 exportProgressBar.progressbar('value', 0);
-                sendRequest(CMD_EXPORT_EEPROM);
+                args = new Uint8Array([0]);     // restart export from 0
+                sendRequest(CMD_EXPORT_EEPROM, args);
             }
         });
     });
@@ -879,6 +884,8 @@ function onDataReceived(data)
                 exportDataUint8.set(packet, exportDataOffset);
                 exportDataOffset += packet.length;
                 exportProgressBar.progressbar('value', (exportDataOffset * 100) / exportDataUint8.length);
+                args = new Uint8Array([1]);     // request next packet
+                sendRequest(cmd, args);
             }
             break;
 
@@ -995,13 +1002,16 @@ function onDataReceived(data)
             {
                 if (mediaDataOffset < mediaData.byteLength)
                 {
-                    msg = new ArrayBuffer(Math.min(payloadSize, mediaData.byteLength - mediaDataOffset));
+                    msg = new ArrayBuffer(Math.min(payloadSize-1, mediaData.byteLength - mediaDataOffset));
                     data = new Uint8Array(msg);
+                    payload = new Uint8Array(mediaData.slice(mediaDataOffset, data.size-1));
                     data.set([slotId], 0);
-                    data.set(mediaData.slice(mediaDataOffset, data.size-1), 1);
+                    //data.set(new Uint8Array(mediaData.slice(mediaDataOffset, data.size-1)), 1);
+                    data.set(payload, 1);
                     sendRequest(CMD_WRITE_SLOT, data);
                     mediaDataOffset += data.length;
                     uploadProgressBar.progressbar('value', (mediaDataOffset * 100) / mediaData.byteLength);
+                    console.log('write slot: '+data.length+' bytes '+JSON.stringify(body)+'\n');
                 }
                 else
                 {

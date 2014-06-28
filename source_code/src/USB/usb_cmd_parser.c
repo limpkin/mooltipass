@@ -378,7 +378,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_IMPORT_FLASH :
         {
             // Check if we actually approved the import, haven't gone over the flash boundaries, if we're correctly aligned page size wise
-            if ((flash_import_approved == FALSE) || (current_flash_import_page >= PAGE_COUNT) || (current_flash_import_page_pos + datalen > BYTES_PER_PAGE))
+            if ((flash_import_approved == FALSE) || (current_flash_import_page >= PAGE_COUNT) || (current_flash_import_page_pos + datalen > BYTES_PER_PAGE) || ((flash_import_user_space == FALSE) && (current_flash_import_page >= PAGE_PER_SECTOR)))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
@@ -393,6 +393,12 @@ void usbProcessIncoming(uint8_t* incomingData)
                     flashWriteBufferToPage(current_flash_import_page);
                     current_flash_import_page_pos = 0;
                     current_flash_import_page++;
+                    
+                    // If we are importing user contents, skip the graphics zone
+                    if ((flash_import_user_space == TRUE) && (current_flash_import_page == GRAPHIC_ZONE_PAGE_START))
+                    {
+                        //current_flash_import_page = PAGE_PER_SECTOR;
+                    }
                 }
                 plugin_return_value = PLUGIN_BYTE_OK;
             }

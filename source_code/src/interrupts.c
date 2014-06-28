@@ -22,6 +22,7 @@
  */
 #include <avr/interrupt.h>
 #include <util/atomic.h>
+#include "userhandling.h"
 #include "interrupts.h"
 #include "mooltipass.h"
 #include "smartcard.h"
@@ -40,6 +41,7 @@ ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 
     guiTimerTick();                                                 // GUI timer
     capsLockTick();                                                 // Caps timer
     scanSMCDectect();												// Scan smart card detect
+    userHandlingTick();                                             // User handling tick
 }
 
 

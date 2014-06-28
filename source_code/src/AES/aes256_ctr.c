@@ -27,14 +27,14 @@
 #include "aes.h"
 #include "aes256_ctr.h"
 
-/*!	\fn 	static void xor(uint8_t* dest, uint8_t* src, uint8_t nbytes)
+/*!	\fn 	void xor_vectors(uint8_t* dest, uint8_t* src, uint8_t nbytes)
 *	\brief	Do xor between dest and src and save it inside dest
 * 
 *   \param  dest - destination of xor
 *   \param  src - source of xor data
 *   \param  nbytes - number of bytes to be xored between dest and src
 */
-static void xor(uint8_t *dest, uint8_t *src, uint8_t nbytes)
+void xor_vectors(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 {
     while(nbytes--)
     {
@@ -160,40 +160,6 @@ int8_t aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len)
     return result;
 }
 
-/*! \fn     void aesCtrAdd( uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff) 
-*   \brief  ctr buffer plus data buffer
-*
-*   \param  ctr - pointer to counter+iv
-*   \param  data - pointer to the counter buffer to add
-*   \param  dataLen - data buffer size in bytes
-*   \param  outBuff - outputBuffer, must be 16 bytes length.
-*/
-void aesCtrAdd( uint8_t *ctr, uint8_t *data, uint8_t dataLen, uint8_t *outBuff)
-{
-    uint16_t carry = 0;
-    int8_t i = 15;
-    uint8_t j;
-
-    if(dataLen > 16) return;
-
-    for(j=dataLen; j > 0; j--)
-    {
-        carry = (uint16_t)ctr[i] + (uint16_t)data[j-1] + carry;
-        outBuff[i] = (uint8_t)(carry);
-        carry = (carry >> 8) & 0xFF;
-        i--;
-    }
-
-    while(i != -1)
-    {
-        carry = (uint16_t)ctr[i] + carry;
-        outBuff[i] = (uint8_t)carry;
-        carry = (carry >> 8) & 0xFF;
-        i--;
-    }
-
-}
-
 /*!	\fn 	aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 *	\brief	Encrypt data and save it in data.
 * 
@@ -233,7 +199,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
         }
 
         // do the actual encryption/decryption, update state
-        xor(data + i, ctx->cipherstream + 16 - ctx->cipherstreamAvailable, thisLoop);
+        xor_vectors(data + i, ctx->cipherstream + 16 - ctx->cipherstreamAvailable, thisLoop);
         i += thisLoop;
         ctx->cipherstreamAvailable -= thisLoop;
 

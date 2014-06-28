@@ -331,8 +331,8 @@ int main(void)
                     #endif
                     mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
                     readAES256BitsKey(temp_buffer);
-                    initEncryptionHandling(temp_buffer, temp_ctr_val);
                     initUserFlashContext(temp_user_id);
+                    initEncryptionHandling(temp_buffer, temp_ctr_val);
                     setSmartCardInsertedUnlocked();
                 }
                 else

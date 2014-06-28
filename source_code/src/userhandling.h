@@ -35,7 +35,8 @@
 #define SMCID_UID_MATCH_ENTRY_LENGTH    (1 + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)
 #define CHECK_PASSWORD_TIMER_VAL        4000
 #define CREDENTIAL_TIMER_VALIDITY       1000
-#define FLASH_STORAGE_CTR_LEN           3
+#define AES_ENCR_DECR_TIMER_VAL         300
+#define CTR_FLASH_MIN_INCR              64
 
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);

@@ -49,8 +49,6 @@ volatile uint8_t credential_timer_valid = FALSE;
 volatile uint16_t credential_timer_val = 0;
 // Know if the smart card is inserted and unlocked
 uint8_t smartcard_inserted_unlocked = FALSE;
-// Next CTR value for our AES encryption
-uint8_t nextCtrVal[FLASH_STORAGE_CTR_LEN];
 // Current nonce
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login child node address
@@ -59,6 +57,8 @@ uint16_t selected_login_child_node_addr;
 uint8_t selected_login_flag = FALSE;
 // Context valid flag (eg we know the current service / website)
 uint8_t context_valid_flag = FALSE;
+// Next CTR value for our AES encryption
+uint8_t nextCtrVal[USER_CTR_SIZE];
 // Current context parent node address
 uint16_t context_parent_node_addr;
 // Node management handle
@@ -111,6 +111,18 @@ void launchCredentialTimer(void)
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         credential_timer_val = CREDENTIAL_TIMER_VALIDITY;
+        credential_timer_valid = TRUE;
+    }
+}
+
+/*! \fn     launchCredentialTimerUsedAsAesTimer(void)
+*   \brief  Use our credential timer to prevent timing side channel attacks
+*/
+void launchCredentialTimerUsedAsAesTimer(void)
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        credential_timer_val = AES_ENCR_DECR_TIMER_VAL;
         credential_timer_valid = TRUE;
     }
 }
@@ -265,7 +277,6 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     // Check if the context doesn't already exist
     if ((searchForServiceName(name, length) != NODE_ADDR_NULL) || (smartcard_inserted_unlocked == FALSE))
     {
-        USBDEBUGPRINTF_P(PSTR("add context fail\n"));
         return RETURN_NOK;
     }
     
@@ -351,19 +362,24 @@ RET_TYPE getPasswordForContext(char* buffer)
             return RETURN_NOK;
         }
         
-        // AES decryption: add our nonce with the ctr value, set the result, then decrypt
-        aesCtrAdd(current_nonce, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN, temp_buffer);
+        // Preventing side channel attacks: only send the password after a given amount of time
+        launchCredentialTimerUsedAsAesTimer();
+        
+        // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
+        memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
+        xor_vectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
         aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
         aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
         strcpy((char*)buffer, (char*)temp_cnode.password);
         //usbKeybPutStr((char*)buffer);     // XXX
         
-        // Clear credential timer
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        // Wait for credential timer to fire (we wanted to clear the flag anyway)
+        while (credential_timer_valid == TRUE)
         {
-            credential_timer_val = 0;
-            credential_timer_valid = FALSE;
+            asm("NOP");
         }
+        
+        // Timer fired, return
         return RETURN_OK; 
     } 
     else
@@ -414,7 +430,6 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                     return RETURN_NOK;
                 }
                 selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
-                USBDEBUGPRINTF_P(PSTR("ADDR child: %04x\n"), selected_login_child_node_addr);
                 selected_login_flag = TRUE;
                 return RETURN_OK;
             } 
@@ -424,6 +439,40 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
             }
         }
     }
+}
+
+/*! \fn     ctrPreEncryptionTasks(void)
+*   \brief  CTR pre encryption tasks
+*/
+void ctrPreEncryptionTasks(void)
+{
+    uint16_t carry = CTR_FLASH_MIN_INCR;
+    uint8_t temp_buffer[USER_CTR_SIZE];
+    int8_t i;
+    
+    // Read CTR stored in flash
+    readProfileCtr(&nodeMgmtHandle, temp_buffer, USER_CTR_SIZE);
+    
+    // If it is the same value, increment it by X and store it in flash
+    if (aesCtrCompare(temp_buffer, nextCtrVal, USER_CTR_SIZE) == 0)
+    {
+        for (i = USER_CTR_SIZE-1; i > 0; i--)
+        {
+             carry = (uint16_t)temp_buffer[i] + carry;
+             temp_buffer[i] = (uint8_t)(carry);
+             carry = (carry >> 8) & 0xFF;
+        }
+        setProfileCtr(&nodeMgmtHandle, (void*)temp_buffer, USER_CTR_SIZE);
+    }
+}
+
+/*! \fn     ctrPostEncryptionTasks(void)
+*   \brief  CTR post encryption tasks
+*/
+void ctrPostEncryptionTasks(void)
+{    
+    aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
+    aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);    
 }
 
 /*! \fn     setPasswordForContext(uint8_t* password, uint8_t length)
@@ -465,13 +514,23 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         // Ask for password changing approval
         if (guiAskForPasswordSet((char*)temp_cnode.login, (char*)password, (char*)temp_pnode.service) == RETURN_OK)
         {
-            // AES encryption: add our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
-            aesCtrAdd(current_nonce, nextCtrVal, FLASH_STORAGE_CTR_LEN, temp_buffer);
+            // Preventing side channel attacks: only send the return after a given amount of time
+            launchCredentialTimerUsedAsAesTimer();
+            
+            // AES encryption: xor our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
+            ctrPreEncryptionTasks();
+            memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
+            xor_vectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), nextCtrVal, USER_CTR_SIZE);
             aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
             aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
-            memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, FLASH_STORAGE_CTR_LEN);
-            aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
-            aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
+            memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, USER_CTR_SIZE);
+            ctrPostEncryptionTasks();
+            
+            // Wait for credential timer to fire (we wanted to clear the flag anyway)
+            while (credential_timer_valid == TRUE)
+            {
+                asm("NOP");
+            }
             
             // Update child node to store password
             if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
@@ -517,10 +576,22 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
             {
                 return RETURN_PASS_CHECK_NOK;
             }
-            // AES decryption: add our nonce with the ctr value, set the result, then decrypt
-            aesCtrAdd(current_nonce, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN, temp_buffer);
+            
+            // Preventing side channel attacks: only send the return after a given amount of time
+            launchCredentialTimerUsedAsAesTimer();
+            
+            // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
+            memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
+            xor_vectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
             aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
             aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
+            
+            // Wait for credential timer to fire (we wanted to clear the flag anyway)
+            while (credential_timer_valid == TRUE)
+            {
+                asm("NOP");
+            }
+            
             if (strcmp((char*)temp_cnode.password, (char*)password) == 0)
             {
                 return RETURN_PASS_CHECK_OK;
@@ -667,58 +738,6 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
     }
 }
 
-/*! \fn     findHighestCtrValueForSelectedUser(uint8_t* highest_ctr)
-*   \brief  Find the highest CTR value for the selected user
-*   \return Success status
-*/
-RET_TYPE findHighestCtrValueForSelectedUser(void)
-{
-    uint16_t next_pnode_addr = nodeMgmtHandle.firstParentNode;
-    uint8_t found_child_node = FALSE;
-    uint16_t next_cnode_addr;
-    
-    // Clear next ctr value
-    memset((void*)nextCtrVal, 0x00, FLASH_STORAGE_CTR_LEN);
-    
-    // Parent nodes loop
-    while (next_pnode_addr != NODE_ADDR_NULL)
-    {
-        if (readParentNode(&nodeMgmtHandle, &temp_pnode, next_pnode_addr) != RETURN_OK)
-        {
-            return RETURN_NOK;
-        }
-        next_cnode_addr = temp_pnode.nextChildAddress;
-        
-        // Children nodes loop
-        while (next_cnode_addr != NODE_ADDR_NULL)
-        {
-            if (readChildNode(&nodeMgmtHandle, &temp_cnode, next_cnode_addr) != RETURN_OK)
-            {
-                return RETURN_NOK;
-            }
-            // Check if the ctr val is higher than ours
-            if (aesCtrCompare(nextCtrVal, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN) == -1)
-            {
-                memcpy(nextCtrVal, temp_cnode.ctr, FLASH_STORAGE_CTR_LEN);
-            }
-            found_child_node = TRUE;
-            next_cnode_addr = temp_cnode.nextChildAddress;
-        }
-        
-        next_pnode_addr = temp_pnode.nextParentAddress;
-    }
-    
-    // Found a ctr value, increment nextctrval by 2
-    if (found_child_node == TRUE)
-    {
-        // Increment max ctr val by 2
-        aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
-        aesIncrementCtr(nextCtrVal, FLASH_STORAGE_CTR_LEN);
-    }
-    
-    return RETURN_OK;
-}
-
 /*! \fn     initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
 *   \brief  Initialize our encryption/decryption part
 *   \param  aes_key     Our AES256 key
@@ -735,7 +754,6 @@ void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
 
     aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
     memset((void*)aes_key, 0, AES_KEY_LENGTH/8);
-    findHighestCtrValueForSelectedUser();
 }
 
 /*! \fn     addNewUserAndNewSmartCard(uint16_t pin_code)
@@ -747,6 +765,7 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
 {
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     uint8_t temp_nonce[AES256_CTR_LENGTH];
+    uint8_t temp_user_ctr[USER_CTR_SIZE];
     uint8_t new_user_id;
     uint8_t i;
     
@@ -775,6 +794,11 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     {
         return RETURN_NOK;
     }
+    
+    // Set CTR to 0 and update ctrval
+    memset((void*)temp_user_ctr, 0x00, USER_CTR_SIZE);
+    setProfileCtr(&nodeMgmtHandle, temp_user_ctr, USER_CTR_SIZE);
+    initUserFlashContext(new_user_id);
     
     // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
     if (writeSmartCardCPZForUserId(temp_buffer, temp_nonce, new_user_id) != RETURN_OK)
@@ -808,6 +832,7 @@ RET_TYPE initUserFlashContext(uint8_t user_id)
     }
     else
     {
+        readProfileCtr(&nodeMgmtHandle, nextCtrVal, USER_CTR_SIZE);
         return RETURN_OK;
     }
 }

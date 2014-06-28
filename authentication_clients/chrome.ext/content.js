@@ -196,6 +196,10 @@ function checkSubmittedCredentials(form)
             });
             console.log('content: after update dialog');
         }
+        else
+        {
+            form.submit();
+        }
     } else {
         // we don't have any, see if the user wants to add some
     }
@@ -227,7 +231,7 @@ addEventListener('DOMContentLoaded', function f()
     credFields = getCredentialFields();
 
     // send an array of the input fields to the mooltipass
-    if (hasSecret(credFields))
+    if (true || hasSecret(credFields))
     {
         // send a message back to the extension
         chrome.runtime.sendMessage({type: 'inputs', url: window.location.href, inputs: credFields}, function(response) 

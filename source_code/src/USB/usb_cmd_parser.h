@@ -50,7 +50,6 @@
 #define PLUGIN_BYTE_NA      0x02
 
 /* Packet defines */
-#define FLASH_SIZE          ((uint32_t)PAGE_COUNT * (uint32_t)BYTES_PER_PAGE)
 #define PACKET_EXPORT_SIZE  (RAWHID_TX_SIZE-HID_DATA_START)
 
 typedef struct {

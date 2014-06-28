@@ -400,14 +400,14 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
  * @note bypasses the memory buffer
  */
 RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
-{
-    addr = ((addr/BYTES_PER_PAGE) << READ_OFFSET_SHT_AMT) | (addr % BYTES_PER_PAGE);
-    uint8_t op[] = {FLASH_OPCODE_LOWF_READ, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};
-    
-    if ((addr+size) >= (uint32_t)BYTES_PER_PAGE*(uint32_t)PAGE_COUNT)
+{    
+    if ((addr+(uint32_t)size) >= FLASH_SIZE)
     {
         return RETURN_NOK;
-    }                
+    }
+    
+    addr = ((addr/BYTES_PER_PAGE) << READ_OFFSET_SHT_AMT) | (addr % BYTES_PER_PAGE);    
+    uint8_t op[] = {FLASH_OPCODE_LOWF_READ, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};            
 
     /* Read from flash */
     sendDataToFlash(4, op, size, datap);

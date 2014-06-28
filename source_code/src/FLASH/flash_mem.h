@@ -277,5 +277,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
 #define FLASH_PAGE_MAPPING_GFX_END         (PAGE_PER_SECTOR) // End GFX Mapping
 #define FLASH_PAGE_MAPPING_GFX_SIZE        (FLASH_PAGE_MAPPING_GFX_END - FLASH_PAGE_MAPPING_GFX_START)
 
+// Flash size defines
+#define FLASH_SIZE          ((uint32_t)PAGE_COUNT * (uint32_t)BYTES_PER_PAGE)
 
 #endif /* FLASH_MEM_H_ */

@@ -34,7 +34,7 @@
 *   \param  src - source of xor data
 *   \param  nbytes - number of bytes to be xored between dest and src
 */
-void xor_vectors(uint8_t *dest, uint8_t *src, uint8_t nbytes)
+void aesXorVectors(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 {
     while(nbytes--)
     {
@@ -199,7 +199,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
         }
 
         // do the actual encryption/decryption, update state
-        xor_vectors(data + i, ctx->cipherstream + 16 - ctx->cipherstreamAvailable, thisLoop);
+        aesXorVectors(data + i, ctx->cipherstream + 16 - ctx->cipherstreamAvailable, thisLoop);
         i += thisLoop;
         ctx->cipherstreamAvailable -= thisLoop;
 

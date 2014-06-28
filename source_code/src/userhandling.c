@@ -367,7 +367,7 @@ RET_TYPE getPasswordForContext(char* buffer)
         
         // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
         memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
-        xor_vectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
+        aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
         aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
         aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
         strcpy((char*)buffer, (char*)temp_cnode.password);
@@ -520,7 +520,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             // AES encryption: xor our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
             ctrPreEncryptionTasks();
             memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
-            xor_vectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), nextCtrVal, USER_CTR_SIZE);
+            aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), nextCtrVal, USER_CTR_SIZE);
             aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
             aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
             memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, USER_CTR_SIZE);
@@ -582,7 +582,7 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
             
             // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
             memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
-            xor_vectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
+            aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
             aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
             aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
             

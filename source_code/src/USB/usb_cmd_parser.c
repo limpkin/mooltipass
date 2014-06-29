@@ -105,16 +105,18 @@ void usbProcessIncoming(uint8_t* incomingData)
     RET_TYPE temp_rettype;
 
     // Debug comms
-    USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
+    //USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
 
     switch(datacmd)
     {
         // ping command
         case CMD_PING :
+        {
             memcpy((void*)incomingData, (void*)msg->body.data, 2);
             memcpy((void*)incomingData+2, (void*)msg->body.data+2, 2);
             pluginSendMessage(CMD_PING, 4, (char*)incomingData);
             break;
+        }            
 
         // version command
         case CMD_VERSION :

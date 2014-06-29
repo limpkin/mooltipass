@@ -26,6 +26,7 @@ import sys
 import png, math
 import numpy as np
 from optparse import OptionParser
+from struct import *
 
 parser = OptionParser(usage = 'usage: %prog [options]')
 parser.add_option('-n', '--name', help='name for bitmap', dest='name', default=None)
@@ -155,6 +156,8 @@ def generateCompressedHeader(output, imageName, imageFile, bitDepth=4, wordSize=
     print 'count: ',count
 
     bfd = open('bitmap.img', "wb")
+    header = pack('=HBBBH', width, height, bitDepth, flags, count)
+    bfd.write(header)
     binaryData = bytearray(output)
     bfd.write(binaryData)
     bfd.close()

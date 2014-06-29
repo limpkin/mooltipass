@@ -1287,7 +1287,7 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
 
     flashRawRead((uint8_t *)&bitmap, addr, sizeof(bitmap));
     bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.height, bitmap.depth,
-            !(options & OLED_RAM_BITMAP), addr+sizeof(bitmap));
+            false, addr+sizeof(bitmap));
 
     oledBitmapDrawRaw(x, y, &bs, options);
     return 0;

@@ -37,12 +37,15 @@ parser = OptionParser(usage = 'usage: %prog [options] bitmap1 bitmap2 bitmap3')
 parser.add_option('-o', '--output', help='name of output file', dest='output', default='bundle.img')
 (options, args) = parser.parse_args()
 
+FLASH_PAGE_SIZE = 264
+
 def buildBundle(bundlename, files):
 
     data = []
     header = array('I')
     header.append(len(files))
-    size = 4*len(files) + 4     # leave room for the header
+    reserve = 4*len(files) + 4 + 4 * FLASH_PAGE_SIZE     # leave room for the header
+    size = reserve
 
     for filename in files:
         fd = open(filename, 'rb')
@@ -51,14 +54,14 @@ def buildBundle(bundlename, files):
         size += len(image)
         data.append(image)
         fd.close()
-    print 'total size: {}'.format(size)
+    print 'total size: {}'.format(size-reserve)
 
     bfd = open(bundlename,  "wb")
     header.tofile(bfd)
     for image in data:
         bfd.write(image)
     bfd.close()
-    print 'wrote {} bytes to {}'.format(size, bundlename)
+    print 'wrote {} bytes to {}'.format(size-reserve, bundlename)
 
 def main():
 

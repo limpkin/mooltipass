@@ -213,9 +213,9 @@ RET_TYPE getTouchUiYesNoAnswer(void)
 
 /*! \fn     getTouchUiQuarterPosition(void))
 *   \brief  Use the capacitive interface to get quarter position
-*   \return Number between 0 and 3
+*   \return Number between 0 and 3 for valid pos, -1 otherwise
 */
-uint8_t getTouchUiQuarterPosition(void)
+int8_t getTouchUiQuarterPosition(void)
 {
     #ifdef HARDWARE_V1
         _delay_ms(2000);
@@ -230,9 +230,15 @@ uint8_t getTouchUiQuarterPosition(void)
     
     // Wait for a touch press
     touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
-    while (!(touch_detect_result & RETURN_WHEEL_PRESSED))
+    while (!((touch_detect_result & RETURN_WHEEL_PRESSED) || (touch_detect_result & RETURN_LEFT_PRESSED)))
     {
         touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
+    }
+    
+    // Did the user press back?
+    if (touch_detect_result & RETURN_LEFT_PRESSED)
+    {
+        return -1;
     }
     
     // Get position
@@ -373,10 +379,6 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     // Switch on lights
     activityDetectedRoutine();
     
-    // Draw asking bitmap
-    oledBitmapDrawFlash(0, 0, 1, OLED_SCROLL_UP);
-    oledWriteActiveBuffer();
-    
     // Read the parent node
     if (readParentNode(h, p, parentNodeAddress) != RETURN_OK)
     {
@@ -392,56 +394,97 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         return NODE_ADDR_NULL;
     }
     
-    // Write domain name on screen
-    oledSetXY(95, 30);
-    printf((char*)p->service);
-    
-    // List logins on screen
-    while ((temp_address != NODE_ADDR_NULL) && (i != 4))
+    // Check if there's only one child
+    if (readChildNode(h, c, temp_address) != RETURN_OK)
     {
-        if (i == 0)
+        return NODE_ADDR_NULL;
+    }
+    if (c->nextChildAddress == NODE_ADDR_NULL)
+    {
+        oledWriteActiveBuffer();
+        oledClear();
+        oledSetXY(4, 20);
+        printf("Send login ");
+        printf((char*)c->login);
+        printf(" for ");
+        printf((char*)p->service);
+        printf("?");
+        oledWriteInactiveBuffer();
+        if(getTouchUiYesNoAnswer() == RETURN_OK)
         {
-            oledSetXY(16, 0);
-        }
-        else if (i == 1)
-        {
-            oledSetXY(184, 0);
-        }
-        else if (i == 2)
-        {
-            oledSetXY(16, 54);
+            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            return temp_address;
         }
         else
         {
-            oledSetXY(184, 54);
-        }
-        
-        // Read child node to get login
-        if (readChildNode(h, c, temp_address) != RETURN_OK)
-        {
+            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
             return NODE_ADDR_NULL;
         }
-        
-        // Print login on screen
-        addresses[i] = temp_address;
-        printf((char*)c->login);
-        
-        // Fetch next address
-        temp_address = c->nextChildAddress;
-        i++;
-    }        
-    
-    // Get touched quarter and check its validity
-    j = getTouchUiQuarterPosition();
-    if (j >= i)
+    } 
+    else
     {
-        j = 0;
-    }
-    temp_address = addresses[j];
-    
-    // Draw default bitmap
-    oledWriteInactiveBuffer();
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
-    
+        // Draw asking bitmap
+        oledBitmapDrawFlash(0, 0, 1, OLED_SCROLL_UP);
+        oledWriteActiveBuffer();
+        
+        // Write domain name on screen
+        oledSetXY(95, 30);
+        printf((char*)p->service);
+        
+        // List logins on screen
+        while ((temp_address != NODE_ADDR_NULL) && (i != 4))
+        {
+            if (i == 0)
+            {
+                oledSetXY(16, 0);
+            }
+            else if (i == 1)
+            {
+                oledSetXY(184, 0);
+            }
+            else if (i == 2)
+            {
+                oledSetXY(16, 54);
+            }
+            else
+            {
+                oledSetXY(184, 54);
+            }
+            
+            // Read child node to get login
+            if (readChildNode(h, c, temp_address) != RETURN_OK)
+            {
+                return NODE_ADDR_NULL;
+            }
+            
+            // Print login on screen
+            addresses[i] = temp_address;
+            printf((char*)c->login);
+            
+            // Fetch next address
+            temp_address = c->nextChildAddress;
+            i++;
+        }
+        
+        // Get touched quarter and check its validity
+        j = getTouchUiQuarterPosition();
+        if (j >= i)
+        {
+            temp_address = addresses[0];
+        }
+        else if (j == -1)
+        {
+            temp_address = NODE_ADDR_NULL;
+        }
+        else
+        {
+            temp_address = addresses[j];
+        }        
+        
+        // Draw default bitmap
+        oledWriteInactiveBuffer();
+        oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    }    
+
     return temp_address;
 }

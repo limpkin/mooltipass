@@ -231,7 +231,7 @@ addEventListener('DOMContentLoaded', function f()
     credFields = getCredentialFields();
 
     // send an array of the input fields to the mooltipass
-    if (true || hasSecret(credFields))
+    if (hasSecret(credFields))
     {
         // send a message back to the extension
         chrome.runtime.sendMessage({type: 'inputs', url: window.location.href, inputs: credFields}, function(response) 

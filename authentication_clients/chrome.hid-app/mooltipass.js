@@ -95,10 +95,14 @@ var exportDataUint8 = null;   // uint8 view of exportData
 var exportDataEntry = null;   // File entry for flash export
 var exportDataOffset = 0;     // current data offset in arraybuffer
 
+var importData = {};        // arraybuffer holding data to import exported data
+var importDataOffset = 0;     // current data offset in import arraybuffer
+var importDataPageOffset = 0; // current write page offset
+
 var mediaData = null;        // arraybuffer of media file data for slot storage
 var mediaDataOffset = 0;     // current data offset in mediaData array
 
-var importProrgessBar = null;
+var importProgressBar = null;
 var exportProgressBar = null;
 var uploadProgressBar = null;
 
@@ -208,7 +212,7 @@ function sendRequest(type, content)
     {
         header.set([content.length, type], 0);
         body.set(content, 0);
-        if (type != CMD_EXPORT_FLASH && type != CMD_EXPORT_EEPROM)
+        if (type != CMD_EXPORT_FLASH && type != CMD_EXPORT_EEPROM && type != CMD_IMPORT_FLASH)
         {
             log('#messageLog','body '+JSON.stringify(body)+'\n');
         }
@@ -433,6 +437,8 @@ function initWindow()
     var exportFlashButton = document.getElementById("exportFlash");
     var exportEepromButton = document.getElementById("exportEeprom");
     var exportStoreButton = document.getElementById("exportStore");
+    var importFlashButton = document.getElementById("importFlash");
+    var importEepromButton = document.getElementById("importEeprom");
     var eraseEepromButton = document.getElementById("eraseEeprom");
     var eraseFlashButton = document.getElementById("eraseFlash");
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
@@ -494,6 +500,53 @@ function initWindow()
                 args = new Uint8Array([0, 0, 0, 0, payloadSize-5]);
                 sendRequest(CMD_FLASH_READ, args);
             }
+        });
+    });
+
+    importFlashButton.addEventListener('click', function() 
+    {
+        chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
+            entry.file(function(file) {
+                var reader = new FileReader();
+                reader.onerror = function(e)
+                {
+                    log('#importLog', 'Failed to read file\n');
+                    log('#importLog', e+'\n');
+                };
+                reader.onloadend = function(e) {
+                    importData = { data:reader.result, offset:0, log:'#importLog', bar:importProgressBar };
+                    importProgressBar.progressbar('value', 0);
+                    // Request permission to send
+                    args = new Uint8Array([0]);         // user space, 1 = media
+                    sendRequest(CMD_IMPORT_FLASH_BEGIN, args);
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        });
+    });
+
+    importEepromButton.addEventListener('click', function() 
+    {
+        chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
+            entry.file(function(file) {
+                var reader = new FileReader();
+
+                reader.onerror = function(e)
+                {
+                    log('#importLog', 'Failed to read file\n');
+                    log('#importLog', e+'\n');
+                };
+                reader.onloadend = function(e) {
+                    importData = {data: reader.result, offset: 0, log: '#importLog', bar: importProgressBar};
+                    importProgressBar.progressbar('value', 0);
+                    // Request permission to send
+                    args = new Uint8Array([0]);
+                    sendRequest(CMD_IMPORT_EEPROM_BEGIN, args);
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
         });
     });
 
@@ -688,7 +741,7 @@ function initWindow()
     // configure jquery ui elements
 	$("#manage").accordion();
 	$("#developer").accordion();
-	importProrgessBar = $("#importProgressbar").progressbar({ value: 0 });
+	importProgressBar = $("#importProgressbar").progressbar({ value: 0 });
 	exportProgressBar = $("#exportProgressbar").progressbar({ value: 0 });
 	uploadProgressBar = $("#uploadProgressbar").progressbar({ value: 0 });
     $("#connect").button();
@@ -697,6 +750,8 @@ function initWindow()
     $("#exportFlash").button();
     $("#exportEeprom").button();
     $("#exportStore").button();
+    $("#importFlash").button();
+    $("#importEeprom").button();
     $("#eraseFlash").button();
     $("#eraseEeprom").button();
     $("#eraseSmartcard").button();
@@ -705,6 +760,44 @@ function initWindow()
     $("#drawSlot").button();
     $("#tabs").tabs();
 };
+
+/**
+/* importer = { data: ArrayBuffer of data to send
+ *               offset: current offset in data
+ *               pageSpace: space left in page
+ *               log: optional output log
+ *               bar: optional progress bar
+ *               }
+ */
+function sendNextPacket(cmd, importer)
+{
+    // need to match data to page sizes
+    if (!importer.pageSpace)
+    {
+        importer.pageSpace = FLASH_PAGE_SIZE;
+    }
+    var size = Math.min(importer.data.byteLength - importer.offset, payloadSize, importer.pageSpace);
+
+    data = new Uint8Array(importer.data, importer.offset, size);
+
+    if (false && importer.log)
+    {
+        log(importer.log, 'import: offset '+importer.offset+' size '+size+' pageSpace '+importer.pageSpace+'\n');
+    }
+
+    importer.pageSpace -= size;
+    if (importer.pageSpace <= 0)
+    {
+        importer.pageSpace = FLASH_PAGE_SIZE;
+    }
+    importer.offset += size;
+
+    if (importer.bar)
+    {
+        importer.bar.progressbar('value', (importer.offset * 100)/ importer.data.byteLength);
+    }
+    sendRequest(cmd, data);
+}
 
 
 /**
@@ -972,6 +1065,23 @@ function onDataReceived(data)
         case CMD_ERASE_FLASH:
         case CMD_ERASE_SMC:
             log('#developerLog', (bytes[2] == 1) ? 'succeeded\n' : 'failed\n');
+            break;
+
+        case CMD_IMPORT_FLASH_BEGIN: 
+        case CMD_IMPORT_FLASH: 
+        {
+            var ok = bytes[2];
+            if (ok == 0) {
+                log('#importLog', 'import denied\n');
+            } else {
+                sendNextPacket(CMD_IMPORT_FLASH, importData);
+            }
+            break;
+        }
+
+        case CMD_IMPORT_FLASH_END:
+            importData = null;
+            log('#importLog', 'import finished\n');
             break;
 
         case CMD_ALLOCATE_SLOT: 

@@ -62,10 +62,18 @@ chrome.management.getAll(getAll);
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
 {
     console.log('back: app req '+JSON.stringify(request));
-    if (request.type == 'credentials') 
+    switch (request.type) 
     {
-        console.log('back: got credentials '+JSON.stringify(request));
-        chrome.tabs.sendMessage(contentAddr, request);
+        case 'credentials':
+            console.log('back: got credentials '+JSON.stringify(request));
+            chrome.tabs.sendMessage(contentAddr, request);
+            break;
+        case 'updateComplete':
+            console.log('back: got updateComplete');
+            chrome.tabs.sendMessage(contentAddr, request);
+            break;
+        default:
+            break;
     }
 });
 
@@ -97,14 +105,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
             default:
                 break;
         }
-    } else {
-        // from app
-        console.log('back: app req '+JSON.stringify(request));
-        if (request.type == 'credentials') 
-        {
-            console.log('back: got credentials '+JSON.stringify(request));
-            chrome.tabs.sendMessage(contentAddr, request);
-        }
-    }
+    } 
 });
 

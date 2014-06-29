@@ -29,6 +29,11 @@
 *        from the Mooltipass.
 */
 
+var mpCreds = null;
+var credFields = null;
+var credFieldsArray = null;
+var checkSubmit = true;     // when true intercept the submit and check for update
+
 
 console.log('mooltipass content script loaded');
 
@@ -91,10 +96,6 @@ function getCredentialFields()
 
     return result;
 }
-
-var mpCreds = null;
-var credFields = null;
-var credFieldsArray = null;
 
 // see if the field differs from the mooltipass value
 function fieldChanged(field)
@@ -184,7 +185,6 @@ function checkSubmittedCredentials(form)
                     "Update Mooltipass credentials": function() 
                     {
                         chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
-                        form.submit();
                         $(this).dialog('close');
                     },
                     Skip: function() 
@@ -223,10 +223,13 @@ addEventListener('DOMContentLoaded', function f()
     $('form').submit(function(event) 
     {
         var form = this;
-        console.log('checking submitted credentials');
-        // see if we should store the credentials
-        checkSubmittedCredentials(form);
-        event.preventDefault();
+        if (checkSubmit)
+        {
+            console.log('checking submitted credentials');
+            // see if we should store the credentials
+            checkSubmittedCredentials(form);
+            event.preventDefault();
+        }
     });
     credFields = getCredentialFields();
 
@@ -248,8 +251,9 @@ addEventListener('DOMContentLoaded', function f()
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) 
 {
-        if (request.type == 'credentials') 
-        {
+    switch (request.type) 
+    {
+        case 'credentials':
             mpCreds = request;
             // update the inputs
             for (var ind=0; ind<request.fields.length; ind++) {
@@ -261,5 +265,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                     document.getElementsByName(request.fields[ind].name)[0].value = request.fields[ind].value;
                 }
             }
-        }
+            break;
+
+        case 'updateComplete':
+            console.log('updateComplete, sending submit.');
+            checkSubmit = false;
+            $('form').submit();
+            checkSubmit = true;
+            break;
+
+        default:
+            break;
+    }
 });

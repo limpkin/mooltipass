@@ -369,7 +369,7 @@ function setNextField()
             }
         } else {
             // no more input fields to set on mooltipass
-            // XXX todo add an error check / ACK back to the web page?
+            chrome.runtime.sendMessage(authReq.senderId, {type: 'updateComplete'});
             log('#messageLog', 'update finished \n');
             authReq = null;
         }

@@ -23,6 +23,7 @@
 *    Author:   Mathieu Stephan
 */
 #include <util/atomic.h>
+#include <util/delay.h>
 #include <stdint.h>
 #include "touch_higher_level_functions.h"
 #include "node_mgmt.h"
@@ -220,7 +221,7 @@ void informGuiOfCurrentContext(char* context)
 RET_TYPE guiAskForDomainAddApproval(char* name)
 {
     ////// TO REMOVE  ///////////
-    return RETURN_OK;
+    //return RETURN_OK;
     
     // Switch on lights
     activityDetectedRoutine();
@@ -243,7 +244,7 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
 RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
 {
     ////// TO REMOVE  ///////////
-    return RETURN_OK;
+    //return RETURN_OK;
     
     // Switch on lights
     activityDetectedRoutine();
@@ -269,7 +270,7 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
 RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
 {
     ////// TO REMOVE  ///////////
-    return RETURN_OK;
+    //return RETURN_OK;
     
     // Switch on lights
     activityDetectedRoutine();
@@ -298,10 +299,10 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
 */
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress)
 {
+    _delay_ms(2000);
     (void)c;
     
     // Read the parent node
-    USBDEBUGPRINTF_P(PSTR("PARENT ADDR : %04x\n"), parentNodeAddress);
     if (readParentNode(h, p, parentNodeAddress) != RETURN_OK)
     {
         return NODE_ADDR_NULL;
@@ -313,6 +314,5 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         return NODE_ADDR_NULL;
     }
     
-    USBDEBUGPRINTF_P(PSTR("CHILD ADDR : %04x\n"), p->nextChildAddress);
     return p->nextChildAddress;
 }

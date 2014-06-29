@@ -46,8 +46,13 @@ uint8_t flash_import_user_space = FALSE;
 uint16_t current_flash_import_page = 0;
 // Temporary counter to align our data to flash pages
 uint16_t current_flash_import_page_pos = 0;
+// Current byte in eeprom we're importing
+uint16_t current_eeprom_import_pos = 0;
 // Bool to specify if user approved flash import
 uint8_t flash_import_approved = FALSE;
+// Bool to specify if user approved eeprom import
+uint8_t eeprom_import_approved = FALSE;
+
 
 
 /*! \fn     checkTextField(uint8_t* data, uint8_t len)
@@ -412,7 +417,50 @@ void usbProcessIncoming(uint8_t* incomingData)
             flash_import_approved = FALSE;
             sendPluginOneByteAnswer(CMD_EXPORT_FLASH_END, PLUGIN_BYTE_OK, incomingData);
             break;
-        }            
+        }
+            
+        // import flash contents
+        case CMD_IMPORT_EEPROM_BEGIN :
+        {
+            // Ask for user confirmation
+            if (TRUE)
+            {
+                current_eeprom_import_pos = 0;
+                eeprom_import_approved = TRUE;
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                eeprom_import_approved = FALSE;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            sendPluginOneByteAnswer(CMD_IMPORT_EEPROM_BEGIN, plugin_return_value, incomingData);
+            break;
+        }
+
+        // import flash contents
+        case CMD_IMPORT_EEPROM :
+        {
+            if ((eeprom_import_approved == FALSE) || ((current_eeprom_import_pos + datalen) >= EEPROM_SIZE))
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;                
+            } 
+            else
+            {
+                eeprom_write_block((void*)msg->body.data, (void*)current_eeprom_import_pos, datalen);
+                current_eeprom_import_pos+= datalen;
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            sendPluginOneByteAnswer(CMD_IMPORT_EEPROM, plugin_return_value, incomingData);
+        }
+            
+        // end eeprom import
+        case CMD_IMPORT_EEPROM_END :
+        {
+            eeprom_import_approved = FALSE;
+            sendPluginOneByteAnswer(CMD_IMPORT_EEPROM_END, PLUGIN_BYTE_OK, incomingData);
+            break;
+        }
 
         // Development commands
 #ifdef  DEV_PLUGIN_COMMS            

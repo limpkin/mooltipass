@@ -516,14 +516,6 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             usbPrintf_P(PSTR("draw bitmap file %d\n"), msg->body.data[0]);
             oledBitmapDrawFlash(0, 0, msg->body.data[0], OLED_SCROLL_UP);
-            #define blabla
-            #ifdef blabla
-            for (uint8_t i = 0; i < 5; i++)
-            {
-                oledBitmapDrawFlash(0, 0, i, OLED_SCROLL_UP);
-                _delay_ms(5000);
-            }
-            #endif
             break;
         }
 #endif

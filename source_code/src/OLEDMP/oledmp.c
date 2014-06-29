@@ -1273,6 +1273,12 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
     uint32_t fileCount, addr;
     flashRawRead((uint8_t *)&fileCount, GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE, sizeof(fileCount));
     usbPrintf_P(PSTR("oled: File count is %u, fileId %u\n"), fileCount, fileId);
+    
+    // We haven't formatted the memory
+    if (fileCount > 200)
+    {
+        return -1;
+    }
 
     if (fileId >= fileCount)
     {

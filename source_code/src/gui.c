@@ -184,6 +184,11 @@ void guiMainLoop(void)
 */
 RET_TYPE getTouchUiYesNoAnswer(void)
 {
+    #ifdef HARDWARE_V1
+        _delay_ms(2000);
+        return RETURN_OK;
+    #endif
+
     RET_TYPE touch_detect_result;
     
     // Wait for all presses to be released
@@ -212,11 +217,13 @@ RET_TYPE getTouchUiYesNoAnswer(void)
 */
 void informGuiOfCurrentContext(char* context)
 {
+    return;
     // Display current context
     oledClear();
     oledSetXY(0, 20);
     printf_P(PSTR("Current context : "));
     printf(context);
+    oledFlipBuffers(OLED_SCROLL_UP, 1);
 }
 
 /*! \fn     guiAskForDomainAddApproval(char* name)
@@ -224,21 +231,24 @@ void informGuiOfCurrentContext(char* context)
 *   \brief  Ask for user approval to add a domain
 */
 RET_TYPE guiAskForDomainAddApproval(char* name)
-{
-    ////// TO REMOVE  ///////////
-    return RETURN_OK;
+{    
+    RET_TYPE return_value;
     
     // Switch on lights
     activityDetectedRoutine();
     
-    // Display ask screen
-    oledClear();
-    oledSetXY(0, 20);
-    printf_P(PSTR("Add new "));
+    // Draw asking bitmap & wait for user input
+    oledBitmapDrawFlash(0, 0, 2, OLED_SCROLL_UP);
+    oledWriteActiveBuffer();
+    oledSetXY(85, 25);
     printf(name);
-    printf_P(PSTR(" context?"));
+    oledWriteInactiveBuffer();
+    return_value = getTouchUiYesNoAnswer();
     
-    return getTouchUiYesNoAnswer();
+    // Draw default bitmap
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    
+    return return_value;
 }
 
 /*! \fn     guiAskForLoginAddApproval(char* name)
@@ -248,22 +258,26 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
 */
 RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
 {
-    ////// TO REMOVE  ///////////
-    return RETURN_OK;
+    RET_TYPE return_value;
     
     // Switch on lights
     activityDetectedRoutine();
     
-    // Display ask screen
-    oledClear();
-    oledSetXY(0, 20);
-    printf_P(PSTR("Add new "));
+    // Draw asking bitmap & wait for user input
+    oledBitmapDrawFlash(0, 0, 3, OLED_SCROLL_UP);
+    oledWriteActiveBuffer();
+    oledSetXY(85, 25);
     printf(name);
-    printf_P(PSTR(" login for "));
+    oledSetXY(85, 45);
+    printf("on ");    
     printf(service);
-    printf_P(PSTR(" ?"));    
+    oledWriteInactiveBuffer();
+    return_value = getTouchUiYesNoAnswer();
     
-    return getTouchUiYesNoAnswer();
+    // Draw default bitmap
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    
+    return return_value;
 }
 
 /*! \fn     guiAskForPasswordSet(char* name)
@@ -274,24 +288,26 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
 */
 RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
 {
-    ////// TO REMOVE  ///////////
-    return RETURN_OK;
+    RET_TYPE return_value;
     
     // Switch on lights
     activityDetectedRoutine();
     
-    // Display ask screen
-    oledClear();
-    oledSetXY(0, 20);
-    printf_P(PSTR("Set password "));
-    printf(password);
-    printf_P(PSTR(" for "));
+    // Draw asking bitmap & wait for user input
+    oledBitmapDrawFlash(0, 0, 4, OLED_SCROLL_UP);
+    oledWriteActiveBuffer();
+    oledSetXY(85, 25);
     printf(name);
-    printf_P(PSTR(" login in "));
+    oledSetXY(85, 45);
+    printf("on ");
     printf(service);
-    printf_P(PSTR("?"));
+    oledWriteInactiveBuffer();
+    return_value = getTouchUiYesNoAnswer();
     
-    return getTouchUiYesNoAnswer();
+    // Draw default bitmap
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    
+    return return_value;
 }
 
 /*! \fn     guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress)

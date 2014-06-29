@@ -234,11 +234,9 @@ int main(void)
         delay_ms(2000);
     }
 
-    // Write inactive buffer
+    // Write inactive buffer & default bitmap
     oledWriteInactiveBuffer();
-    oledSetXY(85, 0);
-    printf_P(PSTR("Mooooltipass"));
-    oledFlipBuffers(OLED_SCROLL_UP, 1);
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
         
     // Launch the after HaD logo display tests
     afterHadLogoDisplayTests();  

@@ -111,6 +111,24 @@ From plugin/app: stop eeprom export
 
 From Mooltipass: end of eeprom export
 
+0x37: import eeprom start
+-------------------------
+From plugin/app: Request for eeprom contents sending to Mooltipass. 
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x38: import eeprom
+-------------------
+From plugin/app: A bunch of data to store inside the eeprom
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x39: import eeprom end
+-----------------------
+From plugin/app: Inform that we finished the flash import
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
 
 Functions
 =========

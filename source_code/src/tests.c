@@ -181,6 +181,7 @@ void afterTouchInitTests(void)
     RET_TYPE temp_ret_type = RETURN_RIGHT_PRESSED;
     
     setPwmDc(MAX_PWM_VAL);
+    oledWriteActiveBuffer();
     while(!(temp_ret_type & RETURN_LEFT_PRESSED))
     {
         if (temp_ret_type != RETURN_NO_CHANGE)

@@ -373,8 +373,8 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
 {
     uint16_t temp_address;
     uint16_t addresses[4];
-    uint8_t i = 0;
-    uint8_t j;
+    int8_t i = 0;
+    int8_t j;
     
     // Switch on lights
     activityDetectedRoutine();

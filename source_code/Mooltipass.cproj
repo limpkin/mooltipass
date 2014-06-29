@@ -135,7 +135,6 @@
       <Value>../src/PWM</Value>
       <Value>../src/RNG</Value>
       <Value>../src/SPI</Value>
-      <Value>../src/STORE</Value>
       <Value>../src/TOUCH</Value>
       <Value>../src/USB</Value>
       <Value>../src/UTILS</Value>
@@ -187,7 +186,6 @@
       <Value>../src/PWM</Value>
       <Value>../src/RNG</Value>
       <Value>../src/SPI</Value>
-      <Value>../src/STORE</Value>
       <Value>../src/TOUCH</Value>
       <Value>../src/USB</Value>
       <Value>../src/UTILS</Value>
@@ -354,18 +352,6 @@
     <Compile Include="src\SPI\spi.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\STORE\flash.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\STORE\flash.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\STORE\store.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\STORE\store.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\tests.c">
       <SubType>compile</SubType>
     </Compile>
@@ -432,7 +418,6 @@
     <Folder Include="src\CARD\" />
     <Folder Include="src\FLASH" />
     <Folder Include="src\AES" />
-    <Folder Include="src\STORE" />
     <Folder Include="src\NODEMGMT" />
     <Folder Include="src\PWM\" />
     <Folder Include="src\RNG\" />

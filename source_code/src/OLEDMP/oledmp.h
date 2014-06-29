@@ -147,12 +147,9 @@ void oledOn(void);
 #define OLED_SCROLL_DOWN	2
 #define OLED_RAM_BITMAP		4
 
-void oledBitmapDrawRaw(
-    uint8_t x,
-    uint8_t y,
-    bitstream_t *bs,
-    uint8_t options);
-void oledBitmapDrawSlot(uint8_t x, uint8_t y, uint8_t slotIdimage, uint8_t options);
+void oledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_t *bs, uint8_t options);
+int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
+void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options);
 
 void oledSetDisplayStartLine(uint8_t line);
 void oledMoveDisplayStartLine(int8_t offset);

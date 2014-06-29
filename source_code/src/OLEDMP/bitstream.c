@@ -29,7 +29,7 @@
 
 #include <avr/pgmspace.h>
 #include "bitstream.h"
-#include "store.h"
+#include "flash_mem.h"
 #include "usb.h"
 
 #undef DEBUG_BS
@@ -52,7 +52,7 @@ void bsInit(
     const uint16_t width,
     const uint8_t height,
     bool flash,
-    uint8_t slotId)
+    uint32_t addr)
 {
     bs->bitsPerPixel = pixelDepth;
     bs->width = width;
@@ -67,7 +67,7 @@ void bsInit(
     bs->_count = 0;
     bs->_flags = flags;
     bs->flash = flash;
-    bs->slotId = slotId;
+    bs->addr = addr;
 #ifdef DEBUG_BS
     usbPrintf_P(PSTR("bitmap: data %p, depth %d, size %d\n"), data, pixelDepth, size);
 #endif
@@ -89,10 +89,10 @@ static inline uint16_t bsGetNextWord(bitstream_t *bs)
         {
             return (uint16_t)pgm_read_word(bs->_datap++);
         }
-        else if (bs->slotId)
+        else if (bs->addr)
         {
             uint16_t data;
-            storeReadSlot(bs->slotId, (uint16_t)bs->_cdatap + bs->_count*2, 1, &data);
+            flashRawRead((uint8_t *)&data, bs->addr+bs->_count*2, sizeof(data));
             return data;
         }
         else
@@ -120,10 +120,11 @@ static inline uint8_t bsGetNextByte(bitstream_t *bs)
         {
             return pgm_read_byte(bs->_cdatap++);
         }
-        else if (bs->slotId)
+        else if (bs->addr)
         {
             uint8_t data;
-            storeReadSlot(bs->slotId, (uint16_t)bs->_cdatap + bs->_count, 1, &data);
+            // XXX very ineficient. TODO add a local cache
+            flashRawRead((uint8_t *)&data, bs->addr+bs->_count, sizeof(data));
             return data;
         }
         else 

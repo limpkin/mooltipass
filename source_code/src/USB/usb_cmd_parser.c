@@ -28,12 +28,10 @@
 #include "userhandling.h"
 #include <avr/eeprom.h>
 #include "flash_mem.h"
-#include "flash.h"
 #include "node_mgmt.h"
 #include <string.h>
 #include <stdint.h>
 #include "usb.h"
-#include "store.h"
 #include "oledmp.h"
 
 // Current address in flash we need to export
@@ -493,62 +491,10 @@ void usbProcessIncoming(uint8_t* incomingData)
             sendPluginOneByteAnswer(CMD_ERASE_SMC, plugin_return_value, incomingData); 
             break;
         }   
-
-        case CMD_ALLOCATE_SLOT :
-        {
-            uint8_t slotId = storeAllocateSlot(msg->body.storeAllocate.size);
-            pluginSendMessage(CMD_ALLOCATE_SLOT, 1, (char *)&slotId);
+        case CMD_DRAW_BITMAP :
+            usbPrintf_P(PSTR("draw bitmap file %d\n"), msg->body.data[0]);
+            oledBitmapDrawFlash(0, 0, msg->body.data[0], OLED_SCROLL_UP);
             break;
-        }
-
-        case CMD_WRITE_SLOT :
-        {
-            uint8_t res = storeWriteSlot(msg->body.storeWrite.slotId, datalen-1, msg->body.storeWrite.data);
-            incomingData[1] = msg->body.storeWrite.slotId;;
-            incomingData[0] = res;
-            pluginSendMessage(CMD_WRITE_SLOT, 2, (char *)incomingData);
-            break;
-        }
-
-        case CMD_ERASE_SLOTS :  // Erase all slots
-        {
-            uint8_t res = 1;
-            storeInit();
-            pluginSendMessage(CMD_ERASE_SLOTS, 1, (char *)&res);
-            break;
-        }
-
-        case CMD_DRAW_SLOT :
-            usbPrintf_P(PSTR("slot %d display\n"), incomingData[2]);
-            oledBitmapDrawSlot(0, 0, msg->body.data[0], OLED_SCROLL_UP);
-            break;
-
-        case CMD_FLASH_READ :
-        {
-            uint8_t size = msg->body.flashRead.size;
-            uint32_t addr = msg->body.flashRead.addr;
-            usbPrintf_P(PSTR("read 0x%lx %u bytes\n"), addr, size);
-            if (size > (RAWHID_TX_SIZE - 7))
-            {
-                incomingData[0] = 0;
-                pluginSendMessage(CMD_FLASH_READ, 1, (char *)incomingData);
-                usbPrintf_P(PSTR("read error size %u > %u\n"), size, RAWHID_TX_SIZE-7);
-            }
-            if (flashRead(&incomingData[5], addr, size) >= 0)
-            {
-                incomingData[0] = 1;    // success
-                *(uint32_t *)&incomingData[1] = addr;
-                pluginSendMessage(CMD_FLASH_READ, size+5, (char *)incomingData);
-            }
-            else
-            {
-                incomingData[0] = 0;
-                pluginSendMessage(CMD_FLASH_READ, 1, (char *)incomingData);
-                usbPrintf_P(PSTR("read error\n"));
-            }
-            break;
-        }
-
 
 #endif
 

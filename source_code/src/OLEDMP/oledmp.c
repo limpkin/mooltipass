@@ -53,8 +53,8 @@
 #include "defines.h"
 #include "oledmp.h"
 #include "utils.h"
+#include "flash_mem.h"
 #include "usb.h"
-#include "store.h"
 
 // Make sure the USART SPI is selected
 #if SPI_OLED != SPI_USART
@@ -1256,21 +1256,38 @@ void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options)
  * Draw a bitmap from a Flash storage slot.
  * @param x - x position for the bitmap
  * @param y - y position for the bitmap (0=top, 63=bottom)
- * @param slotId - the storage slot that has the bitmap
+ * @param addr - address of the bitmap in flash
  * @param options - display options:
  *                OLED_SCROLL_UP - scroll bitmap up
  *                OLED_SCROLL_DOWN - scroll bitmap up
  *                0 - don't make bitmap active (unless already drawing to active buffer)
  */
-void oledBitmapDrawSlot(uint8_t x, uint8_t y, uint8_t slotId, uint8_t options)
+int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
 {
     bitstream_t bs;
     bitmap_t bitmap;
-    storeReadSlot(slotId, 0, sizeof(bitmap), &bitmap);
 
-    usbPrintf_P(PSTR("Draw bitmap from slot %d\n"), slotId);
+    uint32_t fileCount, addr;
+    flashRawRead((uint8_t *)&fileCount, FLASH_PAGE_MAPPING_GFX_START*BYTES_PER_PAGE, sizeof(fileCount));
+    usbPrintf_P(PSTR("oled: File count is %u, fileId %u\n"), fileCount, fileId);
+
+    if (fileId >= fileCount)
+    {
+        // invalid file index
+        usbPrintf_P(PSTR("File index %u is invalid. File count is %u\n"), fileId, fileCount);
+        return -1;
+    }
+
+    flashRawRead((uint8_t *)&addr,
+            FLASH_PAGE_MAPPING_GFX_START*BYTES_PER_PAGE + fileCount * sizeof(uint32_t) + sizeof(uint32_t),
+            sizeof(fileCount));
+
+    usbPrintf_P(PSTR("oled: fileId %u address 0x%04x\n"), fileId, addr);
+
+    flashRawRead((uint8_t *)&bitmap, addr, sizeof(bitmap));
     bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.height, bitmap.depth,
-            !(options & OLED_RAM_BITMAP), slotId);
+            !(options & OLED_RAM_BITMAP), addr+sizeof(bitmap));
 
     oledBitmapDrawRaw(x, y, &bs, options);
+    return 0;
 }

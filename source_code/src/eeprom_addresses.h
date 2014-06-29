@@ -33,12 +33,11 @@
 // Boot key
 #define EEP_BOOTKEY_ADDR                    0
 // This is the number of smart cards that we know
-#define EEP_STORE_MANAGEMENT                2	// slot storage management (64 bytes)
-#define EEP_NB_KNOWN_CARDS_ADDR             74 
+#define EEP_NB_KNOWN_CARDS_ADDR             2 
 // This is the number of users that we know
-#define EEP_NB_KNOWN_USERS_ADDR             75
+#define EEP_NB_KNOWN_USERS_ADDR             3
 // This is the EEPROM address where we start to store user_id <> smart card id & AES nonce matches
-#define EEP_SMC_IC_USER_MATCH_START_ADDR    76
+#define EEP_SMC_IC_USER_MATCH_START_ADDR    4
 
 
 #endif /* EEPROM_ADDRESSES_H_ */

@@ -105,7 +105,7 @@ void usbProcessIncoming(uint8_t* incomingData)
     RET_TYPE temp_rettype;
 
     // Debug comms
-    //USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
+    // USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
 
     switch(datacmd)
     {

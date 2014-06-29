@@ -401,7 +401,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
  */
 RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
 {    
-    if ((addr+(uint32_t)size) >= FLASH_SIZE)
+    if ((addr+(uint32_t)size) > FLASH_SIZE)
     {
         return RETURN_NOK;
     }

@@ -70,6 +70,7 @@ void bsInit(
     bs->addr = addr;
 #ifdef DEBUG_BS
     usbPrintf_P(PSTR("bitmap: data %p, depth %d, size %d, width %u, height %u\n"), data, pixelDepth, bs->_size, width, height);
+    usbPrintf_P(PSTR("bitmap: addr %04X\n"), bs->addr);
 #endif
 }
 
@@ -93,7 +94,7 @@ static inline uint16_t bsGetNextWord(bitstream_t *bs)
         {
             uint16_t data;
             flashRawRead((uint8_t *)&data, bs->addr, sizeof(data));
-            usbPrintf_P(PSTR("bs: 0x%04x = 0x%04x\n"), bs->addr, data);
+            //usbPrintf_P(PSTR("bs: 0x%04x = 0x%04x\n"), bs->addr, data);
             bs->addr += 2;
             return data;
         }
@@ -127,7 +128,7 @@ static inline uint8_t bsGetNextByte(bitstream_t *bs)
             uint8_t data;
             // XXX very ineficient. TODO add a local cache
             flashRawRead((uint8_t *)&data, bs->addr, sizeof(data));
-            usbPrintf_P(PSTR("bs: 0x%04x = 0x%02x\n"), bs->addr, data);
+            //usbPrintf_P(PSTR("bs: 0x%04x = 0x%02x\n"), bs->addr, data);
             bs->addr++;
             return data;
         }

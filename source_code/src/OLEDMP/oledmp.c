@@ -1286,9 +1286,8 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
     usbPrintf_P(PSTR("oled: fileId %u address 0x%04x\n"), fileId, addr);
 
     flashRawRead((uint8_t *)&bitmap, addr, sizeof(bitmap));
-    bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.height, bitmap.depth,
+    bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.width, bitmap.height,
             false, addr+sizeof(bitmap));
-
     oledBitmapDrawRaw(x, y, &bs, options);
     return 0;
 }

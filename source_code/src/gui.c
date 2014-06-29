@@ -102,6 +102,10 @@ void activateScreenTimer(void)
 */
 void activityDetectedRoutine(void)
 {
+    #ifdef HARDWARE_V1
+        return;
+    #endif
+    
     activateLightTimer();
     activateScreenTimer();
     
@@ -126,6 +130,7 @@ void guiMainLoop(void)
     #ifdef HARDWARE_V1
         return;
     #endif
+    
     RET_TYPE touch_detect_result = touchDetectionRoutine();
     
     // No activity, switch off LEDs and activate prox detection

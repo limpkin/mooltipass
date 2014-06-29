@@ -52,7 +52,6 @@ uint8_t flash_import_approved = FALSE;
 uint8_t eeprom_import_approved = FALSE;
 
 
-
 /*! \fn     checkTextField(uint8_t* data, uint8_t len)
 *   \brief  Check that the sent text is correct
 *   \param  data    Pointer to the data
@@ -112,20 +111,25 @@ void usbProcessIncoming(uint8_t* incomingData)
     {
         // ping command
         case CMD_PING :
+        {
             memcpy((void*)incomingData, (void*)msg->body.data, 2);
             memcpy((void*)incomingData+2, (void*)msg->body.data+2, 2);
             pluginSendMessage(CMD_PING, 4, (char*)incomingData);
             break;
+        }            
 
         // version command
         case CMD_VERSION :
+        {
             incomingData[0] = 0x01;
             incomingData[1] = 0x01;
             pluginSendMessage(CMD_VERSION, 2, (char*)incomingData);
             break;
+        }            
             
         // context command
         case CMD_CONTEXT :
+        {
             if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
@@ -143,9 +147,11 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             sendPluginOneByteAnswer(CMD_CONTEXT, plugin_return_value, incomingData);
             break;
+        }            
             
         // get login
         case CMD_GET_LOGIN :
+        {
             if (getLoginForContext((char*)incomingData) == RETURN_OK)
             {
                 // Use the buffer to store the login...
@@ -158,9 +164,11 @@ void usbProcessIncoming(uint8_t* incomingData)
                 USBPARSERDEBUGPRINTF_P(PSTR("get login: failed\n"));
             }
             break;
+        }                    
             
         // get password
         case CMD_GET_PASSWORD :
+        {
             if (getPasswordForContext((char*)incomingData) == RETURN_OK)
             {
                 pluginSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), (char*)incomingData);
@@ -172,9 +180,11 @@ void usbProcessIncoming(uint8_t* incomingData)
                 USBPARSERDEBUGPRINTF_P(PSTR("get pass: failed\n"));
             }
             break;
+        }        
             
         // set login
         case CMD_SET_LOGIN :
+        {
             if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
@@ -192,9 +202,11 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             sendPluginOneByteAnswer(CMD_SET_LOGIN, plugin_return_value, incomingData);
             break;
+        }
         
         // set password
         case CMD_SET_PASSWORD :
+        {
             if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
@@ -212,9 +224,11 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             sendPluginOneByteAnswer(CMD_SET_PASSWORD, plugin_return_value, incomingData);
             break;
+        }
         
         // check password
         case CMD_CHECK_PASSWORD :
+        {
             if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
                 sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
@@ -235,9 +249,11 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, plugin_return_value, incomingData); 
             break;
+        }
         
         // set password
         case CMD_ADD_CONTEXT :
+        {
             if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
                 // Check field
@@ -258,6 +274,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             sendPluginOneByteAnswer(CMD_ADD_CONTEXT, plugin_return_value, incomingData);    
             break;
+        }
             
         // export flash contents
         case CMD_EXPORT_FLASH :
@@ -469,6 +486,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             sendPluginOneByteAnswer(CMD_ERASE_EEPROM, PLUGIN_BYTE_OK, incomingData); 
             break;
         }   
+        
         // erase flash
         case CMD_ERASE_FLASH :
         {
@@ -476,6 +494,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             sendPluginOneByteAnswer(CMD_ERASE_FLASH, PLUGIN_BYTE_OK, incomingData); 
             break;
         }  
+        
         // erase eeprom
         case CMD_ERASE_SMC :
         {
@@ -491,11 +510,13 @@ void usbProcessIncoming(uint8_t* incomingData)
             sendPluginOneByteAnswer(CMD_ERASE_SMC, plugin_return_value, incomingData); 
             break;
         }   
+        
         case CMD_DRAW_BITMAP :
+        {
             usbPrintf_P(PSTR("draw bitmap file %d\n"), msg->body.data[0]);
             oledBitmapDrawFlash(0, 0, msg->body.data[0], OLED_SCROLL_UP);
             break;
-
+        }
 #endif
 
         default : break;

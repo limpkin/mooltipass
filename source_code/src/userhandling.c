@@ -255,13 +255,11 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     // Do we know this context ?
     if ((context_parent_node_addr != NODE_ADDR_NULL) && (smartcard_inserted_unlocked == TRUE))
     {
-        USBDEBUGPRINTF_P(PSTR("Active: %s\n"), name);
         context_valid_flag = TRUE;
         return RETURN_OK;
     }
     else
     {
-        USBDEBUGPRINTF_P(PSTR("Fail: %s\n"), name);
         return RETURN_NOK;
     }
 }

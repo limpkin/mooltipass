@@ -212,7 +212,7 @@ function sendRequest(type, content)
     {
         header.set([content.length, type], 0);
         body.set(content, 0);
-        if (type != CMD_EXPORT_FLASH && type != CMD_EXPORT_EEPROM && type != CMD_IMPORT_FLASH)
+        if (false && type != CMD_EXPORT_FLASH && type != CMD_EXPORT_EEPROM && type != CMD_IMPORT_FLASH)
         {
             log('#messageLog','body '+JSON.stringify(body)+'\n');
         }
@@ -462,6 +462,7 @@ function initWindow()
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpflash.bin'}, function(entry) {
             if (entry)
             {
+                log('#exportLog');  // clear log
                 log('#exportLog', 'save mpflash.img\n');
                 exportDataEntry = entry;
                 exportData = null;
@@ -477,6 +478,7 @@ function initWindow()
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpeeprom.bin'}, function(entry) {
             if (entry)
             {
+                log('#exportLog');  // clear log
                 log('#exportLog', 'save mpeeprom.img\n');
                 exportDataEntry = entry;
                 exportData = null;
@@ -492,6 +494,7 @@ function initWindow()
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'flash.bin'}, function(entry) {
             if (entry)
             {
+                log('#exportLog');  // clear log
                 log('#exportLog', 'save flash.bin\n');
                 exportDataEntry = entry;
                 exportData = null;
@@ -514,11 +517,12 @@ function initWindow()
                     log('#importLog', e+'\n');
                 };
                 reader.onloadend = function(e) {
-                    importData = { data:reader.result, offset:0, log:'#importLog', bar:importProgressBar };
+                    importData = { data:reader.result, log:'#importLog', bar:importProgressBar };
                     importProgressBar.progressbar('value', 0);
                     // Request permission to send
                     args = new Uint8Array([0]);         // user space, 1 = media
                     sendRequest(CMD_IMPORT_FLASH_BEGIN, args);
+                    log('#importLog');  // clear log
                 };
 
                 reader.readAsArrayBuffer(file);
@@ -538,11 +542,12 @@ function initWindow()
                     log('#importLog', e+'\n');
                 };
                 reader.onloadend = function(e) {
-                    importData = {data: reader.result, offset: 0, log: '#importLog', bar: importProgressBar};
+                    importData = { data:reader.result, log:'#importLog', bar:importProgressBar };
                     importProgressBar.progressbar('value', 0);
                     // Request permission to send
                     args = new Uint8Array([0]);
                     sendRequest(CMD_IMPORT_EEPROM_BEGIN, args);
+                    log('#importLog');  // clear log
                 };
 
                 reader.readAsArrayBuffer(file);
@@ -775,12 +780,22 @@ function sendNextPacket(cmd, importer)
     if (!importer.pageSpace)
     {
         importer.pageSpace = FLASH_PAGE_SIZE;
+        importer.offset = 0;
     }
     var size = Math.min(importer.data.byteLength - importer.offset, payloadSize, importer.pageSpace);
 
+    if (size <= 0)
+    {
+        // finished
+        log(importer.log, 'import complete.\n');
+        sendRequest(cmd+1);     // END
+        return;
+    }
+
     data = new Uint8Array(importer.data, importer.offset, size);
 
-    if (false && importer.log)
+    // debug
+    if (false && importer.log && ((importer.offset * 100)/importer.data.byteLength) > 95)
     {
         log(importer.log, 'import: offset '+importer.offset+' size '+size+' pageSpace '+importer.pageSpace+'\n');
     }
@@ -1080,9 +1095,22 @@ function onDataReceived(data)
         }
 
         case CMD_IMPORT_FLASH_END:
+        case CMD_IMPORT_EEPROM_END:
             importData = null;
             log('#importLog', 'import finished\n');
             break;
+
+        case CMD_IMPORT_EEPROM_BEGIN: 
+        case CMD_IMPORT_EEPROM: 
+        {
+            var ok = bytes[2];
+            if (ok == 0) {
+                log('#importLog', 'import denied\n');
+            } else {
+                sendNextPacket(CMD_IMPORT_EEPROM, importData);
+            }
+            break;
+        }
 
         case CMD_ALLOCATE_SLOT: 
         {

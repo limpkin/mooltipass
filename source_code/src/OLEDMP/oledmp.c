@@ -596,8 +596,9 @@ void oledSetFont(uint8_t font)
  */
 void oledOff(void)
 {
-    //oledWriteCommand(CMD_SET_DISPLAY_OFF);
-    //pinHigh(OLED_PORT_POWER, OLED_POWER);	 // 12V power off
+    oledWriteCommand(CMD_SET_DISPLAY_OFF);
+    _delay_ms(100);
+    pinHigh(OLED_PORT_POWER, OLED_POWER);	 // 12V power off
 }
 
 
@@ -606,8 +607,9 @@ void oledOff(void)
  */
 void oledOn(void)
 {
-    oledWriteCommand(CMD_SET_DISPLAY_ON);
     pinLow(OLED_PORT_POWER, OLED_POWER);	 // 12V power on
+    _delay_ms(100);
+    oledWriteCommand(CMD_SET_DISPLAY_ON);
 }
 
 

@@ -145,7 +145,7 @@ void guiMainLoop(void)
     // No activity, switch off screen
     if (screenTimerOffFlag == TRUE)
     {
-        oledOff();
+        //oledOff();
         isScreenOn = FALSE;
         screenTimerOffFlag = FALSE;
     }

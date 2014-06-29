@@ -92,7 +92,7 @@ typedef enum _nodeType
 #define USER_CTR_SIZE 3 // Have 1 byte remaining.. Not included in USER_PROFILE_SIZE
 
 #define GRAPHIC_ZONE_START          (NODE_MAX_UID*USER_PROFILE_SIZE)
-#define GRAPHIC_ZONE_PAGE_START     (NODE_MAX_UID*USER_PROFILE_SIZE)%BYTES_PER_PAGE
+#define GRAPHIC_ZONE_PAGE_START     (((NODE_MAX_UID*USER_PROFILE_SIZE)+BYTES_PER_PAGE-1)/BYTES_PER_PAGE)
 
 /*!
 *  Node Deletion Policy ENUM 

@@ -71,11 +71,7 @@ var CMD_IMPORT_EEPROM_END   = 0x39;
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
 var CMD_ERASE_SMC           = 0x42;
-var CMD_ALLOCATE_SLOT       = 0x43;
-var CMD_WRITE_SLOT          = 0x44;
-var CMD_ERASE_SLOTS         = 0x45;
-var CMD_DRAW_SLOT           = 0x46;
-var CMD_FLASH_READ          = 0x47;
+var CMD_DRAW_BITMAP         = 0x43;
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
@@ -101,6 +97,8 @@ var importDataPageOffset = 0; // current write page offset
 
 var mediaData = null;        // arraybuffer of media file data for slot storage
 var mediaDataOffset = 0;     // current data offset in mediaData array
+
+var media = {};             // media file info from mooltipass
 
 var importProgressBar = null;
 var exportProgressBar = null;
@@ -436,15 +434,15 @@ function initWindow()
     var clearDebugButton = document.getElementById("clearDebug");
     var exportFlashButton = document.getElementById("exportFlash");
     var exportEepromButton = document.getElementById("exportEeprom");
-    var exportStoreButton = document.getElementById("exportStore");
+    var exportMediaButton = document.getElementById("exportMedia");
     var importFlashButton = document.getElementById("importFlash");
     var importEepromButton = document.getElementById("importEeprom");
+    var importMediaButton = document.getElementById("importMedia");
     var eraseEepromButton = document.getElementById("eraseEeprom");
     var eraseFlashButton = document.getElementById("eraseFlash");
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
-    var loadSlotButton = document.getElementById("loadSlot");
-    var eraseSlotsButton = document.getElementById("eraseSlots");
-    var drawSlotButton = document.getElementById("drawSlot");
+    var eraseMediaButton = document.getElementById("eraseMedia");
+    var drawBitmapButton = document.getElementById("drawBitmap");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -489,19 +487,18 @@ function initWindow()
         });
     });
 
-    exportStoreButton.addEventListener('click', function() 
+    exportMediaButton.addEventListener('click', function() 
     {
-        chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'flash.bin'}, function(entry) {
+        chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'media.bin'}, function(entry) {
             if (entry)
             {
                 log('#exportLog');  // clear log
-                log('#exportLog', 'save flash.bin\n');
+                log('#exportLog', 'save media.bin\n');
                 exportDataEntry = entry;
                 exportData = null;
                 exportProgressBar.progressbar('value', 0);
-                var size = payloadSize - 5;
-                args = new Uint8Array([0, 0, 0, 0, payloadSize-5]);
-                sendRequest(CMD_FLASH_READ, args);
+                args = new Uint8Array([1]);     // media
+                sendRequest(CMD_EXPORT_FLASH, args);
             }
         });
     });
@@ -547,6 +544,32 @@ function initWindow()
                     // Request permission to send
                     args = new Uint8Array([0]);
                     sendRequest(CMD_IMPORT_EEPROM_BEGIN, args);
+                    log('#importLog');  // clear log
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        });
+    });
+
+    importMediaButton.addEventListener('click', function() 
+    {
+        chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
+            entry.file(function(file) {
+                var reader = new FileReader();
+
+                reader.onerror = function(e)
+                {
+                    log('#importLog', 'Failed to read file\n');
+                    log('#importLog', e+'\n');
+                };
+                reader.onloadend = function(e) {
+                    importData = { data:reader.result, log:'#importLog', bar:importProgressBar };
+                    importProgressBar.progressbar('value', 0);
+
+                    // Request permission to send
+                    args = new Uint8Array([1]);     // media
+                    sendRequest(CMD_IMPORT_FLASH_BEGIN, args);
                     log('#importLog');  // clear log
                 };
 
@@ -609,39 +632,14 @@ function initWindow()
         });
     });
 
-    loadSlotButton.addEventListener('click', function(e)
-    {
-        chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
-            entry.file(function(file) {
-                var reader = new FileReader();
-
-                reader.onerror = function(e)
-                {
-                    log('#messageLog', 'Failed to read media file\n');
-                    log('#messageLog', e+'\n');
-                };
-                reader.onloadend = function(e) {
-                    mediaData = reader.result;  // keep data in a global for writing to mp
-                    mediaDataOffset = 0;
-                    // Start sending it to the mooltipass
-                    size = new Uint8Array([mediaData.byteLength & 0xFF, mediaData.byteLength >> 8])
-                    log('#messageLog', 'allocating slot for '+mediaData.byteLength+' bytes from media file\n');
-                    sendRequest(CMD_ALLOCATE_SLOT, size);
-                };
-
-                reader.readAsArrayBuffer(file);
-            });
-        });
-    });
-
-    eraseSlotsButton.addEventListener('click', function()
+    eraseMediaButton.addEventListener('click', function() 
     {
         $('#eraseConfirm').dialog({
             buttons: {
-                "Erase all storage slots?": function() 
+                "Erase media files?": function() 
                 {
-                    log('#developerLog', 'Erasing smartcard... ');
-                    sendRequest(CMD_ERASE_SLOTS);
+                    log('#developerLog', 'Erasing media files... ');
+                    //sendRequest(CMD_MEDIA_ERASE);
                     $(this).dialog('close');
                 },
                 Cancel: function() 
@@ -652,13 +650,12 @@ function initWindow()
         });
     });
 
-    drawSlotButton.addEventListener('click', function()
+    drawBitmapButton.addEventListener('click', function() 
     {
-        log('#messageLog', 'Drawing slot 1');
-        slot = new Uint8Array([1]);
-        sendRequest(CMD_DRAW_SLOT, slot);
+        log('#messageLog', 'drawing bitmap 0');
+        args = new Uint8Array([0]);
+        sendRequest(CMD_DRAW_BITMAP, args);
     });
-
 
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
@@ -748,21 +745,20 @@ function initWindow()
 	$("#developer").accordion();
 	importProgressBar = $("#importProgressbar").progressbar({ value: 0 });
 	exportProgressBar = $("#exportProgressbar").progressbar({ value: 0 });
-	uploadProgressBar = $("#uploadProgressbar").progressbar({ value: 0 });
     $("#connect").button();
     $("#clear").button();
     $("#clearDebug").button();
     $("#exportFlash").button();
     $("#exportEeprom").button();
-    $("#exportStore").button();
+    $("#exportMedia").button();
     $("#importFlash").button();
     $("#importEeprom").button();
+    $("#importMedia").button();
     $("#eraseFlash").button();
     $("#eraseEeprom").button();
     $("#eraseSmartcard").button();
-    $("#loadSlot").button();
-    $("#eraseSlots").button();
-    $("#drawSlot").button();
+    $("#eraseMedia").button();
+    $("#drawBitmap").button();
     $("#tabs").tabs();
 };
 
@@ -814,6 +810,24 @@ function sendNextPacket(cmd, importer)
     sendRequest(cmd, data);
 }
 
+function updateMedia(data)
+{
+    update = new Uint16Array(data,2,8);
+    files = new Uint16Array(data,6,40);
+    fileSizes = new Uint16Array(data,46,20);
+
+    media.pageSize = update[0];
+    media.size = update[1];
+    media.file = new Uint16Array(files.length);
+    media.file.set(files);
+    media.fileSize = new Uint8Array(fileSizes.length);
+    media.fileSize.set(fileSizes);
+}
+
+function allocateMediaPage(size)
+{
+    var ind=0;
+}
 
 /**
  * Handler for receiving new data from the mooltipass.
@@ -1019,63 +1033,6 @@ function onDataReceived(data)
             exportDataEntry = null;;
             break;
 
-        case CMD_FLASH_READ:
-        {
-            var res = msg[0];
-            if (res != 1)
-            {
-                log('#exportLog', 'Error reading flash\n');
-                break;
-            }
-            if (!exportData)
-            {
-                console.log('new export');
-                var size = 128*FLASH_PAGE_SIZE;
-                exportData = new ArrayBuffer(size);
-                exportDataUint8 = new Uint8Array(exportData);
-                exportDataOffset = 0;
-                console.log('new export ready');
-                exportProgressBar.progressbar('value', 0);
-            }
-
-            addr = msg[4] << 24 | msg[3] << 16 | msg[2] << 8 | msg[1];
-            var packet = new Uint8Array(data,7, len-5);
-
-            log('#exportLog', 'flash read: addr 0x'+addr.toString(16)+' '+packet.length+' bytes\n');
-
-            if ((packet.length + exportDataOffset) > exportDataUint8.length)
-            {
-                var overflow = (packet.length + exportDataOffset) - exportDataUint8.length;
-                console.log('error packet overflows buffer by '+overflow+' bytes');
-                exportDataOffset += packet.length;
-            } else {
-                exportDataUint8.set(packet, exportDataOffset);
-                exportDataOffset += packet.length;
-                exportProgressBar.progressbar('value', (exportDataOffset * 100) / exportDataUint8.length);
-
-                var size = payloadSize - 5;
-                if (size > (exportData.byteLength - exportDataOffset)) {
-                    size = exportData.byteLength - exportDataOffset;
-                }
-
-                if (size > 0)
-                {
-                    args = new Uint8Array([
-                                exportDataOffset & 0xFF,
-                                (exportDataOffset >> 8) & 0xFF,
-                                (exportDataOffset >> 16) & 0xFF,
-                                (exportDataOffset >> 24) & 0xFF,
-                                size]);
-                    sendRequest(CMD_FLASH_READ, args);
-                }
-                else
-                {
-                    saveToEntry(exportDataEntry, exportDataUint8) 
-                }
-            }
-            break;
-        }
-
         case CMD_ERASE_EEPROM:
         case CMD_ERASE_FLASH:
         case CMD_ERASE_SMC:
@@ -1111,68 +1068,6 @@ function onDataReceived(data)
             }
             break;
         }
-
-        case CMD_ALLOCATE_SLOT: 
-        {
-            var slotId = bytes[2];
-            if (slotId == 0) {
-                log('#messageLog', 'allocate slot failed\n');
-            } else {
-                log('#messageLog', 'allocated slot '+slotId+'\n');
-            }
-            if (slotId > 0)
-            {
-                msg = new ArrayBuffer(Math.min(payloadSize, mediaData.byteLength));
-                data = new Uint8Array(msg);
-                data.set([slotId], 0);
-                data.set(mediaData.slice(0, data.size-1), 1);
-                sendRequest(CMD_WRITE_SLOT, data);
-                mediaDataOffset = data.length;
-                uploadProgressBar.progressbar('value', 0);
-            }
-            break;
-        }
-
-        case CMD_WRITE_SLOT :
-        {
-            var slotId = bytes[3];
-            if (bytes[2] == 1)
-            {
-                if (mediaDataOffset < mediaData.byteLength)
-                {
-                    msg = new ArrayBuffer(Math.min(payloadSize-1, mediaData.byteLength - mediaDataOffset));
-                    data = new Uint8Array(msg);
-                    payload = new Uint8Array(mediaData.slice(mediaDataOffset, data.size-1));
-                    data.set([slotId], 0);
-                    //data.set(new Uint8Array(mediaData.slice(mediaDataOffset, data.size-1)), 1);
-                    data.set(payload, 1);
-                    sendRequest(CMD_WRITE_SLOT, data);
-                    mediaDataOffset += data.length;
-                    uploadProgressBar.progressbar('value', (mediaDataOffset * 100) / mediaData.byteLength);
-                    console.log('write slot: '+data.length+' bytes '+JSON.stringify(body)+'\n');
-                }
-                else
-                {
-                    log('#messageLog', 'slot: '+slotId+' finished upload\n');
-                }
-            }
-            else
-            {
-                log('#messageLog', 'slot: '+slotId+' failed to write\n');
-            }
-            break;
-        }
-
-        case CMD_ERASE_SLOTS:
-            if (bytes[2] == 0)
-            {
-                log('#messageLog', 'erase slots failed\n');
-            }
-            else
-            {
-                log('#messageLog', 'erase slots succeeded\n');
-            }
-            break;
 
         default:
             log('#messageLog', 'unknown command '+cmd+'\n');

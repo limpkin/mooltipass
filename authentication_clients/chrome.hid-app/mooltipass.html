@@ -38,7 +38,7 @@
 	    <input type="file" id="exportFileName" style="display:none">
 	    <button id="exportFlash">Export flash</button>
 	    <button id="exportEeprom">Export eeprom</button>
-	    <button id="exportStore">Export store</button>
+	    <button id="exportMedia">Export media</button>
 	    <div id="exportProgressbar"></div>
 	    <br />
 	    <textarea id="exportLog" style="height:150px; width:300px" class="ui-widget ui-state-default ui-corner-all" disabled>
@@ -52,6 +52,7 @@
 	    <input type="file" id="importFileName" style="display:none">
 	    <button id="importFlash">Import flash</button>
 	    <button id="importEeprom">Import eeprom</button>
+	    <button id="importMedia">Import media</button>
 	    <div id="importProgressbar" style="height:20px"></div>
 	    <textarea id="importLog" style="height:150px; width:300px" class="ui-widget ui-state-default ui-corner-all" disabled>
 	    </textarea>
@@ -70,28 +71,25 @@
 	</div>
    </div>
    <div id="developer" style="height:416px">
-	<h3>Slot Management</h3>
-	<div>
-	    <p>Upload media files to mooltipass storage slots<p>
-	    <ul>
-		<li><button id="loadSlot">Store file</button></li>
-		<li><button id="eraseSlots">Erase slots</button></li>
-		<li><button id="drawSlot">Draw slot 1</button></li>
-	    </ul>
-	    <div id="uploadProgressbar" style="height:20px"></div>
-	</div>
 	<h3>Erase</h3>
 	<div>
 	    <ul>
 	        <li><button id="eraseEeprom" style="width:150px">Erase eeprom</button></li>
 	        <li><button id="eraseFlash" style="width:150px">Erase flash</button></li>
 	        <li><button id="eraseSmartcard" style="width:150px">Erase smartcard</button></li>
+	        <li><button id="eraseMedia" style="width:150px">Erase media</button></li>
 	    </ul>
 	    <div id="eraseConfirm" title="Mooltipass Erase">
 		<p></p>
 	    </div>
 	    <textarea id="developerLog" style="height:100; width:280px" class="ui-widget ui-state-default ui-corner-all" disabled>
 	    </textarea>
+	</div>
+	<h3>Bitmaps</h3>
+	<div>
+	    <ul>
+	        <li><button id="drawBitmap" style="width:150px">Draw bitmap 0</button></li>
+	    </ul>
 	</div>
    </div>
 </div>

@@ -106,7 +106,7 @@ void usbProcessIncoming(uint8_t* incomingData)
     RET_TYPE temp_rettype;
 
     // Debug comms
-    //USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
+    USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
 
     switch(datacmd)
     {
@@ -129,17 +129,17 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
+                USBPARSERDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
             } 
             else if (setCurrentContext(msg->body.data, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
-                USBDEBUGPRINTF_P(PSTR("set context: \"%s\" ok\n"), msg->body.data);
+                USBPARSERDEBUGPRINTF_P(PSTR("set context: \"%s\" ok\n"), msg->body.data);
             }
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("set context: \"%s\" failed\n"), msg->body.data);
+                USBPARSERDEBUGPRINTF_P(PSTR("set context: \"%s\" failed\n"), msg->body.data);
             }
             sendPluginOneByteAnswer(CMD_CONTEXT, plugin_return_value, incomingData);
             break;
@@ -150,12 +150,12 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 // Use the buffer to store the login...
                 pluginSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData), (char*)incomingData);
-                USBDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
+                USBPARSERDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
             } 
             else
             {
                 sendPluginOneByteAnswer(CMD_GET_LOGIN, PLUGIN_BYTE_ERROR, incomingData);
-                USBDEBUGPRINTF_P(PSTR("get login: failed\n"));
+                USBPARSERDEBUGPRINTF_P(PSTR("get login: failed\n"));
             }
             break;
             
@@ -164,12 +164,12 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (getPasswordForContext((char*)incomingData) == RETURN_OK)
             {
                 pluginSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), (char*)incomingData);
-                USBDEBUGPRINTF_P(PSTR("get pass: \"%s\"\n"),(char *)incomingData);
+                USBPARSERDEBUGPRINTF_P(PSTR("get pass: \"%s\"\n"),(char *)incomingData);
             } 
             else
             {
                 sendPluginOneByteAnswer(CMD_GET_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
-                USBDEBUGPRINTF_P(PSTR("get pass: failed\n"));
+                USBPARSERDEBUGPRINTF_P(PSTR("get pass: failed\n"));
             }
             break;
             
@@ -178,17 +178,17 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" checkTextField failed\n"),msg->body.data);
+                USBPARSERDEBUGPRINTF_P(PSTR("set login: \"%s\" checkTextField failed\n"),msg->body.data);
             } 
             else if (setLoginForContext(msg->body.data, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
-                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" ok\n"),msg->body.data);
+                USBPARSERDEBUGPRINTF_P(PSTR("set login: \"%s\" ok\n"),msg->body.data);
             } 
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("set login: \"%s\" failed\n"),msg->body.data);
+                USBPARSERDEBUGPRINTF_P(PSTR("set login: \"%s\" failed\n"),msg->body.data);
             }
             sendPluginOneByteAnswer(CMD_SET_LOGIN, plugin_return_value, incomingData);
             break;
@@ -198,17 +198,17 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("set pass: len %d invalid\n"), datalen);
+                USBPARSERDEBUGPRINTF_P(PSTR("set pass: len %d invalid\n"), datalen);
             } 
             else if (setPasswordForContext(msg->body.data, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
-                USBDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);
+                USBPARSERDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);
             } 
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("set pass: failed\n"));
+                USBPARSERDEBUGPRINTF_P(PSTR("set pass: failed\n"));
             }
             sendPluginOneByteAnswer(CMD_SET_PASSWORD, plugin_return_value, incomingData);
             break;
@@ -242,19 +242,19 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 // Check field
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
+                USBPARSERDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
             } 
             else if (addNewContext(msg->body.data, datalen) == RETURN_OK)
             {
                 // We managed to add a new context
                 plugin_return_value = PLUGIN_BYTE_OK;             
-                USBDEBUGPRINTF_P(PSTR("add context: \"%s\" ok\n"),msg->body.data);
+                USBPARSERDEBUGPRINTF_P(PSTR("add context: \"%s\" ok\n"),msg->body.data);
             } 
             else
             {
                 // Couldn't add a new context
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBDEBUGPRINTF_P(PSTR("add context: \"%s\" failed\n"),msg->body.data);
+                USBPARSERDEBUGPRINTF_P(PSTR("add context: \"%s\" failed\n"),msg->body.data);
             }
             sendPluginOneByteAnswer(CMD_ADD_CONTEXT, plugin_return_value, incomingData);    
             break;
@@ -267,7 +267,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check datalen for arg
             if (datalen != 1)
             {
-                USBDEBUGPRINTF_P(PSTR("export: no param\n"));
+                USBPARSERDEBUGPRINTF_P(PSTR("export: no param\n"));
                 break;
             }
             
@@ -282,7 +282,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (current_flash_export_addr >= FLASH_SIZE)
             {
                 pluginSendMessage(CMD_EXPORT_FLASH_END, 0, (char*)incomingData);
-                USBDEBUGPRINTF_P(PSTR("export: end\n"));
+                USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
                 break;
             }
             
@@ -307,7 +307,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check datalen for arg
             if (datalen != 1)
             {
-                USBDEBUGPRINTF_P(PSTR("export: no param\n"));
+                USBPARSERDEBUGPRINTF_P(PSTR("export: no param\n"));
                 break;
             }
             
@@ -322,7 +322,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (current_eeprom_export_addr >= EEPROM_SIZE)
             {
                 pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
-                USBDEBUGPRINTF_P(PSTR("export: end\n"));
+                USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
                 break;
             }
             
@@ -345,7 +345,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check datalen for arg
             if (datalen != 1)
             {
-                USBDEBUGPRINTF_P(PSTR("import: no param\n"));
+                USBPARSERDEBUGPRINTF_P(PSTR("import: no param\n"));
                 break;
             }
             

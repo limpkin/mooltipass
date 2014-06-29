@@ -40,6 +40,8 @@
 //#define TOUCH_DEBUG_OUTPUT_USB
 // User for general logic
 #define GENERAL_LOGIC_OUTPUT_USB
+// Used for parser general logic
+//#define CMD_PARSER_USB_DEBUG_OUTPUT
 // Used for USB communications
 #define USB_DEBUG_OUTPUT
 

@@ -32,7 +32,6 @@
 #define CMD_ERASE_EEPROM        0x40
 #define CMD_ERASE_FLASH         0x41
 #define CMD_ERASE_SMC           0x42
-
 #define CMD_DRAW_BITMAP         0x43	
     
 /* Packet format defines     */
@@ -48,15 +47,26 @@
 /* Packet defines */
 #define PACKET_EXPORT_SIZE  (RAWHID_TX_SIZE-HID_DATA_START)
 
-typedef struct {
+/*** MACROS ***/
+#ifdef CMD_PARSER_USB_DEBUG_OUTPUT
+    #define USBPARSERDEBUGPRINTF_P(args...) usbPrintf_P(args)
+#else
+    #define USBPARSERDEBUGPRINTF_P(args...)
+#endif
+
+/*** STRUCTS ***/
+typedef struct 
+{
     uint8_t len;
     uint8_t cmd;
-    union {
-	uint8_t data[RAWHID_RX_SIZE-HID_DATA_START];
-	uint32_t addr;
+    union 
+    {
+	    uint8_t data[RAWHID_RX_SIZE-HID_DATA_START];
+	    uint32_t addr;
     } body;
 } usbMsg_t;
 
+/*** PROTOTYPES ***/
 void usbProcessIncoming(uint8_t* incomingData);
 
 #endif

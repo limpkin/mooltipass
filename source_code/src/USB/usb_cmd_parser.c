@@ -111,12 +111,10 @@ void usbProcessIncoming(uint8_t* incomingData)
     {
         // ping command
         case CMD_PING :
-        {
             memcpy((void*)incomingData, (void*)msg->body.data, 2);
             memcpy((void*)incomingData+2, (void*)msg->body.data+2, 2);
             pluginSendMessage(CMD_PING, 4, (char*)incomingData);
             break;
-        }            
 
         // version command
         case CMD_VERSION :

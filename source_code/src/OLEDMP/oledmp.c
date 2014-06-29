@@ -54,6 +54,7 @@
 #include "oledmp.h"
 #include "utils.h"
 #include "flash_mem.h"
+#include "node_mgmt.h"
 #include "usb.h"
 
 // Make sure the USART SPI is selected
@@ -1268,7 +1269,7 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
     bitmap_t bitmap;
 
     uint32_t fileCount, addr;
-    flashRawRead((uint8_t *)&fileCount, FLASH_PAGE_MAPPING_GFX_START*BYTES_PER_PAGE, sizeof(fileCount));
+    flashRawRead((uint8_t *)&fileCount, GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE, sizeof(fileCount));
     usbPrintf_P(PSTR("oled: File count is %u, fileId %u\n"), fileCount, fileId);
 
     if (fileId >= fileCount)
@@ -1279,7 +1280,7 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
     }
 
     flashRawRead((uint8_t *)&addr,
-            FLASH_PAGE_MAPPING_GFX_START*BYTES_PER_PAGE + fileCount * sizeof(uint32_t) + sizeof(uint32_t),
+            GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE + fileId * sizeof(uint32_t) + sizeof(uint32_t),
             sizeof(fileCount));
 
     usbPrintf_P(PSTR("oled: fileId %u address 0x%04x\n"), fileId, addr);

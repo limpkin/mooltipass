@@ -40,9 +40,9 @@ parser.add_option('-o', '--output', help='name of output file', dest='output', d
 def buildBundle(bundlename, files):
 
     data = []
-    header = array('H')
+    header = array('I')
     header.append(len(files))
-    size = 2*len(files) + 2
+    size = 4*len(files) + 4     # leave room for the header
 
     for filename in files:
         fd = open(filename, 'rb')

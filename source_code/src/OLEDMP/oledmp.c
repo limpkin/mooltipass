@@ -1279,8 +1279,6 @@ void oledBitmapDrawRaw(
     uint8_t height = bs->height;
     uint8_t xoff = x - (x / 4) * 4;
 
-    usbPrintf_P(PSTR("oled: draw x=%u y=%u width=%u height=%u\n"), x, y, width, height);
-
     y = (y + oled_offset + oled_writeOffset) & OLED_Y_MASK;
 
     if (!(options & (OLED_SCROLL_UP | OLED_SCROLL_DOWN))) 
@@ -1395,7 +1393,6 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
 
     uint32_t fileCount, addr;
     flashRawRead((uint8_t *)&fileCount, GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE, sizeof(fileCount));
-    usbPrintf_P(PSTR("oled: File count is %u, fileId %u\n"), fileCount, fileId);
     
     // We haven't formatted the memory
     if (fileCount > 200)
@@ -1406,15 +1403,12 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
     if (fileId >= fileCount)
     {
         // invalid file index
-        usbPrintf_P(PSTR("File index %u is invalid. File count is %u\n"), fileId, fileCount);
         return -1;
     }
 
     flashRawRead((uint8_t *)&addr,
             GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE + fileId * sizeof(uint32_t) + sizeof(uint32_t),
             sizeof(fileCount));
-
-    usbPrintf_P(PSTR("oled: fileId %u address 0x%04x\n"), fileId, addr);
 
     flashRawRead((uint8_t *)&bitmap, addr, sizeof(bitmap));
     bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.width, bitmap.height,

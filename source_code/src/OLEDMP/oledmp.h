@@ -126,6 +126,14 @@
 #define OLED_WIDTH			256
 #define OLED_HEIGHT			64
 
+
+// Text line justification options
+enum {
+    OLED_LEFT  = 0,
+    OLED_RIGHT = 1,
+    OLED_CENTRE = 2
+} justify_e;
+
 void oledBegin(uint8_t font);
 void oledInit(void);
 void oledWriteCommand(uint8_t reg);
@@ -189,5 +197,9 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 void oledPutch(char ch);
 uint16_t oledGetTextWidth(char *format, ...);
 uint16_t oledGetTextWidth_P(char *format, ...);
+void oledPutstrXY_P(uint8_t x, uint8_t y, uint8_t justify, const char *str);
+void oledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char *str);
+void oledPutstr_P(const char *str);
+void oledPutstr(const char *str);
 
 #endif

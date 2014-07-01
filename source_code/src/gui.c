@@ -293,6 +293,9 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     oledWriteInactiveBuffer();
     return_value = getTouchUiYesNoAnswer();
     
+    // Get to other bitmap
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    
     return return_value;
 }
 
@@ -316,6 +319,9 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     oledPutstrXY(0, 53, OLED_CENTRE, service);
     oledWriteInactiveBuffer();
     return_value = getTouchUiYesNoAnswer();
+    
+    // Get to other bitmap
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
     
     return return_value;
 }
@@ -466,7 +472,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         
         // Get to other bitmap
         oledWriteInactiveBuffer();
-       oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+        oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
     }    
 
     return temp_address;

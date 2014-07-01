@@ -444,11 +444,89 @@ int oledFputc(char ch, FILE *stream)
     return ch;
 }
 
+/**
+ * print the string on the OLED starting at the current X,Y location
+ * @param str pointer to the ASCIIZ string in ram
+ */
+void oledPutstr(const char *str)
+{
+    while (*str) {
+        oledPutch(*str++);
+    }
+}
 
 /**
- * Set the current X and Y position in the display
- * @param col - X (column position)
- * @param row - Y (row position)
+ * print the string on the OLED starting at the current X,Y location
+ * @param str pointer to the ASCIIZ string in flash
+ */
+void oledPutstr_P(const char *str)
+{
+    while (*str) {
+        oledPutch(pgm_read_byte(str++));
+    }
+}
+
+/**
+ * Print a string at the specified pixel line,
+ * justified left, center, or right of x.
+ * @param x - column position
+ * @param y - row position
+ * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
+ * @param str - pointer to the string in ram
+ */
+void oledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char *str)
+{
+    uint8_t width=0;
+
+    for (uint8_t ind=0,width=0; str[ind] != 0; width += oledGlyphWidth(str[ind]),ind++) {}
+
+    if (justify == OLED_CENTRE)
+    {
+        x -= width/2;
+    } 
+    else if (justify == OLED_RIGHT)
+    {
+        x = x + width;
+    }
+
+    oledSetXY(x, y);
+    oledPutstr(str);
+}
+
+
+/**
+ * Print a string at the specified pixel line,
+ * justified left, center, or right of x.
+ * @param x - column position
+ * @param y - row position
+ * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
+ * @param str - pointer to the string in program memory
+ */
+void oledPutstrXY_P(uint8_t x, uint8_t y, uint8_t justify, const char *str)
+{
+    uint8_t width=0;
+
+    for (uint8_t ind=0,width=0; str[ind] != 0; width += oledGlyphWidth(pgm_read_byte(&str[ind])), ind++) {}
+
+    if (justify == OLED_CENTRE)
+    {
+        x -= width/2;
+    } 
+    else if (justify == OLED_RIGHT)
+    {
+        x = x + width;
+    }
+
+    oledSetXY(x, y);
+    oledPutstr_P(str);
+}
+
+/**
+ * Print a string at the specified pixel line,
+ * justified left, center, or right of x.
+ * @param x - column position
+ * @param y - row position
+ * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  */
 void oledSetXY(uint8_t x, uint8_t y)
 {

@@ -428,7 +428,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             // Print login on screen
             if (i == 0)
             {
-                oledPutstrXY(74, 0, OLED_RIGHT, (char*)c->login);
+                oledPutstrXY(72, 0, OLED_RIGHT, (char*)c->login);
             }
             else if (i == 1)
             {
@@ -436,7 +436,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             }
             else if (i == 2)
             {
-                oledPutstrXY(74, 54, OLED_RIGHT, (char*)c->login);
+                oledPutstrXY(72, 54, OLED_RIGHT, (char*)c->login);
             }
             else
             {

@@ -241,6 +241,15 @@ int main(void)
     // Launch the after HaD logo display tests
     afterHadLogoDisplayTests();  
     
+    // Let's fade in the LEDs
+    for (uint16_t i = 0; i < MAX_PWM_VAL; i++)
+    {
+        setPwmDc(i);
+        _delay_us(888);
+    }
+    activityDetectedRoutine();
+    launchCalibrationCycle();
+    
     while (1)
     {
         card_detect_ret = isCardPlugged();

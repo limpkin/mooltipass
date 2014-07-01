@@ -268,13 +268,12 @@ int8_t getTouchUiQuarterPosition(void)
 */
 void informGuiOfCurrentContext(char* context)
 {
-    return;
-    // Display current context
-    oledClear();
-    oledSetXY(0, 20);
-    printf_P(PSTR("Current context : "));
+    oledBitmapDrawFlash(0, 0, 6, OLED_SCROLL_UP);
+    oledWriteActiveBuffer();
+    oledSetXY(85, 30);
     printf(context);
-    oledFlipBuffers(OLED_SCROLL_UP, 1);
+    oledWriteInactiveBuffer();
+    return;
 }
 
 /*! \fn     guiAskForDomainAddApproval(char* name)
@@ -291,13 +290,13 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     // Draw asking bitmap & wait for user input
     oledBitmapDrawFlash(0, 0, 2, OLED_SCROLL_UP);
     oledWriteActiveBuffer();
-    oledSetXY(85, 25);
+    oledSetXY(85, 30);
     printf(name);
     oledWriteInactiveBuffer();
     return_value = getTouchUiYesNoAnswer();
     
-    // Draw default bitmap
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    // Get to other bitmap
+    oledFlipBuffers(OLED_SCROLL_DOWN, 1);
     
     return return_value;
 }
@@ -317,7 +316,7 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     // Draw asking bitmap & wait for user input
     oledBitmapDrawFlash(0, 0, 3, OLED_SCROLL_UP);
     oledWriteActiveBuffer();
-    oledSetXY(85, 25);
+    oledSetXY(95, 25);
     printf(name);
     oledSetXY(85, 45);
     printf("on ");    
@@ -325,8 +324,8 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     oledWriteInactiveBuffer();
     return_value = getTouchUiYesNoAnswer();
     
-    // Draw default bitmap
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    // Get to other bitmap
+    oledFlipBuffers(OLED_SCROLL_DOWN, 1);
     
     return return_value;
 }
@@ -347,7 +346,7 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
     // Draw asking bitmap & wait for user input
     oledBitmapDrawFlash(0, 0, 4, OLED_SCROLL_UP);
     oledWriteActiveBuffer();
-    oledSetXY(85, 25);
+    oledSetXY(95, 25);
     printf(name);
     oledSetXY(85, 45);
     printf("on ");
@@ -355,8 +354,8 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
     oledWriteInactiveBuffer();
     return_value = getTouchUiYesNoAnswer();
     
-    // Draw default bitmap
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    // Get to other bitmap
+    oledFlipBuffers(OLED_SCROLL_DOWN, 1);
     
     return return_value;
 }
@@ -401,23 +400,24 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     }
     if (c->nextChildAddress == NODE_ADDR_NULL)
     {
+        // Draw asking bitmap
+        oledBitmapDrawFlash(0, 0, 5, OLED_SCROLL_UP);
         oledWriteActiveBuffer();
-        oledClear();
-        oledSetXY(4, 20);
-        printf("Send login ");
-        printf((char*)c->login);
-        printf(" for ");
+        oledSetXY(100, 22);
         printf((char*)p->service);
-        printf("?");
+        oledSetXY(120, 50);
+        printf((char*)c->login);
         oledWriteInactiveBuffer();
         if(getTouchUiYesNoAnswer() == RETURN_OK)
         {
-            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            // Get to other bitmap
+            oledFlipBuffers(OLED_SCROLL_DOWN, 1);
             return temp_address;
         }
         else
         {
-            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            // Get to other bitmap
+            oledFlipBuffers(OLED_SCROLL_DOWN, 1);
             return NODE_ADDR_NULL;
         }
     } 
@@ -481,9 +481,9 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             temp_address = addresses[j];
         }        
         
-        // Draw default bitmap
+        // Get to other bitmap
         oledWriteInactiveBuffer();
-        oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+        oledFlipBuffers(OLED_SCROLL_DOWN, 1);
     }    
 
     return temp_address;

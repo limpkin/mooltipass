@@ -32,18 +32,18 @@
 /**************** DEBUG PRINTFS ****************/
 // Used for smart card testing
 //#define DEBUG_SMC_SCREEN_PRINT
-#undef DEBUG_SMC_USB_PRINT
+//#define DEBUG_SMC_USB_PRINT
 // Used for flash testing prints
 //#define FLASH_TEST_DEBUG_OUTPUT_USB
 //#define FLASH_TEST_DEBUG_OUTPUT_OLED
 // Used for touch interface
 //#define TOUCH_DEBUG_OUTPUT_USB
 // User for general logic
-#undef GENERAL_LOGIC_OUTPUT_USB
+//#define GENERAL_LOGIC_OUTPUT_USB
 // Used for parser general logic
 //#define CMD_PARSER_USB_DEBUG_OUTPUT
 // Used for USB communications
-#undef USB_DEBUG_OUTPUT
+//#define USB_DEBUG_OUTPUT
 
 #define ENABLE_PRINTF		// enable printf for OLED and USB
 
@@ -62,7 +62,7 @@
 
 /**************** PROGRAMMING HARDWARE ****************/
 // Uncomment to go to the original boot loader when smart card inserted at boot
-#define AVR_BOOTLOADER_PROGRAMMING
+//#define AVR_BOOTLOADER_PROGRAMMING
 
 /**************** SMARTCARD FUSE VERSION ****************/
 // First smart card sent to the first contributors

@@ -189,10 +189,12 @@ uint8_t oledGlyphHeight();
 uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg);
 
 void oledPutch(char ch);
+uint16_t oledStrWidth(const char *str);
+uint16_t oledStrWidth_P(const char *str);
 uint16_t oledGetTextWidth(char *format, ...);
 uint16_t oledGetTextWidth_P(char *format, ...);
-void oledPutstrXY_P(uint8_t x, uint8_t y, uint8_t justify, const char *str);
-void oledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char *str);
+void oledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str);
+void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str);
 void oledPutstr_P(const char *str);
 void oledPutstr(const char *str);
 

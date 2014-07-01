@@ -79,13 +79,17 @@
 
 #define OLED_Y_MASK   (OLED_HEIGHT*2 - 1)     // Maxium y index into OLED buffer
 
-static int oledFputc(char ch, FILE *stream);
+#ifdef ENABLE_PRINTF
+    static int oledFputc(char ch, FILE *stream);
+#endif
 
 /*
  * Module Globals
  */
-// Stream for printf/puts operations via the OLEDMP library
-FILE oledStdout = FDEV_SETUP_STREAM(oledFputc, NULL, _FDEV_SETUP_WRITE);
+#ifdef ENABLE_PRINTF
+    // Stream for printf/puts operations via the OLEDMP library
+    FILE oledStdout = FDEV_SETUP_STREAM(oledFputc, NULL, _FDEV_SETUP_WRITE);
+#endif
 
 
 /*
@@ -192,10 +196,12 @@ void oledBegin(uint8_t font)
     oledWriteActiveBuffer();
     oledClear();
 
+#ifdef ENABLE_PRINTF
     // Map stdout to use the OLED display.
     // This means that printf(), printf_P(), puts(), puts_P(), etc 
     // will all output to the OLED display.
     stdout = &oledStdout;
+#endif
 }
 
 
@@ -429,6 +435,7 @@ void oledPutch(char ch)
 }
 
 
+#ifdef ENABLE_PRINTF
 /**
  * Stream putchar implementation.  This is used to implement
  * a FILE stream for stdout enabling printf() and printf_P()
@@ -443,6 +450,7 @@ int oledFputc(char ch, FILE *stream)
 
     return ch;
 }
+#endif
 
 /**
  * print the string on the OLED starting at the current X,Y location
@@ -461,8 +469,11 @@ void oledPutstr(const char *str)
  */
 void oledPutstr_P(const char *str)
 {
-    while (*str) {
-        oledPutch(pgm_read_byte(str++));
+    while (1)
+    {
+        char ch = pgm_read_byte(str++);
+        if (ch == 0) break;
+        oledPutch(ch);
     }
 }
 
@@ -474,19 +485,21 @@ void oledPutstr_P(const char *str)
  * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  * @param str - pointer to the string in ram
  */
-void oledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char *str)
+void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
 {
-    uint8_t width=0;
-
-    for (uint8_t ind=0,width=0; str[ind] != 0; width += oledGlyphWidth(str[ind]),ind++) {}
+    uint16_t width = oledStrWidth(str);
 
     if (justify == OLED_CENTRE)
     {
-        x -= width/2;
+        x = OLED_WIDTH/2 - width/2 + x;
     } 
     else if (justify == OLED_RIGHT)
     {
-        x = x + width;
+        if (x >= width) {
+            x -= width;
+        } else {
+            x = OLED_WIDTH - width;
+        }
     }
 
     oledSetXY(x, y);
@@ -502,19 +515,28 @@ void oledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char *str)
  * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  * @param str - pointer to the string in program memory
  */
-void oledPutstrXY_P(uint8_t x, uint8_t y, uint8_t justify, const char *str)
+void oledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str)
 {
-    uint8_t width=0;
+    uint16_t width = oledStrWidth_P(str);
 
-    for (uint8_t ind=0,width=0; str[ind] != 0; width += oledGlyphWidth(pgm_read_byte(&str[ind])), ind++) {}
+    for (uint8_t ind=0; true; ind++) 
+    {
+        char ch = pgm_read_byte(&str[ind]);
+        if (ch == 0) break;
+        width += oledGlyphWidth(ch);
+    }
 
     if (justify == OLED_CENTRE)
     {
-        x -= width/2;
+        x = OLED_WIDTH/2 - width/2 + x;
     } 
     else if (justify == OLED_RIGHT)
     {
-        x = x + width;
+        if (x >= width) {
+            x -= width;
+        } else {
+            x = OLED_WIDTH - width;
+        }
     }
 
     oledSetXY(x, y);
@@ -898,6 +920,39 @@ void oledReset()
 }
 
 
+
+/**
+ * Return the pixel width of the string.
+ * @param str string to get width of
+ * @return width of string in pixels based on current font
+ */
+uint16_t oledStrWidth(const char *str)
+{
+    uint16_t width=0;
+    for (uint8_t ind=0; str[ind] != 0; ind++) 
+    {
+        width += oledGlyphWidth(str[ind]);
+    }
+    return width;
+}
+
+
+/**
+ * Return the pixel width of the string.
+ * @param str progmem string to get width of
+ * @return width of string in pixels based on current font
+ */
+uint16_t oledStrWidth_P(const char *str)
+{
+    uint16_t width=0;
+    char ch;
+    for (uint8_t ind=0; (ch = (pgm_read_byte(&str[ind]))) != 0; ind++) 
+    {
+        width += oledGlyphWidth(ch);
+    }
+    return width;
+}
+
 /**
  * Return the width of a printf formatted string in pixels.
  * @param fmt - pointer to the printf format string in RAM
@@ -909,20 +964,14 @@ uint16_t oledGetTextWidth(char *fmt, ...)
     va_list ap;
     va_start(ap, fmt);
     char buf[64];
-    uint16_t width = 0;
 
     if (vsnprintf(buf, sizeof(buf), fmt, ap) > 0) 
     {
-        for (uint8_t ind=0; buf[ind] != 0; ind++) 
-        {
-            width += oledGlyphWidth(buf[ind]);
-        }
+        return oledStrWidth(buf);
     }
 
-    return width;
+    return 0;
 } 
-
-
 /**
  * Return the width of a printf formatted flash string in pixels.
  * @param fmt - pointer to the printf format string in progmem
@@ -934,17 +983,13 @@ uint16_t oledGetTextWidth_P(char *fmt, ...)
     va_list ap;
     va_start(ap, fmt);
     char buf[64];
-    uint16_t width = 0;
 
     if (vsnprintf_P(buf, sizeof(buf), fmt, ap) > 0) 
     {
-        for (uint8_t ind=0; buf[ind] != 0; ind++) 
-        {
-            width += oledGlyphWidth(buf[ind]);
-        }
+        return oledStrWidth(buf);
     }
 
-    return width;
+    return 0;
 } 
 
 
@@ -960,7 +1005,7 @@ uint8_t oledGlyphWidth(char ch)
         uint8_t width = oled_fontp->fixedWidth;
         if (width) 
         {
-            return width;
+            return width + 1;
         }
         else 
         {
@@ -974,7 +1019,7 @@ uint8_t oledGlyphWidth(char ch)
                 // default to a space
                 gind = 0;
             }
-            return (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].width));
+            return (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].width)) + 1;
         }
     }
     else 

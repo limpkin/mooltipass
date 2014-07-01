@@ -773,55 +773,58 @@ RET_TYPE usbPutstr(const char *str)
     return pluginSendMessage(CMD_DEBUG, strlen(str), str);
 }
 
-/*! \fn     usbPrintf(const char *fmt, ...)
-*   \brief  print a printf formated string and arguments to the serial port.
-*   \param  fmt    pointer to the printf format string in RAM
-*   \return the number of characters printed
-*   \note   maximum output is limited to 64 characters
-*/
-uint8_t usbPrintf(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    char printBuf[64];  // scratch buffer for printf
 
-    memset(printBuf, 0, sizeof(printBuf));
-    uint8_t ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
-
-    if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
+#ifdef ENABLE_PRINTF
+    /*! \fn     usbPrintf(const char *fmt, ...)
+    *   \brief  print a printf formated string and arguments to the serial port.
+    *   \param  fmt    pointer to the printf format string in RAM
+    *   \return the number of characters printed
+    *   \note   maximum output is limited to 64 characters
+    */
+    uint8_t usbPrintf(const char *fmt, ...)
     {
-        return 0;
-    }
-    else
-    {
-        return ret;
-    }
-}
+        va_list ap;
+        va_start(ap, fmt);
+        char printBuf[64];  // scratch buffer for printf
 
-/*! \fn     usbPrintf_P(const char *fmt, ...)
-*   \brief  print a printf formated string and arguments to the serial port.
-*   \param  fmt    pointer to the printf format string in progmem
-*   \return the number of characters printed
-*   \note   maximum output is limited to 64 characters
-*/
-uint8_t usbPrintf_P(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    char printBuf[64];  // scratch buffer for printf
+        memset(printBuf, 0, sizeof(printBuf));
+        uint8_t ret = vsnprintf(printBuf, sizeof(printBuf), fmt, ap);
 
-    memset(printBuf, 0, sizeof(printBuf));
-    uint8_t ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
+        if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
+        {
+            return 0;
+        }
+        else
+        {
+            return ret;
+        }
+    }
 
-    if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
+    /*! \fn     usbPrintf_P(const char *fmt, ...)
+    *   \brief  print a printf formated string and arguments to the serial port.
+    *   \param  fmt    pointer to the printf format string in progmem
+    *   \return the number of characters printed
+    *   \note   maximum output is limited to 64 characters
+    */
+    uint8_t usbPrintf_P(const char *fmt, ...)
     {
-        return 0;
+        va_list ap;
+        va_start(ap, fmt);
+        char printBuf[64];  // scratch buffer for printf
+
+        memset(printBuf, 0, sizeof(printBuf));
+        uint8_t ret = vsnprintf_P(printBuf, sizeof(printBuf), fmt, ap);
+
+        if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
+        {
+            return 0;
+        }
+        else
+        {
+            return ret;
+        }
     }
-    else
-    {
-        return ret;
-    }
-}
+#endif
 
 /*! \fn     usbKeybPutChar(char ch)
 *   \brief  press a given char on the keyboard

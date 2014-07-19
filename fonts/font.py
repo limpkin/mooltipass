@@ -38,6 +38,8 @@ parser.add_option('-o', '--output', help='name of output file', dest='output', d
 parser.add_option('-d', '--debug', help='enable debug output', action='store_true', dest='debug', default=False)
 (options, args) = parser.parse_args()
 
+CHAR_EURO = 0x20ac      # Euro currency sign, not yet supported
+
 if options.name == None or options.png == None or options.xml == None:
     parser.error('name, png, and xml options are required')
 
@@ -170,7 +172,16 @@ def generateHeader(fontName, pngFilename, xmlFilename):
     #
     fixedWidth = 0
     depth = 2
-    header = pack('=BBBB', int(root.attrib['height']), fixedWidth, depth, len(glyphData)-1)
+    glyphCount = len(glyphData)+1   # add 1 for space character
+
+    # Can't handle 2 byte characters yet, so skip them
+    for char in glyphData.keys():
+        if char > 254:
+            print 'skipping extended character 0x{:x}'.format(char)
+            glyphCount -= 1
+
+    print '{} glyphs'.format(glyphCount)
+    header = pack('=BBBB', int(root.attrib['height']), fixedWidth, depth, glyphCount)
     bfd.write(header)
 
     if options.debug:
@@ -182,7 +193,7 @@ def generateHeader(fontName, pngFilename, xmlFilename):
     glyphHeader = {}
     glyphOffset = 0
     glyphHeaderStr = ''
-    for ch in range(ord(' '), 235):
+    for ch in range(ord(' '), 255):
         if glyphd.has_key(ch):
             chMap.append(index)
             index += 1
@@ -242,7 +253,7 @@ def generateHeader(fontName, pngFilename, xmlFilename):
     # binary glyph header data
     #
     index = 0
-    for ch in range(ord(' '), 235):
+    for ch in range(ord(' '), 255):
         if glyphd.has_key(ch):
             bfd.write(glyphHeader[ch])
             if options.debug:

@@ -28,16 +28,8 @@
 #include <stdbool.h>
 
 // Font selection
-#undef FONT_CHECKBOOK_12
-//#define FONT_DEFAULT font_CHECKBOOK_12
-#undef FONT_CHECKBOOK_14
-//#define FONT_DEFAULT font_CHECKBOOK_14
-#undef FONT_PROFONT_10
-//#define FONT_DEFAULT font_PROFONT_10
-#define FONT_MONO_5x7
-#define FONT_DEFAULT font_MONO_5x7
-#undef FONT_ROBOTO_MEDIUM_14
-//#define FONT_DEFAULT font_ROBOTO_MEDIUM_14
+#define FONT_PROFONT_10 7
+#define FONT_DEFAULT FONT_PROFONT_10
 
 typedef struct
 {
@@ -62,34 +54,35 @@ typedef struct
     } fontData;
 } font_t;
 
-typedef enum 
-{
-    #ifdef FONT_CHECKBOOK_12
-        font_CHECKBOOK_12,
-    #endif
-    #ifdef FONT_CHECKBOOK_14
-        font_CHECKBOOK_14,
-    #endif
-    #ifdef FONT_PROFONT_10
-        font_PROFONT_10,
-    #endif
-    #ifdef FONT_PROFONT_10_100DPI
-        font_PROFONT_10_100DPI,
-    #endif
-    #ifdef FONT_MONO_5x7
-        font_MONO_5x7,
-    #endif
-    #ifdef FONT_ROBOTO_THIN_14
-        font_ROBOTO_THIN_14,
-    #endif
-      #ifdef FONT_ROBOTO_MEDIUM_14
-        font_ROBOTO_MEDIUM_14,
-    #endif
-    #ifdef FONT_BABYBLUE_MEDIUM_12
-        font_BABYBLUE_MEDIUM_12,
-    #endif
-} font_e;
 
-extern font_t fontsHQ[];
+/*
+ * Fonts in SPI Flash
+ * font header with height, width, depth, and map.
+ * bitmaps or glyphs
+ *
+ * Proportional width font:
+ *     flashFont_t, fixedWidth = 0
+ *     count * glyph_t
+ *     count * variable size glyph data indexed from glyph_t
+ *
+ * fixed width font:
+ *     flashFont_t,	fixedWidth = width of font
+ *     count * fixed font data
+ */
+
+
+typedef struct {
+    uint8_t height;         //*< height of font
+    uint8_t fixedWidth;     //*< width of font, 0 = proportional font
+    uint8_t depth;          //*< Number of bits per pixel
+    uint8_t count;          //*< number of characters
+} fontHeader_t;
+
+typedef struct
+{
+    fontHeader_t header;
+    const uint8_t map[256]; //*< ASCII to font map
+    glyph_t glyph[];
+} flashFont_t;
 
 #endif

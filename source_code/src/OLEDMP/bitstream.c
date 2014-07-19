@@ -86,11 +86,13 @@ static inline uint16_t bsGetNextWord(bitstream_t *bs)
     if (bs->_count < bs->_size) 
     {
         bs->_count++;
+#ifdef OLED_FEATURE_PGM_MEMORY
         if (bs->flash) 
         {
             return (uint16_t)pgm_read_word(bs->_datap++);
-        }
-        else if (bs->addr)
+        } else
+#endif
+        if (bs->addr)
         {
             uint16_t data;
             flashRawRead((uint8_t *)&data, bs->addr, sizeof(data));
@@ -119,11 +121,13 @@ static inline uint8_t bsGetNextByte(bitstream_t *bs)
     if (bs->_count < bs->_size) 
     {
         bs->_count++;
+#ifdef OLED_FEATURE_PGM_MEMORY
         if (bs->flash) 
         {
             return pgm_read_byte(bs->_cdatap++);
-        }
-        else if (bs->addr)
+        } else
+#endif
+        if (bs->addr)
         {
             uint8_t data;
             // XXX very ineficient. TODO add a local cache

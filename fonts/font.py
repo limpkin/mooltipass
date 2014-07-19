@@ -165,10 +165,12 @@ def generateHeader(fontName, pngFilename, xmlFilename):
 
     bfd = open('{}.img'.format(options.output), "wb")
 
-    # header
+    #
+    # binary header
+    #
     fixedWidth = 0
     depth = 2
-    header = pack('=BBBB', height, fixedWidth, depth, len(glyphData))
+    header = pack('=BBBB', int(root.attrib['height']), fixedWidth, depth, len(glyphData)-1)
     bfd.write(header)
 
     if options.debug:
@@ -227,19 +229,28 @@ def generateHeader(fontName, pngFilename, xmlFilename):
     if len(chMap) < 256:
         glyphMap.extend([255 for i in range(0, 256-len(chMap))])
 
+
+    #
+    # binary ASCII map table
+    #
+    binaryData = bytearray(glyphMap)
+    bfd.write(binaryData)
+    if options.debug:
+        print "XXX glyphMap: {}".format(['0x{:02x}'.format(item) for item in bytearray(glyphMap)])
+
+    #
+    # binary glyph header data
+    #
+    index = 0
     for ch in range(ord(' '), 235):
         if glyphd.has_key(ch):
             bfd.write(glyphHeader[ch])
             if options.debug:
                 if ch < 127:
-                    print "XXX '{}' hdr: {}".format(chr(ch),['0x{:02x}'.format(item) for item in bytearray(glyphHeader[ch])])
+                    print "XXX '{}' hdr[{}]: {}".format(chr(ch), index, ['0x{:02x}'.format(item) for item in bytearray(glyphHeader[ch])])
                 else:
-                    print "XXX {} hdr: {}".format(ch,['0x{:02x}'.format(item) for item in bytearray(glyphHeader[ch])])
-
-    binaryData = bytearray(glyphMap)
-    bfd.write(binaryData)
-    if options.debug:
-        print "XXX glyphMap: {}".format(['0x{:02x}'.format(item) for item in bytearray(glyphMap)])
+                    print "XXX {} hdr[{}]: {}".format(ch, index, ['0x{:02x}'.format(item) for item in bytearray(glyphHeader[ch])])
+            index += 1
 
     # glyph_t
 
@@ -249,7 +260,9 @@ def generateHeader(fontName, pngFilename, xmlFilename):
 
     print >> outfd, '};\n'
 
-    # glyph data
+    #
+    # binary glyph data
+    #
     offset = 0
     for ch in sorted(glyphd.keys()):
         if ch == ord(' '):

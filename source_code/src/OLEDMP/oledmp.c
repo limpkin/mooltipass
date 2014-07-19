@@ -47,6 +47,7 @@
 #include <util/delay.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <alloca.h>
 
 #include "low_level_utils.h"
 #include "bitstream.h"
@@ -63,6 +64,7 @@
 #endif
 
 #undef OLED_DEBUG
+#define OLED_DEBUG1
 
 // OLED specific port and pin definitions
 #define OLED_PORT_CS	&PORT_OLED_SS
@@ -116,7 +118,12 @@ static struct
     uint16_t pixels;
 } gddram[OLED_HEIGHT*2];
 
-static font_t *oled_fontp;      //*< Current font
+#define FONT_NONE   255
+
+static uint8_t fontId=FONT_NONE;         //*< Current font index in SPI flash
+static uint32_t oledFontAddr;            //*< Address of current font in SPI flash
+static flashFont_t *oled_fontp = (flashFont_t *)0;
+static fontHeader_t currentFont;
 static uint8_t oled_cur_x[2] = { 0, 0 };
 static uint8_t oled_cur_y[2] = { 0, 0 };
 static uint8_t oled_foreground;
@@ -171,7 +178,6 @@ void oledBegin(uint8_t font)
     oled_background = 0;
     oled_offset = 0;
     oled_bufHeight = OLED_HEIGHT;
-    oled_fontp = NULL;
 
     oledSetFont(font);
     
@@ -371,11 +377,11 @@ void oledSetRemap(uint8_t mode)
 void oledPutch(char ch)
 {
     uint8_t glyphHeight = oledGlyphHeight();
-#ifdef OLED_DEBUG
+#ifdef OLED_DEBUG1
     if (isprint(ch)) 
     {
-        usbPrintf_P(PSTR("oledPutch('%c') x=%d, y=%d, oled_offset=%d, buf=%d\n"), 
-                ch, oled_cur_x[oled_writeBuffer], oled_cur_y[oled_writeBuffer], oled_offset, oled_writeBuffer);
+        usbPrintf_P(PSTR("oledPutch('%c') x=%d, y=%d, oled_offset=%d, buf=%d, height=%u\n"), 
+                ch, oled_cur_x[oled_writeBuffer], oled_cur_y[oled_writeBuffer], oled_offset, oled_writeBuffer, glyphHeight);
     }
     else 
     {
@@ -682,12 +688,106 @@ uint8_t oledGetOffset(void)
 
 
 /**
+ * Return the address and type of the media file for the specified file id.
+ * @param fileId index of the media file to read
+ * @param addr pointer to address to fill
+ * @returns -1 on error, else the type of the media file.
+ */
+int16_t oledGetFileAddr(uint8_t fileId, uint32_t *addr)
+{
+    uint32_t fileCount;
+    uint16_t type;
+
+    flashRawRead((uint8_t *)&fileCount, GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE, sizeof(fileCount));
+    
+    // We haven't formatted the memory
+    if (fileCount > 200)
+    {
+#ifdef OLED_DEBUG
+        usbPrintf_P(PSTR("oledGetFileAddr file %d too large\n"),fileId);
+#endif
+        return -1;
+    }
+
+    if (fileId >= fileCount)
+    {
+#ifdef OLED_DEBUG
+        usbPrintf_P(PSTR("oledGetFileAddr file %d too large (count=%ld)\n"),fileId, fileCount);
+#endif
+        // invalid file index
+        return -1;
+    }
+
+    flashRawRead((uint8_t *)addr, GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE +
+                    fileId * sizeof(uint32_t) + sizeof(uint32_t), sizeof(*addr));
+
+    flashRawRead((uint8_t *)&type, *addr, sizeof(type));
+    *addr += sizeof(type);
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("oledGetFileAddr file %d type 0x%x addr 0x%04lx\n"), fileId, type, *addr);
+#endif
+
+    return type;
+}
+
+
+#ifdef OLED_DEBUG
+/**
+ * Dump current font debug.
+ */
+static void oledDumpFont(void)
+{
+    char ch = 'A';
+    uint8_t gind;
+    glyph_t glyph;
+
+    usbPrintf_P(PSTR("font %d, addr 0x%4lx\n"),fontId, oledFontAddr);
+    usbPrintf_P(PSTR("height %u, width %u, depth %d, count %d\n"),
+            currentFont.height,
+            currentFont.fixedWidth,
+            currentFont.depth,
+            currentFont.count);
+
+    flashRawRead(&gind, (uint16_t)oledFontAddr + (uint16_t)&oled_fontp->map[ch - ' '], sizeof(gind));
+
+    usbPrintf_P(PSTR("char '%c' ind %u, offset 0x%x addr 0x%4x\n"), ch, gind, (uint16_t)&oled_fontp->glyph[gind],
+            oledFontAddr + (uint16_t)&oled_fontp->glyph[gind]);
+
+    if (gind == 255) return;
+
+    flashRawRead((uint8_t *)&glyph, oledFontAddr + (uint16_t)&oled_fontp->glyph[gind], sizeof(glyph));
+
+    usbPrintf_P(PSTR("width=%u, xrect=%u, yrect=%u\n"), glyph.width, glyph.xrect, glyph.yrect);
+    usbPrintf_P(PSTR("yoffset=%u, xoffset=%u, gaddr 0x%x\n"), glyph.xoffset, glyph.yoffset, (uint16_t)glyph.glyph);
+}
+#endif
+
+
+/**
  * Set the font to use
  * @param font - new font to use
  */
-void oledSetFont(uint8_t font)
+int8_t oledSetFont(uint8_t fontIndex)
 {
-    oled_fontp = &fontsHQ[font];
+    if (oledGetFileAddr(fontIndex, &oledFontAddr) != MEDIA_FONT)
+    {
+#ifdef OLED_DEBUG
+        usbPrintf_P(PSTR("oled failed to set font %d\n"),fontIndex);
+#endif
+        return -1;
+    }
+
+    flashRawRead((uint8_t *)&currentFont, oledFontAddr, sizeof(currentFont));
+
+    fontId = fontIndex;
+
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("found font at file index %d\n"),fontIndex);
+    usbPrintf_P(PSTR("oled set font %d\n"),fontIndex);
+    oledDumpFont();
+#endif
+
+    return 0;
 }
 
 
@@ -1000,9 +1100,9 @@ uint16_t oledGetTextWidth_P(char *fmt, ...)
  */
 uint8_t oledGlyphWidth(char ch)
 {
-    if (oled_fontp) 
+    if (fontId != FONT_NONE) 
     {
-        uint8_t width = oled_fontp->fixedWidth;
+        uint8_t width = currentFont.fixedWidth;
         if (width) 
         {
             return width + 1;
@@ -1010,16 +1110,17 @@ uint8_t oledGlyphWidth(char ch)
         else 
         {
             uint8_t gind;
-            if (ch >= ' ' && ch <= 0x7f) 
+            if (ch >= ' ')
             {
-                gind = pgm_read_byte(&oled_fontp->map[ch - ' ']);
+                flashRawRead(&gind, oledFontAddr + (uint16_t)&oled_fontp->map[ch - ' '], sizeof(gind));
             }
             else 
             {
                 // default to a space
                 gind = 0;
             }
-            return (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].width)) + 1;
+            flashRawRead((uint8_t *)&width, oledFontAddr + (uint16_t)&(oled_fontp->glyph[gind].width), sizeof(width));
+            return width + 1;
         }
     }
     else 
@@ -1034,9 +1135,9 @@ uint8_t oledGlyphWidth(char ch)
  */
 uint8_t oledGlyphHeight()
 {
-    if (oled_fontp) 
+    if (fontId != FONT_NONE) 
     {
-        return oled_fontp->height + (oled_fontp->fixedWidth ?  1 : 0);
+        return currentFont.height + (currentFont.fixedWidth ?  1 : 0);
     }
     else 
     {
@@ -1062,20 +1163,20 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 {
     //glyph_t glyphDef;
     uint8_t xoff;
-    const uint8_t *glyph;
     uint8_t glyph_width;
     uint8_t glyph_height;
     uint8_t glyph_depth;
-    int8_t glyph_offset = 0;
     int8_t glyph_shift;
     uint8_t gind;
     uint16_t pixel_scale;
+    glyph_t glyph;
+    uint8_t *glyphData = NULL;
 
-#ifdef OLED_DEBUG
+#ifdef OLED_DEBUG1
     usbPrintf_P(PSTR("oled_glyphDraw(x=%d,y=%d,ch='%c')\n"), x, y, ch);
 #endif
 
-    if (oled_fontp == NULL) 
+    if (fontId == FONT_NONE) 
     {
         return 0;
     }
@@ -1087,9 +1188,9 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 
 
     // get glyph index
-    if (ch >= ' ' && ch <= 0x7f)   // XXX replace with size of asciimap
+    if (ch >= ' ')   // XXX replace with size of asciimap
     {
-        gind = pgm_read_byte(&oled_fontp->map[ch - ' ']);
+        flashRawRead(&gind, (uint16_t)oledFontAddr + (uint16_t)&oled_fontp->map[ch - ' '], sizeof(gind));
         if (gind == 255) 
         {
             // no character, use space
@@ -1102,38 +1203,40 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
         gind = 0;
     }
 
-    glyph_depth = oled_fontp->depth;
+    glyph_depth = currentFont.depth;
     glyph_shift = 8 - glyph_depth;
-    glyph_width = oled_fontp->fixedWidth;
+    glyph_width = currentFont.fixedWidth;
     pixel_scale = (oled_foreground<<1) / ((1<<glyph_depth)-1);
     if (glyph_width) 
     {
+        glyph_height = 0;
+#ifdef OLED_FEATURE_FIXED_WIDTH
         // Fixed width font
-        glyph_height = oled_fontp->height;
-        glyph = oled_fontp->fontData.bitmaps + gind*((glyph_width+7)/8) * glyph_height;
+        glyph_height = currentFont.height;
+        glyph = oled_fontp->bitmaps + gind*((glyph_width+7)/8) * glyph_height;
 #ifdef OLED_DEBUG
         usbPrintf_P(PSTR("    glyph 0x%04x index %d\n"), 
                 (uint16_t)oled_fontp->fontData.bitmaps, gind*((glyph_width+7)/8) * glyph_height);
 #endif
+#endif
     }
     else 
     {
-        //memcpy_PF(&glyphDef, &oled_fontp->fontData.glyphs[gind]);
         // proportional width font
-        glyph = (const uint8_t *)pgm_read_word(&oled_fontp->fontData.glyphs[gind].glyph);
-        if (glyph == NULL) 
+        flashRawRead((uint8_t *)&glyph, oledFontAddr + (uint16_t)&oled_fontp->glyph[gind], sizeof(glyph));
+        if (glyph.glyph == NULL) 
         {
             // space character, just fill in the gddram buffer and output background pixels
-            glyph_width = (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].width));
-            glyph_height = oled_fontp->height;
+            glyph_width = glyph.width;
+            glyph_height = currentFont.height;
         }
         else 
         {
-            glyph_width = (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].xrect));
-            glyph_height = (uint8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].yrect));
-            glyph_offset = (int8_t)pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].xoffset));
-            x += glyph_offset;
-            y += (int8_t) pgm_read_byte(&(oled_fontp->fontData.glyphs[gind].yoffset));
+            glyph_width = glyph.xrect;
+            glyph_height = glyph.yrect;
+            glyph_depth = currentFont.depth;
+            x += glyph.xoffset;
+            y += glyph.yoffset;
             if (x < 0) 
             {
                 x = 0;
@@ -1142,18 +1245,20 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             {
                 y = 0;
             }
+            uint16_t gsize = ((glyph_width*glyph_depth + 7)/8) * glyph_height;
+            uint32_t gaddr = oledFontAddr + (uint16_t)&oled_fontp->glyph[currentFont.count] + (uint16_t)glyph.glyph;
+            glyphData = alloca(gsize);
+#ifdef OLED_DEBUG1
+            // glyph data offsets are from the end of the glyph header array
+            usbPrintf_P(PSTR("    glyph '%c' width %d height %d depth %d, addr 0x%lx size %d\n"),
+                        ch, glyph_width, glyph_height, glyph_depth, gaddr, gsize);
+#endif
+            flashRawRead(glyphData, gaddr, gsize);
         }
     }
     xoff = x % 4;
 #ifdef OLED_DEBUG
     usbPrintf_P(PSTR("    glyph width %d height %d depth %d xoff %d\n"), glyph_width, glyph_height, glyph_depth, xoff);
-#endif
-
-#if 0
-    if ((y+glyph_height) > OLED_HEIGHT) 
-    {
-        glyph_height = OLED_HEIGHT-y+1;
-    }
 #endif
 
     // adjust y for the current write buffer target
@@ -1180,7 +1285,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             {
                 if (glyph_pixels <= 0) 
                 {
-                    glyph_byte = glyph ? pgm_read_byte(glyph++) : 0;
+                    glyph_byte = glyphData ? *glyphData++ : 0;
                     glyph_pixels = 8 / glyph_depth;
 #ifdef OLED_DEBUG
                     usbPrintf_P(PSTR("    byte 0x%02x pixels %d\n"), glyph_byte, glyph_pixels);
@@ -1221,7 +1326,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
                 {
                     if (glyph_pixels <= 0) 
                     {
-                        glyph_byte = glyph ? pgm_read_byte(glyph++) : 0;
+                        glyph_byte = glyphData ? *glyphData++ : 0;
                         glyph_pixels = 8 / glyph_depth;
 #ifdef OLED_DEBUG
                     usbPrintf_P(PSTR("    byte 0x%02x pixels %d\n"), glyph_byte, glyph_pixels);
@@ -1246,7 +1351,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
         }
     }
 
-    return (uint8_t)(glyph_width + glyph_offset) + 1;
+    return (uint8_t)(glyph_width + glyph.xoffset) + 1;
 }
 
 
@@ -1354,6 +1459,7 @@ void oledBitmapDrawRaw(
     }
 }
 
+#ifdef OLED_FEATURE_PGM_MEMORY
 /**
  * Draw a rectangular bitmap on the screen at x,y.
  * @param x - x position for the bitmap
@@ -1375,6 +1481,7 @@ void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options)
 
     oledBitmapDrawRaw(x, y, &bs, options);
 }
+#endif
 
 /**
  * Draw a bitmap from a Flash storage slot.
@@ -1390,25 +1497,12 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
 {
     bitstream_t bs;
     bitmap_t bitmap;
+    uint32_t addr;
 
-    uint32_t fileCount, addr;
-    flashRawRead((uint8_t *)&fileCount, GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE, sizeof(fileCount));
-    
-    // We haven't formatted the memory
-    if (fileCount > 200)
+    if (oledGetFileAddr(fileId, &addr) != MEDIA_BITMAP)
     {
         return -1;
     }
-
-    if (fileId >= fileCount)
-    {
-        // invalid file index
-        return -1;
-    }
-
-    flashRawRead((uint8_t *)&addr,
-            GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE + fileId * sizeof(uint32_t) + sizeof(uint32_t),
-            sizeof(fileCount));
 
     flashRawRead((uint8_t *)&bitmap, addr, sizeof(bitmap));
     bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.width, bitmap.height,

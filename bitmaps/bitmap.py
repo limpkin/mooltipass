@@ -155,13 +155,13 @@ def generateCompressedHeader(output, imageName, imageFile, bitDepth=4, wordSize=
 
     print 'count: ',count
 
-    bfd = open('bitmap.img', "wb")
+    bfd = open('{}.img'.format(options.output), "wb")
     header = pack('=HBBBH', width, height, bitDepth, flags, count)
     bfd.write(header)
     binaryData = bytearray(output)
     bfd.write(binaryData)
     bfd.close()
-    print 'write bitmap.img'
+    print 'write {}.img'.format(options.output)
 
 def generateHeader(output, imageName, imageFile, bitDepth=4, wordSize=16):
     ''' Output C code tables for the specified image
@@ -275,6 +275,9 @@ def generateHeader(output, imageName, imageFile, bitDepth=4, wordSize=16):
     print >> outfd, '};'
 
     print 'count: ',count
+
+    if output:
+        outfd.close()
 
 def main():
 

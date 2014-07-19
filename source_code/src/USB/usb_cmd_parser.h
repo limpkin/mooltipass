@@ -33,6 +33,7 @@
 #define CMD_ERASE_FLASH         0x41
 #define CMD_ERASE_SMC           0x42
 #define CMD_DRAW_BITMAP         0x43	
+#define CMD_SET_FONT            0x44
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

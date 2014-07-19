@@ -24,6 +24,7 @@
 */
 #include "smart_card_higher_level_functions.h"
 #include "eeprom_addresses.h"
+#include "interrupts.h"
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
 #include <avr/eeprom.h>
@@ -510,13 +511,29 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             sendPluginOneByteAnswer(CMD_ERASE_SMC, plugin_return_value, incomingData); 
             break;
-        }   
+        }
         
         case CMD_DRAW_BITMAP :
         {
             usbPrintf_P(PSTR("draw bitmap file %d\n"), msg->body.data[0]);
             oledBitmapDrawFlash(0, 0, msg->body.data[0], OLED_SCROLL_UP);
             break;
+        }
+
+        case CMD_SET_FONT :
+        {
+            usbPrintf_P(PSTR("set font file %d\n"), msg->body.data[0]);
+            oledSetFont(msg->body.data[0]);
+            oledFlipDisplayedBuffer();
+            oledWriteActiveBuffer();
+            oledClear();
+            uint32_t start = millis();
+            printf_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+            printf_P(PSTR("abcdefghijklmnopqrstuvwxyz:~#$"));
+            printf_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+            printf_P(PSTR("abcdefghijklmnopqrstuvwxyz:~#$"));
+            uint32_t end = millis();
+            usbPrintf_P(PSTR("Time to print: %lu msecs\n"),end-start);
         }
 #endif
 

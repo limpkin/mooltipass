@@ -127,6 +127,10 @@
 #define OLED_WIDTH			256
 #define OLED_HEIGHT			64
 
+/* Media file types */
+#define MEDIA_BITMAP		1
+#define MEDIA_FONT		2
+
 
 // Text line justification options
 enum {
@@ -155,9 +159,12 @@ void oledOn(void);
 #define OLED_SCROLL_DOWN	2
 #define OLED_RAM_BITMAP		4
 
+int16_t oledGetFileAddr(uint8_t fileId, uint32_t *addr);
 void oledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_t *bs, uint8_t options);
 int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
+#ifdef OLED_FEATURE_PGM_MEMORY
 void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options);
+#endif
 
 void oledSetDisplayStartLine(uint8_t line);
 void oledMoveDisplayStartLine(int8_t offset);
@@ -169,7 +176,7 @@ void oledWriteInactiveBuffer(void);
 
 void oledSetScrollSpeed(double delay);
 void oledSetWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend);
-void oledSetFont(uint8_t font);
+int8_t oledSetFont(uint8_t fontIndex);
 void oledSetColour(uint8_t colour);
 void oledSetContrast(uint8_t contrast);
 void oledSetRemap(uint8_t mode);

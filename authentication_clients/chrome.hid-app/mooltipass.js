@@ -72,6 +72,7 @@ var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
 var CMD_ERASE_SMC           = 0x42;
 var CMD_DRAW_BITMAP         = 0x43;
+var CMD_SET_FONT            = 0x44;
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
@@ -443,6 +444,7 @@ function initWindow()
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
     var eraseMediaButton = document.getElementById("eraseMedia");
     var drawBitmapButton = document.getElementById("drawBitmap");
+    var setFontButton = document.getElementById("setFont");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -653,8 +655,15 @@ function initWindow()
     drawBitmapButton.addEventListener('click', function() 
     {
         log('#messageLog', 'drawing bitmap 0');
-        args = new Uint8Array([0]);
+        args = new Uint8Array([1]);
         sendRequest(CMD_DRAW_BITMAP, args);
+    });
+
+    setFontButton.addEventListener('click', function() 
+    {
+        log('#messageLog', 'set font 7');
+        args = new Uint8Array([7]);
+        sendRequest(CMD_SET_FONT, args);
     });
 
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
@@ -759,6 +768,7 @@ function initWindow()
     $("#eraseSmartcard").button();
     $("#eraseMedia").button();
     $("#drawBitmap").button();
+    $("#setFont").button();
     $("#tabs").tabs();
 };
 
@@ -1090,7 +1100,7 @@ function onDeviceFound(devices)
     var ind = devices.length - 1;
     console.log('Found ' + devices.length + ' devices.');
     console.log('Device ' + devices[ind].deviceId + ' vendor' + devices[ind].vendorId + ' product ' + devices[ind].productId);
-    console.log('Device usage 0 usage_page' + devices[ind].usages[0].usage_page + ' usage ' + devices[ind].usages[0].usage);
+    //console.log('Device usage 0 usage_page' + devices[ind].usages[0].usage_page + ' usage ' + devices[ind].usages[0].usage);
     var devId = devices[ind].deviceId;
 
     console.log('Connecting to device '+devId);

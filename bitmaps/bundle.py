@@ -27,20 +27,25 @@
 # Bundle a collection of bitmaps into a flat image with indices that can
 # be imported into the SPI flash media region on the mooltipass
 #
+# Note: fonts are expected to have the word "font" in their filename
+#
 
 import sys
 from optparse import OptionParser
 from struct import *
 from array import array
 
-parser = OptionParser(usage = 'usage: %prog [options] bitmap1 bitmap2 bitmap3')
+parser = OptionParser(usage = '''usage: %prog [options] bitmap1 bitmap2 font1 bitmap3 font2
+    note: a filename that contains word "font" will be stored as a font
+          other files are stored as bitmaps''')
 parser.add_option('-o', '--output', help='name of output file', dest='output', default='bundle.img')
 (options, args) = parser.parse_args()
 
 FLASH_PAGE_SIZE = 264
+MEDIA_BITMAP = 1
+MEDIA_FONT   = 2
 
 def buildBundle(bundlename, files):
-
     data = []
     header = array('I')
     header.append(len(files))
@@ -50,21 +55,34 @@ def buildBundle(bundlename, files):
     for filename in files:
         fd = open(filename, 'rb')
         image = fd.read()
+
+        imageType = array('H')
+        if 'font' in filename:
+            imageType.append(MEDIA_FONT)
+            print '    0x{:04x}: size {} bytes, font {}'.format(size,len(image)+2, filename)
+        else:
+            imageType.append(MEDIA_BITMAP)
+            print '    0x{:04x}: size {} bytes, bmap {}'.format(size,len(image)+2, filename)
+
         header.append(size)
-        size += len(image)
-        data.append(image)
+        size += len(image) + 2      # 2 bytes for type prefix
+        data.append((filename, imageType,image))
         fd.close()
     print 'total size: {}'.format(size-reserve)
 
+    print 'Writing to {}'.format(bundlename)
     bfd = open(bundlename,  "wb")
     header.tofile(bfd)
-    for image in data:
+    offset = 0
+    for filename,imageType,image in data:
+        #print '    0x{:04x}: {} {}'.format(offset, imageType, image)
+        imageType.tofile(bfd)
         bfd.write(image)
+        offset += len(image)+2
     bfd.close()
     print 'wrote {} bytes to {}'.format(size-reserve, bundlename)
 
 def main():
-
     buildBundle(options.output, args)
 
 if __name__ == "__main__":

@@ -127,11 +127,6 @@ int main(void)
     while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 
-    // OLED screen is reversed on Olivier's design
-    #ifdef HARDWARE_OLIVIER_V1
-        oledSetRemap(OLED_REMAP_NIBBLES|OLED_REMAP_COL_ADDR);
-    #endif
-    
     // Launch the before flash initialization tests
     beforeFlashInitTests();
     
@@ -143,6 +138,12 @@ int main(void)
     
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
+
+    // OLED screen is reversed on Olivier's design
+    #ifdef HARDWARE_OLIVIER_V1
+        oledSetRemap(OLED_REMAP_NIBBLES|OLED_REMAP_COL_ADDR);
+    #endif
+    
     oledSetColour(15);
     oledSetBackground(0);
     oledSetContrast(0xFF);

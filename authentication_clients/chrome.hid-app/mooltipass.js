@@ -443,8 +443,6 @@ function initWindow()
     var eraseFlashButton = document.getElementById("eraseFlash");
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
     var eraseMediaButton = document.getElementById("eraseMedia");
-    var drawBitmapButton = document.getElementById("drawBitmap");
-    var setFontButton = document.getElementById("setFont");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -652,20 +650,6 @@ function initWindow()
         });
     });
 
-    drawBitmapButton.addEventListener('click', function() 
-    {
-        log('#messageLog', 'drawing bitmap 0');
-        args = new Uint8Array([1]);
-        sendRequest(CMD_DRAW_BITMAP, args);
-    });
-
-    setFontButton.addEventListener('click', function() 
-    {
-        log('#messageLog', 'set font 7');
-        args = new Uint8Array([7]);
-        sendRequest(CMD_SET_FONT, args);
-    });
-
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
         console.log(sender.tab ?  'from a content script:' + sender.tab.url : 'from the extension');
@@ -767,9 +751,28 @@ function initWindow()
     $("#eraseEeprom").button();
     $("#eraseSmartcard").button();
     $("#eraseMedia").button();
-    $("#drawBitmap").button();
-    $("#setFont").button();
     $("#tabs").tabs();
+
+    $("#drawBitmap").menu({
+        select: function(event, ui) {
+            if (ui.item.text().length < 3) 
+            {
+                log('#messageLog', 'draw bitmap '+ui.item.text()+'\n');
+                args = new Uint8Array([ui.item.text()]);
+                sendRequest(CMD_DRAW_BITMAP, args);
+            }
+        }
+    });
+    $("#setFont").menu({
+        select: function(event, ui) {
+            if (ui.item.text().length < 3) 
+            {
+                log('#messageLog', 'set font '+ui.item.text()+'\n');
+                args = new Uint8Array([ui.item.text()]);
+                sendRequest(CMD_SET_FONT, args);
+            }
+        }
+    });
 };
 
 /**

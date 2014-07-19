@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <title>Mooltipass Client</title>
-  <link rel="stylesheet" href="/jquery-ui-1.10.4.custom/css/trontastic/jquery-ui-1.10.4.custom.min.css">
-  <script src="/jquery-ui-1.10.4.custom/js/jquery-1.10.2.js"></script>
-  <script src="/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js"></script>
+  <link rel="stylesheet" href="/jquery-ui/jquery-ui.css">
+  <script src="/jquery-ui/external/jquery/jquery.js"></script>
+  <script src="/jquery-ui/jquery-ui.js"></script>
   <script src="mooltipass.js"></script>
 </head>
 <body>
@@ -85,16 +85,28 @@
 	    <textarea id="developerLog" style="height:100; width:280px" class="ui-widget ui-state-default ui-corner-all" disabled>
 	    </textarea>
 	</div>
-	<h3>Bitmaps</h3>
+	<h3>Media</h3>
 	<div>
-	    <ul>
-	        <li><button id="drawBitmap" style="width:150px">Draw bitmap 0</button></li>
+	    <ul id="drawBitmap" style="width:150px">
+		<li>Draw bitmap
+		    <ul>
+			<li>0</li>
+			<li>1</li>
+			<li>2</li>
+			<li>3</li>
+			<li>4</li>
+			<li>5</li>
+			<li>6</li>
+		    </ul>
+		</li>
 	    </ul>
-	</div>
-	<h3>Fonts</h3>
-	<div>
-	    <ul>
-	        <li><button id="setFont" style="width:150px">Set Font 7</button></li>
+	    <ul id="setFont" style="width:150px">
+		<li>Set Font
+		    <ul>
+			<li>7</li>
+			<li>8</li>
+		    </ul>
+		</li>
 	    </ul>
 	</div>
    </div>

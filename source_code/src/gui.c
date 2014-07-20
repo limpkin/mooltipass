@@ -29,6 +29,7 @@
 #include "node_mgmt.h"
 #include "defines.h"
 #include "oledmp.h"
+#include "anim.h"
 #include "touch.h"
 #include "pwm.h"
 #include "gui.h"
@@ -268,10 +269,12 @@ int8_t getTouchUiQuarterPosition(void)
 */
 void informGuiOfCurrentContext(char* context)
 {
-    oledBitmapDrawFlash(0, 0, 6, OLED_SCROLL_UP);
-    oledWriteActiveBuffer();
-    oledPutstrXY(0, 30, OLED_CENTRE, context);
     oledWriteInactiveBuffer();
+    oledClear();
+    oledBitmapDrawFlash(0, 0, BITMAP_SIDES, 0);
+    oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("You are currently visiting:"));
+    oledPutstrXY(0, 30, OLED_CENTRE, context);
+    oledFlipBuffers(OLED_SCROLL_UP, 0);
     return;
 }
 
@@ -285,12 +288,15 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     
     // Switch on lights
     activityDetectedRoutine();
-    
+
     // Draw asking bitmap & wait for user input
-    oledBitmapDrawFlash(0, 0, 2, OLED_SCROLL_UP);
-    oledWriteActiveBuffer();
-    oledPutstrXY(0, 30, OLED_CENTRE, name);
     oledWriteInactiveBuffer();
+    oledClear();
+    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
+    oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Confirm new credentials for:"));
+    oledPutstrXY(0, 30, OLED_CENTRE, name);
+    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    
     return_value = getTouchUiYesNoAnswer();
     
     // Get to other bitmap
@@ -312,12 +318,15 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     activityDetectedRoutine();
     
     // Draw asking bitmap & wait for user input
-    oledBitmapDrawFlash(0, 0, 3, OLED_SCROLL_UP);
-    oledWriteActiveBuffer();
-    oledPutstrXY(0, 23, OLED_CENTRE, name);
-    oledPutstrXY(0, 38, OLED_CENTRE, "on");
-    oledPutstrXY(0, 53, OLED_CENTRE, service);
     oledWriteInactiveBuffer();
+    oledClear();
+    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
+    oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Add username:"));
+    oledPutstrXY(0, 21, OLED_CENTRE, name);
+    oledPutstrXY(0, 36, OLED_CENTRE, "on");
+    oledPutstrXY(0, 52, OLED_CENTRE, service);
+    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    
     return_value = getTouchUiYesNoAnswer();
     
     // Get to other bitmap
@@ -340,12 +349,15 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
     activityDetectedRoutine();
     
     // Draw asking bitmap & wait for user input
-    oledBitmapDrawFlash(0, 0, 4, OLED_SCROLL_UP);
-    oledWriteActiveBuffer();
-    oledPutstrXY(0, 23, OLED_CENTRE, name);
-    oledPutstrXY(0, 38, OLED_CENTRE, "on");
-    oledPutstrXY(0, 53, OLED_CENTRE, service);
     oledWriteInactiveBuffer();
+    oledClear();
+    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
+    oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Change password for:"));
+    oledPutstrXY(0, 21, OLED_CENTRE, name);
+    oledPutstrXY(0, 36, OLED_CENTRE, "on");
+    oledPutstrXY(0, 52, OLED_CENTRE, service);
+    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    
     return_value = getTouchUiYesNoAnswer();
     
     // Get to other bitmap
@@ -395,11 +407,15 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     if (c->nextChildAddress == NODE_ADDR_NULL)
     {
         // Draw asking bitmap
-        oledBitmapDrawFlash(0, 0, 5, OLED_SCROLL_UP);
-        oledWriteActiveBuffer();
-        oledPutstrXY(0, 21, OLED_CENTRE, (char*)p->service);
-        oledPutstrXY(0, 52, OLED_CENTRE, (char*)c->login);
         oledWriteInactiveBuffer();
+        oledClear();
+        oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
+        oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Confirm login for"));
+        oledPutstrXY(0, 21, OLED_CENTRE, (char*)p->service);
+        oledPutstrXY_P(0, 36, OLED_CENTRE, PSTR("with these credentials:"));
+        oledPutstrXY(0, 52, OLED_CENTRE, (char*)c->login);
+        oledFlipBuffers(OLED_SCROLL_UP, 0);
+        
         if(getTouchUiYesNoAnswer() == RETURN_OK)
         {
             // Get to other bitmap
@@ -416,11 +432,12 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     else
     {
         // Draw asking bitmap
-        oledBitmapDrawFlash(0, 0, 1, OLED_SCROLL_UP);
+        oledClear();
+        oledBitmapDrawFlash(0, 0, BITMAP_LOGIN, OLED_SCROLL_UP);
         oledWriteActiveBuffer();
         
         // Write domain name on screen
-        oledPutstrXY(0, 28, OLED_CENTRE, (char*)p->service);
+        oledPutstrXY(0, 24, OLED_CENTRE, (char*)p->service);
         
         // List logins on screen
         while ((temp_address != NODE_ADDR_NULL) && (i != 4))
@@ -434,19 +451,19 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             // Print login on screen
             if (i == 0)
             {
-                oledPutstrXY(72, 0, OLED_RIGHT, (char*)c->login);
+                oledPutstrXY(0, 4, OLED_LEFT, (char*)c->login);
             }
             else if (i == 1)
             {
-                oledPutstrXY(184, 0, OLED_LEFT, (char*)c->login);
+                oledPutstrXY(255, 4, OLED_RIGHT, (char*)c->login);
             }
             else if (i == 2)
             {
-                oledPutstrXY(72, 54, OLED_RIGHT, (char*)c->login);
+                oledPutstrXY(0, 48, OLED_LEFT, (char*)c->login);
             }
             else
             {
-                oledPutstrXY(184, 54, OLED_LEFT, (char*)c->login);
+                oledPutstrXY(255, 48, OLED_RIGHT, (char*)c->login);
             }            
             
             // Store address in array, fetch next address

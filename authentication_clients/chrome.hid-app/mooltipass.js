@@ -757,8 +757,8 @@ function initWindow()
         select: function(event, ui) {
             if (ui.item.text().length < 3) 
             {
-                log('#messageLog', 'draw bitmap '+ui.item.text()+'\n');
-                args = new Uint8Array([ui.item.text()]);
+                args = new Uint8Array([ui.item.text(), $('#bitmap_x').val(), $('#bitmap_y').val(), $("#bitmap_clear").is(':checked') ? 1 : 0]);
+                log('#messageLog', 'draw bitmap '+ui.item.text()+' x='+args[1]+', y='+args[2]+', clear='+args[3]+'\n');
                 sendRequest(CMD_DRAW_BITMAP, args);
             }
         }

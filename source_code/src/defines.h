@@ -45,7 +45,7 @@
 // Used for USB communications
 //#define USB_DEBUG_OUTPUT
 
-#define ENABLE_PRINTF		// enable printf for OLED and USB
+#undef ENABLE_PRINTF		// enable printf for OLED and USB
 
 #ifndef ENABLE_PRINTF
     #define printf(...)
@@ -106,6 +106,9 @@ typedef int8_t RET_TYPE;
 #define RUN_FLASH_TEST_ERASE_BLOCK
 #define RUN_FLASH_TEST_ERASE_SECTOR_X
 #define RUN_FLASH_TEST_ERASE_SECTOR_0
+
+/**************** FEATURE SELECTION ****************/
+#define USB_FEATURE_SECURITY            
 
 /**************** DEFINES PORTS ****************/
 #ifdef HARDWARE_V1

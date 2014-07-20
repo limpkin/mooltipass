@@ -103,8 +103,10 @@ void usbProcessIncoming(uint8_t* incomingData)
     // Get data cmd
     uint8_t datacmd = msg->cmd;
     
+#ifdef USB_FEATURE_SECURITY            
     // Temp ret_type
     RET_TYPE temp_rettype;
+#endif
 
     // Debug comms
     // USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
@@ -128,7 +130,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             pluginSendMessage(CMD_VERSION, 2, (char*)incomingData);
             break;
         }            
-            
+#ifdef USB_FEATURE_SECURITY            
         // context command
         case CMD_CONTEXT :
         {
@@ -277,6 +279,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             sendPluginOneByteAnswer(CMD_ADD_CONTEXT, plugin_return_value, incomingData);    
             break;
         }
+#endif
             
         // export flash contents
         case CMD_EXPORT_FLASH :
@@ -516,7 +519,16 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_DRAW_BITMAP :
         {
             usbPrintf_P(PSTR("draw bitmap file %d\n"), msg->body.data[0]);
-            oledBitmapDrawFlash(0, 0, msg->body.data[0], OLED_SCROLL_UP);
+            if (msg->body.data[3] != 0)     // clear
+            {
+                oledWriteActiveBuffer();
+                oledClear();
+                oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);
+            } else {
+                // don't clear, overlay active screen
+                oledWriteActiveBuffer();
+                oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);
+            }
             break;
         }
 
@@ -524,16 +536,18 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             usbPrintf_P(PSTR("set font file %d\n"), msg->body.data[0]);
             oledSetFont(msg->body.data[0]);
+#if 0
             oledFlipDisplayedBuffer();
             oledWriteActiveBuffer();
             oledClear();
             uint32_t start = millis();
-            printf_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
-            printf_P(PSTR("abcdefghijklmnopqrstuvwxyz:~#$"));
-            printf_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
-            printf_P(PSTR("abcdefghijklmnopqrstuvwxyz:~#$"));
+            oledPutstr_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+            oledPutstr_P(PSTR("abcdefghijklmnopqrstuvwxyz:~#$"));
+            oledPutstr_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+            oledPutstr_P(PSTR("abcdefghijklmnopqrstuvwxyz:~#$"));
             uint32_t end = millis();
             usbPrintf_P(PSTR("Time to print: %lu msecs\n"),end-start);
+#endif
         }
 #endif
 

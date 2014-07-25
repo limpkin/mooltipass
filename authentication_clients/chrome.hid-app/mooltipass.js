@@ -952,7 +952,12 @@ function onDataReceived(data)
                 if (authReq && authReq.pending) {
                     log('#messageLog',  authReq.pending.type);
                     var value = arrayToStr(new Uint8Array(data.slice(2)));
-                    log('#messageLog', ': "'+value+'"\n');
+                    var pvalue = value;
+                    if (cmd == CMD_GET_PASSWORD) {
+                        // don't log the password
+                        pvalue = pvalue.replace(/./gi, '*');
+                    }
+                    log('#messageLog', ': "'+pvalue+'"\n');
                     storeField(value);
                 } else {
                     // no pending credential request

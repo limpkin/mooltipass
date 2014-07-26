@@ -25,7 +25,7 @@ The following commands are currently implemented:
 
 0x03: version request
 ---------------------
-(From Plugin/App & Mooltipass): responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet
+(From Plugin/App & Mooltipass): responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet. The third byte contains the FLASH_CHIP define which specifies how much memory the Mooltipass has.
 
 0x04: set context
 -----------------

@@ -24,17 +24,14 @@
 */
 #include "smart_card_higher_level_functions.h"
 #include "eeprom_addresses.h"
-#include "interrupts.h"
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
 #include <avr/eeprom.h>
-#include <util/delay.h>
-#include "flash_mem.h"
 #include "node_mgmt.h"
+#include "flash_mem.h"
 #include <string.h>
-#include <stdint.h>
-#include "usb.h"
 #include "oledmp.h"
+ #include "usb.h"
 
 // Current address in flash we need to export
 uint32_t current_flash_export_addr = 0;
@@ -103,7 +100,7 @@ void usbProcessIncoming(uint8_t* incomingData)
     // Get data cmd
     uint8_t datacmd = msg->cmd;
     
-#ifdef USB_FEATURE_SECURITY            
+#ifdef USB_FEATURE_PLUGIN_COMMS            
     // Temp ret_type
     RET_TYPE temp_rettype;
 #endif
@@ -127,10 +124,12 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             incomingData[0] = 0x01;
             incomingData[1] = 0x01;
-            pluginSendMessage(CMD_VERSION, 2, (char*)incomingData);
+			incomingData[2] = FLASH_CHIP;
+            pluginSendMessage(CMD_VERSION, 3, (char*)incomingData);
             break;
-        }            
-#ifdef USB_FEATURE_SECURITY            
+        }
+		
+#ifdef USB_FEATURE_PLUGIN_COMMS            
         // context command
         case CMD_CONTEXT :
         {
@@ -307,8 +306,14 @@ void usbProcessIncoming(uint8_t* incomingData)
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
                 break;
             }
+			
+			// Check how much data we need in case we're close to the graphics section
+			if ((current_flash_export_addr < GRAPHIC_ZONE_START) && ((GRAPHIC_ZONE_START - current_flash_export_addr) < (uint32_t)PACKET_EXPORT_SIZE))
+			{
+				size = (uint8_t)(GRAPHIC_ZONE_START - current_flash_export_addr);
+			}
             
-            // Check how much data we need
+            // Check how much data we need in case we're close to the flash end
             if ((FLASH_SIZE - current_flash_export_addr) < (uint32_t)PACKET_EXPORT_SIZE)
             {
                 size = (uint8_t)(FLASH_SIZE - current_flash_export_addr);
@@ -318,6 +323,12 @@ void usbProcessIncoming(uint8_t* incomingData)
             flashRawRead(incomingData, current_flash_export_addr, size);
             pluginSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
             current_flash_export_addr += size;
+			
+			// Skip over the graphics address if we're in that case
+			if (current_flash_export_addr == GRAPHIC_ZONE_START)
+			{
+				current_flash_export_addr = GRAPHIC_ZONE_END;
+			}
             break;
         }            
             
@@ -403,7 +414,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_IMPORT_FLASH :
         {
             // Check if we actually approved the import, haven't gone over the flash boundaries, if we're correctly aligned page size wise
-            if ((flash_import_approved == FALSE) || (current_flash_import_page >= PAGE_COUNT) || (current_flash_import_page_pos + datalen > BYTES_PER_PAGE) || ((flash_import_user_space == FALSE) && (current_flash_import_page >= PAGE_PER_SECTOR)))
+            if ((flash_import_approved == FALSE) || (current_flash_import_page >= PAGE_COUNT) || (current_flash_import_page_pos + datalen > BYTES_PER_PAGE) || ((flash_import_user_space == FALSE) && (current_flash_import_page >= GRAPHIC_ZONE_PAGE_END)))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
@@ -422,7 +433,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                     // If we are importing user contents, skip the graphics zone
                     if ((flash_import_user_space == TRUE) && (current_flash_import_page == GRAPHIC_ZONE_PAGE_START))
                     {
-                        //current_flash_import_page = PAGE_PER_SECTOR;
+                        current_flash_import_page = GRAPHIC_ZONE_PAGE_END;
                     }
                 }
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -524,7 +535,9 @@ void usbProcessIncoming(uint8_t* incomingData)
                 oledWriteActiveBuffer();
                 oledClear();
                 oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);
-            } else {
+            } 
+			else 
+			{
                 // don't clear, overlay active screen
                 oledWriteActiveBuffer();
                 oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);

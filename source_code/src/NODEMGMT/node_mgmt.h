@@ -93,6 +93,8 @@ typedef enum _nodeType
 
 #define GRAPHIC_ZONE_START          (NODE_MAX_UID*USER_PROFILE_SIZE)
 #define GRAPHIC_ZONE_PAGE_START     (GRAPHIC_ZONE_START/BYTES_PER_PAGE)
+#define GRAPHIC_ZONE_END			((uint32_t)((uint32_t)SECTOR_START*(uint32_t)PAGE_PER_SECTOR*(uint32_t)BYTES_PER_PAGE))
+#define GRAPHIC_ZONE_PAGE_END		((uint32_t)(GRAPHIC_ZONE_END/BYTES_PER_PAGE))
 
 /*!
 *  Node Deletion Policy ENUM 

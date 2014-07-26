@@ -108,7 +108,8 @@ typedef int8_t RET_TYPE;
 #define RUN_FLASH_TEST_ERASE_SECTOR_0
 
 /**************** FEATURE SELECTION ****************/
-#define USB_FEATURE_SECURITY            
+// Used for browser plugin communications
+#define USB_FEATURE_PLUGIN_COMMS            
 
 /**************** DEFINES PORTS ****************/
 #ifdef HARDWARE_V1

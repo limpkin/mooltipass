@@ -287,37 +287,52 @@ int main(void)
             temp_rettype = cardDetectedRoutine();
             activityDetectedRoutine();
 
-            if (temp_rettype == RETURN_MOOLTIPASS_INVALID)              // Invalid card
+            // Problem with card
+            if ((temp_rettype == RETURN_MOOLTIPASS_PB) || (temp_rettype == RETURN_MOOLTIPASS_INVALID))
             {
-                printSMCDebugInfoToScreen();
-                removeFunctionSMC();                                    // Shut down card reader
-            }
-            else if (temp_rettype == RETURN_MOOLTIPASS_PB)              // Problem with card
-            {
+                oledClear();
+                oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("PB with card"));
+                oledFlipBuffers(OLED_SCROLL_UP, 5);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLOCKED)         // Card blocked
             {
+                oledClear();
+                oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("Card blocked"));
+                oledFlipBuffers(OLED_SCROLL_UP, 5);
                 printSMCDebugInfoToScreen();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
             {
-                // Here we should ask the user to setup his mooltipass card
-                // Create a new user with his new smart card
-                if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
+                // Ask the user to setup his mooltipass card
+                if (guiAskForConfirmation(PSTR("Create new mooltipass user?")) == RETURN_OK)
                 {
-                    #ifdef GENERAL_LOGIC_OUTPUT_USB
-                        usbPutstr_P(PSTR("New user and new card added\n"));
-                    #endif
-                    setSmartCardInsertedUnlocked();
-                } 
-                else
-                {
-                    #ifdef GENERAL_LOGIC_OUTPUT_USB
-                        usbPutstr_P(PSTR("Couldn't add new user"));
-                    #endif
+                    // Create a new user with his new smart card
+                    if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
+                    {
+                        #ifdef GENERAL_LOGIC_OUTPUT_USB
+                            usbPutstr_P(PSTR("New user and new card added\n"));
+                        #endif
+                        
+                        oledClear();
+                        oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("User added"));
+                        oledFlipBuffers(OLED_SCROLL_UP, 5);
+                        setSmartCardInsertedUnlocked();
+                    }
+                    else
+                    {
+                        #ifdef GENERAL_LOGIC_OUTPUT_USB
+                            usbPutstr_P(PSTR("Couldn't add new user"));
+                        #endif
+                        
+                        oledClear();
+                        oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("Couldn't add"));
+                        oledFlipBuffers(OLED_SCROLL_UP, 5);
+                    }
+                    _delay_ms(2000);
+                    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
                 }
                 printSMCDebugInfoToScreen();                            // Print smartcard info
             }
@@ -329,22 +344,44 @@ int main(void)
                     usbPrintf_P(PSTR("%d cards\r\n"), getNumberOfKnownCards());
                     usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
                 #endif
+                
                 // See if we know the card and if so fetch the user id & CTR nonce
                 if (getUserIdFromSmartCardCPZ(temp_buffer, temp_ctr_val, &temp_user_id) == RETURN_OK)
                 {
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
                         usbPrintf_P(PSTR("Card ID found with user %d\r\n"), temp_user_id);
                     #endif
-                    mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
-                    readAES256BitsKey(temp_buffer);
-                    initUserFlashContext(temp_user_id);
-                    initEncryptionHandling(temp_buffer, temp_ctr_val);
-                    setSmartCardInsertedUnlocked();
+                    
+                    // Developer mode, enter default pin code
+                    #ifdef NO_PIN_CODE_REQUIRED
+                        mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                        readAES256BitsKey(temp_buffer);
+                        initUserFlashContext(temp_user_id);
+                        initEncryptionHandling(temp_buffer, temp_ctr_val);
+                        setSmartCardInsertedUnlocked();
+                        oledClear();
+                        oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("Card unlocked"));
+                        oledFlipBuffers(OLED_SCROLL_UP, 5);
+                        _delay_ms(2000);
+                        oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+                    #endif
                 }
                 else
                 {
-                    mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
-                    setSmartCardInsertedUnlocked();
+                    oledClear();
+                    oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("Card ID not found"));
+                    oledFlipBuffers(OLED_SCROLL_UP, 5);
+                    _delay_ms(2000);
+                    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+                    
+                    // Developer mode, enter default pin code
+                    #ifdef NO_PIN_CODE_REQUIRED
+                        mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                        setSmartCardInsertedUnlocked();
+                    #else
+                        removeFunctionSMC();                            // Shut down card reader
+                    #endif
+                    
                     #ifdef GENERAL_LOGIC_OUTPUT_USB
                         usbPutstr_P(PSTR("Card ID not found\r\n"));
                     #endif
@@ -354,7 +391,7 @@ int main(void)
         }
         else if (card_detect_ret == RETURN_JRELEASED)                   // Card just released
         {
-            //oledBitmapDraw(0,0, &image_HaD_Mooltipass, OLED_SCROLL_UP);
+            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
         }
     }
 }

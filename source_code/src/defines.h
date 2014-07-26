@@ -68,6 +68,10 @@
 // First smart card sent to the first contributors
 //#define SMARTCARD_FUSE_V1
 
+/**************** PIN HANDLING ******************/
+// Comment to let the user enter his PIN
+#define NO_PIN_CODE_REQUIRED
+
 /**************** HW MACROS ****************/
 #define CPU_PRESCALE(n)         (CLKPR = 0x80, CLKPR = (n))
 

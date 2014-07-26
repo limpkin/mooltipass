@@ -32,6 +32,7 @@
 /* Defines */
 #define SCREEN_TIMER_DEL    60000
 #define LIGHT_TIMER_DEL     10000
+#define USER_INTER_DEL      6000
 
 /* Prototypes */
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);

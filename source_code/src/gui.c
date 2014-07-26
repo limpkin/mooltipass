@@ -29,20 +29,24 @@
 #include "node_mgmt.h"
 #include "defines.h"
 #include "oledmp.h"
-#include "anim.h"
 #include "touch.h"
+#include "anim.h"
 #include "pwm.h"
 #include "gui.h"
 #include "usb.h"
 
-// Screen on timer
-volatile uint16_t screenTimer = SCREEN_TIMER_DEL;
+// Flag to exit user asking screen
+volatile uint8_t userInteractionFlag = FALSE;
 // Flag to switch off the lights
 volatile uint8_t lightsTimerOffFlag = FALSE;
 // Flag to switch off the screen
 volatile uint8_t screenTimerOffFlag = FALSE;
+// User interaction timer
+volatile uint16_t userIntTimer = 0;
 // Our light timer for the top PCB LEDs
 volatile uint16_t light_timer = 0;
+// Screen on timer
+volatile uint16_t screenTimer = 0;
 // Bool to know if lights are on
 uint8_t areLightsOn = FALSE;
 // Bool to know if screen is on
@@ -66,6 +70,13 @@ void guiTimerTick(void)
         if (screenTimer-- == 1)
         {
            screenTimerOffFlag = TRUE;
+        }
+    }
+    if (userIntTimer != 0)
+    {
+        if (userIntTimer-- == 1)
+        {
+            userInteractionFlag = TRUE;
         }
     }
 }
@@ -95,6 +106,18 @@ void activateScreenTimer(void)
         {
             screenTimer = SCREEN_TIMER_DEL;
         }
+    }
+}
+
+/*! \fn     activateUserInteractionTimer(void)
+*   \brief  Activate user interaction timer
+*/
+void activateUserInteractionTimer(void)
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        userInteractionFlag = FALSE;
+        userIntTimer = USER_INTER_DEL;
     }
 }
 
@@ -196,10 +219,17 @@ RET_TYPE getTouchUiYesNoAnswer(void)
     while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
     
     // Wait for a touch press
+    activateUserInteractionTimer();
     touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
     while (!((touch_detect_result & RETURN_LEFT_PRESSED) || (touch_detect_result & RETURN_RIGHT_PRESSED)))
     {
         touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
+        
+        // User interaction timeout
+        if (userInteractionFlag == TRUE)
+        {
+            return RETURN_NOK;
+        }
     }
     
     if (touch_detect_result & RETURN_LEFT_PRESSED)
@@ -230,10 +260,17 @@ int8_t getTouchUiQuarterPosition(void)
     while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
     
     // Wait for a touch press
+    activateUserInteractionTimer();
     touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
     while (!((touch_detect_result & RETURN_WHEEL_PRESSED) || (touch_detect_result & RETURN_LEFT_PRESSED)))
     {
         touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
+        
+        // User interaction timeout
+        if (userInteractionFlag == TRUE)
+        {
+            return -1;
+        }
     }
     
     // Did the user press back?

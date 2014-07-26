@@ -48,3 +48,57 @@ count:  3840
 
 
 In this case the count is the number of bytes used by the compressed bit image; 3.8KB. The amount of compression is very dependent on the image and how many horizontal runs of the same pixel are in the image. The best possible case would be a 8 to 1 compression. Compressed bitmaps also have the benefit of taking less time to display on the screen.
+
+#Creating a bundle of bitmaps and fonts to use on the Mooltipass
+
+The OLEDMP library supports bitmaps and fonts stored in the Mooltipass's SPI FLASH.  There is about 32KB of storage available for this purpose.
+
+The bundle.py python script takes a list of bitmap and font image filenames on its command line and generates a single image that
+can be loaded onto the mooltipass using the Chrome plugin GUI.
+
+```
+./bundle --help
+Usage: bundle.py [options] bitmap1 bitmap2 font1 bitmap3 font2
+    note: a filename that contains word "font" will be stored as a font
+          other files are stored as bitmaps
+
+Options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output=OUTPUT
+                        name of output file
+```
+
+If the filename of the input image has the word "font" in it then it will be treated as a font, otherwise the input will be treated as a bitmap.
+
+##Example
+
+Using wildcards to specify all of the image files starting with the digits 0 through 8:
+
+```
+./bundle.py -o bundle.img [0-8]*.img
+    0x0448: size 3849 bytes, bmap 0_HaD_Mooltipass.img
+    0x1351: size 1553 bytes, bmap 1_login_select.img
+    0x1962: size 333 bytes, bmap 2_left.img
+    0x1aaf: size 333 bytes, bmap 3_right.img
+    0x1bfc: size 83 bytes, bmap 4_tick.img
+    0x1c4f: size 149 bytes, bmap 5_cross.img
+    0x1ce4: size 149 bytes, bmap 6_cross.img
+    0x1d79: size 2380 bytes, font 7_font_profont_10.img
+    0x26c5: size 3324 bytes, font 8_font_checkbook_14.img
+total size: 12153
+Writing to bundle.img
+wrote 12153 bytes to bundle.img
+```
+
+Combining two images and a font into a bundle:
+
+```
+./bundle.py -o mybundle.img 0_HaD_Mooltipass.img 7_font_profont_10.img 5_cross.img 
+    0x0430: size 3849 bytes, bmap 0_HaD_Mooltipass.img
+    0x1339: size 2380 bytes, font 7_font_profont_10.img
+    0x1c85: size 149 bytes, bmap 5_cross.img
+total size: 6378
+Writing to mybundle.img
+wrote 6378 bytes to mybundle.img
+```
+

@@ -451,18 +451,22 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             // Print login on screen
             if (i == 0)
             {
+                //oledPutstrXY(72, 0, OLED_RIGHT, (char*)c->login);
                 oledPutstrXY(0, 4, OLED_LEFT, (char*)c->login);
             }
             else if (i == 1)
             {
+                //oledPutstrXY(184, 0, OLED_LEFT, (char*)c->login);
                 oledPutstrXY(255, 4, OLED_RIGHT, (char*)c->login);
             }
             else if (i == 2)
             {
+                //oledPutstrXY(72, 54, OLED_RIGHT, (char*)c->login);
                 oledPutstrXY(0, 48, OLED_LEFT, (char*)c->login);
             }
             else
             {
+                //oledPutstrXY(184, 54, OLED_LEFT, (char*)c->login);
                 oledPutstrXY(255, 48, OLED_RIGHT, (char*)c->login);
             }            
             
@@ -493,4 +497,31 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     }    
 
     return temp_address;
+}
+
+/*! \fn     guiAskForImportExportConfirmation(const char* string)
+*   \brief  Ask for user confirmation to import / export things in the flash/eeprom
+*   \param  string              Pointer to the string to display
+*   \return User confirmation or not
+*/
+RET_TYPE guiAskForImportExportConfirmation(const char* string)
+{
+    RET_TYPE return_value;
+    
+    // Switch on lights
+    activityDetectedRoutine();
+
+    // Draw asking bitmap & wait for user input
+    oledWriteInactiveBuffer();
+    oledClear();
+    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
+    oledPutstrXY_P(0, 30, OLED_CENTRE, string);
+    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    
+    return_value = getTouchUiYesNoAnswer();
+    
+    // Get to other bitmap
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    
+    return return_value;    
 }

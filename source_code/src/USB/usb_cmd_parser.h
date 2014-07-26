@@ -34,6 +34,8 @@
 #define CMD_ERASE_SMC           0x42
 #define CMD_DRAW_BITMAP         0x43	
 #define CMD_SET_FONT            0x44
+#define CMD_EXPORT_FLASH_START  0x45
+#define CMD_EXPORT_EEPROM_START 0x46
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

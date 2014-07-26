@@ -69,6 +69,12 @@ From plugin/app: add a new context inside the mooltipass
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x45: export flash start
+------------------------
+From plugin/app: Request for flash contents export to Mooltipass.
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
 0x30: export flash
 ------------------
 From plugin/app: export flash contents. A 0x00 in parameter specifies to send the first bytes in flash while a 0x01 requests for the next packet
@@ -96,6 +102,12 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 0x34: import flash end
 ----------------------
 From plugin/app: Inform that we finished the flash import
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x46: export eeprom start
+-------------------------
+From plugin/app: Request for eeprom contents export to Mooltipass.
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 

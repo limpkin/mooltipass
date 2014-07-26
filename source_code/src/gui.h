@@ -36,6 +36,7 @@
 /* Prototypes */
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);
 RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service);
+RET_TYPE guiAskForImportExportConfirmation(const char* string);
 RET_TYPE guiAskForLoginAddApproval(char* name, char* service);
 RET_TYPE guiAskForDomainAddApproval(char* name);
 void informGuiOfCurrentContext(char* context);

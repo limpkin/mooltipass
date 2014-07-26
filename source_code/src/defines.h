@@ -96,8 +96,12 @@ enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -
 typedef void (*bootloader_f_ptr_type)(void);
 typedef int8_t RET_TYPE;
 
+/**************** VERSION DEFINES ***************/
+#define MOOLT_VERSION_MAJOR     0x00
+#define MOOLT_VERSION_MINOR     0x01
+
 /**************** BITMAP DEFINES ****************/
-#define HACKADAY_BMP        0x00
+#define HACKADAY_BMP            0x00
 
 /**************** FLASH TEST SELECTION ****************/
 #define RUN_FLASH_TEST_WR

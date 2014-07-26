@@ -31,7 +31,8 @@
 #include "flash_mem.h"
 #include <string.h>
 #include "oledmp.h"
- #include "usb.h"
+#include "usb.h"
+#include "gui.h"
 
 // Current address in flash we need to export
 uint32_t current_flash_export_addr = 0;
@@ -49,6 +50,10 @@ uint16_t current_eeprom_import_pos = 0;
 uint8_t flash_import_approved = FALSE;
 // Bool to specify if user approved eeprom import
 uint8_t eeprom_import_approved = FALSE;
+// Bool to specify if user approved flash export
+uint8_t flash_export_approved = FALSE;
+// Bool to specify if user approved eeprom export
+uint8_t eeprom_export_approved = FALSE;
 
 
 /*! \fn     checkTextField(uint8_t* data, uint8_t len)
@@ -122,8 +127,8 @@ void usbProcessIncoming(uint8_t* incomingData)
         // version command
         case CMD_VERSION :
         {
-            incomingData[0] = 0x01;
-            incomingData[1] = 0x01;
+            incomingData[0] = MOOLT_VERSION_MAJOR;
+            incomingData[1] = MOOLT_VERSION_MINOR;
             incomingData[2] = FLASH_CHIP;
             pluginSendMessage(CMD_VERSION, 3, (char*)incomingData);
             break;
@@ -280,15 +285,30 @@ void usbProcessIncoming(uint8_t* incomingData)
         }
 #endif
 
+        // flash export start
+        case CMD_EXPORT_FLASH_START :
+        {
+            if (guiAskForImportExportConfirmation(PSTR("Approve flash export?")) == RETURN_OK)
+            {
+                flash_export_approved = TRUE;
+                plugin_return_value = PLUGIN_BYTE_OK;
+            } 
+            else
+            {
+                flash_export_approved = FALSE;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            sendPluginOneByteAnswer(CMD_EXPORT_FLASH_START, plugin_return_value, incomingData);
+        }
+
         // export flash contents
         case CMD_EXPORT_FLASH :
         {
             uint8_t size = PACKET_EXPORT_SIZE;
 
-            // Check datalen for arg
-            if (datalen != 1)
+            // Check datalen for arg, check approval status
+            if ((datalen != 1) || (flash_export_approved == FALSE))
             {
-                USBPARSERDEBUGPRINTF_P(PSTR("export: no param\n"));
                 break;
             }
 
@@ -304,6 +324,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 pluginSendMessage(CMD_EXPORT_FLASH_END, 0, (char*)incomingData);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
+                flash_export_approved = FALSE;
                 break;
             }
 
@@ -331,16 +352,37 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             break;
         }
+        
+        // flash export end
+        case CMD_EXPORT_FLASH_END :
+        {
+            flash_export_approved = FALSE;
+        }
+
+        // flash export start
+        case CMD_EXPORT_EEPROM_START :
+        {
+            if (guiAskForImportExportConfirmation(PSTR("Approve eeprom export?")) == RETURN_OK)
+            {
+                eeprom_export_approved = TRUE;
+                plugin_return_value = PLUGIN_BYTE_OK;
+            } 
+            else
+            {
+                eeprom_export_approved = FALSE;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            sendPluginOneByteAnswer(CMD_EXPORT_EEPROM_START, plugin_return_value, incomingData);
+        }
 
         // export eeprom contents
         case CMD_EXPORT_EEPROM :
         {
             uint8_t size = PACKET_EXPORT_SIZE;
 
-            // Check datalen for arg
-            if (datalen != 1)
+            // Check datalen for arg, check that export has been approved
+            if ((datalen != 1) || (eeprom_export_approved == FALSE))
             {
-                USBPARSERDEBUGPRINTF_P(PSTR("export: no param\n"));
                 break;
             }
 
@@ -356,6 +398,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
+                eeprom_export_approved = FALSE;
                 break;
             }
 
@@ -370,6 +413,12 @@ void usbProcessIncoming(uint8_t* incomingData)
             pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
             current_eeprom_export_addr += size;
             break;
+        }
+        
+        // end eeprom export
+        case CMD_EXPORT_EEPROM_END :
+        {
+            eeprom_export_approved = FALSE;
         }
 
         // import flash contents
@@ -395,7 +444,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
 
             // Ask for user confirmation
-            if (TRUE)
+            if (guiAskForImportExportConfirmation(PSTR("Approve flash import?")) == RETURN_OK)
             {
                 flash_import_approved = TRUE;
                 current_flash_import_page_pos = 0;
@@ -417,6 +466,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             if ((flash_import_approved == FALSE) || (current_flash_import_page >= PAGE_COUNT) || (current_flash_import_page_pos + datalen > BYTES_PER_PAGE) || ((flash_import_user_space == FALSE) && (current_flash_import_page >= GRAPHIC_ZONE_PAGE_END)))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
+                flash_import_approved = FALSE;
             }
             else
             {
@@ -443,10 +493,10 @@ void usbProcessIncoming(uint8_t* incomingData)
         }
 
         // end flash import
-        case CMD_EXPORT_FLASH_END :
+        case CMD_IMPORT_FLASH_END :
         {
             flash_import_approved = FALSE;
-            sendPluginOneByteAnswer(CMD_EXPORT_FLASH_END, PLUGIN_BYTE_OK, incomingData);
+            sendPluginOneByteAnswer(CMD_IMPORT_FLASH_END, PLUGIN_BYTE_OK, incomingData);
             break;
         }
 
@@ -454,7 +504,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_IMPORT_EEPROM_BEGIN :
         {
             // Ask for user confirmation
-            if (TRUE)
+            if (guiAskForImportExportConfirmation(PSTR("Approve eeprom import?")) == RETURN_OK)
             {
                 current_eeprom_import_pos = 0;
                 eeprom_import_approved = TRUE;
@@ -475,6 +525,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             if ((eeprom_import_approved == FALSE) || ((current_eeprom_import_pos + datalen) >= EEPROM_SIZE))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
+                eeprom_import_approved = FALSE;
             }
             else
             {

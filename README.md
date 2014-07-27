@@ -1,35 +1,34 @@
-Mooltipass project github
-=========================
+Mooltipass Project Repository
+=============================
+![Mooltipass first prototype](https://raw.githubusercontent.com/limpkin/mooltipass/master/bitmaps/mooltipass_first_prototype.jpg)
+This is the GitHub repository dedicated to the Mooltipass project. It contains all the resources that were used and generated for this community driven product. You may find all the Hackaday articles detailing the different project steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.
 
-This is the github repository dedicated to the Mooltipass project. It contains all resources that were used and generated for this community driven product. You may find all the Hackaday articles using this link: http://hackaday.com/tag/developed-on-hackaday/
 
-
-What is the Mooltipass project?
+What is the Mooltipass Project?
 -------------------------------
 The Mooltipass is an offline password keeper.
 
-The concept behind this product is to minimize the number of ways your passwords can be compromised, while generating and storing long and complex random passwords for the different websites you use daily. It is designed to be as small as possible so it can fit in your pocket. Simply visit a website and the device will ask for confirmation to enter your credentials when you need to login.
-The Mooltipass is a standalone device connected through USB, is completely driverless, is compatible with all major operating systems on PCs, Macs and Smartphones.
+The concept behind this product is to minimize the number of ways your passwords can be compromised, while generating and storing long and complex random passwords for the different websites you use daily. It is designed to be as small as possible so it can fit in your pocket. Simply visit a website and the device will ask for confirmation to enter your credentials when you need to login.  
+The Mooltipass is a standalone device connected through USB, is completely driver-less, is compatible with all major operating systems on PCs, Macs and Smartphones.
 
 The Platform
 ------------
 The Mooltipass is composed of one main device and a smartcard.  
-On the device are stored your AES-256 encrypted passwords. The smartcard is a read protected EEPROM that needs a PIN code to unlock its contents (AES-256 key + a few websites credentials). As with your credit card, too many tries will permanently lock the smart card.  
-The Mooltipass main components are: a smart card connector, an Arduino compatible microcontroller, a FLASH memory, an OLED screen and its touchscreen panel. The OLED screen provides good contrast and good visibility.
+On the device are stored your AES-256 encrypted passwords. The smartcard is a read protected EEPROM that needs a PIN code to unlock its contents (AES-256 key + a few websites credentials). As with your credit card, too many tries will permanently lock the smart card.
 
-The firmware
+The Firmware
 ------------
 We want the device to be as simple as possible to use. Ideally, the end user shouldn't have to spend more than a few seconds to use its basic functionalities.  
 A browser extension will run on the user's computer, that will send (via HID) the current website to the Mooltipass. When the user has to login, the Mooltipass will light up and will ask for confirmation to enter the credentials.
 
-Data safety
+Data Safety
 -----------
 As we're dealing with peoples' credentials, we want to be as careful as possible.  
 The smart card containing the AES key used for encrypting the password can be cloned using the Mooltipass, copying its PIN code as well. The card copy should be stored somewhere safe. As some space is left in the smart card, the user should also be able to store his main email credentials.  
 The encrypted credentials stored in the Mooltipass internal flash can be exported.  
 A very convenient functionally suggested by one of Hackaday's readers is also implemented: the ability to generate hashed answers for websites' security questions in case credentials are lost. Only the smartcard is required to use this feature. 
 
-Features suggested by Hackaday readers
+Features Suggested by Hackaday Readers
 --------------------------------------
 - Have multiple smart cards for multiple users on one Mooltipass  
 - Generate a QR code instead of sending the password via HID  

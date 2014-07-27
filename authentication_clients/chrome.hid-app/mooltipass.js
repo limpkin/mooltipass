@@ -446,7 +446,6 @@ function initWindow()
     var eraseEepromButton = document.getElementById("eraseEeprom");
     var eraseFlashButton = document.getElementById("eraseFlash");
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
-    var eraseMediaButton = document.getElementById("eraseMedia");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -634,24 +633,6 @@ function initWindow()
         });
     });
 
-    eraseMediaButton.addEventListener('click', function() 
-    {
-        $('#eraseConfirm').dialog({
-            buttons: {
-                "Erase media files?": function() 
-                {
-                    log('#developerLog', 'Erasing media files... ');
-                    //sendRequest(CMD_MEDIA_ERASE);
-                    $(this).dialog('close');
-                },
-                Cancel: function() 
-                {
-                    $(this).dialog('close');
-                }
-            }
-        });
-    });
-
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
         console.log(sender.tab ?  'from a content script:' + sender.tab.url : 'from the extension');
@@ -752,7 +733,6 @@ function initWindow()
     $("#eraseFlash").button();
     $("#eraseEeprom").button();
     $("#eraseSmartcard").button();
-    $("#eraseMedia").button();
     $("#tabs").tabs();
 
     $("#drawBitmap").menu({
@@ -1028,7 +1008,6 @@ function onDataReceived(data)
             }
             break;
         }
-
 
         case CMD_EXPORT_FLASH:
         case CMD_EXPORT_EEPROM:

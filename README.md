@@ -3,14 +3,13 @@ Mooltipass Project Repository
 <p align="center">
   <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/design_pictures/mooltipass_first_prototype_small.jpg" alt="Mooltipass first prototype"/>
 </p>
-This is the GitHub repository dedicated to the Mooltipass device. It contains all the resources that were used and generated for this community driven product since this project was first started in December 2013. You may find all the Hackaday articles detailing its different steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.
+This is the GitHub repository dedicated to the Mooltipass device. It contains all the resources that were used and generated for this community driven product since this project was first started back in December 2013. You may find all the Hackaday articles detailing its different steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.
 
 
 What is the Mooltipass Project?
 -------------------------------
-The Mooltipass is an **offline** password keeper.
-
-The concept behind this product is to minimize the number of ways your passwords can be compromised, while generating and storing long and complex random passwords for the different websites you use daily. It is designed to be as small as possible to fit in your pocket. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required.  
+The Mooltipass is an **offline** password keeper, it remembers passwords for you so you don't have to.  
+The concept behind this product is therefore to minimize the number of ways your passwords can be compromised, while generating and storing long and complex random passwords for the different websites you use daily. It is designed to be as small as possible to fit in your pocket. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required.  
 The Mooltipass is a standalone device connected through USB, is completely driver-less and is compatible with all major operating systems on PCs, Macs and Smartphones. Contrary to software-based password keeping solutions your passwords can't all be compromised at once as our device essentially is a smart keyboard typing passwords for you.
 
 The Platform
@@ -31,21 +30,30 @@ A browser extension runs on the user's computer and sends the current website to
 Data Safety
 -----------
 Safety is a primary concern for the Mooltipass development team, which is why we offer several **secure** ways to backup your credentials.  
-The smart card containing the AES key used for encrypting the passwords can be cloned using the Mooltipass, copying its PIN code as well. The encrypted credentials stored in the Mooltipass internal flash can be exported to the official Mooltipass website or simply somewhere on your local computer. A very convenient functionally suggested by one of Hackaday's readers is also implemented: the ability to generate hashed answers for websites' security questions in case credentials are lost.
+The smart card containing the AES key used for encrypting the passwords can be **cloned** using the Mooltipass, copying its PIN code as well. The encrypted credentials stored in the Mooltipass internal flash can be **exported** to the official Mooltipass website or simply somewhere on your local computer. A very convenient functionally suggested by one of Hackaday's readers is also implemented: the ability to generate hashed answers for websites' security questions in case credentials are lost.
 
 Frequently Asked Questions
 --------------------------
 **How expensive will the Mooltipass be?**  
 Price was one of our main constraints when designing the Mooltipass. It's still too early to tell but our current goal is a $70 price. In the meantime, you can have a look at our Bill of Materials located in the kicad folder to get an overall idea of the current costs.  
 
-**Is your solution more secure than a software-based one?**
-Theoretically yes. A software-based password keeper uses a passphrase to decrypt a credentials database inside your device. As at a given moment your passphrase and your database are stored inside your device's memory a malicious program with access to both elements could compromise all your passwords at once. 
+**Is your solution better than a piece of paper?**  
+A piece of paper contains passwords that can easily be read when you are not paying attention to it. The Mooltipass stores encrypted passwords that can only be "read" when providing your PIN code.  
+
+**If I only need to remember a PIN code, does it mean the Mooltipass is not safe?**
+Not at all, as the Mooltipass system is exactly like your bank card: 3 false tries will permanently block the smart card and make credential decryption impossible.  
+
+**Why do I need different passwords for different websites?**  
+Websites are compromised on a daily basis. If you are using the same password for different websites, one attacker could use a password he discovered on all of them.
+
+**Is our solution more secure than a software-based one?**  
+Theoretically yes. A software-based password keeper uses a passphrase to decrypt a credentials database located inside your device. As at a given moment your passphrase and your database are stored inside your device's memory, a malicious program with access to both elements could compromise all your passwords at once. 
   
-**Why not making the device very tiny?**  
+**Why not make the device very tiny?**  
 Size is a compromise between transportability and user friendliness.  
 As the Mooltipass is intended for many different users we decided to opt for a normal-sized OLED screen providing a good readability and therefore a better user experience. The device also includes Arduino headers that will allow any Arduino shield to be connected to it. Hence, we made the Mooltipass as small as possible while keeping its great features.  
 
-**Why do you need an OLED screen?**
+**Why do you need an OLED screen?**  
 An offline password keeper needs to provide a way to prevent *impersonation*. The user has to check that the website/service he's approving the credential sending for is the same that the website/service he's currently visiting/using, as a malicious program could emit forged requests. Moreover, having a display allows the user to operate the Mooltipass without the browser plugin using our dedicated touch interface.  
   
 **Why are you using both a smart card and a main Mooltipass device?**  
@@ -66,17 +74,17 @@ Most devices (including smart phones and tablet PCs) include a USB host capable 
 **How secure is the Mooltipass?**  
 We are using the most secure encryption algorithms and designed our case to make physical tampering practically impossible. Our solution is therefore perfectly suited for individuals wanting to improve their credentials safety.  
 
-**Are you planning to make a wireless version?**
-The Mooltipass isn't wireless to skip the added costs of a lithium-ion battery and a wireless interface. Customer survey also let us know that having a USB cable wasn't a problem from most use cases.  
+**Are you planning to make a wireless version?**  
+The Mooltipass isn't wireless to skip the added costs of a lithium-ion battery and a wireless interface. Customer survey also let us know that having a USB cable wasn't a problem for most use cases.  
 
-**How are the credentials sent to the computer?**
+**How are the credentials sent to the computer?**  
 The Mooltipass is enumerated as a composite HID keyboard / HID proprietary device. The credentials are sent over the HID proprietary channel when using the browser plugin and over the keyboard channel when using the Mooltipass through its touch interface.
 
-**Is it still possible to sniff the passwords sent over HID?**
+**Is it still possible to sniff the passwords sent over HID?**  
 In theory yes. As mentioned in our project description the Mooltipass aims at reducing the number of attack vectors to a minimum: the device basically types your password as if you were doing it yourself. Perfect security could only be achieved by sharing dedicated secrets with every possible service and website... which is practically impossible to do.
 
-**If you can export your encrypted credentials, does this mean someone could crack them?**
-In short, no. We are using AES-256 encryption in CTR mode, bruteforcing the encrypted credentials takes dozens of years.  
+**If I can export my encrypted credentials, does this mean someone could crack them?**  
+In short, no. We are using AES-256 encryption in CTR mode, bruteforcing the encrypted credentials takes more than fifty years.  
 
 **If it is open source, does it mean it is less secure?**
 Not at all. Having our code open source allows everyone to check our security implementation, which actually leads to a better code quality and more trust from our final users.

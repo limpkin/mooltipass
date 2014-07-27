@@ -8,9 +8,17 @@ This is the GitHub repository dedicated to the Mooltipass device. It contains al
 
 What is the Mooltipass Project?
 -------------------------------
-The Mooltipass is an **offline** password keeper, it remembers passwords so you don't have to.  
-The concept behind this product is therefore to minimize the number of ways your passwords can be compromised, while generating and storing long and complex random passwords for the different websites you use daily. It is designed to be as small as possible to fit in your pocket. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required.  
-The Mooltipass is a standalone device connected through USB, is completely driver-less and is compatible with all major operating systems on PCs, Macs and Smartphones. Contrary to software-based password keeping solutions your passwords can't all be compromised at once as our device essentially is a smart keyboard typing passwords for you.
+The Mooltipass is an **offline** password keeper, it remembers and encrypts your passwords so you don't have to.  
+With this device, you can generate and safely store different long and complex passwords for all the websites you use daily. A personal PIN locked smartcard allows the decryption of your credentials and ensures that only **you** has access to them. The Mooltipass is designed to be as small as possible to fit in your pocket. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required. The Mooltipass is a standalone device connected through USB, is completely driver-less and is compatible with all major operating systems on PCs, Macs and Smartphones. 
+
+Advantages over software-based solutions
+----------------------------------------
+A software-based password keeper uses a passphrase to decrypt a credentials database located inside a device (computer, smartphone...). As at a given moment your passphrase and your database are stored inside your device's memory, a malicious program with access to both elements could **compromise all your passwords at once**.  
+We therefore offer the following advantages:  
+- **stronger security**: we reduce the number of attack vectors by basically having our device type your passwords for you. 
+- a **non-proprietary device**: as our product is open anyone can develop new tools for it. There will never be fees for the services we offer.  
+- an **open-source platform**: all our source code can be viewed, allowing you to check that your credentials are only kept inside the device and not leaked to the outside  
+- a **trusted platform**: as only our tested source code is running on the Mooltipass, there can't be any viruses or malicious programs compromising your stored credentials  
 
 The Platform
 ------------
@@ -45,9 +53,6 @@ Not at all, as the Mooltipass system is exactly like your bank card: 3 false tri
 
 **Why do I need different passwords for different websites?**  
 Websites are compromised on a daily basis. If you are using the same password for different websites, one attacker could use a password he discovered on all of them.
-
-**Is our solution more secure than a software-based one?**  
-Theoretically yes. A software-based password keeper uses a passphrase to decrypt a credentials database located inside your device. As at a given moment your passphrase and your database are stored inside your device's memory, a malicious program with access to both elements could compromise all your passwords at once. 
   
 **Why not make the device very tiny?**  
 Size is a compromise between transportability and user friendliness.  
@@ -86,7 +91,7 @@ In theory yes. As mentioned in our project description the Mooltipass aims at re
 **If I can export my encrypted credentials, does this mean someone could crack them?**  
 In short, no. We are using AES-256 encryption in CTR mode, bruteforcing the encrypted credentials takes more than fifty years.  
 
-**If it is open source, does it mean it is less secure?**
+**If it is open source, does it mean it is less secure?**  
 Not at all. Having our code open source allows everyone to check our security implementation, which actually leads to a better code quality and more trust from our final users.
 
 Contact us

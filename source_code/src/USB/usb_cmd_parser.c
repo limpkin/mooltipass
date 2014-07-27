@@ -299,6 +299,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
             sendPluginOneByteAnswer(CMD_EXPORT_FLASH_START, plugin_return_value, incomingData);
+            break;
         }
 
         // export flash contents
@@ -357,6 +358,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_FLASH_END :
         {
             flash_export_approved = FALSE;
+            break;
         }
 
         // flash export start
@@ -373,6 +375,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
             sendPluginOneByteAnswer(CMD_EXPORT_EEPROM_START, plugin_return_value, incomingData);
+            break;
         }
 
         // export eeprom contents
@@ -419,6 +422,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_EEPROM_END :
         {
             eeprom_export_approved = FALSE;
+            break;
         }
 
         // import flash contents
@@ -534,6 +538,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_OK;
             }
             sendPluginOneByteAnswer(CMD_IMPORT_EEPROM, plugin_return_value, incomingData);
+            break;
         }
 
         // end eeprom import

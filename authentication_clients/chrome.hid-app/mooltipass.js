@@ -67,6 +67,10 @@ var CMD_EXPORT_EEPROM_END   = 0x36;
 var CMD_IMPORT_EEPROM_BEGIN = 0x37;    // confirmed by 0x37,0x01
 var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
 var CMD_IMPORT_EEPROM_END   = 0x39; 
+var CMD_EXPORT_FLASH_START  = 0x45;    // request permission to export flash
+var CMD_EXPORT_EEPROM_START = 0x46;    // request permission to export eeprom
+            
+
 
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
@@ -465,8 +469,7 @@ function initWindow()
                 exportDataEntry = entry;
                 exportData = null;
                 exportProgressBar.progressbar('value', 0);
-                args = new Uint8Array([0]);     // restart export from 0
-                sendRequest(CMD_EXPORT_FLASH, args);
+                sendRequest(CMD_EXPORT_FLASH_START);
             }
         });
     });
@@ -481,8 +484,7 @@ function initWindow()
                 exportDataEntry = entry;
                 exportData = null;
                 exportProgressBar.progressbar('value', 0);
-                args = new Uint8Array([0]);     // restart export from 0
-                sendRequest(CMD_EXPORT_EEPROM, args);
+                sendRequest(CMD_EXPORT_EEPROM_START);
             }
         });
     });
@@ -1000,6 +1002,33 @@ function onDataReceived(data)
             
             break;
         }
+
+        case CMD_EXPORT_FLASH_START:
+        {
+            var ok = (bytes[2] == 1);
+
+            if (ok)
+            {
+                // proceed
+                args = new Uint8Array([0]);     // restart export from 0
+                sendRequest(CMD_EXPORT_FLASH, args);
+            }
+            break;
+        }
+
+        case CMD_EXPORT_EEPROM_START:
+        {
+            var ok = (bytes[2] == 1);
+
+            if (ok)
+            {
+                // proceed
+                args = new Uint8Array([0]);     // restart export from 0
+                sendRequest(CMD_EXPORT_EEPROM, args);
+            }
+            break;
+        }
+
 
         case CMD_EXPORT_FLASH:
         case CMD_EXPORT_EEPROM:

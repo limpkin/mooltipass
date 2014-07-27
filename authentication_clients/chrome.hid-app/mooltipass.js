@@ -816,7 +816,6 @@ function sendNextPacket(cmd, importer)
     {
         log(importer.log, 'import: offset '+importer.offset+' size '+size+' pageSpace '+importer.pageSpace+'\n');
     }
-    log(importer.log, 'import: offset '+importer.offset+' size '+size+' pageSpace '+importer.pageSpace+'\n');
 
     importer.pageSpace -= size;
     if (importer.pageSpace <= 0)

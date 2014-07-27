@@ -69,14 +69,40 @@ var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
 var CMD_IMPORT_EEPROM_END   = 0x39; 
 var CMD_EXPORT_FLASH_START  = 0x45;    // request permission to export flash
 var CMD_EXPORT_EEPROM_START = 0x46;    // request permission to export eeprom
-            
-
 
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
 var CMD_ERASE_SMC           = 0x42;
 var CMD_DRAW_BITMAP         = 0x43;
 var CMD_SET_FONT            = 0x44;
+
+// supported flash chips
+// 264,   512,  128   1MB   0001 ID:00010=2  5  7 12, 6 2 16 S: 3 - 8,120,128
+// 264,  1024,  128   2MB   0010 ID:00011=3  5  7 12, 5 3 16 S: 7 - 8,120,128
+// 264,  2048,  256   4MB   0100 ID:00100=4  4  8 12, 4 5 17 S: 7 - 8,248,256
+// 264,  4096,  256   8MB   1000 ID:00101=5  3  9 12, 3 4 17 S: 15 - 8,248,256
+// 528,  4096,  256  16MB  10000 ID:00110=6  2  9 13, 2 4 18 S: 15 - 8,248,256
+// 528,  8192,  128  32MB 100000 ID:00111=7  1 10 13, 1 6 17 S: 63 - 8,120,128
+
+var FLASH_CHIP_1M           = 1;   // 1M Flash Chip (AT45DB011D)
+var FLASH_CHIP_2M           = 2;   // 2M Flash Chip (AT45DB021E)
+var FLASH_CHIP_4M           = 4;   // 4M Flash Chip (AT45DB041E)
+var FLASH_CHIP_8M           = 8;   // 8M Flash Chip (AT45DB081E)
+var FLASH_CHIP_16M          = 16;  // 16M Flash Chip (AT45DB161E)
+var FLASH_CHIP_32M          = 32;  // 32M Flash Chip (AT45DB321E)
+var FLASH_USER_ZONE_SIZE    = 1056;
+
+var flashInfo = {
+     1: { pageSize: 264, pageCount:  512, pagesPerSector: 128 },
+     2: { pageSize: 264, pageCount: 1024, pagesPerSector: 128 },
+     4: { pageSize: 264, pageCount: 2048, pagesPerSector: 256 },
+     8: { pageSize: 264, pageCount: 4096, pagesPerSector: 256 },
+    16: { pageSize: 264, pageCount: 4096, pagesPerSector: 256 },
+    32: { pageSize: 264, pageCount: 8192, pagesPerSector: 128 }
+};
+
+var flashChipId = null;
+
 
 var connection = null;  // connection to the mooltipass
 var authReq = null;     // current authentication request
@@ -790,6 +816,7 @@ function sendNextPacket(cmd, importer)
     {
         log(importer.log, 'import: offset '+importer.offset+' size '+size+' pageSpace '+importer.pageSpace+'\n');
     }
+    log(importer.log, 'import: offset '+importer.offset+' size '+size+' pageSpace '+importer.pageSpace+'\n');
 
     importer.pageSpace -= size;
     if (importer.pageSpace <= 0)
@@ -860,6 +887,7 @@ function onDataReceived(data)
         case CMD_VERSION:
         {
             var version = "" + bytes[2] + "." + bytes[3];
+            flashChipId = bytes[4];
             log('#messageLog', 'Connected to Mooltipass ' + version + '\n');
             if (authReq) 
             {
@@ -1014,7 +1042,21 @@ function onDataReceived(data)
             if (!exportData)
             {
                 console.log('new export');
-                var size = (cmd == CMD_EXPORT_FLASH) ? (FLASH_PAGE_COUNT*FLASH_PAGE_SIZE) : EEPROM_SIZE;
+                var size;
+                if (cmd == CMD_EXPORT_FLASH)
+                {
+                    console.log('flashChipId '+flashChipId + 
+                                ' pageSize ' + flashInfo[flashChipId].pageSize + 
+                                ' pages '+ flashInfo[flashChipId].pageCount +
+                                ' userSize '+ FLASH_USER_ZONE_SIZE);
+                    size = (flashInfo[flashChipId].pageSize * 
+                           (flashInfo[flashChipId].pageCount - flashInfo[flashChipId].pagesPerSector)) + FLASH_USER_ZONE_SIZE;
+                }
+                else
+                {
+                    size = EEPROM_SIZE;
+                }
+                console.log('exporting '+size+' bytes');
                 exportData = new ArrayBuffer(size);
                 exportDataUint8 = new Uint8Array(exportData);
                 exportDataOffset = 0;

@@ -1,6 +1,6 @@
 Mooltipass Project Repository
 =============================
-![Mooltipass first prototype](https://raw.githubusercontent.com/limpkin/mooltipass/master/bitmaps/mooltipass_first_prototype.jpg)
+![Mooltipass first prototype](https://raw.githubusercontent.com/limpkin/mooltipass/master/design_pictures/mooltipass_first_prototype.jpg)  
 This is the GitHub repository dedicated to the Mooltipass project. It contains all the resources that were used and generated for this community driven product. You may find all the Hackaday articles detailing the different project steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.
 
 

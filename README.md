@@ -8,7 +8,7 @@ This is the GitHub repository dedicated to the Mooltipass device. It contains al
 
 What is the Mooltipass Project?
 -------------------------------
-The Mooltipass is an **offline** password keeper, it remembers passwords for you so you don't have to.  
+The Mooltipass is an **offline** password keeper, it remembers passwords so you don't have to.  
 The concept behind this product is therefore to minimize the number of ways your passwords can be compromised, while generating and storing long and complex random passwords for the different websites you use daily. It is designed to be as small as possible to fit in your pocket. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required.  
 The Mooltipass is a standalone device connected through USB, is completely driver-less and is compatible with all major operating systems on PCs, Macs and Smartphones. Contrary to software-based password keeping solutions your passwords can't all be compromised at once as our device essentially is a smart keyboard typing passwords for you.
 
@@ -40,7 +40,7 @@ Price was one of our main constraints when designing the Mooltipass. It's still 
 **Is your solution better than a piece of paper?**  
 A piece of paper contains passwords that can easily be read when you are not paying attention to it. The Mooltipass stores encrypted passwords that can only be "read" when providing your PIN code.  
 
-**If I only need to remember a PIN code, does it mean the Mooltipass is not safe?**
+**If I only need to remember a PIN code, does it mean the Mooltipass is not safe?**  
 Not at all, as the Mooltipass system is exactly like your bank card: 3 false tries will permanently block the smart card and make credential decryption impossible.  
 
 **Why do I need different passwords for different websites?**  

@@ -19,5 +19,8 @@
 	     "run_at": "document_start"
 	}
     ],
+    "browser_action": {
+        "default_icon": "mooltipass-16.png"
+    },
   "manifest_version": 2
 }

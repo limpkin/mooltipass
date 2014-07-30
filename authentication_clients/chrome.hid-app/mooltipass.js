@@ -39,7 +39,7 @@
  */
 
 var device_info = { "vendorId": 0x16d0, "productId": 0x09a0 };      // Mooltipass
-//var device_info = { "vendorId": 0x16c0, "productId": 0x0486 };    // Teensy 3.1
+var debug = false;
 
 var packetSize = 64;    // number of bytes in an HID packet
 var payloadSize = packetSize - 2;
@@ -105,6 +105,7 @@ var flashChipId = null;
 
 
 var connection = null;  // connection to the mooltipass
+var connected = false;  // current connection state
 var authReq = null;     // current authentication request
 var context = null;
 var contextGood = false;
@@ -199,11 +200,13 @@ function arrayToStr(buf)
 function reset()
 {
     connection = null;  // connection to the mooltipass
-    //authReq = null;     // current authentication request
-    //context = null;
-    //contextGood = false;
-    //createContext = false;
+    connected = false;
+    authReq = null;     // current authentication request
+    context = null;
+    contextGood = false;
+    createContext = false;
     loginValue = null;
+    connectMsg = null;
 
     exportData = null;        // arraybuffer for receiving exported data
     exportDataUint8 = null;   // uint8 view of exportData 
@@ -217,7 +220,6 @@ function reset()
 function connect(msg)
 {
     reset();
-    console.log('Connecting...');
     if (msg)
     {
         connectMsg = msg;
@@ -256,20 +258,7 @@ function sendRequest(type, content)
         connect(msg);
         return;
     }
-
-    chrome.hid.send(connection, 0, msg, function() 
-    {
-        if (!chrome.runtime.lastError) 
-        {
-            //log('#messageLog','Send complete\n')
-            //chrome.hid.receive(connection, packetSize, onContextAck);
-        }
-        else
-        {
-          log('#messageLog', 'Failed to send to device: '+chrome.runtime.lastError.message+'\n');
-          reset();
-        }					
-    });
+    sendMsg(msg);
 }
 
 
@@ -460,7 +449,6 @@ function log(logId, text)
  */
 function initWindow()
 {
-    var connectButton = document.getElementById("connect");
     var clearButton = document.getElementById("clear");
     var clearDebugButton = document.getElementById("clearDebug");
     var exportFlashButton = document.getElementById("exportFlash");
@@ -480,7 +468,6 @@ function initWindow()
     $('#developerLog').html('');
     var messageLog = $('#messageLog');
 
-    connectButton.addEventListener('click', function() { connect(); });
     clearButton.addEventListener('click', function() { log('#messageLog'); });
     clearDebugButton.addEventListener('click', function() {  log('#debugLog'); });
     
@@ -747,7 +734,6 @@ function initWindow()
 	$("#developer").accordion();
 	importProgressBar = $("#importProgressbar").progressbar({ value: 0 });
 	exportProgressBar = $("#exportProgressbar").progressbar({ value: 0 });
-    $("#connect").button();
     $("#clear").button();
     $("#clearDebug").button();
     $("#exportFlash").button();
@@ -863,7 +849,7 @@ function onDataReceived(data)
     var len = bytes[0]
     var cmd = bytes[1]
 
-    if ((cmd != CMD_DEBUG) && (cmd < CMD_EXPORT_FLASH))
+    if (debug && (cmd != CMD_DEBUG) && (cmd < CMD_EXPORT_FLASH))
     {
         console.log('Received CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(msg));
     }
@@ -886,13 +872,11 @@ function onDataReceived(data)
         case CMD_VERSION:
         {
             var version = "" + bytes[2] + "." + bytes[3];
-            flashChipId = bytes[4];
-            log('#messageLog', 'Connected to Mooltipass ' + version + '\n');
-            if (authReq) 
+            if (!connected)
             {
-                log('#messageLog', 'Context: "'+authReq.context+'"\n');
-                sendString(CMD_CONTEXT, authReq.context);
-                console.log('Initial set context "'+authReq.context+'"');
+                flashChipId = bytes[4];
+                log('#messageLog', 'Connected to Mooltipass ' + version + '\n');
+                connected = true;
             }
             break;
         }
@@ -1143,6 +1127,39 @@ function onDataReceived(data)
     chrome.hid.receive(connection, packetSize, onDataReceived);
 };
 
+function sendMsg(msg)
+{
+    if (debug) {
+        console.log('sending '+JSON.stringify(new Uint8Array(msg)));
+    }
+    chrome.hid.send(connection, 0, msg, function() 
+    {
+        if (!chrome.runtime.lastError) 
+        {
+            chrome.hid.receive(connection, packetSize, onDataReceived);
+        }
+        else
+        {
+            if (connected)
+            {
+                if (debug) {
+                    console.log('Failed to send to device: '+chrome.runtime.lastError.message);
+                }
+                log('#messageLog', 'Disconnected from mooltipass\n');
+                reset();
+            }
+        }					
+    });
+}
+
+function sendPing()
+{
+    msg = new ArrayBuffer(packetSize);
+    data = new Uint8Array(msg);
+    data.set([0, CMD_VERSION], 0);
+    sendMsg(msg);
+}
+
 
 /**
  * Handler invoked when new USB mooltipass devices are found.
@@ -1169,39 +1186,30 @@ function onDeviceFound(devices)
 
             if (connectMsg)
             {
-                // message pending to send
-                msg = connectMsg;
-                connectMsg = null;
-                console.log('sending '+JSON.stringify(new Uint8Array(msg)));
+                sendMsg(connectMsg);
             }
             else
             {
-                msg = new ArrayBuffer(packetSize);
-                data = new Uint8Array(msg);
-                data.set([0, CMD_VERSION], 0);
-                console.log('sending '+JSON.stringify(data));
+                sendPing();
             }
-            chrome.hid.send(connection, 0, msg, function() 
-            {
-				if (!chrome.runtime.lastError) 
-				{
-					console.log('Send complete');
-					chrome.hid.receive(connection, packetSize, onDataReceived);
-				}
-				else
-				{
-				  console.log('Failed to send to device: '+chrome.runtime.lastError.message);
-                  log('#messageLog','Unable to connect.\n');
-				  throw chrome.runtime.lastError.message;  
-				}					
-            });
         }
         else 
         {
           console.log('Failed to connect to device: '+chrome.runtime.lastError.message);
-          throw chrome.runtime.lastError.message;    
+          reset();
         } 
     });
 }
+
+function checkConnection()
+{
+    if (!connected) {
+        connect();
+    } else {
+        sendPing();
+    }
+}
+
+setInterval(checkConnection,2000);
 
 window.addEventListener('load', initWindow);

@@ -142,6 +142,7 @@ var getFieldMap = {
     email:      CMD_GET_LOGIN,
     username:   CMD_GET_LOGIN,
     user_id:    CMD_GET_LOGIN,
+    user_login: CMD_GET_LOGIN,
     name:       CMD_SET_LOGIN
 };
 
@@ -150,6 +151,7 @@ var setFieldMap = {
     email:      CMD_SET_LOGIN,
     username:   CMD_SET_LOGIN,
     user_id:    CMD_SET_LOGIN,
+    user_login: CMD_SET_LOGIN,
     name:       CMD_SET_LOGIN
 };
 
@@ -383,7 +385,7 @@ function setNextField()
             {
                 console.log('setNextField: type "'+authReq.pending.type+'" not supported');
                 authReq.pending = null;
-                getSetField(); // try the next field
+                setNextField(); // try the next field
             }
         } else {
             // no more input fields to set on mooltipass

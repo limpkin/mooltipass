@@ -842,7 +842,7 @@ function allocateMediaPage(size)
  * to report the received message.
  * @param data the received data
  */
-function onDataReceived(data) 
+function onDataReceived(reportId, data) 
 {
     var bytes = new Uint8Array(data);
     var msg = new Uint8Array(data,2);
@@ -1124,7 +1124,7 @@ function onDataReceived(data)
             log('#messageLog', 'unknown command '+cmd+'\n');
             break;
     }
-    chrome.hid.receive(connection, packetSize, onDataReceived);
+    chrome.hid.receive(connection, onDataReceived);
 };
 
 function sendMsg(msg)
@@ -1136,7 +1136,7 @@ function sendMsg(msg)
     {
         if (!chrome.runtime.lastError) 
         {
-            chrome.hid.receive(connection, packetSize, onDataReceived);
+            chrome.hid.receive(connection, onDataReceived);
         }
         else
         {

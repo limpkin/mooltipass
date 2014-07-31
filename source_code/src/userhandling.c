@@ -30,6 +30,7 @@
 #include "smart_card_higher_level_functions.h"
 #include "eeprom_addresses.h"
 #include "userhandling.h"
+#include "flash_mem.h"
 #include "smartcard.h"
 #include "node_mgmt.h"
 #include "entropy.h"
@@ -604,6 +605,18 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
                 return RETURN_PASS_CHECK_NOK;
             }
         }
+    }
+}
+
+/*! \fn     eraseFlashUsersContents(void)
+*   \brief  Erase everything inside the flash
+*/
+void eraseFlashUsersContents(void)
+{
+    sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE);
+    for (uint8_t i = SECTOR_START; i <= SECTOR_END; i++)
+    {
+        sectorErase(i);
     }
 }
 

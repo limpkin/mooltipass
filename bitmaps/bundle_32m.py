@@ -41,7 +41,7 @@ parser = OptionParser(usage = '''usage: %prog [options] bitmap1 bitmap2 font1 bi
 parser.add_option('-o', '--output', help='name of output file', dest='output', default='bundle.img')
 (options, args) = parser.parse_args()
 
-FLASH_PAGE_SIZE = 264
+FLASH_PAGE_SIZE = 528
 MEDIA_BITMAP = 1
 MEDIA_FONT   = 2
 

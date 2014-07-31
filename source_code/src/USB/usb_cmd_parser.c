@@ -562,7 +562,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         // erase flash
         case CMD_ERASE_FLASH :
         {
-            formatFlash();
+            eraseFlashUsersContents();
             sendPluginOneByteAnswer(CMD_ERASE_FLASH, PLUGIN_BYTE_OK, incomingData);
             break;
         }

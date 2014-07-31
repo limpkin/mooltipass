@@ -153,7 +153,7 @@ int main(void)
     // First time initializations
     if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
     {
-        formatFlash();
+        eraseFlashUsersContents();
         firstTimeUserHandlingInit();
         eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
     }

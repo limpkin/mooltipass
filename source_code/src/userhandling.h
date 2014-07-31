@@ -58,6 +58,7 @@ void firstTimeUserHandlingInit(void);
 uint8_t getNumberOfKnownUsers(void);
 uint8_t getNumberOfKnownCards(void);
 RET_TYPE findUserId(uint8_t userid);
+void eraseFlashUsersContents(void);
 void userHandlingTick(void);
 
 #endif /* USERHANDLING_H_ */

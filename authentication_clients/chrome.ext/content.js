@@ -41,6 +41,7 @@ var credentialFieldTypes = {
     'password':'password',
     'email':'login',
     'user_id':'login',
+    'user_login':'login',
     'username':'login',
     'name':'login'
 };
@@ -265,6 +266,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                     document.getElementsByName(request.fields[ind].name)[0].value = request.fields[ind].value;
                 }
             }
+            // only submit if all credentials have been supplied?
+            //checkSubmit = false;
+            //$('form').submit();
+            //checkSubmit = true;
             break;
 
         case 'updateComplete':

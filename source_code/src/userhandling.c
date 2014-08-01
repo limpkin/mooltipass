@@ -273,6 +273,29 @@ void decryptTempCNodePasswordAndClearCTVFlag(void)
     while (credential_timer_valid == TRUE);    
 }
 
+/*! \fn     encryptTempCNodePasswordAndClearCTVFlag(void)
+*   \brief  Encrypt the password currently stored in temp_cnode.password, clear credential_timer_valid
+*/
+void encryptTempCNodePasswordAndClearCTVFlag(void)
+{
+    uint8_t temp_buffer[AES256_CTR_LENGTH];
+    
+    // Preventing side channel attacks: only send the return after a given amount of time
+    launchCredentialTimerUsedAsAesTimer();
+
+    // AES encryption: xor our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
+    ctrPreEncryptionTasks();
+    memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
+    aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), nextCtrVal, USER_CTR_SIZE);
+    aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
+    aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
+    memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, USER_CTR_SIZE);
+    ctrPostEncryptionTasks();
+
+    // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
+    while (credential_timer_valid == TRUE);
+}
+
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
 *   \brief  Set our current context
 *   \param  name    Name of the desired service / website
@@ -475,9 +498,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
 *   \return Operation success or not
 */
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
-{
-    uint8_t temp_buffer[AES256_CTR_LENGTH];
-    
+{    
     if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
     {
         // Login not set
@@ -507,20 +528,8 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         // Ask for password changing approval
         if (guiAskForPasswordSet((char*)temp_cnode.login, (char*)password, (char*)temp_pnode.service) == RETURN_OK)
         {
-            // Preventing side channel attacks: only send the return after a given amount of time
-            launchCredentialTimerUsedAsAesTimer();
-            
-            // AES encryption: xor our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
-            ctrPreEncryptionTasks();
-            memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
-            aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), nextCtrVal, USER_CTR_SIZE);
-            aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
-            aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
-            memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, USER_CTR_SIZE);
-            ctrPostEncryptionTasks();
-            
-            // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
-            while (credential_timer_valid == TRUE);
+            // Encrypt the password
+            encryptTempCNodePasswordAndClearCTVFlag();
             
             // Update child node to store password
             if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)

@@ -104,26 +104,15 @@ uint8_t getSmartCardInsertedUnlocked(void)
     return smartcard_inserted_unlocked;
 }
 
-/*! \fn     launchCredentialTimer(void)
-*   \brief  Launch credential timer
+/*! \fn     useCredentialTimer(uint16_t nb_ms)
+*   \brief  Use credential timer
+*   \param  nb_ms   Number of milliseconds
 */
-void launchCredentialTimer(void)
+void useCredentialTimer(uint16_t nb_ms)
 {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        credential_timer_val = CREDENTIAL_TIMER_VALIDITY;
-        credential_timer_valid = TRUE;
-    }
-}
-
-/*! \fn     launchCredentialTimerUsedAsAesTimer(void)
-*   \brief  Use our credential timer to prevent timing side channel attacks
-*/
-void launchCredentialTimerUsedAsAesTimer(void)
-{
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        credential_timer_val = AES_ENCR_DECR_TIMER_VAL;
+        credential_timer_val = nb_ms;
         credential_timer_valid = TRUE;
     }
 }
@@ -624,7 +613,7 @@ void firstTimeUserHandlingInit(void)
 *   \brief  Get the number of know users
 *   \return The number of users
 */
-uint8_t getNumberOfKnownUsers(void)
+static inline uint8_t getNumberOfKnownUsers(void)
 {
     return eeprom_read_byte((uint8_t*)EEP_NB_KNOWN_USERS_ADDR);
 }
@@ -633,7 +622,7 @@ uint8_t getNumberOfKnownUsers(void)
 *   \brief  Get the number of know cards
 *   \return The number of cards
 */
-uint8_t getNumberOfKnownCards(void)
+static inline uint8_t getNumberOfKnownCards(void)
 {
     return eeprom_read_byte((uint8_t*)EEP_NB_KNOWN_CARDS_ADDR);
 }

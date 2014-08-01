@@ -55,10 +55,12 @@ RET_TYPE getLoginForContext(char *buffer);
 void clearSmartCardInsertedUnlocked(void);
 void setSmartCardInsertedUnlocked(void);
 void firstTimeUserHandlingInit(void);
-uint8_t getNumberOfKnownUsers(void);
-uint8_t getNumberOfKnownCards(void);
 RET_TYPE findUserId(uint8_t userid);
 void eraseFlashUsersContents(void);
 void userHandlingTick(void);
+
+/** Macros **/
+#define launchCredentialTimer()                 useCredentialTimer(CREDENTIAL_TIMER_VALIDITY)
+#define launchCredentialTimerUsedAsAesTimer()   useCredentialTimer(AES_ENCR_DECR_TIMER_VAL)
 
 #endif /* USERHANDLING_H_ */

@@ -72,6 +72,10 @@
 // Comment to let the user enter his PIN
 #define NO_PIN_CODE_REQUIRED
 
+/************** TESTS ENABLING ***************/
+// Comment to disable test calls
+#define TESTS_ENABLED
+
 /**************** HW MACROS ****************/
 #define CPU_PRESCALE(n)         (CLKPR = 0x80, CLKPR = (n))
 

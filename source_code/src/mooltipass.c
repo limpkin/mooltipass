@@ -128,13 +128,17 @@ int main(void)
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 
     // Launch the before flash initialization tests
-    beforeFlashInitTests();
+    #ifdef TESTS_ENABLED
+        beforeFlashInitTests();
+    #endif
     
     // Check if we can initialize the Flash memory
     flash_init_result = initFlash();
     
     // Launch the after flash initialization tests
-    afterFlashInitTests();
+    #ifdef TESTS_ENABLED
+        afterFlashInitTests();
+    #endif
     
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
@@ -162,7 +166,9 @@ int main(void)
     touch_init_result = initTouchSensing();
     
     // Launch the after touch initialization tests
-    afterTouchInitTests();
+    #ifdef TESTS_ENABLED
+        afterTouchInitTests();
+    #endif
     
     // Test procedure to check that all HW is working
     //#define HW_TEST_PROC

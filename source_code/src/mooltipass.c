@@ -225,28 +225,19 @@ int main(void)
         while(1);
     #endif
     
-    // Stop the Mooltipass if we can't communicate with the Flash
-    if (flash_init_result != RETURN_OK)
-    {
-        oledSetXY(2,0);
-        printf_P(PSTR("Problem flash init"));
-        while(1);
-    }
-    
-    // Display error message if we can't communicate with the touch sensing
-    if (touch_init_result != RETURN_OK)
-    {
-        oledSetXY(2,0);
-        printf_P(PSTR("Problem touch init"));
-        delay_ms(2000);
-    }
+    // Stop the Mooltipass if we can't communicate with the flash or the touch interface
+    #ifdef HARDWARE_OLIVIER_V1
+        while ((flash_init_result != RETURN_OK) && (touch_init_result != RETURN_OK));
+    #endif
 
     // Write inactive buffer & default bitmap
     oledWriteInactiveBuffer();
     oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
         
     // Launch the after HaD logo display tests
-    afterHadLogoDisplayTests();  
+    #ifdef TESTS_ENABLED
+        afterHadLogoDisplayTests();  
+    #endif
     
     // Let's fade in the LEDs
     for (uint16_t i = 0; i < MAX_PWM_VAL; i++)

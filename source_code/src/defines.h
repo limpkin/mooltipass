@@ -62,7 +62,7 @@
 
 /**************** PROGRAMMING HARDWARE ****************/
 // Uncomment to go to the original boot loader when smart card inserted at boot
-//#define AVR_BOOTLOADER_PROGRAMMING
+#define AVR_BOOTLOADER_PROGRAMMING
 
 /**************** SMARTCARD FUSE VERSION ****************/
 // First smart card sent to the first contributors

@@ -230,6 +230,60 @@ uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_
     return NODE_ADDR_NULL;    
 }
 
+/*! \fn     ctrPreEncryptionTasks(void)
+*   \brief  CTR pre encryption tasks
+*/
+void ctrPreEncryptionTasks(void)
+{
+    uint16_t carry = CTR_FLASH_MIN_INCR;
+    uint8_t temp_buffer[USER_CTR_SIZE];
+    int8_t i;
+    
+    // Read CTR stored in flash
+    readProfileCtr(&nodeMgmtHandle, temp_buffer, USER_CTR_SIZE);
+    
+    // If it is the same value, increment it by X and store it in flash
+    if (aesCtrCompare(temp_buffer, nextCtrVal, USER_CTR_SIZE) == 0)
+    {
+        for (i = USER_CTR_SIZE-1; i > 0; i--)
+        {
+             carry = (uint16_t)temp_buffer[i] + carry;
+             temp_buffer[i] = (uint8_t)(carry);
+             carry = (carry >> 8) & 0xFF;
+        }
+        setProfileCtr(&nodeMgmtHandle, (void*)temp_buffer, USER_CTR_SIZE);
+    }
+}
+
+/*! \fn     ctrPostEncryptionTasks(void)
+*   \brief  CTR post encryption tasks
+*/
+void ctrPostEncryptionTasks(void)
+{    
+    aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
+    aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);    
+}
+
+/*! \fn     decryptTempCNodePasswordAndClearCTVFlag(uint8_t* buffer)
+*   \brief  Decrypt the password currently stored in temp_cnode, clear credential_timer_valid
+*   \param  buffer  Where to store the decrypted password, at least AES256_CTR_LENGTH long!
+*/
+void decryptTempCNodePasswordAndClearCTVFlag(uint8_t* buffer)
+{    
+    // Preventing side channel attacks: only send the password after a given amount of time
+    launchCredentialTimerUsedAsAesTimer();
+    
+    // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
+    memcpy((void*)buffer, (void*)current_nonce, AES256_CTR_LENGTH);
+    aesXorVectors(buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
+    aes256CtrSetIv(&aesctx, buffer, AES256_CTR_LENGTH);
+    aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
+    strcpy((char*)buffer, (char*)temp_cnode.password);
+    
+    // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
+    while (credential_timer_valid == TRUE);    
+}
+
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
 *   \brief  Set our current context
 *   \param  name    Name of the desired service / website
@@ -361,22 +415,8 @@ RET_TYPE getPasswordForContext(char* buffer)
             return RETURN_NOK;
         }
         
-        // Preventing side channel attacks: only send the password after a given amount of time
-        launchCredentialTimerUsedAsAesTimer();
-        
-        // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
-        memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
-        aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
-        aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
-        aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
-        strcpy((char*)buffer, (char*)temp_cnode.password);
-        //usbKeybPutStr((char*)buffer);     // XXX
-        
-        // Wait for credential timer to fire (we wanted to clear the flag anyway)
-        while (credential_timer_valid == TRUE)
-        {
-            asm("NOP");
-        }
+        // Call the password decryption function, which also clears the credential_timer_valid flag
+        decryptTempCNodePasswordAndClearCTVFlag(temp_buffer);
         
         // Timer fired, return
         return RETURN_OK; 
@@ -440,40 +480,6 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
     }
 }
 
-/*! \fn     ctrPreEncryptionTasks(void)
-*   \brief  CTR pre encryption tasks
-*/
-void ctrPreEncryptionTasks(void)
-{
-    uint16_t carry = CTR_FLASH_MIN_INCR;
-    uint8_t temp_buffer[USER_CTR_SIZE];
-    int8_t i;
-    
-    // Read CTR stored in flash
-    readProfileCtr(&nodeMgmtHandle, temp_buffer, USER_CTR_SIZE);
-    
-    // If it is the same value, increment it by X and store it in flash
-    if (aesCtrCompare(temp_buffer, nextCtrVal, USER_CTR_SIZE) == 0)
-    {
-        for (i = USER_CTR_SIZE-1; i > 0; i--)
-        {
-             carry = (uint16_t)temp_buffer[i] + carry;
-             temp_buffer[i] = (uint8_t)(carry);
-             carry = (carry >> 8) & 0xFF;
-        }
-        setProfileCtr(&nodeMgmtHandle, (void*)temp_buffer, USER_CTR_SIZE);
-    }
-}
-
-/*! \fn     ctrPostEncryptionTasks(void)
-*   \brief  CTR post encryption tasks
-*/
-void ctrPostEncryptionTasks(void)
-{    
-    aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
-    aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);    
-}
-
 /*! \fn     setPasswordForContext(uint8_t* password, uint8_t length)
 *   \brief  Set password for current context
 *   \param  password    String containing the password
@@ -525,11 +531,8 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, USER_CTR_SIZE);
             ctrPostEncryptionTasks();
             
-            // Wait for credential timer to fire (we wanted to clear the flag anyway)
-            while (credential_timer_valid == TRUE)
-            {
-                asm("NOP");
-            }
+            // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
+            while (credential_timer_valid == TRUE);
             
             // Update child node to store password
             if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
@@ -575,21 +578,9 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
             {
                 return RETURN_PASS_CHECK_NOK;
             }
-            
-            // Preventing side channel attacks: only send the return after a given amount of time
-            launchCredentialTimerUsedAsAesTimer();
-            
-            // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
-            memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
-            aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
-            aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
-            aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
-            
-            // Wait for credential timer to fire (we wanted to clear the flag anyway)
-            while (credential_timer_valid == TRUE)
-            {
-                asm("NOP");
-            }
+                        
+            // Call the password decryption function, which also clears the credential_timer_valid flag
+            decryptTempCNodePasswordAndClearCTVFlag(temp_buffer);
             
             if (strcmp((char*)temp_cnode.password, (char*)password) == 0)
             {

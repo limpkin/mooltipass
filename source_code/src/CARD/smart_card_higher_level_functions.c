@@ -129,38 +129,42 @@ RET_TYPE cardDetectedRoutine(void)
         // Detect if the card is blank by checking that the manufacturer zone is different from FFFF
         if (swap16(*(uint16_t*)readManufacturerZone(temp_buffer)) == 0xFFFF)
         {
-            // Card is new - transform into mooltipass
-            #ifdef DEBUG_SMC_USB_PRINT
-                usbPutstr_P(PSTR("Blank card, transforming...\r\n"));
-            #endif
+            #ifdef ENABLE_MOOLTIPASS_CARD_FORMATTING
+                // Card is new - transform into mooltipass
+                #ifdef DEBUG_SMC_USB_PRINT
+                    usbPutstr_P(PSTR("Blank card, transforming...\r\n"));
+                #endif
 
-            // Try to authenticate with factory pin
-            temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);
+                // Try to authenticate with factory pin
+                temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);
 
-            if (temp_rettype == RETURN_PIN_OK)                   // Card is unlocked - transform
-            {
-                if (transformBlankCardIntoMooltipass() == RETURN_OK)
+                if (temp_rettype == RETURN_PIN_OK)                   // Card is unlocked - transform
                 {
-                    #ifdef DEBUG_SMC_USB_PRINT
-                        usbPutstr_P(PSTR("Card transformed!\r\n"));
-                    #endif
-                    return RETURN_MOOLTIPASS_BLANK;
+                    if (transformBlankCardIntoMooltipass() == RETURN_OK)
+                    {
+                        #ifdef DEBUG_SMC_USB_PRINT
+                            usbPutstr_P(PSTR("Card transformed!\r\n"));
+                        #endif
+                        return RETURN_MOOLTIPASS_BLANK;
+                    }
+                    else
+                    {
+                        #ifdef DEBUG_SMC_USB_PRINT
+                            usbPutstr_P(PSTR("Couldn't transform card!\r\n"));
+                        #endif
+                        return RETURN_MOOLTIPASS_PB;
+                    }
                 }
-                else
+                else                                                            // Card unlock failed. Show number of tries left
                 {
                     #ifdef DEBUG_SMC_USB_PRINT
-                        usbPutstr_P(PSTR("Couldn't transform card!\r\n"));
+                        usbPrintf_P(PSTR("%d tries left, wrong pin\r\n"),getNumberOfSecurityCodeTriesLeft());
                     #endif
                     return RETURN_MOOLTIPASS_PB;
                 }
-            }
-            else                                                            // Card unlock failed. Show number of tries left
-            {
-                #ifdef DEBUG_SMC_USB_PRINT
-                    usbPrintf_P(PSTR("%d tries left, wrong pin\r\n"),getNumberOfSecurityCodeTriesLeft());
-                #endif
+            #else
                 return RETURN_MOOLTIPASS_PB;
-            }
+            #endif
         }
         else                                                                // Card is already converted into a mooltipass
         {

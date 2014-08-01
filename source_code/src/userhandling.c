@@ -276,7 +276,7 @@ void decryptTempCNodePasswordAndClearCTVFlag(void)
 /*! \fn     encryptTempCNodePasswordAndClearCTVFlag(void)
 *   \brief  Encrypt the password currently stored in temp_cnode.password, clear credential_timer_valid
 */
-void encryptTempCNodePasswordAndClearCTVFlag(void)
+static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
 {
     uint8_t temp_buffer[AES256_CTR_LENGTH];
     
@@ -678,10 +678,7 @@ RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* use
         if (temp_bool == TRUE)
         {
             // We found the CPZ, store the aes ctr value & the user id
-            for (j = 0; j < AES256_CTR_LENGTH; j++)
-            {
-                nonce[j] = eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH+j);
-            }
+            eeprom_read_block(nonce, (void*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH, AES256_CTR_LENGTH);
             *userid = eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH+AES256_CTR_LENGTH);
             return RETURN_OK;
         }
@@ -719,16 +716,8 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
             // Increment the number of users
             eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_USERS_ADDR, getNumberOfKnownUsers()+1);
         }
-        for (i = 0; i < SMARTCARD_CPZ_LENGTH; i++)
-        {
-            // Store the CPZ
-            eeprom_write_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + i, buffer[i]);
-        }
-        for (i = 0; i < AES256_CTR_LENGTH; i++)
-        {
-            // Store the AES CTR value
-            eeprom_write_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + SMARTCARD_CPZ_LENGTH + i, nonce[i]);
-        }
+        eeprom_write_block((void*)buffer, (void*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH, SMARTCARD_CPZ_LENGTH);
+        eeprom_write_block((void*)nonce, (void*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + SMARTCARD_CPZ_LENGTH, AES256_CTR_LENGTH);
         eeprom_write_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH, userid);
         eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_CARDS_ADDR, getNumberOfKnownCards()+1);
         return RETURN_OK;

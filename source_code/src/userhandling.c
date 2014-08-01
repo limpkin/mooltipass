@@ -253,21 +253,21 @@ void ctrPostEncryptionTasks(void)
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);    
 }
 
-/*! \fn     decryptTempCNodePasswordAndClearCTVFlag(uint8_t* buffer)
-*   \brief  Decrypt the password currently stored in temp_cnode, clear credential_timer_valid
-*   \param  buffer  Where to store the decrypted password, at least AES256_CTR_LENGTH long!
+/*! \fn     decryptTempCNodePasswordAndClearCTVFlag(void)
+*   \brief  Decrypt the password currently stored in temp_cnode.password, clear credential_timer_valid
 */
-void decryptTempCNodePasswordAndClearCTVFlag(uint8_t* buffer)
-{    
+void decryptTempCNodePasswordAndClearCTVFlag(void)
+{ 
+    uint8_t temp_buffer[AES256_CTR_LENGTH];
+    
     // Preventing side channel attacks: only send the password after a given amount of time
     launchCredentialTimerUsedAsAesTimer();
     
     // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
-    memcpy((void*)buffer, (void*)current_nonce, AES256_CTR_LENGTH);
-    aesXorVectors(buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
-    aes256CtrSetIv(&aesctx, buffer, AES256_CTR_LENGTH);
+    memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
+    aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
+    aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
     aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
-    strcpy((char*)buffer, (char*)temp_cnode.password);
     
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
     while (credential_timer_valid == TRUE);    
@@ -393,9 +393,7 @@ RET_TYPE getLoginForContext(char* buffer)
 *   \return If password was entered
 */
 RET_TYPE getPasswordForContext(char* buffer)
-{
-    uint8_t temp_buffer[AES256_CTR_LENGTH];
-    
+{    
     if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE) && (selected_login_flag == TRUE))
     {
         // Fetch password from selected login and send it over USB
@@ -405,7 +403,8 @@ RET_TYPE getPasswordForContext(char* buffer)
         }
         
         // Call the password decryption function, which also clears the credential_timer_valid flag
-        decryptTempCNodePasswordAndClearCTVFlag(temp_buffer);
+        decryptTempCNodePasswordAndClearCTVFlag();
+        strcpy((char*)buffer, (char*)temp_cnode.password);
         
         // Timer fired, return
         return RETURN_OK; 
@@ -544,9 +543,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 *   \return Operation success or not (see pass_check_return_t)
 */
 RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
-{
-    uint8_t temp_buffer[AES256_CTR_LENGTH];
-    
+{    
     // If timer is running
     if (password_check_timer_on == TRUE)
     {
@@ -569,7 +566,7 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
             }
                         
             // Call the password decryption function, which also clears the credential_timer_valid flag
-            decryptTempCNodePasswordAndClearCTVFlag(temp_buffer);
+            decryptTempCNodePasswordAndClearCTVFlag();
             
             if (strcmp((char*)temp_cnode.password, (char*)password) == 0)
             {

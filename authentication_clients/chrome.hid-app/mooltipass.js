@@ -39,7 +39,7 @@
  */
 
 var device_info = { "vendorId": 0x16d0, "productId": 0x09a0 };      // Mooltipass
-var debug = false;
+var debug = true;
 
 var packetSize = 64;    // number of bytes in an HID packet
 var payloadSize = packetSize - 2;

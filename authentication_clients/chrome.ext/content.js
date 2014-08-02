@@ -107,10 +107,8 @@ function fieldChanged(input)
     {
         console.log('check '+key);
         if ((input.id) && (mpCreds.inputs[key].id == input.id)) {
-            console.log('check id '+key+' '+input.value+' == '+mpCreds.inputs[key].value);
             return (input.value != mpCreds.inputs[key].value) ? true : false;
         } else if ((input.name) && (mpCreds.inputs[key].name == input.name)) {
-            console.log('check name '+key+' '+input.value+' == '+mpCreds.inputs[key].value);
             return (input.value != mpCreds.inputs[key].value) ? true : false;
         } 
     }

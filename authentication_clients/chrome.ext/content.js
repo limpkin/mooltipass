@@ -146,7 +146,7 @@ function credentialsChanged(creds)
 }
 
 
-function checkSubmittedCredentials(form)
+function checkSubmittedCredentials(form, event)
 {
     if (!credFields) 
     {
@@ -172,6 +172,7 @@ function checkSubmittedCredentials(form)
                 document.body.appendChild(layerNode);
             }
             console.log('content: update dialog');
+            event.preventDefault();
             $( "#mpDialog" ).dialog({
                 autoOpen: true,
                 show: {
@@ -226,10 +227,9 @@ addEventListener('DOMContentLoaded', function f()
         var form = this;
         if (checkSubmit)
         {
-            event.preventDefault();
             console.log('checking submitted credentials');
             // see if we should store the credentials
-            checkSubmittedCredentials(form);
+            checkSubmittedCredentials(form, event);
         }
     });
     credFields = getCredentials();

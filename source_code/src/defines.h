@@ -89,7 +89,7 @@
     #define HARDWARE_OLIVIER_V1    
 #endif
 
-/**************** DEBUG PRINTFS ****************/
+/**************** DEBUG PRINTS ****************/
 // Used for smart card testing
 //#define DEBUG_SMC_SCREEN_PRINT
 //#define DEBUG_SMC_USB_PRINT
@@ -105,7 +105,12 @@
 // Used for USB communications
 //#define USB_DEBUG_OUTPUT
 
-#undef ENABLE_PRINTF		// enable printf for OLED and USB
+/**************** PRINTF ACTIVATION ****************/
+#if defined(DEBUG_SMC_SCREEN_PRINT) || defined(DEBUG_SMC_USB_PRINT) || defined(FLASH_TEST_DEBUG_OUTPUT_USB) || defined(GENERAL_LOGIC_OUTPUT_USB) || defined(CMD_PARSER_USB_DEBUG_OUTPUT) || defined(USB_DEBUG_OUTPUT)
+    #define ENABLE_PRINTF
+#else
+    #undef ENABLE_PRINTF
+#endif
 
 #ifndef ENABLE_PRINTF
     #define printf(...)

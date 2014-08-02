@@ -29,6 +29,66 @@
 #include <stdint.h>
 
 
+/**************** SETUP DEFINES ****************/
+/*
+ *  V1_DEVELOPERS_BOOTLOADER_SETUP
+ *  => the first hardware version, with bootloader
+ *  
+ *  V1_DEVELOPERS_ISP_SETUP
+ *  => the first hardware version, without bootloader
+ *
+ *  V2_DEVELOPERS_BOOTLOADER_SETUP
+ *  => final hardware version for developpers, with bootloader
+ *
+ *  V2_DEVELOPERS_ISP_SETUP
+ *  => final hardware version for developpers, without bootloader (for Mike)
+ * 
+ *  BETATESTERS_SETUP
+ *  => version sent to the beta testers
+ *
+ *  PRODUCTION_SETUP
+ *  => final version for production
+*/
+#define XXXXXXX
+#if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
+    #define HARDWARE_V1
+    #define TESTS_ENABLED
+    #define FLASH_CHIP_1M
+    #define SMARTCARD_FUSE_V1
+    #define NO_PIN_CODE_REQUIRED
+    #define AVR_BOOTLOADER_PROGRAMMING
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(V1_DEVELOPERS_ISP_SETUP)
+    #define HARDWARE_V1
+    #define TESTS_ENABLED
+    #define FLASH_CHIP_1M
+    #define SMARTCARD_FUSE_V1
+    #define NO_PIN_CODE_REQUIRED
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(V2_DEVELOPERS_BOOTLOADER_SETUP)
+    #define TESTS_ENABLED
+    #define FLASH_CHIP_1M
+    #define HARDWARE_OLIVIER_V1
+    #define NO_PIN_CODE_REQUIRED
+    #define AVR_BOOTLOADER_PROGRAMMING
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(V2_DEVELOPERS_ISP_SETUP)
+    #define TESTS_ENABLED
+    #define FLASH_CHIP_1M
+    #define HARDWARE_OLIVIER_V1
+    #define NO_PIN_CODE_REQUIRED
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(BETATESTERS_SETUP)
+    #define FLASH_CHIP_32M
+    #define HARDWARE_OLIVIER_V1
+    #define NO_PIN_CODE_REQUIRED
+    #define AVR_BOOTLOADER_PROGRAMMING
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(PRODUCTION_SETUP)
+    #define FLASH_CHIP_32M
+    #define HARDWARE_OLIVIER_V1    
+#endif
+
 /**************** DEBUG PRINTFS ****************/
 // Used for smart card testing
 //#define DEBUG_SMC_SCREEN_PRINT
@@ -62,7 +122,7 @@
 
 /**************** PROGRAMMING HARDWARE ****************/
 // Uncomment to go to the original boot loader when smart card inserted at boot
-#define AVR_BOOTLOADER_PROGRAMMING
+//#define AVR_BOOTLOADER_PROGRAMMING
 
 /**************** SMARTCARD FUSE VERSION ****************/
 // First smart card sent to the first contributors
@@ -70,11 +130,11 @@
 
 /**************** PIN HANDLING ******************/
 // Comment to let the user enter his PIN
-#define NO_PIN_CODE_REQUIRED
+//#define NO_PIN_CODE_REQUIRED
 
 /************** SMARTCARD FORMATING **************/
 // Comment to prevent mooltipass card formatting (for production)
-#define ENABLE_MOOLTIPASS_CARD_FORMATTING
+//#define ENABLE_MOOLTIPASS_CARD_FORMATTING
 
 /************** TESTS ENABLING ***************/
 // Comment to disable test calls

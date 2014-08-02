@@ -65,18 +65,21 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
 */
 
 // Chip selection
-#define FLASH_CHIP_1M 1    // Used to identify a 1M Flash Chip (AT45DB011D)
-#define FLASH_CHIP_2M 2    // Used to identify a 2M Flash Chip (AT45DB021E)
-#define FLASH_CHIP_4M 4    // Used to identify a 4M Flash Chip (AT45DB041E)
-#define FLASH_CHIP_8M 8    // Used to identify a 8M Flash Chip (AT45DB081E)
-#define FLASH_CHIP_16M 16  // Used to identify a 16M Flash Chip (AT45DB161E)
-#define FLASH_CHIP_32M 32  // Used to identify a 32M Flash Chip (AT45DB321E)
-// mooltipass cannot use 64M flash (16-bit address space prevents it)
+#if defined(FLASH_CHIP_1M)      // Used to identify a 1M Flash Chip (AT45DB011D)
+    #define FLASH_CHIP 1
+#elif defined(FLASH_CHIP_2M)    // Used to identify a 2M Flash Chip (AT45DB021E)
+    #define FLASH_CHIP 2
+#elif defined(FLASH_CHIP_4M)    // Used to identify a 4M Flash Chip (AT45DB041E)
+    #define FLASH_CHIP 4
+#elif defined(FLASH_CHIP_8M)    // Used to identify a 8M Flash Chip (AT45DB081E)
+    #define FLASH_CHIP 8
+#elif defined(FLASH_CHIP_16M)   // Used to identify a 16M Flash Chip (AT45DB161E)
+    #define FLASH_CHIP 16
+#elif defined(FLASH_CHIP_32M)   // Used to identify a 32M Flash Chip (AT45DB321E)
+    #define FLASH_CHIP 32
+#endif
 
-// Set FLASH_CHIP to value of FLASH_CHIP_<XX>M -> Possible compile time option / flag?
-#define FLASH_CHIP FLASH_CHIP_1M       // Used to identify the flash chip in use
-
-#if FLASH_CHIP==FLASH_CHIP_1M
+#if defined(FLASH_CHIP_1M)
     #define MAN_FAM_DEN_VAL 0x22       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 512             // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
@@ -105,7 +108,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     // write_p2 -> 264size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 6 D/C, 9 Page Address, 9 Buffer Address
     
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 9 Page Address, 9 Offset, 6 D/C ?
-#elif FLASH_CHIP==FLASH_CHIP_2M 
+#elif defined(FLASH_CHIP_2M) 
     #define MAN_FAM_DEN_VAL 0x23       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 1024            // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
@@ -134,7 +137,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     // write_p2 -> 264size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 5 D/C, 10 Page Address, 9 Buffer Address
     
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 10 Page Address, 9 Offset, 5 D/C ?
-#elif FLASH_CHIP==FLASH_CHIP_4M
+#elif defined(FLASH_CHIP_4M)
     #define MAN_FAM_DEN_VAL 0x24       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 2048            // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
@@ -163,7 +166,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     // write_p2 -> 264size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 4 D/C, 11 Page Address, 9 Buffer Address
     
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 11 Page Address, 9 Offset, 4 D/C ?
-#elif FLASH_CHIP==FLASH_CHIP_8M
+#elif defined(FLASH_CHIP_8M)
     #define MAN_FAM_DEN_VAL 0x25       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 4096            // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
@@ -192,7 +195,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     // write_p2 -> 264size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 3 D/C, 12 Page Address, 9 Buffer Address
     
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 12 Page Address, 9 Offset, 3 D/C ?
-#elif FLASH_CHIP==FLASH_CHIP_16M
+#elif defined(FLASH_CHIP_16M)
     #define MAN_FAM_DEN_VAL 0x26       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 4096            // Number of pages in the chip
     #define BYTES_PER_PAGE 528         // Bytes per page of the chip
@@ -221,7 +224,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     // write_p2 -> 528size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 2 D/C, 12 Page Address, 10 Buffer Address
     
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 12 Page Address, 10 Offset, 2 D/C ?
-#elif FLASH_CHIP==FLASH_CHIP_32M
+#elif defined(FLASH_CHIP_32M)
     #define MAN_FAM_DEN_VAL 0x27       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 8192            // Number of pages in the chip
     #define BYTES_PER_PAGE 528         // Bytes per page of the chip

@@ -1,4 +1,4 @@
-update=21/06/2014 13:18:46
+update=02/08/2014 23:02:19
 last_client=eeschema
 [pcbnew]
 version=1
@@ -41,7 +41,7 @@ LibName17=limpkins_lib
 [eeschema]
 version=1
 LibDir=
-NetFmtName=
+NetFmtName=PcbnewAdvanced
 RptD_X=0
 RptD_Y=100
 RptLab=1

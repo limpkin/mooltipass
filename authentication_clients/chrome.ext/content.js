@@ -171,7 +171,7 @@ function checkSubmittedCredentials(form)
                 layerNode.appendChild(pNode);
                 document.body.appendChild(layerNode);
             }
-            console.log('content: update dialog, creds='+JSON.stringify(credFields)+'\n');
+            console.log('content: update dialog');
             $( "#mpDialog" ).dialog({
                 autoOpen: true,
                 show: {

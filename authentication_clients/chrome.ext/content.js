@@ -33,6 +33,7 @@ var mpCreds = null;
 var credFields = null;
 var credFieldsArray = null;
 var checkSubmit = true;     // when true intercept the submit and check for update
+var passForm = null;
 
 
 console.log('mooltipass content script loaded');
@@ -90,6 +91,8 @@ function getCredentials(submitted)
         }
     }
     console.log('getCredentials: login id='+login.id+' name='+login.name+'\n');
+
+    passForm = $(pass[0]).closest('form');
 
     return { login: {id: login.id, name: login.name}, password: {id: pass[0].id, name: pass[0].name} };
 }
@@ -274,9 +277,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                 }
             }
             // only submit if all credentials have been supplied?
-            //checkSubmit = false;
-            //$('form').submit();
-            //checkSubmit = true;
+            if (passForm) {
+                checkSubmit = false;
+                passForm.submit();
+                checkSubmit = true;
+            }
             break;
 
         case 'updateComplete':

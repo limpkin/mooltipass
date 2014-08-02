@@ -41,15 +41,14 @@ parser = OptionParser(usage = '''usage: %prog [options] bitmap1 bitmap2 font1 bi
 parser.add_option('-o', '--output', help='name of output file', dest='output', default='bundle.img')
 (options, args) = parser.parse_args()
 
-FLASH_PAGE_SIZE = 264
 MEDIA_BITMAP = 1
 MEDIA_FONT   = 2
 
 def buildBundle(bundlename, files):
     data = []
-    header = array('I')
+    header = array('H')             # unsigned short array (uint16_t)
     header.append(len(files))
-    reserve = 4*len(files) + 4 + 8 * FLASH_PAGE_SIZE     # leave room for the header
+    reserve = 2*len(files) + 2      # leave room for the header
     size = reserve
 
     for filename in files:

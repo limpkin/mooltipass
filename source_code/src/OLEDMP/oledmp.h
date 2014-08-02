@@ -159,7 +159,7 @@ void oledOn(void);
 #define OLED_SCROLL_DOWN	2
 #define OLED_RAM_BITMAP		4
 
-int16_t oledGetFileAddr(uint8_t fileId, uint32_t *addr);
+int16_t oledGetFileAddr(uint8_t fileId, uint16_t *addr);
 void oledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_t *bs, uint8_t options);
 int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
 #ifdef OLED_FEATURE_PGM_MEMORY

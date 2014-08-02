@@ -66,7 +66,7 @@
 
 #undef OLED_DEBUG
 #undef OLED_DEBUG1
-#undef OLED_DEBUG1
+#undef OLED_DEBUG2
 
 // OLED specific port and pin definitions
 #define OLED_PORT_CS	&PORT_OLED_SS
@@ -123,7 +123,7 @@ static struct
 #define FONT_NONE   255
 
 static uint8_t fontId=FONT_NONE;         //*< Current font index in SPI flash
-static uint32_t oledFontAddr;            //*< Address of current font in SPI flash
+static uint16_t oledFontAddr;            //*< Address of current font in SPI flash
 static flashFont_t *oled_fontp = (flashFont_t *)0;
 static fontHeader_t currentFont;
 static uint8_t oled_cur_x[2] = { 0, 0 };
@@ -688,19 +688,15 @@ uint8_t oledGetOffset(void)
  * @param addr pointer to address to fill
  * @returns -1 on error, else the type of the media file.
  */
-int16_t oledGetFileAddr(uint8_t fileId, uint32_t *addr)
+int16_t oledGetFileAddr(uint8_t fileId, uint16_t *addr)
 {
-    uint32_t fileCount;
+    uint16_t fileCount;
     uint16_t type;
 
-    flashRawRead((uint8_t *)&fileCount, GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE, sizeof(fileCount));
-    
+    flashRawRead((uint8_t *)&fileCount, GRAPHIC_ZONE_START, sizeof(fileCount));
     // We haven't formatted the memory
     if (fileCount > 200)
     {
-#ifdef OLED_DEBUG
-        usbPrintf_P(PSTR("oledGetFileAddr file %d too large\n"),fileId);
-#endif
         return -1;
     }
 
@@ -713,13 +709,18 @@ int16_t oledGetFileAddr(uint8_t fileId, uint32_t *addr)
         return -1;
     }
 
-    flashRawRead((uint8_t *)addr, GRAPHIC_ZONE_PAGE_START*BYTES_PER_PAGE +
-                    fileId * sizeof(uint32_t) + sizeof(uint32_t), sizeof(*addr));
+    flashRawRead((uint8_t *)addr, GRAPHIC_ZONE_START +
+                    fileId * sizeof(uint16_t) + sizeof(uint16_t), sizeof(*addr));
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("oledGetFileAddr fileCount %u rel addr 0x%04x\n"), fileCount, *addr);
+#endif
+    
 
+    *addr += GRAPHIC_ZONE_START;
     flashRawRead((uint8_t *)&type, *addr, sizeof(type));
     *addr += sizeof(type);
 #ifdef OLED_DEBUG
-    usbPrintf_P(PSTR("oledGetFileAddr file %d type 0x%x addr 0x%04lx\n"), fileId, type, *addr);
+    usbPrintf_P(PSTR("oledGetFileAddr file %d type 0x%x addr 0x%04x\n"), fileId, type, *addr);
 #endif
 
     return type;
@@ -1508,7 +1509,7 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
 {
     bitstream_t bs;
     bitmap_t bitmap;
-    uint32_t addr;
+    uint16_t addr;
 
     if (fileId >= 0x80)
     {

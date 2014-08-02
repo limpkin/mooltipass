@@ -312,13 +312,7 @@ RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
         return ret;
     }
     
-    // scan for next free parent node (starting sector 1, page 0, node 0)
-    ret = scanNodeUsage(h);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
-    
+    // scan for next free parent and child nodes
     ret = scanNodeUsage(h);
     if(ret != RETURN_OK)
     {

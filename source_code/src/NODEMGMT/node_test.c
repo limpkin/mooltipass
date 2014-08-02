@@ -1008,7 +1008,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     oldHandleFirstParentNode = h->firstParentNode;
     
     // delete node 'k'
-    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 2), DELETE_POLICY_WRITE_ONES);
+    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 2));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_5_DELETE_NODE_ERROR;
@@ -1117,7 +1117,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     oldHandleFirstParentNode = h->firstParentNode;
     
     // delete node 'm'
-    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 1), DELETE_POLICY_WRITE_ONES);
+    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 1));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_6_DELETE_NODE_ERROR;
@@ -1198,7 +1198,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     oldHandleFirstParentNode = h->firstParentNode;
     
     // delete node 'a'
-    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 3), DELETE_POLICY_WRITE_ONES);
+    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 3));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_7_DELETE_NODE_ERROR;
@@ -1253,7 +1253,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     oldHandleFirstParentNode = h->firstParentNode;
     
     // delete node 'c'
-    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 0), DELETE_POLICY_WRITE_ONES);
+    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 0));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_8_DELETE_NODE_ERROR;
@@ -2200,7 +2200,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     oldParentNextChildNode = parentPtr->nextChildAddress;
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
-    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId), DELETE_POLICY_WRITE_ONES);
+    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_5_DELETE_CHILD_NODE_ERROR;
@@ -2334,7 +2334,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     oldParentNextChildNode = parentPtr->nextChildAddress;
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
-    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId), DELETE_POLICY_WRITE_ONES);
+    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_6_DELETE_CHILD_NODE_ERROR;
@@ -2439,7 +2439,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     oldParentNextChildNode = parentPtr->nextChildAddress;
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
-    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId), DELETE_POLICY_WRITE_ONES);
+    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_7_DELETE_CHILD_NODE_ERROR;
@@ -2515,7 +2515,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     oldParentNextChildNode = parentPtr->nextChildAddress;
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
-    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId), DELETE_POLICY_WRITE_ONES);
+    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_8_DELETE_CHILD_NODE_ERROR;

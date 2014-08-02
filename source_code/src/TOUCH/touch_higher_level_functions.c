@@ -23,6 +23,7 @@
  */
 #include "touch_higher_level_functions.h"
 #include "defines.h"
+#include <string.h>
 #include "touch.h"
 
 
@@ -113,6 +114,26 @@ RET_TYPE getTouchedButton(void)
     }
 }
 
+/*! \fn     activateGuardKey(void)
+*   \brief  Activate the guard key
+*/
+void activateGuardKey(void)
+{
+    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_PULSE_SCL, 0x00); 
+    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_CTRL, AT42QT2120_GUARD_VAL|AT42QT2120_AKS_GP1_MASK); 
+    launchCalibrationCycle();
+}
+
+/*! \fn     activateProxDetection(void)
+*   \brief  Activate the proximity detection feature
+*/
+void activateProxDetection(void)
+{
+    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_PULSE_SCL, 0x73); 
+    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_KEY3_CTRL, AT42QT2120_AKS_GP1_MASK); 
+    launchCalibrationCycle();
+}
+
 /*! \fn     initTouchSensing()
 *   \brief  Initialize AT42QT2120
 */
@@ -155,7 +176,11 @@ RET_TYPE initTouchSensing(void)
 RET_TYPE touchDetectionRoutine(void)
 {
     RET_TYPE return_val = RETURN_NO_CHANGE;
+    uint8_t led_states[NB_KEYS];
     uint8_t temp_byte;
+    
+    // Set the LEDs on by default
+    memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);
     
     if (isTouchChangeDetected())
     {
@@ -165,54 +190,42 @@ RET_TYPE touchDetectionRoutine(void)
                     
             if (temp_byte < 0x3F)
             {
-                switchOffTopRightWheelLed();
-                switchOnTopLeftWheelLed();
-                switchOnBotLeftWheelLed();
-                switchOnBotRightWheelLed();
+                led_states[TOUCH_TRIGHT] = AT42QT2120_OUTPUT_L_VAL;
             }
             else if (temp_byte < 0x7F)
             {
-                switchOffBotRightWheelLed();
-                switchOnTopLeftWheelLed();
-                switchOnTopRightWheelLed();
-                switchOnBotLeftWheelLed();
+                led_states[TOUCH_BRIGHT] = AT42QT2120_OUTPUT_L_VAL;
             }
             else if (temp_byte < 0xBF)
             {
-                switchOffBotLeftWheelLed();
-                switchOnTopLeftWheelLed();
-                switchOnTopRightWheelLed();
-                switchOnBotRightWheelLed();
+                led_states[TOUCH_BLEFT] = AT42QT2120_OUTPUT_L_VAL;
             }
             else
             {
-                switchOffTopLeftWheelLed();
-                switchOnTopRightWheelLed();
-                switchOnBotLeftWheelLed();
-                switchOnBotRightWheelLed();
+                led_states[TOUCH_TLEFT] = AT42QT2120_OUTPUT_L_VAL;
             }
             return_val |= RETURN_WHEEL_PRESSED;
         }
         else
         {
-            switchOnTopLeftWheelLed();
-            switchOnTopRightWheelLed();
-            switchOnBotLeftWheelLed();
-            switchOnBotRightWheelLed();
             return_val |= RETURN_WHEEL_RELEASED;
         }
+        writeDataToTS(AT42QT2120_ADDR, WHEEL_TLEFT_LED_REGISTER, led_states[TOUCH_TLEFT]);
+        writeDataToTS(AT42QT2120_ADDR, WHEEL_TRIGHT_LED_REGISTER, led_states[TOUCH_TRIGHT]);
+        writeDataToTS(AT42QT2120_ADDR, WHEEL_BLEFT_LED_REGISTER, led_states[TOUCH_BLEFT]);
+        writeDataToTS(AT42QT2120_ADDR, WHEEL_BRIGHT_LED_REGISTER,  led_states[TOUCH_BRIGHT]);
                 
         if (isButtonTouched() == RETURN_OK)
         {
             if (getTouchedButton() == LEFT_BUTTON)
             {
-                switchOffLeftButonLed();
+                led_states[TOUCH_LEFT] = AT42QT2120_OUTPUT_L_VAL;
                 return_val |= RETURN_LEFT_PRESSED;
                 return_val |= RETURN_RIGHT_RELEASED;
             }
             else if(getTouchedButton() == RIGHT_BUTTON)
             {
-                switchOffRightButonLed();
+                led_states[TOUCH_RIGHT] = AT42QT2120_OUTPUT_L_VAL;
                 return_val |= RETURN_RIGHT_PRESSED;
                 return_val |= RETURN_LEFT_RELEASED;
             }
@@ -223,12 +236,12 @@ RET_TYPE touchDetectionRoutine(void)
         }
         else
         {
-            switchOnLeftButonLed();
-            switchOnRightButonLed();
             return_val |= RETURN_PROX_RELEASED;
             return_val |= RETURN_LEFT_RELEASED;
             return_val |= RETURN_RIGHT_RELEASED;
         }
+        writeDataToTS(AT42QT2120_ADDR, LEFT_LED_REGISTER, led_states[TOUCH_LEFT]);
+        writeDataToTS(AT42QT2120_ADDR, RIGHT_LED_REGISTER, led_states[TOUCH_RIGHT]);
     }
     
     return return_val;   

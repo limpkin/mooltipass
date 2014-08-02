@@ -6,7 +6,7 @@ In case of the thick Arduino compatible version, the P3 & P4 connector pins must
 Specs: 4 layers, 1.6mm, 0.2-1.2-0.2mm stackup
 
 2) Top PCB (see gerbers_top folder):
-This is a PCB containing the capacitive touch wheel, on which should be put the 35mm diameter double sided tape (see 3).
+This is a PCB containing the capacitive touch wheel, on which should be put the double sided tape (see 3).
 Its soldermask should be black, and the back of the PCB must be machined (1.2mm deep) following the path shown in the pcb_milling folder.
 Specs: 2 layers, 1.6mm, black soldermask
 
@@ -37,5 +37,6 @@ Assembly and other details:
 - 1min functional test must be performed after assembly
 
 Other documentation:
+- assembly video for the aluminum version: https://www.youtube.com/watch?v=xTOw-sVSXzQ
 - http://hackaday.com/2014/06/05/developed-on-hackaday-we-have-final-prototypes/ 
 - http://hackaday.com/2014/04/15/developed-on-hackaday-oliviers-design-rundown/

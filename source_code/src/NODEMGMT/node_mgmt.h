@@ -176,6 +176,8 @@ typedef struct __attribute__((packed)) nodeMgmtH
     uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
     uint16_t nextFreeParentNode;    /*!< The address of the next parent node */
     uint16_t nextFreeChildNode;     /*!< The address of the next child or data node */
+	uint16_t lastSeenParent;		/*!< The address of the parent at the end of the 'stack' */
+	uint16_t fistSeenChild;			/*!< The address of the child at the end of the 'heap' */
     pNode parent;                   /*!< A parent node to be used as a buffer for parent nodes in the API */
     union {
         cNode child;

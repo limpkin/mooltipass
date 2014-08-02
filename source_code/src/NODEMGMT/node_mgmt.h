@@ -96,15 +96,7 @@ typedef enum _nodeType
 #define GRAPHIC_ZONE_END            ((uint32_t)((uint32_t)SECTOR_START*(uint32_t)PAGE_PER_SECTOR*(uint32_t)BYTES_PER_PAGE))
 #define GRAPHIC_ZONE_PAGE_END       ((uint32_t)(GRAPHIC_ZONE_END/BYTES_PER_PAGE))
 
-/*!
-*  Node Deletion Policy ENUM 
-*/
-typedef enum
-{
-    DELETE_POLICY_WRITE_NOTHING = 1, /*!< Flip valid bit */
-    DELETE_POLICY_WRITE_ZEROS = 0x00,   /*!< Write node with all 0's */
-    DELETE_POLICY_WRITE_ONES = 0xff,    /*!< Write node with all 1's */
-} deletePolicy;
+#define DELETE_POLICY_WRITE_ONES 0xFF  /*! Node Deletion Policy Ones Memset Value */
 
 /*!
 * Struct containing a parent node
@@ -229,24 +221,21 @@ RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t
 RET_TYPE setProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize);
 RET_TYPE readProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize);
 
-RET_TYPE scanNextFreeParentNode(mgmtHandle *h, uint16_t startingAddress);
-
 RET_TYPE createParentNode(mgmtHandle *h, pNode *p);                                        
 RET_TYPE readParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
 RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
-RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress, deletePolicy policy);
+RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress);
 RET_TYPE invalidateParentNode(pNode *p);
 
 RET_TYPE invalidateChildNode(cNode *c);
-
-RET_TYPE scanNextFreeChildNode(mgmtHandle *h, uint16_t startingAddress);
 
 RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c);
 RET_TYPE createChildStartOfDataNode(mgmtHandle *h, uint16_t pAddr, cNode *c, uint8_t dataNodeCount);
 RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress);
 RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
-RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr, deletePolicy policy);
+RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr);
 
+RET_TYPE scanNodeUsage(mgmtHandle *h);
 
 
 #endif /* NODE_MGMT_H_ */

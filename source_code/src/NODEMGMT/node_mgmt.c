@@ -1740,10 +1740,7 @@ RET_TYPE scanNodeUsage(mgmtHandle*h)
 		
 		if(firstSeenChild == NODE_ADDR_NULL)
 		{
-			if(NODE_PARENT_PER_PAGE == 4)
-				nodeItr = 2;
-			else
-				nodeItr = 6;
+			nodeItr = NODE_CHILD_MAX_NODE;
 			
 			nextFreeChild = constructAddress(PAGE_COUNT-1, nodeItr);
 		}
@@ -1754,10 +1751,7 @@ RET_TYPE scanNodeUsage(mgmtHandle*h)
 			if(nodeItr == 0)
 			{
 				pageItr--;
-				if(NODE_PARENT_PER_PAGE == 4)
-					nodeItr = 2;
-				else
-					nodeItr = 6;
+				nodeItr = NODE_CHILD_MAX_NODE;
 			}
 			else
 			{
@@ -1778,6 +1772,8 @@ RET_TYPE scanNodeUsage(mgmtHandle*h)
 	// set handle vars (TODO move into above)
 	h->nextFreeParentNode = nextFreeParent;
 	h->nextFreeChildNode = nextFreeChild;
+	h->lastSeenParent = lastSeenParent;
+	h->fistSeenChild = firstSeenChild;
 	return ret;
 }
 

@@ -37,106 +37,105 @@ var checkSubmit = true;     // when true intercept the submit and check for upda
 
 console.log('mooltipass content script loaded');
 
-var credentialFieldTypes = {
-    'password':'password',
-    'email':'login',
-    'user_id':'login',
-    'user_login':'login',
-    'username':'login',
-    'name':'login'
+var loginFieldTypes = {
+    'user': 6,
+    'username': 5,
+    'user_id': 4,
+    'user_login': 3,
+    'name': 2,
+    'email': 1
 };
 
-
-function getCredential(input)
+function isLogin(input)
 {
-    console.log('getCredential('+input.id+')');
-    var type = input.type.toLowerCase()
-    var name = input.name.toLowerCase()
-    var id = input.id.toLowerCase()
-    var ctype = null;
-
-    if (type in credentialFieldTypes)
+    if (input.id.toLowerCase() in loginFieldTypes)
     {
-        ctype = type;
+        return loginFieldTypes[input.id.toLowerCase()];
     }
-    else if (name in credentialFieldTypes)
+    if (input.name.toLowerCase() in loginFieldTypes)
     {
-        ctype = name;
+        return loginFieldTypes[input.name.toLowerCase()];
     }
-    else if (id in credentialFieldTypes)
-    {
-        ctype = id;
-    }
-
-    if (ctype) {
-        if (input.id)
-        {
-            return {id: input.id, type: ctype};
-        }
-        else
-        {
-            return {name: input.name, type: ctype}
-        }
-    }
-    return null;
+    return 0;
 }
 
-function getCredentialFields() 
+function getCredentials(submitted)
 {
-    var result = [];
+    var pass = $(':password');
+    var login = null;
+    var loginPrecedence = 0;
 
-    $('input').each( function(i) 
-    {
-        cred = getCredential(this);
-        if (cred)
-        {
-            console.log('pushed '+JSON.stringify(cred));
-            result.push(cred);
+    if (typeof pass == 'undefined' || !pass || typeof pass[0] == 'undefined') {
+        console.log('no password input');
+        return null;
+    }
+
+    console.log('getCredentials: password id='+pass[0].id+' name='+pass[0].name+'\n');
+
+    // check for login input
+    $(':input').each( function(i) {
+        var newLogin = isLogin(this);
+        if (newLogin > loginPrecedence) {
+            if (submitted && this.value != '') {
+                loginPrecedence = newLogin;
+                login = this;
+            }
         }
     });
 
-    return result;
+    if (!login) {
+        pindex = $(':input').index( pass );
+        if (pindex > 0) {
+            login = $(':input').get(pindex-1);
+        }
+    }
+    console.log('getCredentials: login id='+login.id+' name='+login.name+'\n');
+
+    return { login: {id: login.id, name: login.name}, password: {id: pass[0].id, name: pass[0].name} };
 }
 
+
 // see if the field differs from the mooltipass value
-function fieldChanged(field)
+function fieldChanged(input)
 {
     if (!mpCreds)
     {
         return true;
     }
-    for (var ind=0; ind<mpCreds.fields.length; ind++)
+
+    for (var key in mpCreds.inputs)
     {
-        if (mpCreds.fields[ind].id == input.id) {
-            if (input.value != mpCreds.fields[ind].value) {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        console.log('check '+key);
+        if ((input.id) && (mpCreds.inputs[key].id == input.id)) {
+            console.log('check id '+key+' '+input.value+' == '+mpCreds.inputs[key].value);
+            return (input.value != mpCreds.inputs[key].value) ? true : false;
+        } else if ((input.name) && (mpCreds.inputs[key].name == input.name)) {
+            console.log('check name '+key+' '+input.value+' == '+mpCreds.inputs[key].value);
+            return (input.value != mpCreds.inputs[key].value) ? true : false;
+        } 
     }
-    // field not found, so it is changed
+    console.log('fieldChanged: input not found');
+    // input not found, consider it changed 
     return true;
 }
+
 
 function credentialsChanged(creds)
 {
     var changed = false;
-    for (var ind=0; ind<creds.length; ind++) 
-    {
-        if ('id' in creds[ind])
+
+    for (var key in creds) {
+        if (creds[key].id)
         {
-            console.log('changeCheck: cred '+creds[ind].id);
-            input = document.getElementById(creds[ind].id);
+            console.log('changeCheck: cred '+creds[key].id);
+            input = document.getElementById(creds[key].id);
         }
         else
         {
-            console.log('changeCheck: cred '+creds[ind].name);
-            input = document.getElementsByName(creds[ind].name)[0];
+            console.log('changeCheck: cred '+creds[key].name);
+            input = document.getElementsByName(creds[key].name)[0];
         }
-        creds[ind].value = input.value;
+        creds[key].value = input.value;
         if (fieldChanged(input)) 
         {
             changed = true;
@@ -144,6 +143,7 @@ function credentialsChanged(creds)
     }
     return changed;
 }
+
 
 function checkSubmittedCredentials(form)
 {
@@ -170,7 +170,7 @@ function checkSubmittedCredentials(form)
                 layerNode.appendChild(pNode);
                 document.body.appendChild(layerNode);
             }
-            console.log('content: update dialog');
+            console.log('content: update dialog, creds='+JSON.stringify(credFields)+'\n');
             $( "#mpDialog" ).dialog({
                 autoOpen: true,
                 show: {
@@ -219,25 +219,33 @@ function hasSecret(credlist)
 addEventListener('DOMContentLoaded', function f() 
 {
     removeEventListener('DOMContentLoaded', f, false);
-    console.log('mooltipass content script triggered');
     var forms = document.getElementsByTagName('form');
     $('form').submit(function(event) 
     {
         var form = this;
         if (checkSubmit)
         {
+            event.preventDefault();
             console.log('checking submitted credentials');
             // see if we should store the credentials
             checkSubmittedCredentials(form);
-            event.preventDefault();
         }
     });
-    credFields = getCredentialFields();
+    credFields = getCredentials();
+
+    if (credFields == null) {
+        // no credentials
+        console.log('no credentials, not sending');
+        return;
+    }
+
+    console.log('found credentials '+ JSON.stringify(credFields)+'\n');
 
     // send an array of the input fields to the mooltipass
-    if (hasSecret(credFields))
+    if ('password' in credFields)
     {
         // send a message back to the extension
+        console.log('sending credentials '+JSON.stringify(credFields)+'\n');
         chrome.runtime.sendMessage({type: 'inputs', url: window.location.href, inputs: credFields}, function(response) 
         {
             console.log('content: got response ' + JSON.stringify(response));
@@ -256,14 +264,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
     {
         case 'credentials':
             mpCreds = request;
+            //console.log('got credentials: '+JSON.stringify(request.inputs));
             // update the inputs
-            for (var ind=0; ind<request.fields.length; ind++) {
-                if ('id' in request.fields[ind]) {
-                    console.log('set: "'+request.fields[ind].id+'" = "'+request.fields[ind].value+'"');
-                    document.getElementById(request.fields[ind].id).value = request.fields[ind].value;
+            for (var key in request.inputs) {
+                if (request.inputs[key].id) {
+                    //console.log('set: "'+request.inputs[key].id+'" = "'+request.inputs[key].value+'"');
+                    document.getElementById(request.inputs[key].id).value = request.inputs[key].value;
                 } else {
-                    console.log('set: "'+request.fields[ind].name+'" = "'+request.fields[ind].value+'"');
-                    document.getElementsByName(request.fields[ind].name)[0].value = request.fields[ind].value;
+                    //console.log('set: "'+request.inputs[key].name+'" = "'+request.inputs[key].value+'"');
+                    document.getElementsByName(request.inputs[key].name)[0].value = request.inputs[key].value;
                 }
             }
             // only submit if all credentials have been supplied?

@@ -139,20 +139,12 @@ var uploadProgressBar = null;
 // map between input field types and mooltipass credential types
 var getFieldMap = {
     password:   CMD_GET_PASSWORD,
-    email:      CMD_GET_LOGIN,
-    username:   CMD_GET_LOGIN,
-    user_id:    CMD_GET_LOGIN,
-    user_login: CMD_GET_LOGIN,
-    name:       CMD_SET_LOGIN
+    login:      CMD_GET_LOGIN,
 };
 
 var setFieldMap = {
     password:   CMD_SET_PASSWORD,
-    email:      CMD_SET_LOGIN,
-    username:   CMD_SET_LOGIN,
-    user_id:    CMD_SET_LOGIN,
-    user_login: CMD_SET_LOGIN,
-    name:       CMD_SET_LOGIN
+    login:      CMD_SET_LOGIN,
 };
 
 
@@ -297,66 +289,30 @@ function sendRequestArray(type, data)
     sendRequest(type, body);
 }
 
-
-/**
- * Push the current pending credential onto the
- * credentials list with the specified value.
- * @param value the credential value
- */
-function storeField(value)
-{
-    if (authReq.pending) {
-        authReq.pending.value = value;
-        authReq.credentials.push(authReq.pending);
-        authReq.pending = null;
-    }
-    else
-    {
-        console.log('err: storeField('+value+') no field pending');
-    }
-}
-
-
 /**
  * Get the next credential field value from the mooltipass
  * The pending credential is set to the next one, and
- * a request is sent to the mooltipass to retreive its value.
+ * a request is sent to the mooltipass to get its value.
  */
 function getNextField()
 {
     if (authReq && authReq.type == 'inputs')
     {
-        if (authReq.inputs.length > 0) 
-        {
-            authReq.pending = authReq.inputs.pop();
-            var type = authReq.pending.type;
-
-            if (type in getFieldMap)
-            {
-                if (type == 'login')
-                {
-                    loginValue = null;
-                }
-                console.log('get '+type+' for '+authReq.context+' '+authReq.pending.type);
-                log('#messageLog',  'get '+type+'\n');
-                sendRequest(getFieldMap[type]);
-            }
-            else
-            {
-                console.log('getNextField: type "'+authReq.pending.type+'" not supported');
-                authReq.pending = null;
-                getNextField(); // try the next field
-            }
+        if (authReq.keys.length > 0) {
+            authReq.pending = authReq.keys.pop();
+            //console.log('getNextField(): request '+authReq.pending);
+            sendRequest(getFieldMap[authReq.pending]);
         } else {
-            // no more input fields to fetch from mooltipass, send credentials to the web page
-            chrome.runtime.sendMessage(authReq.senderId, {type: 'credentials', fields: authReq.credentials});
-            log('#messageLog','sent credentials to '+authReq.senderId+'\n');
+            // got all the credentials
+            //console.log('getNextField(): got all fields '+JSON.stringify(authReq.inputs));
+            chrome.runtime.sendMessage(authReq.senderId, {type: 'credentials', inputs: authReq.inputs});
+            log('#messageLog','sent credentials\n');
             authReq = null;
         }
     }
     else
     {
-        log('#messageLog', 'no authReq\n');
+        log('#messageLog',  'getNextField(): no authReq\n');
     }
 }
 
@@ -370,20 +326,18 @@ function setNextField()
 {
     if (authReq && authReq.type == 'update')
     {
-        if (authReq.inputs.length > 0) 
+        if (authReq.keys.length > 0) 
         {
-            authReq.pending = authReq.inputs.pop();
-            var type = authReq.pending.type;
+            var key = authReq.keys.pop();
+            authReq.pending = key;
 
-            if (type in setFieldMap)
+            if (key in setFieldMap)
             {
-                console.log('set '+type+' for '+authReq.context+' '+authReq.pending.type+' to '+authReq.pending.value);
-                log('#messageLog', 'set '+type+' = "'+authReq.pending.value+'"\n');
-                sendString(setFieldMap[type], authReq.pending.value);
+                sendString(setFieldMap[key], authReq.inputs[key].value);
             }
             else
             {
-                console.log('setNextField: type "'+authReq.pending.type+'" not supported');
+                console.log('setNextField: type "'+authReq.key+'" not supported');
                 authReq.pending = null;
                 setNextField(); // try the next field
             }
@@ -396,7 +350,7 @@ function setNextField()
     }
     else
     {
-        log('#messageLog',  'no authReq\n');
+        log('#messageLog',  'setNextField: no authReq\n');
     }
 }
 
@@ -444,6 +398,22 @@ function log(logId, text)
     } else {
         box.val('');
     }
+}
+
+/**
+ * Return a sorted list of field keys
+ */
+function getKeys(fields)
+{
+    return Object.keys(fields).sort(function(a, b)
+    {
+        if (a == 'login')
+        {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
 }
 
 /**
@@ -650,41 +620,24 @@ function initWindow()
 
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
-        console.log(sender.tab ?  'from a content script:' + sender.tab.url : 'from the extension');
-
         switch (request.type)
         {
             case 'inputs':
                 console.log('URL: '+request.url);
 
-                // sort the fields so that the login is first
-                request.inputs.sort(function(a, b)
-                {
-                    if (a == 'login')
-                    {
-                        return 0;
-                    } else {
-                        return 1;
-                    }
-                });
-
-                console.log('inputs:');
-                for (var ind=0; ind<request.inputs.length; ind++)
-                {
-                    id = 'id' in request.inputs[ind] ? request.inputs[ind].id : request.inputs[ind].name;
-                    console.log('    "'+id+'" type='+request.inputs[ind].type);
-                }
                 authReq = request;
                 authReq.senderId = sender.id;
-                authReq.credentials = [];
-                //request.context = getContext(request); URL -> context
+                authReq.keys = getKeys(request.inputs);
+
+                console.log('keys: '+JSON.stringify(authReq.keys))
+
                 match = reContext.exec(request.url);
                 if (match.length > 0) {
                     if (!context || context != match[1]) {
                         context = match[1];
                         console.log('context: '+context);
                     } else {
-                        console.log('not updaing context '+context+' to '+match[1]);
+                        console.log('not updating context '+context+' to '+match[1]);
                     }
                 }
                 authReq.context = context;
@@ -700,23 +653,18 @@ function initWindow()
                     authReq.context = match[1];
                     console.log('auth context: '+authReq.context);
                 }
-                console.log('update:');
-                for (var ind=0; ind<request.inputs.length; ind++)
+                log('#messageLog', 'update:\n');
+                for (var key in request.inputs)
                 {
-                    id = 'id' in request.inputs[ind] ? request.inputs[ind].id : request.inputs[ind].name;
-                    console.log('    "'+id+'" type='+request.inputs[ind].type+', value="'+request.inputs[ind].value);
+                    id = (request.inputs[key].id) ? request.inputs[key].id : request.inputs[key].name;
+                    if (key == 'password') {
+                        log('#messageLog', '    set "'+id+'" = "'+request.inputs[key].value.replace(/./gi, '*')+'"\n');
+                    } else {
+                        log('#messageLog', '    set "'+id+'" = "'+request.inputs[key].value+'"\n');
+                    }
                 }
 
-                // sort the fields so that the login is first
-                authReq.inputs.sort(function(a, b)
-                {
-                    if (a == 'login')
-                    {
-                        return 0;
-                    } else {
-                        return 1;
-                    }
-                });
+                authReq.keys = getKeys(request.inputs);
 
                 if (!contextGood || (context != authReq.context)) {
                     setContext(true);
@@ -910,17 +858,10 @@ function onDataReceived(reportId, data)
             {
                 if (contextGood)
                 {
-                    switch (authReq.type)
-                    {
-                        case 'inputs':
-                            // Start getting each input field value
-                            getNextField();
-                            break;
-                        case 'update':
-                            setNextField();
-                            break;
-                        default:
-                            break;
+                    if (authReq.type == 'inputs') {
+                        getNextField();
+                    } else {
+                        setNextField();
                     }
                 }
                 else if (createContext) 
@@ -929,6 +870,7 @@ function onDataReceived(reportId, data)
                     log('#messageLog','add new context "'+authReq.context+'" for '+authReq.type+'\n');
                     sendString(CMD_ADD_CONTEXT, authReq.context);
                 } else {
+                    console.log('Failed to set up context "'+authReq.context+'"');
                     // failed to set up context
                     authReq = null;
                 }
@@ -937,50 +879,43 @@ function onDataReceived(reportId, data)
 
         // Input Fields
         case CMD_GET_LOGIN:
-            if ((len > 1) && (loginValue == null)) {
-                loginValue = arrayToStr(new Uint8Array(data.slice(2)));
-            }
         case CMD_GET_PASSWORD:
-        {
-            if (len > 1) 
-            {
-                if (authReq && authReq.pending) {
-                    log('#messageLog',  authReq.pending.type);
+            if (authReq && authReq.pending) {
+                if (len > 1) {
+                    var key = authReq.pending;
                     var value = arrayToStr(new Uint8Array(data.slice(2)));
-                    var pvalue = value;
-                    if (cmd == CMD_GET_PASSWORD) {
-                        // don't log the password
-                        pvalue = pvalue.replace(/./gi, '*');
+                    if (key == 'password') {
+                        log('#messageLog',  'got '+key+' = "'+value.replace(/./gi, '*')+'"\n');
+                    } else {
+                        log('#messageLog',  'got '+key+' = "'+value+'"\n');
                     }
-                    log('#messageLog', ': "'+pvalue+'"\n');
-                    storeField(value);
-                } else {
-                    // no pending credential request
+                    authReq.inputs[key].value = value;
+
+                    if (authReq.type == 'inputs') {
+                        getNextField();
+                    } else {
+                        setNextField();
+                    }
                 }
             }
-            else 
-            {
-                log('#messageLog', 'no value found for '+authReq.pending.type+'\n');
-            }
-            getNextField();
             break;
-        }
 
         // update and set results
         case CMD_SET_LOGIN:
             if (authReq && authReq.type == 'inputs' && authReq.pending) {
                 if (bytes[2] == 1)
                 {
-                    console.log('get '+authReq.pending.type+' for '+authReq.context);
-                    log('#messageLog', 'get '+authReq.pending.type+'\n');
-                    sendRequest(getFieldMap[authReq.pending.type]);
+                    console.log('set '+authReq.pending+' for '+authReq.context);
+                    log('#messageLog', 'get '+authReq.pending+'\n');
+                    // XXX is this still needed?
+                    sendRequest(getFieldMap[authReq.pending]);
                     break;
                 }
                 // fallthrough
             }
         case CMD_SET_PASSWORD:
         {
-            var type = (authReq && authReq.pending) ? authReq.pending.type : '(unknown type)';
+            var type = (authReq && authReq.pending) ? authReq.pending : '(unknown type)';
             if (bytes[2] == 1) 
             {
                 // success

@@ -127,6 +127,19 @@ uint8_t entropyRandom8(void)
     return(retVal8);
 }
 
+/*! \fn fillArrayWithRandomBytes(uint8_t* buffer, uint8_t nb_bytes)
+ *  \brief  Fill array with random bytes
+ *  \param  buffer      The array
+ *  \param  nb_bytes    The number of bytes
+*/
+void fillArrayWithRandomBytes(uint8_t* buffer, uint8_t nb_bytes)
+{
+    for (uint8_t i = 0; i < nb_bytes; i++)
+    {
+        buffer[i] = entropyRandom8();
+    }
+}
+
 /*! \fn uint8_t entropyRandom16(void)
  *  
  *  \brief This function returns two bytes of a single 32-bit entropy value,

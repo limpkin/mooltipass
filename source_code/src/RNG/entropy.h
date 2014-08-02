@@ -35,5 +35,6 @@ void entropyInit(void);
 uint8_t entropyRandom8(void);
 uint16_t entropyRandom16(void);
 uint8_t entropyBytesAvailable(void);
+void fillArrayWithRandomBytes(uint8_t* buffer, uint8_t nb_bytes);
 
 #endif

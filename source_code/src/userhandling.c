@@ -520,10 +520,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         
         // Copy the password and put random bytes after the final 0
         memcpy((void*)temp_cnode.password, (void*)password, length);
-        for (uint8_t i = length; i < NODE_CHILD_SIZE_OF_PASSWORD; i++)
-        {
-            temp_cnode.password[i] = entropyRandom8();
-        }
+        fillArrayWithRandomBytes(temp_cnode.password + length, NODE_CHILD_SIZE_OF_PASSWORD - length);
         
         // Ask for password changing approval
         if (guiAskForPasswordSet((char*)temp_cnode.login, (char*)password, (char*)temp_pnode.service) == RETURN_OK)
@@ -752,21 +749,16 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     uint8_t temp_nonce[AES256_CTR_LENGTH];
     uint8_t new_user_id;
-    uint8_t i;
     
     // Get new user id
     new_user_id = getNumberOfKnownUsers();
-    
-    for(i = 0; i < SMARTCARD_CPZ_LENGTH; i++)
-    {
-        temp_buffer[i] = entropyRandom8();
-    }    
-    writeCodeProtectedZone(temp_buffer);                               // Write in the code protected zone
-        
-    for(i = 0; i < AES256_CTR_LENGTH; i++)
-    {
-        temp_nonce[i] = entropyRandom8();
-    }
+
+    // Write random bytes in the code protected zone
+    fillArrayWithRandomBytes(temp_buffer, SMARTCARD_CPZ_LENGTH);
+    writeCodeProtectedZone(temp_buffer);
+
+    // Generate random nonce
+    fillArrayWithRandomBytes(temp_nonce, AES256_CTR_LENGTH);
     
     // Create user profile in flash, CTR is set to 0 by library
     if (formatUserProfileMemory(new_user_id) != RETURN_OK)
@@ -786,11 +778,8 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
         return RETURN_NOK;
     }
     
-    // Generate a new AES key
-    for (i = 0; i < (AES_KEY_LENGTH/8); i++)
-    {
-        temp_buffer[i] = entropyRandom8();
-    }
+    // Generate a new random AES key
+    fillArrayWithRandomBytes(temp_buffer, AES_KEY_LENGTH/8);
     writeAES256BitsKey(temp_buffer);
     
     // Initialize encryption handling

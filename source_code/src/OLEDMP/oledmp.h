@@ -166,6 +166,7 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
 void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options);
 #endif
 
+void oledInvertDisplay(void);
 void oledSetDisplayStartLine(uint8_t line);
 void oledMoveDisplayStartLine(int8_t offset);
 void oledFlipBuffers(uint8_t mode, uint8_t delay);

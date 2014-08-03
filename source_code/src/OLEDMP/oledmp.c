@@ -227,6 +227,23 @@ void oledSetDisplayStartLine(uint8_t line)
     oledWriteData(oled_offset);
 }
 
+/**
+ * Invert the display colours
+ */
+void oledInvertDisplay(void)
+{
+    static bool inverted = false;
+    if (inverted)
+    {
+        oledWriteCommand(CMD_SET_DISPLAY_MODE_NORMAL);
+    }
+    else
+    {
+        oledWriteCommand(CMD_SET_DISPLAY_MODE_INVERSE);
+    }
+    inverted = !inverted;
+}
+
 
 /**
  * Move the start line of the displayed buffer in GDDRAM by the specified offset.

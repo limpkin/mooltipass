@@ -40,6 +40,9 @@
  *  V2_DEVELOPERS_BOOTLOADER_SETUP
  *  => final hardware version for developpers, with bootloader
  *
+ *  V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP
+ *  => same as above, but without top PCB
+ *
  *  V2_DEVELOPERS_ISP_SETUP
  *  => final hardware version for developpers, without bootloader (for Mike)
  * 
@@ -65,7 +68,7 @@
     #define SMARTCARD_FUSE_V1
     #define NO_PIN_CODE_REQUIRED
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
-#elif defined(V2_DEVELOPERS_BOOTLOADER_SETUP)
+#elif defined(V2_DEVELOPERS_BOOTLOADER_SETUP) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
     #define TESTS_ENABLED
     #define FLASH_CHIP_1M
     #define HARDWARE_OLIVIER_V1

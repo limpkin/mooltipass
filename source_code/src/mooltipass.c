@@ -226,7 +226,7 @@ int main(void)
     #endif
     
     // Stop the Mooltipass if we can't communicate with the flash or the touch interface
-    #ifdef HARDWARE_OLIVIER_V1
+    #if defined(HARDWARE_OLIVIER_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
         while ((flash_init_result != RETURN_OK) && (touch_init_result != RETURN_OK));
     #endif
 

@@ -29,8 +29,8 @@
 #include "defines.h"
 
 // Prototypes
-RET_TYPE readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data);
-RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data);
+RET_TYPE readDataFromTS(uint8_t reg, uint8_t* data);
+RET_TYPE writeDataToTS(uint8_t reg, uint8_t data);
 void initI2cPort(void);
 
 /** I2C controller defines **/

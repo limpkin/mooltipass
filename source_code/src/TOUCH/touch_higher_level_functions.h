@@ -162,19 +162,19 @@ RET_TYPE touchDetectionRoutine(void);
 
 // Macros
 #define isTouchChangeDetected()     !(PINF & (1 << PORTID_TOUCH_C))
-#define launchCalibrationCycle()    writeDataToTS(AT42QT2120_ADDR, REG_AT42QT_CALIB, 0x12)
-#define switchOnLeftButonLed()      writeDataToTS(AT42QT2120_ADDR, LEFT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
-#define switchOffLeftButonLed()     writeDataToTS(AT42QT2120_ADDR, LEFT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
-#define switchOnRightButonLed()     writeDataToTS(AT42QT2120_ADDR, RIGHT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
-#define switchOffRightButonLed()    writeDataToTS(AT42QT2120_ADDR, RIGHT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
-#define switchOnTopLeftWheelLed()   writeDataToTS(AT42QT2120_ADDR, WHEEL_TLEFT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
-#define switchOffTopLeftWheelLed()  writeDataToTS(AT42QT2120_ADDR, WHEEL_TLEFT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
-#define switchOnTopRightWheelLed()  writeDataToTS(AT42QT2120_ADDR, WHEEL_TRIGHT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
-#define switchOffTopRightWheelLed() writeDataToTS(AT42QT2120_ADDR, WHEEL_TRIGHT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
-#define switchOnBotLeftWheelLed()   writeDataToTS(AT42QT2120_ADDR, WHEEL_BLEFT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
-#define switchOffBotLeftWheelLed()  writeDataToTS(AT42QT2120_ADDR, WHEEL_BLEFT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
-#define switchOnBotRightWheelLed()  writeDataToTS(AT42QT2120_ADDR, WHEEL_BRIGHT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
-#define switchOffBotRightWheelLed() writeDataToTS(AT42QT2120_ADDR, WHEEL_BRIGHT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
+#define launchCalibrationCycle()    writeDataToTS(REG_AT42QT_CALIB, 0x12)
+#define switchOnLeftButonLed()      writeDataToTS(LEFT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffLeftButonLed()     writeDataToTS(LEFT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnRightButonLed()     writeDataToTS(RIGHT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffRightButonLed()    writeDataToTS(RIGHT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnTopLeftWheelLed()   writeDataToTS(WHEEL_TLEFT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffTopLeftWheelLed()  writeDataToTS(WHEEL_TLEFT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnTopRightWheelLed()  writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffTopRightWheelLed() writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnBotLeftWheelLed()   writeDataToTS(WHEEL_BLEFT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffBotLeftWheelLed()  writeDataToTS(WHEEL_BLEFT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
+#define switchOnBotRightWheelLed()  writeDataToTS(WHEEL_BRIGHT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
+#define switchOffBotRightWheelLed() writeDataToTS(WHEEL_BRIGHT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
 #define switchOffButtonWheelLeds()  switchOffLeftButonLed(); switchOffRightButonLed(); switchOffTopLeftWheelLed(); switchOffTopRightWheelLed(); switchOffBotLeftWheelLed(); switchOffBotRightWheelLed();
 #define switchOnButtonWheelLeds()   switchOnLeftButonLed(); switchOnRightButonLed();  switchOnTopLeftWheelLed(); switchOnTopRightWheelLed(); switchOnBotLeftWheelLed(); switchOnBotRightWheelLed();
 

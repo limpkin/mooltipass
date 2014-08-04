@@ -554,6 +554,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         // erase eeprom
         case CMD_ERASE_EEPROM :
         {
+            eraseFlashUsersContents();
             firstTimeUserHandlingInit();
             sendPluginOneByteAnswer(CMD_ERASE_EEPROM, PLUGIN_BYTE_OK, incomingData);
             break;

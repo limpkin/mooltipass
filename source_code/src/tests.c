@@ -187,31 +187,32 @@ void afterTouchInitTests(void)
         if (temp_ret_type != RETURN_NO_CHANGE)
         {
             oledSetXY(0,0);
-            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_byte);
+            readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_byte);
             printf("POS: %02X\r\n", temp_byte);
-            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_DET_STAT, &temp_byte);
+            readDataFromTS(REG_AT42QT_DET_STAT, &temp_byte);
             printf("DET STAT: %02X\r\n", temp_byte);
-            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT1, &temp_byte);
+            readDataFromTS(REG_AT42QT_KEY_STAT1, &temp_byte);
             printf("DET1: %02X\r\n", temp_byte);
-            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
+            readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_byte);
             printf("DET2: %02X\r\n", temp_byte);
             printf("counter: %04X\r\n", temp_uint++);
         }
         temp_ret_type = touchDetectionRoutine();     
     }
     activateGuardKey();
+    launchCalibrationCycle();
     while(1)
     {
         if (temp_ret_type != RETURN_NO_CHANGE)
         {            
             oledSetXY(0,0);
-            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_byte);
+            readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_byte);
             printf("POS: %02X\r\n", temp_byte);
-            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_DET_STAT, &temp_byte);
+            readDataFromTS(REG_AT42QT_DET_STAT, &temp_byte);
             printf("DET STAT: %02X\r\n", temp_byte);
-            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT1, &temp_byte);
+            readDataFromTS(REG_AT42QT_KEY_STAT1, &temp_byte);
             printf("DET1: %02X\r\n", temp_byte);
-            readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_KEY_STAT2, &temp_byte);
+            readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_byte);
             printf("DET2: %02X\r\n", temp_byte);
             printf("counter: %04X\r\n", temp_uint++);
         }

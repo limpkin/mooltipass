@@ -280,7 +280,7 @@ int8_t getTouchUiQuarterPosition(void)
     }
     
     // Get position
-    readDataFromTS(AT42QT2120_ADDR, REG_AT42QT_SLIDER_POS, &temp_position);
+    readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_position);
     
     if (temp_position < 0x3F)
     {

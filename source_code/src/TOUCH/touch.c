@@ -21,6 +21,7 @@
  *  \brief  Touch sensing functions
  *  Copyright [2014] [Mathieu Stephan]
  */
+#include "touch_higher_level_functions.h"
 #include "defines.h"
 #include <avr/io.h>
 #include "touch.h"
@@ -151,18 +152,18 @@ RET_TYPE initiateI2cWrite(uint8_t addr, uint8_t reg)
     return RETURN_OK;
 }
 
-/*! \fn     writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
+/*! \fn     writeDataToTS(uint8_t reg, uint8_t data)
 *   \brief  Write a byte inside the AT42QT2120
 *   \param  addr        The chip address
 *   \param  reg         The register address
 *   \param  data        The data to write
 *   \return RETURN_OK if everything is alright, the pb code otherwise
 */
-RET_TYPE writeDataToTS(uint8_t addr, uint8_t reg, uint8_t data)
+RET_TYPE writeDataToTS(uint8_t reg, uint8_t data)
 {
     RET_TYPE ret_val;
 
-    ret_val = initiateI2cWrite(addr, reg);
+    ret_val = initiateI2cWrite(AT42QT2120_ADDR, reg);
     if(ret_val != RETURN_OK)
     {
         return ret_val;
@@ -217,18 +218,17 @@ RET_TYPE initiateI2cRead(uint8_t addr, uint8_t reg)
     return RETURN_OK;
 }
 
-/*! \fn     readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data)
+/*! \fn     readDataFromTS(uint8_t reg, uint8_t* data)
 *   \brief  Write a byte inside the AT42QT2120
-*   \param  addr        The chip address
 *   \param  reg         The register address
 *   \param  data        uint8_t pointer in which we write the data
 *   \return RETURN_OK if everything is alright, the pb code otherwise
 */
-RET_TYPE readDataFromTS(uint8_t addr, uint8_t reg, uint8_t* data)
+RET_TYPE readDataFromTS(uint8_t reg, uint8_t* data)
 {
     RET_TYPE ret_val;
 
-    ret_val = initiateI2cRead(addr, reg);
+    ret_val = initiateI2cRead(AT42QT2120_ADDR, reg);
     if(ret_val != RETURN_OK)
     {
         return ret_val;

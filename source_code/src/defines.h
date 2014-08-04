@@ -107,9 +107,17 @@
 //#define CMD_PARSER_USB_DEBUG_OUTPUT
 // Used for USB communications
 //#define USB_DEBUG_OUTPUT
+// Used for production tests
+//#define PRODUCTION_TEST_ENABLED
+
+/**************** ENABLING TESTS ****************/
+// As they may be manually enabled as well
+#ifdef PRODUCTION_TEST_ENABLED
+    #define TESTS_ENABLED
+#endif
 
 /**************** PRINTF ACTIVATION ****************/
-#if defined(DEBUG_SMC_SCREEN_PRINT) || defined(DEBUG_SMC_USB_PRINT) || defined(FLASH_TEST_DEBUG_OUTPUT_USB) || defined(GENERAL_LOGIC_OUTPUT_USB) || defined(CMD_PARSER_USB_DEBUG_OUTPUT) || defined(USB_DEBUG_OUTPUT)
+#if defined(PRODUCTION_TEST_ENABLED) || defined(DEBUG_SMC_SCREEN_PRINT) || defined(DEBUG_SMC_USB_PRINT) || defined(FLASH_TEST_DEBUG_OUTPUT_USB) || defined(GENERAL_LOGIC_OUTPUT_USB) || defined(CMD_PARSER_USB_DEBUG_OUTPUT) || defined(USB_DEBUG_OUTPUT)
     #define ENABLE_PRINTF
 #else
     #undef ENABLE_PRINTF

@@ -75,16 +75,15 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
     }
 }
 
-/*! \fn     sendPluginOneByteAnswer(uint8_t command, uint8_t answer, uint8_t* data)
+/*! \fn     sendPluginOneByteAnswer(uint8_t command, uint8_t answer)
 *   \brief  Send a one byte message to the plugin
 *   \param  command The command we're answering
 *   \param  answer  The answer
 *   \param  data    Pointer to the buffer
 */
-void sendPluginOneByteAnswer(uint8_t command, uint8_t answer, uint8_t* data)
+void sendPluginOneByteAnswer(uint8_t command, uint8_t answer)
 {
-    data[0] = answer;
-    pluginSendMessage(command, 1, (char*)data);
+    usbSendMessage(command, 1, &answer);
 }
 
 /*! \fn     usbProcessIncoming(uint8_t* incomingData)
@@ -118,20 +117,20 @@ void usbProcessIncoming(uint8_t* incomingData)
         // ping command
         case CMD_PING :
         {
-            memcpy((void*)incomingData, (void*)msg->body.data, 2);
-            memcpy((void*)incomingData+2, (void*)msg->body.data+2, 2);
-            pluginSendMessage(CMD_PING, 4, (char*)incomingData);
-            break;
+            usbSendMessage(0, 6, msg);
+            return;
         }
 
         // version command
         case CMD_VERSION :
         {
-            incomingData[0] = MOOLT_VERSION_MAJOR;
-            incomingData[1] = MOOLT_VERSION_MINOR;
-            incomingData[2] = FLASH_CHIP;
-            pluginSendMessage(CMD_VERSION, 3, (char*)incomingData);
-            break;
+            msg->len = 3;
+            msg->cmd = CMD_VERSION;
+            msg->body.data[0] = MOOLT_VERSION_MAJOR;
+            msg->body.data[1] = MOOLT_VERSION_MINOR;
+            msg->body.data[2] = FLASH_CHIP;
+            usbSendMessage(0, 5, msg);
+            return;
         }
 
 #ifdef USB_FEATURE_PLUGIN_COMMS
@@ -153,7 +152,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: \"%s\" failed\n"), msg->body.data);
             }
-            sendPluginOneByteAnswer(CMD_CONTEXT, plugin_return_value, incomingData);
             break;
         }
 
@@ -163,12 +161,13 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (getLoginForContext((char*)incomingData) == RETURN_OK)
             {
                 // Use the buffer to store the login...
-                pluginSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData), (char*)incomingData);
+                usbSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData), incomingData);
                 USBPARSERDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
+                return;
             }
             else
             {
-                sendPluginOneByteAnswer(CMD_GET_LOGIN, PLUGIN_BYTE_ERROR, incomingData);
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("get login: failed\n"));
             }
             break;
@@ -179,12 +178,13 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             if (getPasswordForContext((char*)incomingData) == RETURN_OK)
             {
-                pluginSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), (char*)incomingData);
+                usbSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), incomingData);
                 USBPARSERDEBUGPRINTF_P(PSTR("get pass: \"%s\"\n"),(char *)incomingData);
+                return;
             }
             else
             {
-                sendPluginOneByteAnswer(CMD_GET_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("get pass: failed\n"));
             }
             break;
@@ -208,7 +208,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("set login: \"%s\" failed\n"),msg->body.data);
             }
-            sendPluginOneByteAnswer(CMD_SET_LOGIN, plugin_return_value, incomingData);
             break;
         }
 
@@ -230,7 +229,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("set pass: failed\n"));
             }
-            sendPluginOneByteAnswer(CMD_SET_PASSWORD, plugin_return_value, incomingData);
             break;
         }
 
@@ -239,7 +237,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
             {
-                sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, PLUGIN_BYTE_ERROR, incomingData);
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 break;
             }
             temp_rettype = checkPasswordForContext(msg->body.data, datalen);
@@ -255,7 +253,6 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 plugin_return_value = PLUGIN_BYTE_NA;
             }
-            sendPluginOneByteAnswer(CMD_CHECK_PASSWORD, plugin_return_value, incomingData);
             break;
         }
 
@@ -280,7 +277,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("add context: \"%s\" failed\n"),msg->body.data);
             }
-            sendPluginOneByteAnswer(CMD_ADD_CONTEXT, plugin_return_value, incomingData);
             break;
         }
 #endif
@@ -298,7 +294,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 flash_export_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
-            sendPluginOneByteAnswer(CMD_EXPORT_FLASH_START, plugin_return_value, incomingData);
             break;
         }
 
@@ -310,7 +305,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check datalen for arg, check approval status
             if ((datalen != 1) || (flash_export_approved == FALSE))
             {
-                break;
+                return;
             }
 
             // Check if the plugin wants a fresh export
@@ -323,10 +318,10 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check if the export address is correct
             if (current_flash_export_addr >= FLASH_SIZE)
             {
-                pluginSendMessage(CMD_EXPORT_FLASH_END, 0, (char*)incomingData);
+                usbSendMessage(CMD_EXPORT_FLASH_END, 0, NULL);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
                 flash_export_approved = FALSE;
-                break;
+                return;
             }
 
             // Check how much data we need in case we're close to the graphics section
@@ -343,7 +338,7 @@ void usbProcessIncoming(uint8_t* incomingData)
 
             // Get a block of data and send it, increment counter
             flashRawRead(incomingData, current_flash_export_addr, size);
-            pluginSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
+            usbSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
             current_flash_export_addr += size;
 
             // Skip over the graphics address if we're in that case
@@ -351,14 +346,14 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 current_flash_export_addr = GRAPHIC_ZONE_END;
             }
-            break;
+            return;
         }
         
         // flash export end
         case CMD_EXPORT_FLASH_END :
         {
             flash_export_approved = FALSE;
-            break;
+            return;
         }
 
         // flash export start
@@ -374,7 +369,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 eeprom_export_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
-            sendPluginOneByteAnswer(CMD_EXPORT_EEPROM_START, plugin_return_value, incomingData);
             break;
         }
 
@@ -399,7 +393,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check if the export address is correct
             if (current_eeprom_export_addr >= EEPROM_SIZE)
             {
-                pluginSendMessage(CMD_EXPORT_EEPROM_END, 0, (char*)incomingData);
+                usbSendMessage(CMD_EXPORT_EEPROM_END, 0, NULL);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
                 eeprom_export_approved = FALSE;
                 break;
@@ -413,9 +407,9 @@ void usbProcessIncoming(uint8_t* incomingData)
 
             // Get a block of data and send it, increment counter
             eeprom_read_block(incomingData, (void*)current_eeprom_export_addr, size);
-            pluginSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
+            usbSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
             current_eeprom_export_addr += size;
-            break;
+            return;
         }
         
         // end eeprom export
@@ -459,7 +453,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 flash_import_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
-            sendPluginOneByteAnswer(CMD_IMPORT_FLASH_BEGIN, plugin_return_value, incomingData);
             break;
         }
 
@@ -492,7 +485,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 }
                 plugin_return_value = PLUGIN_BYTE_OK;
             }
-            sendPluginOneByteAnswer(CMD_IMPORT_FLASH, plugin_return_value, incomingData);
             break;
         }
 
@@ -500,7 +492,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_IMPORT_FLASH_END :
         {
             flash_import_approved = FALSE;
-            sendPluginOneByteAnswer(CMD_IMPORT_FLASH_END, PLUGIN_BYTE_OK, incomingData);
+            plugin_return_value = PLUGIN_BYTE_OK;
             break;
         }
 
@@ -519,14 +511,13 @@ void usbProcessIncoming(uint8_t* incomingData)
                 eeprom_import_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
-            sendPluginOneByteAnswer(CMD_IMPORT_EEPROM_BEGIN, plugin_return_value, incomingData);
             break;
         }
 
         // import flash contents
         case CMD_IMPORT_EEPROM :
         {
-            if ((eeprom_import_approved == FALSE) || ((current_eeprom_import_pos + datalen) >= EEPROM_SIZE))
+            if ((eeprom_import_approved == FALSE) || ((current_eeprom_import_pos + datalen) > EEPROM_SIZE))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 eeprom_import_approved = FALSE;
@@ -537,7 +528,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 current_eeprom_import_pos+= datalen;
                 plugin_return_value = PLUGIN_BYTE_OK;
             }
-            sendPluginOneByteAnswer(CMD_IMPORT_EEPROM, plugin_return_value, incomingData);
             break;
         }
 
@@ -545,7 +535,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_IMPORT_EEPROM_END :
         {
             eeprom_import_approved = FALSE;
-            sendPluginOneByteAnswer(CMD_IMPORT_EEPROM_END, PLUGIN_BYTE_OK, incomingData);
+            sendPluginOneByteAnswer(CMD_ERASE_EEPROM, PLUGIN_BYTE_OK);
             break;
         }
 
@@ -555,7 +545,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_ERASE_EEPROM :
         {
             firstTimeUserHandlingInit();
-            sendPluginOneByteAnswer(CMD_ERASE_EEPROM, PLUGIN_BYTE_OK, incomingData);
+            plugin_return_value = PLUGIN_BYTE_OK;
             break;
         }
 
@@ -563,7 +553,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_ERASE_FLASH :
         {
             eraseFlashUsersContents();
-            sendPluginOneByteAnswer(CMD_ERASE_FLASH, PLUGIN_BYTE_OK, incomingData);
+            plugin_return_value = PLUGIN_BYTE_OK;
             break;
         }
 
@@ -579,7 +569,6 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
-            sendPluginOneByteAnswer(CMD_ERASE_SMC, plugin_return_value, incomingData);
             break;
         }
 
@@ -598,7 +587,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 oledWriteActiveBuffer();
                 oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);
             }
-            break;
+            return;
         }
 
         case CMD_SET_FONT :
@@ -617,10 +606,13 @@ void usbProcessIncoming(uint8_t* incomingData)
             uint32_t end = millis();
             usbPrintf_P(PSTR("Time to print: %lu msecs\n"),end-start);
 #endif
+            return;
         }
 #endif
 
-        default : break;
+        default : 
+            return;
     }
+    sendPluginOneByteAnswer(datacmd, plugin_return_value);
 }
 

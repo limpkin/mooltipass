@@ -75,16 +75,6 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
     }
 }
 
-/*! \fn     sendPluginOneByteAnswer(uint8_t command, uint8_t answer)
-*   \brief  Send a one byte message to the plugin
-*   \param  command The command we're answering
-*   \param  answer  The answer
-*   \param  data    Pointer to the buffer
-*/
-void sendPluginOneByteAnswer(uint8_t command, uint8_t answer)
-{
-    usbSendMessage(command, 1, &answer);
-}
 
 /*! \fn     usbProcessIncoming(uint8_t* incomingData)
 *   \brief  Process the incoming USB packet
@@ -380,7 +370,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check datalen for arg, check that export has been approved
             if ((datalen != 1) || (eeprom_export_approved == FALSE))
             {
-                break;
+                return;
             }
 
             // Check if the plugin wants a fresh export
@@ -396,7 +386,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 usbSendMessage(CMD_EXPORT_EEPROM_END, 0, NULL);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
                 eeprom_export_approved = FALSE;
-                break;
+                return;
             }
 
             // Check how much data we need
@@ -535,7 +525,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_IMPORT_EEPROM_END :
         {
             eeprom_import_approved = FALSE;
-            sendPluginOneByteAnswer(CMD_ERASE_EEPROM, PLUGIN_BYTE_OK);
+            plugin_return_value = PLUGIN_BYTE_OK;
             break;
         }
 
@@ -613,6 +603,6 @@ void usbProcessIncoming(uint8_t* incomingData)
         default : 
             return;
     }
-    sendPluginOneByteAnswer(datacmd, plugin_return_value);
+    usbSendMessage(datacmd, 1, &plugin_return_value);
 }
 

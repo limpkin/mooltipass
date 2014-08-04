@@ -631,16 +631,17 @@ static RET_TYPE usbWaitFifoReady(uint8_t *intr_state, uint8_t timeout)
         {
             break;
         }
+        SREG = *intr_state;
         if (tx_timeout_count == 0)
         {
-            SREG = *intr_state;
             return RETURN_COM_TIMEOUT;
         }
         if (!usb_configuration)
         {
-            SREG = *intr_state;
             return RETURN_COM_NOK;
         }
+        *intr_state = SREG;
+        cli();
         UENUM = RAWHID_TX_ENDPOINT;
     }
     return RETURN_COM_TRANSF_OK;
@@ -664,9 +665,16 @@ RET_TYPE usbHidSend(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t tim
     int8_t res;
     int8_t rem = RAWHID_TX_SIZE - buflen;
 
+    if (buflen > RAWHID_TX_SIZE)
+    {
+        return RETURN_COM_NOK;
+    }
+
+
     res = usbWaitFifoReady(&intr_state, timeout);
 
-    if (res != RETURN_COM_TRANSF_OK) {
+    if (res != RETURN_COM_TRANSF_OK) 
+    {
         return res;
     }
 
@@ -711,9 +719,15 @@ RET_TYPE usbHidSend_P(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t t
     int8_t res;
     int8_t rem = RAWHID_TX_SIZE - buflen;
 
+    if (buflen > RAWHID_TX_SIZE)
+    {
+        return RETURN_COM_NOK;
+    }
+
     res = usbWaitFifoReady(&intr_state, timeout);
 
-    if (res != RETURN_COM_TRANSF_OK) {
+    if (res != RETURN_COM_TRANSF_OK) 
+    {
         return res;
     }
 

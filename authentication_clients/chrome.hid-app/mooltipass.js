@@ -44,7 +44,7 @@ var debug = false;
 var packetSize = 64;    // number of bytes in an HID packet
 var payloadSize = packetSize - 2;
 
-var reContext = /^\https?\:\/\/([\w.]+)/;   // URL regex to extract base domain for context
+var reContext = /^\https?\:\/\/([\w.\-\_]+)/;   // URL regex to extract base domain for context
 
 // Commands that the MP device can send.
 var CMD_DEBUG        = 0x01;

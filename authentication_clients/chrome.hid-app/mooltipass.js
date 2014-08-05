@@ -75,6 +75,7 @@ var CMD_ERASE_FLASH         = 0x41;
 var CMD_ERASE_SMC           = 0x42;
 var CMD_DRAW_BITMAP         = 0x43;
 var CMD_SET_FONT            = 0x44;
+var CMD_JUMP_TO_BOOTLOADER  = 0x48;
 
 // supported flash chips
 // 264,   512,  128   1MB   0001 ID:00010=2  5  7 12, 6 2 16 S: 3 - 8,120,128
@@ -432,6 +433,7 @@ function initWindow()
     var eraseEepromButton = document.getElementById("eraseEeprom");
     var eraseFlashButton = document.getElementById("eraseFlash");
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
+    var jumpToBootloader = document.getElementById("jumpToBootloader");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -618,6 +620,12 @@ function initWindow()
         });
     });
 
+    jumpToBootloader.addEventListener('click', function() 
+    {
+        log('#messageLog', 'Sending JUMP_TO_BOOTLOADER\n');
+        sendRequest(CMD_JUMP_TO_BOOTLOADER);
+    });
+
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
         switch (request.type)
@@ -695,6 +703,7 @@ function initWindow()
     $("#eraseFlash").button();
     $("#eraseEeprom").button();
     $("#eraseSmartcard").button();
+    $("#jumpToBootloader").button();
     $("#tabs").tabs();
 
     $("#drawBitmap").menu({

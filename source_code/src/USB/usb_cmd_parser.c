@@ -535,10 +535,10 @@ void usbProcessIncoming(uint8_t* incomingData)
         // set password bootkey
         case CMD_SET_BOOTLOADER_PWD :
         {
-            if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == FALSE) && (datalen == PACKET_EXPORT_SIZE))
+            if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
             {
                 eeprom_write_block((void*)msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
-                eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, TRUE);
+                eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, BOOTLOADER_PWDOK_KEY);
                 plugin_return_value = PLUGIN_BYTE_OK;
             }
             else
@@ -569,7 +569,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 sei();
                 while(1);
             #else
-                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != FALSE) && (datalen == PACKET_EXPORT_SIZE))
+                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
                 {
                     eeprom_read_block((void*)temp_buffer, (void*)EEP_NB_KNOWN_CARDS_ADDR, PACKET_EXPORT_SIZE);
                     if (memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE) == 0)
@@ -583,7 +583,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                         wdt_change_enable();
                         wdt_enable_2s();
                         sei();
-                        while(1)
+                        while(1);
                     }
                 }
             #endif

@@ -27,6 +27,8 @@
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
 #include <avr/eeprom.h>
+#include <util/delay.h>
+#include "mooltipass.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
 #include <string.h>
@@ -527,6 +529,47 @@ void usbProcessIncoming(uint8_t* incomingData)
             eeprom_import_approved = FALSE;
             plugin_return_value = PLUGIN_BYTE_OK;
             break;
+        }
+        
+        // set password bootkey
+        case CMD_SET_BOOTLOADER_PWD :
+        {
+            if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == FALSE) && (datalen == PACKET_EXPORT_SIZE))
+            {
+                eeprom_write_block((void*)msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
+                eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, TRUE);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
+        // Jump to bootloader
+        case CMD_JUMP_TO_BOOTLOADER :
+        {
+            #ifndef DEV_PLUGIN_COMMS
+                uint8_t temp_buffer[PACKET_EXPORT_SIZE];
+            #endif
+            
+            // Mandatory wait for bruteforce
+            _delay_ms(3000);
+            #ifdef DEV_PLUGIN_COMMS
+                cli();
+                start_bootloader();
+            #else
+                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != FALSE) && (datalen == PACKET_EXPORT_SIZE))
+                {
+                    eeprom_read_block((void*)temp_buffer, (void*)EEP_NB_KNOWN_CARDS_ADDR, PACKET_EXPORT_SIZE);
+                    if (memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE) == 0)
+                    {
+                        cli();
+                        start_bootloader();
+                    }
+                }
+            #endif
         }
 
         // Development commands

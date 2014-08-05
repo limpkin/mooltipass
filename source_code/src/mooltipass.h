@@ -28,10 +28,15 @@
 #ifndef MOOLTIPASS_H_
 #define MOOLTIPASS_H_
 
+#include "defines.h"
+
 /* Defines */
 #define CAPS_LOCK_DEL       400
 
 /* Prototypes */
 void capsLockTick(void);
+
+/* Shared variables */
+extern bootloader_f_ptr_type start_bootloader;
 
 #endif /* MOOLTIPASS_H_ */

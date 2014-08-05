@@ -5,9 +5,6 @@
 #include <stdint.h>
 #include "usb.h"
 
-/* Plugin command set define */
-#define DEV_PLUGIN_COMMS
-
 /* USB mooltipass hid commands */
 #define CMD_DEBUG               0x01
 #define CMD_PING                0x02
@@ -36,6 +33,8 @@
 #define CMD_SET_FONT            0x44
 #define CMD_EXPORT_FLASH_START  0x45
 #define CMD_EXPORT_EEPROM_START 0x46
+#define CMD_SET_BOOTLOADER_PWD  0x47
+#define CMD_JUMP_TO_BOOTLOADER  0x48
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

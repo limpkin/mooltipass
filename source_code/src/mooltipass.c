@@ -52,9 +52,7 @@
 #include "gui.h"
 
 // Define the bootloader function
-#ifdef AVR_BOOTLOADER_PROGRAMMING
-    bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800; 
-#endif
+bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 // Flag to inform if the caps lock timer is armed
 volatile uint8_t wasCapsLockTimerArmed = FALSE;
 // Caps lock timer
@@ -157,8 +155,13 @@ int main(void)
     // First time initializations
     if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
     {
+        // Erase everything non graphic in flash
         eraseFlashUsersContents();
+        // Erase # of cards and # of users
         firstTimeUserHandlingInit();
+        // Set bootloader password bool to FALSE
+        eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
+        // Store correct bootkey
         eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
     }
     

@@ -27,17 +27,23 @@
 #ifndef EEPROM_ADDRESSES_H_
 #define EEPROM_ADDRESSES_H_
 
+#include "usb_cmd_parser.h"
+
 // Eeprom size
 #define EEPROM_SIZE                         1024
 
-// Boot key
+// Boot key, 2 bytes long
 #define EEP_BOOTKEY_ADDR                    0
-// This is the number of smart cards that we know
-#define EEP_NB_KNOWN_CARDS_ADDR             2 
-// This is the number of users that we know
-#define EEP_NB_KNOWN_USERS_ADDR             3
-// This is the EEPROM address where we start to store user_id <> smart card id & AES nonce matches
-#define EEP_SMC_IC_USER_MATCH_START_ADDR    4
+// This is a boolean indicating if the bootloader password has been set, 1 byte long
+#define EEP_BOOT_PWD_SET                    (EEP_BOOTKEY_ADDR + 2)
+// This is the start address of the password bootloader, PACKET_EXPORT_SIZE long
+#define EEP_BOOT_PWD                        (EEP_BOOT_PWD_SET + 1)
+// This is the number of smart cards that we know, 1 byte long
+#define EEP_NB_KNOWN_CARDS_ADDR             (EEP_BOOT_PWD + PACKET_EXPORT_SIZE) 
+// This is the number of users that we know, 1 byte long
+#define EEP_NB_KNOWN_USERS_ADDR             (EEP_NB_KNOWN_CARDS_ADDR + 1)
+// This is the EEPROM address where we start to store user_id <> smart card id & AES nonce matches, one entry is SMCID_UID_MATCH_ENTRY_LENGTH long
+#define EEP_SMC_IC_USER_MATCH_START_ADDR    (EEP_NB_KNOWN_USERS_ADDR + 1)
 
 
 #endif /* EEPROM_ADDRESSES_H_ */

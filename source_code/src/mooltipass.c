@@ -31,8 +31,8 @@
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
 #include "eeprom_addresses.h"
+#include "watchdog_driver.h"
 #include "usb_cmd_parser.h"
-//#include "had_mooltipass.h"
 #include "userhandling.h"
 #include "mooltipass.h"
 #include "interrupts.h"
@@ -96,6 +96,20 @@ int main(void)
     RET_TYPE card_detect_ret;
     RET_TYPE temp_rettype;
     uint8_t temp_user_id;
+    
+    // Check if we were resetted and want to go to the bootloader
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) == BOOTLOADER_BOOTKEY)
+    {
+        // Disable WDT
+        wdt_reset();
+        wdt_clear_flag();
+        wdt_change_enable();
+        wdt_stop();
+        // Store correct bootkey
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
+        // Jump to bootloader
+        start_bootloader();
+    }
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
@@ -153,7 +167,7 @@ int main(void)
     oledWriteActiveBuffer();
     
     // First time initializations
-    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != 0xDEAD)
+    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != CORRECT_BOOTKEY)
     {
         // Erase everything non graphic in flash
         eraseFlashUsersContents();
@@ -162,7 +176,7 @@ int main(void)
         // Set bootloader password bool to FALSE
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
         // Store correct bootkey
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, 0xDEAD);
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
     }
     
     // Check if we can initialize the touch sensing element

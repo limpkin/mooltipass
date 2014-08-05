@@ -403,6 +403,9 @@
     <Compile Include="src\UTILS\utils.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\watchdog_driver.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src" />

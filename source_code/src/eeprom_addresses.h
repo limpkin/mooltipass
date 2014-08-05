@@ -29,6 +29,10 @@
 
 #include "usb_cmd_parser.h"
 
+// EEPROM defines
+#define CORRECT_BOOTKEY                     0xDEAD
+#define BOOTLOADER_BOOTKEY                  0xD0D0
+
 // Eeprom size
 #define EEPROM_SIZE                         1024
 

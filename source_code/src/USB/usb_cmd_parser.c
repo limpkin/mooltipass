@@ -24,6 +24,7 @@
 */
 #include "smart_card_higher_level_functions.h"
 #include "eeprom_addresses.h"
+#include "watchdog_driver.h"
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
 #include <avr/eeprom.h>
@@ -557,16 +558,32 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Mandatory wait for bruteforce
             _delay_ms(3000);
             #ifdef DEV_PLUGIN_COMMS
+                // Write "jump to bootloader" key in eeprom
+                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                // Use WDT to reset the device
                 cli();
-                start_bootloader();
+                wdt_reset();
+                wdt_clear_flag();
+                wdt_change_enable();
+                wdt_enable_2s();
+                sei();
+                while(1);
             #else
                 if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != FALSE) && (datalen == PACKET_EXPORT_SIZE))
                 {
                     eeprom_read_block((void*)temp_buffer, (void*)EEP_NB_KNOWN_CARDS_ADDR, PACKET_EXPORT_SIZE);
                     if (memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE) == 0)
                     {
+                        // Write "jump to bootloader" key in eeprom
+                        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                        // Use WDT to reset the device
                         cli();
-                        start_bootloader();
+                        wdt_reset();
+                        wdt_clear_flag();
+                        wdt_change_enable();
+                        wdt_enable_2s();
+                        sei();
+                        while(1)
                     }
                 }
             #endif

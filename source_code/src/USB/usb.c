@@ -223,56 +223,6 @@ RET_TYPE usbRawHidRecv(uint8_t *buffer, uint8_t timeout)
     return RETURN_COM_TRANSF_OK;
 }
 
-/*! \fn     usbRawHidSend(uint8_t *buffer, uint8_t timeout)
-*   \brief  Send a packet, with timeout
-*   \param  buffer    Pointer to the buffer to store received data
-*   \param  timeout   Timeout in ms
-*   \return RETURN_TRANSF_COM_OK or RETURN_COM_NOK or RETURN_COM_TIMEOUT
-*/
-int8_t usbRawHidSend(uint8_t* buffer, uint8_t timeout)
-{
-    uint8_t intr_state;
-    uint8_t i;
-
-    // if we're not online (enumerated and configured), error
-    if (!usb_configuration)
-    {
-        return RETURN_COM_NOK;
-    }
-    intr_state = SREG;
-    cli();
-    tx_timeout_count = timeout;
-    UENUM = RAWHID_TX_ENDPOINT;
-    // wait for the FIFO to be ready to accept data
-    while (1)
-    {
-        if (UEINTX & (1<<RWAL))
-        {
-            break;
-        }
-        SREG = intr_state;
-        if (tx_timeout_count == 0)
-        {
-            return RETURN_COM_TIMEOUT;
-        }
-        if (!usb_configuration)
-        {
-            return RETURN_COM_NOK;
-        }
-        intr_state = SREG;
-        cli();
-        UENUM = RAWHID_TX_ENDPOINT;
-    }
-    // write bytes from the FIFO
-    for(i = 0; i < RAWHID_TX_SIZE; i++)
-    {
-        UEDATX = *buffer++;
-    }
-    // transmit it now
-    UEINTX = 0x3A;
-    SREG = intr_state;
-    return RETURN_COM_TRANSF_OK;
-}
 
 /*! \fn     ISR(USB_GEN_vect)
 *   \brief  USB Device Interrupt - handle all device-level events
@@ -655,6 +605,241 @@ RET_TYPE pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str)
     return RETURN_COM_TRANSF_OK;    
 }
 
+/*!
+*   \brief  Wait for the TX fifo to be ready to accept data.
+*   \param  intr_state   pointer to storage to save the interrupt state
+*   \param  timeout   Timeout in ms
+*   \retval RETURN_TRANSF_COM_OK fifo is ready, and interrupts are disabled
+*   \retval RETURN_COM_TIMEOUT timeout waiting for fifo to be ready
+*   \retval RETURN_COM_NOK USB not configured
+*/
+static RET_TYPE usbWaitFifoReady(uint8_t *intr_state, uint8_t timeout)
+{
+    // if we're not online (enumerated and configured), error
+    if (!usb_configuration)
+    {
+        return RETURN_COM_NOK;
+    }
+    *intr_state = SREG;
+    cli();
+    tx_timeout_count = timeout;
+    UENUM = RAWHID_TX_ENDPOINT;
+    // wait for the FIFO to be ready to accept data
+    while (1)
+    {
+        if (UEINTX & (1<<RWAL))
+        {
+            break;
+        }
+        SREG = *intr_state;
+        if (tx_timeout_count == 0)
+        {
+            return RETURN_COM_TIMEOUT;
+        }
+        if (!usb_configuration)
+        {
+            return RETURN_COM_NOK;
+        }
+        *intr_state = SREG;
+        cli();
+        UENUM = RAWHID_TX_ENDPOINT;
+    }
+    return RETURN_COM_TRANSF_OK;
+}
+
+
+/*!
+*   \brief  Send a packet, with timeout
+*           If cmd is non-zero then the lenght and cmd byte are
+*           sent first, followed by the buffer.
+*           If cmd is zero, the buffer is sent as-is.
+*   \param  cmd       optional command byte to send. Ignored if 0
+*   \param  buffer    Pointer to the buffer to send data from
+*   \param  buflen    amount of data to send from buffer
+*   \param  timeout   Timeout in ms
+*   \return RETURN_TRANSF_COM_OK or RETURN_COM_NOK or RETURN_COM_TIMEOUT
+*/
+RET_TYPE usbHidSend(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t timeout)
+{
+    uint8_t intr_state;
+    int8_t res;
+    int8_t rem = RAWHID_TX_SIZE - buflen;
+
+    if (buflen > RAWHID_TX_SIZE)
+    {
+        return RETURN_COM_NOK;
+    }
+
+
+    res = usbWaitFifoReady(&intr_state, timeout);
+
+    if (res != RETURN_COM_TRANSF_OK) 
+    {
+        return res;
+    }
+
+    if (cmd)
+    {
+        UEDATX = buflen;
+        UEDATX = cmd;
+    }
+
+    // write bytes to the FIFO
+    while (buflen--)
+    {
+        UEDATX = *(uint8_t *)buffer++;
+    }
+
+    // make up the remainder
+    while (rem--)
+    {
+        UEDATX = 0;
+    }
+
+    // transmit it now
+    UEINTX = 0x3A;
+    SREG = intr_state;
+    return RETURN_COM_TRANSF_OK;
+}
+
+/*!
+*   \brief  Send a packet, with timeout
+*           If cmd is non-zero then the lenght and cmd byte are
+*           sent first, followed by the buffer.
+*           If cmd is zero, the buffer is sent as-is.
+*   \param  cmd       optional command byte to send. Ignored if 0
+*   \param  buffer    Pointer to the data to send from flash
+*   \param  buflen    number of bytes to send
+*   \param  timeout   Timeout in ms
+*   \return RETURN_TRANSF_COM_OK or RETURN_COM_NOK or RETURN_COM_TIMEOUT
+*/
+RET_TYPE usbHidSend_P(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t timeout)
+{
+    uint8_t intr_state;
+    int8_t res;
+    int8_t rem = RAWHID_TX_SIZE - buflen;
+
+    if (buflen > RAWHID_TX_SIZE)
+    {
+        return RETURN_COM_NOK;
+    }
+
+    res = usbWaitFifoReady(&intr_state, timeout);
+
+    if (res != RETURN_COM_TRANSF_OK) 
+    {
+        return res;
+    }
+
+    if (cmd)
+    {
+        UEDATX = buflen;
+        UEDATX = cmd;
+    }
+
+    // write bytes to the FIFO
+    while (buflen--)
+    {
+        UEDATX = pgm_read_byte(buffer++);
+    }
+
+    // make up the remainder
+    while (rem--)
+    {
+        UEDATX = 0;
+    }
+
+    // transmit it now
+    UEINTX = 0x3A;
+    SREG = intr_state;
+    return RETURN_COM_TRANSF_OK;
+}
+
+/*! \fn     usbRawHidSend(uint8_t *buffer, uint8_t timeout)
+*   \brief  Send a packet, with timeout
+*   \param  buffer    Pointer to the buffer to store received data
+*   \param  timeout   Timeout in ms
+*   \return RETURN_TRANSF_COM_OK or RETURN_COM_NOK or RETURN_COM_TIMEOUT
+*/
+int8_t usbRawHidSend(uint8_t* buffer, uint8_t timeout)
+{
+    return usbHidSend(0, buffer, RAWHID_TX_SIZE, timeout);
+}
+
+/*!
+*   \brief  Send a message to the mooltipass plugin
+*   \param  cmd command ID
+*   \param  size number of bytes in message
+*   \param  msg pointer to the message data in RAM
+*   \retval RETURN_COM_TRANSF_OK success
+*   \retval RETURN_COM_NOK failed to send
+*/
+RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg)
+{
+    uint8_t chunk = cmd ? RAWHID_TX_SIZE-2 : RAWHID_TX_SIZE;
+
+    /* Send message in chunks */
+    while (size >= chunk)
+    {
+        if (usbHidSend(cmd, msg, chunk, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+        {
+            return RETURN_COM_NOK;
+        }
+        msg += chunk;
+        size -= chunk;
+        if (cmd)
+        {
+            chunk += 2;
+            cmd = 0;
+        }
+    }
+    if (size)
+    {
+        if (usbHidSend(cmd, msg, size, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+        {
+            return RETURN_COM_NOK;
+        }
+    }
+    return RETURN_COM_TRANSF_OK;
+}
+
+/*!
+*   \brief  Send a message to the mooltipass plugin
+*   \param  cmd command ID
+*   \param  size number of bytes in message
+*   \param  msg pointer to the message data in program memory
+*   \retval RETURN_COM_TRANSF_OK success
+*   \retval RETURN_COM_NOK failed to send
+*/
+RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg)
+{
+    uint8_t chunk = cmd ? RAWHID_TX_SIZE-2 : RAWHID_TX_SIZE;
+
+    /* Send message in chunks */
+    while (size >= chunk)
+    {
+        if (usbHidSend_P(cmd, msg, chunk, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+        {
+            return RETURN_COM_NOK;
+        }
+        msg += chunk;
+        size -= chunk;
+        if (cmd)
+        {
+            chunk += 2;
+            cmd = 0;
+        }
+    }
+    if (size)
+    {
+        if (usbHidSend_P(cmd, msg, size, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
+        {
+            return RETURN_COM_NOK;
+        }
+    }
+    return RETURN_COM_TRANSF_OK;
+}
+
 /*! \fn     pluginSendMessage(uint8_t cmd, uint8_t len, const char* str)
 *   \brief  Send a message to the mooltipass plugin
 *   \param  cmd command UID
@@ -753,6 +938,17 @@ RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str,
     }
 }
 
+RET_TYPE usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void *msg, uint8_t nb_retries)
+{
+    while ((nb_retries) && (usbSendMessage(cmd, size, msg) != RETURN_COM_TRANSF_OK))
+    {
+        nb_retries--;
+        _delay_us(200);
+    }
+
+    return nb_retries ? RETURN_COM_TRANSF_OK : RETURN_COM_NOK;
+}
+
 /*! \fn     usbPutstr_P(const char *str)
 *   \brief  print an progmem ASCIIZ string to the usb serial port.
 *   \param  str     pointer to the string in FLASH.
@@ -760,7 +956,7 @@ RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str,
 */
 RET_TYPE usbPutstr_P(const char *str)
 {
-    return pluginSendMessage_P(CMD_DEBUG, strlen_P(str), str);
+    return usbSendMessage_P(CMD_DEBUG, strlen_P(str), str);
 }
 
 /*! \fn     usbPutstr(const char *str)
@@ -770,7 +966,7 @@ RET_TYPE usbPutstr_P(const char *str)
 */
 RET_TYPE usbPutstr(const char *str)
 {
-    return pluginSendMessage(CMD_DEBUG, strlen(str), str);
+    return usbSendMessage(CMD_DEBUG, strlen(str), str);
 }
 
 

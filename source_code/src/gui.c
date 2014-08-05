@@ -515,11 +515,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         
         // Get touched quarter and check its validity
         j = getTouchUiQuarterPosition();
-        if (j >= i)
-        {
-            temp_address = addresses[0];
-        }
-        else if (j == -1)
+        if ((j >= i) || (j == -1))
         {
             temp_address = NODE_ADDR_NULL;
         }

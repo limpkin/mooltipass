@@ -406,7 +406,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_EEPROM_END :
         {
             eeprom_export_approved = FALSE;
-            break;
+            return;
         }
 
         // import flash contents
@@ -416,7 +416,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (datalen != 1)
             {
                 USBPARSERDEBUGPRINTF_P(PSTR("import: no param\n"));
-                break;
+                return;
             }
 
             // Check what we want to write
@@ -507,7 +507,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         // import flash contents
         case CMD_IMPORT_EEPROM :
         {
-            if ((eeprom_import_approved == FALSE) || ((current_eeprom_import_pos + datalen) > EEPROM_SIZE))
+            if ((eeprom_import_approved == FALSE) || ((current_eeprom_import_pos + datalen) >= EEPROM_SIZE))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 eeprom_import_approved = FALSE;
@@ -601,8 +601,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         }
 #endif
 
-        default : 
-            return;
+        default :   return;
     }
     usbSendMessage(datacmd, 1, &plugin_return_value);
 }

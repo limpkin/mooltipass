@@ -640,6 +640,19 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             return;
         }
+        
+        case CMD_CLONE_SMARTCARD :
+        {
+            if (cloneSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
+            {
+                plugin_return_value = PLUGIN_BYTE_OK;
+            } 
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
 
         case CMD_SET_FONT :
         {

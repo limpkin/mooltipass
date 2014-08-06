@@ -26,6 +26,7 @@
 #include <util/delay.h>
 #include <stdint.h>
 #include "touch_higher_level_functions.h"
+#include "userhandling.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "oledmp.h"

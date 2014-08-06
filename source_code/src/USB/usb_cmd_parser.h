@@ -35,6 +35,7 @@
 #define CMD_EXPORT_EEPROM_START 0x46
 #define CMD_SET_BOOTLOADER_PWD  0x47
 #define CMD_JUMP_TO_BOOTLOADER  0x48
+#define CMD_CLONE_SMARTCARD     0x49
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

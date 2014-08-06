@@ -30,12 +30,14 @@
 #include "smart_card_higher_level_functions.h"
 #include "eeprom_addresses.h"
 #include "userhandling.h"
+#include "smartcard.h"
 #include "flash_mem.h"
 #include "smartcard.h"
 #include "node_mgmt.h"
 #include "entropy.h"
 #include "defines.h"
 #include "oledmp.h"
+#include "utils.h"
 #include "usb.h"
 #include "aes.h"
 #include "gui.h"
@@ -785,6 +787,10 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     // Initialize encryption handling
     initEncryptionHandling(temp_buffer, temp_nonce);
     
+    // Write new pin code
+    pin_code = swap16(pin_code);
+    writeSecurityCode((uint8_t*)&pin_code);
+    
     return RETURN_OK;
 }
 
@@ -804,4 +810,76 @@ RET_TYPE initUserFlashContext(uint8_t user_id)
         readProfileCtr(&nodeMgmtHandle, nextCtrVal, USER_CTR_SIZE);
         return RETURN_OK;
     }
+}
+
+/*! \fn     cloneSmartCard(uint16_t pincode)
+*   \brief  Clone a smartcard
+*   \param  pincode The current pin code
+*   \return success or not
+*/
+RET_TYPE cloneSmartCard(volatile uint16_t pincode)
+{
+    // Temp buffers to store AZ1 & AZ2
+    uint8_t temp_az1[SMARTCARD_AZ_BIT_LENGTH/8];
+    uint8_t temp_az2[SMARTCARD_AZ_BIT_LENGTH/8];
+    
+    // Check that the current smartcard is unlocked
+    if (getSmartCardInsertedUnlocked() != TRUE)
+    {
+        return RETURN_NOK;
+    }
+    
+    // Extract current AZ1 & AZ2
+    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ1_BIT_START)/8, temp_az1);
+    readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ2_BIT_START)/8, temp_az2);
+    
+    // Inform the user to remove his smart card
+    oledWriteActiveBuffer();
+    oledClear();
+    oledPutstrXY_P(0, 24, OLED_CENTRE, PSTR("Remove your smartcard"));
+    
+    // Wait for the user to remove his smart card
+    while (isCardPlugged() != RETURN_JRELEASED);
+    
+    // Inform the user to insert a blank smart card
+    oledPutstrXY_P(0, 32, OLED_CENTRE, PSTR("Insert new smartcard"));
+    
+    // Wait for the user to insert a blank smart card
+    while (isCardPlugged() != RETURN_JDETECT);
+    
+    // Check that we have a blank card
+    if (cardDetectedRoutine() != RETURN_MOOLTIPASS_BLANK)
+    {
+        return RETURN_NOK;
+    }
+    
+    // Erase AZ1 & AZ2 in the new card
+    eraseApplicationZone1NZone2SMC(FALSE);
+    eraseApplicationZone1NZone2SMC(TRUE);
+    
+    // Write AZ1 & AZ2
+    writeSMC(SMARTCARD_AZ1_BIT_START, SMARTCARD_AZ_BIT_LENGTH, temp_az1);
+    writeSMC(SMARTCARD_AZ2_BIT_START, SMARTCARD_AZ_BIT_LENGTH, temp_az2);
+    
+    // Write random bytes in the code protected zone
+    fillArrayWithRandomBytes(temp_az1, SMARTCARD_CPZ_LENGTH);
+    writeCodeProtectedZone(temp_az1);
+    
+    // Add smart card to our database
+    writeSmartCardCPZForUserId(temp_az1, current_nonce, nodeMgmtHandle.currentUserId);
+    
+    // Write new password
+    pincode = swap16(pincode);
+    writeSecurityCode((uint8_t*)&pincode);
+    
+    // Set the smart card inserted unlocked flag
+    setSmartCardInsertedUnlocked();
+    
+    // Inform the user that it is done
+    oledPutstrXY_P(0, 40, OLED_CENTRE, PSTR("Done"));
+    
+    // Clear pin code
+    pincode = 0;
+    
+    return RETURN_OK;
 }

@@ -30,9 +30,17 @@
 #include "node_mgmt.h"
 
 /* Defines */
+// Timers
 #define SCREEN_TIMER_DEL    60000
 #define LIGHT_TIMER_DEL     10000
 #define USER_INTER_DEL      6000
+// Touch positions
+#define TOUCHPOS_WHEEL_TLEFT    0
+#define TOUCHPOS_WHEEL_TRIGHT   1
+#define TOUCHPOS_WHEEL_BLEFT    2
+#define TOUCHPOS_WHEEL_BRIGHT   3
+#define TOUCHPOS_LEFT           4
+#define TOUCHPOS_RIGHT          5
 
 /* Prototypes */
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);

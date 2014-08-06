@@ -94,7 +94,9 @@
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(PRODUCTION_SETUP)
     #define FLASH_CHIP_32M
-    #define HARDWARE_OLIVIER_V1    
+    #define HARDWARE_OLIVIER_V1
+    // TO REMOVE IN THE FUTURE!!! //
+    #define AVR_BOOTLOADER_PROGRAMMING
 #endif
 
 /**************** DEBUG PRINTS ****************/

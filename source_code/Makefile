@@ -122,8 +122,10 @@ fuses:
 flash: $(TARGET).hex
 	avrdude $(AVRDUDEFLAGS) -p $(MCU) -U flash:w:$<:i
 
+# Upload the hex image via the dfu bootloader
 upload: $(TARGET).hex
-	avrdude $(AVRDUDEFLAGS) -p $(MCU) -U flash:w:$<:i
+	dfu-programmer atmega32u4 erase
+	dfu-programmer atmega32u4 flash $<
 
 
 clean:

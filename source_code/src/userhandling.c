@@ -730,13 +730,7 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
 */
 void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
 {
-    uint8_t i;
-    
-    for (i = 0; i < AES256_CTR_LENGTH; i++)
-    {
-        current_nonce[i] = nonce[i];
-    }
-
+    memcpy((void*)current_nonce, (void*)nonce, AES256_CTR_LENGTH);
     aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
     memset((void*)aes_key, 0, AES_KEY_LENGTH/8);
 }
@@ -817,13 +811,13 @@ RET_TYPE initUserFlashContext(uint8_t user_id)
 *   \param  pincode The current pin code
 *   \return success or not
 */
-RET_TYPE cloneSmartCard(volatile uint16_t pincode)
+RET_TYPE cloneSmartCard(uint16_t pincode)
 {
     // Temp buffers to store AZ1 & AZ2
     uint8_t temp_az1[SMARTCARD_AZ_BIT_LENGTH/8];
     uint8_t temp_az2[SMARTCARD_AZ_BIT_LENGTH/8];
     
-    // Check that the current smartcard is unlocked
+    // Check that the current smart card is unlocked
     if (getSmartCardInsertedUnlocked() != TRUE)
     {
         return RETURN_NOK;
@@ -872,14 +866,11 @@ RET_TYPE cloneSmartCard(volatile uint16_t pincode)
     pincode = swap16(pincode);
     writeSecurityCode((uint8_t*)&pincode);
     
-    // Set the smart card inserted unlocked flag
+    // Set the smart card inserted unlocked flag, cleared by interrupt
     setSmartCardInsertedUnlocked();
     
     // Inform the user that it is done
     oledPutstrXY_P(0, 40, OLED_CENTRE, PSTR("Done"));
-    
-    // Clear pin code
-    pincode = 0;
     
     return RETURN_OK;
 }

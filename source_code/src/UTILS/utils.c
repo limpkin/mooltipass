@@ -22,6 +22,7 @@
 */
 #include "mooltipass.h"
 #include <util/delay.h>
+#include "utils.h"
 
 
 /*! \fn     swap16(uint16_t val)
@@ -31,7 +32,7 @@
 */
 uint16_t swap16(uint16_t val)
 {
-    return ((val & 0xFF) << 8) | ((val >> 8) & 0xFF);
+    return ((val << 8) | (uint8_t)(val >> 8));
 }
 
 /*! \fn     numchar_to_char(unsigned char c)

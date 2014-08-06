@@ -405,6 +405,10 @@ int main(void)
         }
         else if (card_detect_ret == RETURN_JRELEASED)                   // Card just released
         {
+            // Clear encryption context            
+            memset((void*)temp_buffer, 0, AES_KEY_LENGTH/8);
+            memset((void*)temp_ctr_val, 0, AES256_CTR_LENGTH);
+            initEncryptionHandling(temp_buffer, temp_ctr_val);
             oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
         }
     }

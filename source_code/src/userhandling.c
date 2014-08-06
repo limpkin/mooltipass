@@ -782,8 +782,7 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     initEncryptionHandling(temp_buffer, temp_nonce);
     
     // Write new pin code
-    pin_code = swap16(pin_code);
-    writeSecurityCode((uint8_t*)&pin_code);
+    writeSecurityCode(pin_code);
     
     return RETURN_OK;
 }
@@ -863,8 +862,7 @@ RET_TYPE cloneSmartCard(uint16_t pincode)
     writeSmartCardCPZForUserId(temp_az1, current_nonce, nodeMgmtHandle.currentUserId);
     
     // Write new password
-    pincode = swap16(pincode);
-    writeSecurityCode((uint8_t*)&pincode);
+    writeSecurityCode(pincode);
     
     // Set the smart card inserted unlocked flag, cleared by interrupt
     setSmartCardInsertedUnlocked();

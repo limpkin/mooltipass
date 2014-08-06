@@ -37,7 +37,6 @@
 */
 RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
 {
-    uint8_t temp_buffer[2];
     RET_TYPE temp_rettype;
 
     temp_rettype = securityValidationSMC(pin_code);
@@ -45,7 +44,7 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
     if (temp_rettype == RETURN_PIN_OK)                                   // Unlock successful
     {
         // Check that the card is in security mode 2 by reading the SC
-        if (swap16(*(uint16_t*)readSecurityCode(temp_buffer)) != 0xFFFF)
+        if (readSecurityCode() != 0xFFFF)
         {
             // Card is in mode 1... how could this happen?
             #ifdef DEBUG_SMC_USB_PRINT
@@ -211,7 +210,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     uint16_t *temp_buf16 = (uint16_t*)temp_buffer;
 
     /* Check that the security code is readable, ensuring that we are in security mode 1 with SV flag */
-    if (swap16(*(uint16_t*)readSecurityCode(temp_buffer)) == 0xFFFF)
+    if (readSecurityCode() == 0xFFFF)
     {
         return RETURN_NOK;
     }
@@ -220,8 +219,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     resetBlankCard();
 
     /* Set new security password, keep zone 1 and zone 2 security key to FFFF... */
-    *temp_buf16 = swap16(SMARTCARD_DEFAULT_PIN);
-    writeSecurityCode(temp_buffer);
+    writeSecurityCode(SMARTCARD_DEFAULT_PIN);
 
     /* Write "hackaday" to issuer zone */
     hm_str_cpy("hackaday", (char*)temp_buffer, 8);
@@ -290,15 +288,6 @@ RET_TYPE writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t
     }    
 }
 
-/*! \fn     readAES256BitsKey(uint8_t* buffer)
-*   \brief  Read the AES 256 bits key from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
-*   \param  buffer  Buffer to store the AES key
-*/
-void readAES256BitsKey(uint8_t* buffer)
-{
-    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH)/8, (SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED)/8, buffer);
-}
-
 /*! \fn     writeAES256BitsKey(uint8_t* buffer)
 *   \brief  Write the AES 256 bits key to the card
 *   \param  buffer  Buffer containing the AES key
@@ -310,16 +299,6 @@ RET_TYPE writeAES256BitsKey(uint8_t* buffer)
     return writeToApplicationZoneAndCheck(SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED, AES_KEY_LENGTH, buffer, temp_buffer);
 }
 
-/*! \fn     readMooltipassWebsitePassword(uint8_t* buffer)
-*   \brief  Read the Mooltipass website password from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
-*   \param  buffer  Buffer to store the password
-*/
-void readMooltipassWebsitePassword(uint8_t* buffer)
-{
-    // We take the space left in AZ1 -> 30 bytes (512 - 256 - 16 = 30 bytes)
-    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH + SMARTCARD_MTP_PASS_LENGTH)/8, (SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH)/8, buffer);
-}
-
 /*! \fn     writeMooltipassWebsitePassword(uint8_t* buffer)
 *   \brief  Write the Mooltipass website password to the card
 *   \param  buffer  Buffer containing the password
@@ -329,16 +308,6 @@ RET_TYPE writeMooltipassWebsitePassword(uint8_t* buffer)
 {
     uint8_t temp_buffer[SMARTCARD_MTP_PASS_LENGTH/8];
     return writeToApplicationZoneAndCheck(SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH, SMARTCARD_MTP_PASS_LENGTH, buffer, temp_buffer);
-}
-
-/*! \fn     readMooltipassWebsiteLogin(uint8_t* buffer)
-*   \brief  Read the Mooltipass website login from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
-*   \param  buffer  Buffer to store the login
-*/
-void readMooltipassWebsiteLogin(uint8_t* buffer)
-{
-    // We take the space left in AZ2 -> 62 bytes (512 - 16 = 62 bytes)
-    readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ2_BIT_RESERVED + SMARTCARD_MTP_LOGIN_LENGTH)/8, (SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ2_BIT_RESERVED)/8, buffer);
 }
 
 /*! \fn     writeMooltipassWebsiteLogin(uint8_t* buffer)
@@ -358,196 +327,29 @@ RET_TYPE writeMooltipassWebsiteLogin(uint8_t* buffer)
 void resetBlankCard(void)
 {
     uint8_t data_buffer[2] = {0xFF, 0xFF};
-    uint16_t *data_buf16 = (uint16_t*)data_buffer;
     writeSMC(1441, 1, data_buffer);
-    *data_buf16 = swap16(SMARTCARD_FACTORY_PIN);
-    writeSecurityCode(data_buffer);
+    writeSecurityCode(SMARTCARD_FACTORY_PIN);
 }
 
-/*! \fn     readFabricationZone(uint8_t* buffer)
-*   \brief  Read the fabrication zone (security mode 1&2)
-*   \param  buffer  Pointer to a buffer (2 bytes required)
-*   \return The provided pointer
-*/
-uint8_t* readFabricationZone(uint8_t* buffer)
-{
-    readSMC(2, 0, buffer);
-    return buffer;
-}
-
-/*! \fn     readIssuerZone(uint8_t* buffer)
-*   \brief  Read the issuer zone (security mode 1&2)
-*   \param  buffer  Pointer to a buffer (8 bytes required)
-*   \return The provided pointer
-*/
-uint8_t* readIssuerZone(uint8_t* buffer)
-{
-    readSMC(10, 2, buffer);
-    return buffer;
-}
-
-/*! \fn     writeIssuerZone(uint8_t* buffer)
-*   \brief  Write in the issuer zone (security mode 1 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (8 bytes required)
-*/
-void writeIssuerZone(uint8_t* buffer)
-{
-    writeSMC(16, 64, buffer);
-}
-
-/*! \fn     readSecurityCode(uint8_t* buffer)
+/*! \fn     readSecurityCode(void)
 *   \brief  Read the security code (security mode 1 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (2 bytes required)
-*   \return The provided pointer
+*   \return The security code
 */
-uint8_t* readSecurityCode(uint8_t* buffer)
+uint16_t readSecurityCode(void)
 {
-    readSMC(12, 10, buffer);
-    return buffer;
+    uint16_t temp_uint;
+    readSMC(12, 10, (uint8_t*)&temp_uint);
+    return swap16(temp_uint);
 }
 
-/*! \fn     writeSecurityCode(uint8_t* buffer)
+/*! \fn     writeSecurityCode(uint16_t code)
 *   \brief  Write a new security code (security mode 1&2 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (2 bytes required)
+*   \param  code  The pin code
 */
-void writeSecurityCode(uint8_t* buffer)
+void writeSecurityCode(uint16_t code)
 {
-    writeSMC(80, 16, buffer);
-}
-
-/*! \fn     readSecurityCodeAttemptsCounters(uint8_t* buffer)
-*   \brief  Read the number of code attempts left (security mode 1&2)
-*   \param  buffer  Pointer to a buffer (2 bytes required)
-*   \return The provided pointer
-*/
-uint8_t* readSecurityCodeAttemptsCounters(uint8_t* buffer)
-{
-    readSMC(14, 12, buffer);
-    return buffer;
-}
-
-/*! \fn     readCodeProtectedZone(uint8_t* buffer)
-*   \brief  Read the code protected zone (security mode 1&2 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (8 bytes required)
-*   \return The provided pointer
-*/
-uint8_t* readCodeProtectedZone(uint8_t* buffer)
-{
-    readSMC(22, 14, buffer);
-    return buffer;
-}
-
-/*! \fn     writeCodeProtectedZone(uint8_t* buffer)
-*   \brief  Write in the code protected zone (security mode 1&2 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (8 bytes required)
-*/
-void writeCodeProtectedZone(uint8_t* buffer)
-{
-    writeSMC(112, 64, buffer);
-}
-
-/*! \fn     readApplicationZone1EraseKey(uint8_t* buffer)
-*   \brief  Read the application zone1 erase key (security mode 1 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (6 bytes required)
-*   \return The provided pointer
-*/
-uint8_t* readApplicationZone1EraseKey(uint8_t* buffer)
-{
-    readSMC(92, 86, buffer);
-    return buffer;
-}
-
-/*! \fn     writeApplicationZone1EraseKey(uint8_t* buffer)
-*   \brief  Write the application zone1 erase key (security mode 1 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (6 bytes required)
-*/
-void writeApplicationZone1EraseKey(uint8_t* buffer)
-{
-    writeSMC(688, 48, buffer);
-}
-
-/*! \fn     readApplicationZone2EraseKey(uint8_t* buffer)
-*   \brief  Read the application zone2 erase key (security mode 1 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (4 bytes required)
-*   \return The provided pointer
-*/
-uint8_t* readApplicationZone2EraseKey(uint8_t* buffer)
-{
-    readSMC(160, 156, buffer);
-    return buffer;
-}
-
-/*! \fn     writeApplicationZone2EraseKey(uint8_t* buffer)
-*   \brief  Write the application zone2 erase key (security mode 1 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (4 bytes required)
-*/
-void writeApplicationZone2EraseKey(uint8_t* buffer)
-{
-    writeSMC(1248, 32, buffer);
-}
-
-/*! \fn     readMemoryTestZone(uint8_t* buffer)
-*   \brief  Read the Test zone (security mode 1&2)
-*   \param  buffer  Pointer to a buffer (2 bytes required)
-*   \return The provided pointer
-*/
-uint8_t* readMemoryTestZone(uint8_t* buffer)
-{
-    readSMC(178, 176, buffer);
-    return buffer;
-}
-
-/*! \fn     writeMemoryTestZone(uint8_t* buffer)
-*   \brief  Write in the Test zone (security mode 1&2)
-*   \param  buffer  Pointer to a buffer (2 bytes required)
-*/
-void writeMemoryTestZone(uint8_t* buffer)
-{
-    writeSMC(1408, 16, buffer);
-}
-
-/*! \fn     readManufacturerZone(uint8_t* buffer)
-*   \brief  Read the manufacturer zone (security mode 1&2)
-*   \param  buffer  Pointer to a buffer (2 bytes required)
-*   \return The provided pointer
-*/
-uint8_t* readManufacturerZone(uint8_t* buffer)
-{
-    readSMC(180, 178, buffer);
-    return buffer;
-}
-
-/*! \fn     writeManufacturerZone(uint8_t* buffer)
-*   \brief  Write in the manufacturer zone (security mode 1 - Authenticated!)
-*   \param  buffer  Pointer to a buffer (2 bytes required)
-*/
-void writeManufacturerZone(uint8_t* buffer)
-{
-    writeSMC(1424, 16, buffer);
-}
-
-/*! \fn     writeManufacturerFuse(void)
-*   \brief  Write manufacturer fuse, controlling access to the MFZ
-*/
-void writeManufacturerFuse(void)
-{
-    blowFuse(MAN_FUSE);
-}
-
-/*! \fn     write_issuers_fuse(void)
-*   \brief  Write issuers fuse, setting the AT88SC102 into Security Mode 2, we need to be authenticated here
-*/
-void write_issuers_fuse(void)
-{
-    blowFuse(ISSUER_FUSE);
-}
-
-/*! \fn     write_ec2en_fuse(void)
-*   \brief  Write ec2en fuse, to be done before blowing issuer fuse
-*/
-void write_ec2en_fuse(void)
-{
-    blowFuse(EC2EN_FUSE);
+    code = swap16(code);
+    writeSMC(80, 16, (uint8_t*)&code);
 }
 
 /*! \fn     setAuthenticatedReadWriteAccessToZone1(void)
@@ -616,73 +418,82 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void)
     }
 }
 
-/*! \fn     printSMCDebugInfoToScreen(void)
+/*! \fn     printSMCDebugInfoToUSB(void)
 *   \brief  Print the card info
 */
-void printSMCDebugInfoToScreen(void)
+void printSMCDebugInfoToUSB(void)
 {
-    #ifdef DEBUG_SMC_SCREEN_PRINT
+    #ifdef DEBUG_SMC_DUMP_USB_PRINT
         uint8_t data_buffer[20];
         uint8_t i;
 
-        oledClear();
+        /* Extrapolate security mode */
+        usbPrintf_P(PSTR("Security mode %c\n"), (readSecurityCode() == 0xFFFF) ? '2' : '1');
 
         /* Read FZ, SC, and SCAC */
         oledSetXY(0,0);
-        printf_P(PSTR("FZ:  %04X SC:  %04X SCAC: %04X\n"),
-                swap16(*(uint16_t *)readFabricationZone(data_buffer)),
-                swap16(*(uint16_t *)readSecurityCode(data_buffer)),
-                swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)));
+        usbPrintf_P(PSTR("FZ: %04X SC: %04X SCAC: %04X\n"), swap16(*(uint16_t *)readFabricationZone(data_buffer)), readSecurityCode(), swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)));
 
         /* Read IZ */
         readIssuerZone(data_buffer);
-        printf_P(PSTR("IZ:  "));
+        usbPrintf_P(PSTR("IZ:  "));
         for (i = 0; i < 4; i++)
         {
-            printf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
         }
-        puts("");
+        usbPrintf_P(PSTR("\n"));
 
         /* Recompose CPZ */
         readCodeProtectedZone(data_buffer);
-        printf_P(PSTR("CPZ: "));
+        usbPrintf_P(PSTR("CPZ: "));
         for (i = 0; i < 4; i++)
         {
-            printf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
         }
-        puts("");
+        usbPrintf_P(PSTR("\n"));
 
         /* Read EZ1 */
         readApplicationZone1EraseKey(data_buffer);
-        printf_P(PSTR("EZ1: "));
+        usbPrintf_P(PSTR("EZ1: "));
         for (i = 0; i < 3; i++)
         {
-            printf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
         }
-        puts("");
+        usbPrintf_P(PSTR("\n"));
 
         /* Read EZ2 */
         readApplicationZone2EraseKey(data_buffer);
-        printf_P(PSTR("EZ2: "));
+        usbPrintf_P(PSTR("EZ2: "));
         for (i = 0; i < 2; i++)
         {
-            printf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
         }
-        puts("");
+        usbPrintf_P(PSTR("\n"));
 
         /* Read MTZ and MFZ */
-        printf_P(PSTR("MTZ: %04X MFZ: %04X\n"),
+        usbPrintf_P(PSTR("MTZ: %04X MFZ: %04X\n"),
                 swap16(*(uint16_t*)readMemoryTestZone(data_buffer)),
                 swap16(*(uint16_t*)readManufacturerZone(data_buffer)));
 
-        /* Extrapolate security mode */
-        printf_P(PSTR("Security mode %c\n"), (*(uint16_t *)readSecurityCode(data_buffer) == 0xFFFF) ? '2' : '1');
-
-        /* Show first 2 bytes of AZ1 and AZ2 */
-        printf_P(PSTR("AZ1: %04X AZ2: %04X EC2: %02X\n"),
-                swap16(*(uint16_t*)readSMC(24,22,data_buffer)),
-                swap16(*(uint16_t*)readSMC(94,92,data_buffer)),
-                getNumberOfAZ2WritesLeft());
+        /* Show first 8 bytes of AZ1 and AZ2 */
+        readSMC(30,22,data_buffer);
+        usbPrintf_P(PSTR("AZ1: "));
+        for (i = 0; i < 4; i++)
+        {
+            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+        }
+        usbPrintf_P(PSTR("\n"));
+        
+        readSMC(100,92,data_buffer);
+        usbPrintf_P(PSTR("AZ2: "));
+        for (i = 0; i < 4; i++)
+        {
+            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+        }
+        usbPrintf_P(PSTR("\n"));
+        
+        /* Show EC2 counter */
+        usbPrintf_P(PSTR("EC2: %02X\n"), getNumberOfAZ2WritesLeft());
     #endif
 }
 

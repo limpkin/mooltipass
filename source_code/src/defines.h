@@ -99,7 +99,7 @@
 
 /**************** DEBUG PRINTS ****************/
 // Used for smart card testing
-//#define DEBUG_SMC_SCREEN_PRINT
+//#define DEBUG_SMC_DUMP_USB_PRINT
 //#define DEBUG_SMC_USB_PRINT
 // Used for flash testing prints
 //#define FLASH_TEST_DEBUG_OUTPUT_USB

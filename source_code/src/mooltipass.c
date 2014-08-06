@@ -307,7 +307,7 @@ int main(void)
                 oledClear();
                 oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("PB with card"));
                 oledFlipBuffers(OLED_SCROLL_UP, 5);
-                printSMCDebugInfoToScreen();
+                printSMCDebugInfoToUSB();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLOCKED)         // Card blocked
@@ -315,7 +315,7 @@ int main(void)
                 oledClear();
                 oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("Card blocked"));
                 oledFlipBuffers(OLED_SCROLL_UP, 5);
-                printSMCDebugInfoToScreen();
+                printSMCDebugInfoToUSB();
                 removeFunctionSMC();                                    // Shut down card reader
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_BLANK)           // Blank Mooltipass card
@@ -348,7 +348,7 @@ int main(void)
                     _delay_ms(2000);
                     oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
                 }
-                printSMCDebugInfoToScreen();                            // Print smartcard info
+                printSMCDebugInfoToUSB();                            // Print smartcard info
             }
             else if (temp_rettype == RETURN_MOOLTIPASS_USER)            // Configured mooltipass card
             {
@@ -400,7 +400,7 @@ int main(void)
                         usbPutstr_P(PSTR("Card ID not found\r\n"));
                     #endif
                 }
-                printSMCDebugInfoToScreen();
+                printSMCDebugInfoToUSB();
             }
         }
         else if (card_detect_ret == RETURN_JRELEASED)                   // Card just released

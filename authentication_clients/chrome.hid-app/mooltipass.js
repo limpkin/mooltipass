@@ -45,6 +45,8 @@ var packetSize = 64;    // number of bytes in an HID packet
 var payloadSize = packetSize - 2;
 
 var reContext = /^\https?\:\/\/([\w.\-\_]+)/;   // URL regex to extract base domain for context
+//var reContext = /(^.{1,254}$)(^(((?!-)[a-zA-Z0-9-]{1,63}(?<!-))|((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$/;
+//var reContext = /https?\:\/\/(?www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4})\b(?[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
 // Commands that the MP device can send.
 var CMD_DEBUG        = 0x01;
@@ -76,6 +78,7 @@ var CMD_ERASE_SMC           = 0x42;
 var CMD_DRAW_BITMAP         = 0x43;
 var CMD_SET_FONT            = 0x44;
 var CMD_JUMP_TO_BOOTLOADER  = 0x48;
+var CMD_CLONE_SMARTCARD     = 0x49;
 
 // supported flash chips
 // 264,   512,  128   1MB   0001 ID:00010=2  5  7 12, 6 2 16 S: 3 - 8,120,128
@@ -105,9 +108,12 @@ var flashInfo = {
 var flashChipId = null;
 
 
+var client = {};
+
 var connection = null;  // connection to the mooltipass
 var connected = false;  // current connection state
 var authReq = null;     // current authentication request
+var authReqQueue = [];
 var context = null;
 var contextGood = false;
 var createContext = false;
@@ -434,6 +440,7 @@ function initWindow()
     var eraseFlashButton = document.getElementById("eraseFlash");
     var eraseSmartcardButton = document.getElementById("eraseSmartcard");
     var jumpToBootloader = document.getElementById("jumpToBootloader");
+    var cloneSmartcard = document.getElementById("cloneSmartcard");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -626,6 +633,12 @@ function initWindow()
         sendRequest(CMD_JUMP_TO_BOOTLOADER);
     });
 
+    cloneSmartcard.addEventListener('click', function() 
+    {
+        log('#messageLog', 'Cloning smartcard\n');
+        sendRequest(CMD_CLONE_SMARTCARD);
+    });
+
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
         switch (request.type)
@@ -704,6 +717,7 @@ function initWindow()
     $("#eraseEeprom").button();
     $("#eraseSmartcard").button();
     $("#jumpToBootloader").button();
+    $("#cloneSmartcard").button();
     $("#tabs").tabs();
 
     $("#drawBitmap").menu({

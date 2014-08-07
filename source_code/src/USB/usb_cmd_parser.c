@@ -154,7 +154,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             if (getLoginForContext((char*)incomingData) == RETURN_OK)
             {
                 // Use the buffer to store the login...
-                usbSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData), incomingData);
+                usbSendMessage(CMD_GET_LOGIN, strlen((char*)incomingData)+1, incomingData);
                 USBPARSERDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
                 return;
             }
@@ -171,7 +171,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             if (getPasswordForContext((char*)incomingData) == RETURN_OK)
             {
-                usbSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData), incomingData);
+                usbSendMessage(CMD_GET_PASSWORD, strlen((char*)incomingData)+1, incomingData);
                 USBPARSERDEBUGPRINTF_P(PSTR("get pass: \"%s\"\n"),(char *)incomingData);
                 return;
             }

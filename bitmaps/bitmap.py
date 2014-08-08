@@ -45,7 +45,6 @@ def compressImage(image):
     '''
     count = 0
     pixels = 0
-    bitCount = image['wordSize']
     runCount = 0
     runPixel = 0
     data = image['data']

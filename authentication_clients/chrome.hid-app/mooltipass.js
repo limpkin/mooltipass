@@ -595,9 +595,9 @@ function initWindow()
     {
         $('#eraseConfirm').dialog({
             buttons: {
-                "Erase Mooltipass EEPROM?": function() 
+                "Erase Mooltipass EEPROM and Flash?": function() 
                 {
-                    log('#developerLog', 'Erasing EEPROM... ');
+                    log('#developerLog', 'Erasing EEPROM and flash... ');
                     sendRequest(CMD_ERASE_EEPROM);
                     $(this).dialog('close');
                 },
@@ -645,6 +645,16 @@ function initWindow()
         {
             case 'inputs':
                 console.log('URL: '+request.url);
+
+                //if (!sender.id in clients) {
+                //    clients[sender.id] 
+                //}
+
+                if (authReq != null) {
+                    // already a request in progress, wait for it to complete
+                    authReqQueue.push(request);
+                    break;
+                }
 
                 authReq = request;
                 authReq.senderId = sender.id;

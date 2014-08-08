@@ -88,7 +88,7 @@ def compressImage(image):
 
     image['runCount'] = count
     image['compressedData'] = output
-    image['compressedSize'] = count / 2
+    image['compressedSizeWords'] = count / 2
     image['flags'] = 1
 
     return image
@@ -123,11 +123,11 @@ def parseGimpHeader(filename, bitDepth=4, wordSize=16):
         print 'Failed to extract pixel data from {}'.format(imageFile)
         sys.exit(1)
 
-    dataSize = int(math.ceil(width * bitDepth * height / float(wordSize)))
+    dataSizeWords = int(math.ceil(width * bitDepth * height / float(wordSize)))
 
     image = {
         'data': data,
-        'dataSize': dataSize,
+        'dataSizeWords': dataSizeWords,
         'width': width,
         'height': height,
         'bitDepth': bitDepth,
@@ -143,11 +143,11 @@ def writeImage(filename, image):
 
     if (image.has_key('compressedData')):
         data = image['compressedData']
-        dataSize = image['runCount']
+        dataSizeWords = image['compressedSizeWords']
         flags = 1
     else:
         data = image['data']
-        dataSize = image['dataSize']
+        dataSizeWords = image['dataSizeWords']
 
     if (filename == "-"):
         fd = sys.stdout
@@ -155,7 +155,7 @@ def writeImage(filename, image):
         fd = open(filename, 'wb');
 
     # Write header
-    fd.write(pack('=HBBBH', image['width'], image['height'], image['bitDepth'], flags, dataSize))
+    fd.write(pack('=HBBBH', image['width'], image['height'], image['bitDepth'], flags, dataSizeWords))
     # Write data
     fd.write(bytearray(data))
     fd.close()
@@ -173,11 +173,11 @@ def writeMooltipassHeader(filename, imageName, image):
 
     if (image.has_key('compressedData')):
         data = image['compressedData']
-        count = image['compressedSize']
+        count = image['compressedSizeWords']
         flags = 1
     else:
         data = image['data']
-        count = image['dataSize']
+        count = image['dataSizeWords']
         flags = 0
 
     bitDepth = image['bitDepth']
@@ -226,9 +226,9 @@ def main():
 
     if options.compress:
         image = compressImage(image)
-        print "Compressed image: {} -> {} words".format(image['dataSize'], image['compressedSize'])
+        print "Compressed image: {} -> {} words".format(image['dataSizeWords'], image['compressedSizeWords'])
     else:
-        print "Image size: {} words".format(image['dataSize'])
+        print "Image size: {} words".format(image['dataSizeWords'])
 
     unused, outputExtension = os.path.splitext(options.output)
     if outputExtension == ".img":

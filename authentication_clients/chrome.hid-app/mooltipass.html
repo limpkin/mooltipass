@@ -72,18 +72,19 @@
    <div id="developer" style="height:416px">
 	<h3>General</h3>
 	<div>
-	    <ul>
-	        <li><button id="jumpToBootloader" style="width:180px">Jump to bootloader</button></li>
-	        <li><button id="cloneSmartcard" style="width:180px">Clone smartcard</button></li>
+	    <button id="jumpToBootloader" style="width:180px">Jump to bootloader</button></li><br>
+	    <button id="cloneSmartcard" style="width:180px">Clone smartcard</button></li><br>
+	    <br>
+	    <ul id="erase" style="width:70px" class="ui-widget ui-state-default ui-corner-all">
+		<li>Erase
+		    <ul class="ui-widget ui-state-default ui-corner-all">
+			<li style="width:150px">eeprom and flash</li>
+			<li>flash</li>
+			<li>smartcard</li>
+		    </ul>
+		</li>
 	    </ul>
-	</div>
-	<h3>Erase</h3>
-	<div>
-	    <ul>
-	        <li><button id="eraseEeprom" style="width:180px">Erase eeprom and flash</button></li>
-	        <li><button id="eraseFlash" style="width:180px">Erase flash</button></li>
-	        <li><button id="eraseSmartcard" style="width:180px">Erase smartcard</button></li>
-	    </ul>
+	    <br>
 	    <div id="eraseConfirm" title="Mooltipass Erase">
 		<p></p>
 	    </div>
@@ -95,12 +96,12 @@
 	    <label class="ui-widget">x: <input type="text" id="bitmap_x" class="ui-widget ui-state-default ui-corner-all" style="width:50px" value="0"></label>
 	    <label class="ui-widget"><input type="checkbox" id="bitmap_clear" checked class="ui-widget ui-state-default ui-corner-all"> clear screen</label><br>
 	    <label class="ui-widget">y: <input type="text" id="bitmap_y" class="ui-widget ui-state-default ui-corner-all" style="width:50px" value="0"></label><br>
-	    <ul id="drawBitmap" style="width:150px">
+	    <ul id="drawBitmap" style="width:150px" class="ui-widget ui-state-default ui-corner-all">
 		<li>Draw bitmap
-		    <ul>
+		    <ul class="ui-widget ui-state-default ui-corner-all">
 			<li>0</li>
 			<li>1</li>
-			<li>2</li>
+			<li class="ui-widget ui-state-default ui-corner-all">2</li>
 			<li>3</li>
 			<li>4</li>
 			<li>5</li>
@@ -108,7 +109,7 @@
 		    </ul>
 		</li>
 	    </ul>
-	    <ul id="setFont" style="width:150px">
+	    <ul id="setFont" style="width:150px" class="ui-widget ui-state-default ui-corner-all">
 		<li>Set Font
 		    <ul>
 			<li>7</li>

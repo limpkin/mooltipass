@@ -74,7 +74,7 @@ var CMD_EXPORT_EEPROM_START = 0x46;    // request permission to export eeprom
 
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
-var CMD_ERASE_SMC           = 0x42;
+var CMD_ERASE_SMARTCARD     = 0x42;
 var CMD_DRAW_BITMAP         = 0x43;
 var CMD_SET_FONT            = 0x44;
 var CMD_JUMP_TO_BOOTLOADER  = 0x48;
@@ -436,9 +436,6 @@ function initWindow()
     var importFlashButton = document.getElementById("importFlash");
     var importEepromButton = document.getElementById("importEeprom");
     var importMediaButton = document.getElementById("importMedia");
-    var eraseEepromButton = document.getElementById("eraseEeprom");
-    var eraseFlashButton = document.getElementById("eraseFlash");
-    var eraseSmartcardButton = document.getElementById("eraseSmartcard");
     var jumpToBootloader = document.getElementById("jumpToBootloader");
     var cloneSmartcard = document.getElementById("cloneSmartcard");
 
@@ -573,60 +570,6 @@ function initWindow()
         });
     });
 
-    eraseFlashButton.addEventListener('click', function() 
-    {
-        $('#eraseConfirm').dialog({
-            buttons: {
-                "Erase Mooltipass Flash?": function() 
-                {
-                    log('#developerLog', 'Erasing flash... ');
-                    sendRequest(CMD_ERASE_FLASH);
-                    $(this).dialog('close');
-                },
-                Cancel: function() 
-                {
-                    $(this).dialog('close');
-                }
-            }
-        });
-    });
-
-    eraseEepromButton.addEventListener('click', function() 
-    {
-        $('#eraseConfirm').dialog({
-            buttons: {
-                "Erase Mooltipass EEPROM and Flash?": function() 
-                {
-                    log('#developerLog', 'Erasing EEPROM and flash... ');
-                    sendRequest(CMD_ERASE_EEPROM);
-                    $(this).dialog('close');
-                },
-                Cancel: function() 
-                {
-                    $(this).dialog('close');
-                }
-            }
-        });
-    });
-
-    eraseSmartcardButton.addEventListener('click', function() 
-    {
-        $('#eraseConfirm').dialog({
-            buttons: {
-                "Erase Mooltipass Smartcard?": function() 
-                {
-                    log('#developerLog', 'Erasing smartcard... ');
-                    sendRequest(CMD_ERASE_SMC);
-                    $(this).dialog('close');
-                },
-                Cancel: function() 
-                {
-                    $(this).dialog('close');
-                }
-            }
-        });
-    });
-
     jumpToBootloader.addEventListener('click', function() 
     {
         log('#messageLog', 'Sending JUMP_TO_BOOTLOADER\n');
@@ -723,12 +666,34 @@ function initWindow()
     $("#importFlash").button();
     $("#importEeprom").button();
     $("#importMedia").button();
-    $("#eraseFlash").button();
-    $("#eraseEeprom").button();
-    $("#eraseSmartcard").button();
     $("#jumpToBootloader").button();
     $("#cloneSmartcard").button();
     $("#tabs").tabs();
+
+    var eraseOptions = {
+        'eeprom and flash': { query: 'Erase EEPROM and Flash?', cmd: CMD_ERASE_EEPROM },
+        'flash':            { query: 'Erase Flash?',            cmd: CMD_ERASE_FLASH },
+        'smartcard':        { query: 'Erase smartcard?',        cmd: CMD_ERASE_SMARTCARD }
+    };
+                             
+    $("#erase").menu({
+        select: function(event, ui) {
+            var option = ui.item.text();
+            if (option in eraseOptions) {
+                query = eraseOptions[option].query;
+                var buts = {};
+                buts[query] = function() {
+                        log('#developerLog', 'Erasing '+option+'... ');
+                        sendRequest(eraseOptions[option].cmd);
+                        $(this).dialog('close');
+                    }
+                buts['Cancel'] = function() {
+                        $(this).dialog('close');
+                    }
+                $('#eraseConfirm').dialog({buttons: buts});
+            }
+        }
+    });
 
     $("#drawBitmap").menu({
         select: function(event, ui) {

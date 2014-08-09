@@ -134,20 +134,21 @@ void activityDetectedRoutine(void)
     activateLightTimer();
     activateScreenTimer();
     
+    // If the screen was off, turn it on!
+    if (isScreenOn == FALSE)
+    {
+        oledOn();
+        _delay_ms(450);
+        isScreenOn = TRUE;
+    }
+    
     // If the lights were off, turn them on!
     if (areLightsOn == FALSE)
     {
         setPwmDc(MAX_PWM_VAL);
         activateGuardKey();
         areLightsOn = TRUE;
-    }
-    
-    // If the screen was off, turn it on!
-    if (isScreenOn == FALSE)
-    {
-        oledOn();
-        isScreenOn = TRUE;
-    }    
+    }   
 }
 
 void guiMainLoop(void)
@@ -170,7 +171,9 @@ void guiMainLoop(void)
     // No activity, switch off screen
     if (screenTimerOffFlag == TRUE)
     {
-        //oledOff();
+        #ifndef HARDWARE_V1
+            oledOff();
+        #endif
         isScreenOn = FALSE;
         screenTimerOffFlag = FALSE;
     }
@@ -306,6 +309,14 @@ int8_t getTouchUiQuarterPosition(void)
     }    
 }
 
+/*! \fn     guiGetBackToCurrentScreen(void)
+*   \brief  Get back to the current screen
+*/
+void guiGetBackToCurrentScreen(void)
+{
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);    
+}
+
 /*! \fn     informGuiOfCurrentContext(char* context)
 *   \param  context String of the context
 *   \brief  Inform the GUI of the current context
@@ -340,8 +351,8 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     
     return_value = getTouchUiYesNoAnswer();
     
-    // Get to other bitmap
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    // Get back to other screen
+    guiGetBackToCurrentScreen();
     
     return return_value;
 }
@@ -369,8 +380,8 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     
     return_value = getTouchUiYesNoAnswer();
     
-    // Get to other bitmap
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    // Get back to other screen
+    guiGetBackToCurrentScreen();
     
     return return_value;
 }
@@ -399,8 +410,8 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
     
     return_value = getTouchUiYesNoAnswer();
     
-    // Get to other bitmap
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    // Get back to other screen
+   guiGetBackToCurrentScreen();
     
     return return_value;
 }
@@ -456,14 +467,14 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         
         if(getTouchUiYesNoAnswer() == RETURN_OK)
         {
-            // Get to other bitmap
-            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            // Get back to other screen
+            guiGetBackToCurrentScreen();
             return temp_child_address;
         }
         else
         {
-            // Get to other bitmap
-            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            // Get back to other screen
+            guiGetBackToCurrentScreen();
             return NODE_ADDR_NULL;
         }
     } 
@@ -578,8 +589,8 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             }
         }       
         
-        // Get to other bitmap
-        oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+        // Get back to other screen
+        guiGetBackToCurrentScreen();
     }    
 
     return temp_child_address;
@@ -605,8 +616,8 @@ RET_TYPE guiAskForConfirmation(const char* string)
     
     return_value = getTouchUiYesNoAnswer();
     
-    // Get to other bitmap
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    // Get back to other screen
+    guiGetBackToCurrentScreen();
     
     return return_value;    
 }
@@ -632,6 +643,9 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     
     // Wait for either timeout or for the user to insert his smartcard
     while ((userInteractionFlag == FALSE) && (card_detect_ret != RETURN_JDETECT));
+    
+    // Get back to other screen
+    guiGetBackToCurrentScreen();
     
     // If the user didn't insert his smart card
     if (card_detect_ret != RETURN_JDETECT)

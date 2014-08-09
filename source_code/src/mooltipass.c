@@ -332,7 +332,7 @@ int main(void)
                         
                         oledClear();
                         oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("User added"));
-                        oledFlipBuffers(OLED_SCROLL_UP, 5);
+                        oledFlipBuffers(0,0);
                         setSmartCardInsertedUnlocked();
                     }
                     else
@@ -343,7 +343,7 @@ int main(void)
                         
                         oledClear();
                         oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("Couldn't add"));
-                        oledFlipBuffers(OLED_SCROLL_UP, 5);
+                        oledFlipBuffers(0,0);
                     }
                     _delay_ms(2000);
                     oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
@@ -375,7 +375,7 @@ int main(void)
                         setSmartCardInsertedUnlocked();
                         oledClear();
                         oledPutstrXY_P(0, 28, OLED_CENTRE, PSTR("Card unlocked"));
-                        oledFlipBuffers(OLED_SCROLL_UP, 5);
+                        oledFlipBuffers(0,0);
                         _delay_ms(2000);
                         oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
                     #endif

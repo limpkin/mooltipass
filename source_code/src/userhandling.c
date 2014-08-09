@@ -342,7 +342,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 RET_TYPE addNewContext(uint8_t* name, uint8_t length)
 {
     // Check if the context doesn't already exist
-    if ((searchForServiceName(name, length) != NODE_ADDR_NULL) || (smartcard_inserted_unlocked == FALSE))
+    if ((smartcard_inserted_unlocked == FALSE) || (searchForServiceName(name, length) != NODE_ADDR_NULL))
     {
         return RETURN_NOK;
     }

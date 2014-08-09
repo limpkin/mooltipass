@@ -827,15 +827,13 @@ RET_TYPE cloneSmartCard(uint16_t pincode)
     readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ2_BIT_START)/8, temp_az2);
     
     // Inform the user to remove his smart card
-    oledWriteActiveBuffer();
-    oledClear();
-    oledPutstrXY_P(0, 24, OLED_CENTRE, PSTR("Remove your smartcard"));
+    guiDisplayInformationOnScreen(PSTR("Remove your smartcard"));
     
     // Wait for the user to remove his smart card
     while (isCardPlugged() != RETURN_JRELEASED);
     
     // Inform the user to insert a blank smart card
-    oledPutstrXY_P(0, 32, OLED_CENTRE, PSTR("Insert new smartcard"));
+    guiDisplayInformationOnScreen(PSTR("Insert new smartcard"));
     
     // Wait for the user to insert a blank smart card
     while (isCardPlugged() != RETURN_JDETECT);
@@ -868,7 +866,7 @@ RET_TYPE cloneSmartCard(uint16_t pincode)
     setSmartCardInsertedUnlocked();
     
     // Inform the user that it is done
-    oledPutstrXY_P(0, 40, OLED_CENTRE, PSTR("Done"));
+    guiDisplayInformationOnScreen(PSTR("Done"));
     
     return RETURN_OK;
 }

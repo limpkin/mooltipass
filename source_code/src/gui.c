@@ -25,9 +25,11 @@
 #include <util/atomic.h>
 #include <util/delay.h>
 #include <stdint.h>
+#include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
 #include "userhandling.h"
 #include "node_mgmt.h"
+#include "smartcard.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "touch.h"
@@ -138,7 +140,7 @@ void activityDetectedRoutine(void)
     if (isScreenOn == FALSE)
     {
         oledOn();
-        _delay_ms(450);
+        _delay_ms(130);
         isScreenOn = TRUE;
     }
     
@@ -565,11 +567,6 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                         readChildNode(h, c, temp_child_address);                      
                     }
                 }
-                else
-                {
-                    temp_child_address = NODE_ADDR_NULL;
-                    action_chosen = TRUE;
-                }
                 i = 0;
             }
             else if ((j == TOUCHPOS_RIGHT) && (i == 4) && (c->nextChildAddress != NODE_ADDR_NULL))
@@ -598,7 +595,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
 
 /*! \fn     guiAskForConfirmation(const char* string)
 *   \brief  Ask for user confirmation for different things
-*   \param  string              Pointer to the string to display
+*   \param  string  Pointer to the string to display
 *   \return User confirmation or not
 */
 RET_TYPE guiAskForConfirmation(const char* string)
@@ -622,6 +619,112 @@ RET_TYPE guiAskForConfirmation(const char* string)
     return return_value;    
 }
 
+/*! \fn     guiDisplayInformationOnScreen(const char* string)
+*   \brief  Display text information on screen
+*   \param  string  Pointer to the string to display
+*/
+void guiDisplayInformationOnScreen(const char* string)
+{
+    // Draw information bitmap & wait for user input
+    oledClear();
+    oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+    oledPutstrXY_P(10, 24, OLED_CENTRE, string);
+    oledFlipBuffers(0,0);
+}
+
+/*! \fn     guiHandleSmartcardInserted(RET_TYPE detection_result)
+*   \brief  Here is where are handled all smartcard insertion logic
+*   \return RETURN_OK if user is authentified
+*/
+RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
+{
+    uint8_t temp_ctr_val[AES256_CTR_LENGTH];
+    uint8_t temp_buffer[AES_KEY_LENGTH/8];
+    RET_TYPE return_value = RETURN_NOK;
+    uint8_t temp_user_id;
+    
+    if ((detection_result == RETURN_MOOLTIPASS_PB) || (detection_result == RETURN_MOOLTIPASS_INVALID))
+    {
+        guiDisplayInformationOnScreen(PSTR("PB with card"));
+        return_value = RETURN_NOK;
+        printSMCDebugInfoToUSB();
+        removeFunctionSMC();
+    }
+    else if (detection_result == RETURN_MOOLTIPASS_BLOCKED)
+    {
+        guiDisplayInformationOnScreen(PSTR("Card blocked"));
+        return_value = RETURN_NOK;
+        printSMCDebugInfoToUSB();
+        removeFunctionSMC();
+    }
+    else if (detection_result == RETURN_MOOLTIPASS_BLANK)
+    {
+        // Ask the user to setup his mooltipass card
+        if (guiAskForConfirmation(PSTR("Create new mooltipass user?")) == RETURN_OK)
+        {
+            // Create a new user with his new smart card
+            if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
+            {
+                guiDisplayInformationOnScreen(PSTR("User added"));
+                setSmartCardInsertedUnlocked();
+                return_value = RETURN_OK;
+            }
+            else
+            {
+                guiDisplayInformationOnScreen(PSTR("Couldn't add user"));
+                return_value = RETURN_NOK;
+            }
+        }
+        printSMCDebugInfoToUSB();
+    }
+    else if (detection_result == RETURN_MOOLTIPASS_USER)
+    {
+        // Here we should ask the user for his pin and call mooltipassDetectedRoutine
+        readCodeProtectedZone(temp_buffer);
+        #ifdef GENERAL_LOGIC_OUTPUT_USB
+            usbPrintf_P(PSTR("%d cards\r\n"), getNumberOfKnownCards());
+            usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
+        #endif
+                
+        // See if we know the card and if so fetch the user id & CTR nonce
+        if (getUserIdFromSmartCardCPZ(temp_buffer, temp_ctr_val, &temp_user_id) == RETURN_OK)
+        {
+            #ifdef GENERAL_LOGIC_OUTPUT_USB
+                usbPrintf_P(PSTR("Card ID found with user %d\r\n"), temp_user_id);
+            #endif
+                    
+            // Developer mode, enter default pin code
+            #ifdef NO_PIN_CODE_REQUIRED
+                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                return_value = RETURN_OK;
+                setSmartCardInsertedUnlocked();
+                readAES256BitsKey(temp_buffer);
+                initUserFlashContext(temp_user_id);
+                initEncryptionHandling(temp_buffer, temp_ctr_val);
+                guiDisplayInformationOnScreen(PSTR("Card unlocked"));
+            #endif
+        }
+        else
+        {
+            guiDisplayInformationOnScreen(PSTR("Card ID not found"));
+            return_value = RETURN_NOK;
+                    
+            // Developer mode, enter default pin code
+            #ifdef NO_PIN_CODE_REQUIRED
+                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                setSmartCardInsertedUnlocked();
+            #else
+                removeFunctionSMC();                            // Shut down card reader
+            #endif
+        }
+        printSMCDebugInfoToUSB();
+    }
+    
+    _delay_ms(2000);
+    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    return return_value;   
+}
+
 /*! \fn     guiDisplayInsertSmartCardScreenAndWait(void)
 *   \brief  Ask for the user to insert his smart card
 *   \return RETURN_OK if the user inserted and unlocked his smartcard
@@ -642,18 +745,20 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     activateUserInteractionTimer();
     
     // Wait for either timeout or for the user to insert his smartcard
-    while ((userInteractionFlag == FALSE) && (card_detect_ret != RETURN_JDETECT));
-    
-    // Get back to other screen
-    guiGetBackToCurrentScreen();
+    while ((userInteractionFlag == FALSE) && (card_detect_ret != RETURN_JDETECT))
+    {
+        card_detect_ret = isCardPlugged();
+    }    
     
     // If the user didn't insert his smart card
     if (card_detect_ret != RETURN_JDETECT)
     {
+        // Get back to other screen
+        guiGetBackToCurrentScreen();
         return RETURN_NOK;
     } 
     else
     {
-        return RETURN_NOK;
+        return guiHandleSmartcardInserted(cardDetectedRoutine());
     }    
 }

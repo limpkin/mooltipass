@@ -24,6 +24,7 @@
 #include "smart_card_higher_level_functions.h"
 #include <avr/interrupt.h>
 #include "userhandling.h"
+#include <util/atomic.h>
 #include <util/delay.h>
 #include "smartcard.h"
 #include "entropy.h"
@@ -218,16 +219,17 @@ RET_TYPE isCardPlugged(void)
 
     if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
     {
-        cli();
-        if (button_return == RETURN_JDETECT)
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
-            button_return = RETURN_DET;
+            if (button_return == RETURN_JDETECT)
+            {
+                button_return = RETURN_DET;
+            }
+            else if (button_return == RETURN_JRELEASED)
+            {
+                button_return = RETURN_REL;
+            }
         }
-        else if (button_return == RETURN_JRELEASED)
-        {
-            button_return = RETURN_REL;
-        }
-        sei();
     }
 
     return return_val;

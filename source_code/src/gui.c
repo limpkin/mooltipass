@@ -312,12 +312,11 @@ int8_t getTouchUiQuarterPosition(void)
 */
 void informGuiOfCurrentContext(char* context)
 {
-    oledWriteInactiveBuffer();
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_SIDES, 0);
     oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("You are currently visiting:"));
     oledPutstrXY(0, 30, OLED_CENTRE, context);
-    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    oledFlipBuffers(0,0);
     return;
 }
 
@@ -333,12 +332,11 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     activityDetectedRoutine();
 
     // Draw asking bitmap & wait for user input
-    oledWriteInactiveBuffer();
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
     oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Confirm new credentials for:"));
     oledPutstrXY(0, 30, OLED_CENTRE, name);
-    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    oledFlipBuffers(0,0);
     
     return_value = getTouchUiYesNoAnswer();
     
@@ -361,14 +359,13 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     activityDetectedRoutine();
     
     // Draw asking bitmap & wait for user input
-    oledWriteInactiveBuffer();
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
     oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Add username:"));
     oledPutstrXY(0, 21, OLED_CENTRE, name);
     oledPutstrXY(0, 36, OLED_CENTRE, "on");
     oledPutstrXY(0, 52, OLED_CENTRE, service);
-    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    oledFlipBuffers(0,0);
     
     return_value = getTouchUiYesNoAnswer();
     
@@ -392,14 +389,13 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
     activityDetectedRoutine();
     
     // Draw asking bitmap & wait for user input
-    oledWriteInactiveBuffer();
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
     oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Change password for:"));
     oledPutstrXY(0, 21, OLED_CENTRE, name);
     oledPutstrXY(0, 36, OLED_CENTRE, "on");
     oledPutstrXY(0, 52, OLED_CENTRE, service);
-    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    oledFlipBuffers(0,0);
     
     return_value = getTouchUiYesNoAnswer();
     
@@ -450,14 +446,13 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     if (c->nextChildAddress == NODE_ADDR_NULL)
     {
         // Draw asking bitmap
-        oledWriteInactiveBuffer();
         oledClear();
         oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
         oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Confirm login for"));
         oledPutstrXY(0, 21, OLED_CENTRE, (char*)p->service);
         oledPutstrXY_P(0, 36, OLED_CENTRE, PSTR("with these credentials:"));
         oledPutstrXY(0, 52, OLED_CENTRE, (char*)c->login);
-        oledFlipBuffers(OLED_SCROLL_UP, 0);
+        oledFlipBuffers(0,0);
         
         if(getTouchUiYesNoAnswer() == RETURN_OK)
         {
@@ -480,8 +475,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         {
             // Draw asking bitmap
             oledClear();
-            oledBitmapDrawFlash(0, 0, BITMAP_LOGIN, OLED_SCROLL_UP);
-            oledWriteActiveBuffer();
+            oledBitmapDrawFlash(0, 0, BITMAP_LOGIN, 0);
             
             // Write domain name on screen
             oledPutstrXY(0, 24, OLED_CENTRE, (char*)p->service);
@@ -522,6 +516,9 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                 temp_child_address = c->nextChildAddress;
                 i++;
             }
+            
+            // Display picture
+            oledFlipBuffers(0,0);
             
             // Set temp_child_address to last address
             temp_child_address = addresses[i-1];
@@ -579,7 +576,6 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                     readChildNode(h, c, temp_child_address);
                 }
             }
-            oledWriteInactiveBuffer();
         }       
         
         // Get to other bitmap
@@ -602,11 +598,10 @@ RET_TYPE guiAskForConfirmation(const char* string)
     activityDetectedRoutine();
 
     // Draw asking bitmap & wait for user input
-    oledWriteInactiveBuffer();
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
     oledPutstrXY_P(0, 24, OLED_CENTRE, string);
-    oledFlipBuffers(OLED_SCROLL_UP, 0);
+    oledFlipBuffers(0,0);
     
     return_value = getTouchUiYesNoAnswer();
     
@@ -614,4 +609,37 @@ RET_TYPE guiAskForConfirmation(const char* string)
     oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
     
     return return_value;    
+}
+
+/*! \fn     guiDisplayInsertSmartCardScreenAndWait(void)
+*   \brief  Ask for the user to insert his smart card
+*   \return RETURN_OK if the user inserted and unlocked his smartcard
+*/
+RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
+{
+    RET_TYPE card_detect_ret = RETURN_JRELEASED;
+    
+    // Switch on lights
+    activityDetectedRoutine();
+
+    // Draw insert bitmap
+    oledClear();
+    oledBitmapDrawFlash(0, 0, BITMAP_INSERT, 0);
+    oledFlipBuffers(0,0);
+    
+    // Activate timer
+    activateUserInteractionTimer();
+    
+    // Wait for either timeout or for the user to insert his smartcard
+    while ((userInteractionFlag == FALSE) && (card_detect_ret != RETURN_JDETECT));
+    
+    // If the user didn't insert his smart card
+    if (card_detect_ret != RETURN_JDETECT)
+    {
+        return RETURN_NOK;
+    } 
+    else
+    {
+        return RETURN_NOK;
+    }    
 }

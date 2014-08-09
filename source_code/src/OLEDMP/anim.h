@@ -40,6 +40,8 @@
 #define BITMAP_RIGHT          3
 #define BITMAP_TICK           4
 #define BITMAP_CROSS          5
+#define BITMAP_INFO           6
+#define BITMAP_INSERT         9
 
 // These bitmaps are built from frames
 #define BITMAP_SIDES          (0x80+FRAME_SIDES)

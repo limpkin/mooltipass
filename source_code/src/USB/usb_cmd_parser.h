@@ -46,6 +46,7 @@
 #define PLUGIN_BYTE_ERROR   0x00
 #define PLUGIN_BYTE_OK      0x01
 #define PLUGIN_BYTE_NA      0x02
+#define PLUGIN_BYTE_NOCARD  0x03
 
 /* Packet defines */
 #define PACKET_EXPORT_SIZE  (RAWHID_TX_SIZE-HID_DATA_START)

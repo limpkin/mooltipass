@@ -135,6 +135,11 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
             }
+            else if ((getSmartCardInsertedUnlocked() != TRUE) && (guiDisplayInsertSmartCardScreenAndWait() == RETURN_NOK))
+            {
+                plugin_return_value = PLUGIN_BYTE_NOCARD;
+                USBPARSERDEBUGPRINTF_P(PSTR("set context: no card\n"));                
+            }
             else if (setCurrentContext(msg->body.data, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;

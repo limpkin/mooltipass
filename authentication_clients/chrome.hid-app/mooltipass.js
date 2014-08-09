@@ -49,16 +49,16 @@ var reContext = /^\https?\:\/\/([\w.\-\_]+)/;   // URL regex to extract base dom
 //var reContext = /https?\:\/\/(?www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4})\b(?[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
 // Commands that the MP device can send.
-var CMD_DEBUG        = 0x01;
-var CMD_PING         = 0x02;
-var CMD_VERSION      = 0x03;
-var CMD_CONTEXT      = 0x04;
-var CMD_GET_LOGIN    = 0x05;
-var CMD_GET_PASSWORD = 0x06;
-var CMD_SET_LOGIN    = 0x07;
-var CMD_SET_PASSWORD = 0x08;
-var CMD_CHECK_PASSWORD = 0x09;
-var CMD_ADD_CONTEXT  = 0x0A;
+var CMD_DEBUG               = 0x01;
+var CMD_PING                = 0x02;
+var CMD_VERSION             = 0x03;
+var CMD_CONTEXT             = 0x04;
+var CMD_GET_LOGIN           = 0x05;
+var CMD_GET_PASSWORD        = 0x06;
+var CMD_SET_LOGIN           = 0x07;
+var CMD_SET_PASSWORD        = 0x08;
+var CMD_CHECK_PASSWORD      = 0x09;
+var CMD_ADD_CONTEXT         = 0x0A;
 var CMD_EXPORT_FLASH        = 0x30;    // resp: 0x30 packets until 0x31
 var CMD_EXPORT_FLASH_END    = 0x31;
 var CMD_IMPORT_FLASH_BEGIN  = 0x32;    // confirmed by 0x32,0x01
@@ -68,15 +68,15 @@ var CMD_EXPORT_EEPROM       = 0x35;    // resp: 0x35 packets until 0x36
 var CMD_EXPORT_EEPROM_END   = 0x36;
 var CMD_IMPORT_EEPROM_BEGIN = 0x37;    // confirmed by 0x37,0x01
 var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
-var CMD_IMPORT_EEPROM_END   = 0x39; 
-var CMD_EXPORT_FLASH_START  = 0x45;    // request permission to export flash
-var CMD_EXPORT_EEPROM_START = 0x46;    // request permission to export eeprom
-
+var CMD_IMPORT_EEPROM_END   = 0x39;
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
-var CMD_ERASE_SMARTCARD     = 0x42;
-var CMD_DRAW_BITMAP         = 0x43;
+var CMD_ERASE_SMC           = 0x42;
+var CMD_DRAW_BITMAP         = 0x43;	
 var CMD_SET_FONT            = 0x44;
+var CMD_EXPORT_FLASH_START  = 0x45;
+var CMD_EXPORT_EEPROM_START = 0x46;
+var CMD_SET_BOOTLOADER_PWD  = 0x47;
 var CMD_JUMP_TO_BOOTLOADER  = 0x48;
 var CMD_CLONE_SMARTCARD     = 0x49;
 

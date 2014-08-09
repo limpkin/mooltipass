@@ -46,6 +46,7 @@
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);
 RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service);
 RET_TYPE guiAskForLoginAddApproval(char* name, char* service);
+RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
 RET_TYPE guiAskForConfirmation(const char* string);
 RET_TYPE guiAskForDomainAddApproval(char* name);
 void informGuiOfCurrentContext(char* context);

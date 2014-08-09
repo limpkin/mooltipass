@@ -653,6 +653,16 @@ function initWindow()
 
     });
 
+    $('#enableDebug').change(function() {
+        if ($(this).is(":checked")) {
+            log('#messageLog', 'enabled debug\n');
+            debug = true;
+        } else {
+            log('#messageLog', 'disabled debug\n');
+            debug = false;
+        }
+    });
+
     // configure jquery ui elements
 	$("#manage").accordion();
 	$("#developer").accordion();

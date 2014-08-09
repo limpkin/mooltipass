@@ -44,6 +44,8 @@ var debug = false;
 var packetSize = 64;    // number of bytes in an HID packet
 var payloadSize = packetSize - 2;
 
+var AUTH_REQ_TIMEOUT = 15000;   // timeout for requests sent to mooltipass
+
 var reContext = /^\https?\:\/\/([\w.\-\_]+)/;   // URL regex to extract base domain for context
 //var reContext = /(^.{1,254}$)(^(((?!-)[a-zA-Z0-9-]{1,63}(?<!-))|((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$/;
 //var reContext = /https?\:\/\/(?www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4})\b(?[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
@@ -142,6 +144,8 @@ var media = {};             // media file info from mooltipass
 var importProgressBar = null;
 var exportProgressBar = null;
 var uploadProgressBar = null;
+
+var authReqTimeout = null;  // timer for auth requests sent to mooltipass
 
 // map between input field types and mooltipass credential types
 var getFieldMap = {
@@ -352,7 +356,7 @@ function setNextField()
             // no more input fields to set on mooltipass
             chrome.runtime.sendMessage(authReq.senderId, {type: 'updateComplete'});
             log('#messageLog', 'update finished \n');
-            authReq = null;
+            endAuthRequest();
         }
     }
     else
@@ -422,6 +426,107 @@ function getKeys(fields)
         }
     });
 }
+
+/**
+ * timeout waiting for current auth request to complete
+ */
+function timeoutAuthRequest()
+{
+    console.log('authreq timeout');
+    authReqTimeout = null;
+    endAuthRequest();
+}
+
+/**
+ * end the current auth request
+ */
+function endAuthRequest()
+{
+    if (debug) {
+        if (authReq) {
+            console.log('endAuthRequest '+authReq.type);
+        } else {
+            console.log('endAuthRequest - no active request');
+        }
+    }
+    if (authReqTimeout != null) {
+        console.log('clear authreq timeout');
+        clearTimeout(authReqTimeout);
+        authReqTimeout = null;
+    } else {
+        console.log('no timeout to clear');
+    }
+    if (authReqQueue.length > 0) {
+        authReq = authReqQueue.shift();
+        startAuthRequest(authReq);
+    } else {
+        authReq = null;
+    }
+}
+
+/**
+ * start a new auth request
+ */
+function startAuthRequest(request)
+{
+    switch (request.type) {
+    case 'inputs':
+        authReq = request;
+        console.log('URL: '+request.url);
+        authReq.keys = getKeys(request.inputs);
+
+        console.log('keys: '+JSON.stringify(authReq.keys))
+
+        match = reContext.exec(request.url);
+        if (match.length > 0) {
+            if (!context || context != match[1]) {
+                context = match[1];
+                console.log('context: '+context);
+            } else {
+                console.log('not updating context '+context+' to '+match[1]);
+            }
+        }
+        authReq.context = context;
+
+        authReqTimeout = setTimeout(timeoutAuthRequest, AUTH_REQ_TIMEOUT);
+        setContext(false);
+        break;
+
+    case 'update':
+        authReq = request;
+        match = reContext.exec(request.url);
+        if (match.length > 0) {
+            authReq.context = match[1];
+            console.log('auth context: '+authReq.context);
+        }
+        log('#messageLog', 'update:\n');
+        for (var key in request.inputs)
+        {
+            id = (request.inputs[key].id) ? request.inputs[key].id : request.inputs[key].name;
+            if (key == 'password') {
+                log('#messageLog', '    set "'+id+'" = "'+request.inputs[key].value.replace(/./gi, '*')+'"\n');
+            } else {
+                log('#messageLog', '    set "'+id+'" = "'+request.inputs[key].value+'"\n');
+            }
+        }
+
+        authReq.keys = getKeys(request.inputs);
+        authReqTimeout = setTimeout(timeoutAuthRequest, AUTH_REQ_TIMEOUT);
+
+        if (!contextGood || (context != authReq.context)) {
+            setContext(true);
+        } else {
+            setNextField();
+        }
+        break;
+
+    default:
+        // not a supported request type
+        endAuthRequest();
+        break;
+    }
+}
+
 
 /**
  * Initialise the app window, setup message handlers.
@@ -582,77 +687,6 @@ function initWindow()
         sendRequest(CMD_CLONE_SMARTCARD);
     });
 
-    chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
-    {
-        switch (request.type)
-        {
-            case 'inputs':
-                console.log('URL: '+request.url);
-
-                //if (!sender.id in clients) {
-                //    clients[sender.id] 
-                //}
-
-                if (authReq != null) {
-                    // already a request in progress, wait for it to complete
-                    authReqQueue.push(request);
-                    break;
-                }
-
-                authReq = request;
-                authReq.senderId = sender.id;
-                authReq.keys = getKeys(request.inputs);
-
-                console.log('keys: '+JSON.stringify(authReq.keys))
-
-                match = reContext.exec(request.url);
-                if (match.length > 0) {
-                    if (!context || context != match[1]) {
-                        context = match[1];
-                        console.log('context: '+context);
-                    } else {
-                        console.log('not updating context '+context+' to '+match[1]);
-                    }
-                }
-                authReq.context = context;
-
-                setContext(false);
-                break;
-
-            case 'update':
-                authReq = request;
-                authReq.senderId = sender.id;
-                match = reContext.exec(request.url);
-                if (match.length > 0) {
-                    authReq.context = match[1];
-                    console.log('auth context: '+authReq.context);
-                }
-                log('#messageLog', 'update:\n');
-                for (var key in request.inputs)
-                {
-                    id = (request.inputs[key].id) ? request.inputs[key].id : request.inputs[key].name;
-                    if (key == 'password') {
-                        log('#messageLog', '    set "'+id+'" = "'+request.inputs[key].value.replace(/./gi, '*')+'"\n');
-                    } else {
-                        log('#messageLog', '    set "'+id+'" = "'+request.inputs[key].value+'"\n');
-                    }
-                }
-
-                authReq.keys = getKeys(request.inputs);
-
-                if (!contextGood || (context != authReq.context)) {
-                    setContext(true);
-                } else {
-                    setNextField();
-                }
-                break;
-
-            default:
-                break;
-        }
-
-    });
-
     $('#enableDebug').change(function() {
         if ($(this).is(":checked")) {
             log('#messageLog', 'enabled debug\n');
@@ -725,6 +759,19 @@ function initWindow()
             }
         }
     });
+
+    chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
+    {
+        request.senderId = sender.id;
+        console.log('received request '+request.type);
+
+        if (authReq == null) {
+            startAuthRequest(request)
+        } else {
+            authReqQueue.push(request);
+        }
+    });
+
 };
 
 /**
@@ -807,7 +854,7 @@ function onDataReceived(reportId, data)
     var len = bytes[0]
     var cmd = bytes[1]
 
-    if (debug && (cmd != CMD_DEBUG) && (cmd < CMD_EXPORT_FLASH))
+    if (debug && (cmd != CMD_VERSION) && (cmd != CMD_DEBUG) && (cmd < CMD_EXPORT_FLASH))
     {
         console.log('Received CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(msg));
     }
@@ -843,6 +890,7 @@ function onDataReceived(reportId, data)
             if (!contextGood)
             {
                 log('#messageLog',  'failed to create context '+authReq.context+'\n');
+                endAuthRequest();
             } else {
                 log('#messageLog', 'created context "'+authReq.context+'" for '+authReq.type+'\n');
                 log('#messageLog', 'setting context "'+authReq.context+'" for '+authReq.type+'\n');
@@ -880,7 +928,7 @@ function onDataReceived(reportId, data)
                 } else {
                     console.log('Failed to set up context "'+authReq.context+'"');
                     // failed to set up context
-                    authReq = null;
+                    endAuthRequest();
                 }
             }
             break;
@@ -904,6 +952,9 @@ function onDataReceived(reportId, data)
                     } else {
                         setNextField();
                     }
+                } else {
+                    // failed
+                    endAuthRequest();
                 }
             }
             break;
@@ -1075,7 +1126,11 @@ function onDataReceived(reportId, data)
 function sendMsg(msg)
 {
     if (debug) {
-        console.log('sending '+JSON.stringify(new Uint8Array(msg)));
+        msgUint8 = new Uint8Array(msg);
+        // don't output the CMD_VERSION command since this is the keep alive
+        if (msgUint8[1] != CMD_VERSION) {
+            console.log('sending '+JSON.stringify(new Uint8Array(msg)));
+        }
     }
     chrome.hid.send(connection, 0, msg, function() 
     {

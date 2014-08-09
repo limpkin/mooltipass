@@ -22,6 +22,7 @@
 #
 # CDDL HEADER END
 
+import os
 import sys
 import png, math
 import numpy as np
@@ -30,7 +31,7 @@ from struct import *
 
 parser = OptionParser(usage = 'usage: %prog [options]')
 parser.add_option('-n', '--name', help='name for bitmap', dest='name', default=None)
-parser.add_option('-o', '--output', help='name of output file', dest='output', default=None)
+parser.add_option('-o', '--output', help='name of output file (.img produces binary blob, .h produces optimized header)', dest='output', default=None)
 parser.add_option('-i', '--input', help='input header file', dest='input', default=None)
 parser.add_option('-c', '--compress', help='compress output', action='store_true', dest='compress', default=False)
 parser.add_option('-b', '--bitdepth', help='number of bits per pixel (default: 4)', type='int', dest='bitdepth', default=4)
@@ -39,75 +40,23 @@ parser.add_option('-b', '--bitdepth', help='number of bits per pixel (default: 4
 if options.name == None or options.input == None:
     parser.error('name and input options are required')
 
-def generateCompressedHeader(output, imageName, imageFile, bitDepth=4, wordSize=16):
-    ''' Output C code tables for the specified image
-        Use RLE to reduce the size of the bitmap
+def compressImage(image):
+    ''' RLE compress data
     '''
-
-    fd = open(imageFile, 'r')
-
-    if output:
-        outfd = open(output, 'w')
-    else:
-        outfd = sys.stdout
-
-    flags = 1
-
-    # locate width and height
-    # then import all pixel data
-    init = True
-    data = []
-    for line in fd:
-        if init:
-            if 'width' in line:
-                width = int(line.split('=')[-1].strip()[:-1])
-            elif 'height' in line:
-                height = int(line.split('=')[-1].strip()[:-1])
-            elif 'header_data[]' in line:
-                init = False
-        else:
-            if '};' in line:
-                break
-            data.extend(line.split(','))
-
-    data = [int(x.strip()) for x in data if x.strip().isdigit()]
-    if len(data) == 0:
-        print 'Failed to extract pixel data from {}'.format(imageFile)
-        sys.exit(1)
+    count = 0
+    pixels = 0
+    runCount = 0
+    runPixel = 0
+    data = image['data']
+    bitDepth = image['bitDepth']
+    width = image['width']
+    height = image['height']
 
     # arange in lines
     data = np.array(data).reshape(height,width)
 
     depth = data.max()+1
     scale = 2**bitDepth / float(depth)
-
-    lineSize = (width * bitDepth) / wordSize
-    rem = (width * bitDepth) - (lineSize * wordSize)
-
-    # see if the data fits fully in the number of words
-    if (rem > 0): lineSize += 1
-
-    dataSize = int(math.ceil(width * bitDepth * height / float(wordSize)))
-    pixPerWord = float(wordSize) / bitDepth
-
-    print >> outfd, '/*'
-    print >> outfd, ' * bitmap {}'.format(imageName)
-    print >> outfd, ' */'
-    print >> outfd
-    print >> outfd, '#define {}_WIDTH {}'.format(imageName.upper(), width)
-    print >> outfd, '#define {}_HEIGHT {}'.format(imageName.upper(), height)
-    print >> outfd, ''
-    print >> outfd, 'const struct {'
-    print >> outfd, '    uint16_t width;'
-    print >> outfd, '    uint8_t height;'
-    print >> outfd, '    uint8_t depth;'
-    print >> outfd, '    uint8_t flags;'
-    print >> outfd, '    uint16_t dataSize;'
-    count = 0
-    pixels = 0
-    bitCount = wordSize
-    runCount = 0
-    runPixel = 0
 
     output = []
     for line in data:
@@ -137,44 +86,20 @@ def generateCompressedHeader(output, imageName, imageFile, bitDepth=4, wordSize=
     if len(output) & 0x01 != 0:
         output.append(0)
 
-    print >> outfd, '    uint16_t data[{}];'.format(len(output)/2)
-    print >> outfd, '}} image_{} __attribute__((__progmem__)) = {{'.format(imageName)
-    print >> outfd, '    {0}_WIDTH, {0}_HEIGHT, {1}, {2}, {3},'.format(imageName.upper(), bitDepth, flags, count)
-    print >> outfd, '    {',
-    for ind in xrange(0,len(output)/2):
-        if ind % 8 == 0:
-            print >> outfd, ''
-            print >> outfd, '    ',
-        if output[ind*2] > 255:
-            print 'output[{}] {} > 255'.format(ind*2, output[ind*2])
-        if output[ind*2+1] > 255:
-            print 'output[{}] {} > 255'.format(ind*2+1, output[ind*2+1])
-        print >> outfd, '0x{:04x}, '.format(output[ind*2] | output[ind*2+1]<<8),
-    print >> outfd, '    }'
-    print >> outfd, '};'
+    image['runCount'] = count
+    image['compressedData'] = output
+    image['compressedSizeWords'] = count / 2
+    image['flags'] = 1
 
-    print 'count: ',count
+    return image
 
-    bfd = open('{}.img'.format(options.output), "wb")
-    header = pack('=HBBBH', width, height, bitDepth, flags, count)
-    bfd.write(header)
-    binaryData = bytearray(output)
-    bfd.write(binaryData)
-    bfd.close()
-    print 'write {}.img'.format(options.output)
-
-def generateHeader(output, imageName, imageFile, bitDepth=4, wordSize=16):
-    ''' Output C code tables for the specified image
+def parseGimpHeader(filename, bitDepth=4, wordSize=16):
+    ''' Parse GIMP H file image into array
     '''
-
-    fd = open(imageFile, 'r')
-
-    if output:
-        outfd = open(output, 'w')
+    if (filename == "-"):
+        fd = sys.stdin
     else:
-        outfd = sys.stdout
-
-    flags = 0
+        fd = open(filename, 'r');
 
     # locate width and height
     # then import all pixel data
@@ -198,93 +123,120 @@ def generateHeader(output, imageName, imageFile, bitDepth=4, wordSize=16):
         print 'Failed to extract pixel data from {}'.format(imageFile)
         sys.exit(1)
 
-    # arange in lines
-    data = np.array(data).reshape(height,width)
+    dataSizeWords = int(math.ceil(width * bitDepth * height / float(wordSize)))
 
-    depth = data.max()+1
-    scale = 2**bitDepth / float(depth)
+    image = {
+        'data': data,
+        'dataSizeWords': dataSizeWords,
+        'width': width,
+        'height': height,
+        'bitDepth': bitDepth,
+        'wordSize': wordSize
+        }
 
-    lineSize = (width * bitDepth) / wordSize
-    rem = (width * bitDepth) - (lineSize * wordSize)
+    return image
 
-    # see if the data fits fully in the number of words
-    if (rem > 0): lineSize += 1
 
-    dataSize = int(math.ceil(width * bitDepth * height / float(wordSize)))
-    pixPerWord = float(wordSize) / bitDepth
+def writeImage(filename, image):
+    flags = 0
+    data = None
 
-    print >> outfd, '/*'
-    print >> outfd, ' * bitmap {}'.format(imageName)
-    print >> outfd, ' */'
-    print >> outfd
-    print >> outfd, '#define {}_WIDTH {}'.format(imageName.upper(), width)
-    print >> outfd, '#define {}_HEIGHT {}'.format(imageName.upper(), height)
-    print >> outfd, ''
-    print >> outfd, 'const struct {'
-    print >> outfd, '    uint16_t width;'
-    print >> outfd, '    uint8_t height;'
-    print >> outfd, '    uint8_t depth;'
-    print >> outfd, '    uint8_t flags;'
-    print >> outfd, '    uint16_t dataSize;'
-    print >> outfd, '    uint16_t data[{}];'.format(dataSize)
-    print >> outfd, '}} image_{} __attribute__((__progmem__)) = {{'.format(imageName)
-    print >> outfd, '    {0}_WIDTH, {0}_HEIGHT, {1}, {2}, {3},'.format(imageName.upper(), bitDepth, flags, dataSize)
-    print >> outfd, '    {'
+    if (image.has_key('compressedData')):
+        data = image['compressedData']
+        dataSizeWords = image['compressedSizeWords']
+        flags = 1
+    else:
+        data = image['data']
+        dataSizeWords = image['dataSizeWords']
+
+    if (filename == "-"):
+        fd = sys.stdout
+    else:
+        fd = open(filename, 'wb');
+
+    # Write header
+    fd.write(pack('=HBBBH', image['width'], image['height'], image['bitDepth'], flags, dataSizeWords))
+    # Write data
+    fd.write(bytearray(data))
+    fd.close()
+
+
+def writeMooltipassHeader(filename, imageName, image):
+    flags = 0
+    data = None
     count = 0
-    pixels = 0
-    bitCount = wordSize
-    lineNum = 0
-    for line in data:
-        line = line * scale
-        print >> outfd, '   /* {} */'.format(lineNum),
-        lineNum += 1
-        ind = 0
-        for pix in line:
-            if bitCount < bitDepth:
-                lastPixels = pixels
-                pixels |= int(pix) >> (bitDepth - bitCount)
-                print >> outfd, '0x{:04x}, '.format(int(pixels)),
-                count += 1
-                ind += 1
-                if ind >= 8:
-                    print >> outfd, '\n   ',
-                    ind = 0
-                bitCount = wordSize - (bitDepth - bitCount)
-                if int(pix) > 15:
-                    print >> sys.stderr, 'ERROR: pix = {}'.format(pix)
-                pixels = (int(pix) << bitCount) & 0xFFFF
-            else:
-                bitCount -= bitDepth
-                pixels |= int(pix) << bitCount
-                if bitCount == 0:
-                    bitCount = wordSize
-                    print >> outfd, '0x{:04x}, '.format(int(pixels)),
-                    count += 1
-                    pixels = 0
-                    ind += 1
-                    if ind >= 8:
-                        print >> outfd, '\n   ',
-                        ind = 0
-        print >> outfd
-    if bitCount != 16:
-        print 'bitCount {} pixels {:04x}'.format(bitCount, pixels)
-        pixels = pixels << bitCount
-        print >> outfd, '0x{:04x}, '.format(int(pixels)),
-        count += 1
-    print >> outfd, '    }'
-    print >> outfd, '};'
+    bitDepth = 0
+    fd = 0
+    width = image['width']
+    height = image['height']
 
-    print 'count: ',count
 
-    if output:
-        outfd.close()
+    if (image.has_key('compressedData')):
+        data = image['compressedData']
+        count = image['compressedSizeWords']
+        flags = 1
+    else:
+        data = image['data']
+        count = image['dataSizeWords']
+        flags = 0
+
+    bitDepth = image['bitDepth']
+
+    if (filename == "-"):
+        fd = sys.stdout
+    else:
+        fd = open(filename, 'w');
+
+    print >> fd, '/*'
+    print >> fd, ' * bitmap {}'.format(imageName)
+    print >> fd, ' */'
+    print >> fd
+    print >> fd, '#define {}_WIDTH {}'.format(imageName.upper(), width)
+    print >> fd, '#define {}_HEIGHT {}'.format(imageName.upper(), height)
+    print >> fd, ''
+    print >> fd, 'const struct {'
+    print >> fd, '    uint16_t width;'
+    print >> fd, '    uint8_t height;'
+    print >> fd, '    uint8_t depth;'
+    print >> fd, '    uint8_t flags;'
+    print >> fd, '    uint16_t dataSize;'
+    print >> fd, '    uint16_t data[{}];'.format(count)
+    print >> fd, '}} image_{} __attribute__((__progmem__)) = {{'.format(imageName)
+    print >> fd, '    {0}_WIDTH, {0}_HEIGHT, {1}, {2}, {3},'.format(imageName.upper(), bitDepth, flags, count)
+    print >> fd, '    {',
+    for ind in xrange(0,len(data)/2):
+        if ind % 8 == 0:
+            print >> fd, ''
+            print >> fd, '    ',
+        if data[ind*2] > 255:
+            print 'data[{}] {} > 255'.format(ind*2, data[ind*2])
+        if data[ind*2+1] > 255:
+            print 'data[{}] {} > 255'.format(ind*2+1, data[ind*2+1])
+        print >> fd, '0x{:04x}, '.format(data[ind*2] | data[ind*2+1]<<8),
+    print >> fd, '    }'
+    print >> fd, '};'
+
 
 def main():
+    if (options.input == options.output):
+        raise Exception("input and output must not be the same")
+
+    image = parseGimpHeader(options.input, options.bitdepth)
+    print "Parsed header: {}x{}".format(image['width'], image['height'])
 
     if options.compress:
-        generateCompressedHeader(options.output, options.name, options.input, options.bitdepth)
+        image = compressImage(image)
+        print "Compressed image: {} -> {} words".format(image['dataSizeWords'], image['compressedSizeWords'])
     else:
-        generateHeader(options.output, options.name, options.input, options.bitdepth)
+        print "Image size: {} words".format(image['dataSizeWords'])
+
+    unused, outputExtension = os.path.splitext(options.output)
+    if outputExtension == ".img":
+        writeImage(options.output, image)
+    elif outputExtension == ".h":
+        writeMooltipassHeader(options.output, options.name, image)
+    print "Wrote {}".format(options.output)
+
 
 if __name__ == "__main__":
     main()

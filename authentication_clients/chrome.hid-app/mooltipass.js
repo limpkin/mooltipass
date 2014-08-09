@@ -71,7 +71,7 @@ var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
 var CMD_IMPORT_EEPROM_END   = 0x39;
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
-var CMD_ERASE_SMC           = 0x42;
+var CMD_ERASE_SMARTCARD     = 0x42;
 var CMD_DRAW_BITMAP         = 0x43;	
 var CMD_SET_FONT            = 0x44;
 var CMD_EXPORT_FLASH_START  = 0x45;
@@ -1021,7 +1021,7 @@ function onDataReceived(reportId, data)
 
         case CMD_ERASE_EEPROM:
         case CMD_ERASE_FLASH:
-        case CMD_ERASE_SMC:
+        case CMD_ERASE_SMARTCARD:
             log('#developerLog', (bytes[2] == 1) ? 'succeeded\n' : 'failed\n');
             break;
 

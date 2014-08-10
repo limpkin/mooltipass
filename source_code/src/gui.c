@@ -334,17 +334,17 @@ void guiGetBackToCurrentScreen(void)
     {
         case SCREEN_DEFAULT_NINSERTED :
         {
-            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            oledBitmapDrawFlash(0, 0, BITMAP_HAD, OLED_SCROLL_UP);
             break;
         }
         case SCREEN_DEFAULT_INSERTED_LCK :
         {
-            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            oledBitmapDrawFlash(0, 0, BITMAP_HAD, OLED_SCROLL_UP);
             break;
         }
         case SCREEN_DEFAULT_INSERTED_NLCK :
         {
-            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            oledBitmapDrawFlash(0, 0, BITMAP_MAIN_SCREEN, OLED_SCROLL_UP);
             break;
         }
         case SCREEN_DEFAULT_INSERTED_INVALID :

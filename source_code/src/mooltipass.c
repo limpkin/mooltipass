@@ -46,6 +46,7 @@
 #include "utils.h"
 #include "tests.h"
 #include "touch.h"
+#include "anim.h"
 #include "spi.h"
 #include "pwm.h"
 #include "usb.h"
@@ -246,7 +247,7 @@ int main(void)
 
     // Write inactive buffer & default bitmap
     oledWriteInactiveBuffer();
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    oledBitmapDrawFlash(0, 0, BITMAP_HAD, OLED_SCROLL_UP);
         
     // Launch the after HaD logo display tests
     #ifdef TESTS_ENABLED

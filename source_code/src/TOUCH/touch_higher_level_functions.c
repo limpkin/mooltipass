@@ -194,7 +194,6 @@ RET_TYPE touchDetectionRoutine(void)
         if (isWheelTouched() == RETURN_OK)
         {
             readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_byte);
-            activityDetectedRoutine();
                     
             if (temp_byte < 0x3F)
             {
@@ -218,6 +217,8 @@ RET_TYPE touchDetectionRoutine(void)
         {
             return_val |= RETURN_WHEEL_RELEASED;
         }
+        
+        // Light the LEDs accordingly
         writeDataToTS(WHEEL_TLEFT_LED_REGISTER, led_states[TOUCH_TLEFT]);
         writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, led_states[TOUCH_TRIGHT]);
         writeDataToTS(WHEEL_BLEFT_LED_REGISTER, led_states[TOUCH_BLEFT]);
@@ -225,7 +226,6 @@ RET_TYPE touchDetectionRoutine(void)
                 
         if (isButtonTouched() == RETURN_OK)
         {
-            activityDetectedRoutine();
             if (getTouchedButton() == LEFT_BUTTON)
             {
                 led_states[TOUCH_LEFT] = AT42QT2120_OUTPUT_L_VAL;
@@ -249,8 +249,16 @@ RET_TYPE touchDetectionRoutine(void)
             return_val |= RETURN_LEFT_RELEASED;
             return_val |= RETURN_RIGHT_RELEASED;
         }
+        
+        // Light the LEDs accordingly
         writeDataToTS(LEFT_LED_REGISTER, led_states[TOUCH_LEFT]);
         writeDataToTS(RIGHT_LED_REGISTER, led_states[TOUCH_RIGHT]);
+        
+        // Switch on cathode if activity
+        if (return_val & TOUCH_PRESS_MASK)
+        {
+            activityDetectedRoutine();
+        }
     }
     
     return return_val;   

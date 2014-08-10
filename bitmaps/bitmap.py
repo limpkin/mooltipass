@@ -172,10 +172,12 @@ def writeImage(filename, image):
     flags = image['flags']
     data = image['data']
 
+    dataSize = image['dataSizeBytes']
     if flags == 0:
-        dataSize = image['dataSizeBytes'] * 2 # When just bitpacked, dataSize is in words
+        # When just bitpacked, dataSize is in words
+        dataSize /= 2
     else:
-        dataSize = image['dataSizeBytes'] # When RLE compressed, dataSize is in bytes
+        # When RLE compressed, dataSize is in bytes
 
     if (filename == "-"):
         fd = sys.stdout

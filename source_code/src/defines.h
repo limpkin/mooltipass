@@ -205,6 +205,7 @@ typedef int8_t RET_TYPE;
 /**************** VERSION DEFINES ***************/
 #define MOOLT_VERSION_MAJOR     0x00
 #define MOOLT_VERSION_MINOR     0x01
+#define BUILD_NUMBER            0
 
 /**************** BITMAP DEFINES ****************/
 #define HACKADAY_BMP            0x00

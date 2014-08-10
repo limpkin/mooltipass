@@ -122,7 +122,8 @@ void usbProcessIncoming(uint8_t* incomingData)
             msg->body.data[0] = MOOLT_VERSION_MAJOR;
             msg->body.data[1] = MOOLT_VERSION_MINOR;
             msg->body.data[2] = FLASH_CHIP;
-            usbSendMessage(0, 5, msg);
+            msg->body.data[3] = BUILD_NUMBER;
+            usbSendMessage(0, 6, msg);
             return;
         }
 

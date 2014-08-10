@@ -335,14 +335,17 @@ void guiGetBackToCurrentScreen(void)
         {
             guiDisplayInformationOnScreen(PSTR("Please Remove The Card"));
             break;
-        }
-        case SCREEN_PROCESSING :
-        {
-            guiDisplayInformationOnScreen(PSTR("Processing..."));
-            break;
-        }   
+        }  
         default : break;
     }
+}
+
+/*! \fn     guiDisplayProcessingScreen(void)
+*   \brief  Inform the user the mooltipass is busy
+*/
+void guiDisplayProcessingScreen(void)
+{
+    guiDisplayInformationOnScreen(PSTR("Processing..."));    
 }
 
 /*! \fn     informGuiOfCurrentContext(char* context)
@@ -378,9 +381,6 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     
     return_value = getTouchUiYesNoAnswer();
     
-    // Get back to other screen
-    guiGetBackToCurrentScreen();
-    
     return return_value;
 }
 
@@ -406,9 +406,6 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     oledFlipBuffers(0,0);
     
     return_value = getTouchUiYesNoAnswer();
-    
-    // Get back to other screen
-    guiGetBackToCurrentScreen();
     
     return return_value;
 }
@@ -663,6 +660,7 @@ void guiDisplayInformationOnScreen(const char* string)
 */
 RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
 {
+    currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
     uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     RET_TYPE return_value = RETURN_NOK;
@@ -671,23 +669,21 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
     if ((detection_result == RETURN_MOOLTIPASS_PB) || (detection_result == RETURN_MOOLTIPASS_INVALID))
     {
         guiDisplayInformationOnScreen(PSTR("PB with card"));
-        currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
         printSmartCardInfo();
         removeFunctionSMC();
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLOCKED)
     {
         guiDisplayInformationOnScreen(PSTR("Card blocked"));
-        currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
         printSmartCardInfo();
         removeFunctionSMC();
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLANK)
     {
-        currentScreen = SCREEN_PROCESSING;
         // Ask the user to setup his mooltipass card
         if (guiAskForConfirmation(PSTR("Create new mooltipass user?")) == RETURN_OK)
-        {            
+        {         
+            guiDisplayProcessingScreen();
             // Create a new user with his new smart card
             if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
             {
@@ -699,12 +695,7 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
             else
             {
                 guiDisplayInformationOnScreen(PSTR("Couldn't add user"));
-                currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
             }
-        }
-        else
-        {
-            currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
         }
         printSmartCardInfo();
     }
@@ -739,7 +730,6 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
         else
         {
             guiDisplayInformationOnScreen(PSTR("Card ID not found"));
-            currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
                     
             // Developer mode, enter default pin code
             #ifdef NO_PIN_CODE_REQUIRED
@@ -750,8 +740,7 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
             #endif
         }
         printSmartCardInfo();
-    }
-    
+    }    
     _delay_ms(3000);
     guiGetBackToCurrentScreen();
     return return_value;   

@@ -350,6 +350,9 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     // Ask for user approval
     if(guiAskForDomainAddApproval((char*)name) == RETURN_OK)
     {
+        // Display processing screen
+        guiDisplayProcessingScreen();
+        
         // Copy service name inside the parent node
         memcpy((void*)temp_pnode.service, (void*)name, length);
         
@@ -359,10 +362,12 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
             return RETURN_NOK;
         }
         
+        guiGetBackToCurrentScreen();
         return RETURN_OK;
     }
     else
     {
+        guiGetBackToCurrentScreen();
         return RETURN_NOK;
     }
 }
@@ -475,6 +480,9 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
             // If doesn't exist, ask user for confirmation to add to flash
             if (guiAskForLoginAddApproval((char*)name, (char*)temp_pnode.service) == RETURN_OK)
             {
+                // Display processing screen
+                guiDisplayProcessingScreen();
+                
                 // Copy login into a temp cnode, and create it in the flash
                 memcpy((void*)temp_cnode.login, (void*)name, length);
                 if(createChildNode(&nodeMgmtHandle, context_parent_node_addr, &temp_cnode) != RETURN_OK)
@@ -483,10 +491,13 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 }
                 selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
                 selected_login_flag = TRUE;
+                
+                guiGetBackToCurrentScreen();
                 return RETURN_OK;
             } 
             else
             {
+                guiGetBackToCurrentScreen();
                 return RETURN_NOK;
             }
         }

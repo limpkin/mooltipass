@@ -60,12 +60,15 @@ def compressImage(image):
     for line in data:
         line = line * scale
         for pix in line:
-            if count % 2 == 0:
+            if count & 0x01 == 0:
                 pixel = (int(pix) << 4) | 0xF0
             else:
                 pixel |= (int(pix) & 0x0F)
                 output.append(pixel);
             count += 1
+
+    if len(output) & 0x01 != 0:
+        output.append(0)
 
     image['data'] = output
     image['dataSizeBytes'] = len(output)

@@ -297,16 +297,13 @@ int main(void)
         // Do appropriate actions on smartcard insertion / removal
         if (card_detect_ret == RETURN_JDETECT)
         {
+            activityDetectedRoutine();
             guiHandleSmartcardInserted(cardDetectedRoutine());
-            activityDetectedRoutine();           
         }
         else if (card_detect_ret == RETURN_JRELEASED)
         {
-//             guiHandleSmartcardRemoved();
-//             // Clear encryption context            
-//             memset((void*)temp_buffer, 0, AES_KEY_LENGTH/8);
-//             memset((void*)temp_ctr_val, 0, AES256_CTR_LENGTH);
-//             initEncryptionHandling(temp_buffer, temp_ctr_val);
+            activityDetectedRoutine();
+            guiHandleSmartcardRemoved();
         }
     }
 }

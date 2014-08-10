@@ -664,7 +664,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             usbPrintf_P(PSTR("set font file %d\n"), msg->body.data[0]);
             oledSetFont(msg->body.data[0]);
 #if 0
-            oledFlipDisplayedBuffer();
+            oledFlipBuffers(0,0);
             oledWriteActiveBuffer();
             oledClear();
             uint32_t start = millis();

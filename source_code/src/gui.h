@@ -31,16 +31,22 @@
 
 /* Defines */
 // Timers
-#define SCREEN_TIMER_DEL    60000
-#define LIGHT_TIMER_DEL     10000
-#define USER_INTER_DEL      6000
+#define SCREEN_TIMER_DEL                60000
+#define LIGHT_TIMER_DEL                 10000
+#define USER_INTER_DEL                  6000
 // Touch positions
-#define TOUCHPOS_WHEEL_TLEFT    0
-#define TOUCHPOS_WHEEL_TRIGHT   1
-#define TOUCHPOS_WHEEL_BLEFT    2
-#define TOUCHPOS_WHEEL_BRIGHT   3
-#define TOUCHPOS_LEFT           4
-#define TOUCHPOS_RIGHT          5
+#define TOUCHPOS_WHEEL_TLEFT            0
+#define TOUCHPOS_WHEEL_TRIGHT           1
+#define TOUCHPOS_WHEEL_BLEFT            2
+#define TOUCHPOS_WHEEL_BRIGHT           3
+#define TOUCHPOS_LEFT                   4
+#define TOUCHPOS_RIGHT                  5
+// Screen defines
+#define SCREEN_DEFAULT_NINSERTED        0
+#define SCREEN_DEFAULT_INSERTED_LCK     1
+#define SCREEN_DEFAULT_INSERTED_NLCK    2
+#define SCREEN_DEFAULT_INSERTED_INVALID 3
+#define SCREEN_PROCESSING               4
 
 /* Prototypes */
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);
@@ -52,6 +58,7 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
 RET_TYPE guiAskForConfirmation(const char* string);
 RET_TYPE guiAskForDomainAddApproval(char* name);
 void informGuiOfCurrentContext(char* context);
+void guiHandleSmartcardRemoved(void);
 void activityDetectedRoutine(void);
 void guiTimerTick(void);
 void guiMainLoop(void);

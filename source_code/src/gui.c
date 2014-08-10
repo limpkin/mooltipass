@@ -25,6 +25,7 @@
 #include <util/atomic.h>
 #include <util/delay.h>
 #include <stdint.h>
+#include <string.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
 #include "userhandling.h"
@@ -38,6 +39,8 @@
 #include "gui.h"
 #include "usb.h"
 
+// Our current screen
+uint8_t currentScreen = SCREEN_DEFAULT_NINSERTED;
 // Flag to exit user asking screen
 volatile uint8_t userInteractionFlag = FALSE;
 // Flag to switch off the lights
@@ -184,6 +187,12 @@ void guiMainLoop(void)
     if (touch_detect_result & TOUCH_PRESS_MASK)
     {
         activityDetectedRoutine();
+        touch_detect_result &= ~RETURN_PROX_DETECTION;
+        
+        if (currentScreen == SCREEN_DEFAULT_NINSERTED)
+        {
+            guiDisplayInsertSmartCardScreenAndWait();
+        }
         
         // If left button is pressed
         if (touch_detect_result & RETURN_LEFT_PRESSED)
@@ -316,7 +325,35 @@ int8_t getTouchUiQuarterPosition(void)
 */
 void guiGetBackToCurrentScreen(void)
 {
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);    
+    switch(currentScreen)
+    {
+        case SCREEN_DEFAULT_NINSERTED :
+        {
+            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            break;
+        }
+        case SCREEN_DEFAULT_INSERTED_LCK :
+        {
+            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            break;
+        }
+        case SCREEN_DEFAULT_INSERTED_NLCK :
+        {
+            oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+            break;
+        }
+        case SCREEN_DEFAULT_INSERTED_INVALID :
+        {
+            guiDisplayInformationOnScreen(PSTR("Please Remove The Card"));
+            break;
+        }
+        case SCREEN_PROCESSING :
+        {
+            guiDisplayInformationOnScreen(PSTR("Processing..."));
+            break;
+        }   
+        default : break;
+    }
 }
 
 /*! \fn     informGuiOfCurrentContext(char* context)
@@ -330,7 +367,6 @@ void informGuiOfCurrentContext(char* context)
     oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("You are currently visiting:"));
     oledPutstrXY(0, 30, OLED_CENTRE, context);
     oledFlipBuffers(0,0);
-    return;
 }
 
 /*! \fn     guiAskForDomainAddApproval(char* name)
@@ -646,36 +682,42 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
     if ((detection_result == RETURN_MOOLTIPASS_PB) || (detection_result == RETURN_MOOLTIPASS_INVALID))
     {
         guiDisplayInformationOnScreen(PSTR("PB with card"));
-        return_value = RETURN_NOK;
-        printSMCDebugInfoToUSB();
+        currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
+        printSmartCardInfo();
         removeFunctionSMC();
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLOCKED)
     {
         guiDisplayInformationOnScreen(PSTR("Card blocked"));
-        return_value = RETURN_NOK;
-        printSMCDebugInfoToUSB();
+        currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
+        printSmartCardInfo();
         removeFunctionSMC();
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLANK)
     {
+        currentScreen = SCREEN_PROCESSING;
         // Ask the user to setup his mooltipass card
         if (guiAskForConfirmation(PSTR("Create new mooltipass user?")) == RETURN_OK)
-        {
+        {            
             // Create a new user with his new smart card
             if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
             {
                 guiDisplayInformationOnScreen(PSTR("User added"));
+                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
                 setSmartCardInsertedUnlocked();
                 return_value = RETURN_OK;
             }
             else
             {
                 guiDisplayInformationOnScreen(PSTR("Couldn't add user"));
-                return_value = RETURN_NOK;
+                currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
             }
         }
-        printSMCDebugInfoToUSB();
+        else
+        {
+            currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
+        }
+        printSmartCardInfo();
     }
     else if (detection_result == RETURN_MOOLTIPASS_USER)
     {
@@ -700,6 +742,7 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
                 setSmartCardInsertedUnlocked();
                 readAES256BitsKey(temp_buffer);
                 initUserFlashContext(temp_user_id);
+                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
                 initEncryptionHandling(temp_buffer, temp_ctr_val);
                 guiDisplayInformationOnScreen(PSTR("Card unlocked"));
             #endif
@@ -707,7 +750,7 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
         else
         {
             guiDisplayInformationOnScreen(PSTR("Card ID not found"));
-            return_value = RETURN_NOK;
+            currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
                     
             // Developer mode, enter default pin code
             #ifdef NO_PIN_CODE_REQUIRED
@@ -717,12 +760,32 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
                 removeFunctionSMC();                            // Shut down card reader
             #endif
         }
-        printSMCDebugInfoToUSB();
+        printSmartCardInfo();
     }
     
-    _delay_ms(2000);
-    oledBitmapDrawFlash(0, 0, 0, OLED_SCROLL_UP);
+    _delay_ms(3000);
+    guiGetBackToCurrentScreen();
     return return_value;   
+}
+
+/*! \fn     guiHandleSmartcardRemoved(void)
+*   \brief  Function called when smartcard is removed
+*/
+void guiHandleSmartcardRemoved(void)
+{
+    uint8_t temp_ctr_val[AES256_CTR_LENGTH];
+    uint8_t temp_buffer[AES_KEY_LENGTH/8];
+    
+    // Clear encryption context
+    memset((void*)temp_buffer, 0, AES_KEY_LENGTH/8);
+    memset((void*)temp_ctr_val, 0, AES256_CTR_LENGTH);
+    initEncryptionHandling(temp_buffer, temp_ctr_val);
+    
+    // Set correct screen
+    guiDisplayInformationOnScreen(PSTR("Card removed"));
+    currentScreen = SCREEN_DEFAULT_NINSERTED;
+    _delay_ms(2000);
+    guiGetBackToCurrentScreen();
 }
 
 /*! \fn     guiDisplayInsertSmartCardScreenAndWait(void)

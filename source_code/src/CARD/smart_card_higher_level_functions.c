@@ -423,78 +423,76 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void)
 */
 void printSMCDebugInfoToUSB(void)
 {
-    #ifdef DEBUG_SMC_DUMP_USB_PRINT
-        uint8_t data_buffer[20];
-        uint8_t i;
+    uint8_t data_buffer[20];
+    uint8_t i;
 
-        /* Extrapolate security mode */
-        usbPrintf_P(PSTR("Security mode %c\n"), (readSecurityCode() == 0xFFFF) ? '2' : '1');
+    /* Extrapolate security mode */
+    usbPrintf_P(PSTR("Security mode %c\n"), (readSecurityCode() == 0xFFFF) ? '2' : '1');
 
-        /* Read FZ, SC, and SCAC */
-        oledSetXY(0,0);
-        usbPrintf_P(PSTR("FZ: %04X SC: %04X SCAC: %04X\n"), swap16(*(uint16_t *)readFabricationZone(data_buffer)), readSecurityCode(), swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)));
+    /* Read FZ, SC, and SCAC */
+    oledSetXY(0,0);
+    usbPrintf_P(PSTR("FZ: %04X SC: %04X SCAC: %04X\n"), swap16(*(uint16_t *)readFabricationZone(data_buffer)), readSecurityCode(), swap16(*(uint16_t*)readSecurityCodeAttemptsCounters(data_buffer)));
 
-        /* Read IZ */
-        readIssuerZone(data_buffer);
-        usbPrintf_P(PSTR("IZ:  "));
-        for (i = 0; i < 4; i++)
-        {
-            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
-        }
-        usbPrintf_P(PSTR("\n"));
+    /* Read IZ */
+    readIssuerZone(data_buffer);
+    usbPrintf_P(PSTR("IZ:  "));
+    for (i = 0; i < 4; i++)
+    {
+        usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    usbPrintf_P(PSTR("\n"));
 
-        /* Recompose CPZ */
-        readCodeProtectedZone(data_buffer);
-        usbPrintf_P(PSTR("CPZ: "));
-        for (i = 0; i < 4; i++)
-        {
-            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
-        }
-        usbPrintf_P(PSTR("\n"));
+    /* Recompose CPZ */
+    readCodeProtectedZone(data_buffer);
+    usbPrintf_P(PSTR("CPZ: "));
+    for (i = 0; i < 4; i++)
+    {
+        usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    usbPrintf_P(PSTR("\n"));
 
-        /* Read EZ1 */
-        readApplicationZone1EraseKey(data_buffer);
-        usbPrintf_P(PSTR("EZ1: "));
-        for (i = 0; i < 3; i++)
-        {
-            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
-        }
-        usbPrintf_P(PSTR("\n"));
+    /* Read EZ1 */
+    readApplicationZone1EraseKey(data_buffer);
+    usbPrintf_P(PSTR("EZ1: "));
+    for (i = 0; i < 3; i++)
+    {
+        usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    usbPrintf_P(PSTR("\n"));
 
-        /* Read EZ2 */
-        readApplicationZone2EraseKey(data_buffer);
-        usbPrintf_P(PSTR("EZ2: "));
-        for (i = 0; i < 2; i++)
-        {
-            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
-        }
-        usbPrintf_P(PSTR("\n"));
+    /* Read EZ2 */
+    readApplicationZone2EraseKey(data_buffer);
+    usbPrintf_P(PSTR("EZ2: "));
+    for (i = 0; i < 2; i++)
+    {
+        usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    usbPrintf_P(PSTR("\n"));
 
-        /* Read MTZ and MFZ */
-        usbPrintf_P(PSTR("MTZ: %04X MFZ: %04X\n"),
-                swap16(*(uint16_t*)readMemoryTestZone(data_buffer)),
-                swap16(*(uint16_t*)readManufacturerZone(data_buffer)));
+    /* Read MTZ and MFZ */
+    usbPrintf_P(PSTR("MTZ: %04X MFZ: %04X\n"),
+            swap16(*(uint16_t*)readMemoryTestZone(data_buffer)),
+            swap16(*(uint16_t*)readManufacturerZone(data_buffer)));
 
-        /* Show first 8 bytes of AZ1 and AZ2 */
-        readSMC(30,22,data_buffer);
-        usbPrintf_P(PSTR("AZ1: "));
-        for (i = 0; i < 4; i++)
-        {
-            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
-        }
-        usbPrintf_P(PSTR("\n"));
+    /* Show first 8 bytes of AZ1 and AZ2 */
+    readSMC(30,22,data_buffer);
+    usbPrintf_P(PSTR("AZ1: "));
+    for (i = 0; i < 4; i++)
+    {
+        usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    usbPrintf_P(PSTR("\n"));
         
-        readSMC(100,92,data_buffer);
-        usbPrintf_P(PSTR("AZ2: "));
-        for (i = 0; i < 4; i++)
-        {
-            usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
-        }
-        usbPrintf_P(PSTR("\n"));
+    readSMC(100,92,data_buffer);
+    usbPrintf_P(PSTR("AZ2: "));
+    for (i = 0; i < 4; i++)
+    {
+        usbPrintf_P(PSTR("%04X "), swap16(((uint16_t*)data_buffer)[i]));
+    }
+    usbPrintf_P(PSTR("\n"));
         
-        /* Show EC2 counter */
-        usbPrintf_P(PSTR("EC2: %02X\n"), getNumberOfAZ2WritesLeft());
-    #endif
+    /* Show EC2 counter */
+    usbPrintf_P(PSTR("EC2: %02X\n"), getNumberOfAZ2WritesLeft());
 }
 
 /*! \fn     getNumberOfSecurityCodeTriesLeft(void)

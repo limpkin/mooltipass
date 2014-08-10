@@ -26,6 +26,12 @@
 #include "defines.h"
 #include <stdlib.h>
 
+#ifdef DEBUG_SMC_DUMP_USB_PRINT
+    #define printSmartCardInfo() printSMCDebugInfoToUSB()
+#else
+    #define printSmartCardInfo()
+#endif
+
 
 /************ INLINE FUNCTIONS ************/
 /*! \fn     readAES256BitsKey(uint8_t* buffer)

@@ -36,6 +36,7 @@ RET_TYPE initTouchSensing(void);
 RET_TYPE getTouchedButton(void);
 void activateProxDetection(void);
 RET_TYPE touchDetectionRoutine(void);
+uint8_t getWheelTouchDetectionQuarter(void);
 
 // AT42QT2120 ID
 #define AT42QT2120_ID       0x3E
@@ -182,12 +183,12 @@ RET_TYPE touchDetectionRoutine(void);
 #define TOUCH_PRESS_MASK    (RETURN_LEFT_PRESSED | RETURN_RIGHT_PRESSED | RETURN_WHEEL_PRESSED | RETURN_PROX_DETECTION)
 
 // Other defines
-#define NB_KEYS         6
-#define TOUCH_LEFT      0
-#define TOUCH_TLEFT     1
-#define TOUCH_TRIGHT    2
-#define TOUCH_BLEFT     3
-#define TOUCH_BRIGHT    4
-#define TOUCH_RIGHT     5
+#define NB_KEYS                         6
+#define TOUCHPOS_WHEEL_TLEFT            0
+#define TOUCHPOS_WHEEL_TRIGHT           1
+#define TOUCHPOS_WHEEL_BLEFT            2
+#define TOUCHPOS_WHEEL_BRIGHT           3
+#define TOUCHPOS_LEFT                   4
+#define TOUCHPOS_RIGHT                  5
 
 #endif /* TOUCH_HIGHER_LEVEL_FUNCTIONS_H_ */

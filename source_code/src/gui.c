@@ -190,28 +190,31 @@ void guiMainLoop(void)
         
         if (currentScreen == SCREEN_DEFAULT_NINSERTED)
         {
+            // No smartcard inserted, ask the user to insert one
             guiDisplayInsertSmartCardScreenAndWait();
         }
-        
-        // If left button is pressed
-        if (touch_detect_result & RETURN_LEFT_PRESSED)
+        else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
         {
-            #ifdef TOUCH_DEBUG_OUTPUT_USB
-                usbPutstr_P(PSTR("LEFT touched\r\n"));
-            #endif
+            // Locked screen, ask the user to enter his pin code
+            oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTERING, OLED_SCROLL_UP);
+            _delay_ms(2000);
+            currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+            guiGetBackToCurrentScreen();
         }
-        
-        // If right button is pressed
-        if (touch_detect_result & RETURN_RIGHT_PRESSED)
+        else if ((currentScreen == SCREEN_DEFAULT_INSERTED_NLCK) && (touch_detect_result & RETURN_WHEEL_PRESSED))
         {
-            #ifdef TOUCH_DEBUG_OUTPUT_USB
-                usbPutstr_P(PSTR("RIGHT touched\r\n"));
-            #endif
-        }
-        
-        // If wheel is pressed
-        if (touch_detect_result & RETURN_WHEEL_PRESSED)
-        {
+            // Unlocked screen
+            switch(getWheelTouchDetectionQuarter())
+            {
+                case TOUCHPOS_WHEEL_BRIGHT :
+                {
+                    // User wants to lock his mooltipass
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                    guiGetBackToCurrentScreen();
+                    break;
+                }
+                default : break;
+            }
         }
     }
 }
@@ -259,11 +262,11 @@ RET_TYPE getTouchUiYesNoAnswer(void)
     }
 }
 
-/*! \fn     getTouchUiQuarterPosition(void))
+/*! \fn     getTouchedPositionAnswer(void)
 *   \brief  Use the capacitive interface to get quarter position
-*   \return Number between 0 and 3 for valid pos, -1 otherwise
+*   \return Number between 0 and 5 for valid pos, -1 otherwise
 */
-int8_t getTouchUiQuarterPosition(void)
+int8_t getTouchedPositionAnswer(void)
 {
     #ifdef HARDWARE_V1
         _delay_ms(2000);
@@ -274,7 +277,6 @@ int8_t getTouchUiQuarterPosition(void)
     #endif
 
     RET_TYPE touch_detect_result;
-    uint8_t temp_position;
     
     // Wait for all presses to be released
     while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
@@ -303,25 +305,7 @@ int8_t getTouchUiQuarterPosition(void)
     }
     else
     {
-        // Get position
-        readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_position);
-        
-        if (temp_position < 0x3F)
-        {
-            return TOUCHPOS_WHEEL_TRIGHT;
-        }
-        else if (temp_position < 0x7F)
-        {
-            return TOUCHPOS_WHEEL_BRIGHT;
-        }
-        else if (temp_position < 0xBF)
-        {
-            return TOUCHPOS_WHEEL_BLEFT;
-        }
-        else
-        {
-            return TOUCHPOS_WHEEL_TLEFT;
-        }        
+        return (int8_t)getWheelTouchDetectionQuarter();  
     }    
 }
 
@@ -367,11 +351,11 @@ void guiGetBackToCurrentScreen(void)
 */
 void informGuiOfCurrentContext(char* context)
 {
-    oledClear();
-    oledBitmapDrawFlash(0, 0, BITMAP_SIDES, 0);
-    oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("You are currently visiting:"));
-    oledPutstrXY(0, 30, OLED_CENTRE, context);
-    oledFlipBuffers(0,0);
+//     oledClear();
+//     oledBitmapDrawFlash(0, 0, BITMAP_SIDES, 0);
+//     oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("You are currently visiting:"));
+//     oledPutstrXY(0, 30, OLED_CENTRE, context);
+//     oledFlipBuffers(0,0);
 }
 
 /*! \fn     guiAskForDomainAddApproval(char* name)
@@ -578,7 +562,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             temp_child_address = addresses[i-1];
             
             // Get touched quarter and check its validity
-            j = getTouchUiQuarterPosition();
+            j = getTouchedPositionAnswer();
             if (j == -1)
             {
                 // Time out, return nothing
@@ -816,6 +800,7 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     while ((userInteractionFlag == FALSE) && (card_detect_ret != RETURN_JDETECT))
     {
         card_detect_ret = isCardPlugged();
+        touchDetectionRoutine();
     }    
     
     // If the user didn't insert his smart card

@@ -158,7 +158,8 @@ RET_TYPE initTouchSensing(void)
             writeDataToTS(REG_AT42QT_DI, 6);                                                           // Increase detection integrator value
             writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
-            writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, 0x21);                                            // Oversample to gain one bit                                           
+            writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, 0x21);                                            // Oversample to gain one bit     
+            writeDataToTS(REG_AT42QT_TRD, 25);                                                         // Recalibration if touch detected for more than 4 seconds
             // Key settings
             writeDataToTS(REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key
             writeDataToTS(REG_AT42QT_KEY1_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key
@@ -176,6 +177,35 @@ RET_TYPE initTouchSensing(void)
     #endif
 }
 
+/*! \fn     getWheelTouchDetectionQuarter(void)
+*   \brief  Get the touch quarter
+*   \return The touched quarter
+*/
+uint8_t getWheelTouchDetectionQuarter(void)
+{
+    uint8_t temp_position;
+    
+    // Get position
+    readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_position);
+    
+    if (temp_position < 0x3F)
+    {
+        return TOUCHPOS_WHEEL_TRIGHT;
+    }
+    else if (temp_position < 0x7F)
+    {
+        return TOUCHPOS_WHEEL_BRIGHT;
+    }
+    else if (temp_position < 0xBF)
+    {
+        return TOUCHPOS_WHEEL_BLEFT;
+    }
+    else
+    {
+        return TOUCHPOS_WHEEL_TLEFT;
+    }
+}
+
 /*! \fn     touchDetectionRoutine()
 *   \brief  Touch detection routine
 *   \return Touch detection result (see touch_detect_return_t)
@@ -184,7 +214,6 @@ RET_TYPE touchDetectionRoutine(void)
 {
     RET_TYPE return_val = RETURN_NO_CHANGE;
     uint8_t led_states[NB_KEYS];
-    uint8_t temp_byte;
     
     // Set the LEDs on by default
     memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);
@@ -193,24 +222,7 @@ RET_TYPE touchDetectionRoutine(void)
     {
         if (isWheelTouched() == RETURN_OK)
         {
-            readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_byte);
-                    
-            if (temp_byte < 0x3F)
-            {
-                led_states[TOUCH_TRIGHT] = AT42QT2120_OUTPUT_L_VAL;
-            }
-            else if (temp_byte < 0x7F)
-            {
-                led_states[TOUCH_BRIGHT] = AT42QT2120_OUTPUT_L_VAL;
-            }
-            else if (temp_byte < 0xBF)
-            {
-                led_states[TOUCH_BLEFT] = AT42QT2120_OUTPUT_L_VAL;
-            }
-            else
-            {
-                led_states[TOUCH_TLEFT] = AT42QT2120_OUTPUT_L_VAL;
-            }
+            led_states[getWheelTouchDetectionQuarter()] = AT42QT2120_OUTPUT_L_VAL;
             return_val |= RETURN_WHEEL_PRESSED;
         }
         else
@@ -219,22 +231,22 @@ RET_TYPE touchDetectionRoutine(void)
         }
         
         // Light the LEDs accordingly
-        writeDataToTS(WHEEL_TLEFT_LED_REGISTER, led_states[TOUCH_TLEFT]);
-        writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, led_states[TOUCH_TRIGHT]);
-        writeDataToTS(WHEEL_BLEFT_LED_REGISTER, led_states[TOUCH_BLEFT]);
-        writeDataToTS(WHEEL_BRIGHT_LED_REGISTER,  led_states[TOUCH_BRIGHT]);
+        writeDataToTS(WHEEL_TLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_TLEFT]);
+        writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_TRIGHT]);
+        writeDataToTS(WHEEL_BLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_BLEFT]);
+        writeDataToTS(WHEEL_BRIGHT_LED_REGISTER,  led_states[TOUCHPOS_WHEEL_BRIGHT]);
                 
         if (isButtonTouched() == RETURN_OK)
         {
             if (getTouchedButton() == LEFT_BUTTON)
             {
-                led_states[TOUCH_LEFT] = AT42QT2120_OUTPUT_L_VAL;
+                led_states[TOUCHPOS_LEFT] = AT42QT2120_OUTPUT_L_VAL;
                 return_val |= RETURN_LEFT_PRESSED;
                 return_val |= RETURN_RIGHT_RELEASED;
             }
             else if(getTouchedButton() == RIGHT_BUTTON)
             {
-                led_states[TOUCH_RIGHT] = AT42QT2120_OUTPUT_L_VAL;
+                led_states[TOUCHPOS_RIGHT] = AT42QT2120_OUTPUT_L_VAL;
                 return_val |= RETURN_RIGHT_PRESSED;
                 return_val |= RETURN_LEFT_RELEASED;
             }
@@ -251,8 +263,8 @@ RET_TYPE touchDetectionRoutine(void)
         }
         
         // Light the LEDs accordingly
-        writeDataToTS(LEFT_LED_REGISTER, led_states[TOUCH_LEFT]);
-        writeDataToTS(RIGHT_LED_REGISTER, led_states[TOUCH_RIGHT]);
+        writeDataToTS(LEFT_LED_REGISTER, led_states[TOUCHPOS_LEFT]);
+        writeDataToTS(RIGHT_LED_REGISTER, led_states[TOUCHPOS_RIGHT]);
         
         // Switch on cathode if activity
         if (return_val & TOUCH_PRESS_MASK)

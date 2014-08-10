@@ -186,7 +186,6 @@ void guiMainLoop(void)
     // Touch interface
     if (touch_detect_result & TOUCH_PRESS_MASK)
     {
-        activityDetectedRoutine();
         touch_detect_result &= ~RETURN_PROX_DETECTION;
         
         if (currentScreen == SCREEN_DEFAULT_NINSERTED)

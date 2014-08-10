@@ -25,6 +25,7 @@
 #include "defines.h"
 #include <string.h>
 #include "touch.h"
+#include "gui.h"
 
 
 /*! \fn     checkTSPres()
@@ -193,6 +194,7 @@ RET_TYPE touchDetectionRoutine(void)
         if (isWheelTouched() == RETURN_OK)
         {
             readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_byte);
+            activityDetectedRoutine();
                     
             if (temp_byte < 0x3F)
             {
@@ -223,6 +225,7 @@ RET_TYPE touchDetectionRoutine(void)
                 
         if (isButtonTouched() == RETURN_OK)
         {
+            activityDetectedRoutine();
             if (getTouchedButton() == LEFT_BUTTON)
             {
                 led_states[TOUCH_LEFT] = AT42QT2120_OUTPUT_L_VAL;

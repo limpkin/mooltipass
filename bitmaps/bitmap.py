@@ -198,12 +198,13 @@ def writeMooltipassHeader(filename, imageName, image):
     flags = image['flags']
     imageNameUpper = imageName.upper()
 
+    dataSize = image['dataSizeBytes']
+    dataSizeWords = dataSize / 2
     if flags == 0:
-        dataSize = image['dataSizeBytes'] * 2 # When just bitpacked, dataSize is in words
-        dataCount = dataSize
+        # When just bitpacked, dataSize is in words
+        dataSize = dataSizeWords
     else:
-        dataSize = image['dataSizeBytes'] # When RLE compressed, dataSize is in bytes
-        dataCount = dataSize / 2
+        # When RLE compressed, dataSize is in bytes
 
     if (filename == "-"):
         fd = sys.stdout
@@ -223,7 +224,7 @@ def writeMooltipassHeader(filename, imageName, image):
     print >> fd, '    uint8_t depth;'
     print >> fd, '    uint8_t flags;'
     print >> fd, '    uint16_t dataSize;'
-    print >> fd, '    uint16_t data[{}];'.format(dataSize)
+    print >> fd, '    uint16_t data[{}];'.format(dataSizeWords)
     print >> fd, '}} image_{} __attribute__((__progmem__)) = {{'.format(imageName)
     print >> fd, '    {0}_WIDTH, {0}_HEIGHT, {1}, {2}, {3},'.format(imageNameUpper, 4, flags, dataSize)
     print >> fd, '    {',

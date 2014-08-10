@@ -48,15 +48,18 @@ import org.openqa.selenium.remote.DesiredCapabilities;
  * @author eghm
  *
  */
-public class Aft {
+public class Aft
+{
 	static WebDriver driver;
 	static ChromeDriverService chromeDriverService;
     public static final String CHROME = "webdriver.chrome.driver";    
 
     @BeforeClass
-    public static void chromeDriverService() throws Exception {
+    public static void chromeDriverService() throws Exception
+    {
         chromeDriverService = chromeDriver();
-        if (chromeDriverService != null) {
+        if (chromeDriverService != null)
+        {
             chromeDriverService.start();
         }
 
@@ -65,30 +68,39 @@ public class Aft {
         
     	// TODO figure out how to pre-install extensions automatically
     	System.out.println("Waiting 2 minutes for you to install Extensions (chrome.ext and chrome.hid-app) manually.");
-    	try {
+    	try
+    	{
 			Thread.sleep(120000);
-		} catch (InterruptedException e) {
+		}
+    	catch (InterruptedException e)
+    	{
 			e.printStackTrace();
 		}
     }
 
     @Before
-    public void setUp() {
+    public void setUp()
+    {
     }
     
-    public static ChromeDriverService chromeDriver() {
-    	if (System.getProperty(CHROME) == null) {
+    public static ChromeDriverService chromeDriver()
+    {
+    	if (System.getProperty(CHROME) == null)
+    	{
     		System.out.println("-D" + CHROME + " must be set to chromedriver path see http://chromedriver.storage.googleapis.com/index.html");
     		System.exit(1);
     	}
     	
-    	try {
+    	try
+    	{
             ChromeDriverService chromeDriverService = new ChromeDriverService.Builder()
                     .usingDriverExecutable(new File(System.getProperty(CHROME)))
                     .usingAnyFreePort()
                     .build();
             return chromeDriverService;
-        } catch (Throwable t) {
+        }
+    	catch (Throwable t)
+        {
             throw new RuntimeException("Exception starting chrome driver service, is chromedriver ( http://chromedriver.storage.googleapis.com/index.html ) installed? You can include the path to it using -D" + CHROME, t)   ;
         }
     }
@@ -96,13 +108,15 @@ public class Aft {
     // TODO define urls and success criteria in file (logout link)
     // TODO logout at end of each url test
     @Test
-    public void testSlashdot() throws Exception {
+    public void testSlashdot() throws Exception
+    {
     	driver.get("http://slashdot.org/?nobeta=1");
     	Thread.sleep(30000);
     }
     
     @Test
-    public void testArtima() throws Exception {
+    public void testArtima() throws Exception
+    {
     	driver.get("http://www.artima.com/sign_in?d=%2Findex.jsp");
     	Thread.sleep(30000);    	
     }

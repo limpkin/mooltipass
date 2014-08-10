@@ -49,6 +49,9 @@
  *  BETATESTERS_SETUP
  *  => version sent to the beta testers
  *
+ *  BETATESTERS_AUTOACCEPT_SETUP
+ *  => Same as above, but always accepts requests
+ *
  *  PRODUCTION_SETUP
  *  => final version for production
 */
@@ -90,6 +93,14 @@
     #define DEV_PLUGIN_COMMS
     #define HARDWARE_OLIVIER_V1
     #define NO_PIN_CODE_REQUIRED
+    #define AVR_BOOTLOADER_PROGRAMMING
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(BETATESTERS_AUTOACCEPT_SETUP)
+    #define FLASH_CHIP_32M
+    #define DEV_PLUGIN_COMMS
+    #define HARDWARE_OLIVIER_V1
+    #define NO_PIN_CODE_REQUIRED
+    #define ALWAYS_ACCEPT_REQUESTS
     #define AVR_BOOTLOADER_PROGRAMMING
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(PRODUCTION_SETUP)

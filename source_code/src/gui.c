@@ -227,6 +227,9 @@ RET_TYPE getTouchUiYesNoAnswer(void)
         _delay_ms(2000);
         return RETURN_OK;
     #endif
+    #ifdef ALWAYS_ACCEPT_REQUESTS
+        return RETURN_OK;
+    #endif
 
     RET_TYPE touch_detect_result;
     
@@ -265,6 +268,9 @@ int8_t getTouchUiQuarterPosition(void)
 {
     #ifdef HARDWARE_V1
         _delay_ms(2000);
+        return 0;
+    #endif
+    #ifdef ALWAYS_ACCEPT_REQUESTS
         return 0;
     #endif
 

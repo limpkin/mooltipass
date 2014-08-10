@@ -175,6 +175,8 @@ def writeImage(filename, image):
     dataSize = image['dataSizeBytes']
     if flags == 0:
         # When just bitpacked, dataSize is in words
+        if dataSize & 0x01 != 0:
+            raise Exception("dataSize is not word aligned");
         dataSize /= 2
     else:
         # When RLE compressed, dataSize is in bytes
@@ -205,6 +207,8 @@ def writeMooltipassHeader(filename, imageName, image):
         dataSize = dataSizeWords
     else:
         # When RLE compressed, dataSize is in bytes
+    if dataSize & 0x01 != 0:
+        raise Exception("dataSize is not word aligned");
 
     if (filename == "-"):
         fd = sys.stdout

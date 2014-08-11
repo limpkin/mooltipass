@@ -172,7 +172,10 @@ def generateHeader(fontName, pngFilename, xmlFilename):
     #
     fixedWidth = 0
     depth = 2
-    glyphCount = len(glyphData)+1   # add 1 for space character
+
+    glyphCount = len(glyphData)
+    if ord(' ') in glyphd:
+        glyphCount += 1   # add 1 for space character
 
     # Can't handle 2 byte characters yet, so skip them
     for char in glyphData.keys():

@@ -30,6 +30,8 @@
 #include "node_mgmt.h"
 
 /* Defines */
+// Wheel interface
+#define WHEEL_TICK_INCREMENT            32
 // Timers
 #define SCREEN_TIMER_DEL                60000
 #define LIGHT_TIMER_DEL                 10000
@@ -49,6 +51,7 @@ void guiDisplayInformationOnScreen(const char* string);
 RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
 RET_TYPE guiAskForConfirmation(const char* string);
 RET_TYPE guiAskForDomainAddApproval(char* name);
+RET_TYPE guiGetPinFromUser(uint16_t* pin_code);
 void informGuiOfCurrentContext(char* context);
 void guiDisplayProcessingScreen(void);
 void guiHandleSmartcardRemoved(void);

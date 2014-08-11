@@ -264,12 +264,24 @@ int main(void)
     launchCalibrationCycle();
     
     while (1)
-    {
+    {        
+        // Call GUI routine
+        guiMainLoop();
+        
         // Check if a card just got inserted / removed
         card_detect_ret = isCardPlugged();
         
-        // Call GUI routine
-        guiMainLoop();
+        // Do appropriate actions on smartcard insertion / removal
+        if (card_detect_ret == RETURN_JDETECT)
+        {
+            activityDetectedRoutine();
+            guiHandleSmartcardInserted(cardDetectedRoutine());
+        }
+        else if (card_detect_ret == RETURN_JRELEASED)
+        {
+            activityDetectedRoutine();
+            guiHandleSmartcardRemoved();
+        }
         
         // Process possible incoming data
         if(usbRawHidRecv(usb_buffer, USB_READ_TIMEOUT) == RETURN_COM_TRANSF_OK)
@@ -293,18 +305,6 @@ int main(void)
         else if ((capsLockTimer == 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             wasCapsLockTimerArmed = FALSE;            
-        }
-        
-        // Do appropriate actions on smartcard insertion / removal
-        if (card_detect_ret == RETURN_JDETECT)
-        {
-            activityDetectedRoutine();
-            guiHandleSmartcardInserted(cardDetectedRoutine());
-        }
-        else if (card_detect_ret == RETURN_JRELEASED)
-        {
-            activityDetectedRoutine();
-            guiHandleSmartcardRemoved();
         }
     }
 }

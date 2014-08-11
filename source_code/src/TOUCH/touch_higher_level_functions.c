@@ -27,6 +27,9 @@
 #include "touch.h"
 #include "gui.h"
 
+// Last read wheel position
+uint8_t last_raw_wheel_position;
+
 
 /*! \fn     checkTSPres()
 *   \brief  Check that the AT42QT2120 is here
@@ -161,7 +164,7 @@ RET_TYPE initTouchSensing(void)
             writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             #endif
-            writeDataToTS(REG_AT42QT_TRD, 25);                                                         // Recalibration if touch detected for more than 4 seconds
+            //writeDataToTS(REG_AT42QT_TRD, 25);                                                         // Recalibration if touch detected for more than 4 seconds
             // Key settings
             writeDataToTS(REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key
             writeDataToTS(REG_AT42QT_KEY1_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key
@@ -179,26 +182,30 @@ RET_TYPE initTouchSensing(void)
     #endif
 }
 
+/*! \fn     getLastRawWheelPosition(void)
+*   \brief  Get the touched wheel position
+*   \return The position
+*/
+uint8_t getLastRawWheelPosition(void)
+{
+    return last_raw_wheel_position;
+}
+
 /*! \fn     getWheelTouchDetectionQuarter(void)
 *   \brief  Get the touch quarter
 *   \return The touched quarter
 */
 uint8_t getWheelTouchDetectionQuarter(void)
 {
-    uint8_t temp_position;
-    
-    // Get position
-    readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_position);
-    
-    if (temp_position < 0x3F)
+    if (last_raw_wheel_position < 0x3F)
     {
         return TOUCHPOS_WHEEL_TRIGHT;
     }
-    else if (temp_position < 0x7F)
+    else if (last_raw_wheel_position < 0x7F)
     {
         return TOUCHPOS_WHEEL_BRIGHT;
     }
-    else if (temp_position < 0xBF)
+    else if (last_raw_wheel_position < 0xBF)
     {
         return TOUCHPOS_WHEEL_BLEFT;
     }
@@ -224,6 +231,10 @@ RET_TYPE touchDetectionRoutine(void)
     {
         if (isWheelTouched() == RETURN_OK)
         {
+            // Get position and update global var
+            readDataFromTS(REG_AT42QT_SLIDER_POS, &last_raw_wheel_position);
+            
+            // Update LED states
             led_states[getWheelTouchDetectionQuarter()] = AT42QT2120_OUTPUT_L_VAL;
             return_val |= RETURN_WHEEL_PRESSED;
         }

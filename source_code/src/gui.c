@@ -47,6 +47,10 @@ volatile uint8_t userInteractionFlag = FALSE;
 volatile uint8_t lightsTimerOffFlag = FALSE;
 // Flag to switch off the screen
 volatile uint8_t screenTimerOffFlag = FALSE;
+// Touch logic: is touch wheel pressed in our algo
+uint8_t touch_logic_press = FALSE;
+// Touch logic: reference position of first touch
+uint8_t touch_logic_ref_position;
 // User interaction timer
 volatile uint16_t userIntTimer = 0;
 // Our light timer for the top PCB LEDs
@@ -156,6 +160,9 @@ void activityDetectedRoutine(void)
     }   
 }
 
+/*! \fn     guiMainLoop(void)
+*   \brief  Main user interface loop
+*/
 void guiMainLoop(void)
 {   
     #ifdef HARDWARE_V1
@@ -195,10 +202,20 @@ void guiMainLoop(void)
         }
         else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
         {
+            uint16_t lapinou;
+            
             // Locked screen, ask the user to enter his pin code
-            oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTERING, OLED_SCROLL_UP);
-            _delay_ms(2000);
-            currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+            if(guiGetPinFromUser(&lapinou) == RETURN_OK)
+            {
+                // User approved his pin
+                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+                
+            }
+            else
+            {
+                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                
+            }
             guiGetBackToCurrentScreen();
         }
         else if ((currentScreen == SCREEN_DEFAULT_INSERTED_NLCK) && (touch_detect_result & RETURN_WHEEL_PRESSED))
@@ -236,7 +253,7 @@ RET_TYPE getTouchUiYesNoAnswer(void)
     RET_TYPE touch_detect_result;
     
     // Wait for all presses to be released
-    while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
+    while((isWheelTouched() == RETURN_OK) || (isButtonTouched() == RETURN_OK));
     
     // Wait for a touch press
     activateUserInteractionTimer();
@@ -270,16 +287,16 @@ int8_t getTouchedPositionAnswer(void)
 {
     #ifdef HARDWARE_V1
         _delay_ms(2000);
-        return 0;
+        return TOUCHPOS_WHEEL_TLEFT;
     #endif
     #ifdef ALWAYS_ACCEPT_REQUESTS
-        return 0;
+        return TOUCHPOS_WHEEL_TLEFT;
     #endif
 
     RET_TYPE touch_detect_result;
     
     // Wait for all presses to be released
-    while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
+    while((isWheelTouched() == RETURN_OK) || (isButtonTouched() == RETURN_OK));
     
     // Wait for a touch press
     activateUserInteractionTimer();
@@ -307,6 +324,199 @@ int8_t getTouchedPositionAnswer(void)
     {
         return (int8_t)getWheelTouchDetectionQuarter();  
     }    
+}
+
+/*! \fn     guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
+*   \brief  Overwrite the digits on the current pin entering screen
+*   \param  current_pin     Array containing the pin
+*   \param  selected_digit  Currently selected digit
+*/
+void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
+{
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        oledSetXY(84+22*i, 20);
+        if (i != selected_digit)
+        {
+            oledPutch('*');
+        }
+        else
+        {
+            if (current_pin[i] >= 0x0A)
+            {
+                oledPutch(current_pin[i]+'A'-0x0A);
+            } 
+            else
+            {
+                oledPutch(current_pin[i]+'0');
+            }
+        }
+    }
+}
+
+/*! \fn     touchWheelIntefaceLogic(void)
+*   \brief  Use the wheel and get -1 or +1 ticks
+*   \param  touch_detection_result  Result from the touchdetectionroutine
+*   \return -1 or +1 ticks
+*/
+int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
+{
+    uint8_t temp_position;
+    uint8_t up_lower_slot;
+    uint8_t up_higher_slot;
+    uint8_t down_lower_slot;
+    uint8_t down_higher_slot;
+    
+    if (touch_detection_result & RETURN_WHEEL_PRESSED)
+    {
+        // Get touched position
+        temp_position = getLastRawWheelPosition();
+        
+        // If it is the first touch, store reference position
+        if (touch_logic_press == FALSE)
+        {
+            touch_logic_ref_position = temp_position;
+            touch_logic_press = TRUE;
+        }
+        
+        up_lower_slot = touch_logic_ref_position + WHEEL_TICK_INCREMENT;
+        up_higher_slot = touch_logic_ref_position + 3*WHEEL_TICK_INCREMENT;
+        down_higher_slot = touch_logic_ref_position - WHEEL_TICK_INCREMENT;
+        down_lower_slot = touch_logic_ref_position - 3*WHEEL_TICK_INCREMENT;
+        
+        // Detect wrap arounds
+        if (up_lower_slot > up_higher_slot)
+        {
+            if ((temp_position > up_lower_slot) || (temp_position < up_higher_slot))
+            {
+                touch_logic_ref_position += WHEEL_TICK_INCREMENT;
+                return 1;
+            }
+        } 
+        else
+        {
+            if ((temp_position > up_lower_slot) && (temp_position < up_higher_slot))
+            {
+                touch_logic_ref_position += WHEEL_TICK_INCREMENT;
+                return 1;
+            }
+        }
+        
+        // Same
+        if (down_lower_slot > down_higher_slot)
+        {
+            if ((temp_position < down_higher_slot) || (temp_position > down_lower_slot))
+            {
+                touch_logic_ref_position -= WHEEL_TICK_INCREMENT;
+                return -1;
+            }
+        } 
+        else
+        {
+            if ((temp_position < down_higher_slot) && (temp_position > down_lower_slot))
+            {
+                touch_logic_ref_position -= WHEEL_TICK_INCREMENT;
+                return -1;
+            }
+        }
+    }
+    else if(touch_detection_result & RETURN_WHEEL_RELEASED)
+    {
+        touch_logic_press = FALSE;
+    }
+    
+    return 0;
+}
+
+/*! \fn     guiGetPinFromUser(void)
+*   \brief  Ask the user to enter a PIN
+*   \param  pin_code    Pointer to where to store the pin code
+*   \return If the user approved the request
+*/
+RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
+{
+    RET_TYPE ret_val = RETURN_NOK;
+    uint8_t selected_digit = 0;
+    uint8_t finished = FALSE;
+    uint8_t current_pin[4];
+    RET_TYPE temp_rettype;
+    int8_t temp_int8;
+    
+    // Set current pin to 0000
+    memset((void*)current_pin, 0, 4);
+    
+    // Draw pin entering bitmap
+    oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTERING, OLED_SCROLL_UP);
+    oledWriteActiveBuffer();
+    //oledSetFont(12);
+    
+    // Wait for all presses to be released
+    while((isWheelTouched() == RETURN_OK) || (isButtonTouched() == RETURN_OK));
+    
+    // Display current pin on screen
+    guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+    
+    // While the user hasn't entered his pin
+    while(!finished)
+    {
+        // Detect key touches
+        temp_rettype = touchDetectionRoutine();
+        // Send it to the touch wheel interface logic
+        temp_int8 = touchWheelIntefaceLogic(temp_rettype);
+        
+        // Position increment / decrement
+        if (temp_int8 != 0)
+        {
+            if ((current_pin[selected_digit] == 0x0F) && (temp_int8 == 1))
+            {
+                current_pin[selected_digit] = 0xFF;
+            }
+            else if ((current_pin[selected_digit] == 0) && (temp_int8 == -1))
+            {
+                current_pin[selected_digit] = 0x10;
+            }
+            current_pin[selected_digit] += temp_int8;
+            guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+        }
+        
+        // See if the user wants to change digits
+        if (temp_rettype & RETURN_RIGHT_PRESSED)
+        {
+            if (selected_digit < 3)
+            {
+                selected_digit++;
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+            }
+            else
+            {
+                ret_val = RETURN_OK;
+                finished = TRUE;
+            }
+        }
+        else if (temp_rettype & RETURN_LEFT_PRESSED)
+        {
+            if (selected_digit > 0)
+            {
+                selected_digit--;
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+            }
+            else
+            {
+                ret_val = RETURN_NOK;
+                finished = TRUE;                
+            }
+        }
+    }
+    
+    // Write to other buffer
+    oledWriteInactiveBuffer();
+    oledSetFont(FONT_DEFAULT);
+    
+    // Store the pin
+    *pin_code = (uint16_t)(((uint16_t)(current_pin[0]) << 12) | (((uint16_t)current_pin[1]) << 8) | (current_pin[2] << 4) | current_pin[3]);
+    
+    // Return success status
+    return ret_val;
 }
 
 /*! \fn     guiGetBackToCurrentScreen(void)
@@ -665,6 +875,8 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     RET_TYPE return_value = RETURN_NOK;
     uint8_t temp_user_id;
+    
+    guiDisplayInformationOnScreen(PSTR("Card connected"));
     
     if ((detection_result == RETURN_MOOLTIPASS_PB) || (detection_result == RETURN_MOOLTIPASS_INVALID))
     {

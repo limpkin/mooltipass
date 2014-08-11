@@ -36,6 +36,7 @@ RET_TYPE initTouchSensing(void);
 RET_TYPE getTouchedButton(void);
 void activateProxDetection(void);
 RET_TYPE touchDetectionRoutine(void);
+uint8_t getLastRawWheelPosition(void);
 uint8_t getWheelTouchDetectionQuarter(void);
 
 // AT42QT2120 ID

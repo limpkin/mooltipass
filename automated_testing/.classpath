@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/json-20090211.jar"/>
+	<classpathentry kind="lib" path="lib/selenium-support-2.41.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

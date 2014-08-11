@@ -30,18 +30,21 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * 1. Download and install chromedriver - http://chromedriver.storage.googleapis.com/index.html
  * 2. When running this test set -Dwebdriver.chrome.driver=/path/to/chromedriver
- * 3. When you see the message "Waiting 2 minutes for you to install Extensions manually." install chrome.ext and chrome.hid-app manually
+ * 3. When you see the message "Waiting 2 minutes for you to install Extensions manually." install chrome.hid-app and chrome.ext manually
  *
  * TODO:
- *   Logout at end of each url test
  *   Figure out how not to need to install extensions manually.
  *   Put test url and success criteria in external file.
  *
@@ -52,7 +55,8 @@ public class Aft
 {
 	static WebDriver driver;
 	static ChromeDriverService chromeDriverService;
-    public static final String CHROME = "webdriver.chrome.driver";    
+    public static final String CHROME = "webdriver.chrome.driver";
+    public static final int WAIT_TIMEOUT_SECONDS = 30;
 
     @BeforeClass
     public static void chromeDriverService() throws Exception
@@ -67,7 +71,9 @@ public class Aft
     	driver = new ChromeDriver(DesiredCapabilities.chrome());
         
     	// TODO figure out how to pre-install extensions automatically
-    	System.out.println("Waiting 2 minutes for you to install Extensions (chrome.ext and chrome.hid-app) manually.");
+    	driver.get("chrome://extensions/");
+    	System.out.println("Waiting 2 minutes for you to install Extensions (chrome.hid-app and chrome.ext) manually.");
+    	System.out.println("Check the Developer mode checkbox and then use the Load unpackaged extensions to load the mooltipass authentication_clients chrome.hid-app and chrome.ext");
     	try
     	{
 			Thread.sleep(120000);
@@ -106,18 +112,26 @@ public class Aft
     }
     
     // TODO define urls and success criteria in file (logout link)
-    // TODO logout at end of each url test
     @Test
-    public void testSlashdot() throws Exception
+    public void testAutoAcceptSlashdot() throws Exception
     {
-    	driver.get("http://slashdot.org/?nobeta=1");
-    	Thread.sleep(30000);
+    	testAutoAccept("http://slashdot.org/?nobeta=1", "Login", "Log out");
     }
     
     @Test
-    public void testArtima() throws Exception
+    public void testAutoAcceptArtima() throws Exception
     {
-    	driver.get("http://www.artima.com/sign_in?d=%2Findex.jsp");
-    	Thread.sleep(30000);    	
+    	testAutoAccept("http://www.artima.com/sign_in?d=%2Findex.jsp", "Forgot your password?", "Sign Out");
+    }
+
+    void testAutoAccept(String loginUrl, String loginLoadedLinkText, String logoutLinkText) throws Exception
+    {
+    	driver.get(loginUrl);
+    	WebDriverWait wait = new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS);
+        // wait for Login, but we are not gonna click it testing  AUTO_ACCEPT works
+    	wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
+    	WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(By.linkText(logoutLinkText)));
+        // probably will be some cases where MP AUTO_ACCEPTS back in after we logout
+    	logout.click();
     }
 }

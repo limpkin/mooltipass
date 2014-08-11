@@ -25,22 +25,23 @@
 package mooltipass;
 
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
- * 1. Download and install chromedriver -http://chromedriver.storage.googleapis.com/index.html
+ * 1. Download and install chromedriver - http://chromedriver.storage.googleapis.com/index.html
  * 2. When running this test set -Dwebdriver.chrome.driver=/path/to/chromedriver
  * 3. When you see the message "Waiting 2 minutes for you to install Extensions manually." install chrome.hid-app and chrome.ext manually
  * 
@@ -56,22 +57,42 @@ public class Aft
 	static WebDriver driver;
 	static ChromeDriverService chromeDriverService;
 	public static final String CHROME = "webdriver.chrome.driver";
+	public static final String MOOLTIPASS_DIR = "mooltipass.dir";
 	public static final int WAIT_TIMEOUT_SECONDS = 30;
 
 	@BeforeClass
-	public static void chromeDriverService() throws Exception
+	public static void beforeClass() throws Exception
 	{
-		chromeDriverService = chromeDriver();
+		chromeDriverService = chromeDriverService();
 		if (chromeDriverService != null)
 		{
 			chromeDriverService.start();
-		}
+		}	
+		
+		ChromeOptions options = new ChromeOptions();
 
-		// normally I would do this in setUp, but due to manual install of
-		// extensions try to reuse the driver
-		driver = new ChromeDriver(DesiredCapabilities.chrome());
+// Appears you can only load one unpacked extensions this way...
+// list doesn't do it
+//		List<String> arguments = new LinkedList<String>();
+//		arguments.add("load-extension=" + System.getProperty(MOOLTIPASS_DIR) + File.separator + "authentication_clients" + File.separator + "chrome.hid-app");
+//		arguments.add("load-extension=" + System.getProperty(MOOLTIPASS_DIR) + File.separator + "authentication_clients" + File.separator + "chrome-ext");
+//		options.addArguments(arguments);
+// comma delimited as some chrome arguments use doesn't work
+//		options.addArguments("load-extension=" + System.getProperty(MOOLTIPASS_DIR) + File.separator + "authentication_clients" + File.separator + "chrome.hid-app","load-extension=" + System.getProperty(MOOLTIPASS_DIR) + File.separator + "authentication_clients" + File.separator + "chrome-ext");
+// String... doesn't work		
+//		options.addArguments("load-extension=" + System.getProperty(MOOLTIPASS_DIR) + File.separator + "authentication_clients" + File.separator + "chrome.hid-app," + System.getProperty(MOOLTIPASS_DIR) + File.separator + "authentication_clients" + File.separator + "chrome-ext");
 
-		// TODO figure out how to pre-install extensions automatically
+// Requires extensions are crx (zip file with public and private keys)
+//		List extensions = new LinkedList();
+//		extensions.add(new File(System.getProperty(MOOLTIPASS_DIR) + File.separator + "authentication_clients" + File.separator + "chrome.hid-app"));
+//		extensions.add(new File(System.getProperty(MOOLTIPASS_DIR) + File.separator + "authentication_clients" + File.separator + "chrome-ext"));
+//		options.addExtensions(extensions);
+
+		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+		driver = new ChromeDriver(capabilities);
+
+		// TODO figure out how to pre-install extensions automatically (see commented out code above for things that don't work)
 		driver.get("chrome://extensions/");
 		System.out.println("Waiting 2 minutes for you to install Extensions (chrome.hid-app and chrome.ext) manually.");
 		System.out.println("Check the Developer mode checkbox and then use the Load unpackaged extensions to load the mooltipass authentication_clients chrome.hid-app and chrome.ext");
@@ -81,15 +102,10 @@ public class Aft
 		} catch (InterruptedException e)
 		{
 			e.printStackTrace();
-		}
+		}	
 	}
 
-	@Before
-	public void setUp()
-	{
-	}
-
-	public static ChromeDriverService chromeDriver()
+	public static ChromeDriverService chromeDriverService()
 	{
 		if (System.getProperty(CHROME) == null)
 		{

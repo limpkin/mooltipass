@@ -57,6 +57,7 @@ public class Aft
 	static WebDriver driver;
 	static ChromeDriverService chromeDriverService;
 	public static final String CHROME = "webdriver.chrome.driver";
+	public static final String[][] DATA = new String[][]{{"http://www.moddb.com/", "sign in", "logout"}};
 	public static final String MOOLTIPASS_DIR = "mooltipass.dir";
 	public static final int WAIT_TIMEOUT_SECONDS = 30;
 
@@ -99,7 +100,8 @@ public class Aft
 		try
 		{
 			Thread.sleep(120000);
-		} catch (InterruptedException e)
+		}
+		catch (InterruptedException e)
 		{
 			e.printStackTrace();
 		}	
@@ -119,7 +121,8 @@ public class Aft
 					.usingDriverExecutable(new File(System.getProperty(CHROME)))
 					.usingAnyFreePort().build();
 			return chromeDriverService;
-		} catch (Throwable t)
+		}
+		catch (Throwable t)
 		{
 			throw new RuntimeException("Exception starting chrome driver service, is chromedriver ( http://chromedriver.storage.googleapis.com/index.html ) installed? You can include the path to it using -D" + CHROME, t);
 		}
@@ -127,18 +130,49 @@ public class Aft
 
 	// TODO define urls and success criteria in file (logout link)
 	@Test
-	public void testAutoAcceptSlashdot() throws Exception
+	public void testAutoLoginSlashdot() throws Exception
 	{
-		testAutoAccept("http://slashdot.org/?nobeta=1", "Login", "Log out");
+		testAutoLogin("http://slashdot.org/?nobeta=1", "Login", "Log out");
 	}
 
 	@Test
-	public void testAutoAcceptArtima() throws Exception
+	public void testAutoLoginArtima() throws Exception
 	{
-		testAutoAccept("http://www.artima.com/sign_in?d=%2Findex.jsp", "Forgot your password?", "Sign Out");
+		testAutoLogin(new String[]{"http://www.artima.com/sign_in?d=%2Findex.jsp", "Forgot your password?", "Sign Out"});
 	}
 
-	void testAutoAccept(String loginUrl, String loginLoadedLinkText, String logoutLinkText) throws Exception
+	// https://members.cafepress.com/login.aspx
+	@Test
+	public void testAutoLoginCafepress() throws Exception
+	{
+		testAutoLogin("https://members.cafepress.com/login.aspx,SIGN IN,SIGN OUT");
+	}
+	
+	@Test
+	public void testAutoLoginData() throws Exception
+	{
+		testAutoLogin(DATA);
+	}
+	
+
+	void testAutoLogin(String data) throws Exception
+	{
+		testAutoLogin(data.split(","));
+	}
+	
+	void testAutoLogin(String[] data) throws Exception
+	{
+		testAutoLogin(data[0], data[1], data[2]);
+	}
+
+	void testAutoLogin(String[][] data) throws Exception
+	{
+		for (String[] tests : data) {
+			testAutoLogin(tests);
+		}
+	}
+
+	void testAutoLogin(String loginUrl, String loginLoadedLinkText, String logoutLinkText) throws Exception
 	{
 		driver.get(loginUrl);
 		WebDriverWait wait = new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS);

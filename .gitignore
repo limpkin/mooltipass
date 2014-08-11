@@ -6,3 +6,4 @@ source_code/Release/
 *.elf
 *.eep
 *.o
+.DS_Store

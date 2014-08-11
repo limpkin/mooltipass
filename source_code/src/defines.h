@@ -30,9 +30,8 @@
 
 
 /**************** SETUP DEFINES ****************/
-// Please choose your case here
-//#define ABS_CASE
-//#define ALUMINUM_CASE
+// Please choose your sensitivity here
+//#define LOW_SENSITIVITY
 /*
  *  V1_DEVELOPERS_BOOTLOADER_SETUP
  *  => the first hardware version, with bootloader

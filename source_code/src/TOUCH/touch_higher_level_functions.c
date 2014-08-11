@@ -158,13 +158,13 @@ RET_TYPE initTouchSensing(void)
             writeDataToTS(REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_H_VAL);                              // LED (left button)
             writeDataToTS(REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);                             // LED (top left)
             // Sensitivity settings
-            #ifdef ALUMINUM_CASE
+            #ifndef LOW_SENSITIVITY
             writeDataToTS(REG_AT42QT_DI, 6);                                                           // Increase detection integrator value
             writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             #endif
-            //writeDataToTS(REG_AT42QT_TRD, 25);                                                         // Recalibration if touch detected for more than 4 seconds
+            writeDataToTS(REG_AT42QT_TRD, 50);                                                         // Recalibration if touch detected for more than 8 seconds
             // Key settings
             writeDataToTS(REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key
             writeDataToTS(REG_AT42QT_KEY1_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key

@@ -35,6 +35,7 @@
 #include "touch.h"
 #include "pwm.h"
 #include "usb.h"
+#include "gui.h"
 
 
 /*! \fn     beforeFlashInitTests(void)
@@ -180,8 +181,9 @@ void afterTouchInitTests(void)
     uint16_t temp_uint = 0;
     RET_TYPE temp_ret_type = RETURN_RIGHT_PRESSED;
     
-    setPwmDc(MAX_PWM_VAL);
+    activityDetectedRoutine();
     oledWriteActiveBuffer();
+    activateProxDetection();
     while(!(temp_ret_type & RETURN_LEFT_PRESSED))
     {
         if (temp_ret_type != RETURN_NO_CHANGE)

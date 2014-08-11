@@ -55,69 +55,6 @@ RET_TYPE checkTSPres(void)
     }
 }
 
-/*! \fn     isWheelTouched()
-*   \brief  Check if the touch wheel is touched
-*   \return RETURN_OK or RETURN_NOK
-*/
-RET_TYPE isWheelTouched(void)
-{
-    uint8_t temp_byte;
-    
-    readDataFromTS(REG_AT42QT_KEY_STAT1, &temp_byte);
-    readDataFromTS(REG_AT42QT_DET_STAT, &temp_byte);   
-    if (temp_byte & 0x02)
-    {
-        return RETURN_OK;
-    } 
-    else
-    {
-        return RETURN_NOK;
-    }
-}
-
-/*! \fn     isButtonTouched()
-*   \brief  Check if the a touch button is touched
-*   \return RETURN_OK or RETURN_NOK
-*/
-RET_TYPE isButtonTouched(void)
-{
-    uint8_t temp_byte;
-    
-    readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_byte);
-    readDataFromTS(REG_AT42QT_DET_STAT, &temp_byte);    
-    if ((temp_byte & 0x01) && !(temp_byte & 0x02))
-    {
-        return RETURN_OK;
-    } 
-    else
-    {
-        return RETURN_NOK;
-    }
-}
-
-/*! \fn     getTouchedButton()
-*   \brief  Find which button is touched
-*   \return LEFT_BUTTON or RIGHT_BUTTON
-*/
-RET_TYPE getTouchedButton(void)
-{
-    uint8_t temp_byte;
-    
-    readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_byte);    
-    if (temp_byte & 0x02)
-    {
-        return LEFT_BUTTON;
-    } 
-    else if (temp_byte & 0x08)
-    {
-        return RIGHT_BUTTON;
-    }
-    else
-    {
-        return GUARD_BUTTON;
-    }
-}
-
 /*! \fn     activateGuardKey(void)
 *   \brief  Activate the guard key
 */
@@ -159,7 +96,7 @@ RET_TYPE initTouchSensing(void)
             writeDataToTS(REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);                             // LED (top left)
             // Sensitivity settings
             #ifndef LOW_SENSITIVITY
-            writeDataToTS(REG_AT42QT_DI, 6);                                                           // Increase detection integrator value
+            writeDataToTS(REG_AT42QT_DI, 7);                                                           // Increase detection integrator value
             writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
@@ -222,14 +159,23 @@ uint8_t getWheelTouchDetectionQuarter(void)
 RET_TYPE touchDetectionRoutine(void)
 {
     RET_TYPE return_val = RETURN_NO_CHANGE;
+    uint8_t keys_detection_status;
     uint8_t led_states[NB_KEYS];
+    uint8_t temp_uint;
     
     // Set the LEDs on by default
-    memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);
+    memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);    
     
     if (isTouchChangeDetected())
     {
-        if (isWheelTouched() == RETURN_OK)
+        // Read detection status register
+        readDataFromTS(REG_AT42QT_DET_STAT, &keys_detection_status);
+        
+        // Unused byte that needs to be read        
+        readDataFromTS(REG_AT42QT_KEY_STAT1, &temp_uint);
+        
+        // If wheel is touched
+        if (keys_detection_status & AT42QT2120_SDET_MASK)
         {
             // Get position and update global var
             readDataFromTS(REG_AT42QT_SLIDER_POS, &last_raw_wheel_position);
@@ -248,22 +194,26 @@ RET_TYPE touchDetectionRoutine(void)
         writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_TRIGHT]);
         writeDataToTS(WHEEL_BLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_BLEFT]);
         writeDataToTS(WHEEL_BRIGHT_LED_REGISTER,  led_states[TOUCHPOS_WHEEL_BRIGHT]);
-                
-        if (isButtonTouched() == RETURN_OK)
+
+        readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_uint);
+        // If one button is touched
+        if ((keys_detection_status & AT42QT2120_TDET_MASK) && !(keys_detection_status & AT42QT2120_SDET_MASK))
         {
-            if (getTouchedButton() == LEFT_BUTTON)
+            if (temp_uint & 0x02)
             {
+                // Left button
                 led_states[TOUCHPOS_LEFT] = AT42QT2120_OUTPUT_L_VAL;
                 return_val |= RETURN_LEFT_PRESSED;
                 return_val |= RETURN_RIGHT_RELEASED;
             }
-            else if(getTouchedButton() == RIGHT_BUTTON)
+            else if(temp_uint & 0x08)
             {
+                // Right button
                 led_states[TOUCHPOS_RIGHT] = AT42QT2120_OUTPUT_L_VAL;
                 return_val |= RETURN_RIGHT_PRESSED;
                 return_val |= RETURN_LEFT_RELEASED;
             }
-            else if (getTouchedButton() == GUARD_BUTTON)
+            else
             {
                 return_val |= RETURN_PROX_DETECTION;
             }

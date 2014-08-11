@@ -30,10 +30,7 @@
 
 // Prototypes
 void activateGuardKey(void);
-RET_TYPE isWheelTouched(void);
-RET_TYPE isButtonTouched(void);
 RET_TYPE initTouchSensing(void);
-RET_TYPE getTouchedButton(void);
 void activateProxDetection(void);
 RET_TYPE touchDetectionRoutine(void);
 uint8_t getLastRawWheelPosition(void);

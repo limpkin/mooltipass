@@ -236,49 +236,6 @@ void guiMainLoop(void)
     }
 }
 
-/*! \fn     getTouchUiYesNoAnswer(void))
-*   \brief  Use the capacitive interface to get a yes or no
-*   \return Yew or No
-*/
-RET_TYPE getTouchUiYesNoAnswer(void)
-{
-    #ifdef HARDWARE_V1
-        _delay_ms(2000);
-        return RETURN_OK;
-    #endif
-    #ifdef ALWAYS_ACCEPT_REQUESTS
-        return RETURN_OK;
-    #endif
-
-    RET_TYPE touch_detect_result;
-    
-    // Wait for all presses to be released
-    while((isWheelTouched() == RETURN_OK) || (isButtonTouched() == RETURN_OK));
-    
-    // Wait for a touch press
-    activateUserInteractionTimer();
-    touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
-    while (!((touch_detect_result & RETURN_LEFT_PRESSED) || (touch_detect_result & RETURN_RIGHT_PRESSED)))
-    {
-        touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
-        
-        // User interaction timeout
-        if (userInteractionFlag == TRUE)
-        {
-            return RETURN_NOK;
-        }
-    }
-    
-    if (touch_detect_result & RETURN_LEFT_PRESSED)
-    {
-        return RETURN_NOK;
-    } 
-    else
-    {
-        return RETURN_OK;
-    }
-}
-
 /*! \fn     getTouchedPositionAnswer(void)
 *   \brief  Use the capacitive interface to get quarter position
 *   \return Number between 0 and 5 for valid pos, -1 otherwise
@@ -295,8 +252,11 @@ int8_t getTouchedPositionAnswer(void)
 
     RET_TYPE touch_detect_result;
     
+    // Switch on lights
+    activityDetectedRoutine();
+    
     // Wait for all presses to be released
-    while((isWheelTouched() == RETURN_OK) || (isButtonTouched() == RETURN_OK));
+    while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
     
     // Wait for a touch press
     activateUserInteractionTimer();
@@ -332,7 +292,7 @@ int8_t getTouchedPositionAnswer(void)
 *   \param  selected_digit  Currently selected digit
 */
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
-{
+{    
     for (uint8_t i = 0; i < 4; i++)
     {
         oledSetXY(84+22*i, 20);
@@ -446,15 +406,16 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
     memset((void*)current_pin, 0, 4);
     
     // Draw pin entering bitmap
-    oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTERING, OLED_SCROLL_UP);
-    oledWriteActiveBuffer();
+    oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTERING, 0);
+    oledFlipBuffers(0,0);
     //oledSetFont(12);
-    
-    // Wait for all presses to be released
-    while((isWheelTouched() == RETURN_OK) || (isButtonTouched() == RETURN_OK));
+    oledWriteActiveBuffer();
     
     // Display current pin on screen
     guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+    
+    // Wait for all presses to be released
+    while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
     
     // While the user hasn't entered his pin
     while(!finished)
@@ -479,38 +440,47 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
         }
         
-        // See if the user wants to change digits
-        if (temp_rettype & RETURN_RIGHT_PRESSED)
+        if (temp_rettype & RETURN_LEFT_PRESSED)
         {
+            if (selected_digit == 1)
+            {
+                oledFillXY(0, 22, 22, 22, 0x00);
+                oledBitmapDrawFlash(2, 26, BITMAP_CROSS, 0);
+            }
+            if (selected_digit > 0)
+            {
+                selected_digit--;
+            }
+            else
+            {
+                ret_val = RETURN_NOK;
+                finished = TRUE;
+            }
+            guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+        }
+        else if (temp_rettype & RETURN_RIGHT_PRESSED)
+        {
+            if (selected_digit == 2)
+            {
+                oledFillXY(236, 22, 20, 25, 0x00);
+                oledBitmapDrawFlash(236, 26, BITMAP_TICK, 0);
+            }
             if (selected_digit < 3)
             {
                 selected_digit++;
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
             }
             else
             {
                 ret_val = RETURN_OK;
                 finished = TRUE;
             }
-        }
-        else if (temp_rettype & RETURN_LEFT_PRESSED)
-        {
-            if (selected_digit > 0)
-            {
-                selected_digit--;
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-            }
-            else
-            {
-                ret_val = RETURN_NOK;
-                finished = TRUE;                
-            }
+            guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
         }
     }
     
-    // Write to other buffer
-    oledWriteInactiveBuffer();
+    // Reset default font
     oledSetFont(FONT_DEFAULT);
+    oledWriteInactiveBuffer();
     
     // Store the pin
     *pin_code = (uint16_t)(((uint16_t)(current_pin[0]) << 12) | (((uint16_t)current_pin[1]) << 8) | (current_pin[2] << 4) | current_pin[3]);
@@ -576,12 +546,7 @@ void informGuiOfCurrentContext(char* context)
 *   \brief  Ask for user approval to add a domain
 */
 RET_TYPE guiAskForDomainAddApproval(char* name)
-{    
-    RET_TYPE return_value;
-    
-    // Switch on lights
-    activityDetectedRoutine();
-
+{
     // Draw asking bitmap & wait for user input
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
@@ -589,9 +554,14 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     oledPutstrXY(0, 30, OLED_CENTRE, name);
     oledFlipBuffers(0,0);
     
-    return_value = getTouchUiYesNoAnswer();
-    
-    return return_value;
+    if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
 }
 
 /*! \fn     guiAskForLoginAddApproval(char* name)
@@ -603,9 +573,6 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
 {
     RET_TYPE return_value;
     
-    // Switch on lights
-    activityDetectedRoutine();
-    
     // Draw asking bitmap & wait for user input
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
@@ -615,7 +582,14 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     oledPutstrXY(0, 52, OLED_CENTRE, service);
     oledFlipBuffers(0,0);
     
-    return_value = getTouchUiYesNoAnswer();
+    if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
     
     return return_value;
 }
@@ -630,9 +604,6 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
 {
     RET_TYPE return_value;
     
-    // Switch on lights
-    activityDetectedRoutine();
-    
     // Draw asking bitmap & wait for user input
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
@@ -642,7 +613,14 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
     oledPutstrXY(0, 52, OLED_CENTRE, service);
     oledFlipBuffers(0,0);
     
-    return_value = getTouchUiYesNoAnswer();
+    if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
     
     // Get back to other screen
    guiGetBackToCurrentScreen();
@@ -664,9 +642,6 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     uint16_t addresses[4];
     int8_t i = 0;
     int8_t j;
-    
-    // Switch on lights
-    activityDetectedRoutine();
     
     // Read the parent node
     if (readParentNode(h, p, parentNodeAddress) != RETURN_OK)
@@ -699,7 +674,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         oledPutstrXY(0, 52, OLED_CENTRE, (char*)c->login);
         oledFlipBuffers(0,0);
         
-        if(getTouchUiYesNoAnswer() == RETURN_OK)
+        if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
         {
             // Get back to other screen
             guiGetBackToCurrentScreen();
@@ -832,23 +807,24 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
 */
 RET_TYPE guiAskForConfirmation(const char* string)
 {
-    RET_TYPE return_value;
-    
-    // Switch on lights
-    activityDetectedRoutine();
-
     // Draw asking bitmap & wait for user input
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
     oledPutstrXY_P(0, 24, OLED_CENTRE, string);
     oledFlipBuffers(0,0);
     
-    return_value = getTouchUiYesNoAnswer();
-    
-    // Get back to other screen
-    guiGetBackToCurrentScreen();
-    
-    return return_value;    
+    if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+    {
+        // Get back to other screen
+        guiGetBackToCurrentScreen();
+        return RETURN_OK;
+    }
+    else
+    {
+        // Get back to other screen
+        guiGetBackToCurrentScreen();
+        return RETURN_NOK;
+    }  
 }
 
 /*! \fn     guiDisplayInformationOnScreen(const char* string)

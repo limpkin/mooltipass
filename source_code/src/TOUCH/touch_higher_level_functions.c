@@ -96,7 +96,7 @@ RET_TYPE initTouchSensing(void)
             writeDataToTS(REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);                             // LED (top left)
             // Sensitivity settings
             #ifndef LOW_SENSITIVITY
-            writeDataToTS(REG_AT42QT_DI, 7);                                                           // Increase detection integrator value
+            writeDataToTS(REG_AT42QT_DI, 6);                                                           // Increase detection integrator value
             writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
             writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
@@ -164,7 +164,7 @@ RET_TYPE touchDetectionRoutine(void)
     uint8_t temp_uint;
     
     // Set the LEDs on by default
-    memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);    
+    memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);
     
     if (isTouchChangeDetected())
     {

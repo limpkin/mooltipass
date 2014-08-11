@@ -16,24 +16,27 @@ This header file is then used as the input to bitmap.py to produce the final hea
 Usage: bitmap.py [options]
 
 Options:
-    -h, --help            show this help message and exit
-    -n NAME, --name=NAME  name for bitmap
-    -o OUTPUT, --output=OUTPUT
-                          name of output file
-    -i INPUT, --input=INPUT
-                          input header file
-    -c, --compress        compress output
-    -b BITDEPTH, --bitdepth=BITDEPTH
-                          number of bits per pixel (default: 4)
+  -h, --help            show this help message and exit
+  -n NAME, --name=NAME  name for bitmap
+  -o OUTPUT, --output=OUTPUT
+                        name of output file (.img produces binary blob, .h
+                        produces optimized header)
+  -i INPUT, --input=INPUT
+                        input header file
+  -c, --compress        compress output
+  -b BITDEPTH, --bitdepth=BITDEPTH
+                        number of bits per pixel (default: 4)
 ```
 
 ###Example conversion of a 256x64 image with 16 colours per pixel (4-bit pixels)
 ```
-./bitmap.py --input HaD_Mooltipass.h --output bitmap.h --name had_mooltipass --bitdepth 4
-count:  4096
+./bitmap.py -i 0_HaD_Mooltipass.h -o 0_HaD_Mooltipass_4bit.h -n 0_HaD_Mooltipass
+Parsed header: 256x64
+Image size: 4096 words
+Wrote 0_HaD_Mooltipass_4bit.h
 ```
 
-The count: 4096 is the number of 16-bit words used by the uncompressed bitmap image; 8KB in this case. The output file is bitmap.h, and the bitmap data structure in the file is called image_had_mooltipass (from the --name option).
+The output file is 0_HaD_Mooltipass_4bit.h, and the bitmap data structure in the file is called 0_HaD_Mooltipass (from the --name option).
 
 ###Example with run-length compression:
 
@@ -42,12 +45,23 @@ Use gimp to convert this:
 
 Then use the [bitmap.py](https://github.com/limpkin/mooltipass/blob/master/bitmaps/bitmap.py) python script to convert [HaD_Mooltipass.h](https://github.com/limpkin/mooltipass/blob/master/bitmaps/HaD_Mooltipass.h) into [had_mooltipass.h](https://github.com/limpkin/mooltipass/blob/master/source_code/src/had_mooltipass.h)
 ```
-./bitmap.py --input HaD_Mooltipass.h --output had_mooltipass.h --name HaD_Mooltipass --bitdepth 4 --compress
-count:  3840
+./bitmap.py -i 0_HaD_Mooltipass.h -o 0_HaD_Mooltipass_4bit.h -n 0_HaD_Mooltipass -c
+Parsed header: 256x64
+Compressed image: 4096 -> 3124 words
+Wrote 0_HaD_Mooltipass_4bit.h
 ```
 
-
 In this case the count is the number of bytes used by the compressed bit image; 3.8KB. The amount of compression is very dependent on the image and how many horizontal runs of the same pixel are in the image. The best possible case would be a 8 to 1 compression. Compressed bitmaps also have the benefit of taking less time to display on the screen.
+
+###Example with run-length compression and outputing to binary blob
+```
+./bitmap.py -i 0_HaD_Mooltipass.h -o 0_HaD_Mooltipass.img -n 0_HaD_Mooltipass -c
+Parsed header: 256x64
+Compressed image: 4096 -> 3124 words
+Wrote 0_HaD_Mooltipass.img
+```
+
+In this case, the output file is a binary blob suitable for passing to bundle.py
 
 #Creating a bundle of bitmaps and fonts to use on the Mooltipass
 

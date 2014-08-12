@@ -490,6 +490,10 @@ void usbProcessIncoming(uint8_t* incomingData)
         // end flash import
         case CMD_IMPORT_FLASH_END :
         {
+            if ((flash_import_approved == TRUE) && (current_flash_import_page_pos != 0))
+            {
+                flashWriteBufferToPage(current_flash_import_page);
+            }
             flash_import_approved = FALSE;
             plugin_return_value = PLUGIN_BYTE_OK;
             break;

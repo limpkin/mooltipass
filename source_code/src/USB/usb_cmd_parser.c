@@ -323,7 +323,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 return;
             }
 
-#if 0
             // Check how much data we need in case we're close to the graphics section
             if ((current_flash_export_addr < GRAPHIC_ZONE_START) && ((GRAPHIC_ZONE_START - current_flash_export_addr) < (uint32_t)PACKET_EXPORT_SIZE))
             {
@@ -335,20 +334,17 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 size = (uint8_t)(FLASH_SIZE - current_flash_export_addr);
             }
-#endif
 
             // Get a block of data and send it, increment counter
             flashRawRead(incomingData, current_flash_export_addr, size);
             usbSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
             current_flash_export_addr += size;
 
-#if 0
             // Skip over the graphics address if we're in that case
             if (current_flash_export_addr == GRAPHIC_ZONE_START)
             {
                 current_flash_export_addr = GRAPHIC_ZONE_END;
             }
-#endif
             return;
         }
         
@@ -677,18 +673,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 oledPutstr((char *)&msg->body.data[1]);
             }
 
-#if 0
-            oledFlipBuffers(0,0);
-            oledWriteActiveBuffer();
-            oledClear();
-            uint32_t start = millis();
-            oledPutstr_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
-            oledPutstr_P(PSTR("abcdefghijklmnopqrstuvwxyz:~#$"));
-            oledPutstr_P(PSTR("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
-            oledPutstr_P(PSTR("abcdefghijklmnopqrstuvwxyz:~#$"));
-            uint32_t end = millis();
-            usbPrintf_P(PSTR("Time to print: %lu msecs\n"),end-start);
-#endif
             return;
         }
 #endif

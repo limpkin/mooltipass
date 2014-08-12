@@ -331,6 +331,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
 */
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
 {    
+    oledFillXY(80, 18, 92, 24, 0x00);
     for (uint8_t i = 0; i < 4; i++)
     {
         oledSetXY(84+22*i, 20);
@@ -451,7 +452,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
     oledBitmapDrawFlash(80, 41, BITMAP_PIN_LINES, 0);
     oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
     oledFlipBuffers(0,0);
-    //oledSetFont(12);
+    oledSetFont(15);
     oledWriteActiveBuffer();
     
     // Display current pin on screen

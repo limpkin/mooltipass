@@ -56,7 +56,7 @@ def imageTypeToString(imageType):
     else:
         return "unkn"
 
-def buildBundle(bundlename, files):
+def buildBundle(bundlename, files, test_bundle=False):
     data = []
     header = array('H')             # unsigned short array (uint16_t)
     header.append(len(files))
@@ -81,17 +81,18 @@ def buildBundle(bundlename, files):
         fd.close()
     print 'total size: {}'.format(size-reserve)
 
-    print 'Writing to {}'.format(bundlename)
-    bfd = open(bundlename,  "wb")
-    header.tofile(bfd)
-    offset = 0
-    for filename,imageType,image in data:
-        #print '    0x{:04x}: {} {}'.format(offset, imageType, image)
-        imageType.tofile(bfd)
-        bfd.write(image)
-        offset += len(image)+2
-    bfd.close()
-    print 'wrote {} bytes to {}'.format(size-reserve, bundlename)
+    if not test_bundle:
+        print 'Writing to {}'.format(bundlename)
+        bfd = open(bundlename,  "wb")
+        header.tofile(bfd)
+        offset = 0
+        for filename,imageType,image in data:
+            #print '    0x{:04x}: {} {}'.format(offset, imageType, image)
+            imageType.tofile(bfd)
+            bfd.write(image)
+            offset += len(image)+2
+        bfd.close()
+        print 'wrote {} bytes to {}'.format(size-reserve, bundlename)
 
 def expandBundle(bundlename, args, test_bundle=False):
     bfd = open(bundlename, 'rb')
@@ -126,7 +127,7 @@ def main():
     if len(options.input) > 0:
         expandBundle(options.output, args, test_bundle=options.test_bundle)
     else:
-        buildBundle(options.output, args)
+        buildBundle(options.output, args, test_bundle=options.test_bundle)
 
 if __name__ == "__main__":
     main()

@@ -543,7 +543,8 @@ function initWindow()
     var importMediaButton = document.getElementById("importMedia");
     var jumpToBootloader = document.getElementById("jumpToBootloader");
     var cloneSmartcard = document.getElementById("cloneSmartcard");
-    var drawBitmap = document.getElementById("drawBitmap");
+    var drawBitmapButton = document.getElementById("drawBitmap");
+    var setFontButton = document.getElementById("setFont");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -688,11 +689,18 @@ function initWindow()
         sendRequest(CMD_CLONE_SMARTCARD);
     });
 
-    drawBitmap.addEventListener('click', function() 
+    drawBitmapButton.addEventListener('click', function() 
     {
         args = new Uint8Array([$('#bitmapId').val(), $('#bitmap_x').val(), $('#bitmap_y').val(), $("#bitmap_clear").is(':checked') ? 1 : 0]);
         log('#messageLog', 'draw bitmap '+args[0]+' x='+args[1]+', y='+args[2]+', clear='+args[3]+'\n');
         sendRequest(CMD_DRAW_BITMAP, args);
+    });
+
+    setFontButton.addEventListener('click', function() 
+    {
+        var args = strToArray(String.fromCharCode($('#fontId').val()) + $('#fontTestString').val());
+        log('#messageLog', 'set font '+args[0]+' "'+$('#fontTestString').val()+'"\n');
+        sendRequest(CMD_SET_FONT, args);
     });
 
     $('#enableDebug').change(function() {
@@ -721,6 +729,7 @@ function initWindow()
     $("#jumpToBootloader").button();
     $("#cloneSmartcard").button();
     $("#drawBitmap").button();
+    $("#setFont").button();
     $("#tabs").tabs();
 
     var eraseOptions = {
@@ -744,18 +753,6 @@ function initWindow()
                         $(this).dialog('close');
                     }
                 $('#eraseConfirm').dialog({buttons: buts});
-            }
-        }
-    });
-
-    $("#setFont").menu({
-        select: function(event, ui) {
-            if (ui.item.text().length < 3) 
-            {
-                log('#messageLog', 'set font '+ui.item.text()+' "'+$('#fontTestString').val()+'"\n');
-                var args = strToArray(String.fromCharCode(ui.item.text()) + $('#fontTestString').val());
-                //args = new Uint8Array([ui.item.text()], strToArray($('#fontTestString').val()));
-                sendRequest(CMD_SET_FONT, args);
             }
         }
     });

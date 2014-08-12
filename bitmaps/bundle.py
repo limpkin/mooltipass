@@ -50,11 +50,14 @@ parser.add_option('-5', '--md5', help='Print md5sum of bundle and each file', de
 MEDIA_BITMAP = 1
 MEDIA_FONT   = 2
 
+MEDIA_TYPE_NAMES = {
+    MEDIA_BITMAP: 'bmap',
+    MEDIA_FONT: 'font',
+}
+
 def imageTypeToString(imageType):
-    if imageType == MEDIA_BITMAP:
-        return "bmap"
-    elif imageType == MEDIA_FONT:
-        return "font"
+    if imageType in MEDIA_TYPE_NAMES:
+        return MEDIA_TYPE_NAMES[imageType]
     else:
         return "unkn"
 

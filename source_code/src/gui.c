@@ -28,6 +28,7 @@
 #include <string.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
+#include "timer_manager.h"
 #include "userhandling.h"
 #include "node_mgmt.h"
 #include "smartcard.h"
@@ -41,22 +42,10 @@
 
 // Our current screen
 uint8_t currentScreen = SCREEN_DEFAULT_NINSERTED;
-// Flag to exit user asking screen
-volatile uint8_t userInteractionFlag = FALSE;
-// Flag to switch off the lights
-volatile uint8_t lightsTimerOffFlag = FALSE;
-// Flag to switch off the screen
-volatile uint8_t screenTimerOffFlag = FALSE;
 // Touch logic: is touch wheel pressed in our algo
 uint8_t touch_logic_press = FALSE;
 // Touch logic: reference position of first touch
 uint8_t touch_logic_ref_position;
-// User interaction timer
-volatile uint16_t userIntTimer = 0;
-// Our light timer for the top PCB LEDs
-volatile uint16_t light_timer = 0;
-// Screen on timer
-volatile uint16_t screenTimer = 0;
 // Bool to know if lights are on
 uint8_t areLightsOn = FALSE;
 // Current led mask for the PCB
@@ -65,76 +54,6 @@ uint8_t currentLedMask = 0;
 uint8_t isScreenOn = TRUE;
 
 
-
-/*! \fn     guiTimerTick(void)
-*   \brief  Function called every ms by interrupt
-*/
-void guiTimerTick(void)
-{
-    if (light_timer != 0)
-    {
-        if (light_timer-- == 1)
-        {
-            lightsTimerOffFlag = TRUE;
-        }
-    }
-    if (screenTimer != 0)
-    {
-        if (screenTimer-- == 1)
-        {
-           screenTimerOffFlag = TRUE;
-        }
-    }
-    if (userIntTimer != 0)
-    {
-        if (userIntTimer-- == 1)
-        {
-            userInteractionFlag = TRUE;
-        }
-    }
-}
-
-/*! \fn     activateLightTimer(void)
-*   \brief  Activate light timer
-*/
-void activateLightTimer(void)
-{
-    if (light_timer != LIGHT_TIMER_DEL)
-    {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            light_timer = LIGHT_TIMER_DEL;
-            lightsTimerOffFlag = FALSE;
-        }
-    }
-}
-
-/*! \fn     activateScreenTimer(void)
-*   \brief  Activate screen timer
-*/
-void activateScreenTimer(void)
-{
-    if (screenTimer != SCREEN_TIMER_DEL)
-    {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            screenTimer = SCREEN_TIMER_DEL;
-            screenTimerOffFlag = FALSE;
-        }
-    }
-}
-
-/*! \fn     activateUserInteractionTimer(void)
-*   \brief  Activate user interaction timer
-*/
-void activateUserInteractionTimer(void)
-{
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        userInteractionFlag = FALSE;
-        userIntTimer = USER_INTER_DEL;
-    }
-}
 
 /*! \fn     activityDetectedRoutine(void)
 *   \brief  What to do when user activity has been detected
@@ -145,8 +64,8 @@ void activityDetectedRoutine(void)
         return;
     #endif
     
-    activateLightTimer();
-    activateScreenTimer();
+    activateTimer(TIMER_LIGHT, LIGHT_TIMER_DEL);
+    activateTimer(TIMER_SCREEN, SCREEN_TIMER_DEL);
     
     // If the screen was off, turn it on!
     if (isScreenOn == FALSE)
@@ -187,23 +106,21 @@ void guiMainLoop(void)
     
     RET_TYPE touch_detect_result = touchDetectionRoutine(currentLedMask);
     
-    // No activity, switch off LEDs and activate prox detection
-    if (lightsTimerOffFlag == TRUE)
+    // No activity, switch off LEDs and activate prox detection    
+    if (isTimerFlagPresent(TIMER_LIGHT) == RETURN_OK)
     {
         setPwmDc(0x0000);
         areLightsOn = FALSE;
         activateProxDetection();
-        lightsTimerOffFlag = FALSE;
     }
     
     // No activity, switch off screen
-    if (screenTimerOffFlag == TRUE)
+    if (isTimerFlagPresent(TIMER_SCREEN) == RETURN_OK)
     {
         #ifndef HARDWARE_V1
             oledOff();
         #endif
         isScreenOn = FALSE;
-        screenTimerOffFlag = FALSE;
     }
     
     // Touch interface
@@ -297,11 +214,11 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     while(touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK);
     
     // Wait for a touch press
-    activateUserInteractionTimer();
+    activateTimer(TIMER_USERINT, USER_INTER_DEL);
     do 
     {
         // User interaction timeout
-        if (userInteractionFlag == TRUE)
+        if (isTimerFlagPresent(TIMER_USERINT) == RETURN_OK)
         {
             return -1;
         }
@@ -1022,10 +939,10 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     oledFlipBuffers(0,0);
     
     // Activate timer
-    activateUserInteractionTimer();
+    activateTimer(TIMER_USERINT, USER_INTER_DEL);
     
     // Wait for either timeout or for the user to insert his smartcard
-    while ((userInteractionFlag == FALSE) && (card_detect_ret != RETURN_JDETECT))
+    while ((isTimerFlagPresent(TIMER_USERINT) == RETURN_NOK) && (card_detect_ret != RETURN_JDETECT))
     {
         card_detect_ret = isCardPlugged();
         touchDetectionRoutine(0);

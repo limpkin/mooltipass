@@ -33,6 +33,7 @@
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
 #include "usb_cmd_parser.h"
+#include "timer_manager.h"
 #include "userhandling.h"
 #include "mooltipass.h"
 #include "interrupts.h"
@@ -56,8 +57,6 @@
 bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 // Flag to inform if the caps lock timer is armed
 volatile uint8_t wasCapsLockTimerArmed = FALSE;
-// Caps lock timer
-volatile uint16_t capsLockTimer = 0;
 
 
 /*! \fn     disable_jtag(void)
@@ -71,17 +70,6 @@ void disable_jtag(void)
     temp |= (1<<JTD);
     MCUCR = temp;
     MCUCR = temp;
-}
-
-/*!	\fn		capsLockTick(void)
-*	\brief	Function called every ms by interrupt
-*/
-void capsLockTick(void)
-{
-    if (capsLockTimer != 0)
-    {
-        capsLockTimer--;
-    }
 }
 
 /*! \fn     main(void)
@@ -291,19 +279,16 @@ int main(void)
         }  
         
         // Two quick caps lock presses wake up the device
-        if ((capsLockTimer == 0) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
+        if ((isTimerRunning(TIMER_CAPS) == RETURN_NOK) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
         {
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-            {
-                wasCapsLockTimerArmed = TRUE;
-                capsLockTimer = CAPS_LOCK_DEL;
-            }
+            wasCapsLockTimerArmed = TRUE;
+            activateTimer(TIMER_CAPS, CAPS_LOCK_DEL);
         }
-        else if ((capsLockTimer != 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        else if ((isTimerRunning(TIMER_CAPS) == RETURN_OK) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             activityDetectedRoutine();
         }
-        else if ((capsLockTimer == 0) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        else if ((isTimerRunning(TIMER_CAPS) == RETURN_NOK) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             wasCapsLockTimerArmed = FALSE;            
         }

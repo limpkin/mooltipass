@@ -22,6 +22,7 @@
  */
 #include <avr/interrupt.h>
 #include <util/atomic.h>
+#include "timer_manager.h"
 #include "userhandling.h"
 #include "interrupts.h"
 #include "mooltipass.h"
@@ -38,16 +39,15 @@ static volatile uint32_t msecTicks = 0;
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
     msecTicks++;
-    guiTimerTick();                                                 // GUI timer
-    capsLockTick();                                                 // Caps timer
     scanSMCDectect();												// Scan smart card detect
     userHandlingTick();                                             // User handling tick
+    timerManagerTick();                                             // Our timer manager
 }
 
 
 /*!	\fn		millis()
 *	\brief	Return the number of milliseconds since power up
-*	\returns the number of milliseconds since power up
+*	\return the number of milliseconds since power up
 */
 uint32_t millis()
 {

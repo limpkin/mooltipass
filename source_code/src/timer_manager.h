@@ -1,4 +1,4 @@
- /* CDDL HEADER START
+/* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,23 +17,40 @@
  *
  * CDDL HEADER END
  */
-/*
- * mooltipass.h
- *
- * Created: 04/01/2014 20:32:07
- *  Author: Mathieu Stephan
- */ 
+/*!  \file     timer_manager.h
+*    \brief    Timer logic
+*    Created:  12/8/2014
+*    Author:   Mathieu Stephan
+*/
 
 
-#ifndef MOOLTIPASS_H_
-#define MOOLTIPASS_H_
+#ifndef TIMER_MANAGER_H_
+#define TIMER_MANAGER_H_
 
 #include "defines.h"
+#include <stdint.h>
 
-/* Defines */
-#define CAPS_LOCK_DEL       400
+// Prototypes
+void timerManagerTick(void);
+RET_TYPE isTimerRunning(uint8_t uid);
+RET_TYPE isTimerFlagPresent(uint8_t uid);
+void activateTimer(uint8_t uid, uint16_t val);
 
-/* Shared variables */
-extern bootloader_f_ptr_type start_bootloader;
+// Structs
+typedef struct
+{
+    uint16_t timer_val;
+    uint8_t flag;
+} timerEntry_t;
 
-#endif /* MOOLTIPASS_H_ */
+// Defines
+#define NUMBER_OF_TIMERS    6
+#define TIMER_LIGHT         0
+#define TIMER_SCREEN        1
+#define TIMER_USERINT       2
+#define TIMER_CAPS          3
+#define TIMER_CREDENTIALS   4
+#define TIMER_PASS_CHECK    5
+
+
+#endif /* TIMER_MANAGER_H_ */

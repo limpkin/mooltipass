@@ -247,6 +247,9 @@
     <Compile Include="src\CARD\smart_card_higher_level_functions.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\timer_manager.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\defines.h">
       <SubType>compile</SubType>
     </Compile>
@@ -347,6 +350,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\tests.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\timer_manager.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\TOUCH\touch.c">

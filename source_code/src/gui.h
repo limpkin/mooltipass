@@ -58,7 +58,6 @@ void guiDisplayProcessingScreen(void);
 void guiHandleSmartcardRemoved(void);
 void guiGetBackToCurrentScreen(void);
 void activityDetectedRoutine(void);
-void guiTimerTick(void);
 void guiMainLoop(void);
 
 #endif /* GUI_H_ */

@@ -34,7 +34,7 @@
 #define WHEEL_TICK_INCREMENT            32
 // Timers
 #define SCREEN_TIMER_DEL                60000
-#define LIGHT_TIMER_DEL                 10000
+#define LIGHT_TIMER_DEL                 16000
 #define USER_INTER_DEL                  6000
 // Screen defines
 #define SCREEN_DEFAULT_NINSERTED        0

@@ -262,7 +262,7 @@ int main(void)
     }
     activityDetectedRoutine();
     launchCalibrationCycle();
-    //guiGetPinFromUser();
+    _delay_ms(2000);
     
     while (1)
     {        

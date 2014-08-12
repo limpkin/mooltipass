@@ -59,8 +59,11 @@ volatile uint16_t light_timer = 0;
 volatile uint16_t screenTimer = 0;
 // Bool to know if lights are on
 uint8_t areLightsOn = FALSE;
+// Current led mask for the PCB
+uint8_t currentLedMask = 0;
 // Bool to know if screen is on
 uint8_t isScreenOn = TRUE;
+
 
 
 /*! \fn     guiTimerTick(void)
@@ -101,6 +104,7 @@ void activateLightTimer(void)
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
             light_timer = LIGHT_TIMER_DEL;
+            lightsTimerOffFlag = FALSE;
         }
     }
 }
@@ -115,6 +119,7 @@ void activateScreenTimer(void)
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
             screenTimer = SCREEN_TIMER_DEL;
+            screenTimerOffFlag = FALSE;
         }
     }
 }
@@ -169,7 +174,17 @@ void guiMainLoop(void)
         return;
     #endif
     
-    RET_TYPE touch_detect_result = touchDetectionRoutine();
+    // Set led mask depending on current screen
+    switch(currentScreen)
+    {
+        case SCREEN_DEFAULT_NINSERTED :         currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
+        case SCREEN_DEFAULT_INSERTED_LCK :      currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
+        case SCREEN_DEFAULT_INSERTED_NLCK :     currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT; break;
+        case SCREEN_DEFAULT_INSERTED_INVALID :  currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
+        default: break;
+    }
+    
+    RET_TYPE touch_detect_result = touchDetectionRoutine(currentLedMask);
     
     // No activity, switch off LEDs and activate prox detection
     if (lightsTimerOffFlag == TRUE)
@@ -236,11 +251,12 @@ void guiMainLoop(void)
     }
 }
 
-/*! \fn     getTouchedPositionAnswer(void)
+/*! \fn     getTouchedPositionAnswer(uint8_t led_mask)
 *   \brief  Use the capacitive interface to get quarter position
+*   \param  led_mask    Led mask for the touchdetection routine
 *   \return Number between 0 and 5 for valid pos, -1 otherwise
 */
-int8_t getTouchedPositionAnswer(void)
+int8_t getTouchedPositionAnswer(uint8_t led_mask)
 {
     #ifdef HARDWARE_V1
         _delay_ms(2000);
@@ -256,7 +272,7 @@ int8_t getTouchedPositionAnswer(void)
     activityDetectedRoutine();
     
     // Wait for all presses to be released
-    while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
+    while(touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK);
     
     // Wait for a touch press
     activateUserInteractionTimer();
@@ -267,7 +283,7 @@ int8_t getTouchedPositionAnswer(void)
         {
             return -1;
         }
-        touch_detect_result = touchDetectionRoutine() & TOUCH_PRESS_MASK;
+        touch_detect_result = touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK;
     } 
     while (!touch_detect_result);
     
@@ -420,13 +436,13 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
     guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
     
     // Wait for all presses to be released
-    while(touchDetectionRoutine() & TOUCH_PRESS_MASK);
+    while(touchDetectionRoutine(0) & TOUCH_PRESS_MASK);
     
     // While the user hasn't entered his pin
     while(!finished)
     {
         // Detect key touches
-        temp_rettype = touchDetectionRoutine();
+        temp_rettype = touchDetectionRoutine(0);
         // Send it to the touch wheel interface logic
         temp_int8 = touchWheelIntefaceLogic(temp_rettype);
         
@@ -561,7 +577,7 @@ RET_TYPE guiAskForDomainAddApproval(char* name)
     oledPutstrXY(0, 30, OLED_CENTRE, name);
     oledFlipBuffers(0,0);
     
-    if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+    if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
     {
         return RETURN_OK;
     }
@@ -589,7 +605,7 @@ RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
     oledPutstrXY(0, 52, OLED_CENTRE, service);
     oledFlipBuffers(0,0);
     
-    if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+    if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
     {
         return RETURN_OK;
     }
@@ -620,7 +636,7 @@ RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
     oledPutstrXY(0, 52, OLED_CENTRE, service);
     oledFlipBuffers(0,0);
     
-    if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+    if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
     {
         return RETURN_OK;
     }
@@ -681,7 +697,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         oledPutstrXY(0, 52, OLED_CENTRE, (char*)c->login);
         oledFlipBuffers(0,0);
         
-        if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+        if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
         {
             // Get back to other screen
             guiGetBackToCurrentScreen();
@@ -751,7 +767,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             temp_child_address = addresses[i-1];
             
             // Get touched quarter and check its validity
-            j = getTouchedPositionAnswer();
+            j = getTouchedPositionAnswer(0);
             if (j == -1)
             {
                 // Time out, return nothing
@@ -820,7 +836,7 @@ RET_TYPE guiAskForConfirmation(const char* string)
     oledPutstrXY_P(0, 24, OLED_CENTRE, string);
     oledFlipBuffers(0,0);
     
-    if(getTouchedPositionAnswer() == TOUCHPOS_RIGHT)
+    if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
     {
         // Get back to other screen
         guiGetBackToCurrentScreen();
@@ -984,7 +1000,7 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     while ((userInteractionFlag == FALSE) && (card_detect_ret != RETURN_JDETECT))
     {
         card_detect_ret = isCardPlugged();
-        touchDetectionRoutine();
+        touchDetectionRoutine(0);
     }    
     
     // If the user didn't insert his smart card

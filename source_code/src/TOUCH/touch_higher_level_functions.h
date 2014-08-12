@@ -32,9 +32,9 @@
 void activateGuardKey(void);
 RET_TYPE initTouchSensing(void);
 void activateProxDetection(void);
-RET_TYPE touchDetectionRoutine(void);
 uint8_t getLastRawWheelPosition(void);
 uint8_t getWheelTouchDetectionQuarter(void);
+RET_TYPE touchDetectionRoutine(uint8_t led_mask);
 
 // AT42QT2120 ID
 #define AT42QT2120_ID       0x3E
@@ -180,7 +180,7 @@ uint8_t getWheelTouchDetectionQuarter(void);
 // Touch detect defines
 #define TOUCH_PRESS_MASK    (RETURN_LEFT_PRESSED | RETURN_RIGHT_PRESSED | RETURN_WHEEL_PRESSED | RETURN_PROX_DETECTION)
 
-// Other defines
+// Touch detection defines
 #define NB_KEYS                         6
 #define TOUCHPOS_WHEEL_TLEFT            0
 #define TOUCHPOS_WHEEL_TRIGHT           1
@@ -188,5 +188,10 @@ uint8_t getWheelTouchDetectionQuarter(void);
 #define TOUCHPOS_WHEEL_BRIGHT           3
 #define TOUCHPOS_LEFT                   4
 #define TOUCHPOS_RIGHT                  5
+
+// LED mask define
+#define LED_MASK_WHEEL                  1
+#define LED_MASK_LEFT                   2
+#define LED_MASK_RIGHT                  4
 
 #endif /* TOUCH_HIGHER_LEVEL_FUNCTIONS_H_ */

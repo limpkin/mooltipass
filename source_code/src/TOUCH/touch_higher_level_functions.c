@@ -29,6 +29,8 @@
 
 // Last read wheel position
 uint8_t last_raw_wheel_position;
+// Last LED mask
+uint8_t last_led_mask;
 
 
 /*! \fn     checkTSPres()
@@ -152,22 +154,41 @@ uint8_t getWheelTouchDetectionQuarter(void)
     }
 }
 
-/*! \fn     touchDetectionRoutine()
+/*! \fn     touchDetectionRoutine(uint8_t led_mask)
 *   \brief  Touch detection routine
+*   \param  led_mask    Mask containing which LEDs to switchoff
 *   \return Touch detection result (see touch_detect_return_t)
 */
-RET_TYPE touchDetectionRoutine(void)
+RET_TYPE touchDetectionRoutine(uint8_t led_mask)
 {
     RET_TYPE return_val = RETURN_NO_CHANGE;
     uint8_t keys_detection_status;
     uint8_t led_states[NB_KEYS];
+    uint8_t temp_bool = FALSE;
     uint8_t temp_uint;
     
     // Set the LEDs on by default
     memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);
     
+    // Switch them off depending on mask
+    if (led_mask & LED_MASK_WHEEL)
+    {
+        memset((void*)led_states, AT42QT2120_OUTPUT_L_VAL, 4);
+    }
+    if (led_mask & LED_MASK_LEFT)
+    {
+        led_states[TOUCHPOS_LEFT] = AT42QT2120_OUTPUT_L_VAL;
+    }
+    if (led_mask & LED_MASK_RIGHT)
+    {
+        led_states[TOUCHPOS_RIGHT] = AT42QT2120_OUTPUT_L_VAL;
+    }
+    
     if (isTouchChangeDetected())
     {
+        // Set temp bool to TRUE
+        temp_bool = TRUE;
+        
         // Read detection status register
         readDataFromTS(REG_AT42QT_DET_STAT, &keys_detection_status);
         
@@ -188,14 +209,10 @@ RET_TYPE touchDetectionRoutine(void)
         {
             return_val |= RETURN_WHEEL_RELEASED;
         }
-        
-        // Light the LEDs accordingly
-        writeDataToTS(WHEEL_TLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_TLEFT]);
-        writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_TRIGHT]);
-        writeDataToTS(WHEEL_BLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_BLEFT]);
-        writeDataToTS(WHEEL_BRIGHT_LED_REGISTER,  led_states[TOUCHPOS_WHEEL_BRIGHT]);
 
+        // Read button touched register
         readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_uint);
+        
         // If one button is touched
         if ((keys_detection_status & AT42QT2120_TDET_MASK) && !(keys_detection_status & AT42QT2120_SDET_MASK))
         {
@@ -225,15 +242,23 @@ RET_TYPE touchDetectionRoutine(void)
             return_val |= RETURN_RIGHT_RELEASED;
         }
         
-        // Light the LEDs accordingly
-        writeDataToTS(LEFT_LED_REGISTER, led_states[TOUCHPOS_LEFT]);
-        writeDataToTS(RIGHT_LED_REGISTER, led_states[TOUCHPOS_RIGHT]);
-        
         // Switch on cathode if activity
         if (return_val & TOUCH_PRESS_MASK)
         {
             activityDetectedRoutine();
         }
+    }
+    
+    // If there's a touch change or led mask has changed
+    if ((temp_bool == TRUE) || (led_mask != last_led_mask))
+    {
+        last_led_mask = led_mask;
+        writeDataToTS(LEFT_LED_REGISTER, led_states[TOUCHPOS_LEFT]);
+        writeDataToTS(RIGHT_LED_REGISTER, led_states[TOUCHPOS_RIGHT]);
+        writeDataToTS(WHEEL_TLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_TLEFT]);
+        writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_TRIGHT]);
+        writeDataToTS(WHEEL_BLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_BLEFT]);
+        writeDataToTS(WHEEL_BRIGHT_LED_REGISTER,  led_states[TOUCHPOS_WHEEL_BRIGHT]);
     }
     
     return return_val;   

@@ -145,7 +145,21 @@ def expandBundle(bundlename, args, test_bundle=False, show_md5=False):
 
     bfd.close()
 
+def sortObjects(a,b):
+    if '_' in a and '_' in b:
+        ai = int(a.split('_')[0])
+        bi = int(b.split('_')[0])
+        if (ai < bi):
+            return -1
+        elif (ai == bi):
+            return 0
+        else:
+            return 1
+    else:
+        return cmp(a,b)
+
 def main():
+    args.sort(cmp=sortObjects);
     if len(options.input) > 0:
         expandBundle(options.output, args, test_bundle=options.test_bundle, show_md5=options.show_md5)
     else:

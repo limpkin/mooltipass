@@ -41,6 +41,7 @@
 #define SCREEN_DEFAULT_INSERTED_LCK     1
 #define SCREEN_DEFAULT_INSERTED_NLCK    2
 #define SCREEN_DEFAULT_INSERTED_INVALID 3
+#define SCREEN_SETTINGS                 4
 
 /* Prototypes */
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);

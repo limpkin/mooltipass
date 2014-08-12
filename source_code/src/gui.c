@@ -181,6 +181,7 @@ void guiMainLoop(void)
         case SCREEN_DEFAULT_INSERTED_LCK :      currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
         case SCREEN_DEFAULT_INSERTED_NLCK :     currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT; break;
         case SCREEN_DEFAULT_INSERTED_INVALID :  currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
+        case SCREEN_SETTINGS :                  currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT; break;
         default: break;
     }
     
@@ -242,11 +243,32 @@ void guiMainLoop(void)
                 {
                     // User wants to lock his mooltipass
                     currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                    guiGetBackToCurrentScreen();
+                    break;
+                }
+                case TOUCHPOS_WHEEL_TRIGHT :
+                {
+                    // User wants to go to the settings menu
+                    currentScreen = SCREEN_SETTINGS;
                     break;
                 }
                 default : break;
             }
+            guiGetBackToCurrentScreen();
+        }
+        else if ((currentScreen == SCREEN_SETTINGS) && (touch_detect_result & RETURN_WHEEL_PRESSED))
+        {
+            // Unlocked screen
+            switch(getWheelTouchDetectionQuarter())
+            {
+                case TOUCHPOS_WHEEL_TLEFT :
+                {
+                    // User wants to go to the settings menu
+                    currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+                    break;
+                }
+                default : break;
+            }
+            guiGetBackToCurrentScreen();
         }
     }
 }
@@ -539,6 +561,11 @@ void guiGetBackToCurrentScreen(void)
             guiDisplayInformationOnScreen(PSTR("Please Remove The Card"));
             break;
         }  
+        case SCREEN_SETTINGS :
+        {
+            oledBitmapDrawFlash(0, 0, BITMAP_SETTINGS_SC, OLED_SCROLL_UP);
+            break;            
+        }
         default : break;
     }
 }

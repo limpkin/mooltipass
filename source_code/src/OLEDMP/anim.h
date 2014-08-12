@@ -43,7 +43,7 @@
 #define BITMAP_INFO           6
 #define BITMAP_INSERT         9
 #define BITMAP_MAIN_SCREEN    10
-#define BITMAP_PIN_ENTERING   11
+#define BITMAP_SETTINGS_SC    11
 #define BITMAP_LEFT_ARROW     12
 #define BITMAP_RIGHT_ARROW    13
 #define BITMAP_PIN_LINES      14

@@ -32,6 +32,7 @@
 
 import os
 import sys
+import md5
 from optparse import OptionParser
 from struct import *
 from array import array
@@ -42,6 +43,7 @@ parser = OptionParser(usage = '''usage: %prog [options] bitmap1 bitmap2 font1 bi
 parser.add_option('-o', '--output', help='name of output bundle file', dest='output', default='bundle.img')
 parser.add_option('-i', '--input', help='name of input bundle file', dest='input', default='')
 parser.add_option('-t', '--test', help='On input: list contents of input bundle. On output: Don\'t actually write to disk', dest='test_bundle', action='store_true', default=False)
+parser.add_option('-5', '--md5', help='Print md5sum of bundle and each file', dest='show_md5', action='store_true', default=False)
 
 (options, args) = parser.parse_args()
 
@@ -94,8 +96,18 @@ def buildBundle(bundlename, files, test_bundle=False):
         bfd.close()
         print 'wrote {} bytes to {}'.format(size-reserve, bundlename)
 
-def expandBundle(bundlename, args, test_bundle=False):
+def expandBundle(bundlename, args, test_bundle=False, show_md5=False):
     bfd = open(bundlename, 'rb')
+
+    if show_md5:
+        m = md5.new()
+        data = bfd.read(512)
+        while len(data) > 0:
+            m.update(data)
+            data = bfd.read(512)
+        print "{} {}".format(bundlename, m.hexdigest())
+        bfd.seek(0)
+
 
     file_count = unpack('H', bfd.read(2))[0]
     file_offsets = array('H')
@@ -114,7 +126,14 @@ def expandBundle(bundlename, args, test_bundle=False):
         imageData = bfd.read(imageLen - 2)
         imageName = '{}_{}.img'.format(imageIndex, imageTypeToString(imageType))
 
-        print '    0x{:04x}: size {} bytes, {} {}'.format(imageBegin, imageLen, imageTypeToString(imageType), imageName)
+        if show_md5:
+            m = md5.new()
+            m.update(imageData)
+            imageHash = m.hexdigest()
+        else:
+            imageHash = ''
+
+        print '    0x{:04x}: size {} bytes, {} {} {}'.format(imageBegin, imageLen, imageTypeToString(imageType), imageName, imageHash)
         if not test_bundle:
             fd = open(imageName, 'wb')
             fd.write(imageData)
@@ -125,7 +144,7 @@ def expandBundle(bundlename, args, test_bundle=False):
 
 def main():
     if len(options.input) > 0:
-        expandBundle(options.output, args, test_bundle=options.test_bundle)
+        expandBundle(options.output, args, test_bundle=options.test_bundle, show_md5=options.show_md5)
     else:
         buildBundle(options.output, args, test_bundle=options.test_bundle)
 

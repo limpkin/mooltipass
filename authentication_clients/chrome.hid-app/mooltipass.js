@@ -753,8 +753,9 @@ function initWindow()
         select: function(event, ui) {
             if (ui.item.text().length < 3) 
             {
-                log('#messageLog', 'set font '+ui.item.text()+'\n');
-                args = new Uint8Array([ui.item.text()]);
+                log('#messageLog', 'set font '+ui.item.text()+' "'+$('#fontTestString').val()+'"\n');
+                var args = strToArray(String.fromCharCode(ui.item.text()) + $('#fontTestString').val());
+                //args = new Uint8Array([ui.item.text()], strToArray($('#fontTestString').val()));
                 sendRequest(CMD_SET_FONT, args);
             }
         }
@@ -876,7 +877,8 @@ function onDataReceived(reportId, data)
             break;
         case CMD_VERSION:
         {
-            var version = "" + bytes[2] + "." + bytes[3];
+            var build = new Uint32Array(data.slice(5,9)); 
+            var version = '' + bytes[2] + '.' + bytes[3] + '.' + build[0];
             if (!connected)
             {
                 flashChipId = bytes[4];
@@ -1028,8 +1030,8 @@ function onDataReceived(reportId, data)
                                 ' pageSize ' + flashInfo[flashChipId].pageSize + 
                                 ' pages '+ flashInfo[flashChipId].pageCount +
                                 ' userSize '+ FLASH_USER_ZONE_SIZE);
-                    size = (flashInfo[flashChipId].pageSize * 
-                           (flashInfo[flashChipId].pageCount - flashInfo[flashChipId].pagesPerSector)) + FLASH_USER_ZONE_SIZE;
+                    //size = (flashInfo[flashChipId].pageSize * (flashInfo[flashChipId].pageCount - flashInfo[flashChipId].pagesPerSector)) + FLASH_USER_ZONE_SIZE;
+                    size = (flashInfo[flashChipId].pageSize * flashInfo[flashChipId].pageCount);
                 }
                 else
                 {
@@ -1049,6 +1051,11 @@ function onDataReceived(reportId, data)
                 var overflow = (packet.length + exportDataOffset) - exportDataUint8.length;
                 console.log('error packet overflows buffer by '+overflow+' bytes');
                 exportDataOffset += packet.length;
+                saveToEntry(exportDataEntry, exportDataUint8) 
+                exportData = null;
+                exportDataUint8 = null;
+                exportDataOffset = 0;
+                exportDataEntry = null;;
             } else {
                 exportDataUint8.set(packet, exportDataOffset);
                 exportDataOffset += packet.length;

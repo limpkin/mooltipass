@@ -119,11 +119,11 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             msg->len = 3;
             msg->cmd = CMD_VERSION;
-            msg->body.data[0] = MOOLT_VERSION_MAJOR;
-            msg->body.data[1] = MOOLT_VERSION_MINOR;
-            msg->body.data[2] = FLASH_CHIP;
-            msg->body.data[3] = BUILD_NUMBER;
-            usbSendMessage(0, 6, msg);
+            msg->body.version.major = MOOLT_VERSION_MAJOR;
+            msg->body.version.minor = MOOLT_VERSION_MINOR;
+            msg->body.version.flash_chip = FLASH_CHIP;
+            msg->body.version.build = BUILD_NUMBER;
+            usbSendMessage(0, 2+sizeof(msg->body.version), msg);
             return;
         }
 
@@ -323,6 +323,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 return;
             }
 
+#if 0
             // Check how much data we need in case we're close to the graphics section
             if ((current_flash_export_addr < GRAPHIC_ZONE_START) && ((GRAPHIC_ZONE_START - current_flash_export_addr) < (uint32_t)PACKET_EXPORT_SIZE))
             {
@@ -334,17 +335,20 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 size = (uint8_t)(FLASH_SIZE - current_flash_export_addr);
             }
+#endif
 
             // Get a block of data and send it, increment counter
             flashRawRead(incomingData, current_flash_export_addr, size);
             usbSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
             current_flash_export_addr += size;
 
+#if 0
             // Skip over the graphics address if we're in that case
             if (current_flash_export_addr == GRAPHIC_ZONE_START)
             {
                 current_flash_export_addr = GRAPHIC_ZONE_END;
             }
+#endif
             return;
         }
         
@@ -664,6 +668,15 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             usbPrintf_P(PSTR("set font file %d\n"), msg->body.data[0]);
             oledSetFont(msg->body.data[0]);
+
+            if (datalen > 1) {
+                usbPrintf_P(PSTR("testing string \"%s\"\n"), (char *)&msg->body.data[1]);
+                oledFlipBuffers(0,0);
+                oledWriteActiveBuffer();
+                oledClear();
+                oledPutstr((char *)&msg->body.data[1]);
+            }
+
 #if 0
             oledFlipBuffers(0,0);
             oledWriteActiveBuffer();

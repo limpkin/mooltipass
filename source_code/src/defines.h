@@ -205,9 +205,15 @@ typedef void (*bootloader_f_ptr_type)(void);
 typedef int8_t RET_TYPE;
 
 /**************** VERSION DEFINES ***************/
-#define MOOLT_VERSION_MAJOR     0x00
-#define MOOLT_VERSION_MINOR     0x01
-#define BUILD_NUMBER            0
+#ifndef MOOLT_VERSION_MAJOR 
+    #define MOOLT_VERSION_MAJOR     0x00
+#endif
+#ifndef MOOLT_VERSION_MINOR 
+    #define MOOLT_VERSION_MINOR     0x01
+#endif
+#ifndef BUILD_NUMBER 
+    #define BUILD_NUMBER            0
+#endif
 
 /**************** BITMAP DEFINES ****************/
 #define HACKADAY_BMP            0x00

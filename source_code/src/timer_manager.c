@@ -27,7 +27,7 @@
 #include "defines.h"
 
 // Timers array
-timerEntry_t context_timers[NUMBER_OF_TIMERS];
+volatile timerEntry_t context_timers[NUMBER_OF_TIMERS];
 
 
 /*!	\fn		timerManagerTick(void)

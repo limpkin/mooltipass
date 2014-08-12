@@ -543,6 +543,7 @@ function initWindow()
     var importMediaButton = document.getElementById("importMedia");
     var jumpToBootloader = document.getElementById("jumpToBootloader");
     var cloneSmartcard = document.getElementById("cloneSmartcard");
+    var drawBitmap = document.getElementById("drawBitmap");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -687,6 +688,13 @@ function initWindow()
         sendRequest(CMD_CLONE_SMARTCARD);
     });
 
+    drawBitmap.addEventListener('click', function() 
+    {
+        args = new Uint8Array([$('#bitmapId').val(), $('#bitmap_x').val(), $('#bitmap_y').val(), $("#bitmap_clear").is(':checked') ? 1 : 0]);
+        log('#messageLog', 'draw bitmap '+args[0]+' x='+args[1]+', y='+args[2]+', clear='+args[3]+'\n');
+        sendRequest(CMD_DRAW_BITMAP, args);
+    });
+
     $('#enableDebug').change(function() {
         if ($(this).is(":checked")) {
             log('#messageLog', 'enabled debug\n');
@@ -712,6 +720,7 @@ function initWindow()
     $("#importMedia").button();
     $("#jumpToBootloader").button();
     $("#cloneSmartcard").button();
+    $("#drawBitmap").button();
     $("#tabs").tabs();
 
     var eraseOptions = {
@@ -739,16 +748,6 @@ function initWindow()
         }
     });
 
-    $("#drawBitmap").menu({
-        select: function(event, ui) {
-            if (ui.item.text().length < 3) 
-            {
-                args = new Uint8Array([ui.item.text(), $('#bitmap_x').val(), $('#bitmap_y').val(), $("#bitmap_clear").is(':checked') ? 1 : 0]);
-                log('#messageLog', 'draw bitmap '+ui.item.text()+' x='+args[1]+', y='+args[2]+', clear='+args[3]+'\n');
-                sendRequest(CMD_DRAW_BITMAP, args);
-            }
-        }
-    });
     $("#setFont").menu({
         select: function(event, ui) {
             if (ui.item.text().length < 3) 

@@ -39,8 +39,7 @@ static volatile uint32_t msecTicks = 0;
 ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
     msecTicks++;
-    scanSMCDectect();												// Scan smart card detect
-    userHandlingTick();                                             // User handling tick
+    scanSMCDectect();                                               // Scan smart card detect
     timerManagerTick();                                             // Our timer manager
 }
 

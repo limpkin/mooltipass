@@ -29,6 +29,7 @@
 #include <string.h>
 #include "smart_card_higher_level_functions.h"
 #include "eeprom_addresses.h"
+#include "timer_manager.h"
 #include "userhandling.h"
 #include "smartcard.h"
 #include "flash_mem.h"
@@ -42,14 +43,6 @@
 #include "aes.h"
 #include "gui.h"
 
-// Password check timer value
-volatile uint16_t password_check_timer_value = 0;
-// Password check timer running flag
-volatile uint8_t password_check_timer_on = FALSE;
-// Credential timer valid flag
-volatile uint8_t credential_timer_valid = FALSE;
-// Credential timer value
-volatile uint16_t credential_timer_val = 0;
 // Know if the smart card is inserted and unlocked
 uint8_t smartcard_inserted_unlocked = FALSE;
 // Current nonce
@@ -90,10 +83,9 @@ void setSmartCardInsertedUnlocked(void)
 */
 void clearSmartCardInsertedUnlocked(void)
 {
-    credential_timer_val = 0;
     context_valid_flag = FALSE;
     selected_login_flag = FALSE;
-    credential_timer_valid = FALSE;
+    activateTimer(TIMER_CREDENTIALS, 0);
     smartcard_inserted_unlocked = FALSE;
 }
 
@@ -104,40 +96,6 @@ void clearSmartCardInsertedUnlocked(void)
 uint8_t getSmartCardInsertedUnlocked(void)
 {
     return smartcard_inserted_unlocked;
-}
-
-/*! \fn     useCredentialTimer(uint16_t nb_ms)
-*   \brief  Use credential timer
-*   \param  nb_ms   Number of milliseconds
-*/
-void useCredentialTimer(uint16_t nb_ms)
-{
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        credential_timer_val = nb_ms;
-        credential_timer_valid = TRUE;
-    }
-}
-
-/*! \fn     userHandlingTick(void)
-*   \brief  Function called every ms
-*/
-void userHandlingTick(void)
-{
-    if (password_check_timer_value != 0)
-    {
-        if (password_check_timer_value-- == 1)
-        {
-            password_check_timer_on = FALSE;
-        }
-    }
-    if (credential_timer_val != 0)
-    {
-        if (credential_timer_val-- == 1)
-        {
-            credential_timer_valid = FALSE;
-        }
-    }
 }
 
 /*! \fn     searchForServiceName(uint8_t* name, uint8_t length)
@@ -263,7 +221,7 @@ void decryptTempCNodePasswordAndClearCTVFlag(void)
     uint8_t temp_buffer[AES256_CTR_LENGTH];
     
     // Preventing side channel attacks: only send the password after a given amount of time
-    launchCredentialTimerUsedAsAesTimer();
+    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
     
     // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
     memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
@@ -272,7 +230,7 @@ void decryptTempCNodePasswordAndClearCTVFlag(void)
     aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
     
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
-    while (credential_timer_valid == TRUE);    
+    while (isTimerRunning(TIMER_CREDENTIALS) == RETURN_OK);    
 }
 
 /*! \fn     encryptTempCNodePasswordAndClearCTVFlag(void)
@@ -283,7 +241,7 @@ static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
     uint8_t temp_buffer[AES256_CTR_LENGTH];
     
     // Preventing side channel attacks: only send the return after a given amount of time
-    launchCredentialTimerUsedAsAesTimer();
+    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
 
     // AES encryption: xor our nonce with the next available ctr value, set the result as IV, encrypt, increment our next available ctr value
     ctrPreEncryptionTasks();
@@ -295,7 +253,7 @@ static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
     ctrPostEncryptionTasks();
 
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
-    while (credential_timer_valid == TRUE);
+   while (isTimerRunning(TIMER_CREDENTIALS) == RETURN_OK);
 }
 
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
@@ -312,10 +270,9 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
     // Clear all flags
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        credential_timer_val = 0;
         context_valid_flag = FALSE;
         selected_login_flag = FALSE;
-        credential_timer_valid = FALSE;
+        activateTimer(TIMER_CREDENTIALS, 0);
     }
     
     // Inform GUI of current context
@@ -387,7 +344,7 @@ RET_TYPE getLoginForContext(char* buffer)
     else
     {
         // Credential timer off, ask for user to choose
-        if (credential_timer_valid == FALSE)
+        if (isTimerRunning(TIMER_CREDENTIALS) == RETURN_NOK)
         {
             selected_login_child_node_addr = guiAskForLoginSelect(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr);
             
@@ -395,12 +352,12 @@ RET_TYPE getLoginForContext(char* buffer)
             if (selected_login_child_node_addr != NODE_ADDR_NULL)
             {
                 selected_login_flag = TRUE;
-                launchCredentialTimer();         
+                activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
             }
         } 
         
         // If the user just approved!
-        if ((credential_timer_valid == TRUE) && (selected_login_flag == TRUE))
+        if ((isTimerRunning(TIMER_CREDENTIALS) == RETURN_OK) && (selected_login_flag == TRUE))
         {
             // Read first child node
             if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) != RETURN_OK)
@@ -424,7 +381,7 @@ RET_TYPE getLoginForContext(char* buffer)
 */
 RET_TYPE getPasswordForContext(char* buffer)
 {    
-    if ((context_valid_flag == TRUE) && (credential_timer_valid == TRUE) && (selected_login_flag == TRUE))
+    if ((context_valid_flag == TRUE) && (isTimerRunning(TIMER_CREDENTIALS) == RETURN_OK) && (selected_login_flag == TRUE))
     {
         // Fetch password from selected login and send it over USB
         if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) != RETURN_OK)
@@ -462,9 +419,8 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         // Clear current flags
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
-            credential_timer_val = 0;
             selected_login_flag = FALSE;
-            credential_timer_valid = FALSE;
+            activateTimer(TIMER_CREDENTIALS, 0);
         }
         
         // Look for given login in the flash
@@ -564,7 +520,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
 {    
     // If timer is running
-    if (password_check_timer_on == TRUE)
+    if (isTimerRunning(TIMER_PASS_CHECK) == RETURN_OK)
     {
         return RETURN_PASS_CHECK_BLOCKED;
     } 
@@ -593,11 +549,7 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
             }
             else
             {
-                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-                {
-                    password_check_timer_on = TRUE;
-                    password_check_timer_value = CHECK_PASSWORD_TIMER_VAL;
-                }
+                activateTimer(TIMER_PASS_CHECK, CHECK_PASSWORD_TIMER_VAL);
                 return RETURN_PASS_CHECK_NOK;
             }
         }

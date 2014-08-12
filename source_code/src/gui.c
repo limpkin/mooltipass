@@ -406,7 +406,12 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
     memset((void*)current_pin, 0, 4);
     
     // Draw pin entering bitmap
-    oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTERING, 0);
+    oledClear();
+    oledBitmapDrawFlash(25, 0, BITMAP_LEFT, 0);
+    oledBitmapDrawFlash(2, 26, BITMAP_CROSS, 0);
+    oledBitmapDrawFlash(195, 0, BITMAP_RIGHT, 0);
+    oledBitmapDrawFlash(80, 41, BITMAP_PIN_LINES, 0);
+    oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
     oledFlipBuffers(0,0);
     //oledSetFont(12);
     oledWriteActiveBuffer();
@@ -457,12 +462,13 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
                 finished = TRUE;
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+            oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
         }
         else if (temp_rettype & RETURN_RIGHT_PRESSED)
         {
             if (selected_digit == 2)
             {
-                oledFillXY(236, 22, 20, 25, 0x00);
+                oledFillXY(235, 23, 20, 25, 0x00);
                 oledBitmapDrawFlash(236, 26, BITMAP_TICK, 0);
             }
             if (selected_digit < 3)
@@ -475,6 +481,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
                 finished = TRUE;
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+            oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
         }
     }
     

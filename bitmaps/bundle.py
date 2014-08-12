@@ -61,7 +61,7 @@ def imageTypeToString(imageType):
     else:
         return "unkn"
 
-def buildBundle(bundlename, files, test_bundle=False):
+def buildBundle(bundlename, files, test_bundle=False, show_md5=False):
     data = []
     header = array('H')             # unsigned short array (uint16_t)
     header.append(len(files))
@@ -72,13 +72,19 @@ def buildBundle(bundlename, files, test_bundle=False):
         fd = open(filename, 'rb')
         image = fd.read()
 
+        imageHash = ''
+        if show_md5:
+            m = md5.new()
+            m.update(image)
+            imageHash = m.hexdigest()
+
         imageType = array('H')
         if 'font' in filename:
             imageType.append(MEDIA_FONT)
-            print '    0x{:04x}: size {} bytes, font {}'.format(size,len(image)+2, filename)
+            print '    0x{:04x}: size {} bytes, font {} {}'.format(size,len(image)+2, filename, imageHash)
         else:
             imageType.append(MEDIA_BITMAP)
-            print '    0x{:04x}: size {} bytes, bmap {}'.format(size,len(image)+2, filename)
+            print '    0x{:04x}: size {} bytes, bmap {} {}'.format(size,len(image)+2, filename, imageHash)
 
         header.append(size)
         size += len(image) + 2      # 2 bytes for type prefix
@@ -97,6 +103,15 @@ def buildBundle(bundlename, files, test_bundle=False):
             bfd.write(image)
             offset += len(image)+2
         bfd.close()
+        if show_md5:
+            bfd = open(bundlename,  "rb")
+            m = md5.new()
+            data = bfd.read(512)
+            while len(data) > 0:
+                m.update(data)
+                data = bfd.read(512)
+            print "{} {}".format(bundlename, m.hexdigest())
+            bfd.close()
         print 'wrote {} bytes to {}'.format(size-reserve, bundlename)
 
 def expandBundle(bundlename, args, test_bundle=False, show_md5=False):
@@ -145,11 +160,25 @@ def expandBundle(bundlename, args, test_bundle=False, show_md5=False):
 
     bfd.close()
 
+def sortObjects(a,b):
+    if '_' in a and '_' in b:
+        ai = int(a.split('_')[0])
+        bi = int(b.split('_')[0])
+        if (ai < bi):
+            return -1
+        elif (ai == bi):
+            return 0
+        else:
+            return 1
+    else:
+        return cmp(a,b)
+
 def main():
+    args.sort(cmp=sortObjects);
     if len(options.input) > 0:
         expandBundle(options.output, args, test_bundle=options.test_bundle, show_md5=options.show_md5)
     else:
-        buildBundle(options.output, args, test_bundle=options.test_bundle)
+        buildBundle(options.output, args, test_bundle=options.test_bundle, show_md5=options.show_md5)
 
 if __name__ == "__main__":
     main()

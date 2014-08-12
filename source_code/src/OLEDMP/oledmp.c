@@ -754,7 +754,7 @@ static void oledDumpFont(void)
     uint8_t gind;
     glyph_t glyph;
 
-    usbPrintf_P(PSTR("font %d, addr 0x%4lx\n"),fontId, oledFontAddr);
+    usbPrintf_P(PSTR("font %d, addr 0x%04x\n"),fontId, oledFontAddr);
     usbPrintf_P(PSTR("height %u, width %u, depth %d, count %d\n"),
             currentFont.height,
             currentFont.fixedWidth,
@@ -1244,12 +1244,18 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
     else 
     {
         // proportional width font
+#ifdef OLED_DEBUG
+        usbPrintf_P(PSTR("    glyph_t addr 0x%04x\n"), oledFontAddr + (uint16_t)&oled_fontp->glyph[gind]);
+#endif
         flashRawRead((uint8_t *)&glyph, oledFontAddr + (uint16_t)&oled_fontp->glyph[gind], sizeof(glyph));
-        if (glyph.glyph == NULL) 
+        if ((uint16_t)glyph.glyph == 0xFFFF) 
         {
             // space character, just fill in the gddram buffer and output background pixels
             glyph_width = glyph.width;
             glyph_height = currentFont.height;
+#ifdef OLED_DEBUG
+            usbPrintf_P(PSTR("    space character width %u height %u\n"), glyph_width, glyph_height);
+#endif
         }
         else 
         {
@@ -1271,7 +1277,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             glyphData = alloca(gsize);
 #ifdef OLED_DEBUG1
             // glyph data offsets are from the end of the glyph header array
-            usbPrintf_P(PSTR("    glyph '%c' width %d height %d depth %d, addr 0x%lx size %d\n"),
+            usbPrintf_P(PSTR("    glyph '%c' width %d height %d depth %d, addr 0x%04lx size %d\n"),
                         ch, glyph_width, glyph_height, glyph_depth, gaddr, gsize);
 #endif
             flashRawRead(glyphData, gaddr, gsize);

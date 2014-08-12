@@ -204,9 +204,9 @@ def generateHeader(fontName, pngFilename, xmlFilename):
             rect = [int(x) for x in glyph['rect'].split()]
             offset = [int(x) for x in glyph['offset'].split()]
             if ch == ord(' '):
-                glyphHeaderStr += "    {{ {:>2}, {:>2}, {:>2}, {:>2}, {:>2}, NULL }}, /* '{}' */\n".format(glyph['width'], 
+                glyphHeaderStr += "    {{ {:>2}, {:>2}, {:>2}, {:>2}, {:>2}, -1 }}, /* '{}' */\n".format(glyph['width'], 
                     rect[2], rect[3], offset[0], offset[1], glyph['code'])
-                glyphHeader[ch] = pack('=BBBbbH', int(glyph['width']), rect[2], rect[3], offset[0], offset[1], 0)
+                glyphHeader[ch] = pack('=BBBbbH', int(glyph['width']), rect[2], rect[3], offset[0], offset[1], 0xFFFF)
             else:
                 if ch > 127:
                     if extendedChars.has_key(ch):

@@ -107,7 +107,7 @@ void guiMainLoop(void)
     RET_TYPE touch_detect_result = touchDetectionRoutine(currentLedMask);
     
     // No activity, switch off LEDs and activate prox detection    
-    if (isTimerFlagPresent(TIMER_LIGHT) == RETURN_OK)
+    if (isTimerFlagPresent(TIMER_LIGHT, TRUE) == FLAG_PRESENT)
     {
         setPwmDc(0x0000);
         areLightsOn = FALSE;
@@ -115,7 +115,7 @@ void guiMainLoop(void)
     }
     
     // No activity, switch off screen
-    if (isTimerFlagPresent(TIMER_SCREEN) == RETURN_OK)
+    if (isTimerFlagPresent(TIMER_SCREEN, TRUE) == FLAG_PRESENT)
     {
         #ifndef HARDWARE_V1
             oledOff();
@@ -218,7 +218,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     do 
     {
         // User interaction timeout
-        if (isTimerFlagPresent(TIMER_USERINT) == RETURN_OK)
+        if (isTimerFlagPresent(TIMER_USERINT, TRUE) == FLAG_PRESENT)
         {
             return -1;
         }
@@ -942,7 +942,7 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     activateTimer(TIMER_USERINT, USER_INTER_DEL);
     
     // Wait for either timeout or for the user to insert his smartcard
-    while ((isTimerFlagPresent(TIMER_USERINT) == RETURN_NOK) && (card_detect_ret != RETURN_JDETECT))
+    while ((isTimerFlagPresent(TIMER_USERINT, TRUE) == FLAG_ABSENT) && (card_detect_ret != RETURN_JDETECT))
     {
         card_detect_ret = isCardPlugged();
         touchDetectionRoutine(0);

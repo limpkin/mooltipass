@@ -278,17 +278,17 @@ int main(void)
             usbProcessIncoming(usb_buffer);
         }  
         
-        // Two quick caps lock presses wake up the device
-        if ((isTimerRunning(TIMER_CAPS) == RETURN_NOK) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
+        // Two quick caps lock presses wake up the device        
+        if ((isTimerFlagPresent(TIMER_CAPS, FALSE) == FLAG_PRESENT) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
         {
             wasCapsLockTimerArmed = TRUE;
             activateTimer(TIMER_CAPS, CAPS_LOCK_DEL);
         }
-        else if ((isTimerRunning(TIMER_CAPS) == RETURN_OK) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        else if ((isTimerFlagPresent(TIMER_CAPS, FALSE) == FLAG_ABSENT) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             activityDetectedRoutine();
         }
-        else if ((isTimerRunning(TIMER_CAPS) == RETURN_NOK) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        else if ((isTimerFlagPresent(TIMER_CAPS, FALSE) == FLAG_PRESENT) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             wasCapsLockTimerArmed = FALSE;            
         }

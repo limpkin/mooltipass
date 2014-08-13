@@ -32,9 +32,8 @@
 
 // Prototypes
 void timerManagerTick(void);
-RET_TYPE isTimerRunning(uint8_t uid);
-RET_TYPE isTimerFlagPresent(uint8_t uid);
 void activateTimer(uint8_t uid, uint16_t val);
+RET_TYPE isTimerFlagPresent(uint8_t uid, uint8_t clear);
 
 // Structs
 typedef struct

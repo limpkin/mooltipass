@@ -43,7 +43,7 @@ void timerManagerTick(void)
         {
             if (context_timers[i].timer_val-- == 1)
             {
-                context_timers[i].flag = TRUE;
+                context_timers[i].flag = FLAG_PRESENT;
             }
         }
     }
@@ -51,38 +51,24 @@ void timerManagerTick(void)
 
 /*!	\fn		isTimerFlagPresent(uint8_t uid)
 *	\brief	Know if a timer expired and clear the flag if so
-*   \param  uid Unique ID
+*   \param  uid     Unique ID
+*   \param  clear   Boolean to say if we clear the flag
 *   \return RETURN_OK or RETURN_NOK
 */
-RET_TYPE isTimerFlagPresent(uint8_t uid)
+RET_TYPE isTimerFlagPresent(uint8_t uid, uint8_t clear)
 {
     // Compare is done in one cycle
-    if (context_timers[uid].flag == TRUE)
+    if (context_timers[uid].flag == FLAG_PRESENT)
     {
-        context_timers[uid].flag = FALSE;
-        return RETURN_OK;
+        if (clear == TRUE)
+        {
+            context_timers[uid].flag = FLAG_ABSENT;
+        }
+        return FLAG_PRESENT;
     }
     else
     {
-        return RETURN_NOK;
-    }
-}
-
-/*!	\fn		isTimerRunning(uint8_t uid)
-*	\brief	Know if a timer is running
-*   \param  uid Unique ID
-*   \return RETURN_OK or RETURN_NOK
-*/
-RET_TYPE isTimerRunning(uint8_t uid)
-{    
-    // Compare is done in one cycle
-    if (context_timers[uid].timer_val > 0)
-    {
-        return RETURN_OK;
-    }
-    else
-    {
-        return RETURN_NOK;
+        return FLAG_ABSENT;
     }
 }
 
@@ -99,7 +85,14 @@ void activateTimer(uint8_t uid, uint16_t val)
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
             context_timers[uid].timer_val = val;
-            context_timers[uid].flag = FALSE;
+            if (val == 0)
+            {
+                context_timers[uid].flag = FLAG_PRESENT;
+            } 
+            else
+            {
+                context_timers[uid].flag = FLAG_ABSENT;
+            }
         }
     }
 }

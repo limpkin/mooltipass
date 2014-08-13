@@ -861,9 +861,10 @@ void oledFill(uint8_t colour)
  */
 void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t colour)
 {
-    int16_t y_actual = y + oled_offset;
+    int16_t y_actual = (y + oled_offset + oled_writeOffset) & OLED_Y_MASK;
 #ifdef OLED_DEBUG
     usbPrintf_P(PSTR("fillXY() x=%u, y=%d, width=%u, height=%u, colour=%u\n"), x, y, width, height, colour);
+    usbPrintf_P(PSTR("         oled_offset=%d, y_actual=%d\n"), oled_offset, y_actual);
 #endif
 
     colour = (colour & 0x0F) | (colour << 4);;
@@ -876,17 +877,12 @@ void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t co
         x = 0;
     }
 
-    if (y_actual < 0) 
-    {
-        y_actual += OLED_HEIGHT*2;
-    }
-    y_actual &= OLED_Y_MASK;
     if (y_actual+height > OLED_HEIGHT*2) 
     {
         // fill area overlaps end of GDDRAM, so two fills needed
         
         // Fill to the end
-        oledFillXY(x, y_actual-oled_offset, width, OLED_HEIGHT*2 - y_actual, colour);
+        oledFillXY(x, y-(y_actual-oled_offset), width, OLED_HEIGHT*2 - y_actual, colour);
 
         // Now fill the rest from the start of the buffer
         height -= (OLED_HEIGHT*2 - y_actual);
@@ -894,7 +890,7 @@ void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t co
     }
 
 #ifdef OLED_DEBUG
-    usbPrintf_P(PSTR("fill y=%u, to %u\n"), y_actual, y_actual+height-1);
+    usbPrintf_P(PSTR("fill y_actual=%d, to %d\n"), y_actual, y_actual+height-1);
 #endif
     oledSetWindow(x, y_actual, x+width-1, y_actual+height-1);
     oledWriteCommand(CMD_WRITE_RAM);

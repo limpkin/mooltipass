@@ -608,6 +608,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
 {
     uint16_t temp_child_address;
     uint16_t addresses[4];
+    uint8_t led_mask;
     int8_t i = 0;
     int8_t j;
     
@@ -668,6 +669,9 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             // Write domain name on screen
             oledPutstrXY(0, 24, OLED_CENTRE, (char*)p->service);
             
+            // Clear led_mask
+            led_mask = 0;
+            
             // List logins on screen
             while ((temp_child_address != NODE_ADDR_NULL) && (i != 4))
             {
@@ -682,6 +686,13 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                 {
                     //oledPutstrXY(72, 0, OLED_RIGHT, (char*)c->login);
                     oledPutstrXY(0, 4, OLED_LEFT, (char*)c->login);
+                    
+                    // Cover left arrow if there's no predecessor
+                    if (c->prevChildAddress == NODE_ADDR_NULL)
+                    {
+                        led_mask |= LED_MASK_LEFT;
+                        oledFillXY(60, 24, 22, 16, 0x00);
+                    }
                 }
                 else if (i == 1)
                 {
@@ -705,6 +716,17 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                 i++;
             }
             
+            // Update led_mask & bitmap
+            if ((i != 4) && (c->nextChildAddress == NODE_ADDR_NULL))
+            {
+                led_mask |= LED_MASK_RIGHT;
+                oledFillXY(174, 24, 20, 16, 0x00);                
+            }
+            for (j = i; j < 4; j++)
+            {
+                led_mask |= (1 << j);
+            }
+            
             // Display picture
             oledFlipBuffers(0,0);
             
@@ -712,7 +734,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             temp_child_address = addresses[i-1];
             
             // Get touched quarter and check its validity
-            j = getTouchedPositionAnswer(0);
+            j = getTouchedPositionAnswer(led_mask);
             if (j == -1)
             {
                 // Time out, return nothing

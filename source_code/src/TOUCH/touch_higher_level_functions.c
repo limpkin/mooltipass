@@ -170,18 +170,13 @@ RET_TYPE touchDetectionRoutine(uint8_t led_mask)
     // Set the LEDs on by default
     memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);
     
-    // Switch them off depending on mask
-    if (led_mask & LED_MASK_WHEEL)
+    // Switch them off depending on mask    
+    for (temp_uint = 0; temp_uint < NB_KEYS; temp_uint++)
     {
-        memset((void*)led_states, AT42QT2120_OUTPUT_L_VAL, 4);
-    }
-    if (led_mask & LED_MASK_LEFT)
-    {
-        led_states[TOUCHPOS_LEFT] = AT42QT2120_OUTPUT_L_VAL;
-    }
-    if (led_mask & LED_MASK_RIGHT)
-    {
-        led_states[TOUCHPOS_RIGHT] = AT42QT2120_OUTPUT_L_VAL;
+        if (led_mask & (1 << temp_uint))
+        {
+            led_states[temp_uint] = AT42QT2120_OUTPUT_L_VAL;
+        }
     }
     
     if (isTouchChangeDetected())

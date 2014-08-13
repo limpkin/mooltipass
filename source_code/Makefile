@@ -20,15 +20,29 @@ version_major := 0
 version_minor := 1
 
 # Get the current build number from git
-git_build := $(subst build.,,$(shell git tag -l | grep build | sort -k7 -n | tail -1))
-git_build_next := $(shell expr $(git_build) + 1)
-
-# Use next build number if this is a release
-ifneq (,$(findstring release,$(MAKECMDGOALS)))
-    # Release build, so bump up the version number
-    version_build := $(git_build_next)
+ifeq (,$(shell git rev-parse HEAD 2>/dev/null))
+  # Oops, this isn't a git clone
+  $(warning "You are not building from a git controlled directory, BUILD_NUMBER will default to 0!")
+  version_build := 0
+  ifneq (,$(findstring release,$(MAKECMDGOALS)))
+    $(error "You can't build a release unless you are in a git controlled directory.")
+  endif
 else
-    version_build := $(git_build)
+  git_tag := $(shell git describe --match build.? --tags --abbrev=0 2>/dev/null)
+  ifeq (,$(git_tag))
+    # Oops, no matching tags!
+    $(error "You appear to have no build.<number> tags: Have you called git fetch --tags recently?")
+  endif
+  git_build := $(subst build.,,$(git_tag))
+  git_build_next := $(shell expr $(git_build) + 1)
+
+  # Use next build number if this is a release
+  ifneq (,$(findstring release,$(MAKECMDGOALS)))
+      # Release build, so bump up the version number
+      version_build := $(git_build_next)
+  else
+      version_build := $(git_build)
+  endif
 endif
 
 VERSION := $(version_major).$(version_minor).$(version_build)

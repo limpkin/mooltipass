@@ -1,0 +1,4 @@
+http://www.artima.com/sign_in?d=%2Findex.jsp,Forgot your password?,Sign Out
+http://slashdot.org/?nobeta=1,Login,Log out
+https://members.cafepress.com/login.aspx,SIGN IN,SIGN OUT
+http://www.moddb.com/,sign in,logout

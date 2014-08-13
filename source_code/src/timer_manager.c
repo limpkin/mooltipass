@@ -43,32 +43,32 @@ void timerManagerTick(void)
         {
             if (context_timers[i].timer_val-- == 1)
             {
-                context_timers[i].flag = FLAG_PRESENT;
+                context_timers[i].flag = TIMER_EXPIRED;
             }
         }
     }
 }
 
-/*!	\fn		isTimerFlagPresent(uint8_t uid)
+/*!	\fn		hasTimerExpired(uint8_t uid)
 *	\brief	Know if a timer expired and clear the flag if so
 *   \param  uid     Unique ID
 *   \param  clear   Boolean to say if we clear the flag
 *   \return RETURN_OK or RETURN_NOK
 */
-RET_TYPE isTimerFlagPresent(uint8_t uid, uint8_t clear)
+RET_TYPE hasTimerExpired(uint8_t uid, uint8_t clear)
 {
     // Compare is done in one cycle
-    if (context_timers[uid].flag == FLAG_PRESENT)
+    if (context_timers[uid].flag == TIMER_EXPIRED)
     {
         if (clear == TRUE)
         {
-            context_timers[uid].flag = FLAG_ABSENT;
+            context_timers[uid].flag = TIMER_RUNNING;
         }
-        return FLAG_PRESENT;
+        return TIMER_EXPIRED;
     }
     else
     {
-        return FLAG_ABSENT;
+        return TIMER_RUNNING;
     }
 }
 
@@ -87,11 +87,11 @@ void activateTimer(uint8_t uid, uint16_t val)
             context_timers[uid].timer_val = val;
             if (val == 0)
             {
-                context_timers[uid].flag = FLAG_PRESENT;
+                context_timers[uid].flag = TIMER_EXPIRED;
             } 
             else
             {
-                context_timers[uid].flag = FLAG_ABSENT;
+                context_timers[uid].flag = TIMER_RUNNING;
             }
         }
     }

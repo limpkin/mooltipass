@@ -230,7 +230,7 @@ void decryptTempCNodePasswordAndClearCTVFlag(void)
     aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
     
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
-    while (isTimerFlagPresent(TIMER_CREDENTIALS, FALSE) == FLAG_ABSENT);    
+    while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);    
 }
 
 /*! \fn     encryptTempCNodePasswordAndClearCTVFlag(void)
@@ -253,7 +253,7 @@ static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
     ctrPostEncryptionTasks();
 
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
-   while (isTimerFlagPresent(TIMER_CREDENTIALS, FALSE) == FLAG_ABSENT);
+   while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
 }
 
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
@@ -344,7 +344,7 @@ RET_TYPE getLoginForContext(char* buffer)
     else
     {
         // Credential timer off, ask for user to choose        
-        if (isTimerFlagPresent(TIMER_CREDENTIALS, FALSE) == FLAG_PRESENT)
+        if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_EXPIRED)
         {
             selected_login_child_node_addr = guiAskForLoginSelect(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr);
             
@@ -357,7 +357,7 @@ RET_TYPE getLoginForContext(char* buffer)
         } 
         
         // If the user just approved!
-        if ((isTimerFlagPresent(TIMER_CREDENTIALS, FALSE) == FLAG_ABSENT) && (selected_login_flag == TRUE))
+        if ((hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING) && (selected_login_flag == TRUE))
         {
             // Read first child node
             if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) != RETURN_OK)
@@ -381,7 +381,7 @@ RET_TYPE getLoginForContext(char* buffer)
 */
 RET_TYPE getPasswordForContext(char* buffer)
 {    
-    if ((context_valid_flag == TRUE) && (isTimerFlagPresent(TIMER_CREDENTIALS, FALSE) == FLAG_ABSENT) && (selected_login_flag == TRUE))
+    if ((context_valid_flag == TRUE) && (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING) && (selected_login_flag == TRUE))
     {
         // Fetch password from selected login and send it over USB
         if (readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr) != RETURN_OK)
@@ -520,7 +520,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
 {    
     // If timer is running    
-    if (isTimerFlagPresent(TIMER_PASS_CHECK, FALSE) == FLAG_ABSENT)
+    if (hasTimerExpired(TIMER_PASS_CHECK, FALSE) == TIMER_RUNNING)
     {
         return RETURN_PASS_CHECK_BLOCKED;
     } 

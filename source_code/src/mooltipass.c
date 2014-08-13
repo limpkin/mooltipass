@@ -279,16 +279,16 @@ int main(void)
         }  
         
         // Two quick caps lock presses wake up the device        
-        if ((isTimerFlagPresent(TIMER_CAPS, FALSE) == FLAG_PRESENT) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
+        if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
         {
             wasCapsLockTimerArmed = TRUE;
             activateTimer(TIMER_CAPS, CAPS_LOCK_DEL);
         }
-        else if ((isTimerFlagPresent(TIMER_CAPS, FALSE) == FLAG_ABSENT) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             activityDetectedRoutine();
         }
-        else if ((isTimerFlagPresent(TIMER_CAPS, FALSE) == FLAG_PRESENT) && !(getKeyboardLeds() & HID_CAPS_MASK))
+        else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             wasCapsLockTimerArmed = FALSE;            
         }

@@ -60,7 +60,7 @@
  *  PRODUCTION_SETUP
  *  => final version for production
 */
-#define V2_DEVELOPERS_BOOTLOADER_SETUP
+#define XXXXXXX
 #if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
     #define STACK_DEBUG
     #define HARDWARE_V1

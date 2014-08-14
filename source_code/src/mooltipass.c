@@ -268,8 +268,15 @@ int main(void)
         }
         else if (card_detect_ret == RETURN_JRELEASED)
         {
+            // Lightup the Mooltipass
             activityDetectedRoutine();
             guiHandleSmartcardRemoved();
+            
+            // Set correct screen
+            guiDisplayInformationOnScreen(PSTR("Card removed"));
+            guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
+            _delay_ms(2000);
+            guiGetBackToCurrentScreen();
         }
         
         // Process possible incoming data

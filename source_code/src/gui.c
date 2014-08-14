@@ -83,6 +83,15 @@ void activityDetectedRoutine(void)
     }   
 }
 
+/*! \fn     guiSetCurrentScreen(uint8_t screen)
+*   \brief  Set current screen
+*   \param  screen  The screen
+*/
+void guiSetCurrentScreen(uint8_t screen)
+{
+    currentScreen = screen;
+}
+
 /*! \fn     guiMainLoop(void)
 *   \brief  Main user interface loop
 */
@@ -172,6 +181,7 @@ void guiMainLoop(void)
                 {
                     // User wants to lock his mooltipass
                     currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                    guiHandleSmartcardRemoved();
                     break;
                 }
                 case TOUCHPOS_WHEEL_TRIGHT :
@@ -879,16 +889,14 @@ void guiHandleSmartcardRemoved(void)
     uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     
+    // In case it was not done
+    removeFunctionSMC();
+    clearSmartCardInsertedUnlocked();
+    
     // Clear encryption context
     memset((void*)temp_buffer, 0, AES_KEY_LENGTH/8);
     memset((void*)temp_ctr_val, 0, AES256_CTR_LENGTH);
-    initEncryptionHandling(temp_buffer, temp_ctr_val);
-    
-    // Set correct screen
-    guiDisplayInformationOnScreen(PSTR("Card removed"));
-    currentScreen = SCREEN_DEFAULT_NINSERTED;
-    _delay_ms(2000);
-    guiGetBackToCurrentScreen();
+    initEncryptionHandling(temp_buffer, temp_ctr_val);    
 }
 
 /*! \fn     guiDisplayInsertSmartCardScreenAndWait(void)

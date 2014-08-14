@@ -60,6 +60,7 @@ void guiDisplayInformationOnScreen(const char* string);
 RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
 RET_TYPE guiGetPinFromUser(uint16_t* pin_code);
 void informGuiOfCurrentContext(char* context);
+void guiSetCurrentScreen(uint8_t screen);
 void guiDisplayProcessingScreen(void);
 void guiHandleSmartcardRemoved(void);
 void guiGetBackToCurrentScreen(void);

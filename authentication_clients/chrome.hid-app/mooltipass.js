@@ -873,11 +873,10 @@ function onDataReceived(reportId, data)
             break;
         case CMD_VERSION:
         {
-            var build = new Uint32Array(data.slice(5,9)); 
-            var version = '' + bytes[2] + '.' + bytes[3] + '.' + build[0];
+            var version = arrayToStr(new Uint8Array(data.slice(3)));
             if (!connected)
             {
-                flashChipId = bytes[4];
+                var flashChipId = msg[0];
                 log('#messageLog', 'Connected to Mooltipass ' + version + '\n');
                 connected = true;
             }

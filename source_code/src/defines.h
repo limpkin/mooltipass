@@ -206,14 +206,8 @@ typedef void (*bootloader_f_ptr_type)(void);
 typedef int8_t RET_TYPE;
 
 /**************** VERSION DEFINES ***************/
-#ifndef MOOLT_VERSION_MAJOR 
-    #define MOOLT_VERSION_MAJOR     0x00
-#endif
-#ifndef MOOLT_VERSION_MINOR 
-    #define MOOLT_VERSION_MINOR     0x01
-#endif
-#ifndef BUILD_NUMBER 
-    #define BUILD_NUMBER            0
+#ifndef MOOLTIPASS_VERSION
+#warning "MOOLTIPASS_VERSION is not defined: Check your Makefile"
 #endif
 
 /**************** BITMAP DEFINES ****************/

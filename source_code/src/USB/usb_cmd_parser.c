@@ -36,6 +36,7 @@
 #include "oledmp.h"
 #include "usb.h"
 #include "gui.h"
+#include "version.h"
 
 // Current address in flash we need to export
 uint32_t current_flash_export_addr = 0;
@@ -117,13 +118,11 @@ void usbProcessIncoming(uint8_t* incomingData)
         // version command
         case CMD_VERSION :
         {
-            msg->len = 3;
+            msg->len = 3; // len + cmd + FLASH_CHIP
             msg->cmd = CMD_VERSION;
-            msg->body.version.major = MOOLT_VERSION_MAJOR;
-            msg->body.version.minor = MOOLT_VERSION_MINOR;
-            msg->body.version.flash_chip = FLASH_CHIP;
-            msg->body.version.build = BUILD_NUMBER;
-            usbSendMessage(0, 2+sizeof(msg->body.version), msg);
+            msg->body.data[0] = FLASH_CHIP;
+            msg->len += getVersion((char*)&msg->body.data[1], sizeof(msg->body.data) - 1);
+            usbSendMessage(0, msg->len, msg);
             return;
         }
 

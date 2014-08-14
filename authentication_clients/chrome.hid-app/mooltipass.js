@@ -846,6 +846,19 @@ function allocateMediaPage(size)
  */
 function onDataReceived(reportId, data) 
 {
+    if (typeof reportId === "undefined" || typeof data === "undefined")
+    {
+        if (chrome.runtime.lastError)
+        {
+            var err = chrome.runtime.lastError;
+            if (err.message != "Transfer failed.")
+            {
+                console.log("Error in onDataReceived: " + err.message);
+            }
+        }
+        return;
+    }
+
     var bytes = new Uint8Array(data);
     var msg = new Uint8Array(data,2);
     var len = bytes[0]

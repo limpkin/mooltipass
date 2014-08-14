@@ -27,6 +27,8 @@
 #ifndef GUI_SMARTCARD_FUNCTIONS_H_
 #define GUI_SMARTCARD_FUNCTIONS_H_
 
+#include "defines.h"
+
 RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
 RET_TYPE guiHandleSmartcardInserted(void);
 void guiHandleSmartcardRemoved(void);

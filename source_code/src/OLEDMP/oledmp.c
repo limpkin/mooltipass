@@ -1445,7 +1445,7 @@ void oledBitmapDrawRaw(
             if ((x/4) == gddram[(y+yind) & OLED_Y_MASK].xaddr) 
             {
                 pixels |= gddram[(y+yind) & OLED_Y_MASK].pixels;
-                usbPrintf_P(PSTR("    ORing gddram[%u] 0x%04x -> 0x%04x\n"), x/4, gddram[(y+yind) & OLED_Y_MASK].pixels, pixels);
+                //usbPrintf_P(PSTR("    ORing gddram[%u] 0x%04x -> 0x%04x\n"), x/4, gddram[(y+yind) & OLED_Y_MASK].pixels, pixels);
             }
 
             oledWriteData((uint8_t)(pixels >> 8));

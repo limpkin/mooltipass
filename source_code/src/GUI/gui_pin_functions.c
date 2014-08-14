@@ -190,6 +190,12 @@ RET_TYPE guiCardUnlockingProcess(void)
     {
         if (guiGetPinFromUser(&temp_pin, PSTR("Insert PIN")) == RETURN_OK)
         {
+            // Check that the smart card is still here before unlocking it
+            if (cardDetectedRoutine() != RETURN_MOOLTIPASS_USER)
+            {
+                return RETURN_NOK;
+            }
+            
             // Try unlocking the smartcard
             temp_rettype = mooltipassDetectedRoutine(temp_pin);
             

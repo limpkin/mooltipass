@@ -17,7 +17,7 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_smartcard_functions.h
+/*!  \file     gui_smartcard_functions.c
 *    \brief    General user interface - smartcard functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan

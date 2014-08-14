@@ -23,6 +23,7 @@
 
 #include <avr/pgmspace.h>
 
+#include "defines.h"
 #include "version.h"
 
 static const char mooltipass_version[] PROGMEM = MOOLTIPASS_VERSION;

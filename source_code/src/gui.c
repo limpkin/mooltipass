@@ -156,18 +156,28 @@ void guiMainLoop(void)
         }
         else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
         {            
-            // Locked screen, ask the user to enter his pin code
-            if(guiCardUnlockingProcess() == RETURN_OK)
+            // Locked screen and a detection happened....
+            
+            // Check that the user hasn't removed his card or replaced it
+            if (cardDetectedRoutine() == RETURN_MOOLTIPASS_USER)
             {
-                // User approved his pin
-                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
-                
+                // Launch Unlocking process
+                if(validCardDetectedFunction() == RETURN_OK)
+                {
+                    // User approved his pin
+                    currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+                }
+                else
+                {
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                }
             }
             else
             {
-                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                
+                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;                
             }
+            
+            // Go to the new screen
             guiGetBackToCurrentScreen();
         }
         else if ((currentScreen == SCREEN_DEFAULT_INSERTED_NLCK) && (touch_detect_result & RETURN_WHEEL_PRESSED))
@@ -177,11 +187,9 @@ void guiMainLoop(void)
             {
                 case TOUCHPOS_WHEEL_BRIGHT :
                 {
-                    #ifndef NO_PIN_CODE_REQUIRED
-                        // User wants to lock his mooltipass
-                        currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                        guiHandleSmartcardRemoved();
-                    #endif
+                    // User wants to lock his mooltipass
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                    guiHandleSmartcardRemoved();
                     break;
                 }
                 case TOUCHPOS_WHEEL_TRIGHT :
@@ -382,6 +390,12 @@ int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
 */
 RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
 {
+    // If we don't need a pin code, send default one
+    #ifdef NO_PIN_CODE_REQUIRED
+        *pin_code = SMARTCARD_DEFAULT_PIN;
+        return RETURN_OK;
+    #endif
+    
     RET_TYPE ret_val = RETURN_NOK;
     uint8_t selected_digit = 0;
     uint8_t finished = FALSE;
@@ -495,16 +509,7 @@ RET_TYPE guiCardUnlockingProcess(void)
     while (1)
     {
         if (guiGetPinFromUser(&temp_pin, PSTR("Insert PIN")) == RETURN_OK)
-        {
-            // At this point the smart card could be unpowered because of the lock function.
-            // We therefore need to apply power by calling cardDetectedRoutine()
-            // then check that its return is actually RETURN_MOOLTIPASS_USER, meaning that
-            // it is a valid and configured card
-            if (cardDetectedRoutine() != RETURN_MOOLTIPASS_USER)
-            {
-                return RETURN_NOK;
-            }
-            
+        {            
             // Try unlocking the smartcard
             temp_rettype = mooltipassDetectedRoutine(temp_pin);
             
@@ -513,8 +518,6 @@ RET_TYPE guiCardUnlockingProcess(void)
                 case RETURN_MOOLTIPASS_4_TRIES_LEFT :
                 {
                     // Smartcard unlocked
-                    guiDisplayInformationOnScreen(PSTR("Card unlocked!"));
-                    _delay_ms(2000);
                     return RETURN_OK;                    
                 }
                 case RETURN_MOOLTIPASS_0_TRIES_LEFT :
@@ -850,38 +853,41 @@ void guiDisplayInformationOnScreen(const char* string)
     oledFlipBuffers(0,0);
 }
 
-/*! \fn     guiHandleSmartcardInserted(RET_TYPE detection_result)
+/*! \fn     guiHandleSmartcardInserted(void)
 *   \brief  Here is where are handled all smartcard insertion logic
-*   \return RETURN_OK if user is authentified
+*   \return RETURN_OK if user is authenticated
 */
-RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
+RET_TYPE guiHandleSmartcardInserted(void)
 {
+    // Low level routine: see what kind of card we're dealing with
+    RET_TYPE detection_result = cardDetectedRoutine();
+    // By default, return to invalid screen
     currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
-    uint8_t temp_ctr_val[AES256_CTR_LENGTH];
-    uint8_t temp_buffer[AES_KEY_LENGTH/8];
+    // Return fail by default
     RET_TYPE return_value = RETURN_NOK;
-    uint8_t temp_user_id;
-    
-    guiDisplayInformationOnScreen(PSTR("Card connected"));
     
     if ((detection_result == RETURN_MOOLTIPASS_PB) || (detection_result == RETURN_MOOLTIPASS_INVALID))
     {
+        // Either it is not a card or our Manufacturer Test Zone write/read test failed
         guiDisplayInformationOnScreen(PSTR("PB with card"));
         printSmartCardInfo();
         removeFunctionSMC();
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLOCKED)
     {
+        // The card is block, no pin code tries are remaining
         guiDisplayInformationOnScreen(PSTR("Card blocked"));
         printSmartCardInfo();
         removeFunctionSMC();
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLANK)
     {
-        // Ask the user to setup his mooltipass card
+        // This is a user free card, we can ask the user to create a new user
         if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Create new mooltipass user?")) == RETURN_OK)
         {         
+            // Display processing screen
             guiDisplayProcessingScreen();
+            
             // Create a new user with his new smart card
             if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
             {
@@ -899,55 +905,17 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
     }
     else if (detection_result == RETURN_MOOLTIPASS_USER)
     {
-        // Here we should ask the user for his pin and call mooltipassDetectedRoutine
-        readCodeProtectedZone(temp_buffer);
-        #ifdef GENERAL_LOGIC_OUTPUT_USB
-            usbPrintf_P(PSTR("%d cards\r\n"), getNumberOfKnownCards());
-            usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
-        #endif
-                
-        // See if we know the card and if so fetch the user id & CTR nonce
-        if (getUserIdFromSmartCardCPZ(temp_buffer, temp_ctr_val, &temp_user_id) == RETURN_OK)
-        {
-            #ifdef GENERAL_LOGIC_OUTPUT_USB
-                usbPrintf_P(PSTR("Card ID found with user %d\r\n"), temp_user_id);
-            #endif
-                    
-            // Developer mode, enter default pin code
-            #ifdef NO_PIN_CODE_REQUIRED
-                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
-                return_value = RETURN_OK;
-                setSmartCardInsertedUnlocked();
-                readAES256BitsKey(temp_buffer);
-                initUserFlashContext(temp_user_id);
-                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
-                initEncryptionHandling(temp_buffer, temp_ctr_val);
-                guiDisplayInformationOnScreen(PSTR("Card unlocked"));
-            #else
-                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
-                return_value = RETURN_OK;
-                setSmartCardInsertedUnlocked();
-                readAES256BitsKey(temp_buffer);
-                initUserFlashContext(temp_user_id);
-                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
-                initEncryptionHandling(temp_buffer, temp_ctr_val);
-                guiDisplayInformationOnScreen(PSTR("Card unlocked"));            
-            #endif
-        }
-        else
-        {
-            guiDisplayInformationOnScreen(PSTR("Card ID not found"));
-                    
-            // Developer mode, enter default pin code
-            #ifdef NO_PIN_CODE_REQUIRED
-                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
-                setSmartCardInsertedUnlocked();
-            #else
-                removeFunctionSMC();                            // Shut down card reader
-            #endif
+        // This a valid user smart card, we call a dedicated function
+        if (validCardDetectedFunction() == RETURN_OK)
+        {            
+            // Card successfully unlocked
+            guiDisplayInformationOnScreen(PSTR("Card unlocked"));
+            currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+            return_value = RETURN_OK;           
         }
         printSmartCardInfo();
     }    
+    
     _delay_ms(3000);
     guiGetBackToCurrentScreen();
     return return_value;   
@@ -1006,6 +974,6 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     } 
     else
     {
-        return guiHandleSmartcardInserted(cardDetectedRoutine());
+        return guiHandleSmartcardInserted();
     }    
 }

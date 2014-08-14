@@ -54,6 +54,7 @@ uint8_t getSmartCardInsertedUnlocked(void);
 RET_TYPE getLoginForContext(char *buffer);
 RET_TYPE cloneSmartCard(uint16_t pincode);
 void clearSmartCardInsertedUnlocked(void);
+RET_TYPE validCardDetectedFunction(void);
 void setSmartCardInsertedUnlocked(void);
 void firstTimeUserHandlingInit(void);
 RET_TYPE findUserId(uint8_t userid);

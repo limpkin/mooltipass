@@ -56,10 +56,10 @@ typedef struct
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object);
 RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string);
-RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result);
 void guiDisplayInformationOnScreen(const char* string);
 RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
 void informGuiOfCurrentContext(char* context);
+RET_TYPE guiHandleSmartcardInserted(void);
 void guiSetCurrentScreen(uint8_t screen);
 RET_TYPE guiCardUnlockingProcess(void);
 void guiDisplayProcessingScreen(void);

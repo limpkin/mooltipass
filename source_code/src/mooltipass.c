@@ -263,12 +263,13 @@ int main(void)
         // Do appropriate actions on smartcard insertion / removal
         if (card_detect_ret == RETURN_JDETECT)
         {
+            // Light up the Mooltipass and call the dedicated function
             activityDetectedRoutine();
-            guiHandleSmartcardInserted(cardDetectedRoutine());
+            guiHandleSmartcardInserted();
         }
         else if (card_detect_ret == RETURN_JRELEASED)
         {
-            // Lightup the Mooltipass
+            // Light up the Mooltipass and call the dedicated function
             activityDetectedRoutine();
             guiHandleSmartcardRemoved();
             
@@ -285,7 +286,7 @@ int main(void)
             usbProcessIncoming(usb_buffer);
         }  
         
-        // Two quick caps lock presses wake up the device        
+        // Two quick caps lock presses wakes up the device        
         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
         {
             wasCapsLockTimerArmed = TRUE;

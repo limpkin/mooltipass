@@ -155,11 +155,9 @@ void guiMainLoop(void)
             guiDisplayInsertSmartCardScreenAndWait();
         }
         else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
-        {
-            uint16_t lapinou;
-            
+        {            
             // Locked screen, ask the user to enter his pin code
-            if(guiGetPinFromUser(&lapinou) == RETURN_OK)
+            if(guiCardUnlockingProcess() == RETURN_OK)
             {
                 // User approved his pin
                 currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
@@ -179,9 +177,11 @@ void guiMainLoop(void)
             {
                 case TOUCHPOS_WHEEL_BRIGHT :
                 {
-                    // User wants to lock his mooltipass
-                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                    guiHandleSmartcardRemoved();
+                    #ifndef NO_PIN_CODE_REQUIRED
+                        // User wants to lock his mooltipass
+                        currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                        guiHandleSmartcardRemoved();
+                    #endif
                     break;
                 }
                 case TOUCHPOS_WHEEL_TRIGHT :
@@ -377,9 +377,10 @@ int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
 /*! \fn     guiGetPinFromUser(void)
 *   \brief  Ask the user to enter a PIN
 *   \param  pin_code    Pointer to where to store the pin code
+*   \param  string      Text to display
 *   \return If the user approved the request
 */
-RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
+RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
 {
     RET_TYPE ret_val = RETURN_NOK;
     uint8_t selected_digit = 0;
@@ -480,6 +481,68 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code)
     
     // Return success status
     return ret_val;
+}
+
+/*! \fn     guiCardUnlockingProcess(void)
+*   \brief  Function called for the user to unlock his smartcard
+*   \return success status
+*/
+RET_TYPE guiCardUnlockingProcess(void)
+{
+    RET_TYPE temp_rettype;
+    uint16_t temp_pin;
+      
+    while (1)
+    {
+        if (guiGetPinFromUser(&temp_pin, PSTR("Insert PIN")) == RETURN_OK)
+        {
+            // At this point the smart card could be unpowered because of the lock function.
+            // We therefore need to apply power by calling cardDetectedRoutine()
+            // then check that its return is actually RETURN_MOOLTIPASS_USER, meaning that
+            // it is a valid and configured card
+            if (cardDetectedRoutine() != RETURN_MOOLTIPASS_USER)
+            {
+                return RETURN_NOK;
+            }
+            
+            // Try unlocking the smartcard
+            temp_rettype = mooltipassDetectedRoutine(temp_pin);
+            
+            switch(temp_rettype)
+            {
+                case RETURN_MOOLTIPASS_4_TRIES_LEFT :
+                {
+                    // Smartcard unlocked
+                    guiDisplayInformationOnScreen(PSTR("Card unlocked!"));
+                    _delay_ms(2000);
+                    return RETURN_OK;                    
+                }
+                case RETURN_MOOLTIPASS_0_TRIES_LEFT :
+                {
+                    guiDisplayInformationOnScreen(PSTR("Card blocked!"));
+                    _delay_ms(2000);
+                    return RETURN_NOK;                    
+                }
+                case RETURN_MOOLTIPASS_PB :
+                {
+                    guiDisplayInformationOnScreen(PSTR("PB with card!"));
+                    _delay_ms(2000);
+                    return RETURN_NOK;                    
+                }
+                default :
+                {
+                    guiDisplayInformationOnScreen(PSTR("Wrong pin!"));
+                    _delay_ms(2000);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            // User cancelled the request
+            return RETURN_NOK;
+        }        
+    }
 }
 
 /*! \fn     guiGetBackToCurrentScreen(void)
@@ -860,6 +923,15 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
                 currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
                 initEncryptionHandling(temp_buffer, temp_ctr_val);
                 guiDisplayInformationOnScreen(PSTR("Card unlocked"));
+            #else
+                mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+                return_value = RETURN_OK;
+                setSmartCardInsertedUnlocked();
+                readAES256BitsKey(temp_buffer);
+                initUserFlashContext(temp_user_id);
+                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+                initEncryptionHandling(temp_buffer, temp_ctr_val);
+                guiDisplayInformationOnScreen(PSTR("Card unlocked"));            
             #endif
         }
         else
@@ -889,7 +961,7 @@ void guiHandleSmartcardRemoved(void)
     uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     
-    // In case it was not done
+    // In case it was not done, remove power and flags
     removeFunctionSMC();
     clearSmartCardInsertedUnlocked();
     

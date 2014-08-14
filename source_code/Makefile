@@ -14,38 +14,18 @@ SIZE    := $(CROSS)size
 AR      := $(CROSS)ar
 AS      := $(CROSS)as
 
+# Mooltipass version: vMAJOR.MINOR
+VERSION := v0.1
 
-# Mooltipass version major.minor.build
-version_major := 0
-version_minor := 1
-
-# Get the current build number from git
-ifeq (,$(shell git rev-parse HEAD 2>/dev/null))
-  # Oops, this isn't a git clone
-  $(warning "You are not building from a git controlled directory, BUILD_NUMBER will default to 0!")
-  version_build := 0
-  ifneq (,$(findstring release,$(MAKECMDGOALS)))
-    $(error "You can't build a release unless you are in a git controlled directory.")
-  endif
-else
-  git_tag := $(shell git describe --match build.? --tags --abbrev=0 2>/dev/null)
-  ifeq (,$(git_tag))
-    # Oops, no matching tags!
-    $(error "You appear to have no build.<number> tags: Have you called git fetch --tags recently?")
-  endif
-  git_build := $(subst build.,,$(git_tag))
-  git_build_next := $(shell expr $(git_build) + 1)
-
-  # Use next build number if this is a release
-  ifneq (,$(findstring release,$(MAKECMDGOALS)))
-      # Release build, so bump up the version number
-      version_build := $(git_build_next)
-  else
-      version_build := $(git_build)
+# If we are in a git controlled dir, let (matching) tag override version
+git_hash := $(shell git rev-parse --verify --short HEAD 2>/dev/null)
+ifneq (,$(git_hash))
+  VERSION := $(shell git describe --tags --match $(VERSION)* --dirty 2>/dev/null)
+  ifeq (,$(VERSION))
+    # Oops, no matching tags, fall back to git hash
+    VERSION := g$(git_hash)
   endif
 endif
-
-VERSION := $(version_major).$(version_minor).$(version_build)
 
 
 LIBS := -lm -lmooltipass
@@ -102,9 +82,7 @@ ifeq ($(findstring --mcu,$(SIZE_HELP)),--mcu)
   SIZEFLAGS += --mcu=$(MCU)
 endif
 
-CFLAGS += -DMOOLT_VERSION_MAJOR=$(version_major) \
-          -DMOOLT_VERSION_MINOR=$(version_minor) \
-          -DBUILD_NUMBER=$(version_build)
+CFLAGS += -DMOOLTIPASS_VERSION="\"$(VERSION)\""
 
 # Display the size of generated elf file
 .PHONY: size

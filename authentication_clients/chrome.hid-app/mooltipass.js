@@ -81,6 +81,7 @@ var CMD_EXPORT_EEPROM_START = 0x46;
 var CMD_SET_BOOTLOADER_PWD  = 0x47;
 var CMD_JUMP_TO_BOOTLOADER  = 0x48;
 var CMD_CLONE_SMARTCARD     = 0x49;
+var CMD_STACK_FREE          = 0x50;
 
 // supported flash chips
 // 264,   512,  128   1MB   0001 ID:00010=2  5  7 12, 6 2 16 S: 3 - 8,120,128
@@ -541,6 +542,7 @@ function initWindow()
     var importFlashButton = document.getElementById("importFlash");
     var importEepromButton = document.getElementById("importEeprom");
     var importMediaButton = document.getElementById("importMedia");
+    var sendCMDButton = document.getElementById("sendCMD");
     var jumpToBootloader = document.getElementById("jumpToBootloader");
     var cloneSmartcard = document.getElementById("cloneSmartcard");
     var drawBitmapButton = document.getElementById("drawBitmap");
@@ -677,6 +679,17 @@ function initWindow()
         });
     });
 
+    sendCMDButton.addEventListener('click', function()
+    {
+        var command = parseInt($('#sendCMDvalue').val(), 16);
+	if (command >= 0 && command <= 255){ 
+	    log('#messageLog', 'Sending '+ $('#sendCMDvalue').val() + '\n');
+            sendRequest(command);
+        } else{
+            log('#messageLog', 'command out of range\n');
+        }
+    });
+
     jumpToBootloader.addEventListener('click', function() 
     {
         log('#messageLog', 'Sending JUMP_TO_BOOTLOADER\n');
@@ -726,6 +739,7 @@ function initWindow()
     $("#importFlash").button();
     $("#importEeprom").button();
     $("#importMedia").button();
+    $("#sendCMD").button();
     $("#jumpToBootloader").button();
     $("#cloneSmartcard").button();
     $("#drawBitmap").button();

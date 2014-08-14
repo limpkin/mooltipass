@@ -36,6 +36,8 @@
 #include "flash_mem.h"
 #include <string.h>
 #include "oledmp.h"
+#include "utils.h"
+#include "stack.h"
 #include "usb.h"
 #include "version.h"
 
@@ -103,7 +105,10 @@ void usbProcessIncoming(uint8_t* incomingData)
     // Temp ret_type
     RET_TYPE temp_rettype;
 #endif
-
+    
+#ifdef DEV_PLUGIN_COMMS
+    char stack_str[10];
+#endif
     // Debug comms
     // USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
 
@@ -679,6 +684,13 @@ void usbProcessIncoming(uint8_t* incomingData)
 
             return;
         }
+        case CMD_STACK_FREE:
+            
+            usbPutstr_P(PSTR("Stack Free "));
+            int_to_string(stackFree(),stack_str);
+            usbPutstr(stack_str);
+            usbPutstr_P(PSTR(" bytes\n"));
+        return;
 #endif
 
         default :   return;

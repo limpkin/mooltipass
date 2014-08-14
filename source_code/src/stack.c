@@ -48,6 +48,7 @@ extern uint8_t __stack;
 *   \param  void
 *   \return void
 */
+#ifdef STACK_DEBUG
 void stackInit(void) __attribute__ ((naked)) __attribute__ ((section (".init1")));
 
 void stackInit(void)
@@ -59,6 +60,7 @@ void stackInit(void)
         *p++ = STACK_INIT;
     }
 }
+#endif
 
 /*! \fn     uint16_t stackFree(void)
 *   \brief  Counts how many bytes of stack have not been overwritten

@@ -1187,6 +1187,11 @@ function sendPing()
  */
 function onDeviceFound(devices) 
 {
+    if (devices.length <= 0)
+    {
+        return;
+    }
+
     var ind = devices.length - 1;
     console.log('Found ' + devices.length + ' devices.');
     console.log('Device ' + devices[ind].deviceId + ' vendor' + devices[ind].vendorId + ' product ' + devices[ind].productId);

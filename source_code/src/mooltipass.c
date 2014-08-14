@@ -30,6 +30,9 @@
 #include <stdio.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
+#include "gui_smartcard_functions.h"
+#include "gui_screen_functions.h"
+#include "gui_basic_functions.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
 #include "usb_cmd_parser.h"
@@ -51,7 +54,6 @@
 #include "spi.h"
 #include "pwm.h"
 #include "usb.h"
-#include "gui.h"
 
 // Define the bootloader function
 bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
@@ -263,13 +265,21 @@ int main(void)
         // Do appropriate actions on smartcard insertion / removal
         if (card_detect_ret == RETURN_JDETECT)
         {
+            // Light up the Mooltipass and call the dedicated function
             activityDetectedRoutine();
-            guiHandleSmartcardInserted(cardDetectedRoutine());
+            guiHandleSmartcardInserted();
         }
         else if (card_detect_ret == RETURN_JRELEASED)
         {
+            // Light up the Mooltipass and call the dedicated function
             activityDetectedRoutine();
             guiHandleSmartcardRemoved();
+            
+            // Set correct screen
+            guiDisplayInformationOnScreen(PSTR("Card removed"));
+            guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
+            _delay_ms(2000);
+            guiGetBackToCurrentScreen();
         }
         
         // Process possible incoming data
@@ -278,7 +288,7 @@ int main(void)
             usbProcessIncoming(usb_buffer);
         }  
         
-        // Two quick caps lock presses wake up the device        
+        // Two quick caps lock presses wakes up the device        
         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
         {
             wasCapsLockTimerArmed = TRUE;

@@ -22,10 +22,10 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include "touch_higher_level_functions.h"
+#include "gui_basic_functions.h"
 #include "defines.h"
 #include <string.h>
 #include "touch.h"
-#include "gui.h"
 
 // Last read wheel position
 uint8_t last_raw_wheel_position;

@@ -51,6 +51,9 @@
  *  BETATESTERS_SETUP
  *  => version sent to the beta testers
  *
+ *  BETATESTERS_SETUP_PIN
+ *  => Same as above but with PIN
+ *
  *  BETATESTERS_AUTOACCEPT_SETUP
  *  => Same as above, but always accepts requests
  *
@@ -95,6 +98,12 @@
     #define DEV_PLUGIN_COMMS
     #define HARDWARE_OLIVIER_V1
     #define NO_PIN_CODE_REQUIRED
+    #define AVR_BOOTLOADER_PROGRAMMING
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(BETATESTERS_SETUP_PIN)
+    #define FLASH_CHIP_32M
+    #define DEV_PLUGIN_COMMS
+    #define HARDWARE_OLIVIER_V1
     #define AVR_BOOTLOADER_PROGRAMMING
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(BETATESTERS_AUTOACCEPT_SETUP)
@@ -206,14 +215,8 @@ typedef void (*bootloader_f_ptr_type)(void);
 typedef int8_t RET_TYPE;
 
 /**************** VERSION DEFINES ***************/
-#ifndef MOOLT_VERSION_MAJOR 
-    #define MOOLT_VERSION_MAJOR     0x00
-#endif
-#ifndef MOOLT_VERSION_MINOR 
-    #define MOOLT_VERSION_MINOR     0x01
-#endif
-#ifndef BUILD_NUMBER 
-    #define BUILD_NUMBER            0
+#ifndef MOOLTIPASS_VERSION
+#define MOOLTIPASS_VERSION "unknown"
 #endif
 
 /**************** BITMAP DEFINES ****************/

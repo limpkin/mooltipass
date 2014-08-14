@@ -68,13 +68,6 @@ typedef struct
     {
         uint8_t data[RAWHID_RX_SIZE-HID_DATA_START];
         uint32_t addr;
-	struct
-	{
-	    uint8_t major;
-	    uint8_t minor;
-	    uint8_t flash_chip;
-	    uint32_t build;
-	} version;
     } body;
 } usbMsg_t;
 

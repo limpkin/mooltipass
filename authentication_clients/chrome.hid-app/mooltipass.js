@@ -846,6 +846,19 @@ function allocateMediaPage(size)
  */
 function onDataReceived(reportId, data) 
 {
+    if (typeof reportId === "undefined" || typeof data === "undefined")
+    {
+        if (chrome.runtime.lastError)
+        {
+            var err = chrome.runtime.lastError;
+            if (err.message != "Transfer failed.")
+            {
+                console.log("Error in onDataReceived: " + err.message);
+            }
+        }
+        return;
+    }
+
     var bytes = new Uint8Array(data);
     var msg = new Uint8Array(data,2);
     var len = bytes[0]
@@ -873,11 +886,10 @@ function onDataReceived(reportId, data)
             break;
         case CMD_VERSION:
         {
-            var build = new Uint32Array(data.slice(5,9)); 
-            var version = '' + bytes[2] + '.' + bytes[3] + '.' + build[0];
+            var version = arrayToStr(new Uint8Array(data.slice(3)));
             if (!connected)
             {
-                flashChipId = bytes[4];
+                var flashChipId = msg[0];
                 log('#messageLog', 'Connected to Mooltipass ' + version + '\n');
                 connected = true;
             }
@@ -1174,6 +1186,11 @@ function sendPing()
  */
 function onDeviceFound(devices) 
 {
+    if (devices.length <= 0)
+    {
+        return;
+    }
+
     var ind = devices.length - 1;
     console.log('Found ' + devices.length + ' devices.');
     console.log('Device ' + devices[ind].deviceId + ' vendor' + devices[ind].vendorId + ' product ' + devices[ind].productId);
@@ -1181,6 +1198,7 @@ function onDeviceFound(devices)
     var devId = devices[ind].deviceId;
 
     console.log('Connecting to device '+devId);
+    log('#messageLog', 'Connecting to device...\n');
     chrome.hid.connect(devId, function(connectInfo) 
     {
         if (!chrome.runtime.lastError) 

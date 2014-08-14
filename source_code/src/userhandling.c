@@ -28,6 +28,10 @@
 #include <avr/io.h>
 #include <string.h>
 #include "smart_card_higher_level_functions.h"
+#include "gui_credentials_functions.h"
+#include "gui_smartcard_functions.h"
+#include "gui_screen_functions.h"
+#include "gui_pin_functions.h"
 #include "eeprom_addresses.h"
 #include "timer_manager.h"
 #include "userhandling.h"
@@ -45,7 +49,7 @@
 
 // Know if the smart card is inserted and unlocked
 uint8_t smartcard_inserted_unlocked = FALSE;
-// Current nonce
+// Current nonce for our AES256 encryption
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login child node address
 uint16_t selected_login_child_node_addr;
@@ -57,6 +61,8 @@ uint8_t context_valid_flag = FALSE;
 uint8_t nextCtrVal[USER_CTR_SIZE];
 // Current context parent node address
 uint16_t context_parent_node_addr;
+// Our confirmation text variable, sent to gui functions
+confirmationText_t conf_text;
 // Node management handle
 mgmtHandle nodeMgmtHandle;
 // AES256 context variable
@@ -191,7 +197,7 @@ void ctrPreEncryptionTasks(void)
     // Read CTR stored in flash
     readProfileCtr(&nodeMgmtHandle, temp_buffer, USER_CTR_SIZE);
     
-    // If it is the same value, increment it by X and store it in flash
+    // If it is the same value, increment it by CTR_FLASH_MIN_INCR and store it in flash
     if (aesCtrCompare(temp_buffer, nextCtrVal, USER_CTR_SIZE) == 0)
     {
         for (i = USER_CTR_SIZE-1; i > 0; i--)
@@ -304,8 +310,12 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
         return RETURN_NOK;
     }
     
+    // Prepare domain approval screen
+    conf_text.line1 = PSTR("Confirm new credentials for:");
+    conf_text.line2 = (char*)name;
+    
     // Ask for user approval
-    if(guiAskForDomainAddApproval((char*)name) == RETURN_OK)
+    if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
     {
         // Display processing screen
         guiDisplayProcessingScreen();
@@ -433,8 +443,14 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         } 
         else
         {
+            // Prepare confirmation screen
+            conf_text.line1 = PSTR("Add username:");
+            conf_text.line2 = (char*)name;
+            conf_text.line3 = PSTR("on");
+            conf_text.line4 = (char*)temp_pnode.service;
+            
             // If doesn't exist, ask user for confirmation to add to flash
-            if (guiAskForLoginAddApproval((char*)name, (char*)temp_pnode.service) == RETURN_OK)
+            if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
             {
                 // Display processing screen
                 guiDisplayProcessingScreen();
@@ -491,9 +507,18 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         memcpy((void*)temp_cnode.password, (void*)password, length);
         fillArrayWithRandomBytes(temp_cnode.password + length, NODE_CHILD_SIZE_OF_PASSWORD - length);
         
-        // Ask for password changing approval
-        if (guiAskForPasswordSet((char*)temp_cnode.login, (char*)password, (char*)temp_pnode.service) == RETURN_OK)
+        // Prepare password changing approval text
+        conf_text.line1 = PSTR("Change password for:");
+        conf_text.line2 = (char*)temp_cnode.login;
+        conf_text.line3 = PSTR("on");
+        conf_text.line4 = (char*)temp_pnode.service;
+        
+        // Ask for password changing approval      
+        if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
         {
+            // Get back to current screen
+            guiGetBackToCurrentScreen();
+            
             // Encrypt the password
             encryptTempCNodePasswordAndClearCTVFlag();
             
@@ -502,10 +527,14 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             {
                 return RETURN_NOK;
             }
+            
             return RETURN_OK;
         } 
         else
         {
+            // Get back to current screen
+            guiGetBackToCurrentScreen();
+            
             return RETURN_NOK;
         }
     }
@@ -686,18 +715,6 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
     }
 }
 
-/*! \fn     initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
-*   \brief  Initialize our encryption/decryption part
-*   \param  aes_key     Our AES256 key
-*   \param  nonce       The nonce
-*/
-void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
-{
-    memcpy((void*)current_nonce, (void*)nonce, AES256_CTR_LENGTH);
-    aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
-    memset((void*)aes_key, 0, AES_KEY_LENGTH/8);
-}
-
 /*! \fn     addNewUserAndNewSmartCard(uint16_t pin_code)
 *   \brief  Add a new user with a new smart card
 *   \param  pin_code The new pin code
@@ -709,24 +726,30 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     uint8_t temp_nonce[AES256_CTR_LENGTH];
     uint8_t new_user_id;
     
+    // When inserting a new user and a new card, we need to setup the following elements
+    // - AES encryption key, stored in the smartcard
+    // - AES next available CTR, stored in the user profile
+    // - AES nonce, stored in the eeprom along with the user ID
+    // - Smartcard CPZ, randomly generated and stored in our eeprom along with user id & nonce
+    
     // Get new user id
     new_user_id = getNumberOfKnownUsers();
 
-    // Write random bytes in the code protected zone
+    // Write random bytes in the code protected zone in the smart card
     fillArrayWithRandomBytes(temp_buffer, SMARTCARD_CPZ_LENGTH);
     writeCodeProtectedZone(temp_buffer);
 
-    // Generate random nonce
+    // Generate random nonce to be stored in the eeprom
     fillArrayWithRandomBytes(temp_nonce, AES256_CTR_LENGTH);
     
-    // Create user profile in flash, CTR is set to 0 by library
+    // Create user profile in flash, CTR is set to 0 by the library
     if (formatUserProfileMemory(new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }
 
-    // Initialize node management handle
-    if(initNodeManagementHandle(&nodeMgmtHandle, new_user_id) != RETURN_OK)
+    // Initialize user flash context, that inits the node mgmt handle and the ctr value
+    if (initUserFlashContext(new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }
@@ -737,7 +760,7 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
         return RETURN_NOK;
     }
     
-    // Generate a new random AES key
+    // Generate a new random AES key, write it in the smartcard
     fillArrayWithRandomBytes(temp_buffer, AES_KEY_LENGTH/8);
     writeAES256BitsKey(temp_buffer);
     
@@ -748,6 +771,18 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     writeSecurityCode(pin_code);
     
     return RETURN_OK;
+}
+
+/*! \fn     initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
+*   \brief  Initialize our encryption/decryption part
+*   \param  aes_key     Our AES256 key
+*   \param  nonce       The nonce
+*/
+void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
+{
+    memcpy((void*)current_nonce, (void*)nonce, AES256_CTR_LENGTH);
+    aes256CtrInit(&aesctx, aes_key, current_nonce, AES256_CTR_LENGTH);
+    memset((void*)aes_key, 0, AES_KEY_LENGTH/8);
 }
 
 /*! \fn     initUserFlashContext(uint8_t user_id)
@@ -765,6 +800,67 @@ RET_TYPE initUserFlashContext(uint8_t user_id)
     {
         readProfileCtr(&nodeMgmtHandle, nextCtrVal, USER_CTR_SIZE);
         return RETURN_OK;
+    }
+}
+
+/*! \fn     validCardDetectedFunction(void)
+*   \brief  Function called when a valid mooltipass card is detected
+*   \return success or not
+*/
+RET_TYPE validCardDetectedFunction(void)
+{
+    uint8_t temp_ctr_val[AES256_CTR_LENGTH];
+    uint8_t temp_buffer[AES_KEY_LENGTH/8];
+    uint8_t temp_user_id;
+    
+    // Debug: output the number of known cards and users
+    #ifdef GENERAL_LOGIC_OUTPUT_USB
+        usbPrintf_P(PSTR("%d cards\r\n"), getNumberOfKnownCards());
+        usbPrintf_P(PSTR("%d users\r\n"), getNumberOfKnownUsers());
+    #endif
+    
+    // Read code protected zone to see if know this particular card
+    readCodeProtectedZone(temp_buffer);
+    
+    // See if we know the card and if so fetch the user id & CTR nonce
+    if (getUserIdFromSmartCardCPZ(temp_buffer, temp_ctr_val, &temp_user_id) == RETURN_OK)
+    {
+        // Debug: output user ID
+        #ifdef GENERAL_LOGIC_OUTPUT_USB
+            usbPrintf_P(PSTR("Card ID found with user %d\r\n"), temp_user_id);
+        #endif
+        
+        // Ask the user to enter his PIN and check it
+        if (guiCardUnlockingProcess() == RETURN_OK)
+        {
+            // Unlocking succeeded
+            readAES256BitsKey(temp_buffer);
+            initUserFlashContext(temp_user_id);
+            initEncryptionHandling(temp_buffer, temp_ctr_val);
+            setSmartCardInsertedUnlocked();
+            return RETURN_OK;     
+        }
+        else
+        {
+            // Unlocking failed
+            return RETURN_NOK;
+        }        
+    }
+    else
+    {
+        // Tell the user we don't know this card
+        guiDisplayInformationOnScreen(PSTR("Card ID not found"));
+        
+        // Developer mode, enter default pin code
+        #ifdef NO_PIN_CODE_REQUIRED
+            mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+            setSmartCardInsertedUnlocked();
+        #else
+            removeFunctionSMC();                            // Shut down card reader
+        #endif
+        
+        // Report Fail
+        return RETURN_NOK;
     }
 }
 

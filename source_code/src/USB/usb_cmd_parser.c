@@ -23,6 +23,8 @@
 *    Author:   Mathieu Stephan
 */
 #include "smart_card_higher_level_functions.h"
+#include "gui_smartcard_functions.h"
+#include "gui_screen_functions.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
 #include "usb_cmd_parser.h"
@@ -37,7 +39,7 @@
 #include "utils.h"
 #include "stack.h"
 #include "usb.h"
-#include "gui.h"
+#include "version.h"
 
 // Current address in flash we need to export
 uint32_t current_flash_export_addr = 0;
@@ -122,13 +124,11 @@ void usbProcessIncoming(uint8_t* incomingData)
         // version command
         case CMD_VERSION :
         {
-            msg->len = 3;
+            msg->len = 3; // len + cmd + FLASH_CHIP
             msg->cmd = CMD_VERSION;
-            msg->body.version.major = MOOLT_VERSION_MAJOR;
-            msg->body.version.minor = MOOLT_VERSION_MINOR;
-            msg->body.version.flash_chip = FLASH_CHIP;
-            msg->body.version.build = BUILD_NUMBER;
-            usbSendMessage(0, 2+sizeof(msg->body.version), msg);
+            msg->body.data[0] = FLASH_CHIP;
+            msg->len += getVersion((char*)&msg->body.data[1], sizeof(msg->body.data) - 1);
+            usbSendMessage(0, msg->len, msg);
             return;
         }
 
@@ -288,7 +288,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         // flash export start
         case CMD_EXPORT_FLASH_START :
         {
-            if (guiAskForConfirmation(PSTR("Approve flash export?")) == RETURN_OK)
+            if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve flash export?")) == RETURN_OK)
             {
                 flash_export_approved = TRUE;
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -363,7 +363,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         // flash export start
         case CMD_EXPORT_EEPROM_START :
         {
-            if (guiAskForConfirmation(PSTR("Approve eeprom export?")) == RETURN_OK)
+            if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve eeprom export?")) == RETURN_OK)
             {
                 eeprom_export_approved = TRUE;
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -446,7 +446,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
 
             // Ask for user confirmation
-            if (guiAskForConfirmation(PSTR("Approve flash import?")) == RETURN_OK)
+            if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve flash import?")) == RETURN_OK)
             {
                 flash_import_approved = TRUE;
                 current_flash_import_page_pos = 0;
@@ -508,7 +508,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_IMPORT_EEPROM_BEGIN :
         {
             // Ask for user confirmation
-            if (guiAskForConfirmation(PSTR("Approve eeprom import?")) == RETURN_OK)
+            if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve eeprom import?")) == RETURN_OK)
             {
                 current_eeprom_import_pos = 0;
                 eeprom_import_approved = TRUE;

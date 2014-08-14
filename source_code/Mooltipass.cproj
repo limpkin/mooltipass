@@ -121,7 +121,7 @@
       <Value>NDEBUG</Value>
       <Value>F_CPU=16000000UL</Value>
       <Value>F_USB=16000000UL</Value>
-      <Value>MOOLTIPASS_VERSION</Value>
+      <Value>MOOLTIPASS_VERSION=\"invalid\"</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>

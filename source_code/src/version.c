@@ -25,7 +25,7 @@
 
 #include "version.h"
 
-static const char mooltipass_version[] PROGMEM = "pouet";
+static const char mooltipass_version[] PROGMEM = MOOLTIPASS_VERSION;
 
 int getVersion(char *dst, int len)
 {

@@ -54,7 +54,6 @@ uint8_t currentLedMask = 0;
 uint8_t isScreenOn = TRUE;
 
 
-
 /*! \fn     activityDetectedRoutine(void)
 *   \brief  What to do when user activity has been detected
 */
@@ -89,6 +88,9 @@ void activityDetectedRoutine(void)
 */
 void guiMainLoop(void)
 {   
+    RET_TYPE touch_detect_result;
+    uint8_t isScreenOnCopy;
+    
     #ifdef HARDWARE_V1
         return;
     #endif
@@ -104,7 +106,11 @@ void guiMainLoop(void)
         default: break;
     }
     
-    RET_TYPE touch_detect_result = touchDetectionRoutine(currentLedMask);
+    // Make a copy of the screenon bool
+    isScreenOnCopy = isScreenOn;
+    
+    // Launch touch detection routine to check for interactions
+    touch_detect_result = touchDetectionRoutine(currentLedMask);
     
     // No activity, switch off LEDs and activate prox detection    
     if (hasTimerExpired(TIMER_LIGHT, TRUE) == TIMER_EXPIRED)
@@ -126,6 +132,12 @@ void guiMainLoop(void)
     // Touch interface
     if (touch_detect_result & TOUCH_PRESS_MASK)
     {
+        // Screen just turned out, discard first user input
+        if (isScreenOnCopy == FALSE)
+        {
+            return;
+        }
+        
         touch_detect_result &= ~RETURN_PROX_DETECTION;
         
         if (currentScreen == SCREEN_DEFAULT_NINSERTED)

@@ -40,10 +40,10 @@
 */
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
 {
-    oledFillXY(80, 18, 92, 24, 0x00);
+    oledFillXY(80, 28, 92, 24, 0x00);
     for (uint8_t i = 0; i < 4; i++)
     {
-        oledSetXY(84+22*i, 20);
+        oledSetXY(84+22*i, 30);
         if (i != selected_digit)
         {
             oledPutch('*');
@@ -91,8 +91,9 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
     oledBitmapDrawFlash(25, 0, BITMAP_LEFT, 0);
     oledBitmapDrawFlash(2, 26, BITMAP_CROSS, 0);
     oledBitmapDrawFlash(195, 0, BITMAP_RIGHT, 0);
-    oledBitmapDrawFlash(80, 41, BITMAP_PIN_LINES, 0);
+    oledBitmapDrawFlash(80, 51, BITMAP_PIN_LINES, 0);
     oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
+    oledPutstrXY_P(0, 0, OLED_CENTRE, string);
     oledFlipBuffers(0,0);
     oledSetFont(15);
     oledWriteActiveBuffer();
@@ -144,6 +145,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
             oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
+            _delay_ms(100);
         }
         else if (temp_rettype & RETURN_RIGHT_PRESSED)
         {
@@ -163,6 +165,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
             oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
+            _delay_ms(100);
         }
     }
     
@@ -188,7 +191,7 @@ RET_TYPE guiCardUnlockingProcess(void)
     
     while (1)
     {
-        if (guiGetPinFromUser(&temp_pin, PSTR("Insert PIN")) == RETURN_OK)
+        if (guiGetPinFromUser(&temp_pin, PSTR("Insert your PIN")) == RETURN_OK)
         {
             // Check that the smart card is still here before unlocking it
             if (cardDetectedRoutine() != RETURN_MOOLTIPASS_USER)

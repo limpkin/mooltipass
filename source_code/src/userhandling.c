@@ -523,6 +523,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             {
                 return RETURN_NOK;
             }
+            
             return RETURN_OK;
         } 
         else
@@ -532,9 +533,6 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             
             return RETURN_NOK;
         }
-        
-        // Get back to normal screen
-        guiGetBackToCurrentScreen();
     }
 }
 

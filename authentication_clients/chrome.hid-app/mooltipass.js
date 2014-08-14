@@ -846,6 +846,19 @@ function allocateMediaPage(size)
  */
 function onDataReceived(reportId, data) 
 {
+    if (typeof reportId === "undefined" || typeof data === "undefined")
+    {
+        if (chrome.runtime.lastError)
+        {
+            var err = chrome.runtime.lastError;
+            if (err.message != "Transfer failed.")
+            {
+                console.log("Error in onDataReceived: " + err.message);
+            }
+        }
+        return;
+    }
+
     var bytes = new Uint8Array(data);
     var msg = new Uint8Array(data,2);
     var len = bytes[0]
@@ -1173,6 +1186,11 @@ function sendPing()
  */
 function onDeviceFound(devices) 
 {
+    if (devices.length <= 0)
+    {
+        return;
+    }
+
     var ind = devices.length - 1;
     console.log('Found ' + devices.length + ' devices.');
     console.log('Device ' + devices[ind].deviceId + ' vendor' + devices[ind].vendorId + ' product ' + devices[ind].productId);
@@ -1180,6 +1198,7 @@ function onDeviceFound(devices)
     var devId = devices[ind].deviceId;
 
     console.log('Connecting to device '+devId);
+    log('#messageLog', 'Connecting to device...\n');
     chrome.hid.connect(devId, function(connectInfo) 
     {
         if (!chrome.runtime.lastError) 

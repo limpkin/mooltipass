@@ -522,98 +522,6 @@ void guiDisplayProcessingScreen(void)
 */
 void informGuiOfCurrentContext(char* context)
 {
-//     oledClear();
-//     oledBitmapDrawFlash(0, 0, BITMAP_SIDES, 0);
-//     oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("You are currently visiting:"));
-//     oledPutstrXY(0, 30, OLED_CENTRE, context);
-//     oledFlipBuffers(0,0);
-}
-
-/*! \fn     guiAskForDomainAddApproval(char* name)
-*   \param  context String of the context
-*   \brief  Ask for user approval to add a domain
-*/
-RET_TYPE guiAskForDomainAddApproval(char* name)
-{
-    // Draw asking bitmap & wait for user input
-    oledClear();
-    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
-    oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Confirm new credentials for:"));
-    oledPutstrXY(0, 30, OLED_CENTRE, name);
-    oledFlipBuffers(0,0);
-    
-    if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
-    {
-        return RETURN_OK;
-    }
-    else
-    {
-        return RETURN_NOK;
-    }
-}
-
-/*! \fn     guiAskForLoginAddApproval(char* name)
-*   \param  name    Login that needs to be added
-*   \param  service Name of the current service
-*   \brief  Ask for user approval to add a login
-*/
-RET_TYPE guiAskForLoginAddApproval(char* name, char* service)
-{
-    RET_TYPE return_value;
-    
-    // Draw asking bitmap & wait for user input
-    oledClear();
-    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
-    oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Add username:"));
-    oledPutstrXY(0, 21, OLED_CENTRE, name);
-    oledPutstrXY(0, 36, OLED_CENTRE, "on");
-    oledPutstrXY(0, 52, OLED_CENTRE, service);
-    oledFlipBuffers(0,0);
-    
-    if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
-    {
-        return RETURN_OK;
-    }
-    else
-    {
-        return RETURN_NOK;
-    }
-    
-    return return_value;
-}
-
-/*! \fn     guiAskForPasswordSet(char* name)
-*   \brief  Ask for user approval to set a password
-*   \param  name        The login
-*   \param  password    The new password
-*   \param  service     Service Name
-*/
-RET_TYPE guiAskForPasswordSet(char* name, char* password, char* service)
-{
-    RET_TYPE return_value;
-    
-    // Draw asking bitmap & wait for user input
-    oledClear();
-    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
-    oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Change password for:"));
-    oledPutstrXY(0, 21, OLED_CENTRE, name);
-    oledPutstrXY(0, 36, OLED_CENTRE, "on");
-    oledPutstrXY(0, 52, OLED_CENTRE, service);
-    oledFlipBuffers(0,0);
-    
-    if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
-    {
-        return RETURN_OK;
-    }
-    else
-    {
-        return RETURN_NOK;
-    }
-    
-    // Get back to other screen
-   guiGetBackToCurrentScreen();
-    
-    return return_value;
 }
 
 /*! \fn     guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress)
@@ -654,16 +562,16 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     }
     if (c->nextChildAddress == NODE_ADDR_NULL)
     {
-        // Draw asking bitmap
-        oledClear();
-        oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
-        oledPutstrXY_P(0, 4, OLED_CENTRE, PSTR("Confirm login for"));
-        oledPutstrXY(0, 21, OLED_CENTRE, (char*)p->service);
-        oledPutstrXY_P(0, 36, OLED_CENTRE, PSTR("with these credentials:"));
-        oledPutstrXY(0, 52, OLED_CENTRE, (char*)c->login);
-        oledFlipBuffers(0,0);
+        confirmationText_t temp_conf_text;
         
-        if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
+        // Prepare asking confirmation screen
+        temp_conf_text.line1 = PSTR("Confirm login for");
+        temp_conf_text.line2 = (char*)p->service;
+        temp_conf_text.line3 = PSTR("with these credentials:");
+        temp_conf_text.line4 = (char*)c->login;
+        
+        // Prompt user for confirmation
+        if(guiAskForConfirmation(4, &temp_conf_text) == RETURN_OK)
         {
             // Get back to other screen
             guiGetBackToCurrentScreen();
@@ -711,7 +619,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                     if (c->prevChildAddress == NODE_ADDR_NULL)
                     {
                         led_mask |= LED_MASK_LEFT;
-                        oledFillXY(60, 24, 22, 16, 0x00);
+                        oledFillXY(60, 24, 22, 18, 0x00);
                     }
                 }
                 else if (i == 1)
@@ -737,10 +645,10 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             }
             
             // Update led_mask & bitmap
-            if ((i != 4) && (c->nextChildAddress == NODE_ADDR_NULL))
+            if ((i != 4) || (c->nextChildAddress == NODE_ADDR_NULL))
             {
                 led_mask |= LED_MASK_RIGHT;
-                oledFillXY(174, 24, 20, 16, 0x00);                
+                oledFillXY(174, 24, 22, 18, 0x00);                
             }
             for (j = i; j < 4; j++)
             {
@@ -812,27 +720,46 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
 
 /*! \fn     guiAskForConfirmation(const char* string)
 *   \brief  Ask for user confirmation for different things
-*   \param  string  Pointer to the string to display
+*   \param  nb_args     Number of text lines (must be either 1 2 or 4)
+*   \param  text_object Pointer to the text object if more than 1 line, pointer to progrem string if not
 *   \return User confirmation or not
 */
-RET_TYPE guiAskForConfirmation(const char* string)
-{
-    // Draw asking bitmap & wait for user input
+RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
+{    
+    // Draw asking bitmap
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
-    oledPutstrXY_P(0, 24, OLED_CENTRE, string);
+    
+    // If more than one line
+    if (nb_args == 1)
+    {
+        // Yeah, that's a bit dirty
+        oledPutstrXY_P(0, 24, OLED_CENTRE, (const char*)text_object);
+    }
+    else
+    {
+        oledPutstrXY_P(0, 4, OLED_CENTRE, text_object->line1);
+        if (nb_args >= 2)
+        {
+            oledPutstrXY(0, 21, OLED_CENTRE, text_object->line2);
+        }
+        if (nb_args >= 4)
+        {
+            oledPutstrXY_P(0, 36, OLED_CENTRE, text_object->line3);
+            oledPutstrXY(0, 52, OLED_CENTRE, text_object->line4);
+        }        
+    }
+    
+    // Display result
     oledFlipBuffers(0,0);
     
+    // Wait for user input
     if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
     {
-        // Get back to other screen
-        guiGetBackToCurrentScreen();
         return RETURN_OK;
     }
     else
     {
-        // Get back to other screen
-        guiGetBackToCurrentScreen();
         return RETURN_NOK;
     }  
 }
@@ -879,7 +806,7 @@ RET_TYPE guiHandleSmartcardInserted(RET_TYPE detection_result)
     else if (detection_result == RETURN_MOOLTIPASS_BLANK)
     {
         // Ask the user to setup his mooltipass card
-        if (guiAskForConfirmation(PSTR("Create new mooltipass user?")) == RETURN_OK)
+        if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Create new mooltipass user?")) == RETURN_OK)
         {         
             guiDisplayProcessingScreen();
             // Create a new user with his new smart card

@@ -45,7 +45,7 @@
 
 // Know if the smart card is inserted and unlocked
 uint8_t smartcard_inserted_unlocked = FALSE;
-// Current nonce
+// Current nonce for our AES256 encryption
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login child node address
 uint16_t selected_login_child_node_addr;
@@ -57,6 +57,8 @@ uint8_t context_valid_flag = FALSE;
 uint8_t nextCtrVal[USER_CTR_SIZE];
 // Current context parent node address
 uint16_t context_parent_node_addr;
+// Our confirmation text variable, sent to gui functions
+confirmationText_t conf_text;
 // Node management handle
 mgmtHandle nodeMgmtHandle;
 // AES256 context variable
@@ -304,8 +306,12 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
         return RETURN_NOK;
     }
     
+    // Prepare domain approval screen
+    conf_text.line1 = PSTR("Confirm new credentials for:");
+    conf_text.line2 = (char*)name;
+    
     // Ask for user approval
-    if(guiAskForDomainAddApproval((char*)name) == RETURN_OK)
+    if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
     {
         // Display processing screen
         guiDisplayProcessingScreen();
@@ -433,8 +439,14 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         } 
         else
         {
+            // Prepare confirmation screen
+            conf_text.line1 = PSTR("Add username:");
+            conf_text.line2 = (char*)name;
+            conf_text.line3 = PSTR("on");
+            conf_text.line4 = (char*)temp_pnode.service;
+            
             // If doesn't exist, ask user for confirmation to add to flash
-            if (guiAskForLoginAddApproval((char*)name, (char*)temp_pnode.service) == RETURN_OK)
+            if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
             {
                 // Display processing screen
                 guiDisplayProcessingScreen();
@@ -491,9 +503,18 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         memcpy((void*)temp_cnode.password, (void*)password, length);
         fillArrayWithRandomBytes(temp_cnode.password + length, NODE_CHILD_SIZE_OF_PASSWORD - length);
         
-        // Ask for password changing approval
-        if (guiAskForPasswordSet((char*)temp_cnode.login, (char*)password, (char*)temp_pnode.service) == RETURN_OK)
+        // Prepare password changing approval text
+        conf_text.line1 = PSTR("Change password for:");
+        conf_text.line2 = (char*)temp_cnode.login;
+        conf_text.line3 = PSTR("on");
+        conf_text.line4 = (char*)temp_pnode.service;
+        
+        // Ask for password changing approval      
+        if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
         {
+            // Get back to current screen
+            guiGetBackToCurrentScreen();
+            
             // Encrypt the password
             encryptTempCNodePasswordAndClearCTVFlag();
             
@@ -506,8 +527,14 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         } 
         else
         {
+            // Get back to current screen
+            guiGetBackToCurrentScreen();
+            
             return RETURN_NOK;
         }
+        
+        // Get back to normal screen
+        guiGetBackToCurrentScreen();
     }
 }
 

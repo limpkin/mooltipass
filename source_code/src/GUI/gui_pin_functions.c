@@ -1,0 +1,229 @@
+/* CDDL HEADER START
+ *
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License (the "License").
+ * You may not use this file except in compliance with the License.
+ *
+ * You can obtain a copy of the license at src/license_cddl-1.0.txt
+ * or http://www.opensolaris.org/os/licensing.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file at src/license_cddl-1.0.txt
+ * If applicable, add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your own identifying
+ * information: Portions Copyright [yyyy] [name of copyright owner]
+ *
+ * CDDL HEADER END
+ */
+/*!  \file     gui_pin_functions.c
+*    \brief    General user interface - pin functions
+*    Created:  22/6/2014
+*    Author:   Mathieu Stephan
+*/
+#include <util/delay.h>
+#include <string.h>
+#include "smart_card_higher_level_functions.h"
+#include "touch_higher_level_functions.h"
+#include "gui_screen_functions.h"
+#include "gui_basic_functions.h"
+#include "defines.h"
+#include "oledmp.h"
+#include "anim.h"
+
+
+/*! \fn     guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
+*   \brief  Overwrite the digits on the current pin entering screen
+*   \param  current_pin     Array containing the pin
+*   \param  selected_digit  Currently selected digit
+*/
+void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
+{
+    oledFillXY(80, 18, 92, 24, 0x00);
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        oledSetXY(84+22*i, 20);
+        if (i != selected_digit)
+        {
+            oledPutch('*');
+        }
+        else
+        {
+            if (current_pin[i] >= 0x0A)
+            {
+                oledPutch(current_pin[i]+'A'-0x0A);
+            }
+            else
+            {
+                oledPutch(current_pin[i]+'0');
+            }
+        }
+    }
+}
+
+/*! \fn     guiGetPinFromUser(void)
+*   \brief  Ask the user to enter a PIN
+*   \param  pin_code    Pointer to where to store the pin code
+*   \param  string      Text to display
+*   \return If the user approved the request
+*/
+RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
+{
+    // If we don't need a pin code, send default one
+    #if defined(NO_PIN_CODE_REQUIRED) || defined(HARDWARE_V1)
+        *pin_code = SMARTCARD_DEFAULT_PIN;
+        return RETURN_OK;
+    #endif
+    
+    RET_TYPE ret_val = RETURN_NOK;
+    uint8_t selected_digit = 0;
+    uint8_t finished = FALSE;
+    uint8_t current_pin[4];
+    RET_TYPE temp_rettype;
+    int8_t temp_int8;
+    
+    // Set current pin to 0000
+    memset((void*)current_pin, 0, 4);
+    
+    // Draw pin entering bitmap
+    oledClear();
+    oledBitmapDrawFlash(25, 0, BITMAP_LEFT, 0);
+    oledBitmapDrawFlash(2, 26, BITMAP_CROSS, 0);
+    oledBitmapDrawFlash(195, 0, BITMAP_RIGHT, 0);
+    oledBitmapDrawFlash(80, 41, BITMAP_PIN_LINES, 0);
+    oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
+    oledFlipBuffers(0,0);
+    oledSetFont(15);
+    oledWriteActiveBuffer();
+    
+    // Display current pin on screen
+    guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+    
+    // Wait for all presses to be released
+    while(touchDetectionRoutine(0) & TOUCH_PRESS_MASK);
+    
+    // While the user hasn't entered his pin
+    while(!finished)
+    {
+        // Detect key touches
+        temp_rettype = touchDetectionRoutine(0);
+        // Send it to the touch wheel interface logic
+        temp_int8 = touchWheelIntefaceLogic(temp_rettype);
+        
+        // Position increment / decrement
+        if (temp_int8 != 0)
+        {
+            if ((current_pin[selected_digit] == 0x0F) && (temp_int8 == 1))
+            {
+                current_pin[selected_digit] = 0xFF;
+            }
+            else if ((current_pin[selected_digit] == 0) && (temp_int8 == -1))
+            {
+                current_pin[selected_digit] = 0x10;
+            }
+            current_pin[selected_digit] += temp_int8;
+            guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+        }
+        
+        if (temp_rettype & RETURN_LEFT_PRESSED)
+        {
+            if (selected_digit == 1)
+            {
+                oledFillXY(0, 22, 22, 22, 0x00);
+                oledBitmapDrawFlash(2, 26, BITMAP_CROSS, 0);
+            }
+            if (selected_digit > 0)
+            {
+                selected_digit--;
+            }
+            else
+            {
+                ret_val = RETURN_NOK;
+                finished = TRUE;
+            }
+            guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+            oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
+        }
+        else if (temp_rettype & RETURN_RIGHT_PRESSED)
+        {
+            if (selected_digit == 2)
+            {
+                oledFillXY(235, 23, 20, 25, 0x00);
+                oledBitmapDrawFlash(236, 26, BITMAP_TICK, 0);
+            }
+            if (selected_digit < 3)
+            {
+                selected_digit++;
+            }
+            else
+            {
+                ret_val = RETURN_OK;
+                finished = TRUE;
+            }
+            guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+            oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
+        }
+    }
+    
+    // Reset default font
+    oledSetFont(FONT_DEFAULT);
+    oledWriteInactiveBuffer();
+    
+    // Store the pin
+    *pin_code = (uint16_t)(((uint16_t)(current_pin[0]) << 12) | (((uint16_t)current_pin[1]) << 8) | (current_pin[2] << 4) | current_pin[3]);
+    
+    // Return success status
+    return ret_val;
+}
+
+/*! \fn     guiCardUnlockingProcess(void)
+*   \brief  Function called for the user to unlock his smartcard
+*   \return success status
+*/
+RET_TYPE guiCardUnlockingProcess(void)
+{
+    RET_TYPE temp_rettype;
+    uint16_t temp_pin;
+    
+    while (1)
+    {
+        if (guiGetPinFromUser(&temp_pin, PSTR("Insert PIN")) == RETURN_OK)
+        {
+            // Try unlocking the smartcard
+            temp_rettype = mooltipassDetectedRoutine(temp_pin);
+            
+            switch(temp_rettype)
+            {
+                case RETURN_MOOLTIPASS_4_TRIES_LEFT :
+                {
+                    // Smartcard unlocked
+                    return RETURN_OK;
+                }
+                case RETURN_MOOLTIPASS_0_TRIES_LEFT :
+                {
+                    guiDisplayInformationOnScreen(PSTR("Card blocked!"));
+                    _delay_ms(2000);
+                    return RETURN_NOK;
+                }
+                case RETURN_MOOLTIPASS_PB :
+                {
+                    guiDisplayInformationOnScreen(PSTR("PB with card!"));
+                    _delay_ms(2000);
+                    return RETURN_NOK;
+                }
+                default :
+                {
+                    guiDisplayInformationOnScreen(PSTR("Wrong pin!"));
+                    _delay_ms(2000);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            // User cancelled the request
+            return RETURN_NOK;
+        }
+    }
+}

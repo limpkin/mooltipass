@@ -28,6 +28,10 @@
 #include <avr/io.h>
 #include <string.h>
 #include "smart_card_higher_level_functions.h"
+#include "gui_credentials_functions.h"
+#include "gui_smartcard_functions.h"
+#include "gui_screen_functions.h"
+#include "gui_pin_functions.h"
 #include "eeprom_addresses.h"
 #include "timer_manager.h"
 #include "userhandling.h"

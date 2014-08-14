@@ -27,9 +27,7 @@
 #ifndef GUI_H_
 #define GUI_H_
 
-#include "node_mgmt.h"
-
-/* Defines */
+/* DEFINES */
 // Wheel interface
 #define WHEEL_TICK_INCREMENT            32
 // Timers
@@ -43,7 +41,7 @@
 #define SCREEN_DEFAULT_INSERTED_INVALID 3
 #define SCREEN_SETTINGS                 4
 
-/* Structs */
+/* STRUCTS */
 typedef struct
 {
     const char* line1;
@@ -51,21 +49,5 @@ typedef struct
     const char* line3;
     char* line4;
 } confirmationText_t;
-
-/* Prototypes */
-uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);
-RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object);
-RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string);
-void guiDisplayInformationOnScreen(const char* string);
-RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
-void informGuiOfCurrentContext(char* context);
-RET_TYPE guiHandleSmartcardInserted(void);
-void guiSetCurrentScreen(uint8_t screen);
-RET_TYPE guiCardUnlockingProcess(void);
-void guiDisplayProcessingScreen(void);
-void guiHandleSmartcardRemoved(void);
-void guiGetBackToCurrentScreen(void);
-void activityDetectedRoutine(void);
-void guiMainLoop(void);
 
 #endif /* GUI_H_ */

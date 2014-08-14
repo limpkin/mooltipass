@@ -131,6 +131,7 @@
       <Value>../src/CARD</Value>
       <Value>../src/FLASH</Value>
       <Value>../src/GRAPHICS</Value>
+      <Value>../src/GUI</Value>
       <Value>../src/NODEMGMT</Value>
       <Value>../src/OLED</Value>
       <Value>../src/OLEDMP</Value>
@@ -162,54 +163,56 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrGcc>
-        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>F_CPU=16000000UL</Value>
-            <Value>F_USB=16000000UL</Value>
-          </ListValues>
-        </avrgcc.compiler.symbols.DefSymbols>
-        <avrgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>../src</Value>
-            <Value>../src/AES</Value>
-            <Value>../src/CARD</Value>
-            <Value>../src/FLASH</Value>
-            <Value>../src/GRAPHICS</Value>
-            <Value>../src/NODEMGMT</Value>
-            <Value>../src/OLED</Value>
-            <Value>../src/OLEDMP</Value>
-            <Value>../src/PWM</Value>
-            <Value>../src/RNG</Value>
-            <Value>../src/SPI</Value>
-            <Value>../src/TOUCH</Value>
-            <Value>../src/USB</Value>
-            <Value>../src/UTILS</Value>
-          </ListValues>
-        </avrgcc.compiler.directories.IncludePaths>
-        <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
-        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-        <avrgcc.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </avrgcc.linker.libraries.Libraries>
-        <avrgcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>../src/AES</Value>
-          </ListValues>
-        </avrgcc.assembler.general.IncludePaths>
-        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-      </AvrGcc>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>F_CPU=16000000UL</Value>
+      <Value>F_USB=16000000UL</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../src</Value>
+      <Value>../src/AES</Value>
+      <Value>../src/CARD</Value>
+      <Value>../src/FLASH</Value>
+      <Value>../src/GRAPHICS</Value>
+      <Value>../src/GUI</Value>
+      <Value>../src/NODEMGMT</Value>
+      <Value>../src/OLED</Value>
+      <Value>../src/OLEDMP</Value>
+      <Value>../src/PWM</Value>
+      <Value>../src/RNG</Value>
+      <Value>../src/SPI</Value>
+      <Value>../src/TOUCH</Value>
+      <Value>../src/USB</Value>
+      <Value>../src/UTILS</Value>
+    </ListValues>
+  </avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avrgcc.linker.libraries.Libraries>
+  <avrgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>../src/AES</Value>
+    </ListValues>
+  </avrgcc.assembler.general.IncludePaths>
+  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+</AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
@@ -249,6 +252,39 @@
     <Compile Include="src\CARD\smart_card_higher_level_functions.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\GUI\gui.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_basic_functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_basic_functions.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_credentials_functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_credentials_functions.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_pin_functions.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_pin_functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_screen_functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_screen_functions.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_smartcard_functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\GUI\gui_smartcard_functions.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\timer_manager.c">
       <SubType>compile</SubType>
     </Compile>
@@ -268,12 +304,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\FLASH\flash_test.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\gui.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\gui.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\had_mooltipass.h">
@@ -426,6 +456,7 @@
     <Folder Include="src\CARD\" />
     <Folder Include="src\FLASH" />
     <Folder Include="src\AES" />
+    <Folder Include="src\GUI" />
     <Folder Include="src\NODEMGMT" />
     <Folder Include="src\PWM\" />
     <Folder Include="src\RNG\" />

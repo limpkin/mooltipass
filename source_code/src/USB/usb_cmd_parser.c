@@ -23,6 +23,8 @@
 *    Author:   Mathieu Stephan
 */
 #include "smart_card_higher_level_functions.h"
+#include "gui_smartcard_functions.h"
+#include "gui_screen_functions.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
 #include "usb_cmd_parser.h"
@@ -35,7 +37,6 @@
 #include <string.h>
 #include "oledmp.h"
 #include "usb.h"
-#include "gui.h"
 #include "version.h"
 
 // Current address in flash we need to export

@@ -207,7 +207,7 @@ typedef int8_t RET_TYPE;
 
 /**************** VERSION DEFINES ***************/
 #ifndef MOOLTIPASS_VERSION
-#warning "MOOLTIPASS_VERSION is not defined: Check your Makefile"
+#define MOOLTIPASS_VERSION "unknown"
 #endif
 
 /**************** BITMAP DEFINES ****************/

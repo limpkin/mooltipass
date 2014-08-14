@@ -214,7 +214,15 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         return TOUCHPOS_WHEEL_TLEFT;
     #endif
     #ifdef ALWAYS_ACCEPT_REQUESTS
-        return TOUCHPOS_WHEEL_TLEFT;
+        // First quarter is discarded
+        if (led_mask & LED_MASK_WHEEL_TLEFT)
+        {
+            return TOUCHPOS_RIGHT;
+        }
+        else
+        {
+            return TOUCHPOS_WHEEL_TLEFT;
+        }        
     #endif
 
     RET_TYPE touch_detect_result;

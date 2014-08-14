@@ -30,7 +30,7 @@ endif
 
 LIBS := -lm -lmooltipass
 
-LIBDIRS := $(addprefix src/, CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH)
+LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH)
 LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
 
 MOOLTIPASS_LIB := build/libmooltipass.a

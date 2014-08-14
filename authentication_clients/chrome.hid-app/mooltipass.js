@@ -1199,6 +1199,7 @@ function onDeviceFound(devices)
     var devId = devices[ind].deviceId;
 
     console.log('Connecting to device '+devId);
+    log('#messageLog', 'Connecting to device...\n');
     chrome.hid.connect(devId, function(connectInfo) 
     {
         if (!chrome.runtime.lastError) 

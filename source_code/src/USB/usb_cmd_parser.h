@@ -36,6 +36,7 @@
 #define CMD_SET_BOOTLOADER_PWD  0x47
 #define CMD_JUMP_TO_BOOTLOADER  0x48
 #define CMD_CLONE_SMARTCARD     0x49
+#define CMD_STACK_FREE          0x50
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

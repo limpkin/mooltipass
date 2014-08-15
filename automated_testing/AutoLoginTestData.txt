@@ -1,4 +1,6 @@
-http://www.artima.com/sign_in?d=%2Findex.jsp,Forgot your password?,Sign Out
+https://hackaday.io/signin?returnUrl=%2F%3Ffrom%3Dhad%26utm_source%3Dhackaday%26utm_medium%3Dmenu%26utm_campaign%3Dblog,,
+https://github.com/login,,
 http://slashdot.org/?nobeta=1,Login,Log out
+http://www.artima.com/sign_in?d=%2Findex.jsp,Forgot your password?,Sign Out
 https://members.cafepress.com/login.aspx,SIGN IN,SIGN OUT
 http://www.moddb.com/,sign in,logout

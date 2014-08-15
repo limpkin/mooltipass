@@ -23,7 +23,6 @@
  */
 #include <util/atomic.h>
 #include <avr/eeprom.h>
-#include <util/delay.h>
 #include <stdlib.h>
 #include <avr/io.h>
 #include <string.h>
@@ -47,6 +46,7 @@
 #include "defines.h"
 #include "entropy.h"
 #include "oledmp.h"
+#include "delays.h"
 #include "utils.h"
 #include "tests.h"
 #include "touch.h"
@@ -103,7 +103,7 @@ int main(void)
         disable_jtag();                 // Disable JTAG to gain access to pins
         DDR_SC_DET &= ~(1 << PORTID_SC_DET);
         PORT_SC_DET |= (1 << PORTID_SC_DET);
-        _delay_ms(100);    
+        smartcardPowerDelay();
         #if defined(HARDWARE_V1)
         if (PIN_SC_DET & (1 << PORTID_SC_DET))
         #elif defined(HARDWARE_OLIVIER_V1)
@@ -115,7 +115,7 @@ int main(void)
     #endif
 
     CPU_PRESCALE(0);                    // Set for 16MHz clock
-    _delay_ms(500);                     // Let the power settle
+    powerSettlingDelay();               // Let the power settle
     disable_jtag();                     // Disable JTAG to gain access to pins
     initPortSMC();                      // Initialize smart card port
     initPwm();                          // Initialize PWM controller
@@ -248,11 +248,11 @@ int main(void)
     for (uint16_t i = 0; i < MAX_PWM_VAL; i++)
     {
         setPwmDc(i);
-        _delay_us(888);
+        //_delay_us(888);
     }
     activityDetectedRoutine();
     launchCalibrationCycle();
-    _delay_ms(2000);
+    userViewDelay();
     
     while (1)
     {        
@@ -278,7 +278,7 @@ int main(void)
             // Set correct screen
             guiDisplayInformationOnScreen(PSTR("Card removed"));
             guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
-            _delay_ms(2000);
+            userViewDelay();
             guiGetBackToCurrentScreen();
         }
         

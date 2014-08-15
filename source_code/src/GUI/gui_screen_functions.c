@@ -27,9 +27,11 @@
 #include "gui_smartcard_functions.h"
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
+#include "gui_pin_functions.h"
 #include "userhandling.h"
 #include "defines.h"
 #include "oledmp.h"
+#include "delays.h"
 #include "anim.h"
 #include "gui.h"
 
@@ -104,7 +106,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
         
         if (currentScreen == SCREEN_DEFAULT_NINSERTED)
         {
-            // No smartcard inserted, ask the user to insert one
+            // No smart card inserted, ask the user to insert one
             guiDisplayInsertSmartCardScreenAndWait();
         }
         else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
@@ -120,14 +122,6 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     // User approved his pin
                     currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
                 }
-                else
-                {
-                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                }
-            }
-            else
-            {
-                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
             }
             
             // Go to the new screen
@@ -160,10 +154,59 @@ void guiScreenLoop(uint8_t touch_detect_result)
             // Unlocked screen
             switch(getWheelTouchDetectionQuarter())
             {
+                case TOUCHPOS_WHEEL_BRIGHT :
+                {
+                    // User wants to clone his smartcard
+                    uint16_t pin_code;
+                    
+                    // Reauth user
+                    if ((removeCardAndReAuthUser() == RETURN_OK) && (guiGetPinFromUser(&pin_code, PSTR("PIN for card?")) == RETURN_OK) && (cloneSmartCard(pin_code) == RETURN_OK))
+                    {
+                        // Well, it's done
+                    } 
+                    else
+                    {
+                        currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                        guiDisplayInformationOnScreen(PSTR("Failed!"));                        
+                    }
+                    userViewDelay();
+                    break;
+                }
                 case TOUCHPOS_WHEEL_TLEFT :
                 {
-                    // User wants to go to the settings menu
+                    // User wants to go to the main menu
                     currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+                    break;
+                }
+                case TOUCHPOS_WHEEL_TRIGHT :
+                {
+                    // User wants to change his PIN code
+                                        
+                    // Reauth user
+                    if (removeCardAndReAuthUser() == RETURN_OK)
+                    {
+                        // User approved his pin, ask his new one
+                        uint16_t pin1;
+                        uint16_t pin2;
+                        
+                        if ((guiGetPinFromUser(&pin1, PSTR("New PIN ?")) == RETURN_OK) && (guiGetPinFromUser(&pin2, PSTR("Confirm PIN")) == RETURN_OK) && (pin1 == pin2))
+                        {
+                            // Both pins are the same, valid input, change pin
+                            writeSecurityCode(pin1);
+                            // Inform of success
+                            guiDisplayInformationOnScreen(PSTR("PIN changed!"));                            
+                        }
+                        else
+                        {                            
+                            // Inform of fail
+                            guiDisplayInformationOnScreen(PSTR("Not changed!"));
+                        }
+                        userViewDelay();
+                    }
+                    else
+                    {
+                        currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                    }
                     break;
                 }
                 default : break;

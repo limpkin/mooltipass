@@ -22,12 +22,12 @@
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
-#include <util/delay.h>
 #include "touch_higher_level_functions.h"
 #include "gui_screen_functions.h"
 #include "timer_manager.h"
 #include "defines.h"
 #include "oledmp.h"
+#include "delays.h"
 #include "pwm.h"
 #include "gui.h"
 
@@ -60,8 +60,8 @@ void activityDetectedRoutine(void)
     if (isScreenOn == FALSE)
     {
         oledOn();
-        _delay_ms(130);
         isScreenOn = TRUE;
+        screenComingOnDelay();
     }
     
     // If the lights were off, turn them on!

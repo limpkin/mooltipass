@@ -41,6 +41,7 @@
 #include "node_mgmt.h"
 #include "entropy.h"
 #include "defines.h"
+#include "delays.h"
 #include "oledmp.h"
 #include "utils.h"
 #include "usb.h"
@@ -928,4 +929,27 @@ RET_TYPE cloneSmartCard(uint16_t pincode)
     guiDisplayInformationOnScreen(PSTR("Done"));
     
     return RETURN_OK;
+}
+
+/*! \fn     removeCardAndReAuthUser(void)
+*   \brief  Re-authentication process
+*   \return success or not
+*/
+RET_TYPE removeCardAndReAuthUser(void)
+{
+    // Disconnect smartcard
+    guiHandleSmartcardRemoved();
+    
+    // Wait a few ms
+    smartcardPowerDelay();
+    
+    // Launch Unlocking process
+    if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_OK))
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }        
 }

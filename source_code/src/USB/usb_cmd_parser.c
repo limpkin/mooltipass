@@ -30,11 +30,11 @@
 #include "usb_cmd_parser.h"
 #include "userhandling.h"
 #include <avr/eeprom.h>
-#include <util/delay.h>
 #include "mooltipass.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
 #include <string.h>
+#include "delays.h"
 #include "oledmp.h"
 #include "utils.h"
 #include "stack.h"
@@ -571,7 +571,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             #endif
             
             // Mandatory wait for bruteforce
-            _delay_ms(3000);
+            userViewDelay();
             #ifdef DEV_PLUGIN_COMMS
                 // Write "jump to bootloader" key in eeprom
                 eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);

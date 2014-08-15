@@ -22,8 +22,8 @@
 #include "usb_cmd_parser.h"
 #include "hid_defines.h"
 #include "defines.h"
+#include "delays.h"
 #include "usb.h"
-#include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -926,7 +926,7 @@ RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str,
     while ((nb_retries) && (pluginSendMessage(cmd, len, str) != RETURN_COM_TRANSF_OK))
     {
         nb_retries--;
-        _delay_us(200);
+        pluginMessageRetryDelay();
     }
     if (nb_retries)
     {
@@ -943,7 +943,7 @@ RET_TYPE usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void *msg, u
     while ((nb_retries) && (usbSendMessage(cmd, size, msg) != RETURN_COM_TRANSF_OK))
     {
         nb_retries--;
-        _delay_us(200);
+        pluginMessageRetryDelay();
     }
 
     return nb_retries ? RETURN_COM_TRANSF_OK : RETURN_COM_NOK;

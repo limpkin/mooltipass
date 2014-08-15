@@ -22,7 +22,6 @@
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
-#include <util/delay.h>
 #include <string.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
@@ -30,6 +29,7 @@
 #include "gui_basic_functions.h"
 #include "defines.h"
 #include "oledmp.h"
+#include "delays.h"
 #include "anim.h"
 
 
@@ -145,7 +145,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
             oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
-            _delay_ms(100);
+            touchSensorInterruptLineDelay();
         }
         else if (temp_rettype & RETURN_RIGHT_PRESSED)
         {
@@ -165,7 +165,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
             oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
-            _delay_ms(100);
+            touchSensorInterruptLineDelay();
         }
     }
     
@@ -212,19 +212,19 @@ RET_TYPE guiCardUnlockingProcess(void)
                 case RETURN_MOOLTIPASS_0_TRIES_LEFT :
                 {
                     guiDisplayInformationOnScreen(PSTR("Card blocked!"));
-                    _delay_ms(2000);
+                    userViewDelay();
                     return RETURN_NOK;
                 }
                 case RETURN_MOOLTIPASS_PB :
                 {
                     guiDisplayInformationOnScreen(PSTR("PB with card!"));
-                    _delay_ms(2000);
+                    userViewDelay();
                     return RETURN_NOK;
                 }
                 default :
                 {
                     guiDisplayInformationOnScreen(PSTR("Wrong pin!"));
-                    _delay_ms(2000);
+                    userViewDelay();
                     break;
                 }
             }

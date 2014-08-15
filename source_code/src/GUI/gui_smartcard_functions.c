@@ -22,7 +22,6 @@
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */ 
-#include <util/delay.h>
 #include <string.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
@@ -33,6 +32,7 @@
 #include "aes256_ctr.h"
 #include "defines.h"
 #include "oledmp.h"
+#include "delays.h"
 #include "anim.h"
 #include "aes.h"
 #include "gui.h"
@@ -101,7 +101,7 @@ RET_TYPE guiHandleSmartcardInserted(void)
         printSmartCardInfo();
     }
     
-    _delay_ms(3000);
+    userViewDelay();
     guiSetCurrentScreen(next_screen);
     guiGetBackToCurrentScreen();
     return return_value;

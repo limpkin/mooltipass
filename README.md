@@ -97,3 +97,44 @@ Not at all. Having our code open source allows everyone to check our security im
 Contact us
 ----------
 You may contact the development team via <a href="https://groups.google.com/forum/?hl=en#!forum/Mooltipass">the official Google group</a>.
+
+Thanks and Acknowledgement
+--------------------------
+None of this would have been possible without the help of many people located all over the globe. Here is a non exhaustive list:
+- Darran H. (graphics, plugin, comms, general development and more) - New Zealand
+- Henryk P. (encryption implementation supervision) - Unknown
+- Hackaday (for their resources and believing in us) - USA
+- Olivier G. (mecanics, project advisor) - Switzerland
+- Josh W. (mechanics, plugin, fw supervision) - USA
+- Eric E. (schematics & layout verification) - USA
+- Mike N. (flash storage, node management) - USA
+- Bjorn W. (wise man, project advisor) - Canada
+- Charles E. (legal, project advisor) - USA
+- Miguel A. (AES encryption, RNG) - Spain
+- Tom V. (part of USB) - South Africa
+- Erik M. (IRC, general help) - USA
+- Mikael A. (GUI, plugin) - Sweden
+- Hans N. (general help) - Denmark
+
+Awesome people who submitted their mecanical designs for a HaD readership vote: Louis, Joe, Andy, Olivier, Josh...
+
+Finally our awesome beta testers who paid for their (expensive) beta units and provided us with invaluable feedback:
+- Marcelo C. - Portugal
+- Christopher H. - USA
+- Dimitrios - Sweden
+- Justin H. - Canada
+- Pontus L. - Sweden
+- Julien M. - France
+- Donald P. - Canada
+- Carlos S. - Spain
+- Charles E. - USA
+- Andrew B. - USA
+- Joshua H. - USA
+- Warren B. - USA
+- David E. - USA
+- Keith S. - USA
+- Jason S. - USA
+- Kyle W. - USA
+- Erik M. - USA
+- Josh W. - USA
+- Don F. - USA

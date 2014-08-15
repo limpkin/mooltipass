@@ -103,7 +103,7 @@ int main(void)
         disable_jtag();                 // Disable JTAG to gain access to pins
         DDR_SC_DET &= ~(1 << PORTID_SC_DET);
         PORT_SC_DET |= (1 << PORTID_SC_DET);
-        smartcardPowerDelay();
+        //smartcardPowerDelay();
         #if defined(HARDWARE_V1)
         if (PIN_SC_DET & (1 << PORTID_SC_DET))
         #elif defined(HARDWARE_OLIVIER_V1)

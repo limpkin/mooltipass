@@ -61,7 +61,7 @@ void smartcardPowerDelay(void)
 */
 static inline void smartcardTchpDelay(void)
 {
-    timerBasedDelayMs(3);
+    timerBasedDelayMs(4);
 }
 
 /*! \fn     clockPulseSMC(void)

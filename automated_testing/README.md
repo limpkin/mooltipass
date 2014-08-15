@@ -1,8 +1,12 @@
+These tests open an instance of chrome to run in.  They can be brittle and are most useful in manually verifying things are working as they should.  A list of comma delimited login urls, login link text, and logout link text should be defined in a file.  See AutoLoginTestData.txt as an example.  I don't recommended running in BETATESTERS_AUTOACCEPT_SETUP when entering credentials on sites you don't know work with Mooltipass
+
+- Watch how this test works - https://plus.google.com/u/0/117594012155500951563/videos/p/pub?pid=6047655449680232530&oid=117594012155500951563
 - MP requires using the Chrome Developer Channel version of Chrome.
-- Tests with BETATESTERS_AUTOACCEPT_SETUP hex
 - Download and unzip chromedriver - http://chromedriver.storage.googleapis.com/index.html
-- File where each line is: url,login_link_text,logout_link_text
-- When you see the message "Waiting 2 minutes for you to install Extensions manually." install chrome.hid-app and chrome.ext manually (Click the Developement
+- Use -Dmooltipass.auto.login.file=full_path_to_file where each line is: url,login_link_text,logout_link_text
+- Use -Dmooltipass.timeout.seconds=20 to set the number of seconds to wait before failing.
+- Use -Dmooltipass.extension.timeout.seconds=45 to set the number of seconds for the test to wait while you manually install the extensions.
+- When you see the message "Waiting for you to install Extensions manually." install chrome.hid-app and chrome.ext manually (Click the Developement
 - Mode checkbox in the upper right of chromes extensions page, then click Load Unpacked Extension..., and select from mooltipass/authentication_clients )
 
 

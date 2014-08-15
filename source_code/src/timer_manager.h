@@ -32,6 +32,7 @@
 
 // Prototypes
 void timerManagerTick(void);
+void timerBasedDelayMs(uint16_t ms);
 void activateTimer(uint8_t uid, uint16_t val);
 RET_TYPE hasTimerExpired(uint8_t uid, uint8_t clear);
 
@@ -43,13 +44,14 @@ typedef struct
 } timerEntry_t;
 
 // Defines
-#define NUMBER_OF_TIMERS    6
+#define NUMBER_OF_TIMERS    7
 #define TIMER_LIGHT         0
 #define TIMER_SCREEN        1
 #define TIMER_USERINT       2
 #define TIMER_CAPS          3
 #define TIMER_CREDENTIALS   4
 #define TIMER_PASS_CHECK    5
+#define TIMER_WAIT_FUNCTS   6
 
 
 #endif /* TIMER_MANAGER_H_ */

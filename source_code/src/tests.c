@@ -21,7 +21,6 @@
  *  \brief  Test functions
  *  Copyright [2014] [Mathieu Stephan]
  */
- #include <util/delay.h>
 #include "touch_higher_level_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"

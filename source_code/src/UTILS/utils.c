@@ -21,7 +21,6 @@
 *   \brief  Useful functions
 */
 #include "mooltipass.h"
-#include <util/delay.h>
 #include "utils.h"
 
 
@@ -246,16 +245,4 @@ uint8_t hm_uint8_strncmp(uint8_t* buffer1, uint8_t* buffer2, uint8_t nb_chars)
 	}
 	
 	return 0;
-}
-
-/*! \fn     delay_ms(uint16_t ms) 
-*   \brief  ms delay routine
-*   \param  ms   The number of milliseconds
-*/
-void delay_ms(uint16_t ms) 
-{ 
-    while (ms--) 
-    {
-        _delay_ms(1); 
-    }
 }

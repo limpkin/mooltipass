@@ -27,7 +27,7 @@
 */
 
 #include "node_test.h"
-
+#include "timer_manager.h"
 #include "mooltipass.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
@@ -38,7 +38,6 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <string.h> // for memcpy
-#include <util/delay.h> // for delays
 
 /*!  \fn       displayInitForTest()
 *    \brief    Init OLED SCREEN per test
@@ -71,7 +70,7 @@ void displayPassedNodeTest()
     usbPrintf_P(PSTR("PASSED\n"));
     #endif
     
-    _delay_ms(1000);
+    timerBasedDelayMs(1000);
 }
 
 /*!  \fn       displayFailedNodeTest()
@@ -2704,7 +2703,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
 */
 RET_TYPE nodeTest()
 {
-    _delay_ms(2000);  // Delay to allow the USB HID output to init.  
+    timerBasedDelayMs(2000);  // Delay to allow the USB HID output to init.  
     #ifdef FLASH_TEST_DEBUG_OUTPUT_USB
         usbPrintf_P(PSTR("START Node Test Suite %dM Chip\n"), (uint8_t)FLASH_CHIP);
     #endif

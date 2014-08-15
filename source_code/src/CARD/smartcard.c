@@ -22,10 +22,11 @@
 *   Copyright [2014] [Mathieu Stephan]
 */
 #include "smart_card_higher_level_functions.h"
+#include <util/delay_basic.h>
 #include <avr/interrupt.h>
+#include "timer_manager.h"
 #include "userhandling.h"
 #include <util/atomic.h>
-#include <util/delay.h>
 #include "smartcard.h"
 #include "entropy.h"
 #include "defines.h"
@@ -43,7 +44,8 @@ volatile uint8_t button_return;
 */
 void smartcardHPulseDelay(void)
 {
-    _delay_us(2);
+    // CPU clock of MAX 16MHz, 3 clock cycles per loop => 1/16M * 3 * 11 = 2.0625us
+    _delay_loop_1(11);
 }
 
 /*! \fn     smartcardPowerDelay(void)
@@ -51,7 +53,7 @@ void smartcardHPulseDelay(void)
 */
 void smartcardPowerDelay(void)
 {
-    _delay_ms(130);
+    timerBasedDelayMs(130);
 }
 
 /*! \fn     smartcardTchpDelay(void)
@@ -59,7 +61,7 @@ void smartcardPowerDelay(void)
 */
 static inline void smartcardTchpDelay(void)
 {
-    _delay_ms(4);
+    timerBasedDelayMs(3);
 }
 
 /*! \fn     clockPulseSMC(void)

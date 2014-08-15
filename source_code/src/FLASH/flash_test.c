@@ -26,6 +26,7 @@
 *    Author:   Michael Neiderhauser
 */
 
+#include "timer_manager.h"
 #include "mooltipass.h"
 #include "flash_test.h"
 #include "flash_mem.h"
@@ -36,7 +37,6 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <string.h> // for memcpy
-#include <util/delay.h> // for delays
 
 /*!  \fn       initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy)
 *    \brief    A helper function that populates a buffer
@@ -612,7 +612,7 @@ void displayPassed()
         usbPrintf_P(PSTR("PASSED\n"));
     #endif
     
-    _delay_ms(1000);
+    timerBasedDelayMs(1000);
 }
 
 /*!  \fn       displayFailed()

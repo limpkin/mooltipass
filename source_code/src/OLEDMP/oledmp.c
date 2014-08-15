@@ -44,12 +44,12 @@
  */
 
 #include <avr/pgmspace.h>
-#include <util/delay.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <alloca.h>
 
 #include "low_level_utils.h"
+#include "timer_manager.h"
 #include "bitstream.h"
 #include "defines.h"
 #include "oledmp.h"
@@ -313,7 +313,7 @@ void oledFlipBuffers(uint8_t mode, uint8_t delay)
         for (uint8_t ind=0; ind<OLED_HEIGHT; ind++) 
         {
             oledMoveDisplayStartLine(offset);
-            delay_ms(delay);
+            timerBasedDelayMs(delay);
         }
     }
 
@@ -810,7 +810,7 @@ int8_t oledSetFont(uint8_t fontIndex)
 void oledOff(void)
 {
     oledWriteCommand(CMD_SET_DISPLAY_OFF);
-    _delay_ms(100);
+    timerBasedDelayMs(100);
     pinHigh(OLED_PORT_POWER, OLED_POWER);	 // 12V power off
 }
 
@@ -821,7 +821,7 @@ void oledOff(void)
 void oledOn(void)
 {
     pinLow(OLED_PORT_POWER, OLED_POWER);	 // 12V power on
-    _delay_ms(100);
+    timerBasedDelayMs(100);
     oledWriteCommand(CMD_SET_DISPLAY_ON);
 }
 
@@ -969,7 +969,7 @@ void oledScrollClear(uint8_t options)
             oledMoveDisplayStartLine(-1);
             gddram[(y+oled_offset) & OLED_Y_MASK].xaddr = 0;
             gddram[(y+oled_offset) & OLED_Y_MASK].pixels = 0;
-            delay_ms(oled_scroll_delay);
+            timerBasedDelayMs(oled_scroll_delay);
         }
     }
     else 
@@ -987,7 +987,7 @@ void oledScrollClear(uint8_t options)
             oledMoveDisplayStartLine(1);
             gddram[(y+oled_offset) & OLED_Y_MASK].xaddr = 0;
             gddram[(y+oled_offset) & OLED_Y_MASK].pixels = 0;
-            delay_ms(oled_scroll_delay);
+            timerBasedDelayMs(oled_scroll_delay);
         }
     }
 
@@ -1023,9 +1023,9 @@ void oledScrollUp(uint8_t lines, bool clear)
 void oledReset()
 {
     pinLow(OLED_PORT_RESET, OLED_nRESET);
-    _delay_ms(100);
+    timerBasedDelayMs(100);
     pinHigh(OLED_PORT_RESET, OLED_nRESET);
-    _delay_ms(10);
+    timerBasedDelayMs(10);
 }
 
 
@@ -1479,7 +1479,7 @@ void oledBitmapDrawRaw(
         if (options & OLED_SCROLL_UP) 
         {
             oledMoveDisplayStartLine(1);
-            delay_ms(oled_scroll_delay);
+            timerBasedDelayMs(oled_scroll_delay);
         }
     }
     if (options & OLED_SCROLL_UP) 

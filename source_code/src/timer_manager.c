@@ -96,3 +96,13 @@ void activateTimer(uint8_t uid, uint16_t val)
         }
     }
 }
+
+/*!	\fn		timerBasedDelayMs(uint16_t ms)
+*	\brief	Timer based ms delay
+*   \param  ms  Number of ms
+*/
+void timerBasedDelayMs(uint16_t ms)
+{
+    activateTimer(TIMER_WAIT_FUNCTS, ms+1);
+    while(hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) != TIMER_EXPIRED);
+}

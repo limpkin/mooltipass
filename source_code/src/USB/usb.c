@@ -20,10 +20,10 @@
  */
 #include "usb_descriptors.h"
 #include "usb_cmd_parser.h"
+#include "timer_manager.h"
 #include "hid_defines.h"
 #include "defines.h"
 #include "usb.h"
-#include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -70,7 +70,7 @@ static const uint8_t PROGMEM endpoint_config_table[] =
 */
 void pluginMessageRetryDelay(void)
 {
-    _delay_us(200);
+    timerBasedDelayMs(1);
 }
 
 /*! \fn     initUsb(void)

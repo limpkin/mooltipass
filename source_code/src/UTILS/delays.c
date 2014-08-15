@@ -22,10 +22,10 @@
 *    Created:  09/6/2014
 *    Author:   Mathieu Stephan
 */ 
-#include <util/delay.h>
+#include "timer_manager.h"
 
 
 void userViewDelay(void)
 {
-    _delay_ms(2000);
+    timerBasedDelayMs(2000);
 }

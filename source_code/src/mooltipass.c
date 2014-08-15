@@ -115,7 +115,7 @@ int main(void)
     #endif
 
     CPU_PRESCALE(0);                    // Set for 16MHz clock
-    powerSettlingDelay();               // Let the power settle
+    //powerSettlingDelay();               // Let the power settle
     disable_jtag();                     // Disable JTAG to gain access to pins
     initPortSMC();                      // Initialize smart card port
     initPwm();                          // Initialize PWM controller

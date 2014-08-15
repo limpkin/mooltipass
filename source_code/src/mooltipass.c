@@ -61,10 +61,10 @@ bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 volatile uint8_t wasCapsLockTimerArmed = FALSE;
 
 
-/*! \fn     disable_jtag(void)
+/*! \fn     disableJTAG(void)
 *   \brief  Disable the JTAG module
 */
-void disable_jtag(void)
+static inline void disableJTAG(void)
 {
     unsigned char temp;
 
@@ -100,10 +100,10 @@ int main(void)
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
-        disable_jtag();                 // Disable JTAG to gain access to pins
+        disableJTAG();
         DDR_SC_DET &= ~(1 << PORTID_SC_DET);
         PORT_SC_DET |= (1 << PORTID_SC_DET);
-        //smartcardPowerDelay();
+        for (uint16_t i = 0; i < 2000; i++) asm volatile ("NOP");
         #if defined(HARDWARE_V1)
         if (PIN_SC_DET & (1 << PORTID_SC_DET))
         #elif defined(HARDWARE_OLIVIER_V1)
@@ -115,11 +115,11 @@ int main(void)
     #endif
 
     CPU_PRESCALE(0);                    // Set for 16MHz clock
-    //powerSettlingDelay();               // Let the power settle
-    disable_jtag();                     // Disable JTAG to gain access to pins
+    disableJTAG();                      // Disable JTAG to gain access to pins
     initPortSMC();                      // Initialize smart card port
     initPwm();                          // Initialize PWM controller
-    initIRQ();                          // Initialize interrupts    
+    initIRQ();                          // Initialize interrupts
+    powerSettlingDelay();               // Let the power settle   
     initUsb();                          // Initialize USB controller
     initI2cPort();                      // Initialize I2C interface
     entropyInit();                      // Initialize avrentropy library

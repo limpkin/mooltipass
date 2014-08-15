@@ -22,9 +22,14 @@
 #ifndef INTERRUPTS_H_
 #define INTERRUPTS_H_
 
+#include "defines.h"
 #include <stdint.h>
 
 void initIRQ(void);
-uint32_t millis();
+#ifdef ENABLE_MILLISECOND_DBG_TIMER
+    uint32_t millis();
+#else
+    #define millis()    0
+#endif
 
 #endif /* INTERRUPTS_H_ */

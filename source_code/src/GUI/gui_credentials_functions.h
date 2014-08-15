@@ -31,7 +31,6 @@
 #include "defines.h"
 
 uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);
-void informGuiOfCurrentContext(char* context);
 
 
 #endif /* GUI_CREDENTIALS_FUNCTIONS_H_ */

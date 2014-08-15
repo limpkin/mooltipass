@@ -32,14 +32,6 @@
 #include "gui.h"
 
 
-/*! \fn     informGuiOfCurrentContext(char* context)
-*   \param  context String of the context
-*   \brief  Inform the GUI of the current context
-*/
-void informGuiOfCurrentContext(char* context)
-{
-}
-
 /*! \fn     guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress)
 *   \brief  Ask for user login selection / approval
 *   \param  h                   Pointer to management handle
@@ -71,11 +63,13 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
         return NODE_ADDR_NULL;
     }
     
-    // Check if there's only one child
+    // Read child node
     if (readChildNode(h, c, temp_child_address) != RETURN_OK)
     {
         return NODE_ADDR_NULL;
     }
+    
+    // Check if there's only one child, that's a confirmation screen
     if (c->nextChildAddress == NODE_ADDR_NULL)
     {
         confirmationText_t temp_conf_text;

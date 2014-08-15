@@ -37,7 +37,7 @@ uint8_t last_led_mask;
 *   \brief  Check that the AT42QT2120 is here
 *   \return RETURN_OK or RETURN_NOK
 */
-RET_TYPE checkTSPres(void)
+static inline RET_TYPE checkTSPres(void)
 {
     RET_TYPE temp_return;
     uint8_t temp_byte;

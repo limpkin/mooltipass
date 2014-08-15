@@ -100,8 +100,8 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     // Switch on lights
     activityDetectedRoutine();
     
-    // Wait for all presses to be released
-    while(touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK);
+    // Clear possible remaining detection
+    touchDetectionRoutine(led_mask);
     
     // Wait for a touch press
     activateTimer(TIMER_USERINT, USER_INTER_DEL);

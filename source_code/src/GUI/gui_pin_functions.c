@@ -101,8 +101,8 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
     // Display current pin on screen
     guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
     
-    // Wait for all presses to be released
-    while(touchDetectionRoutine(0) & TOUCH_PRESS_MASK);
+    // Clear possible remaining detection
+    touchDetectionRoutine(0);
     
     // While the user hasn't entered his pin
     while(!finished)

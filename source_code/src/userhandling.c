@@ -282,9 +282,6 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
         activateTimer(TIMER_CREDENTIALS, 0);
     }
     
-    // Inform GUI of current context
-    informGuiOfCurrentContext((char*)name);
-    
     // Do we know this context ?
     if ((context_parent_node_addr != NODE_ADDR_NULL) && (smartcard_inserted_unlocked == TRUE))
     {

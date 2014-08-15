@@ -23,14 +23,13 @@
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 #include "timer_manager.h"
-#include "userhandling.h"
 #include "interrupts.h"
-#include "mooltipass.h"
 #include "smartcard.h"
-#include "gui.h"
 
 // Number of milliseconds since power up
-static volatile uint32_t msecTicks = 0;
+#ifdef ENABLE_MILLISECOND_DBG_TIMER
+    static volatile uint32_t msecTicks = 0;
+#endif
 
 
 /*! \fn     ISR(TIMER1_COMPA_vect)
@@ -38,12 +37,14 @@ static volatile uint32_t msecTicks = 0;
 */
 ISR(TIMER1_COMPA_vect)                                              // Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
-    msecTicks++;
     scanSMCDectect();                                               // Scan smart card detect
     timerManagerTick();                                             // Our timer manager
+    #ifdef ENABLE_MILLISECOND_DBG_TIMER
+        msecTicks++;                                                // Increment ms timer
+    #endif
 }
 
-
+#ifdef ENABLE_MILLISECOND_DBG_TIMER
 /*! \fn     millis()
 *   \brief  Return the number of milliseconds since power up
 *   \return the number of milliseconds since power up
@@ -59,7 +60,7 @@ uint32_t millis()
 
     return ms;
 }
-
+#endif
 
 /*! \fn     initIRQ(void)
 *   \brief  Initialize the interrupts

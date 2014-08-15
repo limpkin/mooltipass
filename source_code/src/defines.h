@@ -185,6 +185,9 @@
 // Comment to prevent mooltipass card formatting (for production)
 //#define ENABLE_MOOLTIPASS_CARD_FORMATTING
 
+/************** MILLISECOND DEBUG TIMER ***************/
+//#define ENABLE_MILLISECOND_DBG_TIMER
+
 /************** TESTS ENABLING ***************/
 // Comment to disable test calls
 //#define TESTS_ENABLED

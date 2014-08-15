@@ -99,11 +99,8 @@ void guiGetBackToCurrentScreen(void)
 */
 void guiScreenLoop(uint8_t touch_detect_result)
 {
-    // Touch interface
     if (touch_detect_result & TOUCH_PRESS_MASK)
-    {        
-        touch_detect_result &= ~RETURN_PROX_DETECTION;
-        
+    {
         if (currentScreen == SCREEN_DEFAULT_NINSERTED)
         {
             // No smart card inserted, ask the user to insert one
@@ -113,21 +110,20 @@ void guiScreenLoop(uint8_t touch_detect_result)
         {
             // Locked screen and a detection happened....
             
-            // Check that the user hasn't removed his card or replaced it
-            if (cardDetectedRoutine() == RETURN_MOOLTIPASS_USER)
+            // Check that the user hasn't removed his card, launch unlocking process
+            if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_OK))
             {
-                // Launch Unlocking process
-                if(validCardDetectedFunction() == RETURN_OK)
-                {
-                    // User approved his pin
-                    currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
-                }
+                // User approved his pin
+                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
             }
             
             // Go to the new screen
             guiGetBackToCurrentScreen();
-        }
-        else if ((currentScreen == SCREEN_DEFAULT_INSERTED_NLCK) && (touch_detect_result & RETURN_WHEEL_PRESSED))
+        }     
+    }
+    else if(touch_detect_result & RETURN_WHEEL_PRESSED)
+    {
+        if (currentScreen == SCREEN_DEFAULT_INSERTED_NLCK)
         {
             // Unlocked screen
             switch(getWheelTouchDetectionQuarter())
@@ -149,7 +145,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
             }
             guiGetBackToCurrentScreen();
         }
-        else if ((currentScreen == SCREEN_SETTINGS) && (touch_detect_result & RETURN_WHEEL_PRESSED))
+        else if (currentScreen == SCREEN_SETTINGS)
         {
             // Unlocked screen
             switch(getWheelTouchDetectionQuarter())
@@ -163,11 +159,11 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     if ((removeCardAndReAuthUser() == RETURN_OK) && (guiGetPinFromUser(&pin_code, PSTR("PIN for card?")) == RETURN_OK) && (cloneSmartCard(pin_code) == RETURN_OK))
                     {
                         // Well, it's done
-                    } 
+                    }
                     else
                     {
                         currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                        guiDisplayInformationOnScreen(PSTR("Failed!"));                        
+                        guiDisplayInformationOnScreen(PSTR("Failed!"));
                     }
                     userViewDelay();
                     break;
@@ -181,7 +177,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 case TOUCHPOS_WHEEL_TRIGHT :
                 {
                     // User wants to change his PIN code
-                                        
+                    
                     // Reauth user
                     if (removeCardAndReAuthUser() == RETURN_OK)
                     {
@@ -194,10 +190,10 @@ void guiScreenLoop(uint8_t touch_detect_result)
                             // Both pins are the same, valid input, change pin
                             writeSecurityCode(pin1);
                             // Inform of success
-                            guiDisplayInformationOnScreen(PSTR("PIN changed!"));                            
+                            guiDisplayInformationOnScreen(PSTR("PIN changed!"));
                         }
                         else
-                        {                            
+                        {
                             // Inform of fail
                             guiDisplayInformationOnScreen(PSTR("Not changed!"));
                         }

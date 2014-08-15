@@ -70,7 +70,8 @@ static const uint8_t PROGMEM endpoint_config_table[] =
 */
 void pluginMessageRetryDelay(void)
 {
-    timerBasedDelayMs(1);
+    // Delay will be between 0 & 1 ms due to the function
+    timerBasedDelayMs(0);
 }
 
 /*! \fn     initUsb(void)

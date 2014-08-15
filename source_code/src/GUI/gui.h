@@ -35,11 +35,11 @@
 #define LIGHT_TIMER_DEL                 16000
 #define USER_INTER_DEL                  6000
 // Screen defines
-#define SCREEN_DEFAULT_NINSERTED        0
-#define SCREEN_DEFAULT_INSERTED_LCK     1
-#define SCREEN_DEFAULT_INSERTED_NLCK    2
-#define SCREEN_DEFAULT_INSERTED_INVALID 3
-#define SCREEN_SETTINGS                 4
+#define SCREEN_DEFAULT_NINSERTED        0x00
+#define SCREEN_DEFAULT_INSERTED_LCK     0x10
+#define SCREEN_DEFAULT_INSERTED_NLCK    0x20
+#define SCREEN_DEFAULT_INSERTED_INVALID 0x30
+#define SCREEN_SETTINGS                 0x40
 
 /* STRUCTS */
 typedef struct

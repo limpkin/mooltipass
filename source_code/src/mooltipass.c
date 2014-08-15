@@ -235,9 +235,10 @@ int main(void)
         while ((flash_init_result != RETURN_OK) && (touch_init_result != RETURN_OK));
     #endif
 
-    // Write inactive buffer & default bitmap
+    // Write inactive buffer & go to startup screen
     oledWriteInactiveBuffer();
-    oledBitmapDrawFlash(0, 0, BITMAP_HAD, OLED_SCROLL_UP);
+    guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
+    guiGetBackToCurrentScreen();
         
     // Launch the after HaD logo display tests
     #ifdef TESTS_ENABLED

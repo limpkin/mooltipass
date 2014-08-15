@@ -99,117 +99,123 @@ void guiGetBackToCurrentScreen(void)
 */
 void guiScreenLoop(uint8_t touch_detect_result)
 {
-    if (touch_detect_result & TOUCH_PRESS_MASK)
+    uint8_t state_machine_val = currentScreen;
+    
+    // If no press, you can return!
+    if (!(touch_detect_result & TOUCH_PRESS_MASK))
     {
-        if (currentScreen == SCREEN_DEFAULT_NINSERTED)
-        {
-            // No smart card inserted, ask the user to insert one
-            guiDisplayInsertSmartCardScreenAndWait();
-        }
-        else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
-        {
-            // Locked screen and a detection happened....
-            
-            // Check that the user hasn't removed his card, launch unlocking process
-            if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_OK))
-            {
-                // User approved his pin
-                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
-            }
-            
-            // Go to the new screen
-            guiGetBackToCurrentScreen();
-        }     
+        return;
     }
-    else if(touch_detect_result & RETURN_WHEEL_PRESSED)
+    
+    // Current screen is codded in the first 8 bytes, so we set the lowest 8 bytes to the detection quarter
+    if (touch_detect_result & RETURN_WHEEL_PRESSED)
     {
-        if (currentScreen == SCREEN_DEFAULT_INSERTED_NLCK)
+        state_machine_val |= getWheelTouchDetectionQuarter();
+    }
+    else
+    {
+        state_machine_val |= 0x0F;
+    }
+    
+    if (currentScreen == SCREEN_DEFAULT_NINSERTED)
+    {
+        // No smart card inserted, ask the user to insert one
+        guiDisplayInsertSmartCardScreenAndWait();
+    }
+    else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
+    {
+        // Locked screen and a detection happened....
+        
+        // Check that the user hasn't removed his card, launch unlocking process
+        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_OK))
         {
-            // Unlocked screen
-            switch(getWheelTouchDetectionQuarter())
-            {
-                case TOUCHPOS_WHEEL_BRIGHT :
-                {
-                    // User wants to lock his mooltipass
-                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                    guiHandleSmartcardRemoved();
-                    break;
-                }
-                case TOUCHPOS_WHEEL_TRIGHT :
-                {
-                    // User wants to go to the settings menu
-                    currentScreen = SCREEN_SETTINGS;
-                    break;
-                }
-                default : break;
-            }
-            guiGetBackToCurrentScreen();
+            // User approved his pin
+            currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
         }
-        else if (currentScreen == SCREEN_SETTINGS)
+        
+        // Go to the new screen
+        guiGetBackToCurrentScreen();
+    }
+    else
+    {
+        switch(state_machine_val)
         {
-            // Unlocked screen
-            switch(getWheelTouchDetectionQuarter())
+            case (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_BRIGHT) :
             {
-                case TOUCHPOS_WHEEL_BRIGHT :
+                // User wants to lock his mooltipass
+                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                guiHandleSmartcardRemoved();
+                guiGetBackToCurrentScreen();
+                break;
+            }
+            case (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_TRIGHT) :
+            {
+                // User wants to go to the settings menu
+                currentScreen = SCREEN_SETTINGS;
+                guiGetBackToCurrentScreen();
+                break;
+            }
+            case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BRIGHT) :
+            {
+                // User wants to clone his smartcard
+                uint16_t pin_code;
+                
+                // Reauth user
+                if ((removeCardAndReAuthUser() == RETURN_OK) && (guiGetPinFromUser(&pin_code, PSTR("PIN for card?")) == RETURN_OK) && (cloneSmartCard(pin_code) == RETURN_OK))
                 {
-                    // User wants to clone his smartcard
-                    uint16_t pin_code;
+                    // Well, it's done
+                }
+                else
+                {
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                    guiDisplayInformationOnScreen(PSTR("Failed!"));
+                }
+                userViewDelay();
+                guiGetBackToCurrentScreen();
+                break;
+            }
+            case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_TLEFT) :
+            {
+                // User wants to go to the main menu
+                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+                guiGetBackToCurrentScreen();
+                break;
+            }
+            case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_TRIGHT) :
+            {
+                // User wants to change his PIN code
+                
+                // Reauth user
+                if (removeCardAndReAuthUser() == RETURN_OK)
+                {
+                    // User approved his pin, ask his new one
+                    uint16_t pin1;
+                    uint16_t pin2;
                     
-                    // Reauth user
-                    if ((removeCardAndReAuthUser() == RETURN_OK) && (guiGetPinFromUser(&pin_code, PSTR("PIN for card?")) == RETURN_OK) && (cloneSmartCard(pin_code) == RETURN_OK))
+                    if ((guiGetPinFromUser(&pin1, PSTR("New PIN ?")) == RETURN_OK) && (guiGetPinFromUser(&pin2, PSTR("Confirm PIN")) == RETURN_OK) && (pin1 == pin2))
                     {
-                        // Well, it's done
+                        // Both pins are the same, valid input, change pin
+                        writeSecurityCode(pin1);
+                        // Inform of success
+                        guiDisplayInformationOnScreen(PSTR("PIN changed!"));
                     }
                     else
                     {
-                        currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                        guiDisplayInformationOnScreen(PSTR("Failed!"));
+                        // Inform of fail
+                        guiDisplayInformationOnScreen(PSTR("Not changed!"));
                     }
                     userViewDelay();
-                    break;
                 }
-                case TOUCHPOS_WHEEL_TLEFT :
+                else
                 {
-                    // User wants to go to the main menu
-                    currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
-                    break;
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
                 }
-                case TOUCHPOS_WHEEL_TRIGHT :
-                {
-                    // User wants to change his PIN code
-                    
-                    // Reauth user
-                    if (removeCardAndReAuthUser() == RETURN_OK)
-                    {
-                        // User approved his pin, ask his new one
-                        uint16_t pin1;
-                        uint16_t pin2;
-                        
-                        if ((guiGetPinFromUser(&pin1, PSTR("New PIN ?")) == RETURN_OK) && (guiGetPinFromUser(&pin2, PSTR("Confirm PIN")) == RETURN_OK) && (pin1 == pin2))
-                        {
-                            // Both pins are the same, valid input, change pin
-                            writeSecurityCode(pin1);
-                            // Inform of success
-                            guiDisplayInformationOnScreen(PSTR("PIN changed!"));
-                        }
-                        else
-                        {
-                            // Inform of fail
-                            guiDisplayInformationOnScreen(PSTR("Not changed!"));
-                        }
-                        userViewDelay();
-                    }
-                    else
-                    {
-                        currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                    }
-                    break;
-                }
-                default : break;
+                guiGetBackToCurrentScreen();
+                break;
             }
-            guiGetBackToCurrentScreen();
+            default : break;
         }
-    }
+    }    
 }
 
 /*! \fn     guiDisplayProcessingScreen(void)

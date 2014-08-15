@@ -58,7 +58,10 @@ public class AftBase
 	static ChromeDriverService chromeDriverService;
 	public static final String CHROME = "webdriver.chrome.driver";
 	public static final String MOOLTIPASS_DIR = "mooltipass.dir";
-	public static final int WAIT_TIMEOUT_SECONDS = 30;
+	public static final String MOOLTIPASS_EXTENSION_TIMEOUT = "mooltipass.extension.timeout.seconds";
+	public static final int MOOLTIPASS_EXTENSION_TIMEOUT_DEFAULT = 120;
+	public static final String MOOLTIPASS_TIMEOUT = "mooltipass.timeout.seconds";
+	public static final int MOOLTIPASS_TIMEOUT_DEFALT = 30;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception
@@ -90,15 +93,17 @@ public class AftBase
 
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+
+		System.out.println("Starting an instance of chrome.");
 		driver = new ChromeDriver(capabilities);
 
 		// TODO figure out how to pre-install extensions automatically (see commented out code above for things that don't work)
 		driver.get("chrome://extensions/");
-		System.out.println("\nWaiting 2 minutes for you to install Extensions manually.  Install chrome.hid-app and chrome.ext manually."); 
+		System.out.println("\nWaiting " + getTimeoutExtension() + " seconds for you to install Extensions manually.  Install chrome.hid-app and chrome.ext manually."); 
 		System.out.println("Check the Developer mode checkbox and then use the Load unpackaged extensions to load the mooltipass authentication_clients chrome.hid-app and chrome.ext\n");
 		try
 		{
-			Thread.sleep(120000);
+			Thread.sleep(getTimeoutExtension());
 		}
 		catch (InterruptedException e)
 		{
@@ -127,6 +132,14 @@ public class AftBase
 		}
 	}
 
+	public int getTimeout() {
+		return Integer.parseInt(System.getProperty(MOOLTIPASS_TIMEOUT, MOOLTIPASS_TIMEOUT_DEFALT + "")); 
+	}
+	
+	public static int getTimeoutExtension() {
+		return Integer.parseInt(System.getProperty(MOOLTIPASS_TIMEOUT, MOOLTIPASS_EXTENSION_TIMEOUT_DEFAULT + "")) * 1000; 
+	}
+
 	void testAutoLogin(String data) throws Exception
 	{
 		testAutoLogin(data.split(","));
@@ -149,7 +162,7 @@ public class AftBase
 	void testAutoLogin(String loginUrl, String loginLoadedLinkText, String logoutLinkText) throws Exception
 	{
 		driver.get(loginUrl);
-		WebDriverWait wait = new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS);
+		WebDriverWait wait = new WebDriverWait(driver, getTimeout());
 		// wait for Login, but we are not gonna click it testing AUTO_ACCEPT works
 		wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
 		WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(By.linkText(logoutLinkText)));

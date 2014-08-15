@@ -22,8 +22,8 @@
 #include "usb_cmd_parser.h"
 #include "hid_defines.h"
 #include "defines.h"
-#include "delays.h"
 #include "usb.h"
+#include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -64,6 +64,14 @@ static const uint8_t PROGMEM endpoint_config_table[] =
     1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(KEYBOARD_SIZE) | KEYBOARD_BUFFER,
     0
 };
+
+/*! \fn     pluginMessageRetryDelay(void)
+*   \brief  Delay between message retries
+*/
+void pluginMessageRetryDelay(void)
+{
+    _delay_us(200);
+}
 
 /*! \fn     initUsb(void)
 *   \brief  USB controller initialization

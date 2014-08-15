@@ -25,10 +25,10 @@
 #include <avr/interrupt.h>
 #include "userhandling.h"
 #include <util/atomic.h>
+#include <util/delay.h>
 #include "smartcard.h"
 #include "entropy.h"
 #include "defines.h"
-#include "delays.h"
 #include <avr/io.h>
 #include "utils.h"
 
@@ -37,6 +37,30 @@ volatile uint8_t card_detect_counter = 0;
 /** Current detection state, see detect_return_t */
 volatile uint8_t button_return;
 
+
+/*! \fn     smartcardHPulseDelay(void)
+*   \brief  2us half pulse delay, specified by datasheet (min 3.3us/2)
+*/
+void smartcardHPulseDelay(void)
+{
+    _delay_us(2);
+}
+
+/*! \fn     smartcardPowerDelay(void)
+*   \brief  Delay to let the card come online/offline
+*/
+void smartcardPowerDelay(void)
+{
+    _delay_ms(130);
+}
+
+/*! \fn     smartcardTchpDelay(void)
+*   \brief  Tchp delay (3.0ms min)
+*/
+static inline void smartcardTchpDelay(void)
+{
+    _delay_ms(4);
+}
 
 /*! \fn     clockPulseSMC(void)
 *   \brief  Send a 4us H->L clock pulse (datasheet: min 3.3us)
@@ -85,7 +109,7 @@ void setPgmRstSignals(void)
 {
     PORT_SC_RST |= (1 << PORTID_SC_RST);
     PORT_SC_PGM &= ~(1 << PORTID_SC_PGM);
-    smartcardHPulseDelay();smartcardHPulseDelay();
+    smartcardHPulseDelay();
 }
 
 /*! \fn     performLowLevelWriteNErase(uint8_t is_write)

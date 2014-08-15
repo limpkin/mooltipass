@@ -29,23 +29,3 @@ void userViewDelay(void)
 {
     _delay_ms(2000);
 }
-
-void smartcardHPulseDelay(void)
-{
-    _delay_us(2);
-}
-
-void pluginMessageRetryDelay(void)
-{
-    _delay_us(200);
-}
-
-void smartcardPowerDelay(void)
-{
-    _delay_ms(300);
-}
-
-void smartcardTchpDelay(void)
-{
-    _delay_ms(4);
-}

@@ -27,16 +27,14 @@
 #ifndef DELAYS_H_
 #define DELAYS_H_
 
+#include "smartcard.h"
+
 // Prototypes
-void pluginMessageRetryDelay(void);
-void smartcardHPulseDelay(void);
-void smartcardPowerDelay(void);
-void smartcardTchpDelay(void);
 void userViewDelay(void);
 
 // Macros
+#define powerSettlingDelay()                smartcardPowerDelay();smartcardPowerDelay();
 #define touchSensorInterruptLineDelay()     smartcardPowerDelay()
 #define screenComingOnDelay()               smartcardPowerDelay()
-#define powerSettlingDelay()                smartcardPowerDelay()
 
 #endif /* DELAYS_H_ */

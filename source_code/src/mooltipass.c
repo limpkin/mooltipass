@@ -22,6 +22,7 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include <util/atomic.h>
+#include <util/delay.h>
 #include <avr/eeprom.h>
 #include <stdlib.h>
 #include <avr/io.h>
@@ -248,7 +249,7 @@ int main(void)
     for (uint16_t i = 0; i < MAX_PWM_VAL; i++)
     {
         setPwmDc(i);
-        //_delay_us(888);
+        _delay_us(888);
     }
     activityDetectedRoutine();
     launchCalibrationCycle();

@@ -86,7 +86,6 @@ void initUsb(void)
     UDCON = 0;                      // enable attach resistor
     usb_configuration = 0;          // usb not configured by default
     UDIEN = (1<<EORSTE)|(1<<SOFE);  // start USB
-    sei();                          // enable interrupts
 }
 
 /*! \fn     isUsbConfigured(void)

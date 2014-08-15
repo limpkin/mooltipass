@@ -17,8 +17,8 @@
  *
  * CDDL HEADER END
  */
- /*!	\file 	interrupts.c
- *		\brief	Interrupts
+ /*!    \file   interrupts.c
+ *      \brief  Interrupts
  */
 #include <avr/interrupt.h>
 #include <util/atomic.h>
@@ -33,10 +33,10 @@
 static volatile uint32_t msecTicks = 0;
 
 
-/*!	\fn		ISR(TIMER1_COMPA_vect)
-*	\brief	Interrupt called every ms
+/*! \fn     ISR(TIMER1_COMPA_vect)
+*   \brief  Interrupt called every ms
 */
-ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
+ISR(TIMER1_COMPA_vect)                                              // Match on TCNT1 & OCR1 Interrupt Handler, 1 ms interrupt
 {
     msecTicks++;
     scanSMCDectect();                                               // Scan smart card detect
@@ -44,9 +44,9 @@ ISR(TIMER1_COMPA_vect)												// Match on TCNT1 & OCR1 Interrupt Handler, 1 
 }
 
 
-/*!	\fn		millis()
-*	\brief	Return the number of milliseconds since power up
-*	\return the number of milliseconds since power up
+/*! \fn     millis()
+*   \brief  Return the number of milliseconds since power up
+*   \return the number of milliseconds since power up
 */
 uint32_t millis()
 {
@@ -61,15 +61,16 @@ uint32_t millis()
 }
 
 
-/*!	\fn 	initIRQ(void)
-*	\brief	Initialize the interrupts
+/*! \fn     initIRQ(void)
+*   \brief  Initialize the interrupts
 */
 void initIRQ(void)
 {
-	/* Our 1ms interrupt to scan buttons */
-	OCR1AH = 0x07;													// 1 msec interrupt (2000 - 1): 16M/8/2000 = 1kHz
-	OCR1AL = 0xCF;													// 1 msec interrupt (2000 - 1): 16M/8/2000 = 1kHz
-	TCCR1A = 0x00;		 											// Clear counter on match, clock divided by 8
-	TCCR1B = (1 << WGM12) | (1 << CS11); 							// Clear counter on match, clock divided by 8
-	TIMSK1 |= (1 << OCIE1A);										// Enable compare interrupt
+    /* Our 1ms interrupt to scan buttons */
+    OCR1AH = 0x07;                                                  // 1 msec interrupt (2000 - 1): 16M/8/2000 = 1kHz
+    OCR1AL = 0xCF;                                                  // 1 msec interrupt (2000 - 1): 16M/8/2000 = 1kHz
+    TCCR1A = 0x00;                                                  // Clear counter on match, clock divided by 8
+    TCCR1B = (1 << WGM12) | (1 << CS11);                            // Clear counter on match, clock divided by 8
+    TIMSK1 |= (1 << OCIE1A);                                        // Enable compare interrupt
+    sei();                                                          // Enable interrupts
 }

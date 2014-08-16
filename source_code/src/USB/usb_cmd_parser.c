@@ -82,6 +82,30 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
     }
 }
 
+// Operation unique identifier to know the current approved flash action
+uint8_t currentFlashOpUid;
+// One import/export address that may be used
+uint16_t flashOpCurAddr1;
+// Another import/export address that may be used
+uint16_t flashOpCurAddr2;
+RET_TYPE approveImportExportFlashOperation(uint8_t opUID, uint8_t* pluginAnswer)
+{
+    // Set all global vars to 0
+    flashOpCurAddr1 = 0;
+    flashOpCurAddr2 = 0;
+    currentFlashOpUid = 0;
+    *pluginAnswer = PLUGIN_BYTE_ERROR;
+    
+    // Ask permission to the user
+    if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve flash operation?")) == RETURN_OK)
+    {
+        currentFlashOpUid = opUID;
+        *pluginAnswer = PLUGIN_BYTE_OK;
+        return RETURN_OK;
+    }
+    
+    return RETURN_NOK;
+}
 
 /*! \fn     usbProcessIncoming(uint8_t* incomingData)
 *   \brief  Process the incoming USB packet
@@ -288,16 +312,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         // flash export start
         case CMD_EXPORT_FLASH_START :
         {
-            if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve flash export?")) == RETURN_OK)
-            {
-                flash_export_approved = TRUE;
-                plugin_return_value = PLUGIN_BYTE_OK;
-            } 
-            else
-            {
-                flash_export_approved = FALSE;
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+            approveImportExportFlashOperation(CMD_EXPORT_FLASH_START, &plugin_return_value);
             guiGetBackToCurrentScreen();
             break;
         }
@@ -306,50 +321,45 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_EXPORT_FLASH :
         {
             uint8_t size = PACKET_EXPORT_SIZE;
-
-            // Check datalen for arg, check approval status
-            if ((datalen != 1) || (flash_export_approved == FALSE))
+            
+            // Check that the user approved
+            if (currentFlashOpUid != CMD_EXPORT_FLASH_START)
             {
                 return;
             }
 
-            // Check if the plugin wants a fresh export
-            if (msg->body.data[0] == 0)
-            {
-                // Export start
-                current_flash_export_addr = 0x0000;
-            }
-
+            //flashOpCurAddr1 is the page
+            //flashOpCurAddr2 is the offset
             // Check if the export address is correct
-            if (current_flash_export_addr >= FLASH_SIZE)
+            if (flashOpCurAddr1 >= PAGE_COUNT)
             {
                 usbSendMessage(CMD_EXPORT_FLASH_END, 0, NULL);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
-                flash_export_approved = FALSE;
+                currentFlashOpUid = 0;
                 return;
             }
 
-            // Check how much data we need in case we're close to the graphics section
-            if ((current_flash_export_addr < GRAPHIC_ZONE_START) && ((GRAPHIC_ZONE_START - current_flash_export_addr) < (uint32_t)PACKET_EXPORT_SIZE))
+            // Check how much data we need in case we're close to the page end
+            if ((BYTES_PER_PAGE - flashOpCurAddr2) < PACKET_EXPORT_SIZE)
             {
-                size = (uint8_t)(GRAPHIC_ZONE_START - current_flash_export_addr);
-            }
-
-            // Check how much data we need in case we're close to the flash end
-            if ((FLASH_SIZE - current_flash_export_addr) < (uint32_t)PACKET_EXPORT_SIZE)
-            {
-                size = (uint8_t)(FLASH_SIZE - current_flash_export_addr);
+                size = (uint8_t)(BYTES_PER_PAGE - flashOpCurAddr2);
             }
 
             // Get a block of data and send it, increment counter
-            flashRawRead(incomingData, current_flash_export_addr, size);
+            readDataFromFlash(flashOpCurAddr1, flashOpCurAddr2, size, (void*)incomingData);
             usbSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
-            current_flash_export_addr += size;
+            flashOpCurAddr2 += size;
+            
+            if (flashOpCurAddr2 == BYTES_PER_PAGE)
+            {
+                flashOpCurAddr2 = 0;
+                flashOpCurAddr1++;
+            }
 
             // Skip over the graphics address if we're in that case
-            if (current_flash_export_addr == GRAPHIC_ZONE_START)
+            if (flashOpCurAddr1 == GRAPHIC_ZONE_PAGE_START)
             {
-                current_flash_export_addr = GRAPHIC_ZONE_END;
+                flashOpCurAddr1 = GRAPHIC_ZONE_PAGE_END;
             }
             return;
         }
@@ -357,23 +367,14 @@ void usbProcessIncoming(uint8_t* incomingData)
         // flash export end
         case CMD_EXPORT_FLASH_END :
         {
-            flash_export_approved = FALSE;
+            currentFlashOpUid = 0;
             return;
         }
 
         // flash export start
         case CMD_EXPORT_EEPROM_START :
         {
-            if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve eeprom export?")) == RETURN_OK)
-            {
-                eeprom_export_approved = TRUE;
-                plugin_return_value = PLUGIN_BYTE_OK;
-            } 
-            else
-            {
-                eeprom_export_approved = FALSE;
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+            approveImportExportFlashOperation(CMD_EXPORT_EEPROM_START, &plugin_return_value);
             guiGetBackToCurrentScreen();
             break;
         }
@@ -383,45 +384,39 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             uint8_t size = PACKET_EXPORT_SIZE;
 
-            // Check datalen for arg, check that export has been approved
-            if ((datalen != 1) || (eeprom_export_approved == FALSE))
+            // Check that the user approved
+            if (currentFlashOpUid != CMD_EXPORT_EEPROM_START)
             {
                 return;
             }
 
-            // Check if the plugin wants a fresh export
-            if (msg->body.data[0] == 0)
-            {
-                // Export start
-                current_eeprom_export_addr = 0x0000;
-            }
-
+            //flashOpCurAddr1 is the current eeprom address
             // Check if the export address is correct
-            if (current_eeprom_export_addr >= EEPROM_SIZE)
+            if (flashOpCurAddr1 >= EEPROM_SIZE)
             {
                 usbSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, NULL, 255);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
-                eeprom_export_approved = FALSE;
+                currentFlashOpUid = 0;
                 return;
             }
 
             // Check how much data we need
-            if ((EEPROM_SIZE - current_eeprom_export_addr) < PACKET_EXPORT_SIZE)
+            if ((EEPROM_SIZE - flashOpCurAddr1) < PACKET_EXPORT_SIZE)
             {
-                size = (uint8_t)(EEPROM_SIZE - current_eeprom_export_addr);
+                size = (uint8_t)(EEPROM_SIZE - flashOpCurAddr1);
             }
 
             // Get a block of data and send it, increment counter
-            eeprom_read_block(incomingData, (void*)current_eeprom_export_addr, size);
+            eeprom_read_block(incomingData, (void*)flashOpCurAddr1, size);
             usbSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
-            current_eeprom_export_addr += size;
+            flashOpCurAddr1 += size;
             return;
         }
         
         // end eeprom export
         case CMD_EXPORT_EEPROM_END :
         {
-            eeprom_export_approved = FALSE;
+            currentFlashOpUid = 0;
             return;
         }
 
@@ -511,17 +506,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_IMPORT_EEPROM_BEGIN :
         {
             // Ask for user confirmation
-            if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve eeprom import?")) == RETURN_OK)
-            {
-                current_eeprom_import_pos = 0;
-                eeprom_import_approved = TRUE;
-                plugin_return_value = PLUGIN_BYTE_OK;
-            }
-            else
-            {
-                eeprom_import_approved = FALSE;
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+            approveImportExportFlashOperation(CMD_IMPORT_EEPROM_BEGIN, &plugin_return_value);
             guiGetBackToCurrentScreen();
             break;
         }
@@ -529,15 +514,16 @@ void usbProcessIncoming(uint8_t* incomingData)
         // import flash contents
         case CMD_IMPORT_EEPROM :
         {
-            if ((eeprom_import_approved == FALSE) || ((current_eeprom_import_pos + datalen) >= EEPROM_SIZE))
+            // flashOpCurAddr1 is the current eeprom address
+            if ((currentFlashOpUid != CMD_IMPORT_EEPROM_BEGIN) || ((flashOpCurAddr1 + datalen) >= EEPROM_SIZE))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
-                eeprom_import_approved = FALSE;
+                currentFlashOpUid = 0;
             }
             else
             {
-                eeprom_write_block((void*)msg->body.data, (void*)current_eeprom_import_pos, datalen);
-                current_eeprom_import_pos+= datalen;
+                eeprom_write_block((void*)msg->body.data, (void*)flashOpCurAddr1, datalen);
+                flashOpCurAddr1+= datalen;
                 plugin_return_value = PLUGIN_BYTE_OK;
             }
             break;
@@ -546,8 +532,8 @@ void usbProcessIncoming(uint8_t* incomingData)
         // end eeprom import
         case CMD_IMPORT_EEPROM_END :
         {
-            eeprom_import_approved = FALSE;
             plugin_return_value = PLUGIN_BYTE_OK;
+            currentFlashOpUid = 0;
             break;
         }
         

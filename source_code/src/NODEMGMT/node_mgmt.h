@@ -94,7 +94,7 @@ typedef enum _nodeType
 #define GRAPHIC_ZONE_START          (8*BYTES_PER_PAGE)
 #define GRAPHIC_ZONE_PAGE_START     (8)
 #define GRAPHIC_ZONE_END            ((uint32_t)((uint32_t)SECTOR_START*(uint32_t)PAGE_PER_SECTOR*(uint32_t)BYTES_PER_PAGE))
-#define GRAPHIC_ZONE_PAGE_END       ((uint32_t)(GRAPHIC_ZONE_END/BYTES_PER_PAGE))
+#define GRAPHIC_ZONE_PAGE_END       (SECTOR_START*PAGE_PER_SECTOR)
 
 #define DELETE_POLICY_WRITE_ONES 0xFF  /*! Node Deletion Policy Ones Memset Value */
 

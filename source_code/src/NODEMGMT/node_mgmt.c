@@ -43,7 +43,7 @@ static void writeReadDataFlash(uint16_t a, uint16_t s, void *d);
 // Critical error catching
 void nodeMgmtCriticalErrorCallback(void)
 {
-    usbPutstr_P(PSTR("NMGMT ERR\r\n"));
+    usbPutstr_P(PSTR("#NM\r\n"));
     while(1);
 }
 

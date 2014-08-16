@@ -399,7 +399,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check if the export address is correct
             if (current_eeprom_export_addr >= EEPROM_SIZE)
             {
-                usbSendMessage(CMD_EXPORT_EEPROM_END, 0, NULL);
+                usbSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, NULL, 255);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
                 eeprom_export_approved = FALSE;
                 return;

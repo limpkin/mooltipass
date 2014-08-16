@@ -801,7 +801,7 @@ RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg)
             cmd = 0;
         }
     }
-    if (size)
+    if (size || cmd)
     {
         if (usbHidSend(cmd, msg, size, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
         {
@@ -838,7 +838,7 @@ RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg)
             cmd = 0;
         }
     }
-    if (size)
+    if (size || cmd)
     {
         if (usbHidSend_P(cmd, msg, size, USB_WRITE_TIMEOUT) != RETURN_COM_TRANSF_OK)
         {

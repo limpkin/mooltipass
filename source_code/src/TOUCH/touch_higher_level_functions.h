@@ -33,6 +33,7 @@ void activateGuardKey(void);
 RET_TYPE initTouchSensing(void);
 void activateProxDetection(void);
 uint8_t getLastRawWheelPosition(void);
+void touchClearCurrentDetections(void);
 uint8_t getWheelTouchDetectionQuarter(void);
 RET_TYPE touchDetectionRoutine(uint8_t led_mask);
 

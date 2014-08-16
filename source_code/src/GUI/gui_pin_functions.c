@@ -102,7 +102,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
     guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
     
     // Clear possible remaining detection
-    touchDetectionRoutine(0);
+    touchClearCurrentDetections();
     
     // While the user hasn't entered his pin
     while(!finished)

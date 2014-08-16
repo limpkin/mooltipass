@@ -212,16 +212,16 @@ RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
 RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);
 
 /* User Memory Functions */
-RET_TYPE formatUserProfileMemory(uint8_t uid);
-RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
-RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress);
+void formatUserProfileMemory(uint8_t uid);
+void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
+void setStartingParent(mgmtHandle *h, uint16_t parentAddress);
 void readStartingParent(mgmtHandle *h, uint16_t *parentAddress);
 
-RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress);
-RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);
+void setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress);
+void readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);
 
-RET_TYPE setProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize);
-RET_TYPE readProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize);
+void setProfileCtr(mgmtHandle *h, void *buf);
+void readProfileCtr(mgmtHandle *h, void *buf);
 
 RET_TYPE createParentNode(mgmtHandle *h, pNode *p);                                        
 RET_TYPE readParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);

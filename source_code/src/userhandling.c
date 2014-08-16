@@ -196,7 +196,7 @@ void ctrPreEncryptionTasks(void)
     int8_t i;
     
     // Read CTR stored in flash
-    readProfileCtr(&nodeMgmtHandle, temp_buffer, USER_CTR_SIZE);
+    readProfileCtr(&nodeMgmtHandle, temp_buffer);
     
     // If it is the same value, increment it by CTR_FLASH_MIN_INCR and store it in flash
     if (aesCtrCompare(temp_buffer, nextCtrVal, USER_CTR_SIZE) == 0)
@@ -207,7 +207,7 @@ void ctrPreEncryptionTasks(void)
              temp_buffer[i] = (uint8_t)(carry);
              carry = (carry >> 8) & 0xFF;
         }
-        setProfileCtr(&nodeMgmtHandle, (void*)temp_buffer, USER_CTR_SIZE);
+        setProfileCtr(&nodeMgmtHandle, (void*)temp_buffer);
     }
 }
 
@@ -733,11 +733,14 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     // Get new user id
     new_user_id = getNumberOfKnownUsers();
     
-    // Create user profile in flash, CTR is set to 0 by the library
-    if (formatUserProfileMemory(new_user_id) != RETURN_OK)
+    // Check that we didn't attain the maximum number of users
+    if (new_user_id >= NODE_MAX_UID)
     {
         return RETURN_NOK;
     }
+    
+    // Create user profile in flash, CTR is set to 0 by the library
+    formatUserProfileMemory(new_user_id);
 
     // Initialize user flash context, that inits the node mgmt handle and the ctr value
     if (initUserFlashContext(new_user_id) != RETURN_OK)
@@ -798,7 +801,7 @@ RET_TYPE initUserFlashContext(uint8_t user_id)
     }
     else
     {
-        readProfileCtr(&nodeMgmtHandle, nextCtrVal, USER_CTR_SIZE);
+        readProfileCtr(&nodeMgmtHandle, nextCtrVal);
         return RETURN_OK;
     }
 }

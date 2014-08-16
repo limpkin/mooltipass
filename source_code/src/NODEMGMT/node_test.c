@@ -333,8 +333,6 @@ RET_TYPE userProfileAddressTest(mgmtHandle *h)
     uint16_t address = constructAddress(PAGE_PER_SECTOR, 0);
     uint16_t addressBackup = address;
     
-    RET_TYPE ret = RETURN_NOK;
-    
     for(uid=0; uid < NODE_MAX_UID; uid++)
     {
         address = addressBackup;
@@ -343,8 +341,8 @@ RET_TYPE userProfileAddressTest(mgmtHandle *h)
         // calculate profile offsets
         userProfileStartingOffset(uid, &pageNumber, &pageOffset);
         // set starting parent address in handle and memory
-        ret = setStartingParent(h, address);
-        if(ret != RETURN_OK || address != addressBackup)
+        setStartingParent(h, address);
+        if(address != addressBackup)
         {
             return RETURN_NOK;
         }
@@ -355,11 +353,8 @@ RET_TYPE userProfileAddressTest(mgmtHandle *h)
     // CTR Calculation Test
     initNodeManagementHandle(h, 0);
     // calculate user profile start
-    ret  = userProfileStartingOffset(h->currentUserId, &pageNumber, &pageOffset);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    userProfileStartingOffset(h->currentUserId, &pageNumber, &pageOffset);
+    
     pageOffset += USER_PROFILE_SIZE; // does not include ctr val.. this will set the correct offset
     if(pageOffset !=  62)
     {
@@ -412,12 +407,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     
     // format user profile memory
     usbPrintf_P(PSTR("Formatting User Profile 0\n"));
-    ret = formatUserProfileMemory(0);
-    if(ret != RETURN_OK)
-    {
-        *code = PARENT_NODE_TEST_INIT_HANDLE_FUNCTION_FAIL;
-        return ret;
-    }
+    formatUserProfileMemory(0);
     
     // init handle as user 0
     usbPrintf_P(PSTR("Init Handle\n"));
@@ -430,12 +420,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     
     // setup user profile
     usbPrintf_P(PSTR("Setup User Profile\n"));
-    ret = setStartingParent(h, NODE_ADDR_NULL);
-    if(ret != RETURN_OK)
-    {
-        *code = PARENT_NODE_TEST_USER_PROFILE_SET_START_NULL_ERROR;
-        return ret;
-    }
+    setStartingParent(h, NODE_ADDR_NULL);
     
     usbPrintf_P(PSTR("Verify Handle Profile\n"));
     // Verify the following:
@@ -1411,12 +1396,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // format user profile memory
     usbPrintf_P(PSTR("Formatting User Profile 0\n"));
-    ret = formatUserProfileMemory(0);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_FORMAT_USER_PROFILE_FAIL;
-        return ret;
-    }
+    formatUserProfileMemory(0);
     
     // init handle as user 0
     usbPrintf_P(PSTR("Init Handle\n"));
@@ -1429,12 +1409,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // setup user profile
     usbPrintf_P(PSTR("Setup User Profile\n"));
-    ret = setStartingParent(h, NODE_ADDR_NULL);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_USER_PROFILE_SET_START_NULL_ERROR;
-        return ret;
-    }
+    setStartingParent(h, NODE_ADDR_NULL);
     
     usbPrintf_P(PSTR("Verify Handle Profile\n"));
     // Verify the following:

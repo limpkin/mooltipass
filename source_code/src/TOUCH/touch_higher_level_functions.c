@@ -154,6 +154,18 @@ uint8_t getWheelTouchDetectionQuarter(void)
     }
 }
 
+/*! \fn     touchClearCurrentDetections(void)
+*   \brief  Clear interrupt line for detections
+*/
+void touchClearCurrentDetections(void)
+{
+    uint8_t temp_uint;
+    readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_uint);
+    readDataFromTS(REG_AT42QT_DET_STAT, &temp_uint);    
+    readDataFromTS(REG_AT42QT_KEY_STAT1, &temp_uint);
+    readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_uint);
+}
+
 /*! \fn     touchDetectionRoutine(uint8_t led_mask)
 *   \brief  Touch detection routine
 *   \param  led_mask    Mask containing which LEDs to switchoff

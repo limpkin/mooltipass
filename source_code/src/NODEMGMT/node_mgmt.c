@@ -40,6 +40,13 @@
 static RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t, uint8_t dnr);
 static void writeReadDataFlash(uint16_t a, uint16_t s, void *d);
 
+// Critical error catching
+void nodeMgmtCriticalErrorCallback(void)
+{
+    usbPutstr_P(PSTR("NMGMT ERR\r\n"));
+    while(1);
+}
+
 /* Flag Get/Set Helper Functions */
 /**
  * Gets nodeType from flags  
@@ -233,10 +240,9 @@ RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
 /**
  * Formats the user profile flash memory of user uid.
  * @param   uid             The id of the user to format profile memory
- * @return  success status
  * @note    Only formats the users starting parent node address and favorites 
  */
-RET_TYPE formatUserProfileMemory(uint8_t uid)
+void formatUserProfileMemory(uint8_t uid)
 {
     uint8_t buf[USER_PROFILE_SIZE];
     uint16_t pageNumber;
@@ -244,7 +250,7 @@ RET_TYPE formatUserProfileMemory(uint8_t uid)
     
     if(uid >= NODE_MAX_UID)
     {
-        return RETURN_NOK;
+        nodeMgmtCriticalErrorCallback();
     }
     
     // Set buffer to all 0's. Assuming NODE_ADDR_NULL = 0x0000.
@@ -254,8 +260,6 @@ RET_TYPE formatUserProfileMemory(uint8_t uid)
     // write buf (0's) to clear out user memory. Buffer is destroyed.. we no longer need it
     userProfileStartingOffset(uid, &pageNumber, &pageOffset);
     writeDataToFlash(pageNumber, pageOffset, USER_PROFILE_SIZE, buf);
-    
-    return RETURN_OK;
 }
 
 /**
@@ -263,15 +267,14 @@ RET_TYPE formatUserProfileMemory(uint8_t uid)
  * @param   uid             The id of the user to perform that profile page and offset calculation (0 up to NODE_MAX_UID)
  * @param   page            The page containing the user profile
  * @param   pageOffset      The offset of the page that indicates the start of the user profile
- * @return  success status
  * @note    Calculation will take place even if the uid is not valid (no starting parent)
  * @note    uid must be in range
  */
-RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset)
+void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset)
 {
     if(uid >= NODE_MAX_UID)
     {
-        return RETURN_NOK;
+        nodeMgmtCriticalErrorCallback();
     }
     
     #if ((BYTES_PER_PAGE % USER_PROFILE_SIZE) != 0)
@@ -280,8 +283,6 @@ RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOf
     
     *page = uid/(BYTES_PER_PAGE/USER_PROFILE_SIZE);
     *pageOffset = ((uint16_t)uid % (BYTES_PER_PAGE/USER_PROFILE_SIZE))*USER_PROFILE_SIZE;
-    
-    return RETURN_OK;
 }
 
 /**
@@ -292,13 +293,11 @@ RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOf
  * @return  success status
  */
 RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
-{    
-    RET_TYPE ret = RETURN_NOK;
-    
+{        
     if(h == NULL || userIdNum >= NODE_MAX_UID)
     {
         // param error
-        return ret;
+        return RETURN_NOK;
     }
              
     h->flags = 0;
@@ -317,23 +316,15 @@ RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
  * Sets the users starting parent node both in the handle and user profile memory portion of flash
  * @param   h               The user allocated node management handle
  * @param   parentAddress   The constructed address of the users starting parent node (alphabetically) 
- * @return  success status
  */
-RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress)
+void setStartingParent(mgmtHandle *h, uint16_t parentAddress)
 {
     uint16_t userProfilePage = 0;
     uint16_t userProfilePageOffset = 0;
-    uint16_t nodePage = 0;
-    uint16_t nodePageOffset;
     
-    nodePage = pageNumberFromAddress(parentAddress);
-    nodePageOffset = nodeNumberFromAddress(parentAddress);
-    
-    // error checking passed in address parts
-    if(nodePage >= PAGE_COUNT || nodePageOffset >= NODE_PARENT_PER_PAGE)
+    if (parentAddress > (uint16_t)NODE_PARENT_PER_PAGE*(uint16_t)PAGE_COUNT)
     {
-        // invalid address
-        return RETURN_NOK;
+        nodeMgmtCriticalErrorCallback();
     }
     
     // no error checking.. user id was validated at init
@@ -342,13 +333,8 @@ RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress)
     // update handle
     h->firstParentNode = parentAddress;
     
-    // write memory -> WARNING parent address will be destroyed
+    // Write parentaddress in the user profile page
     writeDataToFlash(userProfilePage, userProfilePageOffset, 2, &parentAddress);
-    
-    // restore parentAddress (todo from handle?)
-    readDataFromFlash(userProfilePage, userProfilePageOffset, 2, &parentAddress);
-    
-    return RETURN_OK;
 }
 
 /**
@@ -374,37 +360,29 @@ void readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
  * @param   favId           The id number of the fav record
  * @param   parentAddress   The parent node address of the fav
  * @param   childAddress    The child node address of the fav
- * @return  success status
  */
-RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
+void setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
 {
-    RET_TYPE ret = RETURN_OK;
     uint16_t page;
     uint16_t offset;
     uint16_t addrs[2];
     
     if(favId >= USER_MAX_FAV)
     {
-        return RETURN_NOK;
+        nodeMgmtCriticalErrorCallback();
     }
     
     addrs[0] = parentAddress;
     addrs[1] = childAddress;
     
     // calculate user profile start
-    ret  = userProfileStartingOffset(h->currentUserId, &page, &offset);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    userProfileStartingOffset(h->currentUserId, &page, &offset);
     
     // add to offset
     offset += (favId * 4) + 2;  // each fav is 4 bytes. +2 for starting parent node offset
     
     // write to flash
     writeDataToFlash(page, offset, 4, (void *)addrs);
-
-    return RETURN_OK;
 }
 
 /**
@@ -413,26 +391,20 @@ RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t c
  * @param   favId           The id number of the fav record
  * @param   parentAddress   The parent node address of the fav
  * @param   childAddress    The child node address of the fav
- * @return  success status
  */
-RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
+void readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
 {
-    RET_TYPE ret = RETURN_OK;
     uint16_t page;
     uint16_t offset;
     uint16_t addrs[2];
     
     if(favId >= USER_MAX_FAV)
     {
-        return RETURN_NOK;
+        nodeMgmtCriticalErrorCallback();
     }
     
     // calculate user profile start
-    ret  = userProfileStartingOffset(h->currentUserId, &page, &offset);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    userProfileStartingOffset(h->currentUserId, &page, &offset);
     
     // add to offset
     offset += (favId * 4) + 2;  // each fav is 4 bytes. +2 for starting parent node offset
@@ -443,82 +415,42 @@ RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t
     // return values to user
     *parentAddress = addrs[0];
     *childAddress = addrs[1];
-
-    return ret;
 }
 
 /**
  * Sets the users base CTR in the user profile flash memory
  * @param   h               The user allocated node management handle
  * @param   buf             The buffer containing CTR
- * @param   bufSize         The size of the buffer containing CTR (Most likely 3)
- * @return  Success status
  */
-RET_TYPE setProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize)
+void setProfileCtr(mgmtHandle *h, void *buf)
 {
-    RET_TYPE ret = RETURN_OK;
     uint16_t page;
     uint16_t offset;
 
-    if(!buf)
-    {
-        return RETURN_NOK;
-    }
-
-    if(bufSize > USER_CTR_SIZE)
-    {
-        return RETURN_NOK;
-    }
-
     // calculate user profile start
-    ret  = userProfileStartingOffset(h->currentUserId, &page, &offset);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    userProfileStartingOffset(h->currentUserId, &page, &offset);
 
     offset += USER_PROFILE_SIZE-USER_RES_CTR; // User CTR is at the end
 
-    writeDataToFlash(page, offset, bufSize, buf);
-
-    return RETURN_OK;
+    writeDataToFlash(page, offset, USER_CTR_SIZE, buf);
 }
 
 /**
  * Reads the users base CTR from the user profile flash memory
  * @param   h               The user allocated node management handle
  * @param   buf             The buffer to store the read CTR
- * @param   bufSize         The size of the buffer to store the read CTR (Most likely 3)
- * @return  Success status
  */
-RET_TYPE readProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize)
+void readProfileCtr(mgmtHandle *h, void *buf)
 {
-    RET_TYPE ret = RETURN_OK;
     uint16_t page;
     uint16_t offset;
 
-    if(!buf)
-    {
-        return RETURN_NOK;
-    }
-
-    if(bufSize > USER_CTR_SIZE)
-    {
-        return RETURN_NOK;
-    }
-
     // calculate user profile start
-    ret  = userProfileStartingOffset(h->currentUserId, &page, &offset);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    userProfileStartingOffset(h->currentUserId, &page, &offset);
 
     offset += USER_PROFILE_SIZE-USER_RES_CTR; // does not include ctr val.. this will set the correct offset
 
-    readDataFromFlash(page, offset, bufSize, buf);
-
-    return RETURN_OK;
+    readDataFromFlash(page, offset, USER_CTR_SIZE, buf);
 }
 
 /**

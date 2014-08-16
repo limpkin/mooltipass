@@ -158,25 +158,21 @@ RET_TYPE initFlash(void)
  */
 RET_TYPE sectorZeroErase(uint8_t sectorNumber)
 {
-    uint32_t procBuff = (uint32_t)sectorNumber;
     uint8_t opcode[4];
     
     // Error check parameter sectorNumber
     if(!(sectorNumber == FLASH_SECTOR_ZERO_A_CODE || sectorNumber == FLASH_SECTOR_ZERO_B_CODE))
     {
         return RETURN_NOK;
-    }
+    }    
     
-    // Format procBuff
-    procBuff = (procBuff << (SECTOR_ERASE_0_SHT_AMT));
-    
-    // Extract procBuff into required 3 address bytes (see datasheet)
+    uint16_t temp_uint = sectorNumber << (SECTOR_ERASE_0_SHT_AMT-8);
     opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
-    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
-    
+    opcode[1] = (uint8_t)(temp_uint >> 8);
+    opcode[2] = (uint8_t)temp_uint;
+    opcode[3] = 0;    
     sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
+    
     /* Wait until memory is ready */
     waitForFlash();
     return RETURN_OK;
@@ -190,7 +186,6 @@ RET_TYPE sectorZeroErase(uint8_t sectorNumber)
  */
 RET_TYPE sectorErase(uint8_t sectorNumber)
 {
-    uint32_t procBuff = (uint32_t)sectorNumber;
     uint8_t opcode[4];
     
     // Error check parameter sectorNumber
@@ -199,18 +194,16 @@ RET_TYPE sectorErase(uint8_t sectorNumber)
         return RETURN_NOK;
     }
     
-    // Format procBuff
-    procBuff = (procBuff << (SECTOR_ERASE_N_SHT_AMT));
-    
-    // Extract procBuff into required 3 address bytes (see datasheet)
+    uint16_t temp_uint = sectorNumber << (SECTOR_ERASE_N_SHT_AMT-8);
     opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
-    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
-    
+    opcode[1] = (uint8_t)(temp_uint >> 8);
+    opcode[2] = (uint8_t)temp_uint;
+    opcode[3] = 0;    
     sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
+    
     /* Wait until memory is ready */
     waitForFlash();
+    
     return RETURN_OK;    
 } // End sectorErase
 
@@ -222,7 +215,6 @@ RET_TYPE sectorErase(uint8_t sectorNumber)
  */
 RET_TYPE blockErase(uint16_t blockNumber)
 {
-    uint32_t procBuff = (uint32_t)blockNumber;
     uint8_t opcode[4];
     
     // Error check parameter blockNumber
@@ -231,18 +223,16 @@ RET_TYPE blockErase(uint16_t blockNumber)
         return RETURN_NOK;
     }
     
-    // Format procBuff
-    procBuff = (procBuff << (BLOCK_ERASE_SHT_AMT));
-    
-    // Extract procBuff into required 3 address bytes (see datasheet)
+    uint16_t temp_uint = blockNumber << (BLOCK_ERASE_SHT_AMT-8);
     opcode[0] = FLASH_OPCODE_BLOCK_ERASE;
-    opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
-    opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
-    opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
-    
+    opcode[1] = (uint8_t)(temp_uint >> 8);
+    opcode[2] = (uint8_t)temp_uint;
+    opcode[3] = 0;
     sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
+    
     /* Wait until memory is ready */
     waitForFlash();
+    
     return RETURN_OK;
 } // End blockErase
 

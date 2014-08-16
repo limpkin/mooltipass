@@ -238,6 +238,29 @@ RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
 }
 
 /**
+ * Obtains page and page offset for a given user id
+ * @param   uid             The id of the user to perform that profile page and offset calculation (0 up to NODE_MAX_UID)
+ * @param   page            The page containing the user profile
+ * @param   pageOffset      The offset of the page that indicates the start of the user profile
+ * @note    Calculation will take place even if the uid is not valid (no starting parent)
+ * @note    uid must be in range
+ */
+void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset)
+{
+    if(uid >= NODE_MAX_UID)
+    {
+        nodeMgmtCriticalErrorCallback();
+    }
+    
+    #if ((BYTES_PER_PAGE % USER_PROFILE_SIZE) != 0)
+        #error "User profile size is not aligned with pages"
+    #endif
+    
+    *page = uid/(BYTES_PER_PAGE/USER_PROFILE_SIZE);
+    *pageOffset = ((uint16_t)uid % (BYTES_PER_PAGE/USER_PROFILE_SIZE))*USER_PROFILE_SIZE;
+}
+
+/**
  * Formats the user profile flash memory of user uid.
  * @param   uid             The id of the user to format profile memory
  * @note    Only formats the users starting parent node address and favorites 
@@ -260,29 +283,6 @@ void formatUserProfileMemory(uint8_t uid)
     // write buf (0's) to clear out user memory. Buffer is destroyed.. we no longer need it
     userProfileStartingOffset(uid, &pageNumber, &pageOffset);
     writeDataToFlash(pageNumber, pageOffset, USER_PROFILE_SIZE, buf);
-}
-
-/**
- * Obtains page and page offset for a given user id
- * @param   uid             The id of the user to perform that profile page and offset calculation (0 up to NODE_MAX_UID)
- * @param   page            The page containing the user profile
- * @param   pageOffset      The offset of the page that indicates the start of the user profile
- * @note    Calculation will take place even if the uid is not valid (no starting parent)
- * @note    uid must be in range
- */
-void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset)
-{
-    if(uid >= NODE_MAX_UID)
-    {
-        nodeMgmtCriticalErrorCallback();
-    }
-    
-    #if ((BYTES_PER_PAGE % USER_PROFILE_SIZE) != 0)
-        #error "User profile size is not aligned with pages"
-    #endif
-    
-    *page = uid/(BYTES_PER_PAGE/USER_PROFILE_SIZE);
-    *pageOffset = ((uint16_t)uid % (BYTES_PER_PAGE/USER_PROFILE_SIZE))*USER_PROFILE_SIZE;
 }
 
 /**

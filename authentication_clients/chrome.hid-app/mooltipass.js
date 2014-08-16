@@ -104,8 +104,8 @@ var flashInfo = {
      2: { pageSize: 264, pageCount: 1024, pagesPerSector: 128 },
      4: { pageSize: 264, pageCount: 2048, pagesPerSector: 256 },
      8: { pageSize: 264, pageCount: 4096, pagesPerSector: 256 },
-    16: { pageSize: 264, pageCount: 4096, pagesPerSector: 256 },
-    32: { pageSize: 264, pageCount: 8192, pagesPerSector: 128 }
+    16: { pageSize: 528, pageCount: 4096, pagesPerSector: 256 },
+    32: { pageSize: 528, pageCount: 8192, pagesPerSector: 128 }
 };
 
 var flashChipId = null;

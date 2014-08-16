@@ -100,11 +100,31 @@
 	    <br>
 	    <button id="drawBitmap" style="width:120px">Draw bitmap</button>
 	    <input type="text" id="bitmapId" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="0">
-	    <label class="ui-widget ui-state-default">x: <input type="text" id="bitmap_x" class="ui-widget ui-corner-all" style="width:30px" value="0"></label>
-	    <label class="ui-widget ui-state-default">y: <input type="text" id="bitmap_y" class="ui-widget ui-corner-all" style="width:30px" value="0"></label><br>
+	    <label class="ui-widget ui-state-default">x: </label>
+	    <input type="text" id="bitmap_x" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="0">
+	    <label class="ui-widget ui-state-default">y: </label>
+	    <input type="text" id="bitmap_y" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="0"><br>
+	    <br>
 	    <button id="setFont" style="width:120px">Set font</button>
 	    <input type="text" id="fontId" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="7">
 	    <input type="text" id="fontTestString" style="width:100px" class="ui-widget ui-corner-all" value="Mooltipass"><br>
+	    <br>
+	    <br>
+	    <button id="fill" class="ui-widget ui-state-default" style="width:120px">Fill</button>
+	    <div div style="text-align:right">
+		<label class="ui-widget ui-state-default">color: </label>
+		<input type="text" id="fill_colour" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="0">
+		<label class="ui-widget ui-state-default">x: </label>
+		<input type="text" id="fill_x" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="0"></label>
+		<label class="ui-widget ui-state-default">y: </label>
+		<input type="text" id="fill_y" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="0"><br>
+	    </div>
+	    <div div style="text-align:right">
+		<label class="ui-widget ui-state-default">w: </label>
+		<input type="text" id="fill_width" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="16">
+		<label class="ui-widget ui-state-default">h: </label>
+		<input type="text" id="fill_height" class="ui-widget ui-corner-all" style="width:30px; text-align:right" value="16"><br>
+	    </div>
 	</div>
    </div>
 </div>

@@ -97,7 +97,7 @@ var FLASH_CHIP_4M           = 4;   // 4M Flash Chip (AT45DB041E)
 var FLASH_CHIP_8M           = 8;   // 8M Flash Chip (AT45DB081E)
 var FLASH_CHIP_16M          = 16;  // 16M Flash Chip (AT45DB161E)
 var FLASH_CHIP_32M          = 32;  // 32M Flash Chip (AT45DB321E)
-var FLASH_USER_ZONE_SIZE    = 1056;
+var FLASH_MEDIA_START_PAGE  = 8;
 
 var flashInfo = {
      1: { pageSize: 264, pageCount:  512, pagesPerSector: 128 },
@@ -127,6 +127,7 @@ var connectMsg = null;  // saved message to send after connecting
 var FLASH_PAGE_COUNT = 512;
 var FLASH_PAGE_SIZE = 264;
 var EEPROM_SIZE = 1024;
+var FLASH_EXPORT_ALL = false;
 
 var exportData = null;        // arraybuffer for receiving exported data
 var exportDataUint8 = null;   // uint8 view of exportData 
@@ -547,6 +548,7 @@ function initWindow()
     var cloneSmartcard = document.getElementById("cloneSmartcard");
     var drawBitmapButton = document.getElementById("drawBitmap");
     var setFontButton = document.getElementById("setFont");
+    var fillButton = document.getElementById("fill");
 
     // clear contents of logs
     $('#messageLog').html('');
@@ -744,6 +746,7 @@ function initWindow()
     $("#cloneSmartcard").button();
     $("#drawBitmap").button();
     $("#setFont").button();
+    $("#fill").button();
     $("#tabs").tabs();
 
     var eraseOptions = {
@@ -878,7 +881,7 @@ function onDataReceived(reportId, data)
     var len = bytes[0]
     var cmd = bytes[1]
 
-    if (debug && (cmd != CMD_VERSION) && (cmd != CMD_DEBUG))
+    if (debug && (cmd != CMD_VERSION) && (cmd != CMD_DEBUG) && ((cmd < CMD_EXPORT_FLASH) || (cmd > CMD_IMPORT_EEPROM_END)))
     {
         console.log('Received CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(msg));
     }
@@ -903,8 +906,8 @@ function onDataReceived(reportId, data)
             var version = arrayToStr(new Uint8Array(data.slice(3)));
             if (!connected)
             {
-                var flashChipId = msg[0];
-                log('#messageLog', 'Connected to Mooltipass ' + version + '\n');
+                flashChipId = msg[0];
+                log('#messageLog', 'Connected to Mooltipass ' + version + ' flashId '+flashChipId+'\n');
                 connected = true;
             }
             break;
@@ -1051,9 +1054,14 @@ function onDataReceived(reportId, data)
                     console.log('flashChipId '+flashChipId + 
                                 ' pageSize ' + flashInfo[flashChipId].pageSize + 
                                 ' pages '+ flashInfo[flashChipId].pageCount +
-                                ' userSize '+ FLASH_USER_ZONE_SIZE);
-                    //size = (flashInfo[flashChipId].pageSize * (flashInfo[flashChipId].pageCount - flashInfo[flashChipId].pagesPerSector)) + FLASH_USER_ZONE_SIZE;
+                                ' media start page '+ FLASH_MEDIA_START_PAGE);
+
                     size = (flashInfo[flashChipId].pageSize * flashInfo[flashChipId].pageCount);
+
+                    if (!FLASH_EXPORT_ALL) {
+                        // export skips the media partition
+                        size -= (flashInfo[flashChipId].pageSize * (flashInfo[flashChipId].pagesPerSector - FLASH_MEDIA_START_PAGE));
+                    }
                 }
                 else
                 {
@@ -1068,22 +1076,26 @@ function onDataReceived(reportId, data)
             }
             // data packet
             packet = new Uint8Array(data.slice(2,2+len));
-            if ((packet.length + exportDataOffset) > exportDataUint8.length)
+            if ((packet.length + exportDataOffset) < exportDataUint8.length)
             {
-                var overflow = (packet.length + exportDataOffset) - exportDataUint8.length;
-                console.log('error packet overflows buffer by '+overflow+' bytes');
-                exportDataOffset += packet.length;
-                saveToEntry(exportDataEntry, exportDataUint8) 
-                exportData = null;
-                exportDataUint8 = null;
-                exportDataOffset = 0;
-                exportDataEntry = null;;
-            } else {
                 exportDataUint8.set(packet, exportDataOffset);
                 exportDataOffset += packet.length;
                 exportProgressBar.progressbar('value', (exportDataOffset * 100) / exportDataUint8.length);
                 args = new Uint8Array([1]);     // request next packet
                 sendRequest(cmd, args);
+            } else {
+                if ((packet.length + exportDataOffset) > exportDataUint8.length)
+                {
+                    var overflow = (packet.length + exportDataOffset) - exportDataUint8.length;
+                    console.log('error packet overflows buffer by '+overflow+' bytes');
+                }
+
+                // done, write the file to disk
+                saveToEntry(exportDataEntry, exportDataUint8) 
+                exportData = null;
+                exportDataUint8 = null;
+                exportDataOffset = 0;
+                exportDataEntry = null;;
             }
             break;
 

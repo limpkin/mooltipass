@@ -386,7 +386,6 @@ RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t b
 */
 RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize)
 {
-    RET_TYPE ret = RETURN_NOK;
     uint16_t i = 0; // page number
     uint16_t j = 0; // byte in buffer
     

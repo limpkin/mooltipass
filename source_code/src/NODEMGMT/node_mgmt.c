@@ -238,9 +238,9 @@ RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
  */
 RET_TYPE formatUserProfileMemory(uint8_t uid)
 {
+    uint8_t buf[USER_PROFILE_SIZE];
     uint16_t pageNumber;
     uint16_t pageOffset;
-    uint8_t buf[USER_PROFILE_SIZE];
     
     if(uid >= NODE_MAX_UID)
     {

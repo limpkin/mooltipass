@@ -27,6 +27,7 @@
 */
 #include "flash_mem.h"
 #include "defines.h"
+#include "usb.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <spi.h>
@@ -40,6 +41,8 @@
 */
 void memoryBoundaryErrorCallback(void)
 {
+    // We'll add more debug later if needed
+    usbPutstr_P(PSTR("MEMORY BOUNDARY ERROR\r\n"));
     while(1);
 }
 
@@ -52,7 +55,7 @@ void memoryBoundaryErrorCallback(void)
 static inline void fillPageReadWriteEraseOpcodeFromAddress(uint16_t pageNumber, uint16_t offset, uint8_t* buffer)
 {
     #if (READ_OFFSET_SHT_AMT != WRITE_SHT_AMT) || (READ_OFFSET_SHT_AMT != PAGE_ERASE_SHT_AMT)
-        #error "offsets differ"
+        #error "read / write / erase bitshifts differ"
     #endif
     uint16_t temp_uint = (pageNumber << (READ_OFFSET_SHT_AMT-8)) | (offset >> 8);
     buffer[0] = (uint8_t)(temp_uint >> 8);
@@ -148,14 +151,7 @@ RET_TYPE initFlash(void)
     PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
     
     /*  Check flash identification */
-    if(checkFlashID() != RETURN_OK)
-    {
-        return RETURN_NOK;
-    }
-    else
-    {
-        return RETURN_OK;
-    }
+    return checkFlashID();
 } // End initFlash
 
 /**

@@ -732,13 +732,6 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     
     // Get new user id
     new_user_id = getNumberOfKnownUsers();
-
-    // Write random bytes in the code protected zone in the smart card
-    fillArrayWithRandomBytes(temp_buffer, SMARTCARD_CPZ_LENGTH);
-    writeCodeProtectedZone(temp_buffer);
-
-    // Generate random nonce to be stored in the eeprom
-    fillArrayWithRandomBytes(temp_nonce, AES256_CTR_LENGTH);
     
     // Create user profile in flash, CTR is set to 0 by the library
     if (formatUserProfileMemory(new_user_id) != RETURN_OK)
@@ -751,12 +744,21 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     {
         return RETURN_NOK;
     }
+
+    // Generate random CPZ value
+    fillArrayWithRandomBytes(temp_buffer, SMARTCARD_CPZ_LENGTH);
+
+    // Generate random nonce to be stored in the eeprom
+    fillArrayWithRandomBytes(temp_nonce, AES256_CTR_LENGTH);
     
     // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
     if (writeSmartCardCPZForUserId(temp_buffer, temp_nonce, new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }
+    
+    // Write random bytes in the code protected zone in the smart card    
+    writeCodeProtectedZone(temp_buffer);
     
     // Generate a new random AES key, write it in the smartcard
     fillArrayWithRandomBytes(temp_buffer, AES_KEY_LENGTH/8);

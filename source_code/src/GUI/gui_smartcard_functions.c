@@ -69,10 +69,7 @@ RET_TYPE guiHandleSmartcardInserted(void)
     {
         // This is a user free card, we can ask the user to create a new user
         if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Create new mooltipass user?")) == RETURN_OK)
-        {
-            // Display processing screen
-            guiDisplayProcessingScreen();
-            
+        {            
             // Create a new user with his new smart card
             if (addNewUserAndNewSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
             {

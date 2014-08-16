@@ -878,7 +878,7 @@ function onDataReceived(reportId, data)
     var len = bytes[0]
     var cmd = bytes[1]
 
-    if (debug && (cmd != CMD_VERSION) && (cmd != CMD_DEBUG) && (cmd < CMD_EXPORT_FLASH))
+    if (debug && (cmd != CMD_VERSION) && (cmd != CMD_DEBUG))
     {
         console.log('Received CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(msg));
     }

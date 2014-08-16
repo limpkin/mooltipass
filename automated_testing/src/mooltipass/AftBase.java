@@ -151,8 +151,7 @@ public class AftBase
 	}
 
 	/**
-	 * TODO: use something more flexible then link text to determine when page has loaded
-	 * TODO: check for logout link, button, and submit text
+	 * TODO: check for buttons if links aren't present
 	 * 
 	 * @param loginUrl
 	 * @param loginLoadedLinkText - link text used to determine when page has loaded
@@ -163,13 +162,14 @@ public class AftBase
 	{
 		driver.get(loginUrl);
 		WebDriverWait wait = new WebDriverWait(driver, getTimeout());
-		// wait for Login, but we are not gonna click it testing AUTO_ACCEPT works
+		// wait for Login, but we are not gonna click it testing AUTO_ACCEPT works.
+		// TODO fix assumption that all sites have a direct Login page, but not all do.  
 		if (loginLoadedLinkText != null ||  !loginLoadedLinkText.equals("")) {
 			wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
 		}
 		else
 		{
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//</html>")));
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html")));
 		}
 
 		if (loginLoadedLinkText != null ||  !loginLoadedLinkText.equals("")) {
@@ -184,7 +184,7 @@ public class AftBase
 		}
 		else
 		{
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//</html>")));
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html")));
 		}
 	}
 }

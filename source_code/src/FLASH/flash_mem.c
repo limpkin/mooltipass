@@ -25,65 +25,63 @@
 *    Created:  31/3/2014
 *    Author:   Michael Neiderhauser
 */
-
 #include "flash_mem.h"
 #include "defines.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <spi.h>
-
 #if SPI_FLASH != SPI_USART
-#error "SPI not implemented"
+    #error "SPI not implemented"
 #endif
 
-/**
- * Send bytes to the flash memory.
- * @param   opcodeSize      The number of bytes for the opcode
- * @param   opcode          Pointer to the opcode. Opcode is used to inform the flash of the operation.
- * @param   bufferSize      The size of the buffer.
- * @param   buffer          Pointer to the buffer.
- * @return  success status
- * @note    The data in the buffer will be destroyed on a write base opcode.
- * @note    The buffer is used to direct data from flash to a user pointer on read. 
- * @note    The buffer is used to provide data to the flash on write.
- */
-RET_TYPE sendDataToFlash(uint8_t opcodeSize, void *opcode, uint16_t bufferSize, void *buffer)
+/*! \fn     sendDataToFlashWithFourBytesOpcode(uint8_t* opcode, uint8_t* buffer, uint16_t buffer_size)
+*   \brief  Send data with a four bytes opcode to flash
+*   \param  opcode  Pointer to 4 bytes long opcode
+*/
+void sendDataToFlashWithFourBytesOpcode(uint8_t* opcode, uint8_t* buffer, uint16_t buffer_size)
 {
     /* Assert chip select */
     PORT_FLASH_nS &= ~(1 << PORTID_FLASH_nS);
 
-    spiUsartWrite((uint8_t *)opcode, opcodeSize);
-    while (bufferSize--) 
+    // Send opcode
+    for (uint8_t i = 0; i < 4; i++)
     {
-        *(uint8_t *)buffer = spiUsartTransfer(*(uint8_t *)buffer);
-        buffer++;
+        *opcode = spiUsartTransfer(*opcode);
+        opcode++;
     }
-
+    
+    // Retrieve data
+    while (buffer_size--)
+    {
+        *buffer = spiUsartTransfer(*buffer);
+        buffer++;
+    }    
+    
     /* Deassert chip select */
     PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
-    return RETURN_OK;
-} // End sendDataToFlash
+}
 
 /**
  * Waits for the flash to be ready (polls the flash chip status register)
  * @return  success status
  */
-RET_TYPE waitForFlash(void)
+void waitForFlash(void)
 {
-    uint8_t opcode[2];
-    uint8_t tempBool;
+    /* Assert chip select */
+    PORT_FLASH_nS &= ~(1 << PORTID_FLASH_nS);
     
-    opcode[0] = FLASH_OPCODE_READ_STAT_REG;
-    tempBool = TRUE;
+    uint8_t tempBool = TRUE;
     while(tempBool == TRUE)
     {
-        sendDataToFlash(1, opcode, 1, opcode+1);
-        if(opcode[1]&FLASH_READY_BITMASK)
+        spiUsartTransfer(FLASH_OPCODE_READ_STAT_REG);
+        if(spiUsartTransfer(0)&FLASH_READY_BITMASK)
         {
             tempBool = FALSE;
         }            
     }
-    return RETURN_OK;
+    
+    /* Deassert chip select */
+    PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
 } // End waitForFlash
 
 /**
@@ -91,12 +89,15 @@ RET_TYPE waitForFlash(void)
  * @note    Performs a comparison to verify the size of the flash chip
  * @return  success status
  */
-RET_TYPE checkFlashID(void)
+static inline RET_TYPE checkFlashID(void)
 {
-    uint8_t dataBuffer[5] = {FLASH_OPCODE_READ_DEV_INFO , 0x00, 0x00, 0x00, 0x00};
+    uint8_t dataBuffer[4];
+    
+    // Set the first byte to the correct op code
+    dataBuffer[0] = FLASH_OPCODE_READ_DEV_INFO;
     
     /* Read flash identification */
-    sendDataToFlash(1, dataBuffer, 4, dataBuffer+1);
+    sendDataToFlashWithFourBytesOpcode(dataBuffer, dataBuffer, 0);
     
     /* Check ID */
     if((dataBuffer[1] != FLASH_MANUF_ID) || (dataBuffer[2] != MAN_FAM_DEN_VAL))
@@ -156,7 +157,7 @@ RET_TYPE sectorZeroErase(uint8_t sectorNumber)
     opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
-    sendDataToFlash(4, opcode, 0, opcode);
+    sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
     /* Wait until memory is ready */
     waitForFlash();
     return RETURN_OK;
@@ -188,7 +189,7 @@ RET_TYPE sectorErase(uint8_t sectorNumber)
     opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
-    sendDataToFlash(4, opcode, 0, opcode);
+    sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
     /* Wait until memory is ready */
     waitForFlash();
     return RETURN_OK;    
@@ -220,7 +221,7 @@ RET_TYPE blockErase(uint16_t blockNumber)
     opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
-    sendDataToFlash(4, opcode, 0, opcode);
+    sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
     /* Wait until memory is ready */
     waitForFlash();
     return RETURN_OK;
@@ -252,7 +253,7 @@ RET_TYPE pageErase(uint16_t pageNumber)
     opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
-    sendDataToFlash(4, opcode, 0, opcode);
+    sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
     /* Wait until memory is ready */
     waitForFlash();
     return RETURN_OK;
@@ -325,7 +326,7 @@ RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSiz
     opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
     opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
-    sendDataToFlash(4, opcode, 0, opcode);
+    sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
     
     /* Wait until memory is ready */
     waitForFlash();
@@ -340,7 +341,7 @@ RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSiz
     opcode[1] = (uint8_t)((procBuff & 0x00FF0000) >> 16);  // High byte
     opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
-    sendDataToFlash(4, opcode, dataSize, data);
+    sendDataToFlashWithFourBytesOpcode(opcode, data, dataSize);
     
     /* Wait until memory is ready */
     waitForFlash();
@@ -385,7 +386,7 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
     opcode[2] = (uint8_t)((procBuff & 0x0000FF00) >> 8);   // Mid byte
     opcode[3] = (uint8_t)(procBuff & 0x000000FF);        // Low byte
     
-    sendDataToFlash(4, opcode, dataSize, data);
+   sendDataToFlashWithFourBytesOpcode(opcode, data, dataSize);
     /* Wait until memory is ready */
     waitForFlash();
     return RETURN_OK;
@@ -410,7 +411,7 @@ RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
     uint8_t op[] = {FLASH_OPCODE_LOWF_READ, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};            
 
     /* Read from flash */
-    sendDataToFlash(4, op, size, datap);
+    sendDataToFlashWithFourBytesOpcode(op, datap, size);
     /* Wait until memory is ready */
     waitForFlash();
     
@@ -430,7 +431,7 @@ void flashWriteBuffer(uint8_t* datap, uint16_t offset, uint16_t size)
     if (size) 
     {
         uint8_t op[] = {FLASH_OPCODE_BUF_WRITE, 0, (uint8_t)(offset >> 8), (uint8_t)offset};
-        sendDataToFlash(4, op, size, datap);
+        sendDataToFlashWithFourBytesOpcode(op, datap, size);
     }
 }
 
@@ -449,7 +450,7 @@ RET_TYPE flashWriteBufferToPage(uint16_t page)
     }
 
     uint8_t op[] = {FLASH_OPCODE_BUF_TO_PAGE, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};
-    sendDataToFlash(4, op, 0, 0);
+    sendDataToFlashWithFourBytesOpcode(op, op, 0);
     waitForFlash();
     return RETURN_OK;
 }

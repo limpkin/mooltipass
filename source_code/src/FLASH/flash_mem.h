@@ -32,9 +32,6 @@
 #include "defines.h"
 #include <stdint.h>
 
-RET_TYPE sendDataToFlash(uint8_t opcodeSize, void *opcode, uint16_t bufferSize, void *buffer);
-RET_TYPE waitForFlash(void);
-RET_TYPE checkFlashID(void);
 RET_TYPE initFlash(void);
 
 // Erase Functions

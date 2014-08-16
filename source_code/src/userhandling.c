@@ -859,7 +859,10 @@ RET_TYPE validCardDetectedFunction(void)
             mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
             setSmartCardInsertedUnlocked();
         #else
-            removeFunctionSMC();                            // Shut down card reader
+            // TO REMOVE!!!!
+            mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+            setSmartCardInsertedUnlocked();        
+            //removeFunctionSMC();                            // Shut down card reader
         #endif
         
         // Report Fail

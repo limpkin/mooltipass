@@ -322,7 +322,7 @@ void setStartingParent(mgmtHandle *h, uint16_t parentAddress)
     uint16_t userProfilePage = 0;
     uint16_t userProfilePageOffset = 0;
     
-    if (parentAddress > (uint16_t)NODE_PARENT_PER_PAGE*(uint16_t)PAGE_COUNT)
+    if (((parentAddress & NODE_ADDR_NODE_MASK) > NODE_PARENT_PER_PAGE) || ((parentAddress >> NODE_ADDR_SHMT) > PAGE_COUNT))
     {
         nodeMgmtCriticalErrorCallback();
     }

@@ -903,7 +903,7 @@ function onDataReceived(reportId, data)
             var version = arrayToStr(new Uint8Array(data.slice(3)));
             if (!connected)
             {
-                flashChipId = msg[0];
+                var flashChipId = msg[0];
                 log('#messageLog', 'Connected to Mooltipass ' + version + '\n');
                 connected = true;
             }

@@ -166,7 +166,7 @@ RET_TYPE sectorZeroErase(uint8_t sectorNumber)
         return RETURN_NOK;
     }    
     
-    uint16_t temp_uint = sectorNumber << (SECTOR_ERASE_0_SHT_AMT-8);
+    uint16_t temp_uint = (uint16_t)sectorNumber << (SECTOR_ERASE_0_SHT_AMT-8);
     opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
     opcode[1] = (uint8_t)(temp_uint >> 8);
     opcode[2] = (uint8_t)temp_uint;
@@ -194,7 +194,7 @@ RET_TYPE sectorErase(uint8_t sectorNumber)
         return RETURN_NOK;
     }
     
-    uint16_t temp_uint = sectorNumber << (SECTOR_ERASE_N_SHT_AMT-8);
+    uint16_t temp_uint = (uint16_t)sectorNumber << (SECTOR_ERASE_N_SHT_AMT-8);
     opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
     opcode[1] = (uint8_t)(temp_uint >> 8);
     opcode[2] = (uint8_t)temp_uint;
@@ -375,25 +375,15 @@ RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSi
  * @param   datap           pointer to the buffer to store the read data
  * @param   addr            byte offset in the flash
  * @param   size            the number of bytes to read
- * @return  success status
  * @note bypasses the memory buffer
  */
-RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
+void flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
 {    
-    if ((addr+(uint32_t)size) > FLASH_SIZE)
-    {
-        return RETURN_NOK;
-    }
-    
     addr = ((addr/BYTES_PER_PAGE) << READ_OFFSET_SHT_AMT) | (addr % BYTES_PER_PAGE);    
     uint8_t op[] = {FLASH_OPCODE_LOWF_READ, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};            
 
     /* Read from flash */
     sendDataToFlashWithFourBytesOpcode(op, datap, size);
-    /* Wait until memory is ready */
-    waitForFlash();
-    
-    return RETURN_OK;
 }
 
 /**
@@ -406,29 +396,24 @@ RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
  */
 void flashWriteBuffer(uint8_t* datap, uint16_t offset, uint16_t size)
 {
-    if (size) 
-    {
-        uint8_t op[] = {FLASH_OPCODE_BUF_WRITE, 0, (uint8_t)(offset >> 8), (uint8_t)offset};
-        sendDataToFlashWithFourBytesOpcode(op, datap, size);
-    }
+    uint8_t op[4];
+    
+    op[0] = FLASH_OPCODE_BUF_WRITE;
+    fillPageReadWriteEraseOpcodeFromAddress(0, offset, &op[1]);
+    sendDataToFlashWithFourBytesOpcode(op, datap, size);
+    waitForFlash();
 }
 
 /**
  * write the contents of the internal memory buffer to a page in flash
  * @param   page the page to store the buffer in
- * @return  success status
  */
-RET_TYPE flashWriteBufferToPage(uint16_t page)
+void flashWriteBufferToPage(uint16_t page)
 {
-    uint32_t addr = (uint32_t)page << WRITE_SHT_AMT;
+    uint8_t op[4];
     
-    if (page >= PAGE_COUNT) 
-    {
-        return RETURN_NOK;
-    }
-
-    uint8_t op[] = {FLASH_OPCODE_BUF_TO_PAGE, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};
+    op[0] = FLASH_OPCODE_BUF_TO_PAGE;
+    fillPageReadWriteEraseOpcodeFromAddress(page, 0, &op[1]);
     sendDataToFlashWithFourBytesOpcode(op, op, 0);
     waitForFlash();
-    return RETURN_OK;
 }

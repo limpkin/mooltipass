@@ -298,6 +298,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 flash_export_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
+            guiGetBackToCurrentScreen();
             break;
         }
 
@@ -373,6 +374,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 eeprom_export_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
+            guiGetBackToCurrentScreen();
             break;
         }
 
@@ -457,6 +459,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 flash_import_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
+            guiGetBackToCurrentScreen();
             break;
         }
 
@@ -519,6 +522,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 eeprom_import_approved = FALSE;
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
+            guiGetBackToCurrentScreen();
             break;
         }
 

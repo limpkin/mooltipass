@@ -41,8 +41,8 @@ RET_TYPE blockErase(uint16_t blockNumber);
 RET_TYPE pageErase(uint16_t pageNumber);
 
 RET_TYPE formatFlash();
-RET_TYPE flashWriteBufferToPage(uint16_t page);
-RET_TYPE flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size);
+void flashWriteBufferToPage(uint16_t page);
+void flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size);
 void flashWriteBuffer(uint8_t* datap, uint16_t offset, uint16_t size);
 RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);
 RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);

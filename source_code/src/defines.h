@@ -188,6 +188,9 @@
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER
 
+/************** LOW LEVEL MEMORY BOUNDARY CHECKS ***************/
+#define MEMORY_BOUNDARY_CHECKS
+
 /************** TESTS ENABLING ***************/
 // Comment to disable test calls
 //#define TESTS_ENABLED

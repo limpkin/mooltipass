@@ -38,7 +38,7 @@
 
 // Doc Strings Below
 static RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t, uint8_t dnr);
-static RET_TYPE writeReadDataFlash(uint16_t a, uint16_t s, void *d);
+static void writeReadDataFlash(uint16_t a, uint16_t s, void *d);
 
 /* Flag Get/Set Helper Functions */
 /**
@@ -241,7 +241,6 @@ RET_TYPE formatUserProfileMemory(uint8_t uid)
     uint16_t pageNumber;
     uint16_t pageOffset;
     uint8_t buf[USER_PROFILE_SIZE];
-    RET_TYPE ret = RETURN_NOK;
     
     if(uid >= NODE_MAX_UID)
     {
@@ -254,9 +253,9 @@ RET_TYPE formatUserProfileMemory(uint8_t uid)
     // obtain user profile offset.
     // write buf (0's) to clear out user memory. Buffer is destroyed.. we no longer need it
     userProfileStartingOffset(uid, &pageNumber, &pageOffset);
-    ret = writeDataToFlash(pageNumber, pageOffset, USER_PROFILE_SIZE, buf);
+    writeDataToFlash(pageNumber, pageOffset, USER_PROFILE_SIZE, buf);
     
-    return ret;
+    return RETURN_OK;
 }
 
 /**
@@ -330,7 +329,6 @@ RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
  */
 RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress)
 {
-    RET_TYPE ret = RETURN_NOK;
     uint16_t userProfilePage = 0;
     uint16_t userProfilePageOffset = 0;
     uint16_t nodePage = 0;
@@ -353,18 +351,10 @@ RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress)
     h->firstParentNode = parentAddress;
     
     // write memory -> WARNING parent address will be destroyed
-    ret = writeDataToFlash(userProfilePage, userProfilePageOffset, 2, &parentAddress);
-    if(ret != RETURN_NOK)
-    {
-        return ret;
-    }
+    writeDataToFlash(userProfilePage, userProfilePageOffset, 2, &parentAddress);
     
     // restore parentAddress (todo from handle?)
-    ret = readDataFromFlash(userProfilePage, userProfilePageOffset, 2, &parentAddress);
-    if(ret != RETURN_NOK)
-    {
-        return ret;
-    }
+    readDataFromFlash(userProfilePage, userProfilePageOffset, 2, &parentAddress);
     
     return RETURN_OK;
 }
@@ -377,7 +367,6 @@ RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress)
  */
 RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
 {
-    RET_TYPE ret = RETURN_NOK;
     uint16_t userProfilePage = 0;
     uint16_t userProfilePageOffset = 0;
     
@@ -385,11 +374,7 @@ RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
     userProfileStartingOffset(h->currentUserId, &userProfilePage, &userProfilePageOffset);
     
     // restore parentAddress
-    ret = readDataFromFlash(userProfilePage, userProfilePageOffset, 2, parentAddress);
-    if(ret != RETURN_NOK)
-    {
-        return ret;
-    }
+    readDataFromFlash(userProfilePage, userProfilePageOffset, 2, parentAddress);
     
     return RETURN_OK;
 }
@@ -428,13 +413,9 @@ RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t c
     offset += (favId * 4) + 2;  // each fav is 4 bytes. +2 for starting parent node offset
     
     // write to flash
-    ret = writeDataToFlash(page, offset, 4, (void *)addrs);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    writeDataToFlash(page, offset, 4, (void *)addrs);
 
-    return ret;
+    return RETURN_OK;
 }
 
 /**
@@ -468,11 +449,7 @@ RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t
     offset += (favId * 4) + 2;  // each fav is 4 bytes. +2 for starting parent node offset
     
     // write to flash
-    ret = readDataFromFlash(page, offset, 4, (void *)addrs);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    readDataFromFlash(page, offset, 4, (void *)addrs);
     
     // return values to user
     *parentAddress = addrs[0];
@@ -513,9 +490,9 @@ RET_TYPE setProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize)
 
     offset += USER_PROFILE_SIZE-USER_RES_CTR; // User CTR is at the end
 
-    ret = writeDataToFlash(page, offset, bufSize, buf);
+    writeDataToFlash(page, offset, bufSize, buf);
 
-    return ret;
+    return RETURN_OK;
 }
 
 /**
@@ -550,9 +527,9 @@ RET_TYPE readProfileCtr(mgmtHandle *h, void *buf, uint8_t bufSize)
 
     offset += USER_PROFILE_SIZE-USER_RES_CTR; // does not include ctr val.. this will set the correct offset
 
-    ret = readDataFromFlash(page, offset, bufSize, buf);
+    readDataFromFlash(page, offset, bufSize, buf);
 
-    return ret;
+    return RETURN_OK;
 }
 
 /**
@@ -603,18 +580,10 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
     if(h->firstParentNode == NODE_ADDR_NULL)
     {
         // write parent node to flash (destructive)
-        ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
         
         // read back from flash
-        ret = readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
         
         // set the starting node address
         setStartingParent(h, h->nextFreeParentNode);
@@ -648,26 +617,14 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
                     p->prevParentAddress = addr; // current memNode Addr
                     
                     // write new node to flash
-                    ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
-                    if(ret != RETURN_OK)
-                    {
-                        return ret;
-                    }
+                    writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
                     
                     // read back from flash
-                    ret = readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
-                    if(ret != RETURN_OK)
-                    {
-                        return ret;
-                    }
+                    readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
                     
                     // set previous last node to point to new node. write to flash
                     memNodePtr->nextParentAddress = h->nextFreeParentNode;
-                    ret = writeDataToFlash(pageNumberFromAddress(addr), NODE_SIZE_PARENT * nodeNumberFromAddress(addr), NODE_SIZE_PARENT, memNodePtr);
-                    if(ret != RETURN_OK)
-                    {
-                        return ret;
-                    }
+                    writeDataToFlash(pageNumberFromAddress(addr), NODE_SIZE_PARENT * nodeNumberFromAddress(addr), NODE_SIZE_PARENT, memNodePtr);
                     
                     // read node from flash.. writes are destructive.
                     ret = readParentNode(h, &(*p), h->nextFreeParentNode);
@@ -695,33 +652,17 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
                 p->prevParentAddress = memNodePtr->prevParentAddress;
                 //writeAddr = h->nextFreeParentNode;
                 // write new node to flash
-                ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
-                if(ret != RETURN_OK)
-                {
-                    return ret;
-                }
+                writeDataToFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
                 
                 // read back from flash (needed?)
-                ret = readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
-                if(ret != RETURN_OK)
-                {
-                    return ret;
-                }
+                readDataFromFlash(pageNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeParentNode), NODE_SIZE_PARENT, &(*p));
                 
                 // read p->next from flash
-                ret = readDataFromFlash(pageNumberFromAddress(p->nextParentAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(p->nextParentAddress), NODE_SIZE_PARENT, memNodePtr);
-                if(ret != RETURN_OK)
-                {
-                    return ret;
-                }
+                readDataFromFlash(pageNumberFromAddress(p->nextParentAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(p->nextParentAddress), NODE_SIZE_PARENT, memNodePtr);
                 
                 // update current node in mem. set prev parent to address node to write was written to.
                 memNodePtr->prevParentAddress = h->nextFreeParentNode;
-                ret = writeDataToFlash(pageNumberFromAddress(p->nextParentAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(p->nextParentAddress), NODE_SIZE_PARENT, memNodePtr);
-                if(ret != RETURN_OK)
-                {
-                    return ret;
-                }
+                writeDataToFlash(pageNumberFromAddress(p->nextParentAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(p->nextParentAddress), NODE_SIZE_PARENT, memNodePtr);
                 
                 if(p->prevParentAddress != NODE_ADDR_NULL)
                 {
@@ -734,11 +675,7 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
                 
                     // update prev node to point next parent to addr of node to write node
                     memNodePtr->nextParentAddress = h->nextFreeParentNode;
-                    ret = writeDataToFlash(pageNumberFromAddress(p->prevParentAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(p->prevParentAddress), NODE_SIZE_PARENT, memNodePtr);
-                    if(ret != RETURN_OK)
-                    {
-                        return ret;
-                    }
+                    writeDataToFlash(pageNumberFromAddress(p->prevParentAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(p->prevParentAddress), NODE_SIZE_PARENT, memNodePtr);
                 }                
                 
                 if(addr == h->firstParentNode)
@@ -784,13 +721,8 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
  * @return  success status
  */
 RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress)
-{
-    RET_TYPE ret = RETURN_OK;
-    ret = readDataFromFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &(*p));
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+{    
+    readDataFromFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &(*p));
     
     if((h->currentUserId != userIdFromFlags(p->flags)) || (validBitFromFlags(p->flags) == NODE_VBIT_INVALID))
     {
@@ -799,7 +731,8 @@ RET_TYPE readParentNode(mgmtHandle *h, pNode * p, uint16_t parentNodeAddress)
         invalidateParentNode(p);
         return RETURN_NOK;
     }
-    return ret;
+    
+    return RETURN_OK;
 }
 
 /**
@@ -856,18 +789,10 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
     if(memcmp(&(p->service), &(ip->service), NODE_PARENT_SIZE_OF_SERVICE) == 0)
     {
         // service is identical just rewrite the node
-        ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &(*p));
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, &(*p));
         
         // write is destructive.. read
-        ret = readParentNode(h, &(*p), parentNodeAddress);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        readParentNode(h, &(*p), parentNodeAddress);
     }
     else
     {
@@ -883,12 +808,7 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
         {
             ip->nextChildAddress = NODE_ADDR_NULL; // bypass delete security measure
             // write node to memory
-            ret = writeReadDataFlash(parentNodeAddress, NODE_SIZE_PARENT, ip);
-            //ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
-            if(ret != RETURN_OK)
-            {
-                return ret;
-            }
+            writeReadDataFlash(parentNodeAddress, NODE_SIZE_PARENT, ip);
         }
         
         // delete node in memory handles doubly linked list management
@@ -920,12 +840,8 @@ RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress)
         // restore addr backup (modify internal buffer)
         ip->nextChildAddress = addr;
         // write node to memory (from internal buffer)
-        ret = writeReadDataFlash(newParentAddr, NODE_SIZE_PARENT, ip);
+        writeReadDataFlash(newParentAddr, NODE_SIZE_PARENT, ip);
         //ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
     }
     return ret; 
 }
@@ -977,11 +893,7 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress)
     // memset parent node to all 0's.. set valid bit to invalid.. write
     memset(ip, DELETE_POLICY_WRITE_ONES, NODE_SIZE_PARENT);
     validBitToFlags(&(ip->flags), NODE_VBIT_INVALID); 
-    ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
     
     // set previousParentNode.nextParentAddress to this.nextParentAddress
     if(prevAddress != NODE_ADDR_NULL)
@@ -997,11 +909,7 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress)
         ip->nextParentAddress = nextAddress;
         
         // update node
-        ret = writeDataToFlash(pageNumberFromAddress(prevAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(prevAddress), NODE_SIZE_PARENT, ip);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        writeDataToFlash(pageNumberFromAddress(prevAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(prevAddress), NODE_SIZE_PARENT, ip);
     }
 
     // set nextParentNode.prevParentNode to this.prevParentNode
@@ -1017,11 +925,7 @@ RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress)
         // set address
         ip->prevParentAddress = prevAddress;
         // update node
-        ret = writeDataToFlash(pageNumberFromAddress(nextAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(nextAddress), NODE_SIZE_PARENT, ip);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        writeDataToFlash(pageNumberFromAddress(nextAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(nextAddress), NODE_SIZE_PARENT, ip);
     }
     
     if(h->firstParentNode == parentNodeAddress)
@@ -1147,12 +1051,7 @@ RET_TYPE createChildStartOfDataNode(mgmtHandle *h, uint16_t pAddr, cNode *c, uin
  */
 RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress)
 {
-    RET_TYPE ret = RETURN_OK;
-    ret = readDataFromFlash(pageNumberFromAddress(childNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(childNodeAddress), NODE_SIZE_CHILD, &(*c));
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    readDataFromFlash(pageNumberFromAddress(childNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(childNodeAddress), NODE_SIZE_CHILD, &(*c));
     
     if((validBitFromFlags(c->flags) == NODE_VBIT_INVALID))
     {
@@ -1161,7 +1060,8 @@ RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress)
         invalidateChildNode(c);
         return RETURN_NOK;
     }
-    return ret;
+    
+    return RETURN_OK;
 }
 
 /**
@@ -1213,11 +1113,7 @@ RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint
         if(memcmp(&(c->login), &(ic->login), NODE_CHILD_SIZE_OF_LOGIN) == 0)
         {
             // service is identical just rewrite the node
-            ret = writeDataToFlash(pageNumberFromAddress(cAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(cAddr), NODE_SIZE_CHILD, &(*c));
-            if(ret != RETURN_OK)
-            {
-                return ret;
-            }
+            writeDataToFlash(pageNumberFromAddress(cAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(cAddr), NODE_SIZE_CHILD, &(*c));
             
             // write is destructive.. read
             ret = readChildNode(h, &(*c), cAddr);
@@ -1301,11 +1197,7 @@ RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr)
     // memset parent node to all 0's.. set valid bit to invalid.. write
     memset(ic, DELETE_POLICY_WRITE_ONES, NODE_SIZE_CHILD);
     validBitToFlags(&(ic->flags), NODE_VBIT_INVALID);
-    ret = writeDataToFlash(pageNumberFromAddress(cAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(cAddr), NODE_SIZE_CHILD, ic);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    writeDataToFlash(pageNumberFromAddress(cAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(cAddr), NODE_SIZE_CHILD, ic);
     
     // set previousParentNode.nextParentAddress to this.nextParentAddress
     if(prevAddress != NODE_ADDR_NULL)
@@ -1321,11 +1213,7 @@ RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr)
         ic->nextChildAddress = nextAddress;
         
         // update node
-        ret = writeDataToFlash(pageNumberFromAddress(prevAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(prevAddress), NODE_SIZE_CHILD, ic);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        writeDataToFlash(pageNumberFromAddress(prevAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(prevAddress), NODE_SIZE_CHILD, ic);
     }
 
     // set nextParentNode.prevParentNode to this.prevParentNode
@@ -1341,11 +1229,7 @@ RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr)
         // set address
         ic->prevChildAddress = prevAddress;
         // update node
-        ret = writeDataToFlash(pageNumberFromAddress(nextAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(nextAddress), NODE_SIZE_CHILD, ic);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        writeDataToFlash(pageNumberFromAddress(nextAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(nextAddress), NODE_SIZE_CHILD, ic);
     }
     
     if(ip->nextChildAddress == cAddr)
@@ -1358,11 +1242,7 @@ RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr)
         // Long story short.. set parent to nextChildAddress to next always
         ip->nextChildAddress = nextAddress;
         //ret = updateParentNode(h, ip, pAddr);
-        ret = writeDataToFlash(pageNumberFromAddress(pAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(pAddr), NODE_SIZE_PARENT, ip);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
+        writeDataToFlash(pageNumberFromAddress(pAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(pAddr), NODE_SIZE_PARENT, ip);
     }
     
     // greater.. closer to start of heap
@@ -1449,7 +1329,7 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
     if(memNodePtr->nextChildAddress == NODE_ADDR_NULL)
     {
         // write child node to flash
-        ret = writeReadDataFlash(h->nextFreeChildNode, NODE_SIZE_CHILD, c);
+        writeReadDataFlash(h->nextFreeChildNode, NODE_SIZE_CHILD, c);
         /*
         ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
         if(ret != RETURN_OK)
@@ -1467,15 +1347,7 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
     
         // set the next child address in the parent
         memNodePtr->nextChildAddress = h->nextFreeChildNode;
-        ret = writeDataToFlash(pageNumberFromAddress(pAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(pAddr), NODE_SIZE_PARENT, memNodePtr);
-        if(ret != RETURN_OK)
-        {
-            #ifdef NODE_MGMT_CREATE_CHILD_NODE
-            usbPrintf_P(PSTR("Error Updating Parent Node\n"));
-            #endif
-            // TODO handle this error more gracefully.. although should not occur
-            return ret;
-        }
+        writeDataToFlash(pageNumberFromAddress(pAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(pAddr), NODE_SIZE_PARENT, memNodePtr);
     
         // set next free to null.. scan will happen at the end of the function
         h->nextFreeChildNode = NODE_ADDR_NULL;
@@ -1510,7 +1382,7 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
                     c->prevChildAddress = addr; // current cMemNode Addr
                 
                     // write new node to flash
-                    ret = writeReadDataFlash(h->nextFreeChildNode, NODE_SIZE_CHILD, c);
+                    writeReadDataFlash(h->nextFreeChildNode, NODE_SIZE_CHILD, c);
                     /*
                     ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
                     if(ret != RETURN_OK)
@@ -1528,11 +1400,7 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
                 
                     // set previous last node to point to new node. write to flash
                     cMemNodePtr->nextChildAddress = h->nextFreeChildNode;
-                    ret = writeDataToFlash(pageNumberFromAddress(addr), NODE_SIZE_PARENT * nodeNumberFromAddress(addr), NODE_SIZE_CHILD, cMemNodePtr);
-                    if(ret != RETURN_OK)
-                    {
-                        return ret;
-                    }
+                    writeDataToFlash(pageNumberFromAddress(addr), NODE_SIZE_PARENT * nodeNumberFromAddress(addr), NODE_SIZE_CHILD, cMemNodePtr);
                 
                     // read node from flash.. writes are destructive.
                     ret = readChildNode(h, &(*c), h->nextFreeChildNode);
@@ -1559,7 +1427,7 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
                 c->prevChildAddress = cMemNodePtr->prevChildAddress;
                 //writeAddr = h->nextFreeParentNode;
                 // write new node to flash
-                ret = writeReadDataFlash(h->nextFreeChildNode, NODE_SIZE_CHILD, c);
+                writeReadDataFlash(h->nextFreeChildNode, NODE_SIZE_CHILD, c);
                 /*
                 ret = writeDataToFlash(pageNumberFromAddress(h->nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
                 if(ret != RETURN_OK)
@@ -1576,19 +1444,11 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
                 */
             
                 // read c->next from flash
-                ret = readDataFromFlash(pageNumberFromAddress(c->nextChildAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(c->nextChildAddress), NODE_SIZE_CHILD, cMemNodePtr);
-                if(ret != RETURN_OK)
-                {
-                    return ret;
-                }
+                readDataFromFlash(pageNumberFromAddress(c->nextChildAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(c->nextChildAddress), NODE_SIZE_CHILD, cMemNodePtr);
             
                 // update current node in mem. set prev parent to address node to write was written to.
                 cMemNodePtr->prevChildAddress = h->nextFreeChildNode;
-                ret = writeDataToFlash(pageNumberFromAddress(c->nextChildAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(c->nextChildAddress), NODE_SIZE_CHILD, cMemNodePtr);
-                if(ret != RETURN_OK)
-                {
-                    return ret;
-                }
+                writeDataToFlash(pageNumberFromAddress(c->nextChildAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(c->nextChildAddress), NODE_SIZE_CHILD, cMemNodePtr);
             
                 if(c->prevChildAddress != NODE_ADDR_NULL)
                 {
@@ -1601,11 +1461,7 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
                 
                     // update prev node to point next child to addr of node to write node
                     cMemNodePtr->nextChildAddress = h->nextFreeChildNode;
-                    ret = writeDataToFlash(pageNumberFromAddress(c->prevChildAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(c->prevChildAddress), NODE_SIZE_CHILD, cMemNodePtr);
-                    if(ret != RETURN_OK)
-                    {
-                        return ret;
-                    }
+                    writeDataToFlash(pageNumberFromAddress(c->prevChildAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(c->prevChildAddress), NODE_SIZE_CHILD, cMemNodePtr);
                 }
             
                 if(addr == memNodePtr->nextChildAddress)
@@ -1613,12 +1469,7 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
                     // new node comes before current address and current address in first node.
                     // new node should be first node
                     memNodePtr->nextChildAddress = h->nextFreeChildNode;
-                    ret = writeDataToFlash(pageNumberFromAddress(pAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(pAddr), NODE_SIZE_PARENT, memNodePtr);
-                    if(ret != RETURN_OK)
-                    {
-                        // TODO handle this error more gracefully.. although should not occur
-                        return ret;
-                    }
+                    writeDataToFlash(pageNumberFromAddress(pAddr), NODE_SIZE_PARENT * nodeNumberFromAddress(pAddr), NODE_SIZE_PARENT, memNodePtr);
                 }
             
                 // read node from flash.. writes are destructive.
@@ -1680,11 +1531,7 @@ RET_TYPE scanNodeUsage(mgmtHandle*h)
 		for(nodeItr = 0; nodeItr < NODE_PARENT_PER_PAGE; nodeItr++)
 		{
 			// read node flags (2 bytes - fixed size)
-			ret = readDataFromFlash(pageItr, NODE_SIZE_PARENT*nodeItr, 2, &nodeFlags);
-			if(ret != RETURN_OK)
-			{
-				return ret;
-			}
+			readDataFromFlash(pageItr, NODE_SIZE_PARENT*nodeItr, 2, &nodeFlags);
 			
 			if(validBitFromFlags(nodeFlags) == NODE_VBIT_VALID)
 			{
@@ -1777,24 +1624,11 @@ RET_TYPE scanNodeUsage(mgmtHandle*h)
  * @param   a               Theaddress of the node to write to memory
  * @param   s               The size of the node to write to memory
  * @param   d               The node buffer (pNode, cNode, dNode etc..)
- * @return  success status
  */
-RET_TYPE writeReadDataFlash(uint16_t a, uint16_t s, void *d)
-{
-    RET_TYPE ret;
-    // write data to flash
-    ret = writeDataToFlash(pageNumberFromAddress(a), NODE_SIZE_PARENT * nodeNumberFromAddress(a), s, d);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+void writeReadDataFlash(uint16_t a, uint16_t s, void *d)
+{    // write data to flash
+    writeDataToFlash(pageNumberFromAddress(a), NODE_SIZE_PARENT * nodeNumberFromAddress(a), s, d);
 
     // read back from flash
-    ret = readDataFromFlash(pageNumberFromAddress(a), NODE_SIZE_PARENT * nodeNumberFromAddress(a), s, d);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
-
-    return ret;
+    readDataFromFlash(pageNumberFromAddress(a), NODE_SIZE_PARENT * nodeNumberFromAddress(a), s, d);
 }

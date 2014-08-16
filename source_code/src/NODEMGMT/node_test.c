@@ -412,12 +412,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     
     // format flash.
     usbPrintf_P(PSTR("Formatting Flash\n"));
-    ret = formatFlash();
-    if(ret != RETURN_OK)
-    {
-        *code = PARENT_NODE_TEST_ERASE_ALL_SECTORS_ERROR;
-        return ret;
-    }
+    formatFlash();
     
     // format user profile memory
     usbPrintf_P(PSTR("Formatting User Profile 0\n"));
@@ -1416,12 +1411,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // format flash        
     usbPrintf_P(PSTR("Formatting Flash\n"));
-    ret = formatFlash();
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_FORMAT_FLASH_FAIL;
-        return ret;
-    }
+    formatFlash();
     
     // format user profile memory
     usbPrintf_P(PSTR("Formatting User Profile 0\n"));
@@ -1752,12 +1742,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_1_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     // TODO Debug why the node in the buffer is not working
     //usbPrintf_P(PSTR("TS Parent Node ADDR: %d,%d Parent Node Set Next Child %d,%d \n "), pageNumberFromAddress(h->firstParentNode), nodeNumberFromAddress(h->firstParentNode), pageNumberFromAddress(parentPtr->nextChildAddress), nodeNumberFromAddress(parentPtr->nextChildAddress));
@@ -1860,12 +1845,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
         
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_2_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
     if(parentPtr->nextChildAddress != oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1996,12 +1976,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_3_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
     if(parentPtr->nextChildAddress != oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2161,12 +2136,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_4_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
     if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2295,12 +2265,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_5_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
     if(parentPtr->nextChildAddress != oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2400,12 +2365,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_6_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
     if(parentPtr->nextChildAddress != oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2476,12 +2436,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_7_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
     if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2523,12 +2478,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_8_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
     if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2584,12 +2534,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_9_READ_PARENT_END_ERROR;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
     if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2627,12 +2572,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_9_READ_PARENT_END_ERROR_2;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
     if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2670,12 +2610,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify parent
     //ret = readParentNode(h, parentPtr, h->firstParentNode);
-    ret = readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
-    if(ret != RETURN_OK)
-    {
-        *code = CHILD_NODE_TEST_STEP_9_READ_PARENT_END_ERROR_3;
-        return RETURN_NOK;
-    }
+    readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // b
     if(parentPtr->nextChildAddress == oldParentNextChildNode || parentPtr->nextChildAddress != constructAddress(pageId, nodeId))

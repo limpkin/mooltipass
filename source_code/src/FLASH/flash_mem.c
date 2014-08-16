@@ -35,6 +35,14 @@
 #endif
 
 
+/*! \fn     memoryBoundaryErrorCallback(void)
+*   \brief  Function called when a memory boundary issue occurs
+*/
+void memoryBoundaryErrorCallback(void)
+{
+    while(1);
+}
+
 /*! \fn     fillPageReadWriteEraseOpcodeFromAddress(uint16_t pageNumber, uint16_t offset, uint8_t* buffer)
 *   \brief  Fill the opcode address field from the page number and offset
 *   \param  pageNumber  Page number
@@ -43,7 +51,7 @@
 */
 static inline void fillPageReadWriteEraseOpcodeFromAddress(uint16_t pageNumber, uint16_t offset, uint8_t* buffer)
 {
-    #if (READ_OFFSET_SHT_AMT != WRITE_SHT_AMT) && (READ_OFFSET_SHT_AMT != PAGE_ERASE_SHT_AMT)
+    #if (READ_OFFSET_SHT_AMT != WRITE_SHT_AMT) || (READ_OFFSET_SHT_AMT != PAGE_ERASE_SHT_AMT)
         #error "offsets differ"
     #endif
     uint16_t temp_uint = (pageNumber << (READ_OFFSET_SHT_AMT-8)) | (offset >> 8);
@@ -153,18 +161,19 @@ RET_TYPE initFlash(void)
 /**
  * Erases sector 0a if sectorNumber is FLASH_SECTOR_ZERO_A_CODE. Deletes sector 0b if sectorNumber is FLASH_SECTOR_ZERO_B_CODE.
  * @param   sectorNumber    The sector to erase
- * @return  success status
  * @note    Sets all bits in sector to Logic 1 (High)
  */
-RET_TYPE sectorZeroErase(uint8_t sectorNumber)
+void sectorZeroErase(uint8_t sectorNumber)
 {
     uint8_t opcode[4];
     
-    // Error check parameter sectorNumber
-    if(!(sectorNumber == FLASH_SECTOR_ZERO_A_CODE || sectorNumber == FLASH_SECTOR_ZERO_B_CODE))
-    {
-        return RETURN_NOK;
-    }    
+    #ifdef MEMORY_BOUNDARY_CHECKS
+        // Error check parameter sectorNumber
+        if(!(sectorNumber == FLASH_SECTOR_ZERO_A_CODE || sectorNumber == FLASH_SECTOR_ZERO_B_CODE))
+        {
+            memoryBoundaryErrorCallback();
+        }    
+    #endif
     
     uint16_t temp_uint = (uint16_t)sectorNumber << (SECTOR_ERASE_0_SHT_AMT-8);
     opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
@@ -175,24 +184,24 @@ RET_TYPE sectorZeroErase(uint8_t sectorNumber)
     
     /* Wait until memory is ready */
     waitForFlash();
-    return RETURN_OK;
 } // End sectorZeroErase
 
 /**
  * Erases sector sectorNumber (SECTOR_START -> SECTOR_END inclusive valid).
  * @param   sectorNumber    The sector to erase
- * @return  success status
  * @note    Sets all bits in sector to Logic 1 (High)
  */
-RET_TYPE sectorErase(uint8_t sectorNumber)
+void sectorErase(uint8_t sectorNumber)
 {
     uint8_t opcode[4];
     
-    // Error check parameter sectorNumber
-    if((sectorNumber < SECTOR_START) || (sectorNumber > SECTOR_END)) // Ex: 1M -> SECTOR_START = 1, SECTOR_END = 3  sectorNumber must be 1, 2, or 3
-    {
-        return RETURN_NOK;
-    }
+    #ifdef MEMORY_BOUNDARY_CHECKS
+        // Error check parameter sectorNumber
+        if((sectorNumber < SECTOR_START) || (sectorNumber > SECTOR_END)) // Ex: 1M -> SECTOR_START = 1, SECTOR_END = 3  sectorNumber must be 1, 2, or 3
+        {
+            memoryBoundaryErrorCallback();
+        }
+    #endif
     
     uint16_t temp_uint = (uint16_t)sectorNumber << (SECTOR_ERASE_N_SHT_AMT-8);
     opcode[0] = FLASH_OPCODE_SECTOR_ERASE;
@@ -202,9 +211,7 @@ RET_TYPE sectorErase(uint8_t sectorNumber)
     sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
     
     /* Wait until memory is ready */
-    waitForFlash();
-    
-    return RETURN_OK;    
+    waitForFlash();   
 } // End sectorErase
 
 /**
@@ -213,15 +220,17 @@ RET_TYPE sectorErase(uint8_t sectorNumber)
  * @return  success status
  * @note    Sets all bits in block to Logic 1 (High)
  */
-RET_TYPE blockErase(uint16_t blockNumber)
+void blockErase(uint16_t blockNumber)
 {
     uint8_t opcode[4];
     
-    // Error check parameter blockNumber
-    if(blockNumber >= BLOCK_COUNT)// Ex: 1M -> BLOCK_COUNT = 64.. valid pageNumber 0-63
-    {
-        return RETURN_NOK;
-    }
+    #ifdef MEMORY_BOUNDARY_CHECKS
+        // Error check parameter blockNumber
+        if(blockNumber >= BLOCK_COUNT)// Ex: 1M -> BLOCK_COUNT = 64.. valid pageNumber 0-63
+        {
+            memoryBoundaryErrorCallback();
+        }
+    #endif
     
     uint16_t temp_uint = blockNumber << (BLOCK_ERASE_SHT_AMT-8);
     opcode[0] = FLASH_OPCODE_BLOCK_ERASE;
@@ -232,8 +241,6 @@ RET_TYPE blockErase(uint16_t blockNumber)
     
     /* Wait until memory is ready */
     waitForFlash();
-    
-    return RETURN_OK;
 } // End blockErase
 
 /**
@@ -242,15 +249,17 @@ RET_TYPE blockErase(uint16_t blockNumber)
  * @return  success status
  * @note    Sets all bits in page to Logic 1 (High)
  */
-RET_TYPE pageErase(uint16_t pageNumber)
+void pageErase(uint16_t pageNumber)
 {
     uint8_t opcode[4];
     
-    // Error check parameter pageNumber
-    if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
-    {
-        return RETURN_NOK;
-    }
+    #ifdef MEMORY_BOUNDARY_CHECKS
+        // Error check parameter pageNumber
+        if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
+        {
+            memoryBoundaryErrorCallback();
+        }
+    #endif
     
     opcode[0] = FLASH_OPCODE_PAGE_ERASE;
     fillPageReadWriteEraseOpcodeFromAddress(pageNumber, 0, &opcode[1]);    // We can add the offset as they're "don't care" in the datasheet
@@ -258,39 +267,21 @@ RET_TYPE pageErase(uint16_t pageNumber)
     
     /* Wait until memory is ready */
     waitForFlash();
-    
-    return RETURN_OK;
 } // End pageErase
 
 /**
  * Erases the entirety of spi flash memory by calling the appropriate erase functions.
- * @return  success status
  * @note    Sets all bits in spi flash memory to Logic 1 (High)
  */
-RET_TYPE formatFlash() 
-{
-    RET_TYPE ret = RETURN_OK;
-    
-    ret = sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE); // erase sector 0a
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+void formatFlash(void) 
+{    
+    sectorZeroErase(FLASH_SECTOR_ZERO_A_CODE); // erase sector 0a
     sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE); // erase sector 0b
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
     
     for(uint8_t i = SECTOR_START; i <= SECTOR_END; i++)
     {
-        ret = sectorErase(i);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
-    }    
-    return ret;
+        sectorErase(i);
+    }
 }
 
 /**
@@ -299,25 +290,26 @@ RET_TYPE formatFlash()
  * @param   offset          The starting byte offset to begin writing in pageNumber
  * @param   dataSize        The number of bytes to write from the data buffer (assuming the data buffer is sufficiently large)
  * @param   data            The buffer containing the data to write to flash memory
- * @return  success status
  * @note    The buffer will be destroyed.
  * @note    Function does not allow crossing page boundaries.
  */
-RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)
+void writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)
 {
     uint8_t opcode[4];
     
-    // Error check the parameter pageNumber
-    if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
-    {
-        return RETURN_INVALID_PARAM;
-    }
+    #ifdef MEMORY_BOUNDARY_CHECKS
+        // Error check the parameter pageNumber
+        if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
+        {
+            memoryBoundaryErrorCallback();
+        }
     
-    // Error check the parameters offset and dataSize
-    if((offset + dataSize - 1) >= BYTES_PER_PAGE) // Ex: 1M -> BYTES_PER_PAGE = 264 offset + dataSize MUST be less than 264 (0-263 valid)
-    {
-        return RETURN_INVALID_PARAM;
-    }
+        // Error check the parameters offset and dataSize
+        if((offset + dataSize - 1) >= BYTES_PER_PAGE) // Ex: 1M -> BYTES_PER_PAGE = 264 offset + dataSize MUST be less than 264 (0-263 valid)
+        {
+            memoryBoundaryErrorCallback();
+        }
+    #endif
     
     // Load the page in the internal buffer
     opcode[0] = FLASH_OPCODE_MAINP_TO_BUF;
@@ -334,8 +326,6 @@ RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSiz
     
     /* Wait until memory is ready */
     waitForFlash();
-    
-    return RETURN_OK;
 } // End writeDataToFlash
 
 /**
@@ -344,30 +334,28 @@ RET_TYPE writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSiz
  * @param   offset          The starting byte offset to begin reading in pageNumber
  * @param   dataSize        The number of bytes to read from the flash memory into the data buffer (assuming the data buffer is sufficiently large)
  * @param   data            The buffer used to store the data read from flash
- * @return  success status
  * @note    Function does not allow crossing page boundaries.
  */
-RET_TYPE readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)
+void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)
 {    
     uint8_t opcode[4];
     
-    // Error check the parameter pageNumber
-    if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
-    {
-        return RETURN_INVALID_PARAM;
-    }
-    
-    // Error check the parameters offset and dataSize
-    if((offset + dataSize - 1) >= BYTES_PER_PAGE) // Ex: 1M -> BYTES_PER_PAGE = 264 offset + dataSize MUST be less than 264 (0-263 valid)
-    {
-        return RETURN_INVALID_PARAM;
-    }
+    #ifdef MEMORY_BOUNDARY_CHECKS
+        // Error check the parameter pageNumber
+        if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
+        {
+            memoryBoundaryErrorCallback();
+        }    
+        // Error check the parameters offset and dataSize
+        if((offset + dataSize - 1) >= BYTES_PER_PAGE) // Ex: 1M -> BYTES_PER_PAGE = 264 offset + dataSize MUST be less than 264 (0-263 valid)
+        {
+            memoryBoundaryErrorCallback();
+        }
+    #endif
     
     opcode[0] = FLASH_OPCODE_LOWF_READ;
     fillPageReadWriteEraseOpcodeFromAddress(pageNumber, offset, &opcode[1]);
     sendDataToFlashWithFourBytesOpcode(opcode, data, dataSize);
-   
-    return RETURN_OK;
 } // End readDataFromFlash
 
 /**

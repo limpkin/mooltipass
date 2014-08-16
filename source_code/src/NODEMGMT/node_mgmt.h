@@ -215,7 +215,7 @@ RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);
 RET_TYPE formatUserProfileMemory(uint8_t uid);
 RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
 RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress);
-RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress);
+void readStartingParent(mgmtHandle *h, uint16_t *parentAddress);
 
 RET_TYPE setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress);
 RET_TYPE readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);
@@ -237,7 +237,7 @@ RET_TYPE readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress);
 RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
 RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr);
 
-RET_TYPE scanNodeUsage(mgmtHandle *h);
+void scanNodeUsage(mgmtHandle *h);
 
 
 #endif /* NODE_MGMT_H_ */

@@ -349,11 +349,7 @@ RET_TYPE userProfileAddressTest(mgmtHandle *h)
             return RETURN_NOK;
         }
         
-        ret = readStartingParent(h, &address);
-        if(ret != RETURN_OK || address != addressBackup)
-        {
-            return RETURN_NOK;
-        }
+        readStartingParent(h, &address);
     }
 
     // CTR Calculation Test

@@ -274,10 +274,12 @@ RET_TYPE userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOf
         return RETURN_NOK;
     }
     
-    uint16_t offset = uid * USER_PROFILE_SIZE;
+    #if ((BYTES_PER_PAGE % USER_PROFILE_SIZE) != 0)
+        #error "User profile size is not aligned with pages"
+    #endif
     
-    *page = (uint16_t)((offset / BYTES_PER_PAGE) - ((offset / BYTES_PER_PAGE) % 1));
-    *pageOffset = (uint16_t)(offset % BYTES_PER_PAGE);
+    *page = uid/(BYTES_PER_PAGE/USER_PROFILE_SIZE);
+    *pageOffset = ((uint16_t)uid % (BYTES_PER_PAGE/USER_PROFILE_SIZE))*USER_PROFILE_SIZE;
     
     return RETURN_OK;
 }
@@ -303,20 +305,10 @@ RET_TYPE initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum)
     h->currentUserId = userIdNum;
     
     // read starting parent address
-    ret = readStartingParent(h, &(h->firstParentNode));
-    
-    if(ret != RETURN_OK)
-    {
-        // if flash error
-        return ret;
-    }
+    readStartingParent(h, &(h->firstParentNode));
     
     // scan for next free parent and child nodes
-    ret = scanNodeUsage(h);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    scanNodeUsage(h);
     
     return RETURN_OK;
 }
@@ -363,9 +355,8 @@ RET_TYPE setStartingParent(mgmtHandle *h, uint16_t parentAddress)
  * Gets the users starting parent node from the user profile memory portion of flash
  * @param   h               The user allocated node management handle
  * @param   parentAddress   The constructed address of the users starting parent node (alphabetically) 
- * @return  success status
  */
-RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
+void readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
 {
     uint16_t userProfilePage = 0;
     uint16_t userProfilePageOffset = 0;
@@ -375,8 +366,6 @@ RET_TYPE readStartingParent(mgmtHandle *h, uint16_t *parentAddress)
     
     // restore parentAddress
     readDataFromFlash(userProfilePage, userProfilePageOffset, 2, parentAddress);
-    
-    return RETURN_OK;
 }
 
 /**
@@ -704,11 +693,7 @@ RET_TYPE createParentNode(mgmtHandle *h, pNode *p)
         } // end while
     } // end if first parent
     
-    ret = scanNodeUsage(h);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    scanNodeUsage(h);
     
    return RETURN_OK;
 }
@@ -1501,17 +1486,13 @@ RET_TYPE createChildTypeNode(mgmtHandle *h, uint16_t pAddr, cNode *c, nodeType t
         res = 6;
     }
 
-    ret = scanNodeUsage(h);
-    if(ret != RETURN_OK)
-    {
-        return ret;
-    }
+    scanNodeUsage(h);
 
     return RETURN_OK;
 
 }
 
-RET_TYPE scanNodeUsage(mgmtHandle*h)
+void scanNodeUsage(mgmtHandle*h)
 {
 	uint16_t nodeFlags = 0xFFFF;
 	uint16_t pageItr;
@@ -1521,8 +1502,6 @@ RET_TYPE scanNodeUsage(mgmtHandle*h)
 	uint16_t nextFreeParent = NODE_ADDR_NULL;  // stores nextFreeParent (first free node seen Free)
 	uint16_t firstSeenChild = NODE_ADDR_NULL;  // stores child boundary
 	uint16_t nextFreeChild  = NODE_ADDR_NULL;  // stores nextFreeChild (last free child seen)
-	
-	RET_TYPE ret = RETURN_OK;
 
 	// for each page
 	for(pageItr = PAGE_PER_SECTOR; pageItr < PAGE_COUNT; pageItr++)
@@ -1615,7 +1594,8 @@ RET_TYPE scanNodeUsage(mgmtHandle*h)
 	h->nextFreeChildNode = nextFreeChild;
 	h->lastSeenParent = lastSeenParent;
 	h->fistSeenChild = firstSeenChild;
-	return ret;
+    
+    // TODO: CHECK THAT STACK AND HEAP DIDN'T COLLIDE!!!!
 }
 
 /**

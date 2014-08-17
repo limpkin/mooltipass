@@ -331,7 +331,8 @@ void usbProcessIncoming(uint8_t* incomingData)
 
             // Get a block of data and send it, increment counter
             readDataFromFlash(flashOpCurAddr1, flashOpCurAddr2, size, (void*)incomingData);
-            usbSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
+            usbSendMessage(CMD_EXPORT_FLASH, size, incomingData);
+            //usbSendMessageWithRetries(CMD_EXPORT_FLASH, size, (char*)incomingData, 255);
             flashOpCurAddr2 += size;
             
             if (flashOpCurAddr2 == BYTES_PER_PAGE)
@@ -378,7 +379,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check if the export address is correct
             if (flashOpCurAddr1 >= EEPROM_SIZE)
             {
-                usbSendMessageWithRetries(CMD_EXPORT_EEPROM_END, 0, NULL, 255);
+                usbSendMessage(CMD_EXPORT_EEPROM_END, 0, NULL);
                 USBPARSERDEBUGPRINTF_P(PSTR("export: end\n"));
                 currentFlashOpUid = 0;
                 return;
@@ -392,7 +393,8 @@ void usbProcessIncoming(uint8_t* incomingData)
 
             // Get a block of data and send it, increment counter
             eeprom_read_block(incomingData, (void*)flashOpCurAddr1, size);
-            usbSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
+            usbSendMessage(CMD_EXPORT_EEPROM, size, (char*)incomingData);
+            //usbSendMessageWithRetries(CMD_EXPORT_EEPROM, size, (char*)incomingData, 255);
             flashOpCurAddr1 += size;
             return;
         }

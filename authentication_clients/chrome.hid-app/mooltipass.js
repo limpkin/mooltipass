@@ -113,6 +113,7 @@ var flashChipId = null;
 
 var client = {};
 
+var polledDevice = false;
 var connection = null;  // connection to the mooltipass
 var devId = null;
 var connected = false;  // current connection state
@@ -1270,9 +1271,18 @@ function checkConnection()
     if (!connected) {
         connect();
     } else {
-        chrome.hid.getDevices(device_info, onDeviceFound);
+        if (polledDevice) {
+            sendPing()
+        } else {
+            chrome.hid.getDevices(device_info, onDeviceFound);
+        }
     }
 
+}
+
+// Resort to polled device detection for mac, apparently device list contains stale entries (perhaps need a better way to detect changes to this list?)
+if (platformInfo.os == "mac") {
+    polledDevice = true;
 }
 
 setInterval(checkConnection,2000);

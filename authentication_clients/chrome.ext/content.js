@@ -98,11 +98,19 @@ function getCredentials(submitted)
 
     // check for login input
     $(':input').each( function(i) {
+        console.log('checking '+this.id);
         var newLogin = isLogin(this);
         if (newLogin > loginPrecedence) {
-            if (submitted && this.value != '') {
+            if (submitted) {
+                if (this.value != '') {
+                    loginPrecedence = newLogin;
+                    loginInput = this;
+                    console.log('using '+this.id);
+                }
+            } else {
                 loginPrecedence = newLogin;
                 loginInput = this;
+                console.log('using '+this.id);
             }
         }
     });

@@ -114,7 +114,6 @@ var flashChipId = null;
 var client = {};
 
 var connection = null;  // connection to the mooltipass
-var devId = null;
 var connected = false;  // current connection state
 var authReq = null;     // current authentication request
 var authReqQueue = [];
@@ -208,7 +207,6 @@ function arrayToStr(buf)
 function reset()
 {
     connection = null;  // connection to the mooltipass
-    devId = null;
     connected = false;
     authReq = null;     // current authentication request
     context = null;
@@ -1214,31 +1212,16 @@ function sendPing()
  */
 function onDeviceFound(devices) 
 {
-    var foundDevId = null;
-    if (devices.length > 0)
+    if (devices.length <= 0)
     {
-        var ind = devices.length - 1;
-        console.log('Found ' + devices.length + ' devices.');
-        console.log('Device ' + devices[ind].deviceId + ' vendor' + devices[ind].vendorId + ' product ' + devices[ind].productId);
-        //console.log('Device usage 0 usage_page' + devices[ind].usages[0].usage_page + ' usage ' + devices[ind].usages[0].usage);
-        foundDevId = devices[ind].deviceId;
-    }
-
-    if (foundDevId == devId) {
         return;
-    } else {
-        if (connected && connection != null) {
-            chrome.hid.disconnect(connection);
-            connection = null;
-            log('#messageLog', 'Disconnected from mooltipass\n');
-            reset();
-        }
-        if (foundDevId == null) {
-            return;
-        }
     }
 
-    devId = foundDevId
+    var ind = devices.length - 1;
+    console.log('Found ' + devices.length + ' devices.');
+    console.log('Device ' + devices[ind].deviceId + ' vendor' + devices[ind].vendorId + ' product ' + devices[ind].productId);
+    //console.log('Device usage 0 usage_page' + devices[ind].usages[0].usage_page + ' usage ' + devices[ind].usages[0].usage);
+    var devId = devices[ind].deviceId;
 
     console.log('Connecting to device '+devId);
     log('#messageLog', 'Connecting to device...\n');
@@ -1270,9 +1253,8 @@ function checkConnection()
     if (!connected) {
         connect();
     } else {
-        chrome.hid.getDevices(device_info, onDeviceFound);
+        sendPing();
     }
-
 }
 
 setInterval(checkConnection,2000);

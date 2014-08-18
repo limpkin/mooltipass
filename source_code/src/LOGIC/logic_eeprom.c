@@ -190,10 +190,7 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     formatUserProfileMemory(new_user_id);
 
     // Initialize user flash context, that inits the node mgmt handle and the ctr value
-    if (initUserFlashContext(new_user_id) != RETURN_OK)
-    {
-        return RETURN_NOK;
-    }
+    initUserFlashContext(new_user_id);
 
     // Generate random CPZ value
     fillArrayWithRandomBytes(temp_buffer, SMARTCARD_CPZ_LENGTH);

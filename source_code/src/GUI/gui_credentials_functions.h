@@ -30,7 +30,7 @@
 #include "node_mgmt.h"
 #include "defines.h"
 
-uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress);
+uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress);
 
 
 #endif /* GUI_CREDENTIALS_FUNCTIONS_H_ */

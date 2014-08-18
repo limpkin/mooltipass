@@ -121,8 +121,8 @@ void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce)
 */
 void initUserFlashContext(uint8_t user_id)
 {
-    initNodeManagementHandle(&nodeMgmtHandle, user_id);
-    readProfileCtr(&nodeMgmtHandle, nextCtrVal);
+    initNodeManagementHandle(user_id);
+    readProfileCtr(nextCtrVal);
 }
 
 /*! \fn     searchForServiceName(uint8_t* name, uint8_t length)
@@ -133,7 +133,7 @@ void initUserFlashContext(uint8_t user_id)
 */
 uint16_t searchForServiceName(uint8_t* name, uint8_t length)
 {
-    uint16_t next_node_addr = nodeMgmtHandle.firstParentNode;
+    uint16_t next_node_addr = getStartingParentAddress();
     (void)length;
     
     if (next_node_addr == NODE_ADDR_NULL)
@@ -146,7 +146,7 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t length)
         do
         {
             // Read parent node
-            readParentNode(&nodeMgmtHandle, &temp_pnode, next_node_addr);
+            readParentNode(&temp_pnode, next_node_addr);
             
             // Compare its service name with the name that was provided
             if (strcmp((char*)temp_pnode.service, (char*)name) == 0)
@@ -174,7 +174,7 @@ uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_
     uint16_t next_node_addr;
     
     // Read parent node and get first child address
-    readParentNode(&nodeMgmtHandle, &temp_pnode, parent_addr);    
+    readParentNode(&temp_pnode, parent_addr);    
     next_node_addr = temp_pnode.nextChildAddress;
     
     // Check that there's actually a child node
@@ -187,7 +187,7 @@ uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_
     do
     {
         // Read child node
-        readChildNode(&nodeMgmtHandle, &temp_cnode, next_node_addr);
+        readChildNode(&temp_cnode, next_node_addr);
         
         // Compare login with the provided name
         if (strcmp((char*)temp_cnode.login, (char*)name) == 0)
@@ -212,7 +212,7 @@ void ctrPreEncryptionTasks(void)
     int8_t i;
     
     // Read CTR stored in flash
-    readProfileCtr(&nodeMgmtHandle, temp_buffer);
+    readProfileCtr(temp_buffer);
     
     // If it is the same value, increment it by CTR_FLASH_MIN_INCR and store it in flash
     if (aesCtrCompare(temp_buffer, nextCtrVal, USER_CTR_SIZE) == 0)
@@ -223,7 +223,7 @@ void ctrPreEncryptionTasks(void)
             temp_buffer[i] = (uint8_t)(carry);
             carry = (carry >> 8) & 0xFF;
         }
-        setProfileCtr(&nodeMgmtHandle, (void*)temp_buffer);
+        setProfileCtr(temp_buffer);
     }
 }
 
@@ -338,7 +338,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
         memcpy((void*)temp_pnode.service, (void*)name, length);
         
         // Create parent node for service
-        if (createParentNode(&nodeMgmtHandle, &temp_pnode) != RETURN_OK)
+        if (createParentNode(&temp_pnode) != RETURN_OK)
         {
             return RETURN_NOK;
         }
@@ -370,7 +370,7 @@ RET_TYPE getLoginForContext(char* buffer)
         // Credential timer off, ask for user to choose
         if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_EXPIRED)
         {
-            selected_login_child_node_addr = guiAskForLoginSelect(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr);
+            selected_login_child_node_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, context_parent_node_addr);
             
             // If a valid child node was selected
             if (selected_login_child_node_addr != NODE_ADDR_NULL)
@@ -384,7 +384,7 @@ RET_TYPE getLoginForContext(char* buffer)
         if ((hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING) && (selected_login_flag == TRUE))
         {
             // Read selected child node
-            readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr);
+            readChildNode(&temp_cnode, selected_login_child_node_addr);
             strcpy((char*)buffer, (char*)temp_cnode.login);
             //usbKeybPutStr((char*)buffer);
             return RETURN_OK;
@@ -405,7 +405,7 @@ RET_TYPE getPasswordForContext(char* buffer)
     if ((context_valid_flag == TRUE) && (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING) && (selected_login_flag == TRUE))
     {
         // Fetch password from selected login and send it over USB
-        readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr);
+        readChildNode(&temp_cnode, selected_login_child_node_addr);
         
         // Call the password decryption function, which also clears the credential_timer_valid flag
         decryptTempCNodePasswordAndClearCTVFlag();
@@ -465,7 +465,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 
                 // Copy login into a temp cnode, and create it in the flash
                 memcpy((void*)temp_cnode.login, (void*)name, length);
-                if(createChildNode(&nodeMgmtHandle, context_parent_node_addr, &temp_cnode) != RETURN_OK)
+                if(createChildNode(context_parent_node_addr, &temp_cnode) != RETURN_OK)
                 {
                     return RETURN_NOK;
                 }
@@ -500,10 +500,10 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
     else
     {
         // Read parent node
-        readParentNode(&nodeMgmtHandle, &temp_pnode, context_parent_node_addr);
+        readParentNode(&temp_pnode, context_parent_node_addr);
         
         // Read child node
-        readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr);
+        readChildNode(&temp_cnode, selected_login_child_node_addr);
         
         // Copy the password and put random bytes after the final 0
         memcpy((void*)temp_cnode.password, (void*)password, length);
@@ -525,7 +525,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             encryptTempCNodePasswordAndClearCTVFlag();
             
             // Update child node to store password
-            if (updateChildNode(&nodeMgmtHandle, &temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
+            if (updateChildNode(&temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
             {
                 return RETURN_NOK;
             }
@@ -566,7 +566,7 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
         {
             // Check password in Flash
             // Read child node
-            readChildNode(&nodeMgmtHandle, &temp_cnode, selected_login_child_node_addr);
+            readChildNode(&temp_cnode, selected_login_child_node_addr);
             
             // Call the password decryption function, which also clears the credential_timer_valid flag
             decryptTempCNodePasswordAndClearCTVFlag();

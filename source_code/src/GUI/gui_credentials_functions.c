@@ -32,15 +32,14 @@
 #include "gui.h"
 
 
-/*! \fn     guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress)
+/*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
 *   \brief  Ask for user login selection / approval
-*   \param  h                   Pointer to management handle
 *   \param  p                   Pointer to a parent node
 *   \param  c                   Pointer to a child node
 *   \param  parentNodeAddress   Address of the parent node
 *   \return Valid child node address or 0 otherwise
 */
-uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parentNodeAddress)
+uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
 {
     uint16_t temp_child_address;
     uint16_t addresses[4];
@@ -49,7 +48,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     int8_t j;
     
     // Read the parent node
-    readParentNode(h, p, parentNodeAddress);
+    readParentNode(p, parentNodeAddress);
     
     // Read child address
     temp_child_address = p->nextChildAddress;
@@ -61,7 +60,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
     }
     
     // Read child node
-    readChildNode(h, c, temp_child_address);
+    readChildNode(c, temp_child_address);
     
     // Check if there's only one child, that's a confirmation screen
     if (c->nextChildAddress == NODE_ADDR_NULL)
@@ -108,7 +107,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
             while ((temp_child_address != NODE_ADDR_NULL) && (i != 4))
             {
                 // Read child node to get login
-                readChildNode(h, c, temp_child_address);
+                readChildNode(c, temp_child_address);
                 
                 // Print login on screen
                 if (i == 0)
@@ -181,7 +180,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                 while ((i--) > 1)
                 {
                     temp_child_address = c->prevChildAddress;
-                    readChildNode(h, c, temp_child_address);
+                    readChildNode(c, temp_child_address);
                 }
                 // If there is a previous child, go back 4 indexes
                 if (c->prevChildAddress != NODE_ADDR_NULL)
@@ -190,7 +189,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                     while(i--)
                     {
                         temp_child_address = c->prevChildAddress;
-                        readChildNode(h, c, temp_child_address);
+                        readChildNode(c, temp_child_address);
                     }
                 }
                 i = 0;
@@ -207,7 +206,7 @@ uint16_t guiAskForLoginSelect(mgmtHandle* h, pNode* p, cNode* c, uint16_t parent
                 while ((i--) > 1)
                 {
                     temp_child_address = c->prevChildAddress;
-                    readChildNode(h, c, temp_child_address);
+                    readChildNode(c, temp_child_address);
                 }
             }
         }

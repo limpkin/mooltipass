@@ -337,21 +337,21 @@ RET_TYPE userProfileAddressTest(mgmtHandle *h)
     {
         address = addressBackup;
         // init already tested.  put uid in handle
-        initNodeManagementHandle(h, uid);
+        initNodeManagementHandle(uid);
         // calculate profile offsets
         userProfileStartingOffset(uid, &pageNumber, &pageOffset);
         // set starting parent address in handle and memory
-        setStartingParent(h, address);
+        setStartingParent(address);
         if(address != addressBackup)
         {
             return RETURN_NOK;
         }
         
-        readStartingParent(h, &address);
+        address = getStartingParentAddress();
     }
 
     // CTR Calculation Test
-    initNodeManagementHandle(h, 0);
+    initNodeManagementHandle(0);
     // calculate user profile start
     userProfileStartingOffset(h->currentUserId, &pageNumber, &pageOffset);
     
@@ -411,11 +411,11 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     
     // init handle as user 0
     usbPrintf_P(PSTR("Init Handle\n"));
-    initNodeManagementHandle(h, 0);
+    initNodeManagementHandle(0);
     
     // setup user profile
     usbPrintf_P(PSTR("Setup User Profile\n"));
-    setStartingParent(h, NODE_ADDR_NULL);
+    setStartingParent(NODE_ADDR_NULL);
     
     usbPrintf_P(PSTR("Verify Handle Profile\n"));
     // Verify the following:
@@ -618,7 +618,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     parentPtr->service[0] = 'c';
     
     // create node (store in flash)
-    ret = createParentNode(h, parentPtr);
+    ret = createParentNode(parentPtr);
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_1_CREATE_NODE_ERROR;
@@ -667,7 +667,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     parentPtr->service[0] = 'm';
     
     // create node (store in flash)
-    ret = createParentNode(h, parentPtr);
+    ret = createParentNode(parentPtr);
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_2_CREATE_NODE_ERROR;
@@ -694,7 +694,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'c'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
     
     // check the node 'c'
     if(parentPtr->service[0] != 'c')
@@ -738,7 +738,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     parentPtr->service[0] = 'k';
     
     // create node (store in flash)
-    ret = createParentNode(h, parentPtr);
+    ret = createParentNode(parentPtr);
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_3_CREATE_NODE_ERROR;
@@ -765,7 +765,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'c'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
     
     // check the node 'c'
     if(parentPtr->service[0] != 'c')
@@ -787,7 +787,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'm'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
     
     // check the node 'm'
     if(parentPtr->service[0] != 'm')
@@ -831,7 +831,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     parentPtr->service[0] = 'a';
     
     // create node (store in flash)
-    ret = createParentNode(h, parentPtr);
+    ret = createParentNode(parentPtr);
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_4_CREATE_NODE_ERROR;
@@ -858,7 +858,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'c'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
     
     // check the node 'c'
     if(parentPtr->service[0] != 'c')
@@ -880,7 +880,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'k'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 2));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 2));
     
     // check the node 'k'
     if(parentPtr->service[0] != 'k')
@@ -902,7 +902,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'm'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
     
     // check the node 'm'
     if(parentPtr->service[0] != 'm')
@@ -948,7 +948,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     oldHandleFirstParentNode = h->firstParentNode;
     
     // delete node 'k'
-    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 2));
+    ret = deleteParentNode(constructAddress(PAGE_PER_SECTOR, 2));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_5_DELETE_NODE_ERROR;
@@ -956,7 +956,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'a'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 3));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 3));
     
     // check the node 'a'
     if(parentPtr->service[0] != 'a')
@@ -978,7 +978,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'c'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
     
     // check the node 'c'
     if(parentPtr->service[0] != 'c')
@@ -1000,7 +1000,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'm'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
     
     // check the node 'm'
     if(parentPtr->service[0] != 'm')
@@ -1042,7 +1042,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     oldHandleFirstParentNode = h->firstParentNode;
     
     // delete node 'm'
-    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 1));
+    ret = deleteParentNode(constructAddress(PAGE_PER_SECTOR, 1));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_6_DELETE_NODE_ERROR;
@@ -1050,7 +1050,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'a'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 3));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 3));
     
     // check the node 'a'
     if(parentPtr->service[0] != 'a')
@@ -1072,7 +1072,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'c'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
     
     // check the node 'c'
     if(parentPtr->service[0] != 'c')
@@ -1113,7 +1113,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     oldHandleFirstParentNode = h->firstParentNode;
     
     // delete node 'a'
-    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 3));
+    ret = deleteParentNode(constructAddress(PAGE_PER_SECTOR, 3));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_7_DELETE_NODE_ERROR;
@@ -1121,7 +1121,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read node 'c'
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 0));
     
     // check the node 'c'
     if(parentPtr->service[0] != 'c')
@@ -1163,7 +1163,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     oldHandleFirstParentNode = h->firstParentNode;
     
     // delete node 'c'
-    ret = deleteParentNode(h, constructAddress(PAGE_PER_SECTOR, 0));
+    ret = deleteParentNode(constructAddress(PAGE_PER_SECTOR, 0));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_8_DELETE_NODE_ERROR;
@@ -1206,7 +1206,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     
     parentPtr->service[0] = 'b';
     
-    ret = createParentNode(h, parentPtr);
+    ret = createParentNode(parentPtr);
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_9_CREATE_NODE_B_ERROR;
@@ -1216,7 +1216,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     parentPtr->service[0] = 'a';
     parentPtr->nextChildAddress = constructAddress(PAGE_PER_SECTOR+1, 0);
     
-    ret = createParentNode(h, parentPtr);
+    ret = createParentNode(parentPtr);
     if(ret != RETURN_OK)
     {
         *code= PARENT_NODE_TEST_STEP_9_CREATE_NODE_A_ERROR;
@@ -1238,7 +1238,7 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
     
     credentialTypeToFlags(&(parentPtr->flags), 2);
     
-    ret = updateParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    ret = updateParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_9_UPDATE_NODE_A_1_ERROR;
@@ -1258,11 +1258,11 @@ RET_TYPE parentNodeTest(mgmtHandle *h, uint8_t *code)
         return RETURN_NOK;
     }
     
-    readParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    readParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
     
     parentPtr->service[0] = 'c';
     
-    ret = updateParentNode(h, parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
+    ret = updateParentNode(parentPtr, constructAddress(PAGE_PER_SECTOR, 1));
     if(ret != RETURN_OK)
     {
         *code = PARENT_NODE_TEST_STEP_9_UPDATE_NODE_A_2_ERROR;
@@ -1335,11 +1335,11 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // init handle as user 0
     usbPrintf_P(PSTR("Init Handle\n"));
-    initNodeManagementHandle(h, 0);
+    initNodeManagementHandle(0);
     
     // setup user profile
     usbPrintf_P(PSTR("Setup User Profile\n"));
-    setStartingParent(h, NODE_ADDR_NULL);
+    setStartingParent(NODE_ADDR_NULL);
     
     usbPrintf_P(PSTR("Verify Handle Profile\n"));
     // Verify the following:
@@ -1550,7 +1550,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     parentPtr->service[0] = 'a';
     
     // create node (store in flash)
-    ret = createParentNode(h, parentPtr);
+    ret = createParentNode(parentPtr);
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_0_CREATE_PARENT_NODE_ERROR;
@@ -1593,7 +1593,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 1---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
@@ -1602,7 +1602,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     // Setup Child Node Data
     childPtr->login[0] = 'c';
     
-    ret = createChildNode(h, h->firstParentNode, childPtr);
+    ret = createChildNode(h->firstParentNode, childPtr);
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_1_CREATE_CHILD_NODE_ERROR;
@@ -1611,7 +1611,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(childPtr->nextChildAddress != NODE_ADDR_NULL)
     {
@@ -1632,7 +1632,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     // TODO Debug why the node in the buffer is not working
@@ -1657,7 +1657,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 2---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
@@ -1666,7 +1666,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     // Setup Child Node Data
     childPtr->login[0] = 'm';
     
-    ret = createChildNode(h, h->firstParentNode, childPtr);
+    ret = createChildNode(h->firstParentNode, childPtr);
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_2_CREATE_CHILD_NODE_ERROR;
@@ -1675,7 +1675,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('m')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(childPtr->nextChildAddress != NODE_ADDR_NULL)
     {
@@ -1698,7 +1698,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('c')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1720,7 +1720,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
         
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
@@ -1742,7 +1742,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 3---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
@@ -1751,7 +1751,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     // Setup Child Node Data
     childPtr->login[0] = 'k';
     
-    ret = createChildNode(h, h->firstParentNode, childPtr);
+    ret = createChildNode(h->firstParentNode, childPtr);
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_3_CREATE_CHILD_NODE_ERROR;
@@ -1760,7 +1760,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('k')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; }
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1784,7 +1784,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('m')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1808,7 +1808,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('c')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1831,7 +1831,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; }
@@ -1853,7 +1853,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 4---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
@@ -1862,7 +1862,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     // Setup Child Node Data
     childPtr->login[0] = 'a';
     
-    ret = createChildNode(h, h->firstParentNode, childPtr);
+    ret = createChildNode(h->firstParentNode, childPtr);
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_4_CREATE_CHILD_NODE_ERROR;
@@ -1871,7 +1871,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('a')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1895,7 +1895,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('k')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1919,7 +1919,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('m')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1943,7 +1943,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('c')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -1966,7 +1966,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
@@ -1988,14 +1988,14 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 5---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
     oldParentNextChildNode = parentPtr->nextChildAddress;
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 2; } // k
-    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId));
+    ret = deleteChildNode(h->firstParentNode, constructAddress(pageId, nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_5_DELETE_CHILD_NODE_ERROR;
@@ -2004,7 +2004,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('a')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2028,7 +2028,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('m')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2052,7 +2052,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('c')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2075,7 +2075,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
@@ -2097,14 +2097,14 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 6---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
     oldParentNextChildNode = parentPtr->nextChildAddress;
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; } // m
-    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId));
+    ret = deleteChildNode(h->firstParentNode, constructAddress(pageId, nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_6_DELETE_CHILD_NODE_ERROR;
@@ -2113,7 +2113,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('a')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
-     readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+     readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2137,7 +2137,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('c')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2160,7 +2160,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
@@ -2182,14 +2182,14 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 7---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
     oldParentNextChildNode = parentPtr->nextChildAddress;
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 2; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 0; } // a
-    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId));
+    ret = deleteChildNode(h->firstParentNode, constructAddress(pageId, nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_7_DELETE_CHILD_NODE_ERROR;
@@ -2198,7 +2198,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('c')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
     if(childPtr->nextChildAddress != constructAddress(pageId, nodeId))
@@ -2221,7 +2221,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
@@ -2243,14 +2243,14 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 8---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
     oldParentNextChildNode = parentPtr->nextChildAddress;
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // c
-    ret = deleteChildNode(h, h->firstParentNode, constructAddress(pageId, nodeId));
+    ret = deleteChildNode(h->firstParentNode, constructAddress(pageId, nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_8_DELETE_CHILD_NODE_ERROR;
@@ -2258,7 +2258,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } else { pageId = NODE_ADDR_NULL; nodeId = NODE_ADDR_NULL; } // NULL
@@ -2280,7 +2280,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     usbPrintf_P(PSTR("---Step 9---\n"));
 
     // read the first / base parent node
-    readParentNode(h, parentPtr, h->firstParentNode);
+    readParentNode(parentPtr, h->firstParentNode);
     
     // store old handle and parent vars
     oldHandleNextFreeChildNode = h->nextFreeChildNode;
@@ -2289,7 +2289,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     // Setup Child Node Data
     childPtr->login[0] = 'b';
     
-    ret = createChildNode(h, h->firstParentNode, childPtr);
+    ret = createChildNode(h->firstParentNode, childPtr);
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_9_CREATE_CHILD_NODE_B_ERROR;
@@ -2299,7 +2299,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     // Setup Child Node Data
     childPtr->login[0] = 'a';
     
-    ret = createChildNode(h, h->firstParentNode, childPtr);
+    ret = createChildNode(h->firstParentNode, childPtr);
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_9_CREATE_CHILD_NODE_A_ERROR;
@@ -2309,7 +2309,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     // no need to test nodes.. all tests above pass to this point
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
@@ -2329,12 +2329,12 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('a')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     // modify (no change)
     childPtr->description[0] = 'x';
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
-    ret = updateChildNode(h, parentPtr, childPtr, h->firstParentNode, constructAddress(pageId,nodeId));
+    ret = updateChildNode(parentPtr, childPtr, h->firstParentNode, constructAddress(pageId,nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_9_UPDATE_CHILD_NODE_A_ERROR;
@@ -2342,7 +2342,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
@@ -2362,12 +2362,12 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     
     // read and verify node ('a')
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 0; } else { pageId = PAGE_COUNT - 1; nodeId = 4; }
-    readChildNode(h, childPtr, constructAddress(pageId, nodeId));
+    readChildNode(childPtr, constructAddress(pageId, nodeId));
     
     // modify
     childPtr->login[0] = 'c';
     
-    ret = updateChildNode(h, parentPtr, childPtr, h->firstParentNode, constructAddress(pageId,nodeId));
+    ret = updateChildNode(parentPtr, childPtr, h->firstParentNode, constructAddress(pageId,nodeId));
     if(ret != RETURN_OK)
     {
         *code = CHILD_NODE_TEST_STEP_9_UPDATE_CHILD_NODE_A_C_ERROR_2;
@@ -2375,7 +2375,7 @@ RET_TYPE childNodeTest(mgmtHandle *h, uint8_t *code)
     }
     
     // read and verify parent
-    //ret = readParentNode(h, parentPtr, h->firstParentNode);
+    //ret = readParentNode(parentPtr, h->firstParentNode);
     readDataFromFlash(pageNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT * nodeNumberFromAddress(h->firstParentNode), NODE_SIZE_PARENT, parentPtr);
     
     if(NODE_PARENT_PER_PAGE == 4){ pageId = PAGE_COUNT - 1; nodeId = 2; } else { pageId = PAGE_COUNT - 1; nodeId = 6; } // b

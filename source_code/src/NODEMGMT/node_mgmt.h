@@ -191,6 +191,7 @@ typedef struct __attribute__((packed)) nodeMgmtH
 uint8_t nodeTypeFromFlags(uint16_t flags);
 void  nodeTypeToFlags(uint16_t *flags, uint8_t nodeType);
 
+
 uint8_t validBitFromFlags(uint16_t flags);
 void validBitToFlags(uint16_t *flags, uint8_t vb);
 
@@ -211,35 +212,36 @@ uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day);
 RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day);
 
 /* Init Handle */
-void initNodeManagementHandle(mgmtHandle *h, uint8_t userIdNum);
+void initNodeManagementHandle(uint8_t userIdNum);
 
 /* User Memory Functions */
 void formatUserProfileMemory(uint8_t uid);
 void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
-void setStartingParent(mgmtHandle *h, uint16_t parentAddress);
-void readStartingParent(mgmtHandle *h, uint16_t *parentAddress);
 
-void setFav(mgmtHandle *h, uint8_t favId, uint16_t parentAddress, uint16_t childAddress);
-void readFav(mgmtHandle *h, uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);
+void setStartingParent(uint16_t parentAddress);
+uint16_t getStartingParentAddress(void);
 
-void setProfileCtr(mgmtHandle *h, void *buf);
-void readProfileCtr(mgmtHandle *h, void *buf);
+void setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress);
+void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);
 
-RET_TYPE createParentNode(mgmtHandle *h, pNode *p);                                        
-void readParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
-RET_TYPE updateParentNode(mgmtHandle *h, pNode *p, uint16_t parentNodeAddress);
-RET_TYPE deleteParentNode(mgmtHandle *h, uint16_t parentNodeAddress);
+void setProfileCtr(void *buf);
+void readProfileCtr(void *buf);
+
+RET_TYPE createParentNode(pNode *p);                                        
+void readParentNode(pNode *p, uint16_t parentNodeAddress);
+RET_TYPE updateParentNode(pNode *p, uint16_t parentNodeAddress);
+RET_TYPE deleteParentNode(uint16_t parentNodeAddress);
 RET_TYPE invalidateParentNode(pNode *p);
 
 RET_TYPE invalidateChildNode(cNode *c);
 
-RET_TYPE createChildNode(mgmtHandle *h, uint16_t pAddr, cNode *c);
-RET_TYPE createChildStartOfDataNode(mgmtHandle *h, uint16_t pAddr, cNode *c, uint8_t dataNodeCount);
-void readChildNode(mgmtHandle *h, cNode *c, uint16_t childNodeAddress);
-RET_TYPE updateChildNode(mgmtHandle *h, pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
-RET_TYPE deleteChildNode(mgmtHandle *h, uint16_t pAddr, uint16_t cAddr);
+RET_TYPE createChildNode(uint16_t pAddr, cNode *c);
+RET_TYPE createChildStartOfDataNode(uint16_t pAddr, cNode *c, uint8_t dataNodeCount);
+void readChildNode(cNode *c, uint16_t childNodeAddress);
+RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
+RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr);
 
-void scanNodeUsage(mgmtHandle *h);
+void scanNodeUsage(void);
 
 
 #endif /* NODE_MGMT_H_ */

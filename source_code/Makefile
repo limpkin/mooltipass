@@ -30,7 +30,7 @@ endif
 
 LIBS := -lm -lmooltipass
 
-LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH)
+LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC)
 LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
 
 MOOLTIPASS_LIB := build/libmooltipass.a
@@ -47,6 +47,7 @@ MCU     := atmega32u4
 # build.
 CONFIG  ?= RELEASE
 DEFINES := F_CPU=16000000UL F_USB=16000000UL
+DEFINES += V2_DEVELOPERS_BOOTLOADER_SETUP
 
 CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections
 CFLAGS  += -std=gnu99 -Werror

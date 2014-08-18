@@ -32,11 +32,13 @@
 #include "gui_smartcard_functions.h"
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
+#include "logic_aes_and_comms.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
+#include "logic_smartcard.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
-#include "userhandling.h"
+#include "logic_eeprom.h"
 #include "mooltipass.h"
 #include "interrupts.h"
 #include "smartcard.h"
@@ -274,7 +276,7 @@ int main(void)
         {
             // Light up the Mooltipass and call the dedicated function
             activityDetectedRoutine();
-            guiHandleSmartcardRemoved();
+            handleSmartcardRemoved();
             
             // Set correct screen
             guiDisplayInformationOnScreen(PSTR("Card removed"));

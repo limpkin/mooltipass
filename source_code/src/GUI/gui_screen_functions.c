@@ -28,7 +28,7 @@
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
 #include "gui_pin_functions.h"
-#include "userhandling.h"
+#include "logic_smartcard.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "delays.h"
@@ -144,7 +144,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
             {
                 // User wants to lock his mooltipass
                 currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                guiHandleSmartcardRemoved();
+                handleSmartcardRemoved();
                 guiGetBackToCurrentScreen();
                 break;
             }
@@ -161,7 +161,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 uint16_t pin_code;
                 
                 // Reauth user
-                if ((removeCardAndReAuthUser() == RETURN_OK) && (guiGetPinFromUser(&pin_code, PSTR("PIN for card?")) == RETURN_OK) && (cloneSmartCard(pin_code) == RETURN_OK))
+                if ((removeCardAndReAuthUser() == RETURN_OK) && (guiGetPinFromUser(&pin_code, PSTR("PIN for card?")) == RETURN_OK) && (cloneSmartCardProcess(pin_code) == RETURN_OK))
                 {
                     // Well, it's done
                 }

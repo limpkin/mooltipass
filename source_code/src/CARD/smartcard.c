@@ -22,10 +22,10 @@
 *   Copyright [2014] [Mathieu Stephan]
 */
 #include "smart_card_higher_level_functions.h"
+#include "logic_aes_and_comms.h"
 #include <util/delay_basic.h>
 #include <avr/interrupt.h>
 #include "timer_manager.h"
-#include "userhandling.h"
 #include <util/atomic.h>
 #include "smartcard.h"
 #include "entropy.h"

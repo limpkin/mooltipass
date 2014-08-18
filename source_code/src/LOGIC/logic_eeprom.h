@@ -17,20 +17,31 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_smartcard_functions.h
-*    \brief    General user interface - smartcard functions
-*    Created:  22/6/2014
+/*!  \file     logic_eeprom.h
+*    \brief    Firmware logic - eeprom related tasks
+*    Created:  18/08/2014
 *    Author:   Mathieu Stephan
-*/ 
+*/
 
 
-#ifndef GUI_SMARTCARD_FUNCTIONS_H_
-#define GUI_SMARTCARD_FUNCTIONS_H_
 
+#ifndef LOGIC_EEPROM_H_
+#define LOGIC_EEPROM_H_
+
+#include "aes256_ctr.h"
+#include "smartcard.h"
 #include "defines.h"
 
-RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
-RET_TYPE guiHandleSmartcardInserted(void);
+/** Defines **/
+// The entry is stored as CPZ -> CTR -> User ID
+#define SMCID_UID_MATCH_ENTRY_LENGTH    (SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH + 1)
+
+/** Prototypes **/
+RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);
+RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid);
+RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code);
+void firstTimeUserHandlingInit(void);
+RET_TYPE findUserId(uint8_t userid);
 
 
-#endif /* GUI_SMARTCARD_FUNCTIONS_H_ */
+#endif /* LOGIC_EEPROM_H_ */

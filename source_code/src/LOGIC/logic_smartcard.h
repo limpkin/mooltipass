@@ -17,20 +17,24 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_smartcard_functions.h
-*    \brief    General user interface - smartcard functions
-*    Created:  22/6/2014
+/*!  \file     logic_smartcard.h
+*    \brief    Firmware logic - smartcard related tasks
+*    Created:  18/08/2014
 *    Author:   Mathieu Stephan
-*/ 
+*/
 
 
-#ifndef GUI_SMARTCARD_FUNCTIONS_H_
-#define GUI_SMARTCARD_FUNCTIONS_H_
+
+#ifndef LOGIC_SMARTCARD_H_
+#define LOGIC_SMARTCARD_H_
 
 #include "defines.h"
 
-RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
+RET_TYPE cloneSmartCardProcess(uint16_t pincode);
 RET_TYPE guiHandleSmartcardInserted(void);
+RET_TYPE validCardDetectedFunction(void);
+RET_TYPE removeCardAndReAuthUser(void);
+void handleSmartcardRemoved(void);
 
 
-#endif /* GUI_SMARTCARD_FUNCTIONS_H_ */
+#endif /* LOGIC_SMARTCARD_H_ */

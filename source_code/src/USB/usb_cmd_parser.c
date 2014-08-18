@@ -25,21 +25,23 @@
 #include "smart_card_higher_level_functions.h"
 #include "gui_smartcard_functions.h"
 #include "gui_screen_functions.h"
+#include "logic_aes_and_comms.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
+#include "logic_smartcard.h"
 #include "usb_cmd_parser.h"
-#include "userhandling.h"
+#include "logic_eeprom.h"
 #include <avr/eeprom.h>
 #include "mooltipass.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
+#include "version.h"
 #include <string.h>
 #include "delays.h"
 #include "oledmp.h"
 #include "utils.h"
 #include "stack.h"
 #include "usb.h"
-#include "version.h"
 
 // Bool to specify if we're writing user flash space
 uint8_t flash_import_user_space = FALSE;
@@ -628,7 +630,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         
         case CMD_CLONE_SMARTCARD :
         {
-            if (cloneSmartCard(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
+            if (cloneSmartCardProcess(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
             } 

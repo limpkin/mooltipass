@@ -30,6 +30,8 @@
 #ifndef NODE_MGMT_H_
 #define NODE_MGMT_H_
 
+#include "defines.h"
+
 typedef enum _nodeType 
 {
     NODE_TYPE_PARENT = 0,

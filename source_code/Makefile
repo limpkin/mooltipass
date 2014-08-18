@@ -47,7 +47,6 @@ MCU     := atmega32u4
 # build.
 CONFIG  ?= RELEASE
 DEFINES := F_CPU=16000000UL F_USB=16000000UL
-DEFINES += V2_DEVELOPERS_BOOTLOADER_SETUP
 
 CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections
 CFLAGS  += -std=gnu99 -Werror

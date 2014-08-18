@@ -36,11 +36,11 @@
 #include "delays.h"
 
 
-/*! \fn     guiHandleSmartcardInserted(void)
+/*! \fn     handleSmartcardInserted(void)
 *   \brief  Here is where are handled all smartcard insertion logic
 *   \return RETURN_OK if user is authenticated
 */
-RET_TYPE guiHandleSmartcardInserted(void)
+RET_TYPE handleSmartcardInserted(void)
 {
     // By default, return to invalid screen
     uint8_t next_screen = SCREEN_DEFAULT_INSERTED_INVALID;

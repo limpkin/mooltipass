@@ -31,7 +31,7 @@
 #include "defines.h"
 
 RET_TYPE cloneSmartCardProcess(uint16_t pincode);
-RET_TYPE guiHandleSmartcardInserted(void);
+RET_TYPE handleSmartcardInserted(void);
 RET_TYPE validCardDetectedFunction(void);
 RET_TYPE removeCardAndReAuthUser(void);
 void handleSmartcardRemoved(void);

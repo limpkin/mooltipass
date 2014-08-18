@@ -30,7 +30,6 @@
 #include "defines.h"
 
 RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
-RET_TYPE guiHandleSmartcardInserted(void);
 
 
 #endif /* GUI_SMARTCARD_FUNCTIONS_H_ */

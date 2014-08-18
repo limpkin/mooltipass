@@ -76,6 +76,6 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     }
     else
     {
-        return guiHandleSmartcardInserted();
+        return handleSmartcardInserted();
     }
 }

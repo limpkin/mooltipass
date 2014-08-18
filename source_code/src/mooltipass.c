@@ -270,7 +270,7 @@ int main(void)
         {
             // Light up the Mooltipass and call the dedicated function
             activityDetectedRoutine();
-            guiHandleSmartcardInserted();
+            handleSmartcardInserted();
         }
         else if (card_detect_ret == RETURN_JRELEASED)
         {

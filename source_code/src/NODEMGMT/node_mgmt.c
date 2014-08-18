@@ -1086,7 +1086,7 @@ RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
         // set address
         ic->prevChildAddress = prevAddress;
         // update node
-        writeChildNodeDataBlockToFlash(prevAddress, ic);
+        writeChildNodeDataBlockToFlash(nextAddress, ic);
     }
     
     if(ip->nextChildAddress == cAddr)
@@ -1444,8 +1444,6 @@ void scanNodeUsage(void)
 	currentNodeMgmtHandle.nextFreeChildNode = nextFreeChild;
 	currentNodeMgmtHandle.lastSeenParent = lastSeenParent;
 	currentNodeMgmtHandle.fistSeenChild = firstSeenChild;
-    
-    // TODO: CHECK THAT STACK AND HEAP DIDN'T COLLIDE!!!!
 }
 
 /**

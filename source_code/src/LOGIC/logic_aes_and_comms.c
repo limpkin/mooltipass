@@ -50,8 +50,6 @@ uint8_t nextCtrVal[USER_CTR_SIZE];
 uint16_t context_parent_node_addr;
 // Our confirmation text variable, sent to gui functions
 confirmationText_t conf_text;
-// Node management handle
-mgmtHandle nodeMgmtHandle;
 // AES256 context variable
 aes256CtrCtx_t aesctx;
 // Parent node var

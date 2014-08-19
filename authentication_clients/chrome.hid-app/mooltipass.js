@@ -1161,7 +1161,9 @@ function onDataReceived(reportId, data)
             log('#messageLog', 'unknown command '+cmd+'\n');
             break;
     }
-    chrome.hid.receive(connection, onDataReceived);
+    if (connection) {
+        chrome.hid.receive(connection, onDataReceived);
+    }
 };
 
 function sendMsg(msg)

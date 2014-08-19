@@ -37,6 +37,7 @@ var checkSubmit = true;     // when true intercept the submit and check for upda
 var passForm = null;
 var formSubs = {}
 var passwords = [];
+var activeCredentials = null;
 
 console.log('mooltipass content script loaded');
 
@@ -84,7 +85,8 @@ function getCredentials(submitted)
                 passwords.push( {form: forms[0], password: this, submit: submits[0]} );
                 console.log('getCredentials: pass id='+this.id+' name='+this.name+' form='+forms[0].id+' submit='+submits[0].value);
             } else {
-                console.log('getCredentials: pass id='+this.id+' name='+this.name+' form='+forms[0].id+' submit=none');
+                passwords.push( {form: forms[0], password: this, submit: null} );
+                console.log('getCredentials: pass id='+this.id+' name='+this.name+' form='+forms[0].id+' no submit button');
             }
         }
     });
@@ -92,6 +94,9 @@ function getCredentials(submitted)
     if (passwords.length > 0) {
         passForm = passwords[0].form;
         pass = passwords[0].password;
+        activeCredentials = passwords[0];
+    } else {
+        console.log('getCredentials: ERROR no passwords credentials found');
     }
 
     console.log('getCredentials: password id='+pass.id+' name='+pass.name+'\n');
@@ -126,13 +131,6 @@ function getCredentials(submitted)
     }
     console.log('getCredentials: login id='+loginInput.id+' name='+loginInput.name+'\n');
 
-    if (!passForm) {
-        passForm = $(pass).closest('form')[0];
-    }
-    if (passForm) {
-        console.log('getCredentials: passForm = '+passForm.id);
-    }
-
     credObjs = { login: loginInput, password: pass };
 
     passwords[0]['login'] = loginInput;
@@ -163,7 +161,7 @@ function fieldChanged(input)
 }
 
 
-function credentialsChanged(form, creds)
+function credentialsChanged(creds)
 {
     var changed = false;
     var input;
@@ -196,7 +194,7 @@ function credentialsChanged(form, creds)
 }
 
 
-function checkSubmittedCredentials(form, event)
+function checkSubmittedCredentials(event)
 {
     if (!credFields) 
     {
@@ -208,7 +206,7 @@ function checkSubmittedCredentials(form, event)
     console.log('check: creds');
     if (credFields) {
         // we have some, see if the values differ from what the mooltipass has
-        if (credentialsChanged(form, credFields))
+        if (credentialsChanged(credFields))
         {
             // Offer to update the mooltpass with the new value(s)
             if (!document.getElementById('mpDialog')) {
@@ -237,13 +235,12 @@ function checkSubmittedCredentials(form, event)
                 buttons: {
                     "Update Mooltipass credentials": function() 
                     {
-                        //console.log('update: url='+window.location.href+' creds='+JSON.stringify(credFields));
                         chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
                         $(this).dialog('close');
                     },
                     Skip: function() 
                     {
-                        $(form).submit();
+                        doSubmit(activeCredentials);
                         $(this).dialog('close');
                     }
                 }
@@ -265,13 +262,13 @@ function hasSecret(credlist)
     return false;
 }
 
-function handleSubmit(form, event)
+function handleSubmit(event)
 {
     if (checkSubmit)
     {
         console.log('click: checking submitted credentials');
         // see if we should store the credentials
-        checkSubmittedCredentials(form, event);
+        checkSubmittedCredentials(event);
     }
     else 
     {
@@ -285,17 +282,6 @@ addEventListener('DOMContentLoaded', function f()
     removeEventListener('DOMContentLoaded', f, false);
     var forms = document.getElementsByTagName('form');
 
-    if (false) {
-    for (var ind=0; ind<forms.length; ind++) {
-        console.log('form['+ind+'] '+forms[ind].id);
-        $('#'+forms[ind].id).submit(function(event) 
-        {
-            console.log('Caught submit');
-            event.preventDefault();
-        });
-    }
-    }
-
     credFields = getCredentials();
 
     if (credFields == null) {
@@ -304,17 +290,17 @@ addEventListener('DOMContentLoaded', function f()
         return;
     }
 
-    //console.log('found credentials '+ JSON.stringify(credFields)+'\n');
-
     // send an array of the input fields to the mooltipass
     if ('password' in credFields)
     {
 
-        if (passwords.length > 0) {
+        if (activeCredentials) {
             console.log('using submit click technique');
-            $(passwords[0].submit).click(function(event) { handleSubmit(passwords[0].form, event); });
-            $(passwords[0].form).submit(function(event) { handleSubmit(passwords[0].form, event); });
-
+            if (activeCredentials.submit) {
+                $(activeCredentials.submit).click(handleSubmit);
+            } else {
+                $(activeCredentials.form).submit(handleSubmit);
+            }
         } else {
             $('form').each(function(i,e)
             {
@@ -328,21 +314,7 @@ addEventListener('DOMContentLoaded', function f()
                 } else {
                     formSubs[$(e).id] = null;
                 }
-                $(e).submit(function(event) 
-                {
-                    var form = this;
-                    if (checkSubmit)
-                    {
-                        console.log('checking submitted credentials');
-                        // see if we should store the credentials
-                        checkSubmittedCredentials(form, event);
-                    }
-                    else 
-                    {
-                        console.log('skipping submit check');
-                    }
-                
-                });
+                $(e).submit(handleSubmit);
             });
         }
 
@@ -360,6 +332,26 @@ addEventListener('DOMContentLoaded', function f()
     }
 });
 
+/**
+ * Submit the credentials to the server
+ */
+function doSubmit(creds)
+{
+    checkSubmit = false;
+    if (creds) {
+        if (creds.submit) {
+            console.log('submitting form '+creds.form.id+' via '+creds.submit.id);
+            $(creds.submit).click();
+        } else {
+            console.log('submitting form '+creds.form.id);
+            $(creds.form).submit();
+        }
+    } else {
+        console.log('submitting default form '+$('form').id);
+        $('form').submit();
+    }
+    checkSubmit = true;
+}
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) 
 {
@@ -394,30 +386,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                 }
             }
 
-            if (passwords.length > 0) {
-                checkSubmit = false;
-                console.log('submitting via form '+passwords[0].form.id+' via '+passwords[0].submit.id)
-                $(passwords[0].submit).click();
-                checkSubmit = true;
-            } else {
-                checkSubmit = false;
-                $('form').submit();
-                checkSubmit = true;
-            }
+            doSubmit(activeCredentials);
             break;
 
         case 'updateComplete':
             console.log('updateComplete, sending submit.');
-            if (passwords.length > 0) {
-                checkSubmit = false;
-                console.log('submitting via form '+passwords[0].form.id+' via '+passwords[0].submit.id)
-                $(passwords[0].submit).click();
-                checkSubmit = true;
-            } else {
-                checkSubmit = false;
-                $('form').submit();
-                checkSubmit = true;
-            }
+            doSubmit(activeCredentials);
             break;
 
         default:

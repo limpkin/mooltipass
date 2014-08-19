@@ -16,5 +16,5 @@
         },
 	{"fileSystem": ["write", "retainEntries"]} 
     ],
-    "icons": { "16": "mooltipass-16.png", "128": "mooltipass-128.png" }
+    "icons": { "16": "mooltipass-16.png", "128": "mooltipass-active.png" }
 }

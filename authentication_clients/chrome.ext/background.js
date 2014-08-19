@@ -115,6 +115,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
             case 'ping':
                 contentAddr = sender.tab.id;
                 if (connected) {
+                    chrome.browserAction.setIcon({path: 'mooltipass-active.png'});
                     chrome.tabs.sendMessage(contentAddr, connected);
                 } else {
                     if (mpClient.id) {
@@ -122,6 +123,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                     } else {
                         sendResponse({type: 'disconnected'});
                     }
+                    chrome.browserAction.setIcon({path: 'mooltipass-inactive.png'});
                 }
                 break;
             case 'inputs':

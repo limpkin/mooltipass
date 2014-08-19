@@ -38,6 +38,7 @@ var passForm = null;
 var formSubs = {}
 var passwords = [];
 var activeCredentials = null;
+var mooltipassConnected = false;    // Active mooltipass connected to app
 
 console.log('mooltipass content script loaded');
 
@@ -264,6 +265,8 @@ function hasSecret(credlist)
 
 function handleSubmit(event)
 {
+    if (!mooltipassConnected) return;
+
     if (checkSubmit)
     {
         console.log('click: checking submitted credentials');
@@ -394,7 +397,19 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
             doSubmit(activeCredentials);
             break;
 
+        case 'connected':
+            mooltipassConnected = true;
+            console.log('content: connected to mooltipass '+request.version);
+            break;
+        case 'disconnected':
+            mooltipassConnected = false;
+            console.log('content: disconnected from mooltipass ');
+            break;
+
         default:
             break;
     }
 });
+
+// say hi to background and app
+chrome.runtime.sendMessage({type: 'ping'});

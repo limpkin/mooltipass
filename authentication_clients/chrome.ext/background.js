@@ -33,6 +33,7 @@
 
 var mpClient = null;
 var contentAddr = null;
+var connected = null;
 
 function getAll(ext)
 {
@@ -47,6 +48,7 @@ function getAll(ext)
 
     if (mpClient) 
     {
+        chrome.runtime.sendMessage(mpClient.id, { type: 'ping' });
         console.log('found mooltipass client "'+ext[ind].shortName+'" id='+ext[ind].id);
     }
     else 
@@ -72,6 +74,18 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
             console.log('back: got updateComplete');
             chrome.tabs.sendMessage(contentAddr, request);
             break;
+        case 'connected':
+            connected = request;
+            if (contentAddr) {
+                chrome.tabs.sendMessage(contentAddr, request);
+            }
+            break;
+        case 'disconnected':
+            connected = null;;
+            if (contentAddr) {
+                chrome.tabs.sendMessage(contentAddr, request);
+            }
+            break;
         default:
             break;
     }
@@ -84,10 +98,34 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 
     if (sender.tab) 
     {
-        console.log('back: cont req '+JSON.stringify(request));
+
+        if (!mpClient) {
+            // try to find the app
+            chrome.management.getAll(getAll);
+        }
+
+        if (!mpClient) {
+            console.log('back: mooltipass chrome app not running');
+            return;
+        }
+        console.log('back: content req '+JSON.stringify(request));
         // from content script
         switch (request.type) 
         {
+            case 'ping':
+                contentAddr = sender.tab.id;
+                if (connected) {
+                    chrome.browserAction.setIcon({path: 'mooltipass-active.png'});
+                    chrome.tabs.sendMessage(contentAddr, connected);
+                } else {
+                    if (mpClient.id) {
+                        chrome.runtime.sendMessage(mpClient.id, { type: 'ping' });
+                    } else {
+                        sendResponse({type: 'disconnected'});
+                    }
+                    chrome.browserAction.setIcon({path: 'mooltipass-inactive.png'});
+                }
+                break;
             case 'inputs':
                 contentAddr = sender.tab.id;
                 console.log('inputs:');
@@ -100,6 +138,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                 chrome.runtime.sendMessage(mpClient.id, request);
                 break;
             case 'update':
+                contentAddr = sender.tab.id;
                 chrome.runtime.sendMessage(mpClient.id, request);
                 break;
             default:

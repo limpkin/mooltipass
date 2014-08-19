@@ -111,11 +111,11 @@ var flashInfo = {
 var flashChipId = null;
 
 
-var client = {};
-
-var connection = null;  // connection to the mooltipass
-var connected = false;  // current connection state
-var authReq = null;     // current authentication request
+var clientId = null;     // chrome extension address
+var connection = null;   // connection to the mooltipass
+var connected = false;   // current connection state
+var version = 'unknown'; // connected mooltipass version
+var authReq = null;      // current authentication request
 var authReqQueue = [];
 var context = null;
 var contextGood = false;
@@ -472,7 +472,19 @@ function endAuthRequest()
 function startAuthRequest(request)
 {
     switch (request.type) {
+    case 'ping':    // hellow from extension
+        clientId = request.senderId;
+        // Send current mooltipass status
+        if (connected) {
+            console.log('got extension ping, sending connected');
+            chrome.runtime.sendMessage(request.senderId, {type: 'connected', version: version});
+        } else {
+            console.log('got extension ping, sending disconnected');
+            chrome.runtime.sendMessage(request.senderId, {type: 'disconnected'});
+        }
+        break;
     case 'inputs':
+        clientId = request.senderId;
         authReq = request;
         console.log('URL: '+request.url);
         authReq.keys = getKeys(request.inputs);
@@ -495,6 +507,7 @@ function startAuthRequest(request)
         break;
 
     case 'update':
+        clientId = request.senderId;
         authReq = request;
         match = reContext.exec(request.url);
         if (match.length > 0) {
@@ -903,12 +916,15 @@ function onDataReceived(reportId, data)
             break;
         case CMD_VERSION:
         {
-            var version = arrayToStr(new Uint8Array(data.slice(3)));
+            version = arrayToStr(new Uint8Array(data.slice(3)));
             if (!connected)
             {
                 flashChipId = msg[0];
                 log('#messageLog', 'Connected to Mooltipass ' + version + ' flashId '+flashChipId+'\n');
                 connected = true;
+                if (clientId) {
+                    chrome.runtime.sendMessage(clientId, {type: 'connected', version: version});
+                }
             }
             break;
         }
@@ -1189,6 +1205,9 @@ function sendMsg(msg)
                     console.log('Failed to send to device: '+chrome.runtime.lastError.message);
                 }
                 log('#messageLog', 'Disconnected from mooltipass\n');
+                if (clientId) {
+                    chrome.runtime.sendMessage(clientId, {type: 'disconnected'});
+                }
                 reset();
             }
         }					

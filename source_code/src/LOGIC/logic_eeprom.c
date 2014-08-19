@@ -40,46 +40,94 @@
 */
 void firstTimeUserHandlingInit(void)
 {
-    eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_CARDS_ADDR, 0);
-    eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_USERS_ADDR, 0);
+    // Fill user IDs with 0xFF to indicate empty slots
+    for (uint8_t i = 0; i < NB_MAX_SMCID_UID_MATCH_ENTRIES; i++)
+    {
+        eeprom_write_byte((uint8_t*)(EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH), 0xFF);
+    }
 }
 
-/*! \fn     getNumberOfKnownUsers(void)
-*   \brief  Get the number of know users
-*   \return The number of users
+/*! \fn     deleteUserIdFromSMCUIDLUT(uint8_t userid)
+*   \brief  Delete all userid LUT entries
+*   \param  userid  User ID to delete
 */
-static inline uint8_t getNumberOfKnownUsers(void)
+void deleteUserIdFromSMCUIDLUT(uint8_t userid)
 {
-    return eeprom_read_byte((uint8_t*)EEP_NB_KNOWN_USERS_ADDR);
+    uint16_t temp_address;
+    
+    // Browse through the LUT entries
+    for (uint8_t i = 0; i < NB_MAX_SMCID_UID_MATCH_ENTRIES; i++)
+    {
+        temp_address = EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH;
+        
+        // If we find our userid, replace it with 0xFF
+        if (eeprom_read_byte((uint8_t*)(temp_address)) == userid)
+        {
+            eeprom_write_byte((uint8_t*)(temp_address), 0xFF);
+        }
+    }
 }
 
-/*! \fn     getNumberOfKnownCards(void)
-*   \brief  Get the number of know cards
-*   \return The number of cards
+/*! \fn     findAvailableUserId(uint8_t* userid)
+*   \brief  Find an available user ID
+*   \param  Pointer where to store the found user id
+*   \return Success status of the operation
 */
-static inline uint8_t getNumberOfKnownCards(void)
+RET_TYPE findAvailableUserId(uint8_t* userid)
 {
-    return eeprom_read_byte((uint8_t*)EEP_NB_KNOWN_CARDS_ADDR);
-}
-
-/*! \fn     findUserId(uint8_t userid)
-*   \brief  Find a given user ID
-*   \param  userid  The user ID
-*   \return Yes or No...
-*/
-RET_TYPE findUserId(uint8_t userid)
-{
+    uint8_t userIdArray[NODE_MAX_UID];
+    uint8_t temp_userid;
     uint8_t i;
     
-    for (i = 0; i < getNumberOfKnownCards(); i++)
+    // Set the user id array to false
+    memset(userIdArray, FALSE, NODE_MAX_UID);
+    
+    // Browse through our LUT and find taken User IDs
+    for (i = 0; i < NB_MAX_SMCID_UID_MATCH_ENTRIES; i++)
     {
-        if (eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH+AES256_CTR_LENGTH) == userid)
+        // Read current user id
+        temp_userid = eeprom_read_byte((uint8_t*)(EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH));
+        
+        // Check if it is valid and then store it
+        if (temp_userid < NODE_MAX_UID)
         {
+            userIdArray[temp_userid] = TRUE;
+        }
+    }
+    
+    // Browse through the found user IDs and report the first available one
+    for (i = 0; i < NODE_MAX_UID; i++)
+    {
+        if (userIdArray[i] == FALSE)
+        {
+            *userid = i;
             return RETURN_OK;
         }
     }
     
+    // Didn't find any available user ID
     return RETURN_NOK;
+}
+
+/*! \fn     findSmcUidLUTEmptySlot(uint16_t* found_address)
+*   \brief  Find an empty SMC <> UID LUT slot
+*   \param  found_address   Pointer to where to store the found address
+*   \return Yes or No...
+*/
+RET_TYPE findSmcUidLUTEmptySlot(uint16_t* found_address)
+{
+    for (uint8_t i = 0; i < NB_MAX_SMCID_UID_MATCH_ENTRIES; i++)
+    {
+        // Store current address
+        *found_address = EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH;
+        
+        // Check if user ID is above the max one
+        if (eeprom_read_byte((uint8_t*)(*found_address)) >= NODE_MAX_UID)
+        {
+            return RETURN_OK;
+        }
+    }
+    return RETURN_NOK;    
 }
 
 /*! \fn     getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid)
@@ -92,21 +140,30 @@ RET_TYPE findUserId(uint8_t userid)
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid)
 {
     uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
-    uint8_t i;
+    uint16_t current_address;
     
-    // Loop through the cards we know
-    for (i = 0; i < getNumberOfKnownCards(); i++)
+    // Loop through the Look Up Tables entries
+    for (uint8_t i = 0; i < NB_MAX_SMCID_UID_MATCH_ENTRIES; i++)
     {
-        // Read one CPZ entry
-        eeprom_read_block(temp_buffer, (void*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH, SMARTCARD_CPZ_LENGTH);
+        // Current address var
+        current_address = EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH;
         
-        // Check if the CPZ we read and the CPZ that is passed are the same
-        if (memcmp(temp_buffer, buffer, SMARTCARD_CPZ_LENGTH) == 0)
+        // Read this LUT entry user ID
+        *userid = eeprom_read_byte((uint8_t*)current_address);
+        
+        // Check that the read user ID is valid
+        if (*userid < NODE_MAX_UID)
         {
-            // We found the CPZ, store the aes ctr value & the user id
-            eeprom_read_block(nonce, (void*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH, AES256_CTR_LENGTH);
-            *userid = eeprom_read_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR+i*SMCID_UID_MATCH_ENTRY_LENGTH+SMARTCARD_CPZ_LENGTH+AES256_CTR_LENGTH);
-            return RETURN_OK;            
+            // Read one CPZ entry
+            eeprom_read_block(temp_buffer, (void*)(current_address + 1), SMARTCARD_CPZ_LENGTH);
+            
+            // Check if the CPZ we read and the CPZ that is passed are the same
+            if (memcmp(temp_buffer, buffer, SMARTCARD_CPZ_LENGTH) == 0)
+            {
+                // We found the CPZ, store the aes ctr value
+                eeprom_read_block(nonce, (void*)(current_address + 1 + SMARTCARD_CPZ_LENGTH), AES256_CTR_LENGTH);
+                return RETURN_OK;
+            }
         }
     }
     
@@ -123,30 +180,24 @@ RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* use
 RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid)
 {
     uint8_t temp_buffer[AES256_CTR_LENGTH];
-    uint8_t i;
+    uint16_t temp_address;
+    uint8_t i;    
     
-    if (((getNumberOfKnownCards()+1)*SMCID_UID_MATCH_ENTRY_LENGTH) + EEP_SMC_IC_USER_MATCH_START_ADDR >= EEPROM_SIZE)
+    // Check that we still have space to store & that we don't already know the smart card
+    if ((findSmcUidLUTEmptySlot(&temp_address) == RETURN_OK) && (getUserIdFromSmartCardCPZ(buffer, temp_buffer, &i) == RETURN_NOK))
     {
-        // Check that we still have space to store
-        return RETURN_NOK;
-    }
-    else if (getUserIdFromSmartCardCPZ(buffer, temp_buffer, &i) == RETURN_OK)
-    {
-        // Check if we don't already know the smart card
-        return RETURN_NOK;
+        // Store user ID, CPZ & NONCE
+        eeprom_write_byte((uint8_t*)temp_address, userid);
+        eeprom_write_block((void*)buffer, (void*)(temp_address + 1), SMARTCARD_CPZ_LENGTH);
+        eeprom_write_block((void*)nonce, (void*)(temp_address + 1 + SMARTCARD_CPZ_LENGTH), AES256_CTR_LENGTH);
+        
+        // Return success!
+        return RETURN_OK;
     }
     else
     {
-        if (findUserId(userid) != RETURN_OK)
-        {
-            // Increment the number of users
-            eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_USERS_ADDR, getNumberOfKnownUsers()+1);
-        }
-        eeprom_write_block((void*)buffer, (void*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH, SMARTCARD_CPZ_LENGTH);
-        eeprom_write_block((void*)nonce, (void*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + SMARTCARD_CPZ_LENGTH, AES256_CTR_LENGTH);
-        eeprom_write_byte((uint8_t*)EEP_SMC_IC_USER_MATCH_START_ADDR + getNumberOfKnownCards()*SMCID_UID_MATCH_ENTRY_LENGTH + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH, userid);
-        eeprom_write_byte((uint8_t*)EEP_NB_KNOWN_CARDS_ADDR, getNumberOfKnownCards()+1);
-        return RETURN_OK;
+        // No space or card already existing
+        return RETURN_NOK;
     }
 }
 
@@ -168,15 +219,6 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     // - AES nonce, stored in the eeprom along with the user ID
     // - Smartcard CPZ, randomly generated and stored in our eeprom along with user id & nonce
     
-    // Get new user id
-    new_user_id = getNumberOfKnownUsers();
-    
-    // Check that we didn't attain the maximum number of users
-    if (new_user_id >= NODE_MAX_UID)
-    {
-        return RETURN_NOK;
-    }
-    
     // Ask user for a new pin code
     if ((guiGetPinFromUser(&pin1, PSTR("New PIN ?")) != RETURN_OK) || (guiGetPinFromUser(&pin2, PSTR("Confirm PIN")) != RETURN_OK) || (pin1 != pin2))
     {
@@ -185,6 +227,12 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     
     // The next part can take quite a while
     guiDisplayProcessingScreen();
+    
+    // Get new user id if possible
+    if (findAvailableUserId(&new_user_id) == RETURN_NOK)
+    {
+        return RETURN_NOK;
+    }
     
     // Create user profile in flash, CTR is set to 0 by the library
     formatUserProfileMemory(new_user_id);
@@ -198,7 +246,7 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     // Generate random nonce to be stored in the eeprom
     fillArrayWithRandomBytes(temp_nonce, AES256_CTR_LENGTH);
     
-    // Store SMC CPZ & AES CTR <> user id, automatically update number of know cards / users
+    // Store User ID <> SMC CPZ & AES CTR <> user id
     if (writeSmartCardCPZForUserId(temp_buffer, temp_nonce, new_user_id) != RETURN_OK)
     {
         return RETURN_NOK;

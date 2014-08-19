@@ -127,6 +127,12 @@ void handleSmartcardRemoved(void)
 */
 RET_TYPE removeCardAndReAuthUser(void)
 {
+    uint8_t temp_cpz1[SMARTCARD_CPZ_LENGTH];    
+    uint8_t temp_cpz2[SMARTCARD_CPZ_LENGTH];
+    
+    // Get current CPZ
+    readCodeProtectedZone(temp_cpz1);
+    
     // Disconnect smartcard
     handleSmartcardRemoved();
     
@@ -136,7 +142,18 @@ RET_TYPE removeCardAndReAuthUser(void)
     // Launch Unlocking process
     if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_OK))
     {
-        return RETURN_OK;
+        // Read other CPZ
+        readCodeProtectedZone(temp_cpz2);
+        
+        // Check that they're actually the sames
+        if (memcmp(temp_cpz1, temp_cpz2, SMARTCARD_CPZ_LENGTH) == 0)
+        {
+            return RETURN_OK;
+        } 
+        else
+        {
+            return RETURN_NOK;
+        }
     }
     else
     {

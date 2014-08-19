@@ -29,6 +29,8 @@
 #include "gui_basic_functions.h"
 #include "gui_pin_functions.h"
 #include "logic_smartcard.h"
+#include "logic_eeprom.h"
+#include "node_mgmt.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "delays.h"
@@ -152,6 +154,23 @@ void guiScreenLoop(uint8_t touch_detect_result)
             {
                 // User wants to go to the settings menu
                 currentScreen = SCREEN_SETTINGS;
+                guiGetBackToCurrentScreen();
+                break;
+            }
+            case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BLEFT) :
+            {
+                if ((guiAskForConfirmation(1, (confirmationText_t*)PSTR("Are you sure?")) == RETURN_OK) && (removeCardAndReAuthUser() == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Are you REALLY sure?")) == RETURN_OK))
+                {
+                    deleteUserIdFromSMCUIDLUT(getCurrentUserID());
+                    deleteCurrentUserFromFlash();
+                    eraseSmartCard();
+                    currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
+                }
+                else
+                {
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;                    
+                }
+                userViewDelay();
                 guiGetBackToCurrentScreen();
                 break;
             }

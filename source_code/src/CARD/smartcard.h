@@ -43,6 +43,31 @@ void removeFunctionSMC(void);
 void scanSMCDectect(void);
 void initPortSMC(void);
 
+// Macros
+
+/*! \fn     isSmartCardAbsent(void)
+*   \brief  Function used to check if the smartcard is absent
+*   \note   This function should only be used to check if the smartcard is absent. It works because scanSMCDectect reports the
+*           smartcard absent when it is not here during only one tick. It also works because the smartcard is always reported
+*           released via isCardPlugged
+*   \return RETURN_OK if absent
+*/
+static inline RET_TYPE isSmartCardAbsent(void)
+{
+    #if defined(HARDWARE_V1)
+    if (PIN_SC_DET & (1 << PORTID_SC_DET))
+    #elif defined(HARDWARE_OLIVIER_V1)
+    if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
+    #endif
+    {
+        return RETURN_NOK;
+    }
+    else
+    {
+        return RETURN_OK;
+    }
+}
+
 // Defines
 #define SMARTCARD_FABRICATION_ZONE	0x0F0F
 #define SMARTCARD_FACTORY_PIN		0xF0F0

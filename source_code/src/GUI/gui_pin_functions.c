@@ -127,6 +127,12 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
         }
         
+        if (isSmartCardAbsent() == RETURN_OK)
+        {
+            // Smartcard removed, no reason to continue
+            ret_val = RETURN_NOK;
+            finished = TRUE;
+        }
         if (temp_rettype & RETURN_LEFT_PRESSED)
         {
             if (selected_digit == 1)

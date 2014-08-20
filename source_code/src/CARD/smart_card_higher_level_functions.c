@@ -24,7 +24,6 @@
 #include "smart_card_higher_level_functions.h"
 #include "smartcard.h"
 #include "defines.h"
-#include "entropy.h"
 #include "oledmp.h"
 #include "utils.h"
 #include "usb.h"
@@ -37,18 +36,13 @@
 */
 RET_TYPE checkSecurityMode2(void)
 {
-    uint16_t temp_uint = entropyRandom16();
-    uint16_t manZoneRead;
+    uint16_t manZoneRead, temp_uint;
     
-    // Read manufacturer zone
+    // Read manufacturer zone, set temp_uint to its opposite
     readManufacturerZone((uint8_t*)&manZoneRead);
+    temp_uint = ~manZoneRead;
     
-    // We first need to check that they are actually different....
-    while(temp_uint == manZoneRead)
-    {
-        temp_uint = entropyRandom16();
-    }
-    
+    // Perform test write
     writeManufacturerZone((uint8_t*)&temp_uint);
     readManufacturerZone((uint8_t*)&manZoneRead);
     
@@ -71,6 +65,7 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
 {
     RET_TYPE temp_rettype;
 
+    // Try unlocking card with provided code
     temp_rettype = securityValidationSMC(pin_code);
 
     if (temp_rettype == RETURN_PIN_OK)                                   // Unlock successful
@@ -130,7 +125,6 @@ RET_TYPE cardDetectedRoutine(void)
     RET_TYPE card_detection_result;
     uint8_t temp_buffer[10];
     RET_TYPE temp_rettype;
-    uint8_t i;
 
     card_detection_result = firstDetectFunctionSMC();            // Get a first card detection result
 
@@ -200,17 +194,13 @@ RET_TYPE cardDetectedRoutine(void)
         else                                                                // Card is already converted into a mooltipass
         {
             // Check that the user setup his mooltipass card by checking that the CPZ is different from FFFF....
-            readCodeProtectedZone(temp_buffer);
-
-            for(i = 0; i < 8; i++)
+            readCodeProtectedZone(temp_buffer);            
+            if (memcmp(temp_buffer, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", SMARTCARD_CPZ_LENGTH) != 0)
             {
-                if (temp_buffer[i] != 0xFF)
-                {
-                    #ifdef DEBUG_SMC_USB_PRINT
-                        usbPutstr_P(PSTR("Mooltipass card detected\r\n"));
-                    #endif
-                    return RETURN_MOOLTIPASS_USER;
-                }
+                #ifdef DEBUG_SMC_USB_PRINT
+                    usbPutstr_P(PSTR("Mooltipass card detected\r\n"));
+                #endif
+                return RETURN_MOOLTIPASS_USER;                
             }
 
             #ifdef DEBUG_SMC_USB_PRINT
@@ -220,6 +210,7 @@ RET_TYPE cardDetectedRoutine(void)
             // If we're here it means the user hasn't configured his blank mooltipass card, so try to unlock it using the default pin
             temp_rettype = mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
 
+            // If we unlocked it, it means we can personalize it
             if (temp_rettype != RETURN_MOOLTIPASS_4_TRIES_LEFT)
             {
                 return RETURN_MOOLTIPASS_PB;

@@ -107,8 +107,8 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     activateTimer(TIMER_USERINT, USER_INTER_DEL);
     do
     {
-        // User interaction timeout
-        if (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED)
+        // User interaction timeout or smartcard removed
+        if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
         {
             return -1;
         }

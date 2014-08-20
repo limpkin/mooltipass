@@ -94,6 +94,12 @@ RET_TYPE handleSmartcardInserted(void)
             next_screen = SCREEN_DEFAULT_INSERTED_NLCK;
             return_value = RETURN_OK;
         }
+        else
+        {
+            guiSetCurrentScreen(next_screen);
+            guiGetBackToCurrentScreen();
+            return return_value;
+        }
         printSmartCardInfo();
     }
     

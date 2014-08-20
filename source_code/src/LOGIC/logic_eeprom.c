@@ -210,7 +210,6 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
 {
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     uint8_t temp_nonce[AES256_CTR_LENGTH];
-    uint16_t pin1, pin2;
     uint8_t new_user_id;
     
     // When inserting a new user and a new card, we need to setup the following elements
@@ -218,12 +217,6 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     // - AES next available CTR, stored in the user profile
     // - AES nonce, stored in the eeprom along with the user ID
     // - Smartcard CPZ, randomly generated and stored in our eeprom along with user id & nonce
-    
-    // Ask user for a new pin code
-    if ((guiGetPinFromUser(&pin1, PSTR("New PIN ?")) != RETURN_OK) || (guiGetPinFromUser(&pin2, PSTR("Confirm PIN")) != RETURN_OK) || (pin1 != pin2))
-    {
-        return RETURN_NOK;
-    }
     
     // The next part can take quite a while
     guiDisplayProcessingScreen();
@@ -263,7 +256,7 @@ RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
     initEncryptionHandling(temp_buffer, temp_nonce);
     
     // Write new pin code
-    writeSecurityCode(pin1);
+    writeSecurityCode(pin_code);
     
     return RETURN_OK;
 }

@@ -1,9 +1,0 @@
-v0.2: 
-- userhandling.c/h split into dedicated files in the LOGIC folder
-- complete rework of the node management code
-- blocking functions for reading another user's parent/child node
-- read/write parent/child blocks functions (address, pointer)
-- complete rewrite of CPZ <> NONCE <> UID eeprom logic
-- changes require user to erase their current smartcards before updating firmwares
-- change of bootkey to erase flash & eeprom at next boot
-- erase functionality implemented: will erase SMC<>UID entries for a given UID + all user related data in Flash

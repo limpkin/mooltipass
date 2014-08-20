@@ -24,11 +24,43 @@
 #include "smart_card_higher_level_functions.h"
 #include "smartcard.h"
 #include "defines.h"
+#include "entropy.h"
 #include "oledmp.h"
 #include "utils.h"
 #include "usb.h"
 #include <string.h>
 
+
+/*! \fn     checkSecurityMode2(void)
+*   \brief  Check that the smartcard is in mode two by trying to write his manufacturer zone
+*   \return Success status
+*/
+RET_TYPE checkSecurityMode2(void)
+{
+    uint16_t temp_uint = entropyRandom16();
+    uint16_t manZoneRead;
+    
+    // Read manufacturer zone
+    readManufacturerZone((uint8_t*)&manZoneRead);
+    
+    // We first need to check that they are actually different....
+    while(temp_uint == manZoneRead)
+    {
+        temp_uint = entropyRandom16();
+    }
+    
+    writeManufacturerZone((uint8_t*)&temp_uint);
+    readManufacturerZone((uint8_t*)&manZoneRead);
+    
+    if (temp_uint != manZoneRead)
+    {
+        return RETURN_OK;
+    } 
+    else
+    {
+        return RETURN_NOK;
+    }
+}
 
 /*! \fn     mooltipassDetectedRoutine(uint16_t pin_code)
 *   \brief  Function called when a Mooltipass is inserted into the smart card slot
@@ -43,8 +75,8 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
 
     if (temp_rettype == RETURN_PIN_OK)                                   // Unlock successful
     {
-        // Check that the card is in security mode 2 by reading the SC
-        if (readSecurityCode() != 0xFFFF)
+        // Check that the card is in security mode 2
+        if (checkSecurityMode2() == RETURN_NOK)
         {
             // Card is in mode 1... how could this happen?
             #ifdef DEBUG_SMC_USB_PRINT
@@ -209,8 +241,8 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     uint8_t temp_buffer[20];
     uint16_t *temp_buf16 = (uint16_t*)temp_buffer;
 
-    /* Check that the security code is readable, ensuring that we are in security mode 1 with SV flag */
-    if (readSecurityCode() == 0xFFFF)
+    /* Check that we are in security mode 1 */
+    if (checkSecurityMode2() == RETURN_OK)
     {
         return RETURN_NOK;
     }
@@ -427,7 +459,7 @@ void printSMCDebugInfoToUSB(void)
     uint8_t i;
 
     /* Extrapolate security mode */
-    usbPrintf_P(PSTR("Security mode %c\n"), (readSecurityCode() == 0xFFFF) ? '2' : '1');
+    usbPrintf_P(PSTR("Security mode %c\n"), (checkSecurityMode2() == RETURN_OK) ? '2' : '1');
 
     /* Read FZ, SC, and SCAC */
     oledSetXY(0,0);

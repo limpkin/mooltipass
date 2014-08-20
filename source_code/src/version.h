@@ -32,6 +32,6 @@
  * \param len Maximum number of bytes to copy, including NULL character
  * \return Returns number of bytes copied
  */
-int getVersion(char *dst, int len);
+uint8_t getVersion(char *dst, uint8_t len);
 
 #endif /* VERSION_H_ */

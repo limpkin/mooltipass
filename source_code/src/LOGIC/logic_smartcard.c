@@ -111,7 +111,7 @@ void handleSmartcardRemoved(void)
     uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     
-    // In case it was not done, remove power and flags
+    // Remove power and flags
     removeFunctionSMC();
     clearSmartCardInsertedUnlocked();
     

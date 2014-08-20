@@ -28,7 +28,7 @@
 
 static const char mooltipass_version[] PROGMEM = MOOLTIPASS_VERSION;
 
-int getVersion(char *dst, int len)
+uint8_t getVersion(char *dst, uint8_t len)
 {
     return strlcpy_P(dst, mooltipass_version, len);
 }

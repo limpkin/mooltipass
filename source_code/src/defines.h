@@ -217,7 +217,7 @@ enum card_detect_return_t       {RETURN_CARD_NDET, RETURN_CARD_TEST_PB, RETURN_C
 enum pin_check_return_t         {RETURN_PIN_OK = 0, RETURN_PIN_NOK_3, RETURN_PIN_NOK_2, RETURN_PIN_NOK_1, RETURN_PIN_NOK_0};
 enum pass_check_return_t        {RETURN_PASS_CHECK_NOK = -1, RETURN_PASS_CHECK_OK = 0, RETURN_PASS_CHECK_BLOCKED = 1};
 enum usb_com_return_t           {RETURN_COM_NOK = -1, RETURN_COM_TRANSF_OK = 0, RETURN_COM_TIMEOUT = 1};
-enum detect_return_t            {RETURN_REL, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
+enum detect_return_t            {RETURN_REL = 0, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
 enum button_return_t            {LEFT_BUTTON = 0, RIGHT_BUTTON = 1, GUARD_BUTTON = 2};
 enum timer_flag_t               {TIMER_EXPIRED = 0, TIMER_RUNNING = 1};
 enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};

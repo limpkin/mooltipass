@@ -241,6 +241,7 @@ void blowFuse(uint8_t fuse_name)
 */
 RET_TYPE isCardPlugged(void)
 {
+    // This copy is an atomic operation
     volatile RET_TYPE return_val = button_return;
 
     if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
@@ -272,13 +273,18 @@ void scanSMCDectect(void)
     if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
 #endif
     {
-        if (card_detect_counter != 0xFF)
-        {
-            card_detect_counter++;
-        }
         if (card_detect_counter == 250)
         {
-            button_return = RETURN_JDETECT;
+            // We must make sure the user detected that the smartcard was removed before setting it as detected!
+            if (button_return != RETURN_JRELEASED)
+            {
+                button_return = RETURN_JDETECT;
+                card_detect_counter++;
+            }
+        }
+        else if (card_detect_counter != 0xFF)
+        {
+            card_detect_counter++;            
         }
     }
     else

@@ -161,6 +161,8 @@ void guiScreenLoop(uint8_t touch_detect_result)
             {
                 if ((guiAskForConfirmation(1, (confirmationText_t*)PSTR("Are you sure?")) == RETURN_OK) && (removeCardAndReAuthUser() == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Are you REALLY sure?")) == RETURN_OK))
                 {
+                    // User wants to delete his profile in flash / eeprom....
+                    // TODO: delete other smart cards
                     deleteUserIdFromSMCUIDLUT(getCurrentUserID());
                     deleteCurrentUserFromFlash();
                     eraseSmartCard();

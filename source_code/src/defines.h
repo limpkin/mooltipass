@@ -191,6 +191,9 @@
 /************** LOW LEVEL MEMORY BOUNDARY CHECKS ***************/
 #define MEMORY_BOUNDARY_CHECKS
 
+/************** IMPORT/EXPORT MODE FOR PLUGIN COMMS ***************/
+#define FLASH_BLOCK_IMPORT_EXPORT
+
 /************** TESTS ENABLING ***************/
 // Comment to disable test calls
 //#define TESTS_ENABLED
@@ -226,11 +229,8 @@ typedef int8_t RET_TYPE;
 
 /**************** VERSION DEFINES ***************/
 #ifndef MOOLTIPASS_VERSION
-#define MOOLTIPASS_VERSION "unknown"
+    #define MOOLTIPASS_VERSION "unknown"
 #endif
-
-/**************** BITMAP DEFINES ****************/
-#define HACKADAY_BMP            0x00
 
 /**************** FLASH TEST SELECTION ****************/
 #define RUN_FLASH_TEST_WR
@@ -241,7 +241,7 @@ typedef int8_t RET_TYPE;
 #define RUN_FLASH_TEST_ERASE_SECTOR_0
 
 /**************** FEATURE SELECTION ****************/
-// Used for browser plugin communications
+// Used for normal browser plugin communications
 #define USB_FEATURE_PLUGIN_COMMS            
 
 /**************** DEFINES PORTS ****************/

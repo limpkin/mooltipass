@@ -295,6 +295,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         }
 #endif
 
+#ifdef FLASH_BLOCK_IMPORT_EXPORT
         // flash export start
         case CMD_EXPORT_FLASH_START :
         {
@@ -518,6 +519,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             currentFlashOpUid = 0;
             break;
         }
+#endif
         
         // set password bootkey
         case CMD_SET_BOOTLOADER_PWD :

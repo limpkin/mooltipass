@@ -301,7 +301,7 @@ RET_TYPE writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t
     writeSMC(addr, nb_bits, buffer);
     readSMC((addr + nb_bits) >> 3, (addr >> 3), temp_buffer);
     
-    if (hm_uint8_strncmp(buffer, temp_buffer, (nb_bits >> 3)) == 0)
+    if (memcmp(buffer, temp_buffer, (nb_bits >> 3)) == 0)
     {
         return RETURN_OK;
     }

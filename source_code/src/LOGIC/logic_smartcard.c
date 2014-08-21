@@ -68,10 +68,10 @@ RET_TYPE handleSmartcardInserted(void)
         // This is a user free card, we can ask the user to create a new user inside the Mooltipass
         if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Create new mooltipass user?")) == RETURN_OK)
         {
-            uint16_t pin1, pin2;
+            uint16_t pin_code;
             
             // Create a new user with his new smart card
-            if ((guiGetPinFromUser(&pin1, PSTR("New PIN ?")) == RETURN_OK) && (guiGetPinFromUser(&pin2, PSTR("Confirm PIN")) == RETURN_OK) && (pin1 == pin2) && (addNewUserAndNewSmartCard(pin1) == RETURN_OK))
+            if ((guiAskForNewPin(&pin_code) == RETURN_OK) && (addNewUserAndNewSmartCard(pin_code) == RETURN_OK))
             {
                 guiDisplayInformationOnScreen(PSTR("User added"));
                 next_screen = SCREEN_DEFAULT_INSERTED_NLCK;

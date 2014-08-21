@@ -182,7 +182,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 uint16_t pin_code;
                 
                 // Reauth user
-                if ((removeCardAndReAuthUser() == RETURN_OK) && (guiGetPinFromUser(&pin_code, PSTR("PIN for card?")) == RETURN_OK) && (cloneSmartCardProcess(pin_code) == RETURN_OK))
+                if ((guiAskForNewPin(&pin_code) == RETURN_OK) && (cloneSmartCardProcess(pin_code) == RETURN_OK))
                 {
                     // Well, it's done
                 }
@@ -210,13 +210,12 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 if (removeCardAndReAuthUser() == RETURN_OK)
                 {
                     // User approved his pin, ask his new one
-                    uint16_t pin1;
-                    uint16_t pin2;
-                    
-                    if ((guiGetPinFromUser(&pin1, PSTR("New PIN ?")) == RETURN_OK) && (guiGetPinFromUser(&pin2, PSTR("Confirm PIN")) == RETURN_OK) && (pin1 == pin2))
+                    uint16_t pin_code;
+                                        
+                    if (guiAskForNewPin(&pin_code) == RETURN_OK)
                     {
-                        // Both pins are the same, valid input, change pin
-                        writeSecurityCode(pin1);
+                        // User successfully entered a new pin
+                        writeSecurityCode(pin_code);
                         // Inform of success
                         guiDisplayInformationOnScreen(PSTR("PIN changed!"));
                     }
@@ -237,6 +236,26 @@ void guiScreenLoop(uint8_t touch_detect_result)
             default : break;
         }
     }    
+}
+
+/*! \fn     guiAskForNewPin(uint16_t* new_pin)
+*   \brief  Ask user to enter a new PIN
+*   \param  new_pin Pointer to where to store the new pin
+*   \return Success status
+*/
+RET_TYPE guiAskForNewPin(uint16_t* new_pin)
+{
+    uint16_t other_pin;
+    
+    // Ask the user twice for the new pin and compare them
+    if ((guiGetPinFromUser(new_pin, PSTR("New PIN ?")) == RETURN_OK) && (guiGetPinFromUser(&other_pin, PSTR("Confirm PIN")) == RETURN_OK) && (*new_pin == other_pin))
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
 }
 
 /*! \fn     guiDisplayProcessingScreen(void)

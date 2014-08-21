@@ -822,9 +822,8 @@ function sendNextPacket(cmd, importer)
     if (size <= 0)
     {
         // finished
-        log(importer.log, 'import complete.\n');
         sendRequest(cmd+1);     // END
-        return;
+        return 0;
     }
 
     data = new Uint8Array(importer.data, importer.offset, size);
@@ -847,6 +846,8 @@ function sendNextPacket(cmd, importer)
         importer.bar.progressbar('value', (importer.offset * 100)/ importer.data.byteLength);
     }
     sendRequest(cmd, data);
+
+    return importer.data.byteLength - importer.offset;
 }
 
 function updateMedia(data)
@@ -894,7 +895,7 @@ function onDataReceived(reportId, data)
     var len = bytes[0]
     var cmd = bytes[1]
 
-    if (debug && (cmd != CMD_VERSION) && (cmd != CMD_DEBUG) && ((cmd < CMD_EXPORT_FLASH) || (cmd > CMD_IMPORT_EEPROM_END)))
+    if (debug && (cmd != CMD_VERSION) && (cmd != CMD_DEBUG) && ((cmd < CMD_EXPORT_FLASH) || (cmd >= CMD_EXPORT_EEPROM)))
     {
         console.log('Received CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(msg));
     }
@@ -1166,7 +1167,13 @@ function onDataReceived(reportId, data)
         {
             var ok = bytes[2];
             if (ok == 0) {
-                log('#importLog', 'import denied\n');
+                remainder = importData.data.byteLength - importData.offset;
+                if (remainder > 0) {
+                    log('#importLog', 'import halted, '+remainder+' bytes left\n');
+                } else {
+                    log('#importLog', 'import finished\n');
+                }
+                importData = null;
             } else {
                 sendNextPacket(CMD_IMPORT_EEPROM, importData);
             }

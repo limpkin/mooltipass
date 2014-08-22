@@ -33,6 +33,8 @@
 #include "flash_mem.h"
 #include "entropy.h"
 #include "defines.h"
+#include "delays.h"
+#include "usb.h"
 
 // Know if the smart card is inserted and unlocked
 uint8_t smartcard_inserted_unlocked = FALSE;
@@ -338,6 +340,8 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
         // Create parent node for service
         if (createParentNode(&temp_pnode) != RETURN_OK)
         {
+            guiDisplayInformationOnScreen(PSTR("PB ADD!"));
+            userViewDelay(); guiGetBackToCurrentScreen();            
             return RETURN_NOK;
         }
         
@@ -465,6 +469,8 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 memcpy((void*)temp_cnode.login, (void*)name, length);
                 if(createChildNode(context_parent_node_addr, &temp_cnode) != RETURN_OK)
                 {
+                    guiDisplayInformationOnScreen(PSTR("PB ADD!"));
+                    userViewDelay(); guiGetBackToCurrentScreen();
                     return RETURN_NOK;
                 }
                 selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);

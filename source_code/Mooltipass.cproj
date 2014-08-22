@@ -304,6 +304,9 @@
     <Compile Include="src\LOGIC\logic_smartcard.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\NODEMGMT\node_mgmt.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\stack.c">
       <SubType>compile</SubType>
     </Compile>
@@ -343,15 +346,12 @@
     <Compile Include="src\mooltipass.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\NODEMGMT\node_mgmt.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\NODEMGMT\node_mgmt.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\NODEMGMT\node_test.c">
+    <None Include="src\NODEMGMT\node_test.c">
       <SubType>compile</SubType>
-    </Compile>
+    </None>
     <Compile Include="src\NODEMGMT\node_test.h">
       <SubType>compile</SubType>
     </Compile>

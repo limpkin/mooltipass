@@ -17,9 +17,6 @@
  *
  * CDDL HEADER END
  */
-
-/* Copyright (c) 2014, Michael Neiderhauser. All rights reserved. */
-
 /*!  \file     node_mgmt.c
 *    \brief    Mooltipass Node Management Library
 *    Created:  03/4/2014
@@ -27,34 +24,34 @@
 *    Modified: 18/08/2014
 *    By:       Mathieu Stephan
 */
-
+#include <string.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "flash_mem.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "usb.h"
-#include <string.h>  // For memset
-#include <stdint.h>
-#include <stddef.h>
 
 // Current node management handle
 mgmtHandle currentNodeMgmtHandle;
 
-// Private Function Prototypes
-static RET_TYPE createChildTypeNode(uint16_t pAddr, cNode *c, nodeType t, uint8_t dnr);
-static void writeReadDataFlash(uint16_t a, uint16_t s, void *d);
 
-// Critical error catching
+/*! \fn     nodeMgmtCriticalErrorCallback(void)
+*   \brief  Critical error catching
+*/
 void nodeMgmtCriticalErrorCallback(void)
 {
     usbPutstr_P(PSTR("#NM\r\n"));
     while(1);
 }
 
-// Critical user permission / node validity error catching
+/*! \fn     nodeMgmtPermissionValidityErrorCallback(void)
+*   \brief  Node read permission and validity error catching
+*/
 void nodeMgmtPermissionValidityErrorCallback(void)
 {
     usbPutstr_P(PSTR("#NMP\r\n"));
-    while(1);    
+    while(1);
 }
 
 /* Flag Get/Set Helper Functions */
@@ -247,24 +244,37 @@ RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
     return RETURN_OK;
 }
 
-void writeParentNodeDataBlockToFlash(uint16_t address, void* data)
+/*! \fn     writeNodeDataBlockToFlash(uint16_t address, void* data)
+*   \brief  Write a node data block to flash
+*   \param  address Where to write
+*   \param  data    Pointer to the data
+*/
+void writeNodeDataBlockToFlash(uint16_t address, void* data)
 {
-    writeDataToFlash(pageNumberFromAddress(address), NODE_SIZE_PARENT * nodeNumberFromAddress(address), NODE_SIZE_PARENT, data);
+    writeDataToFlash(pageNumberFromAddress(address), NODE_SIZE * nodeNumberFromAddress(address), NODE_SIZE, data);
 }
 
-void readParentNodeDataBlockFromFlash(uint16_t address, void* data)
+/*! \fn     readNodeDataBlockFromFlash(uint16_t address, void* data)
+*   \brief  Read a node data block to flash
+*   \param  address Where to read
+*   \param  data    Pointer to the data
+*/
+void readNodeDataBlockFromFlash(uint16_t address, void* data)
 {
-    readDataFromFlash(pageNumberFromAddress(address), NODE_SIZE_PARENT * nodeNumberFromAddress(address), NODE_SIZE_PARENT, data);
+    readDataFromFlash(pageNumberFromAddress(address), NODE_SIZE * nodeNumberFromAddress(address), NODE_SIZE, data);
 }
 
-void writeChildNodeDataBlockToFlash(uint16_t address, void* data)
+/*! \fn     eraseNodeDataBlockToFlash(uint16_t address)
+*   \brief  Erase a node data block to flash
+*   \param  address Where to erase
+*/
+void eraseNodeDataBlockToFlash(uint16_t address)
 {
-    writeDataToFlash(pageNumberFromAddress(address), NODE_SIZE_PARENT * nodeNumberFromAddress(address), NODE_SIZE_CHILD, data);
-}
-
-void readChildNodeDataBlockFromFlash(uint16_t address, void* data)
-{
-    readDataFromFlash(pageNumberFromAddress(address), NODE_SIZE_PARENT * nodeNumberFromAddress(address), NODE_SIZE_CHILD, data);
+    uint8_t data[NODE_SIZE];
+    
+    // Set data to 0xFF
+    memset(data, 0xFF, NODE_SIZE);
+    writeDataToFlash(pageNumberFromAddress(address), NODE_SIZE * nodeNumberFromAddress(address), NODE_SIZE, data);
 }
 
 /**
@@ -298,8 +308,6 @@ void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset
 void formatUserProfileMemory(uint8_t uid)
 {
     uint8_t buf[USER_PROFILE_SIZE];
-    uint16_t pageNumber;
-    uint16_t pageOffset;
     
     if(uid >= NODE_MAX_UID)
     {
@@ -308,11 +316,7 @@ void formatUserProfileMemory(uint8_t uid)
     
     // Set buffer to all 0's. Assuming NODE_ADDR_NULL = 0x0000.
     memset(buf, 0, USER_PROFILE_SIZE);
-    
-    // obtain user profile offset.
-    // write buf (0's) to clear out user memory. Buffer is destroyed.. we no longer need it
-    userProfileStartingOffset(uid, &pageNumber, &pageOffset);
-    writeDataToFlash(pageNumber, pageOffset, USER_PROFILE_SIZE, buf);
+    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile, USER_PROFILE_SIZE, buf);
 }
 
 /*! \fn     getCurrentUserID(void)
@@ -322,6 +326,387 @@ void formatUserProfileMemory(uint8_t uid)
 uint8_t getCurrentUserID(void)
 {
     return currentNodeMgmtHandle.currentUserId;
+}
+
+/**
+ * Initializes the Node Management Handle.
+ *   Check userIdNum in range,  reads users profile to get the starting parent node, scans memory for the next free parent and child nodes.
+ * @param   h               The user allocated node management handle
+ * @param   userIdNum       The user id to initialize the handle for (0->NODE_MAX_UID)
+ */
+void initNodeManagementHandle(uint8_t userIdNum)
+{        
+    if(userIdNum >= NODE_MAX_UID)
+    {
+        nodeMgmtPermissionValidityErrorCallback();
+    }
+            
+    // fill current user id, first parent node address, user profile page & offset 
+    currentNodeMgmtHandle.flags = 0;
+    currentNodeMgmtHandle.currentUserId = userIdNum;
+    currentNodeMgmtHandle.firstParentNode = getStartingParentAddress();
+    userProfileStartingOffset(currentNodeMgmtHandle.currentUserId, &currentNodeMgmtHandle.pageUserProfile, &currentNodeMgmtHandle.offsetUserProfile);
+    
+    // scan for next free parent and child nodes
+    scanNodeUsage();
+}
+
+/**
+ * Sets the users starting parent node both in the handle and user profile memory portion of flash
+ * @param   h               The user allocated node management handle
+ * @param   parentAddress   The constructed address of the users starting parent node (alphabetically) 
+ */
+void setStartingParent(uint16_t parentAddress)
+{    
+    // update handle
+    currentNodeMgmtHandle.firstParentNode = parentAddress;
+    
+    // Write parentaddress in the user profile page
+    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile, 2, &parentAddress);
+}
+
+/**
+ * Gets the users starting parent node from the user profile memory portion of flash
+ * @return  The address
+ */
+uint16_t getStartingParentAddress(void)
+{
+    uint16_t temp_address;
+    
+    // restore parentAddress
+    readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile, 2, &temp_address);    
+    
+    return temp_address;
+}
+
+/**
+ * Sets a user favorite in the user profile
+ * @param   h               The user allocated node management handle
+ * @param   favId           The id number of the fav record
+ * @param   parentAddress   The parent node address of the fav
+ * @param   childAddress    The child node address of the fav
+ */
+void setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
+{
+    uint16_t addrs[2] = {parentAddress, childAddress};
+    
+    if(favId >= USER_MAX_FAV)
+    {
+        nodeMgmtCriticalErrorCallback();
+    }
+    
+    // write to flash, each fav is 4 bytes. +2 for starting parent node offset
+    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + (favId * USER_FAV_SIZE) + USER_START_NODE_SIZE, USER_FAV_SIZE, (void *)addrs);
+}
+
+/**
+ * Reads a user favorite from the user profile
+ * @param   h               The user allocated node management handle
+ * @param   favId           The id number of the fav record
+ * @param   parentAddress   The parent node address of the fav
+ * @param   childAddress    The child node address of the fav
+ */
+void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
+{
+    uint16_t addrs[2];
+    
+    if(favId >= USER_MAX_FAV)
+    {
+        nodeMgmtCriticalErrorCallback();
+    }
+    
+    // Read from flash
+    readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + (favId * USER_FAV_SIZE) + USER_START_NODE_SIZE, USER_FAV_SIZE, (void *)addrs);
+    
+    // return values to user
+    *parentAddress = addrs[0];
+    *childAddress = addrs[1];
+}
+
+/**
+ * Sets the users base CTR in the user profile flash memory
+ * @param   h               The user allocated node management handle
+ * @param   buf             The buffer containing CTR
+ */
+void setProfileCtr(void *buf)
+{    
+    // User CTR is at the end
+    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_PROFILE_SIZE - USER_RES_CTR, USER_CTR_SIZE, buf);
+}
+
+/**
+ * Reads the users base CTR from the user profile flash memory
+ * @param   h               The user allocated node management handle
+ * @param   buf             The buffer to store the read CTR
+ */
+void readProfileCtr(void *buf)
+{
+    // User CTR is at the end
+    readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_PROFILE_SIZE - USER_RES_CTR, USER_CTR_SIZE, buf);
+}
+
+/**
+ * Reads a node from memory. If the node does not have a proper user id, g should be considered undefined
+ * @param   g               Storage for the node from memory
+ * @param   nodeAddress     The address to read in memory
+ */
+void readNode(gNode* g, uint16_t nodeAddress)
+{
+    readNodeDataBlockFromFlash(nodeAddress, g);
+    
+    if((currentNodeMgmtHandle.currentUserId != userIdFromFlags(g->flags)) || (validBitFromFlags(g->flags) == NODE_VBIT_INVALID))
+    {
+        // if handle user id != id from node or node is invalid
+        // clear local node.. return not ok
+        nodeMgmtPermissionValidityErrorCallback();
+    }    
+}
+
+/**
+ * Reads a parent node from memory. If the node does not have a proper user id, p should be considered undefined
+ * @param   p               Storage for the node from memory
+ * @param   parentNodeAddress The address to read in memory
+ */
+void readParentNode(pNode* p, uint16_t parentNodeAddress)
+{
+    readNode((gNode*)p, parentNodeAddress);
+}
+
+/**
+ * Reads a child or child start of data node from memory.
+ * @param   c               Storage for the node from memory
+ * @param   childNodeAddress The address to read in memory
+ */
+void readChildNode(cNode *c, uint16_t childNodeAddress)
+{
+    readNode((gNode*)c, childNodeAddress);
+}
+
+/**
+ * Writes a parent node to memory (next free via handle) (in alphabetical order).
+ * @param   p               The parent node to write to memory (nextFreeParentNode)
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
+RET_TYPE createParentNode(pNode* p)
+{
+    uint16_t temp_address;
+    RET_TYPE temprettype;
+    
+    // This is particular to parent nodes...
+    p->nextChildAddress = NODE_ADDR_NULL;
+    nodeTypeToFlags(&(p->flags), NODE_TYPE_PARENT);
+    
+    // Call createGenericNode to add a node
+    temprettype = createGenericNode((gNode*)p, currentNodeMgmtHandle.firstParentNode, &temp_address, PNODE_COMPARISON_FIELD_OFFSET, NODE_PARENT_SIZE_OF_SERVICE);
+    
+    // If the return is ok & we changed the first node address
+    if ((temprettype == RETURN_OK) && (currentNodeMgmtHandle.firstParentNode != temp_address))
+    {
+        setStartingParent(temp_address);
+    }
+    
+    return temprettype;
+}
+
+/**
+ * Writes a child node to memory (next free via handle) (in alphabetical order).
+ * @param   pAddr           The parent node address of the child
+ * @param   p               The child node to write to memory (nextFreeChildNode)
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
+RET_TYPE createChildNode(uint16_t pAddr, cNode *c)
+{
+    pNode* tempPNodePointer = (pNode*)&(currentNodeMgmtHandle.tempgNode);
+    uint16_t childFirstAddress, temp_address;
+    RET_TYPE temprettype;
+    
+    // Set node type to child
+    nodeTypeToFlags(&(c->flags), NODE_TYPE_CHILD);
+    
+    // Read parent to get the first child address
+    readNode((gNode*)tempPNodePointer, pAddr);
+    childFirstAddress = tempPNodePointer->nextChildAddress;
+    
+    // Call createGenericNode to add a node
+    temprettype = createGenericNode((gNode*)c, childFirstAddress, &temp_address, CNODE_COMPARISON_FIELD_OFFSET, NODE_CHILD_SIZE_OF_LOGIN);
+    
+    // If the return is ok & we changed the first child address
+    if ((temprettype == RETURN_OK) && (childFirstAddress != temp_address))
+    {
+       readNode((gNode*)tempPNodePointer, pAddr);
+       tempPNodePointer->nextChildAddress = temp_address;
+       writeNodeDataBlockToFlash(pAddr, tempPNodePointer);
+    }
+    
+    return temprettype;
+}   
+
+/**
+ * Writes a generic node to memory (next free via handle) (in alphabetical order).
+ * @param   p                   The parent node to write to memory (nextFreeParentNode)
+ * @param   firstNodeAddress    Address of the first node of its kind
+ * @param   newFirstNodeAddress If the firstNodeAddress changed, this var will store the new value
+ * @return  success status
+ * @note    Handles necessary doubly linked list management
+ */
+RET_TYPE createGenericNode(gNode* g, uint16_t firstNodeAddress, uint16_t* newFirstNodeAddress, uint8_t comparisonFieldOffset, uint8_t comparisonFieldLength)
+{
+    gNode* memNodePtr = &(currentNodeMgmtHandle.tempgNode);
+    uint16_t addr = NODE_ADDR_NULL;
+    int8_t res = 0;
+    
+    // Set newFirstNodeAddress to firstNodeAddress by default
+    *newFirstNodeAddress = firstNodeAddress;
+    
+    // Check space in flash
+    if (currentNodeMgmtHandle.nextFreeNode == NODE_ADDR_NULL)
+    {
+        return RETURN_NOK;
+    }
+    
+    // Set correct user id to the node
+    userIdToFlags(&(g->flags), currentNodeMgmtHandle.currentUserId);
+    
+    // set valid bit
+    validBitToFlags(&(g->flags), NODE_VBIT_VALID);
+
+    // clear next/prev address
+    g->prevAddress = NODE_ADDR_NULL;
+    g->nextAddress = NODE_ADDR_NULL;
+    
+    // if user has no nodes. this node is the first node
+    if(firstNodeAddress == NODE_ADDR_NULL)
+    {
+        // write parent node to flash (destructive)
+        writeNodeDataBlockToFlash(currentNodeMgmtHandle.nextFreeNode, g);
+        
+        // read back from flash
+        readNodeDataBlockFromFlash(currentNodeMgmtHandle.nextFreeNode, g);
+        
+        // set new first node address
+        *newFirstNodeAddress = currentNodeMgmtHandle.nextFreeNode;
+    }
+    else
+    {        
+        // set first node address
+        addr = firstNodeAddress;
+        while(addr != NODE_ADDR_NULL)
+        {
+            // read node
+            readNode(memNodePtr, addr);
+            
+            // compare nodes (alphabetically)
+            res = strncmp((char*)g+comparisonFieldOffset, (char*)memNodePtr+comparisonFieldOffset, comparisonFieldLength);
+            if(res > 0)
+            {
+                // to add parent node comes after current node in memory.. go to next node
+                if(memNodePtr->nextAddress == NODE_ADDR_NULL)
+                {
+                    // end of linked list. Set to write node prev and next addr's
+                    g->prevAddress = addr; // current memNode Addr
+                    
+                    // write new node to flash
+                    writeNodeDataBlockToFlash(currentNodeMgmtHandle.nextFreeNode, g);
+                    
+                    // set previous last node to point to new node. write to flash
+                    memNodePtr->nextAddress = currentNodeMgmtHandle.nextFreeNode;
+                    writeNodeDataBlockToFlash(addr, memNodePtr);
+                    
+                    // read node from flash.. writes are destructive.
+                    readNode(g, currentNodeMgmtHandle.nextFreeNode);
+                                        
+                    // set loop exit case
+                    addr = NODE_ADDR_NULL; 
+                }
+                else
+                {
+                    // loop and read next node
+                    addr = memNodePtr->nextAddress;
+                }
+            }
+            else if(res < 0)
+            {
+                // to add parent node comes before current node in memory. Previous node is already not a memcmp match .. write node
+                
+                // set node to write next parent to current node in mem, set prev parent to current node in mems prev parent
+                g->nextAddress = addr;
+                g->prevAddress = memNodePtr->prevAddress;
+                
+                // write new node to flash
+                writeNodeDataBlockToFlash(currentNodeMgmtHandle.nextFreeNode, g);
+                
+                // read back from flash
+                readNodeDataBlockFromFlash(currentNodeMgmtHandle.nextFreeNode, g);
+                
+                // update current node in mem. set prev parent to address node to write was written to.
+                memNodePtr->prevAddress = currentNodeMgmtHandle.nextFreeNode;
+                writeNodeDataBlockToFlash(addr, memNodePtr);
+                
+                if(g->prevAddress != NODE_ADDR_NULL)
+                {
+                    // read p->prev node
+                    readNode(memNodePtr, g->prevAddress);
+                
+                    // update prev node to point next parent to addr of node to write node
+                    memNodePtr->nextAddress = currentNodeMgmtHandle.nextFreeNode;
+                    writeNodeDataBlockToFlash(g->prevAddress, memNodePtr);
+                }                
+                
+                if(addr == firstNodeAddress)
+                {
+                    // new node comes before current address and current address in first node.
+                    // new node should be first node
+                    *newFirstNodeAddress = currentNodeMgmtHandle.nextFreeNode;
+                }
+                
+                // set exit case
+                addr = NODE_ADDR_NULL;
+            }
+            else
+            {
+                // services match
+                // return nok. Same parent node
+                return RETURN_NOK;
+            } // end cmp results
+        } // end while
+    } // end if first parent
+    
+    scanNodeUsage();
+    
+    return RETURN_OK;
+}
+
+/*! \fn     scanNodeUsage(void)
+*   \brief  Scan memory to find empty slots
+*/
+void scanNodeUsage(void)
+{
+    uint16_t nodeFlags = 0xFFFF;
+    uint16_t pageItr;
+    uint8_t nodeItr;
+    
+    // Set free node addr to NODE_ADDR_NULL
+    currentNodeMgmtHandle.nextFreeNode = NODE_ADDR_NULL;
+
+    // for each page
+    for(pageItr = PAGE_PER_SECTOR; pageItr < PAGE_COUNT; pageItr++)
+    {
+        // for each possible parent node in the page (changes per flash chip)
+        for(nodeItr = 0; nodeItr < NODE_PER_PAGE; nodeItr++)
+        {
+            // read node flags (2 bytes - fixed size)
+            readDataFromFlash(pageItr, NODE_SIZE*nodeItr, 2, &nodeFlags);
+            
+            // If this slot is OK
+            if(validBitFromFlags(nodeFlags) == NODE_VBIT_INVALID)
+            {
+                currentNodeMgmtHandle.nextFreeNode = constructAddress(pageItr, nodeItr);
+                return;
+            }           
+        }
+    }
 }
 
 /*! \fn     deleteCurrentUserFromFlash(void)
@@ -357,8 +742,8 @@ void deleteCurrentUserFromFlash(void)
             temp_address = temp_cnode.nextChildAddress;
             
             // Delete child data block
-            memset(&temp_cnode, 0xFF, NODE_SIZE_CHILD);
-            writeChildNodeDataBlockToFlash(next_child_addr, &temp_cnode);
+            memset(&temp_cnode, 0xFF, NODE_SIZE);
+            writeNodeDataBlockToFlash(next_child_addr, &temp_cnode);
             
             // Set correct next address
             next_child_addr = temp_address;
@@ -368,647 +753,11 @@ void deleteCurrentUserFromFlash(void)
         temp_address = temp_pnode.nextParentAddress;
         
         // Delete parent data block
-        memset(&temp_pnode, 0xFF, NODE_SIZE_PARENT);
-        writeParentNodeDataBlockToFlash(next_parent_addr, &temp_pnode);
+        memset(&temp_pnode, 0xFF, NODE_SIZE);
+        writeNodeDataBlockToFlash(next_parent_addr, &temp_pnode);
         
         // Set correct next address
         next_parent_addr = temp_address;
-    }
-}
-
-/**
- * Initializes the Node Management Handle.
- *   Check userIdNum in range,  reads users profile to get the starting parent node, scans memory for the next free parent and child nodes.
- * @param   h               The user allocated node management handle
- * @param   userIdNum       The user id to initialize the handle for (0->NODE_MAX_UID)
- */
-void initNodeManagementHandle(uint8_t userIdNum)
-{        
-    if(userIdNum >= NODE_MAX_UID)
-    {
-        nodeMgmtPermissionValidityErrorCallback();
-    }
-             
-    currentNodeMgmtHandle.flags = 0;
-    currentNodeMgmtHandle.currentUserId = userIdNum;
-    currentNodeMgmtHandle.firstParentNode = getStartingParentAddress();
-    
-    // scan for next free parent and child nodes
-    scanNodeUsage();
-}
-
-/**
- * Sets the users starting parent node both in the handle and user profile memory portion of flash
- * @param   h               The user allocated node management handle
- * @param   parentAddress   The constructed address of the users starting parent node (alphabetically) 
- */
-void setStartingParent(uint16_t parentAddress)
-{
-    uint16_t userProfilePage = 0;
-    uint16_t userProfilePageOffset = 0;
-    
-    if (((parentAddress & NODE_ADDR_NODE_MASK) > NODE_PARENT_PER_PAGE) || ((parentAddress >> NODE_ADDR_SHMT) > PAGE_COUNT))
-    {
-        nodeMgmtCriticalErrorCallback();
-    }
-    
-    // no error checking.. user id was validated at init
-    userProfileStartingOffset(currentNodeMgmtHandle.currentUserId, &userProfilePage, &userProfilePageOffset);
-    
-    // update handle
-    currentNodeMgmtHandle.firstParentNode = parentAddress;
-    
-    // Write parentaddress in the user profile page
-    writeDataToFlash(userProfilePage, userProfilePageOffset, 2, &parentAddress);
-}
-
-/**
- * Gets the users starting parent node from the user profile memory portion of flash
- * @return  The address
- */
-uint16_t getStartingParentAddress(void)
-{
-    uint16_t userProfilePageOffset;
-    uint16_t userProfilePage;
-    uint16_t temp_address;
-    
-    // no error checking.. user id was validated at init. Get profile Address
-    userProfileStartingOffset(currentNodeMgmtHandle.currentUserId, &userProfilePage, &userProfilePageOffset);
-    
-    // restore parentAddress
-    readDataFromFlash(userProfilePage, userProfilePageOffset, 2, &temp_address);
-    
-    return temp_address;
-}
-
-/**
- * Sets a user favorite in the user profile
- * @param   h               The user allocated node management handle
- * @param   favId           The id number of the fav record
- * @param   parentAddress   The parent node address of the fav
- * @param   childAddress    The child node address of the fav
- */
-void setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
-{
-    uint16_t page;
-    uint16_t offset;
-    uint16_t addrs[2];
-    
-    if(favId >= USER_MAX_FAV)
-    {
-        nodeMgmtCriticalErrorCallback();
-    }
-    
-    addrs[0] = parentAddress;
-    addrs[1] = childAddress;
-    
-    // calculate user profile start    
-    userProfileStartingOffset(currentNodeMgmtHandle.currentUserId, &page, &offset);
-    
-    // add to offset
-    offset += (favId * 4) + 2;  // each fav is 4 bytes. +2 for starting parent node offset
-    
-    // write to flash
-    writeDataToFlash(page, offset, 4, (void *)addrs);
-}
-
-/**
- * Reads a user favorite from the user profile
- * @param   h               The user allocated node management handle
- * @param   favId           The id number of the fav record
- * @param   parentAddress   The parent node address of the fav
- * @param   childAddress    The child node address of the fav
- */
-void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
-{
-    uint16_t page;
-    uint16_t offset;
-    uint16_t addrs[2];
-    
-    if(favId >= USER_MAX_FAV)
-    {
-        nodeMgmtCriticalErrorCallback();
-    }
-    
-    // calculate user profile start
-    userProfileStartingOffset(currentNodeMgmtHandle.currentUserId, &page, &offset);
-    
-    // add to offset
-    offset += (favId * 4) + 2;  // each fav is 4 bytes. +2 for starting parent node offset
-    
-    // write to flash
-    readDataFromFlash(page, offset, 4, (void *)addrs);
-    
-    // return values to user
-    *parentAddress = addrs[0];
-    *childAddress = addrs[1];
-}
-
-/**
- * Sets the users base CTR in the user profile flash memory
- * @param   h               The user allocated node management handle
- * @param   buf             The buffer containing CTR
- */
-void setProfileCtr(void *buf)
-{
-    uint16_t page;
-    uint16_t offset;
-
-    // calculate user profile start
-    userProfileStartingOffset(currentNodeMgmtHandle.currentUserId, &page, &offset);
-
-    offset += USER_PROFILE_SIZE-USER_RES_CTR; // User CTR is at the end
-
-    writeDataToFlash(page, offset, USER_CTR_SIZE, buf);
-}
-
-/**
- * Reads the users base CTR from the user profile flash memory
- * @param   h               The user allocated node management handle
- * @param   buf             The buffer to store the read CTR
- */
-void readProfileCtr(void *buf)
-{
-    uint16_t page;
-    uint16_t offset;
-
-    // calculate user profile start
-    userProfileStartingOffset(currentNodeMgmtHandle.currentUserId, &page, &offset);
-
-    offset += USER_PROFILE_SIZE-USER_RES_CTR; // does not include ctr val.. this will set the correct offset
-
-    readDataFromFlash(page, offset, USER_CTR_SIZE, buf);
-}
-
-/**
- * Writes a parent node to memory (next free via handle) (in alphabetical order).
- *   Scans for nextFreeParentNode after completion.  Modifies the node management handle
- * @param   h               The user allocated node management handle
- * @param   p               The parent node to write to memory (nextFreeParentNode)
- * @return  success status
- * @note    Handles necessary doubly linked list management
- */
-RET_TYPE createParentNode(pNode *p)
-{
-    uint16_t addr = NODE_ADDR_NULL;
-    //pNode memNode;
-    pNode *memNodePtr = &(currentNodeMgmtHandle.parent);
-    int8_t res = 0;
-    
-    //uint16_t writeAddr;
-    
-    if((currentNodeMgmtHandle.nextFreeParentNode) == NODE_ADDR_NULL)
-    {
-        // no space remaining in flash
-        return RETURN_NOK;
-    }
-    
-    userIdToFlags(&(p->flags), currentNodeMgmtHandle.currentUserId);
-    /*
-    if((currentNodeMgmtHandle.currentUserId) != userIdFromFlags(p->flags))
-    {
-        // cannot create a node with a different user ID
-        return RETURN_NOK;
-    }
-    */
-    
-    // set node type
-    nodeTypeToFlags(&(p->flags), NODE_TYPE_PARENT);
-    
-    // set valid bit
-    validBitToFlags(&(p->flags), NODE_VBIT_VALID);
-    
-    // TODO verify nextChildAddress Fix (modified updateParentNode (backup / restore of next child addr) to allow setting p->nextChildAddress to NODE_ADDR_NULL)
-    p->nextChildAddress = NODE_ADDR_NULL;
-    p->nextParentAddress = NODE_ADDR_NULL;
-    p->prevParentAddress = NODE_ADDR_NULL;
-    
-    // if user has no nodes. this node is the first node
-    if(currentNodeMgmtHandle.firstParentNode == NODE_ADDR_NULL)
-    {
-        // write parent node to flash (destructive)
-        writeParentNodeDataBlockToFlash(currentNodeMgmtHandle.nextFreeParentNode, p);
-        
-        // read back from flash
-        readParentNodeDataBlockFromFlash(currentNodeMgmtHandle.nextFreeParentNode, p);
-        
-        // set the starting node address
-        setStartingParent(currentNodeMgmtHandle.nextFreeParentNode);
-        // set next free to null.. scan will happen at the end of the function
-        currentNodeMgmtHandle.nextFreeParentNode = NODE_ADDR_NULL;
-    }
-    else
-    {
-        // not the first node
-        
-        // get first node address
-        addr = currentNodeMgmtHandle.firstParentNode;
-        while(addr != NODE_ADDR_NULL)
-        {
-            // read node
-            readParentNode(memNodePtr, addr);
-            
-            // compare nodes (alphabetically) 
-            res = memcmp(p->service, memNodePtr->service, NODE_PARENT_SIZE_OF_SERVICE);
-            if(res > 0)
-            {
-                // to add parent node comes after current node in memory.. go to next node
-                if(memNodePtr->nextParentAddress == NODE_ADDR_NULL)
-                {
-                    // end of linked list. Set to write node prev and next addr's
-                    p->nextParentAddress = NODE_ADDR_NULL;
-                    p->prevParentAddress = addr; // current memNode Addr
-                    
-                    // write new node to flash
-                    writeParentNodeDataBlockToFlash(currentNodeMgmtHandle.nextFreeParentNode, p);
-                    
-                    // read back from flash
-                    readParentNodeDataBlockFromFlash(currentNodeMgmtHandle.nextFreeParentNode, p);
-                    
-                    // set previous last node to point to new node. write to flash
-                    memNodePtr->nextParentAddress = currentNodeMgmtHandle.nextFreeParentNode;
-                    writeParentNodeDataBlockToFlash(addr, memNodePtr);
-                    
-                    // read node from flash.. writes are destructive.
-                    readParentNode(&(*p), currentNodeMgmtHandle.nextFreeParentNode);
-                                        
-                    // set loop exit case
-                    currentNodeMgmtHandle.nextFreeParentNode = NODE_ADDR_NULL; 
-                    addr = NODE_ADDR_NULL; 
-                }
-                else
-                {
-                    // loop and read next node
-                    addr = memNodePtr->nextParentAddress;
-                }
-            }
-            else if(res < 0)
-            {
-                // to add parent node comes before current node in memory. Previous node is already not a memcmp match .. write node
-                
-                // set node to write next parent to current node in mem, set prev parent to current node in mems prev parent
-                p->nextParentAddress = addr;
-                p->prevParentAddress = memNodePtr->prevParentAddress;
-                //writeAddr = currentNodeMgmtHandle.nextFreeParentNode;
-                // write new node to flash
-                writeParentNodeDataBlockToFlash(currentNodeMgmtHandle.nextFreeParentNode, p);
-                
-                // read back from flash (needed?)
-                readParentNodeDataBlockFromFlash(currentNodeMgmtHandle.nextFreeParentNode, p);
-                
-                // read p->next from flash
-                readParentNodeDataBlockFromFlash(p->nextParentAddress, memNodePtr);
-                
-                // update current node in mem. set prev parent to address node to write was written to.
-                memNodePtr->prevParentAddress = currentNodeMgmtHandle.nextFreeParentNode;
-                writeParentNodeDataBlockToFlash(p->nextParentAddress, memNodePtr);
-                
-                if(p->prevParentAddress != NODE_ADDR_NULL)
-                {
-                    // read p->prev node
-                    readParentNode(memNodePtr, p->prevParentAddress);
-                
-                    // update prev node to point next parent to addr of node to write node
-                    memNodePtr->nextParentAddress = currentNodeMgmtHandle.nextFreeParentNode;
-                    writeParentNodeDataBlockToFlash(p->prevParentAddress, memNodePtr);
-                }                
-                
-                if(addr == currentNodeMgmtHandle.firstParentNode)
-                {
-                    // new node comes before current address and current address in first node.
-                    // new node should be first node
-                    setStartingParent(currentNodeMgmtHandle.nextFreeParentNode);
-                }
-                
-                // read node from flash.. writes are destructive.
-                readParentNode(&(*p), currentNodeMgmtHandle.nextFreeParentNode);
-                
-                // set handle nextFreeParent to null
-                currentNodeMgmtHandle.nextFreeParentNode = NODE_ADDR_NULL; 
-                addr = NODE_ADDR_NULL; // exit case
-            }
-            else
-            {
-                // services match
-                // return nok. Same parent node
-                return RETURN_NOK;
-            } // end cmp results
-        } // end while
-    } // end if first parent
-    
-    scanNodeUsage();
-    
-   return RETURN_OK;
-}
-
-/**
- * Reads a parent node from memory. If the node does not have a proper user id, p should be considered undefined
- * @param   h               The user allocated node management handle
- * @param   p               Storage for the node from memory
- * @param   parentNodeAddress The address to read in memory
- */
-void readParentNode(pNode* p, uint16_t parentNodeAddress)
-{
-    readParentNodeDataBlockFromFlash(parentNodeAddress, p);
-    
-    if((currentNodeMgmtHandle.currentUserId != userIdFromFlags(p->flags)) || (validBitFromFlags(p->flags) == NODE_VBIT_INVALID))
-    {
-        // if handle user id != id from node or node is invalid
-        // clear local node.. return not ok
-        nodeMgmtPermissionValidityErrorCallback();
-    }
-}    
-
-/**
- * Updates a parent node in memory. Handles alphabetical reorder of nodes.
- *   Scans for nextFreeParentNode after completion.  Modifies the node management handle
- * @param   h               The user allocated node management handle
- * @param   p               The parent node that has been modified and is requested to be updated in memory
- * @param   parentNodeAddress The address to read in memory
- * @return  success status
- * @note    Handles necessary doubly linked list management
- */
-RET_TYPE updateParentNode(pNode *p, uint16_t parentNodeAddress)
-{
-    RET_TYPE ret = RETURN_OK;
-    pNode *ip = &(currentNodeMgmtHandle.parent);
-    uint16_t addr;
-    uint16_t newParentAddr;
-    
-    // read the node at parentNodeAddress, checks the user id as well!
-    readParentNode(ip, parentNodeAddress);
-    
-    // Force user id flags on the passed node
-    userIdToFlags(&(p->flags), currentNodeMgmtHandle.currentUserId);
-    
-    // Do not allow the user to change linked list links, or change child link (will be done internally)
-    if((p->nextChildAddress != ip->nextChildAddress) || (p->nextParentAddress != ip->nextParentAddress) || (p->prevParentAddress != ip->prevParentAddress))
-    {
-        return RETURN_NOK;
-    }
-    
-    // nodes are identical.. do not write
-    if(memcmp(&(*p), ip, NODE_SIZE_PARENT) == 0)
-    {        
-        return RETURN_OK;
-    }
-    
-    // only things allowed to change are the service and flags.
-    if(memcmp(&(p->service), &(ip->service), NODE_PARENT_SIZE_OF_SERVICE) == 0)
-    {
-        // service is identical just rewrite the node
-        writeParentNodeDataBlockToFlash(parentNodeAddress, p);
-        
-        // write is destructive.. read
-        readParentNode(&(*p), parentNodeAddress);
-    }
-    else
-    {
-        // service is not identical.. delete node, and create node (alphabetical sorting)
-        
-        // no additional error checking. Assuming the node the user wants to write is p.
-        // next and prev links will be modified. 
-        
-        //Backup nextChildAddress from ip.  Must be removed for deleteParentNode function to work
-        addr = ip->nextChildAddress;
-        // remove ip->nextChildAddress in flash mem to allow for deleteParentNode to detect that the parent has no children and can be deleted
-        if(ip->nextChildAddress != NODE_ADDR_NULL)
-        {
-            ip->nextChildAddress = NODE_ADDR_NULL; // bypass delete security measure
-            // write node to memory
-            writeReadDataFlash(parentNodeAddress, NODE_SIZE_PARENT, ip);
-        }
-        
-        // delete node in memory handles doubly linked list management
-        ret = deleteParentNode(parentNodeAddress);
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
-
-        // backup nextParentAddr (my not be at previous location due to how memory mgmt handles memory)
-        newParentAddr = currentNodeMgmtHandle.nextFreeParentNode;
-        
-        // create node in memory (new node p) handles doubly linked list management
-        ret = createParentNode(*(&p));
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
-
-        // node should be at newParentAddr
-
-        // read written node (into internal buffer)
-        readParentNode(ip, newParentAddr);
-
-        // restore addr backup (modify internal buffer)
-        ip->nextChildAddress = addr;
-        // write node to memory (from internal buffer)
-        writeReadDataFlash(newParentAddr, NODE_SIZE_PARENT, ip);
-        //ret = writeDataToFlash(pageNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT * nodeNumberFromAddress(parentNodeAddress), NODE_SIZE_PARENT, ip);
-    }
-    return ret; 
-}
-
-/**
- * Deletes a parent node from memory.  This node CANNOT have any children
- * @param   h               The user allocated node management handle
- * @param   parentNodeAddress The address to read in memory
- * @return  success status
- * @note    Handles necessary doubly linked list management
- */
-RET_TYPE deleteParentNode(uint16_t parentNodeAddress)
-{
-    pNode *ip = &(currentNodeMgmtHandle.parent);
-    uint16_t prevAddress;
-    uint16_t nextAddress;
-    
-    // read node to delete
-    readParentNode(ip, parentNodeAddress);
-    
-    if(userIdFromFlags(ip->flags) != currentNodeMgmtHandle.currentUserId)
-    {
-        // cannot allow current user to modify node
-        // node does not belong to user
-        return RETURN_NOK;
-    }
-    
-    if(ip->nextChildAddress != NODE_ADDR_NULL)
-    {
-        // parent has children. cannot delete
-        return RETURN_NOK;
-    }
-    
-    if(validBitFromFlags(ip->flags) != NODE_VBIT_VALID)
-    {
-        // cannot allow operation on invalid node
-        return RETURN_NOK;
-    }
-    
-    // store previous and next node of node to be deleted
-    prevAddress = ip->prevParentAddress;
-    nextAddress = ip->nextParentAddress;
-    
-    // memset parent node to all 0's.. set valid bit to invalid.. write
-    memset(ip, DELETE_POLICY_WRITE_ONES, NODE_SIZE_PARENT);
-    validBitToFlags(&(ip->flags), NODE_VBIT_INVALID); 
-    writeParentNodeDataBlockToFlash(parentNodeAddress, ip);
-    
-    // set previousParentNode.nextParentAddress to this.nextParentAddress
-    if(prevAddress != NODE_ADDR_NULL)
-    {
-        // read node
-         readParentNode(ip, prevAddress);
-        
-        // set address
-        ip->nextParentAddress = nextAddress;
-        
-        // update node
-        writeParentNodeDataBlockToFlash(prevAddress, ip);
-    }
-
-    // set nextParentNode.prevParentNode to this.prevParentNode
-    if(nextAddress != NODE_ADDR_NULL)
-    {
-        // read node
-        readParentNode(ip, nextAddress);
-        
-        // set address
-        ip->prevParentAddress = prevAddress;
-        // update node
-        writeParentNodeDataBlockToFlash(nextAddress, ip);
-    }
-    
-    if(currentNodeMgmtHandle.firstParentNode == parentNodeAddress)
-    {
-        // removed starting node. prev should be null
-        // if nextAddress == NODE_ADDR _NULL.. we have no nodes left
-        //     set starting parent to null (eg next)
-        // if nextAddress != NODE_ADDR_NULL.. we have nodes left
-        //     set starting parent to next
-        // Long story short.. set starting parent to next always
-        setStartingParent(nextAddress);
-    }
-    
-    if(pageNumberFromAddress(parentNodeAddress) < pageNumberFromAddress(currentNodeMgmtHandle.nextFreeParentNode))
-    {
-        // removed node page is less than next free page (closer page)
-        // set next free node to recently removed node address
-        currentNodeMgmtHandle.nextFreeParentNode = parentNodeAddress;
-    }
-    else if(pageNumberFromAddress(parentNodeAddress) == pageNumberFromAddress(currentNodeMgmtHandle.nextFreeParentNode))
-    {
-        // removed node is in the same page as next free
-        // check node number
-        if(nodeNumberFromAddress(parentNodeAddress) < nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeParentNode))
-        {
-            // node number is lesser.. set next free
-            currentNodeMgmtHandle.nextFreeParentNode = parentNodeAddress;
-        }            
-    }
-    // else parentNodeAddress > currentNodeMgmtHandle.nextFreeParentNode.. do nothing
-    
-    return RETURN_OK;
-}
-
-/**
- * Sets to contents of a parent node to null
- * @param   p               The parent node to invalidate
- * @return  success status
- */
-RET_TYPE invalidateParentNode(pNode *p)
-{
-    p->flags=0xFF;
-    p->nextChildAddress = NODE_ADDR_NULL;
-    p->nextParentAddress = NODE_ADDR_NULL;
-    p->prevParentAddress = NODE_ADDR_NULL;
-    for(uint8_t i = 0; i < NODE_PARENT_SIZE_OF_SERVICE; i++)
-    {
-        p->service[i] = 0;
-    }
-    return RETURN_OK;
-}
-
-/**
- * Sets to contents of a child node to null
- * @param   c               The child node to invalidate
- * @return  success status
- */
-RET_TYPE invalidateChildNode(cNode *c)
-{
-    uint8_t i = 0;
-    c->flags=0xFF;
-    c->nextChildAddress = NODE_ADDR_NULL;
-    c->nextChildAddress = NODE_ADDR_NULL;
-    c->dateCreated = 0;
-    c->dateLastUsed = 0;
-    
-    for(i = 0; i < NODE_CHILD_SIZE_OF_CTR; i++)
-    {
-        c->ctr[i] = 0;    
-    }
-    
-    for(i = 0; i < NODE_CHILD_SIZE_OF_DESCRIPTION; i++)
-    {
-        c->description[i] = 0;
-    }
-    
-    for(i = 0; i < NODE_CHILD_SIZE_OF_LOGIN; i++)
-    {
-        c->login[i] = 0;
-    }
-    
-    for(i = 0; i < NODE_CHILD_SIZE_OF_PASSWORD; i++)
-    {
-        c->password[i] = 0;
-    }
-    return RETURN_OK;
-}
-
-/**
- * Writes a child node to memory (next free via handle) (in alphabetical order).
- *   Scans for nextFreeChildNode after completion.  Modifies the node management handle
- * @param   h               The user allocated node management handle
- * @param   pAddr           The parent node address of the child
- * @param   p               The child node to write to memory (nextFreeChildNode)
- * @return  success status
- * @note    Handles necessary doubly linked list management
- */
-RET_TYPE createChildNode(uint16_t pAddr, cNode *c)
-{
-    return createChildTypeNode(pAddr, (void *)c, NODE_TYPE_CHILD, 0);
-}
-
-/**
- * Writes a child start of data node to memory (next free via handle) (in alphabetical order).
- *   Scans for nextFreeChildNode after completion.  Modifies the node management handle
- * @param   h               The user allocated node management handle
- * @param   pAddr           The parent node address of the child
- * @param   p               The child node to write to memory (nextFreeChildNode)
- * @return  success status
- * @note    Handles necessary doubly linked list management
- */
-RET_TYPE createChildStartOfDataNode(uint16_t pAddr, cNode *c, uint8_t dataNodeCount)
-{
-    return createChildTypeNode(pAddr, c, NODE_TYPE_CHILD_DATA, dataNodeCount);
-}
-
-/**
- * Reads a child or child start of data node from memory.
- * @param   h               The user allocated node management handle
- * @param   c               Storage for the node from memory
- * @param   childNodeAddress The address to read in memory
- * @return  success status
- */
-void readChildNode(cNode *c, uint16_t childNodeAddress)
-{
-    readChildNodeDataBlockFromFlash(childNodeAddress, c);
-    
-    if((validBitFromFlags(c->flags) == NODE_VBIT_INVALID))
-    {
-        // node is invalid
-        // clear local node.. return not ok
-        nodeMgmtPermissionValidityErrorCallback();
     }
 }
 
@@ -1026,8 +775,8 @@ void readChildNode(cNode *c, uint16_t childNodeAddress)
 RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
 {
         RET_TYPE ret = RETURN_OK;
-        pNode *ip = &(currentNodeMgmtHandle.parent);
-        cNode *ic = &(currentNodeMgmtHandle.child.child);
+        pNode* ip = (pNode*)&(currentNodeMgmtHandle.tempgNode);
+        cNode* ic = &(currentNodeMgmtHandle.child.child);
         
         // read the node at parentNodeAddress
         // userID check and valid Check performed in readParent
@@ -1035,24 +784,16 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
         readChildNode(ic, cAddr);
         
         // Do not allow the user to change linked list links, or change child link (will be done internally)
-        // TODO -> disallow changing of CTR?
-        if((p->nextChildAddress != ip->nextChildAddress) || (p->nextParentAddress != ip->nextParentAddress) || (p->prevParentAddress != ip->prevParentAddress) ||
-           (c->nextChildAddress != ic->nextChildAddress) || (c->prevChildAddress != ic->prevChildAddress) || (c->dateCreated != ic->dateCreated))
+        if ((memcmp((void*)p, (void*)ip, PNODE_LIB_FIELDS_LENGTH) != 0) || (memcmp((void*)c, (void*)ic, CNODE_LIB_FIELDS_LENGTH) != 0))
         {
             return RETURN_NOK;
         }
         
-        // nodes are identical.. do not write
-        if(memcmp(&(*c), ic, NODE_SIZE_CHILD) == 0)
-        {
-            return RETURN_OK;
-        }
-        
         // reorder done on login.. 
-        if(memcmp(&(c->login), &(ic->login), NODE_CHILD_SIZE_OF_LOGIN) == 0)
+        if(strncmp((char*)&(c->login[0]), (char*)&(ic->login[0]), NODE_CHILD_SIZE_OF_LOGIN) == 0)
         {
             // service is identical just rewrite the node
-            writeChildNodeDataBlockToFlash(cAddr, c);
+            writeNodeDataBlockToFlash(cAddr, c);
             
             // write is destructive.. read
             readChildNode(&(*c), cAddr);
@@ -1087,43 +828,23 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
  */
 RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
 {
-    // TODO REIMPLEMENT
-    //pNode memNode;
-    //pNode *ip = &memNode;
-    pNode *ip = &(currentNodeMgmtHandle.parent);
-    //cNode cMemNode;
-    //cNode *ic = &cMemNode;
+    pNode *ip = (pNode*)&(currentNodeMgmtHandle.tempgNode);
     cNode *ic = &(currentNodeMgmtHandle.child.child);
-    uint16_t prevAddress;
-    uint16_t nextAddress;
+    uint16_t prevAddress, nextAddress;
     
     // read parent node of child to delete
     readParentNode(ip, pAddr);
     
-    // parent valid bit checked in read
-        
-    if(userIdFromFlags(ip->flags) != currentNodeMgmtHandle.currentUserId)
-    {
-        // cannot allow current user to modify node
-        // node does not belong to user
-        return RETURN_NOK;
-    }
-    
-    // TODO - space permitting. verify cAddr belongs to parent
-    
     // read child node to delete
     readChildNode(ic, cAddr);
-    
-    // child valid bit checked in read
 
     // store previous and next node of node to be deleted
     prevAddress = ic->prevChildAddress;
     nextAddress = ic->nextChildAddress;
     
-    // memset parent node to all 0's.. set valid bit to invalid.. write
-    memset(ic, DELETE_POLICY_WRITE_ONES, NODE_SIZE_CHILD);
-    validBitToFlags(&(ic->flags), NODE_VBIT_INVALID);
-    writeChildNodeDataBlockToFlash(cAddr, ic);
+    // Set child contents to FF
+    memset(ic, 0xFF, NODE_SIZE);
+    writeNodeDataBlockToFlash(cAddr, ic);
     
     // set previousParentNode.nextParentAddress to this.nextParentAddress
     if(prevAddress != NODE_ADDR_NULL)
@@ -1135,7 +856,7 @@ RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
         ic->nextChildAddress = nextAddress;
         
         // update node
-        writeChildNodeDataBlockToFlash(prevAddress, ic);
+        writeNodeDataBlockToFlash(prevAddress, ic);
     }
 
     // set nextParentNode.prevParentNode to this.prevParentNode
@@ -1146,8 +867,9 @@ RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
         
         // set address
         ic->prevChildAddress = prevAddress;
+        
         // update node
-        writeChildNodeDataBlockToFlash(nextAddress, ic);
+        writeNodeDataBlockToFlash(nextAddress, ic);
     }
     
     if(ip->nextChildAddress == cAddr)
@@ -1159,365 +881,9 @@ RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
         //     set starting parent to next
         // Long story short.. set parent to nextChildAddress to next always
         ip->nextChildAddress = nextAddress;
-        //ret = updateParentNode(h, ip, pAddr);
-        writeParentNodeDataBlockToFlash(pAddr, ip);
+        writeNodeDataBlockToFlash(pAddr, ip);
     }
     
-    // greater.. closer to start of heap
-    if(pageNumberFromAddress(cAddr) > pageNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode))
-    {
-        // removed node page is less than next free page (closer page)
-        // set next free node to recently removed node address
-        currentNodeMgmtHandle.nextFreeChildNode = cAddr;
-    }
-    else if(pageNumberFromAddress(cAddr) == pageNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode))
-    {
-        // removed node is in the same page as next free
-        // check node number
-        if(nodeNumberFromAddress(cAddr) > nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode))
-        {
-            // node number is greater (closer to start of heap).. set next free
-            currentNodeMgmtHandle.nextFreeChildNode = cAddr;
-        }
-    }
-    // else cAddr < currentNodeMgmtHandle.nextFreeParentNode.. do nothing
-    return RETURN_OK;
-}
-
-/**
- * Helper function.
- * Writes a child or child start of data node to memory (next free via handle) (in alphabetical order).
- *   Scans for nextFreeChildNode after completion.  Modifies the node management handle
- * @param   h               The user allocated node management handle
- * @param   pAddr           The parent node address of the child
- * @param   p               The child node to write to memory (nextFreeChildNode)
- * @return  success status
- * @note    Handles necessary doubly linked list management
- * @note    TODO. Implement pre-scan / allocation for child start of data nodes
- */
-RET_TYPE createChildTypeNode(uint16_t pAddr, cNode *c, nodeType t, uint8_t dnr)
-{
-    uint16_t addr = NODE_ADDR_NULL;
-
-    // storage for parent node
-    //pNode memNode;
-    //pNode *memNodePtr = &memNode;
-    pNode *memNodePtr = &(currentNodeMgmtHandle.parent);
-
-    // storage for child Node
-    //cNode cMemNode;
-    cNode *cMemNodePtr = &(currentNodeMgmtHandle.child.child);
-    int8_t res = 0;
-
-    if(((currentNodeMgmtHandle.nextFreeChildNode) == NODE_ADDR_NULL) || pAddr == NODE_ADDR_NULL)
-    {
-        // no space remaining in flash or parent node address is null
-        return RETURN_NOK;
-    }
-
-    // read childs assumed parent into memNodePtr (shared buffer)?
-    readParentNode(memNodePtr, pAddr);
-
-    // verify uid
-    if((currentNodeMgmtHandle.currentUserId) != userIdFromFlags(memNodePtr->flags))
-    {
-        // cannot create child node stub on a parent node with a different user ID
-        return RETURN_NOK;
-    }
-
-    // if node type child_data.. scan memory for allocated space
-    // TODO. calculate if data size possible
-
-    // set node type
-    nodeTypeToFlags(&(c->flags), t);
-
-    // set valid bit
-    validBitToFlags(&(c->flags), NODE_VBIT_VALID);
-
-    c->nextChildAddress = NODE_ADDR_NULL;
-    c->prevChildAddress = NODE_ADDR_NULL;
-
-    // if parent has no nodes. this node is the first node
-    if(memNodePtr->nextChildAddress == NODE_ADDR_NULL)
-    {
-        // write child node to flash
-        writeReadDataFlash(currentNodeMgmtHandle.nextFreeChildNode, NODE_SIZE_CHILD, c);
-        /*
-        ret = writeDataToFlash(pageNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
-    
-        // read back from flash
-        ret = readDataFromFlash(pageNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
-        if(ret != RETURN_OK)
-        {
-            return ret;
-        }
-        */
-    
-        // set the next child address in the parent
-        memNodePtr->nextChildAddress = currentNodeMgmtHandle.nextFreeChildNode;
-        writeParentNodeDataBlockToFlash(pAddr, memNodePtr);
-    
-        // set next free to null.. scan will happen at the end of the function
-        currentNodeMgmtHandle.nextFreeChildNode = NODE_ADDR_NULL;
-    }
-    else
-    {
-        // not the first node
-    
-        // get first node address (parent)
-        addr = memNodePtr->nextChildAddress;
-        while(addr != NODE_ADDR_NULL)
-        {
-            // read node
-            #ifdef NODE_MGMT_CREATE_CHILD_NODE
-            usbPrintf_P(PSTR("Read First Node\n"));
-            #endif
-            readChildNode(cMemNodePtr, addr);
-        
-            // compare nodes (alphabetically)
-            res = memcmp(c->login, cMemNodePtr->login, NODE_CHILD_SIZE_OF_LOGIN);
-            if(res > 0)
-            {
-                // to add child node comes after current node in memory.. go to next node
-                if(cMemNodePtr->nextChildAddress == NODE_ADDR_NULL)
-                {
-                    // end of linked list. Set to write node prev and next addr's
-                    c->nextChildAddress = NODE_ADDR_NULL;
-                    c->prevChildAddress = addr; // current cMemNode Addr
-                
-                    // write new node to flash
-                    writeReadDataFlash(currentNodeMgmtHandle.nextFreeChildNode, NODE_SIZE_CHILD, c);
-                    /*
-                    ret = writeDataToFlash(pageNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
-                    if(ret != RETURN_OK)
-                    {
-                        return ret;
-                    }
-                
-                    // read back from flash
-                    ret = readDataFromFlash(pageNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
-                    if(ret != RETURN_OK)
-                    {
-                        return ret;
-                    }
-                    */
-                
-                    // set previous last node to point to new node. write to flash
-                    cMemNodePtr->nextChildAddress = currentNodeMgmtHandle.nextFreeChildNode;
-                    writeChildNodeDataBlockToFlash(addr, cMemNodePtr);
-                
-                    // read node from flash.. writes are destructive.
-                    readChildNode(&(*c), currentNodeMgmtHandle.nextFreeChildNode);
-                
-                    // set loop exit case
-                    currentNodeMgmtHandle.nextFreeChildNode = NODE_ADDR_NULL;
-                    addr = NODE_ADDR_NULL;
-                }
-                else
-                {
-                    // loop and read next node
-                    addr = cMemNodePtr->nextChildAddress;
-                }
-            }
-            else if(res < 0)
-            {
-                // to add child node comes before current node in memory. Previous node is already not a memcmp match .. write node
-                // set node to write next child to current node in mem, set prev child to current node in mems prev parent
-                c->nextChildAddress = addr;
-                c->prevChildAddress = cMemNodePtr->prevChildAddress;
-                //writeAddr = currentNodeMgmtHandle.nextFreeParentNode;
-                // write new node to flash
-                writeReadDataFlash(currentNodeMgmtHandle.nextFreeChildNode, NODE_SIZE_CHILD, c);
-                /*
-                ret = writeDataToFlash(pageNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
-                if(ret != RETURN_OK)
-                {
-                    return ret;
-                }
-            
-                // read back from flash (needed?)
-                ret = readDataFromFlash(pageNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_PARENT * nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeChildNode), NODE_SIZE_CHILD, &(*c));
-                if(ret != RETURN_OK)
-                {
-                    return ret;
-                }
-                */
-            
-                // read c->next from flash
-                readChildNodeDataBlockFromFlash(c->nextChildAddress, cMemNodePtr);
-            
-                // update current node in mem. set prev parent to address node to write was written to.
-                cMemNodePtr->prevChildAddress = currentNodeMgmtHandle.nextFreeChildNode;
-                writeChildNodeDataBlockToFlash(c->nextChildAddress, cMemNodePtr);
-            
-                if(c->prevChildAddress != NODE_ADDR_NULL)
-                {
-                    // read c->prev node
-                    readChildNode(cMemNodePtr, c->prevChildAddress);
-                
-                    // update prev node to point next child to addr of node to write node
-                    cMemNodePtr->nextChildAddress = currentNodeMgmtHandle.nextFreeChildNode;
-                    writeChildNodeDataBlockToFlash(c->prevChildAddress, cMemNodePtr);
-                }
-            
-                if(addr == memNodePtr->nextChildAddress)
-                {
-                    // new node comes before current address and current address in first node.
-                    // new node should be first node
-                    memNodePtr->nextChildAddress = currentNodeMgmtHandle.nextFreeChildNode;
-                    writeParentNodeDataBlockToFlash(pAddr, memNodePtr);
-                }
-            
-                // read node from flash.. writes are destructive.
-                readChildNode(&(*c), currentNodeMgmtHandle.nextFreeChildNode);
-                // set handle nextFreeParent to null
-                currentNodeMgmtHandle.nextFreeChildNode = NODE_ADDR_NULL;
-                addr = NODE_ADDR_NULL; // exit case
-            }
-            else
-            {
-                // services match
-                // return nok. Same parent node
-                return RETURN_NOK;
-            } // end cmp results
-        } // end while
-    } // end if first parent
-
-    // deterine last node slot
-    if(NODE_PARENT_PER_PAGE == 4)
-    {
-        res = 2;
-    }
-    else
-    {
-        res = 6;
-    }
-
     scanNodeUsage();
-
     return RETURN_OK;
-
-}
-
-void scanNodeUsage(void)
-{
-	uint16_t nodeFlags = 0xFFFF;
-	uint16_t pageItr;
-	uint8_t nodeItr;
-	
-	uint16_t lastSeenParent = NODE_ADDR_NULL;  // stores parent boundary
-	uint16_t nextFreeParent = NODE_ADDR_NULL;  // stores nextFreeParent (first free node seen Free)
-	uint16_t firstSeenChild = NODE_ADDR_NULL;  // stores child boundary
-	uint16_t nextFreeChild  = NODE_ADDR_NULL;  // stores nextFreeChild (last free child seen)
-
-	// for each page
-	for(pageItr = PAGE_PER_SECTOR; pageItr < PAGE_COUNT; pageItr++)
-	{
-		// for each possible parent node in the page (changes per flash chip)
-		for(nodeItr = 0; nodeItr < NODE_PARENT_PER_PAGE; nodeItr++)
-		{
-			// read node flags (2 bytes - fixed size)
-			readDataFromFlash(pageItr, NODE_SIZE_PARENT*nodeItr, 2, &nodeFlags);
-			
-			if(validBitFromFlags(nodeFlags) == NODE_VBIT_VALID)
-			{
-				// node is valid
-				if(firstSeenChild == NODE_ADDR_NULL)
-				{
-					if(nodeTypeFromFlags(nodeFlags) == NODE_TYPE_PARENT)
-					{
-						// found a valid parent node. Mark it (this branch will hit a lot)
-						lastSeenParent = constructAddress(pageItr, nodeItr);
-					}
-					else
-					{
-						// found the first valid child node (branch will hit once)
-						firstSeenChild = constructAddress(pageItr, nodeItr);
-					}
-				}
-			}
-			else
-			{
-				// node is invalid
-				if(nextFreeParent == NODE_ADDR_NULL)
-				{
-					// found an invlaid (free) node either in pNode mem or after pNode mem
-					nextFreeParent = constructAddress(pageItr, nodeItr);
-				}
-				else if(firstSeenChild != NODE_ADDR_NULL)
-				{
-					// in child node memory.  nodes are already aligned
-					nextFreeChild = constructAddress(pageItr, nodeItr);
-				}
-			}
-			
-			if(firstSeenChild != NODE_ADDR_NULL)
-			{
-				nodeItr++; // account for 2 node units per child node
-			}
-		} // end for node
-	} // end for page
-	
-	if(nextFreeChild == NODE_ADDR_NULL && nextFreeParent != NODE_ADDR_NULL)
-	{
-		// did not find a hole in child node memory and memory is not full
-		// check if we have enough memory
-		// set next free child to DMZ.
-		// if nextFreeChild page is same page as last seen parent.. set to null
-		
-		if(firstSeenChild == NODE_ADDR_NULL)
-		{
-			nodeItr = NODE_CHILD_MAX_NODE;
-			
-			nextFreeChild = constructAddress(PAGE_COUNT-1, nodeItr);
-		}
-		else
-		{
-			pageItr = pageNumberFromAddress(firstSeenChild);
-			nodeItr =  nodeNumberFromAddress(firstSeenChild);
-			if(nodeItr == 0)
-			{
-				pageItr--;
-				nodeItr = NODE_CHILD_MAX_NODE;
-			}
-			else
-			{
-				nodeItr = nodeItr - 2; // 2 units per child page
-			}
-			
-			nextFreeChild = constructAddress(pageItr, nodeItr);
-			
-			if(pageItr == pageNumberFromAddress(lastSeenParent))
-			{
-				// nextfreeChild and lastSeenParent are on the same page
-				nextFreeChild = NODE_ADDR_NULL;
-			}
-		}
-		
-	}
-	
-	// set handle vars (TODO move into above)
-	currentNodeMgmtHandle.nextFreeParentNode = nextFreeParent;
-	currentNodeMgmtHandle.nextFreeChildNode = nextFreeChild;
-	currentNodeMgmtHandle.lastSeenParent = lastSeenParent;
-	currentNodeMgmtHandle.fistSeenChild = firstSeenChild;
-}
-
-/**
- * Helper function.
- * Writes then reads from memory (avoids destroying memory buffers when writing to flash + saves code store)
- * @param   a               Theaddress of the node to write to memory
- * @param   s               The size of the node to write to memory
- * @param   d               The node buffer (pNode, cNode, dNode etc..)
- */
-void writeReadDataFlash(uint16_t a, uint16_t s, void *d)
-{    // write data to flash
-    writeDataToFlash(pageNumberFromAddress(a), NODE_SIZE_PARENT * nodeNumberFromAddress(a), s, d);
-
-    // read back from flash
-    readDataFromFlash(pageNumberFromAddress(a), NODE_SIZE_PARENT * nodeNumberFromAddress(a), s, d);
 }

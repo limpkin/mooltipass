@@ -40,6 +40,13 @@ typedef enum _nodeType
     NODE_TYPE_DATA = 3
 } nodeType;
 
+/** DEFINES NODES **/
+#define NODE_SIZE_PARENT 66
+#define NODE_SIZE_CHILD 132
+#define NODE_SIZE_DATA 132
+
+#define NODE_SIZE   132
+
 #define NODE_ADDR_NULL 0x0000
 #define NODE_VBIT_VALID 0
 #define NODE_VBIT_INVALID 1
@@ -52,9 +59,9 @@ typedef enum _nodeType
 #define NODE_F_VALID_BIT_SHMT 13
 #define NODE_F_VALID_BIT_MASK_FINAL 0x0001
 
-#define NODE_F_UID_MASK 0x00f0
-#define NODE_F_UID_SHMT 4
-#define NODE_F_UID_MASK_FINAL 0x000f
+#define NODE_F_UID_MASK 0x1f00
+#define NODE_F_UID_SHMT 8
+#define NODE_F_UID_MASK_FINAL 0x001f
 
 #define NODE_F_CRED_TYPE_MASK 0x000f
 //#define NODE_F_CRED_TYPE_MASK 0
@@ -101,21 +108,40 @@ typedef enum _nodeType
 #define DELETE_POLICY_WRITE_ONES 0xFF  /*! Node Deletion Policy Ones Memset Value */
 
 /*!
+* Struct containing a generic node
+*/
+typedef struct __attribute__((packed)) genericNode {
+    uint16_t flags;                 /*!< Parent node flags 
+                                    * 15 dn 14-> Node type (Always 00 for Parent Node)
+                                    * 13 dn 13 -> Valid Bit
+                                    * 12 dn 8 -> User ID
+                                    * 7 dn 0 -> depends on the node type
+                                    */
+    uint16_t prevAddress;           /*!< Previous node address (Alphabetically) */
+    uint16_t nextAddress;           /*!< Next node address (Alphabetically) */
+    uint8_t data[NODE_SIZE - 3*sizeof(uint16_t)];
+} gNode;
+
+/*!
 * Struct containing a parent node
 */
 typedef struct __attribute__((packed)) parentNode {
     uint16_t flags;                 /*!< Parent node flags 
                                     * 15 dn 14-> Node type (Always 00 for Parent Node)
                                     * 13 dn 13 -> Valid Bit
-                                    * 12 dn 8 -> RESERVED
-                                    * 7 dn 4 -> User ID
+                                    * 12 dn 8 -> User ID
+                                    * 7 dn 4 -> RESERVED
                                     * 3 dn0 -> credential type UID
                                     */
     uint16_t prevParentAddress;     /*!< Previous parent node address (Alphabetically) */
     uint16_t nextParentAddress;     /*!< Next parent node address (Alphabetically) */
     uint16_t nextChildAddress;      /*!< Parent node first child address */
-    uint8_t service[NODE_PARENT_SIZE_OF_SERVICE];            /*!< (ASCII) Text describing service (domain name eg hackaday.com). Used for sorting and searching. */
+    uint8_t service[NODE_SIZE - 4*sizeof(uint16_t)];            /*!< (ASCII) Text describing service (domain name eg hackaday.com). Used for sorting and searching. */
 } pNode;
+
+// flags + prevParentAddress + nextParentAddress + nextChildAddress
+#define PNODE_COMPARISON_FIELD_OFFSET   8
+#define PNODE_LIB_FIELDS_LENGTH         8
 
 /*!
 * Struct containing a child node
@@ -124,7 +150,8 @@ typedef struct __attribute__((packed)) childNode {
     uint16_t flags;                 /*!< Child node flags (0b01 -> credential child node. 0b10 -> start of data sequence)
                                     * 15 dn 14-> Node type
                                     * 13 dn 13 -> Valid Bit
-                                    * 12 dn 0 -> RESERVED
+                                    * 12 dn 8 -> User ID
+                                    * 7 dn 0 -> RESERVED
                                     */
     uint16_t prevChildAddress;      /*!< Previous child node address (Alaphabetically) */
     uint16_t nextChildAddress;      /*!< Next child node address (Alphabetically) */
@@ -146,6 +173,10 @@ typedef struct __attribute__((packed)) childNode {
     uint8_t password[32];           /*!< Encrypted Password */
 } cNode;
 
+// flags + prevChildAddress + nextChildAddress + description + dateCreated + dateLastUsed + ctr
+#define CNODE_COMPARISON_FIELD_OFFSET   37
+#define CNODE_LIB_FIELDS_LENGTH         8
+
 /*!
 * Struct containing a data node
 *
@@ -155,7 +186,7 @@ typedef struct __attribute__((packed)) dataNode {
     uint16_t flags;                 /*!< Data node flags (Always 0b11 for Data Node)
                                     * 15 dn 14-> Node type
                                     * 13 dn 13 -> Valid Bit
-                                    * 12 dn 8 -> RESERVED
+                                    * 12 dn 8 -> User ID
                                     * 7 dn 0 -> Data node sequence number
                                     */
     uint16_t nextDataAddress;       /*!< Next data node in sequence */
@@ -175,12 +206,11 @@ typedef struct __attribute__((packed)) nodeMgmtH
     */
     
     uint8_t currentUserId;          /*!< The users ID */
+    uint16_t pageUserProfile;       /*!< The page of the user profile */
+    uint16_t offsetUserProfile;     /*!< The offset of the user profile */
     uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
-    uint16_t nextFreeParentNode;    /*!< The address of the next parent node */
-    uint16_t nextFreeChildNode;     /*!< The address of the next child or data node */
-	uint16_t lastSeenParent;		/*!< The address of the parent at the end of the 'stack' */
-	uint16_t fistSeenChild;			/*!< The address of the child at the end of the 'heap' */
-    pNode parent;                   /*!< A parent node to be used as a buffer for parent nodes in the API */
+    uint16_t nextFreeNode;          /*!< The address of the next free node */
+    gNode tempgNode;                /*!< A generic node to be used as a buffer */
     union {
         cNode child;
         dNode data;
@@ -228,6 +258,8 @@ void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);
 
 void setProfileCtr(void *buf);
 void readProfileCtr(void *buf);
+
+RET_TYPE createGenericNode(gNode* g, uint16_t firstNodeAddress, uint16_t* newFirstNodeAddress, uint8_t comparisonFieldOffset, uint8_t comparisonFieldLength);
 
 RET_TYPE createParentNode(pNode *p);                                        
 void readParentNode(pNode *p, uint16_t parentNodeAddress);

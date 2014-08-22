@@ -30,6 +30,7 @@
 #include "oledmp.h"
 #include "anim.h"
 #include "gui.h"
+#include "usb.h"
 
 
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)

@@ -318,6 +318,8 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 */
 RET_TYPE addNewContext(uint8_t* name, uint8_t length)
 {
+    RET_TYPE ret_val = RETURN_NOK;
+    
     // Check if the context doesn't already exist
     if ((smartcard_inserted_unlocked == FALSE) || (searchForServiceName(name, length) != NODE_ADDR_NULL))
     {
@@ -338,21 +340,14 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
         memcpy((void*)temp_pnode.service, (void*)name, length);
         
         // Create parent node for service
-        if (createParentNode(&temp_pnode) != RETURN_OK)
+        if (createParentNode(&temp_pnode) == RETURN_OK)
         {
-            guiDisplayInformationOnScreen(PSTR("PB ADD!"));
-            userViewDelay(); guiGetBackToCurrentScreen();            
-            return RETURN_NOK;
+            ret_val = RETURN_OK;
         }
-        
-        guiGetBackToCurrentScreen();
-        return RETURN_OK;
     }
-    else
-    {
-        guiGetBackToCurrentScreen();
-        return RETURN_NOK;
-    }
+    
+    guiGetBackToCurrentScreen();
+    return ret_val;
 }
 
 /*! \fn     getLoginForContext(uint8_t* buffer)
@@ -430,6 +425,8 @@ RET_TYPE getPasswordForContext(char* buffer)
 */
 RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
 {
+    RET_TYPE ret_val = RETURN_NOK;
+    
     if (context_valid_flag == FALSE)
     {
         return RETURN_NOK;
@@ -467,25 +464,20 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 
                 // Copy login into a temp cnode, and create it in the flash
                 memcpy((void*)temp_cnode.login, (void*)name, length);
-                if(createChildNode(context_parent_node_addr, &temp_cnode) != RETURN_OK)
-                {
-                    guiDisplayInformationOnScreen(PSTR("PB ADD!"));
-                    userViewDelay(); guiGetBackToCurrentScreen();
-                    return RETURN_NOK;
-                }
-                selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
-                selected_login_flag = TRUE;
                 
-                guiGetBackToCurrentScreen();
-                return RETURN_OK;
-            }
-            else
-            {
-                guiGetBackToCurrentScreen();
-                return RETURN_NOK;
+                // Create child node
+                if(createChildNode(context_parent_node_addr, &temp_cnode) == RETURN_OK)
+                {
+                    selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
+                    selected_login_flag = TRUE;
+                    ret_val = RETURN_OK;
+                }
             }
         }
     }
+    
+    guiGetBackToCurrentScreen();
+    return ret_val;
 }
 
 /*! \fn     setPasswordForContext(uint8_t* password, uint8_t length)

@@ -86,6 +86,11 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
                 chrome.tabs.sendMessage(contentAddr, request);
             }
             break;
+        case 'rescan':
+            if (contentAddr) {
+                chrome.tabs.sendMessage(contentAddr, request);
+            }
+            break;
         default:
             break;
     }

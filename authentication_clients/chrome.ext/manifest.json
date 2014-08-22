@@ -1,7 +1,7 @@
 {
     "name": "Mooltipass Plugin",
     "description": "Mooltipass password manager plugin",
-    "version": "0.5",
+    "version": "0.6",
     "icons": { "16": "mooltipass-16.png", "128": "mooltipass-active.png" },
     "permissions": [ "contentSettings", "tabs", "management", "notifications" ],
     "background": {
@@ -20,7 +20,8 @@
 	}
     ],
     "browser_action": {
-        "default_icon": "mooltipass-16.png"
+        "default_icon": "mooltipass-16.png",
+	"default_popup": "popup.html"
     },
   "manifest_version": 2
 }

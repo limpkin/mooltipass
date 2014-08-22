@@ -53,6 +53,10 @@ var loginFieldTypes = {
 
 function isLogin(input)
 {
+    if (input.type.toLowerCase() in loginFieldTypes)
+    {
+        return loginFieldTypes[input.type.toLowerCase()];
+    }
     if (input.id.toLowerCase() in loginFieldTypes)
     {
         return loginFieldTypes[input.id.toLowerCase()];
@@ -104,19 +108,24 @@ function getCredentials(submitted)
 
     // check for login input
     $(':input').each( function(i) {
-        console.log('checking '+this.id);
+        if (this.id) {
+            id = this.id;
+        } else {
+            id = this.name;
+        }
+        console.log('checking '+id);
         var newLogin = isLogin(this);
         if (newLogin > loginPrecedence) {
             if (submitted) {
                 if (this.value != '') {
                     loginPrecedence = newLogin;
                     loginInput = this;
-                    console.log('using '+this.id);
+                    console.log('using '+id);
                 }
             } else {
                 loginPrecedence = newLogin;
                 loginInput = this;
-                console.log('using '+this.id);
+                console.log('using '+id);
             }
         }
     });
@@ -124,13 +133,21 @@ function getCredentials(submitted)
     if (!loginInput) {
         loginInput = $(pass).closest('input:text')[0];
         if (!loginInput) {
+            loginInput = $(pass).closest('input[type=email]')[0];
+        }
+        if (!loginInput) {
             pindex = $('input:text, input:password').index( pass );
             if (pindex > 0) {
                 loginInput = $('input:text, input:password').get(pindex-1);
             }
         }
     }
-    console.log('getCredentials: login id='+loginInput.id+' name='+loginInput.name+'\n');
+    if (!loginInput) {
+        console.log('Failed to find login input');
+        return null;
+    } else {
+        console.log('getCredentials: login id='+(loginInput.id?loginInput.id:'none')+' name='+(loginInput.name?loginInput.name:'none')+'\n');
+    }
 
     credObjs = { login: loginInput, password: pass };
 
@@ -280,17 +297,11 @@ function handleSubmit(event)
     }
 }
 
-addEventListener('DOMContentLoaded', function f() 
+function sendCredentials(credFields)
 {
-    removeEventListener('DOMContentLoaded', f, false);
-    var forms = document.getElementsByTagName('form');
 
-    credFields = getCredentials();
-
-    if (credFields == null) {
-        // no credentials
-        console.log('no credentials, not sending');
-        return;
+    if (!credFields) {
+        return false;
     }
 
     // send an array of the input fields to the mooltipass
@@ -328,11 +339,41 @@ addEventListener('DOMContentLoaded', function f()
         {
             console.log('content: got response ' + JSON.stringify(response));
         });
+
+        return true;
     }
     else
     {
         console.log('no password in credentials, not sending');
+        return false;
     }
+}
+
+function recheckCredentials()
+{
+    credFields = getCredentials();
+    if (credFields == null) {
+        console.log('recheck: no credentials');
+    }
+    sendCredentials(credFields);
+}
+
+// Scan for credentials as late as possible.
+$(window).load(function() 
+{
+    credFields = getCredentials();
+
+    if (credFields == null) {
+        // no credentials
+        console.log('no credentials, not sending');
+
+        // Rescan after a small timeout.  Scripts may
+        // add credential fields after the window is loaded.
+        setTimeout(recheckCredentials,500);
+        return;
+    }
+
+    sendCredentials(credFields);
 });
 
 /**
@@ -406,6 +447,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
             console.log('content: disconnected from mooltipass ');
             break;
 
+        case 'rescan':
+            // Rescan the page for credentials
+            console.log('rescanning page for credentials');
+            credFields = getCredentials();
+            if (!credFields) {
+                console.log('no credentials found');
+            } else {
+                console.log('found credentials, sending to mooltipass');
+                sendCredentials(credFields);
+            }
+            break;
         default:
             break;
     }

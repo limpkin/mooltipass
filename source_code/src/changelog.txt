@@ -1,5 +1,5 @@
 v0.2: 
-- changes require user to erase their current smartcards before updating firmwares
+- changes require user to erase their current smartcards before updating firmwares and reset the pin to 0xF0F0
 - login and passwords can't be reimported due to flash layout change
 - userhandling.c/h split into dedicated files in the LOGIC folder
 - complete rework of the node management code

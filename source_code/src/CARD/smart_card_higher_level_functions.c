@@ -286,6 +286,9 @@ void eraseSmartCard(void)
     /* Set application zone 1 and zone 2 permissions: read/write when authenticated only */
     setAuthenticatedReadWriteAccessToZone1();
     setAuthenticatedReadWriteAccessToZone2();
+    
+    // Reset default pin code
+    writeSecurityCode(SMARTCARD_DEFAULT_PIN);
 }
 
 /*! \fn     writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer)

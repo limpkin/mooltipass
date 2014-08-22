@@ -349,12 +349,6 @@
     <Compile Include="src\NODEMGMT\node_mgmt.h">
       <SubType>compile</SubType>
     </Compile>
-    <None Include="src\NODEMGMT\node_test.c">
-      <SubType>compile</SubType>
-    </None>
-    <Compile Include="src\NODEMGMT\node_test.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\OLEDMP\anim.c">
       <SubType>compile</SubType>
     </Compile>

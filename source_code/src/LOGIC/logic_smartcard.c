@@ -216,6 +216,7 @@ RET_TYPE validCardDetectedFunction(void)
     {
         // Tell the user we don't know this card
         guiDisplayInformationOnScreen(PSTR("Card ID not found"));
+        userViewDelay();
         
         // Developer mode, enter default pin code
         #ifdef NO_PIN_CODE_REQUIRED

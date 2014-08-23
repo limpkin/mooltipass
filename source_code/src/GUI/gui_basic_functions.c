@@ -101,6 +101,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     activityDetectedRoutine();
     
     // Clear possible remaining detection
+    touchDetectionRoutine(led_mask);
     touchClearCurrentDetections();
     
     // Wait for a touch press

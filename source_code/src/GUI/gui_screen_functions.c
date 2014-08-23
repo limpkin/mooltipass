@@ -126,9 +126,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
     }
     else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
     {
-        // Locked screen and a detection happened....
-        
-        // Check that the user hasn't removed his card, launch unlocking process
+        // Locked screen and a detection happened, check that the user hasn't removed his card, launch unlocking process
         if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_OK))
         {
             // User approved his pin
@@ -159,13 +157,36 @@ void guiScreenLoop(uint8_t touch_detect_result)
             }
             case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BLEFT) :
             {
+                // User wants to delete his profile in flash / eeprom....
                 if ((guiAskForConfirmation(1, (confirmationText_t*)PSTR("Are you sure?")) == RETURN_OK) && (removeCardAndReAuthUser() == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Are you REALLY sure?")) == RETURN_OK))
                 {
-                    // User wants to delete his profile in flash / eeprom....
-                    // TODO: delete other smart cards
-                    deleteUserIdFromSMCUIDLUT(getCurrentUserID());
+                    uint8_t currentuserid = getCurrentUserID();
                     deleteCurrentUserFromFlash();
                     eraseSmartCard();
+                    
+                    // Erase other smartcards
+                    while (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Other cards for this user?")) == RETURN_OK)
+                    {
+                        // Ask the user to insert other smartcards
+                        guiDisplayInformationOnScreen(PSTR("Insert other smartcard"));
+                        
+                        // Wait for the user to remove and enter another smartcard
+                        while (isCardPlugged() != RETURN_JRELEASED);
+                        
+                        // Wait for the user to insert a new smart card
+                        while (isCardPlugged() != RETURN_JDETECT);
+                        
+                        // Check the card type & ask user to enter his pin, check that the new user id loaded by validCardDetectedFunction is still the same
+                        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_OK) && (currentuserid == getCurrentUserID()))
+                        {
+                            eraseSmartCard();                            
+                        }
+                    }
+                    
+                    // Delete LUT entries
+                    deleteUserIdFromSMCUIDLUT(currentuserid);
+                    
+                    // Go to invalid screen
                     currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
                 }
                 else

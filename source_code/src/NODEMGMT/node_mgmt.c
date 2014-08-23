@@ -307,6 +307,7 @@ void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset
  */
 void formatUserProfileMemory(uint8_t uid)
 {
+    uint16_t temp_page, temp_offset;
     uint8_t buf[USER_PROFILE_SIZE];
     
     if(uid >= NODE_MAX_UID)
@@ -316,7 +317,8 @@ void formatUserProfileMemory(uint8_t uid)
     
     // Set buffer to all 0's. Assuming NODE_ADDR_NULL = 0x0000.
     memset(buf, 0, USER_PROFILE_SIZE);
-    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile, USER_PROFILE_SIZE, buf);
+    userProfileStartingOffset(uid, &temp_page, &temp_offset);
+    writeDataToFlash(temp_page, temp_offset, USER_PROFILE_SIZE, buf);
 }
 
 /*! \fn     getCurrentUserID(void)
@@ -342,10 +344,10 @@ void initNodeManagementHandle(uint8_t userIdNum)
     }
             
     // fill current user id, first parent node address, user profile page & offset 
-    currentNodeMgmtHandle.flags = 0;
-    currentNodeMgmtHandle.currentUserId = userIdNum;
+    userProfileStartingOffset(userIdNum, &currentNodeMgmtHandle.pageUserProfile, &currentNodeMgmtHandle.offsetUserProfile);
     currentNodeMgmtHandle.firstParentNode = getStartingParentAddress();
-    userProfileStartingOffset(currentNodeMgmtHandle.currentUserId, &currentNodeMgmtHandle.pageUserProfile, &currentNodeMgmtHandle.offsetUserProfile);
+    currentNodeMgmtHandle.currentUserId = userIdNum;
+    currentNodeMgmtHandle.flags = 0;
     
     // scan for next free parent and child nodes
     scanNodeUsage();

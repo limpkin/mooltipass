@@ -135,9 +135,9 @@ $(MOOLTIPASS_LIB): $(LIBOBJS) $(AESOBJS)
 
 release: clean $(TARGET).hex
 	# tag the current git state with the next build number, then build that version
-	@echo "Release build $(version)"
-	git tag build.$(version_build)
-	git push --tags
+	@echo "Release build $(VERSION)"
+	#git tag build.$(version_build)
+	#git push --tags
 	@cp $(TARGET).hex $(TARGET).$(VERSION).hex
 
 .PHONY: fuses flash clean upload

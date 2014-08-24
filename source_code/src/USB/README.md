@@ -25,25 +25,25 @@ The following commands are currently implemented:
 
 0x03: version request
 ---------------------
-(From Plugin/App & Mooltipass): responds with a command packet with the same cmd id, data contains major and minor version of mooltipass in first and second byte of data packet. The third byte contains the FLASH_CHIP define which specifies how much memory the Mooltipass has.
+(From Plugin/App & Mooltipass): responds with a command packet with the same cmd id, data contains major, minor version and build number of the mooltipass. The first byte contains the FLASH_CHIP define which specifies how much memory the Mooltipass has.
 
 0x04: set context
 -----------------
 From Plugin/app: this allows the plugin/application to let the mooltipass know the website/service he's currently on
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass doesn't know the context, 0x01 if so
+From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass doesn't know the context, 0x01 if so and 0x03 that there's no card in the mooltipass
 
 0x05: get login
 ---------------
 From plugin/app: request the login for the current context
 
-From Mooltipass: the login if the user has approved the sending of credential / has been authentified, 1 byte 0x00 packet otherwise. The login is sent via HID at the same time if request valid.
+From Mooltipass: the login if the user has approved the sending of credential / has been authentified, 1 byte 0x00 packet otherwise.
 
 0x06: get password
 ------------------
-From plugin/app: request the login for the current context
+From plugin/app: request the password for the current context
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass didn't send the password, 0x01 if so. The password is sent via HID at the same time if request valid.
+From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass didn't send the password, 0x01 if so.
 
 0x07: set login
 ---------------
@@ -69,37 +69,37 @@ From plugin/app: add a new context inside the mooltipass
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x45: export flash start
-------------------------
+0x45: export flash start (for full import/export fw version)
+------------------------------------------------------------
 From plugin/app: Request for flash contents export to Mooltipass.
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x30: export flash
-------------------
-From plugin/app: export flash contents. A 0x00 in parameter specifies to send the first bytes in flash while a 0x01 requests for the next packet
+0x30: export flash (for full import/export fw version)
+------------------------------------------------------
+From plugin/app: request for a bunch of data
 
 From Mooltipass: the bunch of requested data
 
-0x31: export flash end
-----------------------
+0x31: export flash end (for full import/export fw version)
+----------------------------------------------------------
 From plugin/app: stop flash export
 
 From Mooltipass: end of flash export
 
-0x32: import flash start
-------------------------
+0x32: import flash start (for full import/export fw version)
+------------------------------------------------------------
 From plugin/app: Request for flash contents sending to Mooltipass. A 0x00 in parameter implies user space while a 0x01 specifies the graphics part of flash
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x33: import flash
-------------------
+0x33: import flash (for full import/export fw version)
+------------------------------------------------------
 From plugin/app: A bunch of data to store inside the flash, particularly formatted (see source files)
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x34: import flash end
+0x34: import flash end (for full import/export fw version)
 ----------------------
 From plugin/app: Inform that we finished the flash import
 
@@ -113,7 +113,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0x35: export eeprom
 -------------------
-From plugin/app: export eeprom contents. A 0x00 in parameter specifies to send the first bytes in flash while a 0x01 requests for the next packet
+From plugin/app: export eeprom contents request
 
 From Mooltipass: the bunch of requested data
 

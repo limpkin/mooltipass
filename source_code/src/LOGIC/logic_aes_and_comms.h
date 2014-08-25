@@ -53,6 +53,7 @@ void setSmartCardInsertedUnlocked(void);
 void eraseFlashUsersContents(void);
 void ctrPostEncryptionTasks(void);
 void ctrPreEncryptionTasks(void);
+void favoritePickingLogic(void);
 
 
 #endif /* LOGIC_ENCRYPTION_H_ */

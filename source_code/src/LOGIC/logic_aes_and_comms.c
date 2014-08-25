@@ -579,3 +579,11 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
         }
     }
 }
+
+/*! \fn     favoritePickingLogic(void)
+*   \brief  Logic for picking a favorite's credentials
+*/
+void favoritePickingLogic(void)
+{
+    favoriteSelectionScreen(&temp_pnode, &temp_cnode);
+}

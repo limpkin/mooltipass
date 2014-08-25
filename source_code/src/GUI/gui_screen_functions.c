@@ -27,6 +27,7 @@
 #include "gui_smartcard_functions.h"
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
+#include "logic_aes_and_comms.h"
 #include "gui_pin_functions.h"
 #include "logic_smartcard.h"
 #include "logic_eeprom.h"
@@ -152,6 +153,13 @@ void guiScreenLoop(uint8_t touch_detect_result)
             {
                 // User wants to go to the settings menu
                 currentScreen = SCREEN_SETTINGS;
+                guiGetBackToCurrentScreen();
+                break;
+            }
+            case (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_BLEFT) :
+            {
+                // User wants to go to the favorite menu
+                favoritePickingLogic();
                 guiGetBackToCurrentScreen();
                 break;
             }

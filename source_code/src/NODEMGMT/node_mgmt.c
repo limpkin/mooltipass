@@ -410,6 +410,7 @@ void setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
  */
 void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
 {
+    uint16_t temp_uint;
     uint16_t addrs[2];
     
     if(favId >= USER_MAX_FAV)
@@ -423,6 +424,16 @@ void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
     // return values to user
     *parentAddress = addrs[0];
     *childAddress = addrs[1];
+    
+    // Check valid bit flag
+    readDataFromFlash(pageNumberFromAddress(*childAddress), NODE_SIZE * nodeNumberFromAddress(*childAddress), 2, &temp_uint);    
+    if(validBitFromFlags(temp_uint) == NODE_VBIT_INVALID)
+    {
+        // Delete fav and return node_addr_null
+        setFav(favId, NODE_ADDR_NULL, NODE_ADDR_NULL);
+        *parentAddress = NODE_ADDR_NULL;
+        *childAddress = NODE_ADDR_NULL;
+    }
 }
 
 /**

@@ -585,5 +585,27 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
 */
 void favoritePickingLogic(void)
 {
-    favoriteSelectionScreen(&temp_pnode, &temp_cnode);
+    uint16_t pickedChild;
+    
+    pickedChild = favoriteSelectionScreen(&temp_pnode, &temp_cnode);
+    
+    // If the user picked a credential set
+    if (pickedChild != NODE_ADDR_NULL)
+    {
+        // Read child node
+        readChildNode(&temp_cnode, pickedChild);
+        
+        // Ask the user if he wants to output the login
+        if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Enter login?")) == RETURN_OK)
+        {
+            usbKeybPutStr((char*)temp_cnode.login);
+        }
+        
+        // Ask the user if he wants to output the login
+        if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Enter password?")) == RETURN_OK)
+        {
+            decryptTempCNodePasswordAndClearCTVFlag();
+            usbKeybPutStr((char*)temp_cnode.password);
+        }
+    }
 }

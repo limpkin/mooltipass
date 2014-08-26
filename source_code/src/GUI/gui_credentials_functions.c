@@ -302,7 +302,6 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             }
             i++;
         }
-        usbPutstr_P(PSTR("disp loop\r"));
         
         // Update led_mask & bitmap
         if ((i != 4) || ((offset+i) == nbFavorites))
@@ -319,9 +318,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         oledFlipBuffers(0,0);
         
         // Get touched quarter and check its validity
-        usbPutstr_P(PSTR("wait1\r"));
         j = getTouchedPositionAnswer(led_mask);
-        usbPutstr_P(PSTR("wait2\r"));
         if (j == -1)
         {
             // Time out, return nothing
@@ -331,7 +328,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         else if (j < i)
         {
             // Valid choice
-            tempchildaddr = childAddresses[offset+i];
+            tempchildaddr = childAddresses[offset+j];
             action_chosen = TRUE;
         }
         else if (j == TOUCHPOS_LEFT)

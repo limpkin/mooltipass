@@ -40,8 +40,14 @@
 */
 void displayCredentialAtSlot(uint8_t slot, char* text)
 {
-    //oledPutstrXY_P((slot & 0x01)? 0xFF:0x00, (slot&0x02)? 48:0, (slot & 0x01)? OLED_RIGHT:OLED_LEFT, text);
-    oledPutstrXY((slot & 0x01)*0xFF, (slot & 0x02)*24, (slot & 0x01)*OLED_RIGHT, text);
+    int8_t yoffset = 0;
+    
+    if (slot & 0x08)
+    {
+        yoffset =  (slot & 0x02)? -10:10;
+    }
+    
+    oledPutstrXY((slot & 0x01)*0xFF, (slot & 0x02)*23 + yoffset, (slot & 0x01)*OLED_RIGHT, text);
 }
 
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
@@ -198,6 +204,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
 */
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 {
+    uint16_t picked_child = NODE_ADDR_NULL;
     uint16_t parentAddresses[USER_MAX_FAV];
     uint16_t childAddresses[USER_MAX_FAV];
     uint16_t tempparaddr, tempchildaddr;
@@ -227,8 +234,6 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         return NODE_ADDR_NULL;
     }
     
-    i = 0;
-    
     // Loop until the user chooses smth
     while (action_chosen != TRUE)
     {
@@ -238,6 +243,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         
         // Clear led_mask
         led_mask = 0;
+        i = 0;
         
         // List logins on screen
         while (((offset + i) < nbFavorites) && (i != 4))
@@ -246,40 +252,22 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             readChildNode(c, childAddresses[offset+i]);
             readParentNode(p, parentAddresses[offset+i]);
             
-            // Print login on screen
-            if (i == 0)
-            {
-                //oledPutstrXY(72, 0, OLED_RIGHT, (char*)c->login);
-                oledPutstrXY(0, 4, OLED_LEFT, (char*)c->login);
-                oledPutstrXY(0, 14, OLED_LEFT, (char*)p->service);
-            }
-            else if (i == 1)
-            {
-                //oledPutstrXY(184, 0, OLED_LEFT, (char*)c->login);
-                oledPutstrXY(255, 4, OLED_RIGHT, (char*)c->login);
-                oledPutstrXY(255, 14, OLED_RIGHT, (char*)p->service);
-            }
-            else if (i == 2)
-            {
-                //oledPutstrXY(72, 54, OLED_RIGHT, (char*)c->login);
-                oledPutstrXY(0, 40, OLED_LEFT, (char*)c->login);
-                oledPutstrXY(0, 50, OLED_LEFT, (char*)p->service);
-            }
-            else
-            {
-                //oledPutstrXY(184, 54, OLED_LEFT, (char*)c->login);
-                oledPutstrXY(255, 40, OLED_RIGHT, (char*)c->login);
-                oledPutstrXY(255, 50, OLED_LEFT, (char*)p->service);
-            }
+            // Print service / login on screen
+            displayCredentialAtSlot(i+((i&0x02)<<2), (char*)c->login);
+            displayCredentialAtSlot(i+((~i&0x02)<<2), (char*)p->service);
+            
+            // Increment i
             i++;
         }
         
-        // Update led_mask & bitmap
+        // If nothing after, hide right arrow
         if ((i != 4) || ((offset+i) == nbFavorites))
         {
-            led_mask |= LED_MASK_RIGHT;
             oledFillXY(174, 24, 22, 18, 0x00);
+            led_mask |= LED_MASK_RIGHT;
         }
+        
+        // Light only the available choices
         for (j = i; j < 4; j++)
         {
             led_mask |= (1 << j);
@@ -288,18 +276,18 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         // Display picture
         oledFlipBuffers(0,0);
         
-        // Get touched quarter and check its validity
+        // Get touched quarter
         j = getTouchedPositionAnswer(led_mask);
+        
+        // Check its validity, knowing that by default we will return NODE_ADDR_NULL
         if (j == -1)
         {
-            // Time out, return nothing
-            tempchildaddr = NODE_ADDR_NULL;
-            action_chosen = TRUE;
+            // Time out
         }
         else if (j < i)
         {
             // Valid choice
-            tempchildaddr = childAddresses[offset+j];
+            picked_child = childAddresses[offset+j];
             action_chosen = TRUE;
         }
         else if (j == TOUCHPOS_LEFT)
@@ -311,7 +299,6 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             else
             {
                 // User wants to go back
-                tempchildaddr = NODE_ADDR_NULL;
                 action_chosen = TRUE;                
             }
         }
@@ -320,9 +307,8 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             // If there are more nodes to display
             offset += 4;
         }
-        i = 0;
     }
     
     // Return selected child
-    return tempchildaddr;
+    return picked_child;
 }

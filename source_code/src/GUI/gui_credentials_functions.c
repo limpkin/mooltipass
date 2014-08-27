@@ -33,6 +33,17 @@
 #include "usb.h"
 
 
+/*! \fn     displayCredentialAtSlot(uint8_t slot, const char* text)
+*   \brief  Display text at a given slot when choosing between credentials/favorites
+*   \param  slot                The slot number
+*   \param  text                The text to display
+*/
+void displayCredentialAtSlot(uint8_t slot, char* text)
+{
+    //oledPutstrXY_P((slot & 0x01)? 0xFF:0x00, (slot&0x02)? 48:0, (slot & 0x01)? OLED_RIGHT:OLED_LEFT, text);
+    oledPutstrXY((slot & 0x01)*0xFF, (slot & 0x02)*24, (slot & 0x01)*OLED_RIGHT, text);
+}
+
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
 *   \brief  Ask for user login selection / approval
 *   \param  p                   Pointer to a parent node
@@ -42,26 +53,26 @@
 */
 uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
 {
-    uint16_t temp_child_address;
+    uint16_t first_child_address, temp_child_address;
+    uint16_t picked_child = NODE_ADDR_NULL;
     uint16_t addresses[4];
     uint8_t led_mask;
-    int8_t i = 0;
-    int8_t j;
+    int8_t i, j;
     
     // Read the parent node
     readParentNode(p, parentNodeAddress);
     
-    // Read child address
-    temp_child_address = p->nextChildAddress;
+    // Read its first child address
+    first_child_address = p->nextChildAddress;
     
     // Check if there are stored credentials
-    if (temp_child_address == NODE_ADDR_NULL)
+    if (first_child_address == NODE_ADDR_NULL)
     {
         return NODE_ADDR_NULL;
     }
     
     // Read child node
-    readChildNode(c, temp_child_address);
+    readChildNode(c, first_child_address);
     
     // Check if there's only one child, that's a confirmation screen
     if (c->nextChildAddress == NODE_ADDR_NULL)
@@ -69,30 +80,23 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
         confirmationText_t temp_conf_text;
         
         // Prepare asking confirmation screen
-        temp_conf_text.line1 = PSTR("Confirm login for");
+        temp_conf_text.line1 = PSTR("Confirm access to");
         temp_conf_text.line2 = (char*)p->service;
-        temp_conf_text.line3 = PSTR("with these credentials:");
+        temp_conf_text.line3 = PSTR("with this login:");
         temp_conf_text.line4 = (char*)c->login;
         
         // Prompt user for confirmation
         if(guiAskForConfirmation(4, &temp_conf_text) == RETURN_OK)
         {
-            // Get back to other screen
-            guiGetBackToCurrentScreen();
-            return temp_child_address;
-        }
-        else
-        {
-            // Get back to other screen
-            guiGetBackToCurrentScreen();
-            return NODE_ADDR_NULL;
+            picked_child = first_child_address;
         }
     }
     else
     {
+        temp_child_address = first_child_address;
         uint8_t action_chosen = FALSE;
         
-        while (action_chosen != TRUE)
+        while (action_chosen == FALSE)
         {
             // Draw asking bitmap
             oledClear();
@@ -103,6 +107,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
             
             // Clear led_mask
             led_mask = 0;
+            i = 0;
             
             // List logins on screen
             while ((temp_child_address != NODE_ADDR_NULL) && (i != 4))
@@ -110,34 +115,8 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
                 // Read child node to get login
                 readChildNode(c, temp_child_address);
                 
-                // Print login on screen
-                if (i == 0)
-                {
-                    //oledPutstrXY(72, 0, OLED_RIGHT, (char*)c->login);
-                    oledPutstrXY(0, 4, OLED_LEFT, (char*)c->login);
-                    
-                    // Cover left arrow if there's no predecessor
-                    if (c->prevChildAddress == NODE_ADDR_NULL)
-                    {
-                        led_mask |= LED_MASK_LEFT;
-                        oledFillXY(60, 24, 22, 18, 0x00);
-                    }
-                }
-                else if (i == 1)
-                {
-                    //oledPutstrXY(184, 0, OLED_LEFT, (char*)c->login);
-                    oledPutstrXY(255, 4, OLED_RIGHT, (char*)c->login);
-                }
-                else if (i == 2)
-                {
-                    //oledPutstrXY(72, 54, OLED_RIGHT, (char*)c->login);
-                    oledPutstrXY(0, 48, OLED_LEFT, (char*)c->login);
-                }
-                else
-                {
-                    //oledPutstrXY(184, 54, OLED_LEFT, (char*)c->login);
-                    oledPutstrXY(255, 48, OLED_RIGHT, (char*)c->login);
-                }
+                // Print Login at the correct slot
+                displayCredentialAtSlot(i, (char*)c->login);            
                 
                 // Store address in array, fetch next address
                 addresses[i] = temp_child_address;
@@ -145,12 +124,14 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
                 i++;
             }
             
-            // Update led_mask & bitmap
+            // If nothing after, hide right arrow
             if ((i != 4) || (c->nextChildAddress == NODE_ADDR_NULL))
             {
-                led_mask |= LED_MASK_RIGHT;
                 oledFillXY(174, 24, 22, 18, 0x00);
+                led_mask |= LED_MASK_RIGHT;
             }
+            
+            // Light only the available choices
             for (j = i; j < 4; j++)
             {
                 led_mask |= (1 << j);
@@ -159,64 +140,54 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
             // Display picture
             oledFlipBuffers(0,0);
             
-            // Set temp_child_address to last address
-            temp_child_address = addresses[i-1];
-            
-            // Get touched quarter and check its validity
+            // Get touched quarter
             j = getTouchedPositionAnswer(led_mask);
+            
+            // Check its validity, knowing that by default we will return NODE_ADDR_NULL
             if (j == -1)
             {
-                // Time out, return nothing
-                temp_child_address = NODE_ADDR_NULL;
+                // Time out
                 action_chosen = TRUE;
             }
             else if (j < i)
             {
-                temp_child_address = addresses[j];
+                picked_child = addresses[j];
                 action_chosen = TRUE;
             }
             else if (j == TOUCHPOS_LEFT)
-            {
-                // Get back to the initial child
-                while ((i--) > 1)
+            {                
+                // If there is a previous children, go back 4 indexes
+                if (addresses[0] != first_child_address)
                 {
-                    temp_child_address = c->prevChildAddress;
-                    readChildNode(c, temp_child_address);
-                }
-                // If there is a previous child, go back 4 indexes
-                if (c->prevChildAddress != NODE_ADDR_NULL)
-                {
-                    i = 4;
-                    while(i--)
+                    c->prevChildAddress = addresses[0];
+                    for (i = 0; i < 5; i++)
                     {
                         temp_child_address = c->prevChildAddress;
                         readChildNode(c, temp_child_address);
                     }
                 }
-                i = 0;
+                else
+                {
+                    // otherwise, return
+                    action_chosen = TRUE;
+                }
             }
             else if ((j == TOUCHPOS_RIGHT) && (i == 4) && (c->nextChildAddress != NODE_ADDR_NULL))
             {
-                // If there are more nodes to display
-                temp_child_address = c->nextChildAddress;
-                i = 0;
+                // If there are more nodes to display, let it loop
+                // temp_child_address = c->nextChildAddress;
             }
             else
             {
-                // Wrong position, get back to the initial child
-                while ((i--) > 1)
-                {
-                    temp_child_address = c->prevChildAddress;
-                    readChildNode(c, temp_child_address);
-                }
+                // Wrong position
+                temp_child_address = addresses[0];
             }
         }
-        
-        // Get back to other screen
-        guiGetBackToCurrentScreen();
     }
-
-    return temp_child_address;
+        
+    // Get back to other screen
+    guiGetBackToCurrentScreen();
+    return picked_child;
 }
 
 /*! \fn     favoriteSelectionScreen(pNode* p, cNode* c)

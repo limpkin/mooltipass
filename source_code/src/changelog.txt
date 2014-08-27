@@ -1,3 +1,7 @@
+v0.3:
+- pressing left on multiple credential screen will return
+- favorite menu implemented
+
 v0.2: 
 - changes require user to erase their current smartcards before updating firmwares and reset the pin to 0xF0F0
 - login and passwords can't be reimported due to flash layout change

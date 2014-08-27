@@ -17,4 +17,5 @@ function launch()
     });
 }
 
+chrome.runtime.onInstalled.addListener(launch);
 chrome.runtime.onStartup.addListener(launch);

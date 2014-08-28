@@ -55,6 +55,14 @@ static animFrame_t frameYesNo[] = {
     {   0,  0, BITMAP_TICK_CROSS },
 };
 
+static animFrame_t framePinEntry[] = {
+    {  25,  0, BITMAP_LEFT  },
+    {   2, 26, BITMAP_CROSS  },
+    { 195,  0, BITMAP_RIGHT  },
+    {  80, 51, BITMAP_PIN_LINES },
+    { 235, 23, BITMAP_RIGHT_ARROW },
+};
+
 /*
  * Frames
  *
@@ -71,6 +79,7 @@ static struct {
     FRAME(frameSides),
     FRAME(frameTickCross),
     FRAME(frameYesNo),
+    FRAME(framePinEntry),
 };
 
 /**

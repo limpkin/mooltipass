@@ -29,10 +29,27 @@
 #include "defines.h"
 
 // Defines
-#define BITMAP_ID_OFFSET    32
+#define BITMAP_ID_OFFSET        32
+// String IDs
+#define ID_STRING_PROCESSING    0
+#define ID_STRING_CARD_BLOCKED  1
+#define ID_STRING_PB_CARD       2
+#define ID_STRING_WRONG_PIN     3
+#define ID_STRING_REMOVE_CARD   4
+#define ID_STRING_INSERT_OTHER  5
+#define ID_STRING_FAILED        6
+#define ID_STRING_PIN_CHANGED   7
+#define ID_STRING_PIN_NCGHANGED 8
+#define ID_STRING_USER_ADDED    9
+#define ID_STRING_USER_NADDED   10
+#define ID_STRING_CARD_UNLOCKED 11
+#define ID_STRING_CARDID_NFOUND 12
+#define ID_STRING_INSERT_NCARD  13
+#define ID_STRING_DONE          14
+#define ID_STRING_CARD_REMOVED  15
 
 // Prototypes
 RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr);
-uint8_t* readStoredStringToBuffer(uint8_t stringID);
+char* readStoredStringToBuffer(uint8_t stringID);
 
 #endif /* LOGIC_FWFLASH_STORAGE_H_ */

@@ -62,13 +62,13 @@ RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr)
 *   \param  stringID    String ID
 *   \return Pointer to the buffer
 */
-uint8_t* readStoredStringToBuffer(uint8_t stringID)
+char* readStoredStringToBuffer(uint8_t stringID)
 {
     uint8_t* ret_val = curTextBufferPtr;
     uint16_t temp_addr;
     
     // Get address in flash
-    if (getStoredFileAddr((uint16_t)stringID, &temp_addr) == RETURN_OK)
+    if ((getStoredFileAddr((uint16_t)stringID, &temp_addr) == RETURN_OK) && (temp_addr != 0x0000))
     {
         // We can read more chars...
         flashRawRead(ret_val, temp_addr, TEXTBUFFERSIZE);
@@ -84,5 +84,5 @@ uint8_t* readStoredStringToBuffer(uint8_t stringID)
         }
     }
     
-    return ret_val;
+    return (char*)ret_val;
 }

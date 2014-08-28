@@ -1,0 +1,16 @@
+Processing...
+Card blocked!
+PB with card!
+Wrong pin!
+Please Remove The Card
+Insert other smartcard
+Failed!
+PIN changed!
+Not changed!
+User added
+Couldn't add user
+Card unlocked
+Card ID not found
+Insert new smartcard
+Done
+Card removed

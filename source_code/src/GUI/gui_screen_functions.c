@@ -167,14 +167,14 @@ void guiScreenLoop(uint8_t touch_detect_result)
             case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BLEFT) :
             {
                 // User wants to delete his profile in flash / eeprom....
-                if ((guiAskForConfirmation(1, (confirmationText_t*)PSTR("Are you sure?")) == RETURN_OK) && (removeCardAndReAuthUser() == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Are you REALLY sure?")) == RETURN_OK))
+                if ((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOUSURE)) == RETURN_OK) && (removeCardAndReAuthUser() == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOURLSURE)) == RETURN_OK))
                 {
                     uint8_t currentuserid = getCurrentUserID();
                     deleteCurrentUserFromFlash();
                     eraseSmartCard();
                     
                     // Erase other smartcards
-                    while (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Other cards for this user?")) == RETURN_OK)
+                    while (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_OTHECARDFUSER)) == RETURN_OK)
                     {
                         // Ask the user to insert other smartcards
                         guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_INSERT_OTHER));
@@ -278,7 +278,7 @@ RET_TYPE guiAskForNewPin(uint16_t* new_pin)
     uint16_t other_pin;
     
     // Ask the user twice for the new pin and compare them
-    if ((guiGetPinFromUser(new_pin, PSTR("New PIN ?")) == RETURN_OK) && (guiGetPinFromUser(&other_pin, PSTR("Confirm PIN")) == RETURN_OK) && (*new_pin == other_pin))
+    if ((guiGetPinFromUser(new_pin, readStoredStringToBuffer(ID_STRING_NEW_PINQ)) == RETURN_OK) && (guiGetPinFromUser(&other_pin, readStoredStringToBuffer(ID_STRING_CONF_PIN)) == RETURN_OK) && (*new_pin == other_pin))
     {
         return RETURN_OK;
     }
@@ -325,18 +325,19 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     if (nb_args == 1)
     {
         // Yeah, that's a bit dirty
-        oledPutstrXY_P(0, 24, OLED_CENTRE, (const char*)text_object);
+        oledPutstrXY(0, 24, OLED_CENTRE, (char*)text_object);
     }
     else
     {
-        oledPutstrXY_P(0, 4, OLED_CENTRE, text_object->line1);
+        // To be optimized!
+        oledPutstrXY(0, 4, OLED_CENTRE, text_object->line1);
         if (nb_args >= 2)
         {
             oledPutstrXY(0, 21, OLED_CENTRE, text_object->line2);
         }
         if (nb_args >= 4)
         {
-            oledPutstrXY_P(0, 36, OLED_CENTRE, text_object->line3);
+            oledPutstrXY(0, 36, OLED_CENTRE, text_object->line3);
             oledPutstrXY(0, 52, OLED_CENTRE, text_object->line4);
         }
     }

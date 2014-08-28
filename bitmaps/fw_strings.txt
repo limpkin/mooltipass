@@ -14,3 +14,18 @@ Card ID not found
 Insert new smartcard
 Done
 Card removed
+Are you sure?
+Are you REALLY sure?
+Other cards for this user?
+Enter login?
+Enter password?
+Approve memory operation?
+Insert your PIN
+New PIN?
+Confirm PIN
+Confirm access to
+with this login:
+Confirm new credentials for:
+Add username:
+on
+Change password for:

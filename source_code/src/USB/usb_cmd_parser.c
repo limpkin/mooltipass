@@ -87,7 +87,7 @@ void approveImportExportMemoryOperation(uint8_t opUID, uint8_t* pluginAnswer)
     *pluginAnswer = PLUGIN_BYTE_ERROR;
     
     // Ask permission to the user
-    if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Approve memory operation?")) == RETURN_OK)
+    if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_APPROVEMEMOP)) == RETURN_OK)
     {
         currentFlashOpUid = opUID;
         *pluginAnswer = PLUGIN_BYTE_OK;

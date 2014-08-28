@@ -25,7 +25,7 @@
 #include "flash_mem.h"
 #include "node_mgmt.h"
 #include "defines.h"
-#define TEXTBUFFERSIZE  25
+#define TEXTBUFFERSIZE  30
 // Buffers to store text
 uint8_t textBuffer1[TEXTBUFFERSIZE];
 uint8_t textBuffer2[TEXTBUFFERSIZE];

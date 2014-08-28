@@ -67,7 +67,7 @@ RET_TYPE handleSmartcardInserted(void)
     else if (detection_result == RETURN_MOOLTIPASS_BLANK)
     {
         // This is a user free card, we can ask the user to create a new user inside the Mooltipass
-        if (guiAskForConfirmation(1, (confirmationText_t*)PSTR("Create new mooltipass user?")) == RETURN_OK)
+        if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOUSURE)) == RETURN_OK)
         {
             uint16_t pin_code;
             

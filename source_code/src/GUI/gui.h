@@ -44,9 +44,9 @@
 /* STRUCTS */
 typedef struct
 {
-    const char* line1;
+    char* line1;
     char* line2;
-    const char* line3;
+    char* line3;
     char* line4;
 } confirmationText_t;
 

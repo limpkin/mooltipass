@@ -44,10 +44,7 @@
 /* STRUCTS */
 typedef struct
 {
-    char* line1;
-    char* line2;
-    char* line3;
-    char* line4;
+    char* lines[4];
 } confirmationText_t;
 
 #endif /* GUI_H_ */

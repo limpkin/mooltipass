@@ -328,8 +328,8 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     }
     
     // Prepare domain approval screen
-    conf_text.line1 = readStoredStringToBuffer(ID_STRING_CONF_NEWCREDS);
-    conf_text.line2 = (char*)name;
+    conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CONF_NEWCREDS);
+    conf_text.lines[1] = (char*)name;
     
     // Ask for user approval
     if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
@@ -452,10 +452,10 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         else
         {
             // Prepare confirmation screen
-            conf_text.line1 = readStoredStringToBuffer(ID_STRING_ADDUSERNAME);
-            conf_text.line2 = (char*)name;
-            conf_text.line3 = readStoredStringToBuffer(ID_STRING_ON);
-            conf_text.line4 = (char*)temp_pnode.service;
+            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_ADDUSERNAME);
+            conf_text.lines[1] = (char*)name;
+            conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_ON);
+            conf_text.lines[3] = (char*)temp_pnode.service;
             
             // If doesn't exist, ask user for confirmation to add to flash
             if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
@@ -507,10 +507,10 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         fillArrayWithRandomBytes(temp_cnode.password + length, NODE_CHILD_SIZE_OF_PASSWORD - length);
         
         // Prepare password changing approval text
-        conf_text.line1 = readStoredStringToBuffer(ID_STRING_CHANGEPASSFOR);
-        conf_text.line2 = (char*)temp_cnode.login;
-        conf_text.line3 = readStoredStringToBuffer(ID_STRING_ON);
-        conf_text.line4 = (char*)temp_pnode.service;
+        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CHANGEPASSFOR);
+        conf_text.lines[1] = (char*)temp_cnode.login;
+        conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_ON);
+        conf_text.lines[3] = (char*)temp_pnode.service;
         
         // Ask for password changing approval
         if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)

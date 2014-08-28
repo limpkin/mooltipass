@@ -329,16 +329,9 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     }
     else
     {
-        // To be optimized!
-        oledPutstrXY(0, 4, OLED_CENTRE, text_object->line1);
-        if (nb_args >= 2)
+        while (nb_args--)
         {
-            oledPutstrXY(0, 21, OLED_CENTRE, text_object->line2);
-        }
-        if (nb_args >= 4)
-        {
-            oledPutstrXY(0, 36, OLED_CENTRE, text_object->line3);
-            oledPutstrXY(0, 52, OLED_CENTRE, text_object->line4);
+            oledPutstrXY(0, 4 + (nb_args << 4), OLED_CENTRE, text_object->lines[nb_args]);
         }
     }
     

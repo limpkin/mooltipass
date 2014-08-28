@@ -42,7 +42,7 @@ void pageErase(uint16_t pageNumber);
 
 void formatFlash(void);
 void flashWriteBufferToPage(uint16_t page);
-void flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size);
+void flashRawRead(uint8_t* datap, uint16_t addr, uint16_t size);
 void flashWriteBuffer(uint8_t* datap, uint16_t offset, uint16_t size);
 void writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);
 void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data);

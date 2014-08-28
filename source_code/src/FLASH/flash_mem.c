@@ -355,16 +355,16 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
 } // End readDataFromFlash
 
 /**
- * Contiguous data read across flash page boundaries
+ * Contiguous data read across flash page boundaries with a max 65k bytes addressing space
  * @param   datap           pointer to the buffer to store the read data
  * @param   addr            byte offset in the flash
  * @param   size            the number of bytes to read
  * @note bypasses the memory buffer
  */
-void flashRawRead(uint8_t* datap, uint32_t addr, uint16_t size)
+void flashRawRead(uint8_t* datap, uint16_t addr, uint16_t size)
 {    
     addr = ((addr/BYTES_PER_PAGE) << READ_OFFSET_SHT_AMT) | (addr % BYTES_PER_PAGE);    
-    uint8_t op[] = {FLASH_OPCODE_LOWF_READ, (uint8_t)(addr >> 16), (uint8_t)(addr >> 8), (uint8_t)addr};            
+    uint8_t op[] = {FLASH_OPCODE_LOWF_READ, 0x00, (uint8_t)(addr >> 8), (uint8_t)addr};            
 
     /* Read from flash */
     sendDataToFlashWithFourBytesOpcode(op, datap, size);

@@ -52,7 +52,7 @@ void bsInit(
     const uint16_t width,
     const uint8_t height,
     bool flash,
-    uint32_t addr)
+    uint16_t addr)
 {
     bs->bitsPerPixel = pixelDepth;
     bs->width = width;

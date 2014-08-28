@@ -1269,7 +1269,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
                 y = 0;
             }
             uint16_t gsize = ((glyph_width*glyph_depth + 7)/8) * glyph_height;
-            uint32_t gaddr = oledFontAddr + (uint16_t)&oled_fontp->glyph[currentFont.count] + (uint16_t)glyph.glyph;
+            uint16_t gaddr = oledFontAddr + (uint16_t)&oled_fontp->glyph[currentFont.count] + (uint16_t)glyph.glyph;
             glyphData = alloca(gsize);
 #ifdef OLED_DEBUG1
             // glyph data offsets are from the end of the glyph header array

@@ -49,7 +49,7 @@ typedef struct
     uint8_t _pixel;             //*< current pixel for RLE decompress
     uint8_t _flags;		//*< format flags.  E.g. RLE=1
     bool flash;			//*< true if data is in program memory
-    uint32_t addr;		//*< address of data in SPI FLASH store.
+    uint16_t addr;		//*< address of data in SPI FLASH store.
 } bitstream_t;
 
 #define BS_RLE	0x01		//*< Bitmap is compressed using run-length compression
@@ -62,7 +62,7 @@ void bsInit(
     const uint16_t width,
     const uint8_t height,
     bool flash,
-    uint32_t addr);
+    uint16_t addr);
 uint16_t bsRead(bitstream_t *bs, uint8_t numPixels);
 uint16_t bsAvailable(bitstream_t *bs);
 

@@ -88,11 +88,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
     
     // Draw pin entering bitmap
     oledClear();
-    oledBitmapDrawFlash(25, 0, BITMAP_LEFT, 0);
-    oledBitmapDrawFlash(2, 26, BITMAP_CROSS, 0);
-    oledBitmapDrawFlash(195, 0, BITMAP_RIGHT, 0);
-    oledBitmapDrawFlash(80, 51, BITMAP_PIN_LINES, 0);
-    oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
+    oledBitmapDrawFlash(0, 0,  BITMAP_PIN_ENTRY, 0);
     oledPutstrXY_P(0, 0, OLED_CENTRE, string);
     oledFlipBuffers(0,0);
     oledSetFont(15);

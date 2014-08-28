@@ -253,7 +253,6 @@ int main(void)
     }
     activityDetectedRoutine();
     launchCalibrationCycle();
-    userViewDelay();
     
     while (1)
     {        

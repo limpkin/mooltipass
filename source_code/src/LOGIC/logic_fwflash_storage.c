@@ -33,7 +33,7 @@ uint8_t textBuffer2[TEXTBUFFERSIZE];
 uint8_t* curTextBufferPtr = textBuffer1;
 
 
-/*!	\fn		getStoredFileAddr(uint16_t fileId, uint16_t* addr)
+/*!	\fn     getStoredFileAddr(uint16_t fileId, uint16_t* addr)
 *	\brief	Get the flash address of a stored file
 *   \param  fileId  File ID
 *   \param  addr    Where to store the address
@@ -57,7 +57,7 @@ RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr)
     return RETURN_OK;
 }
 
-/*!	\fn		readStoredStringToBuffer(uint8_t stringID, uint8_t* buffer)
+/*!	\fn     readStoredStringToBuffer(uint8_t stringID, uint8_t* buffer)
 *	\brief	Read a Flash stored string in a buffer and return the pointer to this buffer (2 buffers implemented)
 *   \param  stringID    String ID
 *   \return Pointer to the buffer

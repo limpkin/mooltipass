@@ -49,6 +49,8 @@ parser.add_option('-5', '--md5', help='Print md5sum of bundle and each file', de
 
 MEDIA_BITMAP = 1
 MEDIA_FONT   = 2
+RESERVED_IDS = 32
+RESERVED_FLASH = 1024
 
 MEDIA_TYPE_NAMES = {
     MEDIA_BITMAP: 'bmap',
@@ -63,10 +65,14 @@ def imageTypeToString(imageType):
 
 def buildBundle(bundlename, files, test_bundle=False, show_md5=False):
     data = []
-    header = array('H')             # unsigned short array (uint16_t)
-    header.append(len(files))
-    reserve = 2*len(files) + 2      # leave room for the header
+    header = array('H')             		# unsigned short array (uint16_t)
+    header.append(RESERVED_IDS + len(files))
+    reserve = RESERVED_FLASH + RESERVED_IDS*2 + 2*len(files) + 2      	# leave room for the header
     size = reserve
+	
+	#temp append while storing the string in flash
+    for i in range(RESERVED_IDS):
+        header.append(0)
 
     for filename in files:
         fd = open(filename, 'rb')
@@ -96,6 +102,11 @@ def buildBundle(bundlename, files, test_bundle=False, show_md5=False):
         print 'Writing to {}'.format(bundlename)
         bfd = open(bundlename,  "wb")
         header.tofile(bfd)
+		# append empty bytes for string storage
+        padding = array('H')
+        for i in range(RESERVED_FLASH/2):
+            padding.append(0)
+        padding.tofile(bfd)
         offset = 0
         for filename,imageType,image in data:
             #print '    0x{:04x}: {} {}'.format(offset, imageType, image)

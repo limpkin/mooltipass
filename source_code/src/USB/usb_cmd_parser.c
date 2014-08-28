@@ -24,6 +24,7 @@
 */
 #include "smart_card_higher_level_functions.h"
 #include "gui_smartcard_functions.h"
+#include "logic_fwflash_storage.h"
 #include "gui_screen_functions.h"
 #include "logic_aes_and_comms.h"
 #include "eeprom_addresses.h"
@@ -646,7 +647,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_SET_FONT :
         {
             usbPrintf_P(PSTR("set font file %d\n"), msg->body.data[0]);
-            oledSetFont(msg->body.data[0]);
+            oledSetFont(BITMAP_ID_OFFSET + msg->body.data[0]);
 
             if (datalen > 1) {
                 usbPrintf_P(PSTR("testing string \"%s\"\n"), (char *)&msg->body.data[1]);

@@ -91,7 +91,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, const char* string)
     oledBitmapDrawFlash(0, 0,  BITMAP_PIN_ENTRY, 0);
     oledPutstrXY_P(0, 0, OLED_CENTRE, string);
     oledFlipBuffers(0,0);
-    oledSetFont(15);
+    oledSetFont(BITMAP_ID_OFFSET + 15);
     oledWriteActiveBuffer();
     
     // Display current pin on screen

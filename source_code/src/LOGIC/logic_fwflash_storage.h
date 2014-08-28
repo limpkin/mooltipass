@@ -28,6 +28,10 @@
 
 #include "defines.h"
 
+// Defines
+#define BITMAP_ID_OFFSET    32
+
+// Prototypes
 RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr);
 uint8_t* readStoredStringToBuffer(uint8_t stringID);
 

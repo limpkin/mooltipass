@@ -298,6 +298,12 @@
     <Compile Include="src\LOGIC\logic_aes_and_comms.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\LOGIC\logic_fwflash_storage.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\LOGIC\logic_fwflash_storage.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\LOGIC\logic_smartcard.c">
       <SubType>compile</SubType>
     </Compile>

@@ -48,6 +48,7 @@
 #include <ctype.h>
 #include <alloca.h>
 
+#include "logic_fwflash_storage.h"
 #include "low_level_utils.h"
 #include "timer_manager.h"
 #include "bitstream.h"
@@ -708,33 +709,13 @@ uint8_t oledGetOffset(void)
  */
 int16_t oledGetFileAddr(uint8_t fileId, uint16_t *addr)
 {
-    uint16_t fileCount;
     uint16_t type;
-
-    flashRawRead((uint8_t *)&fileCount, GRAPHIC_ZONE_START, sizeof(fileCount));
-    // We haven't formatted the memory
-    if (fileCount > 200)
-    {
-        return -1;
-    }
-
-    if (fileId >= fileCount)
-    {
-#ifdef OLED_DEBUG
-        usbPrintf_P(PSTR("oledGetFileAddr file %d too large (count=%ld)\n"),fileId, fileCount);
-#endif
-        // invalid file index
-        return -1;
-    }
-
-    flashRawRead((uint8_t *)addr, GRAPHIC_ZONE_START +
-                    fileId * sizeof(uint16_t) + sizeof(uint16_t), sizeof(*addr));
-#ifdef OLED_DEBUG
-    usbPrintf_P(PSTR("oledGetFileAddr fileCount %u rel addr 0x%04x\n"), fileCount, *addr);
-#endif
     
-
-    *addr += GRAPHIC_ZONE_START;
+    if (getStoredFileAddr((uint16_t)fileId, addr) == RETURN_NOK)
+    {
+        return -1;
+    }
+    
     flashRawRead((uint8_t *)&type, *addr, sizeof(type));
     *addr += sizeof(type);
 #ifdef OLED_DEBUG

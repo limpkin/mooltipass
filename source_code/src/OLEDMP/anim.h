@@ -37,19 +37,19 @@
 #define FRAME_PIN_ENTRY       3
 
 // Bitmaps that oledBitmapDrawFlash() can show
-#define BITMAP_HAD            (BITMAP_ID_OFFSET + 0 )
-#define BITMAP_LOGIN          (BITMAP_ID_OFFSET + 1 )
-#define BITMAP_LEFT           (BITMAP_ID_OFFSET + 2 )
-#define BITMAP_RIGHT          (BITMAP_ID_OFFSET + 3 )
-#define BITMAP_TICK           (BITMAP_ID_OFFSET + 4 )
-#define BITMAP_CROSS          (BITMAP_ID_OFFSET + 5 )
-#define BITMAP_INFO           (BITMAP_ID_OFFSET + 6 )
-#define BITMAP_INSERT         (BITMAP_ID_OFFSET + 9 )
-#define BITMAP_MAIN_SCREEN    (BITMAP_ID_OFFSET + 10)
-#define BITMAP_SETTINGS_SC    (BITMAP_ID_OFFSET + 11)
-#define BITMAP_LEFT_ARROW     (BITMAP_ID_OFFSET + 12)
-#define BITMAP_RIGHT_ARROW    (BITMAP_ID_OFFSET + 13)
-#define BITMAP_PIN_LINES      (BITMAP_ID_OFFSET + 14)
+#define BITMAP_HAD            0
+#define BITMAP_LOGIN          1
+#define BITMAP_LEFT           2
+#define BITMAP_RIGHT          3
+#define BITMAP_TICK           4
+#define BITMAP_CROSS          5
+#define BITMAP_INFO           6
+#define BITMAP_INSERT         9
+#define BITMAP_MAIN_SCREEN    10
+#define BITMAP_SETTINGS_SC    11
+#define BITMAP_LEFT_ARROW     12
+#define BITMAP_RIGHT_ARROW    13
+#define BITMAP_PIN_LINES      14
 
 // These bitmaps are built from frames
 #define BITMAP_SIDES          (0x80+FRAME_SIDES)

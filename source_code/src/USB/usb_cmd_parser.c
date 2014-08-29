@@ -647,7 +647,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_SET_FONT :
         {
             usbPrintf_P(PSTR("set font file %d\n"), msg->body.data[0]);
-            oledSetFont(BITMAP_ID_OFFSET + msg->body.data[0]);
+            oledSetFont(msg->body.data[0]);
 
             if (datalen > 1) {
                 usbPrintf_P(PSTR("testing string \"%s\"\n"), (char *)&msg->body.data[1]);

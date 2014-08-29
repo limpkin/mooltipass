@@ -706,12 +706,13 @@ uint8_t oledGetOffset(void)
  * @param fileId index of the media file to read
  * @param addr pointer to address to fill
  * @returns -1 on error, else the type of the media file.
+ * @note Media files start after string files, first is BITMAP_ID_OFFSET
  */
 int16_t oledGetFileAddr(uint8_t fileId, uint16_t *addr)
 {
     uint16_t type;
-    
-    if (getStoredFileAddr((uint16_t)fileId, addr) == RETURN_NOK)
+
+    if (getStoredFileAddr((uint16_t)fileId+BITMAP_ID_OFFSET, addr) == RETURN_NOK)
     {
         return -1;
     }

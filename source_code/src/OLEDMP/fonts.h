@@ -28,7 +28,9 @@
 #include <stdbool.h>
 
 // Font selection
-#define FONT_PROFONT_10                 (BITMAP_ID_OFFSET + 7)
+#define FONT_PROFONT_10     7
+#define FONT_CHECKBOOK_14   8
+#define FONT_CHECKBOOK_24  15
 #define FONT_DEFAULT FONT_PROFONT_10
 
 typedef struct

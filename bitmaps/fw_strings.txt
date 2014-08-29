@@ -29,3 +29,6 @@ Confirm new credentials for:
 Add username:
 on
 Change password for:
+Wrong pin, 1 try left
+Wrong pin, 2 tries left
+Wrong pin, 3 tries left

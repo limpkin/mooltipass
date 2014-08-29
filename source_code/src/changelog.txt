@@ -2,6 +2,7 @@ v0.3:
 - pressing left on multiple credential screen will return
 - reserving 1024 bytes in the beginning of the graphics storage to store strings
 - because of this, users have to upload a new bundle file
+- we now display how many pin tries are left
 - favorite menu implemented
 
 v0.2: 

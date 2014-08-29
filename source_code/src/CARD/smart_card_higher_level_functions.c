@@ -103,16 +103,9 @@ RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
         #ifdef DEBUG_SMC_USB_PRINT
             usbPrintf_P(PSTR("%d tries left, wrong pin\r\n"), getNumberOfSecurityCodeTriesLeft());
         #endif
-
-        switch(getNumberOfSecurityCodeTriesLeft())
-        {
-            case 0 :    return RETURN_MOOLTIPASS_0_TRIES_LEFT;
-            case 1 :    return RETURN_MOOLTIPASS_1_TRIES_LEFT;
-            case 2 :    return RETURN_MOOLTIPASS_2_TRIES_LEFT;
-            case 3 :    return RETURN_MOOLTIPASS_3_TRIES_LEFT;
-            case 4 :    return RETURN_MOOLTIPASS_4_TRIES_LEFT;
-            default :   return RETURN_MOOLTIPASS_0_TRIES_LEFT;
-        }
+        
+        // The enum allows us to do so
+        return RETURN_MOOLTIPASS_0_TRIES_LEFT + getNumberOfSecurityCodeTriesLeft();
     }
 }
 

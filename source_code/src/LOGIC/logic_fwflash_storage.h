@@ -29,7 +29,7 @@
 #include "defines.h"
 
 // Defines
-#define BITMAP_ID_OFFSET        32
+#define BITMAP_ID_OFFSET        64
 // String IDs
 #define ID_STRING_PROCESSING    0
 #define ID_STRING_CARD_BLOCKED  1
@@ -62,6 +62,9 @@
 #define ID_STRING_ADDUSERNAME   28
 #define ID_STRING_ON            29
 #define ID_STRING_CHANGEPASSFOR 30
+#define ID_STRING_WRONGPIN1LEFT 31
+#define ID_STRING_WRONGPIN2LEFT 32
+#define ID_STRING_WRONGPIN3LEFT 33
 
 // Prototypes
 RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr);

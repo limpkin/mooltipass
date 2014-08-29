@@ -219,7 +219,8 @@ RET_TYPE guiCardUnlockingProcess(void)
                 }
                 default :
                 {
-                    guiDisplayInformationOnScreen(ID_STRING_WRONG_PIN);
+                    // Both the enum and the defines allow us to do that
+                    guiDisplayInformationOnScreen(ID_STRING_WRONGPIN1LEFT + temp_rettype - RETURN_MOOLTIPASS_1_TRIES_LEFT);
                     userViewDelay();
                     break;
                 }

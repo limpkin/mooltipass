@@ -53,7 +53,7 @@ if len(options.input) > 0 and options.strings:
 
 MEDIA_BITMAP = 1
 MEDIA_FONT   = 2
-RESERVED_IDS = 32
+RESERVED_IDS = 64
 
 MEDIA_TYPE_NAMES = {
     MEDIA_BITMAP: 'bmap',

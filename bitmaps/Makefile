@@ -14,5 +14,8 @@ all: bundle.img
 	$(BITMAP) -i $< -o $@ -c -n $(@:.img=)
 
 bundle.img: $(BUNDLE_IMAGES)
-	$(BUNDLE) -o $@ $^
+	$(BUNDLE) -s fw_strings.txt -o $@ $^
+
+clean:
+	rm -f bundle.img
 

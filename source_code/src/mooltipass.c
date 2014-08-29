@@ -276,7 +276,7 @@ int main(void)
             handleSmartcardRemoved();
             
             // Set correct screen
-            guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_CARD_REMOVED));
+            guiDisplayInformationOnScreen(ID_STRING_CARD_REMOVED);
             guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
             userViewDelay();
             guiGetBackToCurrentScreen();

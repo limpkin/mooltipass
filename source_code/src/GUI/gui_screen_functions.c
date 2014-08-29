@@ -85,7 +85,7 @@ void guiGetBackToCurrentScreen(void)
         }
         case SCREEN_DEFAULT_INSERTED_INVALID :
         {
-            guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_REMOVE_CARD));
+            guiDisplayInformationOnScreen(ID_STRING_REMOVE_CARD);
             break;
         }
         case SCREEN_SETTINGS :
@@ -177,7 +177,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     while (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_OTHECARDFUSER)) == RETURN_OK)
                     {
                         // Ask the user to insert other smartcards
-                        guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_INSERT_OTHER));
+                        guiDisplayInformationOnScreen(ID_STRING_INSERT_OTHER);
                         
                         // Wait for the user to remove and enter another smartcard
                         while (isCardPlugged() != RETURN_JRELEASED);
@@ -219,7 +219,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 else
                 {
                     currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                    guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_FAILED));
+                    guiDisplayInformationOnScreen(ID_STRING_FAILED);
                 }
                 userViewDelay();
                 guiGetBackToCurrentScreen();
@@ -247,12 +247,12 @@ void guiScreenLoop(uint8_t touch_detect_result)
                         // User successfully entered a new pin
                         writeSecurityCode(pin_code);
                         // Inform of success
-                        guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_PIN_CHANGED));
+                        guiDisplayInformationOnScreen(ID_STRING_PIN_CHANGED);
                     }
                     else
                     {
                         // Inform of fail
-                        guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_PIN_NCGHANGED));
+                        guiDisplayInformationOnScreen(ID_STRING_PIN_NCGHANGED);
                     }
                     userViewDelay();
                 }
@@ -293,19 +293,18 @@ RET_TYPE guiAskForNewPin(uint16_t* new_pin)
 */
 void guiDisplayProcessingScreen(void)
 {
-    guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_PROCESSING));
+    guiDisplayInformationOnScreen(ID_STRING_PROCESSING);
 }
 
-/*! \fn     guiDisplayInformationOnScreen(const char* string)
+/*! \fn     guiDisplayInformationOnScreen(uint8_t stringID)
 *   \brief  Display text information on screen
-*   \param  string  Pointer to the string to display
+*   \param  stringID    String ID to display
 */
-void guiDisplayInformationOnScreen(char* string)
+void guiDisplayInformationOnScreen(uint8_t stringID)
 {
-    // Draw information bitmap & wait for user input
     oledClear();
+    oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(stringID));
     oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
-    oledPutstrXY(10, 24, OLED_CENTRE, string);
     oledFlipBuffers(0,0);
 }
 

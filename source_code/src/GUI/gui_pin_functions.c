@@ -207,19 +207,19 @@ RET_TYPE guiCardUnlockingProcess(void)
                 }
                 case RETURN_MOOLTIPASS_0_TRIES_LEFT :
                 {
-                    guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_CARD_BLOCKED));
+                    guiDisplayInformationOnScreen(ID_STRING_CARD_BLOCKED);
                     userViewDelay();
                     return RETURN_NOK;
                 }
                 case RETURN_MOOLTIPASS_PB :
                 {
-                    guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_PB_CARD));
+                    guiDisplayInformationOnScreen(ID_STRING_PB_CARD);
                     userViewDelay();
                     return RETURN_NOK;
                 }
                 default :
                 {
-                    guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_WRONG_PIN));
+                    guiDisplayInformationOnScreen(ID_STRING_WRONG_PIN);
                     userViewDelay();
                     break;
                 }

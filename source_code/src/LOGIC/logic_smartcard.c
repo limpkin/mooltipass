@@ -53,14 +53,14 @@ RET_TYPE handleSmartcardInserted(void)
     if ((detection_result == RETURN_MOOLTIPASS_PB) || (detection_result == RETURN_MOOLTIPASS_INVALID))
     {
         // Either it is not a card or our Manufacturer Test Zone write/read test failed
-        guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_PB_CARD));
+        guiDisplayInformationOnScreen(ID_STRING_PB_CARD);
         printSmartCardInfo();
         removeFunctionSMC();
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLOCKED)
     {
         // The card is blocked, no pin code tries are remaining
-        guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_CARD_BLOCKED));
+        guiDisplayInformationOnScreen(ID_STRING_CARD_BLOCKED);
         printSmartCardInfo();
         removeFunctionSMC();
     }
@@ -74,7 +74,7 @@ RET_TYPE handleSmartcardInserted(void)
             // Create a new user with his new smart card
             if ((guiAskForNewPin(&pin_code) == RETURN_OK) && (addNewUserAndNewSmartCard(pin_code) == RETURN_OK))
             {
-                guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_USER_ADDED));
+                guiDisplayInformationOnScreen(ID_STRING_USER_ADDED);
                 next_screen = SCREEN_DEFAULT_INSERTED_NLCK;
                 setSmartCardInsertedUnlocked();
                 return_value = RETURN_OK;
@@ -82,7 +82,7 @@ RET_TYPE handleSmartcardInserted(void)
             else
             {
                 // Something went wrong, user wasn't added
-                guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_USER_NADDED));
+                guiDisplayInformationOnScreen(ID_STRING_USER_NADDED);
             }
         }
         printSmartCardInfo();
@@ -93,7 +93,7 @@ RET_TYPE handleSmartcardInserted(void)
         if (validCardDetectedFunction() == RETURN_OK)
         {
             // Card successfully unlocked
-            guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_CARD_UNLOCKED));
+            guiDisplayInformationOnScreen(ID_STRING_CARD_UNLOCKED);
             next_screen = SCREEN_DEFAULT_INSERTED_NLCK;
             return_value = RETURN_OK;
         }
@@ -216,7 +216,7 @@ RET_TYPE validCardDetectedFunction(void)
     else
     {
         // Tell the user we don't know this card
-        guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_CARDID_NFOUND));
+        guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
         userViewDelay();
         
         // Developer mode, enter default pin code
@@ -266,13 +266,13 @@ RET_TYPE cloneSmartCardProcess(uint16_t pincode)
     readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ2_BIT_START)/8, temp_az2);
     
     // Inform the user to remove his smart card
-    guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_REMOVE_CARD));
+    guiDisplayInformationOnScreen(ID_STRING_REMOVE_CARD);
     
     // Wait for the user to remove his smart card
     while (isCardPlugged() != RETURN_JRELEASED);
     
     // Inform the user to insert a blank smart card
-    guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_INSERT_NCARD));
+    guiDisplayInformationOnScreen(ID_STRING_INSERT_NCARD);
     
     // Wait for the user to insert a blank smart card
     while (isCardPlugged() != RETURN_JDETECT);
@@ -305,7 +305,7 @@ RET_TYPE cloneSmartCardProcess(uint16_t pincode)
     setSmartCardInsertedUnlocked();
     
     // Inform the user that it is done
-    guiDisplayInformationOnScreen(readStoredStringToBuffer(ID_STRING_DONE));
+    guiDisplayInformationOnScreen(ID_STRING_DONE);
     
     return RETURN_OK;
 }

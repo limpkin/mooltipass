@@ -561,7 +561,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             #else
                 if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
                 {
-                    eeprom_read_block((void*)temp_buffer, (void*)EEP_NB_KNOWN_CARDS_ADDR, PACKET_EXPORT_SIZE);
+                    eeprom_read_block((void*)temp_buffer, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
                     if (memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE) == 0)
                     {
                         // Write "jump to bootloader" key in eeprom

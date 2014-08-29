@@ -278,7 +278,7 @@ RET_TYPE guiAskForNewPin(uint16_t* new_pin)
     uint16_t other_pin;
     
     // Ask the user twice for the new pin and compare them
-    if ((guiGetPinFromUser(new_pin, readStoredStringToBuffer(ID_STRING_NEW_PINQ)) == RETURN_OK) && (guiGetPinFromUser(&other_pin, readStoredStringToBuffer(ID_STRING_CONF_PIN)) == RETURN_OK) && (*new_pin == other_pin))
+    if ((guiGetPinFromUser(new_pin, ID_STRING_NEW_PINQ) == RETURN_OK) && (guiGetPinFromUser(&other_pin, ID_STRING_CONF_PIN) == RETURN_OK) && (*new_pin == other_pin))
     {
         return RETURN_OK;
     }

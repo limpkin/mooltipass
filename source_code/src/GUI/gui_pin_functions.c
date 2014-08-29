@@ -62,13 +62,13 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
     }
 }
 
-/*! \fn     guiGetPinFromUser(void)
+/*! \fn     guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
 *   \brief  Ask the user to enter a PIN
 *   \param  pin_code    Pointer to where to store the pin code
-*   \param  string      Text to display
+*   \param  stringID    String ID
 *   \return If the user approved the request
 */
-RET_TYPE guiGetPinFromUser(uint16_t* pin_code, char* string)
+RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
 {
     // If we don't need a pin code, send default one
     #if defined(NO_PIN_CODE_REQUIRED) || defined(HARDWARE_V1)
@@ -89,7 +89,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, char* string)
     // Draw pin entering bitmap
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTRY, 0);
-    oledPutstrXY(0, 0, OLED_CENTRE, string);
+    oledPutstrXY(0, 0, OLED_CENTRE, readStoredStringToBuffer(stringID));
     oledFlipBuffers(0,0);
     oledSetFont(FONT_CHECKBOOK_24);
     oledWriteActiveBuffer();
@@ -193,7 +193,7 @@ RET_TYPE guiCardUnlockingProcess(void)
     
     while (1)
     {
-        if (guiGetPinFromUser(&temp_pin, readStoredStringToBuffer(ID_STRING_INSERT_PIN)) == RETURN_OK)
+        if (guiGetPinFromUser(&temp_pin, ID_STRING_INSERT_PIN) == RETURN_OK)
         {            
             // Try unlocking the smartcard
             temp_rettype = mooltipassDetectedRoutine(temp_pin);

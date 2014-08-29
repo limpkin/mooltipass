@@ -661,10 +661,10 @@ void usbProcessIncoming(uint8_t* incomingData)
         }
         case CMD_STACK_FREE:
             
-            usbPutstr_P(PSTR("Stack Free "));
+            usbPutstr("Stack Free ");
             int_to_string(stackFree(),stack_str);
             usbPutstr(stack_str);
-            usbPutstr_P(PSTR(" bytes\n"));
+            usbPutstr(" bytes\n");
         return;
 #endif
 

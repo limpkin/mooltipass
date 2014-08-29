@@ -41,7 +41,7 @@ mgmtHandle currentNodeMgmtHandle;
 */
 void nodeMgmtCriticalErrorCallback(void)
 {
-    usbPutstr_P(PSTR("#NM\r\n"));
+    usbPutstr(PSTR("#NM"));
     while(1);
 }
 
@@ -50,7 +50,7 @@ void nodeMgmtCriticalErrorCallback(void)
 */
 void nodeMgmtPermissionValidityErrorCallback(void)
 {
-    usbPutstr_P(PSTR("#NMP\r\n"));
+    usbPutstr(PSTR("#NMP"));
     while(1);
 }
 

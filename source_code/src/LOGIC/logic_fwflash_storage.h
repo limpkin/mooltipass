@@ -65,6 +65,7 @@
 #define ID_STRING_WRONGPIN1LEFT 31
 #define ID_STRING_WRONGPIN2LEFT 32
 #define ID_STRING_WRONGPIN3LEFT 33
+#define ID_STRING_NEWMP_USER    34
 
 // Prototypes
 RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr);

@@ -4,3 +4,16 @@ http://slashdot.org/?nobeta=1,Login,Log out
 http://www.artima.com/sign_in?d=%2Findex.jsp,Forgot your password?,Sign Out
 https://members.cafepress.com/login.aspx,SIGN IN,SIGN OUT
 http://www.moddb.com/,sign in,logout
+https://id.atlassian.com/login/login?application=mac&continue=https://my.atlassian.com,,
+https://secure.newegg.com/NewMyAccount/AccountLogin.aspx?nextpage=http%3a%2f%2fwww.newegg.com%2f,,
+http://livejournal.com,,
+https://fisheye3.atlassian.com/login?origUrl=/,,
+https://disqus.com/profile/login/?next=https://disqus.com/,,
+https://www.apc.com/personalpage/login.cfm?sessioncheck=true,,
+https://www.alaskaair.com/,,
+https://www.pololu.com/account/login?account%5Burl%5D=http%3A%2F%2Fwww.pololu.com%2F,,
+https://www.dropcam.com/login,,
+https://accounts.adafruit.com/users/sign_in,,
+https://amazon.com,Sign In,,
+https://www.kickstarter.com/login?ref=nav,Log in,,
+https://secure3.hilton.com/en/hi/customer/login/index.htm,,

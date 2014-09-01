@@ -25,8 +25,13 @@
 package mooltipass;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
@@ -134,5 +139,26 @@ public class AftBase
 	
 	public static int getTimeoutExtension() {
 		return Integer.parseInt(System.getProperty(MOOLTIPASS_EXTENSION_TIMEOUT, MOOLTIPASS_EXTENSION_TIMEOUT_DEFAULT + "")) * 1000; 
+	}
+	
+	public void screenshot() {
+		if (driver instanceof TakesScreenshot) {
+			File fileOutputType = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+			String currentUrl = driver.getCurrentUrl();
+			String baseUrl = currentUrl.substring(currentUrl.indexOf("://") + 3, currentUrl.length());
+			baseUrl = baseUrl.substring(0, baseUrl.indexOf("/"));
+			
+			try {
+				FileUtils.copyFile(fileOutputType, new File(baseUrl + "-" + Calendar.getInstance().getTime().getTime() + ".png"));
+			} catch (IOException e) {
+				System.err.println("Exception writing screenshot for " + baseUrl + " " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			System.err.println("Screenshots not available WebDriver " + driver.getClass().toString() +
+					" is not of type TakesScreenshot.");			
+		}
 	}
 }

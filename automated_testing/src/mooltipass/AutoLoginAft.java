@@ -41,21 +41,37 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 /**
  * Tests with BETATESTERS_AUTOACCEPT_SETUP hex us a file where each line is: url,login_link_text,logout_link_text
  * Set -Dmooltipass.auto.login.file=full_path_to_file
+ * 
+ *  OR
+ *  
+ * Specify a line (replacing spaces with underscores) on the command line using -Dmooltipass.auto.login.line=URL,Login_Text,Logout_Text
  *
  * @See AutoLoginTestData.txt
  *
  * @author eghm
  */
 public class AutoLoginAft extends AftBase {
+	public static final Character DELIMITER = ',';
 	public static final String MOOLTIPASS_AUTO_LOGIN_FILE = "mooltipass.auto.login.file";
+	public static final String MOOLTIPASS_AUTO_LOGIN_LINE = "mooltipass.auto.login.line";
 	public static List<String> tests = new LinkedList<String>();
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		if (System.getProperty(MOOLTIPASS_AUTO_LOGIN_FILE) == null) {
+		String loginLine = System.getProperty(MOOLTIPASS_AUTO_LOGIN_LINE);
+		if (System.getProperty(MOOLTIPASS_AUTO_LOGIN_FILE) == null
+				&& loginLine == null)
+		{
 			System.err.println("-D" + MOOLTIPASS_AUTO_LOGIN_FILE
 					+ "= must be set to login file");
+			System.err.println("\tOR");
+			System.err.println("-D" + MOOLTIPASS_AUTO_LOGIN_LINE
+					+ "=\"URL, [Login], [Logout]\"");
 			System.exit(1);
+		}
+		else if (loginLine != null)
+		{
+			tests.add(loginLine.replaceAll("_", " "));
 		}
 		else
 		{
@@ -93,10 +109,13 @@ public class AutoLoginAft extends AftBase {
 				testAutoLogin(test);
 				System.out.print(" PASS");
 			}
-			catch (Throwable t) {
-				System.out.print(" FAIL");
+			catch (Throwable t)
+			{
 				passed = false;
+				System.out.print(" FAIL " + t.getMessage());
+//				t.printStackTrace();
 			}
+			screenshot();				
 			System.out.println();
 		}
 		assertTrue(passed);
@@ -104,12 +123,32 @@ public class AutoLoginAft extends AftBase {
 
 	void testAutoLogin(String data) throws Exception
 	{
-		testAutoLogin(data.split(","));
+		testAutoLogin(data.split(DELIMITER.toString()));
 	}
 	
 	void testAutoLogin(String[] data) throws Exception
 	{
-		testAutoLogin(data[0].trim(), data[1].trim(), data[2].trim());
+		switch (data.length)
+		{
+			case 1:
+				testAutoLogin(data[0].trim(), null, null);
+				break;
+			case 2:
+				testAutoLogin(data[0].trim(), data[1].trim(), null);
+				break;
+			case 3: 
+				testAutoLogin(data[0].trim(), data[1].trim(), data[2].trim());
+				break;
+				
+			default:
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < data.length; i++)
+				{
+					builder.append(data[i]).append(DELIMITER);
+				}
+				System.err.println("Input not formatted as expected: " + builder.toString().substring(0, builder.length() -1)); // remove trailing delimiter
+				break;
+		}
 	}
 
 	/**
@@ -124,9 +163,10 @@ public class AutoLoginAft extends AftBase {
 	{
 		driver.get(loginUrl);
 		WebDriverWait wait = new WebDriverWait(driver, getTimeout());
-		// wait for Login, but we are not gonna click it testing AUTO_ACCEPT works.
+		// wait for Login, but we are not gonna click it testing AUTOACCEPT works.
 		// TODO fix assumption that all sites have a direct Login page, but not all do.  
-		if (loginLoadedLinkText != null ||  !loginLoadedLinkText.equals("")) {
+		if (loginLoadedLinkText != null &&  !loginLoadedLinkText.equals(""))
+		{
 			wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
 		}
 		else
@@ -134,19 +174,27 @@ public class AutoLoginAft extends AftBase {
 			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html")));
 		}
 
-		if (loginLoadedLinkText != null ||  !loginLoadedLinkText.equals("")) {
+		screenshot(); // of given loginUrl
+		
+		// various in page login pop-ups are detected by MP and can be submitted without clicking the link
+		// that makes them visible.
+		// TODO handle the other cases
+		if (loginLoadedLinkText != null &&  !loginLoadedLinkText.equals(""))
+		{ 
 			wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
 		}
 
+		Thread.sleep(1000);
 
-		if (logoutLinkText != null ||  !logoutLinkText.equals("")) {
+		if (logoutLinkText != null &&  !logoutLinkText.equals(""))
+		{
 			WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(By.linkText(logoutLinkText)));
-			// probably will be some cases where MP AUTO_ACCEPTS back in after we logout
-			logout.click();
+//			logout.click(); // clicking log out is nearly useless, MP will log back in immediately with AUTOACCEPT
 		}
 		else
 		{
 			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html")));
 		}
+		screenshot();
 	}
 }

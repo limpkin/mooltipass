@@ -27,15 +27,11 @@ package mooltipass;
 import java.io.File;
 
 import org.junit.BeforeClass;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * 0. MP requires using the Chrome Developer Channel version of Chrome.
@@ -138,53 +134,5 @@ public class AftBase
 	
 	public static int getTimeoutExtension() {
 		return Integer.parseInt(System.getProperty(MOOLTIPASS_EXTENSION_TIMEOUT, MOOLTIPASS_EXTENSION_TIMEOUT_DEFAULT + "")) * 1000; 
-	}
-
-	void testAutoLogin(String data) throws Exception
-	{
-		testAutoLogin(data.split(","));
-	}
-	
-	void testAutoLogin(String[] data) throws Exception
-	{
-		testAutoLogin(data[0].trim(), data[1].trim(), data[2].trim());
-	}
-
-	/**
-	 * TODO: check for buttons if links aren't present
-	 * 
-	 * @param loginUrl
-	 * @param loginLoadedLinkText - link text used to determine when page has loaded
-	 * @param logoutLinkText - link text to click to log out at end of test
-	 * @throws Exception
-	 */
-	void testAutoLogin(String loginUrl, String loginLoadedLinkText, String logoutLinkText) throws Exception
-	{
-		driver.get(loginUrl);
-		WebDriverWait wait = new WebDriverWait(driver, getTimeout());
-		// wait for Login, but we are not gonna click it testing AUTO_ACCEPT works.
-		// TODO fix assumption that all sites have a direct Login page, but not all do.  
-		if (loginLoadedLinkText != null ||  !loginLoadedLinkText.equals("")) {
-			wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
-		}
-		else
-		{
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html")));
-		}
-
-		if (loginLoadedLinkText != null ||  !loginLoadedLinkText.equals("")) {
-			wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
-		}
-
-
-		if (logoutLinkText != null ||  !logoutLinkText.equals("")) {
-			WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(By.linkText(logoutLinkText)));
-			// probably will be some cases where MP AUTO_ACCEPTS back in after we logout
-			logout.click();
-		}
-		else
-		{
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html")));
-		}
 	}
 }

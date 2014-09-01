@@ -17,7 +17,7 @@
  *
  * CDDL HEADER END
  */
-/* \file    Aft.java
+/* \file    AutoLoginAft.java
  * \brief   Automatic Functional Test using Selenium and BETATESTERS_AUTOACCEPT_SETUP hex
  *  Created: 10/08/2014 13:29:42
  *  Author: Erik G. H. Meade
@@ -33,14 +33,20 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * Tests with BETATESTERS_AUTOACCEPT_SETUP hex us a file where each line is: url,login_link_text,logout_link_text
  * Set -Dmooltipass.auto.login.file=full_path_to_file
  *
+ * @See AutoLoginTestData.txt
+ *
  * @author eghm
  */
-public class Aft extends AftBase {
+public class AutoLoginAft extends AftBase {
 	public static final String MOOLTIPASS_AUTO_LOGIN_FILE = "mooltipass.auto.login.file";
 	public static List<String> tests = new LinkedList<String>();
 
@@ -60,7 +66,10 @@ public class Aft extends AftBase {
 				String line = "";
 				while ((line = br.readLine()) != null)
 				{
-					tests.add(line + System.lineSeparator());
+					if (!line.startsWith("#")) // comment 
+					{
+						tests.add(line + System.lineSeparator());
+					}
 				}
 			}
 			finally
@@ -91,5 +100,53 @@ public class Aft extends AftBase {
 			System.out.println();
 		}
 		assertTrue(passed);
+	}
+
+	void testAutoLogin(String data) throws Exception
+	{
+		testAutoLogin(data.split(","));
+	}
+	
+	void testAutoLogin(String[] data) throws Exception
+	{
+		testAutoLogin(data[0].trim(), data[1].trim(), data[2].trim());
+	}
+
+	/**
+	 * TODO: check for buttons if links aren't present
+	 * 
+	 * @param loginUrl
+	 * @param loginLoadedLinkText - link text used to determine when page has loaded
+	 * @param logoutLinkText - link text to click to log out at end of test
+	 * @throws Exception
+	 */
+	void testAutoLogin(String loginUrl, String loginLoadedLinkText, String logoutLinkText) throws Exception
+	{
+		driver.get(loginUrl);
+		WebDriverWait wait = new WebDriverWait(driver, getTimeout());
+		// wait for Login, but we are not gonna click it testing AUTO_ACCEPT works.
+		// TODO fix assumption that all sites have a direct Login page, but not all do.  
+		if (loginLoadedLinkText != null ||  !loginLoadedLinkText.equals("")) {
+			wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
+		}
+		else
+		{
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html")));
+		}
+
+		if (loginLoadedLinkText != null ||  !loginLoadedLinkText.equals("")) {
+			wait.until(ExpectedConditions.elementToBeClickable(By.linkText(loginLoadedLinkText)));
+		}
+
+
+		if (logoutLinkText != null ||  !logoutLinkText.equals("")) {
+			WebElement logout = wait.until(ExpectedConditions.elementToBeClickable(By.linkText(logoutLinkText)));
+			// probably will be some cases where MP AUTO_ACCEPTS back in after we logout
+			logout.click();
+		}
+		else
+		{
+			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html")));
+		}
 	}
 }

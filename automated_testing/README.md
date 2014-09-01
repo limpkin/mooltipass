@@ -1,4 +1,4 @@
-These tests open an instance of chrome to run in.  They attempt to login and logout from a list of urls defined in a file.  They can be brittle and are most useful in manually verifying behavior.  A list of comma delimited login urls, login link text, and logout link text should be defined in a file.  See AutoLoginTestData.txt as an example.  I don't recommended running in BETATESTERS_AUTOACCEPT_SETUP when entering credentials on sites you don't know work with Mooltipass
+These tests open an instance of chrome to run in.  They attempt to login and logout from a list of urls defined in a file.  They can be brittle and are most useful in manually verifying behavior.  I don't recommended running in BETATESTERS_AUTOACCEPT_SETUP when entering credentials on sites you don't know work with Mooltipass.  See AutoLoginTestData.txt as an example of how to setup your auto login file.
 
 - Watch how this test works - https://plus.google.com/u/0/117594012155500951563/videos/p/pub?pid=6047655449680232530&oid=117594012155500951563
 - MP requires using the Chrome Developer Channel version of Chrome.

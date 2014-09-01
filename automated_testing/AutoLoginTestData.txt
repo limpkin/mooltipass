@@ -1,3 +1,5 @@
+# Used by AutoLoginAft.java
+# Format of each line: URL to test,Login text to click[optional],Logout text to click[optional]
 https://hackaday.io/signin?returnUrl=%2F%3Ffrom%3Dhad%26utm_source%3Dhackaday%26utm_medium%3Dmenu%26utm_campaign%3Dblog,,
 https://github.com/login,,
 http://slashdot.org/?nobeta=1,Login,Log out
@@ -17,3 +19,12 @@ https://accounts.adafruit.com/users/sign_in,,
 https://amazon.com,Sign In,,
 https://www.kickstarter.com/login?ref=nav,Log in,,
 https://secure3.hilton.com/en/hi/customer/login/index.htm,,
+http://3dprintboard.com/,,
+http://www.avrfreaks.net/,,
+https://my.seashepherd.org/netcommunity/sslpage.aspx?pid=198,,
+https://arstechnica.com/civis/ucp.php?mode=login&return_to=http%3A%2F%2Farstechnica.com%2F,,
+https://login.yahoo.com/config/login?.src=fpctx&.intl=us&.done=https%3A%2F%2Fwww.yahoo.com%2F,,
+https://cas.kuali.org/login,,
+https://secure1.store.apple.com/us/sign_in?c=aHR0cDovL3N0b3JlLmFwcGxlLmNvbS91c3wxYW9zZmU4OGZjNWIyNThhYWVhOTM5MzVjZjI2NTk1OGE3MWUwY2Y0MmI2OA&r=SCDHYHP7CY4H9XK2H&s=aHR0cDovL3N0b3JlLmFwcGxlLmNvbS91c3wxYW9zZmU4OGZjNWIyNThhYWVhOTM5MzVjZjI2NTk1OGE3MWUwY2Y0MmI2OA&t=S99KKATD9FP9FHCP4,,
+https://www.blacklibrary.com/Login.aspx?redirectto=/,,
+https://godaddy.com,,

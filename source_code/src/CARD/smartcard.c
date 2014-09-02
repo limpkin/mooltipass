@@ -676,8 +676,9 @@ RET_TYPE firstDetectFunctionSMC(void)
         return RETURN_CARD_NDET;
     }
 
-    /* Perform test write on MTZ... */
-    temp_uint = entropyRandom16();
+    /* Perform test write on MTZ */
+    readMemoryTestZone((uint8_t*)&temp_uint);
+    temp_uint = temp_uint + 5;
     writeMemoryTestZone((uint8_t*)&temp_uint);
     if (*(uint16_t*)readMemoryTestZone(data_buffer) != temp_uint)
     {

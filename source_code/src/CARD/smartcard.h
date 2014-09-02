@@ -41,6 +41,7 @@ void smartcardPowerDelay(void);
 RET_TYPE isCardPlugged(void);
 void removeFunctionSMC(void);
 void scanSMCDectect(void);
+void setSPIModeSMC(void);
 void initPortSMC(void);
 
 // Macros

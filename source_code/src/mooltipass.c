@@ -100,9 +100,11 @@ int main(void)
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
+        /* Disable JTAG to get access to the pins */
         disableJTAG();
-        DDR_SC_DET &= ~(1 << PORTID_SC_DET);
-        PORT_SC_DET |= (1 << PORTID_SC_DET);
+        /* Init SMC port */
+        initPortSMC();
+        /* Delay for detection */
         for (uint16_t i = 0; i < 2000; i++) asm volatile ("NOP");
         #if defined(HARDWARE_V1)
         if (PIN_SC_DET & (1 << PORTID_SC_DET))
@@ -110,7 +112,32 @@ int main(void)
         if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
         #endif
         {
-            start_bootloader();
+            uint16_t tempuint16;
+            /* What follows is a copy from firstDetectFunctionSMC() */
+            /* Enable power to the card */
+            PORT_SC_POW &= ~(1 << PORTID_SC_POW);
+            /* Default state: PGM to 0 and RST to 1 */
+            PORT_SC_PGM &= ~(1 << PORTID_SC_PGM);
+            DDR_SC_PGM |= (1 << PORTID_SC_PGM);
+            PORT_SC_RST |= (1 << PORTID_SC_RST);
+            DDR_SC_RST |= (1 << PORTID_SC_RST);
+            /* Activate SPI port */
+            PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
+            DDRB |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
+            setSPIModeSMC();
+            /* Let the card come online */
+            for (uint16_t i = 0; i < 2000; i++) asm volatile ("NOP");
+            /* Check smart card FZ */
+            readFabricationZone((uint8_t*)&tempuint16);
+            if ((swap16(tempuint16)) != SMARTCARD_FABRICATION_ZONE)
+            {
+                removeFunctionSMC();
+                start_bootloader();
+            }
+            else
+            {
+                removeFunctionSMC();
+            }
         }
     #endif
 

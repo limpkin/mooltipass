@@ -1,5 +1,6 @@
 v0.3:
 - pressing left on multiple credential screen will return
+- beta testers version: inserting the smartcard with the chip facing the right way will make the MP normally boot
 - reserving 1024 bytes in the beginning of the graphics storage to store strings
 - because of this, users have to upload a new bundle file
 - we now display how many pin tries are left

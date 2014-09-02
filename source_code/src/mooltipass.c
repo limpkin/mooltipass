@@ -280,6 +280,7 @@ int main(void)
     }
     activityDetectedRoutine();
     launchCalibrationCycle();
+    touchClearCurrentDetections();
     
     while (1)
     {        

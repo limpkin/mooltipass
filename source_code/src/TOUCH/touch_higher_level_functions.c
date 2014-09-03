@@ -166,6 +166,20 @@ void touchClearCurrentDetections(void)
     readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_uint);
 }
 
+/*! \fn     touchWaitForWheelReleased(void)
+*   \brief  Wait for the user to remove his finger from the wheel
+*/
+void touchWaitForWheelReleased(void)
+{
+    uint8_t keys_detection_status;
+    
+    do 
+    {
+        readDataFromTS(REG_AT42QT_DET_STAT, &keys_detection_status);
+    }
+    while (keys_detection_status & AT42QT2120_SDET_MASK);
+}
+
 /*! \fn     touchDetectionRoutine(uint8_t led_mask)
 *   \brief  Touch detection routine
 *   \param  led_mask    Mask containing which LEDs to switchoff

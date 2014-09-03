@@ -102,6 +102,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     
     // Clear possible remaining detection
     touchDetectionRoutine(led_mask);
+    touchWaitForWheelReleased();
     touchClearCurrentDetections();
     
     // Wait for a touch press

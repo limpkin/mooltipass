@@ -32,6 +32,7 @@
 void activateGuardKey(void);
 RET_TYPE initTouchSensing(void);
 void activateProxDetection(void);
+void touchWaitForWheelReleased(void);
 uint8_t getLastRawWheelPosition(void);
 void touchClearCurrentDetections(void);
 uint8_t getWheelTouchDetectionQuarter(void);

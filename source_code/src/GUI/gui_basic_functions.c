@@ -246,6 +246,9 @@ void guiMainLoop(void)
     // No activity, switch off screen
     if (hasTimerExpired(TIMER_SCREEN, TRUE) == TIMER_EXPIRED)
     {
+        guiDisplayGoingToSleep();
+        userViewDelay();
+        oledFlipBuffers(0,0);
         #ifndef HARDWARE_V1
             oledOff();
         #endif

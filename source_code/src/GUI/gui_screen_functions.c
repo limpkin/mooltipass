@@ -308,6 +308,17 @@ void guiDisplayInformationOnScreen(uint8_t stringID)
     oledFlipBuffers(0,0);
 }
 
+/*! \fn     guiDisplayGoingToSleep(void)
+*   \brief  Going to sleep code
+*/
+void guiDisplayGoingToSleep(void)
+{
+    oledClear();
+    oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+    oledBitmapDrawFlash(2, 17, BITMAP_ZZZ, 0);
+    oledFlipBuffers(0,0);    
+}
+
 /*! \fn     guiAskForConfirmation(const char* string)
 *   \brief  Ask for user confirmation for different things
 *   \param  nb_args     Number of text lines (must be either 1 2 or 4)

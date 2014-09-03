@@ -5,6 +5,7 @@ v0.3:
 - because of this, users have to upload a new bundle file
 - we now display how many pin tries are left
 - favorite menu implemented
+- going to sleep screen
 
 v0.2: 
 - changes require user to erase their current smartcards before updating firmwares and reset the pin to 0xF0F0

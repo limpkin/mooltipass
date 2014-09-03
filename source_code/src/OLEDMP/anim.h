@@ -50,6 +50,7 @@
 #define BITMAP_LEFT_ARROW     12
 #define BITMAP_RIGHT_ARROW    13
 #define BITMAP_PIN_LINES      14
+#define BITMAP_ZZZ            16
 
 // These bitmaps are built from frames
 #define BITMAP_SIDES          (0x80+FRAME_SIDES)

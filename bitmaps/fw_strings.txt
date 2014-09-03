@@ -1,35 +1,36 @@
 Processing...
-Card blocked!
-PB with card!
-Wrong pin!
+Card Blocked!
+PB With Card!
+Wrong Pin!
 Please Remove The Card
-Insert other smartcard
+Insert Other Smartcard
 Failed!
-PIN changed!
-Not changed!
-User added
-Couldn't add user
-Card unlocked
-Card ID not found
-Insert new smartcard
+PIN Changed!
+Not Changed!
+User Added
+Couldn't Add User
+Card Unlocked
+Card ID Not Found
+Insert New Smartcard
 Done
-Card removed
-Are you sure?
-Are you REALLY sure?
-Other cards for this user?
-Enter login?
-Enter password?
-Approve memory operation?
-Insert your PIN
+Card Removed
+Are You Sure?
+Are You REALLY Sure?
+Other Cards For This User?
+Enter Login?
+Enter Password?
+Approve Memory Operation?
+Insert Your PIN
 New PIN?
 Confirm PIN
-Confirm access to
-with this login:
-Confirm new credentials for:
-Add username:
+Confirm Access To
+With This Login:
+Confirm New Credentials For:
+Add Username:
 on
-Change password for:
-Wrong pin, 1 try left
-Wrong pin, 2 tries left
-Wrong pin, 3 tries left
-Create new mooltipass user?
+Change Password For:
+Wrong Pin, 1 Try Left
+Wrong Pin, 2 Tries Left
+Wrong Pin, 3 Tries Left
+Create New Mooltipass User?
+Going To Sleep...

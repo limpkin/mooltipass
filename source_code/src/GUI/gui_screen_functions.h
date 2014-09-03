@@ -37,6 +37,7 @@ RET_TYPE guiAskForNewPin(uint16_t* new_pin);
 void guiSetCurrentScreen(uint8_t screen);
 void guiDisplayProcessingScreen(void);
 void guiGetBackToCurrentScreen(void);
+void guiDisplayGoingToSleep(void);
 uint8_t getCurrentScreen(void);
 
 

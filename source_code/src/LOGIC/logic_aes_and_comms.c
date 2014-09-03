@@ -463,7 +463,11 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 // Display processing screen
                 guiDisplayProcessingScreen();
                 
-                // Copy login into a temp cnode, and create it in the flash
+                // Set temp cnode to zeroes, generate random password, store the node in flash
+                memset((void*)&temp_cnode, 0x00, NODE_SIZE);
+                fillArrayWithRandomBytes(temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD - 1);
+                temp_cnode.password[NODE_CHILD_SIZE_OF_PASSWORD-1] = 0;
+                encryptTempCNodePasswordAndClearCTVFlag();
                 memcpy((void*)temp_cnode.login, (void*)name, length);
                 
                 // Create child node

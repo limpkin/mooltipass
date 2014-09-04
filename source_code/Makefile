@@ -15,7 +15,7 @@ AR      := $(CROSS)ar
 AS      := $(CROSS)as
 
 # Mooltipass version: vMAJOR.MINOR
-VERSION := v0.2
+VERSION := v0.3
 
 # If we are in a git controlled dir, let (matching) tag override version
 git_hash := $(shell git rev-parse --verify --short HEAD 2>/dev/null)

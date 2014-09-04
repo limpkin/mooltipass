@@ -66,9 +66,15 @@ There are many reasons, the main one being that it is much easier to carry a sma
   
 **What if I lose my smartcard?**  
 Our device is shipped with two smartcards, so you can keep your copy somewhere safe. The Mooltipass therefore allows the user to clone his smartcard as many times as he wants, provided that the card PIN is correctly entered.  
+
+**Can the smartcard be used with multiple Mooltipass?**  
+You will have the option to synchronize your credentials between multiple devices. This will allow you to have one Mooltipass at work and one at home.  
   
 **What if I lose my Mooltipass device?**  
 Your encrypted credentials can be exported to either your computer or the Mooltipass official website. If you lose your device, you may purchase another one and restore your credentials.  
+
+**Are you sure about your encryption implementation?**  
+The AES-256 used in the Mooltipass has been compared again standard Nessie test vectors for correctness. Moreover, our security chain has been checked by qualified individuals.  
   
 **Can I use it on Windows/Linux/Mac?**  
 Yes, as no drivers are required to use the Mooltipass. It is recognized as a standard USB keyboard that will enter passwords for you.  

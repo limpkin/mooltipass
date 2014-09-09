@@ -175,7 +175,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 ------------------------
 From plugin/app: With two bytes indicating the node number, read a user node in flash
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+From Mooltipass: The node
 
 0x56: Write node in flash
 -------------------------

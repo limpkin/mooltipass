@@ -626,7 +626,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
                 uint8_t temp_buffer[NODE_SIZE];
                 
-                // Read node in flash & send it
+                // Read node in flash & send it, ownership check is done in the function
                 readNode((gNode*)temp_buffer, *temp_uint_ptr);
                 usbSendMessage(CMD_READ_FLASH_NODE, NODE_SIZE, temp_buffer);
                 return;
@@ -641,6 +641,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         // Write node in Flash
         case CMD_WRITE_FLASH_NODE : 
         {
+            // First two bytes are the node address
             uint16_t* temp_node_addr_ptr = (uint16_t*)msg->body.data;
             uint16_t temp_flags;
             
@@ -655,7 +656,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 if (msg->body.data[2] == 0)
                 {
                     // Read the flags and check we're not overwriting someone else's data
-                    readDataFromFlash(pageNumberFromAddress(currentNodeWritten), NODE_SIZE * nodeNumberFromAddress(currentNodeWritten), 2, (void*)&temp_flags);
+                    readDataFromFlash(pageNumberFromAddress(*temp_node_addr_ptr), NODE_SIZE * nodeNumberFromAddress(*temp_node_addr_ptr), 2, (void*)&temp_flags);
                     
                     // Either the node belongs to us or it is invalid
                     if((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID))
@@ -665,19 +666,23 @@ void usbProcessIncoming(uint8_t* incomingData)
                     }
                 }
                 
-                // Check that the address the plugin wants to write is the one stored
-                if ((currentNodeWritten == *temp_node_addr_ptr) && (currentNodeWritten != NODE_ADDR_NULL))
+                // Check that the address the plugin wants to write is the one stored and that we're not writing more than we're supposed to
+                if ((currentNodeWritten == *temp_node_addr_ptr) && (currentNodeWritten != NODE_ADDR_NULL) && (msg->body.data[2] * (PACKET_EXPORT_SIZE-3) + datalen < NODE_SIZE))
                 {
                     // Fill the data at the right place
-                    flashWriteBuffer(msg->body.data, (NODE_SIZE * nodeNumberFromAddress(currentNodeWritten)) + (msg->body.data[2] * PACKET_EXPORT_SIZE), datalen);
+                    flashWriteBuffer(msg->body.data + 3, (NODE_SIZE * nodeNumberFromAddress(currentNodeWritten)) + (msg->body.data[2] * (PACKET_EXPORT_SIZE-3)), datalen - 3);
                     
                     // If we finished writing, flush buffer
-                    if (msg->body.data[2] == (NODE_SIZE/PACKET_EXPORT_SIZE))
+                    if (msg->body.data[2] == (NODE_SIZE/(PACKET_EXPORT_SIZE-3)))
                     {
                         flashWriteBufferToPage(pageNumberFromAddress(currentNodeWritten));
                     }
                     
                     plugin_return_value = PLUGIN_BYTE_OK;
+                }
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
                 }
             }
             break;
@@ -691,9 +696,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 uint8_t temp_buffer[PACKET_EXPORT_SIZE];
             #endif
             
-            // Mandatory wait for bruteforce
-            userViewDelay();
-            
             // Set default addresses
             mediaFlashImportPage = GRAPHIC_ZONE_PAGE_START;
             mediaFlashImportOffset = 0;
@@ -702,8 +704,12 @@ void usbProcessIncoming(uint8_t* incomingData)
             #ifdef DEV_PLUGIN_COMMS
                 plugin_return_value = PLUGIN_BYTE_OK;
                 mediaFlashImportApproved = TRUE;
-            #else
-                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
+            #else            
+                // Mandatory wait for bruteforce
+                userViewDelay();
+                
+                // Compare with our password, can be 0xFF... if not initialized
+                if (datalen == PACKET_EXPORT_SIZE)
                 {
                     eeprom_read_block((void*)temp_buffer, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
                     if (memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE) == 0)

@@ -47,6 +47,9 @@
 #define CMD_SET_FAVORITE        0x57
 #define CMD_SET_STARTINGPARENT  0x58
 #define CMD_SET_CTRVALUE        0x59
+#define CMD_ADD_CARD_CPZ_CTR    0x5A
+#define CMD_GET_CARD_CPZ_CTR    0x5B
+#define CMD_CARD_CPZ_CTR_PACKET 0x5C
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

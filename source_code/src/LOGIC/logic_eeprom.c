@@ -130,6 +130,35 @@ RET_TYPE findSmcUidLUTEmptySlot(uint16_t* found_address)
     return RETURN_NOK;    
 }
 
+/*! \fn     outputLUTEntriesForGivenUser(uint8_t userID)
+*   \brief  output CPZ CTR entries to USB for a given user
+*   \param  userID  The user ID
+*/
+void outputLUTEntriesForGivenUser(uint8_t userID)
+{
+    uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH+AES256_CTR_LENGTH];
+    uint16_t current_address;
+    uint8_t temp_userid;
+    
+    // Loop through the Look Up Tables entries
+    for (uint8_t i = 0; i < NB_MAX_SMCID_UID_MATCH_ENTRIES; i++)
+    {
+        // Current address var
+        current_address = EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH;
+        
+        // Read this LUT entry user ID
+        temp_userid = eeprom_read_byte((uint8_t*)current_address);
+        
+        // Check that the read user ID is valid
+        if (temp_userid == userID)
+        {
+            // Read one CPZ entry
+            eeprom_read_block(temp_buffer, (void*)(current_address + 1), SMARTCARD_CPZ_LENGTH+AES256_CTR_LENGTH);
+            usbSendMessage(CMD_CARD_CPZ_CTR_PACKET, SMARTCARD_CPZ_LENGTH+AES256_CTR_LENGTH, temp_buffer);
+        }
+    }
+}
+
 /*! \fn     getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* userid)
 *   \brief  Get a user ID from card CPZ
 *   \param  buffer      Buffer containing the CPZ

@@ -201,6 +201,22 @@ From plugin/app: First three bytes is the new CTR value
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x5A: Add CPZ CTR value
+-----------------------
+From plugin/app: Add a known card to the MP, 8 first bytes is the CPZ, next 16 is the CTR nonce
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x5B: Get CPZ CTR value
+-----------------------
+From plugin/app: Get all the cpz ctr values for current user
+
+From Mooltipass: 0x00 if denied, data otherwise
+
+0x5C: CPZ CTR packet export
+---------------------------
+From Mooltipass: One CPZ CTR LUT entry packet
+
 Functions
 =========
 

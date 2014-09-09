@@ -43,6 +43,7 @@
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);
 RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid);
 RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code);
+void outputLUTEntriesForGivenUser(uint8_t userID);
 void deleteUserIdFromSMCUIDLUT(uint8_t userid);
 void firstTimeUserHandlingInit(void);
 

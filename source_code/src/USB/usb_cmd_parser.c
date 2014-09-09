@@ -690,6 +690,38 @@ void usbProcessIncoming(uint8_t* incomingData)
             break;            
         }
         
+        // Add a known card to the MP, 8 first bytes is the CPZ, next 16 is the CTR nonce
+        case CMD_ADD_CARD_CPZ_CTR :
+        {
+            // Check that the mode is approved & that args are supplied
+            if ((memoryManagementModeApproved == TRUE) && (datalen == SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH))
+            {
+                writeSmartCardCPZForUserId(msg->body.data, &msg->body.data[SMARTCARD_CPZ_LENGTH], getCurrentUserID());
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
+        // Get all the cpz ctr values for current user
+        case CMD_GET_CARD_CPZ_CTR :
+        {
+            // Check that the mode is approved
+            if (memoryManagementModeApproved == TRUE)
+            {
+                outputLUTEntriesForGivenUser(getCurrentUserID());
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;            
+        }
+        
         // Write node in Flash
         case CMD_WRITE_FLASH_NODE : 
         {

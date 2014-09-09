@@ -1,5 +1,6 @@
 v0.4:
 - migrating to block import/export mode
+- media import doesn't need confirmation for beta testers
 
 v0.3:
 - pressing left on multiple credential screen will return

@@ -147,9 +147,27 @@ From plugin/app: Get the user profile inside the memory, ask the user to approve
 
 From Mooltipass: 0x00 if denied, data otherwise
 
-0x50: End memory management mode
+0x51: End memory management mode
 --------------------------------
 From plugin/app: Leave memory management mode
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x52: Media import start
+------------------------
+From plugin/app: Request for media contents sending to Mooltipass.
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x53: Media import
+------------------
+From plugin/app: A bunch of data to store inside the media part of flash, particularly formatted (see source files)
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x54: Media import end
+----------------------
+From plugin/app: Inform that we finished the media flash import
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 

@@ -58,6 +58,12 @@ uint16_t flashOpCurAddr2;
 // Bool to know if the user approved memory management mode
 uint8_t memoryManagementModeApproved = FALSE;
 #endif
+// Bool to know if we can import in the media part of flash
+uint8_t mediaFlashImportApproved = FALSE;
+// Media flash import temp page
+uint16_t mediaFlashImportPage;
+// Media flash import temp offset
+uint16_t mediaFlashImportOffset;
 
 
 #ifdef FLASH_BLOCK_IMPORT_EXPORT
@@ -138,7 +144,7 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
 */
 void usbProcessIncoming(uint8_t* incomingData)
 {
-    // Temp plugin return value
+    // Temp plugin return value, error by default
     uint8_t plugin_return_value = PLUGIN_BYTE_ERROR;
 
     // Use message structure
@@ -609,6 +615,77 @@ void usbProcessIncoming(uint8_t* incomingData)
             break;
         }
 #endif
+
+        // import media flash contents
+        case CMD_IMPORT_MEDIA_START :
+        {
+            #ifndef DEV_PLUGIN_COMMS
+                uint8_t temp_buffer[PACKET_EXPORT_SIZE];
+            #endif
+            
+            // Mandatory wait for bruteforce
+            userViewDelay();
+            
+            // Set default addresses
+            mediaFlashImportPage = GRAPHIC_ZONE_PAGE_START;
+            mediaFlashImportOffset = 0;
+            
+            // No check if dev comms
+            #ifdef DEV_PLUGIN_COMMS
+                plugin_return_value = PLUGIN_BYTE_OK;
+                mediaFlashImportApproved = TRUE;
+            #else
+                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
+                {
+                    eeprom_read_block((void*)temp_buffer, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
+                    if (memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE) == 0)
+                    {
+                        plugin_return_value = PLUGIN_BYTE_OK;
+                        mediaFlashImportApproved = TRUE;
+                    }
+                }
+            #endif
+            
+            break;
+        }
+
+        // import media flash contents
+        case CMD_IMPORT_MEDIA :
+        {
+            // Check if we actually approved the import, haven't gone over the flash boundaries, if we're correctly aligned page size wise
+            if ((mediaFlashImportApproved == FALSE) || (mediaFlashImportPage >= GRAPHIC_ZONE_PAGE_END) || (mediaFlashImportOffset + datalen > BYTES_PER_PAGE))
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                mediaFlashImportApproved = FALSE;
+            }
+            else
+            {
+                flashWriteBuffer(msg->body.data, mediaFlashImportOffset, datalen);
+                mediaFlashImportOffset+= datalen;
+
+                // If we just filled a page, flush it to the page
+                if (mediaFlashImportOffset == BYTES_PER_PAGE)
+                {
+                    flashWriteBufferToPage(mediaFlashImportPage);
+                    mediaFlashImportOffset = 0;
+                    mediaFlashImportPage++;
+                }
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            break;
+        }
+
+        // end media flash import
+        case CMD_IMPORT_MEDIA_END :
+        {
+            if ((mediaFlashImportApproved == TRUE) && (mediaFlashImportOffset != 0))
+            {
+                flashWriteBufferToPage(mediaFlashImportPage);
+            }
+            plugin_return_value = PLUGIN_BYTE_OK;
+            mediaFlashImportApproved = FALSE;
+            break;
+        }
         
         // set password bootkey
         case CMD_SET_BOOTLOADER_PWD :

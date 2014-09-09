@@ -81,7 +81,12 @@ var CMD_EXPORT_EEPROM_START = 0x46;
 var CMD_SET_BOOTLOADER_PWD  = 0x47;
 var CMD_JUMP_TO_BOOTLOADER  = 0x48;
 var CMD_CLONE_SMARTCARD     = 0x49;
-var CMD_STACK_FREE          = 0x50;
+var CMD_STACK_FREE          = 0x4A;
+var CMD_GET_USERPROFILE     = 0x50;
+var CMD_END_MEMORYMGMT      = 0x51;
+var CMD_IMPORT_MEDIA_START  = 0x52;
+var CMD_IMPORT_MEDIA        = 0x53;
+var CMD_IMPORT_MEDIA_END    = 0x54;
 
 // supported flash chips
 // 264,   512,  128   1MB   0001 ID:00010=2  5  7 12, 6 2 16 S: 3 - 8,120,128
@@ -684,8 +689,7 @@ function initWindow()
                     importProgressBar.progressbar('value', 0);
 
                     // Request permission to send
-                    args = new Uint8Array([1]);     // media
-                    sendRequest(CMD_IMPORT_FLASH_BEGIN, args);
+                    sendRequest(CMD_IMPORT_MEDIA_START);
                     log('#importLog');  // clear log
                 };
 
@@ -1152,6 +1156,18 @@ function onDataReceived(reportId, data)
                 log('#importLog', 'import denied\n');
             } else {
                 sendNextPacket(CMD_IMPORT_FLASH, importData);
+            }
+            break;
+        }
+
+        case CMD_IMPORT_MEDIA_START: 
+        case CMD_IMPORT_MEDIA: 
+        {
+            var ok = bytes[2];
+            if (ok == 0) {
+                log('#importLog', 'import denied\n');
+            } else {
+                sendNextPacket(CMD_IMPORT_MEDIA, importData);
             }
             break;
         }

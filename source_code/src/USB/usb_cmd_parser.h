@@ -39,6 +39,9 @@
 #define CMD_STACK_FREE          0x4A
 #define CMD_GET_USERPROFILE     0x50
 #define CMD_END_MEMORYMGMT      0x51
+#define CMD_IMPORT_MEDIA_START  0x52
+#define CMD_IMPORT_MEDIA        0x53
+#define CMD_IMPORT_MEDIA_END    0x54
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

@@ -638,6 +638,58 @@ void usbProcessIncoming(uint8_t* incomingData)
             break;
         }
         
+        // Set favorite
+        case CMD_SET_FAVORITE :
+        {
+            // Check that the mode is approved & that args are supplied
+            if ((memoryManagementModeApproved == TRUE) && (datalen == 5))
+            {
+                uint16_t* temp_par_addr = (uint16_t*)&msg->body.data[1];
+                uint16_t* temp_child_addr = (uint16_t*)&msg->body.data[3];
+                
+                setFav(msg->body.data[0], *temp_par_addr, *temp_child_addr);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;            
+        }
+        
+        // Set starting parent
+        case CMD_SET_STARTINGPARENT :
+        {
+            // Check that the mode is approved & that args are supplied
+            if ((memoryManagementModeApproved == TRUE) && (datalen == 2))
+            {
+                uint16_t* temp_par_addr = (uint16_t*)&msg->body.data[0];
+                setStartingParent(*temp_par_addr);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;            
+        }
+        
+        // Set new CTR value
+        case CMD_SET_CTRVALUE :
+        {
+            // Check that the mode is approved & that args are supplied
+            if ((memoryManagementModeApproved == TRUE) && (datalen == 3))
+            {
+                setProfileCtr(msg->body.data);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;            
+        }
+        
         // Write node in Flash
         case CMD_WRITE_FLASH_NODE : 
         {

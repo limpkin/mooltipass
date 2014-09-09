@@ -44,6 +44,9 @@
 #define CMD_IMPORT_MEDIA_END    0x54
 #define CMD_READ_FLASH_NODE     0x55
 #define CMD_WRITE_FLASH_NODE    0x56
+#define CMD_SET_FAVORITE        0x57
+#define CMD_SET_STARTINGPARENT  0x58
+#define CMD_SET_CTRVALUE        0x59
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

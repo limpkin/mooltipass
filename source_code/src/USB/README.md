@@ -183,6 +183,24 @@ From plugin/app: With two bytes indicating the node number and another indicatin
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x57: Set favorite
+------------------
+From plugin/app: First byte indicates favId, next 2 the parent addr, next 2 the child addr
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x58: Set starting parent
+-------------------------
+From plugin/app: First two bytes is the new starting parent
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x59: Set CTR value
+-------------------
+From plugin/app: First three bytes is the new CTR value
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
 Functions
 =========
 

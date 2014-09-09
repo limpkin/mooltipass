@@ -281,6 +281,29 @@ void formatFlash(void)
 }
 
 /**
+ * Load a given page in the flash internal buffer
+ * @param   pageNumber      The target page number of flash memory
+ */
+void loadPageToInternalBuffer(uint16_t pageNumber)
+{
+    uint8_t opcode[4];
+    
+    // Error check the parameter pageNumber
+    if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
+    {
+        memoryBoundaryErrorCallback();
+    }
+    
+    // Load the page in the internal buffer
+    opcode[0] = FLASH_OPCODE_MAINP_TO_BUF;
+    fillPageReadWriteEraseOpcodeFromAddress(pageNumber, 0, &opcode[1]);     // Prepare the opcode
+    sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);                  // Send command
+    
+    /* Wait until memory is ready */
+    waitForFlash();
+}
+
+/**
  * Writes a data buffer to flash memory. The data is written starting at offset of a page.  
  * @param   pageNumber      The target page number of flash memory
  * @param   offset          The starting byte offset to begin writing in pageNumber
@@ -308,14 +331,9 @@ void writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, v
     #endif
     
     // Load the page in the internal buffer
-    opcode[0] = FLASH_OPCODE_MAINP_TO_BUF;
-    fillPageReadWriteEraseOpcodeFromAddress(pageNumber, offset, &opcode[1]);    // We can add the offset as they're "don't care" in the datasheet
-    sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);                      // Send command
+    loadPageToInternalBuffer(pageNumber);
     
-    /* Wait until memory is ready */
-    waitForFlash();
-    
-    // Write the byte in the buffer, write the buffer to page
+    // Write the bytes in the buffer, write the buffer to page
     opcode[0] = FLASH_OPCODE_MMP_PROG_TBUF;
     fillPageReadWriteEraseOpcodeFromAddress(pageNumber, offset, &opcode[1]); 
     sendDataToFlashWithFourBytesOpcode(opcode, data, dataSize);

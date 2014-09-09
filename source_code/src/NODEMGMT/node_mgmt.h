@@ -221,7 +221,6 @@ typedef struct __attribute__((packed)) nodeMgmtH
 uint8_t nodeTypeFromFlags(uint16_t flags);
 void  nodeTypeToFlags(uint16_t *flags, uint8_t nodeType);
 
-
 uint8_t validBitFromFlags(uint16_t flags);
 void validBitToFlags(uint16_t *flags, uint8_t vb);
 
@@ -274,6 +273,8 @@ RET_TYPE createChildStartOfDataNode(uint16_t pAddr, cNode *c, uint8_t dataNodeCo
 void readChildNode(cNode *c, uint16_t childNodeAddress);
 RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
 RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr);
+
+void readNode(gNode* g, uint16_t nodeAddress);
 
 void scanNodeUsage(void);
 

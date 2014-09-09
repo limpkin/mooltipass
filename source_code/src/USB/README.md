@@ -171,6 +171,18 @@ From plugin/app: Inform that we finished the media flash import
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x55: Read node in flash
+------------------------
+From plugin/app: With two bytes indicating the node number, read a user node in flash
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x56: Write node in flash
+-------------------------
+From plugin/app: With two bytes indicating the node number and another indicating the packet #, write a node in flash
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
 Functions
 =========
 

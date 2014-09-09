@@ -60,6 +60,8 @@ uint8_t memoryManagementModeApproved = FALSE;
 #endif
 // Bool to know if we can import in the media part of flash
 uint8_t mediaFlashImportApproved = FALSE;
+// Current node we're writing
+uint16_t currentNodeWritten = NODE_ADDR_NULL;
 // Media flash import temp page
 uint16_t mediaFlashImportPage;
 // Media flash import temp offset
@@ -611,6 +613,72 @@ void usbProcessIncoming(uint8_t* incomingData)
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
+        // Read node from Flash
+        case CMD_READ_FLASH_NODE :
+        {
+            // Check that the mode is approved & that args are supplied
+            if ((memoryManagementModeApproved == TRUE) && (datalen == 2))
+            {
+                uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
+                uint8_t temp_buffer[NODE_SIZE];
+                
+                // Read node in flash & send it
+                readNode((gNode*)temp_buffer, *temp_uint_ptr);
+                usbSendMessage(CMD_READ_FLASH_NODE, NODE_SIZE, temp_buffer);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
+        // Write node in Flash
+        case CMD_WRITE_FLASH_NODE : 
+        {
+            uint16_t* temp_node_addr_ptr = (uint16_t*)msg->body.data;
+            uint16_t temp_flags;
+            
+            // Check that the plugin provided the address and packet #
+            if (datalen != 3)
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            } 
+            else
+            {                
+                // If it is the first packet, store the address and load the page in the internal buffer
+                if (msg->body.data[2] == 0)
+                {
+                    // Read the flags and check we're not overwriting someone else's data
+                    readDataFromFlash(pageNumberFromAddress(currentNodeWritten), NODE_SIZE * nodeNumberFromAddress(currentNodeWritten), 2, (void*)&temp_flags);
+                    
+                    // Either the node belongs to us or it is invalid
+                    if((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID))
+                    {
+                        currentNodeWritten = *temp_node_addr_ptr;
+                        loadPageToInternalBuffer(pageNumberFromAddress(currentNodeWritten));                        
+                    }
+                }
+                
+                // Check that the address the plugin wants to write is the one stored
+                if ((currentNodeWritten == *temp_node_addr_ptr) && (currentNodeWritten != NODE_ADDR_NULL))
+                {
+                    // Fill the data at the right place
+                    flashWriteBuffer(msg->body.data, (NODE_SIZE * nodeNumberFromAddress(currentNodeWritten)) + (msg->body.data[2] * PACKET_EXPORT_SIZE), datalen);
+                    
+                    // If we finished writing, flush buffer
+                    if (msg->body.data[2] == (NODE_SIZE/PACKET_EXPORT_SIZE))
+                    {
+                        flashWriteBufferToPage(pageNumberFromAddress(currentNodeWritten));
+                    }
+                    
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                }
             }
             break;
         }

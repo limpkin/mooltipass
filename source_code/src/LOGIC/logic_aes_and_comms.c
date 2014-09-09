@@ -28,6 +28,7 @@
 #include "logic_fwflash_storage.h"
 #include "gui_screen_functions.h"
 #include "logic_aes_and_comms.h"
+#include "usb_cmd_parser.h"
 #include "timer_manager.h"
 #include "aes256_ctr.h"
 #include "node_mgmt.h"
@@ -88,6 +89,7 @@ void clearSmartCardInsertedUnlocked(void)
 {
     context_valid_flag = FALSE;
     selected_login_flag = FALSE;
+    leaveMemoryManagementMode();
     activateTimer(TIMER_CREDENTIALS, 0);
     smartcard_inserted_unlocked = FALSE;
 }

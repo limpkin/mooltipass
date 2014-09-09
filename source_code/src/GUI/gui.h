@@ -40,6 +40,7 @@
 #define SCREEN_DEFAULT_INSERTED_NLCK    0x20
 #define SCREEN_DEFAULT_INSERTED_INVALID 0x30
 #define SCREEN_SETTINGS                 0x40
+#define SCREEN_MEMORY_MGMT              0x50
 
 /* STRUCTS */
 typedef struct

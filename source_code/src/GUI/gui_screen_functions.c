@@ -93,6 +93,11 @@ void guiGetBackToCurrentScreen(void)
             oledBitmapDrawFlash(0, 0, BITMAP_SETTINGS_SC, OLED_SCROLL_UP);
             break;
         }
+        case SCREEN_MEMORY_MGMT :
+        {
+            guiDisplayInformationOnScreen(ID_STRING_MEMORYMGMT);
+            break;
+        }
         default : break;
     }
 }
@@ -125,6 +130,13 @@ void guiScreenLoop(uint8_t touch_detect_result)
     {
         // No smart card inserted, ask the user to insert one
         guiDisplayInsertSmartCardScreenAndWait();
+    }
+    else if (currentScreen == SCREEN_MEMORY_MGMT)
+    {
+        // Currently in memory management mode, tell the user to finish it via the plugin/app
+        guiDisplayInformationOnScreen(ID_STRING_CLOSEMEMMGMT);
+        userViewDelay();
+        guiGetBackToCurrentScreen();
     }
     else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
     {

@@ -1,3 +1,6 @@
+v0.4:
+- migrating to block import/export mode
+
 v0.3:
 - pressing left on multiple credential screen will return
 - beta testers version: inserting the smartcard with the chip facing the right way will make the MP normally boot

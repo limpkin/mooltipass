@@ -678,7 +678,6 @@ RET_TYPE usbHidSend(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t tim
         return RETURN_COM_NOK;
     }
 
-
     res = usbWaitFifoReady(&intr_state, timeout);
 
     if (res != RETURN_COM_TRANSF_OK) 
@@ -784,7 +783,7 @@ int8_t usbRawHidSend(uint8_t* buffer, uint8_t timeout)
 */
 RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg)
 {
-    uint8_t chunk = cmd ? RAWHID_TX_SIZE-2 : RAWHID_TX_SIZE;
+    uint8_t chunk = cmd ? RAWHID_TX_SIZE-HID_DATA_START : RAWHID_TX_SIZE;
 
     /* Send message in chunks */
     while (size >= chunk)
@@ -795,11 +794,6 @@ RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg)
         }
         msg += chunk;
         size -= chunk;
-        if (cmd)
-        {
-            chunk += 2;
-            cmd = 0;
-        }
     }
     if (size || cmd)
     {
@@ -832,11 +826,6 @@ RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg)
         }
         msg += chunk;
         size -= chunk;
-        if (cmd)
-        {
-            chunk += 2;
-            cmd = 0;
-        }
     }
     if (size || cmd)
     {

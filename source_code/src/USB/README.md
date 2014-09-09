@@ -141,6 +141,17 @@ From plugin/app: Inform that we finished the flash import
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x50: Get user profile
+----------------------
+From plugin/app: Get the user profile inside the memory, ask the user to approve memory management mode
+
+From Mooltipass: 0x00 if denied, data otherwise
+
+0x50: End memory management mode
+--------------------------------
+From plugin/app: Leave memory management mode
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
 Functions
 =========

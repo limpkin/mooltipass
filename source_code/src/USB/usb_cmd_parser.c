@@ -44,6 +44,7 @@
 #include "stack.h"
 #include "usb.h"
 
+#ifdef FLASH_BLOCK_IMPORT_EXPORT
 // Bool to specify if we're writing user flash space
 uint8_t flash_import_user_space = FALSE;
 // Operation unique identifier to know the current approved flash action
@@ -52,27 +53,14 @@ uint8_t currentFlashOpUid;
 uint16_t flashOpCurAddr1;
 // Another import/export address that may be used
 uint16_t flashOpCurAddr2;
+#endif
+#ifdef NODE_BLOCK_IMPORT_EXPORT
+// Bool to know if the user approved memory management mode
+uint8_t memoryManagementModeApproved = FALSE;
+#endif
 
 
-/*! \fn     checkTextField(uint8_t* data, uint8_t len)
-*   \brief  Check that the sent text is correct
-*   \param  data    Pointer to the data
-*   \param  len     Length of the text
-*   \param  max_len Max length allowed
-*   \return If the sent text is ok
-*/
-RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
-{
-    if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1) || (len > (RAWHID_RX_SIZE-HID_DATA_START)))
-    {
-        return RETURN_NOK;
-    }
-    else
-    {
-        return RETURN_OK;
-    }
-}
-
+#ifdef FLASH_BLOCK_IMPORT_EXPORT
 /*! \fn     approveImportExportMemoryOperation(uint8_t opUID, uint8_t* pluginAnswer)
 *   \brief  Approve a Flash/Eeprom import/export operation
 *   \param  opUID           Unique memory operation identifier
@@ -91,6 +79,56 @@ void approveImportExportMemoryOperation(uint8_t opUID, uint8_t* pluginAnswer)
     {
         currentFlashOpUid = opUID;
         *pluginAnswer = PLUGIN_BYTE_OK;
+    }
+}
+#endif
+
+#ifdef NODE_BLOCK_IMPORT_EXPORT
+/*! \fn     approveMemoryManagementMode(uint8_t* pluginAnswer)
+*   \brief  Approve the memory management mode
+*   \param  pluginAnswer    Pointer to the plugin answer byte
+*/
+void approveMemoryManagementMode(uint8_t* pluginAnswer)
+{    
+    // Ask permission to the user
+    if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MEMORYMGMTQ)) == RETURN_OK)
+    {
+        guiSetCurrentScreen(SCREEN_MEMORY_MGMT);
+        memoryManagementModeApproved = TRUE;
+        *pluginAnswer = PLUGIN_BYTE_OK;
+    }
+    else
+    {        
+        *pluginAnswer = PLUGIN_BYTE_ERROR;
+    }
+    guiGetBackToCurrentScreen();
+}
+
+/*! \fn     leaveMemoryManagementMode(void)
+*   \brief  Leave memory management mode
+*/
+void leaveMemoryManagementMode(void)
+{
+    memoryManagementModeApproved = FALSE;
+}
+#endif
+
+/*! \fn     checkTextField(uint8_t* data, uint8_t len)
+*   \brief  Check that the sent text is correct
+*   \param  data    Pointer to the data
+*   \param  len     Length of the text
+*   \param  max_len Max length allowed
+*   \return If the sent text is ok
+*/
+RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
+{
+    if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1) || (len > (RAWHID_RX_SIZE-HID_DATA_START)))
+    {
+        return RETURN_NOK;
+    }
+    else
+    {
+        return RETURN_OK;
     }
 }
 
@@ -518,6 +556,56 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             plugin_return_value = PLUGIN_BYTE_OK;
             currentFlashOpUid = 0;
+            break;
+        }
+#endif
+#ifdef NODE_BLOCK_IMPORT_EXPORT
+        // Read user profile in flash
+        case CMD_GET_USERPROFILE :
+        {
+            // Return error by default
+            plugin_return_value = PLUGIN_BYTE_ERROR;
+            
+            // Check that the smartcard is unlocked
+            if (getSmartCardInsertedUnlocked() == TRUE)
+            {
+                // If so, ask the user to approve memory management mode
+                approveMemoryManagementMode(&plugin_return_value);
+                
+                // If the user approved, send the user profile
+                if (plugin_return_value == PLUGIN_BYTE_OK)
+                {
+                    uint8_t temp_buffer[USER_PROFILE_SIZE];
+                    uint16_t temp_page, temp_offset;
+                    
+                    // Get address in flash
+                    userProfileStartingOffset(getCurrentUserID(), &temp_page, &temp_offset);
+                    
+                    // Read the data and send it
+                    readDataFromFlash(temp_page, temp_offset, USER_PROFILE_SIZE, temp_buffer);
+                    usbSendMessage(CMD_GET_USERPROFILE, USER_PROFILE_SIZE, temp_buffer);
+                    return;
+                }
+            }            
+            break;
+        }
+        
+        // End memory management mode
+        case CMD_END_MEMORYMGMT :
+        {
+            // Check that we're actually in memory management mode
+            if (memoryManagementModeApproved == TRUE)
+            {
+                // memoryManagementModeApproved is cleared when user removes his card
+                guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_NLCK);
+                plugin_return_value = PLUGIN_BYTE_OK;
+                leaveMemoryManagementMode();
+                guiGetBackToCurrentScreen();
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
             break;
         }
 #endif

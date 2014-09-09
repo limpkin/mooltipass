@@ -36,7 +36,9 @@
 #define CMD_SET_BOOTLOADER_PWD  0x47
 #define CMD_JUMP_TO_BOOTLOADER  0x48
 #define CMD_CLONE_SMARTCARD     0x49
-#define CMD_STACK_FREE          0x50
+#define CMD_STACK_FREE          0x4A
+#define CMD_GET_USERPROFILE     0x50
+#define CMD_END_MEMORYMGMT      0x51
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00
@@ -73,5 +75,6 @@ typedef struct
 
 /*** PROTOTYPES ***/
 void usbProcessIncoming(uint8_t* incomingData);
+void leaveMemoryManagementMode(void);
 
 #endif

@@ -37,3 +37,4 @@ Going To Sleep...
 Allow Memory Management?
 Memory Management Mode
 Close Mode In The Plugin
+Created by the plugin

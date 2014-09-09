@@ -472,6 +472,9 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 encryptTempCNodePasswordAndClearCTVFlag();
                 memcpy((void*)temp_cnode.login, (void*)name, length);
                 
+                // Add "created by plugin" message in the description field
+                strcpy((char*)temp_cnode.description, readStoredStringToBuffer(ID_STRING_CREATEDBYPLUG));
+                
                 // Create child node
                 if(createChildNode(context_parent_node_addr, &temp_cnode) == RETURN_OK)
                 {

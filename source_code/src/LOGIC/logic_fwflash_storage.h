@@ -70,6 +70,7 @@
 #define ID_STRING_MEMORYMGMTQ   36
 #define ID_STRING_MEMORYMGMT    37
 #define ID_STRING_CLOSEMEMMGMT  38
+#define ID_STRING_CREATEDBYPLUG 39
 
 // Prototypes
 RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr);

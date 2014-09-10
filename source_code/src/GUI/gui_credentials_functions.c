@@ -38,6 +38,9 @@
 #include "gui.h"
 #include "usb.h"
 
+// Last first matching parent address we saw
+uint16_t last_matching_parent_addr = NODE_ADDR_NULL;
+
 
 /*! \fn     displayCredentialAtSlot(uint8_t slot, const char* text)
 *   \brief  Display text at a given slot when choosing between credentials/favorites
@@ -343,13 +346,8 @@ void displayCurrentSearchLoginTexts(char* text)
     // Set font for search text
     oledSetFont(FONT_CHECKBOOK_14);
     
-    // Clear current texts
+    // Clear current text
     oledFillXY(88, 16, 84, 22, 0x00);
-    
-    for (i = 0; i < 4; i++)
-    {
-        oledFillXY((i&1)*198, 6+(i&2)*19, 58, 14, 0x00);
-    }
     
     // Display new search text
     oledPutstrXY(144, 18, OLED_RIGHT, text);
@@ -360,15 +358,25 @@ void displayCurrentSearchLoginTexts(char* text)
     // Find the address of the first match
     tempNodeAddr = searchForServiceName((uint8_t*)text, COMPARE_MODE_COMPARE);
     
-    // Print the next 4 services
-    i = 0;
-    while ((tempNodeAddr != NODE_ADDR_NULL) && (i != 4))
+    if (tempNodeAddr != last_matching_parent_addr)
     {
-        readParentNode(&temp_pnode, tempNodeAddr);
-        displayServiceAtGivenSlot(i, (const char*)temp_pnode.service);
-        tempNodeAddr = temp_pnode.nextParentAddress;
-        i++;
-    }
+        last_matching_parent_addr = tempNodeAddr;
+        
+        for (i = 0; i < 4; i++)
+        {
+            oledFillXY((i&1)*198, 6+(i&2)*19, 58, 14, 0x00);
+        }
+        
+        // Print the next 4 services
+        i = 0;
+        while ((tempNodeAddr != NODE_ADDR_NULL) && (i != 4))
+        {
+            readParentNode(&temp_pnode, tempNodeAddr);
+            displayServiceAtGivenSlot(i, (const char*)temp_pnode.service);
+            tempNodeAddr = temp_pnode.nextParentAddress;
+            i++;
+        }        
+    }    
 }
 
 /*! \fn     loginSelectionScreen(pNode* p, cNode* c)
@@ -387,6 +395,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
     int8_t temp_int8;
     
     // Set current text to a
+    last_matching_parent_addr = NODE_ADDR_NULL;
     strcpy(currentText, "a");
     
     // Draw bitmap, display it and write active buffer

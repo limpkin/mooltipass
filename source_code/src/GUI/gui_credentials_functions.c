@@ -318,6 +318,16 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     return picked_child;
 }
 
+/*! \fn     displayServiceAtGivenSlot(uint8_t slot, const char* text)
+*   \brief  Display text at a given slot when choosing between services
+*   \param  slot                The slot number
+*   \param  text                The text to display
+*/
+void displayServiceAtGivenSlot(uint8_t slot, const char* text)
+{    
+    oledPutstrXY((slot & 0x01)*0xFF, 8 + (slot & 0x02)*20, (slot & 0x01)*OLED_RIGHT, text);    
+}
+
 /*! \fn     displayCurrentSearchLoginText(char* text)
 *   \brief  Display current search login text
 *   \param  text    Text to be displayed
@@ -331,6 +341,15 @@ void displayCurrentSearchLoginText(char* text)
     oledPutstrXY(144, 18, OLED_RIGHT, text);
     
     oledSetFont(FONT_DEFAULT);
+}
+
+/*! \fn     displayServicePossibilities(const char* text)
+*   \brief  Display the possible services in the slots
+*   \param  text    Our current text
+*/
+void displayServicePossibilities(const char* text)
+{
+    searchForServiceName(text, COMPARE_MODE_COMPARE);    
 }
 
 /*! \fn     loginSelectionScreen(pNode* p, cNode* c)
@@ -406,6 +425,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
             }
             currentText[currentStringIndex] += temp_int8;
             displayCurrentSearchLoginText(currentText);
+            displayServicePossibilities(currentText);
         }
         
          if (isSmartCardAbsent() == RETURN_OK)
@@ -424,6 +444,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
              {
                  currentText[currentStringIndex--] = 0;
                  displayCurrentSearchLoginText(currentText);
+                 displayServicePossibilities(currentText);
              } 
              else
              {
@@ -438,6 +459,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
                  currentText[currentStringIndex + 1] = 0;
              }
              displayCurrentSearchLoginText(currentText);
+             displayServicePossibilities(currentText);
          }
     }
     

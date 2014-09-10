@@ -128,16 +128,16 @@ void initUserFlashContext(uint8_t user_id)
     readProfileCtr(nextCtrVal);
 }
 
-/*! \fn     searchForServiceName(uint8_t* name, uint8_t length)
+/*! \fn     searchForServiceName(uint8_t* name, uint8_t mode)
 *   \brief  Find a given service name
 *   \param  name    Name of the service / website
-*   \param  length  Length of the string
+*   \param  mode    Mode of compare (see service_compare_mode_t)
 *   \return Address of the found node, NODE_ADDR_NULL otherwise
 */
-uint16_t searchForServiceName(uint8_t* name, uint8_t length)
+uint16_t searchForServiceName(uint8_t* name, uint8_t mode)
 {
     uint16_t next_node_addr = getStartingParentAddress();
-    (void)length;
+    uint16_t prev_node_addr = next_node_addr;
     
     if (next_node_addr == NODE_ADDR_NULL)
     {
@@ -152,10 +152,15 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t length)
             readParentNode(&temp_pnode, next_node_addr);
             
             // Compare its service name with the name that was provided
-            if (strcmp((char*)temp_pnode.service, (char*)name) == 0)
+            if ((mode == COMPARE_MODE_MATCH) && (strcmp((char*)name, (char*)temp_pnode.service) == 0))
             {
                 return next_node_addr;
             }
+            else if ((mode == COMPARE_MODE_COMPARE) && (strcmp((char*)name, (char*)temp_pnode.service) > 0))
+            {
+                return prev_node_addr;
+            }
+            prev_node_addr = next_node_addr;
             next_node_addr = temp_pnode.nextParentAddress;
         }
         while (next_node_addr != NODE_ADDR_NULL);
@@ -291,7 +296,7 @@ static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
 {
     // Look for name inside our flash
-    context_parent_node_addr = searchForServiceName(name, length);
+    context_parent_node_addr = searchForServiceName(name, COMPARE_MODE_MATCH);
     
     // Clear all flags
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -324,7 +329,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length)
     RET_TYPE ret_val = RETURN_NOK;
     
     // Check if the context doesn't already exist
-    if ((smartcard_inserted_unlocked == FALSE) || (searchForServiceName(name, length) != NODE_ADDR_NULL))
+    if ((smartcard_inserted_unlocked == FALSE) || (searchForServiceName(name, COMPARE_MODE_MATCH) != NODE_ADDR_NULL))
     {
         return RETURN_NOK;
     }

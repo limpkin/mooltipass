@@ -1,6 +1,8 @@
 v0.4:
 - migrating to block import/export mode
 - media import doesn't need confirmation for beta testers
+- login selection screen implemented
+- timeout for favorite and login selection
 
 v0.3:
 - pressing left on multiple credential screen will return

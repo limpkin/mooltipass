@@ -40,7 +40,7 @@ uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_
 RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length);
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
 void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce);
-uint16_t searchForServiceName(uint8_t* name, uint8_t length);
+uint16_t searchForServiceName(uint8_t* name, uint8_t mode);
 RET_TYPE setLoginForContext(uint8_t* name, uint8_t length);
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t length);
 RET_TYPE addNewContext(uint8_t* name, uint8_t length);

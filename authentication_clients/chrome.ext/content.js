@@ -246,16 +246,34 @@ function checkSubmittedCredentials(event)
                     direction: 'up',
                     duration: 500 
                 },
-                hide: {
-                    effect: 'puff',
-                    duration: 500
-                },
-                buttons: {
-                    "Update Mooltipass credentials": function() 
-                    {
-                        chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
-                        $(this).dialog('close');
-                    },
+		buttons: {
+		"Update Mooltipass credentials": function() 
+		{
+			chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
+			pNode.innerHTML = 'Please confirm on Mooltipass!';
+			$(this).dialog('close');
+			$( "#mpDialog" ).dialog({
+				autoOpen: true,
+			hide: {
+				effect: 'puff',
+				duration: 500
+			},
+			open: function (event, ui) {
+				
+ 				setTimeout(function() { 
+					$('#mpDialog').dialog('close')
+					pNode.innerHTML='';} , 3000);
+			},
+			buttons: {
+			OK: function() 
+				{
+ 					$(this).dialog('close');
+					pNode.innerHTML = '';
+				}
+			}
+			});
+			
+		},
                     Skip: function() 
                     {
                         doSubmit(activeCredentials);

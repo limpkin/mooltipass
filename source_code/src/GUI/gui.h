@@ -34,6 +34,7 @@
 #define SCREEN_TIMER_DEL                60000
 #define LIGHT_TIMER_DEL                 16000
 #define USER_INTER_DEL                  7000
+#define SELECT_TIMER_DEL                10000
 // Screen defines
 #define SCREEN_DEFAULT_NINSERTED        0x00
 #define SCREEN_DEFAULT_INSERTED_LCK     0x10

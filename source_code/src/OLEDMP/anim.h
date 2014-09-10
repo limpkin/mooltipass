@@ -51,6 +51,7 @@
 #define BITMAP_RIGHT_ARROW    13
 #define BITMAP_PIN_LINES      14
 #define BITMAP_ZZZ            16
+#define BITMAP_LOGIN_FIND     17
 
 // These bitmaps are built from frames
 #define BITMAP_SIDES          (0x80+FRAME_SIDES)

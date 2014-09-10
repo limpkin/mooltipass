@@ -22,9 +22,13 @@
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
+#include <string.h>
+#include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
+#include "gui_credentials_functions.h"
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
+#include "timer_manager.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "oledmp.h"
@@ -282,6 +286,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         // Check its validity, knowing that by default we will return NODE_ADDR_NULL
         if (j == -1)
         {
+            action_chosen = TRUE;
             // Time out
         }
         else if (j < i)
@@ -312,3 +317,132 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     // Return selected child
     return picked_child;
 }
+
+/*! \fn     displayCurrentSearchLoginText(char* text)
+*   \brief  Display current search login text
+*   \param  text    Text to be displayed
+*/
+void displayCurrentSearchLoginText(char* text)
+{
+    oledSetFont(FONT_CHECKBOOK_14);
+    
+    // Clear current text
+    oledFillXY(88, 16, 84, 22, 0x00);
+    oledPutstrXY(144, 18, OLED_RIGHT, text);
+    
+    oledSetFont(FONT_DEFAULT);
+}
+
+/*! \fn     loginSelectionScreen(pNode* p, cNode* c)
+*   \brief  Screen displayed to let the user choose/find a login
+*   \param  p                   Pointer to a parent node
+*   \param  c                   Pointer to a child node
+*   \return Valid child node address or 0 otherwise
+*/
+uint16_t loginSelectionScreen(pNode* p, cNode* c)
+{
+    char currentText[SEARCHTEXT_MAX_LENGTH+1];
+    uint16_t ret_val = NODE_ADDR_NULL;
+    uint8_t currentStringIndex = 0;
+    uint8_t finished = FALSE;
+    RET_TYPE temp_rettype;
+    int8_t temp_int8;
+    
+    // Set current text to a
+    strcpy(currentText, "a");
+    
+    // Draw bitmap, display it and write active buffer
+    oledClear();
+    oledBitmapDrawFlash(0, 0, BITMAP_LOGIN_FIND, 0);
+    oledFlipBuffers(0,0);
+    oledWriteActiveBuffer();
+    
+    // Display current text on screen
+    displayCurrentSearchLoginText(currentText);
+    
+    // Clear possible remaining detection
+    touchClearCurrentDetections();
+    
+    // Arm interaction timer
+    activateTimer(TIMER_USERINT, SELECT_TIMER_DEL);
+    
+    // While the user hasn't chosen a credential
+    while(!finished)
+    {
+        // Detect key touches
+        temp_rettype = touchDetectionRoutine(0);
+        
+        // If something happened, rearm timer
+        if (temp_rettype != RETURN_NO_CHANGE)
+        {
+            activateTimer(TIMER_USERINT, SELECT_TIMER_DEL);
+        }
+        
+        // Send it to the touch wheel interface logic
+        temp_int8 = touchWheelIntefaceLogic(temp_rettype);
+
+        // Position increment / decrement
+        if (temp_int8 != 0)
+        {
+            if ((currentText[currentStringIndex] == 0x7A) && (temp_int8 == 1))
+            {
+                // z->0 wrap
+                currentText[currentStringIndex] = 0x2F;
+            }
+            if ((currentText[currentStringIndex] == 0x39) && (temp_int8 == 1))
+            {
+                // 9->a wrap
+                currentText[currentStringIndex] = 0x60;
+            }
+            else if ((currentText[currentStringIndex] == 0x30) && (temp_int8 == -1))
+            {
+                // 0->z wrap
+                currentText[currentStringIndex] = 0x7B;
+            }
+            else if ((currentText[currentStringIndex] == 0x61) && (temp_int8 == -1))
+            {
+                // a->9 wrap
+                currentText[currentStringIndex] = 0x3A;
+            }
+            currentText[currentStringIndex] += temp_int8;
+            displayCurrentSearchLoginText(currentText);
+        }
+        
+         if (isSmartCardAbsent() == RETURN_OK)
+         {
+             // Smartcard removed, no reason to continue
+             finished = TRUE;
+         }
+         else if (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED)
+         {
+             // No interaction for a while
+             finished = TRUE;
+         }
+         if (temp_rettype & RETURN_LEFT_PRESSED)
+         {
+             if (currentStringIndex > 0)
+             {
+                 currentText[currentStringIndex--] = 0;
+                 displayCurrentSearchLoginText(currentText);
+             } 
+             else
+             {
+                 finished = TRUE;
+             }
+         }
+         else if (temp_rettype & RETURN_RIGHT_PRESSED)
+         {
+             if (currentStringIndex < SEARCHTEXT_MAX_LENGTH-1)
+             {
+                 currentText[++currentStringIndex] = 'a';
+                 currentText[currentStringIndex + 1] = 0;
+             }
+             displayCurrentSearchLoginText(currentText);
+         }
+    }
+    
+    // Set inactive buffer write by default
+    oledWriteInactiveBuffer();
+    
+    return ret_val;
+}    

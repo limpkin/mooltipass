@@ -590,20 +590,17 @@ RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
     }
 }
 
-/*! \fn     favoritePickingLogic(void)
-*   \brief  Logic for picking a favorite's credentials
+/*! \fn     askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
+*   \brief  Ask the user to enter the login password of a given child
+*   \param  child_address   Address of the child
 */
-void favoritePickingLogic(void)
-{
-    uint16_t pickedChild;
-    
-    pickedChild = favoriteSelectionScreen(&temp_pnode, &temp_cnode);
-    
+void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
+{    
     // If the user picked a credential set
-    if (pickedChild != NODE_ADDR_NULL)
+    if (child_address != NODE_ADDR_NULL)
     {
         // Read child node
-        readChildNode(&temp_cnode, pickedChild);
+        readChildNode(&temp_cnode, child_address);
         
         // Ask the user if he wants to output the login
         if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK)
@@ -617,5 +614,21 @@ void favoritePickingLogic(void)
             decryptTempCNodePasswordAndClearCTVFlag();
             usbKeybPutStr((char*)temp_cnode.password);
         }
-    }
+    }    
+}
+
+/*! \fn     favoritePickingLogic(void)
+*   \brief  Logic for picking a favorite's credentials
+*/
+void favoritePickingLogic(void)
+{
+    askUserForLoginAndPasswordKeybOutput(favoriteSelectionScreen(&temp_pnode, &temp_cnode));
+}
+
+/*! \fn     loginSelectLogic(void)
+*   \brief  Logic for finding a given login
+*/
+void loginSelectLogic(void)
+{
+    askUserForLoginAndPasswordKeybOutput(loginSelectionScreen(&temp_pnode, &temp_cnode));
 }

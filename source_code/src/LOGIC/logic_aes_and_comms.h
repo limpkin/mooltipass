@@ -54,6 +54,7 @@ void eraseFlashUsersContents(void);
 void ctrPostEncryptionTasks(void);
 void ctrPreEncryptionTasks(void);
 void favoritePickingLogic(void);
+void loginSelectLogic(void);
 
 
 #endif /* LOGIC_ENCRYPTION_H_ */

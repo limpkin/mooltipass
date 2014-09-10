@@ -176,6 +176,13 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 guiGetBackToCurrentScreen();
                 break;
             }
+            case (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_TLEFT) :
+            {
+                // User wants to go to the favorite menu
+                loginSelectLogic();
+                guiGetBackToCurrentScreen();
+                break;
+            }
             case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BLEFT) :
             {
                 // User wants to delete his profile in flash / eeprom....

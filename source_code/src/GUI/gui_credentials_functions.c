@@ -28,7 +28,9 @@
 #include "gui_credentials_functions.h"
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
+#include "logic_aes_and_comms.h"
 #include "timer_manager.h"
+#include "node_mgmt.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "oledmp.h"
@@ -325,31 +327,48 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 */
 void displayServiceAtGivenSlot(uint8_t slot, const char* text)
 {    
-    oledPutstrXY((slot & 0x01)*0xFF, 8 + (slot & 0x02)*20, (slot & 0x01)*OLED_RIGHT, text);    
+    oledPutstrXY((slot & 0x01)*0xFF, 4 + (slot & 0x02)*20, (slot & 0x01)*OLED_RIGHT, text);    
 }
 
-/*! \fn     displayCurrentSearchLoginText(char* text)
+/*! \fn     displayCurrentSearchLoginTexts(char* text)
 *   \brief  Display current search login text
 *   \param  text    Text to be displayed
 */
-void displayCurrentSearchLoginText(char* text)
+void displayCurrentSearchLoginTexts(char* text)
 {
+    uint16_t tempNodeAddr;
+    pNode temp_pnode;
+    uint8_t i;
+    
+    // Set font for search text
     oledSetFont(FONT_CHECKBOOK_14);
     
-    // Clear current text
+    // Clear current texts
     oledFillXY(88, 16, 84, 22, 0x00);
+    
+    for (i = 0; i < 4; i++)
+    {
+        oledFillXY((i&1)*198, 6+(i&2)*19, 58, 14, 0x00);
+    }
+    
+    // Display new search text
     oledPutstrXY(144, 18, OLED_RIGHT, text);
     
+    // Set default font
     oledSetFont(FONT_DEFAULT);
-}
-
-/*! \fn     displayServicePossibilities(const char* text)
-*   \brief  Display the possible services in the slots
-*   \param  text    Our current text
-*/
-void displayServicePossibilities(const char* text)
-{
-    searchForServiceName(text, COMPARE_MODE_COMPARE);    
+    
+    // Find the address of the first match
+    tempNodeAddr = searchForServiceName((uint8_t*)text, COMPARE_MODE_COMPARE);
+    
+    // Print the next 4 services
+    i = 0;
+    while ((tempNodeAddr != NODE_ADDR_NULL) && (i != 4))
+    {
+        readParentNode(&temp_pnode, tempNodeAddr);
+        displayServiceAtGivenSlot(i, (const char*)temp_pnode.service);
+        tempNodeAddr = temp_pnode.nextParentAddress;
+        i++;
+    }
 }
 
 /*! \fn     loginSelectionScreen(pNode* p, cNode* c)
@@ -377,7 +396,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
     oledWriteActiveBuffer();
     
     // Display current text on screen
-    displayCurrentSearchLoginText(currentText);
+    displayCurrentSearchLoginTexts(currentText);
     
     // Clear possible remaining detection
     touchClearCurrentDetections();
@@ -424,8 +443,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
                 currentText[currentStringIndex] = 0x3A;
             }
             currentText[currentStringIndex] += temp_int8;
-            displayCurrentSearchLoginText(currentText);
-            displayServicePossibilities(currentText);
+            displayCurrentSearchLoginTexts(currentText);
         }
         
          if (isSmartCardAbsent() == RETURN_OK)
@@ -443,8 +461,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
              if (currentStringIndex > 0)
              {
                  currentText[currentStringIndex--] = 0;
-                 displayCurrentSearchLoginText(currentText);
-                 displayServicePossibilities(currentText);
+                 displayCurrentSearchLoginTexts(currentText);
              } 
              else
              {
@@ -458,8 +475,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
                  currentText[++currentStringIndex] = 'a';
                  currentText[currentStringIndex + 1] = 0;
              }
-             displayCurrentSearchLoginText(currentText);
-             displayServicePossibilities(currentText);
+             displayCurrentSearchLoginTexts(currentText);
          }
     }
     

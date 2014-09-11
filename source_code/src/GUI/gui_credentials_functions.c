@@ -434,6 +434,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
     oledWriteActiveBuffer();
     
     // Clear possible remaining detection
+    touchWaitForWheelReleased();
     touchClearCurrentDetections();
     
     // Arm interaction timer
@@ -467,16 +468,17 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
         // Algo to differentiate a tap from a scroll
         if ((temp_rettype & RETURN_WHEEL_PRESSED) && (wasWheelReleased == TRUE))
         {
-            // We use the timer dedicated to wait functions for max
-            activateTimer(TIMER_WAIT_FUNCTS, TAP_MAX_DEL);
-            // We use the timer dedicated to caps detect for min
-            activateTimer(TIMER_CAPS, TAP_MIN_DEL);
+            // We use the timer dedicated to wait functions for min
+            activateTimer(TIMER_WAIT_FUNCTS, TAP_MIN_DEL);
+            // We use the timer dedicated to caps detect for max
+            activateTimer(TIMER_CAPS, TAP_MAX_DEL);
+            // This works because we use the same clearing flags 
             wasWheelReleased = FALSE;
         }
         else if (temp_rettype & RETURN_WHEEL_RELEASED)
         {
             // Check if it's a tap and that the selected domain is valid
-            if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) == TIMER_RUNNING) && (getWheelTouchDetectionQuarter() < nbMatchedParents))
+            if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && (hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) == TIMER_EXPIRED) && (getWheelTouchDetectionQuarter() < nbMatchedParents))
             {
                 ret_val = tempParentAddresses[getWheelTouchDetectionQuarter()];
                 finished = TRUE;

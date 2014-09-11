@@ -35,6 +35,8 @@
 #define LIGHT_TIMER_DEL                 16000
 #define USER_INTER_DEL                  7000
 #define SELECT_TIMER_DEL                10000
+#define TAP_MAX_DEL                     300
+#define TAP_MIN_DEL                     100
 // Screen defines
 #define SCREEN_DEFAULT_NINSERTED        0x00
 #define SCREEN_DEFAULT_INSERTED_LCK     0x10
@@ -42,6 +44,9 @@
 #define SCREEN_DEFAULT_INSERTED_INVALID 0x30
 #define SCREEN_SETTINGS                 0x40
 #define SCREEN_MEMORY_MGMT              0x50
+// Truncate defines
+#define INDEX_TRUNCATE_SERVICE_SEARCH   10
+#define INDEX_TRUNCATE_LOGIN_FAV        15
 
 /* STRUCTS */
 typedef struct

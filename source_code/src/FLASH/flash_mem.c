@@ -42,7 +42,7 @@
 void memoryBoundaryErrorCallback(void)
 {
     // We'll add more debug later if needed
-    usbPutstr(PSTR("#MBE"));
+    usbPutstr("#MBE");
     while(1);
 }
 

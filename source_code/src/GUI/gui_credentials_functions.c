@@ -40,6 +40,8 @@
 
 // Last first matching parent address we saw
 uint16_t last_matching_parent_addr = NODE_ADDR_NULL;
+// Last number of matching parent address
+uint8_t last_matching_parent_number = 0;
 
 
 /*! \fn     displayCredentialAtSlot(uint8_t slot, const char* text)
@@ -49,6 +51,7 @@ uint16_t last_matching_parent_addr = NODE_ADDR_NULL;
 */
 void displayCredentialAtSlot(uint8_t slot, char* text)
 {
+    char temp_disptext[40];
     int8_t yoffset = 0;
     
     if (slot & 0x08)
@@ -56,7 +59,10 @@ void displayCredentialAtSlot(uint8_t slot, char* text)
         yoffset =  (slot & 0x02)? -10:10;
     }
     
-    oledPutstrXY((slot & 0x01)*0xFF, (slot & 0x02)*23 + yoffset, (slot & 0x01)*OLED_RIGHT, text);
+    // Truncate and display string
+    strcpy(temp_disptext, text);
+    temp_disptext[INDEX_TRUNCATE_LOGIN_FAV] = 0;
+    oledPutstrXY((slot & 0x01)*0xFF, (slot & 0x02)*23 + yoffset, (slot & 0x01)*OLED_RIGHT, temp_disptext);
 }
 
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
@@ -73,6 +79,12 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
     uint16_t addresses[4];
     uint8_t led_mask;
     int8_t i, j;
+    
+    // Check parent node address
+    if (parentNodeAddress == NODE_ADDR_NULL)
+    {
+        return NODE_ADDR_NULL;
+    }
     
     // Read the parent node
     readParentNode(p, parentNodeAddress);
@@ -200,8 +212,6 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
         }
     }
         
-    // Get back to other screen
-    guiGetBackToCurrentScreen();
     return picked_child;
 }
 
@@ -329,15 +339,22 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 *   \param  text                The text to display
 */
 void displayServiceAtGivenSlot(uint8_t slot, const char* text)
-{    
-    oledPutstrXY((slot & 0x01)*0xFF, 4 + (slot & 0x02)*20, (slot & 0x01)*OLED_RIGHT, text);    
+{
+    char temp_disptext[40];
+    
+    // Truncate string and display it
+    strcpy(temp_disptext, text);
+    temp_disptext[INDEX_TRUNCATE_SERVICE_SEARCH] = 0;
+    oledPutstrXY((slot & 0x01)*0xFF, 4 + (slot & 0x02)*20, (slot & 0x01)*OLED_RIGHT, temp_disptext);    
 }
 
 /*! \fn     displayCurrentSearchLoginTexts(char* text)
 *   \brief  Display current search login text
-*   \param  text    Text to be displayed
+*   \param  text            Text to be displayed
+*   \param  resultsarray    Pointer to the array in which to store the addresses
+*   \return Number of matching parents we displayed
 */
-void displayCurrentSearchLoginTexts(char* text)
+uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
 {
     uint16_t tempNodeAddr;
     pNode temp_pnode;
@@ -371,12 +388,18 @@ void displayCurrentSearchLoginTexts(char* text)
         i = 0;
         while ((tempNodeAddr != NODE_ADDR_NULL) && (i != 4))
         {
+            resultsarray[i] = tempNodeAddr;
             readParentNode(&temp_pnode, tempNodeAddr);
             displayServiceAtGivenSlot(i, (const char*)temp_pnode.service);
             tempNodeAddr = temp_pnode.nextParentAddress;
             i++;
-        }        
-    }    
+        }
+        
+        // Store and return number of children
+        last_matching_parent_number = i;
+    }
+    
+    return last_matching_parent_number;
 }
 
 /*! \fn     loginSelectionScreen(pNode* p, cNode* c)
@@ -388,14 +411,20 @@ void displayCurrentSearchLoginTexts(char* text)
 uint16_t loginSelectionScreen(pNode* p, cNode* c)
 {
     char currentText[SEARCHTEXT_MAX_LENGTH+1];
+    uint8_t displayRefreshNeeded = TRUE;
     uint16_t ret_val = NODE_ADDR_NULL;
+    uint8_t wasWheelReleased = TRUE;
+    uint16_t tempParentAddresses[4];
     uint8_t currentStringIndex = 0;
+    uint8_t nbMatchedParents= 0;
     uint8_t finished = FALSE;
     RET_TYPE temp_rettype;
+    uint8_t led_mask = 0;
     int8_t temp_int8;
     
     // Set current text to a
     last_matching_parent_addr = NODE_ADDR_NULL;
+    last_matching_parent_number = 0;
     strcpy(currentText, "a");
     
     // Draw bitmap, display it and write active buffer
@@ -403,9 +432,6 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
     oledBitmapDrawFlash(0, 0, BITMAP_LOGIN_FIND, 0);
     oledFlipBuffers(0,0);
     oledWriteActiveBuffer();
-    
-    // Display current text on screen
-    displayCurrentSearchLoginTexts(currentText);
     
     // Clear possible remaining detection
     touchClearCurrentDetections();
@@ -416,13 +442,46 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
     // While the user hasn't chosen a credential
     while(!finished)
     {
+        if (displayRefreshNeeded == TRUE)
+        {
+            nbMatchedParents = displayCurrentSearchLoginTexts(currentText, tempParentAddresses);
+            displayRefreshNeeded = FALSE;
+            
+            // Light only the available choices
+            led_mask = 0;
+            for (temp_int8 = nbMatchedParents; temp_int8 < 4; temp_int8++)
+            {
+                led_mask |= (1 << temp_int8);
+            }
+        }
+        
         // Detect key touches
-        temp_rettype = touchDetectionRoutine(0);
+        temp_rettype = touchDetectionRoutine(led_mask);
         
         // If something happened, rearm timer
         if (temp_rettype != RETURN_NO_CHANGE)
         {
             activateTimer(TIMER_USERINT, SELECT_TIMER_DEL);
+        }
+        
+        // Algo to differentiate a tap from a scroll
+        if ((temp_rettype & RETURN_WHEEL_PRESSED) && (wasWheelReleased == TRUE))
+        {
+            // We use the timer dedicated to wait functions for max
+            activateTimer(TIMER_WAIT_FUNCTS, TAP_MAX_DEL);
+            // We use the timer dedicated to caps detect for min
+            activateTimer(TIMER_CAPS, TAP_MIN_DEL);
+            wasWheelReleased = FALSE;
+        }
+        else if (temp_rettype & RETURN_WHEEL_RELEASED)
+        {
+            // Check if it's a tap and that the selected domain is valid
+            if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) == TIMER_RUNNING) && (getWheelTouchDetectionQuarter() < nbMatchedParents))
+            {
+                ret_val = tempParentAddresses[getWheelTouchDetectionQuarter()];
+                finished = TRUE;
+            }
+            wasWheelReleased = TRUE;
         }
         
         // Send it to the touch wheel interface logic
@@ -452,40 +511,37 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
                 currentText[currentStringIndex] = 0x3A;
             }
             currentText[currentStringIndex] += temp_int8;
-            displayCurrentSearchLoginTexts(currentText);
+            displayRefreshNeeded = TRUE;
         }
         
-         if (isSmartCardAbsent() == RETURN_OK)
-         {
-             // Smartcard removed, no reason to continue
-             finished = TRUE;
-         }
-         else if (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED)
-         {
-             // No interaction for a while
-             finished = TRUE;
-         }
-         if (temp_rettype & RETURN_LEFT_PRESSED)
-         {
-             if (currentStringIndex > 0)
-             {
-                 currentText[currentStringIndex--] = 0;
-                 displayCurrentSearchLoginTexts(currentText);
-             } 
-             else
-             {
-                 finished = TRUE;
-             }
-         }
-         else if (temp_rettype & RETURN_RIGHT_PRESSED)
-         {
-             if (currentStringIndex < SEARCHTEXT_MAX_LENGTH-1)
-             {
-                 currentText[++currentStringIndex] = 'a';
-                 currentText[currentStringIndex + 1] = 0;
-             }
-             displayCurrentSearchLoginTexts(currentText);
-         }
+        if ((isSmartCardAbsent() == RETURN_OK) || (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED))
+        {
+            // Smartcard removed or no interaction for a while
+            finished = TRUE;
+        }
+        else if (temp_rettype & RETURN_LEFT_PRESSED)
+        {
+            // Change search index
+            if (currentStringIndex > 0)
+            {
+                currentText[currentStringIndex--] = 0;
+                displayRefreshNeeded = TRUE;
+            } 
+            else
+            {
+                finished = TRUE;
+            }
+        }
+        else if (temp_rettype & RETURN_RIGHT_PRESSED)
+        {
+            // Change search index
+            if (currentStringIndex < SEARCHTEXT_MAX_LENGTH-1)
+            {
+                currentText[++currentStringIndex] = 'a';
+                currentText[currentStringIndex + 1] = 0;
+                displayRefreshNeeded = TRUE;
+            }
+        }
     }
     
     // Set inactive buffer write by default

@@ -146,6 +146,36 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
                 contentAddr = sender.tab.id;
                 chrome.runtime.sendMessage(mpClient.id, request);
                 break;
+	    case 'addBlacklist':
+		    console.log('got blacklist req. for ' + request.url);
+		    chrome.storage.sync.get({
+			    mpBlacklist: []
+		    }, function(items) {
+			    items.mpBlacklist.push(request.url);
+			    items.mpBlacklist.sort();
+			    console.log('blacklist sorted');
+			    chrome.storage.sync.set({
+				    mpBlacklist: items.mpBlacklist
+			    }, function() {});
+			    console.log('blacklist updated');
+		    });
+		    break;
+	    case 'queryBlacklist':
+		    console.log('got blacklist query. for ' + request.url);
+		    chrome.storage.sync.get({
+			    mpBlacklist: []
+		    }, function(items) {
+			    var found = items.mpBlacklist.indexOf(request.url);
+			    if ( found>=0 ){
+				    sendResponse({type: 'blacklistResponse', onBlacklist: true});
+				    console.log('site is blacklisted!');
+			    } else {
+				    sendResponse({type: 'blacklistResponse', onBlacklist: false});
+				    console.log('site not blacklisted');
+			    }
+		    });
+		return true;
+		    break;
             default:
                 break;
         }

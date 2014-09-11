@@ -39,7 +39,6 @@ var formSubs = {}
 var passwords = [];
 var activeCredentials = null;
 var mooltipassConnected = false;    // Active mooltipass connected to app
-var siteBlacklisted = false;
 
 console.log('mooltipass content script loaded');
 
@@ -223,7 +222,7 @@ function checkSubmittedCredentials(event)
 
     var updateNeeded = false;
     console.log('check: creds');
-    if (credFields && !siteBlacklisted) {
+    if (credFields) {
         // we have some, see if the values differ from what the mooltipass has
         if (credentialsChanged(credFields))
         {
@@ -247,49 +246,21 @@ function checkSubmittedCredentials(event)
                     direction: 'up',
                     duration: 500 
                 },
-		buttons: {
-		"Update Mooltipass credentials": function() 
-		{
-			chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
-			pNode.innerHTML = 'Please confirm on Mooltipass!';
-			$(this).dialog('close');
-			$( "#mpDialog" ).dialog({
-				autoOpen: true,
-			hide: {
-				effect: 'puff',
-				duration: 500
-			},
-			open: function (event, ui) {
-				
- 				setTimeout(function() { 
-					$('#mpDialog').dialog('close')
-					pNode.innerHTML='';} , 3000);
-			},
-			buttons: {
-			OK: function() 
-				{
- 					$(this).dialog('close');
-					pNode.innerHTML = '';
-				}
-			}
-			});
-			
-		},
+                hide: {
+                    effect: 'puff',
+                    duration: 500
+                },
+                buttons: {
+                    "Update Mooltipass credentials": function() 
+                    {
+                        chrome.runtime.sendMessage({type: 'update', url: window.location.href, inputs: credFields});
+                        $(this).dialog('close');
+                    },
                     Skip: function() 
                     {
                         doSubmit(activeCredentials);
                         $(this).dialog('close');
-                    },
-		"Never for this site" : function()
-		{
-			
-			console.log('sending blacklist req for '+window.location.href);
-			chrome.runtime.sendMessage({type: 'addBlacklist', url: window.location.href });
-			console.log('blacklist done....');
- 			doSubmit(activeCredentials);
-			$(this).dialog('close');
-		}
-		    
+                    }
                 }
             });
             console.log('content: after update dialog');
@@ -390,12 +361,7 @@ function recheckCredentials()
 // Scan for credentials as late as possible.
 $(window).load(function() 
 {
-	chrome.runtime.sendMessage({type: 'queryBlacklist', url: window.location.href }, function(response){
-		console.log('BL query reply:' + response.onBlacklist);
-		siteBlacklisted=response.onBlacklist;
-	}
-	);
-	credFields = getCredentials();
+    credFields = getCredentials();
 
     if (credFields == null) {
         // no credentials
@@ -409,7 +375,6 @@ $(window).load(function()
 
     sendCredentials(credFields);
 });
-
 
 /**
  * Submit the credentials to the server

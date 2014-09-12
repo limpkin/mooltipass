@@ -84,6 +84,12 @@ var CMD_EXPORT_EEPROM_START = 0x46;
 var CMD_SET_BOOTLOADER_PWD  = 0x47;
 var CMD_JUMP_TO_BOOTLOADER  = 0x48;
 var CMD_CLONE_SMARTCARD     = 0x49;
+var CMD_STACK_FREE          = 0x4A;
+var CMD_GET_USERPROFILE     = 0x50;
+var CMD_END_MEMORYMGMT      = 0x51;
+var CMD_IMPORT_MEDIA_START  = 0x52;
+var CMD_IMPORT_MEDIA        = 0x53;
+var CMD_IMPORT_MEDIA_END    = 0x54;
 var CMD_STACK_FREE          = 0x50;
 
 var PLUGIN_BYTE_NOCARD	    = 0x03; // Response to CMD_CONTEXT if no card.
@@ -689,6 +695,7 @@ function initWindow()
                     importProgressBar.progressbar('value', 0);
 
                     // Request permission to send
+		    sendRequest(CMD_IMPORT_MEDIA_START);
                     args = new Uint8Array([1]);     // media
                     sendRequest(CMD_IMPORT_FLASH_BEGIN, args);
                     log('#importLog');  // clear log
@@ -1166,7 +1173,17 @@ function onDataReceived(reportId, data)
             }
             break;
         }
-
+	case CMD_IMPORT_MEDIA_START: 
+	case CMD_IMPORT_MEDIA: 
+	{
+            var ok = bytes[2];
+            if (ok == 0) {
+                log('#importLog', 'import denied\n');
+            } else {
+                sendNextPacket(CMD_IMPORT_MEDIA, importData);
+            }
+            break;
+        }
         case CMD_IMPORT_FLASH_END:
         case CMD_IMPORT_EEPROM_END:
             importData = null;

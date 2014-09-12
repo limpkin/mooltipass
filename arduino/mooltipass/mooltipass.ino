@@ -25,7 +25,7 @@
  * Mooltipass Oled Demo
  */
 
-#include <spi.h>
+#include <usart_spi.h>
 #include <oledmp.h>
 #include <util/delay.h>
 #include "aqua.h"
@@ -34,13 +34,8 @@
 #include "had_mooltipass_2.h"
 #include "gear.h"
 
-uint8_t const OLED_CS =		 6;	// PD6 (D12)
-uint8_t const OLED_DC =		 7;	// PD7 (D6)
-uint8_t const OLED_nRESET =	 1;	// PD1 (D2)
-uint8_t const OLED_nENABLE_12V = 7;	// PB7 (D11)
-
-SPI spi(SPI_BAUD_8_MHZ);
-OledMP oled(&PORTD, OLED_CS, &PORTD, OLED_DC, &PORTD, OLED_nRESET, &PORTB, OLED_nENABLE_12V, spi);	
+USARTSPI spi(SPI_BAUD_8_MHZ);
+OledMP oled(spi);	
 
 uint32_t count=0;
 

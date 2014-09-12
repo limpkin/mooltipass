@@ -28,7 +28,7 @@
 #include <stdarg.h>
 #include <Arduino.h>
 #include <avr/pgmspace.h>
-#include <spi.h>
+#include <usart_spi.h>
 
 #include "fstr.h"
 #include "fonts.h"
@@ -130,15 +130,7 @@ private:
 
 class OledMP {
 public:
-    OledMP(uint8_t volatile *cs_port,    const uint8_t cs,
-	   uint8_t volatile *dc_port,    const uint8_t dc,
-	   uint8_t volatile *reset_port, const uint8_t reset,
-	   uint8_t volatile *power_port, const uint8_t power,
-	   SPI &spi) :
-	port_cs(cs_port), _cs(1<<cs),
-	port_dc(dc_port), _dc(1<<dc),
-	port_reset(reset_port), _reset(1<<reset),
-	port_power(power_port), _power(1<<power), _spi(spi) {};
+    OledMP(USARTSPI &spi) : _spi(spi) {};
     void begin(uint8_t font=FONT_DEFAULT);
     void init(void);
     void writeCommand(uint8_t reg);
@@ -204,7 +196,7 @@ public:
     void writeByte(uint8_t data);
 
     font_t *_fontHQ;
-    SPI &_spi;
+    USARTSPI &_spi;
 };
 
 #endif

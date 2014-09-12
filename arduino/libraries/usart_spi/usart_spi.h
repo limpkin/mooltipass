@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include <avr/pgmspace.h>
 #include <avr/io.h>
+#include <Arduino.h>
 #include <avr/interrupt.h>
 
 /* 
@@ -44,9 +45,9 @@
 #define SPI_BAUD_400_KHZ	19
 #define SPI_BAUD_100_KHZ	79
 
-class SPI {
+class USARTSPI {
 public:
-    SPI(uint16_t baud=SPI_BAUD_8_MHZ) : _baud(baud) {};
+    USARTSPI(uint16_t baud=SPI_BAUD_8_MHZ) : _baud(baud) {};
     inline static uint8_t transfer(uint8_t data);
     void begin();
     void setBaud(uint16_t baud);
@@ -54,7 +55,7 @@ private:
     uint16_t _baud;
 };
 
-uint8_t SPI::transfer(uint8_t data) 
+uint8_t USARTSPI::transfer(uint8_t data) 
 {
     /* Wait for empty transmit buffer */
     while ( !( UCSR1A & (1<<UDRE1)) );

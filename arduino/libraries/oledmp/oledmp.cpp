@@ -56,7 +56,7 @@ static const uint8_t oledInit[] __attribute__((__progmem__)) = {
     CMD_SET_MULTIPLEX_RATIO,         1, 0x3F, /*duty = 1/64*,64 COMS are enabled*/
     CMD_SET_DISPLAY_OFFSET,          1, 0x00,
     CMD_SET_DISPLAY_START_LINE,      1, 0x00, /*set start line position*/
-    CMD_SET_REMAP,                   2, 0x14, // Horizontal address increment,
+    CMD_SET_REMAP,                   2, 0x06, // Horizontal address increment,
                                               // Disable Column Address Re-map,
 					      // Enable Nibble Re-map,Scan from COM[N-1] to COM0,
 					      // Disable COM Split Odd Even
@@ -244,6 +244,14 @@ void OledMP::begin(uint8_t font)
     _offset = 0;
     _bufHeight = OLED_HEIGHT;
     _fontHQ = NULL;
+	port_cs = &PORTD;
+    _cs = (1 << 6);
+    port_dc = &PORTD;
+    _dc = (1 << 7);
+    port_reset = &PORTD;
+    _reset = (1 << 4);
+    port_power = &PORTE;
+    _power = (1 << 2);
 
     setFont(font);
     

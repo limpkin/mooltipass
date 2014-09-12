@@ -20,7 +20,7 @@
 
 /* Copyright (c) 2014 Darran Hunt. All rights reserved. */
 
-#include "spi.h"
+#include "usart_spi.h"
 
 #define UCPHA1	1
 #define XCK1	5
@@ -28,7 +28,7 @@
 #define MISO2 2		// PD2
 #define MOSI2 3		// PD3
 
-void SPI::begin() 
+void USARTSPI::begin() 
 {
     // enable pins
     UBRR1 = 0;
@@ -43,7 +43,7 @@ void SPI::begin()
     UBRR1 = _baud;  // Set baud rate (must be done after TX is enabled)
 }
 
-void SPI::setBaud(uint16_t baud)
+void USARTSPI::setBaud(uint16_t baud)
 {
     _baud = baud;
     UBRR1 = _baud;

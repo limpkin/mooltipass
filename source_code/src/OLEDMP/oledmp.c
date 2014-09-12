@@ -146,11 +146,19 @@ static const uint8_t oled_init[] __attribute__((__progmem__)) =
     CMD_SET_MULTIPLEX_RATIO,         1, 0x3F, /*duty = 1/64*,64 COMS are enabled*/
     CMD_SET_DISPLAY_OFFSET,          1, 0x00,
     CMD_SET_DISPLAY_START_LINE,      1, 0x00, /*set start line position*/
+#ifndef HARDWARE_OLIVIER_V1
     CMD_SET_REMAP,                   2, 0x14, // Horizontal address increment,
                                               // Disable Column Address Re-map,
                                               // Enable Nibble Re-map,Scan from COM[N-1] to COM0,
                                               // Disable COM Split Odd Even
                                         0x11, // Enable Dual COM mode
+#else
+    CMD_SET_REMAP,                   2, 0x06, // Horizontal address increment,
+                                              // Disable Column Address Re-map,
+                                              // Enable Nibble Re-map,Scan from COM[N-1] to COM0,
+                                              // Disable COM Split Odd Even
+                                        0x11, // Enable Dual COM mode
+#endif
     CMD_SET_GPIO,                    1, 0x00,
     CMD_SET_FUNCTION_SELECTION,      1, 0x01, /* selection external VDD */
     CMD_DISPLAY_ENHANCEMENT,         2, 0xA0, /* enables the external VSL*/
@@ -383,7 +391,6 @@ void oledSetRemap(uint8_t mode)
     oledWriteCommand(CMD_SET_REMAP);
     oledWriteData(mode & 0x1E);
     oledWriteData(0x11);    // Dual COM mode
-
 }
 
 

@@ -167,13 +167,7 @@ int main(void)
     #endif
     
     // Set up OLED now that USB is receiving full 500mA.
-    oledBegin(FONT_DEFAULT);
-
-    // OLED screen is reversed on Olivier's design
-    #ifdef HARDWARE_OLIVIER_V1
-        oledSetRemap(OLED_REMAP_NIBBLES|OLED_REMAP_COL_ADDR);
-    #endif
-    
+    oledBegin(FONT_DEFAULT);    
     oledSetColour(15);
     oledSetBackground(0);
     oledSetContrast(0xFF);

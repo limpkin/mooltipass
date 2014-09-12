@@ -28,6 +28,10 @@
 *        Waits for requests from the web page content script for
 *        credentials, asks the Mooltipass Client for them, then sends
 *        the response back to the content script.
+* 
+* 	Modified: 12/09/2014 by Bjorn Wielens
+* 	- Implemented blacklist for sites.
+* 	- Implemented card presence detection.
 */
 
 
@@ -81,11 +85,19 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
             }
             break;
         case 'disconnected':
-            connected = null;;
+            connected = null;
             if (contentAddr) {
                 chrome.tabs.sendMessage(contentAddr, request);
             }
             break;
+	case 'cardPresent':
+		if (contentAddr) {
+			chrome.tabs.sendMessage(contentAddr, request);
+		}
+		if (!request.state){
+			chrome.browserAction.setIcon({path: 'mooltipass-nocard.png'});
+		}
+		break;
         case 'rescan':
             if (contentAddr) {
                 chrome.tabs.sendMessage(contentAddr, request);

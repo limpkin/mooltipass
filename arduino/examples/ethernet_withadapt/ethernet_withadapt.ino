@@ -32,11 +32,7 @@ void setup()
   oled.begin();
 
  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-   while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-  }
-  
+  Serial.begin(9600);  
   oled.printf("ethernet sketch\n");
 
   // start Ethernet and UDP

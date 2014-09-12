@@ -43,13 +43,8 @@ void setup()
   spi.begin();
   oled.begin();
   oled.printf(F("BT sketch\n"));
-  delay(4000);
-    
-  Serial.begin(9600);
-   while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-  }
-  
+  delay(4000);    
+  Serial.begin(9600);  
   pinMode(RxD, INPUT);
   pinMode(TxD, OUTPUT);
   blueToothSerial.begin(38400);                           // Set BluetoothBee BaudRate to default baud rate 38400

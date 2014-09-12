@@ -24,6 +24,9 @@
 *        \brief        Mooltipass Chrome HID App plugin
 *        Created: 30/5/2014
 *        Author: Darran Hunt
+* 
+*  	Modified: 12/09/2014 by Bjorn Wielens
+* 	- Implemented card presence detection.
 */
 
 
@@ -81,12 +84,9 @@ var CMD_EXPORT_EEPROM_START = 0x46;
 var CMD_SET_BOOTLOADER_PWD  = 0x47;
 var CMD_JUMP_TO_BOOTLOADER  = 0x48;
 var CMD_CLONE_SMARTCARD     = 0x49;
-var CMD_STACK_FREE          = 0x4A;
-var CMD_GET_USERPROFILE     = 0x50;
-var CMD_END_MEMORYMGMT      = 0x51;
-var CMD_IMPORT_MEDIA_START  = 0x52;
-var CMD_IMPORT_MEDIA        = 0x53;
-var CMD_IMPORT_MEDIA_END    = 0x54;
+var CMD_STACK_FREE          = 0x50;
+
+var PLUGIN_BYTE_NOCARD	    = 0x03; // Response to CMD_CONTEXT if no card.
 
 // supported flash chips
 // 264,   512,  128   1MB   0001 ID:00010=2  5  7 12, 6 2 16 S: 3 - 8,120,128
@@ -689,7 +689,8 @@ function initWindow()
                     importProgressBar.progressbar('value', 0);
 
                     // Request permission to send
-                    sendRequest(CMD_IMPORT_MEDIA_START);
+                    args = new Uint8Array([1]);     // media
+                    sendRequest(CMD_IMPORT_FLASH_BEGIN, args);
                     log('#importLog');  // clear log
                 };
 
@@ -949,11 +950,17 @@ function onDataReceived(reportId, data)
 
         case CMD_CONTEXT:
             contextGood = (bytes[2] == 1);
-
+	    noCard = (bytes[2] == PLUGIN_BYTE_NOCARD);
+	    
             if (contextGood) {
                 log('#messageLog', 'Active: "'+authReq.context+'" for '+authReq.type+'\n');
                 console.log('Successfully set context "'+authReq.context+'" for '+authReq.type);
-            } else {
+		chrome.runtime.sendMessage(clientId, {type: 'cardPresent', state: true});
+            } else if (noCard){
+		    log('#messageLog', 'No card: "'+authReq.context+'" for '+authReq.type+'\n');
+		    console.log('No card received when setting context: "'+authReq.context+'" for '+authReq.type);
+		    chrome.runtime.sendMessage(clientId, {type: 'cardPresent', state: false});
+	    } else {
                 console.log('Failed to set context "'+authReq.context+'"');
                 log('#messageLog','Unknown context "'+authReq.context+'" for '+authReq.type+'\n');
             }
@@ -1156,18 +1163,6 @@ function onDataReceived(reportId, data)
                 log('#importLog', 'import denied\n');
             } else {
                 sendNextPacket(CMD_IMPORT_FLASH, importData);
-            }
-            break;
-        }
-
-        case CMD_IMPORT_MEDIA_START: 
-        case CMD_IMPORT_MEDIA: 
-        {
-            var ok = bytes[2];
-            if (ok == 0) {
-                log('#importLog', 'import denied\n');
-            } else {
-                sendNextPacket(CMD_IMPORT_MEDIA, importData);
             }
             break;
         }

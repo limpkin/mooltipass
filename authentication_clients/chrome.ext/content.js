@@ -27,6 +27,10 @@
 *
 *        Scans web pages for authentication inputs and then requests values for those inputs
 *        from the Mooltipass.
+* 
+* 	Modified: 12/09/2014 by Bjorn Wielens
+* 	- Implemented blacklist for sites.
+* 	- Implemented card presence detection.
 */
 
 var mpCreds = null;
@@ -39,6 +43,7 @@ var formSubs = {}
 var passwords = [];
 var activeCredentials = null;
 var mooltipassConnected = false;    // Active mooltipass connected to app
+var smartcardPresent = false;
 var siteBlacklisted = false;
 
 console.log('mooltipass content script loaded');
@@ -311,7 +316,7 @@ function hasSecret(credlist)
 
 function handleSubmit(event)
 {
-    if (!mooltipassConnected) return;
+    if (!mooltipassConnected || !smartcardPresent ) return;
 
     if (checkSubmit)
     {
@@ -481,6 +486,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
             mooltipassConnected = false;
             console.log('content: disconnected from mooltipass ');
             break;
+	case 'cardPresent':
+		smartcardPresent = request.state;
+		console.log('content: Card presence report: ' +request.state);
+		break;
 
         case 'rescan':
             // Rescan the page for credentials

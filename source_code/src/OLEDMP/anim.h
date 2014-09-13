@@ -44,14 +44,14 @@
 #define BITMAP_TICK           4
 #define BITMAP_CROSS          5
 #define BITMAP_INFO           6
-#define BITMAP_INSERT         9
-#define BITMAP_MAIN_SCREEN    10
-#define BITMAP_SETTINGS_SC    11
-#define BITMAP_LEFT_ARROW     12
-#define BITMAP_RIGHT_ARROW    13
-#define BITMAP_PIN_LINES      14
-#define BITMAP_ZZZ            16
-#define BITMAP_LOGIN_FIND     17
+#define BITMAP_INSERT         8
+#define BITMAP_MAIN_SCREEN    9
+#define BITMAP_SETTINGS_SC    10
+#define BITMAP_LEFT_ARROW     11
+#define BITMAP_RIGHT_ARROW    12
+#define BITMAP_PIN_LINES      13
+#define BITMAP_ZZZ            15
+#define BITMAP_LOGIN_FIND     16
 
 // These bitmaps are built from frames
 #define BITMAP_SIDES          (0x80+FRAME_SIDES)

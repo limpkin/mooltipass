@@ -24,27 +24,32 @@
     products from Adafruit!
 */
 /**************************************************************************/
-#include <Wire.h>
 #include <Adafruit_NFCShield_I2C.h>
 #include <usart_spi.h>
 #include <oledmp.h>
+#include <string.h>
+#include <Wire.h>
 #define IRQ   (10)
-#define RESET (3)  // Not connected by default on the NFC Shield
+#define RESET (3)
 
+Adafruit_NFCShield_I2C nfc(IRQ, RESET);
 USARTSPI spi(SPI_BAUD_8_MHZ);
 OledMP oled(spi);	
-Adafruit_NFCShield_I2C nfc(IRQ, RESET);
 
-void setup(void) {
+void setup(void) 
+{
   delay(4500);
+  spi.begin();
+  oled.begin();
   Serial.begin(115200);
-  Serial.println("Hello!");
+  oled.printf("NFC sketch\n");
 
   nfc.begin();
 
   uint32_t versiondata = nfc.getFirmwareVersion();
-  if (! versiondata) {
-    Serial.print("Didn't find PN53x board");
+  if (! versiondata) 
+  {
+    oled.printf("Didn't find PN53x board");
     while (1); // halt
   }
   
@@ -64,7 +69,8 @@ void setup(void) {
   Serial.println("Waiting for an ISO14443A card");
 }
 
-void loop(void) {
+void loop(void) 
+{
   boolean success;
   uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
   uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
@@ -74,7 +80,8 @@ void loop(void) {
   // if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
   success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, &uid[0], &uidLength);
   
-  if (success) {
+  if (success) 
+  {
     Serial.println("Found a card!");
     Serial.print("UID Length: ");Serial.print(uidLength, DEC);Serial.println(" bytes");
     Serial.print("UID Value: ");
@@ -84,6 +91,21 @@ void loop(void) {
     }
     Serial.println("");
     // Wait 1 second before continuing
+    if (uidLength == 4)
+    {
+      if(memcmp(uid, "\x50\x2c\xf4\xc4", 4) == 0)
+      {
+        oled.clear();
+        oled.setXY(0,0);
+        oled.printf("Hello Bob!");
+      }
+      if(memcmp(uid, "\x73\x01\x9b\xef", 4) == 0)
+      {
+        oled.clear();
+        oled.setXY(0,0);
+        oled.printf("Hello Amanda!");
+      }
+    }
     delay(1000);
   }
   else

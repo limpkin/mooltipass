@@ -168,7 +168,6 @@ int main(void)
     
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
-    oledWriteActiveBuffer();
     
     // First time initializations
     if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != CORRECT_BOOTKEY)
@@ -194,6 +193,7 @@ int main(void)
     // Test procedure to check that all HW is working
     //#define HW_TEST_PROC
     #ifdef HW_TEST_PROC
+        oledWriteActiveBuffer();
         oledSetXY(0,0);
         RET_TYPE temp_rettype;    
         if (flash_init_result == RETURN_OK)

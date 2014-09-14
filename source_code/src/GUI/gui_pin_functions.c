@@ -43,7 +43,7 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
     oledFillXY(80, 28, 92, 24, 0x00);
     for (uint8_t i = 0; i < 4; i++)
     {
-        oledSetXY(84+22*i, 30);
+        oledSetXY(84+22*i, 24);
         if (i != selected_digit)
         {
             oledPutch('*');
@@ -91,7 +91,7 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
     oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTRY, 0);
     oledPutstrXY(0, 0, OLED_CENTRE, readStoredStringToBuffer(stringID));
     oledFlipBuffers(0,0);
-    oledSetFont(FONT_CHECKBOOK_24);
+    oledSetFont(FONT_PROFONT_24);
     oledWriteActiveBuffer();
     
     // Display current pin on screen

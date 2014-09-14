@@ -364,10 +364,10 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
     oledSetFont(FONT_PROFONT_18);
     
     // Clear current text
-    oledFillXY(88, 16, 84, 22, 0x00);
+    oledFillXY(88, 16, 84, 22, 0xFF);
     
     // Display new search text
-    oledPutstrXY(144, 18, OLED_RIGHT, text);
+    oledPutstrXY(150, 18, OLED_RIGHT, text);
     
     // Set default font
     oledSetFont(FONT_DEFAULT);

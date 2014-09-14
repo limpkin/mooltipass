@@ -40,10 +40,10 @@
 */
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
 {
-    oledFillXY(80, 28, 92, 24, 0x00);
+    oledFillXY(85, 31, 82, 19, 0x00);
     for (uint8_t i = 0; i < 4; i++)
     {
-        oledSetXY(84+22*i, 24);
+        oledSetXY(85+22*i, 25);
         if (i != selected_digit)
         {
             oledPutch('*');

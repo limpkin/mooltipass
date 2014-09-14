@@ -20,10 +20,10 @@
 
 /* Copyright (c) 2014 Darran Hunt. All rights reserved. */
 
-/*!	\file 	oledmp.c
-*	\brief	Mooltipass SSD1322 256x64x16 OLED display library
-*	Created: 15/2/2014
-*	Author: Darran Hunt
+/*! \file   oledmp.c
+*   \brief  Mooltipass SSD1322 256x64x16 OLED display library
+*   Created: 15/2/2014
+*   Author: Darran Hunt
 */
 
 
@@ -70,17 +70,17 @@
 #undef OLED_DEBUG2
 
 // OLED specific port and pin definitions
-#define OLED_PORT_CS	    &PORT_OLED_SS
-#define OLED_PORT_DC	    &PORT_OLED_DnC
+#define OLED_PORT_CS        &PORT_OLED_SS
+#define OLED_PORT_DC        &PORT_OLED_DnC
 #define OLED_PORT_RESET     &PORT_OLED_nR
 #define OLED_PORT_POWER     &PORT_OLED_POW
-#define OLED_CS		        (1<<PORTID_OLED_SS)
-#define OLED_DC		        (1<<PORTID_OLED_DnC)
-#define OLED_nRESET	        (1<<PORTID_OLED_nR)
-#define OLED_POWER	        (1<<PORTID_OLED_POW)
+#define OLED_CS             (1<<PORTID_OLED_SS)
+#define OLED_DC             (1<<PORTID_OLED_DnC)
+#define OLED_nRESET         (1<<PORTID_OLED_nR)
+#define OLED_POWER          (1<<PORTID_OLED_POW)
 
-#define MIN_SEG 28		    // minimum visable OLED 4-pixel segment
-#define MAX_SEG 91		    // maximum visable OLED 4-pixel segment
+#define MIN_SEG 28          // minimum visable OLED 4-pixel segment
+#define MAX_SEG 91          // maximum visable OLED 4-pixel segment
 
 #define OLED_Y_MASK   (OLED_HEIGHT*2 - 1)     // Maxium y index into OLED buffer
 
@@ -614,7 +614,7 @@ void oledInit()
         }
     }
 
-    pinLow(OLED_PORT_POWER, OLED_POWER);	 // 12V power on
+    pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
     oledWriteCommand(CMD_SET_DISPLAY_ON);
 }
 
@@ -803,7 +803,7 @@ void oledOff(void)
 {
     oledWriteCommand(CMD_SET_DISPLAY_OFF);
     timerBasedDelayMs(100);
-    pinHigh(OLED_PORT_POWER, OLED_POWER);	 // 12V power off
+    pinHigh(OLED_PORT_POWER, OLED_POWER);    // 12V power off
 }
 
 
@@ -812,7 +812,7 @@ void oledOff(void)
  */
 void oledOn(void)
 {
-    pinLow(OLED_PORT_POWER, OLED_POWER);	 // 12V power on
+    pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
     timerBasedDelayMs(100);
     oledWriteCommand(CMD_SET_DISPLAY_ON);
 }
@@ -826,8 +826,8 @@ void oledOn(void)
 void oledFill(uint8_t colour)
 {
     uint8_t x,y;
-    oledSetColumnAddr(MIN_SEG, MAX_SEG);	// SEG0 - SEG479
-    oledSetRowAddr(oled_writeOffset+oled_offset, oled_writeOffset+oled_offset+(OLED_HEIGHT-1));	
+    oledSetColumnAddr(MIN_SEG, MAX_SEG);    // SEG0 - SEG479
+    oledSetRowAddr(oled_writeOffset+oled_offset, oled_writeOffset+oled_offset+(OLED_HEIGHT-1)); 
 
     colour = (colour & 0x0F) | (colour << 4);;
 

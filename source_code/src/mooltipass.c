@@ -167,11 +167,7 @@ int main(void)
     #endif
     
     // Set up OLED now that USB is receiving full 500mA.
-    oledBegin(FONT_DEFAULT);    
-    oledSetColour(15);
-    oledSetBackground(0);
-    oledSetContrast(0xFF);
-    oledSetScrollSpeed(3);
+    oledBegin(FONT_DEFAULT);
     oledWriteActiveBuffer();
     
     // First time initializations

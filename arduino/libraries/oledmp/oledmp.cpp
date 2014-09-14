@@ -261,12 +261,14 @@ void OledMP::begin(uint8_t font)
     pinMode(port_power, _power, OUTPUT);
     pinHigh(port_power, _power);
     pinHigh(port_cs, _cs);
-	setColour(0x0F);
-	setBackground(0);
 
     reset();
     init();
 
+	setColour(0x0F);
+	setBackground(0);
+	setContrast(0xFF);
+	
     for (uint8_t ind=0; ind<LCDHEIGHT; ind++) {
 	gddram[ind].xaddr = 0;
 	gddram[ind].pixels = 0;

@@ -52,12 +52,12 @@
 #include "low_level_utils.h"
 #include "timer_manager.h"
 #include "bitstream.h"
+#include "flash_mem.h"
+#include "node_mgmt.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "anim.h"
 #include "utils.h"
-#include "flash_mem.h"
-#include "node_mgmt.h"
 #include "usb.h"
 
 // Make sure the USART SPI is selected
@@ -70,17 +70,17 @@
 #undef OLED_DEBUG2
 
 // OLED specific port and pin definitions
-#define OLED_PORT_CS	&PORT_OLED_SS
-#define OLED_PORT_DC	&PORT_OLED_DnC
-#define OLED_PORT_RESET &PORT_OLED_nR
-#define OLED_PORT_POWER &PORT_OLED_POW
-#define OLED_CS		(1<<PORTID_OLED_SS)
-#define OLED_DC		(1<<PORTID_OLED_DnC)
-#define OLED_nRESET	(1<<PORTID_OLED_nR)
-#define OLED_POWER	(1<<PORTID_OLED_POW)
+#define OLED_PORT_CS	    &PORT_OLED_SS
+#define OLED_PORT_DC	    &PORT_OLED_DnC
+#define OLED_PORT_RESET     &PORT_OLED_nR
+#define OLED_PORT_POWER     &PORT_OLED_POW
+#define OLED_CS		        (1<<PORTID_OLED_SS)
+#define OLED_DC		        (1<<PORTID_OLED_DnC)
+#define OLED_nRESET	        (1<<PORTID_OLED_nR)
+#define OLED_POWER	        (1<<PORTID_OLED_POW)
 
-#define MIN_SEG 28		// minimum visable OLED 4-pixel segment
-#define MAX_SEG 91		// maximum visable OLED 4-pixel segment
+#define MIN_SEG 28		    // minimum visable OLED 4-pixel segment
+#define MAX_SEG 91		    // maximum visable OLED 4-pixel segment
 
 #define OLED_Y_MASK   (OLED_HEIGHT*2 - 1)     // Maxium y index into OLED buffer
 
@@ -104,7 +104,7 @@
 static uint8_t oled_offset=0;                // current display offset in GDDRAM
 static uint8_t oled_writeOffset=0;           // offset for writing 
 static uint8_t oled_bufHeight;
-static uint8_t oled_scroll_delay = 5;   // milliseconds between line scroll
+static uint8_t oled_scroll_delay = 3;        // milliseconds between line scroll
 static uint8_t oled_writeBuffer = 0;
 static uint8_t oled_displayBuffer = 0;
 
@@ -131,8 +131,8 @@ static flashFont_t *oled_fontp = (flashFont_t *)0;
 static fontHeader_t currentFont;
 static uint8_t oled_cur_x[2] = { 0, 0 };
 static uint8_t oled_cur_y[2] = { 0, 0 };
-static uint8_t oled_foreground;
-static uint8_t oled_background;
+static uint8_t oled_foreground = 15;
+static uint8_t oled_background = 0;
 static bool oled_wrap = false;
 
 /*
@@ -163,7 +163,7 @@ static const uint8_t oled_init[] __attribute__((__progmem__)) =
     CMD_SET_FUNCTION_SELECTION,      1, 0x01, /* selection external VDD */
     CMD_DISPLAY_ENHANCEMENT,         2, 0xA0, /* enables the external VSL*/
                                         0xfd, /* 0xfd,Enhanced low GS display quality;default is 0xb5(normal),*/
-    CMD_SET_CONTRAST_CURRENT,        1, 0x7f, /* default is 0x7f*/
+    CMD_SET_CONTRAST_CURRENT,        1, 0xff, /* default is 0x7f though*/
     CMD_MASTER_CURRENT_CONTROL,      1, 0x0f,
     /* writeCommand(0xB9); GRAY TABLE,linear Gray Scale*/
     CMD_SET_PHASE_LENGTH,            1, 0xE2,  /*default is 0x74*/

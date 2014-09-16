@@ -42,7 +42,7 @@
     <com_atmel_avrdbg_tool_ispmk2>
       <ToolType>com.atmel.avrdbg.tool.ispmk2</ToolType>
       <ToolName>AVRISP mkII</ToolName>
-      <ToolNumber>0000A0014774</ToolNumber>
+      <ToolNumber>000200200870</ToolNumber>
       <StimuliFile>
       </StimuliFile>
       <Channel>
@@ -56,7 +56,7 @@
           <JtagDbgClock>249000</JtagDbgClock>
           <SwdClock>249000</SwdClock>
           <JtagProgClock>1000000</JtagProgClock>
-          <IspClock>1440000</IspClock>
+          <IspClock>1050000</IspClock>
           <JtagInChain>false</JtagInChain>
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagDevicesBefore>0</JtagDevicesBefore>

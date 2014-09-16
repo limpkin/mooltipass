@@ -141,6 +141,8 @@
 //#define USB_DEBUG_OUTPUT
 // Used for production tests
 //#define PRODUCTION_TEST_ENABLED
+// Hardware test procedure
+//#define HW_TEST_PROC
 
 /**************** ENABLING TESTS ****************/
 // As they may be manually enabled as well
@@ -149,7 +151,7 @@
 #endif
 
 /**************** PRINTF ACTIVATION ****************/
-#if defined(PRODUCTION_TEST_ENABLED) || defined(DEBUG_SMC_SCREEN_PRINT) || defined(DEBUG_SMC_USB_PRINT) || defined(FLASH_TEST_DEBUG_OUTPUT_USB) || defined(GENERAL_LOGIC_OUTPUT_USB) || defined(CMD_PARSER_USB_DEBUG_OUTPUT) || defined(USB_DEBUG_OUTPUT)
+#if defined(HW_TEST_PROC) || defined(PRODUCTION_TEST_ENABLED) || defined(DEBUG_SMC_SCREEN_PRINT) || defined(DEBUG_SMC_USB_PRINT) || defined(FLASH_TEST_DEBUG_OUTPUT_USB) || defined(GENERAL_LOGIC_OUTPUT_USB) || defined(CMD_PARSER_USB_DEBUG_OUTPUT) || defined(USB_DEBUG_OUTPUT)
     #define ENABLE_PRINTF
 #else
     #undef ENABLE_PRINTF

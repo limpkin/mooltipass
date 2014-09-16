@@ -191,7 +191,6 @@ int main(void)
     #endif
     
     // Test procedure to check that all HW is working
-    //#define HW_TEST_PROC
     #ifdef HW_TEST_PROC
         oledWriteActiveBuffer();
         oledSetXY(0,0);
@@ -213,14 +212,14 @@ int main(void)
             printf_P(PSTR("PB TOUCH\r\n"));
         }
         printf_P(PSTR("Bring hand close, touch left, wheel, right\r\n"));
-        while(!(touchDetectionRoutine() & RETURN_PROX_DETECTION));
+        while(!(touchDetectionRoutine(0) & RETURN_PROX_DETECTION));
         printf_P(PSTR("Det, "));
         activateGuardKey();
-        while(!(touchDetectionRoutine() & RETURN_LEFT_PRESSED));
+        while(!(touchDetectionRoutine(0) & RETURN_LEFT_PRESSED));
         printf_P(PSTR("left, "));
-        while(!(touchDetectionRoutine() & RETURN_WHEEL_PRESSED));
+        while(!(touchDetectionRoutine(0) & RETURN_WHEEL_PRESSED));
         printf_P(PSTR("wheel, "));
-        while(!(touchDetectionRoutine() & RETURN_RIGHT_PRESSED));
+        while(!(touchDetectionRoutine(0) & RETURN_RIGHT_PRESSED));
         printf_P(PSTR("right!\r\n"));
         printf_P(PSTR("Insert card\r\n"));
         while(isCardPlugged() != RETURN_JDETECT);

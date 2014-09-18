@@ -695,7 +695,7 @@ function initWindow()
                     importProgressBar.progressbar('value', 0);
 
                     // Request permission to send
-		    sendRequest(CMD_IMPORT_MEDIA_START);
+                    sendRequest(CMD_IMPORT_MEDIA_START);
                     args = new Uint8Array([1]);     // media
                     sendRequest(CMD_IMPORT_FLASH_BEGIN, args);
                     log('#importLog');  // clear log
@@ -1173,9 +1173,9 @@ function onDataReceived(reportId, data)
             }
             break;
         }
-	case CMD_IMPORT_MEDIA_START: 
-	case CMD_IMPORT_MEDIA: 
-	{
+        case CMD_IMPORT_MEDIA_START: 
+        case CMD_IMPORT_MEDIA: 
+        {
             var ok = bytes[2];
             if (ok == 0) {
                 log('#importLog', 'import denied\n');
@@ -1184,6 +1184,11 @@ function onDataReceived(reportId, data)
             }
             break;
         }
+        case CMD_IMPORT_MEDIA_END: 
+            log('#importLog', 'import completed\n');
+            importData = null;
+            break;
+
         case CMD_IMPORT_FLASH_END:
         case CMD_IMPORT_EEPROM_END:
             importData = null;

@@ -153,9 +153,13 @@ flash: $(TARGET).hex
 
 # Upload the hex image via the dfu bootloader
 upload: $(TARGET).hex
-	dfu-programmer atmega32u4 erase
-	dfu-programmer atmega32u4 flash $<
-
+	@echo "The following will request root access"
+	sudo dfu-programmer atmega32u4 erase
+	sudo dfu-programmer atmega32u4 flash $<
+	@printf 'Remove or flip the card over and then press Enter to restart Mooltipass';\
+		read ENTER; \
+		echo "Restarting Mooltipass"; \
+		sudo dfu-programmer atmega32u4 start
 
 clean:
 	-rm -f $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET).hex $(TARGET).eep $(TARGET).lss $(TARGET).elf

@@ -970,6 +970,7 @@ function onDataReceived(reportId, data)
 	    } else {
                 console.log('Failed to set context "'+authReq.context+'"');
                 log('#messageLog','Unknown context "'+authReq.context+'" for '+authReq.type+'\n');
+				chrome.runtime.sendMessage(clientId, {type: 'cardPresent', state: true});
             }
 
             if (authReq) 

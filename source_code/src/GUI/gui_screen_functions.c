@@ -231,7 +231,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 uint16_t pin_code;
                 
                 // Reauth user
-                if ((guiAskForNewPin(&pin_code) == RETURN_OK) && (cloneSmartCardProcess(pin_code) == RETURN_OK))
+                if ((removeCardAndReAuthUser() == RETURN_OK) && (guiAskForNewPin(&pin_code) == RETURN_OK) && (cloneSmartCardProcess(pin_code) == RETURN_OK))
                 {
                     // Well, it's done
                 }

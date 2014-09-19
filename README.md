@@ -3,7 +3,7 @@ Mooltipass Project Repository
 <p align="center">
   <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/pictures/prototypes/holder/holder_with_mooltipass_small.JPG" alt="Mooltipass first prototype"/>
 </p>
-This is the GitHub repository dedicated to the Mooltipass device. It contains all the resources that were used and generated for this community driven product since this project was first started back in December 2013. You may find all the Hackaday articles detailing its different steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.
+This is the GitHub repository dedicated to the Mooltipass device. It contains all the resources that were used and generated for this community driven product since this project was first started back in December 2013. You may find all the articles detailing its different steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.
 
 
 What is the Mooltipass Project?
@@ -38,7 +38,7 @@ A browser extension runs on the user's computer and sends the current website to
 Data Safety
 -----------
 Safety is a primary concern for the Mooltipass development team, which is why we offer several **secure** ways to backup your credentials.  
-The smart card containing the AES key used for encrypting the passwords can be **cloned** using the Mooltipass, copying its PIN code as well. The encrypted credentials stored in the Mooltipass internal flash can be **exported** to the official Mooltipass website or simply somewhere on your local computer. A very convenient functionally suggested by one of Hackaday's readers is also implemented: the ability to generate hashed answers for websites' security questions in case credentials are lost.
+The smart card containing the AES key used for encrypting the passwords can be **cloned** using the Mooltipass, copying its PIN code as well. The encrypted credentials stored in the Mooltipass internal flash can be **exported** to the official Mooltipass website or simply somewhere on your local computer.
 
 Frequently Asked Questions
 --------------------------
@@ -109,7 +109,6 @@ Thanks and Acknowledgement
 None of this would have been possible without the help of many people located all over the globe. Here is a non exhaustive list:
 - Darran H. (graphics, plugin, comms, general development and more) - New Zealand
 - Henryk P. (encryption implementation supervision) - Unknown
-- Hackaday (for their resources and believing in us) - USA
 - Olivier G. (mecanics, project advisor) - Switzerland
 - Josh W. (mechanics, plugin, fw supervision) - USA
 - Eric E. (schematics & layout verification) - USA

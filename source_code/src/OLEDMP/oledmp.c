@@ -895,8 +895,8 @@ void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t co
             oledWriteData(colour);
             oledWriteData(colour);
         }
-        gddram[y_actual].xaddr = 0;
-        gddram[y_actual].pixels = 0;
+        gddram[y_actual+height].xaddr = x/4;
+        gddram[y_actual+height].pixels = 0;
     }
 #ifdef OLED_DEBUG
         usbPrintf_P(PSTR("fill done"));
@@ -1196,7 +1196,6 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 #ifdef OLED_DEBUG1
     usbPrintf_P(PSTR("oled_glyphDraw(x=%d,y=%d,ch='%c')\n"), x, y, ch);
 #endif
-
     if (fontId == FONT_NONE) 
     {
         return 0;

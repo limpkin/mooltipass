@@ -161,6 +161,13 @@ upload: $(TARGET).hex
 		echo "Restarting Mooltipass"; \
 		sudo dfu-programmer atmega32u4 start
 
+# Upload the hex image via the dfu bootloader
+load: $(TARGET).hex
+	dfu-programmer atmega32u4 erase
+	dfu-programmer atmega32u4 flash $<
+	dfu-programmer atmega32u4 start
+
+
 clean:
 	-rm -f $(OBJECTS) $(OBJECTS:.o=.d) $(TARGET).hex $(TARGET).eep $(TARGET).lss $(TARGET).elf
 	-rm -rf build

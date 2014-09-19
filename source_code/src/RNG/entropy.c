@@ -22,7 +22,7 @@
 #include <entropy.h>
 
 #define gWDT_buffer_SIZE 32
-#define WDT_POOL_SIZE 8
+#define WDT_POOL_SIZE 20
 uint8_t gWDT_buffer[gWDT_buffer_SIZE];
 uint8_t gWDT_buffer_position;
 uint8_t gWDT_loop_counter;

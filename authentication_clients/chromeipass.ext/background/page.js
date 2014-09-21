@@ -119,7 +119,8 @@ page.sprintf = function(input, args) {
 
 page.debugDummy = function() {};
 
-page.debug = page.debugDummy;
+//page.debug = page.debugDummy;
+page.debug = page.debugConsole;
 
 page.setDebug = function(bool) {
 	if(bool) {

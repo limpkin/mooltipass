@@ -3,12 +3,12 @@ var event = {};
 
 event.onMessage = function(request, sender, callback) {
 	if (request.action in event.messageHandlers) {
-		//console.log("onMessage(" + request.action + ") for #" + sender.tab.id);
 
 		if(!sender.hasOwnProperty('tab') || sender.tab.id < 1) {
 			sender.tab = {};
 			sender.tab.id = page.currentTabId;
 		}
+		console.log("onMessage(" + request.action + ") for #" + sender.tab.id);
 
 		event.invoke(event.messageHandlers[request.action], callback, sender.tab.id, request.args);
 
@@ -89,19 +89,16 @@ event.onShowAlert = function(callback, tab, message) {
 
 event.onLoadSettings = function(callback, tab) {
 	page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
+    console.log('event.onLoadSettings()');
+    console.log('page.settings = ', page.settings);
 }
 
 event.onLoadKeyRing = function(callback, tab) {
-	keepass.keyRing = (typeof(localStorage.keyRing) == 'undefined') ? {} : JSON.parse(localStorage.keyRing);
-	if(keepass.isAssociated() && !keepass.keyRing[keepass.associated.hash]) {
-		keepass.associated = {
-			"value": false,
-			"hash": null
-		};
-	}
+    console.log('event.onLoadKeyRing()');
 }
 
 event.onGetSettings = function(callback, tab) {
+    console.log('event.onGetSettings()');
 	event.onLoadSettings();
 	callback({ data: page.settings });
 }
@@ -112,23 +109,18 @@ event.onSaveSettings = function(callback, tab, settings) {
 }
 
 event.onGetStatus = function(callback, tab) {
-	keepass.testAssociation(tab);
-
-	var configured = keepass.isConfigured();
-	var keyId = null;
-	if (configured) {
-		keyId = keepass.keyRing[keepass.databaseHash].id;
-	}
+    console.log('event.onGetStatus()');
 
 	browserAction.showDefault(null, tab);
+    page.tabs[tab.id].errorMessage = undefined;  // XXX debug
 
 	callback({
-		identifier: keyId,
-		configured: configured,
-		databaseClosed: keepass.isDatabaseClosed,
-		keePassHttpAvailable: keepass.isKeePassHttpAvailable,
-		encryptionKeyUnrecognized: keepass.isEncryptionKeyUnrecognized,
-		associated: keepass.isAssociated(),
+		identifier: 'my_mp_key',
+		configured: true,
+		databaseClosed: false,
+		keePassHttpAvailable: true,
+		encryptionKeyUnrecognized: false,
+		associated: mooltipass.isConnected(),
 		error: page.tabs[tab.id].errorMessage
 	});
 }
@@ -145,26 +137,26 @@ event.onGetTabInformation = function(callback, tab) {
 }
 
 event.onGetConnectedDatabase = function(callback, tab) {
+    console.log('event.onGetConnectedDatabase()');
 	callback({
-		"count": Object.keys(keepass.keyRing).length,
-		"identifier": (keepass.keyRing[keepass.associated.hash]) ? keepass.keyRing[keepass.associated.hash].id : null
+		"count": 10,
+		"identifier": 'my_mp_db_id'
 	});
 }
 
 event.onGetKeePassHttpVersions = function(callback, tab) {
-	if(keepass.currentKeePassHttp.version == 0) {
-		keepass.getDatabaseHash(tab);
-	}
-	callback({"current": keepass.currentKeePassHttp.version, "latest": keepass.latestKeePassHttp.version});
+    console.log('event.onGetKeePassHttpVersions()');
+	callback({"current": '0.1', "latest": '0.1'});
 }
 
 event.onCheckUpdateKeePassHttp = function(callback, tab) {
-	keepass.checkForNewKeePassHttpVersion();
-	callback({"current": keepass.currentKeePassHttp.version, "latest": keepass.latestKeePassHttp.version});
+    console.log('event.onCheckUpdateKeePassHttp()');
+	callback({"current": '0.1', "latest": '0.1'});
 }
 
 event.onUpdateAvailableKeePassHttp = function(callback, tab) {
-	callback(keepass.keePassHttpUpdateAvailable());
+    console.log('event.onCheckUpdateKeePassHttp()');
+	callback(false);    // update not available
 }
 
 event.onRemoveCredentialsFromTabInformation = function(callback, tab) {
@@ -217,9 +209,9 @@ event.onMultipleFieldsPopup = function(callback, tab) {
 
 // all methods named in this object have to be declared BEFORE this!
 event.messageHandlers = {
-	'add_credentials': keepass.addCredentials,
+	'add_credentials': mooltipass.addCredentials,
 	'alert': event.onShowAlert,
-	'associate': keepass.associate,
+	'associate': mooltipass.associate,
 	'check_update_keepasshttp': event.onCheckUpdateKeePassHttp,
 	'get_connected_database': event.onGetConnectedDatabase,
 	'get_keepasshttp_versions': event.onGetKeePassHttpVersions,
@@ -232,13 +224,13 @@ event.messageHandlers = {
 	'popup_login': event.onLoginPopup,
 	'popup_multiple-fields': event.onMultipleFieldsPopup,
 	'remove_credentials_from_tab_information': event.onRemoveCredentialsFromTabInformation,
-	'retrieve_credentials': keepass.retrieveCredentials,
+	'retrieve_credentials': mooltipass.retrieveCredentials,
 	'show_default_browseraction': browserAction.showDefault,
-	'update_credentials': keepass.updateCredentials,
+	'update_credentials': mooltipass.updateCredentials,
 	'save_settings': event.onSaveSettings,
 	'set_remember_credentials': event.onSetRememberPopup,
 	'stack_add': browserAction.stackAdd,
 	'update_available_keepasshttp': event.onUpdateAvailableKeePassHttp,
-	'generate_password': keepass.generatePassword,
-	'copy_password': keepass.copyPassword
+	'generate_password': mooltipass.generatePassword,
+	'copy_password': mooltipass.copyPassword
 };

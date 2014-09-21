@@ -1,11 +1,11 @@
 // since version 2.0 the extension is using a keyRing instead of a single key-name-pair
-keepass.convertKeyToKeyRing();
+// keepass.convertKeyToKeyRing();
 // load settings
 page.initSettings();
 // create tab information structure for every opened tab
 page.initOpenedTabs();
 // initial connection with KeePassHttp
-keepass.getDatabaseHash(null);
+// keepass.getDatabaseHash(null);
 // set initial tab-ID
 chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}, function(tabs) {
 	if (tabs.length === 0)

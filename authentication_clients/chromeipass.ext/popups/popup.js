@@ -8,7 +8,7 @@ function status_response(r) {
 
 
 	if(!r.keePassHttpAvailable || r.databaseClosed) {
-		$('#error-message').html(r.error);
+		$('#error-message').html('1: "'+r.error+'"');
 		$('#error-encountered').show();
 	}
 	else if(!r.configured) {
@@ -26,7 +26,7 @@ function status_response(r) {
 	}
 	else if(typeof(r.error) != "undefined") {
 		$('#error-encountered').show();
-		$('#error-message').html(r.error);
+		$('#error-message').html('2: "'+r.error+'"');
 	}
 	else {
 		$('#configured-and-associated').show();

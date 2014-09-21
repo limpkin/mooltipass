@@ -364,10 +364,10 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
     oledSetFont(FONT_PROFONT_18);
     
     // Clear current text
-    oledFillXY(88, 14, 84, 24, 0x00);
+    oledFillXY(100, 14, 50, 24, 0x00);
     
     // Display new search text
-    oledPutstrXY(150, 14, OLED_RIGHT, text);
+    oledPutstrXY(148, 14, OLED_RIGHT, text);
     
     // Set default font
     oledSetFont(FONT_DEFAULT);
@@ -381,7 +381,7 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
         
         for (i = 0; i < 4; i++)
         {
-            oledFillXY((i&1)*198, 6+(i&2)*19, 58, 14, 0x00);
+            oledFillXY((i&1)*175, 6+(i&2)*19, 81, 14, 0x00);
         }
         
         // Print the next 4 services

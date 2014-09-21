@@ -45,7 +45,7 @@
 #define SCREEN_SETTINGS                 0x40
 #define SCREEN_MEMORY_MGMT              0x50
 // Truncate defines
-#define INDEX_TRUNCATE_SERVICE_SEARCH   10
+#define INDEX_TRUNCATE_SERVICE_SEARCH   14
 #define INDEX_TRUNCATE_LOGIN_FAV        15
 
 /* STRUCTS */

@@ -3,6 +3,7 @@ v0.4:
 - media import doesn't need confirmation for beta testers
 - login selection screen implemented
 - timeout for favorite and login selection
+- no stored favorites information screen
 
 v0.3:
 - pressing left on multiple credential screen will return

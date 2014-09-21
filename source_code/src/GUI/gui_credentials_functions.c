@@ -34,6 +34,7 @@
 #include "node_mgmt.h"
 #include "defines.h"
 #include "oledmp.h"
+#include "delays.h"
 #include "anim.h"
 #include "gui.h"
 #include "usb.h"
@@ -250,6 +251,8 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     // If no favorite, return
     if (nbFavorites == 0)
     {
+        guiDisplayInformationOnScreen(ID_STRING_NOSTOREDFAV);
+        userViewDelay();
         return NODE_ADDR_NULL;
     }
     

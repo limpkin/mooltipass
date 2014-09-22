@@ -21,7 +21,7 @@ Enter Login?
 Enter Password?
 Approve Memory Operation?
 Insert Your PIN
-New PIN?
+PIN for clone?
 Confirm PIN
 Confirm Access To
 With This Login:

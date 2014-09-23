@@ -6,6 +6,23 @@ var connected = null;
 var mpInputCallback = null;
 var mpUpdateCallback = null;
 
+
+
+var maxServiceSize = 123;       // Maximum size of a site / service name, not including null terminator
+
+function mpCheckConnection()
+{
+    if (!connected) {
+        if (!mpClient) {
+            // Search for the Mooltipass Client
+            chrome.management.getAll(getAll);
+        } else {
+            chrome.runtime.sendMessage(mpClient.id, { type: 'ping' });
+            setTimeout(mpCheckConnection,500);
+        }
+    }
+}
+
 function getAll(ext)
 {
     for (var ind=0; ind<ext.length; ind++) {
@@ -15,12 +32,14 @@ function getAll(ext)
         }
     }
 
-    if (mpClient) {
+    if (mpClient != null) {
         chrome.runtime.sendMessage(mpClient.id, { type: 'ping' });
         console.log('found mooltipass client "'+ext[ind].shortName+'" id='+ext[ind].id);
     } else {
         console.log('No mooltipass client found');
     }
+
+    setTimeout(mpCheckConnection,500);
 }
 
 // Search for the Mooltipass Client
@@ -83,6 +102,7 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
 
 mooltipass.addCredentials = function(callback, tab, username, password, url) 
 {
+    mooltipass.associate();
     mooltipass.updateCredentials(callback, tab, null, username, password, url);
 }
 
@@ -94,6 +114,7 @@ mooltipass.isConnected = function()
 // needs to block until a response is received.
 mooltipass.updateCredentials = function(callback, tab, entryId, username, password, url) 
 {
+    mooltipass.associate();
 	console.log("mp.updateCredentials(})", tab.id, entryId, username, url);
 
 	// unset error message
@@ -138,7 +159,16 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
 
 mooltipass.associate = function(callback, tab) 
 {
-    console.log('mp.associate()');
+    if (!mpClient) {
+        console.log('mp.associate()');
+        chrome.management.getAll(getAll);
+    } else if (!connected) {
+        // try pinging the app
+        chrome.runtime.sendMessage(mpClient.id, { type: 'ping' });
+        console.log('mp.associate() already have client connection, sending ping');
+    } else {
+        console.log('mp.associate() already connected');
+    }
 }
 
 
@@ -155,6 +185,7 @@ mooltipass.copyPassword = function(callback, tab)
 
 mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCallback, triggerUnlock) 
 {
+    mooltipass.associate();
 	page.debug("mp.retrieveCredentials(callback, {1}, {2}, {3}, {4})", tab.id, url, submiturl, forceCallback);
 
 	// unset error message

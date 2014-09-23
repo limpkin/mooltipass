@@ -44,6 +44,11 @@ event.invoke = function(handler, callback, senderTabId, args, secondTime) {
 	page.removePageInformationFromNotExistingTabs();
 
 	chrome.tabs.get(senderTabId, function(tab) {
+        if (chrome.runtime.lastError) {
+            console.log('failed to invoke function for tab: '+chrome.runtime.lastError);
+            return;
+        }
+
 	//chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}, function(tabs) {
 		//if (tabs.length === 0)
 		//	return; // For example: only the background devtools or a popup are opened

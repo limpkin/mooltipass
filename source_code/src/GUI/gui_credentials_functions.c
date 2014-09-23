@@ -61,7 +61,8 @@ void displayCredentialAtSlot(uint8_t slot, char* text)
     }
     
     // Truncate and display string
-    strcpy(temp_disptext, text);
+    strncpy(temp_disptext, text, sizeof(temp_disptext));
+    temp_disptext[sizeof(temp_disptext)-1] = 0;
     temp_disptext[INDEX_TRUNCATE_LOGIN_FAV] = 0;
     oledPutstrXY((slot & 0x01)*0xFF, (slot & 0x02)*23 + yoffset, (slot & 0x01)*OLED_RIGHT, temp_disptext);
 }
@@ -346,7 +347,8 @@ void displayServiceAtGivenSlot(uint8_t slot, const char* text)
     char temp_disptext[40];
     
     // Truncate string and display it
-    strcpy(temp_disptext, text);
+    strncpy(temp_disptext, text, sizeof(temp_disptext));
+    temp_disptext[sizeof(temp_disptext)-1] = 0;
     temp_disptext[INDEX_TRUNCATE_SERVICE_SEARCH] = 0;
     oledPutstrXY((slot & 0x01)*0xFF, 4 + (slot & 0x02)*20, (slot & 0x01)*OLED_RIGHT, temp_disptext);    
 }

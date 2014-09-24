@@ -34,14 +34,18 @@
 #include "defines.h"
 
 /** Defines **/
-// The entry is stored as User ID -> CPZ -> CTR
+// The entry is stored as User ID -> CPZ -> CTR (25 bytes)
 #define SMCID_UID_MATCH_ENTRY_LENGTH    (1 + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)
 // Total number of LUT entries, as the LUT is located at the end of the eeprom
 #define NB_MAX_SMCID_UID_MATCH_ENTRIES  ((EEPROM_SIZE - EEP_SMC_IC_USER_MATCH_START_ADDR)/SMCID_UID_MATCH_ENTRY_LENGTH)
+// Mooltipass eeprom parameters define
+#define KEYBOARD_LAYOUT_PARAM               0
 
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);
 RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid);
+void setMooltipassParameterInEeprom(uint8_t param, uint8_t val);
+uint8_t getMooltipassParameterInEeprom(uint8_t param);
 RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code);
 void outputLUTEntriesForGivenUser(uint8_t userID);
 void deleteUserIdFromSMCUIDLUT(uint8_t userid);

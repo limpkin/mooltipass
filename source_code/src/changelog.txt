@@ -1,6 +1,9 @@
-v0.5:
-- keyboard LUT moved to external flash
+v0.5 (considered as pre-stable):
+- user needs to erase his Mooltipass as changes are made in the flash eeprom storage system
+- changed the boot variable, MP will take a while to boot
+- 34 bytes reserved for Mooltipass settings in eeprom
 - various display improvements > new bundle needed
+- keyboard LUT moved to external flash
 
 v0.4:
 - migrating to block import/export mode

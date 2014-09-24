@@ -22,6 +22,7 @@
 #include "usb_descriptors.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
+#include "logic_eeprom.h"
 #include "hid_defines.h"
 #include "defines.h"
 #include "usb.h"
@@ -1041,13 +1042,13 @@ RET_TYPE usbKeybPutChar(char ch)
     }
     else
     {
-        key = getKeybLutEntryForLayout(ID_KEYB_EN_LUT, ch);
+        key = getKeybLutEntryForLayout(getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM), ch);
         if (key & SHIFT_MASK)
         {
             // If we need shift
             return usbKeyboardPress(key & ~SHIFT_MASK, KEY_SHIFT);
         }
-        if (((key & 0x3F) >= KEY_1) && ((key & 0x3F) <= KEY_0) && (key & ALTGR_MASK))
+        if (((((key & 0x3F) >= KEY_1) && ((key & 0x3F) <= KEY_0)) || ((key & 0x3F) == KEY_MINUS) || ((key & 0x3F) == KEY_EQUAL)) && (key & ALTGR_MASK) && ((key & 0x3F) != KEY_7))
         {
             // We need altgr for the numbered keys, only possible because we don't use the numerical keypad
             return usbKeyboardPress(key & ~ALTGR_MASK, KEY_RIGHT_ALT);

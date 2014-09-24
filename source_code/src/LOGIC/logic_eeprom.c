@@ -25,6 +25,7 @@
 #include <avr/eeprom.h>
 #include <string.h>
 #include "smart_card_higher_level_functions.h"
+#include "logic_fwflash_storage.h"
 #include "gui_screen_functions.h"
 #include "logic_aes_and_comms.h"
 #include "gui_pin_functions.h"
@@ -44,6 +45,39 @@ void firstTimeUserHandlingInit(void)
     for (uint8_t i = 0; i < NB_MAX_SMCID_UID_MATCH_ENTRIES; i++)
     {
         eeprom_write_byte((uint8_t*)(EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH), 0xFF);
+    }
+    
+    // Set english keyboard by default
+    setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_LUT);
+}
+
+/*! \fn     setMooltipassParameterInEeprom(uint8_t param, uint8_t val)
+*   \brief  Set a Mooltipass parameter in eeprom
+*   \param  param   The parameter (see eeprom_addresses.h)
+*   \param  val     Value of the parameter
+*/
+void setMooltipassParameterInEeprom(uint8_t param, uint8_t val)
+{
+    if (param < USER_RESERVED_SPACE_IN_EEP)
+    {
+        eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + param, val);
+    }
+}
+
+/*! \fn     getMooltipassParameterInEeprom(uint8_t param)
+*   \brief  Get a Mooltipass parameter from eeprom
+*   \param  param   The parameter (see our define)
+*   \return The parameter
+*/
+uint8_t getMooltipassParameterInEeprom(uint8_t param)
+{
+    if (param < USER_RESERVED_SPACE_IN_EEP)
+    {
+        return eeprom_read_byte((uint8_t*)EEP_USER_DATA_START_ADDR + param);
+    }
+    else
+    {
+        return 0x00;
     }
 }
 

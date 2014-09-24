@@ -14,6 +14,7 @@
 extern const uint8_t keyboardLUT_EN[95];
 
 #define SHIFT_MASK  0x80
+#define ALTGR_MASK  0x40
 
 #define KEY_CTRL               0x01
 #define KEY_SHIFT              0x02

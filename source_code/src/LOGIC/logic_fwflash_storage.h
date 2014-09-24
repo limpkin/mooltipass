@@ -30,6 +30,8 @@
 
 // Defines
 #define BITMAP_ID_OFFSET        64
+#define MEDIA_TYPE_LENGTH       2
+
 // String IDs
 #define ID_STRING_PROCESSING    0
 #define ID_STRING_CARD_BLOCKED  1
@@ -73,7 +75,11 @@
 #define ID_STRING_CREATEDBYPLUG 39
 #define ID_STRING_NOSTOREDFAV   40
 
+// Keyboard LUTs
+#define ID_KEYB_EN_LUT          BITMAP_ID_OFFSET+19
+
 // Prototypes
+uint8_t getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char);
 RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr);
 char* readStoredStringToBuffer(uint8_t stringID);
 

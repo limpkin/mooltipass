@@ -18,6 +18,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include "logic_fwflash_storage.h"
 #include "usb_descriptors.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
@@ -1030,18 +1031,26 @@ RET_TYPE usbKeybPutChar(char ch)
     
     if((ch == '\r') || (ch == '\n'))
     {
+        // New line
         return usbKeyboardPress(KEY_RETURN, 0);
     }
     else if ((ch < ' ') || (ch > '~'))
     {
+        // The LUT only covers from ' ' to ~ included
         return RETURN_COM_NOK;
     }
     else
     {
-        key = pgm_read_byte(keyboardLUT_EN+(ch - ' '));
+        key = getKeybLutEntryForLayout(ID_KEYB_EN_LUT, ch);
         if (key & SHIFT_MASK)
         {
+            // If we need shift
             return usbKeyboardPress(key & ~SHIFT_MASK, KEY_SHIFT);
+        }
+        if (((key & 0x3F) >= KEY_1) && ((key & 0x3F) <= KEY_0) && (key & ALTGR_MASK))
+        {
+            // We need altgr for the numbered keys, only possible because we don't use the numerical keypad
+            return usbKeyboardPress(key & ~ALTGR_MASK, KEY_RIGHT_ALT);
         }
         else
         {

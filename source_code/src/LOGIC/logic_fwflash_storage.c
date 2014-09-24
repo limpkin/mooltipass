@@ -22,6 +22,8 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include <stdint.h>
+#include "logic_fwflash_storage.h"
+#include "hid_defines.h"
 #include "flash_mem.h"
 #include "node_mgmt.h"
 #include "defines.h"
@@ -85,4 +87,27 @@ char* readStoredStringToBuffer(uint8_t stringID)
     }
     
     return (char*)ret_val;
+}
+
+/*!	\fn     getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char)
+*	\brief	Get a keyboard LUT entry for a given layout
+*   \note   No checking is performed on boundaries, must be done in calling function
+*   \param  layout      Keyboard layout
+*   \param  ascii_char  The ascii char
+*   \return The LUT entry
+*/
+uint8_t getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char)
+{
+    // Default return value is escape
+    uint8_t ret_val = KEY_ESCAPE;
+    uint16_t temp_addr;
+    
+    // Get address in flash
+    if ((getStoredFileAddr((uint16_t)layout, &temp_addr) == RETURN_OK) && (temp_addr != 0x0000))
+    {
+        // The LUT only covers from ' ' to ~ included
+        flashRawRead(&ret_val, temp_addr + (ascii_char - ' ') + MEDIA_TYPE_LENGTH, 1);
+    }
+    
+    return ret_val;
 }

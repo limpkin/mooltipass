@@ -50,6 +50,8 @@
 #define CMD_ADD_CARD_CPZ_CTR    0x5A
 #define CMD_GET_CARD_CPZ_CTR    0x5B
 #define CMD_CARD_CPZ_CTR_PACKET 0x5C
+#define CMD_SET_MOOLTIPASS_PARM 0x5D
+#define CMD_GET_MOOLTIPASS_PARM 0x5E
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

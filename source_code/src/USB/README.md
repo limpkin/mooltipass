@@ -217,6 +217,18 @@ From Mooltipass: 0x00 if denied, data otherwise
 ---------------------------
 From Mooltipass: One CPZ CTR LUT entry packet
 
+0x5D: Set Mooltipass parameter
+------------------------------
+From plugin/app: Set Mooltipass parameter, first byte is the param ID, second is the value
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0x5E: Get Mooltipass parameter
+------------------------------
+From plugin/app: Get parameter from Mooltipass, first byte is the param ID
+
+From Mooltipass: The param value
+
 Functions
 =========
 

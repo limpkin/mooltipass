@@ -23,55 +23,49 @@
 *   Created: 19/09/2014 18:30
 *   Author: Miguel A. Borrego
 */
-
-// We will use ATOMIC operations
+#include "watchdog_driver.h"
 #include <util/atomic.h>
-#include <rng.h>
+#include "rng.h"
 
 // Number of values to be passed to Jenkins hash function
 #define TIMER_BUFFER_SIZE               32
+// Number of Random bytes to be saved in a Buffer
+#define RNG_BUFFER_SIZE                 64
 
-// Number of Random bytes to be saved in a Buffer 
-// Better if Buffer size is power of 2
-#define RNG_BUFFER_SIZE                 32
-
-uint8_t timer_buffer[TIMER_BUFFER_SIZE];
-volatile uint8_t timer_buffer_index;
-
-volatile uint8_t rng_buffer_index;
-volatile uint8_t rng_buffer_last_valid_value;
-volatile uint8_t rng_buffer_count;
-volatile uint8_t rng_buffer_count_bytes;
-volatile uint32_t rng_buffer[RNG_BUFFER_SIZE];
-
-//internal prototype functions
-static uint32_t jenkins_one_at_a_time_hash(uint8_t *key, uint8_t len);
-static uint32_t rngGet32(void);
-static uint8_t rngGet8(void);
-
+//Typedefs
 typedef union
 {
     uint32_t fourByteAccess;
     uint8_t  oneByteAccess[4];
 } rng_item_t;
-
 typedef struct
 {
     rng_item_t number;
     uint8_t    pendingBytes;
 } rng_struct_t;
 
+//local vars
+volatile uint32_t rng_buffer[RNG_BUFFER_SIZE];
+volatile uint8_t rng_buffer_last_valid_value;
+volatile uint8_t rng_buffer_count_bytes;
+uint8_t timer_buffer[TIMER_BUFFER_SIZE];
+volatile uint8_t timer_buffer_index;
+volatile uint8_t rng_buffer_index;
+volatile uint8_t rng_buffer_count;
 rng_struct_t rngValue;
+
+// Internal prototype functions
+static uint32_t jenkins_one_at_a_time_hash(uint8_t *key, uint8_t len);
+static uint32_t rngGet32(void);
+static uint8_t rngGet8(void);
 
 
 /*! \fn ISR(WDT_vect)
- *  \brief This interrupt service routine is called every time the WDT
- *  interrupt is triggered, 16ms.
+ *  \brief 16ms WDT interrupt routine
 */
 ISR(WDT_vect)
 {
-    // Save timer0 value
-    // every time the WDT interrupt is triggered
+    // Save timer0 value every time the WDT interrupt is triggered
     timer_buffer[timer_buffer_index] = TCNT0;
     timer_buffer_index++;
 
@@ -80,10 +74,9 @@ ISR(WDT_vect)
         // Start collecting 32 bytes more of TCNT0
         timer_buffer_index = 0;
 
-        // The following code is an implementation of Jenkin's one at a time hash
-        // it produces reasonably uniform random results when using WDT jitter
-
+        // Use Jenkin's one at a time hash for RNG
         rng_buffer[rng_buffer_index] = jenkins_one_at_a_time_hash(timer_buffer, TIMER_BUFFER_SIZE);
+        
         // circular buffer, index increment
         rng_buffer_index = (rng_buffer_index+1) % RNG_BUFFER_SIZE;
 
@@ -92,42 +85,31 @@ ISR(WDT_vect)
         {
             rng_buffer_last_valid_value = rng_buffer_index;
         }
-        // we have added a new value and random buffer is not full,
-        // so, increment buffer elements count
         else
         {
-          ++rng_buffer_count;
+            // we have added a new value and random buffer is not full,
+            // so, increment buffer elements count
+            ++rng_buffer_count;
         }
     }
 }
 
 /*! \fn void rngInit(void); 
- *  \brief This function initializes the global variables needed to implement 
- *  circular rng buffer and timer buffer.
+ *  \brief This function initializes the timer and watchdog
+ *  \note  Vars guaranteed to be initialized to 0 by avr libc
 */
 void rngInit(void)
-{    
-    // Initialize vars
-    timer_buffer_index = 0;
-    rng_buffer_index = 0;
-    rng_buffer_last_valid_value = 0;
-    rng_buffer_count = 0;
-    rngValue.number.fourByteAccess = 0;
-    rngValue.pendingBytes = 0;
-
-    // Configure TIMER0 here
-    // Normal mode, internal clock with no prescaler
+{
+    // Configure TIMER0 in normal mode, internal clock with no prescaler
     TCCR0A = 0x00;
     TCCR0B = 0x01;    
 
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {    
-        // Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR                    
-        MCUSR = 0;
-    
-        // watchdog interrupt enable (WDIE)
-        _WD_CONTROL_REG |= (1<<_WD_CHANGE_BIT) | (1<<WDE);
-        _WD_CONTROL_REG = _BV(WDIE);
+    {
+        // Enable 16ms interrupt
+        wdt_clear_flag();
+        wdt_change_enable();
+        wdt_enable_16ms_int();
     }    
 }
 
@@ -140,7 +122,7 @@ static uint32_t rngGet32(void)
     uint32_t retVal;
     
     /* Take care, this is a blocking function */
-    while ( rng_buffer_count < 1);
+    while (rng_buffer_count < 1);
     
     /* critical region here */
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -149,7 +131,6 @@ static uint32_t rngGet32(void)
         rng_buffer_last_valid_value = (rng_buffer_last_valid_value + 1) % RNG_BUFFER_SIZE;
         --rng_buffer_count;
     }
-
     rngValue.pendingBytes = 0;
     
     return(retVal);
@@ -165,7 +146,7 @@ static uint8_t rngGet8(void)
     if (rngValue.pendingBytes == 0)
     {
         rngValue.number.fourByteAccess = rngGet32();
-    rngValue.pendingBytes = 4;
+        rngValue.pendingBytes = 4;
     }
     return  rngValue.number.oneByteAccess[--rngValue.pendingBytes];	
 }
@@ -190,9 +171,9 @@ void fillArrayWithRandomBytes(uint8_t* buffer, uint8_t nb_bytes)
 */
 static uint32_t jenkins_one_at_a_time_hash(uint8_t* key, uint8_t len)
 {
+    uint32_t hash = 0;
     uint8_t i;
-    uint32_t hash;
-    hash = 0;
+    
     for(i = 0; i < len; ++i)
     {
         hash += key[i];
@@ -202,5 +183,6 @@ static uint32_t jenkins_one_at_a_time_hash(uint8_t* key, uint8_t len)
     hash += (hash << 3);
     hash ^= (hash >> 11);
     hash += (hash << 15);
+    
     return hash;
 }

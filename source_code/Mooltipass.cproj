@@ -313,6 +313,12 @@
     <Compile Include="src\NODEMGMT\node_mgmt.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\RNG\rng.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\RNG\rng.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\stack.c">
       <SubType>compile</SubType>
     </Compile>
@@ -383,12 +389,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\PWM\pwm.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\RNG\entropy.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\RNG\entropy.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\SPI\spi.c">

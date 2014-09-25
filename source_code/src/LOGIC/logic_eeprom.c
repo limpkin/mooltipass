@@ -33,7 +33,7 @@
 #include "logic_eeprom.h"
 #include "node_mgmt.h"
 #include "defines.h"
-#include "entropy.h"
+#include "rng.h"
 
 
 /*! \fn     firstTimeUserHandlingInit(void)

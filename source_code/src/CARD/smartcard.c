@@ -28,7 +28,7 @@
 #include "timer_manager.h"
 #include <util/atomic.h>
 #include "smartcard.h"
-#include "entropy.h"
+#include "rng.h"
 #include "defines.h"
 #include <avr/io.h>
 #include "utils.h"

@@ -43,6 +43,7 @@
 #include "utils.h"
 #include "stack.h"
 #include "usb.h"
+#include "rng.h"
 
 #ifdef FLASH_BLOCK_IMPORT_EXPORT
 // Bool to specify if we're writing user flash space
@@ -165,6 +166,8 @@ void usbProcessIncoming(uint8_t* incomingData)
     
 #ifdef DEV_PLUGIN_COMMS
     char stack_str[10];
+    uint8_t array[4];
+    char str[10];
 #endif
     // Debug comms
     // USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
@@ -1012,6 +1015,16 @@ void usbProcessIncoming(uint8_t* incomingData)
             usbPutstr(stack_str);
             usbPutstr(" bytes\n");
         return;
+        
+        case CMD_GET_RANDOM_NUMBER:
+            fillArrayWithRandomBytes(array, 4);
+            hexachar_to_string(array[3], &str[0]);
+            hexachar_to_string(array[2], &str[2]);
+            hexachar_to_string(array[1], &str[4]);
+            hexachar_to_string(array[0], &str[6]);
+
+            usbPutstr((char*)str);
+            break;
 #endif
 
         default :   return;

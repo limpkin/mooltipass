@@ -32,7 +32,7 @@
 #include "logic_smartcard.h"
 #include "logic_eeprom.h"
 #include "aes256_ctr.h"
-#include "entropy.h"
+#include "rng.h"
 #include "defines.h"
 #include "delays.h"
 

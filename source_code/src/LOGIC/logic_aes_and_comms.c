@@ -33,7 +33,7 @@
 #include "aes256_ctr.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
-#include "entropy.h"
+#include "rng.h"
 #include "defines.h"
 #include "delays.h"
 #include "usb.h"

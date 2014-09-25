@@ -29,7 +29,7 @@
 #include "flash_test.h"
 //#include "node_test.h"
 #include "defines.h"
-#include "entropy.h"
+#include "rng.h"
 #include "oledmp.h"
 #include "touch.h"
 #include "pwm.h"

@@ -13,8 +13,13 @@ static int keepRunning = 1;
 #define CMD_DEBUG	0x01
 #define CMD_PING	0x02
 #define CMD_VERSION 0x03
+#define CMD_RNG		0x4B
+#define RNG_NUMBERS(x)	((x%4!=0)?(x/4)+1:(x/4))
 
 hid_device *handle;
+
+FILE *fp = NULL;
+unsigned long RngCounter;
 
 void intHandler() 
 {
@@ -27,17 +32,8 @@ void pingHandler()
 	unsigned char buf[65];
 	buf[0] = 0x00;	// endpoint 0
 	buf[1] = 0x00;	// no data
-	buf[2] = CMD_PING;	// send ping
-	hid_write(handle, buf, 65);	
-
-	// restart timer
-  	struct itimerval tout_val;
-  	tout_val.it_interval.tv_sec = 0;
-  	tout_val.it_interval.tv_usec = 0;
-  	tout_val.it_value.tv_sec = 10;
-  	tout_val.it_value.tv_usec = 0;
-  	setitimer(ITIMER_REAL, &tout_val, 0);
-
+	buf[2] = CMD_RNG;	// send ping
+	hid_write(handle, buf, 65);
 }
 
 int main(int argc, char* argv[])
@@ -60,7 +56,7 @@ int main(int argc, char* argv[])
   
   	tout_val.it_interval.tv_sec = 0;
   	tout_val.it_interval.tv_usec = 0;
-  	tout_val.it_value.tv_sec = 10;
+  	tout_val.it_value.tv_sec = 1;
   	tout_val.it_value.tv_usec = 0;
   	setitimer(ITIMER_REAL, &tout_val,0);
 
@@ -69,10 +65,8 @@ int main(int argc, char* argv[])
 	// enable non-blocking
 	hid_set_nonblocking(handle, 1);
 
-	buf[0] = 0x00;	// endpoint 0
-	buf[1] = 0x00;	// no data
-	buf[2] = CMD_VERSION;	// send ping
-	res = hid_write(handle, buf, 65);
+	if (fp == NULL) {fp = fopen("rng.bin","wb");}
+
 
 	while (keepRunning == 1)
 	{
@@ -89,7 +83,26 @@ int main(int argc, char* argv[])
 				case CMD_DEBUG:	
 				{
 					unsigned char *msg = buf + 2;
-					wprintf(L"dbg: %s\n", msg);
+					wprintf(L"dbg: %s,", msg);
+					unsigned int number = (unsigned int)strtoll((const char*)msg, NULL, 16);
+					wprintf(L"number: %08X\n", number);
+
+					if (fp != NULL)
+                        		{
+						fwrite(&number, 1, sizeof(number), fp);
+						if(++RngCounter >= RNG_NUMBERS(1000000))
+						{
+							fclose(fp);
+							fp = NULL;
+						}
+                        		
+
+						// restart timer
+						buf[0] = 0x00;	// endpoint 0
+						buf[1] = 0x00;	// no data
+						buf[2] = CMD_RNG;	// send ping
+						hid_write(handle, buf, 65);
+					}
 					break;
 				}
 
@@ -104,10 +117,10 @@ int main(int argc, char* argv[])
 					wprintf(L"cmd: Version %i.%i\n", buf[2], buf[3]);
 					break;
 				}
-
+				
 				default:	
 				{
-					wprintf(L"unknown cmd");
+					//wprintf(L"unknown cmd");
 					break;
 				}
 
@@ -116,6 +129,7 @@ int main(int argc, char* argv[])
 	}
 
 	// exit
+	if(fp!=NULL)fclose(fp);
 	wprintf( L"Good Bye\n" );
 	res = hid_exit();
 

@@ -44,7 +44,7 @@
 #include "smartcard.h"
 #include "flash_mem.h"
 #include "defines.h"
-#include "entropy.h"
+#include "rng.h"
 #include "oledmp.h"
 #include "delays.h"
 #include "utils.h"
@@ -149,7 +149,7 @@ int main(void)
     powerSettlingDelay();               // Let the power settle   
     initUsb();                          // Initialize USB controller
     initI2cPort();                      // Initialize I2C interface
-    entropyInit();                      // Initialize avrentropy library
+    rngInit();                      // Initialize avrentropy library
     while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 

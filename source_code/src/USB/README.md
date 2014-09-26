@@ -229,6 +229,12 @@ From plugin/app: Get parameter from Mooltipass, first byte is the param ID
 
 From Mooltipass: The param value
 
+0x5E: Get Favorite
+------------------
+From plugin/app: Get favorite for current user, first byte is the slot ID
+
+From Mooltipass: 0x00 if not performed, data otherwise
+
 Functions
 =========
 

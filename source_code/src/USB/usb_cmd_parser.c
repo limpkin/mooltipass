@@ -660,6 +660,24 @@ void usbProcessIncoming(uint8_t* incomingData)
             break;            
         }
         
+        // Get favorite
+        case CMD_GET_FAVORITE :
+        {
+            // Check that the mode is approved & that args are supplied
+            if ((memoryManagementModeApproved == TRUE) && (datalen == 1))
+            {
+                uint16_t data[2];
+                readFav(msg->body.data[0], &data[0], &data[1]);
+                usbSendMessage(CMD_GET_FAVORITE, 4, (void*)data);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
         // Set starting parent
         case CMD_SET_STARTINGPARENT :
         {

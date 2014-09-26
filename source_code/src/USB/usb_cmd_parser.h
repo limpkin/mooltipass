@@ -53,6 +53,7 @@
 #define CMD_CARD_CPZ_CTR_PACKET 0x5C
 #define CMD_SET_MOOLTIPASS_PARM 0x5D
 #define CMD_GET_MOOLTIPASS_PARM 0x5E
+#define CMD_GET_FAVORITE        0x5F
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

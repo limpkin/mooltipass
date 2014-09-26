@@ -63,6 +63,7 @@ CMD_GET_CARD_CPZ_CTR    = 0x5B
 CMD_CARD_CPZ_CTR_PACKET = 0x5C
 CMD_SET_MOOLTIPASS_PARM = 0x5D
 CMD_GET_MOOLTIPASS_PARM = 0x5E
+CMD_GET_FAVORITE		= 0x5F
 
 # handler called when a report is received
 def rx_handler(data):
@@ -95,6 +96,50 @@ def sendHidPacket(epout, cmd, len, data):
 		
 	# send data
 	epout.write(arraytosend)	
+	
+def favoritePrint(epin, epout):
+	favoriteArg = array('B')
+	favoriteArg.append(0)
+	
+	# get user profile
+	sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
+	data = receiveHidPacket(epin)
+	while data[LEN_INDEX] == 1:
+		print "please accept memory management mode on the MP"
+		sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
+		data = receiveHidPacket(epin)
+	
+	# receive other packet containing CTR
+	receiveHidPacket(epin)
+	
+	# loop through fav slots
+	for count in range(0, 15):
+		favoriteArg[0] = count
+		# request favorite
+		sendHidPacket(epout, CMD_GET_FAVORITE, 1, favoriteArg)
+		fav_data = receiveHidPacket(epin)
+		# check if it is defined
+		if fav_data[DATA_INDEX+0] != 0 or fav_data[DATA_INDEX+1] != 0:
+			# read parent node
+			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, fav_data[DATA_INDEX+0:DATA_INDEX+2])
+			# read it
+			data_parent = receiveHidPacket(epin)
+			data_parent.extend(receiveHidPacket(epin))
+			data_parent.extend(receiveHidPacket(epin))
+			# read child node
+			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, fav_data[DATA_INDEX+2:DATA_INDEX+4])
+			# read it
+			data_child = receiveHidPacket(epin)
+			data_child.extend(receiveHidPacket(epin))
+			data_child.extend(receiveHidPacket(epin))
+			# truncate data to get service name
+			print "slot", count, "service:", "".join(map(chr, data_parent[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0], "login:", "".join(map(chr, data_child[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0]
+		else:
+			print "slot", count, "doesn't have a favorite"
+	
+	# end memory management mode
+	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
+	receiveHidPacket(epin)
 
 def favoriteSelectionScreen(epin, epout):
 	found_credential_sets = array('B')
@@ -140,6 +185,7 @@ def favoriteSelectionScreen(epin, epout):
 			# store parent and child addresses for future tagging
 			found_credential_sets.extend(next_service_addr)
 			found_credential_sets.extend(next_child_addr)
+			print found_credential_sets
 			# request child node
 			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_child_addr)
 			# read it
@@ -182,7 +228,7 @@ def favoriteSelectionScreen(epin, epout):
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
 	receiveHidPacket(epin)
  
-def findHIDDevice(vendor_id, product_id):
+def findHIDDevice(vendor_id, product_id):	
 	# find our device
 	hid_device = usb.core.find(idVendor=vendor_id, idProduct=product_id)
 
@@ -217,14 +263,22 @@ def findHIDDevice(vendor_id, product_id):
 	print "Mooltipass replied to our ping message"
 
 	# print use
-	#print "Hello blablaba"
-	#user_input = input("Make your choice: ")
-	favoriteSelectionScreen(epin, epout)
+	print ""
+	print "1) Add a favorite"
+	print "2) See current favorites (only v0.5)"
+	user_input = input("Make your choice: ")
+	
+	if user_input == 1:
+		favoriteSelectionScreen(epin, epout)
+	elif user_input == 2:
+		favoritePrint(epin, epout)
+	
 	hid_device.reset()
 
 if __name__ == '__main__':
 	# Main function
-    print "Mooltipass USB client" 
-    # Search for the mooltipass and read hid data
-    findHIDDevice(0x16D0, 0x09A0)
+	print ""
+	print "Mooltipass USB client" 
+	# Search for the mooltipass and read hid data
+	findHIDDevice(0x16D0, 0x09A0)
 

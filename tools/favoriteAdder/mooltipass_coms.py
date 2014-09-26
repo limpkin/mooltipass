@@ -220,6 +220,7 @@ def findHIDDevice(vendor_id, product_id):
 	#print "Hello blablaba"
 	#user_input = input("Make your choice: ")
 	favoriteSelectionScreen(epin, epout)
+	hid_device.reset()
 
 if __name__ == '__main__':
 	# Main function

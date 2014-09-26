@@ -65,6 +65,7 @@ CMD_CARD_CPZ_CTR_PACKET = 0x5C
 CMD_SET_MOOLTIPASS_PARM = 0x5D
 CMD_GET_MOOLTIPASS_PARM = 0x5E
 CMD_GET_FAVORITE		= 0x5F
+CMD_RESET_CARD			= 0x60
 
 		
 def receiveHidPacket(epin):
@@ -88,10 +89,22 @@ def sendHidPacket(epout, cmd, len, data):
 	if data is not None:
 		arraytosend.extend(data)
 		
-	# print arraytosend
+	#print arraytosend
 		
 	# send data
 	epout.write(arraytosend)	
+	
+def unlockSmartcard(epin, epout):
+	unlockPacket = array('B')
+	pincode = raw_input("Enter pin code: ")
+	unlockPacket.append(int(pincode, 16)/256)
+	unlockPacket.append(int(pincode, 16)%256)
+	# send packet, check answer
+	sendHidPacket(epout, CMD_RESET_CARD, 2, unlockPacket)
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Smartcard erased"
+	else:
+		print "Couldn't erase smartcard"
 	
 def favoritePrint(epin, epout):
 	favoriteArg = array('B')
@@ -274,12 +287,15 @@ def findHIDDevice(vendor_id, product_id):
 		print "0) Quit"
 		print "1) Add a favorite"
 		print "2) See current favorites (only v0.5)"
+		print "3) Erase unknown smartcard (only v0.5)"
 		choice = input("Make your choice: ")
 		
 		if choice == 1:
 			favoriteSelectionScreen(epin, epout)
 		elif choice == 2:
 			favoritePrint(epin, epout)
+		elif choice == 3:
+			unlockSmartcard(epin, epout)
 	
 	hid_device.reset()
 

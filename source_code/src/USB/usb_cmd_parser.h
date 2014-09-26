@@ -54,6 +54,7 @@
 #define CMD_SET_MOOLTIPASS_PARM 0x5D
 #define CMD_GET_MOOLTIPASS_PARM 0x5E
 #define CMD_GET_FAVORITE        0x5F
+#define CMD_RESET_CARD          0x60
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

@@ -235,6 +235,12 @@ From plugin/app: Get favorite for current user, first byte is the slot ID
 
 From Mooltipass: 0x00 if not performed, data otherwise
 
+0x60: Reset card
+----------------
+From plugin/app: Reset inserted card, first 2 bytes is the pin code
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
 Functions
 =========
 

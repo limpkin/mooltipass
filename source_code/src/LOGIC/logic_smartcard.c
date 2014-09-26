@@ -215,17 +215,10 @@ RET_TYPE validCardDetectedFunction(void)
     }
     else
     {
-        // Tell the user we don't know this card
-        guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
+        // Tell the user we don't know this card, shutdown card reader
+        guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);        
+        removeFunctionSMC();
         userViewDelay();
-        
-        // Developer mode, enter default pin code
-        #ifdef NO_PIN_CODE_REQUIRED
-            mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
-            setSmartCardInsertedUnlocked();
-        #else
-            removeFunctionSMC();                            // Shut down card reader
-        #endif
         
         // Report Fail
         return RETURN_NOK;

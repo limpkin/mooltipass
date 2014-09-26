@@ -238,7 +238,6 @@ def findHIDDevice(vendor_id, product_id):
 	else:
 		print "Mooltipass found"
 
-        print("Platform is: "+os.name+", "+platform.system())
         if platform.system() == "Linux":
                 #Need to do things differently
                 try:

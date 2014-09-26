@@ -49,7 +49,8 @@ var payloadSize = packetSize - 2;
 
 var AUTH_REQ_TIMEOUT = 15000;   // timeout for requests sent to mooltipass
 
-var reContext = /^\https?\:\/\/([\w.\-\_]+)/;   // URL regex to extract base domain for context
+var reContext = /^\https?\:\/\/([\w\-\+]+\.)*([\w\-\_]+\.[\w\-\_]+)/;   // URL regex to extract base domain for context
+//var reContext = /^\https?\:\/\/([\w.\-\_]+)/;   // URL regex to extract base domain for context
 //var reContext = /(^.{1,254}$)(^(((?!-)[a-zA-Z0-9-]{1,63}(?<!-))|((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$/;
 //var reContext = /https?\:\/\/(?www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4})\b(?[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
@@ -503,9 +504,9 @@ function startAuthRequest(request)
         console.log('keys: '+JSON.stringify(authReq.keys))
 
         match = reContext.exec(request.url);
-        if (match.length > 0) {
-            if (!context || context != match[1]) {
-                context = match[1];
+        if (match.length > 1) {
+            if (!context || context != match[2]) {
+                context = match[2];
                 console.log('context: '+context);
             } else {
                 console.log('not updating context '+context+' to '+match[1]);
@@ -521,8 +522,8 @@ function startAuthRequest(request)
         clientId = request.senderId;
         authReq = request;
         match = reContext.exec(request.url);
-        if (match.length > 0) {
-            authReq.context = match[1];
+        if (match.length > 1) {
+            authReq.context = match[2];
             console.log('auth context: '+authReq.context);
         }
         log('#messageLog', 'update:\n');

@@ -5,6 +5,7 @@ import usb.util
 import random
 import sys
 import os
+import platform
 
 LEN_INDEX				= 0x00
 CMD_INDEX				= 0x01
@@ -237,11 +238,19 @@ def findHIDDevice(vendor_id, product_id):
 	else:
 		print "Mooltipass found"
 
-	# set the active configuration. With no arguments, the first configuration will be the active one
-	try:
-		hid_device.set_configuration()
-	except usb.core.USBError as e:
-		sys.exit("Cannot set configuration the device: %s" % str(e))
+        if platform.system() == "Linux":
+                #Need to do things differently
+                try:
+                        hid_device.detach_kernel_driver(0)
+                        hid_device.reset()
+                except Exception, e:
+                        pass #Probably already detached
+        else:
+                # set the active configuration. With no arguments, the first configuration will be the active one
+                try:
+                        hid_device.set_configuration()
+                except usb.core.USBError as e:
+                        sys.exit("Cannot set configuration the device: %s" % str(e))
 
 	# get an endpoint instance
 	cfg = hid_device.get_active_configuration()

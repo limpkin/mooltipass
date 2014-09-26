@@ -266,17 +266,20 @@ def findHIDDevice(vendor_id, product_id):
 	while receiveHidPacket(epin)[CMD_INDEX] != CMD_PING:
 		print "cleaning remaining input packets"
 	print "Mooltipass replied to our ping message"
-
-	# print use
-	print ""
-	print "1) Add a favorite"
-	print "2) See current favorites (only v0.5)"
-	user_input = input("Make your choice: ")
 	
-	if user_input == 1:
-		favoriteSelectionScreen(epin, epout)
-	elif user_input == 2:
-		favoritePrint(epin, epout)
+	choice = 1
+	while choice != 0:
+		# print use
+		print ""
+		print "0) Quit"
+		print "1) Add a favorite"
+		print "2) See current favorites (only v0.5)"
+		choice = input("Make your choice: ")
+		
+		if choice == 1:
+			favoriteSelectionScreen(epin, epout)
+		elif choice == 2:
+			favoritePrint(epin, epout)
 	
 	hid_device.reset()
 

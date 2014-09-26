@@ -185,7 +185,6 @@ def favoriteSelectionScreen(epin, epout):
 			# store parent and child addresses for future tagging
 			found_credential_sets.extend(next_service_addr)
 			found_credential_sets.extend(next_child_addr)
-			print found_credential_sets
 			# request child node
 			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_child_addr)
 			# read it

@@ -1,11 +1,11 @@
 from array import array
 from time import sleep
+import platform
 import usb.core
 import usb.util
 import random
 import sys
 import os
-import platform
 
 LEN_INDEX				= 0x00
 CMD_INDEX				= 0x01
@@ -66,13 +66,6 @@ CMD_SET_MOOLTIPASS_PARM = 0x5D
 CMD_GET_MOOLTIPASS_PARM = 0x5E
 CMD_GET_FAVORITE		= 0x5F
 
-# handler called when a report is received
-def rx_handler(data):
-	len = data[0];
-	cmd = data[1];
-
-	if cmd == 0x01:
-		print 'dbg:', "".join(map(chr,data[2:len+2]))
 		
 def receiveHidPacket(epin):
 	try : 
@@ -95,6 +88,8 @@ def sendHidPacket(epout, cmd, len, data):
 	if data is not None:
 		arraytosend.extend(data)
 		
+	# print arraytosend
+		
 	# send data
 	epout.write(arraytosend)	
 	
@@ -104,9 +99,10 @@ def favoritePrint(epin, epout):
 	
 	# get user profile
 	sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
+	print "Please accept memory management mode on the MP"
 	data = receiveHidPacket(epin)
 	while data[LEN_INDEX] == 1:
-		print "please accept memory management mode on the MP"
+		print "Please accept memory management mode on the MP"
 		sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
 		data = receiveHidPacket(epin)
 	
@@ -150,9 +146,10 @@ def favoriteSelectionScreen(epin, epout):
 
 	# get user profile
 	sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
+	print "Please accept memory management mode on the MP"
 	data = receiveHidPacket(epin)
 	while data[LEN_INDEX] == 1:
-		print "please accept memory management mode on the MP"
+		print "Please accept memory management mode on the MP"
 		sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
 		data = receiveHidPacket(epin)
 	
@@ -238,19 +235,19 @@ def findHIDDevice(vendor_id, product_id):
 	else:
 		print "Mooltipass found"
 
-        if platform.system() == "Linux":
-                #Need to do things differently
-                try:
-                        hid_device.detach_kernel_driver(0)
-                        hid_device.reset()
-                except Exception, e:
-                        pass #Probably already detached
-        else:
-                # set the active configuration. With no arguments, the first configuration will be the active one
-                try:
-                        hid_device.set_configuration()
-                except usb.core.USBError as e:
-                        sys.exit("Cannot set configuration the device: %s" % str(e))
+		if platform.system() == "Linux":
+			#Need to do things differently
+			try:
+				hid_device.detach_kernel_driver(0)
+				hid_device.reset()
+			except Exception, e:
+				pass #Probably already detached
+		else:
+			# set the active configuration. With no arguments, the first configuration will be the active one
+			try:
+				hid_device.set_configuration()
+			except usb.core.USBError as e:
+				sys.exit("Cannot set configuration the device: %s" % str(e))
 
 	# get an endpoint instance
 	cfg = hid_device.get_active_configuration()

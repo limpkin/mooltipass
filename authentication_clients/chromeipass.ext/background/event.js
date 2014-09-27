@@ -174,6 +174,10 @@ event.onSetRememberPopup = function(callback, tab, username, password, url, user
 	browserAction.setRememberPopup(tab.id, username, password, url, usernameExists, credentialsList);
 }
 
+event.onUpdate = function(callback, tab, username, password, url, usernameExists, credentialsList) {
+    mooltipass.updateCredentials(callback, tab, 0, username, password, url);
+}
+
 event.onLoginPopup = function(callback, tab, logins) {
 	var stackData = {
 		level: 1,
@@ -214,6 +218,7 @@ event.onMultipleFieldsPopup = function(callback, tab) {
 
 // all methods named in this object have to be declared BEFORE this!
 event.messageHandlers = {
+	'update': event.onUpdate,
 	'add_credentials': mooltipass.addCredentials,
 	'alert': event.onShowAlert,
 	'associate': mooltipass.associate,

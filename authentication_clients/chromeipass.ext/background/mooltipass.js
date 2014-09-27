@@ -153,7 +153,7 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
 	}
     }
 
-	callback("success");
+	//callback("success");
 }
 
 
@@ -201,7 +201,7 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 	}
 
     request = { type: 'inputs',
-                url: url, 
+                url: submiturl, 
                 inputs: {
                     login: {id: 'login.id', name: 'login.name'},
                     password: {id: 'pass.id', name: 'pass.name'} } };

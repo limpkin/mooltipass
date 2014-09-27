@@ -508,7 +508,7 @@ cipForm.setInputFields = function(form, credentialFields) {
 	form.data("cipPassword", credentialFields.password);
 }
 
-cipForm.onSubmit = function() {
+cipForm.onSubmit = function(event) {
 	var usernameId = cIPJQ(this).data("cipUsername");
 	var passwordId = cIPJQ(this).data("cipPassword");
 
@@ -524,11 +524,11 @@ cipForm.onSubmit = function() {
 	}
 	if(passwordField) {
 		passwordValue = passwordField.val();
-        console.log('submit: password "'+passwordValue);
+        console.log('submit: password');
 	}
 
 
-	cip.rememberCredentials(usernameValue, passwordValue);
+	cip.rememberCredentials(event, usernameField, usernameValue, passwordField, passwordValue);
 };
 
 
@@ -1139,6 +1139,8 @@ cip.submitUrl = null;
 // received credentials from KeePassHTTP
 cip.credentials = [];
 
+cip.trapSubmit = true;
+
 cIPJQ(function() {
 	cip.init();
 });
@@ -1201,6 +1203,8 @@ cip.initPasswordGenerator = function(inputs) {
  */
 cip.doSubmit = function doSubmit(pass)
 {
+    cip.trapSubmit = false; // don't trap this submit, let it through
+
     // locate best submit option
     var forms = $(pass).closest('form');
     if (forms.length > 0) {
@@ -1623,17 +1627,104 @@ cip.contextMenuRememberCredentials = function() {
 		passwordValue = passwordField.val();
 	}
 
-	if(!cip.rememberCredentials(usernameValue, passwordValue)) {
+	if(!cip.rememberCredentials(null, usernameField, usernameValue, passwordField, passwordValue)) {
 		alert("Could not detect changed credentials.");
 	}
 };
 
-cip.rememberCredentials = function(usernameValue, passwordValue) {
+
+cip.updateCredentials = function(event, usernameField, username, passwordField, password, url, usernameExists, credentialsList)
+{
+
+    //if (siteBlacklisted) return;
+
+    // Offer to update the mooltpass with the new value(s)
+    if (!document.getElementById('mpDialog')) {
+        console.log('content: creating  dialog div');
+        var layerNode= document.createElement('div');
+        layerNode.setAttribute('id', 'mpDialog');
+        layerNode.setAttribute('title','Mooltipass');
+        var pNode= document.createElement('moolti');
+        pNode.innerHTML = '';
+        layerNode.appendChild(pNode);
+        document.body.appendChild(layerNode);
+    }
+    var updateString = usernameExists ?  'Update Mooltipass credentials' : 'Add Mooltipass credentials';
+    if (event) {
+        // prevent submit until the credentials have been handled
+        event.preventDefault();
+    }
+    $( "#mpDialog" ).dialog({
+        autoOpen: true,
+        show: { effect: 'drop', direction: 'up', duration: 500 },
+        buttons: [{
+            text: updateString,
+            click: function() 
+            {
+                chrome.runtime.sendMessage({action: 'update', 'args': [username, password, url, usernameExists, credentialsList]});
+                pNode.innerHTML = 'Please confirm on Mooltipass!';
+                $(this).dialog('close');
+                $( "#mpDialog" ).dialog({
+                    autoOpen: true,
+                    hide: { effect: 'puff', duration: 500 },
+                    open: function (event, ui) {
+                        setTimeout(function() { 
+                            if (passwordField) {
+                                console.log('timeout: submitting');
+                                cip.doSubmit(passwordField);
+                            } else {
+                                console.log('timeout: no passwordField, not submitting');
+                            }
+                            $('#mpDialog').dialog('close')
+                            pNode.innerHTML='';} , 3000);
+                    },
+                    buttons: {
+                        OK: function() {
+                            if (passwordField) {
+                                cip.doSubmit(passwordField);
+                            }
+                            $(this).dialog('close');
+                            pNode.innerHTML = '';
+                        }
+                    }
+                });
+            }
+            },
+            {   text: 'Skip',
+                click: function() {
+                    if (passwordField) {
+                        console.log('skip: submitting');
+                        cip.doSubmit(passwordField);
+                    } else {
+                        console.log('skip: no passwordField, not submitting');
+                    }
+                    $(this).dialog('close');
+                }
+            },
+            {   text: "Never for this site",
+                click: function() {
+                    console.log('sending blacklist req for '+window.location.href);
+                    chrome.runtime.sendMessage({action: 'addBlacklist', 'args': [url]});
+                    console.log('blacklist done....');
+                    doSubmit(activeCredentials);
+                    $(this).dialog('close');
+                }
+            }
+        ]
+    });
+}
+
+cip.rememberCredentials = function(event, usernameField, usernameValue, passwordField, passwordValue) {
 	// no password given or field cleaned by a site-running script
 	// --> no password to save
 	if(passwordValue == "") {
 		return false;
 	}
+
+    if (!cip.trapSubmit) {
+        cip.trapSubmit = true;
+        return false;
+    }
 
     console.log('rememberCredentials()');
 
@@ -1681,10 +1772,14 @@ cip.rememberCredentials = function(usernameValue, passwordValue) {
 		}
 
         console.log('rememberCredentials - sending set_remember_credentials');
-		chrome.extension.sendMessage({
-			'action': 'set_remember_credentials',
-			'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
-		});
+		if (cip.settings.useUpdatePopup) {
+            cip.updateCredentials(event, usernameField, usernameValue, passwordField, passwordValue, url, usernameExists, credentialsList);
+        } else {
+            chrome.extension.sendMessage({
+                'action': 'set_remember_credentials',
+                'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
+            });
+        }
 
 		return true;
 	} else {

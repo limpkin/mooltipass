@@ -34,8 +34,9 @@
 	"content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
-			"js": ["jquery-1.9.1.min.js", "jquery-ui-1.10.2.custom.min.js", "chromeipass.js"],
-			"css": ["jquery-ui-1.10.2.custom.min.css", "bootstrap-btn.css", "chromeipass.css"],
+			"js": ["jquery-1.9.1.min.js", "jquery-ui-1.10.2.custom.min.js", "chromeipass.js",
+			       "jquery-ui/external/jquery/jquery.js", "jquery-ui/jquery-ui.js"],
+			"css": ["jquery-ui-1.10.2.custom.min.css", "bootstrap-btn.css", "chromeipass.css", "jquery-ui/jquery-ui.css"],
 			"run_at": "document_idle",
 			"all_frames": true
 		}

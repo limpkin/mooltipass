@@ -172,10 +172,9 @@
 				<h2>Mooltipass Settings</h2>
 				<hr />
 				<p>
-					<label class="checkbox">
-						<input type="checkbox" name="useUpdatePopup" value="1" /> Use update popup.
-					</label>
-					<span class="help-block">Use a popup when credentials can be updated instead of flashing the chromeipass icon.</span>
+					<label class="radio inline"><input type="radio" name="updateMethod" value="notification" /> notification bubble</label>
+					<label class="radio inline"><input type="radio" name="updateMethod" value="chromeipass" /> red flashing chromeipass icon</label>
+					<label class="radio inline"><input type="radio" name="updateMethod" value="popup" /> popup before submit</label>
 				</p>
 				<hr />
 				<hr />

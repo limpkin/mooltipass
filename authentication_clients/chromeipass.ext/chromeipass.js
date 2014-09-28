@@ -1205,12 +1205,14 @@ cip.doSubmit = function doSubmit(pass)
 {
     cip.trapSubmit = false; // don't trap this submit, let it through
 
+    console.log('doSubmit: pass field',pass);
+
     // locate best submit option
     var forms = $(pass).closest('form');
     if (forms.length > 0) {
         var submits = forms.find(':submit');
         if (submits.length > 0) {
-            console.log('submitting form '+forms[0].id+' via '+submits[0].id);
+            console.log('submitting form '+forms[0].id+' via ',submits[0]);
             $(submits[0]).click();
         } else {
             console.log('submitting form '+forms[0].id);
@@ -1637,6 +1639,8 @@ cip.updateCredentials = function(event, usernameField, username, passwordField, 
 {
 
     //if (siteBlacklisted) return;
+    var pNode = null;
+    var updateString = usernameExists ?  'Update credentials for ' : 'Add credentials for ';
 
     // Offer to update the mooltpass with the new value(s)
     if (!document.getElementById('mpDialog')) {
@@ -1644,12 +1648,13 @@ cip.updateCredentials = function(event, usernameField, username, passwordField, 
         var layerNode= document.createElement('div');
         layerNode.setAttribute('id', 'mpDialog');
         layerNode.setAttribute('title','Mooltipass');
-        var pNode= document.createElement('moolti');
+        pNode= document.createElement('moolti');
         pNode.innerHTML = '';
         layerNode.appendChild(pNode);
         document.body.appendChild(layerNode);
+    } else {
+        pNode = $('#moolti');
     }
-    var updateString = usernameExists ?  'Update Mooltipass credentials' : 'Add Mooltipass credentials';
     if (event) {
         // prevent submit until the credentials have been handled
         event.preventDefault();
@@ -1771,14 +1776,24 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 			}
 		}
 
-        console.log('rememberCredentials - sending set_remember_credentials');
-		if (cip.settings.useUpdatePopup) {
-            cip.updateCredentials(event, usernameField, usernameValue, passwordField, passwordValue, url, usernameExists, credentialsList);
-        } else {
+        switch (cip.settings.updateMethod) {
+        case 'chromeipass':
+            console.log('rememberCredentials - sending set_remember_credentials');
             chrome.extension.sendMessage({
                 'action': 'set_remember_credentials',
                 'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
             });
+            break;
+        case 'popup':
+            cip.updateCredentials(event, usernameField, usernameValue, passwordField, passwordValue, url, usernameExists, credentialsList);
+            break;
+        case 'notification':
+            console.log('rememberCredentials - sending update_notify');
+            chrome.extension.sendMessage({
+                'action': 'update_notify',
+                'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
+            });
+            break;
         }
 
 		return true;

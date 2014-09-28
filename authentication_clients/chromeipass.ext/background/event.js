@@ -156,12 +156,16 @@ event.onGetKeePassHttpVersions = function(callback, tab) {
 
 event.onCheckUpdateKeePassHttp = function(callback, tab) {
     console.log('event.onCheckUpdateKeePassHttp()');
-	callback({"current": '0.1', "latest": '0.1'});
+    mooltipass.getLatestChromeipassVersion();
+    console.log('currentChromeipass '+mooltipass.currentChromeipass.version+', latestChromeipass '+mooltipass.latestChromeipass.version);
+	callback({"current": mooltipass.currentKeePassHttp.version, "latest": mooltipass.latestKeePassHttp.version});
 }
 
 event.onUpdateAvailableKeePassHttp = function(callback, tab) {
-    console.log('event.onCheckUpdateKeePassHttp()');
-	callback(false);    // update not available
+    console.log('event.onCheckAvailableKeePassHttp()');
+    mooltipass.getLatestChromeipassVersion();
+    console.log('currentChromeipass '+mooltipass.currentChromeipass.version+', latestChromeipass '+mooltipass.latestChromeipass.version);
+	return (mooltipass.currentChromeipass.versionParsed > 0 && mooltipass.currentChromeipass.versionParsed < mooltipass.latestChromeipass.versionParsed);
 }
 
 event.onRemoveCredentialsFromTabInformation = function(callback, tab) {
@@ -170,8 +174,57 @@ event.onRemoveCredentialsFromTabInformation = function(callback, tab) {
 	page.clearCredentials(id);
 }
 
+event.onNotifyButtonClick = function(id, buttonIndex) {
+    console.log('notification',id,'button',buttonIndex,'clicked');
+    if (buttonIndex == 0) {
+        // Update
+        console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
+        mooltipass.updateCredentials(null, 
+                    event.mpUpdate[id].tab, 0,
+                    event.mpUpdate[id].username,
+                    event.mpUpdate[id].password,
+                    event.mpUpdate[id].url);
+    } else {
+        // Blacklist
+        console.log('notification blacklist ',event.mpUpdate[id].url);
+    }
+    delete event.mpUpdate[id];
+}
+
+event.onNotifyClosed = function(id) {
+    console.log('notification',id,'button',buttonIndex,'clicked');
+    delete event.mpUpdate[id];
+}
+
+chrome.notifications.onButtonClicked.addListener(event.onNotifyButtonClick);
+chrome.notifications.onClosed.addListener(event.onNotifyClosed);
+
+event.notificationCount = 0;
+event.mpUpdate = {};
+
 event.onSetRememberPopup = function(callback, tab, username, password, url, usernameExists, credentialsList) {
 	browserAction.setRememberPopup(tab.id, username, password, url, usernameExists, credentialsList);
+}
+
+event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) {
+    var updateString = usernameExists ?  'Update credentials for ' : 'Add credentials for ';
+
+    event.notificationCount++;
+
+    // XXX need to include tab ID in this to make it unique?
+    var noteId = 'mpUpdate.'+event.notificationCount.toString();
+
+    event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url };
+
+    chrome.notifications.create(noteId,
+            {   type: 'basic',
+                title: 'Mooltipass Update',
+                message: updateString+'\n'+url+'\non Mooltipass?',
+                iconUrl: '/icons/mooltipass-active.png',
+                buttons: [ {title: 'Yes'}, {title: 'Never for this site'}] },
+                function(id) {
+                    console.log('notification created for',id);
+                });
 }
 
 event.onUpdate = function(callback, tab, username, password, url, usernameExists, credentialsList) {
@@ -239,6 +292,7 @@ event.messageHandlers = {
 	'update_credentials': mooltipass.updateCredentials,
 	'save_settings': event.onSaveSettings,
 	'set_remember_credentials': event.onSetRememberPopup,
+	'update_notify': event.onUpdateNotify,
 	'stack_add': browserAction.stackAdd,
 	'update_available_keepasshttp': event.onUpdateAvailableKeePassHttp,
 	'generate_password': mooltipass.generatePassword,

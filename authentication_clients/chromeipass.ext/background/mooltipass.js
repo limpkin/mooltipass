@@ -6,7 +6,11 @@ var connected = null;
 var mpInputCallback = null;
 var mpUpdateCallback = null;
 
+mooltipass.latestChromeipassVersionUrl = 'https://raw.githubusercontent.com/limpkin/mooltipass/master/authentication_clients/chromeipass.ext/manifest.json';
+mooltipass.latestChromeipass = (typeof(localStorage.latestChromeipass) == 'undefined') ? {"version": 0, "versionParsed": 0, "lastChecked": null} : JSON.parse(localStorage.latestChromeipass);
 
+var extVersion = chrome.app.getDetails().version;
+mooltipass.currentChromeipass = { version: extVersion, versionParsed: parseInt(extVersion.replace(/\./g,"")) };
 
 var maxServiceSize = 123;       // Maximum size of a site / service name, not including null terminator
 
@@ -48,10 +52,10 @@ chrome.management.getAll(getAll);
 // Messages from the mooltipass client app
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
 {
-    console.log('back: app req '+JSON.stringify(request));
+    console.log('back: app req '+request.type);
+    //console.log('back: app req '+JSON.stringify(request));
     switch (request.type) {
         case 'credentials':
-            console.log('back: got credentials '+JSON.stringify(request));
             //chrome.tabs.sendMessage(contentAddr, request);
             if (mpInputCallback) {
                 mpInputCallback([{Login: request.inputs.login.value, Name: '<name>', Uuid: '<Uuid>', Password: request.inputs.password.value, StringFields: []}]);
@@ -59,29 +63,29 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
             }
             break;
         case 'updateComplete':
-            console.log('back: got updateComplete');
             if (mpUpdateCallback) {
-                mpUpdateCallback('success');
+                try {
+                    mpUpdateCallback('success');
+                } catch (e) {
+                    console.log("Error: " + e);
+                }
                 mpUpdateCallback = null;
             }
             //chrome.tabs.sendMessage(contentAddr, request);
             break;
         case 'connected':
-            console.log('back: got connected');
             connected = request;
             //if (contentAddr) {
                 //chrome.tabs.sendMessage(contentAddr, request);
             //}
             break;
         case 'disconnected':
-            console.log('back: got disconnected');
             connected = null;
             //if (contentAddr) {
                 //chrome.tabs.sendMessage(contentAddr, request);
             //}
             break;
         case 'cardPresent':
-            console.log('back: got cardPresent');
             //if (contentAddr) {
                 //chrome.tabs.sendMessage(contentAddr, request);
             //}
@@ -90,7 +94,6 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
             //}
             break;
         case 'rescan':
-            console.log('back: got rescan');
             //if (contentAddr) {
                 //chrome.tabs.sendMessage(contentAddr, request);
             //}
@@ -102,6 +105,7 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
 
 mooltipass.addCredentials = function(callback, tab, username, password, url) 
 {
+	page.tabs[tab.id].errorMessage = null;
     mooltipass.associate();
     mooltipass.updateCredentials(callback, tab, null, username, password, url);
 }
@@ -174,11 +178,13 @@ mooltipass.associate = function(callback, tab)
 
 mooltipass.generatePassword = function(callback, tab) 
 {
+	page.tabs[tab.id].errorMessage = null;
     console.log('mp.generatePassword()');
 }
 
 mooltipass.copyPassword = function(callback, tab)
 {
+	page.tabs[tab.id].errorMessage = null;
     console.log('mp.copyPassword()');
 }
 
@@ -187,6 +193,7 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 {
     mooltipass.associate();
 	page.debug("mp.retrieveCredentials(callback, {1}, {2}, {3}, {4})", tab.id, url, submiturl, forceCallback);
+	page.tabs[tab.id].errorMessage = null;
 
 	// unset error message
 	page.tabs[tab.id].errorMessage = null;
@@ -210,4 +217,25 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
     contentAddr = tab.id;
     mpInputCallback = callback;
     chrome.runtime.sendMessage(mpClient.id, request);
+}
+
+mooltipass.getLatestChromeipassVersion = function() 
+{
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", mooltipass.latestChromeipassVersionUrl, false);
+	xhr.setRequestHeader("Content-Type", "application/json");
+    var version = -1;
+	try {
+		xhr.send();
+		manifest = JSON.parse(xhr.responseText);
+        mooltipass.latestChromeipass.version = manifest.version;
+        mooltipass.latestChromeipass.versionParsed = parseInt(manifest.version.replace(/\./g,""));
+	} catch (e) {
+		console.log("Error: " + e);
+	}
+
+	if (version != -1) {
+		localStorage.latestChromeipass = JSON.stringify(mooltipass.latestChromeipass);
+	}
+	mooltipass.latestChromeipass.lastChecked = new Date();
 }

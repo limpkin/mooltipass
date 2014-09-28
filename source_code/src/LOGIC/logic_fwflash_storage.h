@@ -78,6 +78,7 @@
 // Keyboard LUTs
 #define ID_KEYB_EN_LUT          BITMAP_ID_OFFSET+19
 #define ID_KEYB_FR_LUT          BITMAP_ID_OFFSET+20
+#define ID_KEYB_ES_LUT          BITMAP_ID_OFFSET+21
 
 // Prototypes
 uint8_t getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char);

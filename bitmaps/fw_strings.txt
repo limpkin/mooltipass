@@ -40,4 +40,5 @@ Close Mode In The Plugin
 Created by the plugin
 No Stored Favorites
 Send Card Stored Data?
-Set New Card Login?
+Set Card Login?
+Set Card Stored Data?

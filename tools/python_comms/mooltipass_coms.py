@@ -94,6 +94,17 @@ def sendHidPacket(epout, cmd, len, data):
 	# send data
 	epout.write(arraytosend)	
 	
+def randomBytesGeneration(epin, epout):
+	f = open('randombytes.bin', 'wb')
+	
+	for i in range(0, 1000000/2) :
+		print i*32, "bytes out of 1M\r",
+		sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+		data = receiveHidPacket(epin)
+		data[DATA_INDEX:DATA_INDEX+32].tofile(f)
+
+	f.close()
+	
 def unlockSmartcard(epin, epout):
 	unlockPacket = array('B')
 	pincode = raw_input("Enter pin code: ")
@@ -288,6 +299,7 @@ def findHIDDevice(vendor_id, product_id):
 		print "1) Add a favorite"
 		print "2) See current favorites (only v0.5)"
 		print "3) Erase unknown smartcard (only v0.5)"
+		print "4) Store 1M random bytes (only v0.6)"
 		choice = input("Make your choice: ")
 		
 		if choice == 1:
@@ -296,6 +308,8 @@ def findHIDDevice(vendor_id, product_id):
 			favoritePrint(epin, epout)
 		elif choice == 3:
 			unlockSmartcard(epin, epout)
+		elif choice == 4:
+			randomBytesGeneration(epin, epout)
 	
 	hid_device.reset()
 

@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Pseudorandom Number Sequence Test Program</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="author" content="John Walker" />
+<meta name="description" content="ENT: A Pseudorandom Number Sequence Test Program" />
+<meta name="keywords" content="pseudorandom, random, test, entropy" />
+<style type="text/css">
+    a:link,  a:visited {
+	background-color: inherit;
+    	color: rgb(0%, 0%, 80%);
+	text-decoration: none;
+    }
+
+    a:hover  {
+    	background-color:  rgb(30%, 30%, 100%);
+    	color: rgb(100%, 100%, 100%);
+    }
+    
+    a:active {
+    	color: rgb(100%, 0%, 0%);
+    	background-color:  rgb(30%, 30%, 100%);
+    }
+    
+    a.i:link, a.i:visited, a.i:hover {
+    	background-color:  inherit;
+    	color: inherit;
+	text-decoration: none;
+    }
+    
+    blockquote.rights {
+	text-align: justify;
+	font-size: smaller;
+	font-family: sans-serif;
+    }
+    
+    body {
+    	background-color: #FFFFFF;
+	color: #000000;
+        margin-left: 15%;
+        margin-right: 10%;
+    }
+    
+    dl.options dt {
+    	margin-top: 1ex;
+    }
+    
+    h1.title, h2.title {
+    	margin-bottom: 0px;
+	text-align: center;
+    }
+    
+    .options dt {
+    	margin-top: 1ex;
+	padding-bottom: 0px;
+    }
+    
+    .options dd, .options p {
+    	margin-top: 0px;
+    }
+    
+    img.border0 {
+    	border: 0px;
+    }
+    
+    p,dd, li, blockquote, td {
+    	text-align: justify;
+    }
+    
+    p.byline {
+    	margin-top: 0px;
+	text-align: center;
+    }
+    
+    table.footer {
+    	width: 100%;
+    }
+    
+    table.footer td.left {
+    	width: 50%;
+	text-align: left;
+	font-style: italic;
+	vertical-align: top;
+    }
+    
+    table.footer td.right {
+    	width: 50%;
+	text-align: right;
+	vertical-align: top;
+    }
+    
+    table.footer table.buttons {
+	margin-left: auto;
+    }
+    
+    table.footer table.buttons td {
+	text-align: center;
+    }
+</style>
+</head>
+
+<body>
+
+<h1 class="title"><img src="entitle.gif" width="276" height="113" alt="ENT" /></h1>
+<h2 class="title">
+A Pseudorandom Number Sequence Test Program
+</h2>
+
+<p />
+
+<hr />
+
+<p>
+This page describes a program, <b>ent</b>, which applies various
+tests to sequences of bytes stored in files and reports the results of
+those tests.  The program is useful for evaluating pseudorandom
+number generators for encryption and statistical sampling
+applications, compression algorithms, and other applications where the
+information density of a file is of interest.
+</p>
+
+
+<h3>NAME</h3>
+     <b>ent</b> - pseudorandom number sequence test
+
+<h3>SYNOPSIS</h3>
+
+     <b>ent</b> [ <b>-b -c -f -t -u</b> ] [ <i>infile</i> ]
+
+<h3>DESCRIPTION</h3>
+
+<p>
+<b>ent</b> performs a variety of tests on the stream of
+bytes in <i>infile</i> (or standard input if no <i>infile</i>
+is specified) and produces output as follows on the standard
+output stream:
+</p>
+
+<pre>
+    Entropy = 7.980627 bits per character.
+
+    Optimum compression would reduce the size
+    of this 51768 character file by 0 percent.
+ 
+    Chi square distribution for 51768 samples is 1542.26, and randomly
+    would exceed this value less than 0.01 percent of the times.
+  
+    Arithmetic mean value of data bytes is 125.93 (127.5 = random).
+    Monte Carlo value for Pi is 3.169834647 (error 0.90 percent).
+    Serial correlation coefficient is 0.004249 (totally uncorrelated = 0.0).
+</pre>
+
+<p>
+The values calculated are as follows:
+</p>
+
+<dl class="options">
+<dt><b>Entropy</b></dt>
+<dd>The information density of the contents of the file,
+                expressed as a number of bits per character.  The
+                results above, which resulted from processing an image
+                file compressed with JPEG, indicate that the file is
+                extremely dense in information&mdash;essentially random.
+                Hence, compression of the file is unlikely to reduce
+                its size.  By contrast, the C source code of the
+                program has entropy of about 4.9 bits per character,
+                indicating that optimal compression of the file would
+                reduce its size by 38%.  [Hamming, pp.&nbsp;104&ndash;108]</dd>
+
+
+<dt><b>Chi-square Test</b></dt>
+<dd><p>The chi-square test is the most commonly used test for
+                the randomness of data, and is extremely sensitive to
+                errors in pseudorandom sequence generators.  The
+                chi-square distribution is calculated for the stream
+                of bytes in the file and expressed as an absolute
+                number and a percentage which indicates how frequently
+                a truly random sequence would exceed the value
+                calculated.  We interpret the percentage as the degree
+                to which the sequence tested is suspected of being
+                non-random.  If the percentage is greater than 99% or
+                less than 1%, the sequence is almost certainly not
+                random.  If the percentage is between 99% and 95% or
+                between 1% and 5%, the sequence is suspect.
+                Percentages between 90% and 95% and 5% and 10%
+                indicate the sequence is &ldquo;almost suspect&rdquo;.  Note that
+                our JPEG file, while very dense in information, is far
+                from random as revealed by the chi-square test.
+</p>
+
+<p>
+                Applying this test to the output of various
+                pseudorandom sequence generators is interesting.  The
+                low-order 8 bits returned by the standard Unix
+                <code>rand()</code> function, for example, yields:
+</p>
+
+<blockquote>
+                  Chi square distribution for 500000 samples is 0.01,
+                  and randomly would exceed this value more than 99.99 percent
+                  of the times.
+</blockquote>
+
+<p>
+                While an improved generator [Park &amp; Miller] reports:
+</p>
+
+<blockquote>
+                  Chi square distribution for 500000 samples is
+                  212.53, and randomly would exceed this value 97.53
+                  percent of the times.
+</blockquote>
+
+<p>
+                Thus, the standard Unix generator (or at least the
+                low-order bytes it returns) is unacceptably
+                non-random, while the improved generator is much
+                better but still sufficiently non-random to cause
+                concern for demanding applications.  Contrast both of
+                these software generators with the chi-square result
+                of a genuine random sequence created by
+		<a href="http://www.fourmilab.ch/hotbits/">timing
+                radioactive decay events</a>.
+</p>
+
+<blockquote>
+    	    	  Chi square distribution for 500000 samples is 249.51, and randomly
+    	    	  would exceed this value 40.98 percent of the times.
+</blockquote>
+
+<p>
+                See [Knuth, pp.&nbsp;35&ndash;40] for more information on the
+                chi-square test.  An interactive
+                <a href="http://www.fourmilab.ch/rpkp/experiments/analysis/chiCalc.html">chi-square
+                calculator</a> is available at this site.
+</p>
+</dd>
+
+<dt><b>Arithmetic Mean</b></dt>
+<dd>This is simply the result of summing the all the bytes
+                (bits if the <b>-b</b> option is specified) in the file
+                and dividing by the file length.  If the data are
+                close to random, this should be about 127.5 (0.5
+                for <b>-b</b> option output).  If the
+                mean departs from this value, the values are
+                consistently high or low.</dd>
+
+<dt><b>Monte Carlo Value for Pi</b></dt>
+<dd>Each successive sequence of six bytes is used as 24 bit X and Y
+                co-ordinates within a square.  If the distance of the
+                randomly-generated point is less than the radius of a
+                circle inscribed within the square, the six-byte
+                sequence is considered a &ldquo;hit&rdquo;.  The percentage of
+                hits can be used to calculate the value of Pi.  For
+                very large streams (this approximation converges very
+                slowly), the value will approach the correct value of
+                Pi if the sequence is close to random.  A 500000 byte
+                file created by radioactive decay yielded:
+
+<blockquote>
+                  Monte Carlo value for Pi is 3.143580574 (error 0.06 percent).
+</blockquote>
+</dd>
+
+<dt><b>Serial Correlation Coefficient</b></dt>
+<dd>This quantity measures the extent to which each byte in the file
+                depends upon the previous byte.  For random sequences,
+                this value (which can be positive or negative) will,
+                of course, be close to zero.  A non-random byte stream
+                such as a C program will yield a serial correlation
+                coefficient on the order of 0.5.  Wildly predictable
+                data such as uncompressed bitmaps will exhibit serial
+                correlation coefficients approaching 1.  See [Knuth,
+                pp.&nbsp;64&ndash;65] for more details.</dd>
+</dl>
+
+<h3>OPTIONS</h3>
+
+<dl class="options">
+<dt><b>-b</b></dt>  <dd>The input is treated as a stream of bits rather
+                than of 8-bit bytes.  Statistics reported reflect
+                the properties of the bitstream.</dd>
+
+<dt><b>-c</b></dt>  <dd>Print a table of the number of occurrences of
+               each possible byte (or bit, if the <b>-b</b> option
+               is also specified) value, and the fraction of the
+               overall file made up by that value.  Printable
+               characters in the ISO 8859-1 Latin-1 character set
+               are shown along with their decimal byte values.
+               In non-terse output mode, values with zero
+               occurrences are not printed.</dd>
+
+<dt><b>-f</b></dt>  <dd>Fold upper case letters to lower case before
+               computing statistics.  Folding is done based on the
+               ISO 8859-1 Latin-1 character set, with accented
+               letters correctly processed.</dd>
+
+<dt><b>-t</b></dt>  <dd>Terse mode: output is written in Comma
+               Separated Value (CSV) format, suitable for
+               loading into a spreadsheet and easily read
+               by any programming language.  See
+               <a href="#Terse">Terse Mode Output Format</a>
+               below for additional details.</dd>
+
+<dt><b>-u</b></dt>  <dd>Print how-to-call information.</dd>
+</dl>
+
+<h3>FILES</h3>
+
+<p>
+    If no <i>infile</i> is specified, <b>ent</b> obtains its input
+    from standard input.  Output is always written to standard
+    output.
+</p>
+
+<h3><a name="Terse" class="i">TERSE MODE OUTPUT FORMAT</a></h3>
+
+<p>
+Terse mode is selected by specifying the <b>-t</b> option
+on the command line.  Terse mode output is written in
+Comma Separated Value (CSV) format, which can be directly
+loaded into most spreadsheet programs and is easily read
+by any programming language.  Each record in the CSV
+file begins with a record type field, which identifies
+the content of the following fields.  If the <b>-c</b>
+option is not specified, the terse mode output will
+consist of two records, as follows:
+</p>
+
+<pre>
+0,File-bytes,Entropy,Chi-square,Mean,Monte-Carlo-Pi,Serial-Correlation
+1,<em>file_length</em>,<em>entropy</em>,<em>chi_square</em>,<em>mean</em>,<em>Pi_value</em>,<em>correlation</em>
+</pre>
+
+<p>
+where the italicised values in the type 1 record are the
+numerical values for the quantities named in the type 0
+column title record.  If the <b>-b</b> option is specified, the second
+field of the type 0 record will be &ldquo;<tt>File-bits</tt>&rdquo;, and
+the <em>file_length</em> field in type 1 record will be given
+in bits instead of bytes.  If the <b>-c</b> option is specified,
+additional records are appended to the terse mode output which
+contain the character counts:
+</p>
+
+<pre>
+2,Value,Occurrences,Fraction
+3,<em>v</em>,<em>count</em>,<em>fraction</em>
+. . .
+</pre>
+
+<p>
+If the <b>-b</b> option is specified, only two type 3 records will
+appear for the two bit values <em>v</em>=0 and <em>v</em>=1.
+Otherwise, 256 type 3 records are included, one for each
+possible byte value.  The second field of a type 3 record
+indicates how many bytes (or bits) of value <em>v</em>
+appear in the input, and <em>fraction</em> gives the decimal
+fraction of the file which has value <em>v</em> (which is
+equal to the <em>count</em> value of this record divided by
+the <em>file_length</em> field in the type 1 record).
+</p>
+
+<h3>BUGS</h3>
+
+<p>
+    Note that the &ldquo;optimal compression&rdquo; shown for the file is
+    computed from the byte- or bit-stream entropy and thus
+    reflects compressibility based on a reading frame of
+    the chosen width (8-bit bytes or individual bits if the
+    <b>-b</b> option is specified).  Algorithms which use
+    a larger reading frame, such as the Lempel-Ziv [Lempel&nbsp;&amp;&nbsp;Ziv]
+    algorithm, may achieve greater compression if the file
+    contains repeated sequences of multiple bytes.
+</p>
+
+<h2><a href="http://www.fourmilab.ch/random/random.zip"><img
+    src="http://www.fourmilab.ch/images/icons/file.gif"
+    class="border0" alt="" align="top" width="40"
+    height="40" /></a> <a href="http://www.fourmilab.ch/random/random.zip">Download
+    	random.zip</a> (Zipped archive)</h2>
+
+<p>
+    The program is provided as <a href="http://www.fourmilab.ch/random/random.zip">random.zip</a>,
+    a <a href="http://www.info-zip.org/">Zipped</a> archive
+    containing an ready-to-run Win32 command-line program,
+    <code>ent.exe</code> (compiled using Microsoft Visual C++ .NET,
+    creating a 32-bit Windows executable), and in source code form
+    along with a <code>Makefile</code> to build the program under
+    Unix.
+</p>
+
+<h3>SEE ALSO</h3>
+
+<dl class="options">
+    	<dd><cite><a href="http://www.fourmilab.ch/rpkp/experiments/statistics.html">Introduction
+              to Probability and Statistics</a></cite></dd>
+
+<dt>[Hamming]</dt> <dd>Hamming, Richard W.
+              <cite>Coding and Information Theory</cite>.
+              Englewood Cliffs NJ: Prentice-Hall, 1980.</dd>
+
+<dt>[Knuth]</dt>   <dd>Knuth, Donald E.
+              <cite>
+              <a href="http://www.amazon.com/exec/obidos/ASIN/0201896842/fourmilabwwwfour" target="Amazon_Fourmilab">
+              The Art of Computer Programming,
+              Volume 2 / Seminumerical Algorithms</a></cite>.
+              Reading MA: Addison-Wesley, 1969.
+              ISBN 0-201-89684-2.</dd>
+
+<dt>[Lempel&nbsp;&amp;&nbsp;Ziv]</dt>
+                <dd>Ziv J. and A. Lempel.
+                &ldquo;A Universal Algorithm for Sequential Data Compression&rdquo;.
+                <cite>IEEE Transactions on Information Theory</cite>
+                <b>23</b>, 3, pp.&nbsp;337-343.</dd>
+
+<dt>[Park &amp; Miller]</dt> <dd>Park, Stephen K. and Keith W. Miller.
+                &ldquo;Random Number Generators: Good Ones Are Hard to Find&rdquo;.
+                <cite>Communications of the ACM</cite>, October 1988, p.&nbsp;1192.</dd>
+</dl>
+
+<p />
+<hr />
+
+<p />
+<blockquote class="rights">
+     This software is in the public domain.  Permission to use, copy,
+     modify, and distribute this software and its documentation for
+     any purpose and without fee is hereby granted, without any
+     conditions or restrictions.  This software is provided &ldquo;as is&rdquo;
+     without express or implied warranty.
+</blockquote>
+
+<table class="footer">
+<tr>
+<td class="left">
+<address>by <a href="http://www.fourmilab.ch/">John Walker</a></address>
+January 28th, 2008
+</td>
+<td class="right">
+</td>
+</tr>
+</table>
+
+<h3><a href="http://www.fourmilab.ch/">Fourmilab Home Page</a></h3>
+
+</body>
+</html>

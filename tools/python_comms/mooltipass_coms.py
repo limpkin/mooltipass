@@ -102,6 +102,7 @@ def randomBytesGeneration(epin, epout):
 		sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
 		data = receiveHidPacket(epin)
 		data[DATA_INDEX:DATA_INDEX+32].tofile(f)
+		f.flush()
 
 	f.close()
 	

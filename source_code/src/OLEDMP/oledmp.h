@@ -154,6 +154,7 @@ void oledScrollUp(uint8_t lines, bool clear);
 void oledReset();
 void oledOff(void);
 void oledOn(void);
+bool oledIsOn(void);
 
 #define OLED_SCROLL_UP		1
 #define OLED_SCROLL_DOWN	2

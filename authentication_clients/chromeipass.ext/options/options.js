@@ -6,6 +6,7 @@ $(function() {
 	options.initMenu();
 	options.initGeneralSettings();
     options.initMooltipassSettings();
+    options.initBlacklist();
 	options.initSpecifiedCredentialFields();
 	options.initAbout();
 });
@@ -100,6 +101,21 @@ options.initMooltipassSettings = function() {
 	});
 }
 
+options.initBlacklist = function() {
+    $('#save').button();
+    $('#save').click(options.saveBlacklist);
+
+    var blacklist = typeof(localStorage.blacklist)=='undefined' ? [] : JSON.parse(localStorage.blacklist);
+    $('#mpBlacklist').val(blacklist.join('\n'));
+}
+
+options.saveBlacklist = function() {
+    var mpBlacklist = $('#mpBlacklist').val().split('\n');
+    mpBlacklist.sort();
+    localStorage.blacklist = JSON.stringify(mpBlacklist);
+    $('#status').html('Mooltipass Blacklist Updated.');
+    setTimeout(function() { $('#status').html(''); }, 750);
+}
 
 options.showKeePassHttpVersions = function(response) {
 	if(response.current <= 0) {

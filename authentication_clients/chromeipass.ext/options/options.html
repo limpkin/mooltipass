@@ -111,7 +111,8 @@
 							<ul class="nav">
 								<li class="active"><a href="#general-settings">General</a></li>
 								<li><a href="#mooltipass-settings">Mooltipass</a></li>
-								<li><a href="#specified-fields">Specified credential fields</a></li>
+								<li><a href="#blacklist">Blacklist</a></li>
+								<li><a href="#specified-fields">Credential fields</a></li>
 								<li><a href="#about">About</a></li>
 							</ul>
 						</div>
@@ -186,6 +187,20 @@
 					<label class="radio inline"><input type="radio" name="checkUpdateMooltipass" value="30" /> every month</label>
 					<label class="radio inline"><input type="radio" name="checkUpdateMooltipass" value="0" /> never</label>
 				</p>
+			</div>
+
+			<!-- Blacklisted sites -->
+			<div class="tab" id="tab-blacklist">
+			    <h2>Blacklisted sites</h2>
+			    <hr />
+			    <p>
+				Sites on this list do not prompt for password updates
+			    </p>
+			    <br>
+			    <textarea id="mpBlacklist" rows="20" cols="200" class="ui-widget-content"></textarea>
+			    <br>
+			    <div id="status"></div>
+			    <button id="save">Save</button>
 			</div>
 
 			<!-- Specified credential fields -->

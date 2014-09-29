@@ -187,6 +187,7 @@ event.onNotifyButtonClick = function(id, buttonIndex) {
     } else {
         // Blacklist
         console.log('notification blacklist ',event.mpUpdate[id].url);
+        mooltipass.blacklistUrl(event.mpUpdate[id].url);
     }
     delete event.mpUpdate[id];
 }
@@ -209,9 +210,13 @@ event.onSetRememberPopup = function(callback, tab, username, password, url, user
 event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) {
     var updateString = usernameExists ?  'Update credentials for ' : 'Add credentials for ';
 
+    if (mooltipass.isBlacklisted(url)) {
+        console.log('notify: ignoring blacklisted url',url);
+        return;
+    }
+
     event.notificationCount++;
 
-    // XXX need to include tab ID in this to make it unique?
     var noteId = 'mpUpdate.'+event.notificationCount.toString();
 
     event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url };
@@ -273,6 +278,7 @@ event.onMultipleFieldsPopup = function(callback, tab) {
 event.messageHandlers = {
 	'update': event.onUpdate,
 	'add_credentials': mooltipass.addCredentials,
+	'blacklistUrl': mooltipass.blacklistUrl,
 	'alert': event.onShowAlert,
 	'associate': mooltipass.associate,
 	'check_update_keepasshttp': event.onCheckUpdateKeePassHttp,

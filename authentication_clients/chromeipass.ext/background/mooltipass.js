@@ -11,6 +11,7 @@ mooltipass.latestChromeipass = (typeof(localStorage.latestChromeipass) == 'undef
 
 var extVersion = chrome.app.getDetails().version;
 mooltipass.currentChromeipass = { version: extVersion, versionParsed: parseInt(extVersion.replace(/\./g,"")) };
+mooltipass.blacklist = typeof(localStorage.blacklist)=='undefined' ? [] : JSON.parse(localStorage.blacklist);
 
 var maxServiceSize = 123;       // Maximum size of a site / service name, not including null terminator
 
@@ -121,6 +122,14 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
     mooltipass.associate();
 	console.log("mp.updateCredentials(})", tab.id, entryId, username, url);
 
+    if (mooltipass.isBlacklisted(url)) {
+        console.log('notify: ignoring blacklisted url',url);
+        if (callback) {
+            callback('failure');
+        }
+        return;
+    }
+
 	// unset error message
 	page.tabs[tab.id].errorMessage = null;
 
@@ -136,28 +145,6 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
     contentAddr = tab.id;
     mpUpdateCallback = callback;
     chrome.runtime.sendMessage(mpClient.id, request);
-
-    // this needs to be blocking, but can't because we're waiting on an async response from the mp app and the mp, which may never arrive.
-    // So this actually needs to tight loop until an mp response arrives, with a timeout.
-    if (false) {
-	var result = keepass.send(request);
-	var status = result[0];
-	var response = result[1];
-
-	// verify response
-	var code = "error";
-	if(keepass.checkStatus(status, tab)) {
-		var r = JSON.parse(response);
-		if (keepass.verifyResponse(r, key, id)) {
-			code = "success";
-		}
-		else {
-			code = "error";
-		}
-	}
-    }
-
-	//callback("success");
 }
 
 
@@ -239,3 +226,18 @@ mooltipass.getLatestChromeipassVersion = function()
 	}
 	mooltipass.latestChromeipass.lastChecked = new Date();
 }
+
+mooltipass.isBlacklisted = function(url)
+{
+    return mooltipass.blacklist.indexOf(url) >= 0;
+}
+
+mooltipass.blacklistUrl = function(url) 
+{
+    console.log('got blacklist req. for',url);
+    mooltipass.blacklist.push(url);
+    mooltipass.blacklist.sort();
+    localStorage.blacklist = JSON.stringify(mooltipass.blacklist);
+    console.log('updated blacklist store');
+}
+

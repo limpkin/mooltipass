@@ -58,9 +58,7 @@ options.initGeneralSettings = function() {
         });
 	});
 
-	chrome.extension.sendMessage({
-		action: "get_keepasshttp_versions"
-	}, options.showMooltipassVersions);
+	chrome.extension.sendMessage({ action: 'get_mooltipass_versions' }, options.showMooltipassVersions);
 
 	$("#tab-general-settings button.checkUpdateKeePassHttp:first").click(function(e) {
 		e.preventDefault();
@@ -137,18 +135,17 @@ options.initBlacklist = function() {
 }
 
 options.showMooltipassVersions = function(response) {
-	if(response.current <= 0) {
-		response.current = "unknown";
-	}
-	if(response.latest <= 0) {
-		response.latest = "unknown";
-	}
-	$("#tab-general-settings .kphVersion:first em.yourVersion:first").text(response.current);
-	$("#tab-general-settings .kphVersion:first em.latestVersion:first").text(response.latest);
+	$("#yourMpVersion").text(response.currentClient);
+	$("#latestMpVersion").text(response.latestClient);
+	$("#yourFwVersion").text(response.currentFirmware);
+	$("#latestFwVersion").text(response.latestFirmware);
 
-	$("#tab-about em.versionKPH").text(response.current);
+	$("#tab-about em.versionMooltipass").text(response.current);
 
 	$("#tab-general-settings button.checkUpdateKeePassHttp:first").attr("disabled", false);
+
+	$("#versionMooltipassFw").text(response.currentFirmware);
+	$("#versionMooltipassClient").text(response.currentClient);
 }
 
 options.initSpecifiedCredentialFields = function() {
@@ -206,4 +203,6 @@ options.initSpecifiedCredentialFields = function() {
 
 options.initAbout = function() {
 	$("#tab-about em.versionCIP").text(chrome.app.getDetails().version);
+	$("#versionMooltipassFw").text('');
+	$("#versionMooltipassClient").text('');
 }

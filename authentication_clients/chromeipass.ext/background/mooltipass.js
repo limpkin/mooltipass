@@ -7,10 +7,23 @@ var mpInputCallback = null;
 var mpUpdateCallback = null;
 
 mooltipass.latestChromeipassVersionUrl = 'https://raw.githubusercontent.com/limpkin/mooltipass/master/authentication_clients/chromeipass.ext/manifest.json';
-mooltipass.latestChromeipass = (typeof(localStorage.latestChromeipass) == 'undefined') ? {"version": 0, "versionParsed": 0, "lastChecked": null} : JSON.parse(localStorage.latestChromeipass);
+mooltipass.latestClientVersionUrl = 'https://raw.githubusercontent.com/limpkin/mooltipass/master/authentication_clients/chrome.hid-app/manifest.json';
+mooltipass.latestChromeipass = (typeof(localStorage.latestChromeipass) == 'undefined') ? 
+                                {"version": 0, "versionParsed": 0, "lastChecked": null} :
+                                JSON.parse(localStorage.latestChromeipass);
+
+mooltipass.latestClient = (typeof(localStorage.latestClient) == 'undefined') ?
+                                {"version": 0, "versionParsed": 0, "lastChecked": null} :
+                                JSON.parse(localStorage.latestClient);
+
+mooltipass.latestFirmware = (typeof(localStorage.latestFirmware) == 'undefined') ?
+                                {"version": 0, "versionParsed": 0, "lastChecked": null} :
+                                JSON.parse(localStorage.latestFirmware);
 
 var extVersion = chrome.app.getDetails().version;
 mooltipass.currentChromeipass = { version: extVersion, versionParsed: parseInt(extVersion.replace(/\./g,'')) };
+mooltipass.currentClient = { version: 0, versionParsed: 0 };
+
 mooltipass.blacklist = typeof(localStorage.mpBlacklist)=='undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
 
 var maxServiceSize = 123;       // Maximum size of a site / service name, not including null terminator
@@ -39,7 +52,7 @@ function getAll(ext)
 
     if (mpClient != null) {
         chrome.runtime.sendMessage(mpClient.id, { type: 'ping' });
-        console.log('found mooltipass client "'+ext[ind].shortName+'" id='+ext[ind].id);
+        console.log('found mooltipass client "'+ext[ind].shortName+'" id='+ext[ind].id,' client: ',mpClient);
     } else {
         console.log('No mooltipass client found');
     }
@@ -76,6 +89,7 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
             break;
         case 'connected':
             connected = request;
+            console.log('connected: Mooltipass version "'+request.version+'"');
             //if (contentAddr) {
                 //chrome.tabs.sendMessage(contentAddr, request);
             //}
@@ -103,6 +117,25 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
             break;
     }
 });
+
+mooltipass.getFirmwareVersion = function()
+{
+    if (connected) {
+        return connected.version;
+    } else {
+        return 'not connected';
+    }
+}
+
+mooltipass.getClientVersion = function()
+{
+    if (mpClient) {
+        mooltipass.currentClient = { version: mpClient.version, versionParsed: parseInt(mpClient.version.replace(/\./g,'')) };
+        return mpClient.version;
+    } else {
+        return 'not connected';
+    }
+}
 
 mooltipass.addCredentials = function(callback, tab, username, password, url) 
 {
@@ -215,8 +248,9 @@ mooltipass.getLatestChromeipassVersion = function()
 	try {
 		xhr.send();
 		manifest = JSON.parse(xhr.responseText);
-        mooltipass.latestChromeipass.version = manifest.version;
-        mooltipass.latestChromeipass.versionParsed = parseInt(manifest.version.replace(/\./g,''));
+        version = manifest.version;
+        mooltipass.latestChromeipass.version = version;
+        mooltipass.latestChromeipass.versionParsed = parseInt(version.replace(/\./g,''));
 	} catch (e) {
 		console.log("Error: " + e);
 	}
@@ -225,6 +259,28 @@ mooltipass.getLatestChromeipassVersion = function()
 		localStorage.latestChromeipass = JSON.stringify(mooltipass.latestChromeipass);
 	}
 	mooltipass.latestChromeipass.lastChecked = new Date();
+}
+
+mooltipass.getLatestClientVersion = function() 
+{
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", mooltipass.latestClientVersionUrl, false);
+	xhr.setRequestHeader("Content-Type", "application/json");
+    var version = -1;
+	try {
+		xhr.send();
+		manifest = JSON.parse(xhr.responseText);
+        version = manifest.version;
+        mooltipass.latestClient.version = version;
+        mooltipass.latestClient.versionParsed = parseInt(version.replace(/\./g,''));
+	} catch (e) {
+		console.log("Error: " + e);
+	}
+
+	if (version != -1) {
+		localStorage.latestClient = JSON.stringify(mooltipass.latestClient);
+	}
+	mooltipass.latestClient.lastChecked = new Date();
 }
 
 mooltipass.loadSettings = function() {

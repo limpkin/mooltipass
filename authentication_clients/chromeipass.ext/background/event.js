@@ -94,8 +94,7 @@ event.onShowAlert = function(callback, tab, message) {
 event.onLoadSettings = function(callback, tab) {
 	page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
     mooltipass.loadSettings();
-    console.log('event.onLoadSettings()');
-    console.log('page.settings = ', page.settings);
+    //console.log('onLoadSettings: page.settings = ', page.settings);
 }
 
 event.onLoadKeyRing = function(callback, tab) {
@@ -103,7 +102,6 @@ event.onLoadKeyRing = function(callback, tab) {
 }
 
 event.onGetSettings = function(callback, tab) {
-    console.log('event.onGetSettings()');
 	event.onLoadSettings();
 	callback({ data: page.settings });
 }
@@ -154,6 +152,17 @@ event.onGetKeePassHttpVersions = function(callback, tab) {
 	callback({"current": '0.1', "latest": '0.1'});
 }
 
+event.onGetMooltipassVersions = function(callback, tab) {
+	var resp ={ 'currentFirmware': mooltipass.getFirmwareVersion(),
+               'latestFirmware': '0.5',
+	           'currentClient': mooltipass.getClientVersion(),
+               'latestClient': mooltipass.latestClient.version, 
+	           'currentChromeipass': mooltipass.currentChromeipass.version,
+               'latestChromeipass': mooltipass.latestChromeipass.version};
+    console.log('versions:',resp);
+	callback(resp);
+}
+
 event.onCheckUpdateKeePassHttp = function(callback, tab) {
     console.log('event.onCheckUpdateKeePassHttp()');
     mooltipass.getLatestChromeipassVersion();
@@ -166,6 +175,13 @@ event.onChromeipassUpdateAvailable = function(callback, tab) {
     mooltipass.getLatestChromeipassVersion();
     console.log('currentChromeipass '+mooltipass.currentChromeipass.version+', latestChromeipass '+mooltipass.latestChromeipass.version);
 	return (mooltipass.currentChromeipass.versionParsed > 0 && mooltipass.currentChromeipass.versionParsed < mooltipass.latestChromeipass.versionParsed);
+}
+
+event.onClientUpdateAvailable = function(callback, tab) {
+    mooltipass.getLatestClientVersion();
+    mooltipass.getClientVersion();
+    console.log('currentClient '+mooltipass.currentClient.version+', latestClient '+mooltipass.latestClient.version);
+	return (mooltipass.currentClient.versionParsed > 0 && mooltipass.currentClient.versionParsed < mooltipass.latestClient.versionParsed);
 }
 
 event.onRemoveCredentialsFromTabInformation = function(callback, tab) {
@@ -284,6 +300,7 @@ event.messageHandlers = {
 	'check_update_keepasshttp': event.onCheckUpdateKeePassHttp,
 	'get_connected_database': event.onGetConnectedDatabase,
 	'get_keepasshttp_versions': event.onGetKeePassHttpVersions,
+	'get_mooltipass_versions': event.onGetMooltipassVersions,
 	'get_settings': event.onGetSettings,
 	'get_status': event.onGetStatus,
 	'get_tab_information': event.onGetTabInformation,
@@ -301,6 +318,7 @@ event.messageHandlers = {
 	'update_notify': event.onUpdateNotify,
 	'stack_add': browserAction.stackAdd,
 	'update_available_chromeipass': event.onChromeipassUpdateAvailable,
+	'update_available_client': event.onClientUpdateAvailable,
 	'generate_password': mooltipass.generatePassword,
 	'copy_password': mooltipass.copyPassword
 };

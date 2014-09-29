@@ -31,8 +31,6 @@ function initSettings() {
 
 $(function() {
 	initSettings();
-
-	chrome.extension.sendMessage({
-		action: "update_available_chromeipass"
-	}, updateAvailableResponse);
+	chrome.extension.sendMessage({ action: "update_available_client" }, updateAvailableResponse);
+	chrome.extension.sendMessage({ action: "update_available_chromeipass" }, updateAvailableResponse);
 });

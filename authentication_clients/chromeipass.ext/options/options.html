@@ -136,7 +136,7 @@
 					<label class="checkbox">
 						<input type="checkbox" name="autoFillSingleEntry" value="1" /> Automatically fill-in single credentials entry.
 					</label>
-					<span class="help-block">If chromeIPass does only receive a single entry from KeePassHttp it automatically fills this credentials into the found credential fields.</span>
+					<span class="help-block">If chromeIPass does only receive a single entry from Mooltipass it automatically fills this credentials into the found credential fields.</span>
 				</p>
 				<div class="help-block mooltipassVersion">
 					chromeIPass needs the plugin Mooltipass Client to retrieve credentials from and send them to Mooltipass.
@@ -145,12 +145,20 @@
 					<br />
 					<br />
 					<div class="row">
-						<div class="span3">Your running version of Mooltipass Client:</div>
-						<div class="span6"><em class="yourVersion"></em></div>
+						<div class="span3">Your Mooltipass Application:</div>
+						<div class="span6"><em id="yourMpVersion"></em></div>
 					</div>
 					<div class="row">
-						<div class="span3">Latest available version of Mooltipass Client:</div>
-						<div class="span6"><em class="latestVersion"></em><button class="btn btn-mini checkUpdateMooltipass">Check for updates</button></div>
+						<div class="span3">Latest Mooltipass Application:</div>
+						<div class="span6"><em id="latestMpVersion"></em><button class="btn btn-mini checkUpdateMooltipass">Check for updates</button></div>
+					</div><br>
+					<div class="row">
+						<div class="span3">Your Mooltipass firmware:</div>
+						<div class="span6"><em id="yourFwVersion"></em></div>
+					</div>
+					<div class="row">
+						<div class="span3">Latest Mooltipass firmware:</div>
+						<div class="span6"><em id="latestFwVersion"></em><button class="btn btn-mini checkUpdateMooltipass">Check for updates</button></div>
 					</div>
 				</div>
 				<hr />
@@ -273,12 +281,16 @@
 				</p>
 				<hr />
 				<div class="row">
-					<div class="span2">chromeIPass Version:</div>
-					<div class="span6"><em class="versionCIP"></em></div>
+					<div class="span3">chromeIPass Version:</div>
+					<div class="span2"><em class="versionCIP"></em></div>
 				</div>
 				<div class="row">
-					<div class="span2">Mooltipass Version:</div>
-					<div class="span6"><em class="versionMooltipass"></em></div>
+					<div class="span3">Mooltipass Client Version:</div>
+					<div class="span2"><em id="versionMooltipassClient"></em></div>
+				</div>
+				<div class="row">
+					<div class="span3">Mooltipass Firmware Version:</div>
+					<div class="span2"><em id="versionMooltipassFw"></em></div>
 				</div>
 			</div>
 

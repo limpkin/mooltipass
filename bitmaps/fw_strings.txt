@@ -39,3 +39,5 @@ Memory Management Mode
 Close Mode In The Plugin
 Created by the plugin
 No Stored Favorites
+Send Card Stored Data?
+Set New Card Login?

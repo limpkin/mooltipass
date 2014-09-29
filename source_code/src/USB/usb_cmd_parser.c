@@ -906,6 +906,48 @@ void usbProcessIncoming(uint8_t* incomingData)
             break;
         }
         
+        // Read card login
+        case CMD_READ_CARD_LOGIN :
+        {
+            if (getSmartCardInsertedUnlocked() == TRUE)
+            {
+                uint8_t temp_data[SMARTCARD_MTP_LOGIN_LENGTH/8];
+                readMooltipassWebsiteLogin(temp_data);
+                usbSendMessage(CMD_READ_CARD_LOGIN, sizeof(temp_data), (void*)temp_data);
+                return;
+            } 
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
+        // Set card login
+        case CMD_SET_CARD_LOGIN :
+        {
+            if ((checkTextField(msg->body.data, datalen, SMARTCARD_MTP_LOGIN_LENGTH/8) == RETURN_OK) && (getSmartCardInsertedUnlocked() == TRUE) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SET_SMC_LOGIN)) == RETURN_OK))
+            {
+                // Temp buffer for application zone 2
+                uint8_t temp_az2[SMARTCARD_AZ_BIT_LENGTH/8];
+                
+                // Erase AZ2 as the card login takes all the space
+                eraseApplicationZone1NZone2SMC(FALSE);
+                // Write our data in buffer
+                memcpy(temp_az2, msg->body.data, datalen);
+                // Write the new data in the card
+                writeSMC(SMARTCARD_AZ2_BIT_START, SMARTCARD_AZ_BIT_LENGTH, temp_az2);
+                
+                // Return OK
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
         // set password bootkey
         case CMD_SET_BOOTLOADER_PWD :
         {

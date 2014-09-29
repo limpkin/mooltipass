@@ -55,6 +55,10 @@
 #define CMD_GET_MOOLTIPASS_PARM 0x5E
 #define CMD_GET_FAVORITE        0x5F
 #define CMD_RESET_CARD          0x60
+#define CMD_READ_CARD_LOGIN     0x61
+#define CMD_READ_CARD_PASS      0x62
+#define CMD_SET_CARD_LOGIN      0x63
+#define CMD_SET_CARD_PASS       0x64
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

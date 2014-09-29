@@ -1,6 +1,6 @@
 {
 	"name": "Mooltipass chromeIPass",
-	"version": "2.6.7",
+	"version": "2.6.7.1",
 	"manifest_version": 2,
 	"description": "Chromeipass credentials extension for Mooltipass",
 	"icons": {
@@ -63,8 +63,6 @@
 		"webRequestBlocking",
 		"https://*/*",
 		"http://*/*",
-		"http://localhost:19455/",
-		"http://localhost/",
 		"https://raw.github.com/",
 		"contentSettings",
 		"management",

@@ -107,6 +107,7 @@ static uint8_t oled_bufHeight;
 static uint8_t oled_scroll_delay = 3;        // milliseconds between line scroll
 static uint8_t oled_writeBuffer = 0;
 static uint8_t oled_displayBuffer = 0;
+static bool oled_isOn = false;
 
 // pixel buffer to allow merging of adjacent image data.
 // To conserve memory, only one GDDRAM word is kept per display line.
@@ -616,6 +617,7 @@ void oledInit()
 
     pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
     oledWriteCommand(CMD_SET_DISPLAY_ON);
+    oled_isOn = true;
 }
 
 /**
@@ -804,6 +806,7 @@ void oledOff(void)
     oledWriteCommand(CMD_SET_DISPLAY_OFF);
     timerBasedDelayMs(100);
     pinHigh(OLED_PORT_POWER, OLED_POWER);    // 12V power off
+    oled_isOn = false;
 }
 
 
@@ -815,8 +818,18 @@ void oledOn(void)
     pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
     timerBasedDelayMs(100);
     oledWriteCommand(CMD_SET_DISPLAY_ON);
+    oled_isOn = true;
 }
 
+/**
+ * See if the the OLED display is on
+ * @retval true if the display is on
+ * @retval false if the display is off
+ */
+bool oledIsOn(void)
+{
+    return oled_isOn;
+}
 
 /**
  * Fill the display with the specified colour by setting
@@ -1261,7 +1274,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
             glyphData = alloca(gsize);
 #ifdef OLED_DEBUG1
             // glyph data offsets are from the end of the glyph header array
-            usbPrintf_P(PSTR("    glyph '%c' width %d height %d depth %d, addr 0x%04lx size %d\n"),
+            usbPrintf_P(PSTR("    glyph '%c' width %d height %d depth %d, addr 0x%04x size %d\n"),
                         ch, glyph_width, glyph_height, glyph_depth, gaddr, gsize);
 #endif
             flashRawRead(glyphData, gaddr, gsize);

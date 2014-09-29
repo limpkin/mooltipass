@@ -949,13 +949,13 @@ void usbProcessIncoming(uint8_t* incomingData)
                 uint8_t temp_az2[SMARTCARD_AZ_BIT_LENGTH/8];
                 
                 // Read Application Zone 2 
-                readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ2_BIT_START)/8, temp_az2);
+                readApplicationZone2(temp_az2);
                 // Erase Application Zone 2 
                 eraseApplicationZone1NZone2SMC(FALSE);
-                // Write our data in buffer
+                // Write our data in the buffer at the right spot
                 memcpy(temp_az2 + (SMARTCARD_MTP_LOGIN_OFFSET/8), msg->body.data, datalen);
                 // Write the new data in the card
-                writeSMC(SMARTCARD_AZ2_BIT_START, SMARTCARD_AZ_BIT_LENGTH, temp_az2);
+                writeApplicationZone2(temp_az2);
                 
                 // Return OK
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -976,13 +976,13 @@ void usbProcessIncoming(uint8_t* incomingData)
                 uint8_t temp_az1[SMARTCARD_AZ_BIT_LENGTH/8];
                 
                 // Read Application Zone 1
-                readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ1_BIT_START)/8, temp_az1);
+                readApplicationZone1(temp_az1);
                 // Erase Application Zone 1
                 eraseApplicationZone1NZone2SMC(TRUE);
                 // Write our data in buffer
                 memcpy(temp_az1 + (SMARTCARD_MTP_PASS_OFFSET/8), msg->body.data, datalen);
                 // Write the new data in the card
-                writeSMC(SMARTCARD_AZ1_BIT_START, SMARTCARD_AZ_BIT_LENGTH, temp_az1);
+                writeApplicationZone1(temp_az1);
                 
                 // Return OK
                 plugin_return_value = PLUGIN_BYTE_OK;

@@ -255,8 +255,8 @@ RET_TYPE cloneSmartCardProcess(uint16_t pincode)
     }
     
     // Extract current AZ1 & AZ2
-    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ1_BIT_START)/8, temp_az1);
-    readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ2_BIT_START)/8, temp_az2);
+    readApplicationZone1(temp_az1);
+    readApplicationZone2(temp_az2);
     
     // Inform the user to remove his smart card
     guiDisplayInformationOnScreen(ID_STRING_REMOVE_CARD);
@@ -281,8 +281,8 @@ RET_TYPE cloneSmartCardProcess(uint16_t pincode)
     eraseApplicationZone1NZone2SMC(TRUE);
     
     // Write AZ1 & AZ2
-    writeSMC(SMARTCARD_AZ1_BIT_START, SMARTCARD_AZ_BIT_LENGTH, temp_az1);
-    writeSMC(SMARTCARD_AZ2_BIT_START, SMARTCARD_AZ_BIT_LENGTH, temp_az2);
+    writeApplicationZone1(temp_az1);
+    writeApplicationZone2(temp_az2);
     
     // Write random bytes in the code protected zone
     fillArrayWithRandomBytes(temp_az1, SMARTCARD_CPZ_LENGTH);

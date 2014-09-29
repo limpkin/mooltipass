@@ -43,6 +43,42 @@ inline void readAES256BitsKey(uint8_t* buffer)
     readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH)/8, (SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED)/8, buffer);
 }
 
+/*! \fn     readApplicationZone1(uint8_t* buffer)
+*   \brief  Read Application Zone 1 data
+*   \param  buffer  Buffer to store the data
+*/
+inline void readApplicationZone1(uint8_t* buffer)
+{
+    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ1_BIT_START)/8, buffer);
+}
+
+/*! \fn     writeApplicationZone1(uint8_t* buffer)
+*   \brief  Write Application Zone 1 data
+*   \param  buffer  Data to be written
+*/
+inline void writeApplicationZone1(uint8_t* buffer)
+{
+    writeSMC(SMARTCARD_AZ1_BIT_START, SMARTCARD_AZ_BIT_LENGTH, buffer);
+}
+
+/*! \fn     readApplicationZone2(uint8_t* buffer)
+*   \brief  Read Application Zone 2 data
+*   \param  buffer  Buffer to store the data
+*/
+inline void readApplicationZone2(uint8_t* buffer)
+{
+    readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ2_BIT_START)/8, buffer);
+}
+
+/*! \fn     writeApplicationZone2(uint8_t* buffer)
+*   \brief  Write Application Zone 2 data
+*   \param  buffer  Data to be written
+*/
+inline void writeApplicationZone2(uint8_t* buffer)
+{
+    writeSMC(SMARTCARD_AZ2_BIT_START, SMARTCARD_AZ_BIT_LENGTH, buffer);
+}
+
 /*! \fn     readMooltipassWebsiteLogin(uint8_t* buffer)
 *   \brief  Read the Mooltipass website login from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
 *   \param  buffer  Buffer to store the login

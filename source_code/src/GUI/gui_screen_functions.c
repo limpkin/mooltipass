@@ -189,6 +189,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 if ((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOUSURE)) == RETURN_OK) && (removeCardAndReAuthUser() == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOURLSURE)) == RETURN_OK))
                 {
                     uint8_t currentuserid = getCurrentUserID();
+                    guiDisplayProcessingScreen();
                     deleteCurrentUserFromFlash();
                     eraseSmartCard();
                     
@@ -212,6 +213,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     }
                     
                     // Delete LUT entries
+                    guiDisplayProcessingScreen();
                     deleteUserIdFromSMCUIDLUT(currentuserid);
                     
                     // Go to invalid screen

@@ -35,7 +35,8 @@ parser.add_option('-n', '--name', help='name for font', dest='name', default=Non
 parser.add_option('-p', '--png', help='png file for font', dest='png', default=None)
 parser.add_option('-x', '--xml', help='xml file for font', dest='xml', default=None)
 parser.add_option('-o', '--output', help='name of output file', dest='output', default='font')
-parser.add_option('-d', '--debug', help='enable debug output', action='store_true', dest='debug', default=False)
+parser.add_option('-d', '--depth', help='bits per pixel (default: 2)', type='int', dest='depth', default=2)
+parser.add_option('', '--debug', help='enable debug output', action='store_true', dest='debug', default=False)
 (options, args) = parser.parse_args()
 
 CHAR_EURO = 0x20ac      # Euro currency sign, not yet supported
@@ -123,10 +124,10 @@ def generateHeader(fontName, pngFilename, xmlFilename):
             for x in range(rect[0],rect[0]+rect[2]-1):
                 count += 1
                 # map 255 shades to 4
-                pix = line[y][x]['a']/64
-                pixels = pixels << 2 | pix
+                pix = line[y][x]['a'] >> (8-options.depth)
+                pixels = pixels << options.depth | pix
                 pixCount += 1
-                if pixCount >= 4:
+                if pixCount >= (8/options.depth):
                     lineWidth += 1
                     print >> outfd, '0x{:02x}, '.format(pixels),
                     glyphData[ch].append(pixels & 0xFF)
@@ -137,12 +138,12 @@ def generateHeader(fontName, pngFilename, xmlFilename):
                 patt += asciiPixel[pix]
 
             count += 1
-            pix = line[y][x+1]['a']/64
+            pix = line[y][x+1]['a'] >> (8-options.depth)
             patt += asciiPixel[pix]
-            pixels = pixels << 2 | pix
+            pixels = pixels << (options.depth) | pix
             pixCount += 1
-            if pixCount < 4:
-                pixels = pixels << (4-pixCount)*2
+            if pixCount < (8/options.depth):
+                pixels = pixels << ((8/options.depth)-pixCount)
             print >> outfd, '0x{:02x}, '.format(pixels),
             glyphData[ch].append(pixels & 0xFF)
             #glyphData[ch].append((pixels >> 8) & 0xFF)
@@ -171,7 +172,6 @@ def generateHeader(fontName, pngFilename, xmlFilename):
     # binary header
     #
     fixedWidth = 0
-    depth = 2
 
     glyphCount = len(glyphData)
     if ord(' ') in glyphd:
@@ -184,7 +184,7 @@ def generateHeader(fontName, pngFilename, xmlFilename):
             glyphCount -= 1
 
     print '{} glyphs'.format(glyphCount)
-    header = pack('=BBBB', int(root.attrib['height']), fixedWidth, depth, glyphCount)
+    header = pack('=BBBB', int(root.attrib['height']), fixedWidth, options.depth, glyphCount)
     bfd.write(header)
 
     if options.debug:

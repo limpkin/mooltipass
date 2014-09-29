@@ -78,15 +78,13 @@
 	    <button id="cloneSmartcard" style="width:180px">Clone smartcard</button><br>
 	    <label class="ui-widget"><input type="checkbox" id="enableDebug" class="ui-widget ui-state-default ui-corner-all"> Enable debug</label><br>
 	    <br>
-	    <ul id="erase" style="width:70px" class="ui-widget ui-state-default ui-corner-all">
-		<li>Erase
-		    <ul class="ui-widget ui-state-default ui-corner-all">
-			<li style="width:150px">eeprom and flash</li>
-			<li>flash</li>
-			<li>smartcard</li>
-		    </ul>
-		</li>
-	    </ul>
+	    <button id="eraseSMC" style="width:120px">Erase Card</button>
+	    <label class="ui-widget ui-state-default">pin: </label>
+	    <input type="text" id="cardPin" class="ui-widget ui-corner-all" style="width:40px; text-align:right" value="F0F0">
+	    <br>
+	    <button id="eraseFlash" style="width:120px">Erase Flash</button>
+	    <br>
+	    <button id="eraseFlashAndEeprom" style="width:200px">Erase Flash and EEPROM</button>
 	    <br>
 	    <div id="eraseConfirm" title="Mooltipass Erase">
 		<p></p>

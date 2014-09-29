@@ -5,8 +5,9 @@ BITMAP_PNG = $(wildcard [0-9]*.png)
 BITMAP_IMAGES = $(BITMAP_PNG:.png=.img)
 
 FONT_IMAGES = $(wildcard [0-9]*font*.img)
+LUT_IMAGES = $(wildcard [0-9]*lut*.img)
 
-BUNDLE_IMAGES = $(BITMAP_IMAGES) $(FONT_IMAGES)
+BUNDLE_IMAGES = $(BITMAP_IMAGES) $(FONT_IMAGES) $(LUT_IMAGES)
 
 all: bundle.img
 

@@ -243,25 +243,25 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0x61: Read Card Login
 ---------------------
-From plugin/app: Read login stored inside the smartcard
+From plugin/app: Read login stored inside the smartcard (no confirmation asked from the user)
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
 
 0x62: Read Card Password
 ------------------------
-From plugin/app: Read password stored inside the smartcard
+From plugin/app: Read password stored inside the smartcard (confirmation asked to the user)
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
 
 0x63: Set Card Login
 --------------------
-From plugin/app: Set login stored inside the smartcard, 62bytes max length
+From plugin/app: Set login stored inside the smartcard, 62bytes max length (confirmation asked to the user)
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
 0x64: Set Card Password
 -----------------------
-From plugin/app: Set password stored inside the smartcard, 30bytes max length
+From plugin/app: Set password stored inside the smartcard, 30bytes max length (confirmation asked to the user)
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 

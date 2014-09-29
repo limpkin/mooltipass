@@ -77,7 +77,6 @@ var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
 var CMD_IMPORT_EEPROM_END   = 0x39;
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
-var CMD_ERASE_SMARTCARD     = 0x42;
 var CMD_DRAW_BITMAP         = 0x43;	
 var CMD_SET_FONT            = 0x44;
 var CMD_EXPORT_FLASH_START  = 0x45;
@@ -92,6 +91,7 @@ var CMD_IMPORT_MEDIA_START  = 0x52;
 var CMD_IMPORT_MEDIA        = 0x53;
 var CMD_IMPORT_MEDIA_END    = 0x54;
 var CMD_STACK_FREE          = 0x50;
+var CMD_RESET_CARD          = 0x60;
 
 var PLUGIN_BYTE_NOCARD	    = 0x03; // Response to CMD_CONTEXT if no card.
 
@@ -744,6 +744,65 @@ function initWindow()
         sendRequest(CMD_SET_FONT, args);
     });
 
+    $('#eraseFlash').click(function() {
+        $('#eraseConfirm').html('Erase the Mooltipass flash?');
+        $("#eraseConfirm" ).dialog({
+            resizable: false,
+            height:140,
+            modal: true,
+            buttons: {
+                'Erase smartcard': function() {
+                    log('#developerLog', 'Erasing flash and EEPROM ');
+                    sendRequest(CMD_ERASE_FLASH);
+                    $(this).dialog('close');
+                },
+                Cancel: function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
+    $('#eraseFlashAndEeprom').click(function() {
+        $('#eraseConfirm').html('Erase the Mooltipass flash and EEPROM?');
+        $("#eraseConfirm" ).dialog({
+            resizable: false,
+            height:140,
+            modal: true,
+            buttons: {
+                'Erase smartcard': function() {
+                    log('#developerLog', 'Erasing flash and EEPROM ');
+                    sendRequest(CMD_ERASE_EEPROM);
+                    $(this).dialog('close');
+                },
+                Cancel: function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
+    $('#eraseSMC').click(function() {
+        $('#eraseConfirm').html('Erase the contents of the smartcard inserted in the mooltipass?');
+        $("#eraseConfirm" ).dialog({
+            resizable: false,
+            height:140,
+            modal: true,
+            buttons: {
+                'Erase smartcard': function() {
+                    log('#developerLog', 'Erasing smartcard ');
+                    var pin = parseInt($('#cardPin').val(),16);
+                    args = new Uint8Array([pin >> 8, pin & 0xFF]);
+                    sendRequest(CMD_RESET_CARD, args);
+                    $(this).dialog('close');
+                },
+                Cancel: function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
+    });
+
     $('#enableDebug').change(function() {
         if ($(this).is(":checked")) {
             log('#messageLog', 'enabled debug\n');
@@ -772,33 +831,11 @@ function initWindow()
     $("#cloneSmartcard").button();
     $("#drawBitmap").button();
     $("#setFont").button();
+    $("#eraseFlash").button();
+    $("#eraseFlashAndEeprom").button();
+    $("#eraseSMC").button();
     $("#fill").button();
     $("#tabs").tabs();
-
-    var eraseOptions = {
-        'eeprom and flash': { query: 'Erase EEPROM and Flash?', cmd: CMD_ERASE_EEPROM },
-        'flash':            { query: 'Erase Flash?',            cmd: CMD_ERASE_FLASH },
-        'smartcard':        { query: 'Erase smartcard?',        cmd: CMD_ERASE_SMARTCARD }
-    };
-                             
-    $("#erase").menu({
-        select: function(event, ui) {
-            var option = ui.item.text();
-            if (option in eraseOptions) {
-                query = eraseOptions[option].query;
-                var buts = {};
-                buts[query] = function() {
-                        log('#developerLog', 'Erasing '+option+'... ');
-                        sendRequest(eraseOptions[option].cmd);
-                        $(this).dialog('close');
-                    }
-                buts['Cancel'] = function() {
-                        $(this).dialog('close');
-                    }
-                $('#eraseConfirm').dialog({buttons: buts});
-            }
-        }
-    });
 
     chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
     {
@@ -1062,6 +1099,7 @@ function onDataReceived(reportId, data)
             {
                 // proceed
                 args = new Uint8Array([0]);     // restart export from 0
+                console.log('exporting flash');
                 sendRequest(CMD_EXPORT_FLASH, args);
             }
             break;
@@ -1160,7 +1198,10 @@ function onDataReceived(reportId, data)
 
         case CMD_ERASE_EEPROM:
         case CMD_ERASE_FLASH:
-        case CMD_ERASE_SMARTCARD:
+            log('#developerLog', (bytes[2] == 1) ? 'succeeded\n' : 'failed\n');
+            break;
+
+        case CMD_RESET_CARD:
             log('#developerLog', (bytes[2] == 1) ? 'succeeded\n' : 'failed\n');
             break;
 

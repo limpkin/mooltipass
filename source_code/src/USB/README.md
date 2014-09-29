@@ -141,6 +141,12 @@ From plugin/app: Inform that we finished the flash import
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x4B: Get random number
+-----------------------
+From plugin/app: Ask 32 random bytes
+
+From Mooltipass: The 32 random bytes
+
 0x50: Get user profile
 ----------------------
 From plugin/app: Get the user profile inside the memory, ask the user to approve memory management mode

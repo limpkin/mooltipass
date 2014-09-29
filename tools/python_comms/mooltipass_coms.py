@@ -97,7 +97,7 @@ def sendHidPacket(epout, cmd, len, data):
 def randomBytesGeneration(epin, epout):
 	f = open('randombytes.bin', 'wb')
 	
-	for i in range(0, 1000000/2) :
+	for i in range(0, 1000000/32) :
 		print i*32, "bytes out of 1M\r",
 		sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
 		data = receiveHidPacket(epin)

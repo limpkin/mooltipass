@@ -33,6 +33,6 @@ $(function() {
 	initSettings();
 
 	chrome.extension.sendMessage({
-		action: "update_available_keepasshttp"
+		action: "update_available_chromeipass"
 	}, updateAvailableResponse);
 });

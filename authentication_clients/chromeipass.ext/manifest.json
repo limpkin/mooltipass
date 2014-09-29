@@ -1,6 +1,6 @@
 {
 	"name": "Mooltipass chromeIPass",
-	"version": "2.6.7.1",
+	"version": "2.6.7.2",
 	"manifest_version": 2,
 	"description": "Chromeipass credentials extension for Mooltipass",
 	"icons": {

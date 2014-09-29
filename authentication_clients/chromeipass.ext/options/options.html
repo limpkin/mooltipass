@@ -196,11 +196,23 @@
 			    <p>
 				Sites on this list do not prompt for password updates
 			    </p>
-			    <br>
-			    <textarea id="mpBlacklist" rows="20" cols="200" class="ui-widget-content"></textarea>
-			    <br>
-			    <div id="status"></div>
-			    <button id="save">Save</button>
+			    <table class="table table-striped table-bordered table-hover">
+				<thead>
+				    <tr>
+					<th class="span10">Page URL</th>
+					<th class="span2">Delete</th>
+				    </tr>
+				</thead>
+				<tbody>
+				    <tr class="empty">
+					<td colspan="2">No blacklisted URLs.</td>
+				    </tr>
+				    <tr class="clone">
+					<td></td>
+					<td><button class="btn delete btn-danger btn">Remove</button></td>
+				    </tr>
+				</tbody>
+			    </table>
 			</div>
 
 			<!-- Specified credential fields -->

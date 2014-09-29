@@ -1,6 +1,5 @@
 var event = {};
 
-
 event.onMessage = function(request, sender, callback) {
 	if (request.action in event.messageHandlers) {
 
@@ -94,6 +93,7 @@ event.onShowAlert = function(callback, tab, message) {
 
 event.onLoadSettings = function(callback, tab) {
 	page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
+    mooltipass.loadSettings();
     console.log('event.onLoadSettings()');
     console.log('page.settings = ', page.settings);
 }
@@ -161,8 +161,8 @@ event.onCheckUpdateKeePassHttp = function(callback, tab) {
 	callback({"current": mooltipass.currentKeePassHttp.version, "latest": mooltipass.latestKeePassHttp.version});
 }
 
-event.onUpdateAvailableKeePassHttp = function(callback, tab) {
-    console.log('event.onCheckAvailableKeePassHttp()');
+event.onChromeipassUpdateAvailable = function(callback, tab) {
+    console.log('event.onChromeipassUpdateAvailable()');
     mooltipass.getLatestChromeipassVersion();
     console.log('currentChromeipass '+mooltipass.currentChromeipass.version+', latestChromeipass '+mooltipass.latestChromeipass.version);
 	return (mooltipass.currentChromeipass.versionParsed > 0 && mooltipass.currentChromeipass.versionParsed < mooltipass.latestChromeipass.versionParsed);
@@ -300,7 +300,7 @@ event.messageHandlers = {
 	'set_remember_credentials': event.onSetRememberPopup,
 	'update_notify': event.onUpdateNotify,
 	'stack_add': browserAction.stackAdd,
-	'update_available_keepasshttp': event.onUpdateAvailableKeePassHttp,
+	'update_available_chromeipass': event.onChromeipassUpdateAvailable,
 	'generate_password': mooltipass.generatePassword,
 	'copy_password': mooltipass.copyPassword
 };

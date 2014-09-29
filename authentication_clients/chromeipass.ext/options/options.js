@@ -60,14 +60,14 @@ options.initGeneralSettings = function() {
 
 	chrome.extension.sendMessage({
 		action: "get_keepasshttp_versions"
-	}, options.showKeePassHttpVersions);
+	}, options.showMooltipassVersions);
 
 	$("#tab-general-settings button.checkUpdateKeePassHttp:first").click(function(e) {
 		e.preventDefault();
 		$(this).attr("disabled", true);
 		chrome.extension.sendMessage({
-			action: "check_update_keepasshttp"
-		}, options.showKeePassHttpVersions);
+			action: "check_update_chromeipass"
+		}, options.showMooltipassVersions);
 	});
 };
 
@@ -102,22 +102,41 @@ options.initMooltipassSettings = function() {
 }
 
 options.initBlacklist = function() {
-    $('#save').button();
-    $('#save').click(options.saveBlacklist);
 
-    var blacklist = typeof(localStorage.blacklist)=='undefined' ? [] : JSON.parse(localStorage.blacklist);
-    $('#mpBlacklist').val(blacklist.join('\n'));
+    // get blacklist from storage, or create an empty one if none exists
+    options.blacklist = typeof(localStorage.mpBlacklist)=='undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
+
+	$('#tab-blacklist tr.clone:first button.delete:first').click(function(e) {
+		var url = $(this).closest('tr').data('url');
+		var id = $(this).closest('tr').attr('id');
+		$('#tab-blacklist #' + id).remove();
+		delete options.blacklist[url];
+		localStorage.mpBlacklist = JSON.stringify(options.blacklist);
+        chrome.extension.sendMessage({ action: 'load_settings' });
+	});
+
+	var trClone = $("#tab-blacklist table tr.clone:first").clone(true);
+	trClone.removeClass("clone");
+
+	var index = 1;
+    for (var url in options.blacklist) {
+		var tr = trClone.clone(true);
+		tr.data('url', url);
+		tr.attr('id', 'tr-scf' + index);
+		tr.children('td:first').text(url);
+		$('#tab-blacklist table tbody:first').append(tr);
+        index++;
+	}
+
+	if($('#tab-blacklist table tbody:first tr').length > 2) {
+		$('#tab-blacklist table tbody:first tr.empty:first').hide();
+	}
+	else {
+		$('#tab-blacklist table tbody:first tr.empty:first').show();
+	}
 }
 
-options.saveBlacklist = function() {
-    var mpBlacklist = $('#mpBlacklist').val().split('\n');
-    mpBlacklist.sort();
-    localStorage.blacklist = JSON.stringify(mpBlacklist);
-    $('#status').html('Mooltipass Blacklist Updated.');
-    setTimeout(function() { $('#status').html(''); }, 750);
-}
-
-options.showKeePassHttpVersions = function(response) {
+options.showMooltipassVersions = function(response) {
 	if(response.current <= 0) {
 		response.current = "unknown";
 	}

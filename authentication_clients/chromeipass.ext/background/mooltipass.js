@@ -10,8 +10,8 @@ mooltipass.latestChromeipassVersionUrl = 'https://raw.githubusercontent.com/limp
 mooltipass.latestChromeipass = (typeof(localStorage.latestChromeipass) == 'undefined') ? {"version": 0, "versionParsed": 0, "lastChecked": null} : JSON.parse(localStorage.latestChromeipass);
 
 var extVersion = chrome.app.getDetails().version;
-mooltipass.currentChromeipass = { version: extVersion, versionParsed: parseInt(extVersion.replace(/\./g,"")) };
-mooltipass.blacklist = typeof(localStorage.blacklist)=='undefined' ? [] : JSON.parse(localStorage.blacklist);
+mooltipass.currentChromeipass = { version: extVersion, versionParsed: parseInt(extVersion.replace(/\./g,'')) };
+mooltipass.blacklist = typeof(localStorage.mpBlacklist)=='undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
 
 var maxServiceSize = 123;       // Maximum size of a site / service name, not including null terminator
 
@@ -216,7 +216,7 @@ mooltipass.getLatestChromeipassVersion = function()
 		xhr.send();
 		manifest = JSON.parse(xhr.responseText);
         mooltipass.latestChromeipass.version = manifest.version;
-        mooltipass.latestChromeipass.versionParsed = parseInt(manifest.version.replace(/\./g,""));
+        mooltipass.latestChromeipass.versionParsed = parseInt(manifest.version.replace(/\./g,''));
 	} catch (e) {
 		console.log("Error: " + e);
 	}
@@ -227,17 +227,20 @@ mooltipass.getLatestChromeipassVersion = function()
 	mooltipass.latestChromeipass.lastChecked = new Date();
 }
 
+mooltipass.loadSettings = function() {
+    mooltipass.blacklist = typeof(localStorage.mpBlacklist)=='undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
+}
+
 mooltipass.isBlacklisted = function(url)
 {
-    return mooltipass.blacklist.indexOf(url) >= 0;
+    return url in mooltipass.blacklist;
 }
 
 mooltipass.blacklistUrl = function(url) 
 {
     console.log('got blacklist req. for',url);
-    mooltipass.blacklist.push(url);
-    mooltipass.blacklist.sort();
-    localStorage.blacklist = JSON.stringify(mooltipass.blacklist);
+    mooltipass.blacklist[url] = true;
+    localStorage.mpBlacklist = JSON.stringify(mooltipass.blacklist);
     console.log('updated blacklist store');
 }
 

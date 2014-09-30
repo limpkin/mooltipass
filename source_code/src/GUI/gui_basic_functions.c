@@ -37,8 +37,6 @@ uint8_t touch_logic_press = FALSE;
 uint8_t touch_logic_ref_position;
 // Bool to know if lights are on
 uint8_t areLightsOn = FALSE;
-// Bool to know if screen is on
-uint8_t isScreenOn = TRUE;
 // Current led mask for the PCB
 uint8_t currentLedMask = 0;
 
@@ -57,10 +55,9 @@ void activityDetectedRoutine(void)
     activateTimer(TIMER_SCREEN, SCREEN_TIMER_DEL);
     
     // If the screen was off, turn it on!
-    if (isScreenOn == FALSE)
+    if (oledIsOn() == FALSE)
     {
         oledOn();
-        isScreenOn = TRUE;
         screenComingOnDelay();
     }
     
@@ -232,7 +229,7 @@ void guiMainLoop(void)
     }
     
     // Make a copy of the screen on bool
-    isScreenOnCopy = isScreenOn;
+    isScreenOnCopy = oledIsOn();
     
     // Launch touch detection routine to check for interactions
     touch_detect_result = touchDetectionRoutine(currentLedMask);
@@ -254,7 +251,6 @@ void guiMainLoop(void)
         #ifndef HARDWARE_V1
             oledOff();
         #endif
-        isScreenOn = FALSE;
     }
     
     // If the screen just got turned on, don't call the guiScreenLoop() function

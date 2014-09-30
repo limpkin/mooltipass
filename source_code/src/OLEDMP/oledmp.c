@@ -107,7 +107,7 @@ static uint8_t oled_bufHeight;
 static uint8_t oled_scroll_delay = 3;        // milliseconds between line scroll
 static uint8_t oled_writeBuffer = 0;
 static uint8_t oled_displayBuffer = 0;
-static bool oled_isOn = false;
+static uint8_t oled_isOn = FALSE;
 
 // pixel buffer to allow merging of adjacent image data.
 // To conserve memory, only one GDDRAM word is kept per display line.
@@ -617,7 +617,7 @@ void oledInit()
 
     pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
     oledWriteCommand(CMD_SET_DISPLAY_ON);
-    oled_isOn = true;
+    oled_isOn = TRUE;
 }
 
 /**
@@ -806,7 +806,7 @@ void oledOff(void)
     oledWriteCommand(CMD_SET_DISPLAY_OFF);
     timerBasedDelayMs(100);
     pinHigh(OLED_PORT_POWER, OLED_POWER);    // 12V power off
-    oled_isOn = false;
+    oled_isOn = FALSE;
 }
 
 
@@ -818,7 +818,7 @@ void oledOn(void)
     pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
     timerBasedDelayMs(100);
     oledWriteCommand(CMD_SET_DISPLAY_ON);
-    oled_isOn = true;
+    oled_isOn = TRUE;
 }
 
 /**
@@ -826,7 +826,7 @@ void oledOn(void)
  * @retval true if the display is on
  * @retval false if the display is off
  */
-bool oledIsOn(void)
+uint8_t oledIsOn(void)
 {
     return oled_isOn;
 }

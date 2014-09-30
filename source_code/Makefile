@@ -48,9 +48,9 @@ MCU     := atmega32u4
 CONFIG  ?= RELEASE
 DEFINES := F_CPU=16000000UL F_USB=16000000UL
 
-CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections
-CFLAGS  += -std=gnu99 -Werror
-LDFLAGS := -Wl,-gc-sections
+CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections
+CFLAGS  += -std=gnu99 -Werror -mcall-prologues -fno-tree-scev-cprop -fno-split-wide-types
+LDFLAGS := -Wl,--relax,--gc-sections
 
 CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS) $(AESDIRS))
 

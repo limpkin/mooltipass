@@ -68,6 +68,7 @@ void bsInit(
     bs->_flags = flags;
     bs->flash = flash;
     bs->addr = addr;
+    bs->bufInd = sizeof(bs->buf);
 #ifdef DEBUG_BS
     usbPrintf_P(PSTR("bitmap: data %p, depth %d, size %d, width %u, height %u\n"), data, pixelDepth, bs->_size, width, height);
     usbPrintf_P(PSTR("bitmap: addr %04X\n"), bs->addr);
@@ -94,11 +95,18 @@ static inline uint16_t bsGetNextWord(bitstream_t *bs)
 #endif
         if (bs->addr)
         {
-            uint16_t data;
-            flashRawRead((uint8_t *)&data, bs->addr, sizeof(data));
+            if (bs->bufInd < (sizeof(bs->buf)/2)) 
+            {
+                return ((uint16_t *)bs->buf)[bs->bufInd++];
+            }
+            else 
+            {
+                flashRawRead(bs->buf, bs->addr, sizeof(bs->buf));
+                bs->addr += sizeof(bs->buf);
+                bs->bufInd = 0;
+                return ((uint16_t *)bs->buf)[bs->bufInd++];
+            }
             //usbPrintf_P(PSTR("bs: 0x%04x = 0x%04x\n"), bs->addr, data);
-            bs->addr += 2;
-            return data;
         }
         else
         {
@@ -127,14 +135,20 @@ static inline uint8_t bsGetNextByte(bitstream_t *bs)
             return pgm_read_byte(bs->_cdatap++);
         } else
 #endif
-        if (bs->addr)
+        if (bs->addr)   // data is in flash
         {
-            uint8_t data;
-            // XXX very ineficient. TODO add a local cache
-            flashRawRead((uint8_t *)&data, bs->addr, sizeof(data));
+            if (bs->bufInd < sizeof(bs->buf)) 
+            {
+                return bs->buf[bs->bufInd++];
+            }
+            else 
+            {
+                flashRawRead(bs->buf, bs->addr, sizeof(bs->buf));
+                bs->addr += sizeof(bs->buf);
+                bs->bufInd = 0;
+                return bs->buf[bs->bufInd++];
+            }
             //usbPrintf_P(PSTR("bs: 0x%04x = 0x%02x\n"), bs->addr, data);
-            bs->addr++;
-            return data;
         }
         else 
         {

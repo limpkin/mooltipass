@@ -117,6 +117,51 @@ def unlockSmartcard(epin, epout):
 		print "Smartcard erased"
 	else:
 		print "Couldn't erase smartcard"
+		
+def addServiceAndUser(epin, epout):
+	tempPacket = array('B')
+	service = raw_input("Service name: ")
+	username = raw_input("Username: ")
+	password = raw_input("Password: ")
+	print "Please accept prompts on the Mooltipass"
+	
+	# Check that the context doesn't exist
+	sendHidPacket(epout, CMD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Service exists"
+	else:
+		print "Service doesn't exist, adding it"
+		# Send the add context packet
+		sendHidPacket(epout, CMD_ADD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+			print "Service added"
+		else:
+			print "Couldn't add service"
+			return
+			
+	# Set context
+	sendHidPacket(epout, CMD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Service set"
+	else:
+		print "Service couldn't be set"
+		return
+		
+	# Add user
+	sendHidPacket(epout, CMD_SET_LOGIN, len(username)+1, array('B', username + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "User set"
+	else:
+		print "User couldn't be set"
+		return
+	
+	# Change password
+	sendHidPacket(epout, CMD_SET_PASSWORD , len(password)+1, array('B', password + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Password changed"
+	else:
+		print "Password couldn't be changed"
+			
 	
 def favoritePrint(epin, epout):
 	favoriteArg = array('B')
@@ -301,6 +346,8 @@ def findHIDDevice(vendor_id, product_id):
 		print "2) See current favorites (only v0.5)"
 		print "3) Erase unknown smartcard (only v0.5)"
 		print "4) Store 1M random bytes (only v0.6)"
+		print "5) Add service and username"		
+		print "6) Change password for username in service"
 		choice = input("Make your choice: ")
 		
 		if choice == 1:
@@ -311,6 +358,10 @@ def findHIDDevice(vendor_id, product_id):
 			unlockSmartcard(epin, epout)
 		elif choice == 4:
 			randomBytesGeneration(epin, epout)
+		elif choice == 5:
+			addServiceAndUser(epin, epout)
+		elif choice == 6:
+			addServiceAndUser(epin, epout)
 	
 	hid_device.reset()
 

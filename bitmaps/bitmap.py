@@ -34,45 +34,59 @@ parser.add_option('-n', '--name', help='name for bitmap', dest='name', default=N
 parser.add_option('-o', '--output', help='name of output file (.img produces binary blob, .h produces optimized header)', dest='output', default=None)
 parser.add_option('-i', '--input', help='input header file', dest='input', default=None)
 parser.add_option('-c', '--compress', help='compress output', action='store_true', dest='compress', default=False)
+parser.add_option('-b', '--bitdepth', help='number of bits per pixel (default: 4)', type='int', dest='bitDepth', default=4)
 (options, args) = parser.parse_args()
+
+FLAGS_RLE_COMPRESSED = 1        # Run Length Encoded
 
 if options.name == None or options.input == None:
     parser.error('name and input options are required')
 
-def compressImage(image):
-    ''' Takes unpacked indexed data and produces 4-bit packed data
+def compressImage(image, bitDepth):
+    ''' Takes unpacked indexed data and produces bitDepth packed data
     '''
+    wordSize = 16       # 16 bits per word
     data = image['data']
     width = image['width']
     height = image['height']
-    pixel = 0
 
     # arange in lines
     data = np.array(data).reshape(height,width)
 
     depth = data.max()+1
-    if (depth > 16):
-        print "Warning: Image has more colors than bit depth can accurately encode"
+    if (depth > 2**bitDepth):
+        print 'Warning: Image has {} colours, more than a bit depth of {} can accurately encode ({})'.format(depth, bitDepth, 2**bitDepth)
     scale = 16 / float(depth)
+    scale = 2**bitDepth / float(depth)
 
+    pixels = 0
+    bitCount = wordSize
     output = []
-    count = 0
     for line in data:
         line = line * scale
         for pix in line:
-            if count & 0x01 == 0:
-                pixel = (int(pix) << 4) | 0xF0
+            if bitCount < bitDepth:
+                lastPixels = pixels
+                pixels |= int(pix) >> (bitDepth - bitCount)
+                output.append(pixels)
+                bitCount = wordSize - (bitDepth - bitCount)
+                if int(pix) > 15:
+                    print >> sys.stderr, 'ERROR: pix = {}'.format(pix)
+                pixels = (int(pix) << bitCount) & 0xFFFF
             else:
-                pixel |= (int(pix) & 0x0F)
-                output.append(pixel);
-            count += 1
+                bitCount -= bitDepth
+                pixels |= int(pix) << bitCount
+                if bitCount == 0:
+                    bitCount = wordSize
+                    output.append(pixels)
+                    pixels = 0
+    if bitCount != 16:
+        pixels = pixels << bitCount
+        output.append(pixels)
 
-    if len(output) & 0x01 != 0:
-        output.append(0)
-
-    image['data'] = output
-    image['dataSizeBytes'] = len(output)
-    image['flags'] = 0
+    image['data'] = pack('<{}H'.format(len(output)), *output) # little endian, byte packed uint16_t
+    image['flags'] = 0      # uncompressed
+    image['depth'] = bitDepth
 
     return image
 
@@ -123,9 +137,9 @@ def compressImageRLE(image):
     if len(output) & 0x01 != 0:
         output.append(0)
 
-    image['data'] = output
-    image['dataSizeBytes'] = count
-    image['flags'] = 1
+    image['data'] = pack('{}B'.format(len(output)), *output) # bytes
+    image['flags'] = FLAGS_RLE_COMPRESSED
+    image['depth'] = 4
 
     return image
 
@@ -175,13 +189,9 @@ def writeImage(filename, image):
     flags = image['flags']
     data = image['data']
 
-    dataSize = image['dataSizeBytes']
-    if flags == 0:
-        # When just bitpacked, dataSize is in words
-        if dataSize & 0x01 != 0:
-            raise Exception("dataSize is not word aligned");
+    dataSize = len(data)
+    if image['flags'] != FLAGS_RLE_COMPRESSED:
         dataSize /= 2
-    # When RLE compressed, dataSize is in bytes
 
     if (filename == "-"):
         fd = sys.stdout
@@ -189,28 +199,23 @@ def writeImage(filename, image):
         fd = open(filename, 'wb');
 
     # Write header
-    fd.write(pack('=HBBBH', image['width'], image['height'], 4, flags, dataSize))
+    fd.write(pack('=HBBBH', image['width'], image['height'], image['depth'], flags, dataSize))
     # Write data
-    fd.write(bytearray(data))
+    fd.write(data)
     fd.close()
 
 
 def writeMooltipassHeader(filename, imageName, image):
     width = image['width']
     height = image['height']
-    data = image['data']
+    data = unpack('<{}H'.format(len(image['data'])/2), image['data'])
     flags = image['flags']
     imageNameUpper = imageName.upper()
+    dataArraySize = len(data)
+    dataSize = dataArraySize
 
-    dataSize = image['dataSizeBytes']
-    dataSizeWords = dataSize / 2
-    if flags == 0:
-        # When just bitpacked, dataSize is in words
-        dataSize = dataSizeWords
-    # When RLE compressed, dataSize is in bytes
-
-    if dataSize & 0x01 != 0:
-        raise Exception("dataSize is not word aligned");
+    if image['flags'] != FLAGS_RLE_COMPRESSED:
+        dataSize /= 2
 
     if (filename == "-"):
         fd = sys.stdout
@@ -230,19 +235,15 @@ def writeMooltipassHeader(filename, imageName, image):
     print >> fd, '    uint8_t depth;'
     print >> fd, '    uint8_t flags;'
     print >> fd, '    uint16_t dataSize;'
-    print >> fd, '    uint16_t data[{}];'.format(dataSizeWords)
+    print >> fd, '    uint16_t data[{}];'.format(dataArraySize)
     print >> fd, '}} image_{} __attribute__((__progmem__)) = {{'.format(imageName)
-    print >> fd, '    {0}_WIDTH, {0}_HEIGHT, {1}, {2}, {3},'.format(imageNameUpper, 4, flags, dataSize)
+    print >> fd, '    {0}_WIDTH, {0}_HEIGHT, {1}, {2}, {3},'.format(imageNameUpper, image['depth'], flags, dataSize)
     print >> fd, '    {',
-    for ind in xrange(0,len(data)/2):
+    for ind in xrange(0,len(data)):
         if ind % 8 == 0:
             print >> fd, ''
             print >> fd, '    ',
-        if data[ind*2] > 255:
-            print 'data[{}] {} > 255'.format(ind*2, data[ind*2])
-        if data[ind*2+1] > 255:
-            print 'data[{}] {} > 255'.format(ind*2+1, data[ind*2+1])
-        print >> fd, '0x{:04x}, '.format(data[ind*2] | data[ind*2+1]<<8),
+        print >> fd, '0x{:04x}, '.format(data[ind]),
     print >> fd, '    }'
     print >> fd, '};'
 
@@ -255,19 +256,12 @@ def main():
     origSize = image['dataSizeBytes']
     print "Parsed header: {}x{}".format(image['width'], image['height'])
 
-
     if options.compress:
         image = compressImageRLE(image)
-        compSize = image['dataSizeBytes']
-        print "Compressed image: {} -RLE-> {} bytes".format(
-            origSize,
-            compSize)
+        print "Compressed image: {} -RLE-> {} bytes".format(origSize, len(image['data']))
     else:
-        image = compressImage(image)
-        compSize = image['dataSizeBytes']
-        print "Compressed image: {} -4bit-> {} bytes".format(
-            origSize,
-            compSize)
+        image = compressImage(image, options.bitDepth)
+        print "Compressed image: {} -{}bit-> {} bytes".format(origSize, options.bitDepth, len(image['data']))
 
     unused, outputExtension = os.path.splitext(options.output)
     if outputExtension == ".img":

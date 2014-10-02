@@ -35,6 +35,7 @@
  * with id set to the file ID - 128.
  */
 
+#include <util/delay.h>
 #include "oledmp.h"
 #include "anim.h"
 
@@ -121,3 +122,40 @@ int8_t animFrameDraw(uint8_t x, uint8_t y, uint8_t frameId, uint8_t options)
     return 0;
 }
 
+#define BALL_WIDTH  20
+#define BALL_HEIGHT  20
+
+// Bounce a ball around...
+void animScreenSaver()
+{
+    int16_t x=0,y=0;
+    int16_t last_x=0,last_y=0;
+    int8_t xvel=3, yvel=2;
+    oledWriteInactiveBuffer();
+    oledClear();
+    oledFlipBuffers(0,0);
+    oledClear();
+
+    while (1) {
+        if (((x+xvel + BALL_WIDTH) > OLED_WIDTH) || (x+xvel < 0)) {
+            // bounce x
+            xvel = -xvel;
+        } else {
+            x += xvel;
+        }
+        if (((y+yvel + BALL_HEIGHT) > OLED_HEIGHT) || (y+yvel < 0)) {
+            // bounce x
+            yvel = -yvel;
+        } else {
+            y += yvel;
+        }
+        
+        oledBitmapDrawFlash((uint8_t)x, (uint8_t)y, BITMAP_BALL, 0);
+        oledFlipBuffers(0,0);
+        _delay_ms(10);
+        oledFillXY(last_x, last_y, BALL_WIDTH, BALL_HEIGHT, 0);
+
+        last_x = x;
+        last_y = y;
+    }
+}

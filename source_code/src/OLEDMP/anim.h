@@ -52,6 +52,7 @@
 #define BITMAP_PIN_LINES      13
 #define BITMAP_ZZZ            15
 #define BITMAP_LOGIN_FIND     16
+#define BITMAP_BALL           22
 
 // These bitmaps are built from frames
 #define BITMAP_SIDES          (0x80+FRAME_SIDES)
@@ -67,5 +68,6 @@ typedef struct {
 } animFrame_t;
 
 int8_t animFrameDraw(uint8_t x, uint8_t y, uint8_t frameId, uint8_t options);
+void animScreenSaver(void);
 
 #endif

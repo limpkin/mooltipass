@@ -209,7 +209,6 @@ event.onNotifyButtonClick = function(id, buttonIndex) {
 }
 
 event.onNotifyClosed = function(id) {
-    console.log('notification',id,'button',buttonIndex,'clicked');
     delete event.mpUpdate[id];
 }
 

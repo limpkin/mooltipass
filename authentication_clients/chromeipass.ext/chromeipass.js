@@ -1635,106 +1635,23 @@ cip.contextMenuRememberCredentials = function() {
 };
 
 
-cip.updateCredentials = function(event, usernameField, username, passwordField, password, url, usernameExists, credentialsList)
-{
-
-    //if (siteBlacklisted) return;
-    var pNode = null;
-    var updateString = usernameExists ?  'Update credentials for ' : 'Add credentials for ';
-
-    // Offer to update the mooltpass with the new value(s)
-    if (!document.getElementById('mpDialog')) {
-        console.log('content: creating  dialog div');
-        var layerNode= document.createElement('div');
-        layerNode.setAttribute('id', 'mpDialog');
-        layerNode.setAttribute('title','Mooltipass');
-        pNode= document.createElement('moolti');
-        pNode.innerHTML = '';
-        layerNode.appendChild(pNode);
-        document.body.appendChild(layerNode);
-    } else {
-        pNode = $('#moolti');
-    }
-    if (event) {
-        // prevent submit until the credentials have been handled
-        event.preventDefault();
-    }
-    $( "#mpDialog" ).dialog({
-        autoOpen: true,
-        show: { effect: 'drop', direction: 'up', duration: 500 },
-        buttons: [{
-            text: updateString,
-            click: function() 
-            {
-                chrome.runtime.sendMessage({action: 'update', 'args': [username, password, url, usernameExists, credentialsList]});
-                pNode.innerHTML = 'Please confirm on Mooltipass!';
-                $(this).dialog('close');
-                $( "#mpDialog" ).dialog({
-                    autoOpen: true,
-                    hide: { effect: 'puff', duration: 500 },
-                    open: function (event, ui) {
-                        setTimeout(function() { 
-                            if (passwordField) {
-                                console.log('timeout: submitting');
-                                cip.doSubmit(passwordField);
-                            } else {
-                                console.log('timeout: no passwordField, not submitting');
-                            }
-                            $('#mpDialog').dialog('close')
-                            pNode.innerHTML='';} , 3000);
-                    },
-                    buttons: {
-                        OK: function() {
-                            if (passwordField) {
-                                cip.doSubmit(passwordField);
-                            }
-                            $(this).dialog('close');
-                            pNode.innerHTML = '';
-                        }
-                    }
-                });
-            }
-            },
-            {   text: 'Skip',
-                click: function() {
-                    if (passwordField) {
-                        console.log('skip: submitting');
-                        cip.doSubmit(passwordField);
-                    } else {
-                        console.log('skip: no passwordField, not submitting');
-                    }
-                    $(this).dialog('close');
-                }
-            },
-            {   text: "Never for this site",
-                click: function() {
-                    console.log('sending blacklist req for '+window.location.href);
-                    chrome.runtime.sendMessage({action: 'addBlacklist', 'args': [url]});
-                    console.log('blacklist done....');
-                    doSubmit(activeCredentials);
-                    $(this).dialog('close');
-                }
-            }
-        ]
-    });
-}
-
 cip.rememberCredentials = function(event, usernameField, usernameValue, passwordField, passwordValue) {
+    console.log('rememberCredentials()');
 	// no password given or field cleaned by a site-running script
 	// --> no password to save
 	if(passwordValue == "") {
+        console.log('rememberCredentials() no password value');
 		return false;
 	}
 
     if (!cip.trapSubmit) {
+        console.log('rememberCredentials() trap disabled');
         cip.trapSubmit = true;
         return false;
     }
 
-    console.log('rememberCredentials()');
 
 	var usernameExists = false;
-
 	var nothingChanged = false;
 	for(var i = 0; i < cip.credentials.length; i++) {
 		if(cip.credentials[i].Login == usernameValue && cip.credentials[i].Password == passwordValue) {
@@ -1785,8 +1702,6 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
             });
             break;
         case 'popup':
-            cip.updateCredentials(event, usernameField, usernameValue, passwordField, passwordValue, url, usernameExists, credentialsList);
-            break;
         case 'notification':
             console.log('rememberCredentials - sending update_notify');
             chrome.extension.sendMessage({

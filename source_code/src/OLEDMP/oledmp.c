@@ -644,6 +644,21 @@ void oledWriteData(uint8_t data)
     pinHigh(OLED_PORT_CS, OLED_CS);
 }
 
+
+/**
+ * Write a word of data to the display
+ * @param data - data to write
+ */
+void oledWriteWord(uint16_t data)
+{
+    pinLow(OLED_PORT_CS, OLED_CS);
+    pinHigh(OLED_PORT_DC, OLED_DC);
+    spiUsartTransfer((uint8_t)(data>>8));
+    spiUsartTransfer((uint8_t)(data&0xFF));
+    pinHigh(OLED_PORT_CS, OLED_CS);
+}
+
+
 /**
  * Set the current pixel data column start and end address
  * @param start - start column
@@ -841,16 +856,17 @@ void oledFill(uint8_t colour)
     uint8_t x,y;
     oledSetColumnAddr(MIN_SEG, MAX_SEG);    // SEG0 - SEG479
     oledSetRowAddr(oled_writeOffset+oled_offset, oled_writeOffset+oled_offset+(OLED_HEIGHT-1)); 
+    uint16_t fillColour = (colour & 0x0F) | (colour << 4);
+    fillColour |= fillColour << 8;
 
-    colour = (colour & 0x0F) | (colour << 4);;
+    //colour = (colour & 0x0F) | (colour << 4);;
 
     oledWriteCommand(CMD_WRITE_RAM);
     for (y=0; y<64; y++) 
     {
         for (x=0; x<64; x++) 
         {
-            oledWriteData(colour);
-            oledWriteData(colour);
+            oledWriteWord(fillColour);
         }
     }
 }
@@ -864,13 +880,23 @@ void oledFill(uint8_t colour)
  * @param height height of rectangle in pixels
  * @param colour the shade to fill with (0 to 15)
  */
-void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t colour)
+void oledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour)
 {
     int16_t y_actual = (y + oled_offset + oled_writeOffset) & OLED_Y_MASK;
 #ifdef OLED_DEBUG
     usbPrintf_P(PSTR("fillXY() x=%u, y=%d, width=%u, height=%u, colour=%u\n"), x, y, width, height, colour);
     usbPrintf_P(PSTR("         oled_offset=%d, y_actual=%d\n"), oled_offset, y_actual);
 #endif
+
+    if (x & 3) {
+        // Can't do partial fills, no access to GDDRAM buffer
+        width += x & 3;
+        x &= 0x7FFC;
+    }
+    if (width & 3) {
+        // have to fill to full GDDRAM word boundary (4 pixels)
+        width += 4 - (width & 3);
+    }
 
     colour = (colour & 0x0F) | (colour << 4);;
 
@@ -899,7 +925,7 @@ void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t co
 #endif
     oledSetWindow(x, y_actual, x+width-1, y_actual+height-1);
     oledWriteCommand(CMD_WRITE_RAM);
-    for (; height > 0; height--) 
+    for (height--; height >= 0; height--) 
     {
         // XXX TODO: handle X non-multiple of 4
         for (uint8_t xind=0; xind<(width+3)/4; xind++) 
@@ -1331,8 +1357,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
 #endif
                 pixels |= gddram[y_actual].pixels;
             }
-            oledWriteData((uint8_t)(pixels >> 8));
-            oledWriteData((uint8_t)pixels);
+            oledWriteWord(pixels);
 #ifdef OLED_DEBUG
             usbPrintf_P(PSTR("    pixels = 0x%04x, xoff=%d\n"), pixels, xoff);
 #endif
@@ -1364,8 +1389,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
                     glyph_pixels--;
                 }
             }
-            oledWriteData((uint8_t)(pixels >> 8));
-            oledWriteData((uint8_t)pixels);
+            oledWriteWord(pixels);
 #ifdef OLED_DEBUG
             usbPrintf_P(PSTR("    pixels = 0x%04x, yind=%d (%d), xind=%d\n"), pixels, yind, y_actual, xind);
 #endif
@@ -1452,8 +1476,7 @@ void oledBitmapDrawRaw(
                 //usbPrintf_P(PSTR("    ORing gddram[%u] 0x%04x -> 0x%04x\n"), x/4, gddram[(y+yind) & OLED_Y_MASK].pixels, pixels);
             }
 
-            oledWriteData((uint8_t)(pixels >> 8));
-            oledWriteData((uint8_t)pixels);
+            oledWriteWord(pixels);
         }
         for (; xind < width; xind+=4) 
         {
@@ -1471,8 +1494,7 @@ void oledBitmapDrawRaw(
             usbPrintf_P(PSTR("  * yind=%u pixels=0x%04x xind=%u, read %u pixels\n"), yind, pixels, xind, width-xind);
 #endif
             }
-            oledWriteData((uint8_t)(pixels >> 8));
-            oledWriteData((uint8_t)pixels);
+            oledWriteWord(pixels);
         }
         if (pixels != 0) 
         {

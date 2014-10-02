@@ -146,7 +146,7 @@ void oledWriteData(uint8_t data);
 void oledSetColumnAddr(uint8_t start, uint8_t end);
 void oledSetRowAddr(uint8_t start, uint8_t end);
 void oledFill(uint8_t colour);
-void oledFillXY(uint8_t x, int16_t y, uint16_t width, uint8_t height, uint8_t colour);
+void oledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour);
 void oledClear();
 void oledClearLine(int16_t y);
 void oledScrollClear(uint8_t options);

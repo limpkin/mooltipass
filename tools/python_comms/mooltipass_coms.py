@@ -65,7 +65,11 @@ CMD_CARD_CPZ_CTR_PACKET = 0x5C
 CMD_SET_MOOLTIPASS_PARM = 0x5D
 CMD_GET_MOOLTIPASS_PARM = 0x5E
 CMD_GET_FAVORITE		= 0x5F
-CMD_RESET_CARD			= 0x60
+CMD_RESET_CARD          = 0x60
+CMD_READ_CARD_LOGIN     = 0x61
+CMD_READ_CARD_PASS      = 0x62
+CMD_SET_CARD_LOGIN      = 0x63
+CMD_SET_CARD_PASS       = 0x64
 
 		
 def receiveHidPacket(epin):
@@ -93,6 +97,44 @@ def sendHidPacket(epout, cmd, len, data):
 		
 	# send data
 	epout.write(arraytosend)	
+	
+def readCurrentUser(epin, epout):
+	sendHidPacket(epout, CMD_READ_CARD_LOGIN, 0, None)
+	data = receiveHidPacket(epin)
+	if data[LEN_INDEX] == 1:
+		print "Card not inserted"
+	else:
+		print "Current user:", "".join(map(chr, data[DATA_INDEX:])).split(b"\x00")[0]
+	
+def readCurrentPass(epin, epout):
+	sendHidPacket(epout, CMD_READ_CARD_PASS, 0, None)
+	data = receiveHidPacket(epin)
+	if data[LEN_INDEX] == 1:
+		print "Card not inserted or request not accepted"
+	else:
+		print "Current password:", "".join(map(chr, data[DATA_INDEX:])).split(b"\x00")[0]
+		
+def setCurrentUser(epin, epout):
+	user = raw_input("New username: ")
+	print "Please accept prompts on the Mooltipass"
+	
+	# Check that the context doesn't exist
+	sendHidPacket(epout, CMD_SET_CARD_LOGIN, len(user)+1, array('B', user + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Username changed"
+	else:
+		print "Couldn't change username"
+		
+def setCurrentPass(epin, epout):
+	user = raw_input("New password: ")
+	print "Please accept prompts on the Mooltipass"
+	
+	# Check that the context doesn't exist
+	sendHidPacket(epout, CMD_SET_CARD_PASS, len(user)+1, array('B', user + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Password changed"
+	else:
+		print "Couldn't change password"
 	
 def randomBytesGeneration(epin, epout):
 	f = open('randombytes.bin', 'wb')
@@ -348,6 +390,11 @@ def findHIDDevice(vendor_id, product_id):
 		print "4) Store 1M random bytes (only v0.6)"
 		print "5) Add service and username"		
 		print "6) Change password for username in service"
+		print "7) Read current user name"
+		print "8) Read current user password"
+		print "9) Change current user name"
+		print "10) Change current password"
+		print "11) Jump to bootloader"
 		choice = input("Make your choice: ")
 		
 		if choice == 1:
@@ -362,6 +409,17 @@ def findHIDDevice(vendor_id, product_id):
 			addServiceAndUser(epin, epout)
 		elif choice == 6:
 			addServiceAndUser(epin, epout)
+		elif choice == 7:
+			readCurrentUser(epin, epout)
+		elif choice == 8:
+			readCurrentPass(epin, epout)
+		elif choice == 9:
+			setCurrentUser(epin, epout)
+		elif choice == 10:
+			setCurrentPass(epin, epout)
+		elif choice == 11:
+			sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 0, None)
+			
 	
 	hid_device.reset()
 

@@ -924,12 +924,21 @@ void usbProcessIncoming(uint8_t* incomingData)
         // Read card stored password
         case CMD_READ_CARD_PASS :
         {
-            if ((getSmartCardInsertedUnlocked() == TRUE)  && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SEND_SMC_PASS)) == RETURN_OK))
+            if (getSmartCardInsertedUnlocked() == TRUE)
             {
-                uint8_t temp_data[SMARTCARD_MTP_PASS_LENGTH/8];
-                readMooltipassWebsitePassword(temp_data);
-                usbSendMessage(CMD_READ_CARD_PASS, sizeof(temp_data), (void*)temp_data);
-                return;
+                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SEND_SMC_PASS)) == RETURN_OK)
+                {
+                    uint8_t temp_data[SMARTCARD_MTP_PASS_LENGTH/8];
+                    readMooltipassWebsitePassword(temp_data);
+                    usbSendMessage(CMD_READ_CARD_PASS, sizeof(temp_data), (void*)temp_data);
+                    guiGetBackToCurrentScreen();
+                    return;
+                } 
+                else
+                {
+                    guiGetBackToCurrentScreen();
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }
             } 
             else
             {
@@ -941,22 +950,30 @@ void usbProcessIncoming(uint8_t* incomingData)
         // Set card login
         case CMD_SET_CARD_LOGIN :
         {
-            if ((checkTextField(msg->body.data, datalen, SMARTCARD_MTP_LOGIN_LENGTH/8) == RETURN_OK) && (getSmartCardInsertedUnlocked() == TRUE) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SET_SMC_LOGIN)) == RETURN_OK))
+            if ((checkTextField(msg->body.data, datalen, SMARTCARD_MTP_LOGIN_LENGTH/8) == RETURN_OK) && (getSmartCardInsertedUnlocked() == TRUE))
             {
-                // Temp buffer for application zone 2
-                uint8_t temp_az2[SMARTCARD_AZ_BIT_LENGTH/8];
-                
-                // Read Application Zone 2 
-                readApplicationZone2(temp_az2);
-                // Erase Application Zone 2 
-                eraseApplicationZone1NZone2SMC(FALSE);
-                // Write our data in the buffer at the right spot
-                memcpy(temp_az2 + (SMARTCARD_MTP_LOGIN_OFFSET/8), msg->body.data, datalen);
-                // Write the new data in the card
-                writeApplicationZone2(temp_az2);
-                
-                // Return OK
-                plugin_return_value = PLUGIN_BYTE_OK;
+                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SET_SMC_LOGIN)) == RETURN_OK)
+                {
+                    // Temp buffer for application zone 2
+                    uint8_t temp_az2[SMARTCARD_AZ_BIT_LENGTH/8];
+                    
+                    // Read Application Zone 2
+                    readApplicationZone2(temp_az2);
+                    // Erase Application Zone 2
+                    eraseApplicationZone1NZone2SMC(FALSE);
+                    // Write our data in the buffer at the right spot
+                    memcpy(temp_az2 + (SMARTCARD_MTP_LOGIN_OFFSET/8), msg->body.data, datalen);
+                    // Write the new data in the card
+                    writeApplicationZone2(temp_az2);
+                    
+                    // Return OK
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                } 
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }
+                guiGetBackToCurrentScreen();
             }
             else
             {
@@ -968,22 +985,30 @@ void usbProcessIncoming(uint8_t* incomingData)
         // Set card stored password
         case CMD_SET_CARD_PASS :
         {
-            if ((checkTextField(msg->body.data, datalen, SMARTCARD_MTP_PASS_LENGTH/8) == RETURN_OK) && (getSmartCardInsertedUnlocked() == TRUE) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SET_SMC_PASS)) == RETURN_OK))
+            if ((checkTextField(msg->body.data, datalen, SMARTCARD_MTP_PASS_LENGTH/8) == RETURN_OK) && (getSmartCardInsertedUnlocked() == TRUE))
             {
-                // Temp buffer for application zone 1
-                uint8_t temp_az1[SMARTCARD_AZ_BIT_LENGTH/8];
-                
-                // Read Application Zone 1
-                readApplicationZone1(temp_az1);
-                // Erase Application Zone 1
-                eraseApplicationZone1NZone2SMC(TRUE);
-                // Write our data in buffer
-                memcpy(temp_az1 + (SMARTCARD_MTP_PASS_OFFSET/8), msg->body.data, datalen);
-                // Write the new data in the card
-                writeApplicationZone1(temp_az1);
-                
-                // Return OK
-                plugin_return_value = PLUGIN_BYTE_OK;
+                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SET_SMC_PASS)) == RETURN_OK)
+                {
+                    // Temp buffer for application zone 1
+                    uint8_t temp_az1[SMARTCARD_AZ_BIT_LENGTH/8];
+                    
+                    // Read Application Zone 1
+                    readApplicationZone1(temp_az1);
+                    // Erase Application Zone 1
+                    eraseApplicationZone1NZone2SMC(TRUE);
+                    // Write our data in buffer
+                    memcpy(temp_az1 + (SMARTCARD_MTP_PASS_OFFSET/8), msg->body.data, datalen);
+                    // Write the new data in the card
+                    writeApplicationZone1(temp_az1);
+                    
+                    // Return OK
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                } 
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }
+                guiGetBackToCurrentScreen();
             }
             else
             {

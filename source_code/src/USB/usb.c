@@ -796,6 +796,11 @@ RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg)
         }
         msg += chunk;
         size -= chunk;
+        if (size == 0)
+        {
+            // To avoid entering the following if()
+            cmd = 0;
+        }
     }
     if (size || cmd)
     {
@@ -828,6 +833,11 @@ RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg)
         }
         msg += chunk;
         size -= chunk;
+        if (size == 0)
+        {
+            // To avoid entering the following if()
+            cmd = 0;
+        }
     }
     if (size || cmd)
     {

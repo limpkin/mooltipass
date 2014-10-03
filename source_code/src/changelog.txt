@@ -1,3 +1,9 @@
+v0.6:
+- set/get parameters corrected
+- set/get username/password corrected
+- displaying username on card unlock if set
+- solving sendHid bug if data is a multiple of export block
+
 v0.5 (considered as pre-stable):
 - user needs to erase his Mooltipass as changes are made in the flash eeprom storage system
 - changed the boot variable, MP will take a while to boot

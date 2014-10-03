@@ -31,6 +31,7 @@
 #include "gui.h"
 
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object);
+void guiDisplaySmartcardUnlockedScreen(uint8_t* username);
 void guiDisplayInformationOnScreen(uint8_t stringID);
 void guiScreenLoop(uint8_t touch_detect_result);
 RET_TYPE guiAskForNewPin(uint16_t* new_pin);

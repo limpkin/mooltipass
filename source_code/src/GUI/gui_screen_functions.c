@@ -329,6 +329,27 @@ void guiDisplayInformationOnScreen(uint8_t stringID)
     oledFlipBuffers(0,0);
 }
 
+/*! \fn     guiDisplaySmartcardUnlockedScreen(uint8_t* username)
+*   \brief  Display the smartcard unlocked screen
+*   \param  username    The username (if there's one)
+*/
+void guiDisplaySmartcardUnlockedScreen(uint8_t* username)
+{
+    uint8_t temp_Y = 24;
+    
+    // Clear screen, check that the username is valid
+    oledClear();
+    if ((username[0] != 0) && (username[0] != 0xFF))
+    {
+        temp_Y -= 16;
+        oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_YOUR_USERNAME));
+        oledPutstrXY(10, 40, OLED_CENTRE, (const char*)username);
+    }
+    oledPutstrXY(10, temp_Y, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_CARD_UNLOCKED));
+    oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+    oledFlipBuffers(0,0);    
+}
+
 /*! \fn     guiDisplayGoingToSleep(void)
 *   \brief  Going to sleep code
 */

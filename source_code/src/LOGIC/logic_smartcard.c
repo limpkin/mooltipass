@@ -93,7 +93,9 @@ RET_TYPE handleSmartcardInserted(void)
         if (validCardDetectedFunction() == RETURN_OK)
         {
             // Card successfully unlocked
-            guiDisplayInformationOnScreen(ID_STRING_CARD_UNLOCKED);
+            uint8_t loginString[SMARTCARD_MTP_LOGIN_LENGTH/8];
+            readMooltipassWebsiteLogin(loginString);
+            guiDisplaySmartcardUnlockedScreen(loginString);
             next_screen = SCREEN_DEFAULT_INSERTED_NLCK;
             return_value = RETURN_OK;
         }

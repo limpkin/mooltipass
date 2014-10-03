@@ -103,7 +103,7 @@ uint8_t getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char)
     uint16_t temp_addr;
     
     // Get address in flash
-    if ((getStoredFileAddr((uint16_t)layout, &temp_addr) == RETURN_OK) && (temp_addr != 0x0000))
+    if ((layout >= FIRST_KEYB_LUT) && (layout <= LAST_KEYB_LUT) && (getStoredFileAddr((uint16_t)layout, &temp_addr) == RETURN_OK) && (temp_addr != 0x0000))
     {
         // The LUT only covers from ' ' to ~ included
         flashRawRead(&ret_val, temp_addr + (ascii_char - ' ') + MEDIA_TYPE_LENGTH, 1);

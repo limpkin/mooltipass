@@ -96,7 +96,22 @@ def sendHidPacket(epout, cmd, len, data):
 	#print arraytosend
 		
 	# send data
-	epout.write(arraytosend)	
+	epout.write(arraytosend)
+
+def setCurrentKeyboard(epin, epout):
+	packetToSend = array('B')
+	packetToSend.append(0)
+	print "0) EN_EN"
+	print "1) FR_FR"
+	print "2) ES_ES"
+	choice = input("Make your choice: ")
+	print ""
+	packetToSend.append(64+19+choice)
+	sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)	
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Parameter changed"
+	else:
+		print "Couldn't change parameter"
 	
 def readCurrentUser(epin, epout):
 	sendHidPacket(epout, CMD_READ_CARD_LOGIN, 0, None)
@@ -395,7 +410,9 @@ def findHIDDevice(vendor_id, product_id):
 		print "9) Change current user name"
 		print "10) Change current password"
 		print "11) Jump to bootloader"
+		print "12) Change Mooltipass keyboard layout"
 		choice = input("Make your choice: ")
+		print ""
 		
 		if choice == 1:
 			favoriteSelectionScreen(epin, epout)
@@ -419,7 +436,8 @@ def findHIDDevice(vendor_id, product_id):
 			setCurrentPass(epin, epout)
 		elif choice == 11:
 			sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 0, None)
-			
+		elif choice == 12:
+			setCurrentKeyboard(epin, epout)
 	
 	hid_device.reset()
 

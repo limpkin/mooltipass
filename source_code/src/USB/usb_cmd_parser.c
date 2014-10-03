@@ -741,29 +741,6 @@ void usbProcessIncoming(uint8_t* incomingData)
             break;            
         }
         
-        // Set Mooltipass param
-        case CMD_SET_MOOLTIPASS_PARM :
-        {
-            // Check that args are supplied
-            if (datalen == 2)
-            {
-                setMooltipassParameterInEeprom(msg->body.data[0], msg->body.data[0]);
-                plugin_return_value = PLUGIN_BYTE_OK;
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;
-        }
-        
-        // Get Mooltipass param
-        case CMD_GET_MOOLTIPASS_PARM :
-        {
-            plugin_return_value = getMooltipassParameterInEeprom(msg->body.data[0]);
-            break;
-        }
-        
         // Write node in Flash
         case CMD_WRITE_FLASH_NODE : 
         {
@@ -884,6 +861,29 @@ void usbProcessIncoming(uint8_t* incomingData)
             }
             plugin_return_value = PLUGIN_BYTE_OK;
             mediaFlashImportApproved = FALSE;
+            break;
+        }
+        
+        // Set Mooltipass param
+        case CMD_SET_MOOLTIPASS_PARM :
+        {
+            // Check that args are supplied
+            if (datalen == 2)
+            {
+                setMooltipassParameterInEeprom(msg->body.data[0], msg->body.data[1]);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
+        // Get Mooltipass param
+        case CMD_GET_MOOLTIPASS_PARM :
+        {
+            plugin_return_value = getMooltipassParameterInEeprom(msg->body.data[0]);
             break;
         }
         

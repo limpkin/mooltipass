@@ -35,8 +35,9 @@ httpAuth.processPendingCallbacks = function(details) {
 	// chrome.tabs.get(tabId, callback) <-- but what should callback be?
 
 	var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
+    console.log('httpAuth: isProxy',httpAuth.isProxy,' proxyUrl:',httpAuth.proxyUrl,'url:',httpAuth.url);
 
-	keepass.retrieveCredentials(httpAuth.loginOrShowCredentials, { "id" : details.tabId }, url, url, true);
+	mooltipass.retrieveCredentials(httpAuth.loginOrShowCredentials, { "id" : details.tabId }, url, url, true);
 }
 
 httpAuth.loginOrShowCredentials = function(logins) {

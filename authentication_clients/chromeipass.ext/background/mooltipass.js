@@ -76,6 +76,12 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
                 mpInputCallback = null;
             }
             break;
+        case 'noCredentials':
+            // no credentials for site or offered by user
+            if (mpInputCallback) {
+                mpInputCallback([]);
+            }
+            break;
         case 'updateComplete':
             if (mpUpdateCallback) {
                 try {

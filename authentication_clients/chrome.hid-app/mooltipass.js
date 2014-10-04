@@ -49,10 +49,8 @@ var payloadSize = packetSize - 2;
 
 var AUTH_REQ_TIMEOUT = 15000;   // timeout for requests sent to mooltipass
 
+//var reContext = /^\https?\:\/\/(?:www)?([\w\d.\-\_]+)/;   // URL regex to extract base domain for context
 var reContext = /^\https?\:\/\/([\w\-\+]+\.)*([\w\-\_]+\.[\w\-\_]+)/;   // URL regex to extract base domain for context
-//var reContext = /^\https?\:\/\/([\w.\-\_]+)/;   // URL regex to extract base domain for context
-//var reContext = /(^.{1,254}$)(^(((?!-)[a-zA-Z0-9-]{1,63}(?<!-))|((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})$/;
-//var reContext = /https?\:\/\/(?www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4})\b(?[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 
 // Commands that the MP device can send.
 var CMD_DEBUG               = 0x01;
@@ -504,13 +502,28 @@ function startAuthRequest(request)
         console.log('keys: '+JSON.stringify(authReq.keys))
 
         match = reContext.exec(request.url);
-        if (match.length > 1) {
-            if (!context || context != match[2]) {
-                context = match[2];
+        if (match.length > 0) {
+            var newContext;
+            if (match.length > 1) {
+                newContext = match[1];
+            } else {
+                newContext = match[0];
+            }
+            if (!context || context != newContext) {
+                context = newContext;
                 console.log('context: '+context);
             } else {
-                console.log('not updating context '+context+' to '+match[1]);
+                console.log('not updating context '+context+' to '+newContext);
+                authReq = null;
+                chrome.runtime.sendMessage(clientId, {type: 'noCredentials'});
+                break;
             }
+        } else {
+            // no context extracted from URL
+            console.log('could not extract context from',request.url);
+            authReq = null;
+            chrome.runtime.sendMessage(clientId, {type: 'noCredentials'});
+            break;
         }
         authReq.context = context;
 
@@ -523,7 +536,7 @@ function startAuthRequest(request)
         authReq = request;
         match = reContext.exec(request.url);
         if (match.length > 1) {
-            authReq.context = match[2];
+            authReq.context = match[1];
             console.log('auth context: '+authReq.context);
         }
         log('#messageLog', 'update:\n');
@@ -968,8 +981,7 @@ function onDataReceived(reportId, data)
         case CMD_VERSION:
         {
             version = arrayToStr(new Uint8Array(data.slice(3)));
-            if (!connected)
-            {
+            if (!connected) {
                 flashChipId = msg[0];
                 log('#messageLog', 'Connected to Mooltipass ' + version + ' flashId '+flashChipId+'\n');
                 connected = true;
@@ -995,39 +1007,36 @@ function onDataReceived(reportId, data)
 
         case CMD_CONTEXT:
             contextGood = (bytes[2] == 1);
-	    noCard = (bytes[2] == PLUGIN_BYTE_NOCARD);
+            noCard = (bytes[2] == PLUGIN_BYTE_NOCARD);
 	    
             if (contextGood) {
                 log('#messageLog', 'Active: "'+authReq.context+'" for '+authReq.type+'\n');
                 console.log('Successfully set context "'+authReq.context+'" for '+authReq.type);
-		chrome.runtime.sendMessage(clientId, {type: 'cardPresent', state: true});
+                chrome.runtime.sendMessage(clientId, {type: 'cardPresent', state: true});
             } else if (noCard){
-		    log('#messageLog', 'No card: "'+authReq.context+'" for '+authReq.type+'\n');
-		    console.log('No card received when setting context: "'+authReq.context+'" for '+authReq.type);
-		    chrome.runtime.sendMessage(clientId, {type: 'cardPresent', state: false});
-	    } else {
+                log('#messageLog', 'No card: "'+authReq.context+'" for '+authReq.type+'\n');
+                console.log('No card received when setting context: "'+authReq.context+'" for '+authReq.type);
+                chrome.runtime.sendMessage(clientId, {type: 'cardPresent', state: false});
+            } else {
                 console.log('Failed to set context "'+authReq.context+'"');
                 log('#messageLog','Unknown context "'+authReq.context+'" for '+authReq.type+'\n');
 				chrome.runtime.sendMessage(clientId, {type: 'cardPresent', state: true});
             }
 
-            if (authReq) 
-            {
-                if (contextGood)
-                {
+            if (authReq) {
+                if (contextGood) {
                     if (authReq.type == 'inputs') {
                         getNextField();
                     } else {
                         setNextField();
                     }
-                }
-                else if (createContext) 
-                {
+                } else if (createContext) {
                     createContext = false;
                     log('#messageLog','add new context "'+authReq.context+'" for '+authReq.type+'\n');
                     sendString(CMD_ADD_CONTEXT, authReq.context);
                 } else {
                     console.log('Failed to set up context "'+authReq.context+'"');
+                    chrome.runtime.sendMessage(clientId, {type: 'noCredentials'});
                     // failed to set up context
                     endAuthRequest();
                 }

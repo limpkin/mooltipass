@@ -51,6 +51,29 @@ void firstTimeUserHandlingInit(void)
     setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_LUT);
 }
 
+/*! \fn     controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound)
+*   \brief  Control an Eeprom parameter
+*   \param  val         The value to control
+*   \param  lowerBound  Minimum value
+*   \param  upperBound  Max value
+*   \return Controlled value
+*/
+uint8_t controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound)
+{
+    if (val > upperBound)
+    {
+        return upperBound;
+    } 
+    else if (val < lowerBound)
+    {
+        return lowerBound;
+    }
+    else
+    {
+        return val;
+    }
+}
+
 /*! \fn     setMooltipassParameterInEeprom(uint8_t param, uint8_t val)
 *   \brief  Set a Mooltipass parameter in eeprom
 *   \param  param   The parameter (see eeprom_addresses.h)

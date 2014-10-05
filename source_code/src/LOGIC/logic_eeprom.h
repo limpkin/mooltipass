@@ -44,6 +44,7 @@
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);
 RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid);
+uint8_t controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound);
 void setMooltipassParameterInEeprom(uint8_t param, uint8_t val);
 uint8_t getMooltipassParameterInEeprom(uint8_t param);
 RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code);

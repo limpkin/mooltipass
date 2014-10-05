@@ -23,6 +23,7 @@
  */
 #include <stdint.h>
 #include "logic_fwflash_storage.h"
+#include "logic_eeprom.h"
 #include "hid_defines.h"
 #include "flash_mem.h"
 #include "node_mgmt.h"
@@ -101,9 +102,9 @@ uint8_t getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char)
     // Default return value is escape
     uint8_t ret_val = KEY_ESCAPE;
     uint16_t temp_addr;
-    
+        
     // Get address in flash
-    if ((layout >= FIRST_KEYB_LUT) && (layout <= LAST_KEYB_LUT) && (getStoredFileAddr((uint16_t)layout, &temp_addr) == RETURN_OK) && (temp_addr != 0x0000))
+    if ((getStoredFileAddr((uint16_t)controlEepromParameter(layout, FIRST_KEYB_LUT, LAST_KEYB_LUT), &temp_addr) == RETURN_OK) && (temp_addr != 0x0000))
     {
         // The LUT only covers from ' ' to ~ included
         flashRawRead(&ret_val, temp_addr + (ascii_char - ' ') + MEDIA_TYPE_LENGTH, 1);

@@ -245,6 +245,7 @@ void initNodeManagementHandle(uint8_t userIdNum);
 
 /* User Memory Functions */
 uint8_t getCurrentUserID(void);
+uint16_t getFreeNodeAddress(void);
 void deleteCurrentUserFromFlash(void);
 void formatUserProfileMemory(uint8_t uid);
 void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);

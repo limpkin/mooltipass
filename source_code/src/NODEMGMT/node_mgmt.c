@@ -330,6 +330,15 @@ uint8_t getCurrentUserID(void)
     return currentNodeMgmtHandle.currentUserId;
 }
 
+/*! \fn     getFreeNodeAddress(void)
+*   \brief  Get next free node address
+*   \return The address
+*/
+uint16_t getFreeNodeAddress(void)
+{
+    return currentNodeMgmtHandle.nextFreeNode;
+}
+
 /**
  * Initializes the Node Management Handle.
  *   Check userIdNum in range,  reads users profile to get the starting parent node, scans memory for the next free parent and child nodes.
@@ -772,6 +781,9 @@ void deleteCurrentUserFromFlash(void)
         // Set correct next address
         next_parent_addr = temp_address;
     }
+    
+    // Scan Node Usage
+    scanNodeUsage();
 }
 
 /**

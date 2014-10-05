@@ -1,0 +1,42 @@
+v0.6:
+- new strings, new bundle required
+- set/get parameters corrected
+- set/get username/password corrected
+- displaying username on card unlock if set
+- solving sendHid bug if data is a multiple of export block
+
+v0.5 (considered as pre-stable):
+- user needs to erase his Mooltipass as changes are made in the flash eeprom storage system
+- changed the boot variable, MP will take a while to boot
+- 34 bytes reserved for Mooltipass settings in eeprom
+- various display improvements > new bundle needed
+- keyboard LUT moved to external flash
+
+v0.4:
+- migrating to block import/export mode
+- media import doesn't need confirmation for beta testers
+- login selection screen implemented
+- timeout for favorite and login selection
+- no stored favorites information screen
+
+v0.3:
+- pressing left on multiple credential screen will return
+- beta testers version: inserting the smartcard with the chip facing the right way will make the MP normally boot
+- reserving 1024 bytes in the beginning of the graphics storage to store strings
+- because of this, users have to upload a new bundle file
+- we now display how many pin tries are left
+- favorite menu implemented
+- going to sleep screen
+
+v0.2: 
+- changes require user to erase their current smartcards before updating firmwares and reset the pin to 0xF0F0
+- login and passwords can't be reimported due to flash layout change
+- userhandling.c/h split into dedicated files in the LOGIC folder
+- complete rework of the node management code
+- blocking functions for reading another user's parent/child node
+- read/write parent/child blocks functions (address, pointer)
+- complete rewrite of CPZ <> NONCE <> UID eeprom logic
+- change of bootkey to erase flash & eeprom at next boot
+- erase functionality implemented: will erase SMC<>UID entries for a given UID + all user related data in Flash
+- implemented isSmartCardAbsent() to report smartcard absence
+- every screen is now interrupted at smartcard removal

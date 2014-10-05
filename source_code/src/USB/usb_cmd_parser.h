@@ -59,6 +59,7 @@
 #define CMD_READ_CARD_PASS      0x62
 #define CMD_SET_CARD_LOGIN      0x63
 #define CMD_SET_CARD_PASS       0x64
+#define CMD_GET_FREE_SLOT_ADDR  0x65
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

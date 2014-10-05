@@ -599,6 +599,34 @@ void usbProcessIncoming(uint8_t* incomingData)
             break;
         }
         
+        // Get a free node address
+        case CMD_GET_FREE_SLOT_ADDR :
+        {
+            // Check that we're actually in memory management mode
+            if (memoryManagementModeApproved == TRUE)
+            {
+                uint16_t temp_address;
+                
+                // Scan for next free node address
+                scanNodeUsage();
+                
+                // Store next free node address
+                temp_address = getFreeNodeAddress();
+                
+                // little endian / big endian thing
+                temp_address = swap16(temp_address);
+                
+                // Send address
+                usbSendMessage(CMD_GET_FREE_SLOT_ADDR, 2, (uint8_t*)&temp_address);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
         // End memory management mode
         case CMD_END_MEMORYMGMT :
         {
@@ -610,6 +638,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_OK;
                 leaveMemoryManagementMode();
                 guiGetBackToCurrentScreen();
+                scanNodeUsage();
             }
             else
             {

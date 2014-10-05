@@ -271,6 +271,12 @@ From plugin/app: Set password stored inside the smartcard, 30bytes max length (c
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x65: Get Free Slot Address
+---------------------------
+From plugin/app: In management mode, get the address for a free slot to store data
+
+From Mooltipass: 0x00 if failure, slot address otherwise
+
 
 Functions
 =========

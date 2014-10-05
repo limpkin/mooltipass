@@ -40,6 +40,7 @@
 #define NB_MAX_SMCID_UID_MATCH_ENTRIES  ((EEPROM_SIZE - EEP_SMC_IC_USER_MATCH_START_ADDR)/SMCID_UID_MATCH_ENTRY_LENGTH)
 // Mooltipass eeprom parameters define
 #define KEYBOARD_LAYOUT_PARAM               0
+#define USER_INTER_TIMEOUT_PARAM            1
 
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);

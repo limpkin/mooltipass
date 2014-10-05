@@ -25,6 +25,7 @@
 #include "touch_higher_level_functions.h"
 #include "gui_screen_functions.h"
 #include "timer_manager.h"
+#include "logic_eeprom.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "delays.h"
@@ -102,8 +103,8 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     touchWaitForWheelReleased();
     touchClearCurrentDetections();
     
-    // Wait for a touch press
-    activateTimer(TIMER_USERINT, USER_INTER_DEL);
+    // Wait for a touch press, delay stored in eeprom    
+    activateTimer(TIMER_USERINT, controlEepromParameter(getMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM), MIN_USER_INTER_DEL/1000, MAX_USER_INTER_DEL/1000)*1000);
     do
     {
         // User interaction timeout or smartcard removed

@@ -103,8 +103,8 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     touchWaitForWheelReleased();
     touchClearCurrentDetections();
     
-    // Wait for a touch press, delay stored in eeprom    
-    activateTimer(TIMER_USERINT, controlEepromParameter(getMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM), MIN_USER_INTER_DEL/1000, MAX_USER_INTER_DEL/1000)*1000);
+    // Wait for a touch press, delay stored in eeprom (1024 is quite close to 1000 ;-) )
+    activateTimer(TIMER_USERINT, ((uint16_t)controlEepromParameter(getMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM), MIN_USER_INTER_DEL/1000, MAX_USER_INTER_DEL/1000)) << 10);
     do
     {
         // User interaction timeout or smartcard removed

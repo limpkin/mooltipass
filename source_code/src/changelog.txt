@@ -1,4 +1,5 @@
 v0.6:
+- new strings, new bundle required
 - set/get parameters corrected
 - set/get username/password corrected
 - displaying username on card unlock if set

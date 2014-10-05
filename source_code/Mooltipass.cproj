@@ -496,7 +496,7 @@
     <None Include="src\AES\aes256_nessie_test.txt">
       <SubType>compile</SubType>
     </None>
-    <None Include="src\UTILS\changelog.txt">
+    <None Include="src\changelog.txt">
       <SubType>compile</SubType>
     </None>
   </ItemGroup>

@@ -502,28 +502,13 @@ function startAuthRequest(request)
         console.log('keys: '+JSON.stringify(authReq.keys))
 
         match = reContext.exec(request.url);
-        if (match.length > 0) {
-            var newContext;
-            if (match.length > 1) {
-                newContext = match[1];
-            } else {
-                newContext = match[0];
-            }
-            if (!context || context != newContext) {
-                context = newContext;
+        if (match.length > 1) {
+            if (!context || context != match[2]) {
+                context = match[2];
                 console.log('context: '+context);
             } else {
-                console.log('not updating context '+context+' to '+newContext);
-                authReq = null;
-                chrome.runtime.sendMessage(clientId, {type: 'noCredentials'});
-                break;
+                console.log('not updating context '+context+' to '+match[1]);
             }
-        } else {
-            // no context extracted from URL
-            console.log('could not extract context from',request.url);
-            authReq = null;
-            chrome.runtime.sendMessage(clientId, {type: 'noCredentials'});
-            break;
         }
         authReq.context = context;
 
@@ -536,7 +521,7 @@ function startAuthRequest(request)
         authReq = request;
         match = reContext.exec(request.url);
         if (match.length > 1) {
-            authReq.context = match[1];
+            authReq.context = match[2];
             console.log('auth context: '+authReq.context);
         }
         log('#messageLog', 'update:\n');
@@ -559,6 +544,7 @@ function startAuthRequest(request)
             setNextField();
         }
         break;
+
 
     default:
         // not a supported request type

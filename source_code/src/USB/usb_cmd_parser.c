@@ -570,33 +570,37 @@ void usbProcessIncoming(uint8_t* incomingData)
 #endif
 #ifdef NODE_BLOCK_IMPORT_EXPORT
         // Read user profile in flash
-        case CMD_GET_USERPROFILE :
-        {
-            // Return error by default
-            plugin_return_value = PLUGIN_BYTE_ERROR;
-            
+        case CMD_START_MEMORYMGMT :
+        {            
             // Check that the smartcard is unlocked
             if (getSmartCardInsertedUnlocked() == TRUE)
             {
                 // If so, ask the user to approve memory management mode
                 approveMemoryManagementMode(&plugin_return_value);
-                
-                // If the user approved, send the user profile
-                if (plugin_return_value == PLUGIN_BYTE_OK)
-                {
-                    uint8_t temp_buffer[USER_PROFILE_SIZE];
-                    uint16_t temp_page, temp_offset;
-                    
-                    // Get address in flash
-                    userProfileStartingOffset(getCurrentUserID(), &temp_page, &temp_offset);
-                    
-                    // Read the data and send it
-                    readDataFromFlash(temp_page, temp_offset, USER_PROFILE_SIZE, temp_buffer);
-                    usbSendMessage(CMD_GET_USERPROFILE, USER_PROFILE_SIZE, temp_buffer);
-                    return;
-                }
             }            
             break;
+        }
+        
+        // Read starting parent
+        case CMD_GET_STARTING_PARENT :
+        {
+            // Check that we're actually in memory management mode
+            if (memoryManagementModeApproved == TRUE)
+            {
+                // Read starting parent
+                uint16_t temp_address = getStartingParentAddress();
+                
+                // Send address
+                usbSendMessage(CMD_GET_STARTING_PARENT, 2, (uint8_t*)&temp_address);
+                
+                // Return
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;            
         }
         
         // Get a free node address
@@ -612,9 +616,6 @@ void usbProcessIncoming(uint8_t* incomingData)
                 
                 // Store next free node address
                 temp_address = getFreeNodeAddress();
-                
-                // little endian / big endian thing
-                temp_address = swap16(temp_address);
                 
                 // Send address
                 usbSendMessage(CMD_GET_FREE_SLOT_ADDR, 2, (uint8_t*)&temp_address);
@@ -726,7 +727,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         case CMD_SET_CTRVALUE :
         {
             // Check that the mode is approved & that args are supplied
-            if ((memoryManagementModeApproved == TRUE) && (datalen == 3))
+            if ((memoryManagementModeApproved == TRUE) && (datalen == USER_CTR_SIZE))
             {
                 setProfileCtr(msg->body.data);
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -736,6 +737,29 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
             break;            
+        }
+        
+        // Get CTR value
+        case CMD_GET_CTRVALUE :
+        {
+            // Check that the mode is approved & that args are supplied
+            if (memoryManagementModeApproved == TRUE)
+            {
+                // Temp buffer to store CTR
+                uint8_t tempCtrVal[USER_CTR_SIZE];
+                
+                // Read CTR value
+                readProfileCtr(tempCtrVal);
+                
+                // Send it
+                usbSendMessage(CMD_GET_CTRVALUE, USER_CTR_SIZE, tempCtrVal);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
         }
         
         // Add a known card to the MP, 8 first bytes is the CPZ, next 16 is the CTR nonce

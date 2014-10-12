@@ -38,7 +38,7 @@
 #define CMD_CLONE_SMARTCARD     0x49
 #define CMD_STACK_FREE          0x4A
 #define CMD_GET_RANDOM_NUMBER   0x4B
-#define CMD_GET_USERPROFILE     0x50
+#define CMD_START_MEMORYMGMT    0x50
 #define CMD_END_MEMORYMGMT      0x51
 #define CMD_IMPORT_MEDIA_START  0x52
 #define CMD_IMPORT_MEDIA        0x53
@@ -60,6 +60,8 @@
 #define CMD_SET_CARD_LOGIN      0x63
 #define CMD_SET_CARD_PASS       0x64
 #define CMD_GET_FREE_SLOT_ADDR  0x65
+#define CMD_GET_STARTING_PARENT 0x66
+#define CMD_GET_CTRVALUE        0x67
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

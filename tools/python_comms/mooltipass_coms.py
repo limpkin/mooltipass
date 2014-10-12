@@ -49,7 +49,7 @@ CMD_JUMP_TO_BOOTLOADER  = 0x48
 CMD_CLONE_SMARTCARD     = 0x49
 CMD_STACK_FREE          = 0x4A
 CMD_GET_RANDOM_NUMBER   = 0x4B
-CMD_GET_USERPROFILE     = 0x50
+CMD_START_MEMORYMGMT    = 0x50
 CMD_END_MEMORYMGMT      = 0x51
 CMD_IMPORT_MEDIA_START  = 0x52
 CMD_IMPORT_MEDIA        = 0x53
@@ -70,6 +70,8 @@ CMD_READ_CARD_LOGIN     = 0x61
 CMD_READ_CARD_PASS      = 0x62
 CMD_SET_CARD_LOGIN      = 0x63
 CMD_SET_CARD_PASS       = 0x64
+CMD_GET_FREE_SLOT_ADDR  = 0x65
+CMD_GET_STARTING_PARENT = 0x66
 
 		
 def receiveHidPacket(epin):
@@ -97,6 +99,50 @@ def sendHidPacket(epout, cmd, len, data):
 		
 	# send data
 	epout.write(arraytosend)
+	
+def sendCustomPacket(epin, epout):
+	command = raw_input("CMD ID: ")
+	packet = array('B')
+	temp_bool = 0
+	length = 0
+	
+	#fill packet
+	packet.append(0)
+	packet.append(int(command, 16))
+	
+	#loop until packet is filled
+	while temp_bool == 0 :
+		try :
+			intval = int(raw_input("additional byte: "))
+			packet.append(intval)
+			length = length + 1
+		except ValueError :
+			temp_bool = 1
+	
+	#update packet length
+	packet[0] = length
+	
+	#ask for how many packets to receiveHidPacket
+	packetstoreceive = input("How many packets to be received: ")
+	
+	#send packet
+	sendHidPacket(epout, 0, 0, packet)
+	
+	#receive packets
+	for i in range (0, packetstoreceive):
+		print receiveHidPacket(epin)
+
+def setCurrentTimeout(epin, epout):
+	packetToSend = array('B')
+	packetToSend.append(1)
+	choice = input("How many seconds: ")
+	print ""
+	packetToSend.append(choice)
+	sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)	
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Parameter changed"
+	else:
+		print "Couldn't change parameter"
 
 def setCurrentKeyboard(epin, epout):
 	packetToSend = array('B')
@@ -225,16 +271,12 @@ def favoritePrint(epin, epout):
 	favoriteArg.append(0)
 	
 	# get user profile
-	sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
+	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
 	print "Please accept memory management mode on the MP"
-	data = receiveHidPacket(epin)
-	while data[LEN_INDEX] == 1:
+	while receiveHidPacket(epin)[DATA_INDEX] != 1:
 		print "Please accept memory management mode on the MP"
-		sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
+		sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
 		data = receiveHidPacket(epin)
-	
-	# receive other packet containing CTR
-	receiveHidPacket(epin)
 	
 	# loop through fav slots
 	for count in range(0, 15):
@@ -272,18 +314,16 @@ def favoriteSelectionScreen(epin, epout):
 	service_number_i = 0
 
 	# get user profile
-	sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
+	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
 	print "Please accept memory management mode on the MP"
-	data = receiveHidPacket(epin)
-	while data[LEN_INDEX] == 1:
+	while receiveHidPacket(epin)[DATA_INDEX] != 1:
 		print "Please accept memory management mode on the MP"
-		sendHidPacket(epout, CMD_GET_USERPROFILE, 0, None)
-		data = receiveHidPacket(epin)
+		sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
 	
-	# receive other packet containing CTR
-	receiveHidPacket(epin)
+	# get starting node
+	sendHidPacket(epout, CMD_GET_STARTING_PARENT, 0, None)
+	data = receiveHidPacket(epin)
 	
-	# print starting node
 	# print "starting node is address is", data[DATA_INDEX] + data[DATA_INDEX+1]*256
 	next_service_addr.append(data[DATA_INDEX])
 	next_service_addr.append(data[DATA_INDEX+1])
@@ -411,6 +451,8 @@ def findHIDDevice(vendor_id, product_id):
 		print "10) Change current password"
 		print "11) Jump to bootloader"
 		print "12) Change Mooltipass keyboard layout"
+		print "13) Change Mooltipass interaction timeout"
+		print "14) Custom packet"
 		choice = input("Make your choice: ")
 		print ""
 		
@@ -438,6 +480,10 @@ def findHIDDevice(vendor_id, product_id):
 			sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 0, None)
 		elif choice == 12:
 			setCurrentKeyboard(epin, epout)
+		elif choice == 13:
+			setCurrentTimeout(epin, epout)
+		elif choice == 14:
+			sendCustomPacket(epin, epout)
 	
 	hid_device.reset()
 

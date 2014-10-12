@@ -105,38 +105,38 @@ From plugin/app: Inform that we finished the flash import
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x46: export eeprom start
--------------------------
+0x46: export eeprom start (for full import/export fw version) 
+-------------------------------------------------------------
 From plugin/app: Request for eeprom contents export to Mooltipass.
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x35: export eeprom
--------------------
+0x35: export eeprom (for full import/export fw version)
+-------------------------------------------------------
 From plugin/app: export eeprom contents request
 
 From Mooltipass: the bunch of requested data
 
-0x36: export eeprom end
------------------------
+0x36: export eeprom end (for full import/export fw version)
+-----------------------------------------------------------
 From plugin/app: stop eeprom export
 
 From Mooltipass: end of eeprom export
 
-0x37: import eeprom start
--------------------------
+0x37: import eeprom start (for full import/export fw version)
+-------------------------------------------------------------
 From plugin/app: Request for eeprom contents sending to Mooltipass. 
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x38: import eeprom
--------------------
+0x38: import eeprom (for full import/export fw version)
+-------------------------------------------------------
 From plugin/app: A bunch of data to store inside the eeprom
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x39: import eeprom end
------------------------
+0x39: import eeprom end (for full import/export fw version)
+-----------------------------------------------------------
 From plugin/app: Inform that we finished the flash import
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
@@ -147,11 +147,11 @@ From plugin/app: Ask 32 random bytes
 
 From Mooltipass: The 32 random bytes
 
-0x50: Get user profile
-----------------------
-From plugin/app: Get the user profile inside the memory, ask the user to approve memory management mode
+0x50: Start memory management mode
+----------------------------------
+From plugin/app: Ask the user to approve memory management mode
 
-From Mooltipass: 0x00 if denied, data otherwise
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
 0x51: End memory management mode
 --------------------------------
@@ -197,7 +197,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0x58: Set starting parent
 -------------------------
-From plugin/app: First two bytes is the new starting parent
+From plugin/app: First two bytes is the new starting parent (LSB first)
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
@@ -274,6 +274,12 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 0x65: Get Free Slot Address
 ---------------------------
 From plugin/app: In management mode, get the address for a free slot to store data
+
+From Mooltipass: 0x00 if failure, slot address otherwise
+
+0x66: Get Starting parent Address
+---------------------------------
+From plugin/app: In management mode, get the address of the starting parent
 
 From Mooltipass: 0x00 if failure, slot address otherwise
 

@@ -8,8 +8,13 @@ This is the GitHub repository dedicated to the Mooltipass device. It contains al
 
 What is the Mooltipass Project?
 -------------------------------
-The Mooltipass is an **offline** password keeper, it remembers and encrypts your passwords so you don't have to.  
-With this device, you can generate and safely store different long and complex passwords for all the websites you use daily. A personal PIN locked smartcard allows the decryption of your credentials and ensures that only **you** has access to them. The Mooltipass is designed to be as small as possible to fit in your pocket. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required. The Mooltipass is a standalone device connected through USB, is completely driver-less and is compatible with all major operating systems on PCs, Macs and Smartphones. 
+With time, logins and passwords have become critical elements we need to remember to access the different websites and services we use daily. If we want to achieve good security, each of these credential sets should be unique.  
+We therefore created the Mooltipass, a physical password keeper that remembers and encrypts your credentials so you don't have to. With this device, you can generate and safely store long and complex passwords. A personal PIN locked smartcard allows the decryption of your credentials and ensures that only you have access to them. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required. The Mooltipass is a standalone device connected through USB, is completely driver-less and is compatible with all major operating systems on PCs, Macs and Smartphones.  
+It is extremely simple to use our device:  
+- Plug the Mooltipass to your computer/tablet/phone, no driver installation required.  
+- Insert your smartcard, unlock it with your PIN. Without the PIN, the card is useless.  
+- Visit the website that needs a login. If using our browser plugin the Mooltipass asks your permission to send the stored name and password, or asks you to save/generate new credentials if you are logging in for the first time.  
+- If you are not using the browser plugin or logging in to something other than a web browser, you can manually tell MP to send the correct name and password. It will type it in for you, just like a keyboard. In this way it can be used anywhere.    
 
 Advantages over software-based solutions
 ----------------------------------------

@@ -10,7 +10,7 @@ Not Changed!
 User Added
 Couldn't Add User
 Card Unlocked
-Card ID Not Found
+Unknown Card
 Insert New Smartcard
 Done
 Card Removed

@@ -90,7 +90,7 @@ RET_TYPE handleSmartcardInserted(void)
     else if (detection_result == RETURN_MOOLTIPASS_USER)
     {
         // This a valid user smart card, we call a dedicated function for the user to unlock the card
-        if (validCardDetectedFunction() == RETURN_OK)
+        if (validCardDetectedFunction() == RETURN_VCARD_OK)
         {
             // Card successfully unlocked
             uint8_t loginString[SMARTCARD_MTP_LOGIN_LENGTH/8];
@@ -151,7 +151,7 @@ RET_TYPE removeCardAndReAuthUser(void)
     smartcardPowerDelay();
     
     // Launch Unlocking process
-    if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_OK))
+    if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_VCARD_OK))
     {
         // Read other CPZ
         readCodeProtectedZone(temp_cpz2);
@@ -174,7 +174,7 @@ RET_TYPE removeCardAndReAuthUser(void)
 
 /*! \fn     validCardDetectedFunction(void)
 *   \brief  Function called when a valid mooltipass card is detected
-*   \return success or not
+*   \return Unlock status (see valid_card_det_return_t)
 */
 RET_TYPE validCardDetectedFunction(void)
 {
@@ -207,23 +207,22 @@ RET_TYPE validCardDetectedFunction(void)
             initUserFlashContext(temp_user_id);
             initEncryptionHandling(temp_buffer, temp_ctr_val);
             setSmartCardInsertedUnlocked();
-            return RETURN_OK;
+            return RETURN_VCARD_OK;
         }
         else
         {
             // Unlocking failed
-            return RETURN_NOK;
+            return RETURN_VCARD_NOK;
         }
     }
     else
     {
         // Tell the user we don't know this card, shutdown card reader
-        guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);        
-        removeFunctionSMC();
+        guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
         userViewDelay();
         
-        // Report Fail
-        return RETURN_NOK;
+        // Unknown card
+        return RETURN_VCARD_UNKNOWN;
     }
 }
 

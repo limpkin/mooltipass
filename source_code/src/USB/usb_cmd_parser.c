@@ -825,6 +825,12 @@ void usbProcessIncoming(uint8_t* incomingData)
                 // Check that the address the plugin wants to write is the one stored and that we're not writing more than we're supposed to
                 if ((currentNodeWritten == *temp_node_addr_ptr) && (currentNodeWritten != NODE_ADDR_NULL) && (msg->body.data[2] * (PACKET_EXPORT_SIZE-3) + datalen < NODE_SIZE))
                 {
+                    // If it's the first packet, set correct user ID
+                    if (msg->body.data[2] == 0)
+                    {
+                        userIdToFlags((uint16_t*)&(msg->body.data[3]), getCurrentUserID());
+                    }
+                    
                     // Fill the data at the right place
                     flashWriteBuffer(msg->body.data + 3, (NODE_SIZE * nodeNumberFromAddress(currentNodeWritten)) + (msg->body.data[2] * (PACKET_EXPORT_SIZE-3)), datalen - 3);
                     

@@ -49,6 +49,7 @@ uint8_t controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBou
 void setMooltipassParameterInEeprom(uint8_t param, uint8_t val);
 uint8_t getMooltipassParameterInEeprom(uint8_t param);
 RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code);
+RET_TYPE addNewUserForExistingCard(uint8_t* nonce);
 void outputLUTEntriesForGivenUser(uint8_t userID);
 void deleteUserIdFromSMCUIDLUT(uint8_t userid);
 void firstTimeUserHandlingInit(void);

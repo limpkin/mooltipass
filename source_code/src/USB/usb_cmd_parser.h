@@ -62,6 +62,7 @@
 #define CMD_GET_FREE_SLOT_ADDR  0x65
 #define CMD_GET_STARTING_PARENT 0x66
 #define CMD_GET_CTRVALUE        0x67
+#define CMD_ADD_UNKNOWN_CARD    0x68
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

@@ -98,6 +98,11 @@ void guiGetBackToCurrentScreen(void)
             guiDisplayInformationOnScreen(ID_STRING_MEMORYMGMT);
             break;
         }
+        case SCREEN_DEFAULT_INSERTED_UNKNOWN :
+        {
+            // Just to remind you it exists
+            break;
+        }
         default : break;
     }
 }

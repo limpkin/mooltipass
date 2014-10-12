@@ -802,7 +802,7 @@ void usbProcessIncoming(uint8_t* incomingData)
             uint16_t temp_flags;
             
             // Check that the plugin provided the address and packet #
-            if (datalen != 3)
+            if ((memoryManagementModeApproved != TRUE) || (datalen != 3))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             } 
@@ -945,7 +945,7 @@ void usbProcessIncoming(uint8_t* incomingData)
         {
             uint16_t* temp_uint_pt = (uint16_t*)msg->body.data;
             // Check the args, check we're not authenticated, check that the card detection returns a user card, try unlocking the card with provided PIN            
-            if ((datalen == 2) && (getSmartCardInsertedUnlocked() == FALSE) && (cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (mooltipassDetectedRoutine(swap16(*temp_uint_pt)) == RETURN_MOOLTIPASS_4_TRIES_LEFT))
+            if ((datalen == 2) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN) && (mooltipassDetectedRoutine(swap16(*temp_uint_pt)) == RETURN_MOOLTIPASS_4_TRIES_LEFT))
             {
                 eraseSmartCard();
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -953,6 +953,24 @@ void usbProcessIncoming(uint8_t* incomingData)
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;                
+            }
+            break;
+        }
+        
+        // Add current unknown smartcard
+        case CMD_ADD_UNKNOWN_CARD :
+        {
+            uint16_t* temp_uint_pt = (uint16_t*)msg->body.data;
+            
+            // Check the args, check we're not authenticated, check that the card detection returns a user card, try unlocking the card with provided PIN
+            if ((datalen == (2 + AES256_CTR_LENGTH)) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN) && (mooltipassDetectedRoutine(swap16(*temp_uint_pt)) == RETURN_MOOLTIPASS_4_TRIES_LEFT))
+            {
+                addNewUserForExistingCard(msg->body.data + 2);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
             }
             break;
         }

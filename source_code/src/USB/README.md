@@ -283,6 +283,18 @@ From plugin/app: In management mode, get the address of the starting parent
 
 From Mooltipass: 0x00 if failure, slot address otherwise
 
+0x67: Get CTR value
+-------------------
+From plugin/app: In management mode, get the current user CTR value
+
+From Mooltipass: 0x00 if failure, CTR value otherwise
+
+0x68: Add unknown smartcard
+---------------------------
+From plugin/app: When an unknown smartcard is inserted, tell the Mooltipass to store it. First 2 bytes are the pin code, next 16 are our CTR value
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
+
 
 Functions
 =========

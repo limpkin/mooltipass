@@ -89,8 +89,11 @@ RET_TYPE handleSmartcardInserted(void)
     }
     else if (detection_result == RETURN_MOOLTIPASS_USER)
     {
+        // Call valid card detection function
+        uint8_t temp_return = validCardDetectedFunction();
+        
         // This a valid user smart card, we call a dedicated function for the user to unlock the card
-        if (validCardDetectedFunction() == RETURN_VCARD_OK)
+        if (temp_return == RETURN_VCARD_OK)
         {
             // Card successfully unlocked
             uint8_t loginString[SMARTCARD_MTP_LOGIN_LENGTH/8];
@@ -98,6 +101,13 @@ RET_TYPE handleSmartcardInserted(void)
             guiDisplaySmartcardUnlockedScreen(loginString);
             next_screen = SCREEN_DEFAULT_INSERTED_NLCK;
             return_value = RETURN_OK;
+        }
+        else if (temp_return == RETURN_VCARD_UNKNOWN)
+        {
+            // Unknown card, go to dedicated screen
+            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_UNKNOWN);
+            guiGetBackToCurrentScreen();
+            return return_value;
         }
         else
         {

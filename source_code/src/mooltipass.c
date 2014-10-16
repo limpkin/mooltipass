@@ -149,7 +149,7 @@ int main(void)
     powerSettlingDelay();               // Let the power settle   
     initUsb();                          // Initialize USB controller
     initI2cPort();                      // Initialize I2C interface
-    rngInit();                      // Initialize avrentropy library
+    rngInit();                          // Initialize avrentropy library
     while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 

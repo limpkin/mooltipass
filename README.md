@@ -144,6 +144,7 @@ Finally our awesome beta testers who paid for their (expensive) beta units and p
 - David E. - USA
 - Keith S. - USA
 - Jason S. - USA
+- Jesse V. - USA
 - Kyle W. - USA
 - Erik M. - USA
 - Josh W. - USA

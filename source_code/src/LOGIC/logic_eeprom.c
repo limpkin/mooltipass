@@ -47,8 +47,10 @@ void firstTimeUserHandlingInit(void)
         eeprom_write_byte((uint8_t*)(EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH), 0xFF);
     }
     
-    // Set english keyboard by default
+    // Set English keyboard by default
     setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_LUT);
+    // Set 15secs user interaction timeout by default
+    setMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM, 15);
 }
 
 /*! \fn     controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound)

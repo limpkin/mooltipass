@@ -606,8 +606,8 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
         // Read child node
         readChildNode(&temp_cnode, child_address);
         
-        // Ask the user if he wants to output the login
-        if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK)
+        // If login isn't empty, ask the user if he wants to output the login
+        if ((temp_cnode.login[0] != 0) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK))
         {
             usbKeybPutStr((char*)temp_cnode.login);
         }

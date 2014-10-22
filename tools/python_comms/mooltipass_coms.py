@@ -84,8 +84,7 @@ def receiveHidPacket(epin):
 		return data
 	except usb.core.USBError as e:
 		#print e
-		if e.errno != 110: # 110 is a timeout.
-			sys.exit("Mooltipass didn't send a packet")
+		sys.exit("Mooltipass didn't send a packet")
 
 def sendHidPacket(epout, cmd, len, data):
 	# data to send
@@ -166,11 +165,10 @@ def mooltipassInit(hid_device, intf, epin, epout):
 			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
 			data2 = receiveHidPacket(epin)
 			packet.extend(data2[DATA_INDEX:DATA_INDEX+30])
-			
+
 			# Send set password packet
-			#sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, packet)	
-			#if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
-			if True:
+			sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, packet)	
+			if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 				# Write Mooltipass ID in file together with random bytes, flush write
 				f.write(str(mp_id))
 				f.write('|')
@@ -186,7 +184,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 				print "---------------------------------------------------------"
 				print "---------------------------------------------------------"
 				print "Setting up Mooltipass #", mp_id, "..... FAIL!!!!!!!!!!!!!!!!!!" 
-				print "Please put away this Mooltipass!!!!!!!!!"
+				print "Please put away this Mooltipass!"
 				print "---------------------------------------------------------"
 				print "---------------------------------------------------------"
 				
@@ -213,11 +211,6 @@ def mooltipassInit(hid_device, intf, epin, epout):
 					#print e
 					temp_bool2 = 1	
 				time.sleep(.5)
-			
-			#try:
-			#	hid_device.reset()
-			#except Exception, e:
-			#	time.sleep(.5)			
 			
 			# Connect another device
 			print "Connect other Mooltipass"

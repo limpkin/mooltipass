@@ -602,9 +602,9 @@ if __name__ == '__main__':
 		print ""
 		print "0) Quit"
 		print "1) Add a favorite"
-		print "2) See current favorites (only v0.5)"
-		print "3) Erase unknown smartcard (only v0.5)"
-		print "4) Store 1M random bytes (only v0.6)"
+		print "2) See current favorites"
+		print "3) Erase unknown smartcard"
+		print "4) Store 1M random bytes"
 		print "5) Add service and username"		
 		print "6) Change password for username in service"
 		print "7) Read current user name"
@@ -615,7 +615,7 @@ if __name__ == '__main__':
 		print "12) Change Mooltipass keyboard layout"
 		print "13) Change Mooltipass interaction timeout"
 		print "14) Custom packet"
-		print "15) Mooltipass initialization process"
+		print "15) Mooltipass initialization process (ONLY FOR MANUFACTURER)"
 		choice = input("Make your choice: ")
 		print ""
 		

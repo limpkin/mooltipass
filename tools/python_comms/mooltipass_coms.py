@@ -4,8 +4,12 @@ import platform
 import usb.core
 import usb.util
 import random
+import time
 import sys
 import os
+
+USB_VID					= 0x16D0
+USB_PID					= 0x09A0
 
 LEN_INDEX				= 0x00
 CMD_INDEX				= 0x01
@@ -17,68 +21,69 @@ SERVICE_INDEX			= 0x08
 DESC_INDEX				= 6
 LOGIN_INDEX				= 37
 
-CMD_DEBUG               = 0x01
-CMD_PING                = 0x02
-CMD_VERSION             = 0x03
-CMD_CONTEXT             = 0x04
-CMD_GET_LOGIN           = 0x05
-CMD_GET_PASSWORD        = 0x06
-CMD_SET_LOGIN           = 0x07
-CMD_SET_PASSWORD        = 0x08
-CMD_CHECK_PASSWORD      = 0x09
-CMD_ADD_CONTEXT         = 0x0A
-CMD_EXPORT_FLASH        = 0x30
-CMD_EXPORT_FLASH_END    = 0x31
-CMD_IMPORT_FLASH_BEGIN  = 0x32
-CMD_IMPORT_FLASH        = 0x33
-CMD_IMPORT_FLASH_END    = 0x34
-CMD_EXPORT_EEPROM       = 0x35
-CMD_EXPORT_EEPROM_END   = 0x36
+CMD_DEBUG				= 0x01
+CMD_PING				= 0x02
+CMD_VERSION				= 0x03
+CMD_CONTEXT				= 0x04
+CMD_GET_LOGIN			= 0x05
+CMD_GET_PASSWORD		= 0x06
+CMD_SET_LOGIN			= 0x07
+CMD_SET_PASSWORD		= 0x08
+CMD_CHECK_PASSWORD		= 0x09
+CMD_ADD_CONTEXT			= 0x0A
+CMD_EXPORT_FLASH		= 0x30
+CMD_EXPORT_FLASH_END	= 0x31
+CMD_IMPORT_FLASH_BEGIN	= 0x32
+CMD_IMPORT_FLASH		= 0x33
+CMD_IMPORT_FLASH_END	= 0x34
+CMD_EXPORT_EEPROM		= 0x35
+CMD_EXPORT_EEPROM_END	= 0x36
 CMD_IMPORT_EEPROM_BEGIN = 0x37
-CMD_IMPORT_EEPROM       = 0x38
-CMD_IMPORT_EEPROM_END   = 0x39
-CMD_ERASE_EEPROM        = 0x40
-CMD_ERASE_FLASH         = 0x41
-CMD_ERASE_SMC           = 0x42
-CMD_DRAW_BITMAP         = 0x43
-CMD_SET_FONT            = 0x44
-CMD_EXPORT_FLASH_START  = 0x45
+CMD_IMPORT_EEPROM		= 0x38
+CMD_IMPORT_EEPROM_END	= 0x39
+CMD_ERASE_EEPROM		= 0x40
+CMD_ERASE_FLASH			= 0x41
+CMD_ERASE_SMC			= 0x42
+CMD_DRAW_BITMAP			= 0x43
+CMD_SET_FONT			= 0x44
+CMD_EXPORT_FLASH_START	= 0x45
 CMD_EXPORT_EEPROM_START = 0x46
-CMD_SET_BOOTLOADER_PWD  = 0x47
-CMD_JUMP_TO_BOOTLOADER  = 0x48
-CMD_CLONE_SMARTCARD     = 0x49
-CMD_STACK_FREE          = 0x4A
-CMD_GET_RANDOM_NUMBER   = 0x4B
-CMD_START_MEMORYMGMT    = 0x50
-CMD_END_MEMORYMGMT      = 0x51
-CMD_IMPORT_MEDIA_START  = 0x52
-CMD_IMPORT_MEDIA        = 0x53
-CMD_IMPORT_MEDIA_END    = 0x54
-CMD_READ_FLASH_NODE     = 0x55
-CMD_WRITE_FLASH_NODE    = 0x56
-CMD_SET_FAVORITE        = 0x57
-CMD_SET_STARTINGPARENT  = 0x58
-CMD_SET_CTRVALUE        = 0x59
-CMD_ADD_CARD_CPZ_CTR    = 0x5A
-CMD_GET_CARD_CPZ_CTR    = 0x5B
+CMD_SET_BOOTLOADER_PWD	= 0x47
+CMD_JUMP_TO_BOOTLOADER	= 0x48
+CMD_CLONE_SMARTCARD		= 0x49
+CMD_STACK_FREE			= 0x4A
+CMD_GET_RANDOM_NUMBER	= 0x4B
+CMD_START_MEMORYMGMT	= 0x50
+CMD_END_MEMORYMGMT		= 0x51
+CMD_IMPORT_MEDIA_START	= 0x52
+CMD_IMPORT_MEDIA		= 0x53
+CMD_IMPORT_MEDIA_END	= 0x54
+CMD_READ_FLASH_NODE		= 0x55
+CMD_WRITE_FLASH_NODE	= 0x56
+CMD_SET_FAVORITE		= 0x57
+CMD_SET_STARTINGPARENT	= 0x58
+CMD_SET_CTRVALUE		= 0x59
+CMD_ADD_CARD_CPZ_CTR	= 0x5A
+CMD_GET_CARD_CPZ_CTR	= 0x5B
 CMD_CARD_CPZ_CTR_PACKET = 0x5C
 CMD_SET_MOOLTIPASS_PARM = 0x5D
 CMD_GET_MOOLTIPASS_PARM = 0x5E
 CMD_GET_FAVORITE		= 0x5F
-CMD_RESET_CARD          = 0x60
-CMD_READ_CARD_LOGIN     = 0x61
-CMD_READ_CARD_PASS      = 0x62
-CMD_SET_CARD_LOGIN      = 0x63
-CMD_SET_CARD_PASS       = 0x64
-CMD_GET_FREE_SLOT_ADDR  = 0x65
+CMD_RESET_CARD			= 0x60
+CMD_READ_CARD_LOGIN		= 0x61
+CMD_READ_CARD_PASS		= 0x62
+CMD_SET_CARD_LOGIN		= 0x63
+CMD_SET_CARD_PASS		= 0x64
+CMD_GET_FREE_SLOT_ADDR	= 0x65
 CMD_GET_STARTING_PARENT = 0x66
 
 		
 def receiveHidPacket(epin):
 	try : 
-		data = epin.read(epin.wMaxPacketSize, timeout=10000)
+		data = epin.read(epin.wMaxPacketSize, timeout=5000)
 		return data
 	except usb.core.USBError as e:
+		print e
 		if e.errno != 110: # 110 is a timeout.
 			sys.exit("Mooltipass didn't send a packet")
 
@@ -95,6 +100,7 @@ def sendHidPacket(epout, cmd, len, data):
 	if data is not None:
 		arraytosend.extend(data)
 		
+	#print arraytosend
 	#print arraytosend
 		
 	# send data
@@ -113,7 +119,7 @@ def sendCustomPacket(epin, epout):
 	#loop until packet is filled
 	while temp_bool == 0 :
 		try :
-			intval = int(raw_input("additional byte: "))
+			intval = int(raw_input("Byte %s: " %length), 16)
 			packet.append(intval)
 			length = length + 1
 		except ValueError :
@@ -131,6 +137,104 @@ def sendCustomPacket(epin, epout):
 	#receive packets
 	for i in range (0, packetstoreceive):
 		print receiveHidPacket(epin)
+		
+def mooltipassInit(hid_device, intf, epin, epout):
+	# Ask for Mooltipass ID
+	try :
+		mp_id = int(raw_input("Enter Mooltipass ID: "))
+		print ""
+	except ValueError :
+		mp_id = 0
+		print ""
+	
+	# Create text file
+	f = open(time.strftime("%Y-%m-%d-%H-%M-%S-Mooltipass IDs.txt"), 'wb')
+	
+	# Loop
+	try:
+		temp_bool = 0
+		while temp_bool == 0:
+			# Set password empty packet
+			packet = array('B')
+			
+			# We need 62 random bytes to set them as a password for the Mooltipass
+			print "Getting first random half"
+			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+			data = receiveHidPacket(epin)
+			packet.extend(data[DATA_INDEX:DATA_INDEX+32])
+			print "Getting second random half"
+			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+			data2 = receiveHidPacket(epin)
+			packet.extend(data2[DATA_INDEX:DATA_INDEX+30])
+			
+			# Send set password packet
+			#sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, packet)	
+			#if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+			if True:
+				# Write Mooltipass ID in file together with random bytes, flush write
+				f.write(str(mp_id))
+				f.write('|')
+				f.write(''.join(format(x, '02x') for x in data[DATA_INDEX:DATA_INDEX+32]))
+				f.write(''.join(format(x, '02x') for x in data2[DATA_INDEX:DATA_INDEX+30]))
+				f.write('\r\n')
+				f.flush()	
+				# Let the user know it is done
+				print ""
+				print "Setting up Mooltipass #", mp_id, "..... DONE" 
+			else:
+				print ""
+				print "---------------------------------------------------------"
+				print "---------------------------------------------------------"
+				print "Setting up Mooltipass #", mp_id, "..... FAIL!!!!!!!!!!!!!!!!!!" 
+				print "Please put away this Mooltipass!!!!!!!!!"
+				print "---------------------------------------------------------"
+				print "---------------------------------------------------------"
+				
+			# Disconnect this device
+			print "Please disconnect this Mooltipass"
+			
+			# Wait for no answer to ping
+			temp_bool2 = 0
+			while temp_bool2 == 0:
+				# prepare ping packet
+				ping_packet = array('B')
+				ping_packet.append(0)
+				ping_packet.append(CMD_PING)
+				try:
+					# try to send ping packet
+					epout.write(ping_packet)
+					try : 
+						# try to receive answer
+						data = epin.read(epin.wMaxPacketSize, timeout=5000)
+					except usb.core.USBError as e:
+						temp_bool2 = 1
+				except usb.core.USBError as e:
+					temp_bool2 = 1	
+				time.sleep(.5)
+			
+			try:
+				hid_device.reset()
+			except Exception, e:
+				time.sleep(.5)
+			
+			
+			# Connect another device
+			print "Connect other Mooltipass"
+			
+			# Wait for findHidDevice to return something
+			temp_bool2 = 0;
+			while temp_bool2 == 0:
+				hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, False)	
+				if hid_device is not None:
+					temp_bool2 = 1
+				time.sleep(.5)
+					
+			# Delay and increment
+			time.sleep(2)
+			mp_id = mp_id + 1
+	except KeyboardInterrupt:
+		f.close()
+		print "File written, everything ok"
 
 def setCurrentTimeout(epin, epout):
 	packetToSend = array('B')
@@ -392,47 +496,107 @@ def favoriteSelectionScreen(epin, epout):
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
 	receiveHidPacket(epin)
  
-def findHIDDevice(vendor_id, product_id):	
-	# find our device
+def findHIDDevice(vendor_id, product_id, print_debug):	
+	# Find our device
 	hid_device = usb.core.find(idVendor=vendor_id, idProduct=product_id)
 
-	# was it found?
+	# Was it found?
 	if hid_device is None:
-		raise ValueError('Device not found')
-	else:
+		if print_debug:
+			print "Device not found"
+		return None, None, None, None
+
+	# Device found
+	if print_debug:
 		print "Mooltipass found"
+		
+	# Different init codes depending on the platform
+	if platform.system() == "Linux":
+		# Need to do things differently
+		try:
+			hid_device.detach_kernel_driver(0)
+			hid_device.reset()
+		except Exception, e:
+			pass # Probably already detached
+	else:
+		# Set the active configuration. With no arguments, the first configuration will be the active one
+		try:
+			hid_device.set_configuration()
+		except Exception, e:
+			if print_debug:
+				print "Cannot set configuration the device:" , str(e)
+			return None, None, None, None
 
-		if platform.system() == "Linux":
-			#Need to do things differently
-			try:
-				hid_device.detach_kernel_driver(0)
-				hid_device.reset()
-			except Exception, e:
-				pass #Probably already detached
-		else:
-			# set the active configuration. With no arguments, the first configuration will be the active one
-			try:
-				hid_device.set_configuration()
-			except usb.core.USBError as e:
-				sys.exit("Cannot set configuration the device: %s" % str(e))
-
-	# get an endpoint instance
+	#for cfg in hid_device:
+	#	print "configuration val:", str(cfg.bConfigurationValue)
+	#	for intf in cfg:
+	#		print "int num:", str(intf.bInterfaceNumber), ", int alt:", str(intf.bAlternateSetting)
+	#		for ep in intf:
+	#			print "endpoint addr:", str(ep.bEndpointAddress)
+					
+	# Get an endpoint instance
 	cfg = hid_device.get_active_configuration()
 	intf = cfg[(0,0)]
 
-	# match the first OUT endpoint
+	# Match the first OUT endpoint
 	epout = usb.util.find_descriptor(intf, custom_match = lambda e: usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_OUT)
-	assert epout is not None
+	if epout is None:
+		hid_device.reset()
+		return None, None, None, None
+	#print "Selected OUT endpoint:", epout.bEndpointAddress
 	
-	# match the first IN endpoint
+	# Match the first IN endpoint
 	epin = usb.util.find_descriptor(intf, custom_match = lambda e: usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_IN)
-	assert epin is not None
+	if epin is None:
+		hid_device.reset()
+		return None, None, None, None
+	#print "Selected IN endpoint:", epin.bEndpointAddress
 	
-	# try a ping packet	
-	sendHidPacket(epout, CMD_PING, 0, None)
-	while receiveHidPacket(epin)[CMD_INDEX] != CMD_PING:
-		print "cleaning remaining input packets"
-	print "Mooltipass replied to our ping message"
+	# prepare ping packet
+	ping_packet = array('B')
+	ping_packet.append(0)
+	ping_packet.append(CMD_PING)
+	time.sleep(0.5)
+	try:
+		# try to send ping packet
+		epout.write(ping_packet)
+		# try to receive one answer
+		temp_bool = 0
+		while temp_bool == 0:
+			try : 
+				# try to receive answer
+				data = epin.read(epin.wMaxPacketSize, timeout=2000)
+				if data[CMD_INDEX] == CMD_PING:
+					temp_bool = 1
+					if print_debug:
+						print "Mooltipass replied to our ping message"
+				else:
+					if print_debug:
+						print "Cleaning remaining input packets"				
+				time.sleep(.5)
+			except usb.core.USBError as e:
+				if print_debug:
+					print e
+				return None, None, None, None	
+	except usb.core.USBError as e:
+		if print_debug:
+			print e
+		return None, None, None, None	
+	
+	# Return device & endpoints
+	return hid_device, intf, epin, epout
+	
+
+if __name__ == '__main__':
+	# Main function
+	print ""
+	print "Mooltipass USB client" 
+	
+	# Search for the mooltipass and read hid data
+	hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, True)
+	
+	if hid_device is None:
+		sys.exit(0)
 	
 	choice = 1
 	while choice != 0:
@@ -453,6 +617,7 @@ def findHIDDevice(vendor_id, product_id):
 		print "12) Change Mooltipass keyboard layout"
 		print "13) Change Mooltipass interaction timeout"
 		print "14) Custom packet"
+		print "15) Mooltipass initialization process"
 		choice = input("Make your choice: ")
 		print ""
 		
@@ -484,13 +649,9 @@ def findHIDDevice(vendor_id, product_id):
 			setCurrentTimeout(epin, epout)
 		elif choice == 14:
 			sendCustomPacket(epin, epout)
+		elif choice == 15:
+			mooltipassInit(hid_device, intf, epin, epout)
+			sys.exit(0)
 	
 	hid_device.reset()
-
-if __name__ == '__main__':
-	# Main function
-	print ""
-	print "Mooltipass USB client" 
-	# Search for the mooltipass and read hid data
-	findHIDDevice(0x16D0, 0x09A0)
 

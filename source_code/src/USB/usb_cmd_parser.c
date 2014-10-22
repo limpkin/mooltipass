@@ -1147,6 +1147,8 @@ void usbProcessIncoming(uint8_t* incomingData)
                     {
                         // Write "jump to bootloader" key in eeprom
                         eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                        // Set bootloader password bool to FALSE
+                        eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
                         // Use WDT to reset the device
                         cli();
                         wdt_reset();

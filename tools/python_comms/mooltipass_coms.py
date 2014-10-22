@@ -207,10 +207,10 @@ def mooltipassInit(hid_device, intf, epin, epout):
 						# try to receive answer
 						data = epin.read(epin.wMaxPacketSize, timeout=5000)
 					except usb.core.USBError as e:
-						print e
+						#print e
 						temp_bool2 = 1
 				except usb.core.USBError as e:
-					print e
+					#print e
 					temp_bool2 = 1	
 				time.sleep(.5)
 			

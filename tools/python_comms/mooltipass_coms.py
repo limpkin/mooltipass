@@ -577,10 +577,6 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 					if print_debug:
 						print "Mooltipass replied to our ping message"
 				else:
-					byte1 = random.randint(0, 255)
-					byte2 = random.randint(0, 255)
-					ping_packet[DATA_INDEX] = byte1
-					ping_packet[DATA_INDEX+1] = byte2
 					if print_debug:
 						print "Cleaning remaining input packets"				
 				time.sleep(.5)
@@ -595,7 +591,6 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 	
 	# Return device & endpoints
 	return hid_device, intf, epin, epout
-	
 
 if __name__ == '__main__':
 	# Main function

@@ -83,7 +83,7 @@ def receiveHidPacket(epin):
 		data = epin.read(epin.wMaxPacketSize, timeout=5000)
 		return data
 	except usb.core.USBError as e:
-		print e
+		#print e
 		if e.errno != 110: # 110 is a timeout.
 			sys.exit("Mooltipass didn't send a packet")
 
@@ -158,11 +158,11 @@ def mooltipassInit(hid_device, intf, epin, epout):
 			packet = array('B')
 			
 			# We need 62 random bytes to set them as a password for the Mooltipass
-			print "Getting first random half"
+			#print "Getting first random half"
 			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
 			data = receiveHidPacket(epin)
 			packet.extend(data[DATA_INDEX:DATA_INDEX+32])
-			print "Getting second random half"
+			#print "Getting second random half"
 			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
 			data2 = receiveHidPacket(epin)
 			packet.extend(data2[DATA_INDEX:DATA_INDEX+30])
@@ -207,16 +207,17 @@ def mooltipassInit(hid_device, intf, epin, epout):
 						# try to receive answer
 						data = epin.read(epin.wMaxPacketSize, timeout=5000)
 					except usb.core.USBError as e:
+						print e
 						temp_bool2 = 1
 				except usb.core.USBError as e:
+					print e
 					temp_bool2 = 1	
 				time.sleep(.5)
 			
-			try:
-				hid_device.reset()
-			except Exception, e:
-				time.sleep(.5)
-			
+			#try:
+			#	hid_device.reset()
+			#except Exception, e:
+			#	time.sleep(.5)			
 			
 			# Connect another device
 			print "Connect other Mooltipass"
@@ -553,9 +554,14 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 	#print "Selected IN endpoint:", epin.bEndpointAddress
 	
 	# prepare ping packet
+	byte1 = random.randint(0, 255)
+	byte2 = random.randint(0, 255)
 	ping_packet = array('B')
-	ping_packet.append(0)
+	ping_packet.append(2)
 	ping_packet.append(CMD_PING)
+	ping_packet.append(byte1)
+	ping_packet.append(byte2)
+	
 	time.sleep(0.5)
 	try:
 		# try to send ping packet
@@ -566,11 +572,15 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 			try : 
 				# try to receive answer
 				data = epin.read(epin.wMaxPacketSize, timeout=2000)
-				if data[CMD_INDEX] == CMD_PING:
+				if data[CMD_INDEX] == CMD_PING and data[DATA_INDEX] == byte1 and data[DATA_INDEX+1] == byte2 :
 					temp_bool = 1
 					if print_debug:
 						print "Mooltipass replied to our ping message"
 				else:
+					byte1 = random.randint(0, 255)
+					byte2 = random.randint(0, 255)
+					ping_packet[DATA_INDEX] = byte1
+					ping_packet[DATA_INDEX+1] = byte2
 					if print_debug:
 						print "Cleaning remaining input packets"				
 				time.sleep(.5)

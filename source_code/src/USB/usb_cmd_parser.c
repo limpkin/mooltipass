@@ -639,6 +639,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 plugin_return_value = PLUGIN_BYTE_OK;
                 leaveMemoryManagementMode();
                 guiGetBackToCurrentScreen();
+                populateServicesLut();
                 scanNodeUsage();
             }
             else

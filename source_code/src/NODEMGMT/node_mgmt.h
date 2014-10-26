@@ -215,6 +215,7 @@ typedef struct __attribute__((packed)) nodeMgmtH
         cNode child;
         dNode data;
     } child;                        /*!< A child, child start of data, or child data node to be used as a buffer in the API */
+    uint16_t servicesLut[26];       /*!<Look up table for our services */
 } mgmtHandle;
 
 /* Helper Functions (flags and address) */
@@ -252,6 +253,9 @@ void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset
 
 void setStartingParent(uint16_t parentAddress);
 uint16_t getStartingParentAddress(void);
+
+uint16_t getParentNodeForLetter(uint8_t letter);
+void populateServicesLut(void);
 
 void setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress);
 void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress);

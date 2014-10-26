@@ -136,7 +136,8 @@ void initUserFlashContext(uint8_t user_id)
 */
 uint16_t searchForServiceName(uint8_t* name, uint8_t mode)
 {
-    uint16_t next_node_addr = getStartingParentAddress();
+    uint16_t next_node_addr = getParentNodeForLetter(name[0]);
+    uint8_t compare_result;
     
     if (next_node_addr == NODE_ADDR_NULL)
     {
@@ -151,9 +152,20 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t mode)
             readParentNode(&temp_pnode, next_node_addr);
             
             // Compare its service name with the name that was provided
-            if ((mode == COMPARE_MODE_MATCH) && (strcmp((char*)name, (char*)temp_pnode.service) == 0))
+            if (mode == COMPARE_MODE_MATCH)
             {
-                return next_node_addr;
+                compare_result = strcmp((char*)name, (char*)temp_pnode.service);
+                
+                if (compare_result == 0)
+                {
+                    // Result found
+                    return next_node_addr;
+                } 
+                else if (compare_result < 0)
+                {
+                    // Nodes are alphabetically sorted, escape if we went over
+                    return NODE_ADDR_NULL;
+                }
             }
             else if ((mode == COMPARE_MODE_COMPARE) && (strcmp((char*)name, (char*)temp_pnode.service) < 0))
             {

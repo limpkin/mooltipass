@@ -360,6 +360,9 @@ void initNodeManagementHandle(uint8_t userIdNum)
     
     // scan for next free parent and child nodes
     scanNodeUsage();
+    
+    // populate services LUT
+    populateServicesLut();
 }
 
 /**
@@ -527,6 +530,9 @@ RET_TYPE createParentNode(pNode* p)
     {
         setStartingParent(temp_address);
     }
+    
+    // Populate services LUT
+    populateServicesLut();
     
     return temprettype;
 }
@@ -700,6 +706,77 @@ RET_TYPE createGenericNode(gNode* g, uint16_t firstNodeAddress, uint16_t* newFir
     return RETURN_OK;
 }
 
+/*! \fn     populateServicesLut(void)
+*   \brief  Populate our LUT for our services
+*/
+void populateServicesLut(void)
+{
+    uint16_t next_node_addr = currentNodeMgmtHandle.firstParentNode;
+    uint8_t temp_node_buffer[9];
+    pNode* pnode_ptr = (pNode*)temp_node_buffer;
+    uint8_t first_service_letter;
+    
+    // Empty our current services list
+    memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));
+    
+    // If we have at least one node, loop through our credentials
+    while(next_node_addr != NODE_ADDR_NULL)
+    {
+        // Read first 9 bytes of the parent node as we just want to know the first letter
+        readDataFromFlash(pageNumberFromAddress(next_node_addr), NODE_SIZE * nodeNumberFromAddress(next_node_addr), sizeof(temp_node_buffer), temp_node_buffer);
+        first_service_letter = pnode_ptr->service[0];
+            
+        // LUT is only for chars between 'a' and 'z'
+        if ((first_service_letter >= 'a') && (first_service_letter <= 'z'))
+        {
+            // If LUT entry not populated, populate it
+            if (currentNodeMgmtHandle.servicesLut[first_service_letter - 'a'] == NODE_ADDR_NULL)
+            {
+                currentNodeMgmtHandle.servicesLut[first_service_letter - 'a'] = next_node_addr;
+            }
+        }            
+            
+        // Fetch next node
+        next_node_addr = pnode_ptr->nextParentAddress;
+    }
+}
+
+/*! \fn     getParentNodeForLetter(uint8_t letter, uint8_t empty_mode)
+*   \brief  Use the LUT to find the first parent node for a given letter
+*   \note   If we don't know the letter, the first previous one will be returned
+*   \param  letter      The first letter
+*/
+uint16_t getParentNodeForLetter(uint8_t letter)
+{    
+    // LUT is only for chars between 'a' and 'z'
+    if ((letter >= 'a') && (letter <= 'z'))
+    {
+        // If the entry is populated, return it
+        if (currentNodeMgmtHandle.servicesLut[letter - 'a'] != NODE_ADDR_NULL)
+        {
+            return currentNodeMgmtHandle.servicesLut[letter - 'a'];
+        }
+        else
+        {            
+            // No entry, return the one before
+            for (int8_t i = letter - 'a'; i >= 0; i--)
+            {
+                if (currentNodeMgmtHandle.servicesLut[(uint8_t)i] != NODE_ADDR_NULL)
+                {
+                    return currentNodeMgmtHandle.servicesLut[(uint8_t)i];
+                }
+            }
+                
+            // If we're here it means nothing was found so we return the starting parent
+            return currentNodeMgmtHandle.firstParentNode;
+        }
+    }
+    else
+    {
+        return currentNodeMgmtHandle.firstParentNode;
+    }
+}
+
 /*! \fn     scanNodeUsage(void)
 *   \brief  Scan memory to find empty slots
 */
@@ -784,6 +861,9 @@ void deleteCurrentUserFromFlash(void)
     
     // Scan Node Usage
     scanNodeUsage();
+    
+    // Populate service lut
+    populateServicesLut();
 }
 
 /**

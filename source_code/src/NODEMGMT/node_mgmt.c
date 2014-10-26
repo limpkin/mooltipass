@@ -862,8 +862,8 @@ void deleteCurrentUserFromFlash(void)
     // Scan Node Usage
     scanNodeUsage();
     
-    // Populate service lut
-    populateServicesLut();
+    // Empty service lut
+    memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));
 }
 
 /**

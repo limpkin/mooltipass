@@ -42,6 +42,9 @@
  *  V2_DEVELOPERS_BOOTLOADER_SETUP
  *  => final hardware version for developpers, with bootloader
  *
+ *  V2_DEVELOPERS_BOOTLOADER_SETUP_PIN
+ *  => final hardware version for developpers, with bootloader & pin code
+ *
  *  V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP
  *  => same as above, but without top PCB
  *
@@ -87,6 +90,14 @@
     #define DEV_PLUGIN_COMMS
     #define HARDWARE_OLIVIER_V1
     #define NO_PIN_CODE_REQUIRED
+    #define AVR_BOOTLOADER_PROGRAMMING
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(V2_DEVELOPERS_BOOTLOADER_SETUP_PIN)
+    #define STACK_DEBUG
+    #define TESTS_ENABLED
+    #define FLASH_CHIP_1M
+    #define DEV_PLUGIN_COMMS
+    #define HARDWARE_OLIVIER_V1
     #define AVR_BOOTLOADER_PROGRAMMING
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(V2_DEVELOPERS_ISP_SETUP)

@@ -63,6 +63,7 @@
 #define CMD_GET_STARTING_PARENT 0x66
 #define CMD_GET_CTRVALUE        0x67
 #define CMD_ADD_UNKNOWN_CARD    0x68
+#define CMD_USB_KEYBOARD_PRESS  0x69
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

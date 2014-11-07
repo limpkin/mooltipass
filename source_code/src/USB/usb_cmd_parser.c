@@ -612,6 +612,9 @@ void usbProcessIncoming(uint8_t* incomingData)
             {
                 uint16_t temp_address;
                 
+                // Update our LUT
+                populateServicesLut();
+                
                 // Scan for next free node address
                 scanNodeUsage();
                 

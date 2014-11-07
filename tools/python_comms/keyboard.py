@@ -120,4 +120,4 @@ KEY_F14                = 0x69
 KEY_F15                = 0x6A
 
 KeyboardAscii = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
-
+KEYTEST_BAN_LIST = [ KEY_RETURN, KEY_RETURN, KEY_BACKSPACE, KEY_TAB ]

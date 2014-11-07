@@ -1,3 +1,6 @@
+SHIFT_MASK =  0x80
+ALTGR_MASK =  0x40
+
 KEY_CTRL               = 0x01
 KEY_SHIFT              = 0x02
 KEY_EUROPE_2           = 0x03
@@ -116,4 +119,5 @@ KEY_F13                = 0x68
 KEY_F14                = 0x69
 KEY_F15                = 0x6A
 
-output = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+KeyboardAscii = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+

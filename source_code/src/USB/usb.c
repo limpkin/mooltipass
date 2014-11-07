@@ -1057,15 +1057,15 @@ RET_TYPE usbKeybPutChar(char ch)
         {
             if (key & SHIFT_MASK)
             {
-                return usbKeyboardPress(key & ~SHIFT_MASK, KEY_SHIFT);
+                return usbKeyboardPress(KEY_EUROPE_2_REAL, KEY_SHIFT);
             }
             else if (key & ALTGR_MASK)
             {
-                return usbKeyboardPress(key & ~ALTGR_MASK, KEY_RIGHT_ALT);
+                return usbKeyboardPress(KEY_EUROPE_2_REAL, KEY_RIGHT_ALT);
             }
             else
             {
-                return usbKeyboardPress(key, 0);
+                return usbKeyboardPress(KEY_EUROPE_2_REAL, 0);
             }
         }
         else if (key & SHIFT_MASK)

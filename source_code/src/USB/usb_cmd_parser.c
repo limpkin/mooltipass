@@ -32,6 +32,7 @@
 #include "logic_smartcard.h"
 #include "usb_cmd_parser.h"
 #include "logic_eeprom.h"
+#include "hid_defines.h"
 #include <avr/eeprom.h>
 #include "mooltipass.h"
 #include "node_mgmt.h"
@@ -1250,6 +1251,18 @@ void usbProcessIncoming(uint8_t* incomingData)
             usbPutstr(stack_str);
             usbPutstr(" bytes\n");
         return;
+
+        case CMD_USB_KEYBOARD_PRESS:
+            plugin_return_value = PLUGIN_BYTE_OK;
+            if(datalen == 2)
+            {
+                usbKeyboardPress(msg->body.data[0], msg->body.data[1]);
+            }
+            else
+            { 
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
 #endif
 
         default :   return;

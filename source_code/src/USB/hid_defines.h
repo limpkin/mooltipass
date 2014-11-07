@@ -18,6 +18,7 @@ extern const uint8_t keyboardLUT_EN[95];
 
 #define KEY_CTRL               0x01
 #define KEY_SHIFT              0x02
+#define KEY_EUROPE_2           0x03
 #define KEY_ALT                0x04
 #define KEY_GUI                0x08
 #define KEY_LEFT_CTRL          0x01
@@ -124,7 +125,7 @@ extern const uint8_t keyboardLUT_EN[95];
 #define KEY_KEYPAD_9           0x61
 #define KEY_KEYPAD_0           0x62
 #define KEY_KEYPAD_DECIMAL     0x63
-#define KEY_EUROPE_2           0x64
+#define KEY_EUROPE_2_REAL      0x64
 #define KEY_APPLICATION        0x65
 #define KEY_POWER              0x66
 #define KEY_KEYPAD_EQUAL       0x67

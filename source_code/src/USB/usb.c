@@ -1053,13 +1053,29 @@ RET_TYPE usbKeybPutChar(char ch)
     else
     {
         key = getKeybLutEntryForLayout(getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM), ch);
-        if (key & SHIFT_MASK)
+        if ( (key & 0x3F) == KEY_EUROPE_2 )
+        {
+            if (key & SHIFT_MASK)
+            {
+                return usbKeyboardPress(key & ~SHIFT_MASK, KEY_SHIFT);
+            }
+            else if (key & ALTGR_MASK)
+            {
+                return usbKeyboardPress(key & ~ALTGR_MASK, KEY_RIGHT_ALT);
+            }
+            else
+            {
+                return usbKeyboardPress(key, 0);
+            }
+        }
+        else if (key & SHIFT_MASK)
         {
             // If we need shift
             return usbKeyboardPress(key & ~SHIFT_MASK, KEY_SHIFT);
         }
-        if (((((key & 0x3F) >= KEY_1) && ((key & 0x3F) <= KEY_0)) || ((key & 0x3F) == KEY_MINUS) || ((key & 0x3F) == KEY_EQUAL)) && (key & ALTGR_MASK) && ((key & 0x3F) != KEY_7))
+        if (key & ALTGR_MASK)
         {
+            
             // We need altgr for the numbered keys, only possible because we don't use the numerical keypad
             return usbKeyboardPress(key & ~ALTGR_MASK, KEY_RIGHT_ALT);
         }

@@ -48,6 +48,15 @@
 RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
 {
     RET_TYPE card_detect_ret = RETURN_JRELEASED;
+        
+    //#define KEYBOARD_LAYOUT_TEST
+    #ifdef KEYBOARD_LAYOUT_TEST
+    for (uint8_t i = ' '; i <= '~'; i++)
+    {
+        usbKeybPutChar(i);
+        usbKeybPutChar(i);
+    }
+    #endif
     
     // Switch on lights
     activityDetectedRoutine();

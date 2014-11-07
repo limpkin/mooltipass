@@ -86,12 +86,100 @@ def keyboardSend(epout, data1, data2):
 	packetToSend.append(data1)
 	packetToSend.append(data2)
 	sendHidPacket(epout, CMD_USB_KEYBOARD_PRESS, 0x02, packetToSend)
+	time.sleep(0.05)
+
+def keyboardTestKey(epout, KEY, MODIFIER):
+	if( KEY == KEY_RETURN ): return ''
+	keyboardSend(epout, KEY, MODIFIER)
+	keyboardSend(epout, KEY, MODIFIER)
+	keyboardSend(epout, KEY_RETURN, 0)
+	string = raw_input()
+	if (string == ''):
+		return string
+	return string[0]
+
+def keyboardKeyMap(epout, key):
+	if ( (key & 0x3F) == KEY_EUROPE_2 ):
+		if (key & SHIFT_MASK):
+			return keyboardTestKey(epout, KEY_EUROPE_2_REAL, KEY_SHIFT)
+		elif (key & ALTGR_MASK):
+			return keyboardTestKey(epout, KEY_EUROPE_2_REAL, KEY_RIGHT_ALT)
+		else:
+			return keyboardTestKey(epout, KEY_EUROPE_2_REAL, 0)
+
+	elif (key & SHIFT_MASK):
+		return keyboardTestKey(epout, key & ~SHIFT_MASK, KEY_SHIFT)
+
+	if (key & ALTGR_MASK):
+		return keyboardTestKey(epout, key & ~ALTGR_MASK, KEY_RIGHT_ALT)
+
+	else:
+		return keyboardTestKey(epout, key, 0)
 
 def keyboardTest(epout):
-	keyboardSend(epout, KEY_A, 0)
-	time.sleep(0.5)
-	keyboardSend(epout, KEY_RETURN, 0)
-	keys = raw_input()
+	fileName = raw_input("Name of the Keyboard (example: ES): ");
+
+	# dictionary to store the 
+	Layout_dict = dict()
+	
+	# No modifier combinations
+	for bruteforce in range(KEY_EUROPE_2, KEY_SLASH+1):
+		output = keyboardKeyMap(epout, bruteforce)
+		if (output == ''): continue
+		if output in Layout_dict:
+			print "Already stored"
+		else:
+			Layout_dict.update({output: bruteforce})
+	
+	# SHIFT combinations
+	for bruteforce in range(KEY_EUROPE_2, KEY_SLASH+1):
+		output = keyboardKeyMap(epout, SHIFT_MASK|bruteforce)
+		if (output == ''): continue
+		if output in Layout_dict:
+			print "Already stored"
+		else:
+			Layout_dict.update({output : SHIFT_MASK|bruteforce})
+
+	# ALTGR combinations
+	for bruteforce in range(KEY_EUROPE_2, KEY_SLASH+1):
+		output = keyboardKeyMap(epout, ALTGR_MASK|bruteforce)
+		if (output == ''): continue
+		if output in Layout_dict:
+			print "Already stored"
+		else:
+			Layout_dict.update({output : ALTGR_MASK|bruteforce})
+
+
+	hid_define_str = "const uint8_t PROGMEM keyboardLUT_"+fileName+"[95] = \n{\n"
+
+	for key in KeyboardAscii:
+		if(key not in Layout_dict):
+			#print key + " Not found"
+			Layout_dict.update({key:0})
+		#else:
+			#print "BruteForced: " + key
+
+		""" Format C code """
+		keycode = hex(Layout_dict[key])+","
+
+		# Handle special case
+		if(key == '\\'):
+			comment = " // " + hex(ord(key)) + " '" + key + "'\n"
+		else:
+			comment = " // " + hex(ord(key)) + " " + key + "\n"
+
+		newline = "%4s%-5s" % (" ", keycode) + comment
+		# add new line into existing string
+		hid_define_str = hid_define_str + newline
+	
+	# finish C array
+	hid_define_str = hid_define_str + "};"
+	print hid_define_str
+
+	# Save C array into .c file
+	text_file = open("keymap_"+fileName+".c", "w")
+	text_file.write(hid_define_str)
+	text_file.close()
 		
 def receiveHidPacket(epin):
 	try : 

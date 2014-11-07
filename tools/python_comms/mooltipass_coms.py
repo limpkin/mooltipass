@@ -7,6 +7,7 @@ import random
 import time
 import sys
 import os
+from keyboard import *
 
 USB_VID					= 0x16D0
 USB_PID					= 0x09A0
@@ -75,8 +76,22 @@ CMD_READ_CARD_PASS		= 0x62
 CMD_SET_CARD_LOGIN		= 0x63
 CMD_SET_CARD_PASS		= 0x64
 CMD_GET_FREE_SLOT_ADDR	= 0x65
-CMD_GET_STARTING_PARENT = 0x66
+CMD_GET_STARTING_PARENT	= 0x66
+CMD_GET_CTRVALUE		= 0x67
+CMD_ADD_UNKNOWN_CARD    = 0x68
+CMD_USB_KEYBOARD_PRESS  = 0x69
 
+def keyboardSend(epout, data1, data2):
+	packetToSend = array('B')
+	packetToSend.append(data1)
+	packetToSend.append(data2)
+	sendHidPacket(epout, CMD_USB_KEYBOARD_PRESS, 0x02, packetToSend)
+
+def keyboardTest(epout):
+	keyboardSend(epout, KEY_A, 0)
+	time.sleep(0.5)
+	keyboardSend(epout, KEY_RETURN, 0)
+	keys = raw_input()
 		
 def receiveHidPacket(epin):
 	try : 
@@ -616,6 +631,7 @@ if __name__ == '__main__':
 		print "13) Change Mooltipass interaction timeout"
 		print "14) Custom packet"
 		print "15) Mooltipass initialization process (ONLY FOR MANUFACTURER)"
+		print "16) Keyboard Test"
 		choice = input("Make your choice: ")
 		print ""
 		
@@ -649,6 +665,8 @@ if __name__ == '__main__':
 			sendCustomPacket(epin, epout)
 		elif choice == 15:
 			mooltipassInit(hid_device, intf, epin, epout)
+		elif choice == 16:
+			keyboardTest(epout)
 			sys.exit(0)
 	
 	hid_device.reset()

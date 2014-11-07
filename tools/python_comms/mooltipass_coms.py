@@ -89,7 +89,7 @@ def keyboardSend(epout, data1, data2):
 	time.sleep(0.05)
 
 def keyboardTestKey(epout, KEY, MODIFIER):
-	if( KEY == KEY_RETURN ): return ''
+	if( KEY in KEYTEST_BAN_LIST ): return ''
 	keyboardSend(epout, KEY, MODIFIER)
 	keyboardSend(epout, KEY, MODIFIER)
 	keyboardSend(epout, KEY_RETURN, 0)

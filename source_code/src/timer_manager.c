@@ -27,7 +27,8 @@
 #include "defines.h"
 
 // Timers array
-volatile timerEntry_t context_timers[NUMBER_OF_TIMERS];
+volatile timerEntry_t context_timers[TOTAL_NUMBER_OF_TIMERS];
+volatile uint16_t timer_divider;
 
 
 /*!	\fn		timerManagerTick(void)
@@ -37,13 +38,21 @@ void timerManagerTick(void)
 {
     uint8_t i;
     
-    for (i = 0; i < NUMBER_OF_TIMERS; i++)
+    // Increment divider
+    timer_divider++;
+    
+    // Loop through the timers
+    for (i = 0; i < TOTAL_NUMBER_OF_TIMERS; i++)
     {
-        if (context_timers[i].timer_val != 0)
+        // If it's a fast timer or if it not & timer_divider rolled over
+        if ((i < NUMBER_OF_FAST_TIMERS) || (timer_divider == 0))
         {
-            if (context_timers[i].timer_val-- == 1)
+            if (context_timers[i].timer_val != 0)
             {
-                context_timers[i].flag = TIMER_EXPIRED;
+                if (context_timers[i].timer_val-- == 1)
+                {
+                    context_timers[i].flag = TIMER_EXPIRED;
+                }
             }
         }
     }

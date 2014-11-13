@@ -1,5 +1,7 @@
 v0.7:
 - implemented a LUT for faster login search
+- added lock timeout bool & delay
+- pin required for memory export
 
 v0.6:
 - new strings, new bundle required

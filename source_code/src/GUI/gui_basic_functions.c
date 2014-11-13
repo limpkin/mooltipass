@@ -54,6 +54,7 @@ void activityDetectedRoutine(void)
     // Activate timers for automatic switch off
     activateTimer(TIMER_LIGHT, LIGHT_TIMER_DEL);
     activateTimer(TIMER_SCREEN, SCREEN_TIMER_DEL);
+    activateTimer(SLOW_TIMER_LOCKOUT, getMooltipassParameterInEeprom(LOCK_TIMEOUT_PARAM));
     
     // If the screen was off, turn it on!
     if (oledIsOn() == FALSE)

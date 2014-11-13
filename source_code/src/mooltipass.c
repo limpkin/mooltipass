@@ -59,6 +59,8 @@
 bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 // Flag to inform if the caps lock timer is armed
 volatile uint8_t wasCapsLockTimerArmed = FALSE;
+// Boolean to know if user timeout is enabled
+uint8_t mp_timeout_enabled = FALSE;
 
 
 /*! \fn     disableJTAG(void)
@@ -152,6 +154,9 @@ int main(void)
     rngInit();                          // Initialize avrentropy library
     while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
+    
+    // Set correct timeout_enabled val
+    mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
 
     // Launch the before flash initialization tests
     #ifdef TESTS_ENABLED
@@ -318,6 +323,14 @@ int main(void)
         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
             wasCapsLockTimerArmed = FALSE;            
+        }
+        
+        // If we have a timeout lock
+        if ((mp_timeout_enabled == TRUE) && (hasTimerExpired(SLOW_TIMER_LOCKOUT, TRUE) == TIMER_EXPIRED))
+        {
+            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
+            guiGetBackToCurrentScreen();
+            handleSmartcardRemoved();
         }
     }
 }

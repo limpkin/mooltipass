@@ -183,7 +183,7 @@ def keyboardTest(epout):
 		
 def receiveHidPacket(epin):
 	try : 
-		data = epin.read(epin.wMaxPacketSize, timeout=5000)
+		data = epin.read(epin.wMaxPacketSize, timeout=15000)
 		return data
 	except usb.core.USBError as e:
 		#print e
@@ -354,6 +354,30 @@ def setCurrentKeyboard(epin, epout):
 	choice = input("Make your choice: ")
 	print ""
 	packetToSend.append(64+19+choice)
+	sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)	
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Parameter changed"
+	else:
+		print "Couldn't change parameter"
+
+def setCurrentTimeoutLockEn(epin, epout):
+	packetToSend = array('B')
+	packetToSend.append(2)
+	choice = input("TRUE (1), FALSE (0): ")
+	print ""
+	packetToSend.append(choice)
+	sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)	
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Parameter changed"
+	else:
+		print "Couldn't change parameter"
+
+def setCurrentTimeoutLock(epin, epout):
+	packetToSend = array('B')
+	packetToSend.append(3)
+	choice = input("How many minutes: ")
+	print ""
+	packetToSend.append(choice)
 	sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)	
 	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 		print "Parameter changed"
@@ -720,6 +744,8 @@ if __name__ == '__main__':
 		print "14) Custom packet"
 		print "15) Mooltipass initialization process (ONLY FOR MANUFACTURER)"
 		print "16) Keyboard Test"
+		print "17) Change Mooltipass timeout bool"
+		print "18) Change Mooltipass timeout"
 		choice = input("Make your choice: ")
 		print ""
 		
@@ -755,7 +781,10 @@ if __name__ == '__main__':
 			mooltipassInit(hid_device, intf, epin, epout)
 		elif choice == 16:
 			keyboardTest(epout)
-			sys.exit(0)
+		elif choice == 17:
+			setCurrentTimeoutLockEn(epin, epout)
+		elif choice == 18:
+			setCurrentTimeoutLock(epin, epout)
 	
 	hid_device.reset()
 

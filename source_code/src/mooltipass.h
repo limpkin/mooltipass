@@ -35,5 +35,6 @@
 
 /* Shared variables */
 extern bootloader_f_ptr_type start_bootloader;
+extern uint8_t mp_timeout_enabled;
 
 #endif /* MOOLTIPASS_H_ */

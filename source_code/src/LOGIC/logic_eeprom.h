@@ -41,6 +41,8 @@
 // Mooltipass eeprom parameters define
 #define KEYBOARD_LAYOUT_PARAM               0
 #define USER_INTER_TIMEOUT_PARAM            1
+#define LOCK_TIMEOUT_ENABLE_PARAM           2
+#define LOCK_TIMEOUT_PARAM                  3
 
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);

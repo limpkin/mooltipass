@@ -51,6 +51,10 @@ void firstTimeUserHandlingInit(void)
     setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_LUT);
     // Set 15secs user interaction timeout by default
     setMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM, 15);
+    // Disable timeout by default
+    setMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM, FALSE);
+    // Set a 1 hour timeout
+    setMooltipassParameterInEeprom(LOCK_TIMEOUT_PARAM, 60);
 }
 
 /*! \fn     controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound)

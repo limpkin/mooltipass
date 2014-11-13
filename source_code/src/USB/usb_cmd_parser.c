@@ -87,8 +87,17 @@ void approveImportExportMemoryOperation(uint8_t opUID, uint8_t* pluginAnswer)
     // Ask permission to the user
     if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_APPROVEMEMOP)) == RETURN_OK)
     {
-        currentFlashOpUid = opUID;
-        *pluginAnswer = PLUGIN_BYTE_OK;
+        // Ask the user to enter his pin
+        if (removeCardAndReAuthUser() == RETURN_OK)
+        {
+            currentFlashOpUid = opUID;
+            *pluginAnswer = PLUGIN_BYTE_OK;            
+        }
+        else
+        {
+            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
+            guiGetBackToCurrentScreen();
+        }
     }
 }
 #endif
@@ -100,17 +109,26 @@ void approveImportExportMemoryOperation(uint8_t opUID, uint8_t* pluginAnswer)
 */
 void approveMemoryManagementMode(uint8_t* pluginAnswer)
 {    
+    // By default the answer is no!
+    *pluginAnswer = PLUGIN_BYTE_ERROR;
+    
     // Ask permission to the user
     if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MEMORYMGMTQ)) == RETURN_OK)
     {
-        guiSetCurrentScreen(SCREEN_MEMORY_MGMT);
-        memoryManagementModeApproved = TRUE;
-        *pluginAnswer = PLUGIN_BYTE_OK;
+        // Ask the user to enter his pin
+        if (removeCardAndReAuthUser() == RETURN_OK)
+        {
+            guiSetCurrentScreen(SCREEN_MEMORY_MGMT);
+            memoryManagementModeApproved = TRUE;
+            *pluginAnswer = PLUGIN_BYTE_OK;
+        }
+        else
+        {
+            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
+        }        
     }
-    else
-    {        
-        *pluginAnswer = PLUGIN_BYTE_ERROR;
-    }
+    
+    // Change screen
     guiGetBackToCurrentScreen();
 }
 
@@ -934,7 +952,9 @@ void usbProcessIncoming(uint8_t* incomingData)
             // Check that args are supplied
             if (datalen == 2)
             {
+                // Set correct value in eeprom and refresh parameters that need refreshing
                 setMooltipassParameterInEeprom(msg->body.data[0], msg->body.data[1]);
+                mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
                 plugin_return_value = PLUGIN_BYTE_OK;
             }
             else

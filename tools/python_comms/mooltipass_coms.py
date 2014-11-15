@@ -324,7 +324,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 					success_status = 0
 
 			# COMMENT THE NEXT LINE FOR PRODUCTION!
-			sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, mooltipass_password)
+			#sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, mooltipass_password)
 			
 			if success_status == 1:
 				# Let the user know it is done

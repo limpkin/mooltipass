@@ -660,7 +660,7 @@ RET_TYPE firstDetectFunctionSMC(void)
     /* Activate SPI port */
     #if SPI_SMARTCARD == SPI_NATIVE
         PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
-        DDRB |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
+        DDR_SPI_NATIVE |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
         setSPIModeSMC();
     #else
         #error "SPI not supported"
@@ -714,7 +714,7 @@ void removeFunctionSMC(void)
     /* Deactivate SPI port */
     #if SPI_SMARTCARD == SPI_NATIVE
         SPCR = 0;
-        DDRB &= ~(1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
+        DDR_SPI_NATIVE &= ~(1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
         PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
     #else
         #error "SPI not supported"
@@ -736,7 +736,7 @@ void initPortSMC(void)
 
     /* Setup MISO as input, SS as input with pull-up */
     #if SPI_SMARTCARD == SPI_NATIVE
-        DDRB &= ~((1 << MISO_SPI_NATIVE) | (1 << SS_SPI_NATIVE));
+        DDR_SPI_NATIVE &= ~((1 << MISO_SPI_NATIVE) | (1 << SS_SPI_NATIVE));
         PORT_SPI_NATIVE &= ~(1 << MISO_SPI_NATIVE);
         PORT_SPI_NATIVE |= (1 << SS_SPI_NATIVE);
     #else

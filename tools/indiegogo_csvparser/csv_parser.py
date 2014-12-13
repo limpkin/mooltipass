@@ -1,4 +1,5 @@
 from unidecode import unidecode
+import hashlib
 import smtplib
 import math
 import time
@@ -19,6 +20,8 @@ INDEX_CARD			= 10
 INDEX_CUSTOM_CARD	= 11
 INDEX_COMMMORATIVE	= 12
 
+THEMOOLTIPASS_PASSWORD = "dsfsds"
+SECRET_SALT = "dfsf"
 
 def findEmailIn7cardsList(list, email):
 	i = 0
@@ -60,9 +63,10 @@ if __name__ == '__main__':
 	number_com_card = 0
 	number_abs = 0
 	number_al = 0
+	seed_money = 0
 	
 	# Email defs	
-	perk_email_sending = True
+	perk_email_sending = False
 	
 	# Prints defs
 	raw_printout = False
@@ -81,7 +85,7 @@ if __name__ == '__main__':
 		session = smtplib.SMTP('smtp.gmail.com', 587)
 		session.ehlo()
 		session.starttls()
-		session.login("themooltipass@gmail.com", "x")
+		session.login("themooltipass@gmail.com", THEMOOLTIPASS_PASSWORD)
 	
 	# Csv reader, 7 more cards detection loop
 	reader = unicode_csv_reader(open('mooltipass.txt'))
@@ -170,8 +174,13 @@ if __name__ == '__main__':
 					morecards_list.pop(findEmailIn7cardsList(morecards_list, email))
 					if raw_printout:
 						print "user took the 7 more cards perk"
-					user_cards += 7		
-				orders_list.append([email, backername, backeraddress.strip(), backeraddress2.strip(), backercity, backercitycode, backercounty, backercountry, user_abs, user_al, user_cards, user_custom_card, user_commemorative_card])
+					user_cards += 7	
+				if findEmailIn7cardsList(morecards_list, email) != -1:
+					morecards_list.pop(findEmailIn7cardsList(morecards_list, email))
+					if raw_printout:
+						print "user took another 7 more cards perk"
+					user_cards += 7	
+				orders_list.append([email, backername.strip(), backeraddress.strip(), backeraddress2.strip(), backercity, backercitycode, backercounty, backercountry, user_abs, user_al, user_cards, user_custom_card, user_commemorative_card])
 			else:
 				if raw_printout:
 					print "user already found, adding to old order"
@@ -193,6 +202,9 @@ if __name__ == '__main__':
 			if int(numamount) > 10 and anomaly_printout:
 				print "Atypical amount:", amount, "from", email, "-", chosenperk
 				time.sleep(1)
+			# Seed money
+			if chosenperk != "7 more cards":
+				seed_money += int(numamount)
 		#time.sleep(5)
 	
 	# Traverse our orders list
@@ -234,7 +246,7 @@ if __name__ == '__main__':
 				# address checking
 				if len(order_item[INDEX_ADDR] + order_item[INDEX_ADDR2]) < 3:
 					temp_bool = True
-			elif order_item[INDEX_ADDR] == "-":
+			elif order_item[INDEX_ADDR] == "-" or order_item[INDEX_NAME] == order_item[INDEX_ADDR]:
 				print order_item[INDEX_ADDR2]
 				# address checking
 				if len(order_item[INDEX_ADDR2]) < 3:
@@ -258,13 +270,15 @@ if __name__ == '__main__':
 		# email sending
 		if perk_email_sending:
 			email_recipient = order_item[INDEX_EMAIL_ADDR]
-			email_recipient = "x"
+			email_recipient = "mathieu.stephan@gmail.com"
 			email_subject = "[Mooltipass Campaign] Your Selected Perk - Do You Want To Make Any Change?"
 			body_of_email = "Dear " + order_item[INDEX_NAME] + ",<br><br><br>"
 			body_of_email += "The Mooltipass team would like to <b>thank you</b> for backing its campaign and making the Mooltipass a reality.<br>"
 			body_of_email += "We're sending you this email so you can check that we <b>correctly registered your pledge</b> and give you the opportunity to <b>make an addition to it</b>.<br><br>"
 			body_of_email += "You have selected: <u>" + printout_perk_text + "</u><br><br>"
 			body_of_email += "If this isn't correct or if you want to add anything to your order (another Mooltipass, smartcard, etc...), please <b>reply to this email</b> to let us know.<br>"
+			body_of_email += "If you are <b>planning to use the Mooltipass as an Arduino platform </b> or want to <b>provide some feedback on the campaign and future steps</b>, we would really appreciate if you could take a few minutes of your time to fill our end of campaign survey "
+			body_of_email += "<a href=\"https://docs.google.com/fordqsdqry.1043764275="+order_item[INDEX_NAME]+"&entry.1932639819="+order_item[INDEX_EMAIL_ADDR]+"&entry.1617982862=" + hashlib.sha512(SECRET_SALT+order_item[INDEX_EMAIL_ADDR]).hexdigest() + "\">here</a>.<br>"
 			body_of_email += "Thanks again for your support,<br>"
 			body_of_email += "The Mooltipass development team"
 			headers = "\r\n".join(["from: " + "themooltipass@gmail.com",
@@ -279,8 +293,9 @@ if __name__ == '__main__':
 			time.sleep(2)
 	
 	print "-------------------------------------------------"
-	print "Total number of ABS:", number_abs, "- check: ", debug_number_abs
-	print "Total number of Al:", number_al, "- check: ", debug_number_al
-	print "Total number of custom cards:", number_custom_card, "- check: ", debug_number_custom_card
-	print "Total number of normal cards:", number_normal_cards, "- check: ", debug_number_normal_cards
-	print "Total number of commemorative cards:", number_com_card, "- check: ", debug_number_com_card
+	print "Total number of ABS:", number_abs, "- check:", debug_number_abs
+	print "Total number of Al:", number_al, "- check:", debug_number_al
+	print "Total number of custom cards:", number_custom_card, "- check:", debug_number_custom_card
+	print "Total number of normal cards:", number_normal_cards, "- check:", debug_number_normal_cards
+	print "Total number of commemorative cards:", number_com_card, "- check:", debug_number_com_card
+	print "Seed money:", seed_money

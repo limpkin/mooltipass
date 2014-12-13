@@ -407,6 +407,12 @@ void oledSetRemap(uint8_t mode)
 void oledPutch(char ch)
 {
     uint8_t glyphHeight = oledGlyphHeight();
+    
+    // 2014/12/13: quick and dirty patch for bug #139 to restrict chars between 0x20 & 0x7E included
+    if ((ch > '~') || (ch < ' '))
+    {
+        ch = '?';
+    }
 #ifdef OLED_DEBUG1
     if (isprint(ch)) 
     {

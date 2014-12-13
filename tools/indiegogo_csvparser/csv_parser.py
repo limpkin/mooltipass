@@ -270,7 +270,7 @@ if __name__ == '__main__':
 		# email sending
 		if perk_email_sending:
 			email_recipient = order_item[INDEX_EMAIL_ADDR]
-			email_recipient = "mathieu.stephan@gmail.com"
+			email_recipient = "ddd@gmail.com"
 			email_subject = "[Mooltipass Campaign] Your Selected Perk - Do You Want To Make Any Change?"
 			body_of_email = "Dear " + order_item[INDEX_NAME] + ",<br><br><br>"
 			body_of_email += "The Mooltipass team would like to <b>thank you</b> for backing its campaign and making the Mooltipass a reality.<br>"

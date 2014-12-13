@@ -62,7 +62,7 @@ if __name__ == '__main__':
 	number_al = 0
 	
 	# Email defs	
-	perk_email_sending = False
+	perk_email_sending = True
 	
 	# Prints defs
 	raw_printout = False
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 		session = smtplib.SMTP('smtp.gmail.com', 587)
 		session.ehlo()
 		session.starttls()
-		session.login("themooltipass@gmail.com", "xxxxxx")
+		session.login("themooltipass@gmail.com", "x")
 	
 	# Csv reader, 7 more cards detection loop
 	reader = unicode_csv_reader(open('mooltipass.txt'))
@@ -257,14 +257,16 @@ if __name__ == '__main__':
 			
 		# email sending
 		if perk_email_sending:
-			email_recipient = email
-			email_recipient = "mathieu.stephan@gmail.com"
+			email_recipient = order_item[INDEX_EMAIL_ADDR]
+			email_recipient = "x"
 			email_subject = "[Mooltipass Campaign] Your Selected Perk - Do You Want To Make Any Change?"
-			body_of_email = "Dear " + backername + ",<br><br><br>"
+			body_of_email = "Dear " + order_item[INDEX_NAME] + ",<br><br><br>"
 			body_of_email += "The Mooltipass team would like to <b>thank you</b> for backing its campaign and making the Mooltipass a reality.<br>"
 			body_of_email += "We're sending you this email so you can check that we <b>correctly registered your pledge</b> and give you the opportunity to <b>make an addition to it</b>.<br><br>"
 			body_of_email += "You have selected: <u>" + printout_perk_text + "</u><br><br>"
-			body_of_email += "If this isn't correct or if you want to add anything to your order (other Mooltipass, smartcard, etc...), please <b>reply to this email</b><br>"
+			body_of_email += "If this isn't correct or if you want to add anything to your order (another Mooltipass, smartcard, etc...), please <b>reply to this email</b> to let us know.<br>"
+			body_of_email += "Thanks again for your support,<br>"
+			body_of_email += "The Mooltipass development team"
 			headers = "\r\n".join(["from: " + "themooltipass@gmail.com",
 					   "subject: " + email_subject,
 					   "to: " + email_recipient,
@@ -274,6 +276,7 @@ if __name__ == '__main__':
 			# body_of_email can be plaintext or html!                    
 			content = headers + "\r\n\r\n" + body_of_email
 			session.sendmail("themooltipass@gmail.com", email_recipient, content)
+			time.sleep(2)
 	
 	print "-------------------------------------------------"
 	print "Total number of ABS:", number_abs, "- check: ", debug_number_abs

@@ -31,6 +31,7 @@
 #include "watchdog_driver.h"
 #include "logic_smartcard.h"
 #include "usb_cmd_parser.h"
+#include "timer_manager.h"
 #include "logic_eeprom.h"
 #include "hid_defines.h"
 #include <avr/eeprom.h>
@@ -1169,8 +1170,16 @@ void usbProcessIncoming(uint8_t* incomingData)
             #else
                 if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
                 {
+                    // Read password in eeprom
                     eeprom_read_block((void*)temp_buffer, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
-                    if (memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE) == 0)
+                    // Preventing side channel attacks: only jump to the bootloader (or not) after a given amount of time
+                    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
+                    // Do the comparison
+                    volatile uint8_t password_comparison_result = memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE);
+                    // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
+                    while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);                    
+                    // Do the if
+                    if (password_comparison_result == 0)
                     {
                         // Write "jump to bootloader" key in eeprom
                         eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);

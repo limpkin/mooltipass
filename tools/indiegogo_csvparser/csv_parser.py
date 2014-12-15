@@ -6,7 +6,9 @@ import time
 import csv
 import re
 
-# todo: multiple 7 cards!
+# todo: SUPPRIMER dans liste IGG
+# - 8708609 (refund of 140)
+# - 9083031 (refund of 25)
 
 #indexes for orders list
 INDEX_EMAIL_ADDR	= 0
@@ -32,8 +34,8 @@ INDEX_PAYPAL_ORDERID	= 0
 INDEX_PAYPAL_GROSS		= 1
 INDEX_PAYPAL_NET		= 2
 
-THEMOOLTIPASS_PASSWORD = "qds"
-SECRET_SALT = "qdqsdqsdq"
+THEMOOLTIPASS_PASSWORD = "dsqdqsd"
+SECRET_SALT = "dqdqsdqs"
 
 def findEmailIn7cardsList(list, email):
 	i = 0
@@ -237,7 +239,7 @@ if __name__ == '__main__':
 					for i in range(5):
 						temp_index_id =  findEmailIn7cardsList(morecards_list, email)
 						if temp_index_id != -1:
-							user_transaction_ids += " " + morecards_list[temp_index_id][1]
+							user_transaction_ids += " & " + morecards_list[temp_index_id][1]
 							if raw_printout:
 								print "user took the 7 more cards perk"
 								#time.sleep(1)
@@ -276,7 +278,7 @@ if __name__ == '__main__':
 					orders_list[user_index_in_order_list][INDEX_CONT_AMOUNT] += float(numamount)
 					orders_list[user_index_in_order_list][INDEX_GROSS] += user_gross
 					orders_list[user_index_in_order_list][INDEX_NET] += user_net
-					orders_list[user_index_in_order_list][INDEX_TRANS_IDS] += " " + user_transaction_ids
+					orders_list[user_index_in_order_list][INDEX_TRANS_IDS] += " & " + user_transaction_ids
 				
 				# add the numbers
 				number_com_card += user_commemorative_card
@@ -322,8 +324,11 @@ if __name__ == '__main__':
 		print "-------------------------------------------------"
 		raw_input("Press enter to acknowledge")
 	
-	# Traverse our orders list
-	for order_item in orders_list:	
+	# Traverse our orders list, export csv file
+	order_id = 0
+	csvexport = csv.writer(open("order_export.txt", "wb"), quoting=csv.QUOTE_NONNUMERIC)
+	csvexport.writerow(["order id", "perk text", "email", "name", "address 1", "address 2", "city", "zip code", "county", "country", "#ABS", "#Al", "#cards", "#custom cards", "#commemorative", "contribution", "net", "trans IDs"])
+	for order_item in orders_list:		
 		# check totals
 		debug_number_custom_card += order_item[INDEX_CUSTOM_CARD]
 		debug_number_com_card += order_item[INDEX_COMMMORATIVE]
@@ -344,7 +349,11 @@ if __name__ == '__main__':
 		if order_item[INDEX_COMMMORATIVE] > 0:
 			printout_perk_text += repr(order_item[INDEX_COMMMORATIVE]) + " commemorative cards, "
 		# remove last 2 chars
-		printout_perk_text = printout_perk_text[:-2]		
+		printout_perk_text = printout_perk_text[:-2]	
+		
+		# export
+		csvexport.writerow([repr(order_id), printout_perk_text, order_item[INDEX_EMAIL_ADDR], order_item[INDEX_NAME], order_item[INDEX_ADDR], order_item[INDEX_ADDR2], order_item[INDEX_CITY], order_item[INDEX_ZIP], order_item[INDEX_COUNTY], order_item[INDEX_COUNTRY], repr(order_item[INDEX_ABS]), repr(order_item[INDEX_AL]), repr(order_item[INDEX_CARD]), repr(order_item[INDEX_CUSTOM_CARD]), repr(order_item[INDEX_COMMMORATIVE]), repr(order_item[INDEX_CONT_AMOUNT]), repr(round(order_item[INDEX_NET], 2)), order_item[INDEX_TRANS_IDS]])
+		order_id += 1	
 		
 		# chosen perk
 		if perk_printout:
@@ -378,8 +387,10 @@ if __name__ == '__main__':
 						temp_bool = True
 			print order_item[INDEX_CITY], order_item[INDEX_COUNTY], order_item[INDEX_ZIP]
 			print order_item[INDEX_COUNTRY]
-			print order_item[INDEX_TRANS_IDS]
-			time.sleep(0.1)
+			#print order_item[INDEX_TRANS_IDS]
+			#print order_item[INDEX_GROSS]
+			#print order_item[INDEX_NET]
+			#time.sleep(0.1)
 			print ""
 			if temp_bool and False:
 				time.sleep(2)
@@ -387,7 +398,7 @@ if __name__ == '__main__':
 		# email sending
 		if perk_email_sending:
 			email_recipient = order_item[INDEX_EMAIL_ADDR]
-			email_recipient = "qdqsdqsdqs@gmail.com"
+			email_recipient = "mdqsdqdqn@gmail.com"
 			email_subject = "[Mooltipass Campaign] Your Selected Perk - Do You Want To Make Any Change?"
 			body_of_email = "Dear " + order_item[INDEX_NAME] + ",<br><br><br>"
 			body_of_email += "The Mooltipass team would like to <b>thank you</b> for backing its campaign and making the Mooltipass a reality.<br>"
@@ -397,7 +408,7 @@ if __name__ == '__main__':
 			body_of_email += "Your Indiegogo transaction ID(s): " + order_item[INDEX_TRANS_IDS] + "<br><br>"
 			body_of_email += "If this isn't correct or if you want to add anything to your order (another Mooltipass, smartcard, etc...), please <b>reply to this email</b> to let us know.<br>"
 			body_of_email += "If you are <b>planning to use the Mooltipass as an Arduino platform </b> or want to <b>provide some feedback on the campaign and future steps</b>, we would really appreciate if you could take a few minutes of your time to fill our end of campaign survey "
-			body_of_email += "<a href=\"qsdqsdqsdqsd="+order_item[INDEX_NAME]+"&entry.1932639819="+order_item[INDEX_EMAIL_ADDR]+"&entry.1617982862=" + hashlib.sha512(SECRET_SALT+order_item[INDEX_EMAIL_ADDR]).hexdigest() + "\">here</a>.<br>"
+			body_of_email += "<a href=\"https:/dqdsdsqdqs="+order_item[INDEX_NAME]+"&entry.1932639819="+order_item[INDEX_EMAIL_ADDR]+"&entry.1617982862=" + hashlib.sha512(SECRET_SALT+order_item[INDEX_EMAIL_ADDR]).hexdigest() + "\">here</a>.<br>"
 			body_of_email += "Thanks again for your support,<br>"
 			body_of_email += "The Mooltipass development team"
 			headers = "\r\n".join(["from: " + "themooltipass@gmail.com",

@@ -1,0 +1,7 @@
+Mooltipass functional testing
+
+Electric functional test and firmware programming:
+- after bottom PCB assembly, put the PCB on test bed
+- use the pins to reprogram and set the atmega32u4 fuses
+- once the firmware is programmed and fuses set, the platform boots and detects it is on the test mode
+- it will perform its electric functional test (outputs connected to inputs), check the fuses, switch on a green LED if successful

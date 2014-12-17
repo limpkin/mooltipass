@@ -24,7 +24,7 @@
 *        \brief        Mooltipass Chrome HID App plugin
 *        Created: 30/5/2014
 *        Author: Darran Hunt
-* 
+*
 *  	Modified: 12/09/2014 by Bjorn Wielens
 * 	- Implemented card presence detection.
 */
@@ -75,7 +75,7 @@ var CMD_IMPORT_EEPROM       = 0x38;    // send packet, acked with 0x38,0x01
 var CMD_IMPORT_EEPROM_END   = 0x39;
 var CMD_ERASE_EEPROM        = 0x40;
 var CMD_ERASE_FLASH         = 0x41;
-var CMD_DRAW_BITMAP         = 0x43;	
+var CMD_DRAW_BITMAP         = 0x43;
 var CMD_SET_FONT            = 0x44;
 var CMD_EXPORT_FLASH_START  = 0x45;
 var CMD_EXPORT_EEPROM_START = 0x46;
@@ -121,26 +121,26 @@ var flashInfo = {
 var flashChipId = null;
 
 
-var clientId = null;     // chrome extension address
-var connection = null;   // connection to the mooltipass
-var connected = false;   // current connection state
-var version = 'unknown'; // connected mooltipass version
-var authReq = null;      // current authentication request
-var authReqQueue = [];
-var context = null;
-var contextGood = false;
+var clientId      = null;     // chrome extension address
+var connection    = null;   // connection to the mooltipass
+var connected     = false;   // current connection state
+var version       = 'unknown'; // connected mooltipass version
+var authReq       = null;      // current authentication request
+var authReqQueue  = [];
+var context       = null;
+var contextGood   = false;
 var createContext = false;
-var loginValue = null;
+var loginValue    = null;
 
 var connectMsg = null;  // saved message to send after connecting
 
 var FLASH_PAGE_COUNT = 512;
-var FLASH_PAGE_SIZE = 264;
-var EEPROM_SIZE = 1024;
+var FLASH_PAGE_SIZE  = 264;
+var EEPROM_SIZE      = 1024;
 var FLASH_EXPORT_ALL = false;
 
 var exportData = null;        // arraybuffer for receiving exported data
-var exportDataUint8 = null;   // uint8 view of exportData 
+var exportDataUint8 = null;   // uint8 view of exportData
 var exportDataEntry = null;   // File entry for flash export
 var exportDataOffset = 0;     // current data offset in arraybuffer
 
@@ -177,17 +177,17 @@ var setFieldMap = {
  * @returns the uint8 array representing the string with a null terminator
  * @note does not support unicode yet
  */
-function strToArray(str) 
+function strToArray(str)
 {
     var buf = new Uint8Array(str.length+1);
-    for (var ind=0; ind<str.length; ind++) 
+    for (var ind=0; ind<str.length; ind++)
     {
         buf[ind] = str.charCodeAt(ind);
     }
     buf[ind] = 0;
     return buf;
 }
- 
+
 
 /**
  * convert a uint8 array to a string
@@ -198,9 +198,9 @@ function strToArray(str)
 function arrayToStr(buf)
 {
     res = '';
-    for (var ind=0; ind<buf.length; ind++) 
+    for (var ind=0; ind<buf.length; ind++)
     {
-        if (buf[ind] == 0) 
+        if (buf[ind] == 0)
         {
             return res;
         } else {
@@ -226,7 +226,7 @@ function reset()
     connectMsg = null;
 
     exportData = null;        // arraybuffer for receiving exported data
-    exportDataUint8 = null;   // uint8 view of exportData 
+    exportDataUint8 = null;   // uint8 view of exportData
     exportDataEntry = null;   // File entry for flash export
     exportDataOffset = 0;     // current data offset in arraybuffer
 }
@@ -349,7 +349,7 @@ function setNextField()
 {
     if (authReq && authReq.type == 'update')
     {
-        if (authReq.keys.length > 0) 
+        if (authReq.keys.length > 0)
         {
             var key = authReq.keys.pop();
             authReq.pending = key;
@@ -386,11 +386,11 @@ function setContext(create)
     sendString(CMD_CONTEXT, authReq.context);
 }
 
-function saveToEntry(entry, data) 
+function saveToEntry(entry, data)
 {
-    entry.createWriter(function(fileWriter) 
+    entry.createWriter(function(fileWriter)
     {
-        fileWriter.onwriteend = function(e) 
+        fileWriter.onwriteend = function(e)
         {
             if (this.error)
             {
@@ -583,8 +583,8 @@ function initWindow()
 
     clearButton.addEventListener('click', function() { log('#messageLog'); });
     clearDebugButton.addEventListener('click', function() {  log('#debugLog'); });
-    
-    exportFlashButton.addEventListener('click', function() 
+
+    exportFlashButton.addEventListener('click', function()
     {
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpflash.bin'}, function(entry) {
             if (entry)
@@ -599,7 +599,7 @@ function initWindow()
         });
     });
 
-    exportEepromButton.addEventListener('click', function() 
+    exportEepromButton.addEventListener('click', function()
     {
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'mpeeprom.bin'}, function(entry) {
             if (entry)
@@ -614,7 +614,7 @@ function initWindow()
         });
     });
 
-    exportMediaButton.addEventListener('click', function() 
+    exportMediaButton.addEventListener('click', function()
     {
         chrome.fileSystem.chooseEntry({type:'saveFile', suggestedName:'media.bin'}, function(entry) {
             if (entry)
@@ -630,7 +630,7 @@ function initWindow()
         });
     });
 
-    importFlashButton.addEventListener('click', function() 
+    importFlashButton.addEventListener('click', function()
     {
         chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
             entry.file(function(file) {
@@ -654,7 +654,7 @@ function initWindow()
         });
     });
 
-    importEepromButton.addEventListener('click', function() 
+    importEepromButton.addEventListener('click', function()
     {
         chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
             entry.file(function(file) {
@@ -679,7 +679,7 @@ function initWindow()
         });
     });
 
-    importMediaButton.addEventListener('click', function() 
+    importMediaButton.addEventListener('click', function()
     {
         chrome.fileSystem.chooseEntry({type: 'openFile'}, function(entry) {
             entry.file(function(file) {
@@ -709,7 +709,7 @@ function initWindow()
     sendCMDButton.addEventListener('click', function()
     {
         var command = parseInt($('#sendCMDvalue').val(), 16);
-	if (command >= 0 && command <= 255){ 
+	if (command >= 0 && command <= 255){
 	    log('#messageLog', 'Sending '+ $('#sendCMDvalue').val() + '\n');
             sendRequest(command);
         } else{
@@ -717,26 +717,26 @@ function initWindow()
         }
     });
 
-    jumpToBootloader.addEventListener('click', function() 
+    jumpToBootloader.addEventListener('click', function()
     {
         log('#messageLog', 'Sending JUMP_TO_BOOTLOADER\n');
         sendRequest(CMD_JUMP_TO_BOOTLOADER);
     });
 
-    cloneSmartcard.addEventListener('click', function() 
+    cloneSmartcard.addEventListener('click', function()
     {
         log('#messageLog', 'Cloning smartcard\n');
         sendRequest(CMD_CLONE_SMARTCARD);
     });
 
-    drawBitmapButton.addEventListener('click', function() 
+    drawBitmapButton.addEventListener('click', function()
     {
         args = new Uint8Array([$('#bitmapId').val(), $('#bitmap_x').val(), $('#bitmap_y').val(), $("#bitmap_clear").is(':checked') ? 1 : 0]);
         log('#messageLog', 'draw bitmap '+args[0]+' x='+args[1]+', y='+args[2]+', clear='+args[3]+'\n');
         sendRequest(CMD_DRAW_BITMAP, args);
     });
 
-    setFontButton.addEventListener('click', function() 
+    setFontButton.addEventListener('click', function()
     {
         var args = strToArray(String.fromCharCode($('#fontId').val()) + $('#fontTestString').val());
         log('#messageLog', 'set font '+args[0]+' "'+$('#fontTestString').val()+'"\n');
@@ -836,7 +836,7 @@ function initWindow()
     $("#fill").button();
     $("#tabs").tabs();
 
-    chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) 
+    chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse)
     {
         request.senderId = sender.id;
         console.log('received request '+request.type);
@@ -924,7 +924,7 @@ function allocateMediaPage(size)
  * to report the received message.
  * @param data the received data
  */
-function onDataReceived(reportId, data) 
+function onDataReceived(reportId, data)
 {
     if (typeof reportId === "undefined" || typeof data === "undefined")
     {
@@ -949,12 +949,12 @@ function onDataReceived(reportId, data)
         console.log('Received CMD ' + cmd + ', len ' + len + ' ' + JSON.stringify(msg));
     }
 
-    switch (cmd) 
+    switch (cmd)
     {
         case CMD_DEBUG:
         {
             var msg = "";
-            for (var i = 0; i < len; i++) 
+            for (var i = 0; i < len; i++)
             {
                     msg += String.fromCharCode(bytes[i+2]);
             }
@@ -994,7 +994,7 @@ function onDataReceived(reportId, data)
         case CMD_CONTEXT:
             contextGood = (bytes[2] == 1);
             noCard = (bytes[2] == PLUGIN_BYTE_NOCARD);
-	    
+
             if (contextGood) {
                 log('#messageLog', 'Active: "'+authReq.context+'" for '+authReq.type+'\n');
                 console.log('Successfully set context "'+authReq.context+'" for '+authReq.type);
@@ -1071,18 +1071,18 @@ function onDataReceived(reportId, data)
         case CMD_SET_PASSWORD:
         {
             var type = (authReq && authReq.pending) ? authReq.pending : '(unknown type)';
-            if (bytes[2] == 1) 
+            if (bytes[2] == 1)
             {
                 // success
                 log('#messageLog', 'set '+type+' on mooltipass\n');
             }
-            else 
+            else
             {
                 // failed
                 log('#messageLog', 'set failed for '+type+'\n');
             }
             setNextField();
-            
+
             break;
         }
 
@@ -1121,8 +1121,8 @@ function onDataReceived(reportId, data)
                 var size;
                 if (cmd == CMD_EXPORT_FLASH)
                 {
-                    console.log('flashChipId '+flashChipId + 
-                                ' pageSize ' + flashInfo[flashChipId].pageSize + 
+                    console.log('flashChipId '+flashChipId +
+                                ' pageSize ' + flashInfo[flashChipId].pageSize +
                                 ' pages '+ flashInfo[flashChipId].pageCount +
                                 ' media start page '+ FLASH_MEDIA_START_PAGE);
 
@@ -1161,7 +1161,7 @@ function onDataReceived(reportId, data)
                 }
 
                 // done, write the file to disk
-                saveToEntry(exportDataEntry, exportDataUint8) 
+                saveToEntry(exportDataEntry, exportDataUint8)
                 exportData = null;
                 exportDataUint8 = null;
                 exportDataOffset = 0;
@@ -1179,7 +1179,7 @@ function onDataReceived(reportId, data)
                     console.log('WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes');
                     log('#exportLog', 'WARNING: only received '+exportDataOffset+' of '+exportDataUint8.length+' bytes\n');
                 }
-                saveToEntry(exportDataEntry, exportDataUint8) 
+                saveToEntry(exportDataEntry, exportDataUint8)
             }
             else
             {
@@ -1200,8 +1200,8 @@ function onDataReceived(reportId, data)
             log('#developerLog', (bytes[2] == 1) ? 'succeeded\n' : 'failed\n');
             break;
 
-        case CMD_IMPORT_FLASH_BEGIN: 
-        case CMD_IMPORT_FLASH: 
+        case CMD_IMPORT_FLASH_BEGIN:
+        case CMD_IMPORT_FLASH:
         {
             var ok = bytes[2];
             if (ok == 0) {
@@ -1211,8 +1211,8 @@ function onDataReceived(reportId, data)
             }
             break;
         }
-        case CMD_IMPORT_MEDIA_START: 
-        case CMD_IMPORT_MEDIA: 
+        case CMD_IMPORT_MEDIA_START:
+        case CMD_IMPORT_MEDIA:
         {
             var ok = bytes[2];
             if (ok == 0) {
@@ -1222,7 +1222,7 @@ function onDataReceived(reportId, data)
             }
             break;
         }
-        case CMD_IMPORT_MEDIA_END: 
+        case CMD_IMPORT_MEDIA_END:
             log('#importLog', 'import completed\n');
             importData = null;
             break;
@@ -1233,8 +1233,8 @@ function onDataReceived(reportId, data)
             log('#importLog', 'import finished\n');
             break;
 
-        case CMD_IMPORT_EEPROM_BEGIN: 
-        case CMD_IMPORT_EEPROM: 
+        case CMD_IMPORT_EEPROM_BEGIN:
+        case CMD_IMPORT_EEPROM:
         {
             var ok = bytes[2];
             if (ok == 0) {
@@ -1269,9 +1269,9 @@ function sendMsg(msg)
             console.log('sending '+JSON.stringify(new Uint8Array(msg)));
         }
     }
-    chrome.hid.send(connection, 0, msg, function() 
+    chrome.hid.send(connection, 0, msg, function()
     {
-        if (!chrome.runtime.lastError) 
+        if (!chrome.runtime.lastError)
         {
             chrome.hid.receive(connection, onDataReceived);
         }
@@ -1288,7 +1288,7 @@ function sendMsg(msg)
                 }
                 reset();
             }
-        }					
+        }
     });
 }
 
@@ -1309,7 +1309,7 @@ function sendPing()
  * Stale entries appear to be left in chrome if the mooltipass is removed
  * and plugged in again, or the firmware is updated.
  */
-function onDeviceFound(devices) 
+function onDeviceFound(devices)
 {
     if (devices.length <= 0)
     {
@@ -1324,9 +1324,9 @@ function onDeviceFound(devices)
 
     console.log('Connecting to device '+devId);
     log('#messageLog', 'Connecting to device...\n');
-    chrome.hid.connect(devId, function(connectInfo) 
+    chrome.hid.connect(devId, function(connectInfo)
     {
-        if (!chrome.runtime.lastError) 
+        if (!chrome.runtime.lastError)
 		{
             connection = connectInfo.connectionId;
 
@@ -1339,11 +1339,11 @@ function onDeviceFound(devices)
                 sendPing();
             }
         }
-        else 
+        else
         {
           console.log('Failed to connect to device: '+chrome.runtime.lastError.message);
           reset();
-        } 
+        }
     });
 }
 

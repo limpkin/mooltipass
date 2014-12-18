@@ -61,10 +61,10 @@ chrome.extension.onMessage.addListener(function(req, sender, callback) {
 // ctrl + shift + u = fill username + password
 window.addEventListener("keydown", function(e) {
 	if (e.ctrlKey && e.shiftKey) {
-		if (e.keyCode == 80) { // P
+		if (e.keyCode == 112) { // P
 			e.preventDefault();
 			cip.fillInFromActiveElementPassOnly(false);
-		} else if (e.keyCode == 85) { // U
+		} else if (e.keyCode == 117) { // U
 			e.preventDefault();
 			cip.fillInFromActiveElement(false);
 		}
@@ -792,7 +792,7 @@ cipDefine.prepareStep3 = function() {
 
 cipFields = {}
 
-cipFields.inputQueryPattern = "input[type='text'], input[type='email'], input[type='password'], input:not([type])";
+cipFields.inputQueryPattern = "input[type='text'], input[type='email'], input[type='password'], input[type='tel'], input:not([type])";
 // unique number as new IDs for input fields
 cipFields.uniqueNumber = 342845638;
 // objects with combination of username + password fields
@@ -818,18 +818,9 @@ cipFields.setUniqueId = function(field) {
 }
 
 cipFields.prepareId = function(id) {
-	id = id.replace(":", "\\:")
-		.replace("#", "\\#")
-		.replace(".", "\\.")
-		.replace(",", "\\,")
-		.replace("[", "\\[")
-		.replace("]", "\\]")
-		.replace("(", "\\(")
-		.replace(")", "\\)")
-		.replace("'", "\\'")
-		.replace(" ", "\\ ")
-		.replace("\"", "\\\"");
-	return id;
+	return id.replace(/[:#.,\[\]\(\)' "]/g, function(m) {
+												return "\\"+m
+											});
 }
 
 cipFields.getAllFields = function() {

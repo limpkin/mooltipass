@@ -34,8 +34,8 @@ INDEX_PAYPAL_ORDERID	= 0
 INDEX_PAYPAL_GROSS		= 1
 INDEX_PAYPAL_NET		= 2
 
-THEMOOLTIPASS_PASSWORD = "dsqdqsd"
-SECRET_SALT = "dqdqsdqs"
+THEMOOLTIPASS_PASSWORD = "xxxx"
+SECRET_SALT = "xxxxx"
 
 def findEmailIn7cardsList(list, email):
 	i = 0
@@ -91,18 +91,19 @@ if __name__ == '__main__':
 	campaign_money = 0
 	received_money = 0
 	unfindable_money = 0
+	paypal_total_net = 0
 	raw_indiegogo_raised = 0
 	
 	# Email defs	
-	perk_email_sending = False
+	perk_email_sending = True
 	
 	# Prints defs
 	raw_printout = False
 	perk_printout = True
 	addr_printout = True
-	anomaly_printout = False
+	anomaly_printout = True
 	paypal_raw_printout = False
-	crosschecking_prinout = True
+	crosschecking_prinout = False
 	
 	# Paypal crosschecking
 	paypal_crosschecking = True
@@ -128,6 +129,7 @@ if __name__ == '__main__':
 	for paypal_date, paypal_time, paypal_timez, paypal_name, paypal_type, paypal_status, paypal_currency, paypal_gross, paypal_fee, paypal_net, paypal_email, paypal_account, paypal_transactionID, paypal_counterpart, paypal_addr, paypal_title, paypal_itemid, paypal_shipping, paypal_insur, paypal_saletax, paypal_option1n, paypal_option1v, paypal_option2n, paypal_option2v, paypal_auctionsite, paypal_buyerid, paypal_itemurl, paypal_closingdate, paypal_escrowid, paypal_invoiceid, paypal_reference, paypal_invoicenumber, paypal_customnum, paypal_receiptID, paypal_balance, paypal_address_line1, paypal_address_line2, paypal_city, paypal_state, paypal_zip, paypal_country, paypal_phone, paypal_blank in reader:
 		if paypal_name == "Indiegogo.com" and paypal_type == "Payment Received" and paypal_status == "Completed":
 			# Completed transaction from paypal
+			paypal_total_net += float(paypal_net)
 			if paypal_raw_printout:
 				print "Completed transaction number #" + paypal_invoicenumber + " gross: " + paypal_gross + " net: " + paypal_net
 			paypal_list.append([paypal_invoicenumber, paypal_gross, paypal_net])
@@ -223,7 +225,9 @@ if __name__ == '__main__':
 				unfindable_money += user_numamount
 				print "-------------------------------------------------"
 				print "Transaction missing!"
-				print backername, "email:", email, "transaction id:", giftID, "("+numamount+")"
+				print backername, "email:", email
+				print "Transaction id:", giftID, "("+numamount+")" 
+				print "Date:", backingdate
 				raw_input("Press enter to acknowledge")
 			else:
 				# we found the transaction, add it to our orders' list
@@ -291,7 +295,7 @@ if __name__ == '__main__':
 			
 		else:
 			# Thank you, no chosen perk...
-			if int(numamount) > 10 and anomaly_printout:
+			if int(numamount) > 79 and anomaly_printout:
 				print "-------------------------------------------------"
 				print "Atypical amount:", amount, "from", email, "-", chosenperk
 				raw_input("Press enter to acknowledge")
@@ -324,8 +328,9 @@ if __name__ == '__main__':
 		print "-------------------------------------------------"
 		raw_input("Press enter to acknowledge")
 	
-	# Traverse our orders list, export csv file
+	# Traverse our orders list, export csv file and write log file
 	order_id = 0
+	log_f = open('log.txt', 'w')
 	csvexport = csv.writer(open("order_export.txt", "wb"), quoting=csv.QUOTE_NONNUMERIC)
 	csvexport.writerow(["order id", "perk text", "email", "name", "address 1", "address 2", "city", "zip code", "county", "country", "#ABS", "#Al", "#cards", "#custom cards", "#commemorative", "contribution", "net", "trans IDs"])
 	for order_item in orders_list:		
@@ -393,12 +398,13 @@ if __name__ == '__main__':
 			#time.sleep(0.1)
 			print ""
 			if temp_bool and False:
-				time.sleep(2)
+				print "Atypical address"
+				raw_input("Press enter to acknowledge")
 			
 		# email sending
 		if perk_email_sending:
 			email_recipient = order_item[INDEX_EMAIL_ADDR]
-			email_recipient = "mdqsdqdqn@gmail.com"
+			email_recipient = "ddd"
 			email_subject = "[Mooltipass Campaign] Your Selected Perk - Do You Want To Make Any Change?"
 			body_of_email = "Dear " + order_item[INDEX_NAME] + ",<br><br><br>"
 			body_of_email += "The Mooltipass team would like to <b>thank you</b> for backing its campaign and making the Mooltipass a reality.<br>"
@@ -408,9 +414,11 @@ if __name__ == '__main__':
 			body_of_email += "Your Indiegogo transaction ID(s): " + order_item[INDEX_TRANS_IDS] + "<br><br>"
 			body_of_email += "If this isn't correct or if you want to add anything to your order (another Mooltipass, smartcard, etc...), please <b>reply to this email</b> to let us know.<br>"
 			body_of_email += "If you are <b>planning to use the Mooltipass as an Arduino platform </b> or want to <b>provide some feedback on the campaign and future steps</b>, we would really appreciate if you could take a few minutes of your time to fill our end of campaign survey "
-			body_of_email += "<a href=\"https:/dqdsdsqdqs="+order_item[INDEX_NAME]+"&entry.1932639819="+order_item[INDEX_EMAIL_ADDR]+"&entry.1617982862=" + hashlib.sha512(SECRET_SALT+order_item[INDEX_EMAIL_ADDR]).hexdigest() + "\">here</a>.<br>"
+			body_of_email += "<a href=\"https://docs.google.com/forms/d/dqsdqsdq/viewform?entry.1043764275="+order_item[INDEX_NAME]+"&entry.1932639819="+order_item[INDEX_EMAIL_ADDR]+"&entry.1617982862=" + hashlib.sha512(SECRET_SALT+order_item[INDEX_EMAIL_ADDR]).hexdigest() + "\">here</a>.<br>"
 			body_of_email += "Thanks again for your support,<br>"
-			body_of_email += "The Mooltipass development team"
+			body_of_email += "The Mooltipass development team<br><br>"
+			body_of_email += "PS: When the devices are ready to be shipped, we will send you another email asking if you'd like to make any change as well.<br>"
+			body_of_email += "PPS: This email was sent using <a href=\"https://github.com/limpkin/mooltipass/blob/master/tools/indiegogo_csvparser/csv_parser.py\">this script</a>"
 			headers = "\r\n".join(["from: " + "themooltipass@gmail.com",
 					   "subject: " + email_subject,
 					   "to: " + email_recipient,
@@ -419,10 +427,15 @@ if __name__ == '__main__':
 
 			# body_of_email can be plaintext or html!                    
 			content = headers + "\r\n\r\n" + body_of_email
-			session.sendmail("themooltipass@gmail.com", email_recipient, content)
-			print "Email sent to", email_recipient
-			time.sleep(4)
+			try:
+				session.sendmail("themooltipass@gmail.com", email_recipient, content)
+				print "Email sent to", email_recipient
+			except Exception:
+				print "Error: unable to send email to", email_recipient
+				log_f.write(email_recipient+"\n")
+			time.sleep(3)
 	
+	log_f.close()
 	print "-------------------------------------------------"
 	print "Total number of commemorative cards:", number_com_card, "- check:", debug_number_com_card
 	print "Total number of normal cards:", number_normal_cards, "- check:", debug_number_normal_cards
@@ -434,6 +447,7 @@ if __name__ == '__main__':
 	print "Total money raised:", int(campaign_money), "dollars"
 	print "Unfindable amount:", unfindable_money, "dollars"
 	print "Total money received:", int(received_money), "dollars"
+	print "Raw total from paypal:", int(paypal_total_net), "dollars"
 	print "Fees:",repr(round((((campaign_money - received_money) / campaign_money)*100), 2))+"%"
 	print "Seed money:", seed_money, "dollars"
 	print "Seed money (net):", seed_money_net, "dollars"

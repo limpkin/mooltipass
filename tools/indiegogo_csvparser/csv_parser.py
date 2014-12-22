@@ -6,10 +6,6 @@ import time
 import csv
 import re
 
-# todo: SUPPRIMER dans liste IGG
-# - 8708609 (refund of 140)
-# - 9083031 (refund of 25)
-
 #indexes for orders list
 INDEX_EMAIL_ADDR	= 0
 INDEX_NAME			= 1
@@ -34,8 +30,9 @@ INDEX_PAYPAL_ORDERID	= 0
 INDEX_PAYPAL_GROSS		= 1
 INDEX_PAYPAL_NET		= 2
 
-THEMOOLTIPASS_PASSWORD = "xxxx"
-SECRET_SALT = "xxxxx"
+MAILGUN_LOGIN = "xxx"
+MAILGUN_PASSWORD = "xxxx"
+SECRET_SALT = "xxx"
 
 def findEmailIn7cardsList(list, email):
 	i = 0
@@ -96,12 +93,14 @@ if __name__ == '__main__':
 	
 	# Email defs	
 	perk_email_sending = True
+	bypassfirstemailcheck = True
+	first_email = ""
 	
 	# Prints defs
 	raw_printout = False
 	perk_printout = True
 	addr_printout = True
-	anomaly_printout = True
+	anomaly_printout = False
 	paypal_raw_printout = False
 	crosschecking_prinout = False
 	
@@ -119,10 +118,10 @@ if __name__ == '__main__':
 	
 	# login mooltipass gmail account
 	if perk_email_sending:
-		session = smtplib.SMTP('smtp.gmail.com', 587)
+		session = smtplib.SMTP('smtp.mailgun.org', 587)
 		session.ehlo()
 		session.starttls()
-		session.login("themooltipass@gmail.com", THEMOOLTIPASS_PASSWORD)
+		session.login(MAILGUN_LOGIN, MAILGUN_PASSWORD)
 		
 	# Csv reader, paypal export, store transaction ids together with gross and net
 	reader = unicode_csv_reader(open('paypal.txt'))
@@ -331,6 +330,7 @@ if __name__ == '__main__':
 	# Traverse our orders list, export csv file and write log file
 	order_id = 0
 	log_f = open('log.txt', 'w')
+	first_email_found = False
 	csvexport = csv.writer(open("order_export.txt", "wb"), quoting=csv.QUOTE_NONNUMERIC)
 	csvexport.writerow(["order id", "perk text", "email", "name", "address 1", "address 2", "city", "zip code", "county", "country", "#ABS", "#Al", "#cards", "#custom cards", "#commemorative", "contribution", "net", "trans IDs"])
 	for order_item in orders_list:		
@@ -357,8 +357,7 @@ if __name__ == '__main__':
 		printout_perk_text = printout_perk_text[:-2]	
 		
 		# export
-		csvexport.writerow([repr(order_id), printout_perk_text, order_item[INDEX_EMAIL_ADDR], order_item[INDEX_NAME], order_item[INDEX_ADDR], order_item[INDEX_ADDR2], order_item[INDEX_CITY], order_item[INDEX_ZIP], order_item[INDEX_COUNTY], order_item[INDEX_COUNTRY], repr(order_item[INDEX_ABS]), repr(order_item[INDEX_AL]), repr(order_item[INDEX_CARD]), repr(order_item[INDEX_CUSTOM_CARD]), repr(order_item[INDEX_COMMMORATIVE]), repr(order_item[INDEX_CONT_AMOUNT]), repr(round(order_item[INDEX_NET], 2)), order_item[INDEX_TRANS_IDS]])
-		order_id += 1	
+		csvexport.writerow([repr(order_id), printout_perk_text, order_item[INDEX_EMAIL_ADDR], order_item[INDEX_NAME], order_item[INDEX_ADDR], order_item[INDEX_ADDR2], order_item[INDEX_CITY], order_item[INDEX_ZIP], order_item[INDEX_COUNTY], order_item[INDEX_COUNTRY], repr(order_item[INDEX_ABS]), repr(order_item[INDEX_AL]), repr(order_item[INDEX_CARD]), repr(order_item[INDEX_CUSTOM_CARD]), repr(order_item[INDEX_COMMMORATIVE]), repr(order_item[INDEX_CONT_AMOUNT]), repr(round(order_item[INDEX_NET], 2)), order_item[INDEX_TRANS_IDS]])	
 		
 		# chosen perk
 		if perk_printout:
@@ -402,10 +401,12 @@ if __name__ == '__main__':
 				raw_input("Press enter to acknowledge")
 			
 		# email sending
-		if perk_email_sending:
+		if order_item[INDEX_EMAIL_ADDR] == first_email or bypassfirstemailcheck:
+			first_email_found = True
+		if perk_email_sending and first_email_found:
 			email_recipient = order_item[INDEX_EMAIL_ADDR]
-			email_recipient = "ddd"
-			email_subject = "[Mooltipass Campaign] Your Selected Perk - Do You Want To Make Any Change?"
+			email_recipient = "mathieu.stephan@gmail.com"
+			email_subject = "[Mooltipass] Order #" + repr(order_id) + " - Do You Want To Make Any Change?"
 			body_of_email = "Dear " + order_item[INDEX_NAME] + ",<br><br><br>"
 			body_of_email += "The Mooltipass team would like to <b>thank you</b> for backing its campaign and making the Mooltipass a reality.<br>"
 			body_of_email += "We're sending you this email so you can check that we <b>correctly registered your pledge</b> and give you the opportunity to <b>make an addition to it</b>.<br><br>"
@@ -414,12 +415,13 @@ if __name__ == '__main__':
 			body_of_email += "Your Indiegogo transaction ID(s): " + order_item[INDEX_TRANS_IDS] + "<br><br>"
 			body_of_email += "If this isn't correct or if you want to add anything to your order (another Mooltipass, smartcard, etc...), please <b>reply to this email</b> to let us know.<br>"
 			body_of_email += "If you are <b>planning to use the Mooltipass as an Arduino platform </b> or want to <b>provide some feedback on the campaign and future steps</b>, we would really appreciate if you could take a few minutes of your time to fill our end of campaign survey "
-			body_of_email += "<a href=\"https://docs.google.com/forms/d/dqsdqsdq/viewform?entry.1043764275="+order_item[INDEX_NAME]+"&entry.1932639819="+order_item[INDEX_EMAIL_ADDR]+"&entry.1617982862=" + hashlib.sha512(SECRET_SALT+order_item[INDEX_EMAIL_ADDR]).hexdigest() + "\">here</a>.<br>"
+			body_of_email += "<a href=\"https://docs.google.com/forms/d/xxxx/viewform?entry.1043764275="+order_item[INDEX_NAME]+"&entry.1932639819="+order_item[INDEX_EMAIL_ADDR]+"&entry.1617982862=" + hashlib.sha512(SECRET_SALT+order_item[INDEX_EMAIL_ADDR]).hexdigest() + "\">here</a>.<br>"
 			body_of_email += "Thanks again for your support,<br>"
 			body_of_email += "The Mooltipass development team<br><br>"
 			body_of_email += "PS: When the devices are ready to be shipped, we will send you another email asking if you'd like to make any change as well.<br>"
-			body_of_email += "PPS: This email was sent using <a href=\"https://github.com/limpkin/mooltipass/blob/master/tools/indiegogo_csvparser/csv_parser.py\">this script</a>"
-			headers = "\r\n".join(["from: " + "themooltipass@gmail.com",
+			body_of_email += "PPS: This email was sent using <a href=\"https://github.com/limpkin/mooltipass/blob/master/tools/indiegogo_csvparser/csv_parser.py\">this script</a><br>"
+			body_of_email += "PPPS: Some of you may have already received this email... sorry about that!"
+			headers = "\r\n".join(["from: " + "orders@themooltipass.com",
 					   "subject: " + email_subject,
 					   "to: " + email_recipient,
 					   "mime-version: 1.0",
@@ -428,12 +430,16 @@ if __name__ == '__main__':
 			# body_of_email can be plaintext or html!                    
 			content = headers + "\r\n\r\n" + body_of_email
 			try:
-				session.sendmail("themooltipass@gmail.com", email_recipient, content)
+				session.sendmail("orders@themooltipass.com", email_recipient, content)
 				print "Email sent to", email_recipient
-			except Exception:
+			except Exception as e:
 				print "Error: unable to send email to", email_recipient
 				log_f.write(email_recipient+"\n")
-			time.sleep(3)
+				print e
+			time.sleep(2)
+			
+		#increment order id
+		order_id += 1
 	
 	log_f.close()
 	print "-------------------------------------------------"

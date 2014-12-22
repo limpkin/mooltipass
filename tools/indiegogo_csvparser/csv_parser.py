@@ -405,7 +405,7 @@ if __name__ == '__main__':
 			first_email_found = True
 		if perk_email_sending and first_email_found:
 			email_recipient = order_item[INDEX_EMAIL_ADDR]
-			email_recipient = "mathieu.stephan@gmail.com"
+			email_recipient = "xxx@gmail.com"
 			email_subject = "[Mooltipass] Order #" + repr(order_id) + " - Do You Want To Make Any Change?"
 			body_of_email = "Dear " + order_item[INDEX_NAME] + ",<br><br><br>"
 			body_of_email += "The Mooltipass team would like to <b>thank you</b> for backing its campaign and making the Mooltipass a reality.<br>"

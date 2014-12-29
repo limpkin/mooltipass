@@ -33,6 +33,10 @@ page.initSettings = function() {
 	if(!("port" in page.settings)) {
 		page.settings.port = "19455";
 	}
+	// "popup" seems to be a legacy setting which may still be stored
+	if(!("updateMethod" in page.settings) || page.settings.updateMethod == "popup") {
+		page.settings.updateMethod = "notification";
+	}
 	localStorage.settings = JSON.stringify(page.settings);
 }
 

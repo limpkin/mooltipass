@@ -1692,7 +1692,6 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
                 'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
             });
             break;
-        case 'popup':
         case 'notification':
             console.log('rememberCredentials - sending update_notify');
             chrome.extension.sendMessage({

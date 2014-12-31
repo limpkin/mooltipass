@@ -5,6 +5,8 @@ v0.7:
 - put in address 0 in user parameter in eeprom a key for parameter init
 - storing touch sensing parameters in eeprom
 - inhibiting touch inputs for the first 3 seconds after boot to reset touch sensing settings via USB if necessary
+- Mooltipass offline mode
+- added strings, new bundle required!
 
 v0.6:
 - new strings, new bundle required

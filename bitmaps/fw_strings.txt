@@ -36,10 +36,12 @@ Create New Mooltipass User?
 Going To Sleep...
 Allow Memory Management?
 Memory Management Mode
-Close Mode In The Plugin
+Exit Mode In Application
 Created by the plugin
 No Stored Favorites
 Send Card Stored Data?
 Set Card Login?
 Set Card Stored Data?
 username:
+Show Login?
+Show Password?

@@ -33,7 +33,7 @@
 void userViewDelay(void);
 
 // Macros
-#define powerSettlingDelay()                smartcardPowerDelay();smartcardPowerDelay();
+#define powerSettlingDelay()                smartcardPowerDelay();
 #define touchSensorInterruptLineDelay()     smartcardPowerDelay()
 #define screenComingOnDelay()               smartcardPowerDelay()
 

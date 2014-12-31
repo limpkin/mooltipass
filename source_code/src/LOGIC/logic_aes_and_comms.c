@@ -619,16 +619,40 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
         readChildNode(&temp_cnode, child_address);
         
         // If login isn't empty, ask the user if he wants to output the login
-        if ((temp_cnode.login[0] != 0) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK))
+        if (temp_cnode.login[0] != 0)
         {
-            usbKeybPutStr((char*)temp_cnode.login);
+            // Check if we're connected through USB
+            if (isUsbConfigured())
+            {
+                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK)
+                {
+                    usbKeybPutStr((char*)temp_cnode.login);
+                }
+            } 
+            else
+            {
+                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SHOW_LOGINQ)) == RETURN_OK)
+                {
+                    guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.login);
+                }
+            }
         }
         
-        // Ask the user if he wants to output the login
-        if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERPASSQ)) == RETURN_OK)
+        decryptTempCNodePasswordAndClearCTVFlag();
+        // Ask the user if he wants to output the password
+        if (isUsbConfigured())
         {
-            decryptTempCNodePasswordAndClearCTVFlag();
-            usbKeybPutStr((char*)temp_cnode.password);
+            if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERPASSQ)) == RETURN_OK)
+            {
+                usbKeybPutStr((char*)temp_cnode.password);
+            }
+        }
+        else
+        {
+            if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SHOW_PASSQ)) == RETURN_OK)
+            {
+                guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.password);
+            }
         }
     }    
 }

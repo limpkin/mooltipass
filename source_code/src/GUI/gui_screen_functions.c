@@ -334,6 +334,19 @@ void guiDisplayInformationOnScreen(uint8_t stringID)
     oledFlipBuffers(0,0);
 }
 
+/*! \fn     guiDisplayLoginOrPasswordOnScreen(char* text)
+*   \brief  Display a login or password on screen
+*   \param  text    Text to display
+*/
+void guiDisplayLoginOrPasswordOnScreen(char* text)
+{
+    oledClear();
+    oledPutstrXY(10, 24, OLED_CENTRE, text);
+    oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+    oledFlipBuffers(0,0);
+    getTouchedPositionAnswer(0);
+}
+
 /*! \fn     guiDisplaySmartcardUnlockedScreen(uint8_t* username)
 *   \brief  Display the smartcard unlocked screen
 *   \param  username    The username (if there's one)

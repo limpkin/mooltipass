@@ -171,10 +171,16 @@ int main(void)
     initIRQ();                          // Initialize interrupts
     powerSettlingDelay();               // Let the power settle   
     initUsb();                          // Initialize USB controller
+    powerSettlingDelay();               // Let the USB 3.3V LDO rise
     initI2cPort();                      // Initialize I2C interface
     rngInit();                          // Initialize avrentropy library
-    while(!isUsbConfigured());          // Wait for host to set configuration
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
+
+    // If offline mode isn't enabled, wait for device to be enumerated
+    if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
+    {
+        while(!isUsbConfigured());      // Wait for host to set configuration
+    }    
     
     // Set correct timeout_enabled val
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);

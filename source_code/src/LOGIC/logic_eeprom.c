@@ -55,6 +55,8 @@ void mooltipassParametersInit(void)
     setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM, 0x21);
     // Set proximity sensing key settings
     setMooltipassParameterInEeprom(TOUCH_PROX_OS_PARAM, 0x73);
+    // Disable offline mode by default
+    setMooltipassParameterInEeprom(OFFLINE_MODE_PARAM, FALSE);
 }
 
 /*! \fn     firstTimeUserHandlingInit(void)

@@ -195,7 +195,7 @@ int main(void)
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
     
-    // First time initializations for Flash
+    // First time initializations for Flash (first time power up at production)
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         // Erase everything non graphic in flash

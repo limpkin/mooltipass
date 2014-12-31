@@ -431,6 +431,19 @@ def setCurrentTimeoutLock(epin, epout):
 		print "Parameter changed"
 	else:
 		print "Couldn't change parameter"
+		
+def setGenericParameter(epin, epout, choice):
+	packetToSend = array('B')
+	packetToSend.append(choice)
+	intval = int(raw_input("Hex value: "), 16)
+	print ""
+	packetToSend.append(intval)
+	sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)	
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Parameter changed"
+	else:
+		print "Couldn't change parameter"
+	
 	
 def readCurrentUser(epin, epout):
 	sendHidPacket(epout, CMD_READ_CARD_LOGIN, 0, None)
@@ -794,6 +807,9 @@ if __name__ == '__main__':
 		print "16) Keyboard Test"
 		print "17) Change Mooltipass timeout bool"
 		print "18) Change Mooltipass timeout"
+		print "19) Change Mooltipass touch detection integrator"
+		print "20) Change Mooltipass touch wheel over sample"
+		print "21) Change Mooltipass touch proximity param"
 		choice = input("Make your choice: ")
 		print ""
 		
@@ -833,6 +849,12 @@ if __name__ == '__main__':
 			setCurrentTimeoutLockEn(epin, epout)
 		elif choice == 18:
 			setCurrentTimeoutLock(epin, epout)
+		elif choice == 19:
+			setGenericParameter(epin, epout, choice-14)
+		elif choice == 20:
+			setGenericParameter(epin, epout, choice-14)
+		elif choice == 21:
+			setGenericParameter(epin, epout, choice-14)
 	
 	hid_device.reset()
 

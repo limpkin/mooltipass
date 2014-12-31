@@ -22,8 +22,10 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include "touch_higher_level_functions.h"
+#include "gui_basic_functions.h"
 #include "aes256_nessie_test.h"
 #include "aes256_ctr_test.h"
+#include "usb_cmd_parser.h"
 #include "hid_defines.h"
 #include "mooltipass.h"
 #include "flash_test.h"
@@ -174,10 +176,11 @@ void afterFlashInitTests(void)
 
 void afterTouchInitTests(void)
 {
-    //#define TEST_TS
+    #define TEST_TS
     #ifdef TEST_TS
     uint8_t temp_byte;
     uint16_t temp_uint = 0;
+    uint8_t usb_buffer[RAWHID_TX_SIZE];
     RET_TYPE temp_ret_type = RETURN_RIGHT_PRESSED;
     
     activityDetectedRoutine();
@@ -198,7 +201,13 @@ void afterTouchInitTests(void)
             printf("DET2: %02X\r\n", temp_byte);
             printf("counter: %04X\r\n", temp_uint++);
         }
-        temp_ret_type = touchDetectionRoutine();     
+        // Process possible incoming data
+        if(usbRawHidRecv(usb_buffer, USB_READ_TIMEOUT) == RETURN_COM_TRANSF_OK)
+        {
+            usbProcessIncoming(usb_buffer);
+            activateProxDetection();
+        }
+        temp_ret_type = touchDetectionRoutine(0);
     }
     activateGuardKey();
     launchCalibrationCycle();
@@ -217,7 +226,12 @@ void afterTouchInitTests(void)
             printf("DET2: %02X\r\n", temp_byte);
             printf("counter: %04X\r\n", temp_uint++);
         }
-        temp_ret_type = touchDetectionRoutine();
+        // Process possible incoming data
+        if(usbRawHidRecv(usb_buffer, USB_READ_TIMEOUT) == RETURN_COM_TRANSF_OK)
+        {
+            usbProcessIncoming(usb_buffer);
+        }
+        temp_ret_type = touchDetectionRoutine(0);
     }
     #endif
 }

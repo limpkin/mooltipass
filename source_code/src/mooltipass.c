@@ -81,23 +81,42 @@ static inline void disableJTAG(void)
 */
 int main(void)
 {
+    uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);
     uint8_t usb_buffer[RAWHID_TX_SIZE];
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
     
-    // Check if we were resetted and want to go to the bootloader
-    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) == BOOTLOADER_BOOTKEY)
+    #ifndef PRODUCTION_SETUP
+        // Check if we were reset and want to go to the bootloader (only for beta testers and devs)
+        if (current_bootkey_val == BOOTLOADER_BOOTKEY)
+        {
+            // Disable WDT
+            wdt_reset();
+            wdt_clear_flag();
+            wdt_change_enable();
+            wdt_stop();
+            // Store correct bootkey
+            eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
+            // Jump to bootloader
+            start_bootloader();
+        }
+        // Check if there was a change in the mooltipass setting storage to reset the parameters to their correct values
+        if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
+        {
+            mooltipassParametersInit();
+        }
+    #endif
+
+    // First time initializations for Eeprom (first boot at production or flash layout changes for beta testers)
+    if (current_bootkey_val != CORRECT_BOOTKEY)
     {
-        // Disable WDT
-        wdt_reset();
-        wdt_clear_flag();
-        wdt_change_enable();
-        wdt_stop();
+        // Erase Mooltipass parameters
+        mooltipassParametersInit();
+        // Set bootloader password bool to FALSE
+        eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
         // Store correct bootkey
         eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
-        // Jump to bootloader
-        start_bootloader();
     }
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
@@ -174,17 +193,13 @@ int main(void)
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
     
-    // First time initializations
-    if (eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != CORRECT_BOOTKEY)
+    // First time initializations for Flash
+    if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         // Erase everything non graphic in flash
         eraseFlashUsersContents();
         // Erase # of cards and # of users
         firstTimeUserHandlingInit();
-        // Set bootloader password bool to FALSE
-        eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
-        // Store correct bootkey
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
     }
     
     // Check if we can initialize the touch sensing element

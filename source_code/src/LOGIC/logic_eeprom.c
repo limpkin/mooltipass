@@ -36,6 +36,21 @@
 #include "rng.h"
 
 
+/*! \fn     mooltipassParametersInit(void)
+*   \brief  mooltipass parameters init
+*/
+void mooltipassParametersInit(void)
+{	
+    // Set English keyboard by default
+    setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_LUT);
+    // Set 15secs user interaction timeout by default
+    setMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM, 15);
+    // Disable timeout by default
+    setMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM, FALSE);
+    // Set a 1 hour timeout
+    setMooltipassParameterInEeprom(LOCK_TIMEOUT_PARAM, 60);	
+}
+
 /*! \fn     firstTimeUserHandlingInit(void)
 *   \brief  First time required intialization
 */
@@ -46,15 +61,6 @@ void firstTimeUserHandlingInit(void)
     {
         eeprom_write_byte((uint8_t*)(EEP_SMC_IC_USER_MATCH_START_ADDR + (uint16_t)i*SMCID_UID_MATCH_ENTRY_LENGTH), 0xFF);
     }
-    
-    // Set English keyboard by default
-    setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_LUT);
-    // Set 15secs user interaction timeout by default
-    setMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM, 15);
-    // Disable timeout by default
-    setMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM, FALSE);
-    // Set a 1 hour timeout
-    setMooltipassParameterInEeprom(LOCK_TIMEOUT_PARAM, 60);
 }
 
 /*! \fn     controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound)

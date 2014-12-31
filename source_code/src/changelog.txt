@@ -2,6 +2,8 @@ v0.7:
 - implemented a LUT for faster login search
 - added lock timeout bool & delay
 - pin required for memory export
+- put in address 0 in user parameter in eeprom a key for parameter init
+- storing touch sensing parameters in eeprom
 
 v0.6:
 - new strings, new bundle required

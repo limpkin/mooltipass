@@ -111,8 +111,6 @@ RET_TYPE initTouchSensing(void)
             writeDataToTS(REG_AT42QT_KEY11_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);         // Enable Right button
             writeDataToTS(REG_AT42QT_SLID_OPT, 0x40);                                                       // Enable wheel
             writeDataToTS(REG_AT42QT_SLID_OPT, 0xC0);                                                       // Enable wheel
-            // Activate proximity detection
-            activateProxDetection();// Proximity detection
         }        
         return temp_return;
     #else

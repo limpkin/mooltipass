@@ -23,6 +23,7 @@
 *    Author:   Mathieu Stephan
 */
 #include "smart_card_higher_level_functions.h"
+#include "touch_higher_level_functions.h"
 #include "gui_smartcard_functions.h"
 #include "logic_fwflash_storage.h"
 #include "gui_screen_functions.h"
@@ -957,6 +958,7 @@ void usbProcessIncoming(uint8_t* incomingData)
                 setMooltipassParameterInEeprom(msg->body.data[0], msg->body.data[1]);
                 mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
                 plugin_return_value = PLUGIN_BYTE_OK;
+                initTouchSensing();
             }
             else
             {

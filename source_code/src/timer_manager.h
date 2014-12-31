@@ -44,7 +44,7 @@ typedef struct
 } timerEntry_t;
 
 // Defines
-#define NUMBER_OF_FAST_TIMERS   7
+#define NUMBER_OF_FAST_TIMERS   8
 #define TIMER_LIGHT             0
 #define TIMER_SCREEN            1
 #define TIMER_USERINT           2
@@ -52,9 +52,10 @@ typedef struct
 #define TIMER_CREDENTIALS       4
 #define TIMER_PASS_CHECK        5
 #define TIMER_WAIT_FUNCTS       6
+#define TIMER_TOUCH_INHIBIT     7
 
 #define NUMBER_OF_SLOW_TIMERS   1
-#define SLOW_TIMER_LOCKOUT      7
+#define SLOW_TIMER_LOCKOUT      8
 
 #define TOTAL_NUMBER_OF_TIMERS  (NUMBER_OF_FAST_TIMERS+NUMBER_OF_SLOW_TIMERS)
 

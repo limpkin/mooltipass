@@ -106,6 +106,7 @@ int main(void)
         if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
         {
             mooltipassParametersInit();
+            setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
         }
     #endif
 
@@ -205,6 +206,11 @@ int main(void)
     
     // Check if we can initialize the touch sensing element
     touch_init_result = initTouchSensing();
+
+    // Enable proximity detection
+    #ifndef HARDWARE_V1
+        activateProxDetection();
+    #endif
     
     // Launch the after touch initialization tests
     #ifdef TESTS_ENABLED
@@ -292,10 +298,15 @@ int main(void)
     launchCalibrationCycle();
     touchClearCurrentDetections();
     
+    // Inhibit touch inputs for the first 3 seconds
+    activateTimer(TIMER_TOUCH_INHIBIT, 3000);
     while (1)
     {        
-        // Call GUI routine
-        guiMainLoop();
+        // Call GUI routine once the touch input inhibit timer is finished
+        if (hasTimerExpired(TIMER_TOUCH_INHIBIT, FALSE) == TIMER_EXPIRED)
+        {
+            guiMainLoop();
+        }
         
         // Check if a card just got inserted / removed
         card_detect_ret = isCardPlugged();

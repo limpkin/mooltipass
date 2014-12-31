@@ -176,7 +176,7 @@ void afterFlashInitTests(void)
 
 void afterTouchInitTests(void)
 {
-    #define TEST_TS
+    //#define TEST_TS
     #ifdef TEST_TS
     uint8_t temp_byte;
     uint16_t temp_uint = 0;

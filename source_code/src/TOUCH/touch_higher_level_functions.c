@@ -23,6 +23,7 @@
  */
 #include "touch_higher_level_functions.h"
 #include "gui_basic_functions.h"
+#include "logic_eeprom.h"
 #include "defines.h"
 #include <string.h>
 #include "touch.h"
@@ -62,8 +63,8 @@ static inline RET_TYPE checkTSPres(void)
 */
 void activateGuardKey(void)
 {
-    writeDataToTS(REG_AT42QT_KEY3_PULSE_SCL, 0x00);                                             // Disable proximity sensing
-    writeDataToTS(REG_AT42QT_KEY3_CTRL, AT42QT2120_GUARD_VAL|AT42QT2120_AKS_GP1_MASK);          // Set key as guard
+    writeDataToTS(REG_AT42QT_KEY3_PULSE_SCL, 0x00);                                                         // Disable proximity sensing
+    writeDataToTS(REG_AT42QT_KEY3_CTRL, AT42QT2120_GUARD_VAL|AT42QT2120_AKS_GP1_MASK);                      // Set key as guard
     launchCalibrationCycle();
 }
 
@@ -72,8 +73,8 @@ void activateGuardKey(void)
 */
 void activateProxDetection(void)
 {
-    writeDataToTS(REG_AT42QT_KEY3_PULSE_SCL, 0x73);                                             // Activate proximity sensing
-    writeDataToTS(REG_AT42QT_KEY3_CTRL, AT42QT2120_AKS_GP1_MASK);                               // Set as touch key
+    writeDataToTS(REG_AT42QT_KEY3_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_PROX_OS_PARAM));          // Activate proximity sensing
+    writeDataToTS(REG_AT42QT_KEY3_CTRL, AT42QT2120_AKS_GP1_MASK);                                           // Set as touch key
     launchCalibrationCycle();
 }
 
@@ -90,28 +91,28 @@ RET_TYPE initTouchSensing(void)
             // Perform measurements every 16ms
             writeDataToTS(REG_AT42QT_LP, 1);
             // LED settings
-            writeDataToTS(REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_H_VAL);                              // LED (top right)
-            writeDataToTS(REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_H_VAL);                              // LED (right button)
-            writeDataToTS(REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_H_VAL);                              // LED (bottom right)
-            writeDataToTS(REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_H_VAL);                              // LED (bottom left)
-            writeDataToTS(REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_H_VAL);                              // LED (left button)
-            writeDataToTS(REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);                             // LED (top left)
+            writeDataToTS(REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (top right)
+            writeDataToTS(REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (right button)
+            writeDataToTS(REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (bottom right)
+            writeDataToTS(REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (bottom left)
+            writeDataToTS(REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (left button)
+            writeDataToTS(REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);                                  // LED (top left)
             // Sensitivity settings
-            writeDataToTS(REG_AT42QT_DI, 6);                                                           // Increase detection integrator value
-            writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
-            writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
-            writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, 0x21);                                            // Oversample to gain one bit
-            writeDataToTS(REG_AT42QT_TRD, 50);                                                         // Recalibration if touch detected for more than 8 seconds
+            writeDataToTS(REG_AT42QT_DI, getMooltipassParameterInEeprom(TOUCH_DI_PARAM));                   // Increase detection integrator value
+            writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)
+            writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)
+            writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)
+            writeDataToTS(REG_AT42QT_TRD, 50);                                                              // Recalibration if touch detected for more than 8 seconds
             // Key settings
-            writeDataToTS(REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key
-            writeDataToTS(REG_AT42QT_KEY1_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key
-            writeDataToTS(REG_AT42QT_KEY2_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Wheel key
-            writeDataToTS(REG_AT42QT_KEY9_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);     // Enable Left button
-            writeDataToTS(REG_AT42QT_KEY11_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);    // Enable Right button
-            writeDataToTS(REG_AT42QT_SLID_OPT, 0x40);                                                  // Enable wheel
-            writeDataToTS(REG_AT42QT_SLID_OPT, 0xC0);                                                  // Enable wheel
+            writeDataToTS(REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Wheel key
+            writeDataToTS(REG_AT42QT_KEY1_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Wheel key
+            writeDataToTS(REG_AT42QT_KEY2_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Wheel key
+            writeDataToTS(REG_AT42QT_KEY9_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Left button
+            writeDataToTS(REG_AT42QT_KEY11_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);         // Enable Right button
+            writeDataToTS(REG_AT42QT_SLID_OPT, 0x40);                                                       // Enable wheel
+            writeDataToTS(REG_AT42QT_SLID_OPT, 0xC0);                                                       // Enable wheel
             // Activate proximity detection
-            activateProxDetection();                                                                   // Proximity detection
+            activateProxDetection();// Proximity detection
         }        
         return temp_return;
     #else

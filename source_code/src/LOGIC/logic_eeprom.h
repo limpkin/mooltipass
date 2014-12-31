@@ -39,13 +39,16 @@
 // Total number of LUT entries, as the LUT is located at the end of the eeprom
 #define NB_MAX_SMCID_UID_MATCH_ENTRIES  ((EEPROM_SIZE - EEP_SMC_IC_USER_MATCH_START_ADDR)/SMCID_UID_MATCH_ENTRY_LENGTH)
 // Correct key to prevent mooltipass settings reinit
-#define USER_PARAM_CORRECT_INIT_KEY         0x86
+#define USER_PARAM_CORRECT_INIT_KEY         0x85
 // Mooltipass eeprom parameters define
 #define USER_PARAM_INIT_KEY_PARAM           0
 #define KEYBOARD_LAYOUT_PARAM               1
 #define USER_INTER_TIMEOUT_PARAM            2
 #define LOCK_TIMEOUT_ENABLE_PARAM           3
 #define LOCK_TIMEOUT_PARAM                  4
+#define TOUCH_DI_PARAM                      5
+#define TOUCH_WHEEL_OS_PARAM                6
+#define TOUCH_PROX_OS_PARAM                 7
 
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);

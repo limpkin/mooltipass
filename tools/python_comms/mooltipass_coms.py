@@ -383,7 +383,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 
 def setCurrentTimeout(epin, epout):
 	packetToSend = array('B')
-	packetToSend.append(1)
+	packetToSend.append(2)
 	choice = input("How many seconds: ")
 	print ""
 	packetToSend.append(choice)
@@ -395,7 +395,7 @@ def setCurrentTimeout(epin, epout):
 
 def setCurrentKeyboard(epin, epout):
 	packetToSend = array('B')
-	packetToSend.append(0)
+	packetToSend.append(1)
 	print "0) EN_EN"
 	print "1) FR_FR"
 	print "2) ES_ES"
@@ -410,7 +410,7 @@ def setCurrentKeyboard(epin, epout):
 
 def setCurrentTimeoutLockEn(epin, epout):
 	packetToSend = array('B')
-	packetToSend.append(2)
+	packetToSend.append(3)
 	choice = input("TRUE (1), FALSE (0): ")
 	print ""
 	packetToSend.append(choice)
@@ -422,7 +422,7 @@ def setCurrentTimeoutLockEn(epin, epout):
 
 def setCurrentTimeoutLock(epin, epout):
 	packetToSend = array('B')
-	packetToSend.append(3)
+	packetToSend.append(4)
 	choice = input("How many minutes: ")
 	print ""
 	packetToSend.append(choice)

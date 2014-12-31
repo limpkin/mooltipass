@@ -87,8 +87,9 @@ int main(void)
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
     
+    // This code will only be used for developers and beta testers
     #ifndef PRODUCTION_SETUP
-        // Check if we were reset and want to go to the bootloader (only for beta testers and devs)
+        // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
         {
             // Disable WDT

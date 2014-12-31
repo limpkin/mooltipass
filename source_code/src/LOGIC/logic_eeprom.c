@@ -49,6 +49,12 @@ void mooltipassParametersInit(void)
     setMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM, FALSE);
     // Set a 1 hour timeout
     setMooltipassParameterInEeprom(LOCK_TIMEOUT_PARAM, 60);	
+    // Set default detection integrator (6 consecutive samples)
+    setMooltipassParameterInEeprom(TOUCH_DI_PARAM, 6);
+    // Set touch wheel oversample (one bit gain)
+    setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM, 0x21);
+    // Set proximity sensing key settings
+    setMooltipassParameterInEeprom(TOUCH_PROX_OS_PARAM, 0x73);
 }
 
 /*! \fn     firstTimeUserHandlingInit(void)

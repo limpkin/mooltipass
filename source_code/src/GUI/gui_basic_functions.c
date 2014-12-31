@@ -101,7 +101,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     
     // Clear possible remaining detection
     touchDetectionRoutine(led_mask);
-    touchWaitForWheelReleased();
+    touchWaitForButtonsReleased();
     touchClearCurrentDetections();
     
     // Wait for a touch press, delay stored in eeprom (1024 is quite close to 1000 ;-) )

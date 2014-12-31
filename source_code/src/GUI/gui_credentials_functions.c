@@ -439,7 +439,7 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
     oledWriteActiveBuffer();
     
     // Clear possible remaining detection
-    touchWaitForWheelReleased();
+    touchWaitForButtonsReleased();
     touchClearCurrentDetections();
     
     // Arm interaction timer

@@ -163,10 +163,10 @@ void touchClearCurrentDetections(void)
     readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_uint);
 }
 
-/*! \fn     touchWaitForWheelReleased(void)
-*   \brief  Wait for the user to remove his finger from the wheel
+/*! \fn     touchWaitForButtonsReleased(void)
+*   \brief  Wait for the user to remove his finger from the buttons
 */
-void touchWaitForWheelReleased(void)
+void touchWaitForButtonsReleased(void)
 {
     uint8_t keys_detection_status;
     
@@ -174,7 +174,7 @@ void touchWaitForWheelReleased(void)
     {
         readDataFromTS(REG_AT42QT_DET_STAT, &keys_detection_status);
     }
-    while (keys_detection_status & AT42QT2120_SDET_MASK);
+    while (keys_detection_status & (AT42QT2120_SDET_MASK | AT42QT2120_TDET_MASK));
 }
 
 /*! \fn     touchDetectionRoutine(uint8_t led_mask)

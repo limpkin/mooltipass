@@ -13,6 +13,8 @@ buffer[2 - packetsize] = packet data
 
 Commands
 --------
+Every sent packet will get one or more packets as an answer.
+In case the user currently is entering his PIN, the MP will send an empty 0x70 packet
 The following commands are currently implemented:
 
 0x01: send debug message
@@ -294,6 +296,10 @@ From Mooltipass: 0x00 if failure, CTR value otherwise
 From plugin/app: When an unknown smartcard is inserted, tell the Mooltipass to store it. First 2 bytes are the pin code, next 16 are our CTR value
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
+
+0x70: PIN Unlocking screen
+---------------------------
+From Mooltipass: 0 byte data packet, informs we're entering the PIN
 
 
 Functions

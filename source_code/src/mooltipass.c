@@ -82,7 +82,6 @@ static inline void disableJTAG(void)
 int main(void)
 {
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);
-    uint8_t usb_buffer[RAWHID_TX_SIZE];
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
@@ -307,7 +306,10 @@ int main(void)
     // Inhibit touch inputs for the first 3 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 3000);
     while (1)
-    {        
+    {
+        // Process possible incoming USB packets
+        usbProcessIncoming(USB_CALLER_MAIN);
+        
         // Call GUI routine once the touch input inhibit timer is finished
         if (hasTimerExpired(TIMER_TOUCH_INHIBIT, FALSE) == TIMER_EXPIRED)
         {
@@ -336,12 +338,6 @@ int main(void)
             userViewDelay();
             guiGetBackToCurrentScreen();
         }
-        
-        // Process possible incoming data
-        if(usbRawHidRecv(usb_buffer, USB_READ_TIMEOUT) == RETURN_COM_TRANSF_OK)
-        {
-            usbProcessIncoming(usb_buffer);
-        }  
         
         // Two quick caps lock presses wakes up the device        
         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))

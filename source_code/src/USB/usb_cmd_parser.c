@@ -162,12 +162,21 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
     }
 }
 
-/*! \fn     usbProcessIncoming(uint8_t* incomingData)
-*   \brief  Process the incoming USB packet
-*   \param  incomingData    Pointer to the packet (can be overwritten!)
+/*! \fn     usbProcessIncoming(uint8_t caller_id)
+*   \brief  Process a possible incoming USB packet
+*   \param  caller_id   UID of the calling function
 */
-void usbProcessIncoming(uint8_t* incomingData)
+void usbProcessIncoming(uint8_t caller_id)
 {
+    // Our USB data buffer
+    uint8_t incomingData[RAWHID_TX_SIZE];
+    
+    // Try to read data from USB, return if we didn't receive anything
+    if(usbRawHidRecv(incomingData, USB_READ_TIMEOUT) != RETURN_COM_TRANSF_OK)
+    {
+        return;
+    }
+    
     // Temp plugin return value, error by default
     uint8_t plugin_return_value = PLUGIN_BYTE_ERROR;
 
@@ -188,9 +197,19 @@ void usbProcessIncoming(uint8_t* incomingData)
 #ifdef DEV_PLUGIN_COMMS
     char stack_str[10];
 #endif
+
     // Debug comms
     // USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
+    
+    // Check if we're currently asking the user to enter his PIN
+    if (caller_id == USB_CALLER_PIN)
+    {
+        // Inform the plugin to inform the user to unlock his card
+        usbSendMessage(CMD_PIN_UNLOCKING_SC, 0, 0);
+        return;
+    }
 
+    // Otherwise, process command
     switch(datacmd)
     {
         // ping command
@@ -1304,6 +1323,8 @@ void usbProcessIncoming(uint8_t* incomingData)
 
         default :   return;
     }
+    
+    // Return an answer that was defined before calling break
     usbSendMessage(datacmd, 1, &plugin_return_value);
 }
 

@@ -27,6 +27,7 @@
 #include "touch_higher_level_functions.h"
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
+#include "usb_cmd_parser.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "delays.h"
@@ -103,6 +104,8 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
     // While the user hasn't entered his pin
     while(!finished)
     {
+        // Still process the USB commands
+        usbProcessIncoming(USB_CALLER_PIN);
         // Detect key touches
         temp_rettype = touchDetectionRoutine(0);
         // Send it to the touch wheel interface logic
@@ -177,6 +180,9 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
     
     // Store the pin
     *pin_code = (uint16_t)(((uint16_t)(current_pin[0]) << 12) | (((uint16_t)current_pin[1]) << 8) | (current_pin[2] << 4) | current_pin[3]);
+    
+    // Set current pin to 0000
+    memset((void*)current_pin, 0, 4);
     
     // Return success status
     return ret_val;

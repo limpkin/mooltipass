@@ -24,7 +24,7 @@ This is the main case where the two PCBs and OLED screen will be put.
 The current reference is DD-25664BE-3A from Densitron
 
 7) 4x self tapping screws (for Arduino version)
-They maintain the bottom PCB to the case
+They maintain the bottom PCB to the case, M2x5.56mm height
 
 8) rubber foot to put under the case
 They should be around 5.5mm in diameter and 2mm thick, with double sided tape on one side

@@ -1,0 +1,42 @@
+-> I2C_SCL (shared with AT42QT2120)
+-> I2C_SDA (shared with AT42QT2120)
+-> AREF (ATMega32U4 USB LDO 3.3V)
+-> GND
+-> SPI_SCK (shared with smartcard)
+-> SPI_MISO (shared with smartcard)
+-> SPI_MOSI (shared with smartcard)
+-> PB6
+-> PB5
+-> PB4 (also smartcard power control)
+
+-> PE6 (also smartcard reset)
+-> PD7 (also screen data/ncontrol sig)
+-> PC6 (also smartcard program)
+-> PD4 (also screen reset signal)
+-> I2C_SCL (shared with AT42QT2120)
+-> I2C_SDA (shared with AT42QT2120)
+-> PD3 (also screen MOSI)
+-> PD2 (also screen MISO)
+
+NC <-
+5V <-
+RESET <-
+3.3V <-
+5V <-
+GND <-
+GND <-
+NC <-
+
+PF7 <-
+PF6 <-
+NC <-
+NC <-
+PF1 <-
+PF0 <-
+
+Differences with official Leonardo pinout:
+- A2 removed
+- A3 removed
+- D13 switched to SCK
+- D12 switched to MISO
+- D11 switched to MOSI

@@ -23,6 +23,7 @@
  */
 #include <util/atomic.h>
 #include <avr/eeprom.h>
+#include <avr/boot.h>
 #include <stdlib.h>
 #include <avr/io.h>
 #include <string.h>
@@ -44,7 +45,6 @@
 #include "smartcard.h"
 #include "flash_mem.h"
 #include "defines.h"
-#include "rng.h"
 #include "oledmp.h"
 #include "delays.h"
 #include "utils.h"
@@ -54,6 +54,7 @@
 #include "spi.h"
 #include "pwm.h"
 #include "usb.h"
+#include "rng.h"
 
 // Define the bootloader function
 bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
@@ -93,12 +94,19 @@ int main(void)
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
+    uint8_t fuse_ok = TRUE;
     
     // Disable JTAG to gain access to pins, set prescaler to 1 (fuses not set)
     #ifndef PRODUCTION_KICKSTARTER_SETUP
         disableJTAG();
         CPU_PRESCALE(0);
     #endif
+        
+    // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 2.6V
+    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xFB))
+    {
+        fuse_ok = FALSE;
+    }
     
     // Check if PB5 is low to start electrical test
     DDRB &= ~(1 << 5); PORTB |= (1 << 5);
@@ -129,11 +137,11 @@ int main(void)
             {
                 test_result = FALSE;
             }
-        }                
+        }               
         // PB6 as test result output
         DDRB |= (1 << 6);
         // If test successful, light green LED
-        if (test_result == TRUE)
+        if ((test_result == TRUE) && (fuse_ok == TRUE))
         {
             PORTB |= (1 << 6);
         } 

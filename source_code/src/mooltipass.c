@@ -76,6 +76,14 @@ static inline void disableJTAG(void)
     MCUCR = temp;
 }
 
+/*! \fn     smallForLoopBasedDelay(void)
+*   \brief  Small delay used at the mooltipass start
+*/
+void smallForLoopBasedDelay(void)
+{
+    for (uint16_t i = 0; i < 2000; i++) asm volatile ("NOP");
+}
+
 /*! \fn     main(void)
 *   \brief  Main function
 */
@@ -85,6 +93,56 @@ int main(void)
     RET_TYPE flash_init_result;
     RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
+    
+    // Disable JTAG to gain access to pins, set prescaler to 1 (fuses not set)
+    #ifndef PRODUCTION_KICKSTARTER_SETUP
+        disableJTAG();
+        CPU_PRESCALE(0);
+    #endif
+    
+    // Check if PB5 is low to start electrical test
+    DDRB &= ~(1 << 5); PORTB |= (1 << 5);
+    smallForLoopBasedDelay();
+    if (!(PINB & (1 << 5)))
+    {
+        // Test result, true by default
+        uint8_t test_result = TRUE;        
+        // Disable JTAG to access ports
+        disableJTAG();
+        // Leave flash nS off
+        DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
+        PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
+        // Set PORTD as output, leave PORTID_OLED_SS high
+        DDRD |= 0xFF; PORTD |= 0xFF;
+        // All other pins are input by default, run our test
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            PORTD |= 0xFF;
+            smallForLoopBasedDelay();
+            if (!(PINF & (0xC3)) || !(PINC & (1 << 6)) || !(PINE & (1 << 6)) || !(PINB & (1 << 4)))
+            {
+                test_result = FALSE;
+            }
+            PORTD &= (1 << PORTID_OLED_SS);
+            smallForLoopBasedDelay();
+            if ((PINF & (0xC3)) || (PINC & (1 << 6)) || (PINE & (1 << 6)) || (PINB & (1 << 4)))
+            {
+                test_result = FALSE;
+            }
+        }                
+        // PB6 as test result output
+        DDRB |= (1 << 6);
+        // If test successful, light green LED
+        if (test_result == TRUE)
+        {
+            PORTB |= (1 << 6);
+        } 
+        else
+        {
+            PORTB &= ~(1 << 6);
+        }
+        while(1);
+    }
     
     // This code will only be used for developers and beta testers
     #ifndef PRODUCTION_SETUP
@@ -163,8 +221,6 @@ int main(void)
         }
     #endif
 
-    CPU_PRESCALE(0);                    // Set for 16MHz clock
-    disableJTAG();                      // Disable JTAG to gain access to pins
     initPortSMC();                      // Initialize smart card port
     initPwm();                          // Initialize PWM controller
     initIRQ();                          // Initialize interrupts

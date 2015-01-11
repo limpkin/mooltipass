@@ -59,6 +59,9 @@
  *  => Same as above, but always accepts requests
  *
  *  PRODUCTION_SETUP
+ *  => final version for the beta testers units
+ *
+ *  PRODUCTION_KICKSTARTER_SETUP
  *  => final version for production
 */
 #define BETATESTERS_SETUP_PIN
@@ -131,6 +134,9 @@
     #define HARDWARE_OLIVIER_V1
     // TO REMOVE IN THE FUTURE!!! //
     #define AVR_BOOTLOADER_PROGRAMMING
+#elif defined(PRODUCTION_KICKSTARTER_SETUP)
+    #define FLASH_CHIP_32M
+    #define HARDWARE_OLIVIER_V1
 #endif
 
 /**************** DEBUG PRINTS ****************/

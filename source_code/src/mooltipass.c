@@ -102,8 +102,9 @@ int main(void)
         CPU_PRESCALE(0);
     #endif
         
-    // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 2.6V
-    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xFB))
+    // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 2.6V, spm prohibited in bootloader (even if this was hacked...)
+    // TODO: prevent programming & verification from ISP & parrallel!
+    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xFB) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFF))
     {
         fuse_ok = FALSE;
     }
@@ -193,7 +194,7 @@ int main(void)
         /* Init SMC port */
         initPortSMC();
         /* Delay for detection */
-        for (uint16_t i = 0; i < 2000; i++) asm volatile ("NOP");
+        smallForLoopBasedDelay();
         #if defined(HARDWARE_V1)
         if (PIN_SC_DET & (1 << PORTID_SC_DET))
         #elif defined(HARDWARE_OLIVIER_V1)
@@ -214,7 +215,7 @@ int main(void)
             DDRB |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
             setSPIModeSMC();
             /* Let the card come online */
-            for (uint16_t i = 0; i < 2000; i++) asm volatile ("NOP");
+            smallForLoopBasedDelay();
             /* Check smart card FZ */
             readFabricationZone((uint8_t*)&tempuint16);
             if ((swap16(tempuint16)) != SMARTCARD_FABRICATION_ZONE)
@@ -344,7 +345,11 @@ int main(void)
     
     // Stop the Mooltipass if we can't communicate with the flash or the touch interface
     #if defined(HARDWARE_OLIVIER_V1)
-        while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
+        #ifdef PRODUCTION_KICKSTARTER_SETUP
+            while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK) || (fuse_ok != TRUE));
+        #else
+            while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
+        #endif
     #endif
 
     // Write inactive buffer & go to startup screen

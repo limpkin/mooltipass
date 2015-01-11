@@ -9,6 +9,7 @@ v0.7:
 - added strings, new bundle required!
 - migrated call to low level receiving usb functions to usb_cmd_parser.c
 - Mooltipass will return CMD_PIN_UNLOCKING_SC if the user is entering his PIN
+- added electrical & fuse check
 
 v0.6:
 - new strings, new bundle required

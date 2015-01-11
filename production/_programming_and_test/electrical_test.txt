@@ -1,5 +1,8 @@
-TEST BENCH CONNECTIONS
+GOAL:
+- check that all the electrical connections are present on the arduino headers footprints
+- done on a testbed with pogo pins
 
+TEST BENCH CONNECTIONS
 - PB6 is connected a green and red LED like this: 5V -> 1k > RED anode, RED cathode -> PB6 -> GREEN anode, GREEN cathode -> 1k -> 0V
 - PB5 is connected to GND
 - PD2 to PF0
@@ -8,7 +11,6 @@ TEST BENCH CONNECTIONS
 - I2C_SCL to PF7
 - PD4 to PC6
 - PD7 to PE6 and PB4
-
 
 RESULT:
 - both GREEN and RED on: FAIL! PB6 or PB5 connection problem

@@ -115,9 +115,7 @@ int main(void)
     if (!(PINB & (1 << 5)))
     {
         // Test result, true by default
-        uint8_t test_result = TRUE;        
-        // Disable JTAG to access ports
-        disableJTAG();
+        uint8_t test_result = TRUE;
         // Leave flash nS off
         DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
         PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);

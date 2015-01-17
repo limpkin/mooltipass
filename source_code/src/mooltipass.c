@@ -103,8 +103,7 @@ int main(void)
     #endif
         
     // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 2.6V, spm prohibited in bootloader (even if this was hacked...)
-    // TODO: prevent programming & verification from ISP & parrallel!
-    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xFB) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFF))
+    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xFB) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
     {
         fuse_ok = FALSE;
     }

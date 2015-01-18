@@ -71,7 +71,7 @@ def buildBundle(bundlename, stringFile, files, test_bundle=False, show_md5=False
     if stringFile:
         with open(stringFile) as fd:
             for line in fd:
-                strings.append(line.strip())
+                strings.append(line.strip().replace("~~", "\r\n"))
 
     if len(strings) > RESERVED_IDS:
         print 'Error: {} strings is more than the {} supported'.format(len(strings), RESERVED_IDS)

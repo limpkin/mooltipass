@@ -334,6 +334,15 @@ void guiDisplayInformationOnScreen(uint8_t stringID)
     oledFlipBuffers(0,0);
 }
 
+/*! \fn     guiDisplayRawString(uint8_t stringID)
+*   \brief  Display raw text at current position on string
+*   \param  stringID    String ID to display
+*/
+void guiDisplayRawString(uint8_t stringID)
+{
+    oledPutstr(readStoredStringToBuffer(stringID));
+}
+
 /*! \fn     guiDisplayLoginOrPasswordOnScreen(char* text)
 *   \brief  Display a login or password on screen
 *   \param  text    Text to display

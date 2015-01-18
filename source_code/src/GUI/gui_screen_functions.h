@@ -36,6 +36,7 @@ void guiDisplayInformationOnScreen(uint8_t stringID);
 void guiDisplayLoginOrPasswordOnScreen(char* text);
 void guiScreenLoop(uint8_t touch_detect_result);
 RET_TYPE guiAskForNewPin(uint16_t* new_pin);
+void guiDisplayRawString(uint8_t stringID);
 void guiSetCurrentScreen(uint8_t screen);
 void guiDisplayProcessingScreen(void);
 void guiGetBackToCurrentScreen(void);

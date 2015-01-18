@@ -180,8 +180,6 @@ int main(void)
         mooltipassParametersInit();
         // Set bootloader password bool to FALSE
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
-        // Store correct bootkey
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
     }
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
@@ -285,60 +283,60 @@ int main(void)
     #endif
     
     // Test procedure to check that all HW is working
-    #ifdef HW_TEST_PROC
+    if (current_bootkey_val != CORRECT_BOOTKEY)
+    {
+        RET_TYPE temp_rettype;
         oledWriteActiveBuffer();
         oledSetXY(0,0);
-        RET_TYPE temp_rettype;    
-        if (flash_init_result == RETURN_OK)
+        // LEDs ON, to check
+        setPwmDc(MAX_PWM_VAL);
+        switchOnButtonWheelLeds();
+        guiDisplayRawString(ID_STRING_TEST_LEDS_CH);
+        // Check flash init
+        if (flash_init_result != RETURN_OK)
         {
-            printf_P(PSTR("FLASH OK\r\n"));
-        } 
-        else
-        {
-            printf_P(PSTR("PB FLASH\r\n"));
+             guiDisplayRawString(ID_STRING_TEST_FLASH_PB);
         }
-        if (touch_init_result == RETURN_OK)
+        // Check touch init
+        if (touch_init_result != RETURN_OK)
         {
-            printf_P(PSTR("TOUCH OK\r\n"));            
-        } 
-        else
-        {
-            printf_P(PSTR("PB TOUCH\r\n"));
+            guiDisplayRawString(ID_STRING_TEST_TOUCH_PB);
         }
-        printf_P(PSTR("Bring hand close, touch left, wheel, right\r\n"));
+        // Touch instructions
+        guiDisplayRawString(ID_STRING_TEST_INST_TCH);
+        // Check prox
         while(!(touchDetectionRoutine(0) & RETURN_PROX_DETECTION));
-        printf_P(PSTR("Det, "));
+        guiDisplayRawString(ID_STRING_TEST_DET);
         activateGuardKey();
+        // Check left
         while(!(touchDetectionRoutine(0) & RETURN_LEFT_PRESSED));
-        printf_P(PSTR("left, "));
+        guiDisplayRawString(ID_STRING_TEST_LEFT);
+        // Check wheel
         while(!(touchDetectionRoutine(0) & RETURN_WHEEL_PRESSED));
-        printf_P(PSTR("wheel, "));
+        guiDisplayRawString(ID_STRING_TEST_WHEEL);
+        // Check right
         while(!(touchDetectionRoutine(0) & RETURN_RIGHT_PRESSED));
-        printf_P(PSTR("right!\r\n"));
-        printf_P(PSTR("Insert card\r\n"));
+        guiDisplayRawString(ID_STRING_TEST_RIGHT);
+        // Insert card
+        guiDisplayRawString(ID_STRING_TEST_CARD_INS);
         while(isCardPlugged() != RETURN_JDETECT);
         temp_rettype = cardDetectedRoutine();
-        if ((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER))
+        // Check card
+        if (!((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
         {
-            printf_P(PSTR("CARD OK\r\n"));
-        } 
-        else
-        {
-            printf_P(PSTR("PB CARD\r\n"));
+            guiDisplayRawString(ID_STRING_TEST_CARD_PB);
         }
-        printf_P(PSTR("Check LEDs!\r\n"));
-        switchOnButtonWheelLeds();
-        setPwmDc(MAX_PWM_VAL);
         if ((flash_init_result == RETURN_OK) && (touch_init_result == RETURN_OK) && ((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
         {
-            printf_P(PSTR("---- TEST OK !!! ----\r\n"));
+            guiDisplayRawString(ID_STRING_TEST_OK);
+            timerBasedDelayMs(3000);
         }
         else
         {
-            printf_P(PSTR("---- TEST NOT OK ----\r\n"));
+            guiDisplayRawString(ID_STRING_TEST_NOK);
+            while(1);
         }
-        while(1);
-    #endif
+    }
     
     // Stop the Mooltipass if we can't communicate with the flash or the touch interface
     #if defined(HARDWARE_OLIVIER_V1)
@@ -348,6 +346,13 @@ int main(void)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
         #endif
     #endif
+    
+    // First time initializations done.... write correct value in eeprom
+    if (current_bootkey_val != CORRECT_BOOTKEY)
+    {
+        // Store correct bootkey
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
+    }
 
     // Write inactive buffer & go to startup screen
     oledWriteInactiveBuffer();

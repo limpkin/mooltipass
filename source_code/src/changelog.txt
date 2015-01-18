@@ -10,6 +10,7 @@ v0.7:
 - migrated call to low level receiving usb functions to usb_cmd_parser.c
 - Mooltipass will return CMD_PIN_UNLOCKING_SC if the user is entering his PIN
 - added electrical & fuse check
+- added functional test in main firmware, will be run if bootkey isn't correct
 
 v0.6:
 - new strings, new bundle required

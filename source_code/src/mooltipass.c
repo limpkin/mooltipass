@@ -151,7 +151,7 @@ int main(void)
     }
     
     // This code will only be used for developers and beta testers
-    #ifndef PRODUCTION_SETUP
+    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP)
         // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
         {
@@ -285,7 +285,16 @@ int main(void)
     // Test procedure to check that all HW is working
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
-        RET_TYPE temp_rettype;
+        RET_TYPE temp_rettype;        
+        // Wait for USB host to upload bundle & set password
+        //#ifdef PRODUCTION_KICKSTARTER_SETUP
+        //formatFlash();
+        while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
+        {
+            usbProcessIncoming(USB_CALLER_MAIN);
+        }
+        //#endif
+        oledBegin(FONT_DEFAULT);
         oledWriteActiveBuffer();
         oledSetXY(0,0);
         // LEDs ON, to check

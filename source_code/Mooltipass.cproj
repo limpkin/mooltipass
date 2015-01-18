@@ -497,6 +497,9 @@
     <None Include="src\AES\aes256_nessie_test.txt">
       <SubType>compile</SubType>
     </None>
+    <None Include="src\boot_and_checks.txt">
+      <SubType>compile</SubType>
+    </None>
     <None Include="src\changelog.txt">
       <SubType>compile</SubType>
     </None>

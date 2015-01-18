@@ -272,54 +272,58 @@ def mooltipassInit(hid_device, intf, epin, epout):
 			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
 			data2 = receiveHidPacket(epin)
 			mooltipass_password.extend(data2[DATA_INDEX:DATA_INDEX+30])
+			
+			# Send our bundle
+			sendHidPacket(epout, CMD_IMPORT_MEDIA_START, 62, mooltipass_password)
+			# Check that the import command worked
+			if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+				# Open bundle file
+				bundlefile = open('bundle.img', 'rb')
+				packet_to_send = array('B')
+				byte = bundlefile.read(1)
+				bytecounter = 0
+				# While we haven't finished looping through the bytes
+				while byte != '':
+					# Add byte to current packet
+					packet_to_send.append(struct.unpack('B', byte)[0])
+					# Increment byte counter
+					bytecounter = bytecounter + 1
+					# Read new byte
+					byte = bundlefile.read(1)
+					# If packet full, send it
+					if bytecounter == 33:
+						sendHidPacket(epout, CMD_IMPORT_MEDIA, 33, packet_to_send)
+						packet_to_send = array('B')
+						bytecounter = 0
+						# Check ACK
+						if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+							print "Error in upload"
+							raw_input("press enter to acknowledge")
+				# Send the remaining bytes
+				sendHidPacket(epout, CMD_IMPORT_MEDIA, bytecounter, packet_to_send)
+				# Wait for ACK
+				receiveHidPacket(epin)
+				# Inform we sent everything
+				sendHidPacket(epout, CMD_IMPORT_MEDIA_END, 0, None)
+				# Check ACK
+				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+					success_status = 1
+				# Close file
+				bundlefile.close()
+			else:
+				success_status = 0
 
 			# Send set password packet
-			sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)	
-			if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
-				# Write Mooltipass ID in file together with random bytes, flush write
-				f.write(str(mp_id))
-				f.write('|')
-				f.write(''.join(format(x, '02x') for x in mooltipass_password))
-				f.write('\r\n')
-				f.flush()
-				success_status = 1
-			
-			# Send our bundle using the password we just generated
 			if success_status == 1:
-				sendHidPacket(epout, CMD_IMPORT_MEDIA_START, 62, mooltipass_password)
-				# Check that the import command worked
+				sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)	
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
-					# Open bundle file
-					bundlefile = open('bundle.img', 'rb')
-					packet_to_send = array('B')
-					byte = bundlefile.read(1)
-					bytecounter = 0
-					# While we haven't finished looping through the bytes
-					while byte != '':
-						# Add byte to current packet
-						packet_to_send.append(struct.unpack('B', byte)[0])
-						# Increment byte counter
-						bytecounter = bytecounter + 1
-						# Read new byte
-						byte = bundlefile.read(1)
-						# If packet full, send it
-						if bytecounter == 62:
-							sendHidPacket(epout, CMD_IMPORT_MEDIA, 62, packet_to_send)
-							packet_to_send = array('B')
-							bytecounter = 0
-							# Wait for ACK
-							receiveHidPacket(epin)
-					# Send the remaining bytes
-					sendHidPacket(epout, CMD_IMPORT_MEDIA, bytecounter, packet_to_send)
-					# Wait for ACK
-					receiveHidPacket(epin)
-					# Inform we sent everything
-					sendHidPacket(epout, CMD_IMPORT_MEDIA_END, 0, None)
-					# Check ACK
-					if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
-						success_status = 1
-					# Close file
-					bundlefile.close()
+					# Write Mooltipass ID in file together with random bytes, flush write
+					f.write(str(mp_id))
+					f.write('|')
+					f.write(''.join(format(x, '02x') for x in mooltipass_password))
+					f.write('\r\n')
+					f.flush()
+					success_status = 1
 				else:
 					success_status = 0
 

@@ -72,6 +72,41 @@ uint16_t mediaFlashImportPage;
 uint16_t mediaFlashImportOffset;
 
 
+/*! \fn     checkMooltipassPassword(uint8_t* data)
+*   \brief  Check that the provided bytes is the mooltipass password
+*   \param  data            Password
+*   \return TRUE or FALSE
+*/
+uint8_t checkMooltipassPassword(uint8_t* data)
+{
+    uint8_t mooltipass_password[PACKET_EXPORT_SIZE];
+    
+    // Read password in eeprom
+    eeprom_read_block((void*)mooltipass_password, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
+    
+    // Preventing side channel attacks: only return after a given amount of time
+    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
+    
+    // Do the comparison
+    volatile uint8_t password_comparison_result = memcmp((void*)mooltipass_password, (void*)data, PACKET_EXPORT_SIZE);
+    
+    // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
+    while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
+    
+    // Clear buffer
+    memset((void*)mooltipass_password, 0x00, PACKET_EXPORT_SIZE);
+    
+    // Check comparison result
+    if (password_comparison_result == 0)
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
 #ifdef FLASH_BLOCK_IMPORT_EXPORT
 /*! \fn     approveImportExportMemoryOperation(uint8_t opUID, uint8_t* pluginAnswer)
 *   \brief  Approve a Flash/Eeprom import/export operation
@@ -897,11 +932,7 @@ void usbProcessIncoming(uint8_t caller_id)
 
         // import media flash contents
         case CMD_IMPORT_MEDIA_START :
-        {
-            #ifndef DEV_PLUGIN_COMMS
-                uint8_t temp_buffer[PACKET_EXPORT_SIZE];
-            #endif
-            
+        {            
             // Set default addresses
             mediaFlashImportPage = GRAPHIC_ZONE_PAGE_START;
             mediaFlashImportOffset = 0;
@@ -914,18 +945,16 @@ void usbProcessIncoming(uint8_t caller_id)
                 // Mandatory wait for bruteforce
                 userViewDelay();
                 
-                // Compare with our password, can be 0xFF... if not initialized
+                // Compare with our password if it is set
                 if (datalen == PACKET_EXPORT_SIZE)
                 {
-                    eeprom_read_block((void*)temp_buffer, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
-                    if (memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE) == 0)
+                    if ((checkMooltipassPassword(msg->body.data) == TRUE) || (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY))
                     {
                         plugin_return_value = PLUGIN_BYTE_OK;
                         mediaFlashImportApproved = TRUE;
                     }
                 }
-            #endif
-            
+            #endif            
             break;
         }
 
@@ -1190,32 +1219,20 @@ void usbProcessIncoming(uint8_t caller_id)
                 sei();
                 while(1);
             #else
-                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
+                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE) && (checkMooltipassPassword(msg->body.data) == TRUE))
                 {
-                    // Read password in eeprom
-                    eeprom_read_block((void*)temp_buffer, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
-                    // Preventing side channel attacks: only jump to the bootloader (or not) after a given amount of time
-                    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
-                    // Do the comparison
-                    volatile uint8_t password_comparison_result = memcmp((void*)temp_buffer, (void*)msg->body.data, PACKET_EXPORT_SIZE);
-                    // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
-                    while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);                    
-                    // Do the if
-                    if (password_comparison_result == 0)
-                    {
-                        // Write "jump to bootloader" key in eeprom
-                        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
-                        // Set bootloader password bool to FALSE
-                        eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
-                        // Use WDT to reset the device
-                        cli();
-                        wdt_reset();
-                        wdt_clear_flag();
-                        wdt_change_enable();
-                        wdt_enable_2s();
-                        sei();
-                        while(1);
-                    }
+                    // Write "jump to bootloader" key in eeprom
+                    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                    // Set bootloader password bool to FALSE
+                    eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
+                    // Use WDT to reset the device
+                    cli();
+                    wdt_reset();
+                    wdt_clear_flag();
+                    wdt_change_enable();
+                    wdt_enable_2s();
+                    sei();
+                    while(1);
                 }
             #endif
         }

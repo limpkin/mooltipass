@@ -102,7 +102,7 @@ int main(void)
         CPU_PRESCALE(0);
     #endif
         
-    // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 2.6V, spm prohibited in bootloader (even if this was hacked...)
+    // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 2.6V, programming & ver disabled
     if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xFB) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
     {
         fuse_ok = FALSE;

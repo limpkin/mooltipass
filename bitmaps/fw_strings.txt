@@ -8,7 +8,7 @@ Failed!
 PIN Changed!
 Not Changed!
 User Added
-Couldn't Add User
+Could Not Add User
 Card Unlocked
 Unknown Card
 Insert New Smartcard

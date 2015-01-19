@@ -6,6 +6,11 @@ Mooltipass Project Repository
 This is the GitHub repository dedicated to the Mooltipass device. It contains all the resources that were used and generated for this community driven product since this project was first started back in December 2013. You may find all the articles detailing its different steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.
 
 
+Current state (19/01/2015)
+-------------------------------
+Our <a href="https://www.indiegogo.com/projects/mooltipass-open-source-offline-password-keeper">crowdfuding campaign</a> achieved his goal by raising around $120k.
+We are currently finishing the Mooltipass app and extension. You can pre-order a mooltipass <b><a href="https://www.tindie.com/products/limpkin/mooltipass-offline-password-keeper/">here</a></b>. The production will start in March.
+
 What is the Mooltipass Project?
 -------------------------------
 With time, logins and passwords have become critical elements we need to remember to access the different websites and services we use daily. If we want to achieve good security, each of these credential sets should be unique.  

@@ -303,6 +303,16 @@ From plugin/app: Query Mooltipass status
 
 From Mooltipass: 1 bytes bit field. BIT0: smartcard presence. BIT1: pin unlocking screen. BIT2: smartcard present and unlocked
 
+```
+0b000 -> No Card
+0b001 -> Locked 
+0b010 -> Error (shouldn't happen)
+0b011 -> Locked (unlocking screen)
+0b100 -> Error (shouldn't happen)
+0b101 -> Unlocked
+0b110 -> Error (shouldn't happen)
+0b111 -> Error (shouldn't happen)
+```
 
 Functions
 =========

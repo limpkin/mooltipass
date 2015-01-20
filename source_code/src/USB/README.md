@@ -45,7 +45,7 @@ From Mooltipass: the login if the user has approved the sending of credential / 
 ------------------
 From plugin/app: request the password for the current context
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass didn't send the password, 0x01 if so.
+From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass didn't send the password, data otherwise.
 
 0x07: set login
 ---------------

@@ -297,9 +297,11 @@ From plugin/app: When an unknown smartcard is inserted, tell the Mooltipass to s
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
 
-0x70: PIN Unlocking screen
----------------------------
-From Mooltipass: 0 byte data packet, informs we're entering the PIN
+0x70: Mooltipass status
+-----------------------
+From plugin/app: Query Mooltipass status
+
+From Mooltipass: 1 bytes bit field. BIT0: smartcard presence. BIT1: pin unlocking screen. BIT2: smartcard present and unlocked
 
 
 Functions

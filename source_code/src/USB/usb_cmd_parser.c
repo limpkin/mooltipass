@@ -236,11 +236,27 @@ void usbProcessIncoming(uint8_t caller_id)
     // Debug comms
     // USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
     
-    // Check if we're currently asking the user to enter his PIN
-    if (caller_id == USB_CALLER_PIN)
+    // Check if we're currently asking the user to enter his PIN or want to query the MP status
+    if ((caller_id == USB_CALLER_PIN) || (datacmd == CMD_MOOLTIPASS_STATUS))
     {
+        uint8_t mp_status = 0x00;
+        // Last bit: is card inserted
+        if (isSmartCardAbsent() == RETURN_NOK)
+        {
+            mp_status |= 0x01;
+        } 
+        // Unlocking screen
+        if (caller_id == USB_CALLER_PIN)
+        {
+            mp_status |= 0x02;
+        }
+        // Smartcard unlocked
+        if (getSmartCardInsertedUnlocked() == TRUE)
+        {
+            mp_status |= 0x04;
+        }
         // Inform the plugin to inform the user to unlock his card
-        usbSendMessage(CMD_PIN_UNLOCKING_SC, 0, 0);
+        usbSendMessage(CMD_MOOLTIPASS_STATUS, 1, &mp_status);
         return;
     }
 

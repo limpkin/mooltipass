@@ -64,7 +64,7 @@
 #define CMD_GET_CTRVALUE        0x67
 #define CMD_ADD_UNKNOWN_CARD    0x68
 #define CMD_USB_KEYBOARD_PRESS  0x69
-#define CMD_PIN_UNLOCKING_SC    0x70
+#define CMD_MOOLTIPASS_STATUS   0x70
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

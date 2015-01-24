@@ -121,8 +121,7 @@ def generateHeader(fontName, pngFilename, xmlFilename):
             lineWidth = 1
             pixels = 0
             pixCount = 0
-            width = max(rect[2]-1,1)
-            for x in range(rect[0],rect[0]+width):
+            for x in range(rect[0],rect[0]+rect[2]-1):
                 count += 1
                 # map 255 shades to 4
                 pix = line[y][x]['a'] >> (8-options.depth)
@@ -138,14 +137,13 @@ def generateHeader(fontName, pngFilename, xmlFilename):
 
                 patt += asciiPixel[pix]
 
-            if width > 1:
-                count += 1
-                pix = line[y][x+1]['a'] >> (8-options.depth)
-                patt += asciiPixel[pix]
-                pixels = pixels << (options.depth) | pix
-                pixCount += 1
-                if pixCount < (8/options.depth):
-                    pixels = pixels << ((8/options.depth)-pixCount)
+            count += 1
+            pix = line[y][x+1]['a'] >> (8-options.depth)
+            patt += asciiPixel[pix]
+            pixels = pixels << (options.depth) | pix
+            pixCount += 1
+            if pixCount < (8/options.depth):
+                pixels = pixels << ((8/options.depth)-pixCount)
             print >> outfd, '0x{:02x}, '.format(pixels),
             glyphData[ch].append(pixels & 0xFF)
             #glyphData[ch].append((pixels >> 8) & 0xFF)

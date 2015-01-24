@@ -138,10 +138,6 @@ def generateHeader(fontName, pngFilename, xmlFilename):
                 patt += asciiPixel[pix]
 
             count += 1
-            pix = line[y][x+1]['a'] >> (8-options.depth)
-            patt += asciiPixel[pix]
-            pixels = pixels << (options.depth) | pix
-            pixCount += 1
             if pixCount < (8/options.depth):
                 pixels = pixels << ((8/options.depth)-pixCount)
             print >> outfd, '0x{:02x}, '.format(pixels),

@@ -5,14 +5,14 @@
 #define PROFONT_10_72_HEIGHT 12
 
 const uint8_t profont_10_72_0x21[] __attribute__((__progmem__)) = {   /* '!' width: 6 */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
+     0x00,          /* [  ] */
+     0xf0,          /* [**] */
+     0xf0,          /* [**] */
+     0xc0,          /* [* ] */
+     0xc0,          /* [* ] */
+     0xc0,          /* [* ] */
+     0x00,          /* [  ] */
+     0xc0,          /* [* ] */
 };
 
 const uint8_t profont_10_72_0x22[] __attribute__((__progmem__)) = {   /* '"' width: 6 */
@@ -65,9 +65,9 @@ const uint8_t profont_10_72_0x26[] __attribute__((__progmem__)) = {   /* '&' wid
 };
 
 const uint8_t profont_10_72_0x27[] __attribute__((__progmem__)) = {   /* ''' width: 6 */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
 };
 
 const uint8_t profont_10_72_0x28[] __attribute__((__progmem__)) = {   /* '(' width: 6 */
@@ -921,16 +921,16 @@ const uint8_t profont_10_72_0x7b[] __attribute__((__progmem__)) = {   /* '{' wid
 };
 
 const uint8_t profont_10_72_0x7c[] __attribute__((__progmem__)) = {   /* '|' width: 6 */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
      0xc0,          /* [*] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
-     0x00,          /* [ ] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
+     0xc0,          /* [*] */
 };
 
 const uint8_t profont_10_72_0x7d[] __attribute__((__progmem__)) = {   /* '}' width: 6 */

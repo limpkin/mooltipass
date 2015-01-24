@@ -1,0 +1,3 @@
+[submodule "fonts/fontbuilder"]
+	path = fonts/fontbuilder
+	url = https://github.com/andryblack/fontbuilder.git

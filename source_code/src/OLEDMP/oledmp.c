@@ -407,12 +407,16 @@ void oledSetRemap(uint8_t mode)
 void oledPutch(char ch)
 {
     uint8_t glyphHeight = oledGlyphHeight();
+    uint8_t glyphPtr;
     
-    // 2014/12/13: quick and dirty patch for bug #139 to restrict chars between 0x20 & 0x7E included
-    if (((ch > '~') || (ch < ' ')) && (ch != '\r') && (ch != '\n'))
+    // Try to read the glyphdata pointer to see if this char is supported
+    flashRawRead(&glyphPtr, (uint16_t)oledFontAddr + (uint16_t)&oled_fontp->map[ch - ' '], sizeof(glyphPtr));
+    // Check the pointer, we don't support chars < ' ' (0x20)
+    if (((glyphPtr == 0xFF) || (ch < ' ')) && (ch != '\r') && (ch != '\n'))
     {
         ch = '?';
     }
+    
 #ifdef OLED_DEBUG1
     if (isprint(ch)) 
     {

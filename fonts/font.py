@@ -121,7 +121,7 @@ def generateHeader(fontName, pngFilename, xmlFilename):
             lineWidth = 1
             pixels = 0
             pixCount = 0
-            for x in range(rect[0],rect[0]+rect[2]-1):
+            for x in range(rect[0],rect[0]+rect[2]):
                 count += 1
                 # map 255 shades to 4
                 pix = line[y][x]['a'] >> (8-options.depth)

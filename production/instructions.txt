@@ -29,6 +29,9 @@ They maintain the bottom PCB to the case, M2x5.56mm height
 8) rubber foot to put under the case
 They should be around 5.5mm in diameter and 2mm thick, with double sided tape on one side
 
+9) plastic piece to be put under the screen
+To ensure an optimal card insertion a 38x18x1mm piece of plastic with double sided tape on one side should be put under the right part of the screen
+
 
 Assembly and other details:
 - ATMega32U4 programming can be either done before or after assembly

@@ -16,3 +16,6 @@ RESULT:
 - both GREEN and RED on: FAIL! PB6 or PB5 connection problem
 - GREEN on: PASS
 - RED on: FAIL!
+
+DEMONSTRATION:
+https://www.youtube.com/watch?v=oeGkkiU6DZA

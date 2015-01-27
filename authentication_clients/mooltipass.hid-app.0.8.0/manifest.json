@@ -1,0 +1,20 @@
+{
+    "name": "Mooltipass Client",
+    "description": "Mooltipass password manager client",
+    "version": "0.8.0",
+    "app": {
+        "background": {
+            "page" : "background/background.html"
+        }
+    },
+    "permissions": [
+        "hid",
+        {
+            "usbDevices": [
+                { "vendorId": 5840, "productId": 2464 }
+            ]
+        },
+	    {"fileSystem": ["write", "retainEntries"]}
+    ],
+    "icons": {"128": "gui/images/logo_square128.png" }
+}

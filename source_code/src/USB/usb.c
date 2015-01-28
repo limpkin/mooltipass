@@ -86,7 +86,7 @@ void initUsb(void)
     PLL_CONFIG();                   // config PLL
     while (!(PLLCSR & (1<<PLOCK))); // wait for PLL lock
     USB_CONFIG();                   // start USB clock
-    UDCON = 0;                      // enable attach resistor
+    UDCON = 0x08;                   // enable attach resistor
     usb_configuration = 0;          // usb not configured by default
     UDIEN = (1<<EORSTE)|(1<<SOFE);  // start USB
 }

@@ -286,14 +286,14 @@ int main(void)
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         RET_TYPE temp_rettype;        
-        // Wait for USB host to upload bundle & set password
+        // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
         //#ifdef PRODUCTION_KICKSTARTER_SETUP
-        //formatFlash();
-        while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
+        while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0xF1)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
         }
         //#endif
+        // Bundle uploaded, start the screen
         oledBegin(FONT_DEFAULT);
         oledWriteActiveBuffer();
         oledSetXY(0,0);
@@ -335,15 +335,33 @@ int main(void)
         {
             guiDisplayRawString(ID_STRING_TEST_CARD_PB);
         }
+        // Display result
+        uint8_t script_return = RETURN_OK;
         if ((flash_init_result == RETURN_OK) && (touch_init_result == RETURN_OK) && ((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
         {
+            // Inform script of success
+            usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
+            // Wait for password to be set
+            while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
+            {
+                usbProcessIncoming(USB_CALLER_MAIN);
+            }
+            // Display test result
             guiDisplayRawString(ID_STRING_TEST_OK);
             timerBasedDelayMs(3000);
         }
         else
         {
+            // Set correct bool
+            script_return = RETURN_NOK;
+            // Display test result
             guiDisplayRawString(ID_STRING_TEST_NOK);
-            while(1);
+            // Inform script of failure
+            usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
+            while(1)
+            {
+                usbProcessIncoming(USB_CALLER_MAIN);
+            }
         }
     }
     

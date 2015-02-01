@@ -81,6 +81,8 @@ CMD_GET_STARTING_PARENT	= 0x66
 CMD_GET_CTRVALUE		= 0x67
 CMD_ADD_UNKNOWN_CARD    = 0x68
 CMD_USB_KEYBOARD_PRESS  = 0x69
+CMD_MOOLTIPASS_STATUS   = 0x70
+CMD_FUNCTIONAL_TEST_RES = 0x71
 
 def keyboardSend(epout, data1, data2):
 	packetToSend = array('B')
@@ -190,6 +192,14 @@ def receiveHidPacket(epin):
 		#print e
 		sys.exit("Mooltipass didn't send a packet")
 
+def receiveHidPacketWithTimeout(epin):
+	try : 
+		data = epin.read(epin.wMaxPacketSize, timeout=15000)
+		return data
+	except usb.core.USBError as e:
+		return None
+
+
 def sendHidPacket(epout, cmd, len, data):
 	# data to send
 	arraytosend = array('B')
@@ -258,63 +268,114 @@ def mooltipassInit(hid_device, intf, epin, epout):
 		temp_bool = 0
 		while temp_bool == 0:
 			# Operation success state
-			success_status = 0
+			success_status = 1
 			
 			# Empty set password packet
 			mooltipass_password = array('B')
 			
 			# We need 62 random bytes to set them as a password for the Mooltipass
+			sys.stdout.write('Step 1... ')
+			sys.stdout.flush()
 			#print "Getting first random half"
 			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
-			data = receiveHidPacket(epin)
+			data = receiveHidPacketWithTimeout(epin)
 			mooltipass_password.extend(data[DATA_INDEX:DATA_INDEX+32])
 			#print "Getting second random half"
 			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
-			data2 = receiveHidPacket(epin)
+			data2 = receiveHidPacketWithTimeout(epin)
 			mooltipass_password.extend(data2[DATA_INDEX:DATA_INDEX+30])
+
+			# Check that we actually received data 
+			if data == None or data2 == None:
+				success_status = 0
+				print "fail!!!"
+				print "likely causes: deffective crystal or power supply"
 			
 			# Send our bundle
-			sendHidPacket(epout, CMD_IMPORT_MEDIA_START, 62, mooltipass_password)
-			# Check that the import command worked
-			if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
-				# Open bundle file
-				bundlefile = open('bundle.img', 'rb')
-				packet_to_send = array('B')
-				byte = bundlefile.read(1)
-				bytecounter = 0
-				# While we haven't finished looping through the bytes
-				while byte != '':
-					# Add byte to current packet
-					packet_to_send.append(struct.unpack('B', byte)[0])
-					# Increment byte counter
-					bytecounter = bytecounter + 1
-					# Read new byte
+			if success_status == 1:
+				sys.stdout.write('Step 2... ')
+				sys.stdout.flush()
+				sendHidPacket(epout, CMD_IMPORT_MEDIA_START, 62, mooltipass_password)
+				# Check that the import command worked
+				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+					# Open bundle file
+					bundlefile = open('bundle.img', 'rb')
+					packet_to_send = array('B')
 					byte = bundlefile.read(1)
-					# If packet full, send it
-					if bytecounter == 33:
-						sendHidPacket(epout, CMD_IMPORT_MEDIA, 33, packet_to_send)
-						packet_to_send = array('B')
-						bytecounter = 0
-						# Check ACK
-						if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
-							print "Error in upload"
-							raw_input("press enter to acknowledge")
-				# Send the remaining bytes
-				sendHidPacket(epout, CMD_IMPORT_MEDIA, bytecounter, packet_to_send)
-				# Wait for ACK
-				receiveHidPacket(epin)
-				# Inform we sent everything
-				sendHidPacket(epout, CMD_IMPORT_MEDIA_END, 0, None)
-				# Check ACK
+					bytecounter = 0
+					# While we haven't finished looping through the bytes
+					while byte != '':
+						# Add byte to current packet
+						packet_to_send.append(struct.unpack('B', byte)[0])
+						# Increment byte counter
+						bytecounter = bytecounter + 1
+						# Read new byte
+						byte = bundlefile.read(1)
+						# If packet full, send it
+						if bytecounter == 33:
+							sendHidPacket(epout, CMD_IMPORT_MEDIA, 33, packet_to_send)
+							packet_to_send = array('B')
+							bytecounter = 0
+							# Check ACK
+							if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+								print "Error in upload"
+								raw_input("press enter to acknowledge")
+					# Send the remaining bytes
+					sendHidPacket(epout, CMD_IMPORT_MEDIA, bytecounter, packet_to_send)
+					# Wait for ACK
+					receiveHidPacket(epin)
+					# Inform we sent everything
+					sendHidPacket(epout, CMD_IMPORT_MEDIA_END, 0, None)
+					# Check ACK
+					if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+						success_status = 1
+					# Close file
+					bundlefile.close()
+				else:
+					success_status = 0
+					print "fail!!!"
+					print "likely causes: mooltipass already setup"
+
+			# Inform the Mooltipass that the bundle is sent so it can start functional test
+			if success_status == 1:
+				sys.stdout.write('Step 3... ')
+				sys.stdout.flush()
+				magic_key = array('B')
+				magic_key.append(0)
+				magic_key.append(241)
+				sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, magic_key)
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 					success_status = 1
-				# Close file
-				bundlefile.close()
-			else:
-				success_status = 0
+					print ""
+					print "Please follow the on screen instructions on the mooltipass"
+				else:
+					success_status = 0
+					print "fail!!!"
+					print "likely causes: none"
+
+			# Wait for the mooltipass to inform the script that the test was successfull
+			temp_bool2 = False
+			sys.stdout.write('Waiting for functional test result...')
+			sys.stdout.flush()
+			while temp_bool2 != True:
+				test_result = receiveHidPacketWithTimeout(epin)
+				if test_result == None:
+					sys.stdout.write('.')
+					sys.stdout.flush()
+				else:
+					if test_result[CMD_INDEX] == CMD_FUNCTIONAL_TEST_RES and test_result[DATA_INDEX] == 0:
+						success_status = 1
+						print " ok!"
+					else:
+						success_status = 0
+						print " fail!!!"
+						print "Please look at the screen to know the cause"
+					temp_bool2 = True
 
 			# Send set password packet
 			if success_status == 1:
+				sys.stdout.write('Step 4... ')
+				sys.stdout.flush()
 				sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)	
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 					# Write Mooltipass ID in file together with random bytes, flush write
@@ -323,28 +384,33 @@ def mooltipassInit(hid_device, intf, epin, epout):
 					f.write(''.join(format(x, '02x') for x in mooltipass_password))
 					f.write('\r\n')
 					f.flush()
+					# Update Success status
 					success_status = 1
+					print ""
 				else:
 					success_status = 0
+					print "fail!!!"
+					print "likely causes: mooltipass already setup"
 
 			# COMMENT THE NEXT LINE FOR PRODUCTION!
 			#sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, mooltipass_password)
 			
 			if success_status == 1:
 				# Let the user know it is done
-				print ""
-				print "Setting up Mooltipass #", mp_id, "..... DONE" 
+				print "Setting up Mooltipass #"+str(mp_id)+" DONE" 
+				print "PLEASE WRITE \""+str(mp_id)+"\" ON THE BACK STICKER"
+				# Increment Mooltipass ID
+				mp_id = mp_id + 1
 			else:
-				print ""
 				print "---------------------------------------------------------"
 				print "---------------------------------------------------------"
-				print "Setting up Mooltipass #", mp_id, "..... FAIL!!!!!!!!!!!!!!!!!!" 
-				print "Please put away this Mooltipass!"
+				print "Setting up Mooltipass #", mp_id, "FAILED" 
+				print "PLEASE PUT AWAY THIS MOOLTIPASS!!!!"
 				print "---------------------------------------------------------"
 				print "---------------------------------------------------------"
 				
 			# Disconnect this device
-			print "Please disconnect this Mooltipass"
+			print "\r\nPlease disconnect this Mooltipass"
 			
 			# Wait for no answer to ping
 			temp_bool2 = 0
@@ -358,7 +424,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 					epout.write(ping_packet)
 					try : 
 						# try to receive answer
-						data = epin.read(epin.wMaxPacketSize, timeout=5000)
+						data = epin.read(epin.wMaxPacketSize, timeout=10000)
 					except usb.core.USBError as e:
 						#print e
 						temp_bool2 = 1
@@ -378,9 +444,12 @@ def mooltipassInit(hid_device, intf, epin, epout):
 					temp_bool2 = 1
 				time.sleep(.5)
 					
-			# Delay and increment
-			time.sleep(2)
-			mp_id = mp_id + 1
+			# Delay
+			time.sleep(1)
+
+			# New Mooltipass detected
+			print "New Mooltipass detected"
+			print ""
 	except KeyboardInterrupt:
 		f.close()
 		print "File written, everything ok"

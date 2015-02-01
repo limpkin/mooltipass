@@ -1,7 +1,8 @@
 - After production a custom test rig is used to program the Mooltipass firmware & fuses
 - The test rig also pulls PB5 low, enabling electrical testing (see production\_programming_and_test\electrical_test.txt)
 - During this test the IOs not used by the Mooltipass peripherals are tested, as well as the correct fuse settings
-- First boot is detected by calling eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR)
+- Test result is shown on the test bed LEDs
+- First boot is then detected by checking eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR)
 - This initializes default Mooltipass settings and formats the external Flash
 - Functional test is then entered
 - Mooltipass bundle needs to be sent, Mooltipass password set

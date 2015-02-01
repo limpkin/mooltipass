@@ -65,6 +65,7 @@
 #define CMD_ADD_UNKNOWN_CARD    0x68
 #define CMD_USB_KEYBOARD_PRESS  0x69
 #define CMD_MOOLTIPASS_STATUS   0x70
+#define CMD_FUNCTIONAL_TEST_RES 0x71
     
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

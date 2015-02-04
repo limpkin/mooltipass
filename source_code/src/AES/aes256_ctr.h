@@ -19,7 +19,7 @@
  */
 /*!	\file 	aes256_ctr.h
 *	\brief	AES256CTR encryption Header
-* 
+*
 *	Created: 06/03/2014 14:17:00
 *	Author: Miguel A. Borrego
 */
@@ -31,7 +31,7 @@
 #include "aes.h"
 
 /*! \struct aes256CtrCtx_t
-*   \brief CTX data type 
+*   \brief CTX data type
 */
 typedef struct
 {

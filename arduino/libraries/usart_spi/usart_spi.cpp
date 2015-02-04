@@ -28,7 +28,7 @@
 #define MISO2 2		// PD2
 #define MOSI2 3		// PD3
 
-void USARTSPI::begin() 
+void USARTSPI::begin()
 {
     // enable pins
     UBRR1 = 0;

@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 
-/* 
+/*
  * RATE = Fosc / 2*(URR1 + 1)
  *      = 16000000 / (2*URR1 + 2)
  *
@@ -53,7 +53,7 @@ void spiUsartSetRate(uint16_t rate);
  * @param data - the byte to send
  * @returns the received byte
  */
-static inline uint8_t spiUsartTransfer(uint8_t data) 
+static inline uint8_t spiUsartTransfer(uint8_t data)
 {
     /* Wait for empty transmit buffer */
     while (!(UCSR1A & (1<<UDRE1)));
@@ -68,9 +68,9 @@ static inline uint8_t spiUsartTransfer(uint8_t data)
  * @param data - pointer to buffer to store data in
  * @param size - number of bytes to read
  */
-static inline void spiUsartRead(uint8_t *data, uint16_t size) 
+static inline void spiUsartRead(uint8_t *data, uint16_t size)
 {
-    while (size--) 
+    while (size--)
     {
         /* Wait for empty transmit buffer */
         while (!(UCSR1A & (1<<UDRE1)));
@@ -86,9 +86,9 @@ static inline void spiUsartRead(uint8_t *data, uint16_t size)
  * @param data - pointer to buffer of data to write
  * @param size - number of bytes to write
  */
-static inline void spiUsartWrite(uint8_t *data, uint16_t size) 
+static inline void spiUsartWrite(uint8_t *data, uint16_t size)
 {
-    while (size--) 
+    while (size--)
     {
         /* Wait for empty transmit buffer */
         while (!(UCSR1A & (1<<UDRE1)));

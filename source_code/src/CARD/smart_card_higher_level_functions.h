@@ -288,7 +288,7 @@ void resetBlankCard(void);
 
 /*
                 SMART CARD MEMORY MAP
-                
+
 Bit Address                 Description                 Bits    Words
 0–15            Fabrication Zone (FZ)                   16      1
 16–79           Issuer Zone (IZ)                        64      4

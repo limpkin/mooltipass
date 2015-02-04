@@ -14,7 +14,7 @@
 #include <string.h>
 
 /**************************************************************************/
-/*! 
+/*!
     @brief  Instantiates a new touch sensing class
     @param  change	Location of the change pin
 */
@@ -64,7 +64,7 @@ uint8_t mooltipass_touch_sensing::writeDataToTS(uint8_t reg, uint8_t data)
     WIRE.write(reg);
     WIRE.write(data);
     WIRE.endTransmission();
-	
+
     return RETURN_OK;
 }
 
@@ -119,7 +119,7 @@ uint8_t mooltipass_touch_sensing::begin(void)
 {
 	WIRE.begin();
 	uint8_t temp_return = checkTSPres();
-	
+
 	if (temp_return == RETURN_OK)
 	{
 		// Perform measurements every 16ms
@@ -148,7 +148,7 @@ uint8_t mooltipass_touch_sensing::begin(void)
 		writeDataToTS(REG_AT42QT_SLID_OPT, 0x40);                                                  // Enable wheel
 		writeDataToTS(REG_AT42QT_SLID_OPT, 0xC0);                                                  // Enable wheel
 		activateGuardKey();                                                                   	   // Guard key
-	}        
+	}
 	return temp_return;
 }
 
@@ -192,7 +192,7 @@ void mooltipass_touch_sensing::touchClearCurrentDetections(void)
 {
     uint8_t temp_uint;
     readDataFromTS(REG_AT42QT_SLIDER_POS, &temp_uint);
-    readDataFromTS(REG_AT42QT_DET_STAT, &temp_uint);    
+    readDataFromTS(REG_AT42QT_DET_STAT, &temp_uint);
     readDataFromTS(REG_AT42QT_KEY_STAT1, &temp_uint);
     readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_uint);
 }
@@ -203,8 +203,8 @@ void mooltipass_touch_sensing::touchClearCurrentDetections(void)
 void mooltipass_touch_sensing::touchWaitForWheelReleased(void)
 {
     uint8_t keys_detection_status;
-    
-    do 
+
+    do
     {
         readDataFromTS(REG_AT42QT_DET_STAT, &keys_detection_status);
     }
@@ -223,11 +223,11 @@ uint8_t mooltipass_touch_sensing::touchDetectionRoutine(uint8_t led_mask)
     uint8_t led_states[NB_KEYS];
     uint8_t temp_bool = false;
     uint8_t temp_uint;
-    
+
     // Set the LEDs on by default
     memset((void*)led_states, AT42QT2120_OUTPUT_H_VAL, NB_KEYS);
-    
-    // Switch them off depending on mask    
+
+    // Switch them off depending on mask
     for (temp_uint = 0; temp_uint < NB_KEYS; temp_uint++)
     {
         if (led_mask & (1 << temp_uint))
@@ -235,24 +235,24 @@ uint8_t mooltipass_touch_sensing::touchDetectionRoutine(uint8_t led_mask)
             led_states[temp_uint] = AT42QT2120_OUTPUT_L_VAL;
         }
     }
-    
+
     if (isTouchChangeDetected())
     {
         // Set temp bool to true
         temp_bool = true;
-        
+
         // Read detection status register
         readDataFromTS(REG_AT42QT_DET_STAT, &keys_detection_status);
-        
-        // Unused byte that needs to be read        
+
+        // Unused byte that needs to be read
         readDataFromTS(REG_AT42QT_KEY_STAT1, &temp_uint);
-        
+
         // If wheel is touched
         if (keys_detection_status & AT42QT2120_SDET_MASK)
         {
             // Get position and update global var
             readDataFromTS(REG_AT42QT_SLIDER_POS, &last_raw_wheel_position);
-            
+
             // Update LED states
             led_states[getWheelTouchDetectionQuarter()] = AT42QT2120_OUTPUT_L_VAL;
             return_val |= RETURN_WHEEL_PRESSED;
@@ -264,7 +264,7 @@ uint8_t mooltipass_touch_sensing::touchDetectionRoutine(uint8_t led_mask)
 
         // Read button touched register
         readDataFromTS(REG_AT42QT_KEY_STAT2, &temp_uint);
-        
+
         // If one button is touched
         if ((keys_detection_status & AT42QT2120_TDET_MASK) && !(keys_detection_status & AT42QT2120_SDET_MASK))
         {
@@ -293,14 +293,14 @@ uint8_t mooltipass_touch_sensing::touchDetectionRoutine(uint8_t led_mask)
             return_val |= RETURN_LEFT_RELEASED;
             return_val |= RETURN_RIGHT_RELEASED;
         }
-        
+
         // Switch on cathode if activity
         if (return_val & TOUCH_PRESS_MASK)
         {
             //activityDetectedRoutine();
         }
     }
-    
+
     // If there's a touch change or led mask has changed
     if ((temp_bool == true) || (led_mask != last_led_mask))
     {
@@ -312,6 +312,6 @@ uint8_t mooltipass_touch_sensing::touchDetectionRoutine(uint8_t led_mask)
         writeDataToTS(WHEEL_BLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_BLEFT]);
         writeDataToTS(WHEEL_BRIGHT_LED_REGISTER,  led_states[TOUCHPOS_WHEEL_BRIGHT]);
     }
-    
-    return return_val;   
+
+    return return_val;
 }

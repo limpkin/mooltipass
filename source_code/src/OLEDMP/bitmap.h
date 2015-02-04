@@ -23,7 +23,7 @@
 #ifndef BITMAP_H_
 #define BITMAP_H_
 
-typedef struct __attribute__((packed)) bitmap_s 
+typedef struct __attribute__((packed)) bitmap_s
 {
     uint16_t width;     //*< width of image in pixels
     uint8_t height;     //*< height of image in pixels

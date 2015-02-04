@@ -29,7 +29,7 @@
 #define CMD_ERASE_EEPROM        0x40
 #define CMD_ERASE_FLASH         0x41
 #define CMD_ERASE_SMC           0x42
-#define CMD_DRAW_BITMAP         0x43	
+#define CMD_DRAW_BITMAP         0x43
 #define CMD_SET_FONT            0x44
 #define CMD_EXPORT_FLASH_START  0x45
 #define CMD_EXPORT_EEPROM_START 0x46
@@ -66,7 +66,7 @@
 #define CMD_USB_KEYBOARD_PRESS  0x69
 #define CMD_MOOLTIPASS_STATUS   0x70
 #define CMD_FUNCTIONAL_TEST_RES 0x71
-    
+
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00
 #define HID_TYPE_FIELD      0x01
@@ -93,11 +93,11 @@
 #endif
 
 /*** STRUCTS ***/
-typedef struct 
+typedef struct
 {
     uint8_t len;
     uint8_t cmd;
-    union 
+    union
     {
         uint8_t data[RAWHID_RX_SIZE-HID_DATA_START];
         uint32_t addr;

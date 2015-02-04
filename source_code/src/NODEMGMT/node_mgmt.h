@@ -32,7 +32,7 @@
 
 #include "defines.h"
 
-typedef enum _nodeType 
+typedef enum _nodeType
 {
     NODE_TYPE_PARENT = 0,
     NODE_TYPE_CHILD = 1,
@@ -111,7 +111,7 @@ typedef enum _nodeType
 * Struct containing a generic node
 */
 typedef struct __attribute__((packed)) genericNode {
-    uint16_t flags;                 /*!< Parent node flags 
+    uint16_t flags;                 /*!< Parent node flags
                                     * 15 dn 14-> Node type (Always 00 for Parent Node)
                                     * 13 dn 13 -> Valid Bit
                                     * 12 dn 8 -> User ID
@@ -126,7 +126,7 @@ typedef struct __attribute__((packed)) genericNode {
 * Struct containing a parent node
 */
 typedef struct __attribute__((packed)) parentNode {
-    uint16_t flags;                 /*!< Parent node flags 
+    uint16_t flags;                 /*!< Parent node flags
                                     * 15 dn 14-> Node type (Always 00 for Parent Node)
                                     * 13 dn 13 -> Valid Bit
                                     * 12 dn 8 -> User ID
@@ -156,13 +156,13 @@ typedef struct __attribute__((packed)) childNode {
     uint16_t prevChildAddress;      /*!< Previous child node address (Alaphabetically) */
     uint16_t nextChildAddress;      /*!< Next child node address (Alphabetically) */
     uint8_t description[24];        /*!< (ASCII) Text describing login credentials (wordpress login) */
-    uint16_t dateCreated;           /*!< The date the child node was added to mooltipass (requires plugin) 
+    uint16_t dateCreated;           /*!< The date the child node was added to mooltipass (requires plugin)
                                     * Date Encoding:
                                     * 15 dn 9 -> Year (2010 + value)
                                     * 8 dn 5 -> Month
                                     * 4 dn 0 -> Day
                                     */
-    uint16_t dateLastUsed;          /*!< The date the child node was last used on the mooltipass (requires plugin) 
+    uint16_t dateLastUsed;          /*!< The date the child node was last used on the mooltipass (requires plugin)
                                     * Date Encoding:
                                     * 15 dn 9 -> Year (2010 + value)
                                     * 8 dn 5 -> Month
@@ -204,7 +204,7 @@ typedef struct __attribute__((packed)) nodeMgmtH
     /*
     15 dn 0 Free
     */
-    
+
     uint8_t currentUserId;          /*!< The users ID */
     uint16_t pageUserProfile;       /*!< The page of the user profile */
     uint16_t offsetUserProfile;     /*!< The offset of the user profile */
@@ -265,7 +265,7 @@ void readProfileCtr(void *buf);
 
 RET_TYPE createGenericNode(gNode* g, uint16_t firstNodeAddress, uint16_t* newFirstNodeAddress, uint8_t comparisonFieldOffset, uint8_t comparisonFieldLength);
 
-RET_TYPE createParentNode(pNode *p);                                        
+RET_TYPE createParentNode(pNode *p);
 void readParentNode(pNode *p, uint16_t parentNodeAddress);
 RET_TYPE updateParentNode(pNode *p, uint16_t parentNodeAddress);
 RET_TYPE deleteParentNode(uint16_t parentNodeAddress);

@@ -21,7 +21,7 @@
 *    \brief    Different delays used in the mooltipass
 *    Created:  09/6/2014
 *    Author:   Mathieu Stephan
-*/ 
+*/
 
 
 #ifndef DELAYS_H_

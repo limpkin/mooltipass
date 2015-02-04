@@ -32,10 +32,10 @@
 /* Work around a bug with PROGMEM and PSTR where the compiler always
  * generates warnings.
  */
-#undef PROGMEM 
-#define PROGMEM __attribute__(( section(".progmem.data") )) 
-#undef PSTR 
-#define PSTR(s) (__extension__({static prog_char __c[] PROGMEM = (s); &__c[0];})) 
+#undef PROGMEM
+#define PROGMEM __attribute__(( section(".progmem.data") ))
+#undef PSTR
+#define PSTR(s) (__extension__({static prog_char __c[] PROGMEM = (s); &__c[0];}))
 
 #define pinLow(port, pin)	*port &= ~pin
 #define pinHigh(port, pin)	*port |= pin
@@ -185,22 +185,22 @@ int OledMP::printf(const char *fmt, ...)
     va_list ap;
     va_start(ap, fmt);
     int ret = vsnprintf(_printBuf, sizeof(_printBuf), fmt, ap);
-      
+
     putstr(_printBuf);
 
     return ret;
-} 
+}
 
 int OledMP::printf(const __fstr *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
     int ret = vsnprintf_P(_printBuf, sizeof(_printBuf), (const char *)fmt, ap);
-      
+
     putstr(_printBuf);
 
     return ret;
-} 
+}
 
 void OledMP::setXY(uint8_t col, uint8_t row)
 {
@@ -254,7 +254,7 @@ void OledMP::begin(uint8_t font)
     _power = (1 << 2);
 
     setFont(font);
-    
+
     pinMode(port_cs, _cs, OUTPUT);
     pinMode(port_dc, _dc, OUTPUT);
     pinMode(port_reset, _reset, OUTPUT);
@@ -268,7 +268,7 @@ void OledMP::begin(uint8_t font)
 	setColour(0x0F);
 	setBackground(0);
 	setContrast(0xFF);
-	
+
     for (uint8_t ind=0; ind<LCDHEIGHT; ind++) {
 	gddram[ind].xaddr = 0;
 	gddram[ind].pixels = 0;
@@ -415,7 +415,7 @@ void OledMP::fill(uint8_t colour)
 {
     uint8_t x,y;
     setColumnAddr(MIN_SEG, MAX_SEG);	// SEG0 - SEG479
-    setRowAddr(0, 63);	
+    setRowAddr(0, 63);
 
     colour = (colour & 0x0F) | (colour << 4);;
 
@@ -602,7 +602,7 @@ uint8_t OledMP::glyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16
 	if ((x+glyph_width) & 0x3) {
 	    gddram[y+yind].pixels = pixels;
 	} else {
-	    // rolled over 
+	    // rolled over
 	    gddram[y+yind].pixels = 0;
 	}
 	gddram[y+yind].xaddr = (x+glyph_width) / 4;

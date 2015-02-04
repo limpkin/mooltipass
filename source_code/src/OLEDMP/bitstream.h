@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct 
+typedef struct
 {
     uint8_t mask;               //*< pixel mask for returned data
     uint16_t width;             //*< number of pixels wide
@@ -50,7 +50,7 @@ typedef struct
     uint8_t _flags;		//*< format flags.  E.g. RLE=1
     bool flash;			//*< true if data is in program memory
     uint16_t addr;		//*< address of data in SPI FLASH store.
-    uint8_t buf[16];		//*< FLASH read-ahead buffer 
+    uint8_t buf[16];		//*< FLASH read-ahead buffer
     uint8_t bufInd;		//*< read-ahead buffer index
 } bitstream_t;
 

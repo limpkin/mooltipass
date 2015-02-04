@@ -21,7 +21,7 @@
 *    \brief    General user interface - smartcard functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
-*/ 
+*/
 
 
 #ifndef GUI_SMARTCARD_FUNCTIONS_H_

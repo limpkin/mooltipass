@@ -22,7 +22,7 @@
  *
  * Created: 04/01/2014 20:32:07
  *  Author: Mathieu Stephan
- */ 
+ */
 
 
 #ifndef MOOLTIPASS_H_

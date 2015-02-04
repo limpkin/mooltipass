@@ -19,7 +19,7 @@
  */
 /*!	\file 	aes256_nessie_test.h
 *	\brief	Different functions to check AES256 against nessie test vectors
-* 
+*
 *	Created: 16/02/2014 13:54:34
 *	Author: Miguel A. Borrego
 */

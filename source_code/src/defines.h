@@ -33,7 +33,7 @@
 /*
  *  V1_DEVELOPERS_BOOTLOADER_SETUP
  *  => the first hardware version, with bootloader
- *  
+ *
  *  V1_DEVELOPERS_ISP_SETUP
  *  => the first hardware version, without bootloader
  *
@@ -48,7 +48,7 @@
  *
  *  V2_DEVELOPERS_ISP_SETUP
  *  => final hardware version for developpers, without bootloader (for Mike)
- * 
+ *
  *  BETATESTERS_SETUP
  *  => version sent to the beta testers
  *
@@ -263,7 +263,7 @@ typedef int8_t RET_TYPE;
 
 /**************** FEATURE SELECTION ****************/
 // Used for normal browser plugin communications
-#define USB_FEATURE_PLUGIN_COMMS            
+#define USB_FEATURE_PLUGIN_COMMS
 
 /**************** DEFINES PORTS ****************/
 #ifdef HARDWARE_V1

@@ -1,6 +1,6 @@
-/*  
+/*
 *   Byte-oriented AES-256 implementation.
-*   All lookup tables replaced with 'on the fly' calculations. 
+*   All lookup tables replaced with 'on the fly' calculations.
 *
 *   Copyright (c) 2007-2009 Ilya O. Levin, http://www.literatecode.com
 *   Other contributors: Hal Finney
@@ -25,12 +25,12 @@
 #include <avr/pgmspace.h>
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C" {
 #endif
 
 typedef struct {
-    uint8_t key[32]; 
-    uint8_t enckey[32]; 
+    uint8_t key[32];
+    uint8_t enckey[32];
     uint8_t deckey[32];
 } aes256_context;
 

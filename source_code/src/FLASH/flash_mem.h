@@ -79,25 +79,25 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
     #define SECTOR_START 1             // The first whole sector number in the chip
     #define SECTOR_END 3               // The last whole sector number in the chip
     #define PAGE_PER_SECTOR 128        // Number of pages per sector in the chip
-    
+
     #define SECTOR_ERASE_0_SHT_AMT 12  // The shift amount used for a sector zero part erase (see comments below)
     #define SECTOR_ERASE_N_SHT_AMT 16  // The shift amount used for a sector erase (see comments below)
     #define BLOCK_ERASE_SHT_AMT 12     // The shift amount used for a block erase (see comments below)
     #define PAGE_ERASE_SHT_AMT 9       // The shift amount used for a page erase (see comments below)
     #define WRITE_SHT_AMT 9            // The shift amount used for a write operation (see comments below)
     #define READ_OFFSET_SHT_AMT 9      // The shift amount used for a read operation (see comments below)
-    
+
     // sector erase -> 264size -> OP: 0x7C -> 0a/0b -> 3 address bytes -> 5 D/C, 7 Page address bits (PA9-PA3), 12 D/C -> PA3=0 -> 0a, PA3=1 -> 0b
     // sector erase -> 264size -> OP: 0x7C -> 1/3 0> 3 address bytes -> 6 D/C, 2 Page address bits (PA8-PA7), 16 D/C
     // sector 0a -> 8 pages, sector 0b -> 120 pages, sector 1/3 -> 128 page
     // block erase -> 264size -> OP: 0x50 -> 3 address bytes -> 6 D/C, 6 Block Num, 12 D/C -> 64 Blocks
     // page erase -> 264size -> OP: 0x81 -> 3 address bytes -> 6 D/C, 9 Page Num, 9 D/C -> 512 Pages
-    
+
     // Write_p1 -> 264size -> MMP to Buffer T -> OP: 0x53 -> 3 address bytes -> 6 D/C, 9 Page Address, 9 D/C
     // write_p2 -> 264size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 6 D/C, 9 Page Address, 9 Buffer Address
-    
+
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 9 Page Address, 9 Offset, 6 D/C ?
-#elif defined(FLASH_CHIP_2M) 
+#elif defined(FLASH_CHIP_2M)
     #define MAN_FAM_DEN_VAL 0x23       // Used for Chip Identity (see datasheet)
     #define PAGE_COUNT 1024            // Number of pages in the chip
     #define BYTES_PER_PAGE 264         // Bytes per page of the chip
@@ -110,23 +110,23 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
     #define SECTOR_START 1             // The first whole sector number in the chip
     #define SECTOR_END 7               // The last whole sector number in the chip
     #define PAGE_PER_SECTOR 128        // Number of pages per sector in the chip
-    
+
     #define SECTOR_ERASE_0_SHT_AMT 12  // The shift amount used for a sector zero part erase (see comments below)
     #define SECTOR_ERASE_N_SHT_AMT 16  // The shift amount used for a sector erase (see comments below)
     #define BLOCK_ERASE_SHT_AMT 12     // The shift amount used for a block erase (see comments below)
     #define PAGE_ERASE_SHT_AMT 9       // The shift amount used for a page erase (see comments below)
     #define WRITE_SHT_AMT 9            // The shift amount used for a write operation (see comments below)
     #define READ_OFFSET_SHT_AMT 9      // The shift amount used for a read operation (see comments below)
-    
+
     // sector erase -> 264size -> OP: 0x7C -> 0a/0b -> 3 address bytes -> 5 D/C, 7 Sector Address (PA9-PA3), 12 D/C -> PA3=0 -> 0a, PA3=1 -> 0b
     // sector erase -> 264size -> OP: 0x7C -> 1/7 -> 3 address bytes -> 5 D/C, 3 Sector Address Bits, 16 D/C
     // sector 0a -> 8 pages, sector 0b -> 120 pages, sector 1/7 -> 128 pages
     // block erase -> 264size -> OP: 0x50 -> 3 address bytes -> 5 D/C, 7 Block Num, 12 D/C -> 128 Blocks
     // page erase -> 264size -> OP: 0x81 -> 3 address bytes -> 5 D/C, 10 Page Num, 9 D/C -> 1024 pages
-    
+
     // Write_p1 -> 264size -> MMP to Buffer T -> OP: 0x53 -> 3 address bytes -> 5 D/C, 10 Page Address, 9 D/C
     // write_p2 -> 264size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 5 D/C, 10 Page Address, 9 Buffer Address
-    
+
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 10 Page Address, 9 Offset, 5 D/C ?
 #elif defined(FLASH_CHIP_4M)
     #define MAN_FAM_DEN_VAL 0x24       // Used for Chip Identity (see datasheet)
@@ -141,23 +141,23 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
     #define SECTOR_START 1             // The first whole sector number in the chip
     #define SECTOR_END 7               // The last whole sector number in the chip
     #define PAGE_PER_SECTOR 256        // Number of pages per sector in the chip
-    
+
     #define SECTOR_ERASE_0_SHT_AMT 12  // The shift amount used for a sector zero part erase (see comments below)
     #define SECTOR_ERASE_N_SHT_AMT 17  // The shift amount used for a sector erase (see comments below)
     #define BLOCK_ERASE_SHT_AMT 12     // The shift amount used for a block erase (see comments below)
     #define PAGE_ERASE_SHT_AMT 9       // The shift amount used for a page erase (see comments below)
     #define WRITE_SHT_AMT 9            // The shift amount used for a write operation (see comments below)
     #define READ_OFFSET_SHT_AMT 9      // The shift amount used for a read operation (see comments below)
-    
+
     // sector erase -> 264size -> OP: 0x7C -> 0a/0b -> 3 address bytes -> 4 D/C, 8 Sector Address (PA10-PA3), 12 D/C -> PA3=0 -> 0a, PA3=1 -> 0b
     // sector erase -> 264size -> OP: 0x7C -> 1/7 -> 3 address bytes -> 4 D/C, 3 Sector Address Bits, 17 D/C
     // sector 0a -> 8 pages, sector 0b -> 248 pages, sector 1/7 -> 256 pages
     // block erase -> 264size -> OP: 0x50 -> 3 address bytes -> 4 D/C, 8 Block Num, 12 D/C -> 256 Blocks
     // page erase -> 264size -> OP: 0x81 -> 3 address bytes -> 4 D/C, 11 Page Num, 9 D/C -> 2048 Pages
-    
+
     // Write_p1 -> 264size -> MMP to Buffer T -> OP: 0x53 -> 3 address bytes -> 4 D/C, 11 Page Address, 9 D/C
     // write_p2 -> 264size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 4 D/C, 11 Page Address, 9 Buffer Address
-    
+
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 11 Page Address, 9 Offset, 4 D/C ?
 #elif defined(FLASH_CHIP_8M)
     #define MAN_FAM_DEN_VAL 0x25       // Used for Chip Identity (see datasheet)
@@ -172,23 +172,23 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
     #define SECTOR_START 1             // The first whole sector number in the chip
     #define SECTOR_END 15               // The last whole sector number in the chip
     #define PAGE_PER_SECTOR 256        // Number of pages per sector in the chip
-    
+
     #define SECTOR_ERASE_0_SHT_AMT 12  // The shift amount used for a sector zero part erase (see comments below)
     #define SECTOR_ERASE_N_SHT_AMT 17  // The shift amount used for a sector erase (see comments below)
     #define BLOCK_ERASE_SHT_AMT 12     // The shift amount used for a block erase (see comments below)
     #define PAGE_ERASE_SHT_AMT 9       // The shift amount used for a page erase (see comments below)
     #define WRITE_SHT_AMT 9            // The shift amount used for a write operation (see comments below)
     #define READ_OFFSET_SHT_AMT 9      // The shift amount used for a read operation (see comments below)
-    
+
     // sector erase -> 264size -> OP: 0x7C -> 0a/0b -> 3 address bytes -> 3 D/C, 9 Sector Address (PA11-PA3), 12 D/C -> PA3=0 -> 0a, PA3=1 -> 0b
     // sector erase -> 264size -> OP: 0x7C -> 1/15 -> 3 address bytes -> 3 D/C, 4 Sector Address Bits, 17 D/C
     // sector 0a -> 8 pages, sector 0b -> 248 pages, sector 1/15 -> 256 pages
     // block erase -> 264size -> OP: 0x50 -> 3 address bytes -> 3 D/C, 9 Block Num, 12 D/C -> 512 Blocks
     // page erase -> 264size -> OP: 0x81 -> 3 address bytes -> 3 D/C, 12 Page Num, 9 D/C -> 4096 Pages
-    
+
     // Write_p1 -> 264size -> MMP to Buffer T -> OP: 0x53 -> 3 address bytes -> 3 D/C, 12 Page Address, 9 D/C
     // write_p2 -> 264size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 3 D/C, 12 Page Address, 9 Buffer Address
-    
+
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 12 Page Address, 9 Offset, 3 D/C ?
 #elif defined(FLASH_CHIP_16M)
     #define MAN_FAM_DEN_VAL 0x26       // Used for Chip Identity (see datasheet)
@@ -203,23 +203,23 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
     #define SECTOR_START 1             // The first whole sector number in the chip
     #define SECTOR_END 15              // The last whole sector number in the chip
     #define PAGE_PER_SECTOR 256        // Number of pages per sector in the chip
-    
+
     #define SECTOR_ERASE_0_SHT_AMT 13  // The shift amount used for a sector zero part erase (see comments below)
     #define SECTOR_ERASE_N_SHT_AMT 18  // The shift amount used for a sector erase (see comments below)
     #define BLOCK_ERASE_SHT_AMT 13     // The shift amount used for a block erase (see comments below)
     #define PAGE_ERASE_SHT_AMT 10      // The shift amount used for a page erase (see comments below)
     #define WRITE_SHT_AMT 10           // The shift amount used for a write operation (see comments below)
     #define READ_OFFSET_SHT_AMT 10     // The shift amount used for a read operation (see comments below)
-    
+
     // sector erase -> 528size -> OP: 0x7C -> 0a/0b -> 3 address bytes -> 2 D/C, 9 Sector Address (PA11-PA3), 13 D/C -> PA3=0 -> 0a, PA3=1 -> 0b
     // sector erase -> 528size -> OP: 0x7C -> 1/15 -> 3 address bytes -> 2 D/C, 4 Sector Address Bits, 18 D/C
     // sector 0a -> 8 pages, sector 0b -> 248 pages, sector 1/15 -> 256 pages
     // block erase -> 528size -> OP: 0x50 -> 3 address bytes -> 2 D/C, 9 Block Num, 13 D/C -> 512 Blocks
     // page erase -> 528size -> OP: 0x81 -> 3 address bytes -> 2 D/C, 12 Page Num, 10 D/C -> 4096 Pages
-    
+
     // Write_p1 -> 528size -> MMP to Buffer T -> OP: 0x53 -> 3 address bytes -> 2 D/C, 12 Page Address, 10 D/C
     // write_p2 -> 528size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 2 D/C, 12 Page Address, 10 Buffer Address
-    
+
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 12 Page Address, 10 Offset, 2 D/C ?
 #elif defined(FLASH_CHIP_32M)
     #define MAN_FAM_DEN_VAL 0x27       // Used for Chip Identity (see datasheet)
@@ -234,23 +234,23 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
     #define SECTOR_START 1             // The first whole sector number in the chip
     #define SECTOR_END 63              // The last whole sector number in the chip
     #define PAGE_PER_SECTOR 128        // Number of pages per sector in the chip
-    
+
     #define SECTOR_ERASE_0_SHT_AMT 13  // The shift amount used for a sector zero part erase (see comments below)
     #define SECTOR_ERASE_N_SHT_AMT 17  // The shift amount used for a sector erase (see comments below)
     #define BLOCK_ERASE_SHT_AMT 13     // The shift amount used for a block erase (see comments below)
     #define PAGE_ERASE_SHT_AMT 10      // The shift amount used for a page erase (see comments below)
     #define WRITE_SHT_AMT 10           // The shift amount used for a write operation (see comments below)
     #define READ_OFFSET_SHT_AMT 10     // The shift amount used for a read operation (see comments below)
-    
+
     // sector erase -> 528size -> OP: 0x7C -> 0a/0b -> 3 address bytes -> 1 D/C, 10 Sector Address (PA12-PA3), 13 D/C -> PA3=0 -> 0a, PA3=1 -> 0b
     // sector erase -> 528size -> OP: 0x7C -> 1/63 -> 3 address bytes -> 1 D/C, 6 Sector Address Bits, 17 D/C
     // sector 0a -> 8 pages, sector 0b -> 120 pages, sector 1/63 -> 128 pages
     // block erase -> 528size -> OP: 0x50 -> 3 address bytes -> 1 D/C, 10 Block Num, 13 D/C -> 1024 Blocks
     // page erase -> 528size -> OP: 0x81 -> 3 address bytes -> 1 D/C, 13 Page Num, 10 D/C -> 8192 Pages
-    
+
     // Write_p1 -> 528size -> MMP to Buffer T -> OP: 0x53 -> 3 address bytes -> 1 D/C, 13 Page Address, 10 D/C
     // write_p2 -> 528size -> MMP PROG T Buffer -> OP: 0x82 -> 3 address bytes -> 1 D/C, 13 Page Address, 10 Buffer Address
-    
+
     // Read -> 528size -> Low Freq Read -> 0P: 0x03 -> 3 address bytes -> 13 Page Address, 10 Offset, 1 D/C ?
 #endif
 

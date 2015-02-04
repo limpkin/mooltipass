@@ -3,7 +3,7 @@
  *
  * Created: 12/04/2014 17:19:27
  *  Author: limpkin
- */ 
+ */
 
 
 #ifndef TESTS_H_

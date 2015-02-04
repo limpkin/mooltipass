@@ -58,8 +58,8 @@
 *     11   D7       GND
 *     12   #RD      GND
 *     13   #WR      GND
-*     14   DC       Data / Command 
-*     15   #RESET   
+*     14   DC       Data / Command
+*     15   #RESET
 *     16   #CS      Chip select
 *
 *     Note: All logic pins are 3.3V max.

@@ -233,6 +233,7 @@ int main(void)
     powerSettlingDelay();               // Let the USB 3.3V LDO rise
     initI2cPort();                      // Initialize I2C interface
     rngInit();                          // Initialize avrentropy library
+    oledInitIOs();                      // Initialize OLED input/outputs
     spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
 
     // If offline mode isn't enabled, wait for device to be enumerated

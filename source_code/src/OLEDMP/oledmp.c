@@ -49,7 +49,6 @@
 #include <alloca.h>
 
 #include "logic_fwflash_storage.h"
-#include "low_level_utils.h"
 #include "timer_manager.h"
 #include "bitstream.h"
 #include "flash_mem.h"
@@ -68,16 +67,6 @@
 #undef OLED_DEBUG
 #undef OLED_DEBUG1
 #undef OLED_DEBUG2
-
-// OLED specific port and pin definitions
-#define OLED_PORT_CS        &PORT_OLED_SS
-#define OLED_PORT_DC        &PORT_OLED_DnC
-#define OLED_PORT_RESET     &PORT_OLED_nR
-#define OLED_PORT_POWER     &PORT_OLED_POW
-#define OLED_CS             (1<<PORTID_OLED_SS)
-#define OLED_DC             (1<<PORTID_OLED_DnC)
-#define OLED_nRESET         (1<<PORTID_OLED_nR)
-#define OLED_POWER          (1<<PORTID_OLED_POW)
 
 #define MIN_SEG 28          // minimum visable OLED 4-pixel segment
 #define MAX_SEG 91          // maximum visable OLED 4-pixel segment
@@ -183,26 +172,39 @@ static const uint8_t oled_init[] __attribute__((__progmem__)) =
 
 
 /**
+ *  Initialize oled controller ports
+ */
+void oledInitIOs(void)
+{
+    /* Setup OLED slave select as output, high */
+    DDR_OLED_SS |= (1 << PORTID_OLED_SS);
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);
+    
+    /*  Setup OLED Data/nCommand as output */
+    DDR_OLED_DnC |= (1 << PORTID_OLED_DnC);
+    
+    /* Setup OLED Reset */
+    DDR_OLED_nR |= (1 << PORTID_OLED_nR);
+    oledReset();
+    
+    /* Setup Oled power, high */
+    DDR_OLED_POW |= (1 << PORTID_OLED_POW);
+    PORT_OLED_POW |= (1 << PORTID_OLED_POW);
+}
+
+
+/**
  * Initialise the OLED controller and prep the display
  * for use.
  */
 void oledBegin(uint8_t font)
 {
+    oled_bufHeight = OLED_HEIGHT;
     oled_foreground = 15;
     oled_background = 0;
     oled_offset = 0;
-    oled_bufHeight = OLED_HEIGHT;
 
     oledSetFont(font);
-    
-    pinMode(OLED_PORT_CS, OLED_CS, OUTPUT, false);
-    pinMode(OLED_PORT_DC, OLED_DC, OUTPUT, false);
-    pinMode(OLED_PORT_RESET, OLED_nRESET, OUTPUT, false);
-    pinMode(OLED_PORT_POWER, OLED_POWER, OUTPUT, false);
-    pinHigh(OLED_PORT_POWER, OLED_POWER);
-    pinHigh(OLED_PORT_CS, OLED_CS);
-
-    oledReset();
     oledInit();
 
     for (uint8_t ind=0; ind<OLED_HEIGHT*2; ind++) 
@@ -625,7 +627,7 @@ void oledInit()
         }
     }
 
-    pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
+    PORT_OLED_POW &= ~(1 << PORTID_OLED_POW);
     oledWriteCommand(CMD_SET_DISPLAY_ON);
     oled_isOn = TRUE;
 }
@@ -636,10 +638,10 @@ void oledInit()
  */
 void oledWriteCommand(uint8_t reg)
 {
-    pinLow(OLED_PORT_CS, OLED_CS);
-    pinLow(OLED_PORT_DC, OLED_DC);
+    PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
+    PORT_OLED_DnC &= ~(1 << PORTID_OLED_DnC);
     spiUsartTransfer(reg);
-    pinHigh(OLED_PORT_CS, OLED_CS);
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);
 }
 
 /**
@@ -648,10 +650,10 @@ void oledWriteCommand(uint8_t reg)
  */
 void oledWriteData(uint8_t data)
 {
-    pinLow(OLED_PORT_CS, OLED_CS);
-    pinHigh(OLED_PORT_DC, OLED_DC);
+    PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
+    PORT_OLED_DnC |= (1 << PORTID_OLED_DnC); 
     spiUsartTransfer(data);
-    pinHigh(OLED_PORT_CS, OLED_CS);
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);
 }
 
 
@@ -661,11 +663,11 @@ void oledWriteData(uint8_t data)
  */
 void oledWriteWord(uint16_t data)
 {
-    pinLow(OLED_PORT_CS, OLED_CS);
-    pinHigh(OLED_PORT_DC, OLED_DC);
+    PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
+    PORT_OLED_DnC |= (1 << PORTID_OLED_DnC);
     spiUsartTransfer((uint8_t)(data>>8));
     spiUsartTransfer((uint8_t)(data&0xFF));
-    pinHigh(OLED_PORT_CS, OLED_CS);
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);
 }
 
 
@@ -797,29 +799,25 @@ static void oledDumpFont(void)
  * Set the font to use
  * @param font - new font to use
  */
-int8_t oledSetFont(uint8_t fontIndex)
+void oledSetFont(uint8_t fontIndex)
 {
+#ifdef OLED_DEBUG
     if (oledGetFileAddr(fontIndex, &oledFontAddr) != MEDIA_FONT)
     {
-#ifdef OLED_DEBUG
         usbPrintf_P(PSTR("oled failed to set font %d\n"),fontIndex);
-#endif
-        return -1;
+        return;
     }
+#endif
+    fontId = fontIndex;
     oledFontPage = oledFontAddr / BYTES_PER_PAGE;
     oledFontOffset = oledFontAddr % BYTES_PER_PAGE;
-
     flashRawRead((uint8_t *)&currentFont, oledFontAddr, sizeof(currentFont));
-
-    fontId = fontIndex;
 
 #ifdef OLED_DEBUG1
     usbPrintf_P(PSTR("found font at file index %d\n"),fontIndex);
     usbPrintf_P(PSTR("oled set font %d\n"),fontIndex);
     oledDumpFont();
 #endif
-
-    return 0;
 }
 
 
@@ -830,7 +828,7 @@ void oledOff(void)
 {
     oledWriteCommand(CMD_SET_DISPLAY_OFF);
     timerBasedDelayMs(100);
-    pinHigh(OLED_PORT_POWER, OLED_POWER);    // 12V power off
+    PORT_OLED_POW |= (1 << PORTID_OLED_POW);
     oled_isOn = FALSE;
 }
 
@@ -840,7 +838,7 @@ void oledOff(void)
  */
 void oledOn(void)
 {
-    pinLow(OLED_PORT_POWER, OLED_POWER);     // 12V power on
+    PORT_OLED_POW &= ~(1 << PORTID_OLED_POW);
     timerBasedDelayMs(100);
     oledWriteCommand(CMD_SET_DISPLAY_ON);
     oled_isOn = TRUE;
@@ -1058,17 +1056,17 @@ void oledScrollUp(uint8_t lines, bool clear)
     }
 }
 
+
 /**
  * Reset the OLED display.
  */
 void oledReset()
 {
-    pinLow(OLED_PORT_RESET, OLED_nRESET);
+    PORT_OLED_nR &= ~(1 << PORTID_OLED_nR);
     timerBasedDelayMs(100);
-    pinHigh(OLED_PORT_RESET, OLED_nRESET);
+    PORT_OLED_nR |= (1 << PORTID_OLED_nR);
     timerBasedDelayMs(10);
 }
-
 
 
 /**

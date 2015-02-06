@@ -140,6 +140,7 @@ enum {
 } justify_e;
 
 void oledBegin(uint8_t font);
+void oledInitIOs(void);
 void oledInit(void);
 void oledWriteCommand(uint8_t reg);
 void oledWriteData(uint8_t data);
@@ -178,7 +179,7 @@ void oledWriteInactiveBuffer(void);
 
 void oledSetScrollSpeed(double delay);
 void oledSetWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend);
-int8_t oledSetFont(uint8_t fontIndex);
+void oledSetFont(uint8_t fontIndex);
 void oledSetColour(uint8_t colour);
 void oledSetContrast(uint8_t contrast);
 void oledSetRemap(uint8_t mode);

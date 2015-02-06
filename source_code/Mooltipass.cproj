@@ -452,12 +452,6 @@
     <Compile Include="src\UTILS\delays.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\UTILS\low_level_utils.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\UTILS\low_level_utils.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="src\UTILS\utils.c">
       <SubType>compile</SubType>
     </Compile>

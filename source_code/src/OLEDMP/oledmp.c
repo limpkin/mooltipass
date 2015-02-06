@@ -801,13 +801,13 @@ static void oledDumpFont(void)
  */
 void oledSetFont(uint8_t fontIndex)
 {
-#ifdef OLED_DEBUG
     if (oledGetFileAddr(fontIndex, &oledFontAddr) != MEDIA_FONT)
-    {
-        usbPrintf_P(PSTR("oled failed to set font %d\n"),fontIndex);
+    {        
+        #ifdef OLED_DEBUG
+            usbPrintf_P(PSTR("oled failed to set font %d\n"),fontIndex);
+        #endif
         return;
     }
-#endif
     fontId = fontIndex;
     oledFontPage = oledFontAddr / BYTES_PER_PAGE;
     oledFontOffset = oledFontAddr % BYTES_PER_PAGE;

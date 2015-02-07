@@ -25,17 +25,27 @@
 #include "logic_eeprom.h"
 #include "hid_defines.h"
 #include "defines.h"
+#include "oledmp.h"
 #include "usb.h"
 #include <string.h>
 #include <stdio.h>
+//#define USB_OLED_DEBUG_COMMS
+
+/*** MACROS ***/
+#ifdef USB_OLED_DEBUG_COMMS
+    #define USB_OLED_PRINT_DEBUG_CODE(args...) displayDebugStatusCode(args)
+#else
+    #define USB_OLED_PRINT_DEBUG_CODE(args...)
+#endif
+
 
 // Zero when we are not configured, non-zero when enumerated
-static volatile uint8_t usb_configuration=0;
+static volatile uint8_t usb_configuration = 0;
 
 // Which modifier keys are currently pressed
 // 1=left ctrl,    2=left shift,   4=left alt,    8=left gui
 // 16=right ctrl, 32=right shift, 64=right alt, 128=right gui
-uint8_t keyboard_modifier_keys=0;
+uint8_t keyboard_modifier_keys = 0;
 
 // Which keys are currently pressed, up to 6 keys may be down at once
 uint8_t keyboard_keys[6]={0,0,0,0,0,0};
@@ -62,6 +72,23 @@ static const uint8_t PROGMEM endpoint_config_table[] =
     1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(KEYBOARD_SIZE) | KEYBOARD_BUFFER,
     0
 };
+
+
+#ifdef USB_OLED_DEBUG_COMMS
+/*! \fn     displayDebugStatusCode(char* text)
+*   \brief  Display a debug status code on the screen to help diagnose usb comms
+*   \param  text    The text
+*/
+void displayDebugStatusCode(char* text)
+{
+    if (oledIsOn() == TRUE)
+    {
+        oledWriteActiveBuffer();
+        oledPutstrXY(0, 0, OLED_LEFT, text);
+        oledWriteInactiveBuffer();        
+    }
+}
+#endif
 
 /*! \fn     pluginMessageRetryDelay(void)
 *   \brief  Delay between message retries
@@ -254,6 +281,7 @@ ISR(USB_GEN_vect)
 // Misc functions to wait for ready and send/receive packets
 static inline void usb_wait_in_ready(void)
 {
+    USB_OLED_PRINT_DEBUG_CODE("010");
     while (!(UEINTX & (1<<TXINI))) ;
 }
 static inline void usb_send_in(void)
@@ -262,6 +290,7 @@ static inline void usb_send_in(void)
 }
 static inline void usb_wait_receive_out(void)
 {
+    USB_OLED_PRINT_DEBUG_CODE("020");
     while (!(UEINTX & (1<<RXOUTI))) ;
 }
 static inline void usb_ack_out(void)
@@ -343,6 +372,7 @@ ISR(USB_COM_vect)
                 do
                 {
                     i = UEINTX;
+                    USB_OLED_PRINT_DEBUG_CODE("030");
                 }
                 while (!(i & ((1<<TXINI)|(1<<RXOUTI))));
 
@@ -445,6 +475,7 @@ ISR(USB_COM_vect)
                     do
                     {
                         i = UEINTX;
+                        USB_OLED_PRINT_DEBUG_CODE("040");
                     }
                     while (!(i & ((1<<TXINI)|(1<<RXOUTI))));
 

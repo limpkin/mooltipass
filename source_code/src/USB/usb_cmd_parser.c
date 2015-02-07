@@ -1214,11 +1214,7 @@ void usbProcessIncoming(uint8_t caller_id)
         
         // Jump to bootloader
         case CMD_JUMP_TO_BOOTLOADER :
-        {
-            #ifndef DEV_PLUGIN_COMMS
-                uint8_t temp_buffer[PACKET_EXPORT_SIZE];
-            #endif
-            
+        {            
             // Mandatory wait for bruteforce
             userViewDelay();
             #ifdef DEV_PLUGIN_COMMS

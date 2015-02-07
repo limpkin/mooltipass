@@ -284,87 +284,89 @@ int main(void)
     #endif
     
     // Test procedure to check that all HW is working
-    if (current_bootkey_val != CORRECT_BOOTKEY)
-    {
-        RET_TYPE temp_rettype;        
-        // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
-        //#ifdef PRODUCTION_KICKSTARTER_SETUP
-        while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0xF1)
+    #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP)
+        if (current_bootkey_val != CORRECT_BOOTKEY)
         {
-            usbProcessIncoming(USB_CALLER_MAIN);
-        }
-        //#endif
-        // Bundle uploaded, start the screen
-        oledBegin(FONT_DEFAULT);
-        oledWriteActiveBuffer();
-        oledSetXY(0,0);
-        // LEDs ON, to check
-        setPwmDc(MAX_PWM_VAL);
-        switchOnButtonWheelLeds();
-        guiDisplayRawString(ID_STRING_TEST_LEDS_CH);
-        // Check flash init
-        if (flash_init_result != RETURN_OK)
-        {
-             guiDisplayRawString(ID_STRING_TEST_FLASH_PB);
-        }
-        // Check touch init
-        if (touch_init_result != RETURN_OK)
-        {
-            guiDisplayRawString(ID_STRING_TEST_TOUCH_PB);
-        }
-        // Touch instructions
-        guiDisplayRawString(ID_STRING_TEST_INST_TCH);
-        // Check prox
-        while(!(touchDetectionRoutine(0) & RETURN_PROX_DETECTION));
-        guiDisplayRawString(ID_STRING_TEST_DET);
-        activateGuardKey();
-        // Check left
-        while(!(touchDetectionRoutine(0) & RETURN_LEFT_PRESSED));
-        guiDisplayRawString(ID_STRING_TEST_LEFT);
-        // Check wheel
-        while(!(touchDetectionRoutine(0) & RETURN_WHEEL_PRESSED));
-        guiDisplayRawString(ID_STRING_TEST_WHEEL);
-        // Check right
-        while(!(touchDetectionRoutine(0) & RETURN_RIGHT_PRESSED));
-        guiDisplayRawString(ID_STRING_TEST_RIGHT);
-        // Insert card
-        guiDisplayRawString(ID_STRING_TEST_CARD_INS);
-        while(isCardPlugged() != RETURN_JDETECT);
-        temp_rettype = cardDetectedRoutine();
-        // Check card
-        if (!((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
-        {
-            guiDisplayRawString(ID_STRING_TEST_CARD_PB);
-        }
-        // Display result
-        uint8_t script_return = RETURN_OK;
-        if ((flash_init_result == RETURN_OK) && (touch_init_result == RETURN_OK) && ((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
-        {
-            // Inform script of success
-            usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
-            // Wait for password to be set
-            while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
+            RET_TYPE temp_rettype;        
+            // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
+            //#ifdef PRODUCTION_KICKSTARTER_SETUP
+            while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0xF1)
             {
                 usbProcessIncoming(USB_CALLER_MAIN);
             }
-            // Display test result
-            guiDisplayRawString(ID_STRING_TEST_OK);
-            timerBasedDelayMs(3000);
-        }
-        else
-        {
-            // Set correct bool
-            script_return = RETURN_NOK;
-            // Display test result
-            guiDisplayRawString(ID_STRING_TEST_NOK);
-            // Inform script of failure
-            usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
-            while(1)
+            //#endif
+            // Bundle uploaded, start the screen
+            oledBegin(FONT_DEFAULT);
+            oledWriteActiveBuffer();
+            oledSetXY(0,0);
+            // LEDs ON, to check
+            setPwmDc(MAX_PWM_VAL);
+            switchOnButtonWheelLeds();
+            guiDisplayRawString(ID_STRING_TEST_LEDS_CH);
+            // Check flash init
+            if (flash_init_result != RETURN_OK)
             {
-                usbProcessIncoming(USB_CALLER_MAIN);
+                 guiDisplayRawString(ID_STRING_TEST_FLASH_PB);
+            }
+            // Check touch init
+            if (touch_init_result != RETURN_OK)
+            {
+                guiDisplayRawString(ID_STRING_TEST_TOUCH_PB);
+            }
+            // Touch instructions
+            guiDisplayRawString(ID_STRING_TEST_INST_TCH);
+            // Check prox
+            while(!(touchDetectionRoutine(0) & RETURN_PROX_DETECTION));
+            guiDisplayRawString(ID_STRING_TEST_DET);
+            activateGuardKey();
+            // Check left
+            while(!(touchDetectionRoutine(0) & RETURN_LEFT_PRESSED));
+            guiDisplayRawString(ID_STRING_TEST_LEFT);
+            // Check wheel
+            while(!(touchDetectionRoutine(0) & RETURN_WHEEL_PRESSED));
+            guiDisplayRawString(ID_STRING_TEST_WHEEL);
+            // Check right
+            while(!(touchDetectionRoutine(0) & RETURN_RIGHT_PRESSED));
+            guiDisplayRawString(ID_STRING_TEST_RIGHT);
+            // Insert card
+            guiDisplayRawString(ID_STRING_TEST_CARD_INS);
+            while(isCardPlugged() != RETURN_JDETECT);
+            temp_rettype = cardDetectedRoutine();
+            // Check card
+            if (!((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
+            {
+                guiDisplayRawString(ID_STRING_TEST_CARD_PB);
+            }
+            // Display result
+            uint8_t script_return = RETURN_OK;
+            if ((flash_init_result == RETURN_OK) && (touch_init_result == RETURN_OK) && ((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
+            {
+                // Inform script of success
+                usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
+                // Wait for password to be set
+                while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
+                {
+                    usbProcessIncoming(USB_CALLER_MAIN);
+                }
+                // Display test result
+                guiDisplayRawString(ID_STRING_TEST_OK);
+                timerBasedDelayMs(3000);
+            }
+            else
+            {
+                // Set correct bool
+                script_return = RETURN_NOK;
+                // Display test result
+                guiDisplayRawString(ID_STRING_TEST_NOK);
+                // Inform script of failure
+                usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
+                while(1)
+                {
+                    usbProcessIncoming(USB_CALLER_MAIN);
+                }
             }
         }
-    }
+    #endif
     
     // Stop the Mooltipass if we can't communicate with the flash or the touch interface
     #if defined(HARDWARE_OLIVIER_V1)

@@ -32,10 +32,6 @@
 // Zero when we are not configured, non-zero when enumerated
 static volatile uint8_t usb_configuration=0;
 
-// These are a more reliable timeout than polling the frame counter (UDFNUML)
-static volatile uint8_t rx_timeout_count=0;
-static volatile uint8_t tx_timeout_count=0;
-
 // Which modifier keys are currently pressed
 // 1=left ctrl,    2=left shift,   4=left alt,    8=left gui
 // 16=right ctrl, 32=right shift, 64=right alt, 128=right gui
@@ -201,7 +197,8 @@ RET_TYPE usbRawHidRecv(uint8_t *buffer, uint8_t timeout)
     }
     intr_state = SREG;
     cli();
-    rx_timeout_count = timeout;
+    // Activate timeout timer
+    activateTimer(TIMER_WAIT_FUNCTS, USB_READ_TIMEOUT);
     UENUM = RAWHID_RX_ENDPOINT;
     // wait for data to be available in the FIFO
     while (1)
@@ -211,7 +208,7 @@ RET_TYPE usbRawHidRecv(uint8_t *buffer, uint8_t timeout)
             break;
         }
         SREG = intr_state;
-        if (rx_timeout_count == 0)
+        if (hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) == TIMER_EXPIRED)
         {
             return RETURN_COM_TIMEOUT;
         }
@@ -240,7 +237,7 @@ RET_TYPE usbRawHidRecv(uint8_t *buffer, uint8_t timeout)
 */
 ISR(USB_GEN_vect)
 {
-    uint8_t intbits, t;
+    uint8_t intbits;
 
     intbits = UDINT;
     UDINT = 0;
@@ -252,19 +249,6 @@ ISR(USB_GEN_vect)
         UECFG1X = EP_SIZE(ENDPOINT0_SIZE) | EP_SINGLE_BUFFER;
         UEIENX = (1<<RXSTPE);
         usb_configuration = 0;
-    }
-    if ((intbits & (1<<SOFI)) && usb_configuration)
-    {
-        t = rx_timeout_count;
-        if (t)
-        {
-            rx_timeout_count = --t;
-        }            
-        t = tx_timeout_count;
-        if (t)
-        {
-            tx_timeout_count = --t;
-        }            
     }
 }
 
@@ -632,7 +616,8 @@ static RET_TYPE usbWaitFifoReady(uint8_t *intr_state, uint8_t timeout)
     }
     *intr_state = SREG;
     cli();
-    tx_timeout_count = timeout;
+    // Activate timeout timer
+    activateTimer(TIMER_WAIT_FUNCTS, USB_WRITE_TIMEOUT);
     UENUM = RAWHID_TX_ENDPOINT;
     // wait for the FIFO to be ready to accept data
     while (1)
@@ -642,7 +627,7 @@ static RET_TYPE usbWaitFifoReady(uint8_t *intr_state, uint8_t timeout)
             break;
         }
         SREG = *intr_state;
-        if (tx_timeout_count == 0)
+        if (hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) == TIMER_EXPIRED)
         {
             return RETURN_COM_TIMEOUT;
         }

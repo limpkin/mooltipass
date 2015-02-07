@@ -1,3 +1,6 @@
+v0.8:
+- not using USB SOF for USB timeouts
+
 v0.7:
 - implemented a LUT for faster login search
 - added lock timeout bool & delay

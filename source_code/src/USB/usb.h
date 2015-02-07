@@ -37,7 +37,7 @@
 #define KEYBOARD_SIZE       8                   // Endpoint size for keyboard
 #define KEYBOARD_BUFFER     EP_DOUBLE_BUFFER    // Double buffer
 #define USB_WRITE_TIMEOUT   50                  // Timeout for writing in the pipe
-#define USB_READ_TIMEOUT    3                   // Timeout for reading in the pipe
+#define USB_READ_TIMEOUT    4                   // Timeout for reading in the pipe
 
 // Endpoint defines
 #define EP_SIZE(s)  ((s) > 32 ? 0x30 : ((s) > 16 ? 0x20 : ((s) > 8  ? 0x10 : 0x00)))

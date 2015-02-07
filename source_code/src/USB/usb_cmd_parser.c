@@ -207,7 +207,7 @@ void usbProcessIncoming(uint8_t caller_id)
     uint8_t incomingData[RAWHID_TX_SIZE];
     
     // Try to read data from USB, return if we didn't receive anything
-    if(usbRawHidRecv(incomingData, USB_READ_TIMEOUT) != RETURN_COM_TRANSF_OK)
+    if(usbRawHidRecv(incomingData) != RETURN_COM_TRANSF_OK)
     {
         return;
     }

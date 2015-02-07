@@ -92,10 +92,10 @@ uint8_t isUsbConfigured(void);                                // is the USB port
 uint8_t getKeyboardLeds(void);                                // get keyboard LEDs
 RET_TYPE usbKeybPutChar(char ch);                             // type char
 RET_TYPE usbKeybPutStr(char* string);                         // type string
-RET_TYPE usbRawHidRecv(uint8_t* buffer, uint8_t timeout);     // receive a packet, with timeout
-RET_TYPE usbRawHidSend(uint8_t* buffer, uint8_t timeout);
-RET_TYPE usbHidSend(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t timeout);
-RET_TYPE usbHidSend_P(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t timeout);
+RET_TYPE usbRawHidRecv(uint8_t* buffer);                      // receive a packet, with timeout
+RET_TYPE usbRawHidSend(uint8_t* buffer);
+RET_TYPE usbHidSend(uint8_t cmd, const void *buffer, uint8_t buflen);
+RET_TYPE usbHidSend_P(uint8_t cmd, const void *buffer, uint8_t buflen);
 RET_TYPE usbKeyboardPress(uint8_t key, uint8_t modifier);     // send a keyboard press
 RET_TYPE usbPutstr(const char *str);
 RET_TYPE usbPutstr_P(const char *str);
@@ -105,8 +105,7 @@ RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str,
 RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg);
 RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg);
 RET_TYPE usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void *msg, uint8_t nb_retries);
-RET_TYPE usbHidSend(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t timeout);
-RET_TYPE usbHidSend_P(uint8_t cmd, const void *buffer, uint8_t buflen, uint8_t timeout);
+
 #ifdef ENABLE_PRINTF
     uint8_t usbPrintf(const char* fmt, ...) __attribute__((format(printf, 1, 2)));
     uint8_t usbPrintf_P(const char *fmt, ...) __attribute__((format(printf, 1, 2)));

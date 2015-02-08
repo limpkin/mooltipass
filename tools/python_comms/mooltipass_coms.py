@@ -131,6 +131,7 @@ def keyboardTest(epout):
 		if (output == ''): continue
 		if output in Layout_dict:
 			print "Already stored"
+			print bruteforce
 		else:
 			Layout_dict.update({output: bruteforce})
 	
@@ -140,6 +141,7 @@ def keyboardTest(epout):
 		if (output == ''): continue
 		if output in Layout_dict:
 			print "Already stored"
+			print SHIFT_MASK|bruteforce
 		else:
 			Layout_dict.update({output : SHIFT_MASK|bruteforce})
 
@@ -149,11 +151,13 @@ def keyboardTest(epout):
 		if (output == ''): continue
 		if output in Layout_dict:
 			print "Already stored"
+			print ALTGR_MASK|bruteforce
 		else:
 			Layout_dict.update({output : ALTGR_MASK|bruteforce})
 
 
 	hid_define_str = "const uint8_t PROGMEM keyboardLUT_"+fileName+"[95] = \n{\n"
+	img_contents = array('B')
 
 	for key in KeyboardAscii:
 		if(key not in Layout_dict):
@@ -164,6 +168,9 @@ def keyboardTest(epout):
 
 		""" Format C code """
 		keycode = hex(Layout_dict[key])+","
+		
+		# Write img file
+		img_contents.append(Layout_dict[key])
 
 		# Handle special case
 		if(key == '\\'):
@@ -178,6 +185,11 @@ def keyboardTest(epout):
 	# finish C array
 	hid_define_str = hid_define_str + "};"
 	print hid_define_str
+	
+	# finish img file
+	img_file = open("_"+fileName+"_keyb_lut.img", "wb")
+	img_file.write(img_contents)
+	img_file.close()
 
 	# Save C array into .c file
 	text_file = open("keymap_"+fileName+".c", "w")

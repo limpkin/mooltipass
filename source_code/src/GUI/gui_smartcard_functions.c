@@ -56,6 +56,11 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
         usbKeybPutChar(i);
         usbKeybPutChar(i);
     }
+    setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM)+1);
+    if (getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM) > LAST_KEYB_LUT)
+    {
+        setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, FIRST_KEYB_LUT);
+    }        
     #endif
     
     // Switch on lights

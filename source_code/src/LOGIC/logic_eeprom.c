@@ -42,7 +42,7 @@
 void mooltipassParametersInit(void)
 {	
     // Set English keyboard by default
-    setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_LUT);
+    setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_US_LUT);
     // Set 15secs user interaction timeout by default
     setMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM, 15);
     // Disable timeout by default

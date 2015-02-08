@@ -29,9 +29,8 @@
 
 // Font selection
 #define FONT_PROFONT_10     7
-#define FONT_CHECKBOOK_24  14
-#define FONT_PROFONT_18    17
-#define FONT_PROFONT_24    18
+#define FONT_PROFONT_18    16
+#define FONT_PROFONT_24    17
 #define FONT_DEFAULT FONT_PROFONT_10
 
 typedef struct

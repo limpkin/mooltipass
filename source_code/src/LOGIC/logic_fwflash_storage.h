@@ -97,9 +97,9 @@
 #define ID_STRING_TEST_NOK      61
 
 // Keyboard LUTs
-#define ID_KEYB_EN_LUT          BITMAP_ID_OFFSET+19
-#define ID_KEYB_FR_LUT          BITMAP_ID_OFFSET+20
-#define ID_KEYB_ES_LUT          BITMAP_ID_OFFSET+21
+#define ID_KEYB_EN_LUT          BITMAP_ID_OFFSET+18
+#define ID_KEYB_FR_LUT          BITMAP_ID_OFFSET+19
+#define ID_KEYB_ES_LUT          BITMAP_ID_OFFSET+20
 #define FIRST_KEYB_LUT          ID_KEYB_EN_LUT
 #define LAST_KEYB_LUT           ID_KEYB_ES_LUT
 

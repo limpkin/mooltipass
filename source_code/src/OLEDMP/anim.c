@@ -122,8 +122,8 @@ int8_t animFrameDraw(uint8_t x, uint8_t y, uint8_t frameId, uint8_t options)
     return 0;
 }
 
-#define BALL_WIDTH  20
-#define BALL_HEIGHT  20
+#define ZZZ_WIDTH  20
+#define ZZZ_HEIGHT  20
 
 // Bounce a ball around...
 void animScreenSaver()
@@ -136,24 +136,31 @@ void animScreenSaver()
     oledFlipBuffers(0,0);
     oledClear();
 
-    while (1) {
-        if (((x+xvel + BALL_WIDTH) > OLED_WIDTH) || (x+xvel < 0)) {
+    while (1) 
+    {
+        if (((x+xvel + ZZZ_WIDTH) > OLED_WIDTH) || (x+xvel < 0)) 
+        {
             // bounce x
             xvel = -xvel;
-        } else {
+        } 
+        else 
+        {
             x += xvel;
         }
-        if (((y+yvel + BALL_HEIGHT) > OLED_HEIGHT) || (y+yvel < 0)) {
+        if (((y+yvel + ZZZ_HEIGHT) > OLED_HEIGHT) || (y+yvel < 0)) 
+        {
             // bounce x
             yvel = -yvel;
-        } else {
+        } 
+        else 
+        {
             y += yvel;
         }
         
-        oledBitmapDrawFlash((uint8_t)x, (uint8_t)y, BITMAP_BALL, 0);
+        oledBitmapDrawFlash((uint8_t)x, (uint8_t)y, BITMAP_ZZZ, 0);
         oledFlipBuffers(0,0);
         _delay_ms(10);
-        oledFillXY(last_x, last_y, BALL_WIDTH, BALL_HEIGHT, 0);
+        oledFillXY(last_x, last_y, ZZZ_WIDTH, ZZZ_HEIGHT, 0);
 
         last_x = x;
         last_y = y;

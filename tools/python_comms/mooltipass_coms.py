@@ -251,6 +251,55 @@ def sendCustomPacket(epin, epout):
 	for i in range (0, packetstoreceive):
 		print receiveHidPacket(epin)
 		
+def	uploadBundle(epin, epout):
+	# Empty set password packet
+	mooltipass_password = array('B')
+	for i in range(62):
+		mooltipass_password.append(0)
+	success_status = 0
+	sendHidPacket(epout, CMD_IMPORT_MEDIA_START, 62, mooltipass_password)
+	# Check that the import command worked
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		# Open bundle file
+		bundlefile = open('bundle.img', 'rb')
+		packet_to_send = array('B')
+		byte = bundlefile.read(1)
+		bytecounter = 0
+		# While we haven't finished looping through the bytes
+		while byte != '':
+			# Add byte to current packet
+			packet_to_send.append(struct.unpack('B', byte)[0])
+			# Increment byte counter
+			bytecounter = bytecounter + 1
+			# Read new byte
+			byte = bundlefile.read(1)
+			# If packet full, send it
+			if bytecounter == 33:
+				sendHidPacket(epout, CMD_IMPORT_MEDIA, 33, packet_to_send)
+				packet_to_send = array('B')
+				bytecounter = 0
+				# Check ACK
+				if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+					print "Error in upload"
+					raw_input("press enter to acknowledge")
+		# Send the remaining bytes
+		sendHidPacket(epout, CMD_IMPORT_MEDIA, bytecounter, packet_to_send)
+		# Wait for ACK
+		receiveHidPacket(epin)
+		# Inform we sent everything
+		sendHidPacket(epout, CMD_IMPORT_MEDIA_END, 0, None)
+		# Check ACK
+		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+			success_status = 1
+		# Close file
+		bundlefile.close()
+	else:
+		success_status = 0
+		print "fail!!!"
+		print "likely causes: mooltipass already setup"
+	
+	return success_status
+		
 def mooltipassInit(hid_device, intf, epin, epout):
 	# Ask for Mooltipass ID
 	try :
@@ -474,7 +523,7 @@ def setCurrentKeyboard(epin, epout):
 	print "2) ES_ES"
 	choice = input("Make your choice: ")
 	print ""
-	packetToSend.append(64+19+choice)
+	packetToSend.append(64+18+choice)
 	sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)	
 	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 		print "Parameter changed"
@@ -883,6 +932,7 @@ if __name__ == '__main__':
 		print "19) Change Mooltipass touch detection integrator"
 		print "20) Change Mooltipass touch wheel over sample"
 		print "21) Change Mooltipass touch proximity param"
+		print "22) Upload Bundle"
 		choice = input("Make your choice: ")
 		print ""
 		
@@ -928,6 +978,8 @@ if __name__ == '__main__':
 			setGenericParameter(epin, epout, choice-14)
 		elif choice == 21:
 			setGenericParameter(epin, epout, choice-14)
+		elif choice == 22:
+			uploadBundle(epin, epout)
 	
 	hid_device.reset()
 

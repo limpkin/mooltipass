@@ -101,7 +101,7 @@
 #define ID_KEYB_FR_LUT          BITMAP_ID_OFFSET+19
 #define ID_KEYB_ES_LUT          BITMAP_ID_OFFSET+20
 #define FIRST_KEYB_LUT          ID_KEYB_EN_LUT
-#define LAST_KEYB_LUT           ID_KEYB_ES_LUT
+#define LAST_KEYB_LUT           ID_KEYB_ES_LUT+20
 
 // Prototypes
 uint8_t getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char);

@@ -131,7 +131,7 @@ int8_t animFrameDraw(uint8_t x, uint8_t y, uint8_t frameId, uint8_t options)
 void animScreenSaver(void)
 {
     int16_t x=0,y=0;
-    int16_t last_x=0,last_y=0;
+    int16_t last_x=0,last_y=15;
     int8_t xvel=3, yvel=2;
     oledWriteInactiveBuffer();
     oledClear();

@@ -50,6 +50,7 @@
 #define TOUCH_WHEEL_OS_PARAM                6
 #define TOUCH_PROX_OS_PARAM                 7
 #define OFFLINE_MODE_PARAM                  8
+#define SCREENSAVER_PARAM                   9
 
 /** Prototypes **/
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);

@@ -2,6 +2,7 @@ v0.8:
 - not using USB SOF for USB timeouts
 - removing checkbook_24 from bundle - new bundle required!
 - adding several keyboards
+- screensaver
 
 v0.7:
 - implemented a LUT for faster login search

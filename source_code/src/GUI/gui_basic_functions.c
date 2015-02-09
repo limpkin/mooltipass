@@ -250,11 +250,14 @@ void guiMainLoop(void)
     {
         guiDisplayGoingToSleep();
         userViewDelay();
-        if (TRUE)
+        if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
         {
             #ifndef HARDWARE_V1
                 animScreenSaver();
                 guiGetBackToCurrentScreen();
+                activityDetectedRoutine();
+                touchClearCurrentDetections();
+                return;
             #else
                 oledFlipBuffers(0,0);
             #endif

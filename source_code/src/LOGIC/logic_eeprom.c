@@ -57,6 +57,8 @@ void mooltipassParametersInit(void)
     setMooltipassParameterInEeprom(TOUCH_PROX_OS_PARAM, 0x73);
     // Disable offline mode by default
     setMooltipassParameterInEeprom(OFFLINE_MODE_PARAM, FALSE);
+    // Disable screen saver by default
+    setMooltipassParameterInEeprom(SCREENSAVER_PARAM, FALSE);
 }
 
 /*! \fn     firstTimeUserHandlingInit(void)

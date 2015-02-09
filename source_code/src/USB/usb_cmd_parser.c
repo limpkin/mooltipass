@@ -285,6 +285,12 @@ void usbProcessIncoming(uint8_t caller_id)
         // context command
         case CMD_CONTEXT :
         {
+            // So in case we're in memory management mode and want to set context, the LUT could be outdated
+            if (memoryManagementModeApproved == TRUE)
+            {                
+                // Update our LUT
+                populateServicesLut();
+            }
             if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
@@ -700,10 +706,7 @@ void usbProcessIncoming(uint8_t caller_id)
             // Check that we're actually in memory management mode
             if (memoryManagementModeApproved == TRUE)
             {
-                uint16_t temp_address;
-                
-                // Update our LUT
-                populateServicesLut();
+                uint16_t temp_address;                
                 
                 // Scan for next free node address
                 scanNodeUsage();
@@ -731,6 +734,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 // memoryManagementModeApproved is cleared when user removes his card
                 guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_NLCK);
                 plugin_return_value = PLUGIN_BYTE_OK;
+                currentNodeWritten = NODE_ADDR_NULL;
                 leaveMemoryManagementMode();
                 guiGetBackToCurrentScreen();
                 populateServicesLut();

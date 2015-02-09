@@ -103,13 +103,18 @@ def keyboardTestKey(epout, KEY, MODIFIER):
 
 def keyboardKeyMap(epout, key):
 	if ( (key & 0x3F) == KEY_EUROPE_2 ):
-		if (key & SHIFT_MASK):
+		if (key & (SHIFT_MASK|ALTGR_MASK) == (SHIFT_MASK|ALTGR_MASK)):
+			return keyboardTestKey(epout, KEY_EUROPE_2_REAL, KEY_SHIFT|KEY_RIGHT_ALT)
+		elif (key & SHIFT_MASK):
 			return keyboardTestKey(epout, KEY_EUROPE_2_REAL, KEY_SHIFT)
 		elif (key & ALTGR_MASK):
 			return keyboardTestKey(epout, KEY_EUROPE_2_REAL, KEY_RIGHT_ALT)
 		else:
 			return keyboardTestKey(epout, KEY_EUROPE_2_REAL, 0)
 
+	elif (key & (SHIFT_MASK|ALTGR_MASK) == (SHIFT_MASK|ALTGR_MASK)):
+		return keyboardTestKey(epout, key & ~(SHIFT_MASK|ALTGR_MASK), KEY_SHIFT|KEY_RIGHT_ALT)
+			
 	elif (key & SHIFT_MASK):
 		return keyboardTestKey(epout, key & ~SHIFT_MASK, KEY_SHIFT)
 
@@ -154,6 +159,16 @@ def keyboardTest(epout):
 			print ALTGR_MASK|bruteforce
 		else:
 			Layout_dict.update({output : ALTGR_MASK|bruteforce})
+
+	# ALTGR + SHIFT combinations
+	for bruteforce in range(KEY_EUROPE_2, KEY_SLASH+1):
+		output = keyboardKeyMap(epout, SHIFT_MASK|ALTGR_MASK|bruteforce)
+		if (output == ''): continue
+		if output in Layout_dict:
+			print "Already stored"
+			print SHIFT_MASK|ALTGR_MASK|bruteforce
+		else:
+			Layout_dict.update({output : SHIFT_MASK|ALTGR_MASK|bruteforce})
 
 
 	hid_define_str = "const uint8_t PROGMEM keyboardLUT_"+fileName+"[95] = \n{\n"

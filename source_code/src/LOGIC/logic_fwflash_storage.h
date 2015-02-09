@@ -116,10 +116,10 @@
 #define ID_KEYB_FI_FI_LUT       BITMAP_ID_OFFSET+29
 #define ID_KEYB_HU_HU_LUT       BITMAP_ID_OFFSET+30
 #define ID_KEYB_IS_IS_LUT       BITMAP_ID_OFFSET+31
-#define ID_KEYB_IT_IT_LUT       BITMAP_ID_OFFSET+32  // So it seems Italian keyboards don't have ~`{}
+#define ID_KEYB_IT_IT_LUT       BITMAP_ID_OFFSET+32  // So it seems Italian keyboards don't have ~`
 #define ID_KEYB_NL_NL_LUT       BITMAP_ID_OFFSET+33
 #define ID_KEYB_NO_NO_LUT       BITMAP_ID_OFFSET+34
-#define ID_KEYB_PO_PO_LUT       BITMAP_ID_OFFSET+35  // Polish keyboards don't have []|
+#define ID_KEYB_PO_PO_LUT       BITMAP_ID_OFFSET+35  // Polish programmer keyboard
 #define ID_KEYB_RO_RO_LUT       BITMAP_ID_OFFSET+36
 #define ID_KEYB_SL_SL_LUT       BITMAP_ID_OFFSET+37
 #define ID_KEYB_FRDE_CH_LUT     BITMAP_ID_OFFSET+38

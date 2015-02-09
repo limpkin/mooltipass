@@ -36,6 +36,8 @@
  */
 
 #include <util/delay.h>
+#include "touch_higher_level_functions.h"
+#include "timer_manager.h"
 #include "oledmp.h"
 #include "anim.h"
 
@@ -126,7 +128,7 @@ int8_t animFrameDraw(uint8_t x, uint8_t y, uint8_t frameId, uint8_t options)
 #define ZZZ_HEIGHT  20
 
 // Bounce a ball around...
-void animScreenSaver()
+void animScreenSaver(void)
 {
     int16_t x=0,y=0;
     int16_t last_x=0,last_y=0;
@@ -136,7 +138,7 @@ void animScreenSaver()
     oledFlipBuffers(0,0);
     oledClear();
 
-    while (1) 
+    while (!isTouchChangeDetected()) 
     {
         if (((x+xvel + ZZZ_WIDTH) > OLED_WIDTH) || (x+xvel < 0)) 
         {
@@ -159,10 +161,12 @@ void animScreenSaver()
         
         oledBitmapDrawFlash((uint8_t)x, (uint8_t)y, BITMAP_ZZZ, 0);
         oledFlipBuffers(0,0);
-        _delay_ms(10);
+        timerBasedDelayMs(15);
         oledFillXY(last_x, last_y, ZZZ_WIDTH, ZZZ_HEIGHT, 0);
 
         last_x = x;
         last_y = y;
     }
+    
+    oledWriteInactiveBuffer();
 }

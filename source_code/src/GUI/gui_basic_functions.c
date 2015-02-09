@@ -29,6 +29,7 @@
 #include "defines.h"
 #include "oledmp.h"
 #include "delays.h"
+#include "anim.h"
 #include "pwm.h"
 #include "gui.h"
 
@@ -249,10 +250,22 @@ void guiMainLoop(void)
     {
         guiDisplayGoingToSleep();
         userViewDelay();
-        oledFlipBuffers(0,0);
-        #ifndef HARDWARE_V1
-            oledOff();
-        #endif
+        if (TRUE)
+        {
+            #ifndef HARDWARE_V1
+                animScreenSaver();
+                guiGetBackToCurrentScreen();
+            #else
+                oledFlipBuffers(0,0);
+            #endif
+        } 
+        else
+        {
+            oledFlipBuffers(0,0);
+            #ifndef HARDWARE_V1
+                oledOff();
+            #endif
+        }
     }
     
     // If the screen just got turned on, don't call the guiScreenLoop() function

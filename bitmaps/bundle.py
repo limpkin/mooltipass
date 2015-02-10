@@ -82,7 +82,7 @@ def buildBundle(bundlename, stringFile, files, test_bundle=False, show_md5=False
     header.append(RESERVED_IDS + len(files))
     reserve = RESERVED_IDS*2 + 2*len(files) + 2      	# leave room for the header
     size = reserve
-	
+
 	#temp append while storing the string in flash
     for string,index in zip(strings,range(len(strings))):
         print '    0x{:04x}: size {:4} bytes, string[{}] = "{}"'.format(size,len(string)+1, index, string)

@@ -6,8 +6,8 @@ Files:
 - flash_mem.c
 - flash_mem.h
 
-The Flash Library was written to add an access layer to write to the SPI flash.  
-Currently the library only permits reading and writing pages and offsets of pages meaning that the library does not support writing over page boundaries. 
+The Flash Library was written to add an access layer to write to the SPI flash.
+Currently the library only permits reading and writing pages and offsets of pages meaning that the library does not support writing over page boundaries.
 
 The Flash Library allows usage of a subset of the Adesto family of SPI flash chips. The Flash Library supports the following chips:
 - 1M   (AT45DB011D) - (512  Pages at 264 Bytes Per Page)

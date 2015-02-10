@@ -454,11 +454,11 @@ int main(void)
         }
         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
-            activityDetectedRoutine();
             if (isScreenSaverOn() == TRUE)
             {
                 guiGetBackToCurrentScreen();
             }
+            activityDetectedRoutine();
         }
         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {

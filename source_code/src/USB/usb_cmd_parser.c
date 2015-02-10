@@ -753,13 +753,28 @@ void usbProcessIncoming(uint8_t caller_id)
             // Check that the mode is approved & that args are supplied
             if ((memoryManagementModeApproved == TRUE) && (datalen == 2))
             {
-                uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
+                // First two bytes are the node address
+                uint16_t* temp_node_addr_ptr = (uint16_t*)msg->body.data;
+                // Temp buffer to store the node
                 uint8_t temp_buffer[NODE_SIZE];
+                // Temp flags
+                uint16_t temp_flags;
                 
-                // Read node in flash & send it, ownership check is done in the function
-                readNode((gNode*)temp_buffer, *temp_uint_ptr);
-                usbSendMessage(CMD_READ_FLASH_NODE, NODE_SIZE, temp_buffer);
-                return;
+                // Read the flags and check we're not reading someone else's data (this is redundant as it is implemented in the read node function, however the app may want to scan the memory!)
+                readDataFromFlash(pageNumberFromAddress(*temp_node_addr_ptr), NODE_SIZE * nodeNumberFromAddress(*temp_node_addr_ptr), 2, (void*)&temp_flags);
+                
+                // Either the node belongs to us or it is invalid
+                if((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID))
+                {
+                    // Read node in flash & send it, ownership check is done in the function
+                    readNode((gNode*)temp_buffer, *temp_node_addr_ptr);
+                    usbSendMessage(CMD_READ_FLASH_NODE, NODE_SIZE, temp_buffer);
+                    return;
+                }
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }                
             }
             else
             {

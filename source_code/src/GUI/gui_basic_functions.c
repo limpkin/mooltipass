@@ -41,7 +41,18 @@ uint8_t touch_logic_ref_position;
 uint8_t areLightsOn = FALSE;
 // Current led mask for the PCB
 uint8_t currentLedMask = 0;
+// Screen saver on bool
+uint8_t screenSaverOn = FALSE;
 
+
+/*! \fn     isScreenSaverOn(void)
+*   \brief  Returns screen saver bool
+*   \return screen saver bool
+*/
+uint8_t isScreenSaverOn(void)
+{
+    return screenSaverOn;
+}
 
 /*! \fn     activityDetectedRoutine(void)
 *   \brief  What to do when user activity has been detected
@@ -62,6 +73,14 @@ void activityDetectedRoutine(void)
     {
         oledOn();
         screenComingOnDelay();
+    }
+    
+    // If we are in screen saver mode, exit it!
+    if (screenSaverOn == TRUE)
+    {
+        oledWriteInactiveBuffer();
+        guiGetBackToCurrentScreen();
+        screenSaverOn = FALSE;
     }
     
     // If the lights were off, turn them on!
@@ -213,6 +232,7 @@ int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
 void guiMainLoop(void)
 {
     RET_TYPE touch_detect_result;
+    uint8_t screenSaverOnCopy;
     uint8_t isScreenOnCopy;
     
     #ifdef HARDWARE_V1
@@ -231,7 +251,8 @@ void guiMainLoop(void)
         default: break;
     }
     
-    // Make a copy of the screen on bool
+    // Make a copy of the screen on & screensaver on bools
+    screenSaverOnCopy = screenSaverOn;
     isScreenOnCopy = oledIsOn();
     
     // Launch touch detection routine to check for interactions
@@ -253,11 +274,11 @@ void guiMainLoop(void)
         if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
         {
             #ifndef HARDWARE_V1
-                animScreenSaver();
-                guiGetBackToCurrentScreen();
-                activityDetectedRoutine();
-                touchClearCurrentDetections();
-                return;
+                screenSaverOn = TRUE;
+                oledWriteInactiveBuffer();
+                oledClear();
+                oledFlipBuffers(0,0);
+                oledClear();
             #else
                 oledFlipBuffers(0,0);
             #endif
@@ -272,7 +293,7 @@ void guiMainLoop(void)
     }
     
     // If the screen just got turned on, don't call the guiScreenLoop() function
-    if ((touch_detect_result & TOUCH_PRESS_MASK) && (isScreenOnCopy != FALSE))
+    if ((touch_detect_result & TOUCH_PRESS_MASK) && (isScreenOnCopy != FALSE) && (screenSaverOnCopy != FALSE))
     {
         guiScreenLoop(touch_detect_result);
     }   

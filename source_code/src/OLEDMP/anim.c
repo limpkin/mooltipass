@@ -40,6 +40,9 @@
 #include "timer_manager.h"
 #include "oledmp.h"
 #include "anim.h"
+int16_t screensaver_anim_last_x=0, screensaver_anim_last_y=15;
+int8_t screensaver_anim_xvel=3, screensaver_anim_yvel=2;
+int16_t screensaver_anim_x=0, screensaver_anim_y=0;
 
 static animFrame_t frameSides[] = {
     {   0,  0, BITMAP_LEFT  },
@@ -124,49 +127,38 @@ int8_t animFrameDraw(uint8_t x, uint8_t y, uint8_t frameId, uint8_t options)
     return 0;
 }
 
-#define ZZZ_WIDTH  20
+#define ZZZ_WIDTH   20
 #define ZZZ_HEIGHT  20
+#define ANIM_XVEL   3
+#define ANIM_YVEL   2
 
 // Bounce a ball around...
 void animScreenSaver(void)
 {
-    int16_t x=0,y=0;
-    int16_t last_x=0,last_y=15;
-    int8_t xvel=3, yvel=2;
-    oledWriteInactiveBuffer();
-    oledClear();
-    oledFlipBuffers(0,0);
-    oledClear();
-
-    while (!isTouchChangeDetected()) 
+    if (((screensaver_anim_x+screensaver_anim_xvel + ZZZ_WIDTH) > OLED_WIDTH) || (screensaver_anim_x+screensaver_anim_xvel < 0)) 
     {
-        if (((x+xvel + ZZZ_WIDTH) > OLED_WIDTH) || (x+xvel < 0)) 
-        {
-            // bounce x
-            xvel = -xvel;
-        } 
-        else 
-        {
-            x += xvel;
-        }
-        if (((y+yvel + ZZZ_HEIGHT) > OLED_HEIGHT) || (y+yvel < 0)) 
-        {
-            // bounce x
-            yvel = -yvel;
-        } 
-        else 
-        {
-            y += yvel;
-        }
-        
-        oledBitmapDrawFlash((uint8_t)x, (uint8_t)y, BITMAP_ZZZ, 0);
-        oledFlipBuffers(0,0);
-        timerBasedDelayMs(15);
-        oledFillXY(last_x, last_y, ZZZ_WIDTH, ZZZ_HEIGHT, 0);
-
-        last_x = x;
-        last_y = y;
+        // bounce x
+        screensaver_anim_xvel = -screensaver_anim_xvel;
+    } 
+    else 
+    {
+        screensaver_anim_x += screensaver_anim_xvel;
     }
-    
-    oledWriteInactiveBuffer();
+    if (((screensaver_anim_y+screensaver_anim_yvel + ZZZ_HEIGHT) > OLED_HEIGHT) || (screensaver_anim_y+screensaver_anim_yvel < 0)) 
+    {
+        // bounce x
+        screensaver_anim_yvel = -screensaver_anim_yvel;
+    } 
+    else 
+    {
+        screensaver_anim_y += screensaver_anim_yvel;
+    }
+        
+    oledBitmapDrawFlash((uint8_t)screensaver_anim_x, (uint8_t)screensaver_anim_y, BITMAP_ZZZ, 0);
+    oledFlipBuffers(0,0);
+    timerBasedDelayMs(15);
+    oledFillXY(screensaver_anim_last_x, screensaver_anim_last_y, ZZZ_WIDTH, ZZZ_HEIGHT, 0);
+
+    screensaver_anim_last_x = screensaver_anim_x;
+    screensaver_anim_last_y = screensaver_anim_y;
 }

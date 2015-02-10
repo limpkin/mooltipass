@@ -78,8 +78,6 @@ void activityDetectedRoutine(void)
     // If we are in screen saver mode, exit it!
     if (screenSaverOn == TRUE)
     {
-        oledWriteInactiveBuffer();
-        guiGetBackToCurrentScreen();
         screenSaverOn = FALSE;
     }
     
@@ -290,6 +288,12 @@ void guiMainLoop(void)
                 oledOff();
             #endif
         }
+    }
+    
+    // If there was some activity and we are showing the screen saver
+    if ((touch_detect_result & TOUCH_PRESS_MASK) && (screenSaverOnCopy == TRUE))
+    {
+        guiGetBackToCurrentScreen();
     }
     
     // If the screen just got turned on, don't call the guiScreenLoop() function

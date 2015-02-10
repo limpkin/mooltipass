@@ -52,7 +52,7 @@ void aes256_test(void)
     // Initialize the AES256 with the desired key
     aes256_init(key, &ctx);
 
-    // Encrypt data 
+    // Encrypt data
     // "text to encrypt" (ascii) -> '9798D10A63E4E167122C4C07AF49C3A9'(hexa)
     aes256_enc(data, &ctx);
 
@@ -64,7 +64,7 @@ void aes256_test(void)
 
 2- Testing the library using nessie test vectors
 ------------------------------------------------
-After downloading a third party library or resource you must ensure the library performs the function as well as it is claimed. So to satisfy our paranoia against any bug or error with the library, we have checked the encyrption and decryption using different test vectors, called Nessie Test Vectors. There are 8 different sets of test vectors, we have checked AES256 against all. 
+After downloading a third party library or resource you must ensure the library performs the function as well as it is claimed. So to satisfy our paranoia against any bug or error with the library, we have checked the encyrption and decryption using different test vectors, called Nessie Test Vectors. There are 8 different sets of test vectors, we have checked AES256 against all.
 
 To test AES256 using nessie vectors, we have created a file called aes256_nessie_test.c. This file outputs the results of nessie test into UART, USB CDC or whatever function you want. You only have to initialize the function pointer to print the output where you want.
 
@@ -78,7 +78,7 @@ void main(void)
     /*
 		INITIALIZATION OF USB CDC
     */
-    
+
     // Redirect nessieOutput to usb_serial_putchar
     nessieOutput = &usb_serial_putchar;
 
@@ -104,10 +104,10 @@ The passwords stored on the mooltipass will be encrypted using CTR block encrypt
 
 ```
 static uint8_t key[32] = { 0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b,
-0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 
+0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b,
 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4 };
 
-static uint8_t iv[16] = { 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 
+static uint8_t iv[16] = { 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8,
 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
 
 
@@ -131,7 +131,7 @@ void main(void)
     /*
         Decrypt
     */
-	
+
 	aes256CtrDecrypt(&ctx, text, sizeof(text));
 	// decrypting make text to be "this is my pass to encrypt" again.
 }
@@ -160,7 +160,7 @@ void main(void)
 - AVR-cryptolib files used in this project:
 
 ```
-aes.c -> AES256 implementation from http://www.literatecode.com/aes256 (with some things changed) 
+aes.c -> AES256 implementation from http://www.literatecode.com/aes256 (with some things changed)
 ```
 
 - Custom files done by mooltipass team:

@@ -42,7 +42,7 @@ def findEmailIn7cardsList(list, email):
 			return i;
 		i += 1
 	return -1
-	
+
 def findEmailInOrdersList(list, email, name, city):
 	i = 0
 	s = len(list)
@@ -65,13 +65,13 @@ def unicode_csv_reader(utf8_data, dialect=csv.excel, **kwargs):
 	csv_reader = csv.reader(utf8_data, dialect=dialect, **kwargs)
 	for row in csv_reader:
 		yield [unidecode(unicode(cell, 'utf-8')) for cell in row]
-		
+
 if __name__ == '__main__':
 	# Main function
 	print ""
 	print "Mooltipass backers csv parser"
 	print ""
-	
+
 	# Totals
 	debug_number_normal_cards = 0
 	debug_number_custom_card = 0
@@ -90,12 +90,12 @@ if __name__ == '__main__':
 	unfindable_money = 0
 	paypal_total_net = 0
 	raw_indiegogo_raised = 0
-	
-	# Email defs	
+
+	# Email defs
 	perk_email_sending = True
 	bypassfirstemailcheck = True
 	first_email = ""
-	
+
 	# Prints defs
 	raw_printout = False
 	perk_printout = True
@@ -103,26 +103,26 @@ if __name__ == '__main__':
 	anomaly_printout = False
 	paypal_raw_printout = False
 	crosschecking_prinout = False
-	
+
 	# Paypal crosschecking
 	paypal_crosschecking = True
-	
+
 	# 7 more cards list
 	morecards_list = list()
-	
+
 	# final order list
 	orders_list = list()
-	
+
 	# paypal orders
 	paypal_list = list()
-	
+
 	# login mooltipass gmail account
 	if perk_email_sending:
 		session = smtplib.SMTP('smtp.mailgun.org', 587)
 		session.ehlo()
 		session.starttls()
 		session.login(MAILGUN_LOGIN, MAILGUN_PASSWORD)
-		
+
 	# Csv reader, paypal export, store transaction ids together with gross and net
 	reader = unicode_csv_reader(open('paypal.txt'))
 	for paypal_date, paypal_time, paypal_timez, paypal_name, paypal_type, paypal_status, paypal_currency, paypal_gross, paypal_fee, paypal_net, paypal_email, paypal_account, paypal_transactionID, paypal_counterpart, paypal_addr, paypal_title, paypal_itemid, paypal_shipping, paypal_insur, paypal_saletax, paypal_option1n, paypal_option1v, paypal_option2n, paypal_option2v, paypal_auctionsite, paypal_buyerid, paypal_itemurl, paypal_closingdate, paypal_escrowid, paypal_invoiceid, paypal_reference, paypal_invoicenumber, paypal_customnum, paypal_receiptID, paypal_balance, paypal_address_line1, paypal_address_line2, paypal_city, paypal_state, paypal_zip, paypal_country, paypal_phone, paypal_blank in reader:
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 			if paypal_raw_printout:
 				print "Completed transaction number #" + paypal_invoicenumber + " gross: " + paypal_gross + " net: " + paypal_net
 			paypal_list.append([paypal_invoicenumber, paypal_gross, paypal_net])
-	
+
 	# Csv reader, 7 more cards detection loop and gross total
 	reader = unicode_csv_reader(open('mooltipass.txt'))
 	for contributionID, giftID, shippingstatus, backingdate, payingmean, displaystatus, name, email, amount, chosenperk, backername, backeraddress, backeraddress2, backercity, backercounty, backercitycode, backercountry in reader:
@@ -146,10 +146,10 @@ if __name__ == '__main__':
 		# Strip the ="" in the postal code
 		backercitycode = re.sub('[="]', '', backercitycode)
 		numamount = re.sub('[$]', '', amount)
-		# Printing the fields as is		
+		# Printing the fields as is
 		if raw_printout :
 			print "-------------------------------------------------"
-			if chosenperk: 
+			if chosenperk:
 				print "Chosen perk:     ", chosenperk, "-", amount
 			else:
 				print amount, "donation"
@@ -169,7 +169,7 @@ if __name__ == '__main__':
 			if backercountry:
 				print "Backer country:  ", backercountry
 			print ""
-		
+
 		#  Do some processing on perks involving a delivery
 		if chosenperk != "" and chosenperk != "Thank you!" and chosenperk != "7 more cards":
 			# chosen perk
@@ -215,7 +215,7 @@ if __name__ == '__main__':
 				print "-------------------------------------------------"
 				print "Chosen perk parsing error:", chosenperk
 				raw_input("Press enter to acknowledge")
-				
+
 			# Try to find the reference in our paypal export
 			user_transaction_ids = giftID
 			user_numamount = float(numamount)
@@ -225,7 +225,7 @@ if __name__ == '__main__':
 				print "-------------------------------------------------"
 				print "Transaction missing!"
 				print backername, "email:", email
-				print "Transaction id:", giftID, "("+numamount+")" 
+				print "Transaction id:", giftID, "("+numamount+")"
 				print "Date:", backingdate
 				raw_input("Press enter to acknowledge")
 			else:
@@ -265,7 +265,7 @@ if __name__ == '__main__':
 										print i, "- 7 cards transaction found, paypal received: " + repr(morecards_user_gross) + " net: " + repr(morecards_user_net)
 										#time.sleep(0.1)
 							else:
-								user_cards += 7							
+								user_cards += 7
 							# finally, pop element
 							morecards_list.pop(temp_index_id)
 					orders_list.append([email, backername.strip(), backeraddress.strip(), backeraddress2.strip(), backercity, backercitycode, backercounty, backercountry, user_abs, user_al, user_cards, user_custom_card, user_commemorative_card, user_numamount, user_gross, user_net, user_transaction_ids])
@@ -282,7 +282,7 @@ if __name__ == '__main__':
 					orders_list[user_index_in_order_list][INDEX_GROSS] += user_gross
 					orders_list[user_index_in_order_list][INDEX_NET] += user_net
 					orders_list[user_index_in_order_list][INDEX_TRANS_IDS] += " & " + user_transaction_ids
-				
+
 				# add the numbers
 				number_com_card += user_commemorative_card
 				number_custom_card += user_custom_card
@@ -291,7 +291,7 @@ if __name__ == '__main__':
 				number_al += user_al
 				campaign_money += user_numamount
 				received_money += user_net
-			
+
 		else:
 			# Thank you, no chosen perk...
 			if int(numamount) > 79 and anomaly_printout:
@@ -314,7 +314,7 @@ if __name__ == '__main__':
 				else:
 					seed_money += int(numamount)
 		#time.sleep(5)
-	
+
 	# Users that only took a 7 more cards perk.... sigh
 	# In that case, change csv file to "custom7only" for perk
 	i = 0
@@ -322,25 +322,25 @@ if __name__ == '__main__':
 		print "7 more cards perk only:", remaining_7cards_item[0], remaining_7cards_item[1], remaining_7cards_item[2]
 		campaign_money += remaining_7cards_item[2]
 		i += 1
-		
+
 	if i > 0:
 		print "-------------------------------------------------"
 		raw_input("Press enter to acknowledge")
-	
+
 	# Traverse our orders list, export csv file and write log file
 	order_id = 0
 	log_f = open('log.txt', 'w')
 	first_email_found = False
 	csvexport = csv.writer(open("order_export.txt", "wb"), quoting=csv.QUOTE_NONNUMERIC)
 	csvexport.writerow(["order id", "perk text", "email", "name", "address 1", "address 2", "city", "zip code", "county", "country", "#ABS", "#Al", "#cards", "#custom cards", "#commemorative", "contribution", "net", "trans IDs"])
-	for order_item in orders_list:		
+	for order_item in orders_list:
 		# check totals
 		debug_number_custom_card += order_item[INDEX_CUSTOM_CARD]
 		debug_number_com_card += order_item[INDEX_COMMMORATIVE]
 		debug_number_normal_cards += order_item[INDEX_CARD]
 		debug_number_abs += order_item[INDEX_ABS]
 		debug_number_al += order_item[INDEX_AL]
-		
+
 		# backer's perk
 		printout_perk_text = ""
 		if order_item[INDEX_ABS] > 0:
@@ -354,15 +354,15 @@ if __name__ == '__main__':
 		if order_item[INDEX_COMMMORATIVE] > 0:
 			printout_perk_text += repr(order_item[INDEX_COMMMORATIVE]) + " commemorative cards, "
 		# remove last 2 chars
-		printout_perk_text = printout_perk_text[:-2]	
-		
+		printout_perk_text = printout_perk_text[:-2]
+
 		# export
-		csvexport.writerow([repr(order_id), printout_perk_text, order_item[INDEX_EMAIL_ADDR], order_item[INDEX_NAME], order_item[INDEX_ADDR], order_item[INDEX_ADDR2], order_item[INDEX_CITY], order_item[INDEX_ZIP], order_item[INDEX_COUNTY], order_item[INDEX_COUNTRY], repr(order_item[INDEX_ABS]), repr(order_item[INDEX_AL]), repr(order_item[INDEX_CARD]), repr(order_item[INDEX_CUSTOM_CARD]), repr(order_item[INDEX_COMMMORATIVE]), repr(order_item[INDEX_CONT_AMOUNT]), repr(round(order_item[INDEX_NET], 2)), order_item[INDEX_TRANS_IDS]])	
-		
+		csvexport.writerow([repr(order_id), printout_perk_text, order_item[INDEX_EMAIL_ADDR], order_item[INDEX_NAME], order_item[INDEX_ADDR], order_item[INDEX_ADDR2], order_item[INDEX_CITY], order_item[INDEX_ZIP], order_item[INDEX_COUNTY], order_item[INDEX_COUNTRY], repr(order_item[INDEX_ABS]), repr(order_item[INDEX_AL]), repr(order_item[INDEX_CARD]), repr(order_item[INDEX_CUSTOM_CARD]), repr(order_item[INDEX_COMMMORATIVE]), repr(order_item[INDEX_CONT_AMOUNT]), repr(round(order_item[INDEX_NET], 2)), order_item[INDEX_TRANS_IDS]])
+
 		# chosen perk
 		if perk_printout:
 			print printout_perk_text
-		
+
 		# backer's address
 		if addr_printout:
 			temp_bool = False
@@ -384,7 +384,7 @@ if __name__ == '__main__':
 				# address checking
 				if len(order_item[INDEX_ADDR]) < 3:
 					temp_bool = True
-				if order_item[INDEX_ADDR2] != "" and order_item[INDEX_ADDR] != order_item[INDEX_ADDR2] and order_item[INDEX_ADDR2] != " ." and order_item[INDEX_ADDR2] != "-" and order_item[INDEX_ADDR2] != "/" and order_item[INDEX_ADDR2] != "_" and order_item[INDEX_ADDR2] != "." and order_item[INDEX_ADDR2] != "X": 
+				if order_item[INDEX_ADDR2] != "" and order_item[INDEX_ADDR] != order_item[INDEX_ADDR2] and order_item[INDEX_ADDR2] != " ." and order_item[INDEX_ADDR2] != "-" and order_item[INDEX_ADDR2] != "/" and order_item[INDEX_ADDR2] != "_" and order_item[INDEX_ADDR2] != "." and order_item[INDEX_ADDR2] != "X":
 					print order_item[INDEX_ADDR2]
 					# address checking
 					if len(order_item[INDEX_ADDR2]) < 3:
@@ -399,7 +399,7 @@ if __name__ == '__main__':
 			if temp_bool and False:
 				print "Atypical address"
 				raw_input("Press enter to acknowledge")
-			
+
 		# email sending
 		if order_item[INDEX_EMAIL_ADDR] == first_email or bypassfirstemailcheck:
 			first_email_found = True
@@ -427,7 +427,7 @@ if __name__ == '__main__':
 					   "mime-version: 1.0",
 					   "content-type: text/html"])
 
-			# body_of_email can be plaintext or html!                    
+			# body_of_email can be plaintext or html!
 			content = headers + "\r\n\r\n" + body_of_email
 			try:
 				session.sendmail("orders@themooltipass.com", email_recipient, content)
@@ -437,10 +437,10 @@ if __name__ == '__main__':
 				log_f.write(email_recipient+"\n")
 				print e
 			time.sleep(2)
-			
+
 		#increment order id
 		order_id += 1
-	
+
 	log_f.close()
 	print "-------------------------------------------------"
 	print "Total number of commemorative cards:", number_com_card, "- check:", debug_number_com_card

@@ -107,7 +107,7 @@ From plugin/app: Inform that we finished the flash import
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x46: export eeprom start (for full import/export fw version) 
+0x46: export eeprom start (for full import/export fw version)
 -------------------------------------------------------------
 From plugin/app: Request for eeprom contents export to Mooltipass.
 
@@ -127,7 +127,7 @@ From Mooltipass: end of eeprom export
 
 0x37: import eeprom start (for full import/export fw version)
 -------------------------------------------------------------
-From plugin/app: Request for eeprom contents sending to Mooltipass. 
+From plugin/app: Request for eeprom contents sending to Mooltipass.
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
@@ -305,7 +305,7 @@ From Mooltipass: 1 bytes bit field. BIT0: smartcard presence. BIT1: pin unlockin
 
 ```
 0b000 -> No Card
-0b001 -> Locked 
+0b001 -> Locked
 0b010 -> Error (shouldn't happen)
 0b011 -> Locked (unlocking screen)
 0b100 -> Error (shouldn't happen)

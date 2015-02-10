@@ -8,3 +8,4 @@ production/cards/Mooltipass-smartcard-template-comm_v2.svg
 *.eep
 *.o
 .DS_Store
+*.pyc

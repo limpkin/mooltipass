@@ -43,6 +43,8 @@
 int16_t screensaver_anim_last_x=0, screensaver_anim_last_y=15;
 int8_t screensaver_anim_xvel=3, screensaver_anim_yvel=2;
 int16_t screensaver_anim_x=0, screensaver_anim_y=0;
+#define ZZZ_WIDTH   20
+#define ZZZ_HEIGHT  20
 
 static animFrame_t frameSides[] = {
     {   0,  0, BITMAP_LEFT  },
@@ -126,11 +128,6 @@ int8_t animFrameDraw(uint8_t x, uint8_t y, uint8_t frameId, uint8_t options)
 
     return 0;
 }
-
-#define ZZZ_WIDTH   20
-#define ZZZ_HEIGHT  20
-#define ANIM_XVEL   3
-#define ANIM_YVEL   2
 
 // Bounce a ball around...
 void animScreenSaver(void)

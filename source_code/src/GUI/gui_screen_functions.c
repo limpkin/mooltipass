@@ -183,7 +183,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
             }
             case (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_TLEFT) :
             {
-                // User wants to go to the favorite menu
+                // User wants to go to the login menu
                 loginSelectLogic();
                 guiGetBackToCurrentScreen();
                 break;

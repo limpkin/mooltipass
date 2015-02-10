@@ -283,5 +283,7 @@ void readNode(gNode* g, uint16_t nodeAddress);
 
 void scanNodeUsage(void);
 
+void setCurrentDate(uint16_t date);
+void updateDateLastUsedField(uint16_t cAddr);
 
 #endif /* NODE_MGMT_H_ */

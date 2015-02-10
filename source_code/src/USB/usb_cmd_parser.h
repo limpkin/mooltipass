@@ -66,6 +66,7 @@
 #define CMD_USB_KEYBOARD_PRESS  0x69
 #define CMD_MOOLTIPASS_STATUS   0x70
 #define CMD_FUNCTIONAL_TEST_RES 0x71
+#define CMD_SET_DATE            0x72
 
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

@@ -314,6 +314,12 @@ From Mooltipass: 1 bytes bit field. BIT0: smartcard presence. BIT1: pin unlockin
 0b111 -> Error (shouldn't happen)
 ```
 
+0x72: Set current date
+----------------------
+From plugin/app: Set current date (16 bits encoding: 15 dn 9 -> Year (2010 + val), 8 dn 5 -> Month, 4 dn 0 -> Day of Month)
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
 Functions
 =========
 

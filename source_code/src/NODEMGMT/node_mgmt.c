@@ -34,6 +34,8 @@
 
 // Current node management handle
 mgmtHandle currentNodeMgmtHandle;
+// Current date
+uint16_t currentDate;
 
 
 /*! \fn     nodeMgmtCriticalErrorCallback(void)
@@ -52,6 +54,15 @@ void nodeMgmtPermissionValidityErrorCallback(void)
 {
     usbPutstr("#NMP");
     while(1);
+}
+
+/*! \fn     setCurrentDate(uint16_t date)
+*   \brief  Set current date
+*   \param  date    The correctly formatted date (16 bits encoding: 15 dn 9 -> Year (2010 + val), 8 dn 5 -> Month, 4 dn 0 -> Day of Month)
+*/
+void setCurrentDate(uint16_t date)
+{
+    currentDate = date;
 }
 
 /* Flag Get/Set Helper Functions */
@@ -505,6 +516,7 @@ void readParentNode(pNode* p, uint16_t parentNodeAddress)
 void readChildNode(cNode *c, uint16_t childNodeAddress)
 {
     readNode((gNode*)c, childNodeAddress);
+    updateDateLastUsedField(childNodeAddress);
 }
 
 /**
@@ -552,6 +564,10 @@ RET_TYPE createChildNode(uint16_t pAddr, cNode *c)
     
     // Set node type to child
     nodeTypeToFlags(&(c->flags), NODE_TYPE_CHILD);
+    
+    // Write date created & used fields
+    c->dateCreated = currentDate;
+    c->dateLastUsed = currentDate;
     
     // Read parent to get the first child address
     readNode((gNode*)tempPNodePointer, pAddr);
@@ -864,6 +880,27 @@ void deleteCurrentUserFromFlash(void)
     
     // Empty service lut
     memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));
+}
+
+/**
+ * Update the date last used field
+ * @param   cAddr           The address to the child node to update
+ */
+void updateDateLastUsedField(uint16_t cAddr)
+{
+    // Temp child node
+    cNode* ic = &(currentNodeMgmtHandle.child.child);
+    
+    // Read child node
+    readChildNode(ic, cAddr);
+    
+    // If we actually have a date
+    if (currentDate != 0x0000)
+    {         
+         // Just update the good field and write at the same place
+         ic->dateLastUsed = currentDate;
+         writeNodeDataBlockToFlash(cAddr, ic);
+    }    
 }
 
 /**

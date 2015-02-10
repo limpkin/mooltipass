@@ -1198,7 +1198,23 @@ void usbProcessIncoming(uint8_t caller_id)
             fillArrayWithRandomBytes(randomBytes, 32);
             usbSendMessage(CMD_GET_RANDOM_NUMBER, 32, randomBytes);
             return;
-        }            
+        }  
+        
+        // Set current date
+        case CMD_SET_DATE :
+        {
+            if (datalen == 2)
+            {
+                uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
+                plugin_return_value = PLUGIN_BYTE_OK;
+                setCurrentDate(*temp_uint_ptr);
+            } 
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }          
         
         // set password bootkey
         case CMD_SET_BOOTLOADER_PWD :

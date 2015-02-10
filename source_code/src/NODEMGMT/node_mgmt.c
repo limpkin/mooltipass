@@ -516,7 +516,14 @@ void readParentNode(pNode* p, uint16_t parentNodeAddress)
 void readChildNode(cNode *c, uint16_t childNodeAddress)
 {
     readNode((gNode*)c, childNodeAddress);
-    updateDateLastUsedField(childNodeAddress);
+    
+    // If we have a date, update last used field
+    if (currentDate != 0x0000)
+    {
+        // Just update the good field and write at the same place
+        c->dateLastUsed = currentDate;
+        writeNodeDataBlockToFlash(childNodeAddress, c);
+    }
 }
 
 /**
@@ -880,27 +887,6 @@ void deleteCurrentUserFromFlash(void)
     
     // Empty service lut
     memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));
-}
-
-/**
- * Update the date last used field
- * @param   cAddr           The address to the child node to update
- */
-void updateDateLastUsedField(uint16_t cAddr)
-{
-    // Temp child node
-    cNode* ic = &(currentNodeMgmtHandle.child.child);
-    
-    // Read child node
-    readChildNode(ic, cAddr);
-    
-    // If we actually have a date
-    if (currentDate != 0x0000)
-    {         
-         // Just update the good field and write at the same place
-         ic->dateLastUsed = currentDate;
-         writeNodeDataBlockToFlash(cAddr, ic);
-    }    
 }
 
 /**

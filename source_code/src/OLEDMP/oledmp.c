@@ -213,11 +213,6 @@ void oledBegin(uint8_t font)
         gddram[ind].pixels = 0;
     }
 
-    oledWriteInactiveBuffer();
-    oledClear();
-    oledWriteActiveBuffer();
-    oledClear();
-
 #ifdef ENABLE_PRINTF
     // Map stdout to use the OLED display.
     // This means that printf(), printf_P(), puts(), puts_P(), etc 
@@ -627,9 +622,14 @@ void oledInit()
         }
     }
 
-    PORT_OLED_POW &= ~(1 << PORTID_OLED_POW);
-    oledWriteCommand(CMD_SET_DISPLAY_ON);
-    oled_isOn = TRUE;
+    // Clear buffers
+    oledWriteInactiveBuffer();
+    oledClear();
+    oledWriteActiveBuffer();
+    oledClear();
+
+    // Switch on screen
+    oledOn();
 }
 
 /**

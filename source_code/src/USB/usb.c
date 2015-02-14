@@ -330,7 +330,7 @@ ISR(USB_COM_vect)
         wIndex |= (UEDATX << 8);
         wLength = UEDATX;
         wLength |= (UEDATX << 8);
-        UEINTX = ~((1<<RXSTPI) | (1<<RXOUTI) | (1<<TXINI));
+        UEINTX = ~((1<<RXSTPI) | (1<<RXOUTI) | (1<<TXINI) | (1 << NAKINI));
 
         if (bRequest == GET_DESCRIPTOR)
         {
@@ -499,15 +499,25 @@ ISR(USB_COM_vect)
             if (bmRequestType == 0x21 && bRequest == HID_SET_REPORT)
             {
                 len = RAWHID_RX_SIZE;
-                do
+                // It seems that this code could be stuck as some computer may not send all the bytes
+                //do
+                //{
+                //    n = len < ENDPOINT0_SIZE ? len : ENDPOINT0_SIZE;
+                //    usb_wait_receive_out();
+                //    // ignore incoming bytes
+                //    usb_ack_out();
+                //    len -= n;
+                //}
+                //while (len);
+                // Instead we look for the NAIKI flag
+                do 
                 {
-                    n = len < ENDPOINT0_SIZE ? len : ENDPOINT0_SIZE;
-                    usb_wait_receive_out();
-                    // ignore incoming bytes
-                    usb_ack_out();
-                    len -= n;
-                }
-                while (len);
+                    if(UEINTX & (1<<RXOUTI))
+                    {
+                        usb_ack_out();
+                    }
+                } 
+                while (!(UEINTX & (1<<NAKINI)));
                 usb_wait_in_ready();
                 usb_send_in();
                 return;

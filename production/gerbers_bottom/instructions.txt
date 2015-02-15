@@ -1,3 +1,6 @@
 In this folder are contained the gerbers for the bottom PCB.
 The PCB is 4 layers, with a 0.2-1.2-0.2 stackup.
 P1 P2 P3 P4 must have their pins cut to be less than 1.6mm
+
+changelog:
+15/02/2015: added a 1k resistor, changed 3.2 to 2.7mm holes

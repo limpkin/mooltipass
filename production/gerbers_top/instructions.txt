@@ -1,2 +1,8 @@
 In this folder are containted the gerbers for the TOP PCB.
 The PCB is 2 layers 1.6mm and has a black soldermask.
+
+IMPORTANT:
+- 1.2mm deep slots: use DXF files in pcb_milling folder OR use mooltipass_top_slots.gml !!!!
+
+changelog:
+- 15/02/2015: switch to 10k for R10 R11 R12

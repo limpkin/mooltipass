@@ -1,9 +1,9 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 23/06/2014 21:14:05
+Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 15/02/2015 14:08:10
 
 BeginCmp
 TimeStamp = /5289A0B1;
 Reference = C1;
-ValeurCmp = 10uF;
+ValeurCmp = 22uF;
 IdModule  = SM1206;
 EndCmp
 
@@ -17,7 +17,7 @@ EndCmp
 BeginCmp
 TimeStamp = /52CB305A;
 Reference = C3;
-ValeurCmp = 10uF;
+ValeurCmp = 22uF;
 IdModule  = SM1206;
 EndCmp
 
@@ -263,28 +263,28 @@ BeginCmp
 TimeStamp = /5301D44B;
 Reference = P5;
 ValeurCmp = CONN_1;
-IdModule  = HOLE_FIX_M3_SMALL;
+IdModule  = HOLE_FIX_M2.5_SMALL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5301D462;
 Reference = P6;
 ValeurCmp = CONN_1;
-IdModule  = HOLE_FIX_M3_SMALL;
+IdModule  = HOLE_FIX_M2.5_SMALL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5301D468;
 Reference = P7;
 ValeurCmp = CONN_1;
-IdModule  = HOLE_FIX_M3_SMALL;
+IdModule  = HOLE_FIX_M2.5_SMALL;
 EndCmp
 
 BeginCmp
 TimeStamp = /5301D46E;
 Reference = P8;
 ValeurCmp = CONN_1;
-IdModule  = HOLE_FIX_M3_SMALL;
+IdModule  = HOLE_FIX_M2.5_SMALL;
 EndCmp
 
 BeginCmp
@@ -397,6 +397,13 @@ TimeStamp = /530A36E6;
 Reference = R12;
 ValeurCmp = 2k2;
 IdModule  = SM0603_Capa;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E09BC6;
+Reference = R13;
+ValeurCmp = 10k;
+IdModule  = SM0603_Resistor;
 EndCmp
 
 BeginCmp

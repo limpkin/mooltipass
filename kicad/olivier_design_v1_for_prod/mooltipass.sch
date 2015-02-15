@@ -37,7 +37,7 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "M. Stephan - Mooltipass Schematics (Licensed under CERN OHL V1.2)"
-Date "25 jun 2014"
+Date "15 feb 2015"
 Rev "2"
 Comp ""
 Comment1 ""
@@ -1441,7 +1441,7 @@ F 3 "~" H 11700 5250 30  0000 C CNN
 	-1   0    0    1   
 $EndComp
 NoConn ~ 11450 5900
-Text Notes 11500 5850 0    39   ~ 0
+Text Notes 11500 5900 0    39   ~ 0
 DO NOT CONNECT, for arduino compatibility
 $Comp
 L AT45DB011D U6
@@ -2543,8 +2543,6 @@ Wire Wire Line
 Wire Wire Line
 	11450 6800 12800 6800
 Wire Wire Line
-	11450 5700 12800 5700
-Wire Wire Line
 	11700 5700 11700 5500
 Connection ~ 11700 5700
 Wire Wire Line
@@ -2820,4 +2818,19 @@ Wire Wire Line
 Wire Wire Line
 	5750 1050 5750 1000
 Connection ~ 5450 1250
+$Comp
+L R R13
+U 1 1 54E09BC6
+P 12050 5700
+F 0 "R13" V 12130 5700 40  0000 C CNN
+F 1 "10k" V 12057 5701 40  0000 C CNN
+F 2 "~" V 11980 5700 30  0000 C CNN
+F 3 "~" H 12050 5700 30  0000 C CNN
+	1    12050 5700
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	11450 5700 11800 5700
+Wire Wire Line
+	12300 5700 12800 5700
 $EndSCHEMATC

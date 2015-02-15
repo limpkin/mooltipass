@@ -1,5 +1,5 @@
 M48
-;DRILL file {Pcbnew (2013-07-07 BZR 4022)-stable} date 23/06/2014 21:29:33
+;DRILL file {Pcbnew (2013-07-07 BZR 4022)-stable} date 15/02/2015 14:23:23
 ;FORMAT={-:-/ absolute / metric / decimal}
 FMAT,2
 METRIC,TZ
@@ -8,7 +8,7 @@ T2C0.550
 T3C1.000
 T4C1.250
 T5C2.100
-T6C3.200
+T6C2.700
 %
 G90
 G05

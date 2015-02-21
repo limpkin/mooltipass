@@ -72,7 +72,7 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
 RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
 {
     // If we don't need a pin code, send default one
-    #if defined(NO_PIN_CODE_REQUIRED) || defined(HARDWARE_V1)
+    #if defined(NO_PIN_CODE_REQUIRED) || defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
         *pin_code = SMARTCARD_DEFAULT_PIN;
         return RETURN_OK;
     #endif

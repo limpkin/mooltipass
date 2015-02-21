@@ -274,7 +274,7 @@ int main(void)
     touch_init_result = initTouchSensing();
 
     // Enable proximity detection
-    #ifndef HARDWARE_V1
+    #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
         activateProxDetection();
     #endif
     
@@ -370,8 +370,10 @@ int main(void)
     
     // Stop the Mooltipass if we can't communicate with the flash or the touch interface
     #if defined(HARDWARE_OLIVIER_V1)
-        #ifdef PRODUCTION_KICKSTARTER_SETUP
+        #if defined(PRODUCTION_KICKSTARTER_SETUP)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK) || (fuse_ok != TRUE));
+        #elif defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
+            while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_NOK));
         #else
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
         #endif

@@ -59,7 +59,7 @@ uint8_t isScreenSaverOn(void)
 */
 void activityDetectedRoutine(void)
 {
-    #ifdef HARDWARE_V1
+    #if defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
         return;
     #endif
     
@@ -97,10 +97,10 @@ void activityDetectedRoutine(void)
 */
 int8_t getTouchedPositionAnswer(uint8_t led_mask)
 {
-    #ifdef HARDWARE_V1
-        _delay_ms(2000);
+    #if defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
+        timerBasedDelayMs(2000);
     #endif
-    #if defined(ALWAYS_ACCEPT_REQUESTS) || defined(HARDWARE_V1)
+    #if defined(ALWAYS_ACCEPT_REQUESTS) || defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
         // First quarter is discarded, it means we want yes or no!
         if (led_mask & LED_MASK_WHEEL_TLEFT)
         {
@@ -233,7 +233,7 @@ void guiMainLoop(void)
     uint8_t screenSaverOnCopy;
     uint8_t isScreenOnCopy;
     
-    #ifdef HARDWARE_V1
+    #if defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
         return;
     #endif
     
@@ -271,7 +271,7 @@ void guiMainLoop(void)
         userViewDelay();
         if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
         {
-            #ifndef HARDWARE_V1
+            #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
                 screenSaverOn = TRUE;
                 oledWriteInactiveBuffer();
                 oledClear();
@@ -284,7 +284,7 @@ void guiMainLoop(void)
         else
         {
             oledFlipBuffers(0,0);
-            #ifndef HARDWARE_V1
+            #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
                 oledOff();
             #endif
         }

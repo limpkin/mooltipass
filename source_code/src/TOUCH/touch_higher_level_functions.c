@@ -83,7 +83,7 @@ void activateProxDetection(void)
 */
 RET_TYPE initTouchSensing(void)
 {
-    #ifndef HARDWARE_V1
+    #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
         RET_TYPE temp_return = checkTSPres();
         
         if (temp_return == RETURN_OK)

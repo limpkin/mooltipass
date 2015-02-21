@@ -757,14 +757,9 @@ void usbProcessIncoming(uint8_t caller_id)
                 uint16_t* temp_node_addr_ptr = (uint16_t*)msg->body.data;
                 // Temp buffer to store the node
                 uint8_t temp_buffer[NODE_SIZE];
-                // Temp flags
-                uint16_t temp_flags;
                 
-                // Read the flags and check we're not reading someone else's data (this is redundant as it is implemented in the read node function, however the app may want to scan the memory!)
-                readDataFromFlash(pageNumberFromAddress(*temp_node_addr_ptr), NODE_SIZE * nodeNumberFromAddress(*temp_node_addr_ptr), 2, (void*)&temp_flags);
-                
-                // Either the node belongs to us or it is invalid
-                if((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID))
+                //  Check user permissions
+                if(checkUserPermission(*temp_node_addr_ptr) == RETURN_OK)
                 {
                     // Read node in flash & send it, ownership check is done in the function
                     readNode((gNode*)temp_buffer, *temp_node_addr_ptr);
@@ -913,7 +908,6 @@ void usbProcessIncoming(uint8_t caller_id)
         {
             // First two bytes are the node address
             uint16_t* temp_node_addr_ptr = (uint16_t*)msg->body.data;
-            uint16_t temp_flags;
             
             // Check that the plugin provided the address and packet #
             if ((memoryManagementModeApproved != TRUE) || (datalen != 3))
@@ -925,11 +919,8 @@ void usbProcessIncoming(uint8_t caller_id)
                 // If it is the first packet, store the address and load the page in the internal buffer
                 if (msg->body.data[2] == 0)
                 {
-                    // Read the flags and check we're not overwriting someone else's data
-                    readDataFromFlash(pageNumberFromAddress(*temp_node_addr_ptr), NODE_SIZE * nodeNumberFromAddress(*temp_node_addr_ptr), 2, (void*)&temp_flags);
-                    
-                    // Either the node belongs to us or it is invalid
-                    if((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID))
+                    //  Check user permissions
+                    if(checkUserPermission(*temp_node_addr_ptr) == RETURN_OK)
                     {
                         currentNodeWritten = *temp_node_addr_ptr;
                         loadPageToInternalBuffer(pageNumberFromAddress(currentNodeWritten));                        

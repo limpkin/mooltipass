@@ -255,6 +255,34 @@ RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)
     return RETURN_OK;
 }
 
+/*! \fn     checkUserPermission(uint16_t node_addr)
+*   \brief  Check that the user has the right to read/write a node
+*   \param  node_addr   Node address
+*   \return OK / NOK
+*/
+RET_TYPE checkUserPermission(uint16_t node_addr)
+{
+    // Future node flags
+    uint16_t temp_flags;
+    // Node Page
+    uint16_t page_addr = pageNumberFromAddress(node_addr);
+    // Node byte address
+    uint16_t byte_addr = NODE_SIZE * (uint16_t)nodeNumberFromAddress(node_addr);
+    
+    // Fetch the flags
+	readDataFromFlash(page_addr, byte_addr, 2, (void*)&temp_flags);
+					
+	// Either the node belongs to us or it is invalid, check that the address is after sector 1 (upper check done at the flashread/write level)
+	if(((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID)) && (page_addr >= PAGE_PER_SECTOR))
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
 /*! \fn     writeNodeDataBlockToFlash(uint16_t address, void* data)
 *   \brief  Write a node data block to flash
 *   \param  address Where to write
@@ -490,7 +518,7 @@ void readNode(gNode* g, uint16_t nodeAddress)
 {
     readNodeDataBlockFromFlash(nodeAddress, g);
     
-    if((currentNodeMgmtHandle.currentUserId != userIdFromFlags(g->flags)) || (validBitFromFlags(g->flags) == NODE_VBIT_INVALID))
+    if (checkUserPermission(nodeAddress) != RETURN_OK)
     {
         // if handle user id != id from node or node is invalid
         // clear local node.. return not ok

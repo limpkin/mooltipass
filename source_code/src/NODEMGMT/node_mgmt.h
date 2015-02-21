@@ -175,7 +175,7 @@ typedef struct __attribute__((packed)) childNode {
 
 // flags + prevChildAddress + nextChildAddress + description + dateCreated + dateLastUsed + ctr
 #define CNODE_COMPARISON_FIELD_OFFSET   37
-#define CNODE_LIB_FIELDS_LENGTH         8
+#define CNODE_LIB_FIELDS_LENGTH         6
 
 /*!
 * Struct containing a data node
@@ -249,6 +249,7 @@ uint8_t getCurrentUserID(void);
 uint16_t getFreeNodeAddress(void);
 void deleteCurrentUserFromFlash(void);
 void formatUserProfileMemory(uint8_t uid);
+RET_TYPE checkUserPermission(uint16_t node_addr);
 void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
 
 void setStartingParent(uint16_t parentAddress);

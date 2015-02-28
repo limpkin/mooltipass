@@ -270,10 +270,10 @@ RET_TYPE checkUserPermission(uint16_t node_addr)
     uint16_t byte_addr = NODE_SIZE * (uint16_t)nodeNumberFromAddress(node_addr);
     
     // Fetch the flags
-	readDataFromFlash(page_addr, byte_addr, 2, (void*)&temp_flags);
+    readDataFromFlash(page_addr, byte_addr, 2, (void*)&temp_flags);
 					
-	// Either the node belongs to us or it is invalid, check that the address is after sector 1 (upper check done at the flashread/write level)
-	if(((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID)) && (page_addr >= PAGE_PER_SECTOR))
+    // Either the node belongs to us or it is invalid, check that the address is after sector 1 (upper check done at the flashread/write level)
+    if(((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID)) && (page_addr >= PAGE_PER_SECTOR))
     {
         return RETURN_OK;
     }

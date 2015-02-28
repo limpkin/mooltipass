@@ -1,0 +1,101 @@
+Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 28/02/2015 19:03:44
+
+BeginCmp
+TimeStamp = /54F1F4BD;
+Reference = C1;
+ValeurCmp = 100nF;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1DFE0;
+Reference = CON1;
+ValeurCmp = AVR-ISP-6;
+IdModule  = pin_array_3x2;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1EB0E;
+Reference = D1;
+ValeurCmp = RED LED;
+IdModule  = LED-5MM;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1EB1B;
+Reference = D2;
+ValeurCmp = GREEN LED;
+IdModule  = LED-5MM;
+EndCmp
+
+BeginCmp
+TimeStamp = /53010982;
+Reference = P1;
+ValeurCmp = CONN_8;
+IdModule  = CON_8_THROUGH_POGO;
+EndCmp
+
+BeginCmp
+TimeStamp = /53010957;
+Reference = P2;
+ValeurCmp = CONN_6;
+IdModule  = CON_6_THROUGH_POGO;
+EndCmp
+
+BeginCmp
+TimeStamp = /53010939;
+Reference = P3;
+ValeurCmp = CONN_10;
+IdModule  = CON_10_THROUGH_POGO;
+EndCmp
+
+BeginCmp
+TimeStamp = /53010948;
+Reference = P4;
+ValeurCmp = CONN_8;
+IdModule  = CON_8_THROUGH_POGO;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1F637;
+Reference = P5;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M2.5_SMALL;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1F61E;
+Reference = P6;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M2.5_SMALL;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1F62B;
+Reference = P7;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M2.5_SMALL;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1F631;
+Reference = P8;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M2.5_SMALL;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1EABD;
+Reference = R1;
+ValeurCmp = 1k;
+IdModule  = SM0603_Resistor;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F1EB36;
+Reference = R2;
+ValeurCmp = 1k;
+IdModule  = SM0603_Resistor;
+EndCmp
+
+EndListe

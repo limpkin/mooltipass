@@ -37,7 +37,7 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "M. Stephan - Mooltipass Schematics (Licensed under CERN OHL V1.2)"
-Date "15 feb 2015"
+Date "28 feb 2015"
 Rev "2"
 Comp ""
 Comment1 ""
@@ -1577,7 +1577,7 @@ F 1 "CONN_6" V 1200 7850 60  0000 C CNN
 F 2 "" H 1150 7850 60  0000 C CNN
 F 3 "" H 1150 7850 60  0000 C CNN
 	1    1150 7850
-	-1   0    0    1   
+	-1   0    0    -1  
 $EndComp
 $Comp
 L CONN_8 P1

@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 28/02/2015 19:03:44
+Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 28/02/2015 20:35:41
 
 BeginCmp
 TimeStamp = /54F1F4BD;
@@ -82,6 +82,34 @@ TimeStamp = /54F1F631;
 Reference = P8;
 ValeurCmp = CONN_1;
 IdModule  = HOLE_FIX_M2.5_SMALL;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F21912;
+Reference = P9;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M3;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F21918;
+Reference = P10;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M3;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F2191E;
+Reference = P11;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M3;
+EndCmp
+
+BeginCmp
+TimeStamp = /54F21924;
+Reference = P12;
+ValeurCmp = CONN_1;
+IdModule  = HOLE_FIX_M3;
 EndCmp
 
 BeginCmp

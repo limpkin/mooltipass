@@ -910,7 +910,7 @@ void usbProcessIncoming(uint8_t caller_id)
             uint16_t* temp_node_addr_ptr = (uint16_t*)msg->body.data;
             
             // Check that the plugin provided the address and packet #
-            if ((memoryManagementModeApproved != TRUE) || (datalen != 3))
+            if ((memoryManagementModeApproved != TRUE) || (datalen < 3))
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             } 

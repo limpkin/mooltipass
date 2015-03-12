@@ -271,7 +271,7 @@ RET_TYPE checkUserPermission(uint16_t node_addr)
     
     // Fetch the flags
     readDataFromFlash(page_addr, byte_addr, 2, (void*)&temp_flags);
-					
+                    
     // Either the node belongs to us or it is invalid, check that the address is after sector 1 (upper check done at the flashread/write level)
     if(((getCurrentUserID() == userIdFromFlags(temp_flags)) || (validBitFromFlags(temp_flags) == NODE_VBIT_INVALID)) && (page_addr >= PAGE_PER_SECTOR))
     {
@@ -774,15 +774,15 @@ void populateServicesLut(void)
     // If we have at least one node, loop through our credentials
     while(next_node_addr != NODE_ADDR_NULL)
     {
-		// Get the node page number
-		temp_page_number = pageNumberFromAddress(next_node_addr);
-		
-		// Check that we're not out of memory bounds
-		if(temp_page_number >= PAGE_COUNT)
-		{
-			// TODO: Set a bool somewhere to mention corrupted memory
-			return;
-		}
+        // Get the node page number
+        temp_page_number = pageNumberFromAddress(next_node_addr);
+        
+        // Check that we're not out of memory bounds
+        if(temp_page_number >= PAGE_COUNT)
+        {
+            // TODO: Set a bool somewhere to mention corrupted memory
+            return;
+        }
 
         // Read first 9 bytes of the parent node as we just want to know the first letter
         readDataFromFlash(temp_page_number, NODE_SIZE * nodeNumberFromAddress(next_node_addr), sizeof(temp_node_buffer), temp_node_buffer);

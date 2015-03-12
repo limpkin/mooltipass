@@ -764,6 +764,7 @@ void populateServicesLut(void)
 {
     uint16_t next_node_addr = currentNodeMgmtHandle.firstParentNode;
     uint8_t temp_node_buffer[9];
+    uint16_t temp_page_number;
     pNode* pnode_ptr = (pNode*)temp_node_buffer;
     uint8_t first_service_letter;
     
@@ -773,8 +774,18 @@ void populateServicesLut(void)
     // If we have at least one node, loop through our credentials
     while(next_node_addr != NODE_ADDR_NULL)
     {
+		// Get the node page number
+		temp_page_number = pageNumberFromAddress(next_node_addr);
+		
+		// Check that we're not out of memory bounds
+		if(temp_page_number >= PAGE_COUNT)
+		{
+			// TODO: Set a bool somewhere to mention corrupted memory
+			return;
+		}
+
         // Read first 9 bytes of the parent node as we just want to know the first letter
-        readDataFromFlash(pageNumberFromAddress(next_node_addr), NODE_SIZE * nodeNumberFromAddress(next_node_addr), sizeof(temp_node_buffer), temp_node_buffer);
+        readDataFromFlash(temp_page_number, NODE_SIZE * nodeNumberFromAddress(next_node_addr), sizeof(temp_node_buffer), temp_node_buffer);
         first_service_letter = pnode_ptr->service[0];
             
         // LUT is only for chars between 'a' and 'z'

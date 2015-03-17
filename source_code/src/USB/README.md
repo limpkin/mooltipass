@@ -320,6 +320,12 @@ From plugin/app: Set current date (16 bits encoding: 15 dn 9 -> Year (2010 + val
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0x73: Get 30 free slots
+-----------------------
+From plugin/app: Ask the address of 30 free nodes slots in the external flash
+
+From Mooltipass: Either a one byte packet when an error occurs or the free nodes slots
+
 Functions
 =========
 

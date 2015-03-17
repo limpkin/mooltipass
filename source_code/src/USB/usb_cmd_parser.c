@@ -725,6 +725,29 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
+        // Get a free node address
+        case CMD_GET_30_FREE_SLOTS :
+        {
+            // Check that we're actually in memory management mode
+            if (memoryManagementModeApproved == TRUE)
+            {
+                uint16_t nodeAddresses[30];     
+                uint8_t nodesFound;           
+                
+                // Call the dedicated function
+                nodesFound = findFreeNodes(30, nodeAddresses);
+                
+                // Send addresses
+                usbSendMessage(CMD_GET_30_FREE_SLOTS, nodesFound*2, (uint8_t*)nodeAddresses);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
         // End memory management mode
         case CMD_END_MEMORYMGMT :
         {

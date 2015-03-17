@@ -839,17 +839,18 @@ uint16_t getParentNodeForLetter(uint8_t letter)
     }
 }
 
-/*! \fn     scanNodeUsage(void)
-*   \brief  Scan memory to find empty slots
+/*! \fn     findFreeNodes(uint8_t nbNodes, uint16_t* array)
+*   \brief  Find Free Nodes inside our external memory
+*   \param  nbNodes     Number of nodes we want to find
+*   \param  nodeArray   An array where to store the addresses
+*   \return the number of nodes found
 */
-void scanNodeUsage(void)
+uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray)
 {
     uint16_t nodeFlags = 0xFFFF;
+    uint8_t nbNodesFound = 0;
     uint16_t pageItr;
     uint8_t nodeItr;
-    
-    // Set free node addr to NODE_ADDR_NULL
-    currentNodeMgmtHandle.nextFreeNode = NODE_ADDR_NULL;
 
     // for each page
     for(pageItr = PAGE_PER_SECTOR; pageItr < PAGE_COUNT; pageItr++)
@@ -863,10 +864,30 @@ void scanNodeUsage(void)
             // If this slot is OK
             if(validBitFromFlags(nodeFlags) == NODE_VBIT_INVALID)
             {
-                currentNodeMgmtHandle.nextFreeNode = constructAddress(pageItr, nodeItr);
-                return;
-            }           
+                if (nbNodesFound < nbNodes)
+                {
+                    nodeArray[nbNodesFound++] = constructAddress(pageItr, nodeItr);
+                }
+                else
+                {
+                    return nbNodesFound;
+                }
+            }
         }
+    }    
+    
+    return nbNodesFound;
+}
+
+/*! \fn     scanNodeUsage(void)
+*   \brief  Scan memory to find empty slots
+*/
+void scanNodeUsage(void)
+{
+    // Find one free node. If we don't find it, set the next to the null addr
+    if (findFreeNodes(1, &currentNodeMgmtHandle.nextFreeNode) == 0)
+    {
+        currentNodeMgmtHandle.nextFreeNode = NODE_ADDR_NULL;
     }
 }
 

@@ -827,6 +827,88 @@ def favoriteSelectionScreen(epin, epout):
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
 	receiveHidPacket(epin)
 
+def recoveryProc(epin, epout):
+	found_credential_sets = array('B')
+	next_node_addr = array('B')
+	service_addresses = list()
+	service_names = list()
+	login_addresses = list()
+	login_names = list()
+
+	# get user profile
+	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
+	print "Please accept memory management mode on the MP"
+	while receiveHidPacket(epin)[DATA_INDEX] != 1:
+		print "Please accept memory management mode on the MP"
+		sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
+		
+	# find mooltipass version
+	sendHidPacket(epout, CMD_VERSION, 0, None)
+	data = receiveHidPacket(epin)
+	
+	# print Mooltipass version, compute number of available pages and nodes per page
+	print "Mooltipass has " + str(data[DATA_INDEX]) + "Mb of data"
+	if data[DATA_INDEX] >= 16:
+		number_of_pages = 256 * data[DATA_INDEX]
+	else:
+		number_of_pages = 512 * data[DATA_INDEX]
+	if data[DATA_INDEX] >= 16:
+		nodes_per_page = 4
+	else:
+		nodes_per_page = 2
+
+	# get starting node
+	sendHidPacket(epout, CMD_GET_STARTING_PARENT, 0, None)
+	data = receiveHidPacket(epin)
+
+	# print starting node
+	print "Starting node address is at", format(data[DATA_INDEX] + data[DATA_INDEX+1]*256, '#04X')
+	next_node_addr.append(data[DATA_INDEX])
+	next_node_addr.append(data[DATA_INDEX+1])
+	
+	# start looping through the slots
+	completion_percentage = 1
+	for pagei in range(128, number_of_pages):
+		if int(float(float(pagei) / (float(number_of_pages) - 128)) * 100) != completion_percentage:
+			completion_percentage = int(float(float(pagei) / (float(number_of_pages) - 128)) * 100)
+			print "Scanning: " + str(completion_percentage) + "%, address", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
+		for nodei in range(0, nodes_per_page):
+			# request node
+			next_node_addr[1] = (pagei >> 5) & 0x00FF
+			next_node_addr[0] = (nodei + (pagei << 3)) & 0x00FF
+			#print "Scanning", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
+			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_node_addr)
+			# see if we are allowed
+			node_data = receiveHidPacket(epin)
+			if node_data[LEN_INDEX] > 1:
+				# receive the two other packets
+				node_data.extend(receiveHidPacket(epin))
+				node_data.extend(receiveHidPacket(epin))
+				# if we found a parent node
+				if node_data[DATA_INDEX+1] & 0xC0 == 0x00:
+					print "Found parent node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0]
+					service_names.append("".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0])
+					service_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+				elif node_data[DATA_INDEX+1] & 0xC0 == 0x40:
+					print "Found child node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- login:", "".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0]
+					login_names.append("".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0])
+					login_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+
+	# sort service list together with addresses list
+	service_names, service_addresses = (list(t) for t in zip(*sorted(zip(service_names, service_addresses))))
+	
+	# set correct parent
+	starting_parent_data = array('B')
+	starting_parent_data.append(service_addresses[0] & 0x00FF)
+	starting_parent_data.append((service_addresses[0] >> 8) & 0x00FF)
+	print "Starting parent set to", format(starting_parent_data[0] + starting_parent_data[1]*256, '#04X')
+	sendHidPacket(epout, CMD_SET_STARTINGPARENT, 2, starting_parent_data)
+	receiveHidPacket(epin)
+					
+	# end memory management mode
+	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
+	receiveHidPacket(epin)
+
 def findHIDDevice(vendor_id, product_id, print_debug):
 	# Find our device
 	hid_device = usb.core.find(idVendor=vendor_id, idProduct=product_id)
@@ -960,6 +1042,7 @@ if __name__ == '__main__':
 		print "20) Change Mooltipass touch wheel over sample"
 		print "21) Change Mooltipass touch proximity param"
 		print "22) Upload Bundle"
+		print "23) Recovery program"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1007,6 +1090,8 @@ if __name__ == '__main__':
 			setGenericParameter(epin, epout, choice-14)
 		elif choice == 22:
 			uploadBundle(epin, epout)
+		elif choice == 23:
+			recoveryProc(epin, epout)
 
 	hid_device.reset()
 

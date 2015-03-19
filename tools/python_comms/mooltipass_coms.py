@@ -704,8 +704,8 @@ def addServiceAndUser(epin, epout):
 def credGen(epin, epout):
 	for i in range(0, 40):
 		tempPacket = array('B')
-		service = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
-		username = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+		service = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(10))
+		username = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(10))
 		# Check that the context doesn't exist
 		sendHidPacket(epout, CMD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
 		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
@@ -904,8 +904,8 @@ def recoveryProc(epin, epout):
 	
 	# start looping through the slots
 	completion_percentage = 1
-	for pagei in range(128, number_of_pages):
-	#for pagei in range(128, 200):
+	#for pagei in range(128, number_of_pages):
+	for pagei in range(128, 220):
 		if int(float(float(pagei) / (float(number_of_pages) - 128)) * 100) != completion_percentage:
 			completion_percentage = int(float(float(pagei) / (float(number_of_pages) - 128)) * 100)
 			print "Scanning: " + str(completion_percentage) + "%, address", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')

@@ -5,6 +5,7 @@ import usb.core
 import usb.util
 import random
 import struct
+import string
 import time
 import sys
 import os
@@ -700,6 +701,41 @@ def addServiceAndUser(epin, epout):
 	else:
 		print "Password couldn't be changed"
 
+def credGen(epin, epout):
+	for i in range(0, 40):
+		tempPacket = array('B')
+		service = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+		username = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+		# Check that the context doesn't exist
+		sendHidPacket(epout, CMD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+			print "Service exists"
+		else:
+			print "Service doesn't exist, adding it"
+			# Send the add context packet
+			sendHidPacket(epout, CMD_ADD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+			if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+				print "Service added"
+			else:
+				print "Couldn't add service"
+				continue
+
+		# Set context
+		sendHidPacket(epout, CMD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+			print "Service set"
+		else:
+			print "Service couldn't be set"
+			continue
+
+		# Add user
+		sendHidPacket(epout, CMD_SET_LOGIN, len(username)+1, array('B', username + b"\x00"))
+		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+			print "User set"
+		else:
+			print "User couldn't be set"
+			continue
+		
 
 def favoritePrint(epin, epout):
 	favoriteArg = array('B')
@@ -869,6 +905,7 @@ def recoveryProc(epin, epout):
 	# start looping through the slots
 	completion_percentage = 1
 	for pagei in range(128, number_of_pages):
+	#for pagei in range(128, 200):
 		if int(float(float(pagei) / (float(number_of_pages) - 128)) * 100) != completion_percentage:
 			completion_percentage = int(float(float(pagei) / (float(number_of_pages) - 128)) * 100)
 			print "Scanning: " + str(completion_percentage) + "%, address", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
@@ -1043,6 +1080,7 @@ if __name__ == '__main__':
 		print "21) Change Mooltipass touch proximity param"
 		print "22) Upload Bundle"
 		print "23) Recovery program"
+		print "24) Credential generator"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1092,6 +1130,8 @@ if __name__ == '__main__':
 			uploadBundle(epin, epout)
 		elif choice == 23:
 			recoveryProc(epin, epout)
+		elif choice == 24:
+			credGen(epin, epout)
 
 	hid_device.reset()
 

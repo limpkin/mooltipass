@@ -213,7 +213,9 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
             }
         }
     }
-        
+
+    // Prevent touches until the user lifts his finger
+    touchInhibitUntilRelease();
     return picked_child;
 }
 
@@ -439,7 +441,6 @@ uint16_t loginSelectionScreen(pNode* p, cNode* c)
     oledWriteActiveBuffer();
     
     // Clear possible remaining detection
-    touchWaitForButtonsReleased();
     touchClearCurrentDetections();
     
     // Arm interaction timer

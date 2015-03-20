@@ -121,6 +121,9 @@ void guiScreenLoop(uint8_t touch_detect_result)
         return;
     }
     
+    // Prevent touches until the user lifts his finger
+    touchInhibitUntilRelease();
+    
     // Current screen is codded in the first 8 bytes, so we set the lowest 8 bytes to the detection quarter
     if (touch_detect_result & RETURN_WHEEL_PRESSED)
     {

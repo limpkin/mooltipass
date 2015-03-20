@@ -30,6 +30,8 @@
 
 // Last read wheel position
 uint8_t last_raw_wheel_position;
+// Touch inhibit bool
+uint8_t touch_inhibit = FALSE;
 // Last LED mask
 uint8_t last_led_mask;
 
@@ -177,6 +179,14 @@ void touchWaitForButtonsReleased(void)
     while (keys_detection_status & (AT42QT2120_SDET_MASK | AT42QT2120_TDET_MASK));
 }
 
+/*! \fn     touchInhibitUntilRelease(void)
+*   \brief  Inhibit touch inputs until the user removes his finger
+*/
+void touchInhibitUntilRelease(void)
+{
+    touch_inhibit = TRUE;
+}
+
 /*! \fn     touchDetectionRoutine(uint8_t led_mask)
 *   \brief  Touch detection routine
 *   \param  led_mask    Mask containing which LEDs to switchoff
@@ -265,7 +275,17 @@ RET_TYPE touchDetectionRoutine(uint8_t led_mask)
         {
             activityDetectedRoutine();
         }
-    }
+        
+        // Touch inhibit logic
+        if ((return_val & TOUCH_PRESS_MASK) == 0)
+        {
+            touch_inhibit = FALSE;
+        } 
+        else if (touch_inhibit == TRUE)
+        {
+            return_val = RETURN_NO_CHANGE;
+        }
+    }    
     
     // If there's a touch change or led mask has changed
     if ((temp_bool == TRUE) || (led_mask != last_led_mask))

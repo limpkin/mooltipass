@@ -267,6 +267,8 @@ ISR(USB_GEN_vect)
 
     intbits = UDINT;
     UDINT = 0;
+    
+    // Device reset
     if (intbits & (1<<EORSTI))
     {
         UENUM = 0;
@@ -275,6 +277,11 @@ ISR(USB_GEN_vect)
         UECFG1X = EP_SIZE(ENDPOINT0_SIZE) | EP_SINGLE_BUFFER;
         UEIENX = (1<<RXSTPE);
         usb_configuration = 0;
+    }
+    // Detect suspend mode
+    if ((intbits & (1<<SOFI)) && usb_configuration) 
+    {
+        activateTimer(TIMER_USB_SUSPEND, 6);
     }
 }
 

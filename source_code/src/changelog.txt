@@ -1,5 +1,6 @@
 v0.8:
 - not using USB SOF for USB timeouts
+- USB suspend detection to lock device
 - removing checkbook_24 from bundle - new bundle required!
 - using the NAKINI flag to know when data write from host is done
 - added several functions for memory import/export

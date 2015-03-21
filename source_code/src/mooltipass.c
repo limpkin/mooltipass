@@ -425,6 +425,14 @@ int main(void)
             animScreenSaver();
         }
         
+        // If the USB bus is in suspend (computer went to sleep), lock device
+        if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_NLCK))
+        {
+            handleSmartcardRemoved();
+            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
+            guiGetBackToCurrentScreen();
+        }
+        
         // Check if a card just got inserted / removed
         card_detect_ret = isCardPlugged();
         

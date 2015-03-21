@@ -1081,6 +1081,7 @@ if __name__ == '__main__':
 		print "22) Upload Bundle"
 		print "23) Recovery program"
 		print "24) Credential generator"
+		print "25) Set screen saver bool"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1132,6 +1133,8 @@ if __name__ == '__main__':
 			recoveryProc(epin, epout)
 		elif choice == 24:
 			credGen(epin, epout)
+		elif choice == 25:
+			setGenericParameter(epin, epout, 9)
 
 	hid_device.reset()
 

@@ -6,6 +6,7 @@ import usb.util
 import random
 import struct
 import string
+import copy
 import time
 import sys
 import os
@@ -868,8 +869,10 @@ def recoveryProc(epin, epout):
 	next_node_addr = array('B')
 	service_addresses = list()
 	service_names = list()
+	service_nodes = list()
 	login_addresses = list()
 	login_names = list()
+	login_nodes = list()
 
 	# get user profile
 	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
@@ -899,8 +902,6 @@ def recoveryProc(epin, epout):
 
 	# print starting node
 	print "Starting node address is at", format(data[DATA_INDEX] + data[DATA_INDEX+1]*256, '#04X')
-	next_node_addr.append(data[DATA_INDEX])
-	next_node_addr.append(data[DATA_INDEX+1])
 	
 	# start looping through the slots
 	completion_percentage = 1
@@ -911,8 +912,9 @@ def recoveryProc(epin, epout):
 			print "Scanning: " + str(completion_percentage) + "%, address", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
 		for nodei in range(0, nodes_per_page):
 			# request node
-			next_node_addr[1] = (pagei >> 5) & 0x00FF
-			next_node_addr[0] = (nodei + (pagei << 3)) & 0x00FF
+			next_node_addr = array('B')
+			next_node_addr.append((nodei + (pagei << 3)) & 0x00FF)
+			next_node_addr.append((pagei >> 5) & 0x00FF)
 			#print "Scanning", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
 			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_node_addr)
 			# see if we are allowed
@@ -921,27 +923,85 @@ def recoveryProc(epin, epout):
 				# receive the two other packets
 				node_data.extend(receiveHidPacket(epin))
 				node_data.extend(receiveHidPacket(epin))
-				# if we found a parent node
 				if node_data[DATA_INDEX+1] & 0xC0 == 0x00:
+					# if we found a parent node, store it along its address and service name
 					print "Found parent node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0]
 					service_names.append("".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0])
 					service_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+					service_nodes.append(node_data[DATA_INDEX:])
 				elif node_data[DATA_INDEX+1] & 0xC0 == 0x40:
+					# if we found a child node, store it along its address and login name
 					print "Found child node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- login:", "".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0]
 					login_names.append("".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0])
 					login_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+					login_nodes.append(node_data[DATA_INDEX:])
 
 	# sort service list together with addresses list
-	service_names, service_addresses = (list(t) for t in zip(*sorted(zip(service_names, service_addresses))))
+	service_names, service_addresses, service_nodes = (list(t) for t in zip(*sorted(zip(service_names, service_addresses, service_nodes))))
 	
 	# set correct parent
 	starting_parent_data = array('B')
 	starting_parent_data.append(service_addresses[0] & 0x00FF)
 	starting_parent_data.append((service_addresses[0] >> 8) & 0x00FF)
-	print "Starting parent set to", format(starting_parent_data[0] + starting_parent_data[1]*256, '#04X')
+	print "Starting parent set to", format(service_addresses[0], '#04X')
 	sendHidPacket(epout, CMD_SET_STARTINGPARENT, 2, starting_parent_data)
 	receiveHidPacket(epin)
-					
+	
+	# check parent addresses validity
+	for i in range(len(service_nodes)):
+		next_child_addr = service_nodes[i][6] + (service_nodes[i][7] * 256)
+		next_node_addr = service_nodes[i][4] + (service_nodes[i][5] * 256)
+		prev_node_addr = service_nodes[i][2] + (service_nodes[i][3] * 256)
+		# if next child address different than NODE_ADDR_NULL
+		if next_child_addr != 0:
+			# if we can find a child whose address corresponds...
+			if next_child_addr in login_addresses:
+				print "Checked first child for parent", format(service_addresses[i], '#04X'), "at address", format(next_child_addr, '#04X')
+			else:
+				print "Wrong first child address for parent", format(service_addresses[i], '#04X'), "at address", format(next_child_addr, '#04X')
+				raw_input("confirm")
+		# Compute the normal prev and next in the linked list
+		if i == 0:
+			normal_prev_node = 0
+		else:
+			normal_prev_node = service_addresses[i-1]
+		if i == len(service_nodes) - 1:
+			normal_next_node = 0
+		else:
+			normal_next_node = service_addresses[i+1]
+		# Check the prev and next nodes
+		if next_node_addr == normal_next_node:
+			print "Checked next node for parent", format(service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+		else:
+			print "Wrong next node address for parent", format(service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X'), "should be", format(normal_next_node, '#04X')
+			raw_input("confirm")
+		if prev_node_addr == normal_prev_node:
+			print "Checked prev node for parent", format(service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+		else:
+			print "Wrong prev node address for parent", format(service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X'), "should be", format(normal_prev_node, '#04X')
+			raw_input("confirm")	
+
+	# check child addresses validity
+	for i in range(len(login_nodes)):
+		next_node_addr = login_nodes[i][4] + (login_nodes[i][5] * 256)
+		prev_node_addr = login_nodes[i][2] + (login_nodes[i][3] * 256)
+		# if next child address different than NODE_ADDR_NULL
+		if next_node_addr != 0:
+			# if we can find a child whose address corresponds...
+			if next_node_addr in login_addresses:
+				print "Checked next node for child", format(login_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+			else:
+				print "Wrong next node for child", format(login_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+				raw_input("confirm")
+		# if prev child address different than NODE_ADDR_NULL
+		if prev_node_addr != 0:
+			# if we can find a child whose address corresponds...
+			if prev_node_addr in login_addresses:
+				print "Checked prev node for child", format(login_addresses[i], '#04X'), "at address", format(prev_node_addr, '#04X')
+			else:
+				print "Wrong prev node for child", format(login_addresses[i], '#04X'), "at address", format(prev_node_addr, '#04X')
+				raw_input("confirm")
+		
 	# end memory management mode
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
 	receiveHidPacket(epin)

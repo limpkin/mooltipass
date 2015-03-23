@@ -1037,7 +1037,9 @@ def recoveryProc(epin, epout):
 				empty_packet = empty_packet[0:16]
 				sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 17, empty_packet)
 				if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
-					print "Error in writing"		
+					print "Error in writing"
+	else:
+		print "No orphan nodes"
 		
 	# end memory management mode
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)

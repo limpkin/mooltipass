@@ -281,7 +281,7 @@ ISR(USB_GEN_vect)
     // Detect pseudo suspend mode
     if ((intbits & (1<<SOFI)) && usb_configuration) 
     {
-        activateTimer(TIMER_USB_SUSPEND, 2000);
+        activateTimer(TIMER_USB_SUSPEND, 5000);
     }
 }
 

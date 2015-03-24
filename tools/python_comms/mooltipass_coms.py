@@ -6,6 +6,7 @@ import usb.util
 import random
 import struct
 import string
+import pickle
 import copy
 import time
 import sys
@@ -212,7 +213,18 @@ def keyboardTest(epout):
 	text_file = open("keymap_"+fileName+".c", "w")
 	text_file.write(hid_define_str)
 	text_file.close()
-
+	
+def pickle_write(data, outfile):
+        f = open(outfile, "w+b")
+        pickle.dump(data, f)
+        f.close()
+		
+def pickle_read(filename):
+        f = open(filename)
+        data = pickle.load(f)
+        f.close()
+        return data
+		
 def receiveHidPacket(epin):
 	try :
 		data = epin.read(epin.wMaxPacketSize, timeout=15000)
@@ -863,6 +875,101 @@ def favoriteSelectionScreen(epin, epout):
 	# end memory management mode
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
 	receiveHidPacket(epin)
+	
+def exportUser(epin, epout):
+	parent_nodes_addr_export = list()
+	parent_nodes_export = list()
+	child_nodes_addr_export = list()
+	child_nodes_export = list()
+	cpz_ctr_export = list()
+	next_service_addr = array('B')
+	next_child_addr = array('B')
+
+	# get user profile
+	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
+	print "Please accept memory management mode on the MP"
+	while receiveHidPacket(epin)[DATA_INDEX] != 1:
+		print "Please accept memory management mode on the MP"
+		sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
+
+	# get starting node
+	sendHidPacket(epout, CMD_GET_STARTING_PARENT, 0, None)
+	data = receiveHidPacket(epin)
+
+	# print starting node
+	print "Starting node address is at", format(data[DATA_INDEX] + data[DATA_INDEX+1]*256, '#04X')
+	next_service_addr.append(data[DATA_INDEX])
+	next_service_addr.append(data[DATA_INDEX+1])
+	next_child_addr.append(data[DATA_INDEX]);
+	next_child_addr.append(data[DATA_INDEX]);
+	
+	# write the starting node
+	pickle_write(next_service_addr, "starting_node.txt")
+
+	# start printing credentials, loop until next service address is equal to node_addr_null
+	while next_service_addr[0] != 0 or next_service_addr[1] != 0:
+		# request parent node
+		sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_service_addr)
+		# read it and keep the node part
+		data_parent = receiveHidPacket(epin)
+		data_parent.extend(receiveHidPacket(epin))
+		data_parent.extend(receiveHidPacket(epin))
+		data_parent = data_parent[DATA_INDEX:]
+		# store node data together with its address
+		print "Found parent node at", format(next_service_addr[0] + next_service_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, data_parent[SERVICE_INDEX:])).split(b"\x00")[0]
+		parent_nodes_addr_export.append(next_service_addr)
+		parent_nodes_export.append(data_parent)
+		# extract next child address
+		next_child_addr[0] = data_parent[NEXT_CHILD_INDEX]
+		next_child_addr[1] = data_parent[NEXT_CHILD_INDEX+1]
+		# loop in the child nodes
+		while next_child_addr[0] != 0 or next_child_addr[1] != 0:
+			# request child node
+			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_child_addr)
+			# read it
+			data_child = receiveHidPacket(epin)
+			data_child.extend(receiveHidPacket(epin))
+			data_child.extend(receiveHidPacket(epin))
+			data_child = data_child[DATA_INDEX:]
+			# truncate data to get login
+			print "Found child node at", format(next_child_addr[0] + next_child_addr[1]*256, '#04X'), "- login:", "".join(map(chr, data_child[LOGIN_INDEX:])).split(b"\x00")[0]
+			child_nodes_addr_export.append(next_child_addr)
+			child_nodes_export.append(data_child)
+			# extract next child address
+			next_child_addr = array('B')
+			next_child_addr.append(data_child[NEXT_ADDRESS_INDEX])
+			next_child_addr.append(data_child[NEXT_ADDRESS_INDEX+1])
+		# extract next parent address (see gNode def)
+		next_service_addr = array('B')
+		next_service_addr.append(data_parent[NEXT_ADDRESS_INDEX])
+		next_service_addr.append(data_parent[NEXT_ADDRESS_INDEX+1])
+
+	# write the export
+	pickle_write(parent_nodes_addr_export, "parent_nodes_addr.txt")
+	pickle_write(parent_nodes_export, "parent_nodes.txt")
+	pickle_write(child_nodes_addr_export, "child_nodes_addr.txt")
+	pickle_write(child_nodes_export, "child_nodes.txt")
+	
+	# get the CPZ & CTR LUT entries
+	sendHidPacket(epout, CMD_GET_CARD_CPZ_CTR, 0, None)
+	temp_bool = True
+	while temp_bool == True:
+		received_data = receiveHidPacket(epin)
+		# check if we received end of export packet
+		if received_data[CMD_INDEX] == CMD_GET_CARD_CPZ_CTR:
+			temp_bool = False
+		else:
+			cpz_ctr_export.append(received_data[DATA_INDEX:])
+		
+	# write the export
+	pickle_write(cpz_ctr_export, "cpz_ctr_export.txt")
+	
+	# end memory management mode
+	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
+	receiveHidPacket(epin)
+	
+def importUser(epin, epout):
+	print pickle_read("cpz_ctr_export.txt")
 
 def recoveryProc(epin, epout):
 	found_credential_sets = array('B')
@@ -1181,6 +1288,8 @@ if __name__ == '__main__':
 		print "23) Recovery program"
 		print "24) Credential generator"
 		print "25) Set screen saver bool"
+		print "26) Export current user"
+		print "27) Import user to unknown card"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1234,6 +1343,10 @@ if __name__ == '__main__':
 			credGen(epin, epout)
 		elif choice == 25:
 			setGenericParameter(epin, epout, 9)
+		elif choice == 26:
+			exportUser(epin, epout)
+		elif choice == 27:
+			importUser(epin, epout)
 
 	hid_device.reset()
 

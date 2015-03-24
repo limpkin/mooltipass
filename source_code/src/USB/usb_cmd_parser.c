@@ -255,6 +255,11 @@ void usbProcessIncoming(uint8_t caller_id)
         {
             mp_status |= 0x04;
         }
+        // Unknown card
+        if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
+        {
+            mp_status |= 0x08;
+        }
         // Inform the plugin to inform the user to unlock his card
         usbSendMessage(CMD_MOOLTIPASS_STATUS, 1, &mp_status);
         return;

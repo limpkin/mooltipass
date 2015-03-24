@@ -301,7 +301,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 -----------------------
 From plugin/app: Query Mooltipass status
 
-From Mooltipass: 1 bytes bit field. BIT0: smartcard presence. BIT1: pin unlocking screen. BIT2: smartcard present and unlocked
+From Mooltipass: 1 bytes bit field. BIT0: smartcard presence. BIT1: pin unlocking screen. BIT2: smartcard present and unlocked. BIT3: Unknown smartcard inserted
 
 ```
 0b000 -> No Card

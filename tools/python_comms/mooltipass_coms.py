@@ -717,6 +717,36 @@ def addServiceAndUser(epin, epout):
 	else:
 		print "Password couldn't be changed"
 
+def checkPasswordForService(epin, epout):
+	tempPacket = array('B')
+	service = raw_input("Service name: ")
+	username = raw_input("Username: ")
+	password = raw_input("Password: ")
+	print "Please accept prompts on the Mooltipass"
+
+	# Check that the context doesn't exist
+	sendHidPacket(epout, CMD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Service exists"
+	else:
+		print "Service doesn't exist"
+		return
+
+	# Add user
+	sendHidPacket(epout, CMD_SET_LOGIN, len(username)+1, array('B', username + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "User set"
+	else:
+		print "User couldn't be set"
+		return
+
+	# Change password
+	sendHidPacket(epout, CMD_CHECK_PASSWORD , len(password)+1, array('B', password + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Password OK"
+	else:
+		print "Password NOK"
+		
 def credGen(epin, epout):
 	for i in range(0, 40):
 		tempPacket = array('B')
@@ -977,8 +1007,28 @@ def exportUser(epin, epout):
 	receiveHidPacket(epin)
 	
 def importUser(epin, epout):
-	print pickle_read("cpz_ctr_export.txt")
-	print pickle_read("ctr_value.txt")
+	#print "parent nodes:"
+	#print pickle_read("parent_nodes.txt")
+	#print "child nodes:"
+	#print pickle_read("child_nodes.txt")
+	#print "parent addr:"
+	#print pickle_read("parent_nodes_addr.txt")
+	#print "child addr:"
+	#print pickle_read("child_nodes_addr.txt")
+	#print "cpz ctr:"
+	#print pickle_read("cpz_ctr_export.txt")
+	#print "ctr:"
+	#print pickle_read("ctr_value.txt")
+	#print "starting:"
+	#print pickle_read("starting_node.txt")
+	
+	# Check Mootipass status
+	sendHidPacket(epout, CMD_MOOLTIPASS_STATUS, 0, None)
+	if receiveHidPacket(epin)[DATA_INDEX] == 9:
+		# Unknown card inserted
+		print "Unknown card inserted"
+	else:
+		print "Unsupported mode"
 
 def recoveryProc(epin, epout):
 	found_credential_sets = array('B')
@@ -1313,6 +1363,7 @@ if __name__ == '__main__':
 		print "25) Set screen saver bool"
 		print "26) Export current user"
 		print "27) Import user to unknown card"
+		print "28) Check password for service & login"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1370,6 +1421,8 @@ if __name__ == '__main__':
 			exportUser(epin, epout)
 		elif choice == 27:
 			importUser(epin, epout)
+		elif choice == 28:
+			checkPasswordForService(epin, epout)
 
 	hid_device.reset()
 

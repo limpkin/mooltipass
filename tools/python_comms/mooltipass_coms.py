@@ -25,6 +25,7 @@ NEXT_CHILD_INDEX        = 0x06
 SERVICE_INDEX           = 0x08
 DESC_INDEX              = 6
 LOGIN_INDEX             = 37
+NODE_SIZE				= 132
 
 CMD_DEBUG               = 0x01
 CMD_PING                = 0x02
@@ -36,15 +37,15 @@ CMD_SET_LOGIN           = 0x07
 CMD_SET_PASSWORD        = 0x08
 CMD_CHECK_PASSWORD      = 0x09
 CMD_ADD_CONTEXT         = 0x0A
-CMD_EXPORT_FLASH        = 0x30
+CMD_EXPORT_FLASH        = 0x30 
 CMD_EXPORT_FLASH_END    = 0x31
-CMD_IMPORT_FLASH_BEGIN  = 0x32
-CMD_IMPORT_FLASH        = 0x33
+CMD_IMPORT_FLASH_BEGIN  = 0x32 
+CMD_IMPORT_FLASH        = 0x33 
 CMD_IMPORT_FLASH_END    = 0x34
-CMD_EXPORT_EEPROM       = 0x35
+CMD_EXPORT_EEPROM       = 0x35 
 CMD_EXPORT_EEPROM_END   = 0x36
-CMD_IMPORT_EEPROM_BEGIN = 0x37
-CMD_IMPORT_EEPROM       = 0x38
+CMD_IMPORT_EEPROM_BEGIN = 0x37 
+CMD_IMPORT_EEPROM       = 0x38 
 CMD_IMPORT_EEPROM_END   = 0x39
 CMD_ERASE_EEPROM        = 0x40
 CMD_ERASE_FLASH         = 0x41
@@ -86,6 +87,8 @@ CMD_ADD_UNKNOWN_CARD    = 0x68
 CMD_USB_KEYBOARD_PRESS  = 0x69
 CMD_MOOLTIPASS_STATUS   = 0x70
 CMD_FUNCTIONAL_TEST_RES = 0x71
+CMD_SET_DATE            = 0x72
+CMD_GET_30_FREE_SLOTS   = 0x73
 
 def keyboardSend(epout, data1, data2):
 	packetToSend = array('B')
@@ -914,7 +917,7 @@ def exportUser(epin, epout):
 		data_parent = receiveHidPacket(epin)
 		data_parent.extend(receiveHidPacket(epin))
 		data_parent.extend(receiveHidPacket(epin))
-		data_parent = data_parent[DATA_INDEX:]
+		data_parent = data_parent[DATA_INDEX:DATA_INDEX+NODE_SIZE]
 		# store node data together with its address
 		print "Found parent node at", format(next_service_addr[0] + next_service_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, data_parent[SERVICE_INDEX:])).split(b"\x00")[0]
 		parent_nodes_addr_export.append(next_service_addr)
@@ -930,7 +933,7 @@ def exportUser(epin, epout):
 			data_child = receiveHidPacket(epin)
 			data_child.extend(receiveHidPacket(epin))
 			data_child.extend(receiveHidPacket(epin))
-			data_child = data_child[DATA_INDEX:]
+			data_child = data_child[DATA_INDEX:DATA_INDEX+NODE_SIZE]
 			# truncate data to get login
 			print "Found child node at", format(next_child_addr[0] + next_child_addr[1]*256, '#04X'), "- login:", "".join(map(chr, data_child[LOGIN_INDEX:])).split(b"\x00")[0]
 			child_nodes_addr_export.append(next_child_addr)
@@ -959,10 +962,15 @@ def exportUser(epin, epout):
 		if received_data[CMD_INDEX] == CMD_GET_CARD_CPZ_CTR:
 			temp_bool = False
 		else:
-			cpz_ctr_export.append(received_data[DATA_INDEX:])
+			cpz_ctr_export.append(received_data[DATA_INDEX:DATA_INDEX + received_data[LEN_INDEX]])
 		
 	# write the export
 	pickle_write(cpz_ctr_export, "cpz_ctr_export.txt")
+	
+	# get the user CTR value
+	sendHidPacket(epout, CMD_GET_CTRVALUE, 0, None)
+	ctr_packet = receiveHidPacket(epin)
+	pickle_write(ctr_packet[DATA_INDEX:DATA_INDEX + ctr_packet[LEN_INDEX]], "ctr_value.txt")
 	
 	# end memory management mode
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)
@@ -970,6 +978,7 @@ def exportUser(epin, epout):
 	
 def importUser(epin, epout):
 	print pickle_read("cpz_ctr_export.txt")
+	print pickle_read("ctr_value.txt")
 
 def recoveryProc(epin, epout):
 	found_credential_sets = array('B')
@@ -1257,6 +1266,20 @@ if __name__ == '__main__':
 
 	if hid_device is None:
 		sys.exit(0)
+		
+	# Print Mootipass status
+	sendHidPacket(epout, CMD_MOOLTIPASS_STATUS, 0, None)
+	status_data = receiveHidPacket(epin)
+	if status_data[DATA_INDEX] == 0:
+		print "No card in Mooltipass"
+	elif status_data[DATA_INDEX] == 1:
+		print "Mooltipass locked"
+	elif status_data[DATA_INDEX] == 3:
+		print "Mooltipass locked, unlocking screen"
+	elif status_data[DATA_INDEX] == 5:
+		print "Mooltipass unlocked"
+	elif status_data[DATA_INDEX] == 9:
+		print "Unknown smartcard inserted"
 
 	choice = 1
 	while choice != 0:

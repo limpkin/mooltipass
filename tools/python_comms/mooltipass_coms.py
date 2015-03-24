@@ -807,14 +807,14 @@ def favoritePrint(epin, epout):
 			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, fav_data[DATA_INDEX+0:DATA_INDEX+2])
 			# read it
 			data_parent = receiveHidPacket(epin)
-			data_parent.extend(receiveHidPacket(epin))
-			data_parent.extend(receiveHidPacket(epin))
+			data_parent.extend(receiveHidPacket(epin)[DATA_INDEX:])
+			data_parent.extend(receiveHidPacket(epin)[DATA_INDEX:])
 			# read child node
 			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, fav_data[DATA_INDEX+2:DATA_INDEX+4])
 			# read it
 			data_child = receiveHidPacket(epin)
-			data_child.extend(receiveHidPacket(epin))
-			data_child.extend(receiveHidPacket(epin))
+			data_child.extend(receiveHidPacket(epin)[DATA_INDEX:])
+			data_child.extend(receiveHidPacket(epin)[DATA_INDEX:])
 			# truncate data to get service name
 			print "slot", count, "service:", "".join(map(chr, data_parent[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0], "login:", "".join(map(chr, data_child[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0]
 		else:
@@ -855,8 +855,8 @@ def favoriteSelectionScreen(epin, epout):
 		sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_service_addr)
 		# read it
 		data_parent = receiveHidPacket(epin)
-		data_parent.extend(receiveHidPacket(epin))
-		data_parent.extend(receiveHidPacket(epin))
+		data_parent.extend(receiveHidPacket(epin)[DATA_INDEX:])
+		data_parent.extend(receiveHidPacket(epin)[DATA_INDEX:])
 		# extract next child address
 		next_child_addr[0] = data_parent[DATA_INDEX+NEXT_CHILD_INDEX]
 		next_child_addr[1] = data_parent[DATA_INDEX+NEXT_CHILD_INDEX+1]
@@ -871,8 +871,8 @@ def favoriteSelectionScreen(epin, epout):
 			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_child_addr)
 			# read it
 			data_child = receiveHidPacket(epin)
-			data_child.extend(receiveHidPacket(epin))
-			data_child.extend(receiveHidPacket(epin))
+			data_child.extend(receiveHidPacket(epin)[DATA_INDEX:])
+			data_child.extend(receiveHidPacket(epin)[DATA_INDEX:])
 			# extract next child address
 			next_child_addr[0] = data_child[DATA_INDEX+NEXT_ADDRESS_INDEX]
 			next_child_addr[1] = data_child[DATA_INDEX+NEXT_ADDRESS_INDEX+1]
@@ -945,8 +945,8 @@ def exportUser(epin, epout):
 		sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_service_addr)
 		# read it and keep the node part
 		data_parent = receiveHidPacket(epin)
-		data_parent.extend(receiveHidPacket(epin))
-		data_parent.extend(receiveHidPacket(epin))
+		data_parent.extend(receiveHidPacket(epin)[DATA_INDEX:])
+		data_parent.extend(receiveHidPacket(epin)[DATA_INDEX:])
 		data_parent = data_parent[DATA_INDEX:DATA_INDEX+NODE_SIZE]
 		# store node data together with its address
 		print "Found parent node at", format(next_service_addr[0] + next_service_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, data_parent[SERVICE_INDEX:])).split(b"\x00")[0]
@@ -961,8 +961,8 @@ def exportUser(epin, epout):
 			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_child_addr)
 			# read it
 			data_child = receiveHidPacket(epin)
-			data_child.extend(receiveHidPacket(epin))
-			data_child.extend(receiveHidPacket(epin))
+			data_child.extend(receiveHidPacket(epin)[DATA_INDEX:])
+			data_child.extend(receiveHidPacket(epin)[DATA_INDEX:])
 			data_child = data_child[DATA_INDEX:DATA_INDEX+NODE_SIZE]
 			# truncate data to get login
 			print "Found child node at", format(next_child_addr[0] + next_child_addr[1]*256, '#04X'), "- login:", "".join(map(chr, data_child[LOGIN_INDEX:])).split(b"\x00")[0]
@@ -1088,8 +1088,8 @@ def recoveryProc(epin, epout):
 			node_data = receiveHidPacket(epin)
 			if node_data[LEN_INDEX] > 1:
 				# receive the two other packets
-				node_data.extend(receiveHidPacket(epin))
-				node_data.extend(receiveHidPacket(epin))
+				node_data.extend(receiveHidPacket(epin)[DATA_INDEX:])
+				node_data.extend(receiveHidPacket(epin)[DATA_INDEX:])
 				if node_data[DATA_INDEX+1] & 0xC0 == 0x00:
 					# if we found a parent node, store it along its address and service name
 					print "Found parent node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0]

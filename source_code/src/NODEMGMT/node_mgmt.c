@@ -548,9 +548,10 @@ void readChildNode(cNode *c, uint16_t childNodeAddress)
     // If we have a date, update last used field
     if (currentDate != 0x0000)
     {
-        // Just update the good field and write at the same place
+        // Just update the good field and write at the same place, write is destructive!
         c->dateLastUsed = currentDate;
         writeNodeDataBlockToFlash(childNodeAddress, c);
+        readNode((gNode*)c, childNodeAddress);
     }
 }
 

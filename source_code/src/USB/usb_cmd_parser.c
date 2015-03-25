@@ -1001,8 +1001,14 @@ void usbProcessIncoming(uint8_t caller_id)
                 
                 // Compare with our password if it is set
                 if (datalen == PACKET_EXPORT_SIZE)
-                {
-                    if ((checkMooltipassPassword(msg->body.data) == TRUE) || (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY))
+                {                    
+                    // Prepare asking confirmation screen
+                    confirmationText_t temp_conf_text;
+                    temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
+                    temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
+                    
+                    // Allow bundle update if password is not set
+                    if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data) == TRUE)))
                     {
                         plugin_return_value = PLUGIN_BYTE_OK;
                         mediaFlashImportApproved = TRUE;
@@ -1285,7 +1291,12 @@ void usbProcessIncoming(uint8_t caller_id)
                 sei();
                 while(1);
             #else
-                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE) && (checkMooltipassPassword(msg->body.data) == TRUE))
+               // Prepare asking confirmation screen
+                confirmationText_t temp_conf_text;
+                temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
+                temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
+                
+                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE) && (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data) == TRUE))
                 {
                     // Write "jump to bootloader" key in eeprom
                     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);

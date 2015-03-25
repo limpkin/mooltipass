@@ -60,3 +60,5 @@ CARD PB!!!~~
 Check LEDS!!!~~
 ---- TEST OK !!! ----~~
 ---- TEST NOT OK ----~~
+/!\ SECURITY WARNING /!\
+Allow Mooltipass Update?

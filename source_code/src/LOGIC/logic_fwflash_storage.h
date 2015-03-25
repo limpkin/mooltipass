@@ -29,7 +29,7 @@
 #include "defines.h"
 
 // Defines
-#define BITMAP_ID_OFFSET        64
+#define BITMAP_ID_OFFSET        128
 #define MEDIA_TYPE_LENGTH       2
 
 // String IDs
@@ -95,6 +95,8 @@
 #define ID_STRING_TEST_LEDS_CH  59
 #define ID_STRING_TEST_OK       60
 #define ID_STRING_TEST_NOK      61
+#define ID_STRING_WARNING       62
+#define ID_STRING_ALLOW_UPDATE  63
 
 // Keyboard LUTs
 // Changes: 

@@ -431,13 +431,18 @@ int main(void)
             handleSmartcardRemoved();
             guiDisplayInformationOnScreen(ID_STRING_PC_SLEEP);
             userViewDelay();
+            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
+            // If the screen saver is on, clear screen contents
             if(isScreenSaverOn() == TRUE)
             {
-                oledWriteInactiveBuffer();
+                oledWriteActiveBuffer();
                 oledClear();
+                oledWriteInactiveBuffer();
             }
-            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
-            guiGetBackToCurrentScreen();
+            else
+            {
+                guiGetBackToCurrentScreen();                
+            }
         }
         
         // Check if a card just got inserted / removed

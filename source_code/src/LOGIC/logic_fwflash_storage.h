@@ -97,6 +97,7 @@
 #define ID_STRING_TEST_NOK      61
 #define ID_STRING_WARNING       62
 #define ID_STRING_ALLOW_UPDATE  63
+#define ID_STRING_PC_SLEEP      64
 
 // Keyboard LUTs
 // Changes: 

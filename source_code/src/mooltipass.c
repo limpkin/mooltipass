@@ -429,6 +429,8 @@ int main(void)
         if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_NLCK))
         {
             handleSmartcardRemoved();
+            guiDisplayInformationOnScreen(ID_STRING_PC_SLEEP);
+            userViewDelay();
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
             guiGetBackToCurrentScreen();
         }

@@ -431,6 +431,11 @@ int main(void)
             handleSmartcardRemoved();
             guiDisplayInformationOnScreen(ID_STRING_PC_SLEEP);
             userViewDelay();
+            if(isScreenSaverOn() == TRUE)
+            {
+                oledWriteInactiveBuffer();
+                oledClear();
+            }
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
             guiGetBackToCurrentScreen();
         }

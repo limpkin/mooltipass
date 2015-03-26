@@ -435,9 +435,9 @@ int main(void)
             // If the screen saver is on, clear screen contents
             if(isScreenSaverOn() == TRUE)
             {
-                oledWriteActiveBuffer();
                 oledClear();
-                oledWriteInactiveBuffer();
+                oledFlipBuffers(0,0);
+                oledClear();
             }
             else
             {

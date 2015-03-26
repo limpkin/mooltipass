@@ -119,8 +119,6 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     
     // Clear possible remaining detection
     touchDetectionRoutine(led_mask);
-    touchWaitForButtonsReleased();
-    touchClearCurrentDetections();
     
     // Wait for a touch press, delay stored in eeprom (1024 is quite close to 1000 ;-) )
     activateTimer(TIMER_USERINT, ((uint16_t)controlEepromParameter(getMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM), MIN_USER_INTER_DEL/1000, MAX_USER_INTER_DEL/1000)) << 10);
@@ -134,6 +132,9 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         touch_detect_result = touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK;
     }
     while (!touch_detect_result);
+    
+    // Prevent touches until the user lifts his finger
+    touchInhibitUntilRelease();
     
     // Did the user press one of the two touch buttons?
     if (touch_detect_result & RETURN_LEFT_PRESSED)

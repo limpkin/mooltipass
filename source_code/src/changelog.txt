@@ -2,6 +2,7 @@ v0.9:
 - changed reserved IDs to 128, new bundle required!
 - user approval for fw and bundle update
 - different information strings...
+- new touch inhibit logic
 
 v0.8:
 - not using USB SOF for USB timeouts

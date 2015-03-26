@@ -98,9 +98,6 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
     // Display current pin on screen
     guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
     
-    // Clear possible remaining detection
-    touchClearCurrentDetections();
-    
     // While the user hasn't entered his pin
     while(!finished)
     {
@@ -183,6 +180,9 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
     
     // Set current pin to 0000
     memset((void*)current_pin, 0, 4);
+    
+    // Prevent touches until the user lifts his finger
+    touchInhibitUntilRelease();
     
     // Return success status
     return ret_val;

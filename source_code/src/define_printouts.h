@@ -19,11 +19,13 @@
     #pragma message "User data start address: " XSTR(EEP_USER_DATA_START_ADDR)
     #pragma message "User_id <> SMC_UID & Nonce start address: " XSTR(EEP_SMC_IC_USER_MATCH_START_ADDR)
     #pragma message "Number of possible LUT entries:" XSTR(NB_MAX_SMCID_UID_MATCH_ENTRIES)
-    #pragma message "Reserved space start address:" XSTR(EEP_RESERVED_SPACE_START_ADDR)
+    #pragma message "UID request key address:" XSTR(EEP_UID_REQUEST_KEY_ADDR)
+    #pragma message "UID address:" XSTR(EEP_UID_ADDR)
+    #pragma message "Bootkey copy address:" XSTR(EEP_BACKUP_BOOTKEY_ADDR)
 #endif
 
 // Check bytes left in eeprom
-#if (EEPROM_SIZE - EEP_RESERVED_SPACE_START_ADDR - EEPROM_END_RESERVED) == 0
+#if (EEP_BACKUP_BOOTKEY_ADDR + BOOTKEY_SIZE) == EEPROM_SIZE
     #ifdef MEMORY_LAYOUT_PRINTOUT
         #pragma message "EEPROM memory full"
     #endif

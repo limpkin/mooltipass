@@ -39,10 +39,11 @@
 #define EEPROM_SIZE                         1024
 
 // Reserved space at the end of the eeprom
+#define UID_REQUEST_KEY_SET_BOOL_SIZE       1
 #define UID_REQUEST_KEY_SIZE                16
-#define UID_SIZE                            7
+#define UID_SIZE                            6
 #define BOOTKEY_SIZE                        2
-#define EEPROM_END_RESERVED                 (UID_REQUEST_KEY_SIZE + UID_SIZE + BOOTKEY_SIZE)
+#define EEPROM_END_RESERVED                 (UID_REQUEST_KEY_SET_BOOL_SIZE + UID_REQUEST_KEY_SIZE + UID_SIZE + BOOTKEY_SIZE)
 
 // Boot key, 2 bytes long
 #define EEP_BOOTKEY_ADDR                    0
@@ -60,8 +61,10 @@
 
 // This is the beginning of the reserved space that contains the uid request key, uid and backup bootkey
 #define EEP_RESERVED_SPACE_START_ADDR       (EEP_SMC_IC_USER_MATCH_START_ADDR + (NB_MAX_SMCID_UID_MATCH_ENTRIES*SMCID_UID_MATCH_ENTRY_LENGTH))
+// This is the boolean to know if the uid request key has been set
+#define EEP_UID_REQUEST_KEY_SET_ADDR        (EEP_RESERVED_SPACE_START_ADDR)
 // This is the key that needs to be presented to allow for UID presentation
-#define EEP_UID_REQUEST_KEY_ADDR            (EEP_RESERVED_SPACE_START_ADDR)
+#define EEP_UID_REQUEST_KEY_ADDR            (EEP_UID_REQUEST_KEY_SET_ADDR + UID_REQUEST_KEY_SET_BOOL_SIZE)
 // This is the Mooltipass UID
 #define EEP_UID_ADDR                        (EEP_UID_REQUEST_KEY_ADDR + UID_REQUEST_KEY_SIZE)
 // This is a copy of the bootkey

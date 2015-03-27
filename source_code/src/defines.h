@@ -181,6 +181,10 @@
     #define usbPrintf_P(...)
 #endif
 
+/**************** VALUE DEFINE PRINTOUT ****************/
+#define XSTR(x) STR(x)
+#define STR(x) #x
+
 /**************** HARDWARE VERSION ****************/
 // First hardware sent to the contributors, 12/2013
 //#define HARDWARE_V1

@@ -35,6 +35,7 @@
 #include "gui_basic_functions.h"
 #include "logic_aes_and_comms.h"
 #include "eeprom_addresses.h"
+#include "define_printouts.h"
 #include "watchdog_driver.h"
 #include "logic_smartcard.h"
 #include "usb_cmd_parser.h"

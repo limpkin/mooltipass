@@ -36,8 +36,8 @@
 /** Defines **/
 // The entry is stored as User ID -> CPZ -> CTR (25 bytes)
 #define SMCID_UID_MATCH_ENTRY_LENGTH    (1 + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)
-// Total number of LUT entries, as the LUT is located at the end of the eeprom
-#define NB_MAX_SMCID_UID_MATCH_ENTRIES  ((EEPROM_SIZE - EEP_SMC_IC_USER_MATCH_START_ADDR)/SMCID_UID_MATCH_ENTRY_LENGTH)
+// Total number of LUT entries. LUT is located near the end of the eeprom with reserved bytes at the end
+#define NB_MAX_SMCID_UID_MATCH_ENTRIES  ((EEPROM_SIZE - EEP_SMC_IC_USER_MATCH_START_ADDR - EEPROM_END_RESERVED)/SMCID_UID_MATCH_ENTRY_LENGTH)
 // Correct key to prevent mooltipass settings reinit
 #define USER_PARAM_CORRECT_INIT_KEY         0x73
 // Mooltipass eeprom parameters define

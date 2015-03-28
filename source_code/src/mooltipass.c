@@ -285,7 +285,8 @@ int main(void)
     #endif
     
     // Test procedure to check that all HW is working
-    #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP)
+    //#define FORCE_PROD_TEST
+    #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
         if (current_bootkey_val != CORRECT_BOOTKEY)
         {
             RET_TYPE temp_rettype;        

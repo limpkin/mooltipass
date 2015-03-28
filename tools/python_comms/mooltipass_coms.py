@@ -89,6 +89,8 @@ CMD_MOOLTIPASS_STATUS   = 0x70
 CMD_FUNCTIONAL_TEST_RES = 0x71
 CMD_SET_DATE            = 0x72
 CMD_GET_30_FREE_SLOTS   = 0x73
+CMD_SET_UID             = 0x74
+CMD_GET_UID             = 0x75
 
 def keyboardSend(epout, data1, data2):
 	packetToSend = array('B')
@@ -377,12 +379,16 @@ def mooltipassInit(hid_device, intf, epin, epout):
 			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
 			data2 = receiveHidPacketWithTimeout(epin)
 			mooltipass_password.extend(data2[DATA_INDEX:DATA_INDEX+30])
+			#print "Getting random number for UID & request key"
+			request_key_and_uid = array('B')
+			sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+			request_key_and_uid.extend(receiveHidPacketWithTimeout(epin)[DATA_INDEX:DATA_INDEX+22])
 
 			# Check that we actually received data
 			if data == None or data2 == None:
 				success_status = 0
 				print "fail!!!"
-				print "likely causes: deffective crystal or power supply"
+				print "likely causes: defective crystal or power supply"
 
 			# Send our bundle
 			if success_status == 1:
@@ -464,10 +470,23 @@ def mooltipassInit(hid_device, intf, epin, epout):
 						print " fail!!!"
 						print "Please look at the screen to know the cause"
 					temp_bool2 = True
-
+					
 			# Send set password packet
 			if success_status == 1:
 				sys.stdout.write('Step 4... ')
+				sys.stdout.flush()
+				sendHidPacket(epout, CMD_SET_UID, 22, request_key_and_uid)
+				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+					# Update Success status
+					success_status = 1
+				else:
+					success_status = 0
+					print "fail!!!"
+					print "likely causes: mooltipass already setup"
+
+			# Send set password packet
+			if success_status == 1:
+				sys.stdout.write('Step 5... ')
 				sys.stdout.flush()
 				sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
@@ -475,6 +494,8 @@ def mooltipassInit(hid_device, intf, epin, epout):
 					f.write(str(mp_id))
 					f.write('|')
 					f.write(''.join(format(x, '02x') for x in mooltipass_password))
+					f.write('|')
+					f.write(''.join(format(x, '02x') for x in request_key_and_uid))
 					f.write('\r\n')
 					f.flush()
 					# Update Success status

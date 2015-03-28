@@ -11,7 +11,7 @@
 
 
 // Memory printouts
-#define MEMORY_LAYOUT_PRINTOUT
+//#define MEMORY_LAYOUT_PRINTOUT
 #ifdef MEMORY_LAYOUT_PRINTOUT
     #pragma message "Bootkey address: " XSTR(EEP_BOOTKEY_ADDR)
     #pragma message "Boot pwd set bool address: " XSTR(EEP_BOOT_PWD_SET)

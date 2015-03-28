@@ -68,6 +68,8 @@
 #define CMD_FUNCTIONAL_TEST_RES 0x71
 #define CMD_SET_DATE            0x72
 #define CMD_GET_30_FREE_SLOTS   0x73
+#define CMD_SET_UID             0x74
+#define CMD_GET_UID             0x75
 
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

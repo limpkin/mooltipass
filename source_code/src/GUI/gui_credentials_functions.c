@@ -409,13 +409,11 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
     return last_matching_parent_number;
 }
 
-/*! \fn     loginSelectionScreen(pNode* p, cNode* c)
+/*! \fn     loginSelectionScreen(void)
 *   \brief  Screen displayed to let the user choose/find a login
-*   \param  p                   Pointer to a parent node
-*   \param  c                   Pointer to a child node
 *   \return Valid child node address or 0 otherwise
 */
-uint16_t loginSelectionScreen(pNode* p, cNode* c)
+uint16_t loginSelectionScreen(void)
 {
     char currentText[SEARCHTEXT_MAX_LENGTH+1];
     uint8_t displayRefreshNeeded = TRUE;

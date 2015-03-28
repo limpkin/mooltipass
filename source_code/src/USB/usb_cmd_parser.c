@@ -74,21 +74,24 @@ uint16_t mediaFlashImportOffset;
 
 /*! \fn     checkMooltipassPassword(uint8_t* data)
 *   \brief  Check that the provided bytes is the mooltipass password
-*   \param  data            Password
+*   \param  data            Password to be checked
+*   \param  addr            Address in eeprom where password is stored
+*   \param  length            Length of the password
 *   \return TRUE or FALSE
 */
-uint8_t checkMooltipassPassword(uint8_t* data)
+uint8_t checkMooltipassPassword(uint8_t* data, void* addr, uint8_t length)
 {
+    // We use PACKET_EXPORT_SIZE as our passwords are never longer than that
     uint8_t mooltipass_password[PACKET_EXPORT_SIZE];
     
     // Read password in eeprom
-    eeprom_read_block((void*)mooltipass_password, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
+    eeprom_read_block((void*)mooltipass_password, (void*)addr, length);
     
     // Preventing side channel attacks: only return after a given amount of time
-    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
+    activateTimer(TIMER_CREDENTIALS, 1000);
     
     // Do the comparison
-    volatile uint8_t password_comparison_result = memcmp((void*)mooltipass_password, (void*)data, PACKET_EXPORT_SIZE);
+    volatile uint8_t password_comparison_result = memcmp((void*)mooltipass_password, (void*)data, length);
     
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
     while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
@@ -306,7 +309,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_NOCARD;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: no card\n"));                
             }
-            else if (setCurrentContext(msg->body.data, datalen) == RETURN_OK)
+            else if (setCurrentContext(msg->body.data) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: \"%s\" ok\n"), msg->body.data);
@@ -404,7 +407,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 break;
             }
-            temp_rettype = checkPasswordForContext(msg->body.data, datalen);
+            temp_rettype = checkPasswordForContext(msg->body.data);
             if (temp_rettype == RETURN_PASS_CHECK_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
@@ -1008,7 +1011,7 @@ void usbProcessIncoming(uint8_t caller_id)
                     temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
                     
                     // Allow bundle update if password is not set
-                    if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data) == TRUE)))
+                    if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE) == TRUE)))
                     {
                         plugin_return_value = PLUGIN_BYTE_OK;
                         mediaFlashImportApproved = TRUE;
@@ -1254,7 +1257,51 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
             break;
-        }          
+        }      
+        
+        // Set Mooltipass UID
+        case CMD_SET_UID :
+        {            
+            // The packet should contain the UID request key and the UID
+            if ((datalen == (UID_REQUEST_KEY_SIZE + UID_SIZE)) && (eeprom_read_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR) != UID_REQUEST_KEY_OK_KEY))
+            {
+                // The request key and uid are adjacent in eeprom memory
+                eeprom_write_block((void*)msg->body.data, (void*)EEP_UID_REQUEST_KEY_ADDR, (UID_REQUEST_KEY_SIZE + UID_SIZE));
+                eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, UID_REQUEST_KEY_OK_KEY);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }   
+        
+        // Get Mooltipass UID
+        case CMD_GET_UID :
+        {
+            // The packet should contain the UID request key and the UID
+            if ((datalen == UID_REQUEST_KEY_SIZE) && (eeprom_read_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR) == UID_REQUEST_KEY_OK_KEY))
+            {
+                // Check uid request key
+                if (checkMooltipassPassword(msg->body.data, (void*)EEP_UID_REQUEST_KEY_ADDR, UID_REQUEST_KEY_SIZE) == TRUE)
+                {
+                    uint8_t mooltipass_uid[UID_SIZE];
+                    eeprom_read_block((void*)mooltipass_uid, (void*)EEP_UID_ADDR, sizeof(mooltipass_uid));
+                    usbSendMessage(CMD_GET_UID, sizeof(mooltipass_uid), mooltipass_uid);
+                    return;
+                } 
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }       
         
         // set password bootkey
         case CMD_SET_BOOTLOADER_PWD :
@@ -1296,7 +1343,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
                 temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
                 
-                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE) && (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data) == TRUE))
+                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE) && (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE) == TRUE))
                 {
                     // Write "jump to bootloader" key in eeprom
                     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);

@@ -326,6 +326,18 @@ From plugin/app: Ask the address of 30 free nodes slots in the external flash
 
 From Mooltipass: Either a one byte packet when an error occurs or the free nodes slots
 
+0x74: Set Mooltipass UID
+------------------------
+From plugin/app: Set the Mooltipass UID, 16 + 6 bytes packet with the request key and the UID
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
+
+0x75: Get Mooltipass UID
+------------------------
+From plugin/app: Get Mooltipass UID. The 16 bytes request key must be sent
+
+From Mooltipass: Either a one byte packet when an error occurs or the mooltipass UID
+
 Functions
 =========
 

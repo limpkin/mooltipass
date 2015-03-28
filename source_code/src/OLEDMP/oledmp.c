@@ -529,7 +529,7 @@ void oledPutstr_P(const char *str)
  */
 void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
 {
-    uint16_t width = oledStrWidth(str);
+    int16_t width = (int16_t)oledStrWidth(str);
 
     if (justify == OLED_CENTRE)
     {
@@ -559,7 +559,7 @@ void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
  */
 void oledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str)
 {
-    uint16_t width = oledStrWidth_P(str);
+    int16_t width = (int16_t)oledStrWidth_P(str);
 
     if (justify == OLED_CENTRE)
     {
@@ -1328,7 +1328,7 @@ uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t b
     // XXX todo: fill unused character space with background
     for (uint8_t yind=0; yind < glyph_height; yind++) 
     {
-        uint16_t xind = 0;
+        int16_t xind = 0;
         uint16_t pixels = 0;
         uint8_t xcount = 0;
         uint8_t glyph_pixels = 0;

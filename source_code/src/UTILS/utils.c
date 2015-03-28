@@ -130,7 +130,7 @@ unsigned int int_strlen(char* string)                       // A light version o
 */
 void clear_string(char* string, int nb_char)
 {
-    unsigned int i;
+    int i;
 
     for(i = 0; i < nb_char; i++)
     {
@@ -146,7 +146,7 @@ void clear_string(char* string, int nb_char)
 */
 void hm_str_cpy(char* source, char* dest, int nb_char)
 {
-    unsigned int i;
+    int i;
 
     for(i = 0; i < nb_char; i++)
     {

@@ -137,7 +137,7 @@ void initUserFlashContext(uint8_t user_id)
 uint16_t searchForServiceName(uint8_t* name, uint8_t mode)
 {
     uint16_t next_node_addr = getParentNodeForLetter(name[0]);
-    uint8_t compare_result;
+    int8_t compare_result;
     
     if (next_node_addr == NODE_ADDR_NULL)
     {
@@ -184,10 +184,9 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t mode)
 *   \brief  Find a given login for a given parent
 *   \param  parent_addr Parent node address
 *   \param  name        Name of the login
-*   \param  length      Length of the string
 *   \return Address of the found node, NODE_ADDR_NULL otherwise
 */
-uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name, uint8_t length)
+uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name)
 {
     uint16_t next_node_addr;
     
@@ -300,10 +299,9 @@ static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
 *   \brief  Set our current context
 *   \param  name    Name of the desired service / website
-*   \param  length  Length of the string
 *   \return If we found the context
 */
-RET_TYPE setCurrentContext(uint8_t* name, uint8_t length)
+RET_TYPE setCurrentContext(uint8_t* name)
 {
     // Look for name inside our flash
     context_parent_node_addr = searchForServiceName(name, COMPARE_MODE_MATCH);
@@ -460,7 +458,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         }
         
         // Look for given login in the flash
-        selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
+        selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name);
         
         if (selected_login_child_node_addr != NODE_ADDR_NULL)
         {
@@ -494,7 +492,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 // Create child node
                 if(createChildNode(context_parent_node_addr, &temp_cnode) == RETURN_OK)
                 {
-                    selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name, length);
+                    selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name);
                     selected_login_flag = TRUE;
                     ret_val = RETURN_OK;
                 }
@@ -567,10 +565,9 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 /*! \fn     checkPasswordForContext(uint8_t* password, uint8_t length)
 *   \brief  Check password for current context
 *   \param  password    String containing the password
-*   \param  length      String length
 *   \return Operation success or not (see pass_check_return_t)
 */
-RET_TYPE checkPasswordForContext(uint8_t* password, uint8_t length)
+RET_TYPE checkPasswordForContext(uint8_t* password)
 {
     // If timer is running
     if (hasTimerExpired(TIMER_PASS_CHECK, FALSE) == TIMER_RUNNING)
@@ -670,5 +667,5 @@ void favoritePickingLogic(void)
 */
 void loginSelectLogic(void)
 {
-    askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen(&temp_pnode, &temp_cnode)));
+    askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen()));
 }

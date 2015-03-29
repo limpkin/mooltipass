@@ -267,6 +267,42 @@ void usbProcessIncoming(uint8_t caller_id)
         usbSendMessage(CMD_MOOLTIPASS_STATUS, 1, &mp_status);
         return;
     }
+    
+    // Check the text fields when needed
+    uint8_t text_field_check_needed = TRUE;
+    uint8_t max_text_size = 0;
+    if ((datacmd == CMD_CONTEXT) || (datacmd == CMD_ADD_CONTEXT) || (datacmd == CMD_SET_DATA_SERVICE) || (datacmd == CMD_ADD_DATA_SERVICE))
+    {
+        max_text_size = NODE_PARENT_SIZE_OF_SERVICE;
+    } 
+    else if (datacmd == CMD_SET_LOGIN)
+    {
+        max_text_size = NODE_CHILD_SIZE_OF_LOGIN;
+    }
+    else if ((datacmd == CMD_SET_PASSWORD) || (datacmd == CMD_CHECK_PASSWORD))
+    {
+        max_text_size = NODE_CHILD_SIZE_OF_PASSWORD;
+    }
+    else if (datacmd == CMD_SET_CARD_LOGIN)
+    {
+        max_text_size = SMARTCARD_MTP_LOGIN_LENGTH/8;
+    }
+    else if (datacmd == CMD_SET_CARD_PASS)
+    {
+        max_text_size = SMARTCARD_MTP_PASS_LENGTH/8;
+    }
+    else
+    {
+        text_field_check_needed = FALSE;
+    }
+    
+    // Perform the text field check
+    if ((text_field_check_needed == TRUE) && (checkTextField(msg->body.data, datalen, max_text_size) == RETURN_NOK))
+    {
+        // Return an error that was defined before
+        usbSendMessage(datacmd, 1, &plugin_return_value);
+        return;
+    }    
 
     // Otherwise, process command
     switch(datacmd)
@@ -299,12 +335,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 // Update our LUT
                 populateServicesLut();
             }
-            if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBPARSERDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
-            }
-            else if (getSmartCardInsertedUnlocked() != TRUE)
+            if (getSmartCardInsertedUnlocked() != TRUE)
             {
                 plugin_return_value = PLUGIN_BYTE_NOCARD;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: no card\n"));                
@@ -325,12 +356,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // data context command
         case CMD_SET_DATA_SERVICE :
         {
-            if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBPARSERDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
-            }
-            else if (getSmartCardInsertedUnlocked() != TRUE)
+            if (getSmartCardInsertedUnlocked() != TRUE)
             {
                 plugin_return_value = PLUGIN_BYTE_NOCARD;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: no card\n"));                
@@ -386,12 +412,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // set login
         case CMD_SET_LOGIN :
         {
-            if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBPARSERDEBUGPRINTF_P(PSTR("set login: \"%s\" checkTextField failed\n"),msg->body.data);
-            }
-            else if (setLoginForContext(msg->body.data, datalen) == RETURN_OK)
+            if (setLoginForContext(msg->body.data, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
                 USBPARSERDEBUGPRINTF_P(PSTR("set login: \"%s\" ok\n"),msg->body.data);
@@ -407,12 +428,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // set password
         case CMD_SET_PASSWORD :
         {
-            if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBPARSERDEBUGPRINTF_P(PSTR("set pass: len %d invalid\n"), datalen);
-            }
-            else if (setPasswordForContext(msg->body.data, datalen) == RETURN_OK)
+            if (setPasswordForContext(msg->body.data, datalen) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
                 USBPARSERDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);
@@ -428,11 +444,6 @@ void usbProcessIncoming(uint8_t caller_id)
         // check password
         case CMD_CHECK_PASSWORD :
         {
-            if (checkTextField(msg->body.data, datalen, NODE_CHILD_SIZE_OF_PASSWORD) == RETURN_NOK)
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-                break;
-            }
             temp_rettype = checkPasswordForContext(msg->body.data);
             if (temp_rettype == RETURN_PASS_CHECK_NOK)
             {
@@ -452,13 +463,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // Add credential context
         case CMD_ADD_CONTEXT :
         {
-            if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
-            {
-                // Check field
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBPARSERDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
-            }
-            else if (addNewContext(msg->body.data, datalen, SERVICE_CRED_TYPE) == RETURN_OK)
+            if (addNewContext(msg->body.data, datalen, SERVICE_CRED_TYPE) == RETURN_OK)
             {
                 // We managed to add a new context
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -476,13 +481,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // Add data context
         case CMD_ADD_DATA_SERVICE :
         {
-            if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
-            {
-                // Check field
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-                USBPARSERDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
-            }
-            else if (addNewContext(msg->body.data, datalen, SERVICE_DATA_TYPE) == RETURN_OK)
+            if (addNewContext(msg->body.data, datalen, SERVICE_DATA_TYPE) == RETURN_OK)
             {
                 // We managed to add a new context
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -1290,7 +1289,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // Set card login
         case CMD_SET_CARD_LOGIN :
         {
-            if ((checkTextField(msg->body.data, datalen, SMARTCARD_MTP_LOGIN_LENGTH/8) == RETURN_OK) && (getSmartCardInsertedUnlocked() == TRUE))
+            if (getSmartCardInsertedUnlocked() == TRUE)
             {
                 if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SET_SMC_LOGIN)) == RETURN_OK)
                 {
@@ -1325,7 +1324,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // Set card stored password
         case CMD_SET_CARD_PASS :
         {
-            if ((checkTextField(msg->body.data, datalen, SMARTCARD_MTP_PASS_LENGTH/8) == RETURN_OK) && (getSmartCardInsertedUnlocked() == TRUE))
+            if (getSmartCardInsertedUnlocked() == TRUE)
             {
                 if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SET_SMC_PASS)) == RETURN_OK)
                 {

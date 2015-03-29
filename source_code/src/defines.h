@@ -244,6 +244,7 @@ enum valid_card_det_return_t    {RETURN_VCARD_NOK = -1, RETURN_VCARD_OK = 0, RET
 enum detect_return_t            {RETURN_REL = 0, RETURN_DET, RETURN_JDETECT, RETURN_JRELEASED};
 enum button_return_t            {LEFT_BUTTON = 0, RIGHT_BUTTON = 1, GUARD_BUTTON = 2};
 enum service_compare_mode_t     {COMPARE_MODE_MATCH = 0, COMPARE_MODE_COMPARE = 1};
+enum service_type_t             {SERVICE_CRED_TYPE = 0, SERVICE_DATA_TYPE = 1};
 enum timer_flag_t               {TIMER_EXPIRED = 0, TIMER_RUNNING = 1};
 enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};

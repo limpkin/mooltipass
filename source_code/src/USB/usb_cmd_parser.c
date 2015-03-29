@@ -290,7 +290,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
 
 #ifdef USB_FEATURE_PLUGIN_COMMS
-        // context command
+        // credential context command
         case CMD_CONTEXT :
         {
             // So in case we're in memory management mode and want to set context, the LUT could be outdated
@@ -299,6 +299,32 @@ void usbProcessIncoming(uint8_t caller_id)
                 // Update our LUT
                 populateServicesLut();
             }
+            if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBPARSERDEBUGPRINTF_P(PSTR("setCtx: len %d too big\n"), datalen);
+            }
+            else if (getSmartCardInsertedUnlocked() != TRUE)
+            {
+                plugin_return_value = PLUGIN_BYTE_NOCARD;
+                USBPARSERDEBUGPRINTF_P(PSTR("set context: no card\n"));                
+            }
+            else if (setCurrentContext(msg->body.data) == RETURN_OK)
+            {
+                plugin_return_value = PLUGIN_BYTE_OK;
+                USBPARSERDEBUGPRINTF_P(PSTR("set context: \"%s\" ok\n"), msg->body.data);
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBPARSERDEBUGPRINTF_P(PSTR("set context: \"%s\" failed\n"), msg->body.data);
+            }
+            break;
+        }
+        
+        // data context command
+        case CMD_SET_DATA_SERVICE :
+        {
             if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
@@ -423,7 +449,7 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
 
-        // set password
+        // Add credential context
         case CMD_ADD_CONTEXT :
         {
             if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
@@ -432,7 +458,31 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
             }
-            else if (addNewContext(msg->body.data, datalen) == RETURN_OK)
+            else if (addNewContext(msg->body.data, datalen, SERVICE_CRED_TYPE) == RETURN_OK)
+            {
+                // We managed to add a new context
+                plugin_return_value = PLUGIN_BYTE_OK;
+                USBPARSERDEBUGPRINTF_P(PSTR("add context: \"%s\" ok\n"),msg->body.data);
+            }
+            else
+            {
+                // Couldn't add a new context
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBPARSERDEBUGPRINTF_P(PSTR("add context: \"%s\" failed\n"),msg->body.data);
+            }
+            break;
+        }
+        
+        // Add data context
+        case CMD_ADD_DATA_SERVICE :
+        {
+            if (checkTextField(msg->body.data, datalen, NODE_PARENT_SIZE_OF_SERVICE) == RETURN_NOK)
+            {
+                // Check field
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBPARSERDEBUGPRINTF_P(PSTR("set context: len %d invalid\n"), datalen);
+            }
+            else if (addNewContext(msg->body.data, datalen, SERVICE_DATA_TYPE) == RETURN_OK)
             {
                 // We managed to add a new context
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -708,7 +758,7 @@ void usbProcessIncoming(uint8_t caller_id)
             break;            
         }
         
-        // Read starting parent
+        // Read data starting parent
         case CMD_GET_DN_START_PARENT :
         {
             // Check that we're actually in memory management mode

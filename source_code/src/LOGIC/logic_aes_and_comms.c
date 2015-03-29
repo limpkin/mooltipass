@@ -132,12 +132,23 @@ void initUserFlashContext(uint8_t user_id)
 *   \brief  Find a given service name
 *   \param  name    Name of the service / website
 *   \param  mode    Mode of compare (see service_compare_mode_t)
+*   \param  type    Type of context (data or credential)
 *   \return Address of the found node, NODE_ADDR_NULL otherwise
 */
-uint16_t searchForServiceName(uint8_t* name, uint8_t mode)
+uint16_t searchForServiceName(uint8_t* name, uint8_t mode, uint8_t type)
 {
-    uint16_t next_node_addr = getParentNodeForLetter(name[0]);
+    uint16_t next_node_addr;
     int8_t compare_result;
+    
+    // If it is of credential type, use the LUT to accelerate things
+    if (type == SERVICE_CRED_TYPE)
+    {
+        next_node_addr = getParentNodeForLetter(name[0]);
+    }
+    else
+    {
+        next_node_addr = getStartingDataParentAddress();
+    }
     
     if (next_node_addr == NODE_ADDR_NULL)
     {
@@ -253,10 +264,13 @@ void ctrPostEncryptionTasks(void)
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
 }
 
-/*! \fn     decryptTempCNodePasswordAndClearCTVFlag(void)
-*   \brief  Decrypt the password currently stored in temp_cnode.password, clear credential_timer_valid
+/*! \fn     decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr, uint8_t length)
+*   \brief  Decrypt a block of data, clear credential_timer_valid
+*   \param  data    Data to be decrypted
+*   \param  ctr     Ctr value for the data
+*   \param  length  How many bytes should be decrypted
 */
-void decryptTempCNodePasswordAndClearCTVFlag(void)
+void decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr, uint8_t length)
 {
     uint8_t temp_buffer[AES256_CTR_LENGTH];
     
@@ -265,9 +279,9 @@ void decryptTempCNodePasswordAndClearCTVFlag(void)
     
     // AES decryption: xor our nonce with the ctr value, set the result, then decrypt
     memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
-    aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), temp_cnode.ctr, USER_CTR_SIZE);
+    aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), ctr, USER_CTR_SIZE);
     aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
-    aes256CtrDecrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
+    aes256CtrDecrypt(&aesctx, data, length);
     
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
     while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
@@ -304,7 +318,7 @@ static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
 RET_TYPE setCurrentContext(uint8_t* name)
 {
     // Look for name inside our flash
-    context_parent_node_addr = searchForServiceName(name, COMPARE_MODE_MATCH);
+    context_parent_node_addr = searchForServiceName(name, COMPARE_MODE_MATCH, SERVICE_CRED_TYPE);
     
     // Clear all flags
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -330,14 +344,15 @@ RET_TYPE setCurrentContext(uint8_t* name)
 *   \brief  Add a new context
 *   \param  name    Name of the desired service / website
 *   \param  length  Length of the string
+*   \param  type    Type of context (data or credential)
 *   \return If we added the context
 */
-RET_TYPE addNewContext(uint8_t* name, uint8_t length)
+RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type)
 {
     RET_TYPE ret_val = RETURN_NOK;
     
     // Check if the context doesn't already exist
-    if ((smartcard_inserted_unlocked == FALSE) || (searchForServiceName(name, COMPARE_MODE_MATCH) != NODE_ADDR_NULL))
+    if ((smartcard_inserted_unlocked == FALSE) || (searchForServiceName(name, COMPARE_MODE_MATCH, type) != NODE_ADDR_NULL))
     {
         return RETURN_NOK;
     }
@@ -422,7 +437,7 @@ RET_TYPE getPasswordForContext(char* buffer)
         readChildNode(&temp_cnode, selected_login_child_node_addr);
         
         // Call the password decryption function, which also clears the credential_timer_valid flag
-        decryptTempCNodePasswordAndClearCTVFlag();
+        decryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
         strcpy((char*)buffer, (char*)temp_cnode.password);
         
         // Timer fired, return
@@ -588,14 +603,16 @@ RET_TYPE checkPasswordForContext(uint8_t* password)
             readChildNode(&temp_cnode, selected_login_child_node_addr);
             
             // Call the password decryption function, which also clears the credential_timer_valid flag
-            decryptTempCNodePasswordAndClearCTVFlag();
+            decryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
             
             if (strcmp((char*)temp_cnode.password, (char*)password) == 0)
             {
+                memset((void*)temp_cnode.password, 0x00, NODE_CHILD_SIZE_OF_PASSWORD);
                 return RETURN_PASS_CHECK_OK;
             }
             else
             {
+                memset((void*)temp_cnode.password, 0x00, NODE_CHILD_SIZE_OF_PASSWORD);
                 activateTimer(TIMER_PASS_CHECK, CHECK_PASSWORD_TIMER_VAL);
                 return RETURN_PASS_CHECK_NOK;
             }
@@ -635,7 +652,7 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
             }
         }
         
-        decryptTempCNodePasswordAndClearCTVFlag();
+        decryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
         // Ask the user if he wants to output the password
         if (isUsbConfigured())
         {

@@ -429,7 +429,7 @@ void setDataStartingParent(uint16_t dataParentAddress)
     // update handle
     currentNodeMgmtHandle.firstDataParentNode = dataParentAddress;
     
-    // Write parentaddress in the user profile page
+    // Write data parent address in the user profile page
     writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + (USER_MAX_FAV * USER_FAV_SIZE) + USER_START_NODE_SIZE, 2, &dataParentAddress);
 }
 

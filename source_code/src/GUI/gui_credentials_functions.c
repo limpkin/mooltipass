@@ -380,7 +380,7 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
     oledSetFont(FONT_DEFAULT);
     
     // Find the address of the first match
-    tempNodeAddr = searchForServiceName((uint8_t*)text, COMPARE_MODE_COMPARE);
+    tempNodeAddr = searchForServiceName((uint8_t*)text, COMPARE_MODE_COMPARE, SERVICE_CRED_TYPE);
     
     if (tempNodeAddr != last_matching_parent_addr)
     {

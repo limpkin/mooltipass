@@ -95,9 +95,10 @@ typedef enum _nodeType
 
 #define USER_START_NODE_SIZE 2
 #define USER_FAV_SIZE 4
-#define USER_MAX_FAV 15
+#define USER_MAX_FAV 14
+#define USER_DATA_START_NODE_SIZE_RES 4
 #define USER_RES_CTR 4
-#define USER_PROFILE_SIZE (USER_START_NODE_SIZE+(USER_MAX_FAV*USER_FAV_SIZE)+USER_RES_CTR)
+#define USER_PROFILE_SIZE (USER_START_NODE_SIZE+(USER_MAX_FAV*USER_FAV_SIZE)+USER_DATA_START_NODE_SIZE_RES+USER_RES_CTR)
 #define USER_CTR_SIZE 3 // Have 1 byte remaining.. Not included in USER_PROFILE_SIZE
 
 #define GRAPHIC_ZONE_START          (8*BYTES_PER_PAGE)
@@ -209,6 +210,7 @@ typedef struct __attribute__((packed)) nodeMgmtH
     uint16_t pageUserProfile;       /*!< The page of the user profile */
     uint16_t offsetUserProfile;     /*!< The offset of the user profile */
     uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
+    uint16_t firstDataParentNode;   /*!< The address of the users first data parent node (read from flash. eg cache) */
     uint16_t nextFreeNode;          /*!< The address of the next free node */
     gNode tempgNode;                /*!< A generic node to be used as a buffer */
     union {
@@ -252,7 +254,9 @@ void formatUserProfileMemory(uint8_t uid);
 RET_TYPE checkUserPermission(uint16_t node_addr);
 void userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset);
 
+void setDataStartingParent(uint16_t dataParentAddress);
 void setStartingParent(uint16_t parentAddress);
+uint16_t getStartingDataParentAddress(void);
 uint16_t getStartingParentAddress(void);
 
 uint16_t getParentNodeForLetter(uint8_t letter);

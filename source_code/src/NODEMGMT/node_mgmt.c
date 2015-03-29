@@ -393,6 +393,7 @@ void initNodeManagementHandle(uint8_t userIdNum)
             
     // fill current user id, first parent node address, user profile page & offset 
     userProfileStartingOffset(userIdNum, &currentNodeMgmtHandle.pageUserProfile, &currentNodeMgmtHandle.offsetUserProfile);
+    currentNodeMgmtHandle.firstDataParentNode = getStartingDataParentAddress();
     currentNodeMgmtHandle.firstParentNode = getStartingParentAddress();
     currentNodeMgmtHandle.currentUserId = userIdNum;
     currentNodeMgmtHandle.flags = 0;
@@ -419,6 +420,20 @@ void setStartingParent(uint16_t parentAddress)
 }
 
 /**
+ * Sets the users starting data parent node both in the handle and user profile memory portion of flash
+ * @param   h                   The user allocated node management handle
+ * @param   dataParentAddress   The constructed address of the users data starting parent node (alphabetically) 
+ */
+void setDataStartingParent(uint16_t dataParentAddress)
+{    
+    // update handle
+    currentNodeMgmtHandle.firstDataParentNode = dataParentAddress;
+    
+    // Write parentaddress in the user profile page
+    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + (USER_MAX_FAV * USER_FAV_SIZE) + USER_START_NODE_SIZE, 2, &dataParentAddress);
+}
+
+/**
  * Gets the users starting parent node from the user profile memory portion of flash
  * @return  The address
  */
@@ -428,6 +443,20 @@ uint16_t getStartingParentAddress(void)
     
     // restore parentAddress
     readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile, 2, &temp_address);    
+    
+    return temp_address;
+}
+
+/**
+ * Gets the users starting data parent node from the user profile memory portion of flash
+ * @return  The address
+ */
+uint16_t getStartingDataParentAddress(void)
+{
+    uint16_t temp_address;
+    
+    // Each user profile is within a page, data starting parent node is at the end of the favorites
+    readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + (USER_MAX_FAV * USER_FAV_SIZE) + USER_START_NODE_SIZE, 2, &temp_address);    
     
     return temp_address;
 }

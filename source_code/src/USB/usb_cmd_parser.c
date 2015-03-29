@@ -708,6 +708,28 @@ void usbProcessIncoming(uint8_t caller_id)
             break;            
         }
         
+        // Read starting parent
+        case CMD_GET_DN_START_PARENT :
+        {
+            // Check that we're actually in memory management mode
+            if (memoryManagementModeApproved == TRUE)
+            {
+                // Read starting parent
+                uint16_t temp_address = getStartingDataParentAddress();
+                
+                // Send address
+                usbSendMessage(CMD_GET_DN_START_PARENT, 2, (uint8_t*)&temp_address);
+                
+                // Return
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;            
+        }
+        
         // Get a free node address
         case CMD_GET_FREE_SLOT_ADDR :
         {
@@ -854,6 +876,23 @@ void usbProcessIncoming(uint8_t caller_id)
             {
                 uint16_t* temp_par_addr = (uint16_t*)&msg->body.data[0];
                 setStartingParent(*temp_par_addr);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;            
+        }
+        
+        // Set data starting parent
+        case CMD_SET_DN_START_PARENT :
+        {
+            // Check that the mode is approved & that args are supplied
+            if ((memoryManagementModeApproved == TRUE) && (datalen == 2))
+            {
+                uint16_t* temp_par_addr = (uint16_t*)&msg->body.data[0];
+                setDataStartingParent(*temp_par_addr);
                 plugin_return_value = PLUGIN_BYTE_OK;
             }
             else

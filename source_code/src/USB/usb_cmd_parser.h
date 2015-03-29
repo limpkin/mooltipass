@@ -70,6 +70,14 @@
 #define CMD_GET_30_FREE_SLOTS   0x73
 #define CMD_SET_UID             0x74
 #define CMD_GET_UID             0x75
+#define CMD_GET_DN_START_PARENT 0x76
+#define CMD_SET_DN_START_PARENT 0x77
+#define CMD_SET_DATA_SERVICE    0x78
+#define CMD_ADD_DATA_SERVICE    0x79
+#define CMD_WRITE_32B_IN_DN     0x7A
+#define CMD_WRITE_32B_IN_DN_L   0x7B
+#define CMD_READ_32B_IN_DN      0x7C
+#define CMD_READ_32B_IN_DN_L    0x7D
 
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

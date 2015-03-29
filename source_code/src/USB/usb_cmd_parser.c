@@ -309,7 +309,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_NOCARD;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: no card\n"));                
             }
-            else if (setCurrentContext(msg->body.data) == RETURN_OK)
+            else if (setCurrentContext(msg->body.data, SERVICE_CRED_TYPE) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: \"%s\" ok\n"), msg->body.data);
@@ -335,7 +335,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_NOCARD;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: no card\n"));                
             }
-            else if (setCurrentContext(msg->body.data) == RETURN_OK)
+            else if (setCurrentContext(msg->body.data, SERVICE_DATA_TYPE) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
                 USBPARSERDEBUGPRINTF_P(PSTR("set context: \"%s\" ok\n"), msg->body.data);

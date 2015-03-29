@@ -270,7 +270,7 @@ void readProfileCtr(void *buf);
 
 RET_TYPE createGenericNode(gNode* g, uint16_t firstNodeAddress, uint16_t* newFirstNodeAddress, uint8_t comparisonFieldOffset, uint8_t comparisonFieldLength);
 
-RET_TYPE createParentNode(pNode *p);
+RET_TYPE createParentNode(pNode* p, uint8_t type);
 void readParentNode(pNode *p, uint16_t parentNodeAddress);
 RET_TYPE updateParentNode(pNode *p, uint16_t parentNodeAddress);
 RET_TYPE deleteParentNode(uint16_t parentNodeAddress);

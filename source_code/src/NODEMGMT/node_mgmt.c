@@ -587,25 +587,43 @@ void readChildNode(cNode *c, uint16_t childNodeAddress)
 /**
  * Writes a parent node to memory (next free via handle) (in alphabetical order).
  * @param   p               The parent node to write to memory (nextFreeParentNode)
+ * @param   type            Type of context (data or credential)
  * @return  success status
  * @note    Handles necessary doubly linked list management
  */
-RET_TYPE createParentNode(pNode* p)
+RET_TYPE createParentNode(pNode* p, uint8_t type)
 {
-    uint16_t temp_address;
+    uint16_t temp_address, first_parent_addr;
     RET_TYPE temprettype;
+    
+    // Set the first parent address depending on the type
+    if (type == SERVICE_CRED_TYPE)
+    {
+        first_parent_addr = currentNodeMgmtHandle.firstParentNode;
+    } 
+    else
+    {
+        first_parent_addr = currentNodeMgmtHandle.firstDataParentNode;
+    }
     
     // This is particular to parent nodes...
     p->nextChildAddress = NODE_ADDR_NULL;
     nodeTypeToFlags(&(p->flags), NODE_TYPE_PARENT);
     
     // Call createGenericNode to add a node
-    temprettype = createGenericNode((gNode*)p, currentNodeMgmtHandle.firstParentNode, &temp_address, PNODE_COMPARISON_FIELD_OFFSET, NODE_PARENT_SIZE_OF_SERVICE);
+    temprettype = createGenericNode((gNode*)p, first_parent_addr, &temp_address, PNODE_COMPARISON_FIELD_OFFSET, NODE_PARENT_SIZE_OF_SERVICE);
     
     // If the return is ok & we changed the first node address
-    if ((temprettype == RETURN_OK) && (currentNodeMgmtHandle.firstParentNode != temp_address))
+    if ((temprettype == RETURN_OK) && (first_parent_addr != temp_address))
     {
-        setStartingParent(temp_address);
+        if (type == SERVICE_CRED_TYPE)
+        {
+            setStartingParent(temp_address);
+        }
+        else
+        {
+            setDataStartingParent(temp_address);
+        }
     }
     
     // Populate services LUT

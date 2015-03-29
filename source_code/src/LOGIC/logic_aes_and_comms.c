@@ -46,6 +46,8 @@ uint8_t current_nonce[AES256_CTR_LENGTH];
 uint16_t selected_login_child_node_addr;
 // Selected login flag (the plugin selected a login)
 uint8_t selected_login_flag = FALSE;
+// Data context valid flag (we know the current data service)
+uint8_t data_context_valid_flag = FALSE;
 // Context valid flag (eg we know the current service / website)
 uint8_t context_valid_flag = FALSE;
 // Next CTR value for our AES encryption
@@ -313,25 +315,34 @@ static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
 /*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
 *   \brief  Set our current context
 *   \param  name    Name of the desired service / website
+*   \param  type    Type of context (data or credential)
 *   \return If we found the context
 */
-RET_TYPE setCurrentContext(uint8_t* name)
+RET_TYPE setCurrentContext(uint8_t* name, uint8_t type)
 {
     // Look for name inside our flash
-    context_parent_node_addr = searchForServiceName(name, COMPARE_MODE_MATCH, SERVICE_CRED_TYPE);
+    context_parent_node_addr = searchForServiceName(name, COMPARE_MODE_MATCH, type);
     
     // Clear all flags
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         context_valid_flag = FALSE;
         selected_login_flag = FALSE;
+        data_context_valid_flag = FALSE;
         activateTimer(TIMER_CREDENTIALS, 0);
     }
     
     // Do we know this context ?
     if ((context_parent_node_addr != NODE_ADDR_NULL) && (smartcard_inserted_unlocked == TRUE))
     {
-        context_valid_flag = TRUE;
+        if (type == SERVICE_CRED_TYPE)
+        {
+            context_valid_flag = TRUE;
+        } 
+        else
+        {
+            data_context_valid_flag = TRUE;
+        }
         return RETURN_OK;
     }
     else
@@ -358,7 +369,14 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type)
     }
     
     // Prepare domain approval screen
-    conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CONF_NEWCREDS);
+    if (type == SERVICE_CRED_TYPE)
+    {
+        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CONF_NEWCREDS);
+    }
+    else
+    {
+        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CONF_NEWDATA);
+    }
     conf_text.lines[1] = (char*)name;
     
     // Ask for user approval
@@ -371,7 +389,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type)
         memcpy((void*)temp_pnode.service, (void*)name, length);
         
         // Create parent node for service
-        if (createParentNode(&temp_pnode) == RETURN_OK)
+        if (createParentNode(&temp_pnode, type) == RETURN_OK)
         {
             ret_val = RETURN_OK;
         }

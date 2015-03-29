@@ -75,9 +75,7 @@
 #define CMD_SET_DATA_SERVICE    0x78
 #define CMD_ADD_DATA_SERVICE    0x79
 #define CMD_WRITE_32B_IN_DN     0x7A
-#define CMD_WRITE_32B_IN_DN_L   0x7B
-#define CMD_READ_32B_IN_DN      0x7C
-#define CMD_READ_32B_IN_DN_L    0x7D
+#define CMD_READ_32B_IN_DN      0x7B
 
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

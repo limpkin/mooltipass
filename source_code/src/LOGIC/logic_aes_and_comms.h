@@ -43,6 +43,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type);
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
 void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce);
 RET_TYPE setLoginForContext(uint8_t* name, uint8_t length);
+RET_TYPE get32BytesDataForCurrentService(uint8_t* buffer);
 RET_TYPE setCurrentContext(uint8_t* name, uint8_t type);
 RET_TYPE checkPasswordForContext(uint8_t* password);
 RET_TYPE getPasswordForContext(char* buffer);

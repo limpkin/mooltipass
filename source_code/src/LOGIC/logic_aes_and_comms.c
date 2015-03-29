@@ -54,6 +54,12 @@ uint8_t context_valid_flag = FALSE;
 uint8_t current_adding_data_flag = FALSE;
 // Counter for our current data node written bytes
 uint8_t currently_adding_data_cntr = 0;
+// Counter for our current offset when reading data
+uint8_t currently_reading_data_cntr = 0;
+// Address of the next data node for reading
+uint16_t next_data_node_addr = 0;
+// Current CTR value used for data node decryption
+uint8_t dataNodeCtrVal[3];
 // Next CTR value for our AES encryption
 uint8_t nextCtrVal[USER_CTR_SIZE];
 // Current context parent node address
@@ -617,6 +623,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packet_flag)
 {
     uint8_t first_data_block = FALSE;
+    uint8_t encrypt_length = length;
     uint8_t temp_ctr[3];
     
     if (data_context_valid_flag == FALSE)
@@ -626,7 +633,7 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packe
     }
     else
     {
-        // Check if we already setup a child data node, parent node is already in our memory when flag is set
+        // Check if we haven't already setup a child data node, parent node is already in our memory when flag is set
         if ((temp_pnode.nextChildAddress == NODE_ADDR_NULL) && (current_adding_data_flag == FALSE))
         {
             // No child... ask for permission
@@ -638,14 +645,25 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packe
              if (guiAskForConfirmation(2, &conf_text) == RETURN_OK)
              {
                  memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
+                 currently_reading_data_cntr = 0;
                  current_adding_data_flag = TRUE;
                  currently_adding_data_cntr = 0;
                  first_data_block = TRUE;
              }             
         } 
         
-        // Check that we approved data adding and that we're not adding too much data in the node
-        if ((current_adding_data_flag == FALSE) || ((currently_adding_data_cntr + length) > DATA_NODE_DATA_LENGTH))
+        // If it is the last block, make it a multiple of 16
+        if (last_packet_flag == TRUE)
+        {
+            encrypt_length = (length & 0xF0);
+            if (length & 0x0F)
+            {
+                encrypt_length += 0x10;
+            }
+        }
+        
+        // Check that we approved data adding, that we're not adding too much data in the node and that the encrypt length is a multiple of 16 if we are not writing the last block
+        if ((current_adding_data_flag == FALSE) || ((currently_adding_data_cntr + encrypt_length) > DATA_NODE_DATA_LENGTH) || ((encrypt_length & 0x0F) != 0))
         {
             // If the service has a data child and that we're currently not adding data, refuse it (we can't append data to an already existing data set)
             return RETURN_NOK;
@@ -655,24 +673,113 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packe
             // Copy data in our data node at the right spot
             memcpy(&temp_dnode_ptr->data[currently_adding_data_cntr], data, length);
             // Encrypt the data
-            encryptBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_adding_data_cntr], temp_ctr, length);
+            encryptBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_adding_data_cntr], temp_ctr, encrypt_length);
             // If we write the first block of data, update ctr value in parent node
             if (currently_adding_data_cntr == 0)
             {
                 memcpy((void*)temp_pnode.startDataCtr, temp_ctr, 3);
             }
+            
             // Check if we need to write the node in flash
             currently_adding_data_cntr += length;
             if ((currently_adding_data_cntr == DATA_NODE_DATA_LENGTH) || (last_packet_flag == TRUE))
             {
+                // Last 8 bits of the flags is the number of 32 bytes blocks stored
+                temp_dnode_ptr->flags = currently_adding_data_cntr/32;
                 // Write the node, reset the counter, erase data node
                 writeNewDataNode(context_parent_node_addr, &temp_pnode, temp_dnode_ptr, first_data_block);
                 memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
                 currently_adding_data_cntr = 0;
             }
+            
+            // If we are writing the last block, set the flags
+            if (last_packet_flag == TRUE)
+            {
+                // Because of the if above
+                temp_pnode.nextChildAddress = NODE_ADDR_NULL+1;
+                current_adding_data_flag = FALSE;
+            }
+            
             return RETURN_OK;
         }
     }
+}
+
+
+/*! \fn     get32BytesDataForCurrentService(uint8_t* buffer, uint8_t* bytes_written)
+*   \brief  Get a 32bytes block of data
+*   \param  buffer          Buffer where to store the data
+*   \return Success status
+*/
+RET_TYPE get32BytesDataForCurrentService(uint8_t* buffer)
+{
+        if (data_context_valid_flag == FALSE)
+        {
+            // Context invalid
+            return RETURN_NOK;
+        } 
+        else
+        {            
+            // Credential timer off, ask for user to approve
+            if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_EXPIRED)
+            {
+                // Read current parent node, extract child addr and ctr value
+                readParentNode(&temp_pnode, context_parent_node_addr);
+                memcpy(dataNodeCtrVal, temp_pnode.startDataCtr, 3);
+                next_data_node_addr = temp_pnode.nextChildAddress;
+                
+                // No child... ask for permission
+                // Prepare data adding approval text
+                conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_GET_DATA_FOR);
+                conf_text.lines[1] = (char*)temp_pnode.service;
+                
+                // Ask for data adding approval
+                if (guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+                {
+                    activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
+                }
+            }
+            if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING)
+            {
+                // If currently_reading_data_cntr is at 0 it means we need to read new node
+                if (currently_reading_data_cntr == 0)
+                {
+                    // If we don't have a next value...
+                    if (next_data_node_addr == NODE_ADDR_NULL)
+                    {
+                        activateTimer(TIMER_CREDENTIALS, 0);
+                        return RETURN_NOK;
+                    }
+                    else
+                    {
+                        readNode((gNode*)temp_dnode_ptr, next_data_node_addr);
+                        next_data_node_addr = temp_dnode_ptr->nextDataAddress;                        
+                    }
+                }
+                
+                // Call the password decryption function, which also clears the credential_timer_valid flag
+                decryptBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_reading_data_cntr], dataNodeCtrVal, 32);
+                activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
+                // Increment ctr value
+                aesIncrementCtr(dataNodeCtrVal, USER_CTR_SIZE);
+                aesIncrementCtr(dataNodeCtrVal, USER_CTR_SIZE);                
+                // Copy in our buffer the data
+                memcpy(buffer, (void*)&temp_dnode_ptr->data[currently_reading_data_cntr], 32);
+                                
+                // Increment our counter
+                currently_reading_data_cntr += 32;
+                if (currently_reading_data_cntr == (temp_dnode_ptr->flags & 0x0F) * 32)
+                {
+                    currently_reading_data_cntr = 0;
+                }
+                
+                return RETURN_OK;
+            }
+            else
+            {
+                return RETURN_NOK;
+            }
+        }
 }
 
 /*! \fn     checkPasswordForContext(uint8_t* password, uint8_t length)

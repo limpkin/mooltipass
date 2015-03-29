@@ -193,7 +193,7 @@ typedef struct __attribute__((packed)) dataNode {
                                             * 15 dn 14-> Node type
                                             * 13 dn 13 -> Valid Bit
                                             * 12 dn 8 -> User ID
-                                            * 7 dn 0 -> Number of bytes stored in data[]
+                                            * 7 dn 0 -> Number of 32bytes blocks stored in data[]
                                             */
     uint16_t nextDataAddress;               /*!< Next data node in sequence */
     uint8_t data[DATA_NODE_DATA_LENGTH];    /*!< 128 bytes of Large Data Store */

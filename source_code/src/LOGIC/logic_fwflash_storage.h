@@ -100,6 +100,7 @@
 #define ID_STRING_PC_SLEEP      64
 #define ID_STRING_CONF_NEWDATA  65
 #define ID_STRING_ADD_DATA_FOR  66
+#define ID_STRING_GET_DATA_FOR  67
 
 // Keyboard LUTs
 // Changes: 

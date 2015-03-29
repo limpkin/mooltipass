@@ -91,6 +91,12 @@ CMD_SET_DATE            = 0x72
 CMD_GET_30_FREE_SLOTS   = 0x73
 CMD_SET_UID             = 0x74
 CMD_GET_UID             = 0x75
+CMD_GET_DN_START_PARENT = 0x76
+CMD_SET_DN_START_PARENT = 0x77
+CMD_SET_DATA_SERVICE    = 0x78
+CMD_ADD_DATA_SERVICE    = 0x79
+CMD_WRITE_32B_IN_DN     = 0x7A
+CMD_READ_32B_IN_DN      = 0x7B
 
 def keyboardSend(epout, data1, data2):
 	packetToSend = array('B')
@@ -737,6 +743,76 @@ def addServiceAndUser(epin, epout):
 		print "Password changed"
 	else:
 		print "Password couldn't be changed"
+		
+def getDecodedDataForService(epin, epout):
+	tempPacket = array('B')
+	service = raw_input("Service name: ")
+	print "Please accept prompts on the Mooltipass"
+
+	# Check that the context doesn't exist
+	sendHidPacket(epout, CMD_SET_DATA_SERVICE, len(service)+1, array('B', service + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Service exists"
+	else:
+		print "Service doesn't exist"
+		return
+	
+	sendHidPacket(epout, CMD_READ_32B_IN_DN, 0, None)
+	answer = receiveHidPacket(epin)
+	while answer[LEN_INDEX] != 1:
+		print answer[DATA_INDEX:DATA_INDEX+32]
+		sendHidPacket(epout, CMD_READ_32B_IN_DN, 0, None)
+		answer = receiveHidPacket(epin)
+		
+def addRandomDataForService(epin, epout):
+	tempPacket = array('B')
+	service = raw_input("Service name: ")
+	print "Please accept prompts on the Mooltipass"
+
+	# Check that the context doesn't exist
+	sendHidPacket(epout, CMD_SET_DATA_SERVICE, len(service)+1, array('B', service + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Service exists"
+	else:
+		print "Service doesn't exist, adding it"
+		# Send the add context packet
+		sendHidPacket(epout, CMD_ADD_DATA_SERVICE, len(service)+1, array('B', service + b"\x00"))
+		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+			print "Service added"
+		else:
+			print "Couldn't add service"
+			return
+    
+	# Set context
+	sendHidPacket(epout, CMD_SET_DATA_SERVICE, len(service)+1, array('B', service + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Service set"
+	else:
+		print "Service couldn't be set"
+		return
+
+	# Add data
+	nb_bytes = input("How many 32 bytes blocks to send: ")
+	nb_bytes = nb_bytes * 32
+	data = 1
+	while nb_bytes != 0:
+		data_packet = array('B');
+		# Update number of bytes left to be sent
+		nb_bytes = nb_bytes - 32;
+		# If we sent all the bytes, set the flag
+		if nb_bytes == 0:
+			data_packet.append(1)
+		else:
+			data_packet.append(0)
+		for i in range(0, 32):
+			data_packet.append(data)
+		sendHidPacket(epout, CMD_WRITE_32B_IN_DN, 32 + 1, data_packet)
+		data = data + 1
+		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+			print "Data sent"
+		else:
+			print "Data couldn't be sent"
+			return
 
 def checkPasswordForService(epin, epout):
 	tempPacket = array('B')
@@ -1111,19 +1187,66 @@ def recoveryProc(epin, epout):
 				# receive the two other packets
 				node_data.extend(receiveHidPacket(epin)[DATA_INDEX:])
 				node_data.extend(receiveHidPacket(epin)[DATA_INDEX:])
-				if node_data[DATA_INDEX+1] & 0xC0 == 0x00:
-					# if we found a parent node, store it along its address and service name
-					print "Found parent node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0]
-					service_names.append("".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0])
-					service_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
-					service_nodes.append(node_data[DATA_INDEX:])
-				elif node_data[DATA_INDEX+1] & 0xC0 == 0x40:
-					# if we found a child node, store it along its address and login name
-					print "Found child node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- login:", "".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0]
-					login_names.append("".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0])
-					login_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
-					pointed_logins.append(next_node_addr[0] + next_node_addr[1]*256)
-					login_nodes.append(node_data[DATA_INDEX:])
+				if node_data[DATA_INDEX+1] & 0x20 == 0x00:
+					if node_data[DATA_INDEX+1] & 0xC0 == 0x00:
+						# if we found a parent node, store it along its address and service name
+						print "Found parent node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0]
+						service_names.append("".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0])
+						service_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+						service_nodes.append(node_data[DATA_INDEX:])
+					elif node_data[DATA_INDEX+1] & 0xC0 == 0x40:
+						# if we found a child node, store it along its address and login name
+						print "Found child node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- login:", "".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0], "- ctr:", format(node_data[DATA_INDEX+34], '#02X'), format(node_data[DATA_INDEX+35], '#02X'), format(node_data[DATA_INDEX+36], '#02X')
+						login_names.append("".join(map(chr, node_data[DATA_INDEX+LOGIN_INDEX:])).split(b"\x00")[0])
+						login_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+						pointed_logins.append(next_node_addr[0] + next_node_addr[1]*256)
+						login_nodes.append(node_data[DATA_INDEX:])
+					elif node_data[DATA_INDEX+1] & 0xC0 == 0x80:
+						# if we found a parent data node
+						print "Found parent data node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0], "- ctr:", format(node_data[DATA_INDEX+129], '#02X'), format(node_data[DATA_INDEX+130], '#02X'), format(node_data[DATA_INDEX+131], '#02X')
+						# erase node
+						#next_node_addr = array('B')
+						#next_node_addr.append((nodei + (pagei << 3)) & 0x00FF)
+						#next_node_addr.append((pagei >> 5) & 0x00FF)
+						#next_node_addr.append(0);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
+						#print receiveHidPacket(epin)
+						#next_node_addr[2] = 1;
+						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
+						#print receiveHidPacket(epin)
+						#next_node_addr[2] = 2;
+						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
+						#print receiveHidPacket(epin)
+						print node_data
+					elif node_data[DATA_INDEX+1] & 0xC0 == 0xC0:
+						# if we found a data node
+						print "Found data node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
+						# erase node
+						#next_node_addr = array('B')
+						#next_node_addr.append((nodei + (pagei << 3)) & 0x00FF)
+						#next_node_addr.append((pagei >> 5) & 0x00FF)
+						#next_node_addr.append(0);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#next_node_addr.append(0xff);
+						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
+						#print receiveHidPacket(epin)
+						#next_node_addr[2] = 1;
+						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
+						#print receiveHidPacket(epin)
+						#next_node_addr[2] = 2;
+						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
+						#print receiveHidPacket(epin)
+						print node_data
 
 	# sort service list together with addresses list
 	service_names, service_addresses, service_nodes = (list(t) for t in zip(*sorted(zip(service_names, service_addresses, service_nodes))))
@@ -1135,6 +1258,13 @@ def recoveryProc(epin, epout):
 	print "Starting parent set to", format(service_addresses[0], '#04X')
 	sendHidPacket(epout, CMD_SET_STARTINGPARENT, 2, starting_parent_data)
 	receiveHidPacket(epin)
+	
+	# set correct data parent
+	starting_parent_data = array('B')
+	starting_parent_data.append(0)
+	starting_parent_data.append(0)
+	#sendHidPacket(epout, CMD_SET_DN_START_PARENT, 2, starting_parent_data)
+	#receiveHidPacket(epin)	
 	
 	# check parent addresses validity
 	for i in range(len(service_nodes)):
@@ -1385,6 +1515,8 @@ if __name__ == '__main__':
 		print "26) Export current user"
 		print "27) Import user to unknown card"
 		print "28) Check password for service & login"
+		print "29) Add a random block of data for new service"
+		print "30) Get decoded data for given service"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1444,6 +1576,10 @@ if __name__ == '__main__':
 			importUser(epin, epout)
 		elif choice == 28:
 			checkPasswordForService(epin, epout)
+		elif choice == 29:
+			addRandomDataForService(epin, epout)
+		elif choice == 30:
+			getDecodedDataForService(epin, epout)
 
 	hid_device.reset()
 

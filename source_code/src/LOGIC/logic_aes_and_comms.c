@@ -56,6 +56,8 @@ uint8_t current_adding_data_flag = FALSE;
 uint8_t currently_adding_data_cntr = 0;
 // Counter for our current offset when reading data
 uint8_t currently_reading_data_cntr = 0;
+// Flag to know if we are writing the first block of data
+uint8_t currently_writing_first_block = FALSE;
 // Address of the next data node for reading
 uint16_t next_data_node_addr = 0;
 // Current CTR value used for data node decryption
@@ -346,6 +348,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t type)
         data_context_valid_flag = FALSE;
         current_adding_data_flag = FALSE;
         activateTimer(TIMER_CREDENTIALS, 0);
+        currently_writing_first_block = FALSE;
     }
     
     // Do we know this context ?
@@ -614,16 +617,13 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 }
 
 /*! \fn     addDataForDataContext(uint8_t* data, uint8_t length)
-*   \brief  Add data to our current data parent
+*   \brief  Add 32 bytes of data to our current data parent
 *   \param  data                Block of data to add
-*   \param  length              String length
 *   \param  last_packet_flag    Flag to know if it is our last packet
 *   \return Operation success or not
 */
-RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packet_flag)
+RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
 {
-    uint8_t first_data_block = FALSE;
-    uint8_t encrypt_length = length;
     uint8_t temp_ctr[3];
     
     if (data_context_valid_flag == FALSE)
@@ -641,29 +641,20 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packe
             conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_ADD_DATA_FOR);
             conf_text.lines[1] = (char*)temp_pnode.service;
             
-             // Ask for data adding approval
-             if (guiAskForConfirmation(2, &conf_text) == RETURN_OK)
-             {
-                 memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
-                 currently_reading_data_cntr = 0;
-                 current_adding_data_flag = TRUE;
-                 currently_adding_data_cntr = 0;
-                 first_data_block = TRUE;
-             }             
-        } 
-        
-        // If it is the last block, make it a multiple of 16
-        if (last_packet_flag == TRUE)
-        {
-            encrypt_length = (length & 0xF0);
-            if (length & 0x0F)
+            // Ask for data adding approval
+            if (guiAskForConfirmation(2, &conf_text) == RETURN_OK)
             {
-                encrypt_length += 0x10;
-            }
+                memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
+                currently_writing_first_block = TRUE;
+                currently_reading_data_cntr = 0;
+                current_adding_data_flag = TRUE;
+                currently_adding_data_cntr = 0;
+            }            
+            guiGetBackToCurrentScreen(); 
         }
         
         // Check that we approved data adding, that we're not adding too much data in the node and that the encrypt length is a multiple of 16 if we are not writing the last block
-        if ((current_adding_data_flag == FALSE) || ((currently_adding_data_cntr + encrypt_length) > DATA_NODE_DATA_LENGTH) || ((encrypt_length & 0x0F) != 0))
+        if (current_adding_data_flag == FALSE)
         {
             // If the service has a data child and that we're currently not adding data, refuse it (we can't append data to an already existing data set)
             return RETURN_NOK;
@@ -671,9 +662,9 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packe
         else
         {
             // Copy data in our data node at the right spot
-            memcpy(&temp_dnode_ptr->data[currently_adding_data_cntr], data, length);
+            memcpy(&temp_dnode_ptr->data[currently_adding_data_cntr], data, 32);
             // Encrypt the data
-            encryptBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_adding_data_cntr], temp_ctr, encrypt_length);
+            encryptBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_adding_data_cntr], temp_ctr, 32);
             // If we write the first block of data, update ctr value in parent node
             if (currently_adding_data_cntr == 0)
             {
@@ -681,19 +672,23 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packe
             }
             
             // Check if we need to write the node in flash
-            currently_adding_data_cntr += length;
-            if ((currently_adding_data_cntr == DATA_NODE_DATA_LENGTH) || (last_packet_flag == TRUE))
+            currently_adding_data_cntr += 32;
+            if ((currently_adding_data_cntr == DATA_NODE_DATA_LENGTH) || (last_packet_flag != FALSE))
             {
-                // Last 8 bits of the flags is the number of 32 bytes blocks stored
-                temp_dnode_ptr->flags = currently_adding_data_cntr/32;
+                // Last 8 bits of the flags is the number of bytes stored
+                temp_dnode_ptr->flags = currently_adding_data_cntr;
                 // Write the node, reset the counter, erase data node
-                writeNewDataNode(context_parent_node_addr, &temp_pnode, temp_dnode_ptr, first_data_block);
+                if (writeNewDataNode(context_parent_node_addr, &temp_pnode, temp_dnode_ptr, currently_writing_first_block, last_packet_flag) != RETURN_OK)
+                {
+                    return RETURN_NOK;
+                }
                 memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
+                currently_writing_first_block = FALSE;
                 currently_adding_data_cntr = 0;
             }
             
             // If we are writing the last block, set the flags
-            if (last_packet_flag == TRUE)
+            if (last_packet_flag != FALSE)
             {
                 // Because of the if above
                 temp_pnode.nextChildAddress = NODE_ADDR_NULL+1;
@@ -738,6 +733,7 @@ RET_TYPE get32BytesDataForCurrentService(uint8_t* buffer)
                 {
                     activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
                 }
+                guiGetBackToCurrentScreen(); 
             }
             if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING)
             {
@@ -753,7 +749,13 @@ RET_TYPE get32BytesDataForCurrentService(uint8_t* buffer)
                     else
                     {
                         readNode((gNode*)temp_dnode_ptr, next_data_node_addr);
-                        next_data_node_addr = temp_dnode_ptr->nextDataAddress;                        
+                        next_data_node_addr = temp_dnode_ptr->nextDataAddress; 
+                        
+                        // Check that we are actually reading something valid...
+                        if(validBitFromFlags(temp_dnode_ptr->flags) == NODE_VBIT_INVALID)
+                        {
+                            return RETURN_NOK;
+                        }                  
                     }
                 }
                 
@@ -768,7 +770,7 @@ RET_TYPE get32BytesDataForCurrentService(uint8_t* buffer)
                                 
                 // Increment our counter
                 currently_reading_data_cntr += 32;
-                if (currently_reading_data_cntr == (temp_dnode_ptr->flags & 0x0F) * 32)
+                if (currently_reading_data_cntr >= (temp_dnode_ptr->flags & 0x00FF))
                 {
                     currently_reading_data_cntr = 0;
                 }

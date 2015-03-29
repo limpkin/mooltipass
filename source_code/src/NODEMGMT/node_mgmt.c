@@ -608,7 +608,15 @@ RET_TYPE createParentNode(pNode* p, uint8_t type)
     
     // This is particular to parent nodes...
     p->nextChildAddress = NODE_ADDR_NULL;
-    nodeTypeToFlags(&(p->flags), NODE_TYPE_PARENT);
+    
+    if (type == SERVICE_CRED_TYPE)
+    {
+        nodeTypeToFlags(&(p->flags), NODE_TYPE_PARENT);
+    }
+    else
+    {
+        nodeTypeToFlags(&(p->flags), NODE_TYPE_PARENT_DATA);
+    }
     
     // Call createGenericNode to add a node
     temprettype = createGenericNode((gNode*)p, first_parent_addr, &temp_address, PNODE_COMPARISON_FIELD_OFFSET, NODE_PARENT_SIZE_OF_SERVICE);
@@ -676,18 +684,20 @@ RET_TYPE createChildNode(uint16_t pAddr, cNode *c)
  * @param   parent_node_ptr             Parent node pointer
  * @param   data_node_ptr               Data node pointer
  * @param   first_data_block_flag       Flag to see if it is the first data block
+ * @param   last_packet_flag            Flag to know if it is the last block
  * @return  success status
  */
-RET_TYPE writeNewDataNode(uint16_t context_parent_node_addr, pNode* parent_node_ptr, dNode* data_node_ptr, uint8_t first_data_block_flag)
+RET_TYPE writeNewDataNode(uint16_t context_parent_node_addr, pNode* parent_node_ptr, dNode* data_node_ptr, uint8_t first_data_block_flag, uint8_t last_packet_flag)
 {
-    uint16_t newDataNodeAddress = currentNodeMgmtHandle.nextFreeNode;
     gNode* memNodePtr = &(currentNodeMgmtHandle.tempgNode);
+    // Our next 2 free addresses
+    uint16_t next_free_addresses[2];
     
-    // Check space in flash
-    if (currentNodeMgmtHandle.nextFreeNode == NODE_ADDR_NULL)
+    // This is what scan node usage uses internally, check space in flash
+    if (findFreeNodes(2, next_free_addresses) != 2)
     {
         return RETURN_NOK;
-    }
+    }    
     
     // If it is the first data node we need to update the parent
     if (first_data_block_flag == TRUE)
@@ -698,6 +708,7 @@ RET_TYPE writeNewDataNode(uint16_t context_parent_node_addr, pNode* parent_node_
         // Check the parent nodes fields are the same, update parent node at the right address
         if (memcmp((void*)memNodePtr, (void*)parent_node_ptr, FLAGS_PREV_NEXT_ADDR_LENGTH) == 0)
         {
+            parent_node_ptr->nextChildAddress = next_free_addresses[0];
             writeNodeDataBlockToFlash(context_parent_node_addr, parent_node_ptr);
         }
         else
@@ -715,12 +726,18 @@ RET_TYPE writeNewDataNode(uint16_t context_parent_node_addr, pNode* parent_node_
     // Set correct node type
     nodeTypeToFlags(&(data_node_ptr->flags), NODE_TYPE_DATA);
     
-    // Because we can't interrupt data transfer, the next address will automatically be the one we have in memory
-    scanNodeUsage();
-    data_node_ptr->nextDataAddress = currentNodeMgmtHandle.nextFreeNode;
+    // If it is not the last packet, set next address
+    if (last_packet_flag == FALSE)
+    {
+        // Because we can't interrupt data transfer, the next address will automatically be the next one we have in memory
+        data_node_ptr->nextDataAddress = next_free_addresses[1];
+    }
     
     // write parent node to flash (destructive)
-    writeNodeDataBlockToFlash(newDataNodeAddress, data_node_ptr);
+    writeNodeDataBlockToFlash(next_free_addresses[0], data_node_ptr);
+    
+    // Update free node address
+    currentNodeMgmtHandle.nextFreeNode = next_free_addresses[1];
     
     return RETURN_OK;
 }

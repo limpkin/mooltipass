@@ -36,9 +36,9 @@
 #define CTR_FLASH_MIN_INCR              64
 
 /** Prototypes **/
-RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packet_flag);
 uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name);
 uint16_t searchForServiceName(uint8_t* name, uint8_t mode, uint8_t type);
+RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag);
 RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type);
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
 void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce);

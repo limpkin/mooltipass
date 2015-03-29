@@ -500,7 +500,7 @@ void usbProcessIncoming(uint8_t caller_id)
     // Append data
     case CMD_WRITE_32B_IN_DN :
     {
-        if (addDataForDataContext(&msg->body.data[1], datalen - 1, msg->body.data[0]) == RETURN_OK)
+        if ((addDataForDataContext(&msg->body.data[1], msg->body.data[0]) == RETURN_OK) && (datalen == 33))
         {
             plugin_return_value = PLUGIN_BYTE_OK;
             USBPARSERDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);

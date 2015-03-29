@@ -63,4 +63,5 @@ Check LEDS!!!~~
 /!\ SECURITY WARNING /!\
 Allow Mooltipass Update?
 Computer Went To Sleep!
-Confirm New Data For:
+Confirm Data Service:
+Add Data For:

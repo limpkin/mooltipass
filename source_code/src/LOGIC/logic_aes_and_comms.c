@@ -50,6 +50,10 @@ uint8_t selected_login_flag = FALSE;
 uint8_t data_context_valid_flag = FALSE;
 // Context valid flag (eg we know the current service / website)
 uint8_t context_valid_flag = FALSE;
+// Currently adding data flag
+uint8_t current_adding_data_flag = FALSE;
+// Counter for our current data node written bytes
+uint8_t currently_adding_data_cntr = 0;
 // Next CTR value for our AES encryption
 uint8_t nextCtrVal[USER_CTR_SIZE];
 // Current context parent node address
@@ -62,6 +66,8 @@ aes256CtrCtx_t aesctx;
 pNode temp_pnode;
 // Child node var
 cNode temp_cnode;
+// Data node ptr;
+dNode* temp_dnode_ptr = (dNode*)&temp_cnode;
 
 
 /*! \fn     getSmartCardInsertedUnlocked(void)
@@ -289,10 +295,13 @@ void decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr, uint8_t leng
     while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
 }
 
-/*! \fn     encryptTempCNodePasswordAndClearCTVFlag(void)
-*   \brief  Encrypt the password currently stored in temp_cnode.password, clear credential_timer_valid
+/*! \fn     encryptBlockOfDataAndClearCTVFlag(void)
+*   \brief  Encrypt a block of data, clear credential_timer_valid
+*   \param  data    Data to be decrypted
+*   \param  ctr     Pointer to where to store the ctr
+*   \param  length  How many bytes should be decrypted
 */
-static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
+static inline void encryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr, uint8_t length)
 {
     uint8_t temp_buffer[AES256_CTR_LENGTH];
     
@@ -304,8 +313,8 @@ static inline void encryptTempCNodePasswordAndClearCTVFlag(void)
     memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
     aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), nextCtrVal, USER_CTR_SIZE);
     aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
-    aes256CtrEncrypt(&aesctx, temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD);
-    memcpy((void*)temp_cnode.ctr, (void*)nextCtrVal, USER_CTR_SIZE);
+    aes256CtrEncrypt(&aesctx, data, length);
+    memcpy((void*)ctr, (void*)nextCtrVal, USER_CTR_SIZE);
     ctrPostEncryptionTasks();
 
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
@@ -329,6 +338,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t type)
         context_valid_flag = FALSE;
         selected_login_flag = FALSE;
         data_context_valid_flag = FALSE;
+        current_adding_data_flag = FALSE;
         activateTimer(TIMER_CREDENTIALS, 0);
     }
     
@@ -342,6 +352,8 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t type)
         else
         {
             data_context_valid_flag = TRUE;
+            // Load the parent node in memory
+            readParentNode(&temp_pnode, context_parent_node_addr);
         }
         return RETURN_OK;
     }
@@ -516,7 +528,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 memset((void*)&temp_cnode, 0x00, NODE_SIZE);
                 fillArrayWithRandomBytes(temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD - 1);
                 temp_cnode.password[NODE_CHILD_SIZE_OF_PASSWORD-1] = 0;
-                encryptTempCNodePasswordAndClearCTVFlag();
+                encryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
                 memcpy((void*)temp_cnode.login, (void*)name, length);
                 
                 // Add "created by plugin" message in the description field
@@ -575,7 +587,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             guiGetBackToCurrentScreen();
             
             // Encrypt the password
-            encryptTempCNodePasswordAndClearCTVFlag();
+            encryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
             
             // Update child node to store password
             if (updateChildNode(&temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
@@ -591,6 +603,74 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             guiGetBackToCurrentScreen();
             
             return RETURN_NOK;
+        }
+    }
+}
+
+/*! \fn     addDataForDataContext(uint8_t* data, uint8_t length)
+*   \brief  Add data to our current data parent
+*   \param  data                Block of data to add
+*   \param  length              String length
+*   \param  last_packet_flag    Flag to know if it is our last packet
+*   \return Operation success or not
+*/
+RET_TYPE addDataForDataContext(uint8_t* data, uint8_t length, uint8_t last_packet_flag)
+{
+    uint8_t first_data_block = FALSE;
+    uint8_t temp_ctr[3];
+    
+    if (data_context_valid_flag == FALSE)
+    {
+        // Login not set
+        return RETURN_NOK;
+    }
+    else
+    {
+        // Check if we already setup a child data node, parent node is already in our memory when flag is set
+        if ((temp_pnode.nextChildAddress == NODE_ADDR_NULL) && (current_adding_data_flag == FALSE))
+        {
+            // No child... ask for permission
+            // Prepare data adding approval text
+            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_ADD_DATA_FOR);
+            conf_text.lines[1] = (char*)temp_pnode.service;
+            
+             // Ask for data adding approval
+             if (guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+             {
+                 memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
+                 current_adding_data_flag = TRUE;
+                 currently_adding_data_cntr = 0;
+                 first_data_block = TRUE;
+             }             
+        } 
+        
+        // Check that we approved data adding and that we're not adding too much data in the node
+        if ((current_adding_data_flag == FALSE) || ((currently_adding_data_cntr + length) > DATA_NODE_DATA_LENGTH))
+        {
+            // If the service has a data child and that we're currently not adding data, refuse it (we can't append data to an already existing data set)
+            return RETURN_NOK;
+        }
+        else
+        {
+            // Copy data in our data node at the right spot
+            memcpy(&temp_dnode_ptr->data[currently_adding_data_cntr], data, length);
+            // Encrypt the data
+            encryptBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_adding_data_cntr], temp_ctr, length);
+            // If we write the first block of data, update ctr value in parent node
+            if (currently_adding_data_cntr == 0)
+            {
+                memcpy((void*)temp_pnode.startDataCtr, temp_ctr, 3);
+            }
+            // Check if we need to write the node in flash
+            currently_adding_data_cntr += length;
+            if ((currently_adding_data_cntr == DATA_NODE_DATA_LENGTH) || (last_packet_flag == TRUE))
+            {
+                // Write the node, reset the counter, erase data node
+                writeNewDataNode(context_parent_node_addr, &temp_pnode, temp_dnode_ptr, first_data_block);
+                memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
+                currently_adding_data_cntr = 0;
+            }
+            return RETURN_OK;
         }
     }
 }

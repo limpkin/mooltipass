@@ -671,6 +671,61 @@ RET_TYPE createChildNode(uint16_t pAddr, cNode *c)
 }   
 
 /**
+ * Writes a new data node to memory (next free via handle) (in alphabetical order).
+ * @param   context_parent_node_addr    Address to the parent node
+ * @param   parent_node_ptr             Parent node pointer
+ * @param   data_node_ptr               Data node pointer
+ * @param   first_data_block_flag       Flag to see if it is the first data block
+ * @return  success status
+ */
+RET_TYPE writeNewDataNode(uint16_t context_parent_node_addr, pNode* parent_node_ptr, dNode* data_node_ptr, uint8_t first_data_block_flag)
+{
+    uint16_t newDataNodeAddress = currentNodeMgmtHandle.nextFreeNode;
+    gNode* memNodePtr = &(currentNodeMgmtHandle.tempgNode);
+    
+    // Check space in flash
+    if (currentNodeMgmtHandle.nextFreeNode == NODE_ADDR_NULL)
+    {
+        return RETURN_NOK;
+    }
+    
+    // If it is the first data node we need to update the parent
+    if (first_data_block_flag == TRUE)
+    {
+        // Read supposed parent node
+        readNode(memNodePtr, context_parent_node_addr);
+        
+        // Check the parent nodes fields are the same, update parent node at the right address
+        if (memcmp((void*)memNodePtr, (void*)parent_node_ptr, FLAGS_PREV_NEXT_ADDR_LENGTH) == 0)
+        {
+            writeNodeDataBlockToFlash(context_parent_node_addr, parent_node_ptr);
+        }
+        else
+        {
+            return RETURN_NOK;
+        }
+    }
+    
+    // Set correct user id to the node
+    userIdToFlags(&(data_node_ptr->flags), currentNodeMgmtHandle.currentUserId);
+    
+    // set valid bit
+    validBitToFlags(&(data_node_ptr->flags), NODE_VBIT_VALID);
+    
+    // Set correct node type
+    nodeTypeToFlags(&(data_node_ptr->flags), NODE_TYPE_DATA);
+    
+    // Because we can't interrupt data transfer, the next address will automatically be the one we have in memory
+    scanNodeUsage();
+    data_node_ptr->nextDataAddress = currentNodeMgmtHandle.nextFreeNode;
+    
+    // write parent node to flash (destructive)
+    writeNodeDataBlockToFlash(newDataNodeAddress, data_node_ptr);
+    
+    return RETURN_OK;
+}
+
+/**
  * Writes a generic node to memory (next free via handle) (in alphabetical order).
  * @param   p                   The parent node to write to memory (nextFreeParentNode)
  * @param   firstNodeAddress    Address of the first node of its kind

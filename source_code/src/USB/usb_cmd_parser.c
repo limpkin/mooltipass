@@ -495,7 +495,39 @@ void usbProcessIncoming(uint8_t caller_id)
                 USBPARSERDEBUGPRINTF_P(PSTR("add context: \"%s\" failed\n"),msg->body.data);
             }
             break;
+    }
+    
+    // Append data
+    case CMD_WRITE_32B_IN_DN :
+    {
+        if (addDataForDataContext(msg->body.data, datalen, FALSE) == RETURN_OK)
+        {
+            plugin_return_value = PLUGIN_BYTE_OK;
+            USBPARSERDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);
         }
+        else
+        {
+            plugin_return_value = PLUGIN_BYTE_ERROR;
+            USBPARSERDEBUGPRINTF_P(PSTR("set pass: failed\n"));
+        }
+        break;
+    }
+
+    // Append data
+    case CMD_WRITE_32B_IN_DN_L :
+    {
+        if (addDataForDataContext(msg->body.data, datalen, TRUE) == RETURN_OK)
+        {
+            plugin_return_value = PLUGIN_BYTE_OK;
+            USBPARSERDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);
+        }
+        else
+        {
+            plugin_return_value = PLUGIN_BYTE_ERROR;
+            USBPARSERDEBUGPRINTF_P(PSTR("set pass: failed\n"));
+        }
+        break;
+    }       
 #endif
 
 #ifdef FLASH_BLOCK_IMPORT_EXPORT

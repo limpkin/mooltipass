@@ -36,8 +36,7 @@ typedef enum _nodeType
 {
     NODE_TYPE_PARENT = 0,
     NODE_TYPE_CHILD = 1,
-    NODE_TYPE_CHILD_DATA = 2,
-    NODE_TYPE_DATA = 3
+    NODE_TYPE_DATA = 2
 } nodeType;
 
 /** DEFINES NODES **/
@@ -108,6 +107,9 @@ typedef enum _nodeType
 
 #define DELETE_POLICY_WRITE_ONES 0xFF  /*! Node Deletion Policy Ones Memset Value */
 
+// flags, prev & nextaddress bytes length
+#define FLAGS_PREV_NEXT_ADDR_LENGTH 6
+
 /*!
 * Struct containing a generic node
 */
@@ -137,7 +139,8 @@ typedef struct __attribute__((packed)) parentNode {
     uint16_t prevParentAddress;     /*!< Previous parent node address (Alphabetically) */
     uint16_t nextParentAddress;     /*!< Next parent node address (Alphabetically) */
     uint16_t nextChildAddress;      /*!< Parent node first child address */
-    uint8_t service[NODE_SIZE - 4*sizeof(uint16_t)];            /*!< (ASCII) Text describing service (domain name eg hackaday.com). Used for sorting and searching. */
+    uint8_t service[NODE_SIZE - 4*sizeof(uint16_t) - 3*sizeof(uint8_t)];            /*!< (ASCII) Text describing service (domain name eg hackaday.com). Used for sorting and searching. */
+    uint8_t startDataCtr[3];       /*!< Encryption counter in case the child is a data node */
 } pNode;
 
 // flags + prevParentAddress + nextParentAddress + nextChildAddress
@@ -178,20 +181,22 @@ typedef struct __attribute__((packed)) childNode {
 #define CNODE_COMPARISON_FIELD_OFFSET   37
 #define CNODE_LIB_FIELDS_LENGTH         6
 
+#define DATA_NODE_DATA_LENGTH           128
+
 /*!
 * Struct containing a data node
 *
 * Note: Requires plugin for support.  Up to 256 data nodes can be used in sequence
 */
 typedef struct __attribute__((packed)) dataNode {
-    uint16_t flags;                 /*!< Data node flags (Always 0b11 for Data Node)
-                                    * 15 dn 14-> Node type
-                                    * 13 dn 13 -> Valid Bit
-                                    * 12 dn 8 -> User ID
-                                    * 7 dn 0 -> Number of bytes stored in data[]
-                                    */
-    uint16_t nextDataAddress;       /*!< Next data node in sequence */
-    uint8_t data[128];              /*!< 128 bytes of Large Data Store */
+    uint16_t flags;                         /*!< Data node flags (Always 0b11 for Data Node)
+                                            * 15 dn 14-> Node type
+                                            * 13 dn 13 -> Valid Bit
+                                            * 12 dn 8 -> User ID
+                                            * 7 dn 0 -> Number of bytes stored in data[]
+                                            */
+    uint16_t nextDataAddress;               /*!< Next data node in sequence */
+    uint8_t data[DATA_NODE_DATA_LENGTH];    /*!< 128 bytes of Large Data Store */
 } dNode;
 
 /*!
@@ -270,6 +275,7 @@ void readProfileCtr(void *buf);
 
 RET_TYPE createGenericNode(gNode* g, uint16_t firstNodeAddress, uint16_t* newFirstNodeAddress, uint8_t comparisonFieldOffset, uint8_t comparisonFieldLength);
 
+RET_TYPE writeNewDataNode(uint16_t context_parent_node_addr, pNode* parent_node_ptr, dNode* data_node_ptr, uint8_t first_data_block_flag);
 RET_TYPE createParentNode(pNode* p, uint8_t type);
 void readParentNode(pNode *p, uint16_t parentNodeAddress);
 RET_TYPE updateParentNode(pNode *p, uint16_t parentNodeAddress);

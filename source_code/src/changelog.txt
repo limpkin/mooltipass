@@ -1,5 +1,6 @@
 v0.9:
 - reserved 25 bytes at the end of the eeprom for UID storage & bootkey copy
+- USB command set values changed to optimize space... new app needed!
 - changed reserved IDs to 128, new bundle required!
 - user approval for fw and bundle update
 - different information strings...

@@ -299,10 +299,18 @@ void usbProcessIncoming(uint8_t caller_id)
     // Perform the text field check
     if ((text_field_check_needed == TRUE) && (checkTextField(msg->body.data, datalen, max_text_size) == RETURN_NOK))
     {
-        // Return an error that was defined before
+        // Return an error that was defined before (ERROR)
         usbSendMessage(datacmd, 1, &plugin_return_value);
         return;
     }    
+    
+    // Check that we are in node mangement mode when needed
+    if ((datacmd >= FIRST_CMD_FOR_DATAMGMT) && (datacmd <= LAST_CMD_FOR_DATA8MGMT) && (memoryManagementModeApproved == FALSE))
+    {
+        // Return an error that was defined before (ERROR)
+        usbSendMessage(datacmd, 1, &plugin_return_value);
+        return;        
+    }
 
     // Otherwise, process command
     switch(datacmd)
@@ -772,122 +780,67 @@ void usbProcessIncoming(uint8_t caller_id)
         // Read starting parent
         case CMD_GET_STARTING_PARENT :
         {
-            // Check that we're actually in memory management mode
-            if (memoryManagementModeApproved == TRUE)
-            {
-                // Read starting parent
-                uint16_t temp_address = getStartingParentAddress();
+            // Memory management mode check implemented before the switch
+            // Read starting parent
+            uint16_t temp_address = getStartingParentAddress();
                 
-                // Send address
-                usbSendMessage(CMD_GET_STARTING_PARENT, 2, (uint8_t*)&temp_address);
+            // Send address
+            usbSendMessage(CMD_GET_STARTING_PARENT, 2, (uint8_t*)&temp_address);
                 
-                // Return
-                return;
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;            
+            // Return
+            return;         
         }
         
         // Read data starting parent
         case CMD_GET_DN_START_PARENT :
         {
-            // Check that we're actually in memory management mode
-            if (memoryManagementModeApproved == TRUE)
-            {
-                // Read starting parent
-                uint16_t temp_address = getStartingDataParentAddress();
+            // Memory management mode check implemented before the switch
+            // Read starting parent
+            uint16_t temp_address = getStartingDataParentAddress();
                 
-                // Send address
-                usbSendMessage(CMD_GET_DN_START_PARENT, 2, (uint8_t*)&temp_address);
+            // Send address
+            usbSendMessage(CMD_GET_DN_START_PARENT, 2, (uint8_t*)&temp_address);
                 
-                // Return
-                return;
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;            
+            // Return
+            return;          
         }
         
-        // Get a free node address
-        case CMD_GET_FREE_SLOT_ADDR :
-        {
-            // Check that we're actually in memory management mode
-            if (memoryManagementModeApproved == TRUE)
-            {
-                uint16_t temp_address;                
-                
-                // Scan for next free node address
-                scanNodeUsage();
-                
-                // Store next free node address
-                temp_address = getFreeNodeAddress();
-                
-                // Send address
-                usbSendMessage(CMD_GET_FREE_SLOT_ADDR, 2, (uint8_t*)&temp_address);
-                return;
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;
-        }
-        
-        // Get a free node address
+        // Get free node addresses
         case CMD_GET_30_FREE_SLOTS :
         {
-            // Check that we're actually in memory management mode
-            if (memoryManagementModeApproved == TRUE)
-            {
-                uint16_t nodeAddresses[30];     
-                uint8_t nodesFound;           
+            // Memory management mode check implemented before the switch
+            uint16_t nodeAddresses[30];     
+            uint8_t nodesFound;           
                 
-                // Call the dedicated function
-                nodesFound = findFreeNodes(30, nodeAddresses);
+            // Call the dedicated function
+            nodesFound = findFreeNodes(30, nodeAddresses);
                 
-                // Send addresses
-                usbSendMessage(CMD_GET_30_FREE_SLOTS, nodesFound*2, (uint8_t*)nodeAddresses);
-                return;
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;
+            // Send addresses
+            usbSendMessage(CMD_GET_30_FREE_SLOTS, nodesFound*2, (uint8_t*)nodeAddresses);
+            return;
         }
         
         // End memory management mode
         case CMD_END_MEMORYMGMT :
         {
-            // Check that we're actually in memory management mode
-            if (memoryManagementModeApproved == TRUE)
-            {
-                // memoryManagementModeApproved is cleared when user removes his card
-                guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_NLCK);
-                plugin_return_value = PLUGIN_BYTE_OK;
-                currentNodeWritten = NODE_ADDR_NULL;
-                leaveMemoryManagementMode();
-                guiGetBackToCurrentScreen();
-                populateServicesLut();
-                scanNodeUsage();
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+            // Memory management mode check implemented before the switch
+            // memoryManagementModeApproved is cleared when user removes his card
+            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_NLCK);
+            plugin_return_value = PLUGIN_BYTE_OK;
+            currentNodeWritten = NODE_ADDR_NULL;
+            leaveMemoryManagementMode();
+            guiGetBackToCurrentScreen();
+            populateServicesLut();
+            scanNodeUsage();
             break;
         }
         
         // Read node from Flash
         case CMD_READ_FLASH_NODE :
         {
+            // Memory management mode check implemented before the switch
             // Check that the mode is approved & that args are supplied
-            if ((memoryManagementModeApproved == TRUE) && (datalen == 2))
+            if (datalen == 2)
             {
                 // First two bytes are the node address
                 uint16_t* temp_node_addr_ptr = (uint16_t*)msg->body.data;
@@ -917,8 +870,9 @@ void usbProcessIncoming(uint8_t caller_id)
         // Set favorite
         case CMD_SET_FAVORITE :
         {
+            // Memory management mode check implemented before the switch
             // Check that the mode is approved & that args are supplied
-            if ((memoryManagementModeApproved == TRUE) && (datalen == 5))
+            if (datalen == 5)
             {
                 uint16_t* temp_par_addr = (uint16_t*)&msg->body.data[1];
                 uint16_t* temp_child_addr = (uint16_t*)&msg->body.data[3];
@@ -936,8 +890,9 @@ void usbProcessIncoming(uint8_t caller_id)
         // Get favorite
         case CMD_GET_FAVORITE :
         {
+            // Memory management mode check implemented before the switch
             // Check that the mode is approved & that args are supplied
-            if ((memoryManagementModeApproved == TRUE) && (datalen == 1))
+            if (datalen == 1)
             {
                 uint16_t data[2];
                 readFav(msg->body.data[0], &data[0], &data[1]);
@@ -952,10 +907,11 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Set starting parent
-        case CMD_SET_STARTINGPARENT :
+        case CMD_SET_STARTING_PARENT :
         {
+            // Memory management mode check implemented before the switch
             // Check that the mode is approved & that args are supplied
-            if ((memoryManagementModeApproved == TRUE) && (datalen == 2))
+            if (datalen == 2)
             {
                 uint16_t* temp_par_addr = (uint16_t*)&msg->body.data[0];
                 setStartingParent(*temp_par_addr);
@@ -971,8 +927,9 @@ void usbProcessIncoming(uint8_t caller_id)
         // Set data starting parent
         case CMD_SET_DN_START_PARENT :
         {
+            // Memory management mode check implemented before the switch
             // Check that the mode is approved & that args are supplied
-            if ((memoryManagementModeApproved == TRUE) && (datalen == 2))
+            if (datalen == 2)
             {
                 uint16_t* temp_par_addr = (uint16_t*)&msg->body.data[0];
                 setDataStartingParent(*temp_par_addr);
@@ -988,8 +945,9 @@ void usbProcessIncoming(uint8_t caller_id)
         // Set new CTR value
         case CMD_SET_CTRVALUE :
         {
+            // Memory management mode check implemented before the switch
             // Check that the mode is approved & that args are supplied
-            if ((memoryManagementModeApproved == TRUE) && (datalen == USER_CTR_SIZE))
+            if (datalen == USER_CTR_SIZE)
             {
                 setProfileCtr(msg->body.data);
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -1004,31 +962,24 @@ void usbProcessIncoming(uint8_t caller_id)
         // Get CTR value
         case CMD_GET_CTRVALUE :
         {
-            // Check that the mode is approved & that args are supplied
-            if (memoryManagementModeApproved == TRUE)
-            {
-                // Temp buffer to store CTR
-                uint8_t tempCtrVal[USER_CTR_SIZE];
+            // Memory management mode check implemented before the switch
+            // Temp buffer to store CTR
+            uint8_t tempCtrVal[USER_CTR_SIZE];
                 
-                // Read CTR value
-                readProfileCtr(tempCtrVal);
+            // Read CTR value
+            readProfileCtr(tempCtrVal);
                 
-                // Send it
-                usbSendMessage(CMD_GET_CTRVALUE, USER_CTR_SIZE, tempCtrVal);
-                return;
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;
+            // Send it
+            usbSendMessage(CMD_GET_CTRVALUE, USER_CTR_SIZE, tempCtrVal);
+            return;
         }
         
         // Add a known card to the MP, 8 first bytes is the CPZ, next 16 is the CTR nonce
         case CMD_ADD_CARD_CPZ_CTR :
         {
+            // Memory management mode check implemented before the switch
             // Check that the mode is approved & that args are supplied
-            if ((memoryManagementModeApproved == TRUE) && (datalen == SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH))
+            if (datalen == SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)
             {
                 writeSmartCardCPZForUserId(msg->body.data, &msg->body.data[SMARTCARD_CPZ_LENGTH], getCurrentUserID());
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -1043,16 +994,9 @@ void usbProcessIncoming(uint8_t caller_id)
         // Get all the cpz ctr values for current user
         case CMD_GET_CARD_CPZ_CTR :
         {
-            // Check that the mode is approved
-            if (memoryManagementModeApproved == TRUE)
-            {
-                outputLUTEntriesForGivenUser(getCurrentUserID());
-                plugin_return_value = PLUGIN_BYTE_OK;
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+            // Memory management mode check implemented before the switch
+            outputLUTEntriesForGivenUser(getCurrentUserID());
+            plugin_return_value = PLUGIN_BYTE_OK;            
             break;            
         }
         
@@ -1063,7 +1007,7 @@ void usbProcessIncoming(uint8_t caller_id)
             uint16_t* temp_node_addr_ptr = (uint16_t*)msg->body.data;
             
             // Check that the plugin provided the address and packet #
-            if ((memoryManagementModeApproved != TRUE) || (datalen < 3))
+            if (datalen < 3)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             } 

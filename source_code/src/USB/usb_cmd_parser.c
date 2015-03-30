@@ -499,7 +499,7 @@ void usbProcessIncoming(uint8_t caller_id)
     // Append data
     case CMD_WRITE_32B_IN_DN :
     {
-        if ((addDataForDataContext(&msg->body.data[1], msg->body.data[0]) == RETURN_OK) && (datalen == 33))
+        if ((addDataForDataContext(&msg->body.data[1], msg->body.data[0]) == RETURN_OK) && (datalen == 1+DATA_NODE_BLOCK_SIZ))
         {
             plugin_return_value = PLUGIN_BYTE_OK;
             USBPARSERDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);
@@ -518,7 +518,7 @@ void usbProcessIncoming(uint8_t caller_id)
         if (get32BytesDataForCurrentService(incomingData) == RETURN_OK)
         {
             // Use the buffer to store the login...
-            usbSendMessage(CMD_READ_32B_IN_DN, 32, incomingData);
+            usbSendMessage(CMD_READ_32B_IN_DN, DATA_NODE_BLOCK_SIZ, incomingData);
             USBPARSERDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
             return;
         }

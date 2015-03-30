@@ -280,13 +280,12 @@ void ctrPostEncryptionTasks(void)
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
 }
 
-/*! \fn     decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr, uint8_t length)
+/*! \fn     decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 *   \brief  Decrypt a block of data, clear credential_timer_valid
 *   \param  data    Data to be decrypted
 *   \param  ctr     Ctr value for the data
-*   \param  length  How many bytes should be decrypted
 */
-void decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr, uint8_t length)
+void decrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 {
     uint8_t temp_buffer[AES256_CTR_LENGTH];
     
@@ -297,19 +296,18 @@ void decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr, uint8_t leng
     memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
     aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), ctr, USER_CTR_SIZE);
     aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
-    aes256CtrDecrypt(&aesctx, data, length);
+    aes256CtrDecrypt(&aesctx, data, AES_ROUTINE_ENC_SIZE);
     
     // Wait for credential timer to fire (we wanted to clear credential_timer_valid flag anyway)
     while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
 }
 
-/*! \fn     encryptBlockOfDataAndClearCTVFlag(void)
+/*! \fn     encrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 *   \brief  Encrypt a block of data, clear credential_timer_valid
 *   \param  data    Data to be decrypted
 *   \param  ctr     Pointer to where to store the ctr
-*   \param  length  How many bytes should be decrypted
 */
-static inline void encryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr, uint8_t length)
+static inline void encrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 {
     uint8_t temp_buffer[AES256_CTR_LENGTH];
     
@@ -321,7 +319,7 @@ static inline void encryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr
     memcpy((void*)temp_buffer, (void*)current_nonce, AES256_CTR_LENGTH);
     aesXorVectors(temp_buffer + (AES256_CTR_LENGTH-USER_CTR_SIZE), nextCtrVal, USER_CTR_SIZE);
     aes256CtrSetIv(&aesctx, temp_buffer, AES256_CTR_LENGTH);
-    aes256CtrEncrypt(&aesctx, data, length);
+    aes256CtrEncrypt(&aesctx, data, AES_ROUTINE_ENC_SIZE);
     memcpy((void*)ctr, (void*)nextCtrVal, USER_CTR_SIZE);
     ctrPostEncryptionTasks();
 
@@ -476,7 +474,7 @@ RET_TYPE getPasswordForContext(char* buffer)
         readChildNode(&temp_cnode, selected_login_child_node_addr);
         
         // Call the password decryption function, which also clears the credential_timer_valid flag
-        decryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
+        decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
         strcpy((char*)buffer, (char*)temp_cnode.password);
         
         // Timer fired, return
@@ -537,7 +535,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 memset((void*)&temp_cnode, 0x00, NODE_SIZE);
                 fillArrayWithRandomBytes(temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD - 1);
                 temp_cnode.password[NODE_CHILD_SIZE_OF_PASSWORD-1] = 0;
-                encryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
+                encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
                 memcpy((void*)temp_cnode.login, (void*)name, length);
                 
                 // Add "created by plugin" message in the description field
@@ -596,7 +594,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             guiGetBackToCurrentScreen();
             
             // Encrypt the password
-            encryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
+            encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
             
             // Update child node to store password
             if (updateChildNode(&temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
@@ -664,7 +662,7 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
             // Copy data in our data node at the right spot
             memcpy(&temp_dnode_ptr->data[currently_adding_data_cntr], data, 32);
             // Encrypt the data
-            encryptBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_adding_data_cntr], temp_ctr, 32);
+            encrypt32bBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_adding_data_cntr], temp_ctr);
             // If we write the first block of data, update ctr value in parent node
             if (currently_adding_data_cntr == 0)
             {
@@ -760,7 +758,7 @@ RET_TYPE get32BytesDataForCurrentService(uint8_t* buffer)
                 }
                 
                 // Call the password decryption function, which also clears the credential_timer_valid flag
-                decryptBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_reading_data_cntr], dataNodeCtrVal, 32);
+                decrypt32bBlockOfDataAndClearCTVFlag(&temp_dnode_ptr->data[currently_reading_data_cntr], dataNodeCtrVal);
                 activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
                 // Increment ctr value
                 aesIncrementCtr(dataNodeCtrVal, USER_CTR_SIZE);
@@ -810,7 +808,7 @@ RET_TYPE checkPasswordForContext(uint8_t* password)
             readChildNode(&temp_cnode, selected_login_child_node_addr);
             
             // Call the password decryption function, which also clears the credential_timer_valid flag
-            decryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
+            decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
             
             if (strcmp((char*)temp_cnode.password, (char*)password) == 0)
             {
@@ -859,7 +857,7 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
             }
         }
         
-        decryptBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr, NODE_CHILD_SIZE_OF_PASSWORD);
+        decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
         // Ask the user if he wants to output the password
         if (isUsbConfigured())
         {

@@ -22,9 +22,8 @@
 *    Created:  18/08/2014
 *    Author:   Mathieu Stephan
 */
-
-
-
+#include "usb_cmd_parser.h"
+#include "node_mgmt.h"
 
 #ifndef LOGIC_ENCRYPTION_H_
 #define LOGIC_ENCRYPTION_H_
@@ -34,6 +33,14 @@
 #define CREDENTIAL_TIMER_VALIDITY       1000
 #define AES_ENCR_DECR_TIMER_VAL         100
 #define CTR_FLASH_MIN_INCR              64
+#define AES_ROUTINE_ENC_SIZE            32
+
+#if AES_ROUTINE_ENC_SIZE != NODE_CHILD_SIZE_OF_PASSWORD
+    #error "Wrong password size"
+#endif
+#if AES_ROUTINE_ENC_SIZE != DATA_NODE_BLOCK_SIZ
+    #error "Wrong data node block size"
+#endif
 
 /** Prototypes **/
 uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name);

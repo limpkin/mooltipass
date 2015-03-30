@@ -90,6 +90,7 @@
 
 /* Packet defines */
 #define PACKET_EXPORT_SIZE  (RAWHID_TX_SIZE-HID_DATA_START)
+#define DATA_NODE_BLOCK_SIZ 32
 
 /* function caller IDs */
 #define USB_CALLER_MAIN     0x00

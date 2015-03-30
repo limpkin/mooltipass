@@ -76,7 +76,7 @@ uint16_t mediaFlashImportOffset;
 *   \brief  Check that the provided bytes is the mooltipass password
 *   \param  data            Password to be checked
 *   \param  addr            Address in eeprom where password is stored
-*   \param  length            Length of the password
+*   \param  length          Length of the password
 *   \return TRUE or FALSE
 */
 uint8_t checkMooltipassPassword(uint8_t* data, void* addr, uint8_t length)

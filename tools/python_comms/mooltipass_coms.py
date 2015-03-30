@@ -1129,6 +1129,9 @@ def importUser(epin, epout):
 def recoveryProc(epin, epout):
 	found_credential_sets = array('B')
 	next_node_addr = array('B')
+	data_service_addresses = list()
+	data_service_names = list()
+	data_service_nodes = list()
 	service_addresses = list()
 	service_names = list()
 	service_nodes = list()
@@ -1136,6 +1139,9 @@ def recoveryProc(epin, epout):
 	login_names = list()
 	login_nodes = list()
 	pointed_logins = list()
+	data_nodes = list()
+	pointed_data_nodes = list()
+	data_node_addresses = list()
 
 	# get user profile
 	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
@@ -1161,15 +1167,22 @@ def recoveryProc(epin, epout):
 
 	# get starting node
 	sendHidPacket(epout, CMD_GET_STARTING_PARENT, 0, None)
-	data = receiveHidPacket(epin)
+	starting_node_addr = receiveHidPacket(epin)[DATA_INDEX:DATA_INDEX+2]
 
 	# print starting node
-	print "Starting node address is at", format(data[DATA_INDEX] + data[DATA_INDEX+1]*256, '#04X')
+	print "Starting node address is at", format(starting_node_addr[0] + starting_node_addr[1]*256, '#04X')
+	
+	# get data starting node
+	sendHidPacket(epout, CMD_GET_DN_START_PARENT, 0, None)
+	data_starting_node_addr = receiveHidPacket(epin)[DATA_INDEX:DATA_INDEX+2]
+
+	# print starting node
+	print "Starting node address is at", format(data_starting_node_addr[0] + data_starting_node_addr[1]*256, '#04X')
 	
 	# start looping through the slots
 	completion_percentage = 1
 	#for pagei in range(128, number_of_pages):
-	for pagei in range(128, 220):
+	for pagei in range(128, 250):
 		if int(float(float(pagei) / (float(number_of_pages) - 128)) * 100) != completion_percentage:
 			completion_percentage = int(float(float(pagei) / (float(number_of_pages) - 128)) * 100)
 			print "Scanning: " + str(completion_percentage) + "%, address", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
@@ -1201,69 +1214,59 @@ def recoveryProc(epin, epout):
 						pointed_logins.append(next_node_addr[0] + next_node_addr[1]*256)
 						login_nodes.append(node_data[DATA_INDEX:])
 					elif node_data[DATA_INDEX+1] & 0xC0 == 0x80:
-						# if we found a parent data node
+						# if we found a parent node, store it along its address and service name
 						print "Found parent data node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0], "- ctr:", format(node_data[DATA_INDEX+129], '#02X'), format(node_data[DATA_INDEX+130], '#02X'), format(node_data[DATA_INDEX+131], '#02X')
-						# erase node
-						#next_node_addr = array('B')
-						#next_node_addr.append((nodei + (pagei << 3)) & 0x00FF)
-						#next_node_addr.append((pagei >> 5) & 0x00FF)
-						#next_node_addr.append(0);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
-						#print receiveHidPacket(epin)
-						#next_node_addr[2] = 1;
-						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
-						#print receiveHidPacket(epin)
-						#next_node_addr[2] = 2;
-						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
-						#print receiveHidPacket(epin)
-						print node_data
+						data_service_names.append("".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0])
+						data_service_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+						data_service_nodes.append(node_data[DATA_INDEX:])
 					elif node_data[DATA_INDEX+1] & 0xC0 == 0xC0:
-						# if we found a data node
+						# if we found a child node, store it along its address
 						print "Found data node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
-						# erase node
-						#next_node_addr = array('B')
-						#next_node_addr.append((nodei + (pagei << 3)) & 0x00FF)
-						#next_node_addr.append((pagei >> 5) & 0x00FF)
-						#next_node_addr.append(0);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#next_node_addr.append(0xff);
-						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
-						#print receiveHidPacket(epin)
-						#next_node_addr[2] = 1;
-						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
-						#print receiveHidPacket(epin)
-						#next_node_addr[2] = 2;
-						#sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 9, next_node_addr)
-						#print receiveHidPacket(epin)
-						print node_data
+						data_node_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
+						pointed_data_nodes.append(next_node_addr[0] + next_node_addr[1]*256)
+						data_nodes.append(node_data[DATA_INDEX:])
 
 	# sort service list together with addresses list
 	service_names, service_addresses, service_nodes = (list(t) for t in zip(*sorted(zip(service_names, service_addresses, service_nodes))))
+	data_service_names, data_service_addresses, data_service_nodes = (list(t) for t in zip(*sorted(zip(data_service_names, data_service_addresses, data_service_nodes))))
 	
-	# set correct parent
-	starting_parent_data = array('B')
-	starting_parent_data.append(service_addresses[0] & 0x00FF)
-	starting_parent_data.append((service_addresses[0] >> 8) & 0x00FF)
-	print "Starting parent set to", format(service_addresses[0], '#04X')
-	sendHidPacket(epout, CMD_SET_STARTINGPARENT, 2, starting_parent_data)
-	receiveHidPacket(epin)
+	# Check correct parent
+	if len(service_addresses) > 0:
+		correct_starting_parent = array('B')
+		correct_starting_parent.append(service_addresses[0] & 0x00FF)
+		correct_starting_parent.append((service_addresses[0] >> 8) & 0x00FF)
+		if starting_node_addr != correct_starting_parent:
+			print starting_node_addr
+			print correct_starting_parent
+			print "Current starting node is", format(starting_node_addr[0] + starting_node_addr[1]*256, '#04X'), "should be", format(correct_starting_parent[0] + correct_starting_parent[1]*256, '#04X')
+			raw_input("Press enter to correct")
+			print "Starting parent set to", format(service_addresses[0], '#04X')
+			sendHidPacket(epout, CMD_SET_STARTINGPARENT, 2, correct_starting_parent)
+			receiveHidPacket(epin)
+	else:
+		correct_starting_parent = array('B')
+		correct_starting_parent.append(0)
+		correct_starting_parent.append(0)
+		sendHidPacket(epout, CMD_SET_STARTINGPARENT, 2, correct_starting_parent)
+		receiveHidPacket(epin)		
 	
-	# set correct data parent
-	starting_parent_data = array('B')
-	starting_parent_data.append(0)
-	starting_parent_data.append(0)
-	#sendHidPacket(epout, CMD_SET_DN_START_PARENT, 2, starting_parent_data)
-	#receiveHidPacket(epin)	
+	# Check correct parent
+	if len(data_service_addresses) > 0:
+		correct_starting_parent = array('B')
+		correct_starting_parent.append(data_service_addresses[0] & 0x00FF)
+		correct_starting_parent.append((data_service_addresses[0] >> 8) & 0x00FF)
+		if data_starting_node_addr != correct_starting_parent:
+			print "Current data starting node is", format(data_starting_node_addr[0] + data_starting_node_addr[1]*256, '#04X'), "should be", format(correct_starting_parent[0] + correct_starting_parent[1]*256, '#04X')
+			raw_input("Press enter to correct")
+			print "Starting parent set to", format(data_service_addresses[0], '#04X')
+			sendHidPacket(epout, CMD_SET_DN_START_PARENT, 2, correct_starting_parent)
+			receiveHidPacket(epin)
+	else:
+		correct_starting_parent = array('B')
+		correct_starting_parent.append(0)
+		correct_starting_parent.append(0)
+		sendHidPacket(epout, CMD_SET_DN_START_PARENT, 2, correct_starting_parent)
+		receiveHidPacket(epin)		
 	
 	# check parent addresses validity
 	for i in range(len(service_nodes)):
@@ -1299,6 +1302,41 @@ def recoveryProc(epin, epout):
 		else:
 			print "Wrong prev node address for parent", format(service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X'), "should be", format(normal_prev_node, '#04X')
 			raw_input("confirm")	
+	
+	# Same thing for data parents
+	for i in range(len(data_service_nodes)):
+		next_child_addr = data_service_nodes[i][6] + (data_service_nodes[i][7] * 256)
+		next_node_addr = data_service_nodes[i][4] + (data_service_nodes[i][5] * 256)
+		prev_node_addr = data_service_nodes[i][2] + (data_service_nodes[i][3] * 256)
+		# if next child address different than NODE_ADDR_NULL
+		if next_child_addr != 0:
+			# if we can find a child whose address corresponds...
+			if next_child_addr in data_node_addresses:
+				print "Checked first data child for parent", format(data_service_addresses[i], '#04X'), "at address", format(next_child_addr, '#04X')
+				pointed_data_nodes.remove(next_child_addr)
+			else:
+				print "Wrong first data child address for parent", format(data_service_addresses[i], '#04X'), "at address", format(next_child_addr, '#04X')
+				raw_input("confirm")
+		# Compute the normal prev and next in the linked list
+		if i == 0:
+			normal_prev_node = 0
+		else:
+			normal_prev_node = data_service_addresses[i-1]
+		if i == len(data_service_nodes) - 1:
+			normal_next_node = 0
+		else:
+			normal_next_node = data_service_addresses[i+1]
+		# Check the prev and next nodes
+		if next_node_addr == normal_next_node:
+			print "Checked next node for data parent", format(data_service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+		else:
+			print "Wrong next node address for data parent", format(data_service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X'), "should be", format(normal_next_node, '#04X')
+			raw_input("confirm")
+		if prev_node_addr == normal_prev_node:
+			print "Checked prev node for data parent", format(data_service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+		else:
+			print "Wrong prev node address for data parent", format(data_service_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X'), "should be", format(normal_prev_node, '#04X')
+			raw_input("confirm")	
 
 	# check child addresses validity
 	for i in range(len(login_nodes)):
@@ -1329,6 +1367,22 @@ def recoveryProc(epin, epout):
 				print "Wrong prev node for child", format(login_addresses[i], '#04X'), "at address", format(prev_node_addr, '#04X')
 				raw_input("confirm")
 				
+	# Same thing for data nodes
+	for i in range(len(data_nodes)):
+		next_node_addr = data_nodes[i][2] + (data_nodes[i][3] * 256)
+		# if next data address different than NODE_ADDR_NULL
+		if next_node_addr != 0:
+			# if we can find a child whose address corresponds...
+			if next_node_addr in data_node_addresses:
+				print "Checked next data node for child", format(data_node_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+				try:
+					pointed_data_nodes.remove(next_node_addr)
+				except:
+					pass
+			else:
+				print "Wrong next data node for child", format(data_node_addresses[i], '#04X'), "at address", format(next_node_addr, '#04X')
+				raw_input("confirm")
+				
 	# find if we have child nodes that are not registered
 	if len(pointed_logins) != 0:
 		print "There are orphan child nodes!"
@@ -1356,6 +1410,34 @@ def recoveryProc(epin, epout):
 					print "Error in writing"
 	else:
 		print "No orphan nodes"
+		
+	# same thing for data nodes
+	if len(pointed_data_nodes) != 0:
+		print "There are orphan child data nodes!"
+		for orphan_child in pointed_data_nodes:
+			print "Address:", format(orphan_child, '#04X')
+			choice = raw_input("Do you want to delete it? (yes/no): ")
+			if choice == "yes":
+				empty_packet = array('B')
+				for i in range(62):
+					empty_packet.append(255)
+				empty_packet[0] = orphan_child & 0x00FF
+				empty_packet[1] = (orphan_child >> 8) & 0x00FF
+				empty_packet[2] = 0
+				sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 62, empty_packet)
+				if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+					print "Error in writing"
+				empty_packet[2] = 1
+				sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 62, empty_packet)
+				if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+					print "Error in writing"
+				empty_packet[2] = 2
+				empty_packet = empty_packet[0:16]
+				sendHidPacket(epout, CMD_WRITE_FLASH_NODE, 17, empty_packet)
+				if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+					print "Error in writing"
+	else:
+		print "No orphan data nodes"
 		
 	# end memory management mode
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)

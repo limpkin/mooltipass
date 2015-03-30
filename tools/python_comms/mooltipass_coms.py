@@ -37,15 +37,15 @@ CMD_SET_LOGIN           = 0x07
 CMD_SET_PASSWORD        = 0x08
 CMD_CHECK_PASSWORD      = 0x09
 CMD_ADD_CONTEXT         = 0x0A
-CMD_EXPORT_FLASH        = 0x30 
+CMD_EXPORT_FLASH        = 0x30
 CMD_EXPORT_FLASH_END    = 0x31
-CMD_IMPORT_FLASH_BEGIN  = 0x32 
-CMD_IMPORT_FLASH        = 0x33 
+CMD_IMPORT_FLASH_BEGIN  = 0x32
+CMD_IMPORT_FLASH        = 0x33
 CMD_IMPORT_FLASH_END    = 0x34
-CMD_EXPORT_EEPROM       = 0x35 
+CMD_EXPORT_EEPROM       = 0x35
 CMD_EXPORT_EEPROM_END   = 0x36
-CMD_IMPORT_EEPROM_BEGIN = 0x37 
-CMD_IMPORT_EEPROM       = 0x38 
+CMD_IMPORT_EEPROM_BEGIN = 0x37
+CMD_IMPORT_EEPROM       = 0x38
 CMD_IMPORT_EEPROM_END   = 0x39
 CMD_ERASE_EEPROM        = 0x40
 CMD_ERASE_FLASH         = 0x41
@@ -60,43 +60,42 @@ CMD_CLONE_SMARTCARD     = 0x49
 CMD_STACK_FREE          = 0x4A
 CMD_GET_RANDOM_NUMBER   = 0x4B
 CMD_START_MEMORYMGMT    = 0x50
-CMD_END_MEMORYMGMT      = 0x51
 CMD_IMPORT_MEDIA_START  = 0x52
 CMD_IMPORT_MEDIA        = 0x53
 CMD_IMPORT_MEDIA_END    = 0x54
-CMD_READ_FLASH_NODE     = 0x55
-CMD_WRITE_FLASH_NODE    = 0x56
-CMD_SET_FAVORITE        = 0x57
-CMD_SET_STARTINGPARENT  = 0x58
-CMD_SET_CTRVALUE        = 0x59
-CMD_ADD_CARD_CPZ_CTR    = 0x5A
-CMD_GET_CARD_CPZ_CTR    = 0x5B
-CMD_CARD_CPZ_CTR_PACKET = 0x5C
 CMD_SET_MOOLTIPASS_PARM = 0x5D
 CMD_GET_MOOLTIPASS_PARM = 0x5E
-CMD_GET_FAVORITE        = 0x5F
 CMD_RESET_CARD          = 0x60
 CMD_READ_CARD_LOGIN     = 0x61
 CMD_READ_CARD_PASS      = 0x62
 CMD_SET_CARD_LOGIN      = 0x63
 CMD_SET_CARD_PASS       = 0x64
-CMD_GET_FREE_SLOT_ADDR  = 0x65
-CMD_GET_STARTING_PARENT = 0x66
-CMD_GET_CTRVALUE        = 0x67
 CMD_ADD_UNKNOWN_CARD    = 0x68
 CMD_USB_KEYBOARD_PRESS  = 0x69
 CMD_MOOLTIPASS_STATUS   = 0x70
 CMD_FUNCTIONAL_TEST_RES = 0x71
 CMD_SET_DATE            = 0x72
-CMD_GET_30_FREE_SLOTS   = 0x73
 CMD_SET_UID             = 0x74
 CMD_GET_UID             = 0x75
-CMD_GET_DN_START_PARENT = 0x76
-CMD_SET_DN_START_PARENT = 0x77
 CMD_SET_DATA_SERVICE    = 0x78
 CMD_ADD_DATA_SERVICE    = 0x79
 CMD_WRITE_32B_IN_DN     = 0x7A
 CMD_READ_32B_IN_DN      = 0x7B
+CMD_READ_FLASH_NODE     = 0xA0
+CMD_WRITE_FLASH_NODE    = 0xA1
+CMD_GET_FAVORITE        = 0xA2
+CMD_SET_FAVORITE        = 0xA3
+CMD_GET_STARTING_PARENT = 0xA4
+CMD_SET_STARTING_PARENT = 0xA5
+CMD_GET_CTRVALUE        = 0xA6
+CMD_SET_CTRVALUE        = 0xA7
+CMD_ADD_CARD_CPZ_CTR    = 0xA8
+CMD_GET_CARD_CPZ_CTR    = 0xA9
+CMD_CARD_CPZ_CTR_PACKET = 0xAA
+CMD_GET_30_FREE_SLOTS   = 0xAB
+CMD_GET_DN_START_PARENT = 0xAC
+CMD_SET_DN_START_PARENT = 0xAD
+CMD_END_MEMORYMGMT      = 0xAE
 
 def keyboardSend(epout, data1, data2):
 	packetToSend = array('B')
@@ -893,7 +892,7 @@ def favoritePrint(epin, epout):
 		data = receiveHidPacket(epin)
 
 	# loop through fav slots
-	for count in range(0, 15):
+	for count in range(0, 14):
 		favoriteArg[0] = count
 		# request favorite
 		sendHidPacket(epout, CMD_GET_FAVORITE, 1, favoriteArg)
@@ -987,7 +986,7 @@ def favoriteSelectionScreen(epin, epout):
 		user_fav = input("Choose your favorite: ")
 
 	fav_slot_id = 1000
-	while fav_slot_id > 15:
+	while fav_slot_id > 14:
 		fav_slot_id = input("Choose your slotid: ")
 
 	# prepare packet to send

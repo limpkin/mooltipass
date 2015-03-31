@@ -94,17 +94,17 @@
     #define CMD_EXPORT_EEPROM       0x91    // resp: 0x35 packets until 0x36
     #define CMD_EXPORT_EEPROM_END   0x92
     #define CMD_IMPORT_EEPROM_BEGIN 0x93    // confirmed by 0x37,0x01
-    #define CMD_IMPORT_EEPROM       0x93    // send packet, acked with 0x38,0x01
-    #define CMD_IMPORT_EEPROM_END   0x94
+    #define CMD_IMPORT_EEPROM       0x94    // send packet, acked with 0x38,0x01
+    #define CMD_IMPORT_EEPROM_END   0x95
     // Developper plugin commands
-    #define CMD_ERASE_EEPROM        0x95
-    #define CMD_ERASE_FLASH         0x96
-    #define CMD_ERASE_SMC           0x97
-    #define CMD_DRAW_BITMAP         0x98
-    #define CMD_SET_FONT            0x99
-    #define CMD_USB_KEYBOARD_PRESS  0x9A
-    #define CMD_STACK_FREE          0x9B
-    #define CMD_CLONE_SMARTCARD     0x9C
+    #define CMD_ERASE_EEPROM        0x96
+    #define CMD_ERASE_FLASH         0x97
+    #define CMD_ERASE_SMC           0x98
+    #define CMD_DRAW_BITMAP         0x99
+    #define CMD_SET_FONT            0x9A
+    #define CMD_USB_KEYBOARD_PRESS  0x9B
+    #define CMD_STACK_FREE          0x9C
+    #define CMD_CLONE_SMARTCARD     0x9D
     // From here the commands are used
     #define CMD_DEBUG               0xA0
     #define CMD_PING                0xA1

@@ -1142,6 +1142,8 @@ def recoveryProc(epin, epout):
 	data_nodes = list()
 	pointed_data_nodes = list()
 	data_node_addresses = list()
+	favorite_parent_addresses = list()
+	favorite_child_addresses = list()
 
 	# get user profile
 	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
@@ -1176,8 +1178,20 @@ def recoveryProc(epin, epout):
 	sendHidPacket(epout, CMD_GET_DN_START_PARENT, 0, None)
 	data_starting_node_addr = receiveHidPacket(epin)[DATA_INDEX:DATA_INDEX+2]
 
-	# print starting node
+	# print data starting node
 	print "Starting node address is at", format(data_starting_node_addr[0] + data_starting_node_addr[1]*256, '#04X')
+	
+	# get favorites
+	favoriteArg = array('B')
+	favoriteArg.append(0)
+	# loop through fav slots
+	for count in range(0, 14):
+		favoriteArg[0] = count
+		# request favorite
+		sendHidPacket(epout, CMD_GET_FAVORITE, 1, favoriteArg)
+		fav_data = receiveHidPacket(epin)[DATA_INDEX:DATA_INDEX+4]
+		favorite_parent_addresses.append(fav_data[0] + fav_data[1]*256)
+		favorite_child_addresses.append(fav_data[2] + fav_data[3]*256)
 	
 	# start looping through the slots
 	completion_percentage = 1
@@ -1438,6 +1452,17 @@ def recoveryProc(epin, epout):
 					print "Error in writing"
 	else:
 		print "No orphan data nodes"
+		
+	# check pointed favorites
+	for i in range(0, len(favorite_parent_addresses)):
+		# if we point to a valid node
+		if favorite_parent_addresses[i] != 0:
+			# todo: check that the child belongs to the parent
+			if favorite_parent_addresses[i] in service_addresses and favorite_child_addresses[i] in login_addresses:
+				print "Favorite number", i ,"checked"
+			else:
+				print "Couldn't verify favorite number", i ,"with parent address", format(favorite_parent_addresses[i], '#04X'), "and child address", format(favorite_child_addresses[i], '#04X')
+				raw_input("confirm")
 		
 	# end memory management mode
 	sendHidPacket(epout, CMD_END_MEMORYMGMT, 0, None)

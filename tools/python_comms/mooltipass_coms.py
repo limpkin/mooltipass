@@ -1011,15 +1011,29 @@ def exportUser(epin, epout):
 	child_nodes_addr_export = list()
 	child_nodes_export = list()
 	cpz_ctr_export = list()
+	favorites_export = list()
 	next_service_addr = array('B')
 	next_child_addr = array('B')
 
-	# get user profile
+	# start memory management
 	sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
 	print "Please accept memory management mode on the MP"
 	while receiveHidPacket(epin)[DATA_INDEX] != 1:
 		print "Please accept memory management mode on the MP"
 		sendHidPacket(epout, CMD_START_MEMORYMGMT, 0, None)
+		
+	# get favorites
+	favoriteArg = array('B')
+	favoriteArg.append(0)
+	# loop through fav slots
+	for count in range(0, 14):
+		favoriteArg[0] = count
+		# request favorite
+		sendHidPacket(epout, CMD_GET_FAVORITE, 1, favoriteArg)
+		favorites_export.append(receiveHidPacket(epin)[DATA_INDEX:DATA_INDEX+4])
+	
+	# write the favorites
+	pickle_write(favorites_export, "favorites.txt")
 
 	# get starting node
 	sendHidPacket(epout, CMD_GET_STARTING_PARENT, 0, None)
@@ -1041,8 +1055,8 @@ def exportUser(epin, epout):
 		sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_service_addr)
 		# read it and keep the node part
 		data_parent = receiveHidPacket(epin)
-		data_parent.extend(receiveHidPacket(epin)[DATA_INDEX:])
-		data_parent.extend(receiveHidPacket(epin)[DATA_INDEX:])
+		data_parent.extend(receiveHidPacket(epin))
+		data_parent.extend(receiveHidPacket(epin))
 		data_parent = data_parent[DATA_INDEX:DATA_INDEX+NODE_SIZE]
 		# store node data together with its address
 		print "Found parent node at", format(next_service_addr[0] + next_service_addr[1]*256, '#04X'), "- service name:", "".join(map(chr, data_parent[SERVICE_INDEX:])).split(b"\x00")[0]
@@ -1057,8 +1071,8 @@ def exportUser(epin, epout):
 			sendHidPacket(epout, CMD_READ_FLASH_NODE, 2, next_child_addr)
 			# read it
 			data_child = receiveHidPacket(epin)
-			data_child.extend(receiveHidPacket(epin)[DATA_INDEX:])
-			data_child.extend(receiveHidPacket(epin)[DATA_INDEX:])
+			data_child.extend(receiveHidPacket(epin))
+			data_child.extend(receiveHidPacket(epin))
 			data_child = data_child[DATA_INDEX:DATA_INDEX+NODE_SIZE]
 			# truncate data to get login
 			print "Found child node at", format(next_child_addr[0] + next_child_addr[1]*256, '#04X'), "- login:", "".join(map(chr, data_child[LOGIN_INDEX:])).split(b"\x00")[0]

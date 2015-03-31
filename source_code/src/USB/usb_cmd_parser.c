@@ -28,6 +28,7 @@
 #include "logic_fwflash_storage.h"
 #include "gui_screen_functions.h"
 #include "logic_aes_and_comms.h"
+#include "gui_pin_functions.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
 #include "logic_smartcard.h"
@@ -1155,16 +1156,26 @@ void usbProcessIncoming(uint8_t caller_id)
         // Reset smartcard
         case CMD_RESET_CARD :
         {
-            uint16_t* temp_uint_pt = (uint16_t*)msg->body.data;
-            // Check the args, check we're not authenticated, check that the card detection returns a user card, try unlocking the card with provided PIN            
-            if ((datalen == 2) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN) && (mooltipassDetectedRoutine(swap16(*temp_uint_pt)) == RETURN_MOOLTIPASS_4_TRIES_LEFT))
+            // Check we're not authenticated, check that the user could unlock the card
+            if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
             {
-                eraseSmartCard();
-                plugin_return_value = PLUGIN_BYTE_OK;
+                // Ask the user to unlock the card
+                if (guiCardUnlockingProcess() == RETURN_OK)
+                {
+                    eraseSmartCard();
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                    // Success, ask the user to remove the card
+                    guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_INVALID);
+                }
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }
+                guiGetBackToCurrentScreen();
             }
             else
             {
-                plugin_return_value = PLUGIN_BYTE_ERROR;                
+                plugin_return_value = PLUGIN_BYTE_ERROR;
             }
             break;
         }
@@ -1172,13 +1183,22 @@ void usbProcessIncoming(uint8_t caller_id)
         // Add current unknown smartcard
         case CMD_ADD_UNKNOWN_CARD :
         {
-            uint16_t* temp_uint_pt = (uint16_t*)msg->body.data;
-            
-            // Check the args, check we're not authenticated, check that the card detection returns a user card, try unlocking the card with provided PIN
-            if ((datalen == (2 + AES256_CTR_LENGTH)) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN) && (mooltipassDetectedRoutine(swap16(*temp_uint_pt)) == RETURN_MOOLTIPASS_4_TRIES_LEFT))
+            // Check the args, check we're not authenticated, check that the user could unlock the card
+            if ((datalen == AES256_CTR_LENGTH) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN))
             {
-                addNewUserForExistingCard(msg->body.data + 2);
-                plugin_return_value = PLUGIN_BYTE_OK;
+                // Ask the user to unlock the card
+                if (guiCardUnlockingProcess() == RETURN_OK)
+                {
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                    addNewUserForExistingCard(msg->body.data);
+                    // Success, ask the user to remove the card
+                    guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_INVALID);
+                }
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;                    
+                }
+                guiGetBackToCurrentScreen();
             }
             else
             {

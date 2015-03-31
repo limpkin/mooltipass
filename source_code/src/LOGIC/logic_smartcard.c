@@ -226,11 +226,7 @@ RET_TYPE validCardDetectedFunction(void)
         }
     }
     else
-    {
-        // Tell the user we don't know this card, shutdown card reader
-        guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
-        userViewDelay();
-        
+    {        
         // Unknown card
         return RETURN_VCARD_UNKNOWN;
     }

@@ -100,7 +100,7 @@ void guiGetBackToCurrentScreen(void)
         }
         case SCREEN_DEFAULT_INSERTED_UNKNOWN :
         {
-            // Just to remind you it exists
+            guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
             break;
         }
         default : break;

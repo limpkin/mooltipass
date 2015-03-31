@@ -6,7 +6,7 @@
 #include "usb.h"
 
 /* USB mooltipass hid commands */
-#define OLD_COMMAND_SET
+//#define OLD_COMMAND_SET
 #ifdef  OLD_COMMAND_SET
     #define CMD_DEBUG               0x01
     #define CMD_PING                0x02

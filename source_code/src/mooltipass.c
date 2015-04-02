@@ -98,7 +98,7 @@ int main(void)
     uint8_t fuse_ok = TRUE;
     
     // Disable JTAG to gain access to pins, set prescaler to 1 (fuses not set)
-    #ifndef PRODUCTION_KICKSTARTER_SETUP
+    #if !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(PREPRODUCTION_KICKSTARTER_SETUP)
         disableJTAG();
         CPU_PRESCALE(0);
     #endif
@@ -152,7 +152,7 @@ int main(void)
     }
     
     // This code will only be used for developers and beta testers
-    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP)
+    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(PREPRODUCTION_KICKSTARTER_SETUP)
         // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
         {
@@ -286,7 +286,7 @@ int main(void)
     
     // Test procedure to check that all HW is working
     //#define FORCE_PROD_TEST
-    #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
+    #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
         if (current_bootkey_val != CORRECT_BOOTKEY)
         {
             RET_TYPE temp_rettype;        
@@ -372,7 +372,7 @@ int main(void)
     
     // Stop the Mooltipass if we can't communicate with the flash or the touch interface
     #if defined(HARDWARE_OLIVIER_V1)
-        #if defined(PRODUCTION_KICKSTARTER_SETUP)
+        #if defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #elif defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_NOK));

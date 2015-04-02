@@ -61,7 +61,10 @@
  *  PRODUCTION_SETUP
  *  => final version for the beta testers units
  *
- *  PRODUCTION_KICKSTARTER_SETUP
+ *  PREPRODUCTION_KICKSTARTER_SETUP
+ *  => pre production run before mass production
+ *
+ *  PREPRODUCTION_KICKSTARTER_SETUP
  *  => final version for production
 */
 #define BETATESTERS_SETUP_PIN
@@ -131,6 +134,12 @@
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(PRODUCTION_SETUP)
     #define FLASH_CHIP_32M
+    #define HARDWARE_OLIVIER_V1
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+    // TO REMOVE IN THE FUTURE!!! //
+    #define AVR_BOOTLOADER_PROGRAMMING
+#elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
+    #define FLASH_CHIP_4M
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
     // TO REMOVE IN THE FUTURE!!! //

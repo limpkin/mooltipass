@@ -1445,6 +1445,9 @@ void usbProcessIncoming(uint8_t caller_id)
                     sei();
                     while(1);
                 }
+                
+                // Return to last screen
+                guiGetBackToCurrentScreen();
             #endif
         }
 

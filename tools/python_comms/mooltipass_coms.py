@@ -350,6 +350,80 @@ def	uploadBundle(epin, epout):
 		print "likely causes: mooltipass already setup"
 
 	return success_status
+	
+def checkSecuritySettings(epin, epout):
+	# Mooltipass password to be set
+	mooltipass_password = array('B')
+	
+	print "Getting first random half"
+	sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+	data = receiveHidPacketWithTimeout(epin)
+	mooltipass_password.extend(data[DATA_INDEX:DATA_INDEX+32])
+	print "Getting second random half"
+	sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+	data2 = receiveHidPacketWithTimeout(epin)
+	mooltipass_password.extend(data2[DATA_INDEX:DATA_INDEX+30])
+	print "Getting random number for UID & request key"
+	request_key_and_uid = array('B')
+	sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+	request_key_and_uid.extend(receiveHidPacketWithTimeout(epin)[DATA_INDEX:DATA_INDEX+22])	
+	print "Getting random data..."
+	sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+	random_data = receiveHidPacketWithTimeout(epin)[DATA_INDEX:DATA_INDEX+32]
+	sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
+	mooltipass_password.extend(receiveHidPacketWithTimeout(epin)[DATA_INDEX:DATA_INDEX+30])
+	print "Done... starting test"
+	
+	sendHidPacket(epout, CMD_SET_UID, 22, request_key_and_uid)
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Setting request key... success!"
+	else:
+		print "Setting request key... fail!"
+		
+	sendHidPacket(epout, CMD_SET_UID, 22, request_key_and_uid)
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Trying to set another key... success! (this is bad)"
+	else:
+		print "Trying to set another key... fail! (this is good)"
+		
+	sendHidPacket(epout, CMD_GET_UID, 16, request_key_and_uid[0:16])
+	data = receiveHidPacket(epin)
+	if data[LEN_INDEX] == 0x01:
+		print "Trying to fetch UID... fail!"
+	else:
+		print "Trying to fetch UID... success!"
+		if data[DATA_INDEX:DATA_INDEX+6] == request_key_and_uid[16:16+6]:
+			print "UID fetched is the same as the one sent!"
+		else:
+			print "UID fetched is different than the one sent!"
+	
+	sendHidPacket(epout, CMD_GET_UID, 16, random_data[0:16])
+	data = receiveHidPacket(epin)
+	if data[LEN_INDEX] == 0x01:
+		print "Trying to fetch UID with random key... fail! (this is good)"
+	else:
+		print "Trying to fetch UID with random key... success! (this is bad)"
+		
+	sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Setting bootloader password... success!"
+	else:
+		print "Setting bootloader password... fail!"
+		
+	sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Setting another bootloader password... success! (this is bad)"
+	else:
+		print "Setting another bootloader password... fail! (this is good)"
+	
+	sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, random_data)
+	print "Sending jump to bootloader with random password... did it work?"
+	raw_input("Press enter")
+	
+	sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, mooltipass_password)
+	print "Sending jump to bootloader with good password... did it work?"
+	raw_input("Press enter")
+	
 
 def mooltipassInit(hid_device, intf, epin, epout):
 	# Ask for Mooltipass ID
@@ -1637,6 +1711,7 @@ if __name__ == '__main__':
 		print "28) Check password for service & login"
 		print "29) Add a random block of data for new service"
 		print "30) Get decoded data for given service"
+		print "31) Check Mooltipass security settings"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1700,6 +1775,8 @@ if __name__ == '__main__':
 			addRandomDataForService(epin, epout)
 		elif choice == 30:
 			getDecodedDataForService(epin, epout)
+		elif choice == 31:
+			checkSecuritySettings(epin, epout)
 
 	hid_device.reset()
 

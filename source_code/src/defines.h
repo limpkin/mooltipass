@@ -64,7 +64,7 @@
  *  PREPRODUCTION_KICKSTARTER_SETUP
  *  => pre production run before mass production
  *
- *  PREPRODUCTION_KICKSTARTER_SETUP
+ *  PRODUCTION_KICKSTARTER_SETUP
  *  => final version for production
 */
 #define BETATESTERS_SETUP_PIN

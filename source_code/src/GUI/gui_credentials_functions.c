@@ -72,9 +72,10 @@ void displayCredentialAtSlot(uint8_t slot, char* text)
 *   \param  p                   Pointer to a parent node
 *   \param  c                   Pointer to a child node
 *   \param  parentNodeAddress   Address of the parent node
+*   \param  bypass_confirmation Bool to bypass authorisation request
 *   \return Valid child node address or 0 otherwise
 */
-uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
+uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, uint8_t bypass_confirmation)
 {
     uint16_t first_child_address, temp_child_address;
     uint16_t picked_child = NODE_ADDR_NULL;
@@ -115,7 +116,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
         temp_conf_text.lines[3] = (char*)c->login;
         
         // Prompt user for confirmation
-        if(guiAskForConfirmation(4, &temp_conf_text) == RETURN_OK)
+        if ((bypass_confirmation == TRUE) || (guiAskForConfirmation(4, &temp_conf_text) == RETURN_OK))
         {
             picked_child = first_child_address;
         }

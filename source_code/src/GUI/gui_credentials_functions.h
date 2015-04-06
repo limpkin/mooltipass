@@ -32,7 +32,7 @@
 
 #define SEARCHTEXT_MAX_LENGTH   4
 
-uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress);
+uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, uint8_t bypass_confirmation);
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c);
 uint16_t loginSelectionScreen(void);
 

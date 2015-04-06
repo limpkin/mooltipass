@@ -435,7 +435,7 @@ RET_TYPE getLoginForContext(char* buffer)
         // Credential timer off, ask for user to choose
         if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_EXPIRED)
         {
-            selected_login_child_node_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, context_parent_node_addr);
+            selected_login_child_node_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, context_parent_node_addr, FALSE);
             guiGetBackToCurrentScreen();
             
             // If a valid child node was selected
@@ -889,5 +889,5 @@ void favoritePickingLogic(void)
 */
 void loginSelectLogic(void)
 {
-    askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen()));
+    askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen(), TRUE));
 }

@@ -982,8 +982,14 @@ void usbProcessIncoming(uint8_t caller_id)
             // Check that the mode is approved & that args are supplied
             if (datalen == SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)
             {
-                writeSmartCardCPZForUserId(msg->body.data, &msg->body.data[SMARTCARD_CPZ_LENGTH], getCurrentUserID());
-                plugin_return_value = PLUGIN_BYTE_OK;
+                if (writeSmartCardCPZForUserId(msg->body.data, &msg->body.data[SMARTCARD_CPZ_LENGTH], getCurrentUserID()) == RETURN_OK)
+                {
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                }
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;                    
+                }
             }
             else
             {

@@ -293,7 +293,7 @@ RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr);
 
 void readNode(gNode* g, uint16_t nodeAddress);
 
-uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* array);
+uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray, uint16_t startPage, uint8_t startNode);
 void scanNodeUsage(void);
 
 void setCurrentDate(uint16_t date);

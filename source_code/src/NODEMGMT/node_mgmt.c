@@ -694,7 +694,7 @@ RET_TYPE writeNewDataNode(uint16_t context_parent_node_addr, pNode* parent_node_
     uint16_t next_free_addresses[2];
     
     // This is what scan node usage uses internally, check space in flash
-    if (findFreeNodes(2, next_free_addresses) != 2)
+    if (findFreeNodes(2, next_free_addresses, 0, 0) != 2)
     {
         return RETURN_NOK;
     }    
@@ -963,20 +963,28 @@ uint16_t getParentNodeForLetter(uint8_t letter)
 *   \brief  Find Free Nodes inside our external memory
 *   \param  nbNodes     Number of nodes we want to find
 *   \param  nodeArray   An array where to store the addresses
+*   \param  startPage   Page where to start the scanning
+*   \param  startNode   Scan start node address inside the start page
 *   \return the number of nodes found
 */
-uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray)
+uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray, uint16_t startPage, uint8_t startNode)
 {
     uint16_t nodeFlags = 0xFFFF;
     uint8_t nbNodesFound = 0;
     uint16_t pageItr;
     uint8_t nodeItr;
+    
+    // Check the start page
+    if (startPage < PAGE_PER_SECTOR)
+    {
+        startPage = PAGE_PER_SECTOR;
+    }
 
     // for each page
-    for(pageItr = PAGE_PER_SECTOR; pageItr < PAGE_COUNT; pageItr++)
+    for(pageItr = startPage; pageItr < PAGE_COUNT; pageItr++)
     {
         // for each possible parent node in the page (changes per flash chip)
-        for(nodeItr = 0; nodeItr < NODE_PER_PAGE; nodeItr++)
+        for(nodeItr = startNode; nodeItr < NODE_PER_PAGE; nodeItr++)
         {
             // read node flags (2 bytes - fixed size)
             readDataFromFlash(pageItr, NODE_SIZE*nodeItr, 2, &nodeFlags);
@@ -1005,7 +1013,7 @@ uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray)
 void scanNodeUsage(void)
 {
     // Find one free node. If we don't find it, set the next to the null addr
-    if (findFreeNodes(1, &currentNodeMgmtHandle.nextFreeNode) == 0)
+    if (findFreeNodes(1, &currentNodeMgmtHandle.nextFreeNode, 0, 0) == 0)
     {
         currentNodeMgmtHandle.nextFreeNode = NODE_ADDR_NULL;
     }

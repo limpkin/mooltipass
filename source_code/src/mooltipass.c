@@ -83,7 +83,7 @@ static inline void disableJTAG(void)
 */
 void smallForLoopBasedDelay(void)
 {
-    for (uint16_t i = 0; i < 2000; i++) asm volatile ("NOP");
+    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
 }
 
 /*! \fn     main(void)

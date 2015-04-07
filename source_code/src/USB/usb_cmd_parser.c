@@ -807,18 +807,28 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Get free node addresses
-        case CMD_GET_30_FREE_SLOTS :
+        case CMD_GET_FREE_SLOTS_ADDR :
         {
-            // Memory management mode check implemented before the switch
-            uint16_t nodeAddresses[30];     
-            uint8_t nodesFound;           
+            // Check that an address has been provided
+            if (datalen == 2)
+            {
+                // Memory management mode check implemented before the switch
+                uint16_t* temp_addr_ptr = (uint16_t*)msg->body.data;
+                uint16_t nodeAddresses[32];
+                uint8_t nodesFound;
                 
-            // Call the dedicated function
-            nodesFound = findFreeNodes(30, nodeAddresses);
+                // Call the dedicated function
+                nodesFound = findFreeNodes(32, nodeAddresses, pageNumberFromAddress(*temp_addr_ptr), nodeNumberFromAddress(*temp_addr_ptr));
                 
-            // Send addresses
-            usbSendMessage(CMD_GET_30_FREE_SLOTS, nodesFound*2, (uint8_t*)nodeAddresses);
-            return;
+                // Send addresses
+                usbSendMessage(CMD_GET_FREE_SLOTS_ADDR, nodesFound*2, (uint8_t*)nodeAddresses);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_OK;
+                break;                
+            }
         }
         
         // End memory management mode

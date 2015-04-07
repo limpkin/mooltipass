@@ -74,7 +74,7 @@
     #define CMD_ADD_CARD_CPZ_CTR    0xA8
     #define CMD_GET_CARD_CPZ_CTR    0xA9
     #define CMD_CARD_CPZ_CTR_PACKET 0xAA
-    #define CMD_GET_30_FREE_SLOTS   0xAB
+    #define CMD_GET_FREE_SLOTS_ADDR 0xAB
     #define CMD_GET_DN_START_PARENT 0xAC
     #define CMD_SET_DN_START_PARENT 0xAD
     #define CMD_END_MEMORYMGMT      0xAE
@@ -153,7 +153,7 @@
     #define CMD_ADD_CARD_CPZ_CTR    0xCD
     #define CMD_GET_CARD_CPZ_CTR    0xCE
     #define CMD_CARD_CPZ_CTR_PACKET 0xCF
-    #define CMD_GET_30_FREE_SLOTS   0xD0
+    #define CMD_GET_FREE_SLOTS_ADDR 0xD0
     #define CMD_GET_DN_START_PARENT 0xD1
     #define CMD_SET_DN_START_PARENT 0xD2
     #define CMD_END_MEMORYMGMT      0xD3

@@ -98,7 +98,7 @@ int main(void)
     uint8_t fuse_ok = TRUE;
     
     // Disable JTAG to gain access to pins, set prescaler to 1 (fuses not set)
-    #if !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(PREPRODUCTION_KICKSTARTER_SETUP)
+    #if !defined(PRODUCTION_KICKSTARTER_SETUP)
         disableJTAG();
         CPU_PRESCALE(0);
     #endif

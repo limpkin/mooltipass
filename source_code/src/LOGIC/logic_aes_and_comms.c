@@ -30,13 +30,14 @@
 #include "logic_aes_and_comms.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
+#include "hid_defines.h"
 #include "aes256_ctr.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
-#include "rng.h"
 #include "defines.h"
 #include "delays.h"
 #include "usb.h"
+#include "rng.h"
 
 // Know if the smart card is inserted and unlocked
 uint8_t smartcard_inserted_unlocked = FALSE;
@@ -846,6 +847,7 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
                 if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK)
                 {
                     usbKeybPutStr((char*)temp_cnode.login);
+                    usbKeyboardPress(KEY_TAB, 0);
                 }
             } 
             else

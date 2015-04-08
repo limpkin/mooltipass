@@ -1,6 +1,8 @@
 RC1:
 - no service / login confirmation screen when selecting a service that only has one login in the login menu
 - extra slot in eeprom for bootloader backup key
+- sending tab after login sending via HID
+- usb send functions always take cmds now
 
 v0.9:
 - reserved 25 bytes at the end of the eeprom for UID storage & bootkey copy

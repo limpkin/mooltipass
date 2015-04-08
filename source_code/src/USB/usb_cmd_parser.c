@@ -326,11 +326,9 @@ void usbProcessIncoming(uint8_t caller_id)
         // version command
         case CMD_VERSION :
         {
-            msg->len = 3; // len + cmd + FLASH_CHIP
-            msg->cmd = CMD_VERSION;
             msg->body.data[0] = FLASH_CHIP;
-            msg->len += getVersion((char*)&msg->body.data[1], sizeof(msg->body.data) - 1);
-            usbSendMessage(0, msg->len, msg);
+            msg->len = 1 + getVersion((char*)&msg->body.data[1], sizeof(msg->body.data) - 1);
+            usbSendMessage(CMD_VERSION, msg->len, msg->body.data);
             return;
         }
 

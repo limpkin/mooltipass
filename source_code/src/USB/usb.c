@@ -1004,7 +1004,7 @@ RET_TYPE usbPutstr_P(const char *str)
 */
 RET_TYPE usbPutstr(const char *str)
 {
-    return usbSendMessage(CMD_DEBUG, strlen(str), str);
+    return usbSendMessage(CMD_DEBUG, strlen(str) + 1, str);
 }
 
 

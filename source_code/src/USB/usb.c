@@ -90,15 +90,6 @@ void displayDebugStatusCode(char* text)
 }
 #endif
 
-/*! \fn     pluginMessageRetryDelay(void)
-*   \brief  Delay between message retries
-*/
-void pluginMessageRetryDelay(void)
-{
-    // Delay will be between 0 & 1 ms due to the function
-    timerBasedDelayMs(0);
-}
-
 /*! \fn     initUsb(void)
 *   \brief  USB controller initialization
 */
@@ -590,62 +581,6 @@ ISR(USB_COM_vect)
     UECONX = (1<<STALLRQ) | (1<<EPEN);  // stall
 }
 
-/*! \fn     pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str)
-*   \brief  Send a message to the mooltipass plugin
-*   \param  cmd command UID
-*   \param  len message length
-*   \param  str pointer to the string in FLASH
-*   \return If we managed send the data
-*/
-RET_TYPE pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str)
-{
-    uint8_t buffer[RAWHID_TX_SIZE];
-    uint8_t i = HID_DATA_START;
-    uint8_t j;
-    char ch;
-
-    #ifdef USB_DEBUG_OUTPUT
-    if ((cmd != CMD_DEBUG && cmd < CMD_EXPORT_FLASH))
-    {
-        if (len)
-        {
-            usbPrintf_P(PSTR("tx: cmd 0x%02x len %d data 0x%02x\n"), cmd, len, *str);
-        }
-        else
-        {
-            usbPrintf_P(PSTR("tx: cmd 0x%02x len %d\n"), cmd, len);
-        }
-    }
-    #endif
-    
-    buffer[HID_LEN_FIELD] = len;
-    buffer[HID_TYPE_FIELD] = cmd;
-
-    for(j = 0; j < len; j++)
-    {
-        ch = pgm_read_byte(str++);
-        buffer[i++] = ch;
-        if (i == RAWHID_TX_SIZE)
-        {
-            i = 0;
-            if(usbRawHidSend(buffer) != RETURN_COM_TRANSF_OK)
-            {
-                return RETURN_COM_NOK;
-            }
-        }
-    }
-
-    if (i != 0)
-    {
-        memset((void*)buffer + i, 0, RAWHID_TX_SIZE - i);
-        if(usbRawHidSend(buffer) != RETURN_COM_TRANSF_OK)
-        {
-            return RETURN_COM_NOK;
-        }
-    }
-    return RETURN_COM_TRANSF_OK;    
-}
-
 /*!
 *   \brief  Wait for the TX fifo to be ready to accept data.
 *   \param  intr_state   pointer to storage to save the interrupt state
@@ -878,110 +813,21 @@ RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg)
     return RETURN_COM_TRANSF_OK;
 }
 
-/*! \fn     pluginSendMessage(uint8_t cmd, uint8_t len, const char* str)
-*   \brief  Send a message to the mooltipass plugin
-*   \param  cmd command UID
-*   \param  len message length
-*   \param  str pointer to the string in RAM
-*   \return If we managed send the data
-*/
-RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str)
-{
-    uint8_t buffer[RAWHID_TX_SIZE];
-    uint8_t nb_for_loops = 0;
-    uint8_t remaining = 0;
-    uint8_t i = 0;
-
-    #ifdef USB_DEBUG_OUTPUT
-        if ((cmd != CMD_DEBUG && cmd < CMD_EXPORT_FLASH)) 
-        {
-            if (len)
-            {
-                usbPrintf_P(PSTR("tx: cmd 0x%02x len %d data 0x%02x\n"), cmd, len, *str);
-            } 
-            else 
-            {
-                usbPrintf_P(PSTR("tx: cmd 0x%02x len %d\n"), cmd, len);
-            }
-        }
-    #endif
-    
-    memset((void*)buffer, 0, RAWHID_TX_SIZE);
-    buffer[HID_LEN_FIELD] = len;
-    buffer[HID_TYPE_FIELD] = cmd;
-
-    nb_for_loops = (len+HID_DATA_START) / RAWHID_TX_SIZE;
-    remaining = (len+HID_DATA_START) % RAWHID_TX_SIZE;
-
-    for (i = 0; i < nb_for_loops; i++)
-    {
-        if (i == 0)
-        {
-            memcpy((void*)(buffer+2), (void*)str, RAWHID_TX_SIZE-HID_DATA_START);
-            if(usbRawHidSend(buffer) != RETURN_COM_TRANSF_OK)
-            {
-                return RETURN_COM_NOK;
-            }
-        } 
-        else
-        {
-            if(usbRawHidSend((uint8_t*)str+(i*RAWHID_TX_SIZE)-HID_DATA_START) != RETURN_COM_TRANSF_OK)
-            {
-                return RETURN_COM_NOK;
-            }
-        }
-    }
-
-    if (remaining != 0)
-    {
-        if (i == 0)
-        {
-            memcpy((void*)buffer+HID_DATA_START, (void*)str, remaining-HID_DATA_START);
-        } 
-        else
-        {
-            memset((void*)buffer, 0, RAWHID_TX_SIZE);
-            memcpy((void*)buffer, (void*)str+(i*RAWHID_TX_SIZE)-HID_DATA_START, remaining);
-        }        
-        if(usbRawHidSend(buffer) != RETURN_COM_TRANSF_OK)
-        {
-            return RETURN_COM_NOK;
-        }
-    }
-    return RETURN_COM_TRANSF_OK;
-}
-
-/*! \fn     pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str)
+/*! \fn     usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void* msg, uint8_t nb_retries)
 *   \brief  Send a message to the mooltipass plugin
 *   \param  cmd         command UID
-*   \param  len         message length
-*   \param  str         pointer to the string in RAM
+*   \param  size        message length
+*   \param  msg         buffer
 *   \param  nb_retries  number of retries
 *   \return If we managed send the data
 */
-RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str, uint8_t nb_retries)
-{    
-    while ((nb_retries) && (pluginSendMessage(cmd, len, str) != RETURN_COM_TRANSF_OK))
-    {
-        nb_retries--;
-        pluginMessageRetryDelay();
-    }
-    if (nb_retries)
-    {
-        return RETURN_COM_TRANSF_OK;
-    } 
-    else
-    {
-        return RETURN_COM_NOK;
-    }
-}
-
-RET_TYPE usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void *msg, uint8_t nb_retries)
+RET_TYPE usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void* msg, uint8_t nb_retries)
 {
     while ((nb_retries) && (usbSendMessage(cmd, size, msg) != RETURN_COM_TRANSF_OK))
     {
         nb_retries--;
-        pluginMessageRetryDelay();
+        // Delay will be between 0 & 1 ms due to the function
+        timerBasedDelayMs(0);
     }
 
     return nb_retries ? RETURN_COM_TRANSF_OK : RETURN_COM_NOK;
@@ -994,7 +840,7 @@ RET_TYPE usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void *msg, u
 */
 RET_TYPE usbPutstr_P(const char *str)
 {
-    return usbSendMessage_P(CMD_DEBUG, strlen_P(str), str);
+    return usbSendMessage_P(CMD_DEBUG, strlen_P(str) + 1, str);
 }
 
 /*! \fn     usbPutstr(const char *str)

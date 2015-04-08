@@ -99,9 +99,6 @@ RET_TYPE usbHidSend_P(uint8_t cmd, const void *buffer, uint8_t buflen);
 RET_TYPE usbKeyboardPress(uint8_t key, uint8_t modifier);     // send a keyboard press
 RET_TYPE usbPutstr(const char *str);
 RET_TYPE usbPutstr_P(const char *str);
-RET_TYPE pluginSendMessage(uint8_t cmd, uint8_t len, const char* str);
-RET_TYPE pluginSendMessage_P(uint8_t cmd, uint8_t len, const char* str);
-RET_TYPE pluginSendMessageWithRetries(uint8_t cmd, uint8_t len, const char* str, uint8_t nb_retries);
 RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg);
 RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg);
 RET_TYPE usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void *msg, uint8_t nb_retries);

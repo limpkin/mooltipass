@@ -319,7 +319,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // ping command
         case CMD_PING :
         {
-            usbSendMessage(0, 6, msg);
+            usbHidSend(0, msg, 6);
             return;
         }
 

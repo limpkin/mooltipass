@@ -637,10 +637,21 @@ static RET_TYPE usbWaitFifoReady(uint8_t *intr_state)
 RET_TYPE usbHidSend(uint8_t cmd, const void *buffer, uint8_t buflen)
 {
     uint8_t intr_state;
-    int8_t res;
-    int8_t rem = RAWHID_TX_SIZE - buflen;
+    int8_t res, rem;
+    
+    // How many bytes to add to send a full packet
+    if (cmd)
+    {
+        // If there is a command, the first 2 bytes are taken
+        rem = PACKET_EXPORT_SIZE - buflen;
+    }
+    else
+    {
+        rem = RAWHID_TX_SIZE - buflen;
+    }
 
-    if (buflen > RAWHID_TX_SIZE)
+    // Check that we don't want to send too many bytes
+    if (rem < 0)
     {
         return RETURN_COM_NOK;
     }
@@ -689,17 +700,28 @@ RET_TYPE usbHidSend(uint8_t cmd, const void *buffer, uint8_t buflen)
 RET_TYPE usbHidSend_P(uint8_t cmd, const void *buffer, uint8_t buflen)
 {
     uint8_t intr_state;
-    int8_t res;
-    int8_t rem = RAWHID_TX_SIZE - buflen;
+    int8_t res, rem;
+    
+    // How many bytes to add to send a full packet
+    if (cmd)
+    {
+        // If there is a command, the first 2 bytes are taken
+        rem = PACKET_EXPORT_SIZE - buflen;
+    }
+    else
+    {
+        rem = RAWHID_TX_SIZE - buflen;
+    }
 
-    if (buflen > RAWHID_TX_SIZE)
+    // Check that we don't want to send too many bytes
+    if (rem < 0)
     {
         return RETURN_COM_NOK;
     }
 
     res = usbWaitFifoReady(&intr_state);
 
-    if (res != RETURN_COM_TRANSF_OK) 
+    if (res != RETURN_COM_TRANSF_OK)
     {
         return res;
     }
@@ -749,31 +771,31 @@ int8_t usbRawHidSend(uint8_t* buffer)
 */
 RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg)
 {
-    uint8_t chunk = cmd ? RAWHID_TX_SIZE-HID_DATA_START : RAWHID_TX_SIZE;
-
     /* Send message in chunks */
-    while (size >= chunk)
+    while (size >= PACKET_EXPORT_SIZE)
     {
-        if (usbHidSend(cmd, msg, chunk) != RETURN_COM_TRANSF_OK)
+        if (usbHidSend(cmd, msg, PACKET_EXPORT_SIZE) != RETURN_COM_TRANSF_OK)
         {
             return RETURN_COM_NOK;
         }
-        msg += chunk;
-        size -= chunk;
+        msg += PACKET_EXPORT_SIZE;
+        size -= PACKET_EXPORT_SIZE;
         if (size == 0)
         {
-            // To avoid entering the following if()
-            cmd = 0;
+            // We sent all the packets
+            return RETURN_COM_TRANSF_OK;
         }
     }
-    if (size || cmd)
+    
+    /* Send our only or last packet */
+    if (usbHidSend(cmd, msg, size) != RETURN_COM_TRANSF_OK)
     {
-        if (usbHidSend(cmd, msg, size) != RETURN_COM_TRANSF_OK)
-        {
-            return RETURN_COM_NOK;
-        }
+        return RETURN_COM_NOK;
     }
-    return RETURN_COM_TRANSF_OK;
+    else
+    {
+        return RETURN_COM_TRANSF_OK;        
+    }
 }
 
 /*!
@@ -786,31 +808,31 @@ RET_TYPE usbSendMessage(uint8_t cmd, uint8_t size, const void *msg)
 */
 RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg)
 {
-    uint8_t chunk = cmd ? RAWHID_TX_SIZE-2 : RAWHID_TX_SIZE;
-
     /* Send message in chunks */
-    while (size >= chunk)
+    while (size >= PACKET_EXPORT_SIZE)
     {
-        if (usbHidSend_P(cmd, msg, chunk) != RETURN_COM_TRANSF_OK)
+        if (usbHidSend_P(cmd, msg, PACKET_EXPORT_SIZE) != RETURN_COM_TRANSF_OK)
         {
             return RETURN_COM_NOK;
         }
-        msg += chunk;
-        size -= chunk;
+        msg += PACKET_EXPORT_SIZE;
+        size -= PACKET_EXPORT_SIZE;
         if (size == 0)
         {
-            // To avoid entering the following if()
-            cmd = 0;
+            // We sent all the packets
+            return RETURN_COM_TRANSF_OK;
         }
     }
-    if (size || cmd)
+    
+    /* Send our only or last packet */
+    if (usbHidSend_P(cmd, msg, size) != RETURN_COM_TRANSF_OK)
     {
-        if (usbHidSend_P(cmd, msg, size) != RETURN_COM_TRANSF_OK)
-        {
-            return RETURN_COM_NOK;
-        }
+        return RETURN_COM_NOK;
     }
-    return RETURN_COM_TRANSF_OK;
+    else
+    {
+        return RETURN_COM_TRANSF_OK;
+    }
 }
 
 /*! \fn     usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void* msg, uint8_t nb_retries)
@@ -823,7 +845,7 @@ RET_TYPE usbSendMessage_P(uint8_t cmd, uint8_t size, const void *msg)
 */
 RET_TYPE usbSendMessageWithRetries(uint8_t cmd, uint8_t size, const void* msg, uint8_t nb_retries)
 {
-    while ((nb_retries) && (usbSendMessage(cmd, size, msg) != RETURN_COM_TRANSF_OK))
+    while ((nb_retries != 0) && (usbSendMessage(cmd, size, msg) != RETURN_COM_TRANSF_OK))
     {
         nb_retries--;
         // Delay will be between 0 & 1 ms due to the function

@@ -812,11 +812,11 @@ void usbProcessIncoming(uint8_t caller_id)
             {
                 // Memory management mode check implemented before the switch
                 uint16_t* temp_addr_ptr = (uint16_t*)msg->body.data;
-                uint16_t nodeAddresses[32];
+                uint16_t nodeAddresses[31];
                 uint8_t nodesFound;
                 
                 // Call the dedicated function
-                nodesFound = findFreeNodes(32, nodeAddresses, pageNumberFromAddress(*temp_addr_ptr), nodeNumberFromAddress(*temp_addr_ptr));
+                nodesFound = findFreeNodes(31, nodeAddresses, pageNumberFromAddress(*temp_addr_ptr), nodeNumberFromAddress(*temp_addr_ptr));
                 
                 // Send addresses
                 usbSendMessage(CMD_GET_FREE_SLOTS_ADDR, nodesFound*2, (uint8_t*)nodeAddresses);

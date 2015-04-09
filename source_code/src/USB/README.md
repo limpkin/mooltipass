@@ -281,7 +281,7 @@ From Mooltipass: One CPZ CTR LUT entry packet
 -----------------------------
 From plugin/app: 2 bytes payload indicating the address to start scanning from (in doubt, set 0x00 0x00).
 
-From Mooltipass: 0x00 if failure, 32 slot addresses max otherwise (see payload length field)
+From Mooltipass: 0x00 if failure, 31 slot addresses max otherwise (see payload length field)
 
 0xD1: Get Starting data parent Address
 --------------------------------------

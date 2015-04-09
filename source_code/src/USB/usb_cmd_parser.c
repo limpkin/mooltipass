@@ -27,6 +27,7 @@
 #include "gui_smartcard_functions.h"
 #include "logic_fwflash_storage.h"
 #include "gui_screen_functions.h"
+#include "gui_basic_functions.h"
 #include "logic_aes_and_comms.h"
 #include "gui_pin_functions.h"
 #include "eeprom_addresses.h"
@@ -839,6 +840,7 @@ void usbProcessIncoming(uint8_t caller_id)
             currentNodeWritten = NODE_ADDR_NULL;
             leaveMemoryManagementMode();
             guiGetBackToCurrentScreen();
+            activityDetectedRoutine();
             populateServicesLut();
             scanNodeUsage();
             break;

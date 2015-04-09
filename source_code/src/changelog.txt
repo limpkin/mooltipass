@@ -1,3 +1,7 @@
+RC2:
+- speed improvement: look for free node starting after the taken one
+- solved bug when exciting management mode with screen saver
+
 RC1:
 - no service / login confirmation screen when selecting a service that only has one login in the login menu
 - extra slot in eeprom for bootloader backup key

@@ -398,8 +398,11 @@ void initNodeManagementHandle(uint8_t userIdNum)
     currentNodeMgmtHandle.currentUserId = userIdNum;
     currentNodeMgmtHandle.flags = 0;
     
-    // scan for next free parent and child nodes
-    scanNodeUsage();
+    // scan for next free parent and child nodes from the start of the memory
+    if (findFreeNodes(1, &currentNodeMgmtHandle.nextFreeNode, 0, 0) == 0)
+    {
+        currentNodeMgmtHandle.nextFreeNode = NODE_ADDR_NULL;
+    }
     
     // populate services LUT
     populateServicesLut();
@@ -1012,8 +1015,8 @@ uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray, uint16_t startPage, 
 */
 void scanNodeUsage(void)
 {
-    // Find one free node. If we don't find it, set the next to the null addr
-    if (findFreeNodes(1, &currentNodeMgmtHandle.nextFreeNode, 0, 0) == 0)
+    // Find one free node. If we don't find it, set the next to the null addr, we start looking from the just taken node
+    if (findFreeNodes(1, &currentNodeMgmtHandle.nextFreeNode, pageNumberFromAddress(currentNodeMgmtHandle.nextFreeNode), nodeNumberFromAddress(currentNodeMgmtHandle.nextFreeNode)) == 0)
     {
         currentNodeMgmtHandle.nextFreeNode = NODE_ADDR_NULL;
     }
@@ -1069,9 +1072,6 @@ void deleteCurrentUserFromFlash(void)
         // Set correct next address
         next_parent_addr = temp_address;
     }
-    
-    // Scan Node Usage
-    scanNodeUsage();
     
     // Empty service lut
     memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));

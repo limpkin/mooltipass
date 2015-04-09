@@ -345,11 +345,13 @@ int main(void)
             {
                 // Inform script of success
                 usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
-                // Wait for password to be set
-                while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
-                {
-                    usbProcessIncoming(USB_CALLER_MAIN);
-                }
+                #if !defined(PREPRODUCTION_KICKSTARTER_SETUP)
+                    // Wait for password to be set
+                    while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
+                    {
+                        usbProcessIncoming(USB_CALLER_MAIN);
+                    }
+                #endif
                 // Display test result
                 guiDisplayRawString(ID_STRING_TEST_OK);
                 timerBasedDelayMs(3000);

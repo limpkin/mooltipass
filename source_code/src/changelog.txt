@@ -2,6 +2,10 @@ RC2:
 - speed improvement: look for free node starting after the taken one
 - possibility to change charge time by setting param in eeprom
 - solved bug when exciting management mode with screen saver
+- individual control of the wheel keys pulse scl
+- displaying service for fav & login menu
+- decreased sensitivity of wheel key 1
+- pushed due to delay to publish RC1
 
 RC1:
 - no service / login confirmation screen when selecting a service that only has one login in the login menu

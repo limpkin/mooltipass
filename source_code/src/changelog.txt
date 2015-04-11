@@ -1,5 +1,6 @@
 RC2:
 - speed improvement: look for free node starting after the taken one
+- possibility to change charge time by setting param in eeprom
 - solved bug when exciting management mode with screen saver
 
 RC1:

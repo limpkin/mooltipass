@@ -59,6 +59,8 @@ void mooltipassParametersInit(void)
     setMooltipassParameterInEeprom(OFFLINE_MODE_PARAM, FALSE);
     // Disable screen saver by default
     setMooltipassParameterInEeprom(SCREENSAVER_PARAM, FALSE);
+    // Set datasheet default value for charge time
+    setMooltipassParameterInEeprom(TOUCH_CHARGE_TIME_PARAM, 0);    
 }
 
 /*! \fn     firstTimeUserHandlingInit(void)

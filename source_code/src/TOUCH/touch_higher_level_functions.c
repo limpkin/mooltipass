@@ -101,6 +101,7 @@ RET_TYPE initTouchSensing(void)
             writeDataToTS(REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);                                  // LED (top left)
             // Sensitivity settings
             writeDataToTS(REG_AT42QT_DI, getMooltipassParameterInEeprom(TOUCH_DI_PARAM));                   // Increase detection integrator value
+            writeDataToTS(REG_AT42QT_CHARGE_TIME, getMooltipassParameterInEeprom(TOUCH_CHARGE_TIME_PARAM)); // Prolongs the charge transfer period of signal acq
             writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)
             writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)
             writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)

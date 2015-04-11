@@ -667,7 +667,7 @@ def setCurrentKeyboard(epin, epout):
 	print "2) ES_ES"
 	choice = input("Make your choice: ")
 	print ""
-	packetToSend.append(64+18+choice)
+	packetToSend.append(128+18+choice)
 	sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
 	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 		print "Parameter changed"
@@ -1329,8 +1329,10 @@ def recoveryProc(epin, epout):
 						data_nodes.append(node_data[DATA_INDEX:])
 
 	# sort service list together with addresses list
-	service_names, service_addresses, service_nodes = (list(t) for t in zip(*sorted(zip(service_names, service_addresses, service_nodes))))
-	data_service_names, data_service_addresses, data_service_nodes = (list(t) for t in zip(*sorted(zip(data_service_names, data_service_addresses, data_service_nodes))))
+	if len(service_addresses) > 0:
+		service_names, service_addresses, service_nodes = (list(t) for t in zip(*sorted(zip(service_names, service_addresses, service_nodes))))
+	if len(data_service_addresses) > 0:
+		data_service_names, data_service_addresses, data_service_nodes = (list(t) for t in zip(*sorted(zip(data_service_names, data_service_addresses, data_service_nodes))))
 	
 	# Check correct parent
 	if len(service_addresses) > 0:

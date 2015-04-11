@@ -4,7 +4,6 @@ RC2:
 - solved bug when exciting management mode with screen saver
 - individual control of the wheel keys pulse scl
 - displaying service for fav & login menu
-- decreased sensitivity of wheel key 1
 - pushed due to delay to publish RC1
 
 RC1:

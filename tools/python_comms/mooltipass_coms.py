@@ -1267,7 +1267,7 @@ def recoveryProc(epin, epout):
 	data_starting_node_addr = receiveHidPacket(epin)[DATA_INDEX:DATA_INDEX+2]
 
 	# print data starting node
-	print "Starting node address is at", format(data_starting_node_addr[0] + data_starting_node_addr[1]*256, '#04X')
+	print "Starting data node address is at", format(data_starting_node_addr[0] + data_starting_node_addr[1]*256, '#04X')
 	
 	# get favorites
 	favoriteArg = array('B')
@@ -1282,10 +1282,10 @@ def recoveryProc(epin, epout):
 		favorite_child_addresses.append(fav_data[2] + fav_data[3]*256)
 	
 	# start looping through the slots
-	completion_percentage = 1
+	completion_percentage = 0
 	#for pagei in range(128, number_of_pages):
 	for pagei in range(128, 400):
-		if int(float(float(pagei) / (float(number_of_pages) - 128)) * 100) != completion_percentage:
+		if int(float(float(pagei-128) / (float(number_of_pages) - 128)) * 100) != completion_percentage:
 			completion_percentage = int(float(float(pagei) / (float(number_of_pages) - 128)) * 100)
 			print "Scanning: " + str(completion_percentage) + "%, address", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
 		for nodei in range(0, nodes_per_page):

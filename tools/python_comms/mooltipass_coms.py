@@ -1284,7 +1284,7 @@ def recoveryProc(epin, epout):
 	# start looping through the slots
 	completion_percentage = 1
 	#for pagei in range(128, number_of_pages):
-	for pagei in range(128, 250):
+	for pagei in range(128, 400):
 		if int(float(float(pagei) / (float(number_of_pages) - 128)) * 100) != completion_percentage:
 			completion_percentage = int(float(float(pagei) / (float(number_of_pages) - 128)) * 100)
 			print "Scanning: " + str(completion_percentage) + "%, address", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
@@ -1321,12 +1321,15 @@ def recoveryProc(epin, epout):
 						data_service_names.append("".join(map(chr, node_data[DATA_INDEX+SERVICE_INDEX:])).split(b"\x00")[0])
 						data_service_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
 						data_service_nodes.append(node_data[DATA_INDEX:])
+						#raw_input("confirm")
 					elif node_data[DATA_INDEX+1] & 0xC0 == 0xC0:
 						# if we found a child node, store it along its address
 						print "Found data node at", format(next_node_addr[0] + next_node_addr[1]*256, '#04X')
 						data_node_addresses.append(next_node_addr[0] + next_node_addr[1]*256)
 						pointed_data_nodes.append(next_node_addr[0] + next_node_addr[1]*256)
 						data_nodes.append(node_data[DATA_INDEX:])
+						
+	#raw_input("Scan finish, press enter to start checks")
 
 	# sort service list together with addresses list
 	if len(service_addresses) > 0:

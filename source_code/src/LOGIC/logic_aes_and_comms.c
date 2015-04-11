@@ -826,17 +826,21 @@ RET_TYPE checkPasswordForContext(uint8_t* password)
     }
 }
 
-/*! \fn     askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
+/*! \fn     askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_name)
 *   \brief  Ask the user to enter the login password of a given child
 *   \param  child_address   Address of the child
+*   \param  service_name    Service name
 */
-void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
+void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_name)
 {    
+    confirmationText_t temp_conf_text;
+    
     // If the user picked a credential set
     if (child_address != NODE_ADDR_NULL)
     {
         // Read child node
         readChildNode(&temp_cnode, child_address);
+        temp_conf_text.lines[0] = service_name;
         
         // If login isn't empty, ask the user if he wants to output the login
         if (temp_cnode.login[0] != 0)
@@ -844,7 +848,8 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
             // Check if we're connected through USB
             if (isUsbConfigured())
             {
-                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK)
+                temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ENTERLOGINQ);
+                if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
                 {
                     usbKeybPutStr((char*)temp_cnode.login);
                     usbKeyboardPress(KEY_TAB, 0);
@@ -852,7 +857,8 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
             } 
             else
             {
-                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SHOW_LOGINQ)) == RETURN_OK)
+                temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_SHOW_LOGINQ);
+                if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
                 {
                     guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.login);
                 }
@@ -863,14 +869,16 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
         // Ask the user if he wants to output the password
         if (isUsbConfigured())
         {
-            if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERPASSQ)) == RETURN_OK)
+            temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ENTERPASSQ);
+            if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
             {
                 usbKeybPutStr((char*)temp_cnode.password);
             }
         }
         else
         {
-            if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SHOW_PASSQ)) == RETURN_OK)
+            temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_SHOW_PASSQ);
+            if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
             {
                 guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.password);
             }
@@ -883,7 +891,8 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address)
 */
 void favoritePickingLogic(void)
 {
-    askUserForLoginAndPasswordKeybOutput(favoriteSelectionScreen(&temp_pnode, &temp_cnode));
+    // favoriteSelectionScreen loads the chosen parent node in memory before exciting
+    askUserForLoginAndPasswordKeybOutput(favoriteSelectionScreen(&temp_pnode, &temp_cnode), (char*)temp_pnode.service);
 }
 
 /*! \fn     loginSelectLogic(void)
@@ -891,5 +900,5 @@ void favoritePickingLogic(void)
 */
 void loginSelectLogic(void)
 {
-    askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen(), TRUE));
+    askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen(), TRUE), (char*)temp_pnode.service);
 }

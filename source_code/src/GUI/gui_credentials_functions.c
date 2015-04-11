@@ -313,7 +313,8 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         }
         else if (j < i)
         {
-            // Valid choice
+            // Valid choice, load parent node as it will be used later
+            readParentNode(p, parentAddresses[offset+j]);
             picked_child = childAddresses[offset+j];
             action_chosen = TRUE;
         }

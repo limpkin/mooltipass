@@ -293,7 +293,7 @@ int main(void)
             RET_TYPE temp_rettype;        
             // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
             //#ifdef PRODUCTION_KICKSTARTER_SETUP
-            while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0xF1)
+            while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0x94)
             {
                 usbProcessIncoming(USB_CALLER_MAIN);
             }

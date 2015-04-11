@@ -52,7 +52,9 @@ void mooltipassParametersInit(void)
     // Set default detection integrator (6 consecutive samples)
     setMooltipassParameterInEeprom(TOUCH_DI_PARAM, 6);
     // Set touch wheel oversample (one bit gain)
-    setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM, 0x21);
+    setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM0, 0x21);
+    setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM1, 0x21);
+    setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM2, 0x21);
     // Set proximity sensing key settings
     setMooltipassParameterInEeprom(TOUCH_PROX_OS_PARAM, 0x73);
     // Disable offline mode by default

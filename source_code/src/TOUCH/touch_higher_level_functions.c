@@ -102,9 +102,9 @@ RET_TYPE initTouchSensing(void)
             // Sensitivity settings
             writeDataToTS(REG_AT42QT_DI, getMooltipassParameterInEeprom(TOUCH_DI_PARAM));                   // Increase detection integrator value
             writeDataToTS(REG_AT42QT_CHARGE_TIME, getMooltipassParameterInEeprom(TOUCH_CHARGE_TIME_PARAM)); // Prolongs the charge transfer period of signal acq
-            writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)
-            writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)
-            writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM)); // Touch weel oversample (gain one bit by default)
+            writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM0));// Touch weel oversample (gain one bit by default)
+            writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM1));// Touch weel oversample (gain one bit by default)
+            writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM2));// Touch weel oversample (gain one bit by default)
             writeDataToTS(REG_AT42QT_TRD, 50);                                                              // Recalibration if touch detected for more than 8 seconds
             // Key settings
             writeDataToTS(REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Wheel key

@@ -246,7 +246,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 if (removeCardAndReAuthUser() == RETURN_OK)
                 {
                     // Ask for new pin
-                    temp_rettype = guiAskForNewPin(&pin_code);
+                    temp_rettype = guiAskForNewPin(&pin_code, ID_STRING_PIN_NEW_CARD);
                     if (temp_rettype == RETURN_NEW_PIN_OK)
                     {
                         // Start the cloning process
@@ -298,7 +298,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     // User approved his pin, ask his new one
                     volatile uint16_t pin_code;
                                         
-                    if (guiAskForNewPin(&pin_code) == RETURN_NEW_PIN_OK)
+                    if (guiAskForNewPin(&pin_code, ID_STRING_NEW_PINQ) == RETURN_NEW_PIN_OK)
                     {
                         // User successfully entered a new pin
                         writeSecurityCode(&pin_code);
@@ -325,17 +325,18 @@ void guiScreenLoop(uint8_t touch_detect_result)
     }    
 }
 
-/*! \fn     guiAskForNewPin(uint16_t* new_pin)
+/*! \fn     guiAskForNewPin(uint16_t* new_pin, uint8_t message_id)
 *   \brief  Ask user to enter a new PIN
-*   \param  new_pin Pointer to where to store the new pin
+*   \param  new_pin     Pointer to where to store the new pin
+*   \param  message_id  Message ID
 *   \return Success status, see new_pinreturn_type_t
 */
-RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin)
+RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin, uint8_t message_id)
 {
     uint16_t other_pin;
     
     // Ask the user twice for the new pin and compare them
-    if ((guiGetPinFromUser(new_pin, ID_STRING_NEW_PINQ) == RETURN_OK) && (guiGetPinFromUser(&other_pin, ID_STRING_CONF_PIN) == RETURN_OK))
+    if ((guiGetPinFromUser(new_pin, message_id) == RETURN_OK) && (guiGetPinFromUser(&other_pin, ID_STRING_CONF_PIN) == RETURN_OK))
     {
         if (*new_pin == other_pin)
         {

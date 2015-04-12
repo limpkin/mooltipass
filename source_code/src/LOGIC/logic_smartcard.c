@@ -72,7 +72,7 @@ RET_TYPE handleSmartcardInserted(void)
             volatile uint16_t pin_code;
             
             // Create a new user with his new smart card
-            if ((guiAskForNewPin(&pin_code) == RETURN_NEW_PIN_OK) && (addNewUserAndNewSmartCard(&pin_code) == RETURN_OK))
+            if ((guiAskForNewPin(&pin_code, ID_STRING_PIN_NEW_CARD) == RETURN_NEW_PIN_OK) && (addNewUserAndNewSmartCard(&pin_code) == RETURN_OK))
             {
                 guiDisplayInformationOnScreen(ID_STRING_USER_ADDED);
                 next_screen = SCREEN_DEFAULT_INSERTED_NLCK;

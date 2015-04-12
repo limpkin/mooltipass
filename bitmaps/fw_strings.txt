@@ -21,7 +21,7 @@ Enter Login?
 Enter Password?
 Approve Memory Operation?
 Enter Your PIN
-PIN for new card?
+PIN For New Card
 Confirm PIN
 Confirm Access To
 With This Login:
@@ -68,3 +68,4 @@ Add Data For:
 Get Data For:
 PIN Codes Differ!
 Target Card Isn't Blank!
+Enter New PIN

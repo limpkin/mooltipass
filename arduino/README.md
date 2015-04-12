@@ -1,5 +1,5 @@
-Adding Arduino support for the Mooltipass
-=========================================
+Arduino support for the Mooltipass
+==================================
 
 Modifying boards.txt
 --------------------
@@ -26,7 +26,7 @@ mooltipass.upload.wait_for_upload_port=true
 mooltipass.bootloader.tool=avrdude
 mooltipass.bootloader.low_fuses=0xff
 mooltipass.bootloader.high_fuses=0xd8
-mooltipass.bootloader.extended_fuses=0xfc
+mooltipass.bootloader.extended_fuses=0xf8
 mooltipass.bootloader.file=mooltipass_caterina_bl
 mooltipass.bootloader.unlock_bits=0x3F
 mooltipass.bootloader.lock_bits=0xFC
@@ -53,3 +53,9 @@ Copy the contents of the arduino\libraries folder in C:\Program Files (x86)\Ardu
 Arduino IDE preferences
 -----------------------
 File > Preferences > tick show verbose output during compilation & upload
+
+Pinout
+------
+<p align="center">
+  <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/arduino/pinout_small.jpg" alt="Arduino pinout"/>
+</p>

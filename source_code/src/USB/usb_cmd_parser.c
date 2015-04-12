@@ -41,7 +41,6 @@
 #include "mooltipass.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
-#include "version.h"
 #include <string.h>
 #include "delays.h"
 #include "oledmp.h"
@@ -64,6 +63,8 @@ uint16_t flashOpCurAddr2;
 // Bool to know if the user approved memory management mode
 uint8_t memoryManagementModeApproved = FALSE;
 #endif
+// Our Mooltipass version that will be returned to our application
+static const char mooltipass_version[] PROGMEM = MOOLTIPASS_VERSION;
 // Bool to know if we can import in the media part of flash
 uint8_t mediaFlashImportApproved = FALSE;
 // Current node we're writing
@@ -72,7 +73,6 @@ uint16_t currentNodeWritten = NODE_ADDR_NULL;
 uint16_t mediaFlashImportPage;
 // Media flash import temp offset
 uint16_t mediaFlashImportOffset;
-
 
 /*! \fn     checkMooltipassPassword(uint8_t* data)
 *   \brief  Check that the provided bytes is the mooltipass password
@@ -298,8 +298,10 @@ void usbProcessIncoming(uint8_t caller_id)
         // version command
         case CMD_VERSION :
         {
+            msg->len = 1 + sizeof(mooltipass_version) + 1;
+            msg->body.data[(msg->len)-1] = 0;
             msg->body.data[0] = FLASH_CHIP;
-            msg->len = 1 + getVersion((char*)&msg->body.data[1], sizeof(msg->body.data) - 1);
+            strcpy_P((char*)&msg->body.data[1], mooltipass_version);
             usbSendMessage(CMD_VERSION, msg->len, msg->body.data);
             return;
         }

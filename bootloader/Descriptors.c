@@ -199,6 +199,8 @@ const USB_Descriptor_String_t ProductString =
 	.UnicodeString			= L"Arduino Micro   "
 	#elif DEVICE_PID == 0x003C
 	.UnicodeString			= L"Arduino Esplora "
+	#elif DEVICE_PID == 0x4321
+	.UnicodeString			= L"Mooltipass BL   "
 	#else
 	.UnicodeString			= L"USB IO board    "
 	#endif
@@ -206,12 +208,15 @@ const USB_Descriptor_String_t ProductString =
 
 const USB_Descriptor_String_t ManufNameString = 
 {
-	.Header					= {.Size = USB_STRING_LEN(11), .Type = DTYPE_String},
-	
-	#if DEVICE_VID == 0x2341
-	.UnicodeString			= L"Arduino LLC"
+	#if DEVICE_VID == 0x1209
+		.Header = {.Size = USB_STRING_LEN(11), .Type = DTYPE_String},
+		.UnicodeString = L"Arduino LLC"
+	#elif DEVICE_VID == 0x16D0
+		.Header = {.Size = USB_STRING_LEN(10), .Type = DTYPE_String},
+		.UnicodeString = L"Mooltipass"
 	#else
-	.UnicodeString			= L"Unknown    "
+		.Header = {.Size = USB_STRING_LEN(11), .Type = DTYPE_String},
+		.UnicodeString = L"Unknown "
 	#endif
 };
 

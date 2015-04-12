@@ -105,6 +105,9 @@ void LEDPulse(void)
 		L_LED_ON();
 }
 
+#define	EEP_BOOTKEY_ADDR		0
+#define	EEP_BACKUP_BOOTKEY_ADDR	1022
+#define BOOTLOADER_BOOTKEY		0xD0D0
 /** Main program entry point. This routine configures the hardware required by the bootloader, then continuously
  *  runs the bootloader processing routine until it times out or is instructed to exit.
  */
@@ -121,6 +124,12 @@ int main(void)
 	/* Watchdog may be configured with a 15 ms period so must disable it before going any further */
 	wdt_disable();
 	
+	/* Jump to bootloader only if correct key is present in eeprom */
+	if ((eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR) != BOOTLOADER_BOOTKEY) && (eeprom_read_word((uint16_t*)EEP_BACKUP_BOOTKEY_ADDR) != BOOTLOADER_BOOTKEY))
+	{
+		StartSketch();
+	}
+
 	/* Setup hardware required for the bootloader */
 	SetupHardware();
 

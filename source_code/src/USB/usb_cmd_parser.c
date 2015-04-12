@@ -145,35 +145,6 @@ void approveImportExportMemoryOperation(uint8_t opUID, uint8_t* pluginAnswer)
 #endif
 
 #ifdef NODE_BLOCK_IMPORT_EXPORT
-/*! \fn     approveMemoryManagementMode(uint8_t* pluginAnswer)
-*   \brief  Approve the memory management mode
-*   \param  pluginAnswer    Pointer to the plugin answer byte
-*/
-void approveMemoryManagementMode(uint8_t* pluginAnswer)
-{    
-    // By default the answer is no!
-    *pluginAnswer = PLUGIN_BYTE_ERROR;
-    
-    // Ask permission to the user
-    if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MEMORYMGMTQ)) == RETURN_OK)
-    {
-        // Ask the user to enter his pin
-        if (removeCardAndReAuthUser() == RETURN_OK)
-        {
-            guiSetCurrentScreen(SCREEN_MEMORY_MGMT);
-            memoryManagementModeApproved = TRUE;
-            *pluginAnswer = PLUGIN_BYTE_OK;
-        }
-        else
-        {
-            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
-        }        
-    }
-    
-    // Change screen
-    guiGetBackToCurrentScreen();
-}
-
 /*! \fn     leaveMemoryManagementMode(void)
 *   \brief  Leave memory management mode
 */
@@ -772,7 +743,22 @@ void usbProcessIncoming(uint8_t caller_id)
             if (getSmartCardInsertedUnlocked() == TRUE)
             {
                 // If so, ask the user to approve memory management mode
-                approveMemoryManagementMode(&plugin_return_value);
+                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MEMORYMGMTQ)) == RETURN_OK)
+                {
+                    // Ask the user to enter his pin
+                    if (removeCardAndReAuthUser() == RETURN_OK)
+                    {
+                        guiSetCurrentScreen(SCREEN_MEMORY_MGMT);
+                        plugin_return_value = PLUGIN_BYTE_OK;
+                        memoryManagementModeApproved = TRUE;
+                    }
+                    else
+                    {
+                        guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
+                    }
+                }                
+                // Change screen
+                guiGetBackToCurrentScreen();
             }            
             break;
         }
@@ -825,7 +811,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             else
             {
-                plugin_return_value = PLUGIN_BYTE_OK;
+                plugin_return_value = PLUGIN_BYTE_ERROR;
                 break;                
             }
         }

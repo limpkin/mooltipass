@@ -239,8 +239,8 @@ void guiScreenLoop(uint8_t touch_detect_result)
             case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BRIGHT) :
             {
                 // User wants to clone his smartcard
+                volatile uint16_t pin_code;
                 RET_TYPE temp_rettype;
-                uint16_t pin_code;
                 
                 // Reauth user
                 if (removeCardAndReAuthUser() == RETURN_OK)
@@ -250,7 +250,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     if (temp_rettype == RETURN_NEW_PIN_OK)
                     {
                         // Start the cloning process
-                        if (cloneSmartCardProcess(pin_code) == RETURN_OK)
+                        if (cloneSmartCardProcess(&pin_code) == RETURN_OK)
                         {
                             // Well it worked....
                         } 
@@ -259,6 +259,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                             currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
                             guiDisplayInformationOnScreen(ID_STRING_TGT_CARD_NBL);
                         }
+                        pin_code = 0x0000;
                     }
                     else if (temp_rettype == RETURN_NEW_PIN_DIFF)
                     {
@@ -295,12 +296,12 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 if (removeCardAndReAuthUser() == RETURN_OK)
                 {
                     // User approved his pin, ask his new one
-                    uint16_t pin_code;
+                    volatile uint16_t pin_code;
                                         
                     if (guiAskForNewPin(&pin_code) == RETURN_NEW_PIN_OK)
                     {
                         // User successfully entered a new pin
-                        writeSecurityCode(pin_code);
+                        writeSecurityCode(&pin_code);
                         // Inform of success
                         guiDisplayInformationOnScreen(ID_STRING_PIN_CHANGED);
                     }
@@ -309,6 +310,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                         // Inform of fail
                         guiDisplayInformationOnScreen(ID_STRING_PIN_NCGHANGED);
                     }
+                    pin_code = 0x0000;
                     userViewDelay();
                 }
                 else
@@ -328,7 +330,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
 *   \param  new_pin Pointer to where to store the new pin
 *   \return Success status, see new_pinreturn_type_t
 */
-RET_TYPE guiAskForNewPin(uint16_t* new_pin)
+RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin)
 {
     uint16_t other_pin;
     

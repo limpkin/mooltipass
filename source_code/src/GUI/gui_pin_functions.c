@@ -63,13 +63,13 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
     }
 }
 
-/*! \fn     guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
+/*! \fn     guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
 *   \brief  Ask the user to enter a PIN
 *   \param  pin_code    Pointer to where to store the pin code
 *   \param  stringID    String ID
 *   \return If the user approved the request
 */
-RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
+RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
 {
     // If we don't need a pin code, send default one
     #if defined(NO_PIN_CODE_REQUIRED) || defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
@@ -194,21 +194,22 @@ RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID)
 */
 RET_TYPE guiCardUnlockingProcess(void)
 {
+    volatile uint16_t temp_pin;
     RET_TYPE temp_rettype;
-    uint16_t temp_pin;
     
     while (1)
     {
         if (guiGetPinFromUser(&temp_pin, ID_STRING_INSERT_PIN) == RETURN_OK)
         {            
             // Try unlocking the smartcard
-            temp_rettype = mooltipassDetectedRoutine(temp_pin);
+            temp_rettype = mooltipassDetectedRoutine(&temp_pin);
             
             switch(temp_rettype)
             {
                 case RETURN_MOOLTIPASS_4_TRIES_LEFT :
                 {
                     // Smartcard unlocked
+                    temp_pin = 0x0000;
                     return RETURN_OK;
                 }
                 case RETURN_MOOLTIPASS_0_TRIES_LEFT :

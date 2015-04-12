@@ -406,12 +406,12 @@ void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)
     #endif
 }
 
-/*! \fn     securityValidationSMC(uint16_t code)
+/*! \fn     securityValidationSMC(volatile uint16_t* code)
 *   \brief  Check security code
 *   \param  code    The code
 *   \return success_status (see card_detect_return_t)
 */
-RET_TYPE securityValidationSMC(uint16_t code)
+RET_TYPE securityValidationSMC(volatile uint16_t* code)
 {
     RET_TYPE return_val = RETURN_PIN_NOK_0;
     uint8_t temp_bool;
@@ -430,7 +430,7 @@ RET_TYPE securityValidationSMC(uint16_t code)
         smartcardHPulseDelay();
         for(i = 0; i < 16; i++)
         {
-            if (((code >> (15-i)) & 0x0001) != 0x0000)
+            if (((*code >> (15-i)) & 0x0001) != 0x0000)
             {
                 PORT_SPI_NATIVE &= ~(1 << MOSI_SPI_NATIVE);
             }

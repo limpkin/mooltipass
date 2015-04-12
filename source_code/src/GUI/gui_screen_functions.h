@@ -32,10 +32,10 @@
 
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object);
 void guiDisplaySmartcardUnlockedScreen(uint8_t* username);
+RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin);
 void guiDisplayInformationOnScreen(uint8_t stringID);
 void guiDisplayLoginOrPasswordOnScreen(char* text);
 void guiScreenLoop(uint8_t touch_detect_result);
-RET_TYPE guiAskForNewPin(uint16_t* new_pin);
 void guiDisplayRawString(uint8_t stringID);
 void guiSetCurrentScreen(uint8_t screen);
 void guiDisplayProcessingScreen(void);

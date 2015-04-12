@@ -56,12 +56,12 @@ RET_TYPE checkSecurityMode2(void)
     }
 }
 
-/*! \fn     mooltipassDetectedRoutine(uint16_t pin_code)
+/*! \fn     mooltipassDetectedRoutine(volatile uint16_t* pin_code)
 *   \brief  Function called when a Mooltipass is inserted into the smart card slot
 *   \param  pin_code    Mooltipass pin code
 *   \return If we managed to unlock it / if there is other problem (see mooltipass_detect_return_t)
 */
-RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code)
+RET_TYPE mooltipassDetectedRoutine(volatile uint16_t* pin_code)
 {
     RET_TYPE temp_rettype;
 
@@ -154,7 +154,8 @@ RET_TYPE cardDetectedRoutine(void)
                 #endif
 
                 // Try to authenticate with factory pin
-                temp_rettype = securityValidationSMC(SMARTCARD_FACTORY_PIN);
+                uint16_t factory_pin = SMARTCARD_FACTORY_PIN;
+                temp_rettype = securityValidationSMC(&factory_pin);
 
                 if (temp_rettype == RETURN_PIN_OK)                   // Card is unlocked - transform
                 {
@@ -201,7 +202,8 @@ RET_TYPE cardDetectedRoutine(void)
             #endif
 
             // If we're here it means the user hasn't configured his blank mooltipass card, so try to unlock it using the default pin
-            temp_rettype = mooltipassDetectedRoutine(SMARTCARD_DEFAULT_PIN);
+            uint16_t default_pin = SMARTCARD_DEFAULT_PIN;
+            temp_rettype = mooltipassDetectedRoutine(&default_pin);
 
             // If we unlocked it, it means we can personalize it
             if (temp_rettype != RETURN_MOOLTIPASS_4_TRIES_LEFT)
@@ -224,6 +226,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 {
     uint8_t temp_buffer[20];
     uint16_t *temp_buf16 = (uint16_t*)temp_buffer;
+    uint16_t default_pin = SMARTCARD_DEFAULT_PIN;
 
     /* Check that we are in security mode 1 */
     if (checkSecurityMode2() == RETURN_OK)
@@ -235,7 +238,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     resetBlankCard();
 
     /* Set new security password, keep zone 1 and zone 2 security key to FFFF... */
-    writeSecurityCode(SMARTCARD_DEFAULT_PIN);
+    writeSecurityCode(&default_pin);
 
     /* Write "hackaday" to issuer zone */
     hm_str_cpy("hackaday", (char*)temp_buffer, 8);
@@ -267,6 +270,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
 void eraseSmartCard(void)
 {
     uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
+    uint16_t default_pin = SMARTCARD_DEFAULT_PIN;
     
     // Write 0xFF in CPZ
     memset(temp_buffer, 0xFF, SMARTCARD_CPZ_LENGTH);
@@ -281,7 +285,7 @@ void eraseSmartCard(void)
     setAuthenticatedReadWriteAccessToZone2();
     
     // Reset default pin code
-    writeSecurityCode(SMARTCARD_DEFAULT_PIN);
+    writeSecurityCode(&default_pin);
 }
 
 /*! \fn     writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer)
@@ -345,9 +349,11 @@ RET_TYPE writeMooltipassWebsiteLogin(uint8_t* buffer)
 */
 void resetBlankCard(void)
 {
+    uint16_t default_pin = SMARTCARD_FACTORY_PIN;
     uint8_t data_buffer[2] = {0xFF, 0xFF};
+    
     writeSMC(1441, 1, data_buffer);
-    writeSecurityCode(SMARTCARD_FACTORY_PIN);
+    writeSecurityCode(&default_pin);
 }
 
 /*! \fn     readSecurityCode(void)
@@ -361,14 +367,15 @@ uint16_t readSecurityCode(void)
     return swap16(temp_uint);
 }
 
-/*! \fn     writeSecurityCode(uint16_t code)
+/*! \fn     writeSecurityCode(uint16_t* code)
 *   \brief  Write a new security code (security mode 1&2 - Authenticated!)
 *   \param  code  The pin code
 */
-void writeSecurityCode(uint16_t code)
+void writeSecurityCode(volatile uint16_t* code)
 {
-    code = swap16(code);
-    writeSMC(80, 16, (uint8_t*)&code);
+    *code = swap16(*code);
+    writeSMC(80, 16, (uint8_t*)code);
+    *code = swap16(*code);
 }
 
 /*! \fn     setAuthenticatedReadWriteAccessToZone1(void)

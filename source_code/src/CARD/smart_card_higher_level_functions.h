@@ -268,18 +268,18 @@ inline void write_ec2en_fuse(void)
 
 /************ PROTOTYPES ************/
 RET_TYPE writeToApplicationZoneAndCheck(uint16_t addr, uint16_t nb_bits, uint8_t* buffer, uint8_t* temp_buffer);
+RET_TYPE mooltipassDetectedRoutine(volatile uint16_t* pin_code);
 RET_TYPE writeMooltipassWebsitePassword(uint8_t* buffer);
 RET_TYPE checkAuthenticatedReadWriteAccessToZone1(void);
 RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void);
 RET_TYPE writeMooltipassWebsiteLogin(uint8_t* buffer);
 RET_TYPE setAuthenticatedReadWriteAccessToZone1(void);
 RET_TYPE setAuthenticatedReadWriteAccessToZone2(void);
-RET_TYPE mooltipassDetectedRoutine(uint16_t pin_code);
+void writeSecurityCode(volatile uint16_t* code);
 RET_TYPE transformBlankCardIntoMooltipass(void);
 uint8_t getNumberOfSecurityCodeTriesLeft(void);
 RET_TYPE writeAES256BitsKey(uint8_t* buffer);
 uint8_t getNumberOfAZ2WritesLeft(void);
-void writeSecurityCode(uint16_t code);
 RET_TYPE cardDetectedRoutine(void);
 void printSMCDebugInfoToUSB(void);
 uint16_t readSecurityCode(void);

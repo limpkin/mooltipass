@@ -29,7 +29,7 @@
 
 
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit);
-RET_TYPE guiGetPinFromUser(uint16_t* pin_code, uint8_t stringID);
+RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID);
 RET_TYPE guiCardUnlockingProcess(void);
 
 

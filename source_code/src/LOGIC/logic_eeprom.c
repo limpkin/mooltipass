@@ -346,12 +346,12 @@ RET_TYPE addNewUserForExistingCard(uint8_t* nonce)
     return RETURN_OK;    
 }
 
-/*! \fn     addNewUserAndNewSmartCard(uint16_t pin_code)
+/*! \fn     addNewUserAndNewSmartCard(volatile uint16_t* pin_code)
 *   \brief  Add a new user with a new smart card
 *   \param  pin_code The new pin code
 *   \return success or not
 */
-RET_TYPE addNewUserAndNewSmartCard(uint16_t pin_code)
+RET_TYPE addNewUserAndNewSmartCard(volatile uint16_t* pin_code)
 {
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     uint8_t temp_nonce[AES256_CTR_LENGTH];

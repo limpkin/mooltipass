@@ -69,10 +69,10 @@ RET_TYPE handleSmartcardInserted(void)
         // This is a user free card, we can ask the user to create a new user inside the Mooltipass
         if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_NEWMP_USER)) == RETURN_OK)
         {
-            uint16_t pin_code;
+            volatile uint16_t pin_code;
             
             // Create a new user with his new smart card
-            if ((guiAskForNewPin(&pin_code) == RETURN_NEW_PIN_OK) && (addNewUserAndNewSmartCard(pin_code) == RETURN_OK))
+            if ((guiAskForNewPin(&pin_code) == RETURN_NEW_PIN_OK) && (addNewUserAndNewSmartCard(&pin_code) == RETURN_OK))
             {
                 guiDisplayInformationOnScreen(ID_STRING_USER_ADDED);
                 next_screen = SCREEN_DEFAULT_INSERTED_NLCK;
@@ -84,6 +84,7 @@ RET_TYPE handleSmartcardInserted(void)
                 // Something went wrong, user wasn't added
                 guiDisplayInformationOnScreen(ID_STRING_USER_NADDED);
             }
+            pin_code = 0x0000;
         }
         printSmartCardInfo();
     }
@@ -232,12 +233,12 @@ RET_TYPE validCardDetectedFunction(void)
     }
 }
 
-/*! \fn     cloneSmartCardProcess(uint16_t pincode)
+/*! \fn     cloneSmartCardProcess(uint16_t* pincode)
 *   \brief  Clone a smartcard
 *   \param  pincode The current pin code
 *   \return success or not
 */
-RET_TYPE cloneSmartCardProcess(uint16_t pincode)
+RET_TYPE cloneSmartCardProcess(volatile uint16_t* pincode)
 {
     // Temp buffers to store AZ1 & AZ2
     uint8_t temp_az1[SMARTCARD_AZ_BIT_LENGTH/8];

@@ -101,6 +101,8 @@
 #define ID_STRING_CONF_NEWDATA  65
 #define ID_STRING_ADD_DATA_FOR  66
 #define ID_STRING_GET_DATA_FOR  67
+#define ID_STRING_PIN_DIFF      68
+#define ID_STRING_TGT_CARD_NBL  69
 
 // Keyboard LUTs
 // Changes: 

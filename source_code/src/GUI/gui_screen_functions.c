@@ -241,9 +241,27 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 uint16_t pin_code;
                 
                 // Reauth user
-                if ((removeCardAndReAuthUser() == RETURN_OK) && (guiAskForNewPin(&pin_code) == RETURN_OK) && (cloneSmartCardProcess(pin_code) == RETURN_OK))
+                if (removeCardAndReAuthUser() == RETURN_OK)
                 {
-                    // Well, it's done
+                    // Ask for new pin
+                    if (guiAskForNewPin(&pin_code) == RETURN_OK)
+                    {
+                        // Start the cloning process
+                        if (cloneSmartCardProcess(pin_code) == RETURN_OK)
+                        {
+                            // Well it worked....
+                        } 
+                        else
+                        {
+                            currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                            guiDisplayInformationOnScreen(ID_STRING_TGT_CARD_NBL);
+                        }
+                    }
+                    else
+                    {
+                        currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                        guiDisplayInformationOnScreen(ID_STRING_PIN_DIFF);                        
+                    }
                 }
                 else
                 {

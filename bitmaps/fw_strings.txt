@@ -66,3 +66,5 @@ Computer Went To Sleep!
 Confirm New Data Service:
 Add Data For:
 Get Data For:
+PIN Codes Differ!
+Target Card Isn't Blank!

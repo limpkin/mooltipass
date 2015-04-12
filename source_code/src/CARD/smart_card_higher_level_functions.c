@@ -240,8 +240,8 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     /* Set new security password, keep zone 1 and zone 2 security key to FFFF... */
     writeSecurityCode(&default_pin);
 
-    /* Write "hackaday" to issuer zone */
-    hm_str_cpy("hackaday", (char*)temp_buffer, 8);
+    /* Write "limpkin" to issuer zone */
+    strcpy((char*)temp_buffer, "limpkin");
     writeIssuerZone(temp_buffer);
 
     /* Write 2014 to the manufacturer zone */

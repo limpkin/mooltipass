@@ -238,13 +238,15 @@ void guiScreenLoop(uint8_t touch_detect_result)
             case (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BRIGHT) :
             {
                 // User wants to clone his smartcard
+                RET_TYPE temp_rettype;
                 uint16_t pin_code;
                 
                 // Reauth user
                 if (removeCardAndReAuthUser() == RETURN_OK)
                 {
                     // Ask for new pin
-                    if (guiAskForNewPin(&pin_code) == RETURN_OK)
+                    temp_rettype = guiAskForNewPin(&pin_code);
+                    if (temp_rettype == RETURN_NEW_PIN_OK)
                     {
                         // Start the cloning process
                         if (cloneSmartCardProcess(pin_code) == RETURN_OK)
@@ -257,10 +259,15 @@ void guiScreenLoop(uint8_t touch_detect_result)
                             guiDisplayInformationOnScreen(ID_STRING_TGT_CARD_NBL);
                         }
                     }
-                    else
+                    else if (temp_rettype == RETURN_NEW_PIN_DIFF)
                     {
                         currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
                         guiDisplayInformationOnScreen(ID_STRING_PIN_DIFF);                        
+                    }
+                    else
+                    {                        
+                        guiGetBackToCurrentScreen();
+                        break;
                     }
                 }
                 else
@@ -289,7 +296,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     // User approved his pin, ask his new one
                     uint16_t pin_code;
                                         
-                    if (guiAskForNewPin(&pin_code) == RETURN_OK)
+                    if (guiAskForNewPin(&pin_code) == RETURN_NEW_PIN_OK)
                     {
                         // User successfully entered a new pin
                         writeSecurityCode(pin_code);
@@ -318,20 +325,27 @@ void guiScreenLoop(uint8_t touch_detect_result)
 /*! \fn     guiAskForNewPin(uint16_t* new_pin)
 *   \brief  Ask user to enter a new PIN
 *   \param  new_pin Pointer to where to store the new pin
-*   \return Success status
+*   \return Success status, see new_pinreturn_type_t
 */
 RET_TYPE guiAskForNewPin(uint16_t* new_pin)
 {
     uint16_t other_pin;
     
     // Ask the user twice for the new pin and compare them
-    if ((guiGetPinFromUser(new_pin, ID_STRING_NEW_PINQ) == RETURN_OK) && (guiGetPinFromUser(&other_pin, ID_STRING_CONF_PIN) == RETURN_OK) && (*new_pin == other_pin))
+    if ((guiGetPinFromUser(new_pin, ID_STRING_NEW_PINQ) == RETURN_OK) && (guiGetPinFromUser(&other_pin, ID_STRING_CONF_PIN) == RETURN_OK))
     {
-        return RETURN_OK;
+        if (*new_pin == other_pin)
+        {
+            return RETURN_NEW_PIN_OK;
+        } 
+        else
+        {
+            return RETURN_NEW_PIN_DIFF;
+        }
     }
     else
     {
-        return RETURN_NOK;
+        return RETURN_NEW_PIN_NOK;
     }
 }
 

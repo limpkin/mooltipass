@@ -166,14 +166,14 @@ int main(void)
             // Jump to bootloader
             start_bootloader();
         }
-    #endif
-    
-    // Check if there was a change in the mooltipass setting storage to reset the parameters to their correct values
-    if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
-    {
-        mooltipassParametersInit();
-        setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
-    }
+        
+        // Check if there was a change in the mooltipass setting storage to reset the parameters to their correct values
+        if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
+        {
+            mooltipassParametersInit();
+            setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
+        }
+    #endif    
 
     // First time initializations for Eeprom (first boot at production or flash layout changes for beta testers)
     if (current_bootkey_val != CORRECT_BOOTKEY)

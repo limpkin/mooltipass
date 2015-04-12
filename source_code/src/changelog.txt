@@ -1,5 +1,7 @@
 RC3:
 - more information on the cloning process - new bundle required!
+- pin handling functions only use pointers to pin variable
+- different messages for pin entering
 
 RC2:
 - speed improvement: look for free node starting after the taken one

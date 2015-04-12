@@ -290,7 +290,8 @@ int main(void)
     #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
         if (current_bootkey_val != CORRECT_BOOTKEY)
         {
-            RET_TYPE temp_rettype;        
+            uint8_t test_result_ok = TRUE;
+            RET_TYPE temp_rettype;     
             // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
             //#ifdef PRODUCTION_KICKSTARTER_SETUP
             while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0x94)
@@ -310,11 +311,13 @@ int main(void)
             if (flash_init_result != RETURN_OK)
             {
                  guiDisplayRawString(ID_STRING_TEST_FLASH_PB);
+                 test_result_ok = FALSE;
             }
             // Check touch init
             if (touch_init_result != RETURN_OK)
             {
                 guiDisplayRawString(ID_STRING_TEST_TOUCH_PB);
+                test_result_ok = FALSE;
             }
             // Touch instructions
             guiDisplayRawString(ID_STRING_TEST_INST_TCH);
@@ -339,10 +342,11 @@ int main(void)
             if (!((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
             {
                 guiDisplayRawString(ID_STRING_TEST_CARD_PB);
+                test_result_ok = FALSE;
             }
             // Display result
             uint8_t script_return = RETURN_OK;
-            if ((flash_init_result == RETURN_OK) && (touch_init_result == RETURN_OK) && ((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
+            if (test_result_ok == TRUE)
             {
                 // Inform script of success
                 usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
@@ -355,7 +359,7 @@ int main(void)
                 #endif
                 // Display test result
                 guiDisplayRawString(ID_STRING_TEST_OK);
-                timerBasedDelayMs(3000);
+                userViewDelay();
             }
             else
             {
@@ -365,10 +369,7 @@ int main(void)
                 guiDisplayRawString(ID_STRING_TEST_NOK);
                 // Inform script of failure
                 usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
-                while(1)
-                {
-                    usbProcessIncoming(USB_CALLER_MAIN);
-                }
+                while(1);
             }
         }
     #endif

@@ -14,13 +14,13 @@ Unknown Card
 Insert New Smartcard
 Done
 Card Removed
-Are You Sure?
-Are You REALLY Sure?
+Delete User From Mooltipass?
+ALL Your Data Will Be Lost!
 Other Cards For This User?
 Enter Login?
 Enter Password?
 Approve Memory Operation?
-Insert Your PIN
+Enter Your PIN
 PIN for new card?
 Confirm PIN
 Confirm Access To

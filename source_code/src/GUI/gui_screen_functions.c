@@ -229,6 +229,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                 }
                 else
                 {
+                    handleSmartcardRemoved();
                     currentScreen = SCREEN_DEFAULT_INSERTED_LCK;                    
                 }
                 userViewDelay();

@@ -59,3 +59,7 @@ Pinout
 <p align="center">
   <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/arduino/pinout_small.jpg" alt="Arduino pinout"/>
 </p>
+
+Warning!
+--------
+At least one of the two-byte words present at the beginning and at the end of the eeprom must remain intact.

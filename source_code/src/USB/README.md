@@ -147,7 +147,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0xB8: Add unknown smartcard
 ---------------------------
-From plugin/app: When an unknown smartcard is inserted, tell the Mooltipass to store it. First 16 bytes are our user CTR value
+From plugin/app: When an unknown smartcard is inserted, tell the Mooltipass to store it. First 8 bytes are the current card CPZ, 16 next bytes are our user CTR value
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
 
@@ -209,6 +209,12 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 From plugin/app: after a set data context has been sent, get successive 32bytes data blocks
 
 From Mooltipass: 0x00 when error or end of data, 32 bytes of data otherwise
+
+0xC2: Get current card CPZ
+--------------------------
+From plugin/app: ask the CPZ of the currently inserted card, when unknown card is inserted
+
+From Mooltipass: 0x00 when error or end of data, the CPZ otherwise
 
 Commands in data management mode
 ================================

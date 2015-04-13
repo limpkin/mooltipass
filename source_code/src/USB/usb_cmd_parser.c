@@ -1157,6 +1157,28 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
+        // Get current card CPZ
+        case CMD_GET_CUR_CARD_CPZ :
+        {
+            // Check that an unknown card is inserted
+            if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
+            {
+                uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
+                
+                // Read code protected zone
+                readCodeProtectedZone(temp_buffer);
+                
+                // Send it to the app
+                usbSendMessage(CMD_GET_CUR_CARD_CPZ, sizeof(temp_buffer), (void*)temp_buffer);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        
         // Reset smartcard
         case CMD_RESET_CARD :
         {
@@ -1188,13 +1210,18 @@ void usbProcessIncoming(uint8_t caller_id)
         case CMD_ADD_UNKNOWN_CARD :
         {
             // Check the args, check we're not authenticated, check that the user could unlock the card
-            if ((datalen == AES256_CTR_LENGTH) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN))
+            if ((datalen == SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN))
             {
-                // Ask the user to unlock the card
-                if (guiCardUnlockingProcess() == RETURN_OK)
+                uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
+                
+                // Read code protected zone
+                readCodeProtectedZone(temp_buffer);
+                
+                // Check that the provided CPZ is the current one, ask the user to unlock the card
+                if ((memcmp(temp_buffer, msg->body.data, SMARTCARD_CPZ_LENGTH) == 0) && (guiCardUnlockingProcess() == RETURN_OK))
                 {
                     plugin_return_value = PLUGIN_BYTE_OK;
-                    addNewUserForExistingCard(msg->body.data);
+                    addNewUserForExistingCard(&msg->body.data[SMARTCARD_CPZ_LENGTH]);
                     // Success, ask the user to remove the card
                     guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_INVALID);
                 }

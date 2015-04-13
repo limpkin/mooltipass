@@ -24,6 +24,7 @@
 #include "touch_higher_level_functions.h"
 #include "gui_basic_functions.h"
 #include "logic_eeprom.h"
+#include <avr/pgmspace.h>
 #include "defines.h"
 #include <string.h>
 #include "touch.h"
@@ -34,6 +35,25 @@ uint8_t last_raw_wheel_position;
 uint8_t touch_inhibit = FALSE;
 // Last LED mask
 uint8_t last_led_mask;
+// Touch sensing init
+static const uint8_t touch_init[] __attribute__((__progmem__)) = 
+{
+    REG_AT42QT_LP,          1,                                                  // Perform measurements every 16ms
+    REG_AT42QT_KEY4_CTRL,   AT42QT2120_OUTPUT_H_VAL,                            // LED (top right)
+    REG_AT42QT_KEY5_CTRL,   AT42QT2120_OUTPUT_H_VAL,                            // LED (right button)
+    REG_AT42QT_KEY6_CTRL,   AT42QT2120_OUTPUT_H_VAL,                            // LED (bottom right)
+    REG_AT42QT_KEY7_CTRL,   AT42QT2120_OUTPUT_H_VAL,                            // LED (bottom left)
+    REG_AT42QT_KEY8_CTRL,   AT42QT2120_OUTPUT_H_VAL,                            // LED (left button)
+    REG_AT42QT_KEY10_CTRL,  AT42QT2120_OUTPUT_H_VAL,                            // LED (top left)
+    REG_AT42QT_TRD,         50,                                                 // Recalibration if touch detected for more than 8 seconds
+    REG_AT42QT_KEY0_CTRL,   AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK,   // Enable Wheel key
+    REG_AT42QT_KEY1_CTRL,   AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK,   // Enable Wheel key
+    REG_AT42QT_KEY2_CTRL,   AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK,   // Enable Wheel key
+    REG_AT42QT_KEY9_CTRL,   AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK,   // Enable Left button
+    REG_AT42QT_KEY11_CTRL,  AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK,   // Enable Right button
+    REG_AT42QT_SLID_OPT,    0x40,                                               // Enable wheel
+    REG_AT42QT_SLID_OPT,    0xC0,                                               // Enable wheel
+};
 
 
 /*! \fn     checkTSPres()
@@ -87,33 +107,22 @@ RET_TYPE initTouchSensing(void)
 {
     #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
         RET_TYPE temp_return = checkTSPres();
+        uint8_t i;
         
         if (temp_return == RETURN_OK)
         {
-            // Perform measurements every 16ms
-            writeDataToTS(REG_AT42QT_LP, 1);
-            // LED settings
-            writeDataToTS(REG_AT42QT_KEY4_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (top right)
-            writeDataToTS(REG_AT42QT_KEY5_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (right button)
-            writeDataToTS(REG_AT42QT_KEY6_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (bottom right)
-            writeDataToTS(REG_AT42QT_KEY7_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (bottom left)
-            writeDataToTS(REG_AT42QT_KEY8_CTRL, AT42QT2120_OUTPUT_H_VAL);                                   // LED (left button)
-            writeDataToTS(REG_AT42QT_KEY10_CTRL, AT42QT2120_OUTPUT_H_VAL);                                  // LED (top left)
-            // Sensitivity settings
+            // Custom sensitivity settings
             writeDataToTS(REG_AT42QT_DI, getMooltipassParameterInEeprom(TOUCH_DI_PARAM));                   // Increase detection integrator value
             writeDataToTS(REG_AT42QT_CHARGE_TIME, getMooltipassParameterInEeprom(TOUCH_CHARGE_TIME_PARAM)); // Prolongs the charge transfer period of signal acq
             writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM0));// Touch weel oversample (gain one bit by default)
             writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM1));// Touch weel oversample (gain one bit by default)
             writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM2));// Touch weel oversample (gain one bit by default)
-            writeDataToTS(REG_AT42QT_TRD, 50);                                                              // Recalibration if touch detected for more than 8 seconds
-            // Key settings
-            writeDataToTS(REG_AT42QT_KEY0_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Wheel key
-            writeDataToTS(REG_AT42QT_KEY1_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Wheel key
-            writeDataToTS(REG_AT42QT_KEY2_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Wheel key
-            writeDataToTS(REG_AT42QT_KEY9_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);          // Enable Left button
-            writeDataToTS(REG_AT42QT_KEY11_CTRL, AT42QT2120_TOUCH_KEY_VAL|AT42QT2120_AKS_GP1_MASK);         // Enable Right button
-            writeDataToTS(REG_AT42QT_SLID_OPT, 0x40);                                                       // Enable wheel
-            writeDataToTS(REG_AT42QT_SLID_OPT, 0xC0);                                                       // Enable wheel
+            
+            // Initialization sequence stored in flash
+            for (i = 0; i < sizeof(touch_init);)
+            {
+                writeDataToTS(pgm_read_byte(&touch_init[i++]), pgm_read_byte(&touch_init[i++]));
+            }
         }        
         return temp_return;
     #else

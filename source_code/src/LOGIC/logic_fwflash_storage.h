@@ -104,6 +104,7 @@
 #define ID_STRING_PIN_DIFF      68
 #define ID_STRING_TGT_CARD_NBL  69
 #define ID_STRING_NEW_PINQ      70
+#define ID_STRING_ERASE_TCARD   71
 
 // Keyboard LUTs
 // Changes: 

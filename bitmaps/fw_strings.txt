@@ -8,7 +8,7 @@ Failed!
 PIN Changed!
 Not Changed!
 User Added
-Could Not Add User
+Could Not Add User!
 Card Unlocked
 Unknown Card
 Insert New Smartcard
@@ -40,8 +40,8 @@ Exit Mode In Application
 Created by the plugin
 No Stored Favorites
 Send Card Stored Data?
-Set Card Login?
-Set Card Stored Data?
+Change Card Login?
+Change Card Stored Data?
 username:
 Show Login?
 Show Password?
@@ -69,3 +69,4 @@ Get Data For:
 PIN Codes Differ!
 Target Card Isn't Blank!
 Enter New PIN
+Erase The Card As Well?

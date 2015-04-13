@@ -199,26 +199,30 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     uint8_t currentuserid = getCurrentUserID();
                     guiDisplayProcessingScreen();
                     deleteCurrentUserFromFlash();
-                    eraseSmartCard();
                     
-                    // Erase other smartcards
-                    while (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_OTHECARDFUSER)) == RETURN_OK)
+                    if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ERASE_TCARD)) == RETURN_OK)
                     {
-                        // Ask the user to insert other smartcards
-                        guiDisplayInformationOnScreen(ID_STRING_INSERT_OTHER);
+                        eraseSmartCard();
                         
-                        // Wait for the user to remove and enter another smartcard
-                        while (isCardPlugged() != RETURN_JRELEASED);
-                        
-                        // Wait for the user to insert a new smart card
-                        while (isCardPlugged() != RETURN_JDETECT);
-                        
-                        // Check the card type & ask user to enter his pin, check that the new user id loaded by validCardDetectedFunction is still the same
-                        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_VCARD_OK) && (currentuserid == getCurrentUserID()))
+                        // Erase other smartcards
+                        while (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_OTHECARDFUSER)) == RETURN_OK)
                         {
-                            eraseSmartCard();                            
+                            // Ask the user to insert other smartcards
+                            guiDisplayInformationOnScreen(ID_STRING_INSERT_OTHER);
+                            
+                            // Wait for the user to remove and enter another smartcard
+                            while (isCardPlugged() != RETURN_JRELEASED);
+                            
+                            // Wait for the user to insert a new smart card
+                            while (isCardPlugged() != RETURN_JDETECT);
+                            
+                            // Check the card type & ask user to enter his pin, check that the new user id loaded by validCardDetectedFunction is still the same
+                            if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_VCARD_OK) && (currentuserid == getCurrentUserID()))
+                            {
+                                eraseSmartCard();
+                            }
                         }
-                    }
+                    }                    
                     
                     // Delete LUT entries
                     guiDisplayProcessingScreen();

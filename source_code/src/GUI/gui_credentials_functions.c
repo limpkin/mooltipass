@@ -61,7 +61,7 @@ void displayCredentialAtSlot(uint8_t slot, char* text)
     }
     
     // Truncate and display string
-    strncpy(temp_disptext, text, sizeof(temp_disptext));
+    memcpy(temp_disptext, text, sizeof(temp_disptext));
     temp_disptext[sizeof(temp_disptext)-1] = 0;
     temp_disptext[INDEX_TRUNCATE_LOGIN_FAV] = 0;
     oledPutstrXY((slot & 0x01)*0xFF, (slot & 0x02)*23 + yoffset, (slot & 0x01)*OLED_RIGHT, temp_disptext);
@@ -157,7 +157,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             // If nothing after, hide right arrow
             if ((i != 4) || (c->nextChildAddress == NODE_ADDR_NULL))
             {
-                oledFillXY(174, 24, 22, 18, 0x00);
+                oledFillXY(177, 25, 16, 14, 0x00);
                 led_mask |= LED_MASK_RIGHT;
             }
             
@@ -289,7 +289,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         // If nothing after, hide right arrow
         if ((i != 4) || ((offset+i) == nbFavorites))
         {
-            oledFillXY(174, 24, 22, 18, 0x00);
+            oledFillXY(177, 25, 16, 14, 0x00);
             led_mask |= LED_MASK_RIGHT;
         }
         
@@ -351,7 +351,7 @@ void displayServiceAtGivenSlot(uint8_t slot, const char* text)
     char temp_disptext[40];
     
     // Truncate string and display it
-    strncpy(temp_disptext, text, sizeof(temp_disptext));
+    memcpy(temp_disptext, text, sizeof(temp_disptext));
     temp_disptext[sizeof(temp_disptext)-1] = 0;
     temp_disptext[INDEX_TRUNCATE_SERVICE_SEARCH] = 0;
     oledPutstrXY((slot & 0x01)*0xFF, 4 + (slot & 0x02)*20, (slot & 0x01)*OLED_RIGHT, temp_disptext);    

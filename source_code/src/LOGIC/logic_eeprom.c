@@ -315,30 +315,31 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
 
 /*! \fn     addNewUserForExistingCard(uint8_t* nonce)
 *   \brief  Add a new user for an already unlocked card
+*   \param  nonce   User nonce
+*   \param  user_id Pointer to where to store the user id
 *   \return success or not
 */
-RET_TYPE addNewUserForExistingCard(uint8_t* nonce)
+RET_TYPE addNewUserForExistingCard(uint8_t* nonce, uint8_t* user_id)
 {
     uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
-    uint8_t new_user_id;
     
     // Get new user id if possible
-    if (findAvailableUserId(&new_user_id) == RETURN_NOK)
+    if (findAvailableUserId(user_id) == RETURN_NOK)
     {
         return RETURN_NOK;
     }
     
     // Create user profile in flash, CTR is set to 0 by the library
-    formatUserProfileMemory(new_user_id);
+    formatUserProfileMemory(*user_id);
 
     // Initialize user flash context, that inits the node mgmt handle and the ctr value
-    initUserFlashContext(new_user_id);
+    initUserFlashContext(*user_id);
 
     // Read smartcard CPZ value
     readCodeProtectedZone(temp_buffer);
     
     // Store User ID <> SMC CPZ & AES CTR <> user id
-    if (writeSmartCardCPZForUserId(temp_buffer, nonce, new_user_id) != RETURN_OK)
+    if (writeSmartCardCPZForUserId(temp_buffer, nonce, *user_id) != RETURN_OK)
     {
         return RETURN_NOK;
     }

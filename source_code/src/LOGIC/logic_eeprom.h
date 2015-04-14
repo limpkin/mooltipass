@@ -39,7 +39,7 @@
 // Total number of LUT entries. LUT is located near the end of the eeprom with reserved bytes at the end
 #define NB_MAX_SMCID_UID_MATCH_ENTRIES  ((EEPROM_SIZE - EEP_SMC_IC_USER_MATCH_START_ADDR - EEPROM_END_RESERVED)/SMCID_UID_MATCH_ENTRY_LENGTH)
 // Correct key to prevent mooltipass settings reinit
-#define USER_PARAM_CORRECT_INIT_KEY         0xC5
+#define USER_PARAM_CORRECT_INIT_KEY         0x77
 // Mooltipass eeprom parameters define
 #define USER_PARAM_INIT_KEY_PARAM           0
 #define KEYBOARD_LAYOUT_PARAM               1
@@ -60,10 +60,10 @@
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);
 RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid);
 uint8_t controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound);
+RET_TYPE addNewUserForExistingCard(uint8_t* nonce, uint8_t* user_id);
 void setMooltipassParameterInEeprom(uint8_t param, uint8_t val);
 RET_TYPE addNewUserAndNewSmartCard(volatile uint16_t* pin_code);
 uint8_t getMooltipassParameterInEeprom(uint8_t param);
-RET_TYPE addNewUserForExistingCard(uint8_t* nonce);
 void outputLUTEntriesForGivenUser(uint8_t userID);
 void deleteUserIdFromSMCUIDLUT(uint8_t userid);
 void firstTimeUserHandlingInit(void);

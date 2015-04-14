@@ -1212,18 +1212,22 @@ void usbProcessIncoming(uint8_t caller_id)
             // Check the args, check we're not authenticated, check that the user could unlock the card
             if ((datalen == SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN))
             {
-                uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
+                uint8_t temp_buffer[AES_KEY_LENGTH/8];
+                uint8_t new_user_id;
                 
                 // Read code protected zone
                 readCodeProtectedZone(temp_buffer);
                 
-                // Check that the provided CPZ is the current one, ask the user to unlock the card
-                if ((memcmp(temp_buffer, msg->body.data, SMARTCARD_CPZ_LENGTH) == 0) && (guiCardUnlockingProcess() == RETURN_OK))
+                // Check that the provided CPZ is the current one, ask the user to unlock the card and check that we can add the user
+                if ((memcmp(temp_buffer, msg->body.data, SMARTCARD_CPZ_LENGTH) == 0) && (guiCardUnlockingProcess() == RETURN_OK) && (addNewUserForExistingCard(&msg->body.data[SMARTCARD_CPZ_LENGTH], &new_user_id) == RETURN_OK))
                 {
+                    // Success, jump to the main menu
+                    readAES256BitsKey(temp_buffer);
+                    initUserFlashContext(new_user_id);
+                    initEncryptionHandling(temp_buffer, &msg->body.data[SMARTCARD_CPZ_LENGTH]);
+                    setSmartCardInsertedUnlocked();
                     plugin_return_value = PLUGIN_BYTE_OK;
-                    addNewUserForExistingCard(&msg->body.data[SMARTCARD_CPZ_LENGTH]);
-                    // Success, ask the user to remove the card
-                    guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_INVALID);
+                    guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_NLCK);
                 }
                 else
                 {

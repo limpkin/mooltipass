@@ -1161,7 +1161,7 @@ void usbProcessIncoming(uint8_t caller_id)
         case CMD_GET_CUR_CARD_CPZ :
         {
             // Check that an unknown card is inserted
-            if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
+            if ((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN) || (getSmartCardInsertedUnlocked() == TRUE))
             {
                 uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
                 

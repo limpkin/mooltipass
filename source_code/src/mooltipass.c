@@ -103,11 +103,19 @@ int main(void)
         CPU_PRESCALE(0);
     #endif
         
-    // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
-    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
-    {
-        fuse_ok = FALSE;
-    }
+    #ifdef PREPRODUCTION_KICKSTARTER_SETUP
+        // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+        {
+            fuse_ok = FALSE;
+        }
+    #else
+        // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+        {
+            fuse_ok = FALSE;
+        }
+    #endif
     
     // Check if PB5 is low to start electrical test
     DDRB &= ~(1 << 5); PORTB |= (1 << 5);
@@ -287,7 +295,7 @@ int main(void)
     
     // Test procedure to check that all HW is working
     //#define FORCE_PROD_TEST
-    #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
+    #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
         if (current_bootkey_val != CORRECT_BOOTKEY)
         {
             uint8_t test_result_ok = TRUE;

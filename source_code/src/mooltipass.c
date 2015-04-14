@@ -160,7 +160,7 @@ int main(void)
     }
     
     // This code will only be used for developers and beta testers
-    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(PREPRODUCTION_KICKSTARTER_SETUP)
+    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP)
         // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
         {

@@ -53,7 +53,7 @@ void smartcardHPulseDelay(void)
 */
 void smartcardPowerDelay(void)
 {
-    timerBasedDelayMs(130);
+    timerBasedDelayMs(200);
 }
 
 /*! \fn     smartcardTchpDelay(void)

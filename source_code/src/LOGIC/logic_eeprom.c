@@ -35,34 +35,34 @@
 #include "defines.h"
 #include "rng.h"
 
+// eeprom parameters init
+static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
+{
+    ID_KEYB_EN_US_LUT,  // KEYBOARD_LAYOUT_PARAM        Set English keyboard by default
+    15,                 // USER_INTER_TIMEOUT_PARAM     Set 15secs user interaction timeout by default
+    FALSE,              // LOCK_TIMEOUT_ENABLE_PARAM    Disable timeout by default
+    60,                 // LOCK_TIMEOUT_PARAM           Set a 1 hour timeout
+    6,                  // TOUCH_DI_PARAM               Set default detection integrator (6 consecutive samples)
+    0,                  // TOUCH_WHEEL_OS_PARAM_OLD     Not used anymore
+    0x73,               // TOUCH_PROX_OS_PARAM          Set proximity sensing key settings
+    FALSE,              // OFFLINE_MODE_PARAM           Disable offline mode by default
+    FALSE,              // SCREENSAVER_PARAM            Disable screen saver by default
+    0,                  // TOUCH_CHARGE_TIME_PARAM      Set datasheet default value for charge time
+    0x21,               // TOUCH_WHEEL_OS_PARAM0        Set touch wheel oversample (one bit gain)
+    0x21,               // TOUCH_WHEEL_OS_PARAM1        Set touch wheel oversample (one bit gain)
+    0x21,               // TOUCH_WHEEL_OS_PARAM2        Set touch wheel oversample (one bit gain)
+};
+
 
 /*! \fn     mooltipassParametersInit(void)
 *   \brief  mooltipass parameters init
 */
 void mooltipassParametersInit(void)
-{	
-    // Set English keyboard by default
-    setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_US_LUT);
-    // Set 15secs user interaction timeout by default
-    setMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM, 15);
-    // Disable timeout by default
-    setMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM, FALSE);
-    // Set a 1 hour timeout
-    setMooltipassParameterInEeprom(LOCK_TIMEOUT_PARAM, 60);	
-    // Set default detection integrator (6 consecutive samples)
-    setMooltipassParameterInEeprom(TOUCH_DI_PARAM, 6);
-    // Set touch wheel oversample (one bit gain)
-    setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM0, 0x21);
-    setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM1, 0x21);
-    setMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM2, 0x21);
-    // Set proximity sensing key settings
-    setMooltipassParameterInEeprom(TOUCH_PROX_OS_PARAM, 0x73);
-    // Disable offline mode by default
-    setMooltipassParameterInEeprom(OFFLINE_MODE_PARAM, FALSE);
-    // Disable screen saver by default
-    setMooltipassParameterInEeprom(SCREENSAVER_PARAM, FALSE);
-    // Set datasheet default value for charge time
-    setMooltipassParameterInEeprom(TOUCH_CHARGE_TIME_PARAM, 0);    
+{
+    for (uint8_t i = 0; i < sizeof(eeprom_param_init); i++)
+    {
+        setMooltipassParameterInEeprom(FIRST_USER_PARAM + i, pgm_read_byte(&eeprom_param_init[i]));
+    }   
 }
 
 /*! \fn     firstTimeUserHandlingInit(void)

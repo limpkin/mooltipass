@@ -1,3 +1,6 @@
+RC4:
+- size optimizations...
+
 RC3:
 - more information on the cloning process - new bundle required!
 - card cpz needs to be presented to allow unknown card adding

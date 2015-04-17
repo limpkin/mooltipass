@@ -174,7 +174,6 @@
 00000030 B context_timers
 00000030 T loginSelectLogic
 00000030 T oledMoveDisplayStartLine
-00000030 T strncpy
 00000030 t touch_init
 00000030 T usbKeyboardPress
 00000032 T __eerd_block_m32u4
@@ -254,11 +253,11 @@
 00000068 T touchClearCurrentDetections
 00000070 T getParentNodeForLetter
 00000070 T readSMC
-00000072 T displayServiceAtGivenSlot
 00000072 T getNumberOfSecurityCodeTriesLeft
 00000072 T oledSetFont
 00000072 T performLowLevelWriteNErase
 00000074 T aes_addRoundKey_cpy
+00000074 T displayServiceAtGivenSlot
 00000074 T isCardPlugged
 00000076 T __vector_17
 00000076 T ctrPreEncryptionTasks
@@ -275,7 +274,6 @@
 00000084 T initiateI2cRead
 00000084 T searchForLoginInGivenParent
 00000086 T aes256_init_ecb
-00000088 T addNewUserForExistingCard
 00000088 T formatUserProfileMemory
 00000088 T oledClear
 00000090 T eraseSmartCard
@@ -288,6 +286,7 @@
 00000092 T scanSMCDectect
 00000092 T timerManagerTick
 00000092 t usbWaitFifoReady
+00000094 T addNewUserForExistingCard
 00000094 T displayCredentialAtSlot
 00000094 T getStoredFileAddr
 00000096 T initNodeManagementHandle
@@ -382,4 +381,4 @@
 00000818 T __vector_11
 00000968 T oledGlyphDraw
 00001056 T main
-00002396 T usbProcessIncoming
+00002464 T usbProcessIncoming

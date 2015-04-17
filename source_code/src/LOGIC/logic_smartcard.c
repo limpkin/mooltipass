@@ -86,6 +86,12 @@ RET_TYPE handleSmartcardInserted(void)
             }
             pin_code = 0x0000;
         }
+		else
+		{			
+			guiSetCurrentScreen(next_screen);
+			guiGetBackToCurrentScreen();
+			return return_value;
+		}
         printSmartCardInfo();
     }
     else if (detection_result == RETURN_MOOLTIPASS_USER)

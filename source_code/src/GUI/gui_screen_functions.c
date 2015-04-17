@@ -181,6 +181,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     
                 if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ERASE_TCARD)) == RETURN_OK)
                 {
+                    guiDisplayProcessingScreen();
                     eraseSmartCard();
                         
                     // Erase other smartcards
@@ -194,6 +195,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                             
                         // Wait for the user to insert a new smart card
                         while (isCardPlugged() != RETURN_JDETECT);
+                        guiDisplayProcessingScreen();
                             
                         // Check the card type & ask user to enter his pin, check that the new user id loaded by validCardDetectedFunction is still the same
                         if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_VCARD_OK) && (currentuserid == getCurrentUserID()))

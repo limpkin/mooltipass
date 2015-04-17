@@ -283,6 +283,7 @@ RET_TYPE cloneSmartCardProcess(volatile uint16_t* pincode)
     
     // Wait for the user to insert a blank smart card
     while (isCardPlugged() != RETURN_JDETECT);
+    guiDisplayProcessingScreen();
     
     // Check that we have a blank card
     if (cardDetectedRoutine() != RETURN_MOOLTIPASS_BLANK)

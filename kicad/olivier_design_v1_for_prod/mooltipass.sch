@@ -37,7 +37,7 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "M. Stephan - Mooltipass Schematics (Licensed under CERN OHL V1.2)"
-Date "28 feb 2015"
+Date "17 apr 2015"
 Rev "2"
 Comp ""
 Comment1 ""
@@ -665,7 +665,7 @@ L C C9
 U 1 1 52899DFE
 P 2200 1550
 F 0 "C9" H 2200 1650 40  0000 L CNN
-F 1 "10uF" H 2206 1465 40  0000 L CNN
+F 1 "4.7uF" H 2206 1465 40  0000 L CNN
 F 2 "~" H 2238 1400 30  0000 C CNN
 F 3 "~" H 2200 1550 60  0000 C CNN
 	1    2200 1550
@@ -1455,7 +1455,7 @@ F 3 "" H 8900 1500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text Notes 12400 650  0    60   ~ 0
-Copyright Mathieu Stephan, 2014\n\nThis documentation describes Open Hardware and is licensed under the\nCERN OHL v. 1.2.\n\nYou may redistribute and modify this documentation under the terms of the\nCERN OHL v.1.2. (http://ohwr.org/cernohl). This documentation is distributed\nWITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING OF MERCHANTABILITY,\nSATISFACTORY QUALITY AND FITNESS FOR A PARTICULAR PURPOSE. \nPlease see the CERN OHL v.1.2 for applicable conditions
+Copyright Mathieu Stephan, 2014-2015\n\nThis documentation describes Open Hardware and is licensed under the\nCERN OHL v. 1.2.\n\nYou may redistribute and modify this documentation under the terms of the\nCERN OHL v.1.2. (http://ohwr.org/cernohl). This documentation is distributed\nWITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING OF MERCHANTABILITY,\nSATISFACTORY QUALITY AND FITNESS FOR A PARTICULAR PURPOSE. \nPlease see the CERN OHL v.1.2 for applicable conditions
 $Comp
 L C C3
 U 1 1 52CB305A

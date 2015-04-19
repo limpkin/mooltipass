@@ -311,11 +311,7 @@ RET_TYPE touchDetectionRoutine(uint8_t led_mask)
         writeDataToTS(WHEEL_TRIGHT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_TRIGHT]);
         writeDataToTS(WHEEL_BLEFT_LED_REGISTER, led_states[TOUCHPOS_WHEEL_BLEFT]);
         writeDataToTS(WHEEL_BRIGHT_LED_REGISTER,  led_states[TOUCHPOS_WHEEL_BRIGHT]);
-    }
-        
-    // In some rare cases LED state changes can create detections. In that case we add a small delay
-    if (led_mask != last_led_mask)
-    {
+        // In some rare cases LED state changes can create detections. In that case we add a small delay
         timerBasedDelayMs(2);
         touchClearCurrentDetections();
     }

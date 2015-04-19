@@ -472,7 +472,7 @@ uint16_t loginSelectionScreen(void)
         if ((temp_rettype & RETURN_WHEEL_PRESSED) && (wasWheelReleased == TRUE))
         {
             // We use the timer dedicated to wait functions for min
-            activateTimer(TIMER_WAIT_FUNCTS, TAP_MIN_DEL);
+            activateTimer(TIMER_TOUCH_INHIBIT, TAP_MIN_DEL);
             // We use the timer dedicated to caps detect for max
             activateTimer(TIMER_CAPS, TAP_MAX_DEL);
             // This works because we use the same clearing flags 
@@ -481,7 +481,7 @@ uint16_t loginSelectionScreen(void)
         else if (temp_rettype & RETURN_WHEEL_RELEASED)
         {
             // Check if it's a tap and that the selected domain is valid
-            if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && (hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) == TIMER_EXPIRED) && (getWheelTouchDetectionQuarter() < nbMatchedParents))
+            if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && (hasTimerExpired(TIMER_TOUCH_INHIBIT, FALSE) == TIMER_EXPIRED) && (getWheelTouchDetectionQuarter() < nbMatchedParents))
             {
                 ret_val = tempParentAddresses[getWheelTouchDetectionQuarter()];
                 finished = TRUE;

@@ -131,6 +131,10 @@
 #define MEDIA_BITMAP		1
 #define MEDIA_FONT		2
 
+/* One line functions */
+#define oledNormalDisplay()     oledWriteCommand(CMD_SET_DISPLAY_MODE_NORMAL)
+#define oledInvertedDisplay()   oledWriteCommand(CMD_SET_DISPLAY_MODE_INVERSE)
+
 
 // Text line justification options
 enum {

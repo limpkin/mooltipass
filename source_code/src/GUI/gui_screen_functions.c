@@ -31,6 +31,7 @@
 #include "logic_aes_and_comms.h"
 #include "gui_pin_functions.h"
 #include "logic_smartcard.h"
+#include "timer_manager.h"
 #include "logic_eeprom.h"
 #include "node_mgmt.h"
 #include "defines.h"
@@ -413,7 +414,20 @@ void guiDisplayGoingToSleep(void)
 *   \return User confirmation or not
 */
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
-{
+{    
+    uint8_t flash_flag = FALSE;
+    
+    // Check if we want to flash the screen
+    if ((nb_args & 0xF0) != 0)
+    {
+        nb_args = nb_args & 0x0F;
+        // Check that the user didn't disable it
+        if (getMooltipassParameterInEeprom(FLASH_SCREEN_PARAM) != FALSE)
+        {
+            flash_flag = TRUE;
+        }
+    }
+    
     // Draw asking bitmap
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
@@ -434,6 +448,14 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     
     // Display result
     oledFlipBuffers(0,0);
+
+    // In case the display inverted, set it correctly
+    if (flash_flag == TRUE)
+    {
+        oledInvertedDisplay();
+        timerBasedDelayMs(1000);
+        oledNormalDisplay();
+    }
     
     // Wait for user input
     if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)

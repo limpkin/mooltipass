@@ -399,8 +399,8 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type)
     }
     conf_text.lines[1] = (char*)name;
     
-    // Ask for user approval
-    if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+    // Ask for user approval, flash screen
+    if(guiAskForConfirmation(0xF0 | 2, &conf_text) == RETURN_OK)
     {
         // Display processing screen
         guiDisplayProcessingScreen();

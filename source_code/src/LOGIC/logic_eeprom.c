@@ -51,6 +51,7 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     0x21,               // TOUCH_WHEEL_OS_PARAM0        Set touch wheel oversample (one bit gain)
     0x21,               // TOUCH_WHEEL_OS_PARAM1        Set touch wheel oversample (one bit gain)
     0x21,               // TOUCH_WHEEL_OS_PARAM2        Set touch wheel oversample (one bit gain)
+    TRUE,               // FLASH_SCREEN_PARAM           Enable flashy screen by default
 };
 
 

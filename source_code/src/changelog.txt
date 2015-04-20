@@ -1,4 +1,6 @@
 RC4:
+- flashy screen when adding service
+- ghost touches problem solved
 - size optimizations...
 
 RC3:

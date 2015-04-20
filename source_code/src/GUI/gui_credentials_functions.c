@@ -115,8 +115,8 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
         temp_conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_WITHTHISLOGIN);
         temp_conf_text.lines[3] = (char*)c->login;
         
-        // Prompt user for confirmation
-        if ((bypass_confirmation == TRUE) || (guiAskForConfirmation(4, &temp_conf_text) == RETURN_OK))
+        // Prompt user for confirmation, flash the screen
+        if ((bypass_confirmation == TRUE) || (guiAskForConfirmation(0xF0 | 4, &temp_conf_text) == RETURN_OK))
         {
             picked_child = first_child_address;
         }

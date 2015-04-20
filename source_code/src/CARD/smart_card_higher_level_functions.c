@@ -82,7 +82,7 @@ RET_TYPE mooltipassDetectedRoutine(volatile uint16_t* pin_code)
         else                                                            // Everything is in order - proceed
         {
             // Check that read / write accesses are correctly configured
-            if ((checkAuthenticatedReadWriteAccessToZone1() == RETURN_NOK) || (checkAuthenticatedReadWriteAccessToZone2() == RETURN_NOK))
+            if (checkAuthenticatedReadWriteAccessToZone1And2() == RETURN_NOK)
             {
                 #ifdef DEBUG_SMC_USB_PRINT
                     usbPutstr_P(PSTR("Bad access settings!\r\n"));
@@ -435,6 +435,28 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void)
     readSMC(94, 92, temp_buffer);
 
     if ((temp_buffer[0] == 0x80) && (temp_buffer[1] == 0x00))
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
+/*! \fn     checkAuthenticatedReadWriteAccessToZone1And2(void)
+*   \brief  Function called to check that only reads and writes are allowed to the application zone 1 when authenticated
+*   \return OK or NOK
+*/
+RET_TYPE checkAuthenticatedReadWriteAccessToZone1And2(void)
+{
+    uint8_t temp_buffer[2];
+    uint8_t temp_buffer2[2];
+
+    readSMC(24, 22, temp_buffer);
+    readSMC(94, 92, temp_buffer2);
+
+    if ((temp_buffer[0] == 0x80) && (temp_buffer[1] == 0x00) && (temp_buffer2[0] == 0x80) && (temp_buffer2[1] == 0x00))
     {
         return RETURN_OK;
     }

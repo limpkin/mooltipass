@@ -48,14 +48,6 @@ void smartcardHPulseDelay(void)
     _delay_loop_1(11);
 }
 
-/*! \fn     smartcardPowerDelay(void)
-*   \brief  Delay to let the card come online/offline
-*/
-void smartcardPowerDelay(void)
-{
-    timerBasedDelayMs(200);
-}
-
 /*! \fn     smartcardTchpDelay(void)
 *   \brief  Tchp delay (3.0ms min)
 */
@@ -667,7 +659,7 @@ RET_TYPE firstDetectFunctionSMC(void)
     #endif
 
     /* Let the card come online */
-    smartcardPowerDelay();
+    timerBased130MsDelay();timerBased130MsDelay();
 
     /* Check smart card FZ */
     readFabricationZone(data_buffer);

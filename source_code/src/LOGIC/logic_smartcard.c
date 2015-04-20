@@ -165,7 +165,7 @@ RET_TYPE removeCardAndReAuthUser(void)
     handleSmartcardRemoved();
     
     // Wait a few ms
-    smartcardPowerDelay();
+    timerBased130MsDelay();
     
     // Launch Unlocking process
     if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_VCARD_OK))

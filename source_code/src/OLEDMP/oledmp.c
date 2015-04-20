@@ -827,7 +827,7 @@ void oledSetFont(uint8_t fontIndex)
 void oledOff(void)
 {
     oledWriteCommand(CMD_SET_DISPLAY_OFF);
-    timerBasedDelayMs(100);
+    timerBased130MsDelay();
     PORT_OLED_POW |= (1 << PORTID_OLED_POW);
     oled_isOn = FALSE;
 }
@@ -839,7 +839,7 @@ void oledOff(void)
 void oledOn(void)
 {
     PORT_OLED_POW &= ~(1 << PORTID_OLED_POW);
-    timerBasedDelayMs(100);
+    timerBased130MsDelay();
     oledWriteCommand(CMD_SET_DISPLAY_ON);
     oled_isOn = TRUE;
 }
@@ -1063,7 +1063,7 @@ void oledScrollUp(uint8_t lines, bool clear)
 void oledReset()
 {
     PORT_OLED_nR &= ~(1 << PORTID_OLED_nR);
-    timerBasedDelayMs(100);
+    timerBased130MsDelay();
     PORT_OLED_nR |= (1 << PORTID_OLED_nR);
     timerBasedDelayMs(10);
 }

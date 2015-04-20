@@ -115,3 +115,11 @@ void timerBasedDelayMs(uint16_t ms)
     activateTimer(TIMER_WAIT_FUNCTS, ms+1);
     while(hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) != TIMER_EXPIRED);
 }
+
+/*!	\fn		timerBased130MsDelay(void)
+*	\brief	Many times in our code such delay is needed.
+*/
+void timerBased130MsDelay(void)
+{
+    timerBasedDelayMs(130);
+}    

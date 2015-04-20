@@ -27,14 +27,14 @@
 #ifndef DELAYS_H_
 #define DELAYS_H_
 
-#include "smartcard.h"
+#include "timer_manager.h"
 
 // Prototypes
 void userViewDelay(void);
 
 // Macros
-#define powerSettlingDelay()                smartcardPowerDelay();
-#define touchSensorInterruptLineDelay()     smartcardPowerDelay()
-#define screenComingOnDelay()               smartcardPowerDelay()
+#define powerSettlingDelay()                timerBased130MsDelay()
+#define touchSensorInterruptLineDelay()     timerBased130MsDelay()
+#define screenComingOnDelay()               timerBased130MsDelay()
 
 #endif /* DELAYS_H_ */

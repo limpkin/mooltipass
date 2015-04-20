@@ -32,6 +32,7 @@
 
 // Prototypes
 void timerManagerTick(void);
+void timerBased130MsDelay(void);
 void timerBasedDelayMs(uint16_t ms);
 void activateTimer(uint8_t uid, uint16_t val);
 RET_TYPE hasTimerExpired(uint8_t uid, uint8_t clear);

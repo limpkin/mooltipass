@@ -37,7 +37,6 @@ void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2);
 RET_TYPE securityValidationSMC(volatile uint16_t* code);
 RET_TYPE firstDetectFunctionSMC(void);
 void blowFuse(uint8_t fuse_name);
-void smartcardPowerDelay(void);
 RET_TYPE isCardPlugged(void);
 void removeFunctionSMC(void);
 void scanSMCDectect(void);

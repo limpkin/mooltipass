@@ -452,6 +452,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     // In case the display inverted, set it correctly
     if (flash_flag == TRUE)
     {
+        activityDetectedRoutine();
         oledInvertedDisplay();
         timerBasedDelayMs(500);
         oledNormalDisplay();

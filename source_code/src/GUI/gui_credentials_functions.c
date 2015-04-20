@@ -471,7 +471,7 @@ uint16_t loginSelectionScreen(void)
         // Algo to differentiate a tap from a scroll
         if ((temp_rettype & RETURN_WHEEL_PRESSED) && (wasWheelReleased == TRUE))
         {
-            // We use the timer dedicated to wait functions for min
+            // We use the timer dedicated to touch inhibit for min
             activateTimer(TIMER_TOUCH_INHIBIT, TAP_MIN_DEL);
             // We use the timer dedicated to caps detect for max
             activateTimer(TIMER_CAPS, TAP_MAX_DEL);

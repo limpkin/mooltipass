@@ -453,7 +453,11 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     if (flash_flag == TRUE)
     {
         oledInvertedDisplay();
-        timerBasedDelayMs(1000);
+        timerBasedDelayMs(500);
+        oledNormalDisplay();
+        timerBasedDelayMs(500);
+        oledInvertedDisplay();
+        timerBasedDelayMs(500);
         oledNormalDisplay();
     }
     

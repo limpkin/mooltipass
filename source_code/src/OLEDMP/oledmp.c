@@ -44,6 +44,7 @@
  */
 
 #include <avr/pgmspace.h>
+#include <string.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <alloca.h>
@@ -206,12 +207,6 @@ void oledBegin(uint8_t font)
 
     oledSetFont(font);
     oledInit();
-
-    for (uint8_t ind=0; ind<OLED_HEIGHT*2; ind++) 
-    {
-        gddram[ind].xaddr = 0;
-        gddram[ind].pixels = 0;
-    }
 
 #ifdef ENABLE_PRINTF
     // Map stdout to use the OLED display.

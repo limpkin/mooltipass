@@ -276,6 +276,7 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone2(void);
 RET_TYPE writeMooltipassWebsiteLogin(uint8_t* buffer);
 RET_TYPE setAuthenticatedReadWriteAccessToZone1(void);
 RET_TYPE setAuthenticatedReadWriteAccessToZone2(void);
+void setAuthenticatedReadWriteAccessToZone1and2(void);
 void writeSecurityCode(volatile uint16_t* code);
 RET_TYPE transformBlankCardIntoMooltipass(void);
 uint8_t getNumberOfSecurityCodeTriesLeft(void);

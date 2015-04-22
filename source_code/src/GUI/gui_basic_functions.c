@@ -112,6 +112,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         }
     #endif
 
+    //#define USB_CANCEL_REQ
     #ifdef USB_CANCEL_REQ
     uint8_t incomingData[RAWHID_TX_SIZE];
     #endif

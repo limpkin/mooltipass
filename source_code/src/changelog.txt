@@ -4,6 +4,7 @@ RC4:
 - flashy screen when adding service
 - ghost touches problem solved
 - size optimizations...
+- new bundle required
 
 RC3:
 - more information on the cloning process - new bundle required!

@@ -249,8 +249,7 @@ RET_TYPE transformBlankCardIntoMooltipass(void)
     writeManufacturerZone(temp_buffer);
 
     /* Set application zone 1 and zone 2 permissions: read/write when authenticated only */
-    setAuthenticatedReadWriteAccessToZone1();
-    setAuthenticatedReadWriteAccessToZone2();
+    setAuthenticatedReadWriteAccessToZone1and2();
 
     /* Burn manufacturer fuse */
     writeManufacturerFuse();
@@ -281,8 +280,7 @@ void eraseSmartCard(void)
     eraseApplicationZone1NZone2SMC(TRUE);
 
     /* Set application zone 1 and zone 2 permissions: read/write when authenticated only */
-    setAuthenticatedReadWriteAccessToZone1();
-    setAuthenticatedReadWriteAccessToZone2();
+    setAuthenticatedReadWriteAccessToZone1and2();
     
     // Reset default pin code
     writeSecurityCode(&default_pin);
@@ -422,6 +420,18 @@ RET_TYPE setAuthenticatedReadWriteAccessToZone2(void)
     writeSMC(736, 16, temp_buffer);
     
     return checkAuthenticatedReadWriteAccessToZone2();
+}
+
+/*! \fn     setAuthenticatedReadWriteAccessToZone1and2(void)
+*   \brief  Function called to only allow reads and writes to the application zone 1 & 2 when authenticated
+*/
+void setAuthenticatedReadWriteAccessToZone1and2(void)
+{
+    uint8_t temp_buffer[2] = {0x80, 0x00};
+    // Set P1 to 1 to allow write, remove R1 to prevent non authenticated reads
+    writeSMC(176, 16, temp_buffer);
+    // Set P2 to 1 to allow write, remove R2 to prevent non authenticated reads
+    writeSMC(736, 16, temp_buffer);
 }
 
 /*! \fn     checkAuthenticatedReadWriteAccessToZone2(void)

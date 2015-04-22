@@ -216,6 +216,14 @@ From plugin/app: ask the CPZ of the currently inserted card, when unknown card i
 
 From Mooltipass: 0x00 when error or end of data, the CPZ otherwise
 
+0xC3: Cancel User Request
+-------------------------
+From plugin/app: cancel input request from user
+
+0xC4: Please Retry
+------------------
+From Mooltipass: Message informing the app to re-send the previous packet
+
 Commands in data management mode
 ================================
 

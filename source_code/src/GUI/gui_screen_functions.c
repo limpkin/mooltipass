@@ -339,7 +339,7 @@ RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin, uint8_t message_id)
 void guiDisplayProcessingScreen(void)
 {
     // No LEDs
-    touchDetectionRoutine(0);
+    touchDetectionRoutine(0xFF);
     guiDisplayInformationOnScreen(ID_STRING_PROCESSING);
 }
 
@@ -350,7 +350,7 @@ void guiDisplayProcessingScreen(void)
 void guiDisplayInformationOnScreen(uint8_t stringID)
 {
     oledClear();
-    touchDetectionRoutine(0);
+    touchDetectionRoutine(0xFF);
     oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(stringID));
     oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
     oledFlipBuffers(0,0);

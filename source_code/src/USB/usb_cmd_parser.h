@@ -66,6 +66,8 @@
 #define CMD_WRITE_32B_IN_DN     0xC0
 #define CMD_READ_32B_IN_DN      0xC1
 #define CMD_GET_CUR_CARD_CPZ    0xC2
+#define CMD_CANCEL_REQUEST      0xC3
+#define CMD_PLEASE_RETRY        0xC4
 // Leave some space here for future commands
 /******* COMMANDS FOR DATA MANAGEMENT MODE *******/
 #define CMD_READ_FLASH_NODE     0xC5

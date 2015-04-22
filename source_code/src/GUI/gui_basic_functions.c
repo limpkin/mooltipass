@@ -112,6 +112,9 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         }
     #endif
 
+    #ifdef USB_CANCEL_REQ
+    uint8_t incomingData[RAWHID_TX_SIZE];
+    #endif
     RET_TYPE touch_detect_result;
     
     // Switch on lights
@@ -129,6 +132,22 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         {
             return -1;
         }
+        #ifdef USB_CANCEL_REQ
+        // Read usb comms as the plugin could ask to cancel the request
+        if (usbRawHidRecv(incomingData) != RETURN_COM_TRANSF_OK)
+        {
+            if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
+            {
+                // Request cancelled
+                return -1;
+            }
+            else
+            {
+                // Another packet (that shouldn't be sent!), ask to retry later...
+                usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
+            }
+        }
+        #endif
         touch_detect_result = touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK;
     }
     while (!touch_detect_result);

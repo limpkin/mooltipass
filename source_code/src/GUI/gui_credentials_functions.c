@@ -98,6 +98,8 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
     // Check if there are stored credentials
     if (first_child_address == NODE_ADDR_NULL)
     {
+        guiDisplayInformationOnScreen(ID_STRING_NO_CREDS);
+        userViewDelay();
         return NODE_ADDR_NULL;
     }
     

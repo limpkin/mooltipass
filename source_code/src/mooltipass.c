@@ -483,23 +483,23 @@ int main(void)
         }
         
         // Two quick caps lock presses wakes up the device        
-        if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
-        {
-            wasCapsLockTimerArmed = TRUE;
-            activateTimer(TIMER_CAPS, CAPS_LOCK_DEL);
-        }
-        else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && !(getKeyboardLeds() & HID_CAPS_MASK))
-        {
-            if (isScreenSaverOn() == TRUE)
-            {
-                guiGetBackToCurrentScreen();
-            }
-            activityDetectedRoutine();
-        }
-        else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && !(getKeyboardLeds() & HID_CAPS_MASK))
-        {
-            wasCapsLockTimerArmed = FALSE;            
-        }
+//         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
+//         {
+//             wasCapsLockTimerArmed = TRUE;
+//             activateTimer(TIMER_CAPS, CAPS_LOCK_DEL);
+//         }
+//         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && !(getKeyboardLeds() & HID_CAPS_MASK))
+//         {
+//             if (isScreenSaverOn() == TRUE)
+//             {
+//                 guiGetBackToCurrentScreen();
+//             }
+//             activityDetectedRoutine();
+//         }
+//         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && !(getKeyboardLeds() & HID_CAPS_MASK))
+//         {
+//             wasCapsLockTimerArmed = FALSE;            
+//         }
         
         // If we have a timeout lock
         if ((mp_timeout_enabled == TRUE) && (hasTimerExpired(SLOW_TIMER_LOCKOUT, TRUE) == TIMER_EXPIRED))

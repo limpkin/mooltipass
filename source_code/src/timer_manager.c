@@ -123,3 +123,11 @@ void timerBased130MsDelay(void)
 {
     timerBasedDelayMs(130);
 }    
+
+/*!	\fn		timerBased500MsDelay(void)
+*	\brief	Many times in our code such delay is needed.
+*/
+void timerBased500MsDelay(void)
+{
+    timerBasedDelayMs(500);
+} 

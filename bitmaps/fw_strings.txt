@@ -70,3 +70,4 @@ PIN Codes Differ!
 Target Card Isn't Blank!
 Enter New PIN
 Erase The Card As Well?
+No Stored Credentials

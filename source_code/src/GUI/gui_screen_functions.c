@@ -338,6 +338,8 @@ RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin, uint8_t message_id)
 */
 void guiDisplayProcessingScreen(void)
 {
+    // No LEDs
+    touchDetectionRoutine(0);
     guiDisplayInformationOnScreen(ID_STRING_PROCESSING);
 }
 
@@ -348,6 +350,7 @@ void guiDisplayProcessingScreen(void)
 void guiDisplayInformationOnScreen(uint8_t stringID)
 {
     oledClear();
+    touchDetectionRoutine(0);
     oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(stringID));
     oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
     oledFlipBuffers(0,0);
@@ -454,11 +457,11 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     {
         activityDetectedRoutine();
         oledInvertedDisplay();
-        timerBasedDelayMs(500);
+        timerBased500MsDelay();
         oledNormalDisplay();
-        timerBasedDelayMs(500);
+        timerBased500MsDelay();
         oledInvertedDisplay();
-        timerBasedDelayMs(500);
+        timerBased500MsDelay();
         oledNormalDisplay();
     }
     

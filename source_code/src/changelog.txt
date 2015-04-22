@@ -1,6 +1,7 @@
 RC4:
 - no screen flipping when no credentials for given service
 - informing user of no credentials for given service
+- LEDS off when displaying information
 - flashy screen when adding service
 - ghost touches problem solved
 - size optimizations...

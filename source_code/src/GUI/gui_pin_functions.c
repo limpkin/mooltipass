@@ -147,7 +147,6 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
             oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
-            touchSensorInterruptLineDelay();
         }
         else if (temp_rettype & RETURN_RIGHT_PRESSED)
         {
@@ -167,7 +166,6 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
             oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
-            touchSensorInterruptLineDelay();
         }
     }
     

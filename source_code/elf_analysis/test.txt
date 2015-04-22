@@ -215,8 +215,6 @@
 00000048 T deleteUserIdFromSMCUIDLUT
 00000048 T oledScrollUp
 00000048 T oledSetRowAddr
-00000048 T setAuthenticatedReadWriteAccessToZone1
-00000048 T setAuthenticatedReadWriteAccessToZone2
 00000050 T writeSecurityCode
 00000052 T aes_shiftRows
 00000054 T __epilogue_restores__
@@ -225,8 +223,6 @@
 00000054 T initEncryptionHandling
 00000055 t oled_init
 00000056 T __prologue_saves__
-00000056 T checkAuthenticatedReadWriteAccessToZone1
-00000056 T checkAuthenticatedReadWriteAccessToZone2
 00000056 T findSmcUidLUTEmptySlot
 00000056 T guiDisplayLoginOrPasswordOnScreen
 00000056 T oledSetWindow
@@ -238,6 +234,7 @@
 00000062 T handleSmartcardRemoved
 00000062 T oledStrWidth
 00000062 T readDataFromTS
+00000062 T setAuthenticatedReadWriteAccessToZone1and2
 00000062 T setStartingParent
 00000062 T writeDataToTS
 00000063 T descriptor_list
@@ -276,9 +273,9 @@
 00000084 T initiateI2cRead
 00000084 T searchForLoginInGivenParent
 00000086 T aes256_init_ecb
+00000086 T eraseSmartCard
 00000088 T formatUserProfileMemory
 00000088 T oledClear
-00000090 T eraseSmartCard
 00000092 T activityDetectedRoutine
 00000092 T checkMooltipassPassword
 00000092 T guiCardUnlockingProcess
@@ -330,9 +327,9 @@
 00000134 T fillArrayWithRandomBytes
 00000136 t encrypt32bBlockOfDataAndClearCTVFlag
 00000136 T eraseApplicationZone1NZone2SMC
+00000136 T transformBlankCardIntoMooltipass
 00000140 T addNewContext
 00000140 T aes256_encrypt_ecb
-00000140 T transformBlankCardIntoMooltipass
 00000140 T usbKeybPutChar
 00000150 T updateChildNode
 00000152 T addNewUserAndNewSmartCard

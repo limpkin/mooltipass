@@ -343,17 +343,26 @@ void guiDisplayProcessingScreen(void)
     guiDisplayInformationOnScreen(ID_STRING_PROCESSING);
 }
 
+/*! \fn     guiDisplayTextInformationOnScreen(char* text)
+*   \brief  Display text information on screen
+*   \param  text    Text to display
+*/
+void guiDisplayTextInformationOnScreen(char* text)
+{
+    oledClear();
+    touchDetectionRoutine(0xFF);
+    oledPutstrXY(10, 24, OLED_CENTRE, text);
+    oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+    oledFlipBuffers(0,0);
+}
+
 /*! \fn     guiDisplayInformationOnScreen(uint8_t stringID)
 *   \brief  Display text information on screen
 *   \param  stringID    String ID to display
 */
 void guiDisplayInformationOnScreen(uint8_t stringID)
 {
-    oledClear();
-    touchDetectionRoutine(0xFF);
-    oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(stringID));
-    oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
-    oledFlipBuffers(0,0);
+    guiDisplayTextInformationOnScreen(readStoredStringToBuffer(stringID));
 }
 
 /*! \fn     guiDisplayRawString(uint8_t stringID)
@@ -371,10 +380,7 @@ void guiDisplayRawString(uint8_t stringID)
 */
 void guiDisplayLoginOrPasswordOnScreen(char* text)
 {
-    oledClear();
-    oledPutstrXY(10, 24, OLED_CENTRE, text);
-    oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
-    oledFlipBuffers(0,0);
+    guiDisplayTextInformationOnScreen(text);
     getTouchedPositionAnswer(0);
 }
 

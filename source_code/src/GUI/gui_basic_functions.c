@@ -112,10 +112,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         }
     #endif
 
-    //#define USB_CANCEL_REQ
-    #ifdef USB_CANCEL_REQ
     uint8_t incomingData[RAWHID_TX_SIZE];
-    #endif
     RET_TYPE touch_detect_result;
     
     // Switch on lights
@@ -133,9 +130,8 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         {
             return -1;
         }
-        #ifdef USB_CANCEL_REQ
         // Read usb comms as the plugin could ask to cancel the request
-        if (usbRawHidRecv(incomingData) != RETURN_COM_TRANSF_OK)
+        if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) != RETURN_COM_TRANSF_OK))
         {
             if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
             {
@@ -148,7 +144,6 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
                 usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
             }
         }
-        #endif
         touch_detect_result = touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK;
     }
     while (!touch_detect_result);

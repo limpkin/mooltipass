@@ -39,7 +39,7 @@
 // Total number of LUT entries. LUT is located near the end of the eeprom with reserved bytes at the end
 #define NB_MAX_SMCID_UID_MATCH_ENTRIES  ((EEPROM_SIZE - EEP_SMC_IC_USER_MATCH_START_ADDR - EEPROM_END_RESERVED)/SMCID_UID_MATCH_ENTRY_LENGTH)
 // Correct key to prevent mooltipass settings reinit
-#define USER_PARAM_CORRECT_INIT_KEY         0x26
+#define USER_PARAM_CORRECT_INIT_KEY         0x86
 // Mooltipass eeprom parameters define
 #define USER_PARAM_INIT_KEY_PARAM           0
 #define KEYBOARD_LAYOUT_PARAM               1
@@ -56,6 +56,7 @@
 #define TOUCH_WHEEL_OS_PARAM1               12
 #define TOUCH_WHEEL_OS_PARAM2               13
 #define FLASH_SCREEN_PARAM                  14
+#define USER_REQ_CANCEL_PARAM               15
 #define FIRST_USER_PARAM                    KEYBOARD_LAYOUT_PARAM
 
 /** Prototypes **/

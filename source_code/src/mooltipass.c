@@ -63,6 +63,8 @@ bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 volatile uint8_t wasCapsLockTimerArmed = FALSE;
 // Boolean to know if user timeout is enabled
 uint8_t mp_timeout_enabled = FALSE;
+// Flag set by anything to signal activity
+uint8_t act_detected_flag = FALSE;
 
 
 /*! \fn     disableJTAG(void)
@@ -426,6 +428,13 @@ int main(void)
     {
         // Process possible incoming USB packets
         usbProcessIncoming(USB_CALLER_MAIN);
+        
+        // Launch activity detected routine if flag is set
+        if (act_detected_flag != FALSE)
+        {
+            activityDetectedRoutine();
+            act_detected_flag = FALSE;
+        }
         
         // Call GUI routine once the touch input inhibit timer is finished
         if (hasTimerExpired(TIMER_TOUCH_INHIBIT, FALSE) == TIMER_EXPIRED)

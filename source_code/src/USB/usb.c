@@ -24,6 +24,7 @@
 #include "timer_manager.h"
 #include "logic_eeprom.h"
 #include "hid_defines.h"
+#include "mooltipass.h"
 #include "defines.h"
 #include "oledmp.h"
 #include "usb.h"
@@ -272,6 +273,11 @@ ISR(USB_GEN_vect)
     // Detect pseudo suspend mode
     if ((intbits & (1<<SOFI)) && usb_configuration) 
     {
+        if (getTimerVal(TIMER_USB_SUSPEND) == 0)
+        {
+            // If we had locked the device, set flag to wake it up
+            act_detected_flag = TRUE;
+        }
         activateTimer(TIMER_USB_SUSPEND, 65000);
     }
 }

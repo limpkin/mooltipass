@@ -106,6 +106,17 @@ void activateTimer(uint8_t uid, uint16_t val)
     }
 }
 
+
+/*!	\fn		getTimerVal(uint8_t uid)
+*	\brief	Get current timer val
+*   \param  uid     Unique ID
+*   \return the timer val
+*/
+uint16_t getTimerVal(uint8_t uid)
+{
+    return context_timers[uid].timer_val;
+}
+
 /*!	\fn		timerBasedDelayMs(uint16_t ms)
 *	\brief	Timer based ms delay
 *   \param  ms  Number of ms

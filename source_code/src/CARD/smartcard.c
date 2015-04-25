@@ -612,7 +612,7 @@ uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_
         /* Start transmission */
         SPDR = 0x00;
         /* Wait for transmission complete */
-        while(!(SPSR & (1<<SPIF)));
+        while((!(SPSR & (1<<SPIF))) && (isSmartCardAbsent() == RETURN_NOK));
         /* Store data in buffer or discard it*/
         if (i >= start_record_index)
         {

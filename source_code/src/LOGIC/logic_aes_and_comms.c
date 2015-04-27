@@ -182,7 +182,7 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t mode, uint8_t type)
             // Compare its service name with the name that was provided
             if (mode == COMPARE_MODE_MATCH)
             {
-                compare_result = strcmp((char*)name, (char*)temp_pnode.service);
+                compare_result = strncmp((char*)name, (char*)temp_pnode.service, NODE_CHILD_SIZE_OF_LOGIN);
                 
                 if (compare_result == 0)
                 {
@@ -195,7 +195,7 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t mode, uint8_t type)
                     return NODE_ADDR_NULL;
                 }
             }
-            else if ((mode == COMPARE_MODE_COMPARE) && (strcmp((char*)name, (char*)temp_pnode.service) < 0))
+            else if ((mode == COMPARE_MODE_COMPARE) && (strncmp((char*)name, (char*)temp_pnode.service, NODE_CHILD_SIZE_OF_LOGIN) < 0))
             {
                 return next_node_addr;
             }
@@ -235,7 +235,7 @@ uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name)
         readChildNode(&temp_cnode, next_node_addr);
         
         // Compare login with the provided name
-        if (strcmp((char*)temp_cnode.login, (char*)name) == 0)
+        if (strncmp((char*)temp_cnode.login, (char*)name, NODE_CHILD_SIZE_OF_LOGIN) == 0)
         {
             return next_node_addr;
         }
@@ -260,7 +260,7 @@ void ctrPreEncryptionTasks(void)
     readProfileCtr(temp_buffer);
     
     // If it is the same value, increment it by CTR_FLASH_MIN_INCR and store it in flash
-    if (aesCtrCompare(temp_buffer, nextCtrVal, USER_CTR_SIZE) == 0)
+    if (memcmp(temp_buffer, nextCtrVal, USER_CTR_SIZE) == 0)
     {
         for (i = USER_CTR_SIZE-1; i > 0; i--)
         {
@@ -821,7 +821,7 @@ RET_TYPE checkPasswordForContext(uint8_t* password)
             // Call the password decryption function, which also clears the credential_timer_valid flag
             decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
             
-            if (strcmp((char*)temp_cnode.password, (char*)password) == 0)
+            if (strncmp((char*)temp_cnode.password, (char*)password, NODE_CHILD_SIZE_OF_PASSWORD) == 0)
             {
                 memset((void*)temp_cnode.password, 0x00, NODE_CHILD_SIZE_OF_PASSWORD);
                 return RETURN_PASS_CHECK_OK;

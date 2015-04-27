@@ -1073,8 +1073,8 @@ void deleteCurrentUserFromFlash(void)
         next_parent_addr = temp_address;
     }
     
-    // Empty service lut
-    memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));
+    // Empty service lut (not needed as the user is deleted)
+    //memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));
 }
 
 /**

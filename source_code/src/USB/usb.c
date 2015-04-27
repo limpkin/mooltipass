@@ -941,8 +941,6 @@ RET_TYPE usbPutstr(const char *str)
 */
 RET_TYPE usbKeybPutChar(char ch)
 {
-    uint8_t key;
-    
     if((ch == '\r') || (ch == '\n'))
     {
         // New line
@@ -955,38 +953,42 @@ RET_TYPE usbKeybPutChar(char ch)
     }
     else
     {
-        key = getKeybLutEntryForLayout(getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM), ch);
+        // Get correct keyboard key depending on the layout
+        uint8_t key = getKeybLutEntryForLayout(getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM), ch);
+        uint8_t masked_key = key & (SHIFT_MASK|ALTGR_MASK);
+        
         if ((key & 0x3F) == KEY_EUROPE_2)
         {
-            if ((key & (SHIFT_MASK|ALTGR_MASK)) == (SHIFT_MASK|ALTGR_MASK))
+            // Because of a redefine of KEY_EUROPE_2 for storage purposes we need to do that
+            uint8_t mod_tbs = 0;
+            
+            if (masked_key == (SHIFT_MASK|ALTGR_MASK))
             {
-                return usbKeyboardPress(KEY_EUROPE_2_REAL, KEY_SHIFT|KEY_RIGHT_ALT);
+                mod_tbs = KEY_SHIFT|KEY_RIGHT_ALT;
             }
-            else if (key & SHIFT_MASK)
+            else if (masked_key == SHIFT_MASK)
             {
-                return usbKeyboardPress(KEY_EUROPE_2_REAL, KEY_SHIFT);
+                mod_tbs = KEY_SHIFT;
             }
-            else if (key & ALTGR_MASK)
+            else if (masked_key == ALTGR_MASK)
             {
-                return usbKeyboardPress(KEY_EUROPE_2_REAL, KEY_RIGHT_ALT);
+                mod_tbs = KEY_RIGHT_ALT;
             }
-            else
-            {
-                return usbKeyboardPress(KEY_EUROPE_2_REAL, 0);
-            }
+            
+            // Send the correct KEY_EUROPE_2 with the correct modifier
+            return usbKeyboardPress(KEY_EUROPE_2_REAL, mod_tbs);
         }
-        else if ((key & (SHIFT_MASK|ALTGR_MASK)) == (SHIFT_MASK|ALTGR_MASK))
+        else if (masked_key == (SHIFT_MASK|ALTGR_MASK))
         {
             return usbKeyboardPress(key & ~(SHIFT_MASK|ALTGR_MASK), KEY_SHIFT|KEY_RIGHT_ALT);
         }
-        else if (key & SHIFT_MASK)
+        else if (masked_key == SHIFT_MASK)
         {
             // If we need shift
             return usbKeyboardPress(key & ~SHIFT_MASK, KEY_SHIFT);
         }
-        else if (key & ALTGR_MASK)
-        {
-            
+        else if (masked_key == ALTGR_MASK)
+        {            
             // We need altgr for the numbered keys, only possible because we don't use the numerical keypad
             return usbKeyboardPress(key & ~ALTGR_MASK, KEY_RIGHT_ALT);
         }

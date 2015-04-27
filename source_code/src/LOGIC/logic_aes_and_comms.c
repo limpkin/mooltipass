@@ -308,7 +308,7 @@ void decrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 *   \param  data    Data to be decrypted
 *   \param  ctr     Pointer to where to store the ctr
 */
-static inline void encrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
+void encrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 {
     uint8_t temp_buffer[AES256_CTR_LENGTH];
     

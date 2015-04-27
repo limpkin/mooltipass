@@ -29,6 +29,236 @@
 #include "usb.h"
 #include <string.h>
 
+/*! \fn     readAES256BitsKey(uint8_t* buffer)
+*   \brief  Read the AES 256 bits key from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
+*   \param  buffer  Buffer to store the AES key
+*/
+void readAES256BitsKey(uint8_t* buffer)
+{
+    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH)/8, (SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED)/8, buffer);
+}
+
+/*! \fn     readApplicationZone1(uint8_t* buffer)
+*   \brief  Read Application Zone 1 data
+*   \param  buffer  Buffer to store the data
+*/
+void readApplicationZone1(uint8_t* buffer)
+{
+    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ1_BIT_START)/8, buffer);
+}
+
+/*! \fn     writeApplicationZone1(uint8_t* buffer)
+*   \brief  Write Application Zone 1 data
+*   \param  buffer  Data to be written
+*/
+void writeApplicationZone1(uint8_t* buffer)
+{
+    writeSMC(SMARTCARD_AZ1_BIT_START, SMARTCARD_AZ_BIT_LENGTH, buffer);
+}
+
+/*! \fn     readApplicationZone2(uint8_t* buffer)
+*   \brief  Read Application Zone 2 data
+*   \param  buffer  Buffer to store the data
+*/
+void readApplicationZone2(uint8_t* buffer)
+{
+    readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ_BIT_LENGTH)/8, (SMARTCARD_AZ2_BIT_START)/8, buffer);
+}
+
+/*! \fn     writeApplicationZone2(uint8_t* buffer)
+*   \brief  Write Application Zone 2 data
+*   \param  buffer  Data to be written
+*/
+void writeApplicationZone2(uint8_t* buffer)
+{
+    writeSMC(SMARTCARD_AZ2_BIT_START, SMARTCARD_AZ_BIT_LENGTH, buffer);
+}
+
+/*! \fn     readMooltipassWebsiteLogin(uint8_t* buffer)
+*   \brief  Read the Mooltipass website login from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
+*   \param  buffer  Buffer to store the login
+*/
+void readMooltipassWebsiteLogin(uint8_t* buffer)
+{
+    // We take the space left in AZ2 -> 62 bytes (512 - 16 = 62 bytes)
+    readSMC((SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ2_BIT_RESERVED + SMARTCARD_MTP_LOGIN_LENGTH)/8, (SMARTCARD_AZ2_BIT_START + SMARTCARD_AZ2_BIT_RESERVED)/8, buffer);
+}
+
+/*! \fn     readMooltipassWebsitePassword(uint8_t* buffer)
+*   \brief  Read the Mooltipass website password from the card. Note that it is up to the code calling this function to check that we're authenticated, otherwise 0s will be read
+*   \param  buffer  Buffer to store the password
+*/
+void readMooltipassWebsitePassword(uint8_t* buffer)
+{
+    // We take the space left in AZ1 -> 30 bytes (512 - 256 - 16 = 30 bytes)
+    readSMC((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH + SMARTCARD_MTP_PASS_LENGTH)/8, (SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH)/8, buffer);
+}
+
+/*! \fn     readFabricationZone(uint8_t* buffer)
+*   \brief  Read the fabrication zone (security mode 1&2)
+*   \param  buffer  Pointer to a buffer (2 bytes required)
+*   \return The provided pointer
+*/
+uint8_t* readFabricationZone(uint8_t* buffer)
+{
+    readSMC(2, 0, buffer);
+    return buffer;
+}
+
+/*! \fn     readIssuerZone(uint8_t* buffer)
+*   \brief  Read the issuer zone (security mode 1&2)
+*   \param  buffer  Pointer to a buffer (8 bytes required)
+*   \return The provided pointer
+*/
+uint8_t* readIssuerZone(uint8_t* buffer)
+{
+    readSMC(10, 2, buffer);
+    return buffer;
+}
+
+/*! \fn     writeIssuerZone(uint8_t* buffer)
+*   \brief  Write in the issuer zone (security mode 1 - Authenticated!)
+*   \param  buffer  Pointer to a buffer (8 bytes required)
+*/
+void writeIssuerZone(uint8_t* buffer)
+{
+    writeSMC(16, 64, buffer);
+}
+
+/*! \fn     readSecurityCodeAttemptsCounters(uint8_t* buffer)
+*   \brief  Read the number of code attempts left (security mode 1&2)
+*   \param  buffer  Pointer to a buffer (2 bytes required)
+*   \return The provided pointer
+*/
+uint8_t* readSecurityCodeAttemptsCounters(uint8_t* buffer)
+{
+    readSMC(14, 12, buffer);
+    return buffer;
+}
+
+/*! \fn     readCodeProtectedZone(uint8_t* buffer)
+*   \brief  Read the code protected zone (security mode 1&2 - Authenticated!)
+*   \param  buffer  Pointer to a buffer (8 bytes required)
+*   \return The provided pointer
+*/
+uint8_t* readCodeProtectedZone(uint8_t* buffer)
+{
+    readSMC(22, 14, buffer);
+    return buffer;
+}
+
+/*! \fn     writeCodeProtectedZone(uint8_t* buffer)
+*   \brief  Write in the code protected zone (security mode 1&2 - Authenticated!)
+*   \param  buffer  Pointer to a buffer (8 bytes required)
+*/
+void writeCodeProtectedZone(uint8_t* buffer)
+{
+    writeSMC(112, 64, buffer);
+}
+
+/*! \fn     readApplicationZone1EraseKey(uint8_t* buffer)
+*   \brief  Read the application zone1 erase key (security mode 1 - Authenticated!)
+*   \param  buffer  Pointer to a buffer (6 bytes required)
+*   \return The provided pointer
+*/
+uint8_t* readApplicationZone1EraseKey(uint8_t* buffer)
+{
+    readSMC(92, 86, buffer);
+    return buffer;
+}
+
+/*! \fn     writeApplicationZone1EraseKey(uint8_t* buffer)
+*   \brief  Write the application zone1 erase key (security mode 1 - Authenticated!)
+*   \param  buffer  Pointer to a buffer (6 bytes required)
+*/
+void writeApplicationZone1EraseKey(uint8_t* buffer)
+{
+    writeSMC(688, 48, buffer);
+}
+
+/*! \fn     readApplicationZone2EraseKey(uint8_t* buffer)
+*   \brief  Read the application zone2 erase key (security mode 1 - Authenticated!)
+*   \param  buffer  Pointer to a buffer (4 bytes required)
+*   \return The provided pointer
+*/
+uint8_t* readApplicationZone2EraseKey(uint8_t* buffer)
+{
+    readSMC(160, 156, buffer);
+    return buffer;
+}
+
+/*! \fn     writeApplicationZone2EraseKey(uint8_t* buffer)
+*   \brief  Write the application zone2 erase key (security mode 1 - Authenticated!)
+*   \param  buffer  Pointer to a buffer (4 bytes required)
+*/
+void writeApplicationZone2EraseKey(uint8_t* buffer)
+{
+    writeSMC(1248, 32, buffer);
+}
+
+/*! \fn     readMemoryTestZone(uint8_t* buffer)
+*   \brief  Read the Test zone (security mode 1&2)
+*   \param  buffer  Pointer to a buffer (2 bytes required)
+*   \return The provided pointer
+*/
+uint8_t* readMemoryTestZone(uint8_t* buffer)
+{
+    readSMC(178, 176, buffer);
+    return buffer;
+}
+
+/*! \fn     writeMemoryTestZone(uint8_t* buffer)
+*   \brief  Write in the Test zone (security mode 1&2)
+*   \param  buffer  Pointer to a buffer (2 bytes required)
+*/
+void writeMemoryTestZone(uint8_t* buffer)
+{
+    writeSMC(1408, 16, buffer);
+}
+
+/*! \fn     readManufacturerZone(uint8_t* buffer)
+*   \brief  Read the manufacturer zone (security mode 1&2)
+*   \param  buffer  Pointer to a buffer (2 bytes required)
+*   \return The provided pointer
+*/
+uint8_t* readManufacturerZone(uint8_t* buffer)
+{
+    readSMC(180, 178, buffer);
+    return buffer;
+}
+
+/*! \fn     writeManufacturerZone(uint8_t* buffer)
+*   \brief  Write in the manufacturer zone (security mode 1 - Authenticated!)
+*   \param  buffer  Pointer to a buffer (2 bytes required)
+*/
+void writeManufacturerZone(uint8_t* buffer)
+{
+    writeSMC(1424, 16, buffer);
+}
+
+/*! \fn     writeManufacturerFuse(void)
+*   \brief  Write manufacturer fuse, controlling access to the MFZ
+*/
+void writeManufacturerFuse(void)
+{
+    blowFuse(MAN_FUSE);
+}
+
+/*! \fn     write_issuers_fuse(void)
+*   \brief  Write issuers fuse, setting the AT88SC102 into Security Mode 2, we need to be authenticated here
+*/
+void write_issuers_fuse(void)
+{
+    blowFuse(ISSUER_FUSE);
+}
+
+/*! \fn     write_ec2en_fuse(void)
+*   \brief  Write ec2en fuse, to be done before blowing issuer fuse
+*/
+void write_ec2en_fuse(void)
+{
+    blowFuse(EC2EN_FUSE);
+}
 
 /*! \fn     checkSecurityMode2(void)
 *   \brief  Check that the smartcard is in mode two by trying to write his manufacturer zone

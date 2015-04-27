@@ -315,7 +315,7 @@ int main(void)
             oledSetXY(0,0);
             // LEDs ON, to check
             setPwmDc(MAX_PWM_VAL);
-            switchOnButtonWheelLeds();
+            touchDetectionRoutine(0);
             guiDisplayRawString(ID_STRING_TEST_LEDS_CH);
             // Check flash init
             if (flash_init_result != RETURN_OK)

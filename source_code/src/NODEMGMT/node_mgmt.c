@@ -491,7 +491,7 @@ void setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
  * @param   parentAddress   The parent node address of the fav
  * @param   childAddress    The child node address of the fav
  */
-void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
+void readFav(uint8_t favId, uint16_t* parentAddress, uint16_t* childAddress)
 {
     uint16_t temp_uint;
     uint16_t addrs[2];
@@ -510,7 +510,7 @@ void readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)
     
     // Check valid bit flag
     readDataFromFlash(pageNumberFromAddress(*childAddress), NODE_SIZE * nodeNumberFromAddress(*childAddress), 2, &temp_uint);    
-    if(validBitFromFlags(temp_uint) == NODE_VBIT_INVALID)
+    if ((validBitFromFlags(temp_uint) == NODE_VBIT_INVALID) || (checkUserPermission(*childAddress) != RETURN_OK))
     {
         // Delete fav and return node_addr_null
         setFav(favId, NODE_ADDR_NULL, NODE_ADDR_NULL);
@@ -972,8 +972,8 @@ uint16_t getParentNodeForLetter(uint8_t letter)
 */
 uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray, uint16_t startPage, uint8_t startNode)
 {
-    uint16_t nodeFlags = 0xFFFF;
     uint8_t nbNodesFound = 0;
+    uint16_t nodeFlags;
     uint16_t pageItr;
     uint8_t nodeItr;
     

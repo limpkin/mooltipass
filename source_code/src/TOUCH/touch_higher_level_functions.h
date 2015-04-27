@@ -32,6 +32,7 @@
 void activateGuardKey(void);
 RET_TYPE initTouchSensing(void);
 void activateProxDetection(void);
+void launchCalibrationCycle(void);
 void touchInhibitUntilRelease(void);
 void touchWaitForButtonsReleased(void);
 uint8_t getLastRawWheelPosition(void);
@@ -164,7 +165,6 @@ RET_TYPE touchDetectionRoutine(uint8_t led_mask);
 
 // Macros
 #define isTouchChangeDetected()     !(PINF & (1 << PORTID_TOUCH_C))
-#define launchCalibrationCycle()    writeDataToTS(REG_AT42QT_CALIB, 0x12)
 #define switchOnLeftButonLed()      writeDataToTS(LEFT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)
 #define switchOffLeftButonLed()     writeDataToTS(LEFT_LED_REGISTER, AT42QT2120_OUTPUT_L_VAL)
 #define switchOnRightButonLed()     writeDataToTS(RIGHT_LED_REGISTER, AT42QT2120_OUTPUT_H_VAL)

@@ -81,6 +81,14 @@ static inline RET_TYPE checkTSPres(void)
     }
 }
 
+/*! \fn     launchCalibrationCycle(void)
+*   \brief  Launch a calibration cycle on the ATQT
+*/
+void launchCalibrationCycle(void)
+{
+    writeDataToTS(REG_AT42QT_CALIB, 0x12);
+}
+
 /*! \fn     activateGuardKey(void)
 *   \brief  Activate the guard key
 */

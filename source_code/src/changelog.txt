@@ -1,6 +1,7 @@
 v1:
 - possible Mooltipass freeze bug solved when inserting/removing smartcard
 - possibility to cancel user input request boolean in eeprom
+- additional checks in read fav
 
 RC4:
 - no screen flipping when no credentials for given service

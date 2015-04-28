@@ -216,9 +216,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             }
         }
     }
-
-    // Prevent touches until the user lifts his finger
-    touchInhibitUntilRelease();
+    
     return picked_child;
 }
 

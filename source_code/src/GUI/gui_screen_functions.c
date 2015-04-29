@@ -168,7 +168,15 @@ void guiScreenLoop(uint8_t touch_detect_result)
         else if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_TLEFT))
         {
             // User wants to go to the login menu
-            loginSelectLogic();
+            if (getStartingParentAddress() != NODE_ADDR_NULL)
+            {
+                loginSelectLogic();
+            } 
+            else
+            {                
+                guiDisplayInformationOnScreen(ID_STRING_NO_CREDS);
+                userViewDelay();
+            }
             guiGetBackToCurrentScreen();
         }
         else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BLEFT))

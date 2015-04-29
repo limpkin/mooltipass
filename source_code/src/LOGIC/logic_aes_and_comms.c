@@ -203,8 +203,8 @@ uint16_t searchForServiceName(uint8_t* name, uint8_t mode, uint8_t type)
         }
         while (next_node_addr != NODE_ADDR_NULL);
         
-        // We didn't find the service
-        return NODE_ADDR_NULL;
+        // We didn't find the service, return first node
+        return getStartingParentAddress();
     }
 }
 

@@ -1,7 +1,9 @@
 v1:
 - possible Mooltipass freeze bug solved when inserting/removing smartcard
 - possibility to cancel user input request boolean in eeprom
+- lower casing all service names
 - additional checks in read fav
+- looping around in login menu
 
 RC4:
 - no screen flipping when no credentials for given service

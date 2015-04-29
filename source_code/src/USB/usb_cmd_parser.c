@@ -42,6 +42,8 @@
 #include "node_mgmt.h"
 #include "flash_mem.h"
 #include <string.h>
+#include <ctype.h>
+#include <stdio.h>
 #include "delays.h"
 #include "oledmp.h"
 #include "utils.h"
@@ -154,6 +156,19 @@ void leaveMemoryManagementMode(void)
 }
 #endif
 
+/*! \fn     lowerCaseString(char* data)
+*   \brief  lower case a string
+*   \param  data            String to be lowercased
+*/
+void lowerCaseString(uint8_t* data)
+{
+    while(*data)
+    {
+        *data = tolower(*data);
+        data++;
+    }
+}
+
 /*! \fn     checkTextField(uint8_t* data, uint8_t len)
 *   \brief  Check that the sent text is correct
 *   \param  data    Pointer to the data
@@ -162,13 +177,19 @@ void leaveMemoryManagementMode(void)
 *   \return If the sent text is ok
 */
 RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
-{
+{    
+    // Check that the advertised length is correct, that it is not null and isn't bigger than a data packet
     if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1) || (len > (RAWHID_RX_SIZE-HID_DATA_START)))
     {
         return RETURN_NOK;
     }
     else
     {
+        // lower case string in case of service
+        if (max_len == NODE_PARENT_SIZE_OF_SERVICE)
+        {
+            lowerCaseString(data);
+        }
         return RETURN_OK;
     }
 }
@@ -275,7 +296,7 @@ void usbProcessIncoming(uint8_t caller_id)
         // Return an error that was defined before (ERROR)
         usbSendMessage(datacmd, 1, &plugin_return_value);
         return;
-    }    
+    }
     
     // Check that we are in node mangement mode when needed
     if ((datacmd >= FIRST_CMD_FOR_DATAMGMT) && (datacmd <= LAST_CMD_FOR_DATA8MGMT) && (memoryManagementModeApproved == FALSE))

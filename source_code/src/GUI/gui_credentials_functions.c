@@ -367,7 +367,7 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
 {
     uint16_t tempNodeAddr;
     pNode temp_pnode;
-    uint8_t i;
+    uint8_t i, j;
     
     // Set font for search text
     oledSetFont(FONT_PROFONT_18);
@@ -384,6 +384,7 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
     // Find the address of the first match
     tempNodeAddr = searchForServiceName((uint8_t*)text, COMPARE_MODE_COMPARE, SERVICE_CRED_TYPE);
     
+    // Only change display if the first displayed service changed
     if (tempNodeAddr != last_matching_parent_addr)
     {
         last_matching_parent_addr = tempNodeAddr;
@@ -395,13 +396,30 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
         
         // Print the next 4 services
         i = 0;
-        while ((tempNodeAddr != NODE_ADDR_NULL) && (i != 4))
+        uint8_t temp_bool = TRUE;
+        while ((temp_bool != FALSE) && (i != 4))
         {
             resultsarray[i] = tempNodeAddr;
             readParentNode(&temp_pnode, tempNodeAddr);
             displayServiceAtGivenSlot(i, (const char*)temp_pnode.service);
-            tempNodeAddr = temp_pnode.nextParentAddress;
+            // Loop around
+            if (temp_pnode.nextParentAddress == NODE_ADDR_NULL)
+            {
+                tempNodeAddr = getStartingParentAddress();
+            } 
+            else
+            {
+                tempNodeAddr = temp_pnode.nextParentAddress;
+            }
             i++;
+            // Check that we haven't already displayed the next node
+            for (j = 0; j < i; j++)
+            {
+                if (resultsarray[j] == tempNodeAddr)
+                {
+                    temp_bool = FALSE;
+                }
+            }
         }
         
         // Store and return number of children

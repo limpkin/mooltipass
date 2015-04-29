@@ -432,6 +432,10 @@ int main(void)
         // Launch activity detected routine if flag is set
         if (act_detected_flag != FALSE)
         {
+            if (isScreenSaverOn() == TRUE)
+            {
+                guiGetBackToCurrentScreen();
+            }
             activityDetectedRoutine();
             act_detected_flag = FALSE;
         }

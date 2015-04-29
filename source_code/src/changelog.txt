@@ -1,4 +1,4 @@
-v1:
+RC5:
 - possible Mooltipass freeze bug solved when inserting/removing smartcard
 - possibility to cancel user input request boolean in eeprom
 - lower casing all service names

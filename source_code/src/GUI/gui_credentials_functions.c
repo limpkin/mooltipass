@@ -350,6 +350,12 @@ void displayServiceAtGivenSlot(uint8_t slot, const char* text)
 {
     char temp_disptext[40];
     
+    // Check slot number
+    if (slot > 3)
+    {
+        return;
+    }
+    
     // Truncate string and display it
     memcpy(temp_disptext, text, sizeof(temp_disptext));
     temp_disptext[sizeof(temp_disptext)-1] = 0;
@@ -361,9 +367,10 @@ void displayServiceAtGivenSlot(uint8_t slot, const char* text)
 *   \brief  Display current search login text
 *   \param  text            Text to be displayed
 *   \param  resultsarray    Pointer to the array in which to store the addresses
+*   \param  search_index    Current search index (aka strlen(text))
 *   \return Number of matching parents we displayed
 */
-uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
+uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray, uint8_t search_index)
 {
     uint16_t tempNodeAddr;
     pNode temp_pnode;
@@ -394,10 +401,10 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
             oledFillXY((i&1)*175, 6+(i&2)*19, 81, 14, 0x00);
         }
         
-        // Print the next 4 services
+        // Print the next 4 services (loop is until 5 for additional checks)
         i = 0;
         uint8_t temp_bool = TRUE;
-        while ((temp_bool != FALSE) && (i != 4))
+        while ((temp_bool != FALSE) && (i != 5))
         {
             resultsarray[i] = tempNodeAddr;
             readParentNode(&temp_pnode, tempNodeAddr);
@@ -422,10 +429,36 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray)
             }
         }
         
+        // Check if we could read 5 services after the given search text to know if we need to show the right arrow
+        if (i == 5)
+        {       
+            // Compare our text with the last service text and see if they match
+            if (strncmp(text, (char*)temp_pnode.service, search_index + 1) == 0)
+            {
+                // show arrow
+                oledBitmapDrawFlash(176, 24, BITMAP_LOGIN_RARROW, 0);
+            } 
+            else
+            {
+                // hide arrow
+                oledFillXY(176, 24, 16, 16, 0);
+                i = 4;
+            }
+        }
+        
         // Store and return number of children
         last_matching_parent_number = i;
     }
     
+         
+    // If the text is 4 chars long no need to display right arrow
+    if ((search_index == SEARCHTEXT_MAX_LENGTH - 1) && (last_matching_parent_number > 4))
+    {
+        // hide arrow
+        last_matching_parent_number = 4;
+        oledFillXY(176, 24, 16, 16, 0);
+    }
+         
     return last_matching_parent_number;
 }
 
@@ -439,7 +472,7 @@ uint16_t loginSelectionScreen(void)
     uint8_t displayRefreshNeeded = TRUE;
     uint16_t ret_val = NODE_ADDR_NULL;
     uint8_t wasWheelReleased = TRUE;
-    uint16_t tempParentAddresses[4];
+    uint16_t tempParentAddresses[5];
     uint8_t currentStringIndex = 0;
     uint8_t nbMatchedParents= 0;
     uint8_t finished = FALSE;
@@ -450,7 +483,7 @@ uint16_t loginSelectionScreen(void)
     // Set current text to a
     last_matching_parent_addr = NODE_ADDR_NULL;
     last_matching_parent_number = 0;
-    strcpy(currentText, "a");
+    memcpy(currentText, "a\x00\x00\x00\x00", sizeof(currentText));
     
     // Draw bitmap, display it and write active buffer
     oledClear();
@@ -466,12 +499,12 @@ uint16_t loginSelectionScreen(void)
     {
         if (displayRefreshNeeded == TRUE)
         {
-            nbMatchedParents = displayCurrentSearchLoginTexts(currentText, tempParentAddresses);
+            nbMatchedParents = displayCurrentSearchLoginTexts(currentText, tempParentAddresses, currentStringIndex);
             displayRefreshNeeded = FALSE;
             
-            // Light only the available choices
+            // Light only the available choices and right arrow
             led_mask = 0;
-            for (temp_int8 = nbMatchedParents; temp_int8 < 4; temp_int8++)
+            for (temp_int8 = nbMatchedParents; temp_int8 < 5; temp_int8++)
             {
                 led_mask |= (1 << temp_int8);
             }
@@ -555,15 +588,11 @@ uint16_t loginSelectionScreen(void)
                 finished = TRUE;
             }
         }
-        else if (temp_rettype & RETURN_RIGHT_PRESSED)
+        else if ((temp_rettype & RETURN_RIGHT_PRESSED) && (nbMatchedParents > 4))
         {
-            // Change search index
-            if (currentStringIndex < SEARCHTEXT_MAX_LENGTH-1)
-            {
-                currentText[++currentStringIndex] = 'a';
-                currentText[currentStringIndex + 1] = 0;
-                displayRefreshNeeded = TRUE;
-            }
+            // Change search index only if we need to...
+            currentText[++currentStringIndex] = 'a';
+            displayRefreshNeeded = TRUE;
         }
     }
     

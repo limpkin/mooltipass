@@ -1,3 +1,7 @@
+RC6:
+- changes in login menu presentation following beta testers comments
+- new bundle required
+
 RC5:
 - possible Mooltipass freeze bug solved when inserting/removing smartcard
 - possibility to cancel user input request boolean in eeprom

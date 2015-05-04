@@ -381,8 +381,10 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
  */
 void flashRawRead(uint8_t* datap, uint16_t addr, uint16_t size)
 {    
-    addr = ((addr/BYTES_PER_PAGE) << READ_OFFSET_SHT_AMT) | (addr % BYTES_PER_PAGE);    
-    uint8_t op[] = {FLASH_OPCODE_LOWF_READ, 0x00, (uint8_t)(addr >> 8), (uint8_t)addr};            
+    uint16_t page_number = (addr/BYTES_PER_PAGE);
+    uint8_t high_byte = page_number >> (16 - READ_OFFSET_SHT_AMT);
+    addr = (page_number << READ_OFFSET_SHT_AMT) | (addr % BYTES_PER_PAGE);
+    uint8_t op[] = {FLASH_OPCODE_LOWF_READ, high_byte, (uint8_t)(addr >> 8), (uint8_t)addr};            
 
     /* Read from flash */
     sendDataToFlashWithFourBytesOpcode(op, datap, size);

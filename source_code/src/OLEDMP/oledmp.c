@@ -1559,12 +1559,6 @@ int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options
     bitmap_t bitmap;
     uint16_t addr;
 
-    if (fileId >= 0x80)
-    {
-        // Treating bitmap file IDs 0x80 and up as frames.
-        return animFrameDraw(x, y, fileId-0x80, options);
-    }
-
     if (oledGetFileAddr(fileId, &addr) != MEDIA_BITMAP)
     {
         return -1;

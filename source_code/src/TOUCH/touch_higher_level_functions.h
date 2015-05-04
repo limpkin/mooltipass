@@ -189,8 +189,8 @@ RET_TYPE touchDetectionRoutine(uint8_t led_mask);
 #define TOUCHPOS_WHEEL_TRIGHT           1
 #define TOUCHPOS_WHEEL_BLEFT            2
 #define TOUCHPOS_WHEEL_BRIGHT           3
-#define TOUCHPOS_LEFT                   4
-#define TOUCHPOS_RIGHT                  5
+#define TOUCHPOS_RIGHT                  4
+#define TOUCHPOS_LEFT                   5
 
 // LED mask define
 #define LED_MASK_WHEEL_TLEFT            (1 << TOUCHPOS_WHEEL_TLEFT)

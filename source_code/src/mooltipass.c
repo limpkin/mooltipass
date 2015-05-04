@@ -495,7 +495,7 @@ int main(void)
             guiGetBackToCurrentScreen();
         }
         
-        #define TWO_CAPS_TRICK
+        //#define TWO_CAPS_TRICK
         #ifdef TWO_CAPS_TRICK
         // Two quick caps lock presses wakes up the device        
         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))

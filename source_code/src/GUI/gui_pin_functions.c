@@ -41,10 +41,10 @@
 */
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
 {
-    oledFillXY(85, 31, 82, 19, 0x00);
+    oledFillXY(88, 31, 82, 19, 0x00);
     for (uint8_t i = 0; i < 4; i++)
     {
-        oledSetXY(85+22*i, 25);
+        oledSetXY(88+22*i, 25);
         if (i != selected_digit)
         {
             oledPutch('*');
@@ -89,7 +89,9 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     
     // Draw pin entering bitmap
     oledClear();
-    oledBitmapDrawFlash(0, 0, BITMAP_PIN_ENTRY, 0);
+    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
+    oledBitmapDrawFlash(83, 51, BITMAP_PIN_LINES, 0);
+    oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
     oledPutstrXY(0, 0, OLED_CENTRE, readStoredStringToBuffer(stringID));
     oledFlipBuffers(0,0);
     oledSetFont(FONT_PROFONT_24);
@@ -133,8 +135,8 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         {
             if (selected_digit == 1)
             {
-                oledFillXY(0, 22, 22, 22, 0x00);
-                oledBitmapDrawFlash(2, 26, BITMAP_CROSS, 0);
+                oledFillXY(0, 23, 18, 18, 0x00);
+                oledBitmapDrawFlash(0, 24, BITMAP_CROSS, 0);
             }
             if (selected_digit > 0)
             {
@@ -146,14 +148,14 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                 finished = TRUE;
             }
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-            oledBitmapDrawFlash(235, 23, BITMAP_RIGHT_ARROW, 0);
+            oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
         }
         else if (temp_rettype & RETURN_RIGHT_PRESSED)
         {
             if (selected_digit == 2)
             {
-                oledFillXY(235, 23, 20, 25, 0x00);
-                oledBitmapDrawFlash(236, 26, BITMAP_TICK, 0);
+                oledFillXY(238, 23, 18, 18, 0x00);
+                oledBitmapDrawFlash(240, 24, BITMAP_TICK, 0);
             }
             if (selected_digit < 3)
             {

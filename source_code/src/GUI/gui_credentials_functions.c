@@ -49,8 +49,9 @@ uint8_t last_matching_parent_number = 0;
 *   \brief  Display text at a given slot when choosing between credentials/favorites
 *   \param  slot                The slot number
 *   \param  text                The text to display
+*   \param  truncate_index      Index at which we truncate
 */
-void displayCredentialAtSlot(uint8_t slot, char* text)
+void displayCredentialAtSlot(uint8_t slot, char* text, uint8_t truncate_index)
 {
     char temp_disptext[40];
     int8_t yoffset = 0;
@@ -63,8 +64,8 @@ void displayCredentialAtSlot(uint8_t slot, char* text)
     // Truncate and display string
     memcpy(temp_disptext, text, sizeof(temp_disptext));
     temp_disptext[sizeof(temp_disptext)-1] = 0;
-    temp_disptext[INDEX_TRUNCATE_LOGIN_FAV] = 0;
-    oledPutstrXY((slot & 0x01)*0xFF, (slot & 0x02)*23 + yoffset, (slot & 0x01)*OLED_RIGHT, temp_disptext);
+    temp_disptext[truncate_index] = 0;
+    oledPutstrXY((slot & 0x01)*0xFF, 4 + (slot & 0x02)*21 + yoffset, (slot & 0x01)*OLED_RIGHT, temp_disptext);
 }
 
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
@@ -135,7 +136,10 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             oledBitmapDrawFlash(0, 0, BITMAP_LOGIN, 0);
             
             // Write domain name on screen
-            oledPutstrXY(0, 24, OLED_CENTRE, (char*)p->service);
+            char temp_string[INDEX_TRUNCATE_SERVICE_CENTER+1];
+            memcpy(temp_string, (char*)p->service, sizeof(temp_string));
+            temp_string[INDEX_TRUNCATE_SERVICE_CENTER] = 0;
+            oledPutstrXY(0, 24, OLED_CENTRE, temp_string);
             
             // Clear led_mask
             led_mask = 0;
@@ -148,7 +152,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 readChildNode(c, temp_child_address);
                 
                 // Print Login at the correct slot
-                displayCredentialAtSlot(i, (char*)c->login);            
+                displayCredentialAtSlot(i, (char*)c->login, INDEX_TRUNCATE_LOGIN_FAV);            
                 
                 // Store address in array, fetch next address
                 addresses[i] = temp_child_address;
@@ -279,8 +283,8 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             readParentNode(p, parentAddresses[offset+i]);
             
             // Print service / login on screen
-            displayCredentialAtSlot(i+((i&0x02)<<2), (char*)c->login);
-            displayCredentialAtSlot(i+((~i&0x02)<<2), (char*)p->service);
+            displayCredentialAtSlot(i+((i&0x02)<<2), (char*)c->login, INDEX_TRUNCATE_LOGIN_FAV);
+            displayCredentialAtSlot(i+((~i&0x02)<<2), (char*)p->service, INDEX_TRUNCATE_LOGIN_FAV);
             
             // Increment i
             i++;
@@ -341,28 +345,6 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     return picked_child;
 }
 
-/*! \fn     displayServiceAtGivenSlot(uint8_t slot, const char* text)
-*   \brief  Display text at a given slot when choosing between services
-*   \param  slot                The slot number
-*   \param  text                The text to display
-*/
-void displayServiceAtGivenSlot(uint8_t slot, const char* text)
-{
-    char temp_disptext[40];
-    
-    // Check slot number
-    if (slot > 3)
-    {
-        return;
-    }
-    
-    // Truncate string and display it
-    memcpy(temp_disptext, text, sizeof(temp_disptext));
-    temp_disptext[sizeof(temp_disptext)-1] = 0;
-    temp_disptext[INDEX_TRUNCATE_SERVICE_SEARCH] = 0;
-    oledPutstrXY((slot & 0x01)*0xFF, 4 + (slot & 0x02)*20, (slot & 0x01)*OLED_RIGHT, temp_disptext);    
-}
-
 /*! \fn     displayCurrentSearchLoginTexts(char* text)
 *   \brief  Display current search login text
 *   \param  text            Text to be displayed
@@ -408,7 +390,12 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray, uint8
         {
             resultsarray[i] = tempNodeAddr;
             readParentNode(&temp_pnode, tempNodeAddr);
-            displayServiceAtGivenSlot(i, (const char*)temp_pnode.service);
+            
+            // Display only first 4 services
+            if (i < 4)
+            {
+                displayCredentialAtSlot(i, (char*)temp_pnode.service, INDEX_TRUNCATE_SERVICE_SEARCH);
+            }
             // Loop around
             if (temp_pnode.nextParentAddress == NODE_ADDR_NULL)
             {

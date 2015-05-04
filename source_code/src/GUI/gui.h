@@ -50,6 +50,7 @@
 // Truncate defines
 #define INDEX_TRUNCATE_SERVICE_SEARCH   14
 #define INDEX_TRUNCATE_LOGIN_FAV        15
+#define INDEX_TRUNCATE_SERVICE_CENTER   14
 
 /* STRUCTS */
 typedef struct

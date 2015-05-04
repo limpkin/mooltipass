@@ -22,6 +22,7 @@
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
+#include <string.h>
 #include "smart_card_higher_level_functions.h"
 #include "touch_higher_level_functions.h"
 #include "gui_smartcard_functions.h"
@@ -433,6 +434,8 @@ void guiDisplayGoingToSleep(void)
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
 {    
     uint8_t flash_flag = FALSE;
+    char string_tbd[31];
+    string_tbd[30] = 0;
     
     // Check if we want to flash the screen
     if ((nb_args & 0xF0) != 0)
@@ -447,7 +450,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     
     // Draw asking bitmap
     oledClear();
-    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
+    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO_INT, 0);
     
     // If more than one line
     if (nb_args == 1)
@@ -459,7 +462,9 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     {
         while (nb_args--)
         {
-            oledPutstrXY(0, 4 + (nb_args << 4), OLED_CENTRE, text_object->lines[nb_args]);
+            // Truncate and then display string
+            memcpy(string_tbd, text_object->lines[nb_args], 30);
+            oledPutstrXY(0, 2 + (nb_args << 4), OLED_CENTRE, string_tbd);
         }
     }
     

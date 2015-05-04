@@ -380,7 +380,7 @@ uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray, uint8
         
         for (i = 0; i < 4; i++)
         {
-            oledFillXY((i&1)*175, 6+(i&2)*19, 81, 14, 0x00);
+            oledFillXY((i&1)*172, 5+(i&2)*20, 84, 14, 0x00);
         }
         
         // Print the next 4 services (loop is until 5 for additional checks)

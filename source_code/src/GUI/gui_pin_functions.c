@@ -100,6 +100,9 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     // Display current pin on screen
     guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
     
+    // Arm interaction timer
+    activateTimer(TIMER_USERINT, SELECT_TIMER_DEL);
+    
     // While the user hasn't entered his pin
     while(!finished)
     {
@@ -109,6 +112,12 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         temp_rettype = touchDetectionRoutine(0);
         // Send it to the touch wheel interface logic
         temp_int8 = touchWheelIntefaceLogic(temp_rettype);
+        
+        // If something happened, rearm timer
+        if (temp_rettype != RETURN_NO_CHANGE)
+        {
+            activateTimer(TIMER_USERINT, SELECT_TIMER_DEL);
+        }
         
         // Position increment / decrement
         if (temp_int8 != 0)
@@ -125,7 +134,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
         }
         
-        if (isSmartCardAbsent() == RETURN_OK)
+        if ((isSmartCardAbsent() == RETURN_OK) || (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED))
         {
             // Smartcard removed, no reason to continue
             ret_val = RETURN_NOK;

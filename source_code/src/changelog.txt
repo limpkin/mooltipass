@@ -1,3 +1,6 @@
+V1: 
+- timeout on pin entering screen
+
 RC6:
 - changes in login menu presentation following beta testers comments
 - truncate indexes checked for all menus

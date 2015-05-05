@@ -313,7 +313,7 @@ void guiMainLoop(void)
     }
     
     // If the screen just got turned on, don't call the guiScreenLoop() function
-    if ((touch_detect_result & TOUCH_PRESS_MASK) && (isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE))
+    if ((touch_detect_result & TOUCH_PRESS_MASK) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
     {
         guiScreenLoop(touch_detect_result);
     }   

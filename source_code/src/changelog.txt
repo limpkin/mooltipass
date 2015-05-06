@@ -1,5 +1,6 @@
 V1: 
 - timeout on pin entering screen
+- same timeout for all user interractions
 
 RC6:
 - changes in login menu presentation following beta testers comments

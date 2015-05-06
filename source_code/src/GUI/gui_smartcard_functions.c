@@ -71,9 +71,6 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     oledBitmapDrawFlash(0, 0, BITMAP_INSERT, 0);
     oledFlipBuffers(0,0);
     
-    // Activate timer
-    activateTimer(TIMER_USERINT, USER_INTER_DEL);
-    
     // Wait for either timeout or for the user to insert his smartcard
     while ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_RUNNING) && (card_detect_ret != RETURN_JDETECT))
     {

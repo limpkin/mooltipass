@@ -63,10 +63,11 @@ void activityDetectedRoutine(void)
         return;
     #endif
     
-    // Activate timers for automatic switch off
+    // Activate timers for automatic switch off & user interaction timeout
     activateTimer(TIMER_LIGHT, LIGHT_TIMER_DEL);
     activateTimer(TIMER_SCREEN, SCREEN_TIMER_DEL);
     activateTimer(SLOW_TIMER_LOCKOUT, getMooltipassParameterInEeprom(LOCK_TIMEOUT_PARAM));
+    activateTimer(TIMER_USERINT, ((uint16_t)controlEepromParameter(getMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM), MIN_USER_INTER_DEL/1000, MAX_USER_INTER_DEL/1000)) << 10);
     
     // If the screen was off, turn it on!
     if (oledIsOn() == FALSE)
@@ -121,8 +122,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     // Clear possible remaining detection
     touchDetectionRoutine(led_mask);
     
-    // Wait for a touch press, delay stored in eeprom (1024 is quite close to 1000 ;-) )
-    activateTimer(TIMER_USERINT, ((uint16_t)controlEepromParameter(getMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM), MIN_USER_INTER_DEL/1000, MAX_USER_INTER_DEL/1000)) << 10);
+    // Wait for a touch press
     do
     {
         // User interaction timeout or smartcard removed

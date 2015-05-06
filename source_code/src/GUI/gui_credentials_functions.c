@@ -478,9 +478,6 @@ uint16_t loginSelectionScreen(void)
     oledFlipBuffers(0,0);
     oledWriteActiveBuffer();
     
-    // Arm interaction timer
-    activateTimer(TIMER_USERINT, SELECT_TIMER_DEL);
-    
     // While the user hasn't chosen a credential
     while(!finished)
     {
@@ -499,12 +496,6 @@ uint16_t loginSelectionScreen(void)
         
         // Detect key touches
         temp_rettype = touchDetectionRoutine(led_mask);
-        
-        // If something happened, rearm timer
-        if (temp_rettype != RETURN_NO_CHANGE)
-        {
-            activateTimer(TIMER_USERINT, SELECT_TIMER_DEL);
-        }
         
         // Algo to differentiate a tap from a scroll
         if ((temp_rettype & RETURN_WHEEL_PRESSED) && (wasWheelReleased == TRUE))

@@ -33,8 +33,6 @@
 // Timers
 #define SCREEN_TIMER_DEL                60000
 #define LIGHT_TIMER_DEL                 16000
-#define USER_INTER_DEL                  7000
-#define SELECT_TIMER_DEL                10000
 #define TAP_MAX_DEL                     300
 #define TAP_MIN_DEL                     100
 #define MIN_USER_INTER_DEL              7000

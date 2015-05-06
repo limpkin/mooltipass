@@ -192,7 +192,7 @@ RET_TYPE touchDetectionRoutine(uint8_t led_mask);
 #define TOUCHPOS_RIGHT                  4
 #define TOUCHPOS_LEFT                   5
 
-// LED mask define
+// LED mask define, if changed my cause problems to select login functions
 #define LED_MASK_WHEEL_TLEFT            (1 << TOUCHPOS_WHEEL_TLEFT)
 #define LED_MASK_WHEEL_TRIGHT           (1 << TOUCHPOS_WHEEL_TRIGHT)
 #define LED_MASK_WHEEL_BLEFT            (1 << TOUCHPOS_WHEEL_BLEFT)

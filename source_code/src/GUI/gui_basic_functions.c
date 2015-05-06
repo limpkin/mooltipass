@@ -122,6 +122,13 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     // Clear possible remaining detection
     touchDetectionRoutine(led_mask);
     
+    // Additional masking in case we only want left / right
+    uint8_t additional_mask = 0xFF;
+    if (led_mask == LED_MASK_WHEEL)
+    {
+        additional_mask = RETURN_LEFT_PRESSED | RETURN_RIGHT_PRESSED;
+    }
+    
     // Wait for a touch press
     do
     {
@@ -144,7 +151,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
                 usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
             }
         }
-        touch_detect_result = touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK;
+        touch_detect_result = touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK & additional_mask;
     }
     while (!touch_detect_result);
     

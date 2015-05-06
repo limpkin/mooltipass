@@ -352,7 +352,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 *   \param  search_index    Current search index (aka strlen(text))
 *   \return Number of matching parents we displayed
 */
-uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray, uint8_t search_index)
+static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resultsarray, uint8_t search_index)
 {
     uint16_t tempNodeAddr;
     pNode temp_pnode;

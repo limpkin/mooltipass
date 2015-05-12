@@ -67,7 +67,7 @@
  *  PRODUCTION_KICKSTARTER_SETUP
  *  => final version for production
 */
-#define PRODUCTION_KICKSTARTER_SETUP
+#define BETATESTERS_SETUP_PIN
 #if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
     #define STACK_DEBUG
     #define HARDWARE_V1

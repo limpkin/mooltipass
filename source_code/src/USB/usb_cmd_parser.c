@@ -66,7 +66,7 @@ uint16_t flashOpCurAddr2;
 uint8_t memoryManagementModeApproved = FALSE;
 #endif
 // Our Mooltipass version that will be returned to our application
-static const char mooltipass_version[] PROGMEM = MOOLTIPASS_VERSION;
+const char mooltipass_version[] = MOOLTIPASS_VERSION;
 // Bool to know if we can import in the media part of flash
 uint8_t mediaFlashImportApproved = FALSE;
 // Current node we're writing
@@ -319,11 +319,9 @@ void usbProcessIncoming(uint8_t caller_id)
         // version command
         case CMD_VERSION :
         {
-            msg->len = 1 + sizeof(mooltipass_version) + 1;
-            msg->body.data[(msg->len)-1] = 0;
             msg->body.data[0] = FLASH_CHIP;
-            strcpy_P((char*)&msg->body.data[1], mooltipass_version);
-            usbSendMessage(CMD_VERSION, msg->len, msg->body.data);
+            memcpy((char*)&msg->body.data[1], mooltipass_version, sizeof(mooltipass_version));
+            usbSendMessage(CMD_VERSION, 1 + sizeof(mooltipass_version), msg->body.data);
             return;
         }
 

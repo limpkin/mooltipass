@@ -40,6 +40,7 @@ void sectorErase(uint8_t sectorNumber);
 void blockErase(uint16_t blockNumber);
 void pageErase(uint16_t pageNumber);
 
+void chipErase(void);
 void formatFlash(void);
 void flashWriteBufferToPage(uint16_t page);
 void loadPageToInternalBuffer(uint16_t page_number);

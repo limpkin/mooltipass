@@ -211,6 +211,18 @@ void sectorErase(uint8_t sectorNumber)
 } // End sectorErase
 
 /**
+ * Erase the complete memory (filled with 1s)
+ */
+void chipErase(void)
+{
+    uint8_t opcode[4] = {0xC7, 0x94, 0x80, 0x9A};
+    sendDataToFlashWithFourBytesOpcode(opcode, opcode, 0);
+    
+    /* Wait until memory is ready */
+    waitForFlash();   
+}
+
+/**
  * Erases block blockNumber (0 up to BLOCK_COUNT valid).
  * @param   blockNumber     The block to erase
  * @return  success status

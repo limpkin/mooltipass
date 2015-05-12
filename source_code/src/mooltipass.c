@@ -288,8 +288,8 @@ int main(void)
     // First time initializations for Flash (first time power up at production)
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
-        // Erase everything non graphic in flash
-        eraseFlashUsersContents();
+        // Erase everything in flash
+        chipErase();
         // Erase # of cards and # of users
         firstTimeUserHandlingInit();
     }

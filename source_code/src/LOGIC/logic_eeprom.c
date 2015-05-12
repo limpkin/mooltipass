@@ -54,6 +54,7 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     TRUE,               // FLASH_SCREEN_PARAM           Enable flashy screen by default
     FALSE,              // USER_REQ_CANCEL_PARAM        Disable the possibility to cancel user requests from USB
     TRUE,               // TUTORIAL_BOOL_PARAM          Enable the tutorial by default
+    15,                 // SCREEN_SAVER_SPEED_PARAM     Speed of the screen saver
 };
 
 

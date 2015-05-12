@@ -454,8 +454,8 @@ int main(void)
     launchCalibrationCycle();
     touchClearCurrentDetections();
     
-    // Inhibit touch inputs for the first 3 seconds
-    activateTimer(TIMER_TOUCH_INHIBIT, 3000);
+    // Inhibit touch inputs for the first 2 seconds
+    activateTimer(TIMER_TOUCH_INHIBIT, 2000);
     while (1)
     {
         // Process possible incoming USB packets

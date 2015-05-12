@@ -37,7 +37,9 @@
 
 #include <util/delay.h>
 #include "touch_higher_level_functions.h"
+#include "logic_aes_and_comms.h"
 #include "timer_manager.h"
+#include "logic_eeprom.h"
 #include "oledmp.h"
 #include "anim.h"
 int16_t screensaver_anim_last_x=0, screensaver_anim_last_y=15;
@@ -69,9 +71,16 @@ void animScreenSaver(void)
         screensaver_anim_y += screensaver_anim_yvel;
     }
         
-    oledBitmapDrawFlash((uint8_t)screensaver_anim_x, (uint8_t)screensaver_anim_y, BITMAP_ZZZ, 0);
+    // Display different bitmap if locked
+    uint8_t zzzbitmap = BITMAP_ZZZ_LOCKED;
+    if (getSmartCardInsertedUnlocked() == TRUE)
+    {
+        zzzbitmap = BITMAP_ZZZ;
+    }
+    
+    oledBitmapDrawFlash((uint8_t)screensaver_anim_x, (uint8_t)screensaver_anim_y, zzzbitmap, 0);
     oledFlipBuffers(0,0);
-    timerBasedDelayMs(15);
+    timerBasedDelayMs(getMooltipassParameterInEeprom(SCREEN_SAVER_SPEED_PARAM));
     oledFillXY(screensaver_anim_last_x, screensaver_anim_last_y, ZZZ_WIDTH, ZZZ_HEIGHT, 0);
 
     screensaver_anim_last_x = screensaver_anim_x;

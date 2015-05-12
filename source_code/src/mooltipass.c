@@ -57,6 +57,18 @@
 #include "usb.h"
 #include "rng.h"
 
+// Tutorial led masks and touch filtering
+#ifndef FLASH_CHIP_1M
+static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
+{
+    0,                              TOUCH_PRESS_MASK,       // Welcome screen
+    LED_MASK_WHEEL,                 RETURN_RIGHT_PRESSED,   // Show you around...
+    0,                              TOUCH_PRESS_MASK,       // Display hints
+    LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Circular segments
+    LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Wheel interface
+    0,                              TOUCH_PRESS_MASK,       // That's all!
+};
+#endif
 // Define the bootloader function
 bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 // Flag to inform if the caps lock timer is armed
@@ -368,8 +380,7 @@ int main(void)
                     }
                 #endif
                 // Display test result
-                guiDisplayRawString(ID_STRING_TEST_OK);
-                userViewDelay();
+                guiDisplayInformationOnScreenAndWait(ID_STRING_TEST_OK);
             }
             else
             {
@@ -401,9 +412,29 @@ int main(void)
         // Store correct bootkey
         eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
     }
+    
+    // Write inactive buffer by default
+    oledWriteInactiveBuffer();    
+    
+    // First boot tutorial, only on big flash versions
+    #ifndef FLASH_CHIP_1M
+    if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
+    {
+        uint8_t tut_led_mask, press_filter;
+        activateGuardKey();
+        activityDetectedRoutine();
+        for (uint8_t i = 0; i < sizeof(tutorial_masks)/2; i++)
+        {
+            tut_led_mask = pgm_read_byte(&tutorial_masks[i*2]);
+            press_filter = pgm_read_byte(&tutorial_masks[i*2+1]);
+            oledBitmapDrawFlash(0, 0, i + BITMAP_TUTORIAL_1, OLED_SCROLL_UP);
+            while(!(touchDetectionRoutine(tut_led_mask) & press_filter));
+        }
+        setMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM, FALSE);
+    }
+    #endif
 
-    // Write inactive buffer & go to startup screen
-    oledWriteInactiveBuffer();
+    // Go to startup screen
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
     guiGetBackToCurrentScreen();
         
@@ -417,6 +448,7 @@ int main(void)
     {
         setPwmDc(i);
         timerBasedDelayMs(0);
+        touchDetectionRoutine(0xFF);
     }
     activityDetectedRoutine();
     launchCalibrationCycle();
@@ -456,8 +488,7 @@ int main(void)
         if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_NLCK))
         {
             handleSmartcardRemoved();
-            guiDisplayInformationOnScreen(ID_STRING_PC_SLEEP);
-            userViewDelay();
+            guiDisplayInformationOnScreenAndWait(ID_STRING_PC_SLEEP);
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
             // If the screen saver is on, clear screen contents
             if(isScreenSaverOn() == TRUE)
@@ -489,9 +520,8 @@ int main(void)
             handleSmartcardRemoved();
             
             // Set correct screen
-            guiDisplayInformationOnScreen(ID_STRING_CARD_REMOVED);
+            guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_REMOVED);
             guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
-            userViewDelay();
             guiGetBackToCurrentScreen();
         }
         

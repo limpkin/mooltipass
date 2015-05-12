@@ -140,7 +140,8 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
             if (selected_digit > 0)
             {
-                selected_digit--;
+                // When going back set pin digit to 0
+                current_pin[--selected_digit] = 0;
             }
             else
             {
@@ -214,21 +215,18 @@ RET_TYPE guiCardUnlockingProcess(void)
                 }
                 case RETURN_MOOLTIPASS_0_TRIES_LEFT :
                 {
-                    guiDisplayInformationOnScreen(ID_STRING_CARD_BLOCKED);
-                    userViewDelay();
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_BLOCKED);
                     return RETURN_NOK;
                 }
                 case RETURN_MOOLTIPASS_PB :
                 {
-                    guiDisplayInformationOnScreen(ID_STRING_PB_CARD);
-                    userViewDelay();
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_PB_CARD);
                     return RETURN_NOK;
                 }
                 default :
                 {
                     // Both the enum and the defines allow us to do that
-                    guiDisplayInformationOnScreen(ID_STRING_WRONGPIN1LEFT + temp_rettype - RETURN_MOOLTIPASS_1_TRIES_LEFT);
-                    userViewDelay();
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_WRONGPIN1LEFT + temp_rettype - RETURN_MOOLTIPASS_1_TRIES_LEFT);
                     break;
                 }
             }

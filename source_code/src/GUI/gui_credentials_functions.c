@@ -99,8 +99,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
     // Check if there are stored credentials
     if (first_child_address == NODE_ADDR_NULL)
     {
-        guiDisplayInformationOnScreen(ID_STRING_NO_CREDS);
-        userViewDelay();
+        guiDisplayInformationOnScreenAndWait(ID_STRING_NO_CREDS);
         return NODE_ADDR_NULL;
     }
     
@@ -259,8 +258,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     // If no favorite, return
     if (nbFavorites == 0)
     {
-        guiDisplayInformationOnScreen(ID_STRING_NOSTOREDFAV);
-        userViewDelay();
+        guiDisplayInformationOnScreenAndWait(ID_STRING_NOSTOREDFAV);
         return NODE_ADDR_NULL;
     }
     

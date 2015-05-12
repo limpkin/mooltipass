@@ -129,8 +129,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
     else if (currentScreen == SCREEN_MEMORY_MGMT)
     {
         // Currently in memory management mode, tell the user to finish it via the plugin/app
-        guiDisplayInformationOnScreen(ID_STRING_CLOSEMEMMGMT);
-        userViewDelay();
+        guiDisplayInformationOnScreenAndWait(ID_STRING_CLOSEMEMMGMT);
         guiGetBackToCurrentScreen();
     }
     else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
@@ -175,8 +174,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
             } 
             else
             {                
-                guiDisplayInformationOnScreen(ID_STRING_NO_CREDS);
-                userViewDelay();
+                guiDisplayInformationOnScreenAndWait(ID_STRING_NO_CREDS);
             }
             guiGetBackToCurrentScreen();
         }
@@ -295,15 +293,14 @@ void guiScreenLoop(uint8_t touch_detect_result)
                     // User successfully entered a new pin
                     writeSecurityCode(&pin_code);
                     // Inform of success
-                    guiDisplayInformationOnScreen(ID_STRING_PIN_CHANGED);
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_PIN_CHANGED);
                 }
                 else
                 {
                     // Inform of fail
-                    guiDisplayInformationOnScreen(ID_STRING_PIN_NCGHANGED);
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_PIN_NCGHANGED);
                 }
                 pin_code = 0x0000;
-                userViewDelay();
             }
             else
             {
@@ -372,6 +369,16 @@ void guiDisplayTextInformationOnScreen(char* text)
 void guiDisplayInformationOnScreen(uint8_t stringID)
 {
     guiDisplayTextInformationOnScreen(readStoredStringToBuffer(stringID));
+}
+
+/*! \fn     guiDisplayInformationOnScreenAndWait(uint8_t stringID)
+*   \brief  Display text information on screen, wait a few seconds
+*   \param  stringID    String ID to display
+*/
+void guiDisplayInformationOnScreenAndWait(uint8_t stringID)
+{
+    guiDisplayTextInformationOnScreen(readStoredStringToBuffer(stringID));
+    userViewDelay();
 }
 
 /*! \fn     guiDisplayRawString(uint8_t stringID)

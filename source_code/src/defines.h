@@ -67,7 +67,7 @@
  *  PRODUCTION_KICKSTARTER_SETUP
  *  => final version for production
 */
-#define BETATESTERS_SETUP_PIN
+#define PRODUCTION_KICKSTARTER_SETUP
 #if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
     #define STACK_DEBUG
     #define HARDWARE_V1
@@ -262,7 +262,7 @@ typedef int8_t RET_TYPE;
 
 /**************** VERSION DEFINES ***************/
 #ifndef MOOLTIPASS_VERSION
-    #define MOOLTIPASS_VERSION "RC6"
+    #define MOOLTIPASS_VERSION "v1"
 #endif
 
 /**************** FLASH TEST SELECTION ****************/

@@ -1,6 +1,7 @@
 V1: 
 - timeout on pin entering screen
 - same timeout for all user interractions
+- setting digit to 0 when going back in pin entering
 
 RC6:
 - changes in login menu presentation following beta testers comments

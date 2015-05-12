@@ -118,7 +118,7 @@ RET_TYPE handleSmartcardInserted(void)
         }
         else
         {
-            guiSetCurrentScreen(next_screen);
+            guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
             guiGetBackToCurrentScreen();
             return return_value;
         }

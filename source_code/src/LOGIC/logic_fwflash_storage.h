@@ -49,6 +49,12 @@
 #define BITMAP_ZZZ            14
 #define BITMAP_LOGIN_FIND     15
 #define BITMAP_YES_NO_INT     40
+#define BITMAP_TUTORIAL_1     41
+#define BITMAP_TUTORIAL_2     42
+#define BITMAP_TUTORIAL_3     43
+#define BITMAP_TUTORIAL_4     44
+#define BITMAP_TUTORIAL_5     45
+#define BITMAP_TUTORIAL_6     46
 
 // String IDs
 #define ID_STRING_PROCESSING    0

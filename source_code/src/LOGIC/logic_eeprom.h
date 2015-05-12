@@ -57,6 +57,7 @@
 #define TOUCH_WHEEL_OS_PARAM2               13
 #define FLASH_SCREEN_PARAM                  14
 #define USER_REQ_CANCEL_PARAM               15
+#define TUTORIAL_BOOL_PARAM                 16
 #define FIRST_USER_PARAM                    KEYBOARD_LAYOUT_PARAM
 
 /** Prototypes **/

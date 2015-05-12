@@ -429,6 +429,7 @@ int main(void)
             press_filter = pgm_read_byte(&tutorial_masks[i*2+1]);
             oledBitmapDrawFlash(0, 0, i + BITMAP_TUTORIAL_1, OLED_SCROLL_UP);
             while(!(touchDetectionRoutine(tut_led_mask) & press_filter));
+            touchInhibitUntilRelease();
         }
         setMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM, FALSE);
     }

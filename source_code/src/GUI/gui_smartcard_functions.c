@@ -63,19 +63,36 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     //}        
     #endif
     
+    #ifndef FLASH_CHIP_1M
+        uint8_t easter_egg_cnt = 0;
+    #endif
+    
     // Switch on lights
     activityDetectedRoutine();
 
     // Draw insert bitmap
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_INSERT, 0);
-    oledFlipBuffers(0,0);
+    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
     
     // Wait for either timeout or for the user to insert his smartcard
     while ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_RUNNING) && (card_detect_ret != RETURN_JDETECT))
     {
         card_detect_ret = isCardPlugged();
-        touchDetectionRoutine(0);
+        // Easter Egg
+        #ifndef FLASH_CHIP_1M 
+            if (touchDetectionRoutine(0) == RETURN_RIGHT_PRESSED)
+            {
+                if (easter_egg_cnt++ == 20)
+                {
+                    oledSetScrollSpeed(30);
+                    oledBitmapDrawFlash(0, 0, BITMAP_TUTORIAL_1, OLED_SCROLL_UP);
+                    oledSetScrollSpeed(3);
+                }
+            }
+        #else
+            touchDetectionRoutine(0);
+        #endif
     }
     
     // If the user didn't insert his smart card

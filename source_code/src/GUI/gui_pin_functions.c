@@ -93,7 +93,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     oledBitmapDrawFlash(83, 51, BITMAP_PIN_LINES, 0);
     oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
     oledPutstrXY(0, 0, OLED_CENTRE, readStoredStringToBuffer(stringID));
-    oledFlipBuffers(0,0);
+    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
     oledSetFont(FONT_PROFONT_24);
     oledWriteActiveBuffer();
     

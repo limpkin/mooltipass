@@ -94,7 +94,7 @@
 static uint8_t oled_offset=0;                // current display offset in GDDRAM
 static uint8_t oled_writeOffset=0;           // offset for writing 
 static uint8_t oled_bufHeight;
-static uint8_t oled_scroll_delay = 3;        // milliseconds between line scroll
+static uint8_t oled_scroll_delay = OLED_DEFAULT_SCROLL_DELAY;        // milliseconds between line scroll
 static uint8_t oled_writeBuffer = 0;
 static uint8_t oled_displayBuffer = 0;
 static uint8_t oled_isOn = FALSE;
@@ -302,11 +302,6 @@ void oledWriteActiveBuffer()
  */
 void oledFlipBuffers(uint8_t mode, uint8_t delay)
 {
-    if (delay == 0) 
-    {
-        // 0 -> use global scroll delay
-        delay = oled_scroll_delay;
-    }
     if (mode == 0) 
     {
         oledMoveDisplayStartLine(OLED_HEIGHT);
@@ -330,7 +325,7 @@ void oledFlipBuffers(uint8_t mode, uint8_t delay)
  * Set the scroll speed for scroll operations
  * @param msecs - number of msecs to wait between each line
  */
-void oledSetScrollSpeed(double msecs)
+void oledSetScrollSpeed(uint8_t msecs)
 {
     oled_scroll_delay = msecs;
 }

@@ -495,7 +495,7 @@ int main(void)
             if(isScreenSaverOn() == TRUE)
             {
                 oledClear();
-                oledFlipBuffers(0,0);
+                oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
                 oledClear();
             }
             else

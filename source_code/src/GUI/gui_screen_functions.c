@@ -359,7 +359,7 @@ void guiDisplayTextInformationOnScreen(char* text)
     touchDetectionRoutine(0xFF);
     oledPutstrXY(10, 24, OLED_CENTRE, text);
     oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
-    oledFlipBuffers(0,0);
+    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
 }
 
 /*! \fn     guiDisplayInformationOnScreen(uint8_t stringID)
@@ -418,7 +418,7 @@ void guiDisplaySmartcardUnlockedScreen(uint8_t* username)
     }
     oledPutstrXY(10, temp_Y, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_CARD_UNLOCKED));
     oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
-    oledFlipBuffers(0,0);    
+    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);    
 }
 
 /*! \fn     guiDisplayGoingToSleep(void)
@@ -429,7 +429,7 @@ void guiDisplayGoingToSleep(void)
     oledClear();
     oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
     oledBitmapDrawFlash(2, 17, BITMAP_ZZZ, 0);
-    oledFlipBuffers(0,0);    
+    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);    
 }
 
 /*! \fn     guiAskForConfirmation(const char* string)
@@ -476,7 +476,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     }
     
     // Display result
-    oledFlipBuffers(0,0);
+    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
 
     // In case the display inverted, set it correctly
     if (flash_flag == TRUE)

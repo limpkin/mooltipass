@@ -173,7 +173,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             }
             
             // Display picture
-            oledFlipBuffers(0,0);
+            oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
             
             // Get touched quarter
             j = getTouchedPositionAnswer(led_mask);
@@ -302,7 +302,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         }
         
         // Display picture
-        oledFlipBuffers(0,0);
+        oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
         
         // Get touched quarter
         j = getTouchedPositionAnswer(led_mask);
@@ -473,7 +473,7 @@ uint16_t loginSelectionScreen(void)
     // Draw bitmap, display it and write active buffer
     oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_LOGIN_FIND, 0);
-    oledFlipBuffers(0,0);
+    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
     oledWriteActiveBuffer();
     
     // While the user hasn't chosen a credential

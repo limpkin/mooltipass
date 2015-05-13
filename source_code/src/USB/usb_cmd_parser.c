@@ -1577,7 +1577,7 @@ void usbProcessIncoming(uint8_t caller_id)
 
             if (datalen > 1) {
                 usbPrintf_P(PSTR("testing string \"%s\"\n"), (char *)&msg->body.data[1]);
-                oledFlipBuffers(0,0);
+                oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
                 oledWriteActiveBuffer();
                 oledClear();
                 oledPutstr((char *)&msg->body.data[1]);

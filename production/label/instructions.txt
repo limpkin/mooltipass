@@ -1,0 +1,2 @@
+In this folder is contained the label put on the back of the mooltipass.
+Its dimension is 46.3mm x 21.8mm radius 1.5mm

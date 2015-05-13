@@ -262,7 +262,7 @@ typedef int8_t RET_TYPE;
 
 /**************** VERSION DEFINES ***************/
 #ifndef MOOLTIPASS_VERSION
-    #define MOOLTIPASS_VERSION "v1 (hopefully!)"
+    #define MOOLTIPASS_VERSION "v1"
 #endif
 
 /**************** FLASH TEST SELECTION ****************/

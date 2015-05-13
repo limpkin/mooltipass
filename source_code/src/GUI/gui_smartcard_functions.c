@@ -81,7 +81,7 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
         card_detect_ret = isCardPlugged();
         // Easter Egg
         #ifndef FLASH_CHIP_1M 
-            if (touchDetectionRoutine(0) == RETURN_RIGHT_PRESSED)
+            if (touchDetectionRoutine(0) & RETURN_RIGHT_PRESSED)
             {
                 if (easter_egg_cnt++ == 20)
                 {

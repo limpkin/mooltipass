@@ -55,16 +55,22 @@ void readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, 
 // Chip selection
 #if defined(FLASH_CHIP_1M)      // Used to identify a 1M Flash Chip (AT45DB011D)
     #define FLASH_CHIP 1
+    #define FLASH_CHIP_STR  "\x01"
 #elif defined(FLASH_CHIP_2M)    // Used to identify a 2M Flash Chip (AT45DB021E)
     #define FLASH_CHIP 2
+    #define FLASH_CHIP_STR  "\x02"
 #elif defined(FLASH_CHIP_4M)    // Used to identify a 4M Flash Chip (AT45DB041E)
     #define FLASH_CHIP 4
+    #define FLASH_CHIP_STR  "\x04"
 #elif defined(FLASH_CHIP_8M)    // Used to identify a 8M Flash Chip (AT45DB081E)
     #define FLASH_CHIP 8
+    #define FLASH_CHIP_STR  "\x08"
 #elif defined(FLASH_CHIP_16M)   // Used to identify a 16M Flash Chip (AT45DB161E)
     #define FLASH_CHIP 16
+    #define FLASH_CHIP_STR  "\x10"
 #elif defined(FLASH_CHIP_32M)   // Used to identify a 32M Flash Chip (AT45DB321E)
     #define FLASH_CHIP 32
+    #define FLASH_CHIP_STR  "\x20"
 #endif
 
 #if defined(FLASH_CHIP_1M)

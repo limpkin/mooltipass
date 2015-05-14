@@ -31,7 +31,7 @@
 /** Defines **/
 #define CHECK_PASSWORD_TIMER_VAL        4000
 #define CREDENTIAL_TIMER_VALIDITY       1000
-#define AES_ENCR_DECR_TIMER_VAL         100
+#define AES_ENCR_DECR_TIMER_VAL         20     // Timed at 5ms!
 #define CTR_FLASH_MIN_INCR              64
 #define AES_ROUTINE_ENC_SIZE            32
 

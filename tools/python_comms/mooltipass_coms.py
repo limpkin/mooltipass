@@ -830,12 +830,17 @@ def getDecodedDataForService(epin, epout):
 		print "Service doesn't exist"
 		return
 	
+	time1 = time.time()
 	sendHidPacket(epout, CMD_READ_32B_IN_DN, 0, None)
 	answer = receiveHidPacket(epin)
+	time2 = time.time()
 	while answer[LEN_INDEX] != 1:
 		print answer[DATA_INDEX:DATA_INDEX+32]
+		print "Data received, took", (time2 - time1)*1000.0, "ms"
+		time1 = time.time()
 		sendHidPacket(epout, CMD_READ_32B_IN_DN, 0, None)
 		answer = receiveHidPacket(epin)
+		time2 = time.time()
 		
 def addRandomDataForService(epin, epout):
 	tempPacket = array('B')
@@ -879,10 +884,12 @@ def addRandomDataForService(epin, epout):
 			data_packet.append(0)
 		for i in range(0, 32):
 			data_packet.append(data)
+		time1 = time.time()
 		sendHidPacket(epout, CMD_WRITE_32B_IN_DN, 32 + 1, data_packet)
-		data = data + 1
+		data = (data + 1)%256
 		if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
-			print "Data sent"
+			time2 = time.time()
+			print "Data sent, took", (time2 - time1)*1000.0, "ms"
 		else:
 			print "Data couldn't be sent"
 			return

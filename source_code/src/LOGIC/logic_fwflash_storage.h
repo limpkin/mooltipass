@@ -33,7 +33,7 @@
 #define MEDIA_TYPE_LENGTH       2
 
 // Bimap IDs
-#define BITMAP_HAD            0
+#define BITMAP_MOOLTIPASS     0
 #define BITMAP_LOGIN          1
 #define BITMAP_LOGIN_RARROW   2
 #define BITMAP_YES_NO         3
@@ -48,14 +48,17 @@
 #define BITMAP_PIN_LINES      13
 #define BITMAP_ZZZ            14
 #define BITMAP_LOGIN_FIND     15
-#define BITMAP_YES_NO_INT     40
-#define BITMAP_ZZZ_LOCKED     41
-#define BITMAP_TUTORIAL_1     42
-#define BITMAP_TUTORIAL_2     43
-#define BITMAP_TUTORIAL_3     44
-#define BITMAP_TUTORIAL_4     45
-#define BITMAP_TUTORIAL_5     46
-#define BITMAP_TUTORIAL_6     47
+#define BITMAP_YES_NO_INT_L   40
+#define BITMAP_YES_NO_INT_R   41
+#define BITMAP_ZZZ_LOCKED     42
+#define BITMAP_TUTORIAL_1_H   43
+#define BITMAP_TUTORIAL_1_L   44
+#define BITMAP_TUTORIAL_2     45
+#define BITMAP_TUTORIAL_3     46
+#define BITMAP_TUTORIAL_4     47
+#define BITMAP_TUTORIAL_5     48
+#define BITMAP_TUTORIAL_6     49
+#define BITMAP_EGG            50
 
 // String IDs
 #define ID_STRING_PROCESSING    0

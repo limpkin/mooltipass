@@ -42,9 +42,9 @@
      inkscape:window-height="1025"
      id="namedview4160"
      showgrid="false"
-     inkscape:zoom="1.9047526"
-     inkscape:cx="314.82378"
-     inkscape:cy="39.21376"
+     inkscape:zoom="2.6937269"
+     inkscape:cx="251.56943"
+     inkscape:cy="113.24379"
      inkscape:window-x="-2"
      inkscape:window-y="-3"
      inkscape:window-maximized="1"
@@ -398,14 +398,14 @@
   <text
      id="text4619"
      y="89.494034"
-     x="171.41534"
+     x="168.57242"
      style="font-size:22.22267723px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Italic"
      xml:space="preserve"><tspan
        style="font-style:normal;-inkscape-font-specification:Sans"
        y="89.494034"
-       x="171.41534"
+       x="168.57242"
        sodipodi:role="line"
-       id="tspan4623">DC +5V@0.5A</tspan></text>
+       id="tspan4623">+5VDC@0.5A</tspan></text>
   <rect
      style="fill:none;stroke:#000000"
      id="rect4627"
@@ -414,4 +414,13 @@
      x="164.32581"
      y="105.52428"
      ry="5.6318121" />
+  <rect
+     style="fill:none;stroke:#000000;stroke-width:0.99360371;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+     id="rect4652"
+     width="540.94189"
+     height="250.98401"
+     x="0.49680185"
+     y="0.49680185"
+     ry="5.2606273"
+     rx="5.3013802" />
 </svg>

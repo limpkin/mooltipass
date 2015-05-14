@@ -72,8 +72,8 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
 
     // Draw insert bitmap
     oledClear();
-    oledBitmapDrawFlash(0, 0, BITMAP_INSERT, 0);
-    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
+    oledBitmapDrawFlash(0, 16, BITMAP_INSERT, 0);
+    oledDisplayOtherBuffer();
     
     // Wait for either timeout or for the user to insert his smartcard
     while ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_RUNNING) && (card_detect_ret != RETURN_JDETECT))
@@ -85,9 +85,11 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
             {
                 if (easter_egg_cnt++ == 20)
                 {
-                    oledSetScrollSpeed(30);
-                    oledBitmapDrawFlash(0, 0, BITMAP_TUTORIAL_1, OLED_SCROLL_UP);
+                    oledSetScrollSpeed(100);
+                    oledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+                    oledBitmapDrawFlash(0, 0, BITMAP_EGG, OLED_SCROLL_UP);
                     oledSetScrollSpeed(3);
+                    userViewDelay();
                 }
             }
         #else

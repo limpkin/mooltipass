@@ -298,15 +298,15 @@ void guiMainLoop(void)
                 screenSaverOn = TRUE;
                 oledWriteInactiveBuffer();
                 oledClear();
-                oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
+                oledDisplayOtherBuffer();
                 oledClear();
             #else
-                oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
+                oledDisplayOtherBuffer();
             #endif
         } 
         else
         {
-            oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
+            oledDisplayOtherBuffer();
             #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
                 oledOff();
             #endif

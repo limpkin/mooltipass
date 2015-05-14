@@ -177,6 +177,7 @@ void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options);
 void oledInvertDisplay(void);
 void oledSetDisplayStartLine(uint8_t line);
 void oledMoveDisplayStartLine(int8_t offset);
+void oledDisplayOtherBuffer(void);
 void oledFlipBuffers(uint8_t mode, uint8_t delay);
 void oledFlipDisplayedBuffer(void);
 void oledFlipWriteBuffer(void);

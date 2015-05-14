@@ -302,24 +302,27 @@ void oledWriteActiveBuffer()
  */
 void oledFlipBuffers(uint8_t mode, uint8_t delay)
 {
-    if (mode == 0) 
+    int8_t offset = (mode == OLED_SCROLL_UP ? 1 : -1);
+    
+    for (uint8_t ind=0; ind<OLED_HEIGHT; ind++)
     {
-        oledMoveDisplayStartLine(OLED_HEIGHT);
-    }
-    else 
-    {
-        int8_t offset = (mode == OLED_SCROLL_UP ? 1 : -1);
-        for (uint8_t ind=0; ind<OLED_HEIGHT; ind++) 
-        {
-            oledMoveDisplayStartLine(offset);
-            timerBasedDelayMs(delay);
-        }
+        oledMoveDisplayStartLine(offset);
+        timerBasedDelayMs(delay);
     }
 
     oled_displayBuffer = !oled_displayBuffer;
     oled_writeBuffer = !oled_writeBuffer;
 }
 
+/**
+ * Swap the currently displayed buffer with the inactive buffer
+ */
+void oledDisplayOtherBuffer(void)
+{
+    oledMoveDisplayStartLine(OLED_HEIGHT);
+    oled_displayBuffer = !oled_displayBuffer;
+    oled_writeBuffer = !oled_writeBuffer;
+}
 
 /**
  * Set the scroll speed for scroll operations

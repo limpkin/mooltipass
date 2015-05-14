@@ -79,7 +79,7 @@ void animScreenSaver(void)
     }
     
     oledBitmapDrawFlash((uint8_t)screensaver_anim_x, (uint8_t)screensaver_anim_y, zzzbitmap, 0);
-    oledFlipBuffers(0,OLED_DEFAULT_SCROLL_DELAY);
+    oledDisplayOtherBuffer();
     timerBasedDelayMs(getMooltipassParameterInEeprom(SCREEN_SAVER_SPEED_PARAM));
     oledFillXY(screensaver_anim_last_x, screensaver_anim_last_y, ZZZ_WIDTH, ZZZ_HEIGHT, 0);
 

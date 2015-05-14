@@ -226,28 +226,67 @@ typedef struct __attribute__((packed)) nodeMgmtH
     uint16_t servicesLut[26];       /*!<Look up table for our services */
 } mgmtHandle;
 
-/* Helper Functions (flags and address) */
-uint8_t nodeTypeFromFlags(uint16_t flags);
-void  nodeTypeToFlags(uint16_t *flags, uint8_t nodeType);
+/**
+ * Extracts a page number from a constructed address
+ * @param   flags           The flags field of a node
+ * @param   addr            The constructed address used for extraction
+ * @return  page num        A page number in flash memory (uin16_t)
+ * @note    No error checking is performed
+ * @note    See design notes for address format
+ * @note    Max Page Number varies per flash size
+ */
+static inline uint16_t pageNumberFromAddress(uint16_t addr)
+{
+    return (addr >> NODE_ADDR_SHMT) & NODE_ADDR_PAGE_MASK;
+}
 
-uint8_t validBitFromFlags(uint16_t flags);
-void validBitToFlags(uint16_t *flags, uint8_t vb);
+/**
+ * Extracts a node number from a constructed address
+ * @param   flags           The flags field of a node
+ * @param   addr            The constructed address used for extraction
+ * @return  node num        A node number of a node in a page in flash memory (uint8_t)
+ * @note    No error checking is performed
+ * @note    See design notes for address format
+ * @note    Max Node Number varies per flash size
+ */
+static inline uint8_t nodeNumberFromAddress(uint16_t addr)
+{
+    return (uint8_t)(addr & NODE_ADDR_NODE_MASK);
+}
 
-uint8_t userIdFromFlags(uint16_t flags);
-void userIdToFlags(uint16_t *flags, uint8_t uid);
+/**
+ * Gets the node valid bit from flags  
+ * @param   flags           The flags field of a node
+ * @return  valid bit       as uint8_t
+ * @note    No error checking is performed
+ */
+static inline uint8_t validBitFromFlags(uint16_t flags)
+{
+    return (uint8_t)(((flags & NODE_F_VALID_BIT_MASK) >> NODE_F_VALID_BIT_SHMT) & NODE_F_VALID_BIT_MASK_FINAL);
+}
 
-uint8_t credentialTypeFromFlags(uint16_t flags);
-void credentialTypeToFlags(uint16_t *flags, uint8_t credType);
+/**
+ * Gets the user id from flags  
+ * @param   flags           The flags field of a node
+ * @return  user id         as uint8_t
+ * @note    No error checking is performed
+ */
+static inline uint8_t userIdFromFlags(uint16_t flags)
+{
+    return (uint8_t)(((flags & NODE_F_UID_MASK) >> NODE_F_UID_SHMT) & NODE_F_UID_MASK_FINAL);
+}
 
-uint8_t dataNodeSequenceNumberFromFlags(uint16_t flags);
-void dataNodeSequenceNumberToFlags(uint16_t *flags, uint8_t sid);
-
-uint16_t pageNumberFromAddress(uint16_t addr);
-uint8_t nodeNumberFromAddress(uint16_t addr);
-uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber);
-
-uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day);
-RET_TYPE extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day);
+/**
+ * Sets the user id to flags  
+ * @param   flags           The flags field of a node
+ * @param   uid             The user id to set in flags (0 up to NODE_MAX_UID)
+ * @return  Does not return
+ * @note    No error checking is performed
+ */
+static inline void userIdToFlags(uint16_t *flags, uint8_t uid)
+{
+    *flags = (*flags & (~NODE_F_UID_MASK)) | ((uint16_t)uid << NODE_F_UID_SHMT);
+}
 
 /* Init Handle */
 void initNodeManagementHandle(uint8_t userIdNum);

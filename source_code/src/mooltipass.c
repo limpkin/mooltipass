@@ -258,7 +258,7 @@ int main(void)
     initI2cPort();                      // Initialize I2C interface
     rngInit();                          // Initialize avrentropy library
     oledInitIOs();                      // Initialize OLED input/outputs
-    spiUsartBegin(SPI_RATE_8_MHZ);      // Start USART SPI at 8MHz
+    spiUsartBegin();                    // Start USART SPI at 8MHz
 
     // If offline mode isn't enabled, wait for device to be enumerated
     if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
@@ -418,7 +418,7 @@ int main(void)
     
     // First boot tutorial, only on big flash versions
     #ifndef FLASH_CHIP_1M
-    //if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
+    if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
     {
         uint8_t tut_led_mask, press_filter;
         oledClear();
@@ -456,7 +456,7 @@ int main(void)
     {
         setPwmDc(i);
         timerBasedDelayMs(0);
-        touchDetectionRoutine(0xFF);
+        touchDetectionRoutine(0);
     }
     activityDetectedRoutine();
     launchCalibrationCycle();

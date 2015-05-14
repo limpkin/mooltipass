@@ -60,7 +60,6 @@ RET_TYPE getLoginForContext(char* buffer);
 void clearSmartCardInsertedUnlocked(void);
 void setSmartCardInsertedUnlocked(void);
 void eraseFlashUsersContents(void);
-void ctrPostEncryptionTasks(void);
 void ctrPreEncryptionTasks(void);
 void favoritePickingLogic(void);
 void loginSelectLogic(void);

@@ -45,7 +45,7 @@
 #define SPI_RATE_400_KHZ	19
 #define SPI_RATE_100_KHZ	79
 
-void spiUsartBegin(uint16_t rate);
+void spiUsartBegin(void);
 void spiUsartSetRate(uint16_t rate);
 
 /**

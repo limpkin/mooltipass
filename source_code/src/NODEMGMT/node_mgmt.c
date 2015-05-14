@@ -72,7 +72,7 @@ void setCurrentDate(uint16_t date)
  * @return  nodeType        (as uint8) (NODE_TYPE_PARENT, NODE_TYPE_CHILD, NODE_TYPE_CHILD_DATA, NODE_TYPE_DATA)
  * @note    No error checking is performed
  */
-uint8_t nodeTypeFromFlags(uint16_t flags)
+static inline uint8_t nodeTypeFromFlags(uint16_t flags)
 {
     return (uint8_t)(((flags & NODE_F_TYPE_MASK) >>  NODE_F_TYPE_SHMT) & NODE_F_TYPE_MASK_FINAL);
 }
@@ -84,20 +84,9 @@ uint8_t nodeTypeFromFlags(uint16_t flags)
  * @return  Does not return
  * @note    No error checking is performed
  */
-void  nodeTypeToFlags(uint16_t *flags, uint8_t nodeType)
+static inline void nodeTypeToFlags(uint16_t *flags, uint8_t nodeType)
 {
     *flags = (*flags & ~NODE_F_TYPE_MASK) | ((uint16_t)nodeType << NODE_F_TYPE_SHMT);
-}
-
-/**
- * Gets the node valid bit from flags  
- * @param   flags           The flags field of a node
- * @return  valid bit       as uint8_t
- * @note    No error checking is performed
- */
-uint8_t validBitFromFlags(uint16_t flags)
-{
-    return (uint8_t)(((flags & NODE_F_VALID_BIT_MASK) >> NODE_F_VALID_BIT_SHMT) & NODE_F_VALID_BIT_MASK_FINAL);
 }
 
 /**
@@ -107,32 +96,9 @@ uint8_t validBitFromFlags(uint16_t flags)
  * @return  Does not return
  * @note    No error checking is performed
  */
-void validBitToFlags(uint16_t *flags, uint8_t vb)
+static inline void validBitToFlags(uint16_t *flags, uint8_t vb)
 {
     *flags = (*flags & (~NODE_F_VALID_BIT_MASK)) | ((uint16_t)vb << NODE_F_VALID_BIT_SHMT);
-}
-
-/**
- * Gets the user id from flags  
- * @param   flags           The flags field of a node
- * @return  user id         as uint8_t
- * @note    No error checking is performed
- */
-uint8_t userIdFromFlags(uint16_t flags)
-{
-    return (uint8_t)(((flags & NODE_F_UID_MASK) >> NODE_F_UID_SHMT) & NODE_F_UID_MASK_FINAL);
-}
-
-/**
- * Sets the user id to flags  
- * @param   flags           The flags field of a node
- * @param   uid             The user id to set in flags (0 up to NODE_MAX_UID)
- * @return  Does not return
- * @note    No error checking is performed
- */
-void userIdToFlags(uint16_t *flags, uint8_t uid)
-{
-    *flags = (*flags & (~NODE_F_UID_MASK)) | ((uint16_t)uid << NODE_F_UID_SHMT);
 }
 
 /**
@@ -141,7 +107,7 @@ void userIdToFlags(uint16_t *flags, uint8_t uid)
  * @return  cred type       as uint8_t
  * @note    No error checking is performed
  */
-uint8_t credentialTypeFromFlags(uint16_t flags)
+static inline uint8_t credentialTypeFromFlags(uint16_t flags)
 {
     return (uint8_t)(flags & NODE_F_CRED_TYPE_MASK);
 }
@@ -153,7 +119,7 @@ uint8_t credentialTypeFromFlags(uint16_t flags)
  * @return  Does not return
  * @note    No error checking is performed
  */
-void credentialTypeToFlags(uint16_t *flags, uint8_t credType)
+static inline void credentialTypeToFlags(uint16_t *flags, uint8_t credType)
 {
     *flags = (*flags & (~NODE_F_CRED_TYPE_MASK)) | ((uint16_t)credType);
 }
@@ -165,7 +131,7 @@ void credentialTypeToFlags(uint16_t *flags, uint8_t credType)
  * @note    No error checking is performed
  * @note    should only be used with data nodes
  */
-uint8_t dataNodeSequenceNumberFromFlags(uint16_t flags)
+static inline uint8_t dataNodeSequenceNumberFromFlags(uint16_t flags)
 {
     return (uint8_t)(flags & NODE_F_DATA_SEQ_NUM_MASK);
 }
@@ -178,37 +144,9 @@ uint8_t dataNodeSequenceNumberFromFlags(uint16_t flags)
  * @note    No error checking is performed
  * @note    should only be used with data nodes
  */
-void dataNodeSequenceNumberToFlags(uint16_t *flags, uint8_t sid)
+static inline void dataNodeSequenceNumberToFlags(uint16_t *flags, uint8_t sid)
 {
     *flags = (*flags & (~NODE_F_DATA_SEQ_NUM_MASK)) | ((uint16_t)sid);
-}
-
-/**
- * Extracts a page number from a constructed address
- * @param   flags           The flags field of a node
- * @param   addr            The constructed address used for extraction
- * @return  page num        A page number in flash memory (uin16_t)
- * @note    No error checking is performed
- * @note    See design notes for address format
- * @note    Max Page Number varies per flash size
- */
-uint16_t pageNumberFromAddress(uint16_t addr)
-{
-    return (addr >> NODE_ADDR_SHMT) & NODE_ADDR_PAGE_MASK;
-}
-
-/**
- * Extracts a node number from a constructed address
- * @param   flags           The flags field of a node
- * @param   addr            The constructed address used for extraction
- * @return  node num        A node number of a node in a page in flash memory (uint8_t)
- * @note    No error checking is performed
- * @note    See design notes for address format
- * @note    Max Node Number varies per flash size
- */
-uint8_t nodeNumberFromAddress(uint16_t addr)
-{
-    return (uint8_t)(addr & NODE_ADDR_NODE_MASK);
 }
 
 /**
@@ -220,7 +158,7 @@ uint8_t nodeNumberFromAddress(uint16_t addr)
  * @note    See design notes for address format
  * @note    Max Page Number and Node Number vary per flash size
  */
-uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber)
+static inline uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber)
 {
     return ((pageNumber << NODE_ADDR_SHMT) | ((uint16_t)nodeNumber));
 }
@@ -233,7 +171,7 @@ uint16_t constructAddress(uint16_t pageNumber, uint8_t nodeNumber)
  * @return  date            The constructed / encoded date in uint16_t
  * @note    No error checking is performed
  */
-uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day)
+static inline uint16_t constructDate(uint8_t year, uint8_t month, uint8_t day)
 {
     return (day | ((month << NODE_MGMT_MONTH_SHT) & NODE_MGMT_MONTH_MASK) | ((year << NODE_MGMT_YEAR_SHT) & NODE_MGMT_YEAR_MASK));
 }
@@ -1005,6 +943,7 @@ uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray, uint16_t startPage, 
                 }
             }
         }
+        startNode = 0;
     }    
     
     return nbNodesFound;

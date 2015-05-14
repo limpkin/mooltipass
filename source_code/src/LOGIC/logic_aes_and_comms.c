@@ -282,7 +282,7 @@ void ctrPreEncryptionTasks(void)
 /*! \fn     ctrPostEncryptionTasks(void)
 *   \brief  CTR post encryption tasks
 */
-void ctrPostEncryptionTasks(void)
+static inline void ctrPostEncryptionTasks(void)
 {
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
@@ -748,6 +748,7 @@ RET_TYPE get32BytesDataForCurrentService(uint8_t* buffer)
                 if (guiAskForConfirmation(2, &conf_text) == RETURN_OK)
                 {
                     activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
+                    currently_reading_data_cntr = 0;
                 }
                 guiGetBackToCurrentScreen(); 
             }

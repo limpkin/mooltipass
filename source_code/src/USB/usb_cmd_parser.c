@@ -1384,16 +1384,9 @@ void usbProcessIncoming(uint8_t caller_id)
         // Set current date
         case CMD_SET_DATE :
         {
-            if (datalen == 2)
-            {
-                uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
-                plugin_return_value = PLUGIN_BYTE_OK;
-                setCurrentDate(*temp_uint_ptr);
-            } 
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+            uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
+            plugin_return_value = PLUGIN_BYTE_OK;
+            setCurrentDate(*temp_uint_ptr);
             break;
         }      
         

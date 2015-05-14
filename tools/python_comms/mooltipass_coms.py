@@ -1348,13 +1348,13 @@ def recoveryProc(epin, epout):
 			print "Current starting node is", format(starting_node_addr[0] + starting_node_addr[1]*256, '#04X'), "should be", format(correct_starting_parent[0] + correct_starting_parent[1]*256, '#04X')
 			raw_input("Press enter to correct")
 			print "Starting parent set to", format(service_addresses[0], '#04X')
-			sendHidPacket(epout, CMD_SET_STARTINGPARENT, 2, correct_starting_parent)
+			sendHidPacket(epout, CMD_SET_STARTING_PARENT, 2, correct_starting_parent)
 			receiveHidPacket(epin)
 	else:
 		correct_starting_parent = array('B')
 		correct_starting_parent.append(0)
 		correct_starting_parent.append(0)
-		sendHidPacket(epout, CMD_SET_STARTINGPARENT, 2, correct_starting_parent)
+		sendHidPacket(epout, CMD_SET_STARTING_PARENT, 2, correct_starting_parent)
 		receiveHidPacket(epin)		
 	
 	# Check correct parent

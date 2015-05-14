@@ -976,40 +976,55 @@ void deleteCurrentUserFromFlash(void)
     formatUserProfileMemory(currentNodeMgmtHandle.currentUserId);
     
     // Then browse through all the credentials to delete them
-    while (next_parent_addr != NODE_ADDR_NULL)
+    for (uint8_t i = 0; i < 2; i++)
     {
-        // Read current parent node
-        readParentNode(&temp_pnode, next_parent_addr);
-        
-        // Read his first child
-        next_child_addr = temp_pnode.nextChildAddress;
-        
-        // Browse through all children
-        while (next_child_addr != NODE_ADDR_NULL)
+        while (next_parent_addr != NODE_ADDR_NULL)
         {
-            // Read child node
-            readChildNode(&temp_cnode, next_child_addr);
+            // Read current parent node
+            readParentNode(&temp_pnode, next_parent_addr);
             
-            // Store the next child address in temp
-            temp_address = temp_cnode.nextChildAddress;
+            // Read his first child
+            next_child_addr = temp_pnode.nextChildAddress;
             
-            // Delete child data block
-            memset(&temp_cnode, 0xFF, NODE_SIZE);
-            writeNodeDataBlockToFlash(next_child_addr, &temp_cnode);
+            // Browse through all children
+            while (next_child_addr != NODE_ADDR_NULL)
+            {
+                // Read child node
+                readChildNode(&temp_cnode, next_child_addr);
+                
+                // Store the next child address in temp
+                if (i == 0)
+                {
+                    // First loop is cnode
+                    temp_address = temp_cnode.nextChildAddress;
+                } 
+                else
+                {
+                    // Second loop is dnode
+                    dNode* temp_dnode_ptr = (dNode*)&temp_cnode;
+                    temp_address = temp_dnode_ptr->nextDataAddress;
+                }
+                
+                // Delete child data block
+                memset(&temp_cnode, 0xFF, NODE_SIZE);
+                writeNodeDataBlockToFlash(next_child_addr, &temp_cnode);
+                
+                // Set correct next address
+                next_child_addr = temp_address;
+            }
+            
+            // Store the next parent address in temp
+            temp_address = temp_pnode.nextParentAddress;
+            
+            // Delete parent data block
+            memset(&temp_pnode, 0xFF, NODE_SIZE);
+            writeNodeDataBlockToFlash(next_parent_addr, &temp_pnode);
             
             // Set correct next address
-            next_child_addr = temp_address;
+            next_parent_addr = temp_address;
         }
-        
-        // Store the next parent address in temp
-        temp_address = temp_pnode.nextParentAddress;
-        
-        // Delete parent data block
-        memset(&temp_pnode, 0xFF, NODE_SIZE);
-        writeNodeDataBlockToFlash(next_parent_addr, &temp_pnode);
-        
-        // Set correct next address
-        next_parent_addr = temp_address;
+        // First loop done, remove data nodes
+        next_parent_addr = currentNodeMgmtHandle.firstDataParentNode;
     }
     
     // Empty service lut (not needed as the user is deleted)

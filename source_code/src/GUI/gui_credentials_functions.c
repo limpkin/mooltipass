@@ -131,7 +131,6 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
         while (action_chosen == FALSE)
         {
             // Draw asking bitmap
-            oledClear();
             oledBitmapDrawFlash(0, 0, BITMAP_LOGIN, 0);
             
             // Write domain name on screen
@@ -266,7 +265,6 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     while (action_chosen != TRUE)
     {
         // Draw asking bitmap
-        oledClear();
         oledBitmapDrawFlash(0, 0, BITMAP_LOGIN, 0);
         
         // Clear led_mask
@@ -471,7 +469,6 @@ uint16_t loginSelectionScreen(void)
     memcpy(currentText, "a\x00\x00\x00\x00", sizeof(currentText));
     
     // Draw bitmap, display it and write active buffer
-    oledClear();
     oledBitmapDrawFlash(0, 0, BITMAP_LOGIN_FIND, 0);
     oledDisplayOtherBuffer();
     oledWriteActiveBuffer();

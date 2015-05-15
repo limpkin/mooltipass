@@ -192,19 +192,20 @@ event.onRemoveCredentialsFromTabInformation = function(callback, tab) {
 
 event.onNotifyButtonClick = function(id, buttonIndex) {
     console.log('notification',id,'button',buttonIndex,'clicked');
-    if (buttonIndex == 0) {
-        // Update
-        //console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
-        //mooltipass.updateCredentials(null, 
-        //            event.mpUpdate[id].tab, 0,
-        //            event.mpUpdate[id].username,
-        //            event.mpUpdate[id].password,
-        //            event.mpUpdate[id].url);
-    } else {
-        // Blacklist
-        console.log('notification blacklist ',event.mpUpdate[id].url);
-        mooltipass.blacklistUrl(event.mpUpdate[id].url);
-    }
+	// Check notification type
+	if(event.mpUpdate[id].type == "singledomainadd")
+	{
+		// Adding a single domain notification
+		if (buttonIndex == 0) 
+		{
+			// Blacklist
+			console.log('notification blacklist ',event.mpUpdate[id].url);
+			mooltipass.blacklistUrl(event.mpUpdate[id].url);
+		} 
+		else 
+		{
+		}
+	}
     delete event.mpUpdate[id];
 }
 
@@ -238,7 +239,7 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 
 			var noteId = 'mpUpdate.'+event.notificationCount.toString();
 
-			event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url };
+			event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url, type: "singledomainadd" };
 			
 			mooltipass.updateCredentials(null, tab, 0, username, password, url);
 

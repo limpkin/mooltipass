@@ -325,7 +325,6 @@ event.onMultipleFieldsPopup = function(callback, tab) {
 	browserAction.show(null, tab);
 }
 
-
 // all methods named in this object have to be declared BEFORE this!
 event.messageHandlers = {
 	'update': event.onUpdate,

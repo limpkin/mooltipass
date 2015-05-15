@@ -824,12 +824,14 @@ cipFields.prepareId = function(id) {
 }
 
 cipFields.getAllFields = function() {
+	//console.log('field call!');
 	var fields = [];
 	// get all input fields which are text, email or password and visible
 	cIPJQ(cipFields.inputQueryPattern).each(function() {
-		if(cIPJQ(this).is(":visible") && cIPJQ(this).css("visibility") != "hidden" && cIPJQ(this).css("visibility") != "collapsed") {
+		if(cIPJQ(this).is(":visible") && cIPJQ(this).css("visibility") != "hidden" && !cIPJQ(this).is(':disabled') && cIPJQ(this).css("visibility") != "collapsed") {
 			cipFields.setUniqueId(cIPJQ(this));
 			fields.push(cIPJQ(this));
+			//console.log('field detection!', cIPJQ(this));
 		}
 	});
 

@@ -190,8 +190,10 @@ event.onRemoveCredentialsFromTabInformation = function(callback, tab) {
 	page.clearCredentials(id);
 }
 
-event.onNotifyButtonClick = function(id, buttonIndex) {
+event.onNotifyButtonClick = function(id, buttonIndex) 
+{
     console.log('notification',id,'button',buttonIndex,'clicked');
+	
 	// Check notification type
 	if(event.mpUpdate[id].type == "singledomainadd")
 	{
@@ -204,6 +206,22 @@ event.onNotifyButtonClick = function(id, buttonIndex) {
 		} 
 		else 
 		{
+		}
+	}
+	else if(event.mpUpdate[id].type == "subdomainadd")
+	{
+		// Adding a sub domain notification
+		if (buttonIndex == 0) 
+		{
+			// Store credentials
+			console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
+			mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url);
+		} 
+		else 
+		{
+			// Store credentials
+			console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url2);
+			mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url2);
 		}
 	}
     delete event.mpUpdate[id];
@@ -219,7 +237,17 @@ chrome.notifications.onClosed.addListener(event.onNotifyClosed);
 event.notificationCount = 0;
 event.mpUpdate = {};
 
-event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) {
+event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) 
+{
+	// Check if blacklisted
+	if (mooltipass.isBlacklisted(url)) 
+	{
+		console.log('notify: ignoring blacklisted url',url);
+		return;
+	}
+	
+	// Increment notification count
+	event.notificationCount++;
 	
 	// Here we should detect a subdomain!
 	if(true)
@@ -229,26 +257,21 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 		if(true)
 		{
 			// Unknown user
-			if (mooltipass.isBlacklisted(url)) 
-			{
-				console.log('notify: ignoring blacklisted url',url);
-				return;
-			}
-
-			event.notificationCount++;
-
 			var noteId = 'mpUpdate.'+event.notificationCount.toString();
 
-			event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url, type: "singledomainadd" };
+			// Store our event
+			event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url, url2: url, type: "singledomainadd"};
 			
+			// Send request by default
 			mooltipass.updateCredentials(null, tab, 0, username, password, url);
 
+			// Create notification to blacklist
 			chrome.notifications.create(noteId,
 					{   type: 'basic',
 						title: 'Credentials Detected!',
 						message: 'Please Approve their Storage on the Mooltipass',
 						iconUrl: '/icons/mooltipass-128.png',
-						buttons: [ {title: 'Black list this website', iconUrl: '/icons/forbidden-icon.png'}] },
+						buttons: [{title: 'Black list this website', iconUrl: '/icons/forbidden-icon.png'}] },
 						function(id) 
 						{
 							console.log('notification created for',id);

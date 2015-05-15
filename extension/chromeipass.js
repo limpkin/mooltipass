@@ -1683,23 +1683,12 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 				}
 			}
 		}
-
-        switch (cip.settings.updateMethod) {
-        case 'chromeipass':
-            console.log('rememberCredentials - sending set_remember_credentials');
-            chrome.extension.sendMessage({
-                'action': 'set_remember_credentials',
-                'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
-            });
-            break;
-        case 'notification':
-            console.log('rememberCredentials - sending update_notify');
-            chrome.extension.sendMessage({
-                'action': 'update_notify',
-                'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
-            });
-            break;
-        }
+		
+		console.log('rememberCredentials - sending update_notify');
+		chrome.extension.sendMessage({
+			'action': 'update_notify',
+			'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
+		});
 
 		return true;
 	} else {

@@ -194,12 +194,12 @@ event.onNotifyButtonClick = function(id, buttonIndex) {
     console.log('notification',id,'button',buttonIndex,'clicked');
     if (buttonIndex == 0) {
         // Update
-        console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
-        mooltipass.updateCredentials(null, 
-                    event.mpUpdate[id].tab, 0,
-                    event.mpUpdate[id].username,
-                    event.mpUpdate[id].password,
-                    event.mpUpdate[id].url);
+        //console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
+        //mooltipass.updateCredentials(null, 
+        //            event.mpUpdate[id].tab, 0,
+        //            event.mpUpdate[id].username,
+        //            event.mpUpdate[id].password,
+        //            event.mpUpdate[id].url);
     } else {
         // Blacklist
         console.log('notification blacklist ',event.mpUpdate[id].url);
@@ -219,28 +219,45 @@ event.notificationCount = 0;
 event.mpUpdate = {};
 
 event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) {
-    var updateString = usernameExists ?  'Update credentials for ' : 'Add credentials for ';
+	
+	// Here we should detect a subdomain!
+	if(true)
+	{
+		// Single domain
+		// Here we should send a request to the mooltipass to know if the username exists!
+		if(true)
+		{
+			// Unknown user
+			if (mooltipass.isBlacklisted(url)) 
+			{
+				console.log('notify: ignoring blacklisted url',url);
+				return;
+			}
 
-    if (mooltipass.isBlacklisted(url)) {
-        console.log('notify: ignoring blacklisted url',url);
-        return;
-    }
+			event.notificationCount++;
 
-    event.notificationCount++;
+			var noteId = 'mpUpdate.'+event.notificationCount.toString();
 
-    var noteId = 'mpUpdate.'+event.notificationCount.toString();
+			event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url };
+			
+			mooltipass.updateCredentials(null, tab, 0, username, password, url);
 
-    event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url };
-
-    chrome.notifications.create(noteId,
-            {   type: 'basic',
-                title: 'Mooltipass Update',
-                message: updateString+'\n'+url+'\non Mooltipass?',
-                iconUrl: '/icons/mooltipass-active.png',
-                buttons: [ {title: 'Yes'}, {title: 'Never for this site'}] },
-                function(id) {
-                    console.log('notification created for',id);
-                });
+			chrome.notifications.create(noteId,
+					{   type: 'basic',
+						title: 'Credentials Detected!',
+						message: 'Please Approve their Storage on the Mooltipass',
+						iconUrl: '/icons/mooltipass-128.png',
+						buttons: [ {title: 'Black list this website', iconUrl: '/icons/forbidden-icon.png'}] },
+						function(id) 
+						{
+							console.log('notification created for',id);
+						});
+		}
+		else
+		{}
+	}
+	else
+	{}
 }
 
 event.onUpdate = function(callback, tab, username, password, url, usernameExists, credentialsList) {

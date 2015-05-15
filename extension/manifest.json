@@ -5,6 +5,7 @@
 	"description": "Retrieve and store Mooltipass credentials easily from websites",
 	"icons": {
 		"16": "icons/mooltipass-16.png",
+		"48": "icons/mooltipass-64.png",
 		"128": "icons/mooltipass-128.png"
 	},
 
@@ -34,9 +35,8 @@
 	"content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
-			"js": ["jquery-1.11.1.min.js", "jquery-ui-1.10.2.custom.min.js", "chromeipass.js",
-			       "jquery-ui/external/jquery/jquery.js", "jquery-ui/jquery-ui.js"],
-			"css": ["jquery-ui-1.10.2.custom.min.css", "bootstrap-btn.css", "chromeipass.css", "jquery-ui/jquery-ui.css"],
+			"js": ["jquery-1.11.1.min.js", "jquery-ui-1.10.2.custom.min.js", "chromeipass.js"],
+			"css": ["jquery-ui-1.10.2.custom.min.css", "bootstrap-btn.css", "chromeipass.css"],
 			"run_at": "document_idle",
 			"all_frames": true
 		}

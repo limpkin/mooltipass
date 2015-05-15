@@ -218,10 +218,6 @@ chrome.notifications.onClosed.addListener(event.onNotifyClosed);
 event.notificationCount = 0;
 event.mpUpdate = {};
 
-event.onSetRememberPopup = function(callback, tab, username, password, url, usernameExists, credentialsList) {
-	browserAction.setRememberPopup(tab.id, username, password, url, usernameExists, credentialsList);
-}
-
 event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) {
     var updateString = usernameExists ?  'Update credentials for ' : 'Add credentials for ';
 
@@ -313,7 +309,6 @@ event.messageHandlers = {
 	'show_default_browseraction': browserAction.showDefault,
 	'update_credentials': mooltipass.updateCredentials,
 	'save_settings': event.onSaveSettings,
-	'set_remember_credentials': event.onSetRememberPopup,
 	'update_notify': event.onUpdateNotify,
 	'stack_add': browserAction.stackAdd,
 	'update_available_chromeipass': event.onChromeipassUpdateAvailable,

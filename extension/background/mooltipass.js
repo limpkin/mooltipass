@@ -198,14 +198,18 @@ mooltipass.extractDomainAndSubdomain = function (url)
 	console.log("Parsing ", url);
 	
 	// URL trimming
+	// Remove possible www.
 	url = url.replace('www.', '');
+	// Remove everything before //
 	url = url.replace(/.*?:\/\//g, "");
+	// Remove everything after first /
 	var n = url.indexOf('/');
 	url = url.substring(0, n != -1 ? n : s.length);
 	console.log("Trimmed URL: ", url)
 	
 	if(psl.isValid(url))
 	{
+		// Managed to extract a domain using the public suffix list
 		console.log("valid URL detected")
 		
 		url_valid = true;
@@ -218,8 +222,21 @@ mooltipass.extractDomainAndSubdomain = function (url)
 	}
 	else
 	{
-		url_valid = false;
-		console.log("invalid URL detected")
+		// Check if it is an ip address
+		var ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+		var ipArray = url.match(ipPattern);
+		if(ipArray != null)
+		{
+			url_valid = true;
+			domain = url;
+			subdomain = null;
+			console.log("ip address detected")		
+		}
+		else
+		{
+			url_valid = false;
+			console.log("invalid URL detected")			
+		}
 	}	
 	
 	return {valid: url_valid, domain: domain, subdomain: subdomain}

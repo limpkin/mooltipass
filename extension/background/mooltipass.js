@@ -255,7 +255,8 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 	page.tabs[tab.id].errorMessage = null;
 
 	// is browser associated to keepass?
-	if (!mooltipass.isConnected()) {
+	if (!mooltipass.isConnected()) 
+	{
 		browserAction.showDefault(null, tab);
 		if(forceCallback) {
 			callback([]);

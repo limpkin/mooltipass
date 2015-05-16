@@ -111,7 +111,7 @@ def compressImageRLE(image):
 
     output = []
     for line in data:
-        line = line * scale
+        #line = line * scale
         ind = 0
         for pix in line:
             if runCount == 0:
@@ -154,21 +154,32 @@ def parseGimpHeader(filename):
     # locate width and height
     # then import all pixel data
     init = True
+    init2 = True
     data = []
+    mapping = []
     for line in fd:
         if init:
             if 'width' in line:
                 width = int(line.split('=')[-1].strip()[:-1])
             elif 'height' in line:
                 height = int(line.split('=')[-1].strip()[:-1])
-            elif 'header_data[]' in line:
+            elif 'header_data_cmap[256][3]' in line:
+                print "found cmap header"
                 init = False
+        elif init2:
+            if 'header_data[]' in line:
+                init2 = False
+            elif '};' in line:
+                continue
+            else:
+                mapping.append(int(line.replace("{", "").replace("}", "").strip().split(',')[0]))
         else:
             if '};' in line:
                 break
             data.extend(line.split(','))
 
-    data = [int(x.strip()) for x in data if x.strip().isdigit()]
+    data = [int(round(float(mapping[int(x.strip())])/255*15)) for x in data if x.strip().isdigit()]
+    #print data
     if len(data) == 0:
         print 'Failed to extract pixel data from {}'.format(imageFile)
         sys.exit(1)

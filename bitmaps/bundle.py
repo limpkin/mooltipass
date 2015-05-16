@@ -142,7 +142,7 @@ def buildBundle(bundlename, stringFile, files, test_bundle=False, show_md5=False
                 data = bfd.read(512)
             print "{} {}".format(bundlename, m.hexdigest())
             bfd.close()
-        print 'wrote {} bytes to {}'.format(size-reserve, bundlename)
+        print 'wrote {} bytes to {}'.format(size, bundlename)
 
 def expandBundle(bundlename, args, test_bundle=False, show_md5=False):
     bfd = open(bundlename, 'rb')

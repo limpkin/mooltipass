@@ -51,14 +51,14 @@
 #define BITMAP_YES_NO_INT_L   40
 #define BITMAP_YES_NO_INT_R   41
 #define BITMAP_ZZZ_LOCKED     42
-#define BITMAP_TUTORIAL_1_H   43
-#define BITMAP_TUTORIAL_1_L   44
-#define BITMAP_TUTORIAL_2     45
-#define BITMAP_TUTORIAL_3     46
-#define BITMAP_TUTORIAL_4     47
-#define BITMAP_TUTORIAL_5     48
-#define BITMAP_TUTORIAL_6     49
-#define BITMAP_EGG            50
+#define BITMAP_TUTORIAL_1     43
+#define BITMAP_TUTORIAL_2     44
+#define BITMAP_TUTORIAL_3     45
+#define BITMAP_TUTORIAL_4     46
+#define BITMAP_TUTORIAL_5     47
+#define BITMAP_TUTORIAL_6     48
+#define BITMAP_EGG            49
+#define BITMAP_EGG_END        50
 
 // String IDs
 #define ID_STRING_PROCESSING    0

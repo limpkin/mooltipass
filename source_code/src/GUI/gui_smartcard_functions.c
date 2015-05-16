@@ -88,6 +88,7 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
                     oledSetScrollSpeed(100);
                     oledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
                     oledBitmapDrawFlash(0, 0, BITMAP_EGG, OLED_SCROLL_UP);
+                    oledBitmapDrawFlash(0, 0, BITMAP_EGG_END, OLED_SCROLL_UP);
                     oledSetScrollSpeed(3);
                     userViewDelay();
                 }

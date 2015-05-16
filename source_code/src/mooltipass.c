@@ -63,7 +63,7 @@ static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
 {
     0,                              TOUCH_PRESS_MASK,       // Welcome screen
     LED_MASK_WHEEL,                 RETURN_RIGHT_PRESSED,   // Show you around...
-    0,                              TOUCH_PRESS_MASK,       // Display hints
+    LED_MASK_WHEEL,                 RETURN_RIGHT_PRESSED,   // Display hints
     LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Circular segments
     LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Wheel interface
     0,                              TOUCH_PRESS_MASK,       // That's all!
@@ -418,23 +418,16 @@ int main(void)
     
     // First boot tutorial, only on big flash versions
     #ifndef FLASH_CHIP_1M
-    if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
+    //if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
     {
         uint8_t tut_led_mask, press_filter;
-        oledClear();
         activateGuardKey();
         activityDetectedRoutine();
-        oledBitmapDrawFlash(8, 5, BITMAP_TUTORIAL_1_H, 0);
-        oledBitmapDrawFlash(35, 48, BITMAP_TUTORIAL_1_L, 0);
-        oledFlipBuffers(OLED_SCROLL_UP, OLED_DEFAULT_SCROLL_DELAY);
         for (uint8_t i = 0; i < sizeof(tutorial_masks)/2; i++)
         {
             tut_led_mask = pgm_read_byte(&tutorial_masks[i*2]);
             press_filter = pgm_read_byte(&tutorial_masks[i*2+1]);
-            if(i)
-            {
-                oledBitmapDrawFlash(0, 0, i - 1 + BITMAP_TUTORIAL_2, OLED_SCROLL_UP);                
-            }
+            oledBitmapDrawFlash(0, 0, i + BITMAP_TUTORIAL_1, OLED_SCROLL_UP);    
             while(!(touchDetectionRoutine(tut_led_mask) & press_filter));
             touchInhibitUntilRelease();
         }
@@ -452,11 +445,11 @@ int main(void)
     #endif
     
     // Let's fade in the LEDs
+    touchDetectionRoutine(0);
     for (uint16_t i = 0; i < MAX_PWM_VAL; i++)
     {
         setPwmDc(i);
         timerBasedDelayMs(0);
-        touchDetectionRoutine(0);
     }
     activityDetectedRoutine();
     launchCalibrationCycle();

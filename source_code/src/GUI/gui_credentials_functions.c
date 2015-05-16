@@ -65,7 +65,7 @@ void displayCredentialAtSlot(uint8_t slot, char* text, uint8_t truncate_index)
     memcpy(temp_disptext, text, sizeof(temp_disptext));
     temp_disptext[sizeof(temp_disptext)-1] = 0;
     temp_disptext[truncate_index] = 0;
-    oledPutstrXY((slot & 0x01)*0xFF, 4 + (slot & 0x02)*21 + yoffset, (slot & 0x01)*OLED_RIGHT, temp_disptext);
+    oledPutstrXY((slot & 0x01)*0xFF, 1 + (slot & 0x02)*24 + yoffset, (slot & 0x01)*OLED_RIGHT, temp_disptext);
 }
 
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
@@ -358,10 +358,10 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
     oledSetFont(FONT_PROFONT_18);
     
     // Clear current text
-    oledFillXY(100, 14, 50, 24, 0x00);
+    oledFillXY(100, 18, 50, 23, 0x00);
     
     // Display new search text
-    oledPutstrXY(148, 14, OLED_RIGHT, text);
+    oledPutstrXY(148, 17, OLED_RIGHT, text);
     
     // Set default font
     oledSetFont(FONT_DEFAULT);
@@ -376,7 +376,7 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
         
         for (i = 0; i < 4; i++)
         {
-            oledFillXY((i&1)*172, 5+(i&2)*20, 84, 14, 0x00);
+            oledFillXY((i&1)*172, 2+(i&2)*23, 84, 14, 0x00);
         }
         
         // Print the next 4 services (loop is until 5 for additional checks)

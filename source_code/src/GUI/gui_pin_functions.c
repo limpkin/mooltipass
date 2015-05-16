@@ -141,6 +141,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             if (selected_digit > 0)
             {
                 // When going back set pin digit to 0
+                current_pin[selected_digit] = 0;
                 current_pin[--selected_digit] = 0;
             }
             else

@@ -257,6 +257,7 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 	// is browser associated to keepass?
 	if (!mooltipass.isConnected()) 
 	{
+		console.log("App not launched!");
 		browserAction.showDefault(null, tab);
 		if(forceCallback) {
 			callback([]);

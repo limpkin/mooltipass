@@ -418,7 +418,7 @@ int main(void)
     
     // First boot tutorial, only on big flash versions
     #ifndef FLASH_CHIP_1M
-    //if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
+    if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
     {
         uint8_t tut_led_mask, press_filter;
         activateGuardKey();

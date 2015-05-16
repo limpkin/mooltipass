@@ -221,7 +221,9 @@ event.onNotifyButtonClick = function(id, buttonIndex)
 		{
 			// Store credentials
 			console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url2);
-			mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url2);
+			mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url);
+			// To be enabled!!!!
+			//mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url2);
 		}
 	}
     delete event.mpUpdate[id];
@@ -307,18 +309,15 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 				var noteId = 'mpUpdate.'+event.notificationCount.toString();
 
 				// Store our event
-				event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: domain, url2: subdomain + "." + domain, type: "singledomainadd"};
-				
-				// Send request by default
-				mooltipass.updateCredentials(null, tab, 0, username, password, domain);
+				event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: domain, url2: subdomain + "." + domain, type: "subdomainadd"};
 
 				// Create notification to blacklist
 				chrome.notifications.create(noteId,
 						{   type: 'basic',
-							title: 'Credentials Detected!',
-							message: 'Please Approve their Storage on the Mooltipass',
-							iconUrl: '/icons/mooltipass-128.png',
-							buttons: [{title: 'Black list this website', iconUrl: '/icons/forbidden-icon.png'}] },
+							title: 'Subdomain Detected!',
+							message: 'What domain do you want to store?',
+							iconUrl: '/icons/question.png',
+							buttons: [{title: 'Store ' + domain}, {title: 'Store ' + subdomain + '.' + domain}]},
 							function(id) 
 							{
 								console.log('notification created for',id);

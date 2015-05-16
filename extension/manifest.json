@@ -1,6 +1,6 @@
 {
 	"name": "Mooltipass Extension",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"manifest_version": 2,
 	"description": "Retrieve and store Mooltipass credentials easily from websites",
 	"icons": {
@@ -28,6 +28,7 @@
 			"background/httpauth.js",
 			"background/browserAction.js",
 			"background/page.js",
+			"background/psl.min.js",
 			"background/event.js",
 			"background/init.js"
 			]

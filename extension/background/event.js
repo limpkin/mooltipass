@@ -239,49 +239,95 @@ event.mpUpdate = {};
 
 event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) 
 {
-	// Check if blacklisted
-	if (mooltipass.isBlacklisted(url)) 
+	// Parse URL
+	var parsed_url = mooltipass.extractDomainAndSubdomain(url);
+	var valid_url = false;
+	var subdomain;
+	var domain;
+	
+	// See if our script detected a valid domain & subdomain
+	if(parsed_url.valid == true)
 	{
-		console.log('notify: ignoring blacklisted url',url);
-		return;
+		valid_url = true;
+		domain = parsed_url.domain;
+		subdomain = parsed_url.subdomain;
 	}
 	
-	// Increment notification count
-	event.notificationCount++;
-	
-	// Here we should detect a subdomain!
-	if(true)
+	// Check if URL is valid
+	if(valid_url == true)
 	{
-		// Single domain
-		// Here we should send a request to the mooltipass to know if the username exists!
-		if(true)
+		// Check if blacklisted
+		if (mooltipass.isBlacklisted(domain)) 
 		{
-			// Unknown user
-			var noteId = 'mpUpdate.'+event.notificationCount.toString();
+			console.log('notify: ignoring blacklisted url',url);
+			return;
+		}
+		
+		// Increment notification count
+		event.notificationCount++;
+		
+		// Here we should detect a subdomain!
+		if(subdomain == null)
+		{
+			// Single domain
+			// Here we should send a request to the mooltipass to know if the username exists!
+			if(true)
+			{
+				// Unknown user
+				var noteId = 'mpUpdate.'+event.notificationCount.toString();
 
-			// Store our event
-			event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: url, url2: url, type: "singledomainadd"};
-			
-			// Send request by default
-			mooltipass.updateCredentials(null, tab, 0, username, password, url);
+				// Store our event
+				event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: domain, url2: domain, type: "singledomainadd"};
+				
+				// Send request by default
+				mooltipass.updateCredentials(null, tab, 0, username, password, domain);
 
-			// Create notification to blacklist
-			chrome.notifications.create(noteId,
-					{   type: 'basic',
-						title: 'Credentials Detected!',
-						message: 'Please Approve their Storage on the Mooltipass',
-						iconUrl: '/icons/mooltipass-128.png',
-						buttons: [{title: 'Black list this website', iconUrl: '/icons/forbidden-icon.png'}] },
-						function(id) 
-						{
-							console.log('notification created for',id);
-						});
+				// Create notification to blacklist
+				chrome.notifications.create(noteId,
+						{   type: 'basic',
+							title: 'Credentials Detected!',
+							message: 'Please Approve their Storage on the Mooltipass',
+							iconUrl: '/icons/mooltipass-128.png',
+							buttons: [{title: 'Black list this website', iconUrl: '/icons/forbidden-icon.png'}] },
+							function(id) 
+							{
+								console.log('notification created for',id);
+							});
+			}
+			else
+			{}
 		}
 		else
-		{}
-	}
-	else
-	{}
+		{
+			// Subdomain exists
+			// Here we should send a request to the mooltipass to know if the username exists!
+			if(true)
+			{
+				// Unknown user
+				var noteId = 'mpUpdate.'+event.notificationCount.toString();
+
+				// Store our event
+				event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: domain, url2: subdomain + "." + domain, type: "singledomainadd"};
+				
+				// Send request by default
+				mooltipass.updateCredentials(null, tab, 0, username, password, domain);
+
+				// Create notification to blacklist
+				chrome.notifications.create(noteId,
+						{   type: 'basic',
+							title: 'Credentials Detected!',
+							message: 'Please Approve their Storage on the Mooltipass',
+							iconUrl: '/icons/mooltipass-128.png',
+							buttons: [{title: 'Black list this website', iconUrl: '/icons/forbidden-icon.png'}] },
+							function(id) 
+							{
+								console.log('notification created for',id);
+							});
+			}
+			else
+			{}			
+		}		
+	}	
 }
 
 event.onUpdate = function(callback, tab, username, password, url, usernameExists, credentialsList) {

@@ -149,7 +149,7 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
 
     chrome.runtime.sendMessage({type: 'update', url: url, inputs: {login: {id: 0, name: 0, value: username}, password: { id: 1, name: 1, value: password }}});
 
-    request = {update: {context: toContext(url), login: username, password: password}}
+    request = {update: {context: url, login: username, password: password}}
     console.log('sending update to '+mpClient.id);
     contentAddr = tab.id;
     mpUpdateCallback = callback;
@@ -190,6 +190,41 @@ toContext = function (url) {
     return reContext.exec(url)[2];
 }
 
+mooltipass.extractDomainAndSubdomain = function (url)
+{
+	var url_valid;
+	var domain = null;
+	var subdomain = null;
+	console.log("Parsing ", url);
+	
+	// URL trimming
+	url = url.replace('www.', '');
+	url = url.replace(/.*?:\/\//g, "");
+	var n = url.indexOf('/');
+	url = url.substring(0, n != -1 ? n : s.length);
+	console.log("Trimmed URL: ", url)
+	
+	if(psl.isValid(url))
+	{
+		console.log("valid URL detected")
+		
+		url_valid = true;
+		var parsed = psl.parse(String(url))
+		domain = parsed.domain;
+		subdomain = parsed.subdomain;
+		
+		console.log("Extracted domain: ", domain);
+		console.log("Extracted subdomain: ", subdomain);
+	}
+	else
+	{
+		url_valid = false;
+		console.log("invalid URL detected")
+	}	
+	
+	return {valid: url_valid, domain: domain, subdomain: subdomain}
+}
+
 mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCallback, triggerUnlock)
 {
     mooltipass.associate();
@@ -207,8 +242,16 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 		}
 		return;
 	}
+	
+	// parse url and check it is valid
+	var parsed_url = mooltipass.extractDomainAndSubdomain(submiturl);	
+	if(!parsed_url.valid)
+	{
+		return;
+	}
 
-    request = { getInputs : {context: toContext(submiturl)} };
+	// todo: two requests for domain and subdomain!
+    request = { getInputs : {context: parsed_url.domain} };
 
     console.log('sending to '+mpClient.id);
     contentAddr = tab.id;

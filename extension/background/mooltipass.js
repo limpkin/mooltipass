@@ -204,7 +204,10 @@ mooltipass.extractDomainAndSubdomain = function (url)
 	url = url.replace(/.*?:\/\//g, "");
 	// Remove everything after first /
 	var n = url.indexOf('/');
-	url = url.substring(0, n != -1 ? n : s.length);
+	url = url.substring(0, n != -1 ? n : url.length);
+	// Remove everything after first :
+	var n = url.indexOf(':');
+	url = url.substring(0, n != -1 ? n : url.length);
 	console.log("Trimmed URL: ", url)
 	
 	if(psl.isValid(url))

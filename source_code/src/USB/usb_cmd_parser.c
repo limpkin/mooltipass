@@ -1157,8 +1157,8 @@ void usbProcessIncoming(uint8_t caller_id)
                 setMooltipassParameterInEeprom(msg->body.data[0], msg->body.data[1]);
                 mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
                 plugin_return_value = PLUGIN_BYTE_OK;
-                initTouchSensing();
-                launchCalibrationCycle();
+                //initTouchSensing();
+                //launchCalibrationCycle();
             }
             else
             {

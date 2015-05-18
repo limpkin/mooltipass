@@ -134,6 +134,7 @@
 #define ID_STRING_NEW_PINQ      70
 #define ID_STRING_ERASE_TCARD   71
 #define ID_STRING_NO_CREDS      72
+#define ID_STRING_FUSE_PB       73
 
 // Keyboard LUTs
 // Changes: 

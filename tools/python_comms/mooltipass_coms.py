@@ -1,8 +1,10 @@
 from array import array
 from time import sleep
+from Crypto.PublicKey import RSA
 import platform
 import usb.core
 import usb.util
+import os.path
 import random
 import struct
 import string
@@ -424,6 +426,16 @@ def checkSecuritySettings(epin, epout):
 	print "Sending jump to bootloader with good password... did it work?"
 	raw_input("Press enter")
 	
+def decryptprodfile():
+	file_name = raw_input("Enter file name: ")
+	
+	# Read key
+	if not os.path.isfile("key.bin"):
+		print "key error!!!"
+		return
+	key = RSA.importKey(pickle_read("key.bin"))
+	data = pickle_read(file_name)
+	print key.decrypt(data)
 
 def mooltipassInit(hid_device, intf, epin, epout):
 	# Ask for Mooltipass ID
@@ -433,9 +445,12 @@ def mooltipassInit(hid_device, intf, epin, epout):
 	except ValueError :
 		mp_id = 0
 		print ""
-
-	# Create text file
-	f = open(time.strftime("%Y-%m-%d-%H-%M-%S-Mooltipass IDs.txt"), 'wb')
+	
+	# Read public key
+	if not os.path.isfile("publickey.bin"):
+		print "public key error!!!"
+		return
+	public_key = RSA.importKey(pickle_read("publickey.bin"))
 
 	# Loop
 	try:
@@ -477,7 +492,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 				# Check that the import command worked
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 					# Open bundle file
-					bundlefile = open('bundle.img', 'rb')
+					bundlefile = open('bundle_tutorial.img', 'rb')
 					packet_to_send = array('B')
 					byte = bundlefile.read(1)
 					bytecounter = 0
@@ -520,7 +535,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 				sys.stdout.flush()
 				magic_key = array('B')
 				magic_key.append(0)
-				magic_key.append(241)
+				magic_key.append(148)
 				sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, magic_key)
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 					success_status = 1
@@ -570,13 +585,8 @@ def mooltipassInit(hid_device, intf, epin, epout):
 				sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 					# Write Mooltipass ID in file together with random bytes, flush write
-					f.write(str(mp_id))
-					f.write('|')
-					f.write(''.join(format(x, '02x') for x in mooltipass_password))
-					f.write('|')
-					f.write(''.join(format(x, '02x') for x in request_key_and_uid))
-					f.write('\r\n')
-					f.flush()
+					string_export = str(mp_id)+"|"+"".join(format(x, "02x") for x in mooltipass_password)+"|"+"".join(format(x, "02x") for x in request_key_and_uid)+"\r\n"
+					pickle_write(public_key.encrypt(string_export, 32), time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mp_id)+".txt")
 					# Update Success status
 					success_status = 1
 					print ""
@@ -644,7 +654,6 @@ def mooltipassInit(hid_device, intf, epin, epout):
 			print "New Mooltipass detected"
 			print ""
 	except KeyboardInterrupt:
-		f.close()
 		print "File written, everything ok"
 
 def setCurrentTimeout(epin, epout):
@@ -1724,6 +1733,8 @@ if __name__ == '__main__':
 		print "29) Add a random block of data for new service"
 		print "30) Get decoded data for given service"
 		print "31) Check Mooltipass security settings"
+		print "32) Generate RSA 4096 private/public key"
+		print "33) Decrypt mooltipass prod file"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1789,6 +1800,13 @@ if __name__ == '__main__':
 			getDecodedDataForService(epin, epout)
 		elif choice == 31:
 			checkSecuritySettings(epin, epout)
+		elif choice == 32:
+			key = RSA.generate(4096)
+			pickle_write(key.exportKey('DER'), "key.bin")
+			pickle_write(key.publickey().exportKey('DER'), "publickey.bin")
+			print "Key generated and exported"
+		elif choice == 33:
+			decryptprodfile()
 
 	hid_device.reset()
 

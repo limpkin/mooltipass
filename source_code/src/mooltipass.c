@@ -341,6 +341,12 @@ int main(void)
                 guiDisplayRawString(ID_STRING_TEST_TOUCH_PB);
                 test_result_ok = FALSE;
             }
+            // Check fuse setting
+            if (fuse_ok != TRUE)
+            {
+                test_result_ok = FALSE;
+                guiDisplayRawString(ID_STRING_FUSE_PB);
+            }
             // Touch instructions
             guiDisplayRawString(ID_STRING_TEST_INST_TCH);
             // Check prox
@@ -379,8 +385,6 @@ int main(void)
                         usbProcessIncoming(USB_CALLER_MAIN);
                     }
                 #endif
-                // Display test result
-                guiDisplayInformationOnScreenAndWait(ID_STRING_TEST_OK);
             }
             else
             {

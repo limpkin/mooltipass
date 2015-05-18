@@ -1104,6 +1104,7 @@ void usbProcessIncoming(uint8_t caller_id)
                         plugin_return_value = PLUGIN_BYTE_OK;
                         mediaFlashImportApproved = TRUE;
                     }
+                    guiGetBackToCurrentScreen();
                 }
             #endif            
             break;

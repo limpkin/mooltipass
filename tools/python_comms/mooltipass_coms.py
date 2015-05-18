@@ -426,6 +426,12 @@ def checkSecuritySettings(epin, epout):
 	print "Sending jump to bootloader with good password... did it work?"
 	raw_input("Press enter")
 	
+def unlockMooltipass():
+	password = raw_input("Enter password: ")
+	print array('B', password.decode("hex"))
+	sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, array('B', password.decode("hex")))
+	print "Sending jump to bootloader with good password... did it work?"
+	
 def decryptprodfile():
 	file_name = raw_input("Enter file name: ")
 	
@@ -1735,6 +1741,7 @@ if __name__ == '__main__':
 		print "31) Check Mooltipass security settings"
 		print "32) Generate RSA 4096 private/public key"
 		print "33) Decrypt mooltipass prod file"
+		print "34) Unlock mooltipass"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1807,6 +1814,8 @@ if __name__ == '__main__':
 			print "Key generated and exported"
 		elif choice == 33:
 			decryptprodfile()
+		elif choice == 34:
+			unlockMooltipass()
 
 	hid_device.reset()
 

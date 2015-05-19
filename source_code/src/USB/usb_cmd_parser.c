@@ -762,7 +762,7 @@ void usbProcessIncoming(uint8_t caller_id)
             if (getSmartCardInsertedUnlocked() == TRUE)
             {
                 // If so, ask the user to approve memory management mode
-                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MEMORYMGMTQ)) == RETURN_OK)
+                if (guiAskForConfirmation(0xF0 | 1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MEMORYMGMTQ)) == RETURN_OK)
                 {
                     // Ask the user to enter his pin
                     if (removeCardAndReAuthUser() == RETURN_OK)

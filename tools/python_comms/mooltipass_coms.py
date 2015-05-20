@@ -354,6 +354,9 @@ def	uploadBundle(epin, epout):
 	return success_status
 	
 def checkSecuritySettings(epin, epout):
+	correct_password = raw_input("Enter mooltipass password: ")
+	correct_key = raw_input("Enter request key: ")
+	
 	# Mooltipass password to be set
 	mooltipass_password = array('B')
 	
@@ -375,12 +378,6 @@ def checkSecuritySettings(epin, epout):
 	sendHidPacket(epout, CMD_GET_RANDOM_NUMBER, 0, None)
 	mooltipass_password.extend(receiveHidPacketWithTimeout(epin)[DATA_INDEX:DATA_INDEX+30])
 	print "Done... starting test"
-	
-	sendHidPacket(epout, CMD_SET_UID, 22, request_key_and_uid)
-	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
-		print "Setting request key... success!"
-	else:
-		print "Setting request key... fail!"
 		
 	sendHidPacket(epout, CMD_SET_UID, 22, request_key_and_uid)
 	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
@@ -388,7 +385,7 @@ def checkSecuritySettings(epin, epout):
 	else:
 		print "Trying to set another key... fail! (this is good)"
 		
-	sendHidPacket(epout, CMD_GET_UID, 16, request_key_and_uid[0:16])
+	sendHidPacket(epout, CMD_GET_UID, 16, array('B', correct_key.decode("hex")))
 	data = receiveHidPacket(epin)
 	if data[LEN_INDEX] == 0x01:
 		print "Trying to fetch UID... fail!"
@@ -408,12 +405,6 @@ def checkSecuritySettings(epin, epout):
 		
 	sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)
 	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
-		print "Setting bootloader password... success!"
-	else:
-		print "Setting bootloader password... fail!"
-		
-	sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)
-	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 		print "Setting another bootloader password... success! (this is bad)"
 	else:
 		print "Setting another bootloader password... fail! (this is good)"
@@ -422,7 +413,7 @@ def checkSecuritySettings(epin, epout):
 	print "Sending jump to bootloader with random password... did it work?"
 	raw_input("Press enter")
 	
-	sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, mooltipass_password)
+	sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, array('B', correct_password.decode("hex")))
 	print "Sending jump to bootloader with good password... did it work?"
 	raw_input("Press enter")
 	

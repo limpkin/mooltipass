@@ -1,0 +1,61 @@
+### Module positions - created on 19/05/2015 11:06:18 ###
+### Printed by Pcbnew version pcbnew (2013-07-07 BZR 4022)-stable
+## Unit = mm, Angle = deg.
+## Side : Top.Cu
+# Ref    Val                  Package         PosX       PosY        Rot     Side
+C1       22uF             SM1206            137.0000   -79.5000     180.0    Bottom.Cu
+C2       4.7uF            SM0603_Capa       141.2500   -82.4500     180.0    Bottom.Cu
+C3       22uF             SM1206            164.8000   -75.6500     270.0    Bottom.Cu
+C4       100nF            SM0603_Capa       141.0500   -79.8500     180.0    Bottom.Cu
+C5       100nF            SM0603_Capa       147.8500   -82.4500       0.0    Bottom.Cu
+C7       1uF              SM0603_Capa       110.5500  -107.4000     180.0    Bottom.Cu
+C8       100nF            SM0603_Capa       125.4500   -98.3000       0.0    Bottom.Cu
+C9       4.7uF            SM1206            162.3000   -75.6500     270.0    Bottom.Cu
+C10      4.7uF            SM0603_Capa       143.4500   -82.0500     270.0    Bottom.Cu
+C11      100nF            SM0603_Capa       121.8000  -102.4000     180.0    Bottom.Cu
+C12      10uF             SM1206            111.8500  -111.5500     180.0    Bottom.Cu
+C13      100nF            SM0603_Capa       139.6000  -115.6500     270.0    Bottom.Cu
+C14      100nF            SM0603_Capa       133.3500  -115.6500     270.0    Bottom.Cu
+C15      100nF            SM0603_Capa       129.4000  -111.0500     180.0    Bottom.Cu
+C16      100nF            SM0603_Capa       128.9000  -106.8000     180.0    Bottom.Cu
+C17      100nF            SM0603_Capa       132.6500  -102.5000     180.0    Bottom.Cu
+C18      4.7uF            SM0603_Capa       125.9500   -70.9000       0.0    Bottom.Cu
+C19      1uF              SM0603_Capa       128.9000  -108.3500     180.0    Bottom.Cu
+C20      100nF            SM0603_Capa       133.1500   -79.7500       0.0    Bottom.Cu
+C21      1uF              SM0603_Capa       134.9000  -115.6500     270.0    Bottom.Cu
+C22      100nF            SM0603_Capa       117.8500   -94.9000       0.0    Bottom.Cu
+C23      220nF            SM0603_Capa       129.6000   -69.7500       0.0    Bottom.Cu
+C24      18pF             SM0603_Capa       136.5000   -96.9500       0.0    Bottom.Cu
+C25      100nF            SM0603_Capa       132.0000   -78.2500     180.0    Bottom.Cu
+C26      18pF             SM0603_Capa       139.6500   -99.6000      90.0    Bottom.Cu
+C27      220nF            SM0603_Capa       132.2000   -69.7500     180.0    Bottom.Cu
+C28      4.7uF            SM0603_Capa       130.4000   -79.8000     180.0    Bottom.Cu
+C29      100nF            SM0603_Capa       142.0000  -104.5500     180.0    Bottom.Cu
+D1       DIODE            SOD-123           135.8000   -74.6000      90.0    Bottom.Cu
+F1       FUSE             SM1206            113.6500   -94.6500     270.0    Bottom.Cu
+FB1      FILTER           SM0603_Resistor   113.5000  -108.1500     270.0    Bottom.Cu
+FB2      FILTER           SM0603_Resistor   136.1500   -81.8000     180.0    Bottom.Cu
+Q1       MOS_P            SOT23GDS_L        123.3500   -95.7500      90.0    Bottom.Cu
+Q2       MOS_N            SOT23GDS_L        144.9500  -112.9500     180.0    Bottom.Cu
+Q3       MOS_P            SOT23GDS_L        126.3000   -73.4500     270.0    Bottom.Cu
+Q4       MOS_N            SOT23GDS_L        118.6500  -116.1500     180.0    Bottom.Cu
+R1       10k              SM0603_Resistor   118.6000  -113.4500       0.0    Bottom.Cu
+R2       620k             SM0603_Resistor   148.1500   -80.8000       0.0    Bottom.Cu
+R3       50               SM1206            138.2500   -75.5500     270.0    Bottom.Cu
+R4       10k              SM0603_Resistor   144.4500  -115.6000       0.0    Bottom.Cu
+R5       10k              SM0603_Resistor   123.6000   -73.3500      90.0    Bottom.Cu
+R6       2k2              RNETWORK8_0603    140.1500   -91.8000      90.0    Bottom.Cu
+R7       4k7              RNETWORK8_0603    133.6000   -91.8000     270.0    Bottom.Cu
+R8       22               SM0603_Resistor   125.6000  -109.0000       0.0    Bottom.Cu
+R9       22               SM0603_Resistor   125.6000  -110.5500       0.0    Bottom.Cu
+R10      10k              SM0603_Resistor   126.4000   -95.8000     270.0    Bottom.Cu
+R11      2k2              SM0603_Capa       166.1000   -80.2000       0.0    Bottom.Cu
+R12      2k2              SM0603_Capa       163.1500   -80.2000     180.0    Bottom.Cu
+R13      10k              SM0603_Resistor   123.1500   -75.6000     180.0    Bottom.Cu
+U1       CON_SFV30R-2STE1 CON_FPC30_CH      150.1200   -78.7800       0.0    Bottom.Cu
+U3       IP4234CZ6,125    tsot-6            116.0000  -100.8000       0.0    Bottom.Cu
+U4       ATMEGA32U4_QFN   QFN44             137.0000  -108.4500       0.0    Bottom.Cu
+U5       ST662ACD         SO8E              130.9000   -73.9500       0.0    Bottom.Cu
+U6       AT45DB011D-SSH   SO8EN             120.2500   -91.2000     270.0    Bottom.Cu
+X1       16MHz            XTAL_3.2_2.5      136.5000   -99.6000       0.0    Bottom.Cu
+## End

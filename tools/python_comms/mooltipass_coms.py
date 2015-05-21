@@ -437,7 +437,7 @@ def decryptprodfile():
 def mooltipassInit(hid_device, intf, epin, epout):
 	# Ask for Mooltipass ID
 	try :
-		mp_id = int(raw_input("Enter Mooltipass ID: "))
+		mp_id = int(raw_input("Enter Mooltipass ID: MP01-"))
 		print ""
 	except ValueError :
 		mp_id = 0
@@ -508,6 +508,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 							bytecounter = 0
 							# Check ACK
 							if receiveHidPacket(epin)[DATA_INDEX] != 0x01:
+								success_status = 0
 								print "Error in upload"
 								raw_input("press enter to acknowledge")
 					# Send the remaining bytes
@@ -544,23 +545,24 @@ def mooltipassInit(hid_device, intf, epin, epout):
 					print "likely causes: none"
 
 			# Wait for the mooltipass to inform the script that the test was successfull
-			temp_bool2 = False
-			sys.stdout.write('Waiting for functional test result...')
-			sys.stdout.flush()
-			while temp_bool2 != True:
-				test_result = receiveHidPacketWithTimeout(epin)
-				if test_result == None:
-					sys.stdout.write('.')
-					sys.stdout.flush()
-				else:
-					if test_result[CMD_INDEX] == CMD_FUNCTIONAL_TEST_RES and test_result[DATA_INDEX] == 0:
-						success_status = 1
-						print " ok!"
+			if success_status == 1:
+				temp_bool2 = False
+				sys.stdout.write('Waiting for functional test result...')
+				sys.stdout.flush()
+				while temp_bool2 != True:
+					test_result = receiveHidPacketWithTimeout(epin)
+					if test_result == None:
+						sys.stdout.write('.')
+						sys.stdout.flush()
 					else:
-						success_status = 0
-						print " fail!!!"
-						print "Please look at the screen to know the cause"
-					temp_bool2 = True
+						if test_result[CMD_INDEX] == CMD_FUNCTIONAL_TEST_RES and test_result[DATA_INDEX] == 0:
+							success_status = 1
+							print " ok!"
+						else:
+							success_status = 0
+							print " fail!!!"
+							print "Please look at the screen to know the cause"
+						temp_bool2 = True
 					
 			# Send set password packet
 			if success_status == 1:
@@ -597,17 +599,20 @@ def mooltipassInit(hid_device, intf, epin, epout):
 
 			if success_status == 1:
 				# Let the user know it is done
-				print "Setting up Mooltipass #"+str(mp_id)+" DONE"
-				print "PLEASE WRITE \""+str(mp_id)+"\" ON THE BACK STICKER"
+				print "Setting up Mooltipass MP01-"+str(mp_id).zfill(4)+" DONE"
+				print "PLEASE ATTACH STICKER MP01-"+str(mp_id).zfill(4)+" ON THE MOOLTIPASS"
 				# Increment Mooltipass ID
 				mp_id = mp_id + 1
 			else:
-				print "---------------------------------------------------------"
-				print "---------------------------------------------------------"
-				print "Setting up Mooltipass #", mp_id, "FAILED"
-				print "PLEASE PUT AWAY THIS MOOLTIPASS!!!!"
-				print "---------------------------------------------------------"
-				print "---------------------------------------------------------"
+				print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
+				print "|---------------------------------------------------------|"
+				print "|---------------------------------------------------------|"
+				print "|Setting up Mooltipass MP01-"+str(mp_id).zfill(4)+" FAILED                   |"
+				print "|                                                         |"                     
+				print "|           PLEASE PUT AWAY THIS MOOLTIPASS!!!!           |"                     
+				print "|---------------------------------------------------------|"
+				print "|---------------------------------------------------------|"
+				print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
 
 			# Disconnect this device
 			print "\r\nPlease disconnect this Mooltipass"

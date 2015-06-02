@@ -469,6 +469,7 @@ RET_TYPE getLoginForContext(char* buffer)
         {
             // Read selected child node
             readChildNode(&temp_cnode, selected_login_child_node_addr);
+            temp_cnode.login[NODE_CHILD_SIZE_OF_LOGIN-1] = 0;
             strcpy((char*)buffer, (char*)temp_cnode.login);
             //usbKeybPutStr((char*)buffer);
             return RETURN_OK;
@@ -493,6 +494,7 @@ RET_TYPE getPasswordForContext(char* buffer)
         
         // Call the password decryption function, which also clears the credential_timer_valid flag
         decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
+        temp_cnode.password[NODE_CHILD_SIZE_OF_PASSWORD-1] = 0;
         strcpy((char*)buffer, (char*)temp_cnode.password);
         
         // Timer fired, return

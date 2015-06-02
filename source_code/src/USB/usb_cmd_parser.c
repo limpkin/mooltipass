@@ -1204,6 +1204,7 @@ void usbProcessIncoming(uint8_t caller_id)
             if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
             {
                 // Ask the user to unlock the card
+                activityDetectedRoutine();
                 if (guiCardUnlockingProcess() == RETURN_OK)
                 {
                     eraseSmartCard();
@@ -1237,6 +1238,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 readCodeProtectedZone(temp_buffer);
                 
                 // Check that the provided CPZ is the current one, ask the user to unlock the card and check that we can add the user
+                activityDetectedRoutine();
                 if ((memcmp(temp_buffer, msg->body.data, SMARTCARD_CPZ_LENGTH) == 0) && (guiCardUnlockingProcess() == RETURN_OK) && (addNewUserForExistingCard(&msg->body.data[SMARTCARD_CPZ_LENGTH], &new_user_id) == RETURN_OK))
                 {
                     // Success, jump to the main menu

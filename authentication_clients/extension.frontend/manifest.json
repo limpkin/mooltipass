@@ -1,0 +1,36 @@
+{
+  "name": "Mooltipass ",
+  "description": "Mooltipass password manager client",
+  "version": "0.1",
+
+  "manifest_version" : 2,
+
+  "background": {
+    "scripts": [
+      "vendor/jquery-2.1.4.min.js",
+      "vendor/mooltipass/device.js",
+      "vendor/mooltipass/website.js",
+
+      "js/initMooltipass.js",
+      "js/requestPassword.js",
+      "js/fillPassword.js"
+    ]
+  },
+
+  "content_scripts" : [
+    {
+      "matches" : [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js" : ["js/injectToPage.js"]
+    }
+  ],
+
+  "permissions" : [
+    "tabs",
+    "notifications",
+    "http://*/*",
+    "https://*/*"
+  ]
+}

@@ -12,7 +12,8 @@ browserAction.show = function(callback, tab) {
 
 	chrome.browserAction.setIcon({
 		tabId: tab.id,
-		path: "/icons/19x19/" + browserAction.generateIconName(data.iconType, data.icon)
+		path: "/images/" + browserAction.generateIconName(data.iconType, data.icon)
+		//path: "/icons/19x19/" + browserAction.generateIconName(data.iconType, data.icon)
 	});
 
 	if(data.popup) {
@@ -64,7 +65,7 @@ browserAction.showDefault = function(callback, tab) {
 	var stackData = {
 		level: 1,
 		iconType: "normal",
-		popup: "popup.html"
+		popup: "popup_status.html"
 	}
 	if(!mooltipass.isConnected() || page.tabs[tab.id].errorMessage) {
 		stackData.iconType = "cross";
@@ -222,10 +223,8 @@ browserAction.generateIconName = function(iconType, icon) {
 	}
 
 	var name = "icon_";
-	//name += (keepass.keePassHttpUpdateAvailable()) ? "new_" : "";
 	name += (!iconType || iconType == "normal") ? "normal_" : iconType + "_";
-	name += "blue"; // keepass.getIconColor();
-	name += "_19x19.png";
+	name += "_19.png";
 
 	return name;
 }

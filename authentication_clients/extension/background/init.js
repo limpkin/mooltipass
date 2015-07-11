@@ -153,7 +153,7 @@ window.setInterval(function() {
 }, _interval);
 
 window.setInterval(function() {
-	if(page.currentTabId) {
+	if(page.currentTabId && page.currentTabId > 0) {
 		chrome.tabs.sendMessage(page.currentTabId, {
 			action: "check_for_new_input_fields"
 		});

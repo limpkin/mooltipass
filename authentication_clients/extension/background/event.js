@@ -242,7 +242,7 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 	var subdomain;
 	var domain;
 
-	console.log(parsed_url);
+	console.log('onUpdateNotify', 'parsed_url', parsed_url);
 	
 	// See if our script detected a valid domain & subdomain
 	if(parsed_url.valid == true)

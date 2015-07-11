@@ -5,8 +5,7 @@
     "app": {
         "background": {
             "scripts": [
-                "js/init.js",
-                "js/pageReload.js"
+                "js/init.js"
             ]
         }
     },

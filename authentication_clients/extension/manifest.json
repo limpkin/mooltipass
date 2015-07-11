@@ -1,0 +1,69 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+	"name": "Mooltipass Extension",
+	"version": "0.2.5",
+	"manifest_version": 2,
+	"description": "Retrieve and store Mooltipass credentials easily from websites",
+	"icons": {
+		"16": "icons/mooltipass-16.png",
+		"48": "icons/mooltipass-48.png",
+		"128": "icons/mooltipass-128.png"
+	},
+
+	"browser_action": {
+		"default_icon": {
+		  "19": "icons/mooltipass-19.png",
+		  "38": "icons/mooltipass-38.png"
+		},
+		"default_title": "Mooltipass Extension",
+		"default_popup": "popups/popup.html"
+	},
+
+	"options_page": "options/options.html",
+	"background": {
+		"scripts": [
+		  	"background/psl.min.js",
+			"background/mooltipass.js",
+			"background/httpauth.js",
+			"background/browserAction.js",
+			"background/page.js",
+			"background/event.js",
+			"background/init.js"
+			]
+		},
+	"content_scripts": [
+		{
+			"matches": ["http://*/*", "https://*/*"],
+			"js": ["vendor/jquery-2.1.4.min.js", "vendor/jquery-ui-1.11.4.custom/jquery-ui.min.js", "mooltipass-content.js"],
+			"css": ["vendor/jquery-ui-1.11.4.custom/jquery-ui.min.css", "vendor/bootstrap-btn.css", "mooltipass-content.css"],
+			"run_at": "document_idle",
+			"all_frames": true
+		}
+	],
+	"web_accessible_resources": [
+		"icons/key_16x16.png",
+		"icons/key_24x24.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_flat_0_aaaaaa_40x100.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_flat_0_aaaaaa_40x100.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_flat_75_ffffff_40x100.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_glass_55_fbf9ee_1x400.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_glass_65_ffffff_1x400.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_glass_75_dadada_1x400.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_glass_75_e6e6e6_1x400.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_glass_95_fef1ec_1x400.png",
+		"vendor/jquery-ui-1.11.4.custom/images/ui-bg_highlight-soft_75_cccccc_1x100.png"
+	],
+	"permissions": [
+		"contextMenus",
+		"clipboardWrite",
+		"tabs",
+		"webRequest",
+		"webRequestBlocking",
+		"https://*/*",
+		"http://*/*",
+		"contentSettings",
+		"management",
+		"notifications"
+	]
+}

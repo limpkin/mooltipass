@@ -1,0 +1,39 @@
+.primary-bg { 
+  background: $primary-color; 
+  color: #FFF; 
+}
+a.primary-bg:hover { 
+  background: darken($primary-color, 5%); 
+}
+
+.success-bg { 
+  background: $success-color; 
+  color: #FFF; 
+}
+a.success-bg:hover { 
+  background: darken($success-color, 5%); 
+}
+
+.warning-bg { 
+  background: $warning-color; 
+  color: #FFF; 
+}
+a.warning-bg:hover { 
+  background: darken($warning-color, 5%); 
+}
+
+.error-bg { 
+  background: $error-color; 
+  color: #FFF; 
+}
+a.error-bg:hover { 
+  background: darken($error-color, 5%); 
+}
+
+.ghost-bg { 
+  background: $ghost;  
+  color: $comment-color;
+}
+a.ghost-bg:hover { 
+  background: darken($ghost, 5%); 
+}

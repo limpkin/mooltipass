@@ -1,0 +1,32 @@
+@import "pure";
+@import "settings";
+@import "panels";
+@import "colors";
+
+* {
+  box-sizing: border-box !important;
+}
+
+.pure-menu-item {
+  height: auto;
+  a {
+    color: $text-color;
+  }
+  a:hover {
+    background: $ghost;
+  }
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.no-padding { padding: 0 !important; }
+.no-padding-top { padding-top: 0 !important; }
+.no-padding-right { padding-right: 0 !important; }
+.no-padding-bottom { padding-bottom: 0 !important; }
+.no-padding-left { padding-left: 0 !important; }
+
+.border-top {
+  border-top: 1px solid #DDD; 
+}

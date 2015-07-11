@@ -6,6 +6,8 @@ function status_response(r) {
 	$('#configured-and-associated').hide();
 	$('#configured-not-associated').hide();
 
+	$('#device-connected').hide();
+	$('#device-disconnected').show();
 
 	if(!r.keePassHttpAvailable || r.databaseClosed) {
 		$('#error-message').html('1: "'+r.error+'"');
@@ -23,14 +25,15 @@ function status_response(r) {
 		//$('#unassociated-identifier').html(r.identifier);
 		$('#need-reconfigure').show();
 		$('#need-reconfigure-message').html(r.error);
+
 	}
 	else if(typeof(r.error) != "undefined") {
 		$('#error-encountered').show();
 		$('#error-message').html('2: "'+r.error+'"');
 	}
 	else {
-		$('#configured-and-associated').show();
-		$('#associated-identifier').html(r.identifier);
+		$('#device-connected').show();
+		$('#device-disconnected').hide();
 	}
 }
 

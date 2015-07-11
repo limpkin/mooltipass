@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="../css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../css/popup.css" />
+    
+    <script type="text/javascript" src="../vendor/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="js/popup-menu.js"></script>
+
+    <script type="text/javascript" src="popup.js"></script>    
+  </head>
+  <body class="popup" id="menu" tabindex="1">   
+    <!-- ERROR -->
+    <div class="pure-u-1-1" id="error-encountered" style="display: none;">
+      <a target="_blank" class="panel error-bg" id="reload-status-button">
+        <h3>An error has occurred.</h3>
+        <span id="error-message">1:bla</span><br />
+        Click here to update the status!
+      </a>
+    </div>  
+
+    <!-- RE-CONNECT -->
+    <div class="pure-u-1-1" id="need-reconfigure" style="display: none;">
+      <a target="_blank" class="panel warning-bg" id="reconnect-button">
+        <h3>Connection to Mooltipass lost.</h3>
+        <span id="need-reconfigure-message"></span>
+        Click here to reconnect.
+      </a>
+    </div>     
+
+    <!-- CONFIGURE -->
+    <div class="pure-u-1-1" id="not-configured" style="display: none;">
+      <a target="_blank" class="panel warning-bg" id="connect-button">
+        <h3>Mooltipass not configured.</h3>
+        Click here to pair with the Mooltipass device.
+      </a>
+    </div>         
+
+    <!-- UPDATE -->
+    <div class="pure-u-1-1" id="update-available" style="display: none;">
+      <a target="_blank" class="panel warning-bg" href="https://github.com/pfn/keepasshttp#installation">
+        <h3>Your version of Mooltipass is outdated.</h3>
+        Download the latest version from GitHub!
+      </a>
+    </div>      
+    
+    <div class="pure-g">
+      <!-- MENU -->
+      <div class="pure-u-1-1">
+        <ul class="pure-menu-list">
+          <li class="pure-menu-heading">Mooltipass</li>
+          <li class="pure-menu-item"><a id="btn-select-credential-fields" href="#" class="pure-menu-link">Select custom credential fields for this page</a></li>
+          <li class="pure-menu-item"><a id="btn-settings" href="#" class="pure-menu-link">Settings</a></li>
+        </ul>  
+      </div>
+
+      <!-- STATUS BAR -->
+      <div class="pure-u-1-1" id="status-bar">
+        <div class="text-right panel ghost-bg border-top small-padding">
+        <span id="initial-state">checking status <i class="fa fa-circle-o-notch fa-spin"></i></span>
+        <span id="device-connected" style="display: none;">Device connected</span>
+        <span id="device-disconnected" style="display: none;">Device disconnected</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

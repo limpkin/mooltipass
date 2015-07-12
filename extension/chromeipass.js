@@ -325,7 +325,7 @@ cipPassword.createDialog = function() {
 		modal: true,
 		resizable: false,
 		minWidth: 340,
-		title: "Password Generator",
+		title: "Mooltipass Password Generator",
 		open: function(event, ui) {
 			cIPJQ(".cip-ui-widget-overlay").click(function() {
 				cIPJQ("#cip-genpw-dialog:first").dialog("close");

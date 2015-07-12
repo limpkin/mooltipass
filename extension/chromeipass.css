@@ -3,7 +3,7 @@
 	font-size: 12px !important;
 	font-weight: normal !important;
 	font-style: normal !important;
-	font-family: Verdana, Arial, sans-serif !important;
+	font-family: sans-serif !important;
 	color: #222222 !important;
 }
 .cip-ui-dialog-titlebar-close {
@@ -14,13 +14,19 @@
 	z-index: 2147483601 !important;
 }
 .cip-ui-dialog {
-	z-index: 2147483602 !important;
+  z-index: 2147483602 !important;
+  box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  border: none;
+  padding: 0;	
 }
 .cip-ui-dialog .cip-ui-dialog-title {
 	font-size:.9em !important;
 }
 .cip-ui-dialog .cip-ui-dialog-titlebar {
-	padding:.1em .5em !important;
+  padding: 0.5rem 1rem !important;
+  background: #60B1C7;
+  color: #FFF;
 }
 .cip-ui-dialog-content {
 	font-size: .9em !important;
@@ -45,12 +51,16 @@
 .cip-genpw-icon.cip-icon-key-small {
 	width: 16px;
 	height: 16px;
-	background-image: url(chrome-extension://__MSG_@@extension_id__/icons/key_16x16.png);
+	background-image: url(chrome-extension://__MSG_@@extension_id__/images/icon_password_16.png);
+}
+.cip-ui-dialog-titlebar.cip-ui-widget-header.cip-ui-corner-all.cip-ui-helper-clearfix {
+  border-radius: 0;
+  border: none;
 }
 .cip-genpw-icon.cip-icon-key-big {
 	width: 24px;
 	height: 24px;
-	background-image: url(chrome-extension://__MSG_@@extension_id__/icons/key_24x24.png);
+	background-image: url(chrome-extension://__MSG_@@extension_id__/images/icon_password_24.png);
 }
 .cip-genpw-password-frame {
 	margin-top: 5px !important;

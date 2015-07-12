@@ -4,9 +4,9 @@
 	"manifest_version": 2,
 	"description": "Retrieve and store Mooltipass credentials easily from websites",
 	"icons": {
-		  "19" : "images/icon_normal_19.png",
-		  "32" : "images/icon_normal_32.png",
-		  "128" : "images/icon_normal_128.png"
+		  "19" : "images/icon_extension_19.png",
+		  "32" : "images/icon_extension_32.png",
+		  "128" : "images/icon_extension_128.png"
 	},
 
 	"browser_action": {
@@ -45,8 +45,8 @@
 	],
 	"web_accessible_resources": [
 		"jquery.min.map",
-		"icons/key_16x16.png",
-		"icons/key_24x24.png",
+		"images/icon_password_16.png",
+		"images/icon_password_24.png",
 		"images/ui-bg_flat_0_aaaaaa_40x100.png",
 		"images/ui-bg_flat_0_aaaaaa_40x100.png",
 		"images/ui-bg_flat_75_ffffff_40x100.png",

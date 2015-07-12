@@ -17,6 +17,14 @@
   }
 }
 
+.pure-menu-heading {
+	padding: 0.5rem;
+
+	img {
+		height: 2.7rem;
+	}
+}
+
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
@@ -27,6 +35,8 @@
 .no-padding-bottom { padding-bottom: 0 !important; }
 .no-padding-left { padding-left: 0 !important; }
 
-.border-top {
-  border-top: 1px solid #DDD; 
-}
+$border-color: #DDD;
+.border-top { border-top: 1px solid $border-color; }
+.border-right { border-right: 1px solid $border-color; }
+.border-bottom { border-bottom: 1px solid $border-color; }
+.border-left { border-left: 1px solid $border-color; }

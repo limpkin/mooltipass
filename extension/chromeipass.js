@@ -208,133 +208,49 @@ cipPassword.createDialog = function() {
 	if("passwordCreateDialog" in _called) {
 		return;
 	}
-
 	_called.passwordCreateDialog = true;
 
+	var $ = cIPJQ;
+
+	$dialog2 = cIPJQ.parseHTML(' \
+	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
+	  <p class="mooltipass-text-right"><a href="" id="mooltipass-new-password">Re-generate</a><button id="mooltipass-use-as-password" class="mooltipass-button">Copy to all password fields</button></p> \
+      ');
+
 	var $dialog = cIPJQ("<div>")
-		.attr("id", "cip-genpw-dialog");
-
-	var $divFloat = cIPJQ("<div>").addClass("cip-genpw-clearfix");
-	var $btnGenerate = cIPJQ("<button>")
-		.text("Generate")
-		.attr("id", "cip-genpw-btn-generate")
-		.addClass("b2c-btn")
-		.addClass("b2c-btn-primary")
-		.addClass("b2c-btn-small")
-		.css("float", "left")
-		.click(function(e) {
-			e.preventDefault();
-			chrome.extension.sendMessage({
-				action: "generate_password"
-			}, cipPassword.callbackGeneratedPassword);
-		});
-	$divFloat.append($btnGenerate);
-
-	var $btnClipboard = cIPJQ("<button>")
-		.text("Copy to clipboard")
-		.attr("id", "cip-genpw-btn-clipboard")
-		.addClass("b2c-btn")
-		.addClass("b2c-btn-small")
-		.css("float", "right")
-		.click(function(e) {
-			e.preventDefault();
-
-			chrome.extension.sendMessage({
-				action: "copy_password",
-				args: [cIPJQ("input#cip-genpw-textfield-password").val()]
-			}, cipPassword.callbackPasswordCopied);
-		});
-	$divFloat.append($btnClipboard);
-
-	$dialog.append($divFloat);
-
-	var $textfieldPassword = cIPJQ("<input>")
-		.attr("id", "cip-genpw-textfield-password")
-		.attr("type", "text")
-		.addClass("cip-genpw-textfield")
-		.on('change keypress paste textInput input', function() {
-			cIPJQ("#cip-genpw-btn-clipboard:first").removeClass("b2c-btn-success");
-		});
-	var $quality = cIPJQ("<span>")
-		.addClass("b2c-add-on")
-		.attr("id", "cip-genpw-quality")
-		.text("123 Bits");
-	var $frameInputAppend = cIPJQ("<div>")
-		.addClass("b2c-input-append")
-		.addClass("cip-genpw-password-frame");
-	$frameInputAppend.append($textfieldPassword).append($quality);
-	$dialog.append($frameInputAppend);
-
-	var $checkboxNextField = cIPJQ("<input>")
-		.attr("id", "cip-genpw-checkbox-next-field")
-		.attr("type", "checkbox")
-		.addClass("cip-genpw-checkbox");
-	var $labelNextField = cIPJQ("<label>")
-		.append($checkboxNextField)
-		.addClass("cip-genpw-label")
-		.append(" also fill in the next password-field");
-	$dialog.append($labelNextField);
-
-	var $btnFillIn = cIPJQ("<button>")
-		.text("Fill in & copy to clipboard")
-		.attr("id", "cip-genpw-btn-fillin")
-		.addClass("b2c-btn")
-		.addClass("b2c-btn-small")
-		.click(function(e) {
-			e.preventDefault();
-
-			var fieldId = cIPJQ("#cip-genpw-dialog:first").data("cip-genpw-field-id");
-			var field = cIPJQ("input[data-cip-id='"+fieldId+"']:first");
-			if(field.length == 1) {
-				var $password = cIPJQ("input#cip-genpw-textfield-password:first").val();
-
-				if(field.attr("maxlength")) {
-					if($password.length > field.attr("maxlength")) {
-						$password = $password.substring(0, field.attr("maxlength"));
-						cIPJQ("input#cip-genpw-textfield-password:first").val($password);
-						cIPJQ("#cip-genpw-btn-clipboard:first").removeClass("b2c-btn-success");
-						alert("The generated password is longer than the allowed length!\nIt has been cut to fit the length.\n\nPlease remember the new password!");
-					}
-				}
-
-				field.val($password);
-				if(cIPJQ("input#cip-genpw-checkbox-next-field:checked").length == 1) {
-					if(field.data("cip-genpw-next-field-exists")) {
-						var nextFieldId = field.data("cip-genpw-next-field-id");
-						var nextField = cIPJQ("input[data-cip-id='"+nextFieldId+"']:first");
-						if(nextField.length == 1) {
-							nextField.val($password);
-						}
-					}
-				}
-
-				// copy password to clipboard
-				chrome.extension.sendMessage({
-					action: "copy_password",
-					args: [$password]
-				}, cipPassword.callbackPasswordCopied);
-			}
-		});
-	$dialog.append($btnFillIn);
+		.attr("id", "cip-genpw-dialog").append($dialog2);
 
 	$dialog.hide();
-	cIPJQ("body").append($dialog);
+	$("body").append($dialog);
 	$dialog.dialog({
 		closeText: "×",
 		autoOpen: false,
 		modal: true,
 		resizable: false,
-		minWidth: 340,
+		minWidth: 280,
 		title: "Mooltipass Password Generator",
 		open: function(event, ui) {
-			cIPJQ(".cip-ui-widget-overlay").click(function() {
-				cIPJQ("#cip-genpw-dialog:first").dialog("close");
+			$(".cip-ui-widget-overlay").click(function() {
+				$("#cip-genpw-dialog:first").dialog("close");
 			});
 
-			if(cIPJQ("input#cip-genpw-textfield-password:first").val() == "") {
-				cIPJQ("button#cip-genpw-btn-generate:first").click();
+			if($("input#cip-genpw-textfield-password:first").val() == "") {
+				$("button#cip-genpw-btn-generate:first").click();
 			}
 		}
+	});
+
+	$("#mooltipass-new-password").click(function(e){
+		randomPassword = mooltipass.website.generatePassword(8);
+		$("#mooltipass-password-generator").val(randomPassword);
+		e.preventDefault();
+	}).trigger("click");
+
+
+	$("#mooltipass-use-as-password").click(function(e){
+		var password = $("#mooltipass-password-generator").val();
+		$("input[type='password']").val(password);
+		e.preventDefault();
 	});
 }
 

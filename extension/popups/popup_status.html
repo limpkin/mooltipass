@@ -8,7 +8,15 @@
 
     <script type="text/javascript" src="popup.js"></script>    
   </head>
-  <body class="popup" id="menu" tabindex="1">   
+  <body class="popup" id="menu" tabindex="1">  
+    <div class="pure-g">
+      <!-- MENU -->
+      <div class="pure-u-1-1">
+        <ul class="pure-menu-list">
+          <li class="pure-menu-heading border-bottom small-padding panel-small-padding text-center"><img src="../images/logo_inverted.png" /></li>
+        </ul>
+      </div>
+    </div>   
     <!-- ERROR -->
     <div class="pure-u-1-1" id="error-encountered" style="display: none;">
       <a target="_blank" class="panel error-bg" id="reload-status-button">
@@ -47,15 +55,15 @@
       <!-- MENU -->
       <div class="pure-u-1-1">
         <ul class="pure-menu-list">
-          <li class="pure-menu-heading">Mooltipass</li>
           <li class="pure-menu-item"><a id="btn-select-credential-fields" href="#" class="pure-menu-link">Select custom credential fields for this page</a></li>
           <li class="pure-menu-item"><a id="btn-settings" href="#" class="pure-menu-link">Settings</a></li>
+          <li class="pure-menu-item"><a href="http://themooltipass.com/" target="_blank" class="pure-menu-link">Mooltipass website</a></li>
         </ul>  
       </div>
 
       <!-- STATUS BAR -->
       <div class="pure-u-1-1" id="status-bar">
-        <div class="text-right panel ghost-bg border-top small-padding">
+        <div class="text-right panel ghost-bg border-top panel-small-padding">
         <span id="initial-state">checking status <i class="fa fa-circle-o-notch fa-spin"></i></span>
         <span id="device-connected" style="display: none;">Device connected</span>
         <span id="device-disconnected" style="display: none;">Device disconnected</span>

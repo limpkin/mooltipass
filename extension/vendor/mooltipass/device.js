@@ -1,38 +1,28 @@
-/**
-*
-* This file is a mockup for the required mooltipass functions
-* of the extension. It is loaded as a background script and
-* not accessible via the website.
-*
-**/
-
-var mooltipass = mooltipass || {};
+/* Initialize mooltipass lib */
+if (typeof mooltipass === 'undefined') mooltipass = {};
 mooltipass.device = mooltipass.device || {};
 
-mooltipass.device.containsCredentials = function(url) {
+/* library functions for mooltipass.device ********************** */
+
+// [MOCKUP]
+mooltipass.device.hasStoredCredentials = function(url, callback) {
   // Return true if Mooltipass has already stored credentials for the
   // given url, or it's top-level-domain.
   // e.g.   stored credentials  | 
 
   // Stored credentials for 
-  return (url == "http://www.reddit.com/")
+  callback((url == "http://www.reddit.com/"));
 }
 
-mooltipass.device.isConnected = function() {
-  // Return true if a device with a security card is connected.
-  return true
+// [MOCKUP]
+mooltipass.device.isConnected = function(callback) {
+  // Calls callback with true of false depending of a established
+  // connection to the device
+  callback(true);
 }
 
-mooltipass.device.requestCredentials = function(url) {
-  // Requests credentials from user on Mooltipass device
-  return;
-}
-
+// [MOCKUP]
 // Is called, when a user confirms his credentials for a certain 
 // website.
 // mooltipass.device.onConfirmCredentials.dispatch(url, username, password)
 mooltipass.device.onConfirmCredentials = new chrome.Event();
-
-mooltipass.device.getRandomPassword = function(length) {
-  return Math.random().toString(36).substring(7)
-}

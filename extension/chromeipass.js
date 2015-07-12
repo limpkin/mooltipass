@@ -241,8 +241,9 @@ cipPassword.createDialog = function() {
 	});
 
 	$("#mooltipass-new-password").click(function(e){
-		randomPassword = mooltipass.website.generatePassword(8);
-		$("#mooltipass-password-generator").val(randomPassword);
+		mooltipass.website.generatePassword(8, function(randomPassword){
+			$("#mooltipass-password-generator").val(randomPassword);
+		});
 		e.preventDefault();
 	}).trigger("click");
 

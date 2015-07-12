@@ -21,16 +21,26 @@ function initSettings() {
 
 	$("#btn-select-credential-fields").click(function() {
 		var global = chrome.extension.getBackgroundPage();
-		chrome.tabs.sendMessage(global.page.currentTabId, {
-			action: "choose_credential_fields"
-		});
+		mooltipass.website.chooseCredentialFields();
 		close();
 	});
 }
-
 
 $(function() {
 	initSettings();
 	chrome.extension.sendMessage({ action: "update_available_client" }, updateAvailableResponse);
 	chrome.extension.sendMessage({ action: "update_available_chromeipass" }, updateAvailableResponse);
+
+	mooltipass.device.isConnected(function(isConnected) {
+		$("#initial-state").hide();
+		if (isConnected) {
+			$("#device-connected").show();
+		} else {
+			$("#device-disconnected").show();		
+		}
+	});
+
+	mooltipass.website.hasCredentialFields(function(hasCredentialFields) {
+
+	});
 });

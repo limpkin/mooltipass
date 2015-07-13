@@ -65,10 +65,13 @@
 
       <!-- STATUS BAR -->
       <div class="pure-u-1-1" id="status-bar">
-        <div class="text-right panel ghost-bg border-top panel-small-padding">
+        <div class="text-right panel ghost-bg border-top panel-small-padding status">
         <span id="initial-state">checking status <i class="fa fa-circle-o-notch fa-spin"></i></span>
-        <span id="device-connected" style="display: none;">Device connected</span>
-        <span id="device-disconnected" style="display: none;">Device disconnected</span>
+        <span id="device-unlocked" style="display: none;">Device unlocked</span>
+        <span id="device-locked" style="display: none;">Device locked</span>
+        <span id="device-disconnected" style="display: none;">Device disconnected or locked</span>
+        <span id="app-missing" style="display: none;">App for communication with device missing</span>
+        <span id="unknown-error" style="display: none;">An unknown error occured. Please try again.</span>
         </div>
       </div>
     </div>

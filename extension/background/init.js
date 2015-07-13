@@ -14,6 +14,8 @@ chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}
 });
 // Milliseconds for intervall (e.g. to update browserAction)
 var _interval = 250;
+// Milliseconds for intervall to check for new input fields
+var _intervalCheckForNewInputs = 500;
 
 
 /**
@@ -149,3 +151,11 @@ chrome.contextMenus.create({
 window.setInterval(function() {
 	browserAction.update(_interval);
 }, _interval);
+
+window.setInterval(function() {
+	if(page.currentTabId && page.currentTabId > 0) {
+		chrome.tabs.sendMessage(page.currentTabId, {
+			action: "check_for_new_input_fields"
+		});
+	}
+}, _intervalCheckForNewInputs);

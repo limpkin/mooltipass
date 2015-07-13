@@ -1,4 +1,6 @@
-if (typeof mooltipass === 'undefined') mooltipass = {};
+if (typeof mooltipass == 'undefined') {
+	mooltipass = {};
+}
 mooltipass.website = mooltipass.website || {};
 
 

@@ -67,7 +67,7 @@ browserAction.showDefault = function(callback, tab) {
 		iconType: "normal",
 		popup: "popup_status.html"
 	}
-	if(!mooltipass.isConnected() || page.tabs[tab.id].errorMessage) {
+	if(!mooltipass.device.isUnlocked() || page.tabs[tab.id].errorMessage) {
 		stackData.iconType = "cross";
 	}
 
@@ -223,7 +223,7 @@ browserAction.generateIconName = function(iconType, icon) {
 	}
 
 	var name = "icon_";
-	name += (!iconType || iconType == "normal") ? "normal_" : iconType + "_";
+	name += (!iconType || iconType == "normal") ? "normal" : iconType;
 	name += "_19.png";
 
 	return name;

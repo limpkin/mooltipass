@@ -1,6 +1,5 @@
-var $ = cIPJQ.noConflict(true);
+var $ = mpJQ.noConflict(true);
 var _settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
-//var global = chrome.extension.getBackgroundPage();
 
 function updateAvailableResponse(available) {
 	if(available) {
@@ -28,16 +27,36 @@ function initSettings() {
 
 $(function() {
 	initSettings();
-	chrome.extension.sendMessage({ action: "update_available_client" }, updateAvailableResponse);
-	chrome.extension.sendMessage({ action: "update_available_chromeipass" }, updateAvailableResponse);
+	chrome.extension.sendMessage({ action: "update_available_firmware" }, updateAvailableResponse);
 
-	mooltipass.device.isConnected(function(isConnected) {
-		$("#initial-state").hide();
-		if (isConnected) {
-			$("#device-connected").show();
-		} else {
-			$("#device-disconnected").show();		
-		}
+    $('#status-bar .status > span').hide();
+    $('#initial-state').show();
+
+	chrome.extension.sendMessage({
+		action: "get_status"
+	}, function(object) {
+        $('#status-bar .status > span').hide();
+
+        // Connection to app established, device connected and unlocked
+        if (object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
+            $('#device-unlocked').show();
+        }
+        // Connection to app established, device connected but locked
+        else if (!object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
+            $('#device-locked').show();
+        }
+        // Connection to app established, but no device connected
+        else if (!object.status.connectedToDevice && object.status.connectedToApp) {
+            $('#device-disconnected').show();
+        }
+        // No app found
+        else if(!object.status.connectedToApp) {
+            $('#app-missing').show();
+        }
+        // Unknown error
+        else {
+            $('#unknown-error').show();
+        }
 	});
 
 	mooltipass.website.hasCredentialFields(function(hasCredentialFields) {

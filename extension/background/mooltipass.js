@@ -1,94 +1,102 @@
 
-var mooltipass = {};
-var mpClient = null;
+var mooltipass = mooltipass || {};
+
+mooltipass.deviceStatus = {};
+mooltipass.app = null;
+
+mooltipass.connectedToApp = false;
+mooltipass.locked = true;
+
 var contentAddr = null;
-var connected = null;
 var mpInputCallback = null;
 var mpUpdateCallback = null;
 
-mooltipass.latestChromeipassVersionUrl = 'https://raw.githubusercontent.com/limpkin/mooltipass/master/authentication_clients/chromeipass.ext/manifest.json';
-mooltipass.latestClientVersionUrl = 'https://raw.githubusercontent.com/limpkin/mooltipass/master/authentication_clients/chrome.hid-app/manifest.json';
-mooltipass.latestChromeipass = (typeof(localStorage.latestChromeipass) == 'undefined') ?
+mooltipass.latestApp = (typeof(localStorage.latestApp) == 'undefined') ?
                                 {"version": 0, "versionParsed": 0, "lastChecked": null} :
-                                JSON.parse(localStorage.latestChromeipass);
-
-mooltipass.latestClient = (typeof(localStorage.latestClient) == 'undefined') ?
-                                {"version": 0, "versionParsed": 0, "lastChecked": null} :
-                                JSON.parse(localStorage.latestClient);
-
-mooltipass.latestFirmware = (typeof(localStorage.latestFirmware) == 'undefined') ?
-                                {"version": 0, "versionParsed": 0, "lastChecked": null} :
-                                JSON.parse(localStorage.latestFirmware);
+                                JSON.parse(localStorage.latestApp);
 
 var extVersion = chrome.app.getDetails().version;
-mooltipass.currentChromeipass = { version: extVersion, versionParsed: parseInt(extVersion.replace(/\./g,'')) };
-mooltipass.currentClient = { version: 0, versionParsed: 0 };
+mooltipass.currentExtension = { version: extVersion, versionParsed: parseInt(extVersion.replace(/\./g,'')) };
+mooltipass.currentApp = { version: 0, versionParsed: 0 };
 
 mooltipass.blacklist = typeof(localStorage.mpBlacklist)=='undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
 
 var maxServiceSize = 123;       // Maximum size of a site / service name, not including null terminator
 
-function mpCheckConnection()
-{
-    if (!connected) {
-        if (!mpClient) {
-            // Search for the Mooltipass Client
-            chrome.management.getAll(getAll);
-        } else {
-            chrome.runtime.sendMessage(mpClient.id, { ping: [] });
-            setTimeout(mpCheckConnection,500);
-        }
-    }
-}
 
-function getAll(ext)
-{
-    for (var ind=0; ind<ext.length; ind++) {
-        if (ext[ind].shortName == 'Mooltipass App') {
-            mpClient = ext[ind];
+
+mooltipass.checkConnection = function() {
+    if(!mooltipass.connectedToApp) {
+        // Search for Mooltipass App
+        chrome.management.getAll(mooltipass.onSearchForApp);
+        return;
+    }
+
+    chrome.runtime.sendMessage(mooltipass.app.id, { ping: [] });
+    setTimeout(mooltipass.checkConnection, 500);
+};
+
+mooltipass.onSearchForApp = function(ext) {
+    for (var i = 0; i < ext.length; i++) {
+        if (ext[i].shortName == 'Mooltipass App') {
+            mooltipass.app = ext[i];
             break;
         }
     }
 
-    if (mpClient != null) {
-        chrome.runtime.sendMessage(mpClient.id, { ping: [] });
-        console.log('found mooltipass app "'+ext[ind].shortName+'" id='+ext[ind].id,' app: ',mpClient);
-    } else {
+    if (mooltipass.app != null) {
+        mooltipass.connectedToApp = true;
+        chrome.runtime.sendMessage(mooltipass.app.id, { ping: [] });
+
+        console.log('found mooltipass app "' + mooltipass.app.shortName + '" id=' + mooltipass.app.id,' app: ', mooltipass.app);
+    }
+    else {
+        mooltipass.connectedToApp = false;
+        mooltipass.deviceStatus = {};
         console.log('No mooltipass app found');
     }
 
-    setTimeout(mpCheckConnection,500);
+    setTimeout(mooltipass.checkConnection, 500);
 }
 
-// Search for the Mooltipass Client
-chrome.management.getAll(getAll);
+
+// Search for the Mooltipass App
+chrome.management.getAll(mooltipass.onSearchForApp);
 
 // Messages from the mooltipass client app
-chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse)
-{
+chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse) {
     if (message.deviceStatus !== null) {
-        if (message.deviceStatus.connected) {
-            connected = { version : message.deviceStatus.version };
-        }
-        else {
-            connected = null;
-        }
-    } else if (message.credentials !== null) {
+        mooltipass.deviceStatus = {
+            'connected': message.deviceStatus.version != 'unknown',
+            'unlocked': message.deviceStatus.connected,
+            'version': message.deviceStatus.version
+        };
+
+        mooltipass.device.currentFirmware.version = message.deviceStatus.version;
+        mooltipass.device.currentFirmware.versionParsed = parseInt(message.deviceStatus.version.replace(/[\.a-zA-Z]/g,''));
+
+    }
+    else if (message.credentials !== null) {
         if (mpInputCallback) {
             mpInputCallback([
-                    { Login: message.credentials.login
-                    , Name: '<name>', Uuid: '<Uuid>'
-                    , Password: message.credentials.password
-                    , StringFields: []
-                    }
+                {
+                    Login: message.credentials.login,
+                    Name: '<name>',
+                    Uuid: '<Uuid>',
+                    Password: message.credentials.password,
+                    StringFields: []
+                }
             ]);
             mpInputCallback = null;
         }
-   } else if (message.noCredentials !== null) {
+   }
+    else if (message.noCredentials !== null) {
         if (mpInputCallback) {
             mpInputCallback([]);
+            mpInputCallback = null;
         }
-   } else if (message.updateComplete !== null) {
+   }
+    else if (message.updateComplete !== null) {
         if (mpUpdateCallback) {
             try {
                 mpUpdateCallback('success');
@@ -100,24 +108,38 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
    }
 });
 
-mooltipass.getFirmwareVersion = function()
-{
-    if (connected) {
-        return connected.version;
+mooltipass.getClientVersion = function() {
+    if (mooltipass.app) {
+        mooltipass.currentApp = { version: mooltipass.app.version, versionParsed: parseInt(mooltipass.app.version.replace(/\./g,'')) };
+        return mooltipass.app.version;
     } else {
         return 'not connected';
+    }
+};
+
+mooltipass.associate = function(callback, tab)
+{
+    if (!mooltipass.app) {
+        console.log('mp.associate()');
+        chrome.management.getAll(mooltipass.onSearchForApp);
+    }
+    else if (!mooltipass.deviceStatus.connected) {
+        // try pinging the app
+        chrome.runtime.sendMessage(mooltipass.app.id, { ping: [] });
+        console.log('mp.associate() already have client connection, sending ping');
+    } else {
+        console.log('mp.associate() already connected');
     }
 }
 
-mooltipass.getClientVersion = function()
-{
-    if (mpClient) {
-        mooltipass.currentClient = { version: mpClient.version, versionParsed: parseInt(mpClient.version.replace(/\./g,'')) };
-        return mpClient.version;
-    } else {
-        return 'not connected';
-    }
-}
+
+
+
+
+
+
+
+
 
 mooltipass.addCredentials = function(callback, tab, username, password, url)
 {
@@ -126,10 +148,6 @@ mooltipass.addCredentials = function(callback, tab, username, password, url)
     mooltipass.updateCredentials(callback, tab, null, username, password, url);
 }
 
-mooltipass.isConnected = function()
-{
-    return connected != null;
-}
 
 // needs to block until a response is received.
 mooltipass.updateCredentials = function(callback, tab, entryId, username, password, url)
@@ -150,25 +168,10 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
     chrome.runtime.sendMessage({type: 'update', url: url, inputs: {login: {id: 0, name: 0, value: username}, password: { id: 1, name: 1, value: password }}});
 
     request = {update: {context: url, login: username, password: password}}
-    console.log('sending update to '+mpClient.id);
+    console.log('sending update to '+mooltipass.app.id);
     contentAddr = tab.id;
     mpUpdateCallback = callback;
-    chrome.runtime.sendMessage(mpClient.id, request);
-}
-
-
-mooltipass.associate = function(callback, tab)
-{
-    if (!mpClient) {
-        console.log('mp.associate()');
-        chrome.management.getAll(getAll);
-    } else if (!connected) {
-        // try pinging the app
-        chrome.runtime.sendMessage(mpClient.id, { ping: [] });
-        console.log('mp.associate() already have client connection, sending ping');
-    } else {
-        console.log('mp.associate() already connected');
-    }
+    chrome.runtime.sendMessage(mooltipass.app.id, request);
 }
 
 
@@ -190,8 +193,7 @@ toContext = function (url) {
     return reContext.exec(url)[2];
 }
 
-mooltipass.extractDomainAndSubdomain = function (url)
-{
+mooltipass.extractDomainAndSubdomain = function (url) {
 	var url_valid;
 	var domain = null;
 	var subdomain = null;
@@ -255,9 +257,7 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 	page.tabs[tab.id].errorMessage = null;
 
 	// is browser associated to keepass?
-	if (!mooltipass.isConnected()) 
-	{
-		console.log("App not launched!");
+	if (!mooltipass.device.isUnlocked()) {
 		browserAction.showDefault(null, tab);
 		if(forceCallback) {
 			callback([]);
@@ -275,55 +275,12 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 	// todo: two requests for domain and subdomain!
     request = { getInputs : {context: parsed_url.domain} };
 
-    console.log('sending to '+mpClient.id);
+    console.log('sending to '+mooltipass.app.id);
     contentAddr = tab.id;
     mpInputCallback = callback;
-    chrome.runtime.sendMessage(mpClient.id, request);
+    chrome.runtime.sendMessage(mooltipass.app.id, request);
 }
 
-mooltipass.getLatestChromeipassVersion = function()
-{
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", mooltipass.latestChromeipassVersionUrl, false);
-	xhr.setRequestHeader("Content-Type", "application/json");
-    var version = -1;
-	try {
-		xhr.send();
-		manifest = JSON.parse(xhr.responseText);
-        version = manifest.version;
-        mooltipass.latestChromeipass.version = version;
-        mooltipass.latestChromeipass.versionParsed = parseInt(version.replace(/\./g,''));
-	} catch (e) {
-		console.log("Error: " + e);
-	}
-
-	if (version != -1) {
-		localStorage.latestChromeipass = JSON.stringify(mooltipass.latestChromeipass);
-	}
-	mooltipass.latestChromeipass.lastChecked = new Date();
-}
-
-mooltipass.getLatestClientVersion = function()
-{
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", mooltipass.latestClientVersionUrl, false);
-	xhr.setRequestHeader("Content-Type", "application/json");
-    var version = -1;
-	try {
-		xhr.send();
-		manifest = JSON.parse(xhr.responseText);
-        version = manifest.version;
-        mooltipass.latestClient.version = version;
-        mooltipass.latestClient.versionParsed = parseInt(version.replace(/\./g,''));
-	} catch (e) {
-		console.log("Error: " + e);
-	}
-
-	if (version != -1) {
-		localStorage.latestClient = JSON.stringify(mooltipass.latestClient);
-	}
-	mooltipass.latestClient.lastChecked = new Date();
-}
 
 mooltipass.loadSettings = function() {
     mooltipass.blacklist = typeof(localStorage.mpBlacklist)=='undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
@@ -336,7 +293,7 @@ mooltipass.isBlacklisted = function(url)
 
 mooltipass.blacklistUrl = function(url)
 {
-    console.log('got blacklist req. for',url);
+    console.log('got blacklist req. for', url);
     mooltipass.blacklist[url] = true;
     localStorage.mpBlacklist = JSON.stringify(mooltipass.blacklist);
     console.log('updated blacklist store');

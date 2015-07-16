@@ -180,37 +180,46 @@ event.onNotifyButtonClick = function(id, buttonIndex)
 {
     console.log('notification',id,'button',buttonIndex,'clicked');
 	
-	// Check notification type
-	if(event.mpUpdate[id].type == "singledomainadd")
+	// Check the kind of notification
+	if (id.indexOf('mpNotConnected') == 0 || id.indexOf('mpNotUnlocked') == 0)
 	{
-		// Adding a single domain notification
-		if (buttonIndex == 0) 
-		{
-			// Blacklist
-			console.log('notification blacklist ',event.mpUpdate[id].url);
-			mooltipass.blacklistUrl(event.mpUpdate[id].url);
-		} 
-		else 
-		{
-		}
+		console.log('Disabling not unlocked notifications');
+		mooltipass.disableNonUnlockedNotifications = true;
 	}
-	else if(event.mpUpdate[id].type == "subdomainadd")
+	else
 	{
-		// Adding a sub domain notification
-		if (buttonIndex == 0) 
+		// Check notification type
+		if(event.mpUpdate[id].type == "singledomainadd")
 		{
-			// Store credentials
-			console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
-			mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url);
-		} 
-		else 
-		{
-			// Store credentials
-			console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url2);
-			mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url2);
+			// Adding a single domain notification
+			if (buttonIndex == 0) 
+			{
+				// Blacklist
+				console.log('notification blacklist ',event.mpUpdate[id].url);
+				mooltipass.blacklistUrl(event.mpUpdate[id].url);
+			} 
+			else 
+			{
+			}
 		}
+		else if(event.mpUpdate[id].type == "subdomainadd")
+		{
+			// Adding a sub domain notification
+			if (buttonIndex == 0) 
+			{
+				// Store credentials
+				console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
+				mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url);
+			} 
+			else 
+			{
+				// Store credentials
+				console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url2);
+				mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url2);
+			}
+		}
+		delete event.mpUpdate[id];		
 	}
-    delete event.mpUpdate[id];
 }
 
 event.onNotifyClosed = function(id) {
@@ -251,13 +260,20 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 			return;
 		}
 		
+		// If the device is not connected and not unlocked and the user disabled the notifications, return
+		if ((!mooltipass.deviceStatus.connected || !mooltipass.deviceStatus.unlocked) && mooltipass.disableNonUnlockedNotifications)
+		{
+			console.log('Not showing notification as they are disabled');
+			return;
+		}
+		
 		// Increment notification count
 		event.notificationCount++;
 		
 		console.log(mooltipass.device.getStatus());
 		
 		// Check that our device actually is connected
-		if (!mooltipass.deviceStatus.connected)
+		if (!mooltipass.deviceStatus.connected && !mooltipass.disableNonUnlockedNotifications)
 		{
 			console.log('notify: device not connected');
 			
@@ -268,9 +284,10 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 					{   type: 'basic',
 						title: 'Mooltipass Not Connected!',
 						message: 'Please Connect Your Mooltipass',
-						iconUrl: '/icons/warning_icon.png'});
+						iconUrl: '/icons/warning_icon.png',
+						buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
 		}
-		else if (!mooltipass.deviceStatus.unlocked)
+		else if (!mooltipass.deviceStatus.unlocked && !mooltipass.disableNonUnlockedNotifications)
 		{
 			console.log('notify: device not unlocked');
 			
@@ -281,7 +298,8 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 					{   type: 'basic',
 						title: 'Mooltipass Not Unlocked!',
 						message: 'Please Insert your Card and Unlock it',
-						iconUrl: '/icons/warning_icon.png'});
+						iconUrl: '/icons/warning_icon.png',
+						buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
 		}
 		
 		// Here we should detect a subdomain, uncomment to enable!

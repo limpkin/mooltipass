@@ -66,6 +66,7 @@ chrome.management.getAll(mooltipass.onSearchForApp);
 // Messages from the mooltipass client app
 chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse) {
     if (message.deviceStatus !== null) {
+		//console.log(message.deviceStatus);
         mooltipass.deviceStatus = {
             'connected': message.deviceStatus.version != 'unknown',
             'unlocked': message.deviceStatus.connected,

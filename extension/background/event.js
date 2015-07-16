@@ -207,9 +207,7 @@ event.onNotifyButtonClick = function(id, buttonIndex)
 		{
 			// Store credentials
 			console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url2);
-			mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url);
-			// To be enabled!!!!
-			//mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url2);
+			mooltipass.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url2);
 		}
 	}
     delete event.mpUpdate[id];
@@ -256,8 +254,9 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 		// Increment notification count
 		event.notificationCount++;
 		
-		// Here we should detect a subdomain!
-		if(subdomain == null)
+		// Here we should detect a subdomain, uncomment to enable!
+		//if(subdomain == null)
+		if(true)
 		{
 			// Single domain
 			// Here we should send a request to the mooltipass to know if the username exists!

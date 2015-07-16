@@ -132,15 +132,6 @@ mooltipass.associate = function(callback, tab)
     }
 }
 
-
-
-
-
-
-
-
-
-
 mooltipass.addCredentials = function(callback, tab, username, password, url)
 {
 	page.tabs[tab.id].errorMessage = null;

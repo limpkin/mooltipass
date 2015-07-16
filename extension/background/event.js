@@ -254,6 +254,36 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 		// Increment notification count
 		event.notificationCount++;
 		
+		console.log(mooltipass.device.getStatus());
+		
+		// Check that our device actually is connected
+		if (!mooltipass.device.getStatus()['connectedToDevice'])
+		{
+			console.log('notify: device not connected');
+			
+			var noteId = 'mpNotConnected.'+event.notificationCount.toString();
+
+			// Create notification to inform user
+			chrome.notifications.create(noteId,
+					{   type: 'basic',
+						title: 'Mooltipass Not Connected!',
+						message: 'Please Connect Your Mooltipass',
+						iconUrl: '/icons/mooltipass-128.png'});
+		}
+		else if (!mooltipass.device.getStatus()['deviceUnlocked'])
+		{
+			console.log('notify: device not unlocked');
+			
+			var noteId = 'mpNotUnlocked.'+event.notificationCount.toString();
+
+			// Create notification to inform user
+			chrome.notifications.create(noteId,
+					{   type: 'basic',
+						title: 'Mooltipass Not Unlocked!',
+						message: 'Please Insert your Card and Unlock it',
+						iconUrl: '/icons/mooltipass-128.png'});
+		}
+		
 		// Here we should detect a subdomain, uncomment to enable!
 		//if(subdomain == null)
 		if(true)

@@ -71,7 +71,8 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         mooltipass.deviceStatus = {
             'connected': message.deviceStatus.version != 'unknown',
             'unlocked': message.deviceStatus.connected,
-            'version': message.deviceStatus.version
+            'version': message.deviceStatus.version,
+			'state' : message.deviceStatus.state
         };
 
         mooltipass.device.currentFirmware.version = message.deviceStatus.version;
@@ -249,48 +250,8 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 	// unset error message
 	page.tabs[tab.id].errorMessage = null;
 	
-	// If the device is not connected and not unlocked and the user disabled the notifications
-	if ((!mooltipass.deviceStatus.connected || !mooltipass.deviceStatus.unlocked) && mooltipass.disableNonUnlockedNotifications)
-	{
-		console.log('Not showing notification as they are disabled');
-	}
-	else
-	{	
-		// Increment notification count
-		event.notificationCount++;
-		
-		console.log(mooltipass.device.getStatus());
-		
-		// Check that our device actually is connected
-		if (!mooltipass.deviceStatus.connected && !mooltipass.disableNonUnlockedNotifications)
-		{
-			console.log('notify: device not connected');
-			
-			var noteId = 'mpNotConnected.'+event.notificationCount.toString();
-
-			// Create notification to inform user
-			chrome.notifications.create(noteId,
-					{   type: 'basic',
-						title: 'Mooltipass Not Connected!',
-						message: 'Please Connect Your Mooltipass',
-						iconUrl: '/icons/warning_icon.png',
-						buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
-		}
-		else if (!mooltipass.deviceStatus.unlocked && !mooltipass.disableNonUnlockedNotifications)
-		{
-			console.log('notify: device not unlocked');
-			
-			var noteId = 'mpNotUnlocked.'+event.notificationCount.toString();
-
-			// Create notification to inform user
-			chrome.notifications.create(noteId,
-					{   type: 'basic',
-						title: 'Mooltipass Not Unlocked!',
-						message: 'Please Insert your Card and Unlock it',
-						iconUrl: '/icons/warning_icon.png',
-						buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
-		}
-	}
+	// Check that the Mooltipass is unlocked
+	event.mooltipassUnlockedCheck();
 
 	// is browser associated to keepass?
 	if (!mooltipass.device.isUnlocked()) {

@@ -232,6 +232,87 @@ chrome.notifications.onClosed.addListener(event.onNotifyClosed);
 event.notificationCount = 0;
 event.mpUpdate = {};
 
+event.mooltipassUnlockedCheck = function()
+{
+	console.log(mooltipass.deviceStatus.state);
+	
+	// If the device is not connected and not unlocked and the user disabled the notifications, return
+	if (mooltipass.deviceStatus.state != 'Unlocked')
+	{
+		if (mooltipass.disableNonUnlockedNotifications)
+		{
+			console.log('Not showing a notification as they are disabled');
+			return false;
+		}
+		else
+		{
+			// Increment notification count
+			event.notificationCount++;
+			var noteId = 'mpNotUnlocked.'+event.notificationCount.toString();
+		}
+	}
+	
+	// Check that our device actually is connected
+	if (mooltipass.deviceStatus.state == 'NotConnected')
+	{
+		console.log('notify: device not connected');
+
+		// Create notification to inform user
+		chrome.notifications.create(noteId,
+				{   type: 'basic',
+					title: 'Mooltipass Not Connected!',
+					message: 'Please Connect Your Mooltipass',
+					iconUrl: '/icons/warning_icon.png',
+					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
+					
+		return false;
+	}
+	else if (mooltipass.deviceStatus.state == 'Locked')
+	{
+		console.log('notify: device locked');
+
+		// Create notification to inform user
+		chrome.notifications.create(noteId,
+				{   type: 'basic',
+					title: 'Mooltipass Locked!',
+					message: 'Please Unlock Your Mooltipass',
+					iconUrl: '/icons/warning_icon.png',
+					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
+					
+		return false;
+	}
+	else if (mooltipass.deviceStatus.state == 'NoCard')
+	{
+		console.log('notify: device without card');
+
+		// Create notification to inform user
+		chrome.notifications.create(noteId,
+				{   type: 'basic',
+					title: 'No Card in Mooltipass!',
+					message: 'Please Insert Your Smartcard and Enter Your PIN',
+					iconUrl: '/icons/warning_icon.png',
+					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
+					
+		return false;
+	}
+	else if (mooltipass.deviceStatus.state == 'ManageMode')
+	{
+		console.log('notify: management mode');
+
+		// Create notification to inform user
+		chrome.notifications.create(noteId,
+				{   type: 'basic',
+					title: 'Mooltipass in Management Mode!',
+					message: 'Please leave management mode in the App',
+					iconUrl: '/icons/warning_icon.png',
+					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
+					
+		return false;
+	}
+	
+	return true;
+}
+
 event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) 
 {
 	// Parse URL
@@ -260,47 +341,11 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 			return;
 		}
 		
-		// If the device is not connected and not unlocked and the user disabled the notifications, return
-		if ((!mooltipass.deviceStatus.connected || !mooltipass.deviceStatus.unlocked) && mooltipass.disableNonUnlockedNotifications)
-		{
-			console.log('Not showing notification as they are disabled');
-			return;
-		}
+		// Check that the Mooltipass is unlocked
+		event.mooltipassUnlockedCheck();
 		
 		// Increment notification count
 		event.notificationCount++;
-		
-		console.log(mooltipass.device.getStatus());
-		
-		// Check that our device actually is connected
-		if (!mooltipass.deviceStatus.connected && !mooltipass.disableNonUnlockedNotifications)
-		{
-			console.log('notify: device not connected');
-			
-			var noteId = 'mpNotConnected.'+event.notificationCount.toString();
-
-			// Create notification to inform user
-			chrome.notifications.create(noteId,
-					{   type: 'basic',
-						title: 'Mooltipass Not Connected!',
-						message: 'Please Connect Your Mooltipass',
-						iconUrl: '/icons/warning_icon.png',
-						buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
-		}
-		else if (!mooltipass.deviceStatus.unlocked && !mooltipass.disableNonUnlockedNotifications)
-		{
-			console.log('notify: device not unlocked');
-			
-			var noteId = 'mpNotUnlocked.'+event.notificationCount.toString();
-
-			// Create notification to inform user
-			chrome.notifications.create(noteId,
-					{   type: 'basic',
-						title: 'Mooltipass Not Unlocked!',
-						message: 'Please Insert your Card and Unlock it',
-						iconUrl: '/icons/warning_icon.png',
-						buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
-		}
 		
 		// Here we should detect a subdomain, uncomment to enable!
 		//if(subdomain == null)

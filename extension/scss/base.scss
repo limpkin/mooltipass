@@ -35,6 +35,8 @@
 .no-padding-bottom { padding-bottom: 0 !important; }
 .no-padding-left { padding-left: 0 !important; }
 
+.no-margin { margin: 0 !important; }
+
 $border-color: #DDD;
 .border-top { border-top: 1px solid $border-color; }
 .border-right { border-right: 1px solid $border-color; }
@@ -50,3 +52,6 @@ $border-color: #DDD;
 .comment {
   color: $border-color;
 }
+
+.right { float: right; }
+.left { float: left; }

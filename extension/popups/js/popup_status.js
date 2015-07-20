@@ -25,12 +25,8 @@ function initSettings() {
     });
 }
 
-$(function() {
-    initSettings();
+function updateStatusInfo() {
     chrome.extension.sendMessage({ action: "update_available_firmware" }, updateAvailableResponse);
-
-    $('#status-bar .status > span').hide();
-    $('#initial-state').show();
 
     chrome.extension.sendMessage({
         action: "get_status"
@@ -64,5 +60,18 @@ $(function() {
         if (response == 'denied') {
             $("#notifications-disabled").show();
         }
-    });
+    });    
+}
+
+function _updateStatusInfo() {
+    updateStatusInfo();
+    setTimeout(_updateStatusInfo, 300);
+}
+
+$(function() {
+    initSettings();
+    $('#status-bar .status > span').hide();
+    $('#initial-state').show();
+        
+    _updateStatusInfo();
 });

@@ -28,6 +28,7 @@
       "background/browserAction.js",
       "background/page.js",
       "vendor/mooltipass/device.js",
+      "vendor/mooltipass/backend.js",
       "background/event.js",
       "background/init.js"
     ]

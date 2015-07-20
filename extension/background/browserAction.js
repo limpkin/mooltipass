@@ -10,12 +10,6 @@ browserAction.show = function(callback, tab) {
 		data = page.tabs[tab.id].stack[page.tabs[tab.id].stack.length - 1];
 	}
 
-	chrome.browserAction.setIcon({
-		tabId: tab.id,
-		path: "/images/" + browserAction.generateIconName(data.iconType, data.icon)
-		//path: "/icons/19x19/" + browserAction.generateIconName(data.iconType, data.icon)
-	});
-
 	if(data.popup) {
 		chrome.browserAction.setPopup({
 			tabId: tab.id,
@@ -53,11 +47,6 @@ browserAction.update = function(interval) {
 		if(data.intervalIcon.index > data.intervalIcon.icons.length - 1) {
 			data.intervalIcon.index = 0;
 		}
-
-		chrome.browserAction.setIcon({
-			tabId: page.currentTabId,
-			path: "/icons/19x19/" + browserAction.generateIconName(null, data.intervalIcon.icons[data.intervalIcon.index])
-		});
 	}
 }
 
@@ -200,7 +189,6 @@ browserAction.setRememberPopup = function(tabId, username, password, url, userna
 			max: 2,
 			icons: ["icon_remember_red_background_19x19.png", "icon_remember_red_lock_19x19.png"]
 		},
-		icon: "icon_remember_red_background_19x19.png",
 		popup: "popup_remember.html"
 	}
 
@@ -215,16 +203,4 @@ browserAction.setRememberPopup = function(tabId, username, password, url, userna
 	};
 
 	browserAction.show(null, {"id": id});
-}
-
-browserAction.generateIconName = function(iconType, icon) {
-	if(icon) {
-		return icon;
-	}
-
-	var name = "icon_";
-	name += (!iconType || iconType == "normal") ? "normal" : iconType;
-	name += "_19.png";
-
-	return name;
 }

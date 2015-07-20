@@ -36,7 +36,7 @@ mooltipass.device.getStatus = function() {
  * @returns boolean
  */
 mooltipass.device.isUnlocked = function() {
-    return mooltipass.deviceStatus.unlocked;
+    return mooltipass.device.getStatus()['deviceUnlocked'];
 };
 
 /**
@@ -82,22 +82,3 @@ mooltipass.device.getLatestFirmwareVersion = function() {
         localStorage.latestFirmware = JSON.stringify(mooltipass.device.latestFirmware);
     }
 }
-
-
-
-
-// [MOCKUP]
-mooltipass.device.hasStoredCredentials = function(url, callback) {
-    // Return true if Mooltipass has already stored credentials for the
-    // given url, or it's top-level-domain.
-    // e.g.   stored credentials  |
-
-    // Stored credentials for
-    callback((url == "http://www.reddit.com/"));
-}
-
-// [MOCKUP]
-// Is called, when a user confirms his credentials for a certain 
-// website.
-// mooltipass.device.onConfirmCredentials.dispatch(url, username, password)
-mooltipass.device.onConfirmCredentials = new chrome.Event();

@@ -2,39 +2,39 @@ var $ = mpJQ.noConflict(true);
 var _settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
 
 function updateAvailableResponse(available) {
-	if(available) {
-		$("#update-available").show();
-	}
-	else {
-		$("#update-available").hide();
-	}
+    if(available) {
+        $("#update-available").show();
+    }
+    else {
+        $("#update-available").hide();
+    }
 }
 
 function initSettings() {
-	$("#btn-settings").click(function() {
-		close();
-		chrome.tabs.create({
-			url: "/options/options.html"
-		})
-	});
+    $("#btn-settings").click(function() {
+        close();
+        chrome.tabs.create({
+            url: "/options/options.html"
+        })
+    });
 
-	$("#btn-select-credential-fields").click(function() {
-		var global = chrome.extension.getBackgroundPage();
-		mooltipass.website.chooseCredentialFields();
-		close();
-	});
+    $("#btn-select-credential-fields").click(function() {
+        var global = chrome.extension.getBackgroundPage();
+        mooltipass.website.chooseCredentialFields();
+        close();
+    });
 }
 
 $(function() {
-	initSettings();
-	chrome.extension.sendMessage({ action: "update_available_firmware" }, updateAvailableResponse);
+    initSettings();
+    chrome.extension.sendMessage({ action: "update_available_firmware" }, updateAvailableResponse);
 
     $('#status-bar .status > span').hide();
     $('#initial-state').show();
 
-	chrome.extension.sendMessage({
-		action: "get_status"
-	}, function(object) {
+    chrome.extension.sendMessage({
+        action: "get_status"
+    }, function(object) {
         $('#status-bar .status > span').hide();
 
         // Connection to app established, device connected and unlocked
@@ -57,9 +57,12 @@ $(function() {
         else {
             $('#unknown-error').show();
         }
-	});
+    });
 
-	mooltipass.website.hasCredentialFields(function(hasCredentialFields) {
-
-	});
+    // Check if notifications are enabled
+    chrome.notifications.getPermissionLevel(function(response) {
+        if (response == 'denied') {
+            $("#notifications-disabled").show();
+        }
+    });
 });

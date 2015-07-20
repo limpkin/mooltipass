@@ -40,3 +40,13 @@ $border-color: #DDD;
 .border-right { border-right: 1px solid $border-color; }
 .border-bottom { border-bottom: 1px solid $border-color; }
 .border-left { border-left: 1px solid $border-color; }
+
+.centered {
+  margin-left: auto;
+  margin-right: auto;
+  float: none;
+}
+
+.comment {
+  color: $border-color;
+}

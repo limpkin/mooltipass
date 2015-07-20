@@ -493,7 +493,7 @@ td, th {
   color: #444;
   color: rgba(0, 0, 0, 0.8);
   border: 1px solid #999;
-  border: 0 rgba(0, 0, 0, 0);
+  border: 0 transparent;
   background-color: #E6E6E6;
   text-decoration: none;
   border-radius: 2px;
@@ -517,7 +517,7 @@ td, th {
 /* line 11, ../scss/_pure.scss */
 .pure-button-active, .pure-button:active {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15) inset, 0 0 6px rgba(0, 0, 0, 0.2) inset;
-  border-color: black \9;
+  border-color: #000 \9;
 }
 
 /* line 11, ../scss/_pure.scss */
@@ -1132,7 +1132,7 @@ a.panel {
 
 /* line 1, ../scss/_colors.scss */
 .primary-bg {
-  background: #0dfcfd;
+  background: #0DFCFD;
   color: #FFF;
 }
 
@@ -1143,7 +1143,7 @@ a.primary-bg:hover {
 
 /* line 9, ../scss/_colors.scss */
 .success-bg {
-  background: #0b7117;
+  background: #0B7117;
   color: #FFF;
 }
 
@@ -1154,7 +1154,7 @@ a.success-bg:hover {
 
 /* line 17, ../scss/_colors.scss */
 .warning-bg {
-  background: #dc8f15;
+  background: #DC8F15;
   color: #FFF;
 }
 
@@ -1165,7 +1165,7 @@ a.warning-bg:hover {
 
 /* line 25, ../scss/_colors.scss */
 .error-bg {
-  background: #a10202;
+  background: #A10202;
   color: #FFF;
 }
 
@@ -1176,8 +1176,8 @@ a.error-bg:hover {
 
 /* line 33, ../scss/_colors.scss */
 .ghost-bg {
-  background: #efefef;
-  color: #888888;
+  background: #EFEFEF;
+  color: #888;
 }
 
 /* line 37, ../scss/_colors.scss */
@@ -1196,11 +1196,11 @@ a.ghost-bg:hover {
 }
 /* line 12, ../scss/base.scss */
 .pure-menu-item a {
-  color: #444444;
+  color: #444;
 }
 /* line 15, ../scss/base.scss */
 .pure-menu-item a:hover {
-  background: #efefef;
+  background: #EFEFEF;
 }
 
 /* line 20, ../scss/base.scss */
@@ -1254,22 +1254,34 @@ a.ghost-bg:hover {
 
 /* line 39, ../scss/base.scss */
 .border-top {
-  border-top: 1px solid #dddddd;
+  border-top: 1px solid #DDD;
 }
 
 /* line 40, ../scss/base.scss */
 .border-right {
-  border-right: 1px solid #dddddd;
+  border-right: 1px solid #DDD;
 }
 
 /* line 41, ../scss/base.scss */
 .border-bottom {
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #DDD;
 }
 
 /* line 42, ../scss/base.scss */
 .border-left {
-  border-left: 1px solid #dddddd;
+  border-left: 1px solid #DDD;
+}
+
+/* line 44, ../scss/base.scss */
+.centered {
+  margin-left: auto;
+  margin-right: auto;
+  float: none;
+}
+
+/* line 50, ../scss/base.scss */
+.comment {
+  color: #DDD;
 }
 
 /* line 3, ../scss/popup.scss */
@@ -1280,11 +1292,11 @@ html {
 
 /* line 8, ../scss/popup.scss */
 .loading {
-  color: #888888;
+  color: #888;
 }
 /* line 10, ../scss/popup.scss */
 .loading .fa {
-  color: #444444;
+  color: #444;
 }
 
 /* line 15, ../scss/popup.scss */

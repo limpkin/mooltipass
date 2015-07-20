@@ -7,7 +7,7 @@
 
     <script type="text/javascript" src="../vendor/mooltipass/device.js"></script>    
     <script type="text/javascript" src="../vendor/mooltipass/website.js"></script>    
-    <script type="text/javascript" src="js/popup-menu.js"></script>
+    <script type="text/javascript" src="js/popup_status.js"></script>
     
   </head>
   <body class="popup" id="menu" tabindex="1">  
@@ -35,7 +35,16 @@
         <span id="need-reconfigure-message"></span>
         Click here to reconnect.
       </a>
-    </div>     
+    </div>  
+
+    <!-- NOTIFICATIONS DISABLED -->
+    <div class="pure-u-1-1" id="notifications-disabled" style="display: none;">
+      <a target="_blank" class="panel warning-bg" href="/kb/enable-desktop-notifications.html">
+        <h3>Chrome notifications disabled.</h3>
+        <span id="need-reconfigure-message"></span>
+        Mooltipass requires Chrome's desktop notifications to work properly. Click here to enable notifications.
+      </a>
+    </div>         
 
     <!-- CONFIGURE -->
     <div class="pure-u-1-1" id="not-configured" style="display: none;">

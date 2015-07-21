@@ -43,8 +43,6 @@ options.initGeneralSettings = function() {
             action: 'load_settings'
         });
     });
-
-    options.showMooltipassVersions({});
 };
 
 options.initAbout = function() {
@@ -163,25 +161,4 @@ options.initCredentialList = function() {
             }
         });      
     }); 
-}
-
-options.showMooltipassVersions = function(response) {
-    $("#latestExtensionVersion").text(response.latestExtension || "not available");
-    $("#yourExtensionVersion").text(response.currentExtension || "not available");
-
-    $("#latestAppVersion").text(response.latestApp || "not available");
-    $("#yourAppVersion").text(response.currentApp || "not available");
-     
-    
-    if (response.latestExtension && response.currentExtension && (response.latestExtension != response.currentExtension)) {
-        $("#updateExtension").show();
-    } else {
-        $("#updateExtension").hide();
-    }
-
-    if (response.latestApp && response.currentApp && (response.latestApp != response.currentApp)) {
-        $("#updateApp").show();
-    } else {
-        $("#updateApp").hide();
-    }
 }

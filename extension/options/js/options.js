@@ -43,6 +43,8 @@ options.initGeneralSettings = function() {
             action: 'load_settings'
         });
     });
+
+    options.showMooltipassVersions({});
 };
 
 options.initAbout = function() {
@@ -169,9 +171,7 @@ options.showMooltipassVersions = function(response) {
 
     $("#latestAppVersion").text(response.latestApp || "not available");
     $("#yourAppVersion").text(response.currentApp || "not available");
-
-    $("#latestFwVersion").text(response.latestFirmware || "not available");
-    $("#yourFwVersion").text(response.currentFirmware || "not available");        
+     
     
     if (response.latestExtension && response.currentExtension && (response.latestExtension != response.currentExtension)) {
         $("#updateExtension").show();
@@ -184,10 +184,4 @@ options.showMooltipassVersions = function(response) {
     } else {
         $("#updateApp").hide();
     }
-
-    if (response.latestFw && response.currentFw && (response.latestFw != response.currentFw)) {
-        $("#updateFw").show();
-    } else {
-        $("#updateFw").hide();
-    }        
 }

@@ -1257,58 +1257,394 @@ a.ghost-bg:hover {
   margin: 0 !important;
 }
 
+/* line 39, ../scss/base.scss */
+.no-margin-top {
+  margin-top: 0 !important;
+}
+
+/* line 40, ../scss/base.scss */
+.no-margin-right {
+  margin-right: 0 !important;
+}
+
 /* line 41, ../scss/base.scss */
+.no-margin-bottom {
+  margin-bottom: 0 !important;
+}
+
+/* line 42, ../scss/base.scss */
+.no-margin-left {
+  margin-left: 0 !important;
+}
+
+/* line 45, ../scss/base.scss */
 .border-top {
   border-top: 1px solid #DDD;
 }
 
-/* line 42, ../scss/base.scss */
+/* line 46, ../scss/base.scss */
 .border-right {
   border-right: 1px solid #DDD;
 }
 
-/* line 43, ../scss/base.scss */
+/* line 47, ../scss/base.scss */
 .border-bottom {
   border-bottom: 1px solid #DDD;
 }
 
-/* line 44, ../scss/base.scss */
+/* line 48, ../scss/base.scss */
 .border-left {
   border-left: 1px solid #DDD;
 }
 
-/* line 46, ../scss/base.scss */
+/* line 50, ../scss/base.scss */
 .centered {
   margin-left: auto;
   margin-right: auto;
   float: none;
 }
 
-/* line 52, ../scss/base.scss */
+/* line 56, ../scss/base.scss */
 .comment {
   color: #DDD;
 }
 
-/* line 56, ../scss/base.scss */
+/* line 60, ../scss/base.scss */
 .right {
   float: right;
 }
 
-/* line 57, ../scss/base.scss */
+/* line 61, ../scss/base.scss */
 .left {
   float: left;
 }
 
-/* line 3, ../scss/pages.scss */
+/* Copyright (c) 2012 The Chromium Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file. */
+/* This file defines styles for form controls. The order of rule blocks is
+ * important as there are some rules with equal specificity that rely on order
+ * as a tiebreaker. These are marked with OVERRIDE. */
+/* Default state **************************************************************/
+/* line 11, ../scss/_forms.scss */
+:-webkit-any(button,
+input[type='button'],
+input[type='submit']):not(.custom-appearance),
+select,
+input[type='checkbox'],
+input[type='radio'] {
+  -webkit-appearance: none;
+  -webkit-user-select: none;
+  background-image: -webkit-linear-gradient(#ededed, #ededed 38%, #dedede);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75);
+  color: #444;
+  font: inherit;
+  margin: 0 1px 0 0;
+  outline: none;
+  text-shadow: 0 1px 0 #f0f0f0;
+}
+
+/* line 31, ../scss/_forms.scss */
+:-webkit-any(button,
+input[type='button'],
+input[type='submit']):not(.custom-appearance),
+select {
+  min-height: 2em;
+  min-width: 4em;
+}
+
+/* line 40, ../scss/_forms.scss */
+:-webkit-any(button,
+input[type='button'],
+input[type='submit']):not(.custom-appearance) {
+  -webkit-padding-end: 10px;
+  -webkit-padding-start: 10px;
+}
+
+/* line 47, ../scss/_forms.scss */
+select {
+  -webkit-appearance: none;
+  -webkit-padding-end: 20px;
+  -webkit-padding-start: 6px;
+  /* OVERRIDE */
+  background-image: -webkit-image-set(url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAICAQAAACxSAwfAAAAUklEQVQY02P4z0AMRGZGMaShwCisyhITmb8huMzfEhOxKvuvsGAh208Ik+3ngoX/FbBbClcIUcSAw21QhXxfIIrwKAMpfNsEUYRXGVCEFc6CQwBqq4CCCtU4VgAAAABJRU5ErkJggg==) 1x, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAQCAQAAAA/1a6rAAAAQUlEQVR4Xu3MsQnAMBAEMI1+myf9gw0+3ASCenmu+mQn2yGn3S4Mp906DEW3CEPfzTD03QxD380w3OmIUHe9v+u9QwAt93yns5cAAAAASUVORK5CYII=) 2x), -webkit-linear-gradient(#ededed, #ededed 38%, #dedede);
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+
+/* line 58, ../scss/_forms.scss */
+html[dir='rtl'] select {
+  background-position: center left;
+}
+
+/* line 62, ../scss/_forms.scss */
+input[type='checkbox'] {
+  height: 13px;
+  position: relative;
+  vertical-align: middle;
+  width: 13px;
+}
+
+/* line 69, ../scss/_forms.scss */
+input[type='radio'] {
+  /* OVERRIDE */
+  border-radius: 100%;
+  height: 15px;
+  position: relative;
+  vertical-align: middle;
+  width: 15px;
+}
+
+/* TODO(estade): add more types here? */
+/* line 79, ../scss/_forms.scss */
+input[type='number'],
+input[type='password'],
+input[type='search'],
+input[type='text'],
+input[type='url'],
+input:not([type]),
+textarea {
+  border: 1px solid #bfbfbf;
+  border-radius: 2px;
+  box-sizing: border-box;
+  color: #444;
+  font: inherit;
+  margin: 0;
+  /* Use min-height to accommodate addditional padding for touch as needed. */
+  min-height: 2em;
+  padding: 3px;
+  outline: none;
+  /* For better alignment between adjacent buttons and inputs. */
+  padding-bottom: 4px;
+}
+
+/* line 100, ../scss/_forms.scss */
+input[type='search'] {
+  -webkit-appearance: textfield;
+  /* NOTE: Keep a relatively high min-width for this so we don't obscure the end
+   * of the default text in relatively spacious languages (i.e. German). */
+  min-width: 160px;
+}
+
+/* Remove when https://bugs.webkit.org/show_bug.cgi?id=51499 is fixed.
+ * TODO(dbeam): are there more types that would benefit from this? */
+/* line 109, ../scss/_forms.scss */
+input[type='search']::-webkit-textfield-decoration-container {
+  direction: inherit;
+}
+
+/* Checked ********************************************************************/
+/* line 115, ../scss/_forms.scss */
+input[type='checkbox']:checked::before {
+  -webkit-user-select: none;
+  background-image: -webkit-image-set(url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAQAAAADpb+tAAAAaElEQVR4Xl3PIQoCQQCF4Y8JW42D1bDZ4iVEjDbxFpstYhC7eIVBZHkXFGw734sv/TqDQQ8Xb1udja/I8igeIm7Aygj2IpoKTGZnVRNxAHYi4iPiDlA9xX+aNQDFySziqDN6uSp6y7ofEMwZ05uUZRkAAAAASUVORK5CYII=) 1x, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAQAAABuvaSwAAAAvElEQVR4XrXPMUrDYBzG4UeRZnAQnFxq3XT3AsVABm8QPIHQIeAJuoqb2s1BcHAIin4HVLqEvx9NQgb5rc/wvn4mNBUbqlKDcezCp6Qexxx7lbapx/CBe6mrHsYrKXQ7hKtIre1nOD/W9eiQiK80inis680JEc+1kien+TEfzom4sJG2aZXxmG9LIqaRerohx6V2J72zl2NY2OTUgxm7MEU25sURfZg4590Zw5iFZ8mXS0ZwN+eaPjyh/8O/H7bzPJ5NOo0AAAAASUVORK5CYII=) 2x);
+  background-size: 100% 100%;
+  content: '';
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+/* line 125, ../scss/_forms.scss */
+input[type='radio']:checked::before {
+  background-color: #666;
+  border-radius: 100%;
+  bottom: 3px;
+  content: '';
+  display: block;
+  left: 3px;
+  position: absolute;
+  right: 3px;
+  top: 3px;
+}
+
+/* Hover **********************************************************************/
+/* line 139, ../scss/_forms.scss */
+:enabled:hover:-webkit-any(select,
+input[type='checkbox'],
+input[type='radio'],
+:-webkit-any(button,
+input[type='button'],
+input[type='submit']):not(.custom-appearance)) {
+  background-image: -webkit-linear-gradient(#f0f0f0, #f0f0f0 38%, #e0e0e0);
+  border-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+  color: black;
+}
+
+/* line 154, ../scss/_forms.scss */
+:enabled:hover:-webkit-any(select) {
+  /* OVERRIDE */
+  background-image: -webkit-image-set(url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAICAQAAACxSAwfAAAAUklEQVQY02P4z0AMRGZGMaShwCisyhITmb8huMzfEhOxKvuvsGAh208Ik+3ngoX/FbBbClcIUcSAw21QhXxfIIrwKAMpfNsEUYRXGVCEFc6CQwBqq4CCCtU4VgAAAABJRU5ErkJggg==) 1x, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAQCAQAAAA/1a6rAAAAQUlEQVR4Xu3MsQnAMBAEMI1+myf9gw0+3ASCenmu+mQn2yGn3S4Mp906DEW3CEPfzTD03QxD380w3OmIUHe9v+u9QwAt93yns5cAAAAASUVORK5CYII=) 2x), -webkit-linear-gradient(#f0f0f0, #f0f0f0 38%, #e0e0e0);
+}
+
+/* Active *********************************************************************/
+/* line 162, ../scss/_forms.scss */
+:enabled:active:-webkit-any(select,
+input[type='checkbox'],
+input[type='radio'],
+:-webkit-any(button,
+input[type='button'],
+input[type='submit']):not(.custom-appearance)) {
+  background-image: -webkit-linear-gradient(#e7e7e7, #e7e7e7 38%, #d7d7d7);
+  box-shadow: none;
+  text-shadow: none;
+}
+
+/* line 175, ../scss/_forms.scss */
+:enabled:active:-webkit-any(select) {
+  /* OVERRIDE */
+  background-image: -webkit-image-set(url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAICAQAAACxSAwfAAAAUklEQVQY02P4z0AMRGZGMaShwCisyhITmb8huMzfEhOxKvuvsGAh208Ik+3ngoX/FbBbClcIUcSAw21QhXxfIIrwKAMpfNsEUYRXGVCEFc6CQwBqq4CCCtU4VgAAAABJRU5ErkJggg==) 1x, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAQCAQAAAA/1a6rAAAAQUlEQVR4Xu3MsQnAMBAEMI1+myf9gw0+3ASCenmu+mQn2yGn3S4Mp906DEW3CEPfzTD03QxD380w3OmIUHe9v+u9QwAt93yns5cAAAAASUVORK5CYII=) 2x), -webkit-linear-gradient(#e7e7e7, #e7e7e7 38%, #d7d7d7);
+}
+
+/* Disabled *******************************************************************/
+/* line 183, ../scss/_forms.scss */
+:disabled:-webkit-any(button,
+input[type='button'],
+input[type='submit']):not(.custom-appearance),
+select:disabled {
+  background-image: -webkit-linear-gradient(#f1f1f1, #f1f1f1 38%, #e6e6e6);
+  border-color: rgba(80, 80, 80, 0.2);
+  box-shadow: 0 1px 0 rgba(80, 80, 80, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75);
+  color: #aaa;
+}
+
+/* line 195, ../scss/_forms.scss */
+select:disabled {
+  /* OVERRIDE */
+  background-image: -webkit-image-set(url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAICAQAAACxSAwfAAAASklEQVQY02P4z0AMRGZGMaShwCisyhITG/4jw8RErMr+KyxYiFC0YOF/BeyWIikEKWLA4Ta4QogiPMpACt82QRThVQYUYYWz4BAAGr6Ii6kEPacAAAAASUVORK5CYII=) 1x, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAQCAQAAADQF8WVAAAARElEQVR4Xu3MsQ0AIAwEsYx+m4fySsgLOuTe1Re9z4De4DzbdVDnmZ0ENcrsZJVkdoIKMzurMLOzSjNhlWfCapBlfpZbeMFeGdxKIEQAAAAASUVORK5CYII=) 2x), -webkit-linear-gradient(#f1f1f1, #f1f1f1 38%, #e6e6e6);
+}
+
+/* line 201, ../scss/_forms.scss */
+input:disabled:-webkit-any([type='checkbox'],
+[type='radio']) {
+  opacity: .75;
+}
+
+/* line 206, ../scss/_forms.scss */
+input:disabled:-webkit-any([type='password'],
+[type='search'],
+[type='text'],
+[type='url'],
+:not([type])) {
+  color: #999;
+}
+
+/* Focus **********************************************************************/
+/* line 216, ../scss/_forms.scss */
+:enabled:focus:-webkit-any(select,
+input[type='checkbox'],
+input[type='number'],
+input[type='password'],
+input[type='radio'],
+input[type='search'],
+input[type='text'],
+input[type='url'],
+input:not([type]),
+:-webkit-any(button,
+input[type='button'],
+input[type='submit']):not(.custom-appearance)) {
+  /* OVERRIDE */
+  -webkit-transition: border-color 200ms;
+  /* We use border color because it follows the border radius (unlike outline).
+   * This is particularly noticeable on mac. */
+  border-color: #4d90fe;
+  outline: none;
+}
+
+/* Action links ***************************************************************/
+/* line 240, ../scss/_forms.scss */
+[is='action-link'] {
+  cursor: pointer;
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* line 246, ../scss/_forms.scss */
+[is='action-link']:hover {
+  text-decoration: underline;
+}
+
+/* line 250, ../scss/_forms.scss */
+[is='action-link']:active {
+  color: #052577;
+  text-decoration: underline;
+}
+
+/* line 255, ../scss/_forms.scss */
+[is='action-link'][disabled] {
+  color: #999;
+  cursor: default;
+  pointer-events: none;
+  text-decoration: none;
+}
+
+/* line 262, ../scss/_forms.scss */
+[is='action-link'].no-outline {
+  outline: none;
+}
+
+/* Checkbox/radio helpers ******************************************************
+ *
+ * .checkbox and .radio classes wrap labels. Checkboxes and radios should use
+ * these classes with the markup structure:
+ *
+ *   <div class="checkbox">
+ *     <label>
+ *       <input type="checkbox"></input>
+ *       <span>
+ *     </label>
+ *   </div>
+ */
+/* line 279, ../scss/_forms.scss */
+:-webkit-any(.checkbox, .radio) label {
+  /* Don't expand horizontally: <http://crbug.com/112091>. */
+  align-items: center;
+  display: inline-flex;
+  padding-bottom: 7px;
+  padding-top: 7px;
+}
+
+/* line 287, ../scss/_forms.scss */
+:-webkit-any(.checkbox, .radio) label input {
+  flex-shrink: 0;
+}
+
+/* line 291, ../scss/_forms.scss */
+:-webkit-any(.checkbox, .radio) label input ~ span {
+  -webkit-margin-start: 0.6em;
+  -webkit-user-select: none;
+  /* Make sure long spans wrap at the same horizontal position they start. */
+  display: block;
+}
+
+/* line 298, ../scss/_forms.scss */
+:-webkit-any(.checkbox, .radio) label:hover {
+  color: black;
+}
+
+/* line 302, ../scss/_forms.scss */
+label > input:disabled:-webkit-any([type='checkbox'], [type='radio']) ~ span {
+  color: #999;
+}
+
+/* line 306, ../scss/_forms.scss */
+extensionview {
+  display: inline-block;
+  height: 300px;
+  width: 300px;
+}
+
+/* line 4, ../scss/pages.scss */
 .pure-g {
-  max-width: 100em;
   margin-left: auto;
   margin-right: auto;
 }
-
-/* line 9, ../scss/pages.scss */
-body {
-  margin-top: 2em;
+/* line 8, ../scss/pages.scss */
+.pure-g.max-width {
+  max-width: 100em;
 }
 
 /* line 13, ../scss/pages.scss */
@@ -1327,8 +1663,133 @@ p, ul, ol, .panel {
   line-height: 1.5;
 }
 
-/* line 29, ../scss/pages.scss */
+/* line 28, ../scss/pages.scss */
+a {
+  text-decoration: none;
+}
+
+/* line 33, ../scss/pages.scss */
 footer .logo {
   margin-right: 1em;
   margin-top: -0.25rem;
+}
+
+/* line 41, ../scss/pages.scss */
+.app-page .menu h1 {
+  -webkit-margin-start: 23px;
+  color: #5C6166;
+  margin-bottom: 1em !important;
+  margin-top: 21px !important;
+  font-size: 1.5em;
+  -webkit-user-select: none;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-margin-before: 0.67em;
+  -webkit-margin-after: 0.67em;
+}
+/* line 54, ../scss/pages.scss */
+.app-page .menu ul {
+  list-style: none;
+  padding-left: 23px;
+}
+/* line 58, ../scss/pages.scss */
+.app-page .menu ul a {
+  padding: 0.4em 0;
+  display: block;
+  color: #999;
+  text-decoration: none;
+  font-size: .95em;
+}
+/* line 65, ../scss/pages.scss */
+.app-page .menu ul a.active {
+  margin-left: -23px;
+  padding-left: 17px;
+  border-left: 6px solid #464E5A;
+  color: #464E5A;
+}
+/* line 76, ../scss/pages.scss */
+.app-page .settings h1 {
+  margin: 0;
+  padding: 21px 0 13px;
+  -webkit-user-select: none;
+  font-weight: normal;
+  line-height: 1;
+  font-size: 1.5em;
+  color: #303942;
+}
+/* line 85, ../scss/pages.scss */
+.app-page .settings h2 {
+  color: #000;
+  font-size: 1.2em;
+  margin-bottom: 0.8em;
+  -webkit-user-select: none;
+  font-weight: normal;
+  line-height: 1;
+}
+/* line 94, ../scss/pages.scss */
+.app-page .settings .setting-panel {
+  margin-bottom: 3em;
+}
+/* line 97, ../scss/pages.scss */
+.app-page .settings .setting-panel > p, .app-page .settings .setting-panel > label, .app-page .settings .setting-panel > div.pure-g {
+  margin-left: 18px;
+}
+/* line 103, ../scss/pages.scss */
+.app-page .settings #extension-update a {
+  margin-left: 2em;
+}
+/* line 107, ../scss/pages.scss */
+.app-page .settings #contributor-list a.contributor {
+  padding: 1em;
+  line-height: 1;
+  height: 6em;
+  overflow: hidden;
+  display: inline-block;
+}
+/* line 114, ../scss/pages.scss */
+.app-page .settings #contributor-list a.contributor:hover {
+  background-color: #EEE;
+}
+/* line 118, ../scss/pages.scss */
+.app-page .settings #contributor-list a.contributor img {
+  width: 4em;
+  margin-right: 1em;
+}
+/* line 125, ../scss/pages.scss */
+.app-page .settings .pure-table {
+  border: 1px solid #DDD;
+  font-size: 1em;
+  width: 100%;
+}
+/* line 128, ../scss/pages.scss */
+.app-page .settings .pure-table thead {
+  background-color: #EEE;
+}
+/* line 130, ../scss/pages.scss */
+.app-page .settings .pure-table thead th {
+  border: 1px solid #DDD;
+}
+/* line 138, ../scss/pages.scss */
+.app-page .settings .pure-table tr span.value {
+  float: left;
+}
+/* line 141, ../scss/pages.scss */
+.app-page .settings .pure-table tr span.remove {
+  float: right;
+  margin-top: -.1em;
+  font-size: 1.2em;
+  color: #BBB;
+  opacity: 0;
+}
+/* line 147, ../scss/pages.scss */
+.app-page .settings .pure-table tr span.remove:hover {
+  color: #888;
+}
+/* line 152, ../scss/pages.scss */
+.app-page .settings .pure-table tr:hover {
+  background-color: #E4ECF7;
+}
+/* line 154, ../scss/pages.scss */
+.app-page .settings .pure-table tr:hover span.remove {
+  opacity: 1;
 }

@@ -1,13 +1,13 @@
 @import "base";
+@import "forms";
 
 .pure-g {
-  max-width: 100em;
   margin-left: auto;
   margin-right: auto;  
-}
 
-body {
-  margin-top: 2em;
+  &.max-width {
+    max-width: 100em;  
+  }
 }
 
 hr {
@@ -25,9 +25,138 @@ p, ul, ol, .panel {
   line-height: 1.5;
 }
 
+a {
+  text-decoration: none;
+}
+
 footer {
   .logo {
     margin-right: 1em;
     margin-top: -0.25rem;  
   }
 }
+
+.app-page {
+  .menu {
+    h1 {
+      -webkit-margin-start: 23px;
+      color: #5C6166;
+      margin-bottom: 1em !important;
+      margin-top: 21px !important;
+      font-size: 1.5em;
+      -webkit-user-select: none;
+      font-weight: normal;
+      line-height: 1;
+      -webkit-margin-before: 0.67em;
+      -webkit-margin-after: 0.67em;
+    }  
+
+    ul {
+      list-style: none;
+      padding-left: 23px;    
+
+      a {
+        padding: 0.4em 0;
+        display: block;
+        color: #999;
+        text-decoration: none; 
+        font-size: .95em;     
+
+        &.active {
+          margin-left: -23px;
+          padding-left: 17px;
+          border-left: 6px solid #464E5A;
+          color: #464E5A;        
+        }
+      }
+    }  
+  }
+
+  .settings {
+    h1 {
+      margin: 0;
+      padding: 21px 0 13px;    
+      -webkit-user-select: none;
+      font-weight: normal;
+      line-height: 1;    
+      font-size: 1.5em;
+      color: #303942;  
+    }
+    h2 {
+      color: #000;
+      font-size: 1.2em;
+      margin-bottom: 0.8em;
+      -webkit-user-select: none;
+      font-weight: normal;
+      line-height: 1;      
+    }
+
+    .setting-panel {
+      margin-bottom: 3em;
+
+      &> p, &> label, &> div.pure-g {
+        margin-left: 18px;
+      }
+    }
+
+    #extension-update {
+      a { margin-left: 2em; }
+    }
+
+    #contributor-list {
+      a.contributor {
+        padding: 1em;
+        line-height: 1;
+        height: 6em;
+        overflow: hidden;
+        display: inline-block;        
+
+        &:hover {
+          background-color: #EEE;
+        }
+
+        img {
+          width: 4em;
+          margin-right: 1em;
+        }
+      }
+    }
+
+    .pure-table {
+      border: 1px solid #DDD;
+      font-size: 1em;
+      thead {
+        background-color: #EEE;
+        th {
+          border: 1px solid #DDD;
+        }
+      }
+      width: 100%;
+
+      tr {
+        span {
+          &.value {
+            float: left;
+          }
+          &.remove {
+            float: right;
+            margin-top: -.1em;
+            font-size: 1.2em;
+            color: #BBB;
+            opacity: 0;
+            &:hover {
+              color: #888;
+            }
+          }  
+        }
+        &:hover {
+          background-color: #E4ECF7;
+          span.remove {
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+}
+

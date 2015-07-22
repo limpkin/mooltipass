@@ -683,6 +683,15 @@ cipFields.getAllFields = function() {
 	return fields;
 };
 
+cipFields.getHashForVisibleFields = function(fields) {
+    var hash = '';
+    for (var i = 0; i < fields.length; i++) {
+        hash += fields[i].data('mp-id');
+    };
+
+    return hash;
+}
+
 cipFields.prepareVisibleFieldsWithID = function($pattern) {
 	mpJQ($pattern).each(function() {
 		if(cipFields.isAvailableField(this)) {
@@ -983,7 +992,7 @@ cip.credentials = [];
 
 cip.trapSubmit = true;
 
-cip.visibleInputs = 0;
+cip.visibleInputsHash = 0;
 
 mpJQ(function() {
 	cip.init();
@@ -1006,7 +1015,7 @@ cip.initCredentialFields = function(forceCall) {
 
 	var inputs = cipFields.getAllFields();
 
-    cip.visibleInputs = inputs.length;
+    cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 
 	cipFields.prepareVisibleFieldsWithID("select");
 	cip.initPasswordGenerator(inputs);
@@ -1049,8 +1058,11 @@ cip.initPasswordGenerator = function(inputs) {
 cip.checkForNewInputs = function() {
     var fields = cipFields.getAllFields();
 
-    if(fields.length != cip.visibleInputs) {
-        //console.log(fields.length, cip.visibleInputs);
+    var hash = cipFields.getHashForVisibleFields(fields);
+
+
+    if(hash != cip.visibleInputsHash) {
+        //console.log(fields.length, cip.visibleInputsHash);
         cip.initCredentialFields(true);
     }
 }

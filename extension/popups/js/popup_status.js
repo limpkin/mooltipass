@@ -1,15 +1,6 @@
 var $ = mpJQ.noConflict(true);
 var _settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
 
-function updateAvailableResponse(available) {
-    if(available) {
-        $("#update-available").show();
-    }
-    else {
-        $("#update-available").hide();
-    }
-}
-
 function initSettings() {
     $("#btn-settings").click(function() {
         close();
@@ -26,8 +17,6 @@ function initSettings() {
 }
 
 function updateStatusInfo() {
-    chrome.extension.sendMessage({ action: "update_available_firmware" }, updateAvailableResponse);
-
     chrome.extension.sendMessage({
         action: "get_status"
     }, function(object) {
@@ -65,7 +54,7 @@ function updateStatusInfo() {
 
 function _updateStatusInfo() {
     updateStatusInfo();
-    setTimeout(_updateStatusInfo, 300);
+    setTimeout(_updateStatusInfo, 1000);
 }
 
 $(function() {

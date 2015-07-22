@@ -18,7 +18,6 @@ mooltipass.backend.updateStatusIcon = function() {
         iconName = "cross";
     }
     chrome.notifications.getPermissionLevel(function(response) {
-        console.log(response);
         if (response == 'denied') {
             iconName += "_warning";
         }

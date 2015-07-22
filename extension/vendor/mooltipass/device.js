@@ -51,34 +51,3 @@ mooltipass.device.getFirmwareVersion = function() {
         return 'not connected';
     }
 };
-
-
-/**
- * Checks a remote source for the latest version number of the firmware
- * @access backend
- */
-mooltipass.device.getLatestFirmwareVersion = function() {
-    //TODO: mocked, bcs wrong URL
-    mooltipass.device.latestFirmware = {'version': 'v1', 'versionParsed': 1, 'lastChecked': new Date()};
-    return
-
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", mooltipass.device.latestFirmwareVersionUrl, false);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    var version = -1;
-    try {
-        xhr.send();
-        manifest = JSON.parse(xhr.responseText);
-        version = manifest.version;
-        mooltipass.device.latestFirmware.version = version;
-        mooltipass.device.latestFirmware.versionParsed = parseInt(version.replace(/[\.a-zA-Z]/g,''));
-    } catch (e) {
-        console.log("Error: " + e);
-    }
-
-    mooltipass.device.latestFirmware.lastChecked = new Date();
-
-    if (version != -1) {
-        localStorage.latestFirmware = JSON.stringify(mooltipass.device.latestFirmware);
-    }
-}

@@ -142,11 +142,6 @@ event.onGetConnectedDatabase = function(callback, tab) {
 	});
 }
 
-event.onGetKeePassHttpVersions = function(callback, tab) {
-    console.log('event.onGetKeePassHttpVersions()');
-	callback({"current": '0.1', "latest": '0.1'});
-}
-
 event.onGetMooltipassVersions = function(callback, tab) {
 	var resp ={ 'currentFirmware': mooltipass.device.getFirmwareVersion(),
                'latestFirmware': '0.5',
@@ -154,20 +149,6 @@ event.onGetMooltipassVersions = function(callback, tab) {
                "latestFirmware": mooltipass.device.latestFirmware.version};
     console.log('versions:',resp);
 	callback(resp);
-}
-
-event.onCheckUpdateFirmware = function(callback, tab) {
-    console.log('event.onCheckUpdateFirmware()');
-    mooltipass.device.getLatestFirmwareVersion();
-    console.log('latestFirmware:', mooltipass.device.latestFirmware.version);
-	callback({"current": mooltipass.device.currentFirmware.version, "latest": mooltipass.device.latestFirmware.version});
-}
-
-event.onFirmwareUpdateAvailable = function(callback, tab) {
-    console.log('event.onFirmwareUpdateAvailable()');
-    mooltipass.device.getLatestFirmwareVersion();
-    console.log('latestFirmware:', mooltipass.device.latestFirmware.version);
-	return (mooltipass.device.currentFirmware.versionParsed > 0 && mooltipass.device.currentFirmware.versionParsed < mooltipass.device.latestFirmware.versionParsed);
 }
 
 event.onRemoveCredentialsFromTabInformation = function(callback, tab) {
@@ -457,10 +438,7 @@ event.messageHandlers = {
 	'blacklistUrl': mooltipass.blacklistUrl,
 	'alert': event.onShowAlert,
 	'associate': mooltipass.associate,
-	'check_update_keepasshttp': event.onCheckUpdateFirmware,
 	'get_connected_database': event.onGetConnectedDatabase,
-	'get_keepasshttp_versions': event.onGetKeePassHttpVersions,
-	'get_mooltipass_versions': event.onGetMooltipassVersions,
 	'get_settings': event.onGetSettings,
 	'get_status': event.onGetStatus,
 	'get_tab_information': event.onGetTabInformation,
@@ -476,7 +454,6 @@ event.messageHandlers = {
 	'save_settings': event.onSaveSettings,
 	'update_notify': event.onUpdateNotify,
 	'stack_add': browserAction.stackAdd,
-	'update_available_firmware': event.onFirmwareUpdateAvailable,
 	'generate_password': mooltipass.generatePassword,
 	'copy_password': mooltipass.copyPassword
 };

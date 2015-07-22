@@ -1017,8 +1017,8 @@ cip.initCredentialFields = function(forceCall) {
 
     cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 
-	cipFields.prepareVisibleFieldsWithID("select");
-	cip.initPasswordGenerator(inputs);
+    cipFields.prepareVisibleFieldsWithID("select");
+    cip.initPasswordGenerator(inputs);
 
 	if(!cipFields.useDefinedCredentialFields()) {
 		// get all combinations of username + password fields

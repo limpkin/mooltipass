@@ -683,6 +683,11 @@ cipFields.getAllFields = function() {
 	return fields;
 };
 
+/**
+ * Generates a hash based on the input fields currently visible to the user
+ * @param fields array of input fields
+ * @returns {string}
+ */
 cipFields.getHashForVisibleFields = function(fields) {
     var hash = '';
     for (var i = 0; i < fields.length; i++) {
@@ -1055,6 +1060,9 @@ cip.initPasswordGenerator = function(inputs) {
 	}
 }
 
+/**
+ * Checks for visible input fields and triggers redetection of credential fields if the visible fields change
+ */
 cip.checkForNewInputs = function() {
     var fields = cipFields.getAllFields();
 

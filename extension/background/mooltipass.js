@@ -162,7 +162,7 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
     chrome.runtime.sendMessage({type: 'update', url: url, inputs: {login: {id: 0, name: 0, value: username}, password: { id: 1, name: 1, value: password }}});
 
     request = {update: {context: url, login: username, password: password}}
-    console.log('sending update to '+mooltipass.app.id);
+    console.log('sending update to app #'+mooltipass.app.id);
     contentAddr = tab.id;
     mpUpdateCallback = callback;
     chrome.runtime.sendMessage(mooltipass.app.id, request);
@@ -196,8 +196,10 @@ mooltipass.extractDomainAndSubdomain = function (url) {
 	// URL trimming
 	// Remove possible www.
 	url = url.replace('www.', '');
-	// Remove everything before //
-	url = url.replace(/.*?:\/\//g, "");
+	// Remove everything before ://
+    //    also ensure that only the first :// is used
+    //    (negative example: https://id.atlassian.com/login?continue=https://my.atlassian.com&application=mac)
+	url = url.replace(/^[^:]+:\/\//g, "");
 	// Remove everything after first /
 	var n = url.indexOf('/');
 	url = url.substring(0, n != -1 ? n : url.length);

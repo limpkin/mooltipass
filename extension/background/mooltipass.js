@@ -11,6 +11,8 @@ mooltipass.locked = true;
 var contentAddr = null;
 var mpInputCallback = null;
 var mpUpdateCallback = null;
+var mpRandomCallback = null;
+var mpRandomCallbackParams = null;
 
 mooltipass.latestApp = (typeof(localStorage.latestApp) == 'undefined') ?
                                 {"version": 0, "versionParsed": 0, "lastChecked": null} :
@@ -78,6 +80,16 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         mooltipass.device.currentFirmware.version = message.deviceStatus.version;
         mooltipass.device.currentFirmware.versionParsed = parseInt(message.deviceStatus.version.replace(/[\.a-zA-Z]/g,''));
 
+    }
+    else if (message.random !== null) {
+        Math.seedrandom(message.random);
+        if(mpRandomCallback) {
+            var seeds = [];
+            for(var i = 0; i < mpRandomCallbackParams.length; i++) {
+                seeds.push(Math.random());
+            }
+            mpRandomCallback({'seeds': seeds});
+        }
     }
     else if (message.credentials !== null) {
         if (mpInputCallback) {
@@ -169,10 +181,18 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
 }
 
 
-mooltipass.generatePassword = function(callback, tab)
+mooltipass.generatePassword = function(callback, tab, length)
 {
-	page.tabs[tab.id].errorMessage = null;
-    console.log('mp.generatePassword()');
+    // unset error message
+    page.tabs[tab.id].errorMessage = null;
+
+    request = { getRandom : [] };
+
+    console.log('mp.generatePassword(): length =', length);
+    contentAddr = tab.id;
+    mpRandomCallback = callback;
+    mpRandomCallbackParams = {'length': length};
+    chrome.runtime.sendMessage(mooltipass.app.id, request);
 }
 
 mooltipass.copyPassword = function(callback, tab)
@@ -277,6 +297,9 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 	var parsed_url = mooltipass.extractDomainAndSubdomain(submiturl);	
 	if(!parsed_url.valid)
 	{
+        if(forceCallback) {
+            callback([]);
+        }
 		return;
 	}
 

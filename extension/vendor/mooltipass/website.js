@@ -8,9 +8,21 @@ mooltipass.website = mooltipass.website || {};
 
 // [MOCKUP]
 mooltipass.website.generatePassword = function(length, callback) {
-  // Return a random password with given length
+    // Return a random password with given length
+    chrome.extension.sendMessage({
+        action: 'generate_password',
+        args: [length]
+    }, function(response) {
+        console.log('seed:', response.seeds)
 
-  callback(Math.random().toString(36).substring(7));
+        var hash = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789:.,;-_'#*+!\"()$=?{[]}%&/";
+
+        for( var i=0; i < length; i++ )
+            hash += possible.charAt(Math.floor(response.seeds[i] * possible.length));
+
+        callback(hash);
+    });
 }
 
 // [MOCKUP]

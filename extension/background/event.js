@@ -455,5 +455,6 @@ event.messageHandlers = {
 	'update_notify': event.onUpdateNotify,
 	'stack_add': browserAction.stackAdd,
 	'generate_password': mooltipass.generatePassword,
-	'copy_password': mooltipass.copyPassword
+	'copy_password': mooltipass.copyPassword,
+    'set_current_tab': page.setCurrentTab,
 };

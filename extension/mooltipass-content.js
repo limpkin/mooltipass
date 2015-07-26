@@ -4,7 +4,8 @@ var _called = {};
 chrome.extension.onMessage.addListener(function(req, sender, callback) {
 	if ('action' in req) {
 		if(req.action == "fill_user_pass_with_specific_login") {
-			if(cip.credentials[req.id]) {
+			console.log('fill-in:', req);
+            if(cip.credentials[req.id]) {
 				var combination = null;
 				if (cip.u) {
 					cip.u.val(cip.credentials[req.id].Login);
@@ -73,6 +74,13 @@ window.addEventListener("keydown", function(e) {
 		}
 	}
 }, false);
+
+window.addEventListener('focus', function() {
+    chrome.extension.sendMessage({
+        "action": "set_current_tab",
+    });
+});
+
 
 function _f(fieldId) {
 	var field = (fieldId) ? mpJQ("input[data-mp-id='"+fieldId+"']:first") : [];
@@ -169,7 +177,7 @@ cipPassword.createDialog = function() {
     });
 
     $("#mooltipass-new-password").click(function(e){
-        mooltipass.website.generatePassword(8, function(randomPassword){
+        mooltipass.website.generatePassword(12, function(randomPassword){
             $("#mooltipass-password-generator").val(randomPassword);
         });
         e.preventDefault();
@@ -364,17 +372,96 @@ cipForm.onSubmit = function(event) {
 	var passwordField = _f(passwordId);
 
 	if(usernameField) {
-		usernameValue = usernameField.val();
-        console.log('submit: username "'+usernameValue);
+		usernameValue = usernameField.val()
 	}
 	if(passwordField) {
 		passwordValue = passwordField.val();
-        console.log('submit: password');
 	}
 
 
 	cip.rememberCredentials(event, usernameField, usernameValue, passwordField, passwordValue);
 };
+
+
+/**
+ * cipTwoPageLogin
+ * Select credential fields distributed on 2 pages
+ */
+var cipTwoPageLogin = {};
+
+cipTwoPageLogin.identifier = 'defined-two-pages-credential-fields';
+cipTwoPageLogin.usernameFilledIn = false;
+cipTwoPageLogin.passwordFilledIn = false;
+
+cipTwoPageLogin.init = function() {
+    cip.settings[cipTwoPageLogin.identifier] = {
+        'https://accounts.google.com/ServiceLogin': {
+            'username': 'Email',
+            'password': 'Passwd',
+        },
+        'https://accounts.google.com/ServiceLoginAuth': {
+            'username': 'Email',
+            'password': 'Passwd',
+        }
+    };
+};
+
+cipTwoPageLogin.resetFilledIn = function() {
+    cipTwoPageLogin.usernameFilledIn = false;
+    cipTwoPageLogin.passwordFilledIn = false;
+}
+
+cipTwoPageLogin.setFilledIn = function(fieldType) {
+    cipTwoPageLogin[fieldType + 'FilledIn'] = true;
+}
+
+cipTwoPageLogin.alreadyFilledIn = function(fieldType) {
+    return cipTwoPageLogin[fieldType + 'FilledIn'];
+}
+
+cipTwoPageLogin.getPageCombinationForCurrentOrigin = function() {
+    return cipTwoPageLogin.getPageCombinationForOrigin(document.location.origin + document.location.pathname);
+};
+
+cipTwoPageLogin.getPageCombinationForOrigin = function(url) {
+    if(!cip.settings || !cip.settings[cipTwoPageLogin.identifier] || ! cip.settings[cipTwoPageLogin.identifier][url]) {
+        return null;
+    }
+
+    return cip.settings[cipTwoPageLogin.identifier][url];
+}
+
+/**
+ * Stores the identifier for the given field type to a corresponding URL
+ * @param url
+ * @param fieldType 'username' or 'password'
+ * @param fieldId ID of the input field
+ */
+cipTwoPageLogin.storeFieldInformation = function (url, fieldType, fieldId) {
+    if(!cip.settings[cipTwoPageLogin.identifier]) {
+        cip.settings[cipTwoPageLogin.identifier] = {};
+    }
+
+    if(!cip.settings[cipTwoPageLogin.identifier][url]) {
+        cip.settings[cipTwoPageLogin.identifier][url] = {'url': url};
+    }
+
+    cip.settings[cipTwoPageLogin.identifier][url][fieldType] = fieldId;
+
+    chrome.extension.sendMessage({
+        action: 'save_settings',
+        args: [cip.settings]
+    });
+};
+
+cipTwoPageLogin.removeFieldInformation = function(url) {
+    delete cip.settings[cipTwoPageLogin.identifier][url];
+    chrome.extension.sendMessage({
+        action: 'save_settings',
+        args: [cip.settings]
+    });
+}
+
 
 
 
@@ -683,6 +770,12 @@ cipFields.getAllFields = function() {
 	return fields;
 };
 
+
+
+cipFields.isSpecifiedFieldAvailable = function(fieldId) {
+    return Boolean(_f(fieldId));
+}
+
 /**
  * Generates a hash based on the input fields currently visible to the user
  * @param fields array of input fields
@@ -691,6 +784,9 @@ cipFields.getAllFields = function() {
 cipFields.getHashForVisibleFields = function(fields) {
     var hash = '';
     for (var i = 0; i < fields.length; i++) {
+        if(fields[i].data('mp-id') == 'mooltipass-password-generator') {
+            continue;
+        }
         hash += fields[i].data('mp-id');
     };
 
@@ -754,6 +850,12 @@ cipFields.getCombination = function(givenType, fieldId) {
 	if(cip.settings["defined-credential-fields"] && cip.settings["defined-credential-fields"][document.location.origin]) {
 		return cipFields.combinations[0];
 	}
+
+    // use 2-page input fields
+    var twoPageCombination = cipTwoPageLogin.getPageCombinationForCurrentOrigin();
+    if(twoPageCombination) {
+        return twoPageCombination;
+    }
 
 	for(var i = 0; i < cipFields.combinations.length; i++) {
 		if(cipFields.combinations[i][givenType] == fieldId) {
@@ -1019,13 +1121,32 @@ cip.initCredentialFields = function(forceCall) {
 	_called.initCredentialFields = true;
 
 	var inputs = cipFields.getAllFields();
+    console.log('initCredentialFields():', inputs.length, 'input fields found');
 
     cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 
     cipFields.prepareVisibleFieldsWithID("select");
     cip.initPasswordGenerator(inputs);
 
-	if(!cipFields.useDefinedCredentialFields()) {
+    // Initialize credential field combinations on multiple pages
+    cipTwoPageLogin.init();
+
+    var searchForAllCombinations = true;
+    var manualSpecifiedFields = false;
+	if(cipFields.useDefinedCredentialFields()) {
+        searchForAllCombinations = false;
+        manualSpecifiedFields = true;
+    }
+
+    var twoPageCombination = cipTwoPageLogin.getPageCombinationForCurrentOrigin();
+    if(twoPageCombination) {
+        searchForAllCombinations = false;
+        manualSpecifiedFields = true;
+        cipFields.combinations = [];
+        cipFields.combinations.push(twoPageCombination);
+    }
+
+    if(searchForAllCombinations) {
 		// get all combinations of username + password fields
 		cipFields.combinations = cipFields.getAllCombinations(inputs);
 	}
@@ -1037,6 +1158,24 @@ cip.initCredentialFields = function(forceCall) {
 		});
 		return;
 	}
+
+    // If manual specified credential fields are not available on the current page (defined, 2-page login)
+    // --> don't trigger request for credentials to device
+    if(manualSpecifiedFields) {
+        if(!cipFields.isSpecifiedFieldAvailable(cipFields.combinations[0].username)
+        && !cipFields.isSpecifiedFieldAvailable(cipFields.combinations[0].password)
+        && (!cipFields.combinations[0].fields || (cipFields.combinations[0].fields.length > 0 && !cipFields.isSpecifiedFieldAvailable(cipFields.combinations[0].fields[0])))) {
+            chrome.extension.sendMessage({
+                'action': 'show_default_browseraction'
+            });
+            return;
+        }
+
+        if(twoPageCombination && cip.credentials && cip.credentials.length > 0 && (cipFields.isSpecifiedFieldAvailable(cipFields.combinations[0].username) || cipFields.isSpecifiedFieldAvailable(cipFields.combinations[0].password))) {
+            cip.prepareFieldsForCredentials();
+            return;
+        }
+    }
 
 	cip.url = document.location.origin;
 	cip.submitUrl = cip.getFormActionUrl(cipFields.combinations[0]);
@@ -1052,7 +1191,6 @@ cip.initPasswordGenerator = function(inputs) {
 		cipPassword.init();
 
 		for(var i = 0; i < inputs.length; i++) {
-            console.log(inputs[i], inputs[i].attr("type"));
 			if(inputs[i] && inputs[i].attr("type") && inputs[i].attr("type").toLowerCase() == "password") {
                 cipPassword.initField(inputs[i], inputs, i);
 			}
@@ -1102,41 +1240,49 @@ cip.doSubmit = function doSubmit(pass)
 }
 
 cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
-	if (cipFields.combinations.length > 0) {
+	console.log('cip.retrieveCredentialsCallback()')
+
+    if (cipFields.combinations.length > 0) {
 		cip.u = _f(cipFields.combinations[0].username);
 		cip.p = _f(cipFields.combinations[0].password);
+        cipTwoPageLogin.resetFilledIn();
 	}
 
 	if (credentials.length > 0) {
 		cip.credentials = credentials;
 		cip.prepareFieldsForCredentials(!Boolean(dontAutoFillIn));
-        if (cip.p) {
+
+        if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin()) {
+            console.log('do-submit');
             cip.doSubmit(cip.p);
         }
 	}
 }
 
 cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
+    console.log('cip.prepareFieldsForCredentials()');
+
 	// only one login returned by mooltipass
     var combination = null;
-    if(!cip.p && !cip.u && cipFields.combinations.length > 0) {
+    if(!cip.u && cipFields.combinations.length > 0) {
         cip.u = _f(cipFields.combinations[0].username);
+    }
+    if(!cip.p && cipFields.combinations.length > 0) {
         cip.p = _f(cipFields.combinations[0].password);
-        combination = cipFields.combinations[0];
-    }
-    if (cip.u) {
-        cip.u.val(cip.credentials[0].Login);
-        combination = cipFields.getCombination("username", cip.u);
-    }
-    if (cip.p) {
-        cip.p.val(cip.credentials[0].Password);
-        combination = cipFields.getCombination("password", cip.p);
     }
 
-    if(combination) {
-        var list = {};
-        if(cip.fillInStringFields(combination.fields, cip.credentials[0].StringFields, list)) {
-            cipForm.destroy(false, {"password": list.list[0], "username": list.list[1]});
+    var twoPageCombination = cipTwoPageLogin.getPageCombinationForCurrentOrigin();
+
+    if (cip.u) {
+        if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('username')) {
+            cipTwoPageLogin.setFilledIn('username');
+            cip.u.val(cip.credentials[0].Login);
+        }
+    }
+    if (cip.p) {
+        if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('password')) {
+            cipTwoPageLogin.setFilledIn('password');
+            cip.p.val(cip.credentials[0].Password);
         }
     }
 }
@@ -1198,6 +1344,7 @@ cip.fillInCredentials = function(combination, onlyPassword, suppressWarnings) {
 			'action': 'retrieve_credentials',
 			'args': [ cip.url, cip.submitUrl, false, true ]
 		}, function(credentials) {
+            console.log('cip.fillInCredentials()');
 			cip.retrieveCredentialsCallback(credentials, true);
 			cip.fillIn(combination, onlyPassword, suppressWarnings);
 		});
@@ -1277,6 +1424,7 @@ cip.setValue = function(field, value) {
 }
 
 cip.fillInStringFields = function(fields, StringFields, filledInFields) {
+    console.log('cip.fillInStringFields()');
 	var $filledIn = false;
 
     filledInFields.list = [];
@@ -1307,6 +1455,7 @@ cip.fillIn = function(combination, onlyPassword, suppressWarnings) {
 	}
 
 	var uField = _f(combination.username);
+	var pField = _f(combination.password);
 	var pField = _f(combination.password);
 
 	// exactly one pair of credentials available

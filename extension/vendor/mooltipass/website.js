@@ -13,8 +13,6 @@ mooltipass.website.generatePassword = function(length, callback) {
         action: 'generate_password',
         args: [length]
     }, function(response) {
-        console.log('seed:', response.seeds)
-
         var hash = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789:.,;-_'#*+!\"()$=?{[]}%&/";
 

@@ -60,6 +60,13 @@ page.switchTab = function(callback, tab) {
 	chrome.tabs.sendMessage(tab.id, {action: "activated_tab"});
 }
 
+page.setCurrentTab = function(callback, tab) {
+    if(page.currentTabId != tab.id) {
+        page.currentTabId = tab.id;
+        page.switchTab(callback, tab);
+    }
+}
+
 page.clearCredentials = function(tabId, complete) {
 	if(!page.tabs[tabId]) {
 		return;

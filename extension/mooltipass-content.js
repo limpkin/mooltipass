@@ -398,16 +398,22 @@ cipForm.onSubmit = function(event) {
 };
 
 
-/**
+/*************************************************************************************************
  * cipTwoPageLogin
  * Select credential fields distributed on 2 pages
  */
 var cipTwoPageLogin = {};
 
+
+// Identifier for stored selections in extension settings - DO NOT CHANGE!
 cipTwoPageLogin.identifier = 'defined-two-pages-credential-fields';
+
+// Fill-in the input fields only once
 cipTwoPageLogin.usernameFilledIn = false;
 cipTwoPageLogin.passwordFilledIn = false;
 
+// Initialize cipTwoPageLogin on the current page
+// Currently, the settings for Google are hard-coded
 cipTwoPageLogin.init = function() {
     cip.settings[cipTwoPageLogin.identifier] = {
         'https://accounts.google.com/ServiceLogin': {
@@ -421,23 +427,28 @@ cipTwoPageLogin.init = function() {
     };
 };
 
+// Reset filled-in information for username and password
 cipTwoPageLogin.resetFilledIn = function() {
     cipTwoPageLogin.usernameFilledIn = false;
     cipTwoPageLogin.passwordFilledIn = false;
 }
 
+// If credentials are filled-in, set the corresponding credential part to filled-in
 cipTwoPageLogin.setFilledIn = function(fieldType) {
     cipTwoPageLogin[fieldType + 'FilledIn'] = true;
 }
 
+// Checks whether, the current credential part was already filled-in into an input field
 cipTwoPageLogin.alreadyFilledIn = function(fieldType) {
     return cipTwoPageLogin[fieldType + 'FilledIn'];
 }
 
+// Uses the current location to return the combination of credential fields
 cipTwoPageLogin.getPageCombinationForCurrentOrigin = function() {
     return cipTwoPageLogin.getPageCombinationForOrigin(document.location.origin + document.location.pathname);
 };
 
+// Returns the combination of credential fields for a two-page login page based on the given URL
 cipTwoPageLogin.getPageCombinationForOrigin = function(url) {
     if(!cip.settings || !cip.settings[cipTwoPageLogin.identifier] || ! cip.settings[cipTwoPageLogin.identifier][url]) {
         return null;
@@ -469,13 +480,15 @@ cipTwoPageLogin.storeFieldInformation = function (url, fieldType, fieldId) {
     });
 };
 
+// Removes the input information for a stored two-page login page from the extension settings
 cipTwoPageLogin.removeFieldInformation = function(url) {
     delete cip.settings[cipTwoPageLogin.identifier][url];
     chrome.extension.sendMessage({
         action: 'save_settings',
         args: [cip.settings]
     });
-}
+};
+
 
 
 /***********************************************
@@ -495,7 +508,7 @@ var cipSaveWorkarounds = {};
  */
 cipSaveWorkarounds.foundForCurrentOrigin = function() {
     return cipSaveWorkarounds.foundForOrigin(document.location.origin + document.location.pathname);
-}
+};
 
 /**
  * Look for an existing workaround for a given url
@@ -504,7 +517,7 @@ cipSaveWorkarounds.foundForCurrentOrigin = function() {
  */
 cipSaveWorkarounds.foundForOrigin = function(url) {
     return url in cipSaveWorkarounds.lookupTable;
-}
+};
 
 /**
  * Uses the current domain and script path to run the workaround and return the correct values for the credentials
@@ -512,7 +525,7 @@ cipSaveWorkarounds.foundForOrigin = function(url) {
  */
 cipSaveWorkarounds.getForCurrentOrigin = function() {
     return cipSaveWorkarounds.getForOrigin(document.location.origin + document.location.pathname);
-}
+};
 
 /**
  * Uses the given URL to run the workaround and return the correct values for the credentials
@@ -521,7 +534,7 @@ cipSaveWorkarounds.getForCurrentOrigin = function() {
  */
 cipSaveWorkarounds.getForOrigin = function(url) {
     return cipSaveWorkarounds.lookupTable[url]();
-}
+};
 
 /**
  * Workaround for Google login
@@ -531,7 +544,7 @@ cipSaveWorkarounds.doAccountsGoogle = function() {
     return {
         'usernameValue': mpJQ('#Email-hidden').val()
     }
-}
+};
 
 /**
  * Lookup table for available workarounds
@@ -542,7 +555,7 @@ cipSaveWorkarounds.doAccountsGoogle = function() {
 cipSaveWorkarounds.lookupTable = {
     'https://accounts.google.com/ServiceLogin': cipSaveWorkarounds.doAccountsGoogle,
     'https://accounts.google.com/ServiceLoginAuth': cipSaveWorkarounds.doAccountsGoogle
-}
+};
 
 
 
@@ -1194,7 +1207,7 @@ cip.init = function() {
 		cip.settings = response.data;
 		cip.initCredentialFields();
 	});
-}
+};
 
 cip.initCredentialFields = function(forceCall) {
 	if(_called.initCredentialFields && !forceCall) {

@@ -378,6 +378,21 @@ cipForm.onSubmit = function(event) {
 		passwordValue = passwordField.val();
 	}
 
+    if(cipSaveWorkarounds.foundForCurrentOrigin()) {
+        var workaround = cipSaveWorkarounds.getForCurrentOrigin();
+        if('usernameField' in workaround) {
+            usernameField = workaround.usernameField;
+        }
+        if('passwordField' in workaround) {
+            passwordField = workaround.passwordField;
+        }
+        if('usernameValue' in workaround) {
+            usernameValue = workaround.usernameValue;
+        }
+        if('passwordValue' in workaround) {
+            passwordValue = workaround.passwordValue;
+        }
+    }
 
 	cip.rememberCredentials(event, usernameField, usernameValue, passwordField, passwordValue);
 };
@@ -460,6 +475,73 @@ cipTwoPageLogin.removeFieldInformation = function(url) {
         action: 'save_settings',
         args: [cip.settings]
     });
+}
+
+
+/***********************************************
+ * Workarounds for getting the correct values before sending credentials to the device
+ * e.g. forms clear their input fields before submit and store the values in hidden inputs
+ *
+ * The SaveWorkarounds are called in cipForm.onSubmit()
+ *
+ * A workaround returns an object with up to 4 items:
+ *      usernameField, usernameValue, passwordField, passwordValue
+ */
+var cipSaveWorkarounds = {};
+
+/**
+ * Use the current domain and script path to check for existing workarounds
+ * @returns {boolean}
+ */
+cipSaveWorkarounds.foundForCurrentOrigin = function() {
+    return cipSaveWorkarounds.foundForOrigin(document.location.origin + document.location.pathname);
+}
+
+/**
+ * Look for an existing workaround for a given url
+ * @param {string} url
+ * @returns {boolean}
+ */
+cipSaveWorkarounds.foundForOrigin = function(url) {
+    return url in cipSaveWorkarounds.lookupTable;
+}
+
+/**
+ * Uses the current domain and script path to run the workaround and return the correct values for the credentials
+ * @returns {object} possible keys are: usernameField, usernameValue, passwordField, passwordValue
+ */
+cipSaveWorkarounds.getForCurrentOrigin = function() {
+    return cipSaveWorkarounds.getForOrigin(document.location.origin + document.location.pathname);
+}
+
+/**
+ * Uses the given URL to run the workaround and return the correct values for the credentials
+ * @param url
+ * @returns {object} possible keys are: usernameField, usernameValue, passwordField, passwordValue
+ */
+cipSaveWorkarounds.getForOrigin = function(url) {
+    return cipSaveWorkarounds.lookupTable[url]();
+}
+
+/**
+ * Workaround for Google login
+ * @returns {{usernameValue: *}}
+ */
+cipSaveWorkarounds.doAccountsGoogle = function() {
+    return {
+        'usernameValue': mpJQ('#Email-hidden').val()
+    }
+}
+
+/**
+ * Lookup table for available workarounds
+ *
+ * THE LOOKUP TABLE HAS TO BE DEFINED AFTER ALL WORKAROUNDS!
+ * @type {object}
+ */
+cipSaveWorkarounds.lookupTable = {
+    'https://accounts.google.com/ServiceLogin': cipSaveWorkarounds.doAccountsGoogle,
+    'https://accounts.google.com/ServiceLoginAuth': cipSaveWorkarounds.doAccountsGoogle
 }
 
 
@@ -1630,7 +1712,7 @@ cip.contextMenuRememberCredentials = function() {
 
 
 cip.rememberCredentials = function(event, usernameField, usernameValue, passwordField, passwordValue) {
-    console.log('rememberCredentials()');
+    console.log('rememberCredentials()', usernameValue, passwordValue);
 	// no password given or field cleaned by a site-running script
 	// --> no password to save
 	if(passwordValue == "") {

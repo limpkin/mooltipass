@@ -172,5 +172,19 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
     }
 
     console.log('mooltipass.generatePassword()', 'use current seed for another password');
-    callback({'seeds': mooltipass.generateSeeds(length)});
+    callback({'seeds': mooltipass.device.generateRandomNumbers(length)});
 };
+
+/**
+ * Based on a salted Math.random() generate random numbers
+ * @param length number of random numbers to generate
+ * @returns {Array} array of Numbers
+ */
+mooltipass.device.generateRandomNumbers = function(length) {
+    var seeds = [];
+    for(var i = 0; i < length; i++) {
+        seeds.push(Math.random());
+    }
+
+    return seeds;
+}

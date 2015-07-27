@@ -48,7 +48,7 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         Math.seedrandom(message.random);
         if(mooltipass.device._asynchronous.randomCallback) {
             mooltipass.device._asynchronous.randomCallback({
-                'seeds': mooltipass.generateSeeds(mooltipass.device._asynchronous.randomParameters.length)
+                'seeds': mooltipass.device.generateRandomNumbers(mooltipass.device._asynchronous.randomParameters.length)
             });
         }
     }
@@ -83,15 +83,6 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         }
    }
 });
-
-mooltipass.generateSeeds = function(length) {
-    var seeds = [];
-    for(var i = 0; i < length; i++) {
-        seeds.push(Math.random());
-    }
-
-    return seeds;
-}
 
 mooltipass.getClientVersion = function() {
     if (mooltipass.app) {
@@ -149,12 +140,6 @@ mooltipass.copyPassword = function(callback, tab)
 {
 	page.tabs[tab.id].errorMessage = null;
     console.log('mp.copyPassword()');
-};
-
-toContext = function (url) {
-    // URL regex to extract base domain for context
-    var reContext = /^\https?\:\/\/([\w\-\+]+\.)*([\w\-\_]+\.[\w\-\_]+)/;
-    return reContext.exec(url)[2];
 };
 
 mooltipass.extractDomainAndSubdomain = function (url) {
@@ -254,7 +239,7 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
 	}
 
 	// todo: two requests for domain and subdomain!
-    request = { getInputs : {context: parsed_url.domain} };
+    request = { getInputs : {context: parsed_url.domain, domain: parsed_url.domain, subdomain: parsed_url.subdomain} };
 
     console.log('sending to '+mooltipass.app.id);
     mpInputCallback = callback;

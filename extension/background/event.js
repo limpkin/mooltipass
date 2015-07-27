@@ -328,9 +328,7 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 		// Increment notification count
 		event.notificationCount++;
 		
-		// Here we should detect a subdomain, uncomment to enable!
-		//if(subdomain == null)
-		if(true)
+		if(subdomain == null)
 		{
 			// Single domain
 			// Here we should send a request to the mooltipass to know if the username exists!

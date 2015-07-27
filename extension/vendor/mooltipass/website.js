@@ -6,7 +6,7 @@ mooltipass.website = mooltipass.website || {};
 
 /* library functions for mooltipass.website ********************** */
 
-// [MOCKUP]
+
 mooltipass.website.generatePassword = function(length, callback) {
     console.log('mooltipass.website.generatePassword()');
     // Return a random password with given length
@@ -14,15 +14,12 @@ mooltipass.website.generatePassword = function(length, callback) {
         action: 'generate_password',
         args: [length]
     }, function(response) {
-        console.log('mooltipass.website.generatePassword.CALLBACK()')
         var hash = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789:.,;-_'#*+!\"()$=?{[]}%&/";
 
         for( var i=0; i < length; i++ ) {
             hash += possible.charAt(Math.floor(response.seeds[i] * possible.length));
         }
-
-        console.log('mooltipass.website.generatePassword.CALLBACK() - hash:', hash)
 
         callback(hash);
     });

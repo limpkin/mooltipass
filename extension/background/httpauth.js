@@ -37,7 +37,7 @@ httpAuth.processPendingCallbacks = function(details) {
 	var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
     console.log('httpAuth: isProxy',httpAuth.isProxy,' proxyUrl:',httpAuth.proxyUrl,'url:',httpAuth.url);
 
-	mooltipass.retrieveCredentials(httpAuth.loginOrShowCredentials, { "id" : details.tabId }, url, url, true);
+	mooltipass.device.retrieveCredentials(httpAuth.loginOrShowCredentials, { "id" : details.tabId }, url, url, true);
 }
 
 httpAuth.loginOrShowCredentials = function(logins) {

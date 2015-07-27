@@ -24,7 +24,6 @@
     "scripts": [
       "background/psl.min.js",
       "vendor/seedrandom.js",
-      "background/mooltipass.js",
       "background/httpauth.js",
       "background/browserAction.js",
       "background/page.js",

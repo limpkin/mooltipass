@@ -8,7 +8,6 @@ mooltipass.disableNonUnlockedNotifications = false;
 mooltipass.connectedToApp = false;
 mooltipass.locked = true;
 
-var contentAddr = null;
 var mpInputCallback = null;
 var mpUpdateCallback = null;
 var mpRandomCallback = null;
@@ -29,44 +28,6 @@ var maxServiceSize = 123;       // Maximum size of a site / service name, not in
 
 
 
-mooltipass.checkConnection = function() {
-    if(!mooltipass.connectedToApp) {
-        // Search for Mooltipass App
-        chrome.management.getAll(mooltipass.onSearchForApp);
-        return;
-    }
-
-    chrome.runtime.sendMessage(mooltipass.app.id, { ping: [] });
-    setTimeout(mooltipass.checkConnection, 500);
-};
-
-mooltipass.onSearchForApp = function(ext) {
-    for (var i = 0; i < ext.length; i++) {
-        if (ext[i].shortName == 'Mooltipass App') {
-            mooltipass.app = ext[i];
-            break;
-        }
-    }
-
-    if (mooltipass.app != null) {
-        mooltipass.connectedToApp = true;
-        chrome.runtime.sendMessage(mooltipass.app.id, { ping: [] });
-
-        console.log('found mooltipass app "' + mooltipass.app.shortName + '" id=' + mooltipass.app.id,' app: ', mooltipass.app);
-    }
-    else {
-        mooltipass.connectedToApp = false;
-        mooltipass.deviceStatus = {};
-        console.log('No mooltipass app found');
-    }
-
-    setTimeout(mooltipass.checkConnection, 500);
-}
-
-
-// Search for the Mooltipass App
-chrome.management.getAll(mooltipass.onSearchForApp);
-
 // Messages from the mooltipass client app
 chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse) {
     if (message.deviceStatus !== null) {
@@ -85,8 +46,10 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
     else if (message.random !== null) {
         console.log('fromApp.randomString', message.random);
         Math.seedrandom(message.random);
-        if(mpRandomCallback) {
-            mpRandomCallback({'seeds': mooltipass.generateSeeds(mpRandomCallbackParams.length)});
+        if(mooltipass.device._asynchronous.randomCallback) {
+            mooltipass.device._asynchronous.randomCallback({
+                'seeds': mooltipass.generateSeeds(mooltipass.device._asynchronous.randomParameters.length)
+            });
         }
     }
     else if (message.credentials !== null) {
@@ -139,8 +102,7 @@ mooltipass.getClientVersion = function() {
     }
 };
 
-mooltipass.associate = function(callback, tab)
-{
+mooltipass.associate = function(callback, tab) {
     if (!mooltipass.app) {
         console.log('mp.associate()');
         chrome.management.getAll(mooltipass.onSearchForApp);
@@ -152,19 +114,17 @@ mooltipass.associate = function(callback, tab)
     } else {
         console.log('mp.associate() already connected');
     }
-}
+};
 
-mooltipass.addCredentials = function(callback, tab, username, password, url)
-{
+mooltipass.addCredentials = function(callback, tab, username, password, url) {
 	page.tabs[tab.id].errorMessage = null;
     mooltipass.associate();
     mooltipass.updateCredentials(callback, tab, null, username, password, url);
-}
+};
 
 
 // needs to block until a response is received.
-mooltipass.updateCredentials = function(callback, tab, entryId, username, password, url)
-{
+mooltipass.updateCredentials = function(callback, tab, entryId, username, password, url) {
     mooltipass.associate();
 
     if (mooltipass.isBlacklisted(url)) {
@@ -180,52 +140,22 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
 
     chrome.runtime.sendMessage({type: 'update', url: url, inputs: {login: {id: 0, name: 0, value: username}, password: { id: 1, name: 1, value: password }}});
 
-    request = {update: {context: url, login: username, password: password}}
-    console.log('sending update to app #'+mooltipass.app.id);
-    contentAddr = tab.id;
+    request = {update: {context: url, login: username, password: password}};
     mpUpdateCallback = callback;
     chrome.runtime.sendMessage(mooltipass.app.id, request);
-}
-
-
-mooltipass.generatePassword = function(callback, tab, length)
-{
-    console.log('mooltipass.generatePassword()');
-    // unset error message
-    page.tabs[tab.id].errorMessage = null;
-
-    request = { getRandom : [] };
-
-    console.log('mp.generatePassword()', 'length =', length);
-
-    var currentDate = new Date();
-    var currentDayMinute = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
-    if(!mpSeedDate || mpSeedDate != currentDayMinute) {
-        contentAddr = tab.id;
-        mpRandomCallback = callback;
-        mpRandomCallbackParams = {'length': length};
-        mpSeedDate = currentDayMinute;
-
-        console.log('mooltipass.generatePassword()', 'request random string from app');
-        chrome.runtime.sendMessage(mooltipass.app.id, request);
-        return;
-    }
-
-    console.log('mooltipass.generatePassword()', 'use current seed for another password');
-    callback({'seeds': mooltipass.generateSeeds(mpRandomCallbackParams.length)});
-}
+};
 
 mooltipass.copyPassword = function(callback, tab)
 {
 	page.tabs[tab.id].errorMessage = null;
     console.log('mp.copyPassword()');
-}
+};
 
 toContext = function (url) {
     // URL regex to extract base domain for context
     var reContext = /^\https?\:\/\/([\w\-\+]+\.)*([\w\-\_]+\.[\w\-\_]+)/;
     return reContext.exec(url)[2];
-}
+};
 
 mooltipass.extractDomainAndSubdomain = function (url) {
 	var url_valid;
@@ -327,7 +257,6 @@ mooltipass.retrieveCredentials = function(callback, tab, url, submiturl, forceCa
     request = { getInputs : {context: parsed_url.domain} };
 
     console.log('sending to '+mooltipass.app.id);
-    contentAddr = tab.id;
     mpInputCallback = callback;
     chrome.runtime.sendMessage(mooltipass.app.id, request);
 }

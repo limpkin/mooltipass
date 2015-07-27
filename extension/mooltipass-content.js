@@ -170,18 +170,20 @@ cipPassword.createDialog = function() {
                 $("#mp-genpw-dialog:first").dialog("close");
             });
 
-            if($("input#mp-genpw-textfield-password:first").val() == "") {
-                $("button#mp-genpw-btn-generate:first").click();
+            if($("#mooltipass-password-generator").val() == "") {
+                console.log('empty!');
+                $("#mooltipass-new-password").click();
             }
         }
     });
 
     $("#mooltipass-new-password").click(function(e){
+        e.preventDefault();
+        console.log('#mooltipass-new-password.click()');
         mooltipass.website.generatePassword(12, function(randomPassword){
             $("#mooltipass-password-generator").val(randomPassword);
         });
-        e.preventDefault();
-    }).trigger("click");
+    }).trigger('click');
 
 
     $("#mooltipass-use-as-password").click(function(e){
@@ -855,7 +857,10 @@ cipFields.getAllFields = function() {
 	var fields = [];
 	// get all input fields which are text, email or password and visible
 	mpJQ(cipFields.inputQueryPattern).each(function() {
-		if(cipFields.isAvailableField(this)) {
+		if(mpJQ(this).attr('id') == 'mooltipass-password-generator') {
+            return;
+        }
+        if(cipFields.isAvailableField(this)) {
 			cipFields.setUniqueId(mpJQ(this));
 			fields.push(mpJQ(this));
 			//console.log('field detection!', mpJQ(this));

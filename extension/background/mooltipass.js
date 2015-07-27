@@ -13,6 +13,7 @@ var mpInputCallback = null;
 var mpUpdateCallback = null;
 var mpRandomCallback = null;
 var mpRandomCallbackParams = null;
+var mpSeedDate = null;
 
 mooltipass.latestApp = (typeof(localStorage.latestApp) == 'undefined') ?
                                 {"version": 0, "versionParsed": 0, "lastChecked": null} :
@@ -82,13 +83,10 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
 
     }
     else if (message.random !== null) {
+        console.log('fromApp.randomString', message.random);
         Math.seedrandom(message.random);
         if(mpRandomCallback) {
-            var seeds = [];
-            for(var i = 0; i < mpRandomCallbackParams.length; i++) {
-                seeds.push(Math.random());
-            }
-            mpRandomCallback({'seeds': seeds});
+            mpRandomCallback({'seeds': mooltipass.generateSeeds(mpRandomCallbackParams.length)});
         }
     }
     else if (message.credentials !== null) {
@@ -122,6 +120,15 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         }
    }
 });
+
+mooltipass.generateSeeds = function(length) {
+    var seeds = [];
+    for(var i = 0; i < length; i++) {
+        seeds.push(Math.random());
+    }
+
+    return seeds;
+}
 
 mooltipass.getClientVersion = function() {
     if (mooltipass.app) {
@@ -183,16 +190,29 @@ mooltipass.updateCredentials = function(callback, tab, entryId, username, passwo
 
 mooltipass.generatePassword = function(callback, tab, length)
 {
+    console.log('mooltipass.generatePassword()');
     // unset error message
     page.tabs[tab.id].errorMessage = null;
 
     request = { getRandom : [] };
 
-    console.log('mp.generatePassword(): length =', length);
-    contentAddr = tab.id;
-    mpRandomCallback = callback;
-    mpRandomCallbackParams = {'length': length};
-    chrome.runtime.sendMessage(mooltipass.app.id, request);
+    console.log('mp.generatePassword()', 'length =', length);
+
+    var currentDate = new Date();
+    var currentDayMinute = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
+    if(!mpSeedDate || mpSeedDate != currentDayMinute) {
+        contentAddr = tab.id;
+        mpRandomCallback = callback;
+        mpRandomCallbackParams = {'length': length};
+        mpSeedDate = currentDayMinute;
+
+        console.log('mooltipass.generatePassword()', 'request random string from app');
+        chrome.runtime.sendMessage(mooltipass.app.id, request);
+        return;
+    }
+
+    console.log('mooltipass.generatePassword()', 'use current seed for another password');
+    callback({'seeds': mooltipass.generateSeeds(mpRandomCallbackParams.length)});
 }
 
 mooltipass.copyPassword = function(callback, tab)

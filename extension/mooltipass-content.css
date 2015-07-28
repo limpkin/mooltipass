@@ -1,3 +1,6 @@
+.mp-ui-dialog, .mp-ui-dialog * {
+    box-sizing: content-box !important;    
+}
 .mp-ui-autocomplete li.mp-ui-menu-item {
 	text-align: left !important;
 	font-size: 12px !important;
@@ -22,23 +25,163 @@
   font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
 }
 .mp-ui-dialog .mp-ui-dialog-title {
-	font-size:.9em !important;
+    background-attachment: scroll !important;
+    background-clip: border-box !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    background-image: none !important;
+    background-origin: padding-box !important;
+    background-size: auto !important;
+    border-bottom-color: rgb(0, 0, 0) !important;
+    border-bottom-style: none !important;
+    border-bottom-width: 0px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgb(0, 0, 0) !important;
+    border-left-style: none !important;
+    border-left-width: 0px !important;
+    border-right-color: rgb(0, 0, 0) !important;
+    border-right-style: none !important;
+    border-right-width: 0px !important;
+    border-top-color: rgb(0, 0, 0) !important;
+    border-top-style: none !important;
+    border-top-width: 0px !important;
+    color: rgb(0, 0, 0) !important;
+    cursor: move !important;
+    display: block !important;
+    float: left !important;
+    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
+    font-size: 11.8800001144409px !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: 600 !important;
+    height: 15px !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 1.18799996376038px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 1.18799996376038px !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    padding-bottom: 0px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    padding-top: 0px !important;
+    text-overflow: ellipsis !important;
+    vertical-align: baseline !important;
+    white-space: nowrap !important;
+    width: 248.390625px !important;
 }
 .mp-ui-dialog .mp-ui-dialog-titlebar {
-  padding: 0.5rem 1rem !important;
-  background: #FFF;
-  border-bottom: 1px solid #DDD !important;
-  color: #000;
-  font-weight: 600;
+    background-attachment: scroll !important;
+    background-clip: border-box !important;
+    background-color: rgb(255, 255, 255) !important;
+    background-image: none !important;
+    background-origin: padding-box !important;
+    background-size: auto !important;
+    border-bottom-color: rgb(221, 221, 221) !important;
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 1px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgb(0, 0, 0) !important;
+    border-left-style: none !important;
+    border-left-width: 0px !important;
+    border-right-color: rgb(0, 0, 0) !important;
+    border-right-style: none !important;
+    border-right-width: 0px !important;
+    border-top-color: rgb(0, 0, 0) !important;
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    border-top-style: none !important;
+    border-top-width: 0px !important;
+    color: rgb(0, 0, 0) !important;
+    cursor: move !important;
+    display: block !important;
+    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
+    font-size: 13.1999998092651px !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: 600 !important;
+    height: 17.375px !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    min-height: 0px !important;
+    padding-bottom: 6px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    padding-top: 6px !important;
+    position: relative !important;
+    touch-action: none !important;
+    vertical-align: baseline !important;
+    width: 276px !important;
 }
 .mp-ui-dialog-content {
 	font-size: .9em !important;
 }
 
 #mp-genpw-dialog {
-	text-align: left !important;
-	min-height: initial !important;
-	padding-top: 1rem;
+    background-attachment: scroll !important;
+    background-clip: border-box !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    background-image: none !important;
+    background-origin: padding-box !important;
+    background-size: auto !important;
+    border-bottom-color: rgb(34, 34, 34) !important;
+    border-bottom-style: none !important;
+    border-bottom-width: 0px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgb(34, 34, 34) !important;
+    border-left-style: none !important;
+    border-left-width: 0px !important;
+    border-right-color: rgb(34, 34, 34) !important;
+    border-right-style: none !important;
+    border-right-width: 0px !important;
+    border-top-color: rgb(34, 34, 34) !important;
+    border-top-style: none !important;
+    border-top-width: 0px !important;
+    color: rgb(34, 34, 34) !important;
+    display: block !important;
+    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
+    font-size: 11.8800001144409px !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    height: 77px !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    max-height: none !important;
+    min-height: 0px !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    padding-bottom: 5.94000005722046px !important;
+    padding-left: 11.8800001144409px !important;
+    padding-right: 11.8800001144409px !important;
+    padding-top: 12px !important;
+    position: relative !important;
+    text-align: left !important;
+    vertical-align: baseline !important;
+    width: 276.25px !important;
 }
 #mp-genpw-dialog button {
 	height: 26px !important;
@@ -148,11 +291,10 @@
 	font-size: 160%;
 }
 #mp-bt-cipDefine-description p {
-	margin-top: 10px;
-	padding-top: 10px;
-	color: #efefef;
-	border-top: 2px solid #666666;
-	line-height: 110%;
+    background: #FFA500 !important;
+    color: #FFF !important;
+    font-size: 12px !important;
+    padding: 6px 12px !important;    
 }
 #mp-bt-help {
 	margin-bottom: 3px;
@@ -187,10 +329,68 @@
 }
 
 #mooltipass-password-generator {
-  width: 100%;
-  border-radius: 0;
-  box-shadow: none;
-  border: 1px solid #DDD;	
+    -webkit-appearance: none !important;
+    -webkit-rtl-ordering: logical !important;
+    -webkit-user-select: text !important;
+    background-color: rgb(255, 255, 255) !important;
+    border-bottom-color: rgb(221, 221, 221) !important;
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 1px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgb(221, 221, 221) !important;
+    border-left-style: solid !important;
+    border-left-width: 1px !important;
+    border-right-color: rgb(221, 221, 221) !important;
+    border-right-style: solid !important;
+    border-right-width: 1px !important;
+    border-top-color: rgb(221, 221, 221) !important;
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    border-top-style: solid !important;
+    border-top-width: 1px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    color: rgb(68, 68, 68) !important;
+    cursor: auto !important;
+    display: inline-block !important;
+    font-family: Verdana, Arial, Helvetica, sans-serif !important;
+    font-size: 12px !important;
+    font-stretch: normal !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    height: 27px !important;
+    letter-spacing: normal !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    min-height: 24px !important;
+    outline-color: rgb(68, 68, 68) !important;
+    outline-style: none !important;
+    outline-width: 0px !important;
+    padding-bottom: 5px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    padding-top: 5px !important;
+    text-align: start !important;
+    text-indent: 0px !important;
+    text-rendering: auto !important;
+    text-shadow: none !important;
+    text-transform: none !important;
+    vertical-align: middle !important;
+    width: 276.25px !important;
+    word-spacing: 0px !important;
+    writing-mode: lr-tb !important;
+    -webkit-writing-mode: horizontal-tb !important;
 }
 
 .mooltipass-button {
@@ -229,7 +429,6 @@
 .mooltipass-input {
   border: 1px solid #BFBFBF;
   border-radius: 2px;
-  box-sizing: border-box;
   color: #444;
   font: inherit;
   margin: 0 !important;
@@ -239,18 +438,361 @@
   padding-bottom: 4px;	
 }
 
+div#mp-bt-cipDefine-description {
+    background: #FFF !important;
+    border: none !important;
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 1px !important;   
+    padding: 0 !important; 
+}
+
+.mp-bt-chooser-headline {
+    color: #000 !important;
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+    border-bottom: 1px solid #DDD !important;
+    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
+}
+
+div#mp-bt-buttonWrap {
+    padding: 6px 12px !important;
+}
+
 .mooltipass-input:focus {
-  -webkit-transition: border-color 200ms;
-  border-color: #60B1C7 !important;
-  outline: none;
+    -webkit-appearance: none !important;
+    -webkit-rtl-ordering: logical !important;
+    -webkit-user-select: text !important;
+    background-color: rgb(255, 255, 255) !important;
+    border-bottom-color: rgb(96, 177, 199) !important;
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 1px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgb(96, 177, 199) !important;
+    border-left-style: solid !important;
+    border-left-width: 1px !important;
+    border-right-color: rgb(96, 177, 199) !important;
+    border-right-style: solid !important;
+    border-right-width: 1px !important;
+    border-top-color: rgb(96, 177, 199) !important;
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    border-top-style: solid !important;
+    border-top-width: 1px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    color: rgb(68, 68, 68) !important;
+    cursor: auto !important;
+    display: inline-block !important;
+    font-family: Verdana, Arial, Helvetica, sans-serif !important;
+    font-size: 12px !important;
+    font-stretch: normal !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    height: 27px !important;
+    letter-spacing: normal !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    min-height: 24px !important;
+    outline-color: rgb(68, 68, 68) !important;
+    outline-offset: 0px !important;
+    outline-style: none !important;
+    outline-width: 0px !important;
+    padding-bottom: 5px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    padding-top: 5px !important;
+    text-align: start !important;
+    text-indent: 0px !important;
+    text-rendering: auto !important;
+    text-shadow: none !important;
+    text-transform: none !important;
+    transition-delay: 0s !important;
+    transition-duration: 0.2s !important;
+    transition-property: border-color !important;
+    transition-timing-function: ease !important;
+    vertical-align: middle !important;
+    width: 276.25px !important;
+    word-spacing: 0px !important;
+    writing-mode: lr-tb !important;
+    -webkit-writing-mode: horizontal-tb !important;
 }
 
 #mooltipass-password-generator {
 	display: inline-block !important;
 }
-
-#mooltipass-use-as-password {
-	display: inline-block !important;
+#mooltipass-use-as-password,
+#mp-bt-btn-confirm,
+#mp-bt-btn-skip {
+    -webkit-appearance: none !important;
+    -webkit-user-select: none !important;
+    align-items: flex-start !important;
+    background-color: rgb(192, 192, 192) !important;
+    background-image: -webkit-linear-gradient(top, rgb(237, 237, 237), rgb(237, 237, 237) 38%, rgb(222, 222, 222)) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.247059) !important;
+    border-bottom-left-radius: 2px !important;
+    border-bottom-right-radius: 2px !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 1px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgba(0, 0, 0, 0.247059) !important;
+    border-left-style: solid !important;
+    border-left-width: 1px !important;
+    border-right-color: rgba(0, 0, 0, 0.247059) !important;
+    border-right-style: solid !important;
+    border-right-width: 1px !important;
+    border-top-color: rgba(0, 0, 0, 0.247059) !important;
+    border-top-left-radius: 2px !important;
+    border-top-right-radius: 2px !important;
+    border-top-style: solid !important;
+    border-top-width: 1px !important;
+    box-shadow: rgba(0, 0, 0, 0.0784314) 0px 1px 0px 0px, rgba(255, 255, 255, 0.74902) 0px 1px 2px 0px inset !important;
+    box-sizing: border-box !important;
+    color: rgb(68, 68, 68) !important;
+    cursor: default !important;
+    display: inline-block;
+    font-family: Verdana, Arial, sans-serif !important;
+    font-size: 11.8800001144409px !important;
+    font-stretch: normal !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    height: 26px !important;
+    letter-spacing: normal !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    outline-color: rgb(68, 68, 68) !important;
+    outline-style: none !important;
+    outline-width: 0px !important;
+    padding-bottom: 3px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    padding-top: 2px !important;
+    text-align: center !important;
+    text-indent: 0px !important;
+    text-rendering: auto !important;
+    text-shadow: rgb(240, 240, 240) 0px 1px 0px !important;
+    text-transform: none !important;
+    width: auto !important;
+    word-spacing: 0px !important;
+    writing-mode: lr-tb !important;
+    -webkit-writing-mode: horizontal-tb !important;
+}
+#mooltipass-use-as-password:hover,
+#mp-bt-btn-confirm:hover,
+#mp-bt-btn-skip:hover {
+    -webkit-appearance: none !important;
+    -webkit-user-select: none !important;
+    align-items: flex-start !important;
+    background-color: rgb(192, 192, 192) !important;
+    background-image: -webkit-linear-gradient(top, rgb(240, 240, 240), rgb(240, 240, 240) 38%, rgb(224, 224, 224)) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.298039) !important;
+    border-bottom-left-radius: 2px !important;
+    border-bottom-right-radius: 2px !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 1px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgba(0, 0, 0, 0.298039) !important;
+    border-left-style: solid !important;
+    border-left-width: 1px !important;
+    border-right-color: rgba(0, 0, 0, 0.298039) !important;
+    border-right-style: solid !important;
+    border-right-width: 1px !important;
+    border-top-color: rgba(0, 0, 0, 0.298039) !important;
+    border-top-left-radius: 2px !important;
+    border-top-right-radius: 2px !important;
+    border-top-style: solid !important;
+    border-top-width: 1px !important;
+    box-shadow: rgba(0, 0, 0, 0.117647) 0px 1px 0px 0px, rgba(255, 255, 255, 0.952941) 0px 1px 2px 0px inset !important;
+    box-sizing: border-box !important;
+    color: rgb(0, 0, 0) !important;
+    cursor: default !important;
+    display: inline-block !important;
+    font-family: Verdana, Arial, sans-serif !important;
+    font-size: 11.8800001144409px !important;
+    font-stretch: normal !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    height: 26px !important;
+    letter-spacing: normal !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    outline-color: rgb(0, 0, 0) !important;
+    outline-style: none !important;
+    outline-width: 0px !important;
+    padding-bottom: 3px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    padding-top: 2px !important;
+    text-align: center !important;
+    text-indent: 0px !important;
+    text-rendering: auto !important;
+    text-shadow: rgb(240, 240, 240) 0px 1px 0px !important;
+    text-transform: none !important;
+    width: auto !important;
+    word-spacing: 0px !important;
+    writing-mode: lr-tb !important;
+    -webkit-writing-mode: horizontal-tb !important;
+}
+#mooltipass-use-as-password:focus,
+#mp-bt-btn-confirm:focus,
+#mp-bt-btn-skip:focus {
+    -webkit-appearance: none !important;
+    -webkit-user-select: none !important;
+    align-items: flex-start !important;
+    background-color: rgb(192, 192, 192) !important;
+    background-image: -webkit-linear-gradient(top, rgb(237, 237, 237), rgb(237, 237, 237) 38%, rgb(222, 222, 222)) !important;
+    border-bottom-color: rgb(96, 177, 199) !important;
+    border-bottom-left-radius: 2px !important;
+    border-bottom-right-radius: 2px !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 1px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgb(96, 177, 199) !important;
+    border-left-style: solid !important;
+    border-left-width: 1px !important;
+    border-right-color: rgb(96, 177, 199) !important;
+    border-right-style: solid !important;
+    border-right-width: 1px !important;
+    border-top-color: rgb(96, 177, 199) !important;
+    border-top-left-radius: 2px !important;
+    border-top-right-radius: 2px !important;
+    border-top-style: solid !important;
+    border-top-width: 1px !important;
+    box-shadow: rgba(0, 0, 0, 0.0784314) 0px 1px 0px 0px, rgba(255, 255, 255, 0.74902) 0px 1px 2px 0px inset !important;
+    box-sizing: border-box !important;
+    color: rgb(68, 68, 68) !important;
+    cursor: default !important;
+    display: inline-block !important;
+    font-family: Verdana, Arial, sans-serif !important;
+    font-size: 11.8800001144409px !important;
+    font-stretch: normal !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    height: 26px !important;
+    letter-spacing: normal !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    outline-color: rgb(68, 68, 68) !important;
+    outline-style: none !important;
+    outline-width: 0px !important;
+    padding-bottom: 3px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    padding-top: 2px !important;
+    text-align: center !important;
+    text-indent: 0px !important;
+    text-rendering: auto !important;
+    text-shadow: rgb(240, 240, 240) 0px 1px 0px !important;
+    text-transform: none !important;
+    transition-delay: 0s !important;
+    transition-duration: 0.2s !important;
+    transition-property: border-color !important;
+    transition-timing-function: ease !important;
+    width: auto !important;
+    word-spacing: 0px !important;
+    writing-mode: lr-tb !important;
+    -webkit-writing-mode: horizontal-tb !important;
+}
+#mooltipass-use-as-password:active,
+#mp-bt-btn-confirm:active,
+#mp-bt-btn-skip:active {
+    -webkit-appearance: none !important;
+    -webkit-user-select: none !important;
+    align-items: flex-start !important;
+    background-color: rgb(192, 192, 192) !important;
+    background-image: -webkit-linear-gradient(top, rgb(231, 231, 231), rgb(231, 231, 231) 38%, rgb(215, 215, 215)) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.247059) !important;
+    border-bottom-left-radius: 2px !important;
+    border-bottom-right-radius: 2px !important;
+    border-bottom-style: solid !important;
+    border-bottom-width: 1px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgba(0, 0, 0, 0.247059) !important;
+    border-left-style: solid !important;
+    border-left-width: 1px !important;
+    border-right-color: rgba(0, 0, 0, 0.247059) !important;
+    border-right-style: solid !important;
+    border-right-width: 1px !important;
+    border-top-color: rgba(0, 0, 0, 0.247059) !important;
+    border-top-left-radius: 2px !important;
+    border-top-right-radius: 2px !important;
+    border-top-style: solid !important;
+    border-top-width: 1px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    color: rgb(68, 68, 68) !important;
+    cursor: default !important;
+    display: inline-block !important;
+    font-family: Verdana, Arial, sans-serif !important;
+    font-size: 11.8800001144409px !important;
+    font-stretch: normal !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    height: 26px !important;
+    letter-spacing: normal !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-top: 0px !important;
+    outline-color: rgb(68, 68, 68) !important;
+    outline-style: none !important;
+    outline-width: 0px !important;
+    padding-bottom: 3px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    padding-top: 2px !important;
+    text-align: center !important;
+    text-indent: 0px !important;
+    text-rendering: auto !important;
+    text-shadow: none !important;
+    text-transform: none !important;
+    width: auto !important;
+    word-spacing: 0px !important;
+    writing-mode: lr-tb !important;
+    -webkit-writing-mode: horizontal-tb !important;
 }
 
 .mooltipass-text-right {
@@ -261,11 +803,68 @@
 	margin-bottom: 1rem !important;
 }
 
-#mooltipass-new-password {
-	margin-right: 1rem;
-	color: #444;
+#mooltipass-new-password,
+#mp-bt-btn-dismiss,
+#mp-bt-btn-again {
+    background-attachment: scroll !important;
+    background-clip: border-box !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    background-image: none !important;
+    background-origin: padding-box !important;
+    background-size: auto !important;
+    border-bottom-color: rgb(68, 68, 68) !important;
+    border-bottom-style: none !important;
+    border-bottom-width: 0px !important;
+    border-image-outset: 0px !important;
+    border-image-repeat: stretch !important;
+    border-image-slice: 100% !important;
+    border-image-source: none !important;
+    border-image-width: 1 !important;
+    border-left-color: rgb(68, 68, 68) !important;
+    border-left-style: none !important;
+    border-left-width: 0px !important;
+    border-right-color: rgb(68, 68, 68) !important;
+    border-right-style: none !important;
+    border-right-width: 0px !important;
+    border-top-color: rgb(68, 68, 68) !important;
+    border-top-style: none !important;
+    border-top-width: 0px !important;
+    color: rgb(68, 68, 68) !important;
+    cursor: auto !important;
+    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
+    font-size: 11.8800001144409px !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    height: auto !important;
+    line-height: normal !important;
+    list-style-type: none !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 12px !important;
+    margin-top: 0px !important;
+    padding-bottom: 0px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    padding-top: 0px !important;
+    text-align: right !important;
+    text-decoration: none !important;
+    vertical-align: baseline !important;
+    width: auto !important;
+}
+#mp-bt-btn-dismiss,
+#mp-bt-btn-again {
+    color: #777 !important;
 }
 
-#mooltipass-new-password:hover {
-	color: #60B1C7;	
+#mp-bt-btn-dismiss {
+    position: absolute !important;
+    right: 0px !important;
+    top: 6px;    
+}
+
+#mooltipass-new-password:hover,
+#mp-bt-btn-dismiss:hover,
+#mp-bt-btn-again:hover {
+	color: #60B1C7 !important;	
 }

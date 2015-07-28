@@ -57,6 +57,12 @@ chrome.extension.onMessage.addListener(function(req, sender, callback) {
 				cip.initCredentialFields(true);
 			});
 		}
+        else if (req.action == "get_website_info") {
+            callback({
+                "url" : window.location.href,
+                "html" : mpJQ("html").html()
+            });
+        }
 	}
 });
 
@@ -592,36 +598,38 @@ cipDefine.init = function () {
 }
 
 cipDefine.initDescription = function() {
-	var $description = mpJQ("div#mp-bt-cipDefine-description");
+	var $description = mpJQ("div#mp-bt-cipDefine-description").css("min-width", "300px");
 	var $h1 = mpJQ("<div>").addClass("mp-bt-chooser-headline");
-	$description.append($h1);
+	
 	var $help = mpJQ("<div>").addClass("mp-bt-chooser-help").attr("id", "mp-bt-help");
-	$description.append($help);
 
-	var $btnDismiss = mpJQ("<button>").text("Dismiss").attr("id", "mp-bt-btn-dismiss")
-		.addClass("mp-bt-btn").addClass("mp-bt-btn-danger")
+    var $buttonWrap = mpJQ("<div>").attr("id", "mp-bt-buttonWrap")
+                        .addClass("mooltipass-text-right")
+                        .hide();
+
+	var $btnDismiss = mpJQ("<a>").text("Dismiss").attr("id", "mp-bt-btn-dismiss").attr("href",'#')
 		.click(function(e) {
 			mpJQ("div#mp-bt-backdrop").remove();
 			mpJQ("div#mp-bt-cipDefine-fields").remove();
 		});
 	var $btnSkip = mpJQ("<button>").text("Skip").attr("id", "mp-bt-btn-skip")
-		.addClass("mp-bt-btn").addClass("mp-bt-btn-info")
+		
 		.css("margin-right", "5px")
 		.click(function() {
 			if(mpJQ(this).data("step") == 1) {
 				cipDefine.selection.username = null;
 				cipDefine.prepareStep2();
 				cipDefine.markAllPasswordFields(mpJQ("#mp-bt-cipDefine-fields"));
+                $("#mp-bt-btn-again").hide();
 			}
 			else if(mpJQ(this).data("step") == 2) {
 				cipDefine.selection.password = null;
 				cipDefine.prepareStep3();
 				cipDefine.markAllStringFields(mpJQ("#mp-bt-cipDefine-fields"));
+                $("#mp-bt-btn-again").show();
 			}
 		});
-	var $btnAgain = mpJQ("<button>").text("Again").attr("id", "mp-bt-btn-again")
-		.addClass("mp-bt-btn").addClass("mp-bt-btn-warning")
-		.css("margin-right", "5px")
+	var $btnAgain = mpJQ("<a>").text("Undo").attr("id", "mp-bt-btn-again").attr("href",'#')
 		.click(function(e) {
 			cipDefine.resetSelection();
 			cipDefine.prepareStep1();
@@ -629,8 +637,8 @@ cipDefine.initDescription = function() {
 		})
 		.hide();
 	var $btnConfirm = mpJQ("<button>").text("Confirm").attr("id", "mp-bt-btn-confirm")
-		.addClass("mp-bt-btn").addClass("mp-bt-btn-primary")
 		.css("margin-right", "15px")
+        .hide()
 		.click(function(e) {
 			if(!cip.settings["defined-credential-fields"]) {
 				cip.settings["defined-credential-fields"] = {};
@@ -662,41 +670,26 @@ cipDefine.initDescription = function() {
 				args: [cip.settings]
 			});
 
-			mpJQ("button#mp-bt-btn-dismiss").click();
+			mpJQ("#mp-bt-btn-dismiss").click();
 		})
 		.hide();
 
-	$description.append($btnConfirm);
-	$description.append($btnSkip);
-	$description.append($btnAgain);
-	$description.append($btnDismiss);
+    $h1.append($btnDismiss);
+
+    $description.append($h1);
+    $description.append($btnDismiss);
+    // $description.append($help);
+    
+	$buttonWrap.append($btnAgain);
+
+    $buttonWrap.append($btnConfirm);
 
 	if(cip.settings["defined-credential-fields"] && cip.settings["defined-credential-fields"][document.location.origin]) {
-		var $p = mpJQ("<p>").html("For this page credential fields are already selected and will be overwritten.<br />");
-		var $btnDiscard = mpJQ("<button>")
-			.attr("id", "mp-bt-btn-discard")
-			.text("Discard selection")
-			.css("margin-top", "5px")
-			.addClass("mp-bt-btn")
-			.addClass("mp-bt-btn-small")
-			.addClass("mp-bt-btn-danger")
-			.click(function(e) {
-				delete cip.settings["defined-credential-fields"][document.location.origin];
-
-				chrome.extension.sendMessage({
-					action: 'save_settings',
-					args: [cip.settings]
-				});
-
-				chrome.extension.sendMessage({
-					action: 'load_settings'
-				});
-
-				mpJQ(this).parent("p").remove();
-			});
-		$p.append($btnDiscard);
+		var $p = mpJQ("<p id='mp-already-existent-message'>").html("For this page credential fields are already selected and will be overwritten.");
 		$description.append($p);
 	}
+
+    $description.append($buttonWrap);
 
 	mpJQ("div#mp-bt-cipDefine-description").draggable();
 }
@@ -812,7 +805,8 @@ cipDefine.prepareStep3 = function() {
 
 	mpJQ("div#mp-bt-help").html("Please confirm your selection or choose more fields as <em>String fields</em>.").css("margin-bottom", "5px");
 	mpJQ("div.mp-bt-fixed-field:not(.mp-bt-fixed-password-field,.mp-bt-fixed-username-field)", mpJQ("div#mp-bt-cipDefine-fields")).remove();
-	mpJQ("button#mp-bt-btn-confirm:first").show();
+    mpJQ("button#mp-bt-btn-confirm:first").show();
+	mpJQ("div#mp-bt-buttonWrap").show();
 	mpJQ("button#mp-bt-btn-skip:first").data("step", "3").hide();
 	mpJQ("div:first", mpJQ("div#mp-bt-cipDefine-description")).text("3. Confirm selection");
 }

@@ -9,6 +9,15 @@ function initSettings() {
         })
     });
 
+    $("#btn-report-error").click(function() {
+        mooltipass.website.reportError(function(target_url){
+            chrome.tabs.create({
+                url: target_url
+            })
+        });        
+        close();
+    });    
+
     $("#btn-select-credential-fields").click(function() {
         var global = chrome.extension.getBackgroundPage();
         mooltipass.website.chooseCredentialFields();

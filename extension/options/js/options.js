@@ -149,14 +149,14 @@ options.initCredentialList = function() {
 
         $("#credential-urls .remove").click(function(){
             var url = $(this).closest('tr').attr('data-url');
-            console.log(url);
+
             delete options.settings["defined-credential-fields"][url];
             localStorage.settings = JSON.stringify(options.settings);
             chrome.extension.sendMessage({ action: 'load_settings' });
 
             $(this).closest('tr').remove();        
 
-            if (options.isEmpty(options.settings["defined-credential-fields"][url])) {
+            if (options.isEmpty(options.settings["defined-credential-fields"])) {
                 $("#no-credential-urls").show()
             }
         });      

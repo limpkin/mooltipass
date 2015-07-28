@@ -126,7 +126,7 @@ options.initBlacklist = function() {
         index++;
 	}
 
-	if($('#tab-blacklist table tbody:first tr').length > 2) {
+	if($('#tab-blacklist table tbody:first tr').length > 1) {
 		$('#tab-blacklist table tbody:first tr.empty:first').hide();
 	}
 	else {
@@ -172,7 +172,7 @@ options.initSpecifiedCredentialFields = function() {
             action: 'load_settings'
         });
 
-		if($("#tab-specified-fields table tbody:first tr").length > 2) {
+		if($("#tab-specified-fields table tbody:first tr").length > 1) {
 			$("#tab-specified-fields table tbody:first tr.empty:first").hide();
 		}
 		else {
@@ -193,7 +193,7 @@ options.initSpecifiedCredentialFields = function() {
 		$("#tab-specified-fields table tbody:first").append($tr);
 	}
 
-	if($("#tab-specified-fields table tbody:first tr").length > 2) {
+	if($("#tab-specified-fields table tbody:first tr").length > 1) {
 		$("#tab-specified-fields table tbody:first tr.empty:first").hide();
 	}
 	else {

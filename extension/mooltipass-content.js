@@ -161,7 +161,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
     $dialog2 = mpJQ.parseHTML(' \
       <div id="mp-update-credentials-wrap"> \
         <p style="font-size:12px !important; margin-bottom: 12px !important;">You can store your entered credentials in the Mooltipass device to securely store and easily access them.</p> \
-        <p class="mooltipass-text-right" style="margin-bottom: 12px !important;"><button id="mooltipass-store-credentials" class="mooltipass-button">Store or update current credentials</button><br /><a href="#" class="margin-top: 5px !important; display: inline-block !important;" id="mooltipass-select-custom">Select custom credential fields</a></p>  \
+        <p class="mooltipass-text-right" style="margin-bottom: 12px !important;"><button id="mooltipass-store-credentials" class="mooltipass-button">Store or update current credentials</button><br /><a href="#" style="margin-top: 5px !important; display: inline-block !important; font-size: 12px !important;" id="mooltipass-select-custom">Select custom credential fields</a></p>  \
       </div> \
       <div class="mp-ui-dialog-titlebar mp-ui-widget-header mp-ui-corner-all mp-ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="mp-ui-id-2" class="mp-ui-dialog-title">Password Generator</span></div> \
 	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
@@ -1243,8 +1243,9 @@ cip.init = function() {
 		"action": "get_settings",
 	}, function(response) {
 		cip.settings = response.data;
-        if (!cip.settings.status.unlocked) return;
-		cip.initCredentialFields();
+        console.log(cip.settings.status);
+        if (cip.settings.status.unlocked) cip.initCredentialFields();
+		
 	});
 };
 

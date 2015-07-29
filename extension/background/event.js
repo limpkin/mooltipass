@@ -341,7 +341,8 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 				mooltipass.device.updateCredentials(null, tab, 0, username, password, domain);
 
 				// Create notification to blacklist
-				chrome.notifications.create(noteId,
+				if (mooltipass.device._status.unlocked) {
+					chrome.notifications.create(noteId,
 						{   type: 'basic',
 							title: 'Credentials Detected!',
 							message: 'Please Approve their Storage on the Mooltipass',
@@ -351,6 +352,7 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 							{
 								console.log('notification created for',id);
 							});
+				}
 			}
 			else
 			{}

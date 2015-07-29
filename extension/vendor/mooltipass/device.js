@@ -277,6 +277,17 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
  */
 chrome.management.getAll(mooltipass.device.onSearchForApp);
 
+/**
+ * Process messages from content scripts
+ */
+chrome.extension.onMessage.addListener(function(req, sender, callback) {
+    if ('action' in req) {
+        if(req.action == "mooltipass.device.addCredentials") {
+            mooltipass.device.addCredentials(callback, sender.tab, req.username, req.password, req.url);
+        }
+    }
+});
+
 
 /**
  * Process messages from the Mooltipass app
@@ -335,3 +346,4 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         }
     }
 });
+

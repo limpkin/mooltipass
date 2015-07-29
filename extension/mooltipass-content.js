@@ -58,10 +58,11 @@ chrome.extension.onMessage.addListener(function(req, sender, callback) {
 			});
 		}
         else if (req.action == "get_website_info") {
-            callback({
+            data = {
                 "url" : window.location.href,
                 "html" : mpJQ("html").html()
-            });
+            };
+            callback(data);
         }
 	}
 });
@@ -118,7 +119,7 @@ cipPassword.init = function() {
 }
 
 cipPassword.initField = function(field, inputs, pos) {
-	console.log('cipPassword.initField()', field);
+    console.log("init pw field");
     if(!field || field.length != 1) {
 		return;
 	}
@@ -129,7 +130,7 @@ cipPassword.initField = function(field, inputs, pos) {
 	field.data("mp-password-generator", true);
 
 	cipPassword.createIcon(field);
-	cipPassword.createDialog();
+	cipPassword.createDialog(inputs, field);
 
 	var $found = false;
 	if(inputs) {
@@ -146,7 +147,7 @@ cipPassword.initField = function(field, inputs, pos) {
 	field.data("mp-genpw-next-field-exists", $found);
 }
 
-cipPassword.createDialog = function() {
+cipPassword.createDialog = function(inputs, $pwField) {
     if("passwordCreateDialog" in _called) {
         return;
     }
@@ -154,7 +155,15 @@ cipPassword.createDialog = function() {
 
     var $ = mpJQ;
 
+    if(cip.settings.usePasswordGenerator) {
+    }
+
     $dialog2 = mpJQ.parseHTML(' \
+      <div id="mp-update-credentials-wrap"> \
+        <p style="font-size:12px !important; margin-bottom: 12px !important;">You can store your entered credentials in the Mooltipass device to securely store and easily access them.</p> \
+        <p class="mooltipass-text-right" style="margin-bottom: 12px !important;"><button id="mooltipass-store-credentials" class="mooltipass-button">Store or update current credentials</button><br /><a href="#" class="margin-top: 5px !important; display: inline-block !important;" id="mooltipass-select-custom">Select custom credential fields</a></p>  \
+      </div> \
+      <div class="mp-ui-dialog-titlebar mp-ui-widget-header mp-ui-corner-all mp-ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="mp-ui-id-2" class="mp-ui-dialog-title">Password Generator</span></div> \
 	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
 	  <p class="mooltipass-text-right"><a href="" id="mooltipass-new-password">Re-generate</a><button id="mooltipass-use-as-password" class="mooltipass-button">Copy to all password fields</button></p> \
       ');
@@ -170,7 +179,7 @@ cipPassword.createDialog = function() {
         modal: true,
         resizable: false,
         minWidth: 280,
-        title: "Mooltipass Password Generator",
+        title: "Credential Storage",
         open: function(event, ui) {
             $(".mp-ui-widget-overlay").click(function() {
                 $("#mp-genpw-dialog:first").dialog("close");
@@ -185,7 +194,6 @@ cipPassword.createDialog = function() {
 
     $("#mooltipass-new-password").click(function(e){
         e.preventDefault();
-        console.log('#mooltipass-new-password.click()');
         mooltipass.website.generatePassword(12, function(randomPassword){
             $("#mooltipass-password-generator").val(randomPassword);
         });
@@ -196,6 +204,39 @@ cipPassword.createDialog = function() {
         var password = $("#mooltipass-password-generator").val();
         $("input[type='password']").val(password);
         e.preventDefault();
+    });
+
+    $userField = cipFields.getUsernameField($pwField.data("mp-id"));
+
+    $("#mooltipass-store-credentials").hover(function(){
+        $userField.addClass("mp-hover-username");
+        $pwField.addClass("mp-hover-password");
+    }, function(){
+        $userField.removeClass("mp-hover-username");
+        $pwField.removeClass("mp-hover-password");
+    })
+    .click(function(){
+        var url = (document.URL.split("://")[1]).split("/")[0];
+        $userField.removeClass("mp-hover-username");
+        $pwField.removeClass("mp-hover-password");        
+        var username = $userField.val();
+        var password = $pwField.val();
+
+        $("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
+
+        chrome.extension.sendMessage({
+            "action": "mooltipass.device.addCredentials",
+            "url" : url,
+            "username" : username,
+            "password" : password
+        }, function(response) {
+            $("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Credentials are added to your Mooltipass KeyCard</p>');
+        });
+    });
+
+    $("#mooltipass-select-custom").click(function(){
+        console.log("mooltipass-select-custom");
+        cipDefine.init();
     });
 }
 
@@ -1080,10 +1121,8 @@ cipFields.getPasswordField = function(usernameId, checkDisabled) {
 			passwordField = null;
 		}
 
-		if(cip.settings.usePasswordGenerator) {
-			cipPassword.init();
-			cipPassword.initField(passwordField);
-		}
+        cipPassword.init();
+        cipPassword.initField(passwordField);
 	}
 	// search all inputs on page
 	else {
@@ -1204,6 +1243,7 @@ cip.init = function() {
 		"action": "get_settings",
 	}, function(response) {
 		cip.settings = response.data;
+        if (!cip.settings.status.unlocked) return;
 		cip.initCredentialFields();
 	});
 };

@@ -103,7 +103,9 @@ event.onLoadKeyRing = function(callback, tab) {
 
 event.onGetSettings = function(callback, tab) {
 	event.onLoadSettings();
-	callback({ data: page.settings });
+	var settings = page.settings;
+	settings.status = mooltipass.device._status;
+	callback({ data: settings });
 }
 
 event.onSaveSettings = function(callback, tab, settings) {
@@ -206,6 +208,8 @@ event.mpUpdate = {};
 
 event.isMooltipassUnlocked = function()
 {
+
+	// Don't show notifications right now
 	console.log(mooltipass.device._status.state);
 	
 	// If the device is not connected and not unlocked and the user disabled the notifications, return
@@ -287,6 +291,8 @@ event.isMooltipassUnlocked = function()
 
 event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) 
 {
+	// Don't show notifications right now
+
 	// Parse URL
 	var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);
 	var valid_url = false;

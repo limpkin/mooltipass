@@ -15,7 +15,6 @@ function initSettings() {
                 url: target_url
             })
         });        
-        close();
     });    
 
     $("#btn-select-credential-fields").click(function() {

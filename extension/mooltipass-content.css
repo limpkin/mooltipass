@@ -163,7 +163,7 @@
     font-style: normal !important;
     font-variant: normal !important;
     font-weight: normal !important;
-    height: 77px !important;
+    height: auto !important;
     line-height: normal !important;
     list-style-type: none !important;
     margin-bottom: 0px !important;
@@ -183,6 +183,13 @@
     vertical-align: baseline !important;
     width: 276.25px !important;
 }
+#mp-genpw-dialog .mp-ui-dialog-titlebar {
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+    border-top: 1px solid #DDD !important;
+    margin-bottom: 6px !important;    
+}
+
 #mp-genpw-dialog button {
 	height: 26px !important;
 }
@@ -405,6 +412,7 @@
   margin: 0 !important;
   outline: none;
   text-shadow: 0 1px 0 #F0F0F0;	
+  font-size: 12px !important;
 }
 
 .mooltipass-button:hover {
@@ -527,12 +535,22 @@ div#mp-bt-buttonWrap {
     -webkit-writing-mode: horizontal-tb !important;
 }
 
+input.mp-hover-username { 
+    border: 1px solid green !important; 
+    box-shadow: 0 0 5px 1px green !important;
+}
+input.mp-hover-password { 
+    border: 1px solid orange !important; 
+    box-shadow: 0 0 5px 1px orange !important;
+}
+
 #mooltipass-password-generator {
 	display: inline-block !important;
 }
 #mooltipass-use-as-password,
 #mp-bt-btn-confirm,
-#mp-bt-btn-skip {
+#mp-bt-btn-skip,
+.mooltipass-button {
     -webkit-appearance: none !important;
     -webkit-user-select: none !important;
     align-items: flex-start !important;
@@ -565,7 +583,7 @@ div#mp-bt-buttonWrap {
     cursor: default !important;
     display: inline-block;
     font-family: Verdana, Arial, sans-serif !important;
-    font-size: 11.8800001144409px !important;
+    font-size: 12px !important;
     font-stretch: normal !important;
     font-style: normal !important;
     font-variant: normal !important;
@@ -597,7 +615,8 @@ div#mp-bt-buttonWrap {
 }
 #mooltipass-use-as-password:hover,
 #mp-bt-btn-confirm:hover,
-#mp-bt-btn-skip:hover {
+#mp-bt-btn-skip:hover,
+.mooltipass-button:hover {
     -webkit-appearance: none !important;
     -webkit-user-select: none !important;
     align-items: flex-start !important;
@@ -630,7 +649,7 @@ div#mp-bt-buttonWrap {
     cursor: default !important;
     display: inline-block !important;
     font-family: Verdana, Arial, sans-serif !important;
-    font-size: 11.8800001144409px !important;
+    font-size: 12px !important;
     font-stretch: normal !important;
     font-style: normal !important;
     font-variant: normal !important;
@@ -662,7 +681,8 @@ div#mp-bt-buttonWrap {
 }
 #mooltipass-use-as-password:focus,
 #mp-bt-btn-confirm:focus,
-#mp-bt-btn-skip:focus {
+#mp-bt-btn-skip:focus,
+.mooltipass-button:focus {
     -webkit-appearance: none !important;
     -webkit-user-select: none !important;
     align-items: flex-start !important;
@@ -695,7 +715,7 @@ div#mp-bt-buttonWrap {
     cursor: default !important;
     display: inline-block !important;
     font-family: Verdana, Arial, sans-serif !important;
-    font-size: 11.8800001144409px !important;
+    font-size: 12px !important;
     font-stretch: normal !important;
     font-style: normal !important;
     font-variant: normal !important;
@@ -731,7 +751,8 @@ div#mp-bt-buttonWrap {
 }
 #mooltipass-use-as-password:active,
 #mp-bt-btn-confirm:active,
-#mp-bt-btn-skip:active {
+#mp-bt-btn-skip:active,
+.mooltipass-button:active {
     -webkit-appearance: none !important;
     -webkit-user-select: none !important;
     align-items: flex-start !important;
@@ -764,7 +785,7 @@ div#mp-bt-buttonWrap {
     cursor: default !important;
     display: inline-block !important;
     font-family: Verdana, Arial, sans-serif !important;
-    font-size: 11.8800001144409px !important;
+    font-size: 12px !important;
     font-stretch: normal !important;
     font-style: normal !important;
     font-variant: normal !important;
@@ -832,7 +853,7 @@ div#mp-bt-buttonWrap {
     color: rgb(68, 68, 68) !important;
     cursor: auto !important;
     font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
-    font-size: 11.8800001144409px !important;
+    font-size: 12px !important;
     font-style: normal !important;
     font-variant: normal !important;
     font-weight: normal !important;

@@ -119,6 +119,7 @@ cipPassword.init = function() {
 }
 
 cipPassword.initField = function(field, inputs, pos) {
+    if (!cip.settings.status.unlocked) return;
     console.log("init pw field");
     if(!field || field.length != 1) {
 		return;
@@ -1244,7 +1245,10 @@ cip.init = function() {
 	}, function(response) {
 		cip.settings = response.data;
         console.log(cip.settings.status);
-        if (cip.settings.status.unlocked) cip.initCredentialFields();
+        if (cip.settings.status.unlocked) {
+            console.log("now!");
+            cip.initCredentialFields();
+        }
 		
 	});
 };

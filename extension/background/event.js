@@ -291,7 +291,6 @@ event.isMooltipassUnlocked = function()
 
 event.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) 
 {
-    if (!mooltipass.device._status.unlocked) return;
 	// Don't show notifications right now
 
 	// Parse URL

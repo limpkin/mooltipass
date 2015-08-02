@@ -138,7 +138,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
             return -1;
         }
         // Read usb comms as the plugin could ask to cancel the request
-        if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) != RETURN_COM_TRANSF_OK))
+        if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
         {
             if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
             {

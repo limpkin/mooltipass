@@ -30,6 +30,27 @@
           <label class="checkbox">
             <input type="checkbox" name="usePasswordGenerator" value="1" /> <span>Activate password generator</span>
           </label>        
+          <div id="password-generator-settings">
+            <div class="pure-g">
+              <div class="pure-u-1-5">
+                <label>Password length</label>
+              </div>
+              <div class="pure-u-4-5">
+                <input type="number" step="1" min="6" max="31" style="width: 5rem;" name="usePasswordGeneratorLength" />
+              </div>
+            </div>
+            <div class="pure-g" style="margin-top: 1rem;">
+              <div class="pure-u-1-5">
+                <label>Password complexity</label>
+              </div>
+              <div class="pure-u-4-5">
+                <label class="checkbox"><input type="checkbox" name="usePasswordGeneratorLowercase" value="1" /> <span>Lowercase ( a b c ...)</span></label><br />
+                <label class="checkbox"><input type="checkbox" name="usePasswordGeneratorUppercase" value="1" /> <span>Uppercase ( A B C ...)</span></label><br />
+                <label class="checkbox"><input type="checkbox" name="usePasswordGeneratorNumbers" value="1" /> <span>Numbers ( 1 2 3 ...)</span></label><br />
+                <label class="checkbox"><input type="checkbox" name="usePasswordGeneratorSpecial" value="1" /> <span>Special characters ( ! $ % ^ * ( ) _ + { } - [ ] : " | ; ' ? , . / )</span></label>
+              </div>
+            </div>            
+          </div>
         </div>
 
         <footer>

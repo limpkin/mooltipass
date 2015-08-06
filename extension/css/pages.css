@@ -1793,3 +1793,17 @@ footer .logo {
 .app-page .settings .pure-table tr:hover span.remove {
   opacity: 1;
 }
+/* line 162, ../scss/pages.scss */
+.app-page .settings label.checkbox span {
+  margin-left: 0.25rem;
+}
+/* line 167, ../scss/pages.scss */
+.app-page .settings #password-generator-settings {
+  margin-left: 48px;
+  margin-top: 1rem;
+}
+/* line 171, ../scss/pages.scss */
+.app-page .settings #password-generator-settings label.checkbox {
+  margin-bottom: 0.45rem;
+  display: inline-block;
+}

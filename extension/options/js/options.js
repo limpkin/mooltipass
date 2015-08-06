@@ -7,6 +7,7 @@ $(function() {
     options.initAbout();
     options.initBlacklist();
     options.initCredentialList();
+    options.initPasswordGeneratorSettings();
 });
 
 
@@ -161,4 +162,32 @@ options.initCredentialList = function() {
             }
         });      
     }); 
+}
+
+options.initPasswordGeneratorSettings = function() {
+  $("*[name='usePasswordGenerator']").click(function(){
+    if (this.checked) {
+      $("#password-generator-settings").fadeIn(200);
+    } else {
+      $("#password-generator-settings").fadeOut(200);
+    }    
+  });
+  $("*[name='usePasswordGenerator']").each(function(){
+    if (this.checked) {
+        $("#password-generator-settings").fadeIn(0);
+    } else {
+        $("#password-generator-settings").fadeOut(0);
+    }
+  }); 
+
+  $("*[name='usePasswordGeneratorLength']").change(function(){
+    $(this).val(parseInt($(this).val()));
+
+    min = parseInt($(this).attr("min"));
+    max = parseInt($(this).attr("max"));
+    val = parseInt($(this).val());
+
+    if (val > max) $(this).val(max);
+    if (val < min) $(this).val(min);
+  });   
 }

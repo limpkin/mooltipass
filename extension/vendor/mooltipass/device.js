@@ -304,7 +304,6 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
     }
     // Returned on request for a random number
     else if (message.random !== null) {
-        console.log('fromApp.randomString', message.random);
         Math.seedrandom(message.random);
         if(mooltipass.device._asynchronous.randomCallback) {
             mooltipass.device._asynchronous.randomCallback({

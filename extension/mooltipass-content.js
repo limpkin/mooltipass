@@ -194,7 +194,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
     $("#mooltipass-new-password").click(function(e){
         e.preventDefault();
-        mooltipass.website.generatePassword(12, function(randomPassword){
+        mooltipass.website.generatePassword(cip.settings['usePasswordGeneratorLength'], function(randomPassword){
             $("#mooltipass-password-generator").val(randomPassword);
         });
     }).trigger('click');

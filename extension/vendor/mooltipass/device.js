@@ -158,7 +158,7 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
     }
 
     console.log('mooltipass.generatePassword()', 'use current seed for another password');
-    callback({'seeds': mooltipass.device.generateRandomNumbers(length)});
+    callback({'seeds': mooltipass.device.generateRandomNumbers(length), 'settings': page.settings});
 };
 
 /**
@@ -308,7 +308,8 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         Math.seedrandom(message.random);
         if(mooltipass.device._asynchronous.randomCallback) {
             mooltipass.device._asynchronous.randomCallback({
-                'seeds': mooltipass.device.generateRandomNumbers(mooltipass.device._asynchronous.randomParameters.length)
+                'seeds': mooltipass.device.generateRandomNumbers(mooltipass.device._asynchronous.randomParameters.length),
+                'settings': page.settings,
             });
         }
     }

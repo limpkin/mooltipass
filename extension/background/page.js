@@ -36,33 +36,34 @@ page.initSettings = function() {
         changed = true;
 	}
 
-    if(!'usePasswordGenerator' in page.settings) {
-        page.settings.usePasswordGenerator = 1;
+    if(!("usePasswordGenerator" in page.settings)) {
+        page.settings.usePasswordGenerator = true;
         changed = true;
     }
-    if(!'usePasswordGeneratorLength' in page.settings) {
+    if(!("usePasswordGeneratorLength" in page.settings) || parseInt(page.settings.usePasswordGeneratorLength) < 6) {
         page.settings.usePasswordGeneratorLength = 12;
         changed = true;
     }
-    if(!'usePasswordGeneratorLowercase' in page.settings) {
-        page.settings.usePasswordGeneratorLowercase = 1;
+    if(!("usePasswordGeneratorLowercase" in page.settings)) {
+        page.settings.usePasswordGeneratorLowercase = true;
         changed = true;
     }
-    if(!'usePasswordGeneratorUppercase' in page.settings) {
-        page.settings.usePasswordGeneratorUppercase = 1;
+    if(!("usePasswordGeneratorUppercase" in page.settings)) {
+        page.settings.usePasswordGeneratorUppercase = true;
         changed = true;
     }
-    if(!'usePasswordGeneratorNumbers' in page.settings) {
-        page.settings.usePasswordGeneratorNumbers = 1;
+    if(!("usePasswordGeneratorNumbers" in page.settings)) {
+        page.settings.usePasswordGeneratorNumbers = true;
         changed = true;
     }
-    if(!'usePasswordGeneratorSpecial' in page.settings) {
-        page.settings.usePasswordGeneratorSpecial = 1;
+    if(!("usePasswordGeneratorSpecial" in page.settings)) {
+        page.settings.usePasswordGeneratorSpecial = true;
         changed = true;
     }
 
     if(changed) {
         localStorage.settings = JSON.stringify(page.settings);
+        event.onLoadSettings();
     }
 }
 

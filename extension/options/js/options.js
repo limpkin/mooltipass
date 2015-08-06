@@ -1,8 +1,8 @@
-if(mpJQ) {
+if (mpJQ) {
     var $ = mpJQ.noConflict(true);
 }
 
-$(function() {
+$(function () {
     options.initGeneralSettings();
     options.initAbout();
     options.initBlacklist();
@@ -13,15 +13,15 @@ $(function() {
 
 var options = options || {};
 
-options.settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
-options.keyRing = typeof(localStorage.keyRing)=='undefined' ? {} : JSON.parse(localStorage.keyRing);
+options.settings = typeof(localStorage.settings) == 'undefined' ? {} : JSON.parse(localStorage.settings);
+options.keyRing = typeof(localStorage.keyRing) == 'undefined' ? {} : JSON.parse(localStorage.keyRing);
 
-options.initGeneralSettings = function() {
-    $(".settings input[type=checkbox]").each(function() {
+options.initGeneralSettings = function () {
+    $(".settings input[type=checkbox]").each(function () {
         $(this).attr("checked", options.settings[$(this).attr("name")]);
     });
 
-    $(".settings input[type=checkbox]").change(function() {
+    $(".settings input[type=checkbox]").change(function () {
         options.settings[$(this).attr("name")] = $(this).is(':checked');
         localStorage.settings = JSON.stringify(options.settings);
 
@@ -30,13 +30,13 @@ options.initGeneralSettings = function() {
         });
     });
 
-    $(".settings input[type=radio]").each(function() {
-        if($(this).val() == options.settings[$(this).attr("name")]) {
+    $(".settings input[type=radio]").each(function () {
+        if ($(this).val() == options.settings[$(this).attr("name")]) {
             $(this).attr("checked", options.settings[$(this).attr("name")]);
         }
     });
 
-    $(".settings input[type=radio]").change(function() {
+    $(".settings input[type=radio]").change(function () {
         options.settings[$(this).attr("name")] = $(this).val();
         localStorage.settings = JSON.stringify(options.settings);
 
@@ -46,9 +46,9 @@ options.initGeneralSettings = function() {
     });
 };
 
-options.initAbout = function() {
-    $("#contributor-list").each(function(){
-        $.getJSON("https://api.github.com/repos/limpkin/mooltipass/contributors", function(contributors) {
+options.initAbout = function () {
+    $("#contributor-list").each(function () {
+        $.getJSON("https://api.github.com/repos/limpkin/mooltipass/contributors", function (contributors) {
             $("#contributor-list").html("");
             for (_contributor in contributors) {
                 contributor = contributors[_contributor];
@@ -56,27 +56,28 @@ options.initAbout = function() {
                 $("#contributor-list").append(e);
             }
         });
-    });    
+    });
 }
 
-options.isEmpty = function(dict) {
+options.isEmpty = function (dict) {
     var keys = [];
     for (var key in dict) {
         if (key != null) keys.push(key);
-    }    
+    }
     return (keys.length == 0)
 }
 
-options.initBlacklist = function() {
-    $("#blacklisted-urls").each(function(){
-        
+options.initBlacklist = function () {
+    $("#blacklisted-urls").each(function () {
+
         // get blacklist from storage, or create an empty one if none exists
-        options.blacklist = typeof(localStorage.mpBlacklist)=='undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
+        options.blacklist = typeof(localStorage.mpBlacklist) == 'undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
 
         if (options.isEmpty(options.blacklist)) {
             $("#no-blacklisted-urls").show();
             return;
-        };
+        }
+        ;
         $("#no-blacklisted-urls").hide();
 
         $(this).html("");
@@ -85,13 +86,13 @@ options.initBlacklist = function() {
             $element.appendTo($(this));
         }
 
-        $("#blacklisted-urls .remove").click(function(){
+        $("#blacklisted-urls .remove").click(function () {
             var url = $(this).closest('tr').attr('data-url');
             delete options.blacklist[url];
             localStorage.mpBlacklist = JSON.stringify(options.blacklist);
-            chrome.extension.sendMessage({ action: 'load_settings' });
+            chrome.extension.sendMessage({action: 'load_settings'});
 
-            $(this).closest('tr').remove();        
+            $(this).closest('tr').remove();
 
             if (options.isEmpty(options.blacklist)) {
                 $("#no-blacklisted-urls").show()
@@ -99,14 +100,13 @@ options.initBlacklist = function() {
         });
 
 
-
-        $('#tab-blacklist tr.clone:first button.delete:first').click(function(e) {
+        $('#tab-blacklist tr.clone:first button.delete:first').click(function (e) {
             var url = $(this).closest('tr').data('url');
             var id = $(this).closest('tr').attr('id');
             $('#tab-blacklist #' + id).remove();
             delete options.blacklist[url];
             localStorage.mpBlacklist = JSON.stringify(options.blacklist);
-            chrome.extension.sendMessage({ action: 'load_settings' });
+            chrome.extension.sendMessage({action: 'load_settings'});
         });
 
         var trClone = $("#tab-blacklist table tr.clone:first").clone(true);
@@ -122,24 +122,25 @@ options.initBlacklist = function() {
             index++;
         }
 
-        if($('#tab-blacklist table tbody:first tr').length > 2) {
+        if ($('#tab-blacklist table tbody:first tr').length > 2) {
             $('#tab-blacklist table tbody:first tr.empty:first').hide();
         }
         else {
             $('#tab-blacklist table tbody:first tr.empty:first').show();
-        }        
-    });    
+        }
+    });
 }
 
-options.initCredentialList = function() {
-    $("#credential-urls").each(function(){
-        
+options.initCredentialList = function () {
+    $("#credential-urls").each(function () {
+
         // get blacklist from storage, or create an empty one if none exists
 
         if (options.isEmpty(options.settings["defined-credential-fields"])) {
             $("#no-credential-urls").show();
             return;
-        };
+        }
+        ;
         $("#no-credential-urls").hide();
 
         $(this).html("");
@@ -148,46 +149,84 @@ options.initCredentialList = function() {
             $element.appendTo($(this));
         }
 
-        $("#credential-urls .remove").click(function(){
+        $("#credential-urls .remove").click(function () {
             var url = $(this).closest('tr').attr('data-url');
 
             delete options.settings["defined-credential-fields"][url];
             localStorage.settings = JSON.stringify(options.settings);
-            chrome.extension.sendMessage({ action: 'load_settings' });
+            chrome.extension.sendMessage({action: 'load_settings'});
 
-            $(this).closest('tr').remove();        
+            $(this).closest('tr').remove();
 
             if (options.isEmpty(options.settings["defined-credential-fields"])) {
                 $("#no-credential-urls").show()
             }
-        });      
-    }); 
+        });
+    });
 }
 
-options.initPasswordGeneratorSettings = function() {
-  $("*[name='usePasswordGenerator']").click(function(){
-    if (this.checked) {
-      $("#password-generator-settings").fadeIn(200);
-    } else {
-      $("#password-generator-settings").fadeOut(200);
-    }    
-  });
-  $("*[name='usePasswordGenerator']").each(function(){
-    if (this.checked) {
-        $("#password-generator-settings").fadeIn(0);
-    } else {
-        $("#password-generator-settings").fadeOut(0);
+options.initPasswordGeneratorSettings = function () {
+    $("*[name='usePasswordGenerator']").click(function () {
+        if (this.checked) {
+            $("#password-generator-settings").fadeIn(200);
+        } else {
+            $("#password-generator-settings").fadeOut(200);
+        }
+    });
+    $("*[name='usePasswordGenerator']").each(function () {
+        if (this.checked) {
+            $("#password-generator-settings").fadeIn(0);
+        } else {
+            $("#password-generator-settings").fadeOut(0);
+        }
+    });
+
+
+    $("*[name='usePasswordGeneratorLength']").val(options.settings['usePasswordGeneratorLength']);
+    $("*[name='usePasswordGeneratorLength']").change(function () {
+        $(this).val(parseInt($(this).val()));
+
+        min = parseInt($(this).attr("min"));
+        max = parseInt($(this).attr("max"));
+        val = parseInt($(this).val());
+
+        if (val > max) $(this).val(max);
+        if (val < min) $(this).val(min);
+
+        options.settings[$(this).attr("name")] = $(this).val();
+        localStorage.settings = JSON.stringify(options.settings);
+
+        chrome.extension.sendMessage({
+            action: 'load_settings'
+        });
+    });
+
+    $('#password-generator-settings .checkbox.password-generator-characters input').change(function () {
+        options.disableLastCharCheckboxOnPasswordGenerator();
+    });
+
+    if (!options.disableLastCharCheckboxOnPasswordGenerator()) {
+        $('#password-generator-settings .checkbox.password-generator-characters input:first').prop('checked', true);
+        options.disableLastCharCheckboxOnPasswordGenerator();
     }
-  }); 
+};
 
-  $("*[name='usePasswordGeneratorLength']").change(function(){
-    $(this).val(parseInt($(this).val()));
+options.disableLastCharCheckboxOnPasswordGenerator = function () {
+    var checked = [];
+    $('#password-generator-settings .checkbox.password-generator-characters input').each(function (no, el) {
+        if ($(el).is(':checked')) {
+            checked.push(el);
+        }
+    });
 
-    min = parseInt($(this).attr("min"));
-    max = parseInt($(this).attr("max"));
-    val = parseInt($(this).val());
+    if (checked.length == 1) {
+        $(checked[0]).prop('disabled', true);
+    }
+    else {
+        $.each(checked, function (no, item) {
+            $(item).prop('disabled', false);
+        });
+    }
 
-    if (val > max) $(this).val(max);
-    if (val < min) $(this).val(min);
-  });   
+    return checked.length > 0;
 }

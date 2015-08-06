@@ -9,35 +9,61 @@ page.blockedTabs = {};
 
 page.initSettings = function() {
 	event.onLoadSettings();
+    var changed = false;
 	if(!("checkUpdateKeePassHttp" in page.settings)) {
 		page.settings.checkUpdateKeePassHttp = 3;
+        changed = true;
 	}
 	if(!("autoCompleteUsernames" in page.settings)) {
 		page.settings.autoCompleteUsernames = 1;
+        changed = true;
 	}
 	if(!("autoFillAndSend" in page.settings)) {
 		page.settings.autoFillAndSend = 1;
-	}
-	if(!("usePasswordGenerator" in page.settings)) {
-		page.settings.usePasswordGenerator = 1;
+        changed = true;
 	}
 	if(!("autoFillSingleEntry" in page.settings)) {
 		page.settings.autoFillSingleEntry = 1;
+        changed = true;
 	}
 	if(!("useUpdatePopup" in page.settings)) {
 		page.settings.useUpdatePopup = true;
-	}
-	if(!("hostname" in page.settings)) {
-		page.settings.hostname = "localhost";
-	}
-	if(!("port" in page.settings)) {
-		page.settings.port = "19455";
+        changed = true;
 	}
 	// "popup" seems to be a legacy setting which may still be stored
 	if(!("updateMethod" in page.settings) || page.settings.updateMethod == "popup") {
 		page.settings.updateMethod = "notification";
+        changed = true;
 	}
-	localStorage.settings = JSON.stringify(page.settings);
+
+    if(!'usePasswordGenerator' in page.settings) {
+        page.settings.usePasswordGenerator = 1;
+        changed = true;
+    }
+    if(!'usePasswordGeneratorLength' in page.settings) {
+        page.settings.usePasswordGeneratorLength = 12;
+        changed = true;
+    }
+    if(!'usePasswordGeneratorLowercase' in page.settings) {
+        page.settings.usePasswordGeneratorLowercase = 1;
+        changed = true;
+    }
+    if(!'usePasswordGeneratorUppercase' in page.settings) {
+        page.settings.usePasswordGeneratorUppercase = 1;
+        changed = true;
+    }
+    if(!'usePasswordGeneratorNumbers' in page.settings) {
+        page.settings.usePasswordGeneratorNumbers = 1;
+        changed = true;
+    }
+    if(!'usePasswordGeneratorSpecial' in page.settings) {
+        page.settings.usePasswordGeneratorSpecial = 1;
+        changed = true;
+    }
+
+    if(changed) {
+        localStorage.settings = JSON.stringify(page.settings);
+    }
 }
 
 page.initOpenedTabs = function() {

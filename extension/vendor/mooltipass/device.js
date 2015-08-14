@@ -247,6 +247,9 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     //TODO: Trigger unlock if device is connected but locked
     // Check that the Mooltipass is unlocked
     if(!event.isMooltipassUnlocked()) {
+        if(forceCallback) {
+            callback([]);
+        }
         return;
     }
 

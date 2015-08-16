@@ -1553,7 +1553,8 @@ void usbProcessIncoming(uint8_t caller_id)
         
         case CMD_CLONE_SMARTCARD :
         {
-            if (cloneSmartCardProcess(SMARTCARD_DEFAULT_PIN) == RETURN_OK)
+            uint16_t pin_code = SMARTCARD_DEFAULT_PIN;
+            if (cloneSmartCardProcess(&pin_code) == RETURN_OK)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
             } 

@@ -304,17 +304,33 @@ def sendCustomPacket(epin, epout):
 	for i in range (0, packetstoreceive):
 		print receiveHidPacket(epin)
 
-def	uploadBundle(epin, epout):
-	# Empty set password packet
-	mooltipass_password = array('B')
-	for i in range(62):
-		mooltipass_password.append(0)
+def	uploadBundle(epin, epout):	
+	# Ask for Mooltipass password
+	password_set = False
+	try :
+		#mp_password = raw_input("Enter Mooltipass Password: ")
+		mp_password = "edb701f2a736216214454f8ec6c3254304f69febe3ad2a18dd3a463ea18e0694b0905b9920f1fc7b7a7de71fdbcb719f49ec032467f3f01b2c208649248f"
+		password_set = True
+		print ""
+	except ValueError :
+		print ""
+	
+	# Prepare the password
+	mooltipass_password = array('B')	
+	if password_set:
+		for i in range(62):
+			mooltipass_password.append(int(mp_password[i*2:i*2+2], 16))
+	else:
+		for i in range(62):
+			mooltipass_password.append(0)
+			
 	success_status = 0
+	print mooltipass_password
 	sendHidPacket(epout, CMD_IMPORT_MEDIA_START, 62, mooltipass_password)
 	# Check that the import command worked
 	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 		# Open bundle file
-		bundlefile = open('bundle.img', 'rb')
+		bundlefile = open('bundle_tutorial_en_dv.img', 'rb')
 		packet_to_send = array('B')
 		byte = bundlefile.read(1)
 		bytecounter = 0
@@ -346,6 +362,7 @@ def	uploadBundle(epin, epout):
 			success_status = 1
 		# Close file
 		bundlefile.close()
+		print "Done!"
 	else:
 		success_status = 0
 		print "fail!!!"
@@ -417,13 +434,13 @@ def checkSecuritySettings(epin, epout):
 	print "Sending jump to bootloader with good password... did it work?"
 	raw_input("Press enter")
 	
-def unlockMooltipass():
+def unlockMooltipass(epin, epout):
 	password = raw_input("Enter password: ")
 	print array('B', password.decode("hex"))
 	sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, array('B', password.decode("hex")))
 	print "Sending jump to bootloader with good password... did it work?"
 	
-def decryptprodfile():
+def decryptprodfile(epin, epout):
 	file_name = raw_input("Enter file name: ")
 	
 	# Read key
@@ -490,6 +507,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 					# Open bundle file
 					bundlefile = open('bundle_tutorial.img', 'rb')
+					#bundlefile = open('bundle_tutorial_en_dv.img', 'rb')					
 					packet_to_send = array('B')
 					byte = bundlefile.read(1)
 					bytecounter = 0
@@ -582,6 +600,7 @@ def mooltipassInit(hid_device, intf, epin, epout):
 				sys.stdout.write('Step 5... ')
 				sys.stdout.flush()
 				sendHidPacket(epout, CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password)
+				#print mooltipass_password
 				if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
 					# Write Mooltipass ID in file together with random bytes, flush write
 					string_export = str(mp_id)+"|"+"".join(format(x, "02x") for x in mooltipass_password)+"|"+"".join(format(x, "02x") for x in request_key_and_uid)+"\r\n"
@@ -1809,9 +1828,9 @@ if __name__ == '__main__':
 			pickle_write(key.publickey().exportKey('DER'), "publickey.bin")
 			print "Key generated and exported"
 		elif choice == 33:
-			decryptprodfile()
+			decryptprodfile(epin, epout)
 		elif choice == 34:
-			unlockMooltipass()
+			unlockMooltipass(epin, epout)
 
 	hid_device.reset()
 

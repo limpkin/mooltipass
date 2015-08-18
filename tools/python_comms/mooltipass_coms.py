@@ -325,7 +325,7 @@ def	uploadBundle(epin, epout):
 			mooltipass_password.append(0)
 			
 	success_status = 0
-	print mooltipass_password
+	#print mooltipass_password
 	sendHidPacket(epout, CMD_IMPORT_MEDIA_START, 62, mooltipass_password)
 	# Check that the import command worked
 	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:

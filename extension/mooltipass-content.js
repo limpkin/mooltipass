@@ -4,7 +4,6 @@ var _called = {};
 chrome.extension.onMessage.addListener(function(req, sender, callback) {
 	if ('action' in req) {
 		if(req.action == "fill_user_pass_with_specific_login") {
-			console.log('fill-in:', req);
             if(cip.credentials[req.id]) {
 				var combination = null;
 				if (cip.u) {
@@ -318,7 +317,6 @@ cipPassword.callbackPasswordCopied = function(bool) {
 
 cipPassword.callbackGeneratedPassword = function(entries) {
 	if(entries && entries.length >= 1) {
-		console.log(entries[0]);
 		mpJQ("#mp-genpw-btn-clipboard:first").removeClass("mp-bt-btn-success");
 		mpJQ("input#mp-genpw-textfield-password:first").val(entries[0].Password);
 		if(isNaN(entries[0].Login)) {
@@ -1355,7 +1353,7 @@ cip.doSubmit = function doSubmit(pass)
 {
     cip.trapSubmit = false; // don't trap this submit, let it through
 
-    console.log('doSubmit: pass field',pass);
+    console.log('doSubmit: pass field');
 
     // locate best submit option
     var forms = $(pass).closest('form');
@@ -1765,7 +1763,7 @@ cip.contextMenuRememberCredentials = function() {
 
 
 cip.rememberCredentials = function(event, usernameField, usernameValue, passwordField, passwordValue) {
-    console.log('rememberCredentials()', usernameValue, passwordValue);
+    console.log('rememberCredentials()');
 	// no password given or field cleaned by a site-running script
 	// --> no password to save
 	if(passwordValue == "") {

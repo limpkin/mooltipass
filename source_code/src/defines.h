@@ -151,7 +151,7 @@
 #elif defined(PRODUCTION_TEST_SETUP)
     //#define STACK_DEBUG
     #define FLASH_CHIP_4M
-    //#define DEV_PLUGIN_COMMS
+    #define DEV_PLUGIN_COMMS
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif

@@ -1385,8 +1385,9 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 		cip.credentials = credentials;
 		cip.prepareFieldsForCredentials(!Boolean(dontAutoFillIn));
 
-        if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin()) {
+        if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput) {
             console.log('do-submit');
+
             cip.doSubmit(cip.p);
         }
 	}

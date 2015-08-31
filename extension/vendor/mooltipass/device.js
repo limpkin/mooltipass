@@ -158,7 +158,7 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
     }
 
     console.log('mooltipass.generatePassword()', 'use current seed for another password');
-    callback({'seeds': mooltipass.device.generateRandomNumbers(length)});
+    callback({'seeds': mooltipass.device.generateRandomNumbers(length), 'settings': page.settings});
 };
 
 /**
@@ -247,6 +247,9 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     //TODO: Trigger unlock if device is connected but locked
     // Check that the Mooltipass is unlocked
     if(!event.isMooltipassUnlocked()) {
+        if(forceCallback) {
+            callback([]);
+        }
         return;
     }
 
@@ -304,11 +307,11 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
     }
     // Returned on request for a random number
     else if (message.random !== null) {
-        console.log('fromApp.randomString', message.random);
         Math.seedrandom(message.random);
         if(mooltipass.device._asynchronous.randomCallback) {
             mooltipass.device._asynchronous.randomCallback({
-                'seeds': mooltipass.device.generateRandomNumbers(mooltipass.device._asynchronous.randomParameters.length)
+                'seeds': mooltipass.device.generateRandomNumbers(mooltipass.device._asynchronous.randomParameters.length),
+                'settings': page.settings,
             });
         }
     }

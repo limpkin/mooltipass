@@ -65,7 +65,10 @@
  *  => pre production run before mass production
  *
  *  PRODUCTION_KICKSTARTER_SETUP
- *  => final version for production
+ *  => final version for production for kickstarter units
+ *
+ *  PRODUCTION_TEST_SETUP
+ *  => exactly like the kickstarter product setup, but with no check on fuses (used for isp programming & testubg)
 */
 #define BETATESTERS_SETUP_PIN
 #if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
@@ -143,6 +146,12 @@
     #define AVR_BOOTLOADER_PROGRAMMING
 #elif defined(PRODUCTION_KICKSTARTER_SETUP)
     #define FLASH_CHIP_4M
+    #define HARDWARE_OLIVIER_V1
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(PRODUCTION_TEST_SETUP)
+    //#define STACK_DEBUG
+    #define FLASH_CHIP_4M
+    #define DEV_PLUGIN_COMMS
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif

@@ -18,8 +18,26 @@ mooltipass.website.generatePassword = function(length, callback) {
         action: 'generate_password',
         args: [length]
     }, function(response) {
+        var charactersLowercase = 'abcdefghijklmnopqrstuvwxyz';
+        var charactersUppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var charactersNumbers = '1234567890';
+        var charactersSpecial = '!$%^*()_+{}-[]:"|;\'?,./';
+
         var hash = "";
-        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789:.,;-_'#*+!\"()$=?{[]}%&/";
+        var possible = "";
+
+        if(response.settings["usePasswordGeneratorLowercase"]) {
+            possible += charactersLowercase;
+        }
+        if(response.settings["usePasswordGeneratorUppercase"]) {
+            possible += charactersUppercase;
+        }
+        if(response.settings["usePasswordGeneratorNumbers"]) {
+            possible += charactersNumbers;
+        }
+        if(response.settings["usePasswordGeneratorSpecial"]) {
+            possible += charactersSpecial;
+        }
 
         for( var i=0; i < length; i++ ) {
             hash += possible.charAt(Math.floor(response.seeds[i] * possible.length));

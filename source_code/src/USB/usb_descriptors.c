@@ -30,7 +30,7 @@ static const uint8_t PROGMEM device_descriptor[] =
 {
     18,                                 // bLength
     1,                                  // bDescriptorType
-    0x00, 0x02,                         // bcdUSB, USB 1.0
+    0x00, 0x02,                         // bcdUSB, USB 2.0
     0,                                  // bDeviceClass, see interface descriptors
     0,                                  // bDeviceSubClass
     0,                                  // bDeviceProtocol
@@ -114,7 +114,7 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] =
     2,                                  // bNumInterfaces
     1,                                  // bConfigurationValue
     0,                                  // iConfiguration
-    0xC0,                               // bmAttributes
+    0x80,                               // bmAttributes
     50,                                 // bMaxPower
 
     // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12

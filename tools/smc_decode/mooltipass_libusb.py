@@ -13,7 +13,23 @@ import sys
 import os
 
 USB_VID					= 0x072F
-USB_PID					= 0x9000
+USB_PID					= 0x90CC
+
+def reverse_bit_order_in_byte_buffer(data):
+	for i in range(0, len(data)):
+		data[i] = int('{:08b}'.format(data[i])[::-1], 2)
+	return data
+	
+def left_shift_byte_buffer_by_xbits(data, nb_bits):
+	for i in range(0, len(data)-1):
+		data[i] = (data[i] << nb_bits)%256 | (data[i+1] >> (8 - nb_bits))
+	return data	
+	
+def right_shift_byte_buffer_by_xbits(data, nb_bits):
+	for i in range(len(data)-2, -1, -1):
+		data[i+1] = (data[i+1]>>nb_bits) | ((data[i] << (8 - nb_bits)) & 0x00FF)
+	data[0] = data[0] >> nb_bits
+	return data	
 
 def receivePacketWithTimeout(epin, timeout_ms):
 	try :
@@ -36,29 +52,29 @@ def sendPacket(epout, data):
 	
 def print_card_type(data):
 	if data & 0x0001 != 0:
-		print "No card type"
+		print "- No card type"
 	if data & 0x0002 != 0:
-		print "I2C <= 16kb card type"
+		print "- I2C <= 16kb card type"
 	if data & 0x0004 != 0:
-		print "I2C > 16kb card type"
+		print "- I2C > 16kb card type"
 	if data & 0x0008 != 0:
-		print "AT88SC153 card type"
+		print "- AT88SC153 card type"
 	if data & 0x0010 != 0:
-		print "AT88SC1608 card type"
+		print "- AT88SC1608 card type"
 	if data & 0x0020 != 0:
-		print "SLE4418/28 card type"
+		print "- SLE4418/28 card type"
 	if data & 0x0040 != 0:
-		print "SLE4432/42 card type"
+		print "- SLE4432/42 card type"
 	if data & 0x0080 != 0:
-		print "SLE4406/36 & SLE5536 card type"
+		print "- SLE4406/36 & SLE5536 card type"
 	if data & 0x0100 != 0:
-		print "SLE4404 card type"
+		print "- SLE4404 card type"
 	if data & 0x0200 != 0:
-		print "AT88SC101/102/1003 card type"
+		print "- AT88SC101/102/1003 card type"
 	if data & 0x1000 != 0:
-		print "MCU T=0 card type"
+		print "- MCU T=0 card type"
 	if data & 0x2000 != 0:
-		print "MCU T=1 card type"
+		print "- MCU T=1 card type"
 	
 def print_selected_card_type(data):
 	if data == 0:
@@ -84,30 +100,210 @@ def print_selected_card_type(data):
 	elif data == 0x0C:
 		print "MCU T=0 card type selected"
 	elif data == 0x0D:
-		print "MCU T=1 card type selected"
+		print "MCU T=1 card type selected"	
+		
+def response_analysis(bStatus, bError):
+	if bStatus & 0xC0 == 0:
+		print "Response OK"
+	elif bStatus & 0xC0 == 0x40:
+		print "Response problem, bError:", bError
+	elif bStatus & 0xC0 == 0x80:
+		print "Response problem, time extension is requested"
+	else:
+		print "Response problem, RFU"
+	if bStatus & 0x03 == 0:
+		print "ICC present and active"
+	elif bStatus & 0x03 == 1:
+		print "ICC present and inactive"
+	elif bStatus & 0x03 == 2:
+		print "No ICC present"
+
+def print_get_reader_info(epout, epin, sequence_number):
+	# Get Reader Info
+	print ""
+	Get_Reader_Info_Packet = array('B')
+	Get_Reader_Info_Packet.append(0x6F)  					# bMessageType
+	Get_Reader_Info_Packet.append(0x00)  					# dwLength
+	Get_Reader_Info_Packet.append(0x00)  					# dwLength
+	Get_Reader_Info_Packet.append(0x00)  					# dwLength
+	Get_Reader_Info_Packet.append(0x05)  					# dwLength
+	Get_Reader_Info_Packet.append(0x00)  					# bSlot
+	Get_Reader_Info_Packet.append(sequence_number)  		# bSeq
+	Get_Reader_Info_Packet.append(0xFF)  					# bBWI
+	Get_Reader_Info_Packet.append(0x00)  					# wLevelParameter
+	Get_Reader_Info_Packet.append(0x00)  					# wLevelParameter	
+	Get_Reader_Info_Packet.append(0xFF)  					# CLA
+	Get_Reader_Info_Packet.append(0x09)  					# INS
+	Get_Reader_Info_Packet.append(0x00)  					# P1
+	Get_Reader_Info_Packet.append(0x00)  					# P2
+	Get_Reader_Info_Packet.append(0x10)  					# Lc
+	sendPacket(epout, Get_Reader_Info_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x80:
+		print "Reader Problem!"
+	elif len(response) > 10:
+		print "Get Reader Info Packet"
+		print "Firmware:", response[10:20]
+		print "Max number of command data bytes:", response[20]
+		print "Max number of data bytes that can be requested to be transmitted in a response:", response[21]
+		print "Supported card types :"	
+		print_card_type(int(response[22])*256 + int(response[23]))
+		print_selected_card_type(response[24])		
+		if response[25] == 0:
+			print "No card inserted"
+		elif response[25] == 1:
+			print "Card inserted, not powered up"
+		elif response[25] == 3:
+			print "Card inserted, powered up"
+	return sequence_number + 1
 	
-def print_acr_stat(epout):
-	# This damn device uses FW1.10 commands
-	Get_Acr_Stat = array('B')
-	Get_Acr_Stat.append(0x01)  				# Header
-	Get_Acr_Stat.append(0x01)  				# Instruction
-	Get_Acr_Stat.append(0x00)  				# Data Length
-	Get_Acr_Stat.append(0x00)  				# Data Length
-	epout.write(Get_Acr_Stat)
-	acr = receivePacketWithTimeout(epin, 10000)
+def verify_security_code(epout, epin, pin_code, sequence_number):
+	# Verify Security code
+	Verify_Sec_Code_Packet = array('B')
+	Verify_Sec_Code_Packet.append(0x6F)  					# bMessageType
+	Verify_Sec_Code_Packet.append(0x00)  					# dwLength
+	Verify_Sec_Code_Packet.append(0x00)  					# dwLength
+	Verify_Sec_Code_Packet.append(0x00)  					# dwLength
+	Verify_Sec_Code_Packet.append(0x07)  					# dwLength
+	Verify_Sec_Code_Packet.append(0x00)  					# bSlot
+	Verify_Sec_Code_Packet.append(sequence_number)  		# bSeq
+	Verify_Sec_Code_Packet.append(0xFF)  					# bBWI
+	Verify_Sec_Code_Packet.append(0x00)  					# wLevelParameter
+	Verify_Sec_Code_Packet.append(0x00)  					# wLevelParameter	
+	Verify_Sec_Code_Packet.append(0xFF)  					# CLA
+	Verify_Sec_Code_Packet.append(0x20)  					# INS
+	Verify_Sec_Code_Packet.append(0x08)  					# Error Counter LEN
+	Verify_Sec_Code_Packet.append(0x0A)  					# Byte Address
+	Verify_Sec_Code_Packet.append(0x02)  					# MEM_L
+	Verify_Sec_Code_Packet.append(pin_code / 256)  			# Code byte 1
+	Verify_Sec_Code_Packet.append(pin_code & 0x00FF) 		# Code byte 2
+	epout.write(Verify_Sec_Code_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x80 or len(response) == 10:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		print response[10:]
+		if response[10] == 0x90 and response[11] == 0x00:
+			return sequence_number, False
+		elif response[10] == 0x63 and response[11] == 0x00:
+			return sequence_number, True
+			
+	return sequence_number, True
 	
-	print "ACR reader found"
-	print "Max number of command data bytes:", acr[14]
-	print "Max number of data bytes that can be requested to be transmitted in a response:", acr[15]
-	print "Supported card types :"	
-	print_card_type(int(acr[16])*256 + int(acr[17]))
-	print_selected_card_type(acr[18])		
-	if acr[19] == 0:
-		print "No card inserted"
-	elif acr[19] == 1:
-		print "Card inserted, not powered up"
-	elif acr[19] == 3:
-		print "Card inserted, powered up"
+def verify_security_code2(epout, epin, pin_code, sequence_number):
+	# Verify Security code
+	Verify_Sec_Code_Packet = array('B')
+	Verify_Sec_Code_Packet.append(0x6F)  					# bMessageType
+	Verify_Sec_Code_Packet.append(0x00)  					# dwLength
+	Verify_Sec_Code_Packet.append(0x00)  					# dwLength
+	Verify_Sec_Code_Packet.append(0x00)  					# dwLength
+	Verify_Sec_Code_Packet.append(17)  						# dwLength
+	Verify_Sec_Code_Packet.append(0x00)  					# bSlot
+	Verify_Sec_Code_Packet.append(sequence_number)  		# bSeq
+	Verify_Sec_Code_Packet.append(0xFF)  					# bBWI
+	Verify_Sec_Code_Packet.append(0x00)  					# wLevelParameter
+	Verify_Sec_Code_Packet.append(0x00)  					# wLevelParameter	
+	Verify_Sec_Code_Packet.append(0xFF)  					# CLA
+	Verify_Sec_Code_Packet.append(0x20)  					# INS
+	Verify_Sec_Code_Packet.append(0x08)  					# Error Counter LEN
+	Verify_Sec_Code_Packet.append(0x00)  					# Byte Address, cheat we start from 0
+	Verify_Sec_Code_Packet.append(12)  						# MEM_L, cheat we start from 0, code is at offset 10 >> 10 + 2
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(0xFF)  					# Code byte 0
+	Verify_Sec_Code_Packet.append(pin_code / 256)  			# Code byte 1
+	Verify_Sec_Code_Packet.append(pin_code & 0x00FF) 		# Code byte 2
+	epout.write(Verify_Sec_Code_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x80 or len(response) == 10:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		print response[10:]
+		if response[10] == 0x90 and response[11] == 0x00:
+			return sequence_number, False
+		elif response[10] == 0x63 and response[11] == 0x00:
+			return sequence_number, True
+			
+	return sequence_number, True
+	
+def read_scac_value(epout, epin, sequence_number):
+	# Read SCAC
+	Read_Memory_Card_Packet = array('B')
+	Read_Memory_Card_Packet.append(0x6F)  					# bMessageType
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x05)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# bSlot
+	Read_Memory_Card_Packet.append(sequence_number)  		# bSeq
+	Read_Memory_Card_Packet.append(0xFF)  					# bBWI
+	Read_Memory_Card_Packet.append(0x00)  					# wLevelParameter
+	Read_Memory_Card_Packet.append(0x00)  					# wLevelParameter	
+	Read_Memory_Card_Packet.append(0xFF)  					# CLA
+	Read_Memory_Card_Packet.append(0xB0)  					# INS
+	Read_Memory_Card_Packet.append(0x00)  					# P1
+	Read_Memory_Card_Packet.append(0x00)  					# Byte Address
+	Read_Memory_Card_Packet.append(40)  					# MEM_L
+	epout.write(Read_Memory_Card_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x80:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		response[10:] = reverse_bit_order_in_byte_buffer(response[10:])
+		response[10:] = right_shift_byte_buffer_by_xbits(response[10:],1)
+		card_scac = response[22:24]
+		number_of_tries_left = bin((card_scac[0] >> 4)&0x0F).count("1")
+			
+	return sequence_number, number_of_tries_left
+	
+def read_memory_val(epout, epin, sequence_number, addr, size):
+	# Read Memory Card
+	Read_Memory_Card_Packet = array('B')
+	Read_Memory_Card_Packet.append(0x6F)  					# bMessageType
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x05)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# bSlot
+	Read_Memory_Card_Packet.append(sequence_number)  		# bSeq
+	Read_Memory_Card_Packet.append(0xFF)  					# bBWI
+	Read_Memory_Card_Packet.append(0x00)  					# wLevelParameter
+	Read_Memory_Card_Packet.append(0x00)  					# wLevelParameter	
+	Read_Memory_Card_Packet.append(0xFF)  					# CLA
+	Read_Memory_Card_Packet.append(0xB0)  					# INS
+	Read_Memory_Card_Packet.append(0x00)  					# P1
+	Read_Memory_Card_Packet.append(addr)  					# Byte Address
+	Read_Memory_Card_Packet.append(size)  					# MEM_L
+	epout.write(Read_Memory_Card_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x80:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		response[10:] = reverse_bit_order_in_byte_buffer(response[10:])
+		response[10:] = right_shift_byte_buffer_by_xbits(response[10:],1)
+		#print ''.join('0x{:02x} '.format(x) for x in response[10:])
+			
+	return sequence_number
 
 def findReaderDevice(vendor_id, product_id, print_debug):
 	# Find our device
@@ -194,6 +390,8 @@ if __name__ == '__main__':
 	print ""
 	print "Mooltipass Card Reader"
 	sequence_number = 0
+	user_card_ok = True
+	cur_scac_val = 666
 
 	# Search for the reader 
 	reader_device, intf, epin, epout, epintin = findReaderDevice(USB_VID, USB_PID, True)
@@ -201,135 +399,202 @@ if __name__ == '__main__':
 	if reader_device is None:
 		sys.exit(0) 
 	
-	# Power Off Packet
-	Power_Off_Packet = array('B')
-	Power_Off_Packet.append(0x01)  					# Header
-	Power_Off_Packet.append(0x81)  					# Instruction
-	Power_Off_Packet.append(0x00)  					# Data Length
-	Power_Off_Packet.append(0x00)  					# Data Length
-	epout.write(Power_Off_Packet)
-	print "Power Off Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	epout.write(Power_Off_Packet)
-	print "Power Off Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	
 	# Select card type
+	print ""
 	Select_Card_Packet = array('B')
-	Select_Card_Packet.append(0x01)  				# Header
-	Select_Card_Packet.append(0x02)  				# Instruction
-	Select_Card_Packet.append(0x00)  				# Data Length
-	Select_Card_Packet.append(0x01)  				# Data Length
-	Select_Card_Packet.append(0x09)  				# AT88SC101/102/1003 mode
+	Select_Card_Packet.append(0x6F)  					# bMessageType
+	Select_Card_Packet.append(0x00)  					# dwLength
+	Select_Card_Packet.append(0x00)  					# dwLength
+	Select_Card_Packet.append(0x00)  					# dwLength
+	Select_Card_Packet.append(0x06)  					# dwLength
+	Select_Card_Packet.append(0x00)  					# bSlot
+	Select_Card_Packet.append(sequence_number)  		# bSeq
+	Select_Card_Packet.append(0xFF)  					# bBWI
+	Select_Card_Packet.append(0x00)  					# wLevelParameter
+	Select_Card_Packet.append(0x00)  					# wLevelParameter	
+	Select_Card_Packet.append(0xFF)  					# CLA
+	Select_Card_Packet.append(0xA4)  					# INS
+	Select_Card_Packet.append(0x00)  					# P1
+	Select_Card_Packet.append(0x00)  					# P2
+	Select_Card_Packet.append(0x01)  					# Lc
+	Select_Card_Packet.append(0x09)  					# Card type
 	epout.write(Select_Card_Packet)
-	print "Select Card Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	
-	# Set Acr options
-	Acr_Options_Packet = array('B')
-	Acr_Options_Packet.append(0x01)  				# Header
-	Acr_Options_Packet.append(0x07)  				# Instruction
-	Acr_Options_Packet.append(0x00)  				# Data Length
-	Acr_Options_Packet.append(0x01)  				# Data Length
-	Acr_Options_Packet.append(0x30)  				# EMV & Memory card mode
-	epout.write(Acr_Options_Packet)
-	print "Set Acr Options Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	epout.write(Acr_Options_Packet)
-	print "Set Acr Options Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	
-	# Reset with 5 volts
-	Reset_With_5V_Packet = array('B')
-	Reset_With_5V_Packet.append(0x01)  				# Header
-	Reset_With_5V_Packet.append(0x80)  				# Instruction
-	Reset_With_5V_Packet.append(0x00)  				# Data Length
-	Reset_With_5V_Packet.append(0x01)  				# Data Length
-	Reset_With_5V_Packet.append(0x01)  				# 5V card
-	epout.write(Reset_With_5V_Packet)
-	print "Reset with 5 volts Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	
-	#print_acr_stat(epout)
-	
-	# Set Acr options
-	Acr_Options_Packet = array('B')
-	Acr_Options_Packet.append(0x01)  				# Header
-	Acr_Options_Packet.append(0x07)  				# Instruction
-	Acr_Options_Packet.append(0x00)  				# Data Length
-	Acr_Options_Packet.append(0x01)  				# Data Length
-	Acr_Options_Packet.append(0x20)  				# Memory card mode
-	epout.write(Acr_Options_Packet)
-	print "Set Acr Options Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	
-	# Select card type (adpu style)
-	Select_Card_Packet = array('B')
-	Select_Card_Packet.append(0x01)  				# Header
-	Select_Card_Packet.append(0xA0)  				# Instruction
-	Select_Card_Packet.append(0x00)  				# Data Length
-	Select_Card_Packet.append(0x06)  				# Data Length
-	Select_Card_Packet.append(0xFF)  				# CLA
-	Select_Card_Packet.append(0xA4)  				# INS
-	Select_Card_Packet.append(0x00)  				# P1
-	Select_Card_Packet.append(0x00)  				# P2
-	Select_Card_Packet.append(0x01)  				# Lc
-	Select_Card_Packet.append(0x09)  				# Card type
-	epout.write(Select_Card_Packet)
-	print "Select Card Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	epout.write(Select_Card_Packet)
-	print "Select Card Packet", receivePacketWithTimeout(epin, 1000)
-	checkInterruptChannel(epintin)
-	
-	sys.exit(0) 
-	
-	# Print Acr stat
-	print_acr_stat(epout);	
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x80:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		print "Select Card Type Packet"
+		response_analysis(response[7], response[8])
+		if len(response) > 10 and response[10] == 0x90 and response[11] == 00:
+			print "Correctly changed card type to AT88SC102"
+		else:
+			print "Problem setting the card type to AT88SC102"
+
+	# print reader info
+	#sequence_number = print_get_reader_info(epout, epin, sequence_number)	
 		
-	# Power on packet
-	PC_to_RDR_IccPowerOn_Packet = array('B')
-	PC_to_RDR_IccPowerOn_Packet.append(0x62)  # Command ID
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # DwLength
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # DwLength
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # DwLength
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # DwLength
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # bSlot
-	PC_to_RDR_IccPowerOn_Packet.append(sequence_number)  # bSeq
-	PC_to_RDR_IccPowerOn_Packet.append(0x01)  # Power Select
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # abRFU
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # abRFU
-	sendPacket(epout, PC_to_RDR_IccPowerOn_Packet)
-	sequence_number+=1
-	print "epin"
-	print receivePacketWithTimeout(epin)
+	# Power Off Packet
+	print ""
+	Power_Off_Packet = array('B')
+	Power_Off_Packet.append(0x63)  					# bMessageType
+	Power_Off_Packet.append(0x00)  					# dwLength
+	Power_Off_Packet.append(0x00)  					# dwLength
+	Power_Off_Packet.append(0x00)  					# dwLength
+	Power_Off_Packet.append(0x00)  					# dwLength
+	Power_Off_Packet.append(0x00)  					# bSlot
+	Power_Off_Packet.append(sequence_number)  		# bSeq
+	Power_Off_Packet.append(0x00)  					# abRFU
+	Power_Off_Packet.append(0x00)  					# abRFU
+	Power_Off_Packet.append(0x00)  					# abRFU
+	epout.write(Power_Off_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x81:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		print "Power Off Packet"
+		response_analysis(response[7], response[8])
+		if response[9] == 0:
+			print "Clock running"
+		elif response[9] == 1:
+			print "Clock stopped in state L"
+		elif response[9] == 2:
+			print "Clock stopped in state H"
+		elif response[9] == 3:
+			print "Clock stopped in an unknown state"
+		
+	checkInterruptChannel(epintin)		
+		
+	# Power On Packet
+	print ""
+	Power_On_Packet = array('B')
+	Power_On_Packet.append(0x62)  					# bMessageType
+	Power_On_Packet.append(0x00)  					# dwLength
+	Power_On_Packet.append(0x00)  					# dwLength
+	Power_On_Packet.append(0x00)  					# dwLength
+	Power_On_Packet.append(0x00)  					# dwLength
+	Power_On_Packet.append(0x00)  					# bSlot
+	Power_On_Packet.append(sequence_number)  		# bSeq
+	Power_On_Packet.append(0x01)  					# abRFU
+	Power_On_Packet.append(0x00)  					# abRFU
+	Power_On_Packet.append(0x00)  					# abRFU
+	epout.write(Power_On_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x80:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		print "Power On Packet"
+		print "abData:", ''.join('0x{:02x} '.format(x) for x in response[10:])
+		
+	checkInterruptChannel(epintin)	
+			
+	# print reader info
+	#sequence_number = print_get_reader_info(epout, epin, sequence_number)
+	
+	# Read Memory Card
+	print ""
+	Read_Memory_Card_Packet = array('B')
+	Read_Memory_Card_Packet.append(0x6F)  					# bMessageType
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# dwLength
+	Read_Memory_Card_Packet.append(0x05)  					# dwLength
+	Read_Memory_Card_Packet.append(0x00)  					# bSlot
+	Read_Memory_Card_Packet.append(sequence_number)  		# bSeq
+	Read_Memory_Card_Packet.append(0xFF)  					# bBWI
+	Read_Memory_Card_Packet.append(0x00)  					# wLevelParameter
+	Read_Memory_Card_Packet.append(0x00)  					# wLevelParameter	
+	Read_Memory_Card_Packet.append(0xFF)  					# CLA
+	Read_Memory_Card_Packet.append(0xB0)  					# INS
+	Read_Memory_Card_Packet.append(0x00)  					# P1
+	Read_Memory_Card_Packet.append(0x00)  					# Byte Address
+	Read_Memory_Card_Packet.append(22)  					# MEM_L
+	epout.write(Read_Memory_Card_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 1000)
+	if response == None or response[0] != 0x80:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		print "Read Memory Card Packet"
+		response_analysis(response[7], response[8])
+		response[10:] = reverse_bit_order_in_byte_buffer(response[10:])
+		response[10:] = right_shift_byte_buffer_by_xbits(response[10:],1)
+		card_fz = response[10:12]
+		card_iz = response[12:20]
+		card_iz.append(0)
+		card_iz_string = "".join(map(chr, card_iz))
+		card_sc = response[20:22]
+		card_scac = response[22:24]
+		card_cpz = response[24:32]
+		if card_fz[0] == 0x0F and card_fz[1] == 0x0F:
+			print "Correct AT88SC102 card inserted"
+		else:
+			print "Error with AT88SC102 card"
+			reader_device.reset()
+			sys.exit(0)
+		if str(card_iz_string == "hackaday") or str(card_iz_string) == "limpkin":
+			print "Card Initialized by Mooltipass"
+		else:
+			print "Card Not Initialized by Mooltipass"
+			user_card_ok = False
+		number_of_tries_left = bin((card_scac[0] >> 4)&0x0F).count("1")
+		cur_scac_val = number_of_tries_left
+		if number_of_tries_left == 0:
+			print "Card Blocked!!!"
+			user_card_ok = False
+		else:
+			print "Number of tries left:", number_of_tries_left	
+		if card_cpz[0] == 0xFF and card_cpz[1] == 0xFF and card_cpz[2] == 0xFF and card_cpz[3] == 0xFF and card_cpz[4] == 0xFF and card_cpz[5] == 0xFF and card_cpz[6] == 0xFF and card_cpz[7] == 0xFF:
+			print "Empty Card"
+			user_card_ok = False
+		else:
+			print "User Card"
+		#print "FZ:", ''.join('0x{:02x} '.format(x) for x in response[10:12])
+		#print "IZ:", ''.join('0x{:02x} '.format(x) for x in response[12:20])
+		#print "IZ:", "".join(map(chr, response[10:20]))
+		#print "SC:", ''.join('0x{:02x} '.format(x) for x in response[20:22])
+		#print "SCAC:", ''.join('0x{:02x} '.format(x) for x in response[22:24])
+		#print "CPZ:", ''.join('0x{:02x} '.format(x) for x in response[24:32])
+		#print ''.join('0x{:02x} '.format(x) for x in response[10:])
+		#print "".join(map(chr, response[10:]))
+		#print response[10:]
+	
+	# If it is not a user card, return
+	if user_card_ok == False:
+		reader_device.reset()
+		sys.exit(0)
+		
+	sequence_number = read_memory_val(epout, epin, sequence_number, 22, 22)
+	
+	print ""
+	pin_code = raw_input("Please Enter Your PIN: ")
+	pin_code = int(pin_code, 16)
+	
+	card_blocked = False
+	#sequence_number, card_blocked = verify_security_code(epout, epin, pin_code, sequence_number)
+	sequence_number, card_blocked = verify_security_code(epout, epin, pin_code, sequence_number)
+	sequence_number, new_scac_val = read_scac_value(epout, epin, sequence_number)
+	if card_blocked == True:
+		print "Card Blocked"
+	else:
+		if new_scac_val == 4:
+			print "Correct PIN"	
+		else:
+			print "Wrong PIN,", new_scac_val, "tries left"
 	
 	reader_device.reset()
 	sys.exit(0)
 	
-	# Get Reader Info
-	Get_Reader_Info_Packet = array('B')
-	Get_Reader_Info_Packet.append(0x6F)  # Command ID
-	Get_Reader_Info_Packet.append(0x00)  # DwLength
-	Get_Reader_Info_Packet.append(0x00)  # DwLength
-	Get_Reader_Info_Packet.append(0x00)  # DwLength
-	Get_Reader_Info_Packet.append(0x05)  # DwLength
-	Get_Reader_Info_Packet.append(0x00)  # bSlot
-	Get_Reader_Info_Packet.append(0x00)  # bSeq
-	Get_Reader_Info_Packet.append(0x00)  # bBWI
-	Get_Reader_Info_Packet.append(0x00)  # wLevelParameter 
-	Get_Reader_Info_Packet.append(0x00)  # wLevelParameter 	
-	Get_Reader_Info_Packet.append(0xFF)  # CLA
-	Get_Reader_Info_Packet.append(0x09)  # INS
-	Get_Reader_Info_Packet.append(0x00)  # P1
-	Get_Reader_Info_Packet.append(0x00)  # P2
-	Get_Reader_Info_Packet.append(0x10)  # Lc
-	sendPacket(epout, Get_Reader_Info_Packet)
-	print "epin"
-	print receivePacketWithTimeout(epin)
-	print "epintin"
-	print receivePacketWithTimeout(epintin)
-	print receivePacketWithTimeout(epin)
 	
 	# Automatically follow with a PC_to_RDR_Abort
 	PC_to_RDR_IccPowerOn_Packet = array('B')
@@ -349,42 +614,6 @@ if __name__ == '__main__':
 	print "epintin"
 	print receivePacketWithTimeout(epintin)
 	print receivePacketWithTimeout(epin)
-	
-	# Get current status of the slot
-	setCardTypePacket = array('B')
-	setCardTypePacket.append(0xFF)
-	setCardTypePacket.append(0xA4)
-	setCardTypePacket.append(0x00)
-	setCardTypePacket.append(0x00)
-	setCardTypePacket.append(0x01)
-	setCardTypePacket.append(0)
-	sendPacket(epout, setCardTypePacket)
-	print "epin"
-	print receivePacketWithTimeout(epin)
-	print "epintin"
-	print receivePacketWithTimeout(epintin)
-	
-	# Get current status of the slot
-	getSlotSatusReq = array('B')
-	getSlotSatusReq.append(0x65)
-	getSlotSatusReq.append(0x00)
-	getSlotSatusReq.append(0x00)
-	getSlotSatusReq.append(0x00)
-	getSlotSatusReq.append(0x00)
-	getSlotSatusReq.append(0)
-	getSlotSatusReq.append(0)
-	getSlotSatusReq.append(0x00)
-	getSlotSatusReq.append(0x00)
-	getSlotSatusReq.append(0x00)
-	sendPacket(epout, getSlotSatusReq)
-	print "epin"
-	print receivePacketWithTimeout(epin)
-	print "epintin"
-	print receivePacketWithTimeout(epintin)
-		
-	reader_device.reset()
-	sys.exit(0)
-
 	
 
 	# Abort request through control endpoint

@@ -223,14 +223,9 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
         $("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
 
-        chrome.extension.sendMessage({
-            "action": "mooltipass.device.addCredentials",
-            "url" : url,
-            "username" : username,
-            "password" : password
-        }, function(response) {
+        if(cip.rememberCredentials(null, $userField, username, $pwField, password)) {
             $("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Credentials are added to your Mooltipass KeyCard</p>');
-        });
+        }
     });
 
     $("#mooltipass-select-custom").click(function(){
@@ -238,6 +233,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
         cipDefine.init();
     });
 }
+
 
 cipPassword.createIcon = function(field) {
 	var $className = (field.outerHeight() > 28) ? "mp-icon-key-big" : "mp-icon-key-small";

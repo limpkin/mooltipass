@@ -86,15 +86,18 @@ mooltipass.backend.extractDomainAndSubdomain = function (url) {
     var url_valid;
     var domain = null;
     var subdomain = null;
+
+    url = url.replace('www.', 'wWw.');
     console.log("Parsing ", url);
 
     // URL trimming
     // Remove possible www.
-    url = url.replace('www.', '');
+    url = url.replace(/:\/\/www./ig, '://');
+    url = url.replace(/^www\./ig, '');
     // Remove everything before ://
     //    also ensure that only the first :// is used
     //    (negative example: https://id.atlassian.com/login?continue=https://my.atlassian.com&application=mac)
-    url = url.replace(/^[^:]+:\/\//g, "");
+    url = url.replace(/^[^:]+:\/\//ig, "");
     // Remove everything after first /
     var n = url.indexOf('/');
     url = url.substring(0, n != -1 ? n : url.length);

@@ -1,0 +1,34 @@
+@import "settings";
+@import "foundation";
+
+@import "layout";
+@import "log";
+
+.comment {
+  color: $border-color;
+}
+
+#contributor-list {
+  a {
+    img {
+      border: none;
+      width: 4rem;
+      margin-right: 1rem;  
+    }
+    margin-bottom: 1rem;
+  }
+}
+
+select {
+  padding: 0 0.5rem;
+  height: 2rem;
+  margin-bottom: 0;
+}
+
+input.inline-time {
+  width: 3rem;
+  display: inline;
+  margin: 0 0.5rem;
+  height: 1.8rem;
+  text-align: center;
+}

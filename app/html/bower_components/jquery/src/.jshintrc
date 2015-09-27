@@ -1,0 +1,26 @@
+{
+	"boss": true,
+	"curly": true,
+	"eqeqeq": true,
+	"eqnull": true,
+	"expr": true,
+	"immed": true,
+	"noarg": true,
+	"quotmark": "double",
+	"undef": true,
+	"unused": true,
+
+	"sub": true,
+
+	"es3": true,
+	"browser": true,
+	"wsh": true,
+
+	"globals": {
+		"JSON": false,
+		"jQuery": true,
+		"define": false,
+		"module": false,
+		"noGlobal": true
+	}
+}

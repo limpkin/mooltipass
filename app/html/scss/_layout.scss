@@ -1,0 +1,41 @@
+$border-color: #DDD;
+.border-top { border-top: 1px solid $border-color; }
+.border-right { border-right: 1px solid $border-color; }
+.border-bottom { border-bottom: 1px solid $border-color; }
+.border-left { border-left: 1px solid $border-color; }
+
+.comment {
+  color: $border-color;
+}
+
+nav {
+  ul li a {
+    img {
+      max-height: 1.7rem;
+      margin-left: 0.5rem;
+    }
+  }
+}
+
+.margin-bottom { margin-bottom: 1rem; }
+
+.content {
+    height: 395px;
+    padding: 0.5rem 0rem;
+    overflow-y: scroll; 
+    font-size: 0.8rem; 
+
+    p, label {
+      font-size: inherit;
+    }
+
+    h1, h2 {
+      font-size: 1rem;
+    }
+    h3, h4 {
+      font-size: 0.9rem;
+    }
+    h5, h6 {
+      font-size: inherit;
+    }
+}

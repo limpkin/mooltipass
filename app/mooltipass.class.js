@@ -82,7 +82,7 @@ _mp.responses = {
 // Available Mooltipass parameters
 _mp.parameters = {
     'keyboardLayout': 1,
-    'userInterTimeout': 2,
+    'userInteractionTimeout': 2,
     'lockTimeoutEnabled': 3,
     'lockTimeout': 4,
     'offlineMode': 8,

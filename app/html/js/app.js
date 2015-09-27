@@ -2,6 +2,11 @@ var _console_log = console.log;
 
 console.log = function() {
   text = arguments[0];
+  i = 1;
+  while (i < arguments.length) {
+    text += " " + arguments[i].toString();
+    i++;
+  }
   $("#log").val($("#log").val() + text + "\n");
   $("#log").animate({
         scrollTop:$("#log")[0].scrollHeight - $("#log").height()
@@ -15,18 +20,25 @@ show_active_page = function() {
   $("#page-" + newPage).show();  
 }
 
+is_device_connected = function() {
+  // DEBUG
+  return true;
+  return mooltipass.device.isConnected;
+}
+
+show_missing_connection_page = function() {
+  if (is_device_connected()) {
+    $(".hide-if-connected").hide();
+    $(".show-if-connected").show();
+  } else {
+    $(".hide-if-connected").show();
+    $(".show-if-connected").hide();      
+  }  
+}
+
 $(function(){
   // Only show app, if mp is connected
-  // _mp.isConnected  
-  setInterval(function(){
-    if (mooltipass.device.isConnected) {
-      $(".hide-if-connected").hide();
-      $(".show-if-connected").show();
-    } else {
-      $(".hide-if-connected").show();
-      $(".show-if-connected").hide();      
-    }
-  }, 500);
+  setInterval(show_missing_connection_page, 500);
 
   // Init pages
   show_active_page();
@@ -71,10 +83,24 @@ $(function(){
         'command': 'getMooltipassParameter',
         'parameter': parameter,
         'callbackFunction': function(_response) {
-            console.log(parameter + ':', _response);
+            console.log(parameter + ':' + _response);
+            // TODO #as: show parameter in ui
         },
         'callbackParameters': undefined
     });    
   });
 
+  // Save settings on change
+  $("#page-settings select, #page-settings input").on('change keyup', function(){
+    key = $(this).attr("name");
+    if ($(this).attr('type') == 'checkbox') {
+      value = this.checked;
+    } else {
+      value = $(this).val();
+    }
+
+    // TODO #as: send parameters to device
+    console.log(key + ": " + value);
+
+  });
 });

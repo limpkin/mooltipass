@@ -10,3 +10,4 @@ measurements/
 *.o
 .DS_Store
 *.pyc
+*.iml

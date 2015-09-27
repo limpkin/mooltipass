@@ -18,6 +18,15 @@ show_active_page = function() {
 $(function(){
   // Only show app, if mp is connected
   // _mp.isConnected  
+  setInterval(function(){
+    if (mooltipass.device.isConnected) {
+      $(".hide-if-connected").hide();
+      $(".show-if-connected").show();
+    } else {
+      $(".hide-if-connected").show();
+      $(".show-if-connected").hide();      
+    }
+  }, 500);
 
   // Init pages
   show_active_page();
@@ -55,7 +64,7 @@ $(function(){
   // Load settings
   $("#page-settings select, #page-settings input").each(function(){
     var parameter = $(this).attr("name");
-    _if.send({
+    mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': parameter,
         'callbackFunction': function(_response) {

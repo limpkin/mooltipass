@@ -1,4 +1,4 @@
-var _mp =  {};
+var _mp = {};
 
 // Debug mode
 _mp.debug = true;

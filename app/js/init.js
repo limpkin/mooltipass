@@ -1,5 +1,4 @@
 function launch() {
-    chrome.app.window.create('mooltipass.html', { 'bounds': { 'width': 400, 'height': 500 } });
     chrome.app.window.create('html/index.html', { 'bounds': { 'width': 800, 'height': 600 }, "resizable": false });
 
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) 

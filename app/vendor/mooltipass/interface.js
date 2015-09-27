@@ -3,6 +3,7 @@ mooltipass.device = mooltipass.device || {};
 
 mooltipass.device.interface = mooltipass.device.interface || {};
 
+
 mooltipass.device.interface.send = function(inputObject) {
     var command = mooltipass.device.interface['_'+inputObject.command];
     if(!command) {
@@ -13,6 +14,7 @@ mooltipass.device.interface.send = function(inputObject) {
     mooltipass.device.interface['_'+inputObject.command](inputObject);
 };
 
+
 mooltipass.device.interface._returnError = function(inputObject, status, code, msg) {
     var responseObject = {
         'status': status,
@@ -20,6 +22,14 @@ mooltipass.device.interface._returnError = function(inputObject, status, code, m
         'msg': msg
     };
     mooltipass.device.applyCallback(inputObject.callbackFunction, inputObject.callbackParameters, [responseObject]);
+};
+
+
+mooltipass.device.interface._sendFromListener = function(message, sender, callbackFunction) {
+    var inputObject = message;
+    inputObject.callbackFunction = callbackFunction;
+
+    mooltipass.device.interface.send(inputObject);
 };
 
 

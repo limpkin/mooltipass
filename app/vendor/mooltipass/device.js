@@ -367,27 +367,36 @@ mooltipass.device.applyCallback = function(callbackFunction, callbackParameters,
 
 mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     var version = mooltipass.device.convertMessageArrayToString(msg);
-    var flashChipId = msg[0];
 
-    log('Connected to Mooltipass', version, ', flashId', flashChipId);
+    var responseObject = {
+        'status': 'success',
+        'value': version
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+
+    log('Connected to Mooltipass', version);
 
     return;
 
     if (!connected) {
         connected = true;
         if (clientId) {
+            //chrome.runtime.sendMessage(mooltipass.device._app.id, { ping: [] });
             chrome.runtime.sendMessage(clientId, {type: 'connected', version: version});
         }
     }
-}
+};
 
 mooltipass.device.responsePing = function(queuedItem, msg) {
-    console.log('Process PING command');
+    var responseObject = {
+        'status': 'success'
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 };
 
 mooltipass.device.responseGetMooltipassParameter = function(queuedItem, msg) {
-    console.log('Process getMooltipassParameter command');
-
     var responseObject = {
         'status': 'success',
         'payload': queuedItem.payload,
@@ -396,14 +405,10 @@ mooltipass.device.responseGetMooltipassParameter = function(queuedItem, msg) {
 
     log('getMooltipassParameter(', queuedItem.payload, ') =', msg[0]);
 
-    console.log('queuedItem', queuedItem);
-
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 };
 
 mooltipass.device.responseSetMooltipassParameter = function(queuedItem, msg) {
-    console.log('Process setMooltipassParameter command');
-
     var success = msg[0] == 1;
 
     var responseObject = {
@@ -415,6 +420,7 @@ mooltipass.device.responseSetMooltipassParameter = function(queuedItem, msg) {
         responseObject['code'] = 601;
         responseObject['msg'] = 'request was not performed';
     }
+
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 };
 

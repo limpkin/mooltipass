@@ -5,7 +5,12 @@ $(function() {
     });
     $('#buttonStatus').click(function(e) {
         e.preventDefault();
-        mooltipass.device.sendMsg('getMooltipassStatus');
+        mooltipass.device.interface.send({
+            'command': 'getMooltipassStatus',
+            'callbackFunction': function(_response) {
+                console.log('Response:', _response);
+            }
+        })
     });
     $('#buttonGetParameter').click(function(e) {
         e.preventDefault();
@@ -14,8 +19,7 @@ $(function() {
             'parameter': $('#textCommand').val(),
             'callbackFunction': function(_response) {
                 console.log('Response:', _response);
-            },
-            'callbackParameters': undefined
+            }
         })
     });
     $('#buttonSetParameter').click(function(e) {
@@ -26,8 +30,7 @@ $(function() {
             'value': $('#textPayload').val(),
             'callbackFunction': function(_response) {
                 console.log('Response:', _response);
-            },
-            'callbackParameters': undefined
+            }
         })
     });
     $('#clearLog').click(function(e) {

@@ -9502,8 +9502,9 @@ nav ul li a img {
 /* line 43, ../scss/_layout.scss */
 #no-device-connection {
   margin-top: 5rem;
+  height: 307px;
 }
-/* line 46, ../scss/_layout.scss */
+/* line 47, ../scss/_layout.scss */
 #no-device-connection .text {
   padding-top: 2rem;
 }

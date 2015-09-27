@@ -1,15 +1,15 @@
 $(function() {
     $('#buttonPing').click(function(e) {
         e.preventDefault();
-        _mp.sendMsg('ping');
+        mooltipass.device.sendMsg('ping');
     });
     $('#buttonStatus').click(function(e) {
         e.preventDefault();
-        _mp.sendMsg('getMooltipassStatus');
+        mooltipass.device.sendMsg('getMooltipassStatus');
     });
     $('#buttonGetParameter').click(function(e) {
         e.preventDefault();
-        _if.send({
+        mooltipass.device.interface.send({
             'command': 'getMooltipassParameter',
             'parameter': $('#textCommand').val(),
             'callbackFunction': function(_response) {
@@ -20,7 +20,7 @@ $(function() {
     });
     $('#buttonSetParameter').click(function(e) {
         e.preventDefault();
-        _if.send({
+        mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': $('#textCommand').val(),
             'value': $('#textPayload').val(),
@@ -50,7 +50,7 @@ $(function() {
             return;
         }
         console.log('payload:', payload);
-        _mp.sendMsg(cmd, payload);
+        mooltipass.device.sendMsg(cmd, payload);
     });
     $('#lastError').click(function(e) {
         e.preventDefault();

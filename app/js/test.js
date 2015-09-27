@@ -1,7 +1,12 @@
 $(function() {
     $('#buttonPing').click(function(e) {
         e.preventDefault();
-        mooltipass.device.sendMsg('ping');
+        mooltipass.device.interface.send({
+            'command': 'ping',
+            'callbackFunction': function(_response) {
+                console.log('Response:', _response);
+            }
+        });
     });
     $('#buttonStatus').click(function(e) {
         e.preventDefault();
@@ -10,7 +15,7 @@ $(function() {
             'callbackFunction': function(_response) {
                 console.log('Response:', _response);
             }
-        })
+        });
     });
     $('#buttonGetParameter').click(function(e) {
         e.preventDefault();

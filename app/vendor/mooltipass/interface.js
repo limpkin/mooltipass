@@ -33,6 +33,16 @@ mooltipass.device.interface._sendFromListener = function(message, sender, callba
 };
 
 
+mooltipass.device.interface._ping = function(inputObject) {
+    mooltipass.device.sendMsg(inputObject.command, [], inputObject.responseParameters, inputObject.callbackFunction, inputObject.callbackParameters);
+};
+
+
+mooltipass.device.interface._getMooltipassStatus = function(inputObject) {
+    mooltipass.device.sendMsg(inputObject.command, [], inputObject.responseParameters, inputObject.callbackFunction, inputObject.callbackParameters);
+};
+
+
 mooltipass.device.interface._getMooltipassParameter = function(inputObject) {
     var _param = mooltipass.device.parameters[inputObject.parameter];
     if(!_param) {

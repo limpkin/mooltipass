@@ -94,6 +94,14 @@ mooltipass.device.parameters = {
 };
 
 mooltipass.device.status = {
+    0: 'no-card',
+    1: 'locked',
+    2: 'error',
+    3: 'locked',
+    4: 'error',
+    5: 'unlocked',
+    6: 'error',
+    7: 'error'
     /*
     0b000: 'noCard',
     0b001 -> Locked
@@ -374,13 +382,34 @@ mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     };
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+};
 
-    console.log('Connected to Mooltipass', version);
+mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
+    var status = mooltipass.device.convertMessageArrayToString(msg);
+
+    var responseObject = {
+        'status': 'success',
+        'value': status
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 };
 
 mooltipass.device.responsePing = function(queuedItem, msg) {
     var responseObject = {
         'status': 'success'
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+};
+
+mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
+    var _status = mooltipass.device.status[msg[0]];
+    _status = _status ? _status : 'error';
+
+    var responseObject = {
+        'status': 'success',
+        'value': _status
     };
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);

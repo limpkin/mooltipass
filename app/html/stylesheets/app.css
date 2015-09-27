@@ -9472,7 +9472,7 @@ nav ul li a img {
 
 /* line 20, ../scss/_layout.scss */
 .margin-bottom {
-  margin-bottom: 1rem;
+  margin-bottom: 1rem !important;
 }
 
 /* line 22, ../scss/_layout.scss */
@@ -9499,6 +9499,15 @@ nav ul li a img {
   font-size: inherit;
 }
 
+/* line 43, ../scss/_layout.scss */
+#no-device-connection {
+  margin-top: 5rem;
+}
+/* line 46, ../scss/_layout.scss */
+#no-device-connection .text {
+  padding-top: 2rem;
+}
+
 /* line 1, ../scss/_log.scss */
 #log {
   background: #333333;
@@ -9522,7 +9531,7 @@ nav ul li a img {
 
 /* line 12, ../scss/app.scss */
 #contributor-list a {
-  margin-bottom: 1rem;
+  padding: 0.5rem;
 }
 /* line 13, ../scss/app.scss */
 #contributor-list a img {
@@ -9530,15 +9539,19 @@ nav ul li a img {
   width: 4rem;
   margin-right: 1rem;
 }
+/* line 20, ../scss/app.scss */
+#contributor-list a:hover {
+  background: #FAFAFA;
+}
 
-/* line 22, ../scss/app.scss */
+/* line 26, ../scss/app.scss */
 select {
   padding: 0 0.5rem;
   height: 1.6rem;
   margin-bottom: 0;
 }
 
-/* line 28, ../scss/app.scss */
+/* line 32, ../scss/app.scss */
 input.inline-time {
   width: 3rem;
   display: inline;

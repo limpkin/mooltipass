@@ -17,7 +17,7 @@ nav {
   }
 }
 
-.margin-bottom { margin-bottom: 1rem; }
+.margin-bottom { margin-bottom: 1rem !important; }
 
 .content {
     height: 395px;
@@ -38,4 +38,12 @@ nav {
     h5, h6 {
       font-size: inherit;
     }
+}
+
+#no-device-connection {
+  margin-top: 5rem;
+
+  .text {
+    padding-top: 2rem;  
+  }
 }

@@ -111,10 +111,6 @@ _mp.connectionId = null;
 // Information about established connection
 _mp.isConnected = false;
 
-// Pipelined command and payload which is executed after a successful connect
-_mp.pipelinedCommand = null;
-_mp.pipelinedPayload = null;
-
 // External client to communicate with (e.g. an app)
 _mp.clientId = null;
 
@@ -126,9 +122,12 @@ _mp.queue = []
 
 _mp.getFromQueue = function(command) {
     if(command) {
+        console.log('COMMAND', command, '(length queue: ', _mp.queue.length, ')')
         for(var i = 0; i < _mp.queue.length; i++) {
             if(_mp.queue[i].command == command) {
-                return _mp.queue.splice(i, 1);
+                var result = _mp.queue.splice(i, 1);
+                console.log('.... returned.    (length queue: ', _mp.queue.length, ')');
+                return result[0];
             }
         }
     }
@@ -144,6 +143,7 @@ _mp.addToQueue = function(command, payload, responseParameters, callbackFunction
             }
         }
     }
+
     _mp.queue.push({'command': command, 'payload': payload, 'responseParameters': responseParameters, 'callbackFunction': callbackFunction, 'callbackParameters': callbackParameters});
     return true;
 }
@@ -164,6 +164,7 @@ _mp.connect = function() {
 
     _mp.reset();
     chrome.hid.getDevices(_mp.deviceInfo, _mp.onDeviceFound);
+    return true;
 };
 
 /**
@@ -178,10 +179,10 @@ _mp.onDeviceFound = function(devices) {
     }
 
     var device = devices[0];
-    console.log('Found', devices.length, 'devices.');
-    console.log('Device', device.deviceId,', vendor', device.vendorId, ', product', device.productId);
+    log('Found', devices.length, 'devices.');
+    log('Device', device.deviceId,', vendor', device.vendorId, ', product', device.productId);
 
-    console.log('Connecting to device', device.deviceId);
+    log('Connecting to device', device.deviceId);
 
     chrome.hid.connect(device.deviceId, _mp.onConnectFinished);
 };
@@ -193,7 +194,7 @@ _mp.onDeviceFound = function(devices) {
  */
 _mp.onConnectFinished = function(connectInfo) {
     if (chrome.runtime.lastError) {
-        console.log('Failed to connect to device: ' + chrome.runtime.lastError.message);
+        log('Failed to connect to device: ', chrome.runtime.lastError.message);
         _mp.reset();
         return;
     }
@@ -201,11 +202,11 @@ _mp.onConnectFinished = function(connectInfo) {
     _mp.connectionId = connectInfo.connectionId;
     _mp.isConnected = true;
 
-    console.log('Connected to device');
+    log('Connected to device');
 
-    var pipelinedData = _mp.queue[0];
+    var pipelinedData = _mp.getFromQueue();
     if (pipelinedData) {
-        _mp.sendMsg(pipelinedData.command, pipelinedData.payload, pipelinedData.callbackFunction, pipelinedData.callbackParameters);
+        _mp.sendMsg(pipelinedData.command, pipelinedData.payload, pipelinedData.responseParameters, pipelinedData.callbackFunction, pipelinedData.callbackParameters);
     }
 };
 
@@ -266,11 +267,12 @@ _mp.sendMsg = function(command, payload, responseParameters, callbackFunction, c
         return;
     }
     if(!_mp.isConnected) {
-        _mp.connect();
-        return;
+        if(_mp.connect()) {
+            return;
+        }
     }
 
-    var packet = _mp.createPacket(command, payload);
+    var packet = _mp.createPacket(_mp.commands[command], payload);
 
     if (_mp.debug) {
         msgUint8 = new Uint8Array(packet);
@@ -337,6 +339,7 @@ _mp.onDataReceived = function(reportId, data) {
     console.log(handlerName);
 
     console.log('reportId', reportId);
+    console.log('queuedItem', queuedItem);
     console.log('data', data);
     console.log('bytes', bytes);
     console.log('msg', msg);
@@ -377,18 +380,41 @@ _mp.responseGetVersion = function(queuedItem, msg) {
     }
 }
 
-_mp.responsePing = function(responseParameters, msg) {
+_mp.responsePing = function(queuedItem, msg) {
     console.log('Process PING command');
 };
 
-_mp.responseGetMooltipassParameter = function(responseParameters, msg) {
+_mp.responseGetMooltipassParameter = function(queuedItem, msg) {
     console.log('Process getMooltipassParameter command');
-    console.log('   >', msg[0]);
+
+    var responseObject = {
+        'status': 'success',
+        'payload': queuedItem.payload,
+        'value': msg[0]
+    };
+
+    log('getMooltipassParameter(', queuedItem.payload, ') =', msg[0]);
+
+    console.log('queuedItem', queuedItem);
+
+    _mp.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 };
 
-_mp.responseSetMooltipassParameter = function(responseParameters, msg) {
+_mp.responseSetMooltipassParameter = function(queuedItem, msg) {
     console.log('Process setMooltipassParameter command');
 
+    var success = msg[0] == 1;
+
+    var responseObject = {
+        'status': (success) ? 'success' : 'error',
+        'payload': queuedItem.payload
+    };
+
+    if(!success) {
+        responseObject['code'] = 601;
+        responseObject['msg'] = 'request was not performed';
+    }
+    _mp.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 };
 
 

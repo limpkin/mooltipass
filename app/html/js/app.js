@@ -16,6 +16,9 @@ show_active_page = function() {
 }
 
 $(function(){
+  // Only show app, if mp is connected
+  // _mp.isConnected  
+
   // Init pages
   show_active_page();
   $("nav li a").click(function() {
@@ -50,6 +53,16 @@ $(function(){
   });
 
   // Load settings
-  
+  $("#page-settings select, #page-settings input").each(function(){
+    var parameter = $(this).attr("name");
+    _if.send({
+        'command': 'getMooltipassParameter',
+        'parameter': parameter,
+        'callbackFunction': function(_response) {
+            console.log(parameter + ':', _response);
+        },
+        'callbackParameters': undefined
+    });    
+  });
 
 });

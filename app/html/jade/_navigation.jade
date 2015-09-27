@@ -1,0 +1,26 @@
+nav.top-bar(data-topbar, role="navigation")
+  ul.title-area
+    li.toggle-topbar.menu-icon
+      a(href="#")
+        span= Menu
+
+  section.top-bar-section
+    ul.right
+      li
+        a(href="#", mp-open-page="about") 
+          span Mooltipass
+          img(src="../images/icons/Plain_128.png")
+
+    ul.left
+      li.active
+        a(href="#", mp-open-page="settings")
+          i.fa.fa-wrench 
+          span &nbsp; Device Settings
+      li
+        a(href="#", mp-open-page="credentials")
+          i.fa.fa-key 
+          span &nbsp; Credentials          
+      li
+        a(href="#", mp-open-page="developers")
+          i.fa.fa-desktop 
+          span &nbsp; Developers        

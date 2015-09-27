@@ -1,0 +1,25 @@
+doctype html
+html.no-js(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    link(rel="stylesheet", href="bower_components/fontawesome/css/font-awesome.min.css")
+    link(rel="stylesheet", href="stylesheets/app.css")
+  
+  body
+    include _navigation
+
+    .content
+      include _page_about
+      include _page_settings
+      include _page_credentials
+      include _page_developers
+
+    textarea#log(disabled)
+
+    script(src="bower_components/jquery/dist/jquery.min.js")
+    script(src="/helpers.js")
+    script(src="/mooltipass.class.js")
+    script(src="/interface.js")
+
+    script(src="js/app.js")

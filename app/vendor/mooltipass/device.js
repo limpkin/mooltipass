@@ -180,10 +180,10 @@ mooltipass.device.onDeviceFound = function(devices) {
     }
 
     var device = devices[0];
-    log('Found', devices.length, 'devices.');
-    log('Device', device.deviceId,', vendor', device.vendorId, ', product', device.productId);
+    console.log('Found', devices.length, 'devices.');
+    console.log('Device', device.deviceId,', vendor', device.vendorId, ', product', device.productId);
 
-    log('Connecting to device', device.deviceId);
+    console.log('Connecting to device', device.deviceId);
 
     chrome.hid.connect(device.deviceId, mooltipass.device.onConnectFinished);
 };
@@ -195,7 +195,7 @@ mooltipass.device.onDeviceFound = function(devices) {
  */
 mooltipass.device.onConnectFinished = function(connectInfo) {
     if (chrome.runtime.lastError) {
-        log('Failed to connect to device: ', chrome.runtime.lastError.message);
+        console.log('Failed to connect to device: ', chrome.runtime.lastError.message);
         mooltipass.device.reset();
         return;
     }
@@ -203,7 +203,7 @@ mooltipass.device.onConnectFinished = function(connectInfo) {
     mooltipass.device.connectionId = connectInfo.connectionId;
     mooltipass.device.isConnected = true;
 
-    log('Connected to device');
+    console.log('Connected to device');
 
     var pipelinedData = mooltipass.device.getFromQueue();
     if (pipelinedData) {
@@ -375,17 +375,7 @@ mooltipass.device.responseGetVersion = function(queuedItem, msg) {
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 
-    log('Connected to Mooltipass', version);
-
-    return;
-
-    if (!connected) {
-        connected = true;
-        if (clientId) {
-            //chrome.runtime.sendMessage(mooltipass.device._app.id, { ping: [] });
-            chrome.runtime.sendMessage(clientId, {type: 'connected', version: version});
-        }
-    }
+    console.log('Connected to Mooltipass', version);
 };
 
 mooltipass.device.responsePing = function(queuedItem, msg) {
@@ -403,7 +393,7 @@ mooltipass.device.responseGetMooltipassParameter = function(queuedItem, msg) {
         'value': msg[0]
     };
 
-    log('getMooltipassParameter(', queuedItem.payload, ') =', msg[0]);
+    console.log('getMooltipassParameter(', queuedItem.payload, ') =', msg[0]);
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 };

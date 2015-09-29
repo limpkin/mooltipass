@@ -31,15 +31,17 @@ def right_shift_byte_buffer_by_xbits(data, nb_bits):
 	data[0] = data[0] >> nb_bits
 	return data	
 
-def receivePacketWithTimeout(epin, timeout_ms):
+def receivePacketWithTimeout(epin, timeout_ms, debug):
 	try :
 		data = epin.read(epin.wMaxPacketSize, timeout=timeout_ms)
 		return data
 	except usb.core.USBError as e:
+		if debug:
+			print "Couldn't receive packet:", e
 		return None
 
 def checkInterruptChannel(epintin):
-	recv = receivePacketWithTimeout(epintin, 10)
+	recv = receivePacketWithTimeout(epintin, 100, False)
 	if recv != None:
 		print "Interrupt packet:", recv
 
@@ -139,7 +141,7 @@ def print_get_reader_info(epout, epin, sequence_number):
 	Get_Reader_Info_Packet.append(0x10)  					# Lc
 	sendPacket(epout, Get_Reader_Info_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x80:
 		print "Reader Problem!"
 	elif len(response) > 10:
@@ -180,7 +182,7 @@ def verify_security_code(epout, epin, pin_code, sequence_number):
 	Verify_Sec_Code_Packet.append(pin_code & 0x00FF) 		# Code byte 2
 	epout.write(Verify_Sec_Code_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x80 or len(response) == 10:
 		print "Reader Problem!"
 		reader_device.reset()
@@ -226,7 +228,7 @@ def verify_security_code2(epout, epin, pin_code, sequence_number):
 	Verify_Sec_Code_Packet.append(pin_code & 0x00FF) 		# Code byte 2
 	epout.write(Verify_Sec_Code_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x80 or len(response) == 10:
 		print "Reader Problem!"
 		reader_device.reset()
@@ -260,7 +262,7 @@ def read_scac_value(epout, epin, sequence_number):
 	Read_Memory_Card_Packet.append(40)  					# MEM_L
 	epout.write(Read_Memory_Card_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x80:
 		print "Reader Problem!"
 		reader_device.reset()
@@ -293,7 +295,7 @@ def read_memory_val(epout, epin, sequence_number, addr, size):
 	Read_Memory_Card_Packet.append(size)  					# MEM_L
 	epout.write(Read_Memory_Card_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x80:
 		print "Reader Problem!"
 		reader_device.reset()
@@ -301,7 +303,7 @@ def read_memory_val(epout, epin, sequence_number, addr, size):
 	else:
 		response[10:] = reverse_bit_order_in_byte_buffer(response[10:])
 		response[10:] = right_shift_byte_buffer_by_xbits(response[10:],1)
-		#print ''.join('0x{:02x} '.format(x) for x in response[10:])
+		print ''.join('0x{:02x} '.format(x) for x in response[10:])
 			
 	return sequence_number
 
@@ -398,6 +400,9 @@ if __name__ == '__main__':
 
 	if reader_device is None:
 		sys.exit(0) 
+
+	# print reader info
+	sequence_number = print_get_reader_info(epout, epin, sequence_number)	
 	
 	# Select card type
 	print ""
@@ -420,7 +425,7 @@ if __name__ == '__main__':
 	Select_Card_Packet.append(0x09)  					# Card type
 	epout.write(Select_Card_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x80:
 		print "Reader Problem!"
 		reader_device.reset()
@@ -432,9 +437,6 @@ if __name__ == '__main__':
 			print "Correctly changed card type to AT88SC102"
 		else:
 			print "Problem setting the card type to AT88SC102"
-
-	# print reader info
-	#sequence_number = print_get_reader_info(epout, epin, sequence_number)	
 		
 	# Power Off Packet
 	print ""
@@ -451,7 +453,7 @@ if __name__ == '__main__':
 	Power_Off_Packet.append(0x00)  					# abRFU
 	epout.write(Power_Off_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x81:
 		print "Reader Problem!"
 		reader_device.reset()
@@ -485,9 +487,14 @@ if __name__ == '__main__':
 	Power_On_Packet.append(0x00)  					# abRFU
 	epout.write(Power_On_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x80:
 		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	elif response[0] != 0x80:
+		print "Wrong Answer to Power On!"
+		print "Return code:", response[0]
 		reader_device.reset()
 		sys.exit(0)
 	else:
@@ -519,7 +526,7 @@ if __name__ == '__main__':
 	Read_Memory_Card_Packet.append(22)  					# MEM_L
 	epout.write(Read_Memory_Card_Packet)
 	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 1000)
+	response = receivePacketWithTimeout(epin, 5000, True)
 	if response == None or response[0] != 0x80:
 		print "Reader Problem!"
 		reader_device.reset()
@@ -536,6 +543,15 @@ if __name__ == '__main__':
 		card_sc = response[20:22]
 		card_scac = response[22:24]
 		card_cpz = response[24:32]
+		#print "FZ:", ''.join('0x{:02x} '.format(x) for x in response[10:12])
+		#print "IZ:", ''.join('0x{:02x} '.format(x) for x in response[12:20])
+		#print "IZ:", "".join(map(chr, response[10:20]))
+		#print "SC:", ''.join('0x{:02x} '.format(x) for x in response[20:22])
+		#print "SCAC:", ''.join('0x{:02x} '.format(x) for x in response[22:24])
+		#print "CPZ:", ''.join('0x{:02x} '.format(x) for x in response[24:32])
+		#print ''.join('0x{:02x} '.format(x) for x in response[10:])
+		#print "".join(map(chr, response[10:]))
+		#print response[10:]
 		if card_fz[0] == 0x0F and card_fz[1] == 0x0F:
 			print "Correct AT88SC102 card inserted"
 		else:
@@ -559,21 +575,13 @@ if __name__ == '__main__':
 			user_card_ok = False
 		else:
 			print "User Card"
-		#print "FZ:", ''.join('0x{:02x} '.format(x) for x in response[10:12])
-		#print "IZ:", ''.join('0x{:02x} '.format(x) for x in response[12:20])
-		#print "IZ:", "".join(map(chr, response[10:20]))
-		#print "SC:", ''.join('0x{:02x} '.format(x) for x in response[20:22])
-		#print "SCAC:", ''.join('0x{:02x} '.format(x) for x in response[22:24])
-		#print "CPZ:", ''.join('0x{:02x} '.format(x) for x in response[24:32])
-		#print ''.join('0x{:02x} '.format(x) for x in response[10:])
-		#print "".join(map(chr, response[10:]))
-		#print response[10:]
 	
 	# If it is not a user card, return
 	if user_card_ok == False:
 		reader_device.reset()
 		sys.exit(0)
 		
+	sequence_number = read_memory_val(epout, epin, sequence_number, 0, 22)
 	sequence_number = read_memory_val(epout, epin, sequence_number, 22, 22)
 	
 	print ""

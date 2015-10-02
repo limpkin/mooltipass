@@ -1,11 +1,21 @@
 $(function() {
     $('#buttonPing').click(function(e) {
         e.preventDefault();
-        mooltipass.device.sendMsg('ping');
+        mooltipass.device.interface.send({
+            'command': 'ping',
+            'callbackFunction': function(_response) {
+                console.log('Response:', _response);
+            }
+        });
     });
     $('#buttonStatus').click(function(e) {
         e.preventDefault();
-        mooltipass.device.sendMsg('getMooltipassStatus');
+        mooltipass.device.interface.send({
+            'command': 'getMooltipassStatus',
+            'callbackFunction': function(_response) {
+                console.log('Response:', _response);
+            }
+        });
     });
     $('#buttonGetParameter').click(function(e) {
         e.preventDefault();
@@ -14,8 +24,7 @@ $(function() {
             'parameter': $('#textCommand').val(),
             'callbackFunction': function(_response) {
                 console.log('Response:', _response);
-            },
-            'callbackParameters': undefined
+            }
         })
     });
     $('#buttonSetParameter').click(function(e) {
@@ -26,8 +35,7 @@ $(function() {
             'value': $('#textPayload').val(),
             'callbackFunction': function(_response) {
                 console.log('Response:', _response);
-            },
-            'callbackParameters': undefined
+            }
         })
     });
     $('#clearLog').click(function(e) {
@@ -50,7 +58,7 @@ $(function() {
             return;
         }
         console.log('payload:', payload);
-        mooltipass.device.sendMsg(cmd, payload);
+        mooltipass.device.addToQueue(cmd, payload);
     });
     $('#lastError').click(function(e) {
         e.preventDefault();

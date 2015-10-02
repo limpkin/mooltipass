@@ -86,7 +86,7 @@ $(function(){
             console.log(parameter + ':' + _response);
             // TODO #as: show parameter in ui
         },
-        'callbackParameters': undefined
+        'callbackParameters': null
     });    
   });
 

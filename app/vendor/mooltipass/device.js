@@ -139,17 +139,25 @@ mooltipass.device.queueHash = null;
  * @param command if given, return the next element with the specified command
  * @returns object
  */
-mooltipass.device.getFromQueue = function(command) {
+mooltipass.device.getFromQueue = function(command, keepInQueue) {
     if(command) {
         console.log('COMMAND', command, '(length queue: ', mooltipass.device.queue.length, ')');
         for(var i = 0; i < mooltipass.device.queue.length; i++) {
             if(mooltipass.device.queue[i].command == command) {
+                if(keepInQueue) {
+                    return mooltipass.device.queue[i];
+                }
                 var result = mooltipass.device.queue.splice(i, 1);
                 console.log('.... returned.    (length queue: ', mooltipass.device.queue.length, ')');
                 return result[0];
             }
         }
     }
+
+    if(keepInQueue) {
+        return  mooltipass.device.queue[0];
+    }
+
     return mooltipass.device.queue.shift();
 };
 

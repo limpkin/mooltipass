@@ -318,30 +318,34 @@ mooltipass.device.processQueue = function() {
         return;
     }
 
-    var queuedItem = mooltipass.device.queue[0];
+    var queuedItem = mooltipass.device.getFromQueue(null, true);
 
-    var packet = mooltipass.device.createPacket(mooltipass.device.commands[queuedItem.command], queuedItem.payload);
+    queuedItem.packet = mooltipass.device.createPacket(mooltipass.device.commands[queuedItem.command], queuedItem.payload);
 
     if (mooltipass.device.debug) {
-        var msgUint8 = new Uint8Array(packet);
+        var msgUint8 = new Uint8Array(queuedItem.packet);
         // don't output the PING command since this is the keep alive
         if (msgUint8[1] != mooltipass.device.commands.ping) {
-            console.log('sendMsg(', JSON.stringify(new Uint8Array(packet)), ')');
+            console.log('sendMsg(', JSON.stringify(new Uint8Array(queuedItem.packet)), ')');
         }
     }
 
+    mooltipass.device._sendMsg(queuedItem);
+};
+
+mooltipass.device._sendMsg = function(queuedItem) {
     mooltipass.device.setQueueHash();
     if(queuedItem.timeout) {
         setTimeout(function() {
-            mooltipass.device.retrySendMsg();
+            mooltipass.device._retrySendMsg();
         }, queuedItem.timeout.milliseconds)
     }
 
-    chrome.hid.send(mooltipass.device.connectionId, 0, packet, mooltipass.device.onSendMsg);
+    chrome.hid.send(mooltipass.device.connectionId, 0, queuedItem.packet, mooltipass.device.onSendMsg);
 };
 
-mooltipass.device.retrySendMsg = function() {
-    console.log('mooltipass.device.retrySendMsg()');
+mooltipass.device._retrySendMsg = function() {
+    console.log('mooltipass.device._retrySendMsg()');
 
     // No requests in queue -> nothing to retry
     if(mooltipass.device.queue.length < 1) {
@@ -350,7 +354,7 @@ mooltipass.device.retrySendMsg = function() {
 
     console.log('    queue not empty');
 
-    var queuedItem = mooltipass.device.queue[0];
+    var queuedItem = mooltipass.device.getFromQueue(null, true);
 
     // Successfully processed command, no retries needed
     if(queuedItem.hash != mooltipass.device.queueHash) {
@@ -365,25 +369,21 @@ mooltipass.device.retrySendMsg = function() {
         return;
     }
 
-    console.log('    has timeout object');
+    console.log('   ', queuedItem.timeout.retries, 'retries');
 
     // Retry request until retries is 0
     if(queuedItem.timeout.retries > 0) {
         queuedItem.timeout.retries -= 1;
-        mooltipass.device.processQueue();
+        mooltipass.device._sendMsg(queuedItem);
         return;
     }
 
-    console.log('    all retries used');
+    console.log('    call callback function');
 
     // If callbackFunction is set, call it in case of retries is reached
     if(queuedItem.timeout.callbackFunction) {
         queuedItem.timeout.callbackFunction.apply(this, [queuedItem]);
     }
-};
-
-mooltipass.device.sendMsg = function(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject) {
-    mooltipass.device.addToQueue(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject);
 };
 
 /**

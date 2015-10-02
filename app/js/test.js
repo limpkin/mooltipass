@@ -58,7 +58,7 @@ $(function() {
             return;
         }
         console.log('payload:', payload);
-        mooltipass.device.sendMsg(cmd, payload);
+        mooltipass.device.addToQueue(cmd, payload);
     });
     $('#lastError').click(function(e) {
         e.preventDefault();

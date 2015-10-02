@@ -128,6 +128,9 @@ mooltipass.device.clientId = null;
 // Queue for executing commands
 mooltipass.device.queue = [];
 
+// Hash for command timeout to verify same command
+mooltipass.device.queueHash = null;
+
 
 /*********************************************************************************************************************/
 
@@ -158,9 +161,24 @@ mooltipass.device.getFromQueue = function(command) {
  * @param callbackFunction function to send the response to
  * @param callbackParameters additional parameters with which the callback function has to be called
  */
-mooltipass.device.addToQueue = function(command, payload, responseParameters, callbackFunction, callbackParameters) {
-    mooltipass.device.queue.push({'command': command, 'payload': payload, 'responseParameters': responseParameters, 'callbackFunction': callbackFunction, 'callbackParameters': callbackParameters});
+mooltipass.device.addToQueue = function(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject) {
+    mooltipass.device.queue.push({
+        'command': command,
+        'payload': payload,
+        'responseParameters': responseParameters,
+        'callbackFunction': callbackFunction,
+        'callbackParameters': callbackParameters,
+        'timeout': timeoutObject
+    });
 };
+
+
+mooltipass.device.setQueueHash = function() {
+    mooltipass.device.queueHash = Math.random() + Math.random();
+    mooltipass.device.queue[0]['hash'] = mooltipass.device.queueHash;
+
+    return mooltipass.device.queueHash;
+}
 
 
 mooltipass.device.reset = function() {
@@ -295,11 +313,60 @@ mooltipass.device.processQueue = function() {
         }
     }
 
+    mooltipass.device.setQueueHash();
+    if(queuedItem.timeout) {
+        setTimeout(function() {
+            mooltipass.device.retrySendMsg();
+        }, queuedItem.timeout.milliseconds)
+    }
+
     chrome.hid.send(mooltipass.device.connectionId, 0, packet, mooltipass.device.onSendMsg);
 };
 
-mooltipass.device.sendMsg = function(command, payload, responseParameters, callbackFunction, callbackParameters) {
-    mooltipass.device.addToQueue(command, payload, responseParameters, callbackFunction, callbackParameters);
+mooltipass.device.retrySendMsg = function() {
+    console.log('mooltipass.device.retrySendMsg()');
+
+    // No requests in queue -> nothing to retry
+    if(mooltipass.device.queue.length < 1) {
+        return;
+    }
+
+    console.log('    queue not empty');
+
+    var queuedItem = mooltipass.device.queue[0];
+
+    // Successfully processed command, no retries needed
+    if(queuedItem.hash != mooltipass.device.queueHash) {
+        return;
+    }
+
+    console.log('    same hash');
+
+    // No timeout object found (shouldn't happen)
+    if(!queuedItem.timeout) {
+        console.error('queuedItem does not contain a valid timeoutObject:', queuedItem);
+        return;
+    }
+
+    console.log('    has timeout object');
+
+    // Retry request until retries is 0
+    if(queuedItem.timeout.retries > 0) {
+        queuedItem.timeout.retries -= 1;
+        mooltipass.device.processQueue();
+        return;
+    }
+
+    console.log('    all retries used');
+
+    // If callbackFunction is set, call it in case of retries is reached
+    if(queuedItem.timeout.callbackFunction) {
+        queuedItem.timeout.callbackFunction.apply(this, [queuedItem]);
+    }
+};
+
+mooltipass.device.sendMsg = function(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject) {
+    mooltipass.device.addToQueue(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject);
 };
 
 /**
@@ -353,6 +420,9 @@ mooltipass.device.onDataReceived = function(reportId, data) {
         return;
     }
 
+    // Change queueHash to avoid retry after timeout
+    mooltipass.device.setQueueHash();
+
     var bytes = new Uint8Array(data);
     var msg = new Uint8Array(data, 2);
     var len = bytes[0];
@@ -387,14 +457,15 @@ mooltipass.device.onDataReceived = function(reportId, data) {
 
 mooltipass.device.applyCallback = function(callbackFunction, callbackParameters, ownParameters) {
     if(callbackFunction) {
-        var args = callbackParameters || [];
-        args = args.concat(ownParameters || []);
+        var args = ownParameters || [];
+        args = args.concat(callbackParameters || []);
         callbackFunction.apply(this, args);
     }
 };
 
 mooltipass.device.responseGetVersion = function(queuedItem, msg) {
-    var version = mooltipass.device.convertMessageArrayToString(msg);
+    var flashChipId = msg[0];
+    var version = mooltipass.device.convertMessageArrayToString(new Uint8Array(msg, 1));
 
     var responseObject = {
         'status': 'success',

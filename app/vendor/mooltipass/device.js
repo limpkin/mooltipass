@@ -322,6 +322,7 @@ mooltipass.device.processQueue = function() {
     var queuedItem = mooltipass.device.getFromQueue(null, true);
 
     if(queuedItem.command == 'startMemoryManagementMode') {
+        mooltipass.device.getFromQueue(null);
         mooltipass.memmgmt.integrityCheckStart();
         return;
     }

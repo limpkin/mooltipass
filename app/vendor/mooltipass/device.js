@@ -168,9 +168,12 @@ mooltipass.device.getFromQueue = function(command, keepInQueue) {
  * @param responseParameters array of parameters which are needed to process the response
  * @param callbackFunction function to send the response to
  * @param callbackParameters additional parameters with which the callback function has to be called
+ * @param timeoutObject containing information for retries
+ * @param addToFirstPosition if set, the request is added to first position
  */
-mooltipass.device.addToQueue = function(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject) {
-    mooltipass.device.queue.push({
+mooltipass.device.addToQueue = function(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject, addToFirstPosition) {
+    var func = addToFirstPosition ? mooltipass.device.queue.unshift : mooltipass.device.queue.push;
+    func({
         'command': command,
         'payload': payload,
         'responseParameters': responseParameters,

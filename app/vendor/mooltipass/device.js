@@ -192,7 +192,8 @@ mooltipass.device.addToQueue = function(command, payload, responseParameters, ca
 
 mooltipass.device.setQueueHash = function() {
     mooltipass.device.queueHash = Math.random() + Math.random();
-    mooltipass.device.queue[0]['hash'] = mooltipass.device.queueHash;
+    var queuedItem = mooltipass.device.getFromQueue(null, true);
+    queuedItem.hash = mooltipass.device.queueHash;
 
     return mooltipass.device.queueHash;
 }
@@ -319,6 +320,11 @@ mooltipass.device.processQueue = function() {
     }
 
     var queuedItem = mooltipass.device.getFromQueue(null, true);
+
+    if(queuedItem.command == 'startMemoryManagementMode') {
+        mooltipass.memmgmt.integrityCheckStart();
+        return;
+    }
 
     queuedItem.packet = mooltipass.device.createPacket(mooltipass.device.commands[queuedItem.command], queuedItem.payload);
 

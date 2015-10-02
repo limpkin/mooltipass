@@ -101,6 +101,5 @@ $(function(){
 
     // TODO #as: send parameters to device
     console.log(key + ": " + value);
-
   });
 });

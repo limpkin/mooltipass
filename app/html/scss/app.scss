@@ -23,6 +23,10 @@
   }
 }
 
+*[mp-show-for-hotkey] {
+  display: none;
+}
+
 select {
   padding: 0 0.5rem;
   height: 1.6rem;

@@ -9546,13 +9546,18 @@ nav ul li a img {
 }
 
 /* line 26, ../scss/app.scss */
+*[mp-show-for-hotkey] {
+  display: none;
+}
+
+/* line 30, ../scss/app.scss */
 select {
   padding: 0 0.5rem;
   height: 1.6rem;
   margin-bottom: 0;
 }
 
-/* line 32, ../scss/app.scss */
+/* line 36, ../scss/app.scss */
 input.inline-time {
   width: 3rem;
   display: inline;

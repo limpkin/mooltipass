@@ -61,7 +61,7 @@ mooltipass.device.interface._sendFromListener = function(message, sender, callba
 
 
 mooltipass.device.interface._ping = function(inputObject) {
-    mooltipass.device.sendMsg(
+    mooltipass.device.addToQueue(
         inputObject.command,
         [],
         inputObject.responseParameters,
@@ -73,7 +73,7 @@ mooltipass.device.interface._ping = function(inputObject) {
 
 
 mooltipass.device.interface._getMooltipassStatus = function(inputObject) {
-    mooltipass.device.sendMsg(
+    mooltipass.device.addToQueue(
         inputObject.command,
         [],
         inputObject.responseParameters,
@@ -92,7 +92,7 @@ mooltipass.device.interface._getMooltipassParameter = function(inputObject) {
     }
 
     var payload = [_param];
-    mooltipass.device.sendMsg(
+    mooltipass.device.addToQueue(
         inputObject.command,
         payload,
         inputObject.responseParameters,
@@ -115,7 +115,7 @@ mooltipass.device.interface._setMooltipassParameter = function(inputObject) {
     }
 
     var payload = [_param, inputObject.value];
-    mooltipass.device.sendMsg(
+    mooltipass.device.addToQueue(
         inputObject.command,
         payload,
         inputObject.responseParameters,

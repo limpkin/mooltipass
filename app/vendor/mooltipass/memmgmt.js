@@ -61,10 +61,22 @@ mooltipass.memmgmt.getPrevAddress = function(node)
 	return [node[2], node[3]];
 }
 
+// Change previous address
+mooltipass.memmgmt.changePrevAddress = function(node, address)
+{
+	node.set(address, 2);
+}
+
 // Get next address
 mooltipass.memmgmt.getNextAddress = function(node)
 {
 	return [node[4], node[5]];
+}
+
+// Change next address
+mooltipass.memmgmt.changeNextAddress = function(node, address)
+{
+	node.set(address, 4);
 }
 
 // Get first child address
@@ -283,6 +295,7 @@ mooltipass.memmgmt.integrityCheck = function()
 		if(!mooltipass.memmgmt.isSameAddress(correct_previous_node_addr, current_previous_node_addr))
 		{
 			console.log("Previous address for parent " + clonedCurServiceNodes[cur_parent_node_index].name + ": " + current_previous_node_addr + " instead of " + correct_previous_node_addr);
+			mooltipass.memmgmt.changePrevAddress(clonedCurServiceNodes[cur_parent_node_index].data, correct_previous_node_addr);
 		}
 		else
 		{
@@ -299,7 +312,7 @@ mooltipass.memmgmt.integrityCheck = function()
 			// Check if the previous node address is correctly set
 			if(!mooltipass.memmgmt.isSameAddress(correct_next_node_addr, current_next_node_addr))
 			{
-				// Todo: change address
+				mooltipass.memmgmt.changeNextAddress(clonedCurServiceNodes[cur_parent_node_index].data, correct_next_node_addr);
 			}			
 		}
 		else
@@ -329,14 +342,15 @@ mooltipass.memmgmt.integrityCheck = function()
 					}
 					else
 					{
-						// TODO: reset starting parent
+						// Change next address
+						mooltipass.memmgmt.changeNextAddress(clonedCurServiceNodes[cur_parent_node_index].data, correct_next_node_addr);
 					}		
 				}
 				else
 				{
 					// Address doesn't exist in our recovered nodes...
 					console.log("Next address for parent " + clonedCurServiceNodes[cur_parent_node_index].name + " at address " + clonedCurServiceNodes[cur_parent_node_index].address + " : " + current_next_node_addr + " (invalid) instead of " + correct_next_node_addr);
-					// TODO: reset starting parent
+					mooltipass.memmgmt.changeNextAddress(clonedCurServiceNodes[cur_parent_node_index].data, correct_next_node_addr);
 				}
 			}
 			else

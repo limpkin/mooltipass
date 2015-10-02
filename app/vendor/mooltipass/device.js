@@ -172,15 +172,21 @@ mooltipass.device.getFromQueue = function(command, keepInQueue) {
  * @param addToFirstPosition if set, the request is added to first position
  */
 mooltipass.device.addToQueue = function(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject, addToFirstPosition) {
-    var func = addToFirstPosition ? mooltipass.device.queue.unshift : mooltipass.device.queue.push;
-    func({
+    var object = {
         'command': command,
         'payload': payload,
         'responseParameters': responseParameters,
         'callbackFunction': callbackFunction,
         'callbackParameters': callbackParameters,
         'timeout': timeoutObject
-    });
+    };
+
+    if(addToFirstPosition) {
+        mooltipass.device.queue.unshift(object);
+    }
+    else {
+        mooltipass.device.queue.push(object);
+    }
 };
 
 

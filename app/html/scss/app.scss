@@ -3,6 +3,7 @@
 
 @import "layout";
 @import "log";
+@import "tables";
 
 .comment {
   color: $border-color;
@@ -39,4 +40,28 @@ input.inline-time {
   margin: 0 0.5rem;
   height: 1.6rem;
   text-align: center;
+}
+
+input#search-input {
+  width: 7.8rem;
+  transition: all 300ms ease;
+  font-size: 0.8rem;
+  padding: 0.3rem;   
+
+  &:focus {
+    width: 13rem;
+  }
+}
+
+input {
+  border: 1px solid #EEE !important; 
+  
+  &:focus {
+    outline: none;
+    border: 1px solid #CCC !important;
+  }  
+}
+
+input.inline {
+  padding: 0.1rem 0.3rem;
 }

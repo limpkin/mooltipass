@@ -46,5 +46,5 @@ $(function(){
     $("nav li.active").removeClass("active");
     $(this).parent("li").addClass("active");
     show_active_page();
-  });
+  });  
 });

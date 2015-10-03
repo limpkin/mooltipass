@@ -1,0 +1,71 @@
+table {
+  border: none;
+  
+  thead tr th {
+    font-size: 0.8rem;
+    padding: 0.35rem 1rem;   
+
+    &[data-orderable="true"]:hover {
+      background-color: #d5d5d5;
+    } 
+  }
+
+  tbody {
+    tr {
+      background: transparent !important;
+      td {
+        padding: 0.35rem 1rem !important;
+        font-size: 0.8rem !important;
+        background: transparent !important;
+
+        &.actions {
+          text-align: right;
+          color: darken($primary-color, 10%);
+          i {
+            margin-left: 0.5rem;
+            opacity: 0;
+            cursor: pointer;
+            &:first-child {
+              margin-left: 0;
+            }
+            &:hover {
+              color: black;
+            }
+          }
+        }
+        &.favourite {
+          i.fa-star-o {
+            opacity: 0;
+          }
+          i {
+            cursor: pointer;
+          }
+        }
+      }
+      &:hover {
+        background: lighten($primary-color, 20%) !important;
+        td.actions i {
+          opacity: 1;
+        }
+        td.favourite {
+          color: darken($primary-color, 10%);
+          i.fa-star-o {
+            opacity: 1;
+          }
+        }        
+      }      
+    }
+  }  
+}
+
+div.dataTables_scrollHead table { 
+  margin-top: 0 !important; 
+}
+
+.dataTables_scroll {
+  border: 1px solid $base;  
+}
+
+.dataTables_scrollBody {
+  border-top: 1px solid $base;
+}

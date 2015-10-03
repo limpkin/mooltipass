@@ -205,6 +205,27 @@ mooltipass.memmgmt.findIdByAddress = function(arrayToSearch, address)
 	return null;
 }
 
+// Compare node objects
+mooltipass.memmgmt.compareNodeObjects = function(nodeA, nodeB)
+{
+	if(mooltipass.memmgmt.isSameAddress(nodeA.address, nodeB.address) == false)
+	{
+		return false;
+	}
+	if(nodeA.name != nodeB.name)
+	{
+		return false;
+	}
+	for(var i = 0; i < nodeA.length; i++)
+	{
+		if(nodeA.data[i] != nodeB.data[i])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 // Integrity check procedure
 mooltipass.memmgmt.integrityCheck = function()
 {
@@ -480,8 +501,54 @@ mooltipass.memmgmt.integrityCheck = function()
 		}
 	}
 	
+	// Compare what is currently in memory and what we correct
+	for(var i = 0; i < mooltipass.memmgmt.curServiceNodes.length; i++)
+	{
+		// Try to find the node at the same address (we never change addresses, just change data or delete nodes)
+		var same_address_node_index = mooltipass.memmgmt.findIdByAddress(clonedCurServiceNodes, mooltipass.memmgmt.curServiceNodes[i].address);
+		
+		if(same_address_node_index != null)
+		{
+			// We found a node at this address
+			if(mooltipass.memmgmt.compareNodeObjects(mooltipass.memmgmt.curServiceNodes[i], clonedCurServiceNodes[same_address_node_index]) == false)
+			{
+				// Nodes differ
+				console.log("Parent node " + mooltipass.memmgmt.curServiceNodes[i].name + " differs... updating it");
+				// TODO: update the node
+			}
+		}
+		else
+		{
+			// Node was deleted
+			console.log("Deleting parent node " + mooltipass.memmgmt.curServiceNodes[i].name);
+			// TODO: delete the node
+		}
+	}
+	for(var i = 0; i < mooltipass.memmgmt.curLoginNodes.length; i++)
+	{
+		// Try to find the node at the same address (we never change addresses, just change data or delete nodes)
+		var same_address_node_index = mooltipass.memmgmt.findIdByAddress(clonedCurLoginNodes, mooltipass.memmgmt.curLoginNodes[i].address);
+		
+		if(same_address_node_index != null)
+		{
+			// We found a node at this address
+			if(mooltipass.memmgmt.compareNodeObjects(mooltipass.memmgmt.curLoginNodes[i], clonedCurLoginNodes[same_address_node_index]) == false)
+			{
+				// Nodes differ
+				console.log("Child node " + mooltipass.memmgmt.curLoginNodes[i].name + " differs... updating it");
+				// TODO: update the node
+			}
+		}
+		else
+		{
+			// Node was deleted
+			console.log("Deleting child node " + mooltipass.memmgmt.curLoginNodes[i].name);
+			// TODO: delete the node
+		}
+	}
 	
-	//return;
+	
+	return;
 	
 	//console.log("Services:");
 	//for(var i = 0; i < mooltipass.memmgmt.curServiceNodes.length; i++)

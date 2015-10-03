@@ -599,9 +599,19 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 	
 	if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ)
 	{
-		// Here should be the answer of the go to management mode request
-		if(packet[1] == mooltipass.device.commands['startMemoryManagementMode'])
+		if(packet[1] == mooltipass.device.commands['getMooltipassParameter'])
 		{
+			// We received the user interaction timeout, use it for our packets timeout
+			console.log("Mooltipass interaction timeout is " + packet[2] + " seconds");
+			// Create packet to go into memmgmt mode
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
+			mooltipass.memmgmt_hid.request.milliseconds = (packet[2]+2) * 1000;
+			mooltipass.memmgmt_hid.nbSendRetries = 3;
+			mooltipass.memmgmt_hid._sendMsg();
+		}
+		else if(packet[1] == mooltipass.device.commands['startMemoryManagementMode'])
+		{
+			// Start memory management request answer
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
 			mooltipass.memmgmt_hid.nbSendRetries = 3;
 			
@@ -819,8 +829,8 @@ mooltipass.memmgmt.integrityCheckStart = function()
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_INT_CHECK_REQ;
-		// Create packet to go into memmgmt mode
-		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
+		// First step is to query to user interaction timeout to set the correct packet timeout retry!
+		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();

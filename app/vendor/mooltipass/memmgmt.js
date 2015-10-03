@@ -545,7 +545,7 @@ mooltipass.memmgmt.integrityCheck = function()
 		}
 	}	
 	
-	console.log(mooltipass.memmgmt.packetToSendBuffer);
+	//console.log(mooltipass.memmgmt.packetToSendBuffer);
 	return;
 	
 	console.log("Services:");

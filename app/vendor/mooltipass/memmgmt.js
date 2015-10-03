@@ -30,6 +30,7 @@ mooltipass.memmgmt.nodeIt = 0;						// Node iterator
 mooltipass.memmgmt.scanPercentage = 0;				// Scanning percentage
 mooltipass.memmgmt.nodePacketId = 0;				// Packet number for node sending/receiving
 mooltipass.memmgmt.currentNode = [];				// Current node we're sending/receiving
+mooltipass.memmgmt.packetToSendBuffer = [];			// Packets we need to send at the end of the checks etc...
 
 
 // Node types
@@ -226,6 +227,38 @@ mooltipass.memmgmt.compareNodeObjects = function(nodeA, nodeB)
 	return true;
 }
 
+// Add write node command to current packet bufferDepth
+mooltipass.memmgmt.addWriteNodePacketToSendBuffer = function(address, node)
+{	
+	for(var i = 0; i < 3; i++)
+	{
+		// Set correct payload size
+		var payload_size = 62;
+		if(i == 2)
+		{
+			payload_size = 17;
+		}
+		var payload_to_send = new Uint8Array(payload_size);
+		
+		// Write address, packet number, node data
+		payload_to_send.set(address, 0);
+		payload_to_send.set([i], 2);
+		payload_to_send.set(node.subarray(i*59, (i*59)+(payload_size-3)), 3);
+		mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['writeNodeInFlash'], payload_to_send));
+	}
+}
+
+// Add write node command to current packet buffer for empty node
+mooltipass.memmgmt.addEmptyNodePacketToSendBuffer = function(address)
+{
+	var empty_node = new Uint8Array(NODE_SIZE);
+	for(var i = 0; i < NODE_SIZE; i++)
+	{
+		empty_node[i] = 0xFF;
+	}
+	mooltipass.memmgmt.addWriteNodePacketToSendBuffer(address, empty_node);
+}
+
 // Integrity check procedure
 mooltipass.memmgmt.integrityCheck = function()
 {
@@ -260,14 +293,15 @@ mooltipass.memmgmt.integrityCheck = function()
 			}
 			else
 			{
+				// Set correct starting parent
 				console.log("Wrong starting parent: " + current_starting_node[0].name + " at address " + current_starting_node[0].address + "(" + mooltipass.memmgmt.curServiceNodes[0].name + ") should be " + mooltipass.memmgmt.curServiceNodes[0].name + " at address " + mooltipass.memmgmt.curServiceNodes[0].address);
-				// TODO: reset starting parent
+				mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingParentAddress'], mooltipass.memmgmt.curServiceNodes[0].address));
 			}		
 		}
 		else
 		{
 			console.log("Current starting node set to invalid value");
-			// TODO: reset starting parent
+			mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingParentAddress'], mooltipass.memmgmt.curServiceNodes[0].address));
 		}
 	}
 	else
@@ -297,13 +331,13 @@ mooltipass.memmgmt.integrityCheck = function()
 			else
 			{
 				console.log("Wrong data starting parent: " + current_starting_node[0].name + " at address " + current_starting_node[0].address + ", should be " + mooltipass.memmgmt.curDataServiceNodes[0].name + " at address " + mooltipass.memmgmt.curServiceNodes[0].address);
-				// TODO: reset starting parent
+				mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingDataParentAddress'], mooltipass.memmgmt.curDataServiceNodes[0].address));
 			}		
 		}
 		else
 		{
 			console.log("Current data starting node set to invalid value");
-			// TODO: reset starting parent
+			mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingDataParentAddress'], mooltipass.memmgmt.curDataServiceNodes[0].address));
 		}
 	}
 	else
@@ -514,14 +548,14 @@ mooltipass.memmgmt.integrityCheck = function()
 			{
 				// Nodes differ
 				console.log("Parent node " + mooltipass.memmgmt.curServiceNodes[i].name + " differs... updating it");
-				// TODO: update the node
+				mooltipass.memmgmt.addWriteNodePacketToSendBuffer(mooltipass.memmgmt.curServiceNodes[i].address, clonedCurServiceNodes[same_address_node_index].data);
 			}
 		}
 		else
 		{
 			// Node was deleted
 			console.log("Deleting parent node " + mooltipass.memmgmt.curServiceNodes[i].name);
-			// TODO: delete the node
+			mooltipass.memmgmt.addEmptyNodePacketToSendBuffer(mooltipass.memmgmt.curServiceNodes[i].address);
 		}
 	}
 	for(var i = 0; i < mooltipass.memmgmt.curLoginNodes.length; i++)
@@ -536,14 +570,14 @@ mooltipass.memmgmt.integrityCheck = function()
 			{
 				// Nodes differ
 				console.log("Child node " + mooltipass.memmgmt.curLoginNodes[i].name + " differs... updating it");
-				// TODO: update the node
+				mooltipass.memmgmt.addWriteNodePacketToSendBuffer(mooltipass.memmgmt.curLoginNodes[i].address, clonedCurLoginNodes[same_address_node_index].data);
 			}
 		}
 		else
 		{
 			// Node was deleted
 			console.log("Deleting child node " + mooltipass.memmgmt.curLoginNodes[i].name);
-			// TODO: delete the node
+			mooltipass.memmgmt.addEmptyNodePacketToSendBuffer(mooltipass.memmgmt.curLoginNodes[i].address);
 		}
 	}
 	
@@ -666,6 +700,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK)
 				{
 					// Start looping through all the nodes	
+					mooltipass.memmgmt.packetToSendBuffer = [];
 					mooltipass.memmgmt.curServiceNodes = [];				
 					mooltipass.memmgmt.curLoginNodes = [];				
 					mooltipass.memmgmt.curDataServiceNodes = [];		

@@ -9,7 +9,7 @@ mooltipass.memmgmt_hid.receiveTempHash = 0;			// Temp hash for receive
 mooltipass.memmgmt_hid.request = 
 {
 	'packet': [], /* created with mooltipass.device.createPacket() */
-	'milliseconds': 1000,
+	'milliseconds': 2000,
 	'retries': 3
 };
 

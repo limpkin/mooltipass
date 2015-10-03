@@ -279,26 +279,12 @@ mooltipass.memmgmt.integrityCheck = function()
 	{
 		// Starting parent different, try to see if we know the currently set starting parent
 		var current_starting_node = mooltipass.memmgmt.curServiceNodes.filter(function(obj){return mooltipass.memmgmt.isSameAddress(obj.address, mooltipass.memmgmt.startingParent)});
-
+		
 		if(current_starting_node[0])
 		{			
-			// Check if we have a name duplicate (yes... it can happen...)
-			if(current_starting_node[0].name == mooltipass.memmgmt.curServiceNodes[0].name)
-			{
-				console.log("Wrong starting parent at address " + current_starting_node[0].address + " (" + current_starting_node[0].name + ") should be " + mooltipass.memmgmt.curServiceNodes[0].address + " (" + mooltipass.memmgmt.curServiceNodes[0].name + ")");
-				console.log("Wrong starting parent, but same service names... keeping current starting parent and deleting other node");
-				// Delete first element until the first element matches the address
-				while(!mooltipass.memmgmt.isSameAddress(clonedCurServiceNodes[0].address, mooltipass.memmgmt.startingParent))
-				{
-					clonedCurServiceNodes.splice(0,1);
-				}
-			}
-			else
-			{
-				// Set correct starting parent
-				console.log("Wrong starting parent: " + current_starting_node[0].name + " at address " + current_starting_node[0].address + "(" + mooltipass.memmgmt.curServiceNodes[0].name + ") should be " + mooltipass.memmgmt.curServiceNodes[0].name + " at address " + mooltipass.memmgmt.curServiceNodes[0].address);
-				mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingParentAddress'], mooltipass.memmgmt.curServiceNodes[0].address));
-			}		
+			// Set correct starting parent
+			console.log("Wrong starting parent: " + current_starting_node[0].name + " at address " + current_starting_node[0].address + "(" + mooltipass.memmgmt.curServiceNodes[0].name + ") should be " + mooltipass.memmgmt.curServiceNodes[0].name + " at address " + mooltipass.memmgmt.curServiceNodes[0].address);
+			mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingParentAddress'], mooltipass.memmgmt.curServiceNodes[0].address));		
 		}
 		else
 		{
@@ -319,22 +305,8 @@ mooltipass.memmgmt.integrityCheck = function()
 		
 		if(current_starting_node[0])
 		{			
-			// Check if we have a name duplicate (yes... it can happen...)
-			if(current_starting_node[0].name == mooltipass.memmgmt.curDataServiceNodes[0].name)
-			{
-				console.log("Wrong data starting parent at address " + current_starting_node[0].address + ", should be " + mooltipass.memmgmt.curDataServiceNodes[0].address);
-				console.log("Wrong data starting parent, but same service names... keeping current starting parent and deleting other node");
-				// Delete first element until the first element matches the address
-				while(!mooltipass.memmgmt.isSameAddress(clonedCurDataServiceNodesServiceNodes[0].address, mooltipass.memmgmt.dataStartingParent))
-				{
-					clonedCurDataServiceNodesServiceNodes.splice(0,1);
-				}
-			}
-			else
-			{
-				console.log("Wrong data starting parent: " + current_starting_node[0].name + " at address " + current_starting_node[0].address + ", should be " + mooltipass.memmgmt.curDataServiceNodes[0].name + " at address " + mooltipass.memmgmt.curServiceNodes[0].address);
-				mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingDataParentAddress'], mooltipass.memmgmt.curDataServiceNodes[0].address));
-			}		
+			console.log("Wrong data starting parent: " + current_starting_node[0].name + " at address " + current_starting_node[0].address + ", should be " + mooltipass.memmgmt.curDataServiceNodes[0].name + " at address " + mooltipass.memmgmt.curServiceNodes[0].address);
+			mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingDataParentAddress'], mooltipass.memmgmt.curDataServiceNodes[0].address));
 		}
 		else
 		{

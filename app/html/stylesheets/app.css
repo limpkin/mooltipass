@@ -9591,18 +9591,38 @@ table tbody tr:hover td.favourite {
 table tbody tr:hover td.favourite i.fa-star-o {
   opacity: 1;
 }
-
+/* line 60, ../scss/_tables.scss */
+table .favourite {
+  width: 5%;
+}
 /* line 61, ../scss/_tables.scss */
+table .app {
+  width: 30%;
+}
+/* line 62, ../scss/_tables.scss */
+table .user {
+  width: 30%;
+}
+/* line 63, ../scss/_tables.scss */
+table .password {
+  width: 20%;
+}
+/* line 64, ../scss/_tables.scss */
+table .actions {
+  width: 15%;
+}
+
+/* line 67, ../scss/_tables.scss */
 div.dataTables_scrollHead table {
   margin-top: 0 !important;
 }
 
-/* line 65, ../scss/_tables.scss */
+/* line 71, ../scss/_tables.scss */
 .dataTables_scroll {
   border: 1px solid #AAAAAA;
 }
 
-/* line 69, ../scss/_tables.scss */
+/* line 75, ../scss/_tables.scss */
 .dataTables_scrollBody {
   border-top: 1px solid #AAAAAA;
 }
@@ -9673,4 +9693,5 @@ input:focus {
 /* line 65, ../scss/app.scss */
 input.inline {
   padding: 0.1rem 0.3rem;
+  width: 100%;
 }

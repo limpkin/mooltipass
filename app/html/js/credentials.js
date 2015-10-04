@@ -34,7 +34,7 @@ $(function(){
     $(this).parents("tr").find(".fa-eye").show();
   });
   //  Add to / remove from favourites
-  $(".fa-star-o, .fa-star").on('click', function(){
+  $("tbody .fa-star-o, tbody .fa-star").on('click', function(){
     var app = $(this).parents("tr").find(".app").html();
     var user = $(this).parents("tr").find(".user").html(); 
     for (_credential in USER_CREDENTIALS) {
@@ -58,6 +58,9 @@ $(function(){
   });
   //  Edit credentials
   $(".fa-pencil").on('click', function() {
+    $(this).parents("tr").find(".app input").remove();
+    $(this).parents("tr").find(".user input").remove();
+    $(this).parents("tr").find(".password input").remove();    
     var $app = $(this).parents("tr").find(".app");
     var app = $app.html();
     var $user = $(this).parents("tr").find(".user");
@@ -65,9 +68,10 @@ $(function(){
     var $password = $(this).parents("tr").find(".password");
     var password = get_password(app, user);
 
-    $app.html("<input class='inline' data-old='" + app + "' value='" + app + "'/>");
-    $user.html("<input class='inline' data-old='" + user + "' value='" + user + "'/>");
-    $password.html("<input class='inline' data-old='" + password + "' value='" + password + "'/>");
+    $app.html("<input class='inline change-credentials' data-old='" + app + "' value='" + app + "'/>");
+    $user.html("<input class='inline change-credentials' data-old='" + user + "' value='" + user + "'/>");
+    $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "'/>");
+    $(".inline.change-credentials").on('keydown', save_credential_changes);
 
     $app.find('input').focus();
 
@@ -78,7 +82,8 @@ $(function(){
     $(this).parents("tr").find(".fa-floppy-o").show();    
   });
   //  Save credentials
-  $(".fa-floppy-o").on("click", function() {
+  var save_credential_changes = function(e) {
+    if ((e.type == "keydown") && (e.keyCode != 13)) return;
     var old_app = $(this).parents("tr").find(".app input").attr("data-old");
     var new_app = $(this).parents("tr").find(".app input").val();
     var old_user = $(this).parents("tr").find(".user input").attr("data-old");
@@ -95,15 +100,20 @@ $(function(){
       }
     }
 
-    $(this).parents("tr").find(".app").html(new_app);
-    $(this).parents("tr").find(".user").html(new_user);
-    $(this).parents("tr").find(".password").html(new_password);
+    $(this).parents("tr").find(".app").append(new_app);
+    $(this).parents("tr").find(".user").append(new_user);
+    $(this).parents("tr").find(".password").append(DEFAULT_PASSWORD);
+    $(this).parents("tr").find(".app input").hide();
+    $(this).parents("tr").find(".user input").hide();
+    $(this).parents("tr").find(".password input").hide();
 
     $(this).parents("tr").find(".fa-pencil").show();
     $(this).parents("tr").find(".fa-eye").show();
     $(this).parents("tr").find(".fa-times").show();
-    $(this).parents("tr").find(".fa-floppy-o").hide();     
-  });
+    $(this).parents("tr").find(".fa-floppy-o").hide();         
+  }
+  $(".fa-floppy-o").on("click", save_credential_changes);
+  $(".inline.change-credentials").on('keydown', save_credential_changes);
 
 });
 

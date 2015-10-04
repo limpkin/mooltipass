@@ -33,25 +33,34 @@ mooltipass.filehandler.errorHandler = function(e)
 // Ask the user to select a file and save the provided contents in it
 mooltipass.filehandler.selectAndSaveFileContents = function(name, contents, writeEndCallback) 
 {
-	chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name},	function(writableFileEntry) 
-																			{
-																				if(chrome.runtime.lastError)
-																				{
-																					// Something went wrong during file selection
-																					console.log("File select error: "+ chrome.runtime.lastError.message);
-																				}
-																				else
-																				{
-																					// File chosen, create writer
-																					writableFileEntry.createWriter(	function(writer) 
-																													{
-																														// Setup error and writeend call backs, start write
-																														writer.onerror = mooltipass.filehandler.errorHandler;
-																														writer.onwriteend = writeEndCallback;
-																														writer.write(contents);
-																													}, mooltipass.filehandler.errorHandler);
-																				}
-																			});
+	chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name, accepts: new Array({'extensions': new Array("bin")}), acceptsAllTypes: false},	function(writableFileEntry) 
+																																							{
+																																								if(chrome.runtime.lastError)
+																																								{
+																																									// Something went wrong during file selection
+																																									console.log("File select error: "+ chrome.runtime.lastError.message);
+																																								}
+																																								else
+																																								{
+																																									// File chosen, create writer
+																																									writableFileEntry.createWriter(	function(writer) 
+																																																	{
+																																																		var truncated = false;
+																																																		// Setup error and writeend call backs, start write
+																																																		writer.onerror = mooltipass.filehandler.errorHandler;
+																																																		writer.onwriteend =	function(e)
+																																																							{
+																																																								if(!truncated)
+																																																								{
+																																																									truncated = true;
+																																																									this.truncate(this.position);
+																																																									writeEndCallback();
+																																																								}
+																																																							};
+																																																		writer.write(contents);
+																																																	}, mooltipass.filehandler.errorHandler);
+																																								}
+																																							});
 }
 
 

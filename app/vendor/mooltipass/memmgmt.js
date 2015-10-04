@@ -630,6 +630,20 @@ mooltipass.memmgmt.integrityCheck = function()
 	}
 }
 
+// Export current Mooltipass memory state
+mooltipass.memmgmt.exportMemoryState = function()
+{
+	var export_data = [mooltipass.memmgmt.ctrValue, mooltipass.memmgmt.CPZCTRValues, mooltipass.memmgmt.startingParent, mooltipass.memmgmt.dataStartingParent, mooltipass.memmgmt.favoriteAddresses, mooltipass.memmgmt.curServiceNodes, mooltipass.memmgmt.curLoginNodes, mooltipass.memmgmt.curDataServiceNodes, mooltipass.memmgmt.curDataNodes];
+	mooltipass.filehandler.selectAndSaveFileContents("memory_export", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.fileWrittenCallback);
+	// {type: 'application/octet-binary'}
+}
+
+// Export file written callback
+mooltipass.memmgmt.fileWrittenCallback = function()
+{
+	console.log("File written!");
+}
+
 // Data received callback
 mooltipass.memmgmt.dataReceivedCallback = function(packet)
 {
@@ -930,6 +944,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 								// Leave mem management mode				
 								mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
 								mooltipass.memmgmt_hid._sendMsg();
+								mooltipass.memmgmt.exportMemoryState();
 							}
 							else
 							{

@@ -18,7 +18,7 @@ mooltipass.memmgmt_hid._sendMsg = function()
 	// Set number of retries
 	mooltipass.memmgmt_hid.request['retries'] = mooltipass.memmgmt_hid.nbSendRetries;
 	
-	if(mooltipass.memmgmt_hid.request.milliseconds && mooltipass.memmgmt_hid.request.retries) 
+	if(mooltipass.memmgmt_hid.request.milliseconds) 
 	{
 		var hash = Math.random() + Math.random();
 		mooltipass.memmgmt_hid.request.hash = hash;
@@ -102,9 +102,9 @@ mooltipass.memmgmt_hid._retrySendMsg = function(hash)
 	console.log('	 same hash');
 
 	// No timeout object found (shouldn't happen)
-	if(!mooltipass.memmgmt_hid.request.milliseconds || !mooltipass.memmgmt_hid.request.retries) 
+	if(!mooltipass.memmgmt_hid.request.milliseconds) 
 	{
-		console.error('milliseconds or retires not set in request:', mooltipass.memmgmt_hid.request);
+		console.error('milliseconds or retries not set in request:', mooltipass.memmgmt_hid.request);
 		return;
 	}
 

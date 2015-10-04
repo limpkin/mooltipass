@@ -653,6 +653,7 @@ mooltipass.memmgmt.importMemoryStateCallBack = function(e)
 	var tempCurDataServiceNodes = imported_data[7];
 	var tempCurDataNodes = imported_data[8];
 	
+	console.log(tempCurServiceNodes);
 	tempCurServiceNodes = {'address': new Uint8Array(tempCurServiceNodes[0].address), 'name': tempCurServiceNodes[0].name, 'data': new Uint8Array(tempCurServiceNodes[0].data)};
 	console.log(tempCurServiceNodes);
 }

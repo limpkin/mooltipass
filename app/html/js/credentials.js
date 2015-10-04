@@ -57,7 +57,7 @@ $(function(){
     $(this).parents("tr").remove(); 
   });
   //  Edit credentials
-  $(".fa-pencil").on('click', function() {  
+  var edit_credentials = function (e) {  
     var $app = $(this).parents("tr").find(".app");
     var app = $app.html();
     var $user = $(this).parents("tr").find(".user");
@@ -70,14 +70,20 @@ $(function(){
     $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "'/>");
     $(".inline.change-credentials").on('keydown', save_credential_changes);
 
-    $app.find('input').focus();
-
     $(this).parents("tr").find(".fa-pencil").hide();
     $(this).parents("tr").find(".fa-eye").hide();
     $(this).parents("tr").find(".fa-eye-slash").hide();
     $(this).parents("tr").find(".fa-times").hide();
     $(this).parents("tr").find(".fa-floppy-o").show();    
-  });
+
+    if (e.type = 'dblclick') {
+      $(this).find('input').focus();
+    } else {
+      $app.find('input').focus();
+    }    
+  }
+  $(".fa-pencil").on('click', edit_credentials);
+  $("tbody tr td").on('dblclick', edit_credentials);
   //  Save credentials
   var save_credential_changes = function(e) {
     if ((e.type == "keydown") && (e.keyCode != 13)) return;

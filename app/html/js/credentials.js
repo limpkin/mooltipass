@@ -23,7 +23,6 @@ $(function(){
     var app = $(this).parents("tr").find(".app").html();
     var user = $(this).parents("tr").find(".user").html();
     password = get_password(app, user);
-    console.log('p', password);
     $(this).parents("tr").find(".password").html(password);
     $(this).parents("tr").find(".fa-eye").hide();
     $(this).parents("tr").find(".fa-eye-slash").show();

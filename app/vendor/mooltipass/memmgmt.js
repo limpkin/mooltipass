@@ -22,6 +22,7 @@ mooltipass.memmgmt.curServiceNodes = [];			// Mooltipass current service nodes
 mooltipass.memmgmt.curLoginNodes = [];				// Mooltipass current login nodes
 mooltipass.memmgmt.curDataServiceNodes = [];		// Mooltipass current data service nodes
 mooltipass.memmgmt.curDataNodes = [];				// Mooltipass current data nodes
+mooltipass.memmgmt.clonedFavoriteAddresses = [];	// Mooltipass current favorite addresses
 mooltipass.memmgmt.clonedCurServiceNodes = [];		// Mooltipass current service nodes
 mooltipass.memmgmt.clonedCurLoginNodes = [];        // Mooltipass current login nodes
 mooltipass.memmgmt.clonedCurDataServiceNodes = [];  // Mooltipass current data service nodes
@@ -189,6 +190,19 @@ mooltipass.memmgmt.getNodesPerPage = function(nbMb)
 mooltipass.memmgmt.isSameAddress = function(addressA, addressB)
 {
 	if((addressA[0] == addressB[0]) && (addressA[1] == addressB[1]))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+// Compare addresses
+mooltipass.memmgmt.isSameFavoriteAddress = function(addressA, addressB)
+{
+	if((addressA[0] == addressB[0]) && (addressA[1] == addressB[1]) && (addressA[2] == addressB[2]) && (addressA[3] == addressB[3]))
 	{
 		return true;
 	}
@@ -490,6 +504,37 @@ mooltipass.memmgmt.integrityCheck = function()
 															mooltipass.memmgmt.clonedCurLoginNodes.splice(index,1);
 														}
 													});
+													
+	// Now that we possibility have removed nodes, check that the favorite addresses are correct
+	for(var i = 0; i < mooltipass.memmgmt.favoriteAddresses.length; i++)
+	{
+		// Extract addresses
+		var cur_favorite_address_parent = mooltipass.memmgmt.favoriteAddresses[i].subarray(0, 0 + 2);
+		var cur_favorite_address_child = mooltipass.memmgmt.favoriteAddresses[i].subarray(2, 2 + 2);
+		
+		// Only compare if both addresses are different than 0
+		if(mooltipass.memmgmt.isSameAddress(cur_favorite_address_child, [0,0]) && mooltipass.memmgmt.isSameAddress(cur_favorite_address_parent,[0,0]))
+		{
+			console.log("Favorite " + i + " is empty");
+		}
+		else
+		{
+			var parent_node_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurServiceNodes, cur_favorite_address_parent);		
+			var child_node_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, cur_favorite_address_child);		
+			
+			// Check if both addresses are correct
+			if(parent_node_index != null && child_node_index != null)
+			{
+				console.log("Favorite " + i + " is valid: " + mooltipass.memmgmt.clonedCurLoginNodes[child_node_index].name + " on " + mooltipass.memmgmt.clonedCurServiceNodes[parent_node_index].name);
+			}
+			else
+			{
+				// Reset favorite
+				console.log("Favorite " + i + " is incorrect");
+				mooltipass.memmgmt.clonedFavoriteAddresses[i] = new Uint8Array([0,0,0,0]);
+			}
+		}
+	}
 	
 	// Compare what is currently in memory and what we correct
 	for(var i = 0; i < mooltipass.memmgmt.curServiceNodes.length; i++)
@@ -542,6 +587,16 @@ mooltipass.memmgmt.integrityCheck = function()
 			// Node was deleted
 			console.log("Deleting child node " + mooltipass.memmgmt.curLoginNodes[i].name);
 			mooltipass.memmgmt.addEmptyNodePacketToSendBuffer(mooltipass.memmgmt.curLoginNodes[i].address);
+		}
+	}	
+	for(var i = 0; i < mooltipass.memmgmt.favoriteAddresses.length; i++)
+	{
+		// Did the favorite change?
+		if(!mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.favoriteAddresses[i], mooltipass.memmgmt.clonedFavoriteAddresses[i]))
+		{
+			// Send a packet to update the address
+			console.log("Updating favorite " + i);
+			mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setFavorite'], mooltipass.memmgmt.clonedFavoriteAddresses[i]));
 		}
 	}	
 	
@@ -674,6 +729,8 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['getStartingDataParentAddress'])
 		{
+			mooltipass.memmgmt.favoriteAddresses = [];
+			mooltipass.memmgmt.clonedFavoriteAddresses = [];
 			mooltipass.memmgmt.dataStartingParent = [packet[2], packet[3]];
 			console.log("Data starting parent is " + mooltipass.memmgmt.dataStartingParent);
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
@@ -682,7 +739,8 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		else if(packet[1] == mooltipass.device.commands['getFavorite'])
 		{
 			// Extract addresses and append them to our current ones
-			mooltipass.memmgmt.favoriteAddresses.push(packet.subarray(2, 2 + 4));			
+			mooltipass.memmgmt.favoriteAddresses.push(packet.subarray(2, 2 + 4));	
+			mooltipass.memmgmt.clonedFavoriteAddresses.push(packet.subarray(2, 2 + 4));			
 			// Check if we have done all favorites
 			if(++mooltipass.memmgmt.currentFavorite == 14)
 			{
@@ -784,8 +842,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				
 				// Check that we didn't finish the scanning, ask next node
-				// TODO: remove the last part of the || !!!!
-				if(((mooltipass.memmgmt.nodeIt + 1) == mooltipass.memmgmt.getNodesPerPage(mooltipass.memmgmt.nbMb) && (mooltipass.memmgmt.pageIt + 1) == mooltipass.memmgmt.getNumberOfPages(mooltipass.memmgmt.nbMb)) || (mooltipass.memmgmt.scanPercentage == 5))
+				if(((mooltipass.memmgmt.nodeIt + 1) == mooltipass.memmgmt.getNodesPerPage(mooltipass.memmgmt.nbMb) && (mooltipass.memmgmt.pageIt + 1) == mooltipass.memmgmt.getNumberOfPages(mooltipass.memmgmt.nbMb)) || false)//(mooltipass.memmgmt.scanPercentage == 5))
 				{
 					mooltipass.memmgmt.integrityCheck();
 					// Check if there are changes to do or not

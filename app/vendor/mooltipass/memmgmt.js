@@ -17,6 +17,8 @@ var MGMT_NORMAL_SCAN				= 7;			// Normal credential scan, following the nodes
 
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;						// Mooltipass memory size
+mooltipass.memmgmt.ctrValue = [];					// Mooltipass CTR value
+mooltipass.memmgmt.CPZCTRValues = [];				// Mooltipass CPZ CTR values
 mooltipass.memmgmt.startingParent = null;			// Mooltipass current starting parent
 mooltipass.memmgmt.dataStartingParent = null;		// Mooltipass current data starting parrent
 mooltipass.memmgmt.favoriteAddresses = [];			// Mooltipass current favorite addresses
@@ -701,6 +703,9 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			// Did we succeed?
 			if(packet[2] == 1)
 			{
+				// Reset CPZ CTR Values
+				mooltipass.memmgmt.CPZCTRValues = [];
+				
 				// Load memory params
 				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ)
 				{
@@ -728,6 +733,28 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			mooltipass.memmgmt.nbMb = packet[2];
 			console.log("Mooltipass is " + mooltipass.memmgmt.nbMb + "Mb");			
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getCTR'], null);
+			mooltipass.memmgmt_hid._sendMsg();
+		}
+		else if(packet[1] == mooltipass.device.commands['getCTR'])
+		{
+			mooltipass.memmgmt.ctrValue = packet.subarray(2, 2 + packet[0]);
+			console.log("Mooltipass CTR value is " + mooltipass.memmgmt.ctrValue);			
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getCPZandCTR'], null);
+			mooltipass.memmgmt_hid._sendMsg();
+		}
+		else if(packet[1] == mooltipass.device.commands['exportCPZandCTR'])
+		{
+			// CPZ CTR packet export
+			mooltipass.memmgmt.CPZCTRValues.push(packet.subarray(2, 2 + packet[0]));
+			console.log("CPZ CTR packet export packet received: " + packet.subarray(2, 2 + packet[0]));	
+			// Arm receive
+			mooltipass.memmgmt_hid.receiveMsg();
+		}
+		else if(packet[1] == mooltipass.device.commands['getCPZandCTR'])
+		{
+			// Inform that all CPZ CTR packets were sent
+			console.log("All CPZ CTR packets are received");			
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingParentAddress'], null);
 			mooltipass.memmgmt_hid._sendMsg();
 		}

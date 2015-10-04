@@ -738,6 +738,13 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['getCTR'])
 		{
+			if(packet[0] == 1)
+			{
+				// Request failed, leave memory management mode
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+				mooltipass.memmgmt_hid._sendMsg();
+				return;
+			}
 			mooltipass.memmgmt.ctrValue = packet.subarray(2, 2 + packet[0]);
 			console.log("Mooltipass CTR value is " + mooltipass.memmgmt.ctrValue);			
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getCPZandCTR'], null);
@@ -760,6 +767,13 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['getStartingParentAddress'])
 		{
+			if(packet[0] == 1)
+			{
+				// Request failed, leave memory management mode
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+				mooltipass.memmgmt_hid._sendMsg();
+				return;
+			}
 			mooltipass.memmgmt.startingParent = [packet[2], packet[3]];
 			console.log("Starting parent is " + mooltipass.memmgmt.startingParent);	
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
@@ -767,6 +781,13 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['getStartingDataParentAddress'])
 		{
+			if(packet[0] == 1)
+			{
+				// Request failed, leave memory management mode
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+				mooltipass.memmgmt_hid._sendMsg();
+				return;
+			}
 			mooltipass.memmgmt.favoriteAddresses = [];
 			mooltipass.memmgmt.clonedFavoriteAddresses = [];
 			mooltipass.memmgmt.dataStartingParent = [packet[2], packet[3]];
@@ -776,6 +797,13 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['getFavorite'])
 		{
+			if(packet[0] == 1)
+			{
+				// Request failed, leave memory management mode
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+				mooltipass.memmgmt_hid._sendMsg();
+				return;
+			}
 			// Extract addresses and append them to our current ones
 			mooltipass.memmgmt.favoriteAddresses.push(packet.subarray(2, 2 + 4));	
 			mooltipass.memmgmt.clonedFavoriteAddresses.push(packet.subarray(2, 2 + 4));			

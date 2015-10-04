@@ -8,10 +8,11 @@ var HID_PAYLOAD_SIZE				= 62;			// HID payload
 // State machine modes
 var MGMT_IDLE 						= 0;			// Idle mode
 var MGMT_PARAM_LOAD					= 1;			// Parameter loading
-var MGMT_PARAM_LOAD_INT_CHECK		= 2;			// Parameter loading for integrity check
-var MGMT_PARAM_LOAD_INT_CHECK_REQ	= 3;			// Parameter loading for integrity check, request
-var MGMT_INT_CHECK_SCAN				= 4;			// Scanning through the memory for integrity check
-var MGMT_INT_CHECK_PACKET_SENDING	= 5;			// Sending the correction packets
+var MGMT_PARAM_LOAD_REQ				= 2;			// Parameter loading
+var MGMT_PARAM_LOAD_INT_CHECK		= 3;			// Parameter loading for integrity check
+var MGMT_PARAM_LOAD_INT_CHECK_REQ	= 4;			// Parameter loading for integrity check, request
+var MGMT_INT_CHECK_SCAN				= 5;			// Scanning through the memory for integrity check
+var MGMT_INT_CHECK_PACKET_SENDING	= 6;			// Sending the correction packets
 
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;						// Mooltipass memory size
@@ -678,7 +679,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
 		}
 	}
-	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ)
+	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ)
 	{
 		if(packet[1] == mooltipass.device.commands['getMooltipassParameter'])
 		{
@@ -700,7 +701,14 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			if(packet[2] == 1)
 			{
 				// Load memory params
-				mooltipass.memmgmt.loadMemoryParamsStart(MGMT_PARAM_LOAD_INT_CHECK);	
+				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ)
+				{
+					mooltipass.memmgmt.loadMemoryParamsStart(MGMT_PARAM_LOAD_INT_CHECK);	
+				}
+				else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ)
+				{
+					mooltipass.memmgmt.loadMemoryParamsStart(MGMT_PARAM_LOAD);	
+				}
 				console.log("Memory management mode entered");
 			}
 			else
@@ -745,20 +753,20 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			if(++mooltipass.memmgmt.currentFavorite == 14)
 			{
 				console.log("Favorites loaded: " + mooltipass.memmgmt.favoriteAddresses);
+				mooltipass.memmgmt.packetToSendBuffer = [];
+				mooltipass.memmgmt.curServiceNodes = [];				
+				mooltipass.memmgmt.curLoginNodes = [];				
+				mooltipass.memmgmt.curDataServiceNodes = [];		
+				mooltipass.memmgmt.curDataNodes = [];	
+				mooltipass.memmgmt.clonedCurServiceNodes = [];				
+				mooltipass.memmgmt.clonedCurLoginNodes = [];				
+				mooltipass.memmgmt.clonedCurDataServiceNodes = [];		
+				mooltipass.memmgmt.clonedCurDataNodes = [];	
 				
 				// Depending on the current mode, check what to do next
 				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK)
 				{
-					// Start looping through all the nodes	
-					mooltipass.memmgmt.packetToSendBuffer = [];
-					mooltipass.memmgmt.curServiceNodes = [];				
-					mooltipass.memmgmt.curLoginNodes = [];				
-					mooltipass.memmgmt.curDataServiceNodes = [];		
-					mooltipass.memmgmt.curDataNodes = [];	
-					mooltipass.memmgmt.clonedCurServiceNodes = [];				
-					mooltipass.memmgmt.clonedCurLoginNodes = [];				
-					mooltipass.memmgmt.clonedCurDataServiceNodes = [];		
-					mooltipass.memmgmt.clonedCurDataNodes = [];						
+					// Start looping through all the nodes						
 					mooltipass.memmgmt.currentMode = MGMT_INT_CHECK_SCAN;
 					mooltipass.memmgmt.currentNode = new Uint8Array(NODE_SIZE);
 					mooltipass.memmgmt.scanPercentage = 0;
@@ -769,10 +777,9 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], [(mooltipass.memmgmt.nodeIt + (mooltipass.memmgmt.pageIt << 3)) & 0x00FF, (mooltipass.memmgmt.pageIt >> 5) & 0x00FF]);
 					mooltipass.memmgmt_hid._sendMsg();
 				}
-				else
+				else if(MGMT_PARAM_LOAD)
 				{
-					// Todo: follow the normal procedure
-					XXXXXXX
+					// Follow the nodes
 				}
 			}
 			else
@@ -946,6 +953,15 @@ mooltipass.memmgmt.loadMemoryParamsStart = function(wanted_mode)
 // Memory integrity check
 mooltipass.memmgmt.integrityCheckStart = function()
 {
+	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
+	{
+		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_REQ;
+		// First step is to query to user interaction timeout to set the correct packet timeout retry!
+		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
+		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+		mooltipass.memmgmt_hid.nbSendRetries = 0;
+		mooltipass.memmgmt_hid._sendMsg();
+	}return;
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_INT_CHECK_REQ;

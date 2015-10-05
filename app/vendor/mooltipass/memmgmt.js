@@ -4,6 +4,7 @@ mooltipass.memmgmt = mooltipass.memmgmt || {};
 // Defines
 var NODE_SIZE                       = 132;          // Node size
 var HID_PAYLOAD_SIZE                = 62;           // HID payload
+var MEDIA_BUNDLE_CHUNK_SIZE			= 33;			// How many bytes we send per chunk
  
 // State machine modes
 var MGMT_IDLE                       = 0;            // Idle mode
@@ -14,6 +15,8 @@ var MGMT_PARAM_LOAD_INT_CHECK_REQ   = 4;            // Parameter loading for int
 var MGMT_INT_CHECK_SCAN             = 5;            // Scanning through the memory for integrity check
 var MGMT_INT_CHECK_PACKET_SENDING   = 6;            // Sending the correction packets
 var MGMT_NORMAL_SCAN                = 7;            // Normal credential scan, following the nodes
+var MGMT_BUNDLE_UPLOAD_REQ			= 8;			// Media bundle upload req
+var MGMT_BUNDLE_UPLOAD				= 9;			// Media bundle upload
  
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;                         // Mooltipass memory size
@@ -55,6 +58,11 @@ mooltipass.memmgmt.currentNode = [];                // Current node we're sendin
 mooltipass.memmgmt.packetToSendBuffer = [];         // Packets we need to send at the end of the checks etc...
 mooltipass.memmgmt.nextParentNodeTSAddress = [];    // Next parent node to scan address
 mooltipass.memmgmt.curNodeAddressRequested = [];    // The address of the current node we're requesting
+
+// State machines & temp variables related to media bundle upload
+mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
+mooltipass.memmgmt.byteCounter = 0;					// Current byte counter
+mooltipass.memmgmt.mediaBundle = [];				// Media bundle contents
  
  
 // Node types
@@ -1372,6 +1380,125 @@ mooltipass.memmgmt.loadMemoryParamsStart = function(wanted_mode)
     {
         return false;
     }
+}
+
+// Data received from USB callback, for media bundle related comms
+mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
+{
+    if(packet[1] == mooltipass.device.commands['startMediaImport'])
+    {
+		// Answer to start media import packet
+		if(packet[2] == 0)
+		{
+			// Fail
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			console.log("Media import start fail!");
+		}
+		else
+		{
+			// Epic win, send first data packet
+			mooltipass.memmgmt.currentMode = MGMT_BUNDLE_UPLOAD;
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['mediaImport'], mooltipass.memmgmt.mediaBundle.subarray(0, MEDIA_BUNDLE_CHUNK_SIZE));
+			mooltipass.memmgmt.byteCounter += MEDIA_BUNDLE_CHUNK_SIZE;
+			mooltipass.memmgmt_hid.request['milliseconds'] = 2000;
+			mooltipass.memmgmt_hid.nbSendRetries = 3;
+			mooltipass.memmgmt_hid._sendMsg();
+			console.log("Media import has started, please wait a few minutes...");
+		}
+	}
+	else if(packet[1] == mooltipass.device.commands['mediaImport'])
+	{
+		// Acknowledge of previous packet send
+		if(packet[2] == 0)
+		{
+			// Fail... we kind of are stuck here...
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			console.log("Media import fail!");
+		}
+		else
+		{
+			// Check how many bytes we need to send
+			var nb_bytes_to_send = MEDIA_BUNDLE_CHUNK_SIZE;			
+			if(mooltipass.memmgmt.mediaBundle.length - mooltipass.memmgmt.byteCounter < MEDIA_BUNDLE_CHUNK_SIZE)
+			{
+				nb_bytes_to_send = mooltipass.memmgmt.mediaBundle.length - mooltipass.memmgmt.byteCounter;
+			}
+			
+			if(nb_bytes_to_send == 0)
+			{
+				// We finished sending data
+				console.log("Last packet sent!");
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMediaImport'], null);
+				mooltipass.memmgmt_hid._sendMsg();
+			}
+			else
+			{
+				// We still have data to send
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['mediaImport'], mooltipass.memmgmt.mediaBundle.subarray(mooltipass.memmgmt.byteCounter, mooltipass.memmgmt.byteCounter + nb_bytes_to_send));
+				mooltipass.memmgmt.byteCounter += nb_bytes_to_send;	
+				mooltipass.memmgmt_hid._sendMsg();		
+				console.log(mooltipass.memmgmt.mediaBundle.length - mooltipass.memmgmt.byteCounter);
+			}			
+		}
+	}
+	else if(packet[1] == mooltipass.device.commands['endMediaImport'])
+	{
+		mooltipass.memmgmt.currentMode = MGMT_IDLE;
+		if(packet[2] == 0)
+		{
+			// Fail... we kind of are stuck here...
+			console.log("Media import end fail!");
+		}
+		else
+		{
+			console.log("Media import end win!");			
+		}
+	}
+}
+
+// Media bundle read callback
+mooltipass.memmgmt.mediaBundleReadCallback = function(e)
+{
+	console.log("Media bundle read event...");
+     
+    if(e.type == "loadend" && mooltipass.memmgmt.currentMode == MGMT_IDLE)
+    {
+		// Change state
+		mooltipass.memmgmt.currentMode = MGMT_BUNDLE_UPLOAD_REQ;
+		
+		// Init vars
+		mooltipass.memmgmt.byteCounter = 0;		
+		mooltipass.memmgmt.mediaBundle = new Uint8Array(e.target.result);
+		console.log("Media bundle read, " + mooltipass.memmgmt.mediaBundle.length + " bytes long");
+		
+		// Set the timeouts & callbacks then send a media import start packet
+        mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMediaImport'], mooltipass.memmgmt.tempPassword);
+        mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.mediaBundleDataReceivedCallback;
+		mooltipass.memmgmt_hid.request['milliseconds'] = 20000;
+        mooltipass.memmgmt_hid.nbSendRetries = 0;
+        mooltipass.memmgmt_hid._sendMsg();
+	}	
+}
+
+// Media bundle upload
+mooltipass.memmgmt.mediaBundlerUpload = function(password)
+{
+	// Check password length
+	if(password.length != 124)
+	{
+		console.log("Wrong password length!");
+		return;
+	}
+	
+	// Convert the password
+	mooltipass.memmgmt.tempPassword = new Uint8Array(62);
+	for(var i = 0; i < password.length; i+= 2)
+	{
+		mooltipass.memmgmt.tempPassword[i/2] = parseInt(password.substr(i, 2), 16);
+	}
+	
+	// Ask the user to select the bundle
+	mooltipass.filehandler.selectAndReadRawContents("mooltipass_bundle.img", mooltipass.memmgmt.mediaBundleReadCallback);
 }
  
 // Memory integrity check

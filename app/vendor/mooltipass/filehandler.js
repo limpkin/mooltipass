@@ -37,6 +37,30 @@ mooltipass.filehandler.selectAndReadContents = function(name, readEndCallBack)
 																																							});	
 }
 
+// Ask the user to select a file to import its contents
+mooltipass.filehandler.selectAndReadRawContents = function(name, readEndCallBack)
+{
+	chrome.fileSystem.chooseEntry({type: 'openFile', suggestedName: name, accepts: new Array({'extensions': new Array("img")}), acceptsAllTypes: false},	function(readOnlyEntry) 
+																																							{
+																																								if(chrome.runtime.lastError)
+																																								{
+																																									// Something went wrong during file selection
+																																									console.log("File select error: "+ chrome.runtime.lastError.message);
+																																								}
+																																								else
+																																								{
+																																									// File chosen, create reader
+																																									readOnlyEntry.file(	function(file) 
+																																														{
+																																															var reader = new FileReader();
+																																															reader.onerror = mooltipass.filehandler.errorHandler;
+																																															reader.onloadend = readEndCallBack;
+																																															reader.readAsArrayBuffer(file);
+																																														});
+																																								}
+																																							});	
+}
+
 // Ask the user to select a file and save the provided contents in it
 mooltipass.filehandler.selectAndSaveFileContents = function(name, contents, writeEndCallback) 
 {

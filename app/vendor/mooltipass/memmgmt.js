@@ -711,7 +711,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
         mooltipass.memmgmt.importedCurLoginNodes = [];
         for(var i = 0; i < tempCurLoginNodes.length; i++)
         {
-            mooltipass.memmgmt.importedCurLoginNodes.push({'pointed': tempCurLoginNodes[i].pointed, 'address': tempCurLoginNodes[i].address, 'name': tempCurLoginNodes[i].name, 'data': new Uint8Array(Object.keys(tempCurLoginNodes[0].data).map(function(k){return tempCurLoginNodes[i].data[k]}))});
+            mooltipass.memmgmt.importedCurLoginNodes.push({'address': tempCurLoginNodes[i].address, 'name': tempCurLoginNodes[i].name, 'data': new Uint8Array(Object.keys(tempCurLoginNodes[0].data).map(function(k){return tempCurLoginNodes[i].data[k]})), 'pointed': tempCurLoginNodes[i].pointed});
         }
          
         mooltipass.memmgmt.importedCurDataServiceNodes = [];
@@ -726,7 +726,8 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
             mooltipass.memmgmt.importedCurDataNodes.push({'address': tempCurDataNodes[i].address, 'data': new Uint8Array(Object.keys(tempCurDataNodes[0].data).map(function(k){return tempCurDataNodes[i].data[k]}))});
         }
          
-        //console.log([mooltipass.memmgmt.importedCtrValue, mooltipass.memmgmt.importedCPZCTRValues, mooltipass.memmgmt.importedStartingParent, mooltipass.memmgmt.importedDataStartingParent, mooltipass.memmgmt.importedFavoriteAddresses, mooltipass.memmgmt.importedCurServiceNodes, mooltipass.memmgmt.importedCurLoginNodes, mooltipass.memmgmt.importedCurDataServiceNodes, mooltipass.memmgmt.importedCurDataNodes]);
+        console.log([mooltipass.memmgmt.importedCtrValue, mooltipass.memmgmt.importedCPZCTRValues, mooltipass.memmgmt.importedStartingParent, mooltipass.memmgmt.importedDataStartingParent, mooltipass.memmgmt.importedFavoriteAddresses, mooltipass.memmgmt.importedCurServiceNodes, mooltipass.memmgmt.importedCurLoginNodes, mooltipass.memmgmt.importedCurDataServiceNodes, mooltipass.memmgmt.importedCurDataNodes, checkString]);
+		mooltipass.memmgmt.syncFSMooltipassFileOK = true;
         console.log("Data imported!");  
     }
     else
@@ -740,7 +741,12 @@ mooltipass.memmgmt.exportMemoryState = function()
 {
     var export_data = [mooltipass.memmgmt.ctrValue, mooltipass.memmgmt.CPZCTRValues, mooltipass.memmgmt.startingParent, mooltipass.memmgmt.dataStartingParent, mooltipass.memmgmt.favoriteAddresses, mooltipass.memmgmt.curServiceNodes, mooltipass.memmgmt.curLoginNodes, mooltipass.memmgmt.curDataServiceNodes, mooltipass.memmgmt.curDataNodes, "mooltipass"];
     mooltipass.filehandler.selectAndSaveFileContents("memory_export", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.fileWrittenCallback);
-    //console.log(export_data);
+    console.log(export_data);
+	
+	if(mooltipass.memmgmt.syncFSOK)
+	{
+		mooltipass.filehandler.writeFileToSyncFS(mooltipass.memmgmt.syncFS, "mooltipassAutomaticBackup.bin", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.syncFSFileWrittenCallback);
+	}
     // {type: 'application/octet-binary'}
 }
  
@@ -761,6 +767,13 @@ mooltipass.memmgmt.importMemoryState = function()
 mooltipass.memmgmt.fileWrittenCallback = function()
 {
     console.log("File written!");
+	mooltipass.memmgmt.importMemoryState();
+}
+
+// SyncFS export file written callback
+mooltipass.memmgmt.syncFSFileWrittenCallback = function()
+{
+    console.log("File written to syncFS!");
 }
  
 // Get syncable file system status callback
@@ -910,7 +923,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
             console.log("Mooltipass interaction timeout is " + packet[2] + " seconds");
             // Create packet to go into memmgmt mode
             mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
-            mooltipass.memmgmt_hid.request.milliseconds = (packet[2]+2) * 1000;
+            mooltipass.memmgmt_hid.request.milliseconds = (packet[2]) * 2000;
             mooltipass.memmgmt_hid.nbSendRetries = 3;
             mooltipass.memmgmt_hid._sendMsg();
         }
@@ -1153,7 +1166,8 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
                                 // Leave mem management mode                
                                 mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
                                 mooltipass.memmgmt_hid._sendMsg();
-                                mooltipass.memmgmt.exportMemoryState();
+                                // TO REMOVE!!!!
+								mooltipass.memmgmt.exportMemoryState();
                             }
                             else
                             {
@@ -1363,7 +1377,8 @@ mooltipass.memmgmt.loadMemoryParamsStart = function(wanted_mode)
 // Memory integrity check
 mooltipass.memmgmt.integrityCheckStart = function()
 {   
-    mooltipass.filehandler.getSyncableFileSystemStatus(mooltipass.memmgmt.syncableFSStateCallback);mooltipass.filehandler.setSyncFSStateChangeCallback(mooltipass.memmgmt.syncableFSStateChangeCallback);return;
+    mooltipass.filehandler.getSyncableFileSystemStatus(mooltipass.memmgmt.syncableFSStateCallback);
+	mooltipass.filehandler.setSyncFSStateChangeCallback(mooltipass.memmgmt.syncableFSStateChangeCallback);
      
     if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
     {

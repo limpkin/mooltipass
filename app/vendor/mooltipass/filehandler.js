@@ -2,9 +2,11 @@ var mooltipass = mooltipass || {};
 mooltipass.filehandler = mooltipass.memmgmt || {};
 
 // Temp vars
-mooltipass.filehandler.tempSyncFS = null;		// Temp SyncFS
-mooltipass.filehandler.tempCallback = null;		// Temp Callback
-mooltipass.filehandler.tempFilename = null;		// Temp Filename
+mooltipass.filehandler.tempSyncFS = null;				// Temp SyncFS
+mooltipass.filehandler.tempFilename = null;				// Temp Filename
+mooltipass.filehandler.tempContents = "";				// Temp Contents
+mooltipass.filehandler.tempReadendCallback = null;		// Temp Callback
+mooltipass.filehandler.tempWriteendCallback = null;		// Temp Callback
 
 mooltipass.filehandler.errorHandler = function(e) 
 {
@@ -86,13 +88,13 @@ mooltipass.filehandler.requestSyncFS = function(callbackFunction)
 	chrome.syncFileSystem.requestFileSystem(callbackFunction);
 }
 
-// Callback for valid syncFS getFile
-mooltipass.filehandler.getFileCreateTrueFalseCallback = function(fileEntry)
+// Callback for valid syncFS getFile, for read purposes
+mooltipass.filehandler.getFileCreateTrueFalseCallbackRead = function(fileEntry)
 {
 	if(chrome.runtime.lastError)
 	{
 		// Something went wrong during file selection
-		console.log("File select error: "+ chrome.runtime.lastError.message);
+		console.log("SyncFS file select error: "+ chrome.runtime.lastError.message);
 	}
 	else
 	{
@@ -101,9 +103,39 @@ mooltipass.filehandler.getFileCreateTrueFalseCallback = function(fileEntry)
 							{
 								var reader = new FileReader();
 								reader.onerror = mooltipass.filehandler.errorHandler;
-								reader.onloadend = mooltipass.filehandler.tempCallback;
+								reader.onloadend = mooltipass.filehandler.tempReadendCallback;
 								reader.readAsText(file);
 							});
+	}
+}
+
+// Callback for valid syncFS getFile, for write purposes
+mooltipass.filehandler.getFileCreateTrueFalseCallbackWrite = function(fileEntry)
+{
+	if(chrome.runtime.lastError)
+	{
+		// Something went wrong during file selection
+		console.log("SyncFS file select error: "+ chrome.runtime.lastError.message);
+	}
+	else
+	{
+		// File chosen, create writer
+		fileEntry.createWriter(	function(writer) 
+								{
+									var truncated = false;
+									// Setup error and writeend call backs, start write
+									writer.onerror = mooltipass.filehandler.errorHandler;
+									writer.onwriteend =	function(e)
+														{
+															if(!truncated)
+															{
+																truncated = true;
+																this.truncate(this.position);
+																mooltipass.filehandler.tempWriteendCallback();
+															}
+														};
+									writer.write(mooltipass.filehandler.tempContents);
+								}, mooltipass.filehandler.errorHandler);
 	}
 }
 
@@ -112,7 +144,7 @@ mooltipass.filehandler.getFileCreateFalseErrorCallback = function(e)
 {
 	if(e.name == "NotFoundError")
 	{
-		mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:true}, mooltipass.filehandler.getFileCreateTrueFalseCallback, mooltipass.filehandler.errorHandler);		
+		mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:true}, mooltipass.filehandler.getFileCreateTrueFalseCallbackRead, mooltipass.filehandler.errorHandler);		
 	}
 	else
 	{
@@ -120,15 +152,24 @@ mooltipass.filehandler.getFileCreateFalseErrorCallback = function(e)
 	}
 }
 
-// Request file in FS
-mooltipass.filehandler.requestOrCreateFileFromSyncFS = function(filesystem, filename, getEntryCallback)
+// Request file in SyncFS
+mooltipass.filehandler.requestOrCreateFileFromSyncFS = function(filesystem, filename, fileReadCallback)
 {
 	mooltipass.filehandler.tempFilename = filename;
 	mooltipass.filehandler.tempSyncFS = filesystem;
-	mooltipass.filehandler.tempCallback = getEntryCallback;
-	mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:false}, mooltipass.filehandler.getFileCreateTrueFalseCallback, mooltipass.filehandler.getFileCreateFalseErrorCallback);
+	mooltipass.filehandler.tempReadendCallback = fileReadCallback;
+	mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:false}, mooltipass.filehandler.getFileCreateTrueFalseCallbackRead, mooltipass.filehandler.getFileCreateFalseErrorCallback);
 }
 
+// Write a file in SyncFS
+mooltipass.filehandler.writeFileToSyncFS = function(filesystem, filename, contents, fileWrittenCallback)
+{
+	mooltipass.filehandler.tempContents = contents;
+	mooltipass.filehandler.tempFilename = filename;
+	mooltipass.filehandler.tempSyncFS = filesystem;
+	mooltipass.filehandler.tempWriteendCallback = fileWrittenCallback;
+	mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:false}, mooltipass.filehandler.getFileCreateTrueFalseCallbackWrite, mooltipass.filehandler.errorHandler);
+}
 
 
 

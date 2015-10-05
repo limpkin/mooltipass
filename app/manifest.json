@@ -16,7 +16,8 @@
                 { "vendorId": 5840, "productId": 2464 }
             ]
         },
-	   { "fileSystem": ["write", "retainEntries"] }
+	   { "fileSystem": ["write"] },
+	   "syncFileSystem"
     ],
     "icons": { 
         "19": "images/icons/AppIcon_19.png",

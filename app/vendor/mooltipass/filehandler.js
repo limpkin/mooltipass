@@ -1,33 +1,14 @@
 var mooltipass = mooltipass || {};
 mooltipass.filehandler = mooltipass.memmgmt || {};
 
+// Temp vars
+mooltipass.filehandler.tempSyncFS = null;		// Temp SyncFS
+mooltipass.filehandler.tempCallback = null;		// Temp Callback
+mooltipass.filehandler.tempFilename = null;		// Temp Filename
+
 mooltipass.filehandler.errorHandler = function(e) 
 {
-	var msg = '';
-
-	switch (e.code) 
-	{
-		case FileError.QUOTA_EXCEEDED_ERR:
-			msg = 'QUOTA_EXCEEDED_ERR'+e;
-			break;
-		case FileError.NOT_FOUND_ERR:
-			msg = 'NOT_FOUND_ERR'+e;
-			break;
-		case FileError.SECURITY_ERR:
-			msg = 'SECURITY_ERR z.B. Speicherplatz wurde abgelehnt.'+e;
-			break;
-		case FileError.INVALID_MODIFICATION_ERR:
-			msg = 'INVALID_MODIFICATION_ERR'+e;
-			break;
-		case FileError.INVALID_STATE_ERR:
-			msg = 'INVALID_STATE_ERR'+e;
-			break;
-		default:
-			msg = 'Unknown Error'+e;
-			break;
-	}
-
-	console.log('Writer Error: ' + msg);
+	console.log("File handler error name: " + e.name + " / message: " + e.message);
 }
 
 // Ask the user to select a file to import its contents
@@ -86,6 +67,79 @@ mooltipass.filehandler.selectAndSaveFileContents = function(name, contents, writ
 																																								}
 																																							});
 }
+
+// Try and initialize the syncable file storage
+mooltipass.filehandler.getSyncableFileSystemStatus = function(callbackFunction)
+{
+	chrome.syncFileSystem.getServiceStatus(callbackFunction);
+}
+
+// Set a callback function to listen to syncFC status changes
+mooltipass.filehandler.setSyncFSStateChangeCallback = function(callbackFunction)
+{
+	chrome.syncFileSystem.onServiceStatusChanged.addListener(callbackFunction);
+}
+
+// Request SyncFS
+mooltipass.filehandler.requestSyncFS = function(callbackFunction)
+{
+	chrome.syncFileSystem.requestFileSystem(callbackFunction);
+}
+
+// Callback for valid syncFS getFile
+mooltipass.filehandler.getFileCreateTrueFalseCallback = function(fileEntry)
+{
+	if(chrome.runtime.lastError)
+	{
+		// Something went wrong during file selection
+		console.log("File select error: "+ chrome.runtime.lastError.message);
+	}
+	else
+	{
+		// File chosen, create reader
+		fileEntry.file(		function(file) 
+							{
+								var reader = new FileReader();
+								reader.onerror = mooltipass.filehandler.errorHandler;
+								reader.onloadend = mooltipass.filehandler.tempCallback;
+								reader.readAsText(file);
+							});
+	}
+}
+
+// Callback for get file with create false
+mooltipass.filehandler.getFileCreateFalseErrorCallback = function(e)
+{
+	if(e.name == "NotFoundError")
+	{
+		mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:true}, mooltipass.filehandler.getFileCreateTrueFalseCallback, mooltipass.filehandler.errorHandler);		
+	}
+	else
+	{
+		console.log("Unsupported error for getFile with create false: " + e.name + " / message: " + e.message);
+	}
+}
+
+// Request file in FS
+mooltipass.filehandler.requestOrCreateFileFromSyncFS = function(filesystem, filename, getEntryCallback)
+{
+	mooltipass.filehandler.tempFilename = filename;
+	mooltipass.filehandler.tempSyncFS = filesystem;
+	mooltipass.filehandler.tempCallback = getEntryCallback;
+	mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:false}, mooltipass.filehandler.getFileCreateTrueFalseCallback, mooltipass.filehandler.getFileCreateFalseErrorCallback);
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -356,39 +356,39 @@ if __name__ == '__main__':
 		sys.exit(0) 
 
 	# print reader info
-	sequence_number = print_get_reader_info(epout, epin, sequence_number)		
+	#sequence_number = print_get_reader_info(epout, epin, sequence_number)		
 		
 	# Power Off Packet
-	print ""
-	Power_Off_Packet = array('B')
-	Power_Off_Packet.append(0x63)  					# bMessageType
-	Power_Off_Packet.append(0x00)  					# dwLength
-	Power_Off_Packet.append(0x00)  					# dwLength
-	Power_Off_Packet.append(0x00)  					# dwLength
-	Power_Off_Packet.append(0x00)  					# dwLength
-	Power_Off_Packet.append(0x00)  					# bSlot
-	Power_Off_Packet.append(sequence_number)  		# bSeq
-	Power_Off_Packet.append(0x00)  					# abRFU
-	Power_Off_Packet.append(0x00)  					# abRFU
-	Power_Off_Packet.append(0x00)  					# abRFU
-	sendPacket(epout, Power_Off_Packet)
-	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 5000, True)
-	if response == None or response[0] != 0x81:
-		print "Reader Problem!"
-		reader_device.reset()
-		sys.exit(0)
-	else:
-		print "Power Off Packet"
-		response_analysis(response[7], response[8])
-		if response[9] == 0:
-			print "Clock running"
-		elif response[9] == 1:
-			print "Clock stopped in state L"
-		elif response[9] == 2:
-			print "Clock stopped in state H"
-		elif response[9] == 3:
-			print "Clock stopped in an unknown state"
+	#print ""
+	#Power_Off_Packet = array('B')
+	#Power_Off_Packet.append(0x63)  					# bMessageType
+	#Power_Off_Packet.append(0x00)  					# dwLength
+	#Power_Off_Packet.append(0x00)  					# dwLength
+	#Power_Off_Packet.append(0x00)  					# dwLength
+	#Power_Off_Packet.append(0x00)  					# dwLength
+	#Power_Off_Packet.append(0x00)  					# bSlot
+	#Power_Off_Packet.append(sequence_number)  		# bSeq
+	#Power_Off_Packet.append(0x00)  					# abRFU
+	#Power_Off_Packet.append(0x00)  					# abRFU
+	#Power_Off_Packet.append(0x00)  					# abRFU
+	#sendPacket(epout, Power_Off_Packet)
+	#sequence_number += 1
+	#response = receivePacketWithTimeout(epin, 5000, True)
+	#if response == None or response[0] != 0x81:
+	#	print "Reader Problem!"
+	#	reader_device.reset()
+	#	sys.exit(0)
+	#else:
+	#	print "Power Off Packet"
+	#	response_analysis(response[7], response[8])
+	#	if response[9] == 0:
+	#		print "Clock running"
+	#	elif response[9] == 1:
+	#		print "Clock stopped in state L"
+	#	elif response[9] == 2:
+	#		print "Clock stopped in state H"
+	#	elif response[9] == 3:
+	#		print "Clock stopped in an unknown state"
 		
 	checkInterruptChannel(epintin)		
 		
@@ -458,7 +458,7 @@ if __name__ == '__main__':
 			print "Problem setting the card type to AT88SC102"
 			
 	# print reader info
-	#sequence_number = print_get_reader_info(epout, epin, sequence_number)
+	#sequence_number = print_get_reader_info(epout, epin, sequence_number)	
 	
 	# Read Memory Card
 	print ""
@@ -534,7 +534,7 @@ if __name__ == '__main__':
 		reader_device.reset()
 		sys.exit(0)
 		
-	#sequence_number = read_memory_val(epout, epin, sequence_number, 0, 22)
+	sequence_number = read_memory_val(epout, epin, sequence_number, 0x0A, 0x03)
 	#sequence_number = read_memory_val(epout, epin, sequence_number, 22, 22)
 	
 	print ""

@@ -17,7 +17,8 @@
             ]
         },
 	   { "fileSystem": ["write"] },
-	   "syncFileSystem"
+	   "syncFileSystem",
+	   "storage"
     ],
     "icons": { 
         "19": "images/icons/AppIcon_19.png",

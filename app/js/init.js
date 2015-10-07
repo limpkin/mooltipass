@@ -8,6 +8,19 @@ function launch(details) {
         console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
     }
 
+    launchWindow();
+
+    if(_listenerInstalled) {
+        return;
+    }
+
+    chrome.runtime.onMessage.addListener(function(message, sender, callbackFunction) {
+        mooltipass.device.interface._sendFromListener(message, sender, callbackFunction);
+    });
+    _listenerInstalled = true;
+}
+
+function launchWindow() {
     // AppWindow is already opened -> do not open another one
     var windows = chrome.app.window.getAll();
     if(windows.length > 0) {
@@ -15,10 +28,11 @@ function launch(details) {
     }
 
     chrome.app.window.create('html/index.html', {'bounds': {'width': 800, 'height': 600}, "resizable": false});
-    chrome.runtime.onMessage.addListener(function(message, sender, callbackFunction) {
-        mooltipass.device.interface._sendFromListener(message, sender, callbackFunction);
-    });
 }
 
-chrome.runtime.onInstalled.addListener(launch);
-chrome.runtime.onStartup.addListener(launch);
+var _listenerInstalled = false;
+if(!_listenerInstalled) {
+    chrome.runtime.onInstalled.addListener(launch);
+    chrome.runtime.onStartup.addListener(launch);
+    chrome.app.runtime.onLaunched.addListener(launchWindow);
+}

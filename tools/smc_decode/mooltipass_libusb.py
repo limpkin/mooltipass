@@ -1,3 +1,5 @@
+import Crypto.Util.Counter
+import Crypto.Cipher.AES
 from array import array
 from time import sleep
 import platform
@@ -7,6 +9,7 @@ import os.path
 import random
 import struct
 import string
+import json
 import copy
 import time
 import sys
@@ -34,7 +37,7 @@ def right_shift_byte_buffer_by_xbits(data, nb_bits):
 def receivePacketWithTimeout(epin, timeout_ms, debug):
 	try :
 		data = epin.read(epin.wMaxPacketSize, timeout=timeout_ms)
-		print "Read", ''.join('0x{:02x} '.format(x) for x in data)
+		#print "Read", ''.join('0x{:02x} '.format(x) for x in data)
 		return data
 	except usb.core.USBError as e:
 		if debug:
@@ -51,7 +54,7 @@ def sendPacket(epout, data):
 	#for i in range(0, 64-len(data)):
 	#	data.append(0)
 	#print data
-	print "Write", ''.join('0x{:02x} '.format(x) for x in data)
+	#print "Write", ''.join('0x{:02x} '.format(x) for x in data)
 	epout.write(data)
 	
 def print_card_type(data):
@@ -74,7 +77,7 @@ def print_card_type(data):
 	if data & 0x0100 != 0:
 		print "- SLE4404 card type"
 	if data & 0x0200 != 0:
-		print "- AT88SC101/102/1003 card type"
+		print "- AT88SC101/102/103 card type"
 	if data & 0x1000 != 0:
 		print "- MCU T=0 card type"
 	if data & 0x2000 != 0:
@@ -148,9 +151,9 @@ def print_get_reader_info(epout, epin, sequence_number):
 		print "Reader Problem!"
 	elif len(response) > 10:
 		print "Get Reader Info Packet"
-		print "Firmware:", response[10:20]
 		print "Max number of command data bytes:", response[20]
 		print "Max number of data bytes that can be requested to be transmitted in a response:", response[21]
+		print "Firmware:", ''.join('0x{:02x} '.format(x) for x in response[10:20])
 		print "Supported card types :"	
 		print_card_type(int(response[22])*256 + int(response[23]))
 		print_selected_card_type(response[24])		
@@ -180,9 +183,8 @@ def verify_security_code(epout, epin, pin_code, sequence_number):
 	Verify_Sec_Code_Packet.append(0x08)  					# Error Counter LEN
 	Verify_Sec_Code_Packet.append(0x0A)  					# Byte Address
 	Verify_Sec_Code_Packet.append(0x02)  					# MEM_L
-	Verify_Sec_Code_Packet.append(pin_code / 256)  			# Code byte 1
-	Verify_Sec_Code_Packet.append(pin_code & 0x00FF) 		# Code byte 2
-	#print ''.join('0x{:02x} '.format(x) for x in Verify_Sec_Code_Packet)
+	Verify_Sec_Code_Packet.append(int('{:08b}'.format((pin_code / 256))[::-1], 2))  	# Code byte 1
+	Verify_Sec_Code_Packet.append(int('{:08b}'.format((pin_code & 0x00FF))[::-1], 2)) 	# Code byte 2
 	sendPacket(epout, Verify_Sec_Code_Packet)
 	sequence_number += 1
 	response = receivePacketWithTimeout(epin, 5000, True)
@@ -197,38 +199,6 @@ def verify_security_code(epout, epin, pin_code, sequence_number):
 			return sequence_number, True
 			
 	return sequence_number, True
-	
-def read_scac_value(epout, epin, sequence_number):
-	# Read SCAC
-	Read_Memory_Card_Packet = array('B')
-	Read_Memory_Card_Packet.append(0x6F)  					# bMessageType
-	Read_Memory_Card_Packet.append(0x00)  					# dwLength
-	Read_Memory_Card_Packet.append(0x00)  					# dwLength
-	Read_Memory_Card_Packet.append(0x00)  					# dwLength
-	Read_Memory_Card_Packet.append(0x05)  					# dwLength
-	Read_Memory_Card_Packet.append(0x00)  					# bSlot
-	Read_Memory_Card_Packet.append(sequence_number)  		# bSeq
-	Read_Memory_Card_Packet.append(0xFF)  					# bBWI
-	Read_Memory_Card_Packet.append(0x00)  					# wLevelParameter
-	Read_Memory_Card_Packet.append(0x00)  					# wLevelParameter	
-	Read_Memory_Card_Packet.append(0xFF)  					# CLA
-	Read_Memory_Card_Packet.append(0xB0)  					# INS
-	Read_Memory_Card_Packet.append(0x00)  					# P1
-	Read_Memory_Card_Packet.append(0x00)  					# Byte Address
-	Read_Memory_Card_Packet.append(40)  					# MEM_L
-	sendPacket(epout, Read_Memory_Card_Packet)
-	sequence_number += 1
-	response = receivePacketWithTimeout(epin, 5000, True)
-	if response == None or response[0] != 0x80:
-		print "Reader Problem!"
-		reader_device.reset()
-		sys.exit(0)
-	else:
-		response[10:] = reverse_bit_order_in_byte_buffer(response[10:])
-		card_scac = response[22:24]
-		number_of_tries_left = bin((card_scac[0] >> 4)&0x0F).count("1")
-			
-	return sequence_number, number_of_tries_left
 	
 def read_memory_val(epout, epin, sequence_number, addr, size):
 	# Read Memory Card
@@ -257,9 +227,16 @@ def read_memory_val(epout, epin, sequence_number, addr, size):
 		sys.exit(0)
 	else:
 		response[10:] = reverse_bit_order_in_byte_buffer(response[10:])
-		print ''.join('0x{:02x} '.format(x) for x in response[10:])
+		#print ''.join('0x{:02x} '.format(x) for x in response[10:])
 			
-	return sequence_number
+	return sequence_number, response[10:]
+	
+def read_scac_value(epout, epin, sequence_number):
+	# Read SCAC
+	sequence_number, response = read_memory_val(epout, epin, sequence_number, 12, 2)
+	card_scac = response[0:2]
+	number_of_tries_left = bin((card_scac[0] >> 4)&0x0F).count("1")			
+	return sequence_number, number_of_tries_left
 
 def findReaderDevice(vendor_id, product_id, print_debug):
 	# Find our device
@@ -356,39 +333,39 @@ if __name__ == '__main__':
 		sys.exit(0) 
 
 	# print reader info
-	#sequence_number = print_get_reader_info(epout, epin, sequence_number)		
+	sequence_number = print_get_reader_info(epout, epin, sequence_number)		
 		
 	# Power Off Packet
-	#print ""
-	#Power_Off_Packet = array('B')
-	#Power_Off_Packet.append(0x63)  					# bMessageType
-	#Power_Off_Packet.append(0x00)  					# dwLength
-	#Power_Off_Packet.append(0x00)  					# dwLength
-	#Power_Off_Packet.append(0x00)  					# dwLength
-	#Power_Off_Packet.append(0x00)  					# dwLength
-	#Power_Off_Packet.append(0x00)  					# bSlot
-	#Power_Off_Packet.append(sequence_number)  		# bSeq
-	#Power_Off_Packet.append(0x00)  					# abRFU
-	#Power_Off_Packet.append(0x00)  					# abRFU
-	#Power_Off_Packet.append(0x00)  					# abRFU
-	#sendPacket(epout, Power_Off_Packet)
-	#sequence_number += 1
-	#response = receivePacketWithTimeout(epin, 5000, True)
-	#if response == None or response[0] != 0x81:
-	#	print "Reader Problem!"
-	#	reader_device.reset()
-	#	sys.exit(0)
-	#else:
-	#	print "Power Off Packet"
-	#	response_analysis(response[7], response[8])
-	#	if response[9] == 0:
-	#		print "Clock running"
-	#	elif response[9] == 1:
-	#		print "Clock stopped in state L"
-	#	elif response[9] == 2:
-	#		print "Clock stopped in state H"
-	#	elif response[9] == 3:
-	#		print "Clock stopped in an unknown state"
+	print ""
+	Power_Off_Packet = array('B')
+	Power_Off_Packet.append(0x63)  					# bMessageType
+	Power_Off_Packet.append(0x00)  					# dwLength
+	Power_Off_Packet.append(0x00)  					# dwLength
+	Power_Off_Packet.append(0x00)  					# dwLength
+	Power_Off_Packet.append(0x00)  					# dwLength
+	Power_Off_Packet.append(0x00)  					# bSlot
+	Power_Off_Packet.append(sequence_number)  		# bSeq
+	Power_Off_Packet.append(0x00)  					# abRFU
+	Power_Off_Packet.append(0x00)  					# abRFU
+	Power_Off_Packet.append(0x00)  					# abRFU
+	sendPacket(epout, Power_Off_Packet)
+	sequence_number += 1
+	response = receivePacketWithTimeout(epin, 5000, True)
+	if response == None or response[0] != 0x81:
+		print "Reader Problem!"
+		reader_device.reset()
+		sys.exit(0)
+	else:
+		print "Power Off Packet"
+		response_analysis(response[7], response[8])
+		if response[9] == 0:
+			print "Clock running"
+		elif response[9] == 1:
+			print "Clock stopped in state L"
+		elif response[9] == 2:
+			print "Clock stopped in state H"
+		elif response[9] == 3:
+			print "Clock stopped in an unknown state"
 		
 	checkInterruptChannel(epintin)		
 		
@@ -534,18 +511,51 @@ if __name__ == '__main__':
 		reader_device.reset()
 		sys.exit(0)
 		
-	sequence_number = read_memory_val(epout, epin, sequence_number, 0x0A, 0x03)
-	#sequence_number = read_memory_val(epout, epin, sequence_number, 22, 22)
+	# Ask the user to enter the path to the JSON file
+	print ""
+	jsonfile_path = raw_input("Please enter the path to the memory export file: ")
+	#jsonfile_path = "../../../../memory_export.bin"
+	with open(jsonfile_path) as json_file:
+		json_data = json.load(json_file)
+		nonce = []
+		for i in range(8, 24):
+			nonce.append(json_data[1][0][str(i)])
+		nonce_string = ''.join('{:02x}'.format(x) for x in nonce)
+		print "Nonce found:", nonce_string.upper()
+		
+	# Warning part
+	print ""
+	print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  WARNING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	print "!                                                                                                       !"
+	print "! Using this tool effectively renders your Mooltipass useless.                                          !"
+	print "! After accepting the following prompt, your AES key will be fetched from your card.                    !"
+	print "! Both your credential database and its decryption key will therefore be in your computer memory.       !"
+	print "! If your computer is infected, all your logins & passwords can be decrypted without your knowledge.    !"
+	print "! Type \"I understand\" in the following prompt to proceed                                                !"
+	print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	text_input = raw_input("Text input: ")
+	if text_input != "I understand":
+		reader_device.reset()
+		sys.exit(0)
 	
+	# Ask pin code
 	print ""
 	pin_code = raw_input("Please Enter Your PIN: ")
 	pin_code = int(pin_code, 16)
 	
+	# Unlock card
 	card_blocked = False
 	sequence_number, card_blocked = verify_security_code(epout, epin, pin_code, sequence_number)
 	sequence_number, new_scac_val = read_scac_value(epout, epin, sequence_number)
 	if card_blocked == True:
 		print "Card Blocked"
+		reader_device.reset()
+		sys.exit(0)
 	else:
 		if new_scac_val == 4:
 			print "Correct PIN"	
@@ -554,33 +564,69 @@ if __name__ == '__main__':
 			reader_device.reset()
 			sys.exit(0)
 	
+	# Unlocked card, read AES key
+	sequence_number, aes_key = read_memory_val(epout, epin, sequence_number, 24, 32)
+	aes_key = aes_key[0:32]
+	aes_key_string = ''.join('{:02x}'.format(x) for x in aes_key)
+	aes_key_string_for_func = ''.join(chr(x) for x in aes_key)
+	print ""
+	print "AES key extracted:", aes_key_string.upper()
+	
+	# Loop through service nodes
+	print ""
+	print "Looping through memory file contents..."
+	for i in range(0, len(json_data[5])):
+		print "Parent node", json_data[5][i]["name"]	
+		# Reconstruct node data
+		node_data = []
+		for j in range(0, 132):
+			node_data.append(json_data[5][i]["data"][str(j)])
+			
+		child_address = node_data[6:8]
+		if child_address[0] == 0 and child_address[1] == 0:
+			print "... doesn't have children"
+		else:
+			# Decrypt children
+			while(child_address[0] != 0 or child_address[1] != 0):	
+				# Loop through children to find addresses
+				for j in range(0, len(json_data[6])):
+					# Compare the wanted and actual address
+					if json_data[6][j]["address"][0] == child_address[0] and json_data[6][j]["address"][1] == child_address[1]:
+						# Rebuild node data
+						node_data = []
+						for k in range(0, 132):
+							node_data.append(json_data[6][j]["data"][str(k)])
+						
+						# decrypt data
+						iv = nonce[:]
+						iv[13] ^= node_data[34]
+						iv[14] ^= node_data[35]
+						iv[15] ^= node_data[36]
+						#print "CTR value:", ''.join('{:02x}'.format(x) for x in node_data[34:37])
+						#print "IV value:", ''.join('{:02x}'.format(x) for x in iv)
+						iv_string = ''.join('{:02x}'.format(x) for x in iv)
+						ctr = Crypto.Util.Counter.new(128, initial_value=long(iv_string, 16))		
+						cipher = Crypto.Cipher.AES.new(aes_key_string_for_func, Crypto.Cipher.AES.MODE_CTR, counter=ctr)
+						password = cipher.decrypt(''.join(chr(x) for x in node_data[100:132]))
+						password = password.split("\x00")[0]
+						
+						# print data
+						print "Login:", json_data[6][j]["name"], "password:", password
+						child_address = node_data[4:6]
+						break
+	
 	reader_device.reset()
 	sys.exit(0)
 	
 	
-	# Automatically follow with a PC_to_RDR_Abort
-	PC_to_RDR_IccPowerOn_Packet = array('B')
-	PC_to_RDR_IccPowerOn_Packet.append(0x62)  # Command ID
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # DwLength
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # DwLength
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # DwLength
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # DwLength
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # bSlot
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # bSeq
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # abRFU
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # abRFU
-	PC_to_RDR_IccPowerOn_Packet.append(0x00)  # abRFU
-	sendPacket(epout, PC_to_RDR_IccPowerOn_Packet)
-	print "epin"
-	print receivePacketWithTimeout(epin)
-	print "epintin"
-	print receivePacketWithTimeout(epintin)
-	print receivePacketWithTimeout(epin)
 	
-
-	# Abort request through control endpoint
-	requestType=0x21	# From CCID spec
-	request=0x01		# ABORT request
-	value=0x0000		# bseq high byte bslot low byte
-	index=0x0000		# interface number
-	print reader_device.ctrl_transfer(requestType,request,value,index,None,1000)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

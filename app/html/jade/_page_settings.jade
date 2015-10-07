@@ -11,10 +11,30 @@
       .column.small-3
         h3 Keyboard layout
       .column.small-2
-        select(name="keyboardLayout")
-          option(value="1") EN.US
-          option(value="2") EN.UK
-          option(value="3") DE.DE
+        select(name="keyboardLayout", id="settings-keyboardLayout")
+          option(value="155") cz_CZ
+          option(value="156") da_DK
+          option(value="149") de_DE
+          option(value="151") en_AU
+          option(value="154") en_CA
+          option(value="167") en_UK
+          option(value="146") en_US
+          option(value="150") es_AR
+          option(value="148") es_ES
+          option(value="157") fi_FI
+          option(value="152") fr_BE
+          option(value="147") fr_FR
+          option(value="166") frde_CH
+          option(value="158") hu_HU
+          option(value="159") is_IS
+          option(value="160") it_IT
+          option(value="161") nl_NL
+          option(value="162") no_NO
+          option(value="153") po_BR
+          option(value="163") po_PO
+          option(value="164") ro_RO
+          option(value="165") sl_SL
+
       .column.small-7
 
     .row.margin-bottom
@@ -22,10 +42,12 @@
         h3 Inactivity
       .column.small-9
         label
-          input(type="checkbox", name="lockTimeoutEnabled")
-          | &nbsp; Lock after <input type="text" class="inline-time" maxlength="3" name="lockTimeout" /> minutes inactivity
+          input(type="checkbox", name="lockTimeoutEnabled", id="settings-lockTimeoutEnabled")
+          | &nbsp; Lock after
+          input(type="text", class="inline-time", maxlength=3, name="lockTimeout", id="settings-lockTimeout")
+          | minutes inactivity
         label
-          input(type="checkbox", name="screensaver")
+          input(type="checkbox", name="screensaver", id="settings-screensaver")
           | &nbsp; Use screen saver
 
     .row.margin-bottom
@@ -33,20 +55,22 @@
         h3 Input timeout
       .column.small-9
         label
-          input(type="checkbox", name="userRequestCancel")
-          | &nbsp; Cancel credentials request after <input type="text" class="inline-time" maxlength="3" name="userInterTimeout" /> seconds
+          input(type="checkbox", name="userRequestCancel", id="settings-userRequestCancel")
+          | &nbsp; Cancel credentials request after
+          input(type="text", class="inline-time", maxlength="3", name="userInterTimeout", id="settings-userInterTimeout")
+          | seconds
 
     .row.margin-bottom
       .column.small-3
         h3 Miscellaneous
       .column.small-9
         label
-          input(type="checkbox", name="flashScreen") 
+          input(type="checkbox", name="flashScreen", id="settings-flashScreen")
           | &nbsp; Flash screen when input is required
         label
-          input(type="checkbox", name="offlineMode") 
+          input(type="checkbox", name="offlineMode", id="settings-offlineMode")
           | &nbsp; Allow boot without host (e.g. usb battery / charger)
         label
-          input(type="checkbox", name="tutorialEnabled") 
+          input(type="checkbox", name="tutorialEnabled", id="tutorialEnabled")
           | &nbsp; Enable device tutorial
 

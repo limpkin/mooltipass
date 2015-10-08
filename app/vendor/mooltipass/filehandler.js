@@ -22,6 +22,7 @@ mooltipass.filehandler.selectAndReadContents = function(name, readEndCallBack)
 																																								{
 																																									// Something went wrong during file selection
 																																									console.log("File select error: "+ chrome.runtime.lastError.message);
+																																									readEndCallBack(null);
 																																								}
 																																								else
 																																								{
@@ -46,6 +47,7 @@ mooltipass.filehandler.selectAndReadRawContents = function(name, readEndCallBack
 																																								{
 																																									// Something went wrong during file selection
 																																									console.log("File select error: "+ chrome.runtime.lastError.message);
+																																									readEndCallBack(null);
 																																								}
 																																								else
 																																								{

@@ -2,23 +2,30 @@ var mooltipass = mooltipass || {};
 mooltipass.memmgmt = mooltipass.memmgmt || {};
  
 // Defines
-var NODE_SIZE                       = 132;          // Node size
-var HID_PAYLOAD_SIZE                = 62;           // HID payload
-var MEDIA_BUNDLE_CHUNK_SIZE			= 33;			// How many bytes we send per chunk
- 
-// State machine modes
-var MGMT_IDLE                       = 0;            // Idle mode
-var MGMT_PARAM_LOAD                 = 1;            // Parameter loading
-var MGMT_PARAM_LOAD_REQ             = 2;            // Parameter loading
-var MGMT_PARAM_LOAD_INT_CHECK       = 3;            // Parameter loading for integrity check
-var MGMT_PARAM_LOAD_INT_CHECK_REQ   = 4;            // Parameter loading for integrity check, request
-var MGMT_INT_CHECK_SCAN             = 5;            // Scanning through the memory for integrity check
-var MGMT_INT_CHECK_PACKET_SENDING   = 6;            // Sending the correction packets
-var MGMT_NORMAL_SCAN                = 7;            // Normal credential scan, following the nodes
-var MGMT_BUNDLE_UPLOAD_REQ			= 8;			// Media bundle upload req
-var MGMT_BUNDLE_UPLOAD				= 9;			// Media bundle upload
-var MGMT_NORMAL_SCAN_DONE			= 10;			// Normal credentials can done
-var MGMT_PASSWORD_REQ				= 11;			// Asking a password to the MP
+var NODE_SIZE                       	= 132;          // Node size
+var HID_PAYLOAD_SIZE                	= 62;           // HID payload
+var MEDIA_BUNDLE_CHUNK_SIZE				= 33;			// How many bytes we send per chunk
+	
+// State machine modes	
+var MGMT_IDLE                       	= 0;            // Idle mode
+var MGMT_PARAM_LOAD                 	= 1;            // Parameter loading
+var MGMT_PARAM_LOAD_REQ             	= 2;            // Parameter loading
+var MGMT_PARAM_LOAD_INT_CHECK       	= 3;            // Parameter loading for integrity check
+var MGMT_PARAM_LOAD_INT_CHECK_REQ   	= 4;            // Parameter loading for integrity check, request
+var MGMT_INT_CHECK_SCAN             	= 5;            // Scanning through the memory for integrity check
+var MGMT_INT_CHECK_PACKET_SENDING   	= 6;            // Sending the correction packets
+var MGMT_NORMAL_SCAN                	= 7;            // Normal credential scan, following the nodes
+var MGMT_BUNDLE_UPLOAD_REQ				= 8;			// Media bundle upload req
+var MGMT_BUNDLE_UPLOAD					= 9;			// Media bundle upload
+var MGMT_NORMAL_SCAN_DONE				= 10;			// Normal credentials can done
+var MGMT_PASSWORD_REQ					= 11;			// Asking a password to the MP
+var MGMT_DBFILE_MERGE_REQ				= 12;			// Asking to merge the credential file to the mooltipass
+var MGMT_PARAM_LOAD_DBFILE_MERGE_REQ	= 13;			// Parameter load when merging credential file
+var MGMT_PARAM_LOAD_DBFILE_MERGE		= 14;			// Parameter load when merging credential file
+var MGMT_DBFILE_MERGE_NORMAL_SCAN 		= 15;			// Normal memory scan when wanting to merge DBs
+var MGMT_PARAM_LOAD_MEM_BACKUP			= 16;			// Parameter loading for memory backup
+var MGMT_PARAM_LOAD_MEM_BACKUP_REQ		= 17;			// Parameter loading for memory backup, request
+var MGMT_MEM_BACKUP_NORMAL_SCAN			= 18;			// Normal memory scan when wanting to backup memory
  
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;                         // Mooltipass memory size
@@ -292,6 +299,55 @@ mooltipass.memmgmt.compareNodeObjects = function(nodeA, nodeB)
     }
     return true;
 }
+
+// Compare node data
+mooltipass.memmgmt.compareNodeData = function(nodeA, nodeB)
+{
+    for(var i = 0; i < nodeA.data.length; i++)
+    {
+        if(nodeA.data[i] != nodeB.data[i])
+        {
+            return false;
+        }
+    }
+    return true;	
+}
+
+// Compare parent node core data
+mooltipass.memmgmt.compareParentNodeCoreData = function(nodeA, nodeB)
+{
+	// The only difference is that we are not checking the flags / prev / next / first child fields
+    for(var i = 8; i < nodeA.data.length; i++)
+    {
+        if(nodeA.data[i] != nodeB.data[i])
+        {
+            return false;
+        }
+    }
+    return true;	
+}
+ 
+// Find if CPZ currently is in our CTR CPZ vector
+mooltipass.memmgmt.isCPZValueKnownInCPZCTRVector = function(CPZValue, vector)
+{
+	for(var i = 0; i < vector.length; i++)
+	{
+		var cpz_found = true;
+		for(var j = 0; j < 8; j++)
+		{
+			if(vector[i][j] != CPZValue[j])
+			{
+				cpz_found = false;
+				break;
+			}
+		}
+		if(cpz_found)
+		{
+			return true;
+		}
+	}
+	return false;
+} 
  
 // Add write node command to current packet bufferDepth
 mooltipass.memmgmt.addWriteNodePacketToSendBuffer = function(address, node)
@@ -379,6 +435,39 @@ mooltipass.memmgmt.integrityCheck = function()
     {
         console.log("Starting data parent address ok");
     }
+	
+	// Because of our wonderful previous developer, we can have parent nodes having the same name (urgh...). In this case we find the node that is pointed to and delete the other
+	for(var i = mooltipass.memmgmt.clonedCurServiceNodes.length - 1; i >= 0; i--)
+	{
+		if((i != 0) && mooltipass.memmgmt.clonedCurServiceNodes[i].name == mooltipass.memmgmt.clonedCurServiceNodes[i-1].name)
+		{
+			console.log("Found duplicate parent node: " + mooltipass.memmgmt.clonedCurServiceNodes[i].name)
+			
+			// Find the one that is pointed to
+			var current_node_pointed_to = false;
+			for(var j = 0; j < mooltipass.memmgmt.clonedCurServiceNodes.length; j++)
+			{
+				if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.clonedCurServiceNodes[i].address, mooltipass.memmgmt.getNextAddress(mooltipass.memmgmt.clonedCurServiceNodes[j])))
+				{
+					current_node_pointed_to = true;
+				}
+			}
+			
+			// Delete the correct node
+			if(current_node_pointed_to)
+			{
+				// Delete the other node
+				console.log("Deleting node at address " + mooltipass.memmgmt.clonedCurServiceNodes[i-1].address);
+				mooltipass.memmgmt.clonedCurServiceNodes.splice(i-1, 1);
+				i++;
+			}
+			else
+			{
+				console.log("Deleting node at address " + mooltipass.memmgmt.clonedCurServiceNodes[i].address);
+				mooltipass.memmgmt.clonedCurServiceNodes.splice(i, 1);
+			}
+		}
+	}
      
     // See if the sorted parent nodes actually are in the right order. Here the first node is verified to be the correct one
     var current_previous_node_addr = [];
@@ -682,6 +771,10 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
         if(e.target.result == "")
         {
             console.log("Read: Empty file");
+			if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_REQ)
+			{
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			}
             return;
         }
          
@@ -691,6 +784,10 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
         if(imported_data.length != 10)
         {
             console.log("Wrong data format!");
+			if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_REQ)
+			{
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			}
             return;
         }
          
@@ -710,6 +807,10 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
         if(checkString != "mooltipass")
         {
             console.log("Wrong data format!");
+			if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_REQ)
+			{
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			}
             return;
         }
          
@@ -755,9 +856,20 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
             mooltipass.memmgmt.importedCurDataNodes.push({'address': tempCurDataNodes[i].address, 'data': new Uint8Array(Object.keys(tempCurDataNodes[0].data).map(function(k){return tempCurDataNodes[i].data[k]}))});
         }
          
-        console.log([mooltipass.memmgmt.importedCtrValue, mooltipass.memmgmt.importedCPZCTRValues, mooltipass.memmgmt.importedStartingParent, mooltipass.memmgmt.importedDataStartingParent, mooltipass.memmgmt.importedFavoriteAddresses, mooltipass.memmgmt.importedCurServiceNodes, mooltipass.memmgmt.importedCurLoginNodes, mooltipass.memmgmt.importedCurDataServiceNodes, mooltipass.memmgmt.importedCurDataNodes, checkString]);
+        //console.log([mooltipass.memmgmt.importedCtrValue, mooltipass.memmgmt.importedCPZCTRValues, mooltipass.memmgmt.importedStartingParent, mooltipass.memmgmt.importedDataStartingParent, mooltipass.memmgmt.importedFavoriteAddresses, mooltipass.memmgmt.importedCurServiceNodes, mooltipass.memmgmt.importedCurLoginNodes, mooltipass.memmgmt.importedCurDataServiceNodes, mooltipass.memmgmt.importedCurDataNodes, checkString]);
 		mooltipass.memmgmt.syncFSMooltipassFileOK = true;
         console.log("Data imported!");  
+		
+		// Depending on current mode, launch next actions....
+		if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_REQ)
+		{			
+			// First step is to query to user interaction timeout to set the correct packet timeout retry!
+			mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_DBFILE_MERGE_REQ;
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
+			mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+			mooltipass.memmgmt_hid.nbSendRetries = 0;
+			mooltipass.memmgmt_hid._sendMsg();
+		}
     }
     else
     {
@@ -770,7 +882,7 @@ mooltipass.memmgmt.exportMemoryState = function()
 {
     var export_data = [mooltipass.memmgmt.ctrValue, mooltipass.memmgmt.CPZCTRValues, mooltipass.memmgmt.startingParent, mooltipass.memmgmt.dataStartingParent, mooltipass.memmgmt.favoriteAddresses, mooltipass.memmgmt.curServiceNodes, mooltipass.memmgmt.curLoginNodes, mooltipass.memmgmt.curDataServiceNodes, mooltipass.memmgmt.curDataNodes, "mooltipass"];
     mooltipass.filehandler.selectAndSaveFileContents("memory_export", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.fileWrittenCallback);
-    console.log(export_data);
+    //console.log(export_data);
 	
 	if(mooltipass.memmgmt.syncFSOK)
 	{
@@ -782,8 +894,19 @@ mooltipass.memmgmt.exportMemoryState = function()
 // Callback after memory import file read
 mooltipass.memmgmt.importMemoryStateCallBack = function(e)
 {
-    console.log("Received data from file");
-    mooltipass.memmgmt.processReadProgressEvent(e);
+	if(e == null)
+	{
+		console.log("Import memory state callback: error");
+		if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_REQ)
+		{
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+		}
+	}
+	else
+	{
+		console.log("Received data from file");
+		mooltipass.memmgmt.processReadProgressEvent(e);
+	}    
 }
  
 // Import a Mooltipass memory state file
@@ -796,7 +919,6 @@ mooltipass.memmgmt.importMemoryState = function()
 mooltipass.memmgmt.fileWrittenCallback = function()
 {
     console.log("File written!");
-	mooltipass.memmgmt.importMemoryState();
 }
 
 // SyncFS export file written callback
@@ -932,6 +1054,34 @@ mooltipass.memmgmt.getPasswordForCredential = function(service, login, callback)
 	}
 }
  
+// Generate merge operations once we have listed all the credentials inside the Mooltipass
+mooltipass.memmgmt.generateMergeOperations = function()
+{
+	// Find the nodes we don't have in memory or that have been changed
+	for(var i = 0; i < mooltipass.memmgmt.importedCurServiceNodes.length; i++)
+	{
+		// Loop in the memory nodes to compare data
+		var service_node_found = false;
+		for(var j = 0; j < mooltipass.memmgmt.clonedCurServiceNodes.length; j++)
+		{
+			if(mooltipass.memmgmt.compareParentNodeCoreData(mooltipass.memmgmt.importedCurServiceNodes[i], mooltipass.memmgmt.clonedCurServiceNodes[j]))
+			{
+				// We found a parent node that has the same core data (doesn't mean the same prev / next node though!)
+				console.log("Parent node core data match: " + mooltipass.memmgmt.importedCurServiceNodes[i].name);
+				service_node_found = true;
+				
+				// Next step is to check if the first child is the same
+			}
+		}
+		// Did we find the service core data?
+		if(service_node_found == false)
+		{
+			// New service
+			console.log("New service in data file: " + mooltipass.memmgmt.importedCurServiceNodes[i].name);
+		}
+	}
+}
+ 
 // Data received from USB callback
 mooltipass.memmgmt.dataReceivedCallback = function(packet)
 {
@@ -1034,18 +1184,58 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
             console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
         }
     }
-    else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ)
+    else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP_REQ)
     {
         if(packet[1] == mooltipass.device.commands['getMooltipassParameter'])
         {
             // We received the user interaction timeout, use it for our packets timeout
             console.log("Mooltipass interaction timeout is " + packet[2] + " seconds");
-            // Create packet to go into memmgmt mode
-            mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
-            mooltipass.memmgmt_hid.request.milliseconds = (packet[2]) * 2000;
-            mooltipass.memmgmt_hid.nbSendRetries = 3;
-            mooltipass.memmgmt_hid._sendMsg();
+			
+			if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE_REQ)
+			{
+				// If we want to do a merge operation, we need to check that the CTR is known			
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getCurrentCardCPZ'], null);
+				mooltipass.memmgmt_hid.request.milliseconds = (packet[2]) * 2000;
+				mooltipass.memmgmt_hid.nbSendRetries = 3;
+				mooltipass.memmgmt_hid._sendMsg();
+			}
+			else
+			{
+				// Create packet to go into memmgmt mode
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
+				mooltipass.memmgmt_hid.request.milliseconds = (packet[2]) * 2000;
+				mooltipass.memmgmt_hid.nbSendRetries = 3;
+				mooltipass.memmgmt_hid._sendMsg();
+			}            
         }
+        else if(packet[1] == mooltipass.device.commands['getCurrentCardCPZ'])
+		{
+			if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE_REQ)
+			{
+				// Was it a success
+				if(packet[0] == 1)
+				{
+					console.log("No card inserted in the Mooltipass!");
+                    mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				}
+				else
+				{
+					// We just received the current card CPZ, check that we know it before proceeding to the merge
+					if(mooltipass.memmgmt.isCPZValueKnownInCPZCTRVector(packet.subarray(2, 2 + packet[0]), mooltipass.memmgmt.importedCPZCTRValues))
+					{
+						mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
+						mooltipass.memmgmt_hid.request.milliseconds = (packet[2]) * 2000;
+						mooltipass.memmgmt_hid.nbSendRetries = 3;
+						mooltipass.memmgmt_hid._sendMsg();					
+					}
+					else
+					{
+						console.log("Inserted card isn't known by the save file!!!");
+						mooltipass.memmgmt.currentMode = MGMT_IDLE;
+					}
+				}				
+			}
+		}
         else if(packet[1] == mooltipass.device.commands['startMemoryManagementMode'])
         {
             // Start memory management request answer
@@ -1068,16 +1258,27 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
                     mooltipass.memmgmt.currentMode = MGMT_IDLE;
                     mooltipass.memmgmt.loadMemoryParamsStart(MGMT_PARAM_LOAD);  
                 }
+				else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE_REQ)
+				{
+                    mooltipass.memmgmt.currentMode = MGMT_IDLE;
+                    mooltipass.memmgmt.loadMemoryParamsStart(MGMT_PARAM_LOAD_DBFILE_MERGE);  
+				}
+				else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP_REQ)
+				{
+                    mooltipass.memmgmt.currentMode = MGMT_IDLE;
+                    mooltipass.memmgmt.loadMemoryParamsStart(MGMT_PARAM_LOAD_MEM_BACKUP);  					
+				}
                 console.log("Memory management mode entered");
             }
             else
             {
                 console.log("Couldn't enter memory management mode");
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
                 mooltipass.device.processQueue();
             }
         }   
     }
-    else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK)
+    else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP)
     {
         // Parameter loading
         if(packet[1] == mooltipass.device.commands['getVersion'])
@@ -1194,6 +1395,22 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
                     mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
                     mooltipass.memmgmt_hid._sendMsg();
                 }
+				else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE)
+				{
+                    // Follow the nodes, starting with the parent one
+                    mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_NORMAL_SCAN;
+                    mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.startingParent;
+                    mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
+                    mooltipass.memmgmt_hid._sendMsg();
+				}
+				else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP)
+				{
+                    // Follow the nodes, starting with the parent one
+                    mooltipass.memmgmt.currentMode = MGMT_MEM_BACKUP_NORMAL_SCAN;
+                    mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.startingParent;
+                    mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
+                    mooltipass.memmgmt_hid._sendMsg();
+				}
             }
             else
             {
@@ -1203,7 +1420,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
             }
         }
     }
-    else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN)
+    else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN || mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN || mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN)
     {
         // check if we actually could read the node (permission problems....)
         if(packet[0] > 1)
@@ -1247,10 +1464,23 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
                             if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.nextParentNodeTSAddress, [0,0]))
                             {
                                 // Finished scanning
-                                // Leave mem management mode   
-								mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;	             
-                                //mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-                                //mooltipass.memmgmt_hid._sendMsg();
+								if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN)
+								{
+									// Wait for the user to do his actions...
+									mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;			
+								}
+								else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
+								{
+									// Start the merging procedure
+									mooltipass.memmgmt.generateMergeOperations();
+								}
+								else if(mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN)
+								{
+									// Leave mem management mode        
+									mooltipass.memmgmt.exportMemoryState();      
+									mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+									mooltipass.memmgmt_hid._sendMsg();									
+								}
                             }
                             else
                             {
@@ -1293,8 +1523,24 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
                             if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.nextParentNodeTSAddress, [0,0]))
                             {
                                 // Finished scanning
-                                // Leave mem management mode  
-								mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;								
+								if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN)
+								{
+									// Wait for the user to do his actions...
+									mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;			
+								}
+								else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
+								{
+									// Start the merging procedure
+									mooltipass.memmgmt.generateMergeOperations();
+								}
+								else if(mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN)
+								{
+									// Leave mem management mode    
+									mooltipass.memmgmt.exportMemoryState();
+									mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+									mooltipass.memmgmt_hid._sendMsg();									
+								}
+                                // Leave mem management mode  						
                                 //mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
                                 //mooltipass.memmgmt_hid._sendMsg();
                                 // TO REMOVE!!!!
@@ -1405,7 +1651,8 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
                 }
                  
                 // Check that we didn't finish the scanning, ask next node
-                if(((mooltipass.memmgmt.nodeIt + 1) == mooltipass.memmgmt.getNodesPerPage(mooltipass.memmgmt.nbMb) && (mooltipass.memmgmt.pageIt + 1) == mooltipass.memmgmt.getNumberOfPages(mooltipass.memmgmt.nbMb)) || false)//(mooltipass.memmgmt.scanPercentage == 5))
+                //if(((mooltipass.memmgmt.nodeIt + 1) == mooltipass.memmgmt.getNodesPerPage(mooltipass.memmgmt.nbMb) && (mooltipass.memmgmt.pageIt + 1) == mooltipass.memmgmt.getNumberOfPages(mooltipass.memmgmt.nbMb)) || false)//(mooltipass.memmgmt.scanPercentage == 5))
+                if(((mooltipass.memmgmt.nodeIt + 1) == mooltipass.memmgmt.getNodesPerPage(mooltipass.memmgmt.nbMb) && (mooltipass.memmgmt.pageIt + 1) == mooltipass.memmgmt.getNumberOfPages(mooltipass.memmgmt.nbMb)) || (mooltipass.memmgmt.scanPercentage == 5))
                 {
                     mooltipass.memmgmt.integrityCheck();
                     // Check if there are changes to do or not
@@ -1647,6 +1894,7 @@ mooltipass.memmgmt.preferencesCallback = function(items)
 		{
 			console.log("Preferences storage: Loaded preferences!");
 			mooltipass.memmgmt.preferences = items;
+			console.log(mooltipass.memmgmt.preferences);
 		}
 	}
 }
@@ -1658,15 +1906,15 @@ mooltipass.memmgmt.integrityCheckStart = function()
     mooltipass.filehandler.getSyncableFileSystemStatus(mooltipass.memmgmt.syncableFSStateCallback);
 	mooltipass.filehandler.setSyncFSStateChangeCallback(mooltipass.memmgmt.syncableFSStateChangeCallback);
      
-    if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
-    {
-        mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_REQ;
-        // First step is to query to user interaction timeout to set the correct packet timeout retry!
-        mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
-        mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
-        mooltipass.memmgmt_hid.nbSendRetries = 0;
-        mooltipass.memmgmt_hid._sendMsg();
-    }return;
+    //if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
+    //{
+    //    mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_REQ;
+    //    // First step is to query to user interaction timeout to set the correct packet timeout retry!
+    //    mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
+    //    mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+    //    mooltipass.memmgmt_hid.nbSendRetries = 0;
+    //    mooltipass.memmgmt_hid._sendMsg();
+    //}return;
     if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
     {
         mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_INT_CHECK_REQ;
@@ -1677,3 +1925,33 @@ mooltipass.memmgmt.integrityCheckStart = function()
         mooltipass.memmgmt_hid._sendMsg();
     }
 }
+
+// Merge credential file to current database
+mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function()
+{
+	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
+    {
+		// Open the file first
+		mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_REQ;
+		mooltipass.memmgmt.importMemoryState();
+	}
+}
+
+// Memory backup start
+mooltipass.memmgmt.memoryBackupStart = function()
+{
+	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
+    {
+        mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_MEM_BACKUP_REQ;
+        // First step is to query to user interaction timeout to set the correct packet timeout retry!
+        mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
+        mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+        mooltipass.memmgmt_hid.nbSendRetries = 0;
+        mooltipass.memmgmt_hid._sendMsg();
+    }return;
+}
+
+
+
+
+

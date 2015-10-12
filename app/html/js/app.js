@@ -1,4 +1,5 @@
 var _console_log = console.log;
+var _console_warn = console.warn;
 
 console.log = function() {
   text = arguments[0];
@@ -12,6 +13,21 @@ console.log = function() {
         scrollTop:$("#log")[0].scrollHeight - $("#log").height()
   }, 100);
   return _console_log.apply(console, arguments);
+}
+
+console.warn = function() {
+  text = arguments[0];
+  i = 1;
+  while (i < arguments.length) {
+    text += " " + arguments[i].toString();
+    i++;
+  }
+  text = "[WARNING] " + text;
+  $("#log").val($("#log").val() + text + "\n");
+  $("#log").animate({
+        scrollTop:$("#log")[0].scrollHeight - $("#log").height()
+  }, 100);
+  return _console_warn.apply(console, arguments);
 }
 
 show_active_page = function() {

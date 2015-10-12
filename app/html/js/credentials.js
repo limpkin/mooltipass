@@ -1,13 +1,67 @@
 DEFAULT_PASSWORD = "••••••••";
 USER_CREDENTIALS = [];
+WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device';
+
+var MONTH_NAMES = [
+  "January", "February", "March",
+  "April", "May", "June", "July",
+  "August", "September", "October",
+  "November", "December"
+];
+
+RECENT_DOUBLECLICK = false;
+var dblclick_last_500ms = function() {
+  RECENT_DOUBLECLICK = true;
+  setTimeout(function(){
+    RECENT_DOUBLECLICK = false;
+  }, 500);
+}
+
+var stop_propagation = function(e){
+  e.stopPropagation();
+}
+
+var get_credentials_from_row = function($row) {
+    var app = $row.find(".app span").attr("data-value");
+    var user = $row.find(".user span").attr("data-value");  
+
+    return {
+      "app" : app,
+      "user" : user
+    }
+} 
+
+var update_data_values = function() {
+  $("*[data-value]").each(function(){
+    $(this).html($(this).attr("data-value"));
+  });
+}
 
 $(function(){
   // Init credentials table
   $table = $("#credentials").DataTable({
     data : get_user_credentials_for_table(),
-    scrollY : 200,
-    dom : '<t>'
+    scrollY : 250,
+    dom : '<t>',
+    columns: [
+      { data: "favourite" },
+      {     
+        data: {
+            "display": 'app.display',
+            "_" : 'app.plain'
+        }
+      },
+      { 
+        data: {
+            "display": 'user.display',
+            "_" : 'user.plain'
+        }
+      },
+      { data: "password" },
+      { data: "actions" }
+    ]
   });
+  update_data_values();
 
   // Search for credentials
   $("#search-input").on("keyup change", function(){
@@ -19,71 +73,107 @@ $(function(){
 
   // Table actions
   //  Show password
-  $(".fa-eye").on('click', function(){
-    var app = $(this).parents("tr").find(".app").html();
-    var user = $(this).parents("tr").find(".user").html();
-    password = get_password(app, user);
-    $(this).parents("tr").find(".password").html(password);
-    $(this).parents("tr").find(".fa-eye").hide();
-    $(this).parents("tr").find(".fa-eye-slash").show();
+  $(".fa-eye").on('click', function(e){
+    var $parent = $(this).parents("tr");
+    credentials = get_credentials_from_row($parent);
+    var app = credentials.app;
+    var user = credentials.user;
+
+    $parent.find(".password span").html(WAITING_FOR_DEVICE_LABEL);
+    get_password(app, user, function(password) {
+      $parent.find(".password span").html(password);
+      $parent.find(".fa-eye").hide();
+      $parent.find(".fa-eye-slash").show();
+    });
+
+    e.stopPropagation();
   });
   //  Hide password
-  $(".fa-eye-slash").on('click', function(){
-    $(this).parents("tr").find(".password").html(DEFAULT_PASSWORD);
+  $(".fa-eye-slash").on('click', function(e){
+    $(this).parents("tr").find(".password span").html(DEFAULT_PASSWORD);
     $(this).parents("tr").find(".fa-eye-slash").hide();
     $(this).parents("tr").find(".fa-eye").show();
+
+    e.stopPropagation();
   });
   //  Add to / remove from favourites
-  $("tbody .fa-star-o, tbody .fa-star").on('click', function(){
-    var app = $(this).parents("tr").find(".app").html();
-    var user = $(this).parents("tr").find(".user").html(); 
+  $("tbody .fa-star-o, tbody .fa-star").on('click', function(e){
+    var $parent = $(this).parents("tr");
+    credentials = get_credentials_from_row($parent);
+    var app = credentials.app;
+    var user = credentials.user;
+
     for (_credential in USER_CREDENTIALS) {
       if ((USER_CREDENTIALS[_credential].app == app) && (USER_CREDENTIALS[_credential].user == user)) {  
         USER_CREDENTIALS[_credential].is_favourite = !USER_CREDENTIALS[_credential].is_favourite;
       }
     }     
     $(this).toggleClass("fa-star-o fa-star");
+
+    e.stopPropagation();
   });
   //  Delete credentials
-  $(".fa-times").on('click', function() {
-    var app = $(this).parents("tr").find(".app").html();
-    var user = $(this).parents("tr").find(".user").html(); 
+  $(".fa-trash-o").on('click', function(e) {
+    var $parent = $(this).parents("tr");
+    credentials = get_credentials_from_row($parent);
+    var app = credentials.app;
+    var user = credentials.user;
+
     for (_credential in USER_CREDENTIALS) {
       var credential = USER_CREDENTIALS[_credential];
       if ((credential.app == app) && (credential.user == user)) {  
         USER_CREDENTIALS.splice(_credential, 1);
       }
     }
-    $(this).parents("tr").remove(); 
+    if ($parent.hasClass("active")) $(".credential-details").remove();
+    $parent.remove(); 
+
+    e.stopPropagation();
   });
   //  Edit credentials
   var edit_credentials = function (e) {  
-    var $app = $(this).parents("tr").find(".app");
-    var app = $app.html();
-    var $user = $(this).parents("tr").find(".user");
-    var user = $user.html();
-    var $password = $(this).parents("tr").find(".password");
-    var password = get_password(app, user);
+    var $parent = $(this).parents("tr");
+    var $this = $(this);
 
-    $app.html("<input class='inline change-credentials' data-old='" + app + "' value='" + app + "'/>");
-    $user.html("<input class='inline change-credentials' data-old='" + user + "' value='" + user + "'/>");
-    $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "'/>");
-    $(".inline.change-credentials").on('keydown', save_credential_changes);
+    // Return if already in edit mode
+    if ($parent.find("input").length > 0) return;
 
-    $(this).parents("tr").find(".fa-pencil").hide();
-    $(this).parents("tr").find(".fa-eye").hide();
-    $(this).parents("tr").find(".fa-eye-slash").hide();
-    $(this).parents("tr").find(".fa-times").hide();
-    $(this).parents("tr").find(".fa-floppy-o").show();    
+    credentials = get_credentials_from_row($parent);
+    var app = credentials.app;
+    var user = credentials.user;    
 
-    if (e.type = 'dblclick') {
-      $(this).find('input').focus();
-    } else {
-      $app.find('input').focus();
-    }    
+    var $app = $parent.find(".app span");
+    var $user = $parent.find(".user span");
+    var $password = $parent.find(".password span");
+
+    $password.html(WAITING_FOR_DEVICE_LABEL);
+    get_password(app, user, function(password) {
+      $app.html("<input class='inline change-credentials' data-old='" + app + "' value='" + app + "'/>");
+      $user.html("<input class='inline change-credentials' data-old='" + user + "' value='" + user + "'/>");
+      $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "'/>");
+      $(".inline.change-credentials").on('keydown', save_credential_changes);
+      $(".inline.change-credentials").on('keydown', discard_credential_changes);
+      $(".inline.change-credentials").on('click', stop_propagation);
+
+      $parent.find(".fa-pencil").hide();
+      $parent.find(".fa-eye").hide();
+      $parent.find(".fa-eye-slash").hide();
+      $parent.find(".fa-trash-o").hide();
+      $parent.find(".fa-floppy-o").show();    
+      $parent.find(".fa-times").show();    
+
+      if (e.type = 'dblclick') {
+        $this.find('input').focus();
+      } else {
+        $app.find('input').focus();
+      }
+    });    
+
+    e.stopPropagation();
   }
   $(".fa-pencil").on('click', edit_credentials);
-  $("tbody tr td").on('dblclick', edit_credentials);
+  $("tbody tr td.editable").on('dblclick', edit_credentials);
+  $("tbody tr td.editable").on('dblclick', dblclick_last_500ms);
   //  Save credentials
   var save_credential_changes = function(e) {
     if ((e.type == "keydown") && (e.keyCode != 13)) return;
@@ -108,27 +198,117 @@ $(function(){
 
     $parent.find(".fa-pencil").show();
     $parent.find(".fa-eye").show();
-    $parent.find(".fa-times").show();
+    $parent.find(".fa-trash-o").show();
     $parent.find(".fa-floppy-o").hide();       
+    $parent.find(".fa-times").hide();       
 
-    $parent.find(".app").html(new_app);
-    $parent.find(".user").html(new_user);
-    $parent.find(".password").html(DEFAULT_PASSWORD);     
+    $parent.find(".app span").html(new_app).attr("data-value", new_app);
+    $parent.find(".user span").html(new_user).attr("data-value", new_user);
+    $parent.find(".password span").html(DEFAULT_PASSWORD); 
+
+    e.stopPropagation();    
   }
   $(".fa-floppy-o").on("click", save_credential_changes);
-  $(".inline.change-credentials").on('keydown', save_credential_changes);
+  //  Discard credentials
+  var discard_credential_changes = function(e) {
+    if ((e.type == "keydown") && (e.keyCode != 27)) return;
+
+    update_data_values();
+    $parent = $(this).parents("tr");
+
+    $parent.find(".fa-pencil").show();
+    $parent.find(".fa-eye").show();
+    $parent.find(".fa-trash-o").show();
+    $parent.find(".fa-floppy-o").hide();       
+    $parent.find(".fa-times").hide();       
+
+    e.stopPropagation();        
+  }
+  $(".fa-times").on("click", discard_credential_changes);
+  //  View details (description / last used / last modified)
+  var update_details_view = function() {
+    $(".credential-details").remove();
+    if ($(".active").length > 0) {
+      var credentials = get_credentials_from_row($(".active"));
+      var app = credentials.app;
+      var user = credentials.user;
+
+      var credential_details = get_credential_infos(app, user);
+
+      var now = new Date();
+      var date = new Date(credential_details.last_used);
+      last_used = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
+      if (now - date > 365*24*60*60*1000) last_used += ", " + date.getFullYear();
+
+      var date = new Date(credential_details.last_modified);
+      last_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
+      if (now - date > 365*24*60*60*1000) last_modified += ", " + date.getFullYear();
+
+      $(".active").after('<tr class="active credential-details"><td colspan=2></td><td class="labels">\
+        <p>Last used</p>\
+        <p>Last modified</p>\
+        <p>Description</p>\
+      </td><td colspan=2>\
+      <p>' + last_used + '</p>\
+      <p>' + last_modified + '</p>\
+      <p>lorem ipsum<p>\
+      </td></tr>');
+
+      //$("#credentials_wrapper").insertAfter("<div>hallo welt</div>");
+
+    }
+  }
+  var display_details = function(e) {
+    $this = $(this);
+    setTimeout(function(){
+      if (RECENT_DOUBLECLICK) return;
+      $(".credential-details").remove();
+      if ($this.hasClass("active")) {
+        $(".active").removeClass("active");
+      } else {
+        $(".active").removeClass("active");
+        $this.addClass("active");
+      }      
+      update_details_view();
+    }, 300);
+    
+    e.stopPropagation();
+  }
+  $("tbody tr").on('click', display_details);
+
 
 });
 
 var get_user_credentials_for_table = function() {
   var credentials = JSON.parse(JSON.stringify(USER_CREDENTIALS));
   for (_credential in credentials) {
-    credentials[_credential].password = DEFAULT_PASSWORD;
-    credentials[_credential].actions = '<i class="fa fa-eye" title="Show password"></i>\
+    credentials[_credential].password = "<span data-value='" + DEFAULT_PASSWORD + "''></span>";
+    credentials[_credential].app = {
+      "display" : "<span data-value='" + credentials[_credential].app + "'></span>",
+      "plain" : credentials[_credential].app
+    };
+    credentials[_credential].user = {
+      "display" : "<span data-value='" + credentials[_credential].user + "'></span>",
+      "plain" : credentials[_credential].user
+    };
+    credentials[_credential].actions = '<nobr><i class="fa fa-eye" title="Show password"></i>\
       <i class="fa fa-eye-slash" style="display:none;" title="Hide password"></i>\
       <i class="fa fa-pencil" title="Edit credentials"></i>\
-      <i class="fa fa-floppy-o" style="display:none;" title="Save credentials"></i>\
-      <i class="fa fa-times" title="Delete credentials"></i>';
+      <i class="fa fa-trash-o" title="Delete credentials"></i>\
+      <i class="fa fa-times" style="display:none;" title="Discard changes"></i>\
+      <i class="fa fa-floppy-o" style="display:none;" title="Save credentials"></i></nobr>';
+
+    var now = new Date();
+    var date = new Date(credentials[_credential].last_used);
+    credentials[_credential].last_used = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
+    if (now - date > 365*24*60*60*1000) {
+      credentials[_credential].last_used += ", " + (date.getYear() % 100);
+    }
+    var date = new Date(credentials[_credential].last_modified);
+    credentials[_credential].last_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
+    if (now - date > 365*24*60*60*1000) {
+      credentials[_credential].last_modified += ", " + (date.getYear() % 100);
+    }
 
     if (credentials[_credential].is_favourite) {
       credentials[_credential].favourite = '<i class="fa fa-star" title="Remove from favourites"></i>';
@@ -139,614 +319,838 @@ var get_user_credentials_for_table = function() {
   return credentials
 }
 
-var get_password = function(app, user) {
+var get_credential_infos = function(app, user) {
   for (_credential in USER_CREDENTIALS) {
     var credential = USER_CREDENTIALS[_credential];
-    if ((credential.app == app) && (credential.user == user)) {
-      return credential.password;
+    if ((credential.app == app) && (credential.user == user)) {  
+      return credential
     }
-  }
-  return ""
+  }   
+}
+
+var get_password = function(app, user, callback) {
+  for (_credential in USER_CREDENTIALS) {
+    var credential = USER_CREDENTIALS[_credential];
+    if ((credential.app == app) && (credential.user == user)) {  
+      if ("password" in credential) {
+        callback(credential.password);
+        return
+      }
+    }
+  } 
+
+  mooltipass.app.get_password(app, user, function(password) {
+    // Add password to local user credential data
+    for (_credential in USER_CREDENTIALS) {
+      var credential = USER_CREDENTIALS[_credential];
+      if ((credential.app == app) && (credential.user == user)) {  
+        USER_CREDENTIALS[_credential].password = password;
+      }
+    } 
+
+    // Call original callback
+    callback(password);
+  });
 }
 
 fakedata = [{ 
   "app": "google.com", 
   "user" : "htmlchat",
-  "password" : "htmlc123at",
+  "description" : "htmlchat_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : true
 },
 { 
   "app": "facebook.com", 
   "user" : "braceradish",
-  "password" : "bracerad123sh",
+  "description" : "braceradish_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "youtube.com", 
   "user" : "tautbaps",
-  "password" : "tautb123ps",
+  "description" : "tautbaps_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "baidu.com", 
   "user" : "bugsnevis",
-  "password" : "bugsne123is",
+  "description" : "bugsnevis_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "yahoo.com", 
   "user" : "pumlumonyork",
-  "password" : "pumlumony123rk",
+  "description" : "pumlumonyork_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "amazon.com", 
   "user" : "lumpno",
-  "password" : "lum123no",
+  "description" : "lumpno_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "wikipedia.org", 
   "user" : "projectjumbled",
-  "password" : "projectjumb123ed",
+  "description" : "projectjumbled_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "qq.com", 
   "user" : "wingsredundant",
-  "password" : "wingsredund123nt",
+  "description" : "wingsredundant_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2013, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "twitter.com", 
   "user" : "bindchemistry",
-  "password" : "bindchemis123ry",
+  "description" : "bindchemistry_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.co.in", 
   "user" : "translatorgalilean",
-  "password" : "translatorgalil123an",
+  "description" : "translatorgalilean_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "taobao.com", 
   "user" : "irkedexciting",
-  "password" : "irkedexcit123ng",
+  "description" : "irkedexciting_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "live.com", 
   "user" : "spokendates",
-  "password" : "spokenda123es",
+  "description" : "spokendates_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "sina.com.cn", 
   "user" : "jonesfreeze",
-  "password" : "jonesfre123ze",
+  "description" : "jonesfreeze_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "linkedin.com", 
   "user" : "cravegalvanising",
-  "password" : "cravegalvanis123ng",
+  "description" : "cravegalvanising_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "yahoo.co.jp", 
   "user" : "glazecooked",
-  "password" : "glazecoo123ed",
+  "description" : "glazecooked_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "weibo.com", 
   "user" : "genesassynt",
-  "password" : "genesass123nt",
+  "description" : "genesassynt_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "ebay.com", 
   "user" : "slangblob",
-  "password" : "slangb123ob",
+  "description" : "slangblob_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.co.jp", 
   "user" : "porphyrymetacarpus",
-  "password" : "porphyrymetacar123us",
+  "description" : "porphyrymetacarpus_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "yandex.ru", 
   "user" : "geocachingoften",
-  "password" : "geocachingof123en",
+  "description" : "geocachingoften_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "blogspot.com", 
   "user" : "simplicityphp",
-  "password" : "simplicity123hp",
+  "description" : "simplicityphp_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "vk.com", 
   "user" : "uncommonvisiting",
-  "password" : "uncommonvisit123ng",
+  "description" : "uncommonvisiting_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "hao123.com", 
   "user" : "beingpiles",
-  "password" : "beingpi123es",
+  "description" : "beingpiles_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "t.co", 
   "user" : "zestyhercules",
-  "password" : "zestyhercu123es",
+  "description" : "zestyhercules_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.de", 
   "user" : "whooshlanguage",
-  "password" : "whooshlangu123ge",
+  "description" : "whooshlanguage_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "bing.com", 
   "user" : "legohyundai",
-  "password" : "legohyun123ai",
+  "description" : "legohyundai_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "msn.com", 
   "user" : "ovalnecessary",
-  "password" : "ovalnecess123ry",
+  "description" : "ovalnecessary_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "instagram.com", 
   "user" : "dbasegroan",
-  "password" : "dbasegr123an",
+  "description" : "dbasegroan_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "amazon.co.jp", 
   "user" : "pepperthin",
-  "password" : "peppert123in",
+  "description" : "pepperthin_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.co.uk", 
   "user" : "sorrylens",
-  "password" : "sorryl123ns",
+  "description" : "sorrylens_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "reddit.com", 
   "user" : "warblingdartboard",
-  "password" : "warblingdartbo123rd",
+  "description" : "warblingdartboard_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "tmall.com", 
   "user" : "navierbending",
-  "password" : "navierbend123ng",
+  "description" : "navierbending_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "aliexpress.com", 
   "user" : "immodestpukao",
-  "password" : "immodestpu123ao",
+  "description" : "immodestpukao_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "microsoft.com", 
   "user" : "deanmacedonian",
-  "password" : "deanmacedon123an",
+  "description" : "deanmacedonian_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.fr", 
   "user" : "fraidadoption",
-  "password" : "fraidadopt123on",
+  "description" : "fraidadoption_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.com.br", 
   "user" : "bloodwhoop",
-  "password" : "bloodwh123op",
+  "description" : "bloodwhoop_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "ask.com", 
   "user" : "crumbleclipclop",
-  "password" : "crumbleclipc123op",
+  "description" : "crumbleclipclop_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "pinterest.com", 
   "user" : "respectwimpled",
-  "password" : "respectwimp123ed",
+  "description" : "respectwimpled_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Mail.Ru", 
   "user" : "terbiumaustralis",
-  "password" : "terbiumaustra123is",
+  "description" : "terbiumaustralis_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "wordpress.com", 
   "user" : "butterbowls",
-  "password" : "butterbo123ls",
+  "description" : "butterbowls_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "tumblr.com", 
   "user" : "dacapopepper",
-  "password" : "dacapopep123er",
+  "description" : "dacapopepper_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "imgur.com", 
   "user" : "glutinoussheep",
-  "password" : "glutinoussh123ep",
+  "description" : "glutinoussheep_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Onclickads.net", 
   "user" : "dialectburger",
-  "password" : "dialectbur123er",
+  "description" : "dialectburger_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "PayPal.com", 
   "user" : "hoodprotest",
-  "password" : "hoodprot123st",
+  "description" : "hoodprotest_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "sohu.com", 
   "user" : "softballmimicry",
-  "password" : "softballmimi123ry",
+  "description" : "softballmimicry_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.ru", 
   "user" : "costaricanburns",
-  "password" : "costaricanbu123ns",
+  "description" : "costaricanburns_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "xvideos.com", 
   "user" : "conjunctionpeer",
-  "password" : "conjunctionp123er",
+  "description" : "conjunctionpeer_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "imdb.com", 
   "user" : "alkanekame",
-  "password" : "alkanek123me",
+  "description" : "alkanekame_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "apple.com", 
   "user" : "squalidyawn",
-  "password" : "squalidy123wn",
+  "description" : "squalidyawn_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.it", 
   "user" : "rieslingmopping",
-  "password" : "rieslingmopp123ng",
+  "description" : "rieslingmopping_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.es", 
   "user" : "stuffingshrug",
-  "password" : "stuffingsh123ug",
+  "description" : "stuffingshrug_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "fc2.com", 
   "user" : "selfishunwritten",
-  "password" : "selfishunwrit123en",
+  "description" : "selfishunwritten_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Googleadservices.com", 
   "user" : "cribpolitical",
-  "password" : "cribpoliti123al",
+  "description" : "cribpolitical_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "amazon.de", 
   "user" : "highlightprovided",
-  "password" : "highlightprovi123ed",
+  "description" : "highlightprovided_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "netflix.com", 
   "user" : "partridgereservoir",
-  "password" : "partridgereserv123ir",
+  "description" : "partridgereservoir_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "stackoverflow.com", 
   "user" : "studyingkey",
-  "password" : "studying123ey",
+  "description" : "studyingkey_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "360.cn", 
   "user" : "kuipertwang",
-  "password" : "kuipertw123ng",
+  "description" : "kuipertwang_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "craigslist.org", 
   "user" : "farmeraxiomatic",
-  "password" : "farmeraxioma123ic",
+  "description" : "farmeraxiomatic_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Tianya.cn", 
   "user" : "motherpretend",
-  "password" : "motherpret123nd",
+  "description" : "motherpretend_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.ca", 
   "user" : "tendoncycle",
-  "password" : "tendoncy123le",
+  "description" : "tendoncycle_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "ok.ru", 
   "user" : "coteriedirect",
-  "password" : "coteriedir123ct",
+  "description" : "coteriedirect_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "diply.com", 
   "user" : "primesobtuse",
-  "password" : "primesobt123se",
+  "description" : "primesobtuse_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Google.com.mx", 
   "user" : "stateassure",
-  "password" : "stateass123re",
+  "description" : "stateassure_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "alibaba.com", 
   "user" : "physicalvenerable",
-  "password" : "physicalvenera123le",
+  "description" : "physicalvenerable_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "pornhub.com", 
   "user" : "kiloparsecoccipital",
-  "password" : "kiloparsecoccipi123al",
+  "description" : "kiloparsecoccipital_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.com.hk", 
   "user" : "ashurtful",
-  "password" : "ashurt123ul",
+  "description" : "ashurtful_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Naver.com", 
   "user" : "valencepreseli",
-  "password" : "valencepres123li",
+  "description" : "valencepreseli_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "adcash.com", 
   "user" : "poloaustralis",
-  "password" : "poloaustra123is",
+  "description" : "poloaustralis_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "amazon.co.uk", 
   "user" : "guillemotlope",
-  "password" : "guillemotl123pe",
+  "description" : "guillemotlope_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "rakuten.co.jp", 
   "user" : "galileansamosa",
-  "password" : "galileansam123sa",
+  "description" : "galileansamosa_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "xhamster.com", 
   "user" : "technologyducks",
-  "password" : "technologydu123ks",
+  "description" : "technologyducks_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Outbrain.com", 
   "user" : "braveimaginable",
-  "password" : "braveimagina123le",
+  "description" : "braveimaginable_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Booking.com", 
   "user" : "mixtapechoux",
-  "password" : "mixtapech123ux",
+  "description" : "mixtapechoux_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Kat.cr", 
   "user" : "contentscovet",
-  "password" : "contentsco123et",
+  "description" : "contentscovet_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "soso.com", 
   "user" : "earlobesneaky",
-  "password" : "earlobesne123ky",
+  "description" : "earlobesneaky_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "adobe.com", 
   "user" : "risetranslate",
-  "password" : "risetransl123te",
+  "description" : "risetranslate_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Nicovideo.jp", 
   "user" : "teenagewhicker",
-  "password" : "teenagewhic123er",
+  "description" : "teenagewhicker_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "cnn.com", 
   "user" : "wightdamocloids",
-  "password" : "wightdamoclo123ds",
+  "description" : "wightdamocloids_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "flipkart.com", 
   "user" : "dissmarzipan",
-  "password" : "dissmarzi123an",
+  "description" : "dissmarzipan_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Chinadaily.com.cn", 
   "user" : "absorbingcrest",
-  "password" : "absorbingcr123st",
+  "description" : "absorbingcrest_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "go.com", 
   "user" : "chartcurium",
-  "password" : "chartcur123um",
+  "description" : "chartcurium_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "ebay.de", 
   "user" : "anorexiacooking",
-  "password" : "anorexiacook123ng",
+  "description" : "anorexiacooking_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.com.au", 
   "user" : "stoveprefer",
-  "password" : "stovepre123er",
+  "description" : "stoveprefer_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.co.id", 
   "user" : "etherealcagey",
-  "password" : "etherealca123ey",
+  "description" : "etherealcagey_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Xinhuanet.com", 
   "user" : "biathlonflanked",
-  "password" : "biathlonflan123ed",
+  "description" : "biathlonflanked_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "google.pl", 
   "user" : "taughtmoons",
-  "password" : "taughtmo123ns",
+  "description" : "taughtmoons_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "bbc.co.uk", 
   "user" : "testifyattack",
-  "password" : "testifyatt123ck",
+  "description" : "testifyattack_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "pixnet.net", 
   "user" : "forceporcus",
-  "password" : "forcepor123us",
+  "description" : "forceporcus_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "People.com.cn", 
   "user" : "diplomasdysprosium",
-  "password" : "diplomasdyspros123um",
+  "description" : "diplomasdysprosium_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "googleusercontent.com", 
   "user" : "jamanalytical",
-  "password" : "jamanalyti123al",
+  "description" : "jamanalytical_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Github.com", 
   "user" : "bivyfiles",
-  "password" : "bivyfi123es",
+  "description" : "bivyfiles_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Cntv.cn", 
   "user" : "divideplayer",
-  "password" : "dividepla123er",
+  "description" : "divideplayer_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 08, 01),
   "is_favourite" : false
 },
 { 
   "app": "dailymotion.com", 
   "user" : "igloorough",
-  "password" : "iglooro123gh",
+  "description" : "igloorough_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "gmw.cn", 
   "user" : "daltonslimeball",
-  "password" : "daltonslimeb123ll",
+  "description" : "daltonslimeball_d",
+  "last_used" : new Date(2015, 09, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Amazon.in", 
   "user" : "strictlyeach",
-  "password" : "strictlye123ch",
+  "description" : "strictlyeach_d",
+  "last_used" : new Date(2015, 07, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "dropbox.com", 
   "user" : "cutsdiggers",
-  "password" : "cutsdigg123rs",
+  "description" : "cutsdiggers_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 06, 01),
   "is_favourite" : false
 },
 { 
   "app": "Google.co.kr", 
   "user" : "innocentfusty",
-  "password" : "innocentfu123ty",
+  "description" : "innocentfusty_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Wikia.com", 
   "user" : "whackmug",
-  "password" : "whack123ug",
+  "description" : "whackmug_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "Dailymail.co.uk", 
   "user" : "withinreferred",
-  "password" : "withinrefer123ed",
+  "description" : "withinreferred_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "163.com", 
   "user" : "fundsvug",
-  "password" : "funds123ug",
+  "description" : "fundsvug_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 },
 { 
   "app": "blogger.com", 
   "user" : "henchmantle",
-  "password" : "henchman123le",
+  "description" : "henchmantle_d",
+  "last_used" : new Date(2015, 08, 01),
+  "last_modified" : new Date(2015, 07, 01),
   "is_favourite" : false
 }];
 

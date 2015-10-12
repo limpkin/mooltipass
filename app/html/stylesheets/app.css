@@ -9576,55 +9576,76 @@ table tbody tr td.favourite i {
   cursor: pointer;
 }
 /* line 45, ../scss/_tables.scss */
+table tbody tr.active, table tbody tr.active:hover {
+  background: #86c4d4 !important;
+}
+/* line 48, ../scss/_tables.scss */
 table tbody tr:hover {
   background: #abd6e2 !important;
 }
-/* line 47, ../scss/_tables.scss */
+/* line 50, ../scss/_tables.scss */
 table tbody tr:hover td.actions i {
   opacity: 1;
 }
-/* line 50, ../scss/_tables.scss */
+/* line 53, ../scss/_tables.scss */
 table tbody tr:hover td.favourite {
   color: #409bb4;
 }
-/* line 52, ../scss/_tables.scss */
+/* line 55, ../scss/_tables.scss */
 table tbody tr:hover td.favourite i.fa-star-o {
   opacity: 1;
 }
-/* line 60, ../scss/_tables.scss */
+/* line 63, ../scss/_tables.scss */
 table .favourite {
   width: 5%;
 }
-/* line 61, ../scss/_tables.scss */
+/* line 64, ../scss/_tables.scss */
 table .app {
   width: 30%;
 }
-/* line 62, ../scss/_tables.scss */
+/* line 65, ../scss/_tables.scss */
 table .user {
   width: 30%;
 }
-/* line 63, ../scss/_tables.scss */
+/* line 66, ../scss/_tables.scss */
 table .password {
   width: 20%;
 }
-/* line 64, ../scss/_tables.scss */
+/* line 67, ../scss/_tables.scss */
 table .actions {
   width: 15%;
 }
 
-/* line 67, ../scss/_tables.scss */
+/* line 70, ../scss/_tables.scss */
 div.dataTables_scrollHead table {
   margin-top: 0 !important;
 }
 
-/* line 71, ../scss/_tables.scss */
+/* line 74, ../scss/_tables.scss */
 .dataTables_scroll {
   border: 1px solid #AAAAAA;
 }
 
-/* line 75, ../scss/_tables.scss */
+/* line 78, ../scss/_tables.scss */
 .dataTables_scrollBody {
   border-top: 1px solid #AAAAAA;
+}
+
+/* line 83, ../scss/_tables.scss */
+.credential-details p {
+  margin-bottom: 0.2rem;
+  font-size: 0.7rem;
+}
+/* line 87, ../scss/_tables.scss */
+.credential-details td {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+/* line 90, ../scss/_tables.scss */
+.credential-details td.labels p {
+  margin-bottom: 0.2rem;
+  font-size: 0.7rem;
+  font-weight: bold;
 }
 
 /* line 8, ../scss/app.scss */

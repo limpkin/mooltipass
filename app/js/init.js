@@ -27,7 +27,7 @@ function launchWindow() {
         return;
     }
 
-    chrome.app.window.create('html/index.html', {'bounds': {'width': 800, 'height': 600}, "resizable": false});
+    chrome.app.window.create('html/index.html', {'bounds': {'width': 800, 'height': 500}, "resizable": false});
 }
 
 var _listenerInstalled = false;

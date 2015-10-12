@@ -42,6 +42,9 @@ table {
           }
         }
       }
+      &.active, &.active:hover {
+        background: lighten($primary-color, 10%) !important;
+      }
       &:hover {
         background: lighten($primary-color, 20%) !important;
         td.actions i {
@@ -74,4 +77,20 @@ div.dataTables_scrollHead table {
 
 .dataTables_scrollBody {
   border-top: 1px solid $base;
+}
+
+.credential-details { 
+  p {
+    margin-bottom: 0.2rem;
+    font-size: 0.7rem;
+  }
+  td {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    &.labels p {
+        margin-bottom: 0.2rem;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }     
+  }
 }

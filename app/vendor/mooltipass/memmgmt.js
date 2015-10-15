@@ -86,6 +86,7 @@ mooltipass.memmgmt.freeAddressesBuffer = [];				// The addresses we received
 mooltipass.memmgmt.lastFreeAddressReceived = null;			// Last free address we received
 mooltipass.memmgmt.memmgmtStartCallback = null;				// Callback function for memmgmt start
 mooltipass.memmgmt.tempCallbackErrorString = null;			// Temp string used for callback
+mooltipass.memmgmt.memmgmtStopCallback = null;				// Callback function for memmgmt stop
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -1925,12 +1926,20 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Something wrong happened during parameter loading, temp string contains more details
 				mooltipass.memmgmt.memmgmtStartCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString}, null);
 			}
+			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
+			{
+				mooltipass.memmgmt.memmgmtStopCallback({'success': true, 'msg': "Memory management mode exit"});
+			}
 			console.log("Memory management mode exit");
 			mooltipass.device.processQueue();
 			return;
 		}
 		else
 		{
+			if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
+			{
+				mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': "Memory management mode exit fail"});
+			}
 			console.log("This shouldn't happen!");
 		}
 	}
@@ -2904,6 +2913,23 @@ mooltipass.memmgmt.memmgmtStart = function(callback)
 	else
 	{
 		mooltipass.memmgmt.memmgmtStartCallback({'success': false, 'msg': "Memory management in another mode"}, null);
+	}
+}
+
+// Memory management mode start
+mooltipass.memmgmt.memmgmtStop = function(callback)
+{
+	mooltipass.memmgmt.memmgmtStopCallback = callback;
+	
+	if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
+	{
+		// Leave memory management mode
+		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+		mooltipass.memmgmt_hid._sendMsg();
+	}
+	else
+	{
+		mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': "Memory management in another mode"});
 	}
 }
  

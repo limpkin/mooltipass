@@ -1,3 +1,5 @@
+var _cred = {};
+
 DEFAULT_PASSWORD = "••••••••";
 USER_CREDENTIALS = [];
 WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device';
@@ -37,7 +39,25 @@ var update_data_values = function() {
   });
 }
 
+
+_cred.loadCredentials = function() {
+
+};
+
+_cred.onClickMMMEnter = function() {
+  $(this).hide();
+  $('#mmm-save, #mmm-discard').show();
+
+  mooltipass.device.interface.send({
+    'command': 'startMemoryManagementMode',
+    'callbackFunction': _cred.loadCredentials
+  });
+};
+
+
 $(function(){
+  $('#mmm-save, #mmm-discard').hide();
+
   // Init credentials table
   $table = $("#credentials").DataTable({
     data : get_user_credentials_for_table(),

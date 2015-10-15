@@ -11,5 +11,4 @@ mooltipass.app.get_password = function(app, user, callback) {
     callback(password);  
   }, time * 1000);
 
-}
-
+};

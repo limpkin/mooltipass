@@ -31,27 +31,82 @@ _s.initKeyboardLayout = function() {
     });
 };
 
-_s.getKeyboardLayout = function() {
+_s.getLockTimeoutEnabled = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
-        'parameter': 'keyboardLayout',
+        'parameter': 'lockTimeoutEnabled',
         'callbackFunction': function(_response) {
-            $('#settings-keyboardLayout').val(_response.value);
-        },
-        'callbackParameters': null
+            if(_response.status == 'success') {
+                $('#settings-lockTimeoutEnabled').prop('checked', Boolean(_response.value));
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
     });
 };
 
-_s.initKeyboardLayout = function() {
-    $('#settings-keyboardLayout').change(function() {
+_s.initLockTimeoutEnabled = function() {
+    $('#settings-lockTimeoutEnabled').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
-            'parameter': 'keyboardLayout',
-            'value': $(this).val(),
+            'parameter': 'lockTimeoutEnabled',
+            'value': $(this).prop('checked'),
             'callbackFunction': function(_response) {
-                console.log('KeyboardLayout SET:', _response);
-            },
-            'callbackParameters': null
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            }
+        });
+    });
+};
+
+_s.getLockTimeout = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'lockTimeout',
+        'callbackFunction': function(_response) {
+            if(_response.status == 'success') {
+                $('#settings-lockTimeout').val(Number(_response.value) / 60);
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
+    });
+};
+
+_s.initLockTimeout = function() {
+    $('#settings-lockTimeout').change(function() {
+        var value = $(this).val();
+
+        if(isNaN(value)) {
+            // TODO: Not a number entered
+            return;
+        }
+
+        // Convert value to float number and bit-wise convert it to integer
+        value = Number(value) | 0;
+
+        if(value < 1) {
+            // TODO: Invalid range for
+            return;
+        }
+
+        if(value > 4) {
+            // TODO: Maximum is 4, otherwise an overflow occurs
+            return;
+        }
+
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'lockTimeout',
+            'value': value * 60,
+            'callbackFunction': function(_response) {
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            }
         });
     });
 };
@@ -60,6 +115,11 @@ _s.initKeyboardLayout = function() {
 $(function() {
     _s.initKeyboardLayout();
     _s.getKeyboardLayout();
+
+    _s.initLockTimeoutEnabled();
+    _s.getLockTimeoutEnabled();
+    _s.initLockTimeout();
+    _s.getLockTimeout();
 
     return;
     // Load settings

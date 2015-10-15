@@ -11,3 +11,4 @@ measurements/
 .DS_Store
 *.pyc
 *.iml
+.idea/

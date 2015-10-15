@@ -111,6 +111,36 @@ _s.initLockTimeout = function() {
     });
 };
 
+_s.getScreensaver = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'screensaver',
+        'callbackFunction': function(_response) {
+            if(_response.status == 'success') {
+                $('#settings-screensaver').prop('checked', Boolean(_response.value));
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
+    });
+};
+
+_s.initScreensaver = function() {
+    $('#settings-screensaver').change(function() {
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'screensaver',
+            'value': $(this).prop('checked'),
+            'callbackFunction': function(_response) {
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            }
+        });
+    });
+};
+
 
 $(function() {
     _s.initKeyboardLayout();
@@ -120,6 +150,11 @@ $(function() {
     _s.getLockTimeoutEnabled();
     _s.initLockTimeout();
     _s.getLockTimeout();
+
+    _s.initScreensaver();
+    _s.getScreensaver();
+
+    
 
     return;
     // Load settings

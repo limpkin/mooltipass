@@ -1,10 +1,37 @@
 var _s = {};
 
 _s.getKeyboardLayout = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'keyboardLayout',
+        'callbackFunction': function(_response) {
+            if(_response.status == 'success') {
+                $('#settings-keyboardLayout').val(_response.value);
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
+    });
+};
 
-}
+_s.initKeyboardLayout = function() {
+    $('#settings-keyboardLayout').change(function() {
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'keyboardLayout',
+            'value': $(this).val(),
+            'callbackFunction': function(_response) {
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            },
+            'callbackParameters': null
+        });
+    });
+};
 
-$(function() {
+_s.getKeyboardLayout = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'keyboardLayout',
@@ -13,7 +40,9 @@ $(function() {
         },
         'callbackParameters': null
     });
+};
 
+_s.initKeyboardLayout = function() {
     $('#settings-keyboardLayout').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
@@ -25,6 +54,12 @@ $(function() {
             'callbackParameters': null
         });
     });
+};
+
+
+$(function() {
+    _s.initKeyboardLayout();
+    _s.getKeyboardLayout();
 
     return;
     // Load settings

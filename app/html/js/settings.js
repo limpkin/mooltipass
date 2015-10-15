@@ -37,7 +37,7 @@ _s.getLockTimeoutEnabled = function() {
         'parameter': 'lockTimeoutEnabled',
         'callbackFunction': function(_response) {
             if(_response.status == 'success') {
-                $('#settings-lockTimeoutEnabled').prop('checked', Boolean(_response.value));
+                $('#settings-lockTimeoutEnabled').prop('checked', Boolean(Number(_response.value)));
             }
             else {
                 // TODO: Show alert
@@ -51,7 +51,7 @@ _s.initLockTimeoutEnabled = function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'lockTimeoutEnabled',
-            'value': $(this).prop('checked'),
+            'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 if(_response.status != 'success') {
                     // TODO: Show alert
@@ -117,7 +117,7 @@ _s.getScreensaver = function() {
         'parameter': 'screensaver',
         'callbackFunction': function(_response) {
             if(_response.status == 'success') {
-                $('#settings-screensaver').prop('checked', Boolean(_response.value));
+                $('#settings-screensaver').prop('checked', Boolean(Number(_response.value)));
             }
             else {
                 // TODO: Show alert
@@ -131,7 +131,7 @@ _s.initScreensaver = function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'screensaver',
-            'value': $(this).prop('checked'),
+            'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 if(_response.status != 'success') {
                     // TODO: Show alert
@@ -147,7 +147,7 @@ _s.getUserRequestCancel = function() {
         'parameter': 'userRequestCancel',
         'callbackFunction': function(_response) {
             if(_response.status == 'success') {
-                $('#settings-userRequestCancel').prop('checked', Boolean(_response.value));
+                $('#settings-userRequestCancel').prop('checked', Boolean(Number(_response.value)));
             }
             else {
                 // TODO: Show alert
@@ -161,7 +161,7 @@ _s.initUserRequestCancel = function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'userRequestCancel',
-            'value': $(this).prop('checked'),
+            'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 if(_response.status != 'success') {
                     // TODO: Show alert
@@ -221,6 +221,100 @@ _s.initUserInteractionTimeout = function() {
     });
 };
 
+_s.getFlashScreen = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'flashScreen',
+        'callbackFunction': function(_response) {
+            if(_response.status == 'success') {
+                $('#settings-flashScreen').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
+    });
+};
+
+_s.initFlashScreen = function() {
+    $('#settings-flashScreen').change(function() {
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'flashScreen',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            }
+        });
+    });
+};
+
+_s.getOfflineMode = function() {
+    console.log('get offline mode')
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'offlineMode',
+        'callbackFunction': function(_response) {
+            console.log('Response', _response);
+            if(_response.status == 'success') {
+                $('#settings-offlineMode').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
+    });
+};
+
+_s.initOfflineMode = function() {
+    $('#settings-offlineMode').change(function() {
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'offlineMode',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                console.log('Response SET', _response)
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            }
+        });
+    });
+};
+
+_s.getTutorialEnabled = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'tutorialEnabled',
+        'callbackFunction': function(_response) {
+            if(_response.status == 'success') {
+                $('#settings-tutorialEnabled').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
+    });
+};
+
+_s.initTutorialEnabled = function() {
+    $('#settings-tutorialEnabled').change(function() {
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'tutorialEnabled',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            }
+        });
+    });
+};
+
+
 
 $(function() {
     _s.initKeyboardLayout();
@@ -239,33 +333,12 @@ $(function() {
     _s.initUserInteractionTimeout();
     _s.getUserInteractionTimeout();
 
+    _s.initFlashScreen();
+    _s.getFlashScreen();
 
+    _s.initOfflineMode();
+    _s.getOfflineMode();
 
-    return;
-    // Load settings
-    $("#page-settings select, #page-settings input").each(function() {
-        var parameter = $(this).attr("name");
-        mooltipass.device.interface.send({
-            'command': 'getMooltipassParameter',
-            'parameter': parameter,
-            'callbackFunction': function(_response) {
-                console.log(parameter + ':' + _response);
-                // TODO #as: show parameter in ui
-            },
-            'callbackParameters': null
-        });
-    });
-
-    // Save settings on change
-    $("#page-settings select, #page-settings input").on('change keyup', function() {
-        key = $(this).attr("name");
-        if ($(this).attr('type') == 'checkbox') {
-            value = this.checked;
-        } else {
-            value = $(this).val();
-        }
-
-        // TODO #as: send parameters to device
-        console.log(key + ": " + value);
-    });
+    _s.initTutorialEnabled();
+    _s.getTutorialEnabled();
 });

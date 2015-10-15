@@ -40,8 +40,41 @@ var update_data_values = function() {
 }
 
 
-_cred.loadCredentials = function() {
+_cred.loadCredentials = function(_status, _credentials) {
+  if(!_status.success) {
+    // TODO: Could not retrieve credentials from device
+    return false;
+  }
 
+  USER_CREDENTIALS = _credentials;
+
+  // Init credentials table
+  $table = $("#credentials").DataTable({
+    data : get_user_credentials_for_table(),
+    scrollY : 250,
+    dom : '<t>',
+    columns: [
+      { data: "favourite" },
+      {
+        data: {
+          "display": 'app.display',
+          "_" : 'app.plain'
+        }
+      },
+      {
+        data: {
+          "display": 'user.display',
+          "_" : 'user.plain'
+        }
+      },
+      { data: "password" },
+      { data: "actions" }
+    ]
+  });
+
+  update_data_values();
+
+  return true;
 };
 
 _cred.onClickMMMEnter = function() {
@@ -57,31 +90,6 @@ _cred.onClickMMMEnter = function() {
 
 $(function(){
   $('#mmm-save, #mmm-discard').hide();
-
-  // Init credentials table
-  $table = $("#credentials").DataTable({
-    data : get_user_credentials_for_table(),
-    scrollY : 250,
-    dom : '<t>',
-    columns: [
-      { data: "favourite" },
-      {     
-        data: {
-            "display": 'app.display',
-            "_" : 'app.plain'
-        }
-      },
-      { 
-        data: {
-            "display": 'user.display',
-            "_" : 'user.plain'
-        }
-      },
-      { data: "password" },
-      { data: "actions" }
-    ]
-  });
-  update_data_values();
 
   // Search for credentials
   $("#search-input").on("keyup change", function(){
@@ -300,7 +308,7 @@ $(function(){
 });
 
 var get_user_credentials_for_table = function() {
-  var credentials = JSON.parse(JSON.stringify(USER_CREDENTIALS));
+  //var credentials = JSON.parse(JSON.stringify(USER_CREDENTIALS));
   for (_credential in credentials) {
     credentials[_credential].password = "<span data-value='" + DEFAULT_PASSWORD + "''></span>";
     credentials[_credential].app = {

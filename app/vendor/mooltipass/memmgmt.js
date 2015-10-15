@@ -63,27 +63,29 @@ mooltipass.memmgmt.credentialArrayForGui = [];			// Credential array for GUI
 mooltipass.memmgmt.preferences = {"memmgmtPrefsStored": false, "syncFSAllowed": false};
 
 // State machines & temp variables
-mooltipass.memmgmt.syncFS = null;					// SyncFS
-mooltipass.memmgmt.syncFSOK = false;				// SyncFS state
-mooltipass.memmgmt.syncFSMooltipassFileOK = false;	// SyncFS Mooltipass backup file state
-mooltipass.memmgmt.currentMode = MGMT_IDLE;			// Current mode
-mooltipass.memmgmt.currentFavorite = 0;				// Current favorite read/write
-mooltipass.memmgmt.pageIt = 0;						// Page iterator
-mooltipass.memmgmt.nodeIt = 0;						// Node iterator
-mooltipass.memmgmt.scanPercentage = 0;				// Scanning percentage
-mooltipass.memmgmt.nodePacketId = 0;				// Packet number for node sending/receiving
-mooltipass.memmgmt.currentNode = [];				// Current node we're sending/receiving
-mooltipass.memmgmt.packetToSendBuffer = [];			// Packets we need to send at the end of the checks etc...
-mooltipass.memmgmt.nextParentNodeTSAddress = [];	// Next parent node to scan address
-mooltipass.memmgmt.curNodeAddressRequested = [];	// The address of the current node we're requesting
-mooltipass.memmgmt.getPasswordCallback = null;		// Get password callback
-mooltipass.memmgmt.getPasswordLogin = "";			// Login for the get password call
-mooltipass.memmgmt.totalAddressesRequired = null;	// Number of addresses we need
-mooltipass.memmgmt.totalAddressesReceived = null;	// Number of addresses we received
-mooltipass.memmgmt.freeAddressesBuffer = [];		// The addresses we received
-mooltipass.memmgmt.lastFreeAddressReceived = null;	// Last free address we received
-mooltipass.memmgmt.memmgmtStartCallback = null;		// Callback function for memmgmt start
-mooltipass.memmgmt.tempCallbackErrorString = null;	// Temp string used for callback
+mooltipass.memmgmt.syncFS = null;							// SyncFS
+mooltipass.memmgmt.syncFSOK = false;						// SyncFS state
+mooltipass.memmgmt.syncFSMooltipassFileOK = false;			// SyncFS Mooltipass backup file state
+mooltipass.memmgmt.currentMode = MGMT_IDLE;					// Current mode
+mooltipass.memmgmt.currentFavorite = 0;						// Current favorite read/write
+mooltipass.memmgmt.pageIt = 0;								// Page iterator
+mooltipass.memmgmt.nodeIt = 0;								// Node iterator
+mooltipass.memmgmt.scanPercentage = 0;						// Scanning percentage
+mooltipass.memmgmt.nodePacketId = 0;						// Packet number for node sending/receiving
+mooltipass.memmgmt.currentNode = [];						// Current node we're sending/receiving
+mooltipass.memmgmt.packetToSendBuffer = [];					// Packets we need to send at the end of the checks etc...
+mooltipass.memmgmt.nextParentNodeTSAddress = [];			// Next parent node to scan address
+mooltipass.memmgmt.curNodeAddressRequested = [];			// The address of the current node we're requesting
+mooltipass.memmgmt.getPasswordCallback = null;				// Get password callback
+mooltipass.memmgmt.getPasswordLogin = "";					// Login for the get password call
+mooltipass.memmgmt.getPasswordServiceAddress = [];			// Service address for the get password call
+mooltipass.memmgmt.getPasswordLoginAddress = [];			// Login address for the get password call
+mooltipass.memmgmt.totalAddressesRequired = null;			// Number of addresses we need
+mooltipass.memmgmt.totalAddressesReceived = null;			// Number of addresses we received
+mooltipass.memmgmt.freeAddressesBuffer = [];				// The addresses we received
+mooltipass.memmgmt.lastFreeAddressReceived = null;			// Last free address we received
+mooltipass.memmgmt.memmgmtStartCallback = null;				// Callback function for memmgmt start
+mooltipass.memmgmt.tempCallbackErrorString = null;			// Temp string used for callback
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -1097,13 +1099,14 @@ mooltipass.memmgmt.syncFSRequestOrCreateFileCallback = function(e)
  
 // GUI requesting the password of a given credential
 mooltipass.memmgmt.getPasswordForCredential = function(service, login, callback)
-{
+{	
 	// Check if service exists
 	var service_exists = false;
 	for(var i = 0; i < mooltipass.memmgmt.curServiceNodes.length; i++)
 	{
 		if(mooltipass.memmgmt.curServiceNodes[i].name == service)
 		{
+			mooltipass.memmgmt.getPasswordServiceAddress = mooltipass.memmgmt.curServiceNodes[i].address;
 			service_exists = true;
 			break;
 		}
@@ -1115,11 +1118,13 @@ mooltipass.memmgmt.getPasswordForCredential = function(service, login, callback)
 	{
 		if(mooltipass.memmgmt.curLoginNodes[i].name == login)
 		{
+			mooltipass.memmgmt.getPasswordLoginAddress = mooltipass.memmgmt.curLoginNodes[i].address;
 			service_exists = true;
 			break;
 		}		
 	}
 	
+	// Store callback and function
 	mooltipass.memmgmt.getPasswordCallback = callback;
 	mooltipass.memmgmt.getPasswordLogin = login;
 	
@@ -1132,7 +1137,7 @@ mooltipass.memmgmt.getPasswordForCredential = function(service, login, callback)
 	}
 	else
 	{
-		callback("incorrect", "invalid");
+		mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "Unknown service or login"}, "not valid");
 	}
 }
  
@@ -1943,7 +1948,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Fail
 				console.log("Set context fail");
 				mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-				mooltipass.memmgmt.getPasswordCallback("incorrect", "invalid");
+				mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "Context invalid"}, "not valid");
 			}
 			else
 			{
@@ -1959,7 +1964,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Fail
 				console.log("Set login fail");
 				mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-				mooltipass.memmgmt.getPasswordCallback("incorrect", "invalid");
+				mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "Login invalid"}, "not valid");
 			}
 			else
 			{
@@ -1975,11 +1980,11 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			{
 				// Fail
 				console.log("Get password fail");
-				mooltipass.memmgmt.getPasswordCallback("denied", "invalid");
+				mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "Request denied"}, "not valid");
 			}
 			else
 			{
-				mooltipass.memmgmt.getPasswordCallback("ok", mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
+				mooltipass.memmgmt.getPasswordCallback({'success': true, 'msg': "Request approved"}, mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
 			}
 		}
 	}

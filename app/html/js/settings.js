@@ -141,6 +141,86 @@ _s.initScreensaver = function() {
     });
 };
 
+_s.getUserRequestCancel = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'userRequestCancel',
+        'callbackFunction': function(_response) {
+            if(_response.status == 'success') {
+                $('#settings-userRequestCancel').prop('checked', Boolean(_response.value));
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
+    });
+};
+
+_s.initUserRequestCancel = function() {
+    $('#settings-userRequestCancel').change(function() {
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'userRequestCancel',
+            'value': $(this).prop('checked'),
+            'callbackFunction': function(_response) {
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            }
+        });
+    });
+};
+
+_s.getUserInteractionTimeout = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'userInteractionTimeout',
+        'callbackFunction': function(_response) {
+            if(_response.status == 'success') {
+                $('#settings-userInteractionTimeout').val(Number(_response.value));
+            }
+            else {
+                // TODO: Show alert
+            }
+        }
+    });
+};
+
+_s.initUserInteractionTimeout = function() {
+    $('#settings-userInteractionTimeout').change(function() {
+        var value = $(this).val();
+
+        if(isNaN(value)) {
+            // TODO: Not a number entered
+            return;
+        }
+
+        // Convert value to float number and bit-wise convert it to integer
+        value = Number(value) | 0;
+
+        if(value < 1) {
+            // TODO: Invalid range for
+            return;
+        }
+
+        if(value > 200) {
+            // TODO: Maximum is 231, otherwise it's blocked to 231
+            return;
+        }
+
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'userInteractionTimeout',
+            'value': value,
+            'callbackFunction': function(_response) {
+                if(_response.status != 'success') {
+                    // TODO: Show alert
+                }
+            }
+        });
+    });
+};
+
 
 $(function() {
     _s.initKeyboardLayout();
@@ -154,7 +234,12 @@ $(function() {
     _s.initScreensaver();
     _s.getScreensaver();
 
-    
+    _s.initUserRequestCancel();
+    _s.getUserRequestCancel();
+    _s.initUserInteractionTimeout();
+    _s.getUserInteractionTimeout();
+
+
 
     return;
     // Load settings

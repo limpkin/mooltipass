@@ -116,7 +116,7 @@ mooltipass.device.interface._setMooltipassParameter = function(inputObject) {
         mooltipass.device.interface._returnError(inputObject, 'error', 101, 'unknown parameter' + inputObject.parameter);
         return;
     }
-    if(!inputObject.value) {
+    if(!inputObject.value && inputObject.value != 0) {
         mooltipass.device.interface._returnError(inputObject, 'error', 102, 'no parameter value');
         return;
     }

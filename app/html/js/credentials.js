@@ -210,8 +210,9 @@ _cred.initializeTableActions = function() {
       var credential = USER_CREDENTIALS[_key];
       if ((credential.context == old_context) && (credential.username == old_username)) {
         USER_CREDENTIALS[_key].context = new_context;
-        USER_CREDENTIALS[_key].password = new_password;
         USER_CREDENTIALS[_key].username = new_username;
+        USER_CREDENTIALS[_key].password = new_password;
+        USER_CREDENTIALS[_key]._has_password_changed = USER_CREDENTIALS[_key].password_original != new_password;
         USER_CREDENTIALS[_key]._changed = true;
       }
     }
@@ -332,12 +333,19 @@ _cred.onClickMMMSave = function(e) {
   for(var _key in USER_CREDENTIALS) {
     if('_changed' in USER_CREDENTIALS[_key]) {
       var item = USER_CREDENTIALS[_key];
+
       delete item._changed;
+      delete item.password_original;
 
       if('address' in item) {
+        if(!item._has_password_changed) {
+          delete item.password;
+        }
+        delete item._has_password_changed;
         updates.push(item);
       }
       else {
+        delete item._has_password_changed;
         adds.push(item);
       }
     }
@@ -446,6 +454,7 @@ var get_password = function(_context, _username, _callback) {
       var credential = USER_CREDENTIALS[_key];
       if ((credential.context == _context) && (credential.username == _username)) {
         USER_CREDENTIALS[_key].password = password;
+        USER_CREDENTIALS[_key].password_original = password;
       }
     } 
 

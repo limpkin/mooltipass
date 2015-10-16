@@ -2,6 +2,7 @@ var _cred = {};
 
 var DEFAULT_PASSWORD = "••••••••";
 var USER_CREDENTIALS = [];
+var USER_CREDENTIALS_DELETE = [];
 var WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device';
 
 var MONTH_NAMES = [
@@ -47,6 +48,7 @@ _cred.loadCredentials = function(_status, _credentials) {
   }
 
   USER_CREDENTIALS = _credentials;
+  USER_CREDENTIALS_DELETE = [];
 
   // Init credentials table
   var $table = $("#credentials").DataTable({
@@ -133,7 +135,11 @@ _cred.initializeTableActions = function() {
     for (var _credential in USER_CREDENTIALS) {
       var credential = USER_CREDENTIALS[_credential];
       if ((credential.context == context) && (credential.username == username)) {
-        USER_CREDENTIALS.splice(_credential, 1);
+        var _delete = USER_CREDENTIALS.splice(_credential, 1);
+        USER_CREDENTIALS_DELETE.push({
+          'address': _delete[0].address,
+          'parent_address': _delete[0].parent_address,
+        });
       }
     }
     if ($parent.hasClass("active")) $(".credential-details").remove();
@@ -200,12 +206,13 @@ _cred.initializeTableActions = function() {
     var old_password = $parent.find(".password input").attr("data-old");
     var new_password = $parent.find(".password input").val();
 
-    for (var _credential in USER_CREDENTIALS) {
-      var credential = USER_CREDENTIALS[_credential];
+    for (var _key in USER_CREDENTIALS) {
+      var credential = USER_CREDENTIALS[_key];
       if ((credential.context == old_context) && (credential.username == old_username)) {
-        USER_CREDENTIALS[_credential].context = new_context;
-        USER_CREDENTIALS[_credential].password = new_password;
-        USER_CREDENTIALS[_credential].username = new_username;
+        USER_CREDENTIALS[_key].context = new_context;
+        USER_CREDENTIALS[_key].password = new_password;
+        USER_CREDENTIALS[_key].username = new_username;
+        USER_CREDENTIALS[_key]._changed = true;
       }
     }
 
@@ -293,29 +300,68 @@ _cred.initializeTableActions = function() {
 }
 
 _cred.onClickMMMEnter = function() {
-  $(this).hide();
-  $('#mmm-save, #mmm-discard').show();
-
   mooltipass.device.interface.send({
     'command': 'startMemoryManagementMode',
-    'callbackFunction': _cred.loadCredentials
+    'callbackFunction': function(_status, _credentials) {
+      $('#mmm-enter').hide();
+      $('#mmm-save, #mmm-discard').show();
+      _cred.loadCredentials(_status, _credentials);
+    }
   });
 };
 
 _cred.onClickMMMDiscard = function(e) {
+  e.preventDefault();
   console.warn('call method to leave MemoryManagementMode');
-  // TODO: call this method on callback function
+
+  // TODO: call the following commands on callback function
   USER_CREDENTIALS = [];
   var $table = $('#credentials').DataTable();
   $table.clear().draw();
   $('#mmm-save, #mmm-discard').hide();
   $('#mmm-enter').show();
-}
+};
+
+_cred.onClickMMMSave = function(e) {
+  e.preventDefault();
+
+  var deletes = USER_CREDENTIALS_DELETE;
+  var updates = [];
+  var adds = [];
+
+  for(var _key in USER_CREDENTIALS) {
+    if('_changed' in USER_CREDENTIALS[_key]) {
+      var item = USER_CREDENTIALS[_key];
+      delete item._changed;
+
+      if('address' in item) {
+        updates.push(item);
+      }
+      else {
+        adds.push(item);
+      }
+    }
+  }
+
+  console.warn('Implement mooltipass.memmgmt.memmgmtSave()');
+  console.log(deletes, updates, adds);
+  return;
+
+  mooltipass.memmgmt.memmgmtSave(deletes, updates, adds);
+
+  // TODO: call the following commands on callback function
+  USER_CREDENTIALS = [];
+  var $table = $('#credentials').DataTable();
+  $table.clear().draw();
+  $('#mmm-save, #mmm-discard').hide();
+  $('#mmm-enter').show();
+};
 
 
 $(function(){
   $('#mmm-enter').click(_cred.onClickMMMEnter);
   $('#mmm-discard').click(_cred.onClickMMMDiscard);
+  $('#mmm-save').click(_cred.onClickMMMSave);
   $('#mmm-save, #mmm-discard').hide();
 
   // Search for credentials

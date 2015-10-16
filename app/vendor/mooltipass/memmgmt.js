@@ -2456,10 +2456,10 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 																		'username': mooltipass.memmgmt.getLogin(mooltipass.memmgmt.currentNode),
 																		'address': mooltipass.memmgmt.curNodeAddressRequested,
 																		'description': mooltipass.memmgmt.getDescription(mooltipass.memmgmt.currentNode),
-																		'date-modified': mooltipass.memmgmt.getDateCreated(mooltipass.memmgmt.currentNode),
-																		'date-lastused': mooltipass.memmgmt.getDateLastUsed(mooltipass.memmgmt.currentNode),
+																		'date_modified': mooltipass.memmgmt.getDateCreated(mooltipass.memmgmt.currentNode),
+																		'date_lastused': mooltipass.memmgmt.getDateLastUsed(mooltipass.memmgmt.currentNode),
 																		'favorite': mooltipass.memmgmt.isParentChildAFavorite(mooltipass.memmgmt.clonedCurServiceNodes[mooltipass.memmgmt.clonedCurServiceNodes.length-1].address, mooltipass.memmgmt.curNodeAddressRequested),
-																		'parent-address': mooltipass.memmgmt.clonedCurServiceNodes[mooltipass.memmgmt.clonedCurServiceNodes.length-1].address
+																		'parent_address': mooltipass.memmgmt.clonedCurServiceNodes[mooltipass.memmgmt.clonedCurServiceNodes.length-1].address
 																		});
 						
 						console.log("Received login " + mooltipass.memmgmt.curLoginNodes[mooltipass.memmgmt.curLoginNodes.length - 1].name + " at address " + mooltipass.memmgmt.curLoginNodes[mooltipass.memmgmt.curLoginNodes.length - 1].address);

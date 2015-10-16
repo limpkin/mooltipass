@@ -214,6 +214,7 @@ _cred.initializeTableActions = function() {
         USER_CREDENTIALS[_key].password = new_password;
         USER_CREDENTIALS[_key]._has_password_changed = USER_CREDENTIALS[_key].password_original != new_password;
         USER_CREDENTIALS[_key]._changed = true;
+        USER_CREDENTIALS[_key].date_modified = new Date();
       }
     }
 
@@ -386,20 +387,20 @@ $(function(){
 var get_user_credentials_for_table = function() {
   //var credentials = JSON.parse(JSON.stringify(USER_CREDENTIALS));
   var credentials = [];
-  for (var _credential in USER_CREDENTIALS) {
-    credentials[_credential] = {};
-    credentials[_credential].address = USER_CREDENTIALS[_credential].address;
-    credentials[_credential].parent_address = USER_CREDENTIALS[_credential].parent_address;
-    credentials[_credential].password = "<span data-value='" + DEFAULT_PASSWORD + "''></span>";
-    credentials[_credential].context = {
-      "display" : "<span data-value='" + USER_CREDENTIALS[_credential].context + "'></span>",
-      "plain" : USER_CREDENTIALS[_credential].context
+  for (var _key in USER_CREDENTIALS) {
+    credentials[_key] = {};
+    credentials[_key].address = USER_CREDENTIALS[_key].address;
+    credentials[_key].parent_address = USER_CREDENTIALS[_key].parent_address;
+    credentials[_key].password = "<span data-value='" + DEFAULT_PASSWORD + "''></span>";
+    credentials[_key].context = {
+      "display" : "<span data-value='" + USER_CREDENTIALS[_key].context + "'></span>",
+      "plain" : USER_CREDENTIALS[_key].context
     };
-    credentials[_credential].username = {
-      "display" : "<span data-value='" + USER_CREDENTIALS[_credential].username + "'></span>",
-      "plain" : USER_CREDENTIALS[_credential].username
+    credentials[_key].username = {
+      "display" : "<span data-value='" + USER_CREDENTIALS[_key].username + "'></span>",
+      "plain" : USER_CREDENTIALS[_key].username
     };
-    credentials[_credential].actions = '<nobr><i class="fa fa-eye" title="Show password"></i>\
+    credentials[_key].actions = '<nobr><i class="fa fa-eye" title="Show password"></i>\
       <i class="fa fa-eye-slash" style="display:none;" title="Hide password"></i>\
       <i class="fa fa-pencil" title="Edit credentials"></i>\
       <i class="fa fa-trash-o" title="Delete credentials"></i>\
@@ -407,22 +408,27 @@ var get_user_credentials_for_table = function() {
       <i class="fa fa-floppy-o" style="display:none;" title="Save credentials"></i></nobr>';
 
     var now = new Date();
-    var date = new Date(USER_CREDENTIALS[_credential].date_lastused);
-    credentials[_credential].date_lastused = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
+    var date = new Date(USER_CREDENTIALS[_key].date_lastused);
+    credentials[_key].date_lastused = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
     if (now - date > 365*24*60*60*1000) {
-      credentials[_credential].date_lastused += ", " + (date.getYear() % 100);
+      credentials[_key].date_lastused += ", " + (date.getYear() % 100);
     }
-    var date = new Date(USER_CREDENTIALS[_credential].date_modified);
-    credentials[_credential].date_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
+    var date = new Date(USER_CREDENTIALS[_key].date_modified);
+    credentials[_key].date_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
     if (now - date > 365*24*60*60*1000) {
-      credentials[_credential].date_modified += ", " + (date.getYear() % 100);
+      credentials[_key].date_modified += ", " + (date.getYear() % 100);
     }
 
-    if (USER_CREDENTIALS[_credential].favorite) {
-      credentials[_credential].favorite = '<i class="fa fa-star" title="Remove from favourites"></i>';
+    if (USER_CREDENTIALS[_key].favorite) {
+      credentials[_key].favorite = '<i class="fa fa-star" title="Remove from favourites"></i>';
     } else {
-      credentials[_credential].favorite = '<i class="fa fa-star-o" title="Add to favourites"></i>';
+      credentials[_key].favorite = '<i class="fa fa-star-o" title="Add to favourites"></i>';
     }
+
+    console.log(USER_CREDENTIALS[_key]);
+    console.log(credentials[_key]);
+
+    break;
   }
 
   return credentials;

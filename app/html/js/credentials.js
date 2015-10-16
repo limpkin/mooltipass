@@ -449,18 +449,18 @@ var get_password = function(_context, _username, _callback) {
     }
   } 
 
-  mooltipass.app.get_password(_context, _username, function(password) {
+  mooltipass.app.get_password(_context, _username, function(_context2, _username2, _password) {
     // Add password to local user credential data
     for (var _key in USER_CREDENTIALS) {
       var credential = USER_CREDENTIALS[_key];
-      if ((credential.context == _context) && (credential.username == _username)) {
-        USER_CREDENTIALS[_key].password = password;
-        USER_CREDENTIALS[_key].password_original = password;
+      if ((credential.context == _context2) && (credential.username == _username2)) {
+        USER_CREDENTIALS[_key].password = _password;
+        USER_CREDENTIALS[_key].password_original = _password;
       }
     } 
 
     // Call original callback
-    _callback(password);
+    _callback(_password);
   });
 }
 

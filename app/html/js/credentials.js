@@ -328,14 +328,20 @@ _cred.onClickMMMEnter = function() {
 
 _cred.onClickMMMDiscard = function(e) {
   e.preventDefault();
-  console.warn('call method to leave MemoryManagementMode');
 
-  // TODO: call the following commands on callback function
-  USER_CREDENTIALS = [];
-  var $table = $('#credentials').DataTable();
-  $table.clear().draw();
-  $('#mmm-save, #mmm-discard').hide();
-  $('#mmm-enter').show();
+  mooltipass.memmgmt.memmgmtStop(function(_status) {
+    if(_status.success) {
+      USER_CREDENTIALS = [];
+      var $table = $('#credentials').DataTable();
+      $table.clear().draw();
+      $('#mmm-save, #mmm-discard').hide();
+      $('#mmm-enter').show();
+    }
+    else {
+      // TODO: failed to leave MemoryManagementMode
+      console.warn('Failed to leave MemoryManagementMode')
+    }
+  });
 };
 
 _cred.onClickMMMSave = function(e) {

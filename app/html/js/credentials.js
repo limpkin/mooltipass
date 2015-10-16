@@ -424,11 +424,6 @@ var get_user_credentials_for_table = function() {
     } else {
       credentials[_key].favorite = '<i class="fa fa-star-o" title="Add to favourites"></i>';
     }
-
-    console.log(USER_CREDENTIALS[_key]);
-    console.log(credentials[_key]);
-
-    break;
   }
 
   return credentials;

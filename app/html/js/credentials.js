@@ -302,9 +302,15 @@ _cred.onClickMMMEnter = function() {
   mooltipass.device.interface.send({
     'command': 'startMemoryManagementMode',
     'callbackFunction': function(_status, _credentials) {
-      $('#mmm-enter').hide();
-      $('#mmm-save, #mmm-discard').show();
-      _cred.loadCredentials(_status, _credentials);
+      if(_status.success) {
+        $('#mmm-enter').hide();
+        $('#mmm-save, #mmm-discard').show();
+        _cred.loadCredentials(_status, _credentials);
+      }
+      else {
+        // TODO: Could not enter MemoryManagementMode
+        console.warn('Could not enter MemoryManagementMode', _status.msg);
+      }
     }
   });
 };

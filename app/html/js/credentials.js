@@ -89,6 +89,7 @@ _cred.onClickMMMEnter = function() {
 
 
 $(function(){
+  $('#mmm-enter').click(_cred.onClickMMMEnter);
   $('#mmm-save, #mmm-discard').hide();
 
   // Search for credentials

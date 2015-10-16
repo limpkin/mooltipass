@@ -201,6 +201,20 @@ mooltipass.memmgmt.getDateCreated = function(node)
 	//console.log("Date created is " + day + "/" + month + "/" + year);
 	return new Date(year, month, day, 0, 0, 0, 0);
 }
+
+// Set date created
+mooltipass.memmgmt.setDateCreated = function(node, date)
+{
+	var array = [0,0];
+	array[0] = ((date.getFullYear() - 2010) << 1) & 0xFE;
+	if(data.getMonth() >= 8)
+	{
+		array[0] |= 0x01;
+	}
+	array[1] = ((date.getMonth()%8) << 5) & 0xE0;
+	array[1] |= getDate();
+	node.set(array, 30);
+}
  
 // Get date last used
 mooltipass.memmgmt.getDateLastUsed = function(node)
@@ -210,6 +224,20 @@ mooltipass.memmgmt.getDateLastUsed = function(node)
 	var day = (node[33] & 0x1F);
 	//console.log("Date last used is " + day + "/" + month + "/" + year);
 	return new Date(year, month, day, 0, 0, 0, 0);
+}
+
+// Set date last used
+mooltipass.memmgmt.setDateLastUsed = function(node, date)
+{
+	var array = [0,0];
+	array[0] = ((date.getFullYear() - 2010) << 1) & 0xFE;
+	if(data.getMonth() >= 8)
+	{
+		array[0] |= 0x01;
+	}
+	array[1] = ((date.getMonth()%8) << 5) & 0xE0;
+	array[1] |= getDate();
+	node.set(array, 32);
 }
  
 // Find if node is valid
@@ -1190,7 +1218,7 @@ mooltipass.memmgmt.getNumberOfChildrenForClonedServiceNode = function(node)
 	}
 }
 
-// Do all the operations required by deleting a parent node
+// Do all the operations required by deleting a parent node and generate delete node packet
 mooltipass.memmgmt.deleteServiceNodeFromCloneArrayAndGenerateDeletePacket = function(node)
 {
 	console.log("Parent node " + node.name + " has been removed");
@@ -1235,7 +1263,7 @@ mooltipass.memmgmt.deleteServiceNodeFromCloneArrayAndGenerateDeletePacket = func
 	}
 }
 
-// Do all the operations required by deleting a child node
+// Do all the operations required by deleting a child node and generate delete node packet
 mooltipass.memmgmt.deleteChildNodeFromCloneArrayAndGenerateDeletePacket = function(node)
 {
 	console.log("Child node " + node.name + " has been removed");
@@ -3046,10 +3074,23 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 			
 			if(child_index != null && parent_index != null)
 			{
+				// Check modified date
+				if(mooltipass.memmgmt.getDateCreated(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) != updateData[i].date_modified)
+				{					
+					console.log("User changed date modified from " + mooltipass.memmgmt.getDateCreated(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) + " to " + updateData[i].date_modified);
+					mooltipass.memmgmt.setDateCreated(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data, updateData[i].date_modified);
+				}
+				// Check last used date
+				if(mooltipass.memmgmt.getDateLastUsed(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) != updateData[i].date_lastused)
+				{					
+					console.log("User changed date last used from " + mooltipass.memmgmt.getDateLastUsed(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) + " to " + updateData[i].date_lastused);
+					mooltipass.memmgmt.setDateLastUsed(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data, updateData[i].date_lastused);
+				}
 				// Check if the description has been changed
 				if(mooltipass.memmgmt.getDescription(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) != updateData[i].description)
 				{					
 					console.log("User changed child node description from " + mooltipass.memmgmt.getDescription(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) + " to " + updateData[i].description);
+					mooltipass.memmgmt.setDescription(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data, updateData[i].description);
 				}
 				// Check if the login name has been changed
 				if(mooltipass.memmgmt.clonedCurLoginNodes[child_index].name != updateData[i].username)
@@ -3060,6 +3101,11 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 				if(mooltipass.memmgmt.clonedCurServiceNodes[parent_index].name != updateData[i].context)
 				{
 					console.log("User changed parent node name from " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index].name + " to " + updateData[i].context);					
+				}
+				// Check if password is set
+				if('password' in updateData[i])
+				{
+					console.log("New password is set: " + updateData[i].password);
 				}
 			}
 			else

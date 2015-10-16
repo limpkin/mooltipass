@@ -49,7 +49,7 @@ _cred.loadCredentials = function(_status, _credentials) {
   USER_CREDENTIALS = _credentials;
 
   // Init credentials table
-  $table = $("#credentials").DataTable({
+  var $table = $("#credentials").DataTable({
     data : get_user_credentials_for_table(),
     scrollY : 250,
     dom : '<t>',
@@ -302,9 +302,20 @@ _cred.onClickMMMEnter = function() {
   });
 };
 
+_cred.onClickMMMDiscard = function(e) {
+  console.warn('call method to leave MemoryManagementMode');
+  // TODO: call this method on callback function
+  USER_CREDENTIALS = [];
+  var $table = $('#credentials').DataTable();
+  $table.clear().draw();
+  $('#mmm-save, #mmm-discard').hide();
+  $('#mmm-enter').show();
+}
+
 
 $(function(){
   $('#mmm-enter').click(_cred.onClickMMMEnter);
+  $('#mmm-discard').click(_cred.onClickMMMDiscard);
   $('#mmm-save, #mmm-discard').hide();
 
   // Search for credentials
@@ -321,8 +332,10 @@ $(function(){
 var get_user_credentials_for_table = function() {
   //var credentials = JSON.parse(JSON.stringify(USER_CREDENTIALS));
   var credentials = [];
-  for (_credential in USER_CREDENTIALS) {
+  for (var _credential in USER_CREDENTIALS) {
     credentials[_credential] = {};
+    credentials[_credential].address = USER_CREDENTIALS[_credential].address;
+    credentials[_credential].parent_address = USER_CREDENTIALS[_credential].parent_address;
     credentials[_credential].password = "<span data-value='" + DEFAULT_PASSWORD + "''></span>";
     credentials[_credential].context = {
       "display" : "<span data-value='" + USER_CREDENTIALS[_credential].context + "'></span>",
@@ -362,7 +375,7 @@ var get_user_credentials_for_table = function() {
 }
 
 var get_credential_infos = function(_context, _username) {
-  for (_credential in USER_CREDENTIALS) {
+  for (var _credential in USER_CREDENTIALS) {
     var credential = USER_CREDENTIALS[_credential];
     if ((credential.context == _context) && (credential.username == _username)) {
       return credential
@@ -371,8 +384,8 @@ var get_credential_infos = function(_context, _username) {
 }
 
 var get_password = function(_context, _username, _callback) {
-  for (_credential in USER_CREDENTIALS) {
-    var credential = USER_CREDENTIALS[_credential];
+  for (var _key in USER_CREDENTIALS) {
+    var credential = USER_CREDENTIALS[_key];
     if ((credential.context == _context) && (credential.username == _username)) {
       if ("password" in credential) {
         _callback(credential.password);
@@ -383,10 +396,10 @@ var get_password = function(_context, _username, _callback) {
 
   mooltipass.app.get_password(_context, _username, function(password) {
     // Add password to local user credential data
-    for (_credential in USER_CREDENTIALS) {
-      var credential = USER_CREDENTIALS[_credential];
+    for (var _key in USER_CREDENTIALS) {
+      var credential = USER_CREDENTIALS[_key];
       if ((credential.context == _context) && (credential.username == _username)) {
-        USER_CREDENTIALS[_credential].password = password;
+        USER_CREDENTIALS[_key].password = password;
       }
     } 
 

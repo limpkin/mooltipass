@@ -366,18 +366,20 @@ _cred.onClickMMMSave = function(e) {
     }
   }
 
-  console.warn('Implement mooltipass.memmgmt.memmgmtSave()');
-  console.log(deletes, updates, adds);
-  return;
-
-  mooltipass.memmgmt.memmgmtSave(deletes, updates, adds);
-
-  // TODO: call the following commands on callback function
-  USER_CREDENTIALS = [];
-  var $table = $('#credentials').DataTable();
-  $table.clear().draw();
-  $('#mmm-save, #mmm-discard').hide();
-  $('#mmm-enter').show();
+  mooltipass.memmgmt.memmgmtSave(function(_status) {
+    if(_status.success) {
+      USER_CREDENTIALS = [];
+      var $table = $('#credentials').DataTable();
+      $table.clear().draw();
+      $('#mmm-save, #mmm-discard').hide();
+      $('#mmm-enter').show();
+      // TODO: show success
+    }
+    else {
+      // TODO: show failure
+      console.warn("Could not save credentials:", _status.msg);
+    }
+  }, deletes, updates, adds);
 };
 
 

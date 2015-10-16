@@ -75,7 +75,11 @@ mooltipass.device.interface._ping = function(inputObject) {
 mooltipass.device.interface._startMemoryManagementMode = function(inputObject) {
     mooltipass.device.addToQueue(
         inputObject.command,
-        inputObject.callbackFunction
+        [],
+        null,
+        inputObject.callbackFunction,
+        null,
+        null
     );
 };
 

@@ -1,6 +1,10 @@
 var _cred = {};
 
+// Disable throwing alerts by dataTable
+$.fn.dataTableExt.sErrMode = 'throw';
+
 var DEFAULT_PASSWORD = "••••••••";
+var CREDENTIALS_TABLE = null;
 var USER_CREDENTIALS = [];
 var USER_CREDENTIALS_DELETE = [];
 var WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device';
@@ -18,11 +22,11 @@ var dblclick_last_500ms = function() {
   setTimeout(function(){
     RECENT_DOUBLECLICK = false;
   }, 500);
-}
+};
 
 var stop_propagation = function(e){
   e.stopPropagation();
-}
+};
 
 var get_credentials_from_row = function($row) {
     var context = $row.find(".context span").attr("data-value");
@@ -51,28 +55,7 @@ _cred.loadCredentials = function(_status, _credentials) {
   USER_CREDENTIALS_DELETE = [];
 
   // Init credentials table
-  var $table = $("#credentials").DataTable({
-    data : get_user_credentials_for_table(),
-    scrollY : 250,
-    dom : '<t>',
-    columns: [
-      { data: "favorite" },
-      {
-        data: {
-          "display": 'context.display',
-          "_" : 'context.plain'
-        }
-      },
-      {
-        data: {
-          "display": 'username.display',
-          "_" : 'username.plain'
-        }
-      },
-      { data: "password" },
-      { data: "actions" }
-    ]
-  });
+  CREDENTIALS_TABLE.fnAddData(get_user_credentials_for_table(), true);
 
   update_data_values();
   _cred.initializeTableActions();
@@ -332,8 +315,8 @@ _cred.onClickMMMDiscard = function(e) {
   mooltipass.memmgmt.memmgmtStop(function(_status) {
     if(_status.success) {
       USER_CREDENTIALS = [];
-      var $table = $('#credentials').DataTable();
-      $table.clear().draw();
+      var $table = $('#credentials').dataTable();
+      $table.fnClearTable();
       $('#mmm-save, #mmm-discard').hide();
       $('#mmm-enter').show();
     }
@@ -375,7 +358,7 @@ _cred.onClickMMMSave = function(e) {
   mooltipass.memmgmt.memmgmtSave(function(_status) {
     if(_status.success) {
       USER_CREDENTIALS = [];
-      var $table = $('#credentials').DataTable();
+      var $table = $('#credentials').dataTable();
       $table.clear().draw();
       $('#mmm-save, #mmm-discard').hide();
       $('#mmm-enter').show();
@@ -395,9 +378,32 @@ $(function(){
   $('#mmm-save').click(_cred.onClickMMMSave);
   $('#mmm-save, #mmm-discard').hide();
 
+
+  CREDENTIALS_TABLE = $("#credentials").dataTable({
+    scrollY : 250,
+    dom : '<t>',
+    columns: [
+      { data: "favorite" },
+      {
+        data: {
+          "display": 'context.display',
+          "_" : 'context.plain'
+        }
+      },
+      {
+        data: {
+          "display": 'username.display',
+          "_" : 'username.plain'
+        }
+      },
+      { data: "password" },
+      { data: "actions" }
+    ]
+  });
+
   // Search for credentials
   $("#search-input").on("keyup change", function(){
-    $("#credentials").DataTable().search($(this).val()).draw()
+    $("#credentials").dataTable().search($(this).val()).draw()
   });
   $("#search-input").on("keyup", function(e){
     if (e.keyCode == 27) $(this).val("").trigger("change");
@@ -447,6 +453,8 @@ var get_user_credentials_for_table = function() {
       credentials[_key].favorite = '<i class="fa fa-star-o" title="Add to favourites"></i>';
     }
   }
+
+  console.log(credentials);
 
   return credentials;
 }

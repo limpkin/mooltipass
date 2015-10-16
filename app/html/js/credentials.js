@@ -365,7 +365,7 @@ _cred.onClickMMMSave = function(e) {
     if(_status.success) {
       USER_CREDENTIALS = [];
       var $table = $('#credentials').dataTable();
-      $table.clear().draw();
+      $table.fnClearTable();
       $('#mmm-save, #mmm-discard').hide();
       $('#mmm-enter').show();
       // TODO: show success

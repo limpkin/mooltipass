@@ -207,7 +207,7 @@ mooltipass.memmgmt.setDateCreated = function(node, date)
 {
 	var array = [0,0];
 	array[0] = ((date.getFullYear() - 2010) << 1) & 0xFE;
-	if(data.getMonth() >= 8)
+	if(date.getMonth() >= 8)
 	{
 		array[0] |= 0x01;
 	}
@@ -231,7 +231,7 @@ mooltipass.memmgmt.setDateLastUsed = function(node, date)
 {
 	var array = [0,0];
 	array[0] = ((date.getFullYear() - 2010) << 1) & 0xFE;
-	if(data.getMonth() >= 8)
+	if(date.getMonth() >= 8)
 	{
 		array[0] |= 0x01;
 	}

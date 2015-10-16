@@ -175,6 +175,15 @@ mooltipass.memmgmt.getDescription = function(node)
 	//console.log("Child Node: Description is " + mooltipass.util.arrayToStr(node.subarray(6, node.length)));
 	return mooltipass.util.arrayToStr(node.subarray(6, node.length)); 
 }
+
+// Set description
+mooltipass.memmgmt.setDescription = function(node, description)
+{
+	if(description.length < 24)
+	{
+		node.set(mooltipass.util.strToArray(description), 6);
+	}	
+}
  
 // Get login
 mooltipass.memmgmt.getLogin = function(node)
@@ -1966,9 +1975,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 {
 	// If it is a leave memory management mode packet, process the queue and exit
 	if(packet[1] == mooltipass.device.commands['endMemoryManagementMode'])
-	{
-		mooltipass.memmgmt.currentMode = MGMT_IDLE;
-		 
+	{		 
 		// Did we succeed?
 		if(packet[2] == 1)
 		{
@@ -1989,6 +1996,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			{
 				mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});				
 			}
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
 			console.log("Memory management mode exit");
 			mooltipass.device.processQueue();
 			return;
@@ -3027,7 +3035,46 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 		// Save callback
 		mooltipass.memmgmt.memmgmtSaveCallback = callback;
 		
+		// Tackling the updated items
+		console.log("");
+		console.log("Treating updated items");
+		for(var i = 0; i < updateData.length; i++)
+		{
+			// Check child & parent addresses
+			var child_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, updateData[i].address);
+			var parent_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurServiceNodes, updateData[i].parent_address);
+			
+			if(child_index != null && parent_index != null)
+			{
+				// Check if the description has been changed
+				if(mooltipass.memmgmt.getDescription(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) != updateData[i].description)
+				{					
+					console.log("User changed child node description from " + mooltipass.memmgmt.getDescription(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) + " to " + updateData[i].description);
+				}
+				// Check if the login name has been changed
+				if(mooltipass.memmgmt.clonedCurLoginNodes[child_index].name != updateData[i].username)
+				{
+					console.log("User changed child node name from " + mooltipass.memmgmt.clonedCurLoginNodes[child_index].name + " to " + updateData[i].username);
+				}
+				// Check if the parent name has been changed
+				if(mooltipass.memmgmt.clonedCurServiceNodes[parent_index].name != updateData[i].context)
+				{
+					console.log("User changed parent node name from " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index].name + " to " + updateData[i].context);					
+				}
+			}
+			else
+			{
+				// We were fed incorrect data
+				mooltipass.memmgmt.memmgmtSaveCallback({'success': false, 'msg': "Data provided is invalid!"});
+				console.log("Error with following update data:");
+				console.log(updateData[i]);
+				return;
+			}
+		}
+		
 		// Tackling the deleted items
+		console.log("");
+		console.log("Treating deleted items");
 		for(var i = 0; i < deleteData.length; i++)
 		{
 			// Check child & parent addresses

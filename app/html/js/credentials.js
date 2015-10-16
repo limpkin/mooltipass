@@ -91,10 +91,17 @@ _cred.initializeTableActions = function() {
     var username = credentials.username;
 
     $parent.find(".password span").html(WAITING_FOR_DEVICE_LABEL);
-    get_password(context, username, function(password) {
-      $parent.find(".password span").html(password);
-      $parent.find(".fa-eye").hide();
-      $parent.find(".fa-eye-slash").show();
+    get_password(context, username, function(_success, password) {
+      if(_success) {
+        $parent.find(".password span").html(password);
+        $parent.find(".fa-eye").hide();
+        $parent.find(".fa-eye-slash").show();
+      }
+      else {
+        // TODO: could not get password
+        console.warn('Could not get password on SHOW PASSWORD');
+        $parent.find(".password span").html(DEFAULT_PASSWORD);
+      }
     });
 
     e.stopPropagation();
@@ -165,25 +172,32 @@ _cred.initializeTableActions = function() {
     var $password = $parent.find(".password span");
 
     $password.html(WAITING_FOR_DEVICE_LABEL);
-    get_password(context, username, function(password) {
-      $app.html("<input class='inline change-credentials' data-old='" + context + "' value='" + context + "'/>");
-      $user.html("<input class='inline change-credentials' data-old='" + username + "' value='" + username + "'/>");
-      $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "'/>");
-      $(".inline.change-credentials").on('keydown', save_credential_changes);
-      $(".inline.change-credentials").on('keydown', discard_credential_changes);
-      $(".inline.change-credentials").on('click', stop_propagation);
+    get_password(context, username, function(_success, password) {
+      if(_success) {
+        $app.html("<input class='inline change-credentials' data-old='" + context + "' value='" + context + "'/>");
+        $user.html("<input class='inline change-credentials' data-old='" + username + "' value='" + username + "'/>");
+        $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "'/>");
+        $(".inline.change-credentials").on('keydown', save_credential_changes);
+        $(".inline.change-credentials").on('keydown', discard_credential_changes);
+        $(".inline.change-credentials").on('click', stop_propagation);
 
-      $parent.find(".fa-pencil").hide();
-      $parent.find(".fa-eye").hide();
-      $parent.find(".fa-eye-slash").hide();
-      $parent.find(".fa-trash-o").hide();
-      $parent.find(".fa-floppy-o").show();
-      $parent.find(".fa-times").show();
+        $parent.find(".fa-pencil").hide();
+        $parent.find(".fa-eye").hide();
+        $parent.find(".fa-eye-slash").hide();
+        $parent.find(".fa-trash-o").hide();
+        $parent.find(".fa-floppy-o").show();
+        $parent.find(".fa-times").show();
 
-      if (e.type = 'dblclick') {
-        $this.find('input').focus();
-      } else {
-        $app.find('input').focus();
+        if (e.type = 'dblclick') {
+          $this.find('input').focus();
+        } else {
+          $app.find('input').focus();
+        }
+      }
+      else {
+        //TODO: could not get password
+        console.warn('Could not get password on EDIT');
+        $password.html(DEFAULT_PASSWORD);
       }
     });
 
@@ -443,24 +457,30 @@ var get_password = function(_context, _username, _callback) {
     var credential = USER_CREDENTIALS[_key];
     if ((credential.context == _context) && (credential.username == _username)) {
       if ("password" in credential) {
-        _callback(credential.password);
+        _callback(true, credential.password);
         return
       }
     }
   } 
 
-  mooltipass.app.get_password(_context, _username, function(_context2, _username2, _password) {
-    // Add password to local user credential data
-    for (var _key in USER_CREDENTIALS) {
-      var credential = USER_CREDENTIALS[_key];
-      if ((credential.context == _context2) && (credential.username == _username2)) {
-        USER_CREDENTIALS[_key].password = _password;
-        USER_CREDENTIALS[_key].password_original = _password;
+  mooltipass.app.get_password(_context, _username, function(_context2, _username2, _status, _password) {
+    if(_status.success) {
+      // Add password to local user credential data
+      for (var _key in USER_CREDENTIALS) {
+        var credential = USER_CREDENTIALS[_key];
+        if ((credential.context == _context2) && (credential.username == _username2)) {
+          USER_CREDENTIALS[_key].password = _password;
+          USER_CREDENTIALS[_key].password_original = _password;
+        }
       }
-    } 
+    }
+    else {
+      //TODO: did not receive password!
+      console.warn('Could not get password:', _status.msg);
+    }
 
     // Call original callback
-    _callback(_password);
+    _callback(_status.success, _password);
   });
 }
 

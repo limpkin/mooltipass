@@ -212,7 +212,7 @@ mooltipass.memmgmt.setDateCreated = function(node, date)
 		array[0] |= 0x01;
 	}
 	array[1] = ((date.getMonth()%8) << 5) & 0xE0;
-	array[1] |= getDate();
+	array[1] |= date.getDate();
 	node.set(array, 30);
 }
  
@@ -236,7 +236,7 @@ mooltipass.memmgmt.setDateLastUsed = function(node, date)
 		array[0] |= 0x01;
 	}
 	array[1] = ((date.getMonth()%8) << 5) & 0xE0;
-	array[1] |= getDate();
+	array[1] |= date.getDate();
 	node.set(array, 32);
 }
  

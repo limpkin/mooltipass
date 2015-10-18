@@ -217,7 +217,10 @@ _cred.initializeTableActions = function() {
           USER_CREDENTIALS[_key].password = new_password;
           USER_CREDENTIALS[_key]._has_password_changed = USER_CREDENTIALS[_key].password_original != new_password;
           USER_CREDENTIALS[_key]._changed = true;
-          USER_CREDENTIALS[_key].date_modified = new Date();
+
+          if(USER_CREDENTIALS[_key]._has_password_changed) {
+            USER_CREDENTIALS[_key].date_modified = new Date();
+          }
         }
       }
     }

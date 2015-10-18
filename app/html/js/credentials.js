@@ -263,9 +263,10 @@ _cred.initializeTableActions = function() {
       var credentials = get_credentials_from_row($(".active"));
       var context = credentials.context;
       var username = credentials.username;
-      var description = credentials.description || '- empty -';
 
       var credential_details = get_credential_infos(context, username);
+
+      var description = credential_details.description || '- empty -';
 
       var now = new Date();
       var date = new Date(credential_details.date_lastused);
@@ -490,7 +491,7 @@ var get_credential_infos = function(_context, _username) {
   for (var _credential in USER_CREDENTIALS) {
     var credential = USER_CREDENTIALS[_credential];
     if ((credential.context == _context) && (credential.username == _username)) {
-      return credential
+      return credential;
     }
   }   
 }

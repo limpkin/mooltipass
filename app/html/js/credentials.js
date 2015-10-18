@@ -481,11 +481,7 @@ var get_user_credentials_for_table = function() {
     }
 
     credentials[_key].description = USER_CREDENTIALS[_key].description;
-    break;
   }
-
-  console.log(USER_CREDENTIALS[0]);
-  console.log(credentials[0]);
 
   return credentials;
 }

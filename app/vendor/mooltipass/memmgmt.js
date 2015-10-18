@@ -3596,7 +3596,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 			else
 			{
 				// Check if data is unchanged
-				if(!mooltipass.memmgmt.compareNodeData(mooltipass.memmgmt.clonedCurServiceNodes[i], mooltipass.memmgmt.curServiceNodes[parent_index]))
+				if((!mooltipass.memmgmt.compareNodeData(mooltipass.memmgmt.clonedCurServiceNodes[i], mooltipass.memmgmt.curServiceNodes[parent_index])) && (mooltipass.memmgmt.getNumberOfChildrenForClonedServiceNode(mooltipass.memmgmt.clonedCurServiceNodes[i]) != 0))
 				{
 					console.log("Node data different for parent " + mooltipass.memmgmt.clonedCurServiceNodes[i].name);
 					//console.log(mooltipass.memmgmt.clonedCurServiceNodes[i]);

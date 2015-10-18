@@ -203,15 +203,22 @@ _cred.initializeTableActions = function() {
     var old_password = $parent.find(".password input").attr("data-old");
     var new_password = $parent.find(".password input").val();
 
-    for (var _key in USER_CREDENTIALS) {
-      var credential = USER_CREDENTIALS[_key];
-      if ((credential.context == old_context) && (credential.username == old_username)) {
-        USER_CREDENTIALS[_key].context = new_context;
-        USER_CREDENTIALS[_key].username = new_username;
-        USER_CREDENTIALS[_key].password = new_password;
-        USER_CREDENTIALS[_key]._has_password_changed = USER_CREDENTIALS[_key].password_original != new_password;
-        USER_CREDENTIALS[_key]._changed = true;
-        USER_CREDENTIALS[_key].date_modified = new Date();
+    // TODO: Implement changing description
+    var old_description = "";
+    var new_description = "";
+
+    // Changed at least one field
+    if(old_context != new_context || old_username != new_username || old_password != new_password || old_description != new_description) {
+      for (var _key in USER_CREDENTIALS) {
+        var credential = USER_CREDENTIALS[_key];
+        if ((credential.context == old_context) && (credential.username == old_username)) {
+          USER_CREDENTIALS[_key].context = new_context;
+          USER_CREDENTIALS[_key].username = new_username;
+          USER_CREDENTIALS[_key].password = new_password;
+          USER_CREDENTIALS[_key]._has_password_changed = USER_CREDENTIALS[_key].password_original != new_password;
+          USER_CREDENTIALS[_key]._changed = true;
+          USER_CREDENTIALS[_key].date_modified = new Date();
+        }
       }
     }
 

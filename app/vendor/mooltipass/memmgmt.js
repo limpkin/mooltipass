@@ -414,14 +414,52 @@ mooltipass.memmgmt.findIdByName = function(arrayToSearch, name)
 // Know if parent / child node is a favorite
 mooltipass.memmgmt.isParentChildAFavorite = function(parentAddress, childAddress)
 {
-	for(var i = 0; i < mooltipass.memmgmt.favoriteAddresses; i++)
+	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses; i++)
 	{
-		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.favoriteAddresses[i], [parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]]))
+		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]]))
 		{
 			return true;
 		}
 	}
 	return false;
+}
+
+// Know if parent / child node is a favorite
+mooltipass.memmgmt.isParentChildAFavoriteIndex = function(parentAddress, childAddress)
+{
+	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses; i++)
+	{
+		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]]))
+		{
+			return i;
+		}
+	}
+	return null;
+}
+
+// Delete a favorite
+mooltipass.memmgmt.deleteParentChildFavorite = function(parentAddress, childAddress)
+{
+	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses; i++)
+	{
+		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]]))
+		{
+			mooltipass.memmgmt.clonedFavoriteAddresses[i].set([0,0,0,0], 0);
+		}
+	}
+}
+
+// Add a favorite
+mooltipass.memmgmt.addParentChildFavorite = function(parentAddress, childAddress)
+{
+	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses; i++)
+	{
+		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [0,0,0,0]))
+		{
+			mooltipass.memmgmt.clonedFavoriteAddresses[i].set([parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]], 0);
+			return;
+		}
+	}
 }
  
 // Compare node objects
@@ -3439,11 +3477,25 @@ mooltipass.memmgmt.generateSavePackets = function()
 				console.log("User changed child node description from " + mooltipass.memmgmt.getDescription(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data) + " to " + mooltipass.memmgmt.memmgmtUpdateData[i].description);
 				mooltipass.memmgmt.setDescription(mooltipass.memmgmt.clonedCurLoginNodes[child_index].data, mooltipass.memmgmt.memmgmtUpdateData[i].description);
 			}
+			// Check if it was just tagged/removed as favorite
+			if(mooltipass.memmgmt.memmgmtUpdateData[i].favorite == true && mooltipass.memmgmt.isParentChildAFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address) == false)
+			{
+				console.log("Adding favorite: " + mooltipass.memmgmt.clonedCurLoginNodes[child_index].name + " on " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index]);
+				mooltipass.memmgmt.addParentChildFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address);
+			}
+			if(mooltipass.memmgmt.memmgmtUpdateData[i].favorite == false && mooltipass.memmgmt.isParentChildAFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address) == true)
+			{
+				console.log("Removing favorite: " + mooltipass.memmgmt.clonedCurLoginNodes[child_index].name + " on " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index]);
+				mooltipass.memmgmt.deleteParentChildFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address);
+			}
 			
 			// Check if the parent name has been changed
 			if(mooltipass.memmgmt.clonedCurServiceNodes[parent_index].name != mooltipass.memmgmt.memmgmtUpdateData[i].context)
 			{
 				console.log("User changed parent node name from " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index].name + " to " + mooltipass.memmgmt.memmgmtUpdateData[i].context);	
+				
+				// Delete favorite if it exists
+				mooltipass.memmgmt.deleteParentChildFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address);
 				
 				// Check if the login name has been changed
 				if(mooltipass.memmgmt.clonedCurLoginNodes[child_index].name != mooltipass.memmgmt.memmgmtUpdateData[i].username)
@@ -3497,10 +3549,17 @@ mooltipass.memmgmt.generateSavePackets = function()
 					mooltipass.memmgmt.setNodeType(new_node, 'parent');
 					mooltipass.memmgmt.setServiceName(new_node, mooltipass.memmgmt.memmgmtUpdateData[i].context);
 					mooltipass.memmgmt.clonedCurServiceNodes.push({'address': free_addresses_vector[address_taken_counter], 'name': mooltipass.memmgmt.memmgmtUpdateData[i].context, 'data': new_node});
+					new_parent_node_index = mooltipass.memmgmt.clonedCurServiceNodes.length - 1;
 					
 					// Call the reordering function and increment address counter
 					mooltipass.memmgmt.changeChildNodeLoginAndMoveItToExistingParent(mooltipass.memmgmt.memmgmtUpdateData[i].address, mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, free_addresses_vector[address_taken_counter], mooltipass.memmgmt.memmgmtUpdateData[i].username);
 					address_taken_counter++;
+				}
+				
+				// If it is a favorite
+				if(mooltipass.memmgmt.memmgmtUpdateData[i].favorite)
+				{
+					mooltipass.memmgmt.addParentChildFavorite(mooltipass.memmgmt.clonedCurServiceNodes[new_parent_node_index].address, mooltipass.memmgmt.clonedCurLoginNodes[child_index].address);
 				}
 			}
 			else
@@ -3639,7 +3698,22 @@ mooltipass.memmgmt.generateSavePackets = function()
 				}					
 			}
 		}
-	}
+	}	
+	
+	// Check if favorites have changed
+	for(var i = 0; i < mooltipass.memmgmt.favoriteAddresses.length; i++)
+	{
+		// Did the favorite change?
+		if(!mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.favoriteAddresses[i], mooltipass.memmgmt.clonedFavoriteAddresses[i]))
+		{
+			// Send a packet to update the address
+			console.log("Updating favorite " + i);
+			var favorite_packet = new Uint8Array(5);
+			favorite_packet.set([i], 0);
+			favorite_packet.set(mooltipass.memmgmt.clonedFavoriteAddresses[i], 1);
+			mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setFavorite'], favorite_packet));
+		}
+	}	
 	
 	// Finally, changed if the starting address changed
 	if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.clonedStartingParent, mooltipass.memmgmt.startingParent) == false)

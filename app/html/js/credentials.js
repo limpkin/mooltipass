@@ -504,31 +504,4 @@ var get_password = function(_context, _username, _callback) {
     // Call original callback
     _callback(_status.success, _password);
   });
-}
-
-fakedata = [{ 
-  "app": "google.com", 
-  "user" : "htmlchat",
-  "description" : "htmlchat_d",
-  "last_used" : new Date(2015, 08, 01),
-  "last_modified" : new Date(2015, 07, 01),
-  "is_favourite" : true
-},
-{ 
-  "app": "facebook.com", 
-  "user" : "braceradish",
-  "description" : "braceradish_d",
-  "last_used" : new Date(2015, 08, 01),
-  "last_modified" : new Date(2015, 07, 01),
-  "is_favourite" : false
-},
-{ 
-  "app": "blogger.com", 
-  "user" : "henchmantle",
-  "description" : "henchmantle_d",
-  "last_used" : new Date(2015, 08, 01),
-  "last_modified" : new Date(2015, 07, 01),
-  "is_favourite" : false
-}];
-
-//USER_CREDENTIALS = fakedata;
+};

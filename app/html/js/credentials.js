@@ -106,9 +106,10 @@ _cred.initializeTableActions = function() {
     var context = credentials.context;
     var username = credentials.username;
 
-    for (var _credential in USER_CREDENTIALS) {
-      if ((USER_CREDENTIALS[_credential].context == context) && (USER_CREDENTIALS[_credential].username == username)) {
-        USER_CREDENTIALS[_credential].favorite = !USER_CREDENTIALS[_credential].favorite;
+    for (var _key in USER_CREDENTIALS) {
+      if ((USER_CREDENTIALS[_key].context == context) && (USER_CREDENTIALS[_key].username == username)) {
+        USER_CREDENTIALS[_key].favorite = !USER_CREDENTIALS[_key].favorite;
+        USER_CREDENTIALS[_key]._changed = true;
       }
     }
     $(this).toggleClass("fa-star-o fa-star");
@@ -483,6 +484,9 @@ var get_user_credentials_for_table = function() {
 
     credentials[_key].description = USER_CREDENTIALS[_key].description;
   }
+
+  console.log(USER_CREDENTIALS[0]);
+  console.log(credentials[0]);
 
   return credentials;
 }

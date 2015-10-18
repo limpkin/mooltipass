@@ -2422,6 +2422,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				mooltipass.memmgmt.clonedCurLoginNodes = [];				
 				mooltipass.memmgmt.clonedCurDataServiceNodes = [];		
 				mooltipass.memmgmt.clonedCurDataNodes = []; 
+				mooltipass.memmgmt.credentialArrayForGui = [];
 				mooltipass.memmgmt.currentNode = new Uint8Array(NODE_SIZE);
 				mooltipass.memmgmt.nodePacketId = 0;
 				 

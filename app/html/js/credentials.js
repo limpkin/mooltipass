@@ -263,17 +263,28 @@ _cred.initializeTableActions = function() {
       var credentials = get_credentials_from_row($(".active"));
       var context = credentials.context;
       var username = credentials.username;
+      var description = credentials.description || '- empty -';
 
       var credential_details = get_credential_infos(context, username);
 
       var now = new Date();
       var date = new Date(credential_details.date_lastused);
-      var last_used = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
-      if (now - date > 365*24*60*60*1000) last_used += ", " + date.getFullYear();
+      var last_used = MONTH_NAMES[date.getMonth()] + " " + date.getDate();
+      if (now - date > 365*24*60*60*1000) {
+        last_used += ", " + date.getFullYear();
+      }
+      if (date.getFullYear() < 2013) {
+        last_used = 'never';
+      }
 
       var date = new Date(credential_details.date_modified);
-      var last_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
-      if (now - date > 365*24*60*60*1000) last_modified += ", " + date.getFullYear();
+      var last_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDate();
+      if (now - date > 365*24*60*60*1000) {
+        last_modified += ", " + date.getFullYear();
+      }
+      if (date.getFullYear() < 2013) {
+        last_modified = 'never';
+      }
 
       $(".active").after('<tr class="active credential-details"><td colspan=2></td><td class="labels">\
         <p>Last used</p>\
@@ -282,7 +293,7 @@ _cred.initializeTableActions = function() {
       </td><td colspan=2>\
       <p>' + last_used + '</p>\
       <p>' + last_modified + '</p>\
-      <p>lorem ipsum<p>\
+      <p>' + description + '<p>\
       </td></tr>');
 
       //$("#credentials_wrapper").insertAfter("<div>hallo welt</div>");
@@ -468,9 +479,13 @@ var get_user_credentials_for_table = function() {
     } else {
       credentials[_key].favorite = '<i class="fa fa-star-o" title="Add to favourites"></i>';
     }
+
+    credentials[_key].description = USER_CREDENTIALS[_key].description;
+    break;
   }
 
-  console.log(credentials);
+  console.log(USER_CREDENTIALS[0]);
+  console.log(credentials[0]);
 
   return credentials;
 }

@@ -3702,6 +3702,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 		if(mooltipass.memmgmt.getNumberOfChildrenForClonedServiceNode(mooltipass.memmgmt.clonedCurServiceNodes[i]) == 0)
 		{
 			console.log("Deleting service with no logins: " + mooltipass.memmgmt.clonedCurServiceNodes[i].name);
+			mooltipass.memmgmt.clonedCurServiceNodes[i]['deleted'] = true;
 			mooltipass.memmgmt.deleteServiceNodeFromCloneArrayAndGenerateDeletePacket(mooltipass.memmgmt.clonedCurServiceNodes[i]);
 		}
 	}
@@ -3722,10 +3723,12 @@ mooltipass.memmgmt.generateSavePackets = function()
 			if(number_of_children == 1)
 			{
 				// Delete parent node
+				mooltipass.memmgmt.clonedCurServiceNodes[parent_index]['deleted'] = true;
 				mooltipass.memmgmt.deleteServiceNodeFromCloneArrayAndGenerateDeletePacket(mooltipass.memmgmt.clonedCurServiceNodes[parent_index]);
 			}
 			
 			// Delete child node
+			mooltipass.memmgmt.clonedCurLoginNodes[child_index]['deleted'] = true;
 			mooltipass.memmgmt.deleteChildNodeFromCloneArrayAndGenerateDeletePacket(mooltipass.memmgmt.clonedCurLoginNodes[child_index]);
 		}
 		else
@@ -3742,8 +3745,8 @@ mooltipass.memmgmt.generateSavePackets = function()
 	console.log("Generating packets...");
 	for(var i = 0; i < mooltipass.memmgmt.clonedCurServiceNodes.length; i++)
 	{
-		// To be changed
-		if(true)
+		// Check that it wasn't deleted before
+		if(mooltipass.memmgmt.clonedCurServiceNodes[i]['deleted'] == null)
 		{
 			// Try to find the same node in the current mooltipass memory contents
 			var parent_node_address = mooltipass.memmgmt.clonedCurServiceNodes[i].address;
@@ -3759,7 +3762,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 			else
 			{
 				// Check if data is unchanged
-				if((!mooltipass.memmgmt.compareNodeData(mooltipass.memmgmt.clonedCurServiceNodes[i], mooltipass.memmgmt.curServiceNodes[parent_index])) && (mooltipass.memmgmt.getNumberOfChildrenForClonedServiceNode(mooltipass.memmgmt.clonedCurServiceNodes[i]) != 0))
+				if(!mooltipass.memmgmt.compareNodeData(mooltipass.memmgmt.clonedCurServiceNodes[i], mooltipass.memmgmt.curServiceNodes[parent_index]))
 				{
 					console.log("Node data different for parent " + mooltipass.memmgmt.clonedCurServiceNodes[i].name);
 					//console.log(mooltipass.memmgmt.clonedCurServiceNodes[i]);
@@ -3775,8 +3778,8 @@ mooltipass.memmgmt.generateSavePackets = function()
 	}
 	for(var i = 0; i < mooltipass.memmgmt.clonedCurLoginNodes.length; i++)
 	{
-		// To be changed
-		if(true)
+		// Check that it wasn't deleted before
+		if(mooltipass.memmgmt.clonedCurLoginNodes[i]['deleted'] == null)
 		{
 			// Try to find the same node in the current mooltipass memory contents
 			var child_node_address = mooltipass.memmgmt.clonedCurLoginNodes[i].address;

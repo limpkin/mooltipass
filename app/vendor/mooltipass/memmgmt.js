@@ -33,6 +33,7 @@ var MGMT_NORMAL_SCAN_FAIL				= 22;			// Something wrong happened during normal s
 var MGMT_USER_CHANGES_PACKET_SENDING	= 23;			// We are currently sending packets due to user changes on the memory contents
 var MGMT_NORMAL_SCAN_DONE_NO_CHANGES	= 24;			// Normal scan done, no changes on the memory
 var MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR	= 25;			// Normal scan done, asking for free addresses
+var MGMT_NORMAL_SCAN_DONE_PASSWD_CHANGE	= 26;			// Changing passwords
  
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;							// Mooltipass memory size
@@ -94,6 +95,7 @@ mooltipass.memmgmt.memmgmtSaveCallback = null;				// Callback function for memmg
 mooltipass.memmgmt.memmgmtDeleteData = [];					// Delete data when clicking save
 mooltipass.memmgmt.memmgmtUpdateData = [];					// Update data when clicking save
 mooltipass.memmgmt.memmgmtAddData = [];						// Add data when clicking save
+mooltipass.memmgmt.changePasswordReqs = [];					// Change password reqs
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -2360,7 +2362,29 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		// Did we succeed?
 		if(packet[2] == 1)
 		{
-			if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_FAIL || mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_FAIL)
+			if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_NO_CHANGES || mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
+			{
+				// Do we have passwords to change?
+				if(mooltipass.memmgmt.changePasswordReqs.length > 0)
+				{
+					mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE_PASSWD_CHANGE;	
+					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setContext'], mooltipass.util.strToArray(mooltipass.memmgmt.changePasswordReqs[0].service));
+					mooltipass.memmgmt_hid._sendMsg();	
+					return;
+				}
+				else
+				{
+					if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_NO_CHANGES)
+					{
+						mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "No changes were applied"});
+					}
+					else if(mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
+					{
+						mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});				
+					}
+				}
+			}
+			else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_FAIL || mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_FAIL)
 			{
 				// Something wrong happened during parameter loading, temp string contains more details
 				mooltipass.memmgmt.memmgmtStartCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString}, null);
@@ -2368,14 +2392,6 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
 			{
 				mooltipass.memmgmt.memmgmtStopCallback({'success': true, 'msg': "Memory management mode exit"});
-			}
-			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_NO_CHANGES)
-			{
-				mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "No changes were applied"});
-			}
-			else if(mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
-			{
-				mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});				
 			}
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
 			console.log("Memory management mode exit");
@@ -2396,7 +2412,91 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		console.log("Debug: " + mooltipass.util.arrayToStr(packet.subarray(2, packet.length)));
 	}
 	 
-	if(mooltipass.memmgmt.currentMode == MGMT_PASSWORD_REQ)
+	if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_PASSWD_CHANGE)
+	{
+		if(packet[1] == mooltipass.device.commands['setContext'])
+		{
+			if(packet[2] == 0)
+			{
+				// Fail
+				console.log("Set context fail");
+				
+				// Remove change password request from our buffer
+				mooltipass.memmgmt.changePasswordReqs.splice(0, 1);
+				if(mooltipass.memmgmt.changePasswordReqs.length > 0)
+				{
+					// Send next packet
+					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setContext'], mooltipass.util.strToArray(mooltipass.memmgmt.changePasswordReqs[0].service));
+					mooltipass.memmgmt_hid._sendMsg();	
+				}
+				else
+				{
+					mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});
+					mooltipass.memmgmt.currentMode = MGMT_IDLE;
+					mooltipass.device.processQueue();
+				}
+			}
+			else
+			{
+				// Set login
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setLogin'], mooltipass.util.strToArray(mooltipass.memmgmt.changePasswordReqs[0].login));			
+				mooltipass.memmgmt_hid._sendMsg();
+			}
+		}
+		else if(packet[1] == mooltipass.device.commands['setLogin'])
+		{
+			if(packet[2] == 0)
+			{
+				// Fail
+				console.log("Set login fail");
+				
+				// Remove change password request from our buffer
+				mooltipass.memmgmt.changePasswordReqs.splice(0, 1);
+				if(mooltipass.memmgmt.changePasswordReqs.length > 0)
+				{
+					// Send next packet
+					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setContext'], mooltipass.util.strToArray(mooltipass.memmgmt.changePasswordReqs[0].service));
+					mooltipass.memmgmt_hid._sendMsg();	
+				}
+				else
+				{
+					mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});
+					mooltipass.memmgmt.currentMode = MGMT_IDLE;
+					mooltipass.device.processQueue();
+				}
+			}
+			else
+			{
+				// Set login
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setPassword'], mooltipass.util.strToArray(mooltipass.memmgmt.changePasswordReqs[0].password));			
+				mooltipass.memmgmt_hid._sendMsg();
+			}
+		}
+		else if(packet[1] == mooltipass.device.commands['setPassword'])
+		{
+			if(packet[2] == 0)
+			{
+				// Fail
+				console.log("Set password fail");
+			}
+				
+			// Remove change password request from our buffer
+			mooltipass.memmgmt.changePasswordReqs.splice(0, 1);
+			if(mooltipass.memmgmt.changePasswordReqs.length > 0)
+			{
+				// Send next packet
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setContext'], mooltipass.util.strToArray(mooltipass.memmgmt.changePasswordReqs[0].service));
+				mooltipass.memmgmt_hid._sendMsg();	
+			}
+			else
+			{
+				mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();
+			}
+		}
+	}
+	else if(mooltipass.memmgmt.currentMode == MGMT_PASSWORD_REQ)
 	{
 		if(packet[1] == mooltipass.device.commands['setContext'])
 		{
@@ -2566,7 +2666,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			{
 				// Leave mem management mode				
 				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-				mooltipass.memmgmt_hid._sendMsg();
+				mooltipass.memmgmt_hid._sendMsg();		
 			}
 		}
 		else
@@ -2801,6 +2901,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				mooltipass.memmgmt.clonedCurDataServiceNodes = [];		
 				mooltipass.memmgmt.clonedCurDataNodes = []; 
 				mooltipass.memmgmt.credentialArrayForGui = [];
+				mooltipass.memmgmt.changePasswordReqs = [];
 				mooltipass.memmgmt.currentNode = new Uint8Array(NODE_SIZE);
 				mooltipass.memmgmt.nodePacketId = 0;
 				 
@@ -3579,7 +3680,9 @@ mooltipass.memmgmt.generateSavePackets = function()
 			// Check if password is set
 			if('password' in mooltipass.memmgmt.memmgmtUpdateData[i])
 			{
-				console.log("New password is set: " + mooltipass.memmgmt.memmgmtUpdateData[i].password);
+				//console.log("New password is set: " + mooltipass.memmgmt.memmgmtUpdateData[i].password);
+				console.log("New password set for " + mooltipass.memmgmt.memmgmtUpdateData[i].username + " on " + mooltipass.memmgmt.memmgmtUpdateData[i].context);
+				mooltipass.memmgmt.changePasswordReqs.push({'service': mooltipass.memmgmt.memmgmtUpdateData[i].context, 'login': mooltipass.memmgmt.memmgmtUpdateData[i].username, 'password': mooltipass.memmgmt.memmgmtUpdateData[i].password});
 			}
 		}
 		else
@@ -3736,7 +3839,7 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 		// Count how many addresses we need to add
 		if(addData != null)
 		{
-			mooltipass.memmgmt.totalAddressesRequired = addData.length;
+			mooltipass.memmgmt.totalAddressesRequired = addData.length*2;
 		}
 		else
 		{

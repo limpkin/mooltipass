@@ -58,27 +58,47 @@ is_device_connected = function() {
   return mooltipass.device.isConnected;
 }
 
+is_device_unlocked = function() {
+  return mooltipass.device.isUnlocked;
+}
+
 update_device_status_classes = function() {
   if (is_device_connected()) {
     $(".hide-if-connected").hide();
     $(".show-if-connected").show();
 
-    if (is_device_in_mmm()) {
-      $(".hide-if-mmm").hide();      
-      $(".show-if-mmm").show();        
-    } else {
-      $(".hide-if-mmm").show();      
-      $(".show-if-mmm").hide();              
-    } 
+    if(is_device_unlocked()) {
+      $(".hide-if-unlocked").hide();
+      $(".show-if-unlocked").show();
 
-  } else {
+      if (is_device_in_mmm() && mooltipass.app.showCredentials) {
+        $(".hide-if-mmm").hide();
+        $(".show-if-mmm").show();
+      } else {
+        $(".hide-if-mmm").show();
+        $(".show-if-mmm").hide();
+      }
+    }
+    else {
+      $(".hide-if-unlocked").show();
+      $(".show-if-unlocked").hide();
+      $(".hide-if-mmm").hide();
+      $(".show-if-mmm").hide();
+    }
+  }
+  else {
     $(".hide-if-connected").show();
     $(".show-if-connected").hide();
-  }     
+    $(".hide-if-unlocked").hide();
+    $(".show-if-unlocked").hide();
+    $(".hide-if-mmm").hide();
+    $(".show-if-mmm").hide();
+  }
 }
 
 $(function(){
   // Only show app, if mp is connected
+  update_device_status_classes();
   setInterval(update_device_status_classes, 500);
 
   // Init pages

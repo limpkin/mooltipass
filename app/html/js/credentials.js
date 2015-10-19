@@ -55,7 +55,10 @@ _cred.loadCredentials = function(_status, _credentials) {
   USER_CREDENTIALS_DELETE = [];
 
   // Init credentials table
-  CREDENTIALS_TABLE.fnAddData(get_user_credentials_for_table(), true);
+  var data = get_user_credentials_for_table();
+  if(data.length > 0) {
+    CREDENTIALS_TABLE.fnAddData(data, true);
+  }
 
   update_data_values();
   _cred.initializeTableActions();
@@ -328,7 +331,10 @@ _cred.onClickMMMEnter = function() {
   var $button = $(this);
   _cred.oldButtonText = $button.html();
   $button.attr("disabled", true);
-  $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device')
+  $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device');
+
+  // Activate MemoryManagementMode
+  mooltipass.device.inMemoryManagementMode = true;
 
   // Request mmm activation from device
   mooltipass.device.interface.send({
@@ -337,18 +343,21 @@ _cred.onClickMMMEnter = function() {
       if(_status.success) {
         $('#mmm-enter').hide();
         $('#mmm-save, #mmm-discard').show();
+        mooltipass.app.showCredentials = true;
+        update_device_status_classes();
         _cred.loadCredentials(_status, _credentials);
-
-        // Set back ui button
-        setTimeout(function() {
-          $button.html(_cred.oldButtonText);
-          $button.removeAttr("disabled");
-        }, 500);
       }
       else {
+        mooltipass.device.inMemoryManagementMode = false;
         // TODO: Could not enter MemoryManagementMode
         console.warn('Could not enter MemoryManagementMode', _status.msg);
       }
+
+      // Set back ui button
+      setTimeout(function() {
+        $button.html(_cred.oldButtonText);
+        $button.removeAttr("disabled");
+      }, 500);
     }
   });
 };
@@ -358,11 +367,14 @@ _cred.onClickMMMDiscard = function(e) {
 
   mooltipass.memmgmt.memmgmtStop(function(_status) {
     if(_status.success) {
+      mooltipass.device.inMemoryManagementMode = false;
+      update_device_status_classes();
       USER_CREDENTIALS = [];
       var $table = $('#credentials').dataTable();
       $table.fnClearTable();
       $('#mmm-save, #mmm-discard').hide();
       $('#mmm-enter').show();
+      mooltipass.app.showCredentials = false;
     }
     else {
       // TODO: failed to leave MemoryManagementMode
@@ -401,11 +413,14 @@ _cred.onClickMMMSave = function(e) {
 
   mooltipass.memmgmt.memmgmtSave(function(_status) {
     if(_status.success) {
+      mooltipass.device.inMemoryManagementMode = false;
+      update_device_status_classes();
       USER_CREDENTIALS = [];
       var $table = $('#credentials').dataTable();
       $table.fnClearTable();
       $('#mmm-save, #mmm-discard').hide();
       $('#mmm-enter').show();
+      mooltipass.app.showCredentials = false;
       // TODO: show success
     }
     else {

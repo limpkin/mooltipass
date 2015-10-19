@@ -34,7 +34,17 @@ Please check the mooltipass.device.interface._COMMAND function for additional at
 mooltipass.device.interface.send = function(inputObject) {
     var command = mooltipass.device.interface['_'+inputObject.command];
     if(!command) {
-        mooltipass.device.interface._returnError(inputObject, 'error', 100, 'unknown command: ' + inputObject.command);
+        mooltipass.device.interface._returnError(inputObject, 80, 'unknown command: ' + inputObject.command);
+        return;
+    }
+
+    if(mooltipass.device.inMemoryManagementMode && inputObject.command != 'startMemoryManagementMode') {
+        mooltipass.device.interface._returnError(inputObject, 90, 'device in MemoryManagementMode');
+        return;
+    }
+
+    if(!mooltipass.device.isConnected) {
+        mooltipass.device.interface._returnError(inputObject, 70, 'device not connected');
         return;
     }
 
@@ -42,9 +52,9 @@ mooltipass.device.interface.send = function(inputObject) {
 };
 
 
-mooltipass.device.interface._returnError = function(inputObject, status, code, msg) {
+mooltipass.device.interface._returnError = function(inputObject, code, msg) {
     var responseObject = {
-        'status': status,
+        'success': false,
         'code': code,
         'msg': msg
     };
@@ -99,7 +109,7 @@ mooltipass.device.interface._getMooltipassStatus = function(inputObject) {
 mooltipass.device.interface._getMooltipassParameter = function(inputObject) {
     var _param = mooltipass.device.parameters[inputObject.parameter];
     if(!_param) {
-        mooltipass.device.interface._returnError(inputObject, 'error', 101, 'unknown parameter: ' + inputObject.parameter);
+        mooltipass.device.interface._returnError(inputObject, 101, 'unknown parameter: ' + inputObject.parameter);
         return;
     }
 
@@ -118,11 +128,11 @@ mooltipass.device.interface._getMooltipassParameter = function(inputObject) {
 mooltipass.device.interface._setMooltipassParameter = function(inputObject) {
     var _param = mooltipass.device.parameters[inputObject.parameter];
     if(!_param) {
-        mooltipass.device.interface._returnError(inputObject, 'error', 101, 'unknown parameter' + inputObject.parameter);
+        mooltipass.device.interface._returnError(inputObject, 101, 'unknown parameter' + inputObject.parameter);
         return;
     }
     if(!inputObject.value && inputObject.value != 0) {
-        mooltipass.device.interface._returnError(inputObject, 'error', 102, 'no parameter value');
+        mooltipass.device.interface._returnError(inputObject, 102, 'no parameter value');
         return;
     }
 

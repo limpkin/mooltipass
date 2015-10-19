@@ -17,6 +17,9 @@ function launch(details) {
     chrome.runtime.onMessage.addListener(function(message, sender, callbackFunction) {
         mooltipass.device.interface._sendFromListener(message, sender, callbackFunction);
     });
+
+    //mooltipass.device.checkStatus();
+
     _listenerInstalled = true;
 }
 

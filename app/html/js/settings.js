@@ -5,7 +5,7 @@ _s.getKeyboardLayout = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'keyboardLayout',
         'callbackFunction': function(_response) {
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-keyboardLayout').val(_response.value);
             }
             else {
@@ -22,7 +22,7 @@ _s.initKeyboardLayout = function() {
             'parameter': 'keyboardLayout',
             'value': $(this).val(),
             'callbackFunction': function(_response) {
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             },
@@ -36,7 +36,7 @@ _s.getLockTimeoutEnabled = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'lockTimeoutEnabled',
         'callbackFunction': function(_response) {
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-lockTimeoutEnabled').prop('checked', Boolean(Number(_response.value)));
             }
             else {
@@ -53,7 +53,7 @@ _s.initLockTimeoutEnabled = function() {
             'parameter': 'lockTimeoutEnabled',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             }
@@ -66,7 +66,7 @@ _s.getLockTimeout = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'lockTimeout',
         'callbackFunction': function(_response) {
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-lockTimeout').val(Number(_response.value) / 60);
             }
             else {
@@ -103,7 +103,7 @@ _s.initLockTimeout = function() {
             'parameter': 'lockTimeout',
             'value': value * 60,
             'callbackFunction': function(_response) {
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             }
@@ -116,7 +116,7 @@ _s.getScreensaver = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'screensaver',
         'callbackFunction': function(_response) {
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-screensaver').prop('checked', Boolean(Number(_response.value)));
             }
             else {
@@ -133,7 +133,7 @@ _s.initScreensaver = function() {
             'parameter': 'screensaver',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             }
@@ -146,7 +146,7 @@ _s.getUserRequestCancel = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'userRequestCancel',
         'callbackFunction': function(_response) {
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-userRequestCancel').prop('checked', Boolean(Number(_response.value)));
             }
             else {
@@ -163,7 +163,7 @@ _s.initUserRequestCancel = function() {
             'parameter': 'userRequestCancel',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             }
@@ -176,7 +176,7 @@ _s.getUserInteractionTimeout = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'userInteractionTimeout',
         'callbackFunction': function(_response) {
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-userInteractionTimeout').val(Number(_response.value));
             }
             else {
@@ -213,7 +213,7 @@ _s.initUserInteractionTimeout = function() {
             'parameter': 'userInteractionTimeout',
             'value': value,
             'callbackFunction': function(_response) {
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             }
@@ -226,7 +226,7 @@ _s.getFlashScreen = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'flashScreen',
         'callbackFunction': function(_response) {
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-flashScreen').prop('checked', Boolean(Number(_response.value)));
             }
             else {
@@ -243,7 +243,7 @@ _s.initFlashScreen = function() {
             'parameter': 'flashScreen',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             }
@@ -258,7 +258,7 @@ _s.getOfflineMode = function() {
         'parameter': 'offlineMode',
         'callbackFunction': function(_response) {
             console.log('Response', _response);
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-offlineMode').prop('checked', Boolean(Number(_response.value)));
             }
             else {
@@ -276,7 +276,7 @@ _s.initOfflineMode = function() {
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 console.log('Response SET', _response)
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             }
@@ -289,7 +289,7 @@ _s.getTutorialEnabled = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'tutorialEnabled',
         'callbackFunction': function(_response) {
-            if(_response.status == 'success') {
+            if(_response.success) {
                 $('#settings-tutorialEnabled').prop('checked', Boolean(Number(_response.value)));
             }
             else {
@@ -306,7 +306,7 @@ _s.initTutorialEnabled = function() {
             'parameter': 'tutorialEnabled',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(_response.status != 'success') {
+                if(!_response.success) {
                     // TODO: Show alert
                 }
             }
@@ -314,31 +314,27 @@ _s.initTutorialEnabled = function() {
     });
 };
 
+_s.getSettings = function() {
+    _s.getKeyboardLayout();
+    _s.getLockTimeoutEnabled();
+    _s.getLockTimeout();
+    _s.getScreensaver();
+    _s.getUserRequestCancel();
+    _s.getUserInteractionTimeout();
+    _s.getFlashScreen();
+    _s.getOfflineMode();
+    _s.getTutorialEnabled();
+}
 
 
 $(function() {
     _s.initKeyboardLayout();
-    _s.getKeyboardLayout();
-
     _s.initLockTimeoutEnabled();
-    _s.getLockTimeoutEnabled();
     _s.initLockTimeout();
-    _s.getLockTimeout();
-
     _s.initScreensaver();
-    _s.getScreensaver();
-
     _s.initUserRequestCancel();
-    _s.getUserRequestCancel();
     _s.initUserInteractionTimeout();
-    _s.getUserInteractionTimeout();
-
     _s.initFlashScreen();
-    _s.getFlashScreen();
-
     _s.initOfflineMode();
-    _s.getOfflineMode();
-
     _s.initTutorialEnabled();
-    _s.getTutorialEnabled();
 });

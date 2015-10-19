@@ -122,7 +122,14 @@ mooltipass.device.connectionId = null;
 // Information about established connection
 mooltipass.device.isConnected = false;
 
-// External client to communicate with (e.g. an app)
+// Information about unlocked database
+mooltipass.device.isUnlocked = false;
+
+// Information about active MemoryManagementMode
+mooltipass.device.inMemoryManagementMode = false;
+
+// External clients to communicate with (e.g. an app)
+mooltipass.device.connectedClients = [];
 mooltipass.device.clientId = null;
 
 // Queue for executing commands

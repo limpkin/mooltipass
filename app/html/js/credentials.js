@@ -321,7 +321,16 @@ _cred.initializeTableActions = function() {
   $("tbody tr").on('click', display_details);
 }
 
+_cred.oldButtonText = "";
 _cred.onClickMMMEnter = function() {
+  
+  // Inform user about device interaction
+  var $button = $(this);
+  _cred.oldButtonText = $button.html();
+  $button.attr("disabled", true);
+  $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device')
+
+  // Request mmm activation from device
   mooltipass.device.interface.send({
     'command': 'startMemoryManagementMode',
     'callbackFunction': function(_status, _credentials) {
@@ -329,6 +338,12 @@ _cred.onClickMMMEnter = function() {
         $('#mmm-enter').hide();
         $('#mmm-save, #mmm-discard').show();
         _cred.loadCredentials(_status, _credentials);
+
+        // Set back ui button
+        setTimeout(function() {
+          $button.html(_cred.oldButtonText);
+          $button.removeAttr("disabled");
+        }, 500);
       }
       else {
         // TODO: Could not enter MemoryManagementMode
@@ -444,9 +459,55 @@ $(function(){
   })
   .on("focusout", function(){
     $(this).next().css("opacity", 0);
+  }).on("keydown", function(e){
+    // Manage TABbing to next field
+    if (e.keyCode == 9) {
+      if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val() == '')) {
+        $(this).parents("label").addClass("alert");
+      } else {
+        $(this).parents("label").removeClass("alert");
+      }
+    }
+    // Manage submit of new credentials
+    if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
+      // Check if form is valid
+      $inputs = $(".add-credential input[required]");
+      var i = 0;
+      var is_valid = true;
+      while (i < $inputs.length) {
+        $input = $($inputs[i]);
+        if (($input.attr("required") == 'required') && ($input.val() == '')) {
+          $input.parents("label").addClass("alert");
+          is_valid = false;
+        } else {
+          $input.parents("label").removeClass("alert");
+        }
+        i++;
+      }
+      if (!is_valid) return;
+
+      // If submission is valid, add to USER_CREDENTIALS
+      credential = {
+        "favorite" : false,
+        "app" : $(".add-credential input[name='app']").val(),
+        "user" : $(".add-credential input[name='user']").val(),
+        "password" : $(".add-credential input[name='password']").val(),
+        "description" : $(".add-credential input[name='description']").val(),
+      }
+
+      // Empty form fields again
+      $(".add-credential input").val("");
+
+      // Todo: Add credentials to table and device
+      console.warn("[not implemented] The following credentials are NOT stored on the device: ", credential);
+  
+    }
+  }).on("keyup", function(e){
+    // Remove any error label if input is not empty
+    if (($(this).attr("required") == 'required') && ($(this).val() != '')) {
+      $(this).parents("label").removeClass("alert");
+    }
   });
-
-
 });
 
 var get_user_credentials_for_table = function() {
@@ -492,9 +553,6 @@ var get_user_credentials_for_table = function() {
 
     credentials[_key].description = USER_CREDENTIALS[_key].description;
   }
-
-  console.log(USER_CREDENTIALS[0]);
-  console.log(credentials[0]);
 
   return credentials;
 }

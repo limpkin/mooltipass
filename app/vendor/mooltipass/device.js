@@ -609,12 +609,12 @@ mooltipass.device.checkStatus = function() {
                 if(mooltipass.device.isUnlocked && locked) {
                     mooltipass.app.updateOnLock();
                 }
-                console.log('mooltipass.device.isUnlocked =', unlocked);
+                //console.log('mooltipass.device.isUnlocked =', unlocked);
                 mooltipass.device.isUnlocked = unlocked;
             }
             // Set to locked only if not in MemoryManagementMode
             else if(_responseObject.code != 90) {
-                console.log('mooltipass.device.isUnlocked = false bcs code ', _responseObject.code);
+                //console.log('mooltipass.device.isUnlocked = false bcs code ', _responseObject.code);
                 mooltipass.device.isUnlocked = false;
                 mooltipass.app.updateOnLock();
             }

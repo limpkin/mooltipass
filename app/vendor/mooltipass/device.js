@@ -317,6 +317,9 @@ mooltipass.device.restartProcessingQueue = function() {
  * Generates a valid packet from given command and payload and sends it to the device
  */
 mooltipass.device.processQueue = function() {
+    // If queue is processed, the device cannot be in MemoryManagementMode
+    mooltipass.device.inMemoryManagementMode = false;
+
     if(mooltipass.device.queue.length == 0) {
         mooltipass.device.restartProcessingQueue();
         return;

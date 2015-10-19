@@ -9477,36 +9477,39 @@ nav ul li a img {
 
 /* line 22, ../scss/_layout.scss */
 .content {
-  height: 455px;
   padding: 0.5rem 0rem;
   overflow-y: scroll;
   font-size: 0.8rem;
 }
-/* line 28, ../scss/_layout.scss */
+/* line 27, ../scss/_layout.scss */
 .content p, .content label {
   font-size: inherit;
 }
-/* line 32, ../scss/_layout.scss */
+/* line 31, ../scss/_layout.scss */
 .content h1, .content h2 {
   font-size: 1rem;
 }
-/* line 35, ../scss/_layout.scss */
+/* line 34, ../scss/_layout.scss */
 .content h3, .content h4 {
   font-size: 0.9rem;
 }
-/* line 38, ../scss/_layout.scss */
+/* line 37, ../scss/_layout.scss */
 .content h5, .content h6 {
   font-size: inherit;
 }
 
-/* line 43, ../scss/_layout.scss */
+/* line 42, ../scss/_layout.scss */
 #no-device-connection {
   margin-top: 5rem;
   height: 307px;
 }
-/* line 47, ../scss/_layout.scss */
+/* line 46, ../scss/_layout.scss */
 #no-device-connection .text {
   padding-top: 2rem;
+}
+/* line 49, ../scss/_layout.scss */
+#no-device-connection .text-top {
+  padding-top: 0rem;
 }
 
 /* line 1, ../scss/_log.scss */
@@ -9720,19 +9723,35 @@ input.inline {
 /* line 71, ../scss/app.scss */
 .add-credential input {
   margin-bottom: 0;
+  height: 1.8rem;
+  transition: all 200ms ease;
 }
-/* line 74, ../scss/app.scss */
+/* line 76, ../scss/app.scss */
 .add-credential label {
   margin-bottom: 1.25rem;
 }
-/* line 77, ../scss/app.scss */
+/* line 79, ../scss/app.scss */
+.add-credential label span.required {
+  opacity: 0;
+  color: #f04124;
+}
+/* line 84, ../scss/app.scss */
+.add-credential label.alert span.required {
+  opacity: 1;
+  transition: all 200ms ease;
+}
+/* line 88, ../scss/app.scss */
+.add-credential label.alert input {
+  border: 1px solid #F00 !important;
+}
+/* line 93, ../scss/app.scss */
 .add-credential label .comment {
   font-size: 0.68rem;
   opacity: 0;
-  transition: all 300ms ease;
+  transition: all 200ms ease;
 }
 
-/* line 85, ../scss/app.scss */
+/* line 101, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }

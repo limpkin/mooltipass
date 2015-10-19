@@ -1,7 +1,8 @@
 #page-settings.page
   include _not_connected_error.jade
+  include _in_mmm_error.jade
 
-  .show-if-connected
+  .show-if-connected.hide-if-mmm
     .row
       .column.small-12
         h1 Device Settings

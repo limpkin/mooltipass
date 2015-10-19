@@ -70,14 +70,30 @@ input.inline {
 .add-credential {
   input {
     margin-bottom: 0;
+    height: 1.8rem;
+    transition: all 200ms ease;
   }
   label {
     margin-bottom: 1.25rem;
 
+    span.required {
+      opacity: 0;
+      color: $alert-color;
+    }
+    &.alert {
+      span.required {
+        opacity: 1;
+        transition: all 200ms ease;
+      }
+      input {
+        border: 1px solid #F00 !important;
+      }
+    }
+
     .comment {
       font-size: 0.68rem;
       opacity: 0;
-      transition: all 300ms ease;
+      transition: all 200ms ease;
     }
   }
 }

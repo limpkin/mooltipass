@@ -36,25 +36,40 @@ show_active_page = function() {
   $("#page-" + newPage).show();  
 }
 
+is_device_in_mmm = function() {
+  // DEBUG
+  // return false;
+  return mooltipass.device.inMemoryManagementMode;
+}
+
 is_device_connected = function() {
   // DEBUG
-  return true;
+  // return true;
   return mooltipass.device.isConnected;
 }
 
-show_missing_connection_page = function() {
+update_device_status_classes = function() {
   if (is_device_connected()) {
     $(".hide-if-connected").hide();
     $(".show-if-connected").show();
+
+    if (is_device_in_mmm()) {
+      $(".hide-if-mmm").hide();      
+      $(".show-if-mmm").show();        
+    } else {
+      $(".hide-if-mmm").show();      
+      $(".show-if-mmm").hide();              
+    } 
+
   } else {
     $(".hide-if-connected").show();
-    $(".show-if-connected").hide();      
-  }  
+    $(".show-if-connected").hide();
+  }     
 }
 
 $(function(){
   // Only show app, if mp is connected
-  setInterval(show_missing_connection_page, 500);
+  setInterval(update_device_status_classes, 500);
 
   // Init pages
   show_active_page();

@@ -3505,7 +3505,6 @@ mooltipass.memmgmt.memmgmtStart = function(callback)
 	
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
-		mooltipass.device.inMemoryManagementMode = true;
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_REQ;
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);

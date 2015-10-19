@@ -416,9 +416,9 @@ mooltipass.memmgmt.findIdByName = function(arrayToSearch, name)
 // Know if parent / child node is a favorite
 mooltipass.memmgmt.isParentChildAFavorite = function(parentAddress, childAddress)
 {
-	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses; i++)
+	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses.length; i++)
 	{
-		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]]))
+		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[0], parentAddress[1], childAddress[0], childAddress[1]]))
 		{
 			return true;
 		}
@@ -429,9 +429,9 @@ mooltipass.memmgmt.isParentChildAFavorite = function(parentAddress, childAddress
 // Know if parent / child node is a favorite
 mooltipass.memmgmt.isParentChildAFavoriteIndex = function(parentAddress, childAddress)
 {
-	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses; i++)
+	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses.length; i++)
 	{
-		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]]))
+		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[0], parentAddress[1], childAddress[0], childAddress[1]]))
 		{
 			return i;
 		}
@@ -442,9 +442,9 @@ mooltipass.memmgmt.isParentChildAFavoriteIndex = function(parentAddress, childAd
 // Delete a favorite
 mooltipass.memmgmt.deleteParentChildFavorite = function(parentAddress, childAddress)
 {
-	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses; i++)
+	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses.length; i++)
 	{
-		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]]))
+		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [parentAddress[0], parentAddress[1], childAddress[0], childAddress[1]]))
 		{
 			mooltipass.memmgmt.clonedFavoriteAddresses[i].set([0,0,0,0], 0);
 		}
@@ -454,11 +454,11 @@ mooltipass.memmgmt.deleteParentChildFavorite = function(parentAddress, childAddr
 // Add a favorite
 mooltipass.memmgmt.addParentChildFavorite = function(parentAddress, childAddress)
 {
-	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses; i++)
+	for(var i = 0; i < mooltipass.memmgmt.clonedFavoriteAddresses.length; i++)
 	{
 		if(mooltipass.memmgmt.isSameFavoriteAddress(mooltipass.memmgmt.clonedFavoriteAddresses[i], [0,0,0,0]))
 		{
-			mooltipass.memmgmt.clonedFavoriteAddresses[i].set([parentAddress[1], parentAddress[0], childAddress[1], childAddress[0]], 0);
+			mooltipass.memmgmt.clonedFavoriteAddresses[i].set([parentAddress[0], parentAddress[1], childAddress[0], childAddress[1]], 0);
 			return;
 		}
 	}
@@ -2868,6 +2868,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			mooltipass.memmgmt.dataStartingParent = [packet[2], packet[3]];
 			console.log("Data starting parent is " + mooltipass.memmgmt.dataStartingParent);
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
+			//mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setFavorite'], [1,0,0,0,0]);
 			mooltipass.memmgmt_hid._sendMsg();
 		}
 		else if(packet[1] == mooltipass.device.commands['getFavorite'])
@@ -2885,8 +2886,8 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				return;
 			}
 			// Extract addresses and append them to our current ones
-			mooltipass.memmgmt.favoriteAddresses.push(packet.subarray(2, 2 + 4));	
-			mooltipass.memmgmt.clonedFavoriteAddresses.push(packet.subarray(2, 2 + 4));			
+			mooltipass.memmgmt.favoriteAddresses.push(packet.slice(0).subarray(2, 2 + 4));	
+			mooltipass.memmgmt.clonedFavoriteAddresses.push(packet.slice(0).subarray(2, 2 + 4));			
 			// Check if we have done all favorites
 			if(++mooltipass.memmgmt.currentFavorite == 14)
 			{
@@ -3581,12 +3582,12 @@ mooltipass.memmgmt.generateSavePackets = function()
 			// Check if it was just tagged/removed as favorite
 			if(mooltipass.memmgmt.memmgmtUpdateData[i].favorite == true && mooltipass.memmgmt.isParentChildAFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address) == false)
 			{
-				console.log("Adding favorite: " + mooltipass.memmgmt.clonedCurLoginNodes[child_index].name + " on " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index]);
+				console.log("Adding favorite: " + mooltipass.memmgmt.clonedCurLoginNodes[child_index].name + " on " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index].name);
 				mooltipass.memmgmt.addParentChildFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address);
 			}
 			if(mooltipass.memmgmt.memmgmtUpdateData[i].favorite == false && mooltipass.memmgmt.isParentChildAFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address) == true)
 			{
-				console.log("Removing favorite: " + mooltipass.memmgmt.clonedCurLoginNodes[child_index].name + " on " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index]);
+				console.log("Removing favorite: " + mooltipass.memmgmt.clonedCurLoginNodes[child_index].name + " on " + mooltipass.memmgmt.clonedCurServiceNodes[parent_index].name);
 				mooltipass.memmgmt.deleteParentChildFavorite(mooltipass.memmgmt.memmgmtUpdateData[i].parent_address, mooltipass.memmgmt.memmgmtUpdateData[i].address);
 			}
 			
@@ -3701,6 +3702,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 		if(mooltipass.memmgmt.getNumberOfChildrenForClonedServiceNode(mooltipass.memmgmt.clonedCurServiceNodes[i]) == 0)
 		{
 			console.log("Deleting service with no logins: " + mooltipass.memmgmt.clonedCurServiceNodes[i].name);
+			mooltipass.memmgmt.clonedCurServiceNodes[i]['deleted'] = true;
 			mooltipass.memmgmt.deleteServiceNodeFromCloneArrayAndGenerateDeletePacket(mooltipass.memmgmt.clonedCurServiceNodes[i]);
 		}
 	}
@@ -3721,10 +3723,12 @@ mooltipass.memmgmt.generateSavePackets = function()
 			if(number_of_children == 1)
 			{
 				// Delete parent node
+				mooltipass.memmgmt.clonedCurServiceNodes[parent_index]['deleted'] = true;
 				mooltipass.memmgmt.deleteServiceNodeFromCloneArrayAndGenerateDeletePacket(mooltipass.memmgmt.clonedCurServiceNodes[parent_index]);
 			}
 			
 			// Delete child node
+			mooltipass.memmgmt.clonedCurLoginNodes[child_index]['deleted'] = true;
 			mooltipass.memmgmt.deleteChildNodeFromCloneArrayAndGenerateDeletePacket(mooltipass.memmgmt.clonedCurLoginNodes[child_index]);
 		}
 		else
@@ -3741,8 +3745,8 @@ mooltipass.memmgmt.generateSavePackets = function()
 	console.log("Generating packets...");
 	for(var i = 0; i < mooltipass.memmgmt.clonedCurServiceNodes.length; i++)
 	{
-		// To be changed
-		if(true)
+		// Check that it wasn't deleted before
+		if(mooltipass.memmgmt.clonedCurServiceNodes[i]['deleted'] == null)
 		{
 			// Try to find the same node in the current mooltipass memory contents
 			var parent_node_address = mooltipass.memmgmt.clonedCurServiceNodes[i].address;
@@ -3758,7 +3762,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 			else
 			{
 				// Check if data is unchanged
-				if((!mooltipass.memmgmt.compareNodeData(mooltipass.memmgmt.clonedCurServiceNodes[i], mooltipass.memmgmt.curServiceNodes[parent_index])) && (mooltipass.memmgmt.getNumberOfChildrenForClonedServiceNode(mooltipass.memmgmt.clonedCurServiceNodes[i]) != 0))
+				if(!mooltipass.memmgmt.compareNodeData(mooltipass.memmgmt.clonedCurServiceNodes[i], mooltipass.memmgmt.curServiceNodes[parent_index]))
 				{
 					console.log("Node data different for parent " + mooltipass.memmgmt.clonedCurServiceNodes[i].name);
 					//console.log(mooltipass.memmgmt.clonedCurServiceNodes[i]);
@@ -3774,8 +3778,8 @@ mooltipass.memmgmt.generateSavePackets = function()
 	}
 	for(var i = 0; i < mooltipass.memmgmt.clonedCurLoginNodes.length; i++)
 	{
-		// To be changed
-		if(true)
+		// Check that it wasn't deleted before
+		if(mooltipass.memmgmt.clonedCurLoginNodes[i]['deleted'] == null)
 		{
 			// Try to find the same node in the current mooltipass memory contents
 			var child_node_address = mooltipass.memmgmt.clonedCurLoginNodes[i].address;

@@ -9477,7 +9477,7 @@ nav ul li a img {
 
 /* line 22, ../scss/_layout.scss */
 .content {
-  height: 395px;
+  height: 455px;
   padding: 0.5rem 0rem;
   overflow-y: scroll;
   font-size: 0.8rem;
@@ -9715,4 +9715,24 @@ input:focus {
 input.inline {
   padding: 0.1rem 0.3rem;
   width: 100%;
+}
+
+/* line 71, ../scss/app.scss */
+.add-credential input {
+  margin-bottom: 0;
+}
+/* line 74, ../scss/app.scss */
+.add-credential label {
+  margin-bottom: 1.25rem;
+}
+/* line 77, ../scss/app.scss */
+.add-credential label .comment {
+  font-size: 0.68rem;
+  opacity: 0;
+  transition: all 300ms ease;
+}
+
+/* line 85, ../scss/app.scss */
+.comment {
+  color: #888 !important;
 }

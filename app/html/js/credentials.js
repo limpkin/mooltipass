@@ -438,6 +438,14 @@ $(function(){
     if (e.keyCode == 27) $(this).val("").trigger("change");
   });
 
+  // Init add credentials interactions
+  $(".add-credential input").on("focus", function(){
+    $(this).next().css("opacity", 1);
+  })
+  .on("focusout", function(){
+    $(this).next().css("opacity", 0);
+  });
+
 
 });
 

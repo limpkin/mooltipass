@@ -5,7 +5,12 @@ console.log = function() {
   text = arguments[0];
   i = 1;
   while (i < arguments.length) {
-    text += " " + arguments[i].toString();
+    if(arguments[i] === undefined) {
+      text += " undefined"
+    }
+    else {
+      text += " " + arguments[i].toString();
+    }
     i++;
   }
   $("#log").val($("#log").val() + text + "\n");
@@ -19,7 +24,12 @@ console.warn = function() {
   text = arguments[0];
   i = 1;
   while (i < arguments.length) {
-    text += " " + arguments[i].toString();
+    if(arguments[i] === undefined) {
+      text += " undefined"
+    }
+    else {
+      text += " " + arguments[i].toString();
+    }
     i++;
   }
   text = "[WARNING] " + text;

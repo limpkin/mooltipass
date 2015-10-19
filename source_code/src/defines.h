@@ -70,7 +70,7 @@
  *  PRODUCTION_TEST_SETUP
  *  => exactly like the kickstarter product setup, but with no check on fuses (used for isp programming & testubg)
 */
-#define BETATESTERS_SETUP_PIN
+#define PRODUCTION_KICKSTARTER_SETUP
 #if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
     #define STACK_DEBUG
     #define HARDWARE_V1

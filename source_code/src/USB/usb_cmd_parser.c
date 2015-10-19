@@ -1443,6 +1443,7 @@ void usbProcessIncoming(uint8_t caller_id)
             if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
             {
                 eeprom_write_block((void*)msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
+                eeprom_write_word((uint16_t*)EEP_BACKUP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
                 eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, BOOTLOADER_PWDOK_KEY);
                 plugin_return_value = PLUGIN_BYTE_OK;
             }

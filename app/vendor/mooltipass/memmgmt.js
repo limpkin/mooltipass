@@ -5,6 +5,7 @@ mooltipass.memmgmt = mooltipass.memmgmt || {};
 var NODE_SIZE							= 132;			// Node size
 var HID_PAYLOAD_SIZE					= 62;			// HID payload
 var MEDIA_BUNDLE_CHUNK_SIZE				= 33;			// How many bytes we send per chunk
+var MGMT_PREFERENCES_VERSION			= 0;			// Preferences version
 	
 // State machine modes	
 var MGMT_IDLE							= 0;			// Idle mode
@@ -64,7 +65,8 @@ mooltipass.memmgmt.importedCurDataNodes = [];			// Mooltipass current data nodes
 mooltipass.memmgmt.credentialArrayForGui = [];			// Credential array for GUI
 
 // Local preferences
-mooltipass.memmgmt.preferences = {"memmgmtPrefsStored": false, "syncFSAllowed": false};
+/* Default preferences */
+mooltipass.memmgmt.preferences = {"version": MGMT_PREFERENCES_VERSION};
 
 // State machines & temp variables
 mooltipass.memmgmt.syncFS = null;							// SyncFS
@@ -97,6 +99,7 @@ mooltipass.memmgmt.memmgmtUpdateData = [];					// Update data when clicking save
 mooltipass.memmgmt.memmgmtAddData = [];						// Add data when clicking save
 mooltipass.memmgmt.changePasswordReqs = [];					// Change password reqs
 mooltipass.memmgmt.isCardKnownByMp = false;					// Check if the mooltipass knows the inserted the card
+mooltipass.memmgmt.backupToFileReq = true;					// User is requesting a backup to file
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -1122,14 +1125,23 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 mooltipass.memmgmt.exportMemoryState = function()
 {
 	var export_data = [mooltipass.memmgmt.ctrValue, mooltipass.memmgmt.CPZCTRValues, mooltipass.memmgmt.startingParent, mooltipass.memmgmt.dataStartingParent, mooltipass.memmgmt.favoriteAddresses, mooltipass.memmgmt.curServiceNodes, mooltipass.memmgmt.curLoginNodes, mooltipass.memmgmt.curDataServiceNodes, mooltipass.memmgmt.curDataNodes, "mooltipass"];
-	mooltipass.filehandler.selectAndSaveFileContents("memory_export", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.fileWrittenCallback);
-	//console.log(export_data);
+	//console.log(export_data); // {type: 'application/octet-binary'}
 	
-	if(mooltipass.memmgmt.syncFSOK)
+	if(mooltipass.memmgmt.backupToFileReq)
 	{
-		mooltipass.filehandler.writeFileToSyncFS(mooltipass.memmgmt.syncFS, "mooltipassAutomaticBackup.bin", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.syncFSFileWrittenCallback);
+		mooltipass.filehandler.selectAndSaveFileContents("memory_export", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.fileWrittenCallback);
 	}
-	// {type: 'application/octet-binary'}
+	else
+	{
+		if(mooltipass.memmgmt.syncFSOK == true)
+		{
+			mooltipass.filehandler.writeFileToSyncFS(mooltipass.memmgmt.syncFS, "mooltipassAutomaticBackup.bin", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.syncFSFileWrittenCallback);
+		}
+		else
+		{
+			console.log("SyncFS not ready!!!");
+		}
+	}
 }
  
 // Callback after memory import file read
@@ -3603,17 +3615,42 @@ mooltipass.memmgmt.preferencesCallback = function(items)
 		console.log("preferencesCallback error: "+ chrome.runtime.lastError.message);
 	}
 	else
-	{		
+	{
 		if(items.memmgmtPrefsStored == null)
 		{
 			// Empty file, save new preferences
 			console.log("Preferences storage: No preferences stored!");
-			mooltipass.prefstorage.setStoredPreferences(mooltipass.memmgmt.preferences);
+			mooltipass.prefstorage.setStoredPreferences({"memmgmtPrefsStored": true, "memmgmtPrefs": mooltipass.memmgmt.preferences});
 		}
 		else
 		{
-			console.log("Preferences storage: Loaded preferences!");
-			mooltipass.memmgmt.preferences = items;
+			console.log("Preferences storage: loaded preferences");
+			
+			// Check if the preferences we got are of the latest version
+			if(items.memmgmtPrefs.version != MGMT_PREFERENCES_VERSION)
+			{
+				console.log("Loaded preferences are from an older version");
+				// Check what fields are missing in what is stored
+				for(var key in mooltipass.memmgmt.preferences)
+				{
+					if(key in items.memmgmtPrefs)
+					{
+						console.log("Same key: " + key);
+						mooltipass.memmgmt.preferences[key] = items.memmgmtPrefs[key];
+					}
+					else
+					{
+						console.log("New key: " + key);
+					}
+				}
+				// Save preferences
+				mooltipass.memmgmt.preferences.version = MGMT_PREFERENCES_VERSION;
+				mooltipass.prefstorage.setStoredPreferences({"memmgmtPrefsStored": true, "memmgmtPrefs": mooltipass.memmgmt.preferences});
+			}
+			else
+			{
+				mooltipass.memmgmt.preferences = items.memmgmtPrefs;				
+			}
 			console.log(mooltipass.memmgmt.preferences);
 		}
 	}
@@ -4055,10 +4092,11 @@ mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function()
 }
 
 // Memory backup start
-mooltipass.memmgmt.memoryBackupStart = function()
+mooltipass.memmgmt.memoryBackupStart = function(to_file_bool)
 {
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
+		mooltipass.memmgmt.backupToFileReq = to_file_bool;
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_MEM_BACKUP_REQ;
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);

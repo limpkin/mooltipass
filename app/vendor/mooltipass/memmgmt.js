@@ -4089,6 +4089,32 @@ mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function()
 		mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_REQ;
 		mooltipass.memmgmt.importMemoryState();
 	}
+	else
+	{
+		console.log("Memory management in wrong mode");
+	}
+}
+
+// Merge SyncFS credential file to current database
+mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function()
+{
+	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
+	{		
+		// Check if we have the syncfs
+		if(mooltipass.memmgmt.syncFSOK == true)
+		{
+			mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_REQ;
+			mooltipass.filehandler.requestOrCreateFileFromSyncFS(mooltipass.memmgmt.syncFS, "mooltipassAutomaticBackup.bin", mooltipass.memmgmt.syncFSRequestOrCreateFileCallback);
+		}
+		else
+		{
+			console.log("SyncFS offline or else");
+		}		
+	}
+	else
+	{
+		console.log("Memory management in wrong mode");
+	}
 }
 
 // Memory backup start

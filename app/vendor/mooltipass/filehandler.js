@@ -7,6 +7,7 @@ mooltipass.filehandler.tempFilename = null;				// Temp Filename
 mooltipass.filehandler.tempContents = "";				// Temp Contents
 mooltipass.filehandler.tempReadendCallback = null;		// Temp Callback
 mooltipass.filehandler.tempWriteendCallback = null;		// Temp Callback
+mooltipass.filehandler.readFileName = "";				// Read file name
 
 mooltipass.filehandler.errorHandler = function(e) 
 {
@@ -16,84 +17,146 @@ mooltipass.filehandler.errorHandler = function(e)
 // Ask the user to select a file to import its contents
 mooltipass.filehandler.selectAndReadContents = function(name, readEndCallBack)
 {
-	chrome.fileSystem.chooseEntry({type: 'openFile', suggestedName: name, accepts: new Array({'extensions': new Array("bin")}), acceptsAllTypes: false},	function(readOnlyEntry) 
-																																							{
-																																								if(chrome.runtime.lastError)
-																																								{
-																																									// Something went wrong during file selection
-																																									console.log("File select error: "+ chrome.runtime.lastError.message);
-																																									readEndCallBack(null);
-																																								}
-																																								else
-																																								{
-																																									// File chosen, create reader
-																																									readOnlyEntry.file(	function(file) 
-																																														{
-																																															var reader = new FileReader();
-																																															reader.onerror = mooltipass.filehandler.errorHandler;
-																																															reader.onloadend = readEndCallBack;
-																																															reader.readAsText(file);
-																																														});
-																																								}
-																																							});	
+	var options_objects = {type: 'openFile'};
+	var dot_separator_index = name.indexOf(".");
+	
+	// Check if a separator was specified
+	if(dot_separator_index != -1)
+	{
+		options_objects['accepts'] = new Array({'extensions': new Array(name.substr(name.indexOf(".") + 1))});
+		options_objects['acceptsAllTypes'] = false;
+	}
+	else
+	{
+		options_objects['acceptsAllTypes'] = true;
+	}
+	
+	// Check if a name was specified
+	if(name != "")
+	{
+		options_objects['suggestedName'] = name;
+	}
+	
+	chrome.fileSystem.chooseEntry(options_objects,	function(readOnlyEntry) 
+													{
+														if(chrome.runtime.lastError)
+														{
+															// Something went wrong during file selection
+															console.log("File select error: "+ chrome.runtime.lastError.message);
+															readEndCallBack(null);
+														}
+														else
+														{
+															// File chosen, create reader
+															mooltipass.filehandler.readFileName = readOnlyEntry.name;
+															readOnlyEntry.file(	function(file) 
+																				{
+																					var reader = new FileReader();
+																					reader.onerror = mooltipass.filehandler.errorHandler;
+																					reader.onloadend = readEndCallBack;
+																					reader.readAsText(file);
+																				});
+														}
+													});	
 }
 
 // Ask the user to select a file to import its contents
 mooltipass.filehandler.selectAndReadRawContents = function(name, readEndCallBack)
 {
-	chrome.fileSystem.chooseEntry({type: 'openFile', suggestedName: name, accepts: new Array({'extensions': new Array("img")}), acceptsAllTypes: false},	function(readOnlyEntry) 
-																																							{
-																																								if(chrome.runtime.lastError)
-																																								{
-																																									// Something went wrong during file selection
-																																									console.log("File select error: "+ chrome.runtime.lastError.message);
-																																									readEndCallBack(null);
-																																								}
-																																								else
-																																								{
-																																									// File chosen, create reader
-																																									readOnlyEntry.file(	function(file) 
-																																														{
-																																															var reader = new FileReader();
-																																															reader.onerror = mooltipass.filehandler.errorHandler;
-																																															reader.onloadend = readEndCallBack;
-																																															reader.readAsArrayBuffer(file);
-																																														});
-																																								}
-																																							});	
+	var options_objects = {type: 'openFile'};
+	var dot_separator_index = name.indexOf(".");
+	
+	// Check if a separator was specified
+	if(dot_separator_index != -1)
+	{
+		options_objects['accepts'] = new Array({'extensions': new Array(name.substr(name.indexOf(".") + 1))});
+		options_objects['acceptsAllTypes'] = false;
+	}
+	else
+	{
+		options_objects['acceptsAllTypes'] = true;
+	}
+	
+	// Check if a name was specified
+	if(name != "")
+	{
+		options_objects['suggestedName'] = name;
+	}
+	
+	chrome.fileSystem.chooseEntry(options_objects,	function(readOnlyEntry) 
+													{
+														if(chrome.runtime.lastError)
+														{
+															// Something went wrong during file selection
+															console.log("File select error: "+ chrome.runtime.lastError.message);
+															readEndCallBack(null);
+														}
+														else
+														{
+															// File chosen, create reader
+															mooltipass.filehandler.readFileName = readOnlyEntry.name;
+															readOnlyEntry.file(	function(file) 
+																				{
+																					var reader = new FileReader();
+																					reader.onerror = mooltipass.filehandler.errorHandler;
+																					reader.onloadend = readEndCallBack;
+																					reader.readAsArrayBuffer(file);
+																				});
+														}
+													});	
 }
 
 // Ask the user to select a file and save the provided contents in it
 mooltipass.filehandler.selectAndSaveFileContents = function(name, contents, writeEndCallback) 
 {
-	chrome.fileSystem.chooseEntry({type: 'saveFile', suggestedName: name, accepts: new Array({'extensions': new Array("bin")}), acceptsAllTypes: false},	function(writableFileEntry) 
-																																							{
-																																								if(chrome.runtime.lastError)
-																																								{
-																																									// Something went wrong during file selection
-																																									console.log("File select error: "+ chrome.runtime.lastError.message);
-																																								}
-																																								else
-																																								{
-																																									// File chosen, create writer
-																																									writableFileEntry.createWriter(	function(writer) 
-																																																	{
-																																																		var truncated = false;
-																																																		// Setup error and writeend call backs, start write
-																																																		writer.onerror = mooltipass.filehandler.errorHandler;
-																																																		writer.onwriteend =	function(e)
-																																																							{
-																																																								if(!truncated)
-																																																								{
-																																																									truncated = true;
-																																																									this.truncate(this.position);
-																																																									writeEndCallback();
-																																																								}
-																																																							};
-																																																		writer.write(contents);
-																																																	}, mooltipass.filehandler.errorHandler);
-																																								}
-																																							});
+	var options_objects = {type: 'saveFile'};
+	var dot_separator_index = name.indexOf(".");
+	
+	// Check if a separator was specified
+	if(dot_separator_index != -1)
+	{
+		options_objects['accepts'] = new Array({'extensions': new Array(name.substr(name.indexOf(".") + 1))});
+		options_objects['acceptsAllTypes'] = false;
+	}
+	else
+	{
+		options_objects['acceptsAllTypes'] = true;
+	}
+	
+	// Check if a name was specified
+	if(name != "")
+	{
+		options_objects['suggestedName'] = name;
+	}
+	
+	chrome.fileSystem.chooseEntry(options_objects,	function(writableFileEntry) 
+													{
+														if(chrome.runtime.lastError)
+														{
+															// Something went wrong during file selection
+															console.log("File select error: "+ chrome.runtime.lastError.message);
+														}
+														else
+														{
+															// File chosen, create writer
+															writableFileEntry.createWriter(	function(writer) 
+																							{
+																								var truncated = false;
+																								// Setup error and writeend call backs, start write
+																								writer.onerror = mooltipass.filehandler.errorHandler;
+																								writer.onwriteend =	function(e)
+																													{
+																														if(!truncated)
+																														{
+																															truncated = true;
+																															this.truncate(this.position);
+																															writeEndCallback();
+																														}
+																													};
+																								writer.write(contents);
+																							}, mooltipass.filehandler.errorHandler);
+														}
+													});
 }
 
 // Try and initialize the syncable file storage

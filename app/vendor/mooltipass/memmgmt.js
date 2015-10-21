@@ -3504,7 +3504,7 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 			mooltipass.memmgmt.currentMode = MGMT_BUNDLE_UPLOAD;
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['mediaImport'], mooltipass.memmgmt.mediaBundle.subarray(0, MEDIA_BUNDLE_CHUNK_SIZE));
 			mooltipass.memmgmt.byteCounter += MEDIA_BUNDLE_CHUNK_SIZE;
-			mooltipass.memmgmt_hid.request['milliseconds'] = 2000;
+			mooltipass.memmgmt_hid.request['milliseconds'] = 4000;
 			mooltipass.memmgmt_hid.nbSendRetries = 3;
 			mooltipass.memmgmt_hid._sendMsg();
 			console.log("Media import has started, please wait a few minutes...");
@@ -3565,7 +3565,7 @@ mooltipass.memmgmt.mediaBundleReadCallback = function(e)
 {
 	console.log("Media bundle read event...");
 	 
-	if(e.type == "loadend" && mooltipass.memmgmt.currentMode == MGMT_IDLE)
+	if(e != null && e.type == "loadend" && mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
 		// Change state
 		mooltipass.memmgmt.currentMode = MGMT_BUNDLE_UPLOAD_REQ;
@@ -4065,10 +4065,6 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 // Memory integrity check
 mooltipass.memmgmt.integrityCheckStart = function()
 {	
-	mooltipass.prefstorage.getStoredPreferences(mooltipass.memmgmt.preferencesCallback);
-	mooltipass.filehandler.getSyncableFileSystemStatus(mooltipass.memmgmt.syncableFSStateCallback);
-	mooltipass.filehandler.setSyncFSStateChangeCallback(mooltipass.memmgmt.syncableFSStateChangeCallback);
-	
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_INT_CHECK_REQ;
@@ -4129,7 +4125,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool)
 		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();
-	}return;
+	}
 }
 
 

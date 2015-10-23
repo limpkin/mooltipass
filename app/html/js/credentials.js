@@ -52,15 +52,15 @@ var update_data_values = function () {
 
 _cred.loadCredentials = function (_status, _credentials) {
     if (!_status.success) {
-// TODO: Could not retrieve credentials from device
+        // TODO: Could not retrieve credentials from device
         return false;
     }
 
     USER_CREDENTIALS = _credentials;
     USER_CREDENTIALS_DELETE = [];
 
-// Init credentials table
-    var data = get_user_credentials_for_table();
+    // Init credentials table
+    var data = get_user_credentials_for_table(USER_CREDENTIALS);
     if (data.length > 0) {
         CREDENTIALS_TABLE.fnAddData(data, true);
     }
@@ -72,9 +72,9 @@ _cred.loadCredentials = function (_status, _credentials) {
 };
 
 _cred.initializeTableActions = function () {
-// Table actions
+    // Table actions
 
-//  Show password
+    //  Show password
     $(".fa-eye").on('click', function (e) {
         var $parent = $(this).parents("tr");
         var credentials = get_credentials_from_row($parent);
@@ -89,7 +89,7 @@ _cred.initializeTableActions = function () {
                 $parent.find(".fa-eye-slash").show();
             }
             else {
-// TODO: could not get password
+                // TODO: could not get password
                 console.warn('Could not get password on SHOW PASSWORD');
                 $parent.find(".password span").html(DEFAULT_PASSWORD);
             }
@@ -98,7 +98,7 @@ _cred.initializeTableActions = function () {
         e.stopPropagation();
     });
 
-//  Hide password
+    //  Hide password
     $(".fa-eye-slash").on('click', function (e) {
         $(this).parents("tr").find(".password span").html(DEFAULT_PASSWORD);
         $(this).parents("tr").find(".fa-eye-slash").hide();
@@ -107,7 +107,7 @@ _cred.initializeTableActions = function () {
         e.stopPropagation();
     });
 
-//  Add to / remove from favourites
+    //  Add to / remove from favourites
     $("tbody .fa-star-o, tbody .fa-star").on('click', function (e) {
         var $parent = $(this).parents("tr");
         var credentials = get_credentials_from_row($parent);
@@ -124,7 +124,7 @@ _cred.initializeTableActions = function () {
 
         e.stopPropagation();
     });
-//  Delete credentials
+    //  Delete credentials
     $(".fa-trash-o").on('click', function (e) {
         var $parent = $(this).parents("tr");
         var credentials = get_credentials_from_row($parent);
@@ -135,10 +135,13 @@ _cred.initializeTableActions = function () {
             var credential = USER_CREDENTIALS[_credential];
             if ((credential.context == context) && (credential.username == username)) {
                 var _delete = USER_CREDENTIALS.splice(_credential, 1);
-                USER_CREDENTIALS_DELETE.push({
-                    'address': _delete[0].address,
-                    'parent_address': _delete[0].parent_address,
-                });
+                if (_delete[0].address) {
+                    // Only existing credentials have an address, new credentials can be removed without adding them to USER_CREDENTIALS_DELETE
+                    USER_CREDENTIALS_DELETE.push({
+                        'address': _delete[0].address,
+                        'parent_address': _delete[0].parent_address,
+                    });
+                }
             }
         }
         if ($parent.hasClass("active")) $(".credential-details").remove();
@@ -147,12 +150,12 @@ _cred.initializeTableActions = function () {
         e.stopPropagation();
     });
 
-//  Edit credentials
+    //  Edit credentials
     var edit_credentials = function (e) {
         var $parent = $(this).parents("tr");
         var $this = $(this);
 
-// Return if already in edit mode
+        // Return if already in edit mode
         if ($parent.find("input").length > 0) return;
 
         var credentials = get_credentials_from_row($parent);
@@ -187,7 +190,7 @@ _cred.initializeTableActions = function () {
                 }
             }
             else {
-//TODO: could not get password
+                //TODO: could not get password
                 console.warn('Could not get password on EDIT');
                 $password.html(DEFAULT_PASSWORD);
             }
@@ -199,7 +202,7 @@ _cred.initializeTableActions = function () {
     $("tbody tr td.editable").on('dblclick', edit_credentials);
     $("tbody tr td.editable").on('dblclick', dblclick_last_500ms);
 
-//  Save credentials
+    //  Save credentials
     var save_credential_changes = function (e) {
         if ((e.type == "keydown") && (e.keyCode != 13)) return;
 
@@ -212,11 +215,11 @@ _cred.initializeTableActions = function () {
         var old_password = $parent.find(".password input").attr("data-old");
         var new_password = $parent.find(".password input").val();
 
-// TODO: Implement changing description
+        // TODO: Implement changing description
         var old_description = "";
         var new_description = "";
 
-// Changed at least one field
+        // Changed at least one field
         if (old_context != new_context || old_username != new_username || old_password != new_password || old_description != new_description) {
             for (var _key in USER_CREDENTIALS) {
                 var credential = USER_CREDENTIALS[_key];
@@ -248,7 +251,7 @@ _cred.initializeTableActions = function () {
     }
     $(".fa-floppy-o").on("click", save_credential_changes);
 
-//  Discard credentials
+    //  Discard credentials
     var discard_credential_changes = function (e) {
         if ((e.type == "keydown") && (e.keyCode != 27)) return;
 
@@ -265,7 +268,7 @@ _cred.initializeTableActions = function () {
     }
     $(".fa-times").on("click", discard_credential_changes);
 
-//  View details (description / last used / last modified)
+    //  View details (description / last used / last modified)
     var update_details_view = function () {
         $(".credential-details").remove();
         if ($(".active").length > 0) {
@@ -306,7 +309,7 @@ _cred.initializeTableActions = function () {
 <p>' + description + '<p>\
 </td></tr>');
 
-//$("#credentials_wrapper").insertAfter("<div>hallo welt</div>");
+            //$("#credentials_wrapper").insertAfter("<div>hallo welt</div>");
 
         }
     }
@@ -379,7 +382,7 @@ _cred.onClickMMMDiscard = function (e) {
             $('#mmm-enter').show();
         }
         else {
-// TODO: failed to leave MemoryManagementMode
+            // TODO: failed to leave MemoryManagementMode
             console.warn('Failed to leave MemoryManagementMode')
         }
     });
@@ -413,6 +416,10 @@ _cred.onClickMMMSave = function (e) {
         }
     }
 
+    console.log('adds', adds);
+    console.log('updates', updates);
+    console.log('deletes', deletes);
+
     mooltipass.memmgmt.memmgmtSave(function (_status) {
         if (_status.success) {
             mooltipass.device.endSingleCommunicationMode();
@@ -422,11 +429,11 @@ _cred.onClickMMMSave = function (e) {
             $table.fnClearTable();
             $('#mmm-save, #mmm-discard').hide();
             $('#mmm-enter').show();
-// TODO: show success
+
+            mooltipass.ui.status.success($('#mmm-enter'), _status.msg);
         }
         else {
-// TODO: show failure
-            console.warn("Could not save credentials:", _status.msg);
+            mooltipass.ui.status.error($('#mmm-enter'), _status.msg);
         }
     }, deletes, updates, adds);
 };
@@ -473,24 +480,24 @@ mooltipass.ui.credentials.init = function () {
         if (e.keyCode == 27) $(this).val("").trigger("change");
     });
 
-// Init add credentials interactions
+    // Init add credentials interactions
     $(".add-credential input").on("focus", function () {
         $(this).next().css("opacity", 1);
     })
         .on("focusout", function () {
             $(this).next().css("opacity", 0);
         }).on("keydown", function (e) {
-// Manage TABbing to next field
+            // Manage TABbing to next field
             if (e.keyCode == 9) {
-                if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val() == '')) {
+                if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val().trim() == '')) {
                     $(this).parents("label").addClass("alert");
                 } else {
                     $(this).parents("label").removeClass("alert");
                 }
             }
-// Manage submit of new credentials
+            // Manage submit of new credentials
             if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
-// Check if form is valid
+                // Check if form is valid
                 $inputs = $(".add-credential input[required]");
                 var i = 0;
                 var is_valid = true;
@@ -506,21 +513,32 @@ mooltipass.ui.credentials.init = function () {
                 }
                 if (!is_valid) return;
 
-// If submission is valid, add to USER_CREDENTIALS
-                credential = {
+                // If submission is valid, add to USER_CREDENTIALS
+                var credential = {
                     "favorite": false,
-                    "app": $(".add-credential input[name='app']").val(),
-                    "user": $(".add-credential input[name='user']").val(),
+                    "context": $(".add-credential input[name='app']").val().trim(),
+                    "username": $(".add-credential input[name='user']").val(),
                     "password": $(".add-credential input[name='password']").val(),
-                    "description": $(".add-credential input[name='description']").val(),
-                }
+                    "description": $(".add-credential input[name='description']").val().trim(),
+                    "date_modified": new Date(),
+                    "_changed": true,
+                };
 
-// Empty form fields again
+                USER_CREDENTIALS.push(credential);
+
+                // Empty form fields again
                 $(".add-credential input").val("");
 
-// Todo: Add credentials to table and device
-                console.warn("[not implemented] The following credentials are NOT stored on the device: ", credential);
+                $(".add-credential input:visible:first").focus();
 
+                // Init credentials table
+                var data = get_user_credentials_for_table([credential]);
+                if (data.length > 0) {
+                    CREDENTIALS_TABLE.fnAddData(data, true);
+                }
+
+                update_data_values();
+                _cred.initializeTableActions();
             }
         }).on("keyup", function (e) {
 // Remove any error label if input is not empty
@@ -530,21 +548,21 @@ mooltipass.ui.credentials.init = function () {
         });
 };
 
-var get_user_credentials_for_table = function () {
+var get_user_credentials_for_table = function (_user_credentials) {
 //var credentials = JSON.parse(JSON.stringify(USER_CREDENTIALS));
     var credentials = [];
-    for (var _key in USER_CREDENTIALS) {
+    for (var _key in _user_credentials) {
         credentials[_key] = {};
-        credentials[_key].address = USER_CREDENTIALS[_key].address;
-        credentials[_key].parent_address = USER_CREDENTIALS[_key].parent_address;
+        credentials[_key].address = _user_credentials[_key].address;
+        credentials[_key].parent_address = _user_credentials[_key].parent_address;
         credentials[_key].password = "<span data-value='" + DEFAULT_PASSWORD + "''></span>";
         credentials[_key].context = {
-            "display": "<span data-value='" + USER_CREDENTIALS[_key].context + "'></span>",
-            "plain": USER_CREDENTIALS[_key].context
+            "display": "<span data-value='" + _user_credentials[_key].context + "'></span>",
+            "plain": _user_credentials[_key].context
         };
         credentials[_key].username = {
-            "display": "<span data-value='" + USER_CREDENTIALS[_key].username + "'></span>",
-            "plain": USER_CREDENTIALS[_key].username
+            "display": "<span data-value='" + _user_credentials[_key].username + "'></span>",
+            "plain": _user_credentials[_key].username
         };
         credentials[_key].actions = '<nobr><i class="fa fa-eye" title="Show password"></i>\
 <i class="fa fa-eye-slash" style="display:none;" title="Hide password"></i>\
@@ -554,24 +572,24 @@ var get_user_credentials_for_table = function () {
 <i class="fa fa-floppy-o" style="display:none;" title="Save credentials"></i></nobr>';
 
         var now = new Date();
-        var date = new Date(USER_CREDENTIALS[_key].date_lastused);
+        var date = new Date(_user_credentials[_key].date_lastused);
         credentials[_key].date_lastused = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
         if (now - date > 365 * 24 * 60 * 60 * 1000) {
             credentials[_key].date_lastused += ", " + (date.getYear() % 100);
         }
-        var date = new Date(USER_CREDENTIALS[_key].date_modified);
+        var date = new Date(_user_credentials[_key].date_modified);
         credentials[_key].date_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDay();
         if (now - date > 365 * 24 * 60 * 60 * 1000) {
             credentials[_key].date_modified += ", " + (date.getYear() % 100);
         }
 
-        if (USER_CREDENTIALS[_key].favorite) {
+        if (_user_credentials[_key].favorite) {
             credentials[_key].favorite = '<i class="fa fa-star" title="Remove from favourites"></i>';
         } else {
             credentials[_key].favorite = '<i class="fa fa-star-o" title="Add to favourites"></i>';
         }
 
-        credentials[_key].description = USER_CREDENTIALS[_key].description;
+        credentials[_key].description = _user_credentials[_key].description;
     }
 
     return credentials;

@@ -2451,7 +2451,6 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			else if(mooltipass.memmgmt.currentMode == MGMT_ERROR_CUR_EXITTING_MMM)
 			{
 				mooltipass.memmgmt.statusCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString});
-				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
 			{

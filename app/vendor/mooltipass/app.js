@@ -2,9 +2,6 @@
 var mooltipass = mooltipass || {};
 mooltipass.app = mooltipass.app || {};
 
-// Show credentials as soon as they are loaded
-mooltipass.app.showCredentials = false;
-
 // Is app already initialized
 mooltipass.app._isInitializedLock = false;
 
@@ -37,11 +34,11 @@ mooltipass.app.init = function() {
 
 
 mooltipass.app.updateOnUnlock = function() {
-    _s.getSettings();
+    mooltipass.ui.settings.getSettings();
 };
 
 mooltipass.app.updateOnLock = function() {
-    mooltipass.app.showCredentials = false;
+    mooltipass.device.endSingleCommunicationMode();
 };
 
 mooltipass.app.get_password = function(_context, _username, _callback) {

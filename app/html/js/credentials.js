@@ -329,37 +329,38 @@ _cred.initializeTableActions = function () {
     $("tbody tr").on('click', display_details);
 }
 
-_cred.oldButtonText = "";
-_cred.onClickMMMEnter = function () {
 
+_cred.callbackMMMEnter = function (_status, _credentials) {
+    if (_status.success) {
+        $('#mmm-enter').hide();
+        $('#mmm-save, #mmm-discard').show();
+
+        mooltipass.device.singleCommunicationModeEntered = true;
+        update_device_status_classes();
+        _cred.loadCredentials(_status, _credentials);
+    }
+    else {
+        // Could not enter MemoryManagementMode
+        mooltipass.device.endSingleCommunicationMode();
+        mooltipass.ui.status.error($('#mmm-enter'), _status.msg);
+    }
+
+    // Set back ui button
+    mooltipass.ui._.waitForDevice($('#mmm-enter'), false);
+}
+
+_cred.onClickMMMEnter = function () {
     // Inform user about device interaction
     var $button = $(this);
     mooltipass.ui._.waitForDevice($button, true);
 
-    // Activate MemoryManagementMode
-    mooltipass.device.inMemoryManagementMode = true;
-
     // Request mmm activation from device
     mooltipass.device.interface.send({
-        'command': 'startMemoryManagementMode',
-        'callbackFunction': function (_status, _credentials) {
-            if (_status.success) {
-                $('#mmm-enter').hide();
-                $('#mmm-save, #mmm-discard').show();
-                mooltipass.app.showCredentials = true;
-                update_device_status_classes();
-                _cred.loadCredentials(_status, _credentials);
-            }
-            else {
-                mooltipass.device.inMemoryManagementMode = false;
-                // TODO: Could not enter MemoryManagementMode
-                console.warn('Could not enter MemoryManagementMode', _status.msg);
-            }
-
-            // Set back ui button
-            setTimeout(function () {
-                mooltipass.ui._.waitForDevice($button, false);
-            }, 500);
+        'command': 'startSingleCommunicationMode',
+        'callbackFunction': _cred.callbackMMMEnter,
+        'reason': 'memorymanagementmode',
+        'callbackFunctionStart': function() {
+            mooltipass.memmgmt.memmgmtStart(_cred.callbackMMMEnter);
         }
     });
 };
@@ -369,14 +370,13 @@ _cred.onClickMMMDiscard = function (e) {
 
     mooltipass.memmgmt.memmgmtStop(function (_status) {
         if (_status.success) {
-            mooltipass.device.inMemoryManagementMode = false;
+            mooltipass.device.endSingleCommunicationMode();
             update_device_status_classes();
             USER_CREDENTIALS = [];
             var $table = $('#credentials').dataTable();
             $table.fnClearTable();
             $('#mmm-save, #mmm-discard').hide();
             $('#mmm-enter').show();
-            mooltipass.app.showCredentials = false;
         }
         else {
 // TODO: failed to leave MemoryManagementMode
@@ -415,14 +415,13 @@ _cred.onClickMMMSave = function (e) {
 
     mooltipass.memmgmt.memmgmtSave(function (_status) {
         if (_status.success) {
-            mooltipass.device.inMemoryManagementMode = false;
+            mooltipass.device.endSingleCommunicationMode();
             update_device_status_classes();
             USER_CREDENTIALS = [];
             var $table = $('#credentials').dataTable();
             $table.fnClearTable();
             $('#mmm-save, #mmm-discard').hide();
             $('#mmm-enter').show();
-            mooltipass.app.showCredentials = false;
 // TODO: show success
         }
         else {

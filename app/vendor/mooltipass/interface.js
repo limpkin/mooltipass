@@ -38,13 +38,13 @@ mooltipass.device.interface.send = function(inputObject) {
         return;
     }
 
-    if(mooltipass.device.inMemoryManagementMode && inputObject.command != 'startMemoryManagementMode') {
-        mooltipass.device.interface._returnError(inputObject, 90, 'device in MemoryManagementMode');
+    if(!mooltipass.device.isConnected) {
+        mooltipass.device.interface._returnError(inputObject, 70, 'device not connected');
         return;
     }
 
-    if(!mooltipass.device.isConnected) {
-        mooltipass.device.interface._returnError(inputObject, 70, 'device not connected');
+    if(mooltipass.device.singleCommunicationMode) {
+        mooltipass.device.interface._returnError(inputObject, 90, 'device blocks new communication');
         return;
     }
 
@@ -90,6 +90,23 @@ mooltipass.device.interface._startMemoryManagementMode = function(inputObject) {
         inputObject.callbackFunction,
         null,
         null
+    );
+};
+
+
+mooltipass.device.interface._startSingleCommunicationMode = function(inputObject) {
+    mooltipass.device.addToQueue(
+        inputObject.command,
+        [],
+        null,
+        inputObject.callbackFunction,
+        inputObject.callbackParameters,
+        null,
+        false,
+        {
+            'reason': inputObject.reason,
+            'callbackFunctionStart': inputObject.callbackFunctionStart
+        }
     );
 };
 

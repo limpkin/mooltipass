@@ -85,21 +85,23 @@ show_active_page = function () {
 }
 
 is_device_connected = function () {
-// DEBUG
-    return true;
+    // DEBUG
+    //return true;
     return mooltipass.device.isConnected;
 }
 
 is_device_unlocked = function () {
-// DEBUG
-    return true;
+    // DEBUG
+    //return true;
     return mooltipass.device.isUnlocked;
 }
 
 is_device_in_mmm = function () {
-// DEBUG
-//return true;
-    return mooltipass.device.inMemoryManagementMode;
+    // DEBUG
+    //return true;
+    return mooltipass.device.singleCommunicationMode
+        && mooltipass.device.singleCommunicationModeEntered
+        && mooltipass.device.singleCommunicationReason == 'memorymanagementmode';
 }
 
 update_device_status_classes = function () {
@@ -129,5 +131,7 @@ update_device_status_classes = function () {
     } else {
         $(".show-if-mmm").hide();
         $(".hide-if-mmm").show();
+
+        return;
     }
 };

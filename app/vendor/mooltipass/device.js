@@ -125,8 +125,16 @@ mooltipass.device.isConnected = false;
 // Information about unlocked database
 mooltipass.device.isUnlocked = false;
 
-// Information about active MemoryManagementMode
-mooltipass.device.inMemoryManagementMode = false;
+// Is communication with device is uniquely taken by a function?
+// e.g. device is in MemoryManagementMode
+mooltipass.device.singleCommunicationMode = false;
+
+// singleCommunicationMode is activated and first results can now be shown
+mooltipass.device.singleCommunicationModeEntered = false;
+
+// Short slugified string why communication is blocked
+// e.g. memorymanagement || synchronisation
+mooltipass.device.singleCommunicationReason = null;
 
 // External clients to communicate with (e.g. an app)
 mooltipass.device.connectedClients = [];
@@ -149,85 +157,15 @@ mooltipass.device.init = function() {
     // Initial start processing queue
     mooltipass.device.restartProcessingQueue();
 
-    // TODO: reactivate checkStatus!
-    //setInterval(mooltipass.device.checkStatus, 1000);
+    setInterval(mooltipass.device.checkStatus, 1000);
 };
-
-
-/**
- * Return next element in queue
- * @param command if given, return the next element with the specified command
- * @returns object
- */
-mooltipass.device.getFromQueue = function(command, keepInQueue) {
-    if(command) {
-        //console.log('COMMAND', command, '(length queue: ', mooltipass.device.queue.length, ')');
-        for(var i = 0; i < mooltipass.device.queue.length; i++) {
-            if(mooltipass.device.queue[i].command == command) {
-                if(keepInQueue) {
-                    return mooltipass.device.queue[i];
-                }
-                var result = mooltipass.device.queue.splice(i, 1);
-                return result[0];
-            }
-        }
-    }
-
-    if(keepInQueue) {
-        return  mooltipass.device.queue[0];
-    }
-
-    return mooltipass.device.queue.shift();
-};
-
-/**
- * Add new request to queue
- * @param command string
- * @param payload array
- * @param responseParameters array of parameters which are needed to process the response
- * @param callbackFunction function to send the response to
- * @param callbackParameters additional parameters with which the callback function has to be called
- * @param timeoutObject containing information for retries
- * @param addToFirstPosition if set, the request is added to first position
- */
-mooltipass.device.addToQueue = function(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject, addToFirstPosition) {
-    var object = {
-        'command': command,
-        'payload': payload,
-        'responseParameters': responseParameters,
-        'callbackFunction': callbackFunction,
-        'callbackParameters': callbackParameters,
-        'timeout': timeoutObject
-    };
-
-    if(addToFirstPosition) {
-        mooltipass.device.queue.unshift(object);
-    }
-    else {
-        mooltipass.device.queue.push(object);
-    }
-
-    return true;
-};
-
-
-mooltipass.device.setQueueHash = function() {
-    mooltipass.device.queueHash = Math.random() + Math.random();
-    var queuedItem = mooltipass.device.getFromQueue(null, true);
-    if(queuedItem) {
-        queuedItem.hash = mooltipass.device.queueHash;
-        return mooltipass.device.queueHash;
-    }
-
-    return null;
-}
 
 
 mooltipass.device.reset = function() {
     mooltipass.device.connectionId = null;
     mooltipass.device.isConnected = false;
     mooltipass.device.isUnlocked = false;
-    mooltipass.device.inMemoryManagementMode = false;
+    mooltipass.device.endSingleCommunicationMode();
 };
 
 /**
@@ -331,9 +269,112 @@ mooltipass.device.convertMessageArrayToString = function(uint8Array) {
     return output;
 };
 
+/**
+ * Start single communication mode
+ * e.g. for MemoryManagementMode
+ * @param reason for entering the mode (e.g. memorymanagementmode)
+ */
+mooltipass.device.startSingleCommunicationMode = function(reason) {
+    mooltipass.device.singleCommunicationMode = true;
+    mooltipass.device.singleCommunicationModeEntered = false;
+    mooltipass.device.singleCommunicationReason = reason;
+};
+
+/**
+ * End single communication mode
+ */
+mooltipass.device.endSingleCommunicationMode = function() {
+    mooltipass.device.singleCommunicationMode = false;
+    mooltipass.device.singleCommunicationModeEntered = false;
+    mooltipass.device.singleCommunicationReason = null;
+};
+
+
+/**
+ * Return next element in queue
+ * @param command if given, return the next element with the specified command
+ * @returns object
+ */
+mooltipass.device.getFromQueue = function(command, keepInQueue) {
+    if(command) {
+        //console.log('COMMAND', command, '(length queue: ', mooltipass.device.queue.length, ')');
+        for(var i = 0; i < mooltipass.device.queue.length; i++) {
+            if(mooltipass.device.queue[i].command == command) {
+                if(keepInQueue) {
+                    return mooltipass.device.queue[i];
+                }
+                var result = mooltipass.device.queue.splice(i, 1);
+                return result[0];
+            }
+        }
+    }
+
+    if(keepInQueue) {
+        return  mooltipass.device.queue[0];
+    }
+
+    return mooltipass.device.queue.shift();
+};
+
+/**
+ * Add new request to queue
+ * @param command string
+ * @param payload array
+ * @param responseParameters array of parameters which are needed to process the response
+ * @param callbackFunction function to send the response to
+ * @param callbackParameters additional parameters with which the callback function has to be called
+ * @param timeoutObject containing information for retries
+ * @param addToFirstPosition if set, the request is added to first position
+ * @param additionalArguments object with additional arguments like for singleCommunicationMode
+ */
+mooltipass.device.addToQueue = function(command, payload, responseParameters, callbackFunction, callbackParameters, timeoutObject, addToFirstPosition, additionalArguments) {
+    var object = {
+        'command': command,
+        'payload': payload,
+        'responseParameters': responseParameters,
+        'callbackFunction': callbackFunction,
+        'callbackParameters': callbackParameters,
+        'timeout': timeoutObject,
+        'additionalArguments': additionalArguments
+    };
+
+    if(addToFirstPosition) {
+        mooltipass.device.queue.unshift(object);
+    }
+    else {
+        mooltipass.device.queue.push(object);
+    }
+
+    return true;
+};
+
+
+mooltipass.device.setQueueHash = function() {
+    mooltipass.device.queueHash = Math.random() + Math.random();
+    var queuedItem = mooltipass.device.getFromQueue(null, true);
+    if(queuedItem) {
+        queuedItem.hash = mooltipass.device.queueHash;
+        return mooltipass.device.queueHash;
+    }
+
+    return null;
+};
+
 mooltipass.device.restartProcessingQueue = function() {
     //console.log('mooltipass.device.restartProcessingQueue()');
     setTimeout(mooltipass.device.processQueue, 500);
+};
+
+mooltipass.device.callbackAllQueuedCommandsInSingleCommunicationMode = function() {
+    var queuedItem;
+    var responseObject = {
+        'success': false,
+        'code': 90,
+        'msg': 'device blocks new communication'
+    };
+    while(queuedItem = mooltipass.device.getFromQueue(null, false)) {
+        mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    }
 };
 
 /**
@@ -348,22 +389,28 @@ mooltipass.device.processQueue = function() {
     }
 
     if(mooltipass.device.queue.length == 0) {
-        // If queue is processed, the device cannot be in MemoryManagementMode
-        mooltipass.device.inMemoryManagementMode = false;
+        // If queue is processed, the device cannot be in a single mode
+        mooltipass.device.endSingleCommunicationMode();
         mooltipass.device.restartProcessingQueue();
         return;
     }
 
     var queuedItem = mooltipass.device.getFromQueue(null, true);
 
-    if(queuedItem.command == 'startMemoryManagementMode') {
-        mooltipass.device.getFromQueue(null);
-        mooltipass.memmgmt.memmgmtStart(queuedItem.callbackFunction)
+    if(queuedItem.command == 'startSingleCommunicationMode') {
+        // Enter singleCommunicationMode
+        mooltipass.device.startSingleCommunicationMode(queuedItem.additionalArguments.reason);
+        // Remove own request object from queue
+        queuedItem = mooltipass.device.getFromQueue(null, false);
+        // Remove all remaining queued requests and send callback with error to them
+        mooltipass.device.callbackAllQueuedCommandsInSingleCommunicationMode();
+        // Call callback to start single communication
+        mooltipass.device.applyCallback(queuedItem.additionalArguments.callbackFunctionStart, queuedItem.callbackParameters, null);
         return;
     }
 
-    // If queue is processed, the device cannot be in MemoryManagementMode
-    mooltipass.device.inMemoryManagementMode = false;
+    // If queue is processed, the device cannot be in single communication mode
+    mooltipass.device.endSingleCommunicationMode();
 
     queuedItem.packet = mooltipass.device.createPacket(mooltipass.device.commands[queuedItem.command], queuedItem.payload);
 

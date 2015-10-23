@@ -38,15 +38,33 @@ mooltipass.ui.sync.onClickExportToFile = function(e) {
 
     mooltipass.ui._.waitForDevice($(this), true);
     mooltipass.ui.sync.disableButtons(true);
-    mooltipass.memmgmt.memoryBackupStart(true, mooltipass.ui.sync.callbackExportToFile);
+
+    mooltipass.device.interface.send({
+        'command': 'startSingleCommunicationMode',
+        'callbackFunction': mooltipass.ui.sync.callbackExportToFile,
+        'reason': 'synchronisationmode',
+        'callbackFunctionStart': function() {
+            mooltipass.ui.sync.disableButtons(true);
+            mooltipass.device.singleCommunicationModeEntered = true;
+            mooltipass.memmgmt.memoryBackupStart(true, mooltipass.ui.sync.callbackExportToFile);
+        }
+    });
 };
 
 mooltipass.ui.sync.callbackExportToFile = function(_status) {
     var $button = $('#exportToFile');
 
-    mooltipass.ui.status.success($button, _status.msg);
+    if(_status.success) {
+        mooltipass.ui.status.success($button, _status.msg);
+    }
+    else {
+        mooltipass.ui.status.error($button, _status.msg);
+    }
+
     mooltipass.ui._.waitForDevice($button, false);
     mooltipass.ui.sync.disableButtons(false);
+
+    mooltipass.device.endSingleCommunicationMode();
 };
 
 
@@ -55,15 +73,33 @@ mooltipass.ui.sync.onClickImportFromFile = function(e) {
 
     mooltipass.ui._.waitForDevice($(this), true);
     mooltipass.ui.sync.disableButtons(true);
-    mooltipass.memmgmt.mergeCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromFile);
+
+    mooltipass.device.interface.send({
+        'command': 'startSingleCommunicationMode',
+        'callbackFunction': mooltipass.ui.sync.callbackImportFromFile,
+        'reason': 'synchronisationmode',
+        'callbackFunctionStart': function() {
+            mooltipass.ui.sync.disableButtons(true);
+            mooltipass.device.singleCommunicationModeEntered = true;
+            mooltipass.memmgmt.mergeCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromFile);
+        }
+    });
 };
 
 mooltipass.ui.sync.callbackImportFromFile = function(_status) {
     var $button = $('#importFromFile');
 
-    mooltipass.ui.status.success($button, _status.msg);
+    if(_status.success) {
+        mooltipass.ui.status.success($button, _status.msg);
+    }
+    else {
+        mooltipass.ui.status.error($button, _status.msg);
+    }
+
     mooltipass.ui._.waitForDevice($button, false);
     mooltipass.ui.sync.disableButtons(false);
+
+    mooltipass.device.endSingleCommunicationMode();
 };
 
 
@@ -72,15 +108,33 @@ mooltipass.ui.sync.onClickExportToCloud = function(e) {
 
     mooltipass.ui._.waitForDevice($(this), true);
     mooltipass.ui.sync.disableButtons(true);
-    mooltipass.memmgmt.memoryBackupStart(false, mooltipass.ui.sync.callbackExportToCloud);
+
+    mooltipass.device.interface.send({
+        'command': 'startSingleCommunicationMode',
+        'callbackFunction': mooltipass.ui.sync.callbackExportToCloud,
+        'reason': 'synchronisationmode',
+        'callbackFunctionStart': function() {
+            mooltipass.ui.sync.disableButtons(true);
+            mooltipass.device.singleCommunicationModeEntered = true;
+            mooltipass.memmgmt.memoryBackupStart(false, mooltipass.ui.sync.callbackExportToCloud);
+        }
+    });
 };
 
 mooltipass.ui.sync.callbackExportToCloud = function(_status) {
     var $button = $('#exportToCloud');
 
-    mooltipass.ui.status.success($button, _status.msg);
+    if(_status.success) {
+        mooltipass.ui.status.success($button, _status.msg);
+    }
+    else {
+        mooltipass.ui.status.error($button, _status.msg);
+    }
+
     mooltipass.ui._.waitForDevice($button, false);
     mooltipass.ui.sync.disableButtons(false);
+
+    mooltipass.device.endSingleCommunicationMode();
 };
 
 
@@ -89,15 +143,33 @@ mooltipass.ui.sync.onClickImportFromCloud = function(e) {
 
     mooltipass.ui._.waitForDevice($(this), true);
     mooltipass.ui.sync.disableButtons(true);
-    mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromCloud);
+
+    mooltipass.device.interface.send({
+        'command': 'startSingleCommunicationMode',
+        'callbackFunction': mooltipass.ui.sync.callbackImportFromCloud,
+        'reason': 'synchronisationmode',
+        'callbackFunctionStart': function() {
+            mooltipass.ui.sync.disableButtons(true);
+            mooltipass.device.singleCommunicationModeEntered = true;
+            mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromCloud);
+        }
+    });
 };
 
 mooltipass.ui.sync.callbackImportFromCloud = function(_status) {
     var $button = $('#importFromCloud');
 
-    mooltipass.ui.status.success($button, _status.msg);
+    if(_status.success) {
+        mooltipass.ui.status.success($button, _status.msg);
+    }
+    else {
+        mooltipass.ui.status.error($button, _status.msg);
+    }
+
     mooltipass.ui._.waitForDevice($button, false);
     mooltipass.ui.sync.disableButtons(false);
+
+    mooltipass.device.endSingleCommunicationMode();
 };
 
 
@@ -106,7 +178,17 @@ mooltipass.ui.sync.onClickScanMemory = function(e) {
 
     mooltipass.ui._.waitForDevice($(this), true);
     mooltipass.ui.sync.disableButtons(true);
-    mooltipass.memmgmt.integrityCheckStart(mooltipass.ui.sync.progressScanMemory, mooltipass.ui.sync.callbackScanMemory);
+
+    mooltipass.device.interface.send({
+        'command': 'startSingleCommunicationMode',
+        'callbackFunction': mooltipass.ui.sync.callbackScanMemory,
+        'reason': 'synchronisationmode',
+        'callbackFunctionStart': function() {
+            mooltipass.ui.sync.disableButtons(true);
+            mooltipass.device.singleCommunicationModeEntered = true;
+            mooltipass.memmgmt.integrityCheckStart(mooltipass.ui.sync.progressScanMemory, mooltipass.ui.sync.callbackScanMemory);
+        }
+    });
 };
 
 mooltipass.ui.sync.progressScanMemory = function(_progress) {
@@ -117,7 +199,15 @@ mooltipass.ui.sync.progressScanMemory = function(_progress) {
 mooltipass.ui.sync.callbackScanMemory = function(_status) {
     var $button = $('#scanMemory');
 
-    mooltipass.ui.status.success($button, _status.msg);
+    if(_status.success) {
+        mooltipass.ui.status.success($button, _status.msg);
+    }
+    else {
+        mooltipass.ui.status.error($button, _status.msg);
+    }
+
     mooltipass.ui._.waitForDevice($button, false);
     mooltipass.ui.sync.disableButtons(false);
+
+    mooltipass.device.endSingleCommunicationMode();
 };

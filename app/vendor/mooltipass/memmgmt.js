@@ -4141,14 +4141,21 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 {
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
-		mooltipass.memmgmt.backupToFileReq = to_file_bool;
-		mooltipass.memmgmt.statusCallback = statusCallback;
-		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_MEM_BACKUP_REQ;
-		// First step is to query to user interaction timeout to set the correct packet timeout retry!
-		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
-		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
-		mooltipass.memmgmt_hid.nbSendRetries = 0;
-		mooltipass.memmgmt_hid._sendMsg();
+		if(to_file_bool == false && mooltipass.memmgmt.syncFSOK == false)
+		{
+			statusCallback({'success': false, 'msg': "SyncFS offline or else"});
+		}
+		else
+		{
+			mooltipass.memmgmt.backupToFileReq = to_file_bool;
+			mooltipass.memmgmt.statusCallback = statusCallback;
+			mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_MEM_BACKUP_REQ;
+			// First step is to query to user interaction timeout to set the correct packet timeout retry!
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
+			mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+			mooltipass.memmgmt_hid.nbSendRetries = 0;
+			mooltipass.memmgmt_hid._sendMsg();			
+		}
 	}
 	else
 	{

@@ -2,6 +2,8 @@ var mooltipass = mooltipass || {};
 mooltipass.ui = mooltipass.ui || {};
 mooltipass.ui.sync = mooltipass.ui.sync || {};
 
+mooltipass.ui.sync.WAITING_FOR_DEVICE = '<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device';
+
 mooltipass.ui.sync.init = function() {
     $("input[data-key='sync-cloud-auto']").on("click", function(){
         var is_active = $(this).prop("checked");
@@ -25,7 +27,20 @@ mooltipass.ui.sync.init = function() {
 
 mooltipass.ui.sync.onClickExportToFile = function(e) {
     e.preventDefault();
-    mooltipass.memmgmt.memoryBackupStart(true);
+
+    $(this).prop('disabled', true);
+    $(this).data('html', $(this).html());
+    $(this).html(mooltipass.ui.sync.WAITING_FOR_DEVICE);
+
+    mooltipass.memmgmt.memoryBackupStart(true, mooltipass.ui.sync.callbackExportToFile);
+};
+
+mooltipass.ui.sync.callbackExportToFile = function(_status) {
+    var $button = $('#exportToFile');
+    $button.prop('disabled', false);
+    $button.html($button.data('html'));
+    mooltipass.ui.status.success($button, _status.msg);
+
 };
 
 mooltipass.ui.sync.onClickImportFromFile = function(e) {

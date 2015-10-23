@@ -329,9 +329,7 @@ _cred.onClickMMMEnter = function() {
   
   // Inform user about device interaction
   var $button = $(this);
-  _cred.oldButtonText = $button.html();
-  $button.attr("disabled", true);
-  $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device');
+  mooltipass.ui._.waitForDevice($button, true);
 
   // Activate MemoryManagementMode
   mooltipass.device.inMemoryManagementMode = true;
@@ -355,8 +353,7 @@ _cred.onClickMMMEnter = function() {
 
       // Set back ui button
       setTimeout(function() {
-        $button.html(_cred.oldButtonText);
-        $button.removeAttr("disabled");
+        mooltipass.ui._.waitForDevice($button, false);
       }, 500);
     }
   });

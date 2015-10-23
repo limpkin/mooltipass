@@ -1,3 +1,23 @@
+var mooltipass = mooltipass || {};
+mooltipass.ui = mooltipass.ui || {};
+mooltipass.ui._ = mooltipass.ui._ || {};
+
+
+mooltipass.ui._.waitForDevice = function(button, activate) {
+    var $button = $(button);
+    if(activate) {
+        $button.prop('disabled', true);
+        $button.data('old_html', $button.html());
+        $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device');
+    }
+    else {
+        $button.prop('disabled', false);
+        $button.html($button.data('old_html'));
+    }
+};
+
+
+
 var _console_log = console.log;
 var _console_warn = console.warn;
 

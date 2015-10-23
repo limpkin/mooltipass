@@ -9,5 +9,5 @@ mooltipass.ui.status.success = function(element, message) {
 
 mooltipass.ui.status.error = function(element, message) {
     // TODO: element = invoked the status
-    console.log('Status Error:', message);
+    console.warn('Status Error:', message);
 };

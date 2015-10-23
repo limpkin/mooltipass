@@ -2480,6 +2480,15 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					mooltipass.memmgmt.statusCallback({'success': true, 'msg': "User didn't save the backup"});
 				}
 			}
+			else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
+			{
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Merging done, no changes applied"});
+			}
+			else if(mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_PACKET_SENDING)
+			{
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Merging done, changes applied"});
+			}
+			
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
 			console.log("Memory management mode exit");
 			mooltipass.device.processQueue();

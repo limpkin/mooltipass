@@ -67,7 +67,7 @@ mooltipass.memmgmt.credentialArrayForGui = [];			// Credential array for GUI
 
 // Local preferences
 /* Default preferences */
-mooltipass.memmgmt.preferences = {"version": MGMT_PREFERENCES_VERSION};
+mooltipass.memmgmt.preferences = {"version": MGMT_PREFERENCES_VERSION, "backup_files": []};
 
 // State machines & temp variables
 mooltipass.memmgmt.syncFS = null;							// SyncFS
@@ -100,7 +100,6 @@ mooltipass.memmgmt.isCardKnownByMp = false;					// Check if the mooltipass knows
 mooltipass.memmgmt.backupToFileReq = true;					// User is requesting a backup to file
 mooltipass.memmgmt.statusCallback = null;					// Status callback different operations
 mooltipass.memmgmt.progressCallback = null;					// Progress callback for integrity check
-mooltipass.memmgmt.exportDone = false;						// Know if the export is done
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -1132,7 +1131,7 @@ mooltipass.memmgmt.exportMemoryState = function()
 	
 	if(mooltipass.memmgmt.backupToFileReq)
 	{
-		mooltipass.filehandler.selectAndSaveFileContents("memory_export", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.fileWrittenCallback);
+		mooltipass.filehandler.selectAndSaveFileContents("memory_export.bin", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.fileWrittenCallback);
 	}
 	else
 	{
@@ -1142,7 +1141,7 @@ mooltipass.memmgmt.exportMemoryState = function()
 		}
 		else
 		{
-			console.log("SyncFS not ready!!!");
+			mooltipass.memmgmt.requestFailHander("SyncFS not ready!!!", null);
 		}
 	}
 }
@@ -1152,11 +1151,7 @@ mooltipass.memmgmt.importMemoryStateCallBack = function(e)
 {
 	if(e == null)
 	{
-		console.log("Import memory state callback: error");
-		if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_REQ)
-		{
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-		}
+		mooltipass.memmgmt.requestFailHander("User didn't select file", null);
 	}
 	else
 	{
@@ -1172,17 +1167,27 @@ mooltipass.memmgmt.importMemoryState = function()
 }
  
 // Export file written callback
-mooltipass.memmgmt.fileWrittenCallback = function()
+mooltipass.memmgmt.fileWrittenCallback = function(file_written_bool)
 {
-	mooltipass.memmgmt.exportDone = true;
-	console.log("File written!");
+	if(file_written_bool)
+	{
+		console.log("File written!");
+		mooltipass.memmgmt.statusCallback({'success': true, 'msg': "File written"});
+		mooltipass.device.processQueue();
+	}
+	else
+	{
+		mooltipass.memmgmt.statusCallback({'success': true, 'msg': "User didn't select file"});		
+		mooltipass.device.processQueue();
+	}
 }
 
 // SyncFS export file written callback
 mooltipass.memmgmt.syncFSFileWrittenCallback = function()
 {
-	mooltipass.memmgmt.exportDone = true;
 	console.log("File written to syncFS!");
+	mooltipass.memmgmt.statusCallback({'success': true, 'msg': "File written to syncFS!"});
+	mooltipass.device.processQueue();
 }
  
 // Get syncable file system status callback
@@ -2431,6 +2436,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		// Did we succeed?
 		if(packet[2] == 1)
 		{
+			console.log("Memory management mode exit");
 			if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_NO_CHANGES || mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
 			{
 				// Do we have passwords to change?
@@ -2450,48 +2456,52 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					else if(mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
 					{
 						mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});				
-					}
+					}	
+					mooltipass.memmgmt.currentMode = MGMT_IDLE;
+					mooltipass.device.processQueue();
 				}
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_ERROR_CUR_EXITTING_MMM)
 			{
-				mooltipass.memmgmt.statusCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString});
+				mooltipass.memmgmt.statusCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString});	
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();
 			}
-			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
+			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory management mode exit"});
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory management mode exit"});	
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, no changes to make!"});
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, no changes to make!"});	
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING)
 			{
 				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, changes were made"});				
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();	
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN)
 			{
-				if(mooltipass.memmgmt.exportDone == true)
-				{
-					mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Backup done"});
-				}
-				else
-				{
-					mooltipass.memmgmt.statusCallback({'success': true, 'msg': "User didn't save the backup"});
-				}
+				// Callback is called from the file written callback
+				//mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Backup process done"});
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Merging done, no changes applied"});
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Merging done, no changes applied"});	
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_PACKET_SENDING)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Merging done, changes applied"});
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Merging done, changes applied"});			
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();
 			}
-			
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			console.log("Memory management mode exit");
-			mooltipass.device.processQueue();
 			return;
 		}
 		else
@@ -4128,7 +4138,6 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 {
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
-		mooltipass.memmgmt.exportDone = false;
 		mooltipass.memmgmt.backupToFileReq = to_file_bool;
 		mooltipass.memmgmt.statusCallback = statusCallback;
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_MEM_BACKUP_REQ;

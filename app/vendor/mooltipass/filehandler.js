@@ -135,6 +135,7 @@ mooltipass.filehandler.selectAndSaveFileContents = function(name, contents, writ
 														{
 															// Something went wrong during file selection
 															console.log("File select error: "+ chrome.runtime.lastError.message);
+															writeEndCallback(false);
 														}
 														else
 														{
@@ -150,7 +151,7 @@ mooltipass.filehandler.selectAndSaveFileContents = function(name, contents, writ
 																														{
 																															truncated = true;
 																															this.truncate(this.position);
-																															writeEndCallback();
+																															writeEndCallback(true);
 																														}
 																													};
 																								writer.write(contents);

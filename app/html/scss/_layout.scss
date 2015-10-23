@@ -39,11 +39,12 @@ nav {
     }
 }
 
-#no-device-connection {
+.alert-modal {
   margin-top: 5rem;
-  height: 307px;
+  h1 { margin-top: 0; }
 
-  .text {
-    padding-top: 2rem;  
-  }
+  &.in-mmm {}
+  &.not-unlocked {}
+  &.not-in-mmm {}
+  &.not-connected {}
 }

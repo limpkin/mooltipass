@@ -98,6 +98,23 @@ input.inline {
   }
 }
 
+#page-synchronisation {
+  .storage {
+    p {
+      margin-bottom: 0;
+    }
+
+    button {
+      margin-bottom: 0;
+      margin-top: 0.9rem;  
+    }
+
+    input[type="checkbox"] {
+      margin-left: 0.5rem;
+    }
+  }
+}
+
 .comment {
   color: #888 !important;
 }

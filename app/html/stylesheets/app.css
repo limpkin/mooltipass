@@ -9499,17 +9499,12 @@ nav ul li a img {
 }
 
 /* line 42, ../scss/_layout.scss */
-#no-device-connection {
+.alert-modal {
   margin-top: 5rem;
-  height: 307px;
 }
-/* line 46, ../scss/_layout.scss */
-#no-device-connection .text {
-  padding-top: 2rem;
-}
-/* line 49, ../scss/_layout.scss */
-#no-device-connection .text-top {
-  padding-top: 0rem;
+/* line 44, ../scss/_layout.scss */
+.alert-modal h1 {
+  margin-top: 0;
 }
 
 /* line 1, ../scss/_log.scss */
@@ -9751,7 +9746,21 @@ input.inline {
   transition: all 200ms ease;
 }
 
-/* line 101, ../scss/app.scss */
+/* line 103, ../scss/app.scss */
+#page-synchronisation .storage p {
+  margin-bottom: 0;
+}
+/* line 107, ../scss/app.scss */
+#page-synchronisation .storage button {
+  margin-bottom: 0;
+  margin-top: 0.9rem;
+}
+/* line 112, ../scss/app.scss */
+#page-synchronisation .storage input[type="checkbox"] {
+  margin-left: 0.5rem;
+}
+
+/* line 118, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }

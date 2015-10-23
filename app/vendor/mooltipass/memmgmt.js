@@ -100,6 +100,7 @@ mooltipass.memmgmt.isCardKnownByMp = false;					// Check if the mooltipass knows
 mooltipass.memmgmt.backupToFileReq = true;					// User is requesting a backup to file
 mooltipass.memmgmt.statusCallback = null;					// Status callback different operations
 mooltipass.memmgmt.progressCallback = null;					// Progress callback for integrity check
+mooltipass.memmgmt.syncFSFileName = "";						// SyncFS file name for current user
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -1137,7 +1138,24 @@ mooltipass.memmgmt.exportMemoryState = function()
 	{
 		if(mooltipass.memmgmt.syncFSOK == true)
 		{
-			mooltipass.filehandler.writeFileToSyncFS(mooltipass.memmgmt.syncFS, "mooltipassAutomaticBackup.bin", new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.syncFSFileWrittenCallback);
+			// Check if we know this file, if not, add it to local storage
+			var file_known = false;
+			for(var i = 0; i < mooltipass.memmgmt.preferences.backup_files.length; i++)
+			{
+				if(mooltipass.memmgmt.preferences.backup_files[i] == mooltipass.memmgmt.syncFSFileName)
+				{
+					file_known = true;
+					console.log("File " + mooltipass.memmgmt.syncFSFileName + " already known in our DB");
+				}
+			}
+			if(file_known == false)
+			{
+				console.log("Adding file " + mooltipass.memmgmt.syncFSFileName + " in our DB");
+				mooltipass.memmgmt.preferences.backup_files.push(mooltipass.memmgmt.syncFSFileName);
+				mooltipass.prefstorage.setStoredPreferences({"memmgmtPrefsStored": true, "memmgmtPrefs": mooltipass.memmgmt.preferences});
+			}
+			
+			mooltipass.filehandler.writeCreateFileToSyncFS(mooltipass.memmgmt.syncFS, mooltipass.memmgmt.syncFSFileName, new Blob([JSON.stringify(export_data)], {type: 'text/plain'}), mooltipass.memmgmt.syncFSFileWrittenCallback);
 		}
 		else
 		{
@@ -2960,9 +2978,18 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['exportCPZandCTR'])
 		{
-			// CPZ CTR packet export
-			mooltipass.memmgmt.CPZCTRValues.push(packet.subarray(2, 2 + packet[0]));
+			// CPZ CTR packet export, add it to our current buffer
 			console.log("CPZ CTR packet export packet received: " + packet.subarray(2, 2 + packet[0])); 
+			mooltipass.memmgmt.CPZCTRValues.push(packet.subarray(2, 2 + packet[0]));
+			
+			// Generate file name for the SyncFS (if used)
+			mooltipass.memmgmt.syncFSFileName = "";
+			for(var i = 0; i < 16; i ++)
+			{
+				mooltipass.memmgmt.syncFSFileName += packet[2 + 8 + i].toString(16);
+			}			
+			//console.log("SyncFS file name: " + mooltipass.memmgmt.syncFSFileName);
+			
 			// Arm receive
 			mooltipass.memmgmt_hid.receiveMsg();
 		}

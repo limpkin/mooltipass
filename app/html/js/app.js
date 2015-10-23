@@ -46,12 +46,6 @@ show_active_page = function() {
   $("#page-" + newPage).show();  
 }
 
-is_device_in_mmm = function() {
-  // DEBUG
-  // return false;
-  return mooltipass.device.inMemoryManagementMode;
-}
-
 is_device_connected = function() {
   // DEBUG
   // return true;
@@ -59,40 +53,43 @@ is_device_connected = function() {
 }
 
 is_device_unlocked = function() {
+  // return true
   return mooltipass.device.isUnlocked;
+}
+
+is_device_in_mmm = function() {
+  // DEBUG
+  // return true;
+  return mooltipass.device.inMemoryManagementMode;
 }
 
 update_device_status_classes = function() {
   if (is_device_connected()) {
-    $(".hide-if-connected").hide();
     $(".show-if-connected").show();
-
-    if(is_device_unlocked()) {
-      $(".hide-if-unlocked").hide();
-      $(".show-if-unlocked").show();
-
-      if (is_device_in_mmm() && mooltipass.app.showCredentials) {
-        $(".hide-if-mmm").hide();
-        $(".show-if-mmm").show();
-      } else {
-        $(".hide-if-mmm").show();
-        $(".show-if-mmm").hide();
-      }
-    }
-    else {
-      $(".hide-if-unlocked").show();
-      $(".show-if-unlocked").hide();
-      $(".hide-if-mmm").hide();
-      $(".show-if-mmm").hide();
-    }
-  }
-  else {
-    $(".hide-if-connected").show();
+    $(".hide-if-connected").hide();
+  } else {
     $(".show-if-connected").hide();
+    $(".hide-if-connected").show();
+
+    return;
+  }
+
+  if (is_device_unlocked()) {
+    $(".show-if-unlocked").show();
     $(".hide-if-unlocked").hide();
+  } else {
     $(".show-if-unlocked").hide();
+    $(".hide-if-unlocked").show();  
+
+    return  
+  }
+
+  if (is_device_in_mmm()) {
+    $(".show-if-mmm").show();
     $(".hide-if-mmm").hide();
-    $(".show-if-mmm").hide();
+  } else {
+    $(".show-if-mmm").hide();    
+    $(".hide-if-mmm").show();
   }
 }
 

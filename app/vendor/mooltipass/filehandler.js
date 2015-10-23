@@ -242,6 +242,19 @@ mooltipass.filehandler.getFileCreateFalseErrorCallback = function(e)
 	}
 }
 
+// Callback for get file with create false
+mooltipass.filehandler.writeFileCreateFalseErrorCallback = function(e)
+{
+	if(e.name == "NotFoundError")
+	{
+		mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:true}, mooltipass.filehandler.getFileCreateTrueFalseCallbackWrite, mooltipass.filehandler.errorHandler);
+	}
+	else
+	{
+		console.log("Unsupported error for writeFile with create false: " + e.name + " / message: " + e.message);
+	}
+}
+
 // Request file in SyncFS
 mooltipass.filehandler.requestOrCreateFileFromSyncFS = function(filesystem, filename, fileReadCallback)
 {
@@ -259,6 +272,16 @@ mooltipass.filehandler.writeFileToSyncFS = function(filesystem, filename, conten
 	mooltipass.filehandler.tempSyncFS = filesystem;
 	mooltipass.filehandler.tempWriteendCallback = fileWrittenCallback;
 	mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:false}, mooltipass.filehandler.getFileCreateTrueFalseCallbackWrite, mooltipass.filehandler.errorHandler);
+}
+
+// Write a file in SyncFS
+mooltipass.filehandler.writeCreateFileToSyncFS = function(filesystem, filename, contents, fileWrittenCallback)
+{
+	mooltipass.filehandler.tempContents = contents;
+	mooltipass.filehandler.tempFilename = filename;
+	mooltipass.filehandler.tempSyncFS = filesystem;
+	mooltipass.filehandler.tempWriteendCallback = fileWrittenCallback;
+	mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:false}, mooltipass.filehandler.getFileCreateTrueFalseCallbackWrite, mooltipass.filehandler.writeFileCreateFalseErrorCallback);
 }
 
 

@@ -48,13 +48,13 @@ show_active_page = function() {
 
 is_device_connected = function() {
   // DEBUG
-  //return true;
+  return true;
   return mooltipass.device.isConnected;
 }
 
 is_device_unlocked = function() {
   // DEBUG
-  //return true;
+  return true;
   return mooltipass.device.isUnlocked;
 }
 

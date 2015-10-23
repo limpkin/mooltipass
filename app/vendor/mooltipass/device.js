@@ -482,6 +482,14 @@ mooltipass.device.onDataReceived = function(reportId, data) {
     var command = mooltipass.device.commandsReverse[cmd];
 
     var queuedItem = mooltipass.device.getFromQueue(command);
+    if(!queuedItem) {
+        // TODO: Workaround, normally this should not happen
+        console.warn('queuedItem should not be undefined!');
+        // Process next queued request
+        mooltipass.device.processQueue();
+        return;
+    }
+
     var handlerName = 'response' + capitalizeFirstLetter(command);
 
     console.log('mooltipass.device.onDataReceived(', command, ')');
@@ -640,4 +648,5 @@ for(var i = 0; i < keys.length; i++) {
 
 // Initial start processing queue
 mooltipass.device.restartProcessingQueue();
-setInterval(mooltipass.device.checkStatus, 1000);
+// TODO: reactivate checkStatus!
+//setInterval(mooltipass.device.checkStatus, 1000);

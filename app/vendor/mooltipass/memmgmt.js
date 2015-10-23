@@ -1173,11 +1173,13 @@ mooltipass.memmgmt.fileWrittenCallback = function(file_written_bool)
 	{
 		console.log("File written!");
 		mooltipass.memmgmt.statusCallback({'success': true, 'msg': "File written"});
+		mooltipass.memmgmt.currentMode = MGMT_IDLE;
 		mooltipass.device.processQueue();
 	}
 	else
 	{
-		mooltipass.memmgmt.statusCallback({'success': true, 'msg': "User didn't select file"});		
+		mooltipass.memmgmt.statusCallback({'success': true, 'msg': "User didn't select file"});	
+		mooltipass.memmgmt.currentMode = MGMT_IDLE;	
 		mooltipass.device.processQueue();
 	}
 }
@@ -1187,6 +1189,7 @@ mooltipass.memmgmt.syncFSFileWrittenCallback = function()
 {
 	console.log("File written to syncFS!");
 	mooltipass.memmgmt.statusCallback({'success': true, 'msg': "File written to syncFS!"});
+	mooltipass.memmgmt.currentMode = MGMT_IDLE;
 	mooltipass.device.processQueue();
 }
  

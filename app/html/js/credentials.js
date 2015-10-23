@@ -1,3 +1,8 @@
+var mooltipass = mooltipass || {};
+mooltipass.ui = mooltipass.ui || {};
+mooltipass.ui.credentials = mooltipass.ui.credentials || {};
+
+// TODO: old namespace -> refactor
 var _cred = {};
 
 // Disable throwing alerts by dataTable
@@ -428,7 +433,11 @@ _cred.onClickMMMSave = function(e) {
 };
 
 
-$(function(){
+/**
+ * Initialize function
+ * triggered by mooltipass.app.init()
+ */
+mooltipass.ui.credentials.init = function() {
   $('#mmm-enter').click(_cred.onClickMMMEnter);
   $('#mmm-discard').click(_cred.onClickMMMDiscard);
   $('#mmm-save').click(_cred.onClickMMMSave);
@@ -520,7 +529,7 @@ $(function(){
       $(this).parents("label").removeClass("alert");
     }
   });
-});
+};
 
 var get_user_credentials_for_table = function() {
   //var credentials = JSON.parse(JSON.stringify(USER_CREDENTIALS));

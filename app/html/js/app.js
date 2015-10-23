@@ -3,6 +3,25 @@ mooltipass.ui = mooltipass.ui || {};
 mooltipass.ui._ = mooltipass.ui._ || {};
 
 
+/**
+ * Initialize function
+ * triggered by mooltipass.app.init()
+ */
+mooltipass.ui._.init = function() {
+    // Only show app, if mp is connected
+    update_device_status_classes();
+    setInterval(update_device_status_classes, 500);
+
+    // Init pages
+    show_active_page();
+    $("nav li a").click(function () {
+        $("nav li.active").removeClass("active");
+        $(this).parent("li").addClass("active");
+        show_active_page();
+    });
+};
+
+
 mooltipass.ui._.waitForDevice = function (button, activate) {
     var $button = $(button);
     if (activate) {
@@ -111,18 +130,4 @@ update_device_status_classes = function () {
         $(".show-if-mmm").hide();
         $(".hide-if-mmm").show();
     }
-}
-
-$(function () {
-// Only show app, if mp is connected
-    update_device_status_classes();
-    setInterval(update_device_status_classes, 500);
-
-// Init pages
-    show_active_page();
-    $("nav li a").click(function () {
-        $("nav li.active").removeClass("active");
-        $(this).parent("li").addClass("active");
-        show_active_page();
-    });
-});
+};

@@ -1,6 +1,8 @@
-var _s = {};
+var mooltipass = mooltipass || {};
+mooltipass.ui = mooltipass.ui || {};
+mooltipass.ui.settings = mooltipass.ui.settings || {};
 
-_s.getKeyboardLayout = function() {
+mooltipass.ui.settings.getKeyboardLayout = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'keyboardLayout',
@@ -15,7 +17,7 @@ _s.getKeyboardLayout = function() {
     });
 };
 
-_s.initKeyboardLayout = function() {
+mooltipass.ui.settings.initKeyboardLayout = function() {
     $('#settings-keyboardLayout').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
@@ -31,7 +33,7 @@ _s.initKeyboardLayout = function() {
     });
 };
 
-_s.getLockTimeoutEnabled = function() {
+mooltipass.ui.settings.getLockTimeoutEnabled = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'lockTimeoutEnabled',
@@ -46,7 +48,7 @@ _s.getLockTimeoutEnabled = function() {
     });
 };
 
-_s.initLockTimeoutEnabled = function() {
+mooltipass.ui.settings.initLockTimeoutEnabled = function() {
     $('#settings-lockTimeoutEnabled').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
@@ -61,7 +63,7 @@ _s.initLockTimeoutEnabled = function() {
     });
 };
 
-_s.getLockTimeout = function() {
+mooltipass.ui.settings.getLockTimeout = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'lockTimeout',
@@ -76,7 +78,7 @@ _s.getLockTimeout = function() {
     });
 };
 
-_s.initLockTimeout = function() {
+mooltipass.ui.settings.initLockTimeout = function() {
     $('#settings-lockTimeout').change(function() {
         var value = $(this).val();
 
@@ -111,7 +113,7 @@ _s.initLockTimeout = function() {
     });
 };
 
-_s.getScreensaver = function() {
+mooltipass.ui.settings.getScreensaver = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'screensaver',
@@ -126,7 +128,7 @@ _s.getScreensaver = function() {
     });
 };
 
-_s.initScreensaver = function() {
+mooltipass.ui.settings.initScreensaver = function() {
     $('#settings-screensaver').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
@@ -141,7 +143,7 @@ _s.initScreensaver = function() {
     });
 };
 
-_s.getUserRequestCancel = function() {
+mooltipass.ui.settings.getUserRequestCancel = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'userRequestCancel',
@@ -156,7 +158,7 @@ _s.getUserRequestCancel = function() {
     });
 };
 
-_s.initUserRequestCancel = function() {
+mooltipass.ui.settings.initUserRequestCancel = function() {
     $('#settings-userRequestCancel').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
@@ -171,7 +173,7 @@ _s.initUserRequestCancel = function() {
     });
 };
 
-_s.getUserInteractionTimeout = function() {
+mooltipass.ui.settings.getUserInteractionTimeout = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'userInteractionTimeout',
@@ -186,7 +188,7 @@ _s.getUserInteractionTimeout = function() {
     });
 };
 
-_s.initUserInteractionTimeout = function() {
+mooltipass.ui.settings.initUserInteractionTimeout = function() {
     $('#settings-userInteractionTimeout').change(function() {
         var value = $(this).val();
 
@@ -221,7 +223,7 @@ _s.initUserInteractionTimeout = function() {
     });
 };
 
-_s.getFlashScreen = function() {
+mooltipass.ui.settings.getFlashScreen = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'flashScreen',
@@ -236,7 +238,7 @@ _s.getFlashScreen = function() {
     });
 };
 
-_s.initFlashScreen = function() {
+mooltipass.ui.settings.initFlashScreen = function() {
     $('#settings-flashScreen').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
@@ -251,7 +253,7 @@ _s.initFlashScreen = function() {
     });
 };
 
-_s.getOfflineMode = function() {
+mooltipass.ui.settings.getOfflineMode = function() {
     console.log('get offline mode')
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
@@ -268,7 +270,7 @@ _s.getOfflineMode = function() {
     });
 };
 
-_s.initOfflineMode = function() {
+mooltipass.ui.settings.initOfflineMode = function() {
     $('#settings-offlineMode').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
@@ -284,7 +286,7 @@ _s.initOfflineMode = function() {
     });
 };
 
-_s.getTutorialEnabled = function() {
+mooltipass.ui.settings.getTutorialEnabled = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'tutorialEnabled',
@@ -299,7 +301,7 @@ _s.getTutorialEnabled = function() {
     });
 };
 
-_s.initTutorialEnabled = function() {
+mooltipass.ui.settings.initTutorialEnabled = function() {
     $('#settings-tutorialEnabled').change(function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
@@ -314,27 +316,31 @@ _s.initTutorialEnabled = function() {
     });
 };
 
-_s.getSettings = function() {
-    _s.getKeyboardLayout();
-    _s.getLockTimeoutEnabled();
-    _s.getLockTimeout();
-    _s.getScreensaver();
-    _s.getUserRequestCancel();
-    _s.getUserInteractionTimeout();
-    _s.getFlashScreen();
-    _s.getOfflineMode();
-    _s.getTutorialEnabled();
+mooltipass.ui.settings.getSettings = function() {
+    mooltipass.ui.settings.getKeyboardLayout();
+    mooltipass.ui.settings.getLockTimeoutEnabled();
+    mooltipass.ui.settings.getLockTimeout();
+    mooltipass.ui.settings.getScreensaver();
+    mooltipass.ui.settings.getUserRequestCancel();
+    mooltipass.ui.settings.getUserInteractionTimeout();
+    mooltipass.ui.settings.getFlashScreen();
+    mooltipass.ui.settings.getOfflineMode();
+    mooltipass.ui.settings.getTutorialEnabled();
 }
 
 
-$(function() {
-    _s.initKeyboardLayout();
-    _s.initLockTimeoutEnabled();
-    _s.initLockTimeout();
-    _s.initScreensaver();
-    _s.initUserRequestCancel();
-    _s.initUserInteractionTimeout();
-    _s.initFlashScreen();
-    _s.initOfflineMode();
-    _s.initTutorialEnabled();
-});
+/**
+ * Initialize function
+ * triggered by mooltipass.app.init()
+ */
+mooltipass.ui.settings.init = function() {
+    mooltipass.ui.settings.initKeyboardLayout();
+    mooltipass.ui.settings.initLockTimeoutEnabled();
+    mooltipass.ui.settings.initLockTimeout();
+    mooltipass.ui.settings.initScreensaver();
+    mooltipass.ui.settings.initUserRequestCancel();
+    mooltipass.ui.settings.initUserInteractionTimeout();
+    mooltipass.ui.settings.initFlashScreen();
+    mooltipass.ui.settings.initOfflineMode();
+    mooltipass.ui.settings.initTutorialEnabled();
+};

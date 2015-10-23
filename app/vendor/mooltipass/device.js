@@ -142,6 +142,19 @@ mooltipass.device.queueHash = null;
 /*********************************************************************************************************************/
 
 /**
+ * Initialize function
+ * triggered by mooltipass.app.init()
+ */
+mooltipass.device.init = function() {
+    // Initial start processing queue
+    mooltipass.device.restartProcessingQueue();
+
+    // TODO: reactivate checkStatus!
+    //setInterval(mooltipass.device.checkStatus, 1000);
+};
+
+
+/**
  * Return next element in queue
  * @param command if given, return the next element with the specified command
  * @returns object
@@ -645,8 +658,3 @@ mooltipass.device.commandsReverse = {};
 for(var i = 0; i < keys.length; i++) {
     mooltipass.device.commandsReverse[mooltipass.device.commands[keys[i]]] = keys[i];
 }
-
-// Initial start processing queue
-mooltipass.device.restartProcessingQueue();
-// TODO: reactivate checkStatus!
-//setInterval(mooltipass.device.checkStatus, 1000);

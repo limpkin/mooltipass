@@ -121,7 +121,3 @@ mooltipass.ui.sync.callbackScanMemory = function(_status) {
     mooltipass.ui._.waitForDevice($button, false);
     mooltipass.ui.sync.disableButtons(false);
 };
-
-$(function(){
-    mooltipass.ui.sync.init();
-});

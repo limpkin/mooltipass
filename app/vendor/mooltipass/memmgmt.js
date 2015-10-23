@@ -2451,7 +2451,6 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			else if(mooltipass.memmgmt.currentMode == MGMT_ERROR_CUR_EXITTING_MMM)
 			{
 				mooltipass.memmgmt.statusCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString});
-				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
 			{
@@ -2785,8 +2784,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
-					console.log("Incorrect Mooltipass State!!!");
-					mooltipass.memmgmt.currentMode = MGMT_IDLE;					
+					mooltipass.memmgmt.requestFailHander("No unlocked/unknown card in the Mooltipass", null);
 				}
 			}
 			else
@@ -2811,8 +2809,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Was it a success
 				if(packet[0] == 1)
 				{
-					console.log("No card inserted in the Mooltipass!");
-					mooltipass.memmgmt.currentMode = MGMT_IDLE;
+					mooltipass.memmgmt.requestFailHander("No card inserted in the Mooltipass", null);
 				}
 				else
 				{
@@ -2834,8 +2831,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					}
 					else
 					{
-						console.log("Inserted card isn't known by the save file!!!");
-						mooltipass.memmgmt.currentMode = MGMT_IDLE;
+						mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the save file!!!", null);
 					}
 				}				
 			}
@@ -2847,8 +2843,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Was it a success
 				if(packet[2] == 0)
 				{
-					console.log("User didn't enter his PIN code!");
-					mooltipass.memmgmt.currentMode = MGMT_IDLE;
+					mooltipass.memmgmt.requestFailHander("User didn't enter his PIN code!", null);
 				}
 				else
 				{
@@ -3309,8 +3304,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				else
 				{
 					// Well this isn't a good situation... we read an empty node
-					console.log("Empty node!!!");	
-					// TODO: inform the user the memory is corrupted
+					mooltipass.memmgmt.requestFailHander("Empty node read in memory (card removed/memory corrupted?)", MGMT_IDLE);
 				}
 				 
 				// Reset current node
@@ -3326,7 +3320,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			// Well this isn't a good situation... we read a node that we weren't allowed to read
 			console.log("Not allowed to read node !!!");			 
-			mooltipass.memmgmt.requestFailHander("Error during listing credentials (card removed/memory corrupted?)", MGMT_IDLE);
+			mooltipass.memmgmt.requestFailHander("Wrong node read in memory (card removed/memory corrupted?)", MGMT_IDLE);
 		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)

@@ -362,7 +362,7 @@ mooltipass.device.setQueueHash = function() {
 
 mooltipass.device.restartProcessingQueue = function() {
     //console.log('mooltipass.device.restartProcessingQueue()');
-    setTimeout(mooltipass.device.processQueue, 500);
+    setTimeout(mooltipass.device.processQueue, 250);
 };
 
 mooltipass.device.callbackAllQueuedCommandsInSingleCommunicationMode = function() {

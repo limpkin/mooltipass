@@ -2537,6 +2537,10 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			{
 				mooltipass.memmgmt.statusCallBack({'success': true, 'msg': "Memory OK, no changes to make!"});
 			}
+			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING)
+			{
+				mooltipass.memmgmt.statusCallBack({'success': true, 'msg': "Memory OK, changes were made"});				
+			}
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
 			console.log("Memory management mode exit");
 			mooltipass.device.processQueue();

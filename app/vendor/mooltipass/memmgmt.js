@@ -100,6 +100,8 @@ mooltipass.memmgmt.memmgmtAddData = [];						// Add data when clicking save
 mooltipass.memmgmt.changePasswordReqs = [];					// Change password reqs
 mooltipass.memmgmt.isCardKnownByMp = false;					// Check if the mooltipass knows the inserted the card
 mooltipass.memmgmt.backupToFileReq = true;					// User is requesting a backup to file
+mooltipass.memmgmt.statusCallBack = null;					// Status callback for memory merge / export / backup function
+mooltipass.memmgmt.progressCallback = null;					// Progress callback for integrity check
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -2395,6 +2397,101 @@ mooltipass.memmgmt.generateMergePackets = function()
 		}
 	}
 } 
+
+mooltipass.memmgmt.requestFailHander = function(message, nextMode)
+{
+	console.log("requestFailHander: " + message);	
+	
+	if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR)
+	{
+		// Couldn't get free addresses			
+		if(nextMode == MGMT_IDLE)
+		{
+			// TODO: leave MMM and then call callback
+			mooltipass.memmgmt.memmgmtSaveCallback({'success': false, 'msg': message});
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			mooltipass.device.processQueue();
+		}
+		else
+		{
+			mooltipass.memmgmt.memmgmtSaveCallback({'success': false, 'msg': message});
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			mooltipass.device.processQueue();
+		}
+	}
+	else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE)
+	{
+		// Couldn't leave MMM
+		mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
+		mooltipass.memmgmt.currentMode = MGMT_IDLE;
+		mooltipass.device.processQueue();
+	}
+	else if(mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
+	{
+		// Couldn't leave MMM / couldn't send user changes packets		
+		if(nextMode == MGMT_IDLE)
+		{
+			// TODO: leave MMM and then call callback
+			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			mooltipass.device.processQueue();
+		}
+		else
+		{
+			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			mooltipass.device.processQueue();
+		}
+	}
+	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ)
+	{
+		// Couldn't enter memory management mode
+		mooltipass.memmgmt.statusCallBack({'success': false, 'msg': message});
+		mooltipass.memmgmt.currentMode = MGMT_IDLE;
+		mooltipass.device.processQueue();
+	}
+	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK)
+	{
+		// In MMM,getCTR fail/getCPZCTR fail/getStartingParent fail/getDataStartingParent fail/getFavorite fail
+		if(nextMode == MGMT_IDLE)
+		{
+			// TODO: leave MMM and then call callback
+			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			mooltipass.device.processQueue();
+		}
+		else
+		{
+			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			mooltipass.device.processQueue();
+		}
+	}
+	else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
+	{
+		// In MMM, couldn't leave MMM
+		mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
+		mooltipass.memmgmt.currentMode = MGMT_IDLE;
+		mooltipass.device.processQueue();
+	}
+	else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING)
+	{
+		// Couldn't leave MMM / couldn't send user changes packets		
+		if(nextMode == MGMT_IDLE)
+		{
+			// TODO: leave MMM and then call callback
+			mooltipass.memmgmt.statusCallBack({'success': false, 'msg': message});
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			mooltipass.device.processQueue();
+		}
+		else
+		{
+			mooltipass.memmgmt.statusCallBack({'success': false, 'msg': message});
+			mooltipass.memmgmt.currentMode = MGMT_IDLE;
+			mooltipass.device.processQueue();
+		}		
+	}
+}
  
 // Data received from USB callback
 mooltipass.memmgmt.dataReceivedCallback = function(packet)
@@ -2436,6 +2533,10 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			{
 				mooltipass.memmgmt.memmgmtStopCallback({'success': true, 'msg': "Memory management mode exit"});
 			}
+			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
+			{
+				mooltipass.memmgmt.statusCallBack({'success': true, 'msg': "Memory OK, no changes to make!"});
+			}
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
 			console.log("Memory management mode exit");
 			mooltipass.device.processQueue();
@@ -2443,11 +2544,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else
 		{
-			if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
-			{
-				mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': "Memory management mode exit fail"});
-			}
-			console.log("This shouldn't happen!");
+			mooltipass.memmgmt.requestFailHander("Memory management mode exit fail", null);
 		}
 	}
 	else if(packet[1] == mooltipass.device.commands['debug'])
@@ -2618,75 +2715,84 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 	else if(mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_GET_FREE_ADDR || mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR)
 	{
 		if(packet[1] == mooltipass.device.commands['getFreeSlotAddresses'])
-		{			
-			// Store free addresses
-			if(mooltipass.memmgmt.totalAddressesReceived == 0)
+		{
+			// Check for success status
+			if(packet[0] != 1)
 			{
-				mooltipass.memmgmt.lastFreeAddressReceived = packet.subarray(2 + packet[0] - 2, 2 + packet[0]);
-				mooltipass.memmgmt.freeAddressesBuffer.push(packet.subarray(2, 2 + packet[0]));
-				mooltipass.memmgmt.totalAddressesReceived += packet[0]/2;
-			}
-			else
-			{
-				// We use this trick because in the last packet we requested a free address after the last one we received
-				mooltipass.memmgmt.lastFreeAddressReceived = packet.subarray(2 + packet[0] - 2, 2 + packet[0]);
-				mooltipass.memmgmt.freeAddressesBuffer.push(packet.subarray(4, 2 + packet[0]));
-				mooltipass.memmgmt.totalAddressesReceived += (packet[0]/2) - 1;				
-			}			
-			
-			console.log("Received " + packet[0]/2 + " free addresses, current total: " + mooltipass.memmgmt.totalAddressesReceived);			
-			// Check if we need to receive more address
-			if(mooltipass.memmgmt.totalAddressesReceived >= mooltipass.memmgmt.totalAddressesRequired)
-			{
-				if(mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_GET_FREE_ADDR)
+				// Store free addresses
+				if(mooltipass.memmgmt.totalAddressesReceived == 0)
 				{
-					mooltipass.memmgmt.generateMergePackets();		
+					mooltipass.memmgmt.lastFreeAddressReceived = packet.subarray(2 + packet[0] - 2, 2 + packet[0]);
+					mooltipass.memmgmt.freeAddressesBuffer.push(packet.subarray(2, 2 + packet[0]));
+					mooltipass.memmgmt.totalAddressesReceived += packet[0]/2;
+				}
+				else
+				{
+					// We use this trick because in the last packet we requested a free address after the last one we received
+					mooltipass.memmgmt.lastFreeAddressReceived = packet.subarray(2 + packet[0] - 2, 2 + packet[0]);
+					mooltipass.memmgmt.freeAddressesBuffer.push(packet.subarray(4, 2 + packet[0]));
+					mooltipass.memmgmt.totalAddressesReceived += (packet[0]/2) - 1;				
+				}			
 				
-					// Now check if actually have something to change
-					if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
-					{
-						console.log("Mooltipass already synced with our credential file!");
-						// Leave mem management mode				
-						mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-						mooltipass.memmgmt_hid._sendMsg();
-					}
-					else
-					{
-						console.log("Sending merging packets");
-						mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_PACKET_SENDING;
-						mooltipass.memmgmt_hid.request['packet'] = mooltipass.memmgmt.packetToSendBuffer[0];
-						mooltipass.memmgmt_hid._sendMsg();
-					}
-				}	
-				else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR)
+				console.log("Received " + packet[0]/2 + " free addresses, current total: " + mooltipass.memmgmt.totalAddressesReceived);			
+				// Check if we need to receive more address
+				if(mooltipass.memmgmt.totalAddressesReceived >= mooltipass.memmgmt.totalAddressesRequired)
 				{
-					// Generate save packets
-					mooltipass.memmgmt.generateSavePackets();
-			
-					// Now check if actually have something to change
-					if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
+					if(mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_GET_FREE_ADDR)
 					{
-						mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE_NO_CHANGES;
-						console.log("Saved button pressed but no changes");
-						// Leave mem management mode				
-						mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-						mooltipass.memmgmt_hid._sendMsg();
-					}
-					else
+						mooltipass.memmgmt.generateMergePackets();		
+					
+						// Now check if actually have something to change
+						if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
+						{
+							console.log("Mooltipass already synced with our credential file!");
+							// Leave mem management mode				
+							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+							mooltipass.memmgmt_hid._sendMsg();
+						}
+						else
+						{
+							console.log("Sending merging packets");
+							mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_PACKET_SENDING;
+							mooltipass.memmgmt_hid.request['packet'] = mooltipass.memmgmt.packetToSendBuffer[0];
+							mooltipass.memmgmt_hid._sendMsg();
+						}
+					}	
+					else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR)
 					{
-						console.log("Sending updating packets");
-						mooltipass.memmgmt.currentMode = MGMT_USER_CHANGES_PACKET_SENDING;
-						mooltipass.memmgmt_hid.request['packet'] = mooltipass.memmgmt.packetToSendBuffer[0];
-						mooltipass.memmgmt_hid._sendMsg();
+						// Generate save packets
+						mooltipass.memmgmt.generateSavePackets();
+				
+						// Now check if actually have something to change
+						if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
+						{
+							mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE_NO_CHANGES;
+							console.log("Saved button pressed but no changes");
+							// Leave mem management mode				
+							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+							mooltipass.memmgmt_hid._sendMsg();
+						}
+						else
+						{
+							console.log("Sending updating packets");
+							mooltipass.memmgmt.currentMode = MGMT_USER_CHANGES_PACKET_SENDING;
+							mooltipass.memmgmt_hid.request['packet'] = mooltipass.memmgmt.packetToSendBuffer[0];
+							mooltipass.memmgmt_hid._sendMsg();
+						}
 					}
 				}
+				else
+				{
+					// Ask more addresses
+					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFreeSlotAddresses'], mooltipass.memmgmt.lastFreeAddressReceived);
+					mooltipass.memmgmt_hid._sendMsg();	
+				}	
 			}
 			else
 			{
-				// Ask more addresses
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFreeSlotAddresses'], mooltipass.memmgmt.lastFreeAddressReceived);
-				mooltipass.memmgmt_hid._sendMsg();	
-			}	
+				// Couldn't request free addresses!
+				mooltipass.memmgmt.requestFailHander("Couldn't request free addresses, memory full", MGMT_IDLE);
+			}
 		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING || mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_PACKET_SENDING || mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
@@ -2714,8 +2820,8 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else
 		{
-			console.log("Packet fail!!! ");
-			console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
+			mooltipass.memmgmt.requestFailHander("Couldn't send packet!", MGMT_IDLE);
+			//console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
 		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP_REQ)
@@ -2855,13 +2961,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else
 			{
-				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ)
-				{
-					mooltipass.memmgmt.memmgmtStartCallback({'success': false, 'msg': "User denied memory management"}, null);
-				}
-				console.log("Couldn't enter memory management mode");
-				mooltipass.memmgmt.currentMode = MGMT_IDLE;
-				mooltipass.device.processQueue();
+				mooltipass.memmgmt.requestFailHander("Couldn't enter memory management mode", null);
 			}
 		}	
 	}
@@ -2879,20 +2979,15 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			if(packet[0] == 1)
 			{
-				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD)
-				{
-					mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_FAIL;
-					mooltipass.memmgmt.tempCallbackErrorString = "Error during CTR request (card removed?)";
-				}
-				// Request failed, leave memory management mode
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-				mooltipass.memmgmt_hid._sendMsg();
-				return;
+				mooltipass.memmgmt.requestFailHander("Error during CTR request (card removed?)", MGMT_IDLE);
 			}
-			mooltipass.memmgmt.ctrValue = packet.subarray(2, 2 + packet[0]);
-			console.log("Mooltipass CTR value is " + mooltipass.memmgmt.ctrValue);			
-			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getCPZandCTR'], null);
-			mooltipass.memmgmt_hid._sendMsg();
+			else
+			{
+				mooltipass.memmgmt.ctrValue = packet.subarray(2, 2 + packet[0]);
+				console.log("Mooltipass CTR value is " + mooltipass.memmgmt.ctrValue);			
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getCPZandCTR'], null);
+				mooltipass.memmgmt_hid._sendMsg();				
+			}
 		}
 		else if(packet[1] == mooltipass.device.commands['exportCPZandCTR'])
 		{
@@ -2905,186 +3000,166 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		else if(packet[1] == mooltipass.device.commands['getCPZandCTR'])
 		{
 			if(packet[2] == 0)
-			{
-				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD)
-				{
-					mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_FAIL;
-					mooltipass.memmgmt.tempCallbackErrorString = "Error during CPZ/CTR request (card removed?)";
-				}
-				// Request failed, leave memory management mode
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-				mooltipass.memmgmt_hid._sendMsg();
-				return;
+			{				
+				mooltipass.memmgmt.requestFailHander("Error during CPZ/CTR request (card removed?)", MGMT_IDLE);
 			}
-			// Inform that all CPZ CTR packets were sent
-			console.log("All CPZ CTR packets are received");			
-			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingParentAddress'], null);
-			mooltipass.memmgmt_hid._sendMsg();
+			else
+			{
+				// Inform that all CPZ CTR packets were sent
+				console.log("All CPZ CTR packets are received");			
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingParentAddress'], null);
+				mooltipass.memmgmt_hid._sendMsg();				
+			}
 		}
 		else if(packet[1] == mooltipass.device.commands['getStartingParentAddress'])
 		{
 			if(packet[0] == 1)
 			{
-				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD)
-				{
-					mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_FAIL;
-					mooltipass.memmgmt.tempCallbackErrorString = "Error during get starting parent request (card removed?)";
-				}
-				// Request failed, leave memory management mode
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-				mooltipass.memmgmt_hid._sendMsg();
-				return;
+				mooltipass.memmgmt.requestFailHander("Error during get starting parent request (card removed?)", MGMT_IDLE);
 			}
-			mooltipass.memmgmt.startingParent = [packet[2], packet[3]];
-			mooltipass.memmgmt.clonedStartingParent = [packet[2], packet[3]];
-			console.log("Starting parent is " + mooltipass.memmgmt.startingParent); 
-			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
-			mooltipass.memmgmt_hid._sendMsg();
+			else
+			{
+				mooltipass.memmgmt.startingParent = [packet[2], packet[3]];
+				mooltipass.memmgmt.clonedStartingParent = [packet[2], packet[3]];
+				console.log("Starting parent is " + mooltipass.memmgmt.startingParent); 
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
+				mooltipass.memmgmt_hid._sendMsg();				
+			}
 		}
 		else if(packet[1] == mooltipass.device.commands['getStartingDataParentAddress'])
 		{
 			if(packet[0] == 1)
 			{
-				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD)
-				{
-					mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_FAIL;
-					mooltipass.memmgmt.tempCallbackErrorString = "Error during get data starting parent request (card removed?)";
-				}
-				// Request failed, leave memory management mode
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-				mooltipass.memmgmt_hid._sendMsg();
-				return;
+				mooltipass.memmgmt.requestFailHander("Error during get data starting parent request (card removed?)", MGMT_IDLE);
 			}
-			mooltipass.memmgmt.favoriteAddresses = [];
-			mooltipass.memmgmt.clonedFavoriteAddresses = [];
-			mooltipass.memmgmt.dataStartingParent = [packet[2], packet[3]];
-			console.log("Data starting parent is " + mooltipass.memmgmt.dataStartingParent);
-			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
-			//mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setFavorite'], [1,0,0,0,0]);
-			mooltipass.memmgmt_hid._sendMsg();
+			else
+			{
+				mooltipass.memmgmt.favoriteAddresses = [];
+				mooltipass.memmgmt.clonedFavoriteAddresses = [];
+				mooltipass.memmgmt.dataStartingParent = [packet[2], packet[3]];
+				console.log("Data starting parent is " + mooltipass.memmgmt.dataStartingParent);
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
+				//mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setFavorite'], [1,0,0,0,0]);
+				mooltipass.memmgmt_hid._sendMsg();				
+			}
 		}
 		else if(packet[1] == mooltipass.device.commands['getFavorite'])
 		{
 			if(packet[0] == 1)
 			{
-				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD)
-				{
-					mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_FAIL;
-					mooltipass.memmgmt.tempCallbackErrorString = "Error during get favorite request (card removed?)";
-				}
-				// Request failed, leave memory management mode
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-				mooltipass.memmgmt_hid._sendMsg();
-				return;
-			}
-			// Extract addresses and append them to our current ones
-			mooltipass.memmgmt.favoriteAddresses.push(packet.slice(0).subarray(2, 2 + 4));	
-			mooltipass.memmgmt.clonedFavoriteAddresses.push(packet.slice(0).subarray(2, 2 + 4));			
-			// Check if we have done all favorites
-			if(++mooltipass.memmgmt.currentFavorite == 14)
-			{
-				console.log("Favorites loaded: " + mooltipass.memmgmt.favoriteAddresses);
-				mooltipass.memmgmt.packetToSendBuffer = [];
-				mooltipass.memmgmt.curServiceNodes = [];				
-				mooltipass.memmgmt.curLoginNodes = [];				
-				mooltipass.memmgmt.curDataServiceNodes = [];		
-				mooltipass.memmgmt.curDataNodes = [];	
-				mooltipass.memmgmt.clonedCurServiceNodes = [];				
-				mooltipass.memmgmt.clonedCurLoginNodes = [];				
-				mooltipass.memmgmt.clonedCurDataServiceNodes = [];		
-				mooltipass.memmgmt.clonedCurDataNodes = []; 
-				mooltipass.memmgmt.credentialArrayForGui = [];
-				mooltipass.memmgmt.changePasswordReqs = [];
-				mooltipass.memmgmt.currentNode = new Uint8Array(NODE_SIZE);
-				mooltipass.memmgmt.nodePacketId = 0;
-				 
-				// Depending on the current mode, check what to do next
-				if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK)
-				{
-					// Start looping through all the nodes						
-					mooltipass.memmgmt.currentMode = MGMT_INT_CHECK_SCAN;
-					mooltipass.memmgmt.scanPercentage = 0;
-					mooltipass.memmgmt.pageIt = 128;
-					mooltipass.memmgmt.nodeIt = 0;
-					// Send first scan packet
-					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], [(mooltipass.memmgmt.nodeIt + (mooltipass.memmgmt.pageIt << 3)) & 0x00FF, (mooltipass.memmgmt.pageIt >> 5) & 0x00FF]);
-					mooltipass.memmgmt_hid._sendMsg();
-				}
-				else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD)
-				{
-					if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.startingParent, [0,0]) == true)
-					{						
-						mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;		
-						mooltipass.memmgmt.memmgmtStartCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
-					}
-					else
-					{
-						// Follow the nodes, starting with the parent one
-						mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN;
-						mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.startingParent;
-						mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
-						mooltipass.memmgmt_hid._sendMsg();						
-					}
-				}
-				else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE)
-				{
-					if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.startingParent, [0,0]) == true)
-					{
-						// If the db is empty, start the merging procedure									
-						mooltipass.memmgmt.totalAddressesRequired = mooltipass.memmgmt.generateMergeOperations();
-						mooltipass.memmgmt.totalAddressesReceived = 0;
-						mooltipass.memmgmt.freeAddressesBuffer = [];
-						if(mooltipass.memmgmt.totalAddressesRequired > 0)
-						{
-							// We need to request free addresses
-							mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_GET_FREE_ADDR;	
-							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFreeSlotAddresses'], [0,0]);
-							mooltipass.memmgmt_hid._sendMsg();		
-						}
-						else
-						{
-							mooltipass.memmgmt.generateMergePackets();
-							if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
-							{
-								console.log("Mooltipass already synced with our credential file!");											
-								// Leave mem management mode				
-								mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-								mooltipass.memmgmt_hid._sendMsg();
-							}
-							else
-							{
-								console.log("Sending merging packets");
-								mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_PACKET_SENDING;
-								mooltipass.memmgmt_hid.request['packet'] = mooltipass.memmgmt.packetToSendBuffer[0];
-								//console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
-								mooltipass.memmgmt_hid._sendMsg();
-							}
-						}
-					}
-					else
-					{
-						// Follow the nodes, starting with the parent one
-						mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_NORMAL_SCAN;
-						mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.startingParent;
-						mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
-						mooltipass.memmgmt_hid._sendMsg();						
-					}
-				}
-				else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP)
-				{
-					// Follow the nodes, starting with the parent one
-					mooltipass.memmgmt.currentMode = MGMT_MEM_BACKUP_NORMAL_SCAN;
-					mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.startingParent;
-					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
-					mooltipass.memmgmt_hid._sendMsg();
-				}
+				mooltipass.memmgmt.requestFailHander("Error during get favorite request (card removed?)", MGMT_IDLE);
 			}
 			else
 			{
-				// Otherwise, ask for the next one
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
-				mooltipass.memmgmt_hid._sendMsg();
-			}
+				// Extract addresses and append them to our current ones
+				mooltipass.memmgmt.favoriteAddresses.push(packet.slice(0).subarray(2, 2 + 4));	
+				mooltipass.memmgmt.clonedFavoriteAddresses.push(packet.slice(0).subarray(2, 2 + 4));			
+				// Check if we have done all favorites
+				if(++mooltipass.memmgmt.currentFavorite == 14)
+				{
+					console.log("Favorites loaded: " + mooltipass.memmgmt.favoriteAddresses);
+					mooltipass.memmgmt.packetToSendBuffer = [];
+					mooltipass.memmgmt.curServiceNodes = [];				
+					mooltipass.memmgmt.curLoginNodes = [];				
+					mooltipass.memmgmt.curDataServiceNodes = [];		
+					mooltipass.memmgmt.curDataNodes = [];	
+					mooltipass.memmgmt.clonedCurServiceNodes = [];				
+					mooltipass.memmgmt.clonedCurLoginNodes = [];				
+					mooltipass.memmgmt.clonedCurDataServiceNodes = [];		
+					mooltipass.memmgmt.clonedCurDataNodes = []; 
+					mooltipass.memmgmt.credentialArrayForGui = [];
+					mooltipass.memmgmt.changePasswordReqs = [];
+					mooltipass.memmgmt.currentNode = new Uint8Array(NODE_SIZE);
+					mooltipass.memmgmt.nodePacketId = 0;
+					 
+					// Depending on the current mode, check what to do next
+					if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK)
+					{
+						// Start looping through all the nodes						
+						mooltipass.memmgmt.currentMode = MGMT_INT_CHECK_SCAN;
+						mooltipass.memmgmt.scanPercentage = 0;
+						mooltipass.memmgmt.pageIt = 128;
+						mooltipass.memmgmt.nodeIt = 0;
+						// Send first scan packet
+						mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], [(mooltipass.memmgmt.nodeIt + (mooltipass.memmgmt.pageIt << 3)) & 0x00FF, (mooltipass.memmgmt.pageIt >> 5) & 0x00FF]);
+						mooltipass.memmgmt_hid._sendMsg();
+					}
+					else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD)
+					{
+						if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.startingParent, [0,0]) == true)
+						{						
+							mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;		
+							mooltipass.memmgmt.memmgmtStartCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
+						}
+						else
+						{
+							// Follow the nodes, starting with the parent one
+							mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN;
+							mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.startingParent;
+							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
+							mooltipass.memmgmt_hid._sendMsg();						
+						}
+					}
+					else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE)
+					{
+						if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.startingParent, [0,0]) == true)
+						{
+							// If the db is empty, start the merging procedure									
+							mooltipass.memmgmt.totalAddressesRequired = mooltipass.memmgmt.generateMergeOperations();
+							mooltipass.memmgmt.totalAddressesReceived = 0;
+							mooltipass.memmgmt.freeAddressesBuffer = [];
+							if(mooltipass.memmgmt.totalAddressesRequired > 0)
+							{
+								// We need to request free addresses
+								mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_GET_FREE_ADDR;	
+								mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFreeSlotAddresses'], [0,0]);
+								mooltipass.memmgmt_hid._sendMsg();		
+							}
+							else
+							{
+								mooltipass.memmgmt.generateMergePackets();
+								if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
+								{
+									console.log("Mooltipass already synced with our credential file!");											
+									// Leave mem management mode				
+									mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+									mooltipass.memmgmt_hid._sendMsg();
+								}
+								else
+								{
+									console.log("Sending merging packets");
+									mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_PACKET_SENDING;
+									mooltipass.memmgmt_hid.request['packet'] = mooltipass.memmgmt.packetToSendBuffer[0];
+									//console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
+									mooltipass.memmgmt_hid._sendMsg();
+								}
+							}
+						}
+						else
+						{
+							// Follow the nodes, starting with the parent one
+							mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_NORMAL_SCAN;
+							mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.startingParent;
+							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
+							mooltipass.memmgmt_hid._sendMsg();						
+						}
+					}
+					else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP)
+					{
+						// Follow the nodes, starting with the parent one
+						mooltipass.memmgmt.currentMode = MGMT_MEM_BACKUP_NORMAL_SCAN;
+						mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.startingParent;
+						mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.startingParent);
+						mooltipass.memmgmt_hid._sendMsg();
+					}
+				}
+				else
+				{
+					// Otherwise, ask for the next one
+					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
+					mooltipass.memmgmt_hid._sendMsg();
+				}
+			}			
 		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN || mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN || mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN)
@@ -3330,6 +3405,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		var tempCompletion = Math.round(((mooltipass.memmgmt.pageIt-128)/(mooltipass.memmgmt.getNumberOfPages(mooltipass.memmgmt.nbMb)-128))*100);
 		if(tempCompletion != mooltipass.memmgmt.scanPercentage)
 		{
+			mooltipass.memmgmt.progressCallback({'progress': tempCompletion});
 			mooltipass.memmgmt.scanPercentage = tempCompletion;
 			console.log(tempCompletion + "%");
 		}
@@ -4058,21 +4134,27 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 	}
 	else
 	{
-		mooltipass.memmgmt.memmgmtSaveCallback({'success': false, 'msg': "Memory management in another mode"});
+		callback({'success': false, 'msg': "Memory management in another mode"});
 	}
 }
  
 // Memory integrity check
-mooltipass.memmgmt.integrityCheckStart = function()
+mooltipass.memmgmt.integrityCheckStart = function(progressCallback, statusCallBack)
 {	
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
+		mooltipass.memmgmt.statusCallBack = statusCallBack;
+		mooltipass.memmgmt.progressCallback = progressCallback;
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_INT_CHECK_REQ;
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();
+	}
+	else
+	{
+		progressCallback({'success': false, 'msg': "Memory management in another mode"});
 	}
 }
 

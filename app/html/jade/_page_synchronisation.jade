@@ -16,30 +16,32 @@
         p Store your credentials in a file on your local computer.
 
       .column.small-3
-        button.tiny.expand#exportToFile Export to file
+        button.small.expand#exportToFile Export to file
       .column.small-3.end
-        button.tiny.expand#importFromFile Import from file
-      .column.small-12.text-right
-        label
-          | Automatically export credentials to file storage
-          input(type="checkbox", data-key="sync-file-auto")
+        button.small.expand#importFromFile Import from file
 
     .row.margin-bottom.storage
       .column.small-6
         h2 Cloud Storage
 
-        p Store your credentials online in a cloud storage.
+        p Store your credentials in your Google account. Your backup can be accessed from all Chrome browsers where you are logged in.
 
       .column.small-3
-        button.tiny.expand#exportToCloud Export to cloud
+        button.small.expand#exportToCloud Export to cloud
       .column.small-3.end
-        button.tiny.expand#importFromCloud Import from cloud
-      .column.small-12.text-right
+        button.small.expand#importFromCloud Import from cloud
+      .column.small-6.text-right
         label
-          | Automatically export credentials to cloud storage
+          span Synchronize credentials when unlocking the device.
           input(type="checkbox", data-key="sync-cloud-auto")
     
+    .row
+      .column.small-6
+        h2 Integrity Check
+        p Scan your device for errors and correct them automatically.
 
+      .column.small-3.offset-3
+        button.small.expand#scanMemory Perform integrity check
 
 
 

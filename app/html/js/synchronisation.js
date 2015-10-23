@@ -3,13 +3,6 @@ mooltipass.ui = mooltipass.ui || {};
 mooltipass.ui.sync = mooltipass.ui.sync || {};
 
 mooltipass.ui.sync.init = function() {
-    $("input[data-key='sync-file-auto']").on("click", function(){
-        var is_active = $(this).prop("checked");
-
-        // Todo: Store is_active
-        console.log("Sync file automatically is set to ", is_active)
-    });
-
     $("input[data-key='sync-cloud-auto']").on("click", function(){
         var is_active = $(this).prop("checked");
 
@@ -19,7 +12,6 @@ mooltipass.ui.sync.init = function() {
 
 
     // Todo: Use real default values
-    $("input[data-key='sync-file-auto']").prop("checked", false);
     $("input[data-key='sync-cloud-auto']").prop("checked", true);
 }
 

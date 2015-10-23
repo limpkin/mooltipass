@@ -99,19 +99,30 @@ input.inline {
 }
 
 #page-synchronisation {
+  button {
+    margin-bottom: 0;
+    margin-top: 0.9rem;  
+    padding: 0.7rem;
+  }
+
   .storage {
     p {
       margin-bottom: 0;
     }
 
-    button {
-      margin-bottom: 0;
-      margin-top: 0.9rem;  
-    }
-
     input[type="checkbox"] {
       margin-left: 0.5rem;
     }
+
+    span {
+      display: inline-block;
+      width: 90%;
+    }
+
+    label {
+      margin-top: 0.5rem;
+    }
+
   }
 }
 

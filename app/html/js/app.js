@@ -48,18 +48,18 @@ show_active_page = function() {
 
 is_device_connected = function() {
   // DEBUG
-  // return true;
+  return true;
   return mooltipass.device.isConnected;
 }
 
 is_device_unlocked = function() {
-  // return true
+  return true
   return mooltipass.device.isUnlocked;
 }
 
 is_device_in_mmm = function() {
   // DEBUG
-  // return true;
+  return true;
   return mooltipass.device.inMemoryManagementMode;
 }
 

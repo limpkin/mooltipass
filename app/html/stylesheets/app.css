@@ -9746,21 +9746,31 @@ input.inline {
   transition: all 200ms ease;
 }
 
-/* line 103, ../scss/app.scss */
+/* line 102, ../scss/app.scss */
+#page-synchronisation button {
+  margin-bottom: 0;
+  margin-top: 0.9rem;
+  padding: 0.7rem;
+}
+/* line 109, ../scss/app.scss */
 #page-synchronisation .storage p {
   margin-bottom: 0;
 }
-/* line 107, ../scss/app.scss */
-#page-synchronisation .storage button {
-  margin-bottom: 0;
-  margin-top: 0.9rem;
-}
-/* line 112, ../scss/app.scss */
+/* line 113, ../scss/app.scss */
 #page-synchronisation .storage input[type="checkbox"] {
   margin-left: 0.5rem;
 }
+/* line 117, ../scss/app.scss */
+#page-synchronisation .storage span {
+  display: inline-block;
+  width: 90%;
+}
+/* line 122, ../scss/app.scss */
+#page-synchronisation .storage label {
+  margin-top: 0.5rem;
+}
 
-/* line 118, ../scss/app.scss */
+/* line 129, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }

@@ -35,6 +35,7 @@ var MGMT_USER_CHANGES_PACKET_SENDING	= 23;			// We are currently sending packets
 var MGMT_NORMAL_SCAN_DONE_NO_CHANGES	= 24;			// Normal scan done, no changes on the memory
 var MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR	= 25;			// Normal scan done, asking for free addresses
 var MGMT_NORMAL_SCAN_DONE_PASSWD_CHANGE	= 26;			// Changing passwords
+var MGMT_ERROR_CUR_EXITTING_MMM			= 27;			// Following an error, we're exiting MMM
  
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;							// Mooltipass memory size
@@ -90,17 +91,14 @@ mooltipass.memmgmt.totalAddressesRequired = null;			// Number of addresses we ne
 mooltipass.memmgmt.totalAddressesReceived = null;			// Number of addresses we received
 mooltipass.memmgmt.freeAddressesBuffer = [];				// The addresses we received
 mooltipass.memmgmt.lastFreeAddressReceived = null;			// Last free address we received
-mooltipass.memmgmt.memmgmtStartCallback = null;				// Callback function for memmgmt start
 mooltipass.memmgmt.tempCallbackErrorString = null;			// Temp string used for callback
-mooltipass.memmgmt.memmgmtStopCallback = null;				// Callback function for memmgmt stop
-mooltipass.memmgmt.memmgmtSaveCallback = null;				// Callback function for memmgmt save
 mooltipass.memmgmt.memmgmtDeleteData = [];					// Delete data when clicking save
 mooltipass.memmgmt.memmgmtUpdateData = [];					// Update data when clicking save
 mooltipass.memmgmt.memmgmtAddData = [];						// Add data when clicking save
 mooltipass.memmgmt.changePasswordReqs = [];					// Change password reqs
 mooltipass.memmgmt.isCardKnownByMp = false;					// Check if the mooltipass knows the inserted the card
 mooltipass.memmgmt.backupToFileReq = true;					// User is requesting a backup to file
-mooltipass.memmgmt.statusCallBack = null;					// Status callback for memory merge / export / backup function
+mooltipass.memmgmt.statusCallback = null;					// Status callback different operations
 mooltipass.memmgmt.progressCallback = null;					// Progress callback for integrity check
 
 // State machines & temp variables related to media bundle upload
@@ -2401,119 +2399,21 @@ mooltipass.memmgmt.generateMergePackets = function()
 mooltipass.memmgmt.requestFailHander = function(message, nextMode)
 {
 	console.log("requestFailHander: " + message);	
-	
-	if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR)
+	console.log("Current mode: " + mooltipass.memmgmt.currentMode);
+			
+	if(nextMode == MGMT_IDLE)
 	{
-		// Couldn't get free addresses			
-		if(nextMode == MGMT_IDLE)
-		{
-			// TODO: leave MMM and then call callback
-			mooltipass.memmgmt.memmgmtSaveCallback({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
-		else
-		{
-			mooltipass.memmgmt.memmgmtSaveCallback({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
+		// Leave MMM, and the call callback
+		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+		mooltipass.memmgmt.currentMode = MGMT_ERROR_CUR_EXITTING_MMM;
+		mooltipass.memmgmt.tempCallbackErrorString = message;
+		mooltipass.memmgmt_hid._sendMsg();
 	}
-	else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE)
+	else
 	{
-		// Couldn't leave MMM
-		mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
+		mooltipass.memmgmt.statusCallback({'success': false, 'msg': message});
 		mooltipass.memmgmt.currentMode = MGMT_IDLE;
 		mooltipass.device.processQueue();
-	}
-	else if(mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
-	{
-		// Couldn't leave MMM / couldn't send user changes packets		
-		if(nextMode == MGMT_IDLE)
-		{
-			// TODO: leave MMM and then call callback
-			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
-		else
-		{
-			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
-	}
-	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ)
-	{
-		// Couldn't enter memory management mode
-		mooltipass.memmgmt.statusCallBack({'success': false, 'msg': message});
-		mooltipass.memmgmt.currentMode = MGMT_IDLE;
-		mooltipass.device.processQueue();
-	}
-	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ)
-	{
-		// Couldn't enter memory management mode
-		mooltipass.memmgmt.statusCallBack({'success': false, 'msg': message});
-		mooltipass.memmgmt.currentMode = MGMT_IDLE;
-		mooltipass.device.processQueue();
-	}
-	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK)
-	{
-		// In MMM,getCTR fail/getCPZCTR fail/getStartingParent fail/getDataStartingParent fail/getFavorite fail
-		if(nextMode == MGMT_IDLE)
-		{
-			// TODO: leave MMM and then call callback
-			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
-		else
-		{
-			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
-	}
-	else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
-	{
-		// In MMM, couldn't leave MMM
-		mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
-		mooltipass.memmgmt.currentMode = MGMT_IDLE;
-		mooltipass.device.processQueue();
-	}
-	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD)
-	{
-		// In MMM,getCTR fail/getCPZCTR fail/getStartingParent fail/getDataStartingParent fail/getFavorite fail
-		if(nextMode == MGMT_IDLE)
-		{
-			// TODO: leave MMM and then call callback
-			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
-		else
-		{
-			mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
-	}	
-	else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING)
-	{
-		// Couldn't leave MMM / couldn't send user changes packets		
-		if(nextMode == MGMT_IDLE)
-		{
-			// TODO: leave MMM and then call callback
-			mooltipass.memmgmt.statusCallBack({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}
-		else
-		{
-			mooltipass.memmgmt.statusCallBack({'success': false, 'msg': message});
-			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			mooltipass.device.processQueue();
-		}		
 	}
 }
  
@@ -2540,30 +2440,29 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				{
 					if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_NO_CHANGES)
 					{
-						mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "No changes were applied"});
+						mooltipass.memmgmt.statusCallback({'success': true, 'msg': "No changes were applied"});
 					}
 					else if(mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
 					{
-						mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});				
+						mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});				
 					}
 				}
 			}
-			else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_FAIL || mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_FAIL)
+			else if(mooltipass.memmgmt.currentMode == MGMT_ERROR_CUR_EXITTING_MMM)
 			{
-				// Something wrong happened during parameter loading, temp string contains more details
-				mooltipass.memmgmt.memmgmtStartCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString}, null);
+				mooltipass.memmgmt.statusCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString});
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
 			{
-				mooltipass.memmgmt.memmgmtStopCallback({'success': true, 'msg': "Memory management mode exit"});
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory management mode exit"});
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
 			{
-				mooltipass.memmgmt.statusCallBack({'success': true, 'msg': "Memory OK, no changes to make!"});
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, no changes to make!"});
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING)
 			{
-				mooltipass.memmgmt.statusCallBack({'success': true, 'msg': "Memory OK, changes were made"});				
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, changes were made"});				
 			}
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
 			console.log("Memory management mode exit");
@@ -2599,7 +2498,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
-					mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});
+					mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});
 					mooltipass.memmgmt.currentMode = MGMT_IDLE;
 					mooltipass.device.processQueue();
 				}
@@ -2628,7 +2527,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
-					mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});
+					mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});
 					mooltipass.memmgmt.currentMode = MGMT_IDLE;
 					mooltipass.device.processQueue();
 				}
@@ -2658,7 +2557,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else
 			{
-				mooltipass.memmgmt.memmgmtSaveCallback({'success': true, 'msg': "Changes were applied"});
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
@@ -3126,7 +3025,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 						if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.startingParent, [0,0]) == true)
 						{						
 							mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;		
-							mooltipass.memmgmt.memmgmtStartCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
+							mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
 						}
 						else
 						{
@@ -3247,7 +3146,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 								{
 									// Wait for the user to do his actions...
 									mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;	
-									mooltipass.memmgmt.memmgmtStartCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
+									mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
 								}
 								else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
 								{
@@ -3335,7 +3234,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 								{
 									// Wait for the user to do his actions...
 									mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;		
-									mooltipass.memmgmt.memmgmtStartCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
+									mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
 								}
 								else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
 								{
@@ -3426,14 +3325,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			// Well this isn't a good situation... we read a node that we weren't allowed to read
 			console.log("Not allowed to read node !!!");			 
-			if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN)
-			{
-				mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_FAIL;
-				mooltipass.memmgmt.tempCallbackErrorString = "Error during listing credentials (card removed/memory corrupted?)";
-			}	   
-			// Leave memory management mode
-			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-			mooltipass.memmgmt_hid._sendMsg();
+			mooltipass.memmgmt.requestFailHander("Error during listing credentials (card removed/memory corrupted?)", MGMT_IDLE);
 		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
@@ -3756,7 +3648,7 @@ mooltipass.memmgmt.memmgmtStart = function(callback)
 {	
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
-		mooltipass.memmgmt.memmgmtStartCallback = callback;
+		mooltipass.memmgmt.statusCallback = callback;
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_REQ;
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
@@ -3773,7 +3665,7 @@ mooltipass.memmgmt.memmgmtStart = function(callback)
 // Memory management mode start
 mooltipass.memmgmt.memmgmtStop = function(callback)
 {
-	mooltipass.memmgmt.memmgmtStopCallback = callback;
+	mooltipass.memmgmt.statusCallback = callback;
 	
 	if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE || mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
@@ -3783,7 +3675,7 @@ mooltipass.memmgmt.memmgmtStop = function(callback)
 	}
 	else
 	{
-		mooltipass.memmgmt.memmgmtStopCallback({'success': false, 'msg': "Memory management in another mode"});
+		mooltipass.memmgmt.statusCallback({'success': false, 'msg': "Memory management in another mode"});
 	}
 }
 
@@ -3941,7 +3833,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 		else
 		{
 			// We were fed incorrect data
-			mooltipass.memmgmt.memmgmtSaveCallback({'success': false, 'msg': "Data provided is invalid!"});
+			mooltipass.memmgmt.statusCallback({'success': false, 'msg': "Data provided is invalid!"});
 			console.log("Error with following update data:");
 			console.log(mooltipass.memmgmt.memmgmtUpdateData[i]);
 			return;
@@ -3986,7 +3878,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 		else
 		{
 			// We were fed incorrect data
-			mooltipass.memmgmt.memmgmtSaveCallback({'success': false, 'msg': "Data provided is invalid!"});
+			mooltipass.memmgmt.statusCallback({'success': false, 'msg': "Data provided is invalid!"});
 			console.log("Error with following delete data:");
 			console.log(mooltipass.memmgmt.memmgmtDeleteData[i]);
 			return;
@@ -4087,7 +3979,7 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 	if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE)
 	{
 		// Save passed data
-		mooltipass.memmgmt.memmgmtSaveCallback = callback;
+		mooltipass.memmgmt.statusCallback = callback;
 		mooltipass.memmgmt.memmgmtDeleteData = deleteData;
 		mooltipass.memmgmt.memmgmtUpdateData = updateData;
 		mooltipass.memmgmt.memmgmtAddData = addData;	
@@ -4153,11 +4045,11 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 }
  
 // Memory integrity check
-mooltipass.memmgmt.integrityCheckStart = function(progressCallback, statusCallBack)
+mooltipass.memmgmt.integrityCheckStart = function(progressCallback, statusCallback)
 {	
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
-		mooltipass.memmgmt.statusCallBack = statusCallBack;
+		mooltipass.memmgmt.statusCallback = statusCallback;
 		mooltipass.memmgmt.progressCallback = progressCallback;
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_INT_CHECK_REQ;
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
@@ -4168,7 +4060,7 @@ mooltipass.memmgmt.integrityCheckStart = function(progressCallback, statusCallBa
 	}
 	else
 	{
-		progressCallback({'success': false, 'msg': "Memory management in another mode"});
+		statusCallback({'success': false, 'msg': "Memory management in another mode"});
 	}
 }
 
@@ -4210,17 +4102,22 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function()
 }
 
 // Memory backup start
-mooltipass.memmgmt.memoryBackupStart = function(to_file_bool)
+mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 {
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
 		mooltipass.memmgmt.backupToFileReq = to_file_bool;
+		mooltipass.memmgmt.statusCallback = statusCallback;
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_MEM_BACKUP_REQ;
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();
+	}
+	else
+	{
+		statusCallback({'success': false, 'msg': "Memory management in another mode"});
 	}
 }
 

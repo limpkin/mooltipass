@@ -369,8 +369,7 @@ _cred.onClickMMMEnter = function () {
     });
 };
 
-_cred.onClickMMMDiscard = function (e) {
-    e.preventDefault();
+_cred.onClickMMMDiscard = function() {
 
     mooltipass.memmgmt.memmgmtStop(function (_status) {
         if (_status.success) {
@@ -442,13 +441,12 @@ _cred.onClickMMMSave = function (e) {
  */
 mooltipass.ui.credentials.init = function () {
     $('#mmm-enter').click(_cred.onClickMMMEnter);
-    $('#mmm-discard').click(_cred.onClickMMMDiscard);
     $('#mmm-save').click(_cred.onClickMMMSave);
     $('#mmm-save, #mmm-discard').hide();
 
 
     CREDENTIALS_TABLE = $("#credentials").dataTable({
-        scrollY: 250,
+        scrollY: 210,
         dom: '<t>',
         columns: [
             {data: "favorite"},
@@ -471,7 +469,7 @@ mooltipass.ui.credentials.init = function () {
 
 // Search for credentials
     $("#search-input").on("keyup change", function () {
-        $("#credentials").dataTable().search($(this).val()).draw()
+        $("#credentials").DataTable().search($(this).val()).draw()
     });
     $("#search-input").on("keyup", function (e) {
         if (e.keyCode == 27) $(this).val("").trigger("change");

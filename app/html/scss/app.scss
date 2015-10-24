@@ -6,6 +6,8 @@
 @import "tables";
 @import "modal";
 
+@import "notifications";
+
 .comment {
   color: $border-color;
 }
@@ -129,4 +131,31 @@ input.inline {
 
 .comment {
   color: #888 !important;
+}
+
+#page-credentials {
+  button {
+    margin-bottom: 0;
+    margin-top: 0.9rem;  
+    padding: 0.7rem;
+
+    &.secondary {
+      color: #888888;
+      transition: background-color ease 1000ms;
+
+      &:hover {
+        background-color: #ddd;
+      }
+
+      &:active {
+        background-color: #F1BABA;
+      }
+    }
+  }
+}
+
+button, .button {
+  &:focus {
+    outline: none;
+  }
 }

@@ -1575,8 +1575,8 @@ mooltipass.memmgmt.deleteChildNodeFromCloneArrayAndGenerateDeletePacket = functi
 	mooltipass.memmgmt.addEmptyNodePacketToSendBuffer(node.address);
 	
 	// Next we need to update the prev/next nodes
-	var prev_node_index = mooltipass.memmgmt.findIdByNextAddress(mooltipass.memmgmt.clonedCurLoginNodes, node.address);
-	var next_node_index = mooltipass.memmgmt.findIdByPrevAddress(mooltipass.memmgmt.clonedCurLoginNodes, node.address);
+	var prev_node_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, mooltipass.memmgmt.getPrevAddress(node.data));
+	var next_node_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, mooltipass.memmgmt.getNextAddress(node.data));
 	
 	// Check if we are not dealing with the first node
 	if(prev_node_index == null)
@@ -1861,7 +1861,7 @@ mooltipass.memmgmt.changeChildNodeLoginAndUpdateNodes = function(address, parent
 // Get node indexes for a new service node to be inserted
 mooltipass.memmgmt.getPrevAndNextNodeIndexesForNewServiceNode = function(name)
 {
-	var current_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurServiceNodes, mooltipass.memmgmt.clonedStartingParent)
+	var current_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurServiceNodes, mooltipass.memmgmt.clonedStartingParent);
 	var prev_node_index = null;
 	var next_node_index = current_index;
 	
@@ -1879,6 +1879,36 @@ mooltipass.memmgmt.getPrevAndNextNodeIndexesForNewServiceNode = function(name)
 		current_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurServiceNodes, mooltipass.memmgmt.getNextAddress(mooltipass.memmgmt.clonedCurServiceNodes[current_index].data));
 		next_node_index = current_index;
 	}
+	
+	return [prev_node_index, next_node_index];
+}
+
+// Get node indexes for a new service node to be inserted
+mooltipass.memmgmt.getPrevAndNextNodeIndexesForNewLoginNode = function(parentAddress, loginName)
+{
+	// Get first child index, set next and prev vars
+	var parent_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurServiceNodes, parentAddress);
+	var first_child_address = mooltipass.memmgmt.getFirstChildAddress(mooltipass.memmgmt.clonedCurServiceNodes[parent_index].data);
+	var current_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, first_child_address);
+	var prev_node_index = null;
+	var next_node_index = current_index;
+	
+	// No nodes in memory!
+	if(current_index == null)
+	{
+		return [null, null];
+	}
+	
+	// Loop until we find the right slot
+	while(current_index != null && mooltipass.memmgmt.clonedCurLoginNodes[current_index].name < loginName)
+	{
+		// Load next address
+		prev_node_index = current_index;
+		current_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, mooltipass.memmgmt.getNextAddress(mooltipass.memmgmt.clonedCurLoginNodes[current_index].data));
+		next_node_index = current_index;
+	}
+	//if(prev_node_index!=null)console.log(mooltipass.memmgmt.clonedCurLoginNodes[prev_node_index].name);else{console.log("null");}
+	//if(next_node_index!=null)console.log(mooltipass.memmgmt.clonedCurLoginNodes[next_node_index].name);else console.log("null");
 	
 	return [prev_node_index, next_node_index];
 }
@@ -2896,7 +2926,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 						if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
 						{
 							mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE_NO_CHANGES;
-							console.log("Saved button pressed but no changes");
+							console.log("Save button pressed but no changes");
 							// Leave mem management mode				
 							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
 							mooltipass.memmgmt_hid._sendMsg();
@@ -3944,6 +3974,135 @@ mooltipass.memmgmt.generateSavePackets = function()
 		}		
 	}
 	
+	// Tackling the new items
+	console.log("");
+	console.log("Treating new items...");
+	for(var i = 0; i < mooltipass.memmgmt.memmgmtAddData.length; i++)
+	{
+		// Check if the new parent node exists
+		var new_parent_node_index = mooltipass.memmgmt.findIdByName(mooltipass.memmgmt.clonedCurServiceNodes, mooltipass.memmgmt.memmgmtAddData[i].context);
+		if(new_parent_node_index == null)
+		{
+			// We need to add a new parent node
+			var new_node = new Uint8Array(NODE_SIZE);
+			for(var k = 0; k < NODE_SIZE; k++)
+			{
+				new_node[k] = 0x00;
+			}
+			
+			// Find the new parent previous and next nodes
+			var indexes = mooltipass.memmgmt.getPrevAndNextNodeIndexesForNewServiceNode(mooltipass.memmgmt.memmgmtAddData[i].context);
+			
+			// Check prev node, update addresses
+			if(indexes[0] == null)
+			{
+				// No previous node, set starting parent
+				mooltipass.memmgmt.clonedStartingParent = free_addresses_vector[address_taken_counter];
+				mooltipass.memmgmt.changePrevAddress(new_node, [0,0]);
+			}
+			else
+			{
+				mooltipass.memmgmt.changePrevAddress(new_node, mooltipass.memmgmt.clonedCurServiceNodes[indexes[0]].address);
+				mooltipass.memmgmt.changeNextAddress(mooltipass.memmgmt.clonedCurServiceNodes[indexes[0]].data, free_addresses_vector[address_taken_counter]);
+			}
+			// Check next node, update addresses
+			if(indexes[1] == null)
+			{
+				mooltipass.memmgmt.changeNextAddress(new_node, [0,0]);
+			}
+			else
+			{
+				mooltipass.memmgmt.changeNextAddress(new_node, mooltipass.memmgmt.clonedCurServiceNodes[indexes[1]].address);
+				mooltipass.memmgmt.changePrevAddress(mooltipass.memmgmt.clonedCurServiceNodes[indexes[1]].data, free_addresses_vector[address_taken_counter]);
+			}
+			
+			// Set node type, service name, first child address, and add it to our list
+			mooltipass.memmgmt.setNodeType(new_node, 'parent');
+			mooltipass.memmgmt.setServiceName(new_node, mooltipass.memmgmt.memmgmtAddData[i].context);
+			mooltipass.memmgmt.clonedCurServiceNodes.push({'address': free_addresses_vector[address_taken_counter], 'name': mooltipass.memmgmt.memmgmtAddData[i].context, 'data': new_node});
+			address_taken_counter++;
+		}
+		
+		// If we didn't need to create parent node, check that the user isn't adding the same username...
+		var adding_duplicate_credential = false;
+		if(new_parent_node_index != null)
+		{			
+			// Get first child index, set next and prev vars
+			var parent_index = mooltipass.memmgmt.findIdByName(mooltipass.memmgmt.clonedCurServiceNodes, mooltipass.memmgmt.memmgmtAddData[i].context);
+			var first_child_address = mooltipass.memmgmt.getFirstChildAddress(mooltipass.memmgmt.clonedCurServiceNodes[parent_index].data);
+			var current_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, first_child_address);
+			
+			// Loop until we find the right name
+			while(current_index != null)
+			{
+				// Check if login is the same
+				if(mooltipass.memmgmt.clonedCurLoginNodes[current_index].name == mooltipass.memmgmt.memmgmtAddData[i].username)
+				{
+					console.log("User is trying to add the same username!");
+					adding_duplicate_credential = true;
+					break;
+				}
+				
+				// Load next address
+				current_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, mooltipass.memmgmt.getNextAddress(mooltipass.memmgmt.clonedCurLoginNodes[current_index].data));
+			}
+		}
+		
+		if(adding_duplicate_credential == false)
+		{
+			// Parent node exists, find where to store the child node
+			var parent_node_index = mooltipass.memmgmt.findIdByName(mooltipass.memmgmt.clonedCurServiceNodes, mooltipass.memmgmt.memmgmtAddData[i].context);
+			var new_node = new Uint8Array(NODE_SIZE);
+			for(var k = 0; k < NODE_SIZE; k++)
+			{
+				new_node[k] = 0x00;
+			}
+			
+			// Find the new parent previous and next nodes
+			var indexes = mooltipass.memmgmt.getPrevAndNextNodeIndexesForNewLoginNode(mooltipass.memmgmt.clonedCurServiceNodes[parent_node_index].address, mooltipass.memmgmt.memmgmtAddData[i].username);
+			
+			// Check prev node, update addresses
+			if(indexes[0] == null)
+			{
+				// No previous node, set first child for parent
+				mooltipass.memmgmt.changeFirstChildAddress(mooltipass.memmgmt.clonedCurServiceNodes[parent_node_index].data, free_addresses_vector[address_taken_counter]);
+				mooltipass.memmgmt.changePrevAddress(new_node, [0,0]);
+			}
+			else
+			{
+				mooltipass.memmgmt.changePrevAddress(new_node, mooltipass.memmgmt.clonedCurLoginNodes[indexes[0]].address);
+				mooltipass.memmgmt.changeNextAddress(mooltipass.memmgmt.clonedCurLoginNodes[indexes[0]].data, free_addresses_vector[address_taken_counter]);
+			}
+			// Check next node, update addresses
+			if(indexes[1] == null)
+			{
+				mooltipass.memmgmt.changeNextAddress(new_node, [0,0]);
+			}
+			else
+			{
+				mooltipass.memmgmt.changeNextAddress(new_node, mooltipass.memmgmt.clonedCurLoginNodes[indexes[1]].address);
+				mooltipass.memmgmt.changePrevAddress(mooltipass.memmgmt.clonedCurLoginNodes[indexes[1]].data, free_addresses_vector[address_taken_counter]);
+			}
+			
+			// Set node type, service name, first child address, and add it to our list
+			mooltipass.memmgmt.setNodeType(new_node, 'child');
+			mooltipass.memmgmt.setLogin(new_node, mooltipass.memmgmt.memmgmtAddData[i].username);
+			mooltipass.memmgmt.setDescription(new_node, mooltipass.memmgmt.memmgmtAddData[i].description);
+			mooltipass.memmgmt.clonedCurLoginNodes.push({'address': free_addresses_vector[address_taken_counter], 'name': mooltipass.memmgmt.memmgmtAddData[i].username, 'data': new_node});
+			
+			// Change password
+			mooltipass.memmgmt.changePasswordReqs.push({'service': mooltipass.memmgmt.memmgmtAddData[i].context, 'login': mooltipass.memmgmt.memmgmtAddData[i].username, 'password': mooltipass.memmgmt.memmgmtAddData[i].password});
+			
+			// Check if it is set as favorite
+			if(mooltipass.memmgmt.memmgmtAddData[i].favorite)
+			{
+				mooltipass.memmgmt.addParentChildFavorite(mooltipass.memmgmt.clonedCurServiceNodes[parent_node_index].address, free_addresses_vector[address_taken_counter]);
+			}
+			
+			address_taken_counter++;
+		}		
+	}
+	
 	// Tackling the updated items
 	console.log("");
 	console.log("Treating updated items...");
@@ -4234,10 +4393,16 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 		mooltipass.memmgmt.memmgmtUpdateData = updateData;
 		mooltipass.memmgmt.memmgmtAddData = addData;	
 		
+		//console.log(deleteData);
+		//console.log(updateData);
+		//console.log(addData);
+		//return;
+		
 		// Count how many addresses we need to add
 		if(addData != null)
 		{
 			mooltipass.memmgmt.totalAddressesRequired = addData.length*2;
+			console.log(addData);
 		}
 		else
 		{
@@ -4274,7 +4439,7 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 			if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
 			{
 				mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE_NO_CHANGES;
-				console.log("Saved button pressed but no changes");
+				console.log("Save button pressed but no changes");
 				// Leave mem management mode				
 				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
 				mooltipass.memmgmt_hid._sendMsg();

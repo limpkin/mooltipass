@@ -72,7 +72,6 @@ mooltipass.memmgmt.preferences = {"version": MGMT_PREFERENCES_VERSION, "backup_f
 // State machines & temp variables
 mooltipass.memmgmt.syncFS = null;							// SyncFS
 mooltipass.memmgmt.syncFSOK = false;						// SyncFS state
-mooltipass.memmgmt.syncFSMooltipassFileOK = false;			// SyncFS Mooltipass backup file state
 mooltipass.memmgmt.currentMode = MGMT_IDLE;					// Current mode
 mooltipass.memmgmt.currentFavorite = 0;						// Current favorite read/write
 mooltipass.memmgmt.pageIt = 0;								// Page iterator
@@ -98,9 +97,13 @@ mooltipass.memmgmt.memmgmtAddData = [];						// Add data when clicking save
 mooltipass.memmgmt.changePasswordReqs = [];					// Change password reqs
 mooltipass.memmgmt.isCardKnownByMp = false;					// Check if the mooltipass knows the inserted the card
 mooltipass.memmgmt.backupToFileReq = true;					// User is requesting a backup to file
+mooltipass.memmgmt.backupFromFileReq = true;				// User is requesting a backup from file
 mooltipass.memmgmt.statusCallback = null;					// Status callback different operations
 mooltipass.memmgmt.progressCallback = null;					// Progress callback for integrity check
 mooltipass.memmgmt.syncFSFileName = "";						// SyncFS file name for current user
+mooltipass.memmgmt.CPZTable = [];							// A list of all the CPZ we know with the associated file name
+mooltipass.memmgmt.syncFSParsedFileIndex = 0;				// Index of the syncFS file we are parsing
+mooltipass.memmgmt.currentCardCPZ = [];						// Current card CPZ
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -560,6 +563,7 @@ mooltipass.memmgmt.isCPZValueKnownInCPZCTRVector = function(CPZValue, vector)
 	}
 	return false;
 } 
+
 // Find if CPZ currently is in our CTR CPZ vector, return index
 mooltipass.memmgmt.isCPZValueKnownInCPZCTRVectorIndex = function(CPZValue, vector)
 {
@@ -1101,18 +1105,35 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 		}
 		 
 		//console.log([mooltipass.memmgmt.importedCtrValue, mooltipass.memmgmt.importedCPZCTRValues, mooltipass.memmgmt.importedStartingParent, mooltipass.memmgmt.importedDataStartingParent, mooltipass.memmgmt.importedFavoriteAddresses, mooltipass.memmgmt.importedCurServiceNodes, mooltipass.memmgmt.importedCurLoginNodes, mooltipass.memmgmt.importedCurDataServiceNodes, mooltipass.memmgmt.importedCurDataNodes, checkString]);
-		mooltipass.memmgmt.syncFSMooltipassFileOK = true;
 		console.log("Data imported!");	
 		
 		// Depending on current mode, launch next actions....
 		if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_REQ)
-		{			
-			// First step is to query to user interaction timeout to set the correct packet timeout retry!
+		{
+			// File read
+			// First step is to query to user interaction timeout to set the correct packet timeout retry
 			mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_DBFILE_MERGE_REQ;
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 			mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
 			mooltipass.memmgmt_hid.nbSendRetries = 0;
-			mooltipass.memmgmt_hid._sendMsg();
+			mooltipass.memmgmt_hid._sendMsg();	
+		}
+		else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE_REQ)
+		{
+			// SyncFS file read
+			// We parsed the data, now we can either enter memmgmt or add CPZ
+			if(mooltipass.memmgmt.isCardKnownByMp)
+			{
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
+				mooltipass.memmgmt_hid._sendMsg();							
+			}
+			else
+			{
+				// Unknown card by the MP, force store
+				var cpz_ctr_index = mooltipass.memmgmt.isCPZValueKnownInCPZCTRVectorIndex(mooltipass.memmgmt.currentCardCPZ, mooltipass.memmgmt.importedCPZCTRValues);
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['addUnknownCard'], mooltipass.memmgmt.importedCPZCTRValues[cpz_ctr_index]);
+				mooltipass.memmgmt_hid._sendMsg();		
+			}
 		}
 	}
 	else
@@ -1148,6 +1169,34 @@ mooltipass.memmgmt.exportMemoryState = function()
 					console.log("File " + mooltipass.memmgmt.syncFSFileName + " already known in our DB");
 				}
 			}
+			// Check if we need to store new CPZ values
+			for(var i = 0; i < mooltipass.memmgmt.CPZCTRValues.length; i++)
+			{
+				var cpz_known = false;
+				for(var j = 0; j < mooltipass.memmgmt.CPZTable.length; j++)
+				{
+					cpz_known = true;
+					for(var k = 0; k < 8; k++)
+					{
+						if(mooltipass.memmgmt.CPZCTRValues[i][k] != mooltipass.memmgmt.CPZTable[j][0][k])
+						{
+							cpz_known = false;
+							break;
+						}
+					}
+					if(cpz_known == true)
+					{
+						break;
+					}
+				}
+				if(cpz_known == false)
+				{
+					console.log("Adding unknown CPZ")
+					console.log(mooltipass.memmgmt.CPZCTRValues[i].subarray(0,8));
+					mooltipass.memmgmt.CPZTable.push([mooltipass.memmgmt.CPZCTRValues[i].subarray(0,8), mooltipass.memmgmt.syncFSFileName]);
+				}				
+			}
+			
 			if(file_known == false)
 			{
 				console.log("Adding file " + mooltipass.memmgmt.syncFSFileName + " in our DB");
@@ -1286,15 +1335,112 @@ mooltipass.memmgmt.syncFSGetCallback = function(fs)
 		console.log("Received SyncFS");
 		mooltipass.memmgmt.syncFS = fs;
 		mooltipass.memmgmt.syncFSOK = true;
-		mooltipass.filehandler.requestOrCreateFileFromSyncFS(mooltipass.memmgmt.syncFS, "mooltipassAutomaticBackup.bin", mooltipass.memmgmt.syncFSRequestOrCreateFileCallback);
+		
+		// Start looping through the files to fetch the CPZ we know
+		if(mooltipass.memmgmt.CPZTable.length == 0 && mooltipass.memmgmt.preferences.backup_files.length != 0 && mooltipass.memmgmt.syncFSOK == true)
+		{
+			mooltipass.memmgmt.syncFSParsedFileIndex = 0;
+			mooltipass.memmgmt.populateCPZTable(null);
+		}		
 	}
 }
  
 // Callback when file from SyncFS is read
-mooltipass.memmgmt.syncFSRequestOrCreateFileCallback = function(e)
+mooltipass.memmgmt.syncFSRequestFileCallback = function(e)
 {
 	console.log("Received data for syncFS file");
 	mooltipass.memmgmt.processReadProgressEvent(e);
+}
+
+// Populate our known CPZ table, called by a function or by callback event for read
+mooltipass.memmgmt.populateCPZTable = function(event)
+{
+	if(event == null)
+	{
+		// Called by function
+		mooltipass.filehandler.requestFileFromSyncFS(mooltipass.memmgmt.syncFS, mooltipass.memmgmt.preferences.backup_files[mooltipass.memmgmt.syncFSParsedFileIndex++], mooltipass.memmgmt.populateCPZTable);
+	}		
+	else
+	{
+		// Called by event
+		if(event.type == "loadend")
+		{
+			if(event.target.result == "")
+			{
+				// Empty file
+				console.log("Read: Empty file");
+				if(mooltipass.memmgmt.syncFSParsedFileIndex == mooltipass.memmgmt.preferences.backup_files.length)
+				{
+					console.log("CPZ table populated");
+					//console.log(mooltipass.memmgmt.CPZTable);
+				}
+				else
+				{
+					mooltipass.filehandler.requestFileFromSyncFS(mooltipass.memmgmt.syncFS, mooltipass.memmgmt.preferences.backup_files[mooltipass.memmgmt.syncFSParsedFileIndex++], mooltipass.memmgmt.populateCPZTable);
+				}
+				return;
+			}
+			 
+			var imported_data = JSON.parse(event.target.result);
+			 
+			// Check data format
+			if(imported_data.length != 10)
+			{
+				console.log("Wrong data format!");
+				if(mooltipass.memmgmt.syncFSParsedFileIndex == mooltipass.memmgmt.preferences.backup_files.length)
+				{
+					console.log("CPZ table populated");
+					//console.log(mooltipass.memmgmt.CPZTable);
+				}
+				else
+				{
+					mooltipass.filehandler.requestFileFromSyncFS(mooltipass.memmgmt.syncFS, mooltipass.memmgmt.preferences.backup_files[mooltipass.memmgmt.syncFSParsedFileIndex++], mooltipass.memmgmt.populateCPZTable);
+				}
+				return;
+			}
+			 
+			// Get values
+			var tempCPZCTRValues = imported_data[1];
+			var checkString = imported_data[9];
+			 
+			// Check data format
+			if(checkString != "mooltipass")
+			{
+				console.log("Wrong data format!");
+				if(mooltipass.memmgmt.syncFSParsedFileIndex == mooltipass.memmgmt.preferences.backup_files.length)
+				{
+					console.log("CPZ table populated");
+					//console.log(mooltipass.memmgmt.CPZTable);
+				}
+				else
+				{
+					mooltipass.filehandler.requestFileFromSyncFS(mooltipass.memmgmt.syncFS, mooltipass.memmgmt.preferences.backup_files[mooltipass.memmgmt.syncFSParsedFileIndex++], mooltipass.memmgmt.populateCPZTable);
+				}
+				return;
+			}
+			 
+			mooltipass.memmgmt.importedCPZCTRValues = [];
+			for(var i = 0; i < tempCPZCTRValues.length; i++)
+			{
+				var array = new Uint8Array(Object.keys(tempCPZCTRValues[i]).map(function(k){return tempCPZCTRValues[i][k]}));
+				mooltipass.memmgmt.CPZTable.push([array.subarray(0,8), mooltipass.memmgmt.preferences.backup_files[mooltipass.memmgmt.syncFSParsedFileIndex-1]]);
+			}			 
+			
+			if(mooltipass.memmgmt.syncFSParsedFileIndex == mooltipass.memmgmt.preferences.backup_files.length)
+			{
+				console.log("CPZ table populated");
+				//console.log(mooltipass.memmgmt.CPZTable);
+			}
+			else
+			{
+				mooltipass.filehandler.requestFileFromSyncFS(mooltipass.memmgmt.syncFS, mooltipass.memmgmt.preferences.backup_files[mooltipass.memmgmt.syncFSParsedFileIndex++], mooltipass.memmgmt.populateCPZTable);
+			}
+		}
+		else
+		{
+			console.log("Unsupported progress event type!");
+		}
+	}
 }
  
 // GUI requesting the password of a given credential
@@ -2815,7 +2961,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			console.log("Mooltipass interaction timeout is " + packet[2] + " seconds");
 			
 			// Get Mooltipass status and to go into MMM if in good mode
-			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassStatus'], null);
 			mooltipass.memmgmt_hid.request.milliseconds = (packet[2]) * 2000;
 			mooltipass.memmgmt_hid.nbSendRetries = 3;
 			mooltipass.memmgmt_hid._sendMsg();
@@ -2869,25 +3015,69 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
-					// We just received the current card CPZ, check that we know it before proceeding to the merge
-					if(mooltipass.memmgmt.isCPZValueKnownInCPZCTRVector(packet.subarray(2, 2 + packet[0]), mooltipass.memmgmt.importedCPZCTRValues))
+					var cpz_value_known = false;
+					mooltipass.memmgmt.currentCardCPZ = packet.subarray(2, 2 + 8);
+					
+					// Depending if a file or a syncFS request brought us here
+					if(mooltipass.memmgmt.backupFromFileReq == true)
 					{
-						if(mooltipass.memmgmt.isCardKnownByMp)
+						// File: imported data is already in memory
+						cpz_value_known = mooltipass.memmgmt.isCPZValueKnownInCPZCTRVector(mooltipass.memmgmt.currentCardCPZ, mooltipass.memmgmt.importedCPZCTRValues);
+						
+						// We just received the current card CPZ, check that we know it before proceeding to the merge
+						if(cpz_value_known == true)
 						{
-							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
-							mooltipass.memmgmt_hid._sendMsg();							
+							console.log("CPZ value known by file");
+							if(mooltipass.memmgmt.isCardKnownByMp)
+							{
+								mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
+								mooltipass.memmgmt_hid._sendMsg();							
+							}
+							else
+							{
+								// Unknown card by the MP, force store
+								var cpz_ctr_index = mooltipass.memmgmt.isCPZValueKnownInCPZCTRVectorIndex(mooltipass.memmgmt.currentCardCPZ, mooltipass.memmgmt.importedCPZCTRValues);
+								mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['addUnknownCard'], mooltipass.memmgmt.importedCPZCTRValues[cpz_ctr_index]);
+								mooltipass.memmgmt_hid._sendMsg();		
+							}
 						}
 						else
 						{
-							// Unknown card by the MP, force store
-							var cpz_ctr_index = mooltipass.memmgmt.isCPZValueKnownInCPZCTRVectorIndex(packet.subarray(2, 2 + packet[0]), mooltipass.memmgmt.importedCPZCTRValues);
-							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['addUnknownCard'], mooltipass.memmgmt.importedCPZCTRValues[cpz_ctr_index]);
-							mooltipass.memmgmt_hid._sendMsg();		
+							mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the save file!!!", null);
 						}
 					}
 					else
 					{
-						mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the save file!!!", null);
+						// SyncFS: look inside our CPZ Table
+						var file_name = "";
+						for(var i = 0; i < mooltipass.memmgmt.CPZTable.length; i++)
+						{
+							var same_val = true;
+							for(var j = 0; j < 8; j++)
+							{
+								if(mooltipass.memmgmt.CPZTable[i][0][j] != mooltipass.memmgmt.currentCardCPZ[j])
+								{
+									same_val = false;
+								}
+							}
+							if(same_val == true)
+							{
+								file_name = mooltipass.memmgmt.CPZTable[i][1];
+								cpz_value_known = true;
+								break
+							}
+						}
+						
+						// If we know the file, read it
+						if(cpz_value_known == true)
+						{
+							console.log("CPZ value known, fetching " + file_name + " in our syncFS");
+							mooltipass.filehandler.requestFileFromSyncFS(mooltipass.memmgmt.syncFS, file_name, mooltipass.memmgmt.syncFSRequestFileCallback);
+						}
+						else
+						{
+							mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the syncFS!!!", null);
+						}
 					}
 				}				
 			}
@@ -4130,6 +4320,7 @@ mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function(statusCallbac
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
 		// Open the file first
+		mooltipass.memmgmt.backupFromFileReq = true;
 		mooltipass.memmgmt.statusCallback = statusCallback;
 		mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_REQ;
 		mooltipass.memmgmt.importMemoryState();
@@ -4148,9 +4339,16 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 		// Check if we have the syncfs
 		if(mooltipass.memmgmt.syncFSOK == true)
 		{
+			// Store callback etc
+			mooltipass.memmgmt.backupFromFileReq = false;
 			mooltipass.memmgmt.statusCallback = statusCallback;
-			mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_REQ;
-			mooltipass.filehandler.requestOrCreateFileFromSyncFS(mooltipass.memmgmt.syncFS, "mooltipassAutomaticBackup.bin", mooltipass.memmgmt.syncFSRequestOrCreateFileCallback);
+			
+			// First step is to query to user interaction timeout to set the correct packet timeout retry
+			mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_DBFILE_MERGE_REQ;
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
+			mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+			mooltipass.memmgmt_hid.nbSendRetries = 0;
+			mooltipass.memmgmt_hid._sendMsg();				
 		}
 		else
 		{

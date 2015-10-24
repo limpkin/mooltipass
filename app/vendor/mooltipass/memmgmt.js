@@ -1938,14 +1938,16 @@ mooltipass.memmgmt.generateMergeOperations = function()
 	}
 	
 	// Check CTR value
-	if(mooltipass.memmgmt.ctrValue[0] != mooltipass.memmgmt.importedCtrValue[0] || mooltipass.memmgmt.ctrValue[1] != mooltipass.memmgmt.importedCtrValue[1] || mooltipass.memmgmt.ctrValue[2] != mooltipass.memmgmt.importedCtrValue[2])
+	var cur_ctr = mooltipass.memmgmt.ctrValue[0] * 256 * 256 + mooltipass.memmgmt.ctrValue[1] * 256 + mooltipass.memmgmt.ctrValue[2];
+	var imported_ctr = mooltipass.memmgmt.importedCtrValue[0] * 256 * 256 + mooltipass.memmgmt.importedCtrValue[1] * 256 + mooltipass.memmgmt.importedCtrValue[2];
+	if(imported_ctr > cur_ctr)
 	{
 		console.log("CTR Value mismatch: " + mooltipass.memmgmt.ctrValue + " instead of: " + mooltipass.memmgmt.importedCtrValue);
 		mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setCTR'], mooltipass.memmgmt.importedCtrValue));
 	}
 	else
 	{
-		console.log("CTR value match");
+		console.log("CTR value OK");
 	}
 	
 	// Find the nodes we don't have in memory or that have been changed

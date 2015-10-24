@@ -613,6 +613,8 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
 mooltipass.device.responseGetRandomString = function(queuedItem, msg) {
     var value = mooltipass.device.convertMessageArrayToString(msg);
 
+    console.log(msg);
+
     var responseObject = {
         'success': true,
         'value': value

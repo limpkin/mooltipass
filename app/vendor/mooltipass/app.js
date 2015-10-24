@@ -32,8 +32,6 @@ mooltipass.app.init = function() {
     return true;
 };
 
-mooltipass
-
 mooltipass.app.updateOnUnlock = function() {
     mooltipass.ui.settings.getSettings();
 };

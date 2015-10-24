@@ -194,6 +194,7 @@ mooltipass.ui.sync.onClickScanMemory = function(e) {
 mooltipass.ui.sync.progressScanMemory = function(_progress) {
     //TODO: Implement progress bar
     console.log('progressScanMemory(', _progress.progress, ')');
+    
 };
 
 mooltipass.ui.sync.callbackScanMemory = function(_status) {

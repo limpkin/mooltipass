@@ -52,7 +52,7 @@ var update_data_values = function () {
 
 _cred.loadCredentials = function (_status, _credentials) {
     if (!_status.success) {
-        // TODO: Could not retrieve credentials from device
+        mooltipass.ui.status.error($('#credentials'), _status.msg);
         return false;
     }
 
@@ -89,8 +89,7 @@ _cred.initializeTableActions = function () {
                 $parent.find(".fa-eye-slash").show();
             }
             else {
-                // TODO: could not get password
-                console.warn('Could not get password on SHOW PASSWORD');
+                mooltipass.ui.status.error($parent, 'Could not get password from device');
                 $parent.find(".password span").html(DEFAULT_PASSWORD);
             }
         });
@@ -190,8 +189,8 @@ _cred.initializeTableActions = function () {
                 }
             }
             else {
-                //TODO: could not get password
-                console.warn('Could not get password on EDIT');
+                //Message already created on get_password()
+                //mooltipass.ui.status.error($parent, 'Could not get password from device');
                 $password.html(DEFAULT_PASSWORD);
             }
         });
@@ -380,10 +379,10 @@ _cred.onClickMMMDiscard = function (e) {
             $table.fnClearTable();
             $('#mmm-save, #mmm-discard').hide();
             $('#mmm-enter').show();
+            mooltipass.ui.status.success($('#mmm-enter'), _status.msg);
         }
         else {
-            // TODO: failed to leave MemoryManagementMode
-            console.warn('Failed to leave MemoryManagementMode')
+            mooltipass.ui.status.error($('#mmm-discard'), _status.msg);
         }
     });
 };
@@ -415,10 +414,6 @@ _cred.onClickMMMSave = function (e) {
             }
         }
     }
-
-    console.log('adds', adds);
-    console.log('updates', updates);
-    console.log('deletes', deletes);
 
     mooltipass.memmgmt.memmgmtSave(function (_status) {
         if (_status.success) {
@@ -627,8 +622,7 @@ var get_password = function (_context, _username, _callback) {
             }
         }
         else {
-//TODO: did not receive password!
-            console.warn('Could not get password:', _status.msg);
+            mooltipass.ui.status.error($('#credentials', _status.msg));
         }
 
 // Call original callback

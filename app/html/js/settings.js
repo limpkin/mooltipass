@@ -11,7 +11,7 @@ mooltipass.ui.settings.getKeyboardLayout = function() {
                 $('#settings-keyboardLayout').val(_response.value);
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-keyboardLayout'), _response.msg);
             }
         }
     });
@@ -25,7 +25,7 @@ mooltipass.ui.settings.initKeyboardLayout = function() {
             'value': $(this).val(),
             'callbackFunction': function(_response) {
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-keyboardLayout'), _response.msg);
                 }
             },
             'callbackParameters': null
@@ -42,7 +42,7 @@ mooltipass.ui.settings.getLockTimeoutEnabled = function() {
                 $('#settings-lockTimeoutEnabled').prop('checked', Boolean(Number(_response.value)));
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-lockTimeoutEnabled'), _response.msg);
             }
         }
     });
@@ -56,7 +56,7 @@ mooltipass.ui.settings.initLockTimeoutEnabled = function() {
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-lockTimeoutEnabled'), _response.msg);
                 }
             }
         });
@@ -72,7 +72,7 @@ mooltipass.ui.settings.getLockTimeout = function() {
                 $('#settings-lockTimeout').val(Number(_response.value) / 60);
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-lockTimeout'), _response.msg);
             }
         }
     });
@@ -83,7 +83,7 @@ mooltipass.ui.settings.initLockTimeout = function() {
         var value = $(this).val();
 
         if(isNaN(value)) {
-            // TODO: Not a number entered
+            mooltipass.ui.status.error($('#settings-lockTimeout'), 'Please enter a valid number');
             return;
         }
 
@@ -91,12 +91,12 @@ mooltipass.ui.settings.initLockTimeout = function() {
         value = Number(value) | 0;
 
         if(value < 1) {
-            // TODO: Invalid range for
+            mooltipass.ui.status.error($('#settings-lockTimeout'), 'Please enter a number between 1-4');
             return;
         }
 
         if(value > 4) {
-            // TODO: Maximum is 4, otherwise an overflow occurs
+            mooltipass.ui.status.error($('#settings-lockTimeout'), 'Please enter a number between 1-4');
             return;
         }
 
@@ -106,7 +106,7 @@ mooltipass.ui.settings.initLockTimeout = function() {
             'value': value * 60,
             'callbackFunction': function(_response) {
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-lockTimeout'), _response.msg);
                 }
             }
         });
@@ -122,7 +122,7 @@ mooltipass.ui.settings.getScreensaver = function() {
                 $('#settings-screensaver').prop('checked', Boolean(Number(_response.value)));
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-screensaver'), _response.msg);
             }
         }
     });
@@ -136,7 +136,7 @@ mooltipass.ui.settings.initScreensaver = function() {
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-screensaver'), _response.msg);
                 }
             }
         });
@@ -152,7 +152,7 @@ mooltipass.ui.settings.getUserRequestCancel = function() {
                 $('#settings-userRequestCancel').prop('checked', Boolean(Number(_response.value)));
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);
             }
         }
     });
@@ -166,7 +166,7 @@ mooltipass.ui.settings.initUserRequestCancel = function() {
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);
                 }
             }
         });
@@ -182,7 +182,7 @@ mooltipass.ui.settings.getUserInteractionTimeout = function() {
                 $('#settings-userInteractionTimeout').val(Number(_response.value));
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-userInteractionTimeout'), _response.msg);
             }
         }
     });
@@ -193,7 +193,7 @@ mooltipass.ui.settings.initUserInteractionTimeout = function() {
         var value = $(this).val();
 
         if(isNaN(value)) {
-            // TODO: Not a number entered
+            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a valid number');
             return;
         }
 
@@ -201,12 +201,13 @@ mooltipass.ui.settings.initUserInteractionTimeout = function() {
         value = Number(value) | 0;
 
         if(value < 1) {
-            // TODO: Invalid range for
+            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 1-200');
             return;
         }
 
         if(value > 200) {
-            // TODO: Maximum is 231, otherwise it's blocked to 231
+            // Maximum is 231, otherwise it's blocked to 231
+            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 1-200');
             return;
         }
 
@@ -216,7 +217,7 @@ mooltipass.ui.settings.initUserInteractionTimeout = function() {
             'value': value,
             'callbackFunction': function(_response) {
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-userInteractionTimeout'), _response.msg);
                 }
             }
         });
@@ -232,7 +233,7 @@ mooltipass.ui.settings.getFlashScreen = function() {
                 $('#settings-flashScreen').prop('checked', Boolean(Number(_response.value)));
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-flashScreen'), _response.msg);
             }
         }
     });
@@ -246,7 +247,7 @@ mooltipass.ui.settings.initFlashScreen = function() {
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-flashScreen'), _response.msg);
                 }
             }
         });
@@ -264,7 +265,7 @@ mooltipass.ui.settings.getOfflineMode = function() {
                 $('#settings-offlineMode').prop('checked', Boolean(Number(_response.value)));
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-offlineMode'), _response.msg);
             }
         }
     });
@@ -279,7 +280,7 @@ mooltipass.ui.settings.initOfflineMode = function() {
             'callbackFunction': function(_response) {
                 console.log('Response SET', _response)
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-offlineMode'), _response.msg);
                 }
             }
         });
@@ -295,7 +296,7 @@ mooltipass.ui.settings.getTutorialEnabled = function() {
                 $('#settings-tutorialEnabled').prop('checked', Boolean(Number(_response.value)));
             }
             else {
-                // TODO: Show alert
+                mooltipass.ui.status.error($('#settings-tutorialEnabled'), _response.msg);
             }
         }
     });
@@ -309,7 +310,7 @@ mooltipass.ui.settings.initTutorialEnabled = function() {
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
                 if(!_response.success) {
-                    // TODO: Show alert
+                    mooltipass.ui.status.error($('#settings-tutorialEnabled'), _response.msg);
                 }
             }
         });

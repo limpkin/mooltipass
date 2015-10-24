@@ -27,7 +27,7 @@ mooltipass.device.commands = {
     'setPassword'                   : 0xA7,
     'checkPassword'                 : 0xA8,
     'addContext'                    : 0xA9,
-    'getRandomNumber'               : 0xAC,
+    'getRandomString'               : 0xAC,
     'startMemoryManagementMode'     : 0xAD,
     'startMediaImport'              : 0xAE,
     'mediaImport'                   : 0xAF,
@@ -603,6 +603,19 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
     var responseObject = {
         'success': true,
         'value': status
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
+mooltipass.device.responseGetRandomString = function(queuedItem, msg) {
+    var value = mooltipass.device.convertMessageArrayToString(msg);
+
+    var responseObject = {
+        'success': true,
+        'value': value
     };
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);

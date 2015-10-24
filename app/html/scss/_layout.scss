@@ -23,6 +23,7 @@ nav {
     padding: 0.5rem 0rem;
     overflow-y: scroll; 
     font-size: 0.8rem; 
+    height: 455px;
 
     p, label {
       font-size: inherit;
@@ -47,4 +48,11 @@ nav {
   &.not-unlocked {}
   &.not-in-mmm {}
   &.not-connected {}
+}
+
+.progress {
+    border: none;
+    height: 1.2rem;
+    margin-bottom: 0.625rem;
+    padding: 0;
 }

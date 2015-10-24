@@ -10,7 +10,7 @@ mooltipass.ui._ = mooltipass.ui._ || {};
 mooltipass.ui._.init = function() {
     // Only show app, if mp is connected
     update_device_status_classes();
-    setInterval(update_device_status_classes, 500);
+    setInterval(update_device_status_classes, 150);
 
     // Init pages
     show_active_page();

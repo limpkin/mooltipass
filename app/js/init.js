@@ -14,8 +14,12 @@ function launch(details) {
         return;
     }
 
-    chrome.runtime.onMessage.addListener(function(message, sender, callbackFunction) {
-        mooltipass.device.interface._sendFromListener(message, sender, callbackFunction);
+    // Listen for external messages (e.g. from extension) and send them to the app
+    // /vendor/mooltipass/app.js is listening for incoming internal messages
+    chrome.runtime.onMessageExternal.addListener(function(message, sender, callbackFunction) {
+        var data = {'id': sender.id, 'message': message};
+        // Keep callbackFunction separated to react on chrome.runtime.lastError
+        chrome.runtime.sendMessage(data, callbackFunction);
     });
 
     //mooltipass.device.checkStatus();

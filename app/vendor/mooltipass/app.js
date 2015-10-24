@@ -6,6 +6,10 @@ mooltipass.app = mooltipass.app || {};
 mooltipass.app._isInitializedLock = false;
 
 
+chrome.runtime.onMessage.addListener(
+    function(data, sender, callbackFunction) {
+        mooltipass.app.onMessage(data.id, data.message, callbackFunction);
+    });
 
 /**
  * Initialize all app related functions on startup
@@ -32,6 +36,25 @@ mooltipass.app.init = function() {
     return true;
 };
 
+mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
+    var inputObject = data;
+    inputObject.callbackFunction = callbackFunction;
+
+    // Backwards compatibility:
+    // No callbackFunction was given -> send JSON object to sender
+    if(!callbackFunction) {
+        inputObject = mooltipass.app.translateRequestForBackwardsCompatibility(data);
+        var command = inputObject.command;
+        inputObject.callbackFunction = function(_responseObject) {
+            var data = mooltipass.app.translateResponseForBackwardsCompatibility(command, _responseObject);
+            chrome.runtime.sendMessage(senderId, data);
+        };
+    }
+
+    mooltipass.device.addNewClient(senderId);
+    mooltipass.device.interface.send(inputObject);
+};
+
 
 mooltipass.app.updateOnUnlock = function() {
     mooltipass.ui.settings.getSettings();
@@ -47,6 +70,76 @@ mooltipass.app.get_password = function(_context, _username, _callback) {
     });
 };
 
+mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
+    var output = {};
+
+    // Get random number
+    if('getRandom' in _request) {
+        output.command = 'getRandomNumber';
+    }
+    else if('ping' in _request) {
+        output.command = 'ping';
+    }
+    else if('type' in _request && _request.type == 'update') {
+        output.command = 'updateCredentials';
+        output.payload = {
+            'context': _request.context,
+            'username': _request.login,
+            'password': _request.password,
+        };
+    }
+    else if('getInputs' in _request) {
+        output.command = 'getCredentials';
+        output.payload = [_request.getInputs.subdomain, _request.getInputs.domain];
+    }
+
+    return output;
+};
+
+mooltipass.app.translateResponseForBackwardsCompatibility = function(_command, _response) {
+    var output = {};
+
+    if(_command == 'getRandomNumber') {
+        output.random = _response.value;
+    }
+    else if(_command == 'getMooltipassStatus') {
+        output.deviceStatus = {};
+        output.deviceStatus.version = mooltipass.device.version;
+        output.deviceStatus.connected = mooltipass.device.isUnlocked;
+        if(mooltipass.device.status == 'no-card') {
+            output.deviceStatus.state = 'NoCard';
+        }
+        else if(mooltipass.device.status == 'locked') {
+            output.deviceStatus.state = 'Locked';
+        }
+        else if(mooltipass.device.status == 'unlocked') {
+            output.deviceStatus.state = 'Unlocked';
+        }
+        else if(mooltipass.device.singleCommunicationMode) {
+            output.deviceStatus.state = 'ManageMode';
+        }
+        else {
+            output.deviceStatus.state = 'Error';
+        }
+    }
+    else if(_command == 'getCredentials') {
+        if(_response.username && _response.password) {
+            output.credentials = {
+                'login': _response.username,
+                'password': _response.password
+            }
+        }
+        else {
+            output.noCredentials = true;
+        }
+    }
+    else if(_command == 'addCredentials' || _command == 'updateCredentials') {
+        output.updateComplete = true;
+    }
+
+    return output;
+};
+
 $(function() {
     mooltipass.app.init();
-})
+});

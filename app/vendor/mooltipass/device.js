@@ -27,7 +27,7 @@ mooltipass.device.commands = {
     'setPassword'                   : 0xA7,
     'checkPassword'                 : 0xA8,
     'addContext'                    : 0xA9,
-    'getRandomString'               : 0xAC,
+    'getRandomNumber'               : 0xAC,
     'startMemoryManagementMode'     : 0xAD,
     'startMediaImport'              : 0xAE,
     'mediaImport'                   : 0xAF,
@@ -95,7 +95,7 @@ mooltipass.device.parameters = {
     'tutorialEnabled': 16
 };
 
-mooltipass.device.status = {
+mooltipass.device.status_parameters = {
     0: 'no-card',
     1: 'locked',
     2: 'error',
@@ -118,6 +118,15 @@ mooltipass.device.status = {
 
 // Connection ID for communication with HID device
 mooltipass.device.connectionId = null;
+
+// Version of the connected device
+mooltipass.device.version = null;
+
+// FlashChip ID of the connected device
+mooltipass.device.flashChipId = null;
+
+// save current status of connected device
+mooltipass.device.status = null;
 
 // Information about established connection
 mooltipass.device.isConnected = false;
@@ -163,8 +172,10 @@ mooltipass.device.init = function() {
 
 mooltipass.device.reset = function() {
     mooltipass.device.connectionId = null;
-    mooltipass.device.isConnected = false;
+    mooltipass.device.version = null;
+    mooltipass.device.flashChipId = null;
     mooltipass.device.isUnlocked = false;
+    mooltipass.device.isConnected = false;
     mooltipass.device.endSingleCommunicationMode();
 };
 
@@ -222,6 +233,11 @@ mooltipass.device.onConnectFinished = function(connectInfo) {
 
     console.log('Connected to device');
 
+    // Retrieve version and current date on each connect
+    mooltipass.device.addToQueue('getVersion', [], null, null, null, null, true);
+    mooltipass.device.addToQueue('setCurrentDate', [], null, null, null, null, true);
+
+    // Trigger queue
     mooltipass.device.processQueue();
 };
 
@@ -289,6 +305,15 @@ mooltipass.device.endSingleCommunicationMode = function() {
     mooltipass.device.singleCommunicationReason = null;
 };
 
+
+/**
+ * Add new client to list of observing clients
+ */
+mooltipass.device.addNewClient = function(id) {
+    if(!(id in mooltipass.device.connectedClients)) {
+        mooltipass.device.connectedClients.push(id);
+    }
+};
 
 /**
  * Return next element in queue
@@ -412,6 +437,9 @@ mooltipass.device.processQueue = function() {
     // If queue is processed, the device cannot be in single communication mode
     mooltipass.device.endSingleCommunicationMode();
 
+    if(queuedItem.command == 'setCurrentDate') {
+        queuedItem.payload = mooltipass.device.getSettingCurrentDatePayload();
+    }
     queuedItem.packet = mooltipass.device.createPacket(mooltipass.device.commands[queuedItem.command], queuedItem.payload);
 
     /*
@@ -446,16 +474,12 @@ mooltipass.device._retrySendMsg = function() {
         return;
     }
 
-    console.log('    queue not empty');
-
     var queuedItem = mooltipass.device.getFromQueue(null, true);
 
     // Successfully processed command, no retries needed
     if(queuedItem.hash != mooltipass.device.queueHash) {
         return;
     }
-
-    console.log('    same hash');
 
     // No timeout object found (shouldn't happen)
     if(!queuedItem.timeout) {
@@ -587,6 +611,9 @@ mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     var flashChipId = msg[0];
     var version = mooltipass.device.convertMessageArrayToString(new Uint8Array(msg, 1));
 
+    mooltipass.device.version = version;
+    mooltipass.device.flashChipId = flashChipId;
+
     var responseObject = {
         'success': true,
         'value': version
@@ -610,9 +637,12 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
     mooltipass.device.processQueue();
 };
 
-mooltipass.device.responseGetRandomString = function(queuedItem, msg) {
-    var value = mooltipass.device.convertMessageArrayToString(msg);
-
+mooltipass.device.responseGetRandomNumber = function(queuedItem, msg) {
+    // Use first 10 numbers of bytes to create a random number
+    var value = "";
+    for(var i = 0; i < 10; i++) {
+        value += String(msg[i]);
+    }
     var responseObject = {
         'success': true,
         'value': value
@@ -634,8 +664,10 @@ mooltipass.device.responsePing = function(queuedItem, msg) {
 };
 
 mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
-    var _status = mooltipass.device.status[msg[0]];
+    var _status = mooltipass.device.status_parameters[msg[0]];
     _status = _status ? _status : 'error';
+
+    mooltipass.device.status = _status;
 
     var responseObject = {
         'success': true,
@@ -681,6 +713,20 @@ mooltipass.device.responseSetMooltipassParameter = function(queuedItem, msg) {
     mooltipass.device.processQueue();
 };
 
+mooltipass.device.getSettingCurrentDatePayload = function() {
+    var date = new Date();
+    var array = new Uint8Array(2);
+    array[0] = ((date.getFullYear() - 2010) << 1) & 0xFE;
+    if(date.getMonth() >= 8)
+    {
+        array[0] |= 0x01;
+    }
+    array[1] = ((date.getMonth()%8) << 5) & 0xE0;
+    array[1] |= date.getDate();
+
+    return array;
+};
+
 mooltipass.device.checkStatus = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassStatus',
@@ -706,7 +752,12 @@ mooltipass.device.checkStatus = function() {
             }
         }
     });
-}
+};
+
+
+mooltipass.device.commandGetCredentials = function() {
+
+};
 
 
 

@@ -237,6 +237,8 @@ mooltipass.device.onConnectFinished = function(connectInfo) {
     mooltipass.device.addToQueue('getVersion', [], null, null, null, null, true);
     mooltipass.device.addToQueue('setCurrentDate', [], null, null, null, null, true);
 
+    mooltipass.app.updateOnConnect();
+
     // Trigger queue
     mooltipass.device.processQueue();
 };

@@ -61,7 +61,7 @@ mooltipass.app.updateOnUnlock = function() {
 
 mooltipass.app.updateOnConnect = function() {
     mooltipass.ui._.reset();
-}
+};
 
 mooltipass.app.updateOnLock = function() {
     mooltipass.device.endSingleCommunicationMode();

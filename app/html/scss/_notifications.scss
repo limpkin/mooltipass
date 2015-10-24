@@ -1,0 +1,23 @@
+#notifications {
+    transition: bottom ease 400ms;
+    position: absolute;
+    bottom: -3rem;
+    height: 3rem;
+    background: #222;
+    width: 100%;
+    color: #eee;
+
+    .message {
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    img {
+        margin-top: 0.2rem;
+        transition: transform ease 1s;
+    }
+
+    &[data-type='success'] { border-top: 2px solid $success-color; }
+    &[data-type='alert'] { border-top: 2px solid $warning-color; }
+    &[data-type='error'] { border-top: 2px solid $alert-color; }        
+}

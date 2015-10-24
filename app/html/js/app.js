@@ -21,13 +21,17 @@ mooltipass.ui._.init = function() {
     });
 };
 
+mooltipass.ui._.reset = function() {
+    $("#modal-integrity-check").hide();  
+    $("#modal-confirm-on-device").hide();    
+}
 
 mooltipass.ui._.waitForDevice = function (button, activate) {
     var $button = $(button);
     if (activate) {
         $button.prop('disabled', true);
         $button.data('old_html', $button.html());
-        $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device');
+        $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> confirm on device');
     }
     else {
         $button.prop('disabled', false);

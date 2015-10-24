@@ -9686,6 +9686,15 @@ div.dataTables_scrollHead table {
   font-size: 0.8rem;
 }
 
+/* line 27, ../scss/_modal.scss */
+#modal-confirm-on-device .content-wrap {
+  height: 23%;
+  top: 38.5%;
+  width: 60%;
+  left: 20%;
+  padding-top: 1.7rem;
+}
+
 /* line 9, ../scss/app.scss */
 .comment {
   color: #DDD;

@@ -176,15 +176,15 @@ mooltipass.ui.sync.callbackImportFromCloud = function(_status) {
 mooltipass.ui.sync.onClickScanMemory = function(e) {
     e.preventDefault();
 
-    mooltipass.ui._.waitForDevice($(this), true);
-    mooltipass.ui.sync.disableButtons(true);
+    $("#modal-confirm-on-device").show();
 
+    mooltipass.ui._.waitForDevice($(this), true);
     mooltipass.device.interface.send({
         'command': 'startSingleCommunicationMode',
         'callbackFunction': mooltipass.ui.sync.callbackScanMemory,
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
-            mooltipass.ui.sync.disableButtons(true);
+            // mooltipass.ui.sync.disableButtons(true);
             mooltipass.device.singleCommunicationModeEntered = true;
             mooltipass.memmgmt.integrityCheckStart(mooltipass.ui.sync.progressScanMemory, mooltipass.ui.sync.callbackScanMemory);
         }
@@ -192,9 +192,14 @@ mooltipass.ui.sync.onClickScanMemory = function(e) {
 };
 
 mooltipass.ui.sync.progressScanMemory = function(_progress) {
-    //TODO: Implement progress bar
-    console.log('progressScanMemory(', _progress.progress, ')');
-    
+    $("#modal-confirm-on-device").hide();
+    $("#modal-integrity-check").show();
+
+    if (_progress.progress == 0) {
+        $("#modal-integrity-check").hide();
+        return
+    }
+    $("#modal-integrity-check span.meter").css("width", _progress.progress + "%");
 };
 
 mooltipass.ui.sync.callbackScanMemory = function(_status) {
@@ -208,7 +213,14 @@ mooltipass.ui.sync.callbackScanMemory = function(_status) {
     }
 
     mooltipass.ui._.waitForDevice($button, false);
-    mooltipass.ui.sync.disableButtons(false);
 
+    $("#modal-integrity-check").hide();  
+    $("#modal-confirm-on-device").hide();
+    
     mooltipass.device.endSingleCommunicationMode();
 };
+
+
+
+
+

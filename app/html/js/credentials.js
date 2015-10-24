@@ -12,7 +12,7 @@ var DEFAULT_PASSWORD = "••••••••";
 var CREDENTIALS_TABLE = null;
 var USER_CREDENTIALS = [];
 var USER_CREDENTIALS_DELETE = [];
-var WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device';
+var WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> confirm for device';
 
 var MONTH_NAMES = [
     "January", "February", "March",
@@ -348,13 +348,15 @@ _cred.callbackMMMEnter = function (_status, _credentials) {
     }
 
     // Set back ui button
-    mooltipass.ui._.waitForDevice($('#mmm-enter'), false);
+    // mooltipass.ui._.waitForDevice($('#mmm-enter'), false);
+    $("#modal-confirm-on-device").hide();
 }
 
 _cred.onClickMMMEnter = function () {
     // Inform user about device interaction
     var $button = $(this);
-    mooltipass.ui._.waitForDevice($button, true);
+    $("#modal-confirm-on-device").show();
+    // mooltipass.ui._.waitForDevice($button, true);
 
     // Request mmm activation from device
     mooltipass.device.interface.send({

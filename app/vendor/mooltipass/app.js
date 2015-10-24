@@ -32,10 +32,15 @@ mooltipass.app.init = function() {
     return true;
 };
 
+mooltipass
 
 mooltipass.app.updateOnUnlock = function() {
     mooltipass.ui.settings.getSettings();
 };
+
+mooltipass.app.updateOnConnect = function() {
+    mooltipass.ui._.reset();
+}
 
 mooltipass.app.updateOnLock = function() {
     mooltipass.device.endSingleCommunicationMode();

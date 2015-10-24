@@ -2,7 +2,6 @@ var mooltipass = mooltipass || {};
 mooltipass.ui = mooltipass.ui || {};
 mooltipass.ui.contributors = mooltipass.ui.contributors || {};
 
-
 /**
  * Initialize function
  * triggered by mooltipass.app.init()
@@ -15,7 +14,7 @@ mooltipass.ui.contributors.init = function () {
             for (_contributor in contributors) {
                 var contributor = contributors[_contributor];
 
-                var p = $('<a class="column small-4 contributor" id="contributor-' + _contributor.toString() + '">');
+                var p = $('<a class="column small-4 contributor" target="_blank" id="contributor-' + _contributor.toString() + '">');
                 $("#contributor-list").append(p);
 
                 var xhr = new XMLHttpRequest();

@@ -9480,31 +9480,40 @@ nav ul li a img {
   padding: 0.5rem 0rem;
   overflow-y: scroll;
   font-size: 0.8rem;
+  height: 455px;
 }
-/* line 27, ../scss/_layout.scss */
+/* line 28, ../scss/_layout.scss */
 .content p, .content label {
   font-size: inherit;
 }
-/* line 31, ../scss/_layout.scss */
+/* line 32, ../scss/_layout.scss */
 .content h1, .content h2 {
   font-size: 1rem;
 }
-/* line 34, ../scss/_layout.scss */
+/* line 35, ../scss/_layout.scss */
 .content h3, .content h4 {
   font-size: 0.9rem;
 }
-/* line 37, ../scss/_layout.scss */
+/* line 38, ../scss/_layout.scss */
 .content h5, .content h6 {
   font-size: inherit;
 }
 
-/* line 42, ../scss/_layout.scss */
+/* line 43, ../scss/_layout.scss */
 .alert-modal {
   margin-top: 5rem;
 }
-/* line 44, ../scss/_layout.scss */
+/* line 45, ../scss/_layout.scss */
 .alert-modal h1 {
   margin-top: 0;
+}
+
+/* line 53, ../scss/_layout.scss */
+.progress {
+  border: none;
+  height: 1.2rem;
+  margin-bottom: 0.625rem;
+  padding: 0;
 }
 
 /* line 1, ../scss/_log.scss */
@@ -9646,39 +9655,70 @@ div.dataTables_scrollHead table {
   font-weight: bold;
 }
 
-/* line 8, ../scss/app.scss */
+/* line 1, ../scss/_modal.scss */
+.modal {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  top: 0;
+}
+/* line 9, ../scss/_modal.scss */
+.modal .content-wrap {
+  position: absolute;
+  background-color: #FFF;
+  z-index: 2000;
+  width: 80%;
+  height: 80%;
+  left: 10%;
+  top: 10%;
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  padding-top: 7rem;
+}
+/* line 21, ../scss/_modal.scss */
+.modal .content-wrap h1 {
+  font-size: 1rem;
+}
+/* line 22, ../scss/_modal.scss */
+.modal .content-wrap p {
+  font-size: 0.8rem;
+}
+
+/* line 9, ../scss/app.scss */
 .comment {
   color: #DDD;
 }
 
-/* line 13, ../scss/app.scss */
+/* line 14, ../scss/app.scss */
 #contributor-list a {
   padding: 0.5rem;
 }
-/* line 14, ../scss/app.scss */
+/* line 15, ../scss/app.scss */
 #contributor-list a img {
   border: none;
   width: 4rem;
   margin-right: 1rem;
 }
-/* line 21, ../scss/app.scss */
+/* line 22, ../scss/app.scss */
 #contributor-list a:hover {
   background: #FAFAFA;
 }
 
-/* line 27, ../scss/app.scss */
+/* line 28, ../scss/app.scss */
 *[mp-show-for-hotkey] {
   display: none;
 }
 
-/* line 31, ../scss/app.scss */
+/* line 32, ../scss/app.scss */
 select {
   padding: 0 0.5rem;
   height: 1.6rem;
   margin-bottom: 0;
 }
 
-/* line 37, ../scss/app.scss */
+/* line 38, ../scss/app.scss */
 input.inline-time {
   width: 3rem;
   display: inline;
@@ -9687,90 +9727,90 @@ input.inline-time {
   text-align: center;
 }
 
-/* line 45, ../scss/app.scss */
+/* line 46, ../scss/app.scss */
 input#search-input {
   width: 7.8rem;
   transition: all 300ms ease;
   font-size: 0.8rem;
   padding: 0.3rem;
 }
-/* line 51, ../scss/app.scss */
+/* line 52, ../scss/app.scss */
 input#search-input:focus {
   width: 13rem;
 }
 
-/* line 56, ../scss/app.scss */
+/* line 57, ../scss/app.scss */
 input {
   border: 1px solid #EEE !important;
 }
-/* line 59, ../scss/app.scss */
+/* line 60, ../scss/app.scss */
 input:focus {
   outline: none;
   border: 1px solid #CCC !important;
 }
 
-/* line 65, ../scss/app.scss */
+/* line 66, ../scss/app.scss */
 input.inline {
   padding: 0.1rem 0.3rem;
   width: 100%;
 }
 
-/* line 71, ../scss/app.scss */
+/* line 72, ../scss/app.scss */
 .add-credential input {
   margin-bottom: 0;
   height: 1.8rem;
   transition: all 200ms ease;
 }
-/* line 76, ../scss/app.scss */
+/* line 77, ../scss/app.scss */
 .add-credential label {
   margin-bottom: 1.25rem;
 }
-/* line 79, ../scss/app.scss */
+/* line 80, ../scss/app.scss */
 .add-credential label span.required {
   opacity: 0;
   color: #f04124;
 }
-/* line 84, ../scss/app.scss */
+/* line 85, ../scss/app.scss */
 .add-credential label.alert span.required {
   opacity: 1;
   transition: all 200ms ease;
 }
-/* line 88, ../scss/app.scss */
+/* line 89, ../scss/app.scss */
 .add-credential label.alert input {
   border: 1px solid #F00 !important;
 }
-/* line 93, ../scss/app.scss */
+/* line 94, ../scss/app.scss */
 .add-credential label .comment {
   font-size: 0.68rem;
   opacity: 0;
   transition: all 200ms ease;
 }
 
-/* line 102, ../scss/app.scss */
+/* line 103, ../scss/app.scss */
 #page-synchronisation button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 109, ../scss/app.scss */
+/* line 110, ../scss/app.scss */
 #page-synchronisation .storage p {
   margin-bottom: 0;
 }
-/* line 113, ../scss/app.scss */
+/* line 114, ../scss/app.scss */
 #page-synchronisation .storage input[type="checkbox"] {
   margin-left: 0.5rem;
 }
-/* line 117, ../scss/app.scss */
+/* line 118, ../scss/app.scss */
 #page-synchronisation .storage span {
   display: inline-block;
   width: 90%;
 }
-/* line 122, ../scss/app.scss */
+/* line 123, ../scss/app.scss */
 #page-synchronisation .storage label {
   margin-top: 0.5rem;
 }
 
-/* line 129, ../scss/app.scss */
+/* line 130, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }

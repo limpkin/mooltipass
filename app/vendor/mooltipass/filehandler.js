@@ -264,6 +264,15 @@ mooltipass.filehandler.requestOrCreateFileFromSyncFS = function(filesystem, file
 	mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:false}, mooltipass.filehandler.getFileCreateTrueFalseCallbackRead, mooltipass.filehandler.getFileCreateFalseErrorCallback);
 }
 
+// Request file in SyncFS
+mooltipass.filehandler.requestFileFromSyncFS = function(filesystem, filename, fileReadCallback)
+{
+	mooltipass.filehandler.tempFilename = filename;
+	mooltipass.filehandler.tempSyncFS = filesystem;
+	mooltipass.filehandler.tempReadendCallback = fileReadCallback;
+	mooltipass.filehandler.tempSyncFS.root.getFile(mooltipass.filehandler.tempFilename, {create:false}, mooltipass.filehandler.getFileCreateTrueFalseCallbackRead, mooltipass.filehandler.errorHandler);
+}
+
 // Write a file in SyncFS
 mooltipass.filehandler.writeFileToSyncFS = function(filesystem, filename, contents, fileWrittenCallback)
 {

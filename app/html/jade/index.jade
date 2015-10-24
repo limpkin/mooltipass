@@ -19,9 +19,13 @@ html.no-js(lang="en")
       include _page_synchronisation
 
     include _lock_integrity_check
+    include _lock_confirm_on_device
+
+    include _notifications
 
     script(src="bower_components/jquery/dist/jquery.min.js")
     script(src="bower_components/DataTables/datatables.min.js")
+    script(src="bower_components/chroma/chroma.js")
 
     script(src="/vendor/mooltipass/app.js")
     script(src="/vendor/mooltipass/helpers.js")
@@ -43,3 +47,4 @@ html.no-js(lang="en")
     script(src="js/shortcuts.js")
     script(src="js/easteregg.js")
     script(src="js/synchronisation.js")
+    script(src="js/message.js")

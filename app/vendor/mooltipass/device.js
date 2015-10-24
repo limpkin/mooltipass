@@ -643,6 +643,7 @@ mooltipass.device.responseGetRandomNumber = function(queuedItem, msg) {
     for(var i = 0; i < 10; i++) {
         value += String(msg[i]);
     }
+
     var responseObject = {
         'success': true,
         'value': value

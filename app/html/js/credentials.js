@@ -12,7 +12,7 @@ var DEFAULT_PASSWORD = "••••••••";
 var CREDENTIALS_TABLE = null;
 var USER_CREDENTIALS = [];
 var USER_CREDENTIALS_DELETE = [];
-var WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device';
+var WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> confirm for device';
 
 var MONTH_NAMES = [
     "January", "February", "March",
@@ -348,13 +348,15 @@ _cred.callbackMMMEnter = function (_status, _credentials) {
     }
 
     // Set back ui button
-    mooltipass.ui._.waitForDevice($('#mmm-enter'), false);
+    // mooltipass.ui._.waitForDevice($('#mmm-enter'), false);
+    $("#modal-confirm-on-device").hide();
 }
 
 _cred.onClickMMMEnter = function () {
     // Inform user about device interaction
     var $button = $(this);
-    mooltipass.ui._.waitForDevice($button, true);
+    $("#modal-confirm-on-device").show();
+    // mooltipass.ui._.waitForDevice($button, true);
 
     // Request mmm activation from device
     mooltipass.device.interface.send({
@@ -367,8 +369,7 @@ _cred.onClickMMMEnter = function () {
     });
 };
 
-_cred.onClickMMMDiscard = function (e) {
-    e.preventDefault();
+_cred.onClickMMMDiscard = function() {
 
     mooltipass.memmgmt.memmgmtStop(function (_status) {
         if (_status.success) {
@@ -440,13 +441,12 @@ _cred.onClickMMMSave = function (e) {
  */
 mooltipass.ui.credentials.init = function () {
     $('#mmm-enter').click(_cred.onClickMMMEnter);
-    $('#mmm-discard').click(_cred.onClickMMMDiscard);
     $('#mmm-save').click(_cred.onClickMMMSave);
     $('#mmm-save, #mmm-discard').hide();
 
 
     CREDENTIALS_TABLE = $("#credentials").dataTable({
-        scrollY: 250,
+        scrollY: 210,
         dom: '<t>',
         columns: [
             {data: "favorite"},
@@ -469,7 +469,7 @@ mooltipass.ui.credentials.init = function () {
 
 // Search for credentials
     $("#search-input").on("keyup change", function () {
-        $("#credentials").dataTable().search($(this).val()).draw()
+        $("#credentials").DataTable().search($(this).val()).draw()
     });
     $("#search-input").on("keyup", function (e) {
         if (e.keyCode == 27) $(this).val("").trigger("change");

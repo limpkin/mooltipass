@@ -19,15 +19,21 @@ mooltipass.ui._.init = function() {
         $(this).parent("li").addClass("active");
         mooltipass.ui._.showActivePage();
     });
+
+    mooltipass.ui._.initConfirmButtons();
 };
 
+mooltipass.ui._.reset = function() {
+    $("#modal-integrity-check").hide();  
+    $("#modal-confirm-on-device").hide();    
+}
 
 mooltipass.ui._.waitForDevice = function (button, activate) {
     var $button = $(button);
     if (activate) {
         $button.prop('disabled', true);
         $button.data('old_html', $button.html());
-        $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> waiting for device');
+        $button.html('<i class="fa fa-spin fa-circle-o-notch"></i> confirm on device');
     }
     else {
         $button.prop('disabled', false);
@@ -35,6 +41,32 @@ mooltipass.ui._.waitForDevice = function (button, activate) {
     }
 };
 
+mooltipass.ui._.initConfirmButtons = function(){
+    var count = -1;
+    var last_count = 0;
+
+    $("*[data-confirm]").on('mousedown', function() {
+        $button = $(this);
+        $button.attr("data-origin", $button.html());
+        $button.html($(this).attr("data-confirm"));
+        
+        last_count++;
+        count = last_count;
+        var _count = count;
+
+        setTimeout(function(){
+            if ((last_count != _count) || (count != _count)) return;
+            $button.html($button.attr("data-origin"));
+            executeFunctionByName($button.attr("data-execute"), window);
+        }, 1000);
+
+    }).on("mouseup", function() {
+        $(this).html($(this).attr("data-origin"));
+
+        // Cancel interaction
+        count = -1;
+    });  
+}
 
 var _console_log = console.log;
 var _console_warn = console.warn;
@@ -86,22 +118,40 @@ mooltipass.ui._.showActivePage = function () {
 
 mooltipass.ui._.isDeviceConnected = function () {
     // DEBUG
-    //return true;
+    // return true;
     return mooltipass.device.isConnected;
 }
 
 mooltipass.ui._.isDeviceUnlocked = function () {
     // DEBUG
-    //return true;
+    // return true;
     return mooltipass.device.isUnlocked;
 }
 
 mooltipass.ui._.isDeviceInMMM = function () {
     // DEBUG
-    //return true;
+    // return true;
     return mooltipass.device.singleCommunicationMode
         && mooltipass.device.singleCommunicationModeEntered
         && mooltipass.device.singleCommunicationReason == 'memorymanagementmode';
+}
+
+mooltipass.ui._.isDeviceInSM = function () {
+    // DEBUG
+    //return true;
+    return mooltipass.device.singleCommunicationMode
+        && mooltipass.device.singleCommunicationModeEntered
+        && mooltipass.device.singleCommunicationReason == 'synchronisationmode';
+}
+
+function executeFunctionByName(functionName, context) {
+  var args = [].slice.call(arguments).splice(2);
+  var namespaces = functionName.split(".");
+  var func = namespaces.pop();
+  for(var i = 0; i < namespaces.length; i++) {
+    context = context[namespaces[i]];
+  }
+  return context[func].apply(this, args);
 }
 
 update_device_status_classes = function () {
@@ -125,13 +175,26 @@ update_device_status_classes = function () {
         return
     }
 
+    // Each div can only have *-if-mmm OR *-if-sm, but not both
     if (mooltipass.ui._.isDeviceInMMM()) {
         $(".show-if-mmm").show();
         $(".hide-if-mmm").hide();
     } else {
         $(".show-if-mmm").hide();
         $(".hide-if-mmm").show();
+    }
 
-        return;
+    if (mooltipass.ui._.isDeviceInSM()) { 
+        $(".show-if-sm").show(); 
+        $(".hide-if-sm").hide();
+    } else {
+        $(".show-if-sm").hide(); 
+        $(".hide-if-sm").show();   
     }
 };
+
+
+
+
+
+

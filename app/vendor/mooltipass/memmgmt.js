@@ -3920,7 +3920,7 @@ mooltipass.memmgmt.preferencesCallback = function(items)
 			{
 				mooltipass.memmgmt.preferences = items.memmgmtPrefs;				
 			}
-			console.log(mooltipass.memmgmt.preferences);
+			//console.log(mooltipass.memmgmt.preferences);
 		}
 	}
 }
@@ -4531,6 +4531,8 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 // Memory backup start
 mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 {
+//mooltipass.datamemmgmt.addFileToMooltipass();return;
+mooltipass.datamemmgmt.listDataNodeNames();return;
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
 		if(to_file_bool == false && mooltipass.memmgmt.syncFSOK == false)

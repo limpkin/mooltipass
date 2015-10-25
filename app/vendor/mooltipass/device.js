@@ -257,50 +257,53 @@ mooltipass.device.createPacket = function(_command, _payload) {
     var bufferView = new Uint8Array(buffer);
 
     var length = 0;
-    var containStrings = false;
-    for(var i = 0; i < _payload.length; i++) {
-        if(typeof _payload[i] === 'string' || _payload[i] instanceof String) {
-            length += _payload[i].length;
-            containStrings = true;
+    if(_payload) {
+        var containStrings = false;
+        for(var i = 0; i < _payload.length; i++) {
+            if(typeof _payload[i] === 'string' || _payload[i] instanceof String) {
+                length += _payload[i].length;
+                containStrings = true;
+            }
+            else {
+                // Numbers need only 1 place
+                length += 1;
+            }
         }
-        else {
-            // Numbers need only 1 place
+        if(containStrings) {
+            // Add \0 null character to end of data
             length += 1;
         }
-    }
-    if(containStrings) {
-        // Add \0 null character to end of data
-        length += 1;
     }
 
     bufferView[0] = length;
     bufferView[1] = _command;
 
-    var index = 2;
-    for(var i = 0; i < _payload.length; i++) {
-        if(index >= bufferView.byteLength) {
-            // If packet size is reached, stop it
-            console.error('Packet size exceeded! Cannot insert complete data into one packet:', _payload);
-            break;
-        }
+    if(_payload) {
+        var index = 2;
+        for (var i = 0; i < _payload.length; i++) {
+            if (index >= bufferView.byteLength) {
+                // If packet size is reached, stop it
+                console.error('Packet size exceeded! Cannot insert complete data into one packet:', _payload);
+                break;
+            }
 
-        if(typeof _payload[i] === 'string' || _payload[i] instanceof String) {
-            for(var z = 0; z < _payload[i].length; z++) {
-                if(index >= bufferView.byteLength) {
-                    // If packet size is reached, stop it
-                    console.error('Packet size exceeded! Cannot insert complete data into one packet:', _payload);
-                    break;
+            if (typeof _payload[i] === 'string' || _payload[i] instanceof String) {
+                for (var z = 0; z < _payload[i].length; z++) {
+                    if (index >= bufferView.byteLength) {
+                        // If packet size is reached, stop it
+                        console.error('Packet size exceeded! Cannot insert complete data into one packet:', _payload);
+                        break;
+                    }
+
+                    bufferView[index] = _payload[i].charCodeAt(z);
+                    index += 1;
                 }
-
-                bufferView[index] = _payload[i].charCodeAt(z);
+            }
+            else {
+                bufferView[index] = _payload[i];
                 index += 1;
             }
         }
-        else {
-            bufferView[index] = _payload[i];
-            index += 1;
-        }
-
     }
 
     return buffer;
@@ -785,9 +788,15 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
     }
 
     var success = msg[0] == 1;
+    responseObject.success = success;
 
     if(success) {
         responseObject.context = queuedItem.payload[0];
+    }
+    else {
+        responseObject.code = 202;
+        responseObject.msg = "Could not set context";
+        console.error('Could not set context:', queuedItem.payload[0]);
     }
 
     var requestType = params.requestType;
@@ -797,6 +806,15 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
             case 'addCredentials':
             case 'updateCredentials':
                 // Add and update is currently the same
+                if(success) {
+                    mooltipass.device.addToQueue('setLogin', [params.username], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
+                    mooltipass.device.processQueue();
+                    return;
+                }
+                else {
+                    responseObject.code = 203;
+                    responseObject.msg = "No valid context found";
+                }
                 break;
             case 'getCredentials':
                 if(success) {
@@ -824,8 +842,7 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
                     }
                     else {
                         // No more contexts
-                        responseObject.success = false;
-                        responseObject.code = 202;
+                        responseObject.code = 204;
                         responseObject.msg = "No valid context found";
                     }
                 }
@@ -833,7 +850,7 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
             default:
                 // Unknown requestType
                 responseObject.success = false;
-                responseObject.code = 201;
+                responseObject.code = 205;
                 responseObject.msg = "Given request type for continuing setContext is invalid";
 
                 mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);

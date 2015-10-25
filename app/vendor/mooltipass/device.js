@@ -134,6 +134,9 @@ mooltipass.device.isConnected = false;
 // Information about unlocked database
 mooltipass.device.isUnlocked = false;
 
+// Information whether the card is unknown for the device
+mooltipass.device.isUnknownCard = false;
+
 // Device has no card inserted
 mooltipass.device.hasNoCard = true;
 

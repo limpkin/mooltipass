@@ -33,13 +33,14 @@ var stop_propagation = function (e) {
     e.stopPropagation();
 };
 
-var get_credentials_from_row = function ($row) {
+var get_credentials_from_row = function ($row) { 
     var context = $row.find(".context span").attr("data-value");
     var username = $row.find(".username span").attr("data-value");
 
     return {
         "context": context,
-        "username": username
+        "username": username,
+        "description" : get_credential_infos(context, username).description
     }
 }
 
@@ -152,18 +153,27 @@ _cred.initializeTableActions = function () {
     //  Edit credentials
     var edit_credentials = function (e) {
         var $parent = $(this).parents("tr");
+        if ($parent.hasClass("credential-details")) $parent = $parent.prev();
         var $this = $(this);
 
         // Return if already in edit mode
         if ($parent.find("input").length > 0) return;
 
+        if (!($parent.hasClass("active"))) {
+            $(".active").removeClass("active");
+            $parent.addClass("active");
+            update_details_view();
+        }
+
         var credentials = get_credentials_from_row($parent);
         var context = credentials.context;
         var username = credentials.username;
+        var description = credentials.description;
 
         var $app = $parent.find(".context span");
         var $user = $parent.find(".username span");
         var $password = $parent.find(".password span");
+        var $description = $parent.next().find("p.description");
 
         $password.html(WAITING_FOR_DEVICE_LABEL);
         get_password(context, username, function (_success, password) {
@@ -171,6 +181,9 @@ _cred.initializeTableActions = function () {
                 $app.html("<input class='inline change-credentials' data-old='" + context + "' value='" + context + "'/>");
                 $user.html("<input class='inline change-credentials' data-old='" + username + "' value='" + username + "'/>");
                 $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "'/>");
+                $description.html("<input class='inline change-credentials' data-old='" + description + "' value='" + description + "'/>");
+
+
                 $(".inline.change-credentials").on('keydown', save_credential_changes);
                 $(".inline.change-credentials").on('keydown', discard_credential_changes);
                 $(".inline.change-credentials").on('click', stop_propagation);
@@ -213,10 +226,8 @@ _cred.initializeTableActions = function () {
         var new_username = $parent.find(".username input").val();
         var old_password = $parent.find(".password input").attr("data-old");
         var new_password = $parent.find(".password input").val();
-
-        // TODO: Implement changing description
-        var old_description = "";
-        var new_description = "";
+        var old_description = $parent.next().find("p.description input").attr("data-old");
+        var new_description = $parent.next().find("p.description input").val();
 
         // Changed at least one field
         if (old_context != new_context || old_username != new_username || old_password != new_password || old_description != new_description) {
@@ -226,6 +237,7 @@ _cred.initializeTableActions = function () {
                     USER_CREDENTIALS[_key].context = new_context;
                     USER_CREDENTIALS[_key].username = new_username;
                     USER_CREDENTIALS[_key].password = new_password;
+                    USER_CREDENTIALS[_key].description = new_description;
                     USER_CREDENTIALS[_key]._has_password_changed = USER_CREDENTIALS[_key].password_original != new_password;
                     USER_CREDENTIALS[_key]._changed = true;
 
@@ -245,6 +257,7 @@ _cred.initializeTableActions = function () {
         $parent.find(".context span").html(new_context).attr("data-value", new_context);
         $parent.find(".username span").html(new_username).attr("data-value", new_username);
         $parent.find(".password span").html(DEFAULT_PASSWORD);
+        $parent.next().find("p.description").html(new_description).attr("data-value", new_description);
 
         e.stopPropagation();
     }
@@ -254,14 +267,20 @@ _cred.initializeTableActions = function () {
     var discard_credential_changes = function (e) {
         if ((e.type == "keydown") && (e.keyCode != 27)) return;
 
-        update_data_values();
         var $parent = $(this).parents("tr");
+
+        if ($parent.hasClass("credential-details")) {
+            console.log("dicard");
+            $parent = $parent.prev();
+        }
 
         $parent.find(".fa-pencil").show();
         $parent.find(".fa-eye").show();
         $parent.find(".fa-trash-o").show();
         $parent.find(".fa-floppy-o").hide();
         $parent.find(".fa-times").hide();
+
+        update_data_values();
 
         e.stopPropagation();
     }
@@ -305,10 +324,11 @@ _cred.initializeTableActions = function () {
 </td><td colspan=2>\
 <p>' + last_used + '</p>\
 <p>' + last_modified + '</p>\
-<p>' + description + '<p>\
+<p class="description" data-value="' + description + '">' + description + '</p>\
 </td></tr>');
 
-            //$("#credentials_wrapper").insertAfter("<div>hallo welt</div>");
+            $("tbody tr.credential-details .description").on('dblclick', edit_credentials);
+            $("tbody tr.credential-details .description").on('dblclick', dblclick_last_500ms);
 
         }
     }

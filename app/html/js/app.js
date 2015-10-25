@@ -48,7 +48,7 @@ mooltipass.ui._.initConfirmButtons = function(){
     $("*[data-confirm]").on('mousedown', function() {
         $button = $(this);
         $button.attr("data-origin", $button.html());
-        $button.html($(this).attr("data-confirm"));
+        $button.html("<b style='color:red;'>" + $(this).attr("data-confirm") + "</b>");
         
         last_count++;
         count = last_count;
@@ -61,7 +61,10 @@ mooltipass.ui._.initConfirmButtons = function(){
         }, 1000);
 
     }).on("mouseup", function() {
-        $(this).html($(this).attr("data-origin"));
+        $button = $(this);
+        setTimeout(function(){
+            $button.html($button.attr("data-origin"));
+        }, 200);
 
         // Cancel interaction
         count = -1;

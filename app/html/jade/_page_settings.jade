@@ -1,9 +1,10 @@
 #page-settings.page
   include _not_connected_error.jade
+  include _not_card_error.jade
   include _not_unlocked.jade
   include _in_mmm_error.jade
 
-  .show-if-connected.show-if-unlocked.hide-if-mmm
+  .show-if-connected.show-if-card.show-if-unlocked.hide-if-mmm
     .row
       .column.small-12
         h1 Device Settings

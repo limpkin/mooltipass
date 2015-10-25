@@ -102,6 +102,11 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
 mooltipass.app.translateResponseForBackwardsCompatibility = function(_command, _response) {
     var output = {};
 
+    // If request was not successful, return an empty object
+    if(!_response.success) {
+        return output;
+    }
+
     if(_command == 'getRandomNumber') {
         output.random = _response.value;
     }

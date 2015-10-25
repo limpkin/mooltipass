@@ -197,11 +197,41 @@ mooltipass.device.interface._getCredentials = function(inputObject) {
 
     var firstContext = contexts.splice(0, 1);
 
-    var payload = [inputObject.value];
     mooltipass.device.addToQueue(
         'setContext',
         [firstContext[0]],
         {'contexts': contexts, 'requestType': 'getCredentials'},
+        inputObject.callbackFunction,
+        inputObject.callbackParameters,
+        inputObject.timeout
+    );
+};
+
+
+mooltipass.device.interface._addCredentials = function(inputObject) {
+    mooltipass.device.interface._updateCredentials(inputObject);
+};
+
+mooltipass.device.interface._updateCredentials = function(inputObject) {
+    var context = inputObject.context;
+    var username = inputObject.username;
+    var password = inputObject.password;
+
+    if($.trim(context) == "") {
+        mooltipass.device.interface._returnError(inputObject, 104, 'missing context for add/update credentials');
+        return;
+    }
+
+    if(password == "") {
+        mooltipass.device.interface._returnError(inputObject, 105, 'missing password for add/update credentials');
+        return;
+    }
+
+    var payload = [inputObject.value];
+    mooltipass.device.addToQueue(
+        'setContext',
+        [context],
+        {'context': context, 'username': username, 'password': password, 'requestType': 'updateCredentials'},
         inputObject.callbackFunction,
         inputObject.callbackParameters,
         inputObject.timeout

@@ -668,6 +668,8 @@ mooltipass.device.responsePing = function(queuedItem, msg) {
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
 
+    // Send ping information to all connected clients
+    mooltipass.device.clients.send(responseObject);
 
     // Process next queued request
     mooltipass.device.processQueue();
@@ -772,6 +774,12 @@ mooltipass.device.checkStatus = function() {
             }
 
             // TODO: inform connected clients
+            mooltipass.device.clients.send({
+                'connected': mooltipass.device.isConnected,
+                'unlocked': mooltipass.device.isUnlocked,
+                'cardInserted': !mooltipass.device.hasNoCard,
+                'version': mooltipass.device.version
+            });
         }
     });
 };

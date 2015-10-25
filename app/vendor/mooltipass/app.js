@@ -66,7 +66,7 @@ mooltipass.app.updateOnLock = function() {
     mooltipass.device.endSingleCommunicationMode();
 };
 
-mooltipass.app.get_password = function(_context, _username, _callback) {
+mooltipass.app.getPassword = function(_context, _username, _callback) {
     mooltipass.memmgmt.getPasswordForCredential(_context, _username, function(_status, _password) {
         _callback(_context, _username, _status, _password);
     });

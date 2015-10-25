@@ -610,7 +610,7 @@ var get_password = function (_context, _username, _callback) {
         }
     }
 
-    mooltipass.app.get_password(_context, _username, function (_context2, _username2, _status, _password) {
+    mooltipass.app.getPassword(_context, _username, function (_context2, _username2, _status, _password) {
         if (_status.success) {
 // Add password to local user credential data
             for (var _key in USER_CREDENTIALS) {

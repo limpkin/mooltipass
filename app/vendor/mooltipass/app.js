@@ -50,7 +50,7 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         };
     }
 
-    mooltipass.device.addNewClient(senderId);
+    mooltipass.device.clients.add(senderId);
     mooltipass.device.interface.send(inputObject);
 };
 

@@ -134,6 +134,9 @@ mooltipass.device.isConnected = false;
 // Information about unlocked database
 mooltipass.device.isUnlocked = false;
 
+// Device has no card inserted
+mooltipass.device.hasNoCard = true;
+
 // Is communication with device is uniquely taken by a function?
 // e.g. device is in MemoryManagementMode
 mooltipass.device.singleCommunicationMode = false;
@@ -144,10 +147,6 @@ mooltipass.device.singleCommunicationModeEntered = false;
 // Short slugified string why communication is blocked
 // e.g. memorymanagement || synchronisation
 mooltipass.device.singleCommunicationReason = null;
-
-// External clients to communicate with (e.g. an app)
-mooltipass.device.connectedClients = [];
-mooltipass.device.clientId = null;
 
 // Queue for executing commands
 mooltipass.device.queue = [];
@@ -170,12 +169,16 @@ mooltipass.device.init = function() {
 };
 
 
+/**
+ * Reset information about device
+ */
 mooltipass.device.reset = function() {
     mooltipass.device.connectionId = null;
     mooltipass.device.version = null;
     mooltipass.device.flashChipId = null;
     mooltipass.device.isUnlocked = false;
     mooltipass.device.isConnected = false;
+    mooltipass.device.hasNoCard = true;
     mooltipass.device.endSingleCommunicationMode();
 };
 
@@ -313,15 +316,6 @@ mooltipass.device.endSingleCommunicationMode = function(skip) {
     mooltipass.device.singleCommunicationReason = null;
 };
 
-
-/**
- * Add new client to list of observing clients
- */
-mooltipass.device.addNewClient = function(id) {
-    if(!(id in mooltipass.device.connectedClients)) {
-        mooltipass.device.connectedClients.push(id);
-    }
-};
 
 /**
  * Return next element in queue
@@ -624,6 +618,7 @@ mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     mooltipass.device.flashChipId = flashChipId;
 
     var responseObject = {
+        'command': queuedItem.command,
         'success': true,
         'value': version
     };
@@ -637,6 +632,7 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
     var status = mooltipass.device.convertMessageArrayToString(msg);
 
     var responseObject = {
+        'command': queuedItem.command,
         'success': true,
         'value': status
     };
@@ -654,6 +650,7 @@ mooltipass.device.responseGetRandomNumber = function(queuedItem, msg) {
     }
 
     var responseObject = {
+        'command': queuedItem.command,
         'success': true,
         'value': value
     };
@@ -665,10 +662,15 @@ mooltipass.device.responseGetRandomNumber = function(queuedItem, msg) {
 
 mooltipass.device.responsePing = function(queuedItem, msg) {
     var responseObject = {
+        'command': queuedItem.command,
         'success': true
     };
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+
+    // Send ping information to all connected clients
+    mooltipass.device.clients.send(responseObject);
+
     // Process next queued request
     mooltipass.device.processQueue();
 };
@@ -680,6 +682,7 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
     mooltipass.device.status = _status;
 
     var responseObject = {
+        'command': queuedItem.command,
         'success': true,
         'value': _status
     };
@@ -693,8 +696,9 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
 
 mooltipass.device.responseGetMooltipassParameter = function(queuedItem, msg) {
     var responseObject = {
-        'success': true,
+        'command': queuedItem.command,
         'payload': queuedItem.payload,
+        'success': true,
         'value': msg[0]
     };
 
@@ -709,8 +713,9 @@ mooltipass.device.responseSetMooltipassParameter = function(queuedItem, msg) {
     var success = msg[0] == 1;
 
     var responseObject = {
-        'success': success,
-        'payload': queuedItem.payload
+        'command': queuedItem.command,
+        'payload': queuedItem.payload,
+        'success': success
     };
 
     if(!success) {
@@ -737,6 +742,10 @@ mooltipass.device.getSettingCurrentDatePayload = function() {
     return array;
 };
 
+/**
+ * Request status from device and set status in app.
+ * Trigger actions for specific status
+ */
 mooltipass.device.checkStatus = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassStatus',
@@ -744,6 +753,7 @@ mooltipass.device.checkStatus = function() {
             if(_responseObject.success) {
                 var unlocked = _responseObject.value == 'unlocked';
                 var locked = _responseObject.value == 'locked';
+                var noCard = _responseObject.value == 'no-card';
 
                 if(!mooltipass.device.isUnlocked && unlocked) {
                     mooltipass.app.updateOnUnlock();
@@ -753,6 +763,8 @@ mooltipass.device.checkStatus = function() {
                 }
                 //console.log('mooltipass.device.isUnlocked =', unlocked);
                 mooltipass.device.isUnlocked = unlocked;
+
+                mooltipass.device.hasNoCard = noCard;
             }
             // Set to locked only if not in MemoryManagementMode
             else if(_responseObject.code != 90) {
@@ -760,6 +772,16 @@ mooltipass.device.checkStatus = function() {
                 mooltipass.device.isUnlocked = false;
                 mooltipass.app.updateOnLock();
             }
+
+            // TODO: inform connected clients
+            mooltipass.device.clients.send({
+                'success': _responseObject.success,
+                'command': _responseObject.command,
+                'connected': mooltipass.device.isConnected,
+                'unlocked': mooltipass.device.isUnlocked,
+                'cardInserted': !mooltipass.device.hasNoCard,
+                'version': mooltipass.device.version
+            });
         }
     });
 };

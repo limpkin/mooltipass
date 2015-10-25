@@ -22,8 +22,6 @@ function launch(details) {
         chrome.runtime.sendMessage(data, callbackFunction);
     });
 
-    //mooltipass.device.checkStatus();
-
     _listenerInstalled = true;
 }
 

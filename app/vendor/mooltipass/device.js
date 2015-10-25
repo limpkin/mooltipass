@@ -148,10 +148,6 @@ mooltipass.device.singleCommunicationModeEntered = false;
 // e.g. memorymanagement || synchronisation
 mooltipass.device.singleCommunicationReason = null;
 
-// External clients to communicate with (e.g. an app)
-mooltipass.device.connectedClients = [];
-mooltipass.device.clientId = null;
-
 // Queue for executing commands
 mooltipass.device.queue = [];
 

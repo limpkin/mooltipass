@@ -49,6 +49,11 @@ mooltipass.device.clients.remove = function(_id) {
  *   if called with 2 parameters, the first is the client id, the second is the data
  */
 mooltipass.device.clients.send = function() {
+    // No clients available
+    if(mooltipass.device.clients._list.length == 0) {
+        return;
+    }
+
     if(arguments.length == 1) {
         // Send to all clients
         var data = arguments[0];

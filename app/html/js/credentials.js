@@ -363,7 +363,7 @@ _cred.callbackMMMEnter = function (_status, _credentials) {
     }
     else {
         // Could not enter MemoryManagementMode
-        mooltipass.device.endSingleCommunicationMode();
+        mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
         mooltipass.ui.status.error($('#mmm-enter'), _status.msg);
     }
 

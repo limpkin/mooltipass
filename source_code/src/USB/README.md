@@ -6,7 +6,7 @@ buffer[0] = length of data
 
 buffer[1] = cmd identifier for this packet
 
-buffer[2 - 2 + buffer[0]] = packet data
+buffer[2 till 2 + buffer[0]] = packet data
 
 Current commands
 ================

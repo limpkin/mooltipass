@@ -61,7 +61,7 @@ mooltipass.ui.sync.callbackExportToFile = function(_status) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode();
+    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };
 
 
@@ -95,7 +95,7 @@ mooltipass.ui.sync.callbackImportFromFile = function(_status) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode();
+    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };
 
 
@@ -127,7 +127,7 @@ mooltipass.ui.sync.callbackExportToCloud = function(_status) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode();
+    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };
 
 
@@ -159,7 +159,7 @@ mooltipass.ui.sync.callbackImportFromCloud = function(_status) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode();
+    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };
 
 
@@ -206,7 +206,7 @@ mooltipass.ui.sync.callbackScanMemory = function(_status) {
     $("#modal-integrity-check").hide();  
     $("#modal-confirm-on-device").hide();
     
-    mooltipass.device.endSingleCommunicationMode();
+    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };
 
 

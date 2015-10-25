@@ -5,8 +5,8 @@ mooltipass.datamemmgmt = mooltipass.datamemmgmt || {};
 var NODE_SIZE							= 132;				// Node size
 var HID_PAYLOAD_SIZE					= 62;				// HID payload
 var MEDIA_BUNDLE_CHUNK_SIZE				= 33;				// How many bytes we send per chunk
-var MGMT_PREFERENCES_VERSION			= 0;				// Preferences version
-var DATA_SENDING_CHUNK_SIZE				= 32
+var DATAMGMT_PREFERENCES_VERSION		= 0;				// Preferences version
+var DATA_SENDING_CHUNK_SIZE				= 32				// Packet size when storing/getting data
 		
 // State machine modes		
 var DATAMGMT_IDLE						= 0;				// Idle mode
@@ -18,8 +18,12 @@ var DATAMGMT_FILEADD_REQ				= 5;				// Adding a file to the mooltipass
 var DATAMGMT_PARAM_LOAD_FILEGET_REQ		= 6;				// Parameter loading for node name listing
 var DATAMGMT_FILEGET_REQ				= 7;				// Adding a file to the mooltipass
 
+// Local preferences
+/* Default preferences */
+mooltipass.datamemmgmt.preferences = {"version": DATAMGMT_PREFERENCES_VERSION, "cpz_to_ctrhash": [], "stored_files": []};
+
 // Mooltipass memory params
-mooltipass.datamemmgmt.nbMb = null;							// Mooltipass memory size
+mooltipass.datamemmgmt.nbMb = null;									// Mooltipass memory size
 
 // State machines & temp variables
 mooltipass.datamemmgmt.currentMode = DATAMGMT_IDLE;					// Current mode
@@ -39,11 +43,151 @@ mooltipass.datamemmgmt.fileRead = null;								// File read contents
 mooltipass.datamemmgmt.fileReadName = "";							// File read name
 mooltipass.datamemmgmt.fileSize = 0;								// File size
 mooltipass.datamemmgmt.fileRealSize = 0;							// File real size
+mooltipass.datamemmgmt.CPZCTRHashTable = [];						// All cards CPZ for current user
+mooltipass.datamemmgmt.userCTRHash = "";							// Current user CTR hash
  
 // Export file written callback
 mooltipass.datamemmgmt.fileWrittenCallback = function()
 {
 	console.log("File written!");
+}
+
+mooltipass.datamemmgmt.mergeFileListWithPreferences = function()
+{	
+	var changes_made = false;
+	
+	// Loop through our stored file names and check if some were deleted
+	for(var i = mooltipass.datamemmgmt.preferences.stored_files.length - 1; i >= 0; i--)
+	{
+		if(mooltipass.datamemmgmt.preferences.stored_files[i][0] == mooltipass.datamemmgmt.userCTRHash)
+		{
+			// try to find the file in the list we have
+			var file_found = false;
+			for(var j = 0; j < mooltipass.datamemmgmt.clonedCurDataServiceNodes.length; j++)
+			{
+				if(mooltipass.datamemmgmt.clonedCurDataServiceNodes[j].name == mooltipass.datamemmgmt.preferences.stored_files[i][1])
+				{
+					file_found = true;
+					break;
+				}
+			}
+			// didn't find the file, delete it from our preferences
+			if(file_found == false)
+			{
+				console.log("File " + mooltipass.datamemmgmt.preferences.stored_files[i][1] + " was deleted");
+				mooltipass.datamemmgmt.preferences.stored_files.splice(i, 1);
+				changes_made = true;
+			}
+		}
+	}
+	
+	// Loop through our found nodes and find new ones
+	for(var i = 0; i < mooltipass.datamemmgmt.clonedCurDataServiceNodes.length; i++)
+	{
+		// try to find the file in the list we have
+		var file_found = false;
+		for(var j = 0; j < mooltipass.datamemmgmt.preferences.stored_files.length; j++)
+		{
+			if(mooltipass.datamemmgmt.clonedCurDataServiceNodes[i].name == mooltipass.datamemmgmt.preferences.stored_files[j][1] && mooltipass.datamemmgmt.userCTRHash == mooltipass.datamemmgmt.preferences.stored_files[j][0])
+			{
+				file_found = true;
+			}
+		}
+		// didn't find the file, delete it from our preferences
+		if(file_found == false)
+		{
+			changes_made = true;
+			console.log("File " + mooltipass.datamemmgmt.clonedCurDataServiceNodes[i].name + " was added");
+			mooltipass.datamemmgmt.preferences.stored_files.push([mooltipass.datamemmgmt.userCTRHash, mooltipass.datamemmgmt.clonedCurDataServiceNodes[i].name]);
+		}
+	}	
+	
+	if(changes_made == true)
+	{
+		mooltipass.prefstorage.setStoredPreferences({"datamemmgmtPrefsStored": true, "datamemmgmtPrefs": mooltipass.datamemmgmt.preferences});		
+	}
+}
+
+mooltipass.datamemmgmt.mergeCPZCTRHashTableWithPreferences = function()
+{
+	var changes_made = false;
+	
+	for(var i = 0; i < mooltipass.datamemmgmt.CPZCTRHashTable.length; i++)
+	{
+		var cpz_found = false;
+		for(var j = 0; j < mooltipass.datamemmgmt.preferences.cpz_to_ctrhash.length; j++)
+		{
+			if(mooltipass.datamemmgmt.CPZCTRHashTable[i][0] == mooltipass.datamemmgmt.preferences.cpz_to_ctrhash[j][0])
+			{
+				cpz_found = true;
+				break;
+			}
+		}
+		if(cpz_found == false)
+		{
+			//console.log("Adding CPZ/Hash to preferences");
+			//console.log(mooltipass.datamemmgmt.CPZCTRHashTable[i][0]);
+			//console.log(mooltipass.datamemmgmt.CPZCTRHashTable[i][1]);
+			changes_made = true;
+			mooltipass.datamemmgmt.preferences.cpz_to_ctrhash.push(mooltipass.datamemmgmt.CPZCTRHashTable[i]);
+		}
+	}
+	
+	if(changes_made == true)
+	{
+		mooltipass.prefstorage.setStoredPreferences({"datamemmgmtPrefsStored": true, "datamemmgmtPrefs": mooltipass.datamemmgmt.preferences});		
+	}
+}
+
+// Load memory management preferences callback
+mooltipass.datamemmgmt.preferencesCallback = function(items)
+{	
+	//console.log(items);
+	if(chrome.runtime.lastError)
+	{
+		// Something went wrong during file selection
+		console.log("preferencesCallback error: "+ chrome.runtime.lastError.message);
+	}
+	else
+	{
+		if(items.datamemmgmtPrefsStored == null)
+		{
+			// Empty file, save new preferences
+			console.log("Preferences storage: No preferences stored!");
+			mooltipass.prefstorage.setStoredPreferences({"datamemmgmtPrefsStored": true, "datamemmgmtPrefs": mooltipass.datamemmgmt.preferences});
+		}
+		else
+		{
+			console.log("Preferences storage: loaded preferences");
+			
+			// Check if the preferences we got are of the latest version
+			if(items.datamemmgmtPrefs.version != DATAMGMT_PREFERENCES_VERSION)
+			{
+				console.log("Loaded preferences are from an older version");
+				// Check what fields are missing in what is stored
+				for(var key in mooltipass.datamemmgmt.preferences)
+				{
+					if(key in items.datamemmgmtPrefs)
+					{
+						console.log("Same key: " + key);
+						mooltipass.datamemmgmt.preferences[key] = items.datamemmgmtPrefs[key];
+					}
+					else
+					{
+						console.log("New key: " + key);
+					}
+				}
+				// Save preferences
+				mooltipass.datamemmgmt.preferences.version = DATAMGMT_PREFERENCES_VERSION;
+				mooltipass.prefstorage.setStoredPreferences({"datamemmgmtPrefsStored": true, "datamemmgmtPrefs": mooltipass.datamemmgmt.preferences});
+			}
+			else
+			{
+				mooltipass.datamemmgmt.preferences = items.datamemmgmtPrefs;				
+			}
+			//console.log(mooltipass.datamemmgmt.preferences);
+		}
+	}
 }
 
 // Request fail handler
@@ -103,6 +247,7 @@ mooltipass.datamemmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
+					mooltipass.datamemmgmt.mergeFileListWithPreferences();
 					//console.log(mooltipass.datamemmgmt.nodeNames);
 				}				
 			}
@@ -362,9 +507,39 @@ mooltipass.datamemmgmt.dataReceivedCallback = function(packet)
 		if(packet[1] == mooltipass.device.commands['getVersion'])
 		{
 			mooltipass.datamemmgmt.nbMb = packet[2];
+			mooltipass.datamemmgmt.CPZCTRHashTable = [];
 			console.log("Mooltipass is " + mooltipass.datamemmgmt.nbMb + "Mb");			
-			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
+			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getCPZandCTR'], null);
 			mooltipass.memmgmt_hid._sendMsg();
+		}
+		else if(packet[1] == mooltipass.device.commands['exportCPZandCTR'])
+		{
+			//console.log("CPZ packet export packet received: " + packet.subarray(2, 2 + 8)); 
+			
+			// Generate CTR hash, store CPZ <> CTR hash entry
+			mooltipass.datamemmgmt.userCTRHash = mooltipass.util.sha256hash(mooltipass.util.arrayToHexStr(packet.subarray(2+8, 2+8+16)));
+			mooltipass.datamemmgmt.CPZCTRHashTable.push([mooltipass.util.arrayToHexStr(packet.subarray(2, 2 + 8)), mooltipass.datamemmgmt.userCTRHash]);
+			
+			// Arm receive
+			mooltipass.memmgmt_hid.receiveMsg();
+		}
+		else if(packet[1] == mooltipass.device.commands['getCPZandCTR'])
+		{
+			if(packet[2] == 0)
+			{				
+				mooltipass.datamemmgmt.requestFailHander("Error during CPZ/CTR request (card removed?)", MGMT_IDLE);
+			}
+			else
+			{
+				// Inform that all CPZ packets were sent
+				console.log("All CPZ packets are received");		
+
+				// Merge CPZ / hash values with our preferences
+				mooltipass.datamemmgmt.mergeCPZCTRHashTableWithPreferences();
+				
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
+				mooltipass.memmgmt_hid._sendMsg();				
+			}
 		}
 		else if(packet[1] == mooltipass.device.commands['getStartingDataParentAddress'])
 		{
@@ -427,187 +602,13 @@ mooltipass.datamemmgmt.dataReceivedCallback = function(packet)
 					// Get node type
 					var nodeType = mooltipass.memmgmt.getNodeType(mooltipass.datamemmgmt.currentNode);
 					 
-					if(nodeType == 'parent')
-					{
-						// Store names, addresses, nodes
-						mooltipass.memmgmt.curServiceNodes.push({'address': mooltipass.memmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode), 'data': mooltipass.memmgmt.currentNode.slice(0)});
-						mooltipass.memmgmt.clonedCurServiceNodes.push({'address': mooltipass.memmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode), 'data': mooltipass.memmgmt.currentNode.slice(0)});
-						console.log("Received service " + mooltipass.memmgmt.curServiceNodes[mooltipass.memmgmt.curServiceNodes.length - 1].name + " at address " + mooltipass.memmgmt.curServiceNodes[mooltipass.memmgmt.curServiceNodes.length - 1].address);
-						 
-						// Store next parent address
-						mooltipass.memmgmt.nextParentNodeTSAddress = mooltipass.memmgmt.getNextAddress(mooltipass.memmgmt.currentNode);
-						var first_child_address = mooltipass.memmgmt.getFirstChildAddress(mooltipass.memmgmt.currentNode);
-						 
-						// If it has a child, request it...
-						if(!mooltipass.memmgmt.isSameAddress(first_child_address, [0,0]))
-						{
-							mooltipass.memmgmt.curNodeAddressRequested = first_child_address;
-							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], first_child_address);
-							mooltipass.memmgmt_hid._sendMsg();							
-						}		
-						else
-						{
-							// No child, check that we haven't finished scanning
-							if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.nextParentNodeTSAddress, [0,0]))
-							{
-								// Finished scanning
-								if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN)
-								{
-									// Wait for the user to do his actions...
-									mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;	
-									mooltipass.memmgmt.memmgmtStartCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
-								}
-								else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
-								{
-									// Start the merging procedure									
-									mooltipass.memmgmt.totalAddressesRequired = mooltipass.memmgmt.generateMergeOperations();
-									mooltipass.memmgmt.totalAddressesReceived = 0;
-									mooltipass.memmgmt.freeAddressesBuffer = [];
-									if(mooltipass.memmgmt.totalAddressesRequired > 0)
-									{
-										// We need to request free addresses
-										mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_GET_FREE_ADDR;	
-										mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFreeSlotAddresses'], [0,0]);
-										mooltipass.memmgmt_hid._sendMsg();		
-									}
-									else
-									{
-										mooltipass.memmgmt.generateMergePackets();
-										if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
-										{
-											console.log("Mooltipass already synced with our credential file!");											
-											// Leave mem management mode				
-											mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-											mooltipass.memmgmt_hid._sendMsg();
-										}
-										else
-										{
-											console.log("Sending merging packets");
-											mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_PACKET_SENDING;
-											mooltipass.memmgmt_hid.request['packet'] = mooltipass.memmgmt.packetToSendBuffer[0];
-											//console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
-											mooltipass.memmgmt_hid._sendMsg();
-										}
-									}
-								}
-								else if(mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN)
-								{
-									// Leave mem management mode		
-									mooltipass.memmgmt.exportMemoryState();		 
-									mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-									mooltipass.memmgmt_hid._sendMsg();									
-								}
-							}
-							else
-							{
-								// Request next parent
-								mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.nextParentNodeTSAddress;
-								mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.nextParentNodeTSAddress);
-								mooltipass.memmgmt_hid._sendMsg();										
-							}
-						}
-					}
-					else if(nodeType == 'child')
-					{
-						// Store names, addresses, nodes
-						mooltipass.memmgmt.curLoginNodes.push({'address': mooltipass.memmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getLogin(mooltipass.memmgmt.currentNode), 'data': mooltipass.memmgmt.currentNode.slice(0), 'pointed': false});
-						mooltipass.memmgmt.clonedCurLoginNodes.push({'address': mooltipass.memmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getLogin(mooltipass.memmgmt.currentNode), 'data': mooltipass.memmgmt.currentNode.slice(0), 'pointed': false});
-						mooltipass.memmgmt.credentialArrayForGui.push({	'context': mooltipass.memmgmt.clonedCurServiceNodes[mooltipass.memmgmt.clonedCurServiceNodes.length-1].name,
-																		'username': mooltipass.memmgmt.getLogin(mooltipass.memmgmt.currentNode),
-																		'address': mooltipass.memmgmt.curNodeAddressRequested,
-																		'description': mooltipass.memmgmt.getDescription(mooltipass.memmgmt.currentNode),
-																		'date_modified': mooltipass.memmgmt.getDateCreated(mooltipass.memmgmt.currentNode),
-																		'date_lastused': mooltipass.memmgmt.getDateLastUsed(mooltipass.memmgmt.currentNode),
-																		'favorite': mooltipass.memmgmt.isParentChildAFavorite(mooltipass.memmgmt.clonedCurServiceNodes[mooltipass.memmgmt.clonedCurServiceNodes.length-1].address, mooltipass.memmgmt.curNodeAddressRequested),
-																		'parent_address': mooltipass.memmgmt.clonedCurServiceNodes[mooltipass.memmgmt.clonedCurServiceNodes.length-1].address
-																		});
-						
-						console.log("Received login " + mooltipass.memmgmt.curLoginNodes[mooltipass.memmgmt.curLoginNodes.length - 1].name + " at address " + mooltipass.memmgmt.curLoginNodes[mooltipass.memmgmt.curLoginNodes.length - 1].address);
-						 
-						var next_child_address = mooltipass.memmgmt.getNextAddress(mooltipass.memmgmt.currentNode);
-						 
-						// If it has a next child, request it...
-						if(!mooltipass.memmgmt.isSameAddress(next_child_address, [0,0]))
-						{
-							mooltipass.memmgmt.curNodeAddressRequested = next_child_address;
-							mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], next_child_address);
-							mooltipass.memmgmt_hid._sendMsg();							
-						}		
-						else
-						{
-							// No next child, check that we haven't finished scanning
-							if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.nextParentNodeTSAddress, [0,0]))
-							{
-								// Finished scanning
-								if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN)
-								{
-									// Wait for the user to do his actions...
-									mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;		
-									mooltipass.memmgmt.memmgmtStartCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
-								}
-								else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
-								{
-									// Start the merging procedure									
-									mooltipass.memmgmt.totalAddressesRequired = mooltipass.memmgmt.generateMergeOperations();
-									mooltipass.memmgmt.totalAddressesReceived = 0;
-									mooltipass.memmgmt.freeAddressesBuffer = [];
-									if(mooltipass.memmgmt.totalAddressesRequired > 0)
-									{
-										// We need to request free addresses
-										mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_GET_FREE_ADDR;	
-										mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFreeSlotAddresses'], [0,0]);
-										mooltipass.memmgmt_hid._sendMsg();		
-									}
-									else
-									{
-										mooltipass.memmgmt.generateMergePackets();
-										if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
-										{
-											console.log("Mooltipass already synced with our credential file!");											
-											// Leave mem management mode				
-											mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-											mooltipass.memmgmt_hid._sendMsg();
-										}
-										else
-										{
-											console.log("Sending merging packets");
-											mooltipass.memmgmt.currentMode = MGMT_DB_FILE_MERGE_PACKET_SENDING;
-											mooltipass.memmgmt_hid.request['packet'] = mooltipass.memmgmt.packetToSendBuffer[0];
-											//console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
-											mooltipass.memmgmt_hid._sendMsg();
-										}
-									}
-								}
-								else if(mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN)
-								{
-									// Leave mem management mode	
-									mooltipass.memmgmt.exportMemoryState();
-									mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-									mooltipass.memmgmt_hid._sendMsg();									
-								}
-								// Leave mem management mode						
-								//mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-								//mooltipass.memmgmt_hid._sendMsg();
-								// TO REMOVE!!!!
-								//mooltipass.memmgmt.exportMemoryState();
-								//console.log(mooltipass.memmgmt.credentialArrayForGui);
-							}
-							else
-							{
-								// Request next parent
-								mooltipass.memmgmt.curNodeAddressRequested = mooltipass.memmgmt.nextParentNodeTSAddress;
-								mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['readNodeInFlash'], mooltipass.memmgmt.nextParentNodeTSAddress);
-								mooltipass.memmgmt_hid._sendMsg();										
-							}
-						}
-					}
-					else if(nodeType == 'dataparent')
+					if(nodeType == 'dataparent')
 					{
 						// Store names, addresses, nodes
 						mooltipass.datamemmgmt.curDataServiceNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.datamemmgmt.currentNode), 'data': mooltipass.datamemmgmt.currentNode.slice(0)});
 						mooltipass.datamemmgmt.clonedCurDataServiceNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.datamemmgmt.currentNode), 'data': mooltipass.datamemmgmt.currentNode.slice(0)});
 						console.log("Received data service " + mooltipass.datamemmgmt.curDataServiceNodes[mooltipass.datamemmgmt.curDataServiceNodes.length - 1].name + " at address " + mooltipass.datamemmgmt.curDataServiceNodes[mooltipass.datamemmgmt.curDataServiceNodes.length - 1].address);
-						 
+						
 						// Store next parent address
 						mooltipass.datamemmgmt.nextParentNodeTSAddress = mooltipass.memmgmt.getNextAddress(mooltipass.datamemmgmt.currentNode);
 						var first_child_address = mooltipass.memmgmt.getFirstChildAddress(mooltipass.datamemmgmt.currentNode);

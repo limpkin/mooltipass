@@ -123,7 +123,7 @@ mooltipass.device.interface._getMooltipassStatus = function(inputObject) {
 };
 
 
-mooltipass.device.interface._getRandomString = function(inputObject) {
+mooltipass.device.interface._getRandomNumber = function(inputObject) {
     mooltipass.device.addToQueue(
         inputObject.command,
         [],

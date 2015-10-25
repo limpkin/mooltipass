@@ -260,7 +260,6 @@ mooltipass.ui.settings.getOfflineMode = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'offlineMode',
         'callbackFunction': function(_response) {
-            console.log('Response', _response);
             if(_response.success) {
                 $('#settings-offlineMode').prop('checked', Boolean(Number(_response.value)));
             }

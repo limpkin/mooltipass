@@ -169,6 +169,9 @@ mooltipass.device.init = function() {
 };
 
 
+/**
+ * Reset information about device
+ */
 mooltipass.device.reset = function() {
     mooltipass.device.connectionId = null;
     mooltipass.device.version = null;

@@ -44,9 +44,8 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
     // No callbackFunction was given -> send JSON object to sender
     if(!callbackFunction) {
         inputObject = mooltipass.app.translateRequestForBackwardsCompatibility(data);
-        var command = inputObject.command;
         inputObject.callbackFunction = function(_responseObject) {
-            var data = mooltipass.app.translateResponseForBackwardsCompatibility(command, _responseObject);
+            var data = mooltipass.app.translateResponseForBackwardsCompatibility(_responseObject);
             chrome.runtime.sendMessage(senderId, data);
         };
     }
@@ -99,7 +98,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
     return output;
 };
 
-mooltipass.app.translateResponseForBackwardsCompatibility = function(_command, _response) {
+mooltipass.app.translateResponseForBackwardsCompatibility = function(_response) {
     var output = {};
 
     // If request was not successful, return an empty object
@@ -107,10 +106,12 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_command, _
         return output;
     }
 
-    if(_command == 'getRandomNumber') {
+    var command = _response.command;
+
+    if(command == 'getRandomNumber') {
         output.random = _response.value;
     }
-    else if(_command == 'getMooltipassStatus') {
+    else if(command == 'getMooltipassStatus') {
         output.deviceStatus = {};
         output.deviceStatus.version = mooltipass.device.version;
         output.deviceStatus.connected = mooltipass.device.isUnlocked;
@@ -130,7 +131,7 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_command, _
             output.deviceStatus.state = 'Error';
         }
     }
-    else if(_command == 'getCredentials') {
+    else if(command == 'getCredentials') {
         if(_response.username && _response.password) {
             output.credentials = {
                 'login': _response.username,
@@ -141,7 +142,7 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_command, _
             output.noCredentials = true;
         }
     }
-    else if(_command == 'addCredentials' || _command == 'updateCredentials') {
+    else if(command == 'addCredentials' || command == 'updateCredentials') {
         output.updateComplete = true;
     }
 

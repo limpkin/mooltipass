@@ -319,15 +319,6 @@ mooltipass.device.endSingleCommunicationMode = function(skip) {
 
 
 /**
- * Add new client to list of observing clients
- */
-mooltipass.device.addNewClient = function(id) {
-    if(!(id in mooltipass.device.connectedClients)) {
-        mooltipass.device.connectedClients.push(id);
-    }
-};
-
-/**
  * Return next element in queue
  * @param command if given, return the next element with the specified command
  * @returns object

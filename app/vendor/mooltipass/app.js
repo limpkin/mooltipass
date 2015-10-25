@@ -66,7 +66,7 @@ mooltipass.app.updateOnLock = function() {
     mooltipass.device.endSingleCommunicationMode();
 };
 
-mooltipass.app.get_password = function(_context, _username, _callback) {
+mooltipass.app.getPassword = function(_context, _username, _callback) {
     mooltipass.memmgmt.getPasswordForCredential(_context, _username, function(_status, _password) {
         _callback(_context, _username, _status, _password);
     });
@@ -84,7 +84,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
     }
     else if('type' in _request && _request.type == 'update') {
         output.command = 'updateCredentials';
-        output.payload = {
+        output.data = {
             'context': _request.context,
             'username': _request.login,
             'password': _request.password,
@@ -92,7 +92,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
     }
     else if('getInputs' in _request) {
         output.command = 'getCredentials';
-        output.payload = [_request.getInputs.subdomain, _request.getInputs.domain];
+        output.contexts = [_request.getInputs.subdomain, _request.getInputs.domain];
     }
 
     return output;

@@ -248,24 +248,59 @@ mooltipass.device.onConnectFinished = function(connectInfo) {
 
 /**
  * Helper function to create a valid packet for communication with the device.
- * @param command string
- * @param payload array
+ * @param _command string
+ * @param _payload array
  * @returns {ArrayBuffer}
  */
-mooltipass.device.createPacket = function(command, payload) {
+mooltipass.device.createPacket = function(_command, _payload) {
     var buffer = new ArrayBuffer(mooltipass.device.packetSize);
-    var data = new Uint8Array(buffer);
+    var bufferView = new Uint8Array(buffer);
 
-    if (payload) {
-        data.set([payload.length, command], 0);
-        data.set(payload, 2);
+    var length = 0;
+    var containStrings = false;
+    for(var i = 0; i < _payload.length; i++) {
+        if(typeof _payload[i] === 'string' || _payload[i] instanceof String) {
+            length += _payload[i].length;
+            containStrings = true;
+        }
+        else {
+            // Numbers need only 1 place
+            length += 1;
+        }
     }
-    else {
-        data.set([0, command], 0);
+    if(containStrings) {
+        // Add \0 null character to end of data
+        length += 1;
     }
 
-    for (var i = 0; i < data.byteLength; i++) {
-        buffer[i] = data[i];
+    bufferView[0] = length;
+    bufferView[1] = _command;
+
+    var index = 2;
+    for(var i = 0; i < _payload.length; i++) {
+        if(index >= bufferView.byteLength) {
+            // If packet size is reached, stop it
+            console.error('Packet size exceeded! Cannot insert complete data into one packet:', _payload);
+            break;
+        }
+
+        if(typeof _payload[i] === 'string' || _payload[i] instanceof String) {
+            for(var z = 0; z < _payload[i].length; z++) {
+                if(index >= bufferView.byteLength) {
+                    // If packet size is reached, stop it
+                    console.error('Packet size exceeded! Cannot insert complete data into one packet:', _payload);
+                    break;
+                }
+
+                bufferView[index] = _payload[i].charCodeAt(z);
+                index += 1;
+            }
+        }
+        else {
+            bufferView[index] = _payload[i];
+            index += 1;
+        }
+
     }
 
     return buffer;
@@ -334,6 +369,7 @@ mooltipass.device.getFromQueue = function(command, keepInQueue) {
                 return result[0];
             }
         }
+        // TODO: check whether return NULL here or return any element from queue
     }
 
     if(keepInQueue) {
@@ -702,7 +738,7 @@ mooltipass.device.responseGetMooltipassParameter = function(queuedItem, msg) {
         'value': msg[0]
     };
 
-    console.log('getMooltipassParameter(', queuedItem.payload, ') =', msg[0]);
+    //console.log('getMooltipassParameter(', queuedItem.payload, ') =', msg[0]);
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
     // Process next queued request
@@ -727,6 +763,157 @@ mooltipass.device.responseSetMooltipassParameter = function(queuedItem, msg) {
     // Process next queued request
     mooltipass.device.processQueue();
 };
+
+mooltipass.device.responseSetContext = function(queuedItem, msg) {
+    var params = queuedItem.responseParameters;
+
+    var responseObject = {
+        'command': queuedItem.command,
+        'payload': queuedItem.payload,
+    };
+
+    if(!params) {
+        // TODO: can this happen? are there any use-cases for setContext without add/update/get credentials?
+        responseObject.success = false;
+        responseObject.code = 201;
+        responseObject.msg = "Nothing to continue after setting context!";
+
+        mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Process next queued request
+        mooltipass.device.processQueue();
+        return;
+    }
+
+    var success = msg[0] == 1;
+
+    if(success) {
+        responseObject.context = queuedItem.payload[0];
+    }
+
+    var requestType = params.requestType;
+    if(requestType) {
+        // Either add, update or get credentials
+        switch(requestType) {
+            case 'addCredentials':
+            case 'updateCredentials':
+                // Add and update is currently the same
+                break;
+            case 'getCredentials':
+                if(success) {
+                    // Contexts no longer needed
+                    delete params.contexts;
+                    params.context = queuedItem.payload[0];
+                    // Add next context to first element in queue
+                    mooltipass.device.addToQueue('getLogin', [], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
+
+                    mooltipass.device.processQueue();
+                    return;
+                }
+                else {
+                    // Context not found, try next in list
+                    if(params.contexts.length > 0) {
+                        // More contexts available
+                        var nextContext = params.contexts.splice(0, 1);
+                        queuedItem.payload = [nextContext[0]];
+
+                        // Add next context to first element in queue
+                        mooltipass.device.addToQueue(queuedItem.command, queuedItem.payload, params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
+
+                        mooltipass.device.processQueue();
+                        return;
+                    }
+                    else {
+                        // No more contexts
+                        responseObject.success = false;
+                        responseObject.code = 202;
+                        responseObject.msg = "No valid context found";
+                    }
+                }
+                break;
+            default:
+                // Unknown requestType
+                responseObject.success = false;
+                responseObject.code = 201;
+                responseObject.msg = "Given request type for continuing setContext is invalid";
+
+                mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+                // Process next queued request
+                mooltipass.device.processQueue();
+                return;
+        }
+    }
+
+    // In case no valid context was found, apply callback and continue with queue
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
+mooltipass.device.responseGetLogin = function(queuedItem, msg) {
+    console.log('mooltipass.device.responseGetLogin()');
+    var params = queuedItem.responseParameters;
+
+    var responseObject = {
+        'command': queuedItem.command,
+        'payload': queuedItem.payload,
+    };
+
+    if(!params) {
+        responseObject.success = false;
+        responseObject.code = 301;
+        responseObject.msg = "Did not receive context information";
+        console.error('Context information not provided');
+
+        mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Process next queued request
+        mooltipass.device.processQueue();
+        return;
+    }
+
+    var username = mooltipass.device.convertMessageArrayToString(msg);
+
+    params.username = username;
+    mooltipass.device.addToQueue('getPassword', [], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
+
+mooltipass.device.responseGetPassword = function(queuedItem, msg) {
+    console.log('mooltipass.device.responseGetPassword()');
+    var params = queuedItem.responseParameters;
+
+    var responseObject = {
+        'command': queuedItem.command,
+        'payload': queuedItem.payload,
+    };
+
+    if(!params) {
+        responseObject.success = false;
+        responseObject.code = 401;
+        responseObject.msg = "Context and username information not provided";
+        console.error('Context and username information not provided');
+
+        mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Process next queued request
+        mooltipass.device.processQueue();
+        return;
+    }
+
+    var success = msg[0] != 0;
+    var password = mooltipass.device.convertMessageArrayToString(msg);
+
+    responseObject.success = success;
+    responseObject.context = params.context;
+    responseObject.username = params.username;
+    responseObject.password = password;
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
 
 mooltipass.device.getSettingCurrentDatePayload = function() {
     var date = new Date();

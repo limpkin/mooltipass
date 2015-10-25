@@ -30,10 +30,15 @@ Please check the mooltipass.device.interface._COMMAND function for additional at
 
 */
 
+mooltipass.device.interface.metaCommands = [
+    'getCredentials',
+    'addCredentials',
+    'updateCredentials'
+];
 
 mooltipass.device.interface.send = function(inputObject) {
     var command = mooltipass.device.interface['_'+inputObject.command];
-    if(!command) {
+    if(!command && !contains(mooltipass.device.interface.metaCommands, inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 80, 'unknown command: ' + inputObject.command);
         return;
     }
@@ -170,6 +175,33 @@ mooltipass.device.interface._setMooltipassParameter = function(inputObject) {
         inputObject.command,
         payload,
         inputObject.responseParameters,
+        inputObject.callbackFunction,
+        inputObject.callbackParameters,
+        inputObject.timeout
+    );
+};
+
+
+/**
+ * Convert request to retrieve credentials from device
+ * @param inputObject
+ * @private
+ */
+mooltipass.device.interface._getCredentials = function(inputObject) {
+    var contexts = inputObject.contexts;
+
+    if(contexts.length < 1) {
+        mooltipass.device.interface._returnError(inputObject, 103, 'missing context for getting credentials');
+        return;
+    }
+
+    var firstContext = contexts.splice(0, 1);
+
+    var payload = [inputObject.value];
+    mooltipass.device.addToQueue(
+        'setContext',
+        [firstContext[0]],
+        {'contexts': contexts, 'requestType': 'getCredentials'},
         inputObject.callbackFunction,
         inputObject.callbackParameters,
         inputObject.timeout

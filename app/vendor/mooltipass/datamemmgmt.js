@@ -44,6 +44,7 @@ mooltipass.datamemmgmt.fileReadName = "";							// File read name
 mooltipass.datamemmgmt.fileSize = 0;								// File size
 mooltipass.datamemmgmt.fileRealSize = 0;							// File real size
 mooltipass.datamemmgmt.CPZCTRHashTable = [];						// All cards CPZ for current user
+mooltipass.datamemmgmt.userCTRHash = "";							// Current user CTR hash
  
 // Export file written callback
 mooltipass.datamemmgmt.fileWrittenCallback = function()
@@ -52,13 +53,13 @@ mooltipass.datamemmgmt.fileWrittenCallback = function()
 }
 
 mooltipass.datamemmgmt.mergeFileListWithPreferences = function()
-{
-	var current_hash = mooltipass.datamemmgmt.CPZCTRHashTable[0][1];
+{	
+	var changes_made = false;
 	
 	// Loop through our stored file names and check if some were deleted
 	for(var i = mooltipass.datamemmgmt.preferences.stored_files.length - 1; i >= 0; i--)
 	{
-		if(mooltipass.datamemmgmt.preferences.stored_files[i][0] == current_hash)
+		if(mooltipass.datamemmgmt.preferences.stored_files[i][0] == mooltipass.datamemmgmt.userCTRHash)
 		{
 			// try to find the file in the list we have
 			var file_found = false;
@@ -67,6 +68,7 @@ mooltipass.datamemmgmt.mergeFileListWithPreferences = function()
 				if(mooltipass.datamemmgmt.clonedCurDataServiceNodes[j].name == mooltipass.datamemmgmt.preferences.stored_files[i][1])
 				{
 					file_found = true;
+					break;
 				}
 			}
 			// didn't find the file, delete it from our preferences
@@ -74,6 +76,7 @@ mooltipass.datamemmgmt.mergeFileListWithPreferences = function()
 			{
 				console.log("File " + mooltipass.datamemmgmt.preferences.stored_files[i][1] + " was deleted");
 				mooltipass.datamemmgmt.preferences.stored_files.splice(i, 1);
+				changes_made = true;
 			}
 		}
 	}
@@ -85,7 +88,7 @@ mooltipass.datamemmgmt.mergeFileListWithPreferences = function()
 		var file_found = false;
 		for(var j = 0; j < mooltipass.datamemmgmt.preferences.stored_files.length; j++)
 		{
-			if(mooltipass.datamemmgmt.clonedCurDataServiceNodes[i].name == mooltipass.datamemmgmt.preferences.stored_files[j][1] && current_hash == mooltipass.datamemmgmt.preferences.stored_files[0][1])
+			if(mooltipass.datamemmgmt.clonedCurDataServiceNodes[i].name == mooltipass.datamemmgmt.preferences.stored_files[j][1] && mooltipass.datamemmgmt.userCTRHash == mooltipass.datamemmgmt.preferences.stored_files[j][0])
 			{
 				file_found = true;
 			}
@@ -93,30 +96,30 @@ mooltipass.datamemmgmt.mergeFileListWithPreferences = function()
 		// didn't find the file, delete it from our preferences
 		if(file_found == false)
 		{
+			changes_made = true;
 			console.log("File " + mooltipass.datamemmgmt.clonedCurDataServiceNodes[i].name + " was added");
-			mooltipass.datamemmgmt.preferences.stored_files.push([current_hash, mooltipass.datamemmgmt.clonedCurDataServiceNodes[i].name]);
+			mooltipass.datamemmgmt.preferences.stored_files.push([mooltipass.datamemmgmt.userCTRHash, mooltipass.datamemmgmt.clonedCurDataServiceNodes[i].name]);
 		}
+	}	
+	
+	if(changes_made == true)
+	{
+		mooltipass.prefstorage.setStoredPreferences({"datamemmgmtPrefsStored": true, "datamemmgmtPrefs": mooltipass.datamemmgmt.preferences});		
 	}
 }
 
 mooltipass.datamemmgmt.mergeCPZCTRHashTableWithPreferences = function()
 {
+	var changes_made = false;
+	
 	for(var i = 0; i < mooltipass.datamemmgmt.CPZCTRHashTable.length; i++)
 	{
 		var cpz_found = false;
 		for(var j = 0; j < mooltipass.datamemmgmt.preferences.cpz_to_ctrhash.length; j++)
 		{
-			cpz_found = true;
-			for(var k = 0; k < 8; k++)
+			if(mooltipass.datamemmgmt.CPZCTRHashTable[i][0] == mooltipass.datamemmgmt.preferences.cpz_to_ctrhash[j][0])
 			{
-				if(mooltipass.datamemmgmt.CPZCTRHashTable[i][0][k] != mooltipass.datamemmgmt.preferences.cpz_to_ctrhash[j][0][k])
-				{
-					cpz_found = false;
-					break;
-				}
-			}
-			if(cpz_found == true)
-			{
+				cpz_found = true;
 				break;
 			}
 		}
@@ -125,10 +128,15 @@ mooltipass.datamemmgmt.mergeCPZCTRHashTableWithPreferences = function()
 			//console.log("Adding CPZ/Hash to preferences");
 			//console.log(mooltipass.datamemmgmt.CPZCTRHashTable[i][0]);
 			//console.log(mooltipass.datamemmgmt.CPZCTRHashTable[i][1]);
+			changes_made = true;
 			mooltipass.datamemmgmt.preferences.cpz_to_ctrhash.push(mooltipass.datamemmgmt.CPZCTRHashTable[i]);
 		}
 	}
-	//mooltipass.prefstorage.setStoredPreferences({"datamemmgmtPrefsStored": true, "datamemmgmtPrefs": mooltipass.datamemmgmt.preferences});
+	
+	if(changes_made == true)
+	{
+		mooltipass.prefstorage.setStoredPreferences({"datamemmgmtPrefsStored": true, "datamemmgmtPrefs": mooltipass.datamemmgmt.preferences});		
+	}
 }
 
 // Load memory management preferences callback
@@ -178,12 +186,6 @@ mooltipass.datamemmgmt.preferencesCallback = function(items)
 				mooltipass.datamemmgmt.preferences = items.datamemmgmtPrefs;				
 			}
 			//console.log(mooltipass.datamemmgmt.preferences);
-			
-			// List stored files
-			for(var i = 0; i < mooltipass.datamemmgmt.preferences.stored_files.length; i++)
-			{
-				
-			}
 		}
 	}
 }
@@ -512,18 +514,11 @@ mooltipass.datamemmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['exportCPZandCTR'])
 		{
-			console.log("CPZ packet export packet received: " + packet.subarray(2, 2 + 8)); 
+			//console.log("CPZ packet export packet received: " + packet.subarray(2, 2 + 8)); 
 			
-			// Generate CTR hash
-			var temp_string = "";
-			for(var i = 0; i < 16; i ++)
-			{
-				temp_string += packet[2 + 8 + i].toString(16);
-			}		
-			temp_string = mooltipass.util.sha256hash(temp_string);
-			
-			// Store CPZ / CTR hash
-			mooltipass.datamemmgmt.CPZCTRHashTable.push([packet.subarray(2, 2 + 8), temp_string]);
+			// Generate CTR hash, store CPZ <> CTR hash entry
+			mooltipass.datamemmgmt.userCTRHash = mooltipass.util.sha256hash(mooltipass.util.arrayToHexStr(packet.subarray(2+8, 2+8+16)));
+			mooltipass.datamemmgmt.CPZCTRHashTable.push([mooltipass.util.arrayToHexStr(packet.subarray(2, 2 + 8)), mooltipass.datamemmgmt.userCTRHash]);
 			
 			// Arm receive
 			mooltipass.memmgmt_hid.receiveMsg();

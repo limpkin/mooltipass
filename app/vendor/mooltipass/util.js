@@ -41,6 +41,16 @@ mooltipass.util.arrayToStr = function(buf)
     return res;
 }
 
+mooltipass.util.arrayToHexStr = function(buf)
+{
+    res = "";
+    for (var ind = 0; ind < buf.length; ind++)
+    {
+		res += buf[ind].toString(16);
+    }
+    return res;	
+}
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 /*  SHA-256 implementation in JavaScript                (c) Chris Veness 2002-2014 / MIT Licence  */
 /*                                                                                                */

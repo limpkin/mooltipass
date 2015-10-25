@@ -9475,40 +9475,45 @@ nav ul li a img {
   margin-bottom: 1rem !important;
 }
 
-/* line 22, ../scss/_layout.scss */
+/* line 21, ../scss/_layout.scss */
+.no-margin-bottom {
+  margin-bottom: 0rem !important;
+}
+
+/* line 23, ../scss/_layout.scss */
 .content {
   padding: 0.5rem 0rem;
   overflow-y: scroll;
   font-size: 0.8rem;
   height: 455px;
 }
-/* line 28, ../scss/_layout.scss */
+/* line 29, ../scss/_layout.scss */
 .content p, .content label {
   font-size: inherit;
 }
-/* line 32, ../scss/_layout.scss */
+/* line 33, ../scss/_layout.scss */
 .content h1, .content h2 {
   font-size: 1rem;
 }
-/* line 35, ../scss/_layout.scss */
+/* line 36, ../scss/_layout.scss */
 .content h3, .content h4 {
   font-size: 0.9rem;
 }
-/* line 38, ../scss/_layout.scss */
+/* line 39, ../scss/_layout.scss */
 .content h5, .content h6 {
   font-size: inherit;
 }
 
-/* line 43, ../scss/_layout.scss */
+/* line 44, ../scss/_layout.scss */
 .alert-modal {
   margin-top: 5rem;
 }
-/* line 45, ../scss/_layout.scss */
+/* line 46, ../scss/_layout.scss */
 .alert-modal h1 {
   margin-top: 0;
 }
 
-/* line 53, ../scss/_layout.scss */
+/* line 54, ../scss/_layout.scss */
 .progress {
   border: none;
   height: 1.2rem;
@@ -9803,81 +9808,77 @@ input.inline {
   height: 1.8rem;
   transition: all 200ms ease;
 }
-/* line 79, ../scss/app.scss */
-.add-credential label {
-  margin-bottom: 1.25rem;
-}
-/* line 82, ../scss/app.scss */
+/* line 81, ../scss/app.scss */
 .add-credential label span.required {
   opacity: 0;
   color: #f04124;
 }
-/* line 87, ../scss/app.scss */
+/* line 86, ../scss/app.scss */
 .add-credential label.alert span.required {
   opacity: 1;
   transition: all 200ms ease;
 }
-/* line 91, ../scss/app.scss */
+/* line 90, ../scss/app.scss */
 .add-credential label.alert input {
   border: 1px solid #F00 !important;
 }
-/* line 96, ../scss/app.scss */
+/* line 95, ../scss/app.scss */
 .add-credential label .comment {
   font-size: 0.68rem;
   opacity: 0;
   transition: all 200ms ease;
 }
 
-/* line 105, ../scss/app.scss */
+/* line 104, ../scss/app.scss */
 #page-synchronisation button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 112, ../scss/app.scss */
+/* line 111, ../scss/app.scss */
 #page-synchronisation .storage p {
   margin-bottom: 0;
 }
-/* line 116, ../scss/app.scss */
+/* line 115, ../scss/app.scss */
 #page-synchronisation .storage input[type="checkbox"] {
   margin-left: 0.5rem;
 }
-/* line 120, ../scss/app.scss */
+/* line 119, ../scss/app.scss */
 #page-synchronisation .storage span {
   display: inline-block;
   width: 90%;
 }
-/* line 125, ../scss/app.scss */
+/* line 124, ../scss/app.scss */
 #page-synchronisation .storage label {
   margin-top: 0.5rem;
 }
 
-/* line 132, ../scss/app.scss */
+/* line 131, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }
 
-/* line 137, ../scss/app.scss */
+/* line 136, ../scss/app.scss */
 #page-credentials button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 142, ../scss/app.scss */
+/* line 141, ../scss/app.scss */
 #page-credentials button.secondary {
   color: #888888;
   transition: background-color ease 1000ms;
 }
-/* line 146, ../scss/app.scss */
+/* line 145, ../scss/app.scss */
 #page-credentials button.secondary:hover {
   background-color: #ddd;
 }
-/* line 150, ../scss/app.scss */
+/* line 149, ../scss/app.scss */
 #page-credentials button.secondary:active {
   background-color: #F1BABA;
 }
 
-/* line 158, ../scss/app.scss */
+/* line 157, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }

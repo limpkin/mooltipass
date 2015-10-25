@@ -48,7 +48,7 @@ mooltipass.ui._.initConfirmButtons = function(){
     $("*[data-confirm]").on('mousedown', function() {
         $button = $(this);
         $button.attr("data-origin", $button.html());
-        $button.html($(this).attr("data-confirm"));
+        $button.html("<b style='color:red;'>" + $(this).attr("data-confirm") + "</b>");
         
         last_count++;
         count = last_count;
@@ -61,7 +61,10 @@ mooltipass.ui._.initConfirmButtons = function(){
         }, 1000);
 
     }).on("mouseup", function() {
-        $(this).html($(this).attr("data-origin"));
+        $button = $(this);
+        setTimeout(function(){
+            $button.html($button.attr("data-origin"));
+        }, 200);
 
         // Cancel interaction
         count = -1;
@@ -117,28 +120,24 @@ mooltipass.ui._.showActivePage = function () {
 }
 
 mooltipass.ui._.isDeviceConnected = function () {
-    // DEBUG
-    // return true;
     return mooltipass.device.isConnected;
 }
 
 mooltipass.ui._.isDeviceUnlocked = function () {
-    // DEBUG
-    // return true;
     return mooltipass.device.isUnlocked;
 }
 
+mooltipass.ui._.hasCard = function () {
+    return !mooltipass.device.hasNoCard;
+}
+
 mooltipass.ui._.isDeviceInMMM = function () {
-    // DEBUG
-    // return true;
     return mooltipass.device.singleCommunicationMode
         && mooltipass.device.singleCommunicationModeEntered
         && mooltipass.device.singleCommunicationReason == 'memorymanagementmode';
 }
 
 mooltipass.ui._.isDeviceInSM = function () {
-    // DEBUG
-    //return true;
     return mooltipass.device.singleCommunicationMode
         && mooltipass.device.singleCommunicationModeEntered
         && mooltipass.device.singleCommunicationReason == 'synchronisationmode';
@@ -162,7 +161,17 @@ update_device_status_classes = function () {
         $(".show-if-connected").hide();
         $(".hide-if-connected").show();
 
-        return;
+        return
+    }
+
+    if (mooltipass.ui._.hasCard()) {
+        $(".show-if-card").show();
+        $(".hide-if-card").hide();
+    } else {
+        $(".show-if-card").hide();
+        $(".hide-if-card").show();
+
+        return
     }
 
     if (mooltipass.ui._.isDeviceUnlocked()) {

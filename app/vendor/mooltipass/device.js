@@ -134,6 +134,9 @@ mooltipass.device.isConnected = false;
 // Information about unlocked database
 mooltipass.device.isUnlocked = false;
 
+// Device has no card inserted
+mooltipass.device.hasNoCard = true;
+
 // Is communication with device is uniquely taken by a function?
 // e.g. device is in MemoryManagementMode
 mooltipass.device.singleCommunicationMode = false;
@@ -737,6 +740,10 @@ mooltipass.device.getSettingCurrentDatePayload = function() {
     return array;
 };
 
+/**
+ * Request status from device and set status in app.
+ * Trigger actions for specific status
+ */
 mooltipass.device.checkStatus = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassStatus',
@@ -744,6 +751,7 @@ mooltipass.device.checkStatus = function() {
             if(_responseObject.success) {
                 var unlocked = _responseObject.value == 'unlocked';
                 var locked = _responseObject.value == 'locked';
+                var noCard = _responseObject.value == 'no-card';
 
                 if(!mooltipass.device.isUnlocked && unlocked) {
                     mooltipass.app.updateOnUnlock();
@@ -753,6 +761,8 @@ mooltipass.device.checkStatus = function() {
                 }
                 //console.log('mooltipass.device.isUnlocked =', unlocked);
                 mooltipass.device.isUnlocked = unlocked;
+
+                mooltipass.device.hasNoCard = noCard;
             }
             // Set to locked only if not in MemoryManagementMode
             else if(_responseObject.code != 90) {
@@ -760,6 +770,8 @@ mooltipass.device.checkStatus = function() {
                 mooltipass.device.isUnlocked = false;
                 mooltipass.app.updateOnLock();
             }
+
+            // TODO: inform connected clients
         }
     });
 };

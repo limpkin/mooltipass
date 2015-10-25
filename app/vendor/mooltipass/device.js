@@ -775,6 +775,8 @@ mooltipass.device.checkStatus = function() {
 
             // TODO: inform connected clients
             mooltipass.device.clients.send({
+                'success': _responseObject.success,
+                'command': _responseObject.command,
                 'connected': mooltipass.device.isConnected,
                 'unlocked': mooltipass.device.isUnlocked,
                 'cardInserted': !mooltipass.device.hasNoCard,

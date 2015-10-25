@@ -21,6 +21,13 @@ mooltipass.ui._.init = function() {
     });
 
     mooltipass.ui._.initConfirmButtons();
+
+    setTimeout(function(){
+        $("#splash-screen").css('opacity', 0);
+        setTimeout(function(){
+            $("#splash-screen").remove();
+        }, 800);
+    }, 1500);
 };
 
 mooltipass.ui._.reset = function() {

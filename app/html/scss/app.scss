@@ -158,3 +158,24 @@ button, .button {
     outline: none;
   }
 }
+
+#splash-screen {
+    transition: opacity ease 800ms;
+    background: white;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 1000;  
+
+    .row {
+      width: 20rem;
+      margin-top: 13rem;    
+      margin-left: 13rem;
+    }
+
+    i {
+      margin-top: 0.3rem;
+      font-size: 3.5rem;
+      color: $primary-color;    
+    }
+}

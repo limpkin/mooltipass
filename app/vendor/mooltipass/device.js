@@ -179,6 +179,7 @@ mooltipass.device.reset = function() {
     mooltipass.device.flashChipId = null;
     mooltipass.device.isUnlocked = false;
     mooltipass.device.isConnected = false;
+    mooltipass.device.hasNoCard = true;
     mooltipass.device.endSingleCommunicationMode();
 };
 

@@ -4532,7 +4532,7 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 {
 //mooltipass.datamemmgmt.addFileToMooltipass();return;
-mooltipass.datamemmgmt.listDataNodeNames();return;
+//mooltipass.datamemmgmt.listDataNodeNames();return;
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
 		if(to_file_bool == false && mooltipass.memmgmt.syncFSOK == false)

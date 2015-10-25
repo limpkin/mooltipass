@@ -618,6 +618,7 @@ mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     mooltipass.device.flashChipId = flashChipId;
 
     var responseObject = {
+        'command': queuedItem.command,
         'success': true,
         'value': version
     };
@@ -631,6 +632,7 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
     var status = mooltipass.device.convertMessageArrayToString(msg);
 
     var responseObject = {
+        'command': queuedItem.command,
         'success': true,
         'value': status
     };
@@ -648,6 +650,7 @@ mooltipass.device.responseGetRandomNumber = function(queuedItem, msg) {
     }
 
     var responseObject = {
+        'command': queuedItem.command,
         'success': true,
         'value': value
     };
@@ -659,10 +662,13 @@ mooltipass.device.responseGetRandomNumber = function(queuedItem, msg) {
 
 mooltipass.device.responsePing = function(queuedItem, msg) {
     var responseObject = {
+        'command': queuedItem.command,
         'success': true
     };
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+
+
     // Process next queued request
     mooltipass.device.processQueue();
 };
@@ -674,6 +680,7 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
     mooltipass.device.status = _status;
 
     var responseObject = {
+        'command': queuedItem.command,
         'success': true,
         'value': _status
     };
@@ -687,8 +694,9 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
 
 mooltipass.device.responseGetMooltipassParameter = function(queuedItem, msg) {
     var responseObject = {
-        'success': true,
+        'command': queuedItem.command,
         'payload': queuedItem.payload,
+        'success': true,
         'value': msg[0]
     };
 
@@ -703,8 +711,9 @@ mooltipass.device.responseSetMooltipassParameter = function(queuedItem, msg) {
     var success = msg[0] == 1;
 
     var responseObject = {
-        'success': success,
-        'payload': queuedItem.payload
+        'command': queuedItem.command,
+        'payload': queuedItem.payload,
+        'success': success
     };
 
     if(!success) {

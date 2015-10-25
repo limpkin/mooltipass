@@ -16,3 +16,9 @@ function contains(array, obj) {
     }
     return false;
 }
+
+function mergeObjects(sourceObject, destinationObject) {
+    for (var key in sourceObject) {
+        destinationObject[key] = sourceObject[key];
+    }
+}

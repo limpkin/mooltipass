@@ -301,7 +301,13 @@ mooltipass.device.startSingleCommunicationMode = function(reason) {
 /**
  * End single communication mode
  */
-mooltipass.device.endSingleCommunicationMode = function() {
+mooltipass.device.endSingleCommunicationMode = function(skip) {
+    // Skip ending single communication mode
+    // e.g. because it was called by callbackAllQueuedCommandsInSingleCommunicationMode()
+    if(skip) {
+        return;
+    }
+
     mooltipass.device.singleCommunicationMode = false;
     mooltipass.device.singleCommunicationModeEntered = false;
     mooltipass.device.singleCommunicationReason = null;
@@ -397,7 +403,8 @@ mooltipass.device.callbackAllQueuedCommandsInSingleCommunicationMode = function(
     var responseObject = {
         'success': false,
         'code': 90,
-        'msg': 'device blocks new communication'
+        'msg': 'device blocks new communication',
+        'skipEndingSingleCommunicationMode': true,
     };
     while(queuedItem = mooltipass.device.getFromQueue(null, false)) {
         mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);

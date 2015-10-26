@@ -21,18 +21,24 @@ mooltipass.ui._.init = function() {
     });
 
     mooltipass.ui._.initConfirmButtons();
+    mooltipass.ui._.showSplashScreen();
+};
 
+mooltipass.ui._.showSplashScreen = function () {
+    $("#splash-screen").show();
     setTimeout(function(){
         $("#splash-screen").css('opacity', 0);
         setTimeout(function(){
-            $("#splash-screen").remove();
+            $("#splash-screen").hide();
+            $("#splash-screen").css('opacity', 1);
         }, 800);
-    }, 1500);
-};
+    }, 1500);        
+}
 
 mooltipass.ui._.reset = function() {
     $("#modal-integrity-check").hide();  
-    $("#modal-confirm-on-device").hide();    
+    $("#modal-confirm-on-device").hide(); 
+    mooltipass.ui._.showSplashScreen();   
 }
 
 mooltipass.ui._.blockInput = function() {

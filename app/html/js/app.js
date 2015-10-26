@@ -35,6 +35,14 @@ mooltipass.ui._.reset = function() {
     $("#modal-confirm-on-device").hide();    
 }
 
+mooltipass.ui._.blockInput = function() {
+    $("#modal-confirm-on-device").show();
+}
+
+mooltipass.ui._.unblockInput = function() {
+    $("#modal-confirm-on-device").hide();
+}
+
 mooltipass.ui._.waitForDevice = function (button, activate) {
     var $button = $(button);
     if (activate) {

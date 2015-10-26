@@ -48,6 +48,11 @@ mooltipass.device.interface.send = function(inputObject) {
         return;
     }
 
+    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassStatus'], inputObject.command)) {
+        mooltipass.device.interface._returnError(inputObject, 71, 'device is locked');
+        return;
+    }
+
     if(mooltipass.device.singleCommunicationMode) {
         mooltipass.device.interface._returnError(inputObject, 90, 'device blocks new communication');
         return;

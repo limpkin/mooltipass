@@ -4,10 +4,10 @@ mooltipass.ui.sync = mooltipass.ui.sync || {};
 
 
 mooltipass.ui.sync.disableButtons = function(disabled) {
-    $('#exportToFile').prop('disabled', disabled);
-    $('#importFromFile').prop('disabled', disabled);
-    $('#exportToCloud').prop('disabled', disabled);
-    $('#importFromCloud').prop('disabled', disabled);
+    $('.exportToFile').prop('disabled', disabled);
+    $('.importFromFile').prop('disabled', disabled);
+    $('.exportToCloud').prop('disabled', disabled);
+    $('.importFromCloud').prop('disabled', disabled);
     $('#scanMemory').prop('disabled', disabled);
 }
 
@@ -23,11 +23,11 @@ mooltipass.ui.sync.init = function() {
     // Todo: Use real default values
     $("input[data-key='sync-cloud-auto']").prop("checked", true);
 
-    $('#exportToFile').click(mooltipass.ui.sync.onClickExportToFile);
-    $('#importFromFile').click(mooltipass.ui.sync.onClickImportFromFile);
+    $('.exportToFile').click(mooltipass.ui.sync.onClickExportToFile);
+    $('.importFromFile').click(mooltipass.ui.sync.onClickImportFromFile);
 
-    $('#exportToCloud').click(mooltipass.ui.sync.onClickExportToCloud);
-    $('#importFromCloud').click(mooltipass.ui.sync.onClickImportFromCloud);
+    $('.exportToCloud').click(mooltipass.ui.sync.onClickExportToCloud);
+    $('.importFromCloud').click(mooltipass.ui.sync.onClickImportFromCloud);
 
     $('#scanMemory').click(mooltipass.ui.sync.onClickScanMemory);
 };
@@ -50,7 +50,7 @@ mooltipass.ui.sync.onClickExportToFile = function(e) {
 };
 
 mooltipass.ui.sync.callbackExportToFile = function(_status) {
-    var $button = $('#exportToFile');
+    var $button = $('.exportToFile');
 
     if(_status.success) {
         mooltipass.ui.status.success($button, _status.msg);
@@ -84,7 +84,7 @@ mooltipass.ui.sync.onClickImportFromFile = function(e) {
 };
 
 mooltipass.ui.sync.callbackImportFromFile = function(_status) {
-    var $button = $('#importFromFile');
+    var $button = $('.importFromFile');
 
     if(_status.success) {
         mooltipass.ui.status.success($button, _status.msg);
@@ -116,7 +116,7 @@ mooltipass.ui.sync.onClickExportToCloud = function(e) {
 };
 
 mooltipass.ui.sync.callbackExportToCloud = function(_status) {
-    var $button = $('#exportToCloud');
+    var $button = $('.exportToCloud');
 
     if(_status.success) {
         mooltipass.ui.status.success($button, _status.msg);
@@ -148,7 +148,7 @@ mooltipass.ui.sync.onClickImportFromCloud = function(e) {
 };
 
 mooltipass.ui.sync.callbackImportFromCloud = function(_status) {
-    var $button = $('#importFromCloud');
+    var $button = $('.importFromCloud');
 
     if(_status.success) {
         mooltipass.ui.status.success($button, _status.msg);

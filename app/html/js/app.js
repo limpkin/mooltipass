@@ -130,6 +130,11 @@ mooltipass.ui._.isDeviceConnected = function () {
     return mooltipass.device.isConnected;
 }
 
+mooltipass.ui._.isCardUnknown = function() {
+    //return mooltipass.device.isUnknownCard
+    return true
+}
+
 mooltipass.ui._.isDeviceUnlocked = function () {
     return mooltipass.device.isUnlocked;
 }
@@ -161,6 +166,15 @@ function executeFunctionByName(functionName, context) {
 }
 
 update_device_status_classes = function () {
+    if (mooltipass.ui._.isCardUnknown()) {
+        $(".show-if-card-unknown").show();
+        $(".hide-if-card-unknown").hide();
+    } else {
+        $(".show-if-card-unknown").hide();
+        $(".hide-if-card-unknown").show();        
+    }
+
+
     if (mooltipass.ui._.isDeviceConnected()) {
         $(".show-if-connected").show();
         $(".hide-if-connected").hide();
@@ -169,7 +183,7 @@ update_device_status_classes = function () {
         $(".hide-if-connected").show();
 
         return
-    }
+    }    
 
     if (mooltipass.ui._.hasCard()) {
         $(".show-if-card").show();

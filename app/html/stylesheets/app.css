@@ -9480,40 +9480,45 @@ nav ul li a img {
   margin-bottom: 0rem !important;
 }
 
-/* line 23, ../scss/_layout.scss */
+/* line 22, ../scss/_layout.scss */
+.big-margin-right {
+  margin-right: 2rem;
+}
+
+/* line 24, ../scss/_layout.scss */
 .content {
   padding: 0.5rem 0rem;
   overflow-y: scroll;
   font-size: 0.8rem;
   height: 455px;
 }
-/* line 29, ../scss/_layout.scss */
+/* line 30, ../scss/_layout.scss */
 .content p, .content label {
   font-size: inherit;
 }
-/* line 33, ../scss/_layout.scss */
+/* line 34, ../scss/_layout.scss */
 .content h1, .content h2 {
   font-size: 1rem;
 }
-/* line 36, ../scss/_layout.scss */
+/* line 37, ../scss/_layout.scss */
 .content h3, .content h4 {
   font-size: 0.9rem;
 }
-/* line 39, ../scss/_layout.scss */
+/* line 40, ../scss/_layout.scss */
 .content h5, .content h6 {
   font-size: inherit;
 }
 
-/* line 44, ../scss/_layout.scss */
+/* line 45, ../scss/_layout.scss */
 .alert-modal {
   margin-top: 5rem;
 }
-/* line 46, ../scss/_layout.scss */
+/* line 47, ../scss/_layout.scss */
 .alert-modal h1 {
   margin-top: 0;
 }
 
-/* line 54, ../scss/_layout.scss */
+/* line 55, ../scss/_layout.scss */
 .progress {
   border: none;
   height: 1.2rem;

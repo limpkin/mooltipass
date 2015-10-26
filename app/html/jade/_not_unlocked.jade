@@ -1,6 +1,16 @@
 .alert-modal.not-unlocked.row.show-if-connected.show-if-card.hide-if-unlocked
-  .column.small-offset-2.small-3
+  .column.small-offset-2.small-3.hide-if-card-unknown
     img(src="../images/unlock.png")
-  .text.column.small-5.end
+  .text.column.small-5.end.hide-if-card-unknown
     h1 Unlock your Mooltipass device
     p The connected device is currently locked. Unlock it to modify settings and manage your credentials.
+
+  .column.small-offset-2.small-3.show-if-card-unknown
+    img(src="../images/new-card.png")
+  .text.column.small-5.end.show-if-card-unknown
+    h1 New card detected
+    p.comment You inserted a new card. You can import your credentials from a previous file or cloud backup.
+    button.small.big-margin-right.importFromCloud Import from cloud
+    button.small.importFromFile Import from file
+
+

@@ -131,8 +131,7 @@ mooltipass.ui._.isDeviceConnected = function () {
 }
 
 mooltipass.ui._.isCardUnknown = function() {
-    //return mooltipass.device.isUnknownCard
-    return true
+    return mooltipass.device.isUnknownCard;
 }
 
 mooltipass.ui._.isDeviceUnlocked = function () {

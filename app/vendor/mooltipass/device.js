@@ -702,11 +702,20 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
 
     mooltipass.device.status = status;
 
+    var unlocked = status == 'unlocked';
+    var locked = status == 'locked';
+    var noCard = status == 'no-card';
+
     var responseObject = {
         'command': queuedItem.command,
         'success': true,
         'value': status,
         'senderId': queuedItem.responseParameters ? queuedItem.responseParameters.senderId : null,
+        'connected': mooltipass.device.isConnected,
+        'unlocked': unlocked,
+        'locked': locked,
+        'noCard': noCard,
+        'version': mooltipass.device.version,
     };
 
     if(queuedItem && queuedItem.callbackFunction) {
@@ -1152,22 +1161,17 @@ mooltipass.device.checkStatus = function() {
 
 mooltipass.device.checkStatusCallback = function(_responseObject, _credentials) {
     if(_responseObject.success) {
-        var currentUnlockStatus = mooltipass.device.isUnlocked;
-        var unlocked = _responseObject.value == 'unlocked';
-        var locked = _responseObject.value == 'locked';
-        var noCard = _responseObject.value == 'no-card';
-
-        if(!mooltipass.device.isUnlocked && unlocked) {
-            mooltipass.device.isUnlocked = unlocked;
+        if(!mooltipass.device.isUnlocked && _responseObject.unlocked) {
+            mooltipass.device.isUnlocked = _responseObject.unlocked;
             mooltipass.app.updateOnUnlock();
         }
-        if(mooltipass.device.isUnlocked && locked) {
+        if(mooltipass.device.isUnlocked && _responseObject.locked) {
             mooltipass.app.updateOnLock();
         }
         //console.log('mooltipass.device.isUnlocked =', unlocked);
-        mooltipass.device.isUnlocked = unlocked;
+        mooltipass.device.isUnlocked = _responseObject.unlocked;
 
-        mooltipass.device.hasNoCard = noCard;
+        mooltipass.device.hasNoCard = _responseObject.noCard;
     }
     // Set to locked only if not in MemoryManagementMode
     else if(_responseObject.code != 90) {
@@ -1176,15 +1180,8 @@ mooltipass.device.checkStatusCallback = function(_responseObject, _credentials) 
         mooltipass.app.updateOnLock();
     }
 
-    // TODO: inform connected clients
-    mooltipass.device.clients.send({
-        'success': _responseObject.success,
-        'command': _responseObject.command,
-        'connected': mooltipass.device.isConnected,
-        'unlocked': mooltipass.device.isUnlocked,
-        'cardInserted': !mooltipass.device.hasNoCard,
-        'version': mooltipass.device.version
-    }, { 'senderId': _responseObject.senderId });
+    // Inform connected clients
+    mooltipass.device.clients.send(_responseObject, { 'senderId': _responseObject.senderId });
 }
 
 

@@ -803,6 +803,9 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
         switch(requestType) {
             case 'addCredentials':
             case 'updateCredentials':
+                // Block app usage because of user interaction
+                mooltipass.ui._.blockInput();
+
                 // Add and update is currently the same
                 if(success) {
                     // Update context
@@ -823,7 +826,8 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
                     // Contexts no longer needed
                     delete params.contexts;
                     params.context = queuedItem.payload[0];
-                    // Add next context to first element in queue
+                    // Get login
+                    mooltipass.ui._.blockInput();
                     mooltipass.device.addToQueue('getLogin', [], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
 
                     mooltipass.device.processQueue();
@@ -888,6 +892,8 @@ mooltipass.device.responseGetLogin = function(queuedItem, msg) {
         console.error('Context information not provided');
 
         mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Unblock app usage
+        mooltipass.ui._.unblockInput();
         // Process next queued request
         mooltipass.device.processQueue();
         return;
@@ -917,6 +923,8 @@ mooltipass.device.responseGetPassword = function(queuedItem, msg) {
         console.error('Context and username information not provided');
 
         mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Unblock app usage
+        mooltipass.ui._.unblockInput();
         // Process next queued request
         mooltipass.device.processQueue();
         return;
@@ -929,6 +937,9 @@ mooltipass.device.responseGetPassword = function(queuedItem, msg) {
     responseObject.context = params.context;
     responseObject.username = params.username;
     responseObject.password = password;
+
+    // Unblock app usage
+    mooltipass.ui._.unblockInput();
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
     // Process next queued request
@@ -946,6 +957,8 @@ mooltipass.device.responseAddContext = function(queuedItem, msg) {
         console.error('Context information not provided');
 
         mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Unblock app usage
+        mooltipass.ui._.unblockInput();
         // Process next queued request
         mooltipass.device.processQueue();
         return;
@@ -960,13 +973,16 @@ mooltipass.device.responseAddContext = function(queuedItem, msg) {
     };
 
     if(success) {
-        mooltipass.device.addToQueue('setLogin', [params.username], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
+        mooltipass.device.addToQueue('setContext', [params.context], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
         mooltipass.device.processQueue();
         return;
     }
 
     responseObject.code = 452;
     responseObject.msg = "User denied saving new context";
+
+    // Unblock app usage
+    mooltipass.ui._.unblockInput();
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
     // Process next queued request
@@ -984,6 +1000,8 @@ mooltipass.device.responseSetLogin = function(queuedItem, msg) {
         console.error('Credential information not provided');
 
         mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Unblock app usage
+        mooltipass.ui._.unblockInput();
         // Process next queued request
         mooltipass.device.processQueue();
         return;
@@ -1006,6 +1024,9 @@ mooltipass.device.responseSetLogin = function(queuedItem, msg) {
     responseObject.code = 502;
     responseObject.msg = "User denied saving credentials";
 
+    // Unblock app usage
+    mooltipass.ui._.unblockInput();
+
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
     // Process next queued request
     mooltipass.device.processQueue();
@@ -1022,6 +1043,8 @@ mooltipass.device.responseCheckPassword = function(queuedItem, msg) {
         console.error('Credential information not provided');
 
         mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Unblock app usage
+        mooltipass.ui._.unblockInput();
         // Process next queued request
         mooltipass.device.processQueue();
         return;
@@ -1034,6 +1057,10 @@ mooltipass.device.responseCheckPassword = function(queuedItem, msg) {
                 'payload': queuedItem.payload,
                 'success': true,
             };
+
+            // Unblock app usage
+            mooltipass.ui._.unblockInput();
+
             mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
             mooltipass.device.processQueue();
             return;
@@ -1060,6 +1087,9 @@ mooltipass.device.responseSetPassword = function(queuedItem, msg) {
         responseObject.code = 551;
         responseObject.msg = "User denied saving password";
     }
+
+    // Unblock app usage
+    mooltipass.ui._.unblockInput();
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
     // Process next queued request
@@ -1090,11 +1120,13 @@ mooltipass.device.checkStatus = function() {
         'command': 'getMooltipassStatus',
         'callbackFunction': function(_responseObject, _credentials) {
             if(_responseObject.success) {
+                var currentUnlockStatus = mooltipass.device.isUnlocked;
                 var unlocked = _responseObject.value == 'unlocked';
                 var locked = _responseObject.value == 'locked';
                 var noCard = _responseObject.value == 'no-card';
 
                 if(!mooltipass.device.isUnlocked && unlocked) {
+                    mooltipass.device.isUnlocked = unlocked;
                     mooltipass.app.updateOnUnlock();
                 }
                 if(mooltipass.device.isUnlocked && locked) {

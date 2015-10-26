@@ -103,7 +103,9 @@ mooltipass.device.status_parameters = {
     4: 'error',
     5: 'unlocked',
     6: 'error',
-    7: 'error'
+    7: 'error',
+    8: 'error',
+    9: 'unknown-card'
     /*
     0b000: 'noCard',
     0b001 -> Locked
@@ -697,6 +699,8 @@ mooltipass.device.responseSetCurrentDate = function(queuedItem, msg) {
 };
 
 mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
+    console.log('msg', msg);
+
     var status = mooltipass.device.status_parameters[msg[0]];
     status = status ? status : 'error';
 
@@ -705,6 +709,7 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
     var unlocked = status == 'unlocked';
     var locked = status == 'locked';
     var noCard = status == 'no-card';
+    var unknownCard = status == 'unknown-card';
 
     var responseObject = {
         'command': queuedItem.command,
@@ -715,6 +720,7 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
         'unlocked': unlocked,
         'locked': locked,
         'noCard': noCard,
+        'unknownCard': unknownCard,
         'version': mooltipass.device.version,
     };
 
@@ -1170,7 +1176,7 @@ mooltipass.device.checkStatusCallback = function(_responseObject, _credentials) 
         }
         //console.log('mooltipass.device.isUnlocked =', unlocked);
         mooltipass.device.isUnlocked = _responseObject.unlocked;
-
+        mooltipass.device.isUnknownCard = _responseObject.unknownCard;
         mooltipass.device.hasNoCard = _responseObject.noCard;
     }
     // Set to locked only if not in MemoryManagementMode

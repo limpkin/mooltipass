@@ -48,7 +48,7 @@ mooltipass.device.interface.send = function(inputObject) {
         return;
     }
 
-    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassStatus'], inputObject.command)) {
+    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassStatus', 'startSingleCommunicationMode'], inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 71, 'device is locked');
         return;
     }

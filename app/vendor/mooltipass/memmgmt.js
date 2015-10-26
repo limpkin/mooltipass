@@ -2152,7 +2152,7 @@ mooltipass.memmgmt.generateMergeOperations = function()
 			// Depending if it has a child or not, set tempChildAddress to 0			
 			if(cur_import_child_node_addr[0] == 0 && cur_import_child_node_addr[1] == 0)
 			{
-				mooltipass.memmgmt.clonedCurServiceNodes.push({'address': [0, 0], 'name': mooltipass.memmgmt.importedCurServiceNodes[i].name, 'data': mooltipass.memmgmt.importedCurServiceNodes[i].data, 'tempAddress': temp_new_service_address, 'tempChildAddress': 0, 'tempPrevAddress': temp_prev_address, 'tempNextAddress': temp_next_address, 'mergeTagged': true});
+				mooltipass.memmgmt.clonedCurServiceNodes.push({'address': [0, 0], 'name': mooltipass.memmgmt.importedCurServiceNodes[i].name, 'data': mooltipass.memmgmt.importedCurServiceNodes[i].data, 'tempAddress': temp_new_service_address, 'tempChildAddress': null, 'tempPrevAddress': temp_prev_address, 'tempNextAddress': temp_next_address, 'mergeTagged': true});
 			}
 			else
 			{
@@ -2680,7 +2680,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, changes were made"});				
+				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, found problems fixed"});				
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();	
 			}
@@ -3618,7 +3618,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			mooltipass.memmgmt.progressCallback({'progress': tempCompletion});
 			mooltipass.memmgmt.scanPercentage = tempCompletion;
-			console.log(tempCompletion + "%");
+			//console.log(tempCompletion + "%");
 		}
 		 
 		// check if we actually could read the node (permission problems....)

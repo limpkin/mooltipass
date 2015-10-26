@@ -30,6 +30,7 @@ mooltipass.app.init = function() {
     mooltipass.ui.contributors.init();
 
     mooltipass.prefstorage.getStoredPreferences(mooltipass.memmgmt.preferencesCallback);
+    mooltipass.prefstorage.getStoredPreferences(mooltipass.datamemmgmt.preferencesCallback);
     mooltipass.filehandler.getSyncableFileSystemStatus(mooltipass.memmgmt.syncableFSStateCallback);
     mooltipass.filehandler.setSyncFSStateChangeCallback(mooltipass.memmgmt.syncableFSStateChangeCallback);
 

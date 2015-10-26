@@ -699,8 +699,6 @@ mooltipass.device.responseSetCurrentDate = function(queuedItem, msg) {
 };
 
 mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
-    console.log('msg', msg);
-
     var status = mooltipass.device.status_parameters[msg[0]];
     status = status ? status : 'error';
 

@@ -16,11 +16,14 @@ function launch(details) {
 
     // Listen for external messages (e.g. from extension) and send them to the app
     // /vendor/mooltipass/app.js is listening for incoming internal messages
-    chrome.runtime.onMessageExternal.addListener(function(message, sender, callbackFunction) {
-        var data = {'id': sender.id, 'message': message};
-        // Keep callbackFunction separated to react on chrome.runtime.lastError
-        chrome.runtime.sendMessage(data, callbackFunction);
-    });
+    chrome.runtime.onMessageExternal.addListener(
+        function(message, sender, callbackFunction) {
+            //console.warn('chrome.runtime.onMessageExternal(', sender.id, ')');
+            var data = {'id': sender.id, 'message': message};
+            // Keep callbackFunction separated to react on chrome.runtime.lastError
+            chrome.runtime.sendMessage(data, callbackFunction);
+        });
+    console.log('Listener installed');
 
     _listenerInstalled = true;
 }
@@ -35,7 +38,12 @@ function launchWindow() {
     chrome.app.window.create('html/index.html', {'bounds': {'width': 800, 'height': 500}, "resizable": false});
 }
 
+
+/* ######################################################################################################### */
+
+
 var _listenerInstalled = false;
+
 if(!_listenerInstalled) {
     chrome.runtime.onInstalled.addListener(launch);
     chrome.runtime.onStartup.addListener(launch);

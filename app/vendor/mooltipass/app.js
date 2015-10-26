@@ -8,7 +8,7 @@ mooltipass.app._isInitializedLock = false;
 
 chrome.runtime.onMessage.addListener(
     function(data, sender, callbackFunction) {
-        console.warn('chrome.runtime.onMessage(', data.id, ')');
+        //console.warn('chrome.runtime.onMessage(', data.id, ')');
         mooltipass.app.onMessage(data.id, data.message, callbackFunction);
     });
 
@@ -65,8 +65,6 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         // Merge backwards-compatible information into data object
         mergeObjects(backwards, responseObject);
 
-        console.warn(responseObject);
-
         chrome.runtime.sendMessage(senderId, responseObject, function() {
             if(chrome.runtime.lastError) {
                 console.warn('Could not send response to client <', senderId, '>');
@@ -75,7 +73,6 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         });
         return;
     }
-    chrome.runtime.sendMessage('obolonaaohpnefcnnblppenkgfdifloc', { getRandom : [] }, function() { console.log(chrome.runtime.lastError); })
 
 
     inputObject.callbackFunction = function(_responseObject) {
@@ -84,7 +81,6 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         var backwards = mooltipass.app.translateResponseForBackwardsCompatibility(_responseObject);
         // Merge backwards-compatible information into data object
         mergeObjects(backwards, _responseObject);
-        console.warn('callback:', _responseObject);
         chrome.runtime.sendMessage(senderId, _responseObject, function() {
             if(chrome.runtime.lastError) {
                 console.warn('Could not send response to client <', senderId, '>');
@@ -93,7 +89,7 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         });
     };
 
-    console.warn('mooltipass.app.onMessage()', 'inputObject:', inputObject);
+    //console.warn('mooltipass.app.onMessage()', 'inputObject:', inputObject);
     if(!inputObject.responseParameters) {
         inputObject.responseParameters = {};
     }

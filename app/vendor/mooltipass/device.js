@@ -1164,7 +1164,7 @@ mooltipass.device.checkStatus = function() {
 };
 
 mooltipass.device.checkStatusCallback = function(_responseObject, _credentials) {
-    if(_responseObject.success) {
+    if(_responseObject && _responseObject.success) {
         if(!mooltipass.device.isUnlocked && _responseObject.unlocked) {
             mooltipass.device.isUnlocked = _responseObject.unlocked;
             mooltipass.app.updateOnUnlock();

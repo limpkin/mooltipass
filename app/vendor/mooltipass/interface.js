@@ -64,10 +64,16 @@ mooltipass.device.interface.send = function(inputObject) {
 
 mooltipass.device.interface._returnError = function(inputObject, code, msg) {
     var responseObject = {
+        'command': inputObject.command,
         'success': false,
         'code': code,
         'msg': msg
     };
+
+    if(inputObject.responseParameters && 'senderId' in inputObject.responseParameters) {
+        responseObject.senderId = inputObject.responseParameters.senderId;
+    }
+
     mooltipass.device.applyCallback(inputObject.callbackFunction, inputObject.callbackParameters, [responseObject]);
 };
 
@@ -134,6 +140,30 @@ mooltipass.device.interface._getMooltipassStatus = function(inputObject) {
 
 
 mooltipass.device.interface._getRandomNumber = function(inputObject) {
+    mooltipass.device.addToQueue(
+        inputObject.command,
+        [],
+        inputObject.responseParameters,
+        inputObject.callbackFunction,
+        inputObject.callbackParameters,
+        inputObject.timeout
+    );
+};
+
+
+mooltipass.device.interface._getVersion = function(inputObject) {
+    mooltipass.device.addToQueue(
+        inputObject.command,
+        [],
+        inputObject.responseParameters,
+        inputObject.callbackFunction,
+        inputObject.callbackParameters,
+        inputObject.timeout
+    );
+};
+
+
+mooltipass.device.interface._setCurrentDate = function(inputObject) {
     mooltipass.device.addToQueue(
         inputObject.command,
         [],

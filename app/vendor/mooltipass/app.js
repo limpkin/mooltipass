@@ -8,8 +8,10 @@ mooltipass.app._isInitializedLock = false;
 
 chrome.runtime.onMessage.addListener(
     function(data, sender, callbackFunction) {
+        console.warn('chrome.runtime.onMessage(', data.id, ')');
         mooltipass.app.onMessage(data.id, data.message, callbackFunction);
     });
+
 
 /**
  * Initialize all app related functions on startup
@@ -42,14 +44,27 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
     inputObject.callbackFunction = callbackFunction;
 
     // Backwards compatibility:
-    // No callbackFunction was given -> send JSON object to sender
-    if(!callbackFunction) {
+    // No attribute command was given
+    if(!data.command) {
         inputObject = mooltipass.app.translateRequestForBackwardsCompatibility(data);
         inputObject.callbackFunction = function(_responseObject) {
             var data = mooltipass.app.translateResponseForBackwardsCompatibility(_responseObject);
-            chrome.runtime.sendMessage(senderId, data);
+            console.warn(_responseObject);
+            console.warn(data);
+            chrome.runtime.sendMessage(senderId, data, function() {
+                if(chrome.runtime.lastError) {
+                    console.warn('Could not send response to client <', senderId, '>');
+                    console.warn('Error:', chrome.runtime.lastError.message);
+                }
+            });
         };
     }
+
+    //console.warn('mooltipass.app.onMessage()', 'inputObject:', inputObject);
+    if(!inputObject.responseParameters) {
+        inputObject.responseParameters = {};
+    }
+    inputObject.responseParameters.senderId = senderId;
 
     mooltipass.device.clients.add(senderId);
     mooltipass.device.interface.send(inputObject);
@@ -74,6 +89,7 @@ mooltipass.app.getPassword = function(_context, _username, _callback) {
 };
 
 mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
+    //console.log('mooltipass.app.translateRequestForBackwardsCompatibility()', _request);
     var output = {};
 
     // Get random number
@@ -83,7 +99,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
     }
     else if('ping' in _request) {
         // { ping: [] }
-        output.command = 'ping';
+        output.command = 'getMooltipassStatus';
     }
     else if('update' in _request) {
         // {update: {context: url, login: username, password: password}}
@@ -106,14 +122,9 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
 mooltipass.app.translateResponseForBackwardsCompatibility = function(_response) {
     var output = {};
 
-    // If request was not successful, return an empty object
-    if(!_response.success) {
-        return output;
-    }
-
     var command = _response.command;
 
-    if(command == 'getRandomNumber') {
+    if(_response.success && command == 'getRandomNumber') {
         output.random = _response.value;
     }
     else if(command == 'getMooltipassStatus') {
@@ -132,11 +143,14 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_response) 
         else if(mooltipass.device.singleCommunicationMode) {
             output.deviceStatus.state = 'ManageMode';
         }
+        else if(!mooltipass.device.isConnected) {
+            output.deviceStatus.state = 'Disconnected';
+        }
         else {
             output.deviceStatus.state = 'Error';
         }
     }
-    else if(command == 'getCredentials') {
+    else if(_response.success && command == 'getCredentials') {
         if(_response.username && _response.password) {
             output.credentials = {
                 'login': _response.username,
@@ -147,7 +161,7 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_response) 
             output.noCredentials = true;
         }
     }
-    else if(command == 'addCredentials' || command == 'updateCredentials') {
+    else if(_response.success && (command == 'addCredentials' || command == 'updateCredentials')) {
         output.updateComplete = true;
     }
 

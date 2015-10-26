@@ -54,9 +54,14 @@ mooltipass.device.clients.send = function() {
         return;
     }
 
-    if(arguments.length == 1) {
+    if(arguments.length == 2) {
         // Send to all clients
         var data = arguments[0];
+
+        var ignoreSender = null;
+        if(arguments[1] && 'senderId' in arguments[1]) {
+            ignoreSender = arguments[1].senderId;
+        }
 
         // Add backwards-compatible data information
         var backwards = mooltipass.app.translateResponseForBackwardsCompatibility(data);
@@ -64,10 +69,13 @@ mooltipass.device.clients.send = function() {
         mergeObjects(backwards, data);
 
         for(var i = 0; i < mooltipass.device.clients._list.length; i++) {
+            if(ignoreSender == mooltipass.device.clients._list[i]) {
+                continue;
+            }
             mooltipass.device.clients._send(mooltipass.device.clients._list[i], data);
         }
     }
-    else if(arguments.length > 1) {
+    else if(arguments.length > 2) {
         // First parameter is client id
         var id = arguments[0];
         // Second parameter is data to send

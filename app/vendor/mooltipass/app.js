@@ -78,12 +78,15 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
 
     // Get random number
     if('getRandom' in _request) {
+        // { getRandom : [] }
         output.command = 'getRandomNumber';
     }
     else if('ping' in _request) {
+        // { ping: [] }
         output.command = 'ping';
     }
-    else if('type' in _request && _request.type == 'update') {
+    else if('update' in _request) {
+        // {update: {context: url, login: username, password: password}}
         output.command = 'updateCredentials';
         output.data = {
             'context': _request.context,
@@ -92,6 +95,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
         };
     }
     else if('getInputs' in _request) {
+        // { getInputs : {context: parsed_url.domain, domain: parsed_url.domain, subdomain: parsed_url.subdomain} }
         output.command = 'getCredentials';
         output.contexts = [_request.getInputs.subdomain, _request.getInputs.domain];
     }

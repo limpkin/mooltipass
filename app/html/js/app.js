@@ -92,15 +92,19 @@ mooltipass.ui._.initConfirmButtons = function(){
     });  
 }
 
+/*
 var _console_log = console.log;
 var _console_warn = console.warn;
 
 console.log = function () {
-    text = arguments[0];
-    i = 1;
+    var text = arguments[0];
+    var i = 1;
     while (i < arguments.length) {
         if (arguments[i] === undefined) {
             text += " undefined"
+        }
+        else if (arguments[i] == null) {
+            text += " null";
         }
         else {
             text += " " + arguments[i].toString();
@@ -115,11 +119,14 @@ console.log = function () {
 }
 
 console.warn = function () {
-    text = arguments[0];
-    i = 1;
+    var text = arguments[0];
+    var i = 1;
     while (i < arguments.length) {
         if (arguments[i] === undefined) {
             text += " undefined"
+        }
+        else if (arguments[i] == null) {
+            text += " null";
         }
         else {
             text += " " + arguments[i].toString();
@@ -133,6 +140,7 @@ console.warn = function () {
     }, 100);
     return _console_warn.apply(console, arguments);
 }
+*/
 
 mooltipass.ui._.showActivePage = function () {
     $(".page").hide();

@@ -8,7 +8,9 @@ function launch(details) {
         //console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
     }
 
-    launchWindow();
+    setTimeout(function() {
+        launchWindow();
+    }, 500);
 
     if(_listenerInstalled) {
         return;
@@ -31,6 +33,7 @@ function launch(details) {
 function launchWindow() {
     // AppWindow is already opened -> do not open another one
     var windows = chrome.app.window.getAll();
+    console.log(windows);
     if(windows.length > 0) {
         return;
     }
@@ -47,5 +50,5 @@ var _listenerInstalled = false;
 if(!_listenerInstalled) {
     chrome.runtime.onInstalled.addListener(launch);
     chrome.runtime.onStartup.addListener(launch);
-    //chrome.app.runtime.onLaunched.addListener(launchWindow);
+    chrome.app.runtime.onLaunched.addListener(launchWindow);
 }

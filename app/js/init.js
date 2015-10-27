@@ -31,7 +31,7 @@ function installListener() {
     // /vendor/mooltipass/app.js is listening for incoming internal messages
     chrome.runtime.onMessageExternal.addListener(
         function(message, sender, callbackFunction) {
-            //console.warn('chrome.runtime.onMessageExternal(', sender.id, ')');
+            console.log('chrome.runtime.onMessageExternal(' + sender.id + '):', message);
             var data = {'id': sender.id, 'message': message};
             // Keep callbackFunction separated to react on chrome.runtime.lastError
             chrome.runtime.sendMessage(data, callbackFunction);

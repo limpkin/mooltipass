@@ -65,6 +65,8 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         // Merge backwards-compatible information into data object
         mergeObjects(backwards, responseObject);
 
+        console.log('Response Status:', responseObject);
+
         chrome.runtime.sendMessage(senderId, responseObject, function() {
             if(chrome.runtime.lastError) {
                 console.warn('Could not send response to client <', senderId, '>');
@@ -81,6 +83,7 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         var backwards = mooltipass.app.translateResponseForBackwardsCompatibility(_responseObject);
         // Merge backwards-compatible information into data object
         mergeObjects(backwards, _responseObject);
+        console.log('Response:', responseObject);
         chrome.runtime.sendMessage(senderId, _responseObject, function() {
             if(chrome.runtime.lastError) {
                 console.warn('Could not send response to client <', senderId, '>');

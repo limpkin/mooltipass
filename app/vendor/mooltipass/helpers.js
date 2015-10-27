@@ -22,3 +22,25 @@ function mergeObjects(sourceObject, destinationObject) {
         destinationObject[key] = sourceObject[key];
     }
 }
+
+var _debug = false;
+function logging() {
+    if(_debug !== true) {
+        return;
+    }
+
+    var values = [];
+    for(var i = 1; i < arguments.length; i++) {
+        values.push(arguments[i]);
+    }
+
+    if(arguments[0] == 'log') {
+        console.log(values);
+    }
+    else if(arguments[0] == 'warn') {
+        console.warn(values);
+    }
+    else if(arguments[0] == 'error') {
+        console.error(values);
+    }
+}

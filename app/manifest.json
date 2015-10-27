@@ -5,6 +5,7 @@
   "app": {
     "background": {
       "scripts": [
+        "vendor/mooltipass/helpers.js",
         "js/init.js"
       ]
     }

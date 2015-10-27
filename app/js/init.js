@@ -46,7 +46,7 @@ function installListener() {
 function launchWindow() {
     // AppWindow is already opened -> do not open another one
     var windows = chrome.app.window.getAll();
-    console.log(windows);
+
     if(windows.length > 0) {
         return;
     }

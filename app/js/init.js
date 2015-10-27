@@ -8,9 +8,10 @@ function launch(details) {
         //console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
     }
 
-    setTimeout(function() {
-        launchWindow();
-    }, 500);
+    // Do not open window on startup
+    //setTimeout(function() {
+    //    launchWindow();
+    //}, 500);
 
     if(_listenerInstalled) {
         return;

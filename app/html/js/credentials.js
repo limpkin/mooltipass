@@ -642,7 +642,7 @@ var get_password = function (_context, _username, _callback) {
             }
         }
         else {
-            mooltipass.ui.status.error($('#credentials', _status.msg));
+            mooltipass.ui.status.error($('#credentials'), _status.msg);
         }
 
 // Call original callback

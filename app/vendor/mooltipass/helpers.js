@@ -23,11 +23,29 @@ function mergeObjects(sourceObject, destinationObject) {
     }
 }
 
-applyCallback = function(callbackFunction, callbackParameters, ownParameters) {
-    if(callbackFunction) {
-        var args = ownParameters || [];
-        args = args.concat(callbackParameters || []);
-        callbackFunction.apply(this, args);
+function _wrapWithArrayIfNeeded(input) {
+    if(typeof(input) !== 'undefined') {
+        if(input !== null) {
+            if(input.constructor == Array) {
+                // Is an array
+                return input;
+            }
+            else {
+                // Everything else than an array --> wrap with array
+                return [input];
+            }
+        }
+    }
+
+    // Unset variable --> return empty array
+    return [];
+}
+
+function applyCallback(_callbackFunction, _callbackParameters, _ownParameters) {
+    if(_callbackFunction) {
+        var args = _wrapWithArrayIfNeeded(_ownParameters);
+        args = args.concat( _wrapWithArrayIfNeeded(_callbackParameters) );
+        _callbackFunction.apply(this, args);
     }
 };
 

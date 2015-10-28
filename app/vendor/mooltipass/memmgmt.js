@@ -2870,7 +2870,8 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else
 			{
-				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': true, 'msg': "Request approved"}, mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
+				//applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': true, 'msg': "Request approved"}, mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
+				mooltipass.memmgmt.getPasswordCallback({'success': true, 'msg': "Request approved"}, mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
 			}
 		}
 	}

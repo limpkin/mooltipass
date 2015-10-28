@@ -320,8 +320,8 @@ mooltipass.ui.settings.getSettings = function() {
     mooltipass.ui.settings.getLockTimeoutEnabled();
     mooltipass.ui.settings.getLockTimeout();
     mooltipass.ui.settings.getScreensaver();
-    mooltipass.ui.settings.getUserRequestCancel();
-    mooltipass.ui.settings.getUserInteractionTimeout();
+    //mooltipass.ui.settings.getUserRequestCancel();
+    //mooltipass.ui.settings.getUserInteractionTimeout();
     mooltipass.ui.settings.getFlashScreen();
     mooltipass.ui.settings.getOfflineMode();
     mooltipass.ui.settings.getTutorialEnabled();
@@ -337,9 +337,31 @@ mooltipass.ui.settings.init = function() {
     mooltipass.ui.settings.initLockTimeoutEnabled();
     mooltipass.ui.settings.initLockTimeout();
     mooltipass.ui.settings.initScreensaver();
-    mooltipass.ui.settings.initUserRequestCancel();
-    mooltipass.ui.settings.initUserInteractionTimeout();
+    //mooltipass.ui.settings.initUserRequestCancel();
+    //mooltipass.ui.settings.initUserInteractionTimeout();
     mooltipass.ui.settings.initFlashScreen();
     mooltipass.ui.settings.initOfflineMode();
     mooltipass.ui.settings.initTutorialEnabled();
+
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'userRequestCancel',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                var value = Boolean(Number(_response.value));
+                if(value) {
+                    mooltipass.device.interface.send({
+                        'command': 'setMooltipassParameter',
+                        'parameter': 'userRequestCancel',
+                        'value': 0,
+                        'callbackFunction': function(_response) {
+                            if(!_response.success) {
+                                console.error('could not disable userRequestCancel:', _response.msg);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    });
 };

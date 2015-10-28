@@ -1,28 +1,36 @@
 {
-    "name": "Mooltipass App",
-    "description": "Mooltipass password manager client",
-    "version": "0.6",
-    "app": {
-        "background": {
-            "scripts": [
-                "js/init.js"
-            ]
-        }
-    },
-    "permissions": [
-        "hid",
-        {
-            "usbDevices": [
-                { "vendorId": 5840, "productId": 2464 }
-            ]
-        },
-	   { "fileSystem": ["write"] },
-	   "syncFileSystem",
-	   "storage"
-    ],
-    "icons": { 
-        "19": "images/icons/AppIcon_19.png",
-        "32": "images/icons/AppIcon_32.png",
-        "128": "images/icons/AppIcon_128.png"
+  "name": "Mooltipass App",
+  "description": "Mooltipass password manager client",
+  "version": "0.6.3",
+  "app": {
+    "background": {
+      "scripts": [
+        "vendor/mooltipass/helpers.js",
+        "js/init.js"
+      ]
     }
+  },
+  "permissions": [
+    "hid",
+    {
+      "usbDevices": [
+        {
+          "vendorId": 5840,
+          "productId": 2464
+        }
+      ]
+    },
+    {
+      "fileSystem": [
+        "write"
+      ]
+    },
+    "syncFileSystem",
+    "storage"
+  ],
+  "icons": {
+    "19": "images/icons/AppIcon_19.png",
+    "32": "images/icons/AppIcon_32.png",
+    "128": "images/icons/AppIcon_128.png"
+  }
 }

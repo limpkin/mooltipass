@@ -255,7 +255,6 @@ mooltipass.ui.settings.initFlashScreen = function() {
 };
 
 mooltipass.ui.settings.getOfflineMode = function() {
-    console.log('get offline mode')
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
         'parameter': 'offlineMode',

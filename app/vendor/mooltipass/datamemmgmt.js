@@ -605,8 +605,8 @@ mooltipass.datamemmgmt.dataReceivedCallback = function(packet)
 					if(nodeType == 'dataparent')
 					{
 						// Store names, addresses, nodes
-						mooltipass.datamemmgmt.curDataServiceNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.datamemmgmt.currentNode), 'data': mooltipass.datamemmgmt.currentNode.slice(0)});
-						mooltipass.datamemmgmt.clonedCurDataServiceNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.datamemmgmt.currentNode), 'data': mooltipass.datamemmgmt.currentNode.slice(0)});
+						mooltipass.datamemmgmt.curDataServiceNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.datamemmgmt.currentNode), 'data': new Uint8Array(mooltipass.datamemmgmt.currentNode)});
+						mooltipass.datamemmgmt.clonedCurDataServiceNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.datamemmgmt.currentNode), 'data': new Uint8Array(mooltipass.datamemmgmt.currentNode)});
 						console.log("Received data service " + mooltipass.datamemmgmt.curDataServiceNodes[mooltipass.datamemmgmt.curDataServiceNodes.length - 1].name + " at address " + mooltipass.datamemmgmt.curDataServiceNodes[mooltipass.datamemmgmt.curDataServiceNodes.length - 1].address);
 						
 						// Store next parent address
@@ -637,8 +637,8 @@ mooltipass.datamemmgmt.dataReceivedCallback = function(packet)
 					else if(nodeType == 'data')
 					{
 						// Store names, addresses, nodes
-						mooltipass.datamemmgmt.curDataNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'data': mooltipass.datamemmgmt.currentNode.slice(0), 'pointed': false});
-						mooltipass.datamemmgmt.clonedCurDataNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'data': mooltipass.datamemmgmt.currentNode.slice(0), 'pointed': false});
+						mooltipass.datamemmgmt.curDataNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'data': new Uint8Array(mooltipass.datamemmgmt.currentNode), 'pointed': false});
+						mooltipass.datamemmgmt.clonedCurDataNodes.push({'address': mooltipass.datamemmgmt.curNodeAddressRequested, 'data': new Uint8Array(mooltipass.datamemmgmt.currentNode), 'pointed': false});
 					}
 				}
 				else
@@ -686,7 +686,7 @@ mooltipass.datamemmgmt.fileReadCallback = function(e)
 			var array_to_store_size = Math.ceil((mooltipass.datamemmgmt.fileRead.length + 2)/32)*32;
 			var temp_array = new Uint8Array(array_to_store_size);
 			temp_array.set([Math.floor(mooltipass.datamemmgmt.fileRead.length/256), (mooltipass.datamemmgmt.fileRead.length%256)], 0);
-			temp_array.set(mooltipass.datamemmgmt.fileRead.slice(0), 2);			
+			temp_array.set(new Uint8Array(mooltipass.datamemmgmt.fileRead), 2);			
 			mooltipass.datamemmgmt.fileRead = temp_array;
 			
 			// Set the timeouts & callbacks

@@ -55,6 +55,14 @@
 
     .row.margin-bottom
       .column.small-3
+        h3 Input timeout
+      .column.small-9
+        label Cancel credentials request after
+          input(type="text", class="inline-time", maxlength="3", name="userInteractionTimeout", id="settings-userInteractionTimeout")
+          | seconds
+
+    .row.margin-bottom
+      .column.small-3
         h3 Miscellaneous
       .column.small-9
         label

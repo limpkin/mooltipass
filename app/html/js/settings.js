@@ -215,14 +215,14 @@ mooltipass.ui.settings.initUserInteractionTimeout = function() {
         // Convert value to float number and bit-wise convert it to integer
         value = Number(value) | 0;
 
-        if(value < 1) {
-            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 1-200');
+        if(value < 5) {
+            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 5-200');
             return;
         }
 
         if(value > 200) {
             // Maximum is 231, otherwise it's blocked to 231
-            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 1-200');
+            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 5-200');
             return;
         }
 
@@ -336,7 +336,7 @@ mooltipass.ui.settings.getSettings = function() {
     mooltipass.ui.settings.getLockTimeout();
     mooltipass.ui.settings.getScreensaver();
     //mooltipass.ui.settings.getUserRequestCancel();
-    //mooltipass.ui.settings.getUserInteractionTimeout();
+    mooltipass.ui.settings.getUserInteractionTimeout();
     mooltipass.ui.settings.getFlashScreen();
     mooltipass.ui.settings.getOfflineMode();
     mooltipass.ui.settings.getTutorialEnabled();
@@ -353,7 +353,7 @@ mooltipass.ui.settings.init = function() {
     mooltipass.ui.settings.initLockTimeout();
     mooltipass.ui.settings.initScreensaver();
     //mooltipass.ui.settings.initUserRequestCancel();
-    //mooltipass.ui.settings.initUserInteractionTimeout();
+    mooltipass.ui.settings.initUserInteractionTimeout();
     mooltipass.ui.settings.initFlashScreen();
     mooltipass.ui.settings.initOfflineMode();
     mooltipass.ui.settings.initTutorialEnabled();

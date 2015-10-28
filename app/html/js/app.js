@@ -149,31 +149,31 @@ mooltipass.ui._.showActivePage = function () {
 }
 
 mooltipass.ui._.isDeviceConnected = function () {
-    return mooltipass.device.isConnected;
+    return mooltipass.app._deviceStatus.connected;
 }
 
 mooltipass.ui._.isCardUnknown = function() {
-    return mooltipass.device.isUnknownCard;
+    return mooltipass.app._deviceStatus.unknownCard;
 }
 
 mooltipass.ui._.isDeviceUnlocked = function () {
-    return mooltipass.device.isUnlocked;
+    return mooltipass.app._deviceStatus.unlocked;
 }
 
 mooltipass.ui._.hasCard = function () {
-    return !mooltipass.device.hasNoCard;
+    return !mooltipass.app._deviceStatus.noCard;
 }
 
 mooltipass.ui._.isDeviceInMMM = function () {
-    return mooltipass.device.singleCommunicationMode
-        && mooltipass.device.singleCommunicationModeEntered
-        && mooltipass.device.singleCommunicationReason == 'memorymanagementmode';
+    return mooltipass.app._deviceStatus.singleCommunicationMode
+        && mooltipass.app._deviceStatus.singleCommunicationModeEntered
+        && mooltipass.app._deviceStatus.singleCommunicationReason == 'memorymanagementmode';
 }
 
 mooltipass.ui._.isDeviceInSM = function () {
-    return mooltipass.device.singleCommunicationMode
-        && mooltipass.device.singleCommunicationModeEntered
-        && mooltipass.device.singleCommunicationReason == 'synchronisationmode';
+    return mooltipass.app._deviceStatus.singleCommunicationMode
+        && mooltipass.app._deviceStatus.singleCommunicationModeEntered
+        && mooltipass.app._deviceStatus.singleCommunicationReason == 'synchronisationmode';
 }
 
 function executeFunctionByName(functionName, context) {

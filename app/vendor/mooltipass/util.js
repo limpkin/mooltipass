@@ -26,7 +26,7 @@ mooltipass.util.strToArray = function(str)
  */
 mooltipass.util.arrayToStr = function(buf)
 {
-    res = '';
+    var res = '';
     for (var ind=0; ind<buf.length; ind++)
     {
         if (buf[ind] == 0)
@@ -43,7 +43,7 @@ mooltipass.util.arrayToStr = function(buf)
 
 mooltipass.util.arrayToHexStr = function(buf)
 {
-    res = "";
+    var res = "";
     for (var ind = 0; ind < buf.length; ind++)
     {
 		res += buf[ind].toString(16);

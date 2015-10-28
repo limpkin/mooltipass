@@ -357,13 +357,14 @@ _cred.callbackMMMEnter = function (_status, _credentials) {
         $('#mmm-enter').hide();
         $('#mmm-save, #mmm-discard').show();
 
-        mooltipass.device.singleCommunicationModeEntered = true;
+        mooltipass.app._deviceStatus.singleCommunicationModeEntered = true;
+        chrome.runtime.sendMessage({ 'action': 'entered-singleCommunicationMode' }, mooltipass.app.callbackRequest);
         update_device_status_classes();
         _cred.loadCredentials(_status, _credentials);
     }
     else {
         // Could not enter MemoryManagementMode
-        mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
+        chrome.runtime.sendMessage({ 'action': 'end-singleCommunicationMode', 'skip': _status.skipEndingSingleCommunicationMode }, mooltipass.app.callbackRequest);
         mooltipass.ui.status.error($('#mmm-enter'), _status.msg);
     }
 
@@ -393,7 +394,7 @@ _cred.onClickMMMDiscard = function() {
 
     mooltipass.memmgmt.memmgmtStop(function (_status) {
         if (_status.success) {
-            mooltipass.device.endSingleCommunicationMode();
+            chrome.runtime.sendMessage({ 'action': 'end-singleCommunicationMode' }, mooltipass.app.callbackRequest);
             update_device_status_classes();
             USER_CREDENTIALS = [];
             var $table = $('#credentials').dataTable();
@@ -438,7 +439,7 @@ _cred.onClickMMMSave = function (e) {
 
     mooltipass.memmgmt.memmgmtSave(function (_status) {
         if (_status.success) {
-            mooltipass.device.endSingleCommunicationMode();
+            chrome.runtime.sendMessage({ 'action': 'end-singleCommunicationMode' }, mooltipass.app.callbackRequest);
             update_device_status_classes();
             USER_CREDENTIALS = [];
             var $table = $('#credentials').dataTable();

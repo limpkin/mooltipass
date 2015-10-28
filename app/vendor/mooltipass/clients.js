@@ -64,7 +64,7 @@ mooltipass.device.clients.send = function() {
         }
 
         // Add backwards-compatible data information
-        var backwards = mooltipass.app.translateResponseForBackwardsCompatibility(data);
+        var backwards = mooltipass.messages.translateResponseForBackwardsCompatibility(data);
         // Merge backwards-compatible information into data object
         mergeObjects(backwards, data);
 
@@ -82,7 +82,7 @@ mooltipass.device.clients.send = function() {
         var data = arguments[1];
 
         // Add backwards-compatible data information
-        var backwards = mooltipass.app.translateResponseForBackwardsCompatibility(data);
+        var backwards = mooltipass.messages.translateResponseForBackwardsCompatibility(data);
         // Merge backwards-compatible information into data object
         mergeObjects(backwards, data);
 

@@ -164,7 +164,7 @@ mooltipass.device.queueHash = null;
 
 /**
  * Initialize function
- * triggered by mooltipass.app.init()
+ * triggered by init() in /js/init.js
  */
 mooltipass.device.init = function() {
     // Initial start processing queue
@@ -246,7 +246,9 @@ mooltipass.device.onConnectFinished = function(connectInfo) {
     mooltipass.device.isConnected = true;
     console.log('Connected to device');
 
-    mooltipass.app.updateOnConnect();
+    mooltipass.device.sendStatusToFrontend();
+
+    chrome.runtime.sendMessage({ '_action': 'update-on-connect', '_from': 'backend' });
 
     mooltipass.device.processQueue();
 };
@@ -1160,28 +1162,73 @@ mooltipass.device.checkStatus = function() {
 };
 
 mooltipass.device.checkStatusCallback = function(_responseObject, _credentials) {
+    var sendOnUnlock = false;
+    var sendOnLock = false;
+
     if(_responseObject && _responseObject.success) {
         if(!mooltipass.device.isUnlocked && _responseObject.unlocked) {
             mooltipass.device.isUnlocked = _responseObject.unlocked;
-            mooltipass.app.updateOnUnlock();
+            sendOnUnlock = true;
         }
         if(mooltipass.device.isUnlocked && _responseObject.locked) {
-            mooltipass.app.updateOnLock();
+            sendOnLock = true;
         }
         //console.log('mooltipass.device.isUnlocked =', unlocked);
         mooltipass.device.isUnlocked = _responseObject.unlocked;
         mooltipass.device.isUnknownCard = _responseObject.unknownCard;
         mooltipass.device.hasNoCard = _responseObject.noCard;
     }
-    // Set to locked only if not in MemoryManagementMode
+    // Set to locked only if not in singleCommunicationMode
     else if(_responseObject.code != 90) {
         //console.log('mooltipass.device.isUnlocked = false bcs code ', _responseObject.code);
         mooltipass.device.isUnlocked = false;
-        mooltipass.app.updateOnLock();
+        sendOnLock = true;
+    }
+
+    //Inform fronted
+    mooltipass.device.sendStatusToFrontend(_responseObject.success);
+
+    if(sendOnUnlock) {
+        chrome.runtime.sendMessage({ '_action': 'update-on-unlock', '_from': 'backend' });
+    }
+    else if(sendOnLock) {
+        mooltipass.device.endSingleCommunicationMode();
+        chrome.runtime.sendMessage({ '_action': 'update-on-lock', '_from': 'backend' });
     }
 
     // Inform connected clients
     mooltipass.device.clients.send(_responseObject, { 'senderId': _responseObject.senderId });
+};
+
+
+mooltipass.device.getStatusObject = function() {
+    var statusObject = {
+        'status': mooltipass.device.status,
+        'connected': mooltipass.device.isConnected,
+        'unlocked': mooltipass.device.isUnlocked,
+        'locked': !mooltipass.device.isUnlocked,
+        'noCard': mooltipass.device.hasNoCard,
+        'unknownCard': mooltipass.device.isUnknownCard,
+        'version': mooltipass.device.version,
+        'singleCommunicationMode': mooltipass.device.singleCommunicationMode,
+        'singleCommunicationModeEntered': mooltipass.device.singleCommunicationModeEntered,
+        'singleCommunicationReason': mooltipass.device.singleCommunicationReason
+    };
+
+    return statusObject;
+};
+
+mooltipass.device.sendStatusToFrontend = function(success) {
+    var statusObject = mooltipass.device.getStatusObject();
+    if(typeof(success) !== 'undefined') {
+        statusObject.success = success || false;
+    }
+    else {
+        statusObject.success = true;
+    }
+    statusObject._action = 'status';
+    statusObject._from = 'backend';
+    chrome.runtime.sendMessage(statusObject);
 }
 
 

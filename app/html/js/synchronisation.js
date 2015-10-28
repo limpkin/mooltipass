@@ -21,7 +21,8 @@ mooltipass.ui.sync.init = function() {
 
 
     // Todo: Use real default values
-    $("input[data-key='sync-cloud-auto']").prop("checked", true);
+    //$("input[data-key='sync-cloud-auto']").prop("checked", true);
+    $("input[data-key='sync-cloud-auto']").parent().hide();
 
     $('.exportToFile').click(mooltipass.ui.sync.onClickExportToFile);
     $('.importFromFile').click(mooltipass.ui.sync.onClickImportFromFile);
@@ -43,7 +44,8 @@ mooltipass.ui.sync.onClickExportToFile = function(e) {
         'callbackFunction': mooltipass.ui.sync.callbackExportToFile,
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
-            mooltipass.device.singleCommunicationModeEntered = true;
+            chrome.runtime.sendMessage({ 'action': 'entered-singleCommunicationMode' }, mooltipass.app.callbackRequest);
+            // TODO: maybe add the following command to the callbackFunction
             mooltipass.memmgmt.memoryBackupStart(true, mooltipass.ui.sync.callbackExportToFile);
         }
     });
@@ -61,7 +63,7 @@ mooltipass.ui.sync.callbackExportToFile = function(_status) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
+    chrome.runtime.sendMessage({ 'action': 'end-singleCommunicationMode', 'skip': _status.skipEndingSingleCommunicationMode }, mooltipass.app.callbackRequest);
 };
 
 
@@ -77,7 +79,8 @@ mooltipass.ui.sync.onClickImportFromFile = function(e) {
         'callbackFunction': mooltipass.ui.sync.callbackImportFromFile,
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
-            mooltipass.device.singleCommunicationModeEntered = true;
+            chrome.runtime.sendMessage({ 'action': 'entered-singleCommunicationMode' }, mooltipass.app.callbackRequest);
+            // TODO: maybe add the following command to the callbackFunction
             mooltipass.memmgmt.mergeCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromFile);
         }
     });
@@ -95,7 +98,7 @@ mooltipass.ui.sync.callbackImportFromFile = function(_status) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
+    chrome.runtime.sendMessage({ 'action': 'end-singleCommunicationMode', 'skip': _status.skipEndingSingleCommunicationMode }, mooltipass.app.callbackRequest);
 };
 
 
@@ -109,7 +112,8 @@ mooltipass.ui.sync.onClickExportToCloud = function(e) {
         'callbackFunction': mooltipass.ui.sync.callbackExportToCloud,
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
-            mooltipass.device.singleCommunicationModeEntered = true;
+            chrome.runtime.sendMessage({ 'action': 'entered-singleCommunicationMode' }, mooltipass.app.callbackRequest);
+            // TODO: maybe add the following command to the callbackFunction
             mooltipass.memmgmt.memoryBackupStart(false, mooltipass.ui.sync.callbackExportToCloud);
         }
     });
@@ -127,7 +131,7 @@ mooltipass.ui.sync.callbackExportToCloud = function(_status) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
+    chrome.runtime.sendMessage({ 'action': 'end-singleCommunicationMode', 'skip': _status.skipEndingSingleCommunicationMode }, mooltipass.app.callbackRequest);
 };
 
 
@@ -141,7 +145,8 @@ mooltipass.ui.sync.onClickImportFromCloud = function(e) {
         'callbackFunction': mooltipass.ui.sync.callbackImportFromCloud,
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
-            mooltipass.device.singleCommunicationModeEntered = true;
+            chrome.runtime.sendMessage({ 'action': 'entered-singleCommunicationMode' }, mooltipass.app.callbackRequest);
+            // TODO: maybe add the following command to the callbackFunction
             mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromCloud);
         }
     });
@@ -159,7 +164,7 @@ mooltipass.ui.sync.callbackImportFromCloud = function(_status) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
+    chrome.runtime.sendMessage({ 'action': 'end-singleCommunicationMode', 'skip': _status.skipEndingSingleCommunicationMode }, mooltipass.app.callbackRequest);
 };
 
 
@@ -174,7 +179,8 @@ mooltipass.ui.sync.onClickScanMemory = function(e) {
         'callbackFunction': mooltipass.ui.sync.callbackScanMemory,
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
-            mooltipass.device.singleCommunicationModeEntered = true;
+            chrome.runtime.sendMessage({ 'action': 'entered-singleCommunicationMode' }, mooltipass.app.callbackRequest);
+            // TODO: maybe add the following command to the callbackFunction
             mooltipass.memmgmt.integrityCheckStart(mooltipass.ui.sync.progressScanMemory, mooltipass.ui.sync.callbackScanMemory);
         }
     });
@@ -205,8 +211,8 @@ mooltipass.ui.sync.callbackScanMemory = function(_status) {
 
     $("#modal-integrity-check").hide();  
     $("#modal-confirm-on-device").hide();
-    
-    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
+
+    chrome.runtime.sendMessage({ 'action': 'end-singleCommunicationMode', 'skip': _status.skipEndingSingleCommunicationMode }, mooltipass.app.callbackRequest);
 };
 
 

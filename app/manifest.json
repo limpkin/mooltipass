@@ -5,8 +5,18 @@
   "app": {
     "background": {
       "scripts": [
-        "vendor/mooltipass/helpers.js",
-        "js/init.js"
+        "/vendor/mooltipass/helpers.js",
+        "/vendor/mooltipass/device.js",
+        "/vendor/mooltipass/clients.js",
+        "/vendor/mooltipass/interface.js",
+        "/vendor/mooltipass/messages.js",
+        "/vendor/mooltipass/memmgmt.js",
+        "/vendor/mooltipass/memmgmt_hid.js",
+        "/vendor/mooltipass/datamemmgmt.js",
+        "/vendor/mooltipass/filehandler.js",
+        "/vendor/mooltipass/prefstorage.js",
+        "/vendor/mooltipass/util.js",
+        "/js/init.js"
       ]
     }
   },

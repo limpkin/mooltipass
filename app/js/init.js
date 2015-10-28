@@ -1,4 +1,5 @@
-var _listenerInstalled = false;
+var _initLock = false;
+var _inBackground = true;
 
 
 /* ######################################################################################################### */
@@ -14,12 +15,12 @@ function launch(details) {
         //console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
     }
 
-    installListener();
+    init();
 }
 
 
-function installListener() {
-    if(_listenerInstalled) {
+function init() {
+    if(_initLock) {
         return;
     }
 
@@ -32,14 +33,30 @@ function installListener() {
     chrome.runtime.onMessageExternal.addListener(
         function(message, sender, callbackFunction) {
             console.log('chrome.runtime.onMessageExternal(' + sender.id + '):', message);
-            var data = {'id': sender.id, 'message': message};
+
             // Keep callbackFunction separated to react on chrome.runtime.lastError
-            chrome.runtime.sendMessage(data, callbackFunction);
+            mooltipass.messages.onExternalMessage(sender.id, message, callbackFunction);
         });
+
+    // Listen for internal messages from frontend
+    chrome.runtime.onMessage.addListener(
+        function(message, sender, callbackFunction) {
+            //console.warn('chrome.runtime.onMessage(', data.id, ')');
+            mooltipass.messages.onInternalMessage(message, callbackFunction);
+        }
+    );
+
+
+    mooltipass.prefstorage.getStoredPreferences(mooltipass.memmgmt.preferencesCallback);
+    mooltipass.prefstorage.getStoredPreferences(mooltipass.datamemmgmt.preferencesCallback);
+    mooltipass.filehandler.getSyncableFileSystemStatus(mooltipass.memmgmt.syncableFSStateCallback);
+    mooltipass.filehandler.setSyncFSStateChangeCallback(mooltipass.memmgmt.syncableFSStateChangeCallback);
+
+    mooltipass.device.init();
 
     console.log('Listener installed');
 
-    _listenerInstalled = true;
+    _initLock = true;
 }
 
 
@@ -58,5 +75,5 @@ function launchWindow() {
 /* ######################################################################################################### */
 
 
-installListener();
+init();
 launchWindow();

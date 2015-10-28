@@ -43,17 +43,31 @@ mooltipass.device.interface.send = function(inputObject) {
         return;
     }
 
-    if(!mooltipass.device.isConnected) {
+    var isConnected;
+    var isUnlocked;
+    var singleCommunicationMode;
+    if(typeof(_inBackground) != 'undefined' && _inBackground === true) {
+        isConnected = mooltipass.device.isConnected;
+        isUnlocked = mooltipass.device.isUnlocked;
+        singleCommunicationMode = mooltipass.device.singleCommunicationMode;
+    }
+    else {
+        isConnected = mooltipass.app._deviceStatus.connected;
+        isUnlocked = mooltipass.app._deviceStatus.unlocked;
+        singleCommunicationMode = mooltipass.app._deviceStatus.singleCommunicationMode;
+    }
+
+    if(!isConnected) {
         mooltipass.device.interface._returnError(inputObject, 70, 'device not connected');
         return;
     }
 
-    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassStatus', 'startSingleCommunicationMode'], inputObject.command)) {
+    if(!isUnlocked && !contains(['ping', 'getMooltipassStatus', 'startSingleCommunicationMode'], inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 71, 'device is locked');
         return;
     }
 
-    if(mooltipass.device.singleCommunicationMode) {
+    if(singleCommunicationMode) {
         mooltipass.device.interface._returnError(inputObject, 90, 'device blocks new communication');
         return;
     }
@@ -74,7 +88,7 @@ mooltipass.device.interface._returnError = function(inputObject, code, msg) {
         responseObject.senderId = inputObject.responseParameters.senderId;
     }
 
-    mooltipass.device.applyCallback(inputObject.callbackFunction, inputObject.callbackParameters, [responseObject]);
+    applyCallback(inputObject.callbackFunction, inputObject.callbackParameters, [responseObject]);
 };
 
 
@@ -86,8 +100,46 @@ mooltipass.device.interface._sendFromListener = function(message, sender, callba
 };
 
 
+mooltipass.device.interface._sendToQueue = function(_command, _payload, _responseParameters, _callbackFunction, _callbackParameters, _timeout) {
+    if(typeof(_inBackground) != 'undefined' && _inBackground === true) {
+        mooltipass.device.addToQueue(_command, _payload, _responseParameters, _callbackFunction, _callbackParameters, _timeout);
+    }
+    else {
+        var object = {
+            '_from': 'frontend',
+            '_action': 'add-to-queue',
+            'command': _command,
+            'payload': _payload,
+            'responseParameters': _responseParameters,
+            'callbackFunction': _callbackFunction,
+            'callbackParameters': _callbackParameters,
+            'timeout': _timeout,
+        };
+
+        chrome.runtime.sendMessage(object, function(responseObject) {
+            if(chrome.runtime.lastError) {
+                responseObject = {
+                    'success': false,
+                    'code': 801,
+                    'msg': 'Could not send request to background process'
+                };
+                console.warn(responseObject.msg + ':', chrome.runtime.lastError.message);
+                applyCallback(_callbackFunction, _callbackParameters, [responseObject]);
+                return;
+            }
+
+            if(responseObject && !responseObject.success) {
+                console.warn('#' + responseObject.code + ':', responseObject.msg);
+                applyCallback(_callbackFunction, _callbackParameters, [responseObject]);
+                return;
+            }
+        });
+    }
+};
+
+
 mooltipass.device.interface._ping = function(inputObject) {
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         [],
         inputObject.responseParameters,
@@ -99,7 +151,7 @@ mooltipass.device.interface._ping = function(inputObject) {
 
 
 mooltipass.device.interface._startMemoryManagementMode = function(inputObject) {
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         [],
         null,
@@ -111,7 +163,7 @@ mooltipass.device.interface._startMemoryManagementMode = function(inputObject) {
 
 
 mooltipass.device.interface._startSingleCommunicationMode = function(inputObject) {
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         [],
         null,
@@ -128,7 +180,7 @@ mooltipass.device.interface._startSingleCommunicationMode = function(inputObject
 
 
 mooltipass.device.interface._getMooltipassStatus = function(inputObject) {
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         [],
         inputObject.responseParameters,
@@ -140,7 +192,7 @@ mooltipass.device.interface._getMooltipassStatus = function(inputObject) {
 
 
 mooltipass.device.interface._getRandomNumber = function(inputObject) {
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         [],
         inputObject.responseParameters,
@@ -152,7 +204,7 @@ mooltipass.device.interface._getRandomNumber = function(inputObject) {
 
 
 mooltipass.device.interface._getVersion = function(inputObject) {
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         [],
         inputObject.responseParameters,
@@ -164,7 +216,7 @@ mooltipass.device.interface._getVersion = function(inputObject) {
 
 
 mooltipass.device.interface._setCurrentDate = function(inputObject) {
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         [],
         inputObject.responseParameters,
@@ -176,14 +228,24 @@ mooltipass.device.interface._setCurrentDate = function(inputObject) {
 
 
 mooltipass.device.interface._getMooltipassParameter = function(inputObject) {
-    var _param = mooltipass.device.parameters[inputObject.parameter];
+    var _param = null;
+    if(typeof(_inBackground) != 'undefined' && _inBackground === true) {
+        _param = mooltipass.device.parameters[inputObject.parameter];
+    }
+    else {
+        _param = mooltipass.app._deviceParameters[inputObject.parameter];
+    }
+
     if(!_param) {
         mooltipass.device.interface._returnError(inputObject, 101, 'unknown parameter: ' + inputObject.parameter);
         return;
     }
 
+    inputObject.callbackParameters = inputObject.callbackParameters || [];
+    inputObject.callbackParameters.push(inputObject.parameter);
+
     var payload = [_param];
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         payload,
         inputObject.responseParameters,
@@ -195,7 +257,14 @@ mooltipass.device.interface._getMooltipassParameter = function(inputObject) {
 
 
 mooltipass.device.interface._setMooltipassParameter = function(inputObject) {
-    var _param = mooltipass.device.parameters[inputObject.parameter];
+    var _param = null;
+    if(typeof(_inBackground) != 'undefined' && _inBackground === true) {
+        _param = mooltipass.device.parameters[inputObject.parameter];
+    }
+    else {
+        _param = mooltipass.app._deviceParameters[inputObject.parameter];
+    }
+
     if(!_param) {
         mooltipass.device.interface._returnError(inputObject, 101, 'unknown parameter' + inputObject.parameter);
         return;
@@ -205,14 +274,19 @@ mooltipass.device.interface._setMooltipassParameter = function(inputObject) {
         return;
     }
 
+    inputObject.callbackParameters = inputObject.callbackParameters || [];
+    inputObject.callbackParameters.push(inputObject.parameter);
+
     var payload = [_param, inputObject.value];
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         inputObject.command,
         payload,
         inputObject.responseParameters,
         inputObject.callbackFunction,
         inputObject.callbackParameters,
-        inputObject.timeout
+        inputObject.timeout,
+        inputObject.addToFirstPosition,
+        inputObject.additionalArguments
     );
 };
 
@@ -232,7 +306,7 @@ mooltipass.device.interface._getCredentials = function(inputObject) {
 
     var firstContext = contexts.splice(0, 1);
 
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         'setContext',
         [firstContext[0]],
         {'contexts': contexts, 'requestType': 'getCredentials'},
@@ -263,7 +337,7 @@ mooltipass.device.interface._updateCredentials = function(inputObject) {
     }
 
     var payload = [inputObject.value];
-    mooltipass.device.addToQueue(
+    mooltipass.device.interface._sendToQueue(
         'setContext',
         [context],
         {'context': context, 'username': username, 'password': password, 'requestType': 'updateCredentials'},

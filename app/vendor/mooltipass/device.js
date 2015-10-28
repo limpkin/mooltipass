@@ -660,11 +660,7 @@ mooltipass.device.onDataReceived = function(reportId, data) {
 };
 
 mooltipass.device.applyCallback = function(callbackFunction, callbackParameters, ownParameters) {
-    if(callbackFunction) {
-        var args = ownParameters || [];
-        args = args.concat(callbackParameters || []);
-        callbackFunction.apply(this, args);
-    }
+    applyCallback(callbackFunction, callbackParameters, ownParameters);
 };
 
 mooltipass.device.responseGetVersion = function(queuedItem, msg) {

@@ -1021,7 +1021,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 		{
 			if(mooltipass.memmgmt.currentMode != MGMT_IDLE)
 			{
-				mooltipass.memmgmt.requestFailHander("Read: Empty file", null);
+				mooltipass.memmgmt.requestFailHander("Read: Empty file", null, 666);
 			}
 			return;
 		}
@@ -1034,7 +1034,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			console.log("Wrong data format!");
 			if(mooltipass.memmgmt.currentMode != MGMT_IDLE)
 			{
-				mooltipass.memmgmt.requestFailHander("Wrong data format!", null);
+				mooltipass.memmgmt.requestFailHander("Wrong data format!", null, 667);
 			}
 			return;
 		}
@@ -1057,7 +1057,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			console.log("Wrong data format!");
 			if(mooltipass.memmgmt.currentMode != MGMT_IDLE)
 			{
-				mooltipass.memmgmt.requestFailHander("Wrong data format!", null);
+				mooltipass.memmgmt.requestFailHander("Wrong data format!", null, 668);
 			}
 			return;
 		}
@@ -1140,7 +1140,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 	{
 		if(mooltipass.memmgmt.currentMode != MGMT_IDLE)
 		{
-			mooltipass.memmgmt.requestFailHander("Unsupported progress event type!", null);
+			mooltipass.memmgmt.requestFailHander("Unsupported progress event type", null, 669);
 		}
 	}
 }
@@ -1208,7 +1208,7 @@ mooltipass.memmgmt.exportMemoryState = function()
 		}
 		else
 		{
-			mooltipass.memmgmt.requestFailHander("SyncFS not ready!!!", null);
+			mooltipass.memmgmt.requestFailHander("SyncFS not ready", null, 670);
 		}
 	}
 }
@@ -1218,7 +1218,7 @@ mooltipass.memmgmt.importMemoryStateCallBack = function(e)
 {
 	if(e == null)
 	{
-		mooltipass.memmgmt.requestFailHander("User didn't select file", null);
+		mooltipass.memmgmt.requestFailHander("No file selected", null, 671);
 	}
 	else
 	{
@@ -1239,13 +1239,13 @@ mooltipass.memmgmt.fileWrittenCallback = function(file_written_bool)
 	if(file_written_bool)
 	{
 		console.log("File written!");
-		mooltipass.memmgmt.statusCallback({'success': true, 'msg': "File written"});
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "File written"});
 		mooltipass.memmgmt.currentMode = MGMT_IDLE;
 		mooltipass.device.processQueue();
 	}
 	else
 	{
-		mooltipass.memmgmt.statusCallback({'success': true, 'msg': "User didn't select file"});	
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "User didn't select file"});	
 		mooltipass.memmgmt.currentMode = MGMT_IDLE;	
 		mooltipass.device.processQueue();
 	}
@@ -1255,7 +1255,7 @@ mooltipass.memmgmt.fileWrittenCallback = function(file_written_bool)
 mooltipass.memmgmt.syncFSFileWrittenCallback = function()
 {
 	console.log("File written to syncFS!");
-	mooltipass.memmgmt.statusCallback({'success': true, 'msg': "File written to syncFS!"});
+	applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "File written to syncFS!"});
 	mooltipass.memmgmt.currentMode = MGMT_IDLE;
 	mooltipass.device.processQueue();
 }
@@ -1495,7 +1495,7 @@ mooltipass.memmgmt.getPasswordForCredential = function(service, login, callback)
 		{
 			console.log("Wrong mode");
 		}
-		mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "Unknown service or login"}, "not valid");
+		applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 689, 'msg': "Unknown service or login"}, "not valid");
 	}
 }
 
@@ -2605,7 +2605,7 @@ mooltipass.memmgmt.generateMergePackets = function()
 	}
 } 
 
-mooltipass.memmgmt.requestFailHander = function(message, nextMode)
+mooltipass.memmgmt.requestFailHander = function(message, nextMode, code)
 {
 	console.log("requestFailHander: " + message);	
 	console.log("Current mode: " + mooltipass.memmgmt.currentMode);
@@ -2616,11 +2616,12 @@ mooltipass.memmgmt.requestFailHander = function(message, nextMode)
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
 		mooltipass.memmgmt.currentMode = MGMT_ERROR_CUR_EXITTING_MMM;
 		mooltipass.memmgmt.tempCallbackErrorString = message;
+		mooltipass.memmgmt.tempCallbackErrorCode = code;
 		mooltipass.memmgmt_hid._sendMsg();
 	}
 	else
 	{
-		mooltipass.memmgmt.statusCallback({'success': false, 'msg': message});
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': code, 'msg': message});
 		mooltipass.memmgmt.currentMode = MGMT_IDLE;
 		mooltipass.device.processQueue();
 	}
@@ -2650,11 +2651,11 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				{
 					if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_NO_CHANGES)
 					{
-						mooltipass.memmgmt.statusCallback({'success': true, 'msg': "No changes were applied"});
+						applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "No changes were applied"});
 					}
 					else if(mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
 					{
-						mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});				
+						applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Changes were applied"});				
 					}	
 					mooltipass.memmgmt.currentMode = MGMT_IDLE;
 					mooltipass.device.processQueue();
@@ -2662,42 +2663,42 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_ERROR_CUR_EXITTING_MMM)
 			{
-				mooltipass.memmgmt.statusCallback({'success': false, 'msg': mooltipass.memmgmt.tempCallbackErrorString});	
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': mooltipass.memmgmt.tempCallbackErrorCode, 'msg': mooltipass.memmgmt.tempCallbackErrorString});	
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory management mode exit"});	
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Memory management mode exit"});	
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, no changes to make!"});	
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Memory OK, no changes to make!"});	
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Memory OK, found problems fixed"});				
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Memory OK, found problems fixed"});				
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();	
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN)
 			{
 				// Callback is called from the file written callback
-				//mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Backup process done"});
+				//applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Backup process done"});
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Merging done, no changes applied"});	
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Merging done, no changes applied"});	
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_PACKET_SENDING)
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Merging done, changes applied"});			
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Merging done, changes applied"});			
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
@@ -2705,7 +2706,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else
 		{
-			mooltipass.memmgmt.requestFailHander("Memory management mode exit fail", null);
+			mooltipass.memmgmt.requestFailHander("Memory management mode exit fail", null, 650);
 		}
 	}
 	else if(packet[1] == mooltipass.device.commands['debug'])
@@ -2732,7 +2733,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
-					mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});
+					applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Changes were applied"});
 					mooltipass.memmgmt.currentMode = MGMT_IDLE;
 					mooltipass.device.processQueue();
 				}
@@ -2761,7 +2762,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
-					mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});
+					applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Changes were applied"});
 					mooltipass.memmgmt.currentMode = MGMT_IDLE;
 					mooltipass.device.processQueue();
 				}
@@ -2791,7 +2792,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else
 			{
-				mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Changes were applied"});
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Changes were applied"});
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
@@ -2806,7 +2807,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Fail
 				console.log("Set context fail");
 				mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-				mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "Context invalid"}, "not valid");
+				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 673, 'msg': "Context invalid"}, "not valid");
 			}
 			else
 			{
@@ -2824,7 +2825,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Fail
 				console.log("Get login fail");
 				mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-				mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "User didn't select a login"}, "not valid");
+				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 674, 'msg': "User didn't select a login"}, "not valid");
 			}
 			else
 			{
@@ -2833,7 +2834,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				{
 					console.log("Wrong login selected");
 					mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-					mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "User didn't select the right login"}, "not valid");
+					applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 675, 'msg': "User didn't select the right login"}, "not valid");
 				}
 				else
 				{
@@ -2849,7 +2850,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Fail
 				console.log("Set login fail");
 				mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-				mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "Login invalid"}, "not valid");
+				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 676, 'msg': "Login invalid"}, "not valid");
 			}
 			else
 			{
@@ -2865,11 +2866,11 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			{
 				// Fail
 				console.log("Get password fail");
-				mooltipass.memmgmt.getPasswordCallback({'success': false, 'msg': "Request denied"}, "not valid");
+				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 677, 'msg': "Request denied"}, "not valid");
 			}
 			else
 			{
-				mooltipass.memmgmt.getPasswordCallback({'success': true, 'msg': "Request approved"}, mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
+				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': true, 'msg': "Request approved"}, mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
 			}
 		}
 	}
@@ -2952,7 +2953,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			else
 			{
 				// Couldn't request free addresses!
-				mooltipass.memmgmt.requestFailHander("Couldn't request free addresses, memory full", MGMT_IDLE);
+				mooltipass.memmgmt.requestFailHander("Couldn't request free addresses, memory full", MGMT_IDLE, 651);
 			}
 		}
 	}
@@ -2981,7 +2982,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else
 		{
-			mooltipass.memmgmt.requestFailHander("Couldn't send packet!", MGMT_IDLE);
+			mooltipass.memmgmt.requestFailHander("Couldn't send packet", MGMT_IDLE, 652);
 			//console.log(mooltipass.memmgmt.packetToSendBuffer[0]);
 		}
 	}
@@ -3018,7 +3019,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
-					mooltipass.memmgmt.requestFailHander("No unlocked/unknown card in the Mooltipass", null);
+					mooltipass.memmgmt.requestFailHander("No unlocked/unknown card in the Mooltipass", null, 653);
 				}
 			}
 			else
@@ -3032,7 +3033,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				}
 				else
 				{
-					mooltipass.memmgmt.requestFailHander("No unlocked card in the Mooltipass", null);
+					mooltipass.memmgmt.requestFailHander("No unlocked card in the Mooltipass", null, 654);
 				}				
 			}
 		}
@@ -3043,7 +3044,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Was it a success
 				if(packet[0] == 1)
 				{
-					mooltipass.memmgmt.requestFailHander("No card inserted in the Mooltipass", null);
+					mooltipass.memmgmt.requestFailHander("No card inserted in the Mooltipass", null, 655);
 				}
 				else
 				{
@@ -3075,7 +3076,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 						}
 						else
 						{
-							mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the save file!!!", null);
+							mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the save file", null, 656);
 						}
 					}
 					else
@@ -3108,7 +3109,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 						}
 						else
 						{
-							mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the syncFS!!!", null);
+							mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the syncFS", null, 657);
 						}
 					}
 				}				
@@ -3121,7 +3122,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Was it a success
 				if(packet[2] == 0)
 				{
-					mooltipass.memmgmt.requestFailHander("User didn't enter his PIN code!", null);
+					mooltipass.memmgmt.requestFailHander("PIN code not entered", null, 658);
 				}
 				else
 				{
@@ -3170,7 +3171,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else
 			{
-				mooltipass.memmgmt.requestFailHander("Couldn't enter memory management mode", null);
+				mooltipass.memmgmt.requestFailHander("Couldn't enter memory management mode", null, 672);
 			}
 		}	
 	}
@@ -3188,7 +3189,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			if(packet[0] == 1)
 			{
-				mooltipass.memmgmt.requestFailHander("Error during CTR request (card removed?)", MGMT_IDLE);
+				mooltipass.memmgmt.requestFailHander("Error during CTR request (card removed?)", MGMT_IDLE, 659);
 			}
 			else
 			{
@@ -3219,7 +3220,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			if(packet[2] == 0)
 			{				
-				mooltipass.memmgmt.requestFailHander("Error during CPZ/CTR request (card removed?)", MGMT_IDLE);
+				mooltipass.memmgmt.requestFailHander("Error during CPZ/CTR request (card removed?)", MGMT_IDLE, 660);
 			}
 			else
 			{
@@ -3233,7 +3234,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			if(packet[0] == 1)
 			{
-				mooltipass.memmgmt.requestFailHander("Error during get starting parent request (card removed?)", MGMT_IDLE);
+				mooltipass.memmgmt.requestFailHander("Error during get starting parent request (card removed?)", MGMT_IDLE, 661);
 			}
 			else
 			{
@@ -3248,7 +3249,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			if(packet[0] == 1)
 			{
-				mooltipass.memmgmt.requestFailHander("Error during get data starting parent request (card removed?)", MGMT_IDLE);
+				mooltipass.memmgmt.requestFailHander("Error during get data starting parent request (card removed?)", MGMT_IDLE, 662);
 			}
 			else
 			{
@@ -3266,7 +3267,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			if(packet[0] == 1)
 			{
-				mooltipass.memmgmt.requestFailHander("Error during get favorite request (card removed?)", MGMT_IDLE);
+				mooltipass.memmgmt.requestFailHander("Error during get favorite request (card removed?)", MGMT_IDLE, 663);
 			}
 			else
 			{
@@ -3308,6 +3309,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 						if(mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.startingParent, [0,0]) == true)
 						{						
 							mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;		
+							//applyCallback(mooltipass.memmgmt.statusCallback, mooltipass.memmgmt.credentialArrayForGui, {'success': true, 'msg': "Credential listing done"});
 							mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
 						}
 						else
@@ -3429,6 +3431,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 								{
 									// Wait for the user to do his actions...
 									mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;	
+									//applyCallback(mooltipass.memmgmt.statusCallback, mooltipass.memmgmt.credentialArrayForGui, {'success': true, 'msg': "Credential listing done"});
 									mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
 								}
 								else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
@@ -3517,6 +3520,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 								{
 									// Wait for the user to do his actions...
 									mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;		
+									//applyCallback(mooltipass.memmgmt.statusCallback, mooltipass.memmgmt.credentialArrayForGui, {'success': true, 'msg': "Credential listing done"});
 									mooltipass.memmgmt.statusCallback({'success': true, 'msg': "Credential listing done"}, mooltipass.memmgmt.credentialArrayForGui);
 								}
 								else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
@@ -3591,7 +3595,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				else
 				{
 					// Well this isn't a good situation... we read an empty node
-					mooltipass.memmgmt.requestFailHander("Empty node read in memory (card removed/memory corrupted?)", MGMT_IDLE);
+					mooltipass.memmgmt.requestFailHander("Empty node read in memory (card removed/memory corrupted?)", MGMT_IDLE, 664);
 				}
 				 
 				// Reset current node
@@ -3607,7 +3611,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			// Well this isn't a good situation... we read a node that we weren't allowed to read
 			console.log("Not allowed to read node !!!");			 
-			mooltipass.memmgmt.requestFailHander("Wrong node read in memory (card removed/memory corrupted?)", MGMT_IDLE);
+			mooltipass.memmgmt.requestFailHander("Wrong node read in memory (card removed/memory corrupted?)", MGMT_IDLE, 665);
 		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
@@ -3940,7 +3944,7 @@ mooltipass.memmgmt.memmgmtStart = function(callback)
 	}
 	else
 	{
-		callback({'success': false, 'msg': "Memory management in another mode"}, null);
+		applyCallback(callback, null, {'success': false, 'code': 678, 'msg': "Memory management in another mode"}, null);
 	}
 }
 
@@ -3957,7 +3961,7 @@ mooltipass.memmgmt.memmgmtStop = function(callback)
 	}
 	else
 	{
-		mooltipass.memmgmt.statusCallback({'success': false, 'msg': "Memory management in another mode"});
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 679, 'msg': "Memory management in another mode"});
 	}
 }
 
@@ -4244,7 +4248,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 		else
 		{
 			// We were fed incorrect data
-			mooltipass.memmgmt.statusCallback({'success': false, 'msg': "Data provided is invalid!"});
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 680, 'msg': "Data provided is invalid!"});
 			console.log("Error with following update data:");
 			console.log(mooltipass.memmgmt.memmgmtUpdateData[i]);
 			return;
@@ -4289,7 +4293,7 @@ mooltipass.memmgmt.generateSavePackets = function()
 		else
 		{
 			// We were fed incorrect data
-			mooltipass.memmgmt.statusCallback({'success': false, 'msg': "Data provided is invalid!"});
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 681, 'msg': "Data provided is invalid!"});
 			console.log("Error with following delete data:");
 			console.log(mooltipass.memmgmt.memmgmtDeleteData[i]);
 			return;
@@ -4457,7 +4461,7 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 	}
 	else
 	{
-		callback({'success': false, 'msg': "Memory management in another mode"});
+		applyCallback(callback, null, {'success': false, 'code': 682, 'msg': "Memory management in another mode"});
 	}
 }
  
@@ -4477,7 +4481,7 @@ mooltipass.memmgmt.integrityCheckStart = function(progressCallback, statusCallba
 	}
 	else
 	{
-		statusCallback({'success': false, 'msg': "Memory management in another mode"});
+		applyCallback(statusCallback, null, {'success': false, 'code': 683, 'msg': "Memory management in another mode"});
 	}
 }
 
@@ -4494,7 +4498,7 @@ mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function(statusCallbac
 	}
 	else
 	{
-		statusCallback({'success': false, 'msg': "Memory management in another mode"});
+		applyCallback(statusCallback, null, {'success': false, 'code': 684, 'msg': "Memory management in another mode"});
 	}
 }
 
@@ -4519,12 +4523,12 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 		}
 		else
 		{
-			statusCallback({'success': false, 'msg': "SyncFS offline or else"});
+			applyCallback(statusCallback, null, {'success': false, 'code': 685, 'msg': "SyncFS offline or else"});
 		}		
 	}
 	else
 	{
-		statusCallback({'success': false, 'msg': "Memory management in another mode"});
+		applyCallback(statusCallback, null, {'success': false, 'code': 686, 'msg': "Memory management in another mode"});
 	}
 }
 
@@ -4537,7 +4541,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 	{
 		if(to_file_bool == false && mooltipass.memmgmt.syncFSOK == false)
 		{
-			statusCallback({'success': false, 'msg': "SyncFS offline or else"});
+			applyCallback(statusCallback, null, {'success': false, 'code': 687, 'msg': "SyncFS offline or else"});
 		}
 		else
 		{
@@ -4553,7 +4557,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 	}
 	else
 	{
-		statusCallback({'success': false, 'msg': "Memory management in another mode"});
+		applyCallback(statusCallback, null, {'success': false, 'code': 688, 'msg': "Memory management in another mode"});
 	}
 }
 

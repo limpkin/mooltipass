@@ -23,6 +23,14 @@ function mergeObjects(sourceObject, destinationObject) {
     }
 }
 
+applyCallback = function(callbackFunction, callbackParameters, ownParameters) {
+    if(callbackFunction) {
+        var args = ownParameters || [];
+        args = args.concat(callbackParameters || []);
+        callbackFunction.apply(this, args);
+    }
+};
+
 var _debug = false;
 function logging() {
     if(_debug !== true) {

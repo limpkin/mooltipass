@@ -150,6 +150,21 @@ mooltipass.ui.settings.getUserRequestCancel = function() {
         'callbackFunction': function(_response) {
             if(_response.success) {
                 $('#settings-userRequestCancel').prop('checked', Boolean(Number(_response.value)));
+
+                // Start quickfix: Set it to 0 if enabled
+                if (Boolean(Number(_response.value))) {
+                    mooltipass.device.interface.send({
+                        'command': 'setMooltipassParameter',
+                        'parameter': 'userRequestCancel',
+                        'value': 0,
+                        'callbackFunction': function(_response) {
+                            if(!_response.success) {
+                                mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);
+                            }
+                        }
+                    });                
+                }
+                // End quickfix
             }
             else {
                 mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);

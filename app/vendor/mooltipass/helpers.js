@@ -24,21 +24,15 @@ function mergeObjects(sourceObject, destinationObject) {
 }
 
 function _wrapWithArrayIfNeeded(input) {
-    if(typeof(input) !== 'undefined') {
-        if(input !== null) {
-            if(input.constructor == Array) {
-                // Is an array
-                return input;
-            }
-            else {
-                // Everything else than an array --> wrap with array
-                return [input];
-            }
-        }
+    var output = input || [];
+
+    if(output.constructor == Array) {
+        // Is an array
+        return output;
     }
 
-    // Unset variable --> return empty array
-    return [];
+    // Everything else than an array --> wrap with array
+    return [output];
 }
 
 function applyCallback(_callbackFunction, _callbackParameters, _ownParameters) {

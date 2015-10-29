@@ -145,7 +145,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
         output.command = 'getCredentials';
         output.contexts = [];
         if(_request.getInputs.subdomain) {
-            output.contexts.push(_request.getInputs.subdomain);
+            output.contexts.push(_request.getInputs.subdomain + '.' + _request.getInputs.domain);
         }
         if(_request.getInputs.domain) {
             output.contexts.push(_request.getInputs.domain);

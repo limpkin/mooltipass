@@ -390,7 +390,6 @@ _cred.onClickMMMEnter = function () {
 };
 
 _cred.onClickMMMDiscard = function() {
-
     mooltipass.memmgmt.memmgmtStop(function (_status) {
         if (_status.success) {
             mooltipass.device.endSingleCommunicationMode();
@@ -454,6 +453,32 @@ _cred.onClickMMMSave = function (e) {
     }, deletes, updates, adds);
 };
 
+_cred.onClickImportFromCSV_DUMMY = function(_callbackFunction) {
+    // TODO Remove this DUMMY method
+    // and replace in the next function:
+    //      _cred.onClickImportFromCSV_DUMMY
+    // with your function name!
+    console.warn('NOT IMPLEMENTED YET');
+};
+_cred.onClickImportFromCSV = function(e) {
+    e.preventDefault();
+
+    _cred.onClickImportFromCSV_DUMMY(
+        function (_status) {
+            if (_status.success) {
+                mooltipass.device.endSingleCommunicationMode();
+                update_device_status_classes();
+                USER_CREDENTIALS = [];
+                var $table = $('#credentials').dataTable();
+                $table.fnClearTable();
+                mooltipass.ui.status.success($('#import-from-csv'), _status.msg);
+            }
+            else {
+                mooltipass.ui.status.error($('#import-from-csv'), _status.msg);
+            }
+        }
+    );
+}
 
 /**
  * Initialize function
@@ -463,6 +488,9 @@ mooltipass.ui.credentials.init = function () {
     $('#mmm-enter').click(_cred.onClickMMMEnter);
     $('#mmm-save').click(_cred.onClickMMMSave);
     $('#mmm-save, #mmm-discard').hide();
+
+    $("#import-from-csv").click(_cred.onClickImportFromCSV);
+    //$("#import-from-csv").hide();
 
 
     CREDENTIALS_TABLE = $("#credentials").dataTable({

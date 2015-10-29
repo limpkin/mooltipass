@@ -454,15 +454,18 @@ _cred.onClickMMMSave = function (e) {
 };
 
 _cred.onClickImportFromCSV_DUMMY = function(_callbackFunction) {
+    // TODO #MS
     // TODO Remove this DUMMY method
-    // and replace in the next function:
-    //      _cred.onClickImportFromCSV_DUMMY
-    // with your function name!
+    // TODO and replace in the next function:
+    // TODO     _cred.onClickImportFromCSV_DUMMY
+    // TODO with your function name!
     console.warn('NOT IMPLEMENTED YET');
 };
 _cred.onClickImportFromCSV = function(e) {
     e.preventDefault();
 
+    // TODO #MS
+    // TODO replace _cred.onClickImportFromCSV_DUMMY with your function call: your_function(callbackFunction)
     _cred.onClickImportFromCSV_DUMMY(
         function (_status) {
             if (_status.success) {
@@ -490,7 +493,9 @@ mooltipass.ui.credentials.init = function () {
     $('#mmm-save, #mmm-discard').hide();
 
     $("#import-from-csv").click(_cred.onClickImportFromCSV);
-    //$("#import-from-csv").hide();
+    // TODO #MS
+    // TODO Remove next line after implementing functionality
+    $("#import-from-csv").hide();
 
 
     CREDENTIALS_TABLE = $("#credentials").dataTable({

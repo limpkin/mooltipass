@@ -48,10 +48,30 @@ function launchWindow() {
     var windows = chrome.app.window.getAll();
 
     if(windows.length > 0) {
+        windows[0].show();
         return;
     }
 
-    chrome.app.window.create('html/index.html', {'bounds': {'width': 800, 'height': 500}, "resizable": false});
+    chrome.app.window.create(
+        'html/index.html',
+        {'bounds': {'width': 800, 'height': 500}, "resizable": false, "hidden": true},
+        function(createdWindow) {
+            createdWindow.onClosed.addListener(reopenHiddenWindow);
+        }
+    );
+}
+
+function reopenHiddenWindow() {
+    // AppWindow is already opened -> do not open another one
+    var windows = chrome.app.window.getAll();
+
+    if(windows.length > 0) {
+        setTimeout(reopenHiddenWindow, 100);
+        return;
+    }
+
+    launchWindow();
+    console.log('launched');
 }
 
 

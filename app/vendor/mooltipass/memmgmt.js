@@ -2820,8 +2820,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['getLogin'])
 		{
-			//if(packet[2] == 0)
-			if(false)
+			if(packet[2] == 0 && mooltipass.memmgmt.getPasswordLogin != "")
 			{
 				// Fail
 				console.log("Get login fail");

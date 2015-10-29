@@ -2820,7 +2820,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		}
 		else if(packet[1] == mooltipass.device.commands['getLogin'])
 		{
-			if(packet[2] == 0)
+			if(packet[2] == 0 && mooltipass.memmgmt.getPasswordLogin != "")
 			{
 				// Fail
 				console.log("Get login fail");
@@ -4399,6 +4399,16 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 		mooltipass.memmgmt.memmgmtDeleteData = deleteData;
 		mooltipass.memmgmt.memmgmtUpdateData = updateData;
 		mooltipass.memmgmt.memmgmtAddData = addData;	
+		
+		// Lower case all data
+		for(var i = 0; i < mooltipass.memmgmt.memmgmtUpdateData.length; i++)
+		{
+			mooltipass.memmgmt.memmgmtUpdateData[i].context = mooltipass.memmgmt.memmgmtUpdateData[i].context.toLowerCase();
+		}
+		for(var i = 0; i < mooltipass.memmgmt.memmgmtAddData.length; i++)
+		{
+			mooltipass.memmgmt.memmgmtAddData[i].context = mooltipass.memmgmt.memmgmtAddData[i].context.toLowerCase();
+		}
 		
 		//console.log(deleteData);
 		//console.log(updateData);

@@ -495,7 +495,7 @@ mooltipass.ui.credentials.init = function () {
     $("#import-from-csv").click(_cred.onClickImportFromCSV);
     // TODO #MS
     // TODO Remove next line after implementing functionality
-    $("#import-from-csv").hide();
+    //$("#import-from-csv").hide();
 
 
     CREDENTIALS_TABLE = $("#credentials").dataTable({

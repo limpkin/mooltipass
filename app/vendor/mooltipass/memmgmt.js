@@ -4400,6 +4400,16 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 		mooltipass.memmgmt.memmgmtUpdateData = updateData;
 		mooltipass.memmgmt.memmgmtAddData = addData;	
 		
+		// Lower case all data
+		for(var i = 0; i < mooltipass.memmgmt.memmgmtUpdateData.length; i++)
+		{
+			mooltipass.memmgmt.memmgmtUpdateData[i].context = mooltipass.memmgmt.memmgmtUpdateData[i].context.toLowerCase();
+		}
+		for(var i = 0; i < mooltipass.memmgmt.memmgmtAddData.length; i++)
+		{
+			mooltipass.memmgmt.memmgmtAddData[i].context = mooltipass.memmgmt.memmgmtAddData[i].context.toLowerCase();
+		}
+		
 		//console.log(deleteData);
 		//console.log(updateData);
 		//console.log(addData);

@@ -32,6 +32,12 @@ function installListener() {
     chrome.runtime.onMessageExternal.addListener(
         function(message, sender, callbackFunction) {
             console.log('chrome.runtime.onMessageExternal(' + sender.id + '):', message);
+
+            if('show' in message) {
+                launchWindow(true);
+                return;
+            }
+
             var data = {'id': sender.id, 'message': message};
             // Keep callbackFunction separated to react on chrome.runtime.lastError
             chrome.runtime.sendMessage(data, callbackFunction);
@@ -43,7 +49,7 @@ function installListener() {
 }
 
 
-function launchWindow() {
+function launchWindow(forceOpen) {
     // AppWindow is already opened -> do not open another one
     var windows = chrome.app.window.getAll();
 
@@ -52,9 +58,13 @@ function launchWindow() {
         return;
     }
 
+    var options = {'bounds': {'width': 800, 'height': 500}, "resizable": false, "hidden": true};
+    if(arguments.length == 1) {
+        options.hidden = false;
+    }
     chrome.app.window.create(
         'html/index.html',
-        {'bounds': {'width': 800, 'height': 500}, "resizable": false, "hidden": true},
+        options,
         function(createdWindow) {
             createdWindow.onClosed.addListener(reopenHiddenWindow);
         }

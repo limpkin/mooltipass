@@ -8,6 +8,12 @@ function initSettings() {
             url: "/options/options.html"
         })
     });
+    $("#btn-open-app").click(function(e) {
+        e.preventDefault();
+        close();
+        var global = chrome.extension.getBackgroundPage();
+        chrome.runtime.sendMessage(global.mooltipass.device._app.id, { 'show': true });
+    });
 
     $("#btn-report-error").click(function() {
         mooltipass.website.reportError(function(target_url){

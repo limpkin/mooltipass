@@ -22,7 +22,7 @@ mooltipass.ui.settings.initKeyboardLayout = function() {
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'keyboardLayout',
-            'value': $(this).val(),
+            'value': parseInt($(this).val()),
             'callbackFunction': function(_response) {
                 if(!_response.success) {
                     mooltipass.ui.status.error($('#settings-keyboardLayout'), _response.msg);

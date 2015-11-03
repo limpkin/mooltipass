@@ -9834,61 +9834,69 @@ input.inline {
   transition: all 200ms ease;
 }
 
-/* line 104, ../scss/app.scss */
+/* line 103, ../scss/app.scss */
+#page-synchronisation {
+  overflow-y: hidden;
+}
+/* line 105, ../scss/app.scss */
+#page-synchronisation * {
+  overflow-y: hidden;
+}
+/* line 106, ../scss/app.scss */
 #page-synchronisation button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 111, ../scss/app.scss */
+/* line 113, ../scss/app.scss */
 #page-synchronisation .storage p {
   margin-bottom: 0;
 }
-/* line 115, ../scss/app.scss */
+/* line 117, ../scss/app.scss */
 #page-synchronisation .storage input[type="checkbox"] {
   margin-left: 0.5rem;
 }
-/* line 119, ../scss/app.scss */
+/* line 121, ../scss/app.scss */
 #page-synchronisation .storage span {
   display: inline-block;
   width: 90%;
 }
-/* line 124, ../scss/app.scss */
+/* line 126, ../scss/app.scss */
 #page-synchronisation .storage label {
   margin-top: 0.5rem;
 }
 
-/* line 131, ../scss/app.scss */
+/* line 133, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }
 
-/* line 136, ../scss/app.scss */
+/* line 138, ../scss/app.scss */
 #page-credentials button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 141, ../scss/app.scss */
+/* line 143, ../scss/app.scss */
 #page-credentials button.secondary {
   color: #888888;
   transition: background-color ease 1000ms;
 }
-/* line 145, ../scss/app.scss */
+/* line 147, ../scss/app.scss */
 #page-credentials button.secondary:hover {
   background-color: #ddd;
 }
-/* line 149, ../scss/app.scss */
+/* line 151, ../scss/app.scss */
 #page-credentials button.secondary:active {
   background-color: #F1BABA;
 }
 
-/* line 157, ../scss/app.scss */
+/* line 159, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 162, ../scss/app.scss */
+/* line 164, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -9897,24 +9905,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 170, ../scss/app.scss */
+/* line 172, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 176, ../scss/app.scss */
+/* line 178, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 184, ../scss/app.scss */
+/* line 186, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 187, ../scss/app.scss */
+/* line 189, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -9926,18 +9934,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 200, ../scss/app.scss */
+/* line 202, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 204, ../scss/app.scss */
+/* line 206, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 210, ../scss/app.scss */
+/* line 212, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

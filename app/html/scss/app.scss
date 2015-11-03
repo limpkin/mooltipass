@@ -101,6 +101,8 @@ input.inline {
 }
 
 #page-synchronisation {
+  overflow-y: hidden;
+  * { overflow-y: hidden; }
   button {
     margin-bottom: 0;
     margin-top: 0.9rem;  

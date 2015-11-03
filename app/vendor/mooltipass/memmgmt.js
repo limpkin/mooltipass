@@ -4534,7 +4534,7 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 		}
 		else
 		{
-			applyCallback(statusCallback, null, {'success': false, 'code': 685, 'msg': "SyncFS offline or else"});
+			applyCallback(statusCallback, null, {'success': false, 'code': 685, 'msg': "SyncFS offline, please make sure you logged into Chrome"});
 		}		
 	}
 	else
@@ -4552,7 +4552,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 	{
 		if(to_file_bool == false && mooltipass.memmgmt.syncFSOK == false)
 		{
-			applyCallback(statusCallback, null, {'success': false, 'code': 687, 'msg': "SyncFS offline or else"});
+			applyCallback(statusCallback, null, {'success': false, 'code': 687, 'msg': "SyncFS offline, please make sure you logged into Chrome"});
 		}
 		else
 		{

@@ -9482,7 +9482,7 @@ nav ul li a img {
 
 /* line 22, ../scss/_layout.scss */
 .big-margin-right {
-  margin-right: 2rem;
+  margin-right: 2rem !important;
 }
 
 /* line 24, ../scss/_layout.scss */
@@ -9908,4 +9908,36 @@ button:focus, .button:focus {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
+}
+
+/* line 184, ../scss/app.scss */
+nav li {
+  position: relative;
+}
+/* line 187, ../scss/app.scss */
+nav li .lock {
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  cursor: not-allowed;
+}
+
+/* line 200, ../scss/app.scss */
+.tooltipster-base {
+  border: 0;
+  border-radius: 0;
+}
+/* line 204, ../scss/app.scss */
+.tooltipster-base .tooltipster-content {
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+
+/* line 210, ../scss/app.scss */
+.tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
+  border: none;
 }

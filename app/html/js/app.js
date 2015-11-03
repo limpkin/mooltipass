@@ -20,6 +20,11 @@ mooltipass.ui._.init = function() {
         mooltipass.ui._.showActivePage();
     });
 
+    // init tooltipster
+    $(document).ready(function() {
+        $('.tipster').tooltipster();
+    });    
+
     mooltipass.ui._.initConfirmButtons();
     mooltipass.ui._.showSplashScreen();
 };

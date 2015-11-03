@@ -1,9 +1,4 @@
 nav.top-bar(data-topbar, role="navigation")
-  ul.title-area
-    li.toggle-topbar.menu-icon
-      a(href="#")
-        span= Menu
-
   section.top-bar-section
     ul.right
       li
@@ -13,6 +8,7 @@ nav.top-bar(data-topbar, role="navigation")
 
     ul.left
       li
+        .lock.show-if-connected.show-if-card.show-if-unlocked.show-if-mmm.tipster(title="Save or discard your changes first.")
         a(href="#", mp-open-page="settings")
           i.fa.fa-wrench 
           span &nbsp; Device Settings
@@ -21,6 +17,7 @@ nav.top-bar(data-topbar, role="navigation")
           i.fa.fa-key 
           span &nbsp; Credentials          
       li
+        .lock.show-if-connected.show-if-card.show-if-unlocked.show-if-mmm.tipster(title="Save or discard your changes first.")
         a(href="#", mp-open-page="synchronisation")
           i.fa.fa-refresh
           span &nbsp; Synchronisation          

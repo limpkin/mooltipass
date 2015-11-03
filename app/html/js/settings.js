@@ -19,13 +19,19 @@ mooltipass.ui.settings.getKeyboardLayout = function() {
 
 mooltipass.ui.settings.initKeyboardLayout = function() {
     $('#settings-keyboardLayout').change(function() {
+        $(this).data('old-value', $(this).val());
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'keyboardLayout',
             'value': parseInt($(this).val()),
             'callbackFunction': function(_response) {
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-keyboardLayout'), _response.msg);
+                var $field = $('#settings-keyboardLayout');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Keyboard layout changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
                 }
             },
             'callbackParameters': null
@@ -50,13 +56,20 @@ mooltipass.ui.settings.getLockTimeoutEnabled = function() {
 
 mooltipass.ui.settings.initLockTimeoutEnabled = function() {
     $('#settings-lockTimeoutEnabled').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'lockTimeoutEnabled',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-lockTimeoutEnabled'), _response.msg);
+                var $field = $('#settings-lockTimeoutEnabled');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Inactivity timeout ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
                 }
             }
         });
@@ -68,11 +81,12 @@ mooltipass.ui.settings.getLockTimeout = function() {
         'command': 'getMooltipassParameter',
         'parameter': 'lockTimeout',
         'callbackFunction': function(_response) {
+            var $field = $('#settings-lockTimeout');
             if(_response.success) {
-                $('#settings-lockTimeout').val(Number(_response.value) / 60);
+                $field.val(Number(_response.value) / 60);
             }
             else {
-                mooltipass.ui.status.error($('#settings-lockTimeout'), _response.msg);
+                mooltipass.ui.status.error($field, _response.msg);
             }
         }
     });
@@ -80,6 +94,7 @@ mooltipass.ui.settings.getLockTimeout = function() {
 
 mooltipass.ui.settings.initLockTimeout = function() {
     $('#settings-lockTimeout').change(function() {
+        $(this).data('old-value', $(this).val());
         var value = $(this).val();
 
         if(isNaN(value)) {
@@ -105,8 +120,13 @@ mooltipass.ui.settings.initLockTimeout = function() {
             'parameter': 'lockTimeout',
             'value': value * 60,
             'callbackFunction': function(_response) {
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-lockTimeout'), _response.msg);
+                var $field = $('#settings-lockTimeout');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Inactivity timeout changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
                 }
             }
         });
@@ -130,13 +150,20 @@ mooltipass.ui.settings.getScreensaver = function() {
 
 mooltipass.ui.settings.initScreensaver = function() {
     $('#settings-screensaver').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'screensaver',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-screensaver'), _response.msg);
+                var $field = $('#settings-screensaver');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Screensaver ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
                 }
             }
         });
@@ -175,13 +202,20 @@ mooltipass.ui.settings.getUserRequestCancel = function() {
 
 mooltipass.ui.settings.initUserRequestCancel = function() {
     $('#settings-userRequestCancel').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'userRequestCancel',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);
+                var $field = $('#settings-userRequestCancel');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'User interaction timeout ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
                 }
             }
         });
@@ -205,6 +239,7 @@ mooltipass.ui.settings.getUserInteractionTimeout = function() {
 
 mooltipass.ui.settings.initUserInteractionTimeout = function() {
     $('#settings-userInteractionTimeout').change(function() {
+        $(this).data('old-value', $(this).val());
         var value = $(this).val();
 
         if(isNaN(value)) {
@@ -231,8 +266,13 @@ mooltipass.ui.settings.initUserInteractionTimeout = function() {
             'parameter': 'userInteractionTimeout',
             'value': value,
             'callbackFunction': function(_response) {
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-userInteractionTimeout'), _response.msg);
+                var $field = $('#settings-userInteractionTimeout');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Credentials request timeout changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
                 }
             }
         });
@@ -256,13 +296,20 @@ mooltipass.ui.settings.getFlashScreen = function() {
 
 mooltipass.ui.settings.initFlashScreen = function() {
     $('#settings-flashScreen').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'flashScreen',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-flashScreen'), _response.msg);
+                var $field = $('#settings-flashScreen');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Flash screen ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
                 }
             }
         });
@@ -286,14 +333,20 @@ mooltipass.ui.settings.getOfflineMode = function() {
 
 mooltipass.ui.settings.initOfflineMode = function() {
     $('#settings-offlineMode').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'offlineMode',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                console.log('Response SET', _response)
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-offlineMode'), _response.msg);
+                var $field = $('#settings-offlineMode');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Offline mode ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
                 }
             }
         });
@@ -317,13 +370,20 @@ mooltipass.ui.settings.getTutorialEnabled = function() {
 
 mooltipass.ui.settings.initTutorialEnabled = function() {
     $('#settings-tutorialEnabled').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'tutorialEnabled',
             'value': Number($(this).prop('checked')),
             'callbackFunction': function(_response) {
-                if(!_response.success) {
-                    mooltipass.ui.status.error($('#settings-tutorialEnabled'), _response.msg);
+                var $field = $('#settings-tutorialEnabled');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Tutorial ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
                 }
             }
         });
@@ -357,26 +417,4 @@ mooltipass.ui.settings.init = function() {
     mooltipass.ui.settings.initFlashScreen();
     mooltipass.ui.settings.initOfflineMode();
     mooltipass.ui.settings.initTutorialEnabled();
-
-    mooltipass.device.interface.send({
-        'command': 'getMooltipassParameter',
-        'parameter': 'userRequestCancel',
-        'callbackFunction': function(_response) {
-            if(_response.success) {
-                var value = Boolean(Number(_response.value));
-                if(value) {
-                    mooltipass.device.interface.send({
-                        'command': 'setMooltipassParameter',
-                        'parameter': 'userRequestCancel',
-                        'value': 0,
-                        'callbackFunction': function(_response) {
-                            if(!_response.success) {
-                                console.error('could not disable userRequestCancel:', _response.msg);
-                            }
-                        }
-                    });
-                }
-            }
-        }
-    });
 };

@@ -1138,20 +1138,20 @@ mooltipass.device.getSettingCurrentDatePayload = function() {
  * Trigger actions for specific status
  */
 mooltipass.device.checkStatus = function() {
-    if(!mooltipass.device._setCurrentDateLock) {
+    if(mooltipass.device.isConnected && !mooltipass.device._setCurrentDateLock) {
         mooltipass.device.interface.send({
             'command': 'setCurrentDate',
             'payload': []
         });
     }
 
-    if(!mooltipass.device._forceEndMemoryManagementModeLock) {
+    if(mooltipass.device.isConnected && !mooltipass.device._forceEndMemoryManagementModeLock) {
         mooltipass.memmgmt.memmgmtForceReset(function() {
             mooltipass.device._forceEndMemoryManagementModeLock = true;
         });
     }
 
-    if(!mooltipass.device.version) {
+    if(mooltipass.device.isConnected && !mooltipass.device.version) {
         mooltipass.device.interface.send({
             'command': 'getVersion',
             'payload': []

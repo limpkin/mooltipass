@@ -2715,7 +2715,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		{
 			if(mooltipass.memmgmt.currentMode == MGMT_FORCE_EXIT_MMM)
 			{
-				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Force exit done, mooltipass was in MMM"});			
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Force exit done, mooltipass wasn't in MMM"});			
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
@@ -3989,8 +3989,11 @@ mooltipass.memmgmt.memmgmtForceReset = function(callback)
 	
 	// Leave memory management mode
 	mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-	mooltipass.memmgmt_hid._sendMsg();
+	mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
 	mooltipass.memmgmt.currentMode = MGMT_FORCE_EXIT_MMM;
+	mooltipass.memmgmt_hid.request.milliseconds = 20000;
+	mooltipass.memmgmt_hid.nbSendRetries = 0;
+	mooltipass.memmgmt_hid._sendMsg();
 }
 
 // Generate save packets

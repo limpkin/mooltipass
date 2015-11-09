@@ -105,6 +105,7 @@ mooltipass.memmgmt.syncFSFileName = "";						// SyncFS file name for current use
 mooltipass.memmgmt.CPZTable = [];							// A list of all the CPZ we know with the associated file name
 mooltipass.memmgmt.syncFSParsedFileIndex = 0;				// Index of the syncFS file we are parsing
 mooltipass.memmgmt.currentCardCPZ = [];						// Current card CPZ
+mooltipass.memmgmt.lastLetter = '0';						// Current letter we're at
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -2723,6 +2724,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			{
 				mooltipass.memmgmt.requestFailHander("Memory management mode exit fail", null, 650);
 			}
+			return;
 		}
 	}
 	else if(packet[1] == mooltipass.device.commands['debug'])
@@ -3422,6 +3424,26 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					 
 					if(nodeType == 'parent')
 					{
+						if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN && mooltipass.memmgmt.lastLetter != mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode).charAt(0))
+						{
+							// Progress callback in case first letter changed
+							mooltipass.memmgmt.lastLetter = mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode).charAt(0);
+							
+							var tempCompletion;
+							if(mooltipass.memmgmt.lastLetter < 'a')
+							{
+								tempCompletion = 0;
+							}
+							else if(mooltipass.memmgmt.lastLetter > 'z')
+							{
+								tempCompletion = 99;
+							}
+							else
+							{
+								tempCompletion = Math.round(((mooltipass.memmgmt.lastLetter.charCodeAt(0) - 'a'.charCodeAt(0)) / (('z'.charCodeAt(0) + 1) - 'a'.charCodeAt(0)))*100);
+							}
+							mooltipass.memmgmt.progressCallback({'progress': tempCompletion, 'letter': mooltipass.memmgmt.lastLetter});
+						}
 						// Store names, addresses, nodes
 						mooltipass.memmgmt.curServiceNodes.push({'address': mooltipass.memmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode), 'data': new Uint8Array(mooltipass.memmgmt.currentNode)});
 						mooltipass.memmgmt.clonedCurServiceNodes.push({'address': mooltipass.memmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode), 'data': new Uint8Array(mooltipass.memmgmt.currentNode)});
@@ -3947,11 +3969,13 @@ mooltipass.memmgmt.preferencesCallback = function(items)
 }
  
 // Memory management mode start
-mooltipass.memmgmt.memmgmtStart = function(callback) 
+mooltipass.memmgmt.memmgmtStart = function(callback, progressCallback) 
 {	
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
+		mooltipass.memmgmt.lastLetter = '0';
 		mooltipass.memmgmt.statusCallback = callback;
+		mooltipass.memmgmt.progressCallback = progressCallback;
 		mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_REQ;
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
@@ -3985,15 +4009,18 @@ mooltipass.memmgmt.memmgmtStop = function(callback)
 // Memory management mode state reset
 mooltipass.memmgmt.memmgmtForceReset = function(callback)
 {
-	mooltipass.memmgmt.statusCallback = callback;
-	
-	// Leave memory management mode
-	mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
-	mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
-	mooltipass.memmgmt.currentMode = MGMT_FORCE_EXIT_MMM;
-	mooltipass.memmgmt_hid.request.milliseconds = 20000;
-	mooltipass.memmgmt_hid.nbSendRetries = 0;
-	mooltipass.memmgmt_hid._sendMsg();
+	if(mooltipass.memmgmt.currentMode != MGMT_FORCE_EXIT_MMM)
+	{
+		mooltipass.memmgmt.statusCallback = callback;
+		
+		// Leave memory management mode
+		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+		mooltipass.memmgmt.currentMode = MGMT_FORCE_EXIT_MMM;
+		mooltipass.memmgmt_hid.request.milliseconds = 20000;
+		mooltipass.memmgmt_hid.nbSendRetries = 0;
+		mooltipass.memmgmt_hid._sendMsg();
+	}
 }
 
 // Generate save packets

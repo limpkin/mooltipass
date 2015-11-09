@@ -663,6 +663,17 @@ mooltipass.device.applyCallback = function(callbackFunction, callbackParameters,
     applyCallback(callbackFunction, callbackParameters, ownParameters);
 };
 
+mooltipass.device.responseEndMemoryManagementMode = function(queuedItem, msg) {
+    var responseObject = {
+        'command': queuedItem.command,
+        'success': true
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
 mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     var flashChipId = msg[0];
     var version = mooltipass.device.convertMessageArrayToString(new Uint8Array(msg, 1));
@@ -1146,8 +1157,14 @@ mooltipass.device.checkStatus = function() {
     }
 
     if(mooltipass.device.isConnected && !mooltipass.device._forceEndMemoryManagementModeLock) {
-        mooltipass.memmgmt.memmgmtForceReset(function() {
-            mooltipass.device._forceEndMemoryManagementModeLock = true;
+        mooltipass.device.interface.send({
+            'command': 'endMemoryManagementMode',
+            'payload': [],
+            'callbackFunction': function(_statusObject) {
+                if(_statusObject.success) {
+                    mooltipass.device._forceEndMemoryManagementModeLock = true;
+                }
+            }
         });
     }
 

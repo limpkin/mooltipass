@@ -110,6 +110,18 @@ mooltipass.device.interface._startMemoryManagementMode = function(inputObject) {
 };
 
 
+mooltipass.device.interface._endMemoryManagementMode = function(inputObject) {
+    mooltipass.device.addToQueue(
+        inputObject.command,
+        [],
+        null,
+        inputObject.callbackFunction,
+        null,
+        null
+    );
+};
+
+
 mooltipass.device.interface._startSingleCommunicationMode = function(inputObject) {
     mooltipass.device.addToQueue(
         inputObject.command,

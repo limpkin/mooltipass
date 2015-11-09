@@ -36,6 +36,7 @@ var MGMT_NORMAL_SCAN_DONE_NO_CHANGES	= 24;			// Normal scan done, no changes on 
 var MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR	= 25;			// Normal scan done, asking for free addresses
 var MGMT_NORMAL_SCAN_DONE_PASSWD_CHANGE	= 26;			// Changing passwords
 var MGMT_ERROR_CUR_EXITTING_MMM			= 27;			// Following an error, we're exiting MMM
+var MGMT_FORCE_EXIT_MMM					= 28;			// Force MMM exit
  
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;							// Mooltipass memory size
@@ -2702,11 +2703,26 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
+			else if(mooltipass.memmgmt.currentMode == MGMT_FORCE_EXIT_MMM)
+			{
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Force exit done, mooltipass was in MMM"});			
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();
+			}
 			return;
 		}
 		else
 		{
-			mooltipass.memmgmt.requestFailHander("Memory management mode exit fail", null, 650);
+			if(mooltipass.memmgmt.currentMode == MGMT_FORCE_EXIT_MMM)
+			{
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Force exit done, mooltipass was in MMM"});			
+				mooltipass.memmgmt.currentMode = MGMT_IDLE;
+				mooltipass.device.processQueue();
+			}
+			else
+			{
+				mooltipass.memmgmt.requestFailHander("Memory management mode exit fail", null, 650);
+			}
 		}
 	}
 	else if(packet[1] == mooltipass.device.commands['debug'])
@@ -3964,6 +3980,17 @@ mooltipass.memmgmt.memmgmtStop = function(callback)
 	{
 		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 679, 'msg': "Memory management in another mode"});
 	}
+}
+
+// Memory management mode state reset
+mooltipass.memmgmt.memmgmtForceReset = function(callback)
+{
+	mooltipass.memmgmt.statusCallback = callback;
+	
+	// Leave memory management mode
+	mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
+	mooltipass.memmgmt_hid._sendMsg();
+	mooltipass.memmgmt.currentMode = MGMT_FORCE_EXIT_MMM;
 }
 
 // Generate save packets

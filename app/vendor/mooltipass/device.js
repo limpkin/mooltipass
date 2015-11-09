@@ -1145,6 +1145,12 @@ mooltipass.device.checkStatus = function() {
         });
     }
 
+    if(!mooltipass.device._forceEndMemoryManagementModeLock) {
+        mooltipass.memmgmt.memmgmtForceReset(function() {
+            mooltipass.device._forceEndMemoryManagementModeLock = true;
+        });
+    }
+
     if(!mooltipass.device.version) {
         mooltipass.device.interface.send({
             'command': 'getVersion',

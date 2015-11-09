@@ -45,6 +45,11 @@ table {
       &.active, &.active:hover {
         background: lighten($primary-color, 10%) !important;
       }
+      &.active.edit, &.active.edit:hover {
+        td.actions i {
+          opacity: 1 !important;
+        }
+      }
       &:hover {
         background: lighten($primary-color, 20%) !important;
         td.actions i {

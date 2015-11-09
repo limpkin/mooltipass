@@ -144,7 +144,8 @@ _cred.initializeTableActions = function () {
                 }
             }
         }
-        if ($parent.hasClass("active")) $(".credential-details").remove();
+        if ($parent.hasClass("active"))
+            $(".credential-details").remove();
         $parent.remove();
 
         e.stopPropagation();
@@ -153,17 +154,20 @@ _cred.initializeTableActions = function () {
     //  Edit credentials
     var edit_credentials = function (e) {
         var $parent = $(this).parents("tr");
-        if ($parent.hasClass("credential-details")) $parent = $parent.prev();
+        if ($parent.hasClass("credential-details"))
+            $parent = $parent.prev();
         var $this = $(this);
 
         // Return if already in edit mode
         if ($parent.find("input").length > 0) return;
 
         if (!($parent.hasClass("active"))) {
-            $(".active").removeClass("active");
+            $(".active").removeClass("active").removeClass('edit');
             $parent.addClass("active");
             update_details_view();
         }
+
+        $parent.addClass('edit');
 
         var credentials = get_credentials_from_row($parent);
         var context = credentials.context;
@@ -220,6 +224,13 @@ _cred.initializeTableActions = function () {
 
         var $parent = $(this).parents("tr");
 
+        if ($parent.hasClass("credential-details")) {
+            console.log("dicard");
+            $parent = $parent.prev();
+        }
+
+        $parent.removeClass("edit");
+
         var old_context = $parent.find(".context input").attr("data-old");
         var new_context = $parent.find(".context input").val();
         var old_username = $parent.find(".username input").attr("data-old");
@@ -273,6 +284,8 @@ _cred.initializeTableActions = function () {
             console.log("dicard");
             $parent = $parent.prev();
         }
+
+        $parent.removeClass("edit");
 
         $parent.find(".fa-pencil").show();
         $parent.find(".fa-eye").show();
@@ -338,9 +351,9 @@ _cred.initializeTableActions = function () {
             if (RECENT_DOUBLECLICK) return;
             $(".credential-details").remove();
             if ($this.hasClass("active")) {
-                $(".active").removeClass("active");
+                $(".active").removeClass("active").removeClass("edit");
             } else {
-                $(".active").removeClass("active");
+                $(".active").removeClass("active").removeClass("edit");
                 $this.addClass("active");
             }
             update_details_view();

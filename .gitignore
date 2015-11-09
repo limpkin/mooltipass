@@ -12,3 +12,4 @@ measurements/
 *.pyc
 *.iml
 .idea/
+.sass-cache/

@@ -370,7 +370,19 @@ _cred.callbackMMMEnter = function (_status, _credentials) {
     // Set back ui button
     // mooltipass.ui._.waitForDevice($('#mmm-enter'), false);
     $("#modal-confirm-on-device").hide();
+    $("#modal-load-credentials").hide();
 }
+
+_cred.callbackMMMEnterProgress = function(_progress) {
+    $("#modal-confirm-on-device").hide();
+    $("#modal-load-credentials").show();
+
+    if (_progress.progress == 0) {
+        $("#modal-load-credentials").hide();
+        return;
+    }
+    $("#modal-load-credentials span.meter").css("width", _progress.progress + "%");
+};
 
 _cred.onClickMMMEnter = function () {
     // Inform user about device interaction
@@ -384,7 +396,7 @@ _cred.onClickMMMEnter = function () {
         'callbackFunction': _cred.callbackMMMEnter,
         'reason': 'memorymanagementmode',
         'callbackFunctionStart': function() {
-            mooltipass.memmgmt.memmgmtStart(_cred.callbackMMMEnter);
+            mooltipass.memmgmt.memmgmtStart(_cred.callbackMMMEnter, _cred.callbackMMMEnterProgress);
         }
     });
 };

@@ -3424,7 +3424,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					 
 					if(nodeType == 'parent')
 					{
-						if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN && mooltipass.memmgmt.lastLetter != mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode).charAt(0))
+						if((mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN || mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN) && mooltipass.memmgmt.lastLetter != mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode).charAt(0))
 						{
 							// Progress callback in case first letter changed
 							mooltipass.memmgmt.lastLetter = mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode).charAt(0);
@@ -4601,7 +4601,7 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 }
 
 // Memory backup start
-mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
+mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback, progressCallback)
 {
 //mooltipass.datamemmgmt.addFileToMooltipass();return;
 //mooltipass.datamemmgmt.listDataNodeNames();return;
@@ -4615,6 +4615,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback)
 		{
 			mooltipass.memmgmt.backupToFileReq = to_file_bool;
 			mooltipass.memmgmt.statusCallback = statusCallback;
+			mooltipass.memmgmt.progressCallback = progressCallback;
 			mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_MEM_BACKUP_REQ;
 			// First step is to query to user interaction timeout to set the correct packet timeout retry!
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);

@@ -184,7 +184,7 @@ _cred.initializeTableActions = function () {
             if (_success) {
                 $app.html("<input class='inline change-credentials' data-old='" + context + "' value='" + context + "'/>");
                 $user.html("<input class='inline change-credentials' data-old='" + username + "' value='" + username + "'/>");
-                $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "'/>");
+                $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "' maxlength='31'/>");
                 $description.html("<input class='inline change-credentials' data-old='" + description + "' value='" + description + "'/>");
 
 

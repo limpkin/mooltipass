@@ -167,6 +167,7 @@ mooltipass.device.queueHash = null;
  * triggered by mooltipass.app.init()
  */
 mooltipass.device.init = function() {
+    mooltipass.device._forceEndMemoryManagementModeLock = false;
     // Initial start processing queue
     mooltipass.device.restartProcessingQueue();
 

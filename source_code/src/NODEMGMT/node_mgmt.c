@@ -1058,6 +1058,10 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
         {
             return RETURN_NOK;
         }
+		
+        // Write date created & used fields
+        c->dateCreated = currentDate;
+        c->dateLastUsed = currentDate;
         
         // reorder done on login.. 
         if(strncmp((char*)&(c->login[0]), (char*)&(ic->login[0]), NODE_CHILD_SIZE_OF_LOGIN) == 0)

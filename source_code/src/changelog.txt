@@ -1,3 +1,8 @@
+V1.1:
+- post-indiegogo firmware
+- fixed user request cancelling bug
+- updating date created/used field on child node update
+
 V1: 
 - new user tutorial
 - timeout on pin entering screen

@@ -4613,6 +4613,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback, pr
 		}
 		else
 		{
+			mooltipass.memmgmt.lastLetter = '0';
 			mooltipass.memmgmt.backupToFileReq = to_file_bool;
 			mooltipass.memmgmt.statusCallback = statusCallback;
 			mooltipass.memmgmt.progressCallback = progressCallback;

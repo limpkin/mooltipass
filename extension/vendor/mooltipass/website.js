@@ -21,7 +21,7 @@ mooltipass.website.generatePassword = function(length, callback) {
         var charactersLowercase = 'abcdefghijklmnopqrstuvwxyz';
         var charactersUppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         var charactersNumbers = '1234567890';
-        var charactersSpecial = '!$%^*()_+{}-[]:"|;\'?,./';
+        var charactersSpecial = '!$%*()_+{}-[]:"|;\'?,./';
 
         var hash = "";
         var possible = "";

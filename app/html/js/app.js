@@ -43,7 +43,8 @@ mooltipass.ui._.showSplashScreen = function () {
 mooltipass.ui._.reset = function() {
     $("#modal-integrity-check").hide();
     $("#modal-load-credentials").hide();
-    $("#modal-confirm-on-device").hide(); 
+    $("#modal-export").hide();
+    $("#modal-confirm-on-device").hide();
     mooltipass.ui._.showSplashScreen();   
 }
 

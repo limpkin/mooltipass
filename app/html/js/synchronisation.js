@@ -33,6 +33,18 @@ mooltipass.ui.sync.init = function() {
 };
 
 
+mooltipass.ui.sync.callbackExportProgress = function(_progress) {
+    $("#modal-confirm-on-device").hide();
+    $("#modal-export").show();
+
+    if (_progress.progress == 0) {
+        $("#modal-export").hide();
+        return;
+    }
+    $("#modal-export span.meter").css("width", _progress.progress + "%");
+};
+
+
 mooltipass.ui.sync.onClickExportToFile = function(e) {
     e.preventDefault();
 
@@ -44,7 +56,7 @@ mooltipass.ui.sync.onClickExportToFile = function(e) {
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
             mooltipass.device.singleCommunicationModeEntered = true;
-            mooltipass.memmgmt.memoryBackupStart(true, mooltipass.ui.sync.callbackExportToFile);
+            mooltipass.memmgmt.memoryBackupStart(true, mooltipass.ui.sync.callbackExportToFile, mooltipass.ui.sync.callbackExportProgress);
         }
     });
 };
@@ -60,6 +72,7 @@ mooltipass.ui.sync.callbackExportToFile = function(_status) {
     }
 
     $("#modal-confirm-on-device").hide();
+    $("#modal-export").hide();
 
     mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };
@@ -110,7 +123,7 @@ mooltipass.ui.sync.onClickExportToCloud = function(e) {
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
             mooltipass.device.singleCommunicationModeEntered = true;
-            mooltipass.memmgmt.memoryBackupStart(false, mooltipass.ui.sync.callbackExportToCloud);
+            mooltipass.memmgmt.memoryBackupStart(false, mooltipass.ui.sync.callbackExportToCloud, mooltipass.ui.sync.callbackExportProgress);
         }
     });
 };
@@ -126,6 +139,7 @@ mooltipass.ui.sync.callbackExportToCloud = function(_status) {
     }
 
     $("#modal-confirm-on-device").hide();
+    $("#modal-export").hide();
 
     mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };

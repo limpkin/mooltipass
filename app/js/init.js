@@ -8,8 +8,10 @@ function launch(details) {
     // TODO: As of 11/2014 this event is not fired in case of granting new permissions
     //   http://stackoverflow.com/questions/2399389/detect-chrome-extension-first-run-update#comment32831961_14957674
     if(details.reason == "install"){
+        console.log('Install', details);
         //console.log("This is a first install!");
     }else if(details.reason == "update"){
+        console.log('Update', details);
         //var thisVersion = chrome.runtime.getManifest().version;
         //console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
     }
@@ -52,6 +54,7 @@ function installListener() {
 function launchWindow(forceOpen) {
     // AppWindow is already opened -> do not open another one
     var windows = chrome.app.window.getAll();
+    console.log('Length:', windows.length);
 
     if(windows.length > 0) {
         windows[0].show();
@@ -89,4 +92,6 @@ function reopenHiddenWindow() {
 
 
 installListener();
-launchWindow();
+setTimeout(function() {
+    launchWindow();
+}, 2000);

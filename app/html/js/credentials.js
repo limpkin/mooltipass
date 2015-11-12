@@ -76,7 +76,7 @@ _cred.initializeTableActions = function () {
     // Table actions
 
     //  Show password
-    $(".fa-eye").on('click', function (e) {
+    $(".fa-eye").off('click').on('click', function (e) {
         var $parent = $(this).parents("tr");
         var credentials = get_credentials_from_row($parent);
         var context = credentials.context;
@@ -99,7 +99,7 @@ _cred.initializeTableActions = function () {
     });
 
     //  Hide password
-    $(".fa-eye-slash").on('click', function (e) {
+    $(".fa-eye-slash").off('click').on('click', function (e) {
         $(this).parents("tr").find(".password span").html(DEFAULT_PASSWORD);
         $(this).parents("tr").find(".fa-eye-slash").hide();
         $(this).parents("tr").find(".fa-eye").show();
@@ -108,7 +108,7 @@ _cred.initializeTableActions = function () {
     });
 
     //  Add to / remove from favourites
-    $("tbody .fa-star-o, tbody .fa-star").on('click', function (e) {
+    $("tbody .fa-star-o, tbody .fa-star").off('click').on('click', function (e) {
         var $parent = $(this).parents("tr");
         var credentials = get_credentials_from_row($parent);
         var context = credentials.context;
@@ -125,7 +125,7 @@ _cred.initializeTableActions = function () {
         e.stopPropagation();
     });
     //  Delete credentials
-    $(".fa-trash-o").on('click', function (e) {
+    $(".fa-trash-o").off('click').on('click', function (e) {
         var $parent = $(this).parents("tr");
         var credentials = get_credentials_from_row($parent);
         var context = credentials.context;
@@ -214,9 +214,9 @@ _cred.initializeTableActions = function () {
 
         e.stopPropagation();
     }
-    $(".fa-pencil").on('click', edit_credentials);
-    $("tbody tr td.editable").on('dblclick', edit_credentials);
-    $("tbody tr td.editable").on('dblclick', dblclick_last_500ms);
+    $(".fa-pencil").off('click').on('click', edit_credentials);
+    $("tbody tr td.editable").off('dblclick').on('dblclick', edit_credentials);
+    $("tbody tr td.editable").off('dblclick').on('dblclick', dblclick_last_500ms);
 
     //  Save credentials
     var save_credential_changes = function (e) {
@@ -272,7 +272,7 @@ _cred.initializeTableActions = function () {
 
         e.stopPropagation();
     }
-    $(".fa-floppy-o").on("click", save_credential_changes);
+    $(".fa-floppy-o").off('click').on("click", save_credential_changes);
 
     //  Discard credentials
     var discard_credential_changes = function (e) {
@@ -297,7 +297,7 @@ _cred.initializeTableActions = function () {
 
         e.stopPropagation();
     }
-    $(".fa-times").on("click", discard_credential_changes);
+    $(".fa-times").off('click').on("click", discard_credential_changes);
 
     //  View details (description / last used / last modified)
     var update_details_view = function () {
@@ -317,8 +317,8 @@ _cred.initializeTableActions = function () {
             if (now - date > 365 * 24 * 60 * 60 * 1000) {
                 last_used += ", " + date.getFullYear();
             }
-            if (date.getFullYear() < 2013) {
-                last_used = 'never';
+            if (isNaN(date.getFullYear()) || date.getFullYear() < 2013) {
+                last_used = '- never -';
             }
 
             var date = new Date(credential_details.date_modified);
@@ -326,8 +326,8 @@ _cred.initializeTableActions = function () {
             if (now - date > 365 * 24 * 60 * 60 * 1000) {
                 last_modified += ", " + date.getFullYear();
             }
-            if (date.getFullYear() < 2013) {
-                last_modified = 'never';
+            if (isNaN(date.getFullYear()) || date.getFullYear() < 2013) {
+                last_modified = '- never -';
             }
 
             $(".active").after('<tr class="active credential-details"><td colspan=2></td><td class="labels">\
@@ -340,8 +340,8 @@ _cred.initializeTableActions = function () {
 <p class="description" data-value="' + description + '">' + description + '</p>\
 </td></tr>');
 
-            $("tbody tr.credential-details .description").on('dblclick', edit_credentials);
-            $("tbody tr.credential-details .description").on('dblclick', dblclick_last_500ms);
+            $("tbody tr.credential-details .description").off('dblclick').on('dblclick', edit_credentials);
+            $("tbody tr.credential-details .description").off('dblclick').on('dblclick', dblclick_last_500ms);
 
         }
     }
@@ -361,7 +361,7 @@ _cred.initializeTableActions = function () {
 
         e.stopPropagation();
     }
-    $("tbody tr").on('click', display_details);
+    $("tbody tr").off('click').on('click', display_details);
 }
 
 

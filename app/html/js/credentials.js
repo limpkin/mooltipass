@@ -182,10 +182,10 @@ _cred.initializeTableActions = function () {
         $password.html(WAITING_FOR_DEVICE_LABEL);
         get_password(context, username, function (_success, password) {
             if (_success) {
-                $app.html("<input class='inline change-credentials' data-old='" + context + "' value='" + context + "'/>");
-                $user.html("<input class='inline change-credentials' data-old='" + username + "' value='" + username + "'/>");
+                $app.html("<input class='inline change-credentials' data-old='" + context + "' value='" + context + "' maxlength='57' />");
+                $user.html("<input class='inline change-credentials' data-old='" + username + "' value='" + username + "' maxlength='61' />");
                 $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "' maxlength='31'/>");
-                $description.html("<input class='inline change-credentials' data-old='" + description + "' value='" + description + "'/>");
+                $description.html("<input class='inline change-credentials' data-old='" + description + "' value='" + description + "' maxlength='23' />");
 
 
                 $(".inline.change-credentials").on('keydown', save_credential_changes);

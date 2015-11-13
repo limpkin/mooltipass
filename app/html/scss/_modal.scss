@@ -19,7 +19,8 @@
     padding-top: 7rem;
 
     h1 { font-size: 1rem; }
-    p { font-size: 0.8rem; }  
+    p { font-size: 0.8rem; }
+    ul,li { font-size: 0.8rem; }
   }
 }
 
@@ -31,4 +32,8 @@
     left: 20%;
     padding-top: 1.7rem;
   }
+}
+
+#modal-changelog .content-wrap {
+  padding-top: 2rem;
 }

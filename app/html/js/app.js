@@ -27,6 +27,12 @@ mooltipass.ui._.init = function() {
 
     mooltipass.ui._.initConfirmButtons();
     mooltipass.ui._.showSplashScreen();
+
+    $('#modal-changelog').click(function() {
+        $(this).hide();
+    });
+
+    mooltipass.ui._.showChangelog();
 };
 
 mooltipass.ui._.showSplashScreen = function () {
@@ -38,7 +44,20 @@ mooltipass.ui._.showSplashScreen = function () {
             $("#splash-screen").css('opacity', 1);
         }, 800);
     }, 1500);        
-}
+};
+
+mooltipass.ui._.showChangelog = function() {
+    chrome.storage.local.get('changelog', function (result) {
+        var currentVersion = chrome.runtime.getManifest().version;
+        var storedVersion = result.changelog.version;
+        if(currentVersion != storedVersion) {
+            if($('#modal-changelog').data('version') == currentVersion) {
+                $('#modal-changelog').show();
+            }
+            chrome.storage.local.set({'changelog': {'version': currentVersion}});
+        }
+    });
+};
 
 mooltipass.ui._.reset = function() {
     $("#modal-integrity-check").hide();

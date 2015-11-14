@@ -1,4 +1,5 @@
 var _listenerInstalled = false;
+var _forceInitialShow = false;
 
 
 /* ######################################################################################################### */
@@ -8,12 +9,23 @@ function launch(details) {
     // TODO: As of 11/2014 this event is not fired in case of granting new permissions
     //   http://stackoverflow.com/questions/2399389/detect-chrome-extension-first-run-update#comment32831961_14957674
     if(details.reason == "install"){
-        console.log('Install', details);
+        //console.log('Install', details);
         //console.log("This is a first install!");
+        _forceInitialShow = true;
     }else if(details.reason == "update"){
-        console.log('Update', details);
+        //console.log('Update', details);
         //var thisVersion = chrome.runtime.getManifest().version;
         //console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
+        chrome.storage.local.clear();
+        chrome.storage.local.get('changelog', function (result) {
+            var currentVersion = chrome.runtime.getManifest().version;
+            var storedVersion = (result.changelog) ? result.changelog.version : null;
+            if(currentVersion != storedVersion) {
+                if(storedVersion == null) {
+                    _forceInitialShow = true;
+                }
+            }
+        });
     }
 
     installListener();
@@ -48,6 +60,10 @@ function installListener() {
     console.log('Listener installed');
 
     _listenerInstalled = true;
+
+    setTimeout(function() {
+        launchWindow();
+    }, 2000);
 }
 
 
@@ -62,7 +78,8 @@ function launchWindow(forceOpen) {
     }
 
     var options = {'bounds': {'width': 800, 'height': 500}, "resizable": false, "hidden": true};
-    if(arguments.length == 1) {
+    if(arguments.length == 1 || _forceInitialShow) {
+        _forceInitialShow = false;
         options.hidden = false;
     }
     chrome.app.window.create(
@@ -92,6 +109,3 @@ function reopenHiddenWindow() {
 
 
 installListener();
-setTimeout(function() {
-    launchWindow();
-}, 2000);

@@ -153,17 +153,17 @@ mooltipass.datamemmgmt.preferencesCallback = function(items)
 		if(items.datamemmgmtPrefsStored == null)
 		{
 			// Empty file, save new preferences
-			console.log("Preferences storage: No preferences stored!");
+			console.log("Data preferences storage: No preferences stored!");
 			mooltipass.prefstorage.setStoredPreferences({"datamemmgmtPrefsStored": true, "datamemmgmtPrefs": mooltipass.datamemmgmt.preferences});
 		}
 		else
 		{
-			console.log("Preferences storage: loaded preferences");
+			console.log("Data preferences storage: loaded preferences");
 			
 			// Check if the preferences we got are of the latest version
 			if(items.datamemmgmtPrefs.version != DATAMGMT_PREFERENCES_VERSION)
 			{
-				console.log("Loaded preferences are from an older version");
+				console.log("Loaded data preferences are from an older version");
 				// Check what fields are missing in what is stored
 				for(var key in mooltipass.datamemmgmt.preferences)
 				{

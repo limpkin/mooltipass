@@ -1568,6 +1568,10 @@ mooltipass.memmgmt.deleteServiceNodeFromCloneArrayAndGenerateDeletePacket = func
 			mooltipass.memmgmt.changePrevAddress(mooltipass.memmgmt.clonedCurServiceNodes[next_node_index].data, mooltipass.memmgmt.clonedCurServiceNodes[prev_node_index].address);
 		}
 	}
+	
+	// Delete prev and next address fields
+	mooltipass.memmgmt.changePrevAddress(node.data, [0,0]);
+	mooltipass.memmgmt.changeNextAddress(node.data, [0,0]);
 }
 
 // Do all the operations required by deleting a child node and generate delete node packet
@@ -2988,7 +2992,12 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR)
 					{
 						// Generate save packets
-						mooltipass.memmgmt.generateSavePackets();
+						if(mooltipass.memmgmt.generateSavePackets() == false)
+						{
+							// Check that we didn't break the linked list
+							applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'msg': "Errors detected when merging data, please contact support at support@themooltipass.com"});
+							return;
+						}
 				
 						// Now check if actually have something to change
 						if(mooltipass.memmgmt.packetToSendBuffer.length == 0)
@@ -4513,6 +4522,8 @@ mooltipass.memmgmt.generateSavePackets = function()
 	{
 		mooltipass.memmgmt.packetToSendBuffer.push(mooltipass.device.createPacket(mooltipass.device.commands['setStartingParentAddress'], mooltipass.memmgmt.clonedStartingParent));	
 	}
+	
+	return mooltipass.memmgmt.checkClonedParentList();
 }
 
 // Memory management mode save
@@ -4576,7 +4587,12 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 		else
 		{
 			// Generate save packets
-			mooltipass.memmgmt.generateSavePackets();
+			if(mooltipass.memmgmt.generateSavePackets() == false)
+			{
+				// Check that we didn't break the linked list
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'msg': "Errors detected when merging data, please contact support at support@themooltipass.com"});
+				return;
+			}
 	
 			// Now check if actually have something to change
 			if(mooltipass.memmgmt.packetToSendBuffer.length == 0)

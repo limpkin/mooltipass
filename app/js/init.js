@@ -73,6 +73,7 @@ function launchWindow(forceOpen) {
     console.log('Length:', windows.length);
 
     if(windows.length > 0) {
+        _forceInitialShow = false;
         windows[0].show();
         return;
     }

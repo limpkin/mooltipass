@@ -49,9 +49,9 @@ mooltipass.ui._.showSplashScreen = function () {
 mooltipass.ui._.showChangelog = function() {
     chrome.storage.local.get('changelog', function (result) {
         var currentVersion = chrome.runtime.getManifest().version;
-        var storedVersion = result.changelog.version;
+        var storedVersion = (result.changelog) ? result.changelog.version : null;
         if(currentVersion != storedVersion) {
-            if($('#modal-changelog').data('version') == currentVersion) {
+            if(storedVersion == null || $('#modal-changelog').data('version') == currentVersion) {
                 $('#modal-changelog').show();
             }
             chrome.storage.local.set({'changelog': {'version': currentVersion}});

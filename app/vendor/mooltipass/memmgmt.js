@@ -4053,6 +4053,7 @@ mooltipass.memmgmt.memmgmtStart = function(callback, progressCallback)
 	else
 	{
 		applyCallback(callback, null, {'success': false, 'code': 678, 'msg': "Memory management in another mode"}, null);
+		mooltipass.device.processQueue();
 	}
 }
 
@@ -4070,6 +4071,7 @@ mooltipass.memmgmt.memmgmtStop = function(callback)
 	else
 	{
 		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 679, 'msg': "Memory management in another mode"});
+		mooltipass.device.processQueue();
 	}
 }
 
@@ -4597,6 +4599,7 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 	else
 	{
 		applyCallback(callback, null, {'success': false, 'code': 682, 'msg': "Memory management in another mode"});
+		mooltipass.device.processQueue();
 	}
 }
  
@@ -4617,6 +4620,7 @@ mooltipass.memmgmt.integrityCheckStart = function(progressCallback, statusCallba
 	else
 	{
 		applyCallback(statusCallback, null, {'success': false, 'code': 683, 'msg': "Memory management in another mode"});
+		mooltipass.device.processQueue();
 	}
 }
 
@@ -4634,6 +4638,7 @@ mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function(statusCallbac
 	else
 	{
 		applyCallback(statusCallback, null, {'success': false, 'code': 684, 'msg': "Memory management in another mode"});
+		mooltipass.device.processQueue();
 	}
 }
 
@@ -4659,11 +4664,13 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 		else
 		{
 			applyCallback(statusCallback, null, {'success': false, 'code': 685, 'msg': "SyncFS offline, please make sure you logged into Chrome"});
+			mooltipass.device.processQueue();
 		}		
 	}
 	else
 	{
 		applyCallback(statusCallback, null, {'success': false, 'code': 686, 'msg': "Memory management in another mode"});
+		mooltipass.device.processQueue();
 	}
 }
 
@@ -4677,6 +4684,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback, pr
 		if(to_file_bool == false && mooltipass.memmgmt.syncFSOK == false)
 		{
 			applyCallback(statusCallback, null, {'success': false, 'code': 687, 'msg': "SyncFS offline, please make sure you logged into Chrome"});
+			mooltipass.device.processQueue();
 		}
 		else
 		{
@@ -4695,6 +4703,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback, pr
 	else
 	{
 		applyCallback(statusCallback, null, {'success': false, 'code': 688, 'msg': "Memory management in another mode"});
+		mooltipass.device.processQueue();
 	}
 }
 

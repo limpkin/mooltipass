@@ -2786,6 +2786,10 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 	{
 		console.log("Debug: " + mooltipass.util.arrayToStr(packet.subarray(2, packet.length)));
 	}
+	else if(packet[1] == 0xC4)
+	{
+		console("Please retry packet !!!")
+	}
 	 
 	if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_PASSWD_CHANGE)
 	{

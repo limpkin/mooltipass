@@ -261,6 +261,12 @@ mooltipass.datamemmgmt.dataReceivedCallback = function(packet)
 		}
 	}
 	
+	// Check for this packet
+	if(packet[1] == 0xC4)
+	{
+		console("Please retry packet !!!")
+	}
+	
 	if(mooltipass.datamemmgmt.currentMode == DATAMGMT_PARAM_LOAD_NAME_LIST_REQ || mooltipass.datamemmgmt.currentMode == DATAMGMT_PARAM_LOAD_FILEADD_REQ || mooltipass.datamemmgmt.currentMode == DATAMGMT_PARAM_LOAD_FILEGET_REQ)
 	{
 		if(packet[1] == mooltipass.device.commands['getMooltipassParameter'])

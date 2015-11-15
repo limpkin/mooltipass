@@ -1,7 +1,7 @@
 {
   "name": "Mooltipass App",
   "description": "Mooltipass password manager client",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "app": {
     "background": {
       "scripts": [

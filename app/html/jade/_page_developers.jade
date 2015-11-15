@@ -24,11 +24,16 @@
                 button.small.expand.resetCard(data-reveal-id="resetCardModal", disabled="disabled") Reset Card
 
         .row.margin-bottom.storage
-            .column.small-9
+            .column.small-6
                 h2 Import Media Bundle
 
                 p Import a new media bundle on the Mooltipass device.
 
+            .column.small-3
+                label
+                    span Password&nbsp;
+                    input#importMediaBundlePassword(type="text", name="password")
+
             .column.small-3.end
-                button.small.expand.import(disabled="disabled") Import
-                small Not implemented yet
+                div &nbsp;
+                button.small.expand.import Import

@@ -28,4 +28,35 @@ mooltipass.ui.developers.init = function () {
             },
         });
     });
+
+    $('#page-developers button.import').click(function() {
+
+        $("#modal-confirm-on-device").show();
+
+        mooltipass.device.interface.send({
+            'command': 'startSingleCommunicationMode',
+            'callbackFunction': mooltipass.ui.sync.callbackImportMediaBundle,
+            'reason': 'mediabundlerupload',
+            'callbackFunctionStart': function() {
+                mooltipass.device.singleCommunicationModeEntered = true;
+
+                var password = $('#importMediaBundlePassword').val();
+                mooltipass.memmgmt.mediaBundlerUpload(mooltipass.ui.developers.callbackImportMediaBundle, password);
+            }
+        });
+
+    });
+};
+
+mooltipass.ui.developers.callbackImportMediaBundle = function(_statusObject) {
+    if(_statusObject.success) {
+        mooltipass.ui.status.success($('#page-developers button.import'), 'Media bundle imported successfully');
+    }
+    else {
+        mooltipass.ui.status.error($('#page-developers button.import'), _statusObject.msg);
+    }
+
+    $("#modal-confirm-on-device").hide();
+
+    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };

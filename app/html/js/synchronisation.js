@@ -148,7 +148,7 @@ mooltipass.ui.sync.callbackExportToCloud = function(_status) {
 mooltipass.ui.sync.onClickImportFromCloud = function(e) {
     e.preventDefault();
 
-    $("#modal-confirm-on-device").show();    
+    $("#modal-confirm-on-device").show();
 
     mooltipass.device.interface.send({
         'command': 'startSingleCommunicationMode',

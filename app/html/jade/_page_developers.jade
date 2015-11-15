@@ -1,21 +1,19 @@
 #page-developers.page
+    include _not_connected_error.jade
     include _in_mmm_error.jade
 
-    .hide-if-mmm
+    .show-if-connected.hide-if-mmm
+        .alert-box.alert(data-alert, style="margin-top:-0.5rem") The actions below might result in a broken device and require a factory reset. Use them with caution!        
         .row.margin-bottom
             .column.small-12
-                div.alert-box.alert(data-alert) Use the following interactions with caution!
                 h1 Developers Interactions
-                p This page provides special interactions with the Mooltipass device, the typical user does not need to use.
+                p This page provides special interactions with the Mooltipass device, which should usually not be required.
 
         .row.margin-bottom.storage
             .column.small-6
                 h2 Factory Reset a Card
 
-                p To reuse a paired card on another Mooltipass device, you need to reset the card.
-                    | Once done, the card is no longer paired with the previous device.
-                    br
-                    |This interaction is only available for <em>unknown</em> cards.
+                p To reuse a paired card on another Mooltipass device, you need to reset the card. Once done, the card is no longer paired with the previous device. <strong>This interaction is only available for unknown cards.</strong>
             .column.small-3.text-right
                 label
                     input#resetCardCheckbox(type="checkbox")

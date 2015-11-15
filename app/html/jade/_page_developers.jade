@@ -1,3 +1,34 @@
 #page-developers.page
-    button#dev-button1 run context
-    textarea#log(disabled)
+    include _in_mmm_error.jade
+
+    .hide-if-mmm
+        .row.margin-bottom
+            .column.small-12
+                div.alert-box.alert(data-alert) Use the following interactions with caution!
+                h1 Developers Interactions
+                p This page provides special interactions with the Mooltipass device, the typical user does not need to use.
+
+        .row.margin-bottom.storage
+            .column.small-6
+                h2 Factory Reset a Card
+
+                p To reuse a paired card on another Mooltipass device, you need to reset the card.
+                    | Once done, the card is no longer paired with the previous device.
+                    br
+                    |This interaction is only available for <em>unknown</em> cards.
+            .column.small-3.text-right
+                label
+                    input#resetCardCheckbox(type="checkbox")
+                    | I want to reset my card
+            .column.small-3.end
+                button.small.expand.resetCard(data-reveal-id="resetCardModal", disabled="disabled") Reset Card
+
+        .row.margin-bottom.storage
+            .column.small-9
+                h2 Import Media Bundle
+
+                p Import a new media bundle on the Mooltipass device.
+
+            .column.small-3.end
+                button.small.expand.import(disabled="disabled") Import
+                small Not implemented yet

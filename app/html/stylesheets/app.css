@@ -7021,7 +7021,7 @@ meta.foundation-mq-topbar {
 /* line 323, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
 .top-bar-section .divider,
 .top-bar-section [role="separator"] {
-  border-top: solid 1px #777777;
+  border-top: solid 1px #787878;
   clear: both;
   height: 1px;
   width: 100%;
@@ -7220,16 +7220,16 @@ meta.foundation-mq-topbar {
 .top-bar-section ul li:hover:not(.has-form) > a {
   background-color: #555555;
   color: #333333;
-  background: #d5d5d5;
+  background: #d6d6d6;
 }
 /* line 383, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
 .top-bar-section ul li.active > a {
-  background: #d5d5d5;
+  background: #d6d6d6;
   color: #333333;
 }
 /* line 387, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
 .top-bar-section ul li.active > a:hover {
-  background: #d5d5d5;
+  background: #d6d6d6;
   color: #333333;
 }
 /* line 395, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
@@ -7417,7 +7417,7 @@ meta.foundation-mq-topbar {
   /* line 545, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .top-bar-section li.hover > a:not(.button) {
     background-color: #555555;
-    background: #d5d5d5;
+    background: #d6d6d6;
     color: #333333;
   }
   /* line 555, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
@@ -7429,18 +7429,18 @@ meta.foundation-mq-topbar {
   /* line 559, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .top-bar-section li:not(.has-form) a:not(.button):hover {
     background-color: #555555;
-    background: #d5d5d5;
+    background: #d6d6d6;
   }
   /* line 569, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .top-bar-section li.active:not(.has-form) a:not(.button) {
-    background: #d5d5d5;
+    background: #d6d6d6;
     color: #333333;
     line-height: 2.8125rem;
     padding: 0 0.9375rem;
   }
   /* line 574, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .top-bar-section li.active:not(.has-form) a:not(.button):hover {
-    background: #d5d5d5;
+    background: #d6d6d6;
     color: #333333;
   }
   /* line 584, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
@@ -7573,12 +7573,12 @@ meta.foundation-mq-topbar {
   /* line 708, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .no-js .top-bar-section ul li:hover > a {
     background-color: #555555;
-    background: #d5d5d5;
+    background: #d6d6d6;
     color: #333333;
   }
   /* line 717, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .no-js .top-bar-section ul li:active > a {
-    background: #d5d5d5;
+    background: #d6d6d6;
     color: #333333;
   }
   /* line 725, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
@@ -9905,11 +9905,16 @@ input.inline {
 }
 
 /* line 159, ../scss/app.scss */
+#page-developers #resetCardCheckbox {
+  margin-right: 5px;
+}
+
+/* line 165, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 164, ../scss/app.scss */
+/* line 170, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -9918,24 +9923,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 172, ../scss/app.scss */
+/* line 178, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 178, ../scss/app.scss */
+/* line 184, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 186, ../scss/app.scss */
+/* line 192, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 189, ../scss/app.scss */
+/* line 195, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -9947,18 +9952,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 202, ../scss/app.scss */
+/* line 208, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 206, ../scss/app.scss */
+/* line 212, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 212, ../scss/app.scss */
+/* line 218, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

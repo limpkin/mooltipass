@@ -216,9 +216,14 @@ update_device_status_classes = function () {
     if (mooltipass.ui._.isCardUnknown()) {
         $(".show-if-card-unknown").show();
         $(".hide-if-card-unknown").hide();
+        if($("#page-developers #resetCardCheckbox").prop("disabled") && $("#page-developers #resetCardCheckbox").data('active') != 1) {
+            $("#page-developers #resetCardCheckbox").prop("disabled", false);
+            $("#page-developers button.resetCard").prop("disabled", true);
+        }
     } else {
         $(".show-if-card-unknown").hide();
-        $(".hide-if-card-unknown").show();        
+        $(".hide-if-card-unknown").show();
+        $("#page-developers #resetCardCheckbox").prop("disabled", true);
     }
 
 

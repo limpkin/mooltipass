@@ -8,51 +8,24 @@ mooltipass.ui.developers = mooltipass.ui.developers || {};
  * triggered by mooltipass.app.init()
  */
 
-function test_getCredentials() {
-    mooltipass.device.interface.send({
-        'command': 'getCredentials',
-        'contexts': Array.prototype.slice.call(arguments),
-        'callbackFunction': function(_status) {
-            console.log('getCredentials:', _status);
-        },
-    });
-}
-
-function test_addCredentials(context, username, password) {
-    mooltipass.device.interface.send({
-        'command': 'addCredentials',
-        'context': context,
-        'username': username,
-        'password': password,
-        'callbackFunction': function(_status) {
-            console.log('updateCredentials:', _status);
-        },
-    });
-}
-
-function test_updateCredentials(context, username, password) {
-    mooltipass.device.interface.send({
-        'command': 'updateCredentials',
-        'context': context,
-        'username': username,
-        'password': password,
-        'callbackFunction': function(_status) {
-            console.log('updateCredentials:', _status);
-        },
-    });
-}
-
 mooltipass.ui.developers.init = function () {
-    $('#dev-button1').click(function() {
+    $('#page-developers #resetCardCheckbox').change(function() {
+        $('#page-developers button.resetCard').prop('disabled', !$(this).prop('checked'));
+    });
+    $('#page-developers button.resetCard').click(function() {
+        $(this).prop('disabled', true);
+        $('#page-developers #resetCardCheckbox').prop('disabled', true).prop('checked', false).data('active', 1);
         mooltipass.device.interface.send({
-            'command': 'getRandomNumber',
+            'command': 'resetCard',
             'callbackFunction': function(_status) {
-                console.log('random-string:', _status.value);
+                if(_status.status == 1) {
+                    mooltipass.ui.status.success($('#page-developers button.resetCard'), 'Factory reset for card successful');
+                }
+                else {
+                    mooltipass.ui.status.error($('#page-developers button.resetCard'), 'Could not do a factory reset for the inserted card');
+                }
+                $('#page-developers #resetCardCheckbox').prop('disabled', false).data('active', 0);
             },
         });
     });
 };
-
-$(function() {
-    mooltipass.ui.developers.init();
-})

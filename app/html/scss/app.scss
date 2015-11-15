@@ -155,6 +155,12 @@ input.inline {
   }
 }
 
+#page-developers {
+  #resetCardCheckbox {
+    margin-right: 5px;
+  }
+}
+
 button, .button {
   &:focus {
     outline: none;

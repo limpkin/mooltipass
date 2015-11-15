@@ -664,6 +664,20 @@ mooltipass.device.applyCallback = function(callbackFunction, callbackParameters,
     applyCallback(callbackFunction, callbackParameters, ownParameters);
 };
 
+mooltipass.device.responseResetCard = function(queuedItem, msg) {
+    var status = msg[0];
+    status = status ? status : 'error';
+    var responseObject = {
+        'command': queuedItem.command,
+        'success': true,
+        'status': status
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
 mooltipass.device.responseEndMemoryManagementMode = function(queuedItem, msg) {
     var responseObject = {
         'command': queuedItem.command,

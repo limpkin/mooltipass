@@ -1,6 +1,8 @@
 var mooltipass = mooltipass || {};
 mooltipass.memmgmt = mooltipass.memmgmt || {};
- 
+
+// Next error code available 691
+
 // Defines
 var NODE_SIZE							= 132;			// Node size
 var HID_PAYLOAD_SIZE					= 62;			// HID payload
@@ -1028,7 +1030,16 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			return;
 		}
 		 
-		var imported_data = JSON.parse(e.target.result);
+		var imported_data;
+		
+		try
+		{
+			imported_data = JSON.parse(e.target.result);
+		}
+		catch(e)
+		{
+			mooltipass.memmgmt.requestFailHander("Read: Wrong file", null, 690);
+		}
 		 
 		// Check data format
 		if(imported_data.length != 10)

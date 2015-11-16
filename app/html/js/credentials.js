@@ -2,9 +2,6 @@ var mooltipass = mooltipass || {};
 mooltipass.ui = mooltipass.ui || {};
 mooltipass.ui.credentials = mooltipass.ui.credentials || {};
 
-// TODO: old namespace -> refactor
-var _cred = {};
-
 // Disable throwing alerts by dataTable
 $.fn.dataTableExt.sErrMode = 'throw';
 
@@ -51,7 +48,7 @@ var update_data_values = function () {
 }
 
 
-_cred.loadCredentials = function (_status, _credentials) {
+mooltipass.ui.credentials.loadCredentials = function (_status, _credentials) {
     if (!_status.success) {
         mooltipass.ui.status.error($('#credentials'), _status.msg);
         return false;
@@ -67,12 +64,12 @@ _cred.loadCredentials = function (_status, _credentials) {
     }
 
     update_data_values();
-    _cred.initializeTableActions();
+    mooltipass.ui.credentials.initializeTableActions();
 
     return true;
 };
 
-_cred.initializeTableActions = function () {
+mooltipass.ui.credentials.initializeTableActions = function () {
     // Table actions
 
     //  Show password
@@ -365,14 +362,13 @@ _cred.initializeTableActions = function () {
 }
 
 
-_cred.callbackMMMEnter = function (_status, _credentials) {
+mooltipass.ui.credentials.callbackMMMEnter = function (_status, _credentials) {
     if (_status.success) {
-        $('#mmm-enter').hide();
         $('#mmm-save, #mmm-discard').show();
 
         mooltipass.device.singleCommunicationModeEntered = true;
         update_device_status_classes();
-        _cred.loadCredentials(_status, _credentials);
+        mooltipass.ui.credentials.loadCredentials(_status, _credentials);
     }
     else {
         // Could not enter MemoryManagementMode
@@ -386,7 +382,7 @@ _cred.callbackMMMEnter = function (_status, _credentials) {
     $("#modal-load-credentials").hide();
 }
 
-_cred.callbackMMMEnterProgress = function(_progress) {
+mooltipass.ui.credentials.callbackMMMEnterProgress = function(_progress) {
     $("#modal-confirm-on-device").hide();
     $("#modal-load-credentials").show();
 
@@ -397,24 +393,23 @@ _cred.callbackMMMEnterProgress = function(_progress) {
     $("#modal-load-credentials span.meter").css("width", _progress.progress + "%");
 };
 
-_cred.onClickMMMEnter = function () {
+mooltipass.ui.credentials.onClickMMMEnter = function () {
     // Inform user about device interaction
-    var $button = $(this);
     $("#modal-confirm-on-device").show();
     // mooltipass.ui._.waitForDevice($button, true);
 
     // Request mmm activation from device
     mooltipass.device.interface.send({
         'command': 'startSingleCommunicationMode',
-        'callbackFunction': _cred.callbackMMMEnter,
+        'callbackFunction': mooltipass.ui.credentials.callbackMMMEnter,
         'reason': 'memorymanagementmode',
         'callbackFunctionStart': function() {
-            mooltipass.memmgmt.memmgmtStart(_cred.callbackMMMEnter, _cred.callbackMMMEnterProgress);
+            mooltipass.memmgmt.memmgmtStart(mooltipass.ui.credentials.callbackMMMEnter, mooltipass.ui.credentials.callbackMMMEnterProgress);
         }
     });
 };
 
-_cred.onClickMMMDiscard = function() {
+mooltipass.ui.credentials.onClickMMMDiscard = function() {
     mooltipass.memmgmt.memmgmtStop(function (_status) {
         if (_status.success) {
             mooltipass.device.endSingleCommunicationMode();
@@ -432,7 +427,7 @@ _cred.onClickMMMDiscard = function() {
     });
 };
 
-_cred.onClickMMMSave = function (e) {
+mooltipass.ui.credentials.onClickMMMSave = function (e) {
     e.preventDefault();
 
     var deletes = USER_CREDENTIALS_DELETE;
@@ -478,20 +473,20 @@ _cred.onClickMMMSave = function (e) {
     }, deletes, updates, adds);
 };
 
-_cred.onClickImportFromCSV_DUMMY = function(_callbackFunction) {
+mooltipass.ui.credentials.onClickImportFromCSV_DUMMY = function(_callbackFunction) {
     // TODO #MS
     // TODO Remove this DUMMY method
     // TODO and replace in the next function:
-    // TODO     _cred.onClickImportFromCSV_DUMMY
+    // TODO     mooltipass.ui.credentials.onClickImportFromCSV_DUMMY
     // TODO with your function name!
     console.warn('NOT IMPLEMENTED YET');
 };
-_cred.onClickImportFromCSV = function(e) {
+mooltipass.ui.credentials.onClickImportFromCSV = function(e) {
     e.preventDefault();
 
     // TODO #MS
-    // TODO replace _cred.onClickImportFromCSV_DUMMY with your function call: your_function(callbackFunction)
-    _cred.onClickImportFromCSV_DUMMY(
+    // TODO replace mooltipass.ui.credentials.onClickImportFromCSV_DUMMY with your function call: your_function(callbackFunction)
+    mooltipass.ui.credentials.onClickImportFromCSV_DUMMY(
         function (_status) {
             if (_status.success) {
                 mooltipass.device.endSingleCommunicationMode();
@@ -513,11 +508,11 @@ _cred.onClickImportFromCSV = function(e) {
  * triggered by mooltipass.app.init()
  */
 mooltipass.ui.credentials.init = function () {
-    $('#mmm-enter').click(_cred.onClickMMMEnter);
-    $('#mmm-save').click(_cred.onClickMMMSave);
+    $('#mmm-enter').click(mooltipass.ui.credentials.onClickMMMEnter);
+    $('#mmm-save').click(mooltipass.ui.credentials.onClickMMMSave);
     $('#mmm-save, #mmm-discard').hide();
 
-    $("#import-from-csv").click(_cred.onClickImportFromCSV);
+    $("#import-from-csv").click(mooltipass.ui.credentials.onClickImportFromCSV);
     // TODO #MS
     // TODO Remove next line after implementing functionality
     $("#import-from-csv").parent().html('&nbsp;');
@@ -611,7 +606,7 @@ mooltipass.ui.credentials.init = function () {
                 }
 
                 update_data_values();
-                _cred.initializeTableActions();
+                mooltipass.ui.credentials.initializeTableActions();
             }
         }).on("keyup", function (e) {
 // Remove any error label if input is not empty

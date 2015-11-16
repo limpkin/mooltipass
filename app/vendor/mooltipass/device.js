@@ -78,8 +78,7 @@ mooltipass.device.commandsReverse = {};
 mooltipass.device.responses = {
     'error'                         : 0x00,
     'success'                       : 0x01,
-    'noCard'                        : 0x03,
-    'pleaseRetry'                   : 0xC4
+    'noCard'                        : 0x03
 };
 
 // Available Mooltipass parameters

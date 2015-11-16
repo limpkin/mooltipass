@@ -58,5 +58,5 @@ mooltipass.ui.developers.callbackImportMediaBundle = function(_statusObject) {
 
     $("#modal-confirm-on-device").hide();
 
-    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
+    mooltipass.device.endSingleCommunicationMode(_statusObject.skipEndingSingleCommunicationMode);
 };

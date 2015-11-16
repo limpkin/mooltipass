@@ -13,10 +13,17 @@ mooltipass.memmgmt_hid.request =
 	'retries': 3
 };
 
-mooltipass.memmgmt_hid._sendMsg = function() 
+mooltipass.memmgmt_hid._sendMsg = function(nb_retries) 
 {
 	// Set number of retries
-	mooltipass.memmgmt_hid.request['retries'] = mooltipass.memmgmt_hid.nbSendRetries;
+	if(nb_retries == null)
+	{
+		mooltipass.memmgmt_hid.request.retries = mooltipass.memmgmt_hid.nbSendRetries;
+	}
+	else
+	{
+		mooltipass.memmgmt_hid.request.retries = nb_retries;
+	}
 	
 	if(mooltipass.memmgmt_hid.request.milliseconds) 
 	{
@@ -114,7 +121,7 @@ mooltipass.memmgmt_hid._retrySendMsg = function(hash)
 	if(mooltipass.memmgmt_hid.request.retries > 0) 
 	{
 		mooltipass.memmgmt_hid.request.retries -= 1;
-		mooltipass.memmgmt_hid._sendMsg();
+		mooltipass.memmgmt_hid._sendMsg(mooltipass.memmgmt_hid.request.retries);
 		return;
 	}
 

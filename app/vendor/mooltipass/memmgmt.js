@@ -1,7 +1,7 @@
 var mooltipass = mooltipass || {};
 mooltipass.memmgmt = mooltipass.memmgmt || {};
 
-// Next error code available 696
+// Next error code available 697
 
 // Defines
 var NODE_SIZE							= 132;			// Node size
@@ -1128,6 +1128,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_DBFILE_MERGE_REQ;
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 			mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+			mooltipass.memmgmt_hid.timeoutCallback = mooltipass.memmgmt.dataSendTimeOutCallback;
 			mooltipass.memmgmt_hid.nbSendRetries = 0;
 			mooltipass.memmgmt_hid._sendMsg();	
 		}
@@ -2683,6 +2684,15 @@ mooltipass.memmgmt.requestFailHander = function(message, nextMode, code)
 		mooltipass.device.processQueue();
 	}
 }
+
+// Data send timeout
+mooltipass.memmgmt.dataSendTimeOutCallback = function()
+{
+	console.log("Data send timeout");
+	mooltipass.memmgmt.currentMode = MGMT_IDLE;
+	applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 696, 'msg': "Problem with USB comms"});
+	mooltipass.device.processQueue();
+}
  
 // Data received from USB callback
 mooltipass.memmgmt.dataReceivedCallback = function(packet)
@@ -2902,7 +2912,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Fail
 				console.log("Get login fail");
 				mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 674, 'msg': "User didn't select a login"}, "not valid");
+				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 674, 'msg': "User didn't select a username"}, "not valid");
 			}
 			else
 			{
@@ -2911,7 +2921,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				{
 					console.log("Wrong login selected");
 					mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-					applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 675, 'msg': "User didn't select the right login"}, "not valid");
+					applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 675, 'msg': "User didn't select the correct username"}, "not valid");
 				}
 				else
 				{
@@ -3984,6 +3994,7 @@ mooltipass.memmgmt.mediaBundleReadCallback = function(e)
 		// Set the timeouts & callbacks then send a media import start packet
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMediaImport'], mooltipass.memmgmt.tempPassword);
 		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.mediaBundleDataReceivedCallback;
+		mooltipass.memmgmt_hid.timeoutCallback = mooltipass.memmgmt.dataSendTimeOutCallback;
 		mooltipass.memmgmt_hid.request['milliseconds'] = 20000;
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();
@@ -4082,6 +4093,7 @@ mooltipass.memmgmt.memmgmtStart = function(callback, progressCallback)
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+		mooltipass.memmgmt_hid.timeoutCallback = mooltipass.memmgmt.dataSendTimeOutCallback;
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();
 	}
@@ -4120,6 +4132,7 @@ mooltipass.memmgmt.memmgmtForceReset = function(callback)
 		// Leave memory management mode
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMemoryManagementMode'], null);
 		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+		mooltipass.memmgmt_hid.timeoutCallback = mooltipass.memmgmt.dataSendTimeOutCallback;
 		mooltipass.memmgmt.currentMode = MGMT_FORCE_EXIT_MMM;
 		mooltipass.memmgmt_hid.request.milliseconds = 20000;
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
@@ -4656,6 +4669,7 @@ mooltipass.memmgmt.integrityCheckStart = function(progressCallback, statusCallba
 		// First step is to query to user interaction timeout to set the correct packet timeout retry!
 		mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 		mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+		mooltipass.memmgmt_hid.timeoutCallback = mooltipass.memmgmt.dataSendTimeOutCallback;
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();
 	}
@@ -4700,6 +4714,7 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 			mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_DBFILE_MERGE_REQ;
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 			mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+			mooltipass.memmgmt_hid.timeoutCallback = mooltipass.memmgmt.dataSendTimeOutCallback;
 			mooltipass.memmgmt_hid.nbSendRetries = 0;
 			mooltipass.memmgmt_hid._sendMsg();				
 		}
@@ -4738,6 +4753,7 @@ mooltipass.memmgmt.memoryBackupStart = function(to_file_bool, statusCallback, pr
 			// First step is to query to user interaction timeout to set the correct packet timeout retry!
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassParameter'], [mooltipass.device.parameters['userInteractionTimeout']]);
 			mooltipass.memmgmt_hid.responseCallback = mooltipass.memmgmt.dataReceivedCallback;
+			mooltipass.memmgmt_hid.timeoutCallback = mooltipass.memmgmt.dataSendTimeOutCallback;
 			mooltipass.memmgmt_hid.nbSendRetries = 0;
 			mooltipass.memmgmt_hid._sendMsg();			
 		}

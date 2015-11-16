@@ -170,6 +170,7 @@ mooltipass.ui.settings.initScreensaver = function() {
     });
 };
 
+// Reset Parameter 15 to value 0
 mooltipass.ui.settings.getUserRequestCancel = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
@@ -395,7 +396,8 @@ mooltipass.ui.settings.getSettings = function() {
     mooltipass.ui.settings.getLockTimeoutEnabled();
     mooltipass.ui.settings.getLockTimeout();
     mooltipass.ui.settings.getScreensaver();
-    //mooltipass.ui.settings.getUserRequestCancel();
+    // Keep the next line for disabling parameter 15!
+    mooltipass.ui.settings.getUserRequestCancel();
     mooltipass.ui.settings.getUserInteractionTimeout();
     mooltipass.ui.settings.getFlashScreen();
     mooltipass.ui.settings.getOfflineMode();

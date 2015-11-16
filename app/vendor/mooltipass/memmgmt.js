@@ -1,7 +1,7 @@
 var mooltipass = mooltipass || {};
 mooltipass.memmgmt = mooltipass.memmgmt || {};
 
-// Next error code available 691
+// Next error code available 696
 
 // Defines
 var NODE_SIZE							= 132;			// Node size
@@ -2788,7 +2788,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 	}
 	else if(packet[1] == 0xC4)
 	{
-		console("Please retry packet !!!")
+		console.log("Please retry packet !!!")
 	}
 	 
 	if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_PASSWD_CHANGE)
@@ -3899,7 +3899,8 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 		{
 			// Fail
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			console.log("Media import start fail!");
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 693, 'msg': "Couldn't start media import"});
+			mooltipass.device.processQueue();
 		}
 		else
 		{
@@ -3954,11 +3955,13 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 		if(packet[2] == 0)
 		{
 			// Fail... we kind of are stuck here...
-			console.log("Media import end fail!");
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 694, 'msg': "Couldn't end media import"});
+			mooltipass.device.processQueue();
 		}
 		else
 		{
-			console.log("Media import end win!");			
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 695, 'msg': "Bundle successfully uploaded"});
+			mooltipass.device.processQueue();		
 		}
 	}
 }
@@ -3985,15 +3988,23 @@ mooltipass.memmgmt.mediaBundleReadCallback = function(e)
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();
 	}	
+	else
+	{		
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 692, 'msg': "Error during file select"});
+		mooltipass.device.processQueue();
+	}
 }
 
 // Media bundle upload
-mooltipass.memmgmt.mediaBundlerUpload = function(password)
+mooltipass.memmgmt.mediaBundlerUpload = function(callback, password)
 {
+	mooltipass.memmgmt.statusCallback = callback;
+	
 	// Check password length
 	if(password.length != 124)
 	{
-		console.log("Wrong password length!");
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 691, 'msg': "Wrong password length!"});
+		mooltipass.device.processQueue();
 		return;
 	}
 	

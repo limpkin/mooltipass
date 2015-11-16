@@ -1,6 +1,8 @@
 var mooltipass = mooltipass || {};
 mooltipass.datamemmgmt = mooltipass.datamemmgmt || {};
 
+// Error codes start at 800
+
 // Defines
 var NODE_SIZE							= 132;				// Node size
 var HID_PAYLOAD_SIZE					= 62;				// HID payload
@@ -264,7 +266,7 @@ mooltipass.datamemmgmt.dataReceivedCallback = function(packet)
 	// Check for this packet
 	if(packet[1] == 0xC4)
 	{
-		console("Please retry packet !!!")
+		console.log("Please retry packet !!!")
 	}
 	
 	if(mooltipass.datamemmgmt.currentMode == DATAMGMT_PARAM_LOAD_NAME_LIST_REQ || mooltipass.datamemmgmt.currentMode == DATAMGMT_PARAM_LOAD_FILEADD_REQ || mooltipass.datamemmgmt.currentMode == DATAMGMT_PARAM_LOAD_FILEGET_REQ)
@@ -709,8 +711,10 @@ mooltipass.datamemmgmt.fileReadCallback = function(e)
 	}	
 }
 
-mooltipass.datamemmgmt.getFileFromMooltipass = function(name)
+mooltipass.datamemmgmt.getFileFromMooltipass = function(callback, name)
 {
+	mooltipass.datamemmgmt.statusCallback = callback;
+	
 	if(mooltipass.datamemmgmt.currentMode == MGMT_IDLE)
 	{
 		// Save name & set current mode
@@ -724,15 +728,24 @@ mooltipass.datamemmgmt.getFileFromMooltipass = function(name)
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();		
 	}
+	else
+	{
+		applyCallback(mooltipass.datamemmgmt.statusCallback, null, {'success': false, 'code': 800, 'msg': "Data memory management in another mode"});
+		mooltipass.device.processQueue();
+	}
 }
 
-mooltipass.datamemmgmt.addFileToMooltipass = function()
+mooltipass.datamemmgmt.addFileToMooltipass = function(callback)
 {
+	mooltipass.datamemmgmt.statusCallback = callback;
+	
 	mooltipass.filehandler.selectAndReadRawContents("", mooltipass.datamemmgmt.fileReadCallback);
 }
 	
-mooltipass.datamemmgmt.listDataNodeNames = function()
+mooltipass.datamemmgmt.listDataNodeNames = function(callback)
 {
+	mooltipass.datamemmgmt.statusCallback = callback;
+	
 	if(mooltipass.datamemmgmt.currentMode == DATAMGMT_IDLE)
 	{
 		mooltipass.datamemmgmt.nodeNames = [];
@@ -744,6 +757,11 @@ mooltipass.datamemmgmt.listDataNodeNames = function()
 		mooltipass.memmgmt_hid.nbSendRetries = 0;
 		mooltipass.memmgmt_hid._sendMsg();
 	}	
+	else
+	{
+		applyCallback(mooltipass.datamemmgmt.statusCallback, null, {'success': false, 'code': 801, 'msg': "Data memory management in another mode"});
+		mooltipass.device.processQueue();
+	}
 }
 
 

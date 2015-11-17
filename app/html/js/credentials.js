@@ -11,7 +11,7 @@ var DEFAULT_PASSWORD = "••••••••";
 var CREDENTIALS_TABLE = null;
 var USER_CREDENTIALS = [];
 var USER_CREDENTIALS_DELETE = [];
-var WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> confirm for device';
+var WAITING_FOR_DEVICE_LABEL = '<i class="fa fa-spin fa-circle-o-notch"></i> confirm on device';
 
 var MONTH_NAMES = [
     "January", "February", "March",

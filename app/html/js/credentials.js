@@ -284,7 +284,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         var old_password = $parent.find(".password input").attr("data-old");
         var new_password = $parent.find(".password input").val();
         var old_description = $parent.next().find("p.description input").attr("data-old");
-        var new_description = $parent.next().find("p.description input").val();
+        var new_description = $.trim($parent.next().find("p.description input").val());
 
         // Changed at least one field
         if (old_context != new_context || old_username != new_username || old_password != new_password || old_description != new_description) {
@@ -310,6 +310,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         $parent.find(".fa-trash-o").show();
         $parent.find(".fa-floppy-o").hide();
         $parent.find(".fa-times").hide();
+
+        new_description = new_description || '- empty -';
 
         $parent.find(".context span").html(new_context).attr("data-value", new_context);
         $parent.find(".username span").html(new_username).attr("data-value", new_username);
@@ -399,7 +401,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         if(mooltipass.ui.credentials.isActiveEdit()) {
             return;
         }
-        
+
         $this = $(this);
         setTimeout(function () {
             if (RECENT_DOUBLECLICK) return;

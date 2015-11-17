@@ -61,7 +61,7 @@ mooltipass.ui.credentials.isActiveDeviceInteraction = function() {
 
 mooltipass.ui.credentials.isActiveEdit = function() {
     if($("#credentials .edit").length > 0) {
-        mooltipass.ui.status.error('Other credentials are already in edit mode.');
+        mooltipass.ui.status.error(null, 'Other credentials are already in edit mode.');
         return true;
     }
 
@@ -213,7 +213,6 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         var $app = $parent.find(".context span");
         var $user = $parent.find(".username span");
         var $password = $parent.find(".password span");
-        var $description = $parent.next().find("p.description");
 
         $password.html(WAITING_FOR_DEVICE_LABEL);
         get_password(context, username, function (_success, password) {
@@ -224,6 +223,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
                     $parent.addClass("active");
                     update_details_view();
                 }
+
+                var $description = $parent.next().find("p.description");
 
                 $parent.addClass('edit');
 
@@ -395,6 +396,10 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         }
     }
     var display_details = function (e) {
+        if(mooltipass.ui.credentials.isActiveEdit()) {
+            return;
+        }
+        
         $this = $(this);
         setTimeout(function () {
             if (RECENT_DOUBLECLICK) return;

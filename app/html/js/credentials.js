@@ -2,6 +2,8 @@ var mooltipass = mooltipass || {};
 mooltipass.ui = mooltipass.ui || {};
 mooltipass.ui.credentials = mooltipass.ui.credentials || {};
 
+mooltipass.ui.credentials.activeDeviceInteraction = false;
+
 // Disable throwing alerts by dataTable
 $.fn.dataTableExt.sErrMode = 'throw';
 
@@ -45,8 +47,26 @@ var update_data_values = function () {
     $("*[data-value]").each(function () {
         $(this).html($(this).attr("data-value"));
     });
-}
+};
 
+
+mooltipass.ui.credentials.isActiveDeviceInteraction = function() {
+    if(mooltipass.ui.credentials.activeDeviceInteraction) {
+        mooltipass.ui.status.error(null, 'Please confirm the request on the device first.');
+        return true;
+    }
+
+    return false;
+};
+
+mooltipass.ui.credentials.isActiveEdit = function() {
+    if($("#credentials .edit").length > 0) {
+        mooltipass.ui.status.error('Other credentials are already in edit mode.');
+        return true;
+    }
+
+    return false;
+}
 
 mooltipass.ui.credentials.loadCredentials = function (_status, _credentials) {
     if (!_status.success) {
@@ -74,6 +94,12 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
     //  Show password
     $(".fa-eye").off('click').on('click', function (e) {
+        if(mooltipass.ui.credentials.isActiveDeviceInteraction()) {
+            return;
+        }
+
+        mooltipass.ui.credentials.activeDeviceInteraction = true;
+
         var $parent = $(this).parents("tr");
         var credentials = get_credentials_from_row($parent);
         var context = credentials.context;
@@ -81,6 +107,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
         $parent.find(".password span").html(WAITING_FOR_DEVICE_LABEL);
         get_password(context, username, function (_success, password) {
+            mooltipass.ui.credentials.activeDeviceInteraction = false;
+
             if (_success) {
                 $parent.find(".password span").html(password);
                 $parent.find(".fa-eye").hide();
@@ -123,6 +151,10 @@ mooltipass.ui.credentials.initializeTableActions = function () {
     });
     //  Delete credentials
     $(".fa-trash-o").off('click').on('click', function (e) {
+        if(mooltipass.ui.credentials.isActiveEdit()) {
+            return;
+        }
+
         var $parent = $(this).parents("tr");
         var credentials = get_credentials_from_row($parent);
         var context = credentials.context;
@@ -150,6 +182,16 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
     //  Edit credentials
     var edit_credentials = function (e) {
+        if(mooltipass.ui.credentials.isActiveDeviceInteraction()) {
+            return;
+        }
+
+        if(mooltipass.ui.credentials.isActiveEdit()) {
+            return;
+        }
+
+        mooltipass.ui.credentials.activeDeviceInteraction = true;
+
         var $parent = $(this).parents("tr");
         if ($parent.hasClass("credential-details"))
             $parent = $parent.prev();
@@ -158,13 +200,10 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         // Return if already in edit mode
         if ($parent.find("input").length > 0) return;
 
-        if (!($parent.hasClass("active"))) {
-            $(".active").removeClass("active").removeClass('edit');
-            $parent.addClass("active");
-            update_details_view();
+        if($("#credentials .edit").length > 0) {
+            mooltipass.ui.status.error('Other credentials are already in edit mode.');
+            return;
         }
-
-        $parent.addClass('edit');
 
         var credentials = get_credentials_from_row($parent);
         var context = credentials.context;
@@ -178,7 +217,16 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
         $password.html(WAITING_FOR_DEVICE_LABEL);
         get_password(context, username, function (_success, password) {
+            mooltipass.ui.credentials.activeDeviceInteraction = false;
             if (_success) {
+                if (!($parent.hasClass("active"))) {
+                    $(".active").removeClass("active");
+                    $parent.addClass("active");
+                    update_details_view();
+                }
+
+                $parent.addClass('edit');
+
                 $app.html("<input class='inline change-credentials' data-old='" + context + "' value='" + context + "' maxlength='57' />");
                 $user.html("<input class='inline change-credentials' data-old='" + username + "' value='" + username + "' maxlength='61' />");
                 $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "' maxlength='31'/>");
@@ -298,6 +346,10 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
     //  View details (description / last used / last modified)
     var update_details_view = function () {
+        if(mooltipass.ui.credentials.isActiveEdit()) {
+            return;
+        }
+
         $(".credential-details").remove();
         if ($(".active").length > 0) {
             var credentials = get_credentials_from_row($(".active"));
@@ -383,13 +435,9 @@ mooltipass.ui.credentials.callbackMMMEnter = function (_status, _credentials) {
 }
 
 mooltipass.ui.credentials.callbackMMMEnterProgress = function(_progress) {
-    $("#modal-confirm-on-device").hide();
     $("#modal-load-credentials").show();
+    $("#modal-confirm-on-device").hide();
 
-    if (_progress.progress == 0) {
-        $("#modal-load-credentials").hide();
-        return;
-    }
     $("#modal-load-credentials span.meter").css("width", _progress.progress + "%");
 };
 
@@ -410,6 +458,10 @@ mooltipass.ui.credentials.onClickMMMEnter = function () {
 };
 
 mooltipass.ui.credentials.onClickMMMDiscard = function() {
+    if(mooltipass.ui.credentials.isActiveDeviceInteraction()) {
+        return;
+    }
+
     mooltipass.memmgmt.memmgmtStop(function (_status) {
         if (_status.success) {
             mooltipass.device.endSingleCommunicationMode();
@@ -427,8 +479,10 @@ mooltipass.ui.credentials.onClickMMMDiscard = function() {
     });
 };
 
-mooltipass.ui.credentials.onClickMMMSave = function (e) {
-    e.preventDefault();
+mooltipass.ui.credentials.onClickMMMSave = function () {
+    if(mooltipass.ui.credentials.isActiveDeviceInteraction()) {
+        return;
+    }
 
     var deletes = USER_CREDENTIALS_DELETE;
     var updates = [];
@@ -581,6 +635,10 @@ mooltipass.ui.credentials.init = function () {
                 }
                 if (!is_valid) return;
 
+                if(mooltipass.ui.credentials.isActiveEdit()) {
+                    return;
+                }
+
                 // If submission is valid, add to USER_CREDENTIALS
                 var credential = {
                     "favorite": false,
@@ -685,7 +743,7 @@ var get_password = function (_context, _username, _callback) {
 
     mooltipass.app.getPassword(_context, _username, function (_context2, _username2, _status, _password) {
         if (_status.success) {
-// Add password to local user credential data
+            // Add password to local user credential data
             for (var _key in USER_CREDENTIALS) {
                 var credential = USER_CREDENTIALS[_key];
                 if ((credential.context == _context2) && (credential.username == _username2)) {
@@ -698,7 +756,7 @@ var get_password = function (_context, _username, _callback) {
             mooltipass.ui.status.error($('#credentials'), _status.msg);
         }
 
-// Call original callback
+        // Call original callback
         _callback(_status.success, _password);
     });
 };

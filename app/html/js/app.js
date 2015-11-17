@@ -89,33 +89,46 @@ mooltipass.ui._.waitForDevice = function (button, activate) {
 };
 
 mooltipass.ui._.initConfirmButtons = function(){
-    var count = -1;
-    var last_count = 0;
+    mooltipass.ui._.currentButtonClickCount = -1;
+    mooltipass.ui._.buttonClickCount = 0;
 
-    $("*[data-confirm]").on('mousedown', function() {
-        $button = $(this);
-        $button.attr("data-origin", $button.html());
-        $button.html("<b style='color:red;'>" + $(this).attr("data-confirm") + "</b>");
-        
-        last_count++;
-        count = last_count;
-        var _count = count;
+    $("*[data-confirm]").each(function(no, el) {
+        var $el = $(el);
 
-        setTimeout(function(){
-            if ((last_count != _count) || (count != _count)) return;
-            $button.html($button.attr("data-origin"));
-            executeFunctionByName($button.attr("data-execute"), window);
-        }, 1000);
+        $el.data('content-origin', $el.html());
 
-    }).on("mouseup", function() {
-        $button = $(this);
-        setTimeout(function(){
-            $button.html($button.attr("data-origin"));
-        }, 200);
+        $el.on('mousedown', function() {
+            var $button = $(this);
+            $button.html("<strong style='color:red;'>" + $button.attr("data-confirm") + "</strong>");
 
-        // Cancel interaction
-        count = -1;
-    });  
+            mooltipass.ui._.buttonClickCount++;
+            mooltipass.ui._.currentButtonClickCount = mooltipass.ui._.buttonClickCount;
+            var _count = mooltipass.ui._.currentButtonClickCount;
+
+            setTimeout(function(){
+                if ((mooltipass.ui._.buttonClickCount != _count) || (mooltipass.ui._.currentButtonClickCount != _count)) {
+                    return;
+                }
+
+                $button.html($button.data("content-origin"));
+                executeFunctionByName($button.attr("data-execute"), window);
+            }, 1000);
+
+        });
+
+        $el.on('mouseup', mooltipass.ui._.onMouseUpOrLeaveConfirmButton);
+        $el.on('mouseleave', mooltipass.ui._.onMouseUpOrLeaveConfirmButton);
+    });
+};
+
+mooltipass.ui._.onMouseUpOrLeaveConfirmButton = function() {
+    // Cancel interaction
+    mooltipass.ui._.currentButtonClickCount = -1;
+
+    var $button = $(this);
+    setTimeout(function(){
+        $button.html($button.data("content-origin"));
+    }, 200);
 }
 
 /*

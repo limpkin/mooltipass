@@ -104,6 +104,8 @@ mooltipass.ui.settings.initLockTimeout = function() {
 
         // Convert value to float number and bit-wise convert it to integer
         value = Number(value) | 0;
+        $(this).val(value);
+        $(this).data('old-value', $(this).val());
 
         if(value < 1) {
             mooltipass.ui.status.error($('#settings-lockTimeout'), 'Please enter a number between 1-4');
@@ -250,6 +252,8 @@ mooltipass.ui.settings.initUserInteractionTimeout = function() {
 
         // Convert value to float number and bit-wise convert it to integer
         value = Number(value) | 0;
+        $(this).val(value);
+        $(this).data('old-value', $(this).val());
 
         if(value < 5) {
             mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 5-200');

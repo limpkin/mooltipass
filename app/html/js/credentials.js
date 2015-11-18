@@ -736,6 +736,13 @@ mooltipass.ui.credentials.init = function () {
                     "_changed": true,
                 };
 
+                for(i = 0; i < USER_CREDENTIALS.length; i++) {
+                    if(USER_CREDENTIALS[i].context == credential.context && USER_CREDENTIALS[i].username == credential.username) {
+                        mooltipass.ui.status.error(null, 'Credentials with this username and app already exists!');
+                        return;
+                    }
+                }
+
                 USER_CREDENTIALS.push(credential);
 
                 // Empty form fields again

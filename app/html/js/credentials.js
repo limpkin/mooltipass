@@ -263,8 +263,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         e.stopPropagation();
     }
     $(".fa-pencil").off('click').on('click', edit_credentials);
-    $("tbody tr td.editable").off('dblclick').on('dblclick', edit_credentials);
-    $("tbody tr td.editable").off('dblclick').on('dblclick', dblclick_last_500ms);
+    $("tbody tr td.editable").off('dblclick').on('dblclick', edit_credentials).on('dblclick', dblclick_last_500ms);
 
     //  Save credentials
     var save_credential_changes = function (e) {

@@ -79,11 +79,32 @@ input.inline {
   label {
 
     span.required {
+      display: none;
       opacity: 0;
       color: $alert-color;
     }
-    &.alert {
+    span.maxlength {
+      display: none;
+      opacity: 0;
+      color: $alert-color;
+    }
+    &.alert-required {
       span.required {
+        display: inline;
+      }
+      span.required {
+        opacity: 1;
+        transition: all 200ms ease;
+      }
+      input {
+        border: 1px solid #F00 !important;
+      }
+    }
+    &.alert-maxlength {
+      span.maxlength {
+        display: inline;
+      }
+      span.maxlength {
         opacity: 1;
         transition: all 200ms ease;
       }

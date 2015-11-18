@@ -9828,98 +9828,122 @@ input.inline {
 }
 /* line 81, ../scss/app.scss */
 .add-credential label span.required {
+  display: none;
   opacity: 0;
   color: #f04124;
 }
 /* line 86, ../scss/app.scss */
-.add-credential label.alert span.required {
+.add-credential label span.maxlength {
+  display: none;
+  opacity: 0;
+  color: #f04124;
+}
+/* line 92, ../scss/app.scss */
+.add-credential label.alert-required span.required {
+  display: inline;
+}
+/* line 95, ../scss/app.scss */
+.add-credential label.alert-required span.required {
   opacity: 1;
   transition: all 200ms ease;
 }
-/* line 90, ../scss/app.scss */
-.add-credential label.alert input {
+/* line 99, ../scss/app.scss */
+.add-credential label.alert-required input {
   border: 1px solid #F00 !important;
 }
-/* line 95, ../scss/app.scss */
+/* line 104, ../scss/app.scss */
+.add-credential label.alert-maxlength span.maxlength {
+  display: inline;
+}
+/* line 107, ../scss/app.scss */
+.add-credential label.alert-maxlength span.maxlength {
+  opacity: 1;
+  transition: all 200ms ease;
+}
+/* line 111, ../scss/app.scss */
+.add-credential label.alert-maxlength input {
+  border: 1px solid #F00 !important;
+}
+/* line 116, ../scss/app.scss */
 .add-credential label .comment {
   font-size: 0.68rem;
   opacity: 0;
   transition: all 200ms ease;
 }
 
-/* line 104, ../scss/app.scss */
+/* line 125, ../scss/app.scss */
 #credentials input.change-credentials.error {
   border: 1px solid #F00 !important;
 }
 
-/* line 109, ../scss/app.scss */
+/* line 130, ../scss/app.scss */
 #page-synchronisation {
   overflow-y: hidden;
 }
-/* line 111, ../scss/app.scss */
+/* line 132, ../scss/app.scss */
 #page-synchronisation * {
   overflow-y: hidden;
 }
-/* line 112, ../scss/app.scss */
+/* line 133, ../scss/app.scss */
 #page-synchronisation button {
   margin-bottom: 0;
   margin-top: 8px;
   padding: 0.7rem;
 }
-/* line 119, ../scss/app.scss */
+/* line 140, ../scss/app.scss */
 #page-synchronisation .storage p {
   margin-bottom: 0;
 }
-/* line 123, ../scss/app.scss */
+/* line 144, ../scss/app.scss */
 #page-synchronisation .storage input[type="checkbox"] {
   margin-left: 0.5rem;
 }
-/* line 127, ../scss/app.scss */
+/* line 148, ../scss/app.scss */
 #page-synchronisation .storage span {
   display: inline-block;
   width: 90%;
 }
-/* line 132, ../scss/app.scss */
+/* line 153, ../scss/app.scss */
 #page-synchronisation .storage label {
   margin-top: 0.5rem;
 }
 
-/* line 139, ../scss/app.scss */
+/* line 160, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }
 
-/* line 144, ../scss/app.scss */
+/* line 165, ../scss/app.scss */
 #page-credentials button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 149, ../scss/app.scss */
+/* line 170, ../scss/app.scss */
 #page-credentials button.secondary {
   color: #888888;
   transition: background-color ease 1000ms;
 }
-/* line 153, ../scss/app.scss */
+/* line 174, ../scss/app.scss */
 #page-credentials button.secondary:hover {
   background-color: #ddd;
 }
-/* line 157, ../scss/app.scss */
+/* line 178, ../scss/app.scss */
 #page-credentials button.secondary:active {
   background-color: #F1BABA;
 }
 
-/* line 165, ../scss/app.scss */
+/* line 186, ../scss/app.scss */
 #page-developers #resetCardCheckbox {
   margin-right: 5px;
 }
 
-/* line 171, ../scss/app.scss */
+/* line 192, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 176, ../scss/app.scss */
+/* line 197, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -9928,24 +9952,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 184, ../scss/app.scss */
+/* line 205, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 190, ../scss/app.scss */
+/* line 211, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 198, ../scss/app.scss */
+/* line 219, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 201, ../scss/app.scss */
+/* line 222, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -9957,18 +9981,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 214, ../scss/app.scss */
+/* line 235, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 218, ../scss/app.scss */
+/* line 239, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 224, ../scss/app.scss */
+/* line 245, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

@@ -659,27 +659,66 @@ mooltipass.ui.credentials.init = function () {
             // Manage TABbing to next field
             if (e.keyCode == 9) {
                 if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val().trim() == '')) {
-                    $(this).parents("label").addClass("alert");
+                    $(this).parents("label").addClass("alert").addClass('alert-required');
                 } else {
-                    $(this).parents("label").removeClass("alert");
+                    $(this).parents("label").removeClass('alert-required');
+                    if(!$(this).parents("label").hasClass('alert-maxlength')) {
+                        $(this).parents("label").removeClass('alert');
+                    }
                 }
             }
             // Manage submit of new credentials
             if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
+                var $inputs;
+                var i;
+
                 // Check if form is valid
                 $inputs = $(".add-credential input[required]");
-                var i = 0;
+                i = 0;
                 var is_valid = true;
                 while (i < $inputs.length) {
-                    $input = $($inputs[i]);
+                    var $input = $($inputs[i]);
                     if (($input.attr("required") == 'required') && ($input.val() == '')) {
-                        $input.parents("label").addClass("alert");
+                        $input.parents("label").addClass("alert").addClass("alert-required");
                         is_valid = false;
                     } else {
-                        $input.parents("label").removeClass("alert");
+                        $input.parents("label").removeClass("alert-required");
                     }
                     i++;
                 }
+
+                //Check if value length is < max-length
+                $inputs = $(".add-credential input[data-maxlength]");
+                i = 0;
+                while (i < $inputs.length) {
+                    var $input = $($inputs[i]);
+                    console.warn('maxlength', $input.attr('name'), $input.data("maxlength"), $input.val().length);
+                    if (parseInt($input.data("maxlength")) < $input.val().length) {
+                        console.warn('   yepp');
+                        $input.parents("label").addClass("alert").addClass("alert-maxlength");
+                        is_valid = false;
+                    } else {
+                        $input.parents("label").removeClass("alert-maxlength");
+                        console.warn('   nope');
+                    }
+                    i++;
+                }
+
+                //Remove class .alert from labels if neither alert-required nor alert-maxlength is set
+                $inputs = $(".add-credential input");
+                i = 0;
+                while (i < $inputs.length) {
+                    var $input = $($inputs[i]);
+
+                    var $label = $input.parents("label");
+
+                    if(!$label.hasClass('alert-required') && !$label.hasClass('alert-maxlength')) {
+                        $label.removeClass('alert');
+                    }
+
+                    i++;
+                }
+
                 if (!is_valid) return;
 
                 if(mooltipass.ui.credentials.isActiveEdit()) {
@@ -714,9 +753,27 @@ mooltipass.ui.credentials.init = function () {
                 mooltipass.ui.credentials.initializeTableActions();
             }
         }).on("keyup", function (e) {
-// Remove any error label if input is not empty
+            var $label = $(this).parents("label");
+            var is_valid = true;
+
+            if($(this).data('maxlength') && parseInt($(this).data('maxlength')) < $(this).val().length) {
+                $label.addClass("alert").addClass('alert-maxlength');
+                is_valid = false;
+            }
+            else {
+                $label.removeClass('alert-maxlength')
+            }
+
+            // Remove any error label if input is not empty
             if (($(this).attr("required") == 'required') && ($(this).val() != '')) {
-                $(this).parents("label").removeClass("alert");
+                $label.removeClass('alert-required');
+            }
+            else {
+                is_valid = false;
+            }
+
+            if(is_valid) {
+                $label.removeClass('alert');
             }
         });
 };

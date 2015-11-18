@@ -104,11 +104,12 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
 };
 
 mooltipass.app.updateOnUnlock = function() {
-    mooltipass.ui.settings.getSettings();
+
 };
 
 mooltipass.app.updateOnConnect = function() {
     mooltipass.ui._.reset();
+    mooltipass.ui.settings.getSettings();
 };
 
 mooltipass.app.updateOnLock = function() {

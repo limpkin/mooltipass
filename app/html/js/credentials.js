@@ -228,15 +228,17 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
                 $parent.addClass('edit');
 
-                $app.html("<input class='inline change-credentials' data-old='" + context + "' value='" + context + "' maxlength='57' />");
-                $user.html("<input class='inline change-credentials' data-old='" + username + "' value='" + username + "' maxlength='61' />");
-                $password.html("<input class='inline change-credentials' data-old='" + password + "' value='" + password + "' maxlength='31'/>");
-                $description.html("<input class='inline change-credentials' data-old='" + description + "' value='" + description + "' maxlength='23' />");
+                $app.html("<input class='inline change-credentials' name='context' data-old='" + context + "' value='" + context + "' data-maxlength='57' />");
+                $user.html("<input class='inline change-credentials' name='username' data-old='" + username + "' value='" + username + "' data-maxlength='61' />");
+                $password.html("<input class='inline change-credentials' name='password' data-old='" + password + "' value='" + password + "' data-maxlength='31'/>");
+                $description.html("<input class='inline change-credentials' name='description' data-old='" + description + "' value='" + description + "' data-maxlength='23' />");
 
 
                 $(".inline.change-credentials").on('keydown', save_credential_changes);
                 $(".inline.change-credentials").on('keydown', discard_credential_changes);
                 $(".inline.change-credentials").on('click', stop_propagation);
+
+                $("#credentials input.inline").on('keyup', mooltipass.ui.credentials.onKeyUpInputMax);
 
                 $parent.find(".fa-pencil").hide();
                 $parent.find(".fa-eye").hide();
@@ -269,6 +271,11 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         if ((e.type == "keydown") && (e.keyCode != 13)) return;
 
         var $parent = $(this).parents("tr");
+
+        if($('#credentials input.inline.error').length > 0) {
+            mooltipass.ui.credentials.showMaximumLengthErrorMessage($('#credentials input.inline.error'));
+            return false;
+        }
 
         if ($parent.hasClass("credential-details")) {
             console.log("dicard");
@@ -418,7 +425,40 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         e.stopPropagation();
     }
     $("tbody tr").off('click').on('click', display_details);
-}
+};
+
+mooltipass.ui.credentials.onKeyUpInputMax = function(e) {
+    if (e.keyCode == 13) return;
+
+    if($(this).val().length > $(this).data('maxlength')) {
+        $(this).addClass('error');
+    }
+    else {
+        $(this).removeClass('error');
+    }
+};
+
+mooltipass.ui.credentials.showMaximumLengthErrorMessage = function(elements) {
+    var $el = $(elements[0]);
+    var $msg = 'The %s value is too long! Allowed maximum length: ' + $el.data('maxlength') + '&nbsp;&nbsp;&nbsp;(used: ' + $el.val().length + ')';
+    switch($el.attr('name')) {
+        case 'context':
+        case 'app':
+            $msg = $msg.replace('%s', 'app');
+            break;
+        case 'username':
+            $msg = $msg.replace('%s', 'username');
+            break;
+        case 'password':
+            $msg = $msg.replace('%s', 'password');
+            break;
+        case 'description':
+            $msg = $msg.replace('%s', 'description');
+            break;
+    }
+
+    mooltipass.ui.status.error(null, $msg);
+};
 
 
 mooltipass.ui.credentials.callbackMMMEnter = function (_status, _credentials) {

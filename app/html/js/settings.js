@@ -83,7 +83,7 @@ mooltipass.ui.settings.getLockTimeout = function() {
         'callbackFunction': function(_response) {
             var $field = $('#settings-lockTimeout');
             if(_response.success) {
-                $field.val(Number(_response.value) / 60);
+                $field.val(Number(_response.value));
             }
             else {
                 mooltipass.ui.status.error($field, _response.msg);
@@ -108,19 +108,19 @@ mooltipass.ui.settings.initLockTimeout = function() {
         $(this).data('old-value', $(this).val());
 
         if(value < 1) {
-            mooltipass.ui.status.error($('#settings-lockTimeout'), 'Please enter a number between 1-4');
+            mooltipass.ui.status.error($('#settings-lockTimeout'), 'Please enter a number between 1-120');
             return;
         }
 
-        if(value > 4) {
-            mooltipass.ui.status.error($('#settings-lockTimeout'), 'Please enter a number between 1-4');
+        if(value > 120) {
+            mooltipass.ui.status.error($('#settings-lockTimeout'), 'Please enter a number between 1-120');
             return;
         }
 
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'lockTimeout',
-            'value': value * 60,
+            'value': value,
             'callbackFunction': function(_response) {
                 var $field = $('#settings-lockTimeout');
                 if(_response.success) {

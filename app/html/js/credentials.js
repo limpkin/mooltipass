@@ -282,8 +282,6 @@ mooltipass.ui.credentials.initializeTableActions = function () {
             $parent = $parent.prev();
         }
 
-        $parent.removeClass("edit");
-
         var old_context = $parent.find(".context input").attr("data-old");
         var new_context = $parent.find(".context input").val();
         var old_username = $parent.find(".username input").attr("data-old");
@@ -295,8 +293,19 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
         // Changed at least one field
         if (old_context != new_context || old_username != new_username || old_password != new_password || old_description != new_description) {
+            if(old_username != new_username || old_context != new_context) {
+                for (var _key in USER_CREDENTIALS) {
+                    var credential = USER_CREDENTIALS[_key];
+                    if(credential.context == new_context && credential.username == new_username) {
+                        mooltipass.ui.status.error(null, 'Credentials with this username and app already exists!');
+                        return;
+                    }
+                }
+            }
+
             for (var _key in USER_CREDENTIALS) {
                 var credential = USER_CREDENTIALS[_key];
+
                 if ((credential.context == old_context) && (credential.username == old_username)) {
                     USER_CREDENTIALS[_key].context = new_context;
                     USER_CREDENTIALS[_key].username = new_username;
@@ -308,9 +317,13 @@ mooltipass.ui.credentials.initializeTableActions = function () {
                     if (USER_CREDENTIALS[_key]._has_password_changed) {
                         USER_CREDENTIALS[_key].date_modified = new Date();
                     }
+
+                    break;
                 }
             }
         }
+
+        $parent.removeClass("edit");
 
         $parent.find(".fa-pencil").show();
         $parent.find(".fa-eye").show();

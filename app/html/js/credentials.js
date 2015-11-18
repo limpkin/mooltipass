@@ -705,14 +705,11 @@ mooltipass.ui.credentials.init = function () {
                 i = 0;
                 while (i < $inputs.length) {
                     var $input = $($inputs[i]);
-                    console.warn('maxlength', $input.attr('name'), $input.data("maxlength"), $input.val().length);
                     if (parseInt($input.data("maxlength")) < $input.val().length) {
-                        console.warn('   yepp');
                         $input.parents("label").addClass("alert").addClass("alert-maxlength");
                         is_valid = false;
                     } else {
                         $input.parents("label").removeClass("alert-maxlength");
-                        console.warn('   nope');
                     }
                     i++;
                 }

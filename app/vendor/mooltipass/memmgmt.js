@@ -4160,6 +4160,24 @@ mooltipass.memmgmt.generateSavePackets = function()
 	console.log("Treating new items...");
 	for(var i = 0; i < mooltipass.memmgmt.memmgmtAddData.length; i++)
 	{
+		// Check for null elements
+		if(mooltipass.memmgmt.memmgmtAddData[i].context == null)
+		{
+			mooltipass.memmgmt.memmgmtAddData[i].context = "";
+		}
+		if(mooltipass.memmgmt.memmgmtAddData[i].username == null)
+		{
+			mooltipass.memmgmt.memmgmtAddData[i].username = "";
+		}
+		if(mooltipass.memmgmt.memmgmtAddData[i].password == null)
+		{
+			mooltipass.memmgmt.memmgmtAddData[i].password = "";
+		}
+		if(mooltipass.memmgmt.memmgmtAddData[i].description == null)
+		{
+			mooltipass.memmgmt.memmgmtAddData[i].description = "";
+		}
+		
 		// Check if the new parent node exists
 		var new_parent_node_index = mooltipass.memmgmt.findIdByName(mooltipass.memmgmt.clonedCurServiceNodes, mooltipass.memmgmt.memmgmtAddData[i].context);
 		if(new_parent_node_index == null)
@@ -4289,6 +4307,24 @@ mooltipass.memmgmt.generateSavePackets = function()
 	console.log("Treating updated items...");
 	for(var i = 0; i < mooltipass.memmgmt.memmgmtUpdateData.length; i++)
 	{
+		// Check for null elements
+		if(mooltipass.memmgmt.memmgmtUpdateData[i].context == null)
+		{
+			mooltipass.memmgmt.memmgmtUpdateData[i].context = "";
+		}
+		if(mooltipass.memmgmt.memmgmtUpdateData[i].username == null)
+		{
+			mooltipass.memmgmt.memmgmtUpdateData[i].username = "";
+		}
+		if(mooltipass.memmgmt.memmgmtUpdateData[i].password == null)
+		{
+			mooltipass.memmgmt.memmgmtUpdateData[i].password = "";
+		}
+		if(mooltipass.memmgmt.memmgmtUpdateData[i].description == null)
+		{
+			mooltipass.memmgmt.memmgmtUpdateData[i].description = "";
+		}
+		
 		// Check child & parent addresses
 		var child_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurLoginNodes, mooltipass.memmgmt.memmgmtUpdateData[i].address);
 		var parent_index = mooltipass.memmgmt.findIdByAddress(mooltipass.memmgmt.clonedCurServiceNodes, mooltipass.memmgmt.memmgmtUpdateData[i].parent_address);

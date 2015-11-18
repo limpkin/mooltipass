@@ -278,7 +278,6 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         }
 
         if ($parent.hasClass("credential-details")) {
-            console.log("dicard");
             $parent = $parent.prev();
         }
 

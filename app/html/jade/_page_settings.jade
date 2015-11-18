@@ -57,7 +57,12 @@
         h3 Input timeout
       .column.small-9
         label Cancel credentials request after
-          input(type="text", class="inline-time", maxlength="3", name="userInteractionTimeout", id="settings-userInteractionTimeout")
+          select(name="userInteractionTimeout", id="settings-userInteractionTimeout")
+            option(value="5") 5
+            option(value="10") 10
+            option(value="15", selected="selected") 15
+            option(value="20") 20
+            option(value="30") 30
           | seconds
 
     .row.margin-bottom

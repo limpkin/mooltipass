@@ -243,33 +243,11 @@ mooltipass.ui.settings.getUserInteractionTimeout = function() {
 mooltipass.ui.settings.initUserInteractionTimeout = function() {
     $('#settings-userInteractionTimeout').change(function() {
         $(this).data('old-value', $(this).val());
-        var value = $(this).val();
-
-        if(isNaN(value)) {
-            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a valid number');
-            return;
-        }
-
-        // Convert value to float number and bit-wise convert it to integer
-        value = Number(value) | 0;
-        $(this).val(value);
-        $(this).data('old-value', $(this).val());
-
-        if(value < 5) {
-            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 5-200');
-            return;
-        }
-
-        if(value > 200) {
-            // Maximum is 231, otherwise it's blocked to 231
-            mooltipass.ui.status.error($('#settings-userInteractionTimeout'), 'Please enter a number between 5-200');
-            return;
-        }
 
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'userInteractionTimeout',
-            'value': value,
+            'value': parseInt($(this).val()),
             'callbackFunction': function(_response) {
                 var $field = $('#settings-userInteractionTimeout');
                 if(_response.success) {

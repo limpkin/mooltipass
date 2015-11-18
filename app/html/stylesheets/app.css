@@ -9876,74 +9876,82 @@ input.inline {
   border: 1px solid #F00 !important;
 }
 
-/* line 130, ../scss/app.scss */
+/* line 131, ../scss/app.scss */
+#page-settings #settings-userInteractionTimeout {
+  display: inline;
+  width: 50px;
+  margin-right: 8px;
+  margin-left: 8px;
+}
+
+/* line 139, ../scss/app.scss */
 #page-synchronisation {
   overflow-y: hidden;
 }
-/* line 132, ../scss/app.scss */
+/* line 141, ../scss/app.scss */
 #page-synchronisation * {
   overflow-y: hidden;
 }
-/* line 133, ../scss/app.scss */
+/* line 142, ../scss/app.scss */
 #page-synchronisation button {
   margin-bottom: 0;
   margin-top: 8px;
   padding: 0.7rem;
 }
-/* line 140, ../scss/app.scss */
+/* line 149, ../scss/app.scss */
 #page-synchronisation .storage p {
   margin-bottom: 0;
 }
-/* line 144, ../scss/app.scss */
+/* line 153, ../scss/app.scss */
 #page-synchronisation .storage input[type="checkbox"] {
   margin-left: 0.5rem;
 }
-/* line 148, ../scss/app.scss */
+/* line 157, ../scss/app.scss */
 #page-synchronisation .storage span {
   display: inline-block;
   width: 90%;
 }
-/* line 153, ../scss/app.scss */
+/* line 162, ../scss/app.scss */
 #page-synchronisation .storage label {
   margin-top: 0.5rem;
 }
 
-/* line 160, ../scss/app.scss */
+/* line 169, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }
 
-/* line 165, ../scss/app.scss */
+/* line 174, ../scss/app.scss */
 #page-credentials button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 170, ../scss/app.scss */
+/* line 179, ../scss/app.scss */
 #page-credentials button.secondary {
   color: #888888;
   transition: background-color ease 1000ms;
 }
-/* line 174, ../scss/app.scss */
+/* line 183, ../scss/app.scss */
 #page-credentials button.secondary:hover {
   background-color: #ddd;
 }
-/* line 178, ../scss/app.scss */
+/* line 187, ../scss/app.scss */
 #page-credentials button.secondary:active {
   background-color: #F1BABA;
 }
 
-/* line 186, ../scss/app.scss */
+/* line 195, ../scss/app.scss */
 #page-developers #resetCardCheckbox {
   margin-right: 5px;
 }
 
-/* line 192, ../scss/app.scss */
+/* line 201, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 197, ../scss/app.scss */
+/* line 206, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -9952,24 +9960,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 205, ../scss/app.scss */
+/* line 214, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 211, ../scss/app.scss */
+/* line 220, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 219, ../scss/app.scss */
+/* line 228, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 222, ../scss/app.scss */
+/* line 231, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -9981,18 +9989,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 235, ../scss/app.scss */
+/* line 244, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 239, ../scss/app.scss */
+/* line 248, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 245, ../scss/app.scss */
+/* line 254, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

@@ -725,7 +725,32 @@ mooltipass.ui.credentials.init = function () {
 
     // Search for credentials
     $("#search-input").on("keyup change", function () {
-        $("#credentials").DataTable().search($(this).val()).draw()
+        //$("#credentials").DataTable().search($(this).val()).draw()
+        var query = $(this).val().trim();
+
+        if(query == '') {
+            $("#credentials tbody tr").show();
+            return;
+        }
+
+        query = query.toLowerCase();
+
+        $("#credentials tbody tr").each(function() {
+            var found = false;
+            $('span.value', $(this)).each(function() {
+                if($(this).data('value').toLowerCase().indexOf(query) >= 0) {
+                    found = true;
+                    return false;
+                }
+            });
+
+            if(found) {
+                $(this).show();
+            }
+            else {
+                $(this).hide();
+            }
+        });
     });
     $("#search-input").on("keyup", function (e) {
         if (e.keyCode == 27) $(this).val("").trigger("change");

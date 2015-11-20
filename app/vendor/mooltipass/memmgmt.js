@@ -3094,7 +3094,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			
 			// Get Mooltipass status and to go into MMM if in good mode
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getMooltipassStatus'], null);
-			mooltipass.memmgmt_hid.request.milliseconds = (packet[2]) * 2000;
+			mooltipass.memmgmt_hid.request.milliseconds = (packet[2]) * 4000;
 			mooltipass.memmgmt_hid.nbSendRetries = 3;
 			mooltipass.memmgmt_hid._sendMsg();
 		}

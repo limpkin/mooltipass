@@ -1038,7 +1038,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 		}
 		catch(e)
 		{
-			mooltipass.memmgmt.requestFailHander("Read: Wrong file", null, 690);
+			mooltipass.memmgmt.requestFailHander("Not a valid backup file", null, 690);
 		}
 		 
 		// Check data format
@@ -3175,7 +3175,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 						}
 						else
 						{
-							mooltipass.memmgmt.requestFailHander("Inserted card isn't known by the save file", null, 656);
+							mooltipass.memmgmt.requestFailHander("The file is not a data backup for this card", null, 656);
 						}
 					}
 					else

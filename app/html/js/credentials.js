@@ -32,9 +32,9 @@ var stop_propagation = function (e) {
     e.stopPropagation();
 };
 
-var get_credentials_from_row = function ($row) { 
-    var context = $row.find(".context span").attr("data-value");
-    var username = $row.find(".username span").attr("data-value");
+var get_credentials_from_row = function ($row) {
+    var context = $('td.context span', $row).data('value');
+    var username = $('td.username span', $row).data('value');
 
     return {
         "context": context,
@@ -44,8 +44,19 @@ var get_credentials_from_row = function ($row) {
 }
 
 var update_data_values = function () {
-    $("*[data-value]").each(function () {
-        $(this).html($(this).attr("data-value"));
+    $("#credentials tbody tr span").each(function () {
+        if($(this).hasClass('value')) {
+            $(this).text($(this).data('value'));
+        }
+        else {
+            var $tr = $(this).parents('tr:first');
+            if($tr.find('td.context').length > 0) {
+                var data = CREDENTIALS_TABLE.fnGetData($tr);
+                $('td.context span', $tr).addClass('value').data('value', data.context).text(data.context);
+                $('td.username span', $tr).addClass('value').data('value', data.username).text(data.username);
+                $('td.password span', $tr).addClass('value').data('value', DEFAULT_PASSWORD).text(DEFAULT_PASSWORD);
+            }
+        }
     });
 };
 
@@ -110,13 +121,13 @@ mooltipass.ui.credentials.initializeTableActions = function () {
             mooltipass.ui.credentials.activeDeviceInteraction = false;
 
             if (_success) {
-                $parent.find(".password span").html(password);
+                $parent.find(".password span").data('value', password).text(password);
                 $parent.find(".fa-eye").hide();
                 $parent.find(".fa-eye-slash").show();
             }
             else {
                 mooltipass.ui.status.error($parent, 'Could not get password from device');
-                $parent.find(".password span").html(DEFAULT_PASSWORD);
+                $parent.find(".password span").data('value', DEFAULT_PASSWORD).text(DEFAULT_PASSWORD);
             }
         });
 
@@ -125,7 +136,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
     //  Hide password
     $(".fa-eye-slash").off('click').on('click', function (e) {
-        $(this).parents("tr").find(".password span").html(DEFAULT_PASSWORD);
+        $(this).parents("tr").find(".password span").data('value', DEFAULT_PASSWORD).text(DEFAULT_PASSWORD);
         $(this).parents("tr").find(".fa-eye-slash").hide();
         $(this).parents("tr").find(".fa-eye").show();
 
@@ -197,6 +208,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
             $parent = $parent.prev();
         var $this = $(this);
 
+        console.warn($parent);
+
         // Return if already in edit mode
         if ($parent.find("input").length > 0) return;
 
@@ -224,14 +237,38 @@ mooltipass.ui.credentials.initializeTableActions = function () {
                     update_details_view();
                 }
 
-                var $description = $parent.next().find("p.description");
+                var $description = $parent.next().find("p.description span");
 
                 $parent.addClass('edit');
 
-                $app.html("<input class='inline change-credentials' name='context' data-old='" + context + "' value='" + context + "' data-maxlength='57' />");
-                $user.html("<input class='inline change-credentials' name='username' data-old='" + username + "' value='" + username + "' data-maxlength='61' />");
-                $password.html("<input class='inline change-credentials' name='password' data-old='" + password + "' value='" + password + "' data-maxlength='31'/>");
-                $description.html("<input class='inline change-credentials' name='description' data-old='" + description + "' value='" + description + "' data-maxlength='23' />");
+                $app.empty().append(
+                    $('<input>')
+                        .addClass('inline').addClass('change-credentials')
+                        .attr('name', 'context')
+                        .data('old', context).data('maxlength', 57)
+                        .val(context)
+                );
+                $user.empty().append(
+                    $('<input>')
+                        .addClass('inline').addClass('change-credentials')
+                        .attr('name', 'username')
+                        .data('old', username).data('maxlength', 61)
+                        .val(username)
+                );
+                $password.empty().append(
+                    $('<input>')
+                        .addClass('inline').addClass('change-credentials')
+                        .attr('name', 'password')
+                        .data('old', password).data('maxlength', 31)
+                        .val(password)
+                );
+                $description.empty().append(
+                    $('<input>')
+                        .addClass('inline').addClass('change-credentials')
+                        .attr('name', 'description')
+                        .data('old', description).data('maxlength', 23)
+                        .val(description)
+                );
 
 
                 $(".inline.change-credentials").on('keydown', save_credential_changes);
@@ -280,13 +317,13 @@ mooltipass.ui.credentials.initializeTableActions = function () {
             $parent = $parent.prev();
         }
 
-        var old_context = $parent.find(".context input").attr("data-old");
+        var old_context = $parent.find(".context input").data("old");
         var new_context = $parent.find(".context input").val();
-        var old_username = $parent.find(".username input").attr("data-old");
+        var old_username = $parent.find(".username input").data("old");
         var new_username = $parent.find(".username input").val();
-        var old_password = $parent.find(".password input").attr("data-old");
+        var old_password = $parent.find(".password input").data("old");
         var new_password = $parent.find(".password input").val();
-        var old_description = $parent.next().find("p.description input").attr("data-old");
+        var old_description = $parent.next().find("p.description input").data("old");
         var new_description = $.trim($parent.next().find("p.description input").val());
 
         // Changed at least one field
@@ -331,10 +368,14 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
         new_description = new_description || '- empty -';
 
-        $parent.find(".context span").html(new_context).attr("data-value", new_context);
-        $parent.find(".username span").html(new_username).attr("data-value", new_username);
-        $parent.find(".password span").html(DEFAULT_PASSWORD);
-        $parent.next().find("p.description").html(new_description).attr("data-value", new_description);
+        //$parent.find(".context span").html(new_context).attr("data-value", new_context);
+        $parent.find(".context span").data('value', new_context).text(new_context);
+        //$parent.find(".username span").html(new_username).attr("data-value", new_username);
+        $parent.find(".username span").data('value', new_username).text(new_username);
+        //$parent.find(".password span").html(DEFAULT_PASSWORD);
+        $parent.find(".password span").text($parent.find(".password span").data('value'));
+        //$parent.next().find("p.description").html(new_description).attr("data-value", new_description);
+        $parent.next().find("p.description span").data('value', new_description).text(new_description);
 
         e.stopPropagation();
     }
@@ -342,12 +383,14 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
     //  Discard credentials
     var discard_credential_changes = function (e) {
-        if ((e.type == "keydown") && (e.keyCode != 27)) return;
+        // ESC to discard
+        if ((e.type == "keydown") && (e.keyCode != 27)) {
+            return;
+        }
 
         var $parent = $(this).parents("tr");
 
         if ($parent.hasClass("credential-details")) {
-            console.log("dicard");
             $parent = $parent.prev();
         }
 
@@ -400,18 +443,24 @@ mooltipass.ui.credentials.initializeTableActions = function () {
                 last_modified = '- never -';
             }
 
-            $(".active").after('<tr class="active credential-details"><td colspan=2></td><td class="labels">\
+            var $tr = $('<tr class="active credential-details"><td colspan=2></td><td class="labels">\
 <p>Last used</p>\
 <p>Last modified</p>\
 <p>Description</p>\
 </td><td colspan=2>\
-<p>' + last_used + '</p>\
-<p>' + last_modified + '</p>\
-<p class="description" data-value="' + description + '">' + description + '</p>\
+<p class="last_used"></p>\
+<p class="last_modified"></p>\
+<p class="description"><span class="value"></span></p>\
 </td></tr>');
 
-            $("tbody tr.credential-details .description").off('dblclick').on('dblclick', edit_credentials);
-            $("tbody tr.credential-details .description").off('dblclick').on('dblclick', dblclick_last_500ms);
+            $('.last_used', $tr).text(last_used);
+            $('.last_modified', $tr).text(last_modified);
+            $('.description span', $tr).data('value', description).text(description);
+
+            $(".active").after($tr);
+
+            $(".description", $tr).off('dblclick').on('dblclick', edit_credentials);
+            $(".description", $tr).off('dblclick').on('dblclick', dblclick_last_500ms);
 
         }
     }
@@ -634,25 +683,47 @@ mooltipass.ui.credentials.init = function () {
         scrollY: 210,
         dom: '<t>',
         columns: [
-            {data: "favorite"},
             {
+                type: "html",
+                data: "favorite"
+            },
+            {
+                type: "string",
                 data: {
-                    "display": 'context.display',
-                    "_": 'context.plain'
+                    "sort": "context",
+                    "filter": "context",
+                    "_": "context"
+                },
+                "render": function ( data, type, full, meta ) {
+                    return '<span></span>';
                 }
             },
             {
+                type: "string",
                 data: {
-                    "display": 'username.display',
-                    "_": 'username.plain'
+                    "sort": "username",
+                    "filter": "username",
+                    "_": "username"
+                },
+                "render": function ( data, type, full, meta ) {
+                    return '<span></span>';
                 }
             },
-            {data: "password"},
-            {data: "actions"}
+            {
+                type: "html",
+                data: "password",
+                "render": function ( data, type, full, meta ) {
+                    return '<span></span>';
+                }
+            },
+            {
+                type: "html",
+                data: "actions"
+            }
         ]
     });
 
-// Search for credentials
+    // Search for credentials
     $("#search-input").on("keyup change", function () {
         $("#credentials").DataTable().search($(this).val()).draw()
     });
@@ -800,15 +871,9 @@ var get_user_credentials_for_table = function (_user_credentials) {
         credentials[_key] = {};
         credentials[_key].address = _user_credentials[_key].address;
         credentials[_key].parent_address = _user_credentials[_key].parent_address;
-        credentials[_key].password = "<span data-value='" + DEFAULT_PASSWORD + "''></span>";
-        credentials[_key].context = {
-            "display": "<span data-value='" + _user_credentials[_key].context + "'></span>",
-            "plain": _user_credentials[_key].context
-        };
-        credentials[_key].username = {
-            "display": "<span data-value='" + _user_credentials[_key].username + "'></span>",
-            "plain": _user_credentials[_key].username
-        };
+        credentials[_key].password = DEFAULT_PASSWORD;
+        credentials[_key].context = _user_credentials[_key].context;
+        credentials[_key].username = _user_credentials[_key].username;
         credentials[_key].actions = '<nobr><i class="fa fa-eye" title="Show password"></i>\
 <i class="fa fa-eye-slash" style="display:none;" title="Hide password"></i>\
 <i class="fa fa-pencil" title="Edit credentials"></i>\

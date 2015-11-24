@@ -97,6 +97,9 @@ mooltipass.ui.credentials.loadCredentials = function (_status, _credentials) {
     update_data_values();
     mooltipass.ui.credentials.initializeTableActions();
 
+    // Update header
+    $("#credentials").DataTable().draw();
+
     return true;
 };
 
@@ -690,23 +693,15 @@ mooltipass.ui.credentials.init = function () {
             {
                 type: "string",
                 data: {
-                    "sort": "context",
-                    "filter": "context",
+                    "display": "span",
                     "_": "context"
-                },
-                "render": function ( data, type, full, meta ) {
-                    return '<span></span>';
                 }
             },
             {
                 type: "string",
                 data: {
-                    "sort": "username",
-                    "filter": "username",
+                    "display": "span",
                     "_": "username"
-                },
-                "render": function ( data, type, full, meta ) {
-                    return '<span></span>';
                 }
             },
             {
@@ -720,37 +715,15 @@ mooltipass.ui.credentials.init = function () {
                 type: "html",
                 data: "actions"
             }
-        ]
+        ],
+        oLanguage: {
+            sEmptyTable: "No credentials stored in your mooltipass. Add your first one below."
+        }        
     });
 
     // Search for credentials
     $("#search-input").on("keyup change", function () {
-        //$("#credentials").DataTable().search($(this).val()).draw()
-        var query = $(this).val().trim();
-
-        if(query == '') {
-            $("#credentials tbody tr").show();
-            return;
-        }
-
-        query = query.toLowerCase();
-
-        $("#credentials tbody tr").each(function() {
-            var found = false;
-            $('span.value', $(this)).each(function() {
-                if($(this).data('value').toLowerCase().indexOf(query) >= 0) {
-                    found = true;
-                    return false;
-                }
-            });
-
-            if(found) {
-                $(this).show();
-            }
-            else {
-                $(this).hide();
-            }
-        });
+        $("#credentials").DataTable().search($(this).val()).draw()
     });
     $("#search-input").on("keyup", function (e) {
         if (e.keyCode == 27) $(this).val("").trigger("change");
@@ -899,6 +872,9 @@ var get_user_credentials_for_table = function (_user_credentials) {
         credentials[_key].password = DEFAULT_PASSWORD;
         credentials[_key].context = _user_credentials[_key].context;
         credentials[_key].username = _user_credentials[_key].username;
+
+        credentials[_key].span = "<span></span>";
+
         credentials[_key].actions = '<nobr><i class="fa fa-eye" title="Show password"></i>\
 <i class="fa fa-eye-slash" style="display:none;" title="Hide password"></i>\
 <i class="fa fa-pencil" title="Edit credentials"></i>\

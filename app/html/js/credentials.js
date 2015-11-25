@@ -211,7 +211,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
             $parent = $parent.prev();
         var $this = $(this);
 
-        console.warn($parent);
+        $("td.editable", $parent).off('dblclick');
 
         // Return if already in edit mode
         if ($parent.find("input").length > 0) return;

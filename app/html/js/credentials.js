@@ -211,8 +211,6 @@ mooltipass.ui.credentials.initializeTableActions = function () {
             $parent = $parent.prev();
         var $this = $(this);
 
-        $("td.editable", $parent).off('dblclick');
-
         // Return if already in edit mode
         if ($parent.find("input").length > 0) return;
 
@@ -243,6 +241,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
                 var $description = $parent.next().find("p.description span");
 
                 $parent.addClass('edit');
+
+                $("td.editable", $parent).off('dblclick');
 
                 $app.empty().append(
                     $('<input>')
@@ -379,6 +379,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         $parent.find(".password span").text($parent.find(".password span").data('value'));
         //$parent.next().find("p.description").html(new_description).attr("data-value", new_description);
         $parent.next().find("p.description span").data('value', new_description).text(new_description);
+
+        $("td.editable", $parent).off('dblclick').on('dblclick', edit_credentials).on('dblclick', dblclick_last_500ms);
 
         e.stopPropagation();
     }

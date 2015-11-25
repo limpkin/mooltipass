@@ -12,7 +12,16 @@ mooltipass.util.strToArray = function(str)
     var buf = new Uint8Array(str.length+1);
     for (var ind=0; ind<str.length; ind++)
     {
-        buf[ind] = str.charCodeAt(ind);
+		// Don't allow unicode, replace with '?'
+		if (str.charCodeAt(ind) > 254)
+		{
+			buf[ind] = 63;
+		}
+		else
+		{
+			buf[ind] = str.charCodeAt(ind);
+		}
+        
     }
     buf[ind] = 0;
     return buf;

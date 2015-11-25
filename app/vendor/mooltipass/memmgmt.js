@@ -4257,6 +4257,11 @@ mooltipass.memmgmt.generateSavePackets = function()
 				new_node[k] = 0x00;
 			}
 			
+			// Set random CTR value
+			var temp_ctr_value = new Uint8Array(3);
+			window.crypto.getRandomValues(temp_ctr_value);
+			new_node.set(temp_ctr_value, 34);
+			
 			// Find the new parent previous and next nodes
 			var indexes = mooltipass.memmgmt.getPrevAndNextNodeIndexesForNewLoginNode(mooltipass.memmgmt.clonedCurServiceNodes[parent_node_index].address, mooltipass.memmgmt.memmgmtAddData[i].username);
 			

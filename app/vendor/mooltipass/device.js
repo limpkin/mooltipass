@@ -299,8 +299,17 @@ mooltipass.device.createPacket = function(_command, _payload) {
                         console.error('Packet size exceeded! Cannot insert complete data into one packet:', _payload);
                         break;
                     }
-
-                    bufferView[index] = _payload[i].charCodeAt(z);
+					
+					// Don't allow unicode, replace with '?'
+					if (_payload[i].charCodeAt(z) > 254)
+					{
+						bufferView[index] = 63;
+					}
+					else
+					{
+						bufferView[index] = _payload[i].charCodeAt(z);
+					}
+                    
                     index += 1;
                 }
             }

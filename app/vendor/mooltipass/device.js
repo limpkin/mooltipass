@@ -907,6 +907,11 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
                         // No more contexts
                         responseObject.code = 204;
                         responseObject.msg = "No valid context found";
+
+                        mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+                        // Process next queued request
+                        mooltipass.device.processQueue();
+                        return;
                     }
                 }
                 break;

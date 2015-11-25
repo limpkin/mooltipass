@@ -45,7 +45,7 @@ function installListener() {
     // /vendor/mooltipass/app.js is listening for incoming internal messages
     chrome.runtime.onMessageExternal.addListener(
         function(message, sender, callbackFunction) {
-            console.log('chrome.runtime.onMessageExternal(' + sender.id + '):', message);
+            //console.log('chrome.runtime.onMessageExternal(' + sender.id + '):', message);
 
             if('show' in message) {
                 launchWindow(true);
@@ -57,7 +57,7 @@ function installListener() {
             chrome.runtime.sendMessage(data, callbackFunction);
         });
 
-    console.log('Listener installed');
+    //console.log('Listener installed');
 
     _listenerInstalled = true;
 
@@ -70,7 +70,7 @@ function installListener() {
 function launchWindow(forceOpen) {
     // AppWindow is already opened -> do not open another one
     var windows = chrome.app.window.getAll();
-    console.log('Length:', windows.length);
+    //console.log('Length:', windows.length);
 
     if(windows.length > 0) {
         _forceInitialShow = false;
@@ -102,7 +102,7 @@ function reopenHiddenWindow() {
     }
 
     launchWindow();
-    console.log('launched');
+    //console.log('launched');
 }
 
 

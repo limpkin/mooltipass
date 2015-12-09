@@ -961,6 +961,25 @@ mooltipass.device.responseGetLogin = function(queuedItem, msg) {
         return;
     }
 
+    /*
+
+    2015-12-09 Login can be empty
+    var success = msg[0] == 1;
+    if(!success) {
+        responseObject.success = false;
+        responseObject.code = 302;
+        responseObject.msg = "Mooltipass device did not return a login";
+        console.error('Login not found');
+
+        mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Unblock app usage
+        mooltipass.ui._.unblockInput();
+        // Process next queued request
+        mooltipass.device.processQueue();
+        return;
+    }
+    */
+
     var username = mooltipass.device.convertMessageArrayToString(msg);
 
     params.username = username;
@@ -983,6 +1002,21 @@ mooltipass.device.responseGetPassword = function(queuedItem, msg) {
         responseObject.code = 401;
         responseObject.msg = "Context and username information not provided";
         console.error('Context and username information not provided');
+
+        mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+        // Unblock app usage
+        mooltipass.ui._.unblockInput();
+        // Process next queued request
+        mooltipass.device.processQueue();
+        return;
+    }
+
+    var success = msg[0] == 1;
+    if(!success) {
+        responseObject.success = false;
+        responseObject.code = 302;
+        responseObject.msg = "Mooltipass device did not return a password";
+        console.info('Password access denied');
 
         mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
         // Unblock app usage

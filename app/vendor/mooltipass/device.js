@@ -1010,8 +1010,7 @@ mooltipass.device.responseGetPassword = function(queuedItem, msg) {
         mooltipass.device.processQueue();
         return;
     }
-
-    var success = msg[0] == 1;
+    var success = msg[0] != 0;
     if(!success) {
         responseObject.success = false;
         responseObject.code = 302;

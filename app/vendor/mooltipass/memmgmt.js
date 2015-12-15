@@ -4321,10 +4321,6 @@ mooltipass.memmgmt.generateSavePackets = function()
 		{
 			mooltipass.memmgmt.memmgmtUpdateData[i].username = "";
 		}
-		if(mooltipass.memmgmt.memmgmtUpdateData[i].password == null)
-		{
-			mooltipass.memmgmt.memmgmtUpdateData[i].password = "";
-		}
 		if(mooltipass.memmgmt.memmgmtUpdateData[i].description == null)
 		{
 			mooltipass.memmgmt.memmgmtUpdateData[i].description = "";
@@ -4636,7 +4632,7 @@ mooltipass.memmgmt.memmgmtSave = function(callback, deleteData, updateData, addD
 		if(addData != null)
 		{
 			mooltipass.memmgmt.totalAddressesRequired = addData.length*2;
-			console.log(addData);
+			//console.log(addData);
 		}
 		else
 		{

@@ -1,7 +1,13 @@
+Todo:
+- boolean in eeprom to prevent credentials LUT populating
+- implement get password when set login is sent
+- eeprom val for key sent after the login sending
+
 V1.1:
 - post-indiegogo firmware
 - fixed user request cancelling bug
 - updating date created/used field on child node update
+- removed left out pixels in login menu (tiny bug)
 
 V1: 
 - new user tutorial

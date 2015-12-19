@@ -376,7 +376,7 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
         
         for (i = 0; i < 4; i++)
         {
-            oledFillXY((i&1)*172, 2+(i&2)*23, 84, 14, 0x00);
+            oledFillXY((i&1)*170, 2+(i&2)*23, 84, 14, 0x00);
         }
         
         // Print the next 4 services (loop is until 5 for additional checks)

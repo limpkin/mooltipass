@@ -330,6 +330,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         var old_description = $parent.next().find("p.description input").data("old");
         var new_description = $.trim($parent.next().find("p.description input").val());
 
+        var credential_item = null;
+
         // Changed at least one field
         if (old_context != new_context || old_username != new_username || old_password != new_password || old_description != new_description) {
             if(old_username != new_username || old_context != new_context) {
@@ -357,6 +359,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
                         USER_CREDENTIALS[_key].date_modified = new Date();
                     }
 
+                    credential_item = USER_CREDENTIALS[_key];
+
                     break;
                 }
             }
@@ -382,6 +386,19 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         $parent.next().find("p.description span").data('value', new_description).text(new_description);
 
         $("td.editable", $parent).off('dblclick').on('dblclick', edit_credentials).on('dblclick', dblclick_last_500ms);
+
+        // Only update table if changes were applied
+        if(credential_item != null) {
+            $('#credentials .credential-details').remove();
+
+            var _item = get_user_credentials_for_table([credential_item])[0];
+            CREDENTIALS_TABLE.fnUpdate(_item, $parent[0], undefined, true);
+
+            update_data_values();
+            mooltipass.ui.credentials.initializeTableActions();
+
+            update_details_view();
+        }
 
         e.stopPropagation();
     }
@@ -465,11 +482,11 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
             $(".active").after($tr);
 
-            $(".description", $tr).off('dblclick').on('dblclick', edit_credentials);
-            $(".description", $tr).off('dblclick').on('dblclick', dblclick_last_500ms);
-
+            $(".description span", $tr).off('dblclick')
+                .on('dblclick', edit_credentials)
+                .on('dblclick', dblclick_last_500ms);
         }
-    }
+    };
     var display_details = function (e) {
         if(mooltipass.ui.credentials.isActiveEdit()) {
             return;
@@ -479,17 +496,15 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         setTimeout(function () {
             if (RECENT_DOUBLECLICK) return;
             $(".credential-details").remove();
-            if ($this.hasClass("active")) {
-                $(".active").removeClass("active").removeClass("edit");
-            } else {
-                $(".active").removeClass("active").removeClass("edit");
+            $(".active").removeClass("active").removeClass("edit");
+            if (!$this.hasClass("active")) {
                 $this.addClass("active");
             }
             update_details_view();
         }, 300);
 
         e.stopPropagation();
-    }
+    };
     $("tbody tr").off('click').on('click', display_details);
 };
 

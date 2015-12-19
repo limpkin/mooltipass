@@ -192,6 +192,9 @@ mooltipass.ui.credentials.initializeTableActions = function () {
 
         CREDENTIALS_TABLE.fnDeleteRow($parent[0], null, true);
 
+        $('#button-placeholder').hide();
+        $('#unsaved-changes-warning').fadeIn();
+
         e.stopPropagation();
     });
 
@@ -398,6 +401,9 @@ mooltipass.ui.credentials.initializeTableActions = function () {
             mooltipass.ui.credentials.initializeTableActions();
 
             update_details_view();
+
+            $('#button-placeholder').hide();
+            $('#unsaved-changes-warning').fadeIn();
         }
 
         e.stopPropagation();
@@ -496,8 +502,11 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         setTimeout(function () {
             if (RECENT_DOUBLECLICK) return;
             $(".credential-details").remove();
-            $(".active").removeClass("active").removeClass("edit");
-            if (!$this.hasClass("active")) {
+            if ($this.hasClass("active")) {
+                $(".active").removeClass("active").removeClass("edit");
+            }
+            else {
+                $(".active").removeClass("active").removeClass("edit");
                 $this.addClass("active");
             }
             update_details_view();
@@ -548,6 +557,10 @@ mooltipass.ui.credentials.callbackMMMEnter = function (_status, _credentials) {
 
         mooltipass.device.singleCommunicationModeEntered = true;
         update_device_status_classes();
+
+        $('#button-placeholder').show();
+        $('#unsaved-changes-warning').removeClass("hide").hide();
+
         mooltipass.ui.credentials.loadCredentials(_status, _credentials);
     }
     else {
@@ -697,7 +710,7 @@ mooltipass.ui.credentials.init = function () {
     $("#import-from-csv").click(mooltipass.ui.credentials.onClickImportFromCSV);
     // TODO #MS
     // TODO Remove next line after implementing functionality
-    $("#import-from-csv").parent().html('&nbsp;');
+    $("#import-from-csv").hide();
 
 
     CREDENTIALS_TABLE = $("#credentials").dataTable({
@@ -850,6 +863,9 @@ mooltipass.ui.credentials.init = function () {
                 if (data.length > 0) {
                     CREDENTIALS_TABLE.fnAddData(data, true);
                 }
+
+                $('#button-placeholder').hide();
+                $('#unsaved-changes-warning').fadeIn();
 
                 update_data_values();
                 mooltipass.ui.credentials.initializeTableActions();

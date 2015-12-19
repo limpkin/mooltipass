@@ -9940,18 +9940,25 @@ input.inline {
 #page-credentials button.secondary:active {
   background-color: #F1BABA;
 }
+/* line 193, ../scss/app.scss */
+#page-credentials #unsaved-changes-warning {
+  margin-top: 23px;
+  text-align: right;
+  font-size: 110%;
+  color: #f04124;
+}
 
-/* line 195, ../scss/app.scss */
+/* line 202, ../scss/app.scss */
 #page-developers #resetCardCheckbox {
   margin-right: 5px;
 }
 
-/* line 201, ../scss/app.scss */
+/* line 208, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 206, ../scss/app.scss */
+/* line 213, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -9960,24 +9967,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 214, ../scss/app.scss */
+/* line 221, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 220, ../scss/app.scss */
+/* line 227, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 228, ../scss/app.scss */
+/* line 235, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 231, ../scss/app.scss */
+/* line 238, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -9989,18 +9996,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 244, ../scss/app.scss */
+/* line 251, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 248, ../scss/app.scss */
+/* line 255, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 254, ../scss/app.scss */
+/* line 261, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

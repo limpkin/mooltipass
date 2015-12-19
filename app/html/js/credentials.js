@@ -189,7 +189,8 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         }
         if ($parent.hasClass("active"))
             $(".credential-details").remove();
-        $parent.remove();
+
+        CREDENTIALS_TABLE.fnDeleteRow($parent[0], null, true);
 
         e.stopPropagation();
     });

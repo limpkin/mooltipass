@@ -68,6 +68,30 @@ options.isEmpty = function (dict) {
 }
 
 options.initBlacklist = function () {
+    $("#form-blacklist-add").submit(function(e) {
+        e.preventDefault();
+        console.log('submit');
+        var value = $('#url-blacklist-add').val().trim();
+
+        console.log('blacklist', options.blacklist);
+
+        if(value == '') {
+            return;
+        }
+
+        options.blacklist = typeof(localStorage.mpBlacklist) == 'undefined' ? {} : JSON.parse(localStorage.mpBlacklist);
+        options.blacklist[value] = true;
+        localStorage.mpBlacklist = JSON.stringify(options.blacklist);
+
+        $('#url-blacklist-add').val('');
+
+        options.showBlacklistedUrls();
+    });
+
+    options.showBlacklistedUrls();
+};
+
+options.showBlacklistedUrls = function() {
     $("#blacklisted-urls").each(function () {
 
         // get blacklist from storage, or create an empty one if none exists
@@ -76,8 +100,8 @@ options.initBlacklist = function () {
         if (options.isEmpty(options.blacklist)) {
             $("#no-blacklisted-urls").show();
             return;
-        }
-        ;
+        };
+
         $("#no-blacklisted-urls").hide();
 
         $(this).html("");
@@ -129,7 +153,7 @@ options.initBlacklist = function () {
             $('#tab-blacklist table tbody:first tr.empty:first').show();
         }
     });
-}
+};
 
 options.initCredentialList = function () {
     $("#credential-urls").each(function () {

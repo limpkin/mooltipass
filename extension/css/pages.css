@@ -1807,3 +1807,19 @@ footer .logo {
   margin-bottom: 0.45rem;
   display: inline-block;
 }
+
+#form-blacklist-add {
+  padding: 10px 5px;
+}
+
+#form-blacklist-add h2 {
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+#url-blacklist-add {
+  height: 28px;
+}
+#form-blacklist-add button {
+  width: 100%;
+}

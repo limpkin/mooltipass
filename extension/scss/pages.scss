@@ -175,5 +175,21 @@ footer {
     }
 
   }
+
+  #form-blacklist-add {
+    padding: 10px 5px;
+
+    h2 {
+      font-size: 1.1em;
+      margin-bottom: 5px;
+    }
+
+    #url-blacklist-add {
+      height: 28px;
+    }
+    button {
+      width: 100%;
+    }
+  }
 }
 

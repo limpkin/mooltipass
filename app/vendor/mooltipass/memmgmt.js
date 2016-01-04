@@ -2949,17 +2949,17 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		else if(packet[1] == mooltipass.device.commands['getPassword'])
 		{
 			mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE;
-			if(packet[2] == 0)
+			/*if(packet[2] == 0)
 			{
 				// Fail
 				console.log("Get password fail");
 				applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': false, 'code': 677, 'msg': "Request denied"}, "not valid");
 			}
 			else
-			{
+			{*/
 				//applyCallback(mooltipass.memmgmt.getPasswordCallback, null, {'success': true, 'msg': "Request approved"}, mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
 				mooltipass.memmgmt.getPasswordCallback({'success': true, 'msg': "Request approved"}, mooltipass.util.arrayToStr(packet.subarray(2, 2 + packet[0])));
-			}
+			//}
 		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_GET_FREE_ADDR || mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_GET_FREE_ADDR)

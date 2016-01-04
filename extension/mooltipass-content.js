@@ -1,6 +1,6 @@
 // contains already called method names
 var _called = {};
-var content_debug_msg = true;
+var content_debug_msg = false;
 
 var cipDebug = {};
 cipDebug.debugLog = function(message)

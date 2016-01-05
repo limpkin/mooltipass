@@ -13,6 +13,7 @@ cipDebug.debugLog = function(message)
 
 chrome.extension.onMessage.addListener(function(req, sender, callback) {
 	if ('action' in req) {
+		cipDebug.debugLog(req.action);
 		if(req.action == "fill_user_pass_with_specific_login") {
             if(cip.credentials[req.id]) {
 				var combination = null;

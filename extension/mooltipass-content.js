@@ -1,6 +1,6 @@
 // contains already called method names
 var _called = {};
-var content_debug_msg = false;
+var content_debug_msg = true;
 
 var cipDebug = {};
 cipDebug.debugLog = function(message)
@@ -1486,10 +1486,11 @@ cip.getFormActionUrl = function(combination) {
 		action = form[0].action;
 	}
 
-	if(typeof(action) != "string" || action == "") {
+	if(typeof(action) != "string" || action == "" || action.indexOf('{') > -1) {
 		action = document.location.origin + document.location.pathname;
 	}
-
+	
+	cipDebug.debugLog("action url: " + action);
 	return action;
 }
 

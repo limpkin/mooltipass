@@ -320,10 +320,22 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 		}
 		
 		// Check that the Mooltipass is unlocked
-		event.isMooltipassUnlocked();
+		var mp_unlocked = event.isMooltipassUnlocked();
 		
 		// Increment notification count
 		event.notificationCount++;
+		
+		if(mp_unlocked && password.length > 31)
+		{		
+			var noteId = 'mpPasswordTooLong.'+ event.notificationCount.toString();
+			
+			chrome.notifications.create(noteId,
+				{   type: 'basic',
+					title: 'Password Too Long!',
+					message: "We are sorry, Mooltipass only supports passwords that are less than 31 characters",
+					iconUrl: '/icons/warning_icon.png'});
+			return;
+		}
 		
 		if(subdomain == null)
 		{

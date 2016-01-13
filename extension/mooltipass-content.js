@@ -1,8 +1,19 @@
 // contains already called method names
 var _called = {};
+var content_debug_msg = true;
+
+var cipDebug = {};
+cipDebug.debugLog = function(message)
+{
+	if(content_debug_msg)
+	{
+		console.log(message);
+	}
+}
 
 chrome.extension.onMessage.addListener(function(req, sender, callback) {
 	if ('action' in req) {
+		cipDebug.debugLog(req.action);
 		if(req.action == "fill_user_pass_with_specific_login") {
             if(cip.credentials[req.id]) {
 				var combination = null;
@@ -377,6 +388,24 @@ var cipForm = {};
 
 cipForm.init = function(form, credentialFields) {
 	// TODO: could be called multiple times --> update credentialFields
+	
+	cipDebug.debugLog("cipForm init");
+	if(form.data("cipForm-initialized"))
+	{
+		cipDebug.debugLog("form initialized true");
+	}
+	else
+	{
+		cipDebug.debugLog("form initialized false");
+	}
+	if(credentialFields.password)
+	{
+		cipDebug.debugLog("cred_password: true");
+	}
+	else
+	{
+		cipDebug.debugLog("cred_password: false");
+	}	
 
 	// not already initialized && password-field is not null
 	if(!form.data("cipForm-initialized") && credentialFields.password) {
@@ -945,10 +974,12 @@ cipFields.getAllCombinations = function(inputs) {
 	var uField = null;
 	for(var i = 0; i < inputs.length; i++) {
 		if(!inputs[i] || inputs[i].length < 1) {
+			cipDebug.debugLog("input discredited:");
+			cipDebug.debugLog(inputs[i]);
 			continue;
 		}
 
-		if(inputs[i].attr("type") && inputs[i].attr("type").toLowerCase() == "password") {
+		if((inputs[i].attr("type") && inputs[i].attr("type").toLowerCase() == "password") || (inputs[i].attr("data-placeholder-type") && inputs[i].attr("data-placeholder-type").toLowerCase() == "password")){
 			var uId = (!uField || uField.length < 1) ? null : cipFields.prepareId(uField.attr("data-mp-id"));
 
 			var combination = {
@@ -970,6 +1001,7 @@ cipFields.getAllCombinations = function(inputs) {
 }
 
 cipFields.getCombination = function(givenType, fieldId) {
+	cipDebug.debugLog("cipFields.getCombination");
 	if(cipFields.combinations.length == 0) {
 		if(cipFields.useDefinedCredentialFields()) {
 			return cipFields.combinations[0];
@@ -1152,6 +1184,8 @@ cipFields.getPasswordField = function(usernameId, checkDisabled) {
 }
 
 cipFields.prepareCombinations = function(combinations) {
+	cipDebug.debugLog("prepareCombinations");
+	cipDebug.debugLog("combinations.length: " + combinations.length);
 	for(var i = 0; i < combinations.length; i++) {
 		// disable autocomplete for username field
 		if(_f(combinations[i].username)) {
@@ -1174,7 +1208,16 @@ cipFields.prepareCombinations = function(combinations) {
 			var form = field.closest("form");
 			if(form && form.length > 0) {
 				cipForm.init(form, combinations[i]);
+				cipDebug.debugLog("cipForm.init call");
 			}
+			else
+			{
+				cipDebug.debugLog("couldn't find closest form");
+			}
+		}
+		else
+		{
+			cipDebug.debugLog("field set to false");
 		}
 	}
 }
@@ -1353,17 +1396,29 @@ cip.doSubmit = function doSubmit(pass)
 
     // locate best submit option
     var forms = $(pass).closest('form');
-    if (forms.length > 0) {
+	cipDebug.debugLog("forms length: " + forms.length);
+    if (forms.length > 0) {		
+		cipDebug.debugLog($(forms[0]));
         var submits = forms.find(':submit');
+		cipDebug.debugLog("submits length: " + submits.length);
         if (submits.length > 0) {
             console.log('submitting form '+forms[0].id+' via ',submits[0]);
+			cipDebug.debugLog($(submits[0]));
             $(submits[0]).click();
         } else {
-            console.log('submitting form '+forms[0].id);
-            $(forms[0]).submit();
+            if(!$(forms[0]).action)
+			{
+				console.log("Not submitting form due to empty action");
+			}
+			else
+			{
+				console.log('submitting form '+forms[0].id);
+				$(forms[0]).submit();				
+			}
         }
     } else {
         console.log('submitting default form '+$('form').id);
+		cipDebug.debugLog($('form'));		
         $('form').submit();
     }
 }
@@ -1431,10 +1486,11 @@ cip.getFormActionUrl = function(combination) {
 		action = form[0].action;
 	}
 
-	if(typeof(action) != "string" || action == "") {
+	if(typeof(action) != "string" || action == "" || action.indexOf('{') > -1) {
 		action = document.location.origin + document.location.pathname;
 	}
-
+	
+	cipDebug.debugLog("action url: " + action);
 	return action;
 }
 

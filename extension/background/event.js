@@ -432,7 +432,7 @@ event.onMultipleFieldsPopup = function(callback, tab) {
 event.messageHandlers = {
 	'update': event.onUpdate,
 	'add_credentials': mooltipass.device.addCredentials,
-	'blacklistUrl': mooltipass.backend.blacklistUrl,
+	'blacklist_url': mooltipass.backend.handlerBlacklistUrl,
 	'alert': event.onShowAlert,
 	'get_connected_database': event.onGetConnectedDatabase,
 	'get_settings': event.onGetSettings,

@@ -74,6 +74,12 @@ mooltipass.backend.blacklistUrl = function(url) {
     mooltipass.backend._blacklist[url] = true;
     localStorage.mpBlacklist = JSON.stringify(mooltipass.backend._blacklist);
     console.log('updated blacklist store');
+};
+
+mooltipass.backend.handlerBlacklistUrl = function(callback, tab, url) {
+    console.log('backlist:', url);
+    mooltipass.backend.blacklistUrl(url);
+    callback(true);
 }
 
 /**

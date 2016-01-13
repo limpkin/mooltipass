@@ -21,11 +21,21 @@ function initSettings() {
                 url: target_url
             })
         });        
-    });    
+    });
 
     $("#btn-select-credential-fields").click(function() {
         var global = chrome.extension.getBackgroundPage();
         mooltipass.website.chooseCredentialFields();
+        close();
+    });
+
+    $("#btn-add-site-to-blacklist").click(function() {
+        chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
+            chrome.extension.sendMessage({
+                action: 'blacklist_url',
+                args: [tabs[0].url]
+            }, function() {});
+        });
         close();
     });
 }

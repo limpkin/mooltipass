@@ -1001,6 +1001,11 @@ cipFields.getAllCombinations = function(inputs) {
 			cipDebug.debugLog(inputs[i]);
 			continue;
 		}
+		else
+		{
+			cipDebug.debugLog("examining input:");
+			cipDebug.debugLog(inputs[i]);
+		}
 
 		if((inputs[i].attr("type") && inputs[i].attr("type").toLowerCase() == "password") || (inputs[i].attr("data-placeholder-type") && inputs[i].attr("data-placeholder-type").toLowerCase() == "password")){
 			var uId = (!uField || uField.length < 1) ? null : cipFields.prepareId(uField.attr("data-mp-id"));

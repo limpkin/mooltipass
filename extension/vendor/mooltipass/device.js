@@ -262,6 +262,14 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         return;
     }
 
+    if(parsed_url.domain && mooltipass.backend.isBlacklisted(parsed_url.domain)) {
+        return;
+    }
+
+    if(parsed_url.subdomain && mooltipass.backend.isBlacklisted(parsed_url.subdomain)) {
+        return;
+    }
+
     //TODO: remove obsolete parameter "context" which is replaced by "domain" (2015-07-27, wait a month)
     request = { getInputs : {context: parsed_url.domain, domain: parsed_url.domain, subdomain: parsed_url.subdomain} };
 

@@ -176,7 +176,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
       <div class="mp-ui-dialog-titlebar mp-ui-widget-header mp-ui-corner-all mp-ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="mp-ui-id-2" class="mp-ui-dialog-title">Password Generator</span></div> \
 	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
 	  <p class="mooltipass-text-right" style="margin-bottom:0.5rem !important;"><a href="" id="mooltipass-new-password">Re-generate</a><button id="mooltipass-use-as-password" class="mooltipass-button">Copy to all password fields</button></p> \
-	  <p class="mooltipass-text-right"><label><input type="checkbox" checked="checked" id="mooltipass-copy-to-clipboard" />copy password to clipboard</label></p> \
+	  <p class="mooltipass-text-right"><button id="mooltipass-copy-to-clipboard" class="mooltipass-button">Copy to clipboard</button></p> \
       ');
 
     var $dialog = mpJQ("<div>")
@@ -197,9 +197,12 @@ cipPassword.createDialog = function(inputs, $pwField) {
             });
 
             if($("#mooltipass-password-generator").val() == "") {
-                console.log('empty!');
                 $("#mooltipass-new-password").click();
             }
+
+			$("#mooltipass-copy-to-clipboard")
+				.removeClass("mooltipass-button-success")
+				.removeClass("mooltipass-button-error");
         }
     });
 
@@ -211,9 +214,9 @@ cipPassword.createDialog = function(inputs, $pwField) {
     }).trigger('click');
 
 
-    $("#mooltipass-use-as-password").click(function(e){
-        var password = $("#mooltipass-password-generator").val();
-        $("input[type='password']").val(password);
+	$("#mooltipass-use-as-password").click(function(e){
+		var password = $("#mooltipass-password-generator").val();
+		$("input[type='password']").val(password);
 
 		if($("#mooltipass-copy-to-clipboard").prop('checked')) {
 			var copyInput = document.querySelector('#mooltipass-password-generator');
@@ -229,7 +232,25 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		}
 
 		e.preventDefault();
-    });
+	});
+
+
+	$("#mooltipass-copy-to-clipboard").click(function(e){
+		var copyInput = document.querySelector('#mooltipass-password-generator');
+		copyInput.select();
+
+		try {
+			var successful = document.execCommand('copy');
+			var msg = successful ? 'successful' : 'unsuccessful';
+			console.info('Copying password to clipboard was ' + msg);
+			$(this).addClass("mooltipass-button-success");
+		} catch(err) {
+			console.warn('Unable to copy password to clipboard');
+			$(this).addClass("mooltipass-button-error");
+		}
+
+		e.preventDefault();
+	});
 
     $userField = cipFields.getUsernameField($pwField.data("mp-id"));
 

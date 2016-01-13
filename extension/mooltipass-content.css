@@ -820,6 +820,16 @@ input.mp-hover-password {
 	text-align: right !important;
 }
 
+.mooltipass-button-success,
+.mooltipass-button-success:hover {
+    background: rgba(73,257,39,0.39) !important;
+}
+
+.mooltipass-button-error,
+.mooltipass-button-error:hover {
+    background: rgba(255,40,40,0.39) !important;
+}
+
 .mp-ui-dialog p {
 	margin-bottom: 1rem !important;
 }

@@ -218,19 +218,6 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		var password = $("#mooltipass-password-generator").val();
 		$("input[type='password']").val(password);
 
-		if($("#mooltipass-copy-to-clipboard").prop('checked')) {
-			var copyInput = document.querySelector('#mooltipass-password-generator');
-			copyInput.select();
-
-			try {
-				var successful = document.execCommand('copy');
-				var msg = successful ? 'successful' : 'unsuccessful';
-				console.info('Copying password to clipboard was ' + msg);
-			} catch(err) {
-				console.warn('Unable to copy password to clipboard');
-			}
-		}
-
 		e.preventDefault();
 	});
 

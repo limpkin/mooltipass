@@ -175,7 +175,8 @@ cipPassword.createDialog = function(inputs, $pwField) {
       </div> \
       <div class="mp-ui-dialog-titlebar mp-ui-widget-header mp-ui-corner-all mp-ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="mp-ui-id-2" class="mp-ui-dialog-title">Password Generator</span></div> \
 	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
-	  <p class="mooltipass-text-right"><a href="" id="mooltipass-new-password">Re-generate</a><button id="mooltipass-use-as-password" class="mooltipass-button">Copy to all password fields</button></p> \
+	  <p class="mooltipass-text-right" style="margin-bottom:0.5rem !important;"><a href="" id="mooltipass-new-password">Re-generate</a><button id="mooltipass-use-as-password" class="mooltipass-button">Copy to all password fields</button></p> \
+	  <p class="mooltipass-text-right"><label><input type="checkbox" checked="checked" id="mooltipass-copy-to-clipboard" />copy password to clipboard</label></p> \
       ');
 
     var $dialog = mpJQ("<div>")
@@ -213,7 +214,21 @@ cipPassword.createDialog = function(inputs, $pwField) {
     $("#mooltipass-use-as-password").click(function(e){
         var password = $("#mooltipass-password-generator").val();
         $("input[type='password']").val(password);
-        e.preventDefault();
+
+		if($("#mooltipass-copy-to-clipboard").prop('checked')) {
+			var copyInput = document.querySelector('#mooltipass-password-generator');
+			copyInput.select();
+
+			try {
+				var successful = document.execCommand('copy');
+				var msg = successful ? 'successful' : 'unsuccessful';
+				console.info('Copying password to clipboard was ' + msg);
+			} catch(err) {
+				console.warn('Unable to copy password to clipboard');
+			}
+		}
+
+		e.preventDefault();
     });
 
     $userField = cipFields.getUsernameField($pwField.data("mp-id"));

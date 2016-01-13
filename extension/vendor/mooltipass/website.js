@@ -63,14 +63,6 @@ mooltipass.website.chooseCredentialFields = function() {
 	});	
 }
 
-mooltipass.website.chooseCredentialFields = function() {
-    var global = chrome.extension.getBackgroundPage();
-
-    chrome.tabs.sendMessage(global.page.currentTabId, {
-        action: "choose_credential_fields"
-    }); 
-}
-
 mooltipass.website.reportError = function(callback) {
     var global = chrome.extension.getBackgroundPage();
     chrome.tabs.sendMessage(global.page.currentTabId, {

@@ -71,6 +71,28 @@ mooltipass.backend.isBlacklisted = function(url) {
  */
 mooltipass.backend.blacklistUrl = function(url) {
     console.log('got blacklist req. for', url);
+
+    if(url.indexOf('://') > -1) {
+        var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);
+        var subdomain;
+        var domain;
+
+        // See if our script detected a valid domain & subdomain
+        if(!parsed_url.valid)
+        {
+            console.error('Invalid URL for blacklisting given:', url);
+            return;
+        }
+
+        domain = parsed_url.domain;
+        subdomain = parsed_url.subdomain;
+
+        url = domain;
+        if(subdomain != null) {
+            url = subdomain;
+        }
+    }
+
     mooltipass.backend._blacklist[url] = true;
     localStorage.mpBlacklist = JSON.stringify(mooltipass.backend._blacklist);
     console.log('updated blacklist store');

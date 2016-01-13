@@ -445,6 +445,7 @@ event.messageHandlers = {
 	'update': event.onUpdate,
 	'add_credentials': mooltipass.device.addCredentials,
 	'blacklist_url': mooltipass.backend.handlerBlacklistUrl,
+	'blacklistUrl': mooltipass.backend.blacklistUrl,
 	'alert': event.onShowAlert,
 	'get_connected_database': event.onGetConnectedDatabase,
 	'get_settings': event.onGetSettings,

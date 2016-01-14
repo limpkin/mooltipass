@@ -12,7 +12,7 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
 
 
 mooltipass.website.generatePassword = function(length, callback) {
-    console.log('mooltipass.website.generatePassword()');
+    //console.log('mooltipass.website.generatePassword()');
     // Return a random password with given length
     chrome.extension.sendMessage({
         action: 'generate_password',

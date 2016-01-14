@@ -129,7 +129,7 @@ cipPassword.init = function() {
 }
 
 cipPassword.initField = function(field, inputs, pos) {
-    console.log("init pw field");
+    cipDebug.debugLog("init pw field");
     if(!field || field.length != 1) {
 		return;
 	}
@@ -263,7 +263,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
     });
 
     $("#mooltipass-select-custom").click(function(){
-        console.log("mooltipass-select-custom");
+        cipDebug.debugLog("mooltipass-select-custom");
         cipDefine.init();
     });
 }
@@ -934,7 +934,7 @@ cipFields.prepareId = function(id) {
 }
 
 cipFields.getAllFields = function() {
-	//console.log('field call!');
+	//cipDebug.debugLog('field call!');
 	var fields = [];
 	// get all input fields which are text, email or password and visible
 	mpJQ(cipFields.inputQueryPattern).each(function() {
@@ -944,7 +944,7 @@ cipFields.getAllFields = function() {
         if(cipFields.isAvailableField(this)) {
 			cipFields.setUniqueId(mpJQ(this));
 			fields.push(mpJQ(this));
-			//console.log('field detection!', mpJQ(this));
+			//cipDebug.debugLog('field detection!', mpJQ(this));
 		}
 	});
 
@@ -1308,7 +1308,7 @@ cip.init = function() {
 		"action": "get_settings",
 	}, function(response) {
 		cip.settings = response.data;
-        console.log(cip.settings.status);
+        cipDebug.debugLog(cip.settings.status);
         if (cip.settings.status.unlocked) cip.initCredentialFields();
 		
 	});
@@ -1321,7 +1321,7 @@ cip.initCredentialFields = function(forceCall) {
 	_called.initCredentialFields = true;
 
 	var inputs = cipFields.getAllFields();
-    console.log('initCredentialFields():', inputs.length, 'input fields found');
+    cipDebug.debugLog('initCredentialFields():', inputs.length, 'input fields found');
 
     cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 
@@ -1408,7 +1408,7 @@ cip.checkForNewInputs = function() {
 
 
     if(hash != cip.visibleInputsHash) {
-        //console.log(fields.length, cip.visibleInputsHash);
+        //cipDebug.debugLog(fields.length, cip.visibleInputsHash);
         cip.initCredentialFields(true);
     }
 }
@@ -1420,7 +1420,7 @@ cip.doSubmit = function doSubmit(pass)
 {
     cip.trapSubmit = false; // don't trap this submit, let it through
 
-    console.log('doSubmit: pass field');
+    cipDebug.debugLog('doSubmit: pass field');
 
     // locate best submit option
     var forms = $(pass).closest('form');
@@ -1430,29 +1430,29 @@ cip.doSubmit = function doSubmit(pass)
         var submits = forms.find(':submit');
 		cipDebug.debugLog("submits length: " + submits.length);
         if (submits.length > 0) {
-            console.log('submitting form '+forms[0].id+' via ',submits[0]);
+            cipDebug.debugLog('submitting form '+forms[0].id+' via ',submits[0]);
 			cipDebug.debugLog($(submits[0]));
             $(submits[0]).click();
         } else {
             if(!$(forms[0]).action)
 			{
-				console.log("Not submitting form due to empty action");
+				cipDebug.debugLog("Not submitting form due to empty action");
 			}
 			else
 			{
-				console.log('submitting form '+forms[0].id);
+				cipDebug.debugLog('submitting form '+forms[0].id);
 				$(forms[0]).submit();				
 			}
         }
     } else {
-        console.log('submitting default form '+$('form').id);
+        cipDebug.debugLog('submitting default form '+$('form').id);
 		cipDebug.debugLog($('form'));		
         $('form').submit();
     }
 }
 
 cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
-	console.log('cip.retrieveCredentialsCallback()')
+	cipDebug.debugLog('cip.retrieveCredentialsCallback()')
 
     if (cipFields.combinations.length > 0) {
 		cip.u = _f(cipFields.combinations[0].username);
@@ -1465,7 +1465,7 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 		cip.prepareFieldsForCredentials(!Boolean(dontAutoFillIn));
 
         if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput) {
-            console.log('do-submit');
+            cipDebug.debugLog('do-submit');
 
             cip.doSubmit(cip.p);
         }
@@ -1473,7 +1473,7 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 }
 
 cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
-    console.log('cip.prepareFieldsForCredentials()');
+    cipDebug.debugLog('cip.prepareFieldsForCredentials()');
 
 	// only one login returned by mooltipass
     var combination = null;
@@ -1558,7 +1558,7 @@ cip.fillInCredentials = function(combination, onlyPassword, suppressWarnings) {
 			'action': 'retrieve_credentials',
 			'args': [ cip.url, cip.submitUrl, false, true ]
 		}, function(credentials) {
-            console.log('cip.fillInCredentials()');
+            cipDebug.debugLog('cip.fillInCredentials()');
 			cip.retrieveCredentialsCallback(credentials, true);
 			cip.fillIn(combination, onlyPassword, suppressWarnings);
 		});
@@ -1638,7 +1638,7 @@ cip.setValue = function(field, value) {
 }
 
 cip.fillInStringFields = function(fields, StringFields, filledInFields) {
-    console.log('cip.fillInStringFields()');
+    cipDebug.debugLog('cip.fillInStringFields()');
 	var $filledIn = false;
 
     filledInFields.list = [];
@@ -1844,16 +1844,16 @@ cip.contextMenuRememberCredentials = function() {
 
 
 cip.rememberCredentials = function(event, usernameField, usernameValue, passwordField, passwordValue) {
-    console.log('rememberCredentials()');
+    cipDebug.debugLog('rememberCredentials()');
 	// no password given or field cleaned by a site-running script
 	// --> no password to save
 	if(passwordValue == "") {
-        console.log('rememberCredentials() no password value');
+        cipDebug.debugLog('rememberCredentials() no password value');
 		return false;
 	}
 
     if (!cip.trapSubmit) {
-        console.log('rememberCredentials() trap disabled');
+        cipDebug.debugLog('rememberCredentials() trap disabled');
         cip.trapSubmit = true;
         return false;
     }
@@ -1901,7 +1901,7 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 			}
 		}
 		
-		console.log('rememberCredentials - sending update_notify');
+		cipDebug.debugLog('rememberCredentials - sending update_notify');
 		chrome.extension.sendMessage({
 			'action': 'update_notify',
 			'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
@@ -1909,7 +1909,7 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 
 		return true;
 	} else {
-        console.log('rememberCredentials - nothing changed');
+        cipDebug.debugLog('rememberCredentials - nothing changed');
     }
 
 	return false;

@@ -220,32 +220,52 @@ event.isMooltipassUnlocked = function()
 			console.log('Not showing a notification as they are disabled');
 			return false;
 		}
-		else
-		{
-			// Increment notification count
-			event.notificationCount++;
-			var noteId = 'mpNotUnlocked.'+event.notificationCount.toString();
-		}
 	}
-	
+
+	// Increment notification count
+	event.notificationCount++;
+	var noteId = 'mpNotUnlocked.'+event.notificationCount.toString();
+
+	// Check that the Mooltipass app is installed and enabled
+	if (!mooltipass.device._app || mooltipass.device._app['enabled'] !== true)
+	{
+		console.log('notify: mooltipass app not ready');
+
+		noteId = "mpNotUnlockedStaticMooltipassAppNotReady";
+
+		// Create notification to inform user
+		chrome.notifications.create(noteId,
+			{   type: 'basic',
+				title: 'Mooltipass App not ready!',
+				message: 'The Mooltipass app is not installed or enabled',
+				iconUrl: '/icons/warning_icon.png',
+				buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
+
+		return false;
+	}
+
 	// Check that our device actually is connected
 	if (mooltipass.device._status.state == 'NotConnected')
 	{
 		console.log('notify: device not connected');
 
+		noteId = "mpNotUnlockedStaticMooltipassNotConnected";
+
 		// Create notification to inform user
 		chrome.notifications.create(noteId,
-				{   type: 'basic',
-					title: 'Mooltipass Not Connected!',
-					message: 'Please Connect Your Mooltipass',
-					iconUrl: '/icons/warning_icon.png',
-					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
-					
+			{   type: 'basic',
+				title: 'Mooltipass Not Connected!',
+				message: 'Please Connect Your Mooltipass',
+				iconUrl: '/icons/warning_icon.png',
+				buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
+
 		return false;
 	}
 	else if (mooltipass.device._status.state == 'Locked')
 	{
 		console.log('notify: device locked');
+
+		noteId = "mpNotUnlockedStaticMooltipassDeviceLocked";
 
 		// Create notification to inform user
 		chrome.notifications.create(noteId,
@@ -261,6 +281,8 @@ event.isMooltipassUnlocked = function()
 	{
 		console.log('notify: device without card');
 
+		noteId = "mpNotUnlockedStaticMooltipassDeviceWithoutCard";
+
 		// Create notification to inform user
 		chrome.notifications.create(noteId,
 				{   type: 'basic',
@@ -274,6 +296,8 @@ event.isMooltipassUnlocked = function()
 	else if (mooltipass.device._status.state == 'ManageMode')
 	{
 		console.log('notify: management mode');
+
+		noteId = "mpNotUnlockedStaticMooltipassDeviceInManagementMode";
 
 		// Create notification to inform user
 		chrome.notifications.create(noteId,

@@ -80,6 +80,9 @@ mooltipass.device.onSearchForApp = function(ext) {
     var foundApp = false;
     for (var i = 0; i < ext.length; i++) {
         if (ext[i].shortName == mooltipass.device._appName) {
+            if(ext[i]['enabled'] !== true) {
+                continue;
+            }
             mooltipass.device._app = ext[i];
             foundApp = true;
             break;

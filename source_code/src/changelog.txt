@@ -2,6 +2,7 @@ Todo:
 - boolean in eeprom to prevent credentials LUT populating
 - implement get password when set login is sent
 - eeprom val for key sent after the login sending
+- display description when choosing user
 
 V1.1:
 - post-indiegogo firmware

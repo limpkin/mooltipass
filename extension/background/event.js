@@ -237,7 +237,7 @@ event.isMooltipassUnlocked = function()
 		chrome.notifications.create(noteId,
 			{   type: 'basic',
 				title: 'Mooltipass App not ready!',
-				message: 'The Mooltipass app is not installed or enabled',
+				message: 'The Mooltipass app is not installed or disabled',
 				iconUrl: '/icons/warning_icon.png',
 				buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
 

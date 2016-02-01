@@ -194,6 +194,9 @@ event.onNotifyButtonClick = function(id, buttonIndex)
 		}
 		delete event.mpUpdate[id];		
 	}
+
+	// Close notification
+	chrome.notifications.clear(id);
 }
 
 event.onNotifyClosed = function(id) {

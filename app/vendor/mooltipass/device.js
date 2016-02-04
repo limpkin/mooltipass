@@ -838,7 +838,7 @@ mooltipass.device.responseSetMooltipassParameter = function(queuedItem, msg) {
 };
 
 mooltipass.device.responseGetMooltipassUID = function(queuedItem, msg) {
-    var success = msg[0] == 1;
+    var success = msg[0] != 0;
 
     var responseObject = {
         'command': queuedItem.command,

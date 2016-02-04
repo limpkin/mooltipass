@@ -353,6 +353,24 @@ mooltipass.device.convertMessageArrayToString = function(uint8Array) {
 };
 
 /**
+ * Convert a uint8 array to HEX-String
+ * @param uint8Array the array to convert
+ * @return hex string representation of the array
+ * @note does not support unicode yet
+ */
+mooltipass.device.convertMessageArrayToHex = function(uint8Array) {
+    var output = '';
+    for (var i=0; i < uint8Array.length; i++) {
+        if (uint8Array[i] == 0) {
+            return output;
+        }
+        else {
+            output += parseInt(uint8Array[i], 2).toString(16);
+    }
+    return output;
+};
+
+/**
  * Start single communication mode
  * e.g. for MemoryManagementMode
  * @param reason for entering the mode (e.g. memorymanagementmode)
@@ -847,7 +865,7 @@ mooltipass.device.responseGetMooltipassUID = function(queuedItem, msg) {
     };
 
     if(success) {
-        responseObject['value'] = mooltipass.device.convertMessageArrayToString(msg);
+        responseObject['value'] = mooltipass.device.convertMessageArrayToHex(msg);
     }
     else {
         responseObject['code'] = 602;

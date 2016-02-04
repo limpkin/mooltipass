@@ -827,6 +827,28 @@ mooltipass.device.responseSetMooltipassParameter = function(queuedItem, msg) {
     mooltipass.device.processQueue();
 };
 
+mooltipass.device.responseGetMooltipassUID = function(queuedItem, msg) {
+    var success = msg[0] == 1;
+
+    var responseObject = {
+        'command': queuedItem.command,
+        'payload': queuedItem.payload,
+        'success': success
+    };
+
+    if(success) {
+        responseObject['value'] = mooltipass.device.convertMessageArrayToString(msg);
+    }
+    else {
+        responseObject['code'] = 602;
+        responseObject['msg'] = 'could not fetch UID with given password';
+    }
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
 mooltipass.device.responseSetContext = function(queuedItem, msg) {
     var params = queuedItem.responseParameters;
 

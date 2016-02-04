@@ -48,7 +48,7 @@ mooltipass.device.interface.send = function(inputObject) {
         return;
     }
 
-    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassParameter', 'setMooltipassParameter', 'getMooltipassStatus', 'startSingleCommunicationMode', 'resetCard'], inputObject.command)) {
+    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassParameter', 'setMooltipassParameter', 'getMooltipassStatus', 'getMooltipassUID', 'startSingleCommunicationMode', 'resetCard'], inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 71, 'device is locked');
         return;
     }
@@ -291,6 +291,18 @@ mooltipass.device.interface._updateCredentials = function(inputObject) {
         'setContext',
         [context],
         {'context': context, 'username': username, 'password': password, 'requestType': 'updateCredentials'},
+        inputObject.callbackFunction,
+        inputObject.callbackParameters,
+        inputObject.timeout
+    );
+};
+
+
+mooltipass.device.interface._getMooltipassUID = function(inputObject) {
+    mooltipass.device.addToQueue(
+        inputObject.command,
+        [inputObject.password],
+        inputObject.responseParameters,
         inputObject.callbackFunction,
         inputObject.callbackParameters,
         inputObject.timeout

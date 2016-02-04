@@ -29,7 +29,7 @@ mooltipass.app.init = function() {
     mooltipass.ui.credentials.init();
     mooltipass.ui.sync.init();
     mooltipass.ui.developers.init();
-    mooltipass.ui.easteregg.init();
+    mooltipass.ui.experts.init();
     mooltipass.ui.contributors.init();
 
     mooltipass.prefstorage.getStoredPreferences(mooltipass.memmgmt.preferencesCallback);

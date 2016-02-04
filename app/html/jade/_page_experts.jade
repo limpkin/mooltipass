@@ -1,0 +1,28 @@
+#page-experts.page
+    include _not_connected_error.jade
+    include _not_card_error.jade
+    include _in_mmm_error.jade
+
+    .show-if-connected.show-if-card.hide-if-mmm
+        .row
+            .column.small-12
+                h1 Other Functionalities
+                p Additional functions to interact with your Mooltipass device.
+
+        .row.margin-bottom
+            .column.small-3
+                h3 UID Check
+            .column.small-9
+                p To be sure that no one tampered with your Mooltipass device, you can request a password which will allow you to fetch the UID of your device.
+                ol
+                    li Get the serial number from the back of your device
+                    li
+                        a#experts-request-uid-password(href="#") Send us an e-mail
+                        | &nbsp;with your serial number requesting the password
+                    li Enter the password you received from us:
+                        div.nowrap
+                            input#experts-uid-password(type="text", class="inline-uid", maxlength=32)
+                            button#experts-uid-submit.small Submit
+                    li Check the response:
+                        div#experts-uid-response.comment Waiting for submit
+

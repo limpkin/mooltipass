@@ -1,33 +1,35 @@
 nav.top-bar(data-topbar, role="navigation")
-  section.top-bar-section
-    ul.right
-      li
-        a(href="#", mp-open-page="about") 
-          span Mooltipass
-          img(src="../images/icons/Plain_128.png")
+    section.top-bar-section
+        ul.right
+            li
+                a(href="#", mp-open-page="about")
+                    span Mooltipass
+                    img(src="../images/icons/Plain_128.png")
 
-    ul.left
-      li
-        .lock.show-if-connected.show-if-card.show-if-unlocked.show-if-mmm.tipster(title="Save or discard your changes first.")
-        a(href="#", mp-open-page="settings")
-          i.fa.fa-wrench 
-          span &nbsp; Device Settings
-      li
-        a(href="#", mp-open-page="credentials")
-          i.fa.fa-key 
-          span &nbsp; Credentials          
-      li.active
-        .lock.show-if-connected.show-if-card.show-if-unlocked.show-if-mmm.tipster(title="Save or discard your changes first.")
-        a(href="#", mp-open-page="synchronisation")
-          i.fa.fa-refresh
-          span &nbsp; Synchronisation          
-      li(mp-show-for-hotkey="68,73,76,17")
-        //Ctrl + L + I + D
-        a(href="#", mp-open-page="developers")
-          i.fa.fa-desktop 
-          span &nbsp; Developers      
-      li(mp-show-for-hotkey="77,73,76,17")
-        //Ctrl + L + I + M
-        a(href="#", mp-open-page="experts")
-          i.fa.fa-user-secret
-          span &nbsp; Others
+        ul.left
+            li
+                .lock.show-if-connected.show-if-card.show-if-unlocked.show-if-mmm.tipster(title="Save or discard your changes first.")
+                a(href="#", mp-open-page="settings")
+                    i.fa.fa-wrench
+                    span &nbsp; Device Settings
+            li
+                a(href="#", mp-open-page="credentials")
+                    i.fa.fa-key
+                    span &nbsp; Credentials
+            li.active
+                .lock.show-if-connected.show-if-card.show-if-unlocked.show-if-mmm.tipster(title="Save or discard your changes first.")
+                a(href="#", mp-open-page="synchronisation")
+                    i.fa.fa-refresh
+                    span &nbsp; Synchronisation
+            li(mp-show-for-hotkey="68,73,76,17")
+                .lock.show-if-connected.show-if-card.show-if-unlocked.show-if-mmm.tipster(title="Save or discard your changes first.")
+                //Ctrl + L + I + D
+                a(href="#", mp-open-page="developers")
+                    i.fa.fa-desktop
+                    span &nbsp; Developers
+            li(mp-show-for-hotkey="77,73,76,17")
+                .lock.show-if-connected.show-if-card.show-if-unlocked.show-if-mmm.tipster(title="Save or discard your changes first.")
+                //Ctrl + L + I + M
+                a(href="#", mp-open-page="experts")
+                    i.fa.fa-user-secret
+                    span &nbsp; Others

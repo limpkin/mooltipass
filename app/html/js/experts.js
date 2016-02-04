@@ -47,8 +47,6 @@ mooltipass.ui.experts.init = function () {
             'callbackFunction': function(_response) {
                 $("#experts-uid-submit").removeClass("disabled").prop('disabled', false);
                 $input.removeClass("disabled").prop('disabled', false);
-                _response.success = true;
-                _response.value = "e9 a3 bb c7 f2 da";
                 if(_response.success) {
                     $response.addClass('success').html('Your device UID is:&nbsp;&nbsp;&nbsp;' + _response.value.toUpperCase());
                 }

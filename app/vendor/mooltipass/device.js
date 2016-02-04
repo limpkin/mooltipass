@@ -258,6 +258,16 @@ mooltipass.device.onConnectFinished = function(connectInfo) {
  * @returns {ArrayBuffer}
  */
 mooltipass.device.createPacket = function(_command, _payload) {
+    if(_command == mooltipass.device.commands['getMooltipassUID']) {
+        var tempPayload = new Uint8Array(16);
+        for(var i = 0; i < _payload[0].length; i+= 2)
+        {
+            tempPayload[i/2] = parseInt(_payload[0].substr(i, 2), 16);
+        }
+
+        _payload = tempPayload;
+    }
+
     var buffer = new ArrayBuffer(mooltipass.device.packetSize);
     var bufferView = new Uint8Array(buffer);
 

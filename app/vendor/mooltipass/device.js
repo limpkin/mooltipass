@@ -358,16 +358,17 @@ mooltipass.device.convertMessageArrayToString = function(uint8Array) {
  * @return hex string representation of the array
  * @note does not support unicode yet
  */
-mooltipass.device.convertMessageArrayToHex = function(uint8Array) {
+mooltipass.device.convertMessageArrayToHexString = function(uint8Array) {
     var output = '';
     for (var i=0; i < uint8Array.length; i++) {
         if (uint8Array[i] == 0) {
             return output;
         }
         else {
-            output += parseInt(uint8Array[i], 2).toString(16);
+            output += parseInt(uint8Array[i]).toString(16) + ' ';
+        }
     }
-    return output;
+    return output.toUpperCase().trim();
 };
 
 /**
@@ -865,7 +866,7 @@ mooltipass.device.responseGetMooltipassUID = function(queuedItem, msg) {
     };
 
     if(success) {
-        responseObject['value'] = mooltipass.device.convertMessageArrayToHex(msg);
+        responseObject['value'] = mooltipass.device.convertMessageArrayToHexString(msg);
     }
     else {
         responseObject['code'] = 602;

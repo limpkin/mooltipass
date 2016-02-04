@@ -45,7 +45,6 @@ mooltipass.ui.experts.init = function () {
             'callbackFunction': mooltipass.ui.sync.callbackImportMediaBundle,
             'password': value,
             'callbackFunction': function(_response) {
-                console.log(_response);
                 $("#experts-uid-submit").removeClass("disabled").prop('disabled', false);
                 $input.removeClass("disabled").prop('disabled', false);
                 if(_response.success) {

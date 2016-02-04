@@ -368,7 +368,7 @@ mooltipass.device.convertMessageArrayToHexString = function(uint8Array) {
             output += parseInt(uint8Array[i]).toString(16) + ' ';
         }
     }
-    return output.toUpperCase().trim();
+    return output.trim();
 };
 
 /**

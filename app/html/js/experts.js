@@ -36,12 +36,18 @@ mooltipass.ui.experts.init = function () {
             return;
         }
 
+        $("#experts-uid-submit").addClass("disabled").prop('disabled', true);
+        $input.addClass("disabled").prop('disabled', true);
+        $response.text('Waiting for response');
+
         mooltipass.device.interface.send({
             'command': 'getMooltipassUID',
             'callbackFunction': mooltipass.ui.sync.callbackImportMediaBundle,
             'password': value,
             'callbackFunction': function(_response) {
                 console.log(_response);
+                $("#experts-uid-submit").removeClass("disabled").prop('disabled', false);
+                $input.removeClass("disabled").prop('disabled', false);
                 if(_response.success) {
                     $response.addClass('success').text(_response.value);
                 }

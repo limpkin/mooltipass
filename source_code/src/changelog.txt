@@ -3,6 +3,8 @@ Todo:
 - implement get password when set login is sent
 - eeprom val for key sent after the login sending
 - display description when choosing user
+- display aes(bootloader_pwd) with user nonce when card inserted
+- allow pin entering through usb comms?
 
 V1.1:
 - post-indiegogo firmware

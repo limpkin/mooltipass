@@ -25,7 +25,7 @@ options.initGeneralSettings = function () {
         options.settings[$(this).attr("name")] = $(this).is(':checked');
         localStorage.settings = JSON.stringify(options.settings);
 
-        chrome.extension.sendMessage({
+        chrome.runtime.sendMessage({
             action: 'load_settings'
         });
     });
@@ -40,7 +40,7 @@ options.initGeneralSettings = function () {
         options.settings[$(this).attr("name")] = $(this).val();
         localStorage.settings = JSON.stringify(options.settings);
 
-        chrome.extension.sendMessage({
+        chrome.runtime.sendMessage({
             action: 'load_settings'
         });
     });
@@ -114,7 +114,7 @@ options.showBlacklistedUrls = function() {
             var url = $(this).closest('tr').attr('data-url');
             delete options.blacklist[url];
             localStorage.mpBlacklist = JSON.stringify(options.blacklist);
-            chrome.extension.sendMessage({action: 'load_settings'});
+            chrome.runtime.sendMessage({action: 'load_settings'});
 
             $(this).closest('tr').remove();
 
@@ -130,7 +130,7 @@ options.showBlacklistedUrls = function() {
             $('#tab-blacklist #' + id).remove();
             delete options.blacklist[url];
             localStorage.mpBlacklist = JSON.stringify(options.blacklist);
-            chrome.extension.sendMessage({action: 'load_settings'});
+            chrome.runtime.sendMessage({action: 'load_settings'});
         });
 
         var trClone = $("#tab-blacklist table tr.clone:first").clone(true);
@@ -178,7 +178,7 @@ options.initCredentialList = function () {
 
             delete options.settings["defined-credential-fields"][url];
             localStorage.settings = JSON.stringify(options.settings);
-            chrome.extension.sendMessage({action: 'load_settings'});
+            chrome.runtime.sendMessage({action: 'load_settings'});
 
             $(this).closest('tr').remove();
 
@@ -220,7 +220,7 @@ options.initPasswordGeneratorSettings = function () {
         options.settings[$(this).attr("name")] = $(this).val();
         localStorage.settings = JSON.stringify(options.settings);
 
-        chrome.extension.sendMessage({
+        chrome.runtime.sendMessage({
             action: 'load_settings'
         });
     });

@@ -39,21 +39,21 @@ function status_response(r) {
 
 $(function() {
 	$("#connect-button").click(function() {
-		chrome.extension.sendMessage({
+		chrome.runtime.sendMessage({
 			action: "associate"
 		});
 		close();
 	});
 
 	$("#reconnect-button").click(function() {
-		chrome.extension.sendMessage({
+		chrome.runtime.sendMessage({
 			action: "associate"
 		});
 		close();
 	});
 
 	$("#reload-status-button").click(function() {
-		chrome.extension.sendMessage({
+		chrome.runtime.sendMessage({
 			action: "get_status"
 		}, status_response);
 	});
@@ -81,7 +81,7 @@ $(function() {
 			});
 		});
 
-	chrome.extension.sendMessage({
+	chrome.runtime.sendMessage({
 		action: "get_status"
 	}, status_response);
 });

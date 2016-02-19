@@ -31,7 +31,7 @@ function initSettings() {
 
     $("#btn-add-site-to-blacklist").click(function() {
         chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-            chrome.extension.sendMessage({
+            chrome.runtime.sendMessage({
                 action: 'blacklist_url',
                 args: [tabs[0].url]
             }, function() {});
@@ -41,7 +41,7 @@ function initSettings() {
 }
 
 function updateStatusInfo() {
-    chrome.extension.sendMessage({
+    chrome.runtime.sendMessage({
         action: "get_status"
     }, function(object) {
         $('#status-bar .status > span').hide();

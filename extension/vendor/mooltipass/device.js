@@ -294,7 +294,7 @@ chrome.management.getAll(mooltipass.device.onSearchForApp);
 /**
  * Process messages from content scripts
  */
-chrome.extension.onMessage.addListener(function(req, sender, callback) {
+chrome.runtime.onMessage.addListener(function(req, sender, callback) {
     if ('action' in req) {
         if(req.action == "mooltipass.device.addCredentials") {
             mooltipass.device.addCredentials(callback, sender.tab, req.username, req.password, req.url);

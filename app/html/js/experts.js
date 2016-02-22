@@ -20,40 +20,88 @@ mooltipass.ui.experts.init = function () {
         }
     })
 
-    $("#experts-uid-submit").click(function (e) {
-        e.preventDefault();
+    $("#experts-uid-submit").click(mooltipass.ui.experts.onClickUIDSubmit);
+    $("#experts-import-csv-file").click(mooltipass.ui.experts.onClickImportCSVFile);
+};
 
-        var $input = $('#experts-uid-password');
-        var value = $input.val().trim();
-        var $response = $('#experts-uid-response');
+mooltipass.ui.experts.onClickUIDSubmit = function (e) {
+    e.preventDefault();
 
-        $response.removeClass('success').removeClass('alert');
+    var $input = $('#experts-uid-password');
+    var value = $input.val().trim();
+    var $response = $('#experts-uid-response');
 
-        if(value.length != 32) {
-            $response.addClass('alert');
-            $response.text('Invalid password');
-            $input.focus();
-            return;
-        }
+    $response.removeClass('success').removeClass('alert');
 
-        $("#experts-uid-submit").addClass("disabled").prop('disabled', true);
-        $input.addClass("disabled").prop('disabled', true);
-        $response.text('Waiting for response');
+    if(value.length != 32) {
+        $response.addClass('alert');
+        $response.text('Invalid password');
+        $input.focus();
+        return;
+    }
 
-        mooltipass.device.interface.send({
-            'command': 'getMooltipassUID',
-            'callbackFunction': mooltipass.ui.sync.callbackImportMediaBundle,
-            'password': value,
-            'callbackFunction': function(_response) {
-                $("#experts-uid-submit").removeClass("disabled").prop('disabled', false);
-                $input.removeClass("disabled").prop('disabled', false);
-                if(_response.success) {
-                    $response.addClass('success').html('Your device UID is:&nbsp;&nbsp;&nbsp;' + _response.value.toUpperCase());
-                }
-                else {
-                    $response.addClass('alert').text('Could not fetch the UID from device. Maybe the password is wrong?');
-                }
+    $("#experts-uid-submit").addClass("disabled").prop('disabled', true);
+    $input.addClass("disabled").prop('disabled', true);
+    $response.text('Waiting for response');
+
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassUID',
+        'callbackFunction': mooltipass.ui.sync.callbackImportMediaBundle,
+        'password': value,
+        'callbackFunction': function(_response) {
+            $("#experts-uid-submit").removeClass("disabled").prop('disabled', false);
+            $input.removeClass("disabled").prop('disabled', false);
+            if(_response.success) {
+                $response.addClass('success').html('Your device UID is:&nbsp;&nbsp;&nbsp;' + _response.value.toUpperCase());
             }
-        });
+            else {
+                $response.addClass('alert').text('Could not fetch the UID from device. Maybe the password is wrong?');
+            }
+        }
     });
+}
+
+mooltipass.ui.experts.onClickImportCSVFile = function(e) {
+    e.preventDefault();
+
+    if(!mooltipass.ui._.isDeviceUnlocked()) {
+        mooltipass.ui.status.error($(this), 'The device has to be unlocked.');
+        return;
+    }
+
+    if(mooltipass.ui._.isDeviceInMMM()) {
+        mooltipass.ui.status.error($(this), 'The device is not allowed to be in MemoryManagementMode for this function.');
+        return;
+    }
+
+    setTimeout(function(){
+        $("#modal-confirm-on-device").show();
+    }, 200);
+
+    mooltipass.device.interface.send({
+        'command': 'startSingleCommunicationMode',
+        'callbackFunction': mooltipass.ui.experts.callbackImportFromCSVFile,
+        'reason': 'synchronisationmode',
+        'callbackFunctionStart': function() {
+            mooltipass.device.singleCommunicationModeEntered = true;
+            mooltipass.memmgmt.mergeCsvCredentialFileToMooltipassStart(mooltipass.ui.experts.callbackImportFromCSVFile);
+        }
+    });
+};
+
+mooltipass.ui.experts.callbackImportFromCSVFile = function(_status) {
+    var $button = $("#experts-import-csv-file");
+
+    console.log(_status);
+
+    if(_status.success) {
+        mooltipass.ui.status.success($button, _status.msg);
+    }
+    else {
+        mooltipass.ui.status.error($button, _status.msg);
+    }
+
+    $("#modal-confirm-on-device").hide();
+
+    mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };

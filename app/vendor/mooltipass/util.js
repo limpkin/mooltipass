@@ -1,6 +1,74 @@
 var mooltipass = mooltipass || {};
 mooltipass.util = mooltipass.util || {};
 
+mooltipass.util.extractDomainAndSubdomain = function (url) {
+    var url_valid;
+    var domain = null;
+    var subdomain = null;
+
+    url = url.replace('www.', 'wWw.');
+    console.log("Parsing ", url);
+
+    // URL trimming
+    // Remove possible www.
+    url = url.replace(/:\/\/www./ig, '://');
+    url = url.replace(/^www\./ig, '');
+    // Remove everything before ://
+    //    also ensure that only the first :// is used
+    //    (negative example: https://id.atlassian.com/login?continue=https://my.atlassian.com&application=mac)
+    url = url.replace(/^[^:]+:\/\//ig, "");
+    // Remove everything after first /
+    var n = url.indexOf('/');
+    url = url.substring(0, n != -1 ? n : url.length);
+    // Remove everything after first :
+    var n = url.indexOf(':');
+    url = url.substring(0, n != -1 ? n : url.length);
+    console.log("Trimmed URL: ", url)
+
+    if(psl.isValid(url))
+    {
+        // Managed to extract a domain using the public suffix list
+        console.log("valid URL detected")
+
+        url_valid = true;
+        var parsed = psl.parse(String(url))
+        domain = parsed.domain;
+        subdomain = parsed.subdomain;
+
+        console.log("Extracted domain: ", domain);
+        console.log("Extracted subdomain: ", subdomain);
+    }
+    else
+    {
+        // Check if it is an ip address
+        var ipV4Pattern = /^\s*(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\s*$/;
+        var ipV6Pattern = /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/;
+        var ipV4Array = url.match(ipV4Pattern);
+        var ipV6Array = url.match(ipV6Pattern);
+        if(ipV4Array != null)
+        {
+            url_valid = true;
+            domain = url;
+            subdomain = null;
+            console.log("ip v4 address detected")
+        }
+        else if(ipV6Array != null)
+        {
+            url_valid = true;
+            domain = url;
+            subdomain = null;
+            console.log("ip v6 address detected")
+        }
+        else
+        {
+            url_valid = false;
+            console.log("invalid URL detected")
+        }
+    }
+
+    return {valid: url_valid, domain: domain, subdomain: subdomain}
+}
+
 /**
  * convert a string to a uint8 array
  * @param str the string to convert

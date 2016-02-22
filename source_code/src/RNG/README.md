@@ -48,7 +48,7 @@ Serial correlation coefficient is -0.001321 (totally uncorrelated = 0.0).
 
 It took 2 days to generate 1 milion bytes.
 
-4 - DESCRIPTION OF FILES
+3 - DESCRIPTION OF FILES
 ------------------------
 - files in this folder:
 

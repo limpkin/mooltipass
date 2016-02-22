@@ -1065,7 +1065,10 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			mooltipass.memmgmt.memmgmtUpdateData = [];
 			for(var i = 0; i < imported_data.data.length; i++)
 			{
-				mooltipass.memmgmt.memmgmtAddData.push({"context": imported_data.data[i][0].toLowerCase(), "login": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH)});
+				if(imported_data.data[i].length == 3)
+				{
+					mooltipass.memmgmt.memmgmtAddData.push({"context": imported_data.data[i][0].toLowerCase(), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH)});
+				}				
 			}
 			mooltipass.memmgmt.totalAddressesRequired = mooltipass.memmgmt.memmgmtAddData.length*2;
 			
@@ -2777,7 +2780,8 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		// Did we succeed?
 		if(packet[2] == 1)
 		{
-			console.log("Memory management mode exit");
+			//console.log("Memory management mode exit");
+			//console.log(mooltipass.memmgmt.currentMode);
 			if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_NO_CHANGES || mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
 			{
 				// Do we have passwords to change?
@@ -2831,7 +2835,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Callback is called from the file written callback
 				//applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Backup process done"});
 			}
-			else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
+			else if(mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN || mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_GET_FREE_ADDR)
 			{
 				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Merging done, no changes applied"});	
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
@@ -2839,9 +2843,30 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_PACKET_SENDING)
 			{
-				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Merging done, changes applied"});			
-				mooltipass.memmgmt.currentMode = MGMT_IDLE;
-				mooltipass.device.processQueue();
+				// If we are importing from a CSV file, we might need to change passwords...
+				if(mooltipass.memmgmt.mergeFileTypeCsv)
+				{					
+					// Do we have passwords to change?
+					if(mooltipass.memmgmt.changePasswordReqs.length > 0)
+					{
+						mooltipass.memmgmt.currentMode = MGMT_NORMAL_SCAN_DONE_PASSWD_CHANGE;	
+						mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setContext'], mooltipass.util.strToArray(mooltipass.memmgmt.changePasswordReqs[0].service));
+						mooltipass.memmgmt_hid._sendMsg();	
+						return;
+					}
+					else
+					{
+						applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Merging done, changes applied"});			
+						mooltipass.memmgmt.currentMode = MGMT_IDLE;
+						mooltipass.device.processQueue();	
+					}
+				}
+				else
+				{
+					applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Merging done, changes applied"});			
+					mooltipass.memmgmt.currentMode = MGMT_IDLE;
+					mooltipass.device.processQueue();					
+				}
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_FORCE_EXIT_MMM)
 			{
@@ -3230,11 +3255,11 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 						// File: imported data is already in memory
 						cpz_value_known = mooltipass.memmgmt.isCPZValueKnownInCPZCTRVector(mooltipass.memmgmt.currentCardCPZ, mooltipass.memmgmt.importedCPZCTRValues);
 						
-						// We just received the current card CPZ, check that we know it before proceeding to the merge
-						if(cpz_value_known == true)
+						// We just received the current card CPZ, check that we know it before proceeding to the merge, bypass the if we're just adding csv credentials
+						if(cpz_value_known == true || mooltipass.memmgmt.mergeFileTypeCsv)
 						{
 							console.log("CPZ value known by file");
-							if(mooltipass.memmgmt.isCardKnownByMp)
+							if(mooltipass.memmgmt.isCardKnownByMp || mooltipass.memmgmt.mergeFileTypeCsv)
 							{
 								mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['startMemoryManagementMode'], null);
 								mooltipass.memmgmt_hid._sendMsg();							
@@ -4817,7 +4842,7 @@ mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function(statusCallbac
 	{
 		// Open the file first
 		mooltipass.memmgmt.backupFromFileReq = true;
-		mooltipass.memmgmt.mergeFileTypeCsv = true;  // TO CHANGE
+		mooltipass.memmgmt.mergeFileTypeCsv = false;
 		mooltipass.memmgmt.statusCallback = statusCallback;
 		mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_REQ;
 		mooltipass.memmgmt.importMemoryState();

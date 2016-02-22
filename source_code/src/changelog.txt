@@ -5,6 +5,7 @@ Todo:
 - display description when choosing user
 - display aes(bootloader_pwd) with user nonce when card inserted
 - allow pin entering through usb comms?
+- shortcut to generate random password in device
 
 V1.1:
 - post-indiegogo firmware

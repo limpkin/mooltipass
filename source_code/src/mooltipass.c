@@ -487,6 +487,10 @@ int main(void)
         launchCalibrationCycle();
         touchClearCurrentDetections();
     #endif
+
+    #if defined(MINI_VERSION)
+        while(1);
+    #endif
     
     // Inhibit touch inputs for the first 2 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 2000);

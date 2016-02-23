@@ -38,7 +38,9 @@ uint8_t touch_logic_press = FALSE;
 // Touch logic: reference position of first touch
 uint8_t touch_logic_ref_position;
 // Bool to know if lights are on
-uint8_t areLightsOn = FALSE;
+#if defined (HARDWARE_OLIVIER_V1)
+    uint8_t areLightsOn = FALSE;
+#endif
 // Current led mask for the PCB
 uint8_t currentLedMask = 0;
 // Screen saver on bool
@@ -82,13 +84,15 @@ void activityDetectedRoutine(void)
         screenSaverOn = FALSE;
     }
     
-    // If the lights were off, turn them on!
-    if (areLightsOn == FALSE)
-    {
-        setPwmDc(MAX_PWM_VAL);
-        activateGuardKey();
-        areLightsOn = TRUE;
-    }
+    #if defined(HARDWARE_OLIVIER_V1)
+        // If the lights were off, turn them on!
+        if (areLightsOn == FALSE)
+        {
+            setPwmDc(MAX_PWM_VAL);
+            activateGuardKey();
+            areLightsOn = TRUE;
+        }
+    #endif
 }
 
 /*! \fn     getTouchedPositionAnswer(uint8_t led_mask)
@@ -279,13 +283,15 @@ void guiMainLoop(void)
     // Launch touch detection routine to check for interactions
     touch_detect_result = touchDetectionRoutine(currentLedMask);
     
-    // No activity, switch off LEDs and activate prox detection
-    if (hasTimerExpired(TIMER_LIGHT, TRUE) == TIMER_EXPIRED)
-    {
-        setPwmDc(0x0000);
-        areLightsOn = FALSE;
-        activateProxDetection();
-    }
+    #if defined(HARDWARE_OLIVIER_V1)
+        // No activity, switch off LEDs and activate prox detection
+        if (hasTimerExpired(TIMER_LIGHT, TRUE) == TIMER_EXPIRED)
+        {
+            setPwmDc(0x0000);
+            areLightsOn = FALSE;
+            activateProxDetection();
+        }
+    #endif
     
     // No activity, switch off screen
     if (hasTimerExpired(TIMER_SCREEN, TRUE) == TIMER_EXPIRED)

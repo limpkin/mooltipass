@@ -23,10 +23,10 @@
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
 #include "logic_eeprom.h"
+#include "oled_wrapper.h"
 #include "hid_defines.h"
 #include "mooltipass.h"
 #include "defines.h"
-#include "oledmp.h"
 #include "usb.h"
 #include <string.h>
 #include <stdio.h>

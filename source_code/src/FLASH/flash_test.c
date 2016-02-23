@@ -27,12 +27,12 @@
 */
 
 #include "timer_manager.h"
+#include "oled_wrapper.h"
 #include "mooltipass.h"
 #include "flash_test.h"
 #include "flash_mem.h"
 #include "node_mgmt.h"
 #include "defines.h"
-#include "oledmp.h"
 #include "usb.h"
 
 #include <stdint.h>

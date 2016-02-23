@@ -175,7 +175,7 @@ static const uint8_t oled_init[] __attribute__((__progmem__)) =
 /**
  *  Initialize oled controller ports
  */
-void oledInitIOs(void)
+void stockOledInitIOs(void)
 {
     /* Setup OLED slave select as output, high */
     DDR_OLED_SS |= (1 << PORTID_OLED_SS);

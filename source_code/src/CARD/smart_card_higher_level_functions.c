@@ -22,9 +22,9 @@
  *  Copyright [2014] [Mathieu Stephan]
  */
 #include "smart_card_higher_level_functions.h"
+#include "oled_wrapper.h"
 #include "smartcard.h"
 #include "defines.h"
-#include "oledmp.h"
 #include "utils.h"
 #include "usb.h"
 #include <string.h>

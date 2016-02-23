@@ -35,6 +35,7 @@
 #include "logic_smartcard.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
+#include "oled_wrapper.h"
 #include "logic_eeprom.h"
 #include "hid_defines.h"
 #include <avr/eeprom.h>
@@ -45,7 +46,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "delays.h"
-#include "oledmp.h"
 #include "utils.h"
 #include "stack.h"
 #include "usb.h"

@@ -28,8 +28,8 @@
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
 #include "usb_cmd_parser.h"
+#include "oled_wrapper.h"
 #include "defines.h"
-#include "oledmp.h"
 #include "delays.h"
 #include "anim.h"
 

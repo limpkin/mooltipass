@@ -132,8 +132,8 @@
 #define MEDIA_FONT		2
 
 /* One line functions */
-#define oledNormalDisplay()     oledWriteCommand(CMD_SET_DISPLAY_MODE_NORMAL)
-#define oledInvertedDisplay()   oledWriteCommand(CMD_SET_DISPLAY_MODE_INVERSE)
+#define stockOledNormalDisplay()     oledWriteCommand(CMD_SET_DISPLAY_MODE_NORMAL)
+#define stockOledInvertedDisplay()   oledWriteCommand(CMD_SET_DISPLAY_MODE_INVERSE)
 
 
 // Text line justification options
@@ -144,7 +144,7 @@ enum {
 } justify_e;
 
 void oledBegin(uint8_t font);
-void oledInitIOs(void);
+void stockOledInitIOs(void);
 void oledInit(void);
 void oledWriteCommand(uint8_t reg);
 void oledWriteData(uint8_t data);

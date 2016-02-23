@@ -27,49 +27,52 @@
 #define OLEDMINI_H_
 
 /** SSD1305 COMMANDS **/
-#define CMD_SET_LOW_COLUMN_START_ADDR       0x00
-#define CMD_SET_HIGH_COLUMN_START_ADDR      0x10    
-#define CMD_SET_MEM_ADDRESSING_MODE         0x20
-#define CMD_SET_COLUMN_ADDR                 0x21
-#define CMD_SET_PAGE_ADDR                   0x22
-#define CMD_SET_DISPLAY_START_LINE          0x40
-#define CMD_SET_CONTRAST_CURRENT            0x81
-#define CMD_SET_BRIGHTNESS                  0x82
-#define CMD_SET_LUT                         0x91
-#define CMD_SET_BANK_COLOR_1TO16            0x92
-#define CMD_SET_BANK_COLOR_17TO32           0x93
-#define CMD_SET_SEGMENT_REMAP_COL_0         0xA0
-#define CMD_SET_SEGMENT_REMAP_COL_131       0xA1
-#define CMD_ENTIRE_DISPLAY_NORMAL           0xA4
-#define CMD_ENTIRE_DISPLAY_ON               0xA5
-#define CMD_ENTIRE_DISPLAY_NREVERSED        0xA6
-#define CMD_ENTIRE_DISPLAY_REVERSED         0xA7
-#define CMD_SET_MULTIPLEX_RATIO             0xA8
-#define CMD_DIM_MODE_SETTING                0xAB
-#define CMD_SET_MASTER_CONFIGURATION        0xAD
-#define CMD_DISPLAY_DIM_MODE                0xAC
-#define CMD_DISPLAY_OFF                     0xAE
-#define CMD_DISPLAY_NORMAL_MODE             0xAF
-#define CMD_SET_PAGE_START_ADDR             0xB0
-#define CMD_COM_OUTPUT_NORMAL               0xC0
-#define CMD_COM_OUTPUT_REVERSED             0xC8
-#define CMD_SET_DISPLAY_OFFSET              0xD3
-#define CMD_SET_DISPLAY_CLOCK_DIVIDE        0xD5
-#define CMD_SET_AREA_COLOR_MODE             0xD8
-#define CMD_SET_PRECHARGE_PERIOD            0xD9
-#define CMD_SET_COM_PINS_CONF               0xDA
-#define CMD_SET_VCOMH_VOLTAGE               0xDB
-#define CMD_ENTER_READ_MODIFY_WRITE_MODE    0xE0
-#define CMD_NOP                             0xE3
-#define CMD_EXIT_READ_MODIFY_WRITE_MODE     0xEE
+#define SSD1305_CMD_SET_LOW_COLUMN_START_ADDR       0x00
+#define SSD1305_CMD_SET_HIGH_COLUMN_START_ADDR      0x10    
+#define SSD1305_CMD_SET_MEM_ADDRESSING_MODE         0x20
+#define SSD1305_CMD_SET_COLUMN_ADDR                 0x21
+#define SSD1305_CMD_SET_PAGE_ADDR                   0x22
+#define SSD1305_CMD_SET_DISPLAY_START_LINE          0x40
+#define SSD1305_CMD_SET_CONTRAST_CURRENT            0x81
+#define SSD1305_CMD_SET_BRIGHTNESS                  0x82
+#define SSD1305_CMD_SET_LUT                         0x91
+#define SSD1305_CMD_SET_BANK_COLOR_1TO16            0x92
+#define SSD1305_CMD_SET_BANK_COLOR_17TO32           0x93
+#define SSD1305_CMD_SET_SEGMENT_REMAP_COL_0         0xA0
+#define SSD1305_CMD_SET_SEGMENT_REMAP_COL_131       0xA1
+#define SSD1305_CMD_ENTIRE_DISPLAY_NORMAL           0xA4
+#define SSD1305_CMD_ENTIRE_DISPLAY_ON               0xA5
+#define SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED        0xA6
+#define SSD1305_CMD_ENTIRE_DISPLAY_REVERSED         0xA7
+#define SSD1305_CMD_SET_MULTIPLEX_RATIO             0xA8
+#define SSD1305_CMD_DIM_MODE_SETTING                0xAB
+#define SSD1305_CMD_SET_MASTER_CONFIGURATION        0xAD
+#define SSD1305_CMD_DISPLAY_DIM_MODE                0xAC
+#define SSD1305_CMD_DISPLAY_OFF                     0xAE
+#define SSD1305_CMD_DISPLAY_NORMAL_MODE             0xAF
+#define SSD1305_CMD_SET_PAGE_START_ADDR             0xB0
+#define SSD1305_CMD_COM_OUTPUT_NORMAL               0xC0
+#define SSD1305_CMD_COM_OUTPUT_REVERSED             0xC8
+#define SSD1305_CMD_SET_DISPLAY_OFFSET              0xD3
+#define SSD1305_CMD_SET_DISPLAY_CLOCK_DIVIDE        0xD5
+#define SSD1305_CMD_SET_AREA_COLOR_MODE             0xD8
+#define SSD1305_CMD_SET_PRECHARGE_PERIOD            0xD9
+#define SSD1305_CMD_SET_COM_PINS_CONF               0xDA
+#define SSD1305_CMD_SET_VCOMH_VOLTAGE               0xDB
+#define SSD1305_CMD_ENTER_READ_MODIFY_WRITE_MODE    0xE0
+#define SSD1305_CMD_NOP                             0xE3
+#define SSD1305_CMD_EXIT_READ_MODIFY_WRITE_MODE     0xEE
 
 /** DEFINES OLED SCREEN **/
-#define OLED_Contrast           0xDB
-#define OLED_WIDTH              128
-#define OLED_HEIGHT             32
+#define SSD1305_OLED_CONTRAST                       0xDB
+#define SSD1305_OLED_WIDTH                          128
+#define SSD1305_OLED_HEIGHT                         32
 
 /** ONE LINE FUNCTIONS **/
-#define oledNormalDisplay()     oledWriteCommand(CMD_ENTIRE_DISPLAY_NREVERSED)
-#define oledInvertedDisplay()   oledWriteCommand(CMD_ENTIRE_DISPLAY_REVERSED)
+#define miniOledNormalDisplay()                     oledWriteCommand(SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED)
+#define miniOledInvertedDisplay()                   oledWriteCommand(SSD1305_CMD_ENTIRE_DISPLAY_REVERSED)
+
+/************ PROTOTYPES ************/
+void miniOledInitIOs(void);
 
 #endif /* OLEDMINI_H_ */

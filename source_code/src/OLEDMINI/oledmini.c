@@ -154,8 +154,7 @@ void miniOledInitIOs(void)
 void miniOledBegin(uint8_t font)
 {
     miniOledBufferYOffset = 0;
-    //oledSetFont(font);
-    font++;
+    miniOledSetFont(font);
     miniOledInit();
 
 #ifdef ENABLE_PRINTF
@@ -189,4 +188,30 @@ void miniOledWriteActiveBuffer(void)
  */
 void miniOledClear(void)
 {
+}
+
+/*! \fn     miniOledSetFont(uint8_t fontIndex)
+ *  \brief  Set the font to use
+ *  \param  font    New font to use
+ */
+void miniOledSetFont(uint8_t fontIndex)
+{fontIndex++;
+/*
+    if (oledGetFileAddr(fontIndex, &oledFontAddr) != MEDIA_FONT)
+    {        
+        #ifdef OLED_DEBUG
+            usbPrintf_P(PSTR("oled failed to set font %d\n"),fontIndex);
+        #endif
+        return;
+    }
+    fontId = fontIndex;
+    oledFontPage = oledFontAddr / BYTES_PER_PAGE;
+    oledFontOffset = oledFontAddr % BYTES_PER_PAGE;
+    flashRawRead((uint8_t *)&currentFont, oledFontAddr, sizeof(currentFont));*/
+
+#ifdef OLED_DEBUG
+    usbPrintf_P(PSTR("found font at file index %d\n"),fontIndex);
+    usbPrintf_P(PSTR("oled set font %d\n"),fontIndex);
+    oledDumpFont();
+#endif
 }

@@ -78,5 +78,6 @@ void miniOledBegin(uint8_t font);
 void miniOledWriteActiveBuffer(void);
 void miniOledWriteInactiveBuffer(void);
 void miniOledClear(void);
+void miniOledSetFont(uint8_t fontIndex);
 
 #endif /* OLEDMINI_H_ */

@@ -68,9 +68,12 @@
  *  => final version for production for kickstarter units
  *
  *  PRODUCTION_TEST_SETUP
- *  => exactly like the kickstarter product setup, but with no check on fuses (used for isp programming & testubg)
+ *  => exactly like the kickstarter product setup, but with no check on fuses (used for isp programming & test)
+ *
+ *  MINI_CLICK_BETATESTERS_SETUP
+ *  => mini beta testing units with click scroll wheel, sent to the beta testers
 */
-#define PRODUCTION_KICKSTARTER_SETUP
+#define MINI_CLICK_BETATESTERS_SETUP
 #if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
     #define STACK_DEBUG
     #define HARDWARE_V1
@@ -153,6 +156,12 @@
     #define FLASH_CHIP_4M
     #define DEV_PLUGIN_COMMS
     #define HARDWARE_OLIVIER_V1
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(MINI_CLICK_BETATESTERS_SETUP)
+    #define MINI_VERSION
+    #define FLASH_CHIP_4M
+    #define HARDWARE_MINI_CLICK_V1
+    #define AVR_BOOTLOADER_PROGRAMMING
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif
 
@@ -414,6 +423,86 @@ typedef int8_t RET_TYPE;
     #define PORT_TOUCH_C    PORTF
     #define DDR_TOUCH_C     DDRF
     #define PIN_TOUCH_C     PINF
+#endif
+#ifdef  HARDWARE_MINI_CLICK_V1
+    // SPIs
+    #define SPI_SMARTCARD   SPI_NATIVE
+    #define SPI_FLASH       SPI_USART
+    #define SPI_OLED        SPI_USART
+    #define DDR_SPI_NATIVE  DDRB
+    #define PORT_SPI_NATIVE PORTB
+    #define SS_SPI_NATIVE   PORTB0
+    #define SCK_SPI_NATIVE  PORTB1
+    #define MOSI_SPI_NATIVE PORTB2
+    #define MISO_SPI_NATIVE PORTB3
+    #define DDR_SPI_USART   DDRD
+    #define PORT_SPI_USART  PORTD
+    #define SCK_SPI_USART   PORTD5
+    #define MOSI_SPI_USART  PORTD3
+    #define MISO_SPI_USART  PORTD2
+    // Slave Select Flash
+    #define PORTID_FLASH_nS PORTB4
+    #define PORT_FLASH_nS   PORTB
+    #define DDR_FLASH_nS    DDRB
+    // Detect smart card
+    #define PORTID_SC_DET   PORTC7
+    #define PORT_SC_DET     PORTC
+    #define DDR_SC_DET      DDRC
+    #define PIN_SC_DET      PINC
+    // Smart card program
+    #define PORTID_SC_PGM   PORTB7
+    #define PORT_SC_PGM     PORTB
+    #define DDR_SC_PGM      DDRB
+    // Smart card power enable
+    #define PORTID_SC_POW   PORTB5
+    #define PORT_SC_POW     PORTB
+    #define DDR_SC_POW      DDRB
+    // Smart card reset
+    #define PORTID_SC_RST   PORTF0
+    #define PORT_SC_RST     PORTF
+    #define DDR_SC_RST      DDRF
+    // OLED Data / Command
+    #define PORTID_OLED_DnC PORTD4
+    #define PORT_OLED_DnC   PORTD
+    #define DDR_OLED_DnC    DDRD
+    // OLED Slave Select
+    #define PORTID_OLED_SS  PORTD7
+    #define PORT_OLED_SS    PORTD
+    #define DDR_OLED_SS     DDRD
+    // OLED reset
+    #define PORTID_OLED_nR  PORTD6
+    #define PORT_OLED_nR    PORTD
+    #define DDR_OLED_nR     DDRD
+    // Power enable to the OLED
+    #define PORTID_OLED_POW PORTE2
+    #define PORT_OLED_POW   PORTE
+    #define DDR_OLED_POW    DDRE
+    // 5 direction joystick
+    #define PORTID_JOY_UP       PORTF1
+    #define PIN_JOY_UP          PINF1
+    #define PORTID_JOY_DOWN     PORTF4
+    #define PIN_JOY_DOWN        PINF4
+    #define PORTID_JOY_LEFT     PORTF5
+    #define PIN_JOY_LEFT        PINF5
+    #define PORTID_JOY_RIGHT    PORTF7
+    #define PIN_JOY_RIGHT       PINF7
+    #define PORTID_JOY_CENTER   PORTF6
+    #define PIN_JOY_CENTER      PINF6
+    #define PORT_JOYSTICK       PORTF
+    #define DDR_JOYSTICK        DDRF
+    // Click wheel
+    #define PORTID_WHEEL_A      PORTC6
+    #define PIN_WHEEL_A         PINC6
+    #define PORTID_WHEEL_B      PORTB6
+    #define PIN_WHEEL_B         PINB6
+    #define PORT_WHEEL_A        PORTC
+    #define PORT_WHEEL_B        PORTB
+    #define DDR_WHEEL_A         DDRC
+    #define DDR_WHEEL_B         DDRB
+    #define PORTID_CLICK        PORTE6
+    #define PIN_CLICK           PINE6
+    #define PORT_CLICK          PORTE
+    #define DDR_CLICK           DDRE
 #endif
 
 #endif /* DEFINES_H_ */

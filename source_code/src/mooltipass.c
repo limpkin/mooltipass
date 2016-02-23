@@ -58,7 +58,7 @@
 #include "rng.h"
 
 // Tutorial led masks and touch filtering
-#ifndef FLASH_CHIP_1M
+#if !defined(FLASH_CHIP_1M) && !defined(MINI_VERSION)
 static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
 {
     0,                              TOUCH_PRESS_MASK,       // Welcome screen
@@ -106,8 +106,10 @@ void smallForLoopBasedDelay(void)
 int main(void)
 {
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);
+    #if !defined(MINI_VERSION)
+        RET_TYPE touch_init_result;
+    #endif
     RET_TYPE flash_init_result;
-    RET_TYPE touch_init_result;
     RET_TYPE card_detect_ret;
     uint8_t fuse_ok = TRUE;
     
@@ -116,8 +118,10 @@ int main(void)
         disableJTAG();
         CPU_PRESCALE(0);
     #endif
-        
-    #if defined(PREPRODUCTION_KICKSTARTER_SETUP)
+
+    #if defined(MINI_CLICK_BETATESTERS_SETUP)
+        // We don't check fuses in beta testers units
+    #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
         // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
@@ -137,6 +141,7 @@ int main(void)
         }
     #endif
     
+    #if defined(HARDWARE_OLIVIER_V1)
     // Check if PB5 is low to start electrical test
     DDRB &= ~(1 << 5); PORTB |= (1 << 5);
     smallForLoopBasedDelay();
@@ -178,6 +183,14 @@ int main(void)
         }
         while(1);
     }
+    #elif defined(MINI_VERSION)
+    // Check if PD0 is low to start electrical test
+    DDRD &= ~(1 << 0); PORTD |= (1 << 0);
+    smallForLoopBasedDelay();
+    if (!(PIND & (1 << 0)))
+    {
+    }
+    #endif    
     
     // This code will only be used for developers and beta testers
     #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP)
@@ -222,7 +235,7 @@ int main(void)
         smallForLoopBasedDelay();
         #if defined(HARDWARE_V1)
         if (PIN_SC_DET & (1 << PORTID_SC_DET))
-        #elif defined(HARDWARE_OLIVIER_V1)
+        #elif defined(HARDWARE_OLIVIER_V1) || defined (MINI_VERSION)
         if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
         #endif
         {
@@ -301,10 +314,12 @@ int main(void)
     }
     
     // Check if we can initialize the touch sensing element
-    touch_init_result = initTouchSensing();
+    #if !defined(MINI_VERSION)
+        touch_init_result = initTouchSensing();
+    #endif
 
     // Enable proximity detection
-    #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
+    #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP) && !defined(MINI_VERSION)
         activateProxDetection();
     #endif
     
@@ -414,6 +429,10 @@ int main(void)
         #else
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
         #endif
+    #elif defined(MINI_VERSION)
+        #if defined(MINI_CLICK_BETATESTERS_SETUP)
+             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
+        #endif
     #endif
     
     // First time initializations done.... write correct value in eeprom
@@ -430,17 +449,19 @@ int main(void)
     #ifndef FLASH_CHIP_1M
     if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
     {
-        uint8_t tut_led_mask, press_filter;
-        activateGuardKey();
-        activityDetectedRoutine();
-        for (uint8_t i = 0; i < sizeof(tutorial_masks)/2; i++)
-        {
-            tut_led_mask = pgm_read_byte(&tutorial_masks[i*2]);
-            press_filter = pgm_read_byte(&tutorial_masks[i*2+1]);
-            oledBitmapDrawFlash(0, 0, i + BITMAP_TUTORIAL_1, OLED_SCROLL_UP);    
-            while(!(touchDetectionRoutine(tut_led_mask) & press_filter));
-            touchInhibitUntilRelease();
-        }
+        #ifndef MINI_VERSION
+            uint8_t tut_led_mask, press_filter;
+            activateGuardKey();
+            activityDetectedRoutine();
+            for (uint8_t i = 0; i < sizeof(tutorial_masks)/2; i++)
+            {
+                tut_led_mask = pgm_read_byte(&tutorial_masks[i*2]);
+                press_filter = pgm_read_byte(&tutorial_masks[i*2+1]);
+                oledBitmapDrawFlash(0, 0, i + BITMAP_TUTORIAL_1, OLED_SCROLL_UP);
+                while(!(touchDetectionRoutine(tut_led_mask) & press_filter));
+                touchInhibitUntilRelease();
+            }
+        #endif
         setMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM, FALSE);
     }
     #endif
@@ -454,16 +475,18 @@ int main(void)
         afterHadLogoDisplayTests();  
     #endif
     
-    // Let's fade in the LEDs
-    touchDetectionRoutine(0);
-    for (uint16_t i = 0; i < MAX_PWM_VAL; i++)
-    {
-        setPwmDc(i);
-        timerBasedDelayMs(0);
-    }
-    activityDetectedRoutine();
-    launchCalibrationCycle();
-    touchClearCurrentDetections();
+    #if defined(HARDWARE_OLIVIER_V1)
+        // Let's fade in the LEDs
+        touchDetectionRoutine(0);
+        for (uint16_t i = 0; i < MAX_PWM_VAL; i++)
+        {
+            setPwmDc(i);
+            timerBasedDelayMs(0);
+        }
+        activityDetectedRoutine();
+        launchCalibrationCycle();
+        touchClearCurrentDetections();
+    #endif
     
     // Inhibit touch inputs for the first 2 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 2000);

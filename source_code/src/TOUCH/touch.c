@@ -247,7 +247,7 @@ RET_TYPE readDataFromTS(uint8_t reg, uint8_t* data)
 */
 void initI2cPort(void)
 {
-    #ifndef HARDWARE_V1
+    #if !defined(HARDWARE_V1) && !defined(MINI_VERSION)
         PORT_TOUCH_C |= (1 << PORTID_TOUCH_C);  // Touch change pin as input with pullup
         PORT_I2C_SCL |= (1 << PORTID_I2C_SCL);  // Set I2C ports as output & high
         PORT_I2C_SDA |= (1 << PORTID_I2C_SDA);  // Set I2C ports as output & high

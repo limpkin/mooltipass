@@ -34,7 +34,7 @@
 */
 void initPwm(void)
 {
-    #ifndef HARDWARE_V1
+    #if !defined(HARDWARE_V1) && !defined(MINI_VERSION)
         TC4H = 0x03;                                            // Set TOP to max value (0x03FF);
         OCR4C = 0xFF;                                           // Set TOP to max value (0x03FF);
         TC4H = 0xFF;                                            // Output off by default

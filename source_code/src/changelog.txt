@@ -4,8 +4,9 @@ Todo:
 - eeprom val for key sent after the login sending
 - display description when choosing user
 - display aes(bootloader_pwd) with user nonce when card inserted
-- allow pin entering through usb comms?
+- allow pin entering through usb comms with user approval
 - shortcut to generate random password in device
+- get description command
 
 V1.1:
 - post-indiegogo firmware

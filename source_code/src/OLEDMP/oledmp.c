@@ -198,7 +198,7 @@ void stockOledInitIOs(void)
  * Initialise the OLED controller and prep the display
  * for use.
  */
-void oledBegin(uint8_t font)
+void stockOledBegin(uint8_t font)
 {
     oled_bufHeight = OLED_HEIGHT;
     oled_foreground = 15;

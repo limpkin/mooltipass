@@ -32,10 +32,12 @@
     #define oledInitIOs()           stockOledInitIOs()
     #define oledInvertedDisplay()   stockOledInvertedDisplay()
     #define oledNormalDisplay()     stockOledNormalDisplay()
+    #define oledBegin(x)            stockOledBegin(x)
 #elif defined(MINI_VERSION)
     #define oledInitIOs()           miniOledInitIOs()
     #define oledInvertedDisplay()   miniOledInvertedDisplay()
     #define oledNormalDisplay()     miniOledNormalDisplay()
+    #define oledBegin(x)            miniOledBegin(x)
 #endif
 
 #endif /* OLED_WRAPPER_H_ */

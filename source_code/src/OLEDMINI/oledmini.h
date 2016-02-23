@@ -74,5 +74,9 @@
 
 /************ PROTOTYPES ************/
 void miniOledInitIOs(void);
+void miniOledBegin(uint8_t font);
+void miniOledWriteActiveBuffer(void);
+void miniOledWriteInactiveBuffer(void);
+void miniOledClear(void);
 
 #endif /* OLEDMINI_H_ */

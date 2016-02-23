@@ -143,7 +143,7 @@ enum {
     OLED_CENTRE = 2
 } justify_e;
 
-void oledBegin(uint8_t font);
+void stockOledBegin(uint8_t font);
 void stockOledInitIOs(void);
 void oledInit(void);
 void oledWriteCommand(uint8_t reg);

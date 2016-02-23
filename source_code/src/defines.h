@@ -73,7 +73,7 @@
  *  MINI_CLICK_BETATESTERS_SETUP
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
 */
-#define MINI_CLICK_BETATESTERS_SETUP
+#define PRODUCTION_KICKSTARTER_SETUP
 #if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
     #define STACK_DEBUG
     #define HARDWARE_V1

@@ -142,54 +142,54 @@ int main(void)
     #endif
     
     #if defined(HARDWARE_OLIVIER_V1)
-    // Check if PB5 is low to start electrical test
-    DDRB &= ~(1 << 5); PORTB |= (1 << 5);
-    smallForLoopBasedDelay();
-    if (!(PINB & (1 << 5)))
-    {
-        // Test result, true by default
-        uint8_t test_result = TRUE;
-        // Leave flash nS off
-        DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
-        PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
-        // Set PORTD as output, leave PORTID_OLED_SS high
-        DDRD |= 0xFF; PORTD |= 0xFF;
-        // All other pins are input by default, run our test
-        for (uint8_t i = 0; i < 4; i++)
+        // Check if PB5 is low to start electrical test
+        DDRB &= ~(1 << 5); PORTB |= (1 << 5);
+        smallForLoopBasedDelay();
+        if (!(PINB & (1 << 5)))
         {
-            PORTD |= 0xFF;
-            smallForLoopBasedDelay();
-            if (!(PINF & (0xC3)) || !(PINC & (1 << 6)) || !(PINE & (1 << 6)) || !(PINB & (1 << 4)))
+            // Test result, true by default
+            uint8_t test_result = TRUE;
+            // Leave flash nS off
+            DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
+            PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
+            // Set PORTD as output, leave PORTID_OLED_SS high
+            DDRD |= 0xFF; PORTD |= 0xFF;
+            // All other pins are input by default, run our test
+            for (uint8_t i = 0; i < 4; i++)
             {
-                test_result = FALSE;
-            }
-            PORTD &= (1 << PORTID_OLED_SS);
-            smallForLoopBasedDelay();
-            if ((PINF & (0xC3)) || (PINC & (1 << 6)) || (PINE & (1 << 6)) || (PINB & (1 << 4)))
+                PORTD |= 0xFF;
+                smallForLoopBasedDelay();
+                if (!(PINF & (0xC3)) || !(PINC & (1 << 6)) || !(PINE & (1 << 6)) || !(PINB & (1 << 4)))
+                {
+                    test_result = FALSE;
+                }
+                PORTD &= (1 << PORTID_OLED_SS);
+                smallForLoopBasedDelay();
+                if ((PINF & (0xC3)) || (PINC & (1 << 6)) || (PINE & (1 << 6)) || (PINB & (1 << 4)))
+                {
+                    test_result = FALSE;
+                }
+            }               
+            // PB6 as test result output
+            DDRB |= (1 << 6);
+            // If test successful, light green LED
+            if ((test_result == TRUE) && (fuse_ok == TRUE))
             {
-                test_result = FALSE;
+                PORTB |= (1 << 6);
+            } 
+            else
+            {
+                PORTB &= ~(1 << 6);
             }
-        }               
-        // PB6 as test result output
-        DDRB |= (1 << 6);
-        // If test successful, light green LED
-        if ((test_result == TRUE) && (fuse_ok == TRUE))
-        {
-            PORTB |= (1 << 6);
-        } 
-        else
-        {
-            PORTB &= ~(1 << 6);
+            while(1);
         }
-        while(1);
-    }
     #elif defined(MINI_VERSION)
-    // Check if PD0 is low to start electrical test
-    DDRD &= ~(1 << 0); PORTD |= (1 << 0);
-    smallForLoopBasedDelay();
-    if (!(PIND & (1 << 0)))
-    {
-    }
+        // Check if PD0 is low to start electrical test
+        DDRD &= ~(1 << 0); PORTD |= (1 << 0);
+        smallForLoopBasedDelay();
+        if (!(PIND & (1 << 0)))
+        {
+        }
     #endif    
     
     // This code will only be used for developers and beta testers
@@ -343,7 +343,7 @@ int main(void)
             }
             //#endif
             // Bundle uploaded, start the screen
-            oledBegin(FONT_DEFAULT);
+            stockOledBegin(FONT_DEFAULT);
             oledWriteActiveBuffer();
             oledSetXY(0,0);
             // LEDs ON, to check

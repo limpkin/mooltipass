@@ -58,7 +58,7 @@
 #include "rng.h"
 
 // Tutorial led masks and touch filtering
-#if !defined(FLASH_CHIP_1M) && !defined(MINI_VERSION)
+#if !defined(FLASH_CHIP_1M)
 static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
 {
     0,                              TOUCH_PRESS_MASK,       // Welcome screen
@@ -430,9 +430,7 @@ int main(void)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
         #endif
     #elif defined(MINI_VERSION)
-        #if defined(MINI_CLICK_BETATESTERS_SETUP)
-             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
-        #endif
+        while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
     #endif
     
     // First time initializations done.... write correct value in eeprom

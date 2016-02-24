@@ -32,6 +32,10 @@
 #define BITMAP_ID_OFFSET        128
 #define MEDIA_TYPE_LENGTH       2
 
+// Media file types
+#define MEDIA_BITMAP            1
+#define MEDIA_FONT              2
+
 // Bimap IDs
 #define BITMAP_MOOLTIPASS     0
 #define BITMAP_LOGIN          1

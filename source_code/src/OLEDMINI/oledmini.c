@@ -22,8 +22,10 @@
  *  Created: 15/2/2014
  *  Copyright [2016] [Mathieu Stephan]
  */
+#include "logic_fwflash_storage.h"
 #include "timer_manager.h"
 #include <avr/pgmspace.h>
+#include "flash_mem.h"
 #include "oledmini.h"
 #include "defines.h"
 #include <string.h>
@@ -273,6 +275,31 @@ void miniOledClear(void)
     miniOledFlushBufferContents(0, SSD1305_OLED_WIDTH, 0, SSD1305_OLED_HEIGHT);
 }
 
+/*! \fn     miniOledGetFileAddr(uint8_t fileId, uint16_t *addr)
+ *  \brief  Return the address and type of the media file for the specified file id
+ *  \param  fileId  index of the media file to read
+ *  \param  addr    pointer to address to fill
+ *  \return -1 on error, else the type of the media file.
+ *  \note   Media files start after string files, first is BITMAP_ID_OFFSET
+ */
+int16_t miniOledGetFileAddr(uint8_t fileId, uint16_t *addr)
+{
+    uint16_t type;
+
+    if (getStoredFileAddr((uint16_t)fileId+BITMAP_ID_OFFSET, addr) == RETURN_NOK)
+    {
+        return -1;
+    }
+    
+    flashRawRead((uint8_t *)&type, *addr, sizeof(type));
+    *addr += sizeof(type);
+    #ifdef OLED_DEBUG
+        usbPrintf_P(PSTR("oledGetFileAddr file %d type 0x%x addr 0x%04x\n"), fileId, type, *addr);
+    #endif
+
+    return type;
+}
+
 /*! \fn     miniOledSetFont(uint8_t fontIndex)
  *  \brief  Set the font to use
  *  \param  font    New font to use
@@ -297,4 +324,30 @@ void miniOledSetFont(uint8_t fontIndex)
     usbPrintf_P(PSTR("oled set font %d\n"),fontIndex);
     oledDumpFont();
 #endif
+}
+
+/*! \fn     miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
+ *  \brief  Draw a bitmap from a Flash storage slot
+ *  \param  x       x position for the bitmap
+ *  \param  y       y position for the bitmap (0=top, 63=bottom)
+ *  \param  addr    address of the bitmap in flash
+ *  \param  options display options:
+ *                  OLED_SCROLL_UP - scroll bitmap up
+ *                  OLED_SCROLL_DOWN - scroll bitmap down
+ *                  0 - don't make bitmap active (unless already drawing to active buffer)
+ */
+void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
+{
+    bitstream_t bs;
+    bitmap_t bitmap;
+    uint16_t addr;
+
+    if (miniOledGetFileAddr(fileId, &addr) != MEDIA_BITMAP)
+    {
+        return;
+    }
+
+    flashRawRead((uint8_t *)&bitmap, addr, sizeof(bitmap));
+    bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.width, bitmap.height, false, addr+sizeof(bitmap));
+    //oledBitmapDrawRaw(x, y, &bs, options);
 }

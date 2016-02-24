@@ -29,15 +29,17 @@
 #define OLED_WRAPPER_H_
 
 #if defined(HARDWARE_V1) || defined(HARDWARE_OLIVIER_V1)
-    #define oledInitIOs()           stockOledInitIOs()
-    #define oledInvertedDisplay()   stockOledInvertedDisplay()
-    #define oledNormalDisplay()     stockOledNormalDisplay()
-    #define oledBegin(x)            stockOledBegin(x)
+    #define oledInitIOs()                   stockOledInitIOs()
+    #define oledInvertedDisplay()           stockOledInvertedDisplay()
+    #define oledNormalDisplay()             stockOledNormalDisplay()
+    #define oledBegin(x)                    stockOledBegin(x)
+    #define oledBitmapDrawFlash(a,b,c,d)    stockOledBitmapDrawFlash(a,b,c,d)
 #elif defined(MINI_VERSION)
-    #define oledInitIOs()           miniOledInitIOs()
-    #define oledInvertedDisplay()   miniOledInvertedDisplay()
-    #define oledNormalDisplay()     miniOledNormalDisplay()
-    #define oledBegin(x)            miniOledBegin(x)
+    #define oledInitIOs()                   miniOledInitIOs()
+    #define oledInvertedDisplay()           miniOledInvertedDisplay()
+    #define oledNormalDisplay()             miniOledNormalDisplay()
+    #define oledBegin(x)                    miniOledBegin(x)
+    #define oledBitmapDrawFlash(a,b,c,d)    miniOledBitmapDrawFlash(a,b,c,d)
 #endif
 
 #endif /* OLED_WRAPPER_H_ */

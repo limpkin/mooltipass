@@ -21,6 +21,9 @@
  *  \brief  OLED library header
  *  Copyright [2016] [Mathieu Stephan]
  */
+#include "fonts.h"
+#include "bitmap.h"
+#include "bitstream.h"
 
 
 #ifndef OLEDMINI_H_
@@ -76,11 +79,12 @@
 #define miniOledInvertedDisplay()                   oledWriteCommand(SSD1305_CMD_ENTIRE_DISPLAY_REVERSED)
 
 /************ PROTOTYPES ************/
+void miniOledClear(void);
 void miniOledInitIOs(void);
 void miniOledBegin(uint8_t font);
 void miniOledWriteActiveBuffer(void);
 void miniOledWriteInactiveBuffer(void);
-void miniOledClear(void);
 void miniOledSetFont(uint8_t fontIndex);
+void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
 
 #endif /* OLEDMINI_H_ */

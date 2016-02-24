@@ -127,10 +127,6 @@
 #define OLED_WIDTH			256
 #define OLED_HEIGHT			64
 
-/* Media file types */
-#define MEDIA_BITMAP		1
-#define MEDIA_FONT		2
-
 /* One line functions */
 #define stockOledNormalDisplay()     oledWriteCommand(CMD_SET_DISPLAY_MODE_NORMAL)
 #define stockOledInvertedDisplay()   oledWriteCommand(CMD_SET_DISPLAY_MODE_INVERSE)
@@ -169,7 +165,7 @@ uint8_t oledIsOn(void);
 
 int16_t oledGetFileAddr(uint8_t fileId, uint16_t *addr);
 void oledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_t *bs, uint8_t options);
-int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
+int8_t stockOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
 #ifdef OLED_FEATURE_PGM_MEMORY
 void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options);
 #endif

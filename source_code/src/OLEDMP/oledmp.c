@@ -1551,7 +1551,7 @@ void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options)
  *                OLED_SCROLL_DOWN - scroll bitmap down
  *                0 - don't make bitmap active (unless already drawing to active buffer)
  */
-int8_t oledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
+int8_t stockOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
 {
     bitstream_t bs;
     bitmap_t bitmap;

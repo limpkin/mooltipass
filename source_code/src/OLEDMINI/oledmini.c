@@ -26,7 +26,10 @@
 #include <avr/pgmspace.h>
 #include "oledmini.h"
 #include "defines.h"
+#include <string.h>
 #include "spi.h"
+// Frame buffer, first byte is X0 Y7 (MSB) to X0 Y0 (LSB)
+uint8_t miniOledFrameBuffer[SSD1305_OLED_WIDTH*SSD1305_OLED_HEIGHT/SSD1305_PAGE_HEIGHT];
 // Current y offset in buffer
 uint8_t miniOledBufferYOffset;
 // Boolean to know if OLED on
@@ -35,31 +38,48 @@ uint8_t miniOledIsOn = FALSE;
 // OLED initialization sequence
 static const uint8_t mini_oled_init[] __attribute__((__progmem__)) = 
 {
-    SSD1305_CMD_DISPLAY_OFF,                0,                          // Display Off
-    SSD1305_CMD_SET_DISPLAY_CLOCK_DIVIDE,   1,  0x10,                   // Display divide ratio of 0, Oscillator frequency of around 300kHz
-    SSD1305_CMD_SET_MULTIPLEX_RATIO,        1,  0x1F,                   // Multiplex ratio of 32
-    SSD1305_CMD_SET_DISPLAY_OFFSET,         1,  0x00,                   // Display offset 0
-    SSD1305_CMD_SET_DISPLAY_START_LINE,     0,                          // Display start line 0
-    SSD1305_CMD_SET_MEM_ADDRESSING_MODE,    1,  0x00,                   // Horizontal addressing mode
-    SSD1305_CMD_SET_MASTER_CONFIGURATION,   1,  0x8E,                   // Select external Vcc supply
-    SSD1305_CMD_SET_AREA_COLOR_MODE,        1,  0x05,                   // Set low power display mode
-    SSD1305_CMD_SET_SEGMENT_REMAP_COL_131,  0,                          // Column address 131 is mapped to SEG0 
-    SSD1305_CMD_COM_OUTPUT_REVERSED,        0,                          // Remapped mode. Scan from COM[N~1] to COM0
-    SSD1305_CMD_SET_COM_PINS_CONF,          1,  0x12,                   // Alternative COM pin configuration
-    SSD1305_CMD_SET_LUT,                    4,  0x3F,0x3F,0x3F,0x3F,    // Set Look up Table
-    SSD1305_CMD_SET_CONTRAST_CURRENT,       1,  SSD1305_OLED_CONTRAST,  // Set current control (contrast)
-    SSD1305_CMD_SET_PRECHARGE_PERIOD,       1,  0xD2,                   // Precharge period
-    SSD1305_CMD_SET_VCOMH_VOLTAGE,          1,  0x08,                   // VCOM deselect level (around 0.5Vcc)
-    SSD1305_CMD_ENTIRE_DISPLAY_NORMAL,      0,                          // Entire display in normal mode
-    SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED,   0,                          // Entire display not reversed
+    1,  SSD1305_CMD_DISPLAY_OFF,                                        // Display Off
+    2,  SSD1305_CMD_SET_DISPLAY_CLOCK_DIVIDE,   0x10,                   // Display divide ratio of 0, Oscillator frequency of around 300kHz
+    2,  SSD1305_CMD_SET_MULTIPLEX_RATIO,        0x1F,                   // Multiplex ratio of 32
+    2,  SSD1305_CMD_SET_DISPLAY_OFFSET,         0x00,                   // Display offset 0
+    1,  SSD1305_CMD_SET_DISPLAY_START_LINE,                             // Display start line 0
+    2,  SSD1305_CMD_SET_MEM_ADDRESSING_MODE,    0x00,                   // Horizontal addressing mode
+    2,  SSD1305_CMD_SET_MASTER_CONFIGURATION,   0x8E,                   // Select external Vcc supply
+    2,  SSD1305_CMD_SET_AREA_COLOR_MODE,        0x05,                   // Set low power display mode
+    1,  SSD1305_CMD_SET_SEGMENT_REMAP_COL_131,                          // Column address 131 is mapped to SEG0 
+    1,  SSD1305_CMD_COM_OUTPUT_REVERSED,                                // Remapped mode. Scan from COM[N~1] to COM0
+    2,  SSD1305_CMD_SET_COM_PINS_CONF,          0x12,                   // Alternative COM pin configuration
+    5,  SSD1305_CMD_SET_LUT,                    0x3F,0x3F,0x3F,0x3F,    // Set Look up Table
+    2,  SSD1305_CMD_SET_CONTRAST_CURRENT,       SSD1305_OLED_CONTRAST,  // Set current control (contrast)
+    2,  SSD1305_CMD_SET_PRECHARGE_PERIOD,       0xD2,                   // Precharge period
+    2,  SSD1305_CMD_SET_VCOMH_VOLTAGE,          0x08,                   // VCOM deselect level (around 0.5Vcc)
+    1,  SSD1305_CMD_ENTIRE_DISPLAY_NORMAL,                              // Entire display in normal mode
+    1,  SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED,                           // Entire display not reversed
 };
 
 
-/*! \fn     miniOledWriteCommand(uint8_t reg)
+/*! \fn     miniOledWriteCommand(uint8_t* data, uint8_t nbBytes)
+ *  \brief  Write a command or register address to the display
+ *  \param  data    Pointer to the data to be written
+ *  \param  nbBytes Number of bytes to be written
+ */
+void miniOledWriteCommand(uint8_t* data, uint8_t nbBytes)
+{
+    PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
+    PORT_OLED_DnC &= ~(1 << PORTID_OLED_DnC);
+    while(nbBytes--)
+    {
+        spiUsartTransfer(*data);
+        data++;
+    }
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);
+}
+
+/*! \fn     miniOledWriteSimpleCommand(uint8_t reg)
  *  \brief  Write a command or register address to the display
  *  \param  reg     the command or register to write
  */
-void miniOledWriteCommand(uint8_t reg)
+void miniOledWriteSimpleCommand(uint8_t reg)
 {
     PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
     PORT_OLED_DnC &= ~(1 << PORTID_OLED_DnC);
@@ -67,16 +87,77 @@ void miniOledWriteCommand(uint8_t reg)
     PORT_OLED_SS |= (1 << PORTID_OLED_SS);
 }
 
-/*! \fn     miniOledWriteData(uint8_t data)
- *  \brief  Write a byte of data to the display
- *  \param  data    data to write
+/*! \fn     miniOledWriteData(uint8_t* data, uint16_t nbBytes)
+ *  \brief  Write a command or register address to the display
+ *  \param  data    Pointer to the data to be written
+ *  \param  nbBytes Number of bytes to be written
  */
-void miniOledWriteData(uint8_t data)
+void miniOledWriteData(uint8_t* data, uint16_t nbBytes)
 {
     PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
-    PORT_OLED_DnC |= (1 << PORTID_OLED_DnC); 
-    spiUsartTransfer(data);
+    PORT_OLED_DnC |= (1 << PORTID_OLED_DnC);
+    while(nbBytes--)
+    {
+        spiUsartTransfer(*data);
+        data++;
+    }
     PORT_OLED_SS |= (1 << PORTID_OLED_SS);
+}
+
+/*! \fn     miniOledSetColumnAddress(uint8_t columnStart, uint8_t columnEnd)
+ *  \brief  Setup column start and end address
+ *  \param  columnStart   Start column
+ *  \param  columnEnd     End column
+ */
+void miniOledSetColumnAddress(uint8_t columnStart, uint8_t columnEnd)
+{
+    uint8_t data[3] = {SSD1305_CMD_SET_COLUMN_ADDR, columnStart, columnEnd};
+    miniOledWriteCommand(data, sizeof(data));
+}
+
+/*! \fn     miniOledSetPageAddress(uint8_t pageStart, uint8_t pageEnd)
+ *  \brief  Setup page start and end address
+ *  \param  pageStart   Start page
+ *  \param  pageEnd     End page
+ */
+void miniOledSetPageAddress(uint8_t pageStart, uint8_t pageEnd)
+{
+    uint8_t data[3] = {SSD1305_CMD_SET_PAGE_ADDR, pageStart, pageEnd};
+    miniOledWriteCommand(data, sizeof(data));
+}
+
+/*! \fn     miniOledFlushBufferContents(uint8_t x, uint8_t y)
+ *  \brief  Flush buffer contents to the display
+ *  \param  xstart  From which x to start flushing
+ *  \param  xend    end x position
+ *  \param  ystart  From which y to start flushing
+ *  \param  yend    end y position
+ */
+void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, uint8_t yend)
+{
+    // Compute page start & page end
+    uint8_t page_start = ystart >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    uint8_t page_end = yend >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    
+    // Set the correct display window
+    miniOledSetPageAddress(page_start, page_end);
+    miniOledSetColumnAddress(xstart, xend);
+    
+    // Send data, we go low level to have better speed
+    PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
+    PORT_OLED_DnC |= (1 << PORTID_OLED_DnC);
+    for (uint8_t page = page_start; page <= page_end; page++)
+    {
+        uint16_t buffer_shift = ((uint16_t)page) >> SSD1305_WIDTH_BIT_SHIFT;
+        for (uint8_t x = xstart; x <= xend; x++)
+        {
+            // TODO: switch sending techniques
+            spiUsartTransfer(miniOledFrameBuffer[buffer_shift + x]);
+            //spiUsartSendTransfer(miniOledFrameBuffer[(uint16_t)x + buffer_shift]);
+        }
+    }
+    //spiUsartWaitEndSendTransfer();
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS); 
 }
 
 /*! \fn     miniOledOn(void)
@@ -86,7 +167,7 @@ void miniOledOn(void)
 {
     PORT_OLED_POW &= ~(1 << PORTID_OLED_POW);
     timerBased130MsDelay();
-    miniOledWriteCommand(SSD1305_CMD_DISPLAY_NORMAL_MODE);
+    miniOledWriteSimpleCommand(SSD1305_CMD_DISPLAY_NORMAL_MODE);
     miniOledIsOn = TRUE;
 }
 
@@ -95,23 +176,23 @@ void miniOledOn(void)
  */
 void miniOledInit(void)
 {
-    for (uint8_t ind=0; ind < sizeof(mini_oled_init); ) 
+    uint8_t dataBuffer[10];
+    uint8_t dataSize, i;
+    
+    // Parse initialization sequence
+    for (uint8_t ind=0; ind<sizeof(mini_oled_init);) 
     {
-        miniOledWriteCommand(pgm_read_byte(&mini_oled_init[ind++]));
-        uint8_t dataSize = pgm_read_byte(&mini_oled_init[ind++]);
+        i = 0;
+        dataSize = pgm_read_byte(&mini_oled_init[ind++]);
         while (dataSize--) 
         {
-            miniOledWriteData(pgm_read_byte(&mini_oled_init[ind++]));
+            dataBuffer[i++] = pgm_read_byte(&mini_oled_init[ind++]);
         }
+        miniOledWriteCommand(dataBuffer, i);
     }
 
-    // Clear buffers
-    miniOledWriteInactiveBuffer();
-    miniOledClear();
-    miniOledWriteActiveBuffer();
-    miniOledClear();
-
     // Switch on screen
+    miniOledClear();
     miniOledOn();
 }
 
@@ -188,6 +269,8 @@ void miniOledWriteActiveBuffer(void)
  */
 void miniOledClear(void)
 {
+    memset(miniOledFrameBuffer, 0x00, sizeof(miniOledFrameBuffer));
+    miniOledFlushBufferContents(0, SSD1305_OLED_WIDTH, 0, SSD1305_OLED_HEIGHT);
 }
 
 /*! \fn     miniOledSetFont(uint8_t fontIndex)

@@ -129,6 +129,19 @@ void miniOledSetPageAddress(uint8_t pageStart, uint8_t pageEnd)
     miniOledWriteCommand(data, sizeof(data));
 }
 
+/*! \fn     miniOledSetWindow(uint8_t columnStart, uint8_t columnEnd, uint8_t pageStart, uint8_t pageEnd)
+ *  \brief  Set the window we want to update in the screen
+ *  \param  columnStart Start column
+ *  \param  columnEnd   End column
+ *  \param  pageStart   Start page
+ *  \param  pageEnd     End page
+ */
+void miniOledSetWindow(uint8_t columnStart, uint8_t columnEnd, uint8_t pageStart, uint8_t pageEnd)
+{
+    miniOledSetColumnAddress(columnStart, columnEnd);
+    miniOledSetPageAddress(pageStart, pageEnd);
+}
+
 /*! \fn     miniOledFlushBufferContents(uint8_t x, uint8_t y)
  *  \brief  Flush buffer contents to the display
  *  \param  xstart  From which x to start flushing
@@ -143,15 +156,14 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
     uint8_t page_end = yend >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     
     // Set the correct display window
-    miniOledSetPageAddress(page_start, page_end);
-    miniOledSetColumnAddress(xstart, xend);
+    miniOledSetWindow(xstart, xend, page_start, page_end);
     
     // Send data, we go low level to have better speed
     PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
     PORT_OLED_DnC |= (1 << PORTID_OLED_DnC);
     for (uint8_t page = page_start; page <= page_end; page++)
     {
-        uint16_t buffer_shift = ((uint16_t)page) >> SSD1305_WIDTH_BIT_SHIFT;
+        uint16_t buffer_shift = ((uint16_t)page) << SSD1305_WIDTH_BIT_SHIFT;
         for (uint8_t x = xstart; x <= xend; x++)
         {
             // TODO: switch sending techniques
@@ -265,6 +277,78 @@ void miniOledWriteActiveBuffer(void)
 {
     //oled_writeBuffer = oled_displayBuffer;
     //oled_writeOffset = 0;
+}
+
+/*! \fn     miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height)
+ *  \brief  Draw a rectangle on the screen
+ *  \param  x       X position
+ *  \param  y       Y position
+ *  \param  width   width
+ *  \param  height  height
+ *  \param  full    boolean for color or not
+ */
+void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t full)
+{
+    // Compute page start & page end
+    uint8_t page_start = y >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    uint8_t page_end = (y+height-1) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    
+    // Compute mask settings
+    uint8_t f_bitshift_mask[] = {0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF};
+    uint8_t f_bitshift = (y+height-1) & 0x07;
+    uint8_t l_bitshift_mask[] = {0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0, 0x80};
+    uint8_t l_bitshift = y & 0x07;
+    
+    for(uint8_t page = page_start; page <= page_end; page++)
+    {
+        uint16_t buffer_shift = ((uint16_t)page) << SSD1305_WIDTH_BIT_SHIFT;
+        for(uint8_t xpos = x; xpos < x+width; xpos++)
+        {
+            uint8_t or_mask = 0xFF;
+            uint8_t and_mask = 0x00;
+            if(page == page_start)
+            {
+                if(full == TRUE)
+                {
+                    or_mask = l_bitshift_mask[l_bitshift];
+                }
+                else
+                {
+                    and_mask = ~l_bitshift_mask[l_bitshift];
+                }                
+            }
+            if(page == page_end)
+            {
+                if(full == TRUE)
+                {
+                    or_mask = or_mask & f_bitshift_mask[f_bitshift];
+                }
+                else
+                {
+                    and_mask = and_mask | ~f_bitshift_mask[f_bitshift];
+                }
+            }
+            if(page != page_start && page != page_end)
+            {
+                if(full == TRUE)
+                {
+                    or_mask = 0xFF;
+                }
+                else
+                {
+                    and_mask = 0x00;
+                }
+            }
+            if (full == TRUE)
+            {
+                miniOledFrameBuffer[buffer_shift+xpos] |= or_mask;
+            }
+            else
+            {
+                miniOledFrameBuffer[buffer_shift+xpos] &= and_mask;
+            }
+        }
+    }
 }
 
 /*! \fn     miniOledClear(void)

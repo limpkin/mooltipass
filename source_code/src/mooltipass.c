@@ -227,45 +227,60 @@ int main(void)
 
     /* Check if a card is inserted in the Mooltipass to go to the bootloader */
     #ifdef AVR_BOOTLOADER_PROGRAMMING
-        /* Disable JTAG to get access to the pins */
-        disableJTAG();
-        /* Init SMC port */
-        initPortSMC();
-        /* Delay for detection */
-        smallForLoopBasedDelay();
-        #if defined(HARDWARE_V1)
-        if (PIN_SC_DET & (1 << PORTID_SC_DET))
-        #elif defined(HARDWARE_OLIVIER_V1) || defined (MINI_VERSION)
-        if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
-        #endif
-        {
-            uint16_t tempuint16;
-            /* What follows is a copy from firstDetectFunctionSMC() */
-            /* Enable power to the card */
-            PORT_SC_POW &= ~(1 << PORTID_SC_POW);
-            /* Default state: PGM to 0 and RST to 1 */
-            PORT_SC_PGM &= ~(1 << PORTID_SC_PGM);
-            DDR_SC_PGM |= (1 << PORTID_SC_PGM);
-            PORT_SC_RST |= (1 << PORTID_SC_RST);
-            DDR_SC_RST |= (1 << PORTID_SC_RST);
-            /* Activate SPI port */
-            PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
-            DDRB |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
-            setSPIModeSMC();
-            /* Let the card come online */
+        #ifndef MINI_VERSION
+            /* Disable JTAG to get access to the pins */
+            disableJTAG();
+            /* Init SMC port */
+            initPortSMC();
+            /* Delay for detection */
             smallForLoopBasedDelay();
-            /* Check smart card FZ */
-            readFabricationZone((uint8_t*)&tempuint16);
-            if ((swap16(tempuint16)) != SMARTCARD_FABRICATION_ZONE)
+            #if defined(HARDWARE_V1)
+            if (PIN_SC_DET & (1 << PORTID_SC_DET))
+            #elif defined(HARDWARE_OLIVIER_V1) || defined (MINI_VERSION)
+            if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
+            #endif
             {
-                removeFunctionSMC();
+                uint16_t tempuint16;
+                /* What follows is a copy from firstDetectFunctionSMC() */
+                /* Enable power to the card */
+                PORT_SC_POW &= ~(1 << PORTID_SC_POW);
+                /* Default state: PGM to 0 and RST to 1 */
+                PORT_SC_PGM &= ~(1 << PORTID_SC_PGM);
+                DDR_SC_PGM |= (1 << PORTID_SC_PGM);
+                PORT_SC_RST |= (1 << PORTID_SC_RST);
+                DDR_SC_RST |= (1 << PORTID_SC_RST);
+                /* Activate SPI port */
+                PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
+                DDRB |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
+                setSPIModeSMC();
+                /* Let the card come online */
+                smallForLoopBasedDelay();
+                /* Check smart card FZ */
+                readFabricationZone((uint8_t*)&tempuint16);
+                if ((swap16(tempuint16)) != SMARTCARD_FABRICATION_ZONE)
+                {
+                    removeFunctionSMC();
+                    start_bootloader();
+                }
+                else
+                {
+                    removeFunctionSMC();
+                }
+            }
+        #else
+            /* Disable JTAG to get access to the pins */
+            disableJTAG();
+            /* Pressing center joystick starts the bootloader */
+            DDR_JOYSTICK &= ~(1 << PORTID_JOY_CENTER);
+            PORT_JOYSTICK |= (1 << PORTID_JOY_CENTER);
+            /* Small delay for detection */
+            smallForLoopBasedDelay();
+            /* Check if low */
+            if (!(PIN_JOYSTICK & (1 << PORTID_JOY_CENTER)))
+            {
                 start_bootloader();
-            }
-            else
-            {
-                removeFunctionSMC();
-            }
-        }
+            }  
+        #endif          
     #endif
 
     initPortSMC();                      // Initialize smart card port
@@ -490,6 +505,13 @@ int main(void)
         while(1)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
+            for(uint8_t i = 0; i < 32; i++)
+            {
+                miniOledDrawRectangle(i,i,1,1,TRUE);
+                miniOledFlushBufferContents(0, 127, 0, 31);
+                timerBasedDelayMs(50);
+                miniOledDrawRectangle(i,i,1,1,FALSE);          
+            }
         }
     #endif
     

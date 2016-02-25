@@ -487,7 +487,10 @@ int main(void)
     #endif
 
     #if defined(MINI_VERSION)
-        while(1);
+        while(1)
+        {
+            usbProcessIncoming(USB_CALLER_MAIN);
+        }
     #endif
     
     // Inhibit touch inputs for the first 2 seconds

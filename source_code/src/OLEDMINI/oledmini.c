@@ -46,11 +46,11 @@ static const uint8_t mini_oled_init[] __attribute__((__progmem__)) =
     2,  SSD1305_CMD_SET_MULTIPLEX_RATIO,        0x1F,                   // Multiplex ratio of 32
     2,  SSD1305_CMD_SET_DISPLAY_OFFSET,         0x00,                   // Display offset 0
     1,  SSD1305_CMD_SET_DISPLAY_START_LINE,                             // Display start line 0
-    2,  SSD1305_CMD_SET_MEM_ADDRESSING_MODE,    0x00,                   // Horizontal addressing mode
     2,  SSD1305_CMD_SET_MASTER_CONFIGURATION,   0x8E,                   // Select external Vcc supply
     2,  SSD1305_CMD_SET_AREA_COLOR_MODE,        0x05,                   // Set low power display mode
     1,  SSD1305_CMD_SET_SEGMENT_REMAP_COL_131,                          // Column address 131 is mapped to SEG0 
     1,  SSD1305_CMD_COM_OUTPUT_REVERSED,                                // Remapped mode. Scan from COM[N~1] to COM0
+    2,  SSD1305_CMD_SET_MEM_ADDRESSING_MODE,    0x00,                   // Horizontal addressing mode
     2,  SSD1305_CMD_SET_COM_PINS_CONF,          0x12,                   // Alternative COM pin configuration
     5,  SSD1305_CMD_SET_LUT,                    0x3F,0x3F,0x3F,0x3F,    // Set Look up Table
     2,  SSD1305_CMD_SET_CONTRAST_CURRENT,       SSD1305_OLED_CONTRAST,  // Set current control (contrast)
@@ -114,7 +114,7 @@ void miniOledWriteData(uint8_t* data, uint16_t nbBytes)
  */
 void miniOledSetColumnAddress(uint8_t columnStart, uint8_t columnEnd)
 {
-    uint8_t data[3] = {SSD1305_CMD_SET_COLUMN_ADDR, columnStart, columnEnd};
+    uint8_t data[3] = {SSD1305_CMD_SET_COLUMN_ADDR, columnStart + SSD1305_X_OFFSET, columnEnd + SSD1305_X_OFFSET};
     miniOledWriteCommand(data, sizeof(data));
 }
 
@@ -339,7 +339,20 @@ void miniOledSetFont(uint8_t fontIndex)
  */
 void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t options)
 {
+    (void)options;
+    uint8_t start_x = x;
+    uint8_t end_x = x + bs->width - 1;
+    uint8_t start_page = y >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    uint8_t end_page = (y + bs->height) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     
+    for (uint8_t page = start_page; page <= end_page; page++)
+    {
+        //uint16_t buffer_shift = ((uint16_t)page) >> SSD1305_WIDTH_BIT_SHIFT;
+        for (uint8_t x = start_x; x <= end_x; x++)
+        {
+            miniBistreamGetNextByte(bs);
+        }
+    }   
 }
 
 /*! \fn     miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
@@ -353,7 +366,7 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t o
  *                  0 - don't make bitmap active (unless already drawing to active buffer)
  */
 void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
-{
+{    
     bitstream_mini_t bs;
     bitmap_t bitmap;
     uint16_t addr;
@@ -372,7 +385,4 @@ void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t optio
     
     // Draw the bitmap
     miniOledBitmapDrawRaw(x, y, &bs, options);
-    
-    miniOledFrameBuffer[0] = 0x80;
-    miniOledFlushBufferContents(0, 2, 0, 2);
 }

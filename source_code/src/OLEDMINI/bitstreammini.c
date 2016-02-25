@@ -46,7 +46,7 @@ void miniBistreamInit(bitstream_mini_t* bs, uint8_t height, uint16_t width, uint
 
 /*! \fn     bsGetNextByte(bitstream_mini_t* bs)
  *  \brief  Return the next data byte from flash
- *  \param  bs      pointer to initialised bitstream context to get the next word from
+ *  \param  bs      pointer to initialized bitstream context to get the next word from
  *  \return next data word, or 0 if end of data reached
  */
 uint8_t miniBistreamGetNextByte(bitstream_mini_t* bs)

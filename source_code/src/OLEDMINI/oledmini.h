@@ -73,6 +73,7 @@
 #define SSD1305_PAGE_HEIGHT                         8
 #define SSD1305_PAGE_HEIGHT_BIT_SHIFT               3
 #define SSD1305_WIDTH_BIT_SHIFT                     7
+#define SSD1305_X_OFFSET                            4
 
 /** ONE LINE FUNCTIONS **/
 #define miniOledNormalDisplay()                     oledWriteCommand(SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED)

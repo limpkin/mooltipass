@@ -40,6 +40,7 @@
 #include "logic_aes_and_comms.h"
 #include "timer_manager.h"
 #include "logic_eeprom.h"
+#include "oled_wrapper.h"
 #include "oledmp.h"
 #include "anim.h"
 int16_t screensaver_anim_last_x=0, screensaver_anim_last_y=15;

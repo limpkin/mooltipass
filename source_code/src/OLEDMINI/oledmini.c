@@ -366,7 +366,7 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t o
  *                  0 - don't make bitmap active (unless already drawing to active buffer)
  */
 void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
-{    
+{
     bitstream_mini_t bs;
     bitmap_t bitmap;
     uint16_t addr;

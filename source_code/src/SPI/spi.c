@@ -42,7 +42,7 @@ void spiUsartBegin(void)
     #if defined(HARDWARE_V1) || defined(HARDWARE_OLIVIER_V1)
         UBRR1 = SPI_RATE_8_MHZ;                                     // Set data rate to 8Mhz
     #elif defined(MINI_VERSION)
-        UBRR1 = SPI_RATE_1_MHZ;                                     // Set data rate to 4Mhz
+        UBRR1 = SPI_RATE_4_MHZ;                                     // Set data rate to 4Mhz
     #endif
 }
 

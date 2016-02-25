@@ -19,10 +19,11 @@
  */
 /*! \file   oledmini.c
  *  \brief  Mooltipass SSD1305 128x32x1 OLED display library
- *  Created: 15/2/2014
+ *  Created: 15/2/2016
  *  Copyright [2016] [Mathieu Stephan]
  */
 #include "logic_fwflash_storage.h"
+#include "bitstreammini.h"
 #include "timer_manager.h"
 #include <avr/pgmspace.h>
 #include "flash_mem.h"
@@ -326,6 +327,21 @@ void miniOledSetFont(uint8_t fontIndex)
 #endif
 }
 
+/*! \fn     miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t options)
+ *  \brief  Draw a rectangular bitmap on the screen at x,y
+ *  \param  x       x position for the bitmap
+ *  \param  y       y position for the bitmap (0=top, 63=bottom)
+ *  \param  bs      pointer to the bitstream object
+ *  \param  options display options:
+ *                  OLED_SCROLL_UP - scroll bitmap up
+ *                  OLED_SCROLL_DOWN - scroll bitmap down
+ *                  0 - don't make bitmap active (unless already drawing to active buffer)
+ */
+void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t options)
+{
+    
+}
+
 /*! \fn     miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
  *  \brief  Draw a bitmap from a Flash storage slot
  *  \param  x       x position for the bitmap
@@ -338,16 +354,25 @@ void miniOledSetFont(uint8_t fontIndex)
  */
 void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)
 {
-    bitstream_t bs;
+    bitstream_mini_t bs;
     bitmap_t bitmap;
     uint16_t addr;
 
+    // Get address of our bitmap in the external flash
     if (miniOledGetFileAddr(fileId, &addr) != MEDIA_BITMAP)
     {
         return;
     }
 
-    flashRawRead((uint8_t *)&bitmap, addr, sizeof(bitmap));
-    bsInit(&bs, bitmap.depth, bitmap.flags, (uint16_t *)sizeof(bitmap), bitmap.width, bitmap.height, false, addr+sizeof(bitmap));
-    //oledBitmapDrawRaw(x, y, &bs, options);
+    // Read bitmap header
+    flashRawRead((uint8_t*)&bitmap, addr, sizeof(bitmap));
+    
+    // Initialize bitstream (pixel data starts right after the header)
+    miniBistreamInit(&bs, bitmap.height, bitmap.width, addr+sizeof(bitmap));
+    
+    // Draw the bitmap
+    miniOledBitmapDrawRaw(x, y, &bs, options);
+    
+    miniOledFrameBuffer[0] = 0x80;
+    miniOledFlushBufferContents(0, 2, 0, 2);
 }

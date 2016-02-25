@@ -300,6 +300,12 @@
     <Compile Include="src\GUI\gui_smartcard_functions.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\mini_inputs.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\mini_inputs.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\LOGIC\logic_eeprom.c">
       <SubType>compile</SubType>
     </Compile>

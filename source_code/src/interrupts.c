@@ -23,6 +23,7 @@
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 #include "timer_manager.h"
+#include "mini_inputs.h"
 #include "interrupts.h"
 #include "smartcard.h"
 
@@ -39,6 +40,9 @@ ISR(TIMER1_COMPA_vect)                                              // Match on 
 {
     scanSMCDectect();                                               // Scan smart card detect
     timerManagerTick();                                             // Our timer manager
+    #if defined(MINI_VERSION)
+        scanMiniInputsDetect();                                     // Scan mini inputs
+    #endif
     #ifdef ENABLE_MILLISECOND_DBG_TIMER
         msecTicks++;                                                // Increment ms timer
     #endif

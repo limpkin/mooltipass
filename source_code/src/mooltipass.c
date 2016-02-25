@@ -42,6 +42,7 @@
 #include "timer_manager.h"
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
+#include "mini_inputs.h"
 #include "mooltipass.h"
 #include "interrupts.h"
 #include "smartcard.h"
@@ -293,6 +294,9 @@ int main(void)
     rngInit();                          // Initialize avrentropy library
     oledInitIOs();                      // Initialize OLED input/outputs
     spiUsartBegin();                    // Start USART SPI at 8MHz
+    #if defined(MINI_VERSION)           // Only executed for the mini
+        initMiniInputs();               // Init Mini Inputs
+    #endif
 
     // If offline mode isn't enabled, wait for device to be enumerated
     if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
@@ -507,10 +511,31 @@ int main(void)
             usbProcessIncoming(USB_CALLER_MAIN);
             for(uint8_t i = 0; i < 32; i++)
             {
+                if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_DET)
+                    miniOledDrawRectangle(40,0,5,5,TRUE);
+                else
+                    miniOledDrawRectangle(40,0,5,5,FALSE);  
+                if(isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_DET)
+                    miniOledDrawRectangle(45,0,5,5,TRUE);
+                else
+                    miniOledDrawRectangle(45,0,5,5,FALSE);  
+                if(isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_DET)
+                    miniOledDrawRectangle(50,0,5,5,TRUE);
+                else
+                    miniOledDrawRectangle(50,0,5,5,FALSE);  
+                if(isMiniDirectionPressed(PORTID_JOY_RIGHT) == RETURN_DET)
+                    miniOledDrawRectangle(55,0,5,5,TRUE);
+                else
+                    miniOledDrawRectangle(55,0,5,5,FALSE);  
+                if(isMiniDirectionPressed(PORTID_JOY_CENTER) == RETURN_DET)
+                    miniOledDrawRectangle(60,0,5,5,TRUE);
+                else
+                    miniOledDrawRectangle(60,0,5,5,FALSE);                
+                    
                 miniOledDrawRectangle(i,i,1,1,TRUE);
                 miniOledFlushBufferContents(0, 127, 0, 31);
                 timerBasedDelayMs(50);
-                miniOledDrawRectangle(i,i,1,1,FALSE);          
+                miniOledDrawRectangle(i,i,1,1,FALSE);    
             }
         }
     #endif

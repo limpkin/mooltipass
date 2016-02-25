@@ -30,6 +30,7 @@
 /* PROTOTYPES */
 RET_TYPE isMiniDirectionPressed(uint8_t direction);
 void scanMiniInputsDetect(void);
+RET_TYPE isWheelClicked(void);
 void initMiniInputs(void);
 
 #endif /* JOYSTICK_H_ */

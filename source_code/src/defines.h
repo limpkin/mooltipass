@@ -488,17 +488,17 @@ typedef int8_t RET_TYPE;
     #define PIN_JOYSTICK        PINF
     // Click wheel
     #define PORTID_WHEEL_A      PORTC6
-    #define PIN_WHEEL_A         PINC6
+    #define PIN_WHEEL_A         PINC
     #define PORTID_WHEEL_B      PORTB6
-    #define PIN_WHEEL_B         PINB6
+    #define PIN_WHEEL_B         PINB
     #define PORT_WHEEL_A        PORTC
     #define PORT_WHEEL_B        PORTB
     #define DDR_WHEEL_A         DDRC
     #define DDR_WHEEL_B         DDRB
     #define PORTID_CLICK        PORTE6
-    #define PIN_CLICK           PINE6
     #define PORT_CLICK          PORTE
     #define DDR_CLICK           DDRE
+    #define PIN_CLICK           PINE
 #endif
 
 #endif /* DEFINES_H_ */

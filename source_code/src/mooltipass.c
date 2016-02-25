@@ -530,7 +530,20 @@ int main(void)
                 if(isMiniDirectionPressed(PORTID_JOY_CENTER) == RETURN_DET)
                     miniOledDrawRectangle(60,0,5,5,TRUE);
                 else
-                    miniOledDrawRectangle(60,0,5,5,FALSE);                
+                    miniOledDrawRectangle(60,0,5,5,FALSE);    
+                if(isWheelClicked() == RETURN_DET)
+                    miniOledDrawRectangle(65,0,5,5,TRUE);
+                else
+                    miniOledDrawRectangle(65,0,5,5,FALSE);  
+                    
+                if (!(PIN_WHEEL_A & (1 << PORTID_WHEEL_A)))    
+                    miniOledDrawRectangle(100,0,5,5,TRUE);
+                else
+                    miniOledDrawRectangle(100,0,5,5,FALSE);   
+                if (!(PIN_WHEEL_B & (1 << PORTID_WHEEL_B)))    
+                    miniOledDrawRectangle(105,0,5,5,TRUE);
+                else
+                    miniOledDrawRectangle(105,0,5,5,FALSE);            
                     
                 miniOledDrawRectangle(i,i,1,1,TRUE);
                 miniOledFlushBufferContents(0, 127, 0, 31);

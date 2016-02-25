@@ -30,6 +30,10 @@ uint8_t joystick_scan_defines[] = {PORTID_JOY_UP, PORTID_JOY_DOWN, PORTID_JOY_LE
 uint8_t joystick_counters[8];
 // Joystick states
 uint8_t joystick_return[8];
+// Wheel click counter
+uint8_t wheel_click_counter;
+// Wheel click return
+uint8_t wheel_click_return;
 
 
 /*! \fn     initMiniInputs(void)
@@ -37,11 +41,20 @@ uint8_t joystick_return[8];
 */
 void initMiniInputs(void)
 {
+    // Joystick
     for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
     {
         DDR_JOYSTICK &= ~(1 << joystick_scan_defines[i]);
         PORT_JOYSTICK |= (1 << joystick_scan_defines[i]);
     }        
+    
+    // Wheel
+    DDR_CLICK &= ~(1 << PORTID_CLICK);
+    PORT_CLICK |= (1 << PORTID_CLICK);
+    DDR_WHEEL_A &= ~(1 << PORTID_WHEEL_A);
+    PORT_WHEEL_A |= (1 << PORTID_WHEEL_A);
+    DDR_WHEEL_B &= ~(1 << PORTID_WHEEL_B);
+    PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
 }
 
 /*! \fn     scanMiniInputsDetect(void)
@@ -53,6 +66,33 @@ void scanMiniInputsDetect(void)
     uint8_t* current_direction_return_pt;
     uint8_t current_direction;
     
+    // Wheel click
+    if (!(PIN_CLICK & (1 << PORTID_CLICK)))
+    {
+        if (wheel_click_counter == 50)
+        {
+            wheel_click_return = RETURN_JDETECT;
+            wheel_click_counter++;
+        }
+        else if (wheel_click_counter != 0xFF)
+        {
+            wheel_click_counter++;
+        }
+    }
+    else
+    {
+        if (wheel_click_return == RETURN_DET)
+        {
+            wheel_click_return = RETURN_JRELEASED;
+        }
+        else if (wheel_click_return != RETURN_JRELEASED)
+        {
+            wheel_click_return = RETURN_REL;
+        }
+        wheel_click_counter = 0;
+    }
+    
+    // Joystick
     for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
     {
         current_direction = joystick_scan_defines[i];
@@ -89,6 +129,33 @@ void scanMiniInputsDetect(void)
             *current_direction_counter_pt = 0;
         }
     }
+}
+
+/*! \fn     isWheelClicked(void)
+*   \brief  Know if the wheel is clicked
+*   \return just released/pressed, (non)detected
+*/
+RET_TYPE isWheelClicked(void)
+{
+    // This copy is an atomic operation
+    volatile RET_TYPE return_val = wheel_click_return;
+
+    if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
+    {
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            if (wheel_click_return == RETURN_JDETECT)
+            {
+                wheel_click_return = RETURN_DET;
+            }
+            else if (wheel_click_return == RETURN_JRELEASED)
+            {
+                wheel_click_return = RETURN_REL;
+            }
+        }
+    }
+
+    return return_val;
 }
 
 /*! \fn     isMiniDirectionPressed(uint8_t direction)

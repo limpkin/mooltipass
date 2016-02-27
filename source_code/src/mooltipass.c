@@ -40,6 +40,7 @@
 #include "logic_smartcard.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
+#include "bitstreammini.h"
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
@@ -544,11 +545,35 @@ int main(void)
                     miniOledDrawRectangle(105,0,5,5,TRUE);
                 else
                     miniOledDrawRectangle(105,0,5,5,FALSE);            
-                    
-                miniOledDrawRectangle(i,i,1,1,TRUE);
+                  
+                bitstream_mini_t tata;
+                miniOledBitmapDrawRaw(32, 16, &tata, 0);
+                //miniOledDrawRectangle(i,i,1,1,TRUE);
                 miniOledFlushBufferContents(0, 127, 0, 31);
-                timerBasedDelayMs(50);
-                miniOledDrawRectangle(i,i,1,1,FALSE);    
+                //timerBasedDelayMs(50);
+                //miniOledDrawRectangle(i,i,1,1,FALSE);    
+            }
+        
+            // Check if a card just got inserted / removed
+            card_detect_ret = isCardPlugged();
+        
+            // Do appropriate actions on smartcard insertion / removal
+            if (card_detect_ret == RETURN_JDETECT)
+            {
+                // Light up the Mooltipass and call the dedicated function
+                activityDetectedRoutine();
+                handleSmartcardInserted();
+            }
+            else if (card_detect_ret == RETURN_JRELEASED)
+            {
+                // Light up the Mooltipass and call the dedicated function
+                activityDetectedRoutine();
+                handleSmartcardRemoved();
+            
+                // Set correct screen
+                guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_REMOVED);
+                guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
+                guiGetBackToCurrentScreen();
             }
         }
     #endif

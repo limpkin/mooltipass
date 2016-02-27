@@ -291,18 +291,18 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
 {
     // Compute page start & page end
     uint8_t page_start = y >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
-    uint8_t page_end = (y+height-1) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    uint8_t page_end = (y + height - 1) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     
     // Compute mask settings
     uint8_t f_bitshift_mask[] = {0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF};
-    uint8_t f_bitshift = (y+height-1) & 0x07;
+    uint8_t f_bitshift = (y + height - 1) & 0x07;
     uint8_t l_bitshift_mask[] = {0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0, 0x80};
     uint8_t l_bitshift = y & 0x07;
     
     for(uint8_t page = page_start; page <= page_end; page++)
     {
         uint16_t buffer_shift = ((uint16_t)page) << SSD1305_WIDTH_BIT_SHIFT;
-        for(uint8_t xpos = x; xpos < x+width; xpos++)
+        for(uint8_t xpos = x; xpos < x + width; xpos++)
         {
             uint8_t or_mask = 0xFF;
             uint8_t and_mask = 0x00;
@@ -423,20 +423,64 @@ void miniOledSetFont(uint8_t fontIndex)
  */
 void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t options)
 {
+    // temp
+    bs->height = 16;
+    bs->width = 4;
+    // Computing bitshifts, start/end pages...
     (void)options;
-    uint8_t start_x = x;
-    uint8_t end_x = x + bs->width - 1;
+    uint8_t end_page = (y + bs->height - 1) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     uint8_t start_page = y >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
-    uint8_t end_page = (y + bs->height) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    uint8_t data_rbitshift = 7 - ((y + bs->height - 1) & 0x07);
+    uint8_t data_lbitshift = (8 - data_rbitshift) & 0x07;
+    uint8_t end_x = x + bs->width - 1;
+    uint8_t start_x = x;
+    // Bitmasks
+    uint8_t rbitmask[] = {0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE};
+    uint8_t lbitmask[] = {0xFF, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F};
     
-    for (uint8_t page = start_page; page <= end_page; page++)
+    uint8_t superdata[] = {0xFF, 0xFF, 0xC0, 0x03, 0x80, 0x01, 0xFF, 0xFF};
+    uint8_t index = 0;            
+    for (uint8_t x = start_x; x <= end_x; x++)
     {
-        //uint16_t buffer_shift = ((uint16_t)page) >> SSD1305_WIDTH_BIT_SHIFT;
-        for (uint8_t x = start_x; x <= end_x; x++)
+        uint16_t buffer_shift = ((uint16_t)end_page) << SSD1305_WIDTH_BIT_SHIFT;
+        for (uint8_t page = end_page; page >= start_page; page--)
         {
-            miniBistreamGetNextByte(bs);
+            if (page == end_page)
+            {
+                miniOledFrameBuffer[buffer_shift+x] &= rbitmask[data_rbitshift];
+                miniOledFrameBuffer[buffer_shift+x] |= superdata[index++] >> data_rbitshift;
+            }
+            if (page == start_page)
+            {
+                if(data_rbitshift == 0)
+                {
+                    // Data is aligned with our data storage system :D
+                    miniOledFrameBuffer[buffer_shift+x] = superdata[index++];
+                }
+                else
+                {
+                    miniOledFrameBuffer[buffer_shift+x] &= lbitmask[data_lbitshift];
+                    miniOledFrameBuffer[buffer_shift+x] |= superdata[index-1] << data_lbitshift;
+                    index++;
+                }
+            }
+            if (page != end_page && page != start_page)
+            {
+                if(data_rbitshift == 0)
+                {
+                    // Data is aligned with our data storage system :D
+                    miniOledFrameBuffer[buffer_shift+x] = superdata[index++];
+                }
+                else
+                {
+                    miniOledFrameBuffer[buffer_shift+x] = superdata[index-1] << data_lbitshift;
+                    miniOledFrameBuffer[buffer_shift+x] |= superdata[index++] >> data_rbitshift;                    
+                }
+            }
+            buffer_shift -= ((uint16_t)1 << SSD1305_WIDTH_BIT_SHIFT);
         }
-    }   
+        //miniBistreamGetNextByte(bs);
+    }  
 }
 
 /*! \fn     miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options)

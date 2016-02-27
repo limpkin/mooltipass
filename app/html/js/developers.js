@@ -53,8 +53,6 @@ mooltipass.ui.developers.init = function () {
             return;
         }
 
-        $("#modal-confirm-on-device").show();
-
         mooltipass.device.interface.send({
             'command': 'startSingleCommunicationMode',
             'callbackFunction': mooltipass.ui.sync.callbackJumpToBootloader,
@@ -62,7 +60,10 @@ mooltipass.ui.developers.init = function () {
             'callbackFunctionStart': function() {
                 mooltipass.device.singleCommunicationModeEntered = true;
 
-                mooltipass.memmgmt.mediaBundlerUpload(mooltipass.ui.developers.callbackJumpToBootloader, password);
+                setTimeout(function() {
+                    mooltipass.device.reset();
+                    mooltipass.device.restartProcessingQueue();
+                }, 2000);
             }
         });
 

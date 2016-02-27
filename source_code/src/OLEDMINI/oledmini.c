@@ -97,13 +97,15 @@ void miniOledWriteSimpleCommand(uint8_t reg)
  */
 void miniOledWriteData(uint8_t* data, uint16_t nbBytes)
 {
+    spiUsartDummyWrite();
     PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
     PORT_OLED_DnC |= (1 << PORTID_OLED_DnC);
     while(nbBytes--)
     {
-        spiUsartTransfer(*data);
+        spiUsartSendTransfer(*data);
         data++;
     }
+    spiUsartWaitEndSendTransfer();
     PORT_OLED_SS |= (1 << PORTID_OLED_SS);
 }
 
@@ -159,6 +161,7 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
     miniOledSetWindow(xstart, xend, page_start, page_end);
     
     // Send data, we go low level to have better speed
+    spiUsartDummyWrite();
     PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
     PORT_OLED_DnC |= (1 << PORTID_OLED_DnC);
     for (uint8_t page = page_start; page <= page_end; page++)
@@ -166,13 +169,31 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
         uint16_t buffer_shift = ((uint16_t)page) << SSD1305_WIDTH_BIT_SHIFT;
         for (uint8_t x = xstart; x <= xend; x++)
         {
-            // TODO: switch sending techniques
-            spiUsartTransfer(miniOledFrameBuffer[buffer_shift + x]);
-            //spiUsartSendTransfer(miniOledFrameBuffer[(uint16_t)x + buffer_shift]);
+            //spiUsartTransfer(miniOledFrameBuffer[buffer_shift + x]);
+            spiUsartSendTransfer(miniOledFrameBuffer[buffer_shift + x]);
         }
     }
-    //spiUsartWaitEndSendTransfer();
+    spiUsartWaitEndSendTransfer();
     PORT_OLED_SS |= (1 << PORTID_OLED_SS); 
+}
+
+/*! \fn     miniOledFlushBufferContents(uint8_t x, uint8_t y)
+ *  \brief  Flush buffer contents to the display
+ *  \param  xstart  From which x to start flushing
+ *  \param  xend    end x position
+ *  \param  ystart  From which y to start flushing
+ *  \param  yend    end y position
+ */
+void miniOledFlushEntireBufferToDisplay(void)
+{
+    // Set display window
+    uint8_t data[3] = {SSD1305_CMD_SET_COLUMN_ADDR, SSD1305_X_OFFSET, SSD1305_OLED_WIDTH + SSD1305_X_OFFSET - 1};
+    miniOledWriteCommand(data, sizeof(data));
+    uint8_t data2[3] = {SSD1305_CMD_SET_PAGE_ADDR, 0, (SSD1305_OLED_HEIGHT/SSD1305_PAGE_HEIGHT)-1};
+    miniOledWriteCommand(data2, sizeof(data2));
+    
+    // Send data
+    miniOledWriteData(miniOledFrameBuffer, sizeof(miniOledFrameBuffer));
 }
 
 /*! \fn     miniOledOn(void)
@@ -357,7 +378,7 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
 void miniOledClear(void)
 {
     memset(miniOledFrameBuffer, 0x00, sizeof(miniOledFrameBuffer));
-    miniOledFlushBufferContents(0, SSD1305_OLED_WIDTH, 0, SSD1305_OLED_HEIGHT);
+    miniOledFlushBufferContents(0, SSD1305_OLED_WIDTH-1, 0, SSD1305_OLED_HEIGHT-1);
 }
 
 /*! \fn     miniOledGetFileAddr(uint8_t fileId, uint16_t *addr)

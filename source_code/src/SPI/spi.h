@@ -64,14 +64,28 @@ static inline uint8_t spiUsartTransfer(uint8_t data)
 }
 
 /**
+ * this function is just meant to raise the RXC bit
+ */
+static inline void spiUsartDummyWrite(void)
+{
+    /* Wait for empty transmit buffer */
+    while (!(UCSR1A & (1<<UDRE1)));
+    UDR1 = 0x00;
+    /* Wait for data to be received */
+    while (!(UCSR1A & (1<<RXC1)));    
+}
+
+/**
  * send a byte of data via the SPI USART interface.
  * @param data - the byte to send
  */
 static inline void spiUsartSendTransfer(uint8_t data)
 {
+    /* Wait for data to be received */
+    while (!(UCSR1A & (1<<RXC1)));
+    UDR1;
     /* Wait for empty transmit buffer */
     while (!(UCSR1A & (1<<UDRE1)));
-    UDR1;
     UDR1 = data;
 }
 

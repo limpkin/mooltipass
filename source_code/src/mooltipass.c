@@ -507,10 +507,11 @@ int main(void)
     #endif
 
     #if defined(MINI_VERSION)
+        miniOledFlushEntireBufferToDisplay();
         while(1)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
-            for(uint8_t i = 0; i < 16; i++)
+            for(uint8_t i = 0; i < 128-16; i++)
             {
                 if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_DET)
                     miniOledDrawRectangle(40,0,5,5,TRUE);
@@ -546,12 +547,13 @@ int main(void)
                 else
                     miniOledDrawRectangle(105,0,5,5,FALSE);            
                   
-                bitstream_mini_t tata;
-                miniOledBitmapDrawRaw(i, i, &tata, 0);
+                //bitstream_mini_t tata;
+                //miniOledBitmapDrawRaw(i, i, &tata, 0);
                 //miniOledDrawRectangle(i,i,1,1,TRUE);
-                miniOledFlushBufferContents(0, 127, 0, 31);
-                timerBasedDelayMs(100);
-                miniOledDrawRectangle(i,i,4,16,FALSE);    
+                //miniOledBitmapDrawFlash(i, 16, 0, 0);
+                miniOledFlushEntireBufferToDisplay();
+                //timerBasedDelayMs(100);
+                miniOledDrawRectangle(i,16,16,16,FALSE);    
             }
         
             // Check if a card just got inserted / removed

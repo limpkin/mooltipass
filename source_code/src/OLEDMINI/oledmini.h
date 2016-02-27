@@ -86,6 +86,7 @@ void miniOledBegin(uint8_t font);
 void miniOledWriteActiveBuffer(void);
 void miniOledWriteInactiveBuffer(void);
 void miniOledSetFont(uint8_t fontIndex);
+void miniOledFlushEntireBufferToDisplay(void);
 void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
 void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t options);
 void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, uint8_t yend);

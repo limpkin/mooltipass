@@ -1459,7 +1459,7 @@ void usbProcessIncoming(uint8_t caller_id)
         {            
             // Mandatory wait for bruteforce
             userViewDelay();
-            #ifdef DEV_PLUGIN_COMMS
+            #if defined(DEV_PLUGIN_COMMS) || defined(AVR_BOOTLOADER_PROGRAMMING)
                 // Write "jump to bootloader" key in eeprom
                 eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
                 // Set bootloader password bool to FALSE

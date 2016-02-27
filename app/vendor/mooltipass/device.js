@@ -64,7 +64,8 @@ mooltipass.device.commands = {
     'getFreeSlotAddresses'          : 0xD0,
     'getStartingDataParentAddress'  : 0xD1,
     'setStartingDataParentAddress'  : 0xD2,
-    'endMemoryManagementMode'       : 0xD3
+    'endMemoryManagementMode'       : 0xD3,
+    'jumpToBootloader'              : 0xAB
 };
 
 /**

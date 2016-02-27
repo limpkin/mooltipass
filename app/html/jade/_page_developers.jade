@@ -35,3 +35,17 @@
             .column.small-3.end
                 div &nbsp;
                 button.small.expand.import Import
+        .row.margin-bottom.storage
+            .column.small-6
+                h2 Jump To Bootloader
+
+                p Send a packet to instruct the Mooltipass device to jump to the bootloader. <strong>This will break your device!</strong>
+
+            .column.small-3
+                label
+                    span Password&nbsp;
+                    input#jumpToBootloaderPassword(type="text", name="password")
+
+            .column.small-3.end
+                div &nbsp;
+                button.small.expand.jump Jump

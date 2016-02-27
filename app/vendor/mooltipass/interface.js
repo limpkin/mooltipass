@@ -48,7 +48,7 @@ mooltipass.device.interface.send = function(inputObject) {
         return;
     }
 
-    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassParameter', 'setMooltipassParameter', 'getMooltipassStatus', 'getMooltipassUID', 'startSingleCommunicationMode', 'resetCard'], inputObject.command)) {
+    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassParameter', 'jumpToBootloader', 'setMooltipassParameter', 'getMooltipassStatus', 'getMooltipassUID', 'startSingleCommunicationMode', 'resetCard'], inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 71, 'device is locked');
         return;
     }
@@ -140,6 +140,18 @@ mooltipass.device.interface._startSingleCommunicationMode = function(inputObject
 
 
 mooltipass.device.interface._resetCard = function(inputObject) {
+    mooltipass.device.addToQueue(
+        inputObject.command,
+        [],
+        inputObject.responseParameters,
+        inputObject.callbackFunction,
+        inputObject.callbackParameters,
+        inputObject.timeout
+    );
+};
+
+
+mooltipass.device.interface._jumpToBootloader = function(inputObject) {
     mooltipass.device.addToQueue(
         inputObject.command,
         [],

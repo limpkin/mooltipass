@@ -46,6 +46,27 @@ mooltipass.ui.developers.init = function () {
         });
 
     });
+
+    $('#page-developers button.jump').click(function() {
+        if($('#jumpToBootloaderPassword').val() != 'limpkin') {
+            mooltipass.ui.status.error($('#page-developers button.jump'), 'Password wrong');
+            return;
+        }
+
+        $("#modal-confirm-on-device").show();
+
+        mooltipass.device.interface.send({
+            'command': 'startSingleCommunicationMode',
+            'callbackFunction': mooltipass.ui.sync.callbackJumpToBootloader,
+            'reason': 'jumptobootloader',
+            'callbackFunctionStart': function() {
+                mooltipass.device.singleCommunicationModeEntered = true;
+
+                mooltipass.memmgmt.mediaBundlerUpload(mooltipass.ui.developers.callbackJumpToBootloader, password);
+            }
+        });
+
+    });
 };
 
 mooltipass.ui.developers.callbackImportMediaBundle = function(_statusObject) {
@@ -54,6 +75,19 @@ mooltipass.ui.developers.callbackImportMediaBundle = function(_statusObject) {
     }
     else {
         mooltipass.ui.status.error($('#page-developers button.import'), _statusObject.msg);
+    }
+
+    $("#modal-confirm-on-device").hide();
+
+    mooltipass.device.endSingleCommunicationMode(_statusObject.skipEndingSingleCommunicationMode);
+};
+
+mooltipass.ui.developers.callbackJumpToBootloader = function(_statusObject) {
+    if(_statusObject.success) {
+        mooltipass.ui.status.success($('#page-developers button.jump'), 'Successfully jumped to bootloader');
+    }
+    else {
+        mooltipass.ui.status.error($('#page-developers button.jump'), _statusObject.msg);
     }
 
     $("#modal-confirm-on-device").hide();

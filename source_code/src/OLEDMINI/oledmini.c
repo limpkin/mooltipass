@@ -357,7 +357,7 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
 void miniOledClear(void)
 {
     memset(miniOledFrameBuffer, 0x00, sizeof(miniOledFrameBuffer));
-    miniOledFlushBufferContents(0, SSD1305_OLED_WIDTH, 0, SSD1305_OLED_HEIGHT);
+    miniOledFlushBufferContents(0, SSD1305_OLED_WIDTH-1, 0, SSD1305_OLED_HEIGHT-1);
 }
 
 /*! \fn     miniOledGetFileAddr(uint8_t fileId, uint16_t *addr)

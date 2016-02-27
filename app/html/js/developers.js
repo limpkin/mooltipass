@@ -60,6 +60,8 @@ mooltipass.ui.developers.init = function () {
             'callbackFunctionStart': function() {
                 mooltipass.device.singleCommunicationModeEntered = true;
 
+                mooltipass.ui.status.success($('#page-developers button.jump'), 'Sent jump packet');
+
                 setTimeout(function() {
                     mooltipass.device.reset();
                     mooltipass.device.restartProcessingQueue();

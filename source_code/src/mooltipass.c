@@ -507,8 +507,8 @@ int main(void)
     #endif
 
     #if defined(MINI_VERSION)
-        miniOledFlushBufferContents(0, 127, 0, 31);
-        while(1);
+        miniOledFlushEntireBufferToDisplay();
+        while(1)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
             for(uint8_t i = 0; i < 128-16; i++)
@@ -551,7 +551,7 @@ int main(void)
                 //miniOledBitmapDrawRaw(i, i, &tata, 0);
                 //miniOledDrawRectangle(i,i,1,1,TRUE);
                 //miniOledBitmapDrawFlash(i, 16, 0, 0);
-                miniOledFlushBufferContents(0, 127, 0, 31);
+                miniOledFlushEntireBufferToDisplay();
                 //timerBasedDelayMs(100);
                 miniOledDrawRectangle(i,16,16,16,FALSE);    
             }

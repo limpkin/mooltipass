@@ -549,6 +549,7 @@ int main(void)
                 //bitstream_mini_t tata;
                 //miniOledBitmapDrawRaw(i, i, &tata, 0);
                 //miniOledDrawRectangle(i,i,1,1,TRUE);
+                miniOledBitmapDrawFlash(0, 0, 0, 0);
                 miniOledFlushBufferContents(0, 127, 0, 31);
                 //timerBasedDelayMs(100);
                 miniOledDrawRectangle(i,i,4,16,FALSE);    

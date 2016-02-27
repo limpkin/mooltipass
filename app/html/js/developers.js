@@ -25,7 +25,7 @@ mooltipass.ui.developers.init = function () {
                     mooltipass.ui.status.error($('#page-developers button.resetCard'), 'Could not do a factory reset for the inserted card');
                 }
                 $('#page-developers #resetCardCheckbox').prop('disabled', false).data('active', 0);
-            },
+            }
         });
     });
 
@@ -53,21 +53,21 @@ mooltipass.ui.developers.init = function () {
             return;
         }
 
+        $("#modal-confirm-on-device").show();
+
         mooltipass.device.interface.send({
-            'command': 'startSingleCommunicationMode',
-            'callbackFunction': mooltipass.ui.sync.callbackJumpToBootloader,
-            'reason': 'jumptobootloader',
-            'callbackFunctionStart': function() {
-                mooltipass.device.singleCommunicationModeEntered = true;
-
-                mooltipass.ui.status.success($('#page-developers button.jump'), 'Sent jump packet');
-
-                setTimeout(function() {
-                    mooltipass.device.reset();
-                    mooltipass.device.restartProcessingQueue();
-                }, 2000);
-            }
+            'command': 'jumpToBootloader',
+            'callbackFunction': null
         });
+
+        mooltipass.ui.status.success($('#page-developers button.jump'), 'Sent jump packet');
+
+        setTimeout(function() {
+            console.warn('reset device connection');
+            mooltipass.device.reset();
+            mooltipass.device.restartProcessingQueue();
+            $("#modal-confirm-on-device").hide();
+        }, 2000);
 
     });
 };

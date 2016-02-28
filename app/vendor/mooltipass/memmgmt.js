@@ -111,6 +111,7 @@ mooltipass.memmgmt.syncFSParsedFileIndex = 0;				// Index of the syncFS file we 
 mooltipass.memmgmt.currentCardCPZ = [];						// Current card CPZ
 mooltipass.memmgmt.lastLetter = '0';						// Current letter we're at
 mooltipass.memmgmt.mergeFileTypeCsv = false;				// File type of the credential file we're merging
+mooltipass.memmgmt.mediaBundleUploadPercentage = 0;			// Media upload progress percentage
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -4049,6 +4050,14 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 		}
 		else
 		{
+			// Progress bar
+			var tempCompletion = Math.round((mooltipass.memmgmt.byteCounter/mooltipass.memmgmt.mediaBundle.length)*100);
+			if(tempCompletion != mooltipass.memmgmt.mediaBundleUploadPercentage)
+			{
+				mooltipass.memmgmt.progressCallback({'progress': tempCompletion});
+				mooltipass.memmgmt.mediaBundleUploadPercentage = tempCompletion;				
+			}			
+
 			// Check how many bytes we need to send
 			var nb_bytes_to_send = MEDIA_BUNDLE_CHUNK_SIZE;			
 			if(mooltipass.memmgmt.mediaBundle.length - mooltipass.memmgmt.byteCounter < MEDIA_BUNDLE_CHUNK_SIZE)
@@ -4121,8 +4130,10 @@ mooltipass.memmgmt.mediaBundleReadCallback = function(e)
 }
 
 // Media bundle upload
-mooltipass.memmgmt.mediaBundlerUpload = function(callback, password)
+mooltipass.memmgmt.mediaBundlerUpload = function(callback, password, progressCallback)
 {
+	mooltipass.memmgmt.progressCallback = progressCallback;
+	mooltipass.memmgmt.mediaBundleUploadPercentage = 0;
 	mooltipass.memmgmt.statusCallback = callback;
 	
 	// Check password length

@@ -507,76 +507,53 @@ int main(void)
     #endif
 
     #if defined(MINI_VERSION)
-        miniOledFlushEntireBufferToDisplay();
         while(1)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
-            for(uint8_t i = 0; i < 128-16; i++)
-            {
-                if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_DET)
-                    miniOledDrawRectangle(40,0,5,5,TRUE);
-                else
-                    miniOledDrawRectangle(40,0,5,5,FALSE);  
-                if(isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_DET)
-                    miniOledDrawRectangle(45,0,5,5,TRUE);
-                else
-                    miniOledDrawRectangle(45,0,5,5,FALSE);  
-                if(isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_DET)
-                    miniOledDrawRectangle(50,0,5,5,TRUE);
-                else
-                    miniOledDrawRectangle(50,0,5,5,FALSE);  
-                if(isMiniDirectionPressed(PORTID_JOY_RIGHT) == RETURN_DET)
-                    miniOledDrawRectangle(55,0,5,5,TRUE);
-                else
-                    miniOledDrawRectangle(55,0,5,5,FALSE);  
-                if(isMiniDirectionPressed(PORTID_JOY_CENTER) == RETURN_DET)
-                    miniOledDrawRectangle(60,0,5,5,TRUE);
-                else
-                    miniOledDrawRectangle(60,0,5,5,FALSE);    
-                if(isWheelClicked() == RETURN_DET)
-                    miniOledDrawRectangle(65,0,5,5,TRUE);
-                else
-                    miniOledDrawRectangle(65,0,5,5,FALSE);  
-                    
-                if (!(PIN_WHEEL_A & (1 << PORTID_WHEEL_A)))    
-                    miniOledDrawRectangle(100,0,5,5,TRUE);
-                else
-                    miniOledDrawRectangle(100,0,5,5,FALSE);   
-                if (!(PIN_WHEEL_B & (1 << PORTID_WHEEL_B)))    
-                    miniOledDrawRectangle(105,0,5,5,TRUE);
-                else
-                    miniOledDrawRectangle(105,0,5,5,FALSE);            
-                  
-                //bitstream_mini_t tata;
-                //miniOledBitmapDrawRaw(i, i, &tata, 0);
-                //miniOledDrawRectangle(i,i,1,1,TRUE);
-                //miniOledBitmapDrawFlash(i, 16, 0, 0);
-                miniOledFlushEntireBufferToDisplay();
-                //timerBasedDelayMs(100);
-                miniOledDrawRectangle(i,16,16,16,FALSE);    
-            }
-        
-            // Check if a card just got inserted / removed
-            card_detect_ret = isCardPlugged();
-        
-            // Do appropriate actions on smartcard insertion / removal
-            if (card_detect_ret == RETURN_JDETECT)
-            {
-                // Light up the Mooltipass and call the dedicated function
-                activityDetectedRoutine();
-                handleSmartcardInserted();
-            }
-            else if (card_detect_ret == RETURN_JRELEASED)
-            {
-                // Light up the Mooltipass and call the dedicated function
-                activityDetectedRoutine();
-                handleSmartcardRemoved();
-            
-                // Set correct screen
-                guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_REMOVED);
-                guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
-                guiGetBackToCurrentScreen();
-            }
+//             for(uint8_t i = 0; i < 128-16; i++)
+//             {
+//                 if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_DET)
+//                     miniOledDrawRectangle(40,0,5,5,TRUE);
+//                 else
+//                     miniOledDrawRectangle(40,0,5,5,FALSE);  
+//                 if(isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_DET)
+//                     miniOledDrawRectangle(45,0,5,5,TRUE);
+//                 else
+//                     miniOledDrawRectangle(45,0,5,5,FALSE);  
+//                 if(isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_DET)
+//                     miniOledDrawRectangle(50,0,5,5,TRUE);
+//                 else
+//                     miniOledDrawRectangle(50,0,5,5,FALSE);  
+//                 if(isMiniDirectionPressed(PORTID_JOY_RIGHT) == RETURN_DET)
+//                     miniOledDrawRectangle(55,0,5,5,TRUE);
+//                 else
+//                     miniOledDrawRectangle(55,0,5,5,FALSE);  
+//                 if(isMiniDirectionPressed(PORTID_JOY_CENTER) == RETURN_DET)
+//                     miniOledDrawRectangle(60,0,5,5,TRUE);
+//                 else
+//                     miniOledDrawRectangle(60,0,5,5,FALSE);    
+//                 if(isWheelClicked() == RETURN_DET)
+//                     miniOledDrawRectangle(65,0,5,5,TRUE);
+//                 else
+//                     miniOledDrawRectangle(65,0,5,5,FALSE);  
+//                     
+//                 if (!(PIN_WHEEL_A & (1 << PORTID_WHEEL_A)))    
+//                     miniOledDrawRectangle(100,0,5,5,TRUE);
+//                 else
+//                     miniOledDrawRectangle(100,0,5,5,FALSE);   
+//                 if (!(PIN_WHEEL_B & (1 << PORTID_WHEEL_B)))    
+//                     miniOledDrawRectangle(105,0,5,5,TRUE);
+//                 else
+//                     miniOledDrawRectangle(105,0,5,5,FALSE);            
+//                   
+//                 //bitstream_mini_t tata;
+//                 //miniOledBitmapDrawRaw(i, i, &tata, 0);
+//                 //miniOledDrawRectangle(i,i,1,1,TRUE);
+//                 //miniOledBitmapDrawFlash(i, 16, 0, 0);
+//                 miniOledFlushEntireBufferToDisplay();
+//                 //timerBasedDelayMs(100);
+//                 miniOledDrawRectangle(i,16,16,16,FALSE);    
+//             }
         }
     #endif
     

@@ -183,6 +183,7 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
  *  \param  xend    end x position
  *  \param  ystart  From which y to start flushing
  *  \param  yend    end y position
+ *  \notes  timed at 1.6ms!
  */
 void miniOledFlushEntireBufferToDisplay(void)
 {

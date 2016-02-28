@@ -35,13 +35,13 @@ mooltipass.ui.developers.init = function () {
 
         mooltipass.device.interface.send({
             'command': 'startSingleCommunicationMode',
-            'callbackFunction': mooltipass.ui.sync.callbackImportMediaBundle,
+            'callbackFunction': mooltipass.ui.developers.callbackImportMediaBundle,
             'reason': 'mediabundlerupload',
             'callbackFunctionStart': function() {
                 mooltipass.device.singleCommunicationModeEntered = true;
 
                 var password = $('#importMediaBundlePassword').val();
-                mooltipass.memmgmt.mediaBundlerUpload(mooltipass.ui.developers.callbackImportMediaBundle, password);
+                mooltipass.memmgmt.mediaBundlerUpload(mooltipass.ui.developers.callbackImportMediaBundle, password, mooltipass.ui.developers.progressImportMediaBundle);
             }
         });
 
@@ -70,6 +70,17 @@ mooltipass.ui.developers.init = function () {
         }, 2000);
 
     });
+};
+
+mooltipass.ui.developers.progressImportMediaBundle = function(_progress) {
+    $("#modal-confirm-on-device").hide();
+    $("#modal-import-media-bundle").show();
+
+    if (_progress.progress == 0) {
+        $('#modal-import-media-bundle').hide();
+        return
+    }
+    $("#modal-import-media-bundle span.meter").css("width", _progress.progress + "%");
 };
 
 mooltipass.ui.developers.callbackImportMediaBundle = function(_statusObject) {

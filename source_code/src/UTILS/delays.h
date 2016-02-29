@@ -31,6 +31,7 @@
 
 // Prototypes
 void userViewDelay(void);
+void smallForLoopBasedDelay(void);
 
 // Macros
 #define powerSettlingDelay()                timerBased130MsDelay()

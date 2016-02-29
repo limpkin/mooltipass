@@ -267,10 +267,10 @@
     <Compile Include="src\define_printouts.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\electrical_testing.c">
+    <Compile Include="src\functional_testing.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\electrical_testing.h">
+    <Compile Include="src\functional_testing.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\GUI\gui.h">

@@ -17,15 +17,17 @@
  *
  * CDDL HEADER END
  */
-/*! \file   electrical_testing.h
- *  \brief  Electrical testing functions
+/*! \file   functional_testing.h
+ *  \brief  Functional testing functions
  *  Copyright [2016] [Mathieu Stephan]
  */ 
 
 
-#ifndef ELECTRICAL_TESTING_H_
-#define ELECTRICAL_TESTING_H_
+#ifndef FUNCTIONAL_TESTING_H_
+#define FUNCTIONAL_TESTING_H_
 
-void mooltipass_standard_electrical_test(uint8_t fuse_ok);
+RET_TYPE electricalJumpToBootloaderCondition(void);
+void mooltipassStandardElectricalTest(uint8_t fuse_ok);
+void mooltipassStandardFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok);
 
-#endif /* ELECTRICAL_TESTING_H_ */
+#endif

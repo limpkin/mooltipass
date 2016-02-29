@@ -34,7 +34,7 @@
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
 #include "logic_aes_and_comms.h"
-#include "electrical_testing.h"
+#include "functional_testing.h"
 #include "eeprom_addresses.h"
 #include "define_printouts.h"
 #include "watchdog_driver.h"
@@ -80,35 +80,22 @@ uint8_t mp_timeout_enabled = FALSE;
 uint8_t act_detected_flag = FALSE;
 
 
-/*! \fn     disableJTAG(void)
-*   \brief  Disable the JTAG module
-*/
-static inline void disableJTAG(void)
-{
-    unsigned char temp;
-
-    temp = MCUCR;
-    temp |= (1<<JTD);
-    MCUCR = temp;
-    MCUCR = temp;
-}
-
 /*! \fn     main(void)
 *   \brief  Main function
 */
 int main(void)
 {
-    uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Fetch boot key from eeprom
+    uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Fetch boot key from EEPROM
     #if defined(HARDWARE_OLIVIER_V1)                                                // Only the Mooltipass standard version has a touch panel
-        RET_TYPE touch_init_result;                                                 // Touch init result
+        RET_TYPE touch_init_result;                                                 // Touch initialization result
     #endif                                                                          // ENDIF
-    RET_TYPE flash_init_result;                                                     // Flash init result
+    RET_TYPE flash_init_result;                                                     // Flash initialization result
     RET_TYPE card_detect_ret;                                                       // Card detect result
     uint8_t fuse_ok = TRUE;                                                         // Fuse check result
     
     #if defined(JTAG_FUSE_ENABLED)                                                  // For units whose fuses haven't been programmed
         disableJTAG();                                                              // Disable JTAG to gain access to pins        
-        CPU_PRESCALE(0);                                                            // Set prescaler to 1 (fuses not set)
+        CPU_PRESCALE(0);                                                            // Set pre-scaler to 1 (fuses not set)
     #endif
 
     #if defined(PREPRODUCTION_KICKSTARTER_SETUP)
@@ -132,7 +119,8 @@ int main(void)
     #endif
     
     #if defined(HARDWARE_OLIVIER_V1)
-        mooltipass_standard_electrical_test(fuse_ok);
+        // Electrical testing during production
+        mooltipassStandardElectricalTest(fuse_ok);
     #endif    
     
     // This code will only be used for developers and beta testers
@@ -159,7 +147,7 @@ int main(void)
         }
     #endif    
 
-    // First time initializations for Eeprom (first boot at production or flash layout changes for beta testers)
+    // First time initializations for EEPROM (first boot at production)
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         // Erase Mooltipass parameters
@@ -168,58 +156,12 @@ int main(void)
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
     }
 
-    /* Check if a card is inserted in the Mooltipass to go to the bootloader */
+   // For test units, there's an electrical jump to bootloader condition
     #ifdef AVR_BOOTLOADER_PROGRAMMING
-        #ifndef MINI_VERSION
-            /* Disable JTAG to get access to the pins */
-            disableJTAG();
-            /* Init SMC port */
-            initPortSMC();
-            /* Delay for detection */
-            smallForLoopBasedDelay();
-            if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
-            {
-                uint16_t tempuint16;
-                /* What follows is a copy from firstDetectFunctionSMC() */
-                /* Enable power to the card */
-                PORT_SC_POW &= ~(1 << PORTID_SC_POW);
-                /* Default state: PGM to 0 and RST to 1 */
-                PORT_SC_PGM &= ~(1 << PORTID_SC_PGM);
-                DDR_SC_PGM |= (1 << PORTID_SC_PGM);
-                PORT_SC_RST |= (1 << PORTID_SC_RST);
-                DDR_SC_RST |= (1 << PORTID_SC_RST);
-                /* Activate SPI port */
-                PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
-                DDRB |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
-                setSPIModeSMC();
-                /* Let the card come online */
-                smallForLoopBasedDelay();
-                /* Check smart card FZ */
-                readFabricationZone((uint8_t*)&tempuint16);
-                if ((swap16(tempuint16)) != SMARTCARD_FABRICATION_ZONE)
-                {
-                    removeFunctionSMC();
-                    start_bootloader();
-                }
-                else
-                {
-                    removeFunctionSMC();
-                }
-            }
-        #else
-            /* Disable JTAG to get access to the pins */
-            disableJTAG();
-            /* Pressing center joystick starts the bootloader */
-            DDR_JOYSTICK &= ~(1 << PORTID_JOY_CENTER);
-            PORT_JOYSTICK |= (1 << PORTID_JOY_CENTER);
-            /* Small delay for detection */
-            smallForLoopBasedDelay();
-            /* Check if low */
-            if (!(PIN_JOYSTICK & (1 << PORTID_JOY_CENTER)))
-            {
-                start_bootloader();
-            }  
-        #endif          
+        if(electricalJumpToBootloaderCondition() == TRUE)
+        {
+            start_bootloader();
+        }
     #endif
 
     initPortSMC();                      // Initialize smart card port
@@ -285,96 +227,10 @@ int main(void)
         afterTouchInitTests();
     #endif
     
-    // Test procedure to check that all HW is working
     //#define FORCE_PROD_TEST
     #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
-        if (current_bootkey_val != CORRECT_BOOTKEY)
-        {
-            uint8_t test_result_ok = TRUE;
-            RET_TYPE temp_rettype;     
-            // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
-            //#ifdef PRODUCTION_KICKSTARTER_SETUP
-            while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0x94)
-            {
-                usbProcessIncoming(USB_CALLER_MAIN);
-            }
-            //#endif
-            // Bundle uploaded, start the screen
-            stockOledBegin(FONT_DEFAULT);
-            oledWriteActiveBuffer();
-            oledSetXY(0,0);
-            // LEDs ON, to check
-            setPwmDc(MAX_PWM_VAL);
-            touchDetectionRoutine(0);
-            guiDisplayRawString(ID_STRING_TEST_LEDS_CH);
-            // Check flash init
-            if (flash_init_result != RETURN_OK)
-            {
-                 guiDisplayRawString(ID_STRING_TEST_FLASH_PB);
-                 test_result_ok = FALSE;
-            }
-            // Check touch init
-            if (touch_init_result != RETURN_OK)
-            {
-                guiDisplayRawString(ID_STRING_TEST_TOUCH_PB);
-                test_result_ok = FALSE;
-            }
-            // Check fuse setting
-            if (fuse_ok != TRUE)
-            {
-                test_result_ok = FALSE;
-                guiDisplayRawString(ID_STRING_FUSE_PB);
-            }
-            // Touch instructions
-            guiDisplayRawString(ID_STRING_TEST_INST_TCH);
-            // Check prox
-            while(!(touchDetectionRoutine(0) & RETURN_PROX_DETECTION));
-            guiDisplayRawString(ID_STRING_TEST_DET);
-            activateGuardKey();
-            // Check left
-            while(!(touchDetectionRoutine(0) & RETURN_LEFT_PRESSED));
-            guiDisplayRawString(ID_STRING_TEST_LEFT);
-            // Check wheel
-            while(!(touchDetectionRoutine(0) & RETURN_WHEEL_PRESSED));
-            guiDisplayRawString(ID_STRING_TEST_WHEEL);
-            // Check right
-            while(!(touchDetectionRoutine(0) & RETURN_RIGHT_PRESSED));
-            guiDisplayRawString(ID_STRING_TEST_RIGHT);
-            // Insert card
-            guiDisplayRawString(ID_STRING_TEST_CARD_INS);
-            while(isCardPlugged() != RETURN_JDETECT);
-            temp_rettype = cardDetectedRoutine();
-            // Check card
-            if (!((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
-            {
-                guiDisplayRawString(ID_STRING_TEST_CARD_PB);
-                test_result_ok = FALSE;
-            }
-            // Display result
-            uint8_t script_return = RETURN_OK;
-            if (test_result_ok == TRUE)
-            {
-                // Inform script of success
-                usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
-                #if !defined(PREPRODUCTION_KICKSTARTER_SETUP)
-                    // Wait for password to be set
-                    while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
-                    {
-                        usbProcessIncoming(USB_CALLER_MAIN);
-                    }
-                #endif
-            }
-            else
-            {
-                // Set correct bool
-                script_return = RETURN_NOK;
-                // Display test result
-                guiDisplayRawString(ID_STRING_TEST_NOK);
-                // Inform script of failure
-                usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
-                while(1);
-            }
-        }
+        // Test procedure to check that all HW is working
+        mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
     
     // Stop the Mooltipass if we can't communicate with the flash or the touch interface

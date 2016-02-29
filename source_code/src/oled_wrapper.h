@@ -28,13 +28,19 @@
 #ifndef OLED_WRAPPER_H_
 #define OLED_WRAPPER_H_
 
-#if defined(HARDWARE_V1) || defined(HARDWARE_OLIVIER_V1)
+#if defined(HARDWARE_OLIVIER_V1)
     #define oledInitIOs()                   stockOledInitIOs()
     #define oledInvertedDisplay()           stockOledInvertedDisplay()
     #define oledNormalDisplay()             stockOledNormalDisplay()
     #define oledBegin(x)                    stockOledBegin(x)
     #define oledBitmapDrawFlash(a,b,c,d)    stockOledBitmapDrawFlash(a,b,c,d)
     #define oledPutstrXY(a,b,c,d)           stockOledPutstrXY(a,b,c,d)
+    #define oledClear()                     stockOledClear()
+    #define oledDisplayOtherBuffer()        stockOledDisplayOtherBuffer()
+    #define oledFillXY(a,b,c,d,e)           stockOledFillXY(a,b,c,d,e)
+    #define oledIsOn()                      stockOledIsOn()
+    #define oledOn()                        stockOledOn()
+    #define oledWriteInactiveBuffer()       stockOledWriteInactiveBuffer()
 #elif defined(MINI_VERSION)
     #define oledInitIOs()                   miniOledInitIOs()
     #define oledInvertedDisplay()           miniOledInvertedDisplay()
@@ -42,6 +48,12 @@
     #define oledBegin(x)                    miniOledBegin(x)
     #define oledBitmapDrawFlash(a,b,c,d)    miniOledBitmapDrawFlash(a,b,c,d)
     #define oledPutstrXY(a,b,c,d)           miniOledPutstrXY(a,b,c,d)
+    #define oledClear()                     miniOledClear()
+    #define oledDisplayOtherBuffer()        miniOledDisplayOtherBuffer()
+    #define oledFillXY(a,b,c,d,e)           miniOledDrawRectangle(a,b,c,d,e)
+    #define oledIsOn()                      miniOledIsScreenOn()
+    #define oledOn()                        miniOledOn()
+    #define oledWriteInactiveBuffer()       miniOledWriteInactiveBuffer()
 #endif
 
 #endif /* OLED_WRAPPER_H_ */

@@ -140,15 +140,15 @@ void oledSetColumnAddr(uint8_t start, uint8_t end);
 void oledSetRowAddr(uint8_t start, uint8_t end);
 void oledSetScrollSpeed(uint8_t msecs);
 void oledFill(uint8_t colour);
-void oledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour);
-void oledClear();
-void oledClearLine(int16_t y);
+void stockOledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour);
+void stockOledClear();
+void stockOledClearLine(int16_t y);
 void oledScrollClear(uint8_t options);
 void oledScrollUp(uint8_t lines, bool clear);
 void oledReset();
 void oledOff(void);
-void oledOn(void);
-uint8_t oledIsOn(void);
+void stockOledOn(void);
+uint8_t stockOledIsOn(void);
 
 #define OLED_SCROLL_UP              1
 #define OLED_SCROLL_DOWN            2
@@ -165,12 +165,12 @@ void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options);
 void oledInvertDisplay(void);
 void oledSetDisplayStartLine(uint8_t line);
 void oledMoveDisplayStartLine(int8_t offset);
-void oledDisplayOtherBuffer(void);
+void stockOledDisplayOtherBuffer(void);
 void oledFlipBuffers(uint8_t mode, uint8_t delay);
 void oledFlipDisplayedBuffer(void);
 void oledFlipWriteBuffer(void);
 void oledWriteActiveBuffer(void);
-void oledWriteInactiveBuffer(void);
+void stockOledWriteInactiveBuffer(void);
 
 void oledSetWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend);
 void oledSetFont(uint8_t fontIndex);

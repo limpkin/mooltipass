@@ -219,6 +219,15 @@ void miniOledOn(void)
     miniOledIsOn = TRUE;
 }
 
+/*! \fn     miniOledIsScreenOn(void)
+ *  \brief  See if the the OLED display is on
+ *  \return The boolean
+ */
+RET_TYPE miniOledIsScreenOn(void)
+{
+    return miniOledIsOn;
+}
+
 /*! \fn     miniOledInit(void)
  *  \brief  Initialize the OLED hardware and get it ready for use.
  */
@@ -307,6 +316,15 @@ void miniOledWriteInactiveBuffer(void)
  *  \brief  Set write buffer to the be the active (onscreen) buffer
  */
 void miniOledWriteActiveBuffer(void)
+{
+    //oled_writeBuffer = oled_displayBuffer;
+    //oled_writeOffset = 0;
+}
+
+/*! \fn     miniOledDisplayOtherBuffer(void)
+ *  \brief  Display the other buffer on the screen
+ */
+void miniOledDisplayOtherBuffer(void)
 {
     //oled_writeBuffer = oled_displayBuffer;
     //oled_writeOffset = 0;

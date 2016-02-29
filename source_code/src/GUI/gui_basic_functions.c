@@ -93,6 +93,7 @@ void activityDetectedRoutine(void)
     #endif
 }
 
+#if defined(HARDWARE_OLIVIER_V1)
 /*! \fn     getTouchedPositionAnswer(uint8_t led_mask)
 *   \brief  Use the capacitive interface to get quarter position
 *   \param  led_mask    Led mask for the touchdetection routine
@@ -245,6 +246,7 @@ int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
     
     return 0;
 }
+#endif
 
 /*! \fn     guiMainLoop(void)
 *   \brief  Main user interface loop
@@ -273,8 +275,12 @@ void guiMainLoop(void)
     screenSaverOnCopy = screenSaverOn;
     isScreenOnCopy = oledIsOn();
     
-    // Launch touch detection routine to check for interactions
-    touch_detect_result = touchDetectionRoutine(currentLedMask);
+    #if defined(HARDWARE_OLIVIER_V1)
+        // Launch touch detection routine to check for interactions
+        touch_detect_result = touchDetectionRoutine(currentLedMask);
+    #elif defined(MINI_VERSION)
+        touch_detect_result = 0;
+    #endif
     
     #if defined(HARDWARE_OLIVIER_V1)
         // No activity, switch off LEDs and activate prox detection

@@ -175,7 +175,11 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             oledDisplayOtherBuffer();
             
             // Get touched quarter
-            j = getTouchedPositionAnswer(led_mask);
+            #if defined(HARDWARE_OLIVIER_V1)
+                j = getTouchedPositionAnswer(led_mask);
+            #elif defined(MINI_VERSION)
+                j = 0;
+            #endif
             
             // Check its validity, knowing that by default we will return NODE_ADDR_NULL
             if (j == -1)

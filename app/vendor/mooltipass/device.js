@@ -568,7 +568,7 @@ mooltipass.device._sendMsg = function(queuedItem) {
 
     chrome.hid.send(mooltipass.device.connectionId, 0, queuedItem.packet, mooltipass.device.onSendMsg);
 
-    if(queueItem.command == "jumpToBootloader") {
+    if(queuedItem.command == "jumpToBootloader") {
         mooltipass.device.getFromQueue("jumpToBooloader");
     }
 };

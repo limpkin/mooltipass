@@ -33,16 +33,17 @@
 #include "pwm.h"
 #include "gui.h"
 
-// Touch logic: is touch wheel pressed in our algo
-uint8_t touch_logic_press = FALSE;
-// Touch logic: reference position of first touch
-uint8_t touch_logic_ref_position;
-// Bool to know if lights are on
+// Unique variables for the Mooltipass standard version
 #if defined (HARDWARE_OLIVIER_V1)
+    // Touch logic: is touch wheel pressed in our algo
+    uint8_t touch_logic_press = FALSE;
+    // Touch logic: reference position of first touch
+    uint8_t touch_logic_ref_position;
+    // Bool to know if lights are on
     uint8_t areLightsOn = FALSE;
+    // Current led mask for the PCB
+    uint8_t currentLedMask = 0;
 #endif
-// Current led mask for the PCB
-uint8_t currentLedMask = 0;
 // Screen saver on bool
 uint8_t screenSaverOn = FALSE;
 
@@ -84,6 +85,7 @@ void activityDetectedRoutine(void)
         screenSaverOn = FALSE;
     }
     
+    // There are only lights in the Mooltipass standard version
     #if defined(HARDWARE_OLIVIER_V1)
         // If the lights were off, turn them on!
         if (areLightsOn == FALSE)
@@ -102,10 +104,7 @@ void activityDetectedRoutine(void)
 */
 int8_t getTouchedPositionAnswer(uint8_t led_mask)
 {
-    #if defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
-        timerBasedDelayMs(2000);
-    #endif
-    #if defined(ALWAYS_ACCEPT_REQUESTS) || defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
+    #if defined(ALWAYS_ACCEPT_REQUESTS)
         // First quarter is discarded, it means we want yes or no!
         if (led_mask & LED_MASK_WHEEL_TLEFT)
         {
@@ -174,7 +173,7 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
     else
     {
         return (int8_t)getWheelTouchDetectionQuarter();
-    }
+    } 
 }
 
 /*! \fn     touchWheelIntefaceLogic(void)
@@ -260,21 +259,19 @@ void guiMainLoop(void)
     uint8_t screenSaverOnCopy;
     uint8_t isScreenOnCopy;
     
-    #if defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
-        return;
+    #if defined(HARDWARE_OLIVIER_V1)
+        // Set led mask depending on our current screen
+        switch(getCurrentScreen())
+        {
+            case SCREEN_DEFAULT_NINSERTED :         currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
+            case SCREEN_DEFAULT_INSERTED_LCK :      currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
+            case SCREEN_DEFAULT_INSERTED_NLCK :     currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT; break;
+            case SCREEN_DEFAULT_INSERTED_INVALID :  currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
+            case SCREEN_SETTINGS :                  currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT; break;
+            case SCREEN_MEMORY_MGMT :               currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
+            default: break;
+        }
     #endif
-    
-    // Set led mask depending on our current screen
-    switch(getCurrentScreen())
-    {
-        case SCREEN_DEFAULT_NINSERTED :         currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
-        case SCREEN_DEFAULT_INSERTED_LCK :      currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
-        case SCREEN_DEFAULT_INSERTED_NLCK :     currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT; break;
-        case SCREEN_DEFAULT_INSERTED_INVALID :  currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
-        case SCREEN_SETTINGS :                  currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT; break;
-        case SCREEN_MEMORY_MGMT :               currentLedMask = LED_MASK_LEFT|LED_MASK_RIGHT|LED_MASK_WHEEL; break;
-        default: break;
-    }
     
     // Make a copy of the screen on & screensaver on bools
     screenSaverOnCopy = screenSaverOn;
@@ -300,22 +297,16 @@ void guiMainLoop(void)
         userViewDelay();
         if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
         {
-            #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
-                screenSaverOn = TRUE;
-                oledWriteInactiveBuffer();
-                oledClear();
-                oledDisplayOtherBuffer();
-                oledClear();
-            #else
-                oledDisplayOtherBuffer();
-            #endif
+            screenSaverOn = TRUE;
+            oledWriteInactiveBuffer();
+            oledClear();
+            oledDisplayOtherBuffer();
+            oledClear();
         } 
         else
         {
             oledDisplayOtherBuffer();
-            #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
-                oledOff();
-            #endif
+            oledOff();
         }
     }
     

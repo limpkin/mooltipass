@@ -29,6 +29,9 @@
 #include "defines.h"
 #include <string.h>
 #include "touch.h"
+/***************************************************************/
+/*  This file is only used for the Mooltipass standard version */
+#if defined(HARDWARE_OLIVIER_V1)
 
 // Last read wheel position
 uint8_t last_raw_wheel_position;
@@ -326,3 +329,5 @@ RET_TYPE touchDetectionRoutine(uint8_t led_mask)
     
     return return_val;   
 }
+#endif
+/***************************************************************/

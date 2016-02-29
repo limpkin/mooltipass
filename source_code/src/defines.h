@@ -30,24 +30,9 @@
 
 
 /**************** SETUP DEFINES ****************/
-/*
- *  V1_DEVELOPERS_BOOTLOADER_SETUP
- *  => the first hardware version, with bootloader
- *
- *  V1_DEVELOPERS_ISP_SETUP
- *  => the first hardware version, without bootloader
- *
- *  V2_DEVELOPERS_BOOTLOADER_SETUP
- *  => final hardware version for developpers, with bootloader
- *
- *  V2_DEVELOPERS_BOOTLOADER_SETUP_PIN
- *  => final hardware version for developpers, with bootloader & pin code
- *
- *  V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP
- *  => same as above, but without top PCB
- *
- *  V2_DEVELOPERS_ISP_SETUP
- *  => final hardware version for developpers, without bootloader (for Mike)
+/*  This project should be built differently
+ *  depending on the Mooltipass version.
+ *  Simply define one of these:
  *
  *  BETATESTERS_SETUP
  *  => version sent to the beta testers
@@ -73,52 +58,8 @@
  *  MINI_CLICK_BETATESTERS_SETUP
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
 */
-#define MINI_CLICK_BETATESTERS_SETUP
-#if defined(V1_DEVELOPERS_BOOTLOADER_SETUP)
-    #define STACK_DEBUG
-    #define HARDWARE_V1
-    #define TESTS_ENABLED
-    #define FLASH_CHIP_1M
-    #define DEV_PLUGIN_COMMS
-    #define SMARTCARD_FUSE_V1
-    #define NO_PIN_CODE_REQUIRED
-    #define AVR_BOOTLOADER_PROGRAMMING
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
-#elif defined(V1_DEVELOPERS_ISP_SETUP)
-    #define STACK_DEBUG
-    #define HARDWARE_V1
-    #define TESTS_ENABLED
-    #define FLASH_CHIP_1M
-    #define DEV_PLUGIN_COMMS
-    #define SMARTCARD_FUSE_V1
-    #define NO_PIN_CODE_REQUIRED
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
-#elif defined(V2_DEVELOPERS_BOOTLOADER_SETUP) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
-    //#define STACK_DEBUG
-    //#define TESTS_ENABLED
-    #define FLASH_CHIP_1M
-    //#define DEV_PLUGIN_COMMS
-    #define HARDWARE_OLIVIER_V1
-    #define NO_PIN_CODE_REQUIRED
-    #define AVR_BOOTLOADER_PROGRAMMING
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
-#elif defined(V2_DEVELOPERS_BOOTLOADER_SETUP_PIN)
-    //#define STACK_DEBUG
-    //#define TESTS_ENABLED
-    #define FLASH_CHIP_1M
-    //#define DEV_PLUGIN_COMMS
-    #define HARDWARE_OLIVIER_V1
-    #define AVR_BOOTLOADER_PROGRAMMING
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
-#elif defined(V2_DEVELOPERS_ISP_SETUP)
-    #define STACK_DEBUG
-    #define TESTS_ENABLED
-    #define FLASH_CHIP_1M
-    #define DEV_PLUGIN_COMMS
-    #define HARDWARE_OLIVIER_V1
-    #define NO_PIN_CODE_REQUIRED
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
-#elif defined(BETATESTERS_SETUP)
+#define PRODUCTION_TEST_SETUP
+#if defined(BETATESTERS_SETUP)
     #define FLASH_CHIP_32M
     #define HARDWARE_OLIVIER_V1
     #define NO_PIN_CODE_REQUIRED
@@ -273,6 +214,7 @@ enum service_type_t             {SERVICE_CRED_TYPE = 0, SERVICE_DATA_TYPE = 1};
 enum timer_flag_t               {TIMER_EXPIRED = 0, TIMER_RUNNING = 1};
 enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};
+enum justify_t                  {OLED_LEFT  = 0, OLED_RIGHT = 1, OLED_CENTRE = 2};
 
 /**************** TYPEDEFS ****************/
 typedef void (*bootloader_f_ptr_type)(void);
@@ -296,64 +238,6 @@ typedef int8_t RET_TYPE;
 #define USB_FEATURE_PLUGIN_COMMS
 
 /**************** DEFINES PORTS ****************/
-#ifdef HARDWARE_V1
-    // SPIs
-    #define SPI_SMARTCARD   SPI_NATIVE
-    #define SPI_FLASH       SPI_USART
-    #define SPI_OLED        SPI_USART
-    #define DDR_SPI_NATIVE  DDRB
-    #define PORT_SPI_NATIVE PORTB
-    #define SS_SPI_NATIVE   PORTB0
-    #define SCK_SPI_NATIVE  PORTB1
-    #define MOSI_SPI_NATIVE PORTB2
-    #define MISO_SPI_NATIVE PORTB3
-    #define DDR_SPI_USART   DDRD
-    #define PORT_SPI_USART  PORTD
-    #define SCK_SPI_USART   PORTD5
-    #define MOSI_SPI_USART  PORTD3
-    #define MISO_SPI_USART  PORTD2
-    // Slave Select Flash
-    #define PORTID_FLASH_nS PORTB4
-    #define PORT_FLASH_nS   PORTB
-    #define DDR_FLASH_nS    DDRB
-    // Detect smart card
-    #define PORTID_SC_DET   PORTB6
-    #define PORT_SC_DET     PORTB
-    #define DDR_SC_DET      DDRB
-    #define PIN_SC_DET      PINB
-    // Smart card program
-    #define PORTID_SC_PGM   PORTC6
-    #define PORT_SC_PGM     PORTC
-    #define DDR_SC_PGM      DDRC
-    // Smart card power enable
-    #define PORTID_SC_POW   PORTE6
-    #define PORT_SC_POW     PORTE
-    #define DDR_SC_POW      DDRE
-    // Smart card reset
-    #define PORTID_SC_RST   PORTB5
-    #define PORT_SC_RST     PORTB
-    #define DDR_SC_RST      DDRB
-    // OLED Data / Command
-    #define PORTID_OLED_DnC PORTD7
-    #define PORT_OLED_DnC   PORTD
-    #define DDR_OLED_DnC    DDRD
-    // OLED Slave Select
-    #define PORTID_OLED_SS  PORTD6
-    #define PORT_OLED_SS    PORTD
-    #define DDR_OLED_SS     DDRD
-    // OLED reset
-    #define PORTID_OLED_nR  PORTD1
-    #define PORT_OLED_nR    PORTD
-    #define DDR_OLED_nR     DDRD
-    // Power enable to the OLED
-    #define PORTID_OLED_POW PORTB7
-    #define PORT_OLED_POW   PORTB
-    #define DDR_OLED_POW    DDRB
-    // Touch sensing change (dummy one)
-    #define PORTID_TOUCH_C  PORTF6
-    #define PORT_TOUCH_C    PORTF
-    #define DDR_TOUCH_C     DDRF
-#endif
 #ifdef  HARDWARE_OLIVIER_V1
     // SPIs
     #define SPI_SMARTCARD   SPI_NATIVE

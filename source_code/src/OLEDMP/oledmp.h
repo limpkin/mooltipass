@@ -131,14 +131,6 @@
 #define stockOledNormalDisplay()     oledWriteCommand(CMD_SET_DISPLAY_MODE_NORMAL)
 #define stockOledInvertedDisplay()   oledWriteCommand(CMD_SET_DISPLAY_MODE_INVERSE)
 
-
-// Text line justification options
-enum {
-    OLED_LEFT  = 0,
-    OLED_RIGHT = 1,
-    OLED_CENTRE = 2
-} justify_e;
-
 void stockOledBegin(uint8_t font);
 void stockOledInitIOs(void);
 void oledInit(void);
@@ -205,8 +197,8 @@ uint16_t oledStrWidth(const char *str);
 uint16_t oledStrWidth_P(const char *str);
 uint16_t oledGetTextWidth(char *format, ...);
 uint16_t oledGetTextWidth_P(char *format, ...);
-void oledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str);
-void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str);
+void stockOledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str);
+void stockOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str);
 void oledPutstr_P(const char *str);
 void oledPutstr(const char *str);
 

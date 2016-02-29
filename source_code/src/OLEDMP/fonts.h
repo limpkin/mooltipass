@@ -27,12 +27,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// Font selection
-#define FONT_PROFONT_10     7
-#define FONT_PROFONT_18    16
-#define FONT_PROFONT_24    17
-#define FONT_DEFAULT FONT_PROFONT_10
-
 typedef struct
 {
     uint8_t width;          // Width of glyph data in pixels

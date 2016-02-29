@@ -1,7 +1,7 @@
 var mooltipass = mooltipass || {};
 mooltipass.memmgmt = mooltipass.memmgmt || {};
 
-// Next error code available 700
+// Next error code available 701
 
 // Defines
 var NODE_SIZE							= 132;			// Node size
@@ -4016,6 +4016,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 // Data received from USB callback, for media bundle related comms
 mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 {
+	//console.log(packet);
 	if(packet[1] == mooltipass.device.commands['startMediaImport'])
 	{
 		// Answer to start media import packet
@@ -4046,7 +4047,9 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 		{
 			// Fail... we kind of are stuck here...
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			console.log("Media import fail!");
+			console.log("Media import failed, data byte counter: " + mooltipass.memmgmt.byteCounter);
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 700, 'msg': "Media import failed"});
+			mooltipass.device.processQueue();
 		}
 		else
 		{

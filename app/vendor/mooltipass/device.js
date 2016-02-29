@@ -331,6 +331,7 @@ mooltipass.device.createPacket = function(_command, _payload) {
         }
     }
 
+    //console.log(bufferView);
     return buffer;
 };
 

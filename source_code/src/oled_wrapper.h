@@ -34,12 +34,14 @@
     #define oledNormalDisplay()             stockOledNormalDisplay()
     #define oledBegin(x)                    stockOledBegin(x)
     #define oledBitmapDrawFlash(a,b,c,d)    stockOledBitmapDrawFlash(a,b,c,d)
+    #define oledPutstrXY(a,b,c,d)           stockOledPutstrXY(a,b,c,d)
 #elif defined(MINI_VERSION)
     #define oledInitIOs()                   miniOledInitIOs()
     #define oledInvertedDisplay()           miniOledInvertedDisplay()
     #define oledNormalDisplay()             miniOledNormalDisplay()
     #define oledBegin(x)                    miniOledBegin(x)
     #define oledBitmapDrawFlash(a,b,c,d)    miniOledBitmapDrawFlash(a,b,c,d)
+    #define oledPutstrXY(a,b,c,d)           miniOledPutstrXY(a,b,c,d)
 #endif
 
 #endif /* OLED_WRAPPER_H_ */

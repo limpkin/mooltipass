@@ -286,18 +286,22 @@ int main(void)
     #endif
 
     initPortSMC();                      // Initialize smart card port
-    initPwm();                          // Initialize PWM controller
+    #if defined(HARDWARE_OLIVIER_V1)    // PWM is only present on the Mooltipass standard
+        initPwm();                      // Initialize PWM controller
+    #endif                              // ENDIF
     initIRQ();                          // Initialize interrupts
-    powerSettlingDelay();               // Let the power settle   
+    powerSettlingDelay();               // Let the power settle before enabling USB controller
     initUsb();                          // Initialize USB controller
     powerSettlingDelay();               // Let the USB 3.3V LDO rise
-    initI2cPort();                      // Initialize I2C interface
+    #if defined(HARDWARE_OLIVIER_V1)    // I2C is only used in the Mooltipass standard
+        initI2cPort();                  // Initialize I2C interface
+    #endif                              // ENDIF
     rngInit();                          // Initialize avrentropy library
     oledInitIOs();                      // Initialize OLED input/outputs
-    spiUsartBegin();                    // Start USART SPI at 8MHz
-    #if defined(MINI_VERSION)           // Only executed for the mini
-        initMiniInputs();               // Init Mini Inputs
-    #endif
+    spiUsartBegin();                    // Start USART SPI at 8MHz (standard) or 4MHz (mini)
+    #if defined(MINI_VERSION)           // For the Mooltipass Mini inputs
+        initMiniInputs();               // Initialize Mini Inputs
+    #endif                              // ENDIF
 
     // If offline mode isn't enabled, wait for device to be enumerated
     if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
@@ -444,8 +448,6 @@ int main(void)
     #if defined(HARDWARE_OLIVIER_V1)
         #if defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK) || (fuse_ok != TRUE));
-        #elif defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
-            while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_NOK));
         #else
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
         #endif
@@ -507,9 +509,12 @@ int main(void)
     #endif
 
     #if defined(MINI_VERSION)
+        //miniOledPutstrXY(0, 0, 0, "lapin");
+        miniOledFlushEntireBufferToDisplay();
         while(1)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
+            //miniOledFlushEntireBufferToDisplay();
 //             for(uint8_t i = 0; i < 128-16; i++)
 //             {
 //                 if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_DET)

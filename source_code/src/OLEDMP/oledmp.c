@@ -520,7 +520,7 @@ void oledPutstr_P(const char *str)
  * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  * @param str - pointer to the string in ram
  */
-void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
+void stockOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
 {
     int16_t width = (int16_t)oledStrWidth(str);
 
@@ -550,7 +550,7 @@ void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
  * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  * @param str - pointer to the string in program memory
  */
-void oledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str)
+void stockOledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str)
 {
     int16_t width = (int16_t)oledStrWidth_P(str);
 

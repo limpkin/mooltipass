@@ -98,6 +98,7 @@ int main(void)
         CPU_PRESCALE(0);                                                            // Set pre-scaler to 1 (fuses not set)
     #endif
 
+    // Correct fuse settings depending on the mooltipass version
     #if defined(PREPRODUCTION_KICKSTARTER_SETUP)
         // boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
@@ -118,8 +119,8 @@ int main(void)
         }
     #endif
     
+    // Electrical testing during production
     #if defined(HARDWARE_OLIVIER_V1)
-        // Electrical testing during production
         mooltipassStandardElectricalTest(fuse_ok);
     #endif    
     
@@ -190,19 +191,9 @@ int main(void)
     
     // Set correct timeout_enabled val
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
-
-    // Launch the before flash initialization tests
-    #ifdef TESTS_ENABLED
-        beforeFlashInitTests();
-    #endif
     
     // Check if we can initialize the Flash memory
     flash_init_result = initFlash();
-    
-    // Launch the after flash initialization tests
-    #ifdef TESTS_ENABLED
-        afterFlashInitTests();
-    #endif
     
     // Set up OLED now that USB is receiving full 500mA.
     oledBegin(FONT_DEFAULT);
@@ -220,11 +211,6 @@ int main(void)
     #if defined(HARDWARE_OLIVIER_V1)
         touch_init_result = initTouchSensing();
         activateProxDetection();
-    #endif
-    
-    // Launch the after touch initialization tests
-    #ifdef TESTS_ENABLED
-        afterTouchInitTests();
     #endif
     
     //#define FORCE_PROD_TEST
@@ -254,6 +240,7 @@ int main(void)
     // Write inactive buffer by default
     oledWriteInactiveBuffer();    
     
+    // Display tutorial if needed
     if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
     {
         #if defined(HARDWARE_OLIVIER_V1)
@@ -275,12 +262,8 @@ int main(void)
     // Go to startup screen
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
     guiGetBackToCurrentScreen();
-        
-    // Launch the after HaD logo display tests
-    #ifdef TESTS_ENABLED
-        afterHadLogoDisplayTests();  
-    #endif
     
+    // LED fade-in for standard version
     #if defined(HARDWARE_OLIVIER_V1)
         // Let's fade in the LEDs
         touchDetectionRoutine(0);

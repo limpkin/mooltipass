@@ -85,6 +85,7 @@ void miniOledClear(void);
 void miniOledInitIOs(void);
 void miniOledBegin(uint8_t font);
 RET_TYPE miniOledIsScreenOn(void);
+void miniOledDumpCurrentFont(void);
 void miniOledWriteActiveBuffer(void);
 void miniOledDisplayOtherBuffer(void);
 void miniOledWriteInactiveBuffer(void);

@@ -132,7 +132,7 @@
 // Hardware test procedure
 //#define HW_TEST_PROC
 // Used for oled display
-//#define OLED_DEBUG_OUTPUT_USB
+#define OLED_DEBUG_OUTPUT_USB
 
 /**************** ENABLING TESTS ****************/
 // As they may be manually enabled as well
@@ -364,10 +364,10 @@ typedef int8_t RET_TYPE;
     #define PORT_OLED_POW   PORTE
     #define DDR_OLED_POW    DDRE
     // 5 direction joystick
-    #define PORTID_JOY_UP       PORTF1
+    #define PORTID_JOY_LEFT     PORTF1
     #define PORTID_JOY_DOWN     PORTF4
-    #define PORTID_JOY_LEFT     PORTF5
-    #define PORTID_JOY_RIGHT    PORTF7
+    #define PORTID_JOY_RIGHT    PORTF5
+    #define PORTID_JOY_UP       PORTF7
     #define PORTID_JOY_CENTER   PORTF6
     #define PORT_JOYSTICK       PORTF
     #define DDR_JOYSTICK        DDRF

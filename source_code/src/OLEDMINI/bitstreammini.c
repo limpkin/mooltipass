@@ -22,8 +22,10 @@
  *  Created: 15/2/2016
  *  Copyright [2016] [Mathieu Stephan]
  */
+#include <avr/pgmspace.h>
 #include "bitstreammini.h"
 #include "flash_mem.h"
+#include "usb.h"
 /***********************************************************/
 /*  This file is only used for the Mooltipass mini version */
 #if defined(MINI_VERSION)
@@ -66,6 +68,7 @@ uint8_t miniBistreamGetNextByte(bitstream_mini_t* bs)
             flashRawRead(bs->buffer, bs->addr, sizeof(bs->buffer));
             bs->addr += sizeof(bs->buffer);
             bs->bufferInd = 0;
+            usbPrintf_P(PSTR("bistream buffer: %02x %02x %02x %02x %02x %02x"), bs->buffer[0], bs->buffer[1], bs->buffer[2], bs->buffer[3], bs->buffer[4], bs->buffer[5]);
         }
         
          return bs->buffer[bs->bufferInd++];

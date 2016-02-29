@@ -293,15 +293,20 @@ int main(void)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
             if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_JDETECT)
-            {                
-                miniOledPutstrXY(64, 0, OLED_RIGHT, "it does!");
+            {
+                miniOledPutstrXY(0, 0, OLED_LEFT, "#");
+                miniOledPutstrXY(8, 0, OLED_LEFT, "ada");
                 //miniOledGlyphDraw(0, 0, 'B');
                 miniOledFlushEntireBufferToDisplay();
-            }
-            if(isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT)
-            {                
-                miniOledSetFont(FONT_DEFAULT);
-            }            
+        }
+        if(isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT)
+        {
+            miniOledSetFont(FONT_DEFAULT);
+        }
+        if(isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_JDETECT)
+        {
+            miniOledDumpCurrentFont();
+        }           
             //miniOledFlushEntireBufferToDisplay();
 //             for(uint8_t i = 0; i < 128-16; i++)
 //             {

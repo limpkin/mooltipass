@@ -34,6 +34,7 @@
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
 #include "logic_aes_and_comms.h"
+#include "electrical_testing.h"
 #include "eeprom_addresses.h"
 #include "define_printouts.h"
 #include "watchdog_driver.h"
@@ -92,14 +93,6 @@ static inline void disableJTAG(void)
     MCUCR = temp;
 }
 
-/*! \fn     smallForLoopBasedDelay(void)
-*   \brief  Small delay used at the mooltipass start
-*/
-void smallForLoopBasedDelay(void)
-{
-    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
-}
-
 /*! \fn     main(void)
 *   \brief  Main function
 */
@@ -118,9 +111,7 @@ int main(void)
         CPU_PRESCALE(0);                                                            // Set prescaler to 1 (fuses not set)
     #endif
 
-    #if defined(MINI_CLICK_BETATESTERS_SETUP)
-        // We don't check fuses in beta testers units
-    #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
+    #if defined(PREPRODUCTION_KICKSTARTER_SETUP)
         // boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
@@ -141,54 +132,7 @@ int main(void)
     #endif
     
     #if defined(HARDWARE_OLIVIER_V1)
-        // Check if PB5 is low to start electrical test
-        DDRB &= ~(1 << 5); PORTB |= (1 << 5);
-        smallForLoopBasedDelay();
-        if (!(PINB & (1 << 5)))
-        {
-            // Test result, true by default
-            uint8_t test_result = TRUE;
-            // Leave flash nS off
-            DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
-            PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
-            // Set PORTD as output, leave PORTID_OLED_SS high
-            DDRD |= 0xFF; PORTD |= 0xFF;
-            // All other pins are input by default, run our test
-            for (uint8_t i = 0; i < 4; i++)
-            {
-                PORTD |= 0xFF;
-                smallForLoopBasedDelay();
-                if (!(PINF & (0xC3)) || !(PINC & (1 << 6)) || !(PINE & (1 << 6)) || !(PINB & (1 << 4)))
-                {
-                    test_result = FALSE;
-                }
-                PORTD &= (1 << PORTID_OLED_SS);
-                smallForLoopBasedDelay();
-                if ((PINF & (0xC3)) || (PINC & (1 << 6)) || (PINE & (1 << 6)) || (PINB & (1 << 4)))
-                {
-                    test_result = FALSE;
-                }
-            }               
-            // PB6 as test result output
-            DDRB |= (1 << 6);
-            // If test successful, light green LED
-            if ((test_result == TRUE) && (fuse_ok == TRUE))
-            {
-                PORTB |= (1 << 6);
-            } 
-            else
-            {
-                PORTB &= ~(1 << 6);
-            }
-            while(1);
-        }
-    #elif defined(MINI_VERSION)
-        // Check if PD0 is low to start electrical test
-        DDRD &= ~(1 << 0); PORTD |= (1 << 0);
-        smallForLoopBasedDelay();
-        if (!(PIND & (1 << 0)))
-        {
-        }
+        mooltipass_standard_electrical_test(fuse_ok);
     #endif    
     
     // This code will only be used for developers and beta testers

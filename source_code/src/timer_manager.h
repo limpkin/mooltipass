@@ -34,6 +34,7 @@
 void timerManagerTick(void);
 void timerBased130MsDelay(void);
 void timerBased500MsDelay(void);
+void smallForLoopBasedDelay(void);
 uint16_t getTimerVal(uint8_t uid);
 void timerBasedDelayMs(uint16_t ms);
 void activateTimer(uint8_t uid, uint16_t val);

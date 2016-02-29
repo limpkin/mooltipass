@@ -31,6 +31,14 @@ volatile timerEntry_t context_timers[TOTAL_NUMBER_OF_TIMERS];
 volatile uint16_t timer_divider;
 
 
+/*! \fn     smallForLoopBasedDelay(void)
+*   \brief  Small delay used at the mooltipass start
+*/
+void smallForLoopBasedDelay(void)
+{
+    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
+}
+
 /*!	\fn		timerManagerTick(void)
 *	\brief	Function called by interrupt every ms
 */

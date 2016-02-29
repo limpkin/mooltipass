@@ -697,9 +697,17 @@ mooltipass.device.onDataReceived = function(reportId, data) {
         mooltipass.device[handlerName].apply(this, [queuedItem, msg]);
     }
     else {
-        mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, []);
-        // Process next queued request
-        mooltipass.device.processQueue();
+		if(command == 'debug')
+		{
+			console.log("Debug message received: " + mooltipass.util.arrayToStr(msg));
+			mooltipass.device.processQueue();	
+		}
+		else
+		{
+			mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, []);
+			// Process next queued request
+			mooltipass.device.processQueue();			
+		}
     }
 };
 

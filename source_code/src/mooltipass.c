@@ -93,12 +93,13 @@ int main(void)
     RET_TYPE card_detect_ret;                                                       // Card detect result
     uint8_t fuse_ok = TRUE;                                                         // Fuse check result
     
+    /** JTAG FUSE ACTIONS **/
     #if defined(JTAG_FUSE_ENABLED)                                                  // For units whose fuses haven't been programmed
         disableJTAG();                                                              // Disable JTAG to gain access to pins        
         CPU_PRESCALE(0);                                                            // Set pre-scaler to 1 (fuses not set)
     #endif
 
-    // Correct fuse settings depending on the mooltipass version
+    /** FUSE VERIFICATIONS **/
     #if defined(PREPRODUCTION_KICKSTARTER_SETUP)
         // boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
@@ -119,13 +120,14 @@ int main(void)
         }
     #endif
     
-    // Electrical testing during production
+    /** ELECTRICAL TESTING **/
     #if defined(HARDWARE_OLIVIER_V1)
         mooltipassStandardElectricalTest(fuse_ok);
     #endif    
     
-    // This code will only be used for developers and beta testers
+    /** JUMPING TO BOOTLOADER AT BOOT **/
     #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP)
+        // This code will only be used for developers and beta testers
         // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
         {
@@ -148,7 +150,7 @@ int main(void)
         }
     #endif    
 
-    // First time initializations for EEPROM (first boot at production)
+    /** EEPROM INITIALIZATIONS AT FIRST BOOT **/
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         // Erase Mooltipass parameters
@@ -157,7 +159,7 @@ int main(void)
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
     }
 
-   // For test units, there's an electrical jump to bootloader condition
+   /** JUMPING TO BOOTLOADER FOR TEST UNITS **/
     #ifdef AVR_BOOTLOADER_PROGRAMMING
         if(electricalJumpToBootloaderCondition() == TRUE)
         {
@@ -165,6 +167,7 @@ int main(void)
         }
     #endif
 
+    /** HARDWARE INITIALIZATION **/
     initPortSMC();                      // Initialize smart card port
     #if defined(HARDWARE_OLIVIER_V1)    // PWM is only present on the Mooltipass standard
         initPwm();                      // Initialize PWM controller
@@ -192,13 +195,14 @@ int main(void)
     // Set correct timeout_enabled val
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
     
-    // Check if we can initialize the Flash memory
+    /** FLASH INITIALIZATION **/
     flash_init_result = initFlash();
     
-    // Set up OLED now that USB is receiving full 500mA.
+    /** OLED INITIALIZATION **/
+    // USB at 500mA
     oledBegin(FONT_DEFAULT);
     
-    // First time initializations for Flash (first time power up at production)
+    /** FIRST BOOT FLASH & EEPROM INITIALIZATIONS **/
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         // Erase everything in flash
@@ -207,19 +211,20 @@ int main(void)
         firstTimeUserHandlingInit();
     }
     
-    // Check if we can initialize the touch sensing element, enable prox detection
+    /** TOUCH PANEL INITIALIZATION **/
     #if defined(HARDWARE_OLIVIER_V1)
         touch_init_result = initTouchSensing();
         activateProxDetection();
     #endif
     
+    /** FUNCTIONAL TESTING **/
     //#define FORCE_PROD_TEST
     #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
         // Test procedure to check that all HW is working
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
     
-    // Stop the Mooltipass if we can't communicate with the flash or the touch interface
+    /** BOOT STOP IF ERRORS **/
     #if defined(HARDWARE_OLIVIER_V1)
         #if defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK) || (fuse_ok != TRUE));
@@ -265,8 +270,8 @@ int main(void)
     }
 
     // Go to startup screen
-    guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
-    guiGetBackToCurrentScreen();
+    //guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
+    //guiGetBackToCurrentScreen();
     
     // LED fade-in for standard version
     #if defined(HARDWARE_OLIVIER_V1)
@@ -283,11 +288,20 @@ int main(void)
     #endif
 
     #if defined(MINI_VERSION)
-        //miniOledPutstrXY(0, 0, 0, "lapin");
         miniOledFlushEntireBufferToDisplay();
         while(1)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
+            if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_JDETECT)
+            {                
+                miniOledPutstrXY(64, 0, OLED_RIGHT, "it does!");
+                //miniOledGlyphDraw(0, 0, 'B');
+                miniOledFlushEntireBufferToDisplay();
+            }
+            if(isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT)
+            {                
+                miniOledSetFont(FONT_DEFAULT);
+            }            
             //miniOledFlushEntireBufferToDisplay();
 //             for(uint8_t i = 0; i < 128-16; i++)
 //             {

@@ -36,116 +36,229 @@
 #define MEDIA_BITMAP            1
 #define MEDIA_FONT              2
 
-// Font IDs
-#define FONT_NONE           255
-#define FONT_PROFONT_10     7
-#define FONT_PROFONT_18     16
-#define FONT_PROFONT_24     17
-#define FONT_DEFAULT FONT_PROFONT_10
+#if defined(HARDWARE_OLIVIER_V1)
+    // Font IDs
+    #define FONT_NONE           255
+    #define FONT_PROFONT_10     7
+    #define FONT_PROFONT_18     16
+    #define FONT_PROFONT_24     17
+    #define FONT_DEFAULT FONT_PROFONT_10
 
-// Bimap IDs
-#define BITMAP_MOOLTIPASS     0
-#define BITMAP_LOGIN          1
-#define BITMAP_LOGIN_RARROW   2
-#define BITMAP_YES_NO         3
-#define BITMAP_TICK           4
-#define BITMAP_CROSS          5
-#define BITMAP_INFO           6
-#define BITMAP_INSERT         8
-#define BITMAP_MAIN_SCREEN    9
-#define BITMAP_SETTINGS_SC    10
-#define BITMAP_LEFT_ARROW     11
-#define BITMAP_RIGHT_ARROW    12
-#define BITMAP_PIN_LINES      13
-#define BITMAP_ZZZ            14
-#define BITMAP_LOGIN_FIND     15
-#define BITMAP_YES_NO_INT_L   40
-#define BITMAP_YES_NO_INT_R   41
-#define BITMAP_ZZZ_LOCKED     42
-#define BITMAP_TUTORIAL_1     43
-#define BITMAP_TUTORIAL_2     44
-#define BITMAP_TUTORIAL_3     45
-#define BITMAP_TUTORIAL_4     46
-#define BITMAP_TUTORIAL_5     47
-#define BITMAP_TUTORIAL_6     48
-#define BITMAP_EGG            49
-#define BITMAP_EGG_END        50
+    // Bimap IDs
+    #define BITMAP_MOOLTIPASS     0
+    #define BITMAP_LOGIN          1
+    #define BITMAP_LOGIN_RARROW   2
+    #define BITMAP_YES_NO         3
+    #define BITMAP_TICK           4
+    #define BITMAP_CROSS          5
+    #define BITMAP_INFO           6
+    #define BITMAP_INSERT         8
+    #define BITMAP_MAIN_SCREEN    9
+    #define BITMAP_SETTINGS_SC    10
+    #define BITMAP_LEFT_ARROW     11
+    #define BITMAP_RIGHT_ARROW    12
+    #define BITMAP_PIN_LINES      13
+    #define BITMAP_ZZZ            14
+    #define BITMAP_LOGIN_FIND     15
+    #define BITMAP_YES_NO_INT_L   40
+    #define BITMAP_YES_NO_INT_R   41
+    #define BITMAP_ZZZ_LOCKED     42
+    #define BITMAP_TUTORIAL_1     43
+    #define BITMAP_TUTORIAL_2     44
+    #define BITMAP_TUTORIAL_3     45
+    #define BITMAP_TUTORIAL_4     46
+    #define BITMAP_TUTORIAL_5     47
+    #define BITMAP_TUTORIAL_6     48
+    #define BITMAP_EGG            49
+    #define BITMAP_EGG_END        50
 
-// String IDs
-#define ID_STRING_PROCESSING    0
-#define ID_STRING_CARD_BLOCKED  1
-#define ID_STRING_PB_CARD       2
-#define ID_STRING_WRONG_PIN     3
-#define ID_STRING_REMOVE_CARD   4
-#define ID_STRING_INSERT_OTHER  5
-#define ID_STRING_FAILED        6
-#define ID_STRING_PIN_CHANGED   7
-#define ID_STRING_PIN_NCGHANGED 8
-#define ID_STRING_USER_ADDED    9
-#define ID_STRING_USER_NADDED   10
-#define ID_STRING_CARD_UNLOCKED 11
-#define ID_STRING_CARDID_NFOUND 12
-#define ID_STRING_INSERT_NCARD  13
-#define ID_STRING_DONE          14
-#define ID_STRING_CARD_REMOVED  15
-#define ID_STRING_AREYOUSURE    16
-#define ID_STRING_AREYOURLSURE  17
-#define ID_STRING_OTHECARDFUSER 18
-#define ID_STRING_ENTERLOGINQ   19
-#define ID_STRING_ENTERPASSQ    20
-#define ID_STRING_APPROVEMEMOP  21
-#define ID_STRING_INSERT_PIN    22
-#define ID_STRING_PIN_NEW_CARD  23
-#define ID_STRING_CONF_PIN      24
-#define ID_STRING_CONFACCESSTO  25
-#define ID_STRING_WITHTHISLOGIN 26
-#define ID_STRING_CONF_NEWCREDS 27
-#define ID_STRING_ADDUSERNAME   28
-#define ID_STRING_ON            29
-#define ID_STRING_CHANGEPASSFOR 30
-#define ID_STRING_WRONGPIN1LEFT 31
-#define ID_STRING_WRONGPIN2LEFT 32
-#define ID_STRING_WRONGPIN3LEFT 33
-#define ID_STRING_NEWMP_USER    34
-#define ID_STRING_GOINGTOSLEEP  35
-#define ID_STRING_MEMORYMGMTQ   36
-#define ID_STRING_MEMORYMGMT    37
-#define ID_STRING_CLOSEMEMMGMT  38
-#define ID_STRING_CREATEDBYPLUG 39
-#define ID_STRING_NOSTOREDFAV   40
-#define ID_STRING_SEND_SMC_PASS 41
-#define ID_STRING_SET_SMC_LOGIN 42
-#define ID_STRING_SET_SMC_PASS  43
-#define ID_STRING_YOUR_USERNAME 44
-#define ID_STRING_SHOW_LOGINQ   45
-#define ID_STRING_SHOW_PASSQ    46
-#define ID_STRING_TEST_FLASH_OK 47
-#define ID_STRING_TEST_FLASH_PB 48
-#define ID_STRING_TEST_TOUCH_OK 49
-#define ID_STRING_TEST_TOUCH_PB 50
-#define ID_STRING_TEST_INST_TCH 51
-#define ID_STRING_TEST_DET      52
-#define ID_STRING_TEST_LEFT     53
-#define ID_STRING_TEST_WHEEL    54
-#define ID_STRING_TEST_RIGHT    55
-#define ID_STRING_TEST_CARD_INS 56
-#define ID_STRING_TEST_CARD_OK  57
-#define ID_STRING_TEST_CARD_PB  58
-#define ID_STRING_TEST_LEDS_CH  59
-#define ID_STRING_TEST_OK       60
-#define ID_STRING_TEST_NOK      61
-#define ID_STRING_WARNING       62
-#define ID_STRING_ALLOW_UPDATE  63
-#define ID_STRING_PC_SLEEP      64
-#define ID_STRING_CONF_NEWDATA  65
-#define ID_STRING_ADD_DATA_FOR  66
-#define ID_STRING_GET_DATA_FOR  67
-#define ID_STRING_PIN_DIFF      68
-#define ID_STRING_TGT_CARD_NBL  69
-#define ID_STRING_NEW_PINQ      70
-#define ID_STRING_ERASE_TCARD   71
-#define ID_STRING_NO_CREDS      72
-#define ID_STRING_FUSE_PB       73
+    // String IDs
+    #define ID_STRING_PROCESSING    0
+    #define ID_STRING_CARD_BLOCKED  1
+    #define ID_STRING_PB_CARD       2
+    #define ID_STRING_WRONG_PIN     3
+    #define ID_STRING_REMOVE_CARD   4
+    #define ID_STRING_INSERT_OTHER  5
+    #define ID_STRING_FAILED        6
+    #define ID_STRING_PIN_CHANGED   7
+    #define ID_STRING_PIN_NCGHANGED 8
+    #define ID_STRING_USER_ADDED    9
+    #define ID_STRING_USER_NADDED   10
+    #define ID_STRING_CARD_UNLOCKED 11
+    #define ID_STRING_CARDID_NFOUND 12
+    #define ID_STRING_INSERT_NCARD  13
+    #define ID_STRING_DONE          14
+    #define ID_STRING_CARD_REMOVED  15
+    #define ID_STRING_AREYOUSURE    16
+    #define ID_STRING_AREYOURLSURE  17
+    #define ID_STRING_OTHECARDFUSER 18
+    #define ID_STRING_ENTERLOGINQ   19
+    #define ID_STRING_ENTERPASSQ    20
+    #define ID_STRING_APPROVEMEMOP  21
+    #define ID_STRING_INSERT_PIN    22
+    #define ID_STRING_PIN_NEW_CARD  23
+    #define ID_STRING_CONF_PIN      24
+    #define ID_STRING_CONFACCESSTO  25
+    #define ID_STRING_WITHTHISLOGIN 26
+    #define ID_STRING_CONF_NEWCREDS 27
+    #define ID_STRING_ADDUSERNAME   28
+    #define ID_STRING_ON            29
+    #define ID_STRING_CHANGEPASSFOR 30
+    #define ID_STRING_WRONGPIN1LEFT 31
+    #define ID_STRING_WRONGPIN2LEFT 32
+    #define ID_STRING_WRONGPIN3LEFT 33
+    #define ID_STRING_NEWMP_USER    34
+    #define ID_STRING_GOINGTOSLEEP  35
+    #define ID_STRING_MEMORYMGMTQ   36
+    #define ID_STRING_MEMORYMGMT    37
+    #define ID_STRING_CLOSEMEMMGMT  38
+    #define ID_STRING_CREATEDBYPLUG 39
+    #define ID_STRING_NOSTOREDFAV   40
+    #define ID_STRING_SEND_SMC_PASS 41
+    #define ID_STRING_SET_SMC_LOGIN 42
+    #define ID_STRING_SET_SMC_PASS  43
+    #define ID_STRING_YOUR_USERNAME 44
+    #define ID_STRING_SHOW_LOGINQ   45
+    #define ID_STRING_SHOW_PASSQ    46
+    #define ID_STRING_TEST_FLASH_OK 47
+    #define ID_STRING_TEST_FLASH_PB 48
+    #define ID_STRING_TEST_TOUCH_OK 49
+    #define ID_STRING_TEST_TOUCH_PB 50
+    #define ID_STRING_TEST_INST_TCH 51
+    #define ID_STRING_TEST_DET      52
+    #define ID_STRING_TEST_LEFT     53
+    #define ID_STRING_TEST_WHEEL    54
+    #define ID_STRING_TEST_RIGHT    55
+    #define ID_STRING_TEST_CARD_INS 56
+    #define ID_STRING_TEST_CARD_OK  57
+    #define ID_STRING_TEST_CARD_PB  58
+    #define ID_STRING_TEST_LEDS_CH  59
+    #define ID_STRING_TEST_OK       60
+    #define ID_STRING_TEST_NOK      61
+    #define ID_STRING_WARNING       62
+    #define ID_STRING_ALLOW_UPDATE  63
+    #define ID_STRING_PC_SLEEP      64
+    #define ID_STRING_CONF_NEWDATA  65
+    #define ID_STRING_ADD_DATA_FOR  66
+    #define ID_STRING_GET_DATA_FOR  67
+    #define ID_STRING_PIN_DIFF      68
+    #define ID_STRING_TGT_CARD_NBL  69
+    #define ID_STRING_NEW_PINQ      70
+    #define ID_STRING_ERASE_TCARD   71
+    #define ID_STRING_NO_CREDS      72
+    #define ID_STRING_FUSE_PB       73
+#elif defined(MINI_VERSION)
+    // Font IDs
+    #define FONT_NONE           255
+    #define FONT_PROFONT_10     1
+    #define FONT_PROFONT_18     16
+    #define FONT_PROFONT_24     17
+    #define FONT_DEFAULT FONT_PROFONT_10
+
+    // Bimap IDs
+    #define BITMAP_MOOLTIPASS     0
+    #define BITMAP_LOGIN          1
+    #define BITMAP_LOGIN_RARROW   2
+    #define BITMAP_YES_NO         3
+    #define BITMAP_TICK           4
+    #define BITMAP_CROSS          5
+    #define BITMAP_INFO           6
+    #define BITMAP_INSERT         8
+    #define BITMAP_MAIN_SCREEN    9
+    #define BITMAP_SETTINGS_SC    10
+    #define BITMAP_LEFT_ARROW     11
+    #define BITMAP_RIGHT_ARROW    12
+    #define BITMAP_PIN_LINES      13
+    #define BITMAP_ZZZ            14
+    #define BITMAP_LOGIN_FIND     15
+    #define BITMAP_YES_NO_INT_L   40
+    #define BITMAP_YES_NO_INT_R   41
+    #define BITMAP_ZZZ_LOCKED     42
+    #define BITMAP_TUTORIAL_1     43
+    #define BITMAP_TUTORIAL_2     44
+    #define BITMAP_TUTORIAL_3     45
+    #define BITMAP_TUTORIAL_4     46
+    #define BITMAP_TUTORIAL_5     47
+    #define BITMAP_TUTORIAL_6     48
+    #define BITMAP_EGG            49
+    #define BITMAP_EGG_END        50
+
+    // String IDs
+    #define ID_STRING_PROCESSING    0
+    #define ID_STRING_CARD_BLOCKED  1
+    #define ID_STRING_PB_CARD       2
+    #define ID_STRING_WRONG_PIN     3
+    #define ID_STRING_REMOVE_CARD   4
+    #define ID_STRING_INSERT_OTHER  5
+    #define ID_STRING_FAILED        6
+    #define ID_STRING_PIN_CHANGED   7
+    #define ID_STRING_PIN_NCGHANGED 8
+    #define ID_STRING_USER_ADDED    9
+    #define ID_STRING_USER_NADDED   10
+    #define ID_STRING_CARD_UNLOCKED 11
+    #define ID_STRING_CARDID_NFOUND 12
+    #define ID_STRING_INSERT_NCARD  13
+    #define ID_STRING_DONE          14
+    #define ID_STRING_CARD_REMOVED  15
+    #define ID_STRING_AREYOUSURE    16
+    #define ID_STRING_AREYOURLSURE  17
+    #define ID_STRING_OTHECARDFUSER 18
+    #define ID_STRING_ENTERLOGINQ   19
+    #define ID_STRING_ENTERPASSQ    20
+    #define ID_STRING_APPROVEMEMOP  21
+    #define ID_STRING_INSERT_PIN    22
+    #define ID_STRING_PIN_NEW_CARD  23
+    #define ID_STRING_CONF_PIN      24
+    #define ID_STRING_CONFACCESSTO  25
+    #define ID_STRING_WITHTHISLOGIN 26
+    #define ID_STRING_CONF_NEWCREDS 27
+    #define ID_STRING_ADDUSERNAME   28
+    #define ID_STRING_ON            29
+    #define ID_STRING_CHANGEPASSFOR 30
+    #define ID_STRING_WRONGPIN1LEFT 31
+    #define ID_STRING_WRONGPIN2LEFT 32
+    #define ID_STRING_WRONGPIN3LEFT 33
+    #define ID_STRING_NEWMP_USER    34
+    #define ID_STRING_GOINGTOSLEEP  35
+    #define ID_STRING_MEMORYMGMTQ   36
+    #define ID_STRING_MEMORYMGMT    37
+    #define ID_STRING_CLOSEMEMMGMT  38
+    #define ID_STRING_CREATEDBYPLUG 39
+    #define ID_STRING_NOSTOREDFAV   40
+    #define ID_STRING_SEND_SMC_PASS 41
+    #define ID_STRING_SET_SMC_LOGIN 42
+    #define ID_STRING_SET_SMC_PASS  43
+    #define ID_STRING_YOUR_USERNAME 44
+    #define ID_STRING_SHOW_LOGINQ   45
+    #define ID_STRING_SHOW_PASSQ    46
+    #define ID_STRING_TEST_FLASH_OK 47
+    #define ID_STRING_TEST_FLASH_PB 48
+    #define ID_STRING_TEST_TOUCH_OK 49
+    #define ID_STRING_TEST_TOUCH_PB 50
+    #define ID_STRING_TEST_INST_TCH 51
+    #define ID_STRING_TEST_DET      52
+    #define ID_STRING_TEST_LEFT     53
+    #define ID_STRING_TEST_WHEEL    54
+    #define ID_STRING_TEST_RIGHT    55
+    #define ID_STRING_TEST_CARD_INS 56
+    #define ID_STRING_TEST_CARD_OK  57
+    #define ID_STRING_TEST_CARD_PB  58
+    #define ID_STRING_TEST_LEDS_CH  59
+    #define ID_STRING_TEST_OK       60
+    #define ID_STRING_TEST_NOK      61
+    #define ID_STRING_WARNING       62
+    #define ID_STRING_ALLOW_UPDATE  63
+    #define ID_STRING_PC_SLEEP      64
+    #define ID_STRING_CONF_NEWDATA  65
+    #define ID_STRING_ADD_DATA_FOR  66
+    #define ID_STRING_GET_DATA_FOR  67
+    #define ID_STRING_PIN_DIFF      68
+    #define ID_STRING_TGT_CARD_NBL  69
+    #define ID_STRING_NEW_PINQ      70
+    #define ID_STRING_ERASE_TCARD   71
+    #define ID_STRING_NO_CREDS      72
+    #define ID_STRING_FUSE_PB       73
+#endif
 
 // Keyboard LUTs
 // Changes: 

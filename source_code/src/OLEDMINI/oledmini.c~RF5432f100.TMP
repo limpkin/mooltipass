@@ -36,6 +36,7 @@
 #include "fonts.h"
 #include "spi.h"
 #include "usb.h"
+#include <alloca.h>
 /***********************************************************/
 /*  This file is only used for the Mooltipass mini version */
 #if defined(MINI_VERSION)
@@ -46,7 +47,7 @@ uint8_t miniOledFrameBuffer[SSD1305_OLED_WIDTH*SSD1305_OLED_HEIGHT/SSD1305_PAGE_
 uint8_t miniOledBufferYOffset;
 // Boolean to know if OLED on
 uint8_t miniOledIsOn = FALSE;
-// Used to know which address to request in the SPI flash
+// Used to know which address to request in the SPI flahs
 static flashFont_t* miniOledFontp = (flashFont_t *)0;
 // Current font used by our display
 static fontHeader_t miniOledCurrentFont;
@@ -165,7 +166,7 @@ void miniOledSetWindow(uint8_t columnStart, uint8_t columnEnd, uint8_t pageStart
     miniOledSetPageAddress(pageStart, pageEnd);
 }
 
-/*! \fn     miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, uint8_t yend)
+/*! \fn     miniOledFlushBufferContents(uint8_t x, uint8_t y)
  *  \brief  Flush buffer contents to the display
  *  \param  xstart  From which x to start flushing
  *  \param  xend    end x position
@@ -198,8 +199,12 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
     PORT_OLED_SS |= (1 << PORTID_OLED_SS); 
 }
 
-/*! \fn     miniOledFlushEntireBufferToDisplay(void)
+/*! \fn     miniOledFlushBufferContents(uint8_t x, uint8_t y)
  *  \brief  Flush buffer contents to the display
+ *  \param  xstart  From which x to start flushing
+ *  \param  xend    end x position
+ *  \param  ystart  From which y to start flushing
+ *  \param  yend    end y position
  *  \notes  timed at 1.6ms!
  */
 void miniOledFlushEntireBufferToDisplay(void)
@@ -254,9 +259,8 @@ void miniOledInit(void)
         miniOledWriteCommand(dataBuffer, i);
     }
 
-    // Switch on an empty screen
+    // Switch on screen
     miniOledClear();
-    miniOledFlushEntireBufferToDisplay();
     miniOledOn();
 }
 
@@ -407,17 +411,18 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
  */
 void miniOledClear(void)
 {
-    memset(miniOledFrameBuffer, 0x00, sizeof(miniOledFrameBuffer));    
+    memset(miniOledFrameBuffer, 0x00, sizeof(miniOledFrameBuffer));
+    miniOledFlushEntireBufferToDisplay();
 }
 
-/*! \fn     miniOledGetFileAddr(uint8_t fileId, uint16_t* addr)
+/*! \fn     miniOledGetFileAddr(uint8_t fileId, uint16_t *addr)
  *  \brief  Return the address and type of the media file for the specified file id
  *  \param  fileId  index of the media file to read
  *  \param  addr    pointer to address to fill
  *  \return -1 on error, else the type of the media file.
  *  \note   Media files start after string files, first is BITMAP_ID_OFFSET
  */
-int16_t miniOledGetFileAddr(uint8_t fileId, uint16_t* addr)
+int16_t miniOledGetFileAddr(uint8_t fileId, uint16_t *addr)
 {
     uint16_t type;
 
@@ -452,12 +457,6 @@ void miniOledSetFont(uint8_t fontIndex)
     // Read the font header
     miniOledFontId = fontIndex;
     flashRawRead((uint8_t *)&miniOledCurrentFont, miniOledFontAddr, sizeof(miniOledCurrentFont));
-    
-    // Check the bit depth
-    if (miniOledCurrentFont.depth != 1)
-    {
-        miniOledFontId = FONT_NONE;
-    }
 
     #ifdef OLED_DEBUG_OUTPUT_USB
         usbPrintf_P(PSTR("found font at file index %d\n"),fontIndex);
@@ -570,53 +569,78 @@ void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t optio
     miniOledBitmapDrawRaw(x, y, &bs, options);
 }
 
-/*! \fn     miniOledGlyphWidth(char ch)
+/*! \fn     miniOledGlyphHeight(void)
+ *  \brief  Return the height of the current font. All characters in a font are the same height.
+ *  \return height of the glyph font
+ */
+uint8_t miniOledGlyphHeight(void)
+{
+    if (miniOledFontId != FONT_NONE) 
+    {
+        return miniOledCurrentFont.height + (miniOledCurrentFont.fixedWidth ?  1 : 0);
+    }
+    else 
+    {
+        return 0;
+    }
+}
+
+/*! \fn     miniOledStrWidth(const char* str)
  *  \brief  Return the width of the specified character in the current font
  *  \param  ch      return the width of this character
+ *  \param  indp    optional pointer to return index of glyph
  *  \return width of the glyph
  */
-uint8_t miniOledGlyphWidth(char ch)
+uint8_t miniOledGlyphWidth(char ch, uint8_t* indp, glyph_t* glyphp)
 {
-    glyph_t glyph;
-    uint8_t gind;
+    if (glyphp == NULL) 
+    {
+        // use the stack
+        glyphp = (glyph_t *)alloca(sizeof(glyph_t));
+    }
     
     // Check that a font was actually chosen
     if (miniOledFontId != FONT_NONE) 
-    {        
-        // We only support characters after ' '
-        if (ch < ' ')
-        {
-            ch = '?';
-        }     
+    {
+        uint8_t width = miniOledCurrentFont.fixedWidth;
         
-        // Convert character to glyph index
-        flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
-        
-        // Check that we know this glyph
-        if(gind == 0xFF)
+        if (width) 
         {
-            // If we don't know this character, try again with '?'
-            ch = '?';
-            flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
+            // If a fixed width font is chosen, return it
+            return width + 1;
+        }
+        else 
+        {
+            uint8_t gind;
             
-            // If we still don't know it, return 0
-            if (gind == 0xFF)
+            if (ch >= ' ')
             {
-                return 0;
-            }            
-        }
+                // convert character to glyph index
+                flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
+            }
+            else 
+            {
+                // default to a space
+                gind = 0;
+            }
 
-        // Read the beginning of the glyph
-        flashRawRead((uint8_t*)&glyph, miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[gind], sizeof(glyph_t));
+            if (indp)
+            {
+                // Set index of the glyph is specified
+                *indp = gind;
+            }
 
-        if ((uint16_t)glyph.glyph == 0xFFFF)
-        {
-            // If there's no glyph data, it is the space!
-            return glyph.width + glyph.xoffset + 1;
-        }
-        else
-        {
-            return glyph.xrect + glyph.xoffset + 1;
+            // Read the beginning of the glyph
+            flashRawRead((uint8_t *)glyphp, miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[gind], sizeof(glyph_t));
+
+            if ((uint16_t)glyphp->glyph == 0xFFFF)
+            {
+                return glyphp->width + glyphp->xoffset + 1;
+            }
+            else
+            {
+                return glyphp->xrect + glyphp->xoffset + 1;
+            }
         }
     }
     else 
@@ -635,94 +659,10 @@ uint16_t miniOledStrWidth(const char* str)
     uint16_t width=0;
     for (uint8_t ind=0; str[ind] != 0; ind++) 
     {
-        width += miniOledGlyphWidth(str[ind]);
+        width += miniOledGlyphWidth(str[ind], NULL, NULL);
     }
     return width;
 }
-
-/*! \fn     miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
- *  \brief  Draw a glyph at X & Y
- *  \param  x   X position
- *  \param  y   Y position
- *  \param  ch  Character to display
- *  \return width of the glyph
- */
-uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
-{
-    bitstream_mini_t bs;                // Character bitstream
-    uint8_t glyph_height;               // Glyph height
-    uint8_t glyph_width;                // Glyph width
-    glyph_t glyph;                      // Glyph header
-    uint8_t gind;                       // Glyph index
-    
-    // Check that a font is set
-    if (miniOledFontId == FONT_NONE)
-    {
-        return 0;
-    }
-
-    // We only support characters after ' '
-    if (ch < ' ')
-    {
-        ch = '?';
-    }
-    
-    // Convert character to glyph index
-    flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
-    
-    // Check that we know this glyph
-    if(gind == 0xFF)
-    {
-        // If we don't know this character, try again with '?'
-        ch = '?';
-        flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
-        
-        // If we still don't know it, return 0
-        if (gind == 0xFF)
-        {
-            return 0;
-        }
-    }
-    
-    // Get the glyph header data
-    flashRawRead((uint8_t*)&glyph, miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[gind], sizeof(glyph_t));
-    
-    #ifdef OLED_DEBUG_OUTPUT_USB
-        usbPrintf_P(PSTR("    glyph_t addr 0x%04x\n"), miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[gind]);
-    #endif
-    
-    if ((uint16_t)glyph.glyph == 0xFFFF)
-    {
-        // space character, just fill in the gddram buffer and output background pixels
-        glyph_width = glyph.width;
-        glyph_height = miniOledCurrentFont.height;
-        #ifdef OLED_DEBUG_OUTPUT_USB
-            usbPrintf_P(PSTR("    space character width %u height %u\n"), glyph_width, glyph_height);
-        #endif
-    }
-    else
-    {
-        // Store glyph height and width, increment with offset
-        glyph_width = glyph.xrect;
-        glyph_height = glyph.yrect;
-        x += glyph.xoffset;
-        y += glyph.yoffset;
-        
-        // Compute glyph data address
-        uint16_t gaddr = miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[miniOledCurrentFont.count] + (uint16_t)glyph.glyph;
-        
-        #ifdef OLED_DEBUG_OUTPUT_USB
-            // glyph data offsets are from the end of the glyph header array
-            usbPrintf_P(PSTR("    glyph '%c' width %d height %d addr 0x%04x\n"), ch, glyph_width, glyph_height, gaddr);
-        #endif
-        
-        // Initialize bitstream & draw the character
-        miniBistreamInit(&bs, glyph_height, glyph_width, gaddr);   
-        miniOledBitmapDrawRaw(x, y, &bs, 0);
-    }
-    
-    return (uint8_t)(glyph_width + glyph.xoffset) + 1;
-}    
 
 /*! \fn     miniOledPutch(char ch)
  *  \brief  Print an character on the screen at the current X and Y position. X and Y position is updated after the print operation, with X wrapping if necessary
@@ -730,9 +670,21 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
  *  \note '\n' is will increment the row position based on the current font height, and also reset x to 0. '\r' will reset x to 0.
  */
 void miniOledPutch(char ch)
-{    
+{
+    uint8_t glyphHeight = miniOledGlyphHeight();
+    uint8_t glyphPtr;
+    
+    // Try to read the glyphdata pointer to see if this char is supported
+    flashRawRead(&glyphPtr, (uint16_t)miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(glyphPtr));
+    
+    // Check the pointer, we don't support chars < ' ' (0x20)
+    if (((glyphPtr == 0xFF) || (ch < ' ')) && (ch != '\r') && (ch != '\n'))
+    {
+        ch = '?';
+    }
+    
     #ifdef OLED_DEBUG_OUTPUT_USB
-        if (isprint(ch))
+        if (isprint(ch)) 
         {
             usbPrintf_P(PSTR("oledPutch('%c') x=%d, y=%d, oled_offset=%d, buf=%d, height=%u\n"), ch, miniOledTextCurX, miniOledTextCurY, 0, 0, glyphHeight);
         }
@@ -741,8 +693,7 @@ void miniOledPutch(char ch)
             usbPrintf_P(PSTR("oledPutch('0x%02x') x=%d, y=%d, oled_offset=%d, buf=%d\n"), ch, miniOledTextCurX, miniOledTextCurY, 0, 0);
         }
     #endif
-    
-    miniOledTextCurX += miniOledGlyphDraw(miniOledTextCurX, miniOledTextCurY, ch);
+
 /*
     // see if the current offset is offscreen
     if ((oled_cur_y[oled_writeBuffer] + glyphHeight) > OLED_HEIGHT) 

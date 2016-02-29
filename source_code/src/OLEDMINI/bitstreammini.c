@@ -24,6 +24,9 @@
  */
 #include "bitstreammini.h"
 #include "flash_mem.h"
+/***********************************************************/
+/*  This file is only used for the Mooltipass mini version */
+#if defined(MINI_VERSION)
 
 
 /*! \fn     miniBistreamInit(bitstream_mini_t* bs, uint8_t height, uint16_t width, uint16_t addr)
@@ -72,3 +75,5 @@ uint8_t miniBistreamGetNextByte(bitstream_mini_t* bs)
         return 0;
     }
 }
+#endif
+/***************************************************************/

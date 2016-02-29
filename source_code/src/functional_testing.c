@@ -45,27 +45,35 @@ RET_TYPE electricalJumpToBootloaderCondition(void)
     #if defined(HARDWARE_OLIVIER_V1)
         /* Disable JTAG to get access to the pins */
         disableJTAG();
+        
         /* Init SMC port */
         initPortSMC();
+        
         /* Delay for detection */
         smallForLoopBasedDelay();
+        
         if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
         {
             uint16_t tempuint16;
+            
             /* What follows is a copy from firstDetectFunctionSMC() */
             /* Enable power to the card */
             PORT_SC_POW &= ~(1 << PORTID_SC_POW);
+            
             /* Default state: PGM to 0 and RST to 1 */
             PORT_SC_PGM &= ~(1 << PORTID_SC_PGM);
             DDR_SC_PGM |= (1 << PORTID_SC_PGM);
             PORT_SC_RST |= (1 << PORTID_SC_RST);
             DDR_SC_RST |= (1 << PORTID_SC_RST);
+            
             /* Activate SPI port */
             PORT_SPI_NATIVE &= ~((1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE));
             DDRB |= (1 << SCK_SPI_NATIVE) | (1 << MOSI_SPI_NATIVE);
             setSPIModeSMC();
+            
             /* Let the card come online */
             smallForLoopBasedDelay();
+            
             /* Check smart card FZ */
             readFabricationZone((uint8_t*)&tempuint16);
             if ((swap16(tempuint16)) != SMARTCARD_FABRICATION_ZONE)
@@ -86,11 +94,14 @@ RET_TYPE electricalJumpToBootloaderCondition(void)
     #elif defined(MINI_VERSION)
         /* Disable JTAG to get access to the pins */
         disableJTAG();
+        
         /* Pressing center joystick starts the bootloader */
         DDR_JOYSTICK &= ~(1 << PORTID_JOY_CENTER);
         PORT_JOYSTICK |= (1 << PORTID_JOY_CENTER);
+        
         /* Small delay for detection */
         smallForLoopBasedDelay();
+        
         /* Check if low */
         if (!(PIN_JOYSTICK & (1 << PORTID_JOY_CENTER)))
         {
@@ -116,11 +127,14 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
     {
         // Test result, true by default
         uint8_t test_result = TRUE;
+        
         // Leave flash nS off
         DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
         PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
+        
         // Set PORTD as output, leave PORTID_OLED_SS high
         DDRD |= 0xFF; PORTD |= 0xFF;
+        
         // All other pins are input by default, run our test
         for (uint8_t i = 0; i < 4; i++)
         {
@@ -137,8 +151,10 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
                 test_result = FALSE;
             }
         }
+        
         // PB6 as test result output
         DDRB |= (1 << 6);
+        
         // If test successful, light green LED
         if ((test_result == TRUE) && (fuse_ok == TRUE))
         {
@@ -255,8 +271,10 @@ void mooltipassStandardFunctionalTest(uint16_t current_bootkey_val, uint8_t flas
         {
             // Set correct bool
             script_return = RETURN_NOK;
+            
             // Display test result
             guiDisplayRawString(ID_STRING_TEST_NOK);
+            
             // Inform script of failure
             usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
             while(1);

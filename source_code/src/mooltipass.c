@@ -227,7 +227,12 @@ int main(void)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
         #endif
     #elif defined(MINI_VERSION)
-        while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
+        #if defined(MINI_CLICK_BETATESTERS_SETUP)
+            (void)fuse_ok;
+            while (flash_init_result != RETURN_OK);
+        #else
+            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
+        #endif
     #endif
     
     // First time initializations done.... write correct value in eeprom

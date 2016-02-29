@@ -79,6 +79,13 @@
 #define miniOledNormalDisplay()                     miniOledWriteSimpleCommand(SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED)
 #define miniOledInvertedDisplay()                   miniOledWriteSimpleCommand(SSD1305_CMD_ENTIRE_DISPLAY_REVERSED)
 
+/** MACROS **/
+#ifdef OLED_DEBUG_OUTPUT_USB
+    #define OLEDDEBUGPRINTF_P(args...)              usbPrintf_P(args)
+#else
+    #define OLEDDEBUGPRINTF_P(args...)
+#endif
+
 /************ PROTOTYPES ************/
 void miniOledOn(void);
 void miniOledClear(void);

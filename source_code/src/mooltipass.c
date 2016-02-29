@@ -294,8 +294,8 @@ int main(void)
             usbProcessIncoming(USB_CALLER_MAIN);
             if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_JDETECT)
             {
-                miniOledPutstrXY(0, 0, OLED_LEFT, "#");
-                miniOledPutstrXY(8, 0, OLED_LEFT, "ada");
+                //miniOledPutstrXY(0, 0, OLED_LEFT, "#");
+                miniOledPutstrXY(8, 0, OLED_LEFT, "Qfa");
                 //miniOledGlyphDraw(0, 0, 'B');
                 miniOledFlushEntireBufferToDisplay();
         }

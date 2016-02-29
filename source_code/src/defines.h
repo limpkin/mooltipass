@@ -132,7 +132,7 @@
 // Hardware test procedure
 //#define HW_TEST_PROC
 // Used for oled display
-#define OLED_DEBUG_OUTPUT_USB
+//#define OLED_DEBUG_OUTPUT_USB
 
 /**************** ENABLING TESTS ****************/
 // As they may be manually enabled as well

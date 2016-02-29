@@ -76,17 +76,22 @@
 #define SSD1305_X_OFFSET                            4
 
 /** ONE LINE FUNCTIONS **/
-#define miniOledNormalDisplay()                     oledWriteCommand(SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED)
-#define miniOledInvertedDisplay()                   oledWriteCommand(SSD1305_CMD_ENTIRE_DISPLAY_REVERSED)
+#define miniOledNormalDisplay()                     miniOledWriteSimpleCommand(SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED)
+#define miniOledInvertedDisplay()                   miniOledWriteSimpleCommand(SSD1305_CMD_ENTIRE_DISPLAY_REVERSED)
 
 /************ PROTOTYPES ************/
+void miniOledOn(void);
 void miniOledClear(void);
 void miniOledInitIOs(void);
 void miniOledBegin(uint8_t font);
+RET_TYPE miniOledIsScreenOn(void);
 void miniOledWriteActiveBuffer(void);
+void miniOledDisplayOtherBuffer(void);
 void miniOledWriteInactiveBuffer(void);
 void miniOledSetFont(uint8_t fontIndex);
+void miniOledWriteSimpleCommand(uint8_t reg);
 void miniOledFlushEntireBufferToDisplay(void);
+void miniOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char* str);
 void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
 void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t options);
 void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, uint8_t yend);

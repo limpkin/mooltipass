@@ -59,6 +59,9 @@
 #include "anim.h"
 #include "utils.h"
 #include "usb.h"
+/***************************************************************/
+/*  This file is only used for the Mooltipass standard version */
+#if defined(HARDWARE_OLIVIER_V1)
 
 // Make sure the USART SPI is selected
 #if SPI_OLED != SPI_USART
@@ -278,7 +281,7 @@ void oledFlipDisplayedBuffer()
 
 
 // set write buffer to the be the inactive (offscreen) buffer
-void oledWriteInactiveBuffer()
+void stockOledWriteInactiveBuffer()
 {
     oled_writeBuffer = !oled_displayBuffer;
     oled_writeOffset = OLED_HEIGHT;
@@ -317,7 +320,7 @@ void oledFlipBuffers(uint8_t mode, uint8_t delay)
 /**
  * Swap the currently displayed buffer with the inactive buffer
  */
-void oledDisplayOtherBuffer(void)
+void stockOledDisplayOtherBuffer(void)
 {
     oledMoveDisplayStartLine(OLED_HEIGHT);
     oled_displayBuffer = !oled_displayBuffer;
@@ -520,7 +523,7 @@ void oledPutstr_P(const char *str)
  * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  * @param str - pointer to the string in ram
  */
-void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
+void stockOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
 {
     int16_t width = (int16_t)oledStrWidth(str);
 
@@ -550,7 +553,7 @@ void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str)
  * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  * @param str - pointer to the string in program memory
  */
-void oledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str)
+void stockOledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str)
 {
     int16_t width = (int16_t)oledStrWidth_P(str);
 
@@ -616,13 +619,13 @@ void oledInit()
     }
 
     // Clear buffers
-    oledWriteInactiveBuffer();
-    oledClear();
+    stockOledWriteInactiveBuffer();
+    stockOledClear();
     oledWriteActiveBuffer();
-    oledClear();
+    stockOledClear();
 
     // Switch on screen
-    oledOn();
+    stockOledOn();
 }
 
 /**
@@ -829,7 +832,7 @@ void oledOff(void)
 /**
  * Turn the display on
  */
-void oledOn(void)
+void stockOledOn(void)
 {
     PORT_OLED_POW &= ~(1 << PORTID_OLED_POW);
     timerBased130MsDelay();
@@ -842,7 +845,7 @@ void oledOn(void)
  * @retval true if the display is on
  * @retval false if the display is off
  */
-uint8_t oledIsOn(void)
+uint8_t stockOledIsOn(void)
 {
     return oled_isOn;
 }
@@ -881,7 +884,7 @@ void oledFill(uint8_t colour)
  * @param height height of rectangle in pixels
  * @param colour the shade to fill with (0 to 15)
  */
-void oledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour)
+void stockOledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour)
 {
     int16_t y_actual = (y + oled_offset + oled_writeOffset) & OLED_Y_MASK;
 #ifdef OLED_DEBUG
@@ -904,7 +907,7 @@ void oledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t col
     if (width + x > OLED_WIDTH) 
     {
         // overlap on X, split it
-        oledFillXY(x, y, OLED_WIDTH-x, height, colour);
+        stockOledFillXY(x, y, OLED_WIDTH-x, height, colour);
         width -= OLED_WIDTH - x;
         x = 0;
     }
@@ -914,7 +917,7 @@ void oledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t col
         // fill area overlaps end of GDDRAM, so two fills needed
         
         // Fill to the end
-        oledFillXY(x, y-(y_actual-oled_offset), width, OLED_HEIGHT*2 - y_actual, colour);
+        stockOledFillXY(x, y-(y_actual-oled_offset), width, OLED_HEIGHT*2 - y_actual, colour);
 
         // Now fill the rest from the start of the buffer
         height -= (OLED_HEIGHT*2 - y_actual);
@@ -947,7 +950,7 @@ void oledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t col
 /**
  * Clear the display by setting every pixel to the background colour.
  */
-void oledClear()
+void stockOledClear()
 {
     oledFill(oled_background);
 
@@ -966,7 +969,7 @@ void oledClear()
  * current text line to the background colour.
  * @param y first row of the text line to clear
  */
-void oledClearLine(int16_t y)
+void stockOledClearLine(int16_t y)
 {
     uint8_t gheight = oledGlyphHeight();
 
@@ -974,7 +977,7 @@ void oledClearLine(int16_t y)
     uint16_t cur_y = (oled_writeOffset + oled_offset + y) & OLED_Y_MASK;
     usbPrintf_P(PSTR("clearLine() y=%u (%u), oled_offset=%u, oled_writeOffset=%u, gh=%u\n"), y, cur_y, oled_offset, oled_writeOffset, gheight);
 #endif
-    oledFillXY(0, y, OLED_WIDTH, gheight, oled_background);
+    stockOledFillXY(0, y, OLED_WIDTH, gheight, oled_background);
 }
 
 /**
@@ -1045,7 +1048,7 @@ void oledScrollUp(uint8_t lines, bool clear)
     if (clear) 
     {
         // clear the lines that are now offscreen
-        oledClearLine(-lines);
+        stockOledClearLine(-lines);
     }
 }
 
@@ -1568,3 +1571,5 @@ int8_t stockOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t op
     oledBitmapDrawRaw(x, y, &bs, options);
     return 0;
 }
+#endif
+/***************************************************************/

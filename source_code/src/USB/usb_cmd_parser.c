@@ -1083,7 +1083,7 @@ void usbProcessIncoming(uint8_t caller_id)
             mediaFlashImportOffset = 0;
             
             // No check if dev comms
-            #ifdef DEV_PLUGIN_COMMS
+            #if defined(DEV_PLUGIN_COMMS) || defined(AVR_BOOTLOADER_PROGRAMMING)
                 plugin_return_value = PLUGIN_BYTE_OK;
                 mediaFlashImportApproved = TRUE;
             #else            

@@ -29,6 +29,9 @@
 #include "defines.h"
 #include <string.h>
 #include "touch.h"
+/***************************************************************/
+/*  This file is only used for the Mooltipass standard version */
+#if defined(HARDWARE_OLIVIER_V1)
 
 // Last read wheel position
 uint8_t last_raw_wheel_position;
@@ -114,32 +117,28 @@ void activateProxDetection(void)
 */
 RET_TYPE initTouchSensing(void)
 {
-    #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
-        RET_TYPE temp_return = checkTSPres();
-        uint8_t reg, val;
-        uint8_t i;
+    RET_TYPE temp_return = checkTSPres();
+    uint8_t reg, val;
+    uint8_t i;
         
-        if (temp_return == RETURN_OK)
-        {            
-            // Initialization sequence stored in flash
-            for (i = 0; i < sizeof(touch_init);)
-            {
-                reg = pgm_read_byte(&touch_init[i++]);
-                val = pgm_read_byte(&touch_init[i++]);
-                writeDataToTS(reg, val);
-            }
+    if (temp_return == RETURN_OK)
+    {            
+        // Initialization sequence stored in flash
+        for (i = 0; i < sizeof(touch_init);)
+        {
+            reg = pgm_read_byte(&touch_init[i++]);
+            val = pgm_read_byte(&touch_init[i++]);
+            writeDataToTS(reg, val);
+        }
             
-            // Custom sensitivity settings
-            writeDataToTS(REG_AT42QT_DI, getMooltipassParameterInEeprom(TOUCH_DI_PARAM));                   // Increase detection integrator value
-            writeDataToTS(REG_AT42QT_CHARGE_TIME, getMooltipassParameterInEeprom(TOUCH_CHARGE_TIME_PARAM)); // Prolongs the charge transfer period of signal acq
-            writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM0));// Touch weel oversample (gain one bit by default)
-            writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM1));// Touch weel oversample (gain one bit by default)
-            writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM2));// Touch weel oversample (gain one bit by default)
-        }        
-        return temp_return;
-    #else
-        return RETURN_NOK;
-    #endif
+        // Custom sensitivity settings
+        writeDataToTS(REG_AT42QT_DI, getMooltipassParameterInEeprom(TOUCH_DI_PARAM));                   // Increase detection integrator value
+        writeDataToTS(REG_AT42QT_CHARGE_TIME, getMooltipassParameterInEeprom(TOUCH_CHARGE_TIME_PARAM)); // Prolongs the charge transfer period of signal acq
+        writeDataToTS(REG_AT42QT_KEY0_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM0));// Touch weel oversample (gain one bit by default)
+        writeDataToTS(REG_AT42QT_KEY1_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM1));// Touch weel oversample (gain one bit by default)
+        writeDataToTS(REG_AT42QT_KEY2_PULSE_SCL, getMooltipassParameterInEeprom(TOUCH_WHEEL_OS_PARAM2));// Touch weel oversample (gain one bit by default)
+    }        
+    return temp_return;
 }
 
 /*! \fn     getLastRawWheelPosition(void)
@@ -326,3 +325,5 @@ RET_TYPE touchDetectionRoutine(uint8_t led_mask)
     
     return return_val;   
 }
+#endif
+/***************************************************************/

@@ -22,6 +22,18 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+/*! \fn     disableJTAG(void)
+*   \brief  Disable the JTAG module
+*/
+static inline void disableJTAG(void)
+{
+    unsigned char temp;
+
+    temp = MCUCR;
+    temp |= (1<<JTD);
+    MCUCR = temp;
+    MCUCR = temp;
+}
 
 /* Prototypes */
 uint8_t hm_uint8_strncmp(uint8_t* buffer1, uint8_t* buffer2, uint8_t nb_chars);

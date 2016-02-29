@@ -36,6 +36,13 @@
 #define MEDIA_BITMAP            1
 #define MEDIA_FONT              2
 
+// Font IDs
+#define FONT_NONE           255
+#define FONT_PROFONT_10     7
+#define FONT_PROFONT_18     16
+#define FONT_PROFONT_24     17
+#define FONT_DEFAULT FONT_PROFONT_10
+
 // Bimap IDs
 #define BITMAP_MOOLTIPASS     0
 #define BITMAP_LOGIN          1

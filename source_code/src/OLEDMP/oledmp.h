@@ -131,14 +131,6 @@
 #define stockOledNormalDisplay()     oledWriteCommand(CMD_SET_DISPLAY_MODE_NORMAL)
 #define stockOledInvertedDisplay()   oledWriteCommand(CMD_SET_DISPLAY_MODE_INVERSE)
 
-
-// Text line justification options
-enum {
-    OLED_LEFT  = 0,
-    OLED_RIGHT = 1,
-    OLED_CENTRE = 2
-} justify_e;
-
 void stockOledBegin(uint8_t font);
 void stockOledInitIOs(void);
 void oledInit(void);
@@ -148,15 +140,15 @@ void oledSetColumnAddr(uint8_t start, uint8_t end);
 void oledSetRowAddr(uint8_t start, uint8_t end);
 void oledSetScrollSpeed(uint8_t msecs);
 void oledFill(uint8_t colour);
-void oledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour);
-void oledClear();
-void oledClearLine(int16_t y);
+void stockOledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour);
+void stockOledClear();
+void stockOledClearLine(int16_t y);
 void oledScrollClear(uint8_t options);
 void oledScrollUp(uint8_t lines, bool clear);
 void oledReset();
 void oledOff(void);
-void oledOn(void);
-uint8_t oledIsOn(void);
+void stockOledOn(void);
+uint8_t stockOledIsOn(void);
 
 #define OLED_SCROLL_UP              1
 #define OLED_SCROLL_DOWN            2
@@ -173,12 +165,12 @@ void oledBitmapDraw(uint8_t x, uint8_t y, const void *image, uint8_t options);
 void oledInvertDisplay(void);
 void oledSetDisplayStartLine(uint8_t line);
 void oledMoveDisplayStartLine(int8_t offset);
-void oledDisplayOtherBuffer(void);
+void stockOledDisplayOtherBuffer(void);
 void oledFlipBuffers(uint8_t mode, uint8_t delay);
 void oledFlipDisplayedBuffer(void);
 void oledFlipWriteBuffer(void);
 void oledWriteActiveBuffer(void);
-void oledWriteInactiveBuffer(void);
+void stockOledWriteInactiveBuffer(void);
 
 void oledSetWindow(uint8_t x, uint8_t y, uint16_t xend, uint8_t yend);
 void oledSetFont(uint8_t fontIndex);
@@ -205,8 +197,8 @@ uint16_t oledStrWidth(const char *str);
 uint16_t oledStrWidth_P(const char *str);
 uint16_t oledGetTextWidth(char *format, ...);
 uint16_t oledGetTextWidth_P(char *format, ...);
-void oledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str);
-void oledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str);
+void stockOledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str);
+void stockOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str);
 void oledPutstr_P(const char *str);
 void oledPutstr(const char *str);
 

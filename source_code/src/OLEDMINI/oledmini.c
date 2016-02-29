@@ -30,13 +30,24 @@
 #include "oledmini.h"
 #include "defines.h"
 #include <string.h>
+#include "fonts.h"
 #include "spi.h"
+#include <alloca.h>
+
 // Frame buffer, first byte is X0 Y7 (MSB) to X0 Y0 (LSB)
 uint8_t miniOledFrameBuffer[SSD1305_OLED_WIDTH*SSD1305_OLED_HEIGHT/SSD1305_PAGE_HEIGHT];
 // Current y offset in buffer
 uint8_t miniOledBufferYOffset;
 // Boolean to know if OLED on
 uint8_t miniOledIsOn = FALSE;
+// Used to know which address to request in the SPI flahs
+static flashFont_t* miniOledFontp = (flashFont_t *)0;
+// Current font used by our display
+static fontHeader_t miniOledCurrentFont;
+// Address of current font in SPI flash
+uint16_t miniOledFontAddr;
+// Current font index in SPI flash
+uint8_t miniOledFontId = 255;
 
 // OLED initialization sequence
 static const uint8_t mini_oled_init[] __attribute__((__progmem__)) = 
@@ -183,6 +194,7 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
  *  \param  xend    end x position
  *  \param  ystart  From which y to start flushing
  *  \param  yend    end y position
+ *  \notes  timed at 1.6ms!
  */
 void miniOledFlushEntireBufferToDisplay(void)
 {
@@ -205,6 +217,15 @@ void miniOledOn(void)
     timerBased130MsDelay();
     miniOledWriteSimpleCommand(SSD1305_CMD_DISPLAY_NORMAL_MODE);
     miniOledIsOn = TRUE;
+}
+
+/*! \fn     miniOledIsScreenOn(void)
+ *  \brief  See if the the OLED display is on
+ *  \return The boolean
+ */
+RET_TYPE miniOledIsScreenOn(void)
+{
+    return miniOledIsOn;
 }
 
 /*! \fn     miniOledInit(void)
@@ -271,7 +292,7 @@ void miniOledInitIOs(void)
 void miniOledBegin(uint8_t font)
 {
     miniOledBufferYOffset = 0;
-    miniOledSetFont(font);
+    font++;//miniOledSetFont(font);
     miniOledInit();
 
 #ifdef ENABLE_PRINTF
@@ -295,6 +316,15 @@ void miniOledWriteInactiveBuffer(void)
  *  \brief  Set write buffer to the be the active (onscreen) buffer
  */
 void miniOledWriteActiveBuffer(void)
+{
+    //oled_writeBuffer = oled_displayBuffer;
+    //oled_writeOffset = 0;
+}
+
+/*! \fn     miniOledDisplayOtherBuffer(void)
+ *  \brief  Display the other buffer on the screen
+ */
+void miniOledDisplayOtherBuffer(void)
 {
     //oled_writeBuffer = oled_displayBuffer;
     //oled_writeOffset = 0;
@@ -411,19 +441,18 @@ int16_t miniOledGetFileAddr(uint8_t fileId, uint16_t *addr)
  *  \param  font    New font to use
  */
 void miniOledSetFont(uint8_t fontIndex)
-{fontIndex++;
-/*
-    if (oledGetFileAddr(fontIndex, &oledFontAddr) != MEDIA_FONT)
+{
+    if (miniOledGetFileAddr(fontIndex, &miniOledFontAddr) != MEDIA_FONT)
     {        
         #ifdef OLED_DEBUG
             usbPrintf_P(PSTR("oled failed to set font %d\n"),fontIndex);
         #endif
         return;
     }
-    fontId = fontIndex;
-    oledFontPage = oledFontAddr / BYTES_PER_PAGE;
-    oledFontOffset = oledFontAddr % BYTES_PER_PAGE;
-    flashRawRead((uint8_t *)&currentFont, oledFontAddr, sizeof(currentFont));*/
+    
+    // Read the font header
+    miniOledFontId = fontIndex;
+    flashRawRead((uint8_t *)&miniOledCurrentFont, miniOledFontAddr, sizeof(miniOledCurrentFont));
 
 #ifdef OLED_DEBUG
     usbPrintf_P(PSTR("found font at file index %d\n"),fontIndex);
@@ -534,4 +563,115 @@ void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t optio
     
     // Draw the bitmap
     miniOledBitmapDrawRaw(x, y, &bs, options);
+}
+
+/*! \fn     miniOledStrWidth(const char* str)
+ *  \brief  Return the width of the specified character in the current font
+ *  \param  ch      return the width of this character
+ *  \param  indp    optional pointer to return index of glyph
+ *  \return width of the glyph
+ */
+uint8_t miniOledGlyphWidth(char ch, uint8_t* indp, glyph_t* glyphp)
+{
+    if (glyphp == NULL) 
+    {
+        // use the stack
+        glyphp = (glyph_t *)alloca(sizeof(glyph_t));
+    }
+    
+    // Check that a font was actually chosen
+    if (miniOledFontId != FONT_NONE) 
+    {
+        uint8_t width = miniOledCurrentFont.fixedWidth;
+        
+        if (width) 
+        {
+            // If a fixed width font is chosen, return it
+            return width + 1;
+        }
+        else 
+        {
+            uint8_t gind;
+            
+            if (ch >= ' ')
+            {
+                // convert character to glyph index
+                flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
+            }
+            else 
+            {
+                // default to a space
+                gind = 0;
+            }
+
+            if (indp)
+            {
+                // Set index of the glyph is specified
+                *indp = gind;
+            }
+
+            // Read the beginning of the glyph
+            flashRawRead((uint8_t *)glyphp, miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[gind], sizeof(glyph_t));
+
+            if ((uint16_t)glyphp->glyph == 0xFFFF)
+            {
+                return glyphp->width + glyphp->xoffset + 1;
+            }
+            else
+            {
+                return glyphp->xrect + glyphp->xoffset + 1;
+            }
+        }
+    }
+    else 
+    {
+        return 0;
+    }
+}
+
+/*! \fn     miniOledStrWidth(const char* str)
+ *  \brief  Return the pixel width of the string.
+ *  \param  str     string to get width of
+ *  \return width of string in pixels based on current font
+ */
+uint16_t miniOledStrWidth(const char* str)
+{
+    uint16_t width=0;
+    for (uint8_t ind=0; str[ind] != 0; ind++) 
+    {
+        width += miniOledGlyphWidth(str[ind], NULL, NULL);
+    }
+    return width;
+}
+
+/*! \fn     miniOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char* str)
+ *  \brief  Print a string at the specified pixel line, justified left, center, or right of x.
+ *  \param  x       x position
+ *  \param  y       y position
+ *  \param  justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
+ *  \param  str     pointer to the string in ram
+ */
+void miniOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char* str)
+{
+    int16_t width = (int16_t)miniOledStrWidth(str);
+
+    if (justify == OLED_CENTRE)
+    {
+        x = SSD1305_OLED_WIDTH/2 - width/2 + x;
+    } 
+    else if (justify == OLED_RIGHT)
+    {
+        if (x >= width) 
+        {
+            x -= width;
+        } 
+        else 
+        {
+            x = SSD1305_OLED_WIDTH - width;
+        }
+    }
+
+y++;
+    //oledSetXY(x, y);
+    //oledPutstr(str);
 }

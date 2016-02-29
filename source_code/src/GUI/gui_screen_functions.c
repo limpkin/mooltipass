@@ -344,8 +344,10 @@ RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin, uint8_t message_id)
 */
 void guiDisplayProcessingScreen(void)
 {
-    // No LEDs
-    touchDetectionRoutine(0xFF);
+    #if defined(HARDWARE_OLIVIER_V1)
+        // No LEDs
+        touchDetectionRoutine(0xFF);
+    #endif
     guiDisplayInformationOnScreen(ID_STRING_PROCESSING);
 }
 
@@ -356,7 +358,10 @@ void guiDisplayProcessingScreen(void)
 void guiDisplayTextInformationOnScreen(char* text)
 {
     oledClear();
-    touchDetectionRoutine(0xFF);
+    #if defined(HARDWARE_OLIVIER_V1)
+        // No LEDs
+        touchDetectionRoutine(0xFF);
+    #endif
     oledPutstrXY(10, 24, OLED_CENTRE, text);
     oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
     oledDisplayOtherBuffer();
@@ -397,7 +402,10 @@ void guiDisplayRawString(uint8_t stringID)
 void guiDisplayLoginOrPasswordOnScreen(char* text)
 {
     guiDisplayTextInformationOnScreen(text);
-    getTouchedPositionAnswer(0);
+    #if defined(HARDWARE_OLIVIER_V1)
+        getTouchedPositionAnswer(0);
+    #elif defined(MINI_VERSION)
+    #endif    
 }
 
 /*! \fn     guiDisplaySmartcardUnlockedScreen(uint8_t* username)
@@ -493,12 +501,16 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     }
     
     // Wait for user input
-    if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
-    {
-        return RETURN_OK;
-    }
-    else
-    {
+    #if defined(HARDWARE_OLIVIER_V1)
+        if(getTouchedPositionAnswer(LED_MASK_WHEEL) == TOUCHPOS_RIGHT)
+        {
+            return RETURN_OK;
+        }
+        else
+        {
+            return RETURN_NOK;
+        }
+    #elif defined(MINI_VERSION)
         return RETURN_NOK;
-    }
+    #endif
 }

@@ -24,8 +24,18 @@
 */ 
 #include "timer_manager.h"
 
-
+/*! \fn     userViewDelay(void)
+*   \brief  2secs delay for the user to view information
+*/
 void userViewDelay(void)
 {
     timerBasedDelayMs(2000);
+}
+
+/*! \fn     smallForLoopBasedDelay(void)
+*   \brief  Small delay used at the mooltipass start
+*/
+void smallForLoopBasedDelay(void)
+{
+    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
 }

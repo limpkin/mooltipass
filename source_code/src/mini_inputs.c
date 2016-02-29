@@ -24,6 +24,8 @@
  */
 #include <util/atomic.h>
 #include "defines.h"
+// This code is only used for the mooltipass mini
+#ifdef MINI_VERSION
 // Joystick scan list
 uint8_t joystick_scan_defines[] = {PORTID_JOY_UP, PORTID_JOY_DOWN, PORTID_JOY_LEFT, PORTID_JOY_RIGHT, PORTID_JOY_CENTER};
 // Joystick counter
@@ -185,3 +187,4 @@ RET_TYPE isMiniDirectionPressed(uint8_t direction)
 
     return return_val;
 }
+#endif

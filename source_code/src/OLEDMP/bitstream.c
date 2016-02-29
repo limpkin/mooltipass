@@ -31,6 +31,9 @@
 #include "bitstream.h"
 #include "flash_mem.h"
 #include "usb.h"
+/***************************************************************/
+/*  This file is only used for the Mooltipass standard version */
+#if defined(HARDWARE_OLIVIER_V1)
 
 #undef DEBUG_BS
 
@@ -264,3 +267,5 @@ uint16_t bsAvailable(bitstream_t *bs)
 {
     return bs->_size;
 }
+#endif
+/***************************************************************/

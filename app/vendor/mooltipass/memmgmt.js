@@ -1,7 +1,7 @@
 var mooltipass = mooltipass || {};
 mooltipass.memmgmt = mooltipass.memmgmt || {};
 
-// Next error code available 700
+// Next error code available 701
 
 // Defines
 var NODE_SIZE							= 132;			// Node size
@@ -111,6 +111,7 @@ mooltipass.memmgmt.syncFSParsedFileIndex = 0;				// Index of the syncFS file we 
 mooltipass.memmgmt.currentCardCPZ = [];						// Current card CPZ
 mooltipass.memmgmt.lastLetter = '0';						// Current letter we're at
 mooltipass.memmgmt.mergeFileTypeCsv = false;				// File type of the credential file we're merging
+mooltipass.memmgmt.mediaBundleUploadPercentage = 0;			// Media upload progress percentage
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -4015,6 +4016,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 // Data received from USB callback, for media bundle related comms
 mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 {
+	//console.log(packet);
 	if(packet[1] == mooltipass.device.commands['startMediaImport'])
 	{
 		// Answer to start media import packet
@@ -4045,10 +4047,20 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 		{
 			// Fail... we kind of are stuck here...
 			mooltipass.memmgmt.currentMode = MGMT_IDLE;
-			console.log("Media import fail!");
+			console.log("Media import failed, data byte counter: " + mooltipass.memmgmt.byteCounter);
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 700, 'msg': "Media import failed"});
+			mooltipass.device.processQueue();
 		}
 		else
 		{
+			// Progress bar
+			var tempCompletion = Math.round((mooltipass.memmgmt.byteCounter/mooltipass.memmgmt.mediaBundle.length)*100);
+			if(tempCompletion != mooltipass.memmgmt.mediaBundleUploadPercentage)
+			{
+				mooltipass.memmgmt.progressCallback({'progress': tempCompletion});
+				mooltipass.memmgmt.mediaBundleUploadPercentage = tempCompletion;				
+			}			
+
 			// Check how many bytes we need to send
 			var nb_bytes_to_send = MEDIA_BUNDLE_CHUNK_SIZE;			
 			if(mooltipass.memmgmt.mediaBundle.length - mooltipass.memmgmt.byteCounter < MEDIA_BUNDLE_CHUNK_SIZE)
@@ -4121,8 +4133,10 @@ mooltipass.memmgmt.mediaBundleReadCallback = function(e)
 }
 
 // Media bundle upload
-mooltipass.memmgmt.mediaBundlerUpload = function(callback, password)
+mooltipass.memmgmt.mediaBundlerUpload = function(callback, password, progressCallback)
 {
+	mooltipass.memmgmt.progressCallback = progressCallback;
+	mooltipass.memmgmt.mediaBundleUploadPercentage = 0;
 	mooltipass.memmgmt.statusCallback = callback;
 	
 	// Check password length

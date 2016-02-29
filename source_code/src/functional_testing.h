@@ -17,25 +17,17 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     delays.h
-*    \brief    Different delays used in the mooltipass
-*    Created:  09/6/2014
-*    Author:   Mathieu Stephan
-*/
+/*! \file   functional_testing.h
+ *  \brief  Functional testing functions
+ *  Copyright [2016] [Mathieu Stephan]
+ */ 
 
 
-#ifndef DELAYS_H_
-#define DELAYS_H_
+#ifndef FUNCTIONAL_TESTING_H_
+#define FUNCTIONAL_TESTING_H_
 
-#include "timer_manager.h"
+RET_TYPE electricalJumpToBootloaderCondition(void);
+void mooltipassStandardElectricalTest(uint8_t fuse_ok);
+void mooltipassStandardFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok);
 
-// Prototypes
-void userViewDelay(void);
-void smallForLoopBasedDelay(void);
-
-// Macros
-#define powerSettlingDelay()                timerBased130MsDelay()
-#define touchSensorInterruptLineDelay()     timerBased130MsDelay()
-#define screenComingOnDelay()               timerBased130MsDelay()
-
-#endif /* DELAYS_H_ */
+#endif

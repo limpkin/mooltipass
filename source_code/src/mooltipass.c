@@ -105,36 +105,35 @@ void smallForLoopBasedDelay(void)
 */
 int main(void)
 {
-    uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);
-    #if defined(HARDWARE_OLIVIER_V1)
-        RET_TYPE touch_init_result;
-    #endif
-    RET_TYPE flash_init_result;
-    RET_TYPE card_detect_ret;
-    uint8_t fuse_ok = TRUE;
+    uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Fetch boot key from eeprom
+    #if defined(HARDWARE_OLIVIER_V1)                                                // Only the Mooltipass standard version has a touch panel
+        RET_TYPE touch_init_result;                                                 // Touch init result
+    #endif                                                                          // ENDIF
+    RET_TYPE flash_init_result;                                                     // Flash init result
+    RET_TYPE card_detect_ret;                                                       // Card detect result
+    uint8_t fuse_ok = TRUE;                                                         // Fuse check result
     
-    // Disable JTAG to gain access to pins, set prescaler to 1 (fuses not set)
-    #if !defined(PRODUCTION_KICKSTARTER_SETUP)
-        disableJTAG();
-        CPU_PRESCALE(0);
+    #if defined(JTAG_FUSE_ENABLED)                                                  // For units whose fuses haven't been programmed
+        disableJTAG();                                                              // Disable JTAG to gain access to pins        
+        CPU_PRESCALE(0);                                                            // Set prescaler to 1 (fuses not set)
     #endif
 
     #if defined(MINI_CLICK_BETATESTERS_SETUP)
         // We don't check fuses in beta testers units
     #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
-        // Check fuse settings: boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        // boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
         }
     #elif defined(PRODUCTION_TEST_SETUP)
-        // Check fuse settings: 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        // 2k words, SPIEN, BOD 4.3V, no checks on programming fuses >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8))
         {
             fuse_ok = FALSE;
         }
     #else
-        // Check fuse settings: 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        // 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
@@ -331,13 +330,9 @@ int main(void)
         firstTimeUserHandlingInit();
     }
     
-    // Check if we can initialize the touch sensing element
+    // Check if we can initialize the touch sensing element, enable prox detection
     #if defined(HARDWARE_OLIVIER_V1)
         touch_init_result = initTouchSensing();
-    #endif
-
-    // Enable proximity detection
-    #if defined(HARDWARE_OLIVIER_V1)
         activateProxDetection();
     #endif
     

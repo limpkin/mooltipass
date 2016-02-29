@@ -60,7 +60,6 @@
 #include "rng.h"
 
 // Tutorial led masks and touch filtering
-#if !defined(FLASH_CHIP_1M)
 static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
 {
     0,                              TOUCH_PRESS_MASK,       // Welcome screen
@@ -70,7 +69,6 @@ static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
     LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Wheel interface
     0,                              TOUCH_PRESS_MASK,       // That's all!
 };
-#endif
 // Define the bootloader function
 bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 // Flag to inform if the caps lock timer is armed
@@ -108,7 +106,7 @@ void smallForLoopBasedDelay(void)
 int main(void)
 {
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);
-    #if !defined(MINI_VERSION)
+    #if defined(HARDWARE_OLIVIER_V1)
         RET_TYPE touch_init_result;
     #endif
     RET_TYPE flash_init_result;
@@ -236,11 +234,7 @@ int main(void)
             initPortSMC();
             /* Delay for detection */
             smallForLoopBasedDelay();
-            #if defined(HARDWARE_V1)
-            if (PIN_SC_DET & (1 << PORTID_SC_DET))
-            #elif defined(HARDWARE_OLIVIER_V1) || defined (MINI_VERSION)
             if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
-            #endif
             {
                 uint16_t tempuint16;
                 /* What follows is a copy from firstDetectFunctionSMC() */
@@ -338,12 +332,12 @@ int main(void)
     }
     
     // Check if we can initialize the touch sensing element
-    #if !defined(MINI_VERSION)
+    #if defined(HARDWARE_OLIVIER_V1)
         touch_init_result = initTouchSensing();
     #endif
 
     // Enable proximity detection
-    #if !defined(HARDWARE_V1) && !defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP) && !defined(MINI_VERSION)
+    #if defined(HARDWARE_OLIVIER_V1)
         activateProxDetection();
     #endif
     
@@ -465,11 +459,9 @@ int main(void)
     // Write inactive buffer by default
     oledWriteInactiveBuffer();    
     
-    // First boot tutorial, only on big flash versions
-    #ifndef FLASH_CHIP_1M
     if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
     {
-        #ifndef MINI_VERSION
+        #if defined(HARDWARE_OLIVIER_V1)
             uint8_t tut_led_mask, press_filter;
             activateGuardKey();
             activityDetectedRoutine();
@@ -484,7 +476,6 @@ int main(void)
         #endif
         setMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM, FALSE);
     }
-    #endif
 
     // Go to startup screen
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);

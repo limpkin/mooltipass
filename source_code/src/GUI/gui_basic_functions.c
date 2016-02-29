@@ -61,11 +61,7 @@ uint8_t isScreenSaverOn(void)
 *   \brief  What to do when user activity has been detected
 */
 void activityDetectedRoutine(void)
-{
-    #if defined(HARDWARE_V1) || defined(V2_DEVELOPERS_BOTPCB_BOOTLOADER_SETUP)
-        return;
-    #endif
-    
+{    
     // Activate timers for automatic switch off & user interaction timeout
     activateTimer(TIMER_LIGHT, LIGHT_TIMER_DEL);
     activateTimer(TIMER_SCREEN, SCREEN_TIMER_DEL);

@@ -54,11 +54,7 @@ void initPortSMC(void);
 */
 static inline RET_TYPE isSmartCardAbsent(void)
 {
-    #if defined(HARDWARE_V1)
-    if (PIN_SC_DET & (1 << PORTID_SC_DET))
-    #elif defined(HARDWARE_OLIVIER_V1) || defined (MINI_VERSION)
     if (!(PIN_SC_DET & (1 << PORTID_SC_DET)))
-    #endif
     {
         return RETURN_NOK;
     }

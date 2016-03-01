@@ -91,6 +91,7 @@ mooltipass.ui.developers.callbackImportMediaBundle = function(_statusObject) {
         mooltipass.ui.status.error($('#page-developers button.import'), _statusObject.msg);
     }
 
+    $('#modal-import-media-bundle').hide();
     $("#modal-confirm-on-device").hide();
 
     mooltipass.device.endSingleCommunicationMode(_statusObject.skipEndingSingleCommunicationMode);
@@ -104,7 +105,6 @@ mooltipass.ui.developers.callbackJumpToBootloader = function(_statusObject) {
         mooltipass.ui.status.error($('#page-developers button.jump'), _statusObject.msg);
     }
 
-    $('#modal-import-media-bundle').hide();
     $("#modal-confirm-on-device").hide();
 
     mooltipass.device.endSingleCommunicationMode(_statusObject.skipEndingSingleCommunicationMode);

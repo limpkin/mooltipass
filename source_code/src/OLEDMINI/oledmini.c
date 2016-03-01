@@ -224,6 +224,17 @@ void miniOledOn(void)
     miniOledIsOn = TRUE;
 }
 
+/*! \fn     stockOledOff(void)
+ *  \brief  Turn the display off
+ */
+void miniOledOff(void)
+{
+    miniOledWriteSimpleCommand(SSD1305_CMD_DISPLAY_OFF);
+    timerBased130MsDelay();
+    PORT_OLED_POW |= (1 << PORTID_OLED_POW);
+    miniOledIsOn = FALSE;
+}
+
 /*! \fn     miniOledIsScreenOn(void)
  *  \brief  See if the the OLED display is on
  *  \return The boolean

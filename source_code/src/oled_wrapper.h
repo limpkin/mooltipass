@@ -40,6 +40,7 @@
     #define oledFillXY(a,b,c,d,e)           stockOledFillXY(a,b,c,d,e)
     #define oledIsOn()                      stockOledIsOn()
     #define oledOn()                        stockOledOn()
+    #define oledOff()                       stockOledOff()
     #define oledWriteInactiveBuffer()       stockOledWriteInactiveBuffer()
 #elif defined(MINI_VERSION)
     #define oledInitIOs()                   miniOledInitIOs()
@@ -53,6 +54,7 @@
     #define oledFillXY(a,b,c,d,e)           miniOledDrawRectangle(a,b,c,d,e)
     #define oledIsOn()                      miniOledIsScreenOn()
     #define oledOn()                        miniOledOn()
+    #define oledOff()                       miniOledOff()
     #define oledWriteInactiveBuffer()       miniOledWriteInactiveBuffer()
 #endif
 

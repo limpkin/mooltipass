@@ -29,27 +29,28 @@
 // Joystick scan list
 uint8_t joystick_scan_defines[] = {PORTID_JOY_UP, PORTID_JOY_DOWN, PORTID_JOY_LEFT, PORTID_JOY_RIGHT, PORTID_JOY_CENTER};
 // Joystick counter
-uint8_t joystick_counters[8];
+volatile uint8_t joystick_counters[8];
 // Joystick states
-uint8_t joystick_return[8];
+volatile uint8_t joystick_return[8];
 // Wheel click counter
-uint8_t wheel_click_counter;
+volatile uint8_t wheel_click_counter;
 // Wheel click return
-uint8_t wheel_click_return;
+volatile uint8_t wheel_click_return;
+// State machine state
+uint8_t wheel_sm_states[] = {0b011, 0b001, 0b000, 0b010};
+// Boot to know if we allow next increment
+volatile uint8_t wheel_increment_armed = FALSE;
+// Wheel current increment for caller
+volatile int8_t wheel_cur_increment;
+// Last wheel state machine index
+volatile uint8_t last_wheel_sm;
 
 
 /*! \fn     initMiniInputs(void)
 *   \brief  Init Mooltipass mini inputs
 */
 void initMiniInputs(void)
-{
-    // Joystick
-    for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
-    {
-        DDR_JOYSTICK &= ~(1 << joystick_scan_defines[i]);
-        PORT_JOYSTICK |= (1 << joystick_scan_defines[i]);
-    }        
-    
+{    
     // Wheel
     DDR_CLICK &= ~(1 << PORTID_CLICK);
     PORT_CLICK |= (1 << PORTID_CLICK);
@@ -57,6 +58,13 @@ void initMiniInputs(void)
     PORT_WHEEL_A |= (1 << PORTID_WHEEL_A);
     DDR_WHEEL_B &= ~(1 << PORTID_WHEEL_B);
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
+    
+    // Joystick
+    for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
+    {
+        DDR_JOYSTICK &= ~(1 << joystick_scan_defines[i]);
+        PORT_JOYSTICK |= (1 << joystick_scan_defines[i]);
+    }        
 }
 
 /*! \fn     scanMiniInputsDetect(void)
@@ -64,9 +72,45 @@ void initMiniInputs(void)
 */
 void scanMiniInputsDetect(void)
 {
-    uint8_t* current_direction_counter_pt;
-    uint8_t* current_direction_return_pt;
+    volatile uint8_t* current_direction_counter_pt;
+    volatile uint8_t* current_direction_return_pt;
+    uint8_t wheel_state, wheel_sm = 0;
     uint8_t current_direction;
+    
+    // Wheel encoder
+    wheel_state = ((PIN_WHEEL_A & (1 << PORTID_WHEEL_A)) >> PORTID_WHEEL_A) | ((PIN_WHEEL_B & (1 << PORTID_WHEEL_B)) >> (PORTID_WHEEL_B-1));
+    // Find the state matching the wheel state
+    for (uint8_t i = 0; i < sizeof(wheel_sm_states); i++)
+    {
+        if (wheel_state == wheel_sm_states[i])
+        {
+            wheel_sm = i;
+        }
+    }
+    if (wheel_sm == ((last_wheel_sm+1)&0x03))
+    {
+        if (wheel_state == 0x00)
+        {
+            wheel_increment_armed = TRUE;
+        }
+        else if ((wheel_state == 0x03) && (wheel_increment_armed == TRUE))
+        {
+             wheel_cur_increment++;
+        }
+        last_wheel_sm = wheel_sm;
+    }
+    else if (wheel_sm == ((last_wheel_sm-1)&0x03))
+    {
+        if (wheel_state == 0x00)
+        {
+            wheel_increment_armed = TRUE;
+        }
+        else if ((wheel_state == 0x03) && (wheel_increment_armed == TRUE))
+        {
+            wheel_cur_increment--;
+        }
+        last_wheel_sm = wheel_sm;
+    }
     
     // Wheel click
     if (!(PIN_CLICK & (1 << PORTID_CLICK)))
@@ -131,6 +175,27 @@ void scanMiniInputsDetect(void)
             *current_direction_counter_pt = 0;
         }
     }
+}
+
+/*! \fn     getWheelCurrentIncrement(void)
+*   \brief  Fetch the current increment/decrement for the wheel
+*   \return positive or negative depending on the scrolling
+*/
+int8_t getWheelCurrentIncrement(void)
+{
+    int8_t return_val = 0;
+    
+    if (wheel_cur_increment != 0)
+    {
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            return_val = wheel_cur_increment;
+            wheel_cur_increment = 0;
+        }
+        
+    }
+    
+    return return_val;
 }
 
 /*! \fn     isWheelClicked(void)

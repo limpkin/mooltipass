@@ -146,7 +146,7 @@ void stockOledClearLine(int16_t y);
 void oledScrollClear(uint8_t options);
 void oledScrollUp(uint8_t lines, bool clear);
 void oledReset();
-void oledOff(void);
+void stockOledOff(void);
 void stockOledOn(void);
 uint8_t stockOledIsOn(void);
 

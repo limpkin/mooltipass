@@ -196,19 +196,16 @@ int main(void)
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
     
     /** FLASH INITIALIZATION **/
-    flash_init_result = initFlash();
+    flash_init_result = initFlash();    // Flash low level init, check for presente
     
     /** OLED INITIALIZATION **/
-    // USB at 500mA
-    oledBegin(FONT_DEFAULT);
+    oledBegin(FONT_DEFAULT);            // Only do it now as we're enumerated
     
     /** FIRST BOOT FLASH & EEPROM INITIALIZATIONS **/
     if (current_bootkey_val != CORRECT_BOOTKEY)
-    {
-        // Erase everything in flash
-        chipErase();
-        // Erase # of cards and # of users
-        firstTimeUserHandlingInit();
+    {        
+        chipErase();                    // Erase everything in flash        
+        firstTimeUserHandlingInit();    // Erase # of cards and # of users
     }
     
     /** TOUCH PANEL INITIALIZATION **/
@@ -240,10 +237,9 @@ int main(void)
         #endif
     #endif
     
-    // First time initializations done.... write correct value in eeprom
+    /** CORRECT BOOKEY WRITE **/
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
-        // Store correct bootkey
         eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
     }
     
@@ -270,8 +266,8 @@ int main(void)
     }
 
     // Go to startup screen
-    //guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
-    //guiGetBackToCurrentScreen();
+    guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
+    guiGetBackToCurrentScreen();
     
     // LED fade-in for standard version
     #if defined(HARDWARE_OLIVIER_V1)
@@ -286,73 +282,16 @@ int main(void)
         launchCalibrationCycle();
         touchClearCurrentDetections();
     #endif
-
-    #if defined(MINI_VERSION)
+    
+    #ifdef MINI_VERSION
+    char temp_string[] = {'0', 0};
+    while (1)
+    {
+        temp_string[0] += getWheelCurrentIncrement();
+        oledFillXY(0,0,10,15,0);
+        oledPutstrXY(0,0,0,temp_string);
         miniOledFlushEntireBufferToDisplay();
-        while(1)
-        {
-            usbProcessIncoming(USB_CALLER_MAIN);
-            if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_JDETECT)
-            {
-                //miniOledPutstrXY(0, 0, OLED_LEFT, "#");
-                miniOledPutstrXY(8, 0, OLED_LEFT, "Qfa");
-                //miniOledGlyphDraw(0, 0, 'B');
-                miniOledFlushEntireBufferToDisplay();
-        }
-        if(isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT)
-        {
-            miniOledSetFont(FONT_DEFAULT);
-        }
-        if(isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_JDETECT)
-        {
-            miniOledDumpCurrentFont();
-        }           
-            //miniOledFlushEntireBufferToDisplay();
-//             for(uint8_t i = 0; i < 128-16; i++)
-//             {
-//                 if(isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_DET)
-//                     miniOledDrawRectangle(40,0,5,5,TRUE);
-//                 else
-//                     miniOledDrawRectangle(40,0,5,5,FALSE);  
-//                 if(isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_DET)
-//                     miniOledDrawRectangle(45,0,5,5,TRUE);
-//                 else
-//                     miniOledDrawRectangle(45,0,5,5,FALSE);  
-//                 if(isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_DET)
-//                     miniOledDrawRectangle(50,0,5,5,TRUE);
-//                 else
-//                     miniOledDrawRectangle(50,0,5,5,FALSE);  
-//                 if(isMiniDirectionPressed(PORTID_JOY_RIGHT) == RETURN_DET)
-//                     miniOledDrawRectangle(55,0,5,5,TRUE);
-//                 else
-//                     miniOledDrawRectangle(55,0,5,5,FALSE);  
-//                 if(isMiniDirectionPressed(PORTID_JOY_CENTER) == RETURN_DET)
-//                     miniOledDrawRectangle(60,0,5,5,TRUE);
-//                 else
-//                     miniOledDrawRectangle(60,0,5,5,FALSE);    
-//                 if(isWheelClicked() == RETURN_DET)
-//                     miniOledDrawRectangle(65,0,5,5,TRUE);
-//                 else
-//                     miniOledDrawRectangle(65,0,5,5,FALSE);  
-//                     
-//                 if (!(PIN_WHEEL_A & (1 << PORTID_WHEEL_A)))    
-//                     miniOledDrawRectangle(100,0,5,5,TRUE);
-//                 else
-//                     miniOledDrawRectangle(100,0,5,5,FALSE);   
-//                 if (!(PIN_WHEEL_B & (1 << PORTID_WHEEL_B)))    
-//                     miniOledDrawRectangle(105,0,5,5,TRUE);
-//                 else
-//                     miniOledDrawRectangle(105,0,5,5,FALSE);            
-//                   
-//                 //bitstream_mini_t tata;
-//                 //miniOledBitmapDrawRaw(i, i, &tata, 0);
-//                 //miniOledDrawRectangle(i,i,1,1,TRUE);
-//                 //miniOledBitmapDrawFlash(i, 16, 0, 0);
-//                 miniOledFlushEntireBufferToDisplay();
-//                 //timerBasedDelayMs(100);
-//                 miniOledDrawRectangle(i,16,16,16,FALSE);    
-//             }
-        }
+    }
     #endif
     
     // Inhibit touch inputs for the first 2 seconds

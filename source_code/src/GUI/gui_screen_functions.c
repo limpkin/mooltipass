@@ -92,6 +92,9 @@ void guiGetBackToCurrentScreen(void)
     {
         guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
     }
+    #ifdef MINI_VERSION
+        miniOledFlushEntireBufferToDisplay();
+    #endif
 }
 
 /*! \fn     guiScreenLoop(uint8_t touch_detect_result)

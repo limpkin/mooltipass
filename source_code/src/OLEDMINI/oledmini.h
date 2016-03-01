@@ -88,6 +88,7 @@
 
 /************ PROTOTYPES ************/
 void miniOledOn(void);
+void miniOledOff(void);
 void miniOledClear(void);
 void miniOledInitIOs(void);
 void miniOledBegin(uint8_t font);

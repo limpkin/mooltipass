@@ -820,7 +820,7 @@ void oledSetFont(uint8_t fontIndex)
 /**
  * Turn the display off
  */
-void oledOff(void)
+void stockOledOff(void)
 {
     oledWriteCommand(CMD_SET_DISPLAY_OFF);
     timerBased130MsDelay();

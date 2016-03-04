@@ -364,10 +364,10 @@ typedef int8_t RET_TYPE;
     #define PORT_OLED_POW   PORTE
     #define DDR_OLED_POW    DDRE
     // 5 direction joystick
-    #define PORTID_JOY_LEFT     PORTF1
-    #define PORTID_JOY_DOWN     PORTF4
-    #define PORTID_JOY_RIGHT    PORTF5
-    #define PORTID_JOY_UP       PORTF7
+    #define PORTID_JOY_RIGHT    PORTF1
+    #define PORTID_JOY_UP       PORTF4
+    #define PORTID_JOY_LEFT     PORTF5
+    #define PORTID_JOY_DOWN     PORTF7
     #define PORTID_JOY_CENTER   PORTF6
     #define PORT_JOYSTICK       PORTF
     #define DDR_JOYSTICK        DDRF

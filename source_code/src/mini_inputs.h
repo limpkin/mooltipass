@@ -29,6 +29,8 @@
 
 /* PROTOTYPES */
 RET_TYPE isMiniDirectionPressed(uint8_t direction);
+RET_TYPE getMiniDirectionJustPressed(void);
+void miniDirectionClearDetections(void);
 int8_t getWheelCurrentIncrement(void);
 void scanMiniInputsDetect(void);
 RET_TYPE isWheelClicked(void);

@@ -23,6 +23,7 @@
  *  Copyright [2016] [Mathieu Stephan]
  */
 #include <util/atomic.h>
+#include <string.h>
 #include "defines.h"
 // This code is only used for the mooltipass mini
 #ifdef MINI_VERSION
@@ -250,6 +251,45 @@ RET_TYPE isMiniDirectionPressed(uint8_t direction)
         }
     }
 
+    return return_val;
+}
+
+/*! \fn     miniDirectionClearDetections(void)
+*   \brief  Clear current detections
+*/
+void miniDirectionClearDetections(void)
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        memset((void*)joystick_return, RETURN_REL, sizeof(joystick_return));
+        wheel_click_return = RETURN_REL;
+    }
+}
+
+/*! \fn     getMiniDirectionJustPressed(void)
+*   \brief  Know if a direction is pressed
+*   \return 0 if no button is pressed, its ID otherwise
+*/
+RET_TYPE getMiniDirectionJustPressed(void)
+{
+    volatile RET_TYPE return_val = 0;
+    
+    for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
+    {
+        // This copy is an atomic operation
+        return_val = joystick_return[joystick_scan_defines[i]];
+
+        if (return_val == RETURN_JDETECT)
+        {
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            {
+                joystick_return[joystick_scan_defines[i]] = RETURN_DET;
+            }
+            return_val = joystick_scan_defines[i];
+            break;
+        }
+    }
+    
     return return_val;
 }
 #endif

@@ -285,7 +285,7 @@ int main(void)
     
     #ifdef MINI_VERSION
     char temp_string[] = {'0', 0};
-    while (1)
+    while (1);
     {
         usbProcessIncoming(USB_CALLER_MAIN);
         temp_string[0] += getWheelCurrentIncrement();

@@ -1,0 +1,3 @@
+- python imaging library from http://www.pythonware.com/products/pil/
+- pyusb: pip install pyusb --pre
+- libusb (for windows): http://sourceforge.net/projects/libusb-win32/files/

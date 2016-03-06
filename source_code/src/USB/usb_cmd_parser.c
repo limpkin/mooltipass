@@ -1536,19 +1536,21 @@ void usbProcessIncoming(uint8_t caller_id)
 
         case CMD_DRAW_BITMAP :
         {
-            usbPrintf_P(PSTR("draw bitmap file %d\n"), msg->body.data[0]);
-            if (msg->body.data[3] != 0)     // clear
-            {
-                oledWriteActiveBuffer();
-                oledClear();
-                oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);
-            }
-            else
-            {
-                // don't clear, overlay active screen
-                oledWriteActiveBuffer();
-                oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);
-            }
+            #ifdef HARDWARE_OLIVIER_V1
+                usbPrintf_P(PSTR("draw bitmap file %d\n"), msg->body.data[0]);
+                if (msg->body.data[3] != 0)     // clear
+                {
+                    oledWriteActiveBuffer();
+                    oledClear();
+                    oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);
+                }
+                else
+                {
+                    // don't clear, overlay active screen
+                    oledWriteActiveBuffer();
+                    oledBitmapDrawFlash(msg->body.data[1], msg->body.data[2], msg->body.data[0], 0);
+                }
+            #endif
             return;
         }
         
@@ -1565,29 +1567,42 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        
+        case CMD_MINI_FRAME_BUF_DATA:
+        {
+            #ifdef MINI_VERSION
+                // First two bytes is the offset
+                uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
+                miniOledWriteFrameBuffer(*temp_uint_ptr, msg->body.data + 2, datalen-2);
+            #endif
+            break;
+        }
 
         case CMD_SET_FONT :
         {
-            usbPrintf_P(PSTR("set font file %d\n"), msg->body.data[0]);
-            oledSetFont(msg->body.data[0]);
+            #ifdef HARDWARE_OLIVIER_V1
+                usbPrintf_P(PSTR("set font file %d\n"), msg->body.data[0]);
+                oledSetFont(msg->body.data[0]);
 
-            if (datalen > 1) {
-                usbPrintf_P(PSTR("testing string \"%s\"\n"), (char *)&msg->body.data[1]);
-                oledDisplayOtherBuffer();
-                oledWriteActiveBuffer();
-                oledClear();
-                oledPutstr((char *)&msg->body.data[1]);
-            }
+                if (datalen > 1) {
+                    usbPrintf_P(PSTR("testing string \"%s\"\n"), (char *)&msg->body.data[1]);
+                    oledDisplayOtherBuffer();
+                    oledWriteActiveBuffer();
+                    oledClear();
+                    oledPutstr((char *)&msg->body.data[1]);
+                }
+            #endif
 
             return;
         }
         case CMD_STACK_FREE:
-            
+        {            
             usbPutstr("Stack Free ");
             int_to_string(stackFree(),stack_str);
             usbPutstr(stack_str);
             usbPutstr(" bytes\n");
-        return;
+            return;
+        }            
 
         case CMD_USB_KEYBOARD_PRESS:
             plugin_return_value = PLUGIN_BYTE_OK;

@@ -82,6 +82,19 @@ static const uint8_t mini_oled_init[] __attribute__((__progmem__)) =
 };
 
 
+/*! \fn     miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t size)
+ *  \brief  Write data directly into the frame buffer
+ *  \param  offset  Frame buffer offset
+ *  \param  data    The data
+ *  \param  nbBytes Number of bytes to be written
+ */
+#ifdef DEV_PLUGIN_COMMS
+void miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t nbBytes)
+{
+    memcpy(miniOledFrameBuffer + offset, data, nbBytes);
+}
+#endif
+
 /*! \fn     miniOledWriteCommand(uint8_t* data, uint8_t nbBytes)
  *  \brief  Write a command or register address to the display
  *  \param  data    Pointer to the data to be written

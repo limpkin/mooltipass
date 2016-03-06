@@ -179,6 +179,10 @@ def main():
 	# Open image
 	image = Image.open(options.input)
 	
+	# If PNG, convert to RGB
+	if image.mode == "P":
+		image = image.convert('RGBA')		
+	
 	# Get image specs
 	img_format = image.format
 	img_size = image.size

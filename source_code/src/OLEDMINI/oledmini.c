@@ -224,12 +224,11 @@ void miniOledFlushEntireBufferToDisplay(void)
     uint8_t set_x_window_command[3] = {SSD1305_CMD_SET_COLUMN_ADDR, SSD1305_X_OFFSET, SSD1305_OLED_WIDTH + SSD1305_X_OFFSET - 1};
     
     // Display window: starting & ending page
-    uint8_t current_page = (miniOledScreenYOffset+7) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    uint8_t current_page = miniOledScreenYOffset >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     uint8_t set_page_command[3] = {SSD1305_CMD_SET_PAGE_ADDR, current_page, current_page};
       
-    // Unfortunately the SSD1305 controller doesn't accept a starting page bigger than the ending page, so we need to send page by page
-    // We send data page by page, starting with the page AFTER the buffer Y offset (which means the main GUI code shouldn't write the first 7 y pixels when scrolling happens!
-    uint16_t frameBufferOffset = ((miniOledBufferYOffset + 7) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT) << SSD1305_WIDTH_BIT_SHIFT;
+    // Unfortunately the SSD1305 controller doesn't accept a starting page bigger than the ending page, so we need to send page by page starting with the page AFTER the buffer Y offset
+    uint16_t frameBufferOffset = (miniOledBufferYOffset >> SSD1305_PAGE_HEIGHT_BIT_SHIFT) << SSD1305_WIDTH_BIT_SHIFT;
     uint16_t offset = frameBufferOffset;
     do 
     {
@@ -244,8 +243,7 @@ void miniOledFlushEntireBufferToDisplay(void)
         
         // Compute page
         current_page = (current_page+1) & SSD1305_TOTAL_PAGE_HEIGHT_BITMASK;
-        set_page_command[1] = current_page;set_page_command[2] = current_page;
-        
+        set_page_command[1] = current_page;set_page_command[2] = current_page;        
     } 
     while (offset != frameBufferOffset);
 }
@@ -663,7 +661,7 @@ void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t optio
     }
     else
     {
-        // Check that we displayed after the height
+        // Check if we displayed after the height
         if (y + bitmap.height >= SSD1305_OLED_HEIGHT)
         {
             miniOledScreenYOffset = (miniOledScreenYOffset + ((y+bitmap.height) & SSD1305_OLED_HEIGHT_BITMASK)) & SSD1305_Y_BUFFER_HEIGHT_BITMASK;

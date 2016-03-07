@@ -285,15 +285,25 @@ int main(void)
     
     #ifdef MINI_VERSION
     //char temp_string[] = {'0', 0};
-    oledBitmapDrawFlash(0, 16, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+//     while(1)
+//     {
+//         for (uint8_t i = 0; i < 16; i++)
+//         {
+//             oledPutstrXY(i,i,0,"b");
+//             miniOledFlushEntireBufferToDisplay();
+//             timerBasedDelayMs(100);
+//             oledFillXY(i,i,10,15,0);
+//         }
+//     }
+    oledBitmapDrawFlash(0, 9, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);while(1);
     //miniOledFlushEntireBufferToDisplay();
-    while(1){usbProcessIncoming(USB_CALLER_MAIN);}
+    while(1)
     {
-        for (uint8_t i = 0; i < 64; i++)
+        uint8_t tata = getWheelCurrentIncrement();
+        if (tata > 0)
         {
-            miniOledWriteSimpleCommand(0x40 | i);
-            timerBasedDelayMs(10);
-        }        
+            oledBitmapDrawFlash(0, tata, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+        }
     }
     while (1);
     {

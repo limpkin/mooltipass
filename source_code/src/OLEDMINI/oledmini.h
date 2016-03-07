@@ -77,7 +77,7 @@
 #define SSD1305_X_OFFSET                            4           // X offset between the screen frame buffer and the display
 #define SSD1305_Y_BUFFER_HEIGHT                     64          // Screen frame buffer is 64 pixels high
 #define SSD1305_Y_BUFFER_HEIGHT_BITMASK             0x3F        // Bitmask for 64
-#define SSD1305_SCROLL_SPEED_MS                     100          // Scrolling speed in ms
+#define SSD1305_SCROLL_SPEED_MS                     10          // Scrolling speed in ms
 #define SSD1305_SCREEN_PAGE_HEIGHT                  4           // 4 pages is one screen height
 #define SSD1305_SCREEN_PAGE_HEIGHT_BITMASK          0x03        // Bitmask for 4
 #define SSD1305_TOTAL_PAGE_HEIGHT                   8           // 8 pages is one screen buffer height

@@ -150,8 +150,6 @@ void stockOledOff(void);
 void stockOledOn(void);
 uint8_t stockOledIsOn(void);
 
-#define OLED_SCROLL_UP              1
-#define OLED_SCROLL_DOWN            2
 #define OLED_RAM_BITMAP             4
 #define OLED_DEFAULT_SCROLL_DELAY   3
 

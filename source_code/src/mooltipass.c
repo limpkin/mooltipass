@@ -285,7 +285,15 @@ int main(void)
     
     #ifdef MINI_VERSION
     //char temp_string[] = {'0', 0};
-    while (1)
+    while(1);
+    {
+        for (uint8_t i = 0; i < 64; i++)
+        {
+            miniOledWriteSimpleCommand(0x40 | i);
+            timerBasedDelayMs(10);
+        }        
+    }
+    while (1);
     {
         usbProcessIncoming(USB_CALLER_MAIN);
 //         temp_string[0] += getWheelCurrentIncrement();

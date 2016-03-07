@@ -70,10 +70,14 @@
 #define SSD1305_OLED_CONTRAST                       0xDB
 #define SSD1305_OLED_WIDTH                          128
 #define SSD1305_OLED_HEIGHT                         32
+#define SSD1305_OLED_HEIGHT_BITMASK                 0x1F
 #define SSD1305_PAGE_HEIGHT                         8
 #define SSD1305_PAGE_HEIGHT_BIT_SHIFT               3
 #define SSD1305_WIDTH_BIT_SHIFT                     7
 #define SSD1305_X_OFFSET                            4
+#define SSD1305_Y_BUFFER_HEIGHT                     64
+#define SSD1305_Y_BUFFER_HEIGHT_BITMASK             0x3F
+#define SSD1305_SCROLL_SPEED_MS                     10
 
 /** ONE LINE FUNCTIONS **/
 #define miniOledNormalDisplay()                     miniOledWriteSimpleCommand(SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED)
@@ -89,11 +93,11 @@
 /************ PROTOTYPES ************/
 void miniOledOn(void);
 void miniOledOff(void);
-void miniOledClear(void);
 void miniOledInitIOs(void);
 void miniOledBegin(uint8_t font);
 RET_TYPE miniOledIsScreenOn(void);
 void miniOledDumpCurrentFont(void);
+void miniOledClearFrameBuffer(void);
 void miniOledWriteActiveBuffer(void);
 void miniOledDisplayOtherBuffer(void);
 void miniOledWriteInactiveBuffer(void);

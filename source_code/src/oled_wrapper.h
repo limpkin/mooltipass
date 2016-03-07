@@ -49,7 +49,7 @@
     #define oledBegin(x)                    miniOledBegin(x)
     #define oledBitmapDrawFlash(a,b,c,d)    miniOledBitmapDrawFlash(a,b,c,d)
     #define oledPutstrXY(a,b,c,d)           miniOledPutstrXY(a,b,c,d)
-    #define oledClear()                     miniOledClear()
+    #define oledClear()                     miniOledClearFrameBuffer()
     #define oledDisplayOtherBuffer()        miniOledDisplayOtherBuffer()
     #define oledFillXY(a,b,c,d,e)           miniOledDrawRectangle(a,b,c,d,e)
     #define oledIsOn()                      miniOledIsScreenOn()

@@ -295,12 +295,12 @@ int main(void)
 //             oledFillXY(i,i,10,15,0);
 //         }
 //     }
-    oledBitmapDrawFlash(0, 9, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);while(1);
+    //oledBitmapDrawFlash(0, 9, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);while(1);
     //miniOledFlushEntireBufferToDisplay();
     while(1)
     {
-        uint8_t tata = getWheelCurrentIncrement();
-        if (tata > 0)
+        int8_t tata = getWheelCurrentIncrement();
+        if (tata != 0)
         {
             oledBitmapDrawFlash(0, tata, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
         }

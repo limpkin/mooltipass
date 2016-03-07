@@ -112,7 +112,7 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch);
 void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs);
 void miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str);
 void miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t nbBytes);
-void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
+void miniOledBitmapDrawFlash(uint8_t x, int8_t y, uint8_t fileId, uint8_t options);
 void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, uint8_t yend);
 void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t full);
 

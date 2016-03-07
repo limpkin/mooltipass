@@ -68,7 +68,7 @@ uint8_t miniBistreamGetNextByte(bitstream_mini_t* bs)
             flashRawRead(bs->buffer, bs->addr, sizeof(bs->buffer));
             bs->addr += sizeof(bs->buffer);
             bs->bufferInd = 0;
-            usbPrintf_P(PSTR("bistream buffer: %02x %02x %02x %02x %02x %02x"), bs->buffer[0], bs->buffer[1], bs->buffer[2], bs->buffer[3], bs->buffer[4], bs->buffer[5]);
+            //usbPrintf_P(PSTR("bistream buffer: %02x %02x %02x %02x %02x %02x"), bs->buffer[0], bs->buffer[1], bs->buffer[2], bs->buffer[3], bs->buffer[4], bs->buffer[5]);
         }
         
          return bs->buffer[bs->bufferInd++];

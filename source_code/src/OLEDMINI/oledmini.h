@@ -67,17 +67,21 @@
 #define SSD1305_CMD_EXIT_READ_MODIFY_WRITE_MODE     0xEE
 
 /** DEFINES OLED SCREEN **/
-#define SSD1305_OLED_CONTRAST                       0xDB
-#define SSD1305_OLED_WIDTH                          128
-#define SSD1305_OLED_HEIGHT                         32
-#define SSD1305_OLED_HEIGHT_BITMASK                 0x1F
-#define SSD1305_PAGE_HEIGHT                         8
-#define SSD1305_PAGE_HEIGHT_BIT_SHIFT               3
-#define SSD1305_WIDTH_BIT_SHIFT                     7
-#define SSD1305_X_OFFSET                            4
-#define SSD1305_Y_BUFFER_HEIGHT                     64
-#define SSD1305_Y_BUFFER_HEIGHT_BITMASK             0x3F
-#define SSD1305_SCROLL_SPEED_MS                     10
+#define SSD1305_OLED_CONTRAST                       0xDB        // Contrast value for display
+#define SSD1305_OLED_WIDTH                          128         // Display width
+#define SSD1305_OLED_HEIGHT                         32          // Display height
+#define SSD1305_OLED_HEIGHT_BITMASK                 0x1F        // Bitmask for the height
+#define SSD1305_PAGE_HEIGHT                         8           // One page is 8 pixels high
+#define SSD1305_PAGE_HEIGHT_BIT_SHIFT               3           // 1 << 3 is 8
+#define SSD1305_WIDTH_BIT_SHIFT                     7           // 1 << 7 is 128
+#define SSD1305_X_OFFSET                            4           // X offset between the screen frame buffer and the display
+#define SSD1305_Y_BUFFER_HEIGHT                     64          // Screen frame buffer is 64 pixels high
+#define SSD1305_Y_BUFFER_HEIGHT_BITMASK             0x3F        // Bitmask for 64
+#define SSD1305_SCROLL_SPEED_MS                     100          // Scrolling speed in ms
+#define SSD1305_SCREEN_PAGE_HEIGHT                  4           // 4 pages is one screen height
+#define SSD1305_SCREEN_PAGE_HEIGHT_BITMASK          0x03        // Bitmask for 4
+#define SSD1305_TOTAL_PAGE_HEIGHT                   8           // 8 pages is one screen buffer height
+#define SSD1305_TOTAL_PAGE_HEIGHT_BITMASK           0x07        // Bitmask for 8
 
 /** ONE LINE FUNCTIONS **/
 #define miniOledNormalDisplay()                     miniOledWriteSimpleCommand(SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED)
@@ -105,10 +109,10 @@ void miniOledSetFont(uint8_t fontIndex);
 void miniOledWriteSimpleCommand(uint8_t reg);
 void miniOledFlushEntireBufferToDisplay(void);
 uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch);
+void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs);
 void miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str);
 void miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t nbBytes);
 void miniOledBitmapDrawFlash(uint8_t x, uint8_t y, uint8_t fileId, uint8_t options);
-void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs, uint8_t options);
 void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, uint8_t yend);
 void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t full);
 

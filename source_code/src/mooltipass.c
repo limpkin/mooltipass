@@ -285,7 +285,9 @@ int main(void)
     
     #ifdef MINI_VERSION
     //char temp_string[] = {'0', 0};
-    while(1);
+    oledBitmapDrawFlash(0, 16, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+    //miniOledFlushEntireBufferToDisplay();
+    while(1){usbProcessIncoming(USB_CALLER_MAIN);}
     {
         for (uint8_t i = 0; i < 64; i++)
         {

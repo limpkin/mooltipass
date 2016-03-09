@@ -29,6 +29,7 @@
 #include "gui_screen_functions.h"
 #include "eeprom_addresses.h"
 #include "oled_wrapper.h"
+#include "mini_inputs.h"
 #include "smartcard.h"
 #include "defines.h"
 #include "delays.h"
@@ -167,6 +168,59 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
         while(1);
     }
 }
+
+/*! \fn     mooltipassMiniFunctionalTest(uint8_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok)
+ *  \brief  Mooltipass standard functional test
+ *  \param  current_bootkey_val     Current boot key value
+ *  \param  flash_init_result       Result of the flash initialization procedure
+ *  \param  fuse_ok                 Bool to know if fuses set are ok
+ */
+#ifdef MINI_VERSION
+void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok)
+{    
+    // Temporary test, for beta testers units, to be updated
+    (void)current_bootkey_val;(void)fuse_ok;
+    char temp_string[] = {'0', 0};
+        
+    if (flash_init_result != RETURN_OK)
+    {
+        oledPutstrXY(30,0,0,"PROBLEM FLASH");
+    }
+        
+    while(1)
+    {
+        usbProcessIncoming(USB_CALLER_MAIN);
+        
+        temp_string[0] += getWheelCurrentIncrement();
+        oledFillXY(0,0,10,15,0);
+        oledPutstrXY(0,0,0,temp_string);
+        
+        uint8_t button_id = getMiniDirectionJustPressed();
+        switch (button_id)
+        {
+            case PORTID_JOY_UP: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"UP"); break;
+            case PORTID_JOY_DOWN: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"DOWN"); break;
+            case PORTID_JOY_RIGHT: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"RIGHT"); break;
+            case PORTID_JOY_CENTER: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"CENTER"); break;
+            case PORTID_JOY_LEFT: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"LEFT"); break;
+            default : break;
+        }
+        
+        uint8_t wheel_return = isWheelClicked();
+        if (wheel_return == RETURN_JDETECT)
+        {
+            oledPutstrXY(80,0,0,"WHEEL");
+        }
+        else if (wheel_return == RETURN_JRELEASED)
+        {
+            oledFillXY(80,0,40,15,0);
+        }
+        
+        miniDirectionClearJoystickDetections();        
+        miniOledFlushEntireBufferToDisplay();        
+    }
+}
+#endif
 
 /*! \fn     mooltipassStandardFunctionalTest(uint8_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok)
  *  \brief  Mooltipass standard functional test

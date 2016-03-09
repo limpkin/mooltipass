@@ -387,8 +387,8 @@ void miniOledDisplayOtherBuffer(void)
 void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t full)
 {
     // Compute page start & page end
-    uint8_t page_start = y >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
-    uint8_t page_end = (y + height - 1) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    uint8_t page_start = (miniOledBufferYOffset + y) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
+    uint8_t page_end = (miniOledBufferYOffset + y + height - 1) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     
     // Compute mask settings
     uint8_t f_bitshift_mask[] = {0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF};
@@ -398,7 +398,7 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
     
     for(uint8_t page = page_start; page <= page_end; page++)
     {
-        uint16_t buffer_shift = ((uint16_t)page) << SSD1305_WIDTH_BIT_SHIFT;
+        uint16_t buffer_shift = (((uint16_t)page) & SSD1305_SCREEN_PAGE_HEIGHT_BITMASK) << SSD1305_WIDTH_BIT_SHIFT;
         for(uint8_t xpos = x; xpos < x + width; xpos++)
         {
             uint8_t or_mask = 0xFF;

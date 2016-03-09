@@ -284,52 +284,15 @@ int main(void)
     #endif
     
     #ifdef MINI_VERSION
-    //char temp_string[] = {'0', 0};
-//     while(1)
-//     {
-//         for (uint8_t i = 0; i < 16; i++)
-//         {
-//             oledPutstrXY(i,i,0,"b");
-//             miniOledFlushEntireBufferToDisplay();
-//             timerBasedDelayMs(100);
-//             oledFillXY(i,i,10,15,0);
-//         }
-//     }
-    //oledBitmapDrawFlash(0, 9, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);while(1);
-    //miniOledFlushEntireBufferToDisplay();
+    mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
     while(1)
     {
+        usbProcessIncoming(USB_CALLER_MAIN);
         int8_t tata = getWheelCurrentIncrement();
         if (tata != 0)
         {
             oledBitmapDrawFlash(0, tata, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
         }
-    }
-    while (1);
-    {
-        usbProcessIncoming(USB_CALLER_MAIN);
-//         temp_string[0] += getWheelCurrentIncrement();
-//         oledFillXY(0,0,10,15,0);
-//         oledPutstrXY(0,0,0,temp_string);
-//         
-//         uint8_t button_id = getMiniDirectionJustPressed();
-//         switch (button_id)
-//         {
-//             case PORTID_JOY_UP: oledPutstrXY(10,0,0,"UP"); break;
-//             case PORTID_JOY_DOWN: oledPutstrXY(10,0,0,"DOWN"); break;
-//             case PORTID_JOY_RIGHT: oledPutstrXY(10,0,0,"RIGHT"); break;
-//             case PORTID_JOY_CENTER: oledPutstrXY(10,0,0,"CENTER"); break;
-//             case PORTID_JOY_LEFT: oledPutstrXY(10,0,0,"LEFT"); break;
-//             default : break;
-//         }
-//         
-//         if (isWheelClicked() == RETURN_JDETECT)
-//         {
-//             oledPutstrXY(80,0,0,"WHEEL");
-//         }
-//         
-//         miniDirectionClearDetections();
-        miniOledFlushEntireBufferToDisplay();
     }
     #endif
     

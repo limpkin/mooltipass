@@ -116,12 +116,11 @@ void scanMiniInputsDetect(void)
     // Wheel click
     if (!(PIN_CLICK & (1 << PORTID_CLICK)))
     {
-        if (wheel_click_counter == 50)
+        if ((wheel_click_counter == 50) && (wheel_click_return != RETURN_JRELEASED))
         {
             wheel_click_return = RETURN_JDETECT;
-            wheel_click_counter++;
         }
-        else if (wheel_click_counter != 0xFF)
+        if (wheel_click_counter != 0xFF)
         {
             wheel_click_counter++;
         }
@@ -149,16 +148,12 @@ void scanMiniInputsDetect(void)
         // Detect if pressed
         if (!(PIN_JOYSTICK & (1 << current_direction)))
         {
-            if (*current_direction_counter_pt == 50)
+            if ((*current_direction_counter_pt == 50) && (*current_direction_return_pt != RETURN_JRELEASED))
             {
                 // We must make sure the user detected that the button was released before setting it as detected!
-                if (*current_direction_return_pt != RETURN_JRELEASED)
-                {
-                    *current_direction_return_pt = RETURN_JDETECT;
-                    (*current_direction_counter_pt)++;
-                }
+                *current_direction_return_pt = RETURN_JDETECT;
             }
-            else if (*current_direction_counter_pt != 0xFF)
+            if (*current_direction_counter_pt != 0xFF)
             {
                 (*current_direction_counter_pt)++;
             }
@@ -263,6 +258,17 @@ void miniDirectionClearDetections(void)
     {
         memset((void*)joystick_return, RETURN_REL, sizeof(joystick_return));
         wheel_click_return = RETURN_REL;
+    }
+}
+
+/*! \fn     miniDirectionClearJoystickDetections(void)
+*   \brief  Clear current joystick detections
+*/
+void miniDirectionClearJoystickDetections(void)
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        memset((void*)joystick_return, RETURN_REL, sizeof(joystick_return));
     }
 }
 

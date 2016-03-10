@@ -97,7 +97,7 @@ void scanMiniInputsDetect(void)
         }
         else if ((wheel_state == 0x03) && (wheel_increment_armed == TRUE))
         {
-             wheel_cur_increment++;
+             wheel_cur_increment--;
         }
         last_wheel_sm = wheel_sm;
     }
@@ -109,7 +109,7 @@ void scanMiniInputsDetect(void)
         }
         else if ((wheel_state == 0x03) && (wheel_increment_armed == TRUE))
         {
-            wheel_cur_increment--;
+            wheel_cur_increment++;
         }
         last_wheel_sm = wheel_sm;
     }

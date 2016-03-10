@@ -244,7 +244,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             // Still process the USB commands
             usbProcessIncoming(USB_CALLER_PIN);
             // Wheel increment/decrement
-            wheel_increment = -getWheelCurrentIncrement();
+            wheel_increment = getWheelCurrentIncrement();
         
             // Position increment / decrement
             if (wheel_increment != 0)

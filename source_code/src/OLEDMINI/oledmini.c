@@ -871,11 +871,6 @@ void miniOledPutch(char ch)
         OLEDDEBUGPRINTF_P(PSTR("oledPutch('0x%02x') x=%d, y=%d, oled_offset=%d, buf=%d\n"), ch, miniOledTextCurX, miniOledTextCurY, 0, 0);
     }
     
-    // Check if current offset is off screen
-    if (miniOledTextCurY + miniOledCurrentFont.height > SSD1305_OLED_HEIGHT)
-    {
-    }
-    
     switch (ch)
     {
         case '\n':  miniOledTextCurY += miniOledCurrentFont.height;
@@ -889,6 +884,12 @@ void miniOledPutch(char ch)
             {
                 miniOledTextCurY += miniOledCurrentFont.height;
                 miniOledTextCurX = 0;
+            }
+            
+            // Check that we're not writing text after the screen edge
+            if ((miniOledTextCurY + miniOledCurrentFont.height) > SSD1305_OLED_HEIGHT)
+            {
+                break;
             }
             
             // Display the text
@@ -936,12 +937,19 @@ void miniOledSetXY(uint8_t x, int8_t y)
  */
 void miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
 {
-    int16_t width = (int16_t)miniOledStrWidth(str);
+    uint16_t width = miniOledStrWidth(str);
 
     // Compute where to start displaying the string
     if (justify == OLED_CENTRE)
     {
-        x = SSD1305_OLED_WIDTH/2 - width/2 + x;
+        if (width >= SSD1305_OLED_WIDTH)
+        {
+            x = 0;
+        }
+        else
+        {
+            x = SSD1305_OLED_WIDTH/2 - width/2 + x;
+        }
     } 
     else if (justify == OLED_RIGHT)
     {
@@ -949,6 +957,10 @@ void miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
         {
             x -= width;
         } 
+        else if (width >= SSD1305_OLED_WIDTH)
+        {
+            x = 0;
+        }
         else 
         {
             x = SSD1305_OLED_WIDTH - width;

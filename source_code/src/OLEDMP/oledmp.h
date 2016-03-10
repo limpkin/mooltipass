@@ -181,7 +181,7 @@ uint8_t oledGetOffset(void);
 void oledSetBufHeight(uint8_t rows);
 uint8_t oledGetBufHeight(void);
 
-void oledSetXY(uint8_t col, uint8_t row);
+void stockOledSetXY(uint8_t col, uint8_t row);
 void oledSetX(uint8_t col);
 
 void oledSetPixel(uint8_t x, uint8_t y, uint8_t colour);
@@ -190,7 +190,7 @@ uint8_t oledGlyphWidth(char ch, uint8_t *indp, glyph_t *glyphp);
 uint8_t oledGlyphHeight();
 uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg);
 
-void oledPutch(char ch);
+void stockOledPutch(char ch);
 uint16_t oledStrWidth(const char *str);
 uint16_t oledStrWidth_P(const char *str);
 uint16_t oledGetTextWidth(char *format, ...);

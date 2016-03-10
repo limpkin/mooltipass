@@ -283,18 +283,18 @@ int main(void)
         touchClearCurrentDetections();
     #endif
     
-    #ifdef MINI_VERSION
-    mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
-    while(1)
-    {
-        usbProcessIncoming(USB_CALLER_MAIN);
-        int8_t tata = getWheelCurrentIncrement();
-        if (tata != 0)
-        {
-            oledBitmapDrawFlash(0, tata, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
-        }
-    }
-    #endif
+//     #ifdef MINI_VERSION
+//     mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
+//     while(1)
+//     {
+//         usbProcessIncoming(USB_CALLER_MAIN);
+//         int8_t tata = getWheelCurrentIncrement();
+//         if (tata != 0)
+//         {
+//             oledBitmapDrawFlash(0, tata, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+//         }
+//     }
+//     #endif
     
     // Inhibit touch inputs for the first 2 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 2000);

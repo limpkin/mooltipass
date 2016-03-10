@@ -29,6 +29,7 @@
 #include "gui_basic_functions.h"
 #include "usb_cmd_parser.h"
 #include "oled_wrapper.h"
+#include "mini_inputs.h"
 #include "defines.h"
 #include "delays.h"
 #include "anim.h"
@@ -41,26 +42,49 @@
 */
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
 {
-    oledFillXY(88, 31, 82, 19, 0x00);
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        oledSetXY(88+22*i, 25);
-        if (i != selected_digit)
+    #if defined(HARDWARE_OLIVIER_V1)
+        oledFillXY(88, 31, 82, 19, 0x00);
+        for (uint8_t i = 0; i < 4; i++)
         {
-            oledPutch('*');
-        }
-        else
-        {
-            if (current_pin[i] >= 0x0A)
+            oledSetXY(88+22*i, 25);
+            if (i != selected_digit)
             {
-                oledPutch(current_pin[i]+'A'-0x0A);
+                oledPutch('*');
             }
             else
             {
-                oledPutch(current_pin[i]+'0');
+                if (current_pin[i] >= 0x0A)
+                {
+                    oledPutch(current_pin[i]+'A'-0x0A);
+                }
+                else
+                {
+                    oledPutch(current_pin[i]+'0');
+                }
             }
         }
-    }
+    #elif defined(MINI_VERSION)
+        oledFillXY(10, 10, 100, 15, FALSE);
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            oledSetXY(10+10*i, 10);
+            if (i != selected_digit)
+            {
+                oledPutch('*');
+            }
+            else
+            {
+                if (current_pin[i] >= 0x0A)
+                {
+                    oledPutch(current_pin[i]+'A'-0x0A);
+                }
+                else
+                {
+                    oledPutch(current_pin[i]+'0');
+                }
+            }
+        }
+    #endif
 }
 
 /*! \fn     guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
@@ -190,9 +214,119 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         // Return success status
         return ret_val;
     #elif defined(MINI_VERSION)
-        pin_code++;
+        RET_TYPE ret_val = RETURN_NOK;
+        uint8_t selected_digit = 0;
+        uint8_t finished = FALSE;
+        uint8_t current_pin[4];
+        int8_t wheel_increment;
+    
+        // Set current pin to 0000
+        memset((void*)current_pin, 0, 4);
+    
+        // Draw pin entering bitmap
+        oledClear();
+//         oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
+//         oledBitmapDrawFlash(83, 51, BITMAP_PIN_LINES, 0);
+//         oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
+//         oledPutstrXY(0, 0, OLED_CENTRE, readStoredStringToBuffer(stringID));
+//         oledDisplayOtherBuffer();
+//         oledSetFont(FONT_PROFONT_24);
+//         oledWriteActiveBuffer();
+    
+        // Display current pin on screen
         stringID++;
-        while(1);
+        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+        miniOledFlushEntireBufferToDisplay();
+    
+        // While the user hasn't entered his pin
+        while(!finished)
+        {
+            // Still process the USB commands
+            usbProcessIncoming(USB_CALLER_PIN);
+            // Wheel increment/decrement
+            wheel_increment = -getWheelCurrentIncrement();
+        
+            // Position increment / decrement
+            if (wheel_increment != 0)
+            {
+                if ((current_pin[selected_digit] == 0x0F) && (wheel_increment == 1))
+                {
+                    current_pin[selected_digit] = 0xFF;
+                }
+                else if ((current_pin[selected_digit] == 0) && (wheel_increment == -1))
+                {
+                    current_pin[selected_digit] = 0x10;
+                }
+                current_pin[selected_digit] += wheel_increment;
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                miniOledFlushEntireBufferToDisplay();
+            }
+        
+            if ((isSmartCardAbsent() == RETURN_OK) || (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED))
+            {
+                // Smartcard removed, no reason to continue
+                ret_val = RETURN_NOK;
+                finished = TRUE;
+            }
+//             if (temp_rettype & RETURN_LEFT_PRESSED)
+//             {
+//                 if (selected_digit == 1)
+//                 {
+//                     oledFillXY(0, 23, 18, 18, 0x00);
+//                     oledBitmapDrawFlash(0, 24, BITMAP_CROSS, 0);
+//                 }
+//                 if (selected_digit > 0)
+//                 {
+//                     // When going back set pin digit to 0
+//                     current_pin[selected_digit] = 0;
+//                     current_pin[--selected_digit] = 0;
+//                 }
+//                 else
+//                 {
+//                     ret_val = RETURN_NOK;
+//                     finished = TRUE;
+//                 }
+//                 guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+//                 oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
+//             }
+//             else if (temp_rettype & RETURN_RIGHT_PRESSED)
+            if (isWheelClicked() == RETURN_JDETECT)
+            {
+                if (selected_digit == 2)
+                {
+                    //oledFillXY(238, 23, 18, 18, 0x00);
+                    //oledBitmapDrawFlash(240, 24, BITMAP_TICK, 0);
+                }
+                if (selected_digit < 3)
+                {
+                    selected_digit++;
+                }
+                else
+                {
+                    ret_val = RETURN_OK;
+                    finished = TRUE;
+                }
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                //oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
+                miniOledFlushEntireBufferToDisplay();
+            }
+        }
+    
+        // Reset default font
+        //oledSetFont(FONT_DEFAULT);
+        //oledWriteInactiveBuffer();
+    
+        // Store the pin
+        *pin_code = (uint16_t)(((uint16_t)(current_pin[0]) << 12) | (((uint16_t)current_pin[1]) << 8) | (current_pin[2] << 4) | current_pin[3]);
+    
+        // Set current pin to 0000
+        memset((void*)current_pin, 0, 4);
+    
+        // Prevent touches until the user lifts his finger
+        //touchInhibitUntilRelease();
+    
+        // Return success status
+        return ret_val;
     #endif
 }
 

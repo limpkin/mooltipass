@@ -24,6 +24,7 @@
  */
 #include <util/atomic.h>
 #include <string.h>
+#include "gui_basic_functions.h"
 #include "defines.h"
 // This code is only used for the mooltipass mini
 #ifdef MINI_VERSION
@@ -183,6 +184,7 @@ int8_t getWheelCurrentIncrement(void)
     
     if (wheel_cur_increment != 0)
     {
+        activityDetectedRoutine();
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
             return_val = wheel_cur_increment;

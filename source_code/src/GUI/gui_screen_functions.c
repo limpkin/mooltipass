@@ -35,6 +35,7 @@
 #include "timer_manager.h"
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
+#include "mini_inputs.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "delays.h"
@@ -361,10 +362,14 @@ void guiDisplayTextInformationOnScreen(char* text)
     #if defined(HARDWARE_OLIVIER_V1)
         // No LEDs
         touchDetectionRoutine(0xFF);
+        oledPutstrXY(10, 24, OLED_CENTRE, text);
+        oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+        oledDisplayOtherBuffer();
+    #elif defined(MINI_VERSION)
+        oledPutstrXY(0, 10, OLED_CENTRE, text);
+        oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+        miniOledFlushEntireBufferToDisplay();
     #endif
-    oledPutstrXY(10, 24, OLED_CENTRE, text);
-    oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
-    oledDisplayOtherBuffer();
 }
 
 /*! \fn     guiDisplayInformationOnScreen(uint8_t stringID)
@@ -463,29 +468,37 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         }
     }
     
-    // Draw asking bitmap
-    oledClear();
-    oledBitmapDrawFlash(0, 0, BITMAP_YES_NO_INT_L, 0);
-    oledBitmapDrawFlash(222, 0, BITMAP_YES_NO_INT_R, 0);
+    #if defined(HARDWARE_OLIVIER_V1)
+        // Draw asking bitmap
+        oledClear();
+        oledBitmapDrawFlash(0, 0, BITMAP_YES_NO_INT_L, 0);
+        oledBitmapDrawFlash(222, 0, BITMAP_YES_NO_INT_R, 0);
     
-    // If more than one line
-    if (nb_args == 1)
-    {
-        // Yeah, that's a bit dirty
-        oledPutstrXY(0, 24, OLED_CENTRE, (char*)text_object);
-    }
-    else
-    {
-        while (nb_args--)
+        // If more than one line
+        if (nb_args == 1)
         {
-            // Truncate and then display string
-            memcpy(string_tbd, text_object->lines[nb_args], 30);
-            oledPutstrXY(0, 2 + (nb_args << 4), OLED_CENTRE, string_tbd);
+            // Yeah, that's a bit dirty
+            oledPutstrXY(0, 24, OLED_CENTRE, (char*)text_object);
         }
-    }
+        else
+        {
+            while (nb_args--)
+            {
+                // Truncate and then display string
+                memcpy(string_tbd, text_object->lines[nb_args], 30);
+                oledPutstrXY(0, 2 + (nb_args << 4), OLED_CENTRE, string_tbd);
+            }
+        }
     
-    // Display result
-    oledDisplayOtherBuffer();
+        // Display result
+        oledDisplayOtherBuffer();
+    #elif defined(MINI_VERSION)
+        text_object++;
+        string_tbd[0]++;
+        oledClear();
+        oledPutstrXY(0, 10, OLED_CENTRE, "YES/NO?");
+        miniOledFlushEntireBufferToDisplay();
+    #endif
 
     // In case the display inverted, set it correctly
     if (flash_flag == TRUE)
@@ -511,6 +524,18 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             return RETURN_NOK;
         }
     #elif defined(MINI_VERSION)
+        uint8_t temp_bool = TRUE;
+        while (temp_bool)
+        {
+            if (isWheelClicked() == RETURN_JDETECT)
+            {
+                return RETURN_OK;
+            }
+            if (isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT)
+            {
+                return RETURN_NOK;
+            }
+        }
         return RETURN_NOK;
     #endif
 }

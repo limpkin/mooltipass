@@ -916,6 +916,17 @@ void miniOledPutstr(uint8_t x, uint8_t y, const char* str)
     }
 }
 
+/*! \fn     miniOledSetXY(uint8_t x, int8_t y)
+ *  \brief  Set the current text x & y printing positions
+ *  \param  x       x position
+ *  \param  y       y position
+ */
+void miniOledSetXY(uint8_t x, int8_t y)
+{
+    miniOledTextCurX = x;
+    miniOledTextCurY = y;    
+}
+
 /*! \fn     miniOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char* str)
  *  \brief  Print a string at the specified pixel line, justified left, center, or right of x.
  *  \param  x       x position

@@ -27,6 +27,8 @@
 #ifndef GUI_BASIC_FUNCTIONS_H_
 #define GUI_BASIC_FUNCTIONS_H_
 
+#include "defines.h"
+
 int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result);
 int8_t getTouchedPositionAnswer(uint8_t led_mask);
 void activityDetectedRoutine(void);

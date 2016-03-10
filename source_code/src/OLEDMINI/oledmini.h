@@ -98,6 +98,7 @@
 void miniOledOn(void);
 void miniOledOff(void);
 void miniOledInitIOs(void);
+void miniOledPutch(char ch);
 void miniOledBegin(uint8_t font);
 RET_TYPE miniOledIsScreenOn(void);
 void miniOledDumpCurrentFont(void);
@@ -106,6 +107,7 @@ void miniOledWriteActiveBuffer(void);
 void miniOledDisplayOtherBuffer(void);
 void miniOledWriteInactiveBuffer(void);
 void miniOledSetFont(uint8_t fontIndex);
+void miniOledSetXY(uint8_t x, int8_t y);
 void miniOledWriteSimpleCommand(uint8_t reg);
 void miniOledFlushEntireBufferToDisplay(void);
 uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch);

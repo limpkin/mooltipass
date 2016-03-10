@@ -397,7 +397,7 @@ void oledSetRemap(uint8_t mode)
  *       on the current font height, and also reset x to 0.
  *       '\r' will reset x to 0.
  */
-void oledPutch(char ch)
+void stockOledPutch(char ch)
 {
     uint8_t glyphHeight = oledGlyphHeight();
     uint8_t glyphPtr;
@@ -581,7 +581,7 @@ void stockOledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str)
  * @param y - row position
  * @param justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  */
-void oledSetXY(uint8_t x, uint8_t y)
+void stockOledSetXY(uint8_t x, uint8_t y)
 {
     if (y >= OLED_HEIGHT*2) 
     {

@@ -246,6 +246,7 @@ int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
     
     return 0;
 }
+#elif defined(MINI_VERSION)
 #endif
 
 /*! \fn     guiMainLoop(void)

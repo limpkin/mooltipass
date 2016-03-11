@@ -283,21 +283,22 @@ int main(void)
         touchClearCurrentDetections();
     #endif
     
-    oledClear();
-    miniOledPutstrXY(0,0,OLED_CENTRE,"This is an extra long mega super text, and I'm sure it won't be fully displayed");
-    miniOledFlushEntireBufferToDisplay();while(1);
-//     #ifdef MINI_VERSION
-//     mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
-//     while(1)
-//     {
-//         usbProcessIncoming(USB_CALLER_MAIN);
-//         int8_t tata = getWheelCurrentIncrement();
-//         if (tata != 0)
-//         {
-//             oledBitmapDrawFlash(0, tata, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
-//         }
-//     }
-//     #endif
+    #ifdef MINI_VERSION
+    while(1)
+    {
+        usbProcessIncoming(USB_CALLER_MAIN);
+    }
+    mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
+    while(1)
+    {
+        usbProcessIncoming(USB_CALLER_MAIN);
+        int8_t tata = getWheelCurrentIncrement();
+        if (tata != 0)
+        {
+            oledBitmapDrawFlash(0, tata, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+        }
+    }
+    #endif
     
     // Inhibit touch inputs for the first 2 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 2000);

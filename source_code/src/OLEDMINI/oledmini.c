@@ -96,6 +96,7 @@ static const uint8_t mini_oled_init[] __attribute__((__progmem__)) =
 void miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t nbBytes)
 {
     memcpy(miniOledFrameBuffer + offset, data, nbBytes);
+    miniOledFlushEntireBufferToDisplay();
 }
 #endif
 

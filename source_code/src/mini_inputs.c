@@ -263,6 +263,7 @@ void miniDirectionClearDetections(void)
     {
         memset((void*)joystick_return, RETURN_REL, sizeof(joystick_return));
         wheel_click_return = RETURN_REL;
+        wheel_cur_increment = 0;
     }
 }
 

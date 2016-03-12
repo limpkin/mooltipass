@@ -179,7 +179,7 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
 void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok)
 {    
     // Only launch the functional test if the boot key isn't valid
-    if (current_bootkey_val != CORRECT_BOOTKEY+1)
+    if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         uint8_t test_result_ok = TRUE;        
         char temp_string[] = {'0', 0};
@@ -264,6 +264,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             #if defined(AVR_BOOTLOADER_PROGRAMMING)
                 // We actually remove the boot pwd set bool for units whose bootloader can be started by pressing a button at boot...
                 eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
+                eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, FALSE);                
             #endif
         }
         else

@@ -494,7 +494,7 @@ int oledFputc(char ch, FILE *stream)
  * print the string on the OLED starting at the current X,Y location
  * @param str pointer to the ASCIIZ string in ram
  */
-void oledPutstr(const char *str)
+void stockOledPutstr(const char *str)
 {
     while (*str) {
         oledPutch(*str++);

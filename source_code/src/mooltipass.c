@@ -100,7 +100,9 @@ int main(void)
     #endif
 
     /** FUSE VERIFICATIONS **/
-    #if defined(PREPRODUCTION_KICKSTARTER_SETUP)
+    #if defined(MINI_CLICK_BETATESTERS_SETUP)
+        // no fuse verification for the beta testers units
+    #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
         // boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
@@ -220,6 +222,9 @@ int main(void)
         // Test procedure to check that all HW is working
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
+    #if defined(MINI_CLICK_BETATESTERS_SETUP)
+        mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
+    #endif
     
     /** BOOT STOP IF ERRORS **/
     #if defined(HARDWARE_OLIVIER_V1)
@@ -284,7 +289,6 @@ int main(void)
     #endif
     
     #ifdef MINI_VERSION
-    //mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
     //while(1)
     //{
     //    usbProcessIncoming(USB_CALLER_MAIN);

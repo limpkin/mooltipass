@@ -44,6 +44,7 @@
     #define oledWriteInactiveBuffer()       stockOledWriteInactiveBuffer()
     #define oledPutch(x)                    stockOledPutch(x)
     #define oledSetXY(x,y)                  stockOledSetXY(x,y)
+    #define oledPutstr(x)                   stockOledPutstr(x)
 #elif defined(MINI_VERSION)
     #define oledInitIOs()                   miniOledInitIOs()
     #define oledInvertedDisplay()           miniOledInvertedDisplay()
@@ -60,6 +61,7 @@
     #define oledWriteInactiveBuffer()       miniOledWriteInactiveBuffer()
     #define oledPutch(x)                    miniOledPutch(x)
     #define oledSetXY(x,y)                  miniOledSetXY(x,y)
+    #define oledPutstr(x)                   miniOledPutstr(x)
 #endif
 
 #endif /* OLED_WRAPPER_H_ */

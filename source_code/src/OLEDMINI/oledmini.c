@@ -62,6 +62,8 @@ uint8_t miniOledFontId = 255;
 uint8_t miniOledTextCurX = 0;
 // Current y for text to write
 uint8_t miniOledTextCurY = 0;
+// Bool to know if written text is directly flushed
+uint8_t miniOledFlushText = FALSE;
 
 // OLED initialization sequence
 static const uint8_t mini_oled_init[] __attribute__((__progmem__)) = 
@@ -86,19 +88,35 @@ static const uint8_t mini_oled_init[] __attribute__((__progmem__)) =
 };
 
 
+#ifdef DEV_PLUGIN_COMMS
 /*! \fn     miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t size)
  *  \brief  Write data directly into the frame buffer
  *  \param  offset  Frame buffer offset
  *  \param  data    The data
  *  \param  nbBytes Number of bytes to be written
  */
-#ifdef DEV_PLUGIN_COMMS
 void miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t nbBytes)
 {
     memcpy(miniOledFrameBuffer + offset, data, nbBytes);
     miniOledFlushEntireBufferToDisplay();
 }
 #endif
+
+/*! \fn     miniOledFlushWrittenTextToDisplay(void)
+ *  \brief  Bool setting to flush written text to display
+ */
+void miniOledFlushWrittenTextToDisplay(void)
+{
+    miniOledFlushText = TRUE;
+}
+
+/*! \fn     miniOledDontFlushWrittenTextToDisplay(void)
+ *  \brief  Bool setting to flush written text to display
+ */
+void miniOledDontFlushWrittenTextToDisplay(void)
+{
+    miniOledFlushText = FALSE;
+}
 
 /*! \fn     miniOledWriteCommand(uint8_t* data, uint8_t nbBytes)
  *  \brief  Write a command or register address to the display
@@ -910,6 +928,12 @@ void miniOledPutstr(const char* str)
     while (*str)
     {
         miniOledPutch(*str++);
+    }
+    
+    // Flush to display if needed
+    if (miniOledFlushText != FALSE)
+    {
+        miniOledFlushEntireBufferToDisplay();
     }
 }
 

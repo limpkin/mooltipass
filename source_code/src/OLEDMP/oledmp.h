@@ -198,6 +198,6 @@ uint16_t oledGetTextWidth_P(char *format, ...);
 void stockOledPutstrXY_P(int16_t x, uint8_t y, uint8_t justify, const char *str);
 void stockOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char *str);
 void oledPutstr_P(const char *str);
-void oledPutstr(const char *str);
+void stockOledPutstr(const char *str);
 
 #endif

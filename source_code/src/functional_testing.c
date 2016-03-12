@@ -178,48 +178,107 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
  */
 void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok)
 {    
-    // Temporary test, for beta testers units, to be updated
-    (void)current_bootkey_val;(void)fuse_ok;
-    char temp_string[] = {'0', 0};
+    // Only launch the functional test if the boot key isn't valid
+    if (current_bootkey_val != CORRECT_BOOTKEY+1)
+    {
+        uint8_t test_result_ok = TRUE;        
+        char temp_string[] = {'0', 0};
+        RET_TYPE temp_rettype;
         
-    if (flash_init_result != RETURN_OK)
-    {
-        oledPutstrXY(0,0,0,"PROBLEM FLASH!!!");
-        while(1);
-    }
+        // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
+        while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0x92)
+        {
+            usbProcessIncoming(USB_CALLER_MAIN);
+        }
+        
+        // Bundle uploaded, start the screen
+        miniOledFlushWrittenTextToDisplay();
+        miniOledBegin(FONT_DEFAULT);
+        oledSetXY(0,0);
+        
+        // Check flash initialization
+        if (flash_init_result != RETURN_OK)
+        {
+            guiDisplayRawString(ID_STRING_TEST_FLASH_PB);
+            test_result_ok = FALSE;
+        }
+        
+        // Check fuse setting
+        if (fuse_ok != TRUE)
+        {
+            guiDisplayRawString(ID_STRING_FUSE_PB);
+            test_result_ok = FALSE;
+        }
     
-    // Test description
-    oledClear();
-    oledPutstrXY(0,0,0,"Test: W/T/R/B/L/C");
-    miniOledFlushEntireBufferToDisplay();
+        // Test description
+        oledPutstr("Press wheel,top,right,bot,left,center");
     
-    // Wait for inputs
-    while(getTouchedPositionAnswer(WHEEL_MASK) != WHEEL_POS_CLICK);
-    oledClear();oledPutstrXY(0,0,0,"Wheel,");miniOledFlushEntireBufferToDisplay();
-    while(getTouchedPositionAnswer(JOYSTICK_UP_MASK) != JOYSTICK_POS_UP);
-    miniOledPutstr("Top,");miniOledFlushEntireBufferToDisplay();
-    while(getTouchedPositionAnswer(JOYSTICK_RIGHT_MASK) != JOYSTICK_POS_RIGHT);
-    miniOledPutstr("Right,");miniOledFlushEntireBufferToDisplay();
-    while(getTouchedPositionAnswer(JOYSTICK_DOWN_MASK) != JOYSTICK_POS_DOWN);
-    miniOledPutstr("Bot,");miniOledFlushEntireBufferToDisplay();
-    while(getTouchedPositionAnswer(JOYSTICK_LEFT_MASK) != JOYSTICK_POS_LEFT);
-    miniOledPutstr("Left,");miniOledFlushEntireBufferToDisplay();
-    while(getTouchedPositionAnswer(JOYSTICK_CENTER_MASK) != JOYSTICK_POS_CENTER);
-    miniOledPutstr("Center");miniOledFlushEntireBufferToDisplay();
+        // Wait for inputs
+        oledClear();oledSetXY(0,0);
+        miniDirectionClearDetections();
+        while(getMiniDirectionJustPressed() != WHEEL_POS_CLICK);miniOledPutstr("Wheel,");
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_UP);miniOledPutstr("Top,");
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_RIGHT);miniOledPutstr("Right,");
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_DOWN);miniOledPutstr("Bot,");
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_LEFT);miniOledPutstr("Left,");
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_CENTER);miniOledPutstr("Center");
     
-    // Test description
-    oledClear();
-    oledPutstrXY(0,0,0,"Scroll to 10");
-    miniOledFlushEntireBufferToDisplay();
+        // Test description
+        oledClear();oledSetXY(0,0);
+        miniOledPutstr("Scroll to 10");
     
-    // Wait for scroll
-    while(temp_string[0] != ':')
-    {
-        temp_string[0] += getWheelCurrentIncrement();
-        oledPutstrXY(0,15,0,temp_string);
-        miniOledFlushEntireBufferToDisplay();
-        oledFillXY(0,15,15,15,FALSE);
-    }
+        // Wait for scroll
+        while(temp_string[0] != ':')
+        {
+            temp_string[0] += getWheelCurrentIncrement();
+            oledPutstrXY(0,15,0,temp_string);
+            oledFillXY(0,15,15,15,FALSE);
+        }
+        
+        // Insert card
+        oledClear();oledSetXY(0,0);
+        guiDisplayRawString(ID_STRING_TEST_CARD_INS);
+        while(isCardPlugged() != RETURN_JDETECT);
+        temp_rettype = cardDetectedRoutine();
+        
+        // Check card
+        if (!((temp_rettype == RETURN_MOOLTIPASS_BLANK) || (temp_rettype == RETURN_MOOLTIPASS_USER)))
+        {
+            guiDisplayRawString(ID_STRING_TEST_CARD_PB);
+            test_result_ok = FALSE;
+        }
+        
+        // Display result
+        uint8_t script_return = RETURN_OK;
+        if (test_result_ok == TRUE)
+        {
+            // Inform script of success
+            usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);            
+            
+            // Wait for password to be set
+            while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
+            {
+                usbProcessIncoming(USB_CALLER_MAIN);
+            }
+            
+            #if defined(AVR_BOOTLOADER_PROGRAMMING)
+                // We actually remove the boot pwd set bool for units whose bootloader can be started by pressing a button at boot...
+                eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
+            #endif
+        }
+        else
+        {
+            // Set correct bool
+            script_return = RETURN_NOK;
+            
+            // Display test result
+            guiDisplayRawString(ID_STRING_TEST_NOK);
+            
+            // Inform script of failure
+            usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
+            while(1);
+        }
+    }    
 }
 
 /*! \fn     mooltipassStandardFunctionalTest(uint8_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok)

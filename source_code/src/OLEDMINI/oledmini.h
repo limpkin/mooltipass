@@ -103,6 +103,7 @@ void miniOledBegin(uint8_t font);
 RET_TYPE miniOledIsScreenOn(void);
 void miniOledDumpCurrentFont(void);
 void miniOledClearFrameBuffer(void);
+void miniOledPutstr(const char* str);
 void miniOledWriteActiveBuffer(void);
 void miniOledDisplayOtherBuffer(void);
 void miniOledWriteInactiveBuffer(void);

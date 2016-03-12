@@ -27,6 +27,7 @@
 #include "timer_manager.h"
 #include "logic_eeprom.h"
 #include "oled_wrapper.h"
+#include "mini_inputs.h"
 #include "defines.h"
 #include "delays.h"
 #include "anim.h"
@@ -247,6 +248,66 @@ int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
     return 0;
 }
 #elif defined(MINI_VERSION)
+/*! \fn     getTouchedPositionAnswer(uint8_t mask)
+*   \brief  Use the input interface to get user input
+*   \param  mask    Input mask
+*   \return Number between 0 and 5 for valid pos, -1 otherwise
+*/
+int8_t getTouchedPositionAnswer(uint8_t mask)
+{
+    #if defined(ALWAYS_ACCEPT_REQUESTS)
+    // First quarter is discarded, it means we want yes or no!
+    if (mask == LEFT_RIGHT_MASK)
+    {
+        return JOYSTICK_POS_RIGHT;
+    }
+    else
+    {
+        return JOYSTICK_POS_UP;
+    }
+    #endif
+
+    uint8_t incomingData[RAWHID_TX_SIZE];
+    RET_TYPE detect_result;
+    
+    // Switch on lights
+    activityDetectedRoutine();
+    
+    // Clear possible remaining detection
+    miniDirectionClearDetections();
+    
+    // Wait for a touch press
+    while(1)
+    {
+        // User interaction timeout or smartcard removed
+        if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+        {
+            return -1;
+        }
+        
+        // Read usb comms as the plugin could ask to cancel the request
+        if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
+        {
+            if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
+            {
+                // Request canceled
+                return -1;
+            }
+            else
+            {
+                // Another packet (that shouldn't be sent!), ask to retry later...
+                usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
+            }
+        }
+        
+        // Check if something has been pressed
+        detect_result = getMiniDirectionJustPressed();
+        if ((1 << detect_result) & mask)
+        {
+            return detect_result;
+        }
+    }
+}    
 #endif
 
 /*! \fn     guiMainLoop(void)

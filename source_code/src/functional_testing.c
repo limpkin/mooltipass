@@ -27,6 +27,7 @@
 #include "touch_higher_level_functions.h"
 #include "logic_fwflash_storage.h"
 #include "gui_screen_functions.h"
+#include "gui_basic_functions.h"
 #include "eeprom_addresses.h"
 #include "oled_wrapper.h"
 #include "mini_inputs.h"
@@ -175,7 +176,6 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
  *  \param  flash_init_result       Result of the flash initialization procedure
  *  \param  fuse_ok                 Bool to know if fuses set are ok
  */
-#ifdef MINI_VERSION
 void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok)
 {    
     // Temporary test, for beta testers units, to be updated
@@ -184,43 +184,43 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         
     if (flash_init_result != RETURN_OK)
     {
-        oledPutstrXY(30,0,0,"PROBLEM FLASH");
+        oledPutstrXY(0,0,0,"PROBLEM FLASH!!!");
+        while(1);
     }
-        
-    while(1)
+    
+    // Test description
+    oledClear();
+    oledPutstrXY(0,0,0,"Test: W/T/R/B/L/C");
+    miniOledFlushEntireBufferToDisplay();
+    
+    // Wait for inputs
+    while(getTouchedPositionAnswer(WHEEL_MASK) != WHEEL_POS_CLICK);
+    oledClear();oledPutstrXY(0,0,0,"Wheel,");miniOledFlushEntireBufferToDisplay();
+    while(getTouchedPositionAnswer(JOYSTICK_UP_MASK) != JOYSTICK_POS_UP);
+    miniOledPutstr("Top,");miniOledFlushEntireBufferToDisplay();
+    while(getTouchedPositionAnswer(JOYSTICK_RIGHT_MASK) != JOYSTICK_POS_RIGHT);
+    miniOledPutstr("Right,");miniOledFlushEntireBufferToDisplay();
+    while(getTouchedPositionAnswer(JOYSTICK_DOWN_MASK) != JOYSTICK_POS_DOWN);
+    miniOledPutstr("Bot,");miniOledFlushEntireBufferToDisplay();
+    while(getTouchedPositionAnswer(JOYSTICK_LEFT_MASK) != JOYSTICK_POS_LEFT);
+    miniOledPutstr("Left,");miniOledFlushEntireBufferToDisplay();
+    while(getTouchedPositionAnswer(JOYSTICK_CENTER_MASK) != JOYSTICK_POS_CENTER);
+    miniOledPutstr("Center");miniOledFlushEntireBufferToDisplay();
+    
+    // Test description
+    oledClear();
+    oledPutstrXY(0,0,0,"Scroll to 10");
+    miniOledFlushEntireBufferToDisplay();
+    
+    // Wait for scroll
+    while(temp_string[0] != ':')
     {
-        usbProcessIncoming(USB_CALLER_MAIN);
-        
         temp_string[0] += getWheelCurrentIncrement();
-        oledFillXY(0,0,10,15,0);
-        oledPutstrXY(0,0,0,temp_string);
-        
-        uint8_t button_id = getMiniDirectionJustPressed();
-        switch (button_id)
-        {
-            case PORTID_JOY_UP: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"UP"); break;
-            case PORTID_JOY_DOWN: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"DOWN"); break;
-            case PORTID_JOY_RIGHT: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"RIGHT"); break;
-            case PORTID_JOY_CENTER: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"CENTER"); break;
-            case PORTID_JOY_LEFT: oledFillXY(10,0,50,15,0);oledPutstrXY(10,0,0,"LEFT"); break;
-            default : break;
-        }
-        
-        uint8_t wheel_return = isWheelClicked();
-        if (wheel_return == RETURN_JDETECT)
-        {
-            oledPutstrXY(80,0,0,"WHEEL");
-        }
-        else if (wheel_return == RETURN_JRELEASED)
-        {
-            oledFillXY(80,0,40,15,0);
-        }
-        
-        miniDirectionClearJoystickDetections();        
-        miniOledFlushEntireBufferToDisplay();        
+        oledPutstrXY(0,15,0,temp_string);
+        miniOledFlushEntireBufferToDisplay();
+        oledFillXY(0,15,15,15,FALSE);
     }
 }
-#endif
 
 /*! \fn     mooltipassStandardFunctionalTest(uint8_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok)
  *  \brief  Mooltipass standard functional test

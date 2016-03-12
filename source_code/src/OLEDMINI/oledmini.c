@@ -901,16 +901,11 @@ void miniOledPutch(char ch)
 }
 
 /*! \fn     miniOledPutstr(const char* str)
- *  \brief  Print the string on the OLED starting at the X,Y location
- *  \param  x       x position
- *  \param  y       y position
+ *  \brief  Print the string on the OLED starting at the stored X,Y location
  *  \param  str     pointer to the string in ram
  */
-void miniOledPutstr(uint8_t x, uint8_t y, const char* str)
-{
-    miniOledTextCurX = x;
-    miniOledTextCurY = y;
-    
+void miniOledPutstr(const char* str)
+{    
     // Write chars until we find final 0
     while (*str)
     {
@@ -967,9 +962,13 @@ void miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
             x = SSD1305_OLED_WIDTH - width;
         }
     }
+    
+    // Store text x & y position
+    miniOledTextCurX = x;
+    miniOledTextCurY = y;
 
     // Display string
-    miniOledPutstr(x, y, str);
+    miniOledPutstr(str);
 }
 
 #endif

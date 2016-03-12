@@ -25,6 +25,7 @@
 #include <util/atomic.h>
 #include <string.h>
 #include "gui_basic_functions.h"
+#include "mini_inputs.h"
 #include "defines.h"
 // This code is only used for the mooltipass mini
 #ifdef MINI_VERSION
@@ -207,6 +208,7 @@ RET_TYPE isWheelClicked(void)
 
     if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
     {
+        activityDetectedRoutine();
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
             if (wheel_click_return == RETURN_JDETECT)
@@ -235,6 +237,7 @@ RET_TYPE isMiniDirectionPressed(uint8_t direction)
 
     if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
     {
+        activityDetectedRoutine();
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
             if (joystick_return[direction] == RETURN_JDETECT)
@@ -289,6 +292,7 @@ RET_TYPE getMiniDirectionJustPressed(void)
 
         if (return_val == RETURN_JDETECT)
         {
+            activityDetectedRoutine();
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
                 joystick_return[joystick_scan_defines[i]] = RETURN_DET;
@@ -296,6 +300,11 @@ RET_TYPE getMiniDirectionJustPressed(void)
             return_val = joystick_scan_defines[i];
             break;
         }
+    }
+    
+    if (isWheelClicked() == RETURN_JDETECT)
+    {
+        return  WHEEL_POS_CLICK;
     }
     
     return return_val;

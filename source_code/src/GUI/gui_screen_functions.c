@@ -524,17 +524,14 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             return RETURN_NOK;
         }
     #elif defined(MINI_VERSION)
-        uint8_t temp_bool = TRUE;
-        while (temp_bool)
+        uint8_t touch_answer = getTouchedPositionAnswer(LEFT_RIGHT_WHEEL_MASK);
+        if ((touch_answer == JOYSTICK_POS_RIGHT) || (touch_answer == WHEEL_POS_CLICK))
         {
-            if (isWheelClicked() == RETURN_JDETECT)
-            {
-                return RETURN_OK;
-            }
-            if (isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT)
-            {
-                return RETURN_NOK;
-            }
+            return RETURN_OK;
+        }
+        else
+        {
+            return RETURN_NOK;
         }
         return RETURN_NOK;
     #endif

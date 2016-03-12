@@ -225,10 +225,6 @@ void usbProcessIncoming(uint8_t caller_id)
     // Temp ret_type
     RET_TYPE temp_rettype;
 #endif
-    
-#ifdef DEV_PLUGIN_COMMS
-    char stack_str[10];
-#endif
 
     // Debug comms
     // USBDEBUGPRINTF_P(PSTR("usb: rx cmd 0x%02x len %u\n"), datacmd, datalen);
@@ -1597,10 +1593,8 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         case CMD_STACK_FREE:
         {            
-            usbPutstr("Stack Free ");
-            int_to_string(stackFree(),stack_str);
-            usbPutstr(stack_str);
-            usbPutstr(" bytes\n");
+            uint16_t freebytes = stackFree();
+            usbSendMessage(CMD_STACK_FREE, sizeof(freebytes), &freebytes);
             return;
         }            
 

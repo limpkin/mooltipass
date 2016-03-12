@@ -104,6 +104,7 @@
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(MINI_CLICK_BETATESTERS_SETUP)
+    #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
     #define DEV_PLUGIN_COMMS

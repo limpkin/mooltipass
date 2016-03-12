@@ -289,16 +289,31 @@ RET_TYPE getMiniDirectionJustPressed(void)
     {
         // This copy is an atomic operation
         return_val = joystick_return[joystick_scan_defines[i]];
-
-        if (return_val == RETURN_JDETECT)
+        
+        // See if it was just pressed or released
+        if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
         {
             activityDetectedRoutine();
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
-                joystick_return[joystick_scan_defines[i]] = RETURN_DET;
+                if (return_val == RETURN_JDETECT)
+                {
+                    joystick_return[joystick_scan_defines[i]] = RETURN_DET;
+                }
+                else if (return_val == RETURN_JRELEASED)
+                {
+                    joystick_return[joystick_scan_defines[i]] = RETURN_REL;
+                }
             }
-            return_val = joystick_scan_defines[i];
-            break;
+            if (return_val == RETURN_JDETECT)
+            {
+                return_val = joystick_scan_defines[i];
+                break;
+            }
+            else
+            {
+                return_val = 0;
+            }
         }
     }
     

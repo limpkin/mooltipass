@@ -215,6 +215,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         return ret_val;
     #elif defined(MINI_VERSION)
         RET_TYPE ret_val = RETURN_NOK;
+        uint8_t detection_result = 0;
         uint8_t selected_digit = 0;
         uint8_t finished = FALSE;
         uint8_t current_pin[4];
@@ -222,6 +223,9 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     
         // Set current pin to 0000
         memset((void*)current_pin, 0, 4);
+        
+        // Clear current detections
+        miniDirectionClearDetections();
     
         // Draw pin entering bitmap
         oledClear();
@@ -245,6 +249,8 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             usbProcessIncoming(USB_CALLER_PIN);
             // Wheel increment/decrement
             wheel_increment = getWheelCurrentIncrement();
+            // touch detection result
+            detection_result = getMiniDirectionJustPressed();
         
             // Position increment / decrement
             if (wheel_increment != 0)
@@ -262,35 +268,38 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                 miniOledFlushEntireBufferToDisplay();
             }
         
+            // Return if card removed or timer expired
             if ((isSmartCardAbsent() == RETURN_OK) || (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED))
             {
                 // Smartcard removed, no reason to continue
                 ret_val = RETURN_NOK;
                 finished = TRUE;
             }
-//             if (temp_rettype & RETURN_LEFT_PRESSED)
-//             {
-//                 if (selected_digit == 1)
-//                 {
-//                     oledFillXY(0, 23, 18, 18, 0x00);
-//                     oledBitmapDrawFlash(0, 24, BITMAP_CROSS, 0);
-//                 }
-//                 if (selected_digit > 0)
-//                 {
-//                     // When going back set pin digit to 0
-//                     current_pin[selected_digit] = 0;
-//                     current_pin[--selected_digit] = 0;
-//                 }
-//                 else
-//                 {
-//                     ret_val = RETURN_NOK;
-//                     finished = TRUE;
-//                 }
-//                 guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-//                 oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
-//             }
-//             else if (temp_rettype & RETURN_RIGHT_PRESSED)
-            if (isWheelClicked() == RETURN_JDETECT)
+            
+            // Change digit position or return/proceed
+            if (detection_result == JOYSTICK_POS_LEFT)
+            {
+                if (selected_digit == 1)
+                {
+                    //oledFillXY(0, 23, 18, 18, 0x00);
+                    //oledBitmapDrawFlash(0, 24, BITMAP_CROSS, 0);
+                }
+                if (selected_digit > 0)
+                {
+                    // When going back set pin digit to 0
+                    current_pin[selected_digit] = 0;
+                    current_pin[--selected_digit] = 0;
+                }
+                else
+                {
+                    ret_val = RETURN_NOK;
+                    finished = TRUE;
+                }
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                //oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
+                miniOledFlushEntireBufferToDisplay();
+            }
+            else if ((detection_result == JOYSTICK_POS_RIGHT) || (detection_result == WHEEL_POS_CLICK))
             {
                 if (selected_digit == 2)
                 {

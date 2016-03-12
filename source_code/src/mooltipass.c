@@ -284,7 +284,7 @@ int main(void)
     #endif
     
     #ifdef MINI_VERSION
-    mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
+    //mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
     //while(1)
     //{
     //    usbProcessIncoming(USB_CALLER_MAIN);

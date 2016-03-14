@@ -795,7 +795,7 @@ static void oledDumpFont(void)
  * Set the font to use
  * @param font - new font to use
  */
-void oledSetFont(uint8_t fontIndex)
+void stockOledSetFont(uint8_t fontIndex)
 {
     if (oledGetFileAddr(fontIndex, &oledFontAddr) != MEDIA_FONT)
     {        

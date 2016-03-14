@@ -149,11 +149,11 @@
     #define ID_STRING_FUSE_PB       73
 #elif defined(MINI_VERSION)
     // Font IDs
-    #define FONT_NONE           255
-    #define FONT_PROFONT_10     1
-    #define FONT_PROFONT_18     16
-    #define FONT_PROFONT_24     17
-    #define FONT_DEFAULT FONT_PROFONT_10
+    #define FONT_NONE               255
+    #define FONT_PROFONT_9          1
+    #define FONT_PROFONT_18         16
+    #define FONT_PROFONT_24         17
+    #define FONT_DEFAULT            FONT_PROFONT_9
 
     // Bimap IDs
     #define BITMAP_MOOLTIPASS     0

@@ -34,6 +34,7 @@
 #include "oledmini.h"
 #include "defines.h"
 #include "fonts.h"
+#include "utils.h"
 #include "spi.h"
 #include "usb.h"
 /***********************************************************/
@@ -64,6 +65,8 @@ uint8_t miniOledTextCurX = 0;
 uint8_t miniOledTextCurY = 0;
 // Bool to know if written text is directly flushed
 uint8_t miniOledFlushText = FALSE;
+// Bool to allow text writing Y increment
+uint8_t miniOledTextWritingYIncrement = FALSE;
 
 // OLED initialization sequence
 static const uint8_t mini_oled_init[] __attribute__((__progmem__)) = 
@@ -480,6 +483,8 @@ void miniOledClearFrameBuffer(void)
  */
 void miniOledDumpCurrentFont(void)
 {
+    miniOledTextWritingYIncrement = TRUE;
+    
     char temp_string[34];
     for(uint8_t i = 0; i < (256/32); i++)
     {
@@ -495,6 +500,8 @@ void miniOledDumpCurrentFont(void)
         miniOledFlushEntireBufferToDisplay();
         timerBasedDelayMs(5000);
     } 
+    
+    miniOledTextWritingYIncrement = FALSE;
 }
 
 /*! \fn     miniOledGetFileAddr(uint8_t fileId, uint16_t* addr)
@@ -901,8 +908,15 @@ void miniOledPutch(char ch)
             // Check if we're not larger than the screen
             if (width + miniOledTextCurX > SSD1305_OLED_WIDTH)
             {
-                miniOledTextCurY += miniOledCurrentFont.height;
-                miniOledTextCurX = 0;
+                if (miniOledTextWritingYIncrement != FALSE)
+                {
+                    miniOledTextCurY += miniOledCurrentFont.height;
+                    miniOledTextCurX = 0;
+                }
+                else
+                {
+                    break;
+                }
             }
             
             // Check that we're not writing text after the screen edge
@@ -993,6 +1007,42 @@ void miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
 
     // Display string
     miniOledPutstr(str);
+}
+
+/*! \fn     miniOledPutCenteredString(uint8_t y, char* string)
+ *  \brief  Print a string at the specified pixel line
+ *  \param  y       y position
+ *  \param  str     pointer to the string in ram
+ */
+void miniOledPutCenteredString(uint8_t y, char* string)
+{
+    miniOledPutstrXY(0, y, OLED_CENTRE, string);
+}
+
+/*! \fn     miniOledCheckFlashStringsWidth(void)
+ *  \brief  Check that all the strings stored in flash aren't larger than the screen width
+ */
+void miniOledCheckFlashStringsWidth(void)
+{
+    char temp_string[4];
+    
+    // Clear screen, write wrong IDs on the screen
+    miniOledTextCurX = 0;
+    miniOledTextCurY = 0;
+    miniOledClearFrameBuffer();
+    
+    miniOledPutstr("Wrong string IDs: ");
+    for (uint8_t i = ID_FIRST_STRING; i <= ID_LAST_STRING; i++)
+    {
+        if (miniOledStrWidth(readStoredStringToBuffer(i)) > SSD1305_OLED_WIDTH)
+        {
+            int_to_string(i, temp_string);
+            miniOledPutstr(temp_string);
+            miniOledPutstr(" ");
+        }
+    }
+    
+    miniOledFlushEntireBufferToDisplay();
 }
 
 #endif

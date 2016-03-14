@@ -211,21 +211,30 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         }
     
         // Test description
-        oledPutstr("Press wheel,top,right,bot,left,center");
+       uint8_t func_test_string_id = ID_STRING_FUNC_TEST;
+       guiDisplayRawString(func_test_string_id++);
+       guiDisplayRawString(func_test_string_id++);
     
         // Wait for inputs
         oledClear();oledSetXY(0,0);
         miniDirectionClearDetections();
-        while(getMiniDirectionJustPressed() != WHEEL_POS_CLICK);miniOledPutstr("Wheel,");
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_UP);miniOledPutstr("Top,");
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_RIGHT);miniOledPutstr("Right,");
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_DOWN);miniOledPutstr("Bot,");
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_LEFT);miniOledPutstr("Left,");
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_CENTER);miniOledPutstr("Center");
+        while(getMiniDirectionJustPressed() != WHEEL_POS_CLICK);
+        guiDisplayRawString(func_test_string_id++);
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_UP);
+        guiDisplayRawString(func_test_string_id++);
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_RIGHT);
+        guiDisplayRawString(func_test_string_id++);
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_DOWN);
+        guiDisplayRawString(func_test_string_id++);
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_LEFT);
+        guiDisplayRawString(func_test_string_id++);
+        while(getMiniDirectionJustPressed() != JOYSTICK_POS_CENTER);
+        guiDisplayRawString(func_test_string_id++);
     
         // Test description
-        oledClear();oledSetXY(0,0);
-        miniOledPutstr("Scroll to 10");
+        oledClear();
+        oledSetXY(0,0);
+        guiDisplayRawString(func_test_string_id++);
     
         // Wait for scroll
         while(temp_string[0] != ':')
@@ -282,6 +291,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
     }    
 }
 
+#ifdef HARDWARE_OLIVIER_V1
 /*! \fn     mooltipassStandardFunctionalTest(uint8_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok)
  *  \brief  Mooltipass standard functional test
  *  \param  current_bootkey_val     Current boot key value
@@ -395,3 +405,4 @@ void mooltipassStandardFunctionalTest(uint16_t current_bootkey_val, uint8_t flas
         }
     }
 }
+#endif

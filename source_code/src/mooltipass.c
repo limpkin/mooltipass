@@ -290,12 +290,13 @@ int main(void)
     
     #ifdef MINI_VERSION
     //oledSetFont(2);oledClear();miniOledFlushWrittenTextToDisplay();oledPutstrXY(0,0,0, "this is an extra super mega long string that should take lot of space");while(1);
-    miniOledDumpCurrentFont();miniOledDumpCurrentFont();
-    oledClear();miniOledFlushWrittenTextToDisplay();oledPutstrXY(0,0,0, "this is an extra super mega long string that should take lot of space");
-    while(1)
-    {
-        usbProcessIncoming(USB_CALLER_MAIN);
-    }
+    //miniOledDumpCurrentFont();miniOledDumpCurrentFont();
+    //oledClear();miniOledFlushWrittenTextToDisplay();oledPutstrXY(0,0,0, "this is an extra super mega long string that should take lot of space");
+    //miniOledCheckFlashStringsWidth();
+    //while(1)
+    //{
+    //    usbProcessIncoming(USB_CALLER_MAIN);
+    //}
     //mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
     //while(1)
     //{

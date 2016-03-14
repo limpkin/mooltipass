@@ -540,10 +540,16 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         else
         {
             // Prepare confirmation screen
-            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_ADDUSERNAME);
-            conf_text.lines[1] = (char*)name;
-            conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_ON);
-            conf_text.lines[3] = (char*)temp_pnode.service;
+            #if defined(HARDWARE_OLIVIER_V1)
+                conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_ADDUSERNAME);
+                conf_text.lines[1] = (char*)name;
+                conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_ON);
+                conf_text.lines[3] = (char*)temp_pnode.service;
+            #elif defined(MINI_VERSION)
+                conf_text.lines[0] = (char*)temp_pnode.service;
+                conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ADDUSERNAME);
+                conf_text.lines[2] = (char*)name;
+            #endif
             
             // If doesn't exist, ask user for confirmation to add to flash
             if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
@@ -602,10 +608,16 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         fillArrayWithRandomBytes(temp_cnode.password + length, NODE_CHILD_SIZE_OF_PASSWORD - length);
         
         // Prepare password changing approval text
-        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CHANGEPASSFOR);
-        conf_text.lines[1] = (char*)temp_cnode.login;
-        conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_ON);
-        conf_text.lines[3] = (char*)temp_pnode.service;
+        #if defined(HARDWARE_OLIVIER_V1)
+            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CHANGEPASSFOR);
+            conf_text.lines[1] = (char*)temp_cnode.login;
+            conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_ON);
+            conf_text.lines[3] = (char*)temp_pnode.service;
+        #elif defined(MINI_VERSION)
+            conf_text.lines[0] = (char*)temp_pnode.service;
+            conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_CHANGEPASSFOR);
+            conf_text.lines[2] = (char*)temp_cnode.login;
+        #endif        
         
         // Ask for password changing approval
         if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)

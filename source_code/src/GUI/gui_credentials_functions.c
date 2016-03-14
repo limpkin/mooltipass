@@ -112,10 +112,16 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
         confirmationText_t temp_conf_text;
         
         // Prepare asking confirmation screen
-        temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CONFACCESSTO);
-        temp_conf_text.lines[1] = (char*)p->service;
-        temp_conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_WITHTHISLOGIN);
-        temp_conf_text.lines[3] = (char*)c->login;
+        #if defined(HARDWARE_OLIVIER_V1)
+            temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CONFACCESSTO);
+            temp_conf_text.lines[1] = (char*)p->service;
+            temp_conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_WITHTHISLOGIN);
+            temp_conf_text.lines[3] = (char*)c->login;
+        #elif defined(MINI_VERSION)
+            temp_conf_text.lines[0] = (char*)p->service;
+            temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_CONFACCESSTO);
+            temp_conf_text.lines[2] = (char*)c->login;
+        #endif
         
         // Prompt user for confirmation, flash the screen
         if ((bypass_confirmation == TRUE) || (guiAskForConfirmation(0xF0 | 4, &temp_conf_text) == RETURN_OK))

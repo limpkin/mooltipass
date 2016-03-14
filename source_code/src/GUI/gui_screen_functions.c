@@ -454,8 +454,6 @@ void guiDisplayGoingToSleep(void)
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
 {    
     uint8_t flash_flag = FALSE;
-    char string_tbd[31];
-    string_tbd[30] = 0;
     
     // Check if we want to flash the screen
     if ((nb_args & 0xF0) != 0)
@@ -469,6 +467,10 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     }
     
     #if defined(HARDWARE_OLIVIER_V1)
+        // Temp string for truncating
+        char string_tbd[31];
+        string_tbd[30] = 0;
+        
         // Draw asking bitmap
         oledClear();
         oledBitmapDrawFlash(0, 0, BITMAP_YES_NO_INT_L, 0);
@@ -493,10 +495,27 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         // Display result
         oledDisplayOtherBuffer();
     #elif defined(MINI_VERSION)
-        text_object++;
-        string_tbd[0]++;
+        // Draw asking bitmap
         oledClear();
-        oledPutstrXY(0, 10, OLED_CENTRE, "YES/NO?");
+        
+        // Display lines. 
+        // Note: line are truncated at the oled driver level when miniOledTextWritingYIncrement is set to FALSE
+        if (nb_args == 1)
+        {
+            miniOledPutCenteredString(11, (char*)text_object);
+        }
+        else if (nb_args == 2)
+        {
+            miniOledPutCenteredString(5, text_object->lines[0]);
+            miniOledPutCenteredString(16, text_object->lines[1]);
+        }
+        else
+        {
+            miniOledPutCenteredString(0, text_object->lines[0]);
+            miniOledPutCenteredString(11, text_object->lines[1]);
+            miniOledPutCenteredString(21, text_object->lines[2]);       
+        }
+        
         miniOledFlushEntireBufferToDisplay();
     #endif
 

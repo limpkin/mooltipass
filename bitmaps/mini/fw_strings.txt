@@ -1,9 +1,8 @@
 Processing...
 Card Blocked!
-Problem With Card!
-Wrong Pin!
+Problem With The Card!
 Please Remove The Card
-Insert Other Smartcard
+Please Insert Other Card
 Failed!
 PIN Changed!
 Not Changed!
@@ -14,51 +13,38 @@ Unknown Card
 Insert New Smartcard
 Done
 Card Removed
-Delete User From Mooltipass?
+Delete User From Mini?
 ALL Your Data Will Be Lost!
-Other Cards For This User?
+Other Cards For User?
 Enter Login?
 Enter Password?
-Approve Memory Operation?
 Enter Your PIN
 PIN For New Card
 Confirm PIN
-Confirm Access To
+Confirm Access With:
 With This Login:
-Confirm New Credentials For:
+Confirm New Service:
 Add Username:
-on
 Change Password For:
 Wrong Pin, 1 Try Left
 Wrong Pin, 2 Tries Left
 Wrong Pin, 3 Tries Left
-Create New Mooltipass User?
+Create New Mini User?
 Going To Sleep...
-Allow Memory Management?
-Memory Management Mode
-Exit Mode In Application
-Created by the plugin
-No Stored Favorites
+Enter Mem. Management?
+Memory Management
+Exit Mode In Mini App
+Created By The Plugin
+No Stored Favorites!
 Send Card Stored Data?
 Change Card Login?
 Change Card Stored Data?
 username:
 Show Login?
 Show Password?
-FLASH OK...~~
 FLASH PB!!!~~
-TOUCH OK...~~
-TOUCH PB!!!~~
-Close, left, wheel, right...~~
-Det,
-left,
-wheel,
-right!~~
 Insert card~~
-CARD OK...~~
 CARD PB!!!~~
-Check LEDS!!!~~
----- TEST OK !!! ----~~
 ---- TEST NOT OK ----~~
 /!\ SECURITY WARNING /!\
 Allow Mooltipass Update?
@@ -70,5 +56,14 @@ PIN Codes Differ!
 Target Card Isn't Blank!
 Enter New PIN
 Erase The Card As Well?
-No Stored Credentials
+No Stored Credentials!
 !!!FUSE PB!!!~~
+Func Test, press wheel,~~
+top,right,bot,left,center
+W, 
+T, 
+R, 
+B, 
+L, 
+C~~
+Scroll To 10

@@ -4,7 +4,7 @@ var mooltipass = mooltipass || {};
 mooltipass.device = mooltipass.device || {};
 
 // Debug mode
-mooltipass.device.debug = true;
+mooltipass.device.debug = false;
 
 // Mooltipass device info
 mooltipass.device.deviceInfo = { 'vendorId': 0x16d0, 'productId': 0x09a0 };
@@ -210,8 +210,12 @@ mooltipass.device.connect = function() {
  * @param devices
  */
 mooltipass.device.onDeviceFound = function(devices) {
-    if (!devices || !devices.length) {
-        console.log('No compatible devices found.');
+    if (!devices || !devices.length) 
+	{
+		if(mooltipass.device.debug)
+		{
+			console.log('No compatible devices found.');
+		}
         mooltipass.device.restartProcessingQueue();
         return;
     }
@@ -603,7 +607,7 @@ mooltipass.device._retrySendMsg = function() {
         return;
     }
 
-    console.log('    call callback function');
+    //console.log('    call callback function');
 
     // If callbackFunction is set, call it in case of retries is reached
     if(queuedItem.timeout.callbackFunction) {
@@ -669,7 +673,10 @@ mooltipass.device.onDataReceived = function(reportId, data) {
 
     var command = mooltipass.device.commandsReverse[cmd];
 
-    console.log('mooltipass.device.onDataReceived(', command, ')');
+    if(mooltipass.device.debug)
+	{
+		console.log('mooltipass.device.onDataReceived(', command, ')');
+	}	
 
     var queuedItem = mooltipass.device.getFromQueue(command);
     if(!queuedItem) {
@@ -937,7 +944,10 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
                 }
                 else {
                     // Add context
-                    console.log('add context:', params.context);
+					if(mooltipass.device.debug)
+					{
+						console.log('add context:', params.context);
+					}
                     mooltipass.device.addToQueue('addContext', [params.context], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
                     mooltipass.device.processQueue();
                     return;

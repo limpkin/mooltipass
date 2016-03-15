@@ -289,7 +289,7 @@ int main(void)
     #endif
     
     #ifdef MINI_VERSION
-    while(1);
+    //while(1);
     //oledSetFont(2);oledClear();miniOledFlushWrittenTextToDisplay();oledPutstrXY(0,0,0, "this is an extra super mega long string that should take lot of space");while(1);
     //miniOledDumpCurrentFont();miniOledDumpCurrentFont();
     //oledClear();miniOledFlushWrittenTextToDisplay();oledPutstrXY(0,0,0, "this is an extra super mega long string that should take lot of space");

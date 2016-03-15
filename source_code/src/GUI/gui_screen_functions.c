@@ -447,8 +447,8 @@ void guiDisplayGoingToSleep(void)
 
 /*! \fn     guiAskForConfirmation(const char* string)
 *   \brief  Ask for user confirmation for different things
-*   \param  nb_args     Number of text lines (must be either 1 2 or 4)
-*   \param  text_object Pointer to the text object if more than 1 line, pointer to progrem string if not
+*   \param  nb_args     Number of text lines (must be either 1 2 or 3/4 (depending on the MP version))
+*   \param  text_object Pointer to the text object if more than 1 line, pointer to the string if not
 *   \return User confirmation or not
 */
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
@@ -495,6 +495,11 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         // Display result
         oledDisplayOtherBuffer();
     #elif defined(MINI_VERSION)
+        // Variables for scrolling
+        uint8_t string_y_indexes[3];
+        uint8_t string_extra_chars[3];
+        uint8_t string_offset_cntrs[3] = {0,0,0};
+        
         // Draw asking bitmap
         oledClear();
         
@@ -506,14 +511,23 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         }
         else if (nb_args == 2)
         {
-            miniOledPutCenteredString(5, text_object->lines[0]);
-            miniOledPutCenteredString(16, text_object->lines[1]);
+            string_y_indexes[0] = 5;
+            string_y_indexes[1] = 16;
         }
         else
         {
-            miniOledPutCenteredString(0, text_object->lines[0]);
-            miniOledPutCenteredString(11, text_object->lines[1]);
-            miniOledPutCenteredString(21, text_object->lines[2]);       
+            string_y_indexes[0] = 0;
+            string_y_indexes[1] = 11;
+            string_y_indexes[2] = 21; 
+        }
+        
+        // For loop to display lines when there is more than one arg
+        if (nb_args > 1)
+        {
+            for (uint8_t i = 0; i < nb_args; i++)
+            {
+                string_extra_chars[i] = strlen(text_object->lines[i]) - miniOledPutCenteredString(string_y_indexes[i], text_object->lines[i]);
+            }
         }
         
         miniOledFlushEntireBufferToDisplay();
@@ -543,7 +557,47 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             return RETURN_NOK;
         }
     #elif defined(MINI_VERSION)
-        uint8_t touch_answer = getTouchedPositionAnswer(LEFT_RIGHT_WHEEL_MASK);
+        int8_t touch_answer = 0;
+        
+        // Switch on lights
+        activityDetectedRoutine();
+        
+        // Clear possible remaining detection
+        miniDirectionClearDetections();
+        
+        // Arm timer for scrolling (caps timer that isn't relevant here)
+        activateTimer(TIMER_CAPS, SCROLLING_DEL);
+        
+        // Loop while no timeout occurs or no button is pressed
+        while (touch_answer == 0)
+        {
+            touch_answer = getTouchedPositionAnswer(LEFT_RIGHT_WHEEL_MASK, FALSE);
+            
+            // Text scrolling
+            if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (nb_args > 1))
+            {
+                oledClear();
+                activateTimer(TIMER_CAPS, SCROLLING_DEL);
+                for (uint8_t i = 0; i < nb_args; i++)
+                {
+                    if (string_extra_chars[i] > 0)
+                    {
+                        miniOledPutCenteredString(string_y_indexes[i], (text_object->lines[i]) + string_offset_cntrs[i]++);
+                        
+                        if (string_offset_cntrs[i] == string_extra_chars[i])
+                        {
+                            string_offset_cntrs[i] = 0;
+                        }
+                    }
+                    else
+                    {
+                        miniOledPutCenteredString(string_y_indexes[i], text_object->lines[i]);
+                    }
+                }
+                miniOledFlushEntireBufferToDisplay();
+            }
+        }   
+    
         if ((touch_answer == JOYSTICK_POS_RIGHT) || (touch_answer == WHEEL_POS_CLICK))
         {
             return RETURN_OK;
@@ -552,6 +606,5 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         {
             return RETURN_NOK;
         }
-        return RETURN_NOK;
     #endif
 }

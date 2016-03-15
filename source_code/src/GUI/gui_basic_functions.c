@@ -250,10 +250,12 @@ int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
 #elif defined(MINI_VERSION)
 /*! \fn     getTouchedPositionAnswer(uint8_t mask)
 *   \brief  Use the input interface to get user input
-*   \param  mask    Input mask
-*   \return Number between 0 and 5 for valid pos, -1 otherwise
+*   \param  mask        Input mask
+*   \param  blocking    Boolean to know if we should wait for input or timeout
+*   \note   In case of a non blocking call, caller must call activityDetectedRoutine() & miniDirectionClearDetections()
+*   \return -1 for timeout, 0 for nothing pressed, the button ID otherwise
 */
-int8_t getTouchedPositionAnswer(uint8_t mask)
+int8_t getTouchedPositionAnswer(uint8_t mask, uint8_t blocking)
 {
     #if defined(ALWAYS_ACCEPT_REQUESTS)
     // First quarter is discarded, it means we want yes or no!
@@ -270,14 +272,17 @@ int8_t getTouchedPositionAnswer(uint8_t mask)
     uint8_t incomingData[RAWHID_TX_SIZE];
     RET_TYPE detect_result;
     
-    // Switch on lights
-    activityDetectedRoutine();
-    
-    // Clear possible remaining detection
-    miniDirectionClearDetections();
+    if (blocking == TRUE)
+    {
+        // Switch on lights
+        activityDetectedRoutine();
+        
+        // Clear possible remaining detection
+        miniDirectionClearDetections();
+    }
     
     // Wait for a touch press
-    while(1)
+    do
     {
         // User interaction timeout or smartcard removed
         if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
@@ -307,6 +312,10 @@ int8_t getTouchedPositionAnswer(uint8_t mask)
             return detect_result;
         }
     }
+    while(blocking != FALSE);
+    
+    // Return 0 if nothing was pressed and no timeout occurred
+    return 0;
 }    
 #endif
 

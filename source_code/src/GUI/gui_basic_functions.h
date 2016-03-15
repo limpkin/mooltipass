@@ -29,8 +29,12 @@
 
 #include "defines.h"
 
+#if defined(HARDWARE_OLIVIER_V1)
+    int8_t getTouchedPositionAnswer(uint8_t led_mask);
+#elif defined(MINI_VERSION)
+    int8_t getTouchedPositionAnswer(uint8_t mask, uint8_t blocking);
+#endif
 int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result);
-int8_t getTouchedPositionAnswer(uint8_t led_mask);
 void activityDetectedRoutine(void);
 uint8_t isScreenSaverOn(void);
 void guiMainLoop(void);

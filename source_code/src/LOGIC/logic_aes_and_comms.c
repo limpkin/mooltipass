@@ -552,7 +552,11 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
             #endif
             
             // If doesn't exist, ask user for confirmation to add to flash
+            #if defined(HARDWARE_OLIVIER_V1)
             if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
+            #elif defined(MINI_VERSION)
+            if (guiAskForConfirmation(3, &conf_text) == RETURN_OK)
+            #endif
             {
                 // Display processing screen
                 guiDisplayProcessingScreen();
@@ -620,7 +624,11 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         #endif        
         
         // Ask for password changing approval
+        #if defined(HARDWARE_OLIVIER_V1)
         if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
+        #elif defined(MINI_VERSION)
+        if (guiAskForConfirmation(3, &conf_text) == RETURN_OK)
+        #endif
         {
             // Get back to current screen
             guiGetBackToCurrentScreen();

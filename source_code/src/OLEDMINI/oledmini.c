@@ -885,8 +885,9 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
  *  \brief  Print an character on the screen at the current X and Y position. X and Y position is updated after the print operation, with X wrapping if necessary
  *  \param  ch  the character to print
  *  \note '\n' is will increment the row position based on the current font height, and also reset x to 0. '\r' will reset x to 0.
+ *  \return Success state
  */
-void miniOledPutch(char ch)
+RET_TYPE miniOledPutch(char ch)
 {    
     if (isprint(ch))
     {
@@ -897,51 +898,71 @@ void miniOledPutch(char ch)
         OLEDDEBUGPRINTF_P(PSTR("oledPutch('0x%02x') x=%d, y=%d, oled_offset=%d, buf=%d\n"), ch, miniOledTextCurX, miniOledTextCurY, 0, 0);
     }
     
-    switch (ch)
+    if (ch == '\n')
     {
-        case '\n':  miniOledTextCurY += miniOledCurrentFont.height;
-        case '\r':  miniOledTextCurX = 0; break;
-        default:    
-        {
-            uint8_t width = miniOledGlyphWidth(ch);
-            
-            // Check if we're not larger than the screen
-            if (width + miniOledTextCurX > SSD1305_OLED_WIDTH)
-            {
-                if (miniOledTextWritingYIncrement != FALSE)
-                {
-                    miniOledTextCurY += miniOledCurrentFont.height;
-                    miniOledTextCurX = 0;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            
-            // Check that we're not writing text after the screen edge
-            if ((miniOledTextCurY + miniOledCurrentFont.height) > SSD1305_OLED_HEIGHT)
-            {
-                break;
-            }
-            
-            // Display the text
-            miniOledTextCurX += miniOledGlyphDraw(miniOledTextCurX, miniOledTextCurY, ch);
-            break;
-        }
+        miniOledTextCurY += miniOledCurrentFont.height;
+        miniOledTextCurX = 0;
     }
+    else if (ch == '\r')
+    {
+        miniOledTextCurX = 0;
+    }
+    else
+    {
+        uint8_t width = miniOledGlyphWidth(ch);
+        
+        // Check if we're not larger than the screen
+        if (width + miniOledTextCurX > SSD1305_OLED_WIDTH)
+        {
+            if (miniOledTextWritingYIncrement != FALSE)
+            {
+                miniOledTextCurY += miniOledCurrentFont.height;
+                miniOledTextCurX = 0;
+            }
+            else
+            {
+                return RETURN_NOK;
+            }
+        }
+        
+        // Check that we're not writing text after the screen edge
+        if ((miniOledTextCurY + miniOledCurrentFont.height) > SSD1305_OLED_HEIGHT)
+        {
+            return RETURN_NOK;
+        }
+        
+        // Display the text
+        miniOledTextCurX += miniOledGlyphDraw(miniOledTextCurX, miniOledTextCurY, ch);
+    }
+    
+    return RETURN_OK;
 }
 
 /*! \fn     miniOledPutstr(const char* str)
  *  \brief  Print the string on the OLED starting at the stored X,Y location
  *  \param  str     pointer to the string in ram
+ *  \return How many characters were printed
  */
-void miniOledPutstr(const char* str)
+uint8_t miniOledPutstr(const char* str)
 {    
+    uint8_t nb_printed_chars = 0;
+    
     // Write chars until we find final 0
     while (*str)
     {
-        miniOledPutch(*str++);
+        if(miniOledPutch(*str++) != RETURN_OK)
+        {
+            // Flush to display if needed
+            if (miniOledFlushText != FALSE)
+            {
+                miniOledFlushEntireBufferToDisplay();
+            }
+            return nb_printed_chars;
+        }
+        else
+        {
+            nb_printed_chars++;
+        }
     }
     
     // Flush to display if needed
@@ -949,6 +970,8 @@ void miniOledPutstr(const char* str)
     {
         miniOledFlushEntireBufferToDisplay();
     }
+    
+    return nb_printed_chars;
 }
 
 /*! \fn     miniOledSetXY(uint8_t x, int8_t y)
@@ -968,8 +991,9 @@ void miniOledSetXY(uint8_t x, int8_t y)
  *  \param  y       y position
  *  \param  justify OLED_LEFT, OLED_CENTRE, OLED_RIGHT
  *  \param  str     pointer to the string in ram
+ *  \return How many characters were printed
  */
-void miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
+uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
 {
     uint16_t width = miniOledStrWidth(str);
 
@@ -1006,17 +1030,18 @@ void miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
     miniOledTextCurY = y;
 
     // Display string
-    miniOledPutstr(str);
+    return miniOledPutstr(str);
 }
 
 /*! \fn     miniOledPutCenteredString(uint8_t y, char* string)
  *  \brief  Print a string at the specified pixel line
  *  \param  y       y position
  *  \param  str     pointer to the string in ram
+ *  \return How many characters were printed
  */
-void miniOledPutCenteredString(uint8_t y, char* string)
+uint8_t miniOledPutCenteredString(uint8_t y, char* string)
 {
-    miniOledPutstrXY(0, y, OLED_CENTRE, string);
+    return miniOledPutstrXY(0, y, OLED_CENTRE, string);
 }
 
 /*! \fn     miniOledCheckFlashStringsWidth(void)

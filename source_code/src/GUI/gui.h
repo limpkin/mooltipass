@@ -37,6 +37,7 @@
 #define TAP_MIN_DEL                     100
 #define MIN_USER_INTER_DEL              7000
 #define MAX_USER_INTER_DEL              25000
+#define SCROLLING_DEL                   500
 // Screen defines
 #define SCREEN_DEFAULT_NINSERTED        0x00
 #define SCREEN_DEFAULT_INSERTED_LCK     0x10

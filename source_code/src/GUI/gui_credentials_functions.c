@@ -124,7 +124,11 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
         #endif
         
         // Prompt user for confirmation, flash the screen
+        #if defined(HARDWARE_OLIVIER_V1)
         if ((bypass_confirmation == TRUE) || (guiAskForConfirmation(0xF0 | 4, &temp_conf_text) == RETURN_OK))
+        #elif defined(MINI_VERSION)
+        if ((bypass_confirmation == TRUE) || (guiAskForConfirmation(0xF0 | 3, &temp_conf_text) == RETURN_OK))
+        #endif
         {
             picked_child = first_child_address;
         }
@@ -313,7 +317,11 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         oledDisplayOtherBuffer();
         
         // Get touched quarter
-        j = getTouchedPositionAnswer(led_mask);
+        #if defined(HARDWARE_OLIVIER_V1)
+            j = getTouchedPositionAnswer(led_mask);
+        #elif defined(MINI_VERSION)
+            j = getTouchedPositionAnswer(led_mask, TRUE);
+        #endif
         
         // Check its validity, knowing that by default we will return NODE_ADDR_NULL
         if (j == -1)

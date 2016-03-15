@@ -97,6 +97,7 @@
 /************ PROTOTYPES ************/
 void miniOledOn(void);
 void miniOledOff(void);
+void miniOledResetXY(void);
 void miniOledInitIOs(void);
 RET_TYPE miniOledPutch(char ch);
 void miniOledBegin(uint8_t font);

@@ -194,7 +194,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         // Bundle uploaded, start the screen
         miniOledFlushWrittenTextToDisplay();
         miniOledBegin(FONT_DEFAULT);
-        oledSetXY(0,0);
+        miniOledResetXY();
         
         // Check flash initialization
         if (flash_init_result != RETURN_OK)
@@ -209,14 +209,22 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             guiDisplayRawString(ID_STRING_FUSE_PB);
             test_result_ok = FALSE;
         }
+        
+        // Check that card is removed
+        if (isSmartCardAbsent() == RETURN_NOK)
+        {
+            guiDisplayRawString(ID_STRING_REMOVE_CARD);
+            while(isSmartCardAbsent() == RETURN_NOK);
+            miniOledResetXY();oledClear();
+        }
     
         // Test description
-       uint8_t func_test_string_id = ID_STRING_FUNC_TEST;
-       guiDisplayRawString(func_test_string_id++);
-       guiDisplayRawString(func_test_string_id++);
+        uint8_t func_test_string_id = ID_STRING_FUNC_TEST;
+        guiDisplayRawString(func_test_string_id++);
+        guiDisplayRawString(func_test_string_id++);
     
         // Wait for inputs
-        oledClear();oledSetXY(0,0);
+        oledClear();miniOledResetXY();
         miniDirectionClearDetections();
         while(getMiniDirectionJustPressed() != WHEEL_POS_CLICK);
         guiDisplayRawString(func_test_string_id++);
@@ -233,7 +241,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
     
         // Test description
         oledClear();
-        oledSetXY(0,0);
+        miniOledResetXY();
         guiDisplayRawString(func_test_string_id++);
     
         // Wait for scroll
@@ -245,7 +253,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         }
         
         // Insert card
-        oledClear();oledSetXY(0,0);
+        oledClear();miniOledResetXY();
         guiDisplayRawString(ID_STRING_TEST_CARD_INS);
         while(isCardPlugged() != RETURN_JDETECT);
         temp_rettype = cardDetectedRoutine();

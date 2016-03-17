@@ -178,7 +178,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
         // if we need new cipherstream, calculate it
         if(ctx->cipherstreamAvailable == 0)
         {
-            int j;
+            uint8_t j;
             for(j = 0; j < 16; j++)
             {
                 ctx->cipherstream[j] = ctx->ctr[j];

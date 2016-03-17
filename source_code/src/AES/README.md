@@ -53,11 +53,11 @@ void aes256_test(void)
     aes256_init(key, &ctx);
 
     // Encrypt data
-    // "text to encrypt" (ascii) -> '9798D10A63E4E167122C4C07AF49C3A9'(hexa)
+    // "text to encrypt" (ascii) -> '9798D10A63E4E167122C4C07AF49C3A9'(hex)
     aes256_enc(data, &ctx);
 
     // Decrypt data
-    // '9798D10A63E4E167122C4C07AF49C3A9'(hexa) -> "text to encrypt" (ascii)
+    // '9798D10A63E4E167122C4C07AF49C3A9'(hex) -> "text to encrypt" (ascii)
     aes256_dec(data, &ctx);
 }
 ```

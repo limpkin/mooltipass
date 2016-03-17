@@ -35,7 +35,7 @@ aes.h:
 
 ```
 
-How to use the library? how to work  with it ? As easy as it sounds, you only have to care about 3 functions: aes256_init, aes256_enc and aes256_dec. Here it is a simple example:
+How to use the library? How to work  with it ? As easy as it sounds, you only have to care about 3 functions: aes256_init, aes256_enc and aes256_dec. Here it is a simple example:
 
 ```
 void aes256_test(void)

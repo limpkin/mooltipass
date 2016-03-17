@@ -64,7 +64,7 @@ void aes256_test(void)
 
 2- Testing the library using nessie test vectors
 ------------------------------------------------
-After downloading a third party library or resource you must ensure the library performs the function as well as it is claimed. So to satisfy our paranoia against any bug or error with the library, we have checked the encyrption and decryption using different test vectors, called Nessie Test Vectors. There are 8 different sets of test vectors, we have checked AES256 against all.
+After downloading a third party library or resource you must ensure the library performs the function as well as it is claimed. So to satisfy our paranoia against any bug or error with the library, we have checked the encryption and decryption using different test vectors, called Nessie Test Vectors. There are 8 different sets of test vectors, we have checked AES256 against all.
 
 To test AES256 using nessie vectors, we have created a file called aes256_nessie_test.c. This file outputs the results of nessie test into UART, USB CDC or whatever function you want. You only have to initialize the function pointer to print the output where you want.
 
@@ -96,7 +96,7 @@ void main(void)
 
 Nessie test vectors and output are located in <a href="https://www.cosic.esat.kuleuven.be/nessie/testvectors">https://www.cosic.esat.kuleuven.be/nessie/testvectors</a> Block Cipher -> Rijndael -> key size 256.
 
-The output of all nessieTest functions are formatted in the same way as the file <b>aes256_nessie_test.txt</b>, so... you must save the output (using cutecom or similar hyperterminal program) into a file and check the differences between your file and <b>aes256_nessie_test.txt</b> using a diff viewer.
+The output of all nessieTest functions are formatted in the same way as the file <b>aes256_nessie_test.txt</b>, so... you must save the output (using custom or similar hyperterminal program) into a file and check the differences between your file and <b>aes256_nessie_test.txt</b> using a diff viewer.
 
 3- CTR block encryption
 -----------------------

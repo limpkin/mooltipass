@@ -65,8 +65,6 @@ uint16_t flashOpCurAddr2;
 // Bool to know if the user approved memory management mode
 uint8_t memoryManagementModeApproved = FALSE;
 #endif
-// Our Mooltipass version that will be returned to our application
-const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION;
 // Bool to know if we can import in the media part of flash
 uint8_t mediaFlashImportApproved = FALSE;
 // Current node we're writing
@@ -295,7 +293,7 @@ void usbProcessIncoming(uint8_t caller_id)
     }
     
     // Check that we are in node mangement mode when needed
-    if ((datacmd >= FIRST_CMD_FOR_DATAMGMT) && (datacmd <= LAST_CMD_FOR_DATA8MGMT) && (memoryManagementModeApproved == FALSE))
+    if ((datacmd >= FIRST_CMD_FOR_DATAMGMT) && (datacmd <= LAST_CMD_FOR_DATAMGMT) && (memoryManagementModeApproved == FALSE))
     {
         // Return an error that was defined before (ERROR)
         usbSendMessage(datacmd, 1, &plugin_return_value);
@@ -314,7 +312,9 @@ void usbProcessIncoming(uint8_t caller_id)
 
         // version command
         case CMD_VERSION :
-        {
+        {            
+            // Our Mooltipass version that will be returned to our application
+            const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION;
             usbSendMessage(CMD_VERSION, sizeof(mooltipass_version), mooltipass_version);
             return;
         }

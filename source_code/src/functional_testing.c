@@ -170,6 +170,7 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
     }
 }
 
+#ifdef MINI_VERSION
 /*! \fn     mooltipassMiniFunctionalTest(uint8_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok)
  *  \brief  Mooltipass standard functional test
  *  \param  current_bootkey_val     Current boot key value
@@ -298,6 +299,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         }
     }    
 }
+#endif
 
 #ifdef HARDWARE_OLIVIER_V1
 /*! \fn     mooltipassStandardFunctionalTest(uint8_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok)

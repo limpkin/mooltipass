@@ -143,13 +143,6 @@ int main(void)
             // Jump to bootloader
             start_bootloader();
         }
-        
-        // Check if there was a change in the mooltipass setting storage to reset the parameters to their correct values
-        if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
-        {
-            mooltipassParametersInit();
-            setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
-        }
     #endif    
 
     /** EEPROM INITIALIZATIONS AT FIRST BOOT **/
@@ -159,6 +152,13 @@ int main(void)
         mooltipassParametersInit();
         // Set bootloader password bool to FALSE
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
+    }
+        
+    /** CHANGE IN MOOLTIPASS SETTINGS STORAGE */
+    if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
+    {
+        mooltipassParametersInit();
+        setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
     }
 
    /** JUMPING TO BOOTLOADER FOR TEST UNITS **/

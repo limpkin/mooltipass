@@ -29,10 +29,12 @@
 
 #include <stdint.h>
 
+#ifdef NESSIE_TEST_VECTORS
 /*! \brief function pointer to the output function */
 int8_t (*nessieOutput)(uint8_t ch);
 
 // prototype functions
 void nessieTest(uint8_t setnum);
+#endif
 
 #endif /*__AES256_NESSIE_TEST_H__*/

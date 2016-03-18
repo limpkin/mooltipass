@@ -7,6 +7,7 @@ Todo:
 - allow pin entering through usb comms with user approval
 - shortcut to generate random password in device
 - get description command
+- bytes in eeprom to set shortcuts?
 
 V1.1:
 - post-indiegogo firmware

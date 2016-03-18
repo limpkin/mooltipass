@@ -90,6 +90,7 @@
 #define LAST_CMD_FOR_DATAMGMT   CMD_END_MEMORYMGMT
 /******* COMMANDS ADDED AFTER v1 firmware *******/
 #define CMD_GET_DESCRIPTION     0xD4
+#define CMD_UNLOCK_WITH_PIN     0xD5
 
 
 /* Packet format defines     */

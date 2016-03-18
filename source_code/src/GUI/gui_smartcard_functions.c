@@ -63,7 +63,8 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     //}        
     #endif
     
-    #ifndef FLASH_CHIP_1M
+    //#define EASTER_EGG
+    #if !defined(FLASH_CHIP_1M) && defined(EASTER_EGG)
         uint8_t easter_egg_cnt = 0;
     #endif
     
@@ -80,7 +81,7 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     {
         card_detect_ret = isCardPlugged();
         // Easter Egg
-        #ifndef FLASH_CHIP_1M 
+        #if !defined(FLASH_CHIP_1M) && defined(EASTER_EGG)
             if (touchDetectionRoutine(0) & RETURN_RIGHT_PRESSED)
             {
                 if (easter_egg_cnt++ == 20)

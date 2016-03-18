@@ -99,6 +99,7 @@ CMD_GET_DN_START_PARENT = 0xD1
 CMD_SET_DN_START_PARENT = 0xD2
 CMD_END_MEMORYMGMT      = 0xD3
 CMD_GET_DESCRIPTION		= 0xD4
+CMD_UNLOCK_WITH_PIN		= 0xD5
 
 def keyboardSend(epout, data1, data2):
 	packetToSend = array('B')
@@ -803,6 +804,18 @@ def unlockSmartcard(epin, epout):
 		print "Smartcard erased"
 	else:
 		print "Couldn't erase smartcard"
+		
+def unlockDeviceWithPin(epin, epout):
+	unlockPacket = array('B')
+	pincode = raw_input("Enter pin code: ")
+	unlockPacket.append(int(pincode, 16)/256)
+	unlockPacket.append(int(pincode, 16)%256)
+	# send packet, check answer
+	sendHidPacket(epout, CMD_UNLOCK_WITH_PIN, 2, unlockPacket)
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Device unlocked"
+	else:
+		print "Couldn't unlock"
 		
 def getUsernameDescriptionPassForService(epin, epout):
 	tempPacket = array('B')
@@ -1803,6 +1816,7 @@ if __name__ == '__main__':
 		print "37) Tab sent after manual login entry"
 		print "38) Enter pressed after manual password entry"
 		print "39) Nothing pressed after manual password entry"
+		print "40) Try to unlock device with PIN"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1914,6 +1928,8 @@ if __name__ == '__main__':
 			packetToSend.append(0)
 			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
 			receiveHidPacket(epin)
+		elif choice == 40:
+			unlockDeviceWithPin(epin, epout)
 
 	hid_device.reset()
 

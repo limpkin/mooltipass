@@ -55,10 +55,13 @@
  *  PRODUCTION_TEST_SETUP
  *  => exactly like the kickstarter product setup, but with no check on fuses (used for isp programming & test)
  *
+ *  POST_KICKSTARTER_UPDATE_SETUP
+ *  => firmware to flash to the kickstarter units to update them
+ *
  *  MINI_CLICK_BETATESTERS_SETUP
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
 */
-#define BETATESTERS_SETUP
+#define BETATESTERS_SETUP_PIN
 #if defined(BETATESTERS_SETUP)
     #define FLASH_CHIP_32M
     #define JTAG_FUSE_ENABLED

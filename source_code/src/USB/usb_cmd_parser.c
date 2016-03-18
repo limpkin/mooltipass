@@ -1238,6 +1238,25 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
+        // Unlock the card using a PIN sent through USB (only used as last resort, if screen breaks!)
+        case CMD_UNLOCK_WITH_PIN :
+        {
+            uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
+            
+            // Check that 2 bytes are present and that we're in the right screen
+            if ((datalen == 2) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK) && (cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_PIN_COMPUTER)) == RETURN_OK) && (validCardDetectedFunction(temp_uint_ptr) == RETURN_VCARD_OK))
+            {
+                guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_NLCK);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            } 
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }        
+            guiGetBackToCurrentScreen();    
+            break;
+        }
+        
         // Add current unknown smartcard
         case CMD_ADD_UNKNOWN_CARD :
         {

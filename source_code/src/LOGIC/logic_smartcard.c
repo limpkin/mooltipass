@@ -97,7 +97,7 @@ RET_TYPE handleSmartcardInserted(void)
     else if (detection_result == RETURN_MOOLTIPASS_USER)
     {
         // Call valid card detection function
-        uint8_t temp_return = validCardDetectedFunction();
+        uint8_t temp_return = validCardDetectedFunction(0);
         
         // This a valid user smart card, we call a dedicated function for the user to unlock the card
         if (temp_return == RETURN_VCARD_OK)
@@ -168,7 +168,7 @@ RET_TYPE removeCardAndReAuthUser(void)
     timerBased130MsDelay();
     
     // Launch Unlocking process
-    if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_VCARD_OK))
+    if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0) == RETURN_VCARD_OK))
     {
         // Read other CPZ
         readCodeProtectedZone(temp_cpz2);
@@ -191,9 +191,10 @@ RET_TYPE removeCardAndReAuthUser(void)
 
 /*! \fn     validCardDetectedFunction(void)
 *   \brief  Function called when a valid mooltipass card is detected
+*   \param  suggested_pin   If different than 0, try to unlock with this PIN (pointer)
 *   \return Unlock status (see valid_card_det_return_t)
 */
-RET_TYPE validCardDetectedFunction(void)
+RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin)
 {
     uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
@@ -217,7 +218,7 @@ RET_TYPE validCardDetectedFunction(void)
         #endif
         
         // Ask the user to enter his PIN and check it
-        if (guiCardUnlockingProcess() == RETURN_OK)
+        if (((suggested_pin != 0) && (mooltipassDetectedRoutine(suggested_pin) == RETURN_MOOLTIPASS_4_TRIES_LEFT )) || ((suggested_pin == 0) && (guiCardUnlockingProcess() == RETURN_OK)))
         {
             // Unlocking succeeded
             readAES256BitsKey(temp_buffer);

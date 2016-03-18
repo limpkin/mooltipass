@@ -96,7 +96,7 @@ void main(void)
 
 Nessie test vectors and output are located in <a href="https://www.cosic.esat.kuleuven.be/nessie/testvectors">https://www.cosic.esat.kuleuven.be/nessie/testvectors</a> Block Cipher -> Rijndael -> key size 256.
 
-The output of all nessieTest functions are formatted in the same way as the file <b>aes256_nessie_test.txt</b>, so... you must save the output (using custom or similar hyperterminal program) into a file and check the differences between your file and <b>aes256_nessie_test.txt</b> using a diff viewer.
+The output of all nessieTest functions are formatted in the same way as the file <b>aes256_nessie_test.txt</b>, so... you must save the output (using cutecom or similar hyperterminal program) into a file and check the differences between your file and <b>aes256_nessie_test.txt</b> using a diff viewer.
 
 3- CTR block encryption
 -----------------------

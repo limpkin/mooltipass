@@ -34,6 +34,7 @@
 #include "aes256_nessie_test.h"
 #include "aes.h"
 #include "utils.h"
+#ifdef NESSIE_TEST_VECTORS
 
 /*! \var int8_t (*nessieOutput)(uint8_t ch)
  *  \brief function pointer to the output function 
@@ -570,3 +571,4 @@ void nessieTest(uint8_t setnum)
     } /* end for loop */
     
 } /* end nessieTest call */
+#endif

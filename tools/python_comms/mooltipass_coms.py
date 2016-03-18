@@ -98,6 +98,8 @@ CMD_GET_30_FREE_SLOTS   = 0xD0
 CMD_GET_DN_START_PARENT = 0xD1
 CMD_SET_DN_START_PARENT = 0xD2
 CMD_END_MEMORYMGMT      = 0xD3
+CMD_GET_DESCRIPTION		= 0xD4
+CMD_UNLOCK_WITH_PIN		= 0xD5
 
 def keyboardSend(epout, data1, data2):
 	packetToSend = array('B')
@@ -802,6 +804,58 @@ def unlockSmartcard(epin, epout):
 		print "Smartcard erased"
 	else:
 		print "Couldn't erase smartcard"
+		
+def unlockDeviceWithPin(epin, epout):
+	unlockPacket = array('B')
+	pincode = raw_input("Enter pin code: ")
+	unlockPacket.append(int(pincode, 16)/256)
+	unlockPacket.append(int(pincode, 16)%256)
+	# send packet, check answer
+	sendHidPacket(epout, CMD_UNLOCK_WITH_PIN, 2, unlockPacket)
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Device unlocked"
+	else:
+		print "Couldn't unlock"
+		
+def getUsernameDescriptionPassForService(epin, epout):
+	tempPacket = array('B')
+	service = raw_input("Service name: ")
+	
+	# Set context
+	sendHidPacket(epout, CMD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Service set"
+	else:
+		print "Service doesn't exist!"
+		return
+		
+	# Get login
+	sendHidPacket(epout, CMD_GET_LOGIN, 0, None)
+	login = receiveHidPacket(epin)
+	if login[DATA_INDEX] == 0x00:
+		print "User didn't approve"
+		return
+	else:
+		print "Login is:", "".join(map(chr, login[DATA_INDEX:])).split(b"\x00")[0]
+				
+	# Get description
+	sendHidPacket(epout, CMD_GET_DESCRIPTION, 0, None)
+	description = receiveHidPacket(epin)
+	if description[DATA_INDEX] == 0x00:
+		print "Couldn't fetch description"
+		return
+	else:
+		print "Description is:", "".join(map(chr, description[DATA_INDEX:])).split(b"\x00")[0]
+				
+	# Get password
+	sendHidPacket(epout, CMD_GET_PASSWORD, 0, None)
+	password = receiveHidPacket(epin)
+	if password[DATA_INDEX] == 0x00:
+		print "Couldn't fetch password"
+		return
+	else:
+		print "Password is:", "".join(map(chr, password[DATA_INDEX:])).split(b"\x00")[0]
+	
 
 def addServiceAndUser(epin, epout):
 	tempPacket = array('B')
@@ -1757,6 +1811,12 @@ if __name__ == '__main__':
 		print "32) Generate RSA 4096 private/public key"
 		print "33) Decrypt mooltipass prod file"
 		print "34) Unlock mooltipass"
+		print "35) Get username, description, password for service"
+		print "36) No key sent after manual login entry"
+		print "37) Tab sent after manual login entry"
+		print "38) Enter pressed after manual password entry"
+		print "39) Nothing pressed after manual password entry"
+		print "40) Try to unlock device with PIN"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1831,6 +1891,45 @@ if __name__ == '__main__':
 			decryptprodfile(epin, epout)
 		elif choice == 34:
 			unlockMooltipass(epin, epout)
+		elif choice == 35:
+			getUsernameDescriptionPassForService(epin, epout)
+		elif choice == 36:
+			packetToSend = array('B')
+			packetToSend.append(19)
+			packetToSend.append(0)
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+		elif choice == 37:
+			packetToSend = array('B')
+			packetToSend.append(19)
+			packetToSend.append(1)
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+			packetToSend[0] = 20
+			packetToSend[1] = 0x2B
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+		elif choice == 38:
+			packetToSend = array('B')
+			packetToSend.append(21)
+			packetToSend.append(1)
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+			packetToSend[0] = 22
+			packetToSend[1] = 0x28
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+				print "Parameter changed"
+			else:
+				print "Couldn't change parameter"
+		elif choice == 39:
+			packetToSend = array('B')
+			packetToSend.append(21)
+			packetToSend.append(0)
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+		elif choice == 40:
+			unlockDeviceWithPin(epin, epout)
 
 	hid_device.reset()
 

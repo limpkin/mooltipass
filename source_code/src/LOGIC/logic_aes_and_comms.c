@@ -30,6 +30,7 @@
 #include "logic_aes_and_comms.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
+#include "logic_eeprom.h"
 #include "hid_defines.h"
 #include "aes256_ctr.h"
 #include "node_mgmt.h"
@@ -506,6 +507,30 @@ RET_TYPE getPasswordForContext(char* buffer)
     }
 }
 
+/*! \fn     getDescriptionForContext(void)
+*   \brief  Get description for current context
+*   \return If description was entered
+*/
+RET_TYPE getDescriptionForContext(char* buffer)
+{
+    if ((context_valid_flag == TRUE) && (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING) && (selected_login_flag == TRUE))
+    {
+        // Fetch description from selected login and send it over USB
+        readChildNode(&temp_cnode, selected_login_child_node_addr);
+        
+        // Store the description
+        temp_cnode.description[NODE_CHILD_SIZE_OF_DESCRIPTION-1] = 0;
+        strcpy((char*)buffer, (char*)temp_cnode.description);
+        
+        // Return
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
 /*! \fn     setLoginForContext(uint8_t* name, uint8_t length)
 *   \brief  Set login for current context
 *   \param  name    String containing the login
@@ -892,7 +917,10 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_
                 if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
                 {
                     usbKeybPutStr((char*)temp_cnode.login);
-                    usbKeyboardPress(KEY_TAB, 0);
+                    if (getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_BOOL_PARAM) != FALSE)
+                    {
+                        usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_PARAM), 0);
+                    }
                 }
             } 
             else
@@ -913,6 +941,10 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_
             if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
             {
                 usbKeybPutStr((char*)temp_cnode.password);
+                if (getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_BOOL_PARAM) != FALSE)
+                {
+                    usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_PARAM), 0);
+                }
             }
         }
         else

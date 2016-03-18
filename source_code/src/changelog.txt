@@ -1,18 +1,19 @@
 Todo:
-- boolean in eeprom to prevent credentials LUT populating
 - implement get password when set login is sent
-- eeprom val for key sent after the login sending
 - display description when choosing user
 - display aes(bootloader_pwd) with user nonce when card inserted
-- allow pin entering through usb comms with user approval
 - shortcut to generate random password in device
-- get description command
+- bytes in eeprom to set shortcuts?
 
 V1.1:
 - post-indiegogo firmware
+- get description command
 - fixed user request cancelling bug
 - updating date created/used field on child node update
 - removed left out pixels in login menu (tiny bug)
+- boolean in eeprom to prevent credentials LUT populating
+- allow pin entering from usb after user approval, last resort for broken screens
+- eeprom values to allow customization of key sent after login AND password manual entry
 
 V1: 
 - new user tutorial

@@ -51,6 +51,7 @@
 
 #include "logic_fwflash_storage.h"
 #include "timer_manager.h"
+#include "oled_wrapper.h"
 #include "bitstream.h"
 #include "flash_mem.h"
 #include "node_mgmt.h"

@@ -65,8 +65,6 @@ uint16_t flashOpCurAddr2;
 // Bool to know if the user approved memory management mode
 uint8_t memoryManagementModeApproved = FALSE;
 #endif
-// Our Mooltipass version that will be returned to our application
-const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION;
 // Bool to know if we can import in the media part of flash
 uint8_t mediaFlashImportApproved = FALSE;
 // Current node we're writing
@@ -295,7 +293,7 @@ void usbProcessIncoming(uint8_t caller_id)
     }
     
     // Check that we are in node mangement mode when needed
-    if ((datacmd >= FIRST_CMD_FOR_DATAMGMT) && (datacmd <= LAST_CMD_FOR_DATA8MGMT) && (memoryManagementModeApproved == FALSE))
+    if ((datacmd >= FIRST_CMD_FOR_DATAMGMT) && (datacmd <= LAST_CMD_FOR_DATAMGMT) && (memoryManagementModeApproved == FALSE))
     {
         // Return an error that was defined before (ERROR)
         usbSendMessage(datacmd, 1, &plugin_return_value);
@@ -314,7 +312,9 @@ void usbProcessIncoming(uint8_t caller_id)
 
         // version command
         case CMD_VERSION :
-        {
+        {            
+            // Our Mooltipass version that will be returned to our application
+            const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION;
             usbSendMessage(CMD_VERSION, sizeof(mooltipass_version), mooltipass_version);
             return;
         }
@@ -399,6 +399,23 @@ void usbProcessIncoming(uint8_t caller_id)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("get pass: failed\n"));
+            }
+            break;
+        }
+
+        // get description
+        case CMD_GET_DESCRIPTION :
+        {
+            if (getDescriptionForContext((char*)incomingData) == RETURN_OK)
+            {
+                usbSendMessage(CMD_GET_DESCRIPTION, strlen((char*)incomingData)+1, incomingData);
+                USBPARSERDEBUGPRINTF_P(PSTR("get desc: \"%s\"\n"),(char *)incomingData);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBPARSERDEBUGPRINTF_P(PSTR("get desc: failed\n"));
             }
             break;
         }
@@ -1218,6 +1235,25 @@ void usbProcessIncoming(uint8_t caller_id)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
+            break;
+        }
+        
+        // Unlock the card using a PIN sent through USB (only used as last resort, if screen breaks!)
+        case CMD_UNLOCK_WITH_PIN :
+        {
+            uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
+            
+            // Check that 2 bytes are present and that we're in the right screen
+            if ((datalen == 2) && (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK) && (cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_PIN_COMPUTER)) == RETURN_OK) && (validCardDetectedFunction(temp_uint_ptr) == RETURN_VCARD_OK))
+            {
+                guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_NLCK);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            } 
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }        
+            guiGetBackToCurrentScreen();    
             break;
         }
         

@@ -123,12 +123,12 @@ int main(void)
     #endif
     
     /** ELECTRICAL TESTING **/
-    #if defined(HARDWARE_OLIVIER_V1)
+    #if defined(HARDWARE_OLIVIER_V1) && !defined(POST_KICKSTARTER_UPDATE_SETUP)
         mooltipassStandardElectricalTest(fuse_ok);
     #endif    
     
     /** JUMPING TO BOOTLOADER AT BOOT **/
-    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP)
+    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(POST_KICKSTARTER_UPDATE_SETUP)
         // This code will only be used for developers and beta testers
         // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
@@ -143,13 +143,6 @@ int main(void)
             // Jump to bootloader
             start_bootloader();
         }
-        
-        // Check if there was a change in the mooltipass setting storage to reset the parameters to their correct values
-        if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
-        {
-            mooltipassParametersInit();
-            setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
-        }
     #endif    
 
     /** EEPROM INITIALIZATIONS AT FIRST BOOT **/
@@ -159,6 +152,13 @@ int main(void)
         mooltipassParametersInit();
         // Set bootloader password bool to FALSE
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
+    }
+        
+    /** CHANGE IN MOOLTIPASS SETTINGS STORAGE **/
+    if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
+    {
+        mooltipassParametersInit();
+        setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
     }
 
    /** JUMPING TO BOOTLOADER FOR TEST UNITS **/
@@ -228,7 +228,7 @@ int main(void)
     
     /** BOOT STOP IF ERRORS **/
     #if defined(HARDWARE_OLIVIER_V1)
-        #if defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP)
+        #if defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP) || defined(POST_KICKSTARTER_UPDATE_SETUP)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #else
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
@@ -381,7 +381,7 @@ int main(void)
             guiGetBackToCurrentScreen();
         }
         
-        #define TWO_CAPS_TRICK
+        //#define TWO_CAPS_TRICK
         #ifdef TWO_CAPS_TRICK
         // Two quick caps lock presses wakes up the device        
         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))

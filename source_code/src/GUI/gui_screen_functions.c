@@ -136,7 +136,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
     else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
     {
         // Locked screen and a detection happened, check that the user hasn't removed his card, launch unlocking process
-        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_VCARD_OK))
+        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0) == RETURN_VCARD_OK))
         {
             // User approved his pin
             currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
@@ -207,7 +207,7 @@ void guiScreenLoop(uint8_t touch_detect_result)
                         guiDisplayProcessingScreen();
                             
                         // Check the card type & ask user to enter his pin, check that the new user id loaded by validCardDetectedFunction is still the same
-                        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction() == RETURN_VCARD_OK) && (currentuserid == getCurrentUserID()))
+                        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0) == RETURN_VCARD_OK) && (currentuserid == getCurrentUserID()))
                         {
                             eraseSmartCard();
                         }

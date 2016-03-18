@@ -147,6 +147,7 @@
     #define ID_STRING_ERASE_TCARD   71
     #define ID_STRING_NO_CREDS      72
     #define ID_STRING_FUSE_PB       73
+    #define ID_STRING_PIN_COMPUTER  74
 #elif defined(MINI_VERSION)
     // Font IDs
     #define FONT_NONE               255
@@ -253,6 +254,7 @@
     #define ID_STRING_FUNC_TEST_L       66
     #define ID_STRING_FUNC_TEST_C       67
     #define ID_STRING_FUNC_TEST_SCROLL  68
+    #define ID_STRING_PIN_COMPUTER      69
 
     #define ID_FIRST_STRING             0
     #define ID_LAST_STRING              ID_STRING_FUNC_TEST_SCROLL

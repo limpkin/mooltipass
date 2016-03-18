@@ -31,6 +31,7 @@
 #include "gui_pin_functions.h"
 #include "eeprom_addresses.h"
 #include "logic_eeprom.h"
+#include "hid_defines.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "rng.h"
@@ -38,24 +39,28 @@
 // eeprom parameters init
 static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
 {
-    ID_KEYB_EN_US_LUT,  // KEYBOARD_LAYOUT_PARAM        Set English keyboard by default
-    15,                 // USER_INTER_TIMEOUT_PARAM     Set 15secs user interaction timeout by default
-    FALSE,              // LOCK_TIMEOUT_ENABLE_PARAM    Disable timeout by default
-    60,                 // LOCK_TIMEOUT_PARAM           Set a 1 hour timeout
-    6,                  // TOUCH_DI_PARAM               Set default detection integrator (6 consecutive samples)
-    0,                  // TOUCH_WHEEL_OS_PARAM_OLD     Not used anymore
-    0x73,               // TOUCH_PROX_OS_PARAM          Set proximity sensing key settings
-    FALSE,              // OFFLINE_MODE_PARAM           Disable offline mode by default
-    FALSE,              // SCREENSAVER_PARAM            Disable screen saver by default
-    0,                  // TOUCH_CHARGE_TIME_PARAM      Set datasheet default value for charge time
-    0x21,               // TOUCH_WHEEL_OS_PARAM0        Set touch wheel oversample (one bit gain)
-    0x21,               // TOUCH_WHEEL_OS_PARAM1        Set touch wheel oversample (one bit gain)
-    0x21,               // TOUCH_WHEEL_OS_PARAM2        Set touch wheel oversample (one bit gain)
-    TRUE,               // FLASH_SCREEN_PARAM           Enable flashy screen by default
-    FALSE,              // USER_REQ_CANCEL_PARAM        Disable the possibility to cancel user requests from USB
-    TRUE,               // TUTORIAL_BOOL_PARAM          Enable the tutorial by default
-    15,                 // SCREEN_SAVER_SPEED_PARAM     Speed of the screen saver
-    TRUE,               // LUT_BOOT_POPULATING          Allow credential LUT populating at card insert
+    ID_KEYB_EN_US_LUT,  // KEYBOARD_LAYOUT_PARAM                Set English keyboard by default
+    15,                 // USER_INTER_TIMEOUT_PARAM             Set 15secs user interaction timeout by default
+    FALSE,              // LOCK_TIMEOUT_ENABLE_PARAM            Disable timeout by default
+    60,                 // LOCK_TIMEOUT_PARAM                   Set a 1 hour timeout
+    6,                  // TOUCH_DI_PARAM                       Set default detection integrator (6 consecutive samples)
+    0,                  // TOUCH_WHEEL_OS_PARAM_OLD             Not used anymore
+    0x73,               // TOUCH_PROX_OS_PARAM                  Set proximity sensing key settings
+    FALSE,              // OFFLINE_MODE_PARAM                   Disable offline mode by default
+    FALSE,              // SCREENSAVER_PARAM                    Disable screen saver by default
+    0,                  // TOUCH_CHARGE_TIME_PARAM              Set datasheet default value for charge time
+    0x21,               // TOUCH_WHEEL_OS_PARAM0                Set touch wheel oversample (one bit gain)
+    0x21,               // TOUCH_WHEEL_OS_PARAM1                Set touch wheel oversample (one bit gain)
+    0x21,               // TOUCH_WHEEL_OS_PARAM2                Set touch wheel oversample (one bit gain)
+    TRUE,               // FLASH_SCREEN_PARAM                   Enable flashy screen by default
+    FALSE,              // USER_REQ_CANCEL_PARAM                Disable the possibility to cancel user requests from USB
+    TRUE,               // TUTORIAL_BOOL_PARAM                  Enable the tutorial by default
+    15,                 // SCREEN_SAVER_SPEED_PARAM             Speed of the screen saver
+    TRUE,               // LUT_BOOT_POPULATING                  Allow credential LUT populating at card insert
+    TRUE,               // KEY_AFTER_LOGIN_SEND_BOOL_PARAM      Allow key sending after login is manually entered
+    KEY_TAB,            // KEY_AFTER_LOGIN_SEND_PARAM           The key to be sent after login is manually entered
+    FALSE,              // KEY_AFTER_PASS_SEND_BOOL_PARAM       Allow key sending after password is manually entered
+    KEY_RETURN,         // KEY_AFTER_PASS_SEND_PARAM            The key to be sent after password is manually entered
 };
 
 

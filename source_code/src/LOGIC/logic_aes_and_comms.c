@@ -30,6 +30,7 @@
 #include "logic_aes_and_comms.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
+#include "logic_eeprom.h"
 #include "hid_defines.h"
 #include "aes256_ctr.h"
 #include "node_mgmt.h"
@@ -916,7 +917,10 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_
                 if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
                 {
                     usbKeybPutStr((char*)temp_cnode.login);
-                    usbKeyboardPress(KEY_TAB, 0);
+                    if (getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_BOOL_PARAM) != FALSE)
+                    {
+                        usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_PARAM), 0);
+                    }
                 }
             } 
             else
@@ -937,6 +941,10 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_
             if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
             {
                 usbKeybPutStr((char*)temp_cnode.password);
+                if (getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_BOOL_PARAM) != FALSE)
+                {
+                    usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_PARAM), 0);
+                }
             }
         }
         else

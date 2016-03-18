@@ -834,7 +834,7 @@ void populateServicesLut(void)
     memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));
     
     // If the dedicated boolean in eeprom is sent, do not actually populate the LUT
-    if (getMooltipassParameterInEeprom(LUT_BOOT_POPULATING) == FALSE)
+    if (getMooltipassParameterInEeprom(LUT_BOOT_POPULATING_PARAM) == FALSE)
     {
         return;
     }

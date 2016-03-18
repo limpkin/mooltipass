@@ -14,6 +14,7 @@ V1.1:
 - updating date created/used field on child node update
 - removed left out pixels in login menu (tiny bug)
 - boolean in eeprom to prevent credentials LUT populating
+- eeprom values to allow customization of key sent after login AND password manual entry
 
 V1: 
 - new user tutorial

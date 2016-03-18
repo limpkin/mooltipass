@@ -1799,6 +1799,10 @@ if __name__ == '__main__':
 		print "33) Decrypt mooltipass prod file"
 		print "34) Unlock mooltipass"
 		print "35) Get username, description, password for service"
+		print "36) No key sent after manual login entry"
+		print "37) Tab sent after manual login entry"
+		print "38) Enter pressed after manual password entry"
+		print "39) Nothing pressed after manual password entry"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1875,6 +1879,41 @@ if __name__ == '__main__':
 			unlockMooltipass(epin, epout)
 		elif choice == 35:
 			getUsernameDescriptionPassForService(epin, epout)
+		elif choice == 36:
+			packetToSend = array('B')
+			packetToSend.append(19)
+			packetToSend.append(0)
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+		elif choice == 37:
+			packetToSend = array('B')
+			packetToSend.append(19)
+			packetToSend.append(1)
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+			packetToSend[0] = 20
+			packetToSend[1] = 0x2B
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+		elif choice == 38:
+			packetToSend = array('B')
+			packetToSend.append(21)
+			packetToSend.append(1)
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
+			packetToSend[0] = 22
+			packetToSend[1] = 0x28
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+				print "Parameter changed"
+			else:
+				print "Couldn't change parameter"
+		elif choice == 39:
+			packetToSend = array('B')
+			packetToSend.append(21)
+			packetToSend.append(0)
+			sendHidPacket(epout, CMD_SET_MOOLTIPASS_PARM, 2, packetToSend)
+			receiveHidPacket(epin)
 
 	hid_device.reset()
 

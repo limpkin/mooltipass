@@ -70,8 +70,12 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
 
         chrome.runtime.sendMessage(senderId, responseObject, function() {
             if(chrome.runtime.lastError) {
-                console.warn('Could not send response to client <', senderId, '>');
-                console.warn('Error:', chrome.runtime.lastError.message);
+                // TODO: Chrome 49 returns this error which does not affect the functionality. No real solution found yet (2016-03-18)
+                // TODO: Also contains a typo "reponse" instead of "response"
+                if(chrome.runtime.lastError.message != "The message port closed before a reponse was received.") {
+                    console.warn('Could not send response to client <', senderId, '>');
+                    console.warn('Error:', chrome.runtime.lastError.message);
+                }
             }
         });
         return;

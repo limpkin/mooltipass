@@ -72,4 +72,5 @@ Enter New PIN
 Erase The Card As Well?
 No Stored Credentials
 !!!FUSE PB!!!~~
-/!\ USE PIN FROM COMPUTER? 
+/!\ USE PIN FROM COMPUTER?
+Send Password For:

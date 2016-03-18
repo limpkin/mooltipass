@@ -430,6 +430,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type)
 /*! \fn     getLoginForContext(uint8_t* buffer)
 *   \brief  Get login for current context
 *   \param  buffer  Buffer to store the login
+*   \note   Firmware V1.1 allows the possibility to specify the login we want, buffer therefore contains the USB message as is!
 *   \return If login was entered
 */
 RET_TYPE getLoginForContext(char* buffer)
@@ -453,16 +454,65 @@ RET_TYPE getLoginForContext(char* buffer)
                 return RETURN_NOK;
             }
             
-            // Ask the user to a pick a child
-            selected_login_child_node_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, context_parent_node_addr, FALSE);
-            guiGetBackToCurrentScreen();
-            
-            // If a valid child node was selected
-            if (selected_login_child_node_addr != NODE_ADDR_NULL)
+            // See if a username has already been specified
+            if (buffer[HID_LEN_FIELD] != 0)
             {
-                selected_login_flag = TRUE;
-                activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
-            }
+                // Check that the payload length is correct
+                if (checkTextField((uint8_t*)(buffer + HID_DATA_START), buffer[HID_LEN_FIELD], NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
+                {
+                    return RETURN_NOK;
+                }
+                else
+                {
+                    // Payload length correct, check that the specified login actually exists...
+                    selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, (uint8_t*)(buffer + HID_DATA_START));
+                    
+                    // Requested login exists, ask for acknowledgment from user...
+                    if (selected_login_child_node_addr != NODE_ADDR_NULL)
+                    {
+                        // Prepare confirmation screen
+                        #if defined(HARDWARE_OLIVIER_V1)
+                        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_SEND_PASS_FOR);
+                        conf_text.lines[1] = (char*)(buffer + HID_DATA_START);
+                        conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_ON);
+                        conf_text.lines[3] = (char*)temp_pnode.service;
+                        #elif defined(MINI_VERSION)
+                        conf_text.lines[0] = (char*)temp_pnode.service;
+                        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_SEND_PASS_FOR);
+                        conf_text.lines[2] = (char*)(buffer + HID_DATA_START);
+                        #endif
+                        
+                        // If doesn't exist, ask user for confirmation to add to flash
+                        #if defined(HARDWARE_OLIVIER_V1)
+                        if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
+                        #elif defined(MINI_VERSION)
+                        if (guiAskForConfirmation(3, &conf_text) == RETURN_OK)
+                        #endif
+                        {
+                            selected_login_flag = TRUE;
+                            guiGetBackToCurrentScreen();
+                            activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
+                        }
+                        else
+                        {
+                            guiGetBackToCurrentScreen();
+                        }
+                    }
+                }
+            } 
+            else
+            {
+                // Ask the user to a pick a child
+                selected_login_child_node_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, context_parent_node_addr, FALSE);
+                guiGetBackToCurrentScreen();
+                
+                // If a valid child node was selected
+                if (selected_login_child_node_addr != NODE_ADDR_NULL)
+                {
+                    selected_login_flag = TRUE;
+                    activateTimer(TIMER_CREDENTIALS, CREDENTIAL_TIMER_VALIDITY);
+                }
+            }            
         }
         
         // If the user just approved!

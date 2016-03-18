@@ -132,6 +132,7 @@ typedef struct
 } usbMsg_t;
 
 /*** PROTOTYPES ***/
+RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len);
 void usbProcessIncoming(uint8_t caller_id);
 void leaveMemoryManagementMode(void);
 

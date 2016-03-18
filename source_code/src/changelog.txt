@@ -1,5 +1,4 @@
 Todo:
-- implement get password when set login is sent
 - display description when choosing user
 - display aes(bootloader_pwd) with user nonce when card inserted
 - shortcut to generate random password in device
@@ -12,6 +11,7 @@ V1.1:
 - updating date created/used field on child node update
 - removed left out pixels in login menu (tiny bug)
 - boolean in eeprom to prevent credentials LUT populating
+- allow the get_login command to already specify the login
 - allow pin entering from usb after user approval, last resort for broken screens
 - eeprom values to allow customization of key sent after login AND password manual entry
 

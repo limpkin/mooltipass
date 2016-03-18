@@ -115,6 +115,7 @@ mooltipass.memmgmt.currentCardCPZ = [];						// Current card CPZ
 mooltipass.memmgmt.lastLetter = '0';						// Current letter we're at
 mooltipass.memmgmt.mergeFileTypeCsv = false;				// File type of the credential file we're merging
 mooltipass.memmgmt.mediaBundleUploadPercentage = 0;			// Media upload progress percentage
+mooltipass.memmgmt.currentLoginForRequestedPassword = "";	// The login for which we want its password
 
 // State machines & temp variables related to media bundle upload
 mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
@@ -1564,6 +1565,7 @@ mooltipass.memmgmt.getPasswordForCredential = function(service, login, callback)
 		if(mooltipass.memmgmt.curLoginNodes[i].name == login)
 		{
 			mooltipass.memmgmt.getPasswordLoginAddress = mooltipass.memmgmt.curLoginNodes[i].address;
+			mooltipass.memmgmt.currentLoginForRequestedPassword = login
 			login_exists = true;
 			break;
 		}		
@@ -3028,7 +3030,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				// Set login
 				// TO CHANGE ON MOOLTIPASS V2, to SET LOGIN DIRECTLY
 				//mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setLogin'], mooltipass.util.strToArray(mooltipass.memmgmt.getPasswordLogin));
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getLogin'], null);				
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getLogin'], mooltipass.util.strToArray(mooltipass.memmgmt.currentLoginForRequestedPassword));				
 				mooltipass.memmgmt_hid._sendMsg();
 			}
 		}

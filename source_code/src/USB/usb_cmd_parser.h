@@ -87,7 +87,10 @@
 #define CMD_SET_DN_START_PARENT 0xD2
 #define CMD_END_MEMORYMGMT      0xD3
 #define FIRST_CMD_FOR_DATAMGMT  CMD_READ_FLASH_NODE
-#define LAST_CMD_FOR_DATAMGMT   CMD_END_MEMORYMGMT    
+#define LAST_CMD_FOR_DATAMGMT   CMD_END_MEMORYMGMT
+/******* COMMANDS ADDED AFTER v1 firmware *******/
+#define CMD_GET_DESCRIPTION     0xD4
+
 
 /* Packet format defines     */
 #define HID_LEN_FIELD       0x00

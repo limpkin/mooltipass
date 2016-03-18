@@ -5,11 +5,11 @@ Todo:
 - display aes(bootloader_pwd) with user nonce when card inserted
 - allow pin entering through usb comms with user approval
 - shortcut to generate random password in device
-- get description command
 - bytes in eeprom to set shortcuts?
 
 V1.1:
 - post-indiegogo firmware
+- get description command
 - fixed user request cancelling bug
 - updating date created/used field on child node update
 - removed left out pixels in login menu (tiny bug)

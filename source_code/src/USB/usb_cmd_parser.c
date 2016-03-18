@@ -403,6 +403,23 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
 
+        // get description
+        case CMD_GET_DESCRIPTION :
+        {
+            if (getDescriptionForContext((char*)incomingData) == RETURN_OK)
+            {
+                usbSendMessage(CMD_GET_DESCRIPTION, strlen((char*)incomingData)+1, incomingData);
+                USBPARSERDEBUGPRINTF_P(PSTR("get desc: \"%s\"\n"),(char *)incomingData);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBPARSERDEBUGPRINTF_P(PSTR("get desc: failed\n"));
+            }
+            break;
+        }
+
         // set login
         case CMD_SET_LOGIN :
         {

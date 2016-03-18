@@ -98,6 +98,7 @@ CMD_GET_30_FREE_SLOTS   = 0xD0
 CMD_GET_DN_START_PARENT = 0xD1
 CMD_SET_DN_START_PARENT = 0xD2
 CMD_END_MEMORYMGMT      = 0xD3
+CMD_GET_DESCRIPTION		= 0xD4
 
 def keyboardSend(epout, data1, data2):
 	packetToSend = array('B')
@@ -802,6 +803,46 @@ def unlockSmartcard(epin, epout):
 		print "Smartcard erased"
 	else:
 		print "Couldn't erase smartcard"
+		
+def getUsernameDescriptionPassForService(epin, epout):
+	tempPacket = array('B')
+	service = raw_input("Service name: ")
+	
+	# Set context
+	sendHidPacket(epout, CMD_CONTEXT, len(service)+1, array('B', service + b"\x00"))
+	if receiveHidPacket(epin)[DATA_INDEX] == 0x01:
+		print "Service set"
+	else:
+		print "Service doesn't exist!"
+		return
+		
+	# Get login
+	sendHidPacket(epout, CMD_GET_LOGIN, 0, None)
+	login = receiveHidPacket(epin)
+	if login[DATA_INDEX] == 0x00:
+		print "User didn't approve"
+		return
+	else:
+		print "Login is:", "".join(map(chr, login[DATA_INDEX:])).split(b"\x00")[0]
+				
+	# Get description
+	sendHidPacket(epout, CMD_GET_DESCRIPTION, 0, None)
+	description = receiveHidPacket(epin)
+	if description[DATA_INDEX] == 0x00:
+		print "Couldn't fetch description"
+		return
+	else:
+		print "Description is:", "".join(map(chr, description[DATA_INDEX:])).split(b"\x00")[0]
+				
+	# Get password
+	sendHidPacket(epout, CMD_GET_PASSWORD, 0, None)
+	password = receiveHidPacket(epin)
+	if password[DATA_INDEX] == 0x00:
+		print "Couldn't fetch password"
+		return
+	else:
+		print "Password is:", "".join(map(chr, password[DATA_INDEX:])).split(b"\x00")[0]
+	
 
 def addServiceAndUser(epin, epout):
 	tempPacket = array('B')
@@ -1757,6 +1798,7 @@ if __name__ == '__main__':
 		print "32) Generate RSA 4096 private/public key"
 		print "33) Decrypt mooltipass prod file"
 		print "34) Unlock mooltipass"
+		print "35) Get username, description, password for service"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1831,6 +1873,8 @@ if __name__ == '__main__':
 			decryptprodfile(epin, epout)
 		elif choice == 34:
 			unlockMooltipass(epin, epout)
+		elif choice == 35:
+			getUsernameDescriptionPassForService(epin, epout)
 
 	hid_device.reset()
 

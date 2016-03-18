@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "logic_eeprom.h"
 #include "flash_mem.h"
 #include "node_mgmt.h"
 #include "defines.h"
@@ -831,6 +832,12 @@ void populateServicesLut(void)
     
     // Empty our current services list
     memset(currentNodeMgmtHandle.servicesLut, 0x00, sizeof(currentNodeMgmtHandle.servicesLut));
+    
+    // If the dedicated boolean in eeprom is sent, do not actually populate the LUT
+    if (getMooltipassParameterInEeprom(LUT_BOOT_POPULATING) == FALSE)
+    {
+        return;
+    }
     
     // If we have at least one node, loop through our credentials
     while(next_node_addr != NODE_ADDR_NULL)

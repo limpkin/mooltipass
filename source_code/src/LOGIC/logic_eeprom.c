@@ -55,6 +55,7 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     FALSE,              // USER_REQ_CANCEL_PARAM        Disable the possibility to cancel user requests from USB
     TRUE,               // TUTORIAL_BOOL_PARAM          Enable the tutorial by default
     15,                 // SCREEN_SAVER_SPEED_PARAM     Speed of the screen saver
+    TRUE,               // LUT_BOOT_POPULATING          Allow credential LUT populating at card insert
 };
 
 

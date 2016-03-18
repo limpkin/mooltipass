@@ -154,7 +154,7 @@ int main(void)
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
     }
         
-    /** CHANGE IN MOOLTIPASS SETTINGS STORAGE */
+    /** CHANGE IN MOOLTIPASS SETTINGS STORAGE **/
     if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
     {
         mooltipassParametersInit();

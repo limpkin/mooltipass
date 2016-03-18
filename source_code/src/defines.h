@@ -56,12 +56,12 @@
  *  => exactly like the kickstarter product setup, but with no check on fuses (used for isp programming & test)
  *
  *  POST_KICKSTARTER_UPDATE_SETUP
- *  => firmware to flash to the kickstarter units to update them
+ *  => firmware to flash to the kickstarter units to update them, doesn't contain functional & electrical tests
  *
  *  MINI_CLICK_BETATESTERS_SETUP
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
 */
-#define BETATESTERS_SETUP_PIN
+#define POST_KICKSTARTER_UPDATE_SETUP
 #if defined(BETATESTERS_SETUP)
     #define FLASH_CHIP_32M
     #define JTAG_FUSE_ENABLED
@@ -96,6 +96,10 @@
     // TO REMOVE IN THE FUTURE!!! //
     #define AVR_BOOTLOADER_PROGRAMMING
 #elif defined(PRODUCTION_KICKSTARTER_SETUP)
+    #define FLASH_CHIP_4M
+    #define HARDWARE_OLIVIER_V1
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(POST_KICKSTARTER_UPDATE_SETUP)
     #define FLASH_CHIP_4M
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING

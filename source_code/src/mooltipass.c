@@ -123,12 +123,12 @@ int main(void)
     #endif
     
     /** ELECTRICAL TESTING **/
-    #if defined(HARDWARE_OLIVIER_V1)
+    #if defined(HARDWARE_OLIVIER_V1) && !defined(POST_KICKSTARTER_UPDATE_SETUP)
         mooltipassStandardElectricalTest(fuse_ok);
     #endif    
     
     /** JUMPING TO BOOTLOADER AT BOOT **/
-    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP)
+    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(POST_KICKSTARTER_UPDATE_SETUP)
         // This code will only be used for developers and beta testers
         // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
@@ -228,7 +228,7 @@ int main(void)
     
     /** BOOT STOP IF ERRORS **/
     #if defined(HARDWARE_OLIVIER_V1)
-        #if defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP)
+        #if defined(PRODUCTION_KICKSTARTER_SETUP) || defined(PREPRODUCTION_KICKSTARTER_SETUP) || defined(POST_KICKSTARTER_UPDATE_SETUP)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #else
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));

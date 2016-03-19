@@ -1565,7 +1565,7 @@ mooltipass.memmgmt.getPasswordForCredential = function(service, login, callback)
 		if(mooltipass.memmgmt.curLoginNodes[i].name == login)
 		{
 			mooltipass.memmgmt.getPasswordLoginAddress = mooltipass.memmgmt.curLoginNodes[i].address;
-			mooltipass.memmgmt.currentLoginForRequestedPassword = login
+			mooltipass.memmgmt.currentLoginForRequestedPassword = login;
 			login_exists = true;
 			break;
 		}		

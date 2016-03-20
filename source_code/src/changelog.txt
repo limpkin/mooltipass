@@ -8,6 +8,7 @@ V1.1:
 - post-indiegogo firmware
 - get description command
 - fixed user request cancelling bug
+- add adjustable delay after manual typing
 - updating date created/used field on child node update
 - removed left out pixels in login menu (tiny bug)
 - boolean in eeprom to prevent credentials LUT populating

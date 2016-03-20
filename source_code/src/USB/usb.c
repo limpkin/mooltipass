@@ -1011,6 +1011,10 @@ RET_TYPE usbKeybPutStr(char* string)
     while((*string) && (temp_ret == RETURN_COM_TRANSF_OK))
     {
         temp_ret = usbKeybPutChar(*string++);
+        if (getMooltipassParameterInEeprom(DELAY_AFTER_KEY_ENTRY_BOOL_PARAM) != FALSE)
+        {
+            timerBasedDelayMs(getMooltipassParameterInEeprom(DELAY_AFTER_KEY_ENTRY_PARAM));
+        }
     }
     
     return temp_ret;

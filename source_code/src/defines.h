@@ -61,9 +61,10 @@
  *  MINI_CLICK_BETATESTERS_SETUP
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
 */
-#define POST_KICKSTARTER_UPDATE_SETUP
+#define BETATESTERS_SETUP
 #if defined(BETATESTERS_SETUP)
-    #define FLASH_CHIP_32M
+    #define FLASH_CHIP_4M
+	//#define FLASH_CHIP_32M
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
     #define NO_PIN_CODE_REQUIRED

@@ -29,10 +29,11 @@
 
 // Number of values to be passed to Jenkins hash function
 #define TIMER_BUFFER_SIZE               32
+
 // Number of Random bytes to be saved in a Buffer
 #define RNG_BUFFER_SIZE                 64
 
-//Typedefs
+// Typedefs
 typedef union
 {
     uint32_t fourByteAccess;
@@ -44,7 +45,7 @@ typedef struct
     uint8_t    pendingBytes;
 } rng_struct_t;
 
-//local vars
+// Local vars
 volatile uint32_t rng_buffer[RNG_BUFFER_SIZE];
 volatile uint8_t rng_buffer_last_valid_value;
 volatile uint8_t rng_buffer_count_bytes;
@@ -76,8 +77,8 @@ ISR(WDT_vect)
 
         // Use Jenkin's one at a time hash for RNG
         rng_buffer[rng_buffer_index] = jenkins_one_at_a_time_hash(timer_buffer, TIMER_BUFFER_SIZE);
-        
-        // circular buffer, index increment
+
+        // Circular buffer, index increment
         rng_buffer_index = (rng_buffer_index+1) % RNG_BUFFER_SIZE;
 
         // If random buffer is full, increment last valid value
@@ -87,14 +88,14 @@ ISR(WDT_vect)
         }
         else
         {
-            // we have added a new value and random buffer is not full,
+            // We have added a new value and random buffer is not full,
             // so, increment buffer elements count
             ++rng_buffer_count;
         }
     }
 }
 
-/*! \fn void rngInit(void); 
+/*! \fn void rngInit(void);
  *  \brief This function initializes the timer and watchdog
  *  \note  Vars guaranteed to be initialized to 0 by avr libc
 */
@@ -120,11 +121,11 @@ void rngInit(void)
 static uint32_t rngGet32(void)
 {
     uint32_t retVal;
-    
-    /* Take care, this is a blocking function */
+
+    // Take care, this is a blocking function
     while (rng_buffer_count < 1);
-    
-    /* critical region here */
+
+    // Critical region here
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         retVal = rng_buffer[rng_buffer_last_valid_value];
@@ -148,7 +149,7 @@ static uint8_t rngGet8(void)
         rngValue.number.fourByteAccess = rngGet32();
         rngValue.pendingBytes = 4;
     }
-    return  rngValue.number.oneByteAccess[--rngValue.pendingBytes];	
+    return rngValue.number.oneByteAccess[--rngValue.pendingBytes];
 }
 
 /*! \fn fillArrayWithRandomBytes(uint8_t* buffer, uint8_t nb_bytes)

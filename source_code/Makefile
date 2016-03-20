@@ -6,8 +6,8 @@
 #
 
 CROSS   ?= avr-
-CC      := $(CROSS)gcc
-LD      := $(CROSS)gcc
+CC      := $(CROSS)gcc -flto -fuse-linker-plugin
+LD      := $(CROSS)gcc -flto -fuse-linker-plugin
 OBJCOPY := $(CROSS)objcopy
 OBJDUMP := $(CROSS)objdump
 SIZE    := $(CROSS)size
@@ -52,7 +52,7 @@ CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
 CFLAGS  += -std=gnu99 -Werror -mcall-prologues -fno-tree-scev-cprop -fno-split-wide-types
 LDFLAGS := -Wl,--relax,--gc-sections
 
-CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS) $(AESDIRS))
+CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))
 
 #CFLAGS += -Wa,-adhln -g
 #-g -Wa,-adhls
@@ -116,7 +116,7 @@ $(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
 	@echo "objs: $(OBJECTS)"
 	@echo ""
 	@echo "Linking $@"
-	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) -Lbuild $(LIBS)
+	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBOBJS)
 
 # Extract the sections that should be in the .hex file from the .elf file.
 %.hex: %.elf
@@ -130,7 +130,7 @@ $(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
 %.lss: %.elf
 	$(OBJDUMP) -h -S -z $< > $@
 
-$(MOOLTIPASS_LIB): $(LIBOBJS) $(AESOBJS)
+$(MOOLTIPASS_LIB): $(LIBOBJS)
 	$(AR) rcs $@ $?
 
 release: clean $(TARGET).hex

@@ -4,3 +4,6 @@
 [submodule "source_code/dmbs"]
 	path = source_code/dmbs
 	url = https://github.com/abcminiuser/dmbs.git
+[submodule "source_code/AVR-Development-Environment-Script"]
+	path = source_code/AVR-Development-Environment-Script
+	url = https://github.com/NicoHood/AVR-Development-Environment-Script.git

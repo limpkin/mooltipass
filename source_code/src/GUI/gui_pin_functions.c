@@ -299,11 +299,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                 //oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
                 miniOledFlushEntireBufferToDisplay();
             }
-            #ifdef MINI_JOYSTICK
-            else if ((detection_result == JOYSTICK_POS_RIGHT) || (detection_result == WHEEL_POS_CLICK))
-            #else
             else if (detection_result == WHEEL_ACTION_SHORT_CLICK)
-            #endif
             {
                 if (selected_digit == 2)
                 {

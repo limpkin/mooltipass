@@ -91,7 +91,7 @@ void initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy)
 *     THIS TEST MUST BE RUN -> Sets up SPI
 *    \return   Test Status
 */
-RET_TYPE flashInitTest()
+RET_TYPE flashInitTest(void)
 {
     // simply call initFlash
     return initFlash();    
@@ -451,7 +451,7 @@ RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_
 /*!  \fn       displayInitForTest()
 *    \brief    Init OLED SCREEN per test
 */
-void displayInitForTest()
+void displayInitForTest(void)
 {
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
         oledClear();
@@ -520,7 +520,7 @@ void displayRWCode(RET_TYPE ret)
 /*!  \fn       displayPassed()
 *    \brief    Display PASSED Message (with delay)
 */
-void displayPassed()
+void displayPassed(void)
 {
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
         oledSetXY(0,16);
@@ -537,7 +537,7 @@ void displayPassed()
 /*!  \fn       displayFailed()
 *    \brief    Display FAILED Message
 */
-void displayFailed()
+void displayFailed(void)
 {
     #ifdef FLASH_TEST_DEBUG_OUTPUT_OLED
         oledSetXY(0,16);
@@ -552,7 +552,7 @@ void displayFailed()
 /*!  \fn       flashTest()
 *    \brief    Primary entry point for flash testing
 */
-RET_TYPE flashTest()
+RET_TYPE flashTest(void)
 {
     uint8_t inputBuffer[BYTES_PER_PAGE];
     uint8_t outputBuffer[BYTES_PER_PAGE];

@@ -141,11 +141,11 @@ void oledSetRowAddr(uint8_t start, uint8_t end);
 void oledSetScrollSpeed(uint8_t msecs);
 void oledFill(uint8_t colour);
 void stockOledFillXY(uint8_t x, int16_t y, uint16_t width, int8_t height, uint8_t colour);
-void stockOledClear();
+void stockOledClear(void);
 void stockOledClearLine(int16_t y);
 void oledScrollClear(uint8_t options);
 void oledScrollUp(uint8_t lines, bool clear);
-void oledReset();
+void oledReset(void);
 void stockOledOff(void);
 void stockOledOn(void);
 uint8_t stockOledIsOn(void);
@@ -187,7 +187,7 @@ void oledSetX(uint8_t col);
 void oledSetPixel(uint8_t x, uint8_t y, uint8_t colour);
 
 uint8_t oledGlyphWidth(char ch, uint8_t *indp, glyph_t *glyphp);
-uint8_t oledGlyphHeight();
+uint8_t oledGlyphHeight(void);
 uint8_t oledGlyphDraw(int16_t x, int16_t y, char ch, uint16_t colour, uint16_t bg);
 
 void stockOledPutch(char ch);

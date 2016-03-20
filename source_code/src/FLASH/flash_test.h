@@ -34,7 +34,7 @@
 
 void initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy);
 
-RET_TYPE flashInitTest();
+RET_TYPE flashInitTest(void);
 
 RET_TYPE flashWriteReadTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
 RET_TYPE flashWriteReadOffsetTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
@@ -45,7 +45,7 @@ RET_TYPE flashEraseBlockTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t buf
 RET_TYPE flashEraseSectorXTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
 RET_TYPE flashEraseSectorZeroTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize);
 
-RET_TYPE flashTest();
+RET_TYPE flashTest(void);
 
 
 // Flash Testing Defines

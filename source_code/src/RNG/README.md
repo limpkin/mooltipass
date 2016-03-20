@@ -8,7 +8,7 @@ How to use the library? how to work  with it ?
 We only have to remember about two functions.
 
 ```
-void rngInit(void); // Init Timer0 and WDG Interrupt to generate random numbers
+void rngInit(void); // Init Timer0 and WDT Interrupt to generate random numbers
 void fillArrayWithRandomBytes(uint8_t* buffer, uint8_t nb_bytes); //fill a buffer with random bytes, it's a blocking function !
 ```
 

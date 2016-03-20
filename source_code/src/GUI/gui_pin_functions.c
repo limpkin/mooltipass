@@ -225,7 +225,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         memset((void*)current_pin, 0, 4);
         
         // Clear current detections
-        miniDirectionClearDetections();
+        miniWheelClearDetections();
     
         // Draw pin entering bitmap
         oledClear();
@@ -249,8 +249,8 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             usbProcessIncoming(USB_CALLER_PIN);
             // Wheel increment/decrement
             wheel_increment = getWheelCurrentIncrement();
-            // touch detection result
-            detection_result = getMiniDirectionJustPressed();
+            // detection result
+            detection_result = miniGetWheelAction(FALSE, TRUE);
         
             // Position increment / decrement
             if (wheel_increment != 0)
@@ -277,7 +277,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
             
             // Change digit position or return/proceed
-            if (detection_result == JOYSTICK_POS_LEFT)
+            if (detection_result == WHEEL_ACTION_LONG_CLICK)
             {
                 if (selected_digit == 1)
                 {
@@ -299,7 +299,11 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                 //oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
                 miniOledFlushEntireBufferToDisplay();
             }
+            #ifdef MINI_JOYSTICK
             else if ((detection_result == JOYSTICK_POS_RIGHT) || (detection_result == WHEEL_POS_CLICK))
+            #else
+            else if (detection_result == WHEEL_ACTION_SHORT_CLICK)
+            #endif
             {
                 if (selected_digit == 2)
                 {

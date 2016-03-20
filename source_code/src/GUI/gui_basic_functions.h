@@ -32,7 +32,7 @@
 #if defined(HARDWARE_OLIVIER_V1)
     int8_t getTouchedPositionAnswer(uint8_t led_mask);
 #elif defined(MINI_VERSION)
-    int8_t getTouchedPositionAnswer(uint8_t mask, uint8_t blocking);
+    int8_t getYesNoAnswerInput(uint8_t blocking);
 #endif
 int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result);
 void activityDetectedRoutine(void);

@@ -557,21 +557,21 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             return RETURN_NOK;
         }
     #elif defined(MINI_VERSION)
-        int8_t touch_answer = 0;
+        RET_TYPE input_answer = MINI_INPUT_RET_NONE;
         
         // Switch on lights
         activityDetectedRoutine();
         
         // Clear possible remaining detection
-        miniDirectionClearDetections();
+        miniWheelClearDetections();
         
         // Arm timer for scrolling (caps timer that isn't relevant here)
         activateTimer(TIMER_CAPS, SCROLLING_DEL);
         
         // Loop while no timeout occurs or no button is pressed
-        while (touch_answer == 0)
+        while (input_answer == MINI_INPUT_RET_NONE)
         {
-            touch_answer = getTouchedPositionAnswer(LEFT_RIGHT_WHEEL_MASK, FALSE);
+            input_answer = getYesNoAnswerInput(FALSE);
             
             // Text scrolling
             if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (nb_args > 1))
@@ -598,7 +598,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             }
         }   
     
-        if ((touch_answer == JOYSTICK_POS_RIGHT) || (touch_answer == WHEEL_POS_CLICK))
+        if (input_answer == MINI_INPUT_RET_YES)
         {
             return RETURN_OK;
         }

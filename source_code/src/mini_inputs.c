@@ -27,14 +27,18 @@
 #include "gui_basic_functions.h"
 #include "mini_inputs.h"
 #include "defines.h"
-// This code is only used for the mooltipass mini
+// This code is only used for the Mooltipass mini
 #ifdef MINI_VERSION
+#ifdef MINI_JOYSTICK
 // Joystick scan list
 uint8_t joystick_scan_defines[] = {PORTID_JOY_UP, PORTID_JOY_DOWN, PORTID_JOY_LEFT, PORTID_JOY_RIGHT, PORTID_JOY_CENTER};
 // Joystick counter
 volatile uint8_t joystick_counters[8];
 // Joystick states
 volatile uint8_t joystick_return[8];
+#endif
+// Wheel pressed duration counter
+volatile uint16_t wheel_click_duration_counter;
 // Wheel click counter
 volatile uint8_t wheel_click_counter;
 // Wheel click return
@@ -63,22 +67,26 @@ void initMiniInputs(void)
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
     
     // Joystick
+    #ifdef MINI_JOYSTICK
     for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
     {
         DDR_JOYSTICK &= ~(1 << joystick_scan_defines[i]);
         PORT_JOYSTICK |= (1 << joystick_scan_defines[i]);
     }        
+    #endif
 }
 
 /*! \fn     scanMiniInputsDetect(void)
 *   \brief  Joystick & wheel debounce called by 1ms interrupt
 */
 void scanMiniInputsDetect(void)
-{
+{    
+    #ifdef MINI_JOYSTICK
     volatile uint8_t* current_direction_counter_pt;
     volatile uint8_t* current_direction_return_pt;
-    uint8_t wheel_state, wheel_sm = 0;
     uint8_t current_direction;
+    #endif
+    uint8_t wheel_state, wheel_sm = 0;
     
     // Wheel encoder
     wheel_state = ((PIN_WHEEL_A & (1 << PORTID_WHEEL_A)) >> PORTID_WHEEL_A) | ((PIN_WHEEL_B & (1 << PORTID_WHEEL_B)) >> (PORTID_WHEEL_B-1));
@@ -126,6 +134,10 @@ void scanMiniInputsDetect(void)
         {
             wheel_click_counter++;
         }
+        if ((wheel_click_return == RETURN_DET) || (wheel_click_return == RETURN_JDETECT))
+        {
+            wheel_click_duration_counter++;
+        }
     }
     else
     {
@@ -135,12 +147,14 @@ void scanMiniInputsDetect(void)
         }
         else if (wheel_click_return != RETURN_JRELEASED)
         {
+            wheel_click_duration_counter = 0;
             wheel_click_return = RETURN_REL;
         }
         wheel_click_counter = 0;
     }
     
     // Joystick
+    #ifdef MINI_JOYSTICK
     for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
     {
         current_direction = joystick_scan_defines[i];
@@ -173,6 +187,7 @@ void scanMiniInputsDetect(void)
             *current_direction_counter_pt = 0;
         }
     }
+    #endif
 }
 
 /*! \fn     getWheelCurrentIncrement(void)
@@ -225,6 +240,97 @@ RET_TYPE isWheelClicked(void)
     return return_val;
 }
 
+/*! \fn     miniWheelClearDetections(void)
+*   \brief  Clear current detections
+*/
+void miniWheelClearDetections(void)
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        wheel_click_duration_counter = 0;
+        wheel_click_return = RETURN_REL;
+        wheel_cur_increment = 0;
+    }
+}
+
+/*! \fn     miniGetWheelAction(void)
+*   \brief  Get current wheel action
+*   \param  wait_for_action     Set to TRUE to wait for an action
+*   \param  ignore_incdec       Ignore actions linked to wheel scrolling
+*   \return See wheel_action_ret_t
+*/
+RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
+{
+    RET_TYPE return_val = WHEEL_ACTION_NONE;
+    int8_t wheel_cur_increment_copy = 0;
+
+    do
+    {
+        // If we want to take into account wheel scrolling
+        if (ignore_incdec == FALSE)
+        {
+            wheel_cur_increment_copy = wheel_cur_increment;
+        }
+
+        if (wheel_click_return == RETURN_JDETECT)
+        {
+            // When checking for actions we clear the just detected state
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            {
+                wheel_click_return = RETURN_DET;
+            }
+        }
+        if ((wheel_click_return == RETURN_JRELEASED) || (wheel_cur_increment_copy != 0) || (wheel_click_duration_counter > LONG_PRESS_MS))
+        {
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            {
+                if (wheel_click_duration_counter > LONG_PRESS_MS)
+                {
+                    return_val =  WHEEL_ACTION_LONG_CLICK;
+                }
+                else if (wheel_click_return == RETURN_JRELEASED)
+                {
+                    if (wheel_cur_increment_copy > 0)
+                    {
+                        return_val = WHEEL_ACTION_CLICK_UP;
+                    }
+                    else if (wheel_cur_increment_copy < 0)
+                    {
+                        return_val = WHEEL_ACTION_CLICK_DOWN;
+                    }
+                    else
+                    {
+                        return_val = WHEEL_ACTION_SHORT_CLICK;
+                    }
+                }
+                else
+                {
+                    if (wheel_cur_increment_copy > 0)
+                    {
+                        return_val = WHEEL_ACTION_UP;
+                    }
+                    else if (wheel_cur_increment_copy < 0)
+                    {
+                        return_val = WHEEL_ACTION_DOWN;
+                    }
+                }
+
+                // Clear detections
+                wheel_click_duration_counter = 0;
+                wheel_click_return = RETURN_REL;
+                if (ignore_incdec == FALSE)
+                {
+                    wheel_cur_increment = 0;
+                }                
+            }
+        }
+    }
+    while ((wait_for_action != FALSE) && (return_val == WHEEL_ACTION_NONE));
+    
+    return return_val;
+}
+
+#ifdef MINI_JOYSTICK
 /*! \fn     isMiniDirectionPressed(uint8_t direction)
 *   \brief  Know if a direction is pressed
 *   \param  direction   The direction (see mini_inputs.h)
@@ -325,4 +431,5 @@ RET_TYPE getMiniDirectionJustPressed(void)
     
     return return_val;
 }
+#endif
 #endif

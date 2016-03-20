@@ -97,15 +97,15 @@ RET_TYPE electricalJumpToBootloaderCondition(void)
         /* Disable JTAG to get access to the pins */
         disableJTAG();
         
-        /* Pressing center joystick starts the bootloader */
-        DDR_JOYSTICK &= ~(1 << PORTID_JOY_CENTER);
-        PORT_JOYSTICK |= (1 << PORTID_JOY_CENTER);
+        /* Pressing wheel starts the bootloader */
+        DDR_CLICK &= ~(1 << PORTID_CLICK);
+        PORT_CLICK |= (1 << PORTID_CLICK);
         
         /* Small delay for detection */
         smallForLoopBasedDelay();
         
         /* Check if low */
-        if (!(PIN_JOYSTICK & (1 << PORTID_JOY_CENTER)))
+        if (!(PIN_CLICK & (1 << PORTID_CLICK)))
         {
             return TRUE;
         }  
@@ -226,24 +226,27 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
     
         // Wait for inputs
         oledClear();miniOledResetXY();
-        miniDirectionClearDetections();
-        while(getMiniDirectionJustPressed() != WHEEL_POS_CLICK);
+        miniWheelClearDetections();
+        while(isWheelClicked() != RETURN_JDETECT);
         guiDisplayRawString(func_test_string_id++);
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_UP);
-        guiDisplayRawString(func_test_string_id++);
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_RIGHT);
-        guiDisplayRawString(func_test_string_id++);
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_DOWN);
-        guiDisplayRawString(func_test_string_id++);
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_LEFT);
-        guiDisplayRawString(func_test_string_id++);
-        while(getMiniDirectionJustPressed() != JOYSTICK_POS_CENTER);
-        guiDisplayRawString(func_test_string_id++);
+        #ifdef MINI_JOYSTICK
+            miniDirectionClearDetections();
+            while(getMiniDirectionJustPressed() != JOYSTICK_POS_UP);
+            guiDisplayRawString(func_test_string_id++);
+            while(getMiniDirectionJustPressed() != JOYSTICK_POS_RIGHT);
+            guiDisplayRawString(func_test_string_id++);
+            while(getMiniDirectionJustPressed() != JOYSTICK_POS_DOWN);
+            guiDisplayRawString(func_test_string_id++);
+            while(getMiniDirectionJustPressed() != JOYSTICK_POS_LEFT);
+            guiDisplayRawString(func_test_string_id++);
+            while(getMiniDirectionJustPressed() != JOYSTICK_POS_CENTER);
+            guiDisplayRawString(func_test_string_id++);
+        #endif
     
         // Test description
         oledClear();
         miniOledResetXY();
-        guiDisplayRawString(func_test_string_id++);
+        guiDisplayRawString(ID_STRING_FUNC_TEST_SCROLL);
     
         // Wait for scroll
         while(temp_string[0] != ':')

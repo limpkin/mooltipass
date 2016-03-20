@@ -320,7 +320,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         #if defined(HARDWARE_OLIVIER_V1)
             j = getTouchedPositionAnswer(led_mask);
         #elif defined(MINI_VERSION)
-            j = getTouchedPositionAnswer(led_mask, TRUE);
+            j = getYesNoAnswerInput(TRUE);
         #endif
         
         // Check its validity, knowing that by default we will return NODE_ADDR_NULL

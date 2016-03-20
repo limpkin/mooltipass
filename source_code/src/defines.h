@@ -61,7 +61,7 @@
  *  MINI_CLICK_BETATESTERS_SETUP
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
 */
-#define BETATESTERS_SETUP
+#define MINI_CLICK_BETATESTERS_SETUP
 #if defined(BETATESTERS_SETUP)
     #define FLASH_CHIP_4M
 	//#define FLASH_CHIP_32M
@@ -114,6 +114,7 @@
 #elif defined(MINI_CLICK_BETATESTERS_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
+    //#define MINI_JOYSTICK
     #define FLASH_CHIP_4M
     #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED
@@ -228,6 +229,8 @@ enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};
 enum justify_t                  {OLED_LEFT  = 0, OLED_RIGHT = 1, OLED_CENTRE = 2};
 enum scrolling_flag_t           {OLED_SCROLL_NONE = 0, OLED_SCROLL_UP = 1, OLED_SCROLL_DOWN = 2};
+enum wheel_action_ret_t         {WHEEL_ACTION_NONE = 0, WHEEL_ACTION_UP = 1, WHEEL_ACTION_DOWN = 2, WHEEL_ACTION_SHORT_CLICK = 3, WHEEL_ACTION_LONG_CLICK = 4, WHEEL_ACTION_CLICK_UP = 5, WHEEL_ACTION_CLICK_DOWN = 6};
+enum mini_input_yes_no_ret_t    {MINI_INPUT_RET_TIMEOUT = -1, MINI_INPUT_RET_NONE = 0, MINI_INPUT_RET_NO = 1, MINI_INPUT_RET_YES = 2};
 
 /**************** TYPEDEFS ****************/
 typedef void (*bootloader_f_ptr_type)(void);
@@ -375,6 +378,7 @@ typedef int8_t RET_TYPE;
     #define PORT_OLED_POW   PORTE
     #define DDR_OLED_POW    DDRE
     // 5 direction joystick
+    #ifdef MINI_JOYSTICK
     #define PORTID_JOY_RIGHT    PORTF1
     #define PORTID_JOY_UP       PORTF4
     #define PORTID_JOY_LEFT     PORTF5
@@ -383,6 +387,7 @@ typedef int8_t RET_TYPE;
     #define PORT_JOYSTICK       PORTF
     #define DDR_JOYSTICK        DDRF
     #define PIN_JOYSTICK        PINF
+    #endif
     // Click wheel
     #define PORTID_WHEEL_A      PORTC6
     #define PIN_WHEEL_A         PINC

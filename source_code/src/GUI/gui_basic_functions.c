@@ -248,25 +248,16 @@ int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result)
     return 0;
 }
 #elif defined(MINI_VERSION)
-/*! \fn     getTouchedPositionAnswer(uint8_t mask)
+/*! \fn     getYesNoAnswerInput(uint8_t blocking)
 *   \brief  Use the input interface to get user input
-*   \param  mask        Input mask
 *   \param  blocking    Boolean to know if we should wait for input or timeout
-*   \note   In case of a non blocking call, caller must call activityDetectedRoutine() & miniDirectionClearDetections()
-*   \return -1 for timeout, 0 for nothing pressed, the button ID otherwise
+*   \note   In case of a non blocking call, caller must call activityDetectedRoutine() & miniWheelClearDetections()
+*   \return see mini_input_yes_no_ret_t
 */
-int8_t getTouchedPositionAnswer(uint8_t mask, uint8_t blocking)
+RET_TYPE getYesNoAnswerInput(uint8_t blocking)
 {
     #if defined(ALWAYS_ACCEPT_REQUESTS)
-    // First quarter is discarded, it means we want yes or no!
-    if (mask == LEFT_RIGHT_MASK)
-    {
-        return JOYSTICK_POS_RIGHT;
-    }
-    else
-    {
-        return JOYSTICK_POS_UP;
-    }
+        return MINI_INPUT_RET_YES;
     #endif
 
     uint8_t incomingData[RAWHID_TX_SIZE];
@@ -278,7 +269,7 @@ int8_t getTouchedPositionAnswer(uint8_t mask, uint8_t blocking)
         activityDetectedRoutine();
         
         // Clear possible remaining detection
-        miniDirectionClearDetections();
+        miniWheelClearDetections();
     }
     
     // Wait for a touch press
@@ -287,7 +278,7 @@ int8_t getTouchedPositionAnswer(uint8_t mask, uint8_t blocking)
         // User interaction timeout or smartcard removed
         if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
         {
-            return -1;
+            return MINI_INPUT_RET_TIMEOUT;
         }
         
         // Read usb comms as the plugin could ask to cancel the request
@@ -296,7 +287,7 @@ int8_t getTouchedPositionAnswer(uint8_t mask, uint8_t blocking)
             if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
             {
                 // Request canceled
-                return -1;
+                return MINI_INPUT_RET_TIMEOUT;
             }
             else
             {
@@ -306,16 +297,16 @@ int8_t getTouchedPositionAnswer(uint8_t mask, uint8_t blocking)
         }
         
         // Check if something has been pressed
-        detect_result = getMiniDirectionJustPressed();
-        if ((1 << detect_result) & mask)
+        detect_result = miniGetWheelAction(FALSE, TRUE);
+        if (detect_result == WHEEL_ACTION_SHORT_CLICK)
         {
-            return detect_result;
+            return MINI_INPUT_RET_YES;
         }
     }
     while(blocking != FALSE);
     
-    // Return 0 if nothing was pressed and no timeout occurred
-    return 0;
+    // Return MINI_INPUT_RET_NONE if nothing was pressed and no timeout occurred
+    return MINI_INPUT_RET_NONE;
 }    
 #endif
 

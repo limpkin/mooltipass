@@ -52,6 +52,7 @@ CFLAGS  += -mcall-prologues
 CFLAGS  += -fno-tree-scev-cprop
 CFLAGS  += -fno-split-wide-types
 CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))
+#CFLAGS += -Wa,-adhln -g
 
 # new from dmbs
 CFLAGS  += -fno-inline-small-functions
@@ -72,9 +73,6 @@ LDFLAGS := -Wl,--gc-sections -Wl,--relax
 LDFLAGS += -mmcu=$(MCU)
 LDFLAGS += -lm
 #LDFLAGS  += -Werror
-
-#CFLAGS += -Wa,-adhln -g
-#-g -Wa,-adhls
 
 ifeq ($(CONFIG), RELEASE)
   DEFINES += NDEBUG

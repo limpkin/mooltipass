@@ -27,13 +27,8 @@ ifneq (,$(git_hash))
   endif
 endif
 
-
-LIBS := -lm -lmooltipass
-
 LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
 LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
-
-MOOLTIPASS_LIB := build/libmooltipass.a
 
 OBJECTS := $(patsubst src/%.c,build/%.o, $(wildcard src/*.c))
 
@@ -46,13 +41,37 @@ MCU     := atmega32u4
 # Set CONFIG=DEBUG in the shell from which you invoke make to build a debug
 # build.
 CONFIG  ?= RELEASE
-DEFINES := F_CPU=16000000UL F_USB=16000000UL
+DEFINES := F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
 
-CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections
-CFLAGS  += -std=gnu99 -Werror -mcall-prologues -fno-tree-scev-cprop -fno-split-wide-types
-LDFLAGS := -Wl,--relax,--gc-sections
-
+CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
+CFLAGS  += -fshort-enums -ffunction-sections
+#CFLAGS  += -fdata-sections
+#CFLAGS  += -Werror
+CFLAGS  += -std=gnu99
+CFLAGS  += -mcall-prologues
+CFLAGS  += -fno-tree-scev-cprop
+CFLAGS  += -fno-split-wide-types
 CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))
+
+# new from dmbs
+CFLAGS  += -fno-inline-small-functions
+
+# not used normally
+CFLAGS  += -Wstrict-prototypes
+CFLAGS  += -fno-strict-aliasing
+CFLAGS  += -DARCH=ARCH_AVR8
+CFLAGS  += -mrelax
+CFLAGS  += -x c
+CFLAGS  += -MMD
+CFLAGS  += -MP
+CFLAGS  += -pipe
+CFLAGS  += -gdwarf-2
+CFLAGS  += -g2
+
+LDFLAGS := -Wl,--gc-sections -Wl,--relax
+LDFLAGS += -mmcu=$(MCU)
+LDFLAGS += -lm
+#LDFLAGS  += -Werror
 
 #CFLAGS += -Wa,-adhln -g
 #-g -Wa,-adhls
@@ -82,8 +101,6 @@ ifeq ($(findstring --mcu,$(SIZE_HELP)),--mcu)
   SIZEFLAGS += --mcu=$(MCU)
 endif
 
-CFLAGS += -DMOOLTIPASS_VERSION="\"$(VERSION)\""
-
 # Display the size of generated elf file
 .PHONY: size
 size: $(TARGET).elf
@@ -112,11 +129,11 @@ build/%.o: src/%.S
 -include $(OBJECTS:.o=.d) $(LIBOBJS:.o=.d)
 
 # Target to link the object files into the final hex file.
-$(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
+$(TARGET).elf: $(OBJECTS) $(LIBOBJS)
 	@echo "objs: $(OBJECTS)"
 	@echo ""
 	@echo "Linking $@"
-	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBOBJS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBOBJS)
 
 # Extract the sections that should be in the .hex file from the .elf file.
 %.hex: %.elf
@@ -129,9 +146,6 @@ $(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
 
 %.lss: %.elf
 	$(OBJDUMP) -h -S -z $< > $@
-
-$(MOOLTIPASS_LIB): $(LIBOBJS)
-	$(AR) rcs $@ $?
 
 release: clean $(TARGET).hex
 	# tag the current git state with the next build number, then build that version

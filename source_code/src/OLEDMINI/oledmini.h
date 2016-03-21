@@ -67,7 +67,6 @@
 #define SSD1305_CMD_EXIT_READ_MODIFY_WRITE_MODE     0xEE
 
 /** DEFINES OLED SCREEN **/
-#define SSD1305_OLED_CONTRAST                       0xDB        // Contrast value for display
 #define SSD1305_OLED_WIDTH                          128         // Display width
 #define SSD1305_OLED_HEIGHT                         32          // Display height
 #define SSD1305_OLED_HEIGHT_BITMASK                 0x1F        // Bitmask for the height

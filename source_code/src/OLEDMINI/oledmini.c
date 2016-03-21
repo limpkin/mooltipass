@@ -69,10 +69,15 @@ uint8_t miniOledFlushText = FALSE;
 uint8_t miniOledTextWritingYIncrement = FALSE;
 
 // OLED initialization sequence
+#define OLEDMINI_ALT_INIT_CODE
 static const uint8_t mini_oled_init[] __attribute__((__progmem__)) = 
 {
     1,  SSD1305_CMD_DISPLAY_OFF,                                        // Display Off
+    #ifndef OLEDMINI_ALT_INIT_CODE
     2,  SSD1305_CMD_SET_DISPLAY_CLOCK_DIVIDE,   0x10,                   // Display divide ratio of 0, Oscillator frequency of around 300kHz
+    #else
+    2,  SSD1305_CMD_SET_DISPLAY_CLOCK_DIVIDE,   0xF0,                   // Display divide ratio of 0, Oscillator frequency of around 600kHz
+    #endif
     2,  SSD1305_CMD_SET_MULTIPLEX_RATIO,        0x1F,                   // Multiplex ratio of 32
     2,  SSD1305_CMD_SET_DISPLAY_OFFSET,         0x00,                   // Display offset 0
     1,  SSD1305_CMD_SET_DISPLAY_START_LINE,                             // Display start line 0
@@ -83,8 +88,13 @@ static const uint8_t mini_oled_init[] __attribute__((__progmem__)) =
     2,  SSD1305_CMD_SET_MEM_ADDRESSING_MODE,    0x00,                   // Horizontal addressing mode
     2,  SSD1305_CMD_SET_COM_PINS_CONF,          0x12,                   // Alternative COM pin configuration
     5,  SSD1305_CMD_SET_LUT,                    0x3F,0x3F,0x3F,0x3F,    // Set Look up Table
-    2,  SSD1305_CMD_SET_CONTRAST_CURRENT,       SSD1305_OLED_CONTRAST,  // Set current control (contrast)
+    #ifndef OLEDMINI_ALT_INIT_CODE
+    2,  SSD1305_CMD_SET_CONTRAST_CURRENT,       0xDB,                   // Set current control (contrast)
     2,  SSD1305_CMD_SET_PRECHARGE_PERIOD,       0xD2,                   // Precharge period
+    #else
+    2,  SSD1305_CMD_SET_CONTRAST_CURRENT,       0x80,                   // Set current control (contrast)
+    2,  SSD1305_CMD_SET_PRECHARGE_PERIOD,       0xC2,                   // Precharge period
+    #endif
     2,  SSD1305_CMD_SET_VCOMH_VOLTAGE,          0x08,                   // VCOM deselect level (around 0.5Vcc)
     1,  SSD1305_CMD_ENTIRE_DISPLAY_NORMAL,                              // Entire display in normal mode
     1,  SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED,                           // Entire display not reversed

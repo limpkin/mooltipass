@@ -31,6 +31,7 @@
 #include "logic_aes_and_comms.h"
 #include "timer_manager.h"
 #include "oled_wrapper.h"
+#include "mini_inputs.h"
 #include "node_mgmt.h"
 #include "node_mgmt.h"
 #include "defines.h"
@@ -80,9 +81,6 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 {
     uint16_t first_child_address, temp_child_address;
     uint16_t picked_child = NODE_ADDR_NULL;
-    uint16_t addresses[4];
-    uint8_t led_mask;
-    int8_t i, j;
     
     // Check parent node address
     if (parentNodeAddress == NODE_ADDR_NULL)
@@ -135,102 +133,246 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
     }
     else
     {
-        temp_child_address = first_child_address;
-        uint8_t action_chosen = FALSE;
+        #if defined(HARDWARE_OLIVIER_V1)
+            temp_child_address = first_child_address;
+            uint8_t action_chosen = FALSE;
+            uint16_t addresses[4];
+            uint8_t led_mask;
+            int8_t i, j;
         
-        while (action_chosen == FALSE)
-        {
-            // Draw asking bitmap
-            oledBitmapDrawFlash(0, 0, BITMAP_LOGIN, 0);
-            
-            // Write domain name on screen
-            char temp_string[INDEX_TRUNCATE_SERVICE_CENTER+1];
-            memcpy(temp_string, (char*)p->service, sizeof(temp_string));
-            temp_string[INDEX_TRUNCATE_SERVICE_CENTER] = 0;
-            oledPutstrXY(0, 24, OLED_CENTRE, temp_string);
-            
-            // Clear led_mask
-            led_mask = 0;
-            i = 0;
-            
-            // List logins on screen
-            while ((temp_child_address != NODE_ADDR_NULL) && (i != 4))
+            while (action_chosen == FALSE)
             {
-                // Read child node to get login
-                readChildNode(c, temp_child_address);
-                
-                // Print Login at the correct slot
-                displayCredentialAtSlot(i, (char*)c->login, INDEX_TRUNCATE_LOGIN_FAV);            
-                
-                // Store address in array, fetch next address
-                addresses[i] = temp_child_address;
-                temp_child_address = c->nextChildAddress;
-                i++;
-            }
+                // Draw asking bitmap
+                oledBitmapDrawFlash(0, 0, BITMAP_LOGIN, 0);
             
-            // If nothing after, hide right arrow
-            if ((i != 4) || (c->nextChildAddress == NODE_ADDR_NULL))
-            {
-                oledFillXY(177, 25, 16, 14, 0x00);
-                led_mask |= LED_MASK_RIGHT;
-            }
+                // Write domain name on screen
+                char temp_string[INDEX_TRUNCATE_SERVICE_CENTER+1];
+                memcpy(temp_string, (char*)p->service, sizeof(temp_string));
+                temp_string[INDEX_TRUNCATE_SERVICE_CENTER] = 0;
+                oledPutstrXY(0, 24, OLED_CENTRE, temp_string);
             
-            // Light only the available choices
-            for (j = i; j < 4; j++)
-            {
-                led_mask |= (1 << j);
-            }
+                // Clear led_mask
+                led_mask = 0;
+                i = 0;
             
-            // Display picture
-            oledDisplayOtherBuffer();
-            
-            // Get touched quarter
-            #if defined(HARDWARE_OLIVIER_V1)
-                j = getTouchedPositionAnswer(led_mask);
-            #elif defined(MINI_VERSION)
-                j = 0;
-            #endif
-            
-            // Check its validity, knowing that by default we will return NODE_ADDR_NULL
-            if (j == -1)
-            {
-                // Time out
-                action_chosen = TRUE;
-            }
-            else if (j < i)
-            {
-                picked_child = addresses[j];
-                action_chosen = TRUE;
-            }
-            else if (j == TOUCHPOS_LEFT)
-            {                
-                // If there is a previous children, go back 4 indexes
-                if (addresses[0] != first_child_address)
+                // List logins on screen
+                while ((temp_child_address != NODE_ADDR_NULL) && (i != 4))
                 {
-                    c->prevChildAddress = addresses[0];
-                    for (i = 0; i < 5; i++)
+                    // Read child node to get login
+                    readChildNode(c, temp_child_address);
+                
+                    // Print Login at the correct slot
+                    displayCredentialAtSlot(i, (char*)c->login, INDEX_TRUNCATE_LOGIN_FAV);            
+                
+                    // Store address in array, fetch next address
+                    addresses[i] = temp_child_address;
+                    temp_child_address = c->nextChildAddress;
+                    i++;
+                }
+            
+                // If nothing after, hide right arrow
+                if ((i != 4) || (c->nextChildAddress == NODE_ADDR_NULL))
+                {
+                    oledFillXY(177, 25, 16, 14, 0x00);
+                    led_mask |= LED_MASK_RIGHT;
+                }
+            
+                // Light only the available choices
+                for (j = i; j < 4; j++)
+                {
+                    led_mask |= (1 << j);
+                }
+            
+                // Display picture
+                oledDisplayOtherBuffer();
+            
+                // Get touched quarter
+                #if defined(HARDWARE_OLIVIER_V1)
+                    j = getTouchedPositionAnswer(led_mask);
+                #elif defined(MINI_VERSION)
+                    j = 0;
+                #endif
+            
+                // Check its validity, knowing that by default we will return NODE_ADDR_NULL
+                if (j == -1)
+                {
+                    // Time out
+                    action_chosen = TRUE;
+                }
+                else if (j < i)
+                {
+                    picked_child = addresses[j];
+                    action_chosen = TRUE;
+                }
+                else if (j == TOUCHPOS_LEFT)
+                {                
+                    // If there is a previous children, go back 4 indexes
+                    if (addresses[0] != first_child_address)
                     {
-                        temp_child_address = c->prevChildAddress;
-                        readChildNode(c, temp_child_address);
+                        c->prevChildAddress = addresses[0];
+                        for (i = 0; i < 5; i++)
+                        {
+                            temp_child_address = c->prevChildAddress;
+                            readChildNode(c, temp_child_address);
+                        }
                     }
+                    else
+                    {
+                        // otherwise, return
+                        action_chosen = TRUE;
+                    }
+                }
+                else if ((j == TOUCHPOS_RIGHT) && (i == 4) && (c->nextChildAddress != NODE_ADDR_NULL))
+                {
+                    // If there are more nodes to display, let it loop
+                    // temp_child_address = c->nextChildAddress;
                 }
                 else
                 {
-                    // otherwise, return
-                    action_chosen = TRUE;
+                    // Wrong position
+                    temp_child_address = addresses[0];
                 }
             }
-            else if ((j == TOUCHPOS_RIGHT) && (i == 4) && (c->nextChildAddress != NODE_ADDR_NULL))
+        #elif defined(MINI_VERSION)
+            // Temp variables
+            uint16_t temp_cur_first_child_address_displayed = first_child_address;
+            uint8_t real_first_child_displayed = FALSE;
+            temp_child_address = first_child_address;
+            uint8_t string_refresh_needed = TRUE;
+            uint8_t action_chosen = FALSE;
+            RET_TYPE wheel_action;
+
+            // Variables for scrolling
+            uint8_t maxYCoordinates[4] = {SSD1305_OLED_WIDTH, 20, SSD1305_OLED_WIDTH - 30, SSD1305_OLED_WIDTH};
+            uint8_t startYCoordinates[4] = {0, 0, 30, SSD1305_OLED_WIDTH - 20};
+            uint8_t string_offset_cntrs[4];
+            uint8_t string_extra_chars[4];
+
+            // Display service & please select credential string
+            oledClear();
+            miniOledPutCenteredString(11, readStoredStringToBuffer(ID_STRING_SELECT_CREDENTIAL));
+            string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(0, (char*)p->service);
+
+            // Clear pending detections & light up screen
+            miniWheelClearDetections();
+            activityDetectedRoutine();
+
+            // Arm timer for scrolling (caps timer that isn't relevant here)
+            activateTimer(TIMER_CAPS, SCROLLING_DEL);
+        
+            while (action_chosen == FALSE)
             {
-                // If there are more nodes to display, let it loop
-                // temp_child_address = c->nextChildAddress;
+                uint8_t i;
+                        
+                // If needed, re-compute the string offsets & extra chars
+                if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED))
+                {
+                    if(string_refresh_needed != FALSE)
+                    {
+                        // Reset counters
+                        memset((void*)string_offset_cntrs, 0x00, sizeof(string_offset_cntrs));
+                    }
+                    else
+                    {
+                        // Implement scrolling
+                        for (i = 1; i < 4; i++)
+                        {
+                            if (string_extra_chars[i] > 0)
+                            {
+                                if (string_offset_cntrs[i]++ == string_extra_chars[i])
+                                {
+                                    string_offset_cntrs[i] = 0;
+                                }
+                            }
+                        }
+                    }
+
+                    // Scrolling timer expired
+                    activateTimer(TIMER_CAPS, SCROLLING_DEL);                    
+
+                    // Start looping, starting from the first displayed child
+                    temp_child_address = temp_cur_first_child_address_displayed;
+                    miniOledDrawRectangle(0, 21, SSD1305_OLED_WIDTH, SSD1305_OLED_HEIGHT-21, FALSE);
+
+                    // Offset for selecting the first credential
+                    if (real_first_child_displayed == FALSE)
+                    {
+                        i = 1;
+                    } 
+                    else
+                    {
+                        i = 2;
+                    }
+
+                    for (; (i < 4) && (temp_child_address != NODE_ADDR_NULL); i++)
+                    {
+                        // Read child node to get login
+                        readChildNode(c, temp_child_address);                        
+                        
+                        // Print Login at the correct slot
+                        miniOledSetMaxTextY(maxYCoordinates[i]);
+                        string_extra_chars[i] = strlen((char*)c->login) - miniOledPutstrXY(startYCoordinates[i], 21, OLED_CENTRE, (char*)c->login + string_offset_cntrs[i]);
+
+                        // Second child displayed is the chosen one
+                        if (i == 2)
+                        {
+                            picked_child = temp_child_address;
+                        }
+                        
+                        // Fetch next address
+                        temp_child_address = c->nextChildAddress;
+                    }
+                    
+                    miniOledSetMaxTextY(SSD1305_OLED_WIDTH);
+                    miniOledFlushEntireBufferToDisplay();
+                    string_refresh_needed = FALSE;
+                }
+            
+                // Get wheel action
+                wheel_action = miniGetWheelAction(FALSE, FALSE);
+            
+                // Check its validity, knowing that by default we will return NODE_ADDR_NULL
+                if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
+                {
+                    action_chosen = TRUE;
+                }
+                else if ((wheel_action == WHEEL_ACTION_UP) && (i > 3))
+                {
+                    // Move to the next credential
+                    string_refresh_needed = TRUE;
+
+                    if (real_first_child_displayed != FALSE)
+                    {
+                        real_first_child_displayed = FALSE;
+                    }
+                    else
+                    {
+                        temp_cur_first_child_address_displayed = picked_child;
+                    }
+                }
+                else if ((wheel_action == WHEEL_ACTION_DOWN) && (real_first_child_displayed == FALSE))
+                {                 
+                    // Move to the previous credential    
+                    string_refresh_needed = TRUE;
+
+                     if (temp_cur_first_child_address_displayed == first_child_address)
+                     {
+                        real_first_child_displayed = TRUE;
+                     }
+                     else
+                     {
+                        // Read child node to get previous node
+                        readChildNode(c, temp_cur_first_child_address_displayed);
+                        temp_cur_first_child_address_displayed = c->prevChildAddress;
+                     }                     
+                }
+
+                if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+                {
+                    return NODE_ADDR_NULL;
+                }
             }
-            else
-            {
-                // Wrong position
-                temp_child_address = addresses[0];
-            }
-        }
+        #endif
     }
     
     return picked_child;

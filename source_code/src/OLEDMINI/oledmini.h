@@ -105,6 +105,7 @@ void miniOledDumpCurrentFont(void);
 void miniOledClearFrameBuffer(void);
 void miniOledWriteActiveBuffer(void);
 void miniOledDisplayOtherBuffer(void);
+void miniOledSetMaxTextY(uint8_t maxY);
 void miniOledWriteInactiveBuffer(void);
 uint8_t miniOledPutstr(const char* str);
 void miniOledSetFont(uint8_t fontIndex);

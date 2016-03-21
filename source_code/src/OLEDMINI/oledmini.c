@@ -67,6 +67,8 @@ uint8_t miniOledTextCurY = 0;
 uint8_t miniOledFlushText = FALSE;
 // Bool to allow text writing Y increment
 uint8_t miniOledTextWritingYIncrement = FALSE;
+// Maximum Y when printing text (used for truncating)
+uint8_t miniOledMaxTextY = SSD1305_OLED_WIDTH;
 
 // OLED initialization sequence
 #define OLEDMINI_ALT_INIT_CODE
@@ -922,7 +924,7 @@ RET_TYPE miniOledPutch(char ch)
         uint8_t width = miniOledGlyphWidth(ch);
         
         // Check if we're not larger than the screen
-        if (width + miniOledTextCurX > SSD1305_OLED_WIDTH)
+        if ((width + miniOledTextCurX) > miniOledMaxTextY)
         {
             if (miniOledTextWritingYIncrement != FALSE)
             {
@@ -1019,13 +1021,9 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
     // Compute where to start displaying the string
     if (justify == OLED_CENTRE)
     {
-        if (width >= SSD1305_OLED_WIDTH)
+        if ((x + width) < miniOledMaxTextY)
         {
-            x = 0;
-        }
-        else
-        {
-            x = SSD1305_OLED_WIDTH/2 - width/2 + x;
+            x = (miniOledMaxTextY + x - width)/2;
         }
     } 
     else if (justify == OLED_RIGHT)
@@ -1034,13 +1032,13 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
         {
             x -= width;
         } 
-        else if (width >= SSD1305_OLED_WIDTH)
+        else if (width >= miniOledMaxTextY)
         {
             x = 0;
         }
         else 
         {
-            x = SSD1305_OLED_WIDTH - width;
+            x = miniOledMaxTextY - width;
         }
     }
     
@@ -1061,6 +1059,15 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
 uint8_t miniOledPutCenteredString(uint8_t y, char* string)
 {
     return miniOledPutstrXY(0, y, OLED_CENTRE, string);
+}
+
+/*! \fn     miniOledSetMaxTextY(uint8_t maxY)
+ *  \brief  Set the max Y coordinate when printing text
+ *  \param  y       y coordinate
+ */
+void miniOledSetMaxTextY(uint8_t maxY)
+{
+    miniOledMaxTextY = maxY;
 }
 
 /*! \fn     miniOledCheckFlashStringsWidth(void)

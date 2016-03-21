@@ -582,9 +582,9 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
                 {
                     if (string_extra_chars[i] > 0)
                     {
-                        miniOledPutCenteredString(string_y_indexes[i], (text_object->lines[i]) + string_offset_cntrs[i]++);
+                        miniOledPutCenteredString(string_y_indexes[i], (text_object->lines[i]) + string_offset_cntrs[i]);
                         
-                        if (string_offset_cntrs[i] == string_extra_chars[i])
+                        if (string_offset_cntrs[i]++ == string_extra_chars[i])
                         {
                             string_offset_cntrs[i] = 0;
                         }

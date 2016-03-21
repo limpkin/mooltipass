@@ -257,9 +257,10 @@
     #define ID_STRING_FUNC_TEST_SCROLL  68
     #define ID_STRING_PIN_COMPUTER      69
     #define ID_STRING_SEND_PASS_FOR     70
+    #define ID_STRING_SELECT_CREDENTIAL 71
 
     #define ID_FIRST_STRING             0
-    #define ID_LAST_STRING              ID_STRING_FUNC_TEST_SCROLL
+    #define ID_LAST_STRING              ID_STRING_SELECT_CREDENTIAL
 #endif
 
 // Keyboard LUTs

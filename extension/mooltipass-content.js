@@ -1490,12 +1490,14 @@ cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
         if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('username')) {
             cipTwoPageLogin.setFilledIn('username');
             cip.u.val(cip.credentials[0].Login);
+			cip.u.trigger({ type : 'change' });
         }
     }
     if (cip.p) {
         if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('password')) {
             cipTwoPageLogin.setFilledIn('password');
             cip.p.val(cip.credentials[0].Password);
+			cip.p.trigger({ type : 'change' });
         }
     }
 }

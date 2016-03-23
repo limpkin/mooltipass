@@ -117,7 +117,7 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     //#define MINI_JOYSTICK
-    #define NO_PIN_CODE_REQUIRED
+    //#define NO_PIN_CODE_REQUIRED
     #define FLASH_CHIP_4M
     #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED

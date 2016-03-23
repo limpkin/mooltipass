@@ -64,10 +64,10 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
             }
         }
     #elif defined(MINI_VERSION)
-        oledFillXY(10, 10, 100, 15, FALSE);
+        oledFillXY(0, 17, SSD1305_OLED_WIDTH, 15, FALSE);
         for (uint8_t i = 0; i < 4; i++)
         {
-            oledSetXY(10+10*i, 10);
+            oledSetXY(40+10*i, 17);
             if (i != selected_digit)
             {
                 oledPutch('*');
@@ -229,6 +229,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     
         // Draw pin entering bitmap
         oledClear();
+        miniOledPutCenteredString(5, readStoredStringToBuffer(stringID));
 //         oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
 //         oledBitmapDrawFlash(83, 51, BITMAP_PIN_LINES, 0);
 //         oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
@@ -238,7 +239,6 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
 //         oledWriteActiveBuffer();
     
         // Display current pin on screen
-        stringID++;
         guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
         miniOledFlushEntireBufferToDisplay();
     

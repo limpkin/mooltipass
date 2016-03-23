@@ -630,7 +630,7 @@ uint16_t loginSelectionScreen(void)
     {
         nb_parent_nodes = 1;
     }
-    else if (temp_pnode.nextChildAddress == getLastParentAddress())
+    else if (temp_pnode.nextParentAddress == getLastParentAddress())
     {
         first_address = getStartingParentAddress();
         nb_parent_nodes = 2;
@@ -707,6 +707,12 @@ uint16_t loginSelectionScreen(void)
                 {
                     temp_parent_address = getStartingParentAddress();
                 }
+
+                // Stop if we only have one credential
+                if (nb_parent_nodes == 1)
+                {
+                    break;
+                }
             }
 
             miniOledFlushEntireBufferToDisplay();
@@ -726,6 +732,19 @@ uint16_t loginSelectionScreen(void)
             // Move to the next credential
             string_refresh_needed = TRUE;
             first_address = cur_address_selected;
+
+            // Special case when there are only 2 credentials
+            if (nb_parent_nodes == 2)
+            {
+                if (first_address == getStartingParentAddress())
+                {
+                    first_address = getLastParentAddress();
+                }
+                else
+                {
+                    first_address = getStartingParentAddress();
+                }
+            }
         }
         else if (wheel_action == WHEEL_ACTION_DOWN)
         {

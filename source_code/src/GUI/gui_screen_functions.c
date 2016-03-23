@@ -95,221 +95,243 @@ void guiGetBackToCurrentScreen(void)
     }
 }
 
-/*! \fn     guiScreenLoop(uint8_t touch_detect_result)
+/*! \fn     guiScreenLoop(uint8_t input_interface_result)
 *   \brief  Function called to handle screen changes
-*   \param  touch_detect_result Touch detection result
+*   \param  input_interface_result Touch detection result
 */
-void guiScreenLoop(uint8_t touch_detect_result)
+void guiScreenLoop(uint8_t input_interface_result)
 {
-    uint8_t state_machine_val = currentScreen;
-    
-    // If no press, you can return!
-    if (!(touch_detect_result & TOUCH_PRESS_MASK))
-    {
-        return;
-    }
-    
-    // Prevent touches until the user lifts his finger
-    touchInhibitUntilRelease();
-    
-    // Current screen is codded in the first 8 bytes, so we set the lowest 8 bytes to the detection quarter
-    if (touch_detect_result & RETURN_WHEEL_PRESSED)
-    {
-        state_machine_val |= getWheelTouchDetectionQuarter();
-    }
-    else
-    {
-        state_machine_val |= 0x0F;
-    }
-    
-    if (currentScreen == SCREEN_DEFAULT_NINSERTED)
-    {
-        // No smart card inserted, ask the user to insert one
-        guiDisplayInsertSmartCardScreenAndWait();
-    }
-    else if (currentScreen == SCREEN_MEMORY_MGMT)
-    {
-        // Currently in memory management mode, tell the user to finish it via the plugin/app
-        guiDisplayInformationOnScreenAndWait(ID_STRING_CLOSEMEMMGMT);
-        guiGetBackToCurrentScreen();
-    }
-    else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
-    {
-        // Locked screen and a detection happened, check that the user hasn't removed his card, launch unlocking process
-        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0) == RETURN_VCARD_OK))
+    #if defined(MINI_VERSION)
+        // If no press, you can return!
+        if (input_interface_result == WHEEL_ACTION_NONE)
         {
-            // User approved his pin
-            currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+            return;
         }
-        
-        // Go to the new screen
-        guiGetBackToCurrentScreen();
-    }
-    else
-    {
-        if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_BRIGHT))
-        {
-            // User wants to lock his mooltipass
-            currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-            handleSmartcardRemoved();
-            guiGetBackToCurrentScreen();
-        }
-        else if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_TRIGHT))
-        {
-            // User wants to go to the settings menu
-            currentScreen = SCREEN_SETTINGS;
-            guiGetBackToCurrentScreen();
-        }
-        else if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_BLEFT))
-        {
-            // User wants to go to the favorite menu
-            favoritePickingLogic();
-            guiGetBackToCurrentScreen();
-        }
-        else if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_TLEFT))
+
+        if (input_interface_result == WHEEL_ACTION_CLICK_UP)
         {
             // User wants to go to the login menu
             if (getStartingParentAddress() != NODE_ADDR_NULL)
             {
                 loginSelectLogic();
-            } 
+            }
             else
-            {                
+            {
                 guiDisplayInformationOnScreenAndWait(ID_STRING_NO_CREDS);
             }
             guiGetBackToCurrentScreen();
         }
-        else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BLEFT))
+    #elif defined(HARDWARE_OLIVIER_V1)
+        uint8_t state_machine_val = currentScreen;
+    
+        // If no press, you can return!
+        if (!(input_interface_result & TOUCH_PRESS_MASK))
         {
-            // User wants to delete his profile in flash / eeprom....
-            if ((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOUSURE)) == RETURN_OK) && (removeCardAndReAuthUser() == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOURLSURE)) == RETURN_OK))
-            {
-                uint8_t currentuserid = getCurrentUserID();
-                guiDisplayProcessingScreen();
-                deleteCurrentUserFromFlash();
-                    
-                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ERASE_TCARD)) == RETURN_OK)
-                {
-                    guiDisplayProcessingScreen();
-                    eraseSmartCard();
-                        
-                    // Erase other smartcards
-                    while (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_OTHECARDFUSER)) == RETURN_OK)
-                    {
-                        // Ask the user to insert other smartcards
-                        guiDisplayInformationOnScreen(ID_STRING_INSERT_OTHER);
-                            
-                        // Wait for the user to remove and enter another smartcard
-                        while (isCardPlugged() != RETURN_JRELEASED);
-                            
-                        // Wait for the user to insert a new smart card
-                        while (isCardPlugged() != RETURN_JDETECT);
-                        guiDisplayProcessingScreen();
-                            
-                        // Check the card type & ask user to enter his pin, check that the new user id loaded by validCardDetectedFunction is still the same
-                        if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0) == RETURN_VCARD_OK) && (currentuserid == getCurrentUserID()))
-                        {
-                            eraseSmartCard();
-                        }
-                    }
-                }                    
-                    
-                // Delete LUT entries
-                guiDisplayProcessingScreen();
-                deleteUserIdFromSMCUIDLUT(currentuserid);
-                    
-                // Go to invalid screen
-                currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
-            }
-            else
-            {
-                handleSmartcardRemoved();
-                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;                    
-            }
-            userViewDelay();
+            return;
+        }
+    
+        // Prevent touches until the user lifts his finger
+        touchInhibitUntilRelease();
+    
+        // Current screen is codded in the first 8 bytes, so we set the lowest 8 bytes to the detection quarter
+        if (input_interface_result & RETURN_WHEEL_PRESSED)
+        {
+            state_machine_val |= getWheelTouchDetectionQuarter();
+        }
+        else
+        {
+            state_machine_val |= 0x0F;
+        }
+    
+        if (currentScreen == SCREEN_DEFAULT_NINSERTED)
+        {
+            // No smart card inserted, ask the user to insert one
+            guiDisplayInsertSmartCardScreenAndWait();
+        }
+        else if (currentScreen == SCREEN_MEMORY_MGMT)
+        {
+            // Currently in memory management mode, tell the user to finish it via the plugin/app
+            guiDisplayInformationOnScreenAndWait(ID_STRING_CLOSEMEMMGMT);
             guiGetBackToCurrentScreen();
         }
-        else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BRIGHT))
+        else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
         {
-            // User wants to clone his smartcard
-            volatile uint16_t pin_code;
-            RET_TYPE temp_rettype;
-                
-            // Reauth user
-            if (removeCardAndReAuthUser() == RETURN_OK)
+            // Locked screen and a detection happened, check that the user hasn't removed his card, launch unlocking process
+            if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0) == RETURN_VCARD_OK))
             {
-                // Ask for new pin
-                temp_rettype = guiAskForNewPin(&pin_code, ID_STRING_PIN_NEW_CARD);
-                if (temp_rettype == RETURN_NEW_PIN_OK)
+                // User approved his pin
+                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+            }
+        
+            // Go to the new screen
+            guiGetBackToCurrentScreen();
+        }
+        else
+        {
+            if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_BRIGHT))
+            {
+                // User wants to lock his mooltipass
+                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                handleSmartcardRemoved();
+                guiGetBackToCurrentScreen();
+            }
+            else if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_TRIGHT))
+            {
+                // User wants to go to the settings menu
+                currentScreen = SCREEN_SETTINGS;
+                guiGetBackToCurrentScreen();
+            }
+            else if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_BLEFT))
+            {
+                // User wants to go to the favorite menu
+                favoritePickingLogic();
+                guiGetBackToCurrentScreen();
+            }
+            else if (state_machine_val == (SCREEN_DEFAULT_INSERTED_NLCK|TOUCHPOS_WHEEL_TLEFT))
+            {
+                // User wants to go to the login menu
+                if (getStartingParentAddress() != NODE_ADDR_NULL)
                 {
-                    // Start the cloning process
-                    if (cloneSmartCardProcess(&pin_code) == RETURN_OK)
+                    loginSelectLogic();
+                } 
+                else
+                {                
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_NO_CREDS);
+                }
+                guiGetBackToCurrentScreen();
+            }
+            else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BLEFT))
+            {
+                // User wants to delete his profile in flash / eeprom....
+                if ((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOUSURE)) == RETURN_OK) && (removeCardAndReAuthUser() == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_AREYOURLSURE)) == RETURN_OK))
+                {
+                    uint8_t currentuserid = getCurrentUserID();
+                    guiDisplayProcessingScreen();
+                    deleteCurrentUserFromFlash();
+                    
+                    if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ERASE_TCARD)) == RETURN_OK)
                     {
-                        // Well it worked....
-                    } 
-                    else
+                        guiDisplayProcessingScreen();
+                        eraseSmartCard();
+                        
+                        // Erase other smartcards
+                        while (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_OTHECARDFUSER)) == RETURN_OK)
+                        {
+                            // Ask the user to insert other smartcards
+                            guiDisplayInformationOnScreen(ID_STRING_INSERT_OTHER);
+                            
+                            // Wait for the user to remove and enter another smartcard
+                            while (isCardPlugged() != RETURN_JRELEASED);
+                            
+                            // Wait for the user to insert a new smart card
+                            while (isCardPlugged() != RETURN_JDETECT);
+                            guiDisplayProcessingScreen();
+                            
+                            // Check the card type & ask user to enter his pin, check that the new user id loaded by validCardDetectedFunction is still the same
+                            if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0) == RETURN_VCARD_OK) && (currentuserid == getCurrentUserID()))
+                            {
+                                eraseSmartCard();
+                            }
+                        }
+                    }                    
+                    
+                    // Delete LUT entries
+                    guiDisplayProcessingScreen();
+                    deleteUserIdFromSMCUIDLUT(currentuserid);
+                    
+                    // Go to invalid screen
+                    currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
+                }
+                else
+                {
+                    handleSmartcardRemoved();
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;                    
+                }
+                userViewDelay();
+                guiGetBackToCurrentScreen();
+            }
+            else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BRIGHT))
+            {
+                // User wants to clone his smartcard
+                volatile uint16_t pin_code;
+                RET_TYPE temp_rettype;
+                
+                // Reauth user
+                if (removeCardAndReAuthUser() == RETURN_OK)
+                {
+                    // Ask for new pin
+                    temp_rettype = guiAskForNewPin(&pin_code, ID_STRING_PIN_NEW_CARD);
+                    if (temp_rettype == RETURN_NEW_PIN_OK)
+                    {
+                        // Start the cloning process
+                        if (cloneSmartCardProcess(&pin_code) == RETURN_OK)
+                        {
+                            // Well it worked....
+                        } 
+                        else
+                        {
+                            currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                            guiDisplayInformationOnScreen(ID_STRING_TGT_CARD_NBL);
+                        }
+                        pin_code = 0x0000;
+                    }
+                    else if (temp_rettype == RETURN_NEW_PIN_DIFF)
                     {
                         currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                        guiDisplayInformationOnScreen(ID_STRING_TGT_CARD_NBL);
+                        guiDisplayInformationOnScreen(ID_STRING_PIN_DIFF);                        
+                    }
+                    else
+                    {                        
+                        guiGetBackToCurrentScreen();
+                        return;
+                    }
+                }
+                else
+                {
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                    guiDisplayInformationOnScreen(ID_STRING_FAILED);
+                }
+                userViewDelay();
+                guiGetBackToCurrentScreen();
+            }
+            else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_TLEFT))
+            {
+                // User wants to go to the main menu
+                currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
+                guiGetBackToCurrentScreen();
+            }
+            else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_TRIGHT))
+            {
+                // User wants to change his PIN code
+                
+                // Reauth user
+                if (removeCardAndReAuthUser() == RETURN_OK)
+                {
+                    // User approved his pin, ask his new one
+                    volatile uint16_t pin_code;
+                                        
+                    if (guiAskForNewPin(&pin_code, ID_STRING_NEW_PINQ) == RETURN_NEW_PIN_OK)
+                    {
+                        // User successfully entered a new pin
+                        writeSecurityCode(&pin_code);
+                        // Inform of success
+                        guiDisplayInformationOnScreenAndWait(ID_STRING_PIN_CHANGED);
+                    }
+                    else
+                    {
+                        // Inform of fail
+                        guiDisplayInformationOnScreenAndWait(ID_STRING_PIN_NCGHANGED);
                     }
                     pin_code = 0x0000;
                 }
-                else if (temp_rettype == RETURN_NEW_PIN_DIFF)
+                else
                 {
                     currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                    guiDisplayInformationOnScreen(ID_STRING_PIN_DIFF);                        
                 }
-                else
-                {                        
-                    guiGetBackToCurrentScreen();
-                    return;
-                }
+                guiGetBackToCurrentScreen();
             }
-            else
-            {
-                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                guiDisplayInformationOnScreen(ID_STRING_FAILED);
-            }
-            userViewDelay();
-            guiGetBackToCurrentScreen();
         }
-        else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_TLEFT))
-        {
-            // User wants to go to the main menu
-            currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
-            guiGetBackToCurrentScreen();
-        }
-        else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_TRIGHT))
-        {
-            // User wants to change his PIN code
-                
-            // Reauth user
-            if (removeCardAndReAuthUser() == RETURN_OK)
-            {
-                // User approved his pin, ask his new one
-                volatile uint16_t pin_code;
-                                        
-                if (guiAskForNewPin(&pin_code, ID_STRING_NEW_PINQ) == RETURN_NEW_PIN_OK)
-                {
-                    // User successfully entered a new pin
-                    writeSecurityCode(&pin_code);
-                    // Inform of success
-                    guiDisplayInformationOnScreenAndWait(ID_STRING_PIN_CHANGED);
-                }
-                else
-                {
-                    // Inform of fail
-                    guiDisplayInformationOnScreenAndWait(ID_STRING_PIN_NCGHANGED);
-                }
-                pin_code = 0x0000;
-            }
-            else
-            {
-                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-            }
-            guiGetBackToCurrentScreen();
-        }
-    }    
+    #endif 
 }
 
 /*! \fn     guiAskForNewPin(uint16_t* new_pin, uint8_t message_id)

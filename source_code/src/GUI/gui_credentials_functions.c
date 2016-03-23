@@ -611,6 +611,9 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
 */
 uint16_t loginSelectionScreen(void)
 {
+#if defined(MINI_VERSION)
+    return NODE_ADDR_NULL;
+#elif defined(HARDWARE_OLIVIER_V1)
     char currentText[SEARCHTEXT_MAX_LENGTH+1];
     uint8_t displayRefreshNeeded = TRUE;
     uint16_t ret_val = NODE_ADDR_NULL;
@@ -620,7 +623,7 @@ uint16_t loginSelectionScreen(void)
     uint8_t nbMatchedParents= 0;
     uint8_t finished = FALSE;
     RET_TYPE temp_rettype;
-    uint8_t led_mask = 0;
+    uint8_t led_mask = 0;q
     int8_t temp_int8;
     
     // Set current text to a
@@ -733,4 +736,5 @@ uint16_t loginSelectionScreen(void)
     oledWriteInactiveBuffer();
     
     return ret_val;
+#endif
 }    

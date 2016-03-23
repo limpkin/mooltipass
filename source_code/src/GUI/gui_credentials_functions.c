@@ -612,23 +612,32 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
 uint16_t loginSelectionScreen(void)
 {
 #if defined(MINI_VERSION)
-    uint16_t first_address = getStartingParentAddress();
+    uint16_t first_address = getLastParentAddress();
     uint16_t cur_address_selected = NODE_ADDR_NULL;
-    uint8_t real_first_address_selected = FALSE;
     uint8_t string_refresh_needed = TRUE;
     uint8_t y_coordinates[] = {0, 11, 21};
     uint8_t string_offset_cntrs[3];
     uint8_t string_extra_chars[3];
     uint16_t temp_parent_address;
+    uint8_t nb_parent_nodes;
     RET_TYPE wheel_action;
     pNode temp_pnode;
     uint8_t i;
 
-    // Read first parent node, see if there's more than one
-    readParentNode(&temp_pnode, first_address);
-    if (temp_pnode.nextChildAddress == NODE_ADDR_NULL)
+    // Read first parent node, see if there's more than 2 credentials
+    readParentNode(&temp_pnode, getStartingParentAddress());
+    if (getLastParentAddress() == getStartingParentAddress())
     {
-        real_first_address_selected = TRUE;
+        nb_parent_nodes = 1;
+    }
+    else if (temp_pnode.nextChildAddress == getLastParentAddress())
+    {
+        first_address = getStartingParentAddress();
+        nb_parent_nodes = 2;
+    }
+    else
+    {
+        nb_parent_nodes = 3;
     }
 
     // Arm timer for scrolling (caps timer that isn't relevant here)
@@ -666,7 +675,7 @@ uint16_t loginSelectionScreen(void)
             temp_parent_address = first_address;
 
             // Skip one display slot if the real first parent is selected
-            if (real_first_address_selected != FALSE)
+            if (nb_parent_nodes < 3)
             {
                 i = 1;
             } 
@@ -678,7 +687,7 @@ uint16_t loginSelectionScreen(void)
             oledClear();
             // Display the parent nodes
             //miniOledPutCenteredString(0, (char*)temp_pnode.service);miniOledFlushEntireBufferToDisplay();
-            for (; (i < 3) && (temp_parent_address != NODE_ADDR_NULL); i++)
+            for (; (i < 3); i++)
             {
                 // Read child node to get login
                 readParentNode(&temp_pnode, temp_parent_address);
@@ -694,6 +703,10 @@ uint16_t loginSelectionScreen(void)
                 
                 // Fetch next address
                 temp_parent_address = temp_pnode.nextParentAddress;
+                if (temp_parent_address == NODE_ADDR_NULL)
+                {
+                    temp_parent_address = getStartingParentAddress();
+                }
             }
 
             miniOledFlushEntireBufferToDisplay();
@@ -708,32 +721,24 @@ uint16_t loginSelectionScreen(void)
         {
             return cur_address_selected;
         }
-        else if ((wheel_action == WHEEL_ACTION_UP) && (i > 2))
+        else if (wheel_action == WHEEL_ACTION_UP)
         {
             // Move to the next credential
             string_refresh_needed = TRUE;
-
-            if (real_first_address_selected != FALSE)
-            {
-                real_first_address_selected = FALSE;
-            }
-            else
-            {
-                first_address = cur_address_selected;
-            }
+            first_address = cur_address_selected;
         }
-        else if ((wheel_action == WHEEL_ACTION_DOWN) && (real_first_address_selected == FALSE))
+        else if (wheel_action == WHEEL_ACTION_DOWN)
         {
             // Move to the previous credential
             string_refresh_needed = TRUE;
 
+            // Read child node to get previous node
             if (first_address == getStartingParentAddress())
             {
-                real_first_address_selected = TRUE;
+                first_address = getLastParentAddress();
             }
             else
             {
-                // Read child node to get previous node
                 readParentNode(&temp_pnode, first_address);
                 first_address = temp_pnode.prevParentAddress;
             }

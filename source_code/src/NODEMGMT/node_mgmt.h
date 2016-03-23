@@ -304,6 +304,7 @@ void setDataStartingParent(uint16_t dataParentAddress);
 void setStartingParent(uint16_t parentAddress);
 uint16_t getStartingDataParentAddress(void);
 uint16_t getStartingParentAddress(void);
+uint16_t getLastParentAddress(void);
 
 uint16_t getParentNodeForLetter(uint8_t letter);
 void populateServicesLut(void);

@@ -217,6 +217,7 @@ typedef struct __attribute__((packed)) nodeMgmtH
     uint16_t offsetUserProfile;     /*!< The offset of the user profile */
     uint16_t firstParentNode;       /*!< The address of the users first parent node (read from flash. eg cache) */
     uint16_t firstDataParentNode;   /*!< The address of the users first data parent node (read from flash. eg cache) */
+    uint16_t lastParentNode;        /*!< The address of the users last parent node (read from flash. eg cache) */
     uint16_t nextFreeNode;          /*!< The address of the next free node */
     gNode tempgNode;                /*!< A generic node to be used as a buffer */
     union {

@@ -865,6 +865,9 @@ void populateServicesLut(void)
                 currentNodeMgmtHandle.servicesLut[first_service_letter - 'a'] = next_node_addr;
             }
         }            
+
+        // Store last node address
+        currentNodeMgmtHandle.lastParentNode = next_node_addr;
             
         // Fetch next node
         next_node_addr = pnode_ptr->nextParentAddress;

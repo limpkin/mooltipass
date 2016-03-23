@@ -386,6 +386,173 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 */
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 {
+#if defined(MINI_VERSION)
+    uint8_t nbFavorites = 0, startIndex = 0, selectedIndex = 0;
+    uint16_t cur_address_selected = NODE_ADDR_NULL;
+    uint8_t string_refresh_needed = TRUE;
+    uint8_t y_coordinates[] = {0, 11, 21};
+    uint16_t parentAddresses[USER_MAX_FAV];
+    uint16_t childAddresses[USER_MAX_FAV];
+    uint16_t tempparaddr, tempchildaddr;
+    uint8_t string_offset_cntrs[3];
+    uint8_t string_extra_chars[3];
+    RET_TYPE wheel_action;
+    uint8_t i, j;
+    (void)c;
+    
+    // Browse through the favorites
+    for (i = 0; i < USER_MAX_FAV; i++)
+    {
+        // Read favorite, check that it is valid
+        readFav(i, &tempparaddr, &tempchildaddr);
+        
+        // If so, store it in our know addresses
+        if (tempparaddr != NODE_ADDR_NULL)
+        {
+            startIndex = i;
+            parentAddresses[nbFavorites] = tempparaddr;
+            childAddresses[nbFavorites++] = tempchildaddr;
+        }
+    }
+    
+    // If no favorite, return
+    if (nbFavorites == 0)
+    {
+        guiDisplayInformationOnScreenAndWait(ID_STRING_NOSTOREDFAV);
+        return NODE_ADDR_NULL;
+    }
+
+    // Arm timer for scrolling (caps timer that isn't relevant here)
+    activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+    while(1)
+    {
+        // If needed, re-compute the string offsets & extra chars
+        if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED))
+        {
+            if(string_refresh_needed != FALSE)
+            {
+                // Reset counters
+                memset((void*)string_offset_cntrs, 0x00, sizeof(string_offset_cntrs));
+            }
+            else
+            {
+                // Implement scrolling
+                for (i = 0; i < sizeof(string_extra_chars); i++)
+                {
+                    if (string_extra_chars[i] > 0)
+                    {
+                        if (string_offset_cntrs[i]++ == string_extra_chars[i])
+                        {
+                            string_offset_cntrs[i] = 0;
+                        }
+                    }
+                }
+            }
+
+            // Scrolling timer expired
+            activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+            // Start looping, starting from the first displayed favorite
+            j = startIndex;
+
+            // When less than 3 favorites, skip one slot
+            if (nbFavorites < 3)
+            {
+                i = 1;
+            }
+            else
+            {
+                i = 0;
+            }
+            
+            oledClear();
+            // Display the favorites
+            while(i != 3)
+            {
+                // Check that the favorite is valid
+                if (parentAddresses[j] != NODE_ADDR_NULL)
+                {
+                    // Read parent node to get service
+                    readParentNode(p, parentAddresses[j]);
+                    
+                    // Print service at the correct slot
+                    string_extra_chars[i] = strlen((char*)p->service) - miniOledPutCenteredString(y_coordinates[i], (char*)p->service + string_offset_cntrs[i]);
+
+                    // Second favorite displayed is the chosen one
+                    if (i == 1)
+                    {
+                        cur_address_selected = childAddresses[j];
+                        selectedIndex = j;
+                    }
+
+                    // Stop if we only have one credential
+                    if (nbFavorites == 1)
+                    {
+                        break;
+                    }
+
+                    // Visit next slot
+                    j++;
+                    i++;
+                }
+                else
+                {
+                    j++;
+                }
+
+                // Check if we need to loop
+                if (j == USER_MAX_FAV)
+                {
+                    j = 0;
+                }
+            }
+
+            miniOledFlushEntireBufferToDisplay();
+            string_refresh_needed = FALSE;
+        }
+
+        // Get wheel action
+        wheel_action = miniGetWheelAction(FALSE, FALSE);
+        
+        // User validated the selected credential
+        if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
+        {
+            return cur_address_selected;
+        }
+        else if (wheel_action == WHEEL_ACTION_UP)
+        {
+            // Move to the next credential
+            string_refresh_needed = TRUE;
+            startIndex = selectedIndex;
+
+            // Special case when there are only 2 credentials
+            if (nbFavorites == 2)
+            {
+                startIndex = (startIndex+1)%USER_MAX_FAV;
+            }
+        }
+        else if (wheel_action == WHEEL_ACTION_DOWN)
+        {
+            // Move to the previous credential
+            string_refresh_needed = TRUE;
+
+            do 
+            {
+                if (--startIndex == UINT8_MAX)
+                {
+                    startIndex = USER_MAX_FAV - 1;
+                }
+            } 
+            while (parentAddresses[startIndex] == NODE_ADDR_NULL);
+        }
+
+        if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+        {
+            return NODE_ADDR_NULL;
+        }
+    }
+#elif defined(HARDWARE_OLIVIER_V1)
     uint16_t picked_child = NODE_ADDR_NULL;
     uint16_t parentAddresses[USER_MAX_FAV];
     uint16_t childAddresses[USER_MAX_FAV];
@@ -459,11 +626,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         oledDisplayOtherBuffer();
         
         // Get touched quarter
-        #if defined(HARDWARE_OLIVIER_V1)
-            j = getTouchedPositionAnswer(led_mask);
-        #elif defined(MINI_VERSION)
-            j = getYesNoAnswerInput(TRUE);
-        #endif
+        j = getTouchedPositionAnswer(led_mask);
         
         // Check its validity, knowing that by default we will return NODE_ADDR_NULL
         if (j == -1)
@@ -499,6 +662,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     
     // Return selected child
     return picked_child;
+#endif
 }
 
 /*! \fn     displayCurrentSearchLoginTexts(char* text)

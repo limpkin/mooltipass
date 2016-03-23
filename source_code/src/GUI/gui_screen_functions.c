@@ -110,6 +110,10 @@ void guiScreenLoop(uint8_t input_interface_result)
 
         if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)
         {
+            // User wants to go to the favorite menu
+            favoritePickingLogic();
+            guiGetBackToCurrentScreen();
+            return;
             // User wants to go to the login menu
             if (getStartingParentAddress() != NODE_ADDR_NULL)
             {

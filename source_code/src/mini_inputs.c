@@ -326,6 +326,12 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
         }
     }
     while ((wait_for_action != FALSE) && (return_val == WHEEL_ACTION_NONE));
+
+    // Don't forget to call the activity detected routine if something happened
+    if (return_val != WHEEL_ACTION_NONE)
+    {
+        activityDetectedRoutine();
+    }
     
     return return_val;
 }

@@ -612,7 +612,138 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
 uint16_t loginSelectionScreen(void)
 {
 #if defined(MINI_VERSION)
-    return NODE_ADDR_NULL;
+    uint16_t first_address = getStartingParentAddress();
+    uint16_t cur_address_selected = NODE_ADDR_NULL;
+    uint8_t real_first_address_selected = FALSE;
+    uint8_t string_refresh_needed = TRUE;
+    uint8_t y_coordinates[] = {0, 11, 21};
+    uint8_t string_offset_cntrs[3];
+    uint8_t string_extra_chars[3];
+    uint16_t temp_parent_address;
+    RET_TYPE wheel_action;
+    pNode temp_pnode;
+    uint8_t i;
+
+    // Read first parent node, see if there's more than one
+    readParentNode(&temp_pnode, first_address);
+    if (temp_pnode.nextChildAddress == NODE_ADDR_NULL)
+    {
+        real_first_address_selected = TRUE;
+    }
+
+    // Arm timer for scrolling (caps timer that isn't relevant here)
+    activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+    while(1)
+    {
+        // If needed, re-compute the string offsets & extra chars
+        if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED))
+        {
+            if(string_refresh_needed != FALSE)
+            {
+                // Reset counters
+                memset((void*)string_offset_cntrs, 0x00, sizeof(string_offset_cntrs));
+            }
+            else
+            {
+                // Implement scrolling
+                for (i = 0; i < sizeof(string_extra_chars); i++)
+                {
+                    if (string_extra_chars[i] > 0)
+                    {
+                        if (string_offset_cntrs[i]++ == string_extra_chars[i])
+                        {
+                            string_offset_cntrs[i] = 0;
+                        }
+                    }
+                }
+            }
+
+            // Scrolling timer expired
+            activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+            // Start looping, starting from the first displayed child
+            temp_parent_address = first_address;
+
+            // Skip one display slot if the real first parent is selected
+            if (real_first_address_selected != FALSE)
+            {
+                i = 1;
+            } 
+            else
+            {
+                i = 0;
+            }
+            
+            oledClear();
+            // Display the parent nodes
+            //miniOledPutCenteredString(0, (char*)temp_pnode.service);miniOledFlushEntireBufferToDisplay();
+            for (; (i < 3) && (temp_parent_address != NODE_ADDR_NULL); i++)
+            {
+                // Read child node to get login
+                readParentNode(&temp_pnode, temp_parent_address);
+                
+                // Print Login at the correct slot
+                string_extra_chars[i] = strlen((char*)temp_pnode.service) - miniOledPutCenteredString(y_coordinates[i], (char*)temp_pnode.service + string_offset_cntrs[i]);
+
+                // Second child displayed is the chosen one
+                if (i == 1)
+                {
+                    cur_address_selected = temp_parent_address;
+                }
+                
+                // Fetch next address
+                temp_parent_address = temp_pnode.nextParentAddress;
+            }
+
+            miniOledFlushEntireBufferToDisplay();
+            string_refresh_needed = FALSE;
+        }
+
+        // Get wheel action
+        wheel_action = miniGetWheelAction(FALSE, FALSE);
+        
+        // User validated the selected credential
+        if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
+        {
+            return cur_address_selected;
+        }
+        else if ((wheel_action == WHEEL_ACTION_UP) && (i > 2))
+        {
+            // Move to the next credential
+            string_refresh_needed = TRUE;
+
+            if (real_first_address_selected != FALSE)
+            {
+                real_first_address_selected = FALSE;
+            }
+            else
+            {
+                first_address = cur_address_selected;
+            }
+        }
+        else if ((wheel_action == WHEEL_ACTION_DOWN) && (real_first_address_selected == FALSE))
+        {
+            // Move to the previous credential
+            string_refresh_needed = TRUE;
+
+            if (first_address == getStartingParentAddress())
+            {
+                real_first_address_selected = TRUE;
+            }
+            else
+            {
+                // Read child node to get previous node
+                readParentNode(&temp_pnode, first_address);
+                first_address = temp_pnode.prevParentAddress;
+            }
+        }
+
+        if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+        {
+            return NODE_ADDR_NULL;
+        }
+    }
 #elif defined(HARDWARE_OLIVIER_V1)
     char currentText[SEARCHTEXT_MAX_LENGTH+1];
     uint8_t displayRefreshNeeded = TRUE;
@@ -623,7 +754,7 @@ uint16_t loginSelectionScreen(void)
     uint8_t nbMatchedParents= 0;
     uint8_t finished = FALSE;
     RET_TYPE temp_rettype;
-    uint8_t led_mask = 0;q
+    uint8_t led_mask = 0;
     int8_t temp_int8;
     
     // Set current text to a

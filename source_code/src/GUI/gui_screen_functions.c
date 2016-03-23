@@ -108,7 +108,7 @@ void guiScreenLoop(uint8_t input_interface_result)
             return;
         }
 
-        if (input_interface_result == WHEEL_ACTION_CLICK_UP)
+        if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)
         {
             // User wants to go to the login menu
             if (getStartingParentAddress() != NODE_ADDR_NULL)

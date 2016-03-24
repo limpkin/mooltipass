@@ -152,10 +152,9 @@
 #elif defined(MINI_VERSION)
     // Font IDs
     #define FONT_NONE               255
-    #define FONT_PROFONT_9          1
-    #define FONT_PROFONT_18         16
-    #define FONT_PROFONT_24         17
-    #define FONT_DEFAULT            FONT_PROFONT_9
+    #define FONT_CC_REGULAR         1
+    #define FONT_PROFONT_14         2
+    #define FONT_DEFAULT            FONT_CC_REGULAR
 
     // Bimap IDs
     #define BITMAP_MOOLTIPASS     0

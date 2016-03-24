@@ -64,10 +64,10 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
             }
         }
     #elif defined(MINI_VERSION)
-        oledFillXY(0, 17, SSD1305_OLED_WIDTH, 15, FALSE);
+        oledFillXY(0, 13, SSD1305_OLED_WIDTH, SSD1305_OLED_HEIGHT-13, FALSE);
         for (uint8_t i = 0; i < 4; i++)
         {
-            oledSetXY(40+10*i, 17);
+            oledSetXY(39+14*i, 13);
             if (i != selected_digit)
             {
                 oledPutch('*');
@@ -229,7 +229,8 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     
         // Draw pin entering bitmap
         oledClear();
-        miniOledPutCenteredString(5, readStoredStringToBuffer(stringID));
+        miniOledPutCenteredString(2, readStoredStringToBuffer(stringID));
+        oledSetFont(FONT_PROFONT_14);
 //         oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
 //         oledBitmapDrawFlash(83, 51, BITMAP_PIN_LINES, 0);
 //         oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
@@ -328,8 +329,9 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         // Store the pin
         *pin_code = (uint16_t)(((uint16_t)(current_pin[0]) << 12) | (((uint16_t)current_pin[1]) << 8) | (current_pin[2] << 4) | current_pin[3]);
     
-        // Set current pin to 0000
+        // Set current pin to 0000 & set default font
         memset((void*)current_pin, 0, 4);
+        oledSetFont(FONT_DEFAULT);
     
         // Prevent touches until the user lifts his finger
         //touchInhibitUntilRelease();

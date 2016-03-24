@@ -665,6 +665,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 #endif
 }
 
+#ifdef HARDWARE_OLIVIER_V1
 /*! \fn     displayCurrentSearchLoginTexts(char* text)
 *   \brief  Display current search login text
 *   \param  text            Text to be displayed
@@ -768,6 +769,7 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
          
     return last_matching_parent_number;
 }
+#endif
 
 /*! \fn     loginSelectionScreen(void)
 *   \brief  Screen displayed to let the user choose/find a login

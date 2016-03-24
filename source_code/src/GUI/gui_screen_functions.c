@@ -533,18 +533,18 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         // Note: line are truncated at the oled driver level when miniOledTextWritingYIncrement is set to FALSE
         if (nb_args == 1)
         {
-            miniOledPutCenteredString(11, (char*)text_object);
+            miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, (char*)text_object);
         }
         else if (nb_args == 2)
         {
-            string_y_indexes[0] = 5;
-            string_y_indexes[1] = 16;
+            string_y_indexes[0] = TWO_LINE_TEXT_FIRST_POS;
+            string_y_indexes[1] = TWO_LINE_TEXT_SECOND_POS;
         }
         else
         {
-            string_y_indexes[0] = 0;
-            string_y_indexes[1] = 11;
-            string_y_indexes[2] = 21; 
+            string_y_indexes[0] = THREE_LINE_TEXT_FIRST_POS;
+            string_y_indexes[1] = THREE_LINE_TEXT_SECOND_POS;
+            string_y_indexes[2] = THREE_LINE_TEXT_THIRD_POS; 
         }
         
         // For loop to display lines when there is more than one arg

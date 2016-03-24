@@ -250,8 +250,8 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 
             // Display service & please select credential string
             oledClear();
-            miniOledPutCenteredString(11, readStoredStringToBuffer(ID_STRING_SELECT_CREDENTIAL));
-            string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(0, (char*)p->service);
+            miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, readStoredStringToBuffer(ID_STRING_SELECT_CREDENTIAL));
+            string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, (char*)p->service);
 
             // Clear pending detections & light up screen
             miniWheelClearDetections();
@@ -292,7 +292,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 
                     // Start looping, starting from the first displayed child
                     temp_child_address = temp_cur_first_child_address_displayed;
-                    miniOledDrawRectangle(0, 21, SSD1305_OLED_WIDTH, SSD1305_OLED_HEIGHT-21, FALSE);
+                    miniOledDrawRectangle(0, THREE_LINE_TEXT_THIRD_POS, SSD1305_OLED_WIDTH, SSD1305_OLED_HEIGHT-THREE_LINE_TEXT_THIRD_POS, FALSE);
 
                     // Offset for selecting the first credential
                     if (real_first_child_displayed == FALSE)
@@ -311,7 +311,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                         
                         // Print Login at the correct slot
                         miniOledSetMaxTextY(maxYCoordinates[i]);
-                        string_extra_chars[i] = strlen((char*)c->login) - miniOledPutstrXY(startYCoordinates[i], 21, OLED_CENTRE, (char*)c->login + string_offset_cntrs[i]);
+                        string_extra_chars[i] = strlen((char*)c->login) - miniOledPutstrXY(startYCoordinates[i], THREE_LINE_TEXT_THIRD_POS, OLED_CENTRE, (char*)c->login + string_offset_cntrs[i]);
 
                         // Second child displayed is the chosen one
                         if (i == 2)
@@ -387,10 +387,10 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 {
 #if defined(MINI_VERSION)
+    uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
     uint8_t nbFavorites = 0, startIndex = 0, selectedIndex = 0;
     uint16_t cur_address_selected = NODE_ADDR_NULL;
     uint8_t string_refresh_needed = TRUE;
-    uint8_t y_coordinates[] = {0, 11, 21};
     uint16_t parentAddresses[USER_MAX_FAV];
     uint16_t childAddresses[USER_MAX_FAV];
     uint16_t tempparaddr, tempchildaddr;
@@ -778,10 +778,10 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
 uint16_t loginSelectionScreen(void)
 {
 #if defined(MINI_VERSION)
+    uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
     uint16_t first_address = getLastParentAddress();
     uint16_t cur_address_selected = NODE_ADDR_NULL;
     uint8_t string_refresh_needed = TRUE;
-    uint8_t y_coordinates[] = {0, 11, 21};
     uint8_t string_offset_cntrs[3];
     uint8_t string_extra_chars[3];
     uint16_t temp_parent_address;
@@ -852,7 +852,6 @@ uint16_t loginSelectionScreen(void)
             
             oledClear();
             // Display the parent nodes
-            //miniOledPutCenteredString(0, (char*)temp_pnode.service);miniOledFlushEntireBufferToDisplay();
             for (; (i < 3); i++)
             {
                 // Read child node to get login

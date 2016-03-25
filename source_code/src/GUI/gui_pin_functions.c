@@ -304,8 +304,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             {
                 if (selected_digit == 2)
                 {
-                    //oledFillXY(238, 23, 18, 18, 0x00);
-                    //oledBitmapDrawFlash(240, 24, BITMAP_TICK, 0);
+                    //oledBitmapDrawFlash(0, SSD1305_OLED_WIDTH-15, BITMAP_TICK, 0);
                 }
                 if (selected_digit < 3)
                 {

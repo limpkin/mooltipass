@@ -44,7 +44,6 @@ void setSPIModeSMC(void);
 void initPortSMC(void);
 
 // Macros
-
 /*! \fn     isSmartCardAbsent(void)
 *   \brief  Function used to check if the smartcard is absent
 *   \note   This function should only be used to check if the smartcard is absent. It works because scanSMCDectect reports the

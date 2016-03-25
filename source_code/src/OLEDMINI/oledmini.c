@@ -432,7 +432,7 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
     
     for(uint8_t page = page_start; page <= page_end; page++)
     {
-        uint16_t buffer_shift = (((uint16_t)page) & SSD1305_SCREEN_PAGE_HEIGHT_BITMASK) << SSD1305_WIDTH_BIT_SHIFT;
+        uint16_t buffer_shift = (((uint16_t)page) % SSD1305_OLED_BUFFER_PAGE_HEIGHT) << SSD1305_WIDTH_BIT_SHIFT;
         for(uint8_t xpos = x; xpos < x + width; xpos++)
         {
             uint8_t or_mask = 0xFF;
@@ -1078,12 +1078,25 @@ void miniOledCheckFlashStringsWidth(void)
     // Clear screen, write wrong IDs on the screen
     miniOledTextCurX = 0;
     miniOledTextCurY = 0;
+    miniOledTextWritingYIncrement = TRUE;
     miniOledClearFrameBuffer();
     
-    miniOledPutstr("Wrong string IDs: ");
+    miniOledPutstr("> 113px: ");
     for (uint8_t i = ID_FIRST_STRING; i <= ID_LAST_STRING; i++)
     {
-        if (miniOledStrWidth(readStoredStringToBuffer(i)) > SSD1305_OLED_WIDTH)
+        if (miniOledStrWidth(readStoredStringToBuffer(i)) > (SSD1305_OLED_WIDTH-15))
+        {
+            int_to_string(i, temp_string);
+            miniOledPutstr(temp_string);
+            miniOledPutstr(" ");
+        }
+    }
+    miniOledTextCurX = 0;
+    miniOledTextCurY += 10;
+    miniOledPutstr("> 128px: ");
+    for (uint8_t i = ID_FIRST_STRING; i <= ID_LAST_STRING; i++)
+    {
+        if (miniOledStrWidth(readStoredStringToBuffer(i)) > (SSD1305_OLED_WIDTH))
         {
             int_to_string(i, temp_string);
             miniOledPutstr(temp_string);

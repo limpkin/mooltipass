@@ -37,6 +37,8 @@
 volatile uint8_t card_detect_counter = 0;
 /** Current detection state, see detect_return_t */
 volatile uint8_t button_return;
+/** Smartcard power state **/
+volatile uint8_t card_powered = FALSE;
 
 
 /*! \fn     smartcardHPulseDelay(void)
@@ -278,7 +280,7 @@ void scanSMCDectect(void)
     else
     {
         // Smartcard remove functions
-        if (card_detect_counter != 0)
+        if ((card_detect_counter != 0) && (card_powered != FALSE))
         {
             handleSmartcardRemoved();
         }
@@ -638,6 +640,7 @@ RET_TYPE firstDetectFunctionSMC(void)
 
     /* Enable power to the card */
     PORT_SC_POW &= ~(1 << PORTID_SC_POW);
+    card_powered = TRUE;
 
     /* Default state: PGM to 0 and RST to 1 */
     PORT_SC_PGM &= ~(1 << PORTID_SC_PGM);
@@ -692,6 +695,7 @@ void removeFunctionSMC(void)
 {
     /* Deactivate power to the smart card */
     PORT_SC_POW |= (1 << PORTID_SC_POW);
+    card_powered = FALSE;
 
     /* Setup all output pins as tri-state */
     PORT_SC_PGM &= ~(1 << PORTID_SC_PGM);

@@ -243,13 +243,13 @@ void guiScreenLoop(uint8_t input_interface_result)
                     case SCREEN_SETTINGS:
                     {
                         currentScreen = SCREEN_SETTINGS_CHANGE_PIN;
-                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
+                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                         break;
                     }
                     case SCREEN_SETTINGS_HOME:
                     {
                         currentScreen = SCREEN_LOGIN;
-                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
+                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                         break;
                     }
                     case SCREEN_SETTINGS_CHANGE_PIN:

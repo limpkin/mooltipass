@@ -307,11 +307,11 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
                 {
                     if (wheel_cur_increment_copy > 0)
                     {
-                        return_val = WHEEL_ACTION_UP;
+                        return_val = WHEEL_ACTION_DOWN;
                     }
                     else if (wheel_cur_increment_copy < 0)
                     {
-                        return_val = WHEEL_ACTION_DOWN;
+                        return_val = WHEEL_ACTION_UP;
                     }
                 }
 

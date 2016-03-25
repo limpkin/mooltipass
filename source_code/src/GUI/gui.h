@@ -53,13 +53,16 @@
     #define SCREEN_LOGIN                        1
     #define SCREEN_FAVORITES                    2
     #define SCREEN_SETTINGS                     3
-    #define SCREEN_MEMORY_MGMT                  4
-
-    #define SCREEN_DEFAULT_NINSERTED            5
-    #define SCREEN_DEFAULT_INSERTED_LCK         6
+    #define SCREEN_SETTINGS_CHANGE_PIN          4
+    #define SCREEN_SETTINGS_BACKUP              5
+    #define SCREEN_SETTINGS_HOME                6
+    #define SCREEN_SETTINGS_ERASE               7
+    #define SCREEN_MEMORY_MGMT                  8
+    #define SCREEN_DEFAULT_NINSERTED            9
+    #define SCREEN_DEFAULT_INSERTED_LCK         10
     #define SCREEN_DEFAULT_INSERTED_NLCK        SCREEN_LOGIN
-    #define SCREEN_DEFAULT_INSERTED_INVALID     7
-    #define SCREEN_DEFAULT_INSERTED_UNKNOWN     8
+    #define SCREEN_DEFAULT_INSERTED_INVALID     11
+    #define SCREEN_DEFAULT_INSERTED_UNKNOWN     12
 #endif
 // Truncate defines
 #define INDEX_TRUNCATE_SERVICE_SEARCH   14

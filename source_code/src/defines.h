@@ -117,7 +117,7 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     //#define MINI_JOYSTICK
-    #define NO_PIN_CODE_REQUIRED
+    //#define NO_PIN_CODE_REQUIRED
     #define FLASH_CHIP_4M
     #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED
@@ -231,7 +231,7 @@ enum timer_flag_t               {TIMER_EXPIRED = 0, TIMER_RUNNING = 1};
 enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};
 enum justify_t                  {OLED_LEFT  = 0, OLED_RIGHT = 1, OLED_CENTRE = 2};
-enum scrolling_flag_t           {OLED_SCROLL_NONE = 0, OLED_SCROLL_UP = 1, OLED_SCROLL_DOWN = 2};
+enum scrolling_flag_t           {OLED_SCROLL_NONE = 0, OLED_SCROLL_UP = 1, OLED_SCROLL_DOWN = 2, OLED_SCROLL_FLIP = 3};
 enum wheel_action_ret_t         {WHEEL_ACTION_NONE = 0, WHEEL_ACTION_UP = 1, WHEEL_ACTION_DOWN = 2, WHEEL_ACTION_SHORT_CLICK = 3, WHEEL_ACTION_LONG_CLICK = 4, WHEEL_ACTION_CLICK_UP = 5, WHEEL_ACTION_CLICK_DOWN = 6};
 enum mini_input_yes_no_ret_t    {MINI_INPUT_RET_TIMEOUT = -1, MINI_INPUT_RET_NONE = 0, MINI_INPUT_RET_NO = 1, MINI_INPUT_RET_YES = 2};
 

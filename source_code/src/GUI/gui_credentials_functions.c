@@ -336,7 +336,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 {
                     action_chosen = TRUE;
                 }
-                else if ((wheel_action == WHEEL_ACTION_UP) && (i > 3))
+                else if ((wheel_action == WHEEL_ACTION_DOWN) && (i > 3))
                 {
                     // Move to the next credential
                     string_refresh_needed = TRUE;
@@ -350,7 +350,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                         temp_cur_first_child_address_displayed = picked_child;
                     }
                 }
-                else if ((wheel_action == WHEEL_ACTION_DOWN) && (real_first_child_displayed == FALSE))
+                else if ((wheel_action == WHEEL_ACTION_UP) && (real_first_child_displayed == FALSE))
                 {                 
                     // Move to the previous credential    
                     string_refresh_needed = TRUE;
@@ -393,7 +393,6 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     uint8_t string_refresh_needed = TRUE;
     uint16_t parentAddresses[USER_MAX_FAV];
     uint16_t childAddresses[USER_MAX_FAV];
-    uint16_t tempparaddr, tempchildaddr;
     uint8_t string_offset_cntrs[3];
     uint8_t string_extra_chars[3];
     RET_TYPE wheel_action;
@@ -403,15 +402,14 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     // Browse through the favorites
     for (i = 0; i < USER_MAX_FAV; i++)
     {
-        // Read favorite, check that it is valid
-        readFav(i, &tempparaddr, &tempchildaddr);
+        // Read favorite
+        readFav(i, &parentAddresses[i], &childAddresses[i]);
         
         // If so, store it in our know addresses
-        if (tempparaddr != NODE_ADDR_NULL)
+        if (parentAddresses[i] != NODE_ADDR_NULL)
         {
             startIndex = i;
-            parentAddresses[nbFavorites] = tempparaddr;
-            childAddresses[nbFavorites++] = tempchildaddr;
+            nbFavorites++;
         }
     }
     
@@ -520,7 +518,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         {
             return cur_address_selected;
         }
-        else if (wheel_action == WHEEL_ACTION_UP)
+        else if (wheel_action == WHEEL_ACTION_DOWN)
         {
             // Move to the next credential
             string_refresh_needed = TRUE;
@@ -532,7 +530,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                 startIndex = (startIndex+1)%USER_MAX_FAV;
             }
         }
-        else if (wheel_action == WHEEL_ACTION_DOWN)
+        else if (wheel_action == WHEEL_ACTION_UP)
         {
             // Move to the previous credential
             string_refresh_needed = TRUE;
@@ -892,7 +890,7 @@ uint16_t loginSelectionScreen(void)
         {
             return cur_address_selected;
         }
-        else if (wheel_action == WHEEL_ACTION_UP)
+        else if (wheel_action == WHEEL_ACTION_DOWN)
         {
             // Move to the next credential
             string_refresh_needed = TRUE;
@@ -911,7 +909,7 @@ uint16_t loginSelectionScreen(void)
                 }
             }
         }
-        else if (wheel_action == WHEEL_ACTION_DOWN)
+        else if (wheel_action == WHEEL_ACTION_UP)
         {
             // Move to the previous credential
             string_refresh_needed = TRUE;

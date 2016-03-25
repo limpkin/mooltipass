@@ -160,29 +160,17 @@
     #define BITMAP_MOOLTIPASS       0
     #define BITMAP_APPROVE          3
     #define BITMAP_DENY             4
-    #define BITMAP_MAIN_LOGIN       5
-    #define BITMAP_MAIN_FAVORITES   6
-    #define BITMAP_MAIN_SETTINGS    7
-    #define BITMAP_MAIN_LOCK        8
+    #define BITMAP_MAIN_LOCK        5
+    #define BITMAP_MAIN_LOGIN       6
+    #define BITMAP_MAIN_FAVORITES   7
+    #define BITMAP_MAIN_SETTINGS    8
+    #define BITMAP_SETTINGS_PIN     9
+    #define BITMAP_SETTINGS_BACKUP  10
+    #define BITMAP_SETTINGS_HOME    11
+    #define BITMAP_SETTINGS_ERASE   12
+    #define BITMAP_INSERT_CARD      13
 
-
-
-    #define BITMAP_LOGIN          1
-    #define BITMAP_LOGIN_RARROW   2
-    #define BITMAP_YES_NO         3
-    #define BITMAP_TICK           4
-    #define BITMAP_CROSS          5
-    #define BITMAP_INFO           6
-    #define BITMAP_INSERT         8
-    #define BITMAP_MAIN_SCREEN    9
-    #define BITMAP_SETTINGS_SC    10
-    #define BITMAP_LEFT_ARROW     11
-    #define BITMAP_RIGHT_ARROW    12
-    #define BITMAP_PIN_LINES      13
     #define BITMAP_ZZZ            14
-    #define BITMAP_LOGIN_FIND     15
-    #define BITMAP_YES_NO_INT_L   40
-    #define BITMAP_YES_NO_INT_R   41
     #define BITMAP_ZZZ_LOCKED     42
     #define BITMAP_TUTORIAL_1     43
     #define BITMAP_TUTORIAL_2     44

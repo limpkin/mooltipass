@@ -70,6 +70,8 @@
 #define SSD1305_OLED_WIDTH                          128         // Display width
 #define SSD1305_OLED_HEIGHT                         32          // Display height
 #define SSD1305_OLED_HEIGHT_BITMASK                 0x1F        // Bitmask for the height
+#define SSD1305_OLED_BUFFER_PAGE_HEIGHT             5           // Height of our buffer in pages
+#define SSD1305_OLED_BUFFER_HEIGHT                  40          // Height of our buffer
 #define SSD1305_PAGE_HEIGHT                         8           // One page is 8 pixels high
 #define SSD1305_PAGE_HEIGHT_BIT_SHIFT               3           // 1 << 3 is 8
 #define SSD1305_WIDTH_BIT_SHIFT                     7           // 1 << 7 is 128

@@ -39,13 +39,28 @@
 #define MAX_USER_INTER_DEL              25000
 #define SCROLLING_DEL                   500
 // Screen defines
-#define SCREEN_DEFAULT_NINSERTED        0x00
-#define SCREEN_DEFAULT_INSERTED_LCK     0x10
-#define SCREEN_DEFAULT_INSERTED_NLCK    0x20
-#define SCREEN_DEFAULT_INSERTED_INVALID 0x30
-#define SCREEN_SETTINGS                 0x40
-#define SCREEN_MEMORY_MGMT              0x50
-#define SCREEN_DEFAULT_INSERTED_UNKNOWN 0x60
+#if defined(HARDWARE_OLIVIER_V1)
+    #define SCREEN_DEFAULT_NINSERTED            0x00
+    #define SCREEN_DEFAULT_INSERTED_LCK         0x10
+    #define SCREEN_DEFAULT_INSERTED_NLCK        0x20
+    #define SCREEN_DEFAULT_INSERTED_INVALID     0x30
+    #define SCREEN_SETTINGS                     0x40
+    #define SCREEN_MEMORY_MGMT                  0x50
+    #define SCREEN_DEFAULT_INSERTED_UNKNOWN     0x60
+// Change for mini version
+#elif defined(MINI_VERSION)
+    #define SCREEN_LOCK                         0
+    #define SCREEN_LOGIN                        1
+    #define SCREEN_FAVORITES                    2
+    #define SCREEN_SETTINGS                     3
+    #define SCREEN_MEMORY_MGMT                  4
+
+    #define SCREEN_DEFAULT_NINSERTED            5
+    #define SCREEN_DEFAULT_INSERTED_LCK         6
+    #define SCREEN_DEFAULT_INSERTED_NLCK        SCREEN_LOGIN
+    #define SCREEN_DEFAULT_INSERTED_INVALID     7
+    #define SCREEN_DEFAULT_INSERTED_UNKNOWN     8
+#endif
 // Truncate defines
 #define INDEX_TRUNCATE_SERVICE_SEARCH   14
 #define INDEX_TRUNCATE_LOGIN_FAV        15

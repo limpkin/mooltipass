@@ -99,6 +99,7 @@ void miniOledOff(void);
 void miniOledResetXY(void);
 void miniOledInitIOs(void);
 RET_TYPE miniOledPutch(char ch);
+void miniOledResetMaxTextY(void);
 void miniOledBegin(uint8_t font);
 RET_TYPE miniOledIsScreenOn(void);
 void miniOledDumpCurrentFont(void);

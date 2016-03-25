@@ -323,9 +323,9 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                         temp_child_address = c->nextChildAddress;
                     }
                     
-                    miniOledSetMaxTextY(SSD1305_OLED_WIDTH);
                     miniOledFlushEntireBufferToDisplay();
                     string_refresh_needed = FALSE;
+                    miniOledResetMaxTextY();
                 }
             
                 // Get wheel action

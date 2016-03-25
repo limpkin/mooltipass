@@ -341,7 +341,7 @@ int main(void)
         }
         
         // If the USB bus is in suspend (computer went to sleep), lock device
-        if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && ((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_NLCK) || (getCurrentScreen() == SCREEN_MEMORY_MGMT)))
+        if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && (getSmartCardInsertedUnlocked() == TRUE))
         {
             handleSmartcardRemoved();
             guiDisplayInformationOnScreenAndWait(ID_STRING_PC_SLEEP);

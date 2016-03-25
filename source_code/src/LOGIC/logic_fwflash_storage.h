@@ -157,7 +157,16 @@
     #define FONT_DEFAULT            FONT_CC_REGULAR
 
     // Bimap IDs
-    #define BITMAP_MOOLTIPASS     0
+    #define BITMAP_MOOLTIPASS       0
+    #define BITMAP_APPROVE          3
+    #define BITMAP_DENY             4
+    #define BITMAP_MAIN_LOGIN       5
+    #define BITMAP_MAIN_FAVORITES   6
+    #define BITMAP_MAIN_SETTINGS    7
+    #define BITMAP_MAIN_LOCK        8
+
+
+
     #define BITMAP_LOGIN          1
     #define BITMAP_LOGIN_RARROW   2
     #define BITMAP_YES_NO         3

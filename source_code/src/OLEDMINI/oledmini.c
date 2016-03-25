@@ -1070,6 +1070,15 @@ void miniOledSetMaxTextY(uint8_t maxY)
     miniOledMaxTextY = maxY;
 }
 
+/*! \fn     miniOledSetMaxTextY(void)
+ *  \brief  Reset max text y to default value
+ */
+void miniOledResetMaxTextY(void)
+{
+    miniOledMaxTextY = SSD1305_OLED_WIDTH;
+}
+
+
 /*! \fn     miniOledCheckFlashStringsWidth(void)
  *  \brief  Check that all the strings stored in flash aren't larger than the screen width
  */

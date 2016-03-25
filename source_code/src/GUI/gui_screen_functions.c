@@ -69,30 +69,78 @@ void guiSetCurrentScreen(uint8_t screen)
 */
 void guiGetBackToCurrentScreen(void)
 {
-    if ((currentScreen == SCREEN_DEFAULT_NINSERTED) || (currentScreen == SCREEN_DEFAULT_INSERTED_LCK))
-    {
-        oledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
-    }
-    else if (currentScreen == SCREEN_DEFAULT_INSERTED_NLCK)
-    {
-        oledBitmapDrawFlash(0, 0, BITMAP_MAIN_SCREEN, OLED_SCROLL_UP);
-    }
-    else if (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID)
-    {
-        guiDisplayInformationOnScreen(ID_STRING_REMOVE_CARD);
-    }
-    else if (currentScreen == SCREEN_SETTINGS)
-    {
-        oledBitmapDrawFlash(0, 0, BITMAP_SETTINGS_SC, OLED_SCROLL_UP);
-    }
-    else if (currentScreen == SCREEN_MEMORY_MGMT)
-    {
-        guiDisplayInformationOnScreen(ID_STRING_MEMORYMGMT);
-    }
-    else if (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN)
-    {
-        guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
-    }
+    #if defined(MINI_VERSION)
+        switch (currentScreen)
+        {
+            case SCREEN_DEFAULT_NINSERTED:
+            case SCREEN_DEFAULT_INSERTED_LCK:
+            {
+                oledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+                break;
+            }            
+            case SCREEN_DEFAULT_INSERTED_INVALID:
+            {
+                guiDisplayInformationOnScreen(ID_STRING_REMOVE_CARD);
+                break;
+            }            
+            case SCREEN_LOCK:
+            {
+                oledBitmapDrawFlash(0, 0, BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                break;
+            }
+            case SCREEN_LOGIN:
+            {
+                oledBitmapDrawFlash(0, 0, BITMAP_MAIN_LOGIN, OLED_SCROLL_UP);
+                break;
+            }
+            case SCREEN_FAVORITES:
+            {
+                oledBitmapDrawFlash(0, 0, BITMAP_MAIN_FAVORITES, OLED_SCROLL_UP);
+                break;
+            }
+            case SCREEN_SETTINGS:
+            {
+                oledBitmapDrawFlash(0, 0, BITMAP_SETTINGS_SC, OLED_SCROLL_UP);
+                break;
+            }
+            case SCREEN_MEMORY_MGMT:
+            {
+                guiDisplayInformationOnScreen(ID_STRING_MEMORYMGMT);
+                break;
+            }
+            case SCREEN_DEFAULT_INSERTED_UNKNOWN:
+            {
+                guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
+                break;
+            }
+            default: break;
+        }      
+    #elif defined(HARDWARE_OLIVIER_V1)
+        if ((currentScreen == SCREEN_DEFAULT_NINSERTED) || (currentScreen == SCREEN_DEFAULT_INSERTED_LCK))
+        {
+            oledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+        }
+        else if (currentScreen == SCREEN_DEFAULT_INSERTED_NLCK)
+        {
+            oledBitmapDrawFlash(0, 0, BITMAP_MAIN_SCREEN, OLED_SCROLL_UP);
+        }
+        else if (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID)
+        {
+            guiDisplayInformationOnScreen(ID_STRING_REMOVE_CARD);
+        }
+        else if (currentScreen == SCREEN_SETTINGS)
+        {
+            oledBitmapDrawFlash(0, 0, BITMAP_SETTINGS_SC, OLED_SCROLL_UP);
+        }
+        else if (currentScreen == SCREEN_MEMORY_MGMT)
+        {
+            guiDisplayInformationOnScreen(ID_STRING_MEMORYMGMT);
+        }
+        else if (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN)
+        {
+            guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
+        }
+    #endif
 }
 
 /*! \fn     guiScreenLoop(uint8_t input_interface_result)
@@ -111,9 +159,9 @@ void guiScreenLoop(uint8_t input_interface_result)
         if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)
         {
             // User wants to go to the favorite menu
-            favoritePickingLogic();
-            guiGetBackToCurrentScreen();
-            return;
+            //favoritePickingLogic();
+            //guiGetBackToCurrentScreen();
+            //return;
             // User wants to go to the login menu
             if (getStartingParentAddress() != NODE_ADDR_NULL)
             {
@@ -392,8 +440,9 @@ void guiDisplayTextInformationOnScreen(char* text)
         oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
         oledDisplayOtherBuffer();
     #elif defined(MINI_VERSION)
-        oledPutstrXY(0, 10, OLED_CENTRE, text);
-        oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+        miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, text);
+        //oledPutstrXY(0, 10, OLED_CENTRE, text);
+        //oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
         miniOledFlushEntireBufferToDisplay();
     #endif
 }
@@ -445,19 +494,35 @@ void guiDisplayLoginOrPasswordOnScreen(char* text)
 */
 void guiDisplaySmartcardUnlockedScreen(uint8_t* username)
 {
-    uint8_t temp_Y = 24;
+    #if defined(MINI_VERSION)
+        uint8_t temp_Y = THREE_LINE_TEXT_SECOND_POS;
     
-    // Clear screen, check that the username is valid
-    oledClear();
-    if ((username[0] != 0) && (username[0] != 0xFF))
-    {
-        temp_Y -= 16;
-        oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_YOUR_USERNAME));
-        oledPutstrXY(10, 40, OLED_CENTRE, (const char*)username);
-    }
-    oledPutstrXY(10, temp_Y, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_CARD_UNLOCKED));
-    oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
-    oledDisplayOtherBuffer();    
+        // Clear screen, check that the username is valid
+        oledClear();
+        if ((username[0] != 0) && (username[0] != 0xFF))
+        {
+            temp_Y = THREE_LINE_TEXT_FIRST_POS;
+            miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, readStoredStringToBuffer(ID_STRING_YOUR_USERNAME));
+            miniOledPutCenteredString(THREE_LINE_TEXT_THIRD_POS, (char*)username);
+        }
+        miniOledPutCenteredString(temp_Y, readStoredStringToBuffer(ID_STRING_CARD_UNLOCKED));
+        //oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+        miniOledFlushEntireBufferToDisplay();
+    #elif defined(HARDWARE_OLIVIER_V1)
+        uint8_t temp_Y = 24;
+    
+        // Clear screen, check that the username is valid
+        oledClear();
+        if ((username[0] != 0) && (username[0] != 0xFF))
+        {
+            temp_Y -= 16;
+            oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_YOUR_USERNAME));
+            oledPutstrXY(10, 40, OLED_CENTRE, (const char*)username);
+        }
+        oledPutstrXY(10, temp_Y, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_CARD_UNLOCKED));
+        oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
+        oledDisplayOtherBuffer();    
+    #endif
 }
 
 /*! \fn     guiDisplayGoingToSleep(void)
@@ -525,9 +590,13 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         uint8_t string_y_indexes[3];
         uint8_t string_extra_chars[3];
         uint8_t string_offset_cntrs[3] = {0,0,0};
+        // Display variables
+        uint8_t approve_selected = TRUE;
         
         // Draw asking bitmap
         oledClear();
+        miniOledSetMaxTextY(SSD1305_OLED_WIDTH-15);
+        oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
         
         // Display lines. 
         // Note: line are truncated at the oled driver level when miniOledTextWritingYIncrement is set to FALSE
@@ -557,6 +626,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         }
         
         miniOledFlushEntireBufferToDisplay();
+        miniOledResetMaxTextY();
     #endif
 
     // In case the display inverted, set it correctly
@@ -602,8 +672,9 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             // Text scrolling
             if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (nb_args > 1))
             {
-                oledClear();
+                miniOledDrawRectangle(0,0,SSD1305_OLED_HEIGHT,SSD1305_OLED_WIDTH-15,FALSE);
                 activateTimer(TIMER_CAPS, SCROLLING_DEL);
+                miniOledSetMaxTextY(SSD1305_OLED_WIDTH-15);
                 for (uint8_t i = 0; i < nb_args; i++)
                 {
                     if (string_extra_chars[i] > 0)
@@ -621,10 +692,26 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
                     }
                 }
                 miniOledFlushEntireBufferToDisplay();
+                miniOledResetMaxTextY();
+            }
+
+            // Approve / deny display change
+            if (getWheelCurrentIncrement() != 0)
+            {
+                if(approve_selected == FALSE)
+                {
+                    oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
+                }
+                else
+                {
+                    oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_DENY, 0);
+                }
+                approve_selected = !approve_selected;
+                miniOledFlushEntireBufferToDisplay();
             }
         }   
     
-        if (input_answer == MINI_INPUT_RET_YES)
+        if ((input_answer == MINI_INPUT_RET_YES) && (approve_selected != FALSE))
         {
             return RETURN_OK;
         }

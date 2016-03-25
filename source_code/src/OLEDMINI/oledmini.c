@@ -797,7 +797,7 @@ uint8_t miniOledGlyphWidth(char ch)
 uint16_t miniOledStrWidth(const char* str)
 {
     uint16_t width=0;
-    for (uint8_t ind=0; str[ind] != 0; ind++) 
+    for (uint8_t ind=0; (str[ind] != 0) && (str[ind] != '\r'); ind++) 
     {
         width += miniOledGlyphWidth(str[ind]);
     }

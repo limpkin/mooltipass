@@ -39,8 +39,9 @@
 *   \brief  Overwrite the digits on the current pin entering screen
 *   \param  current_pin     Array containing the pin
 *   \param  selected_digit  Currently selected digit
+*   \param  stringID        String ID for text qu
 */
-void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
+void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit, uint8_t stringID)
 {
     #if defined(HARDWARE_OLIVIER_V1)
         oledFillXY(88, 31, 82, 19, 0x00);
@@ -64,10 +65,15 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
             }
         }
     #elif defined(MINI_VERSION)
-        oledFillXY(0, 13, SSD1305_OLED_WIDTH, SSD1305_OLED_HEIGHT-13, FALSE);
+        // Display bitmap
+        oledBitmapDrawFlash(0, 0, selected_digit+BITMAP_PIN_SLOT1, 0);
+        miniOledSetMaxTextY(62);
+        miniOledPutCenteredString(TWO_LINE_TEXT_FIRST_POS, readStoredStringToBuffer(stringID));
+        miniOledResetMaxTextY();
+        oledSetFont(FONT_PROFONT_14);
         for (uint8_t i = 0; i < 4; i++)
         {
-            oledSetXY(39+14*i, 13);
+            oledSetXY(64+17*i, 5);
             if (i != selected_digit)
             {
                 oledPutch('*');
@@ -84,6 +90,8 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
                 }
             }
         }
+        oledSetFont(FONT_DEFAULT);
+        miniOledFlushEntireBufferToDisplay();
     #endif
 }
 
@@ -193,7 +201,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     ret_val = RETURN_OK;
                     finished = TRUE;
                 }
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
                 oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
             }
         }
@@ -219,7 +227,6 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         uint8_t selected_digit = 0;
         uint8_t finished = FALSE;
         uint8_t current_pin[4];
-        int8_t wheel_increment;
     
         // Set current pin to 0000
         memset((void*)current_pin, 0, 4);
@@ -227,46 +234,37 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         // Clear current detections
         miniWheelClearDetections();
     
-        // Draw pin entering bitmap
-        oledClear();
-        miniOledPutCenteredString(2, readStoredStringToBuffer(stringID));
-        oledSetFont(FONT_PROFONT_14);
-//         oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
-//         oledBitmapDrawFlash(83, 51, BITMAP_PIN_LINES, 0);
-//         oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
-//         oledPutstrXY(0, 0, OLED_CENTRE, readStoredStringToBuffer(stringID));
-//         oledDisplayOtherBuffer();
-//         oledSetFont(FONT_PROFONT_24);
-//         oledWriteActiveBuffer();
-    
         // Display current pin on screen
-        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-        miniOledFlushEntireBufferToDisplay();
+        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
     
         // While the user hasn't entered his pin
         while(!finished)
         {
             // Still process the USB commands
             usbProcessIncoming(USB_CALLER_PIN);
-            // Wheel increment/decrement
-            wheel_increment = getWheelCurrentIncrement();
             // detection result
-            detection_result = miniGetWheelAction(FALSE, TRUE);
+            detection_result = miniGetWheelAction(FALSE, FALSE);
         
             // Position increment / decrement
-            if (wheel_increment != 0)
+            if ((detection_result == WHEEL_ACTION_UP) || (detection_result == WHEEL_ACTION_DOWN))
             {
-                if ((current_pin[selected_digit] == 0x0F) && (wheel_increment == 1))
+                if ((current_pin[selected_digit] == 0x0F) && (detection_result == WHEEL_ACTION_DOWN))
                 {
                     current_pin[selected_digit] = 0xFF;
                 }
-                else if ((current_pin[selected_digit] == 0) && (wheel_increment == -1))
+                else if ((current_pin[selected_digit] == 0) && (detection_result == WHEEL_ACTION_UP))
                 {
                     current_pin[selected_digit] = 0x10;
                 }
-                current_pin[selected_digit] += wheel_increment;
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-                miniOledFlushEntireBufferToDisplay();
+                if (detection_result == WHEEL_ACTION_DOWN)
+                {
+                    current_pin[selected_digit]++;
+                } 
+                else
+                {
+                    current_pin[selected_digit]--;
+                }
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
         
             // Return if card removed or timer expired
@@ -278,7 +276,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
             
             // Change digit position or return/proceed
-            if (detection_result == WHEEL_ACTION_LONG_CLICK)
+            if ((detection_result == WHEEL_ACTION_LONG_CLICK) || (detection_result == WHEEL_ACTION_CLICK_UP))
             {
                 if (selected_digit == 1)
                 {
@@ -296,11 +294,9 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     ret_val = RETURN_NOK;
                     finished = TRUE;
                 }
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-                //oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
-                miniOledFlushEntireBufferToDisplay();
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
-            else if (detection_result == WHEEL_ACTION_SHORT_CLICK)
+            else if ((detection_result == WHEEL_ACTION_SHORT_CLICK) || (detection_result == WHEEL_ACTION_CLICK_DOWN))
             {
                 if (selected_digit == 2)
                 {
@@ -315,9 +311,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     ret_val = RETURN_OK;
                     finished = TRUE;
                 }
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-                //oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
-                miniOledFlushEntireBufferToDisplay();
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
         }
     

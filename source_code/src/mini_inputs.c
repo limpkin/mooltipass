@@ -289,18 +289,21 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
                     return_val =  WHEEL_ACTION_LONG_CLICK;
                 }
                 else if (wheel_click_return == RETURN_JRELEASED)
+                {                    
+                    if (wheel_cur_increment_copy == 0)
+                    {
+                        return_val = WHEEL_ACTION_SHORT_CLICK;
+                    }
+                }
+                else if (wheel_click_return == RETURN_DET)
                 {
                     if (wheel_cur_increment_copy > 0)
                     {
-                        return_val = WHEEL_ACTION_CLICK_UP;
+                        return_val = WHEEL_ACTION_CLICK_DOWN;
                     }
                     else if (wheel_cur_increment_copy < 0)
                     {
-                        return_val = WHEEL_ACTION_CLICK_DOWN;
-                    }
-                    else
-                    {
-                        return_val = WHEEL_ACTION_SHORT_CLICK;
+                        return_val = WHEEL_ACTION_CLICK_UP;
                     }
                 }
                 else

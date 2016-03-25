@@ -18,9 +18,9 @@ ALL Data Will Be Lost!
 Erase Another Card?
 Enter Login?
 Enter Password?
-Enter Your PIN
-PIN For New Card
-Confirm PIN
+Enter Your~~        PIN
+PIN For~~  New Card
+Confirm~~        PIN
 Confirm Access With:
 With This Login:
 Confirm New Service:
@@ -54,7 +54,7 @@ Add Data For:
 Get Data For:
 PIN Codes Differ!
 Target Card Isn't Blank!
-Enter New PIN
+Enter~~    New PIN
 Also Erase The Card?
 No Stored Credentials
 !!!FUSE PB!!!~~

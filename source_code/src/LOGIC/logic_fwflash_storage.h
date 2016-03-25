@@ -169,6 +169,10 @@
     #define BITMAP_SETTINGS_HOME    11
     #define BITMAP_SETTINGS_ERASE   12
     #define BITMAP_INSERT_CARD      13
+    #define BITMAP_PIN_SLOT1        14
+    #define BITMAP_PIN_SLOT2        15
+    #define BITMAP_PIN_SLOT3        16
+    #define BITMAP_PIN_SLOT4        17
 
     #define BITMAP_ZZZ            14
     #define BITMAP_ZZZ_LOCKED     42

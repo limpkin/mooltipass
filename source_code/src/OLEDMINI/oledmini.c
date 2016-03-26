@@ -146,7 +146,7 @@ void miniOledAllowTextWritingYIncrement(void)
  */
 void miniOledPreventTextWritingYIncrement(void)
 {
-    miniOledTextWritingYIncrement = TRUE;
+    miniOledTextWritingYIncrement = FALSE;
 }
 
 /*! \fn     miniOledWriteCommand(uint8_t* data, uint8_t nbBytes)

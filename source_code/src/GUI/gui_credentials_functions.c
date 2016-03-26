@@ -544,6 +544,10 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             } 
             while (parentAddresses[startIndex] == NODE_ADDR_NULL);
         }
+        else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
+        {
+            return NODE_ADDR_NULL;
+        }
 
         if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
         {
@@ -924,6 +928,10 @@ uint16_t loginSelectionScreen(void)
                 readParentNode(&temp_pnode, first_address);
                 first_address = temp_pnode.prevParentAddress;
             }
+        }
+        else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
+        {
+            return NODE_ADDR_NULL;
         }
 
         if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))

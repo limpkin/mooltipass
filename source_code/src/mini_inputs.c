@@ -51,6 +51,8 @@ volatile uint8_t wheel_increment_armed = FALSE;
 volatile int8_t wheel_cur_increment;
 // Last wheel state machine index
 volatile uint8_t last_wheel_sm;
+// To get wheel action, discard release event
+uint8_t discard_release_event = FALSE;
 
 
 /*! \fn     initMiniInputs(void)
@@ -292,7 +294,14 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
                 {                    
                     if (wheel_cur_increment_copy == 0)
                     {
-                        return_val = WHEEL_ACTION_SHORT_CLICK;
+                        if (discard_release_event != FALSE)
+                        {
+                            discard_release_event = FALSE;
+                        } 
+                        else
+                        {
+                            return_val = WHEEL_ACTION_SHORT_CLICK;
+                        }
                     }
                 }
                 else if (wheel_click_return == RETURN_DET)
@@ -320,7 +329,14 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
 
                 // Clear detections
                 wheel_click_duration_counter = 0;
-                wheel_click_return = RETURN_REL;
+                if ((return_val != WHEEL_ACTION_CLICK_DOWN) && (return_val != WHEEL_ACTION_CLICK_UP))
+                {
+                    wheel_click_return = RETURN_REL;
+                }
+                else
+                {
+                    discard_release_event = TRUE;
+                }
                 if (ignore_incdec == FALSE)
                 {
                     wheel_cur_increment = 0;

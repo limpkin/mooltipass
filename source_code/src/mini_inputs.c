@@ -25,6 +25,7 @@
 #include <util/atomic.h>
 #include <string.h>
 #include "gui_basic_functions.h"
+#include "logic_eeprom.h"
 #include "mini_inputs.h"
 #include "defines.h"
 // This code is only used for the Mooltipass mini
@@ -53,6 +54,8 @@ volatile int8_t wheel_cur_increment;
 volatile uint8_t last_wheel_sm;
 // To get wheel action, discard release event
 uint8_t discard_release_event = FALSE;
+// Wheel direction reverse bool
+uint8_t wheel_reverse_bool = FALSE;
 
 
 /*! \fn     initMiniInputs(void)
@@ -67,6 +70,7 @@ void initMiniInputs(void)
     PORT_WHEEL_A |= (1 << PORTID_WHEEL_A);
     DDR_WHEEL_B &= ~(1 << PORTID_WHEEL_B);
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
+    wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
     
     // Joystick
     #ifdef MINI_JOYSTICK
@@ -108,7 +112,14 @@ void scanMiniInputsDetect(void)
         }
         else if ((wheel_state == 0x03) && (wheel_increment_armed == TRUE))
         {
-             wheel_cur_increment--;
+            if (wheel_reverse_bool != FALSE)
+            {
+                wheel_cur_increment++;
+            } 
+            else
+            {
+                wheel_cur_increment--;
+            }
         }
         last_wheel_sm = wheel_sm;
     }
@@ -120,7 +131,14 @@ void scanMiniInputsDetect(void)
         }
         else if ((wheel_state == 0x03) && (wheel_increment_armed == TRUE))
         {
-            wheel_cur_increment++;
+            if (wheel_reverse_bool != FALSE)
+            {
+                wheel_cur_increment--;
+            }
+            else
+            {
+                wheel_cur_increment++;
+            }
         }
         last_wheel_sm = wheel_sm;
     }

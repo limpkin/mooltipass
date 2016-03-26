@@ -38,6 +38,7 @@
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
 #include "hid_defines.h"
+#include "mini_inputs.h"
 #include <avr/eeprom.h>
 #include "mooltipass.h"
 #include "node_mgmt.h"
@@ -1173,6 +1174,9 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_OK;
                 //initTouchSensing();
                 //launchCalibrationCycle();
+                #ifdef MINI_VERSION
+                    wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
+                #endif
             }
             else
             {

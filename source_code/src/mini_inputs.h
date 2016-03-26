@@ -66,4 +66,7 @@ void scanMiniInputsDetect(void);
 RET_TYPE isWheelClicked(void);
 void initMiniInputs(void);
 
+/* GLOBAL VARS */
+extern uint8_t wheel_reverse_bool;
+
 #endif /* JOYSTICK_H_ */

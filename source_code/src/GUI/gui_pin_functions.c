@@ -44,6 +44,7 @@
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit, uint8_t stringID)
 {
     #if defined(HARDWARE_OLIVIER_V1)
+        (void)stringID;
         oledFillXY(88, 31, 82, 19, 0x00);
         for (uint8_t i = 0; i < 4; i++)
         {
@@ -131,7 +132,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         oledWriteActiveBuffer();
     
         // Display current pin on screen
-        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
     
         // While the user hasn't entered his pin
         while(!finished)
@@ -155,7 +156,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     current_pin[selected_digit] = 0x10;
                 }
                 current_pin[selected_digit] += temp_int8;
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
         
             if ((isSmartCardAbsent() == RETURN_OK) || (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED))
@@ -182,7 +183,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     ret_val = RETURN_NOK;
                     finished = TRUE;
                 }
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
                 oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
             }
             else if (temp_rettype & RETURN_RIGHT_PRESSED)

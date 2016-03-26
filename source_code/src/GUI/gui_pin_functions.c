@@ -74,7 +74,7 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
         oledSetFont(FONT_PROFONT_14);
         for (uint8_t i = 0; i < 4; i++)
         {
-            oledSetXY(64+17*i, 5);
+            oledSetXY(64+17*i, 6);
             if (i != selected_digit)
             {
                 oledPutch('*');

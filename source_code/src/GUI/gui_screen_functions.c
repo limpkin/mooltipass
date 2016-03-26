@@ -207,6 +207,11 @@ void guiScreenLoop(uint8_t input_interface_result)
                 }
                 oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
             }
+            else if ((input_interface_result == WHEEL_ACTION_LONG_CLICK) && (currentScreen >= SCREEN_SETTINGS_CHANGE_PIN) && (currentScreen <= SCREEN_SETTINGS_ERASE))
+            {
+                currentScreen = SCREEN_LOGIN;
+                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+            }
             else if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)
             {
                 switch(currentScreen)

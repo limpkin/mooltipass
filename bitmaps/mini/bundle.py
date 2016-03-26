@@ -33,6 +33,8 @@
 import os
 import sys
 import md5
+from os import listdir
+from os.path import isfile, join
 from optparse import OptionParser
 from struct import *
 from array import array
@@ -71,7 +73,7 @@ def buildBundle(bundlename, stringFile, files, test_bundle=False, show_md5=False
     if stringFile:
         with open(stringFile) as fd:
             for line in fd:
-                strings.append(line.replace("~~", "\r\n"))
+                strings.append(line.strip('\n').strip('\r').replace("~~", "\r\n"))
 
     if len(strings) > RESERVED_IDS:
         print 'Error: {} strings is more than the {} supported'.format(len(strings), RESERVED_IDS)
@@ -204,7 +206,13 @@ def sortObjects(a,b):
         return cmp(a,b)
 
 def main():
+    args = [f for f in listdir(".") if isfile(join(".", f)) and join(".", f).endswith(".img") and f != "bundle.img"]
     args.sort(cmp=sortObjects);
+    buildBundle(options.output, options.strings, args, test_bundle=options.test_bundle, show_md5=options.show_md5)
+    return
+    #old code
+    args.sort(cmp=sortObjects);
+    print args
     if len(options.input) > 0:
         expandBundle(options.output, args, test_bundle=options.test_bundle, show_md5=options.show_md5)
     else:

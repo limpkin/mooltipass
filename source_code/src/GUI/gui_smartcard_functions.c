@@ -33,6 +33,7 @@
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
+#include "hid_defines.h"
 #include "aes256_ctr.h"
 #include "defines.h"
 #include "delays.h"
@@ -56,6 +57,8 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     {
         usbKeybPutChar(i);
         usbKeybPutChar(i);
+        timerBasedDelayMs(20);
+        usbKeybPutChar(' ');
     }
     //setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM)+1);
     //if (getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM) > LAST_KEYB_LUT)

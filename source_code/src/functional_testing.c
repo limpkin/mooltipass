@@ -193,6 +193,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         }
         
         // Bundle uploaded, start the screen
+        miniOledAllowTextWritingYIncrement();
         miniOledFlushWrittenTextToDisplay();
         miniOledBegin(FONT_DEFAULT);
         miniOledResetXY();

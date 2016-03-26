@@ -22,6 +22,7 @@
 *   Copyright [2014] [Mathieu Stephan]
 */
 #include "smart_card_higher_level_functions.h"
+#include "logic_aes_and_comms.h"
 #include <util/delay_basic.h>
 #include "logic_smartcard.h"
 #include <avr/interrupt.h>
@@ -282,7 +283,8 @@ void scanSMCDectect(void)
         // Smartcard remove functions
         if ((card_detect_counter != 0) && (card_powered != FALSE))
         {
-            handleSmartcardRemoved();
+            removeFunctionSMC();
+            clearSmartCardInsertedUnlocked();
         }
         if (button_return == RETURN_DET)
         {

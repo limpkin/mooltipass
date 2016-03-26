@@ -15,6 +15,7 @@ V1.1:
 - allow the get_login command to already specify the login
 - allow pin entering from usb after user approval, last resort for broken screens
 - eeprom values to allow customization of key sent after login AND password manual entry
+- in card ISR, do not call handleSmartcardRemoved() but removeFunctionSMC() & clearSmartCardInsertedUnlocked() to only set protection bools (aes state reset in main())
 
 V1: 
 - new user tutorial

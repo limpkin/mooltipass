@@ -117,6 +117,8 @@ void miniOledCheckFlashStringsWidth(void);
 void miniOledFlushWrittenTextToDisplay(void);
 void miniOledWriteSimpleCommand(uint8_t reg);
 void miniOledFlushEntireBufferToDisplay(void);
+void miniOledAllowTextWritingYIncrement(void);
+void miniOledPreventTextWritingYIncrement(void);
 void miniOledDontFlushWrittenTextToDisplay(void);
 uint8_t miniOledPutCenteredString(uint8_t y, char* string);
 uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch);

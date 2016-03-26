@@ -29,11 +29,11 @@ Change Password For:
 Wrong Pin, 1 Try Left
 Wrong Pin, 2 Tries Left
 Wrong Pin, 3 Tries Left
-Create New Mini User?
+Create New User?
 Going To Sleep...
 Manage Database?
-Memory Management
-Exit Mode In Mini App
+Database Management
+Use App To Exit
 Created By The Plugin
 No Stored Favorites
 Send Card Data?

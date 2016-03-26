@@ -133,6 +133,22 @@ void miniOledDontFlushWrittenTextToDisplay(void)
     miniOledFlushText = FALSE;
 }
 
+/*! \fn     miniOledAllowTextWritingYIncrement(void)
+ *  \brief  Bool setting to allow y increment when writing text
+ */
+void miniOledAllowTextWritingYIncrement(void)
+{
+    miniOledTextWritingYIncrement = TRUE;
+}
+
+/*! \fn     miniOledAllowTextWritingYIncrement(void)
+ *  \brief  Bool setting to allow y increment when writing text
+ */
+void miniOledPreventTextWritingYIncrement(void)
+{
+    miniOledTextWritingYIncrement = TRUE;
+}
+
 /*! \fn     miniOledWriteCommand(uint8_t* data, uint8_t nbBytes)
  *  \brief  Write a command or register address to the display
  *  \param  data    Pointer to the data to be written
@@ -899,12 +915,12 @@ RET_TYPE miniOledPutch(char ch)
         OLEDDEBUGPRINTF_P(PSTR("oledPutch('0x%02x') x=%d, y=%d, oled_offset=%d, buf=%d\n"), ch, miniOledTextCurX, miniOledTextCurY, 0, 0);
     }
     
-    if (ch == '\n')
+    if ((ch == '\n') && (miniOledTextWritingYIncrement != FALSE))
     {
         miniOledTextCurY += miniOledCurrentFont.height;
         miniOledTextCurX = 0;
     }
-    else if (ch == '\r')
+    else if ((ch == '\r') && (miniOledTextWritingYIncrement != FALSE))
     {
         miniOledTextCurX = 0;
     }

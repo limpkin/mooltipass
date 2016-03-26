@@ -25,13 +25,18 @@
 */
 #include "watchdog_driver.h"
 #include <util/atomic.h>
+#include "defines.h"
 #include "rng.h"
 
 // Number of values to be passed to Jenkins hash function
 #define TIMER_BUFFER_SIZE               32
 
 // Number of Random bytes to be saved in a Buffer
-#define RNG_BUFFER_SIZE                 64
+#if defined(HARDWARE_OLIVIER_V1)
+    #define RNG_BUFFER_SIZE             64
+#elif defined(MINI_VERSION)
+    #define RNG_BUFFER_SIZE             32
+#endif
 
 // Typedefs
 typedef union

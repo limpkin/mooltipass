@@ -207,10 +207,20 @@ void guiScreenLoop(uint8_t input_interface_result)
                 }
                 oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
             }
-            else if ((input_interface_result == WHEEL_ACTION_LONG_CLICK) && (currentScreen >= SCREEN_SETTINGS_CHANGE_PIN) && (currentScreen <= SCREEN_SETTINGS_ERASE))
+            else if (input_interface_result == WHEEL_ACTION_LONG_CLICK)
             {
-                currentScreen = SCREEN_LOGIN;
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                // Long press in main menu : lock, long press in settings menu: go back to login screen
+                if ((currentScreen >= SCREEN_SETTINGS_CHANGE_PIN) && (currentScreen <= SCREEN_SETTINGS_ERASE))
+                {
+                    currentScreen = SCREEN_LOGIN;
+                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                } 
+                else
+                {                    
+                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                    handleSmartcardRemoved();
+                    guiGetBackToCurrentScreen();
+                }
             }
             else if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)
             {

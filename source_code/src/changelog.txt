@@ -3,6 +3,7 @@ Todo:
 - display aes(bootloader_pwd) with user nonce when card inserted
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
+- brightness control in mini
 
 V1.1:
 - post-indiegogo firmware

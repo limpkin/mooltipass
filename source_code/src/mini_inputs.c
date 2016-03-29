@@ -216,20 +216,24 @@ void scanMiniInputsDetect(void)
 */
 int8_t getWheelCurrentIncrement(void)
 {
-    int8_t return_val = 0;
-    
-    if (wheel_cur_increment != 0)
-    {
-        activityDetectedRoutine();
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    #ifdef MINI_WHEEL_NOT_ACTIVE
+        return 0;
+    #else
+        int8_t return_val = 0;
+        
+        if (wheel_cur_increment != 0)
         {
-            return_val = wheel_cur_increment;
-            wheel_cur_increment = 0;
+            activityDetectedRoutine();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            {
+                return_val = wheel_cur_increment;
+                wheel_cur_increment = 0;
+            }
+            
         }
         
-    }
-    
-    return return_val;
+        return return_val;
+    #endif
 }
 
 /*! \fn     isWheelClicked(void)
@@ -238,26 +242,30 @@ int8_t getWheelCurrentIncrement(void)
 */
 RET_TYPE isWheelClicked(void)
 {
-    // This copy is an atomic operation
-    volatile RET_TYPE return_val = wheel_click_return;
+    #ifdef MINI_WHEEL_NOT_ACTIVE
+        return RETURN_REL;
+    #else
+        // This copy is an atomic operation
+        volatile RET_TYPE return_val = wheel_click_return;
 
-    if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
-    {
-        activityDetectedRoutine();
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
         {
-            if (wheel_click_return == RETURN_JDETECT)
+            activityDetectedRoutine();
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
-                wheel_click_return = RETURN_DET;
-            }
-            else if (wheel_click_return == RETURN_JRELEASED)
-            {
-                wheel_click_return = RETURN_REL;
+                if (wheel_click_return == RETURN_JDETECT)
+                {
+                    wheel_click_return = RETURN_DET;
+                }
+                else if (wheel_click_return == RETURN_JRELEASED)
+                {
+                    wheel_click_return = RETURN_REL;
+                }
             }
         }
-    }
 
-    return return_val;
+        return return_val;
+    #endif
 }
 
 /*! \fn     miniWheelClearDetections(void)
@@ -281,96 +289,102 @@ void miniWheelClearDetections(void)
 */
 RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
 {
-    RET_TYPE return_val = WHEEL_ACTION_NONE;
-    int8_t wheel_cur_increment_copy = 0;
+    #ifdef MINI_WHEEL_NOT_ACTIVE
+        (void)wait_for_action;
+        (void)ignore_incdec;
+        return WHEEL_ACTION_NONE;
+    #else
+        RET_TYPE return_val = WHEEL_ACTION_NONE;
+        int8_t wheel_cur_increment_copy = 0;
 
-    do
-    {
-        // If we want to take into account wheel scrolling
-        if (ignore_incdec == FALSE)
+        do
         {
-            wheel_cur_increment_copy = wheel_cur_increment;
-        }
-
-        if (wheel_click_return == RETURN_JDETECT)
-        {
-            // When checking for actions we clear the just detected state
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            // If we want to take into account wheel scrolling
+            if (ignore_incdec == FALSE)
             {
-                wheel_click_return = RETURN_DET;
+                wheel_cur_increment_copy = wheel_cur_increment;
             }
-        }
-        if ((wheel_click_return == RETURN_JRELEASED) || (wheel_cur_increment_copy != 0) || (wheel_click_duration_counter > LONG_PRESS_MS))
-        {
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+
+            if (wheel_click_return == RETURN_JDETECT)
             {
-                if (wheel_click_duration_counter > LONG_PRESS_MS)
+                // When checking for actions we clear the just detected state
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                 {
-                    return_val =  WHEEL_ACTION_LONG_CLICK;
+                    wheel_click_return = RETURN_DET;
                 }
-                else if (wheel_click_return == RETURN_JRELEASED)
-                {                    
-                    if (wheel_cur_increment_copy == 0)
+            }
+            if ((wheel_click_return == RETURN_JRELEASED) || (wheel_cur_increment_copy != 0) || (wheel_click_duration_counter > LONG_PRESS_MS))
+            {
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+                {
+                    if (wheel_click_duration_counter > LONG_PRESS_MS)
                     {
-                        if (discard_release_event != FALSE)
+                        return_val =  WHEEL_ACTION_LONG_CLICK;
+                    }
+                    else if (wheel_click_return == RETURN_JRELEASED)
+                    {                    
+                        if (wheel_cur_increment_copy == 0)
                         {
-                            discard_release_event = FALSE;
-                        } 
-                        else
-                        {
-                            return_val = WHEEL_ACTION_SHORT_CLICK;
+                            if (discard_release_event != FALSE)
+                            {
+                                discard_release_event = FALSE;
+                            } 
+                            else
+                            {
+                                return_val = WHEEL_ACTION_SHORT_CLICK;
+                            }
                         }
                     }
-                }
-                else if (wheel_click_return == RETURN_DET)
-                {
-                    if (wheel_cur_increment_copy > 0)
+                    else if (wheel_click_return == RETURN_DET)
                     {
-                        return_val = WHEEL_ACTION_CLICK_DOWN;
+                        if (wheel_cur_increment_copy > 0)
+                        {
+                            return_val = WHEEL_ACTION_CLICK_DOWN;
+                        }
+                        else if (wheel_cur_increment_copy < 0)
+                        {
+                            return_val = WHEEL_ACTION_CLICK_UP;
+                        }
                     }
-                    else if (wheel_cur_increment_copy < 0)
+                    else
                     {
-                        return_val = WHEEL_ACTION_CLICK_UP;
+                        if (wheel_cur_increment_copy > 0)
+                        {
+                            return_val = WHEEL_ACTION_DOWN;
+                        }
+                        else if (wheel_cur_increment_copy < 0)
+                        {
+                            return_val = WHEEL_ACTION_UP;
+                        }
                     }
-                }
-                else
-                {
-                    if (wheel_cur_increment_copy > 0)
-                    {
-                        return_val = WHEEL_ACTION_DOWN;
-                    }
-                    else if (wheel_cur_increment_copy < 0)
-                    {
-                        return_val = WHEEL_ACTION_UP;
-                    }
-                }
 
-                // Clear detections
-                wheel_click_duration_counter = 0;
-                if ((return_val != WHEEL_ACTION_CLICK_DOWN) && (return_val != WHEEL_ACTION_CLICK_UP))
-                {
-                    wheel_click_return = RETURN_REL;
+                    // Clear detections
+                    wheel_click_duration_counter = 0;
+                    if ((return_val != WHEEL_ACTION_CLICK_DOWN) && (return_val != WHEEL_ACTION_CLICK_UP))
+                    {
+                        wheel_click_return = RETURN_REL;
+                    }
+                    else
+                    {
+                        discard_release_event = TRUE;
+                    }
+                    if (ignore_incdec == FALSE)
+                    {
+                        wheel_cur_increment = 0;
+                    }                
                 }
-                else
-                {
-                    discard_release_event = TRUE;
-                }
-                if (ignore_incdec == FALSE)
-                {
-                    wheel_cur_increment = 0;
-                }                
             }
         }
-    }
-    while ((wait_for_action != FALSE) && (return_val == WHEEL_ACTION_NONE));
+        while ((wait_for_action != FALSE) && (return_val == WHEEL_ACTION_NONE));
 
-    // Don't forget to call the activity detected routine if something happened
-    if (return_val != WHEEL_ACTION_NONE)
-    {
-        activityDetectedRoutine();
-    }
+        // Don't forget to call the activity detected routine if something happened
+        if (return_val != WHEEL_ACTION_NONE)
+        {
+            activityDetectedRoutine();
+        }
     
-    return return_val;
+        return return_val;
+    #endif
 }
 
 #ifdef MINI_JOYSTICK
@@ -465,11 +479,6 @@ RET_TYPE getMiniDirectionJustPressed(void)
                 return_val = 0;
             }
         }
-    }
-    
-    if (isWheelClicked() == RETURN_JDETECT)
-    {
-        return  WHEEL_POS_CLICK;
     }
     
     return return_val;

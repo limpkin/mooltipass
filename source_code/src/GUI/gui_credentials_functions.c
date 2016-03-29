@@ -187,11 +187,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 oledDisplayOtherBuffer();
             
                 // Get touched quarter
-                #if defined(HARDWARE_OLIVIER_V1)
-                    j = getTouchedPositionAnswer(led_mask);
-                #elif defined(MINI_VERSION)
-                    j = 0;
-                #endif
+                j = getTouchedPositionAnswer(led_mask);
             
                 // Check its validity, knowing that by default we will return NODE_ADDR_NULL
                 if (j == -1)
@@ -240,6 +236,9 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             temp_child_address = first_child_address;
             uint8_t string_refresh_needed = TRUE;
             uint8_t action_chosen = FALSE;
+            #ifdef MINI_JOYSTICK
+                RET_TYPE joystick_action;
+            #endif
             RET_TYPE wheel_action;
 
             // Variables for scrolling
@@ -254,6 +253,9 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, (char*)p->service);
 
             // Clear pending detections & light up screen
+            #ifdef MINI_JOYSTICK
+                miniDirectionClearJoystickDetections();
+            #endif
             miniWheelClearDetections();
             activityDetectedRoutine();
 
@@ -330,13 +332,24 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             
                 // Get wheel action
                 wheel_action = miniGetWheelAction(FALSE, FALSE);
+                #ifdef MINI_JOYSTICK
+                    joystick_action = getMiniDirectionJustPressed();
+                #endif
             
                 // Check its validity, knowing that by default we will return NODE_ADDR_NULL
+                #ifdef MINI_JOYSTICK
+                if ((wheel_action == WHEEL_ACTION_SHORT_CLICK) || (joystick_action == PORTID_JOY_DOWN))
+                #else
                 if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
+                #endif
                 {
                     action_chosen = TRUE;
                 }
+                #ifdef MINI_JOYSTICK
+                else if (((wheel_action == WHEEL_ACTION_DOWN) || (joystick_action == PORTID_JOY_RIGHT)) && (i > 3))
+                #else
                 else if ((wheel_action == WHEEL_ACTION_DOWN) && (i > 3))
+                #endif
                 {
                     // Move to the next credential
                     string_refresh_needed = TRUE;
@@ -350,7 +363,11 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                         temp_cur_first_child_address_displayed = picked_child;
                     }
                 }
+                #ifdef MINI_JOYSTICK
+                else if (((wheel_action == WHEEL_ACTION_UP) || (joystick_action == PORTID_JOY_LEFT)) && (real_first_child_displayed == FALSE))
+                #else
                 else if ((wheel_action == WHEEL_ACTION_UP) && (real_first_child_displayed == FALSE))
+                #endif
                 {                 
                     // Move to the previous credential    
                     string_refresh_needed = TRUE;
@@ -366,6 +383,13 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                         temp_cur_first_child_address_displayed = c->prevChildAddress;
                      }                     
                 }
+
+                #ifdef MINI_JOYSTICK
+                    if (joystick_action == PORTID_JOY_UP)
+                    {
+                        return NODE_ADDR_NULL;
+                    }
+                #endif
 
                 if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
                 {
@@ -395,6 +419,9 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     uint16_t childAddresses[USER_MAX_FAV];
     uint8_t string_offset_cntrs[3];
     uint8_t string_extra_chars[3];
+    #ifdef MINI_JOYSTICK
+        RET_TYPE joystick_action;
+    #endif
     RET_TYPE wheel_action;
     uint8_t i, j;
     (void)c;
@@ -512,13 +539,24 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 
         // Get wheel action
         wheel_action = miniGetWheelAction(FALSE, FALSE);
+        #ifdef MINI_JOYSTICK
+            joystick_action = getMiniDirectionJustPressed();
+        #endif
         
         // User validated the selected credential
+        #ifdef MINI_JOYSTICK
+        if ((wheel_action == WHEEL_ACTION_SHORT_CLICK) || (joystick_action == PORTID_JOY_RIGHT))
+        #else
         if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
+        #endif
         {
             return cur_address_selected;
         }
+        #ifdef MINI_JOYSTICK
+        else if ((wheel_action == WHEEL_ACTION_DOWN) || (joystick_action == PORTID_JOY_DOWN))
+        #else
         else if (wheel_action == WHEEL_ACTION_DOWN)
+        #endif
         {
             // Move to the next credential
             string_refresh_needed = TRUE;
@@ -530,7 +568,11 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                 startIndex = (startIndex+1)%USER_MAX_FAV;
             }
         }
+        #ifdef MINI_JOYSTICK
+        else if ((wheel_action == WHEEL_ACTION_UP) || (joystick_action == PORTID_JOY_UP))
+        #else
         else if (wheel_action == WHEEL_ACTION_UP)
+        #endif
         {
             // Move to the previous credential
             string_refresh_needed = TRUE;
@@ -544,7 +586,11 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             } 
             while (parentAddresses[startIndex] == NODE_ADDR_NULL);
         }
+        #ifdef MINI_JOYSTICK
+        else if ((wheel_action == WHEEL_ACTION_LONG_CLICK) || (joystick_action == PORTID_JOY_LEFT))
+        #else
         else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
+        #endif
         {
             return NODE_ADDR_NULL;
         }
@@ -788,6 +834,9 @@ uint16_t loginSelectionScreen(void)
     uint8_t string_extra_chars[3];
     uint16_t temp_parent_address;
     uint8_t nb_parent_nodes;
+    #ifdef MINI_JOYSTICK
+        RET_TYPE joystick_action;
+    #endif
     RET_TYPE wheel_action;
     pNode temp_pnode;
     uint8_t i;
@@ -888,13 +937,24 @@ uint16_t loginSelectionScreen(void)
 
         // Get wheel action
         wheel_action = miniGetWheelAction(FALSE, FALSE);
+        #ifdef MINI_JOYSTICK
+            joystick_action = getMiniDirectionJustPressed();
+        #endif
         
         // User validated the selected credential
+        #ifdef MINI_JOYSTICK
+        if ((wheel_action == WHEEL_ACTION_SHORT_CLICK) || (joystick_action == PORTID_JOY_RIGHT))
+        #else
         if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
+        #endif
         {
             return cur_address_selected;
         }
+        #ifdef MINI_JOYSTICK
+        else if ((wheel_action == WHEEL_ACTION_DOWN) || (joystick_action == PORTID_JOY_DOWN))
+        #else
         else if (wheel_action == WHEEL_ACTION_DOWN)
+        #endif
         {
             // Move to the next credential
             string_refresh_needed = TRUE;
@@ -913,7 +973,11 @@ uint16_t loginSelectionScreen(void)
                 }
             }
         }
+        #ifdef MINI_JOYSTICK
+        else if ((wheel_action == WHEEL_ACTION_UP) || (joystick_action == PORTID_JOY_UP))
+        #else
         else if (wheel_action == WHEEL_ACTION_UP)
+        #endif
         {
             // Move to the previous credential
             string_refresh_needed = TRUE;
@@ -929,7 +993,11 @@ uint16_t loginSelectionScreen(void)
                 first_address = temp_pnode.prevParentAddress;
             }
         }
+        #ifdef MINI_JOYSTICK
+        else if ((wheel_action == WHEEL_ACTION_LONG_CLICK) || (joystick_action == PORTID_JOY_LEFT))
+        #else
         else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
+        #endif
         {
             return NODE_ADDR_NULL;
         }

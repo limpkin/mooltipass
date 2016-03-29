@@ -225,6 +225,9 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         // Return success status
         return ret_val;
     #elif defined(MINI_VERSION)
+        #ifdef MINI_JOYSTICK
+            uint8_t joystick_detection_result = 0;
+        #endif
         RET_TYPE ret_val = RETURN_NOK;
         uint8_t detection_result = 0;
         uint8_t selected_digit = 0;
@@ -236,6 +239,9 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         
         // Clear current detections
         miniWheelClearDetections();
+        #ifdef MINI_JOYSTICK
+            miniDirectionClearJoystickDetections();
+        #endif
     
         // Display current pin on screen
         guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
@@ -247,19 +253,38 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             usbProcessIncoming(USB_CALLER_PIN);
             // detection result
             detection_result = miniGetWheelAction(FALSE, FALSE);
+            #ifdef MINI_JOYSTICK
+                joystick_detection_result = getMiniDirectionJustPressed();
+            #endif
         
             // Position increment / decrement
+            #ifdef MINI_JOYSTICK
+            if ((detection_result == WHEEL_ACTION_UP) || (detection_result == WHEEL_ACTION_DOWN) || (joystick_detection_result == PORTID_JOY_UP) || (joystick_detection_result == PORTID_JOY_DOWN))
+            #else
             if ((detection_result == WHEEL_ACTION_UP) || (detection_result == WHEEL_ACTION_DOWN))
+            #endif
             {
+                #ifdef MINI_JOYSTICK
+                if ((current_pin[selected_digit] == 0x0F) && ((detection_result == WHEEL_ACTION_UP) || (joystick_detection_result == PORTID_JOY_UP)))
+                #else
                 if ((current_pin[selected_digit] == 0x0F) && (detection_result == WHEEL_ACTION_UP))
+                #endif
                 {
                     current_pin[selected_digit] = 0xFF;
                 }
+                #ifdef MINI_JOYSTICK
+                if ((current_pin[selected_digit] == 0) && ((detection_result == WHEEL_ACTION_DOWN) || (joystick_detection_result == PORTID_JOY_DOWN)))
+                #else
                 else if ((current_pin[selected_digit] == 0) && (detection_result == WHEEL_ACTION_DOWN))
+                #endif                
                 {
                     current_pin[selected_digit] = 0x10;
                 }
+                #ifdef MINI_JOYSTICK
+                if ((detection_result == WHEEL_ACTION_UP) || (joystick_detection_result == PORTID_JOY_UP))
+                #else
                 if (detection_result == WHEEL_ACTION_UP)
+                #endif                
                 {
                     current_pin[selected_digit]++;
                 } 
@@ -279,7 +304,11 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
             
             // Change digit position or return/proceed
+            #ifdef MINI_JOYSTICK
+            if ((detection_result == WHEEL_ACTION_LONG_CLICK) || (detection_result == WHEEL_ACTION_CLICK_UP) || (joystick_detection_result == PORTID_JOY_LEFT))
+            #else
             if ((detection_result == WHEEL_ACTION_LONG_CLICK) || (detection_result == WHEEL_ACTION_CLICK_UP))
+            #endif            
             {
                 if (selected_digit == 1)
                 {
@@ -299,7 +328,11 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                 }
                 guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
+            #ifdef MINI_JOYSTICK
+            else if ((detection_result == WHEEL_ACTION_SHORT_CLICK) || (detection_result == WHEEL_ACTION_CLICK_DOWN) || (joystick_detection_result == PORTID_JOY_RIGHT))
+            #else
             else if ((detection_result == WHEEL_ACTION_SHORT_CLICK) || (detection_result == WHEEL_ACTION_CLICK_DOWN))
+            #endif
             {
                 if (selected_digit == 2)
                 {

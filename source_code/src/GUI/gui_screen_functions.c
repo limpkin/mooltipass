@@ -142,11 +142,22 @@ void guiGetBackToCurrentScreen(void)
 void guiScreenLoop(uint8_t input_interface_result)
 {
     #if defined(MINI_VERSION)
-        // If no press, you can return!
-        if ((input_interface_result == WHEEL_ACTION_NONE) || (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID) || (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN))
-        {
-            return;
-        }
+        #ifdef MINI_JOYSTICK
+            uint8_t joystick_interface_result = input_interface_result >> 4;
+            input_interface_result &= 0x0F;
+            
+            // If no press, you can return!
+            if (((input_interface_result == WHEEL_ACTION_NONE) && (joystick_interface_result == 0)) || (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID) || (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN))
+            {
+                return;
+            }
+        #else
+            // If no press, you can return!
+            if ((input_interface_result == WHEEL_ACTION_NONE) || (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID) || (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN))
+            {
+                return;
+            }
+        #endif
 
         if (currentScreen == SCREEN_DEFAULT_NINSERTED)
         {
@@ -173,7 +184,11 @@ void guiScreenLoop(uint8_t input_interface_result)
         }
         else
         {
+            #ifdef MINI_JOYSTICK
+            if ((input_interface_result == WHEEL_ACTION_UP) || (joystick_interface_result == PORTID_JOY_UP))
+            #else
             if (input_interface_result == WHEEL_ACTION_UP)
+            #endif
             {
                 // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
                 if (currentScreen == SCREEN_LOCK)
@@ -190,7 +205,11 @@ void guiScreenLoop(uint8_t input_interface_result)
                 }
                 oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
             }
+            #ifdef MINI_JOYSTICK
+            else if ((input_interface_result == WHEEL_ACTION_DOWN) || (joystick_interface_result == PORTID_JOY_DOWN))            
+            #else
             else if (input_interface_result == WHEEL_ACTION_DOWN)
+            #endif
             {
                 // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
                 if (currentScreen == SCREEN_SETTINGS)
@@ -207,7 +226,11 @@ void guiScreenLoop(uint8_t input_interface_result)
                 }
                 oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
             }
+            #ifdef MINI_JOYSTICK
+            else if ((input_interface_result == WHEEL_ACTION_LONG_CLICK) || (joystick_interface_result == PORTID_JOY_LEFT))            
+            #else
             else if (input_interface_result == WHEEL_ACTION_LONG_CLICK)
+            #endif            
             {
                 // Long press in main menu : lock, long press in settings menu: go back to login screen
                 if ((currentScreen >= SCREEN_SETTINGS_CHANGE_PIN) && (currentScreen <= SCREEN_SETTINGS_ERASE))
@@ -222,7 +245,11 @@ void guiScreenLoop(uint8_t input_interface_result)
                     guiGetBackToCurrentScreen();
                 }
             }
+            #ifdef MINI_JOYSTICK
+            else if ((input_interface_result == WHEEL_ACTION_SHORT_CLICK) || (joystick_interface_result == PORTID_JOY_RIGHT))
+            #else
             else if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)
+            #endif
             {
                 switch(currentScreen)
                 {
@@ -886,6 +913,9 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         
         // Clear possible remaining detection
         miniWheelClearDetections();
+        #ifdef MINI_JOYSTICK
+            miniDirectionClearJoystickDetections();
+        #endif
         
         // Arm timer for scrolling (caps timer that isn't relevant here)
         activateTimer(TIMER_CAPS, SCROLLING_DEL);
@@ -922,7 +952,11 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             }
 
             // Approve / deny display change
+            #ifdef MINI_JOYSTICK
+            if ((isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_JDETECT) || (isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_JDETECT))
+            #else
             if (getWheelCurrentIncrement() != 0)
+            #endif
             {
                 if(approve_selected == FALSE)
                 {
@@ -935,6 +969,13 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
                 approve_selected = !approve_selected;
                 miniOledFlushEntireBufferToDisplay();
             }
+
+            #ifdef MINI_VERSION
+            if (isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT) 
+            {
+                return MINI_INPUT_RET_NO;
+            }
+            #endif
         }   
     
         if ((input_answer == MINI_INPUT_RET_YES) && (approve_selected != FALSE))

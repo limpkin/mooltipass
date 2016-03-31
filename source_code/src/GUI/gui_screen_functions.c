@@ -36,6 +36,7 @@
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
+#include "mini_inputs.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "delays.h"
@@ -738,6 +739,11 @@ void guiDisplayLoginOrPasswordOnScreen(char* text)
     #if defined(HARDWARE_OLIVIER_V1)
         getTouchedPositionAnswer(0);
     #elif defined(MINI_VERSION)
+        #ifdef MINI_JOYSTICK
+            while ((getMiniDirectionJustPressed() == 0) && (miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE));
+        #else
+            while miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE);
+        #endif
     #endif    
 }
 

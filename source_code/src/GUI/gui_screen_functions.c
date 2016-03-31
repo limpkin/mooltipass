@@ -952,7 +952,11 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             }
 
             // Approve / deny display change
+            #ifdef MINI_JOYSTICK
             if ((isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_JDETECT) || (isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_JDETECT) || (getWheelCurrentIncrement() != 0))
+            #else
+            if (getWheelCurrentIncrement() != 0)
+            #endif
             {
                 if(approve_selected == FALSE)
                 {

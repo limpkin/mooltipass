@@ -410,8 +410,8 @@ void guiMainLoop(void)
             guiGetBackToCurrentScreen();
         }
     
-        // If the screen just got turned on, don't call the guiScreenLoop() function
         #ifdef MINI_JOYSTICK
+        // If the screen just got turned on, don't call the guiScreenLoop() function
         if (((input_interface_result != WHEEL_ACTION_NONE) || (joystick_interface_result != 0)) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
         {
             guiScreenLoop((joystick_interface_result << 4) | input_interface_result);

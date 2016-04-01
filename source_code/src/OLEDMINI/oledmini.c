@@ -30,6 +30,7 @@
 #include "logic_fwflash_storage.h"
 #include "bitstreammini.h"
 #include "timer_manager.h"
+#include "logic_eeprom.h"
 #include "flash_mem.h"
 #include "oledmini.h"
 #include "defines.h"
@@ -208,6 +209,16 @@ void miniOledSetColumnAddress(uint8_t columnStart, uint8_t columnEnd)
     miniOledWriteCommand(data, sizeof(data));
 }
 
+/*! \fn     miniOledSetContrastCurrent(uint8_t current)
+ *  \brief  Set the display contrast current
+ *  \param  current     Contrast current
+ */
+void miniOledSetContrastCurrent(uint8_t current)
+{
+    uint8_t data[2] = {SSD1305_CMD_SET_CONTRAST_CURRENT, current};
+    miniOledWriteCommand(data, sizeof(data));
+}
+
 /*! \fn     miniOledSetPageAddress(uint8_t pageStart, uint8_t pageEnd)
  *  \brief  Setup page start and end address
  *  \param  pageStart   Start page
@@ -346,6 +357,9 @@ void miniOledInit(void)
         }
         miniOledWriteCommand(dataBuffer, i);
     }
+
+    // Set the contrast current stored in the eeprom
+    miniOledSetContrastCurrent(getMooltipassParameterInEeprom(MINI_OLED_CONTRAST_CURRENT_PARAM));
 
     // Switch on an empty screen
     miniOledClearFrameBuffer();

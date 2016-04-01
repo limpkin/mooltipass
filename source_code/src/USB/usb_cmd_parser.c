@@ -1176,6 +1176,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 //launchCalibrationCycle();
                 #ifdef MINI_VERSION
                     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
+                    miniOledSetContrastCurrent(getMooltipassParameterInEeprom(MINI_OLED_CONTRAST_CURRENT_PARAM));
                 #endif
             }
             else

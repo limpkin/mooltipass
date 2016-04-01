@@ -1819,6 +1819,7 @@ if __name__ == '__main__':
 		print "39) Nothing pressed after manual password entry"
 		print "40) Try to unlock device with PIN"
 		print "41) Unknown card: get current CPZ"
+		print "42) Mooltipass mini: set contrast current"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1940,6 +1941,8 @@ if __name__ == '__main__':
 				print "Error"
 			else:
 				print ''.join('{:d} '.format(x) for x in data[DATA_INDEX:DATA_INDEX+data[LEN_INDEX]])
+		elif choice == 42:
+			setGenericParameter(epin, epout, 26)
 
 	hid_device.reset()
 

@@ -120,6 +120,7 @@ void miniOledFlushEntireBufferToDisplay(void);
 void miniOledAllowTextWritingYIncrement(void);
 void miniOledPreventTextWritingYIncrement(void);
 void miniOledDontFlushWrittenTextToDisplay(void);
+void miniOledSetContrastCurrent(uint8_t current);
 uint8_t miniOledPutCenteredString(uint8_t y, char* string);
 uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch);
 void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs);

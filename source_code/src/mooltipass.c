@@ -99,6 +99,14 @@ int main(void)
         CPU_PRESCALE(0);                                                            // Set pre-scaler to 1 (fuses not set)
     #endif
 
+    /** CHECK FOR BOOTLOADER BRICK **/
+    #if defined(MINI_VERSION)
+    if (current_bootkey_val == BRICKED_BOOTKEY)
+    {
+        while(1);
+    }
+    #endif
+
     /** FUSE VERIFICATIONS **/
     #if defined(MINI_CLICK_BETATESTERS_SETUP)
         // no fuse verification for the beta testers units

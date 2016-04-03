@@ -84,19 +84,18 @@ int main(void)
     /* TODO: check fuses? */
     
     /* See if we actually wanted to start the bootloader */
-    //#define BOOTKEY_CHECK
-    #ifdef BOOTKEY_CHECK
-        if (current_bootkey_val != BOOTLOADER_BOOTKEY)
-        {
-            start_firmware();
-        }
-    #else
-        (void)current_bootkey_val;
-    #endif
+    //if (current_bootkey_val != BOOTLOADER_BOOTKEY)
+    //{
+    //    while(1);
+    //}
+    (void)current_bootkey_val;
+
+    /* By default, brick the device so it's an all or nothing update procedure */
+    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
     /* TO REMOVE */
     //memset((void*)cur_aes_key, 0x00, sizeof(cur_aes_key));
-    //eeprom_write_block((void*)cur_aes_key,  (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
+    //eeprom_write_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
 
     /* Initialize SPI controller, check flash presence */
     UHWCON = 0x01;
@@ -109,7 +108,7 @@ int main(void)
     }    
 
     /* Init CBCMAC encryption context*/
-    eeprom_read_block((void*)cur_aes_key,  (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
+    eeprom_read_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
     memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));
     memset((void*)temp_data, 0x00, sizeof(temp_data));
     aes256_init_ecb(&temp_aes_context, cur_aes_key);
@@ -141,20 +140,21 @@ int main(void)
         aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
     }
 
-    // Read CBCMAC in memory, compare the two values
+    // Read CBCMAC in memory, compare the two values, also read new encrypted AES key
     flashRawRead(temp_data, (UINT16_MAX - sizeof(cur_cbc_mac) + 1), sizeof(temp_data));
+    flashRawRead(cur_aes_key, (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1), sizeof(cur_aes_key));
     if (memcmp(temp_data, cur_cbc_mac, sizeof(temp_data)) == 0)
     {
         // Fetch the encrypted new aes key from flash, decrypt it, store it
-        flashRawRead(cur_aes_key, (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1), sizeof(cur_aes_key));
-        aes256_decrypt_ecb(&temp_aes_context, cur_aes_key+16);
         aes256_decrypt_ecb(&temp_aes_context, cur_aes_key);
-        eeprom_write_block((void*)cur_aes_key,  (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
+        aes256_decrypt_ecb(&temp_aes_context, cur_aes_key+16);
+        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
+        eeprom_write_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
         start_firmware();
     }
     else
     {
-        // Fail, erase everything!
+        // Fail, erase everything! >> maybe just write a while(1) in the future?
         for (uint16_t i = 0; i < MAX_FIMRWARE_SIZE; i+=SPM_PAGESIZE)
         {
             boot_page_erase(i);

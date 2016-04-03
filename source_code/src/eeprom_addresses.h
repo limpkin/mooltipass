@@ -32,6 +32,7 @@
 // EEPROM defines
 #define CORRECT_BOOTKEY                     0xDEAD
 #define BOOTLOADER_BOOTKEY                  0xD0D0
+#define BRICKED_BOOTKEY                     0xCAD0
 #define BOOTLOADER_PWDOK_KEY                0xAB
 #define UID_REQUEST_KEY_OK_KEY              0xBB
 #define USER_RESERVED_SPACE_IN_EEP          34

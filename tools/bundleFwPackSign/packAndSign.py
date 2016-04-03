@@ -94,8 +94,9 @@ def main():
 	# Generate beginning of update file data: bundle | padding | firmware | new aes key encoded
 	update_file_data = array('B')
 	update_file_data.extend(bytearray(bundle))
-	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-len(bundle)-len(firmware))))
+	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-FW_MAX_LENGTH-len(bundle))))
 	update_file_data.extend(firmware.tobinarray())
+	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-len(update_file_data))))
 	update_file_data.extend(bytearray(enc_password))
 	
 	# Check length

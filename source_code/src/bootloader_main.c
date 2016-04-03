@@ -22,6 +22,7 @@
  *  Copyright [2016] [Mathieu Stephan]
  */
 #include <avr/eeprom.h>
+#include <avr/boot.h>
 #include <stdlib.h>
 #include <string.h>
 #include "eeprom_addresses.h"
@@ -31,51 +32,40 @@
 #include "defines.h"
 #include "aes.h"
 #include "spi.h"
+#define start_firmware()    asm volatile ( "jmp 0x0000" )
+#define MAX_FIMRWARE_SIZE   28672
+#if SPM_PAGESIZE == 128
+    #define SPM_PAGE_SIZE_BYTES_BM  0x007F
+#endif
 
-// Define the bootloader function
-bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
-// Define the main program function
-bootloader_f_ptr_type start_program = (bootloader_f_ptr_type)0x0000;
 
-
-/*! \fn     disableJTAG(void)
-*   \brief  Disable the JTAG module
-*/
-static inline void disableJTAG(void)
-{
-    unsigned char temp;
-
-    temp = MCUCR;
-    temp |= (1<<JTD);
-    MCUCR = temp;
-    MCUCR = temp;
-}
-
-/*! \fn     electricalJumpToBootloaderCondition(void)
- *  \brief  Electrical condition to jump to the bootloader
- *  \return Boolean to know if this condition is fullfilled
+/*! \fn     boot_program_page(uint32_t page, uint8_t* buf)
+ *  \brief  Flash a page of data to the MCU flash
+ *  \param  page    Page address in bytes
+ *  \param  buf     Pointer to a buffer SPM_PAGESIZE long
  */
- static inline RET_TYPE electricalJumpToBootloaderCondition(void)
- {
-    /* Disable JTAG to get access to the pins */
-    disableJTAG();
-    
-    /* Pressing wheel starts the bootloader */
-    DDR_CLICK &= ~(1 << PORTID_CLICK);
-    PORT_CLICK |= (1 << PORTID_CLICK);
-    
-    /* Small delay for detection */
-    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
-    
-    /* Check if low */
-    if (!(PIN_CLICK & (1 << PORTID_CLICK)))
+void boot_program_page(uint16_t page, uint8_t* buf)
+{
+    uint16_t i;
+
+    // Erase page, wait for memories to be ready
+    eeprom_busy_wait();
+    boot_page_erase(page);
+    boot_spm_busy_wait();
+
+    // Fill the bootloader temporary page buffer
+    for (i=0; i < SPM_PAGESIZE; i+=2)
     {
-        return TRUE;
+        // Set up little-endian word.
+        uint16_t w = *buf++;
+        w += (*buf++) << 8;    
+        boot_page_fill(page + i, w);
     }
-    else
-    {
-        return FALSE;
-    }
+
+    // Store buffer in flash page, wait until the memory is written, re-enable RWW section
+    boot_page_write(page);
+    boot_spm_busy_wait();
+    boot_rww_enable();
 }
 
 /*! \fn     main(void)
@@ -93,37 +83,26 @@ int main(void)
 
     /* TODO: check fuses? */
     
-    /* Disable JTAG & set pre-scaler to 0 */
-    disableJTAG();
-    CPU_PRESCALE(0);
-    
     /* See if we actually wanted to start the bootloader */
     //#define BOOTKEY_CHECK
     #ifdef BOOTKEY_CHECK
         if (current_bootkey_val != BOOTLOADER_BOOTKEY)
         {
-            start_program();
+            start_firmware();
         }
     #else
         (void)current_bootkey_val;
     #endif
 
-    /* Early development stages, when we develop in main firmware memory */
-    #define EARLY_DEV
-    #ifdef EARLY_DEV
-    if(electricalJumpToBootloaderCondition() == TRUE)
-    {
-        start_bootloader();
-    }
-    #endif
-
     /* Initialize SPI controller, check flash presence */
+    UHWCON = 0x01;
     spiUsartBegin();
+    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
     flash_init_result = initFlash();
     if (flash_init_result != RETURN_OK)
     {
         while(1);
-    }
+    }    
 
     /* Init CBCMAC encryption context*/
     memset((void*)&temp_data, 0x00, sizeof(temp_data));
@@ -132,10 +111,26 @@ int main(void)
     aes256_init_ecb(&temp_aes_context, cur_aes_key);
 
     // Compute CBCMAC for between the start of the graphics zone until the max addressing space (65536) - the size of the CBCMAC
+    uint8_t firmware_data[SPM_PAGESIZE];
     for (uint16_t i = GRAPHIC_ZONE_START; i < (UINT16_MAX - sizeof(cur_cbc_mac) + 1); i += sizeof(cur_cbc_mac))
     {
         // Read data from external flash
         flashRawRead(temp_data, i, sizeof(temp_data));
+
+        // If we got to the part containing to firmware
+        if ((i >= (UINT16_MAX - MAX_FIMRWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)) && (i < (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)))
+        {
+            // Append firmware data to current buffer
+            uint16_t firmware_data_address = i - ((UINT16_MAX - MAX_FIMRWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1));
+            memcpy(firmware_data + (firmware_data_address & SPM_PAGE_SIZE_BYTES_BM), temp_data, sizeof(temp_data));
+
+            // If we have a full page in buffer, flash it
+            firmware_data_address += sizeof(cur_cbc_mac);
+            if ((firmware_data_address & SPM_PAGE_SIZE_BYTES_BM) == 0x0000)
+            {
+                boot_program_page(firmware_data_address - SPM_PAGESIZE, firmware_data);
+            }
+        }
 
         // Continue computation of CBCMAC
         aesXorVectors(cur_cbc_mac, temp_data, sizeof(temp_data));
@@ -147,12 +142,16 @@ int main(void)
     if (memcmp(temp_data, cur_cbc_mac, sizeof(temp_data)) == 0)
     {
         // Match, start the main program
-        start_bootloader();
+        start_firmware();
     }
     else
     {
         // Fail, erase everything!
+        for (uint16_t i = 0; i < MAX_FIMRWARE_SIZE; i+=SPM_PAGESIZE)
+        {
+            boot_page_erase(i);
+            boot_spm_busy_wait();
+        }
+        while(1);
     }
-
-    while(1);
 }

@@ -198,7 +198,7 @@ int main(void)
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
     
     /** FLASH INITIALIZATION **/
-    flash_init_result = initFlash();    // Flash low level init, check for presente
+    flash_init_result = initFlash();    // Flash low level init, check for presence
     
     /** OLED INITIALIZATION **/
     oledBegin(FONT_DEFAULT);            // Only do it now as we're enumerated

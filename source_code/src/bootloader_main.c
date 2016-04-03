@@ -94,6 +94,10 @@ int main(void)
         (void)current_bootkey_val;
     #endif
 
+    /* TO REMOVE */
+    //memset((void*)cur_aes_key, 0x00, sizeof(cur_aes_key));
+    //eeprom_write_block((void*)cur_aes_key,  (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
+
     /* Initialize SPI controller, check flash presence */
     UHWCON = 0x01;
     spiUsartBegin();
@@ -105,9 +109,9 @@ int main(void)
     }    
 
     /* Init CBCMAC encryption context*/
-    memset((void*)&temp_data, 0x00, sizeof(temp_data));
-    memset((void*)&cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));
-    memset((void*)&cur_aes_key, 0x00, sizeof(cur_aes_key));
+    eeprom_read_block((void*)cur_aes_key,  (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
+    memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));
+    memset((void*)temp_data, 0x00, sizeof(temp_data));
     aes256_init_ecb(&temp_aes_context, cur_aes_key);
 
     // Compute CBCMAC for between the start of the graphics zone until the max addressing space (65536) - the size of the CBCMAC
@@ -141,7 +145,11 @@ int main(void)
     flashRawRead(temp_data, (UINT16_MAX - sizeof(cur_cbc_mac) + 1), sizeof(temp_data));
     if (memcmp(temp_data, cur_cbc_mac, sizeof(temp_data)) == 0)
     {
-        // Match, start the main program
+        // Fetch the encrypted new aes key from flash, decrypt it, store it
+        flashRawRead(cur_aes_key, (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1), sizeof(cur_aes_key));
+        aes256_decrypt_ecb(&temp_aes_context, cur_aes_key+16);
+        aes256_decrypt_ecb(&temp_aes_context, cur_aes_key);
+        eeprom_write_block((void*)cur_aes_key,  (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
         start_firmware();
     }
     else

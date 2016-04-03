@@ -33,6 +33,8 @@
 #ifdef MINI_JOYSTICK
 // Joystick scan list
 uint8_t joystick_scan_defines[] = {PORTID_JOY_UP, PORTID_JOY_DOWN, PORTID_JOY_LEFT, PORTID_JOY_RIGHT, PORTID_JOY_CENTER};
+// Bool to specify that no detection is happening
+volatile uint8_t joystick_no_detection = TRUE;
 // Joystick counter
 volatile uint8_t joystick_counters[8];
 // Joystick states
@@ -184,14 +186,18 @@ void scanMiniInputsDetect(void)
         // Detect if pressed
         if (!(PIN_JOYSTICK & (1 << current_direction)))
         {
-            if ((*current_direction_counter_pt == 50) && (*current_direction_return_pt != RETURN_JRELEASED))
+            if  (joystick_no_detection != FALSE)
             {
-                // We must make sure the user detected that the button was released before setting it as detected!
-                *current_direction_return_pt = RETURN_JDETECT;
-            }
-            if (*current_direction_counter_pt != 0xFF)
-            {
-                (*current_direction_counter_pt)++;
+                if ((*current_direction_counter_pt == 50) && (*current_direction_return_pt != RETURN_JRELEASED))
+                {
+                    // We must make sure the user detected that the button was released before setting it as detected!
+                    *current_direction_return_pt = RETURN_JDETECT;
+                    joystick_no_detection = FALSE;
+                }
+                if (*current_direction_counter_pt != 0xFF)
+                {
+                    (*current_direction_counter_pt)++;
+                }
             }
         }
         else
@@ -199,6 +205,7 @@ void scanMiniInputsDetect(void)
             if (*current_direction_return_pt == RETURN_DET)
             {
                 *current_direction_return_pt = RETURN_JRELEASED;
+                joystick_no_detection = TRUE;
             }
             else if (*current_direction_return_pt != RETURN_JRELEASED)
             {
@@ -426,6 +433,7 @@ void miniDirectionClearDetections(void)
     {
         memset((void*)joystick_return, RETURN_REL, sizeof(joystick_return));
         wheel_click_return = RETURN_REL;
+        joystick_no_detection = TRUE;
         wheel_cur_increment = 0;
     }
 }
@@ -438,6 +446,7 @@ void miniDirectionClearJoystickDetections(void)
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         memset((void*)joystick_return, RETURN_REL, sizeof(joystick_return));
+        joystick_no_detection = TRUE;
     }
 }
 

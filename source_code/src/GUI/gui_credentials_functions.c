@@ -550,6 +550,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
         #endif
         {
+            readParentNode(p, parentAddresses[selectedIndex]);
             return cur_address_selected;
         }
         #ifdef MINI_JOYSTICK

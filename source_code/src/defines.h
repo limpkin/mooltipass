@@ -116,7 +116,7 @@
 #elif defined(MINI_CLICK_BETATESTERS_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
-    //#define MINI_WHEEL_NOT_ACTIVE
+    #define MINI_WHEEL_NOT_ACTIVE
     #define MINI_JOYSTICK
     //#define NO_PIN_CODE_REQUIRED
     #define FLASH_CHIP_4M

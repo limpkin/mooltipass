@@ -75,15 +75,21 @@ int main(void)
 {
     /* Fetch bootkey in eeprom */
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Bootkey in EEPROM
+    uint8_t new_aes_key[AES_KEY_LENGTH/8];                                          // New AES encryption key
     uint8_t cur_aes_key[AES_KEY_LENGTH/8];                                          // AES encryption key
+    uint8_t firmware_data[SPM_PAGESIZE];                                            // One page of fimrware data
     aes256_context temp_aes_context;                                                // AES context
     uint8_t cur_cbc_mac[16];                                                        // Current CBCMAC val    
     uint8_t temp_data[16];                                                          // Temporary 16 bytes vector
     RET_TYPE flash_init_result;                                                     // Flash initialization result
 
-    /* TODO: check fuses? */
-    
-    /* See if we actually wanted to start the bootloader */
+    // Check fuses: 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+    //if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+    //{
+    //    while(1);
+    //}
+    //
+    //// Check that the bootloader was actually called from the firmware!
     //if (current_bootkey_val != BOOTLOADER_BOOTKEY)
     //{
     //    while(1);
@@ -93,11 +99,7 @@ int main(void)
     /* By default, brick the device so it's an all or nothing update procedure */
     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
-    /* TO REMOVE */
-    //memset((void*)cur_aes_key, 0x00, sizeof(cur_aes_key));
-    //eeprom_write_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
-
-    /* Initialize SPI controller, check flash presence */
+    /* Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence */
     UHWCON = 0x01;
     spiUsartBegin();
     for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
@@ -114,7 +116,6 @@ int main(void)
     aes256_init_ecb(&temp_aes_context, cur_aes_key);
 
     // Compute CBCMAC for between the start of the graphics zone until the max addressing space (65536) - the size of the CBCMAC
-    uint8_t firmware_data[SPM_PAGESIZE];
     for (uint16_t i = GRAPHIC_ZONE_START; i < (UINT16_MAX - sizeof(cur_cbc_mac) + 1); i += sizeof(cur_cbc_mac))
     {
         // Read data from external flash
@@ -135,21 +136,26 @@ int main(void)
             }
         }
 
+        // If we got to the part containing the encrypted new aes key (end of the for())
+        if (i >= (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1))
+        {
+            memcpy(new_aes_key + (i - (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)), temp_data, sizeof(temp_data));            
+        }
+
         // Continue computation of CBCMAC
         aesXorVectors(cur_cbc_mac, temp_data, sizeof(temp_data));
         aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
     }
 
-    // Read CBCMAC in memory, compare the two values, also read new encrypted AES key
+    // Read CBCMAC in memory and compare it with the computed value
     flashRawRead(temp_data, (UINT16_MAX - sizeof(cur_cbc_mac) + 1), sizeof(temp_data));
-    flashRawRead(cur_aes_key, (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1), sizeof(cur_aes_key));
     if (memcmp(temp_data, cur_cbc_mac, sizeof(temp_data)) == 0)
     {
         // Fetch the encrypted new aes key from flash, decrypt it, store it
-        aes256_decrypt_ecb(&temp_aes_context, cur_aes_key);
-        aes256_decrypt_ecb(&temp_aes_context, cur_aes_key+16);
+        aes256_decrypt_ecb(&temp_aes_context, new_aes_key);
+        aes256_decrypt_ecb(&temp_aes_context, new_aes_key+16);
+        eeprom_write_block((void*)new_aes_key, (void*)EEP_BOOT_PWD, sizeof(new_aes_key));
         eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
-        eeprom_write_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
         start_firmware();
     }
     else

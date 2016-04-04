@@ -173,7 +173,7 @@ int main(void)
     #ifdef AVR_BOOTLOADER_PROGRAMMING
         if(electricalJumpToBootloaderCondition() == TRUE)
         {
-            start_bootloader();
+            //start_bootloader();
         }
     #endif
 

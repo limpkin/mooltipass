@@ -85,6 +85,7 @@ def main():
 		
 	# Generate new random AES key, encrypt it with the old one
 	new_aes_key = rng.read(AES_KEY_LENGTH)
+	new_aes_key = array('B',[0]*AES_KEY_LENGTH) # TO REMOVE!
 	cipher = AES.new(getAesKeyForMooltipass(0), AES.MODE_ECB, array('B',[0]*AES.block_size))	# IV ignored in ECB
 	enc_password = cipher.encrypt(new_aes_key)
 	if len(enc_password) != AES_KEY_LENGTH:

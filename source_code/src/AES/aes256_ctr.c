@@ -36,7 +36,7 @@
 */
 void aesXorVectors(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 {
-    while(nbytes--)
+    while (nbytes--)
     {
         *dest ^= *src;
         dest++;
@@ -91,7 +91,7 @@ void aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen)
 	}
 
 	// zero rest of bytes of ctx->iv.
-	for (i=ivLen; i<16; i++)
+	for (i = ivLen; i < 16; i++)
 	{
 		ctx->ctr[i] = 0x00;
 	}
@@ -110,7 +110,10 @@ void aesIncrementCtr(uint8_t *ctr, uint8_t len)
 {
     uint8_t i;
 
-    if(len == 0) return;
+    if (len == 0)
+    {
+        return;
+    }
 
     i = len-1;
     while (ctr[i]++ == 0xFF) 
@@ -139,7 +142,7 @@ int8_t aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len)
     int8_t result = 0; // same
     uint8_t i;
 
-    for(i=0; i<len; i++)
+    for (i = 0; i < len; i++)
     {
         if(ctr1[i] != ctr2[i])
         {
@@ -173,10 +176,10 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 
     // Loop will advance by a variable amount: ctx->cipherstreamAvailable in the
     // first round, 16 then, dataLen - i in the last round.
-    for (i=0; i<dataLen; )
+    for (i = 0; i < dataLen; )
     {
         // if we need new cipherstream, calculate it
-        if(ctx->cipherstreamAvailable == 0)
+        if (ctx->cipherstreamAvailable == 0)
         {
             uint8_t j;
             for(j = 0; j < 16; j++)
@@ -193,7 +196,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
         uint16_t thisLoop = dataLen - i;
 
         // in this go we can only do at most cipherStreamAvailable bytes
-        if(thisLoop > ctx->cipherstreamAvailable)
+        if (thisLoop > ctx->cipherstreamAvailable)
         {
             thisLoop = ctx->cipherstreamAvailable;
         }
@@ -204,7 +207,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
         ctx->cipherstreamAvailable -= thisLoop;
 
         // if the cached cipherstream is fully used, increment ctr
-        if(ctx->cipherstreamAvailable == 0)
+        if (ctx->cipherstreamAvailable == 0)
         {
             aesIncrementCtr(ctx->ctr, 16);
         }
@@ -233,7 +236,7 @@ void aes256CtrClean(aes256CtrCtx_t *ctx)
 {
 	uint8_t *ptr = (uint8_t*)ctx;
 	uint16_t i;
-	for(i=0; i<sizeof(*ctx); i++)
+	for (i = 0; i < sizeof(*ctx); i++)
 	{
 		*ptr++ = 0;
 	}

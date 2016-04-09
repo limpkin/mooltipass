@@ -29,12 +29,12 @@
 
 /*!	\fn 	void aesXorVectors(uint8_t* dest, uint8_t* src, uint8_t nbytes)
 *	\brief	Do xor between dest and src and save it inside dest
-* 
+*
 *   \param  dest - destination of xor
 *   \param  src - source of xor data
 *   \param  nbytes - number of bytes to be xored between dest and src
 */
-void aesXorVectors(uint8_t *dest, uint8_t *src, uint8_t nbytes)
+void aesXorVectors(uint8_t *dest, const uint8_t *src, uint8_t nbytes)
 {
     while (nbytes--)
     {

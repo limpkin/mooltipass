@@ -38,66 +38,37 @@
     #define SPM_PAGE_SIZE_BYTES_BM  0x007F
 #endif
 
-/*! \fn     spm_func(uint16_t address, uint8_t command, uint16_t data) 
- *  \brief  Dedicated function for SPM operations
- *  \param  address Address on which to do the operations
- *  \param  command The command
- *  \param  data    The data
- *  \note   If the functions needs to be called from the fw: 
- *  \note   typedef void (*spm_func_t)(uint16_t address, uint8_t command, uint16_t data);
- *  \note   const spm_func_t spm_func = (spm_func_t)0x3FC0;
- */
-static void spm_func(uint16_t address, uint8_t command, uint16_t data)  __attribute__ ((section (".spmfunc"))) __attribute__((optimize("O0"))) __attribute__((noinline));
-static void spm_func(uint16_t address, uint8_t command, uint16_t data) 
-{
-    // Do spm stuff
-    asm volatile 
-    (
-        "    movw  r0, %3\n"
-        "    out %0, %1\n"
-        "    spm\n"
-        "    clr  r1\n"
-        :
-        :   "i" (_SFR_IO_ADDR(__SPM_REG)),
-            "r" ((uint8_t)command),
-            "z" ((uint16_t)address),
-            "r" ((uint16_t)data)
-        : "r0"
-    );
 
-    // Wait for SPM operation to be done
-    boot_spm_busy_wait();
-
-    // If we're performing write operations to the flash, re-allow read access
-    if ((command == __BOOT_PAGE_ERASE) || (command == __BOOT_PAGE_WRITE)) 
-    {
-        boot_rww_enable();
-    }
-}
-
-/*! \fn     boot_program_page(uint32_t page, uint8_t* buf)
+/*! \fn     boot_program_page(uint16_t page, uint8_t* buf)
  *  \brief  Flash a page of data to the MCU flash
  *  \param  page    Page address in bytes
  *  \param  buf     Pointer to a buffer SPM_PAGESIZE long
+ *  \note   If the function needs to be called from the firmware:
+ *  \note   typedef void (*boot_program_page_t)(uint16_t page, uint8_t* buf);
+ *  \note   const boot_program_page_t boot_program_page = (boot_program_page_t)0x3FC0;
  */
-void boot_program_page(uint16_t page, uint8_t* buf)
+static void boot_program_page(uint16_t page, uint8_t* buf)  __attribute__ ((section (".spmfunc"))) __attribute__((noinline));
+static void boot_program_page(uint16_t page, uint8_t* buf)
 {
     uint16_t i;
 
     // Erase page, wait for memories to be ready
-    spm_func(page, __BOOT_PAGE_ERASE, 0);
+    boot_page_erase(page);
+    boot_spm_busy_wait();
 
     // Fill the bootloader temporary page buffer
     for (i=0; i < SPM_PAGESIZE; i+=2)
     {
         // Set up little-endian word.
         uint16_t w = *buf++;
-        w += (*buf++) << 8;    
-        spm_func((uint16_t)(void*)(page + i), __BOOT_PAGE_FILL, w);
+        w += (*buf++) << 8; 
+        boot_page_fill(page + i, w);   
     }
 
     // Store buffer in flash page, wait until the memory is written, re-enable RWW section
-    spm_func((uint16_t)(void*)page, __BOOT_PAGE_WRITE, 0);
+    boot_page_write(page);
+    boot_spm_busy_wait();
+    boot_rww_enable();
 }
 
 /*! \fn     main(void)

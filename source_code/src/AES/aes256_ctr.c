@@ -19,7 +19,7 @@
  */
 /*!	\file 	aes256_ctr.c
 *	\brief	AES256CTR encryption
-* 
+*
 *	Created: 06/03/2014 14:17:00
 *	Author: Miguel A. Borrego
 */
@@ -29,12 +29,12 @@
 
 /*!	\fn 	void aesXorVectors(uint8_t* dest, uint8_t* src, uint8_t nbytes)
 *	\brief	Do xor between dest and src and save it inside dest
-* 
+*
 *   \param  dest - destination of xor
 *   \param  src - source of xor data
 *   \param  nbytes - number of bytes to be xored between dest and src
 */
-void aesXorVectors(uint8_t *dest, uint8_t *src, uint8_t nbytes)
+void aesXorVectors(uint8_t *dest, const uint8_t *src, uint8_t nbytes)
 {
     while (nbytes--)
     {
@@ -46,7 +46,7 @@ void aesXorVectors(uint8_t *dest, uint8_t *src, uint8_t nbytes)
 
 /*!	\fn 	void aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen)
 *	\brief	Init CTR encryption and save key and iv inside ctx
-* 
+*
 *   \param  ctx - context
 *   \param  key - pointer to key, size must be 32 bytes
 *   \param  iv - pointer to initialization vector, must be 16 or lower.
@@ -116,7 +116,7 @@ void aesIncrementCtr(uint8_t *ctr, uint8_t len)
     }
 
     i = len-1;
-    while (ctr[i]++ == 0xFF) 
+    while (ctr[i]++ == 0xFF)
     {
         if (i == 0)
         {
@@ -159,13 +159,13 @@ int8_t aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len)
             break;
         }
     }
-    
+
     return result;
 }
 
 /*!	\fn 	aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 *	\brief	Encrypt data and save it in data.
-* 
+*
 *   \param  ctx - context
 *   \param  data - pointer to data, this is also the location to store encrypted data
 *   \param  dataLen - size of data

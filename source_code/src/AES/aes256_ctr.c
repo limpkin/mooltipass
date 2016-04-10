@@ -218,7 +218,7 @@ void aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)
 *	\brief	Decrypt data and save it in data.
 *
 *   \param  ctx - context
-*   \param  data - pointer to data, this is also the location to store encrypted data
+*   \param  data - pointer to data, this is also the location to store decrypted data
 *   \param  dataLen - size of data
 */
 void aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)

@@ -78,7 +78,7 @@ int main(void)
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Bootkey in EEPROM
     uint8_t new_aes_key[AES_KEY_LENGTH/8];                                          // New AES encryption key
     uint8_t cur_aes_key[AES_KEY_LENGTH/8];                                          // AES encryption key
-    uint8_t firmware_data[SPM_PAGESIZE];                                            // One page of fimrware data
+    uint8_t firmware_data[SPM_PAGESIZE];                                            // One page of firmware data
     aes256_context temp_aes_context;                                                // AES context
     uint8_t cur_cbc_mac[16];                                                        // Current CBCMAC val    
     uint8_t temp_data[16];                                                          // Temporary 16 bytes vector

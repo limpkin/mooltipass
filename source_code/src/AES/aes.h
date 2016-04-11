@@ -22,17 +22,30 @@
 #define __AES_H__
 
 #include <stdint.h>
+#if defined(__AVR__)
 #include <avr/pgmspace.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+//#define BACK_TO_TABLES
+//#define STARTUP_TABLES
 
 typedef struct {
     uint8_t key[32];
     uint8_t enckey[32];
     uint8_t deckey[32];
 } aes256_context;
+
+#if !defined(BACK_TO_TABLES) && defined(STARTUP_TABLES)
+#if defined(__AVR__)
+void aes256_init_sboxes(void) __attribute__ ((used, naked, section (".init5")));
+#else
+#error "This option is not available on non AVR platforms."
+#endif
+#endif
 
 void aes256_init_ecb(aes256_context *, uint8_t * /* key */);
 void aes256_done(aes256_context *);
@@ -41,9 +54,9 @@ void aes256_decrypt_ecb(aes256_context *, uint8_t * /* cipertext */);
 
 #define aes256_ctx_t aes256_context
 
-#define aes256_init(x,y)	aes256_init_ecb((y),(uint8_t*)(x))
-#define aes256_enc(x,y)		aes256_encrypt_ecb((y),(uint8_t*)(x))
-#define aes256_dec(x,y)		aes256_decrypt_ecb((y),(uint8_t*)(x))
+#define aes256_init(x,y)    aes256_init_ecb((y),(uint8_t*)(x))
+#define aes256_enc(x,y)     aes256_encrypt_ecb((y),(uint8_t*)(x))
+#define aes256_dec(x,y)     aes256_decrypt_ecb((y),(uint8_t*)(x))
 
 #ifdef __cplusplus
 }

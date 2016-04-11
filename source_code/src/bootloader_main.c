@@ -23,6 +23,7 @@
  */
 #include <avr/eeprom.h>
 #include <avr/boot.h>
+#include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
 #include "eeprom_addresses.h"
@@ -34,9 +35,7 @@
 #include "spi.h"
 #define start_firmware()    asm volatile ("jmp 0x0000")
 #define MAX_FIMRWARE_SIZE   28672
-#if SPM_PAGESIZE == 128
-    #define SPM_PAGE_SIZE_BYTES_BM  0x007F
-#endif
+#define SPM_PAGE_SIZE_BYTES_BM (SPM_PAGESIZE - 1)
 
 
 /*! \fn     boot_program_page(uint16_t page, uint8_t* buf)
@@ -61,8 +60,8 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
     {
         // Set up little-endian word.
         uint16_t w = *buf++;
-        w += (*buf++) << 8; 
-        boot_page_fill(page + i, w);   
+        w += (*buf++) << 8;
+        boot_page_fill(page + i, w);
     }
 
     // Store buffer in flash page, wait until the memory is written, re-enable RWW section
@@ -80,9 +79,9 @@ int main(void)
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Bootkey in EEPROM
     uint8_t new_aes_key[AES_KEY_LENGTH/8];                                          // New AES encryption key
     uint8_t cur_aes_key[AES_KEY_LENGTH/8];                                          // AES encryption key
-    uint8_t firmware_data[SPM_PAGESIZE];                                            // One page of fimrware data
+    uint8_t firmware_data[SPM_PAGESIZE];                                            // One page of firmware data
     aes256_context temp_aes_context;                                                // AES context
-    uint8_t cur_cbc_mac[16];                                                        // Current CBCMAC val    
+    uint8_t cur_cbc_mac[16];                                                        // Current CBCMAC val
     uint8_t temp_data[16];                                                          // Temporary 16 bytes vector
     RET_TYPE flash_init_result;                                                     // Flash initialization result
 
@@ -99,20 +98,20 @@ int main(void)
     //}
     (void)current_bootkey_val;
 
-    /* By default, brick the device so it's an all or nothing update procedure */
+    // By default, brick the device so it's an all or nothing update procedure
     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
-    /* Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence */
+    // Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence
     UHWCON = 0x01;
     spiUsartBegin();
-    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
+    _delay_ms(10);
     flash_init_result = initFlash();
     if (flash_init_result != RETURN_OK)
     {
         while(1);
-    }    
+    }
 
-    /* Init CBCMAC encryption context*/
+    // Init CBCMAC encryption context
     eeprom_read_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
     memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));
     memset((void*)temp_data, 0x00, sizeof(temp_data));
@@ -125,10 +124,12 @@ int main(void)
         flashRawRead(temp_data, i, sizeof(temp_data));
 
         // If we got to the part containing to firmware
-        if ((i >= (UINT16_MAX - MAX_FIMRWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)) && (i < (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)))
+        uint16_t firmware_start_address = UINT16_MAX - MAX_FIMRWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;
+        uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;
+        if ((i >= firmware_start_address) && (i < firmware_end_address))
         {
             // Append firmware data to current buffer
-            uint16_t firmware_data_address = i - ((UINT16_MAX - MAX_FIMRWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1));
+            uint16_t firmware_data_address = i - firmware_start_address;
             memcpy(firmware_data + (firmware_data_address & SPM_PAGE_SIZE_BYTES_BM), temp_data, sizeof(temp_data));
 
             // If we have a full page in buffer, flash it
@@ -140,13 +141,13 @@ int main(void)
         }
 
         // If we got to the part containing the encrypted new aes key (end of the for())
-        if (i >= (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1))
+        if (i >= (firmware_end_address - sizeof(cur_aes_key)))
         {
-            memcpy(new_aes_key + (i - (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)), temp_data, sizeof(temp_data));            
+            memcpy(new_aes_key, temp_data, sizeof(new_aes_key));
         }
 
         // Continue computation of CBCMAC
-        aesXorVectors(cur_cbc_mac, temp_data, sizeof(temp_data));
+        aesXorVectors(cur_cbc_mac, temp_data, sizeof(cur_cbc_mac));
         aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
     }
 

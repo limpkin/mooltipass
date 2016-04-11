@@ -143,7 +143,7 @@ int main(void)
         // If we got to the part containing the encrypted new aes key (end of the for())
         if (i >= (firmware_end_address - sizeof(cur_aes_key)))
         {
-            memcpy(new_aes_key + (i - (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)), temp_data, sizeof(temp_data));            
+            memcpy(new_aes_key, temp_data, sizeof(new_aes_key));
         }
 
         // Continue computation of CBCMAC

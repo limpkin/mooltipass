@@ -24,6 +24,7 @@
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <avr/boot.h>
+#include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
 #include "eeprom_addresses.h"
@@ -151,7 +152,7 @@ int main(void)
     // Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence
     UHWCON = 0x01;
     spiUsartBegin();
-    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
+    _delay_ms(10);
     flash_init_result = initFlash();
     if (flash_init_result != RETURN_OK)
     {

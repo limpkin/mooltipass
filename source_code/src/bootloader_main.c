@@ -59,8 +59,8 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
     {
         // Set up little-endian word.
         uint16_t w = *buf++;
-        w += (*buf++) << 8; 
-        boot_page_fill(page + i, w);   
+        w += (*buf++) << 8;
+        boot_page_fill(page + i, w);
     }
 
     // Store buffer in flash page, wait until the memory is written, re-enable RWW section
@@ -80,7 +80,7 @@ int main(void)
     uint8_t cur_aes_key[AES_KEY_LENGTH/8];                                          // AES encryption key
     uint8_t firmware_data[SPM_PAGESIZE];                                            // One page of firmware data
     aes256_context temp_aes_context;                                                // AES context
-    uint8_t cur_cbc_mac[16];                                                        // Current CBCMAC val    
+    uint8_t cur_cbc_mac[16];                                                        // Current CBCMAC val
     uint8_t temp_data[16];                                                          // Temporary 16 bytes vector
     RET_TYPE flash_init_result;                                                     // Flash initialization result
 
@@ -97,10 +97,10 @@ int main(void)
     //}
     (void)current_bootkey_val;
 
-    /* By default, brick the device so it's an all or nothing update procedure */
+    // By default, brick the device so it's an all or nothing update procedure
     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
-    /* Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence */
+    // Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence
     UHWCON = 0x01;
     spiUsartBegin();
     for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
@@ -108,9 +108,9 @@ int main(void)
     if (flash_init_result != RETURN_OK)
     {
         while(1);
-    }    
+    }
 
-    /* Init CBCMAC encryption context*/
+    // Init CBCMAC encryption context
     eeprom_read_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
     memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));
     memset((void*)temp_data, 0x00, sizeof(temp_data));

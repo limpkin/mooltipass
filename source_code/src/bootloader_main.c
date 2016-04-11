@@ -34,9 +34,7 @@
 #include "spi.h"
 #define start_firmware()    asm volatile ("jmp 0x0000")
 #define MAX_FIMRWARE_SIZE   28672
-#if SPM_PAGESIZE == 128
-    #define SPM_PAGE_SIZE_BYTES_BM  0x007F
-#endif
+#define SPM_PAGE_SIZE_BYTES_BM (SPM_PAGESIZE - 1)
 
 
 /*! \fn     boot_program_page(uint16_t page, uint8_t* buf)

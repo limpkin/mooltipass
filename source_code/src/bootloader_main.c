@@ -147,7 +147,7 @@ int main(void)
         }
 
         // Continue computation of CBCMAC
-        aesXorVectors(cur_cbc_mac, temp_data, sizeof(temp_data));
+        aesXorVectors(cur_cbc_mac, temp_data, sizeof(cur_cbc_mac));
         aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
     }
 

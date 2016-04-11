@@ -124,10 +124,12 @@ int main(void)
         flashRawRead(temp_data, i, sizeof(temp_data));
 
         // If we got to the part containing to firmware
-        if ((i >= (UINT16_MAX - MAX_FIMRWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)) && (i < (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)))
+        uint16_t firmware_start_address = UINT16_MAX - MAX_FIMRWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;
+        uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;
+        if ((i >= firmware_start_address) && (i < firmware_end_address))
         {
             // Append firmware data to current buffer
-            uint16_t firmware_data_address = i - ((UINT16_MAX - MAX_FIMRWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1));
+            uint16_t firmware_data_address = i - firmware_start_address;
             memcpy(firmware_data + (firmware_data_address & SPM_PAGE_SIZE_BYTES_BM), temp_data, sizeof(temp_data));
 
             // If we have a full page in buffer, flash it
@@ -139,7 +141,7 @@ int main(void)
         }
 
         // If we got to the part containing the encrypted new aes key (end of the for())
-        if (i >= (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1))
+        if (i >= (firmware_end_address - sizeof(cur_aes_key)))
         {
             memcpy(new_aes_key + (i - (UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1)), temp_data, sizeof(temp_data));            
         }

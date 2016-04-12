@@ -742,7 +742,7 @@ void guiDisplayLoginOrPasswordOnScreen(char* text)
         #ifdef MINI_JOYSTICK
             while ((getMiniDirectionJustPressed() == 0) && (miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE));
         #else
-            while miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE);
+            while (miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE);
         #endif
     #endif    
 }
@@ -976,7 +976,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
                 miniOledFlushEntireBufferToDisplay();
             }
 
-            #ifdef MINI_VERSION
+            #ifdef MINI_JOYSTICK
             if (isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT) 
             {
                 return MINI_INPUT_RET_NO;

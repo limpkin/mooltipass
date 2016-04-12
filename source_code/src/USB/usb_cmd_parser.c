@@ -1159,40 +1159,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             plugin_return_value = PLUGIN_BYTE_OK;
             mediaFlashImportApproved = FALSE;
-            
-            //#define CBCMAC_TEST
-            #if defined(MINI_VERSION) && defined(CBCMAC_TEST)
-            // In the Mooltipass mini, a complete bundle + firmware update is sent
-
-            // Init CBCMAC encryption context
-            uint8_t temp_data[16];
-            uint8_t cur_cbc_mac[16];
-            aes256_context temp_aes_context;
-            uint8_t cur_aes_key[AES_KEY_LENGTH/8];
-            memset((void*)&temp_data, 0x00, sizeof(temp_data));
-            memset((void*)&cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));
-            memset((void*)&cur_aes_key, 0x00, sizeof(cur_aes_key));
-            aes256_init_ecb(&temp_aes_context, cur_aes_key);
-
-            // Compute CBCMAC for between the start of the graphics zone until the max addressing space (65536) - the size of the CBCMAC
-            for (uint16_t i = GRAPHIC_ZONE_START; i < (UINT16_MAX - sizeof(cur_cbc_mac) + 1); i += sizeof(cur_cbc_mac))
-            {
-                flashRawRead(temp_data, i, sizeof(temp_data));
-                aesXorVectors(cur_cbc_mac, temp_data, sizeof(temp_data));
-                aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
-            }
-
-            // Read CBCMAC in memory, compare the two values
-            flashRawRead(temp_data, (UINT16_MAX - sizeof(cur_cbc_mac) + 1), sizeof(temp_data));
-            if (memcmp(temp_data, cur_cbc_mac, sizeof(temp_data)) == 0)
-            {
-                plugin_return_value = PLUGIN_BYTE_OK;
-            } 
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            #endif
+            //eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);            
             break;
         }
         

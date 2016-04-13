@@ -1159,7 +1159,20 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             plugin_return_value = PLUGIN_BYTE_OK;
             mediaFlashImportApproved = FALSE;
-            //eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);            
+            
+            #ifdef MINI_PREPRODUCTION_SETUP
+            // At the end of the import media command if the security is set in place, we start the bootloader
+            if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
+            {
+                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                cli();
+                wdt_reset();
+                wdt_clear_flag();
+                wdt_change_enable();
+                wdt_enable_2s();
+                while(1);
+            } 
+            #endif
             break;
         }
         

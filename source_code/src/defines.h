@@ -60,8 +60,11 @@
  *
  *  MINI_CLICK_BETATESTERS_SETUP
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
+ *
+ *  MINI_PREPRODUCTION_SETUP
+ *  => mooltipass mini pre-production units
 */
-#define MINI_CLICK_BETATESTERS_SETUP
+#define MINI_PREPRODUCTION_SETUP
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)
@@ -114,6 +117,18 @@
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(MINI_CLICK_BETATESTERS_SETUP)
+    #define STACK_DEBUG
+    #define MINI_VERSION
+    //#define MINI_WHEEL_NOT_ACTIVE
+    //#define MINI_JOYSTICK
+    //#define NO_PIN_CODE_REQUIRED
+    #define FLASH_CHIP_4M
+    #define DEV_PLUGIN_COMMS
+    #define JTAG_FUSE_ENABLED
+    #define HARDWARE_MINI_CLICK_V1
+    #define AVR_BOOTLOADER_PROGRAMMING
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(MINI_PREPRODUCTION_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
     //#define MINI_WHEEL_NOT_ACTIVE

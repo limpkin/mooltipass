@@ -283,7 +283,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
                 usbProcessIncoming(USB_CALLER_MAIN);
             }
             
-            #if defined(AVR_BOOTLOADER_PROGRAMMING)
+            #if defined(MINI_CLICK_BETATESTERS_SETUP)
                 // We actually remove the boot pwd set bool for units whose bootloader can be started by pressing a button at boot...
                 eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
                 eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, FALSE);                

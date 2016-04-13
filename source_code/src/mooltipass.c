@@ -230,7 +230,7 @@ int main(void)
         // Test procedure to check that all HW is working
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
-    #if defined(MINI_CLICK_BETATESTERS_SETUP)
+    #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_PREPRODUCTION_SETUP)
         mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
     #endif
     

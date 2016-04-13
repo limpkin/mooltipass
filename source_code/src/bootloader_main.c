@@ -21,11 +21,13 @@
  *  \brief  main file for bootloader
  *  Copyright [2016] [Mathieu Stephan]
  */
+#include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <avr/boot.h>
 #include <stdlib.h>
 #include <string.h>
 #include "eeprom_addresses.h"
+#include "watchdog_driver.h"
 #include "aes256_ctr.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
@@ -51,7 +53,7 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
     uint16_t i;
 
     // Check we are not overwriting this particular routine
-    if (page >= (FLASHEND - SPM_PAGESIZE + 1))
+    if ((page >= (FLASHEND - SPM_PAGESIZE + 1)) || ((page & SPM_PAGE_SIZE_BYTES_BM) != 0))
     {
         return;
     }
@@ -112,6 +114,13 @@ int main(void)
     uint16_t firmware_start_address = UINT16_MAX - MAX_FIRMWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;   // Start address of firmware in external memory
     uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;                         // End address of firmware in external memory
 
+    
+    /* Just in case we are going to disable the watch dog timer and disable interrupts */
+    cli();
+    wdt_reset();
+    wdt_clear_flag();
+    wdt_change_enable();
+    wdt_stop();
 
     /* Check fuses: 2k words, SPIEN, BOD 4.3V, BOOTRST programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
     if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))

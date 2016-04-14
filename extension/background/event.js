@@ -400,8 +400,14 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 		{
 			// Subdomain exists
 			// Here we should send a request to the mooltipass to know if the username exists!
-			if(true)
+			
+			// first let's check to make sure the device is connected
+			if(mooltipass.device._status.state == 'NotConnected')
 			{
+				console.log('mooltipass not connected - do not ask which domain to store');
+			}
+			else{
+
 				// Unknown user
 				var noteId = 'mpUpdate.'+event.notificationCount.toString();
 
@@ -420,8 +426,6 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 								console.log('notification created for',id);
 							});
 			}
-			else
-			{}			
 		}		
 	}	
 }

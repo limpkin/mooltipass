@@ -32,6 +32,8 @@
 #include "timer_manager.h"
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
+#include "mini_inputs.h"
+#include "hid_defines.h"
 #include "aes256_ctr.h"
 #include "defines.h"
 #include "delays.h"
@@ -55,6 +57,8 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     {
         usbKeybPutChar(i);
         usbKeybPutChar(i);
+        timerBasedDelayMs(20);
+        usbKeybPutChar(' ');
     }
     //setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM)+1);
     //if (getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM) > LAST_KEYB_LUT)
@@ -73,8 +77,20 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
 
     // Draw insert bitmap
     oledClear();
-    oledBitmapDrawFlash(0, 16, BITMAP_INSERT, 0);
-    oledDisplayOtherBuffer();
+    #if defined(HARDWARE_OLIVIER_V1)
+        oledBitmapDrawFlash(0, 16, BITMAP_INSERT, 0);
+        oledDisplayOtherBuffer();
+    #elif defined(MINI_VERSION)
+        
+        #define BETA_TESTER_V
+        #ifdef BETA_TESTER_V
+            oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_NONE);
+            miniOledPutCenteredString(21, "beta v0.22");
+            miniOledFlushEntireBufferToDisplay();
+        #else
+            oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_FLIP);
+        #endif
+    #endif
     
     // Wait for either timeout or for the user to insert his smartcard
     while ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_RUNNING) && (card_detect_ret != RETURN_JDETECT))
@@ -95,7 +111,11 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
                 }
             }
         #else
-            touchDetectionRoutine(0);
+            #if defined(HARDWARE_OLIVIER_V1)
+                touchDetectionRoutine(0);
+            #elif defined(MINI_VERSION)
+                miniGetWheelAction(FALSE, FALSE);
+            #endif
         #endif
     }
     

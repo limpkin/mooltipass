@@ -152,7 +152,7 @@ mooltipass.memmgmt.consoleLog = function(string)
 {
 	if (mooltipass.memmgmt.debugLog)
 	{
-		coonsole.log(string);
+		console.log(string);
 	}
 }
  
@@ -3211,7 +3211,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		else
 		{
 			mooltipass.memmgmt.requestFailHander("Couldn't send packet", MGMT_IDLE, 652);
-			//mooltipass.memmgmt.consoleLog(mooltipass.memmgmt.packetToSendBuffer[0]);
+			mooltipass.memmgmt.consoleLog(mooltipass.util.arrayToHexStr(new Uint16Array(mooltipass.memmgmt.packetToSendBuffer[0])));
 		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP_REQ)

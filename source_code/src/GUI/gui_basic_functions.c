@@ -270,6 +270,9 @@ RET_TYPE getYesNoAnswerInput(uint8_t blocking)
         
         // Clear possible remaining detection
         miniWheelClearDetections();
+        #ifdef MINI_JOYSTICK
+            miniDirectionClearJoystickDetections();
+        #endif
     }
     
     // Wait for a touch press
@@ -302,6 +305,12 @@ RET_TYPE getYesNoAnswerInput(uint8_t blocking)
         {
             return MINI_INPUT_RET_YES;
         }
+        #ifdef MINI_JOYSTICK
+        if (isMiniDirectionPressed(PORTID_JOY_RIGHT) == RETURN_JDETECT)
+        {
+            return MINI_INPUT_RET_YES;
+        }
+        #endif
     }
     while(blocking != FALSE);
     
@@ -315,7 +324,7 @@ RET_TYPE getYesNoAnswerInput(uint8_t blocking)
 */
 void guiMainLoop(void)
 {
-    RET_TYPE touch_detect_result;
+    RET_TYPE input_interface_result;
     uint8_t screenSaverOnCopy;
     uint8_t isScreenOnCopy;
     
@@ -339,9 +348,9 @@ void guiMainLoop(void)
     
     #if defined(HARDWARE_OLIVIER_V1)
         // Launch touch detection routine to check for interactions
-        touch_detect_result = touchDetectionRoutine(currentLedMask);
+        input_interface_result = touchDetectionRoutine(currentLedMask);
     #elif defined(MINI_VERSION)
-        touch_detect_result = 0;
+        input_interface_result = miniGetWheelAction(FALSE, FALSE);
     #endif
     
     #if defined(HARDWARE_OLIVIER_V1)
@@ -374,15 +383,44 @@ void guiMainLoop(void)
         }
     }
     
-    // If there was some activity and we are showing the screen saver
-    if ((touch_detect_result & TOUCH_PRESS_MASK) && (screenSaverOnCopy == TRUE))
-    {
-        guiGetBackToCurrentScreen();
-    }
+    #if defined(HARDWARE_OLIVIER_V1)
+        // If there was some activity and we are showing the screen saver
+        if ((input_interface_result & TOUCH_PRESS_MASK) && (screenSaverOnCopy == TRUE))
+        {
+            guiGetBackToCurrentScreen();
+        }
     
-    // If the screen just got turned on, don't call the guiScreenLoop() function
-    if ((touch_detect_result & TOUCH_PRESS_MASK) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
-    {
-        guiScreenLoop(touch_detect_result);
-    }   
+        // If the screen just got turned on, don't call the guiScreenLoop() function
+        if ((input_interface_result & TOUCH_PRESS_MASK) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
+        {
+            guiScreenLoop(input_interface_result);
+        }
+    #elif defined(MINI_VERSION)
+        #ifdef MINI_JOYSTICK
+            uint8_t joystick_interface_result = getMiniDirectionJustPressed();
+        #endif
+
+        // If there was some activity and we are showing the screen saver
+        #ifdef MINI_JOYSTICK
+        if (((input_interface_result != WHEEL_ACTION_NONE) || (joystick_interface_result != 0)) && (screenSaverOnCopy == TRUE))
+        #else
+        if ((input_interface_result != WHEEL_ACTION_NONE) && (screenSaverOnCopy == TRUE))
+        #endif
+        {
+            guiGetBackToCurrentScreen();
+        }
+    
+        #ifdef MINI_JOYSTICK
+        // If the screen just got turned on, don't call the guiScreenLoop() function
+        if (((input_interface_result != WHEEL_ACTION_NONE) || (joystick_interface_result != 0)) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
+        {
+            guiScreenLoop((joystick_interface_result << 4) | input_interface_result);
+        }
+        #else
+        if ((input_interface_result != WHEEL_ACTION_NONE) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
+        {
+            guiScreenLoop(input_interface_result);
+        }
+        #endif
+    #endif
 }

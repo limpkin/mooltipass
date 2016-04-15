@@ -132,6 +132,11 @@ mooltipass.backend.extractDomainAndSubdomain = function (url) {
     // Remove everything after first :
     var n = url.indexOf(':');
     url = url.substring(0, n != -1 ? n : url.length);
+	// Remove possible starting '.', (residual from www[number] urls)
+	if((url.length > 0) && (url.charAt(0) == '.'))
+	{
+		url = url.substring(1);
+	}
     console.log("Trimmed URL: ", url)
 
     if(psl.isValid(url))

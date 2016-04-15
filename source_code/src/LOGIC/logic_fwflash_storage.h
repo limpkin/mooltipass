@@ -152,29 +152,29 @@
 #elif defined(MINI_VERSION)
     // Font IDs
     #define FONT_NONE               255
-    #define FONT_PROFONT_9          1
-    #define FONT_PROFONT_18         16
-    #define FONT_PROFONT_24         17
-    #define FONT_DEFAULT            FONT_PROFONT_9
+    #define FONT_CC_REGULAR         1
+    #define FONT_PROFONT_14         2
+    #define FONT_DEFAULT            FONT_CC_REGULAR
 
     // Bimap IDs
-    #define BITMAP_MOOLTIPASS     0
-    #define BITMAP_LOGIN          1
-    #define BITMAP_LOGIN_RARROW   2
-    #define BITMAP_YES_NO         3
-    #define BITMAP_TICK           4
-    #define BITMAP_CROSS          5
-    #define BITMAP_INFO           6
-    #define BITMAP_INSERT         8
-    #define BITMAP_MAIN_SCREEN    9
-    #define BITMAP_SETTINGS_SC    10
-    #define BITMAP_LEFT_ARROW     11
-    #define BITMAP_RIGHT_ARROW    12
-    #define BITMAP_PIN_LINES      13
+    #define BITMAP_MOOLTIPASS       0
+    #define BITMAP_APPROVE          3
+    #define BITMAP_DENY             4
+    #define BITMAP_MAIN_LOCK        5
+    #define BITMAP_MAIN_LOGIN       6
+    #define BITMAP_MAIN_FAVORITES   7
+    #define BITMAP_MAIN_SETTINGS    8
+    #define BITMAP_SETTINGS_PIN     9
+    #define BITMAP_SETTINGS_BACKUP  10
+    #define BITMAP_SETTINGS_HOME    11
+    #define BITMAP_SETTINGS_ERASE   12
+    #define BITMAP_INSERT_CARD      13
+    #define BITMAP_PIN_SLOT1        14
+    #define BITMAP_PIN_SLOT2        15
+    #define BITMAP_PIN_SLOT3        16
+    #define BITMAP_PIN_SLOT4        17
+
     #define BITMAP_ZZZ            14
-    #define BITMAP_LOGIN_FIND     15
-    #define BITMAP_YES_NO_INT_L   40
-    #define BITMAP_YES_NO_INT_R   41
     #define BITMAP_ZZZ_LOCKED     42
     #define BITMAP_TUTORIAL_1     43
     #define BITMAP_TUTORIAL_2     44
@@ -257,9 +257,10 @@
     #define ID_STRING_FUNC_TEST_SCROLL  68
     #define ID_STRING_PIN_COMPUTER      69
     #define ID_STRING_SEND_PASS_FOR     70
+    #define ID_STRING_SELECT_CREDENTIAL 71
 
     #define ID_FIRST_STRING             0
-    #define ID_LAST_STRING              ID_STRING_FUNC_TEST_SCROLL
+    #define ID_LAST_STRING              ID_STRING_SELECT_CREDENTIAL
 #endif
 
 // Keyboard LUTs
@@ -290,6 +291,8 @@
 #define ID_KEYB_SL_SL_LUT       BITMAP_ID_OFFSET+37
 #define ID_KEYB_FRDE_CH_LUT     BITMAP_ID_OFFSET+38
 #define ID_KEYB_EN_UK_LUT       BITMAP_ID_OFFSET+39
+#define ID_KEYB_CZ_QWERTY_LUT   BITMAP_ID_OFFSET+40
+#define ID_KEYB_EN_DV_LUT       BITMAP_ID_OFFSET+41
 #define FIRST_KEYB_LUT          ID_KEYB_EN_US_LUT
 #define LAST_KEYB_LUT           ID_KEYB_EN_UK_LUT
 

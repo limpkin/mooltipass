@@ -30,6 +30,7 @@
 #include "logic_fwflash_storage.h"
 #include "bitstreammini.h"
 #include "timer_manager.h"
+#include "logic_eeprom.h"
 #include "flash_mem.h"
 #include "oledmini.h"
 #include "defines.h"
@@ -42,7 +43,7 @@
 #if defined(MINI_VERSION)
 
 // Frame buffer, first byte is X0 Y7 (MSB) to X0 Y0 (LSB)
-uint8_t miniOledFrameBuffer[SSD1305_OLED_WIDTH*SSD1305_OLED_HEIGHT/SSD1305_PAGE_HEIGHT];
+uint8_t miniOledFrameBuffer[SSD1305_OLED_WIDTH*SSD1305_OLED_BUFFER_HEIGHT/SSD1305_PAGE_HEIGHT];
 // Current y offset in buffer
 uint8_t miniOledBufferYOffset;
 // Current y offset in screen
@@ -67,12 +68,19 @@ uint8_t miniOledTextCurY = 0;
 uint8_t miniOledFlushText = FALSE;
 // Bool to allow text writing Y increment
 uint8_t miniOledTextWritingYIncrement = FALSE;
+// Maximum Y when printing text (used for truncating)
+uint8_t miniOledMaxTextY = SSD1305_OLED_WIDTH;
 
 // OLED initialization sequence
+#define OLEDMINI_ALT_INIT_CODE
 static const uint8_t mini_oled_init[] __attribute__((__progmem__)) = 
 {
     1,  SSD1305_CMD_DISPLAY_OFF,                                        // Display Off
+    #ifndef OLEDMINI_ALT_INIT_CODE
     2,  SSD1305_CMD_SET_DISPLAY_CLOCK_DIVIDE,   0x10,                   // Display divide ratio of 0, Oscillator frequency of around 300kHz
+    #else
+    2,  SSD1305_CMD_SET_DISPLAY_CLOCK_DIVIDE,   0xF0,                   // Display divide ratio of 0, Oscillator frequency of around 600kHz
+    #endif
     2,  SSD1305_CMD_SET_MULTIPLEX_RATIO,        0x1F,                   // Multiplex ratio of 32
     2,  SSD1305_CMD_SET_DISPLAY_OFFSET,         0x00,                   // Display offset 0
     1,  SSD1305_CMD_SET_DISPLAY_START_LINE,                             // Display start line 0
@@ -83,8 +91,13 @@ static const uint8_t mini_oled_init[] __attribute__((__progmem__)) =
     2,  SSD1305_CMD_SET_MEM_ADDRESSING_MODE,    0x00,                   // Horizontal addressing mode
     2,  SSD1305_CMD_SET_COM_PINS_CONF,          0x12,                   // Alternative COM pin configuration
     5,  SSD1305_CMD_SET_LUT,                    0x3F,0x3F,0x3F,0x3F,    // Set Look up Table
-    2,  SSD1305_CMD_SET_CONTRAST_CURRENT,       SSD1305_OLED_CONTRAST,  // Set current control (contrast)
+    #ifndef OLEDMINI_ALT_INIT_CODE
+    2,  SSD1305_CMD_SET_CONTRAST_CURRENT,       0xDB,                   // Set current control (contrast)
     2,  SSD1305_CMD_SET_PRECHARGE_PERIOD,       0xD2,                   // Precharge period
+    #else
+    2,  SSD1305_CMD_SET_CONTRAST_CURRENT,       0x80,                   // Set current control (contrast)
+    2,  SSD1305_CMD_SET_PRECHARGE_PERIOD,       0xC2,                   // Precharge period
+    #endif
     2,  SSD1305_CMD_SET_VCOMH_VOLTAGE,          0x08,                   // VCOM deselect level (around 0.5Vcc)
     1,  SSD1305_CMD_ENTIRE_DISPLAY_NORMAL,                              // Entire display in normal mode
     1,  SSD1305_CMD_ENTIRE_DISPLAY_NREVERSED,                           // Entire display not reversed
@@ -119,6 +132,22 @@ void miniOledFlushWrittenTextToDisplay(void)
 void miniOledDontFlushWrittenTextToDisplay(void)
 {
     miniOledFlushText = FALSE;
+}
+
+/*! \fn     miniOledAllowTextWritingYIncrement(void)
+ *  \brief  Bool setting to allow y increment when writing text
+ */
+void miniOledAllowTextWritingYIncrement(void)
+{
+    miniOledTextWritingYIncrement = TRUE;
+}
+
+/*! \fn     miniOledAllowTextWritingYIncrement(void)
+ *  \brief  Bool setting to allow y increment when writing text
+ */
+void miniOledPreventTextWritingYIncrement(void)
+{
+    miniOledTextWritingYIncrement = FALSE;
 }
 
 /*! \fn     miniOledWriteCommand(uint8_t* data, uint8_t nbBytes)
@@ -177,6 +206,16 @@ void miniOledWriteData(uint8_t* data, uint16_t nbBytes)
 void miniOledSetColumnAddress(uint8_t columnStart, uint8_t columnEnd)
 {
     uint8_t data[3] = {SSD1305_CMD_SET_COLUMN_ADDR, columnStart + SSD1305_X_OFFSET, columnEnd + SSD1305_X_OFFSET};
+    miniOledWriteCommand(data, sizeof(data));
+}
+
+/*! \fn     miniOledSetContrastCurrent(uint8_t current)
+ *  \brief  Set the display contrast current
+ *  \param  current     Contrast current
+ */
+void miniOledSetContrastCurrent(uint8_t current)
+{
+    uint8_t data[2] = {SSD1305_CMD_SET_CONTRAST_CURRENT, current};
     miniOledWriteCommand(data, sizeof(data));
 }
 
@@ -249,9 +288,9 @@ void miniOledFlushEntireBufferToDisplay(void)
     uint8_t current_page = miniOledScreenYOffset >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     uint8_t set_page_command[3] = {SSD1305_CMD_SET_PAGE_ADDR, current_page, current_page};
       
-    // Unfortunately the SSD1305 controller doesn't accept a starting page bigger than the ending page, so we need to send page by page starting with the page AFTER the buffer Y offset
-    uint16_t offset = (miniOledBufferYOffset >> SSD1305_PAGE_HEIGHT_BIT_SHIFT) << SSD1305_WIDTH_BIT_SHIFT;
-    for (uint8_t i = 0; i <= SSD1305_SCREEN_PAGE_HEIGHT; i++)
+    // Unfortunately the SSD1305 controller doesn't accept a starting page bigger than the ending page, so we need to send page by page
+    uint16_t offset = (((miniOledBufferYOffset + 7) % SSD1305_OLED_BUFFER_HEIGHT) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT) << SSD1305_WIDTH_BIT_SHIFT;
+    for (uint8_t i = 0; i < SSD1305_SCREEN_PAGE_HEIGHT; i++)
     {
         // Set window
         miniOledWriteCommand(set_x_window_command, sizeof(set_x_window_command));
@@ -260,11 +299,11 @@ void miniOledFlushEntireBufferToDisplay(void)
         // Send one page of data
         //OLEDDEBUGPRINTF_P(PSTR("Frame buffer offset %d\n"),offset);
         miniOledWriteData(miniOledFrameBuffer + offset, SSD1305_OLED_WIDTH);
-        offset = (offset + SSD1305_OLED_WIDTH) & (sizeof(miniOledFrameBuffer)-1);
+        offset = (offset + SSD1305_OLED_WIDTH) % sizeof(miniOledFrameBuffer);
         
         // Compute page
         current_page = (current_page+1) & SSD1305_TOTAL_PAGE_HEIGHT_BITMASK;
-        set_page_command[1] = current_page;set_page_command[2] = current_page;        
+        set_page_command[1] = current_page;set_page_command[2] = current_page;      
     }
 }
 
@@ -319,9 +358,12 @@ void miniOledInit(void)
         miniOledWriteCommand(dataBuffer, i);
     }
 
+    // Set the contrast current stored in the eeprom
+    miniOledSetContrastCurrent(getMooltipassParameterInEeprom(MINI_OLED_CONTRAST_CURRENT_PARAM));
+
     // Switch on an empty screen
     miniOledClearFrameBuffer();
-    miniOledScreenYOffset = 32;
+    miniOledScreenYOffset = SSD1305_OLED_HEIGHT;
     miniOledFlushEntireBufferToDisplay();
     miniOledScreenYOffset = 0;
     miniOledFlushEntireBufferToDisplay();
@@ -420,7 +462,7 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
     
     for(uint8_t page = page_start; page <= page_end; page++)
     {
-        uint16_t buffer_shift = (((uint16_t)page) & SSD1305_SCREEN_PAGE_HEIGHT_BITMASK) << SSD1305_WIDTH_BIT_SHIFT;
+        uint16_t buffer_shift = (((uint16_t)page) % SSD1305_OLED_BUFFER_PAGE_HEIGHT) << SSD1305_WIDTH_BIT_SHIFT;
         for(uint8_t xpos = x; xpos < x + width; xpos++)
         {
             uint8_t or_mask = 0xFF;
@@ -586,7 +628,7 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
     
     for (uint8_t x = start_x; x <= end_x; x++)
     {
-        int16_t buffer_shift = (((uint16_t)end_page & SSD1305_SCREEN_PAGE_HEIGHT_BITMASK) << SSD1305_WIDTH_BIT_SHIFT);
+        int16_t buffer_shift = (((uint16_t)end_page % SSD1305_OLED_BUFFER_PAGE_HEIGHT) << SSD1305_WIDTH_BIT_SHIFT);
         uint8_t pixels_to_be_displayed = bs->height;
         for (int8_t page = end_page; page >= start_page; page--)
         {                     
@@ -639,7 +681,7 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
             // Check if the buffer shift isn't negative because of the buffer y offset
             if (buffer_shift < 0)
             {
-                buffer_shift = ((uint16_t)(SSD1305_SCREEN_PAGE_HEIGHT-1) << SSD1305_WIDTH_BIT_SHIFT);
+                buffer_shift = ((uint16_t)(SSD1305_OLED_BUFFER_PAGE_HEIGHT-1) << SSD1305_WIDTH_BIT_SHIFT);
             }
         }
     }  
@@ -681,37 +723,20 @@ void miniOledBitmapDrawFlash(uint8_t x, int8_t y, uint8_t fileId, uint8_t option
     else
     {
         miniOledScreenYOffset = (miniOledScreenYOffset - y) & SSD1305_Y_BUFFER_HEIGHT_BITMASK;
-        miniOledBufferYOffset = (miniOledBufferYOffset - y) & SSD1305_OLED_HEIGHT_BITMASK;
+        miniOledBufferYOffset = (miniOledBufferYOffset - y) & SSD1305_OLED_HEIGHT_BITMASK;      // TODO: fix this line!
         miniOledBitmapDrawRaw(x, 0, &bs);
     }
-    
-    // Adjust buffer and screen offsets depending on the bitmap size & display position
-    if ((y == 0) && (bitmap.height == SSD1305_OLED_HEIGHT) && (options != OLED_SCROLL_NONE))
+
+    // If we're asked to scroll or flip
+    if (options != OLED_SCROLL_NONE)
     {
-        // When a full screen bitmap is displayed at Y0 with some options, we add a screen height y offset
-        miniOledScreenYOffset = (miniOledScreenYOffset+SSD1305_OLED_HEIGHT) & SSD1305_Y_BUFFER_HEIGHT_BITMASK;
-        miniOledBufferYOffset = (miniOledBufferYOffset+SSD1305_OLED_HEIGHT) & SSD1305_OLED_HEIGHT_BITMASK;
-    }
-    else
-    {
-        // Check if we displayed after the height
-        if (y + bitmap.height >= SSD1305_OLED_HEIGHT)
-        {
-            miniOledScreenYOffset = (miniOledScreenYOffset + ((y+bitmap.height) & SSD1305_OLED_HEIGHT_BITMASK)) & SSD1305_Y_BUFFER_HEIGHT_BITMASK;
-            miniOledBufferYOffset = (miniOledBufferYOffset + ((y+bitmap.height) & SSD1305_OLED_HEIGHT_BITMASK)) & SSD1305_OLED_HEIGHT_BITMASK;
-        }          
-    }
-    
-    // Debug
-    OLEDDEBUGPRINTF_P(PSTR("Screen offset %d Buffer offset %d\n"),miniOledScreenYOffset,miniOledBufferYOffset);
-    
-    // If the screen y offset has changed...
-    if (miniOledLastScreenYOffset != miniOledScreenYOffset)
-    {
+        // Change screen offset, flush buffer and then scroll
+        miniOledScreenYOffset = (miniOledScreenYOffset + y + bitmap.height) & SSD1305_Y_BUFFER_HEIGHT_BITMASK;
+        miniOledFlushEntireBufferToDisplay();
+
         if (options == OLED_SCROLL_UP)
         {
             // Up scrolling
-            miniOledFlushEntireBufferToDisplay();
             while (((miniOledLastScreenYOffset++) & SSD1305_Y_BUFFER_HEIGHT_BITMASK) != miniOledScreenYOffset)
             {
                 timerBasedDelayMs(SSD1305_SCROLL_SPEED_MS);
@@ -722,7 +747,6 @@ void miniOledBitmapDrawFlash(uint8_t x, int8_t y, uint8_t fileId, uint8_t option
         else if (options == OLED_SCROLL_DOWN)
         {
             // Down scrolling
-            miniOledFlushEntireBufferToDisplay();
             while (((miniOledLastScreenYOffset--) & SSD1305_Y_BUFFER_HEIGHT_BITMASK) != miniOledScreenYOffset)
             {
                 timerBasedDelayMs(SSD1305_SCROLL_SPEED_MS);
@@ -730,6 +754,13 @@ void miniOledBitmapDrawFlash(uint8_t x, int8_t y, uint8_t fileId, uint8_t option
             }
             miniOledLastScreenYOffset = miniOledScreenYOffset;
         }
+        else if (options == OLED_SCROLL_FLIP)
+        {
+            miniOledLastScreenYOffset = miniOledScreenYOffset;
+            miniOledWriteSimpleCommand(SSD1305_CMD_SET_DISPLAY_START_LINE | miniOledLastScreenYOffset);
+        }
+
+        miniOledBufferYOffset = (miniOledBufferYOffset + y + bitmap.height) % SSD1305_OLED_BUFFER_HEIGHT;
     }
 }
 
@@ -796,7 +827,7 @@ uint8_t miniOledGlyphWidth(char ch)
 uint16_t miniOledStrWidth(const char* str)
 {
     uint16_t width=0;
-    for (uint8_t ind=0; str[ind] != 0; ind++) 
+    for (uint8_t ind=0; (str[ind] != 0) && (str[ind] != '\r'); ind++) 
     {
         width += miniOledGlyphWidth(str[ind]);
     }
@@ -898,12 +929,12 @@ RET_TYPE miniOledPutch(char ch)
         OLEDDEBUGPRINTF_P(PSTR("oledPutch('0x%02x') x=%d, y=%d, oled_offset=%d, buf=%d\n"), ch, miniOledTextCurX, miniOledTextCurY, 0, 0);
     }
     
-    if (ch == '\n')
+    if ((ch == '\n') && (miniOledTextWritingYIncrement != FALSE))
     {
         miniOledTextCurY += miniOledCurrentFont.height;
         miniOledTextCurX = 0;
     }
-    else if (ch == '\r')
+    else if ((ch == '\r') && (miniOledTextWritingYIncrement != FALSE))
     {
         miniOledTextCurX = 0;
     }
@@ -912,7 +943,7 @@ RET_TYPE miniOledPutch(char ch)
         uint8_t width = miniOledGlyphWidth(ch);
         
         // Check if we're not larger than the screen
-        if (width + miniOledTextCurX > SSD1305_OLED_WIDTH)
+        if ((width + miniOledTextCurX) > miniOledMaxTextY)
         {
             if (miniOledTextWritingYIncrement != FALSE)
             {
@@ -1009,13 +1040,9 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
     // Compute where to start displaying the string
     if (justify == OLED_CENTRE)
     {
-        if (width >= SSD1305_OLED_WIDTH)
+        if ((x + width) < miniOledMaxTextY)
         {
-            x = 0;
-        }
-        else
-        {
-            x = SSD1305_OLED_WIDTH/2 - width/2 + x;
+            x = (miniOledMaxTextY + x - width)/2;
         }
     } 
     else if (justify == OLED_RIGHT)
@@ -1024,13 +1051,13 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
         {
             x -= width;
         } 
-        else if (width >= SSD1305_OLED_WIDTH)
+        else if (width >= miniOledMaxTextY)
         {
             x = 0;
         }
         else 
         {
-            x = SSD1305_OLED_WIDTH - width;
+            x = miniOledMaxTextY - width;
         }
     }
     
@@ -1053,6 +1080,24 @@ uint8_t miniOledPutCenteredString(uint8_t y, char* string)
     return miniOledPutstrXY(0, y, OLED_CENTRE, string);
 }
 
+/*! \fn     miniOledSetMaxTextY(uint8_t maxY)
+ *  \brief  Set the max Y coordinate when printing text
+ *  \param  y       y coordinate
+ */
+void miniOledSetMaxTextY(uint8_t maxY)
+{
+    miniOledMaxTextY = maxY;
+}
+
+/*! \fn     miniOledSetMaxTextY(void)
+ *  \brief  Reset max text y to default value
+ */
+void miniOledResetMaxTextY(void)
+{
+    miniOledMaxTextY = SSD1305_OLED_WIDTH;
+}
+
+
 /*! \fn     miniOledCheckFlashStringsWidth(void)
  *  \brief  Check that all the strings stored in flash aren't larger than the screen width
  */
@@ -1063,12 +1108,25 @@ void miniOledCheckFlashStringsWidth(void)
     // Clear screen, write wrong IDs on the screen
     miniOledTextCurX = 0;
     miniOledTextCurY = 0;
+    miniOledTextWritingYIncrement = TRUE;
     miniOledClearFrameBuffer();
     
-    miniOledPutstr("Wrong string IDs: ");
+    miniOledPutstr("> 113px: ");
     for (uint8_t i = ID_FIRST_STRING; i <= ID_LAST_STRING; i++)
     {
-        if (miniOledStrWidth(readStoredStringToBuffer(i)) > SSD1305_OLED_WIDTH)
+        if (miniOledStrWidth(readStoredStringToBuffer(i)) > (SSD1305_OLED_WIDTH-15))
+        {
+            int_to_string(i, temp_string);
+            miniOledPutstr(temp_string);
+            miniOledPutstr(" ");
+        }
+    }
+    miniOledTextCurX = 0;
+    miniOledTextCurY += 10;
+    miniOledPutstr("> 128px: ");
+    for (uint8_t i = ID_FIRST_STRING; i <= ID_LAST_STRING; i++)
+    {
+        if (miniOledStrWidth(readStoredStringToBuffer(i)) > (SSD1305_OLED_WIDTH))
         {
             int_to_string(i, temp_string);
             miniOledPutstr(temp_string);

@@ -67,10 +67,11 @@
 #define SSD1305_CMD_EXIT_READ_MODIFY_WRITE_MODE     0xEE
 
 /** DEFINES OLED SCREEN **/
-#define SSD1305_OLED_CONTRAST                       0xDB        // Contrast value for display
 #define SSD1305_OLED_WIDTH                          128         // Display width
 #define SSD1305_OLED_HEIGHT                         32          // Display height
 #define SSD1305_OLED_HEIGHT_BITMASK                 0x1F        // Bitmask for the height
+#define SSD1305_OLED_BUFFER_PAGE_HEIGHT             5           // Height of our buffer in pages
+#define SSD1305_OLED_BUFFER_HEIGHT                  40          // Height of our buffer
 #define SSD1305_PAGE_HEIGHT                         8           // One page is 8 pixels high
 #define SSD1305_PAGE_HEIGHT_BIT_SHIFT               3           // 1 << 3 is 8
 #define SSD1305_WIDTH_BIT_SHIFT                     7           // 1 << 7 is 128
@@ -100,12 +101,14 @@ void miniOledOff(void);
 void miniOledResetXY(void);
 void miniOledInitIOs(void);
 RET_TYPE miniOledPutch(char ch);
+void miniOledResetMaxTextY(void);
 void miniOledBegin(uint8_t font);
 RET_TYPE miniOledIsScreenOn(void);
 void miniOledDumpCurrentFont(void);
 void miniOledClearFrameBuffer(void);
 void miniOledWriteActiveBuffer(void);
 void miniOledDisplayOtherBuffer(void);
+void miniOledSetMaxTextY(uint8_t maxY);
 void miniOledWriteInactiveBuffer(void);
 uint8_t miniOledPutstr(const char* str);
 void miniOledSetFont(uint8_t fontIndex);
@@ -114,7 +117,10 @@ void miniOledCheckFlashStringsWidth(void);
 void miniOledFlushWrittenTextToDisplay(void);
 void miniOledWriteSimpleCommand(uint8_t reg);
 void miniOledFlushEntireBufferToDisplay(void);
+void miniOledAllowTextWritingYIncrement(void);
+void miniOledPreventTextWritingYIncrement(void);
 void miniOledDontFlushWrittenTextToDisplay(void);
+void miniOledSetContrastCurrent(uint8_t current);
 uint8_t miniOledPutCenteredString(uint8_t y, char* string);
 uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch);
 void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs);

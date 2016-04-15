@@ -30,6 +30,16 @@
 #include "defines.h"
 #include "gui.h"
 
+// Global vars
+#ifdef MINI_VERSION
+    #define THREE_LINE_TEXT_FIRST_POS   0
+    #define THREE_LINE_TEXT_SECOND_POS  11
+    #define THREE_LINE_TEXT_THIRD_POS   21
+    #define TWO_LINE_TEXT_FIRST_POS     5
+    #define TWO_LINE_TEXT_SECOND_POS    16
+#endif
+
+// Prototypes
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object);
 RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin, uint8_t message_id);
 void guiDisplayInformationOnScreenAndWait(uint8_t stringID);

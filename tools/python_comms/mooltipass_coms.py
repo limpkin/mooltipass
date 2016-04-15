@@ -83,6 +83,7 @@ CMD_SET_DATA_SERVICE    = 0xBE
 CMD_ADD_DATA_SERVICE    = 0xBF
 CMD_WRITE_32B_IN_DN     = 0xC0
 CMD_READ_32B_IN_DN      = 0xC1
+CMD_GET_CUR_CPZ		    = 0xC2
 CMD_READ_FLASH_NODE     = 0xC5
 CMD_WRITE_FLASH_NODE    = 0xC6
 CMD_GET_FAVORITE        = 0xC7
@@ -1817,6 +1818,8 @@ if __name__ == '__main__':
 		print "38) Enter pressed after manual password entry"
 		print "39) Nothing pressed after manual password entry"
 		print "40) Try to unlock device with PIN"
+		print "41) Unknown card: get current CPZ"
+		print "42) Mooltipass mini: set contrast current"
 		choice = input("Make your choice: ")
 		print ""
 
@@ -1930,6 +1933,16 @@ if __name__ == '__main__':
 			receiveHidPacket(epin)
 		elif choice == 40:
 			unlockDeviceWithPin(epin, epout)
+		elif choice == 41:
+			packetToSend = array('B')
+			sendHidPacket(epout, CMD_GET_CUR_CPZ, 0, None)
+			data = receiveHidPacket(epin)
+			if data[LEN_INDEX] == 0x01:
+				print "Error"
+			else:
+				print ''.join('{:d} '.format(x) for x in data[DATA_INDEX:DATA_INDEX+data[LEN_INDEX]])
+		elif choice == 42:
+			setGenericParameter(epin, epout, 26)
 
 	hid_device.reset()
 

@@ -43,7 +43,7 @@ typedef struct
 
 // USEFUL functions
 void aesIncrementCtr(uint8_t *ctr, uint8_t len);
-void aesXorVectors(uint8_t *dest, uint8_t *src, uint8_t nbytes);
+void aesXorVectors(uint8_t *dest, const uint8_t *src, uint8_t nbytes);
 int8_t aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len);
 
 // STREAM CTR functions

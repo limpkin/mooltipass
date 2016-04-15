@@ -390,6 +390,15 @@ uint16_t getStartingParentAddress(void)
 }
 
 /**
+ * Gets the users last parent node from the node management handle
+ * @return  The address
+ */
+uint16_t getLastParentAddress(void)
+{
+    return currentNodeMgmtHandle.lastParentNode;
+}
+
+/**
  * Gets the users starting data parent node from the user profile memory portion of flash
  * @return  The address
  */
@@ -836,6 +845,7 @@ void populateServicesLut(void)
     // If the dedicated boolean in eeprom is sent, do not actually populate the LUT
     if (getMooltipassParameterInEeprom(LUT_BOOT_POPULATING_PARAM) == FALSE)
     {
+        currentNodeMgmtHandle.lastParentNode = getStartingParentAddress();
         return;
     }
     
@@ -865,6 +875,9 @@ void populateServicesLut(void)
                 currentNodeMgmtHandle.servicesLut[first_service_letter - 'a'] = next_node_addr;
             }
         }            
+
+        // Store last node address
+        currentNodeMgmtHandle.lastParentNode = next_node_addr;
             
         // Fetch next node
         next_node_addr = pnode_ptr->nextParentAddress;

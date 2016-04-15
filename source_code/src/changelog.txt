@@ -3,18 +3,25 @@ Todo:
 - display aes(bootloader_pwd) with user nonce when card inserted
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
+- tilt sensor?
+- set bootrst to bootloader, do eeprom checks there
+- 2nd round in bootloader
+- safe cbcmac compare
+- I2C block disable at boot
 
 V1.1:
 - post-indiegogo firmware
 - get description command
 - fixed user request cancelling bug
 - add adjustable delay after manual typing
+- mini: parameter in eeprom to control brightness
 - updating date created/used field on child node update
 - removed left out pixels in login menu (tiny bug)
 - boolean in eeprom to prevent credentials LUT populating
 - allow the get_login command to already specify the login
 - allow pin entering from usb after user approval, last resort for broken screens
 - eeprom values to allow customization of key sent after login AND password manual entry
+- in card ISR, do not call handleSmartcardRemoved() but removeFunctionSMC() & clearSmartCardInsertedUnlocked() to only set protection bools (aes state reset in main())
 
 V1: 
 - new user tutorial

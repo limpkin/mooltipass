@@ -154,7 +154,7 @@ mooltipass.device.interface._resetCard = function(inputObject) {
 mooltipass.device.interface._jumpToBootloader = function(inputObject) {
     mooltipass.device.addToQueue(
         inputObject.command,
-        [],
+        inputObject.payload,
         inputObject.responseParameters,
         inputObject.callbackFunction,
         inputObject.callbackParameters,

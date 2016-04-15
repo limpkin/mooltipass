@@ -1490,12 +1490,16 @@ cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
         if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('username')) {
             cipTwoPageLogin.setFilledIn('username');
             cip.u.val(cip.credentials[0].Login);
+			// Due to browser extension sand-boxing, and basic jQuery functionality, you cannot trigger a non-jQuery click event with trigger or click.
+			cip.u[0].dispatchEvent(new Event('change'));
         }
     }
     if (cip.p) {
         if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('password')) {
             cipTwoPageLogin.setFilledIn('password');
             cip.p.val(cip.credentials[0].Password);
+			// Due to browser extension sand-boxing, and basic jQuery functionality, you cannot trigger a non-jQuery click event with trigger or click.
+			cip.p[0].dispatchEvent(new Event('change'));
         }
     }
 }

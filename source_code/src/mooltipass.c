@@ -99,6 +99,14 @@ int main(void)
         CPU_PRESCALE(0);                                                            // Set pre-scaler to 1 (fuses not set)
     #endif
 
+    /** CHECK FOR BOOTLOADER BRICK **/
+    #if defined(MINI_VERSION)
+    if (current_bootkey_val == BRICKED_BOOTKEY)
+    {
+        while(1);
+    }
+    #endif
+
     /** FUSE VERIFICATIONS **/
     #if defined(MINI_CLICK_BETATESTERS_SETUP)
         // no fuse verification for the beta testers units
@@ -198,7 +206,7 @@ int main(void)
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
     
     /** FLASH INITIALIZATION **/
-    flash_init_result = initFlash();    // Flash low level init, check for presente
+    flash_init_result = initFlash();    // Flash low level init, check for presence
     
     /** OLED INITIALIZATION **/
     oledBegin(FONT_DEFAULT);            // Only do it now as we're enumerated
@@ -222,7 +230,7 @@ int main(void)
         // Test procedure to check that all HW is working
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
-    #if defined(MINI_CLICK_BETATESTERS_SETUP)
+    #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_PREPRODUCTION_SETUP)
         mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
     #endif
     
@@ -288,28 +296,6 @@ int main(void)
         touchClearCurrentDetections();
     #endif
     
-    #ifdef MINI_VERSION
-    //while(1);
-    //oledSetFont(2);oledClear();miniOledFlushWrittenTextToDisplay();oledPutstrXY(0,0,0, "this is an extra super mega long string that should take lot of space");while(1);
-    //miniOledDumpCurrentFont();miniOledDumpCurrentFont();
-    //oledClear();miniOledFlushWrittenTextToDisplay();oledPutstrXY(0,0,0, "this is an extra super mega long string that should take lot of space");
-    //miniOledCheckFlashStringsWidth();
-    //while(1)
-    //{
-    //    usbProcessIncoming(USB_CALLER_MAIN);
-    //}
-    //mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
-    //while(1)
-    //{
-    //    usbProcessIncoming(USB_CALLER_MAIN);
-    //    int8_t tata = getWheelCurrentIncrement();
-    //    if (tata != 0)
-    //    {
-    //        oledBitmapDrawFlash(0, tata, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
-    //    }
-    //}
-    #endif
-    
     // Inhibit touch inputs for the first 2 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 2000);
     while (1)
@@ -341,7 +327,7 @@ int main(void)
         }
         
         // If the USB bus is in suspend (computer went to sleep), lock device
-        if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && ((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_NLCK) || (getCurrentScreen() == SCREEN_MEMORY_MGMT)))
+        if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && (getSmartCardInsertedUnlocked() == TRUE))
         {
             handleSmartcardRemoved();
             guiDisplayInformationOnScreenAndWait(ID_STRING_PC_SLEEP);

@@ -39,10 +39,12 @@
 *   \brief  Overwrite the digits on the current pin entering screen
 *   \param  current_pin     Array containing the pin
 *   \param  selected_digit  Currently selected digit
+*   \param  stringID        String ID for text qu
 */
-void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
+void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit, uint8_t stringID)
 {
     #if defined(HARDWARE_OLIVIER_V1)
+        (void)stringID;
         oledFillXY(88, 31, 82, 19, 0x00);
         for (uint8_t i = 0; i < 4; i++)
         {
@@ -64,10 +66,17 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
             }
         }
     #elif defined(MINI_VERSION)
-        oledFillXY(10, 10, 100, 15, FALSE);
+        // Display bitmap
+        oledBitmapDrawFlash(0, 0, selected_digit+BITMAP_PIN_SLOT1, 0);
+        miniOledSetMaxTextY(62);
+        miniOledAllowTextWritingYIncrement();
+        miniOledPutCenteredString(TWO_LINE_TEXT_FIRST_POS, readStoredStringToBuffer(stringID));
+        miniOledPreventTextWritingYIncrement();
+        miniOledResetMaxTextY();
+        oledSetFont(FONT_PROFONT_14);
         for (uint8_t i = 0; i < 4; i++)
         {
-            oledSetXY(10+10*i, 10);
+            oledSetXY(64+17*i, 6);
             if (i != selected_digit)
             {
                 oledPutch('*');
@@ -84,6 +93,8 @@ void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_dig
                 }
             }
         }
+        oledSetFont(FONT_DEFAULT);
+        miniOledFlushEntireBufferToDisplay();
     #endif
 }
 
@@ -123,7 +134,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         oledWriteActiveBuffer();
     
         // Display current pin on screen
-        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
     
         // While the user hasn't entered his pin
         while(!finished)
@@ -147,7 +158,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     current_pin[selected_digit] = 0x10;
                 }
                 current_pin[selected_digit] += temp_int8;
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
         
             if ((isSmartCardAbsent() == RETURN_OK) || (hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED))
@@ -174,7 +185,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     ret_val = RETURN_NOK;
                     finished = TRUE;
                 }
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
                 oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
             }
             else if (temp_rettype & RETURN_RIGHT_PRESSED)
@@ -193,7 +204,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     ret_val = RETURN_OK;
                     finished = TRUE;
                 }
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
                 oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
             }
         }
@@ -214,58 +225,74 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         // Return success status
         return ret_val;
     #elif defined(MINI_VERSION)
+        #ifdef MINI_JOYSTICK
+            uint8_t joystick_detection_result = 0;
+        #endif
         RET_TYPE ret_val = RETURN_NOK;
         uint8_t detection_result = 0;
         uint8_t selected_digit = 0;
         uint8_t finished = FALSE;
         uint8_t current_pin[4];
-        int8_t wheel_increment;
     
         // Set current pin to 0000
         memset((void*)current_pin, 0, 4);
         
         // Clear current detections
         miniWheelClearDetections();
-    
-        // Draw pin entering bitmap
-        oledClear();
-//         oledBitmapDrawFlash(0, 0, BITMAP_YES_NO, 0);
-//         oledBitmapDrawFlash(83, 51, BITMAP_PIN_LINES, 0);
-//         oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
-//         oledPutstrXY(0, 0, OLED_CENTRE, readStoredStringToBuffer(stringID));
-//         oledDisplayOtherBuffer();
-//         oledSetFont(FONT_PROFONT_24);
-//         oledWriteActiveBuffer();
+        #ifdef MINI_JOYSTICK
+            miniDirectionClearJoystickDetections();
+        #endif
     
         // Display current pin on screen
-        stringID++;
-        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-        miniOledFlushEntireBufferToDisplay();
+        guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
     
         // While the user hasn't entered his pin
         while(!finished)
         {
             // Still process the USB commands
             usbProcessIncoming(USB_CALLER_PIN);
-            // Wheel increment/decrement
-            wheel_increment = getWheelCurrentIncrement();
             // detection result
-            detection_result = miniGetWheelAction(FALSE, TRUE);
+            detection_result = miniGetWheelAction(FALSE, FALSE);
+            #ifdef MINI_JOYSTICK
+                joystick_detection_result = getMiniDirectionJustPressed();
+            #endif
         
             // Position increment / decrement
-            if (wheel_increment != 0)
+            #ifdef MINI_JOYSTICK
+            if ((detection_result == WHEEL_ACTION_UP) || (detection_result == WHEEL_ACTION_DOWN) || (joystick_detection_result == PORTID_JOY_UP) || (joystick_detection_result == PORTID_JOY_DOWN))
+            #else
+            if ((detection_result == WHEEL_ACTION_UP) || (detection_result == WHEEL_ACTION_DOWN))
+            #endif
             {
-                if ((current_pin[selected_digit] == 0x0F) && (wheel_increment == 1))
+                #ifdef MINI_JOYSTICK
+                if ((current_pin[selected_digit] == 0x0F) && ((detection_result == WHEEL_ACTION_UP) || (joystick_detection_result == PORTID_JOY_UP)))
+                #else
+                if ((current_pin[selected_digit] == 0x0F) && (detection_result == WHEEL_ACTION_UP))
+                #endif
                 {
                     current_pin[selected_digit] = 0xFF;
                 }
-                else if ((current_pin[selected_digit] == 0) && (wheel_increment == -1))
+                #ifdef MINI_JOYSTICK
+                if ((current_pin[selected_digit] == 0) && ((detection_result == WHEEL_ACTION_DOWN) || (joystick_detection_result == PORTID_JOY_DOWN)))
+                #else
+                else if ((current_pin[selected_digit] == 0) && (detection_result == WHEEL_ACTION_DOWN))
+                #endif                
                 {
                     current_pin[selected_digit] = 0x10;
                 }
-                current_pin[selected_digit] += wheel_increment;
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-                miniOledFlushEntireBufferToDisplay();
+                #ifdef MINI_JOYSTICK
+                if ((detection_result == WHEEL_ACTION_UP) || (joystick_detection_result == PORTID_JOY_UP))
+                #else
+                if (detection_result == WHEEL_ACTION_UP)
+                #endif                
+                {
+                    current_pin[selected_digit]++;
+                } 
+                else
+                {
+                    current_pin[selected_digit]--;
+                }
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
         
             // Return if card removed or timer expired
@@ -277,7 +304,11 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
             
             // Change digit position or return/proceed
-            if (detection_result == WHEEL_ACTION_LONG_CLICK)
+            #ifdef MINI_JOYSTICK
+            if ((detection_result == WHEEL_ACTION_LONG_CLICK) || (detection_result == WHEEL_ACTION_CLICK_UP) || (joystick_detection_result == PORTID_JOY_LEFT))
+            #else
+            if ((detection_result == WHEEL_ACTION_LONG_CLICK) || (detection_result == WHEEL_ACTION_CLICK_UP))
+            #endif            
             {
                 if (selected_digit == 1)
                 {
@@ -295,16 +326,17 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     ret_val = RETURN_NOK;
                     finished = TRUE;
                 }
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-                //oledBitmapDrawFlash(238, 23, BITMAP_RIGHT_ARROW, 0);
-                miniOledFlushEntireBufferToDisplay();
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
-            else if (detection_result == WHEEL_ACTION_SHORT_CLICK)
+            #ifdef MINI_JOYSTICK
+            else if ((detection_result == WHEEL_ACTION_SHORT_CLICK) || (detection_result == WHEEL_ACTION_CLICK_DOWN) || (joystick_detection_result == PORTID_JOY_RIGHT))
+            #else
+            else if ((detection_result == WHEEL_ACTION_SHORT_CLICK) || (detection_result == WHEEL_ACTION_CLICK_DOWN))
+            #endif
             {
                 if (selected_digit == 2)
                 {
-                    //oledFillXY(238, 23, 18, 18, 0x00);
-                    //oledBitmapDrawFlash(240, 24, BITMAP_TICK, 0);
+                    //oledBitmapDrawFlash(0, SSD1305_OLED_WIDTH-15, BITMAP_TICK, 0);
                 }
                 if (selected_digit < 3)
                 {
@@ -315,9 +347,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                     ret_val = RETURN_OK;
                     finished = TRUE;
                 }
-                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit);
-                //oledBitmapDrawFlash(0, 23, BITMAP_LEFT_ARROW, 0);
-                miniOledFlushEntireBufferToDisplay();
+                guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
         }
     
@@ -328,8 +358,9 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         // Store the pin
         *pin_code = (uint16_t)(((uint16_t)(current_pin[0]) << 12) | (((uint16_t)current_pin[1]) << 8) | (current_pin[2] << 4) | current_pin[3]);
     
-        // Set current pin to 0000
+        // Set current pin to 0000 & set default font
         memset((void*)current_pin, 0, 4);
+        oledSetFont(FONT_DEFAULT);
     
         // Prevent touches until the user lifts his finger
         //touchInhibitUntilRelease();

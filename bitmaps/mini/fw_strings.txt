@@ -1,11 +1,11 @@
 Processing...
-Card Blocked!
+Card Blocked
 Problem With The Card!
 Please Remove The Card
 Please Insert Other Card
-Failed!
-PIN Changed!
-Not Changed!
+Failed
+PIN Changed
+NOT Changed
 User Added
 Could Not Add User!
 Card Unlocked
@@ -14,13 +14,13 @@ Insert New Smartcard
 Done
 Card Removed
 Delete User From Mini?
-ALL Your Data Will Be Lost!
-Other Cards For User?
+ALL Data Will Be Lost!
+Erase Another Card?
 Enter Login?
 Enter Password?
-Enter Your PIN
-PIN For New Card
-Confirm PIN
+Enter Your~~        PIN
+PIN For~~  New Card
+Confirm~~        PIN
 Confirm Access With:
 With This Login:
 Confirm New Service:
@@ -29,17 +29,17 @@ Change Password For:
 Wrong Pin, 1 Try Left
 Wrong Pin, 2 Tries Left
 Wrong Pin, 3 Tries Left
-Create New Mini User?
+Create New User?
 Going To Sleep...
-Enter Mem. Management?
-Memory Management
-Exit Mode In Mini App
+Manage Database?
+Database Management
+Use App To Exit
 Created By The Plugin
-No Stored Favorites!
-Send Card Stored Data?
+No Stored Favorites
+Send Card Data?
 Change Card Login?
-Change Card Stored Data?
-username:
+Change Card Data?
+Username:
 Show Login?
 Show Password?
 FLASH PB!!!~~
@@ -47,16 +47,16 @@ Insert card~~
 CARD PB!!!~~
 ---- TEST NOT OK ----~~
 /!\ SECURITY WARNING /!\
-Allow Mooltipass Update?
-Computer Went To Sleep!
+Allow Mini Update?
+Computer Went To Sleep
 Confirm New Data Service:
 Add Data For:
 Get Data For:
 PIN Codes Differ!
 Target Card Isn't Blank!
-Enter New PIN
-Erase The Card As Well?
-No Stored Credentials!
+Enter~~    New PIN
+Also Erase The Card?
+No Stored Credentials
 !!!FUSE PB!!!~~
 Func Test, press wheel,~~
 top,right,bot,left,center
@@ -67,5 +67,6 @@ B,
 L, 
 C~~
 Scroll To 10
-/!\ USE PIN FROM COMPUTER?
+DON'T APPROVE THIS!
 Send Password For:
+Select Credential:

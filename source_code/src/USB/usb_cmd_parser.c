@@ -38,6 +38,7 @@
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
 #include "hid_defines.h"
+#include "mini_inputs.h"
 #include <avr/eeprom.h>
 #include "mooltipass.h"
 #include "node_mgmt.h"
@@ -1158,6 +1159,20 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             plugin_return_value = PLUGIN_BYTE_OK;
             mediaFlashImportApproved = FALSE;
+            
+            #ifdef MINI_PREPRODUCTION_SETUP
+            // At the end of the import media command if the security is set in place, we start the bootloader
+            if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
+            {
+                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                cli();
+                wdt_reset();
+                wdt_clear_flag();
+                wdt_change_enable();
+                wdt_enable_2s();
+                while(1);
+            } 
+            #endif
             break;
         }
         
@@ -1173,6 +1188,10 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_OK;
                 //initTouchSensing();
                 //launchCalibrationCycle();
+                #ifdef MINI_VERSION
+                    wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
+                    miniOledSetContrastCurrent(getMooltipassParameterInEeprom(MINI_OLED_CONTRAST_CURRENT_PARAM));
+                #endif
             }
             else
             {
@@ -1486,6 +1505,7 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
+        #ifndef MINI_VERSION
         // Jump to bootloader
         case CMD_JUMP_TO_BOOTLOADER :
         {            
@@ -1531,6 +1551,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 guiGetBackToCurrentScreen();
             #endif
         }
+        #endif
 
         // Development commands
 #ifdef  DEV_PLUGIN_COMMS

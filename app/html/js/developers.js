@@ -48,15 +48,23 @@ mooltipass.ui.developers.init = function () {
     });
 
     $('#page-developers button.jump').click(function() {
-        if($('#jumpToBootloaderPassword').val() != 'limpkin') {
-            mooltipass.ui.status.error($('#page-developers button.jump'), 'Password wrong');
+        if($('#jumpToBootloaderPassword').val().length != 124) {
+            mooltipass.ui.status.error($('#page-developers button.jump'), 'Wrong password length');
             return;
         }
 
         $("#modal-confirm-on-device").show();
+		
+		// Convert the password
+		tempPassword = new Uint8Array(62);
+		for(var i = 0; i < $('#jumpToBootloaderPassword').val().length; i+= 2)
+		{
+			tempPassword[i/2] = parseInt($('#jumpToBootloaderPassword').val().substr(i, 2), 16);
+		}
 
         mooltipass.device.interface.send({
             'command': 'jumpToBootloader',
+			'payload': tempPassword,
             'callbackFunction': null
         });
 

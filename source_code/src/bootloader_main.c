@@ -114,7 +114,7 @@ int main(void)
     uint16_t firmware_start_address = UINT16_MAX - MAX_FIRMWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;   // Start address of firmware in external memory
     uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;                         // End address of firmware in external memory
 
-    
+
     /* Just in case we are going to disable the watch dog timer and disable interrupts */
     cli();
     wdt_reset();
@@ -133,7 +133,7 @@ int main(void)
     {
         start_firmware();
     }
-    
+
     /* Check if the device is booting normally, if the bootloader was called, or unknown state */
     if (current_bootkey_val == CORRECT_BOOTKEY)
     {
@@ -156,7 +156,7 @@ int main(void)
     if (flash_init_result != RETURN_OK)
     {
         while(1);
-    }    
+    }
 
     for (uint8_t pass_number = 0; pass_number < 2; pass_number++)
     {
@@ -213,7 +213,7 @@ int main(void)
             {
                 // Otherwise, next pass!
             }
-        } 
+        }
         else
         {
             // Second pass, compare CBCMAC and then update AES keys
@@ -237,5 +237,5 @@ int main(void)
                 while(1);
             }
         }
-    }    
+    }
 }

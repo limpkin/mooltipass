@@ -38,15 +38,16 @@ AVRDUDE_PROGRAMMER = avr109
 AVRDUDE_FLAGS      = -b 115200
 
 # Special optimization (most important at the top)
-COMPILER_PATH =../AVR-Development-Environment-Script/bin/bin/
-CC_FLAGS  += -flto -fuse-linker-plugin
-LD_FLAGS  += -flto -fuse-linker-plugin
 CC_FLAGS  += -mcall-prologues
 CC_FLAGS  += -fno-split-wide-types
 #TODO useless?
 CC_FLAGS  += -fno-tree-scev-cprop
 
 ifneq ($(BOOTLOADER), true)
+
+COMPILER_PATH =../AVR-Development-Environment-Script/bin/bin/
+CC_FLAGS  += -flto -fuse-linker-plugin
+LD_FLAGS  += -flto -fuse-linker-plugin
 
 # Some helpers to get all the .c and .h files.
 # $(TARGET) is included inside $(OBJECTS).

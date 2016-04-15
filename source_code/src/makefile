@@ -40,8 +40,6 @@ AVRDUDE_FLAGS      = -b 115200
 # Special optimization (most important at the top)
 CC_FLAGS  += -mcall-prologues
 CC_FLAGS  += -fno-split-wide-types
-#TODO useless?
-CC_FLAGS  += -fno-tree-scev-cprop
 
 ifneq ($(BOOTLOADER), true)
 

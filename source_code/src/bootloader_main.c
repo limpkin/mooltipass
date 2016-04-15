@@ -24,6 +24,7 @@
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <avr/boot.h>
+#include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
 #include "eeprom_addresses.h"
@@ -102,7 +103,7 @@ uint8_t sideChannelSafeMemCmp(uint8_t* dataA, uint8_t* dataB, uint8_t size)
 */
 int main(void)
 {
-    /* Fetch bootkey in eeprom */
+    // Fetch bootkey in eeprom
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);                                       // Bootkey in EEPROM
     uint8_t new_aes_key[AES_KEY_LENGTH/8];                                                                              // New AES encryption key
     uint8_t cur_aes_key[AES_KEY_LENGTH/8];                                                                              // AES encryption key
@@ -115,26 +116,26 @@ int main(void)
     uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;                         // End address of firmware in external memory
 
 
-    /* Just in case we are going to disable the watch dog timer and disable interrupts */
+    // Just in case we are going to disable the watch dog timer and disable interrupts
     cli();
     wdt_reset();
     wdt_clear_flag();
     wdt_change_enable();
     wdt_stop();
 
-    /* Check fuses: 2k words, SPIEN, BOD 4.3V, BOOTRST programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
+    // Check fuses: 2k words, SPIEN, BOD 4.3V, BOOTRST programming & ver disabled >> http://www.engbedded.com/fusecalc/
     if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
     {
         while(1);
     }
 
-    /* If security isn't set in place yet, no point in launching the bootloader */
+    // If security isn't set in place yet, no point in launching the bootloader
     if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
     {
         start_firmware();
     }
 
-    /* Check if the device is booting normally, if the bootloader was called, or unknown state */
+    // Check if the device is booting normally, if the bootloader was called, or unknown state
     if (current_bootkey_val == CORRECT_BOOTKEY)
     {
         // Security system set, correct bootkey for firmware
@@ -145,13 +146,13 @@ int main(void)
         while(1);
     }
 
-    /* By default, brick the device so it's an all or nothing update procedure */
+    // By default, brick the device so it's an all or nothing update procedure
     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
-    /* Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence */
+    // Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence
     UHWCON = 0x01;
     spiUsartBegin();
-    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
+    _delay_ms(10);
     flash_init_result = initFlash();
     if (flash_init_result != RETURN_OK)
     {
@@ -160,7 +161,7 @@ int main(void)
 
     for (uint8_t pass_number = 0; pass_number < 2; pass_number++)
     {
-        /* Init CBCMAC encryption context*/
+        // Init CBCMAC encryption context
         eeprom_read_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
         memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));
         memset((void*)temp_data, 0x00, sizeof(temp_data));
@@ -190,11 +191,11 @@ int main(void)
             // If we got to the part containing the encrypted new aes key (end of the for())
             if (i >= firmware_end_address)
             {
-                memcpy(new_aes_key + i - firmware_end_address, temp_data, sizeof(temp_data));
+                memcpy(new_aes_key, temp_data, sizeof(new_aes_key));
             }
 
             // Continue computation of CBCMAC
-            aesXorVectors(cur_cbc_mac, temp_data, sizeof(temp_data));
+            aesXorVectors(cur_cbc_mac, temp_data, sizeof(cur_cbc_mac));
             aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
         }
 

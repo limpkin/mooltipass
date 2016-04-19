@@ -247,17 +247,11 @@
     #define ID_STRING_NO_CREDS          58
     #define ID_STRING_FUSE_PB           59
     #define ID_STRING_FUNC_TEST         60
-    #define ID_STRING_FUNC_TEST_INST    61
-    #define ID_STRING_FUNC_TEST_W       62
-    #define ID_STRING_FUNC_TEST_T       63
-    #define ID_STRING_FUNC_TEST_R       64
-    #define ID_STRING_FUNC_TEST_B       65
-    #define ID_STRING_FUNC_TEST_L       66
-    #define ID_STRING_FUNC_TEST_C       67
-    #define ID_STRING_FUNC_TEST_SCROLL  68
-    #define ID_STRING_PIN_COMPUTER      69
-    #define ID_STRING_SEND_PASS_FOR     70
-    #define ID_STRING_SELECT_CREDENTIAL 71
+    #define ID_STRING_FUNC_WHEEL        61
+    #define ID_STRING_FUNC_TEST_SCROLL  62
+    #define ID_STRING_PIN_COMPUTER      63
+    #define ID_STRING_SEND_PASS_FOR     64
+    #define ID_STRING_SELECT_CREDENTIAL 65
 
     #define ID_FIRST_STRING             0
     #define ID_LAST_STRING              ID_STRING_SELECT_CREDENTIAL

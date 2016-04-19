@@ -136,7 +136,7 @@ int main(void)
     #endif    
     
     /** JUMPING TO BOOTLOADER AT BOOT **/
-    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(POST_KICKSTARTER_UPDATE_SETUP)
+    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(POST_KICKSTARTER_UPDATE_SETUP) && !defined(MINI_PREPRODUCTION_SETUP)
         // This code will only be used for developers and beta testers
         // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
@@ -195,6 +195,21 @@ int main(void)
     #if defined(MINI_VERSION)           // For the Mooltipass Mini inputs
         initMiniInputs();               // Initialize Mini Inputs
     #endif                              // ENDIF
+
+    // Temporary fix
+    #ifdef HARDWARE_MINI_CLICK_V2
+        DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
+        PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
+        DDR_OLED_SS |= (1 << PORTID_OLED_SS);
+        PORT_OLED_SS |= (1 << PORTID_OLED_SS);
+        DDR_ACC_SS |= (1 << PORTID_ACC_SS);
+        PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+        timerBased130MsDelay();
+        PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
+        spiUsartTransfer(0x23);
+        spiUsartTransfer(0x02);
+        PORT_ACC_SS |= (1 << PORTID_ACC_SS);    
+    #endif
 
     // If offline mode isn't enabled, wait for device to be enumerated
     if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
@@ -281,6 +296,15 @@ int main(void)
     // Go to startup screen
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
     guiGetBackToCurrentScreen();
+
+    // Pre-production units: just leave default screen while developing new fw...
+    #ifdef MINI_PREPRODUCTION_SETUP
+    while (1)
+    {
+        // Process possible incoming USB packets
+        usbProcessIncoming(USB_CALLER_MAIN);
+    }
+    #endif
     
     // LED fade-in for standard version
     #if defined(HARDWARE_OLIVIER_V1)

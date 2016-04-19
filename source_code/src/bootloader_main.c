@@ -137,11 +137,12 @@ int main(void)
     /* Check if the device is booting normally, if the bootloader was called, or unknown state */
     if (current_bootkey_val == CORRECT_BOOTKEY)
     {
-        // Security system set, correct bootkey for firmware
+        /* Security system set, correct bootkey for firmware */
         start_firmware();
     }
     else if (current_bootkey_val != BOOTLOADER_BOOTKEY)
     {
+        /* Security system set, bootkey isn't the bootloader one nor the main fw one... */
         while(1);
     }
 

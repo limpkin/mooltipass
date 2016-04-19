@@ -131,14 +131,9 @@
 #elif defined(MINI_PREPRODUCTION_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
-    //#define MINI_WHEEL_NOT_ACTIVE
-    //#define MINI_JOYSTICK
-    //#define NO_PIN_CODE_REQUIRED
     #define FLASH_CHIP_4M
     #define DEV_PLUGIN_COMMS
-    #define JTAG_FUSE_ENABLED
-    #define HARDWARE_MINI_CLICK_V1
-    #define AVR_BOOTLOADER_PROGRAMMING
+    #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif
 
@@ -343,7 +338,7 @@ typedef int8_t RET_TYPE;
     #define DDR_TOUCH_C     DDRF
     #define PIN_TOUCH_C     PINF
 #endif
-#ifdef  HARDWARE_MINI_CLICK_V1
+#if defined(HARDWARE_MINI_CLICK_V1) || defined(HARDWARE_MINI_CLICK_V2)
     // SPIs
     #define SPI_SMARTCARD   SPI_NATIVE
     #define SPI_FLASH       SPI_USART
@@ -396,30 +391,77 @@ typedef int8_t RET_TYPE;
     #define PORTID_OLED_POW PORTE2
     #define PORT_OLED_POW   PORTE
     #define DDR_OLED_POW    DDRE
+
     // 5 direction joystick
     #ifdef MINI_JOYSTICK
-    #define PORTID_JOY_RIGHT    PORTF1
-    #define PORTID_JOY_UP       PORTF4
-    #define PORTID_JOY_LEFT     PORTF5
-    #define PORTID_JOY_DOWN     PORTF7
-    #define PORTID_JOY_CENTER   PORTF6
-    #define PORT_JOYSTICK       PORTF
-    #define DDR_JOYSTICK        DDRF
-    #define PIN_JOYSTICK        PINF
+        #define PORTID_JOY_RIGHT    PORTF1
+        #define PORTID_JOY_UP       PORTF4
+        #define PORTID_JOY_LEFT     PORTF5
+        #define PORTID_JOY_DOWN     PORTF7
+        #define PORTID_JOY_CENTER   PORTF6
+        #define PORT_JOYSTICK       PORTF
+        #define DDR_JOYSTICK        DDRF
+        #define PIN_JOYSTICK        PINF
     #endif
+    
     // Click wheel
-    #define PORTID_WHEEL_A      PORTC6
-    #define PIN_WHEEL_A         PINC
-    #define PORTID_WHEEL_B      PORTB6
-    #define PIN_WHEEL_B         PINB
-    #define PORT_WHEEL_A        PORTC
-    #define PORT_WHEEL_B        PORTB
-    #define DDR_WHEEL_A         DDRC
-    #define DDR_WHEEL_B         DDRB
-    #define PORTID_CLICK        PORTE6
-    #define PORT_CLICK          PORTE
-    #define DDR_CLICK           DDRE
-    #define PIN_CLICK           PINE
+    #ifdef HARDWARE_MINI_CLICK_V1
+        #define PORTID_WHEEL_A      PORTC6
+        #define PIN_WHEEL_A         PINC
+        #define PORTID_WHEEL_B      PORTB6
+        #define PIN_WHEEL_B         PINB
+        #define PORT_WHEEL_A        PORTC
+        #define PORT_WHEEL_B        PORTB
+        #define DDR_WHEEL_A         DDRC
+        #define DDR_WHEEL_B         DDRB
+        #define PORTID_CLICK        PORTE6
+        #define PORT_CLICK          PORTE
+        #define DDR_CLICK           DDRE
+        #define PIN_CLICK           PINE
+    #elif defined(HARDWARE_MINI_CLICK_V2)
+        #define PORTID_WHEEL_A      PORTF1
+        #define PIN_WHEEL_A         PINF
+        #define PORTID_WHEEL_B      PORTF5
+        #define PIN_WHEEL_B         PINF
+        #define PORT_WHEEL_A        PORTF
+        #define PORT_WHEEL_B        PORTF
+        #define DDR_WHEEL_A         DDRF
+        #define DDR_WHEEL_B         DDRF
+        #define PORTID_CLICK        PORTF4
+        #define PORT_CLICK          PORTF
+        #define DDR_CLICK           DDRF
+        #define PIN_CLICK           PINF
+    #endif
+
+    // Accelerometer
+    #if defined(HARDWARE_MINI_CLICK_V2)
+        #define PORTID_ACC_INT      PORTD0
+        #define PORT_ACC_INT        PORTD
+        #define DDR_ACC_INT         DDRD
+        #define PIN_ACC_INT         PIND
+        #define PORTID_ACC_SS       PORTD1
+        #define PORT_ACC_SS         PORTD
+        #define DDR_ACC_SS          DDRD
+    #endif
+
+    // LEDs
+    #if defined(HARDWARE_MINI_CLICK_V2)
+        #define PORTID_LED_MOS      PORTC6
+        #define PORT_LED_MOS        PORTC
+        #define DDR_LED_MOS         DDRC
+        #define PORTID_LED_1        PORTE6
+        #define PORT_LED_1          PORTE
+        #define DDR_LED_1           DDRE
+        #define PORTID_LED_2        PORTB6
+        #define PORT_LED_2          PORTB
+        #define DDR_LED_2           DDRB
+        #define PORTID_LED_3        PORTF6
+        #define PORT_LED_3          PORTF
+        #define DDR_LED_3           DDRF
+        #define PORTID_LED_4        PORTF7
+        #define PORT_LED_4          PORTF
+        #define DDR_LED_4           DDRF
+    #endif
 #endif
 
 #endif /* DEFINES_H_ */

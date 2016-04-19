@@ -105,7 +105,7 @@
         </InterfaceProperties>
       </ToolOptions>
     </com_atmel_avrdbg_tool_jtagicemkii>
-    <preserveEEPROM>true</preserveEEPROM>
+    <preserveEEPROM>false</preserveEEPROM>
     <ExternalProgrammingToolCommand />
     <avrtoolserialnumber>000200200870</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9587</avrdeviceexpectedsignature>

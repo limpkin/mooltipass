@@ -191,6 +191,20 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         {
             usbProcessIncoming(USB_CALLER_MAIN);
         }
+
+        // Temporary fix
+        #ifdef HARDWARE_MINI_CLICK_V2
+        DDR_LED_MOS |= (1 << PORTID_LED_MOS);
+        DDR_LED_1 |= (1 << PORTID_LED_1);
+        DDR_LED_2 |= (1 << PORTID_LED_2);
+        DDR_LED_3 |= (1 << PORTID_LED_3);
+        DDR_LED_4 |= (1 << PORTID_LED_4);
+        PORT_LED_MOS |= (1 << PORTID_LED_MOS);
+        PORT_LED_1 |= (1 << PORTID_LED_1);
+        PORT_LED_2 |= (1 << PORTID_LED_2);
+        PORT_LED_3 |= (1 << PORTID_LED_3);
+        PORT_LED_4 |= (1 << PORTID_LED_4);
+        #endif
         
         // Bundle uploaded, start the screen
         miniOledAllowTextWritingYIncrement();
@@ -223,26 +237,11 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         // Test description
         uint8_t func_test_string_id = ID_STRING_FUNC_TEST;
         guiDisplayRawString(func_test_string_id++);
-        guiDisplayRawString(func_test_string_id++);
     
         // Wait for inputs
-        oledClear();miniOledResetXY();
         miniWheelClearDetections();
         while(isWheelClicked() != RETURN_JDETECT);
         guiDisplayRawString(func_test_string_id++);
-        #ifdef MINI_JOYSTICK
-            miniDirectionClearDetections();
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_UP);
-            guiDisplayRawString(func_test_string_id++);
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_RIGHT);
-            guiDisplayRawString(func_test_string_id++);
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_DOWN);
-            guiDisplayRawString(func_test_string_id++);
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_LEFT);
-            guiDisplayRawString(func_test_string_id++);
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_CENTER);
-            guiDisplayRawString(func_test_string_id++);
-        #endif
     
         // Test description
         oledClear();
@@ -282,12 +281,6 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             {
                 usbProcessIncoming(USB_CALLER_MAIN);
             }
-            
-            #if defined(MINI_CLICK_BETATESTERS_SETUP)
-                // We actually remove the boot pwd set bool for units whose bootloader can be started by pressing a button at boot...
-                eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
-                eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, FALSE);                
-            #endif
         }
         else
         {

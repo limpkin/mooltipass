@@ -3,11 +3,6 @@ Todo:
 - display aes(bootloader_pwd) with user nonce when card inserted
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
-- tilt sensor?
-- set bootrst to bootloader, do eeprom checks there
-- 2nd round in bootloader
-- safe cbcmac compare
-- I2C block disable at boot
 
 V1.1:
 - post-indiegogo firmware

@@ -31,8 +31,8 @@ Wrong Pin, 2 Tries Left
 Wrong Pin, 3 Tries Left
 Create New User?
 Going To Sleep...
-Manage Database?
-Database Management
+Manage Credentials?
+Credentials Management
 Use App To Exit
 Created By The Plugin
 No Stored Favorites
@@ -58,14 +58,8 @@ Enter~~    New PIN
 Also Erase The Card?
 No Stored Credentials
 !!!FUSE PB!!!~~
-Func Test, press wheel,~~
-top,right,bot,left,center
-W, 
-T, 
-R, 
-B, 
-L, 
-C~~
+Func Test, press wheel~~
+Wheel pressed~~
 Scroll To 10
 DON'T APPROVE THIS!
 Send Password For:

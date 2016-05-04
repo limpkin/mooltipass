@@ -30,16 +30,6 @@
 #include "defines.h"
 // This code is only used for the Mooltipass mini
 #ifdef MINI_VERSION
-#ifdef MINI_JOYSTICK
-// Joystick scan list
-uint8_t joystick_scan_defines[] = {PORTID_JOY_UP, PORTID_JOY_DOWN, PORTID_JOY_LEFT, PORTID_JOY_RIGHT, PORTID_JOY_CENTER};
-// Bool to specify that no detection is happening
-volatile uint8_t joystick_no_detection = TRUE;
-// Joystick counter
-volatile uint8_t joystick_counters[8];
-// Joystick states
-volatile uint8_t joystick_return[8];
-#endif
 // Wheel pressed duration counter
 volatile uint16_t wheel_click_duration_counter;
 // Wheel click counter
@@ -73,15 +63,6 @@ void initMiniInputs(void)
     DDR_WHEEL_B &= ~(1 << PORTID_WHEEL_B);
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
-    
-    // Joystick
-    #ifdef MINI_JOYSTICK
-    for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
-    {
-        DDR_JOYSTICK &= ~(1 << joystick_scan_defines[i]);
-        PORT_JOYSTICK |= (1 << joystick_scan_defines[i]);
-    }        
-    #endif
 }
 
 /*! \fn     scanMiniInputsDetect(void)
@@ -89,11 +70,6 @@ void initMiniInputs(void)
 */
 void scanMiniInputsDetect(void)
 {    
-    #ifdef MINI_JOYSTICK
-    volatile uint8_t* current_direction_counter_pt;
-    volatile uint8_t* current_direction_return_pt;
-    uint8_t current_direction;
-    #endif
     uint8_t wheel_state, wheel_sm = 0;
     
     // Wheel encoder
@@ -174,47 +150,6 @@ void scanMiniInputsDetect(void)
         }
         wheel_click_counter = 0;
     }
-    
-    // Joystick
-    #ifdef MINI_JOYSTICK
-    for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
-    {
-        current_direction = joystick_scan_defines[i];
-        current_direction_return_pt = &joystick_return[current_direction];
-        current_direction_counter_pt = &joystick_counters[current_direction];
-        
-        // Detect if pressed
-        if (!(PIN_JOYSTICK & (1 << current_direction)))
-        {
-            if  (joystick_no_detection != FALSE)
-            {
-                if ((*current_direction_counter_pt == 50) && (*current_direction_return_pt != RETURN_JRELEASED))
-                {
-                    // We must make sure the user detected that the button was released before setting it as detected!
-                    *current_direction_return_pt = RETURN_JDETECT;
-                    joystick_no_detection = FALSE;
-                }
-                if (*current_direction_counter_pt != 0xFF)
-                {
-                    (*current_direction_counter_pt)++;
-                }
-            }
-        }
-        else
-        {
-            if (*current_direction_return_pt == RETURN_DET)
-            {
-                *current_direction_return_pt = RETURN_JRELEASED;
-                joystick_no_detection = TRUE;
-            }
-            else if (*current_direction_return_pt != RETURN_JRELEASED)
-            {
-                *current_direction_return_pt = RETURN_REL;
-            }
-            *current_direction_counter_pt = 0;
-        }
-    }
-    #endif
 }
 
 /*! \fn     getWheelCurrentIncrement(void)
@@ -223,24 +158,20 @@ void scanMiniInputsDetect(void)
 */
 int8_t getWheelCurrentIncrement(void)
 {
-    #ifdef MINI_WHEEL_NOT_ACTIVE
-        return 0;
-    #else
-        int8_t return_val = 0;
-        
-        if (wheel_cur_increment != 0)
+    int8_t return_val = 0;
+    
+    if (wheel_cur_increment != 0)
+    {
+        activityDetectedRoutine();
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
-            activityDetectedRoutine();
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-            {
-                return_val = wheel_cur_increment;
-                wheel_cur_increment = 0;
-            }
-            
+            return_val = wheel_cur_increment;
+            wheel_cur_increment = 0;
         }
         
-        return return_val;
-    #endif
+    }
+    
+    return return_val;
 }
 
 /*! \fn     isWheelClicked(void)
@@ -296,201 +227,95 @@ void miniWheelClearDetections(void)
 */
 RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
 {
-    #ifdef MINI_WHEEL_NOT_ACTIVE
-        (void)wait_for_action;
-        (void)ignore_incdec;
-        return WHEEL_ACTION_NONE;
-    #else
-        RET_TYPE return_val = WHEEL_ACTION_NONE;
-        int8_t wheel_cur_increment_copy = 0;
+    RET_TYPE return_val = WHEEL_ACTION_NONE;
+    int8_t wheel_cur_increment_copy = 0;
 
-        do
+    do
+    {
+        // If we want to take into account wheel scrolling
+        if (ignore_incdec == FALSE)
         {
-            // If we want to take into account wheel scrolling
-            if (ignore_incdec == FALSE)
-            {
-                wheel_cur_increment_copy = wheel_cur_increment;
-            }
-
-            if (wheel_click_return == RETURN_JDETECT)
-            {
-                // When checking for actions we clear the just detected state
-                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-                {
-                    wheel_click_return = RETURN_DET;
-                }
-            }
-            if ((wheel_click_return == RETURN_JRELEASED) || (wheel_cur_increment_copy != 0) || (wheel_click_duration_counter > LONG_PRESS_MS))
-            {
-                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-                {
-                    if (wheel_click_duration_counter > LONG_PRESS_MS)
-                    {
-                        return_val =  WHEEL_ACTION_LONG_CLICK;
-                    }
-                    else if (wheel_click_return == RETURN_JRELEASED)
-                    {                    
-                        if (wheel_cur_increment_copy == 0)
-                        {
-                            if (discard_release_event != FALSE)
-                            {
-                                discard_release_event = FALSE;
-                            } 
-                            else
-                            {
-                                return_val = WHEEL_ACTION_SHORT_CLICK;
-                            }
-                        }
-                    }
-                    else if (wheel_click_return == RETURN_DET)
-                    {
-                        if (wheel_cur_increment_copy > 0)
-                        {
-                            return_val = WHEEL_ACTION_CLICK_DOWN;
-                        }
-                        else if (wheel_cur_increment_copy < 0)
-                        {
-                            return_val = WHEEL_ACTION_CLICK_UP;
-                        }
-                    }
-                    else
-                    {
-                        if (wheel_cur_increment_copy > 0)
-                        {
-                            return_val = WHEEL_ACTION_DOWN;
-                        }
-                        else if (wheel_cur_increment_copy < 0)
-                        {
-                            return_val = WHEEL_ACTION_UP;
-                        }
-                    }
-
-                    // Clear detections
-                    wheel_click_duration_counter = 0;
-                    if ((return_val != WHEEL_ACTION_CLICK_DOWN) && (return_val != WHEEL_ACTION_CLICK_UP))
-                    {
-                        wheel_click_return = RETURN_REL;
-                    }
-                    else
-                    {
-                        discard_release_event = TRUE;
-                    }
-                    if (ignore_incdec == FALSE)
-                    {
-                        wheel_cur_increment = 0;
-                    }                
-                }
-            }
+            wheel_cur_increment_copy = wheel_cur_increment;
         }
-        while ((wait_for_action != FALSE) && (return_val == WHEEL_ACTION_NONE));
 
-        // Don't forget to call the activity detected routine if something happened
-        if (return_val != WHEEL_ACTION_NONE)
+        if (wheel_click_return == RETURN_JDETECT)
         {
-            activityDetectedRoutine();
-        }
-    
-        return return_val;
-    #endif
-}
-
-#ifdef MINI_JOYSTICK
-/*! \fn     isMiniDirectionPressed(uint8_t direction)
-*   \brief  Know if a direction is pressed
-*   \param  direction   The direction (see mini_inputs.h)
-*   \return just released/pressed, (non)detected
-*/
-RET_TYPE isMiniDirectionPressed(uint8_t direction)
-{
-    // This copy is an atomic operation
-    volatile RET_TYPE return_val = joystick_return[direction];
-
-    if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
-    {
-        activityDetectedRoutine();
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            if (joystick_return[direction] == RETURN_JDETECT)
-            {
-                joystick_return[direction] = RETURN_DET;
-            }
-            else if (joystick_return[direction] == RETURN_JRELEASED)
-            {
-                joystick_return[direction] = RETURN_REL;
-            }
-        }
-    }
-
-    return return_val;
-}
-
-/*! \fn     miniDirectionClearDetections(void)
-*   \brief  Clear current detections
-*/
-void miniDirectionClearDetections(void)
-{
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        memset((void*)joystick_return, RETURN_REL, sizeof(joystick_return));
-        wheel_click_return = RETURN_REL;
-        joystick_no_detection = TRUE;
-        wheel_cur_increment = 0;
-    }
-}
-
-/*! \fn     miniDirectionClearJoystickDetections(void)
-*   \brief  Clear current joystick detections
-*/
-void miniDirectionClearJoystickDetections(void)
-{
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        memset((void*)joystick_return, RETURN_REL, sizeof(joystick_return));
-        joystick_no_detection = TRUE;
-    }
-}
-
-/*! \fn     getMiniDirectionJustPressed(void)
-*   \brief  Know if a direction is pressed
-*   \return 0 if no button is pressed, its ID otherwise
-*/
-RET_TYPE getMiniDirectionJustPressed(void)
-{
-    volatile RET_TYPE return_val = 0;
-    
-    for (uint8_t i = 0; i < sizeof(joystick_scan_defines); i++)
-    {
-        // This copy is an atomic operation
-        return_val = joystick_return[joystick_scan_defines[i]];
-        
-        // See if it was just pressed or released
-        if ((return_val != RETURN_DET) && (return_val != RETURN_REL))
-        {
-            activityDetectedRoutine();
+            // When checking for actions we clear the just detected state
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
-                if (return_val == RETURN_JDETECT)
-                {
-                    joystick_return[joystick_scan_defines[i]] = RETURN_DET;
-                }
-                else if (return_val == RETURN_JRELEASED)
-                {
-                    joystick_return[joystick_scan_defines[i]] = RETURN_REL;
-                }
-            }
-            if (return_val == RETURN_JDETECT)
-            {
-                return_val = joystick_scan_defines[i];
-                break;
-            }
-            else
-            {
-                return_val = 0;
+                wheel_click_return = RETURN_DET;
             }
         }
+        if ((wheel_click_return == RETURN_JRELEASED) || (wheel_cur_increment_copy != 0) || (wheel_click_duration_counter > LONG_PRESS_MS))
+        {
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            {
+                if (wheel_click_duration_counter > LONG_PRESS_MS)
+                {
+                    return_val =  WHEEL_ACTION_LONG_CLICK;
+                }
+                else if (wheel_click_return == RETURN_JRELEASED)
+                {                    
+                    if (wheel_cur_increment_copy == 0)
+                    {
+                        if (discard_release_event != FALSE)
+                        {
+                            discard_release_event = FALSE;
+                        } 
+                        else
+                        {
+                            return_val = WHEEL_ACTION_SHORT_CLICK;
+                        }
+                    }
+                }
+                else if (wheel_click_return == RETURN_DET)
+                {
+                    if (wheel_cur_increment_copy > 0)
+                    {
+                        return_val = WHEEL_ACTION_CLICK_DOWN;
+                    }
+                    else if (wheel_cur_increment_copy < 0)
+                    {
+                        return_val = WHEEL_ACTION_CLICK_UP;
+                    }
+                }
+                else
+                {
+                    if (wheel_cur_increment_copy > 0)
+                    {
+                        return_val = WHEEL_ACTION_DOWN;
+                    }
+                    else if (wheel_cur_increment_copy < 0)
+                    {
+                        return_val = WHEEL_ACTION_UP;
+                    }
+                }
+
+                // Clear detections
+                wheel_click_duration_counter = 0;
+                if ((return_val != WHEEL_ACTION_CLICK_DOWN) && (return_val != WHEEL_ACTION_CLICK_UP))
+                {
+                    wheel_click_return = RETURN_REL;
+                }
+                else
+                {
+                    discard_release_event = TRUE;
+                }
+                if (ignore_incdec == FALSE)
+                {
+                    wheel_cur_increment = 0;
+                }                
+            }
+        }
+    }
+    while ((wait_for_action != FALSE) && (return_val == WHEEL_ACTION_NONE));
+
+    // Don't forget to call the activity detected routine if something happened
+    if (return_val != WHEEL_ACTION_NONE)
+    {
+        activityDetectedRoutine();
     }
     
     return return_val;
 }
-#endif
 #endif

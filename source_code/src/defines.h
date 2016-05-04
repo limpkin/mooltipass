@@ -64,7 +64,7 @@
  *  MINI_PREPRODUCTION_SETUP
  *  => mooltipass mini pre-production units
 */
-#define MINI_PREPRODUCTION_SETUP
+#define MINI_CLICK_BETATESTERS_SETUP
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)
@@ -119,9 +119,6 @@
 #elif defined(MINI_CLICK_BETATESTERS_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
-    //#define MINI_WHEEL_NOT_ACTIVE
-    //#define MINI_JOYSTICK
-    //#define NO_PIN_CODE_REQUIRED
     #define FLASH_CHIP_4M
     #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED
@@ -391,18 +388,6 @@ typedef int8_t RET_TYPE;
     #define PORTID_OLED_POW PORTE2
     #define PORT_OLED_POW   PORTE
     #define DDR_OLED_POW    DDRE
-
-    // 5 direction joystick
-    #ifdef MINI_JOYSTICK
-        #define PORTID_JOY_RIGHT    PORTF1
-        #define PORTID_JOY_UP       PORTF4
-        #define PORTID_JOY_LEFT     PORTF5
-        #define PORTID_JOY_DOWN     PORTF7
-        #define PORTID_JOY_CENTER   PORTF6
-        #define PORT_JOYSTICK       PORTF
-        #define DDR_JOYSTICK        DDRF
-        #define PIN_JOYSTICK        PINF
-    #endif
     
     // Click wheel
     #ifdef HARDWARE_MINI_CLICK_V1

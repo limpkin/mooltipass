@@ -32,8 +32,6 @@
 #include "defines.h"
 #include <stdint.h>
 
-RET_TYPE initFlash(void);
-
 // Erase Functions
 void sectorZeroErase(uint8_t sectorNumber);
 void sectorErase(uint8_t sectorNumber);
@@ -42,6 +40,8 @@ void pageErase(uint16_t pageNumber);
 
 void chipErase(void);
 void formatFlash(void);
+void initFlashIOs(void);
+RET_TYPE checkFlashID(void);
 void flashWriteBufferToPage(uint16_t page);
 void loadPageToInternalBuffer(uint16_t page_number);
 void flashRawRead(uint8_t* datap, uint16_t addr, uint16_t size);

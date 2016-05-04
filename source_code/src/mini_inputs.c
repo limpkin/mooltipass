@@ -63,6 +63,17 @@ void initMiniInputs(void)
     DDR_WHEEL_B &= ~(1 << PORTID_WHEEL_B);
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
+
+    // Accelerometer
+    #ifdef HARDWARE_MINI_CLICK_V2
+        DDR_ACC_SS |= (1 << PORTID_ACC_SS);
+        PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+        timerBased130MsDelay();
+        PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
+        spiUsartTransfer(0x23);
+        spiUsartTransfer(0x02);
+        PORT_ACC_SS |= (1 << PORTID_ACC_SS);    
+    #endif
 }
 
 /*! \fn     scanMiniInputsDetect(void)

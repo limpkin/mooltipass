@@ -101,10 +101,10 @@ int main(void)
 
     /** CHECK FOR BOOTLOADER BRICK **/
     #if defined(MINI_VERSION)
-    if (current_bootkey_val == BRICKED_BOOTKEY)
-    {
-        while(1);
-    }
+        if (current_bootkey_val == BRICKED_BOOTKEY)
+        {
+            while(1);
+        }
     #endif
 
     /** FUSE VERIFICATIONS **/
@@ -178,10 +178,10 @@ int main(void)
     #endif
 
     /** HARDWARE INITIALIZATION **/
-    initPortSMC();                      // Initialize smart card port
-    #if defined(HARDWARE_OLIVIER_V1)    // PWM is only present on the Mooltipass standard
-        initPwm();                      // Initialize PWM controller
+    #if defined(HARDWARE_OLIVIER_V1) || defined(HARDWARE_MINI_CLICK_V2)
+        initPwm();                      // Initialize PWM controller for MP standard & mini v2
     #endif                              // ENDIF
+    initPortSMC();                      // Initialize smart card port
     initIRQ();                          // Initialize interrupts
     powerSettlingDelay();               // Let the power settle before enabling USB controller
     initUsb();                          // Initialize USB controller
@@ -190,26 +190,12 @@ int main(void)
         initI2cPort();                  // Initialize I2C interface
     #endif                              // ENDIF
     rngInit();                          // Initialize avrentropy library
-    oledInitIOs();                      // Initialize OLED input/outputs
+    oledInitIOs();                      // Initialize OLED inputs/outputs
+    initFlashIOs();                     // Initialize Flash inputs/outputs
     spiUsartBegin();                    // Start USART SPI at 8MHz (standard) or 4MHz (mini)
     #if defined(MINI_VERSION)           // For the Mooltipass Mini inputs
         initMiniInputs();               // Initialize Mini Inputs
     #endif                              // ENDIF
-
-    // Temporary fix
-    #ifdef HARDWARE_MINI_CLICK_V2
-        DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
-        PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
-        DDR_OLED_SS |= (1 << PORTID_OLED_SS);
-        PORT_OLED_SS |= (1 << PORTID_OLED_SS);
-        DDR_ACC_SS |= (1 << PORTID_ACC_SS);
-        PORT_ACC_SS |= (1 << PORTID_ACC_SS);
-        timerBased130MsDelay();
-        PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
-        spiUsartTransfer(0x23);
-        spiUsartTransfer(0x02);
-        PORT_ACC_SS |= (1 << PORTID_ACC_SS);    
-    #endif
 
     // If offline mode isn't enabled, wait for device to be enumerated
     if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
@@ -221,7 +207,7 @@ int main(void)
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
     
     /** FLASH INITIALIZATION **/
-    flash_init_result = initFlash();    // Flash low level init, check for presence
+    flash_init_result = checkFlashID(); // Check for flash presence
     
     /** OLED INITIALIZATION **/
     oledBegin(FONT_DEFAULT);            // Only do it now as we're enumerated
@@ -296,15 +282,6 @@ int main(void)
     // Go to startup screen
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
     guiGetBackToCurrentScreen();
-
-    // Pre-production units: just leave default screen while developing new fw...
-    #ifdef MINI_PREPRODUCTION_SETUP
-    while (1)
-    {
-        // Process possible incoming USB packets
-        usbProcessIncoming(USB_CALLER_MAIN);
-    }
-    #endif
     
     // LED fade-in for standard version
     #if defined(HARDWARE_OLIVIER_V1)

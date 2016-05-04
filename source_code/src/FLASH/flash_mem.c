@@ -119,7 +119,7 @@ void waitForFlash(void)
  * @note    Performs a comparison to verify the size of the flash chip
  * @return  success status
  */
-static inline RET_TYPE checkFlashID(void)
+RET_TYPE checkFlashID(void)
 {
     uint8_t dataBuffer[4];
     
@@ -141,18 +141,14 @@ static inline RET_TYPE checkFlashID(void)
 } // End checkFlashID
 
 /**
- * Initializes SPI for the Flash Chip
- * @return  success status
+ * Initializes IOs for the Flash Chip
  */
-RET_TYPE initFlash(void)
+void initFlashIOs(void)
 {
     /* Setup chip select signal */
     DDR_FLASH_nS |= (1 << PORTID_FLASH_nS);
     PORT_FLASH_nS |= (1 << PORTID_FLASH_nS);
-    
-    /*  Check flash identification */
-    return checkFlashID();
-} // End initFlash
+}
 
 /**
  * Erases sector 0a if sectorNumber is FLASH_SECTOR_ZERO_A_CODE. Deletes sector 0b if sectorNumber is FLASH_SECTOR_ZERO_B_CODE.

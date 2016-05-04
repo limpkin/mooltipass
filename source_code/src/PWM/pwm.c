@@ -29,7 +29,7 @@
 #include "gui.h"
 /***************************************************************/
 /*  This file is only used for the Mooltipass standard version */
-#if defined(HARDWARE_OLIVIER_V1)
+#if defined(HARDWARE_OLIVIER_V1) || defined(HARDWARE_MINI_CLICK_V2)
 
 
 /*! \fn     initPwm()
@@ -37,15 +37,18 @@
 */
 void initPwm(void)
 {
-    TC4H = 0x03;                                            // Set TOP to max value (0x03FF);
-    OCR4C = 0xFF;                                           // Set TOP to max value (0x03FF);
-    TC4H = 0xFF;                                            // Output off by default
-    OCR4A = 0xFF;                                           // Output off by default
-    DDR_LED_PWM |= (1 << PORTID_LED_PWM);                   // Enable port, 0 by default
-    PORT_LED_PWM &= ~(1 << PORTID_LED_PWM);                 // Enable port, 0 by default
-    TCCR4A = (1 << COM4A1) | (1 << COM4A0) |  (1 << PWM4A); // Enhanced fast PWM mode, set OC4A on Compare Match, clear OC4A at BOTTOM
-    TCCR4E = (1 << ENHC4);                                  // Enhanced (11 bits) PWM mode
-    TCCR4B = (1 << CS40);                                   // No prescaling
+    #if defined(HARDWARE_OLIVIER_V1)
+        TC4H = 0x03;                                            // Set TOP to max value (0x03FF);
+        OCR4C = 0xFF;                                           // Set TOP to max value (0x03FF);
+        TC4H = 0xFF;                                            // Output off by default
+        OCR4A = 0xFF;                                           // Output off by default
+        DDR_LED_PWM |= (1 << PORTID_LED_PWM);                   // Enable port, 0 by default
+        PORT_LED_PWM &= ~(1 << PORTID_LED_PWM);                 // Enable port, 0 by default
+        TCCR4A = (1 << COM4A1) | (1 << COM4A0) |  (1 << PWM4A); // Enhanced fast PWM mode, set OC4A on Compare Match, clear OC4A at BOTTOM
+        TCCR4E = (1 << ENHC4);                                  // Enhanced (11 bits) PWM mode
+        TCCR4B = (1 << CS40);                                   // No prescaling
+    #elif defined(HARDWARE_MINI_CLICK_V2)
+    #endif
 }
 
 /*! \fn     setPwmDc(uint16_t pwm_value)
@@ -54,8 +57,11 @@ void initPwm(void)
 */
 void setPwmDc(uint16_t pwm_value)
 {
-    TC4H = ~(pwm_value >> 8);
-    OCR4A = ~pwm_value;
+    #if defined(HARDWARE_OLIVIER_V1)
+        TC4H = ~(pwm_value >> 8);
+        OCR4A = ~pwm_value;
+    #elif defined(HARDWARE_MINI_CLICK_V2)
+    #endif
 }
 #endif
 /***************************************************************/

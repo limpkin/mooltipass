@@ -28,6 +28,8 @@
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
 #include "defines.h"
+#include "delays.h"
+#include "spi.h"
 // This code is only used for the Mooltipass mini
 #ifdef MINI_VERSION
 // Wheel pressed duration counter
@@ -52,8 +54,9 @@ uint8_t wheel_reverse_bool = FALSE;
 
 /*! \fn     initMiniInputs(void)
 *   \brief  Init Mooltipass mini inputs
+*   \return Init success status
 */
-void initMiniInputs(void)
+RET_TYPE initMiniInputs(void)
 {    
     // Wheel
     DDR_CLICK &= ~(1 << PORTID_CLICK);
@@ -74,6 +77,8 @@ void initMiniInputs(void)
         spiUsartTransfer(0x02);
         PORT_ACC_SS |= (1 << PORTID_ACC_SS);    
     #endif
+
+    return RETURN_OK;
 }
 
 /*! \fn     scanMiniInputsDetect(void)

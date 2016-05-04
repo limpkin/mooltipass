@@ -60,6 +60,7 @@
 #include "usb.h"
 #include "rng.h"
 
+#if !defined(MINI_VERSION)
 // Tutorial led masks and touch filtering
 static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
 {
@@ -70,6 +71,7 @@ static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
     LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Wheel interface
     0,                              TOUCH_PRESS_MASK,       // That's all!
 };
+#endif
 // Define the bootloader function
 bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 // Flag to inform if the caps lock timer is armed
@@ -88,6 +90,9 @@ int main(void)
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Fetch boot key from EEPROM
     #if defined(HARDWARE_OLIVIER_V1)                                                // Only the Mooltipass standard version has a touch panel
         RET_TYPE touch_init_result;                                                 // Touch initialization result
+    #endif                                                                          // ENDIF
+    #if defined(MINI_VERSION)                                                       // Dedicated to mooltipass mini
+        RET_TYPE mini_inputs_result;                                                // Mooltipass mini input init result
     #endif                                                                          // ENDIF
     RET_TYPE flash_init_result;                                                     // Flash initialization result
     RET_TYPE card_detect_ret;                                                       // Card detect result
@@ -111,7 +116,7 @@ int main(void)
     #if defined(MINI_CLICK_BETATESTERS_SETUP)
         // no fuse verification for the beta testers units
     #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
-        // boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        // 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
@@ -123,7 +128,7 @@ int main(void)
             fuse_ok = FALSE;
         }
     #else
-        // 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        // boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
@@ -179,44 +184,44 @@ int main(void)
 
     /** HARDWARE INITIALIZATION **/
     #if defined(HARDWARE_OLIVIER_V1) || defined(HARDWARE_MINI_CLICK_V2)
-        initPwm();                      // Initialize PWM controller for MP standard & mini v2
-    #endif                              // ENDIF
-    initPortSMC();                      // Initialize smart card port
-    initIRQ();                          // Initialize interrupts
-    powerSettlingDelay();               // Let the power settle before enabling USB controller
-    initUsb();                          // Initialize USB controller
-    powerSettlingDelay();               // Let the USB 3.3V LDO rise
-    #if defined(HARDWARE_OLIVIER_V1)    // I2C is only used in the Mooltipass standard
-        initI2cPort();                  // Initialize I2C interface
-    #endif                              // ENDIF
-    rngInit();                          // Initialize avrentropy library
-    oledInitIOs();                      // Initialize OLED inputs/outputs
-    initFlashIOs();                     // Initialize Flash inputs/outputs
-    spiUsartBegin();                    // Start USART SPI at 8MHz (standard) or 4MHz (mini)
-    #if defined(MINI_VERSION)           // For the Mooltipass Mini inputs
-        initMiniInputs();               // Initialize Mini Inputs
-    #endif                              // ENDIF
+        initPwm();                              // Initialize PWM controller for MP standard & mini v2
+    #endif                                      // ENDIF
+    initPortSMC();                              // Initialize smart card port
+    initIRQ();                                  // Initialize interrupts
+    powerSettlingDelay();                       // Let the power settle before enabling USB controller
+    initUsb();                                  // Initialize USB controller
+    powerSettlingDelay();                       // Let the USB 3.3V LDO rise
+    #if defined(HARDWARE_OLIVIER_V1)            // I2C is only used in the Mooltipass standard
+        initI2cPort();                          // Initialize I2C interface
+    #endif                                      // ENDIF
+    rngInit();                                  // Initialize avrentropy library
+    oledInitIOs();                              // Initialize OLED inputs/outputs
+    initFlashIOs();                             // Initialize Flash inputs/outputs
+    spiUsartBegin();                            // Start USART SPI at 8MHz (standard) or 4MHz (mini)
+    #if defined(MINI_VERSION)                   // For the Mooltipass Mini inputs
+        mini_inputs_result = initMiniInputs();  // Initialize Mini Inputs
+    #endif                                      // ENDIF
 
     // If offline mode isn't enabled, wait for device to be enumerated
     if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
     {
-        while(!isUsbConfigured());      // Wait for host to set configuration
+        while(!isUsbConfigured());              // Wait for host to set configuration
     }    
     
     // Set correct timeout_enabled val
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
     
     /** FLASH INITIALIZATION **/
-    flash_init_result = checkFlashID(); // Check for flash presence
+    flash_init_result = checkFlashID();         // Check for flash presence
     
     /** OLED INITIALIZATION **/
-    oledBegin(FONT_DEFAULT);            // Only do it now as we're enumerated
+    oledBegin(FONT_DEFAULT);                    // Only do it now as we're enumerated
     
     /** FIRST BOOT FLASH & EEPROM INITIALIZATIONS **/
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {        
-        chipErase();                    // Erase everything in flash        
-        firstTimeUserHandlingInit();    // Erase # of cards and # of users
+        chipErase();                            // Erase everything in flash        
+        firstTimeUserHandlingInit();            // Erase # of cards and # of users
     }
     
     /** TOUCH PANEL INITIALIZATION **/
@@ -232,7 +237,7 @@ int main(void)
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
     #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_PREPRODUCTION_SETUP)
-        mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok);
+        mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok, mini_inputs_result);
     #endif
     
     /** BOOT STOP IF ERRORS **/
@@ -245,9 +250,9 @@ int main(void)
     #elif defined(MINI_VERSION)
         #if defined(MINI_CLICK_BETATESTERS_SETUP)
             (void)fuse_ok;
-            while (flash_init_result != RETURN_OK);
+            while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
         #else
-            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
+            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE) || (mini_inputs_result != RETURN_OK));
         #endif
     #endif
     

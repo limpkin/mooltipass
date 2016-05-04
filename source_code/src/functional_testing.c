@@ -176,9 +176,11 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
  *  \param  current_bootkey_val     Current boot key value
  *  \param  flash_init_result       Result of the flash initialization procedure
  *  \param  fuse_ok                 Bool to know if fuses set are ok
+ *  \param  mini_inputs_result      Bool to know if inputs are ok
  */
-void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok)
+void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
 {    
+    (void)mini_inputs_result;
     // Only launch the functional test if the boot key isn't valid
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {

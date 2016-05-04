@@ -61,6 +61,7 @@ void setPwmDc(uint16_t pwm_value)
         TC4H = ~(pwm_value >> 8);
         OCR4A = ~pwm_value;
     #elif defined(HARDWARE_MINI_CLICK_V2)
+        pwm_value++;
     #endif
 }
 #endif

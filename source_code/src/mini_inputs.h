@@ -43,7 +43,7 @@ int8_t getWheelCurrentIncrement(void);
 void miniWheelClearDetections(void);
 void scanMiniInputsDetect(void);
 RET_TYPE isWheelClicked(void);
-void initMiniInputs(void);
+RET_TYPE initMiniInputs(void);
 
 /* GLOBAL VARS */
 extern uint8_t wheel_reverse_bool;

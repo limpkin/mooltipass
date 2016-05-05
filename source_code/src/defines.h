@@ -202,10 +202,6 @@
 /************** LOW LEVEL MEMORY BOUNDARY CHECKS ***************/
 #define MEMORY_BOUNDARY_CHECKS
 
-/************** IMPORT/EXPORT MODE FOR PLUGIN COMMS ***************/
-//#define FLASH_BLOCK_IMPORT_EXPORT
-#define NODE_BLOCK_IMPORT_EXPORT
-
 /************** TESTS ENABLING ***************/
 // Comment to disable test calls
 //#define TESTS_ENABLED

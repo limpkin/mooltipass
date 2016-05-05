@@ -118,9 +118,13 @@ mooltipass.memmgmt.mediaBundleUploadPercentage = 0;			// Media upload progress p
 mooltipass.memmgmt.currentLoginForRequestedPassword = "";	// The login for which we want its password
 
 // State machines & temp variables related to media bundle upload
-mooltipass.memmgmt.tempPassword = [];				// Temp password to unlock upload functionality
-mooltipass.memmgmt.byteCounter = 0;					// Current byte counter
-mooltipass.memmgmt.mediaBundle = [];				// Media bundle contents
+mooltipass.memmgmt.tempPassword = [];						// Temp password to unlock upload functionality
+mooltipass.memmgmt.byteCounter = 0;							// Current byte counter
+mooltipass.memmgmt.mediaBundle = [];						// Media bundle contents
+
+// Variables used for statistics
+mooltipass.memmgmt.statsLastDataReceivedTime = new Date().getTime();// Time at which our last packet was received
+mooltipass.memmgmt.statsTotalBytesReceived = 0;						// Number of bytes received since the time stored
  
  
 // Node types
@@ -2804,6 +2808,22 @@ mooltipass.memmgmt.dataSendTimeOutCallback = function()
 // Data received from USB callback
 mooltipass.memmgmt.dataReceivedCallback = function(packet)
 {
+	// Receive statistics
+	mooltipass.memmgmt.statsTotalBytesReceived += 64;
+	var nb_ms_since_last_stat_output = new Date().getTime() - mooltipass.memmgmt.statsLastDataReceivedTime;
+	if(nb_ms_since_last_stat_output > 3000)
+	{
+		// Don't print old data
+		mooltipass.memmgmt.statsLastDataReceivedTime = new Date().getTime();
+		mooltipass.memmgmt.statsTotalBytesReceived = 0;		
+	}
+	else if(nb_ms_since_last_stat_output > 1000)
+	{
+		console.log("Receive speed: " + Math.round(mooltipass.memmgmt.statsTotalBytesReceived*1000/nb_ms_since_last_stat_output) + " bytes per second");
+		mooltipass.memmgmt.statsLastDataReceivedTime = new Date().getTime();
+		mooltipass.memmgmt.statsTotalBytesReceived = 0;
+	}
+	
 	// If it is a leave memory management mode packet, process the queue and exit
 	if(packet[1] == mooltipass.device.commands['endMemoryManagementMode'])
 	{		 

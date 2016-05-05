@@ -1,0 +1,102 @@
+\hypertarget{rng_8c}{}\section{src/\+R\+N\+G/rng.c File Reference}
+\label{rng_8c}\index{src/\+R\+N\+G/rng.\+c@{src/\+R\+N\+G/rng.\+c}}
+
+
+Random Number Generation.  
+
+
+{\ttfamily \#include \char`\"{}watchdog\+\_\+driver.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$util/atomic.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}rng.\+h\char`\"{}}\\*
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+union \hyperlink{unionrng__item__t}{rng\+\_\+item\+\_\+t}
+\item 
+struct \hyperlink{structrng__struct__t}{rng\+\_\+struct\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE}~32\hypertarget{rng_8c_ad5847abead18aafff22c6814dacaa65b}{}\label{rng_8c_ad5847abead18aafff22c6814dacaa65b}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{rng_8c_a43905d6fb5c4d433a49f527fa6ab811f}{I\+SR} (W\+D\+T\+\_\+vect)\hypertarget{rng_8c_a43905d6fb5c4d433a49f527fa6ab811f}{}\label{rng_8c_a43905d6fb5c4d433a49f527fa6ab811f}
+
+\begin{DoxyCompactList}\small\item\em 16ms W\+DT interrupt routine \end{DoxyCompactList}\item 
+void \hyperlink{rng_8c_ab5cb724a1e403b7234af0b3ae4adfaf3}{rng\+Init} (void)
+\begin{DoxyCompactList}\small\item\em This function initializes the timer and watchdog. \end{DoxyCompactList}\item 
+void \hyperlink{rng_8c_a9e69ecee3ef9f87884dee96aa8595d92}{fill\+Array\+With\+Random\+Bytes} (uint8\+\_\+t $\ast$buffer, uint8\+\_\+t nb\+\_\+bytes)
+\begin{DoxyCompactList}\small\item\em Fill array with random bytes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+volatile uint32\+\_\+t {\bfseries rng\+\_\+buffer} \mbox{[}R\+N\+G\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE\mbox{]}\hypertarget{rng_8c_aae599247e9486597d22401f0e181c00a}{}\label{rng_8c_aae599247e9486597d22401f0e181c00a}
+
+\item 
+volatile uint8\+\_\+t {\bfseries rng\+\_\+buffer\+\_\+last\+\_\+valid\+\_\+value}\hypertarget{rng_8c_a9c3e016c30af979f48011ece135124d5}{}\label{rng_8c_a9c3e016c30af979f48011ece135124d5}
+
+\item 
+volatile uint8\+\_\+t {\bfseries rng\+\_\+buffer\+\_\+count\+\_\+bytes}\hypertarget{rng_8c_adcf8ae6bd5c5706c903de62754343fe7}{}\label{rng_8c_adcf8ae6bd5c5706c903de62754343fe7}
+
+\item 
+uint8\+\_\+t {\bfseries timer\+\_\+buffer} \mbox{[}T\+I\+M\+E\+R\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+S\+I\+ZE\mbox{]}\hypertarget{rng_8c_aa33db61bdb4fd3eaa09d40c179c1d614}{}\label{rng_8c_aa33db61bdb4fd3eaa09d40c179c1d614}
+
+\item 
+volatile uint8\+\_\+t {\bfseries timer\+\_\+buffer\+\_\+index}\hypertarget{rng_8c_ab422a6248bc869516bed972a2f5dd001}{}\label{rng_8c_ab422a6248bc869516bed972a2f5dd001}
+
+\item 
+volatile uint8\+\_\+t {\bfseries rng\+\_\+buffer\+\_\+index}\hypertarget{rng_8c_a9f1126f578f088203a042e3c58d46cf3}{}\label{rng_8c_a9f1126f578f088203a042e3c58d46cf3}
+
+\item 
+volatile uint8\+\_\+t {\bfseries rng\+\_\+buffer\+\_\+count}\hypertarget{rng_8c_acb2a680ec25bb1e5f069dc946506be3a}{}\label{rng_8c_acb2a680ec25bb1e5f069dc946506be3a}
+
+\item 
+\hyperlink{structrng__struct__t}{rng\+\_\+struct\+\_\+t} {\bfseries rng\+Value}\hypertarget{rng_8c_a2b7dac96ed5986cc997e4c7fbf057661}{}\label{rng_8c_a2b7dac96ed5986cc997e4c7fbf057661}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Random Number Generation. 
+
+Created\+: 19/09/2014 18\+:30 Author\+: Miguel A. Borrego 
+
+\subsection{Function Documentation}
+\index{rng.\+c@{rng.\+c}!fill\+Array\+With\+Random\+Bytes@{fill\+Array\+With\+Random\+Bytes}}
+\index{fill\+Array\+With\+Random\+Bytes@{fill\+Array\+With\+Random\+Bytes}!rng.\+c@{rng.\+c}}
+\subsubsection[{\texorpdfstring{fill\+Array\+With\+Random\+Bytes(uint8\+\_\+t $\ast$buffer, uint8\+\_\+t nb\+\_\+bytes)}{fillArrayWithRandomBytes(uint8_t *buffer, uint8_t nb_bytes)}}]{\setlength{\rightskip}{0pt plus 5cm}fill\+Array\+With\+Random\+Bytes (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer, }
+\item[{uint8\+\_\+t}]{nb\+\_\+bytes}
+\end{DoxyParamCaption}
+)}\hypertarget{rng_8c_a9e69ecee3ef9f87884dee96aa8595d92}{}\label{rng_8c_a9e69ecee3ef9f87884dee96aa8595d92}
+
+
+Fill array with random bytes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & The array \\
+\hline
+{\em nb\+\_\+bytes} & The number of bytes \\
+\hline
+\end{DoxyParams}
+\index{rng.\+c@{rng.\+c}!rng\+Init@{rng\+Init}}
+\index{rng\+Init@{rng\+Init}!rng.\+c@{rng.\+c}}
+\subsubsection[{\texorpdfstring{rng\+Init(void)}{rngInit(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void rng\+Init (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{rng_8c_ab5cb724a1e403b7234af0b3ae4adfaf3}{}\label{rng_8c_ab5cb724a1e403b7234af0b3ae4adfaf3}
+
+
+This function initializes the timer and watchdog. 
+
+\begin{DoxyNote}{Note}
+Vars guaranteed to be initialized to 0 by avr libc 
+\end{DoxyNote}

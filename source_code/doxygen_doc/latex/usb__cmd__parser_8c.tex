@@ -1,0 +1,89 @@
+\hypertarget{usb__cmd__parser_8c}{}\section{src/\+U\+S\+B/usb\+\_\+cmd\+\_\+parser.c File Reference}
+\label{usb__cmd__parser_8c}\index{src/\+U\+S\+B/usb\+\_\+cmd\+\_\+parser.\+c@{src/\+U\+S\+B/usb\+\_\+cmd\+\_\+parser.\+c}}
+
+
+U\+SB communication communication parser Created\+: 09/6/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include \char`\"{}smart\+\_\+card\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}touch\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+smartcard\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+fwflash\+\_\+storage.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+screen\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+basic\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+aes\+\_\+and\+\_\+comms.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+pin\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}eeprom\+\_\+addresses.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}watchdog\+\_\+driver.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+smartcard.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb\+\_\+cmd\+\_\+parser.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}timer\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oled\+\_\+wrapper.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}hid\+\_\+defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}mini\+\_\+inputs.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$avr/eeprom.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}mooltipass.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}node\+\_\+mgmt.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include $<$ctype.\+h$>$}\\*
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}delays.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}stack.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}rng.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t {\bfseries check\+Mooltipass\+Password} (uint8\+\_\+t $\ast$data, void $\ast$addr, uint8\+\_\+t length)\hypertarget{usb__cmd__parser_8c_ab514296e84610575dd3b39bcbbb4896b}{}\label{usb__cmd__parser_8c_ab514296e84610575dd3b39bcbbb4896b}
+
+\item 
+void {\bfseries lower\+Case\+String} (uint8\+\_\+t $\ast$data)\hypertarget{usb__cmd__parser_8c_aefab39a38a0949b5f94c03042e1291f4}{}\label{usb__cmd__parser_8c_aefab39a38a0949b5f94c03042e1291f4}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries check\+Text\+Field} (uint8\+\_\+t $\ast$data, uint8\+\_\+t len, uint8\+\_\+t max\+\_\+len)\hypertarget{usb__cmd__parser_8c_af0931897a42615c2bfab56b52bb5cf04}{}\label{usb__cmd__parser_8c_af0931897a42615c2bfab56b52bb5cf04}
+
+\item 
+void \hyperlink{usb__cmd__parser_8c_ae9716568149f20d931a1eb285bd042cb}{usb\+Process\+Incoming} (uint8\+\_\+t caller\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Process a possible incoming U\+SB packet. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t {\bfseries media\+Flash\+Import\+Approved} = F\+A\+L\+SE\hypertarget{usb__cmd__parser_8c_a904c6851ebef2e720e66e60a6bbf8d89}{}\label{usb__cmd__parser_8c_a904c6851ebef2e720e66e60a6bbf8d89}
+
+\item 
+uint16\+\_\+t {\bfseries current\+Node\+Written} = N\+O\+D\+E\+\_\+\+A\+D\+D\+R\+\_\+\+N\+U\+LL\hypertarget{usb__cmd__parser_8c_a2d7d1cd19ab8d9fb0573b9b025e9579d}{}\label{usb__cmd__parser_8c_a2d7d1cd19ab8d9fb0573b9b025e9579d}
+
+\item 
+uint16\+\_\+t {\bfseries media\+Flash\+Import\+Page}\hypertarget{usb__cmd__parser_8c_aa2f42d2f2a400927f66ae7aee7e22ffb}{}\label{usb__cmd__parser_8c_aa2f42d2f2a400927f66ae7aee7e22ffb}
+
+\item 
+uint16\+\_\+t {\bfseries media\+Flash\+Import\+Offset}\hypertarget{usb__cmd__parser_8c_ade85ee97ba1fb7b60f3474ea390e051e}{}\label{usb__cmd__parser_8c_ade85ee97ba1fb7b60f3474ea390e051e}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+U\+SB communication communication parser Created\+: 09/6/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{usb\+\_\+cmd\+\_\+parser.\+c@{usb\+\_\+cmd\+\_\+parser.\+c}!usb\+Process\+Incoming@{usb\+Process\+Incoming}}
+\index{usb\+Process\+Incoming@{usb\+Process\+Incoming}!usb\+\_\+cmd\+\_\+parser.\+c@{usb\+\_\+cmd\+\_\+parser.\+c}}
+\subsubsection[{\texorpdfstring{usb\+Process\+Incoming(uint8\+\_\+t caller\+\_\+id)}{usbProcessIncoming(uint8_t caller_id)}}]{\setlength{\rightskip}{0pt plus 5cm}usb\+Process\+Incoming (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{caller\+\_\+id}
+\end{DoxyParamCaption}
+)}\hypertarget{usb__cmd__parser_8c_ae9716568149f20d931a1eb285bd042cb}{}\label{usb__cmd__parser_8c_ae9716568149f20d931a1eb285bd042cb}
+
+
+Process a possible incoming U\+SB packet. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em caller\+\_\+id} & U\+ID of the calling function \\
+\hline
+\end{DoxyParams}

@@ -95,16 +95,27 @@ int main(void)
         RET_TYPE mini_inputs_result;                                                // Mooltipass mini input init result
     #endif                                                                          // ENDIF
     RET_TYPE flash_init_result;                                                     // Flash initialization result
-    RET_TYPE card_detect_ret;                                                       // Card detect result
+    RET_TYPE card_detect_ret;                                                       // Card detection result
     uint8_t fuse_ok = TRUE;                                                         // Fuse check result
     
-    /** JTAG FUSE ACTIONS **/
+    /********************************************************************/
+    /**                     JTAG FUSE ACTIONS                          **/
+    /*                                                                  */
+    /* On units where the fuses aren't programmed, the JTAG is enabled  */
+    /* by default, preventing the use of certain IOs. Moreover, the     */
+    /* CKDIV8 is also set, which divides the clock by 8.                */
+    /********************************************************************/
     #if defined(JTAG_FUSE_ENABLED)                                                  // For units whose fuses haven't been programmed
         disableJTAG();                                                              // Disable JTAG to gain access to pins        
         CPU_PRESCALE(0);                                                            // Set pre-scaler to 1 (fuses not set)
     #endif
 
-    /** CHECK FOR BOOTLOADER BRICK **/
+    /********************************************************************/
+    /**                 CHECK FOR BOOTLOADER BRICK                     **/
+    /*                                                                  */
+    /* On the Mooltipass mini, the bootloader may deliberately brick    */
+    /* the device if a malicious attempt has been made.                 */
+    /********************************************************************/
     #if defined(MINI_VERSION)
         if (current_bootkey_val == BRICKED_BOOTKEY)
         {
@@ -112,7 +123,12 @@ int main(void)
         }
     #endif
 
-    /** FUSE VERIFICATIONS **/
+    /********************************************************************/
+    /**                    FUSE VERIFICATIONS                          **/
+    /*                                                                  */
+    /* There's no point in letting the Mooltipass boot if the fuses     */
+    /* aren't correctly set                                             */
+    /********************************************************************/
     #if defined(MINI_CLICK_BETATESTERS_SETUP)
         // no fuse verification for the beta testers units
     #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
@@ -135,12 +151,24 @@ int main(void)
         }
     #endif
     
-    /** ELECTRICAL TESTING **/
+    /********************************************************************/
+    /**                    ELECTRICAL TESTING                          **/
+    /*                                                                  */
+    /* The standard Mooltipass goes through electrical testing to make  */
+    /* sure that all the MCU IOs are correctly soldered.                */
+    /********************************************************************/
     #if defined(HARDWARE_OLIVIER_V1) && !defined(POST_KICKSTARTER_UPDATE_SETUP)
         mooltipassStandardElectricalTest(fuse_ok);
     #endif    
     
-    /** JUMPING TO BOOTLOADER AT BOOT **/
+    /********************************************************************/
+    /**               JUMPING TO BOOTLOADER AT BOOT                    **/
+    /*                                                                  */
+    /* In the non-production units that don't have the boot reset vector*/
+    /* enabled, the testers may choose to start the bootloader by       */
+    /* sending a USB command. Internally, we therefore reboot the MCU   */
+    /* and then jump to the bootloader.                                 */
+    /********************************************************************/
     #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(POST_KICKSTARTER_UPDATE_SETUP) && !defined(MINI_PREPRODUCTION_SETUP)
         // This code will only be used for developers and beta testers
         // Check if we were reset and want to go to the bootloader
@@ -158,7 +186,12 @@ int main(void)
         }
     #endif    
 
-    /** EEPROM INITIALIZATIONS AT FIRST BOOT **/
+    /********************************************************************/
+    /**            EEPROM INITIALIZATIONS AT FIRST BOOT                **/
+    /*                                                                  */
+    /* During the first boot the Mooltipass settings stored in eeprom   */
+    /* are set to unknown values. Here we set them to their defaults.   */
+    /********************************************************************/
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         // Erase Mooltipass parameters
@@ -167,14 +200,22 @@ int main(void)
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
     }
         
-    /** CHANGE IN MOOLTIPASS SETTINGS STORAGE **/
+    /********************************************************************/
+    /**            CHANGE IN MOOLTIPASS SETTINGS STORAGE               **/
+    /*                                                                  */
+    /* An easy but not often used way to reset the Mooltipass settings  */
+    /********************************************************************/
     if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
     {
         mooltipassParametersInit();
         setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
     }
 
-   /** JUMPING TO BOOTLOADER FOR TEST UNITS **/
+   /********************************************************************/
+   /**              JUMPING TO BOOTLOADER FOR TEST UNITS              **/
+   /*                                                                  */
+   /* On test units, a button pressed at boot starts the bootloader    */
+   /********************************************************************/
     #ifdef AVR_BOOTLOADER_PROGRAMMING
         if(electricalJumpToBootloaderCondition() == TRUE)
         {

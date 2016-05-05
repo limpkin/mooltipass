@@ -1,0 +1,302 @@
+\hypertarget{oledmini_8h}{}\section{src/\+O\+L\+E\+D\+M\+I\+N\+I/oledmini.h File Reference}
+\label{oledmini_8h}\index{src/\+O\+L\+E\+D\+M\+I\+N\+I/oledmini.\+h@{src/\+O\+L\+E\+D\+M\+I\+N\+I/oledmini.\+h}}
+
+
+O\+L\+ED library header Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include \char`\"{}fonts.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}bitmap.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}bitstreammini.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{oledmini_8h_a3aaceaef860d6057062572b7cfe46848}{S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+L\+O\+W\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}~0x00
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+H\+I\+G\+H\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}~0x10\hypertarget{oledmini_8h_a60da604625f1b82884b2e33e57bf0d99}{}\label{oledmini_8h_a60da604625f1b82884b2e33e57bf0d99}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+M\+E\+M\+\_\+\+A\+D\+D\+R\+E\+S\+S\+I\+N\+G\+\_\+\+M\+O\+DE}~0x20\hypertarget{oledmini_8h_a0ea51293f676f4886fb2af033aef301a}{}\label{oledmini_8h_a0ea51293f676f4886fb2af033aef301a}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+A\+D\+DR}~0x21\hypertarget{oledmini_8h_af4d77ae6d77a2bcaa4e35fa5e5f91977}{}\label{oledmini_8h_af4d77ae6d77a2bcaa4e35fa5e5f91977}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+P\+A\+G\+E\+\_\+\+A\+D\+DR}~0x22\hypertarget{oledmini_8h_a8cd332b89d904b3e14500f0582811309}{}\label{oledmini_8h_a8cd332b89d904b3e14500f0582811309}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+S\+T\+A\+R\+T\+\_\+\+L\+I\+NE}~0x40\hypertarget{oledmini_8h_a262b212b8542e2b3e445bdedb3ab01d4}{}\label{oledmini_8h_a262b212b8542e2b3e445bdedb3ab01d4}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+C\+O\+N\+T\+R\+A\+S\+T\+\_\+\+C\+U\+R\+R\+E\+NT}~0x81\hypertarget{oledmini_8h_a80c4c6689bbe6bcec83b35359ce6c36a}{}\label{oledmini_8h_a80c4c6689bbe6bcec83b35359ce6c36a}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+B\+R\+I\+G\+H\+T\+N\+E\+SS}~0x82\hypertarget{oledmini_8h_a5e9a2b4a62a642b398902e3c596d9dcb}{}\label{oledmini_8h_a5e9a2b4a62a642b398902e3c596d9dcb}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+L\+UT}~0x91\hypertarget{oledmini_8h_a897f37f4f3875b7fe62c262354138ce2}{}\label{oledmini_8h_a897f37f4f3875b7fe62c262354138ce2}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+B\+A\+N\+K\+\_\+\+C\+O\+L\+O\+R\+\_\+1\+T\+O16}~0x92\hypertarget{oledmini_8h_a28f2a8b9f8320a0979fd5e97313521c0}{}\label{oledmini_8h_a28f2a8b9f8320a0979fd5e97313521c0}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+B\+A\+N\+K\+\_\+\+C\+O\+L\+O\+R\+\_\+17\+T\+O32}~0x93\hypertarget{oledmini_8h_a50f21f062e2b070249736852f5922e33}{}\label{oledmini_8h_a50f21f062e2b070249736852f5922e33}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+S\+E\+G\+M\+E\+N\+T\+\_\+\+R\+E\+M\+A\+P\+\_\+\+C\+O\+L\+\_\+0}~0x\+A0\hypertarget{oledmini_8h_a57996924a76de04c833e7519a3632457}{}\label{oledmini_8h_a57996924a76de04c833e7519a3632457}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+S\+E\+G\+M\+E\+N\+T\+\_\+\+R\+E\+M\+A\+P\+\_\+\+C\+O\+L\+\_\+131}~0x\+A1\hypertarget{oledmini_8h_a2d0efb46f40568ba7fd355c4becda4e5}{}\label{oledmini_8h_a2d0efb46f40568ba7fd355c4becda4e5}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+N\+T\+I\+R\+E\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+N\+O\+R\+M\+AL}~0x\+A4\hypertarget{oledmini_8h_a1aff4bb35f51cc13e0f385d76ff9da65}{}\label{oledmini_8h_a1aff4bb35f51cc13e0f385d76ff9da65}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+N\+T\+I\+R\+E\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+ON}~0x\+A5\hypertarget{oledmini_8h_ac156cfd553e07eddc1bab220e0857f7d}{}\label{oledmini_8h_ac156cfd553e07eddc1bab220e0857f7d}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+N\+T\+I\+R\+E\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+N\+R\+E\+V\+E\+R\+S\+ED}~0x\+A6\hypertarget{oledmini_8h_a0d55e0779ebc092eb1720fe34845bbe8}{}\label{oledmini_8h_a0d55e0779ebc092eb1720fe34845bbe8}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+N\+T\+I\+R\+E\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+R\+E\+V\+E\+R\+S\+ED}~0x\+A7\hypertarget{oledmini_8h_a0bcce2df08afaad44fb414f340c9c16c}{}\label{oledmini_8h_a0bcce2df08afaad44fb414f340c9c16c}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+M\+U\+L\+T\+I\+P\+L\+E\+X\+\_\+\+R\+A\+T\+IO}~0x\+A8\hypertarget{oledmini_8h_ab5f009d00a1647d11d0bf25a0537262e}{}\label{oledmini_8h_ab5f009d00a1647d11d0bf25a0537262e}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+D\+I\+M\+\_\+\+M\+O\+D\+E\+\_\+\+S\+E\+T\+T\+I\+NG}~0x\+AB\hypertarget{oledmini_8h_a2618a928e545beb1465b3865287d4edd}{}\label{oledmini_8h_a2618a928e545beb1465b3865287d4edd}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+C\+O\+N\+F\+I\+G\+U\+R\+A\+T\+I\+ON}~0x\+AD\hypertarget{oledmini_8h_abb224547817206ad369fb150cca64786}{}\label{oledmini_8h_abb224547817206ad369fb150cca64786}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+D\+I\+M\+\_\+\+M\+O\+DE}~0x\+AC\hypertarget{oledmini_8h_a24d21ad79ec2628059eee16a23b61820}{}\label{oledmini_8h_a24d21ad79ec2628059eee16a23b61820}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+O\+FF}~0x\+AE\hypertarget{oledmini_8h_a15dbc4732921265b7e2f5b4662abb9c5}{}\label{oledmini_8h_a15dbc4732921265b7e2f5b4662abb9c5}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+N\+O\+R\+M\+A\+L\+\_\+\+M\+O\+DE}~0x\+AF\hypertarget{oledmini_8h_a1b95ced70173416e6642d37118ef862d}{}\label{oledmini_8h_a1b95ced70173416e6642d37118ef862d}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+P\+A\+G\+E\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}~0x\+B0\hypertarget{oledmini_8h_ad28664a83ee055065d2a140b827349ce}{}\label{oledmini_8h_ad28664a83ee055065d2a140b827349ce}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+C\+O\+M\+\_\+\+O\+U\+T\+P\+U\+T\+\_\+\+N\+O\+R\+M\+AL}~0x\+C0\hypertarget{oledmini_8h_adc95921afec098db673bfecbb28c2030}{}\label{oledmini_8h_adc95921afec098db673bfecbb28c2030}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+C\+O\+M\+\_\+\+O\+U\+T\+P\+U\+T\+\_\+\+R\+E\+V\+E\+R\+S\+ED}~0x\+C8\hypertarget{oledmini_8h_afc4e15b0b12f9a0905ef8a3c4889eacf}{}\label{oledmini_8h_afc4e15b0b12f9a0905ef8a3c4889eacf}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+O\+F\+F\+S\+ET}~0x\+D3\hypertarget{oledmini_8h_afe314a61e7c45feaf90ac3ae88af355a}{}\label{oledmini_8h_afe314a61e7c45feaf90ac3ae88af355a}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+C\+L\+O\+C\+K\+\_\+\+D\+I\+V\+I\+DE}~0x\+D5\hypertarget{oledmini_8h_a5c57eb6b07727b5fe386e87c247189af}{}\label{oledmini_8h_a5c57eb6b07727b5fe386e87c247189af}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+A\+R\+E\+A\+\_\+\+C\+O\+L\+O\+R\+\_\+\+M\+O\+DE}~0x\+D8\hypertarget{oledmini_8h_a0b98513a27eac00a953e521848763a90}{}\label{oledmini_8h_a0b98513a27eac00a953e521848763a90}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+P\+R\+E\+C\+H\+A\+R\+G\+E\+\_\+\+P\+E\+R\+I\+OD}~0x\+D9\hypertarget{oledmini_8h_a328ee7f248cfd3934fae5973d70bcf75}{}\label{oledmini_8h_a328ee7f248cfd3934fae5973d70bcf75}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+C\+O\+M\+\_\+\+P\+I\+N\+S\+\_\+\+C\+O\+NF}~0x\+DA\hypertarget{oledmini_8h_a371638c87db1234dec91f764602a6011}{}\label{oledmini_8h_a371638c87db1234dec91f764602a6011}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+V\+C\+O\+M\+H\+\_\+\+V\+O\+L\+T\+A\+GE}~0x\+DB\hypertarget{oledmini_8h_a6d61fba4dc3e1418910a8c325ec49998}{}\label{oledmini_8h_a6d61fba4dc3e1418910a8c325ec49998}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+N\+T\+E\+R\+\_\+\+R\+E\+A\+D\+\_\+\+M\+O\+D\+I\+F\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+M\+O\+DE}~0x\+E0\hypertarget{oledmini_8h_acba9926f0284ec97d292df2c8d3a9c99}{}\label{oledmini_8h_acba9926f0284ec97d292df2c8d3a9c99}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+N\+OP}~0x\+E3\hypertarget{oledmini_8h_a7fb2f0062ec49516bba54c5a50999264}{}\label{oledmini_8h_a7fb2f0062ec49516bba54c5a50999264}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+X\+I\+T\+\_\+\+R\+E\+A\+D\+\_\+\+M\+O\+D\+I\+F\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+M\+O\+DE}~0x\+EE\hypertarget{oledmini_8h_aa83c749bd1925575f772378fa0dcf4bc}{}\label{oledmini_8h_aa83c749bd1925575f772378fa0dcf4bc}
+
+\item 
+\#define \hyperlink{oledmini_8h_ad53dadf33a526ea57fe69088a52f11a1}{S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+W\+I\+D\+TH}~128
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+H\+E\+I\+G\+HT}~32\hypertarget{oledmini_8h_a24229c8d838d8394181db839d1cd64c6}{}\label{oledmini_8h_a24229c8d838d8394181db839d1cd64c6}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+H\+E\+I\+G\+H\+T\+\_\+\+B\+I\+T\+M\+A\+SK}~0x1F\hypertarget{oledmini_8h_a86b030d7f2d8a6e90b5fadbc6bf58f24}{}\label{oledmini_8h_a86b030d7f2d8a6e90b5fadbc6bf58f24}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+P\+A\+G\+E\+\_\+\+H\+E\+I\+G\+HT}~5\hypertarget{oledmini_8h_a96268511fe0dca02c40bbea09c6a497e}{}\label{oledmini_8h_a96268511fe0dca02c40bbea09c6a497e}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+H\+E\+I\+G\+HT}~40\hypertarget{oledmini_8h_ac9c6a26caafc9556cd4bf3b5969678be}{}\label{oledmini_8h_ac9c6a26caafc9556cd4bf3b5969678be}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+P\+A\+G\+E\+\_\+\+H\+E\+I\+G\+HT}~8\hypertarget{oledmini_8h_acbc66e5450c2acb9d5b17070aeaee191}{}\label{oledmini_8h_acbc66e5450c2acb9d5b17070aeaee191}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+P\+A\+G\+E\+\_\+\+H\+E\+I\+G\+H\+T\+\_\+\+B\+I\+T\+\_\+\+S\+H\+I\+FT}~3\hypertarget{oledmini_8h_a3e9a7e135afc9f96a1bc5f31a4d31a6e}{}\label{oledmini_8h_a3e9a7e135afc9f96a1bc5f31a4d31a6e}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+W\+I\+D\+T\+H\+\_\+\+B\+I\+T\+\_\+\+S\+H\+I\+FT}~7\hypertarget{oledmini_8h_a88db810d4e10abf50bb42d668095db76}{}\label{oledmini_8h_a88db810d4e10abf50bb42d668095db76}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+X\+\_\+\+O\+F\+F\+S\+ET}~4\hypertarget{oledmini_8h_a2675211b07dbd9a396baa2f442facab6}{}\label{oledmini_8h_a2675211b07dbd9a396baa2f442facab6}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+Y\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+H\+E\+I\+G\+HT}~64\hypertarget{oledmini_8h_a017049589625b638f6422fc61a01ea77}{}\label{oledmini_8h_a017049589625b638f6422fc61a01ea77}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+Y\+\_\+\+B\+U\+F\+F\+E\+R\+\_\+\+H\+E\+I\+G\+H\+T\+\_\+\+B\+I\+T\+M\+A\+SK}~0x3F\hypertarget{oledmini_8h_a9c0bbc8c4724039b1471f2c82b8c8c22}{}\label{oledmini_8h_a9c0bbc8c4724039b1471f2c82b8c8c22}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+S\+C\+R\+O\+L\+L\+\_\+\+S\+P\+E\+E\+D\+\_\+\+MS}~10\hypertarget{oledmini_8h_a56abaf6cb094d6c26e5bb553422fa33e}{}\label{oledmini_8h_a56abaf6cb094d6c26e5bb553422fa33e}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+S\+C\+R\+E\+E\+N\+\_\+\+P\+A\+G\+E\+\_\+\+H\+E\+I\+G\+HT}~4\hypertarget{oledmini_8h_a9c784d3e890e00c899add7d6de9a206f}{}\label{oledmini_8h_a9c784d3e890e00c899add7d6de9a206f}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+S\+C\+R\+E\+E\+N\+\_\+\+P\+A\+G\+E\+\_\+\+H\+E\+I\+G\+H\+T\+\_\+\+B\+I\+T\+M\+A\+SK}~0x03\hypertarget{oledmini_8h_a6cab4f9e82b40ec841e9534f02fb1255}{}\label{oledmini_8h_a6cab4f9e82b40ec841e9534f02fb1255}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+T\+O\+T\+A\+L\+\_\+\+P\+A\+G\+E\+\_\+\+H\+E\+I\+G\+HT}~8\hypertarget{oledmini_8h_a6ac5876442cf126c26e20f848613052d}{}\label{oledmini_8h_a6ac5876442cf126c26e20f848613052d}
+
+\item 
+\#define {\bfseries S\+S\+D1305\+\_\+\+T\+O\+T\+A\+L\+\_\+\+P\+A\+G\+E\+\_\+\+H\+E\+I\+G\+H\+T\+\_\+\+B\+I\+T\+M\+A\+SK}~0x07\hypertarget{oledmini_8h_a2bfe8a3f978d883264cdd64109022304}{}\label{oledmini_8h_a2bfe8a3f978d883264cdd64109022304}
+
+\item 
+\#define \hyperlink{oledmini_8h_a191498ec61b4660daf111e68bc228ad9}{mini\+Oled\+Normal\+Display}()                                      ~mini\+Oled\+Write\+Simple\+Command(S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+N\+T\+I\+R\+E\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+N\+R\+E\+V\+E\+R\+S\+ED)
+\item 
+\#define {\bfseries mini\+Oled\+Inverted\+Display}()                                  ~mini\+Oled\+Write\+Simple\+Command(S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+N\+T\+I\+R\+E\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+R\+E\+V\+E\+R\+S\+ED)\hypertarget{oledmini_8h_a5cc4fad8712c4248e823f5730b8a8709}{}\label{oledmini_8h_a5cc4fad8712c4248e823f5730b8a8709}
+
+\item 
+\#define \hyperlink{oledmini_8h_a3f3856065115a9c5a9c359cfce52dbbb}{O\+L\+E\+D\+D\+E\+B\+U\+G\+P\+R\+I\+N\+T\+F\+\_\+P}(args...)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries mini\+Oled\+On} (void)\hypertarget{oledmini_8h_ad39662a3f79cb9402ecd59dd6ab0cd5e}{}\label{oledmini_8h_ad39662a3f79cb9402ecd59dd6ab0cd5e}
+
+\item 
+void {\bfseries mini\+Oled\+Off} (void)\hypertarget{oledmini_8h_a80b09fc3c01d7d376891e6634327b401}{}\label{oledmini_8h_a80b09fc3c01d7d376891e6634327b401}
+
+\item 
+void {\bfseries mini\+Oled\+Reset\+XY} (void)\hypertarget{oledmini_8h_a902d3118828ce540d8f64fe36494fe02}{}\label{oledmini_8h_a902d3118828ce540d8f64fe36494fe02}
+
+\item 
+void {\bfseries mini\+Oled\+Init\+I\+Os} (void)\hypertarget{oledmini_8h_a829d8b3016ece05d5cdd169dc185df24}{}\label{oledmini_8h_a829d8b3016ece05d5cdd169dc185df24}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries mini\+Oled\+Putch} (char ch)\hypertarget{oledmini_8h_a6a463c76131a5ac67c27e4483d4cac58}{}\label{oledmini_8h_a6a463c76131a5ac67c27e4483d4cac58}
+
+\item 
+void {\bfseries mini\+Oled\+Reset\+Max\+TextY} (void)\hypertarget{oledmini_8h_a38c9169511eda34433104aa00d4e9079}{}\label{oledmini_8h_a38c9169511eda34433104aa00d4e9079}
+
+\item 
+void {\bfseries mini\+Oled\+Begin} (uint8\+\_\+t font)\hypertarget{oledmini_8h_a1acdc782ab057c7ef316967395ca461d}{}\label{oledmini_8h_a1acdc782ab057c7ef316967395ca461d}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries mini\+Oled\+Is\+Screen\+On} (void)\hypertarget{oledmini_8h_a01290fb885d4d6b6e1e84da8aadddeef}{}\label{oledmini_8h_a01290fb885d4d6b6e1e84da8aadddeef}
+
+\item 
+void {\bfseries mini\+Oled\+Dump\+Current\+Font} (void)\hypertarget{oledmini_8h_ae60b242c116464f9fc27dccba113dbd3}{}\label{oledmini_8h_ae60b242c116464f9fc27dccba113dbd3}
+
+\item 
+void {\bfseries mini\+Oled\+Clear\+Frame\+Buffer} (void)\hypertarget{oledmini_8h_a96bc0ff7d71d3c770ee67c1d585bf4ee}{}\label{oledmini_8h_a96bc0ff7d71d3c770ee67c1d585bf4ee}
+
+\item 
+void {\bfseries mini\+Oled\+Write\+Active\+Buffer} (void)\hypertarget{oledmini_8h_af8cbacd0a395f9ff8eb6ab976db12867}{}\label{oledmini_8h_af8cbacd0a395f9ff8eb6ab976db12867}
+
+\item 
+void {\bfseries mini\+Oled\+Display\+Other\+Buffer} (void)\hypertarget{oledmini_8h_a9241a019ac81b7c3385849c2b2b5cfc2}{}\label{oledmini_8h_a9241a019ac81b7c3385849c2b2b5cfc2}
+
+\item 
+void {\bfseries mini\+Oled\+Set\+Max\+TextY} (uint8\+\_\+t maxY)\hypertarget{oledmini_8h_a73a5630627f170c0481f6344c40c4609}{}\label{oledmini_8h_a73a5630627f170c0481f6344c40c4609}
+
+\item 
+void {\bfseries mini\+Oled\+Write\+Inactive\+Buffer} (void)\hypertarget{oledmini_8h_a2ee9140bb7f3941808c0185d3de22d75}{}\label{oledmini_8h_a2ee9140bb7f3941808c0185d3de22d75}
+
+\item 
+uint8\+\_\+t {\bfseries mini\+Oled\+Putstr} (const char $\ast$str)\hypertarget{oledmini_8h_a1c9c6e76cf674c25349f65b7b1a67786}{}\label{oledmini_8h_a1c9c6e76cf674c25349f65b7b1a67786}
+
+\item 
+void {\bfseries mini\+Oled\+Set\+Font} (uint8\+\_\+t font\+Index)\hypertarget{oledmini_8h_a1d8b2c310353a1a3d25878866eb92e3f}{}\label{oledmini_8h_a1d8b2c310353a1a3d25878866eb92e3f}
+
+\item 
+void {\bfseries mini\+Oled\+Set\+XY} (uint8\+\_\+t x, int8\+\_\+t y)\hypertarget{oledmini_8h_ac44649c53c97e353bc3042460936f281}{}\label{oledmini_8h_ac44649c53c97e353bc3042460936f281}
+
+\item 
+void {\bfseries mini\+Oled\+Check\+Flash\+Strings\+Width} (void)\hypertarget{oledmini_8h_ad02d1fe2f177d646b6735ec0c1cde1df}{}\label{oledmini_8h_ad02d1fe2f177d646b6735ec0c1cde1df}
+
+\item 
+void {\bfseries mini\+Oled\+Flush\+Written\+Text\+To\+Display} (void)\hypertarget{oledmini_8h_a22fb338c56ef5c9b7a3ad97bc6e4243a}{}\label{oledmini_8h_a22fb338c56ef5c9b7a3ad97bc6e4243a}
+
+\item 
+void {\bfseries mini\+Oled\+Write\+Simple\+Command} (uint8\+\_\+t reg)\hypertarget{oledmini_8h_a29c1089d6c03340c7e65dd54c33d0f0c}{}\label{oledmini_8h_a29c1089d6c03340c7e65dd54c33d0f0c}
+
+\item 
+void {\bfseries mini\+Oled\+Flush\+Entire\+Buffer\+To\+Display} (void)\hypertarget{oledmini_8h_ae9b72773264ab411e64eaf7b7a437360}{}\label{oledmini_8h_ae9b72773264ab411e64eaf7b7a437360}
+
+\item 
+void {\bfseries mini\+Oled\+Allow\+Text\+Writing\+Y\+Increment} (void)\hypertarget{oledmini_8h_a5a94d1d0a99d7334491416829217d27d}{}\label{oledmini_8h_a5a94d1d0a99d7334491416829217d27d}
+
+\item 
+void {\bfseries mini\+Oled\+Prevent\+Text\+Writing\+Y\+Increment} (void)\hypertarget{oledmini_8h_abf929282d6ccbf446a4610d3928e055d}{}\label{oledmini_8h_abf929282d6ccbf446a4610d3928e055d}
+
+\item 
+void {\bfseries mini\+Oled\+Dont\+Flush\+Written\+Text\+To\+Display} (void)\hypertarget{oledmini_8h_aac260eea12a5d84077f979f540a8e9c0}{}\label{oledmini_8h_aac260eea12a5d84077f979f540a8e9c0}
+
+\item 
+void {\bfseries mini\+Oled\+Set\+Contrast\+Current} (uint8\+\_\+t current)\hypertarget{oledmini_8h_a5602dcca48603513675698e68ddddd56}{}\label{oledmini_8h_a5602dcca48603513675698e68ddddd56}
+
+\item 
+uint8\+\_\+t {\bfseries mini\+Oled\+Put\+Centered\+String} (uint8\+\_\+t y, char $\ast$string)\hypertarget{oledmini_8h_a4cebbd456fce93bec7770d499e966996}{}\label{oledmini_8h_a4cebbd456fce93bec7770d499e966996}
+
+\item 
+uint8\+\_\+t {\bfseries mini\+Oled\+Glyph\+Draw} (uint8\+\_\+t x, uint8\+\_\+t y, char ch)\hypertarget{oledmini_8h_ae979c4330ed2219a1b26ad065db82bcb}{}\label{oledmini_8h_ae979c4330ed2219a1b26ad065db82bcb}
+
+\item 
+void {\bfseries mini\+Oled\+Bitmap\+Draw\+Raw} (uint8\+\_\+t x, uint8\+\_\+t y, \hyperlink{structbitstream__mini__t}{bitstream\+\_\+mini\+\_\+t} $\ast$bs)\hypertarget{oledmini_8h_af659cff2615bd37ee45b754c31ba8cc6}{}\label{oledmini_8h_af659cff2615bd37ee45b754c31ba8cc6}
+
+\item 
+void {\bfseries mini\+Oled\+Write\+Frame\+Buffer} (uint16\+\_\+t offset, uint8\+\_\+t $\ast$data, uint8\+\_\+t nb\+Bytes)\hypertarget{oledmini_8h_af522c4b41ec58464c72f1396c88ee707}{}\label{oledmini_8h_af522c4b41ec58464c72f1396c88ee707}
+
+\item 
+uint8\+\_\+t {\bfseries mini\+Oled\+Putstr\+XY} (uint8\+\_\+t x, uint8\+\_\+t y, uint8\+\_\+t justify, const char $\ast$str)\hypertarget{oledmini_8h_a7467fce16e58aea89c166ca47bc28712}{}\label{oledmini_8h_a7467fce16e58aea89c166ca47bc28712}
+
+\item 
+void {\bfseries mini\+Oled\+Bitmap\+Draw\+Flash} (uint8\+\_\+t x, int8\+\_\+t y, uint8\+\_\+t file\+Id, uint8\+\_\+t options)\hypertarget{oledmini_8h_a4f5f8dcfdc8c21d1898e73a7a7bc1c00}{}\label{oledmini_8h_a4f5f8dcfdc8c21d1898e73a7a7bc1c00}
+
+\item 
+void {\bfseries mini\+Oled\+Flush\+Buffer\+Contents} (uint8\+\_\+t xstart, uint8\+\_\+t xend, uint8\+\_\+t ystart, uint8\+\_\+t yend)\hypertarget{oledmini_8h_a4e5b98e4d71d2666dcafafcdd1fbe41d}{}\label{oledmini_8h_a4e5b98e4d71d2666dcafafcdd1fbe41d}
+
+\item 
+void {\bfseries mini\+Oled\+Draw\+Rectangle} (uint8\+\_\+t x, uint8\+\_\+t y, uint8\+\_\+t width, uint8\+\_\+t height, uint8\+\_\+t full)\hypertarget{oledmini_8h_af587743eda14b7fd54423f56c3bf29c5}{}\label{oledmini_8h_af587743eda14b7fd54423f56c3bf29c5}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+O\+L\+ED library header Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+
+
+
+\subsection{Macro Definition Documentation}
+\index{oledmini.\+h@{oledmini.\+h}!mini\+Oled\+Normal\+Display@{mini\+Oled\+Normal\+Display}}
+\index{mini\+Oled\+Normal\+Display@{mini\+Oled\+Normal\+Display}!oledmini.\+h@{oledmini.\+h}}
+\subsubsection[{\texorpdfstring{mini\+Oled\+Normal\+Display}{miniOledNormalDisplay}}]{\setlength{\rightskip}{0pt plus 5cm}\#define mini\+Oled\+Normal\+Display(
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)~mini\+Oled\+Write\+Simple\+Command(S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+E\+N\+T\+I\+R\+E\+\_\+\+D\+I\+S\+P\+L\+A\+Y\+\_\+\+N\+R\+E\+V\+E\+R\+S\+ED)}\hypertarget{oledmini_8h_a191498ec61b4660daf111e68bc228ad9}{}\label{oledmini_8h_a191498ec61b4660daf111e68bc228ad9}
+O\+NE L\+I\+NE F\+U\+N\+C\+T\+I\+O\+NS \index{oledmini.\+h@{oledmini.\+h}!O\+L\+E\+D\+D\+E\+B\+U\+G\+P\+R\+I\+N\+T\+F\+\_\+P@{O\+L\+E\+D\+D\+E\+B\+U\+G\+P\+R\+I\+N\+T\+F\+\_\+P}}
+\index{O\+L\+E\+D\+D\+E\+B\+U\+G\+P\+R\+I\+N\+T\+F\+\_\+P@{O\+L\+E\+D\+D\+E\+B\+U\+G\+P\+R\+I\+N\+T\+F\+\_\+P}!oledmini.\+h@{oledmini.\+h}}
+\subsubsection[{\texorpdfstring{O\+L\+E\+D\+D\+E\+B\+U\+G\+P\+R\+I\+N\+T\+F\+\_\+P}{OLEDDEBUGPRINTF_P}}]{\setlength{\rightskip}{0pt plus 5cm}\#define O\+L\+E\+D\+D\+E\+B\+U\+G\+P\+R\+I\+N\+T\+F\+\_\+P(
+\begin{DoxyParamCaption}
+\item[{}]{args...}
+\end{DoxyParamCaption}
+)}\hypertarget{oledmini_8h_a3f3856065115a9c5a9c359cfce52dbbb}{}\label{oledmini_8h_a3f3856065115a9c5a9c359cfce52dbbb}
+M\+A\+C\+R\+OS \index{oledmini.\+h@{oledmini.\+h}!S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+L\+O\+W\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR@{S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+L\+O\+W\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}}
+\index{S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+L\+O\+W\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR@{S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+L\+O\+W\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}!oledmini.\+h@{oledmini.\+h}}
+\subsubsection[{\texorpdfstring{S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+L\+O\+W\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}{SSD1305_CMD_SET_LOW_COLUMN_START_ADDR}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+S\+D1305\+\_\+\+C\+M\+D\+\_\+\+S\+E\+T\+\_\+\+L\+O\+W\+\_\+\+C\+O\+L\+U\+M\+N\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR~0x00}\hypertarget{oledmini_8h_a3aaceaef860d6057062572b7cfe46848}{}\label{oledmini_8h_a3aaceaef860d6057062572b7cfe46848}
+S\+S\+D1305 C\+O\+M\+M\+A\+N\+DS \index{oledmini.\+h@{oledmini.\+h}!S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+W\+I\+D\+TH@{S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+W\+I\+D\+TH}}
+\index{S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+W\+I\+D\+TH@{S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+W\+I\+D\+TH}!oledmini.\+h@{oledmini.\+h}}
+\subsubsection[{\texorpdfstring{S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+W\+I\+D\+TH}{SSD1305_OLED_WIDTH}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+S\+D1305\+\_\+\+O\+L\+E\+D\+\_\+\+W\+I\+D\+TH~128}\hypertarget{oledmini_8h_ad53dadf33a526ea57fe69088a52f11a1}{}\label{oledmini_8h_ad53dadf33a526ea57fe69088a52f11a1}
+D\+E\+F\+I\+N\+ES O\+L\+ED S\+C\+R\+E\+EN 

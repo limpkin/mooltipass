@@ -1,0 +1,52 @@
+\hypertarget{usb__descriptors_8c}{}\section{src/\+U\+S\+B/usb\+\_\+descriptors.c File Reference}
+\label{usb__descriptors_8c}\index{src/\+U\+S\+B/usb\+\_\+descriptors.\+c@{src/\+U\+S\+B/usb\+\_\+descriptors.\+c}}
+
+
+U\+SB descriptors Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include \char`\"{}usb\+\_\+descriptors.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries C\+O\+N\+F\+I\+G1\+\_\+\+D\+E\+S\+C\+\_\+\+S\+I\+ZE}~(9+9+9+7+7+9+9+7)\hypertarget{usb__descriptors_8c_a7ea3a7285947521961a27242b12e3a88}{}\label{usb__descriptors_8c_a7ea3a7285947521961a27242b12e3a88}
+
+\item 
+\#define {\bfseries R\+A\+W\+H\+I\+D\+\_\+\+H\+I\+D\+\_\+\+D\+E\+S\+C\+\_\+\+O\+F\+F\+S\+ET}~(9+9)\hypertarget{usb__descriptors_8c_a529069352e278ba49d81c8255e2370d1}{}\label{usb__descriptors_8c_a529069352e278ba49d81c8255e2370d1}
+
+\item 
+\#define {\bfseries K\+E\+Y\+B\+O\+A\+R\+D\+\_\+\+H\+I\+D\+\_\+\+D\+E\+S\+C\+\_\+\+O\+F\+F\+S\+ET}~(9+9+9+7+7+9)\hypertarget{usb__descriptors_8c_a9c21d6b9ec2ee3f341faca8674082718}{}\label{usb__descriptors_8c_a9c21d6b9ec2ee3f341faca8674082718}
+
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+const \hyperlink{structdescriptor__list__struct__t}{descriptor\+\_\+list\+\_\+struct\+\_\+t} P\+R\+O\+G\+M\+EM {\bfseries descriptor\+\_\+list} \mbox{[}9\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+U\+SB descriptors Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+
+
+
+\subsection{Variable Documentation}
+\index{usb\+\_\+descriptors.\+c@{usb\+\_\+descriptors.\+c}!descriptor\+\_\+list@{descriptor\+\_\+list}}
+\index{descriptor\+\_\+list@{descriptor\+\_\+list}!usb\+\_\+descriptors.\+c@{usb\+\_\+descriptors.\+c}}
+\subsubsection[{\texorpdfstring{descriptor\+\_\+list}{descriptor_list}}]{\setlength{\rightskip}{0pt plus 5cm}const {\bf descriptor\+\_\+list\+\_\+struct\+\_\+t} P\+R\+O\+G\+M\+EM descriptor\+\_\+list\mbox{[}9\mbox{]}}\hypertarget{usb__descriptors_8c_a13e4fd8d8a2935f35a4b3f9456d5f55c}{}\label{usb__descriptors_8c_a13e4fd8d8a2935f35a4b3f9456d5f55c}
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+=
+\{
+    \{0x0100, 0x0000, device\_descriptor, \textcolor{keyword}{sizeof}(device\_descriptor)\},
+    \{0x0200, 0x0000, config1\_descriptor, \textcolor{keyword}{sizeof}(config1\_descriptor)\},
+    \{0x2200, RAWHID\_INTERFACE, rawhid\_hid\_report\_desc, \textcolor{keyword}{sizeof}(rawhid\_hid\_report\_desc)\},
+    \{0x2100, RAWHID\_INTERFACE, config1\_descriptor+RAWHID\_HID\_DESC\_OFFSET, 9\},
+    \{0x2200, KEYBOARD\_INTERFACE, keyboard\_hid\_report\_desc, \textcolor{keyword}{sizeof}(keyboard\_hid\_report\_desc)\},
+    \{0x2100, KEYBOARD\_INTERFACE, config1\_descriptor+KEYBOARD\_HID\_DESC\_OFFSET, 9\},
+    \{0x0300, 0x0000, (\textcolor{keyword}{const} uint8\_t *)&string0, 4\},
+    \{0x0301, 0x0409, (\textcolor{keyword}{const} uint8\_t *)&string1, \textcolor{keyword}{sizeof}(STR\_MANUFACTURER)\},
+    \{0x0302, 0x0409, (\textcolor{keyword}{const} uint8\_t *)&string2, \textcolor{keyword}{sizeof}(STR\_PRODUCT)\}
+\}
+\end{DoxyCode}

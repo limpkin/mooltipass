@@ -1,43 +1,111 @@
-\hypertarget{mooltipass_8c}{\section{src/mooltipass.c File Reference}
+\hypertarget{mooltipass_8c}{}\section{src/mooltipass.c File Reference}
 \label{mooltipass_8c}\index{src/mooltipass.\+c@{src/mooltipass.\+c}}
-}
 
 
 main file Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}  
 
 
-{\ttfamily \#include $<$util/delay.\+h$>$}\\*
+{\ttfamily \#include $<$util/atomic.\+h$>$}\\*
+{\ttfamily \#include $<$avr/eeprom.\+h$>$}\\*
+{\ttfamily \#include $<$avr/boot.\+h$>$}\\*
 {\ttfamily \#include $<$stdlib.\+h$>$}\\*
 {\ttfamily \#include $<$avr/io.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
 {\ttfamily \#include $<$stdio.\+h$>$}\\*
 {\ttfamily \#include \char`\"{}smart\+\_\+card\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}touch\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}had\+\_\+mooltipass.\+h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}usb\+\_\+serial\+\_\+hid.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+smartcard\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+screen\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+basic\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+aes\+\_\+and\+\_\+comms.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}functional\+\_\+testing.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}eeprom\+\_\+addresses.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}define\+\_\+printouts.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}watchdog\+\_\+driver.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+smartcard.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb\+\_\+cmd\+\_\+parser.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}timer\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}bitstreammini.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oled\+\_\+wrapper.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}mini\+\_\+inputs.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}mooltipass.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}interrupts.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}smartcard.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}node\+\_\+mgmt.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}entropy.\+h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}oledmp.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}delays.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}tests.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}touch.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}anim.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}spi.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}pwm.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}rng.\+h\char`\"{}}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}{void \hyperlink{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}{disable\+\_\+jtag} (void)}\label{mooltipass_8c_ad504d32be0055a0ca60528abbf9f8ebf}
+int \hyperlink{mooltipass_8c_a840291bc02cba5474a4cb46a9b9566fe}{main} (void)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+bootloader\+\_\+f\+\_\+ptr\+\_\+type {\bfseries start\+\_\+bootloader} = (bootloader\+\_\+f\+\_\+ptr\+\_\+type)0x3800\hypertarget{mooltipass_8c_a78a9b31cf6c9dd5ce08d61348f312a1e}{}\label{mooltipass_8c_a78a9b31cf6c9dd5ce08d61348f312a1e}
 
-\begin{DoxyCompactList}\small\item\em Disable the J\+T\+A\+G module. \end{DoxyCompactList}\item 
-\hypertarget{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}{int \hyperlink{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}{main} (void)}\label{mooltipass_8c_a568b3afc214ba30be5bf526d6b27b611}
+\item 
+volatile uint8\+\_\+t {\bfseries was\+Caps\+Lock\+Timer\+Armed} = F\+A\+L\+SE\hypertarget{mooltipass_8c_a685a7b346fb14b8487f59bfca0a40352}{}\label{mooltipass_8c_a685a7b346fb14b8487f59bfca0a40352}
 
-\begin{DoxyCompactList}\small\item\em Main function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\item 
+uint8\+\_\+t {\bfseries mp\+\_\+timeout\+\_\+enabled} = F\+A\+L\+SE\hypertarget{mooltipass_8c_abdb5d3bc5f38748b673e225865b3691a}{}\label{mooltipass_8c_abdb5d3bc5f38748b673e225865b3691a}
+
+\item 
+uint8\+\_\+t {\bfseries act\+\_\+detected\+\_\+flag} = F\+A\+L\+SE\hypertarget{mooltipass_8c_a5cd471aca6296db005a8b34330bd1274}{}\label{mooltipass_8c_a5cd471aca6296db005a8b34330bd1274}
+
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
 main file Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]} 
 
+
+
+\subsection{Function Documentation}
+\index{mooltipass.\+c@{mooltipass.\+c}!main@{main}}
+\index{main@{main}!mooltipass.\+c@{mooltipass.\+c}}
+\subsubsection[{\texorpdfstring{main(void)}{main(void)}}]{\setlength{\rightskip}{0pt plus 5cm}int main (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{mooltipass_8c_a840291bc02cba5474a4cb46a9b9566fe}{}\label{mooltipass_8c_a840291bc02cba5474a4cb46a9b9566fe}
+J\+T\+AG F\+U\+SE A\+C\+T\+I\+O\+NS
+
+C\+H\+E\+CK F\+OR B\+O\+O\+T\+L\+O\+A\+D\+ER B\+R\+I\+CK
+
+F\+U\+SE V\+E\+R\+I\+F\+I\+C\+A\+T\+I\+O\+NS
+
+E\+L\+E\+C\+T\+R\+I\+C\+AL T\+E\+S\+T\+I\+NG
+
+J\+U\+M\+P\+I\+NG TO B\+O\+O\+T\+L\+O\+A\+D\+ER AT B\+O\+OT
+
+E\+E\+P\+R\+OM I\+N\+I\+T\+I\+A\+L\+I\+Z\+A\+T\+I\+O\+NS AT F\+I\+R\+ST B\+O\+OT
+
+C\+H\+A\+N\+GE IN M\+O\+O\+L\+T\+I\+P\+A\+SS S\+E\+T\+T\+I\+N\+GS S\+T\+O\+R\+A\+GE
+
+J\+U\+M\+P\+I\+NG TO B\+O\+O\+T\+L\+O\+A\+D\+ER F\+OR T\+E\+ST U\+N\+I\+TS
+
+H\+A\+R\+D\+W\+A\+RE I\+N\+I\+T\+I\+A\+L\+I\+Z\+A\+T\+I\+ON
+
+F\+L\+A\+SH I\+N\+I\+T\+I\+A\+L\+I\+Z\+A\+T\+I\+ON
+
+O\+L\+ED I\+N\+I\+T\+I\+A\+L\+I\+Z\+A\+T\+I\+ON
+
+F\+I\+R\+ST B\+O\+OT F\+L\+A\+SH \& E\+E\+P\+R\+OM I\+N\+I\+T\+I\+A\+L\+I\+Z\+A\+T\+I\+O\+NS
+
+T\+O\+U\+CH P\+A\+N\+EL I\+N\+I\+T\+I\+A\+L\+I\+Z\+A\+T\+I\+ON
+
+F\+U\+N\+C\+T\+I\+O\+N\+AL T\+E\+S\+T\+I\+NG
+
+B\+O\+OT S\+T\+OP IF E\+R\+R\+O\+RS
+
+C\+O\+R\+R\+E\+CT B\+O\+O\+K\+EY W\+R\+I\+TE 

@@ -1,0 +1,97 @@
+\hypertarget{logic__fwflash__storage_8c}{}\section{src/\+L\+O\+G\+I\+C/logic\+\_\+fwflash\+\_\+storage.c File Reference}
+\label{logic__fwflash__storage_8c}\index{src/\+L\+O\+G\+I\+C/logic\+\_\+fwflash\+\_\+storage.\+c@{src/\+L\+O\+G\+I\+C/logic\+\_\+fwflash\+\_\+storage.\+c}}
+
+
+Logic for storing/getting fw data in the dedicated flash storage Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+fwflash\+\_\+storage.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}hid\+\_\+defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}node\+\_\+mgmt.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries T\+E\+X\+T\+B\+U\+F\+F\+E\+R\+S\+I\+ZE}~32\hypertarget{logic__fwflash__storage_8c_a8c7768f2cf6a2022a4438cbf93c97002}{}\label{logic__fwflash__storage_8c_a8c7768f2cf6a2022a4438cbf93c97002}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__fwflash__storage_8c_a87bf4d8a7328e9a34bb82d84f133e69a}{get\+Stored\+File\+Addr} (uint16\+\_\+t file\+Id, uint16\+\_\+t $\ast$addr)
+\begin{DoxyCompactList}\small\item\em Get the flash address of a stored file. \end{DoxyCompactList}\item 
+char $\ast$ {\bfseries read\+Stored\+String\+To\+Buffer} (uint8\+\_\+t string\+ID)\hypertarget{logic__fwflash__storage_8c_a6a7ffda402d4cf2466d8be1878d016af}{}\label{logic__fwflash__storage_8c_a6a7ffda402d4cf2466d8be1878d016af}
+
+\item 
+uint8\+\_\+t \hyperlink{logic__fwflash__storage_8c_ac6163e667b9f472f5afc383aa380dfc0}{get\+Keyb\+Lut\+Entry\+For\+Layout} (uint8\+\_\+t layout, uint8\+\_\+t ascii\+\_\+char)
+\begin{DoxyCompactList}\small\item\em Get a keyboard L\+UT entry for a given layout. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t {\bfseries text\+Buffer1} \mbox{[}T\+E\+X\+T\+B\+U\+F\+F\+E\+R\+S\+I\+ZE\mbox{]}\hypertarget{logic__fwflash__storage_8c_a4e1c3d78c9be405b360972e0debbe44e}{}\label{logic__fwflash__storage_8c_a4e1c3d78c9be405b360972e0debbe44e}
+
+\item 
+uint8\+\_\+t {\bfseries text\+Buffer2} \mbox{[}T\+E\+X\+T\+B\+U\+F\+F\+E\+R\+S\+I\+ZE\mbox{]}\hypertarget{logic__fwflash__storage_8c_aee28102f9d9f61686b7b6816c38b9313}{}\label{logic__fwflash__storage_8c_aee28102f9d9f61686b7b6816c38b9313}
+
+\item 
+uint8\+\_\+t $\ast$ {\bfseries cur\+Text\+Buffer\+Ptr} = text\+Buffer1\hypertarget{logic__fwflash__storage_8c_aabb1726dd409718b597f7530b7af5404}{}\label{logic__fwflash__storage_8c_aabb1726dd409718b597f7530b7af5404}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Logic for storing/getting fw data in the dedicated flash storage Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+
+
+
+\subsection{Function Documentation}
+\index{logic\+\_\+fwflash\+\_\+storage.\+c@{logic\+\_\+fwflash\+\_\+storage.\+c}!get\+Keyb\+Lut\+Entry\+For\+Layout@{get\+Keyb\+Lut\+Entry\+For\+Layout}}
+\index{get\+Keyb\+Lut\+Entry\+For\+Layout@{get\+Keyb\+Lut\+Entry\+For\+Layout}!logic\+\_\+fwflash\+\_\+storage.\+c@{logic\+\_\+fwflash\+\_\+storage.\+c}}
+\subsubsection[{\texorpdfstring{get\+Keyb\+Lut\+Entry\+For\+Layout(uint8\+\_\+t layout, uint8\+\_\+t ascii\+\_\+char)}{getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char)}}]{\setlength{\rightskip}{0pt plus 5cm}get\+Keyb\+Lut\+Entry\+For\+Layout (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{layout, }
+\item[{uint8\+\_\+t}]{ascii\+\_\+char}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__fwflash__storage_8c_ac6163e667b9f472f5afc383aa380dfc0}{}\label{logic__fwflash__storage_8c_ac6163e667b9f472f5afc383aa380dfc0}
+
+
+Get a keyboard L\+UT entry for a given layout. 
+
+\begin{DoxyNote}{Note}
+No checking is performed on boundaries, must be done in calling function 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em layout} & Keyboard layout \\
+\hline
+{\em ascii\+\_\+char} & The ascii char \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The L\+UT entry 
+\end{DoxyReturn}
+\index{logic\+\_\+fwflash\+\_\+storage.\+c@{logic\+\_\+fwflash\+\_\+storage.\+c}!get\+Stored\+File\+Addr@{get\+Stored\+File\+Addr}}
+\index{get\+Stored\+File\+Addr@{get\+Stored\+File\+Addr}!logic\+\_\+fwflash\+\_\+storage.\+c@{logic\+\_\+fwflash\+\_\+storage.\+c}}
+\subsubsection[{\texorpdfstring{get\+Stored\+File\+Addr(uint16\+\_\+t file\+Id, uint16\+\_\+t $\ast$addr)}{getStoredFileAddr(uint16_t fileId, uint16_t *addr)}}]{\setlength{\rightskip}{0pt plus 5cm}get\+Stored\+File\+Addr (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{file\+Id, }
+\item[{uint16\+\_\+t $\ast$}]{addr}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__fwflash__storage_8c_a87bf4d8a7328e9a34bb82d84f133e69a}{}\label{logic__fwflash__storage_8c_a87bf4d8a7328e9a34bb82d84f133e69a}
+
+
+Get the flash address of a stored file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em file\+Id} & File ID \\
+\hline
+{\em addr} & Where to store the address \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+OK or R\+E\+T\+U\+R\+N\+\_\+\+N\+OK 
+\end{DoxyReturn}

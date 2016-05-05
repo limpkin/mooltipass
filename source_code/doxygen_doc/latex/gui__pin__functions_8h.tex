@@ -1,0 +1,61 @@
+\hypertarget{gui__pin__functions_8h}{}\section{src/\+G\+U\+I/gui\+\_\+pin\+\_\+functions.h File Reference}
+\label{gui__pin__functions_8h}\index{src/\+G\+U\+I/gui\+\_\+pin\+\_\+functions.\+h@{src/\+G\+U\+I/gui\+\_\+pin\+\_\+functions.\+h}}
+
+
+General user interface -\/ pin functions Created\+: 22/6/2014 Author\+: Mathieu Stephan.  
+
+
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries gui\+Display\+Pin\+On\+Pin\+Entering\+Screen} (uint8\+\_\+t $\ast$current\+\_\+pin, uint8\+\_\+t selected\+\_\+digit, uint8\+\_\+t string\+ID)\hypertarget{gui__pin__functions_8h_a875b6e795fa918db143dc316d9e6caa8}{}\label{gui__pin__functions_8h_a875b6e795fa918db143dc316d9e6caa8}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{gui__pin__functions_8h_a4b074f2d148a45ac627d2dc269163c70}{gui\+Get\+Pin\+From\+User} (volatile uint16\+\_\+t $\ast$pin\+\_\+code, uint8\+\_\+t string\+ID)
+\begin{DoxyCompactList}\small\item\em Ask the user to enter a P\+IN. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{gui__pin__functions_8h_a2b01f5d7bf57696015eb034a7a82f2b0}{gui\+Card\+Unlocking\+Process} (void)
+\begin{DoxyCompactList}\small\item\em Function called for the user to unlock his smartcard. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+General user interface -\/ pin functions Created\+: 22/6/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{gui\+\_\+pin\+\_\+functions.\+h@{gui\+\_\+pin\+\_\+functions.\+h}!gui\+Card\+Unlocking\+Process@{gui\+Card\+Unlocking\+Process}}
+\index{gui\+Card\+Unlocking\+Process@{gui\+Card\+Unlocking\+Process}!gui\+\_\+pin\+\_\+functions.\+h@{gui\+\_\+pin\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Card\+Unlocking\+Process(void)}{guiCardUnlockingProcess(void)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE gui\+Card\+Unlocking\+Process (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__pin__functions_8h_a2b01f5d7bf57696015eb034a7a82f2b0}{}\label{gui__pin__functions_8h_a2b01f5d7bf57696015eb034a7a82f2b0}
+
+
+Function called for the user to unlock his smartcard. 
+
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\index{gui\+\_\+pin\+\_\+functions.\+h@{gui\+\_\+pin\+\_\+functions.\+h}!gui\+Get\+Pin\+From\+User@{gui\+Get\+Pin\+From\+User}}
+\index{gui\+Get\+Pin\+From\+User@{gui\+Get\+Pin\+From\+User}!gui\+\_\+pin\+\_\+functions.\+h@{gui\+\_\+pin\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Get\+Pin\+From\+User(volatile uint16\+\_\+t $\ast$pin\+\_\+code, uint8\+\_\+t string\+I\+D)}{guiGetPinFromUser(volatile uint16_t *pin_code, uint8_t stringID)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE gui\+Get\+Pin\+From\+User (
+\begin{DoxyParamCaption}
+\item[{volatile uint16\+\_\+t $\ast$}]{pin\+\_\+code, }
+\item[{uint8\+\_\+t}]{string\+ID}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__pin__functions_8h_a4b074f2d148a45ac627d2dc269163c70}{}\label{gui__pin__functions_8h_a4b074f2d148a45ac627d2dc269163c70}
+
+
+Ask the user to enter a P\+IN. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pin\+\_\+code} & Pointer to where to store the pin code \\
+\hline
+{\em string\+ID} & String ID \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+If the user approved the request 
+\end{DoxyReturn}

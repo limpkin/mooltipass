@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['i2c_5fstart',['I2C_START',['../touch_8h.html#a4b22ba2f26e18d7a0b9b8d91c9ff1cb8',1,'touch.h']]],
-  ['i2c_5fstart_5ferror',['I2C_START_ERROR',['../touch_8h.html#ae05b002a716752327a40ca999d82542f',1,'touch.h']]]
+  ['check_5fpassword_5ftimer_5fval',['CHECK_PASSWORD_TIMER_VAL',['../logic__aes__and__comms_8h.html#ab02726c3e1661cb0f7b424ec6b4fb668',1,'logic_aes_and_comms.h']]],
+  ['clear_5ftwint_5fflag',['clear_twint_flag',['../touch_8h.html#a5b0f52ab9f2ac1e69c4b117d63ae1b57',1,'touch.h']]]
 ];

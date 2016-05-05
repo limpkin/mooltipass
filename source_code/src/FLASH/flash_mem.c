@@ -66,7 +66,9 @@ static inline void fillPageReadWriteEraseOpcodeFromAddress(uint16_t pageNumber, 
 
 /*! \fn     sendDataToFlashWithFourBytesOpcode(uint8_t* opcode, uint8_t* buffer, uint16_t buffer_size)
 *   \brief  Send data with a four bytes opcode to flash
-*   \param  opcode  Pointer to 4 bytes long opcode
+*   \param  opcode      Pointer to 4 bytes long opcode
+*   \param  buffer      Pointer to the buffer of data
+*   \param  buffer_size Length of the buffer
 */
 void sendDataToFlashWithFourBytesOpcode(uint8_t* opcode, uint8_t* buffer, uint16_t buffer_size)
 {

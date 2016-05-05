@@ -1,0 +1,57 @@
+\hypertarget{gui__basic__functions_8c}{}\section{src/\+G\+U\+I/gui\+\_\+basic\+\_\+functions.c File Reference}
+\label{gui__basic__functions_8c}\index{src/\+G\+U\+I/gui\+\_\+basic\+\_\+functions.\+c@{src/\+G\+U\+I/gui\+\_\+basic\+\_\+functions.\+c}}
+
+
+General user interface -\/ basic functions Created\+: 22/6/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include \char`\"{}touch\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+screen\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}timer\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oled\+\_\+wrapper.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}mini\+\_\+inputs.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}delays.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}anim.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}pwm.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \hyperlink{gui__basic__functions_8c_a84b2fcfda30b3c12d6907a944c1792ec}{is\+Screen\+Saver\+On} (void)
+\begin{DoxyCompactList}\small\item\em Returns screen saver bool. \end{DoxyCompactList}\item 
+void \hyperlink{gui__basic__functions_8c_a1d0ce41a5b759ba56995cbe44210c228}{activity\+Detected\+Routine} (void)\hypertarget{gui__basic__functions_8c_a1d0ce41a5b759ba56995cbe44210c228}{}\label{gui__basic__functions_8c_a1d0ce41a5b759ba56995cbe44210c228}
+
+\begin{DoxyCompactList}\small\item\em What to do when user activity has been detected. \end{DoxyCompactList}\item 
+void \hyperlink{gui__basic__functions_8c_a8f96eb2da1cc42517df7941b7930c0c9}{gui\+Main\+Loop} (void)\hypertarget{gui__basic__functions_8c_a8f96eb2da1cc42517df7941b7930c0c9}{}\label{gui__basic__functions_8c_a8f96eb2da1cc42517df7941b7930c0c9}
+
+\begin{DoxyCompactList}\small\item\em Main user interface loop. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t {\bfseries screen\+Saver\+On} = F\+A\+L\+SE\hypertarget{gui__basic__functions_8c_a4bf8b5860b59dd33d4928f3d29a190ba}{}\label{gui__basic__functions_8c_a4bf8b5860b59dd33d4928f3d29a190ba}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+General user interface -\/ basic functions Created\+: 22/6/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{gui\+\_\+basic\+\_\+functions.\+c@{gui\+\_\+basic\+\_\+functions.\+c}!is\+Screen\+Saver\+On@{is\+Screen\+Saver\+On}}
+\index{is\+Screen\+Saver\+On@{is\+Screen\+Saver\+On}!gui\+\_\+basic\+\_\+functions.\+c@{gui\+\_\+basic\+\_\+functions.\+c}}
+\subsubsection[{\texorpdfstring{is\+Screen\+Saver\+On(void)}{isScreenSaverOn(void)}}]{\setlength{\rightskip}{0pt plus 5cm}is\+Screen\+Saver\+On (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__basic__functions_8c_a84b2fcfda30b3c12d6907a944c1792ec}{}\label{gui__basic__functions_8c_a84b2fcfda30b3c12d6907a944c1792ec}
+
+
+Returns screen saver bool. 
+
+\begin{DoxyReturn}{Returns}
+screen saver bool 
+\end{DoxyReturn}

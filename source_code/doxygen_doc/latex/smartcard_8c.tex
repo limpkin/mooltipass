@@ -1,63 +1,69 @@
-\hypertarget{smartcard_8c}{\section{src/\+C\+A\+R\+D/smartcard.c File Reference}
+\hypertarget{smartcard_8c}{}\section{src/\+C\+A\+R\+D/smartcard.c File Reference}
 \label{smartcard_8c}\index{src/\+C\+A\+R\+D/smartcard.\+c@{src/\+C\+A\+R\+D/smartcard.\+c}}
-}
 
 
 Smart Card low level functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
 
 
 {\ttfamily \#include \char`\"{}smart\+\_\+card\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+aes\+\_\+and\+\_\+comms.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$util/delay\+\_\+basic.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+smartcard.\+h\char`\"{}}\\*
 {\ttfamily \#include $<$avr/interrupt.\+h$>$}\\*
-{\ttfamily \#include $<$util/delay.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}timer\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$util/atomic.\+h$>$}\\*
 {\ttfamily \#include \char`\"{}smartcard.\+h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}entropy.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}rng.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
 {\ttfamily \#include $<$avr/io.\+h$>$}\\*
 {\ttfamily \#include \char`\"{}utils.\+h\char`\"{}}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{smartcard_8c_a0ec95b1d2105b04b261b99f3e6506966}{void \hyperlink{smartcard_8c_a0ec95b1d2105b04b261b99f3e6506966}{clock\+Pulse\+S\+M\+C} (void)}\label{smartcard_8c_a0ec95b1d2105b04b261b99f3e6506966}
+void \hyperlink{smartcard_8c_a10e37832959b739074cd1ee76def34a6}{smartcard\+H\+Pulse\+Delay} (void)\hypertarget{smartcard_8c_a10e37832959b739074cd1ee76def34a6}{}\label{smartcard_8c_a10e37832959b739074cd1ee76def34a6}
+
+\begin{DoxyCompactList}\small\item\em 2us half pulse delay, specified by datasheet (min 3.\+3us/2) \end{DoxyCompactList}\item 
+void \hyperlink{smartcard_8c_a0ec95b1d2105b04b261b99f3e6506966}{clock\+Pulse\+S\+MC} (void)\hypertarget{smartcard_8c_a0ec95b1d2105b04b261b99f3e6506966}{}\label{smartcard_8c_a0ec95b1d2105b04b261b99f3e6506966}
 
 \begin{DoxyCompactList}\small\item\em Send a 4us H-\/$>$L clock pulse (datasheet\+: min 3.\+3us) \end{DoxyCompactList}\item 
-\hypertarget{smartcard_8c_ab022be0e7dcbcdae695f60641b609e6e}{void \hyperlink{smartcard_8c_ab022be0e7dcbcdae695f60641b609e6e}{inverted\+Clock\+Pulse\+S\+M\+C} (void)}\label{smartcard_8c_ab022be0e7dcbcdae695f60641b609e6e}
+void \hyperlink{smartcard_8c_ab022be0e7dcbcdae695f60641b609e6e}{inverted\+Clock\+Pulse\+S\+MC} (void)\hypertarget{smartcard_8c_ab022be0e7dcbcdae695f60641b609e6e}{}\label{smartcard_8c_ab022be0e7dcbcdae695f60641b609e6e}
 
 \begin{DoxyCompactList}\small\item\em Send a 4us L-\/$>$H clock pulse (datasheet\+: min 3.\+3us) \end{DoxyCompactList}\item 
-\hypertarget{smartcard_8c_a4b199cccbcc01e2d6fe0f9935f60d5e1}{void \hyperlink{smartcard_8c_a4b199cccbcc01e2d6fe0f9935f60d5e1}{clear\+Pgm\+Rst\+Signals} (void)}\label{smartcard_8c_a4b199cccbcc01e2d6fe0f9935f60d5e1}
+void \hyperlink{smartcard_8c_a4b199cccbcc01e2d6fe0f9935f60d5e1}{clear\+Pgm\+Rst\+Signals} (void)\hypertarget{smartcard_8c_a4b199cccbcc01e2d6fe0f9935f60d5e1}{}\label{smartcard_8c_a4b199cccbcc01e2d6fe0f9935f60d5e1}
 
-\begin{DoxyCompactList}\small\item\em Clear P\+G\+M / R\+S\+T signal for normal operation mode. \end{DoxyCompactList}\item 
-\hypertarget{smartcard_8c_aef96c0dfd3b886b7fd542ab908b2ba29}{void \hyperlink{smartcard_8c_aef96c0dfd3b886b7fd542ab908b2ba29}{set\+Pgm\+Rst\+Signals} (void)}\label{smartcard_8c_aef96c0dfd3b886b7fd542ab908b2ba29}
+\begin{DoxyCompactList}\small\item\em Clear P\+GM / R\+ST signal for normal operation mode. \end{DoxyCompactList}\item 
+void \hyperlink{smartcard_8c_aef96c0dfd3b886b7fd542ab908b2ba29}{set\+Pgm\+Rst\+Signals} (void)\hypertarget{smartcard_8c_aef96c0dfd3b886b7fd542ab908b2ba29}{}\label{smartcard_8c_aef96c0dfd3b886b7fd542ab908b2ba29}
 
-\begin{DoxyCompactList}\small\item\em Set P\+G\+M / R\+S\+T signal for standby mode. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Set P\+GM / R\+ST signal for standby mode. \end{DoxyCompactList}\item 
 void \hyperlink{smartcard_8c_a4aa11ef137e825d206aba775664bfcf3}{perform\+Low\+Level\+Write\+N\+Erase} (uint8\+\_\+t is\+\_\+write)
 \begin{DoxyCompactList}\small\item\em Perform a write or erase operation on the smart card. \end{DoxyCompactList}\item 
-\hypertarget{smartcard_8c_a9e51b7fbfdaaa845ef57c79191630094}{void \hyperlink{smartcard_8c_a9e51b7fbfdaaa845ef57c79191630094}{set\+S\+P\+I\+Mode\+S\+M\+C} (void)}\label{smartcard_8c_a9e51b7fbfdaaa845ef57c79191630094}
+void \hyperlink{smartcard_8c_a9e51b7fbfdaaa845ef57c79191630094}{set\+S\+P\+I\+Mode\+S\+MC} (void)\hypertarget{smartcard_8c_a9e51b7fbfdaaa845ef57c79191630094}{}\label{smartcard_8c_a9e51b7fbfdaaa845ef57c79191630094}
 
-\begin{DoxyCompactList}\small\item\em Activate S\+P\+I controller for the S\+M\+C. \end{DoxyCompactList}\item 
-\hypertarget{smartcard_8c_a0686788099ac2dbeb3d8549a3a2ed4d6}{void \hyperlink{smartcard_8c_a0686788099ac2dbeb3d8549a3a2ed4d6}{set\+B\+B\+Mode\+And\+Pgm\+Rst\+S\+M\+C} (void)}\label{smartcard_8c_a0686788099ac2dbeb3d8549a3a2ed4d6}
+\begin{DoxyCompactList}\small\item\em Activate S\+PI controller for the S\+MC. \end{DoxyCompactList}\item 
+void \hyperlink{smartcard_8c_a0686788099ac2dbeb3d8549a3a2ed4d6}{set\+B\+B\+Mode\+And\+Pgm\+Rst\+S\+MC} (void)\hypertarget{smartcard_8c_a0686788099ac2dbeb3d8549a3a2ed4d6}{}\label{smartcard_8c_a0686788099ac2dbeb3d8549a3a2ed4d6}
 
 \begin{DoxyCompactList}\small\item\em Switch to big banging, and clear pgm/rst signal for normal operation. \end{DoxyCompactList}\item 
-void \hyperlink{smartcard_8c_ab9b06f5a1c24f2d38da1acf5328ba5ee}{blow\+Manufacturer\+N\+Issuer\+Fuse} (uint8\+\_\+t bool\+\_\+man\+\_\+nissuer)
+void \hyperlink{smartcard_8c_a09441b5bc8b608f479168b32308eb70b}{blow\+Fuse} (uint8\+\_\+t fuse\+\_\+name)
 \begin{DoxyCompactList}\small\item\em Blow the manufacturer or issuer fuse. \end{DoxyCompactList}\item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{smartcard_8c_a8f3674d61b124fab1355c64654a5e0e6}{is\+Card\+Plugged} (void)
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{smartcard_8c_a8f3674d61b124fab1355c64654a5e0e6}{is\+Card\+Plugged} (void)
 \begin{DoxyCompactList}\small\item\em Know if a card is plugged. \end{DoxyCompactList}\item 
-\hypertarget{smartcard_8c_a6e6262630051d3f40928ac1e3cb533da}{void \hyperlink{smartcard_8c_a6e6262630051d3f40928ac1e3cb533da}{scan\+S\+M\+C\+Dectect} (void)}\label{smartcard_8c_a6e6262630051d3f40928ac1e3cb533da}
+void \hyperlink{smartcard_8c_a6e6262630051d3f40928ac1e3cb533da}{scan\+S\+M\+C\+Dectect} (void)\hypertarget{smartcard_8c_a6e6262630051d3f40928ac1e3cb533da}{}\label{smartcard_8c_a6e6262630051d3f40928ac1e3cb533da}
 
 \begin{DoxyCompactList}\small\item\em card detect debounce called by 1ms interrupt \end{DoxyCompactList}\item 
-void \hyperlink{smartcard_8c_aab47186412fabe10831ff2c5e50ef7eb}{erase\+Application\+Zone1\+N\+Zone2\+S\+M\+C} (uint8\+\_\+t zone1\+\_\+nzone2)
-\begin{DoxyCompactList}\small\item\em Set E1 or E2 flag by presenting the correct erase key (always F\+F\+F\+F...) and erase the A\+Z1 or A\+Z2. \end{DoxyCompactList}\item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{smartcard_8c_a40d2db6f8dae6d93ab4adfb8b31ec6fc}{security\+Validation\+S\+M\+C} (uint16\+\_\+t code)
+void \hyperlink{smartcard_8c_aab47186412fabe10831ff2c5e50ef7eb}{erase\+Application\+Zone1\+N\+Zone2\+S\+MC} (uint8\+\_\+t zone1\+\_\+nzone2)
+\begin{DoxyCompactList}\small\item\em Set E1 or E2 flag by presenting the correct erase key (always F\+F\+FF...) and erase the A\+Z1 or A\+Z2. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{smartcard_8c_a4f8a42ffa86fed03ee574f38f7bdd33c}{security\+Validation\+S\+MC} (volatile uint16\+\_\+t $\ast$code)
 \begin{DoxyCompactList}\small\item\em Check security code. \end{DoxyCompactList}\item 
-void \hyperlink{smartcard_8c_ab324702065e86b81a2e561b84f81bb0b}{write\+S\+M\+C} (uint16\+\_\+t start\+\_\+index\+\_\+bit, uint16\+\_\+t nb\+\_\+bits, uint8\+\_\+t $\ast$data\+\_\+to\+\_\+write)
+void \hyperlink{smartcard_8c_ab324702065e86b81a2e561b84f81bb0b}{write\+S\+MC} (uint16\+\_\+t start\+\_\+index\+\_\+bit, uint16\+\_\+t nb\+\_\+bits, uint8\+\_\+t $\ast$data\+\_\+to\+\_\+write)
 \begin{DoxyCompactList}\small\item\em Write bits to the smart card. \end{DoxyCompactList}\item 
-uint8\+\_\+t $\ast$ \hyperlink{smartcard_8c_a1f145e74bb413746f2f1bf3d0a9afe8d}{read\+S\+M\+C} (uint8\+\_\+t nb\+\_\+bytes\+\_\+total\+\_\+read, uint8\+\_\+t start\+\_\+record\+\_\+index, uint8\+\_\+t $\ast$data\+\_\+to\+\_\+receive)
+uint8\+\_\+t $\ast$ \hyperlink{smartcard_8c_a1f145e74bb413746f2f1bf3d0a9afe8d}{read\+S\+MC} (uint8\+\_\+t nb\+\_\+bytes\+\_\+total\+\_\+read, uint8\+\_\+t start\+\_\+record\+\_\+index, uint8\+\_\+t $\ast$data\+\_\+to\+\_\+receive)
 \begin{DoxyCompactList}\small\item\em Read bytes from the smart card. \end{DoxyCompactList}\item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}{first\+Detect\+Function\+S\+M\+C} (void)
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}{first\+Detect\+Function\+S\+MC} (void)
 \begin{DoxyCompactList}\small\item\em functions performed once the smart card is detected \end{DoxyCompactList}\item 
-\hypertarget{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}{void \hyperlink{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}{remove\+Function\+S\+M\+C} (void)}\label{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}
+void \hyperlink{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}{remove\+Function\+S\+MC} (void)\hypertarget{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}{}\label{smartcard_8c_ac6da77c515a91ad7d9914159d138c6d0}
 
 \begin{DoxyCompactList}\small\item\em functions performed once the smart card is removed \end{DoxyCompactList}\item 
-\hypertarget{smartcard_8c_a86d37cf01eedcc32280754a362def312}{void \hyperlink{smartcard_8c_a86d37cf01eedcc32280754a362def312}{init\+Port\+S\+M\+C} (void)}\label{smartcard_8c_a86d37cf01eedcc32280754a362def312}
+void \hyperlink{smartcard_8c_a86d37cf01eedcc32280754a362def312}{init\+Port\+S\+MC} (void)\hypertarget{smartcard_8c_a86d37cf01eedcc32280754a362def312}{}\label{smartcard_8c_a86d37cf01eedcc32280754a362def312}
 
 \begin{DoxyCompactList}\small\item\em Initialize smart card port. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
@@ -66,6 +72,8 @@ R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177
 volatile uint8\+\_\+t \hyperlink{smartcard_8c_af55ebeeedf982d795e0f28756ae9577d}{card\+\_\+detect\+\_\+counter} = 0
 \item 
 volatile uint8\+\_\+t \hyperlink{smartcard_8c_aaa57e33d72c7dafa663ac64b70b024a2}{button\+\_\+return}
+\item 
+volatile uint8\+\_\+t \hyperlink{smartcard_8c_ac9862226a45c1a9dda53707ac568ec8a}{card\+\_\+powered} = F\+A\+L\+SE
 \end{DoxyCompactItemize}
 
 
@@ -75,45 +83,45 @@ Smart Card low level functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu St
 
 
 \subsection{Function Documentation}
-\hypertarget{smartcard_8c_ab9b06f5a1c24f2d38da1acf5328ba5ee}{\index{smartcard.\+c@{smartcard.\+c}!blow\+Manufacturer\+N\+Issuer\+Fuse@{blow\+Manufacturer\+N\+Issuer\+Fuse}}
-\index{blow\+Manufacturer\+N\+Issuer\+Fuse@{blow\+Manufacturer\+N\+Issuer\+Fuse}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{blow\+Manufacturer\+N\+Issuer\+Fuse}]{\setlength{\rightskip}{0pt plus 5cm}blow\+Manufacturer\+N\+Issuer\+Fuse (
+\index{smartcard.\+c@{smartcard.\+c}!blow\+Fuse@{blow\+Fuse}}
+\index{blow\+Fuse@{blow\+Fuse}!smartcard.\+c@{smartcard.\+c}}
+\subsubsection[{\texorpdfstring{blow\+Fuse(uint8\+\_\+t fuse\+\_\+name)}{blowFuse(uint8_t fuse_name)}}]{\setlength{\rightskip}{0pt plus 5cm}blow\+Fuse (
 \begin{DoxyParamCaption}
-\item[{uint8\+\_\+t}]{bool\+\_\+man\+\_\+nissuer}
+\item[{uint8\+\_\+t}]{fuse\+\_\+name}
 \end{DoxyParamCaption}
-)}}\label{smartcard_8c_ab9b06f5a1c24f2d38da1acf5328ba5ee}
+)}\hypertarget{smartcard_8c_a09441b5bc8b608f479168b32308eb70b}{}\label{smartcard_8c_a09441b5bc8b608f479168b32308eb70b}
 
 
 Blow the manufacturer or issuer fuse. 
 
 
 \begin{DoxyParams}{Parameters}
-{\em bool\+\_\+man\+\_\+nissuer} & Boolean to indicate if we blow the manufacturer fuse \\
+{\em fuse\+\_\+name} & Which fuse to blow \\
 \hline
 \end{DoxyParams}
-\hypertarget{smartcard_8c_aab47186412fabe10831ff2c5e50ef7eb}{\index{smartcard.\+c@{smartcard.\+c}!erase\+Application\+Zone1\+N\+Zone2\+S\+M\+C@{erase\+Application\+Zone1\+N\+Zone2\+S\+M\+C}}
-\index{erase\+Application\+Zone1\+N\+Zone2\+S\+M\+C@{erase\+Application\+Zone1\+N\+Zone2\+S\+M\+C}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{erase\+Application\+Zone1\+N\+Zone2\+S\+M\+C}]{\setlength{\rightskip}{0pt plus 5cm}erase\+Application\+Zone1\+N\+Zone2\+S\+M\+C (
+\index{smartcard.\+c@{smartcard.\+c}!erase\+Application\+Zone1\+N\+Zone2\+S\+MC@{erase\+Application\+Zone1\+N\+Zone2\+S\+MC}}
+\index{erase\+Application\+Zone1\+N\+Zone2\+S\+MC@{erase\+Application\+Zone1\+N\+Zone2\+S\+MC}!smartcard.\+c@{smartcard.\+c}}
+\subsubsection[{\texorpdfstring{erase\+Application\+Zone1\+N\+Zone2\+S\+M\+C(uint8\+\_\+t zone1\+\_\+nzone2)}{eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2)}}]{\setlength{\rightskip}{0pt plus 5cm}erase\+Application\+Zone1\+N\+Zone2\+S\+MC (
 \begin{DoxyParamCaption}
 \item[{uint8\+\_\+t}]{zone1\+\_\+nzone2}
 \end{DoxyParamCaption}
-)}}\label{smartcard_8c_aab47186412fabe10831ff2c5e50ef7eb}
+)}\hypertarget{smartcard_8c_aab47186412fabe10831ff2c5e50ef7eb}{}\label{smartcard_8c_aab47186412fabe10831ff2c5e50ef7eb}
 
 
-Set E1 or E2 flag by presenting the correct erase key (always F\+F\+F\+F...) and erase the A\+Z1 or A\+Z2. 
+Set E1 or E2 flag by presenting the correct erase key (always F\+F\+FF...) and erase the A\+Z1 or A\+Z2. 
 
 
 \begin{DoxyParams}{Parameters}
 {\em zone1\+\_\+nzone2} & Zone 1 or Not Zone 2 \\
 \hline
 \end{DoxyParams}
-\hypertarget{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}{\index{smartcard.\+c@{smartcard.\+c}!first\+Detect\+Function\+S\+M\+C@{first\+Detect\+Function\+S\+M\+C}}
-\index{first\+Detect\+Function\+S\+M\+C@{first\+Detect\+Function\+S\+M\+C}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{first\+Detect\+Function\+S\+M\+C}]{\setlength{\rightskip}{0pt plus 5cm}first\+Detect\+Function\+S\+M\+C (
+\index{smartcard.\+c@{smartcard.\+c}!first\+Detect\+Function\+S\+MC@{first\+Detect\+Function\+S\+MC}}
+\index{first\+Detect\+Function\+S\+MC@{first\+Detect\+Function\+S\+MC}!smartcard.\+c@{smartcard.\+c}}
+\subsubsection[{\texorpdfstring{first\+Detect\+Function\+S\+M\+C(void)}{firstDetectFunctionSMC(void)}}]{\setlength{\rightskip}{0pt plus 5cm}first\+Detect\+Function\+S\+MC (
 \begin{DoxyParamCaption}
 \item[{void}]{}
 \end{DoxyParamCaption}
-)}}\label{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}
+)}\hypertarget{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}{}\label{smartcard_8c_a9ae9d75ff5ea3ba973c64cc162177f18}
 
 
 functions performed once the smart card is detected 
@@ -121,13 +129,13 @@ functions performed once the smart card is detected
 \begin{DoxyReturn}{Returns}
 The detection result (see card\+\_\+detect\+\_\+return\+\_\+t) 
 \end{DoxyReturn}
-\hypertarget{smartcard_8c_a8f3674d61b124fab1355c64654a5e0e6}{\index{smartcard.\+c@{smartcard.\+c}!is\+Card\+Plugged@{is\+Card\+Plugged}}
+\index{smartcard.\+c@{smartcard.\+c}!is\+Card\+Plugged@{is\+Card\+Plugged}}
 \index{is\+Card\+Plugged@{is\+Card\+Plugged}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{is\+Card\+Plugged}]{\setlength{\rightskip}{0pt plus 5cm}is\+Card\+Plugged (
+\subsubsection[{\texorpdfstring{is\+Card\+Plugged(void)}{isCardPlugged(void)}}]{\setlength{\rightskip}{0pt plus 5cm}is\+Card\+Plugged (
 \begin{DoxyParamCaption}
 \item[{void}]{}
 \end{DoxyParamCaption}
-)}}\label{smartcard_8c_a8f3674d61b124fab1355c64654a5e0e6}
+)}\hypertarget{smartcard_8c_a8f3674d61b124fab1355c64654a5e0e6}{}\label{smartcard_8c_a8f3674d61b124fab1355c64654a5e0e6}
 
 
 Know if a card is plugged. 
@@ -135,13 +143,13 @@ Know if a card is plugged.
 \begin{DoxyReturn}{Returns}
 just released/pressed, (non)detected 
 \end{DoxyReturn}
-\hypertarget{smartcard_8c_a4aa11ef137e825d206aba775664bfcf3}{\index{smartcard.\+c@{smartcard.\+c}!perform\+Low\+Level\+Write\+N\+Erase@{perform\+Low\+Level\+Write\+N\+Erase}}
+\index{smartcard.\+c@{smartcard.\+c}!perform\+Low\+Level\+Write\+N\+Erase@{perform\+Low\+Level\+Write\+N\+Erase}}
 \index{perform\+Low\+Level\+Write\+N\+Erase@{perform\+Low\+Level\+Write\+N\+Erase}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{perform\+Low\+Level\+Write\+N\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}perform\+Low\+Level\+Write\+N\+Erase (
+\subsubsection[{\texorpdfstring{perform\+Low\+Level\+Write\+N\+Erase(uint8\+\_\+t is\+\_\+write)}{performLowLevelWriteNErase(uint8_t is_write)}}]{\setlength{\rightskip}{0pt plus 5cm}perform\+Low\+Level\+Write\+N\+Erase (
 \begin{DoxyParamCaption}
 \item[{uint8\+\_\+t}]{is\+\_\+write}
 \end{DoxyParamCaption}
-)}}\label{smartcard_8c_a4aa11ef137e825d206aba775664bfcf3}
+)}\hypertarget{smartcard_8c_a4aa11ef137e825d206aba775664bfcf3}{}\label{smartcard_8c_a4aa11ef137e825d206aba775664bfcf3}
 
 
 Perform a write or erase operation on the smart card. 
@@ -151,15 +159,15 @@ Perform a write or erase operation on the smart card.
 {\em is\+\_\+write} & Boolean to indicate if it is a write \\
 \hline
 \end{DoxyParams}
-\hypertarget{smartcard_8c_a1f145e74bb413746f2f1bf3d0a9afe8d}{\index{smartcard.\+c@{smartcard.\+c}!read\+S\+M\+C@{read\+S\+M\+C}}
-\index{read\+S\+M\+C@{read\+S\+M\+C}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{read\+S\+M\+C}]{\setlength{\rightskip}{0pt plus 5cm}read\+S\+M\+C (
+\index{smartcard.\+c@{smartcard.\+c}!read\+S\+MC@{read\+S\+MC}}
+\index{read\+S\+MC@{read\+S\+MC}!smartcard.\+c@{smartcard.\+c}}
+\subsubsection[{\texorpdfstring{read\+S\+M\+C(uint8\+\_\+t nb\+\_\+bytes\+\_\+total\+\_\+read, uint8\+\_\+t start\+\_\+record\+\_\+index, uint8\+\_\+t $\ast$data\+\_\+to\+\_\+receive)}{readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t *data_to_receive)}}]{\setlength{\rightskip}{0pt plus 5cm}read\+S\+MC (
 \begin{DoxyParamCaption}
 \item[{uint8\+\_\+t}]{nb\+\_\+bytes\+\_\+total\+\_\+read, }
 \item[{uint8\+\_\+t}]{start\+\_\+record\+\_\+index, }
 \item[{uint8\+\_\+t $\ast$}]{data\+\_\+to\+\_\+receive}
 \end{DoxyParamCaption}
-)}}\label{smartcard_8c_a1f145e74bb413746f2f1bf3d0a9afe8d}
+)}\hypertarget{smartcard_8c_a1f145e74bb413746f2f1bf3d0a9afe8d}{}\label{smartcard_8c_a1f145e74bb413746f2f1bf3d0a9afe8d}
 
 
 Read bytes from the smart card. 
@@ -176,13 +184,13 @@ Read bytes from the smart card.
 \begin{DoxyReturn}{Returns}
 The buffer 
 \end{DoxyReturn}
-\hypertarget{smartcard_8c_a40d2db6f8dae6d93ab4adfb8b31ec6fc}{\index{smartcard.\+c@{smartcard.\+c}!security\+Validation\+S\+M\+C@{security\+Validation\+S\+M\+C}}
-\index{security\+Validation\+S\+M\+C@{security\+Validation\+S\+M\+C}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{security\+Validation\+S\+M\+C}]{\setlength{\rightskip}{0pt plus 5cm}security\+Validation\+S\+M\+C (
+\index{smartcard.\+c@{smartcard.\+c}!security\+Validation\+S\+MC@{security\+Validation\+S\+MC}}
+\index{security\+Validation\+S\+MC@{security\+Validation\+S\+MC}!smartcard.\+c@{smartcard.\+c}}
+\subsubsection[{\texorpdfstring{security\+Validation\+S\+M\+C(volatile uint16\+\_\+t $\ast$code)}{securityValidationSMC(volatile uint16_t *code)}}]{\setlength{\rightskip}{0pt plus 5cm}security\+Validation\+S\+MC (
 \begin{DoxyParamCaption}
-\item[{uint16\+\_\+t}]{code}
+\item[{volatile uint16\+\_\+t $\ast$}]{code}
 \end{DoxyParamCaption}
-)}}\label{smartcard_8c_a40d2db6f8dae6d93ab4adfb8b31ec6fc}
+)}\hypertarget{smartcard_8c_a4f8a42ffa86fed03ee574f38f7bdd33c}{}\label{smartcard_8c_a4f8a42ffa86fed03ee574f38f7bdd33c}
 
 
 Check security code. 
@@ -195,15 +203,15 @@ Check security code.
 \begin{DoxyReturn}{Returns}
 success\+\_\+status (see card\+\_\+detect\+\_\+return\+\_\+t) 
 \end{DoxyReturn}
-\hypertarget{smartcard_8c_ab324702065e86b81a2e561b84f81bb0b}{\index{smartcard.\+c@{smartcard.\+c}!write\+S\+M\+C@{write\+S\+M\+C}}
-\index{write\+S\+M\+C@{write\+S\+M\+C}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{write\+S\+M\+C}]{\setlength{\rightskip}{0pt plus 5cm}write\+S\+M\+C (
+\index{smartcard.\+c@{smartcard.\+c}!write\+S\+MC@{write\+S\+MC}}
+\index{write\+S\+MC@{write\+S\+MC}!smartcard.\+c@{smartcard.\+c}}
+\subsubsection[{\texorpdfstring{write\+S\+M\+C(uint16\+\_\+t start\+\_\+index\+\_\+bit, uint16\+\_\+t nb\+\_\+bits, uint8\+\_\+t $\ast$data\+\_\+to\+\_\+write)}{writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t *data_to_write)}}]{\setlength{\rightskip}{0pt plus 5cm}write\+S\+MC (
 \begin{DoxyParamCaption}
 \item[{uint16\+\_\+t}]{start\+\_\+index\+\_\+bit, }
 \item[{uint16\+\_\+t}]{nb\+\_\+bits, }
 \item[{uint8\+\_\+t $\ast$}]{data\+\_\+to\+\_\+write}
 \end{DoxyParamCaption}
-)}}\label{smartcard_8c_ab324702065e86b81a2e561b84f81bb0b}
+)}\hypertarget{smartcard_8c_ab324702065e86b81a2e561b84f81bb0b}{}\label{smartcard_8c_ab324702065e86b81a2e561b84f81bb0b}
 
 
 Write bits to the smart card. 
@@ -220,10 +228,13 @@ Write bits to the smart card.
 
 
 \subsection{Variable Documentation}
-\hypertarget{smartcard_8c_aaa57e33d72c7dafa663ac64b70b024a2}{\index{smartcard.\+c@{smartcard.\+c}!button\+\_\+return@{button\+\_\+return}}
+\index{smartcard.\+c@{smartcard.\+c}!button\+\_\+return@{button\+\_\+return}}
 \index{button\+\_\+return@{button\+\_\+return}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{button\+\_\+return}]{\setlength{\rightskip}{0pt plus 5cm}volatile uint8\+\_\+t button\+\_\+return}}\label{smartcard_8c_aaa57e33d72c7dafa663ac64b70b024a2}
-Current detection state, see detect\+\_\+return\+\_\+t \hypertarget{smartcard_8c_af55ebeeedf982d795e0f28756ae9577d}{\index{smartcard.\+c@{smartcard.\+c}!card\+\_\+detect\+\_\+counter@{card\+\_\+detect\+\_\+counter}}
+\subsubsection[{\texorpdfstring{button\+\_\+return}{button_return}}]{\setlength{\rightskip}{0pt plus 5cm}volatile uint8\+\_\+t button\+\_\+return}\hypertarget{smartcard_8c_aaa57e33d72c7dafa663ac64b70b024a2}{}\label{smartcard_8c_aaa57e33d72c7dafa663ac64b70b024a2}
+Current detection state, see detect\+\_\+return\+\_\+t \index{smartcard.\+c@{smartcard.\+c}!card\+\_\+detect\+\_\+counter@{card\+\_\+detect\+\_\+counter}}
 \index{card\+\_\+detect\+\_\+counter@{card\+\_\+detect\+\_\+counter}!smartcard.\+c@{smartcard.\+c}}
-\subsubsection[{card\+\_\+detect\+\_\+counter}]{\setlength{\rightskip}{0pt plus 5cm}volatile uint8\+\_\+t card\+\_\+detect\+\_\+counter = 0}}\label{smartcard_8c_af55ebeeedf982d795e0f28756ae9577d}
-Counter for successive card detects 
+\subsubsection[{\texorpdfstring{card\+\_\+detect\+\_\+counter}{card_detect_counter}}]{\setlength{\rightskip}{0pt plus 5cm}volatile uint8\+\_\+t card\+\_\+detect\+\_\+counter = 0}\hypertarget{smartcard_8c_af55ebeeedf982d795e0f28756ae9577d}{}\label{smartcard_8c_af55ebeeedf982d795e0f28756ae9577d}
+Counter for successive card detects \index{smartcard.\+c@{smartcard.\+c}!card\+\_\+powered@{card\+\_\+powered}}
+\index{card\+\_\+powered@{card\+\_\+powered}!smartcard.\+c@{smartcard.\+c}}
+\subsubsection[{\texorpdfstring{card\+\_\+powered}{card_powered}}]{\setlength{\rightskip}{0pt plus 5cm}volatile uint8\+\_\+t card\+\_\+powered = F\+A\+L\+SE}\hypertarget{smartcard_8c_ac9862226a45c1a9dda53707ac568ec8a}{}\label{smartcard_8c_ac9862226a45c1a9dda53707ac568ec8a}
+Smartcard power state 

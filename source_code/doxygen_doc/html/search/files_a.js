@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['tests_2ec',['tests.c',['../tests_8c.html',1,'']]],
-  ['touch_2ec',['touch.c',['../touch_8c.html',1,'']]],
-  ['touch_2eh',['touch.h',['../touch_8h.html',1,'']]],
-  ['touch_5fhigher_5flevel_5ffunctions_2ec',['touch_higher_level_functions.c',['../touch__higher__level__functions_8c.html',1,'']]],
-  ['touch_5fhigher_5flevel_5ffunctions_2eh',['touch_higher_level_functions.h',['../touch__higher__level__functions_8h.html',1,'']]]
+  ['oled_5fwrapper_2eh',['oled_wrapper.h',['../oled__wrapper_8h.html',1,'']]],
+  ['oledmini_2ec',['oledmini.c',['../oledmini_8c.html',1,'']]],
+  ['oledmini_2eh',['oledmini.h',['../oledmini_8h.html',1,'']]],
+  ['oledmp_2ec',['oledmp.c',['../oledmp_8c.html',1,'']]],
+  ['oledmp_2eh',['oledmp.h',['../oledmp_8h.html',1,'']]]
 ];

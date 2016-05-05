@@ -1,0 +1,60 @@
+\hypertarget{logic__smartcard_8h}{}\section{src/\+L\+O\+G\+I\+C/logic\+\_\+smartcard.h File Reference}
+\label{logic__smartcard_8h}\index{src/\+L\+O\+G\+I\+C/logic\+\_\+smartcard.\+h@{src/\+L\+O\+G\+I\+C/logic\+\_\+smartcard.\+h}}
+
+
+Firmware logic -\/ smartcard related tasks Created\+: 18/08/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries valid\+Card\+Detected\+Function} (uint16\+\_\+t $\ast$suggested\+\_\+pin)\hypertarget{logic__smartcard_8h_ac21677e8f8ad24a5f8e12a4fbcdacda9}{}\label{logic__smartcard_8h_ac21677e8f8ad24a5f8e12a4fbcdacda9}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries clone\+Smart\+Card\+Process} (volatile uint16\+\_\+t $\ast$pincode)\hypertarget{logic__smartcard_8h_a6e036c7d55d2e8faa45b39d18c612d55}{}\label{logic__smartcard_8h_a6e036c7d55d2e8faa45b39d18c612d55}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__smartcard_8h_af54e32216f5c242acc18214bb8b50773}{handle\+Smartcard\+Inserted} (void)
+\begin{DoxyCompactList}\small\item\em Here is where are handled all smartcard insertion logic. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__smartcard_8h_a630a0a7c4bd4afd3b2d7494691aabf7d}{remove\+Card\+And\+Re\+Auth\+User} (void)
+\begin{DoxyCompactList}\small\item\em Re-\/authentication process. \end{DoxyCompactList}\item 
+void \hyperlink{logic__smartcard_8h_a97fad42efd855220806df6c89e435244}{handle\+Smartcard\+Removed} (void)\hypertarget{logic__smartcard_8h_a97fad42efd855220806df6c89e435244}{}\label{logic__smartcard_8h_a97fad42efd855220806df6c89e435244}
+
+\begin{DoxyCompactList}\small\item\em Function called when smartcard is removed. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Firmware logic -\/ smartcard related tasks Created\+: 18/08/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{logic\+\_\+smartcard.\+h@{logic\+\_\+smartcard.\+h}!handle\+Smartcard\+Inserted@{handle\+Smartcard\+Inserted}}
+\index{handle\+Smartcard\+Inserted@{handle\+Smartcard\+Inserted}!logic\+\_\+smartcard.\+h@{logic\+\_\+smartcard.\+h}}
+\subsubsection[{\texorpdfstring{handle\+Smartcard\+Inserted(void)}{handleSmartcardInserted(void)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE handle\+Smartcard\+Inserted (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__smartcard_8h_af54e32216f5c242acc18214bb8b50773}{}\label{logic__smartcard_8h_af54e32216f5c242acc18214bb8b50773}
+
+
+Here is where are handled all smartcard insertion logic. 
+
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+OK if user is authenticated 
+\end{DoxyReturn}
+\index{logic\+\_\+smartcard.\+h@{logic\+\_\+smartcard.\+h}!remove\+Card\+And\+Re\+Auth\+User@{remove\+Card\+And\+Re\+Auth\+User}}
+\index{remove\+Card\+And\+Re\+Auth\+User@{remove\+Card\+And\+Re\+Auth\+User}!logic\+\_\+smartcard.\+h@{logic\+\_\+smartcard.\+h}}
+\subsubsection[{\texorpdfstring{remove\+Card\+And\+Re\+Auth\+User(void)}{removeCardAndReAuthUser(void)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE remove\+Card\+And\+Re\+Auth\+User (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__smartcard_8h_a630a0a7c4bd4afd3b2d7494691aabf7d}{}\label{logic__smartcard_8h_a630a0a7c4bd4afd3b2d7494691aabf7d}
+
+
+Re-\/authentication process. 
+
+\begin{DoxyReturn}{Returns}
+success or not 
+\end{DoxyReturn}

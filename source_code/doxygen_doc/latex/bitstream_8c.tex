@@ -1,6 +1,5 @@
-\hypertarget{bitstream_8c}{\section{src/\+O\+L\+E\+D\+M\+P/bitstream.c File Reference}
+\hypertarget{bitstream_8c}{}\section{src/\+O\+L\+E\+D\+M\+P/bitstream.c File Reference}
 \label{bitstream_8c}\index{src/\+O\+L\+E\+D\+M\+P/bitstream.\+c@{src/\+O\+L\+E\+D\+M\+P/bitstream.\+c}}
-}
 
 
 Bitmap streamer library. Allows a raw packed bitmap to be read as a sequence of pixels. Created\+: 15/2/2014 Author\+: Darran Hunt.  
@@ -8,108 +7,10 @@ Bitmap streamer library. Allows a raw packed bitmap to be read as a sequence of 
 
 {\ttfamily \#include $<$avr/pgmspace.\+h$>$}\\*
 {\ttfamily \#include \char`\"{}bitstream.\+h\char`\"{}}\\*
-{\ttfamily \#include \char`\"{}usb\+\_\+serial\+\_\+hid.\+h\char`\"{}}\\*
-\subsection*{Functions}
-\begin{DoxyCompactItemize}
-\item 
-void \hyperlink{bitstream_8c_a025bee9f9ca245ba9846b6ece1e9aa0b}{bs\+Init} (\hyperlink{structbitstream__t}{bitstream\+\_\+t} $\ast$bs, const uint8\+\_\+t pixel\+Depth, const uint8\+\_\+t flags, const uint16\+\_\+t $\ast$data, const uint16\+\_\+t size, bool flash)
-\item 
-uint16\+\_\+t \hyperlink{bitstream_8c_aa232ce5aedebf3e7c9062882fca31a95}{bs\+Read} (\hyperlink{structbitstream__t}{bitstream\+\_\+t} $\ast$bs, uint8\+\_\+t num\+Pixels)
-\item 
-uint16\+\_\+t \hyperlink{bitstream_8c_a023d7a4116924d99a5bfc675121d46af}{bs\+Compressed\+Read} (\hyperlink{structbitstream__t}{bitstream\+\_\+t} $\ast$bs, uint8\+\_\+t num\+Pixels)
-\item 
-uint16\+\_\+t \hyperlink{bitstream_8c_a3f619bc8d5758e70e659208fc858138b}{bs\+Available} (\hyperlink{structbitstream__t}{bitstream\+\_\+t} $\ast$bs)
-\end{DoxyCompactItemize}
+{\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb.\+h\char`\"{}}\\*
 
 
 \subsection{Detailed Description}
 Bitmap streamer library. Allows a raw packed bitmap to be read as a sequence of pixels. Created\+: 15/2/2014 Author\+: Darran Hunt. 
 
-
-
-\subsection{Function Documentation}
-\hypertarget{bitstream_8c_a3f619bc8d5758e70e659208fc858138b}{\index{bitstream.\+c@{bitstream.\+c}!bs\+Available@{bs\+Available}}
-\index{bs\+Available@{bs\+Available}!bitstream.\+c@{bitstream.\+c}}
-\subsubsection[{bs\+Available}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t bs\+Available (
-\begin{DoxyParamCaption}
-\item[{{\bf bitstream\+\_\+t} $\ast$}]{bs}
-\end{DoxyParamCaption}
-)}}\label{bitstream_8c_a3f619bc8d5758e70e659208fc858138b}
-Returns the number of pixels available to read 
-\begin{DoxyParams}{Parameters}
-{\em bs} & -\/ pointer to initialised bitstream context to check available pixels with \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-number of pixels available to read 
-\end{DoxyReturn}
-\hypertarget{bitstream_8c_a023d7a4116924d99a5bfc675121d46af}{\index{bitstream.\+c@{bitstream.\+c}!bs\+Compressed\+Read@{bs\+Compressed\+Read}}
-\index{bs\+Compressed\+Read@{bs\+Compressed\+Read}!bitstream.\+c@{bitstream.\+c}}
-\subsubsection[{bs\+Compressed\+Read}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t bs\+Compressed\+Read (
-\begin{DoxyParamCaption}
-\item[{{\bf bitstream\+\_\+t} $\ast$}]{bs, }
-\item[{uint8\+\_\+t}]{num\+Pixels}
-\end{DoxyParamCaption}
-)}}\label{bitstream_8c_a023d7a4116924d99a5bfc675121d46af}
-Return the next pixel from the R\+L\+E compressed bitmap 
-\begin{DoxyParams}{Parameters}
-{\em bs} & -\/ pointer to initialised bitstream context to read the next pixel from \\
-\hline
-{\em num\+Pixes} & -\/ the number of pixels to read, \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-next pixel, or 0 if end of data reached 
-\end{DoxyReturn}
-\begin{DoxyNote}{Note}
-returned pixes are 4 bits each 
-\end{DoxyNote}
-\hypertarget{bitstream_8c_a025bee9f9ca245ba9846b6ece1e9aa0b}{\index{bitstream.\+c@{bitstream.\+c}!bs\+Init@{bs\+Init}}
-\index{bs\+Init@{bs\+Init}!bitstream.\+c@{bitstream.\+c}}
-\subsubsection[{bs\+Init}]{\setlength{\rightskip}{0pt plus 5cm}void bs\+Init (
-\begin{DoxyParamCaption}
-\item[{{\bf bitstream\+\_\+t} $\ast$}]{bs, }
-\item[{const uint8\+\_\+t}]{pixel\+Depth, }
-\item[{const uint8\+\_\+t}]{flags, }
-\item[{const uint16\+\_\+t $\ast$}]{data, }
-\item[{const uint16\+\_\+t}]{size, }
-\item[{bool}]{flash}
-\end{DoxyParamCaption}
-)}}\label{bitstream_8c_a025bee9f9ca245ba9846b6ece1e9aa0b}
-Initialise a bitstream ready for use 
-\begin{DoxyParams}{Parameters}
-{\em bs} & -\/ pointer to the bitstream context to be used for the new bitmap \\
-\hline
-{\em pixel\+Depth} & -\/ number of bits per pixel in the bitmap \\
-\hline
-{\em flags} & -\/ bitmap format options (e.\+g. B\+S\+\_\+\+R\+L\+E for compressed bitmap) \\
-\hline
-{\em data} & -\/ pointer to the bitmap data (16 bit words with packed pixels) \\
-\hline
-{\em size} & -\/ number of pixels in the bitmap data \\
-\hline
-\end{DoxyParams}
-\begin{DoxyNote}{Note}
-the bitmap data must be packed into 16 bit words, and pixels are packed across words when they do not fully fit 
-\end{DoxyNote}
-\hypertarget{bitstream_8c_aa232ce5aedebf3e7c9062882fca31a95}{\index{bitstream.\+c@{bitstream.\+c}!bs\+Read@{bs\+Read}}
-\index{bs\+Read@{bs\+Read}!bitstream.\+c@{bitstream.\+c}}
-\subsubsection[{bs\+Read}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t bs\+Read (
-\begin{DoxyParamCaption}
-\item[{{\bf bitstream\+\_\+t} $\ast$}]{bs, }
-\item[{uint8\+\_\+t}]{num\+Pixels}
-\end{DoxyParamCaption}
-)}}\label{bitstream_8c_aa232ce5aedebf3e7c9062882fca31a95}
-Return the next pixel from the bitmap 
-\begin{DoxyParams}{Parameters}
-{\em bs} & -\/ pointer to initialised bitstream context to read the next pixel from \\
-\hline
-{\em num\+Pixes} & -\/ the number of pixels to read, \\
-\hline
-\end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-next pixel, or 0 if end of data reached 
-\end{DoxyReturn}
-\begin{DoxyNote}{Note}
-returned pixes are 4 bits each 
-\end{DoxyNote}

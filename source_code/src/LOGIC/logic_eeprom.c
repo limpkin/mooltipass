@@ -167,7 +167,7 @@ void deleteUserIdFromSMCUIDLUT(uint8_t userid)
 
 /*! \fn     findAvailableUserId(uint8_t* userid)
 *   \brief  Find an available user ID
-*   \param  Pointer where to store the found user id
+*   \param  userid  Pointer where to store the found user id
 *   \return Success status of the operation
 */
 RET_TYPE findAvailableUserId(uint8_t* userid)

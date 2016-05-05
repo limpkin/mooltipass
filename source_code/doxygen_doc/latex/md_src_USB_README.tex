@@ -1,0 +1,388 @@
+The Mooltipass will enumerate as a composite device with hid keyboard and generic hid classes. The keyboard interface is used for sending keypresses and the generic hid is used for transmitting data to/from pc side apps and plugins.
+
+Data sent over the generic hid is made out of a 64 byte packet. The structure of the packet is as follows\+:
+
+buffer\mbox{[}0\mbox{]} = length of data
+
+buffer\mbox{[}1\mbox{]} = cmd identifier for this packet
+
+buffer\mbox{[}2 till 2 + buffer\mbox{[}0\mbox{]}\mbox{]} = packet data
+
+\section*{Current commands }
+
+Every sent packet will get one or more packets as an answer. Texts sent to and from the Mooltipass have payload length that include the terminating 0. In case the user currently is entering his P\+IN, the MP will only reply with a 0x\+B9 packet. The following commands are currently implemented\+:
+
+\subsection*{0x\+A0\+: send debug message }
+
+From Mooltipass\+: packet data containing the debug message.
+
+\subsection*{0x\+A1\+: ping }
+
+From Plugin/app\+: ping packet with 4 bytes payload
+
+From Mooltipass\+: same packet that the plugin/app sent
+
+\subsection*{0x\+A2\+: version request }
+
+From Plugin/app\+: Mooltipass version request
+
+From Mooltipass\+: The first byte contains the F\+L\+A\+S\+H\+\_\+\+C\+H\+IP define which specifies how much memory the Mooltipass has. The rest is a string identifying the version
+
+\subsection*{0x\+A3\+: set context }
+
+From Plugin/app\+: this allows the plugin/application to let the mooltipass know the website/service he\textquotesingle{}s currently on
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the Mooltipass doesn\textquotesingle{}t know the context, 0x01 if so and 0x03 that there\textquotesingle{}s no card in the mooltipass
+
+\subsection*{0x\+A4\+: get login }
+
+From plugin/app\+: request the login for the current context
+
+From Mooltipass\+: the login if the user has approved the sending of credential / has been authorized, 1 byte 0x00 packet otherwise.
+
+\subsection*{0x\+A5\+: get password }
+
+From plugin/app\+: request the password for the current context \& login
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the Mooltipass didn\textquotesingle{}t send the password, data otherwise.
+
+\subsection*{0x\+A6\+: set login }
+
+From plugin/app\+: set the login for the current context (either create a credential or select a given credential set)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+A7\+: set password }
+
+From plugin/app\+: set the password for the current context
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+A8\+: check password }
+
+From plugin/app\+: check the password for the current context \& selected login
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that password is not correct, 0x01 indicates the password is correct, 0x02 indicates the timer is still running so the request is blocked
+
+\subsection*{0x\+A9\+: add context }
+
+From plugin/app\+: add a new context inside the mooltipass
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+AC\+: Get random number }
+
+From plugin/app\+: Ask 32 random bytes
+
+From Mooltipass\+: The 32 random bytes
+
+\subsection*{0x\+AD\+: Start memory management mode }
+
+From plugin/app\+: Ask the user to approve memory management mode
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+AE\+: Media import start }
+
+From plugin/app\+: Request for media contents sending to Mooltipass.
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+AF\+: Media import }
+
+From plugin/app\+: A bunch of data to store inside the media part of flash, particularly formatted (see source files)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+B0\+: Media import end }
+
+From plugin/app\+: Inform that we finished the media flash import
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+B1\+: Set Mooltipass parameter }
+
+From plugin/app\+: Set Mooltipass parameter, first byte is the param ID, second is the value
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+B2\+: Get Mooltipass parameter }
+
+From plugin/app\+: Get parameter from Mooltipass, first byte is the param ID
+
+From Mooltipass\+: The param value
+
+\subsection*{0x\+B3\+: Reset card }
+
+From plugin/app\+: Reset inserted card
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+B4\+: Read Card Login }
+
+From plugin/app\+: Read login stored inside the smartcard (no confirmation asked from the user)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, data otherwise
+
+\subsection*{0x\+B5\+: Read Card Password }
+
+From plugin/app\+: Read password stored inside the smartcard (confirmation asked to the user)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, data otherwise
+
+\subsection*{0x\+B6\+: Set Card Login }
+
+From plugin/app\+: Set login stored inside the smartcard, 62bytes max length (confirmation asked to the user)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+B7\+: Set Card Password }
+
+From plugin/app\+: Set password stored inside the smartcard, 30bytes max length (confirmation asked to the user)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+B8\+: Add unknown smartcard }
+
+From plugin/app\+: When an unknown smartcard is inserted, tell the Mooltipass to store it. First 8 bytes are the current card C\+PZ, 16 next bytes are our user C\+TR value
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, data otherwise
+
+\subsection*{0x\+B9\+: Mooltipass status }
+
+From plugin/app\+: Query Mooltipass status
+
+From Mooltipass\+: 1 bytes bit field. B\+I\+T0\+: smartcard presence. B\+I\+T1\+: pin unlocking screen. B\+I\+T2\+: smartcard present and unlocked. B\+I\+T3\+: Unknown smartcard inserted
+
+
+\begin{DoxyCode}
+1 0b000 -> No Card
+2 0b001 -> Locked
+3 0b010 -> Error (shouldn't happen)
+4 0b011 -> Locked (unlocking screen)
+5 0b100 -> Error (shouldn't happen)
+6 0b101 -> Unlocked
+7 0b110 -> Error (shouldn't happen)
+8 0b111 -> Error (shouldn't happen)
+\end{DoxyCode}
+
+
+\subsection*{0x\+BB\+: Set current date }
+
+From plugin/app\+: Set current date (16 bits encoding\+: 15 dn 9 -\/$>$ Year (2010 + val), 8 dn 5 -\/$>$ Month, 4 dn 0 -\/$>$ Day of Month)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+BC\+: Set Mooltipass U\+ID }
+
+From plugin/app\+: Set the Mooltipass U\+ID, 16 + 6 bytes packet with the request key and the U\+ID
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, data otherwise
+
+\subsection*{0x\+BD\+: Get Mooltipass U\+ID }
+
+From plugin/app\+: Get Mooltipass U\+ID. The 16 bytes request key must be sent
+
+From Mooltipass\+: Either a one byte packet when an error occurs or the mooltipass U\+ID
+
+\subsection*{0x\+BE\+: set data context }
+
+From Plugin/app\+: this allows the plugin/application to let the mooltipass know the data service he\textquotesingle{}s currently on
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the Mooltipass doesn\textquotesingle{}t know the context, 0x01 if so and 0x03 that there\textquotesingle{}s no card in the mooltipass
+
+\subsection*{0x\+BF\+: add data context }
+
+From plugin/app\+: add a new data context inside the mooltipass
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+C0\+: Write 32 bytes in current context }
+
+From plugin/app\+: add 32 bytes of data to the current data context. If first byte different to 0, means it is the last 32B block. 32 bytes data block starts at payload\mbox{[}1\mbox{]}
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+C1\+: Read 32 bytes in current context }
+
+From plugin/app\+: after a set data context has been sent, get successive 32bytes data blocks
+
+From Mooltipass\+: 0x00 when error or end of data, 32 bytes of data otherwise
+
+\subsection*{0x\+C2\+: Get current card C\+PZ }
+
+From plugin/app\+: ask the C\+PZ of the currently inserted card, when unknown card is inserted
+
+From Mooltipass\+: 0x00 when error or end of data, the C\+PZ otherwise
+
+\subsection*{0x\+C3\+: Cancel User Request }
+
+From plugin/app\+: cancel input request from user
+
+\subsection*{0x\+C4\+: Please Retry }
+
+From Mooltipass\+: Message informing the app to re-\/send the previous packet
+
+\section*{Commands in data management mode }
+
+\subsection*{0x\+C5\+: Read node in flash }
+
+From plugin/app\+: With two bytes indicating the node number, read a user node in flash
+
+From Mooltipass\+: The node or 0x00 when error
+
+\subsection*{0x\+C6\+: Write node in flash }
+
+From plugin/app\+: With two bytes indicating the node number and another indicating the packet \#, write a node in flash. See source for data formatting
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+C7\+: Get Favorite }
+
+From plugin/app\+: Get favorite for current user, first byte is the slot ID
+
+From Mooltipass\+: 0x00 if not performed, 4 bytes of data otherwise (parent + child addr)
+
+\subsection*{0x\+C8\+: Set favorite }
+
+From plugin/app\+: First byte indicates fav\+Id, next 2 the parent addr, next 2 the child addr
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+C9\+: Get Starting parent Address }
+
+From plugin/app\+: In management mode, get the address of the starting parent
+
+From Mooltipass\+: 0x00 if failure, slot address otherwise
+
+\subsection*{0x\+CA\+: Set starting parent }
+
+From plugin/app\+: First two bytes is the new starting parent (L\+SB first)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+CB\+: Get C\+TR value }
+
+From plugin/app\+: In management mode, get the current user C\+TR value
+
+From Mooltipass\+: 0x00 if failure, C\+TR value otherwise
+
+\subsection*{0x\+CC\+: Set C\+TR value }
+
+From plugin/app\+: First three bytes is the new C\+TR value
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+CD\+: Add C\+PZ C\+TR value }
+
+From plugin/app\+: Add a known card to the MP, 8 first bytes is the C\+PZ, next 16 is the C\+TR nonce
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+CE\+: Get C\+PZ C\+TR value }
+
+From plugin/app\+: Get all the cpz ctr values for current user
+
+From Mooltipass\+: 0x00 if denied, 0x\+CF packets for L\+UT entries, then a final 0x01
+
+\subsection*{0x\+CF\+: C\+PZ C\+TR packet export }
+
+From Mooltipass\+: One C\+PZ C\+TR L\+UT entry packet
+
+\subsection*{0x\+D0\+: Get Free Slot Addresses }
+
+From plugin/app\+: 2 bytes payload indicating the address to start scanning from (in doubt, set 0x00 0x00).
+
+From Mooltipass\+: 0x00 if failure, 31 slot addresses max otherwise (see payload length field)
+
+\subsection*{0x\+D1\+: Get Starting data parent Address }
+
+From plugin/app\+: In management mode, get the address of the data starting parent
+
+From Mooltipass\+: 0x00 if failure, slot address otherwise
+
+\subsection*{0x\+D2\+: Set starting data parent }
+
+From plugin/app\+: First two bytes is the new data starting parent (L\+SB first)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x\+D3\+: End memory management mode }
+
+From plugin/app\+: Leave memory management mode
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\section*{Obsolete commands }
+
+\subsection*{0x8A\+: export flash start (for full import/export fw version) }
+
+From plugin/app\+: Request for flash contents export to Mooltipass.
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x8B\+: export flash (for full import/export fw version) }
+
+From plugin/app\+: request for a bunch of data
+
+From Mooltipass\+: the bunch of requested data
+
+\subsection*{0x8C\+: export flash end (for full import/export fw version) }
+
+From plugin/app\+: stop flash export
+
+From Mooltipass\+: end of flash export
+
+\subsection*{0x8D\+: import flash start (for full import/export fw version) }
+
+From plugin/app\+: Request for flash contents sending to Mooltipass. A 0x00 in parameter implies user space while a 0x01 specifies the graphics part of flash
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x8E\+: import flash (for full import/export fw version) }
+
+From plugin/app\+: A bunch of data to store inside the flash, particularly formatted (see source files)
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x8F\+: import flash end (for full import/export fw version) }
+
+From plugin/app\+: Inform that we finished the flash import
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x90\+: export eeprom start (for full import/export fw version) }
+
+From plugin/app\+: Request for eeprom contents export to Mooltipass.
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x91\+: export eeprom (for full import/export fw version) }
+
+From plugin/app\+: export eeprom contents request
+
+From Mooltipass\+: the bunch of requested data
+
+\subsection*{0x92\+: export eeprom end (for full import/export fw version) }
+
+From plugin/app\+: stop eeprom export
+
+From Mooltipass\+: end of eeprom export
+
+\subsection*{0x93\+: import eeprom start (for full import/export fw version) }
+
+From plugin/app\+: Request for eeprom contents sending to Mooltipass.
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x94\+: import eeprom (for full import/export fw version) }
+
+From plugin/app\+: A bunch of data to store inside the eeprom
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so
+
+\subsection*{0x95\+: import eeprom end (for full import/export fw version) }
+
+From plugin/app\+: Inform that we finished the flash import
+
+From Mooltipass\+: 1 byte data packet, 0x00 indicates that the request wasn\textquotesingle{}t performed, 0x01 if so 

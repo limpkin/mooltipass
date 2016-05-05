@@ -1,0 +1,52 @@
+\hypertarget{gui__smartcard__functions_8c}{}\section{src/\+G\+U\+I/gui\+\_\+smartcard\+\_\+functions.c File Reference}
+\label{gui__smartcard__functions_8c}\index{src/\+G\+U\+I/gui\+\_\+smartcard\+\_\+functions.\+c@{src/\+G\+U\+I/gui\+\_\+smartcard\+\_\+functions.\+c}}
+
+
+General user interface -\/ smartcard functions Created\+: 22/6/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}smart\+\_\+card\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}touch\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+screen\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+basic\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+aes\+\_\+and\+\_\+comms.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+smartcard.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}timer\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oled\+\_\+wrapper.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}mini\+\_\+inputs.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}hid\+\_\+defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes256\+\_\+ctr.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}delays.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}anim.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{gui__smartcard__functions_8c_a38959fcaa1cf0ebfe324be0c508ff2e9}{gui\+Display\+Insert\+Smart\+Card\+Screen\+And\+Wait} (void)
+\begin{DoxyCompactList}\small\item\em Ask for the user to insert his smart card. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+General user interface -\/ smartcard functions Created\+: 22/6/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{gui\+\_\+smartcard\+\_\+functions.\+c@{gui\+\_\+smartcard\+\_\+functions.\+c}!gui\+Display\+Insert\+Smart\+Card\+Screen\+And\+Wait@{gui\+Display\+Insert\+Smart\+Card\+Screen\+And\+Wait}}
+\index{gui\+Display\+Insert\+Smart\+Card\+Screen\+And\+Wait@{gui\+Display\+Insert\+Smart\+Card\+Screen\+And\+Wait}!gui\+\_\+smartcard\+\_\+functions.\+c@{gui\+\_\+smartcard\+\_\+functions.\+c}}
+\subsubsection[{\texorpdfstring{gui\+Display\+Insert\+Smart\+Card\+Screen\+And\+Wait(void)}{guiDisplayInsertSmartCardScreenAndWait(void)}}]{\setlength{\rightskip}{0pt plus 5cm}gui\+Display\+Insert\+Smart\+Card\+Screen\+And\+Wait (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__smartcard__functions_8c_a38959fcaa1cf0ebfe324be0c508ff2e9}{}\label{gui__smartcard__functions_8c_a38959fcaa1cf0ebfe324be0c508ff2e9}
+
+
+Ask for the user to insert his smart card. 
+
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+OK if the user inserted and unlocked his smartcard 
+\end{DoxyReturn}

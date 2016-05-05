@@ -1,0 +1,107 @@
+\#\+Node Management Library for Mooltipass Michael Neiderhauser Jun-\/15-\/2014
+
+Files\+:
+\begin{DoxyItemize}
+\item \hyperlink{node__mgmt_8c}{node\+\_\+mgmt.\+c}
+\item \hyperlink{node__mgmt_8h}{node\+\_\+mgmt.\+h}
+\end{DoxyItemize}
+
+The Node Management Library was written to be the primary flash data structure for the Mooltipass. The Node Management Library makes use of the Flash Memory Library for Mooltipass. The library is implemented as a linked list.
+
+Details about the node layout as well as how they are represented in memory can be found at the link below\+: \href{https://docs.google.com/drawings/d/1og2-RgrFOL5XlW0ICNUDv2R0IQK8geOhonX9XfuuFjk/edit}{\tt https\+://docs.\+google.\+com/drawings/d/1og2-\/\+Rgr\+F\+O\+L5\+Xl\+W0\+I\+C\+N\+U\+Dv2\+R0\+I\+Q\+K8ge\+Ohon\+X9\+Xfuu\+Fjk/edit}
+
+Currently basic credential storage has been implemented and tested. There are still a few features that need to be implemented and they should arrive soon. Some of the features in the Node Management Library require Mooltipass plugin support.
+
+Nodes are stored in a stack and heap layout. All nodes are doubly linked. A parent node and child node (child node start of data, or data node) can co-\/exist on the same memory page.
+
+The Node Management library requires the user to provide allocated space of a handle. The user should not directly modify this handle. The Node Management library also implements support for basic user profiles. A user profile is used to store the users first parent node (credential) and is used to allow a user to store \textquotesingle{}favourite\textquotesingle{} credentials. There are a maximum of 16 favourites allowed and a total of 16 possible users.
+
+\subsection*{Node Details}
+
+\subsubsection*{Parent Node}
+
+Used to store the base \textquotesingle{}service\textquotesingle{} of a credential.
+\begin{DoxyItemize}
+\item flags (used internally to indicate validity and type of the node. associates user id with the node)
+\item next\+Child\+Address (Node Address of the parents first child)
+\item prev\+Parent\+Address (Used to implement the linked list)
+\item next\+Parent\+Address (Used to implement the linked list)
+\item service\mbox{[}58\mbox{]} (Used to indicate the \textquotesingle{}service\textquotesingle{} of the credential ex \textquotesingle{}hackaday.\+io\textquotesingle{})
+\end{DoxyItemize}
+
+\subsubsection*{Child Node}
+
+Used to store the user name and password of a credential flags (used internally to indicate validity and type of the node) prev\+Child\+Address (Used to implement the linked list) next\+Child\+Address (Used to implement the linked list) description\mbox{[}24\mbox{]} (Plain-\/text description of the credential) date\+Created (Date the credential was first added to the Mooltipass. plug-\/in required) date\+Last\+Used (Date the credential was last used. plug-\/in required) ctr\mbox{[}3\mbox{]} (Used for encryption) login\mbox{[}63\mbox{]} (Plain-\/text user name) password\mbox{[}32\mbox{]} (encrypted password)
+
+\subsubsection*{Child start of data Node}
+
+More later \subsubsection*{Data Node}
+
+More Later
+
+\subsection*{Library Usage}
+
+// Declare a return variable R\+E\+T\+\_\+\+T\+Y\+PE ret = R\+E\+T\+U\+R\+N\+\_\+\+N\+OK;
+
+// Select a User ID uint8\+\_\+t uid = 0;
+
+// (O\+P\+T\+I\+O\+N\+AL) Format the user profile memory and check the return code ret = format\+User\+Profile\+Memory(uid); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Obtain a Node Management Handle with the user id and check the return code mgmt\+Handle h; mgmt\+Handle $\ast$hp =  ret = init\+Node\+Management\+Handle(hp, uid); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Creating a Parent Node p\+Node parent; parent.\+service = \char`\"{}\+Some Text\char`\"{};
+
+ret = create\+Parent\+Node(hp, \&parent); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Updating a Parent Node // only field the user should update is service parent.\+service = \char`\"{}\+Some Text\char`\"{}; ret = update\+Parent\+Node(hp, \&parent); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Constructing a Parent Node Address uint16\+\_\+t page\+Number = 128; uint8\+\_\+t node\+Number = 0; uint16\+\_\+t parent\+Node\+Address = construct\+Address(page\+Number, node\+Number);
+
+// Reading a Parent Node ret = read\+Parent\+Node(hp, \&parent, parent\+Node\+Address); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Deleting a Parent Node /$\ast$ typedef enum \{ D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+N\+O\+T\+H\+I\+NG = 1, /$\ast$!$<$ Flip valid bit $\ast$/ D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+Z\+E\+R\+OS = 0x00, /$\ast$!$<$ Write node with all 0\textquotesingle{}s $\ast$/ D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+O\+N\+ES = 0xff, /$\ast$!$<$ Write node with all 1\textquotesingle{}s $\ast$/ \} delete\+Policy; $\ast$/ ret = delete\+Parent\+Node(hp, parent\+Node\+Address, D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+O\+N\+E\+S); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Deconstruction of a Node Address page\+Number = page\+Number\+From\+Address(parent\+Node\+Address); node\+Number = node\+Number\+From\+Address(parent\+Node\+Address);
+
+// Creating a Child Node uint16\+\_\+t address\+Of\+Child\+Parent = construct\+Address(128,1); c\+Node child;
+
+// modify child here ret = create\+Child\+Node(hp, address\+Of\+Child\+Parent, \&child); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Reading a Child Node ret = read\+Parent\+Node(hp, address\+Of\+Child\+Parent); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+ret = read\+Child\+Node(hp, \&child, parent.\+next\+Child\+Address); // use specific child node address if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Updating a Child Node // modify child node ret = update\+Child\+Node(hp, \&parent, \&child, address\+Of\+Child\+Parent, parent.\+next\+Child\+Address); // use specific child node address if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Deleting a Child Node /$\ast$ typedef enum \{ D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+N\+O\+T\+H\+I\+NG = 1, /$\ast$!$<$ Flip valid bit $\ast$/ D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+Z\+E\+R\+OS = 0x00, /$\ast$!$<$ Write node with all 0\textquotesingle{}s $\ast$/ D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+O\+N\+ES = 0xff, /$\ast$!$<$ Write node with all 1\textquotesingle{}s $\ast$/ \} delete\+Policy; $\ast$/ ret = delete\+Child\+Node(hp, address\+Of\+Child\+Parent, parent.\+next\+Child\+Address, D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+O\+N\+ES); // use specific child node address if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Setting a User Profile Favourite // Assuming you know the address of a Parent / Child Credential Set uint16\+\_\+t parent\+Address = K\+N\+O\+W\+N\+\_\+\+P\+A\+R\+E\+NT; uint16\+\_\+t child\+Address = K\+N\+O\+W\+N\+\_\+\+C\+H\+I\+LD; uint8\+\_\+t fav\+Id = 0; ret = set\+Fav(hp, fav\+Id, parent\+Address, child\+Address); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Clearing a User Profile Favourite uint16\+\_\+t parent\+Address = N\+O\+D\+E\+\_\+\+A\+D\+D\+R\+\_\+\+N\+U\+LL; uint16\+\_\+t child\+Address = N\+O\+D\+E\+\_\+\+A\+D\+D\+R\+\_\+\+N\+U\+LL; uint8\+\_\+t fav\+Id = 0; ret = set\+Fav(hp, fav\+Id, parent\+Address, child\+Address); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Setting a User Profile Favourite // Assuming you know the fav\+Id uint16\+\_\+t parent\+Address = 0; uint16\+\_\+t child\+Address = 0; uint8\+\_\+t fav\+Id = K\+N\+O\+W\+N\+\_\+\+F\+A\+V\+\_\+\+ID; ret = read\+Fav(hp, fav\+Id, \&parent\+Address, \&child\+Address); if(ret != R\+E\+T\+U\+R\+N\+\_\+\+OK) \{ // do something \}
+
+// Other functions can be found in \hyperlink{node__mgmt_8h}{node\+\_\+mgmt.\+h} Note\+: Always check the return code
+
+\subsection*{Flash Memory Testing}
+
+Files\+:
+\begin{DoxyItemize}
+\item node\+\_\+test.\+c
+\item node\+\_\+test.\+h
+\end{DoxyItemize}
+
+Node Testing attempts to exercise the library for linked list functionality. It also unit tests the helper functions of the library. To run Flash Testing\+: Include the node\+\_\+test.\+h file and call the node\+Test() Function.
+
+To run Flash Testing on the Mooltipass\+: In the file \hyperlink{tests_8c}{tests.\+c} uncomment the (pound)define T\+E\+S\+T\+\_\+\+N\+O\+DE in the \hyperlink{tests_8c_addcf4f96c53f7eb5ceaca415681abf65}{after\+Flash\+Init\+Tests()} function.
+
+Note\+: The \hyperlink{flash__test_8c}{flash\+\_\+test.\+c} file does use oled and usb libs of the mooltipass however this should be easy to remove if needed. Note\+: Check the enums of node testing errors in the node\+\_\+test.\+h file.
+
+\subsection*{Library T\+O\+DO\textquotesingle{}s}
+
+
+\begin{DoxyItemize}
+\item Implement algorithm for child start of data and data nodes to allow for \textquotesingle{}large\textquotesingle{} data storage (S\+SH Keys anyone?)
+\item Optimize Implementation (Share code when possible)
+\item Fix creat\+Child\+Node shared buffer issue. 
+\end{DoxyItemize}

@@ -1,0 +1,166 @@
+\hypertarget{logic__fwflash__storage_8h}{}\section{src/\+L\+O\+G\+I\+C/logic\+\_\+fwflash\+\_\+storage.h File Reference}
+\label{logic__fwflash__storage_8h}\index{src/\+L\+O\+G\+I\+C/logic\+\_\+fwflash\+\_\+storage.\+h@{src/\+L\+O\+G\+I\+C/logic\+\_\+fwflash\+\_\+storage.\+h}}
+
+
+Logic for storing/getting fw data in the dedicated flash storage Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET}~128\hypertarget{logic__fwflash__storage_8h_aa35627433c14acf6149a3b7cb21fe648}{}\label{logic__fwflash__storage_8h_aa35627433c14acf6149a3b7cb21fe648}
+
+\item 
+\#define {\bfseries M\+E\+D\+I\+A\+\_\+\+T\+Y\+P\+E\+\_\+\+L\+E\+N\+G\+TH}~2\hypertarget{logic__fwflash__storage_8h_a9467238bf15f41fa0b8a823043c10566}{}\label{logic__fwflash__storage_8h_a9467238bf15f41fa0b8a823043c10566}
+
+\item 
+\#define {\bfseries M\+E\+D\+I\+A\+\_\+\+B\+I\+T\+M\+AP}~1\hypertarget{logic__fwflash__storage_8h_ade9a00e64c39c4466071b817338572de}{}\label{logic__fwflash__storage_8h_ade9a00e64c39c4466071b817338572de}
+
+\item 
+\#define {\bfseries M\+E\+D\+I\+A\+\_\+\+F\+O\+NT}~2\hypertarget{logic__fwflash__storage_8h_a6f965f586d54ba30ff2bd1f06e5a50ed}{}\label{logic__fwflash__storage_8h_a6f965f586d54ba30ff2bd1f06e5a50ed}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+N\+\_\+\+U\+S\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+18\hypertarget{logic__fwflash__storage_8h_abbff31634d6d98f58bed14495e876de1}{}\label{logic__fwflash__storage_8h_abbff31634d6d98f58bed14495e876de1}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+F\+R\+\_\+\+F\+R\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+19\hypertarget{logic__fwflash__storage_8h_aab0b28bdd73795b15080b83e0b5eb5aa}{}\label{logic__fwflash__storage_8h_aab0b28bdd73795b15080b83e0b5eb5aa}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+S\+\_\+\+E\+S\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+20\hypertarget{logic__fwflash__storage_8h_a3443caa3c4b936417b238f065a04ab7d}{}\label{logic__fwflash__storage_8h_a3443caa3c4b936417b238f065a04ab7d}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+D\+E\+\_\+\+D\+E\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+21\hypertarget{logic__fwflash__storage_8h_a422a8697442e48a9dae7e4049e228d78}{}\label{logic__fwflash__storage_8h_a422a8697442e48a9dae7e4049e228d78}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+S\+\_\+\+A\+R\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+22\hypertarget{logic__fwflash__storage_8h_a45ada590818cb6dba5e0c4c49fc4fb10}{}\label{logic__fwflash__storage_8h_a45ada590818cb6dba5e0c4c49fc4fb10}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+N\+\_\+\+A\+U\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+23\hypertarget{logic__fwflash__storage_8h_a53fc7f899c82c5b221fbe739f9d2c0de}{}\label{logic__fwflash__storage_8h_a53fc7f899c82c5b221fbe739f9d2c0de}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+F\+R\+\_\+\+B\+E\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+24\hypertarget{logic__fwflash__storage_8h_ab8013c99a528aaa2408528662f75555e}{}\label{logic__fwflash__storage_8h_ab8013c99a528aaa2408528662f75555e}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+P\+O\+\_\+\+B\+R\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+25\hypertarget{logic__fwflash__storage_8h_a27c407019faf1910bb5138b72759b87f}{}\label{logic__fwflash__storage_8h_a27c407019faf1910bb5138b72759b87f}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+N\+\_\+\+C\+A\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+26\hypertarget{logic__fwflash__storage_8h_a7d7e6057eb76497ea2739c2b86d6fefb}{}\label{logic__fwflash__storage_8h_a7d7e6057eb76497ea2739c2b86d6fefb}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+C\+Z\+\_\+\+C\+Z\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+27\hypertarget{logic__fwflash__storage_8h_af13e2aea20760b0fa408b94dd0c525c8}{}\label{logic__fwflash__storage_8h_af13e2aea20760b0fa408b94dd0c525c8}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+D\+A\+\_\+\+D\+K\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+28\hypertarget{logic__fwflash__storage_8h_ad90c4c2a6ba57926c33844e251071f01}{}\label{logic__fwflash__storage_8h_ad90c4c2a6ba57926c33844e251071f01}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+F\+I\+\_\+\+F\+I\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+29\hypertarget{logic__fwflash__storage_8h_a43fb47198bb840ed97376b3e24846deb}{}\label{logic__fwflash__storage_8h_a43fb47198bb840ed97376b3e24846deb}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+H\+U\+\_\+\+H\+U\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+30\hypertarget{logic__fwflash__storage_8h_a31519fe18091e267840461edec0ee58c}{}\label{logic__fwflash__storage_8h_a31519fe18091e267840461edec0ee58c}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+I\+S\+\_\+\+I\+S\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+31\hypertarget{logic__fwflash__storage_8h_a2ecab60b3cd4ea6e4af8a47e32e6d136}{}\label{logic__fwflash__storage_8h_a2ecab60b3cd4ea6e4af8a47e32e6d136}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+I\+T\+\_\+\+I\+T\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+32\hypertarget{logic__fwflash__storage_8h_a2a9ad8f0bec2ae086b461892f5608e56}{}\label{logic__fwflash__storage_8h_a2a9ad8f0bec2ae086b461892f5608e56}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+N\+L\+\_\+\+N\+L\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+33\hypertarget{logic__fwflash__storage_8h_a00571d10cbf3db5ef2fd04bf5cb3eebe}{}\label{logic__fwflash__storage_8h_a00571d10cbf3db5ef2fd04bf5cb3eebe}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+N\+O\+\_\+\+N\+O\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+34\hypertarget{logic__fwflash__storage_8h_a5cb1eac51998686d63bcc161534f38d2}{}\label{logic__fwflash__storage_8h_a5cb1eac51998686d63bcc161534f38d2}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+P\+O\+\_\+\+P\+O\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+35\hypertarget{logic__fwflash__storage_8h_a60f45bd05f96528372d3cc4a5a16589c}{}\label{logic__fwflash__storage_8h_a60f45bd05f96528372d3cc4a5a16589c}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+R\+O\+\_\+\+R\+O\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+36\hypertarget{logic__fwflash__storage_8h_a929016dcd8687acbc5e33e34c55cfc92}{}\label{logic__fwflash__storage_8h_a929016dcd8687acbc5e33e34c55cfc92}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+S\+L\+\_\+\+S\+L\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+37\hypertarget{logic__fwflash__storage_8h_ab33cf694e2622521a9a6ac894774f94c}{}\label{logic__fwflash__storage_8h_ab33cf694e2622521a9a6ac894774f94c}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+F\+R\+D\+E\+\_\+\+C\+H\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+38\hypertarget{logic__fwflash__storage_8h_aed2c0b6a53682c33162358646f34583b}{}\label{logic__fwflash__storage_8h_aed2c0b6a53682c33162358646f34583b}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+N\+\_\+\+U\+K\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+39\hypertarget{logic__fwflash__storage_8h_aff116ec7c49bc33db01621f12057c554}{}\label{logic__fwflash__storage_8h_aff116ec7c49bc33db01621f12057c554}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+C\+Z\+\_\+\+Q\+W\+E\+R\+T\+Y\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+40\hypertarget{logic__fwflash__storage_8h_a0824952e49e4a4f04fce9c43eaec3ebc}{}\label{logic__fwflash__storage_8h_a0824952e49e4a4f04fce9c43eaec3ebc}
+
+\item 
+\#define {\bfseries I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+N\+\_\+\+D\+V\+\_\+\+L\+UT}~B\+I\+T\+M\+A\+P\+\_\+\+I\+D\+\_\+\+O\+F\+F\+S\+ET+41\hypertarget{logic__fwflash__storage_8h_a78da131ee98719acd6f5340bce469ffd}{}\label{logic__fwflash__storage_8h_a78da131ee98719acd6f5340bce469ffd}
+
+\item 
+\#define {\bfseries F\+I\+R\+S\+T\+\_\+\+K\+E\+Y\+B\+\_\+\+L\+UT}~I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+N\+\_\+\+U\+S\+\_\+\+L\+UT\hypertarget{logic__fwflash__storage_8h_ae77b73bdfa5b912ab51bb24a256a4474}{}\label{logic__fwflash__storage_8h_ae77b73bdfa5b912ab51bb24a256a4474}
+
+\item 
+\#define {\bfseries L\+A\+S\+T\+\_\+\+K\+E\+Y\+B\+\_\+\+L\+UT}~I\+D\+\_\+\+K\+E\+Y\+B\+\_\+\+E\+N\+\_\+\+U\+K\+\_\+\+L\+UT\hypertarget{logic__fwflash__storage_8h_abb40f43ff10e8f159f3f58c8ec539d07}{}\label{logic__fwflash__storage_8h_abb40f43ff10e8f159f3f58c8ec539d07}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \hyperlink{logic__fwflash__storage_8h_ab02b0aabafd0e80e6f4e82abfa770f46}{get\+Keyb\+Lut\+Entry\+For\+Layout} (uint8\+\_\+t layout, uint8\+\_\+t ascii\+\_\+char)
+\begin{DoxyCompactList}\small\item\em Get a keyboard L\+UT entry for a given layout. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__fwflash__storage_8h_a83794bcf60df45ae9d2a4bf3787e88e2}{get\+Stored\+File\+Addr} (uint16\+\_\+t file\+Id, uint16\+\_\+t $\ast$addr)
+\begin{DoxyCompactList}\small\item\em Get the flash address of a stored file. \end{DoxyCompactList}\item 
+char $\ast$ {\bfseries read\+Stored\+String\+To\+Buffer} (uint8\+\_\+t string\+ID)\hypertarget{logic__fwflash__storage_8h_a6a7ffda402d4cf2466d8be1878d016af}{}\label{logic__fwflash__storage_8h_a6a7ffda402d4cf2466d8be1878d016af}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Logic for storing/getting fw data in the dedicated flash storage Copyright \mbox{[}2014\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+
+
+
+\subsection{Function Documentation}
+\index{logic\+\_\+fwflash\+\_\+storage.\+h@{logic\+\_\+fwflash\+\_\+storage.\+h}!get\+Keyb\+Lut\+Entry\+For\+Layout@{get\+Keyb\+Lut\+Entry\+For\+Layout}}
+\index{get\+Keyb\+Lut\+Entry\+For\+Layout@{get\+Keyb\+Lut\+Entry\+For\+Layout}!logic\+\_\+fwflash\+\_\+storage.\+h@{logic\+\_\+fwflash\+\_\+storage.\+h}}
+\subsubsection[{\texorpdfstring{get\+Keyb\+Lut\+Entry\+For\+Layout(uint8\+\_\+t layout, uint8\+\_\+t ascii\+\_\+char)}{getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char)}}]{\setlength{\rightskip}{0pt plus 5cm}uint8\+\_\+t get\+Keyb\+Lut\+Entry\+For\+Layout (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{layout, }
+\item[{uint8\+\_\+t}]{ascii\+\_\+char}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__fwflash__storage_8h_ab02b0aabafd0e80e6f4e82abfa770f46}{}\label{logic__fwflash__storage_8h_ab02b0aabafd0e80e6f4e82abfa770f46}
+
+
+Get a keyboard L\+UT entry for a given layout. 
+
+\begin{DoxyNote}{Note}
+No checking is performed on boundaries, must be done in calling function 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em layout} & Keyboard layout \\
+\hline
+{\em ascii\+\_\+char} & The ascii char \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The L\+UT entry 
+\end{DoxyReturn}
+\index{logic\+\_\+fwflash\+\_\+storage.\+h@{logic\+\_\+fwflash\+\_\+storage.\+h}!get\+Stored\+File\+Addr@{get\+Stored\+File\+Addr}}
+\index{get\+Stored\+File\+Addr@{get\+Stored\+File\+Addr}!logic\+\_\+fwflash\+\_\+storage.\+h@{logic\+\_\+fwflash\+\_\+storage.\+h}}
+\subsubsection[{\texorpdfstring{get\+Stored\+File\+Addr(uint16\+\_\+t file\+Id, uint16\+\_\+t $\ast$addr)}{getStoredFileAddr(uint16_t fileId, uint16_t *addr)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE get\+Stored\+File\+Addr (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{file\+Id, }
+\item[{uint16\+\_\+t $\ast$}]{addr}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__fwflash__storage_8h_a83794bcf60df45ae9d2a4bf3787e88e2}{}\label{logic__fwflash__storage_8h_a83794bcf60df45ae9d2a4bf3787e88e2}
+
+
+Get the flash address of a stored file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em file\+Id} & File ID \\
+\hline
+{\em addr} & Where to store the address \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+OK or R\+E\+T\+U\+R\+N\+\_\+\+N\+OK 
+\end{DoxyReturn}

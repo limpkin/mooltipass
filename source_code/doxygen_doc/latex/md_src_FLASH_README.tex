@@ -1,0 +1,60 @@
+\#\+Flash Memory Library for Mooltipass Michael Neiderhauser Jun-\/15-\/2014
+
+Files\+:
+\begin{DoxyItemize}
+\item \hyperlink{flash__mem_8c}{flash\+\_\+mem.\+c}
+\item \hyperlink{flash__mem_8h}{flash\+\_\+mem.\+h}
+\end{DoxyItemize}
+
+The Flash Library was written to add an access layer to write to the S\+PI flash. Currently the library only permits reading and writing pages and offsets of pages meaning that the library does not support writing over page boundaries.
+
+The Flash Library allows usage of a subset of the Adesto family of S\+PI flash chips. The Flash Library supports the following chips\+:
+\begin{DoxyItemize}
+\item 1M (A\+T45\+D\+B011D) -\/ (512 Pages at 264 Bytes Per Page)
+\item 2M (A\+T45\+D\+B021E) -\/ (1024 Pages at 264 Bytes Per Page)
+\item 4M (A\+T45\+D\+B041E) -\/ (2048 Pages at 264 Bytes Per Page)
+\item 8M (A\+T45\+D\+B081E) -\/ (4096 Pages at 264 Bytes Per Page)
+\item 16M (A\+T45\+D\+B161E) -\/ (4096 Pages at 528 Bytes Per Page)
+\item 32M (A\+T45\+D\+B321E) -\/ (8192 Pages at 264 Bytes Per Page)
+\end{DoxyItemize}
+
+To select a chip. Open the \hyperlink{flash__mem_8h}{flash\+\_\+mem.\+h} file and change the F\+L\+A\+S\+H\+\_\+\+C\+H\+IP define.
+
+The library currently implements the following\+:
+\begin{DoxyItemize}
+\item Initialise the Flash (sets up S\+PI communications)
+\item Send S\+PI data to the F\+L\+A\+SH (R/W)
+\item Check the Flash Chip \textquotesingle{}Ready\textquotesingle{} Register
+\item Check the Manf. Flash ID
+\item Sector Erase (Zero Sector)
+\item Sector Erase (All other Sectors)
+\item Block Erase
+\item Page Erase
+\item Format Flash Similar to a chip erase, this implementation uses the Sector Erase Library Functions to format the flash.
+\item Write Data To Flash (Page + Offset. Write Buffer)
+\item Read Data From Flash (Page + Offset. Read Buffer)
+\end{DoxyItemize}
+
+\subsection*{Flash Memory Testing}
+
+Files\+:
+\begin{DoxyItemize}
+\item \hyperlink{flash__test_8c}{flash\+\_\+test.\+c}
+\item \hyperlink{flash__test_8h}{flash\+\_\+test.\+h}
+\end{DoxyItemize}
+
+Flash Testing attempts to exercise the library and obtain status on the flash chip. To run Flash Testing\+: Include the \hyperlink{flash__test_8h}{flash\+\_\+test.\+h} file and call the \hyperlink{flash__test_8c_abe7a11c2c89e48a5ad27d288ca17be0c}{flash\+Test()} Function.
+
+To run Flash Testing on the Mooltipass\+: In the file \hyperlink{tests_8c}{tests.\+c} uncomment the (pound)define T\+E\+S\+T\+\_\+\+F\+L\+A\+SH in the \hyperlink{tests_8c_aff165efdc61cec87cd7b34439ccabfcb}{before\+Flash\+Init\+Tests()} function.
+
+Note\+: The \hyperlink{flash__test_8c}{flash\+\_\+test.\+c} file does use oled and usb libs of the Mooltipass however this should be easy to remove if needed.
+
+\subsection*{Library T\+O\+DO\textquotesingle{}s}
+
+
+\begin{DoxyItemize}
+\item Implement support for the 64M Flash Chip
+\item Remove \textquotesingle{}Node\textquotesingle{} specific defines (remove integration with node\+\_\+mgmt library)
+\item Update A\+PI to better use other flash chip operations
+\item Add other functionality (based off of the data sheet) 
+\end{DoxyItemize}

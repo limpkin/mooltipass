@@ -289,7 +289,7 @@ static inline void ctrPostEncryptionTasks(void)
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
 }
 
-/*! \fn     decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
+/*! \fn     decrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 *   \brief  Decrypt a block of data, clear credential_timer_valid
 *   \param  data    Data to be decrypted
 *   \param  ctr     Ctr value for the data
@@ -336,7 +336,7 @@ void encrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
     while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
 }
 
-/*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
+/*! \fn     setCurrentContext(uint8_t* name, uint8_t type)
 *   \brief  Set our current context
 *   \param  name    Name of the desired service / website
 *   \param  type    Type of context (data or credential)
@@ -729,7 +729,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
     }
 }
 
-/*! \fn     addDataForDataContext(uint8_t* data, uint8_t length)
+/*! \fn     addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
 *   \brief  Add 32 bytes of data to our current data parent
 *   \param  data                Block of data to add
 *   \param  last_packet_flag    Flag to know if it is our last packet

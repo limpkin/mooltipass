@@ -1,9 +1,8 @@
-\hypertarget{aes256__ctr_8h}{\section{src/\+A\+E\+S/aes256\+\_\+ctr.h File Reference}
+\hypertarget{aes256__ctr_8h}{}\section{src/\+A\+E\+S/aes256\+\_\+ctr.h File Reference}
 \label{aes256__ctr_8h}\index{src/\+A\+E\+S/aes256\+\_\+ctr.\+h@{src/\+A\+E\+S/aes256\+\_\+ctr.\+h}}
-}
 
 
-A\+E\+S256\+C\+T\+R encryption Header.  
+A\+E\+S256\+C\+TR encryption Header.  
 
 
 {\ttfamily \#include $<$stdint.\+h$>$}\\*
@@ -12,68 +11,186 @@ A\+E\+S256\+C\+T\+R encryption Header.
 \begin{DoxyCompactItemize}
 \item 
 struct \hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t}
+\begin{DoxyCompactList}\small\item\em C\+TX data type. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries A\+E\+S256\+\_\+\+C\+T\+R\+\_\+\+L\+E\+N\+G\+TH}~16\hypertarget{aes256__ctr_8h_a4d2ca17f9732f2565c385d6c926acf80}{}\label{aes256__ctr_8h_a4d2ca17f9732f2565c385d6c926acf80}
+
 \end{DoxyCompactItemize}
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{aes256__ctr_8h_aa4f2686541fa31f9ea468e959e6a9dc0}{void {\bfseries aes256\+Ctr\+Init} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, const uint8\+\_\+t $\ast$key, const uint8\+\_\+t $\ast$iv, uint8\+\_\+t iv\+Len)}\label{aes256__ctr_8h_aa4f2686541fa31f9ea468e959e6a9dc0}
+void \hyperlink{aes256__ctr_8h_a68d2612c481afa95bcfbf7bdd1aa536d}{aes\+Increment\+Ctr} (uint8\+\_\+t $\ast$ctr, uint8\+\_\+t len)
+\begin{DoxyCompactList}\small\item\em Increment ctr by 1. \end{DoxyCompactList}\item 
+void {\bfseries aes\+Xor\+Vectors} (uint8\+\_\+t $\ast$dest, const uint8\+\_\+t $\ast$src, uint8\+\_\+t nbytes)\hypertarget{aes256__ctr_8h_ad037514a3fb2f4236994b5e1a045f770}{}\label{aes256__ctr_8h_ad037514a3fb2f4236994b5e1a045f770}
 
 \item 
-\hypertarget{aes256__ctr_8h_a3beddc56e21570e0d9470e8184071c3c}{void {\bfseries aes256\+Ctr\+Set\+Iv} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, const uint8\+\_\+t $\ast$iv, uint8\+\_\+t iv\+Len)}\label{aes256__ctr_8h_a3beddc56e21570e0d9470e8184071c3c}
-
-\item 
+int8\+\_\+t \hyperlink{aes256__ctr_8h_a7aae204e8b46188de661eeb7336f2dcf}{aes\+Ctr\+Compare} (uint8\+\_\+t $\ast$ctr1, uint8\+\_\+t $\ast$ctr2, uint8\+\_\+t len)
+\begin{DoxyCompactList}\small\item\em compare ctr1 and ctr2 \end{DoxyCompactList}\item 
+void \hyperlink{aes256__ctr_8h_aa4f2686541fa31f9ea468e959e6a9dc0}{aes256\+Ctr\+Init} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, const uint8\+\_\+t $\ast$key, const uint8\+\_\+t $\ast$iv, uint8\+\_\+t iv\+Len)
+\begin{DoxyCompactList}\small\item\em Init C\+TR encryption and save key and iv inside ctx. \end{DoxyCompactList}\item 
+void \hyperlink{aes256__ctr_8h_a3beddc56e21570e0d9470e8184071c3c}{aes256\+Ctr\+Set\+Iv} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, const uint8\+\_\+t $\ast$iv, uint8\+\_\+t iv\+Len)
+\begin{DoxyCompactList}\small\item\em Re-\/\+Init C\+TR encryption without changing the key. \end{DoxyCompactList}\item 
 void \hyperlink{aes256__ctr_8h_a987cc4b5833e0811930e3cd36d6f59ed}{aes256\+Ctr\+Encrypt} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, uint8\+\_\+t $\ast$data, uint16\+\_\+t data\+Len)
 \begin{DoxyCompactList}\small\item\em Encrypt data and save it in data. \end{DoxyCompactList}\item 
 void \hyperlink{aes256__ctr_8h_ae5cb8ad78d0efe1595e8344ae53ed6dd}{aes256\+Ctr\+Decrypt} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx, uint8\+\_\+t $\ast$data, uint16\+\_\+t data\+Len)
 \begin{DoxyCompactList}\small\item\em Decrypt data and save it in data. \end{DoxyCompactList}\item 
-\hypertarget{aes256__ctr_8h_a5c9c35aa374582b726650433cdf5dfb9}{void \hyperlink{aes256__ctr_8h_a5c9c35aa374582b726650433cdf5dfb9}{aes256\+Ctr\+Clean} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx)}\label{aes256__ctr_8h_a5c9c35aa374582b726650433cdf5dfb9}
-
+void \hyperlink{aes256__ctr_8h_a5c9c35aa374582b726650433cdf5dfb9}{aes256\+Ctr\+Clean} (\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} $\ast$ctx)
 \begin{DoxyCompactList}\small\item\em Clean the context. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-A\+E\+S256\+C\+T\+R encryption Header. 
+A\+E\+S256\+C\+TR encryption Header. 
 
 Created\+: 06/03/2014 14\+:17\+:00 Author\+: Miguel A. Borrego 
 
 \subsection{Function Documentation}
-\hypertarget{aes256__ctr_8h_ae5cb8ad78d0efe1595e8344ae53ed6dd}{\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes256\+Ctr\+Decrypt@{aes256\+Ctr\+Decrypt}}
+\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes256\+Ctr\+Clean@{aes256\+Ctr\+Clean}}
+\index{aes256\+Ctr\+Clean@{aes256\+Ctr\+Clean}!aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}}
+\subsubsection[{\texorpdfstring{aes256\+Ctr\+Clean(aes256\+Ctr\+Ctx\+\_\+t $\ast$ctx)}{aes256CtrClean(aes256CtrCtx_t *ctx)}}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\+Ctr\+Clean (
+\begin{DoxyParamCaption}
+\item[{{\bf aes256\+Ctr\+Ctx\+\_\+t} $\ast$}]{ctx}
+\end{DoxyParamCaption}
+)}\hypertarget{aes256__ctr_8h_a5c9c35aa374582b726650433cdf5dfb9}{}\label{aes256__ctr_8h_a5c9c35aa374582b726650433cdf5dfb9}
+
+
+Clean the context. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & -\/ context \\
+\hline
+\end{DoxyParams}
+\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes256\+Ctr\+Decrypt@{aes256\+Ctr\+Decrypt}}
 \index{aes256\+Ctr\+Decrypt@{aes256\+Ctr\+Decrypt}!aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}}
-\subsubsection[{aes256\+Ctr\+Decrypt}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\+Ctr\+Decrypt (
+\subsubsection[{\texorpdfstring{aes256\+Ctr\+Decrypt(aes256\+Ctr\+Ctx\+\_\+t $\ast$ctx, uint8\+\_\+t $\ast$data, uint16\+\_\+t data\+Len)}{aes256CtrDecrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)}}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\+Ctr\+Decrypt (
 \begin{DoxyParamCaption}
 \item[{{\bf aes256\+Ctr\+Ctx\+\_\+t} $\ast$}]{ctx, }
 \item[{uint8\+\_\+t $\ast$}]{data, }
 \item[{uint16\+\_\+t}]{data\+Len}
 \end{DoxyParamCaption}
-)}}\label{aes256__ctr_8h_ae5cb8ad78d0efe1595e8344ae53ed6dd}
+)}\hypertarget{aes256__ctr_8h_ae5cb8ad78d0efe1595e8344ae53ed6dd}{}\label{aes256__ctr_8h_ae5cb8ad78d0efe1595e8344ae53ed6dd}
 
 
 Decrypt data and save it in data. 
 
 
 \begin{DoxyParams}{Parameters}
-{\em data} & -\/ pointer to data, this is also the location to store encrypted data \\
+{\em ctx} & -\/ context \\
+\hline
+{\em data} & -\/ pointer to data, this is also the location to store decrypted data \\
 \hline
 {\em data\+Len} & -\/ size of data \\
 \hline
 \end{DoxyParams}
-\hypertarget{aes256__ctr_8h_a987cc4b5833e0811930e3cd36d6f59ed}{\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes256\+Ctr\+Encrypt@{aes256\+Ctr\+Encrypt}}
+\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes256\+Ctr\+Encrypt@{aes256\+Ctr\+Encrypt}}
 \index{aes256\+Ctr\+Encrypt@{aes256\+Ctr\+Encrypt}!aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}}
-\subsubsection[{aes256\+Ctr\+Encrypt}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\+Ctr\+Encrypt (
+\subsubsection[{\texorpdfstring{aes256\+Ctr\+Encrypt(aes256\+Ctr\+Ctx\+\_\+t $\ast$ctx, uint8\+\_\+t $\ast$data, uint16\+\_\+t data\+Len)}{aes256CtrEncrypt(aes256CtrCtx_t *ctx, uint8_t *data, uint16_t dataLen)}}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\+Ctr\+Encrypt (
 \begin{DoxyParamCaption}
 \item[{{\bf aes256\+Ctr\+Ctx\+\_\+t} $\ast$}]{ctx, }
 \item[{uint8\+\_\+t $\ast$}]{data, }
 \item[{uint16\+\_\+t}]{data\+Len}
 \end{DoxyParamCaption}
-)}}\label{aes256__ctr_8h_a987cc4b5833e0811930e3cd36d6f59ed}
+)}\hypertarget{aes256__ctr_8h_a987cc4b5833e0811930e3cd36d6f59ed}{}\label{aes256__ctr_8h_a987cc4b5833e0811930e3cd36d6f59ed}
 
 
 Encrypt data and save it in data. 
 
 
 \begin{DoxyParams}{Parameters}
+{\em ctx} & -\/ context \\
+\hline
 {\em data} & -\/ pointer to data, this is also the location to store encrypted data \\
 \hline
 {\em data\+Len} & -\/ size of data \\
+\hline
+\end{DoxyParams}
+\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes256\+Ctr\+Init@{aes256\+Ctr\+Init}}
+\index{aes256\+Ctr\+Init@{aes256\+Ctr\+Init}!aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}}
+\subsubsection[{\texorpdfstring{aes256\+Ctr\+Init(aes256\+Ctr\+Ctx\+\_\+t $\ast$ctx, const uint8\+\_\+t $\ast$key, const uint8\+\_\+t $\ast$iv, uint8\+\_\+t iv\+Len)}{aes256CtrInit(aes256CtrCtx_t *ctx, const uint8_t *key, const uint8_t *iv, uint8_t ivLen)}}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\+Ctr\+Init (
+\begin{DoxyParamCaption}
+\item[{{\bf aes256\+Ctr\+Ctx\+\_\+t} $\ast$}]{ctx, }
+\item[{const uint8\+\_\+t $\ast$}]{key, }
+\item[{const uint8\+\_\+t $\ast$}]{iv, }
+\item[{uint8\+\_\+t}]{iv\+Len}
+\end{DoxyParamCaption}
+)}\hypertarget{aes256__ctr_8h_aa4f2686541fa31f9ea468e959e6a9dc0}{}\label{aes256__ctr_8h_aa4f2686541fa31f9ea468e959e6a9dc0}
+
+
+Init C\+TR encryption and save key and iv inside ctx. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & -\/ context \\
+\hline
+{\em key} & -\/ pointer to key, size must be 32 bytes \\
+\hline
+{\em iv} & -\/ pointer to initialization vector, must be 16 or lower. \\
+\hline
+{\em iv\+Len} & -\/ length of initialization vector, must be 16 or lower. \\
+\hline
+\end{DoxyParams}
+\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes256\+Ctr\+Set\+Iv@{aes256\+Ctr\+Set\+Iv}}
+\index{aes256\+Ctr\+Set\+Iv@{aes256\+Ctr\+Set\+Iv}!aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}}
+\subsubsection[{\texorpdfstring{aes256\+Ctr\+Set\+Iv(aes256\+Ctr\+Ctx\+\_\+t $\ast$ctx, const uint8\+\_\+t $\ast$iv, uint8\+\_\+t iv\+Len)}{aes256CtrSetIv(aes256CtrCtx_t *ctx, const uint8_t *iv, uint8_t ivLen)}}]{\setlength{\rightskip}{0pt plus 5cm}void aes256\+Ctr\+Set\+Iv (
+\begin{DoxyParamCaption}
+\item[{{\bf aes256\+Ctr\+Ctx\+\_\+t} $\ast$}]{ctx, }
+\item[{const uint8\+\_\+t $\ast$}]{iv, }
+\item[{uint8\+\_\+t}]{iv\+Len}
+\end{DoxyParamCaption}
+)}\hypertarget{aes256__ctr_8h_a3beddc56e21570e0d9470e8184071c3c}{}\label{aes256__ctr_8h_a3beddc56e21570e0d9470e8184071c3c}
+
+
+Re-\/\+Init C\+TR encryption without changing the key. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & -\/ context \\
+\hline
+{\em iv} & -\/ pointer to initialization vector, size must be 16 bytes or lower. \\
+\hline
+{\em iv\+Len} & -\/ length of initialization vector, must be 16 or lower. \\
+\hline
+\end{DoxyParams}
+\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes\+Ctr\+Compare@{aes\+Ctr\+Compare}}
+\index{aes\+Ctr\+Compare@{aes\+Ctr\+Compare}!aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}}
+\subsubsection[{\texorpdfstring{aes\+Ctr\+Compare(uint8\+\_\+t $\ast$ctr1, uint8\+\_\+t $\ast$ctr2, uint8\+\_\+t len)}{aesCtrCompare(uint8_t *ctr1, uint8_t *ctr2, uint8_t len)}}]{\setlength{\rightskip}{0pt plus 5cm}int8\+\_\+t aes\+Ctr\+Compare (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{ctr1, }
+\item[{uint8\+\_\+t $\ast$}]{ctr2, }
+\item[{uint8\+\_\+t}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{aes256__ctr_8h_a7aae204e8b46188de661eeb7336f2dcf}{}\label{aes256__ctr_8h_a7aae204e8b46188de661eeb7336f2dcf}
+
+
+compare ctr1 and ctr2 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctr1} & -\/ buffer of first ctr \\
+\hline
+{\em ctr2} & -\/ buffer of second ctr \\
+\hline
+{\em len} & -\/ length of the ctr, must be the same for ctr1 and ctr2 \\
+\hline
+\end{DoxyParams}
+\index{aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}!aes\+Increment\+Ctr@{aes\+Increment\+Ctr}}
+\index{aes\+Increment\+Ctr@{aes\+Increment\+Ctr}!aes256\+\_\+ctr.\+h@{aes256\+\_\+ctr.\+h}}
+\subsubsection[{\texorpdfstring{aes\+Increment\+Ctr(uint8\+\_\+t $\ast$ctr, uint8\+\_\+t len)}{aesIncrementCtr(uint8_t *ctr, uint8_t len)}}]{\setlength{\rightskip}{0pt plus 5cm}void aes\+Increment\+Ctr (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{ctr, }
+\item[{uint8\+\_\+t}]{len}
+\end{DoxyParamCaption}
+)}\hypertarget{aes256__ctr_8h_a68d2612c481afa95bcfbf7bdd1aa536d}{}\label{aes256__ctr_8h_a68d2612c481afa95bcfbf7bdd1aa536d}
+
+
+Increment ctr by 1. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctr} & -\/ pointer to counter+iv, size must be len bytes \\
+\hline
+{\em len} & -\/ the size of the ctr buffer to be incremented \\
 \hline
 \end{DoxyParams}

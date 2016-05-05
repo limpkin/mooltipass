@@ -1,0 +1,69 @@
+\hypertarget{oled__wrapper_8h}{}\section{src/oled\+\_\+wrapper.h File Reference}
+\label{oled__wrapper_8h}\index{src/oled\+\_\+wrapper.\+h@{src/oled\+\_\+wrapper.\+h}}
+
+
+O\+L\+ED library wrapper Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include \char`\"{}oledmini.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oledmp.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries oled\+Init\+I\+Os}()                                  ~mini\+Oled\+Init\+I\+Os()\hypertarget{oled__wrapper_8h_a888d442555772704714295d502c9e0b3}{}\label{oled__wrapper_8h_a888d442555772704714295d502c9e0b3}
+
+\item 
+\#define {\bfseries oled\+Inverted\+Display}()                  ~mini\+Oled\+Inverted\+Display()\hypertarget{oled__wrapper_8h_a54d31750f9f2fa34fea87fc8c09e3947}{}\label{oled__wrapper_8h_a54d31750f9f2fa34fea87fc8c09e3947}
+
+\item 
+\#define {\bfseries oled\+Normal\+Display}()                      ~\hyperlink{oledmini_8h_a191498ec61b4660daf111e68bc228ad9}{mini\+Oled\+Normal\+Display}()\hypertarget{oled__wrapper_8h_ac0ae9e17e79bd97eb078e60a2a8c5e66}{}\label{oled__wrapper_8h_ac0ae9e17e79bd97eb078e60a2a8c5e66}
+
+\item 
+\#define {\bfseries oled\+Begin}(x)                                    ~mini\+Oled\+Begin(x)\hypertarget{oled__wrapper_8h_ad699f98aafb0daa60a10ac571eed1674}{}\label{oled__wrapper_8h_ad699f98aafb0daa60a10ac571eed1674}
+
+\item 
+\#define {\bfseries oled\+Bitmap\+Draw\+Flash}(a,  b,  c,  d)    ~mini\+Oled\+Bitmap\+Draw\+Flash(a,b,c,d)\hypertarget{oled__wrapper_8h_aa555457e2dcfb9d58e18239e29bee981}{}\label{oled__wrapper_8h_aa555457e2dcfb9d58e18239e29bee981}
+
+\item 
+\#define {\bfseries oled\+Putstr\+XY}(a,  b,  c,  d)                  ~mini\+Oled\+Putstr\+XY(a,b,c,d)\hypertarget{oled__wrapper_8h_a68aa0b76e0536f0652280d35000dd4e7}{}\label{oled__wrapper_8h_a68aa0b76e0536f0652280d35000dd4e7}
+
+\item 
+\#define {\bfseries oled\+Clear}()                                      ~mini\+Oled\+Clear\+Frame\+Buffer()\hypertarget{oled__wrapper_8h_a2b0ad2634424db33486077f9686f040f}{}\label{oled__wrapper_8h_a2b0ad2634424db33486077f9686f040f}
+
+\item 
+\#define {\bfseries oled\+Display\+Other\+Buffer}()            ~mini\+Oled\+Display\+Other\+Buffer()\hypertarget{oled__wrapper_8h_ab3acb912a49f6bd07817bff57323ed8c}{}\label{oled__wrapper_8h_ab3acb912a49f6bd07817bff57323ed8c}
+
+\item 
+\#define {\bfseries oled\+Fill\+XY}(a,  b,  c,  d,  e)                  ~mini\+Oled\+Draw\+Rectangle(a,b,c,d,e)\hypertarget{oled__wrapper_8h_a50acf643c3bc3937a7373989217a4777}{}\label{oled__wrapper_8h_a50acf643c3bc3937a7373989217a4777}
+
+\item 
+\#define {\bfseries oled\+Is\+On}()                                        ~mini\+Oled\+Is\+Screen\+On()\hypertarget{oled__wrapper_8h_a368ffc05594402559dda0118e8b65db9}{}\label{oled__wrapper_8h_a368ffc05594402559dda0118e8b65db9}
+
+\item 
+\#define {\bfseries oled\+On}()                                            ~mini\+Oled\+On()\hypertarget{oled__wrapper_8h_a3a2f7eab386af1720bfc25b203d209f6}{}\label{oled__wrapper_8h_a3a2f7eab386af1720bfc25b203d209f6}
+
+\item 
+\#define {\bfseries oled\+Off}()                                          ~mini\+Oled\+Off()\hypertarget{oled__wrapper_8h_a4d3ef2488cea61612f96673597b7a532}{}\label{oled__wrapper_8h_a4d3ef2488cea61612f96673597b7a532}
+
+\item 
+\#define {\bfseries oled\+Write\+Inactive\+Buffer}()          ~mini\+Oled\+Write\+Inactive\+Buffer()\hypertarget{oled__wrapper_8h_a5fa5d8a38914144122a2faa8a116386d}{}\label{oled__wrapper_8h_a5fa5d8a38914144122a2faa8a116386d}
+
+\item 
+\#define {\bfseries oled\+Putch}(x)                                    ~mini\+Oled\+Putch(x)\hypertarget{oled__wrapper_8h_a0d9e7c4f8437156ea88a20f01cad258d}{}\label{oled__wrapper_8h_a0d9e7c4f8437156ea88a20f01cad258d}
+
+\item 
+\#define {\bfseries oled\+Set\+XY}(x,  y)                                ~mini\+Oled\+Set\+XY(x,y)\hypertarget{oled__wrapper_8h_a62126c6b165beb9fd94892c38b757b94}{}\label{oled__wrapper_8h_a62126c6b165beb9fd94892c38b757b94}
+
+\item 
+\#define {\bfseries oled\+Putstr}(x)                                  ~mini\+Oled\+Putstr(x)\hypertarget{oled__wrapper_8h_a13da15fc036371b8f2c10823464a5da1}{}\label{oled__wrapper_8h_a13da15fc036371b8f2c10823464a5da1}
+
+\item 
+\#define {\bfseries oled\+Set\+Font}(x)                                ~mini\+Oled\+Set\+Font(x)\hypertarget{oled__wrapper_8h_a6d2abd2ffdf6e9d8a6b02aa422ff18cf}{}\label{oled__wrapper_8h_a6d2abd2ffdf6e9d8a6b02aa422ff18cf}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+O\+L\+ED library wrapper Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+

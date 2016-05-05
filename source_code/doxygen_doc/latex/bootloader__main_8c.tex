@@ -1,0 +1,86 @@
+\hypertarget{bootloader__main_8c}{}\section{src/bootloader\+\_\+main.c File Reference}
+\label{bootloader__main_8c}\index{src/bootloader\+\_\+main.\+c@{src/bootloader\+\_\+main.\+c}}
+
+
+main file for bootloader Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}  
+
+
+{\ttfamily \#include $<$avr/interrupt.\+h$>$}\\*
+{\ttfamily \#include $<$avr/eeprom.\+h$>$}\\*
+{\ttfamily \#include $<$avr/boot.\+h$>$}\\*
+{\ttfamily \#include $<$stdlib.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}eeprom\+\_\+addresses.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}watchdog\+\_\+driver.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes256\+\_\+ctr.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}node\+\_\+mgmt.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}spi.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries start\+\_\+firmware}()            ~asm volatile (\char`\"{}jmp 0x0000\char`\"{})\hypertarget{bootloader__main_8c_a635377783411b6b51d005747543cefa0}{}\label{bootloader__main_8c_a635377783411b6b51d005747543cefa0}
+
+\item 
+\#define {\bfseries M\+A\+X\+\_\+\+F\+I\+R\+M\+W\+A\+R\+E\+\_\+\+S\+I\+ZE}~28672\hypertarget{bootloader__main_8c_aa80f61a287020b338aceab88afc67ca0}{}\label{bootloader__main_8c_aa80f61a287020b338aceab88afc67ca0}
+
+\item 
+\#define {\bfseries S\+P\+M\+\_\+\+P\+A\+G\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+B\+Y\+T\+E\+S\+\_\+\+BM}~(S\+P\+M\+\_\+\+P\+A\+G\+E\+S\+I\+ZE -\/ 1)\hypertarget{bootloader__main_8c_a1e62753dd8f4beb5199117aac2ef5b5c}{}\label{bootloader__main_8c_a1e62753dd8f4beb5199117aac2ef5b5c}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \hyperlink{bootloader__main_8c_a4c519a8c5c1d697cd8c0f2a3e0b9408e}{side\+Channel\+Safe\+Mem\+Cmp} (uint8\+\_\+t $\ast$dataA, uint8\+\_\+t $\ast$dataB, uint8\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em A side channel attack safe implementation of memcmp. \end{DoxyCompactList}\item 
+int \hyperlink{bootloader__main_8c_a568b3afc214ba30be5bf526d6b27b611}{main} (void)
+\begin{DoxyCompactList}\small\item\em Main function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+main file for bootloader Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]} 
+
+
+
+\subsection{Function Documentation}
+\index{bootloader\+\_\+main.\+c@{bootloader\+\_\+main.\+c}!main@{main}}
+\index{main@{main}!bootloader\+\_\+main.\+c@{bootloader\+\_\+main.\+c}}
+\subsubsection[{\texorpdfstring{main(void)}{main(void)}}]{\setlength{\rightskip}{0pt plus 5cm}main (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{bootloader__main_8c_a568b3afc214ba30be5bf526d6b27b611}{}\label{bootloader__main_8c_a568b3afc214ba30be5bf526d6b27b611}
+
+
+Main function. 
+
+\begin{DoxyNote}{Note}
+For our security chain to be valid, E\+E\+P\+\_\+\+B\+O\+O\+T\+\_\+\+P\+W\+D\+\_\+\+S\+ET in eeprom needs to be set to B\+O\+O\+T\+L\+O\+A\+D\+E\+R\+\_\+\+P\+W\+D\+O\+K\+\_\+\+K\+EY 
+\end{DoxyNote}
+\index{bootloader\+\_\+main.\+c@{bootloader\+\_\+main.\+c}!side\+Channel\+Safe\+Mem\+Cmp@{side\+Channel\+Safe\+Mem\+Cmp}}
+\index{side\+Channel\+Safe\+Mem\+Cmp@{side\+Channel\+Safe\+Mem\+Cmp}!bootloader\+\_\+main.\+c@{bootloader\+\_\+main.\+c}}
+\subsubsection[{\texorpdfstring{side\+Channel\+Safe\+Mem\+Cmp(uint8\+\_\+t $\ast$data\+A, uint8\+\_\+t $\ast$data\+B, uint8\+\_\+t size)}{sideChannelSafeMemCmp(uint8_t *dataA, uint8_t *dataB, uint8_t size)}}]{\setlength{\rightskip}{0pt plus 5cm}side\+Channel\+Safe\+Mem\+Cmp (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{dataA, }
+\item[{uint8\+\_\+t $\ast$}]{dataB, }
+\item[{uint8\+\_\+t}]{size}
+\end{DoxyParamCaption}
+)}\hypertarget{bootloader__main_8c_a4c519a8c5c1d697cd8c0f2a3e0b9408e}{}\label{bootloader__main_8c_a4c519a8c5c1d697cd8c0f2a3e0b9408e}
+
+
+A side channel attack safe implementation of memcmp. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dataA} & First array \\
+\hline
+{\em dataB} & Second array \\
+\hline
+{\em size} & Arrays length \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 for match 
+\end{DoxyReturn}

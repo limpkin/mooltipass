@@ -54,7 +54,11 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     0x21,               // TOUCH_WHEEL_OS_PARAM2                Set touch wheel oversample (one bit gain)
     TRUE,               // FLASH_SCREEN_PARAM                   Enable flashy screen by default
     FALSE,              // USER_REQ_CANCEL_PARAM                Disable the possibility to cancel user requests from USB
+#ifdef POST_KICKSTARTER_UPDATE_SETUP
+    FALSE,              // TUTORIAL_BOOL_PARAM                  Disable the tutorial by default
+#else
     TRUE,               // TUTORIAL_BOOL_PARAM                  Enable the tutorial by default
+#endif
     15,                 // SCREEN_SAVER_SPEED_PARAM             Speed of the screen saver
     TRUE,               // LUT_BOOT_POPULATING                  Allow credential LUT populating at card insert
     TRUE,               // KEY_AFTER_LOGIN_SEND_BOOL_PARAM      Allow key sending after login is manually entered

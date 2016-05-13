@@ -779,6 +779,15 @@ mooltipass.device.responseSetCurrentDate = function(queuedItem, msg) {
 };
 
 mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
+    if(queuedItem.command != 'getMooltipassStatus') {
+        // Device answers with status response if user is asked for PIN -> resend request
+        mooltipass.device.queue.push(queuedItem);
+
+        // Process next queued request
+        mooltipass.device.processQueue();
+        return;
+    }
+
     var status = mooltipass.device.status_parameters[msg[0]];
     status = status ? status : 'error';
 

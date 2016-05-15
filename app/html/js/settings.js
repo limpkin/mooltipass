@@ -373,7 +373,22 @@ mooltipass.ui.settings.initTutorialEnabled = function() {
     });
 };
 
+mooltipass.ui.settings.getFirmwareVersion = function() {
+    mooltipass.device.interface.send({
+        'command': 'getVersion',
+        'payload': [],
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-tab-title').text("Device Settings - Firmware " + _response.value);
+            }
+            else {
+            }
+        }
+    });
+};
+
 mooltipass.ui.settings.getSettings = function() {
+    mooltipass.ui.settings.getFirmwareVersion();
     mooltipass.ui.settings.getKeyboardLayout();
     mooltipass.ui.settings.getLockTimeoutEnabled();
     mooltipass.ui.settings.getLockTimeout();

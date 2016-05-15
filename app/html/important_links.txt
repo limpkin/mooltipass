@@ -1,0 +1,12 @@
+https://github.com/zurb/foundation-sites/issues/5753
+http://atendesigngroup.com/blog/managing-compass-extensions-bundler
+https://forums.digitalpoint.com/threads/getting-started-with-sass-jade-increase-your-coding-speed-by-up-to-40.2740716/
+http://www.zingdesign.com/the-sass-and-compass-tutorial-for-absolute-beginners/
+
+to compile scss into css: 
+>> bundle install
+>> bundle exec compass watch
+
+to compile jade into html
+>> jade jade/index.jade --out . -w
+

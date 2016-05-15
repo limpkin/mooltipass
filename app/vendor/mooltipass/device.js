@@ -753,6 +753,8 @@ mooltipass.device.responseGetVersion = function(queuedItem, msg) {
 
     mooltipass.device.version = version;
     mooltipass.device.flashChipId = flashChipId;
+    
+    console.log("Firmware Version:", version);
 
     var responseObject = {
         'command': queuedItem.command,

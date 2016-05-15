@@ -7,56 +7,66 @@
       .column.small-12
         h1#settings-tab-title Device Settings
         p 
-          | These settings change parameters on your Mooltipass device.
-          br
           | For browser-specific settings, go to the options page of the extension.
 
     .row.margin-bottom
       .column.small-3
-        h3 Keyboard layout
-      .column.small-2
-        select(name="keyboardLayout", id="settings-keyboardLayout")
-          option(value="155") cz_CZ
-          option(value="156") da_DK
-          option(value="149") de_DE
-          option(value="151") en_AU
-          option(value="154") en_CA
-          option(value="167") en_UK
-          option(value="146") en_US
-          option(value="150") es_AR
-          option(value="148") es_ES
-          option(value="157") fi_FI
-          option(value="152") fr_BE
-          option(value="147") fr_FR
-          option(value="166") frde_CH
-          option(value="158") hu_HU
-          option(value="159") is_IS
-          option(value="160") it_IT
-          option(value="161") nl_NL
-          option(value="162") no_NO
-          option(value="153") po_BR
-          option(value="163") po_PO
-          option(value="164") ro_RO
-          option(value="165") sl_SL
-
-      .column.small-7
+        h3 Keyboard Output
+      .column.small-9
+        label Configured keyboard layout: 
+          select(name="keyboardLayout", id="settings-keyboardLayout")
+            option(value="155") cz_CZ
+            option(value="156") da_DK
+            option(value="149") de_DE
+            option(value="151") en_AU
+            option(value="154") en_CA
+            option(value="167") en_UK
+            option(value="146") en_US
+            option(value="150") es_AR
+            option(value="148") es_ES
+            option(value="157") fi_FI
+            option(value="152") fr_BE
+            option(value="147") fr_FR
+            option(value="166") frde_CH
+            option(value="158") hu_HU
+            option(value="159") is_IS
+            option(value="160") it_IT
+            option(value="161") nl_NL
+            option(value="162") no_NO
+            option(value="153") po_BR
+            option(value="163") po_PO
+            option(value="164") ro_RO
+            option(value="165") sl_SL
+        .show-if-v1.1-version
+          label
+            input(type="checkbox", name="keypressWaitEnabled", id="settings-keypressWaitEnabled")
+            | &nbsp; For slow computers: wait
+            select(name="keypressWait", id="settings-keypressWait")
+              option(value="5", selected="selected") 5
+              option(value="10") 10
+              option(value="15") 15
+              option(value="30") 30
+            | ms after each key press
+          label
+            input(type="checkbox", name="keypressLoginEnabled", id="settings-keypressLoginEnabled")
+            | &nbsp; Send
+            select(name="keypressLogin", id="settings-keypressLogin")
+              option(value="43", selected="selected") Tab
+              option(value="40") Enter
+              option(value="44") Space
+            | after each login output
+          label
+            input(type="checkbox", name="keypressPasswordEnabled", id="settings-keypressPasswordEnabled")
+            | &nbsp; Send
+            select(name="keypressPassword", id="settings-keypressPassword")
+              option(value="43", selected="selected") Tab
+              option(value="40") Enter
+              option(value="44") Space
+            | after each password output
 
     .row.margin-bottom
       .column.small-3
         h3 Inactivity
-      .column.small-9
-        label
-          input(type="checkbox", name="lockTimeoutEnabled", id="settings-lockTimeoutEnabled")
-          | &nbsp; Lock after
-          input(type="text", class="inline-time", maxlength=3, name="lockTimeout", id="settings-lockTimeout")
-          | minutes inactivity
-        label
-          input(type="checkbox", name="screensaver", id="settings-screensaver")
-          | &nbsp; Use screen saver
-
-    .row.margin-bottom
-      .column.small-3
-        h3 Input timeout
       .column.small-9
         label Cancel credentials request after
           select(name="userInteractionTimeout", id="settings-userInteractionTimeout")
@@ -66,18 +76,25 @@
             option(value="20") 20
             option(value="30") 30
           | seconds
+        label
+          input(type="checkbox", name="lockTimeoutEnabled", id="settings-lockTimeoutEnabled")
+          | &nbsp; Lock after
+          input(type="text", class="inline-time", maxlength=3, name="lockTimeout", id="settings-lockTimeout")
+          | minutes inactivity
+        label
+          input(type="checkbox", name="screensaver", id="settings-screensaver")
+          | &nbsp; Use screen saver
 
-    .row.margin-bottom
-      .column.small-3
-        h3 Miscellaneous
-      .column.small-9
-        label
-          input(type="checkbox", name="flashScreen", id="settings-flashScreen")
-          | &nbsp; Flash screen when input is required
-        label
-          input(type="checkbox", name="offlineMode", id="settings-offlineMode")
-          | &nbsp; Allow boot without host (e.g. usb battery / charger)
-        label
-          input(type="checkbox", name="tutorialEnabled", id="settings-tutorialEnabled")
-          | &nbsp; Enable device tutorial
+    .column.small-3
+      h3 Miscellaneous
+    .column.small-9
+      label
+        input(type="checkbox", name="flashScreen", id="settings-flashScreen")
+        | &nbsp; Flash screen when input is required
+      label
+        input(type="checkbox", name="offlineMode", id="settings-offlineMode")
+        | &nbsp; Allow boot without host (e.g. usb battery / charger)
+      label
+        input(type="checkbox", name="tutorialEnabled", id="settings-tutorialEnabled")
+        | &nbsp; Enable device tutorial
 

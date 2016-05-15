@@ -39,6 +39,234 @@ mooltipass.ui.settings.initKeyboardLayout = function() {
     });
 };
 
+mooltipass.ui.settings.getKeypressLoginEnabled = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'keypressLoginEnabled',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-keypressLoginEnabled').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-keypressLoginEnabled'), _response.msg);
+            }
+        }
+    });
+};
+
+mooltipass.ui.settings.initKeypressLoginEnabled = function() {
+    $('#settings-keypressLoginEnabled').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'keypressLoginEnabled',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-keypressLoginEnabled');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Login key press ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
+                }
+            }
+        });
+    });
+};
+
+mooltipass.ui.settings.getKeypressPasswordEnabled = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'keypressPasswordEnabled',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-keypressPasswordEnabled').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-keypressPasswordEnabled'), _response.msg);
+            }
+        }
+    });
+};
+
+mooltipass.ui.settings.initKeypressPasswordEnabled = function() {
+    $('#settings-keypressPasswordEnabled').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'keypressPasswordEnabled',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-keypressPasswordEnabled');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Password key press ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
+                }
+            }
+        });
+    });
+};
+
+mooltipass.ui.settings.getKeypressWaitEnabled = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'keybOutputDelayEnabled',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-keypressWaitEnabled').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-keypressWaitEnabled'), _response.msg);
+            }
+        }
+    });
+};
+
+mooltipass.ui.settings.initKeypressWaitEnabled = function() {
+    $('#settings-keypressWaitEnabled').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'keybOutputDelayEnabled',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-keypressWaitEnabled');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Key press wait ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
+                }
+            }
+        });
+    });
+};
+
+
+mooltipass.ui.settings.getKeypressWait = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'keybOutputDelay',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-keypressWait').val(_response.value);
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-keypressWait'), _response.msg);
+            }
+        }
+    });
+};
+
+
+mooltipass.ui.settings.initKeypressWait = function() {
+    $('#settings-keypressWait').change(function() {
+        $(this).data('old-value', $(this).val());
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'keybOutputDelay',
+            'value': parseInt($(this).val()),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-keypressWait');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Key press delay changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
+                }
+            },
+            'callbackParameters': null
+        });
+    });
+};
+
+
+mooltipass.ui.settings.getKeypressLogin = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'keypressLogin',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-keypressLogin').val(_response.value);
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-keypressLogin'), _response.msg);
+            }
+        }
+    });
+};
+
+
+mooltipass.ui.settings.initKeypressLogin = function() {
+    $('#settings-keypressLogin').change(function() {
+        $(this).data('old-value', $(this).val());
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'keypressLogin',
+            'value': parseInt($(this).val()),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-keypressLogin');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Login key press changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
+                }
+            },
+            'callbackParameters': null
+        });
+    });
+};
+
+
+mooltipass.ui.settings.getKeypressPassword = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'keypressPassword',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-keypressPassword').val(_response.value);
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-keypressPassword'), _response.msg);
+            }
+        }
+    });
+};
+
+
+mooltipass.ui.settings.initKeypressPassword = function() {
+    $('#settings-keypressPassword').change(function() {
+        $(this).data('old-value', $(this).val());
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'keypressPassword',
+            'value': parseInt($(this).val()),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-keypressPassword');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Password key press changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
+                }
+            },
+            'callbackParameters': null
+        });
+    });
+};
+
 mooltipass.ui.settings.getLockTimeoutEnabled = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
@@ -422,6 +650,12 @@ mooltipass.ui.settings.getSettings = function() {
     mooltipass.ui.settings.getFlashScreen();
     mooltipass.ui.settings.getOfflineMode();
     mooltipass.ui.settings.getTutorialEnabled();
+    mooltipass.ui.settings.getKeypressWaitEnabled();
+    mooltipass.ui.settings.getKeypressLoginEnabled();
+    mooltipass.ui.settings.getKeypressPasswordEnabled();
+    mooltipass.ui.settings.getKeypressLogin();
+    mooltipass.ui.settings.getKeypressPassword();
+    mooltipass.ui.settings.getKeypressWait();
 }
 
 
@@ -439,4 +673,10 @@ mooltipass.ui.settings.init = function() {
     mooltipass.ui.settings.initFlashScreen();
     mooltipass.ui.settings.initOfflineMode();
     mooltipass.ui.settings.initTutorialEnabled();
+    mooltipass.ui.settings.initKeypressWaitEnabled();
+    mooltipass.ui.settings.initKeypressLoginEnabled();
+    mooltipass.ui.settings.initKeypressPasswordEnabled();
+    mooltipass.ui.settings.initKeypressPassword();
+    mooltipass.ui.settings.initKeypressLogin();
+    mooltipass.ui.settings.initKeypressWait();
 };

@@ -7021,7 +7021,7 @@ meta.foundation-mq-topbar {
 /* line 323, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
 .top-bar-section .divider,
 .top-bar-section [role="separator"] {
-  border-top: solid 1px #787878;
+  border-top: solid 1px #777777;
   clear: both;
   height: 1px;
   width: 100%;
@@ -7220,16 +7220,16 @@ meta.foundation-mq-topbar {
 .top-bar-section ul li:hover:not(.has-form) > a {
   background-color: #555555;
   color: #333333;
-  background: #d6d6d6;
+  background: #d5d5d5;
 }
 /* line 383, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
 .top-bar-section ul li.active > a {
-  background: #d6d6d6;
+  background: #d5d5d5;
   color: #333333;
 }
 /* line 387, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
 .top-bar-section ul li.active > a:hover {
-  background: #d6d6d6;
+  background: #d5d5d5;
   color: #333333;
 }
 /* line 395, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
@@ -7417,7 +7417,7 @@ meta.foundation-mq-topbar {
   /* line 545, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .top-bar-section li.hover > a:not(.button) {
     background-color: #555555;
-    background: #d6d6d6;
+    background: #d5d5d5;
     color: #333333;
   }
   /* line 555, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
@@ -7429,18 +7429,18 @@ meta.foundation-mq-topbar {
   /* line 559, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .top-bar-section li:not(.has-form) a:not(.button):hover {
     background-color: #555555;
-    background: #d6d6d6;
+    background: #d5d5d5;
   }
   /* line 569, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .top-bar-section li.active:not(.has-form) a:not(.button) {
-    background: #d6d6d6;
+    background: #d5d5d5;
     color: #333333;
     line-height: 2.8125rem;
     padding: 0 0.9375rem;
   }
   /* line 574, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .top-bar-section li.active:not(.has-form) a:not(.button):hover {
-    background: #d6d6d6;
+    background: #d5d5d5;
     color: #333333;
   }
   /* line 584, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
@@ -7573,12 +7573,12 @@ meta.foundation-mq-topbar {
   /* line 708, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .no-js .top-bar-section ul li:hover > a {
     background-color: #555555;
-    background: #d6d6d6;
+    background: #d5d5d5;
     color: #333333;
   }
   /* line 717, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
   .no-js .top-bar-section ul li:active > a {
-    background: #d6d6d6;
+    background: #d5d5d5;
     color: #333333;
   }
   /* line 725, ../bower_components/foundation/scss/foundation/components/_top-bar.scss */
@@ -9882,65 +9882,97 @@ input.inline {
   width: 50px;
   margin-right: 8px;
   margin-left: 8px;
+  margin-bottom: 8px;
+}
+/* line 136, ../scss/app.scss */
+#page-settings #settings-keyboardLayout {
+  display: inline;
+  width: 100px;
+  margin-right: 8px;
+  margin-left: 8px;
+  margin-bottom: 8px;
+}
+/* line 143, ../scss/app.scss */
+#page-settings #settings-keypressWait {
+  display: inline;
+  width: 50px;
+  margin-right: 8px;
+  margin-left: 8px;
+  margin-bottom: 8px;
+}
+/* line 150, ../scss/app.scss */
+#page-settings #settings-keypressLogin {
+  display: inline;
+  width: 70px;
+  margin-right: 8px;
+  margin-left: 8px;
+  margin-bottom: 8px;
+}
+/* line 157, ../scss/app.scss */
+#page-settings #settings-keypressPassword {
+  display: inline;
+  width: 70px;
+  margin-right: 8px;
+  margin-left: 8px;
 }
 
-/* line 137, ../scss/app.scss */
+/* line 165, ../scss/app.scss */
 #page-synchronisation {
   overflow-y: hidden;
 }
-/* line 139, ../scss/app.scss */
+/* line 167, ../scss/app.scss */
 #page-synchronisation * {
   overflow-y: hidden;
 }
-/* line 142, ../scss/app.scss */
+/* line 170, ../scss/app.scss */
 #page-synchronisation button {
   margin-bottom: 0;
   margin-top: 8px;
   padding: 0.7rem;
 }
-/* line 149, ../scss/app.scss */
+/* line 177, ../scss/app.scss */
 #page-synchronisation .storage p {
   margin-bottom: 0;
 }
-/* line 153, ../scss/app.scss */
+/* line 181, ../scss/app.scss */
 #page-synchronisation .storage input[type="checkbox"] {
   margin-left: 0.5rem;
 }
-/* line 157, ../scss/app.scss */
+/* line 185, ../scss/app.scss */
 #page-synchronisation .storage span {
   display: inline-block;
   width: 90%;
 }
-/* line 162, ../scss/app.scss */
+/* line 190, ../scss/app.scss */
 #page-synchronisation .storage label {
   margin-top: 0.5rem;
 }
 
-/* line 169, ../scss/app.scss */
+/* line 197, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }
 
-/* line 174, ../scss/app.scss */
+/* line 202, ../scss/app.scss */
 #page-credentials button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 179, ../scss/app.scss */
+/* line 207, ../scss/app.scss */
 #page-credentials button.secondary {
   color: #888888;
   transition: background-color ease 1000ms;
 }
-/* line 183, ../scss/app.scss */
+/* line 211, ../scss/app.scss */
 #page-credentials button.secondary:hover {
   background-color: #ddd;
 }
-/* line 187, ../scss/app.scss */
+/* line 215, ../scss/app.scss */
 #page-credentials button.secondary:active {
   background-color: #F1BABA;
 }
-/* line 193, ../scss/app.scss */
+/* line 221, ../scss/app.scss */
 #page-credentials #unsaved-changes-warning {
   margin-top: 23px;
   text-align: right;
@@ -9948,30 +9980,30 @@ input.inline {
   color: #f04124;
 }
 
-/* line 201, ../scss/app.scss */
+/* line 229, ../scss/app.scss */
 #page-experts {
   font-size: 0.8rem;
 }
-/* line 204, ../scss/app.scss */
+/* line 232, ../scss/app.scss */
 #page-experts ol {
   font-size: inherit;
 }
-/* line 207, ../scss/app.scss */
+/* line 235, ../scss/app.scss */
 #page-experts li {
   font-size: inherit;
 }
-/* line 211, ../scss/app.scss */
+/* line 239, ../scss/app.scss */
 #page-experts div.nowrap {
   white-space: nowrap;
   margin-bottom: 0.4rem;
 }
-/* line 216, ../scss/app.scss */
+/* line 244, ../scss/app.scss */
 #page-experts span.required {
   display: none;
   opacity: 0;
   color: #f04124;
 }
-/* line 222, ../scss/app.scss */
+/* line 250, ../scss/app.scss */
 #page-experts input.inline-uid {
   width: 20rem;
   display: inline;
@@ -9981,38 +10013,38 @@ input.inline {
   text-align: left;
   vertical-align: middle;
 }
-/* line 232, ../scss/app.scss */
+/* line 260, ../scss/app.scss */
 #page-experts #experts-uid-submit {
   height: 1.6rem;
   vertical-align: middle;
   padding: 0 1rem;
   margin: 0;
 }
-/* line 239, ../scss/app.scss */
+/* line 267, ../scss/app.scss */
 #page-experts #experts-uid-response {
   margin-left: 0.6rem;
   font-size: 0.9rem;
 }
-/* line 243, ../scss/app.scss */
+/* line 271, ../scss/app.scss */
 #page-experts #experts-uid-response.alert {
   color: #f04124 !important;
 }
-/* line 247, ../scss/app.scss */
+/* line 275, ../scss/app.scss */
 #page-experts #experts-uid-response.success {
   color: #43AC6A !important;
 }
 
-/* line 254, ../scss/app.scss */
+/* line 282, ../scss/app.scss */
 #page-developers #resetCardCheckbox {
   margin-right: 5px;
 }
 
-/* line 260, ../scss/app.scss */
+/* line 288, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 265, ../scss/app.scss */
+/* line 293, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -10021,24 +10053,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 273, ../scss/app.scss */
+/* line 301, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 279, ../scss/app.scss */
+/* line 307, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 287, ../scss/app.scss */
+/* line 315, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 290, ../scss/app.scss */
+/* line 318, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -10050,18 +10082,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 303, ../scss/app.scss */
+/* line 331, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 307, ../scss/app.scss */
+/* line 335, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 313, ../scss/app.scss */
+/* line 341, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

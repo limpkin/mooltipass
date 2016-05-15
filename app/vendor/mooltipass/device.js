@@ -92,7 +92,13 @@ mooltipass.device.parameters = {
     'screensaver': 9,
     'flashScreen': 14,
     'userRequestCancel': 15,
-    'tutorialEnabled': 16
+    'tutorialEnabled': 16,
+    'keypressLoginEnabled': 19,
+    'keypressLogin': 20,
+    'keypressPasswordEnabled': 21,
+    'keypressPassword': 22,
+    'keybOutputDelayEnabled': 23,
+    'keybOutputDelay': 24
 };
 
 mooltipass.device.status_parameters = {

@@ -199,6 +199,10 @@ mooltipass.ui._.isDeviceUnlocked = function () {
     return mooltipass.device.isUnlocked;
 }
 
+mooltipass.ui._.getDeviceVersion = function() {
+    return mooltipass.device.version;
+}
+
 mooltipass.ui._.hasCard = function () {
     return !mooltipass.device.hasNoCard;
 }
@@ -285,6 +289,12 @@ update_device_status_classes = function () {
     } else {
         $(".show-if-sm").hide(); 
         $(".hide-if-sm").show();   
+    }
+    
+    if (mooltipass.ui._.getDeviceVersion() == "v1.1") {
+        $(".show-if-v1.1-version").show();         
+    } else {
+        $(".show-if-v1.1-version").hide();  
     }
 };
 

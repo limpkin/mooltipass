@@ -131,7 +131,35 @@ input.inline {
         width: 50px;
         margin-right: 8px;
         margin-left: 8px;
+        margin-bottom: 8px;
     }
+    #settings-keyboardLayout {
+        display: inline;
+        width: 100px;
+        margin-right: 8px;
+        margin-left: 8px;
+        margin-bottom: 8px;
+    }
+    #settings-keypressWait {
+        display: inline;
+        width: 50px;
+        margin-right: 8px;
+        margin-left: 8px;
+        margin-bottom: 8px;
+    } 
+    #settings-keypressLogin {
+        display: inline;
+        width: 70px;
+        margin-right: 8px;
+        margin-left: 8px;
+        margin-bottom: 8px;
+    } 
+    #settings-keypressPassword {
+        display: inline;
+        width: 70px;
+        margin-right: 8px;
+        margin-left: 8px;
+    }    
 }
 
 #page-synchronisation {

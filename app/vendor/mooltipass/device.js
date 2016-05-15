@@ -749,7 +749,7 @@ mooltipass.device.responseEndMemoryManagementMode = function(queuedItem, msg) {
 
 mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     var flashChipId = msg[0];
-    var version = mooltipass.device.convertMessageArrayToString(new Uint8Array(msg, 1));
+    var version = mooltipass.device.convertMessageArrayToString(msg.subarray(1));
 
     mooltipass.device.version = version;
     mooltipass.device.flashChipId = flashChipId;

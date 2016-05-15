@@ -379,7 +379,30 @@ mooltipass.ui.settings.getFirmwareVersion = function() {
         'payload': [],
         'callbackFunction': function(_response) {
             if(_response.success) {
-                $('#settings-tab-title').text("Device Settings - Firmware " + _response.value);
+                var firmware_version = _response.value.trim();
+                $('#settings-tab-title').text("Device Settings - Firmware " + firmware_version);
+                
+                // Delete LUTs present in all non v1 firmware versions
+                for(var i = 168; i < 256; i++)
+                {
+                    $("#settings-keyboardLayout option[value='" + i + "']").remove();                    
+                }
+                
+                // Actions depending on the firmware version
+                if(firmware_version == "v1.1")
+                {
+                    // They're not alphabetically sorted but heh... they're special.
+                    $("#settings-keyboardLayout").append(new Option("cz_QW", "179"));
+                    $("#settings-keyboardLayout").append(new Option("en_DV", "180"));
+                    $("#settings-keyboardLayout").append(new Option("mac_FR", "181"));
+                    $("#settings-keyboardLayout").append(new Option("mac_FRCH", "182"));
+                    $("#settings-keyboardLayout").append(new Option("mac_DECH", "183"));
+                    $("#settings-keyboardLayout").append(new Option("mac_DE", "184"));
+                    $("#settings-keyboardLayout").append(new Option("mac_US", "185"));
+                }
+                else
+                {
+                }
             }
             else {
             }

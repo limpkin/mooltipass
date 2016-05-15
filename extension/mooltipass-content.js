@@ -12,6 +12,7 @@ cipDebug.debugLog = function(message)
 }
 
 chrome.runtime.onMessage.addListener(function(req, sender, callback) {
+    cipDebug.debugLog(req);
 	if ('action' in req) {
 		cipDebug.debugLog(req.action);
 		if(req.action == "fill_user_pass_with_specific_login") {
@@ -1321,7 +1322,7 @@ cip.initCredentialFields = function(forceCall) {
 	_called.initCredentialFields = true;
 
 	var inputs = cipFields.getAllFields();
-    cipDebug.debugLog('initCredentialFields():', inputs.length, 'input fields found');
+    cipDebug.debugLog('initCredentialFields(): ' + inputs.length + ' input fields found');
 
     cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 

@@ -408,21 +408,42 @@ mooltipass.ui.settings.getUserRequestCancel = function() {
         'callbackFunction': function(_response) {
             if(_response.success) {
                 $('#settings-userRequestCancel').prop('checked', Boolean(Number(_response.value)));
-
-                // Start quickfix: Set it to 0 if enabled
-                if (Boolean(Number(_response.value))) {
-                    mooltipass.device.interface.send({
-                        'command': 'setMooltipassParameter',
-                        'parameter': 'userRequestCancel',
-                        'value': 0,
-                        'callbackFunction': function(_response) {
-                            if(!_response.success) {
-                                mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);
+                
+                // Firmware v1.0 suffers a bug which prevents us from using the request cancel functionality
+                if (mooltipass.ui._.getDeviceVersion() == "v1.0")
+                {
+                    // Start quickfix: Set it to 0 if enabled
+                    if (Boolean(Number(_response.value))) {
+                        mooltipass.device.interface.send({
+                            'command': 'setMooltipassParameter',
+                            'parameter': 'userRequestCancel',
+                            'value': 0,
+                            'callbackFunction': function(_response) {
+                                if(!_response.success) {
+                                    mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);
+                                }
                             }
-                        }
-                    });                
+                        });                
+                    }
+                    // End quickfix
                 }
-                // End quickfix
+                else if (mooltipass.ui._.getDeviceVersion() == "v1.1")
+                {
+                    // Might put a dedicated checkbox for that in the future... but enable it if disabled
+                    if (!Boolean(Number(_response.value))) {
+                        console.log("V1.1 FW, enabling cancelling feature");
+                        mooltipass.device.interface.send({
+                            'command': 'setMooltipassParameter',
+                            'parameter': 'userRequestCancel',
+                            'value': 1,
+                            'callbackFunction': function(_response) {
+                                if(!_response.success) {
+                                    mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);
+                                }
+                            }
+                        });                
+                    }
+                }
             }
             else {
                 mooltipass.ui.status.error($('#settings-userRequestCancel'), _response.msg);

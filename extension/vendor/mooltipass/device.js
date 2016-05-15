@@ -310,11 +310,12 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
     // Returned on a PING, contains the status of the device
     if (message.deviceStatus !== null) {
         mooltipass.device._status = {
-            'connected': message.deviceStatus.version != 'unknown',
-            'unlocked': message.deviceStatus.connected,
+            'connected': message.deviceStatus.connected,
+            'unlocked': message.deviceStatus.unlocked,
             'version': message.deviceStatus.version,
             'state' : message.deviceStatus.state
         };
+        //console.log(mooltipass.device._status)
     }
     // Returned on request for a random number
     else if (message.random !== null) {

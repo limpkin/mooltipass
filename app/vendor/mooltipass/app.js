@@ -50,24 +50,31 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
     }
 
     if(inputObject.command == 'getMooltipassStatus') {
-        var responseObject = {
-            'command': inputObject.command,
-            'success': true,
-            'value': status,
-            'connected': mooltipass.device.isConnected,
-            'unlocked': mooltipass.device.isUnlocked,
-            'locked': !mooltipass.device.isUnlocked,
-            'noCard': mooltipass.device.hasNoCard,
-            'version': mooltipass.device.version,
-        };
-
-        // Add backwards-compatible data information
-        var backwards = mooltipass.app.translateResponseForBackwardsCompatibility(responseObject);
-        // Merge backwards-compatible information into data object
-        mergeObjects(backwards, responseObject);
+        var responseObject = {};
+        responseObject.deviceStatus = {};
+        responseObject.deviceStatus.version = mooltipass.device.version;
+        responseObject.deviceStatus.connected = mooltipass.device.isConnected;
+        responseObject.deviceStatus.unlocked = mooltipass.device.isUnlocked;
+        if(mooltipass.device.status == 'no-card') {
+            responseObject.deviceStatus.state = 'NoCard';
+        }
+        else if(mooltipass.device.status == 'locked') {
+            responseObject.deviceStatus.state = 'Locked';
+        }
+        else if(mooltipass.device.status == 'unlocked') {
+            responseObject.deviceStatus.state = 'Unlocked';
+        }
+        else if(mooltipass.device.singleCommunicationMode) {
+            responseObject.deviceStatus.state = 'ManageMode';
+        }
+        else if(!mooltipass.device.isConnected) {
+            responseObject.deviceStatus.state = 'NotConnected';
+        }
+        else {
+            responseObject.deviceStatus.state = 'Error';
+        }
 
         //console.log('Response Status:', responseObject);
-
         chrome.runtime.sendMessage(senderId, responseObject, function() {
             if(chrome.runtime.lastError) {
                 // TODO: Chrome 49 returns this error which does not affect the functionality. No real solution found yet (2016-03-18)
@@ -174,29 +181,6 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_response) 
 
     if(_response.success && command == 'getRandomNumber') {
         output.random = _response.value;
-    }
-    else if(command == 'getMooltipassStatus') {
-        output.deviceStatus = {};
-        output.deviceStatus.version = mooltipass.device.version;
-        output.deviceStatus.connected = mooltipass.device.isUnlocked;
-        if(mooltipass.device.status == 'no-card') {
-            output.deviceStatus.state = 'NoCard';
-        }
-        else if(mooltipass.device.status == 'locked') {
-            output.deviceStatus.state = 'Locked';
-        }
-        else if(mooltipass.device.status == 'unlocked') {
-            output.deviceStatus.state = 'Unlocked';
-        }
-        else if(mooltipass.device.singleCommunicationMode) {
-            output.deviceStatus.state = 'ManageMode';
-        }
-        else if(!mooltipass.device.isConnected) {
-            output.deviceStatus.state = 'NotConnected';
-        }
-        else {
-            output.deviceStatus.state = 'Error';
-        }
     }
     else if(command == 'getCredentials') {
         if(_response.success) {

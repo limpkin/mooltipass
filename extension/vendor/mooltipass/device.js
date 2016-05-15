@@ -224,7 +224,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
     // unset error message
     page.tabs[tab.id].errorMessage = null;
 
-    chrome.runtime.sendMessage({type: 'update', url: url, inputs: {login: {id: 0, name: 0, value: username}, password: { id: 1, name: 1, value: password }}});
+    //chrome.runtime.sendMessage({type: 'update', url: url, inputs: {login: {id: 0, name: 0, value: username}, password: { id: 1, name: 1, value: password }}});
 
     request = {update: {context: url, login: username, password: password}};
     mooltipass.device._asynchronous.updateCallback = callback;

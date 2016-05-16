@@ -273,7 +273,7 @@ mooltipass.device.interface._getCredentials = function(inputObject) {
     mooltipass.device.addToQueue(
         'setContext',
         [firstContext[0]],
-        {'contexts': contexts, 'requestType': 'getCredentials'},
+        {'contexts': contexts, 'requestType': 'getCredentials', 'reqid': inputObject.reqid},
         inputObject.callbackFunction,
         inputObject.callbackParameters,
         inputObject.timeout

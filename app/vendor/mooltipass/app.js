@@ -89,7 +89,15 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
     }
     else if(inputObject.command == 'cancelGetCredentials')
     {
-        console.log("Cancel request for reqid " + inputObject.reqId);
+        console.log("Cancel request for reqid " + inputObject.reqid);
+        
+        // Cancel request only implemented in v1.1
+        if (mooltipass.device.version == "v1.1" && mooltipass.device.currentReqid == inputObject.reqid)
+        {
+            // The cancel message doesn't generate any reply from the device, so we can just send it as is
+            chrome.hid.send(mooltipass.device.connectionId, 0, mooltipass.device.createPacket(mooltipass.device.commands['cancelUserRequest'], null), function(){});
+            console.log("Cancel packet sent");
+        }
         //console.log(inputObject);
         return;
     }
@@ -168,7 +176,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
         if(_request.getInputs.domain) {
             output.contexts.push(_request.getInputs.domain);
         }
-        output.reqId = _request.getInputs.reqid;
+        output.reqid = _request.getInputs.reqid;
     }
     else if('cancelGetInputs' in _request)
     {
@@ -180,7 +188,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
         if(_request.cancelGetInputs.domain) {
             output.contexts.push(_request.cancelGetInputs.domain);
         }
-        output.reqId = _request.cancelGetInputs.reqid;
+        output.reqid = _request.cancelGetInputs.reqid;
     }
 
     return output;

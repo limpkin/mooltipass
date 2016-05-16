@@ -148,6 +148,9 @@ mooltipass.device.isUnknownCard = false;
 // Device has no card inserted
 mooltipass.device.hasNoCard = true;
 
+// Current get credential request id 
+mooltipass.device.currentReqid = null;
+
 // Is communication with device is uniquely taken by a function?
 // e.g. device is in MemoryManagementMode
 mooltipass.device.singleCommunicationMode = false;
@@ -458,6 +461,8 @@ mooltipass.device.addToQueue = function(command, payload, responseParameters, ca
         'timeout': timeoutObject,
         'additionalArguments': additionalArguments
     };
+    
+    //console.log(object);
 
     if(addToFirstPosition) {
         mooltipass.device.queue.unshift(object);
@@ -978,7 +983,7 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
                     // Get login
                     mooltipass.ui._.blockInput();
                     mooltipass.device.addToQueue('getLogin', [], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
-
+                    mooltipass.device.currentReqid = params.reqid;
                     mooltipass.device.processQueue();
                     return;
                 }
@@ -1038,6 +1043,8 @@ mooltipass.device.responseGetLogin = function(queuedItem, msg) {
         'command': queuedItem.command,
         'payload': queuedItem.payload,
     };
+    
+    mooltipass.device.currentReqid = null;
 
     if(!params) {
         responseObject.success = false;

@@ -50,6 +50,11 @@ mooltipass.device._asynchronous = {
 };
 
 /**
+ * Queue of requests to retrieve credentials, as the app will always answer each request
+ */
+ mooltipass.device.retrieveCredentialsQueue = [];
+
+/**
  * Requesting a new random string from device only once a minute
  * Minute of latest request stored in this parameter
  * Values: null or number: hour * 60 * minute
@@ -272,13 +277,19 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     if(parsed_url.subdomain && mooltipass.backend.isBlacklisted(parsed_url.subdomain)) {
         return;
     }
-
-    //TODO: remove obsolete parameter "context" which is replaced by "domain" (2015-07-27, wait a month)
-    request = { getInputs : {context: parsed_url.domain, domain: parsed_url.domain, subdomain: parsed_url.subdomain} };
-
-    console.log('sending to '+mooltipass.device._app.id);
+    
+    // If our retrieveCredentialsQueue is empty, send the request to the app. Otherwise, queue it
+    mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain});
     mooltipass.device._asynchronous.inputCallback = callback;
-    chrome.runtime.sendMessage(mooltipass.device._app.id, request);
+    if(mooltipass.device.retrieveCredentialsQueue.length == 1)
+    {
+        console.log('sending to ' + mooltipass.device._app.id);
+        chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
+    }
+    else
+    {
+        console.log("Requests still in the queue, waiting for reply from the app")
+    }
 };
 
 /****************************************************************************************************************/
@@ -292,29 +303,23 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
 chrome.management.getAll(mooltipass.device.onSearchForApp);
 
 /**
- * Process messages from content scripts
- */
-chrome.runtime.onMessage.addListener(function(req, sender, callback) {
-    if ('action' in req) {
-        if(req.action == "mooltipass.device.addCredentials") {
-            mooltipass.device.addCredentials(callback, sender.tab, req.username, req.password, req.url);
-        }
-    }
-});
-
-
-/**
  * Process messages from the Mooltipass app
  */
 chrome.runtime.onMessageExternal.addListener(function(message, sender, sendResponse) {
     // Returned on a PING, contains the status of the device
-    if (message.deviceStatus !== null) {
-        mooltipass.device._status = {
+    if (message.deviceStatus !== null) 
+    {
+        mooltipass.device._status = 
+        {
             'connected': message.deviceStatus.connected,
             'unlocked': message.deviceStatus.unlocked,
             'version': message.deviceStatus.version,
             'state' : message.deviceStatus.state
         };
+        if (!message.deviceStatus.connected || !message.deviceStatus.unlocked)
+        {
+            mooltipass.device.retrieveCredentialsQueue = [];
+        }
         //console.log(mooltipass.device._status)
     }
     // Returned on request for a random number
@@ -328,9 +333,11 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         }
     }
     // Returned on successfully requesting credentials for a specific URL
-    else if (message.credentials !== null) {
-        if (mooltipass.device._asynchronous.inputCallback) {
-            mooltipass.device._asynchronous.inputCallback([
+    else if (message.credentials !== null) 
+    {
+        if (mooltipass.device.retrieveCredentialsQueue[0].callback) 
+        {
+            mooltipass.device.retrieveCredentialsQueue[0].callback([
                 {
                     Login: message.credentials.login,
                     Name: '<name>',
@@ -339,14 +346,28 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
                     StringFields: []
                 }
             ]);
-            mooltipass.device._asynchronous.inputCallback = null;
+        }
+        // Treat other pending requests
+        mooltipass.device.retrieveCredentialsQueue.shift();
+        if(mooltipass.device.retrieveCredentialsQueue.length > 0)
+        {
+            console.log('sending to ' + mooltipass.device._app.id);
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});       
         }
     }
     // Returned on requesting credentials for a specific URL, but no credentials were found
-    else if (message.noCredentials !== null) {
-        if (mooltipass.device._asynchronous.inputCallback) {
-            mooltipass.device._asynchronous.inputCallback([]);
-            mooltipass.device._asynchronous.inputCallback = null;
+    else if (message.noCredentials !== null) 
+    {
+        if (mooltipass.device.retrieveCredentialsQueue[0].callback) 
+        {
+            mooltipass.device.retrieveCredentialsQueue[0].callback([]);
+        }
+        // Treat other pending requests
+        mooltipass.device.retrieveCredentialsQueue.shift();
+        if(mooltipass.device.retrieveCredentialsQueue.length > 0)
+        {
+            console.log('sending to ' + mooltipass.device._app.id);
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});       
         }
     }
     // Returned on a completed update of credentials on the device

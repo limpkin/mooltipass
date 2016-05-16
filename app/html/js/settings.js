@@ -648,9 +648,11 @@ mooltipass.ui.settings.getFirmwareVersion = function() {
                     $("#settings-keyboardLayout").append(new Option("mac_DECH", "183"));
                     $("#settings-keyboardLayout").append(new Option("mac_DE", "184"));
                     $("#settings-keyboardLayout").append(new Option("mac_US", "185"));
+                    $(".show-if-v1.1-version").show(); 
                 }
                 else
                 {
+                    $(".show-if-v1.1-version").hide();  
                 }
             }
             else {

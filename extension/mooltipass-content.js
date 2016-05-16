@@ -1383,7 +1383,7 @@ cip.initCredentialFields = function(forceCall) {
 
 	chrome.runtime.sendMessage({
 		'action': 'retrieve_credentials',
-		'args': [ cip.url, cip.submitUrl ]
+		'args': [ cip.url, cip.submitUrl, true, true]
 	}, cip.retrieveCredentialsCallback);
 } // end function init
 
@@ -1561,7 +1561,7 @@ cip.fillInCredentials = function(combination, onlyPassword, suppressWarnings) {
 
 		chrome.runtime.sendMessage({
 			'action': 'retrieve_credentials',
-			'args': [ cip.url, cip.submitUrl, false, true ]
+			'args': [ cip.url, cip.submitUrl, true, true]
 		}, function(credentials) {
             cipDebug.debugLog('cip.fillInCredentials()');
 			cip.retrieveCredentialsCallback(credentials, true);
@@ -1937,7 +1937,7 @@ cipEvents.triggerActivatedTab = function() {
 	if(_called.initCredentialFields && (cip.url || cip.submitUrl)) {
 		chrome.runtime.sendMessage({
 			'action': 'retrieve_credentials',
-			'args': [ cip.url, cip.submitUrl ]
+			'args': [ cip.url, cip.submitUrl, true, true]
 		}, cip.retrieveCredentialsCallback);
 	}
 }

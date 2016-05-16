@@ -290,12 +290,6 @@ update_device_status_classes = function () {
         $(".show-if-sm").hide(); 
         $(".hide-if-sm").show();   
     }
-    
-    if (mooltipass.ui._.getDeviceVersion() == "v1.1") {
-        $(".show-if-v1.1-version").show();         
-    } else {
-        $(".show-if-v1.1-version").hide();  
-    }
 };
 
 

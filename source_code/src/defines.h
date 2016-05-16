@@ -64,7 +64,7 @@
  *  MINI_PREPRODUCTION_SETUP
  *  => mooltipass mini pre-production units
 */
-#define MINI_PREPRODUCTION_SETUP
+#define MINI_CLICK_BETATESTERS_SETUP
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)

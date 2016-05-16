@@ -242,7 +242,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
  */
 mooltipass.device.onTabClosed = function(tabId, removeInfo)
 {
-    //console.log("Tab closed: " + tabId + " remove info: " + removeInfo);
+    console.log("Tab closed: " + tabId + " remove info: " + removeInfo);
     
     // Return if queue empty
     if(mooltipass.device.retrieveCredentialsQueue.length == 0)
@@ -274,14 +274,15 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
  */
 mooltipass.device.onTabUpdated = function(tabId, removeInfo)
 {  
-    for (var i = 0; i < mooltipass.device.retrieveCredentialsQueue.length; i++)
+    mooltipass.device.onTabClosed(tabId, removeInfo);
+    /*for (var i = 0; i < mooltipass.device.retrieveCredentialsQueue.length; i++)
     {
         if (mooltipass.device.retrieveCredentialsQueue[i].tabid == tabId)
         {
             mooltipass.device.retrieveCredentialsQueue[i].tabupdated = true;
             //console.log("Marking tab " + tabId + " updated");
         }
-    }    
+    }  */  
 }
 
 /**

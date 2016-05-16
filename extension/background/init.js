@@ -43,6 +43,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 	if(page.currentTabId == tabId) {
 		page.currentTabId = -1;
 	}
+    mooltipass.device.onTabClosed(tabId, removeInfo);
 });
 
 /**
@@ -76,6 +77,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	if(changeInfo.status == "complete") {
 		event.invoke(browserAction.removeRememberPopup, null, tabId, []);
 	}
+    mooltipass.device.onTabUpdated();
 });
 
 

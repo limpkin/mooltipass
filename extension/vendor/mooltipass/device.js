@@ -331,17 +331,17 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     }
     
     // If our retrieveCredentialsQueue is empty, send the request to the app. Otherwise, queue it
-    mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false});
+    mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter});
+    mooltipass.device.retrieveCredentialsCounter++;
     mooltipass.device._asynchronous.inputCallback = callback;
     if(mooltipass.device.retrieveCredentialsQueue.length == 1)
     {
-        chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsCounter, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
+        chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
         console.log('sending to ' + mooltipass.device._app.id);
-        mooltipass.device.retrieveCredentialsCounter++;
     }
     else
     {
-        console.log("Requests still in the queue, waiting for reply from the app")
+        console.log("Requests still in the queue, waiting for reply from the app");
     }
 };
 
@@ -372,6 +372,7 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         if (!message.deviceStatus.connected || !message.deviceStatus.unlocked)
         {
             mooltipass.device.retrieveCredentialsQueue = [];
+            //console.log("Emptying queue");
         }
         //console.log(mooltipass.device._status)
     }
@@ -407,9 +408,8 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         mooltipass.device.retrieveCredentialsQueue.shift();
         if(mooltipass.device.retrieveCredentialsQueue.length > 0)
         {
-            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsCounter, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});       
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});       
             console.log('sending to ' + mooltipass.device._app.id);
-            mooltipass.device.retrieveCredentialsCounter++;
         }
     }
     // Returned on requesting credentials for a specific URL, but no credentials were found
@@ -426,9 +426,8 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         mooltipass.device.retrieveCredentialsQueue.shift();
         if(mooltipass.device.retrieveCredentialsQueue.length > 0)
         {
-            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsCounter, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});   
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});   
             console.log('sending to ' + mooltipass.device._app.id);
-            mooltipass.device.retrieveCredentialsCounter++;    
         }
     }
     // Returned on a completed update of credentials on the device

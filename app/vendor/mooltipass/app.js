@@ -163,6 +163,7 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
         if(_request.getInputs.domain) {
             output.contexts.push(_request.getInputs.domain);
         }
+        output.reqId = _request.getInputs.reqid;
     }
 
     return output;

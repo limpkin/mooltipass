@@ -258,6 +258,13 @@ void usbProcessIncoming(uint8_t caller_id)
     // Otherwise, process command
     switch(datacmd)
     {
+        // cancel request
+        case CMD_CANCEL_REQUEST :
+        {
+            // We never answer cancel requests
+            return;
+        }
+
         // ping command
         case CMD_PING :
         {

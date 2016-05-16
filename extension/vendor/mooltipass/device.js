@@ -244,11 +244,17 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
 {
     //console.log("Tab closed: " + tabId + " remove info: " + removeInfo);
     
+    // Return if queue empty
+    if(mooltipass.device.retrieveCredentialsQueue.length == 0)
+    {
+        return;
+    }
+    
     /* Check if we have a pending credential request from that tab */    
     if (mooltipass.device.retrieveCredentialsQueue[0].tabid == tabId)
     {
         /* Send a cancelling request if it is the tab from which we're waiting an answer */
-        chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}}); 
+        chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}}); 
     }
     else
     {        

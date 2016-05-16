@@ -87,7 +87,12 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         });
         return;
     }
-
+    else if(inputObject.command == 'cancelGetCredentials')
+    {
+        console.log("Cancel request for reqid " + inputObject.reqId);
+        //console.log(inputObject);
+        return;
+    }
 
     inputObject.callbackFunction = function(_responseObject) {
         _responseObject.command = inputObject.command;
@@ -164,6 +169,18 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
             output.contexts.push(_request.getInputs.domain);
         }
         output.reqId = _request.getInputs.reqid;
+    }
+    else if('cancelGetInputs' in _request)
+    {
+        output.command = 'cancelGetCredentials';
+        output.contexts = [];
+        if(_request.cancelGetInputs.subdomain && _request.cancelGetInputs.domain) {
+            output.contexts.push(_request.cancelGetInputs.subdomain + '.' + _request.cancelGetInputs.domain);
+        }
+        if(_request.cancelGetInputs.domain) {
+            output.contexts.push(_request.cancelGetInputs.domain);
+        }
+        output.reqId = _request.cancelGetInputs.reqid;
     }
 
     return output;

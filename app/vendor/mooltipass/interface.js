@@ -265,7 +265,9 @@ mooltipass.device.interface._getCredentials = function(inputObject) {
         mooltipass.device.interface._returnError(inputObject, 103, 'missing context for getting credentials');
         return;
     }
-
+    
+    //console.log(inputObject);
+    
     var firstContext = contexts.splice(0, 1);
 
     mooltipass.device.addToQueue(

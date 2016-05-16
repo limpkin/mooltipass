@@ -22,7 +22,7 @@
 #define PRODUCT_ID          0x09A0              // Product ID (from MCS)
 #define RAWHID_USAGE_PAGE   0xFF31              // HID usage page, after 0xFF00: vendor-defined
 #define RAWHID_USAGE        0x0074              // HID usage
-#define STR_MANUFACTURER    L"SE"               // Manufacturer string
+#define STR_MANUFACTURER    L""                 // Manufacturer string
 #define STR_PRODUCT         L"Mooltipass"       // Product string
 #define ENDPOINT0_SIZE      32                  // Size for endpoint 0
 #define RAWHID_INTERFACE    0                   // Interface for the raw HID

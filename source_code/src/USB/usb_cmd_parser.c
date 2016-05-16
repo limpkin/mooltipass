@@ -1169,7 +1169,8 @@ void usbProcessIncoming(uint8_t caller_id)
             setCurrentDate(*temp_uint_ptr);
             break;
         }      
-        
+
+#if !defined(POST_KICKSTARTER_UPDATE_SETUP)        
         // Set Mooltipass UID
         case CMD_SET_UID :
         {            
@@ -1186,7 +1187,8 @@ void usbProcessIncoming(uint8_t caller_id)
                 plugin_return_value = PLUGIN_BYTE_ERROR;
             }
             break;
-        }   
+        }
+#endif
         
         // Get Mooltipass UID
         case CMD_GET_UID :

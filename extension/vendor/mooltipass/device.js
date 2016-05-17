@@ -231,6 +231,9 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
     page.tabs[tab.id].errorMessage = null;
 
     //chrome.runtime.sendMessage({type: 'update', url: url, inputs: {login: {id: 0, name: 0, value: username}, password: { id: 1, name: 1, value: password }}});
+    
+    // Cancel possible pending request
+    mooltipass.device.onTabClosed(tab.id, null);
 
     request = {update: {context: url, login: username, password: password}};
     mooltipass.device._asynchronous.updateCallback = callback;
@@ -242,7 +245,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
  */
 mooltipass.device.onTabClosed = function(tabId, removeInfo)
 {
-    console.log("Tab closed: " + tabId + " remove info: " + removeInfo);
+    //console.log("Tab closed: " + tabId + " remove info: " + removeInfo);
     
     // Return if queue empty
     if(mooltipass.device.retrieveCredentialsQueue.length == 0)

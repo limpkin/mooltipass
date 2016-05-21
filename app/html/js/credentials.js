@@ -3,6 +3,7 @@ mooltipass.ui = mooltipass.ui || {};
 mooltipass.ui.credentials = mooltipass.ui.credentials || {};
 
 mooltipass.ui.credentials.activeDeviceInteraction = false;
+mooltipass.ui.credentials.rngPwdReqInProgress = false;
 
 // Disable throwing alerts by dataTable
 $.fn.dataTableExt.sErrMode = 'throw';
@@ -699,10 +700,128 @@ mooltipass.ui.credentials.onClickImportFromCSV = function(e) {
 }
 
 /**
+ * Function dedicated to the quick add submit event
+ *
+ */
+mooltipass.ui.credentials.quickAddSubmit = function()
+{
+    var $inputs;
+    var i;
+
+    // Check if form is valid
+    $inputs = $(".quickcredentialadd input[required]");
+    i = 0;
+    var is_valid = true;
+    while (i < $inputs.length) {
+        var $input = $($inputs[i]);
+        if (($input.attr("required") == 'required') && ($input.val() == '')) {
+            $input.parents("label").addClass("alert").addClass("alert-required");
+            is_valid = false;
+        } else {
+            $input.parents("label").removeClass("alert-required");
+        }
+        i++;
+    }
+
+    //Check if value length is < max-length
+    $inputs = $(".quickcredentialadd input[data-maxlength]");
+    i = 0;
+    while (i < $inputs.length) {
+        var $input = $($inputs[i]);
+        if (parseInt($input.data("maxlength")) < $input.val().length) {
+            $input.parents("label").addClass("alert").addClass("alert-maxlength");
+            is_valid = false;
+        } else {
+            $input.parents("label").removeClass("alert-maxlength");
+        }
+        i++;
+    }
+
+    //Remove class .alert from labels if neither alert-required nor alert-maxlength is set
+    $inputs = $(".quickcredentialadd input");
+    i = 0;
+    while (i < $inputs.length) {
+        var $input = $($inputs[i]);
+
+        var $label = $input.parents("label");
+
+        if(!$label.hasClass('alert-required') && !$label.hasClass('alert-maxlength')) {
+            $label.removeClass('alert');
+        }
+
+        i++;
+    }
+
+    if (!is_valid) return;
+
+    // If submission is valid, add to USER_CREDENTIALS
+    var credential = {
+        "context": $(".quickcredentialadd input[name='quick-app']").val().trim(),
+        "username": $(".quickcredentialadd input[name='quick-user']").val(),
+        "password": $(".quickcredentialadd input[name='quick-password']").val(),
+    };
+
+    //USER_CREDENTIALS.push(credential);
+
+    // Empty form fields again
+    $(".quickcredentialadd input").val("");
+    $(".quickcredentialadd input:visible:first").focus();
+}
+
+/**
+ * Function called when a random number is returned to generate a random password
+ */
+mooltipass.ui.credentials.rngCallback = function(callbackParams)
+{
+    mooltipass.ui.credentials.rngPwdReqInProgress = false;
+    if(callbackParams.rawdata)
+    {
+        var newPassword = "";
+        
+        // 22 chars for the password... because why not
+        for(var i = 0; i < 22; i++)
+        {
+            // Taking chars after 0x20 (space) until '_', replacing ' with other char due to possible bad keyboard output combinations
+            var randomChar = String.fromCharCode((callbackParams.rawdata[i]%64)+32);
+            if(randomChar == '\'')
+            {
+                randomChar = 'a';
+            }
+            else if(randomChar == '^')
+            {
+                randomChar = 'b';
+            }
+            else if(randomChar == ' ')
+            {
+                randomChar = 'c';
+            }
+            newPassword += randomChar;
+        }
+        
+        $(".quickcredentialadd input[name='quick-password']").val(newPassword);
+    }
+}
+
+/**
+ * Function dedicated to the quick add submit event
+ *
+ */
+mooltipass.ui.credentials.quickAddGen = function()
+{
+    if(mooltipass.ui.credentials.rngPwdReqInProgress == false)
+    {
+        mooltipass.device.interface.send({'command':'getRandomNumber', 'callbackFunction': mooltipass.ui.credentials.rngCallback});
+        mooltipass.ui.credentials.rngPwdReqInProgress = true;
+    }    
+}
+
+/**
  * Initialize function
  * triggered by mooltipass.app.init()
  */
 mooltipass.ui.credentials.init = function () {
+    $('#quick-add-pwd-gen').click(mooltipass.ui.credentials.quickAddGen);
+    $('#quick-add-store').click(mooltipass.ui.credentials.onClickMMMEnter);
     $('#mmm-enter').click(mooltipass.ui.credentials.onClickMMMEnter);
     $('#mmm-save').click(mooltipass.ui.credentials.onClickMMMSave);
     $('#mmm-save, #mmm-discard').hide();
@@ -711,6 +830,8 @@ mooltipass.ui.credentials.init = function () {
     // TODO #MS
     // TODO Remove next line after implementing functionality
     $("#import-from-csv").hide();
+    
+    mooltipass.ui.credentials.rngPwdReqInProgress = false;
 
 
     CREDENTIALS_TABLE = $("#credentials").dataTable({
@@ -869,6 +990,53 @@ mooltipass.ui.credentials.init = function () {
 
                 update_data_values();
                 mooltipass.ui.credentials.initializeTableActions();
+            }
+        }).on("keyup", function (e) {
+            var $label = $(this).parents("label");
+            var is_valid = true;
+
+            if($(this).data('maxlength') && parseInt($(this).data('maxlength')) < $(this).val().length) {
+                $label.addClass("alert").addClass('alert-maxlength');
+                is_valid = false;
+            }
+            else {
+                $label.removeClass('alert-maxlength')
+            }
+
+            // Remove any error label if input is not empty
+            if (($(this).attr("required") == 'required') && ($(this).val() != '')) {
+                $label.removeClass('alert-required');
+            }
+            else {
+                is_valid = false;
+            }
+
+            if(is_valid) {
+                $label.removeClass('alert');
+            }
+        });
+        
+    // Init add credentials interactions
+    $(".quickcredentialadd input").on("focus", function () {
+        $(this).next().css("opacity", 1);
+    })
+        .on("focusout", function () {
+            $(this).next().css("opacity", 0);
+        }).on("keydown", function (e) {
+            // Manage TABbing to next field
+            if (e.keyCode == 9) {
+                if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val().trim() == '')) {
+                    $(this).parents("label").addClass("alert").addClass('alert-required');
+                } else {
+                    $(this).parents("label").removeClass('alert-required');
+                    if(!$(this).parents("label").hasClass('alert-maxlength')) {
+                        $(this).parents("label").removeClass('alert');
+                    }
+                }
+            }
+            // Manage submit of new credentials
+            if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
+                mooltipass.ui.credentials.quickAddSubmit();                
             }
         }).on("keyup", function (e) {
             var $label = $(this).parents("label");

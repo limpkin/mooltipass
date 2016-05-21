@@ -9821,51 +9821,51 @@ input.inline {
 }
 
 /* line 72, ../scss/app.scss */
-.add-credential input {
+.add-credential input, .quickcredentialadd input {
   margin-bottom: 0;
   height: 1.8rem;
   transition: all 200ms ease;
 }
 /* line 79, ../scss/app.scss */
-.add-credential label span.required {
+.add-credential label span.required, .quickcredentialadd label span.required {
   display: none;
   opacity: 0;
   color: #f04124;
 }
 /* line 84, ../scss/app.scss */
-.add-credential label span.maxlength {
+.add-credential label span.maxlength, .quickcredentialadd label span.maxlength {
   display: none;
   opacity: 0;
   color: #f04124;
 }
 /* line 90, ../scss/app.scss */
-.add-credential label.alert-required span.required {
+.add-credential label.alert-required span.required, .quickcredentialadd label.alert-required span.required {
   display: inline;
 }
 /* line 93, ../scss/app.scss */
-.add-credential label.alert-required span.required {
+.add-credential label.alert-required span.required, .quickcredentialadd label.alert-required span.required {
   opacity: 1;
   transition: all 200ms ease;
 }
 /* line 97, ../scss/app.scss */
-.add-credential label.alert-required input {
+.add-credential label.alert-required input, .quickcredentialadd label.alert-required input {
   border: 1px solid #F00 !important;
 }
 /* line 102, ../scss/app.scss */
-.add-credential label.alert-maxlength span.maxlength {
+.add-credential label.alert-maxlength span.maxlength, .quickcredentialadd label.alert-maxlength span.maxlength {
   display: inline;
 }
 /* line 105, ../scss/app.scss */
-.add-credential label.alert-maxlength span.maxlength {
+.add-credential label.alert-maxlength span.maxlength, .quickcredentialadd label.alert-maxlength span.maxlength {
   opacity: 1;
   transition: all 200ms ease;
 }
 /* line 109, ../scss/app.scss */
-.add-credential label.alert-maxlength input {
+.add-credential label.alert-maxlength input, .quickcredentialadd label.alert-maxlength input {
   border: 1px solid #F00 !important;
 }
 /* line 114, ../scss/app.scss */
-.add-credential label .comment {
+.add-credential label .comment, .quickcredentialadd label .comment {
   font-size: 0.68rem;
   opacity: 0;
   transition: all 200ms ease;

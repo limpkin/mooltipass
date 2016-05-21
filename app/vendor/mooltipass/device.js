@@ -848,9 +848,10 @@ mooltipass.device.responseGetRandomNumber = function(queuedItem, msg) {
     var responseObject = {
         'command': queuedItem.command,
         'success': true,
-        'value': value
+        'value': value,
+        'rawdata': msg
     };
-
+    
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
     // Process next queued request
     mooltipass.device.processQueue();

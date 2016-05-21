@@ -37,6 +37,7 @@ mooltipass.device.interface.metaCommands = [
 ];
 
 mooltipass.device.interface.send = function(inputObject) {
+    //console.log(inputObject);
     var command = mooltipass.device.interface['_'+inputObject.command];
     if(!command && !contains(mooltipass.device.interface.metaCommands, inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 80, 'unknown command: ' + inputObject.command);

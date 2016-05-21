@@ -172,6 +172,9 @@ input.inline {
         margin-top: 8px;
         padding: 0.7rem;
     }
+    button.extraTopSpace {
+        margin-top: 26px;
+    }
 
     .storage {
         p {
@@ -216,6 +219,10 @@ input.inline {
                 background-color: #F1BABA;
             }
         }
+    }
+    
+    .button-credentials-mmm {
+        text-align: center;
     }
 
     #unsaved-changes-warning {

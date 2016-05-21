@@ -9930,49 +9930,57 @@ input.inline {
   margin-top: 8px;
   padding: 0.7rem;
 }
-/* line 177, ../scss/app.scss */
+/* line 175, ../scss/app.scss */
+#page-synchronisation button.extraTopSpace {
+  margin-top: 26px;
+}
+/* line 180, ../scss/app.scss */
 #page-synchronisation .storage p {
   margin-bottom: 0;
 }
-/* line 181, ../scss/app.scss */
+/* line 184, ../scss/app.scss */
 #page-synchronisation .storage input[type="checkbox"] {
   margin-left: 0.5rem;
 }
-/* line 185, ../scss/app.scss */
+/* line 188, ../scss/app.scss */
 #page-synchronisation .storage span {
   display: inline-block;
   width: 90%;
 }
-/* line 190, ../scss/app.scss */
+/* line 193, ../scss/app.scss */
 #page-synchronisation .storage label {
   margin-top: 0.5rem;
 }
 
-/* line 197, ../scss/app.scss */
+/* line 200, ../scss/app.scss */
 .comment {
   color: #888 !important;
 }
 
-/* line 202, ../scss/app.scss */
+/* line 205, ../scss/app.scss */
 #page-credentials button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 207, ../scss/app.scss */
+/* line 210, ../scss/app.scss */
 #page-credentials button.secondary {
   color: #888888;
   transition: background-color ease 1000ms;
 }
-/* line 211, ../scss/app.scss */
+/* line 214, ../scss/app.scss */
 #page-credentials button.secondary:hover {
   background-color: #ddd;
 }
-/* line 215, ../scss/app.scss */
+/* line 218, ../scss/app.scss */
 #page-credentials button.secondary:active {
   background-color: #F1BABA;
 }
-/* line 221, ../scss/app.scss */
+/* line 224, ../scss/app.scss */
+#page-credentials .button-credentials-mmm {
+  text-align: center;
+}
+/* line 228, ../scss/app.scss */
 #page-credentials #unsaved-changes-warning {
   margin-top: 23px;
   text-align: right;
@@ -9980,30 +9988,30 @@ input.inline {
   color: #f04124;
 }
 
-/* line 229, ../scss/app.scss */
+/* line 236, ../scss/app.scss */
 #page-experts {
   font-size: 0.8rem;
 }
-/* line 232, ../scss/app.scss */
+/* line 239, ../scss/app.scss */
 #page-experts ol {
   font-size: inherit;
 }
-/* line 235, ../scss/app.scss */
+/* line 242, ../scss/app.scss */
 #page-experts li {
   font-size: inherit;
 }
-/* line 239, ../scss/app.scss */
+/* line 246, ../scss/app.scss */
 #page-experts div.nowrap {
   white-space: nowrap;
   margin-bottom: 0.4rem;
 }
-/* line 244, ../scss/app.scss */
+/* line 251, ../scss/app.scss */
 #page-experts span.required {
   display: none;
   opacity: 0;
   color: #f04124;
 }
-/* line 250, ../scss/app.scss */
+/* line 257, ../scss/app.scss */
 #page-experts input.inline-uid {
   width: 20rem;
   display: inline;
@@ -10013,38 +10021,38 @@ input.inline {
   text-align: left;
   vertical-align: middle;
 }
-/* line 260, ../scss/app.scss */
+/* line 267, ../scss/app.scss */
 #page-experts #experts-uid-submit {
   height: 1.6rem;
   vertical-align: middle;
   padding: 0 1rem;
   margin: 0;
 }
-/* line 267, ../scss/app.scss */
+/* line 274, ../scss/app.scss */
 #page-experts #experts-uid-response {
   margin-left: 0.6rem;
   font-size: 0.9rem;
 }
-/* line 271, ../scss/app.scss */
+/* line 278, ../scss/app.scss */
 #page-experts #experts-uid-response.alert {
   color: #f04124 !important;
 }
-/* line 275, ../scss/app.scss */
+/* line 282, ../scss/app.scss */
 #page-experts #experts-uid-response.success {
   color: #43AC6A !important;
 }
 
-/* line 282, ../scss/app.scss */
+/* line 289, ../scss/app.scss */
 #page-developers #resetCardCheckbox {
   margin-right: 5px;
 }
 
-/* line 288, ../scss/app.scss */
+/* line 295, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 293, ../scss/app.scss */
+/* line 300, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -10053,24 +10061,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 301, ../scss/app.scss */
+/* line 308, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 307, ../scss/app.scss */
+/* line 314, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 315, ../scss/app.scss */
+/* line 322, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 318, ../scss/app.scss */
+/* line 325, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -10082,18 +10090,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 331, ../scss/app.scss */
+/* line 338, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 335, ../scss/app.scss */
+/* line 342, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 341, ../scss/app.scss */
+/* line 348, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

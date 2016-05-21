@@ -753,19 +753,34 @@ mooltipass.ui.credentials.quickAddSubmit = function()
     }
 
     if (!is_valid) return;
-
-    // If submission is valid, add to USER_CREDENTIALS
-    var credential = {
-        "context": $(".quickcredentialadd input[name='quick-app']").val().trim(),
-        "username": $(".quickcredentialadd input[name='quick-user']").val(),
-        "password": $(".quickcredentialadd input[name='quick-password']").val(),
-    };
-
-    //USER_CREDENTIALS.push(credential);
+    
+    // Start the storage process!
+    mooltipass.device.interface.send(
+    {   'command':'updateCredentials', 
+        'context':$(".quickcredentialadd input[name='quick-app']").val().trim(), 
+        'username': $(".quickcredentialadd input[name='quick-user']").val(),
+        'password': $(".quickcredentialadd input[name='quick-password']").val(),
+        'callbackFunction': mooltipass.ui.credentials.quickAddCallback
+    });
 
     // Empty form fields again
     $(".quickcredentialadd input").val("");
     $(".quickcredentialadd input:visible:first").focus();
+}
+
+mooltipass.ui.credentials.quickAddCallback = function(_status)
+{
+    if (_status.success) 
+    {
+        mooltipass.ui.status.success($('#mmm-enter'), "Credential Storage Successfull");
+    }
+    else 
+    {
+        mooltipass.ui.status.error($('#mmm-enter'), "Couldn't Store New Credential");
+    }
+    
+    $("#modal-confirm-on-device").hide();
+    $("#modal-load-credentials").hide();
 }
 
 /**
@@ -821,7 +836,7 @@ mooltipass.ui.credentials.quickAddGen = function()
  */
 mooltipass.ui.credentials.init = function () {
     $('#quick-add-pwd-gen').click(mooltipass.ui.credentials.quickAddGen);
-    $('#quick-add-store').click(mooltipass.ui.credentials.onClickMMMEnter);
+    $('#quick-add-store').click(mooltipass.ui.credentials.quickAddSubmit);
     $('#mmm-enter').click(mooltipass.ui.credentials.onClickMMMEnter);
     $('#mmm-save').click(mooltipass.ui.credentials.onClickMMMSave);
     $('#mmm-save, #mmm-discard').hide();

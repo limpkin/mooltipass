@@ -50,6 +50,7 @@ mooltipass.device.commands = {
     'read32BytesInCurrentContext'   : 0xC1,
     'getCurrentCardCPZ'             : 0xC2,
     'cancelUserRequest'             : 0xC3,
+    'pleaseRetry'                   : 0xC4,  
     'readNodeInFlash'               : 0xC5,
     'writeNodeInFlash'              : 0xC6,
     'getFavorite'                   : 0xC7,
@@ -560,15 +561,14 @@ mooltipass.device.processQueue = function() {
     }
     queuedItem.packet = mooltipass.device.createPacket(mooltipass.device.commands[queuedItem.command], queuedItem.payload);
 
-    /*
-    if (mooltipass.device.debug) {
+    if (mooltipass.device.debug) 
+    {
         var msgUint8 = new Uint8Array(queuedItem.packet);
         // don't output the PING command since this is the keep alive
         if (msgUint8[1] != mooltipass.device.commands.ping) {
             console.log('sendMsg(', JSON.stringify(new Uint8Array(queuedItem.packet)), ')');
         }
     }
-    */
 
     mooltipass.device._sendMsg(queuedItem);
 };
@@ -830,6 +830,12 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
 
     // Process next queued request
     mooltipass.device.processQueue();
+};
+
+mooltipass.device.responsePleaseRetry = function(queuedItem, msg)
+{
+    mooltipass.device.queue.unshift(queuedItem);
+    setTimeout(mooltipass.device.processQueue, 500);
 };
 
 mooltipass.device.responseGetRandomNumber = function(queuedItem, msg) {

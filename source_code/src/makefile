@@ -21,7 +21,7 @@ BOOTLOADER   = false
 # Defines
 DEFINES += NDEBUG
 DEFINES += F_USB=16000000UL
-DEFINES += MOOLTIPASS_VERSION="\"v1.0\""
+DEFINES += MOOLTIPASS_VERSION="\"v1.1\""
 
 # Avrdude settings Arduino as ISP
 #AVRDUDE_PORT       = /dev/ttyACM0

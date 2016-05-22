@@ -156,24 +156,24 @@
     #define FONT_PROFONT_14         2
     #define FONT_DEFAULT            FONT_CC_REGULAR
 
-    // Bimap IDs
+    // Bitmap IDs
     #define BITMAP_MOOLTIPASS       0
     #define BITMAP_APPROVE          3
     #define BITMAP_DENY             4
-    #define BITMAP_MAIN_LOCK        5
-    #define BITMAP_MAIN_LOGIN       6
-    #define BITMAP_MAIN_FAVORITES   7
-    #define BITMAP_MAIN_SETTINGS    8
-    #define BITMAP_SETTINGS_PIN     9
-    #define BITMAP_SETTINGS_BACKUP  10
-    #define BITMAP_SETTINGS_HOME    11
-    #define BITMAP_SETTINGS_ERASE   12
-    #define BITMAP_INSERT_CARD      13
-    #define BITMAP_PIN_SLOT1        14
-    #define BITMAP_PIN_SLOT2        15
-    #define BITMAP_PIN_SLOT3        16
-    #define BITMAP_PIN_SLOT4        17
-    #define BITMAP_SCROLL_WHEEL     43
+    #define BITMAP_INSERT_CARD      5
+    #define BITMAP_PIN_SLOT1        6
+    #define BITMAP_PIN_SLOT2        7
+    #define BITMAP_PIN_SLOT3        8
+    #define BITMAP_PIN_SLOT4        9
+    #define BITMAP_SCROLL_WHEEL     10    
+    #define BITMAP_MAIN_LOCK        64
+    #define BITMAP_MAIN_LOGIN       68
+    #define BITMAP_MAIN_FAVORITES   72
+    #define BITMAP_MAIN_SETTINGS    76
+    #define BITMAP_SETTINGS_PIN     80
+    #define BITMAP_SETTINGS_BACKUP  84
+    #define BITMAP_SETTINGS_HOME    88
+    #define BITMAP_SETTINGS_ERASE   92
 
     #define BITMAP_ZZZ            14
     #define BITMAP_ZZZ_LOCKED     42

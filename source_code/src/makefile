@@ -43,7 +43,7 @@ CC_FLAGS  += -fno-split-wide-types
 
 ifneq ($(BOOTLOADER), true)
 
-COMPILER_PATH =../AVR-Development-Environment-Script/bin/bin/
+# LTO is available in avr-gcc 4.9.2 of Ubuntu 16.04
 CC_FLAGS  += -flto -fuse-linker-plugin
 LD_FLAGS  += -flto -fuse-linker-plugin
 

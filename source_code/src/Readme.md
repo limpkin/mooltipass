@@ -8,7 +8,9 @@ Use the Atmel Studio files
 ### Dependencies
 ```bash
 # Install avr tools
+# avr-gcc 4.9.2 of Ubuntu 16.04 is recommended to use the LTO plugin
 sudo apt-get install gcc-avr avr-libc
+avr-gcc -v
 
 # Remove the modem manager
 # It causes problems with the old caternia bootloader
@@ -18,9 +20,9 @@ sudo apt-get purge modemmanager
 git submodule init
 git submodule update
 
-# Compile avr-gcc 6.1 (optional for smaller code size)
-cd /source_codesource_code/AVR-Development-Environment-Script/
-./build
+# Compile the code
+make clean
+make
 ```
 
 ### DMBS

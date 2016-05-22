@@ -603,6 +603,8 @@ mooltipass.ui.credentials.onClickMMMDiscard = function() {
     if(mooltipass.ui.credentials.isActiveDeviceInteraction()) {
         return;
     }
+    
+    $(".add-credential input").val("");
 
     mooltipass.memmgmt.memmgmtStop(function (_status) {
         if (_status.success) {
@@ -625,6 +627,8 @@ mooltipass.ui.credentials.onClickMMMSave = function () {
     if(mooltipass.ui.credentials.isActiveDeviceInteraction()) {
         return;
     }
+    
+    $(".add-credential input").val("");
 
     var deletes = USER_CREDENTIALS_DELETE;
     var updates = [];
@@ -1051,6 +1055,7 @@ mooltipass.ui.credentials.init = function () {
             }
             // Manage submit of new credentials
             if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
+                e.preventDefault();
                 mooltipass.ui.credentials.quickAddSubmit();                
             }
         }).on("keyup", function (e) {

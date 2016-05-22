@@ -16,10 +16,13 @@ Instructions
 ------------
 - download Mooltipass.hex here https://github.com/limpkin/mooltipass/releases/tag/v1.1
 - backup all your Mooltipass users databases as the Mooltipass memory will be erased
-- download all the files here of this folder
+- Windows: use the libusb filter wizard to set filters on the mooltipass
 - install all the prerequisites listed above
+- download all the files of this folder
+- disable the Mooltipass Chrome App
+- run the script
 
 Warning
 -------
-It seems that due to a possible Kernel bug our upadting script won't work on some Ubuntu computers: http://superuser.com/questions/979722/serialport-doenst-work-correctly-after-ubuntu-update
+It seems that due to a possible Kernel bug our updating script won't work on some Ubuntu computers: http://superuser.com/questions/979722/serialport-doenst-work-correctly-after-ubuntu-update
 We therefore recommend using Windows for this particular script.

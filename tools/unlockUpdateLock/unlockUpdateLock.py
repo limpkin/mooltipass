@@ -1,5 +1,7 @@
+from intelhex import IntelHex
 from array import array
 from time import sleep
+import serial, sys
 import commands
 import platform
 import usb.core
@@ -9,9 +11,9 @@ import random
 import struct
 import string
 import pickle
+import glob
 import copy
 import time
-import sys
 import os
 
 
@@ -102,6 +104,114 @@ CMD_END_MEMORYMGMT      = 0xD3
 CMD_GET_DESCRIPTION		= 0xD4
 CMD_UNLOCK_WITH_PIN		= 0xD5
 
+class loader:
+	def __init__(self):
+		name = 'aoBoot'
+	def writePage(self):
+		self.ser.write('m')
+		ret_val = self.ser.read()
+		if ret_val != '\r':
+			print 'Page write failed, return char:', ret_val
+
+	def getId(self):
+		self.ser.write('S')
+		ret_val = self.ser.read(7)
+		print "Bootloader ID:", ret_val
+
+	def getType(self):
+		self.ser.write('p')
+		ret_val = self.ser.read()
+		print "Bootloader Type:", ret_val
+
+	def getVersion(self):
+		self.ser.write('V')
+		ret_val = self.ser.read(2)
+		print "BL Version:", ret_val[0] + "." + ret_val[1]		
+			
+	def setAddress(self,addr):
+		self.ser.write('A')
+		self.ser.write(chr((addr>>9) & 0xff))
+		self.ser.write(chr((addr>>1) & 0xff))
+		ret_val = self.ser.read()
+		if ret_val != '\r':
+			print 'Set address failed, return char:', ret_val
+		
+	def sendLowByte(self,data):
+		#print hex(data)
+		self.ser.write('c')
+		self.ser.write(chr(data))
+		ret_val = self.ser.read()
+		if ret_val != '\r':
+			print 'Low byte write failed, return char:', ret_val
+
+	def sendHighByte(self,data):
+		#print hex(data)
+		self.ser.write('C')
+		self.ser.write(chr(data))
+		ret_val = self.ser.read()
+		if ret_val != '\r':
+			print 'High byte write failed, return char:', ret_val
+
+	def enableRwwSection(self):
+		self.ser.write('E')
+		ret_val = self.ser.read()
+		if ret_val != '\r':
+			print 'enableRwwSection write failed, return char:', ret_val
+
+	def eraseFlash(self):
+		self.ser.write('e')
+		ret_val = self.ser.read()
+		if ret_val != '\r':
+			print 'Flash erase failed, return char:', ret_val
+
+	def resetTimeOut(self):
+		# Here is actually a read mem command with erroneous parameters
+		self.ser.write("gggg")
+		ret_val = self.ser.read()
+		if ret_val != '?':
+			print "Couldn't reset timeout timer, return char:", ret_val
+			
+	def writeFlashPage(self,data):
+		self.ser.write("B" + chr(0) + chr(128) + "F")
+		for i in range(0, 128):
+			self.ser.write(chr(data[i]))
+		ret_val = self.ser.read()
+		if ret_val != '\r':
+			print 'Write flash page failed, return char:', ret_val
+
+	def openSerial(self,port,baud):
+		try:
+			self.ser = serial.Serial(port,baud)
+		except:
+			print 'Failed to open COM port'
+
+def serial_ports():
+    """ Lists serial port names
+
+        :raises EnvironmentError:
+            On unsupported or unknown platforms
+        :returns:
+            A list of the serial ports available on the system
+    """
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        # this excludes your current terminal "/dev/tty"
+        ports = glob.glob('/dev/tty[A-Za-z]*')
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsupported platform')
+
+    result = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            result.append(port)
+        except (OSError, serial.SerialException):
+            pass
+    return result
 		
 def receiveHidPacket(epin):
 	try :
@@ -329,13 +439,14 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 if __name__ == '__main__':
 	# Main function
 	print ""
+	print ""
 	print "Mooltipass USB update tool"
-	print "Requirements: Debian based Linux, Python 2.7, avrdude, script launched as root"
+	print "Requirements: Debian based Linux, Python 2.7, script launched as root"
 	print ""
 
 	# Search for the mooltipass and read hid data
 	hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, True)
-
+    
 	if hid_device is None:
 		sys.exit(0)
 		
@@ -343,54 +454,72 @@ if __name__ == '__main__':
 	sendHidPacket(epout, CMD_MOOLTIPASS_STATUS, 0, None)
 	status_data = receiveHidPacket(epin)
 		
+	# Only allow script to be run when a card is inserted
 	if status_data[DATA_INDEX] != 5 and status_data[DATA_INDEX] != 9:
 		print "Please insert a card in the mooltipass and restart this script!"
 		sys.exit(0)
 	
 	print ""
+	
+	# Jump to bootloader command
 	password = raw_input("Please enter your Mooltipass unique password: ")
 	sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, array('B', password.decode("hex")))
 	print "Sending jump to bootloader with password, PLEASE APPROVE REQUEST ON THE DEVICE"
 	
+	# Wait for the new serial interface to come up
 	sys.stdout.write("Waiting for the serial interface to appear...")
-	sys.stdout.flush()
-	temp_bool = False
+	sys.stdout.flush()	
+	orig_com_ports = serial_ports()
+	new_com_ports = orig_com_ports
 	counter = 0
-	while temp_bool == False and counter < 20:
-		cmd_output = commands.getstatusoutput("ls /dev/ttyACM*")
-		counter = counter + 1
-		if "such" in cmd_output[1]:
-			sys.stdout.write(".")
-			sys.stdout.flush()
-		else:
-			temp_bool = True
+	while new_com_ports == orig_com_ports and counter < 20:
 		time.sleep(1)
+		new_com_ports = serial_ports();
+		sys.stdout.write(".")
+		sys.stdout.flush()
+		counter = counter + 1
 	
 	print ""
-	if temp_bool == False:
+	# See if we found something...
+	if counter >= 20:
 		print "Couldn't find device!"
 	else:
-		print "Device found:", cmd_output[1], ", starting programming process..."
-		cmd_output = commands.getstatusoutput("avrdude -patmega32u4 -cavr109 -P" + cmd_output[1] + " -b57600 -D -Uflash:w:./Mooltipass.hex:i")
+		print "Device found: " + list(set(new_com_ports) - set(orig_com_ports))[0] + ", starting programming process..."
 		
-		if "verifying" not in cmd_output[1]:
-			print "Programming failed!"
-		else:
-			print "Programming done... reconnecting to device..."
-			time.sleep(13)
+		# Starting the programming process
+		addr = 0
+		page = 0
+		prog = loader()
+		firmware = IntelHex("Mooltipass.hex")
+		port = list(set(new_com_ports) - set(orig_com_ports))[0]			
+		prog.openSerial(port,57600)
+		prog.getId()
+		prog.getType()
+		prog.getVersion()
+		for i in range(0,len(firmware),128):
+			prog.setAddress(addr)
+			#print "Writing page", hex(addr)
+			prog.writeFlashPage(firmware.tobinarray(start=addr, size=128))
+			addr += 128	  
+		prog.enableRwwSection()
+		prog.ser.close()
+		
+		print "Programming done... reconnecting to device..."
+		time.sleep(10)
+		
+		# Upload bundle, set password...
+		hid_device = None
+		while hid_device == None:
+			hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, False)
+			time.sleep(1)		
 			
-			hid_device = None
-			while hid_device == None:
-				hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, False)
-				time.sleep(1)		
-				
-			print "Connected to device, reuploading bundle and resetting device password..."
-			mooltipassInit(hid_device, intf, epin, epout)			
-			sendHidPacket(epout, CMD_VERSION, 0, None)
-			data = receiveHidPacket(epin)
-	
-			print "Firmware updated to version", "".join(map(chr, data[DATA_INDEX+1:])).split(b"\x00")[0]
-			print "PLEASE UNPLUG AND RE-PLUG YOUR DEVICE"
+		print "Connected to device, reuploading bundle and resetting device password..."
+		mooltipassInit(hid_device, intf, epin, epout)			
+		sendHidPacket(epout, CMD_VERSION, 0, None)
+		data = receiveHidPacket(epin)
+
+		print "Firmware updated to version", "".join(map(chr, data[DATA_INDEX+1:])).split(b"\x00")[0]
+		print "PLEASE UNPLUG AND RE-PLUG YOUR DEVICE"
 	
 	
 	

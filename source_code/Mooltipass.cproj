@@ -42,7 +42,7 @@
     <com_atmel_avrdbg_tool_ispmk2>
       <ToolType>com.atmel.avrdbg.tool.ispmk2</ToolType>
       <ToolName>AVRISP mkII</ToolName>
-      <ToolNumber>000200200870</ToolNumber>
+      <ToolNumber>0000A0014774</ToolNumber>
       <StimuliFile>
       </StimuliFile>
       <Channel>
@@ -107,7 +107,7 @@
     </com_atmel_avrdbg_tool_jtagicemkii>
     <preserveEEPROM>false</preserveEEPROM>
     <ExternalProgrammingToolCommand />
-    <avrtoolserialnumber>000200200870</avrtoolserialnumber>
+    <avrtoolserialnumber>0000A0014774</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9587</avrdeviceexpectedsignature>
     <avrtoolinterfaceclock>1000000</avrtoolinterfaceclock>
   </PropertyGroup>

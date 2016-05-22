@@ -256,6 +256,7 @@
 
     #define ID_FIRST_STRING             0
     #define ID_LAST_STRING              ID_STRING_SELECT_CREDENTIAL
+    #define NB_BMPS_PER_TRANSITION      4
 #endif
 
 // Keyboard LUTs

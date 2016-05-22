@@ -93,7 +93,7 @@ void guiGetBackToCurrentScreen(void)
             case SCREEN_SETTINGS_HOME:
             case SCREEN_SETTINGS_ERASE:
             {
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                 break;
             }
             case SCREEN_MEMORY_MGMT:
@@ -189,11 +189,21 @@ void guiScreenLoop(uint8_t input_interface_result)
                 {
                     currentScreen--;
                 }
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
+                // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
+                for (uint8_t i = 0; i < NB_BMPS_PER_TRANSITION; i++)
+                {
+                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+NB_BMPS_PER_TRANSITION-1-i, OLED_SCROLL_FLIP);
+                    timerBasedDelayMs(25);
+                }
             }
             else if (input_interface_result == WHEEL_ACTION_DOWN)
             {
                 // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
+                for (uint8_t i = 0; i < NB_BMPS_PER_TRANSITION-1; i++)
+                {
+                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+1+i, OLED_SCROLL_FLIP);
+                    timerBasedDelayMs(25);
+                }
                 if (currentScreen == SCREEN_SETTINGS)
                 {
                     currentScreen = SCREEN_LOCK;
@@ -206,16 +216,7 @@ void guiScreenLoop(uint8_t input_interface_result)
                 {
                     currentScreen++;
                 }
-                if (currentScreen == SCREEN_SETTINGS_ERASE)
-                {
-                    oledBitmapDrawFlash(0, 0, 40, OLED_SCROLL_FLIP);
-                    timerBasedDelayMs(50);
-                    oledBitmapDrawFlash(0, 0, 41, OLED_SCROLL_FLIP);
-                    timerBasedDelayMs(50);
-                    oledBitmapDrawFlash(0, 0, 42, OLED_SCROLL_FLIP);
-                    timerBasedDelayMs(50);
-                }
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
+                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);              
             }
             else if (input_interface_result == WHEEL_ACTION_LONG_CLICK)
             {
@@ -223,7 +224,7 @@ void guiScreenLoop(uint8_t input_interface_result)
                 if ((currentScreen >= SCREEN_SETTINGS_CHANGE_PIN) && (currentScreen <= SCREEN_SETTINGS_ERASE))
                 {
                     currentScreen = SCREEN_LOGIN;
-                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                 } 
                 else
                 {                    
@@ -268,13 +269,13 @@ void guiScreenLoop(uint8_t input_interface_result)
                     case SCREEN_SETTINGS:
                     {
                         currentScreen = SCREEN_SETTINGS_CHANGE_PIN;
-                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                         break;
                     }
                     case SCREEN_SETTINGS_HOME:
                     {
                         currentScreen = SCREEN_LOGIN;
-                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                         break;
                     }
                     case SCREEN_SETTINGS_CHANGE_PIN:

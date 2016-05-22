@@ -58,6 +58,10 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
         return;
     }
 
+    // Disable interrupts, as they will cause a crash when called from the firmware
+    uint8_t oldSREG = SREG;
+    cli();
+
     // Erase page, wait for memories to be ready
     boot_page_erase(page);
     boot_spm_busy_wait();
@@ -75,6 +79,9 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
     boot_page_write(page);
     boot_spm_busy_wait();
     boot_rww_enable();
+
+    // Reenable interrupts
+    SREG = oldSREG;
 }
 
 /*! \fn     sideChannelSafeMemCmp(uint8_t* dataA, uint8_t* dataB, uint8_t size)

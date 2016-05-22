@@ -387,7 +387,6 @@ void guiMainLoop(void)
             guiScreenLoop(input_interface_result);
         }
     #elif defined(MINI_VERSION)
-
         // If there was some activity and we are showing the screen saver
         if ((input_interface_result != WHEEL_ACTION_NONE) && (screenSaverOnCopy == TRUE))
         {

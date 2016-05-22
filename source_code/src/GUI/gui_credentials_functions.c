@@ -383,6 +383,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 {
 #if defined(MINI_VERSION)
+    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
     uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
     uint8_t nbFavorites = 0, startIndex = 0, selectedIndex = 0;
     uint16_t cur_address_selected = NODE_ADDR_NULL;
@@ -461,6 +462,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             }
             
             oledClear();
+            oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the favorites
             while(i != 3)
             {
@@ -471,7 +473,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                     readParentNode(p, parentAddresses[j]);
                     
                     // Print service at the correct slot
-                    string_extra_chars[i] = strlen((char*)p->service) - miniOledPutCenteredString(y_coordinates[i], (char*)p->service + string_offset_cntrs[i]);
+                    string_extra_chars[i] = strlen((char*)p->service) - miniOledPutstrXY(x_coordinates[i], y_coordinates[i], OLED_RIGHT, (char*)p->service + string_offset_cntrs[i]);
 
                     // Second favorite displayed is the chosen one
                     if (i == 1)
@@ -777,6 +779,7 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
 uint16_t loginSelectionScreen(void)
 {
 #if defined(MINI_VERSION)
+    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
     uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
     uint16_t first_address = getLastParentAddress();
     uint16_t cur_address_selected = NODE_ADDR_NULL;
@@ -850,6 +853,7 @@ uint16_t loginSelectionScreen(void)
             }
             
             oledClear();
+            oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the parent nodes
             for (; (i < 3); i++)
             {
@@ -857,7 +861,7 @@ uint16_t loginSelectionScreen(void)
                 readParentNode(&temp_pnode, temp_parent_address);
                 
                 // Print Login at the correct slot
-                string_extra_chars[i] = strlen((char*)temp_pnode.service) - miniOledPutCenteredString(y_coordinates[i], (char*)temp_pnode.service + string_offset_cntrs[i]);
+                string_extra_chars[i] = strlen((char*)temp_pnode.service) - miniOledPutstrXY(x_coordinates[i], y_coordinates[i], OLED_RIGHT, (char*)temp_pnode.service + string_offset_cntrs[i]);
 
                 // Second child displayed is the chosen one
                 if (i == 1)

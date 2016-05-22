@@ -206,6 +206,15 @@ void guiScreenLoop(uint8_t input_interface_result)
                 {
                     currentScreen++;
                 }
+                if (currentScreen == SCREEN_SETTINGS_ERASE)
+                {
+                    oledBitmapDrawFlash(0, 0, 40, OLED_SCROLL_FLIP);
+                    timerBasedDelayMs(50);
+                    oledBitmapDrawFlash(0, 0, 41, OLED_SCROLL_FLIP);
+                    timerBasedDelayMs(50);
+                    oledBitmapDrawFlash(0, 0, 42, OLED_SCROLL_FLIP);
+                    timerBasedDelayMs(50);
+                }
                 oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
             }
             else if (input_interface_result == WHEEL_ACTION_LONG_CLICK)

@@ -32,11 +32,14 @@
 
 // Global vars
 #ifdef MINI_VERSION
-    #define THREE_LINE_TEXT_FIRST_POS   0
-    #define THREE_LINE_TEXT_SECOND_POS  11
-    #define THREE_LINE_TEXT_THIRD_POS   21
-    #define TWO_LINE_TEXT_FIRST_POS     5
-    #define TWO_LINE_TEXT_SECOND_POS    16
+    #define THREE_LINE_TEXT_FIRST_POS       0
+    #define THREE_LINE_TEXT_SECOND_POS      10
+    #define THREE_LINE_TEXT_THIRD_POS       21
+    #define TWO_LINE_TEXT_FIRST_POS         5
+    #define TWO_LINE_TEXT_SECOND_POS        16
+    #define SCROLL_LINE_TEXT_FIRST_XPOS     121
+    #define SCROLL_LINE_TEXT_SECOND_XPOS    116
+    #define SCROLL_LINE_TEXT_THIRD_XPOS     121
 #endif
 
 // Prototypes

@@ -173,6 +173,7 @@
     #define BITMAP_PIN_SLOT2        15
     #define BITMAP_PIN_SLOT3        16
     #define BITMAP_PIN_SLOT4        17
+    #define BITMAP_SCROLL_WHEEL     43
 
     #define BITMAP_ZZZ            14
     #define BITMAP_ZZZ_LOCKED     42

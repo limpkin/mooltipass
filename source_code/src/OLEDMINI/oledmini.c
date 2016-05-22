@@ -1035,7 +1035,9 @@ void miniOledResetXY(void)
  */
 uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
 {
+    uint8_t miniOledMaxTextYCpy = miniOledMaxTextY;
     uint16_t width = miniOledStrWidth(str);
+    uint8_t return_val;
 
     // Compute where to start displaying the string
     if (justify == OLED_CENTRE)
@@ -1047,6 +1049,10 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
     } 
     else if (justify == OLED_RIGHT)
     {
+        if (x < miniOledMaxTextY)
+        {
+            miniOledMaxTextY = x;
+        }
         if (x >= width) 
         {
             x -= width;
@@ -1066,7 +1072,11 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
     miniOledTextCurY = y;
 
     // Display string
-    return miniOledPutstr(str);
+    return_val = miniOledPutstr(str);
+    miniOledMaxTextY = miniOledMaxTextYCpy;
+
+    // Return the number of characters printed
+    return return_val;
 }
 
 /*! \fn     miniOledPutCenteredString(uint8_t y, char* string)

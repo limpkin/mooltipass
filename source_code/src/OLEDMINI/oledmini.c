@@ -806,7 +806,7 @@ uint8_t miniOledGlyphWidth(char ch)
         if ((uint16_t)glyph.glyph == 0xFFFF)
         {
             // If there's no glyph data, it is the space!
-            return (glyph.width >> 1); // space character is always too large...
+            return (glyph.width >> 1) + 1; // space character is always too large...
         }
         else
         {
@@ -886,6 +886,7 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
     if ((uint16_t)glyph.glyph == 0xFFFF)
     {
         // space character, just fill in the gddram buffer and output background pixels
+        glyph.xoffset = 0;
         glyph_width = glyph.width >> 1; // space character is always too large...
         glyph_height = miniOledCurrentFont.height;
         OLEDDEBUGPRINTF_P(PSTR("    space character width %u height %u\n"), glyph_width, glyph_height);

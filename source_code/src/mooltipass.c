@@ -440,6 +440,7 @@ int main(void)
         if ((mp_timeout_enabled == TRUE) && (hasTimerExpired(SLOW_TIMER_LOCKOUT, TRUE) == TIMER_EXPIRED))
         {
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
+            leaveMemoryManagementMode();
             guiGetBackToCurrentScreen();
             handleSmartcardRemoved();
         }

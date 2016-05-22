@@ -443,28 +443,30 @@ if __name__ == '__main__':
 	print "Mooltipass USB update tool"
 	print "Requirements: Debian based Linux, Python 2.7, script launched as root"
 	print ""
-
-	# Search for the mooltipass and read hid data
-	hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, True)
-    
-	if hid_device is None:
-		sys.exit(0)
-		
-	# Get Mootipass status
-	sendHidPacket(epout, CMD_MOOLTIPASS_STATUS, 0, None)
-	status_data = receiveHidPacket(epin)
-		
-	# Only allow script to be run when a card is inserted
-	if status_data[DATA_INDEX] != 5 and status_data[DATA_INDEX] != 9:
-		print "Please insert a card in the mooltipass and restart this script!"
-		sys.exit(0)
 	
-	print ""
-	
-	# Jump to bootloader command
-	password = raw_input("Please enter your Mooltipass unique password: ")
-	sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, array('B', password.decode("hex")))
-	print "Sending jump to bootloader with password, PLEASE APPROVE REQUEST ON THE DEVICE"
+	# Skip this part if asked
+	if len(sys.argv) == 1:		
+		# Search for the mooltipass and read hid data
+		hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, True)
+		
+		if hid_device is None:
+			sys.exit(0)
+			
+		# Get Mootipass status
+		sendHidPacket(epout, CMD_MOOLTIPASS_STATUS, 0, None)
+		status_data = receiveHidPacket(epin)
+			
+		# Only allow script to be run when a card is inserted
+		if status_data[DATA_INDEX] != 5 and status_data[DATA_INDEX] != 9:
+			print "Please insert a card in the mooltipass and restart this script!"
+			sys.exit(0)
+		
+		print ""
+		
+		# Jump to bootloader command
+		password = raw_input("Please enter your Mooltipass unique password: ")
+		sendHidPacket(epout, CMD_JUMP_TO_BOOTLOADER, 62, array('B', password.decode("hex")))
+		print "Sending jump to bootloader with password, PLEASE APPROVE REQUEST ON THE DEVICE"
 	
 	# Wait for the new serial interface to come up
 	sys.stdout.write("Waiting for the serial interface to appear...")

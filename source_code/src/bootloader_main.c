@@ -54,7 +54,7 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
     uint16_t i, w;
 
     // Check we are not overwriting this particular routine
-    if (page > (FLASHEND - SPM_PAGESIZE - SPM_PAGESIZE + 1))
+    if ((page >= (FLASHEND - SPM_PAGESIZE + 1)) || ((page & SPM_PAGE_SIZE_BYTES_BM) != 0))
     {
         return;
     }

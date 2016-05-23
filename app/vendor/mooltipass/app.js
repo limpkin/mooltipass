@@ -80,7 +80,7 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
                 // TODO: Chrome 49 returns this error which does not affect the functionality. No real solution found yet (2016-03-18)
                 // TODO: Also contains a typo "reponse" instead of "response"
                 if(chrome.runtime.lastError.message != "The message port closed before a reponse was received.") {
-                    console.warn('Could not send response to client <', senderId, '>');
+                    console.warn('Could not send response to client <', senderId, '> #12');
                     console.warn('Error:', chrome.runtime.lastError.message);
                 }
             }
@@ -110,8 +110,10 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         mergeObjects(backwards, _responseObject);
         //console.log('Response Status:', _responseObject);
         chrome.runtime.sendMessage(senderId, _responseObject, function() {
-            if(chrome.runtime.lastError) {
-                console.warn('Could not send response to client <', senderId, '>');
+            // TODO: Chrome 49 returns this error which does not affect the functionality. No real solution found yet (2016-03-18)
+            // TODO: Also contains a typo "reponse" instead of "response"
+            if(chrome.runtime.lastError.message != "The message port closed before a reponse was received.") {
+                console.warn('Could not send response to client <', senderId, '> #37');
                 console.warn('Error:', chrome.runtime.lastError.message);
             }
         });

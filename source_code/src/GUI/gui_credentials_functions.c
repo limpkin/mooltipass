@@ -469,10 +469,20 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                 // Check that the favorite is valid
                 if (parentAddresses[j] != NODE_ADDR_NULL)
                 {
-                    // Read parent node to get service
+                    // Read parent & child node to get service & username
                     readParentNode(p, parentAddresses[j]);
+                    readChildNode(c, childAddresses[j]);
                     
-                    // Print service at the correct slot
+                    // Construct the string "service / username"
+                    if (c->login[0] != 0)
+                    {
+                        c->login[sizeof(c->login)-1] = 0;
+                        p->service[sizeof(p->service)-1] = 0;
+                        strncat((char*)p->service, "/", sizeof(p->service) - 1 - strnlen((char*)p->service, sizeof(p->service)-1));
+                        strncat((char*)p->service, (char*)c->login, sizeof(p->service) - 1 - strnlen((char*)p->service, sizeof(p->service)-1));
+                    }
+
+                    // Print service / username at the correct slot
                     string_extra_chars[i] = strlen((char*)p->service) - miniOledPutstrXY(x_coordinates[i], y_coordinates[i], OLED_RIGHT, (char*)p->service + string_offset_cntrs[i]);
 
                     // Second favorite displayed is the chosen one

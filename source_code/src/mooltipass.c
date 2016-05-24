@@ -169,7 +169,7 @@ int main(void)
     /* sending a USB command. Internally, we therefore reboot the MCU   */
     /* and then jump to the bootloader.                                 */
     /********************************************************************/
-    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(POST_KICKSTARTER_UPDATE_SETUP) && !defined(MINI_PREPRODUCTION_SETUP)
+    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(POST_KICKSTARTER_UPDATE_SETUP) && !defined(MINI_PREPRODUCTION_SETUP) && !defined(MINI_PREPRODUCTION_SETUP_ACC)
         // This code will only be used for developers and beta testers
         // Check if we were reset and want to go to the bootloader
         if (current_bootkey_val == BOOTLOADER_BOOTKEY)
@@ -277,7 +277,7 @@ int main(void)
         // Test procedure to check that all HW is working
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
-    #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_PREPRODUCTION_SETUP)
+    #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_PREPRODUCTION_SETUP) ||  defined(MINI_PREPRODUCTION_SETUP_ACC)
         mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok, mini_inputs_result);
     #endif
     
@@ -292,8 +292,13 @@ int main(void)
         #if defined(MINI_CLICK_BETATESTERS_SETUP)
             (void)fuse_ok;
             while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
-        #else
+        #elif defined(MINI_PREPRODUCTION_SETUP)
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE) || (mini_inputs_result != RETURN_OK));
+        #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
+            (void)fuse_ok;
+            (void)flash_init_result;
+        #else
+            #error "Platform unknown!"
         #endif
     #endif
     
@@ -328,6 +333,24 @@ int main(void)
     // Go to startup screen
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
     guiGetBackToCurrentScreen();
+
+    #ifdef MINI_PREPRODUCTION_SETUP_ACC
+    // work in progress
+    miniOledFlushWrittenTextToDisplay();
+    if (mini_inputs_result == RETURN_OK)
+    {
+        miniOledPutCenteredString(0, "OUECHHHHH!");
+    } 
+    else
+    {
+        miniOledPutCenteredString(0, "NOPE...");
+    }
+    while (1)
+    {
+        // Process possible incoming USB packets
+        usbProcessIncoming(USB_CALLER_MAIN);
+    }
+    #endif
     
     // LED fade-in for standard version
     #if defined(HARDWARE_OLIVIER_V1)

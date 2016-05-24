@@ -153,11 +153,23 @@ int main(void)
     /* By default, brick the device so it's an all or nothing update procedure */
     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
-    /* Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence */
-    UHWCON = 0x01;
-    initFlashIOs();
-    spiUsartBegin();
+    /* Init IOs */
+    UHWCON = 0x01;                          // Enable USB 3.3V LDO
+    initFlashIOs();                         // Init EXT Flash IOs
+    spiUsartBegin();                        // Init SPI Controller    
+    DDR_ACC_SS |= (1 << PORTID_ACC_SS);     // Setup PORT for the Accelerometer SS
+    PORT_ACC_SS |= (1 << PORTID_ACC_SS);    // Setup PORT for the Accelerometer SS    
+    DDR_OLED_SS |= (1 << PORTID_OLED_SS);   // Setup PORT for the OLED SS
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);  // Setup PORT for the OLED SS
     for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
+
+    /* Disable I2C block of the Accelerometer */
+    PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
+    spiUsartTransfer(0x23);
+    spiUsartTransfer(0x02);
+    PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+
+    /* Check Flash */
     flash_init_result = checkFlashID();
     if (flash_init_result != RETURN_OK)
     {

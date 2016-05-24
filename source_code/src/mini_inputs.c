@@ -52,6 +52,22 @@ uint8_t discard_release_event = FALSE;
 uint8_t wheel_reverse_bool = FALSE;
 
 
+/*! \fn     miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes)
+ *  \brief  Send/Receive Data to/from the accelerometer
+ *  \param  data    Pointer to the data to be sent, received data will overwrite it
+ *  \param  nbBytes Number of bytes to be written
+ */
+void miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes)
+{
+    PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
+    while(nbBytes--)
+    {
+        *data = spiUsartTransfer(*data);
+        data++;
+    }
+    PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+}
+
 /*! \fn     initMiniInputs(void)
 *   \brief  Init Mooltipass mini inputs
 *   \return Init success status
@@ -67,18 +83,36 @@ RET_TYPE initMiniInputs(void)
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
 
-    // Accelerometer
-    #ifdef HARDWARE_MINI_CLICK_V2
-        DDR_ACC_SS |= (1 << PORTID_ACC_SS);
-        PORT_ACC_SS |= (1 << PORTID_ACC_SS);
-        timerBased130MsDelay();
-        PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
-        spiUsartTransfer(0x23);
-        spiUsartTransfer(0x02);
-        PORT_ACC_SS |= (1 << PORTID_ACC_SS);    
-    #endif
+#ifdef HARDWARE_MINI_CLICK_V2
+    // Setup PORT for the Accelerometer SS
+    DDR_ACC_SS |= (1 << PORTID_ACC_SS);
+    PORT_ACC_SS |= (1 << PORTID_ACC_SS);
 
+    // Send command to disable I2C block
+    uint8_t disableI2cBlockCommand[] = {0x23, 0x02};
+    miniAccelerometerSendReceiveSPIData(disableI2cBlockCommand, sizeof(disableI2cBlockCommand));
+
+    // Query the who am I register
+    uint8_t whoAmIRequestData[] = {0x8F, 0x00};
+    miniAccelerometerSendReceiveSPIData(whoAmIRequestData, sizeof(whoAmIRequestData));
+
+    // If we're running on the version that has the accelerometer, check the ID
+    #ifdef NO_ACCELEROMETER
+        return RETURN_OK;
+    #else
+        if (whoAmIRequestData[1] == 0x41)
+        {
+            return RETURN_OK;
+        }
+        else
+        {
+            return RETURN_NOK;
+        } 
+    #endif
+#else
+    // Earlier HW, always return OK
     return RETURN_OK;
+#endif
 }
 
 /*! \fn     scanMiniInputsDetect(void)

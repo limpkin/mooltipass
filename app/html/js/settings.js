@@ -687,7 +687,7 @@ mooltipass.ui.settings.getSettings = function() {
  * triggered by mooltipass.app.init()
  */
 mooltipass.ui.settings.init = function() {
-	$(".show-if-v1.1-version").hide();  
+    $(".show-if-v1.1-version").hide();  
     mooltipass.ui.settings.initKeyboardLayout();
     mooltipass.ui.settings.initLockTimeoutEnabled();
     mooltipass.ui.settings.initLockTimeout();

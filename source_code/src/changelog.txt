@@ -3,6 +3,15 @@ Todo:
 - display aes(bootloader_pwd) with user nonce when card inserted
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
+mini:
+- pacman screen saver
+- letter on the left in login picking
+- long press to go back
+- AES CTR implementation with memcmp / memcpy
+- Display flip based on accelerometer
+- Trick with strncat
+chrome app:
+- cred generator options
 
 V1.1:
 - post-indiegogo firmware

@@ -179,8 +179,7 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
  *  \param  mini_inputs_result      Bool to know if inputs are ok
  */
 void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
-{    
-    (void)mini_inputs_result;
+{
     // Only launch the functional test if the boot key isn't valid
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
@@ -227,6 +226,15 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             guiDisplayRawString(ID_STRING_FUSE_PB);
             test_result_ok = FALSE;
         }
+
+        // Check mini inputs initialization
+        if (mini_inputs_result != RETURN_OK)
+        {
+            // Todo: use below func for next batch
+            //guiDisplayRawString(ID_STRING_INPUT_PB);
+            oledPutstr("!!!Inputs PB!!!\r\n");
+            test_result_ok = FALSE;
+        }
         
         // Check that card is removed
         if (isSmartCardAbsent() == RETURN_NOK)
@@ -237,13 +245,12 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         }
     
         // Test description
-        uint8_t func_test_string_id = ID_STRING_FUNC_TEST;
-        guiDisplayRawString(func_test_string_id++);
+        guiDisplayRawString(ID_STRING_FUNC_TEST);
     
         // Wait for inputs
         miniWheelClearDetections();
         while(isWheelClicked() != RETURN_JDETECT);
-        guiDisplayRawString(func_test_string_id++);
+        guiDisplayRawString(ID_STRING_FUNC_WHEEL);
     
         // Test description
         oledClear();

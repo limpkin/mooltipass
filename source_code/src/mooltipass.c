@@ -295,8 +295,9 @@ int main(void)
         #elif defined(MINI_PREPRODUCTION_SETUP)
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE) || (mini_inputs_result != RETURN_OK));
         #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
-            (void)fuse_ok;
-            (void)flash_init_result;
+            // TO REMOVE
+            fuse_ok = TRUE;
+            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE) || (mini_inputs_result != RETURN_OK));
         #else
             #error "Platform unknown!"
         #endif
@@ -333,26 +334,8 @@ int main(void)
     // Go to startup screen
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
     guiGetBackToCurrentScreen();
-
-    #ifdef MINI_PREPRODUCTION_SETUP_ACC
-    // work in progress
-    miniOledFlushWrittenTextToDisplay();
-    if (mini_inputs_result == RETURN_OK)
-    {
-        miniOledPutCenteredString(0, "OUECHHHHH!");
-    } 
-    else
-    {
-        miniOledPutCenteredString(0, "NOPE...");
-    }
-    while (1)
-    {
-        // Process possible incoming USB packets
-        usbProcessIncoming(USB_CALLER_MAIN);
-    }
-    #endif
     
-    // LED fade-in for standard version
+    // LED fade-in for standard version & mini v2/3
     #if defined(HARDWARE_OLIVIER_V1)
         // Let's fade in the LEDs
         touchDetectionRoutine(0);
@@ -364,6 +347,31 @@ int main(void)
         activityDetectedRoutine();
         launchCalibrationCycle();
         touchClearCurrentDetections();
+    #elif defined(HARDWARE_MINI_CLICK_V2)
+    DDR_LED_1 |= (1 << PORTID_LED_1);
+    DDR_LED_2 |= (1 << PORTID_LED_2);
+    DDR_LED_3 |= (1 << PORTID_LED_3);
+    DDR_LED_4 |= (1 << PORTID_LED_4);
+    PORT_LED_1 |= (1 << PORTID_LED_1);
+    PORT_LED_2 |= (1 << PORTID_LED_2);
+    PORT_LED_3 |= (1 << PORTID_LED_3);
+    PORT_LED_4 |= (1 << PORTID_LED_4);
+    for (uint16_t i = 0; i < UINT16_MAX; i++)
+    {
+        setPwmDc(i);
+        smartcardHPulseDelay();
+        smartcardHPulseDelay();
+    }
+    setPwmDc(UINT16_MAX);
+    #endif
+
+    #ifdef MINI_PREPRODUCTION_SETUP_ACC
+    // work in progress
+    while (1)
+    {
+        // Process possible incoming USB packets
+        usbProcessIncoming(USB_CALLER_MAIN);
+    }
     #endif
     
     // Inhibit touch inputs for the first 2 seconds

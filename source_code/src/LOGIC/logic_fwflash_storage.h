@@ -253,9 +253,10 @@
     #define ID_STRING_PIN_COMPUTER      63
     #define ID_STRING_SEND_PASS_FOR     64
     #define ID_STRING_SELECT_CREDENTIAL 65
+    #define ID_STRING_INPUT_PB          66
 
     #define ID_FIRST_STRING             0
-    #define ID_LAST_STRING              ID_STRING_SELECT_CREDENTIAL
+    #define ID_LAST_STRING              ID_STRING_INPUT_PB
     #define NB_BMPS_PER_TRANSITION      4
 #endif
 

@@ -29,6 +29,7 @@
 #include "mini_inputs.h"
 #include "defines.h"
 #include "delays.h"
+#include "pwm.h"
 #include "spi.h"
 // This code is only used for the Mooltipass mini
 #ifdef MINI_VERSION
@@ -51,6 +52,29 @@ uint8_t discard_release_event = FALSE;
 // Wheel direction reverse bool
 uint8_t wheel_reverse_bool = FALSE;
 
+
+/*! \fn     miniSetLedStates(uint8_t leds)
+ *  \brief  Set current LEDs
+ *  \param  leds    4 bits bitmask for the led states
+ *  \note   PWM must be correctly before/after calling this function
+ */
+void miniSetLedStates(uint8_t leds)
+{
+    uint8_t portid_leds[] = {1 << PORTID_LED_1, 1 << PORTID_LED_2, 1 << PORTID_LED_3, 1 << PORTID_LED_4};
+    volatile  uint8_t* port_leds[] = {&PORT_LED_1, &PORT_LED_2, &PORT_LED_3, &PORT_LED_4};
+
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        if (leds & (1 << i))
+        {
+            *(port_leds[i]) |= portid_leds[i];
+        } 
+        else
+        {
+            *(port_leds[i]) &= ~portid_leds[i];
+        }
+    }
+}
 
 /*! \fn     miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes)
  *  \brief  Send/Receive Data to/from the accelerometer
@@ -87,12 +111,20 @@ RET_TYPE initMiniInputs(void)
     // Setup PORT for the Accelerometer SS
     DDR_ACC_SS |= (1 << PORTID_ACC_SS);
     PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+    // Setup PORT for the LEDs, switch them off    
+    DDR_LED_1 |= (1 << PORTID_LED_1);
+    DDR_LED_2 |= (1 << PORTID_LED_2);
+    DDR_LED_3 |= (1 << PORTID_LED_3);
+    DDR_LED_4 |= (1 << PORTID_LED_4);
 
-    // Send command to disable I2C block
+    // Switch off LEDs
+    miniSetLedStates(0x00);
+
+    // Send command to disable accelerometer I2C block
     uint8_t disableI2cBlockCommand[] = {0x23, 0x02};
     miniAccelerometerSendReceiveSPIData(disableI2cBlockCommand, sizeof(disableI2cBlockCommand));
 
-    // Query the who am I register
+    // Query the accelerometer who am I register
     uint8_t whoAmIRequestData[] = {0x8F, 0x00};
     miniAccelerometerSendReceiveSPIData(whoAmIRequestData, sizeof(whoAmIRequestData));
 

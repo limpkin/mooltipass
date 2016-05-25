@@ -192,20 +192,6 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         {
             usbProcessIncoming(USB_CALLER_MAIN);
         }
-
-        // Temporary fix
-        #ifdef HARDWARE_MINI_CLICK_V2
-        DDR_LED_MOS |= (1 << PORTID_LED_MOS);
-        DDR_LED_1 |= (1 << PORTID_LED_1);
-        DDR_LED_2 |= (1 << PORTID_LED_2);
-        DDR_LED_3 |= (1 << PORTID_LED_3);
-        DDR_LED_4 |= (1 << PORTID_LED_4);
-        PORT_LED_MOS |= (1 << PORTID_LED_MOS);
-        PORT_LED_1 |= (1 << PORTID_LED_1);
-        PORT_LED_2 |= (1 << PORTID_LED_2);
-        PORT_LED_3 |= (1 << PORTID_LED_3);
-        PORT_LED_4 |= (1 << PORTID_LED_4);
-        #endif
         
         // Bundle uploaded, start the screen
         miniOledAllowTextWritingYIncrement();
@@ -251,6 +237,20 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         miniWheelClearDetections();
         while(isWheelClicked() != RETURN_JDETECT);
         guiDisplayRawString(ID_STRING_FUNC_WHEEL);
+
+        #ifdef HARDWARE_MINI_CLICK_V2
+        // Switch on LEDs
+        setPwmDc(0xFFFF);
+        oledPutstr("Check LEDs: ");
+        //guiDisplayRawString(ID_STRING_CHECK_LEDS);
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            miniOledPutch(i + '1');
+            miniSetLedStates(1 << i);
+            miniOledFlushEntireBufferToDisplay();
+            userViewDelay();
+        }
+        #endif
     
         // Test description
         oledClear();

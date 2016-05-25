@@ -348,14 +348,7 @@ int main(void)
         launchCalibrationCycle();
         touchClearCurrentDetections();
     #elif defined(HARDWARE_MINI_CLICK_V2)
-    DDR_LED_1 |= (1 << PORTID_LED_1);
-    DDR_LED_2 |= (1 << PORTID_LED_2);
-    DDR_LED_3 |= (1 << PORTID_LED_3);
-    DDR_LED_4 |= (1 << PORTID_LED_4);
-    PORT_LED_1 |= (1 << PORTID_LED_1);
-    PORT_LED_2 |= (1 << PORTID_LED_2);
-    PORT_LED_3 |= (1 << PORTID_LED_3);
-    PORT_LED_4 |= (1 << PORTID_LED_4);
+    miniSetLedStates(0x0F);
     for (uint16_t i = 0; i < UINT16_MAX; i++)
     {
         setPwmDc(i);

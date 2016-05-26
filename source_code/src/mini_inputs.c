@@ -58,6 +58,7 @@ uint8_t wheel_reverse_bool = FALSE;
  *  \param  leds    4 bits bitmask for the led states
  *  \note   PWM must be correctly before/after calling this function
  */
+#if defined(HARDWARE_MINI_CLICK_V2) 
 void miniSetLedStates(uint8_t leds)
 {
     uint8_t portid_leds[] = {1 << PORTID_LED_1, 1 << PORTID_LED_2, 1 << PORTID_LED_3, 1 << PORTID_LED_4};
@@ -75,12 +76,14 @@ void miniSetLedStates(uint8_t leds)
         }
     }
 }
+#endif
 
 /*! \fn     miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes)
  *  \brief  Send/Receive Data to/from the accelerometer
  *  \param  data    Pointer to the data to be sent, received data will overwrite it
  *  \param  nbBytes Number of bytes to be written
  */
+#ifdef HARDWARE_MINI_CLICK_V2
 void miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes)
 {
     PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
@@ -91,6 +94,7 @@ void miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes)
     }
     PORT_ACC_SS |= (1 << PORTID_ACC_SS);
 }
+#endif
 
 /*! \fn     initMiniInputs(void)
 *   \brief  Init Mooltipass mini inputs

@@ -476,10 +476,14 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                     // Construct the string "service / username"
                     if (c->login[0] != 0)
                     {
+                        // trick because the start of the login field isn't the start of the service node
+                        #pragma GCC diagnostic push
+                        #pragma GCC diagnostic ignored "-Warray-bounds"
+                        c->login[-1] = '/';
                         c->login[sizeof(c->login)-1] = 0;
                         p->service[sizeof(p->service)-1] = 0;
-                        strncat((char*)p->service, "/", sizeof(p->service) - 1 - strnlen((char*)p->service, sizeof(p->service)-1));
-                        strncat((char*)p->service, (char*)c->login, sizeof(p->service) - 1 - strnlen((char*)p->service, sizeof(p->service)-1));
+                        strncat((char*)p->service, (char*)&(c->login[-1]), sizeof(p->service) - 1 - strnlen((char*)&(p->service[-1]), sizeof(p->service)));
+                        #pragma GCC diagnostic pop
                     }
 
                     // Print service / username at the correct slot

@@ -5,7 +5,6 @@ Todo:
 - bytes in eeprom to set shortcuts?
 mini:
 - pacman screen saver
-- letter on the left in login picking
 - long press to go back
 - Display flip based on accelerometer
 chrome app:

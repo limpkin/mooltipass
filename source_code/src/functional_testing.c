@@ -217,8 +217,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         if (mini_inputs_result != RETURN_OK)
         {
             // Todo: use below func for next batch
-            //guiDisplayRawString(ID_STRING_INPUT_PB);
-            oledPutstr("!!!Inputs PB!!!\r\n");
+            guiDisplayRawString(ID_STRING_INPUT_PB);
             test_result_ok = FALSE;
         }
         
@@ -241,8 +240,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         #ifdef HARDWARE_MINI_CLICK_V2
         // Switch on LEDs
         setPwmDc(0xFFFF);
-        oledPutstr("Check LEDs: ");
-        //guiDisplayRawString(ID_STRING_CHECK_LEDS);
+        guiDisplayRawString(ID_STRING_CHECK_LEDS);
         for (uint8_t i = 0; i < 4; i++)
         {
             miniOledPutch(i + '1');

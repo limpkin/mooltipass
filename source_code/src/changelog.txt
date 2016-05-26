@@ -7,7 +7,6 @@ mini:
 - pacman screen saver
 - letter on the left in login picking
 - long press to go back
-- AES CTR implementation with memcmp / memcpy
 - Display flip based on accelerometer
 - Trick with strncat
 chrome app:

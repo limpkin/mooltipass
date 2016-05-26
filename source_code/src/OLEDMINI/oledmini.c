@@ -70,6 +70,8 @@ uint8_t miniOledFlushText = FALSE;
 uint8_t miniOledTextWritingYIncrement = FALSE;
 // Maximum Y when printing text (used for truncating)
 uint8_t miniOledMaxTextY = SSD1305_OLED_WIDTH;
+// Minimum Y when printing text
+uint8_t miniOledMinTextY = 0;
 
 // OLED initialization sequence
 #define OLEDMINI_ALT_INIT_CODE
@@ -1054,13 +1056,13 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
         {
             miniOledMaxTextY = x;
         }
-        if (x >= width) 
+        if (x >= (width + miniOledMinTextY)) 
         {
             x -= width;
         } 
-        else if (width >= miniOledMaxTextY)
+        else if ((width + miniOledMinTextY) >= miniOledMaxTextY)
         {
-            x = 0;
+            x = miniOledMinTextY;
         }
         else 
         {
@@ -1093,11 +1095,20 @@ uint8_t miniOledPutCenteredString(uint8_t y, char* string)
 
 /*! \fn     miniOledSetMaxTextY(uint8_t maxY)
  *  \brief  Set the max Y coordinate when printing text
- *  \param  y       y coordinate
+ *  \param  maxY       y coordinate
  */
 void miniOledSetMaxTextY(uint8_t maxY)
 {
     miniOledMaxTextY = maxY;
+}
+
+/*! \fn     miniOledSetMinTextY(uint8_t minY)
+ *  \brief  Set the min Y coordinate when printing text
+ *  \param  minY       y coordinate
+ */
+void miniOledSetMinTextY(uint8_t minY)
+{
+    miniOledMinTextY = minY;
 }
 
 /*! \fn     miniOledSetMaxTextY(void)

@@ -788,7 +788,7 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
 
 /*! \fn     loginSelectionScreen(void)
 *   \brief  Screen displayed to let the user choose/find a login
-*   \return Valid child node address or 0 otherwise
+*   \return Valid parent node address or 0 otherwise
 */
 uint16_t loginSelectionScreen(void)
 {
@@ -803,6 +803,7 @@ uint16_t loginSelectionScreen(void)
     uint16_t temp_parent_address;
     uint8_t nb_parent_nodes;
     RET_TYPE wheel_action;
+    char fchar_array[3];
     pNode temp_pnode;
     uint8_t i;
 
@@ -867,6 +868,8 @@ uint16_t loginSelectionScreen(void)
             }
             
             oledClear();
+            miniOledSetMinTextY(14);
+            miniOledDrawRectangle(10, 0, 1, SSD1305_OLED_HEIGHT, TRUE);
             oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the parent nodes
             for (; (i < 3); i++)
@@ -881,6 +884,7 @@ uint16_t loginSelectionScreen(void)
                 if (i == 1)
                 {
                     cur_address_selected = temp_parent_address;
+                    fchar_array[1] = temp_pnode.service[0];
                 }
                 
                 // Fetch next address
@@ -897,8 +901,44 @@ uint16_t loginSelectionScreen(void)
                 }
             }
 
+            // Display first letters
+            fchar_array[0] = '#';
+            fchar_array[2] = '#';
+            if (fchar_array[1] < 'a')
+            {
+                fchar_array[2] = 'A';
+            } 
+            else if (fchar_array[1] == 'a')
+            {
+                fchar_array[1] -= 'a' - 'A';
+                fchar_array[2] = 'B';
+            } 
+            else if (fchar_array[1] == 'z')
+            {
+                fchar_array[1] -= 'a' - 'A';
+                fchar_array[0] = 'Y';
+            } 
+            else if (fchar_array[1] > 'z')
+            {
+                fchar_array[0] = 'Z';
+            }
+            else
+            {
+                fchar_array[1] -= 'a' - 'A';
+                fchar_array[0] = fchar_array[1] - 1;
+                fchar_array[2] = fchar_array[1] + 1;
+            }
+            uint8_t glyph_width;
+            for (i = 0; i < sizeof(fchar_array); i++)
+            {
+                glyph_width = miniOledGlyphWidth(fchar_array[i]);
+                miniOledSetXY(5-(glyph_width>>1), y_coordinates[i]);
+                miniOledPutch(fchar_array[i]);
+            }
+
             miniOledFlushEntireBufferToDisplay();
             string_refresh_needed = FALSE;
+            miniOledSetMinTextY(0);
         }
 
         // Get wheel action

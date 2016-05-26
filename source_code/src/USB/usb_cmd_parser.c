@@ -467,41 +467,41 @@ void usbProcessIncoming(uint8_t caller_id)
                 USBPARSERDEBUGPRINTF_P(PSTR("add context: \"%s\" failed\n"),msg->body.data);
             }
             break;
-    }
+        }
     
-    // Append data
-    case CMD_WRITE_32B_IN_DN :
-    {
-        if ((addDataForDataContext(&msg->body.data[1], msg->body.data[0]) == RETURN_OK) && (datalen == 1+DATA_NODE_BLOCK_SIZ))
+        // Append data
+        case CMD_WRITE_32B_IN_DN :
         {
-            plugin_return_value = PLUGIN_BYTE_OK;
-            USBPARSERDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);
-        }
-        else
-        {
-            plugin_return_value = PLUGIN_BYTE_ERROR;
-            USBPARSERDEBUGPRINTF_P(PSTR("set pass: failed\n"));
-        }
-        break;
-    }    
+            if ((addDataForDataContext(&msg->body.data[1], msg->body.data[0]) == RETURN_OK) && (datalen == 1+DATA_NODE_BLOCK_SIZ))
+            {
+                plugin_return_value = PLUGIN_BYTE_OK;
+                USBPARSERDEBUGPRINTF_P(PSTR("set pass: \"%s\" ok\n"),msg->body.data);
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBPARSERDEBUGPRINTF_P(PSTR("set pass: failed\n"));
+            }
+            break;
+        }    
     
-    // get login
-    case CMD_READ_32B_IN_DN :
-    {
-        if (get32BytesDataForCurrentService(incomingData) == RETURN_OK)
+        // get login
+        case CMD_READ_32B_IN_DN :
         {
-            // Use the buffer to store the login...
-            usbSendMessage(CMD_READ_32B_IN_DN, DATA_NODE_BLOCK_SIZ, incomingData);
-            USBPARSERDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
-            return;
+            if (get32BytesDataForCurrentService(incomingData) == RETURN_OK)
+            {
+                // Use the buffer to store the login...
+                usbSendMessage(CMD_READ_32B_IN_DN, DATA_NODE_BLOCK_SIZ, incomingData);
+                USBPARSERDEBUGPRINTF_P(PSTR("get login: \"%s\"\n"),(char *)incomingData);
+                return;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                USBPARSERDEBUGPRINTF_P(PSTR("get login: failed\n"));
+            }
+            break;
         }
-        else
-        {
-            plugin_return_value = PLUGIN_BYTE_ERROR;
-            USBPARSERDEBUGPRINTF_P(PSTR("get login: failed\n"));
-        }
-        break;
-    }
 #endif
         // Read user profile in flash
         case CMD_START_MEMORYMGMT :
@@ -1288,6 +1288,16 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         #endif
 
+        // Stack free command
+#ifdef STACK_DEBUG
+        case CMD_STACK_FREE:
+        {
+            uint16_t freebytes = stackFree();
+            usbSendMessage(CMD_STACK_FREE, sizeof(freebytes), &freebytes);
+            return;
+        }
+#endif
+
         // Development commands
 #ifdef  DEV_PLUGIN_COMMS
         // erase eeprom
@@ -1381,12 +1391,6 @@ void usbProcessIncoming(uint8_t caller_id)
                 }
             #endif
 
-            return;
-        }
-        case CMD_STACK_FREE:
-        {            
-            uint16_t freebytes = stackFree();
-            usbSendMessage(CMD_STACK_FREE, sizeof(freebytes), &freebytes);
             return;
         }            
 

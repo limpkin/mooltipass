@@ -123,7 +123,6 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
-    #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_MINI_CLICK_V1
     #define AVR_BOOTLOADER_PROGRAMMING
@@ -132,7 +131,6 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
-    #define DEV_PLUGIN_COMMS
     #define NO_ACCELEROMETER
     #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
@@ -140,7 +138,6 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
-    #define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif

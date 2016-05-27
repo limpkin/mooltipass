@@ -225,12 +225,6 @@ void guiScreenLoop(uint8_t input_interface_result)
                 {
                     currentScreen = SCREEN_LOGIN;
                     oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
-                } 
-                else
-                {                    
-                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                    handleSmartcardRemoved();
-                    guiGetBackToCurrentScreen();
                 }
             }
             else if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)

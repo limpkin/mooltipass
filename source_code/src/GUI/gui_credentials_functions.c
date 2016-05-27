@@ -802,6 +802,7 @@ uint16_t loginSelectionScreen(void)
     uint8_t string_extra_chars[3];
     uint16_t temp_parent_address;
     uint8_t nb_parent_nodes;
+    char current_fchar = 0;
     RET_TYPE wheel_action;
     char fchar_array[3];
     pNode temp_pnode;
@@ -884,7 +885,7 @@ uint16_t loginSelectionScreen(void)
                 if (i == 1)
                 {
                     cur_address_selected = temp_parent_address;
-                    fchar_array[1] = temp_pnode.service[0];
+                    current_fchar = temp_pnode.service[0];
                 }
                 
                 // Fetch next address
@@ -902,7 +903,16 @@ uint16_t loginSelectionScreen(void)
             }
 
             // Display first letters
-            fchar_array[0] = '#';
+            getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array);
+            uint8_t glyph_width;
+            for (i = 0; i < sizeof(fchar_array); i++)
+            {
+                glyph_width = miniOledGlyphWidth(fchar_array[i]);
+                miniOledSetXY(5-(glyph_width>>1), y_coordinates[i]);
+                miniOledPutch(fchar_array[i]);
+            }
+
+            /*fchar_array[0] = '#';
             fchar_array[2] = '#';
             if (fchar_array[1] < 'a')
             {
@@ -927,14 +937,7 @@ uint16_t loginSelectionScreen(void)
                 fchar_array[1] -= 'a' - 'A';
                 fchar_array[0] = fchar_array[1] - 1;
                 fchar_array[2] = fchar_array[1] + 1;
-            }
-            uint8_t glyph_width;
-            for (i = 0; i < sizeof(fchar_array); i++)
-            {
-                glyph_width = miniOledGlyphWidth(fchar_array[i]);
-                miniOledSetXY(5-(glyph_width>>1), y_coordinates[i]);
-                miniOledPutch(fchar_array[i]);
-            }
+            }*/
 
             miniOledFlushEntireBufferToDisplay();
             string_refresh_needed = FALSE;

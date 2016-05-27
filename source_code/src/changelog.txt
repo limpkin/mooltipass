@@ -7,7 +7,6 @@ mini:
 - pacman screen saver
 - long press to go back
 - Display flip based on accelerometer
-- actual next/prev first char in login menu
 - smaller font for prev/next first char
 chrome app:
 - cred generator options

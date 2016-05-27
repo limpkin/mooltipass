@@ -879,6 +879,45 @@ void populateServicesLut(void)
     }
 }
 
+/*! \fn     getPreviousNextFirstLetterForGivenLetter(char c, char* array)
+*   \brief  Get the previous and next letter around a given letter
+*   \param  c       The first letter
+*   \param  array   Three char array to store the previous and next one
+*   \note   In the array, all letters will be higher case
+*/
+void getPreviousNextFirstLetterForGivenLetter(char c, char* array)
+{
+    // Set #s by default
+    memset(array, '#', 3);
+
+    // Store c
+    if ((c >= 'a') && (c <= 'z'))
+    {
+        array[1] = c - 'a' + 'A';
+    } 
+    else
+    {
+        array[1] = c;
+    }
+
+    // Loop through our LUT
+    for (uint8_t i = 0; i < sizeof(currentNodeMgmtHandle.servicesLut)/sizeof(currentNodeMgmtHandle.servicesLut[0]); i++)
+    {
+        if (currentNodeMgmtHandle.servicesLut[i] != NODE_ADDR_NULL)
+        {
+            if ((i + 'a') < c)
+            {
+                array[0] = i + 'A';
+            }
+            if ((i + 'a') > c)
+            {
+                array[2] = i + 'A';
+                return;
+            }
+        }
+    }
+}
+
 /*! \fn     getParentNodeForLetter(uint8_t letter, uint8_t empty_mode)
 *   \brief  Use the LUT to find the first parent node for a given letter
 *   \note   If we don't know the letter, the first previous one will be returned

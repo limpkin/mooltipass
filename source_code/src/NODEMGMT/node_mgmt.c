@@ -888,7 +888,7 @@ void populateServicesLut(void)
 void getPreviousNextFirstLetterForGivenLetter(char c, char* array)
 {
     // Set #s by default
-    memset(array, '#', 3);
+    memset(array, '-', 3);
 
     // Store c
     if ((c >= 'a') && (c <= 'z'))

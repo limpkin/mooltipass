@@ -231,23 +231,27 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             }
         #elif defined(MINI_VERSION)
             // Temp variables
-            uint16_t temp_cur_first_child_address_displayed = first_child_address;
-            uint8_t real_first_child_displayed = FALSE;
+            uint16_t last_child_address = first_child_address;
             temp_child_address = first_child_address;
             uint8_t string_refresh_needed = TRUE;
+            picked_child = first_child_address;
             uint8_t action_chosen = FALSE;
+            uint8_t cur_children_nb = 1;
+            uint8_t nb_children = 0;
             RET_TYPE wheel_action;
 
             // Variables for scrolling
-            uint8_t maxYCoordinates[4] = {SSD1305_OLED_WIDTH, 20, SSD1305_OLED_WIDTH - 30, SSD1305_OLED_WIDTH};
-            uint8_t startYCoordinates[4] = {0, 0, 30, SSD1305_OLED_WIDTH - 20};
-            uint8_t string_offset_cntrs[4];
-            uint8_t string_extra_chars[4];
+            uint8_t string_offset_cntrs[2];
+            uint8_t string_extra_chars[2];
 
-            // Display service & please select credential string
-            oledClear();
-            miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, readStoredStringToBuffer(ID_STRING_SELECT_CREDENTIAL));
-            string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, (char*)p->service);
+            // Get number of children
+            while(temp_child_address != NODE_ADDR_NULL)
+            {
+                nb_children++;
+                readChildNode(c, temp_child_address);
+                last_child_address = temp_child_address;
+                temp_child_address = c->nextChildAddress;
+            }
 
             // Clear pending detections & light up screen
             miniWheelClearDetections();
@@ -271,7 +275,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                     else
                     {
                         // Implement scrolling
-                        for (i = 1; i < 4; i++)
+                        for (i = 0; i < sizeof(string_offset_cntrs); i++)
                         {
                             if (string_extra_chars[i] > 0)
                             {
@@ -284,44 +288,31 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                     }
 
                     // Scrolling timer expired
-                    activateTimer(TIMER_CAPS, SCROLLING_DEL);                    
+                    activateTimer(TIMER_CAPS, SCROLLING_DEL);      
 
-                    // Start looping, starting from the first displayed child
-                    temp_child_address = temp_cur_first_child_address_displayed;
-                    miniOledDrawRectangle(0, THREE_LINE_TEXT_THIRD_POS, SSD1305_OLED_WIDTH, SSD1305_OLED_HEIGHT-THREE_LINE_TEXT_THIRD_POS, FALSE);
+                    // Clear LCD, init temporary vars
+                    oledClear();
+                    char temp_string[10];
+                    memset(temp_string, 0x00, sizeof(temp_string));
+                    char* select_cred_line = readStoredStringToBuffer(ID_STRING_SELECT_CREDENTIAL);
 
-                    // Offset for selecting the first credential
-                    if (real_first_child_displayed == FALSE)
-                    {
-                        i = 1;
-                    } 
-                    else
-                    {
-                        i = 2;
-                    }
+                    // First line: service name
+                    string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, (char*)p->service + string_offset_cntrs[0]);
 
-                    for (; (i < 4) && (temp_child_address != NODE_ADDR_NULL); i++)
-                    {
-                        // Read child node to get login
-                        readChildNode(c, temp_child_address);                        
-                        
-                        // Print Login at the correct slot
-                        miniOledSetMaxTextY(maxYCoordinates[i]);
-                        string_extra_chars[i] = strlen((char*)c->login) - miniOledPutstrXY(startYCoordinates[i], THREE_LINE_TEXT_THIRD_POS, OLED_CENTRE, (char*)c->login + string_offset_cntrs[i]);
-
-                        // Second child displayed is the chosen one
-                        if (i == 2)
-                        {
-                            picked_child = temp_child_address;
-                        }
-                        
-                        // Fetch next address
-                        temp_child_address = c->nextChildAddress;
-                    }
+                    // Second line: "select credential" + x/total
+                    itoa(cur_children_nb, temp_string, 10);
+                    temp_string[strlen(temp_string)] = '/';
+                    itoa(nb_children, temp_string+strlen(temp_string), 10);
+                    strncat(select_cred_line, temp_string, TEXTBUFFERSIZE - strlen(select_cred_line) - 1);
+                    miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, select_cred_line);     
                     
+                    // Third line: chosen credential   
+                    readChildNode(c, picked_child);
+                    string_extra_chars[1] = strlen((char*)c->login) - miniOledPutCenteredString(THREE_LINE_TEXT_THIRD_POS, (char*)c->login + string_offset_cntrs[1]);
+                    
+                    // Flush to display
                     miniOledFlushEntireBufferToDisplay();
                     string_refresh_needed = FALSE;
-                    miniOledResetMaxTextY();
                 }
             
                 // Get wheel action
@@ -332,35 +323,49 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 {
                     action_chosen = TRUE;
                 }
-                else if ((wheel_action == WHEEL_ACTION_DOWN) && (i > 3))
+                else if (wheel_action == WHEEL_ACTION_DOWN)
                 {
                     // Move to the next credential
                     string_refresh_needed = TRUE;
 
-                    if (real_first_child_displayed != FALSE)
+                    // Loop or go to previous
+                    picked_child = c->prevChildAddress;
+                    if (picked_child == NODE_ADDR_NULL)
                     {
-                        real_first_child_displayed = FALSE;
+                        picked_child = last_child_address;
                     }
+
+                    // Update status display
+                    if (cur_children_nb == 1)
+                    {
+                        cur_children_nb = nb_children;
+                    } 
                     else
                     {
-                        temp_cur_first_child_address_displayed = picked_child;
+                        cur_children_nb--;
                     }
                 }
-                else if ((wheel_action == WHEEL_ACTION_UP) && (real_first_child_displayed == FALSE))
+                else if (wheel_action == WHEEL_ACTION_UP)
                 {                 
                     // Move to the previous credential    
-                    string_refresh_needed = TRUE;
+                    string_refresh_needed = TRUE;                    
 
-                     if (temp_cur_first_child_address_displayed == first_child_address)
-                     {
-                        real_first_child_displayed = TRUE;
-                     }
-                     else
-                     {
-                        // Read child node to get previous node
-                        readChildNode(c, temp_cur_first_child_address_displayed);
-                        temp_cur_first_child_address_displayed = c->prevChildAddress;
-                     }                     
+                    // Loop or go to previous
+                    picked_child = c->nextChildAddress;
+                    if (picked_child == NODE_ADDR_NULL)
+                    {
+                        picked_child = first_child_address;
+                    }  
+
+                    // Update status display
+                    if (cur_children_nb == nb_children)
+                    {
+                        cur_children_nb = 1;
+                    } 
+                    else
+                    {
+                        cur_children_nb++;
+                    }                  
                 }
 
                 if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))

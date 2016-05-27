@@ -63,6 +63,6 @@ Wheel pressed~~
 Scroll To 10
 DON'T APPROVE THIS!
 Send Password For:
-Select Credential:
+Select Credential: 
 !!!Inputs PB!!!~~
 Check LEDs: 

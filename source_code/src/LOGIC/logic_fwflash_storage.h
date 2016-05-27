@@ -36,6 +36,9 @@
 #define MEDIA_BITMAP            1
 #define MEDIA_FONT              2
 
+// Buffer size
+#define TEXTBUFFERSIZE  32
+
 #if defined(HARDWARE_OLIVIER_V1)
     // Font IDs
     #define FONT_NONE           255

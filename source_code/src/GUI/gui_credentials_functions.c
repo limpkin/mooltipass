@@ -912,33 +912,6 @@ uint16_t loginSelectionScreen(void)
                 miniOledPutch(fchar_array[i]);
             }
 
-            /*fchar_array[0] = '#';
-            fchar_array[2] = '#';
-            if (fchar_array[1] < 'a')
-            {
-                fchar_array[2] = 'A';
-            } 
-            else if (fchar_array[1] == 'a')
-            {
-                fchar_array[1] -= 'a' - 'A';
-                fchar_array[2] = 'B';
-            } 
-            else if (fchar_array[1] == 'z')
-            {
-                fchar_array[1] -= 'a' - 'A';
-                fchar_array[0] = 'Y';
-            } 
-            else if (fchar_array[1] > 'z')
-            {
-                fchar_array[0] = 'Z';
-            }
-            else
-            {
-                fchar_array[1] -= 'a' - 'A';
-                fchar_array[0] = fchar_array[1] - 1;
-                fchar_array[2] = fchar_array[1] + 1;
-            }*/
-
             miniOledFlushEntireBufferToDisplay();
             string_refresh_needed = FALSE;
             miniOledSetMinTextY(0);

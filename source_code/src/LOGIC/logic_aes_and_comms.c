@@ -1128,35 +1128,60 @@ void loginSelectLogic(void)
         // Special ifdef to allow going back action in the mooltipass mini
         uint16_t chosen_service_addr;
         uint16_t chosen_login_addr;
-        //askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen(), TRUE), (char*)temp_pnode.service);return;
+        uint8_t state_machine = 0;
+
         while (TRUE)
         {
-            // Ask user to select a service
-            chosen_service_addr = loginSelectionScreen();
-
-            // No service was chosen
-            if (chosen_service_addr == NODE_ADDR_NULL)
+            if (state_machine == 0)
             {
-                return;
+                // Ask user to select a service
+                chosen_service_addr = loginSelectionScreen();
+
+                // No service was chosen
+                if (chosen_service_addr == NODE_ADDR_NULL)
+                {
+                    return;
+                }
+
+                state_machine++;
             }
-
-            // If there are different logins for this service, ask the user to pick one
-            chosen_login_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, chosen_service_addr, TRUE);
-
-            // In case the user went back
-            if ((chosen_login_addr == NODE_ADDR_NULL) && (miniGetLastReturnedAction() == WHEEL_ACTION_LONG_CLICK))
+            else if (state_machine == 1)
             {
-                continue;
+                // If there are different logins for this service, ask the user to pick one
+                chosen_login_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, chosen_service_addr, TRUE);
+
+                // In case the user went back
+                if ((chosen_login_addr == NODE_ADDR_NULL) && (miniGetLastReturnedAction() == WHEEL_ACTION_LONG_CLICK))
+                {
+                    state_machine = 0;
+                }
+                else
+                {
+                    state_machine++;
+                }
             }
+            else if (state_machine == 2)
+            {
+                // Ask the user permission to enter login / password, check for back action
+                if (askUserForLoginAndPasswordKeybOutput(chosen_login_addr, (char*)temp_pnode.service) == RETURN_BACK)
+                {
+                    // Check if the chosen login node is an only child. Guaranteed to work as askUserForLoginAndPasswordKeybOutput(NODE_ADDR_NULL) returns RETURN_OK
+                    readChildNode(&temp_cnode, chosen_login_addr);
 
-            // Ask the user permission to enter login / password, check for back action
-            if (askUserForLoginAndPasswordKeybOutput(chosen_login_addr, (char*)temp_pnode.service) == RETURN_BACK)
-            {
-                continue;
-            }
-            else
-            {
-                return;
+                    // If only child, go back to service selection, otherwise go back to login selection
+                    if ((temp_cnode.prevChildAddress == NODE_ADDR_NULL) && (temp_cnode.nextChildAddress == NODE_ADDR_NULL))
+                    {
+                        state_machine = 0;
+                    } 
+                    else
+                    {
+                        state_machine = 1;
+                    }
+                }
+                else
+                {
+                    return;
+                }
             }
         }
     #else

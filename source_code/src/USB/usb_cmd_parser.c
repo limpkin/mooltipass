@@ -147,6 +147,33 @@ RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
     }
 }
 
+/*! \fn     usbCancelRequestReceived(void)
+*   \brief  Check if a cancel request packet was received
+*   \return RETURN_OK if packet received, RETURN_NOK otherwise
+*/
+RET_TYPE usbCancelRequestReceived(void)
+{
+    // Our USB data buffer
+    uint8_t incomingData[RAWHID_TX_SIZE];
+
+    // Read usb comms as the plugin could ask to cancel the request
+    if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
+    {
+        if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
+        {
+            // Request canceled
+            return RETURN_OK;
+        }
+        else
+        {
+            // Another packet (that shouldn't be sent!), ask to retry later...
+            usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
+        }
+    }
+
+    return RETURN_NOK;
+}
+
 /*! \fn     usbProcessIncoming(uint8_t caller_id)
 *   \brief  Process a possible incoming USB packet
 *   \param  caller_id   UID of the calling function

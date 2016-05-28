@@ -367,8 +367,20 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                         cur_children_nb++;
                     }                  
                 }
+                else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
+                {
+                    // Long click to go back (checked by function caller)
+                    return NODE_ADDR_NULL;
+                }
 
+                // Timeout or card removed
                 if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+                {
+                    return NODE_ADDR_NULL;
+                }
+
+                // Request cancelled by plugin
+                if (usbCancelRequestReceived() == RETURN_OK)
                 {
                     return NODE_ADDR_NULL;
                 }
@@ -831,6 +843,9 @@ uint16_t loginSelectionScreen(void)
 
     // Arm timer for scrolling (caps timer that isn't relevant here)
     activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+    // Clear possible detections
+    miniWheelClearDetections();
 
     while(1)
     {

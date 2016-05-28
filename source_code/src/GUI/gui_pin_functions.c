@@ -279,13 +279,8 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
             
             // Change digit position or return/proceed
-            if ((detection_result == WHEEL_ACTION_LONG_CLICK) || (detection_result == WHEEL_ACTION_CLICK_UP))
+            if (detection_result == WHEEL_ACTION_LONG_CLICK)
             {
-                if (selected_digit == 1)
-                {
-                    //oledFillXY(0, 23, 18, 18, 0x00);
-                    //oledBitmapDrawFlash(0, 24, BITMAP_CROSS, 0);
-                }
                 if (selected_digit > 0)
                 {
                     // When going back set pin digit to 0
@@ -299,12 +294,8 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
                 }
                 guiDisplayPinOnPinEnteringScreen(current_pin, selected_digit, stringID);
             }
-            else if ((detection_result == WHEEL_ACTION_SHORT_CLICK) || (detection_result == WHEEL_ACTION_CLICK_DOWN))
+            else if (detection_result == WHEEL_ACTION_SHORT_CLICK)
             {
-                if (selected_digit == 2)
-                {
-                    //oledBitmapDrawFlash(0, SSD1305_OLED_WIDTH-15, BITMAP_TICK, 0);
-                }
                 if (selected_digit < 3)
                 {
                     selected_digit++;
@@ -318,19 +309,12 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
             }
         }
     
-        // Reset default font
-        //oledSetFont(FONT_DEFAULT);
-        //oledWriteInactiveBuffer();
-    
         // Store the pin
         *pin_code = (uint16_t)(((uint16_t)(current_pin[0]) << 12) | (((uint16_t)current_pin[1]) << 8) | (current_pin[2] << 4) | current_pin[3]);
     
         // Set current pin to 0000 & set default font
         memset((void*)current_pin, 0, 4);
         oledSetFont(FONT_DEFAULT);
-    
-        // Prevent touches until the user lifts his finger
-        //touchInhibitUntilRelease();
     
         // Return success status
         return ret_val;

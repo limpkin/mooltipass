@@ -139,19 +139,11 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
             return -1;
         }
         // Read usb comms as the plugin could ask to cancel the request
-        if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
+        if (usbCancelRequestReceived() == RETURN_OK)
         {
-            if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
-            {
-                // Request cancelled
-                return -1;
-            }
-            else
-            {
-                // Another packet (that shouldn't be sent!), ask to retry later...
-                usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
-            }
+            return -1;
         }
+
         touch_detect_result = touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK & additional_mask;
     }
     while (!touch_detect_result);

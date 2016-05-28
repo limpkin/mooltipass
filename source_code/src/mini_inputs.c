@@ -51,6 +51,8 @@ volatile uint8_t last_wheel_sm;
 uint8_t discard_release_event = FALSE;
 // Wheel direction reverse bool
 uint8_t wheel_reverse_bool = FALSE;
+// Last detection type returned (cleared when calling cleardetections)
+RET_TYPE last_detection_type_ret = WHEEL_ACTION_NONE;
 
 
 /*! \fn     miniSetLedStates(uint8_t leds)
@@ -299,10 +301,21 @@ void miniWheelClearDetections(void)
 {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
+        last_detection_type_ret = WHEEL_ACTION_NONE;
         wheel_click_duration_counter = 0;
         wheel_click_return = RETURN_REL;
+        wheel_increment_armed = FALSE;
         wheel_cur_increment = 0;
     }
+}
+
+/*! \fn     miniGetLastReturnedAction(void)
+*   \brief  Get the last returned action to another call
+*   \return See wheel_action_ret_t
+*/
+RET_TYPE miniGetLastReturnedAction(void)
+{
+    return last_detection_type_ret;
 }
 
 /*! \fn     miniGetWheelAction(void)
@@ -402,6 +415,7 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
         activityDetectedRoutine();
     }
     
+    last_detection_type_ret = return_val;
     return return_val;
 }
 #endif

@@ -886,7 +886,6 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         }
     #elif defined(MINI_VERSION)
         RET_TYPE input_answer = MINI_INPUT_RET_NONE;
-        uint8_t incomingData[RAWHID_TX_SIZE];
         RET_TYPE detect_result;
         
         // Switch on lights
@@ -908,18 +907,9 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             }
             
             // Read usb comms as the plugin could ask to cancel the request
-            if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
+            if (usbCancelRequestReceived() == RETURN_OK)
             {
-                if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
-                {
-                    // Request canceled
-                    input_answer = MINI_INPUT_RET_TIMEOUT;
-                }
-                else
-                {
-                    // Another packet (that shouldn't be sent!), ask to retry later...
-                    usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
-                }
+                input_answer = MINI_INPUT_RET_TIMEOUT;
             }
             
             // Check if something has been pressed
@@ -978,6 +968,10 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         if ((input_answer == MINI_INPUT_RET_YES) && (approve_selected != FALSE))
         {
             return RETURN_OK;
+        }
+        else if (input_answer == MINI_INPUT_RET_BACK)
+        {
+            return RETURN_BACK;
         }
         else
         {

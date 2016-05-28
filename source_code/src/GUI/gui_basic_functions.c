@@ -302,6 +302,10 @@ RET_TYPE getYesNoAnswerInput(uint8_t blocking)
         {
             return MINI_INPUT_RET_YES;
         }
+        else if (detect_result == WHEEL_ACTION_LONG_CLICK)
+        {
+            return MINI_INPUT_RET_BACK;
+        }
     }
     while(blocking != FALSE);
     

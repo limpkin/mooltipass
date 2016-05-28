@@ -831,7 +831,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
         
         // Display lines. 
-        // Note: line are truncated at the oled driver level when miniOledTextWritingYIncrement is set to FALSE
+        // Note: line are truncated at the oled driver level when miniOledTextWritingYIncrement is set to FALSE (default)
         if (nb_args == 1)
         {
             miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, (char*)text_object);
@@ -886,6 +886,8 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         }
     #elif defined(MINI_VERSION)
         RET_TYPE input_answer = MINI_INPUT_RET_NONE;
+        uint8_t incomingData[RAWHID_TX_SIZE];
+        RET_TYPE detect_result;
         
         // Switch on lights
         activityDetectedRoutine();
@@ -899,7 +901,37 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         // Loop while no timeout occurs or no button is pressed
         while (input_answer == MINI_INPUT_RET_NONE)
         {
-            input_answer = getYesNoAnswerInput(FALSE);
+            // User interaction timeout or smartcard removed
+            if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+            {
+                input_answer = MINI_INPUT_RET_TIMEOUT;
+            }
+            
+            // Read usb comms as the plugin could ask to cancel the request
+            if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
+            {
+                if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
+                {
+                    // Request canceled
+                    input_answer = MINI_INPUT_RET_TIMEOUT;
+                }
+                else
+                {
+                    // Another packet (that shouldn't be sent!), ask to retry later...
+                    usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
+                }
+            }
+            
+            // Check if something has been pressed
+            detect_result = miniGetWheelAction(FALSE, TRUE);
+            if (detect_result == WHEEL_ACTION_SHORT_CLICK)
+            {
+                input_answer = MINI_INPUT_RET_YES;
+            }
+            else if (detect_result == WHEEL_ACTION_LONG_CLICK)
+            {
+                input_answer = MINI_INPUT_RET_BACK;
+            }
             
             // Text scrolling
             if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (nb_args > 1))

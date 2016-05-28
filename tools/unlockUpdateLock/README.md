@@ -14,7 +14,7 @@ Requirements
 
 Instructions
 ------------
-- download Mooltipass.hex here https://github.com/limpkin/mooltipass/releases/tag/v1.1
+- download Mooltipass.hex here https://github.com/limpkin/mooltipass/releases/tag/v1.1_main
 - backup all your Mooltipass users databases as the Mooltipass memory will be erased
 - Windows: use the libusb filter wizard to set filters on the mooltipass
 - install all the prerequisites listed above

@@ -114,7 +114,6 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         }
     #endif
 
-    uint8_t incomingData[RAWHID_TX_SIZE];
     RET_TYPE touch_detect_result;
     
     // Switch on lights

@@ -406,9 +406,11 @@ int main(void)
             // If the screen saver is on, clear screen contents
             if(isScreenSaverOn() == TRUE)
             {
-                oledClear();
-                oledDisplayOtherBuffer();
-                oledClear();
+                #ifndef MINI_VERSION
+                    oledClear();
+                    oledDisplayOtherBuffer();
+                    oledClear();
+                #endif
             }
             else
             {

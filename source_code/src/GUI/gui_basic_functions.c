@@ -357,14 +357,20 @@ void guiMainLoop(void)
         if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
         {
             screenSaverOn = TRUE;
-            oledWriteInactiveBuffer();
-            oledClear();
-            oledDisplayOtherBuffer();
-            oledClear();
+            #ifndef MINI_VERSION
+                oledWriteInactiveBuffer();
+                oledClear();
+                oledDisplayOtherBuffer();
+                oledClear();
+            #endif
         } 
         else
         {
-            oledDisplayOtherBuffer();
+            #ifndef MINI_VERSION
+                oledDisplayOtherBuffer();
+            #else
+                guiGetBackToCurrentScreen();
+            #endif
             oledOff();
         }
     }

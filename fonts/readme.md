@@ -6,6 +6,7 @@ Pre-reqs:
 
 Build font builder:
 ```sh
+$ git submodule init
 $ git submodule update
 $ cd fonts/fontbuilder
 $ qmake

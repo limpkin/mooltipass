@@ -9,7 +9,7 @@ Requirements
 - All python modules listed at the beginning of the unlockUpdateLock.py file
 - Windows: libusb at http://sourceforge.net/projects/libusb-win32/files/
 - Pyusb: pip install --pre pyusb
-- script launched as root
+- script launched as root in Linux
 - New firmware file placed in the same dir, named "Mooltipass.hex"
 
 Instructions
@@ -21,6 +21,10 @@ Instructions
 - download all the files of this folder
 - disable the Mooltipass Chrome App
 - run the script
+
+Windows
+-------
+When using Filter Wizard, add filters for the 3 items with VID 16d0 and PID 09a0
 
 Warning
 -------

@@ -923,15 +923,19 @@ uint16_t loginSelectionScreen(void)
             }
 
             // Display first letters
-            getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array);
             uint8_t glyph_width;
-            for (i = 0; i < sizeof(fchar_array); i++)
-            {
-                glyph_width = miniOledGlyphWidth(fchar_array[i]);
-                miniOledSetXY(5-(glyph_width>>1), y_coordinates[i]);
-                miniOledPutch(fchar_array[i]);
-            }
-
+            getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array);
+            miniOledSetFont(FONT_8BIT16);
+            glyph_width = miniOledGlyphWidth(fchar_array[0]);
+            miniOledSetXY(5-(glyph_width>>1), 3);
+            miniOledPutch(fchar_array[0]);
+            glyph_width = miniOledGlyphWidth(fchar_array[2]);
+            miniOledSetXY(5-(glyph_width>>1), 24);
+            miniOledPutch(fchar_array[2]);
+            miniOledSetFont(FONT_DEFAULT);
+            glyph_width = miniOledGlyphWidth(fchar_array[1]);
+            miniOledSetXY(5-(glyph_width>>1), THREE_LINE_TEXT_SECOND_POS);
+            miniOledPutch(fchar_array[1]);
             miniOledFlushEntireBufferToDisplay();
             string_refresh_needed = FALSE;
             miniOledSetMinTextY(0);

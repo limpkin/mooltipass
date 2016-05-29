@@ -157,6 +157,7 @@
     #define FONT_NONE               255
     #define FONT_CC_REGULAR         1
     #define FONT_PROFONT_14         2
+    #define FONT_8BIT16             11
     #define FONT_DEFAULT            FONT_CC_REGULAR
 
     // Bitmap IDs

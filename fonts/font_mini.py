@@ -35,7 +35,7 @@ parser.add_option('-n', '--name', help='name for font', dest='name', default=Non
 parser.add_option('-p', '--png', help='png file for font', dest='png', default=None)
 parser.add_option('-x', '--xml', help='xml file for font', dest='xml', default=None)
 parser.add_option('-o', '--output', help='name of output file', dest='output', default='font')
-parser.add_option('-d', '--depth', help='bits per pixel (default: 2)', type='int', dest='depth', default=2)
+parser.add_option('-d', '--depth', help='bits per pixel (default: 2)', type='int', dest='depth', default=1)
 parser.add_option('', '--debug', help='enable debug output', action='store_true', dest='debug', default=False)
 (options, args) = parser.parse_args()
 

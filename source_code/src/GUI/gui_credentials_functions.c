@@ -889,8 +889,8 @@ uint16_t loginSelectionScreen(void)
             }
             
             oledClear();
-            miniOledSetMinTextY(14);
-            miniOledDrawRectangle(10, 0, 1, SSD1305_OLED_HEIGHT, TRUE);
+            miniOledSetMinTextY(16);
+            miniOledDrawRectangle(12, 0, 1, SSD1305_OLED_HEIGHT, TRUE);
             oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the parent nodes
             for (; (i < 3); i++)
@@ -927,16 +927,17 @@ uint16_t loginSelectionScreen(void)
             getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array);
             miniOledSetFont(FONT_8BIT16);
             glyph_width = miniOledGlyphWidth(fchar_array[0]);
-            miniOledSetXY(5-(glyph_width>>1), 3);
+            miniOledSetXY(5-(glyph_width>>1), 1);
             miniOledPutch(fchar_array[0]);
             glyph_width = miniOledGlyphWidth(fchar_array[2]);
-            miniOledSetXY(5-(glyph_width>>1), 24);
+            miniOledSetXY(5-(glyph_width>>1), 26);
             miniOledPutch(fchar_array[2]);
-            miniOledSetFont(FONT_DEFAULT);
+            miniOledSetFont(FONT_PROFONT_14);
             glyph_width = miniOledGlyphWidth(fchar_array[1]);
-            miniOledSetXY(5-(glyph_width>>1), THREE_LINE_TEXT_SECOND_POS);
+            miniOledSetXY(5-(glyph_width>>1), 6);
             miniOledPutch(fchar_array[1]);
             miniOledFlushEntireBufferToDisplay();
+            miniOledSetFont(FONT_DEFAULT);
             string_refresh_needed = FALSE;
             miniOledSetMinTextY(0);
         }

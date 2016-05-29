@@ -193,7 +193,7 @@ void guiScreenLoop(uint8_t input_interface_result)
                 for (uint8_t i = 0; i < NB_BMPS_PER_TRANSITION; i++)
                 {
                     oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+NB_BMPS_PER_TRANSITION-1-i, OLED_SCROLL_FLIP);
-                    timerBasedDelayMs(25);
+                    timerBasedDelayMs(12);
                 }
             }
             else if (input_interface_result == WHEEL_ACTION_DOWN)
@@ -202,7 +202,7 @@ void guiScreenLoop(uint8_t input_interface_result)
                 for (uint8_t i = 0; i < NB_BMPS_PER_TRANSITION-1; i++)
                 {
                     oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+1+i, OLED_SCROLL_FLIP);
-                    timerBasedDelayMs(25);
+                    timerBasedDelayMs(12);
                 }
                 if (currentScreen == SCREEN_SETTINGS)
                 {

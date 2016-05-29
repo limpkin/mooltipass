@@ -52,7 +52,7 @@ uint8_t pac_bitmap_id = BITMAP_PAC_RIGHT;
 uint8_t full_lock_bitmap = TRUE;
 uint8_t small_pac_bitmap = TRUE;
 uint8_t pac_size_counter = 0;
-uint8_t lock_position = 35;
+uint8_t lock_position = 33;
 uint8_t pac_position = 0;
 
 // pacman animation

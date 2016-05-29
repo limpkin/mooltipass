@@ -4,8 +4,7 @@ Todo:
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
 mini:
-- pacman screen saver
-- long press to go back
+- re-integrate zzz bitmap
 - Display flip based on accelerometer
 chrome app:
 - cred generator options

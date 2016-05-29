@@ -621,14 +621,8 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
     // Bitmasks
     uint8_t rbitmask[] = {0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE};
     //uint8_t lbitmask[] = {0xFF, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F};
-        
-    // Check that we're not displaying off-screen
-    if (end_x >= SSD1305_OLED_WIDTH)
-    {
-        return;
-    }
     
-    for (uint8_t x = start_x; x <= end_x; x++)
+    for (uint8_t x = start_x; (x <= end_x) && (x < SSD1305_OLED_WIDTH); x++)
     {
         int16_t buffer_shift = (((uint16_t)end_page % SSD1305_OLED_BUFFER_PAGE_HEIGHT) << SSD1305_WIDTH_BIT_SHIFT);
         uint8_t pixels_to_be_displayed = bs->height;

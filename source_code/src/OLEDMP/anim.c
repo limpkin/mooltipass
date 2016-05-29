@@ -43,6 +43,79 @@
 #include "oled_wrapper.h"
 #include "oledmp.h"
 #include "anim.h"
+#ifdef MINI_VERSION
+#define PAC_WIDTH           30
+#define LOCK_WIDTH          18
+#define LOCK_HEIGHT         24
+#define PAC_SIZE_DIVIDER    5
+uint8_t pac_bitmap_id = BITMAP_PAC_RIGHT;
+uint8_t full_lock_bitmap = TRUE;
+uint8_t small_pac_bitmap = TRUE;
+uint8_t pac_size_counter = 0;
+uint8_t lock_position = 35;
+uint8_t pac_position = 0;
+
+// pacman animation
+void animScreenSaver(void)
+{
+    uint8_t lock_bitmap = TRUE;
+    oledClear();
+
+    // Is the mini locked?
+    if (getSmartCardInsertedUnlocked() == TRUE)
+    {
+        lock_bitmap = FALSE;
+    }
+
+    // Increment positions
+    if (++pac_position == SSD1305_OLED_WIDTH)
+    {
+        pac_position = 0;
+    }
+    if (++lock_position == SSD1305_OLED_WIDTH)
+    {
+        lock_position = 0;
+    }
+
+    // Display lock bitmap if needed
+    if (lock_bitmap != FALSE)
+    {
+        uint8_t lock_bitmap_id;
+        if (full_lock_bitmap != FALSE)
+        {
+            lock_bitmap_id = BITMAP_LOCK_FULL;
+            full_lock_bitmap = FALSE;
+        } 
+        else
+        {
+            lock_bitmap_id = BITMAP_LOCK_EMPTY;
+            full_lock_bitmap = TRUE;
+        }
+        oledBitmapDrawFlash((uint8_t)lock_position, 1, lock_bitmap_id, 0);
+    }
+
+    // Display pacman bitmap
+    if (pac_size_counter++ == PAC_SIZE_DIVIDER)
+    {
+        if (small_pac_bitmap != FALSE)
+        {
+            pac_bitmap_id = BITMAP_PAC_RIGHT2;
+            small_pac_bitmap = FALSE;
+        }
+        else
+        {
+            pac_bitmap_id = BITMAP_PAC_RIGHT;
+            small_pac_bitmap = TRUE;
+        }
+        pac_size_counter = 0;
+    }
+    oledBitmapDrawFlash((uint8_t)pac_position, 1, pac_bitmap_id, 0);
+
+    timerBasedDelayMs(getMooltipassParameterInEeprom(SCREEN_SAVER_SPEED_PARAM));
+    miniOledFlushEntireBufferToDisplay();
+}
+
+#else
 int16_t screensaver_anim_last_x=0, screensaver_anim_last_y=15;
 int8_t screensaver_anim_xvel=3, screensaver_anim_yvel=2;
 int16_t screensaver_anim_x=0, screensaver_anim_y=0;
@@ -87,3 +160,4 @@ void animScreenSaver(void)
     screensaver_anim_last_x = screensaver_anim_x;
     screensaver_anim_last_y = screensaver_anim_y;
 }
+#endif

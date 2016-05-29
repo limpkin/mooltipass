@@ -170,6 +170,17 @@
     #define BITMAP_PIN_SLOT3        8
     #define BITMAP_PIN_SLOT4        9
     #define BITMAP_SCROLL_WHEEL     10    
+    #define BITMAP_LOCK_FULL        40
+    #define BITMAP_LOCK_EMPTY       41
+    #define BITMAP_PAC_FULL         42
+    #define BITMAP_PAC_RIGHT        43
+    #define BITMAP_PAC_RIGHT2       44
+    #define BITMAP_PAC_BOT          45
+    #define BITMAP_PAC_BOT2         46
+    #define BITMAP_PAC_LEFT         47
+    #define BITMAP_PAC_LEFT2        48
+    #define BITMAP_PAC_UP           49
+    #define BITMAP_PAC_UP2          50
     #define BITMAP_MAIN_LOCK        64
     #define BITMAP_MAIN_LOGIN       68
     #define BITMAP_MAIN_FAVORITES   72
@@ -179,8 +190,7 @@
     #define BITMAP_SETTINGS_HOME    88
     #define BITMAP_SETTINGS_ERASE   92
 
-    #define BITMAP_ZZZ            14
-    #define BITMAP_ZZZ_LOCKED     42
+    // To reintegrate?
     #define BITMAP_TUTORIAL_1     43
     #define BITMAP_TUTORIAL_2     44
     #define BITMAP_TUTORIAL_3     45

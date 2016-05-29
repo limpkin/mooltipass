@@ -762,10 +762,17 @@ void guiDisplaySmartcardUnlockedScreen(uint8_t* username)
 */
 void guiDisplayGoingToSleep(void)
 {
-    oledClear();
-    oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
-    oledBitmapDrawFlash(2, 17, BITMAP_ZZZ, 0);
-    oledDisplayOtherBuffer();    
+    #ifdef MINI_VERSION
+        oledClear();
+        oledPutstrXY(10, 8, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+        //oledBitmapDrawFlash(2, 17, BITMAP_ZZZ, 0);
+        miniOledFlushEntireBufferToDisplay();
+    #else
+        oledClear();
+        oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+        oledBitmapDrawFlash(2, 17, BITMAP_ZZZ, 0);
+        oledDisplayOtherBuffer();
+    #endif
 }
 
 /*! \fn     guiAskForConfirmation(const char* string)

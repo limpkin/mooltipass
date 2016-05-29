@@ -1115,8 +1115,35 @@ RET_TYPE askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* serv
 */
 void favoritePickingLogic(void)
 {
-    // favoriteSelectionScreen loads the chosen parent node in memory before exciting
-    askUserForLoginAndPasswordKeybOutput(favoriteSelectionScreen(&temp_pnode, &temp_cnode), (char*)temp_pnode.service);
+    #ifdef MINI_VERSION
+        // Special ifdef to allow going back action in the mooltipass mini
+        uint16_t chosen_login_addr;
+
+        while (TRUE)
+        {
+            // favoriteSelectionScreen loads the chosen parent node in memory before exciting
+            chosen_login_addr = favoriteSelectionScreen(&temp_pnode, &temp_cnode);
+
+            // No login was chosen
+            if (chosen_login_addr == NODE_ADDR_NULL)
+            {
+                return;
+            }
+
+            // Ask the user permission to enter login / password, check for back action
+            if (askUserForLoginAndPasswordKeybOutput(chosen_login_addr, (char*)temp_pnode.service) == RETURN_BACK)
+            {
+                continue;
+            }
+            else
+            {
+                return;
+            }
+        }
+    #else
+        // favoriteSelectionScreen loads the chosen parent node in memory before exciting
+        askUserForLoginAndPasswordKeybOutput(favoriteSelectionScreen(&temp_pnode, &temp_cnode), (char*)temp_pnode.service);
+    #endif
 }
 
 /*! \fn     loginSelectLogic(void)

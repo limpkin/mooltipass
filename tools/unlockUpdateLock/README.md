@@ -24,16 +24,8 @@ Instructions
 
 Warning
 -------
-It seems that due to a possible Kernel bug our updating script won't work on some Ubuntu computers: http://superuser.com/questions/979722/serialport-doenst-work-correctly-after-ubuntu-update
-We therefore recommend using Windows for this particular script.
-
-Troubleshooting
----------------
-#### Error after "reconnecting to device"
-Script output:
-Programming done... reconnecting to device...
-Exception usb.core.USBError: USBError(None, 'libusb0-dll:err [release_interface] could not release interface 0, win error: The device does not recognize the command.\r\n')
-**Solution:** Make sure the Mooltipass App is disabled, then re-run the script: python unlockUpdateLock.py skip
+It seems that due to a possible Kernel bug our updating script won't work on some Ubuntu computers. We therefore recommend using Windows for this particular script.
+Bug: http://superuser.com/questions/979722/serialport-doenst-work-correctly-after-ubuntu-update
 
 Using the Beta Testers App & Extensions
 ---------------------------------------
@@ -41,3 +33,11 @@ Only stable versions of our App & Extension are pushed to our customers. However
 - https://chrome.google.com/webstore/detail/mooltipass-extension/mkjlelalgdinanmcljpgkojjolkdcebh
 - https://chrome.google.com/webstore/detail/mooltipass-app/nbjmdaimooaemcgoodjmpjkabpdbaink
 **Don't forget to uninstall your previous App / Extension before installing these ones**
+
+Troubleshooting
+---------------
+##### 1) Error after "reconnecting to device"
+Script output:  
+Programming done... reconnecting to device...  
+Exception usb.core.USBError: USBError(None, 'libusb0-dll:err [release_interface] could not release interface 0, win error: The device does not recognize the command.\r\n')  
+**Solution:** Make sure the Mooltipass App is disabled, then re-run the script: python unlockUpdateLock.py skip

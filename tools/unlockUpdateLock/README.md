@@ -24,14 +24,14 @@ Instructions
 
 Warning
 -------
-It seems that due to a possible Kernel bug our updating script won't work on some Ubuntu computers. We therefore recommend using Windows for this particular script.
+It seems that due to a possible Kernel bug our updating script won't work on some Ubuntu computers. We therefore recommend using Windows for this particular script.  
 Bug: http://superuser.com/questions/979722/serialport-doenst-work-correctly-after-ubuntu-update
 
 Using the Beta Testers App & Extensions
 ---------------------------------------
 Only stable versions of our App & Extension are pushed to our customers. However, several new features may not be pushed during a few weeks as they're being tested by our beta testers. If you want to use the same App & Extension as our beta testers, you may use these links:
-- https://chrome.google.com/webstore/detail/mooltipass-extension/mkjlelalgdinanmcljpgkojjolkdcebh
-- https://chrome.google.com/webstore/detail/mooltipass-app/nbjmdaimooaemcgoodjmpjkabpdbaink
+- https://chrome.google.com/webstore/detail/mooltipass-extension/mkjlelalgdinanmcljpgkojjolkdcebh  
+- https://chrome.google.com/webstore/detail/mooltipass-app/nbjmdaimooaemcgoodjmpjkabpdbaink  
 **Don't forget to uninstall your previous App / Extension before installing these ones**
 
 Troubleshooting

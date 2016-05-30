@@ -4,13 +4,13 @@ Python script used to update the Mooltipass Standard Version, which is equipped 
 
 Requirements
 ------------
-- Linux or Windows OS
 - Python 2.7
-- All python modules listed at the beginning of the unlockUpdateLock.py file
+- Linux or Windows
 - Windows: libusb at http://sourceforge.net/projects/libusb-win32/files/
+- All python modules listed at the beginning of the unlockUpdateLock.py file (pip install -modulename-)
+- New firmware file placed in the same directory, named "Mooltipass.hex"
 - Pyusb: pip install --pre pyusb
 - script launched as root in Linux
-- New firmware file placed in the same dir, named "Mooltipass.hex"
 
 Instructions
 ------------
@@ -30,3 +30,18 @@ Warning
 -------
 It seems that due to a possible Kernel bug our updating script won't work on some Ubuntu computers: http://superuser.com/questions/979722/serialport-doenst-work-correctly-after-ubuntu-update
 We therefore recommend using Windows for this particular script.
+
+Troubleshooting
+---------------
+#### Error after "reconnecting to device"
+Script output:
+Programming done... reconnecting to device...
+Exception usb.core.USBError: USBError(None, 'libusb0-dll:err [release_interface] could not release interface 0, win error: The device does not recognize the command.\r\n')
+**Solution:** Make sure the Mooltipass App is disabled, then re-run the script: python unlockUpdateLock.py skip
+
+Using the Beta Testers App & Extensions
+---------------------------------------
+Only stable versions of our App & Extension are pushed to our customers. However, several new features may not be pushed during a few weeks as they're being tested by our beta testers. If you want to use the same App & Extension as our beta testers, you may use these links:
+- https://chrome.google.com/webstore/detail/mooltipass-extension/mkjlelalgdinanmcljpgkojjolkdcebh
+- https://chrome.google.com/webstore/detail/mooltipass-app/nbjmdaimooaemcgoodjmpjkabpdbaink
+**Don't forget to uninstall your previous App / Extension before installing these ones**

@@ -15,16 +15,12 @@ Requirements
 Instructions
 ------------
 - download Mooltipass.hex here https://github.com/limpkin/mooltipass/releases/tag/v1.1_main
-- backup all your Mooltipass users databases as the Mooltipass memory will be erased
-- Windows: use the libusb filter wizard to set filters on the mooltipass
+- **backup all your Mooltipass users databases** as the Mooltipass memory will be erased
+- Windows: use the libusb filter wizard to set filters for the 3 entries (VID 16D0 PID 09A0)
 - install all the prerequisites listed above
 - download all the files of this folder
 - disable the Mooltipass Chrome App
 - run the script
-
-Windows
--------
-When using Filter Wizard, add filters for the 3 items with VID 16d0 and PID 09a0
 
 Warning
 -------

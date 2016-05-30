@@ -47,13 +47,16 @@
 #define PAC_WIDTH           30
 #define LOCK_WIDTH          18
 #define LOCK_HEIGHT         24
-#define PAC_SIZE_DIVIDER    5
-uint8_t pac_bitmap_id = BITMAP_PAC_RIGHT;
+#define PAC_SIZE_DIVIDER    2
+#define LOCK_BLINK_DIVIDER  2
+uint8_t lock_bitmap_id = BITMAP_LOCK_FULL;
+int8_t pac_bitmap_id = BITMAP_PAC_FULL;
 uint8_t full_lock_bitmap = TRUE;
-uint8_t small_pac_bitmap = TRUE;
-uint8_t pac_size_counter = 0;
+uint8_t pac_bmp_id_counter = 0;
+uint8_t lock_blink_counter = 0;
 uint8_t lock_position = 33;
 uint8_t pac_position = 0;
+int8_t pac_bmp_id_inc = 1;
 
 // pacman animation
 void animScreenSaver(void)
@@ -80,34 +83,38 @@ void animScreenSaver(void)
     // Display lock bitmap if needed
     if (lock_bitmap != FALSE)
     {
-        uint8_t lock_bitmap_id;
-        if (full_lock_bitmap != FALSE)
+        if (lock_blink_counter++ == LOCK_BLINK_DIVIDER)
         {
-            lock_bitmap_id = BITMAP_LOCK_FULL;
-            full_lock_bitmap = FALSE;
-        } 
-        else
-        {
-            lock_bitmap_id = BITMAP_LOCK_EMPTY;
-            full_lock_bitmap = TRUE;
+            if (full_lock_bitmap != FALSE)
+            {
+                lock_bitmap_id = BITMAP_LOCK_FULL;
+            }
+            else
+            {
+                lock_bitmap_id = BITMAP_LOCK_EMPTY;
+            }
+            full_lock_bitmap = !full_lock_bitmap;
+            lock_blink_counter = 0;
         }
         oledBitmapDrawFlash((uint8_t)lock_position, 1, lock_bitmap_id, 0);
     }
 
     // Display pacman bitmap
-    if (pac_size_counter++ == PAC_SIZE_DIVIDER)
+    if (pac_bmp_id_counter++ == PAC_SIZE_DIVIDER)
     {
-        if (small_pac_bitmap != FALSE)
+        pac_bitmap_id += pac_bmp_id_inc;
+
+        if (pac_bitmap_id == BITMAP_PAC_FULL - 1)
+        {
+            pac_bitmap_id = BITMAP_PAC_FULL;
+            pac_bmp_id_inc = 1;
+        } 
+        else if (pac_bitmap_id == BITMAP_PAC_RIGHT2 + 1)
         {
             pac_bitmap_id = BITMAP_PAC_RIGHT2;
-            small_pac_bitmap = FALSE;
+            pac_bmp_id_inc = -1;
         }
-        else
-        {
-            pac_bitmap_id = BITMAP_PAC_RIGHT;
-            small_pac_bitmap = TRUE;
-        }
-        pac_size_counter = 0;
+        pac_bmp_id_counter = 0;
     }
     oledBitmapDrawFlash((uint8_t)pac_position, 1, pac_bitmap_id, 0);
 

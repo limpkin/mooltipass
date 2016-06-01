@@ -603,7 +603,7 @@ void miniOledSetFont(uint8_t fontIndex)
  *  \param  y       y position for the bitmap (0=top, 63=bottom)
  *  \param  bs      pointer to the bitstream object
  */
-void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
+void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs)
 {
     // Computing bitshifts, start/end pages...
     uint8_t end_ypixel = (miniOledBufferYOffset + y + bs->height - 1);
@@ -613,7 +613,30 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
     uint8_t data_lbitshift = (8 - data_rbitshift) & 0x07;
     uint8_t cur_pixels = 0, prev_pixels = 0;
     uint8_t end_x = x + bs->width - 1;
-    uint8_t start_x = x;
+    uint8_t start_x;
+
+    // Check if x is < 0
+    if (x < 0)
+    {
+        // Are we actually drawing in screen?
+        if ((uint8_t)(-x) > bs->width)
+        {
+            return;
+        }
+
+        // Remove the unused pixels
+        uint16_t nb_bytes_to_remove = (uint16_t)(-x) * (((uint16_t)bs->height + 7) >> 3);
+        while (nb_bytes_to_remove--)
+        {
+            miniBistreamGetNextByte(bs);
+        }
+
+        start_x = 0;
+    } 
+    else
+    {
+        start_x = x;
+    }
     
     // glyph data offsets are from the end of the glyph header array
     OLEDDEBUGPRINTF_P(PSTR("Draw raw: xs %d xe %d ps %d pe %d rbits %d lbits %d"), start_x, end_x, start_page, end_page, data_rbitshift, data_lbitshift);
@@ -693,7 +716,7 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
  *                  OLED_SCROLL_DOWN - scroll bitmap down
  *                  0 - don't make bitmap active (unless already drawing to active buffer)
  */
-void miniOledBitmapDrawFlash(uint8_t x, int8_t y, uint8_t fileId, uint8_t options)
+void miniOledBitmapDrawFlash(int8_t x, int8_t y, uint8_t fileId, uint8_t options)
 {
     bitstream_mini_t bs;
     bitmap_t bitmap;
@@ -903,7 +926,7 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
         
         // Initialize bitstream & draw the character
         miniBistreamInit(&bs, glyph_height, glyph_width, gaddr);   
-        miniOledBitmapDrawRaw(x, y, &bs);
+        miniOledBitmapDrawRaw((int8_t)x, y, &bs);
     }
     
     return (uint8_t)(glyph_width + glyph.xoffset) + 1;

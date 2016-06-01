@@ -51,11 +51,11 @@
 #define LOCK_BLINK_DIVIDER  2
 uint8_t lock_bitmap_id = BITMAP_LOCK_FULL;
 int8_t pac_bitmap_id = BITMAP_PAC_FULL;
+int8_t pac_position = -(2*PAC_WIDTH);
+int8_t lock_position = -(PAC_WIDTH);
 uint8_t full_lock_bitmap = TRUE;
 uint8_t pac_bmp_id_counter = 0;
 uint8_t lock_blink_counter = 0;
-uint8_t lock_position = 33;
-uint8_t pac_position = 0;
 int8_t pac_bmp_id_inc = 1;
 
 // pacman animation
@@ -71,13 +71,13 @@ void animScreenSaver(void)
     }
 
     // Increment positions
-    if (++pac_position == SSD1305_OLED_WIDTH)
+    if (++pac_position == SSD1305_OLED_WIDTH-1)
     {
-        pac_position = 0;
+        pac_position = -PAC_WIDTH;
     }
-    if (++lock_position == SSD1305_OLED_WIDTH)
+    if (++lock_position == SSD1305_OLED_WIDTH-1)
     {
-        lock_position = 0;
+        lock_position = -PAC_WIDTH;
     }
 
     // Display lock bitmap if needed

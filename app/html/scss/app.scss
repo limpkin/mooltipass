@@ -117,6 +117,28 @@ input.inline {
             transition: all 200ms ease;
         }
     }
+
+    .showhide-password {
+        input {
+            position: relative;
+        }
+
+        .password-icon {
+            position: absolute;
+            right: 16px;
+            top: 20px;
+            width: 1.8rem;
+            height: 1.8rem;
+            line-height: 1.8rem !important;
+            text-align: center;
+            opacity: 0.7;
+            z-index: 1000;
+
+            &:hover, &:focus, &:active {
+                opacity: 1;
+            }
+        }
+    }
 }
 
 #credentials {

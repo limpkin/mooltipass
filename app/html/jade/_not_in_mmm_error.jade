@@ -1,44 +1,48 @@
 .not-in-mmm.show-if-connected.show-if-card.show-if-unlocked.hide-if-mmm
-  .row.margin-bottom(style = "padding-top: 2.5rem;padding-bottom: 1.5rem;")
-    .column.small-offset-1.small-4
-      img(src="../images/management-mode.png")
-    .text-top.column.small-6.end
-      .title-credentials-mmm
-        h1(style = "text-align: center;") Credentials Management Mode
-        p(style = "margin-left: 15px;") Browsing through your credentials list requires your device to be in management mode. Click the button below to start the process.
-      .button-credentials-mmm
-        button.button.small#mmm-enter Enter Credentials Management Mode
-        
-   .row.margin-bottom(style = "padding-top: 1rem;border-top: 2px solid #EFEFEF")
-     .column.small-12(style = "margin-bottom: .5rem;")
-       h1 Quick Credential Add
-     form.quickcredentialadd
-       .quickadd-fields
-         .column.small-4
-           label
-             span App or Site&nbsp;
-             span.required (required)
-             span.maxlength (max. 57 chars)
-             input(type="text", name="quick-app", data-maxlength=57, required)
-             p.comment.no-margin-bottom <strong>TAB</strong> to user
-         .column.small-4
-           label
-             span User&nbsp;
-             span.required (required)
-             span.maxlength (max. 61 chars)
-             input(type="text", name="quick-user", data-maxlength=61)
-             p.comment.no-margin-bottom <strong>TAB</strong> to password           
-         .column.small-4
-           label
-             span Password&nbsp;
-             span.required (required)
-             span.maxlength (max. 31 chars)
-             input(type="text", name="quick-password", data-maxlength=31, required, data-submit)
-             p.comment.no-margin-bottom <strong>ENTER</strong> to add
-       .quickadd-buttons
-         .column.small-8
-           p &nbsp;
-         .column.small-4(style = "text-align: right;")
-           button.button.small(style = "margin-top: 0rem;padding-left: 2rem;padding-right: 2rem;")#quick-add-pwd-gen Generate
-           button.button.small(style = "margin-top: 0rem;margin-left: 20px;padding-left: 2rem;padding-right: 2rem;")#quick-add-store Store
+    .row.margin-bottom(style = "padding-top: 2.5rem;padding-bottom: 1.5rem;")
+        .column.small-offset-1.small-4
+            img(src="../images/management-mode.png")
+        .text-top.column.small-6.end
+            .title-credentials-mmm
+                h1(style = "text-align: center;") Credentials Management Mode
+                p(style = "margin-left: 15px;") Browsing through your credentials list requires your device to be in management mode. Click the button below to start the process.
+            .button-credentials-mmm
+                button.button.small#mmm-enter Enter Credentials Management Mode
+
+    .row.margin-bottom(style = "padding-top: 1rem;border-top: 2px solid #EFEFEF")
+        .column.small-12(style = "margin-bottom: .5rem;")
+            h1 Quick Credential Add
+        form.quickcredentialadd
+            .quickadd-fields
+                .column.small-4
+                    label
+                        span App or Site&nbsp;
+                        span.required (required)
+                        span.maxlength (max. 57 chars)
+                        input(type="text", name="quick-app", data-maxlength=57, required)
+                        p.comment.no-margin-bottom <strong>TAB</strong> to user
+                .column.small-4
+                    label
+                        span User&nbsp;
+                        span.required (required)
+                        span.maxlength (max. 61 chars)
+                        input(type="text", name="quick-user", data-maxlength=61)
+                        p.comment.no-margin-bottom <strong>TAB</strong> to password
+                .column.small-4
+                    label
+                        span Password&nbsp;
+                        span.required (required)
+                        span.maxlength (max. 31 chars)
+                        .showhide-password
+                            input(type="password", name="quick-password", data-maxlength=31, required, data-submit)
+                            .password-icon(data-state="hidden")
+                                i.fa.fa-eye(title="Show password")
+                                i.fa.fa-eye-slash(title="Hide password")
+                            p.comment.no-margin-bottom <strong>ENTER</strong> to add
+            .quickadd-buttons
+                .column.small-8
+                    p &nbsp;
+                .column.small-4(style = "text-align: right;")
+                    button.button.small(style = "margin-top: 0rem;padding-left: 2rem;padding-right: 2rem;")#quick-add-pwd-gen Generate
+                    button.button.small(style = "margin-top: 0rem;margin-left: 20px;padding-left: 2rem;padding-right: 2rem;")#quick-add-store Store
          

@@ -108,7 +108,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
     // Table actions
 
     //  Show password
-    $(".fa-eye").off('click').on('click', function (e) {
+    $("tbody .fa-eye").off('click').on('click', function (e) {
         if(mooltipass.ui.credentials.isActiveDeviceInteraction()) {
             return;
         }
@@ -139,7 +139,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
     });
 
     //  Hide password
-    $(".fa-eye-slash").off('click').on('click', function (e) {
+    $("tbody .fa-eye-slash").off('click').on('click', function (e) {
         $(this).parents("tr").find(".password span").data('value', DEFAULT_PASSWORD).text(DEFAULT_PASSWORD);
         $(this).parents("tr").find(".fa-eye-slash").hide();
         $(this).parents("tr").find(".fa-eye").show();
@@ -902,186 +902,231 @@ mooltipass.ui.credentials.init = function () {
 
     // Init add credentials interactions
     $(".add-credential input").on("focus", function () {
-        $(this).next().css("opacity", 1);
+        var el = $(this);
+        for(var i = 0; i < 5; i++) {
+            if(el.next('.comment').length) {
+                el.next('.comment').css("opacity", 1);
+                break;
+            }
+            el = el.next()
+        }
     })
-        .on("focusout", function () {
-            $(this).next().css("opacity", 0);
-        }).on("keydown", function (e) {
-            // Manage TABbing to next field
-            if (e.keyCode == 9) {
-                if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val().trim() == '')) {
-                    $(this).parents("label").addClass("alert").addClass('alert-required');
-                } else {
-                    $(this).parents("label").removeClass('alert-required');
-                    if(!$(this).parents("label").hasClass('alert-maxlength')) {
-                        $(this).parents("label").removeClass('alert');
-                    }
+    .on("focusout", function () {
+        var el = $(this);
+        for(var i = 0; i < 5; i++) {
+            if(el.next('.comment').length) {
+                el.next('.comment').css("opacity", 0);
+                break;
+            }
+            el = el.next()
+        }
+    }).on("keydown", function (e) {
+        // Manage TABbing to next field
+        if (e.keyCode == 9) {
+            if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val().trim() == '')) {
+                $(this).parents("label").addClass("alert").addClass('alert-required');
+            } else {
+                $(this).parents("label").removeClass('alert-required');
+                if(!$(this).parents("label").hasClass('alert-maxlength')) {
+                    $(this).parents("label").removeClass('alert');
                 }
             }
-            // Manage submit of new credentials
-            if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
-                var $inputs;
-                var i;
+        }
+        // Manage submit of new credentials
+        if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
+            var $inputs;
+            var i;
 
-                // Check if form is valid
-                $inputs = $(".add-credential input[required]");
-                i = 0;
-                var is_valid = true;
-                while (i < $inputs.length) {
-                    var $input = $($inputs[i]);
-                    if (($input.attr("required") == 'required') && ($input.val() == '')) {
-                        $input.parents("label").addClass("alert").addClass("alert-required");
-                        is_valid = false;
-                    } else {
-                        $input.parents("label").removeClass("alert-required");
-                    }
-                    i++;
+            // Check if form is valid
+            $inputs = $(".add-credential input[required]");
+            i = 0;
+            var is_valid = true;
+            while (i < $inputs.length) {
+                var $input = $($inputs[i]);
+                if (($input.attr("required") == 'required') && ($input.val() == '')) {
+                    $input.parents("label").addClass("alert").addClass("alert-required");
+                    is_valid = false;
+                } else {
+                    $input.parents("label").removeClass("alert-required");
+                }
+                i++;
+            }
+
+            //Check if value length is < max-length
+            $inputs = $(".add-credential input[data-maxlength]");
+            i = 0;
+            while (i < $inputs.length) {
+                var $input = $($inputs[i]);
+                if (parseInt($input.data("maxlength")) < $input.val().length) {
+                    $input.parents("label").addClass("alert").addClass("alert-maxlength");
+                    is_valid = false;
+                } else {
+                    $input.parents("label").removeClass("alert-maxlength");
+                }
+                i++;
+            }
+
+            //Remove class .alert from labels if neither alert-required nor alert-maxlength is set
+            $inputs = $(".add-credential input");
+            i = 0;
+            while (i < $inputs.length) {
+                var $input = $($inputs[i]);
+
+                var $label = $input.parents("label");
+
+                if(!$label.hasClass('alert-required') && !$label.hasClass('alert-maxlength')) {
+                    $label.removeClass('alert');
                 }
 
-                //Check if value length is < max-length
-                $inputs = $(".add-credential input[data-maxlength]");
-                i = 0;
-                while (i < $inputs.length) {
-                    var $input = $($inputs[i]);
-                    if (parseInt($input.data("maxlength")) < $input.val().length) {
-                        $input.parents("label").addClass("alert").addClass("alert-maxlength");
-                        is_valid = false;
-                    } else {
-                        $input.parents("label").removeClass("alert-maxlength");
-                    }
-                    i++;
-                }
+                i++;
+            }
 
-                //Remove class .alert from labels if neither alert-required nor alert-maxlength is set
-                $inputs = $(".add-credential input");
-                i = 0;
-                while (i < $inputs.length) {
-                    var $input = $($inputs[i]);
+            if (!is_valid) return;
 
-                    var $label = $input.parents("label");
+            if(mooltipass.ui.credentials.isActiveEdit()) {
+                return;
+            }
 
-                    if(!$label.hasClass('alert-required') && !$label.hasClass('alert-maxlength')) {
-                        $label.removeClass('alert');
-                    }
+            // If submission is valid, add to USER_CREDENTIALS
+            var credential = {
+                "favorite": false,
+                "context": $(".add-credential input[name='app']").val().trim(),
+                "username": $(".add-credential input[name='user']").val(),
+                "password": $(".add-credential input[name='password']").val(),
+                "description": $(".add-credential input[name='description']").val().trim(),
+                "date_modified": new Date(),
+                "_changed": true,
+            };
 
-                    i++;
-                }
-
-                if (!is_valid) return;
-
-                if(mooltipass.ui.credentials.isActiveEdit()) {
+            for(i = 0; i < USER_CREDENTIALS.length; i++) {
+                if(USER_CREDENTIALS[i].context == credential.context && USER_CREDENTIALS[i].username == credential.username) {
+                    mooltipass.ui.status.error(null, 'Credentials with this username and app already exists!');
                     return;
                 }
-
-                // If submission is valid, add to USER_CREDENTIALS
-                var credential = {
-                    "favorite": false,
-                    "context": $(".add-credential input[name='app']").val().trim(),
-                    "username": $(".add-credential input[name='user']").val(),
-                    "password": $(".add-credential input[name='password']").val(),
-                    "description": $(".add-credential input[name='description']").val().trim(),
-                    "date_modified": new Date(),
-                    "_changed": true,
-                };
-
-                for(i = 0; i < USER_CREDENTIALS.length; i++) {
-                    if(USER_CREDENTIALS[i].context == credential.context && USER_CREDENTIALS[i].username == credential.username) {
-                        mooltipass.ui.status.error(null, 'Credentials with this username and app already exists!');
-                        return;
-                    }
-                }
-
-                USER_CREDENTIALS.push(credential);
-
-                // Empty form fields again
-                $(".add-credential input").val("");
-
-                $(".add-credential input:visible:first").focus();
-
-                // Init credentials table
-                var data = get_user_credentials_for_table([credential]);
-                if (data.length > 0) {
-                    CREDENTIALS_TABLE.fnAddData(data, true);
-                }
-
-                $('#button-placeholder').hide();
-                $('#unsaved-changes-warning').fadeIn();
-
-                update_data_values();
-                mooltipass.ui.credentials.initializeTableActions();
-            }
-        }).on("keyup", function (e) {
-            var $label = $(this).parents("label");
-            var is_valid = true;
-
-            if($(this).data('maxlength') && parseInt($(this).data('maxlength')) < $(this).val().length) {
-                $label.addClass("alert").addClass('alert-maxlength');
-                is_valid = false;
-            }
-            else {
-                $label.removeClass('alert-maxlength')
             }
 
-            // Remove any error label if input is not empty
-            if (($(this).attr("required") == 'required') && ($(this).val() != '')) {
-                $label.removeClass('alert-required');
-            }
-            else {
-                is_valid = false;
+            USER_CREDENTIALS.push(credential);
+
+            // Empty form fields again
+            $(".add-credential input").val("");
+
+            $(".add-credential input:visible:first").focus();
+
+            // Init credentials table
+            var data = get_user_credentials_for_table([credential]);
+            if (data.length > 0) {
+                CREDENTIALS_TABLE.fnAddData(data, true);
             }
 
-            if(is_valid) {
-                $label.removeClass('alert');
-            }
-        });
+            $('#button-placeholder').hide();
+            $('#unsaved-changes-warning').fadeIn();
+
+            update_data_values();
+            mooltipass.ui.credentials.initializeTableActions();
+        }
+    }).on("keyup", function (e) {
+        var $label = $(this).parents("label");
+        var is_valid = true;
+
+        if($(this).data('maxlength') && parseInt($(this).data('maxlength')) < $(this).val().length) {
+            $label.addClass("alert").addClass('alert-maxlength');
+            is_valid = false;
+        }
+        else {
+            $label.removeClass('alert-maxlength')
+        }
+
+        // Remove any error label if input is not empty
+        if (($(this).attr("required") == 'required') && ($(this).val() != '')) {
+            $label.removeClass('alert-required');
+        }
+        else {
+            is_valid = false;
+        }
+
+        if(is_valid) {
+            $label.removeClass('alert');
+        }
+    });
+
+    $(".password-icon").click(function() {
+        if($(this).data("state") == "hidden") {
+            $(this).prev("input").attr("type", "text");
+            $(this).find("i.fa").hide();
+            $(this).find("i.fa-eye-slash").show();
+            $(this).data("state", "visible");
+        }
+        else {
+            $(this).prev("input").attr("type", "password");
+            $(this).find("i.fa").hide();
+            $(this).find("i.fa-eye").show();
+            $(this).data("state", "hidden");
+        }
+    });
+
+    $(".password-icon i.fa-eye-slash").hide();
         
     // Init add credentials interactions
     $(".quickcredentialadd input").on("focus", function () {
-        $(this).next().css("opacity", 1);
+        var el = $(this);
+        for(var i = 0; i < 5; i++) {
+            if(el.next('.comment').length) {
+                el.next('.comment').css("opacity", 1);
+                break;
+            }
+            el = el.next()
+        }
     })
-        .on("focusout", function () {
-            $(this).next().css("opacity", 0);
-        }).on("keydown", function (e) {
-            // Manage TABbing to next field
-            if (e.keyCode == 9) {
-                if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val().trim() == '')) {
-                    $(this).parents("label").addClass("alert").addClass('alert-required');
-                } else {
-                    $(this).parents("label").removeClass('alert-required');
-                    if(!$(this).parents("label").hasClass('alert-maxlength')) {
-                        $(this).parents("label").removeClass('alert');
-                    }
+    .on("focusout", function () {
+        var el = $(this);
+        for(var i = 0; i < 5; i++) {
+            if(el.next('.comment').length) {
+                el.next('.comment').css("opacity", 0);
+                break;
+            }
+            el = el.next()
+        }
+    }).on("keydown", function (e) {
+        // Manage TABbing to next field
+        if (e.keyCode == 9) {
+            if ((!is_key_pressed(16)) && ($(this).attr("required") == 'required') && ($(this).val().trim() == '')) {
+                $(this).parents("label").addClass("alert").addClass('alert-required');
+            } else {
+                $(this).parents("label").removeClass('alert-required');
+                if(!$(this).parents("label").hasClass('alert-maxlength')) {
+                    $(this).parents("label").removeClass('alert');
                 }
             }
-            // Manage submit of new credentials
-            if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
-                e.preventDefault();
-                mooltipass.ui.credentials.quickAddSubmit();                
-            }
-        }).on("keyup", function (e) {
-            var $label = $(this).parents("label");
-            var is_valid = true;
+        }
+        // Manage submit of new credentials
+        if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
+            e.preventDefault();
+            mooltipass.ui.credentials.quickAddSubmit();
+        }
+    }).on("keyup", function (e) {
+        var $label = $(this).parents("label");
+        var is_valid = true;
 
-            if($(this).data('maxlength') && parseInt($(this).data('maxlength')) < $(this).val().length) {
-                $label.addClass("alert").addClass('alert-maxlength');
-                is_valid = false;
-            }
-            else {
-                $label.removeClass('alert-maxlength')
-            }
+        if($(this).data('maxlength') && parseInt($(this).data('maxlength')) < $(this).val().length) {
+            $label.addClass("alert").addClass('alert-maxlength');
+            is_valid = false;
+        }
+        else {
+            $label.removeClass('alert-maxlength')
+        }
 
-            // Remove any error label if input is not empty
-            if (($(this).attr("required") == 'required') && ($(this).val() != '')) {
-                $label.removeClass('alert-required');
-            }
-            else {
-                is_valid = false;
-            }
+        // Remove any error label if input is not empty
+        if (($(this).attr("required") == 'required') && ($(this).val() != '')) {
+            $label.removeClass('alert-required');
+        }
+        else {
+            is_valid = false;
+        }
 
-            if(is_valid) {
-                $label.removeClass('alert');
-            }
-        });
+        if(is_valid) {
+            $label.removeClass('alert');
+        }
+    });
 };
 
 var get_user_credentials_for_table = function (_user_credentials) {

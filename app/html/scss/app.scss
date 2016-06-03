@@ -151,6 +151,12 @@ input.inline {
 }
 
 #page-credentials {
+    .add-credential-headline {
+        margin-top: 9px;
+        border-top: 2px solid #EFEFEF;
+        padding-top: 2px;
+    }
+
     button {
         margin-bottom: 0;
         margin-top: 0.9rem;

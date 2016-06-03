@@ -9650,19 +9650,20 @@ div.dataTables_scrollHead table {
 /* line 83, ../scss/_tables.scss */
 .dataTables_scrollBody {
   border-top: 1px solid #AAAAAA;
+  height: 197px !important;
 }
 
-/* line 88, ../scss/_tables.scss */
+/* line 89, ../scss/_tables.scss */
 .credential-details p {
   margin-bottom: 0.2rem;
   font-size: 0.7rem;
 }
-/* line 92, ../scss/_tables.scss */
+/* line 93, ../scss/_tables.scss */
 .credential-details td {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
-/* line 95, ../scss/_tables.scss */
+/* line 96, ../scss/_tables.scss */
 .credential-details td.labels p {
   margin-bottom: 0.2rem;
   font-size: 0.7rem;
@@ -9907,90 +9908,96 @@ input.inline {
 }
 
 /* line 154, ../scss/app.scss */
+#page-credentials .add-credential-headline {
+  margin-top: 9px;
+  border-top: 2px solid #EFEFEF;
+  padding-top: 2px;
+}
+/* line 160, ../scss/app.scss */
 #page-credentials button {
   margin-bottom: 0;
   margin-top: 0.9rem;
   padding: 0.7rem;
 }
-/* line 159, ../scss/app.scss */
+/* line 165, ../scss/app.scss */
 #page-credentials button.secondary {
   color: #888888;
   transition: background-color ease 1000ms;
 }
-/* line 163, ../scss/app.scss */
+/* line 169, ../scss/app.scss */
 #page-credentials button.secondary:hover {
   background-color: #ddd;
 }
-/* line 167, ../scss/app.scss */
+/* line 173, ../scss/app.scss */
 #page-credentials button.secondary:active {
   background-color: #F1BABA;
 }
-/* line 173, ../scss/app.scss */
+/* line 179, ../scss/app.scss */
 #page-credentials .button-credentials-mmm {
   text-align: center;
 }
-/* line 177, ../scss/app.scss */
+/* line 183, ../scss/app.scss */
 #page-credentials #unsaved-changes-warning {
   margin-top: 23px;
   text-align: right;
   font-size: 110%;
   color: #f04124;
 }
-/* line 185, ../scss/app.scss */
+/* line 191, ../scss/app.scss */
 #page-credentials .add-credential input, #page-credentials .quickcredentialadd input {
   margin-bottom: 0;
   height: 1.8rem;
   transition: all 200ms ease;
 }
-/* line 192, ../scss/app.scss */
+/* line 198, ../scss/app.scss */
 #page-credentials .add-credential label span.required, #page-credentials .quickcredentialadd label span.required {
   display: none;
   opacity: 0;
   color: #f04124;
 }
-/* line 197, ../scss/app.scss */
+/* line 203, ../scss/app.scss */
 #page-credentials .add-credential label span.maxlength, #page-credentials .quickcredentialadd label span.maxlength {
   display: none;
   opacity: 0;
   color: #f04124;
 }
-/* line 203, ../scss/app.scss */
+/* line 209, ../scss/app.scss */
 #page-credentials .add-credential label.alert-required span.required, #page-credentials .quickcredentialadd label.alert-required span.required {
   display: inline;
 }
-/* line 206, ../scss/app.scss */
+/* line 212, ../scss/app.scss */
 #page-credentials .add-credential label.alert-required span.required, #page-credentials .quickcredentialadd label.alert-required span.required {
   opacity: 1;
   transition: all 200ms ease;
 }
-/* line 210, ../scss/app.scss */
+/* line 216, ../scss/app.scss */
 #page-credentials .add-credential label.alert-required input, #page-credentials .quickcredentialadd label.alert-required input {
   border: 1px solid #F00 !important;
 }
-/* line 215, ../scss/app.scss */
+/* line 221, ../scss/app.scss */
 #page-credentials .add-credential label.alert-maxlength span.maxlength, #page-credentials .quickcredentialadd label.alert-maxlength span.maxlength {
   display: inline;
 }
-/* line 218, ../scss/app.scss */
+/* line 224, ../scss/app.scss */
 #page-credentials .add-credential label.alert-maxlength span.maxlength, #page-credentials .quickcredentialadd label.alert-maxlength span.maxlength {
   opacity: 1;
   transition: all 200ms ease;
 }
-/* line 222, ../scss/app.scss */
+/* line 228, ../scss/app.scss */
 #page-credentials .add-credential label.alert-maxlength input, #page-credentials .quickcredentialadd label.alert-maxlength input {
   border: 1px solid #F00 !important;
 }
-/* line 227, ../scss/app.scss */
+/* line 233, ../scss/app.scss */
 #page-credentials .add-credential label .comment, #page-credentials .quickcredentialadd label .comment {
   font-size: 0.68rem;
   opacity: 0;
   transition: all 200ms ease;
 }
-/* line 235, ../scss/app.scss */
+/* line 241, ../scss/app.scss */
 #page-credentials .add-credential .password-actions input, #page-credentials .quickcredentialadd .password-actions input {
   position: relative;
 }
-/* line 239, ../scss/app.scss */
+/* line 245, ../scss/app.scss */
 #page-credentials .add-credential .password-actions .password-eye, #page-credentials .quickcredentialadd .password-actions .password-eye {
   position: absolute;
   right: 1rem;
@@ -10002,75 +10009,75 @@ input.inline {
   opacity: 0.7;
   z-index: 1000;
 }
-/* line 250, ../scss/app.scss */
+/* line 256, ../scss/app.scss */
 #page-credentials .add-credential .password-actions .password-eye:hover, #page-credentials .add-credential .password-actions .password-eye:focus, #page-credentials .add-credential .password-actions .password-eye:active, #page-credentials .quickcredentialadd .password-actions .password-eye:hover, #page-credentials .quickcredentialadd .password-actions .password-eye:focus, #page-credentials .quickcredentialadd .password-actions .password-eye:active {
   opacity: 1;
 }
-/* line 257, ../scss/app.scss */
+/* line 263, ../scss/app.scss */
 #page-credentials .add-credential .button-group.toggle input[data-toggle], #page-credentials .quickcredentialadd .button-group.toggle input[data-toggle] {
   display: none;
 }
-/* line 261, ../scss/app.scss */
+/* line 267, ../scss/app.scss */
 #page-credentials .add-credential .button-group.toggle input[data-toggle]:checked + label,
 #page-credentials .add-credential .button-group.toggle input[data-toggle]:checked + label:active, #page-credentials .quickcredentialadd .button-group.toggle input[data-toggle]:checked + label,
 #page-credentials .quickcredentialadd .button-group.toggle input[data-toggle]:checked + label:active {
   background-color: rgba(0, 0, 0, 0.3);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
 }
-/* line 267, ../scss/app.scss */
+/* line 273, ../scss/app.scss */
 #page-credentials .add-credential .button-group.toggle .button-group.toggle li:not(first-child), #page-credentials .quickcredentialadd .button-group.toggle .button-group.toggle li:not(first-child) {
   margin: 0 -0.9rem;
 }
-/* line 271, ../scss/app.scss */
+/* line 277, ../scss/app.scss */
 #page-credentials .add-credential .button-group.toggle label, #page-credentials .quickcredentialadd .button-group.toggle label {
   padding-left: 0;
   padding-right: 0;
 }
-/* line 278, ../scss/app.scss */
+/* line 284, ../scss/app.scss */
 #page-credentials .add-credential .row.slider .column:first-of-type, #page-credentials .quickcredentialadd .row.slider .column:first-of-type {
   padding-right: 5px;
 }
-/* line 281, ../scss/app.scss */
+/* line 287, ../scss/app.scss */
 #page-credentials .add-credential .row.slider .column:last-of-type, #page-credentials .quickcredentialadd .row.slider .column:last-of-type {
   padding-left: 0;
 }
-/* line 286, ../scss/app.scss */
+/* line 292, ../scss/app.scss */
 #page-credentials .add-credential .pwgen-slider, #page-credentials .quickcredentialadd .pwgen-slider {
   width: 100%;
 }
-/* line 291, ../scss/app.scss */
+/* line 297, ../scss/app.scss */
 #page-credentials .add-credential .pwgen button.pwgen-button, #page-credentials .quickcredentialadd .pwgen button.pwgen-button {
   margin-top: 0;
 }
-/* line 298, ../scss/app.scss */
+/* line 304, ../scss/app.scss */
 #page-credentials .add-credential .pwgen {
   margin-top: 1.2rem;
 }
 
-/* line 304, ../scss/app.scss */
+/* line 310, ../scss/app.scss */
 #page-experts {
   font-size: 0.8rem;
 }
-/* line 307, ../scss/app.scss */
+/* line 313, ../scss/app.scss */
 #page-experts ol {
   font-size: inherit;
 }
-/* line 310, ../scss/app.scss */
+/* line 316, ../scss/app.scss */
 #page-experts li {
   font-size: inherit;
 }
-/* line 314, ../scss/app.scss */
+/* line 320, ../scss/app.scss */
 #page-experts div.nowrap {
   white-space: nowrap;
   margin-bottom: 0.4rem;
 }
-/* line 319, ../scss/app.scss */
+/* line 325, ../scss/app.scss */
 #page-experts span.required {
   display: none;
   opacity: 0;
   color: #f04124;
 }
-/* line 325, ../scss/app.scss */
+/* line 331, ../scss/app.scss */
 #page-experts input.inline-uid {
   width: 20rem;
   display: inline;
@@ -10080,38 +10087,38 @@ input.inline {
   text-align: left;
   vertical-align: middle;
 }
-/* line 335, ../scss/app.scss */
+/* line 341, ../scss/app.scss */
 #page-experts #experts-uid-submit {
   height: 1.6rem;
   vertical-align: middle;
   padding: 0 1rem;
   margin: 0;
 }
-/* line 342, ../scss/app.scss */
+/* line 348, ../scss/app.scss */
 #page-experts #experts-uid-response {
   margin-left: 0.6rem;
   font-size: 0.9rem;
 }
-/* line 346, ../scss/app.scss */
+/* line 352, ../scss/app.scss */
 #page-experts #experts-uid-response.alert {
   color: #f04124 !important;
 }
-/* line 350, ../scss/app.scss */
+/* line 356, ../scss/app.scss */
 #page-experts #experts-uid-response.success {
   color: #43AC6A !important;
 }
 
-/* line 357, ../scss/app.scss */
+/* line 363, ../scss/app.scss */
 #page-developers #resetCardCheckbox {
   margin-right: 5px;
 }
 
-/* line 363, ../scss/app.scss */
+/* line 369, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 368, ../scss/app.scss */
+/* line 374, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -10120,24 +10127,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 376, ../scss/app.scss */
+/* line 382, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 382, ../scss/app.scss */
+/* line 388, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 390, ../scss/app.scss */
+/* line 396, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 393, ../scss/app.scss */
+/* line 399, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -10149,18 +10156,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 406, ../scss/app.scss */
+/* line 412, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 410, ../scss/app.scss */
+/* line 416, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 416, ../scss/app.scss */
+/* line 422, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

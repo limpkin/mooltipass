@@ -1,5 +1,5 @@
 .not-in-mmm.show-if-connected.show-if-card.show-if-unlocked.hide-if-mmm
-    .row.margin-bottom(style = "padding-top: 2.5rem;padding-bottom: 1.5rem;")
+    .row.margin-bottom(style = "padding-top: 2.5rem;padding-bottom: 5.3rem;")
         .column.small-offset-1.small-4
             img(src="../images/management-mode.png")
         .text-top.column.small-6.end
@@ -9,58 +9,58 @@
             .button-credentials-mmm
                 button.button.small#mmm-enter Enter Credentials Management Mode
 
-    .row.margin-bottom(style = "padding-top: 1rem;border-top: 2px solid #EFEFEF")
+    .row(style = "padding-top: 1rem;border-top: 2px solid #EFEFEF")
         .column.small-12(style = "margin-bottom: .5rem;")
             h1 Quick Credential Add or Update
-        form.quickcredentialadd
-            .quickadd-fields
-                .column.small-4
-                    label
-                        span App or Site&nbsp;
-                        span.required (required)
-                        span.maxlength (max. 57 chars)
-                        input(type="text", name="quick-app", data-maxlength=57, required)
-                        p.comment.no-margin-bottom <strong>TAB</strong> to user
-                .column.small-3
-                    label
-                        span User&nbsp;
-                        span.required (required)
-                        span.maxlength (max. 61 chars)
-                        input(type="text", name="quick-user", data-maxlength=61)
-                        p.comment.no-margin-bottom <strong>TAB</strong> to password
-                .column.small-3
-                    label
-                        span Password&nbsp;
-                        span.required (required)
-                        span.maxlength (max. 31 chars)
-                        .password-actions
-                            input#quick-password(type="password", name="quick-password", data-maxlength=31, required, data-submit)
-                            .password-eye(data-state="hidden")
-                                i.fa.fa-eye(title="Show password")
-                                i.fa.fa-eye-slash(title="Hide password")
-                            p.comment.no-margin-bottom <strong>ENTER</strong> to add
-                .column.small-2
-                    button.button.small.expand#quick-add-store Save
-            .quickadd-buttons
-                .column.small-3.small-offset-4
-                    .row.slider#quick-pwgen-length
-                        .column.small-8
-                            input.pwgen-slider(type="range", min="5", max="31", value="16")
-                        .column.small-4
-                            input.pwgen-length.small(type="number", value="16", min="5", max="31")
-                .column.small-3
-                    ul.button-group.even-4.expand.toggle#quick-pwgen-settings(data-toggle="buttons-checkbox")
-                        li
-                            input.pwgen-uppercase#pwgen-uppercase1(type="checkbox", data-toggle="button", checked="checked")
-                            label.button.secondary.tiny(for="pwgen-uppercase1") ABC
-                        li
-                            input.pwgen-lowercase#pwgen-lowercase1(type="checkbox", data-toggle="button", checked="checked")
-                            label.button.secondary.tiny(for="pwgen-lowercase1") abc
-                        li
-                            input.pwgen-numbers#pwgen-numbers1(type="checkbox", data-toggle="button", checked="checked")
-                            label.button.secondary.tiny(for="pwgen-numbers1") 123
-                        li
-                            input.pwgen-specialchars#pwgen-specialchars1(type="checkbox", data-toggle="button", checked="checked")
-                            label.button.secondary.tiny(for="pwgen-specialchars1") */_
-                .column.small-2
-                    button.tiny.expand.pwgen-button(data-fill-id="quick-password", data-settings-id="quick-pwgen-settings", data-length-id="quick-pwgen-length") Generate PW
+    form.quickcredentialadd
+        .row.quickadd-fields
+            .column.small-4
+                label
+                    span App or Site&nbsp;
+                    span.required (required)
+                    span.maxlength (max. 57 chars)
+                    input(type="text", name="quick-app", data-maxlength=57, required, tabindex="1")
+                    p.comment.no-margin-bottom <strong>TAB</strong> to user
+            .column.small-3
+                label
+                    span User&nbsp;
+                    span.required (required)
+                    span.maxlength (max. 61 chars)
+                    input(type="text", name="quick-user", data-maxlength=61, tabindex="2")
+                    p.comment.no-margin-bottom <strong>TAB</strong> to password
+            .column.small-3
+                label
+                    span Password&nbsp;
+                    span.required (required)
+                    span.maxlength (max. 31 chars)
+                    .password-actions
+                        input#quick-password(type="password", name="quick-password", data-maxlength=31, required, data-submit, tabindex="3")
+                        .password-eye(data-state="hidden")
+                            i.fa.fa-eye(title="Show password")
+                            i.fa.fa-eye-slash(title="Hide password")
+                        p.comment.no-margin-bottom <strong>ENTER</strong> to add
+            .column.small-2
+                button.small.expand#quick-add-store Save
+        .row.pwgen
+            .column.small-3.small-offset-4
+                .row.slider#quick-pwgen-length
+                    .column.small-8
+                        input.pwgen-slider(type="range", min="5", max="31", value="16")
+                    .column.small-4
+                        input.pwgen-length.small(type="number", value="16", min="5", max="31")
+            .column.small-3
+                ul.button-group.even-4.expand.toggle#quick-pwgen-settings(data-toggle="buttons-checkbox")
+                    li
+                        input.pwgen-uppercase#pwgen-uppercase1(type="checkbox", data-toggle="button", checked="checked")
+                        label.button.secondary.tiny(for="pwgen-uppercase1") ABC
+                    li
+                        input.pwgen-lowercase#pwgen-lowercase1(type="checkbox", data-toggle="button", checked="checked")
+                        label.button.secondary.tiny(for="pwgen-lowercase1") abc
+                    li
+                        input.pwgen-numbers#pwgen-numbers1(type="checkbox", data-toggle="button", checked="checked")
+                        label.button.secondary.tiny(for="pwgen-numbers1") 123
+                    li
+                        input.pwgen-specialchars#pwgen-specialchars1(type="checkbox", data-toggle="button", checked="checked")
+                        label.button.secondary.tiny(for="pwgen-specialchars1") */_
+            .column.small-2
+                button.tiny.expand.pwgen-button(data-fill-id="quick-password", data-settings-id="quick-pwgen-settings", data-length-id="quick-pwgen-length") Generate PW

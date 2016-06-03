@@ -9490,7 +9490,7 @@ nav ul li a img {
   padding: 0.5rem 0rem;
   overflow-y: auto;
   font-size: 0.8rem;
-  height: 475px;
+  height: 530px;
 }
 /* line 30, ../scss/_layout.scss */
 .content p, .content label {
@@ -10039,34 +10039,38 @@ input.inline {
   width: 100%;
 }
 /* line 291, ../scss/app.scss */
-#page-credentials .add-credential .quickadd-buttons button.pwgen-button, #page-credentials .quickcredentialadd .quickadd-buttons button.pwgen-button {
+#page-credentials .add-credential .pwgen button.pwgen-button, #page-credentials .quickcredentialadd .pwgen button.pwgen-button {
   margin-top: 0;
 }
-
 /* line 298, ../scss/app.scss */
+#page-credentials .add-credential .pwgen {
+  margin-top: 1.2rem;
+}
+
+/* line 304, ../scss/app.scss */
 #page-experts {
   font-size: 0.8rem;
 }
-/* line 301, ../scss/app.scss */
+/* line 307, ../scss/app.scss */
 #page-experts ol {
   font-size: inherit;
 }
-/* line 304, ../scss/app.scss */
+/* line 310, ../scss/app.scss */
 #page-experts li {
   font-size: inherit;
 }
-/* line 308, ../scss/app.scss */
+/* line 314, ../scss/app.scss */
 #page-experts div.nowrap {
   white-space: nowrap;
   margin-bottom: 0.4rem;
 }
-/* line 313, ../scss/app.scss */
+/* line 319, ../scss/app.scss */
 #page-experts span.required {
   display: none;
   opacity: 0;
   color: #f04124;
 }
-/* line 319, ../scss/app.scss */
+/* line 325, ../scss/app.scss */
 #page-experts input.inline-uid {
   width: 20rem;
   display: inline;
@@ -10076,38 +10080,38 @@ input.inline {
   text-align: left;
   vertical-align: middle;
 }
-/* line 329, ../scss/app.scss */
+/* line 335, ../scss/app.scss */
 #page-experts #experts-uid-submit {
   height: 1.6rem;
   vertical-align: middle;
   padding: 0 1rem;
   margin: 0;
 }
-/* line 336, ../scss/app.scss */
+/* line 342, ../scss/app.scss */
 #page-experts #experts-uid-response {
   margin-left: 0.6rem;
   font-size: 0.9rem;
 }
-/* line 340, ../scss/app.scss */
+/* line 346, ../scss/app.scss */
 #page-experts #experts-uid-response.alert {
   color: #f04124 !important;
 }
-/* line 344, ../scss/app.scss */
+/* line 350, ../scss/app.scss */
 #page-experts #experts-uid-response.success {
   color: #43AC6A !important;
 }
 
-/* line 351, ../scss/app.scss */
+/* line 357, ../scss/app.scss */
 #page-developers #resetCardCheckbox {
   margin-right: 5px;
 }
 
-/* line 357, ../scss/app.scss */
+/* line 363, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 362, ../scss/app.scss */
+/* line 368, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -10116,24 +10120,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 370, ../scss/app.scss */
+/* line 376, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 376, ../scss/app.scss */
+/* line 382, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 384, ../scss/app.scss */
+/* line 390, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 387, ../scss/app.scss */
+/* line 393, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -10145,18 +10149,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 400, ../scss/app.scss */
+/* line 406, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 404, ../scss/app.scss */
+/* line 410, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 410, ../scss/app.scss */
+/* line 416, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

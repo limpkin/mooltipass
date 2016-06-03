@@ -287,10 +287,16 @@ input.inline {
             width: 100%;
         }
 
-        .quickadd-buttons {
+        .pwgen {
             button.pwgen-button {
                 margin-top: 0;
             }
+        }
+    }
+
+    .add-credential {
+        .pwgen {
+            margin-top: 1.2rem;
         }
     }
 }

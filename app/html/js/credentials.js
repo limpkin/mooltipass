@@ -962,6 +962,7 @@ mooltipass.ui.credentials.init = function () {
         // Manage submit of new credentials
         if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
             submit_add_credentials();
+            e.preventDefault();
         }
     }).on("keyup", function (e) {
         var $label = $(this).parents("label");

@@ -17,10 +17,18 @@
  *
  * CDDL HEADER END
  */
+#include <util/atomic.h>
 #include <stdint.h>
 #include "mini_leds.h"
 #include "defines.h"
+#include "pwm.h"
+
 #if defined(HARDWARE_MINI_CLICK_V2)
+volatile uint16_t led_animation_var1;
+volatile uint8_t led_animation_var2;
+volatile uint8_t led_animation_var3;
+volatile uint8_t led_animation;
+
  
 /*! \fn     miniInitLeds(void)
  *  \brief  Init LEDs on the mini
@@ -37,11 +45,56 @@ void miniInitLeds(void)
     miniSetLedStates(0x00);
 }
 
+/*! \fn     miniLedsSetAnimation(uint8_t animation)
+ *  \brief  Set new LED animation
+ *  \param  animation The animation to be played
+ */
+void miniLedsSetAnimation(uint8_t animation)
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        // Reset global vars
+        led_animation_var1 = 0;
+        led_animation_var2 = 0;
+        led_animation_var3 = 0;
+        led_animation = animation;
+
+        // Initial state for animations
+        if (led_animation == ANIM_FADE_IN_FADE_OUT_1_TIME)
+        {
+            miniSetLedStates(0x0F);
+        }
+    }
+}
+
 /*! \fn     miniLedsAnimationTick(void)
  *  \brief  Function called for the animation tick
  */
 void miniLedsAnimationTick(void)
 {
+    if (led_animation == ANIM_FADE_IN_FADE_OUT_1_TIME)
+    {
+        if (led_animation_var2 == FALSE)
+        {
+            led_animation_var1+= 32;
+
+            if (led_animation_var1 == 0)
+            {
+                led_animation_var2 = TRUE;
+                return;
+            }
+        }
+        else
+        {
+            led_animation_var1 -= 32;
+
+            if (led_animation_var1 == 0)
+            {
+                led_animation = ANIM_NONE;
+            }
+        }
+        setPwmDc(led_animation_var1);
+    }
 }
 
 /*! \fn     miniSetLedStates(uint8_t leds)

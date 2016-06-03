@@ -27,6 +27,7 @@
 #ifndef MINI_LEDS_H_
 #define MINI_LEDS_H_
 
+void miniLedsSetAnimation(uint8_t animation);
 void miniSetLedStates(uint8_t leds);
 void miniLedsAnimationTick(void);
 void miniInitLeds(void);

@@ -352,14 +352,7 @@ int main(void)
         launchCalibrationCycle();
         touchClearCurrentDetections();
     #elif defined(HARDWARE_MINI_CLICK_V2)
-        miniSetLedStates(0x0F);
-        for (uint16_t i = 0; i < UINT16_MAX; i++)
-        {
-            setPwmDc(i);
-            smartcardHPulseDelay();
-            smartcardHPulseDelay();
-        }
-        setPwmDc(UINT16_MAX);
+        miniLedsSetAnimation(ANIM_FADE_IN_FADE_OUT_1_TIME);
     #endif
     
     // Inhibit touch inputs for the first 2 seconds

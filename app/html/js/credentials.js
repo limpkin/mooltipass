@@ -799,7 +799,7 @@ mooltipass.ui.credentials.initializePasswordGenerator = function(_callback, _len
     var currentDate = new Date();
     var currentDayMinute = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
     if(!mooltipass.ui.credentials._latestRandomStringRequest || mooltipass.ui.credentials._latestRandomStringRequest != currentDayMinute) {
-        if(mooltipass.ui.credentials.rngPwdReqInProgress == false)
+        if(mooltipass.ui.credentials.rngPwdReqInProgress == false && mooltipass.device.singleCommunicationMode == false)
         {
             mooltipass.device.interface.send({
                 'command':'getRandomNumber',
@@ -810,8 +810,8 @@ mooltipass.ui.credentials.initializePasswordGenerator = function(_callback, _len
             });
             mooltipass.ui.credentials.rngPwdReqInProgress = true;
             mooltipass.ui.credentials._latestRandomStringRequest = currentDayMinute;
+            return;
         }
-        return;
     }
 
     mooltipass.ui.credentials.passwordGeneratorCallback(_callback, _length, _settings, mooltipass.ui.credentials.generateRandomNumbers(_length));

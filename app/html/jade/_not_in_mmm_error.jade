@@ -21,28 +21,46 @@
                         span.maxlength (max. 57 chars)
                         input(type="text", name="quick-app", data-maxlength=57, required)
                         p.comment.no-margin-bottom <strong>TAB</strong> to user
-                .column.small-4
+                .column.small-3
                     label
                         span User&nbsp;
                         span.required (required)
                         span.maxlength (max. 61 chars)
                         input(type="text", name="quick-user", data-maxlength=61)
                         p.comment.no-margin-bottom <strong>TAB</strong> to password
-                .column.small-4
+                .column.small-3
                     label
                         span Password&nbsp;
                         span.required (required)
                         span.maxlength (max. 31 chars)
-                        .showhide-password
-                            input(type="password", name="quick-password", data-maxlength=31, required, data-submit)
-                            .password-icon(data-state="hidden")
+                        .password-actions
+                            input#quick-password(type="password", name="quick-password", data-maxlength=31, required, data-submit)
+                            .password-eye(data-state="hidden")
                                 i.fa.fa-eye(title="Show password")
                                 i.fa.fa-eye-slash(title="Hide password")
                             p.comment.no-margin-bottom <strong>ENTER</strong> to add
+                .column.small-2
+                    button.button.small.expand#quick-add-store Save
             .quickadd-buttons
-                .column.small-8
-                    p &nbsp;
-                .column.small-4(style = "text-align: right;")
-                    button.button.small(style = "margin-top: 0rem;padding-left: 2rem;padding-right: 2rem;")#quick-add-pwd-gen Generate
-                    button.button.small(style = "margin-top: 0rem;margin-left: 20px;padding-left: 2rem;padding-right: 2rem;")#quick-add-store Store
-         
+                .column.small-3.small-offset-4
+                    .row.slider#quick-pwgen-length
+                        .column.small-8
+                            input.pwgen-slider(type="range", min="5", max="31", value="16")
+                        .column.small-4
+                            input.pwgen-length.small(type="number", value="16", min="5", max="31")
+                .column.small-3
+                    ul.button-group.even-4.expand.toggle#quick-pwgen-settings(data-toggle="buttons-checkbox")
+                        li
+                            input.pwgen-uppercase#pwgen-uppercase1(type="checkbox", data-toggle="button", checked="checked")
+                            label.button.secondary.tiny(for="pwgen-uppercase1") ABC
+                        li
+                            input.pwgen-lowercase#pwgen-lowercase1(type="checkbox", data-toggle="button", checked="checked")
+                            label.button.secondary.tiny(for="pwgen-lowercase1") abc
+                        li
+                            input.pwgen-numbers#pwgen-numbers1(type="checkbox", data-toggle="button", checked="checked")
+                            label.button.secondary.tiny(for="pwgen-numbers1") 123
+                        li
+                            input.pwgen-specialchars#pwgen-specialchars1(type="checkbox", data-toggle="button", checked="checked")
+                            label.button.secondary.tiny(for="pwgen-specialchars1") */_
+                .column.small-2
+                    button.tiny.expand.pwgen-button(data-fill-id="quick-password", data-settings-id="quick-pwgen-settings", data-length-id="quick-pwgen-length") Generate PW

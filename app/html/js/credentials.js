@@ -770,7 +770,7 @@ mooltipass.ui.credentials.quickAddSubmit = function()
     // Empty form fields again
     $(".quickcredentialadd input").val("");
     $(".quickcredentialadd input:visible:first").focus();
-}
+};
 
 mooltipass.ui.credentials.quickAddCallback = function(_status)
 {
@@ -785,53 +785,81 @@ mooltipass.ui.credentials.quickAddCallback = function(_status)
     
     $("#modal-confirm-on-device").hide();
     $("#modal-load-credentials").hide();
-}
+};
 
 /**
- * Function called when a random number is returned to generate a random password
+ * Generate a random password based on a random string returned from device
+ * @access backend
+ * @param _callback to send the generated password to
+ * @param _length of the password
  */
-mooltipass.ui.credentials.rngCallback = function(callbackParams)
-{
-    mooltipass.ui.credentials.rngPwdReqInProgress = false;
-    if(callbackParams.rawdata)
-    {
-        var newPassword = "";
-        
-        // 22 chars for the password... because why not
-        for(var i = 0; i < 22; i++)
+mooltipass.ui.credentials.initializePasswordGenerator = function(_callback, _length, _settings) {
+    // Only request new random string from device once a minute
+    // The requested random string is used to salt Math.random() again
+    var currentDate = new Date();
+    var currentDayMinute = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
+    if(!mooltipass.ui.credentials._latestRandomStringRequest || mooltipass.ui.credentials._latestRandomStringRequest != currentDayMinute) {
+        if(mooltipass.ui.credentials.rngPwdReqInProgress == false)
         {
-            // Taking chars after 0x20 (space) until '_', replacing ' with other char due to possible bad keyboard output combinations
-            var randomChar = String.fromCharCode((callbackParams.rawdata[i]%64)+32);
-            if(randomChar == '\'')
-            {
-                randomChar = 'a';
-            }
-            else if(randomChar == '^')
-            {
-                randomChar = 'b';
-            }
-            else if(randomChar == ' ')
-            {
-                randomChar = 'c';
-            }
-            newPassword += randomChar;
+            mooltipass.device.interface.send({
+                'command':'getRandomNumber',
+                'callbackFunction': function(_responseObject) {
+                    Math.seedrandom(_responseObject.value, { entropy: true });
+                    mooltipass.ui.credentials.passwordGeneratorCallback(_callback, _length, _settings, mooltipass.ui.credentials.generateRandomNumbers(_length));
+                }
+            });
+            mooltipass.ui.credentials.rngPwdReqInProgress = true;
+            mooltipass.ui.credentials._latestRandomStringRequest = currentDayMinute;
         }
-        
-        $(".quickcredentialadd input[name='quick-password']").val(newPassword);
+        return;
     }
-}
+
+    mooltipass.ui.credentials.passwordGeneratorCallback(_callback, _length, _settings, mooltipass.ui.credentials.generateRandomNumbers(_length));
+};
 
 /**
- * Function dedicated to the quick add submit event
- *
+ * Based on a salted Math.random() generate random numbers
+ * @access backend
+ * @param length number of random numbers to generate
+ * @returns {Array} array of Numbers
  */
-mooltipass.ui.credentials.quickAddGen = function()
-{
-    if(mooltipass.ui.credentials.rngPwdReqInProgress == false)
-    {
-        mooltipass.device.interface.send({'command':'getRandomNumber', 'callbackFunction': mooltipass.ui.credentials.rngCallback});
-        mooltipass.ui.credentials.rngPwdReqInProgress = true;
-    }    
+mooltipass.ui.credentials.generateRandomNumbers = function(_length) {
+    var seeds = [];
+    for(var i = 0; i < _length; i++) {
+        seeds.push(Math.random());
+    }
+
+    return seeds;
+};
+
+mooltipass.ui.credentials.passwordGeneratorCallback = function(callback, length, settings, seeds) {
+    // Return a random password with given length
+    var charactersLowercase = 'abcdefghijklmnopqrstuvwxyz';
+    var charactersUppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var charactersNumbers = '1234567890';
+    var charactersSpecial = '!$%*()_+{}-[]:"|;\'?,./';
+
+    var hash = "";
+    var possible = "";
+
+    if(settings["lowercase"]) {
+        possible += charactersLowercase;
+    }
+    if(settings["uppercase"]) {
+        possible += charactersUppercase;
+    }
+    if(settings["numbers"]) {
+        possible += charactersNumbers;
+    }
+    if(settings["specialchars"]) {
+        possible += charactersSpecial;
+    }
+
+    for( var i=0; i < length; i++ ) {
+        hash += possible.charAt(Math.floor(seeds[i] * possible.length));
+    }
+
+    callback(hash);
 }
 
 /**
@@ -839,7 +867,6 @@ mooltipass.ui.credentials.quickAddGen = function()
  * triggered by mooltipass.app.init()
  */
 mooltipass.ui.credentials.init = function () {
-    $('#quick-add-pwd-gen').click(mooltipass.ui.credentials.quickAddGen);
     $('#quick-add-store').click(mooltipass.ui.credentials.quickAddSubmit);
     $('#mmm-enter').click(mooltipass.ui.credentials.onClickMMMEnter);
     $('#mmm-save').click(mooltipass.ui.credentials.onClickMMMSave);
@@ -1049,7 +1076,7 @@ mooltipass.ui.credentials.init = function () {
         }
     });
 
-    $(".password-icon").click(function() {
+    $(".password-eye").click(function() {
         if($(this).data("state") == "hidden") {
             $(this).prev("input").attr("type", "text");
             $(this).find("i.fa").hide();
@@ -1064,7 +1091,35 @@ mooltipass.ui.credentials.init = function () {
         }
     });
 
-    $(".password-icon i.fa-eye-slash").hide();
+    $(".password-eye i.fa-eye-slash").hide();
+
+    $(".pwgen-slider").bind("input", function() {
+        $(this).parent().next(".column").children("input:first").val($(this).val());
+    });
+
+    $("input.pwgen-length").change(function() {
+        $(this).parent().prev(".column").children("input:first").val($(this).val());
+    });
+
+    $("button.pwgen-button").click(function(e) {
+        e.preventDefault();
+
+        var $settings = $("#" + $(this).data("settingsId"));
+        var $length = $("#" + $(this).data("lengthId"));
+
+        var length = $length.find(".pwgen-length:first").val();
+        var settings = {
+            "uppercase": $settings.find(".pwgen-uppercase:first").prop("checked"),
+            "lowercase": $settings.find(".pwgen-lowercase:first").prop("checked"),
+            "numbers": $settings.find(".pwgen-numbers:first").prop("checked"),
+            "specialchars": $settings.find(".pwgen-specialchars:first").prop("checked"),
+
+        };
+        var $field = $("#" + $(this).data("fillId"));
+        mooltipass.ui.credentials.initializePasswordGenerator(function(value) {
+            $field.val(value);
+        }, length, settings);
+    });
         
     // Init add credentials interactions
     $(".quickcredentialadd input").on("focus", function () {

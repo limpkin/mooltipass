@@ -68,79 +68,6 @@ input.inline {
     width: 100%;
 }
 
-.add-credential, .quickcredentialadd {
-    input {
-        margin-bottom: 0;
-        height: 1.8rem;
-        transition: all 200ms ease;
-    }
-    label {
-
-        span.required {
-            display: none;
-            opacity: 0;
-            color: $alert-color;
-        }
-        span.maxlength {
-            display: none;
-            opacity: 0;
-            color: $alert-color;
-        }
-        &.alert-required {
-            span.required {
-                display: inline;
-            }
-            span.required {
-                opacity: 1;
-                transition: all 200ms ease;
-            }
-            input {
-                border: 1px solid #F00 !important;
-            }
-        }
-        &.alert-maxlength {
-            span.maxlength {
-                display: inline;
-            }
-            span.maxlength {
-                opacity: 1;
-                transition: all 200ms ease;
-            }
-            input {
-                border: 1px solid #F00 !important;
-            }
-        }
-
-        .comment {
-            font-size: 0.68rem;
-            opacity: 0;
-            transition: all 200ms ease;
-        }
-    }
-
-    .showhide-password {
-        input {
-            position: relative;
-        }
-
-        .password-icon {
-            position: absolute;
-            right: 16px;
-            top: 20px;
-            width: 1.8rem;
-            height: 1.8rem;
-            line-height: 1.8rem !important;
-            text-align: center;
-            opacity: 0.7;
-            z-index: 1000;
-
-            &:hover, &:focus, &:active {
-                opacity: 1;
-            }
-        }
-    }
-}
-
 #credentials {
     input.change-credentials.error {
         border: 1px solid #F00 !important;
@@ -252,6 +179,119 @@ input.inline {
         text-align: right;
         font-size: 110%;
         color: #f04124;
+    }
+
+    .add-credential, .quickcredentialadd {
+        input {
+            margin-bottom: 0;
+            height: 1.8rem;
+            transition: all 200ms ease;
+        }
+        label {
+
+            span.required {
+                display: none;
+                opacity: 0;
+                color: $alert-color;
+            }
+            span.maxlength {
+                display: none;
+                opacity: 0;
+                color: $alert-color;
+            }
+            &.alert-required {
+                span.required {
+                    display: inline;
+                }
+                span.required {
+                    opacity: 1;
+                    transition: all 200ms ease;
+                }
+                input {
+                    border: 1px solid #F00 !important;
+                }
+            }
+            &.alert-maxlength {
+                span.maxlength {
+                    display: inline;
+                }
+                span.maxlength {
+                    opacity: 1;
+                    transition: all 200ms ease;
+                }
+                input {
+                    border: 1px solid #F00 !important;
+                }
+            }
+
+            .comment {
+                font-size: 0.68rem;
+                opacity: 0;
+                transition: all 200ms ease;
+            }
+        }
+
+        .password-actions {
+            input {
+                position: relative;
+            }
+
+            .password-eye {
+                position: absolute;
+                right: 1rem;
+                top: 20px;
+                width: 1.4rem;
+                height: 1.8rem;
+                line-height: 1.8rem !important;
+                text-align: center;
+                opacity: 0.7;
+                z-index: 1000;
+
+                &:hover, &:focus, &:active {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .button-group.toggle {
+            input[data-toggle] {
+                display: none;
+            }
+
+            input[data-toggle]:checked + label,
+            input[data-toggle]:checked + label:active {
+                background-color: rgba(0, 0, 0, 0.3);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+            }
+
+            .button-group.toggle li:not(first-child) {
+                margin: 0 -0.9rem;
+            }
+
+            label {
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+
+        .row.slider {
+            .column:first-of-type {
+                padding-right: 5px;
+            }
+            .column:last-of-type {
+                padding-left: 0;
+            }
+        }
+
+        .pwgen-slider {
+            width: 100%;
+        }
+
+        .quickadd-buttons {
+            button.pwgen-button {
+                margin-top: 0;
+            }
+        }
     }
 }
 

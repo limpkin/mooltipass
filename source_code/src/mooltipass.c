@@ -48,6 +48,7 @@
 #include "mooltipass.h"
 #include "interrupts.h"
 #include "smartcard.h"
+#include "mini_leds.h"
 #include "flash_mem.h"
 #include "defines.h"
 #include "delays.h"
@@ -227,6 +228,9 @@ int main(void)
     #if defined(HARDWARE_OLIVIER_V1) || defined(HARDWARE_MINI_CLICK_V2)
         initPwm();                              // Initialize PWM controller for MP standard & mini v2
     #endif                                      // ENDIF
+    #if defined(HARDWARE_MINI_CLICK_V2)         // Only for the pre-production mini
+        miniInitLeds();                         // Initialize the LEDs
+    #endif                                      // ENDIF
     initPortSMC();                              // Initialize smart card port
     initIRQ();                                  // Initialize interrupts
     powerSettlingDelay();                       // Let the power settle before enabling USB controller
@@ -348,23 +352,14 @@ int main(void)
         launchCalibrationCycle();
         touchClearCurrentDetections();
     #elif defined(HARDWARE_MINI_CLICK_V2)
-    miniSetLedStates(0x0F);
-    for (uint16_t i = 0; i < UINT16_MAX; i++)
-    {
-        setPwmDc(i);
-        smartcardHPulseDelay();
-        smartcardHPulseDelay();
-    }
-    setPwmDc(UINT16_MAX);
-    #endif
-
-    #ifdef MINI_PREPRODUCTION_SETUP_ACC
-    // work in progress
-    while (1)
-    {
-        // Process possible incoming USB packets
-        usbProcessIncoming(USB_CALLER_MAIN);
-    }
+        miniSetLedStates(0x0F);
+        for (uint16_t i = 0; i < UINT16_MAX; i++)
+        {
+            setPwmDc(i);
+            smartcardHPulseDelay();
+            smartcardHPulseDelay();
+        }
+        setPwmDc(UINT16_MAX);
     #endif
     
     // Inhibit touch inputs for the first 2 seconds

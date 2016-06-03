@@ -31,6 +31,7 @@
 #include "eeprom_addresses.h"
 #include "oled_wrapper.h"
 #include "mini_inputs.h"
+#include "mini_leds.h"
 #include "smartcard.h"
 #include "defines.h"
 #include "delays.h"

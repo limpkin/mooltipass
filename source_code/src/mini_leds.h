@@ -17,36 +17,19 @@
  *
  * CDDL HEADER END
  */
-/*! \file   mini_inputs.h
- *  \brief  Joystick & wheel functions
- *  Created: 15/2/2016
+/*! \file   mini_leds.c
+ *  \brief  LEDs functions
+ *  Created: 03/06/2016
  *  Copyright [2016] [Mathieu Stephan]
  */
-#include "defines.h"
 
-#ifndef JOYSTICK_H_
-#define JOYSTICK_H_
 
-/* DEFINES */
-#ifdef MINI_VERSION
-// How many ms is considered as a long press
-#define LONG_PRESS_MS           1000
-#endif
+#ifndef MINI_LEDS_H_
+#define MINI_LEDS_H_
 
-/* PROTOTYPES */
-RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec);
-RET_TYPE isMiniDirectionPressed(uint8_t direction);
-void miniDirectionClearJoystickDetections(void);
-RET_TYPE getMiniDirectionJustPressed(void);
-RET_TYPE miniGetLastReturnedAction(void);
-void miniDirectionClearDetections(void);
-int8_t getWheelCurrentIncrement(void);
-void miniWheelClearDetections(void);
-void scanMiniInputsDetect(void);
-RET_TYPE isWheelClicked(void);
-RET_TYPE initMiniInputs(void);
+void miniSetLedStates(uint8_t leds);
+void miniLedsAnimationTick(void);
+void miniInitLeds(void);
 
-/* GLOBAL VARS */
-extern uint8_t wheel_reverse_bool;
 
-#endif /* JOYSTICK_H_ */
+#endif /* MINI_LEDS_H_ */

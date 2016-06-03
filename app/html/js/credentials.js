@@ -961,95 +961,7 @@ mooltipass.ui.credentials.init = function () {
         }
         // Manage submit of new credentials
         if ((e.keyCode == 13) && ($(this).attr("data-submit") == '')) {
-            var $inputs;
-            var i;
-
-            // Check if form is valid
-            $inputs = $(".add-credential input[required]");
-            i = 0;
-            var is_valid = true;
-            while (i < $inputs.length) {
-                var $input = $($inputs[i]);
-                if (($input.attr("required") == 'required') && ($input.val() == '')) {
-                    $input.parents("label").addClass("alert").addClass("alert-required");
-                    is_valid = false;
-                } else {
-                    $input.parents("label").removeClass("alert-required");
-                }
-                i++;
-            }
-
-            //Check if value length is < max-length
-            $inputs = $(".add-credential input[data-maxlength]");
-            i = 0;
-            while (i < $inputs.length) {
-                var $input = $($inputs[i]);
-                if (parseInt($input.data("maxlength")) < $input.val().length) {
-                    $input.parents("label").addClass("alert").addClass("alert-maxlength");
-                    is_valid = false;
-                } else {
-                    $input.parents("label").removeClass("alert-maxlength");
-                }
-                i++;
-            }
-
-            //Remove class .alert from labels if neither alert-required nor alert-maxlength is set
-            $inputs = $(".add-credential input");
-            i = 0;
-            while (i < $inputs.length) {
-                var $input = $($inputs[i]);
-
-                var $label = $input.parents("label");
-
-                if(!$label.hasClass('alert-required') && !$label.hasClass('alert-maxlength')) {
-                    $label.removeClass('alert');
-                }
-
-                i++;
-            }
-
-            if (!is_valid) return;
-
-            if(mooltipass.ui.credentials.isActiveEdit()) {
-                return;
-            }
-
-            // If submission is valid, add to USER_CREDENTIALS
-            var credential = {
-                "favorite": false,
-                "context": $(".add-credential input[name='app']").val().trim(),
-                "username": $(".add-credential input[name='user']").val(),
-                "password": $(".add-credential input[name='password']").val(),
-                "description": $(".add-credential input[name='description']").val().trim(),
-                "date_modified": new Date(),
-                "_changed": true,
-            };
-
-            for(i = 0; i < USER_CREDENTIALS.length; i++) {
-                if(USER_CREDENTIALS[i].context == credential.context && USER_CREDENTIALS[i].username == credential.username) {
-                    mooltipass.ui.status.error(null, 'Credentials with this username and app already exists!');
-                    return;
-                }
-            }
-
-            USER_CREDENTIALS.push(credential);
-
-            // Empty form fields again
-            $(".add-credential input").val("");
-
-            $(".add-credential input:visible:first").focus();
-
-            // Init credentials table
-            var data = get_user_credentials_for_table([credential]);
-            if (data.length > 0) {
-                CREDENTIALS_TABLE.fnAddData(data, true);
-            }
-
-            $('#button-placeholder').hide();
-            $('#unsaved-changes-warning').fadeIn();
-
-            update_data_values();
-            mooltipass.ui.credentials.initializeTableActions();
+            submit_add_credentials();
         }
     }).on("keyup", function (e) {
         var $label = $(this).parents("label");
@@ -1092,6 +1004,11 @@ mooltipass.ui.credentials.init = function () {
     });
 
     $(".password-eye i.fa-eye-slash").hide();
+    
+    $("#add-credentials-button").click(function(e) {
+        e.preventDefault();
+        submit_add_credentials();
+    })
 
     $(".pwgen-slider").bind("input", function() {
         $(this).parent().next(".column").children("input:first").val($(this).val());
@@ -1182,6 +1099,98 @@ mooltipass.ui.credentials.init = function () {
             $label.removeClass('alert');
         }
     });
+};
+
+var submit_add_credentials = function() {
+    var $inputs;
+    var i;
+
+    // Check if form is valid
+    $inputs = $(".add-credential input[required]");
+    i = 0;
+    var is_valid = true;
+    while (i < $inputs.length) {
+        var $input = $($inputs[i]);
+        if (($input.attr("required") == 'required') && ($input.val() == '')) {
+            $input.parents("label").addClass("alert").addClass("alert-required");
+            is_valid = false;
+        } else {
+            $input.parents("label").removeClass("alert-required");
+        }
+        i++;
+    }
+
+    //Check if value length is < max-length
+    $inputs = $(".add-credential input[data-maxlength]");
+    i = 0;
+    while (i < $inputs.length) {
+        var $input = $($inputs[i]);
+        if (parseInt($input.data("maxlength")) < $input.val().length) {
+            $input.parents("label").addClass("alert").addClass("alert-maxlength");
+            is_valid = false;
+        } else {
+            $input.parents("label").removeClass("alert-maxlength");
+        }
+        i++;
+    }
+
+    //Remove class .alert from labels if neither alert-required nor alert-maxlength is set
+    $inputs = $(".add-credential input");
+    i = 0;
+    while (i < $inputs.length) {
+        var $input = $($inputs[i]);
+
+        var $label = $input.parents("label");
+
+        if(!$label.hasClass('alert-required') && !$label.hasClass('alert-maxlength')) {
+            $label.removeClass('alert');
+        }
+
+        i++;
+    }
+
+    if (!is_valid) return;
+
+    if(mooltipass.ui.credentials.isActiveEdit()) {
+        return;
+    }
+
+    // If submission is valid, add to USER_CREDENTIALS
+    var credential = {
+        "favorite": false,
+        "context": $(".add-credential input[name='app']").val().trim(),
+        "username": $(".add-credential input[name='user']").val(),
+        "password": $(".add-credential input[name='password']").val(),
+        "description": $(".add-credential input[name='description']").val().trim(),
+        "date_modified": new Date(),
+        "_changed": true,
+    };
+
+    for(i = 0; i < USER_CREDENTIALS.length; i++) {
+        if(USER_CREDENTIALS[i].context == credential.context && USER_CREDENTIALS[i].username == credential.username) {
+            mooltipass.ui.status.error(null, 'Credentials with this username and app already exists!');
+            return;
+        }
+    }
+
+    USER_CREDENTIALS.push(credential);
+
+    // Empty form fields again
+    $(".add-credential input").val("");
+
+    $(".add-credential input:visible:first").focus();
+
+    // Init credentials table
+    var data = get_user_credentials_for_table([credential]);
+    if (data.length > 0) {
+        CREDENTIALS_TABLE.fnAddData(data, true);
+    }
+
+    $('#button-placeholder').hide();
+    $('#unsaved-changes-warning').fadeIn();
+
+    update_data_values();
+    mooltipass.ui.credentials.initializeTableActions();
 };
 
 var get_user_credentials_for_table = function (_user_credentials) {

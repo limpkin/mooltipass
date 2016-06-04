@@ -37,6 +37,7 @@
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
 #include "mini_inputs.h"
+#include "mini_leds.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "delays.h"
@@ -784,6 +785,11 @@ void guiDisplayGoingToSleep(void)
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
 {    
     uint8_t flash_flag = FALSE;
+
+    // LED animation
+    #ifdef HARDWARE_MINI_CLICK_V2
+        miniLedsSetAnimation(ANIM_PULSE_UP_RAMP_DOWN);
+    #endif
     
     // Check if we want to flash the screen
     if ((nb_args & 0xF0) != 0)
@@ -974,14 +980,26 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     
         if ((input_answer == MINI_INPUT_RET_YES) && (approve_selected != FALSE))
         {
+            // LED animation
+            #ifdef HARDWARE_MINI_CLICK_V2
+                miniLedsSetAnimation(ANIM_NONE);
+            #endif
             return RETURN_OK;
         }
         else if (input_answer == MINI_INPUT_RET_BACK)
         {
+            // LED animation
+            #ifdef HARDWARE_MINI_CLICK_V2
+                miniLedsSetAnimation(ANIM_NONE);
+            #endif
             return RETURN_BACK;
         }
         else
         {
+            // LED animation
+            #ifdef HARDWARE_MINI_CLICK_V2
+                miniLedsSetAnimation(ANIM_NONE);
+            #endif
             return RETURN_NOK;
         }
     #endif

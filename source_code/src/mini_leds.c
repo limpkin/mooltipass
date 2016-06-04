@@ -58,9 +58,10 @@ void miniLedsSetAnimation(uint8_t animation)
         led_animation_var2 = 0;
         led_animation_var3 = 0;
         led_animation = animation;
+        setPwmDc(led_animation_var1);
 
         // Initial state for animations
-        if (led_animation == ANIM_FADE_IN_FADE_OUT_1_TIME)
+        if ((led_animation == ANIM_FADE_IN_FADE_OUT_1_TIME) || (led_animation == ANIM_PULSE_UP_RAMP_DOWN))
         {
             miniSetLedStates(0x0F);
         }
@@ -93,6 +94,11 @@ void miniLedsAnimationTick(void)
                 led_animation = ANIM_NONE;
             }
         }
+        setPwmDc(led_animation_var1);
+    }
+    else if (led_animation == ANIM_PULSE_UP_RAMP_DOWN)
+    {
+        led_animation_var1 -= 32;
         setPwmDc(led_animation_var1);
     }
 }

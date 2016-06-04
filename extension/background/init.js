@@ -77,7 +77,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	if(changeInfo.status == "complete") {
 		event.invoke(browserAction.removeRememberPopup, null, tabId, []);
 	}
-    mooltipass.device.onTabUpdated();
+    mooltipass.device.onTabUpdated(tabId, changeInfo);
 });
 
 

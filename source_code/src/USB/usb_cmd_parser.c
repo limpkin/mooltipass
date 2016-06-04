@@ -549,7 +549,7 @@ void usbProcessIncoming(uint8_t caller_id)
                         guiSetCurrentScreen(SCREEN_MEMORY_MGMT);
                         plugin_return_value = PLUGIN_BYTE_OK;
                         memoryManagementModeApproved = TRUE;
-                        if defined(HARDWARE_MINI_CLICK_V2)
+                        #if defined(HARDWARE_MINI_CLICK_V2)
                             miniLedsSetAnimation(ANIM_TURN_AROUND);
                         #endif
                     }

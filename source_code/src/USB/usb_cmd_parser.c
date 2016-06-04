@@ -41,6 +41,7 @@
 #include "mini_inputs.h"
 #include <avr/eeprom.h>
 #include "mooltipass.h"
+#include "mini_leds.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
 #include <string.h>
@@ -106,6 +107,9 @@ uint8_t checkMooltipassPassword(uint8_t* data, void* addr, uint8_t length)
 */
 void leaveMemoryManagementMode(void)
 {
+    #if defined(HARDWARE_MINI_CLICK_V2)
+        miniLedsSetAnimation(ANIM_NONE);
+    #endif
     memoryManagementModeApproved = FALSE;
 }
 
@@ -545,6 +549,9 @@ void usbProcessIncoming(uint8_t caller_id)
                         guiSetCurrentScreen(SCREEN_MEMORY_MGMT);
                         plugin_return_value = PLUGIN_BYTE_OK;
                         memoryManagementModeApproved = TRUE;
+                        if defined(HARDWARE_MINI_CLICK_V2)
+                            miniLedsSetAnimation(ANIM_TURN_AROUND);
+                        #endif
                     }
                     else
                     {

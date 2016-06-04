@@ -65,6 +65,12 @@ void miniLedsSetAnimation(uint8_t animation)
         {
             miniSetLedStates(0x0F);
         }
+        else if (led_animation == ANIM_TURN_AROUND)
+        {
+            led_animation_var2 = 0x01;
+            led_animation_var1 = 0x3000;
+            miniSetLedStates(led_animation_var2);
+        }
     }
 }
 
@@ -99,6 +105,39 @@ void miniLedsAnimationTick(void)
     else if (led_animation == ANIM_PULSE_UP_RAMP_DOWN)
     {
         led_animation_var1 -= 32;
+        setPwmDc(led_animation_var1);
+    }
+    else if (led_animation == ANIM_TURN_AROUND)
+    {
+        if (led_animation_var1 == 0x2000)
+        {
+            led_animation_var3 = 0;
+            if ((led_animation_var2 & 0x08) != 0)
+            {
+                led_animation_var2 = 0x01;
+            } 
+            else
+            {
+                led_animation_var2 = led_animation_var2 << 1;
+            }
+        }
+
+        if (led_animation_var3 == 0)
+        {
+            led_animation_var1 += 64;
+
+            if (led_animation_var1 == 0)
+            {
+                led_animation_var3 = 1;
+                return;
+            }
+        } 
+        else
+        {
+            led_animation_var1 -= 64;
+        }
+
+        miniSetLedStates(led_animation_var2);
         setPwmDc(led_animation_var1);
     }
 }

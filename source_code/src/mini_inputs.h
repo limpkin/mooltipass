@@ -31,27 +31,6 @@
 #ifdef MINI_VERSION
 // How many ms is considered as a long press
 #define LONG_PRESS_MS           1000
-// Joystick related defines
-#ifdef MINI_JOYSTICK
-#define JOYSTICK_POS_RIGHT      PORTID_JOY_RIGHT
-#define JOYSTICK_POS_LEFT       PORTID_JOY_LEFT
-#define JOYSTICK_POS_UP         PORTID_JOY_UP
-#define JOYSTICK_POS_DOWN       PORTID_JOY_DOWN
-#define JOYSTICK_POS_CENTER     PORTID_JOY_CENTER
-#define WHEEL_POS_CLICK         2
-// Input masks
-#define JOYSTICK_LEFT_MASK      (1 << JOYSTICK_POS_LEFT)
-#define JOYSTICK_RIGHT_MASK     (1 << JOYSTICK_POS_RIGHT)
-#define JOYSTICK_UP_MASK        (1 << JOYSTICK_POS_UP)
-#define JOYSTICK_DOWN_MASK      (1 << JOYSTICK_POS_DOWN)
-#define JOYSTICK_CENTER_MASK    (1 << JOYSTICK_POS_CENTER)
-#define WHEEL_MASK              (1 << WHEEL_POS_CLICK)
-#define LEFT_RIGHT_MASK         (JOYSTICK_LEFT_MASK | JOYSTICK_RIGHT_MASK)
-#define LEFT_RIGHT_WHEEL_MASK   (JOYSTICK_LEFT_MASK | JOYSTICK_RIGHT_MASK | WHEEL_MASK)
-#define JOYSTICK_WC_MASK        (JOYSTICK_UP_MASK | JOYSTICK_DOWN_MASK | JOYSTICK_LEFT_MASK | JOYSTICK_RIGHT_MASK)
-#define JOYSTICK_MASK           (JOYSTICK_UP_MASK | JOYSTICK_DOWN_MASK | JOYSTICK_LEFT_MASK | JOYSTICK_RIGHT_MASK | JOYSTICK_CENTER_MASK)
-#define NO_MASK                 0xFF
-#endif
 #endif
 
 /* PROTOTYPES */
@@ -59,12 +38,13 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec);
 RET_TYPE isMiniDirectionPressed(uint8_t direction);
 void miniDirectionClearJoystickDetections(void);
 RET_TYPE getMiniDirectionJustPressed(void);
+RET_TYPE miniGetLastReturnedAction(void);
 void miniDirectionClearDetections(void);
 int8_t getWheelCurrentIncrement(void);
 void miniWheelClearDetections(void);
 void scanMiniInputsDetect(void);
 RET_TYPE isWheelClicked(void);
-void initMiniInputs(void);
+RET_TYPE initMiniInputs(void);
 
 /* GLOBAL VARS */
 extern uint8_t wheel_reverse_bool;

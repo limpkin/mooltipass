@@ -1,0 +1,222 @@
+\hypertarget{logic__eeprom_8c}{}\section{src/\+L\+O\+G\+I\+C/logic\+\_\+eeprom.c File Reference}
+\label{logic__eeprom_8c}\index{src/\+L\+O\+G\+I\+C/logic\+\_\+eeprom.\+c@{src/\+L\+O\+G\+I\+C/logic\+\_\+eeprom.\+c}}
+
+
+Firmware logic -\/ eeprom related tasks Created\+: 18/08/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include $<$avr/eeprom.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}smart\+\_\+card\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+fwflash\+\_\+storage.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+screen\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+aes\+\_\+and\+\_\+comms.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+pin\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}eeprom\+\_\+addresses.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}hid\+\_\+defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}node\+\_\+mgmt.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}rng.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{logic__eeprom_8c_a4a2ea34333df51cfd4fe134a82ada7e2}{mooltipass\+Parameters\+Init} (void)\hypertarget{logic__eeprom_8c_a4a2ea34333df51cfd4fe134a82ada7e2}{}\label{logic__eeprom_8c_a4a2ea34333df51cfd4fe134a82ada7e2}
+
+\begin{DoxyCompactList}\small\item\em mooltipass parameters init \end{DoxyCompactList}\item 
+void \hyperlink{logic__eeprom_8c_a73f81b100d3e9325cd76a4b8d934fb33}{first\+Time\+User\+Handling\+Init} (void)\hypertarget{logic__eeprom_8c_a73f81b100d3e9325cd76a4b8d934fb33}{}\label{logic__eeprom_8c_a73f81b100d3e9325cd76a4b8d934fb33}
+
+\begin{DoxyCompactList}\small\item\em First time required intialization. \end{DoxyCompactList}\item 
+uint8\+\_\+t \hyperlink{logic__eeprom_8c_a5775f44823732a27e753cf2a5d9c1183}{control\+Eeprom\+Parameter} (uint8\+\_\+t val, uint8\+\_\+t lower\+Bound, uint8\+\_\+t upper\+Bound)
+\begin{DoxyCompactList}\small\item\em Control an Eeprom parameter. \end{DoxyCompactList}\item 
+void \hyperlink{logic__eeprom_8c_abe064fe81f9bf34c91ce1a58917404f2}{set\+Mooltipass\+Parameter\+In\+Eeprom} (uint8\+\_\+t param, uint8\+\_\+t val)
+\begin{DoxyCompactList}\small\item\em Set a Mooltipass parameter in eeprom. \end{DoxyCompactList}\item 
+uint8\+\_\+t \hyperlink{logic__eeprom_8c_aae3ec935962f582e4009e4bfd2bab9cd}{get\+Mooltipass\+Parameter\+In\+Eeprom} (uint8\+\_\+t param)
+\begin{DoxyCompactList}\small\item\em Get a Mooltipass parameter from eeprom. \end{DoxyCompactList}\item 
+void \hyperlink{logic__eeprom_8c_a9240a130f6224b26678f40318532ade5}{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT} (uint8\+\_\+t userid)
+\begin{DoxyCompactList}\small\item\em Delete all userid L\+UT entries. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__eeprom_8c_a6dbf934779b4ed474630311c142d1e36}{find\+Available\+User\+Id} (uint8\+\_\+t $\ast$userid)
+\begin{DoxyCompactList}\small\item\em Find an available user ID. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__eeprom_8c_a2f75198141cf87b2919e479798f28a93}{find\+Smc\+Uid\+L\+U\+T\+Empty\+Slot} (uint16\+\_\+t $\ast$found\+\_\+address)
+\begin{DoxyCompactList}\small\item\em Find an empty S\+MC $<$$>$ U\+ID L\+UT slot. \end{DoxyCompactList}\item 
+void \hyperlink{logic__eeprom_8c_afc6d2b7eb2963c51e9c8c138d4d3985a}{output\+L\+U\+T\+Entries\+For\+Given\+User} (uint8\+\_\+t user\+ID)
+\begin{DoxyCompactList}\small\item\em output C\+PZ C\+TR entries to U\+SB for a given user \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__eeprom_8c_a7cec985d2d958e3d6f1e2a78825ec6a4}{get\+User\+Id\+From\+Smart\+Card\+C\+PZ} (uint8\+\_\+t $\ast$buffer, uint8\+\_\+t $\ast$nonce, uint8\+\_\+t $\ast$userid)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries write\+Smart\+Card\+C\+P\+Z\+For\+User\+Id} (uint8\+\_\+t $\ast$buffer, uint8\+\_\+t $\ast$nonce, uint8\+\_\+t userid)\hypertarget{logic__eeprom_8c_af8031a88828f026b2f5070f0d0bdbf2e}{}\label{logic__eeprom_8c_af8031a88828f026b2f5070f0d0bdbf2e}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries add\+New\+User\+For\+Existing\+Card} (uint8\+\_\+t $\ast$nonce, uint8\+\_\+t $\ast$user\+\_\+id)\hypertarget{logic__eeprom_8c_af99775c26845910589a24a33c28f8401}{}\label{logic__eeprom_8c_af99775c26845910589a24a33c28f8401}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__eeprom_8c_ab236ebebc50cb8981a1b0b0951d9a9a7}{add\+New\+User\+And\+New\+Smart\+Card} (volatile uint16\+\_\+t $\ast$pin\+\_\+code)
+\begin{DoxyCompactList}\small\item\em Add a new user with a new smart card. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Firmware logic -\/ eeprom related tasks Created\+: 18/08/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!add\+New\+User\+And\+New\+Smart\+Card@{add\+New\+User\+And\+New\+Smart\+Card}}
+\index{add\+New\+User\+And\+New\+Smart\+Card@{add\+New\+User\+And\+New\+Smart\+Card}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{add\+New\+User\+And\+New\+Smart\+Card(volatile uint16\+\_\+t $\ast$pin\+\_\+code)}{addNewUserAndNewSmartCard(volatile uint16_t *pin_code)}}]{\setlength{\rightskip}{0pt plus 5cm}add\+New\+User\+And\+New\+Smart\+Card (
+\begin{DoxyParamCaption}
+\item[{volatile uint16\+\_\+t $\ast$}]{pin\+\_\+code}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_ab236ebebc50cb8981a1b0b0951d9a9a7}{}\label{logic__eeprom_8c_ab236ebebc50cb8981a1b0b0951d9a9a7}
+
+
+Add a new user with a new smart card. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pin\+\_\+code} & The new pin code \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success or not 
+\end{DoxyReturn}
+\index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!control\+Eeprom\+Parameter@{control\+Eeprom\+Parameter}}
+\index{control\+Eeprom\+Parameter@{control\+Eeprom\+Parameter}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{control\+Eeprom\+Parameter(uint8\+\_\+t val, uint8\+\_\+t lower\+Bound, uint8\+\_\+t upper\+Bound)}{controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound)}}]{\setlength{\rightskip}{0pt plus 5cm}control\+Eeprom\+Parameter (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{val, }
+\item[{uint8\+\_\+t}]{lower\+Bound, }
+\item[{uint8\+\_\+t}]{upper\+Bound}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_a5775f44823732a27e753cf2a5d9c1183}{}\label{logic__eeprom_8c_a5775f44823732a27e753cf2a5d9c1183}
+
+
+Control an Eeprom parameter. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em val} & The value to control \\
+\hline
+{\em lower\+Bound} & Minimum value \\
+\hline
+{\em upper\+Bound} & Max value \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Controlled value 
+\end{DoxyReturn}
+\index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT@{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT}}
+\index{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT@{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+U\+T(uint8\+\_\+t userid)}{deleteUserIdFromSMCUIDLUT(uint8_t userid)}}]{\setlength{\rightskip}{0pt plus 5cm}delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{userid}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_a9240a130f6224b26678f40318532ade5}{}\label{logic__eeprom_8c_a9240a130f6224b26678f40318532ade5}
+
+
+Delete all userid L\+UT entries. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em userid} & User ID to delete \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!find\+Available\+User\+Id@{find\+Available\+User\+Id}}
+\index{find\+Available\+User\+Id@{find\+Available\+User\+Id}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{find\+Available\+User\+Id(uint8\+\_\+t $\ast$userid)}{findAvailableUserId(uint8_t *userid)}}]{\setlength{\rightskip}{0pt plus 5cm}find\+Available\+User\+Id (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{userid}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_a6dbf934779b4ed474630311c142d1e36}{}\label{logic__eeprom_8c_a6dbf934779b4ed474630311c142d1e36}
+
+
+Find an available user ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em userid} & Pointer where to store the found user id \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Success status of the operation 
+\end{DoxyReturn}
+\index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!find\+Smc\+Uid\+L\+U\+T\+Empty\+Slot@{find\+Smc\+Uid\+L\+U\+T\+Empty\+Slot}}
+\index{find\+Smc\+Uid\+L\+U\+T\+Empty\+Slot@{find\+Smc\+Uid\+L\+U\+T\+Empty\+Slot}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{find\+Smc\+Uid\+L\+U\+T\+Empty\+Slot(uint16\+\_\+t $\ast$found\+\_\+address)}{findSmcUidLUTEmptySlot(uint16_t *found_address)}}]{\setlength{\rightskip}{0pt plus 5cm}find\+Smc\+Uid\+L\+U\+T\+Empty\+Slot (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t $\ast$}]{found\+\_\+address}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_a2f75198141cf87b2919e479798f28a93}{}\label{logic__eeprom_8c_a2f75198141cf87b2919e479798f28a93}
+
+
+Find an empty S\+MC $<$$>$ U\+ID L\+UT slot. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em found\+\_\+address} & Pointer to where to store the found address \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Yes or No... 
+\end{DoxyReturn}
+\index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!get\+Mooltipass\+Parameter\+In\+Eeprom@{get\+Mooltipass\+Parameter\+In\+Eeprom}}
+\index{get\+Mooltipass\+Parameter\+In\+Eeprom@{get\+Mooltipass\+Parameter\+In\+Eeprom}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{get\+Mooltipass\+Parameter\+In\+Eeprom(uint8\+\_\+t param)}{getMooltipassParameterInEeprom(uint8_t param)}}]{\setlength{\rightskip}{0pt plus 5cm}get\+Mooltipass\+Parameter\+In\+Eeprom (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{param}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_aae3ec935962f582e4009e4bfd2bab9cd}{}\label{logic__eeprom_8c_aae3ec935962f582e4009e4bfd2bab9cd}
+
+
+Get a Mooltipass parameter from eeprom. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em param} & The parameter (see our define) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parameter 
+\end{DoxyReturn}
+\index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!get\+User\+Id\+From\+Smart\+Card\+C\+PZ@{get\+User\+Id\+From\+Smart\+Card\+C\+PZ}}
+\index{get\+User\+Id\+From\+Smart\+Card\+C\+PZ@{get\+User\+Id\+From\+Smart\+Card\+C\+PZ}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{get\+User\+Id\+From\+Smart\+Card\+C\+P\+Z(uint8\+\_\+t $\ast$buffer, uint8\+\_\+t $\ast$nonce, uint8\+\_\+t $\ast$userid)}{getUserIdFromSmartCardCPZ(uint8_t *buffer, uint8_t *nonce, uint8_t *userid)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE get\+User\+Id\+From\+Smart\+Card\+C\+PZ (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer, }
+\item[{uint8\+\_\+t $\ast$}]{nonce, }
+\item[{uint8\+\_\+t $\ast$}]{userid}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_a7cec985d2d958e3d6f1e2a78825ec6a4}{}\label{logic__eeprom_8c_a7cec985d2d958e3d6f1e2a78825ec6a4}
+Prototypes \index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!output\+L\+U\+T\+Entries\+For\+Given\+User@{output\+L\+U\+T\+Entries\+For\+Given\+User}}
+\index{output\+L\+U\+T\+Entries\+For\+Given\+User@{output\+L\+U\+T\+Entries\+For\+Given\+User}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{output\+L\+U\+T\+Entries\+For\+Given\+User(uint8\+\_\+t user\+I\+D)}{outputLUTEntriesForGivenUser(uint8_t userID)}}]{\setlength{\rightskip}{0pt plus 5cm}output\+L\+U\+T\+Entries\+For\+Given\+User (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{user\+ID}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_afc6d2b7eb2963c51e9c8c138d4d3985a}{}\label{logic__eeprom_8c_afc6d2b7eb2963c51e9c8c138d4d3985a}
+
+
+output C\+PZ C\+TR entries to U\+SB for a given user 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+ID} & The user ID \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}!set\+Mooltipass\+Parameter\+In\+Eeprom@{set\+Mooltipass\+Parameter\+In\+Eeprom}}
+\index{set\+Mooltipass\+Parameter\+In\+Eeprom@{set\+Mooltipass\+Parameter\+In\+Eeprom}!logic\+\_\+eeprom.\+c@{logic\+\_\+eeprom.\+c}}
+\subsubsection[{\texorpdfstring{set\+Mooltipass\+Parameter\+In\+Eeprom(uint8\+\_\+t param, uint8\+\_\+t val)}{setMooltipassParameterInEeprom(uint8_t param, uint8_t val)}}]{\setlength{\rightskip}{0pt plus 5cm}set\+Mooltipass\+Parameter\+In\+Eeprom (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{param, }
+\item[{uint8\+\_\+t}]{val}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8c_abe064fe81f9bf34c91ce1a58917404f2}{}\label{logic__eeprom_8c_abe064fe81f9bf34c91ce1a58917404f2}
+
+
+Set a Mooltipass parameter in eeprom. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em param} & The parameter (see \hyperlink{eeprom__addresses_8h}{eeprom\+\_\+addresses.\+h}) \\
+\hline
+{\em val} & Value of the parameter \\
+\hline
+\end{DoxyParams}

@@ -78,7 +78,7 @@ function launchWindow(forceOpen) {
         return;
     }
 
-    var options = {'bounds': {'width': 800, 'height': 500}, "resizable": false, "hidden": true};
+    var options = {'bounds': {'width': 820, 'height': 550}, "resizable": false, "hidden": true};
     if(arguments.length == 1 || _forceInitialShow) {
         _forceInitialShow = false;
         options.hidden = false;

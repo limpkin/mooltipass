@@ -12,6 +12,7 @@ cipDebug.debugLog = function(message)
 }
 
 chrome.runtime.onMessage.addListener(function(req, sender, callback) {
+    cipDebug.debugLog(req);
 	if ('action' in req) {
 		cipDebug.debugLog(req.action);
 		if(req.action == "fill_user_pass_with_specific_login") {
@@ -1321,7 +1322,7 @@ cip.initCredentialFields = function(forceCall) {
 	_called.initCredentialFields = true;
 
 	var inputs = cipFields.getAllFields();
-    cipDebug.debugLog('initCredentialFields():', inputs.length, 'input fields found');
+    cipDebug.debugLog('initCredentialFields(): ' + inputs.length + ' input fields found');
 
     cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 
@@ -1382,7 +1383,7 @@ cip.initCredentialFields = function(forceCall) {
 
 	chrome.runtime.sendMessage({
 		'action': 'retrieve_credentials',
-		'args': [ cip.url, cip.submitUrl ]
+		'args': [ cip.url, cip.submitUrl, true, true]
 	}, cip.retrieveCredentialsCallback);
 } // end function init
 
@@ -1560,7 +1561,7 @@ cip.fillInCredentials = function(combination, onlyPassword, suppressWarnings) {
 
 		chrome.runtime.sendMessage({
 			'action': 'retrieve_credentials',
-			'args': [ cip.url, cip.submitUrl, false, true ]
+			'args': [ cip.url, cip.submitUrl, true, true]
 		}, function(credentials) {
             cipDebug.debugLog('cip.fillInCredentials()');
 			cip.retrieveCredentialsCallback(credentials, true);
@@ -1936,7 +1937,7 @@ cipEvents.triggerActivatedTab = function() {
 	if(_called.initCredentialFields && (cip.url || cip.submitUrl)) {
 		chrome.runtime.sendMessage({
 			'action': 'retrieve_credentials',
-			'args': [ cip.url, cip.submitUrl ]
+			'args': [ cip.url, cip.submitUrl, true, true]
 		}, cip.retrieveCredentialsCallback);
 	}
 }

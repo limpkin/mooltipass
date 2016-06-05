@@ -31,6 +31,7 @@
 #include "eeprom_addresses.h"
 #include "oled_wrapper.h"
 #include "mini_inputs.h"
+#include "mini_leds.h"
 #include "smartcard.h"
 #include "defines.h"
 #include "delays.h"
@@ -176,9 +177,10 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
  *  \param  current_bootkey_val     Current boot key value
  *  \param  flash_init_result       Result of the flash initialization procedure
  *  \param  fuse_ok                 Bool to know if fuses set are ok
+ *  \param  mini_inputs_result      Bool to know if inputs are ok
  */
-void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok)
-{    
+void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
+{
     // Only launch the functional test if the boot key isn't valid
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
@@ -211,6 +213,14 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             guiDisplayRawString(ID_STRING_FUSE_PB);
             test_result_ok = FALSE;
         }
+
+        // Check mini inputs initialization
+        if (mini_inputs_result != RETURN_OK)
+        {
+            // Todo: use below func for next batch
+            guiDisplayRawString(ID_STRING_INPUT_PB);
+            test_result_ok = FALSE;
+        }
         
         // Check that card is removed
         if (isSmartCardAbsent() == RETURN_NOK)
@@ -221,27 +231,24 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         }
     
         // Test description
-        uint8_t func_test_string_id = ID_STRING_FUNC_TEST;
-        guiDisplayRawString(func_test_string_id++);
-        guiDisplayRawString(func_test_string_id++);
+        guiDisplayRawString(ID_STRING_FUNC_TEST);
     
         // Wait for inputs
-        oledClear();miniOledResetXY();
         miniWheelClearDetections();
         while(isWheelClicked() != RETURN_JDETECT);
-        guiDisplayRawString(func_test_string_id++);
-        #ifdef MINI_JOYSTICK
-            miniDirectionClearDetections();
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_UP);
-            guiDisplayRawString(func_test_string_id++);
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_RIGHT);
-            guiDisplayRawString(func_test_string_id++);
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_DOWN);
-            guiDisplayRawString(func_test_string_id++);
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_LEFT);
-            guiDisplayRawString(func_test_string_id++);
-            while(getMiniDirectionJustPressed() != JOYSTICK_POS_CENTER);
-            guiDisplayRawString(func_test_string_id++);
+        guiDisplayRawString(ID_STRING_FUNC_WHEEL);
+
+        #ifdef HARDWARE_MINI_CLICK_V2
+        // Switch on LEDs
+        setPwmDc(0xFFFF);
+        guiDisplayRawString(ID_STRING_CHECK_LEDS);
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            miniOledPutch(i + '1');
+            miniSetLedStates(1 << i);
+            miniOledFlushEntireBufferToDisplay();
+            userViewDelay();
+        }
         #endif
     
         // Test description
@@ -282,12 +289,6 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             {
                 usbProcessIncoming(USB_CALLER_MAIN);
             }
-            
-            #if defined(MINI_CLICK_BETATESTERS_SETUP)
-                // We actually remove the boot pwd set bool for units whose bootloader can be started by pressing a button at boot...
-                eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
-                eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, FALSE);                
-            #endif
         }
         else
         {

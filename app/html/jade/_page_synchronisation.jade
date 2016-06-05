@@ -1,48 +1,53 @@
 #page-synchronisation.page
-  include _not_connected_error.jade
-  include _not_card_error.jade
-  include _not_unlocked.jade
-  include _in_mmm_error.jade
+    include _not_connected_error.jade
+    include _not_card_error.jade
+    include _not_unlocked.jade
+    include _in_mmm_error.jade
 
-  .show-if-connected.show-if-card.show-if-unlocked.hide-if-mmm
-    .row.margin-bottom
-      .column.small-12
-        h1 Synchronisation
-        p You can backup the credentials from your device to a file or cloud storage, and restore them later in case your Mooltipass device gets lost or broken. Your passwords will always be encrypted with your personal security key, which is only stored at your key cards. You are secure, even if someone gets access to your backup files.
+    .show-if-connected.show-if-card.show-if-unlocked.hide-if-mmm
+        .row.margin-bottom
+            .column.small-12
+                h1 Synchronisation
+                p You can backup the credentials stored inside your device to a file or cloud storage, and restore them later in case your Mooltipass device gets lost or broken. Your passwords will always be encrypted with your personal security key, which is only stored inside your key cards. Your credentials are safe, even if someone gets access to your backup files.
 
-    .row.margin-bottom.storage
-      .column.small-6
-        h2 File Storage
+        .row.margin-bottom
 
-        p Store your credentials in a file on your local computer.
+        .row.margin-bottom.storage
+            .column.small-6
+                h2 File Storage
 
-      .column.small-3
-        button.small.expand.exportToFile Export to file
-      .column.small-3.end
-        button.small.expand.importFromFile Import from file
+                p Store your credentials in a file on your local computer.
 
-    .row.margin-bottom.storage
-      .column.small-6
-        h2 Cloud Storage
+            .column.small-3
+                button.small.expand.exportToFile Export to file
+            .column.small-3.end
+                button.small.expand.importFromFile Import from file
 
-        p Store your credentials in your Google account. Your backup can be accessed from all Chrome browsers where you are logged in.
+        .row.margin-bottom.storage
+            .column.small-6
+                h2 Cloud Storage
 
-      .column.small-3
-        button.small.expand.exportToCloud Export to cloud
-      .column.small-3.end
-        button.small.expand.importFromCloud Import from cloud
-      //.column.small-6.text-right
-        label
-          span Synchronize credentials when unlocking the device.
-          input(type="checkbox", data-key="sync-cloud-auto")
-    
-    .row
-      .column.small-6
-        h2 Integrity Check
-        p Scan your device for errors and correct them automatically.
+                p Store your credentials in your Google account. Your backup can be accessed from all Chrome browsers where you are logged in.
 
-      .column.small-3.offset-3
-        button.small.expand.secondary#scanMemory Perform integrity check
+            .column.small-3
+                button.small.expand.extraTopSpace.exportToCloud Export to cloud
+            .column.small-3.end
+                button.small.expand.extraTopSpace.importFromCloud Import from cloud
+            //.column.small-6.text-right
+              label
+                span Synchronize credentials when unlocking the device.
+                input(type="checkbox", data-key="sync-cloud-auto")
+
+        .row.margin-bottom
+        .row.margin-bottom
+
+        .row
+            .column.small-6
+                h2 Integrity Check
+                p Scan your device for errors and correct them automatically.
+
+            .column.small-3.offset-3
+                button.small.expand.secondary#scanMemory Perform integrity check
 
 
 

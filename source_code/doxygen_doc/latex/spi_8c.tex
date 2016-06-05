@@ -1,9 +1,8 @@
-\hypertarget{spi_8c}{\section{src/\+S\+P\+I/spi.c File Reference}
+\hypertarget{spi_8c}{}\section{src/\+S\+P\+I/spi.c File Reference}
 \label{spi_8c}\index{src/\+S\+P\+I/spi.\+c@{src/\+S\+P\+I/spi.\+c}}
-}
 
 
-U\+S\+A\+R\+T S\+P\+I functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Darran Hunt\mbox{]}.  
+U\+S\+A\+RT S\+PI functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Darran Hunt\mbox{]}.  
 
 
 {\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
@@ -11,39 +10,34 @@ U\+S\+A\+R\+T S\+P\+I functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Darran Hu
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \hyperlink{spi_8c_a5dfd665659ee72516daef881388d80f6}{spi\+Usart\+Begin} (uint16\+\_\+t rate)
+void \hyperlink{spi_8c_a6a6344cb3247a59aac62eb4c92d736e4}{spi\+Usart\+Begin} (void)
 \item 
 void \hyperlink{spi_8c_ade7867cadaabed02d080615082805948}{spi\+Usart\+Set\+Rate} (uint16\+\_\+t rate)
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-U\+S\+A\+R\+T S\+P\+I functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Darran Hunt\mbox{]}. 
+U\+S\+A\+RT S\+PI functions Copyright \mbox{[}2014\mbox{]} \mbox{[}Darran Hunt\mbox{]}. 
 
 
 
 \subsection{Function Documentation}
-\hypertarget{spi_8c_a5dfd665659ee72516daef881388d80f6}{\index{spi.\+c@{spi.\+c}!spi\+Usart\+Begin@{spi\+Usart\+Begin}}
+\index{spi.\+c@{spi.\+c}!spi\+Usart\+Begin@{spi\+Usart\+Begin}}
 \index{spi\+Usart\+Begin@{spi\+Usart\+Begin}!spi.\+c@{spi.\+c}}
-\subsubsection[{spi\+Usart\+Begin}]{\setlength{\rightskip}{0pt plus 5cm}void spi\+Usart\+Begin (
+\subsubsection[{\texorpdfstring{spi\+Usart\+Begin(void)}{spiUsartBegin(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void spi\+Usart\+Begin (
 \begin{DoxyParamCaption}
-\item[{uint16\+\_\+t}]{rate}
+\item[{void}]{}
 \end{DoxyParamCaption}
-)}}\label{spi_8c_a5dfd665659ee72516daef881388d80f6}
-Initialise the S\+P\+I U\+S\+A\+R\+T interface to the specified data rate 
-\begin{DoxyParams}{Parameters}
-{\em rate} & frequency to run the S\+P\+I interface at \\
-\hline
-\end{DoxyParams}
-\hypertarget{spi_8c_ade7867cadaabed02d080615082805948}{\index{spi.\+c@{spi.\+c}!spi\+Usart\+Set\+Rate@{spi\+Usart\+Set\+Rate}}
+)}\hypertarget{spi_8c_a6a6344cb3247a59aac62eb4c92d736e4}{}\label{spi_8c_a6a6344cb3247a59aac62eb4c92d736e4}
+Initialise the S\+PI U\+S\+A\+RT interface to the specified data rate \index{spi.\+c@{spi.\+c}!spi\+Usart\+Set\+Rate@{spi\+Usart\+Set\+Rate}}
 \index{spi\+Usart\+Set\+Rate@{spi\+Usart\+Set\+Rate}!spi.\+c@{spi.\+c}}
-\subsubsection[{spi\+Usart\+Set\+Rate}]{\setlength{\rightskip}{0pt plus 5cm}void spi\+Usart\+Set\+Rate (
+\subsubsection[{\texorpdfstring{spi\+Usart\+Set\+Rate(uint16\+\_\+t rate)}{spiUsartSetRate(uint16_t rate)}}]{\setlength{\rightskip}{0pt plus 5cm}void spi\+Usart\+Set\+Rate (
 \begin{DoxyParamCaption}
 \item[{uint16\+\_\+t}]{rate}
 \end{DoxyParamCaption}
-)}}\label{spi_8c_ade7867cadaabed02d080615082805948}
-change the S\+P\+I U\+S\+A\+R\+T interface data rate 
+)}\hypertarget{spi_8c_ade7867cadaabed02d080615082805948}{}\label{spi_8c_ade7867cadaabed02d080615082805948}
+change the S\+PI U\+S\+A\+RT interface data rate 
 \begin{DoxyParams}{Parameters}
-{\em rate} & -\/ frequency to run the S\+P\+I interface at \\
+{\em rate} & -\/ frequency to run the S\+PI interface at \\
 \hline
 \end{DoxyParams}

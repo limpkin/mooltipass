@@ -1,0 +1,113 @@
+\hypertarget{mini__inputs_8c}{}\section{src/mini\+\_\+inputs.c File Reference}
+\label{mini__inputs_8c}\index{src/mini\+\_\+inputs.\+c@{src/mini\+\_\+inputs.\+c}}
+
+
+Joystick \& wheel functions Created\+: 15/2/2016 Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+{\ttfamily \#include $<$util/atomic.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+basic\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}mini\+\_\+inputs.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}delays.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}spi.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{mini__inputs_8c_a02f7a4f56566bb48f0e48e016cf2a679}{init\+Mini\+Inputs} (void)
+\begin{DoxyCompactList}\small\item\em Init Mooltipass mini inputs. \end{DoxyCompactList}\item 
+void \hyperlink{mini__inputs_8c_aeb65de290cbc7735effa7dd4bd60b15a}{scan\+Mini\+Inputs\+Detect} (void)\hypertarget{mini__inputs_8c_aeb65de290cbc7735effa7dd4bd60b15a}{}\label{mini__inputs_8c_aeb65de290cbc7735effa7dd4bd60b15a}
+
+\begin{DoxyCompactList}\small\item\em Joystick \& wheel debounce called by 1ms interrupt. \end{DoxyCompactList}\item 
+int8\+\_\+t \hyperlink{mini__inputs_8c_a3d9e2d5f6d92fd2263687579f90cb69b}{get\+Wheel\+Current\+Increment} (void)
+\begin{DoxyCompactList}\small\item\em Fetch the current increment/decrement for the wheel. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{mini__inputs_8c_a9076fa370eae9f61aac1f5ce16b0697b}{is\+Wheel\+Clicked} (void)
+\begin{DoxyCompactList}\small\item\em Know if the wheel is clicked. \end{DoxyCompactList}\item 
+void \hyperlink{mini__inputs_8c_ac360049bcd99f51ff336619c44b04a44}{mini\+Wheel\+Clear\+Detections} (void)\hypertarget{mini__inputs_8c_ac360049bcd99f51ff336619c44b04a44}{}\label{mini__inputs_8c_ac360049bcd99f51ff336619c44b04a44}
+
+\begin{DoxyCompactList}\small\item\em Clear current detections. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries mini\+Get\+Wheel\+Action} (uint8\+\_\+t wait\+\_\+for\+\_\+action, uint8\+\_\+t ignore\+\_\+incdec)\hypertarget{mini__inputs_8c_a1109ec742015d851c18eeb766bef1b3e}{}\label{mini__inputs_8c_a1109ec742015d851c18eeb766bef1b3e}
+
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+volatile uint16\+\_\+t {\bfseries wheel\+\_\+click\+\_\+duration\+\_\+counter}\hypertarget{mini__inputs_8c_a867ac88301c01aa1663fd0552aa37602}{}\label{mini__inputs_8c_a867ac88301c01aa1663fd0552aa37602}
+
+\item 
+volatile uint8\+\_\+t {\bfseries wheel\+\_\+click\+\_\+counter}\hypertarget{mini__inputs_8c_a72ff16a2869541c8dc8ac34c5014072f}{}\label{mini__inputs_8c_a72ff16a2869541c8dc8ac34c5014072f}
+
+\item 
+volatile uint8\+\_\+t {\bfseries wheel\+\_\+click\+\_\+return}\hypertarget{mini__inputs_8c_affd0565b2a171484e7c0ffb44bf8b99c}{}\label{mini__inputs_8c_affd0565b2a171484e7c0ffb44bf8b99c}
+
+\item 
+uint8\+\_\+t {\bfseries wheel\+\_\+sm\+\_\+states} \mbox{[}$\,$\mbox{]} = \{0b011, 0b001, 0b000, 0b010\}\hypertarget{mini__inputs_8c_a8beb99107b1153978b40ce5bce346a03}{}\label{mini__inputs_8c_a8beb99107b1153978b40ce5bce346a03}
+
+\item 
+volatile uint8\+\_\+t {\bfseries wheel\+\_\+increment\+\_\+armed} = F\+A\+L\+SE\hypertarget{mini__inputs_8c_a0399541442912e46f1c459592664d039}{}\label{mini__inputs_8c_a0399541442912e46f1c459592664d039}
+
+\item 
+volatile int8\+\_\+t {\bfseries wheel\+\_\+cur\+\_\+increment}\hypertarget{mini__inputs_8c_a02908bd376eb47306d015ad95e302700}{}\label{mini__inputs_8c_a02908bd376eb47306d015ad95e302700}
+
+\item 
+volatile uint8\+\_\+t {\bfseries last\+\_\+wheel\+\_\+sm}\hypertarget{mini__inputs_8c_a59cdefcb67cc67abcc70cb8fca4e6c42}{}\label{mini__inputs_8c_a59cdefcb67cc67abcc70cb8fca4e6c42}
+
+\item 
+uint8\+\_\+t {\bfseries discard\+\_\+release\+\_\+event} = F\+A\+L\+SE\hypertarget{mini__inputs_8c_acf8754dc4de3e2f80b052827835e1594}{}\label{mini__inputs_8c_acf8754dc4de3e2f80b052827835e1594}
+
+\item 
+uint8\+\_\+t {\bfseries wheel\+\_\+reverse\+\_\+bool} = F\+A\+L\+SE\hypertarget{mini__inputs_8c_a2c5ac77d0e95d84b5ef614ce88b05e54}{}\label{mini__inputs_8c_a2c5ac77d0e95d84b5ef614ce88b05e54}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Joystick \& wheel functions Created\+: 15/2/2016 Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+
+
+
+\subsection{Function Documentation}
+\index{mini\+\_\+inputs.\+c@{mini\+\_\+inputs.\+c}!get\+Wheel\+Current\+Increment@{get\+Wheel\+Current\+Increment}}
+\index{get\+Wheel\+Current\+Increment@{get\+Wheel\+Current\+Increment}!mini\+\_\+inputs.\+c@{mini\+\_\+inputs.\+c}}
+\subsubsection[{\texorpdfstring{get\+Wheel\+Current\+Increment(void)}{getWheelCurrentIncrement(void)}}]{\setlength{\rightskip}{0pt plus 5cm}get\+Wheel\+Current\+Increment (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{mini__inputs_8c_a3d9e2d5f6d92fd2263687579f90cb69b}{}\label{mini__inputs_8c_a3d9e2d5f6d92fd2263687579f90cb69b}
+
+
+Fetch the current increment/decrement for the wheel. 
+
+\begin{DoxyReturn}{Returns}
+positive or negative depending on the scrolling 
+\end{DoxyReturn}
+\index{mini\+\_\+inputs.\+c@{mini\+\_\+inputs.\+c}!init\+Mini\+Inputs@{init\+Mini\+Inputs}}
+\index{init\+Mini\+Inputs@{init\+Mini\+Inputs}!mini\+\_\+inputs.\+c@{mini\+\_\+inputs.\+c}}
+\subsubsection[{\texorpdfstring{init\+Mini\+Inputs(void)}{initMiniInputs(void)}}]{\setlength{\rightskip}{0pt plus 5cm}init\+Mini\+Inputs (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{mini__inputs_8c_a02f7a4f56566bb48f0e48e016cf2a679}{}\label{mini__inputs_8c_a02f7a4f56566bb48f0e48e016cf2a679}
+
+
+Init Mooltipass mini inputs. 
+
+\begin{DoxyReturn}{Returns}
+Init success status 
+\end{DoxyReturn}
+\index{mini\+\_\+inputs.\+c@{mini\+\_\+inputs.\+c}!is\+Wheel\+Clicked@{is\+Wheel\+Clicked}}
+\index{is\+Wheel\+Clicked@{is\+Wheel\+Clicked}!mini\+\_\+inputs.\+c@{mini\+\_\+inputs.\+c}}
+\subsubsection[{\texorpdfstring{is\+Wheel\+Clicked(void)}{isWheelClicked(void)}}]{\setlength{\rightskip}{0pt plus 5cm}is\+Wheel\+Clicked (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{mini__inputs_8c_a9076fa370eae9f61aac1f5ce16b0697b}{}\label{mini__inputs_8c_a9076fa370eae9f61aac1f5ce16b0697b}
+
+
+Know if the wheel is clicked. 
+
+\begin{DoxyReturn}{Returns}
+just released/pressed, (non)detected 
+\end{DoxyReturn}

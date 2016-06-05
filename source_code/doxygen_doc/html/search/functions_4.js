@@ -1,9 +1,11 @@
 var searchData=
 [
-  ['delay_5fms',['delay_ms',['../utils_8c.html#af11fd5a1e11fdff4209cdf1e8e4f461c',1,'utils.c']]],
-  ['disable_5fjtag',['disable_jtag',['../mooltipass_8c.html#ad504d32be0055a0ca60528abbf9f8ebf',1,'mooltipass.c']]],
-  ['displayfailed',['displayFailed',['../flash__test_8c.html#ab1e2a9aab6aa9e385f9a65040b083fc1',1,'flash_test.c']]],
-  ['displayinitfortest',['displayInitForTest',['../flash__test_8c.html#a532ebaf3622d1926a865d04cd59816e2',1,'flash_test.c']]],
-  ['displaypassed',['displayPassed',['../flash__test_8c.html#a4a44819ce53d7e66ed00def3aa029129',1,'flash_test.c']]],
+  ['decrypt32bblockofdataandclearctvflag',['decrypt32bBlockOfDataAndClearCTVFlag',['../logic__aes__and__comms_8c.html#a853f383eaf0065dfbdb3dbcfb3eca04b',1,'logic_aes_and_comms.c']]],
+  ['deletechildnode',['deleteChildNode',['../node__mgmt_8c.html#a16692896a342abafd21e79898198e853',1,'deleteChildNode(uint16_t pAddr, uint16_t cAddr):&#160;node_mgmt.c'],['../node__mgmt_8h.html#a16692896a342abafd21e79898198e853',1,'deleteChildNode(uint16_t pAddr, uint16_t cAddr):&#160;node_mgmt.c']]],
+  ['deletecurrentuserfromflash',['deleteCurrentUserFromFlash',['../node__mgmt_8c.html#aef9a04572f3f230a1fe9fcdec105e6a3',1,'deleteCurrentUserFromFlash(void):&#160;node_mgmt.c'],['../node__mgmt_8h.html#a8da713bb186bef9166f6da5cc0ce615c',1,'deleteCurrentUserFromFlash(void):&#160;node_mgmt.c']]],
+  ['deleteuseridfromsmcuidlut',['deleteUserIdFromSMCUIDLUT',['../logic__eeprom_8c.html#a9240a130f6224b26678f40318532ade5',1,'deleteUserIdFromSMCUIDLUT(uint8_t userid):&#160;logic_eeprom.c'],['../logic__eeprom_8h.html#ac2da000acfe8246a8b3e1fcfdbd5af63',1,'deleteUserIdFromSMCUIDLUT(uint8_t userid):&#160;logic_eeprom.c']]],
+  ['displayfailed',['displayFailed',['../flash__test_8c.html#a9de5bb3289eb142a0eb3e39a3d14e4b4',1,'flash_test.c']]],
+  ['displayinitfortest',['displayInitForTest',['../flash__test_8c.html#a4cbf61c682ff754ef0e3e6d65826ea5a',1,'flash_test.c']]],
+  ['displaypassed',['displayPassed',['../flash__test_8c.html#a5835fb27d586f2704873c4861ada82b0',1,'flash_test.c']]],
   ['displayrwcode',['displayRWCode',['../flash__test_8c.html#ab1073406531b134560a7b65a4abf2fca',1,'flash_test.c']]]
 ];

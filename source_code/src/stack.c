@@ -49,6 +49,9 @@ extern uint8_t __stack;
 *   \return void
 */
 #ifdef STACK_DEBUG
+/*! \fn     stackInit(void)
+*   \brief  Function called at MCU start, to write a given value in the RAM
+*/
 void stackInit(void) __attribute__ ((naked)) __attribute__ ((section (".init1")));
 
 void stackInit(void)
@@ -62,9 +65,8 @@ void stackInit(void)
 }
 #endif
 
-/*! \fn     uint16_t stackFree(void)
+/*! \fn     stackFree(void)
 *   \brief  Counts how many bytes of stack have not been overwritten
-*   \param  void
 *   \return number of bytes not overwritten by stack
 */
 uint16_t stackFree(void)

@@ -32,6 +32,7 @@
 #include "timer_manager.h"
 #include "logic_eeprom.h"
 #include "hid_defines.h"
+#include "mini_inputs.h"
 #include "aes256_ctr.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
@@ -289,7 +290,7 @@ static inline void ctrPostEncryptionTasks(void)
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
 }
 
-/*! \fn     decryptBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
+/*! \fn     decrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 *   \brief  Decrypt a block of data, clear credential_timer_valid
 *   \param  data    Data to be decrypted
 *   \param  ctr     Ctr value for the data
@@ -336,7 +337,7 @@ void encrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
     while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
 }
 
-/*! \fn     setCurrentContext(uint8_t* name, uint8_t length)
+/*! \fn     setCurrentContext(uint8_t* name, uint8_t type)
 *   \brief  Set our current context
 *   \param  name    Name of the desired service / website
 *   \param  type    Type of context (data or credential)
@@ -729,7 +730,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
     }
 }
 
-/*! \fn     addDataForDataContext(uint8_t* data, uint8_t length)
+/*! \fn     addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
 *   \brief  Add 32 bytes of data to our current data parent
 *   \param  data                Block of data to add
 *   \param  last_packet_flag    Flag to know if it is our last packet
@@ -945,8 +946,9 @@ RET_TYPE checkPasswordForContext(uint8_t* password)
 *   \brief  Ask the user to enter the login password of a given child
 *   \param  child_address   Address of the child
 *   \param  service_name    Service name
+*   \param  RETURN_OK or RETURN_BACK
 */
-void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_name)
+RET_TYPE askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_name)
 {    
     confirmationText_t temp_conf_text;
     
@@ -957,6 +959,103 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_
         readChildNode(&temp_cnode, child_address);
         temp_conf_text.lines[0] = service_name;
         
+        #ifdef MINI_VERSION
+        while(TRUE)
+        {
+            // If login isn't empty, ask the user if he wants to output the login
+            if (temp_cnode.login[0] != 0)
+            {
+                // Check if we're connected through USB
+                if (isUsbConfigured())
+                {
+                    temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ENTERLOGINQ);
+                    RET_TYPE confirmation_result = guiAskForConfirmation(2, &temp_conf_text);
+                    if (confirmation_result == RETURN_OK)
+                    {
+                        usbKeybPutStr((char*)temp_cnode.login);
+                        if (getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_BOOL_PARAM) != FALSE)
+                        {
+                            usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_PARAM), 0);
+                        }
+                    }
+                    else if (confirmation_result == RETURN_BACK)
+                    {
+                        return RETURN_BACK;
+                    }
+                } 
+                else
+                {
+                    temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_SHOW_LOGINQ);
+                    RET_TYPE confirmation_result = guiAskForConfirmation(2, &temp_conf_text);
+                    if (confirmation_result == RETURN_OK)
+                    {
+                        guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.login);
+                    }
+                    else if (confirmation_result == RETURN_BACK)
+                    {
+                        return RETURN_BACK;
+                    }
+                }
+            }
+        
+            decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
+            // Ask the user if he wants to output the password
+            if (isUsbConfigured())
+            {
+                temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ENTERPASSQ);
+                RET_TYPE confirmation_result = guiAskForConfirmation(2, &temp_conf_text);
+                if (confirmation_result == RETURN_OK)
+                {
+                    usbKeybPutStr((char*)temp_cnode.password);
+                    if (getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_BOOL_PARAM) != FALSE)
+                    {
+                        usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_PARAM), 0);
+                    }
+                    return RETURN_OK;
+                }
+                else if (confirmation_result == RETURN_BACK)
+                {
+                    if (temp_cnode.login[0] != 0)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return RETURN_BACK;
+                    }
+                }
+                else
+                {
+                    return RETURN_NOK;
+                }
+            }
+            else
+            {
+                temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_SHOW_PASSQ);
+                RET_TYPE confirmation_result = guiAskForConfirmation(2, &temp_conf_text);
+                if (confirmation_result == RETURN_OK)
+                {
+                    guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.password);
+                    return RETURN_OK;
+                }
+                else if (confirmation_result == RETURN_BACK)
+                {
+                    if (temp_cnode.login[0] != 0)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return RETURN_BACK;
+                    }
+                }
+                else
+                {
+                    return RETURN_NOK;
+                }
+            }
+        }
+        #else
         // If login isn't empty, ask the user if he wants to output the login
         if (temp_cnode.login[0] != 0)
         {
@@ -972,7 +1071,7 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_
                         usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_PARAM), 0);
                     }
                 }
-            } 
+            }
             else
             {
                 temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_SHOW_LOGINQ);
@@ -1005,7 +1104,10 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_
                 guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.password);
             }
         }
-    }    
+        #endif
+    }
+
+    return RETURN_OK;
 }
 
 /*! \fn     favoritePickingLogic(void)
@@ -1013,8 +1115,35 @@ void askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* service_
 */
 void favoritePickingLogic(void)
 {
-    // favoriteSelectionScreen loads the chosen parent node in memory before exciting
-    askUserForLoginAndPasswordKeybOutput(favoriteSelectionScreen(&temp_pnode, &temp_cnode), (char*)temp_pnode.service);
+    #ifdef MINI_VERSION
+        // Special ifdef to allow going back action in the mooltipass mini
+        uint16_t chosen_login_addr;
+
+        while (TRUE)
+        {
+            // favoriteSelectionScreen loads the chosen parent node in memory before exciting
+            chosen_login_addr = favoriteSelectionScreen(&temp_pnode, &temp_cnode);
+
+            // No login was chosen
+            if (chosen_login_addr == NODE_ADDR_NULL)
+            {
+                return;
+            }
+
+            // Ask the user permission to enter login / password, check for back action
+            if (askUserForLoginAndPasswordKeybOutput(chosen_login_addr, (char*)temp_pnode.service) == RETURN_BACK)
+            {
+                continue;
+            }
+            else
+            {
+                return;
+            }
+        }
+    #else
+        // favoriteSelectionScreen loads the chosen parent node in memory before exciting
+        askUserForLoginAndPasswordKeybOutput(favoriteSelectionScreen(&temp_pnode, &temp_cnode), (char*)temp_pnode.service);
+    #endif
 }
 
 /*! \fn     loginSelectLogic(void)
@@ -1022,5 +1151,67 @@ void favoritePickingLogic(void)
 */
 void loginSelectLogic(void)
 {
-    askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen(), TRUE), (char*)temp_pnode.service);
+    #ifdef MINI_VERSION
+        // Special ifdef to allow going back action in the mooltipass mini
+        uint16_t chosen_service_addr;
+        uint16_t chosen_login_addr;
+        uint8_t state_machine = 0;
+
+        while (TRUE)
+        {
+            if (state_machine == 0)
+            {
+                // Ask user to select a service
+                chosen_service_addr = loginSelectionScreen();
+
+                // No service was chosen
+                if (chosen_service_addr == NODE_ADDR_NULL)
+                {
+                    return;
+                }
+
+                state_machine++;
+            }
+            else if (state_machine == 1)
+            {
+                // If there are different logins for this service, ask the user to pick one
+                chosen_login_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, chosen_service_addr, TRUE);
+
+                // In case the user went back
+                if ((chosen_login_addr == NODE_ADDR_NULL) && (miniGetLastReturnedAction() == WHEEL_ACTION_LONG_CLICK))
+                {
+                    state_machine = 0;
+                }
+                else
+                {
+                    state_machine++;
+                }
+            }
+            else if (state_machine == 2)
+            {
+                // Ask the user permission to enter login / password, check for back action
+                if (askUserForLoginAndPasswordKeybOutput(chosen_login_addr, (char*)temp_pnode.service) == RETURN_BACK)
+                {
+                    // Check if the chosen login node is an only child. Guaranteed to work as askUserForLoginAndPasswordKeybOutput(NODE_ADDR_NULL) returns RETURN_OK
+                    readChildNode(&temp_cnode, chosen_login_addr);
+
+                    // If only child, go back to service selection, otherwise go back to login selection
+                    if ((temp_cnode.prevChildAddress == NODE_ADDR_NULL) && (temp_cnode.nextChildAddress == NODE_ADDR_NULL))
+                    {
+                        state_machine = 0;
+                    } 
+                    else
+                    {
+                        state_machine = 1;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+    #else
+        askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen(), TRUE), (char*)temp_pnode.service);
+    #endif
 }

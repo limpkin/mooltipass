@@ -37,6 +37,7 @@
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
 #include "mini_inputs.h"
+#include "mini_leds.h"
 #include "node_mgmt.h"
 #include "defines.h"
 #include "delays.h"
@@ -93,7 +94,7 @@ void guiGetBackToCurrentScreen(void)
             case SCREEN_SETTINGS_HOME:
             case SCREEN_SETTINGS_ERASE:
             {
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                 break;
             }
             case SCREEN_MEMORY_MGMT:
@@ -143,22 +144,11 @@ void guiGetBackToCurrentScreen(void)
 void guiScreenLoop(uint8_t input_interface_result)
 {
     #if defined(MINI_VERSION)
-        #ifdef MINI_JOYSTICK
-            uint8_t joystick_interface_result = input_interface_result >> 4;
-            input_interface_result &= 0x0F;
-            
-            // If no press, you can return!
-            if (((input_interface_result == WHEEL_ACTION_NONE) && (joystick_interface_result == 0)) || (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID) || (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN))
-            {
-                return;
-            }
-        #else
-            // If no press, you can return!
-            if ((input_interface_result == WHEEL_ACTION_NONE) || (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID) || (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN))
-            {
-                return;
-            }
-        #endif
+        // If no press, you can return!
+        if ((input_interface_result == WHEEL_ACTION_NONE) || (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID) || (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN))
+        {
+            return;
+        }
 
         if (currentScreen == SCREEN_DEFAULT_NINSERTED)
         {
@@ -185,11 +175,7 @@ void guiScreenLoop(uint8_t input_interface_result)
         }
         else
         {
-            #ifdef MINI_JOYSTICK
-            if ((input_interface_result == WHEEL_ACTION_UP) || (joystick_interface_result == PORTID_JOY_UP))
-            #else
             if (input_interface_result == WHEEL_ACTION_UP)
-            #endif
             {
                 // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
                 if (currentScreen == SCREEN_LOCK)
@@ -204,15 +190,21 @@ void guiScreenLoop(uint8_t input_interface_result)
                 {
                     currentScreen--;
                 }
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
+                // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
+                for (uint8_t i = 0; i < NB_BMPS_PER_TRANSITION; i++)
+                {
+                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+NB_BMPS_PER_TRANSITION-1-i, OLED_SCROLL_FLIP);
+                    timerBasedDelayMs(12);
+                }
             }
-            #ifdef MINI_JOYSTICK
-            else if ((input_interface_result == WHEEL_ACTION_DOWN) || (joystick_interface_result == PORTID_JOY_DOWN))            
-            #else
             else if (input_interface_result == WHEEL_ACTION_DOWN)
-            #endif
             {
                 // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
+                for (uint8_t i = 0; i < NB_BMPS_PER_TRANSITION-1; i++)
+                {
+                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+1+i, OLED_SCROLL_FLIP);
+                    timerBasedDelayMs(12);
+                }
                 if (currentScreen == SCREEN_SETTINGS)
                 {
                     currentScreen = SCREEN_LOCK;
@@ -225,32 +217,18 @@ void guiScreenLoop(uint8_t input_interface_result)
                 {
                     currentScreen++;
                 }
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);
+                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);              
             }
-            #ifdef MINI_JOYSTICK
-            else if ((input_interface_result == WHEEL_ACTION_LONG_CLICK) || (joystick_interface_result == PORTID_JOY_LEFT))            
-            #else
             else if (input_interface_result == WHEEL_ACTION_LONG_CLICK)
-            #endif            
             {
                 // Long press in main menu : lock, long press in settings menu: go back to login screen
                 if ((currentScreen >= SCREEN_SETTINGS_CHANGE_PIN) && (currentScreen <= SCREEN_SETTINGS_ERASE))
                 {
                     currentScreen = SCREEN_LOGIN;
-                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
-                } 
-                else
-                {                    
-                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
-                    handleSmartcardRemoved();
-                    guiGetBackToCurrentScreen();
+                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                 }
             }
-            #ifdef MINI_JOYSTICK
-            else if ((input_interface_result == WHEEL_ACTION_SHORT_CLICK) || (joystick_interface_result == PORTID_JOY_RIGHT))
-            #else
             else if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)
-            #endif
             {
                 switch(currentScreen)
                 {
@@ -286,13 +264,13 @@ void guiScreenLoop(uint8_t input_interface_result)
                     case SCREEN_SETTINGS:
                     {
                         currentScreen = SCREEN_SETTINGS_CHANGE_PIN;
-                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                         break;
                     }
                     case SCREEN_SETTINGS_HOME:
                     {
                         currentScreen = SCREEN_LOGIN;
-                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                        oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                         break;
                     }
                     case SCREEN_SETTINGS_CHANGE_PIN:
@@ -739,11 +717,7 @@ void guiDisplayLoginOrPasswordOnScreen(char* text)
     #if defined(HARDWARE_OLIVIER_V1)
         getTouchedPositionAnswer(0);
     #elif defined(MINI_VERSION)
-        #ifdef MINI_JOYSTICK
-            while ((getMiniDirectionJustPressed() == 0) && (miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE));
-        #else
-            while (miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE);
-        #endif
+        while (miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE);
     #endif    
 }
 
@@ -789,10 +763,17 @@ void guiDisplaySmartcardUnlockedScreen(uint8_t* username)
 */
 void guiDisplayGoingToSleep(void)
 {
-    oledClear();
-    oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
-    oledBitmapDrawFlash(2, 17, BITMAP_ZZZ, 0);
-    oledDisplayOtherBuffer();    
+    #ifdef MINI_VERSION
+        oledClear();
+        oledPutstrXY(10, 8, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+        //oledBitmapDrawFlash(2, 17, BITMAP_ZZZ, 0);
+        miniOledFlushEntireBufferToDisplay();
+    #else
+        oledClear();
+        oledPutstrXY(10, 24, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+        oledBitmapDrawFlash(2, 17, BITMAP_ZZZ, 0);
+        oledDisplayOtherBuffer();
+    #endif
 }
 
 /*! \fn     guiAskForConfirmation(const char* string)
@@ -804,6 +785,11 @@ void guiDisplayGoingToSleep(void)
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
 {    
     uint8_t flash_flag = FALSE;
+
+    // LED animation
+    #ifdef HARDWARE_MINI_CLICK_V2
+        miniLedsSetAnimation(ANIM_PULSE_UP_RAMP_DOWN);
+    #endif
     
     // Check if we want to flash the screen
     if ((nb_args & 0xF0) != 0)
@@ -858,7 +844,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
         
         // Display lines. 
-        // Note: line are truncated at the oled driver level when miniOledTextWritingYIncrement is set to FALSE
+        // Note: line are truncated at the oled driver level when miniOledTextWritingYIncrement is set to FALSE (default)
         if (nb_args == 1)
         {
             miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, (char*)text_object);
@@ -913,15 +899,13 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         }
     #elif defined(MINI_VERSION)
         RET_TYPE input_answer = MINI_INPUT_RET_NONE;
+        RET_TYPE detect_result;
         
         // Switch on lights
         activityDetectedRoutine();
         
         // Clear possible remaining detection
         miniWheelClearDetections();
-        #ifdef MINI_JOYSTICK
-            miniDirectionClearJoystickDetections();
-        #endif
         
         // Arm timer for scrolling (caps timer that isn't relevant here)
         activateTimer(TIMER_CAPS, SCROLLING_DEL);
@@ -929,7 +913,28 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         // Loop while no timeout occurs or no button is pressed
         while (input_answer == MINI_INPUT_RET_NONE)
         {
-            input_answer = getYesNoAnswerInput(FALSE);
+            // User interaction timeout or smartcard removed
+            if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+            {
+                input_answer = MINI_INPUT_RET_TIMEOUT;
+            }
+            
+            // Read usb comms as the plugin could ask to cancel the request
+            if (usbCancelRequestReceived() == RETURN_OK)
+            {
+                input_answer = MINI_INPUT_RET_TIMEOUT;
+            }
+            
+            // Check if something has been pressed
+            detect_result = miniGetWheelAction(FALSE, TRUE);
+            if (detect_result == WHEEL_ACTION_SHORT_CLICK)
+            {
+                input_answer = MINI_INPUT_RET_YES;
+            }
+            else if (detect_result == WHEEL_ACTION_LONG_CLICK)
+            {
+                input_answer = MINI_INPUT_RET_BACK;
+            }
             
             // Text scrolling
             if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (nb_args > 1))
@@ -958,11 +963,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             }
 
             // Approve / deny display change
-            #ifdef MINI_JOYSTICK
-            if ((isMiniDirectionPressed(PORTID_JOY_UP) == RETURN_JDETECT) || (isMiniDirectionPressed(PORTID_JOY_DOWN) == RETURN_JDETECT) || (getWheelCurrentIncrement() != 0))
-            #else
             if (getWheelCurrentIncrement() != 0)
-            #endif
             {
                 if(approve_selected == FALSE)
                 {
@@ -975,21 +976,30 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
                 approve_selected = !approve_selected;
                 miniOledFlushEntireBufferToDisplay();
             }
-
-            #ifdef MINI_JOYSTICK
-            if (isMiniDirectionPressed(PORTID_JOY_LEFT) == RETURN_JDETECT) 
-            {
-                return MINI_INPUT_RET_NO;
-            }
-            #endif
         }   
     
         if ((input_answer == MINI_INPUT_RET_YES) && (approve_selected != FALSE))
         {
+            // LED animation
+            #ifdef HARDWARE_MINI_CLICK_V2
+                miniLedsSetAnimation(ANIM_NONE);
+            #endif
             return RETURN_OK;
+        }
+        else if (input_answer == MINI_INPUT_RET_BACK)
+        {
+            // LED animation
+            #ifdef HARDWARE_MINI_CLICK_V2
+                miniLedsSetAnimation(ANIM_NONE);
+            #endif
+            return RETURN_BACK;
         }
         else
         {
+            // LED animation
+            #ifdef HARDWARE_MINI_CLICK_V2
+                miniLedsSetAnimation(ANIM_NONE);
+            #endif
             return RETURN_NOK;
         }
     #endif

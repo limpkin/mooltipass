@@ -941,10 +941,15 @@ RET_TYPE usbPutstr(const char *str)
 */
 RET_TYPE usbKeybPutChar(char ch)
 {
-    if((ch == '\r') || (ch == '\n'))
+    if (ch == 0x0A)
     {
         // New line
         return usbKeyboardPress(KEY_RETURN, 0);
+    }
+    else if (ch == 0x09)
+    {
+        // TAB
+        return usbKeyboardPress(KEY_TAB, 0);
     }
     else if ((ch < ' ') || (ch > '~'))
     {

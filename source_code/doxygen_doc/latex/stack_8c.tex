@@ -1,0 +1,79 @@
+\hypertarget{stack_8c}{}\section{src/stack.c File Reference}
+\label{stack_8c}\index{src/stack.\+c@{src/stack.\+c}}
+
+
+Stack Usage analyzer Created\+: 09/6/2014 Author\+: Miguel A. Borrego.  
+
+
+{\ttfamily \#include \char`\"{}stack.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries S\+T\+A\+C\+K\+\_\+\+I\+N\+IT}~0x\+B00\+B5\hypertarget{stack_8c_a6d09b4e30b6162ac1e785978964f92fd}{}\label{stack_8c_a6d09b4e30b6162ac1e785978964f92fd}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{stack_8c_aa469fe0cc3583ec62f6cb1cab0a6d964}{stack\+Init} (void)
+\begin{DoxyCompactList}\small\item\em Initializes all stack area with S\+T\+A\+C\+K\+\_\+\+I\+N\+IT word The function location is compiler and linker dependant, it\textquotesingle{}s placed in .init1 section, so it will be placed after .init() section. For more information\+: \href{http://www.nongnu.org/avr-libc/user-manual/mem_sections.html}{\tt http\+://www.\+nongnu.\+org/avr-\/libc/user-\/manual/mem\+\_\+sections.\+html}. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{stack_8c_abce43f0973b8f69b31430a55c20ff6a9}{stack\+Free} (void)
+\begin{DoxyCompactList}\small\item\em Counts how many bytes of stack have not been overwritten. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t {\bfseries \+\_\+end}\hypertarget{stack_8c_af683e0889cfdbbc2934ca077b243f8e6}{}\label{stack_8c_af683e0889cfdbbc2934ca077b243f8e6}
+
+\item 
+uint8\+\_\+t {\bfseries \+\_\+\+\_\+stack}\hypertarget{stack_8c_a0acc72065644e5975673280fc64651e0}{}\label{stack_8c_a0acc72065644e5975673280fc64651e0}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Stack Usage analyzer Created\+: 09/6/2014 Author\+: Miguel A. Borrego. 
+
+
+
+\subsection{Function Documentation}
+\index{stack.\+c@{stack.\+c}!stack\+Free@{stack\+Free}}
+\index{stack\+Free@{stack\+Free}!stack.\+c@{stack.\+c}}
+\subsubsection[{\texorpdfstring{stack\+Free(void)}{stackFree(void)}}]{\setlength{\rightskip}{0pt plus 5cm}stack\+Free (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{stack_8c_abce43f0973b8f69b31430a55c20ff6a9}{}\label{stack_8c_abce43f0973b8f69b31430a55c20ff6a9}
+
+
+Counts how many bytes of stack have not been overwritten. 
+
+\begin{DoxyReturn}{Returns}
+number of bytes not overwritten by stack 
+\end{DoxyReturn}
+\index{stack.\+c@{stack.\+c}!stack\+Init@{stack\+Init}}
+\index{stack\+Init@{stack\+Init}!stack.\+c@{stack.\+c}}
+\subsubsection[{\texorpdfstring{stack\+Init(void)}{stackInit(void)}}]{\setlength{\rightskip}{0pt plus 5cm}stack\+Init (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{stack_8c_aa469fe0cc3583ec62f6cb1cab0a6d964}{}\label{stack_8c_aa469fe0cc3583ec62f6cb1cab0a6d964}
+
+
+Initializes all stack area with S\+T\+A\+C\+K\+\_\+\+I\+N\+IT word The function location is compiler and linker dependant, it\textquotesingle{}s placed in .init1 section, so it will be placed after .init() section. For more information\+: \href{http://www.nongnu.org/avr-libc/user-manual/mem_sections.html}{\tt http\+://www.\+nongnu.\+org/avr-\/libc/user-\/manual/mem\+\_\+sections.\+html}. 
+
+Function called at M\+CU start, to write a given value in the R\+AM.
+
+\subsubsection*{\&\+\_\+end \&\+\_\+\+\_\+stack }
+
+$\vert$ S\+T\+A\+T\+IC $\vert$ S\+T\+A\+CK $\vert$ \subsubsection*{$\vert$ R\+AM $\vert$ $\vert$ }
+
+0x100 0x\+A\+FF
+
+
+\begin{DoxyParams}{Parameters}
+{\em void} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+void 
+\end{DoxyReturn}

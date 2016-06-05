@@ -1,0 +1,139 @@
+\hypertarget{timer__manager_8h}{}\section{src/timer\+\_\+manager.h File Reference}
+\label{timer__manager_8h}\index{src/timer\+\_\+manager.\+h@{src/timer\+\_\+manager.\+h}}
+
+
+Timer logic Created\+: 12/8/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structtimer_entry__t}{timer\+Entry\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries N\+U\+M\+B\+E\+R\+\_\+\+O\+F\+\_\+\+F\+A\+S\+T\+\_\+\+T\+I\+M\+E\+RS}~9\hypertarget{timer__manager_8h_af2c39f5e434f57da1be9428335ad20c5}{}\label{timer__manager_8h_af2c39f5e434f57da1be9428335ad20c5}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+L\+I\+G\+HT}~0\hypertarget{timer__manager_8h_a0baba692de9201f30a83225cbf68f470}{}\label{timer__manager_8h_a0baba692de9201f30a83225cbf68f470}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+S\+C\+R\+E\+EN}~1\hypertarget{timer__manager_8h_ad14e8a7298d266962aef014dc16aca6f}{}\label{timer__manager_8h_ad14e8a7298d266962aef014dc16aca6f}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+U\+S\+E\+R\+I\+NT}~2\hypertarget{timer__manager_8h_aaaca3f57e767c339ac1006aaf040ef7c}{}\label{timer__manager_8h_aaaca3f57e767c339ac1006aaf040ef7c}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+C\+A\+PS}~3\hypertarget{timer__manager_8h_a70a9a9709a0011a721ba9508825fb4ae}{}\label{timer__manager_8h_a70a9a9709a0011a721ba9508825fb4ae}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+C\+R\+E\+D\+E\+N\+T\+I\+A\+LS}~4\hypertarget{timer__manager_8h_a25d741cb4bbaf71f5d30e555dcdb463d}{}\label{timer__manager_8h_a25d741cb4bbaf71f5d30e555dcdb463d}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+P\+A\+S\+S\+\_\+\+C\+H\+E\+CK}~5\hypertarget{timer__manager_8h_a4b6119720ab70e56740491a94a26032e}{}\label{timer__manager_8h_a4b6119720ab70e56740491a94a26032e}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+W\+A\+I\+T\+\_\+\+F\+U\+N\+C\+TS}~6\hypertarget{timer__manager_8h_acf37edbcc6eb3084fdccf1b1a38b6191}{}\label{timer__manager_8h_acf37edbcc6eb3084fdccf1b1a38b6191}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+T\+O\+U\+C\+H\+\_\+\+I\+N\+H\+I\+B\+IT}~7\hypertarget{timer__manager_8h_a620006be1fc35ff48fb26ea3ffcaf617}{}\label{timer__manager_8h_a620006be1fc35ff48fb26ea3ffcaf617}
+
+\item 
+\#define {\bfseries T\+I\+M\+E\+R\+\_\+\+U\+S\+B\+\_\+\+S\+U\+S\+P\+E\+ND}~8\hypertarget{timer__manager_8h_aa912f6abe3516cd8d26e2873c9cb58d9}{}\label{timer__manager_8h_aa912f6abe3516cd8d26e2873c9cb58d9}
+
+\item 
+\#define {\bfseries N\+U\+M\+B\+E\+R\+\_\+\+O\+F\+\_\+\+S\+L\+O\+W\+\_\+\+T\+I\+M\+E\+RS}~1\hypertarget{timer__manager_8h_a2c6db53dc467e3c965629ff4dfd7f662}{}\label{timer__manager_8h_a2c6db53dc467e3c965629ff4dfd7f662}
+
+\item 
+\#define {\bfseries S\+L\+O\+W\+\_\+\+T\+I\+M\+E\+R\+\_\+\+L\+O\+C\+K\+O\+UT}~9\hypertarget{timer__manager_8h_ad799aeb0bc34294ed4307a6ead85f429}{}\label{timer__manager_8h_ad799aeb0bc34294ed4307a6ead85f429}
+
+\item 
+\#define {\bfseries T\+O\+T\+A\+L\+\_\+\+N\+U\+M\+B\+E\+R\+\_\+\+O\+F\+\_\+\+T\+I\+M\+E\+RS}~(N\+U\+M\+B\+E\+R\+\_\+\+O\+F\+\_\+\+F\+A\+S\+T\+\_\+\+T\+I\+M\+E\+RS+N\+U\+M\+B\+E\+R\+\_\+\+O\+F\+\_\+\+S\+L\+O\+W\+\_\+\+T\+I\+M\+E\+RS)\hypertarget{timer__manager_8h_a0a6b0904408259cf26377ba2cad36024}{}\label{timer__manager_8h_a0a6b0904408259cf26377ba2cad36024}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{timer__manager_8h_a8eeae6b4fc7fd8ef22bcbd44730c845b}{timer\+Manager\+Tick} (void)\hypertarget{timer__manager_8h_a8eeae6b4fc7fd8ef22bcbd44730c845b}{}\label{timer__manager_8h_a8eeae6b4fc7fd8ef22bcbd44730c845b}
+
+\begin{DoxyCompactList}\small\item\em Function called by interrupt every ms. \end{DoxyCompactList}\item 
+void \hyperlink{timer__manager_8h_a6c41916b7610a1ecd5cba919c179fc89}{timer\+Based130\+Ms\+Delay} (void)\hypertarget{timer__manager_8h_a6c41916b7610a1ecd5cba919c179fc89}{}\label{timer__manager_8h_a6c41916b7610a1ecd5cba919c179fc89}
+
+\begin{DoxyCompactList}\small\item\em Many times in our code such delay is needed. \end{DoxyCompactList}\item 
+void \hyperlink{timer__manager_8h_ace20f3b735f78d574efdc48b27c03b37}{timer\+Based500\+Ms\+Delay} (void)\hypertarget{timer__manager_8h_ace20f3b735f78d574efdc48b27c03b37}{}\label{timer__manager_8h_ace20f3b735f78d574efdc48b27c03b37}
+
+\begin{DoxyCompactList}\small\item\em Many times in our code such delay is needed. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{timer__manager_8h_a2e2932f8389f8f511bc84fef3ef8b4a1}{get\+Timer\+Val} (uint8\+\_\+t uid)
+\begin{DoxyCompactList}\small\item\em Get current timer val. \end{DoxyCompactList}\item 
+void \hyperlink{timer__manager_8h_ab549b76b789fbf245ec9c41c6800cd94}{timer\+Based\+Delay\+Ms} (uint16\+\_\+t ms)
+\begin{DoxyCompactList}\small\item\em Timer based ms delay. \end{DoxyCompactList}\item 
+void \hyperlink{timer__manager_8h_ab6515830049d11ee5c350ad7fc77f70f}{activate\+Timer} (uint8\+\_\+t uid, uint16\+\_\+t val)
+\begin{DoxyCompactList}\small\item\em Activate timer. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries has\+Timer\+Expired} (uint8\+\_\+t uid, uint8\+\_\+t clear)\hypertarget{timer__manager_8h_a3408a0cf2aabad59bab6300fe953eb91}{}\label{timer__manager_8h_a3408a0cf2aabad59bab6300fe953eb91}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Timer logic Created\+: 12/8/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{timer\+\_\+manager.\+h@{timer\+\_\+manager.\+h}!activate\+Timer@{activate\+Timer}}
+\index{activate\+Timer@{activate\+Timer}!timer\+\_\+manager.\+h@{timer\+\_\+manager.\+h}}
+\subsubsection[{\texorpdfstring{activate\+Timer(uint8\+\_\+t uid, uint16\+\_\+t val)}{activateTimer(uint8_t uid, uint16_t val)}}]{\setlength{\rightskip}{0pt plus 5cm}void activate\+Timer (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{uid, }
+\item[{uint16\+\_\+t}]{val}
+\end{DoxyParamCaption}
+)}\hypertarget{timer__manager_8h_ab6515830049d11ee5c350ad7fc77f70f}{}\label{timer__manager_8h_ab6515830049d11ee5c350ad7fc77f70f}
+
+
+Activate timer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em uid} & Unique ID \\
+\hline
+{\em val} & Delay \\
+\hline
+\end{DoxyParams}
+\index{timer\+\_\+manager.\+h@{timer\+\_\+manager.\+h}!get\+Timer\+Val@{get\+Timer\+Val}}
+\index{get\+Timer\+Val@{get\+Timer\+Val}!timer\+\_\+manager.\+h@{timer\+\_\+manager.\+h}}
+\subsubsection[{\texorpdfstring{get\+Timer\+Val(uint8\+\_\+t uid)}{getTimerVal(uint8_t uid)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t get\+Timer\+Val (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{uid}
+\end{DoxyParamCaption}
+)}\hypertarget{timer__manager_8h_a2e2932f8389f8f511bc84fef3ef8b4a1}{}\label{timer__manager_8h_a2e2932f8389f8f511bc84fef3ef8b4a1}
+
+
+Get current timer val. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em uid} & Unique ID \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the timer val 
+\end{DoxyReturn}
+\index{timer\+\_\+manager.\+h@{timer\+\_\+manager.\+h}!timer\+Based\+Delay\+Ms@{timer\+Based\+Delay\+Ms}}
+\index{timer\+Based\+Delay\+Ms@{timer\+Based\+Delay\+Ms}!timer\+\_\+manager.\+h@{timer\+\_\+manager.\+h}}
+\subsubsection[{\texorpdfstring{timer\+Based\+Delay\+Ms(uint16\+\_\+t ms)}{timerBasedDelayMs(uint16_t ms)}}]{\setlength{\rightskip}{0pt plus 5cm}void timer\+Based\+Delay\+Ms (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{ms}
+\end{DoxyParamCaption}
+)}\hypertarget{timer__manager_8h_ab549b76b789fbf245ec9c41c6800cd94}{}\label{timer__manager_8h_ab549b76b789fbf245ec9c41c6800cd94}
+
+
+Timer based ms delay. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ms} & Number of ms \\
+\hline
+\end{DoxyParams}

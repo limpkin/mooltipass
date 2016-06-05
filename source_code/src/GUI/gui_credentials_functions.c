@@ -231,31 +231,29 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             }
         #elif defined(MINI_VERSION)
             // Temp variables
-            uint16_t temp_cur_first_child_address_displayed = first_child_address;
-            uint8_t real_first_child_displayed = FALSE;
+            uint16_t last_child_address = first_child_address;
             temp_child_address = first_child_address;
             uint8_t string_refresh_needed = TRUE;
+            picked_child = first_child_address;
             uint8_t action_chosen = FALSE;
-            #ifdef MINI_JOYSTICK
-                RET_TYPE joystick_action;
-            #endif
+            uint8_t cur_children_nb = 1;
+            uint8_t nb_children = 0;
             RET_TYPE wheel_action;
 
             // Variables for scrolling
-            uint8_t maxYCoordinates[4] = {SSD1305_OLED_WIDTH, 20, SSD1305_OLED_WIDTH - 30, SSD1305_OLED_WIDTH};
-            uint8_t startYCoordinates[4] = {0, 0, 30, SSD1305_OLED_WIDTH - 20};
-            uint8_t string_offset_cntrs[4];
-            uint8_t string_extra_chars[4];
+            uint8_t string_offset_cntrs[2];
+            uint8_t string_extra_chars[2];
 
-            // Display service & please select credential string
-            oledClear();
-            miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, readStoredStringToBuffer(ID_STRING_SELECT_CREDENTIAL));
-            string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, (char*)p->service);
+            // Get number of children
+            while(temp_child_address != NODE_ADDR_NULL)
+            {
+                nb_children++;
+                readChildNode(c, temp_child_address);
+                last_child_address = temp_child_address;
+                temp_child_address = c->nextChildAddress;
+            }
 
             // Clear pending detections & light up screen
-            #ifdef MINI_JOYSTICK
-                miniDirectionClearJoystickDetections();
-            #endif
             miniWheelClearDetections();
             activityDetectedRoutine();
 
@@ -277,7 +275,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                     else
                     {
                         // Implement scrolling
-                        for (i = 1; i < 4; i++)
+                        for (i = 0; i < sizeof(string_offset_cntrs); i++)
                         {
                             if (string_extra_chars[i] > 0)
                             {
@@ -290,108 +288,99 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                     }
 
                     // Scrolling timer expired
-                    activateTimer(TIMER_CAPS, SCROLLING_DEL);                    
+                    activateTimer(TIMER_CAPS, SCROLLING_DEL);      
 
-                    // Start looping, starting from the first displayed child
-                    temp_child_address = temp_cur_first_child_address_displayed;
-                    miniOledDrawRectangle(0, THREE_LINE_TEXT_THIRD_POS, SSD1305_OLED_WIDTH, SSD1305_OLED_HEIGHT-THREE_LINE_TEXT_THIRD_POS, FALSE);
+                    // Clear LCD, init temporary vars
+                    oledClear();
+                    char temp_string[10];
+                    memset(temp_string, 0x00, sizeof(temp_string));
+                    char* select_cred_line = readStoredStringToBuffer(ID_STRING_SELECT_CREDENTIAL);
 
-                    // Offset for selecting the first credential
-                    if (real_first_child_displayed == FALSE)
-                    {
-                        i = 1;
-                    } 
-                    else
-                    {
-                        i = 2;
-                    }
+                    // First line: service name
+                    string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, (char*)p->service + string_offset_cntrs[0]);
 
-                    for (; (i < 4) && (temp_child_address != NODE_ADDR_NULL); i++)
-                    {
-                        // Read child node to get login
-                        readChildNode(c, temp_child_address);                        
-                        
-                        // Print Login at the correct slot
-                        miniOledSetMaxTextY(maxYCoordinates[i]);
-                        string_extra_chars[i] = strlen((char*)c->login) - miniOledPutstrXY(startYCoordinates[i], THREE_LINE_TEXT_THIRD_POS, OLED_CENTRE, (char*)c->login + string_offset_cntrs[i]);
-
-                        // Second child displayed is the chosen one
-                        if (i == 2)
-                        {
-                            picked_child = temp_child_address;
-                        }
-                        
-                        // Fetch next address
-                        temp_child_address = c->nextChildAddress;
-                    }
+                    // Second line: "select credential" + x/total
+                    itoa(cur_children_nb, temp_string, 10);
+                    temp_string[strlen(temp_string)] = '/';
+                    itoa(nb_children, temp_string+strlen(temp_string), 10);
+                    strncat(select_cred_line, temp_string, TEXTBUFFERSIZE - strlen(select_cred_line) - 1);
+                    miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, select_cred_line);     
                     
+                    // Third line: chosen credential   
+                    readChildNode(c, picked_child);
+                    string_extra_chars[1] = strlen((char*)c->login) - miniOledPutCenteredString(THREE_LINE_TEXT_THIRD_POS, (char*)c->login + string_offset_cntrs[1]);
+                    
+                    // Flush to display
                     miniOledFlushEntireBufferToDisplay();
                     string_refresh_needed = FALSE;
-                    miniOledResetMaxTextY();
                 }
             
                 // Get wheel action
                 wheel_action = miniGetWheelAction(FALSE, FALSE);
-                #ifdef MINI_JOYSTICK
-                    joystick_action = getMiniDirectionJustPressed();
-                #endif
             
                 // Check its validity, knowing that by default we will return NODE_ADDR_NULL
-                #ifdef MINI_JOYSTICK
-                if ((wheel_action == WHEEL_ACTION_SHORT_CLICK) || (joystick_action == PORTID_JOY_DOWN))
-                #else
                 if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
-                #endif
                 {
                     action_chosen = TRUE;
                 }
-                #ifdef MINI_JOYSTICK
-                else if (((wheel_action == WHEEL_ACTION_DOWN) || (joystick_action == PORTID_JOY_RIGHT)) && (i > 3))
-                #else
-                else if ((wheel_action == WHEEL_ACTION_DOWN) && (i > 3))
-                #endif
+                else if (wheel_action == WHEEL_ACTION_DOWN)
                 {
                     // Move to the next credential
                     string_refresh_needed = TRUE;
 
-                    if (real_first_child_displayed != FALSE)
+                    // Loop or go to previous
+                    picked_child = c->prevChildAddress;
+                    if (picked_child == NODE_ADDR_NULL)
                     {
-                        real_first_child_displayed = FALSE;
+                        picked_child = last_child_address;
                     }
+
+                    // Update status display
+                    if (cur_children_nb == 1)
+                    {
+                        cur_children_nb = nb_children;
+                    } 
                     else
                     {
-                        temp_cur_first_child_address_displayed = picked_child;
+                        cur_children_nb--;
                     }
                 }
-                #ifdef MINI_JOYSTICK
-                else if (((wheel_action == WHEEL_ACTION_UP) || (joystick_action == PORTID_JOY_LEFT)) && (real_first_child_displayed == FALSE))
-                #else
-                else if ((wheel_action == WHEEL_ACTION_UP) && (real_first_child_displayed == FALSE))
-                #endif
+                else if (wheel_action == WHEEL_ACTION_UP)
                 {                 
                     // Move to the previous credential    
-                    string_refresh_needed = TRUE;
+                    string_refresh_needed = TRUE;                    
 
-                     if (temp_cur_first_child_address_displayed == first_child_address)
-                     {
-                        real_first_child_displayed = TRUE;
-                     }
-                     else
-                     {
-                        // Read child node to get previous node
-                        readChildNode(c, temp_cur_first_child_address_displayed);
-                        temp_cur_first_child_address_displayed = c->prevChildAddress;
-                     }                     
+                    // Loop or go to previous
+                    picked_child = c->nextChildAddress;
+                    if (picked_child == NODE_ADDR_NULL)
+                    {
+                        picked_child = first_child_address;
+                    }  
+
+                    // Update status display
+                    if (cur_children_nb == nb_children)
+                    {
+                        cur_children_nb = 1;
+                    } 
+                    else
+                    {
+                        cur_children_nb++;
+                    }                  
+                }
+                else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
+                {
+                    // Long click to go back (checked by function caller)
+                    return NODE_ADDR_NULL;
                 }
 
-                #ifdef MINI_JOYSTICK
-                    if (joystick_action == PORTID_JOY_UP)
-                    {
-                        return NODE_ADDR_NULL;
-                    }
-                #endif
-
+                // Timeout or card removed
                 if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+                {
+                    return NODE_ADDR_NULL;
+                }
+
+                // Request cancelled by plugin
+                if (usbCancelRequestReceived() == RETURN_OK)
                 {
                     return NODE_ADDR_NULL;
                 }
@@ -411,6 +400,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 {
 #if defined(MINI_VERSION)
+    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
     uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
     uint8_t nbFavorites = 0, startIndex = 0, selectedIndex = 0;
     uint16_t cur_address_selected = NODE_ADDR_NULL;
@@ -419,9 +409,6 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     uint16_t childAddresses[USER_MAX_FAV];
     uint8_t string_offset_cntrs[3];
     uint8_t string_extra_chars[3];
-    #ifdef MINI_JOYSTICK
-        RET_TYPE joystick_action;
-    #endif
     RET_TYPE wheel_action;
     uint8_t i, j;
     (void)c;
@@ -492,17 +479,32 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             }
             
             oledClear();
+            oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the favorites
             while(i != 3)
             {
                 // Check that the favorite is valid
                 if (parentAddresses[j] != NODE_ADDR_NULL)
                 {
-                    // Read parent node to get service
+                    // Read parent & child node to get service & username
                     readParentNode(p, parentAddresses[j]);
+                    readChildNode(c, childAddresses[j]);
                     
-                    // Print service at the correct slot
-                    string_extra_chars[i] = strlen((char*)p->service) - miniOledPutCenteredString(y_coordinates[i], (char*)p->service + string_offset_cntrs[i]);
+                    // Construct the string "service / username"
+                    if (c->login[0] != 0)
+                    {
+                        // trick because the start of the login field isn't the start of the service node
+                        #pragma GCC diagnostic push
+                        #pragma GCC diagnostic ignored "-Warray-bounds"
+                        c->login[-1] = '/';
+                        c->login[sizeof(c->login)-1] = 0;
+                        p->service[sizeof(p->service)-1] = 0;
+                        strncat((char*)p->service, (char*)&(c->login[-1]), sizeof(p->service) - 1 - strnlen((char*)&(p->service[-1]), sizeof(p->service)));
+                        #pragma GCC diagnostic pop
+                    }
+
+                    // Print service / username at the correct slot
+                    string_extra_chars[i] = strlen((char*)p->service) - miniOledPutstrXY(x_coordinates[i], y_coordinates[i], OLED_RIGHT, (char*)p->service + string_offset_cntrs[i]);
 
                     // Second favorite displayed is the chosen one
                     if (i == 1)
@@ -539,25 +541,14 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 
         // Get wheel action
         wheel_action = miniGetWheelAction(FALSE, FALSE);
-        #ifdef MINI_JOYSTICK
-            joystick_action = getMiniDirectionJustPressed();
-        #endif
         
         // User validated the selected credential
-        #ifdef MINI_JOYSTICK
-        if ((wheel_action == WHEEL_ACTION_SHORT_CLICK) || (joystick_action == PORTID_JOY_RIGHT))
-        #else
         if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
-        #endif
         {
             readParentNode(p, parentAddresses[selectedIndex]);
             return cur_address_selected;
         }
-        #ifdef MINI_JOYSTICK
-        else if ((wheel_action == WHEEL_ACTION_DOWN) || (joystick_action == PORTID_JOY_DOWN))
-        #else
         else if (wheel_action == WHEEL_ACTION_DOWN)
-        #endif
         {
             // Move to the next credential
             string_refresh_needed = TRUE;
@@ -569,11 +560,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                 startIndex = (startIndex+1)%USER_MAX_FAV;
             }
         }
-        #ifdef MINI_JOYSTICK
-        else if ((wheel_action == WHEEL_ACTION_UP) || (joystick_action == PORTID_JOY_UP))
-        #else
         else if (wheel_action == WHEEL_ACTION_UP)
-        #endif
         {
             // Move to the previous credential
             string_refresh_needed = TRUE;
@@ -587,11 +574,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             } 
             while (parentAddresses[startIndex] == NODE_ADDR_NULL);
         }
-        #ifdef MINI_JOYSTICK
-        else if ((wheel_action == WHEEL_ACTION_LONG_CLICK) || (joystick_action == PORTID_JOY_LEFT))
-        #else
         else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
-        #endif
         {
             return NODE_ADDR_NULL;
         }
@@ -822,11 +805,12 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
 
 /*! \fn     loginSelectionScreen(void)
 *   \brief  Screen displayed to let the user choose/find a login
-*   \return Valid child node address or 0 otherwise
+*   \return Valid parent node address or 0 otherwise
 */
 uint16_t loginSelectionScreen(void)
 {
 #if defined(MINI_VERSION)
+    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
     uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
     uint16_t first_address = getLastParentAddress();
     uint16_t cur_address_selected = NODE_ADDR_NULL;
@@ -835,10 +819,9 @@ uint16_t loginSelectionScreen(void)
     uint8_t string_extra_chars[3];
     uint16_t temp_parent_address;
     uint8_t nb_parent_nodes;
-    #ifdef MINI_JOYSTICK
-        RET_TYPE joystick_action;
-    #endif
+    char current_fchar = 0;
     RET_TYPE wheel_action;
+    char fchar_array[3];
     pNode temp_pnode;
     uint8_t i;
 
@@ -860,6 +843,9 @@ uint16_t loginSelectionScreen(void)
 
     // Arm timer for scrolling (caps timer that isn't relevant here)
     activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+    // Clear possible detections
+    miniWheelClearDetections();
 
     while(1)
     {
@@ -903,6 +889,9 @@ uint16_t loginSelectionScreen(void)
             }
             
             oledClear();
+            miniOledSetMinTextY(16);
+            miniOledDrawRectangle(12, 0, 1, SSD1305_OLED_HEIGHT, TRUE);
+            oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the parent nodes
             for (; (i < 3); i++)
             {
@@ -910,12 +899,13 @@ uint16_t loginSelectionScreen(void)
                 readParentNode(&temp_pnode, temp_parent_address);
                 
                 // Print Login at the correct slot
-                string_extra_chars[i] = strlen((char*)temp_pnode.service) - miniOledPutCenteredString(y_coordinates[i], (char*)temp_pnode.service + string_offset_cntrs[i]);
+                string_extra_chars[i] = strlen((char*)temp_pnode.service) - miniOledPutstrXY(x_coordinates[i], y_coordinates[i], OLED_RIGHT, (char*)temp_pnode.service + string_offset_cntrs[i]);
 
                 // Second child displayed is the chosen one
                 if (i == 1)
                 {
                     cur_address_selected = temp_parent_address;
+                    current_fchar = temp_pnode.service[0];
                 }
                 
                 // Fetch next address
@@ -932,30 +922,35 @@ uint16_t loginSelectionScreen(void)
                 }
             }
 
+            // Display first letters
+            uint8_t glyph_width;
+            getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array);
+            miniOledSetFont(FONT_8BIT16);
+            glyph_width = miniOledGlyphWidth(fchar_array[0]);
+            miniOledSetXY(5-(glyph_width>>1), 1);
+            miniOledPutch(fchar_array[0]);
+            glyph_width = miniOledGlyphWidth(fchar_array[2]);
+            miniOledSetXY(5-(glyph_width>>1), 26);
+            miniOledPutch(fchar_array[2]);
+            miniOledSetFont(FONT_PROFONT_14);
+            glyph_width = miniOledGlyphWidth(fchar_array[1]);
+            miniOledSetXY(5-(glyph_width>>1), 6);
+            miniOledPutch(fchar_array[1]);
             miniOledFlushEntireBufferToDisplay();
+            miniOledSetFont(FONT_DEFAULT);
             string_refresh_needed = FALSE;
+            miniOledSetMinTextY(0);
         }
 
         // Get wheel action
         wheel_action = miniGetWheelAction(FALSE, FALSE);
-        #ifdef MINI_JOYSTICK
-            joystick_action = getMiniDirectionJustPressed();
-        #endif
         
         // User validated the selected credential
-        #ifdef MINI_JOYSTICK
-        if ((wheel_action == WHEEL_ACTION_SHORT_CLICK) || (joystick_action == PORTID_JOY_RIGHT))
-        #else
         if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
-        #endif
         {
             return cur_address_selected;
         }
-        #ifdef MINI_JOYSTICK
-        else if ((wheel_action == WHEEL_ACTION_DOWN) || (joystick_action == PORTID_JOY_DOWN))
-        #else
         else if (wheel_action == WHEEL_ACTION_DOWN)
-        #endif
         {
             // Move to the next credential
             string_refresh_needed = TRUE;
@@ -974,11 +969,7 @@ uint16_t loginSelectionScreen(void)
                 }
             }
         }
-        #ifdef MINI_JOYSTICK
-        else if ((wheel_action == WHEEL_ACTION_UP) || (joystick_action == PORTID_JOY_UP))
-        #else
         else if (wheel_action == WHEEL_ACTION_UP)
-        #endif
         {
             // Move to the previous credential
             string_refresh_needed = TRUE;
@@ -994,11 +985,7 @@ uint16_t loginSelectionScreen(void)
                 first_address = temp_pnode.prevParentAddress;
             }
         }
-        #ifdef MINI_JOYSTICK
-        else if ((wheel_action == WHEEL_ACTION_LONG_CLICK) || (joystick_action == PORTID_JOY_LEFT))
-        #else
         else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
-        #endif
         {
             return NODE_ADDR_NULL;
         }

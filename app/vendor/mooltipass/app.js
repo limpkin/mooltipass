@@ -50,37 +50,57 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
     }
 
     if(inputObject.command == 'getMooltipassStatus') {
-        var responseObject = {
-            'command': inputObject.command,
-            'success': true,
-            'value': status,
-            'connected': mooltipass.device.isConnected,
-            'unlocked': mooltipass.device.isUnlocked,
-            'locked': !mooltipass.device.isUnlocked,
-            'noCard': mooltipass.device.hasNoCard,
-            'version': mooltipass.device.version,
-        };
-
-        // Add backwards-compatible data information
-        var backwards = mooltipass.app.translateResponseForBackwardsCompatibility(responseObject);
-        // Merge backwards-compatible information into data object
-        mergeObjects(backwards, responseObject);
+        var responseObject = {};
+        responseObject.deviceStatus = {};
+        responseObject.deviceStatus.version = mooltipass.device.version;
+        responseObject.deviceStatus.connected = mooltipass.device.isConnected;
+        responseObject.deviceStatus.unlocked = mooltipass.device.isUnlocked;
+        if(mooltipass.device.status == 'no-card') {
+            responseObject.deviceStatus.state = 'NoCard';
+        }
+        else if(mooltipass.device.status == 'locked') {
+            responseObject.deviceStatus.state = 'Locked';
+        }
+        else if(mooltipass.device.status == 'unlocked') {
+            responseObject.deviceStatus.state = 'Unlocked';
+        }
+        else if(mooltipass.device.singleCommunicationMode) {
+            responseObject.deviceStatus.state = 'ManageMode';
+        }
+        else if(!mooltipass.device.isConnected) {
+            responseObject.deviceStatus.state = 'NotConnected';
+        }
+        else {
+            responseObject.deviceStatus.state = 'Error';
+        }
 
         //console.log('Response Status:', responseObject);
-
         chrome.runtime.sendMessage(senderId, responseObject, function() {
             if(chrome.runtime.lastError) {
                 // TODO: Chrome 49 returns this error which does not affect the functionality. No real solution found yet (2016-03-18)
                 // TODO: Also contains a typo "reponse" instead of "response"
                 if(chrome.runtime.lastError.message != "The message port closed before a reponse was received.") {
-                    console.warn('Could not send response to client <', senderId, '>');
+                    console.warn('Could not send response to client <', senderId, '> #12');
                     console.warn('Error:', chrome.runtime.lastError.message);
                 }
             }
         });
         return;
     }
-
+    else if(inputObject.command == 'cancelGetCredentials')
+    {
+        console.log("Cancel request for reqid " + inputObject.reqid);
+        
+        // Cancel request only implemented in v1.1
+        if (mooltipass.device.version == "v1.1" && mooltipass.device.currentReqid == inputObject.reqid)
+        {
+            // The cancel message doesn't generate any reply from the device, so we can just send it as is
+            chrome.hid.send(mooltipass.device.connectionId, 0, mooltipass.device.createPacket(mooltipass.device.commands['cancelUserRequest'], null), function(){});
+            console.log("Cancel packet sent");
+        }
+        //console.log(inputObject);
+        return;
+    }
 
     inputObject.callbackFunction = function(_responseObject) {
         _responseObject.command = inputObject.command;
@@ -90,8 +110,10 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         mergeObjects(backwards, _responseObject);
         //console.log('Response Status:', _responseObject);
         chrome.runtime.sendMessage(senderId, _responseObject, function() {
-            if(chrome.runtime.lastError) {
-                console.warn('Could not send response to client <', senderId, '>');
+            // TODO: Chrome 49 returns this error which does not affect the functionality. No real solution found yet (2016-03-18)
+            // TODO: Also contains a typo "reponse" instead of "response"
+            if(chrome.runtime.lastError.message != "The message port closed before a reponse was received.") {
+                console.warn('Could not send response to client <', senderId, '> #37');
                 console.warn('Error:', chrome.runtime.lastError.message);
             }
         });
@@ -156,6 +178,19 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
         if(_request.getInputs.domain) {
             output.contexts.push(_request.getInputs.domain);
         }
+        output.reqid = _request.getInputs.reqid;
+    }
+    else if('cancelGetInputs' in _request)
+    {
+        output.command = 'cancelGetCredentials';
+        output.contexts = [];
+        if(_request.cancelGetInputs.subdomain && _request.cancelGetInputs.domain) {
+            output.contexts.push(_request.cancelGetInputs.subdomain + '.' + _request.cancelGetInputs.domain);
+        }
+        if(_request.cancelGetInputs.domain) {
+            output.contexts.push(_request.cancelGetInputs.domain);
+        }
+        output.reqid = _request.cancelGetInputs.reqid;
     }
 
     return output;
@@ -174,29 +209,6 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_response) 
 
     if(_response.success && command == 'getRandomNumber') {
         output.random = _response.value;
-    }
-    else if(command == 'getMooltipassStatus') {
-        output.deviceStatus = {};
-        output.deviceStatus.version = mooltipass.device.version;
-        output.deviceStatus.connected = mooltipass.device.isUnlocked;
-        if(mooltipass.device.status == 'no-card') {
-            output.deviceStatus.state = 'NoCard';
-        }
-        else if(mooltipass.device.status == 'locked') {
-            output.deviceStatus.state = 'Locked';
-        }
-        else if(mooltipass.device.status == 'unlocked') {
-            output.deviceStatus.state = 'Unlocked';
-        }
-        else if(mooltipass.device.singleCommunicationMode) {
-            output.deviceStatus.state = 'ManageMode';
-        }
-        else if(!mooltipass.device.isConnected) {
-            output.deviceStatus.state = 'NotConnected';
-        }
-        else {
-            output.deviceStatus.state = 'Error';
-        }
     }
     else if(command == 'getCredentials') {
         if(_response.success) {

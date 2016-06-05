@@ -1,57 +1,292 @@
-\hypertarget{node__mgmt_8h}{\section{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.h File Reference}
+\hypertarget{node__mgmt_8h}{}\section{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.h File Reference}
 \label{node__mgmt_8h}\index{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.\+h@{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.\+h}}
-}
 
 
 Mooltipass Node Management Library Header Created\+: 03/4/2014 Author\+: Michael Neiderhauser.  
 
 
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{node__mgmt_8h_a978227c0201db5a8ea615bddf743a68b}{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+NT}~66
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+C\+H\+I\+LD}~132\hypertarget{node__mgmt_8h_a92c893d44102d40998f15c3ee413aa06}{}\label{node__mgmt_8h_a92c893d44102d40998f15c3ee413aa06}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+D\+A\+TA}~132\hypertarget{node__mgmt_8h_adaee482879fdcd7032f9d405fcb0d731}{}\label{node__mgmt_8h_adaee482879fdcd7032f9d405fcb0d731}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+S\+I\+ZE}~132\hypertarget{node__mgmt_8h_a7ff1bdaea529894a3efdb480b1f2c8ee}{}\label{node__mgmt_8h_a7ff1bdaea529894a3efdb480b1f2c8ee}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+A\+D\+D\+R\+\_\+\+N\+U\+LL}~0x0000\hypertarget{node__mgmt_8h_aeb331e28a2a3e549529429df694972c9}{}\label{node__mgmt_8h_aeb331e28a2a3e549529429df694972c9}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+V\+B\+I\+T\+\_\+\+V\+A\+L\+ID}~0\hypertarget{node__mgmt_8h_ad588d0d027cf038508f9142dcc172768}{}\label{node__mgmt_8h_ad588d0d027cf038508f9142dcc172768}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+V\+B\+I\+T\+\_\+\+I\+N\+V\+A\+L\+ID}~1\hypertarget{node__mgmt_8h_a07ce1340a1f72161c5d3304b6cdada92}{}\label{node__mgmt_8h_a07ce1340a1f72161c5d3304b6cdada92}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+T\+Y\+P\+E\+\_\+\+M\+A\+SK}~0xc000\hypertarget{node__mgmt_8h_aa398a50d319d338a22b180cb27037cba}{}\label{node__mgmt_8h_aa398a50d319d338a22b180cb27037cba}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+T\+Y\+P\+E\+\_\+\+S\+H\+MT}~14\hypertarget{node__mgmt_8h_a4c7ef739b2e110a32ecd61d2192d983c}{}\label{node__mgmt_8h_a4c7ef739b2e110a32ecd61d2192d983c}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+T\+Y\+P\+E\+\_\+\+M\+A\+S\+K\+\_\+\+F\+I\+N\+AL}~0x0003\hypertarget{node__mgmt_8h_ac597ac22af175dc366991a3e172ea867}{}\label{node__mgmt_8h_ac597ac22af175dc366991a3e172ea867}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+V\+A\+L\+I\+D\+\_\+\+B\+I\+T\+\_\+\+M\+A\+SK}~0x2000\hypertarget{node__mgmt_8h_a870db5e4bd953e720e93946da67a848b}{}\label{node__mgmt_8h_a870db5e4bd953e720e93946da67a848b}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+V\+A\+L\+I\+D\+\_\+\+B\+I\+T\+\_\+\+S\+H\+MT}~13\hypertarget{node__mgmt_8h_a4c1171c60cc61a342df54051d143d948}{}\label{node__mgmt_8h_a4c1171c60cc61a342df54051d143d948}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+V\+A\+L\+I\+D\+\_\+\+B\+I\+T\+\_\+\+M\+A\+S\+K\+\_\+\+F\+I\+N\+AL}~0x0001\hypertarget{node__mgmt_8h_ac41bdf65d5149b2c432c2dfcc67dc73e}{}\label{node__mgmt_8h_ac41bdf65d5149b2c432c2dfcc67dc73e}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+U\+I\+D\+\_\+\+M\+A\+SK}~0x1f00\hypertarget{node__mgmt_8h_a28f03e5e16f9ee367637a690bff38f30}{}\label{node__mgmt_8h_a28f03e5e16f9ee367637a690bff38f30}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+U\+I\+D\+\_\+\+S\+H\+MT}~8\hypertarget{node__mgmt_8h_abbe886f33ca8e32c4156ff0b1b29690d}{}\label{node__mgmt_8h_abbe886f33ca8e32c4156ff0b1b29690d}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+U\+I\+D\+\_\+\+M\+A\+S\+K\+\_\+\+F\+I\+N\+AL}~0x001f\hypertarget{node__mgmt_8h_a92f80fdb2529818fce86229ad9e1cb68}{}\label{node__mgmt_8h_a92f80fdb2529818fce86229ad9e1cb68}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+C\+R\+E\+D\+\_\+\+T\+Y\+P\+E\+\_\+\+M\+A\+SK}~0x000f\hypertarget{node__mgmt_8h_a0d7b001451515b6051bb290b1a642d49}{}\label{node__mgmt_8h_a0d7b001451515b6051bb290b1a642d49}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+F\+\_\+\+D\+A\+T\+A\+\_\+\+S\+E\+Q\+\_\+\+N\+U\+M\+\_\+\+M\+A\+SK}~0x00ff\hypertarget{node__mgmt_8h_ac17f99f4df94ebca8c57ea696d386fd7}{}\label{node__mgmt_8h_ac17f99f4df94ebca8c57ea696d386fd7}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+A\+D\+D\+R\+\_\+\+S\+H\+MT}~3\hypertarget{node__mgmt_8h_aa48d97f3de41f4ceb599d50deced1800}{}\label{node__mgmt_8h_aa48d97f3de41f4ceb599d50deced1800}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+A\+D\+D\+R\+\_\+\+P\+A\+G\+E\+\_\+\+M\+A\+SK}~0x1fff\hypertarget{node__mgmt_8h_ab7e7c88a9426db7a4ebf9b7a596afc4c}{}\label{node__mgmt_8h_ab7e7c88a9426db7a4ebf9b7a596afc4c}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+A\+D\+D\+R\+\_\+\+N\+O\+D\+E\+\_\+\+M\+A\+SK}~0x0007\hypertarget{node__mgmt_8h_ad7020d5785ef90490add9da269153730}{}\label{node__mgmt_8h_ad7020d5785ef90490add9da269153730}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+G\+M\+T\+\_\+\+Y\+E\+A\+R\+\_\+\+S\+HT}~9\hypertarget{node__mgmt_8h_a555e569a3523ad11fa393e9ddbe41a64}{}\label{node__mgmt_8h_a555e569a3523ad11fa393e9ddbe41a64}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+G\+M\+T\+\_\+\+Y\+E\+A\+R\+\_\+\+M\+A\+SK}~0x\+F\+E00\hypertarget{node__mgmt_8h_a85dc02a3c6fd6b6a805ce73666d1f70c}{}\label{node__mgmt_8h_a85dc02a3c6fd6b6a805ce73666d1f70c}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+G\+M\+T\+\_\+\+Y\+E\+A\+R\+\_\+\+M\+A\+S\+K\+\_\+\+F\+I\+N\+AL}~0x007F\hypertarget{node__mgmt_8h_a89f91180f28943e6a14767740a599f6e}{}\label{node__mgmt_8h_a89f91180f28943e6a14767740a599f6e}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+G\+M\+T\+\_\+\+M\+O\+N\+T\+H\+\_\+\+S\+HT}~5\hypertarget{node__mgmt_8h_a318737bfc9564e19e41400dac8f07a13}{}\label{node__mgmt_8h_a318737bfc9564e19e41400dac8f07a13}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+G\+M\+T\+\_\+\+M\+O\+N\+T\+H\+\_\+\+M\+A\+SK}~0x03\+E0\hypertarget{node__mgmt_8h_a118b1b0f1c1fd3f9fa0c40351e9108f9}{}\label{node__mgmt_8h_a118b1b0f1c1fd3f9fa0c40351e9108f9}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+G\+M\+T\+\_\+\+M\+O\+N\+T\+H\+\_\+\+M\+A\+S\+K\+\_\+\+F\+I\+N\+AL}~0x000F\hypertarget{node__mgmt_8h_a5bfc95c1560974c304c87455fa1b065e}{}\label{node__mgmt_8h_a5bfc95c1560974c304c87455fa1b065e}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+G\+M\+T\+\_\+\+D\+A\+Y\+\_\+\+M\+A\+S\+K\+\_\+\+F\+I\+N\+AL}~0x001F\hypertarget{node__mgmt_8h_a3d7bd8e9ab48efe9da9b93bd1a623e87}{}\label{node__mgmt_8h_a3d7bd8e9ab48efe9da9b93bd1a623e87}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+P\+A\+R\+E\+N\+T\+\_\+\+S\+I\+Z\+E\+\_\+\+O\+F\+\_\+\+S\+E\+R\+V\+I\+CE}~58\hypertarget{node__mgmt_8h_aea8b89ff3e354b76638ed0561f004439}{}\label{node__mgmt_8h_aea8b89ff3e354b76638ed0561f004439}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+C\+H\+I\+L\+D\+\_\+\+S\+I\+Z\+E\+\_\+\+O\+F\+\_\+\+D\+E\+S\+C\+R\+I\+P\+T\+I\+ON}~24\hypertarget{node__mgmt_8h_abb7d8905afa011a8f9b617e809f1c935}{}\label{node__mgmt_8h_abb7d8905afa011a8f9b617e809f1c935}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+C\+H\+I\+L\+D\+\_\+\+S\+I\+Z\+E\+\_\+\+O\+F\+\_\+\+L\+O\+G\+IN}~63\hypertarget{node__mgmt_8h_a8d07ca4376a599c375ee65e853fc6b9e}{}\label{node__mgmt_8h_a8d07ca4376a599c375ee65e853fc6b9e}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+C\+H\+I\+L\+D\+\_\+\+S\+I\+Z\+E\+\_\+\+O\+F\+\_\+\+P\+A\+S\+S\+W\+O\+RD}~32\hypertarget{node__mgmt_8h_a8800ec28ca5792a5d11f4d2e019d8a67}{}\label{node__mgmt_8h_a8800ec28ca5792a5d11f4d2e019d8a67}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+C\+H\+I\+L\+D\+\_\+\+S\+I\+Z\+E\+\_\+\+O\+F\+\_\+\+C\+TR}~3\hypertarget{node__mgmt_8h_ae81015f7b22af2f04cf0672f80953925}{}\label{node__mgmt_8h_ae81015f7b22af2f04cf0672f80953925}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+A\+X\+\_\+\+U\+ID}~16\hypertarget{node__mgmt_8h_a17fae4aadfa6cdeee118b1e0bea60fe8}{}\label{node__mgmt_8h_a17fae4aadfa6cdeee118b1e0bea60fe8}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+A\+X\+\_\+\+C\+R\+E\+D\+\_\+\+T\+Y\+PE}~16\hypertarget{node__mgmt_8h_affff8998ab66f9e4074c265621af7e0e}{}\label{node__mgmt_8h_affff8998ab66f9e4074c265621af7e0e}
+
+\item 
+\#define {\bfseries N\+O\+D\+E\+\_\+\+M\+A\+X\+\_\+\+D\+A\+TA}~256\hypertarget{node__mgmt_8h_a599d7dbfe52b00ac1a423801b90ca3fe}{}\label{node__mgmt_8h_a599d7dbfe52b00ac1a423801b90ca3fe}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+S\+T\+A\+R\+T\+\_\+\+N\+O\+D\+E\+\_\+\+S\+I\+ZE}~2\hypertarget{node__mgmt_8h_a519320ded27c40984d4271e5e8626511}{}\label{node__mgmt_8h_a519320ded27c40984d4271e5e8626511}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+F\+A\+V\+\_\+\+S\+I\+ZE}~4\hypertarget{node__mgmt_8h_a144ffc09cdc604915b9d50acac18e165}{}\label{node__mgmt_8h_a144ffc09cdc604915b9d50acac18e165}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+M\+A\+X\+\_\+\+F\+AV}~14\hypertarget{node__mgmt_8h_ae6702f357bb5bcf23057958a14a6d138}{}\label{node__mgmt_8h_ae6702f357bb5bcf23057958a14a6d138}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+D\+A\+T\+A\+\_\+\+S\+T\+A\+R\+T\+\_\+\+N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+R\+ES}~4\hypertarget{node__mgmt_8h_aa9acaafe1afbe743f4cb5f07794449ce}{}\label{node__mgmt_8h_aa9acaafe1afbe743f4cb5f07794449ce}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+R\+E\+S\+\_\+\+C\+TR}~4\hypertarget{node__mgmt_8h_ab6a7cd0d98bb9c21c9519e732498414b}{}\label{node__mgmt_8h_ab6a7cd0d98bb9c21c9519e732498414b}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+P\+R\+O\+F\+I\+L\+E\+\_\+\+S\+I\+ZE}~(U\+S\+E\+R\+\_\+\+S\+T\+A\+R\+T\+\_\+\+N\+O\+D\+E\+\_\+\+S\+I\+ZE+(U\+S\+E\+R\+\_\+\+M\+A\+X\+\_\+\+F\+AV$\ast$U\+S\+E\+R\+\_\+\+F\+A\+V\+\_\+\+S\+I\+ZE)+U\+S\+E\+R\+\_\+\+D\+A\+T\+A\+\_\+\+S\+T\+A\+R\+T\+\_\+\+N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+R\+ES+U\+S\+E\+R\+\_\+\+R\+E\+S\+\_\+\+C\+TR)\hypertarget{node__mgmt_8h_a05790c66bdebbf6b137a10053caae9d3}{}\label{node__mgmt_8h_a05790c66bdebbf6b137a10053caae9d3}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+C\+T\+R\+\_\+\+S\+I\+ZE}~3\hypertarget{node__mgmt_8h_a917b340da540445fb75c92b2f4f14531}{}\label{node__mgmt_8h_a917b340da540445fb75c92b2f4f14531}
+
+\item 
+\#define {\bfseries G\+R\+A\+P\+H\+I\+C\+\_\+\+Z\+O\+N\+E\+\_\+\+S\+T\+A\+RT}~(8$\ast$B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+GE)\hypertarget{node__mgmt_8h_a685e3217959a9aad53ec72cc2a7a19c8}{}\label{node__mgmt_8h_a685e3217959a9aad53ec72cc2a7a19c8}
+
+\item 
+\#define {\bfseries G\+R\+A\+P\+H\+I\+C\+\_\+\+Z\+O\+N\+E\+\_\+\+P\+A\+G\+E\+\_\+\+S\+T\+A\+RT}~(8)\hypertarget{node__mgmt_8h_a285a1cc34a5dd661b902eb11d2347b0c}{}\label{node__mgmt_8h_a285a1cc34a5dd661b902eb11d2347b0c}
+
+\item 
+\#define {\bfseries G\+R\+A\+P\+H\+I\+C\+\_\+\+Z\+O\+N\+E\+\_\+\+E\+ND}~((uint32\+\_\+t)((uint32\+\_\+t)S\+E\+C\+T\+O\+R\+\_\+\+S\+T\+A\+RT$\ast$(uint32\+\_\+t)P\+A\+G\+E\+\_\+\+P\+E\+R\+\_\+\+S\+E\+C\+T\+OR$\ast$(uint32\+\_\+t)B\+Y\+T\+E\+S\+\_\+\+P\+E\+R\+\_\+\+P\+A\+GE))\hypertarget{node__mgmt_8h_a8e93a5956562728dbed5ab4fc2120582}{}\label{node__mgmt_8h_a8e93a5956562728dbed5ab4fc2120582}
+
+\item 
+\#define {\bfseries G\+R\+A\+P\+H\+I\+C\+\_\+\+Z\+O\+N\+E\+\_\+\+P\+A\+G\+E\+\_\+\+E\+ND}~(S\+E\+C\+T\+O\+R\+\_\+\+S\+T\+A\+RT$\ast$P\+A\+G\+E\+\_\+\+P\+E\+R\+\_\+\+S\+E\+C\+T\+OR)\hypertarget{node__mgmt_8h_aad5323bc1f0830b83016e115d37b0b36}{}\label{node__mgmt_8h_aad5323bc1f0830b83016e115d37b0b36}
+
+\item 
+\#define {\bfseries D\+E\+L\+E\+T\+E\+\_\+\+P\+O\+L\+I\+C\+Y\+\_\+\+W\+R\+I\+T\+E\+\_\+\+O\+N\+ES}~0x\+F\+F  /$\ast$! Node Deletion Policy Ones Memset Value $\ast$/\hypertarget{node__mgmt_8h_a27ba69e69fcb4adca336b24e52d5e728}{}\label{node__mgmt_8h_a27ba69e69fcb4adca336b24e52d5e728}
+
+\item 
+\#define {\bfseries F\+L\+A\+G\+S\+\_\+\+P\+R\+E\+V\+\_\+\+N\+E\+X\+T\+\_\+\+A\+D\+D\+R\+\_\+\+L\+E\+N\+G\+TH}~6\hypertarget{node__mgmt_8h_a3f49ab1fcb0645233286b15fdf75cf52}{}\label{node__mgmt_8h_a3f49ab1fcb0645233286b15fdf75cf52}
+
+\item 
+\#define {\bfseries P\+N\+O\+D\+E\+\_\+\+C\+O\+M\+P\+A\+R\+I\+S\+O\+N\+\_\+\+F\+I\+E\+L\+D\+\_\+\+O\+F\+F\+S\+ET}~8\hypertarget{node__mgmt_8h_a48cea4bdafe38ff965fb514b6a952c00}{}\label{node__mgmt_8h_a48cea4bdafe38ff965fb514b6a952c00}
+
+\item 
+\#define {\bfseries P\+N\+O\+D\+E\+\_\+\+L\+I\+B\+\_\+\+F\+I\+E\+L\+D\+S\+\_\+\+L\+E\+N\+G\+TH}~8\hypertarget{node__mgmt_8h_a3cc71c4b639ff623c74bc41a0b5cef2f}{}\label{node__mgmt_8h_a3cc71c4b639ff623c74bc41a0b5cef2f}
+
+\item 
+\#define {\bfseries C\+N\+O\+D\+E\+\_\+\+C\+O\+M\+P\+A\+R\+I\+S\+O\+N\+\_\+\+F\+I\+E\+L\+D\+\_\+\+O\+F\+F\+S\+ET}~37\hypertarget{node__mgmt_8h_aa8f7d9bf4efc1f414a8c42d2cbe345a1}{}\label{node__mgmt_8h_aa8f7d9bf4efc1f414a8c42d2cbe345a1}
+
+\item 
+\#define {\bfseries C\+N\+O\+D\+E\+\_\+\+L\+I\+B\+\_\+\+F\+I\+E\+L\+D\+S\+\_\+\+L\+E\+N\+G\+TH}~6\hypertarget{node__mgmt_8h_a6f711eec214ba3cfb41277f78450e136}{}\label{node__mgmt_8h_a6f711eec214ba3cfb41277f78450e136}
+
+\item 
+\#define {\bfseries D\+A\+T\+A\+\_\+\+N\+O\+D\+E\+\_\+\+D\+A\+T\+A\+\_\+\+L\+E\+N\+G\+TH}~128\hypertarget{node__mgmt_8h_aecb874a3e124b5de6c58d97b4f792647}{}\label{node__mgmt_8h_aecb874a3e124b5de6c58d97b4f792647}
+
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef enum \+\_\+node\+Type {\bfseries node\+Type}\hypertarget{node__mgmt_8h_ab6eb9c37e929f0bc345f7b9d524d8e1c}{}\label{node__mgmt_8h_ab6eb9c37e929f0bc345f7b9d524d8e1c}
+
+\end{DoxyCompactItemize}
 \subsection*{Enumerations}
 \begin{DoxyCompactItemize}
 \item 
-enum \hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}{delete\+Policy} \{ \hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57caffa80f64435086581438e882b7688b79}{delete\+Policy\+Write\+Nothing}, 
-\hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57ca22df85370cafb4d24bcb3c5be017efbf}{delete\+Policy\+Write\+Zeros}, 
-\hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57cae6e68541071b04ccf14dfebe37aa1a20}{delete\+Policy\+Write\+Ones}
- \}
+enum {\bfseries \+\_\+node\+Type} \{ {\bfseries N\+O\+D\+E\+\_\+\+T\+Y\+P\+E\+\_\+\+P\+A\+R\+E\+NT} = 0, 
+{\bfseries N\+O\+D\+E\+\_\+\+T\+Y\+P\+E\+\_\+\+C\+H\+I\+LD} = 1, 
+{\bfseries N\+O\+D\+E\+\_\+\+T\+Y\+P\+E\+\_\+\+P\+A\+R\+E\+N\+T\+\_\+\+D\+A\+TA} = 2, 
+{\bfseries N\+O\+D\+E\+\_\+\+T\+Y\+P\+E\+\_\+\+D\+A\+TA} = 3
+ \}\hypertarget{node__mgmt_8h_aa88fe0aa2773d531ce81f1344a14bf50}{}\label{node__mgmt_8h_aa88fe0aa2773d531ce81f1344a14bf50}
+
 \end{DoxyCompactItemize}
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-struct \hyperlink{node__mgmt_8h_afd693f96a532bde3a17c596d766141f8}{\+\_\+\+\_\+attribute\+\_\+\+\_\+} ((packed)) node\+Mgmt\+H
+struct \hyperlink{node__mgmt_8h_a981e1a5ba4c5e80c3c58302e566b1da4}{\+\_\+\+\_\+attribute\+\_\+\+\_\+} ((packed)) generic\+Node
 \item 
-\hypertarget{node__mgmt_8h_adcd5f5ea3ef5927cdd8299ac449e68a3}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries obtain\+Node\+Management\+Handle} (mgmt\+Handle $\ast$$\ast$h)}\label{node__mgmt_8h_adcd5f5ea3ef5927cdd8299ac449e68a3}
+void \hyperlink{node__mgmt_8h_aebefb39c8dea96142c08a5cf6f0065a2}{init\+Node\+Management\+Handle} (uint8\+\_\+t user\+Id\+Num)
+\item 
+uint8\+\_\+t \hyperlink{node__mgmt_8h_acfb127a18ea47d6635ba4ee987b8043a}{get\+Current\+User\+ID} (void)
+\begin{DoxyCompactList}\small\item\em Get the current user ID. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{node__mgmt_8h_a6a905602b534d9b04ec7282b33e910fd}{get\+Free\+Node\+Address} (void)
+\begin{DoxyCompactList}\small\item\em Get next free node address. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8h_a8da713bb186bef9166f6da5cc0ce615c}{delete\+Current\+User\+From\+Flash} (void)\hypertarget{node__mgmt_8h_a8da713bb186bef9166f6da5cc0ce615c}{}\label{node__mgmt_8h_a8da713bb186bef9166f6da5cc0ce615c}
+
+\begin{DoxyCompactList}\small\item\em Delete user data from flash. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8h_a4c0e1d3a4e471d9e5d12cfcb9680edf8}{format\+User\+Profile\+Memory} (uint8\+\_\+t uid)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8h_ae0aa61964fe9419b5dca43df5f335416}{check\+User\+Permission} (uint16\+\_\+t node\+\_\+addr)
+\begin{DoxyCompactList}\small\item\em Check that the user has the right to read/write a node. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8h_a40d724d8687961cf0c05cf1f6a3dabf5}{user\+Profile\+Starting\+Offset} (uint8\+\_\+t uid, uint16\+\_\+t $\ast$page, uint16\+\_\+t $\ast$page\+Offset)
+\item 
+void \hyperlink{node__mgmt_8h_a6ffe90ffbdcbdd0689ec0eeb7f48c340}{set\+Data\+Starting\+Parent} (uint16\+\_\+t data\+Parent\+Address)
+\item 
+void \hyperlink{node__mgmt_8h_adcf9db384524e2413b9cd7d60260c45b}{set\+Starting\+Parent} (uint16\+\_\+t parent\+Address)
+\item 
+uint16\+\_\+t \hyperlink{node__mgmt_8h_a5b4a2212bbf12ac23426ab92a247e743}{get\+Starting\+Data\+Parent\+Address} (void)
+\item 
+uint16\+\_\+t \hyperlink{node__mgmt_8h_a8667e7b2d77d48b016fda8f2853f10e3}{get\+Starting\+Parent\+Address} (void)
+\item 
+uint16\+\_\+t \hyperlink{node__mgmt_8h_a2d85198ff3f7ca6eef7d410da72448f3}{get\+Last\+Parent\+Address} (void)
+\item 
+uint16\+\_\+t {\bfseries get\+Parent\+Node\+For\+Letter} (uint8\+\_\+t letter)\hypertarget{node__mgmt_8h_a580e260ae30ff7da478ea65f1d16c903}{}\label{node__mgmt_8h_a580e260ae30ff7da478ea65f1d16c903}
 
 \item 
-\hypertarget{node__mgmt_8h_acf284983b99d3ecd0bcd08f5ad049bda}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries scan\+Next\+Free\+Parent\+Node} (mgmt\+Handle $\ast$h, uint16\+\_\+t starting\+\_\+address)}\label{node__mgmt_8h_acf284983b99d3ecd0bcd08f5ad049bda}
+void \hyperlink{node__mgmt_8h_ace6b078997afaa29e46789e4a1f5c879}{populate\+Services\+Lut} (void)\hypertarget{node__mgmt_8h_ace6b078997afaa29e46789e4a1f5c879}{}\label{node__mgmt_8h_ace6b078997afaa29e46789e4a1f5c879}
+
+\begin{DoxyCompactList}\small\item\em Populate our L\+UT for our services. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8h_a34ce41b795596485c03b0fc898bcb9dd}{set\+Fav} (uint8\+\_\+t fav\+Id, uint16\+\_\+t parent\+Address, uint16\+\_\+t child\+Address)
+\item 
+void \hyperlink{node__mgmt_8h_aa4608f377d0bd0c43578e5a0110a3aa5}{read\+Fav} (uint8\+\_\+t fav\+Id, uint16\+\_\+t $\ast$parent\+Address, uint16\+\_\+t $\ast$child\+Address)
+\item 
+void \hyperlink{node__mgmt_8h_a27b9184bd261b396adf8c9aa232b6e8c}{set\+Profile\+Ctr} (void $\ast$buf)
+\item 
+void \hyperlink{node__mgmt_8h_a15c5dcf6d0a612f69a3e23aa74bd0109}{read\+Profile\+Ctr} (void $\ast$buf)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8h_a4aed1174989ad6de12e457516cb6c67b}{create\+Generic\+Node} (g\+Node $\ast$g, uint16\+\_\+t first\+Node\+Address, uint16\+\_\+t $\ast$new\+First\+Node\+Address, uint8\+\_\+t comparison\+Field\+Offset, uint8\+\_\+t comparison\+Field\+Length)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8h_aadd2e11753a9aa888fe8b629c2b4e868}{write\+New\+Data\+Node} (uint16\+\_\+t context\+\_\+parent\+\_\+node\+\_\+addr, p\+Node $\ast$parent\+\_\+node\+\_\+ptr, d\+Node $\ast$data\+\_\+node\+\_\+ptr, uint8\+\_\+t first\+\_\+data\+\_\+block\+\_\+flag, uint8\+\_\+t last\+\_\+packet\+\_\+flag)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8h_a58021976b26cb2d5b8ccd521cadf4896}{create\+Parent\+Node} (p\+Node $\ast$p, uint8\+\_\+t type)
+\item 
+void \hyperlink{node__mgmt_8h_ad3834806e3f57c31f0bf967d1213cf7e}{read\+Parent\+Node} (p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries update\+Parent\+Node} (p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)\hypertarget{node__mgmt_8h_a451d66c0c0d34389fdfe5db8aa091be6}{}\label{node__mgmt_8h_a451d66c0c0d34389fdfe5db8aa091be6}
 
 \item 
-\hypertarget{node__mgmt_8h_a91ff5e25ff1105ae8b42061aa3d41748}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries create\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p)}\label{node__mgmt_8h_a91ff5e25ff1105ae8b42061aa3d41748}
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries delete\+Parent\+Node} (uint16\+\_\+t parent\+Node\+Address)\hypertarget{node__mgmt_8h_afaf7042cb6f886012f500df10d2f1981}{}\label{node__mgmt_8h_afaf7042cb6f886012f500df10d2f1981}
 
 \item 
-\hypertarget{node__mgmt_8h_a7b838308129f2c7af369ba8ef770d45d}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries read\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)}\label{node__mgmt_8h_a7b838308129f2c7af369ba8ef770d45d}
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries invalidate\+Parent\+Node} (p\+Node $\ast$p)\hypertarget{node__mgmt_8h_a396fb937faa69ded65d810b6a0f70047}{}\label{node__mgmt_8h_a396fb937faa69ded65d810b6a0f70047}
 
 \item 
-\hypertarget{node__mgmt_8h_afe1609d712db51782afa77b969a465da}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries update\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)}\label{node__mgmt_8h_afe1609d712db51782afa77b969a465da}
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries invalidate\+Child\+Node} (c\+Node $\ast$c)\hypertarget{node__mgmt_8h_a100c42859e4451f8f74c20c695ff5c13}{}\label{node__mgmt_8h_a100c42859e4451f8f74c20c695ff5c13}
 
 \item 
-\hypertarget{node__mgmt_8h_a9a17e6ca304d4307008f3e50428a493f}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries delete\+Parent\+Node} (mgmt\+Handle $\ast$h, uint16\+\_\+t parent\+Nodeaddress, \hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}{delete\+Policy} policy)}\label{node__mgmt_8h_a9a17e6ca304d4307008f3e50428a493f}
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8h_aef483f664899d495e6fe6689629f90aa}{create\+Child\+Node} (uint16\+\_\+t p\+Addr, c\+Node $\ast$c)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries create\+Child\+Start\+Of\+Data\+Node} (uint16\+\_\+t p\+Addr, c\+Node $\ast$c, uint8\+\_\+t data\+Node\+Count)\hypertarget{node__mgmt_8h_a4746c939cb29f6d4f2047ec88d65a8a0}{}\label{node__mgmt_8h_a4746c939cb29f6d4f2047ec88d65a8a0}
 
-\end{DoxyCompactItemize}
+\item 
+void \hyperlink{node__mgmt_8h_aafcd91c9ac37502ddef26920b73d85c2}{read\+Child\+Node} (c\+Node $\ast$c, uint16\+\_\+t child\+Node\+Address)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8h_a767967886d2d924bf54413bac24a95df}{update\+Child\+Node} (p\+Node $\ast$p, c\+Node $\ast$c, uint16\+\_\+t p\+Addr, uint16\+\_\+t c\+Addr)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8h_a16692896a342abafd21e79898198e853}{delete\+Child\+Node} (uint16\+\_\+t p\+Addr, uint16\+\_\+t c\+Addr)
+\item 
+void \hyperlink{node__mgmt_8h_acf51e20b7c532fa59603c44c8afb0ceb}{read\+Node} (g\+Node $\ast$g, uint16\+\_\+t node\+Address)
+\item 
+uint8\+\_\+t {\bfseries find\+Free\+Nodes} (uint8\+\_\+t nb\+Nodes, uint16\+\_\+t $\ast$node\+Array, uint16\+\_\+t start\+Page, uint8\+\_\+t start\+Node)\hypertarget{node__mgmt_8h_a6ca7b2caff8ac8eb3c8c9e2449627998}{}\label{node__mgmt_8h_a6ca7b2caff8ac8eb3c8c9e2449627998}
+
+\item 
+void \hyperlink{node__mgmt_8h_a7fd82728cd78e1e676793fd8a87d36c3}{scan\+Node\+Usage} (void)\hypertarget{node__mgmt_8h_a7fd82728cd78e1e676793fd8a87d36c3}{}\label{node__mgmt_8h_a7fd82728cd78e1e676793fd8a87d36c3}
+
+\begin{DoxyCompactList}\small\item\em Scan memory to find empty slots. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8h_a3de6406f154b392c5263ff235ca7e390}{set\+Current\+Date} (uint16\+\_\+t date)
+\begin{DoxyCompactList}\small\item\em Set current date. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
-typedef \hyperlink{node__mgmt_8h_a720173e80c53ae6b5fa163fd6e81ad27}{\+\_\+\+\_\+attribute\+\_\+\+\_\+}
-\item 
-\hypertarget{node__mgmt_8h_a6d46942c9752d1e904bdad4e3a66be11}{{\bfseries mgmt\+Handle}}\label{node__mgmt_8h_a6d46942c9752d1e904bdad4e3a66be11}
+{\bfseries g\+Node}\hypertarget{node__mgmt_8h_a9e444a266f9da829e83fb7f2d19071fd}{}\label{node__mgmt_8h_a9e444a266f9da829e83fb7f2d19071fd}
 
 \item 
-\hypertarget{node__mgmt_8h_a08a86d4017e548071d4242d70b1be1ce}{{\bfseries p\+Node}}\label{node__mgmt_8h_a08a86d4017e548071d4242d70b1be1ce}
+{\bfseries p\+Node}\hypertarget{node__mgmt_8h_a08a86d4017e548071d4242d70b1be1ce}{}\label{node__mgmt_8h_a08a86d4017e548071d4242d70b1be1ce}
 
 \item 
-\hypertarget{node__mgmt_8h_ac41242aec66c509b5d6c66aec1bb9f21}{{\bfseries c\+Node}}\label{node__mgmt_8h_ac41242aec66c509b5d6c66aec1bb9f21}
+{\bfseries c\+Node}\hypertarget{node__mgmt_8h_ac41242aec66c509b5d6c66aec1bb9f21}{}\label{node__mgmt_8h_ac41242aec66c509b5d6c66aec1bb9f21}
 
 \item 
-\hypertarget{node__mgmt_8h_a84a06b2a441af2ab9c0452ae50020b58}{{\bfseries d\+Node}}\label{node__mgmt_8h_a84a06b2a441af2ab9c0452ae50020b58}
+{\bfseries d\+Node}\hypertarget{node__mgmt_8h_a84a06b2a441af2ab9c0452ae50020b58}{}\label{node__mgmt_8h_a84a06b2a441af2ab9c0452ae50020b58}
+
+\item 
+{\bfseries mgmt\+Handle}\hypertarget{node__mgmt_8h_a6d46942c9752d1e904bdad4e3a66be11}{}\label{node__mgmt_8h_a6d46942c9752d1e904bdad4e3a66be11}
 
 \end{DoxyCompactItemize}
 
@@ -61,34 +296,21 @@ Mooltipass Node Management Library Header Created\+: 03/4/2014 Author\+: Michael
 
 
 
-\subsection{Enumeration Type Documentation}
-\hypertarget{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}{\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Policy@{delete\+Policy}}
-\index{delete\+Policy@{delete\+Policy}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
-\subsubsection[{delete\+Policy}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf delete\+Policy}}}\label{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}
-Node Deletion Policy E\+N\+U\+M \begin{Desc}
-\item[Enumerator]\par
-\begin{description}
-\index{delete\+Policy\+Write\+Nothing@{delete\+Policy\+Write\+Nothing}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Policy\+Write\+Nothing@{delete\+Policy\+Write\+Nothing}}\item[{\em 
-\hypertarget{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57caffa80f64435086581438e882b7688b79}{delete\+Policy\+Write\+Nothing}\label{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57caffa80f64435086581438e882b7688b79}
-}]Flip valid bit \index{delete\+Policy\+Write\+Zeros@{delete\+Policy\+Write\+Zeros}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Policy\+Write\+Zeros@{delete\+Policy\+Write\+Zeros}}\item[{\em 
-\hypertarget{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57ca22df85370cafb4d24bcb3c5be017efbf}{delete\+Policy\+Write\+Zeros}\label{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57ca22df85370cafb4d24bcb3c5be017efbf}
-}]Write node with all 0's \index{delete\+Policy\+Write\+Ones@{delete\+Policy\+Write\+Ones}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Policy\+Write\+Ones@{delete\+Policy\+Write\+Ones}}\item[{\em 
-\hypertarget{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57cae6e68541071b04ccf14dfebe37aa1a20}{delete\+Policy\+Write\+Ones}\label{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57cae6e68541071b04ccf14dfebe37aa1a20}
-}]Write node with all 1's \end{description}
-\end{Desc}
-
+\subsection{Macro Definition Documentation}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+NT@{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+NT}}
+\index{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+NT@{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+NT}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+NT}{NODE_SIZE_PARENT}}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\+O\+D\+E\+\_\+\+S\+I\+Z\+E\+\_\+\+P\+A\+R\+E\+NT~66}\hypertarget{node__mgmt_8h_a978227c0201db5a8ea615bddf743a68b}{}\label{node__mgmt_8h_a978227c0201db5a8ea615bddf743a68b}
+D\+E\+F\+I\+N\+ES N\+O\+D\+ES 
 
 \subsection{Function Documentation}
-\hypertarget{node__mgmt_8h_afd693f96a532bde3a17c596d766141f8}{\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
 \index{\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
-\subsubsection[{\+\_\+\+\_\+attribute\+\_\+\+\_\+}]{\setlength{\rightskip}{0pt plus 5cm}struct \+\_\+\+\_\+attribute\+\_\+\+\_\+ (
+\subsubsection[{\texorpdfstring{\+\_\+\+\_\+attribute\+\_\+\+\_\+((packed)) generic\+Node}{__attribute__((packed)) genericNode}}]{\setlength{\rightskip}{0pt plus 5cm}struct \+\_\+\+\_\+attribute\+\_\+\+\_\+ (
 \begin{DoxyParamCaption}
 \item[{(packed)}]{}
 \end{DoxyParamCaption}
-)}}\label{node__mgmt_8h_afd693f96a532bde3a17c596d766141f8}
-Struct containing Node Management Handle
-
-Note\+: Do not directly modify these fields. Node Mgmt will manage this structure
+)}\hypertarget{node__mgmt_8h_a981e1a5ba4c5e80c3c58302e566b1da4}{}\label{node__mgmt_8h_a981e1a5ba4c5e80c3c58302e566b1da4}
+Struct containing a generic node
 
 Struct containing a parent node
 
@@ -96,39 +318,35 @@ Struct containing a child node
 
 Struct containing a data node
 
-Note\+: Requires plugin for support. Up to 256 data nodes can be used in sequence $<$ The count of parent nodes (determined @ init)
+Note\+: Requires plugin for support. Up to 256 data nodes can be used in sequence
 
-$<$ The address of the first parent node
+Struct containing Node Management Handle
 
-$<$ The address of the next parent node
+Note\+: Do not directly modify these fields. Node Mgmt will manage this structure $<$ Parent node flags 15 dn 14-\/$>$ Node type (Always 00 for Parent Node) 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ User ID 7 dn 0 -\/$>$ depends on the node type
 
-$<$ The max address of the stack of the last known parent node
+$<$ Previous node address (Alphabetically)
 
-$<$ The count of child nodes (determined @ init)
+$<$ Next node address (Alphabetically)
 
-$<$ The address of the first child node
-
-$<$ The address of the next child or data node
-
-$<$ The max address of the heap of the last known child or data node
-
-$<$ Parent node flags 15 dn 14-\/$>$ Node type (Always 00 for Parent Node) 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ R\+E\+S\+E\+R\+V\+E\+D 7 dn 4 -\/$>$ User I\+D 3 dn0 -\/$>$ credential type U\+I\+D
-
-$<$ Parent node first child address
+$<$ Parent node flags 15 dn 14-\/$>$ Node type (Always 00 for Parent Node) 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ User ID 7 dn 4 -\/$>$ R\+E\+S\+E\+R\+V\+ED 3 dn0 -\/$>$ credential type U\+ID
 
 $<$ Previous parent node address (Alphabetically)
 
 $<$ Next parent node address (Alphabetically)
 
-$<$ (A\+S\+C\+I\+I) Text describing service (domain name eg hackaday.\+com). Used for sorting and searching.
+$<$ Parent node first child address
 
-$<$ Child node flags (0b01 -\/$>$ credential child node. 0b10 -\/$>$ start of data sequence) 15 dn 14-\/$>$ Node type 13 dn 13 -\/$>$ Valid Bit 12 dn 0 -\/$>$ R\+E\+S\+E\+R\+V\+E\+D
+$<$ (A\+S\+C\+II) Text describing service (domain name eg hackaday.\+com). Used for sorting and searching.
+
+$<$ Encryption counter in case the child is a data node
+
+$<$ Child node flags (0b01 -\/$>$ credential child node. 0b10 -\/$>$ start of data sequence) 15 dn 14-\/$>$ Node type 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ User ID 7 dn 0 -\/$>$ R\+E\+S\+E\+R\+V\+ED
 
 $<$ Previous child node address (Alaphabetically)
 
 $<$ Next child node address (Alphabetically)
 
-$<$ (A\+S\+C\+I\+I) Text describing login credentials (wordpress login)
+$<$ (A\+S\+C\+II) Text describing login credentials (wordpress login)
 
 $<$ The date the child node was added to mooltipass (requires plugin) Date Encoding\+: 15 dn 9 -\/$>$ Year (2010 + value) 8 dn 5 -\/$>$ Month 4 dn 0 -\/$>$ Day
 
@@ -136,32 +354,450 @@ $<$ The date the child node was last used on the mooltipass (requires plugin) Da
 
 $<$ Encryption counter
 
-$<$ (A\+S\+C\+I\+I) Text login name (username)
+$<$ (A\+S\+C\+II) Text login name (username)
 
 $<$ Encrypted Password
 
-$<$ Data node flags (Always 0b11 for Data Node) 15 dn 14-\/$>$ Node type 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ R\+E\+S\+E\+R\+V\+E\+D 7 dn 0 -\/$>$ Data node sequence number
+$<$ Data node flags (Always 0b11 for Data Node) 15 dn 14-\/$>$ Node type 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ User ID 7 dn 0 -\/$>$ Number of bytes stored in data\mbox{[}\mbox{]}
 
 $<$ Next data node in sequence
 
-$<$ 128 bytes of Large Data Store 
+$<$ 128 bytes of Large Data Store
 
-\subsection{Variable Documentation}
-\hypertarget{node__mgmt_8h_a720173e80c53ae6b5fa163fd6e81ad27}{\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
-\index{\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
-\subsubsection[{\+\_\+\+\_\+attribute\+\_\+\+\_\+}]{\setlength{\rightskip}{0pt plus 5cm}struct \+\_\+\+\_\+attribute\+\_\+\+\_\+}}\label{node__mgmt_8h_a720173e80c53ae6b5fa163fd6e81ad27}
-Struct containing a parent node
+$<$ The users ID
 
-Struct containing a child node
+$<$ The page of the user profile
 
-Struct containing a data node
+$<$ The offset of the user profile
 
-Note\+: Requires plugin for support. Up to 256 data nodes can be used in sequence $<$ Parent node flags 15 dn 14-\/$>$ Node type (Always 00 for Parent Node) 13 dn 13 -\/$>$ Valid Bit 12 dn 8 -\/$>$ R\+E\+S\+E\+R\+V\+E\+D 7 dn 4 -\/$>$ User I\+D 3 dn0 -\/$>$ credential type U\+I\+D
+$<$ The address of the users first parent node (read from flash. eg cache)
 
-$<$ Parent node first child address
+$<$ The address of the users first data parent node (read from flash. eg cache)
 
-$<$ Previous parent node address (Alphabetically)
+$<$ The address of the users last parent node (read from flash. eg cache)
 
-$<$ Next parent node address (Alphabetically)
+$<$ The address of the next free node
 
-$<$ (A\+S\+C\+I\+I) Text describing service (domain name eg hackaday.\+com). Used for sorting and searching. 
+$<$ A generic node to be used as a buffer
+
+$<$ A child, child start of data, or child data node to be used as a buffer in the A\+PI
+
+$<$Look up table for our services \index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!check\+User\+Permission@{check\+User\+Permission}}
+\index{check\+User\+Permission@{check\+User\+Permission}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{check\+User\+Permission(uint16\+\_\+t node\+\_\+addr)}{checkUserPermission(uint16_t node_addr)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE check\+User\+Permission (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{node\+\_\+addr}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_ae0aa61964fe9419b5dca43df5f335416}{}\label{node__mgmt_8h_ae0aa61964fe9419b5dca43df5f335416}
+
+
+Check that the user has the right to read/write a node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node\+\_\+addr} & Node address \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+OK / N\+OK 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!create\+Child\+Node@{create\+Child\+Node}}
+\index{create\+Child\+Node@{create\+Child\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{create\+Child\+Node(uint16\+\_\+t p\+Addr, c\+Node $\ast$c)}{createChildNode(uint16_t pAddr, cNode *c)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE create\+Child\+Node (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{p\+Addr, }
+\item[{c\+Node $\ast$}]{c}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_aef483f664899d495e6fe6689629f90aa}{}\label{node__mgmt_8h_aef483f664899d495e6fe6689629f90aa}
+Writes a child node to memory (next free via handle) (in alphabetical order). 
+\begin{DoxyParams}{Parameters}
+{\em p\+Addr} & The parent node address of the child \\
+\hline
+{\em c} & The child node to write to memory (next\+Free\+Child\+Node) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!create\+Generic\+Node@{create\+Generic\+Node}}
+\index{create\+Generic\+Node@{create\+Generic\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{create\+Generic\+Node(g\+Node $\ast$g, uint16\+\_\+t first\+Node\+Address, uint16\+\_\+t $\ast$new\+First\+Node\+Address, uint8\+\_\+t comparison\+Field\+Offset, uint8\+\_\+t comparison\+Field\+Length)}{createGenericNode(gNode *g, uint16_t firstNodeAddress, uint16_t *newFirstNodeAddress, uint8_t comparisonFieldOffset, uint8_t comparisonFieldLength)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE create\+Generic\+Node (
+\begin{DoxyParamCaption}
+\item[{g\+Node $\ast$}]{g, }
+\item[{uint16\+\_\+t}]{first\+Node\+Address, }
+\item[{uint16\+\_\+t $\ast$}]{new\+First\+Node\+Address, }
+\item[{uint8\+\_\+t}]{comparison\+Field\+Offset, }
+\item[{uint8\+\_\+t}]{comparison\+Field\+Length}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a4aed1174989ad6de12e457516cb6c67b}{}\label{node__mgmt_8h_a4aed1174989ad6de12e457516cb6c67b}
+Writes a generic node to memory (next free via handle) (in alphabetical order). 
+\begin{DoxyParams}{Parameters}
+{\em g} & The node to write to memory (next\+Free\+Parent\+Node) \\
+\hline
+{\em first\+Node\+Address} & Address of the first node of its kind \\
+\hline
+{\em new\+First\+Node\+Address} & If the first\+Node\+Address changed, this var will store the new value \\
+\hline
+{\em comparison\+Field\+Offset} & The offset used to do the comparison used for the sorting \\
+\hline
+{\em comparison\+Field\+Length} & The length of the field used for comparison \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!create\+Parent\+Node@{create\+Parent\+Node}}
+\index{create\+Parent\+Node@{create\+Parent\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{create\+Parent\+Node(p\+Node $\ast$p, uint8\+\_\+t type)}{createParentNode(pNode *p, uint8_t type)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE create\+Parent\+Node (
+\begin{DoxyParamCaption}
+\item[{p\+Node $\ast$}]{p, }
+\item[{uint8\+\_\+t}]{type}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a58021976b26cb2d5b8ccd521cadf4896}{}\label{node__mgmt_8h_a58021976b26cb2d5b8ccd521cadf4896}
+Writes a parent node to memory (next free via handle) (in alphabetical order). 
+\begin{DoxyParams}{Parameters}
+{\em p} & The parent node to write to memory (next\+Free\+Parent\+Node) \\
+\hline
+{\em type} & Type of context (data or credential) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!delete\+Child\+Node@{delete\+Child\+Node}}
+\index{delete\+Child\+Node@{delete\+Child\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{delete\+Child\+Node(uint16\+\_\+t p\+Addr, uint16\+\_\+t c\+Addr)}{deleteChildNode(uint16_t pAddr, uint16_t cAddr)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE delete\+Child\+Node (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{p\+Addr, }
+\item[{uint16\+\_\+t}]{c\+Addr}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a16692896a342abafd21e79898198e853}{}\label{node__mgmt_8h_a16692896a342abafd21e79898198e853}
+Deletes a child node from memory. Handles reorder of nodes and update to parent if needed. 
+\begin{DoxyParams}{Parameters}
+{\em p\+Addr} & The address of the parent of the child \\
+\hline
+{\em c\+Addr} & The address of the child \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!format\+User\+Profile\+Memory@{format\+User\+Profile\+Memory}}
+\index{format\+User\+Profile\+Memory@{format\+User\+Profile\+Memory}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{format\+User\+Profile\+Memory(uint8\+\_\+t uid)}{formatUserProfileMemory(uint8_t uid)}}]{\setlength{\rightskip}{0pt plus 5cm}void format\+User\+Profile\+Memory (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{uid}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a4c0e1d3a4e471d9e5d12cfcb9680edf8}{}\label{node__mgmt_8h_a4c0e1d3a4e471d9e5d12cfcb9680edf8}
+Formats the user profile flash memory of user uid. 
+\begin{DoxyParams}{Parameters}
+{\em uid} & The id of the user to format profile memory \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Only formats the users starting parent node address and favorites 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!get\+Current\+User\+ID@{get\+Current\+User\+ID}}
+\index{get\+Current\+User\+ID@{get\+Current\+User\+ID}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{get\+Current\+User\+I\+D(void)}{getCurrentUserID(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint8\+\_\+t get\+Current\+User\+ID (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_acfb127a18ea47d6635ba4ee987b8043a}{}\label{node__mgmt_8h_acfb127a18ea47d6635ba4ee987b8043a}
+
+
+Get the current user ID. 
+
+\begin{DoxyReturn}{Returns}
+The user ID 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!get\+Free\+Node\+Address@{get\+Free\+Node\+Address}}
+\index{get\+Free\+Node\+Address@{get\+Free\+Node\+Address}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{get\+Free\+Node\+Address(void)}{getFreeNodeAddress(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t get\+Free\+Node\+Address (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a6a905602b534d9b04ec7282b33e910fd}{}\label{node__mgmt_8h_a6a905602b534d9b04ec7282b33e910fd}
+
+
+Get next free node address. 
+
+\begin{DoxyReturn}{Returns}
+The address 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!get\+Last\+Parent\+Address@{get\+Last\+Parent\+Address}}
+\index{get\+Last\+Parent\+Address@{get\+Last\+Parent\+Address}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{get\+Last\+Parent\+Address(void)}{getLastParentAddress(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t get\+Last\+Parent\+Address (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a2d85198ff3f7ca6eef7d410da72448f3}{}\label{node__mgmt_8h_a2d85198ff3f7ca6eef7d410da72448f3}
+Gets the users last parent node from the node management handle \begin{DoxyReturn}{Returns}
+The address 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!get\+Starting\+Data\+Parent\+Address@{get\+Starting\+Data\+Parent\+Address}}
+\index{get\+Starting\+Data\+Parent\+Address@{get\+Starting\+Data\+Parent\+Address}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{get\+Starting\+Data\+Parent\+Address(void)}{getStartingDataParentAddress(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t get\+Starting\+Data\+Parent\+Address (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a5b4a2212bbf12ac23426ab92a247e743}{}\label{node__mgmt_8h_a5b4a2212bbf12ac23426ab92a247e743}
+Gets the users starting data parent node from the user profile memory portion of flash \begin{DoxyReturn}{Returns}
+The address 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!get\+Starting\+Parent\+Address@{get\+Starting\+Parent\+Address}}
+\index{get\+Starting\+Parent\+Address@{get\+Starting\+Parent\+Address}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{get\+Starting\+Parent\+Address(void)}{getStartingParentAddress(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t get\+Starting\+Parent\+Address (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a8667e7b2d77d48b016fda8f2853f10e3}{}\label{node__mgmt_8h_a8667e7b2d77d48b016fda8f2853f10e3}
+Gets the users starting parent node from the user profile memory portion of flash \begin{DoxyReturn}{Returns}
+The address 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!init\+Node\+Management\+Handle@{init\+Node\+Management\+Handle}}
+\index{init\+Node\+Management\+Handle@{init\+Node\+Management\+Handle}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{init\+Node\+Management\+Handle(uint8\+\_\+t user\+Id\+Num)}{initNodeManagementHandle(uint8_t userIdNum)}}]{\setlength{\rightskip}{0pt plus 5cm}void init\+Node\+Management\+Handle (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{user\+Id\+Num}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_aebefb39c8dea96142c08a5cf6f0065a2}{}\label{node__mgmt_8h_aebefb39c8dea96142c08a5cf6f0065a2}
+Initializes the Node Management Handle. Check user\+Id\+Num in range, reads users profile to get the starting parent node, scans memory for the next free parent and child nodes. 
+\begin{DoxyParams}{Parameters}
+{\em user\+Id\+Num} & The user id to initialize the handle for (0-\/$>$N\+O\+D\+E\+\_\+\+M\+A\+X\+\_\+\+U\+ID) \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!read\+Child\+Node@{read\+Child\+Node}}
+\index{read\+Child\+Node@{read\+Child\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{read\+Child\+Node(c\+Node $\ast$c, uint16\+\_\+t child\+Node\+Address)}{readChildNode(cNode *c, uint16_t childNodeAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Child\+Node (
+\begin{DoxyParamCaption}
+\item[{c\+Node $\ast$}]{c, }
+\item[{uint16\+\_\+t}]{child\+Node\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_aafcd91c9ac37502ddef26920b73d85c2}{}\label{node__mgmt_8h_aafcd91c9ac37502ddef26920b73d85c2}
+Reads a child or child start of data node from memory. 
+\begin{DoxyParams}{Parameters}
+{\em c} & Storage for the node from memory \\
+\hline
+{\em child\+Node\+Address} & The address to read in memory \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!read\+Fav@{read\+Fav}}
+\index{read\+Fav@{read\+Fav}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{read\+Fav(uint8\+\_\+t fav\+Id, uint16\+\_\+t $\ast$parent\+Address, uint16\+\_\+t $\ast$child\+Address)}{readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Fav (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{fav\+Id, }
+\item[{uint16\+\_\+t $\ast$}]{parent\+Address, }
+\item[{uint16\+\_\+t $\ast$}]{child\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_aa4608f377d0bd0c43578e5a0110a3aa5}{}\label{node__mgmt_8h_aa4608f377d0bd0c43578e5a0110a3aa5}
+Reads a user favorite from the user profile 
+\begin{DoxyParams}{Parameters}
+{\em fav\+Id} & The id number of the fav record \\
+\hline
+{\em parent\+Address} & The parent node address of the fav \\
+\hline
+{\em child\+Address} & The child node address of the fav \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!read\+Node@{read\+Node}}
+\index{read\+Node@{read\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{read\+Node(g\+Node $\ast$g, uint16\+\_\+t node\+Address)}{readNode(gNode *g, uint16_t nodeAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Node (
+\begin{DoxyParamCaption}
+\item[{g\+Node $\ast$}]{g, }
+\item[{uint16\+\_\+t}]{node\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_acf51e20b7c532fa59603c44c8afb0ceb}{}\label{node__mgmt_8h_acf51e20b7c532fa59603c44c8afb0ceb}
+Reads a node from memory. If the node does not have a proper user id, g should be considered undefined 
+\begin{DoxyParams}{Parameters}
+{\em g} & Storage for the node from memory \\
+\hline
+{\em node\+Address} & The address to read in memory \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!read\+Parent\+Node@{read\+Parent\+Node}}
+\index{read\+Parent\+Node@{read\+Parent\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{read\+Parent\+Node(p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)}{readParentNode(pNode *p, uint16_t parentNodeAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Parent\+Node (
+\begin{DoxyParamCaption}
+\item[{p\+Node $\ast$}]{p, }
+\item[{uint16\+\_\+t}]{parent\+Node\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_ad3834806e3f57c31f0bf967d1213cf7e}{}\label{node__mgmt_8h_ad3834806e3f57c31f0bf967d1213cf7e}
+Reads a parent node from memory. If the node does not have a proper user id, p should be considered undefined 
+\begin{DoxyParams}{Parameters}
+{\em p} & Storage for the node from memory \\
+\hline
+{\em parent\+Node\+Address} & The address to read in memory \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!read\+Profile\+Ctr@{read\+Profile\+Ctr}}
+\index{read\+Profile\+Ctr@{read\+Profile\+Ctr}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{read\+Profile\+Ctr(void $\ast$buf)}{readProfileCtr(void *buf)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Profile\+Ctr (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{buf}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a15c5dcf6d0a612f69a3e23aa74bd0109}{}\label{node__mgmt_8h_a15c5dcf6d0a612f69a3e23aa74bd0109}
+Reads the users base C\+TR from the user profile flash memory 
+\begin{DoxyParams}{Parameters}
+{\em buf} & The buffer to store the read C\+TR \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!set\+Current\+Date@{set\+Current\+Date}}
+\index{set\+Current\+Date@{set\+Current\+Date}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{set\+Current\+Date(uint16\+\_\+t date)}{setCurrentDate(uint16_t date)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Current\+Date (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{date}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a3de6406f154b392c5263ff235ca7e390}{}\label{node__mgmt_8h_a3de6406f154b392c5263ff235ca7e390}
+
+
+Set current date. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em date} & The correctly formatted date (16 bits encoding\+: 15 dn 9 -\/$>$ Year (2010 + val), 8 dn 5 -\/$>$ Month, 4 dn 0 -\/$>$ Day of Month) \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!set\+Data\+Starting\+Parent@{set\+Data\+Starting\+Parent}}
+\index{set\+Data\+Starting\+Parent@{set\+Data\+Starting\+Parent}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{set\+Data\+Starting\+Parent(uint16\+\_\+t data\+Parent\+Address)}{setDataStartingParent(uint16_t dataParentAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Data\+Starting\+Parent (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{data\+Parent\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a6ffe90ffbdcbdd0689ec0eeb7f48c340}{}\label{node__mgmt_8h_a6ffe90ffbdcbdd0689ec0eeb7f48c340}
+Sets the users starting data parent node both in the handle and user profile memory portion of flash 
+\begin{DoxyParams}{Parameters}
+{\em data\+Parent\+Address} & The constructed address of the users data starting parent node (alphabetically) \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!set\+Fav@{set\+Fav}}
+\index{set\+Fav@{set\+Fav}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{set\+Fav(uint8\+\_\+t fav\+Id, uint16\+\_\+t parent\+Address, uint16\+\_\+t child\+Address)}{setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Fav (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{fav\+Id, }
+\item[{uint16\+\_\+t}]{parent\+Address, }
+\item[{uint16\+\_\+t}]{child\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a34ce41b795596485c03b0fc898bcb9dd}{}\label{node__mgmt_8h_a34ce41b795596485c03b0fc898bcb9dd}
+Sets a user favorite in the user profile 
+\begin{DoxyParams}{Parameters}
+{\em fav\+Id} & The id number of the fav record \\
+\hline
+{\em parent\+Address} & The parent node address of the fav \\
+\hline
+{\em child\+Address} & The child node address of the fav \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!set\+Profile\+Ctr@{set\+Profile\+Ctr}}
+\index{set\+Profile\+Ctr@{set\+Profile\+Ctr}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{set\+Profile\+Ctr(void $\ast$buf)}{setProfileCtr(void *buf)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Profile\+Ctr (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{buf}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a27b9184bd261b396adf8c9aa232b6e8c}{}\label{node__mgmt_8h_a27b9184bd261b396adf8c9aa232b6e8c}
+Sets the users base C\+TR in the user profile flash memory 
+\begin{DoxyParams}{Parameters}
+{\em buf} & The buffer containing C\+TR \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!set\+Starting\+Parent@{set\+Starting\+Parent}}
+\index{set\+Starting\+Parent@{set\+Starting\+Parent}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{set\+Starting\+Parent(uint16\+\_\+t parent\+Address)}{setStartingParent(uint16_t parentAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Starting\+Parent (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{parent\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_adcf9db384524e2413b9cd7d60260c45b}{}\label{node__mgmt_8h_adcf9db384524e2413b9cd7d60260c45b}
+Sets the users starting parent node both in the handle and user profile memory portion of flash 
+\begin{DoxyParams}{Parameters}
+{\em parent\+Address} & The constructed address of the users starting parent node (alphabetically) \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!update\+Child\+Node@{update\+Child\+Node}}
+\index{update\+Child\+Node@{update\+Child\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{update\+Child\+Node(p\+Node $\ast$p, c\+Node $\ast$c, uint16\+\_\+t p\+Addr, uint16\+\_\+t c\+Addr)}{updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE update\+Child\+Node (
+\begin{DoxyParamCaption}
+\item[{p\+Node $\ast$}]{p, }
+\item[{c\+Node $\ast$}]{c, }
+\item[{uint16\+\_\+t}]{p\+Addr, }
+\item[{uint16\+\_\+t}]{c\+Addr}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a767967886d2d924bf54413bac24a95df}{}\label{node__mgmt_8h_a767967886d2d924bf54413bac24a95df}
+Updates a child or child start of data node in memory. Handles alphabetical reorder of nodes. Scans for next\+Free\+Child\+Node after completion. Modifies the node management handle 
+\begin{DoxyParams}{Parameters}
+{\em p} & Parent Node of the Child Node \\
+\hline
+{\em c} & Contents of node to update \\
+\hline
+{\em p\+Addr} & The address to the parent node of the child \\
+\hline
+{\em c\+Addr} & The address to the child node to update \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!user\+Profile\+Starting\+Offset@{user\+Profile\+Starting\+Offset}}
+\index{user\+Profile\+Starting\+Offset@{user\+Profile\+Starting\+Offset}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{user\+Profile\+Starting\+Offset(uint8\+\_\+t uid, uint16\+\_\+t $\ast$page, uint16\+\_\+t $\ast$page\+Offset)}{userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset)}}]{\setlength{\rightskip}{0pt plus 5cm}void user\+Profile\+Starting\+Offset (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{uid, }
+\item[{uint16\+\_\+t $\ast$}]{page, }
+\item[{uint16\+\_\+t $\ast$}]{page\+Offset}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_a40d724d8687961cf0c05cf1f6a3dabf5}{}\label{node__mgmt_8h_a40d724d8687961cf0c05cf1f6a3dabf5}
+Obtains page and page offset for a given user id 
+\begin{DoxyParams}{Parameters}
+{\em uid} & The id of the user to perform that profile page and offset calculation (0 up to N\+O\+D\+E\+\_\+\+M\+A\+X\+\_\+\+U\+ID) \\
+\hline
+{\em page} & The page containing the user profile \\
+\hline
+{\em page\+Offset} & The offset of the page that indicates the start of the user profile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Calculation will take place even if the uid is not valid (no starting parent) 
+
+uid must be in range 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}!write\+New\+Data\+Node@{write\+New\+Data\+Node}}
+\index{write\+New\+Data\+Node@{write\+New\+Data\+Node}!node\+\_\+mgmt.\+h@{node\+\_\+mgmt.\+h}}
+\subsubsection[{\texorpdfstring{write\+New\+Data\+Node(uint16\+\_\+t context\+\_\+parent\+\_\+node\+\_\+addr, p\+Node $\ast$parent\+\_\+node\+\_\+ptr, d\+Node $\ast$data\+\_\+node\+\_\+ptr, uint8\+\_\+t first\+\_\+data\+\_\+block\+\_\+flag, uint8\+\_\+t last\+\_\+packet\+\_\+flag)}{writeNewDataNode(uint16_t context_parent_node_addr, pNode *parent_node_ptr, dNode *data_node_ptr, uint8_t first_data_block_flag, uint8_t last_packet_flag)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE write\+New\+Data\+Node (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{context\+\_\+parent\+\_\+node\+\_\+addr, }
+\item[{p\+Node $\ast$}]{parent\+\_\+node\+\_\+ptr, }
+\item[{d\+Node $\ast$}]{data\+\_\+node\+\_\+ptr, }
+\item[{uint8\+\_\+t}]{first\+\_\+data\+\_\+block\+\_\+flag, }
+\item[{uint8\+\_\+t}]{last\+\_\+packet\+\_\+flag}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8h_aadd2e11753a9aa888fe8b629c2b4e868}{}\label{node__mgmt_8h_aadd2e11753a9aa888fe8b629c2b4e868}
+Writes a new data node to memory (next free via handle) (in alphabetical order). 
+\begin{DoxyParams}{Parameters}
+{\em context\+\_\+parent\+\_\+node\+\_\+addr} & Address to the parent node \\
+\hline
+{\em parent\+\_\+node\+\_\+ptr} & Parent node pointer \\
+\hline
+{\em data\+\_\+node\+\_\+ptr} & Data node pointer \\
+\hline
+{\em first\+\_\+data\+\_\+block\+\_\+flag} & Flag to see if it is the first data block \\
+\hline
+{\em last\+\_\+packet\+\_\+flag} & Flag to know if it is the last block \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}

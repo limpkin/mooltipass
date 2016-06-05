@@ -1,27 +1,44 @@
-\hypertarget{aes256__ctr__test_8h}{\section{src/\+A\+E\+S/aes256\+\_\+ctr\+\_\+test.h File Reference}
+\hypertarget{aes256__ctr__test_8h}{}\section{src/\+A\+E\+S/aes256\+\_\+ctr\+\_\+test.h File Reference}
 \label{aes256__ctr__test_8h}\index{src/\+A\+E\+S/aes256\+\_\+ctr\+\_\+test.\+h@{src/\+A\+E\+S/aes256\+\_\+ctr\+\_\+test.\+h}}
-}
 
 
-Different functions to check A\+E\+S256\+C\+T\+R encryption.  
+Different functions to check A\+E\+S256\+C\+TR encryption.  
 
 
 {\ttfamily \#include $<$stdint.\+h$>$}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{aes256__ctr__test_8h_a919b3ac8a9505d2fca31147c8dead610}{void \hyperlink{aes256__ctr__test_8h_a919b3ac8a9505d2fca31147c8dead610}{aes256\+Ctr\+Test} (void)}\label{aes256__ctr__test_8h_a919b3ac8a9505d2fca31147c8dead610}
+void \hyperlink{aes256__ctr__test_8h_a919b3ac8a9505d2fca31147c8dead610}{aes256\+Ctr\+Test} (void)\hypertarget{aes256__ctr__test_8h_a919b3ac8a9505d2fca31147c8dead610}{}\label{aes256__ctr__test_8h_a919b3ac8a9505d2fca31147c8dead610}
 
-\begin{DoxyCompactList}\small\item\em Perform a C\+T\+R test using test vectors found in \href{http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf}{\tt http\+://csrc.\+nist.\+gov/publications/nistpubs/800-\/38a/sp800-\/38a.\+pdf} page 57. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Perform a C\+TR test using test vectors found in \href{http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf}{\tt http\+://csrc.\+nist.\+gov/publications/nistpubs/800-\/38a/sp800-\/38a.\+pdf} page 57. \end{DoxyCompactList}\item 
+uint32\+\_\+t \hyperlink{aes256__ctr__test_8h_a94f69a238599b59562de96100a6c6459}{aes256\+Ctr\+Speed\+Test} (void)
+\begin{DoxyCompactList}\small\item\em Do 1000 encryptions and return the time needed in ms. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{aes256__ctr__test_8h_a12e49febb0c5b141fb5e41331fd92f36}{int8\+\_\+t($\ast$ {\bfseries ctr\+Test\+Output} )(uint8\+\_\+t c)}\label{aes256__ctr__test_8h_a12e49febb0c5b141fb5e41331fd92f36}
+int8\+\_\+t($\ast$ \hyperlink{aes256__ctr__test_8h_a2162e1964c49672bb1a09608fc2bc08c}{ctr\+Test\+Output} )(uint8\+\_\+t c)\hypertarget{aes256__ctr__test_8h_a2162e1964c49672bb1a09608fc2bc08c}{}\label{aes256__ctr__test_8h_a2162e1964c49672bb1a09608fc2bc08c}
 
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em function pointer to the output function \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Different functions to check A\+E\+S256\+C\+T\+R encryption. 
+Different functions to check A\+E\+S256\+C\+TR encryption. 
 
 Created\+: 06/03/2014 19\+:05\+:00 Author\+: Miguel A. Borrego 
+
+\subsection{Function Documentation}
+\index{aes256\+\_\+ctr\+\_\+test.\+h@{aes256\+\_\+ctr\+\_\+test.\+h}!aes256\+Ctr\+Speed\+Test@{aes256\+Ctr\+Speed\+Test}}
+\index{aes256\+Ctr\+Speed\+Test@{aes256\+Ctr\+Speed\+Test}!aes256\+\_\+ctr\+\_\+test.\+h@{aes256\+\_\+ctr\+\_\+test.\+h}}
+\subsubsection[{\texorpdfstring{aes256\+Ctr\+Speed\+Test(void)}{aes256CtrSpeedTest(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint32\+\_\+t aes256\+Ctr\+Speed\+Test (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{aes256__ctr__test_8h_a94f69a238599b59562de96100a6c6459}{}\label{aes256__ctr__test_8h_a94f69a238599b59562de96100a6c6459}
+
+
+Do 1000 encryptions and return the time needed in ms. 
+
+\begin{DoxyReturn}{Returns}
+time elapsed in milliseconds 
+\end{DoxyReturn}

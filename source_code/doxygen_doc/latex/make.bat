@@ -1,3 +1,6 @@
+set Dir_Old=%cd%
+cd /D %~dp0
+
 del /s /f *.ps *.dvi *.aux *.toc *.idx *.ind *.ilg *.log *.out *.brf *.blg *.bbl refman.pdf
 
 pdflatex refman
@@ -23,3 +26,5 @@ goto :repeat
 endlocal
 makeindex refman.idx
 pdflatex refman
+cd /D %Dir_Old%
+set Dir_Old=

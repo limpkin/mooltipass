@@ -199,6 +199,10 @@ mooltipass.ui._.isDeviceUnlocked = function () {
     return mooltipass.device.isUnlocked;
 }
 
+mooltipass.ui._.getDeviceVersion = function() {
+    return mooltipass.device.version;
+}
+
 mooltipass.ui._.hasCard = function () {
     return !mooltipass.device.hasNoCard;
 }

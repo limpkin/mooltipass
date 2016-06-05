@@ -1,38 +1,614 @@
-\hypertarget{node__mgmt_8c}{\section{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.c File Reference}
+\hypertarget{node__mgmt_8c}{}\section{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.c File Reference}
 \label{node__mgmt_8c}\index{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.\+c@{src/\+N\+O\+D\+E\+M\+G\+M\+T/node\+\_\+mgmt.\+c}}
-}
 
 
-Mooltipass Node Management Library Created\+: 03/4/2014 Author\+: Michael Neiderhauser.  
+Mooltipass Node Management Library Created\+: 03/4/2014 Author\+: Michael Neiderhauser Modified\+: 18/08/2014 By\+: Mathieu Stephan.  
 
 
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+{\ttfamily \#include $<$stddef.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}node\+\_\+mgmt.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
-{\ttfamily \#include $<$stdint.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}usb.\+h\char`\"{}}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{node__mgmt_8c_adcd5f5ea3ef5927cdd8299ac449e68a3}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries obtain\+Node\+Management\+Handle} (mgmt\+Handle $\ast$$\ast$h)}\label{node__mgmt_8c_adcd5f5ea3ef5927cdd8299ac449e68a3}
+void \hyperlink{node__mgmt_8c_ab00f82ea916ddeb8b970696f42b1bd69}{node\+Mgmt\+Critical\+Error\+Callback} (void)\hypertarget{node__mgmt_8c_ab00f82ea916ddeb8b970696f42b1bd69}{}\label{node__mgmt_8c_ab00f82ea916ddeb8b970696f42b1bd69}
+
+\begin{DoxyCompactList}\small\item\em Critical error catching. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8c_a4f783d4dbe0d72f83f5432bfef411293}{node\+Mgmt\+Permission\+Validity\+Error\+Callback} (void)\hypertarget{node__mgmt_8c_a4f783d4dbe0d72f83f5432bfef411293}{}\label{node__mgmt_8c_a4f783d4dbe0d72f83f5432bfef411293}
+
+\begin{DoxyCompactList}\small\item\em Node read permission and validity error catching. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8c_a331173c6c9675413cdfb331d69112f61}{set\+Current\+Date} (uint16\+\_\+t date)
+\begin{DoxyCompactList}\small\item\em Set current date. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8c_aa627243dac79e614e47ab09239ca42a6}{extract\+Date} (uint16\+\_\+t date, uint8\+\_\+t $\ast$year, uint8\+\_\+t $\ast$month, uint8\+\_\+t $\ast$day)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8c_a8c33e7a15b3de9af65a7dc1031891edd}{check\+User\+Permission} (uint16\+\_\+t node\+\_\+addr)
+\begin{DoxyCompactList}\small\item\em Check that the user has the right to read/write a node. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8c_ab59790f9ff3deddce9a52ef0844e5db0}{write\+Node\+Data\+Block\+To\+Flash} (uint16\+\_\+t address, void $\ast$data)
+\begin{DoxyCompactList}\small\item\em Write a node data block to flash. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8c_a6e020a169d365fb597ba3f9802a77e8f}{read\+Node\+Data\+Block\+From\+Flash} (uint16\+\_\+t address, void $\ast$data)
+\begin{DoxyCompactList}\small\item\em Read a node data block to flash. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8c_a259c049366d54a4a8dbd6c053b4f9630}{erase\+Node\+Data\+Block\+To\+Flash} (uint16\+\_\+t address)
+\begin{DoxyCompactList}\small\item\em Erase a node data block to flash. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8c_a40d724d8687961cf0c05cf1f6a3dabf5}{user\+Profile\+Starting\+Offset} (uint8\+\_\+t uid, uint16\+\_\+t $\ast$page, uint16\+\_\+t $\ast$page\+Offset)
+\item 
+void \hyperlink{node__mgmt_8c_a4c0e1d3a4e471d9e5d12cfcb9680edf8}{format\+User\+Profile\+Memory} (uint8\+\_\+t uid)
+\item 
+uint8\+\_\+t \hyperlink{node__mgmt_8c_a3c0d85a11159e4403f9851813b1a1e7f}{get\+Current\+User\+ID} (void)
+\begin{DoxyCompactList}\small\item\em Get the current user ID. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{node__mgmt_8c_ae68e31d5594dbbc3b7cb762ea2d1caab}{get\+Free\+Node\+Address} (void)
+\begin{DoxyCompactList}\small\item\em Get next free node address. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8c_aebefb39c8dea96142c08a5cf6f0065a2}{init\+Node\+Management\+Handle} (uint8\+\_\+t user\+Id\+Num)
+\item 
+void \hyperlink{node__mgmt_8c_adcf9db384524e2413b9cd7d60260c45b}{set\+Starting\+Parent} (uint16\+\_\+t parent\+Address)
+\item 
+void \hyperlink{node__mgmt_8c_a6ffe90ffbdcbdd0689ec0eeb7f48c340}{set\+Data\+Starting\+Parent} (uint16\+\_\+t data\+Parent\+Address)
+\item 
+uint16\+\_\+t \hyperlink{node__mgmt_8c_a8667e7b2d77d48b016fda8f2853f10e3}{get\+Starting\+Parent\+Address} (void)
+\item 
+uint16\+\_\+t \hyperlink{node__mgmt_8c_a2d85198ff3f7ca6eef7d410da72448f3}{get\+Last\+Parent\+Address} (void)
+\item 
+uint16\+\_\+t \hyperlink{node__mgmt_8c_a5b4a2212bbf12ac23426ab92a247e743}{get\+Starting\+Data\+Parent\+Address} (void)
+\item 
+void \hyperlink{node__mgmt_8c_a34ce41b795596485c03b0fc898bcb9dd}{set\+Fav} (uint8\+\_\+t fav\+Id, uint16\+\_\+t parent\+Address, uint16\+\_\+t child\+Address)
+\item 
+void \hyperlink{node__mgmt_8c_aa4608f377d0bd0c43578e5a0110a3aa5}{read\+Fav} (uint8\+\_\+t fav\+Id, uint16\+\_\+t $\ast$parent\+Address, uint16\+\_\+t $\ast$child\+Address)
+\item 
+void \hyperlink{node__mgmt_8c_a27b9184bd261b396adf8c9aa232b6e8c}{set\+Profile\+Ctr} (void $\ast$buf)
+\item 
+void \hyperlink{node__mgmt_8c_a15c5dcf6d0a612f69a3e23aa74bd0109}{read\+Profile\+Ctr} (void $\ast$buf)
+\item 
+void \hyperlink{node__mgmt_8c_acf51e20b7c532fa59603c44c8afb0ceb}{read\+Node} (g\+Node $\ast$g, uint16\+\_\+t node\+Address)
+\item 
+void \hyperlink{node__mgmt_8c_ad3834806e3f57c31f0bf967d1213cf7e}{read\+Parent\+Node} (p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)
+\item 
+void \hyperlink{node__mgmt_8c_aafcd91c9ac37502ddef26920b73d85c2}{read\+Child\+Node} (c\+Node $\ast$c, uint16\+\_\+t child\+Node\+Address)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8c_a58021976b26cb2d5b8ccd521cadf4896}{create\+Parent\+Node} (p\+Node $\ast$p, uint8\+\_\+t type)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8c_aef483f664899d495e6fe6689629f90aa}{create\+Child\+Node} (uint16\+\_\+t p\+Addr, c\+Node $\ast$c)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8c_aadd2e11753a9aa888fe8b629c2b4e868}{write\+New\+Data\+Node} (uint16\+\_\+t context\+\_\+parent\+\_\+node\+\_\+addr, p\+Node $\ast$parent\+\_\+node\+\_\+ptr, d\+Node $\ast$data\+\_\+node\+\_\+ptr, uint8\+\_\+t first\+\_\+data\+\_\+block\+\_\+flag, uint8\+\_\+t last\+\_\+packet\+\_\+flag)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8c_a4aed1174989ad6de12e457516cb6c67b}{create\+Generic\+Node} (g\+Node $\ast$g, uint16\+\_\+t first\+Node\+Address, uint16\+\_\+t $\ast$new\+First\+Node\+Address, uint8\+\_\+t comparison\+Field\+Offset, uint8\+\_\+t comparison\+Field\+Length)
+\item 
+void \hyperlink{node__mgmt_8c_affb99c3a95f6acfd995ea8000cf70407}{populate\+Services\+Lut} (void)\hypertarget{node__mgmt_8c_affb99c3a95f6acfd995ea8000cf70407}{}\label{node__mgmt_8c_affb99c3a95f6acfd995ea8000cf70407}
+
+\begin{DoxyCompactList}\small\item\em Populate our L\+UT for our services. \end{DoxyCompactList}\item 
+uint16\+\_\+t {\bfseries get\+Parent\+Node\+For\+Letter} (uint8\+\_\+t letter)\hypertarget{node__mgmt_8c_a580e260ae30ff7da478ea65f1d16c903}{}\label{node__mgmt_8c_a580e260ae30ff7da478ea65f1d16c903}
 
 \item 
-\hypertarget{node__mgmt_8c_acf284983b99d3ecd0bcd08f5ad049bda}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries scan\+Next\+Free\+Parent\+Node} (mgmt\+Handle $\ast$h, uint16\+\_\+t starting\+\_\+address)}\label{node__mgmt_8c_acf284983b99d3ecd0bcd08f5ad049bda}
+uint8\+\_\+t {\bfseries find\+Free\+Nodes} (uint8\+\_\+t nb\+Nodes, uint16\+\_\+t $\ast$node\+Array, uint16\+\_\+t start\+Page, uint8\+\_\+t start\+Node)\hypertarget{node__mgmt_8c_a6ca7b2caff8ac8eb3c8c9e2449627998}{}\label{node__mgmt_8c_a6ca7b2caff8ac8eb3c8c9e2449627998}
 
 \item 
-\hypertarget{node__mgmt_8c_a91ff5e25ff1105ae8b42061aa3d41748}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries create\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p)}\label{node__mgmt_8c_a91ff5e25ff1105ae8b42061aa3d41748}
+void \hyperlink{node__mgmt_8c_a63f52bca7974dc4873a207c05f277192}{scan\+Node\+Usage} (void)\hypertarget{node__mgmt_8c_a63f52bca7974dc4873a207c05f277192}{}\label{node__mgmt_8c_a63f52bca7974dc4873a207c05f277192}
+
+\begin{DoxyCompactList}\small\item\em Scan memory to find empty slots. \end{DoxyCompactList}\item 
+void \hyperlink{node__mgmt_8c_aef9a04572f3f230a1fe9fcdec105e6a3}{delete\+Current\+User\+From\+Flash} (void)\hypertarget{node__mgmt_8c_aef9a04572f3f230a1fe9fcdec105e6a3}{}\label{node__mgmt_8c_aef9a04572f3f230a1fe9fcdec105e6a3}
+
+\begin{DoxyCompactList}\small\item\em Delete user data from flash. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8c_a767967886d2d924bf54413bac24a95df}{update\+Child\+Node} (p\+Node $\ast$p, c\+Node $\ast$c, uint16\+\_\+t p\+Addr, uint16\+\_\+t c\+Addr)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{node__mgmt_8c_a16692896a342abafd21e79898198e853}{delete\+Child\+Node} (uint16\+\_\+t p\+Addr, uint16\+\_\+t c\+Addr)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+mgmt\+Handle {\bfseries current\+Node\+Mgmt\+Handle}\hypertarget{node__mgmt_8c_af326722bef1a41f37147d03c5a5bf0af}{}\label{node__mgmt_8c_af326722bef1a41f37147d03c5a5bf0af}
 
 \item 
-\hypertarget{node__mgmt_8c_a7b838308129f2c7af369ba8ef770d45d}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries read\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)}\label{node__mgmt_8c_a7b838308129f2c7af369ba8ef770d45d}
-
-\item 
-\hypertarget{node__mgmt_8c_afe1609d712db51782afa77b969a465da}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries update\+Parent\+Node} (mgmt\+Handle $\ast$h, p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)}\label{node__mgmt_8c_afe1609d712db51782afa77b969a465da}
-
-\item 
-\hypertarget{node__mgmt_8c_a9a17e6ca304d4307008f3e50428a493f}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries delete\+Parent\+Node} (mgmt\+Handle $\ast$h, uint16\+\_\+t parent\+Nodeaddress, \hyperlink{node__mgmt_8h_a7637f53760c73ca95739bb98d51ef57c}{delete\+Policy} policy)}\label{node__mgmt_8c_a9a17e6ca304d4307008f3e50428a493f}
+uint16\+\_\+t {\bfseries current\+Date}\hypertarget{node__mgmt_8c_a1527dfeef866605686a303685211a1b2}{}\label{node__mgmt_8c_a1527dfeef866605686a303685211a1b2}
 
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Mooltipass Node Management Library Created\+: 03/4/2014 Author\+: Michael Neiderhauser. 
+Mooltipass Node Management Library Created\+: 03/4/2014 Author\+: Michael Neiderhauser Modified\+: 18/08/2014 By\+: Mathieu Stephan. 
 
+
+
+\subsection{Function Documentation}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!check\+User\+Permission@{check\+User\+Permission}}
+\index{check\+User\+Permission@{check\+User\+Permission}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{check\+User\+Permission(uint16\+\_\+t node\+\_\+addr)}{checkUserPermission(uint16_t node_addr)}}]{\setlength{\rightskip}{0pt plus 5cm}check\+User\+Permission (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{node\+\_\+addr}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a8c33e7a15b3de9af65a7dc1031891edd}{}\label{node__mgmt_8c_a8c33e7a15b3de9af65a7dc1031891edd}
+
+
+Check that the user has the right to read/write a node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node\+\_\+addr} & Node address \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+OK / N\+OK 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!create\+Child\+Node@{create\+Child\+Node}}
+\index{create\+Child\+Node@{create\+Child\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{create\+Child\+Node(uint16\+\_\+t p\+Addr, c\+Node $\ast$c)}{createChildNode(uint16_t pAddr, cNode *c)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE create\+Child\+Node (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{p\+Addr, }
+\item[{c\+Node $\ast$}]{c}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_aef483f664899d495e6fe6689629f90aa}{}\label{node__mgmt_8c_aef483f664899d495e6fe6689629f90aa}
+Writes a child node to memory (next free via handle) (in alphabetical order). 
+\begin{DoxyParams}{Parameters}
+{\em p\+Addr} & The parent node address of the child \\
+\hline
+{\em c} & The child node to write to memory (next\+Free\+Child\+Node) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!create\+Generic\+Node@{create\+Generic\+Node}}
+\index{create\+Generic\+Node@{create\+Generic\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{create\+Generic\+Node(g\+Node $\ast$g, uint16\+\_\+t first\+Node\+Address, uint16\+\_\+t $\ast$new\+First\+Node\+Address, uint8\+\_\+t comparison\+Field\+Offset, uint8\+\_\+t comparison\+Field\+Length)}{createGenericNode(gNode *g, uint16_t firstNodeAddress, uint16_t *newFirstNodeAddress, uint8_t comparisonFieldOffset, uint8_t comparisonFieldLength)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE create\+Generic\+Node (
+\begin{DoxyParamCaption}
+\item[{g\+Node $\ast$}]{g, }
+\item[{uint16\+\_\+t}]{first\+Node\+Address, }
+\item[{uint16\+\_\+t $\ast$}]{new\+First\+Node\+Address, }
+\item[{uint8\+\_\+t}]{comparison\+Field\+Offset, }
+\item[{uint8\+\_\+t}]{comparison\+Field\+Length}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a4aed1174989ad6de12e457516cb6c67b}{}\label{node__mgmt_8c_a4aed1174989ad6de12e457516cb6c67b}
+Writes a generic node to memory (next free via handle) (in alphabetical order). 
+\begin{DoxyParams}{Parameters}
+{\em g} & The node to write to memory (next\+Free\+Parent\+Node) \\
+\hline
+{\em first\+Node\+Address} & Address of the first node of its kind \\
+\hline
+{\em new\+First\+Node\+Address} & If the first\+Node\+Address changed, this var will store the new value \\
+\hline
+{\em comparison\+Field\+Offset} & The offset used to do the comparison used for the sorting \\
+\hline
+{\em comparison\+Field\+Length} & The length of the field used for comparison \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!create\+Parent\+Node@{create\+Parent\+Node}}
+\index{create\+Parent\+Node@{create\+Parent\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{create\+Parent\+Node(p\+Node $\ast$p, uint8\+\_\+t type)}{createParentNode(pNode *p, uint8_t type)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE create\+Parent\+Node (
+\begin{DoxyParamCaption}
+\item[{p\+Node $\ast$}]{p, }
+\item[{uint8\+\_\+t}]{type}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a58021976b26cb2d5b8ccd521cadf4896}{}\label{node__mgmt_8c_a58021976b26cb2d5b8ccd521cadf4896}
+Writes a parent node to memory (next free via handle) (in alphabetical order). 
+\begin{DoxyParams}{Parameters}
+{\em p} & The parent node to write to memory (next\+Free\+Parent\+Node) \\
+\hline
+{\em type} & Type of context (data or credential) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!delete\+Child\+Node@{delete\+Child\+Node}}
+\index{delete\+Child\+Node@{delete\+Child\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{delete\+Child\+Node(uint16\+\_\+t p\+Addr, uint16\+\_\+t c\+Addr)}{deleteChildNode(uint16_t pAddr, uint16_t cAddr)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE delete\+Child\+Node (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{p\+Addr, }
+\item[{uint16\+\_\+t}]{c\+Addr}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a16692896a342abafd21e79898198e853}{}\label{node__mgmt_8c_a16692896a342abafd21e79898198e853}
+Deletes a child node from memory. Handles reorder of nodes and update to parent if needed. 
+\begin{DoxyParams}{Parameters}
+{\em p\+Addr} & The address of the parent of the child \\
+\hline
+{\em c\+Addr} & The address of the child \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!erase\+Node\+Data\+Block\+To\+Flash@{erase\+Node\+Data\+Block\+To\+Flash}}
+\index{erase\+Node\+Data\+Block\+To\+Flash@{erase\+Node\+Data\+Block\+To\+Flash}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{erase\+Node\+Data\+Block\+To\+Flash(uint16\+\_\+t address)}{eraseNodeDataBlockToFlash(uint16_t address)}}]{\setlength{\rightskip}{0pt plus 5cm}erase\+Node\+Data\+Block\+To\+Flash (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a259c049366d54a4a8dbd6c053b4f9630}{}\label{node__mgmt_8c_a259c049366d54a4a8dbd6c053b4f9630}
+
+
+Erase a node data block to flash. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em address} & Where to erase \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!extract\+Date@{extract\+Date}}
+\index{extract\+Date@{extract\+Date}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{extract\+Date(uint16\+\_\+t date, uint8\+\_\+t $\ast$year, uint8\+\_\+t $\ast$month, uint8\+\_\+t $\ast$day)}{extractDate(uint16_t date, uint8_t *year, uint8_t *month, uint8_t *day)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE extract\+Date (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{date, }
+\item[{uint8\+\_\+t $\ast$}]{year, }
+\item[{uint8\+\_\+t $\ast$}]{month, }
+\item[{uint8\+\_\+t $\ast$}]{day}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_aa627243dac79e614e47ab09239ca42a6}{}\label{node__mgmt_8c_aa627243dac79e614e47ab09239ca42a6}
+Unpacks a unint16\+\_\+t to extract the year, month, and day information in format of Y\+Y\+Y\+Y\+Y\+Y\+Y\+M\+M\+M\+M\+D\+D\+D\+DD. Year Offset from 2010 
+\begin{DoxyParams}{Parameters}
+{\em date} & The constructed / encoded date in uint16\+\_\+t to unpack \\
+\hline
+{\em year} & The unpacked year \\
+\hline
+{\em month} & The unpacked month \\
+\hline
+{\em day} & The unpacked day \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+No error checking is performed 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!format\+User\+Profile\+Memory@{format\+User\+Profile\+Memory}}
+\index{format\+User\+Profile\+Memory@{format\+User\+Profile\+Memory}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{format\+User\+Profile\+Memory(uint8\+\_\+t uid)}{formatUserProfileMemory(uint8_t uid)}}]{\setlength{\rightskip}{0pt plus 5cm}void format\+User\+Profile\+Memory (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{uid}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a4c0e1d3a4e471d9e5d12cfcb9680edf8}{}\label{node__mgmt_8c_a4c0e1d3a4e471d9e5d12cfcb9680edf8}
+Formats the user profile flash memory of user uid. 
+\begin{DoxyParams}{Parameters}
+{\em uid} & The id of the user to format profile memory \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Only formats the users starting parent node address and favorites 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!get\+Current\+User\+ID@{get\+Current\+User\+ID}}
+\index{get\+Current\+User\+ID@{get\+Current\+User\+ID}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{get\+Current\+User\+I\+D(void)}{getCurrentUserID(void)}}]{\setlength{\rightskip}{0pt plus 5cm}get\+Current\+User\+ID (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a3c0d85a11159e4403f9851813b1a1e7f}{}\label{node__mgmt_8c_a3c0d85a11159e4403f9851813b1a1e7f}
+
+
+Get the current user ID. 
+
+\begin{DoxyReturn}{Returns}
+The user ID 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!get\+Free\+Node\+Address@{get\+Free\+Node\+Address}}
+\index{get\+Free\+Node\+Address@{get\+Free\+Node\+Address}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{get\+Free\+Node\+Address(void)}{getFreeNodeAddress(void)}}]{\setlength{\rightskip}{0pt plus 5cm}get\+Free\+Node\+Address (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_ae68e31d5594dbbc3b7cb762ea2d1caab}{}\label{node__mgmt_8c_ae68e31d5594dbbc3b7cb762ea2d1caab}
+
+
+Get next free node address. 
+
+\begin{DoxyReturn}{Returns}
+The address 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!get\+Last\+Parent\+Address@{get\+Last\+Parent\+Address}}
+\index{get\+Last\+Parent\+Address@{get\+Last\+Parent\+Address}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{get\+Last\+Parent\+Address(void)}{getLastParentAddress(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t get\+Last\+Parent\+Address (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a2d85198ff3f7ca6eef7d410da72448f3}{}\label{node__mgmt_8c_a2d85198ff3f7ca6eef7d410da72448f3}
+Gets the users last parent node from the node management handle \begin{DoxyReturn}{Returns}
+The address 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!get\+Starting\+Data\+Parent\+Address@{get\+Starting\+Data\+Parent\+Address}}
+\index{get\+Starting\+Data\+Parent\+Address@{get\+Starting\+Data\+Parent\+Address}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{get\+Starting\+Data\+Parent\+Address(void)}{getStartingDataParentAddress(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t get\+Starting\+Data\+Parent\+Address (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a5b4a2212bbf12ac23426ab92a247e743}{}\label{node__mgmt_8c_a5b4a2212bbf12ac23426ab92a247e743}
+Gets the users starting data parent node from the user profile memory portion of flash \begin{DoxyReturn}{Returns}
+The address 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!get\+Starting\+Parent\+Address@{get\+Starting\+Parent\+Address}}
+\index{get\+Starting\+Parent\+Address@{get\+Starting\+Parent\+Address}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{get\+Starting\+Parent\+Address(void)}{getStartingParentAddress(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t get\+Starting\+Parent\+Address (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a8667e7b2d77d48b016fda8f2853f10e3}{}\label{node__mgmt_8c_a8667e7b2d77d48b016fda8f2853f10e3}
+Gets the users starting parent node from the user profile memory portion of flash \begin{DoxyReturn}{Returns}
+The address 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!init\+Node\+Management\+Handle@{init\+Node\+Management\+Handle}}
+\index{init\+Node\+Management\+Handle@{init\+Node\+Management\+Handle}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{init\+Node\+Management\+Handle(uint8\+\_\+t user\+Id\+Num)}{initNodeManagementHandle(uint8_t userIdNum)}}]{\setlength{\rightskip}{0pt plus 5cm}void init\+Node\+Management\+Handle (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{user\+Id\+Num}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_aebefb39c8dea96142c08a5cf6f0065a2}{}\label{node__mgmt_8c_aebefb39c8dea96142c08a5cf6f0065a2}
+Initializes the Node Management Handle. Check user\+Id\+Num in range, reads users profile to get the starting parent node, scans memory for the next free parent and child nodes. 
+\begin{DoxyParams}{Parameters}
+{\em user\+Id\+Num} & The user id to initialize the handle for (0-\/$>$N\+O\+D\+E\+\_\+\+M\+A\+X\+\_\+\+U\+ID) \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!read\+Child\+Node@{read\+Child\+Node}}
+\index{read\+Child\+Node@{read\+Child\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{read\+Child\+Node(c\+Node $\ast$c, uint16\+\_\+t child\+Node\+Address)}{readChildNode(cNode *c, uint16_t childNodeAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Child\+Node (
+\begin{DoxyParamCaption}
+\item[{c\+Node $\ast$}]{c, }
+\item[{uint16\+\_\+t}]{child\+Node\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_aafcd91c9ac37502ddef26920b73d85c2}{}\label{node__mgmt_8c_aafcd91c9ac37502ddef26920b73d85c2}
+Reads a child or child start of data node from memory. 
+\begin{DoxyParams}{Parameters}
+{\em c} & Storage for the node from memory \\
+\hline
+{\em child\+Node\+Address} & The address to read in memory \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!read\+Fav@{read\+Fav}}
+\index{read\+Fav@{read\+Fav}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{read\+Fav(uint8\+\_\+t fav\+Id, uint16\+\_\+t $\ast$parent\+Address, uint16\+\_\+t $\ast$child\+Address)}{readFav(uint8_t favId, uint16_t *parentAddress, uint16_t *childAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Fav (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{fav\+Id, }
+\item[{uint16\+\_\+t $\ast$}]{parent\+Address, }
+\item[{uint16\+\_\+t $\ast$}]{child\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_aa4608f377d0bd0c43578e5a0110a3aa5}{}\label{node__mgmt_8c_aa4608f377d0bd0c43578e5a0110a3aa5}
+Reads a user favorite from the user profile 
+\begin{DoxyParams}{Parameters}
+{\em fav\+Id} & The id number of the fav record \\
+\hline
+{\em parent\+Address} & The parent node address of the fav \\
+\hline
+{\em child\+Address} & The child node address of the fav \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!read\+Node@{read\+Node}}
+\index{read\+Node@{read\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{read\+Node(g\+Node $\ast$g, uint16\+\_\+t node\+Address)}{readNode(gNode *g, uint16_t nodeAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Node (
+\begin{DoxyParamCaption}
+\item[{g\+Node $\ast$}]{g, }
+\item[{uint16\+\_\+t}]{node\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_acf51e20b7c532fa59603c44c8afb0ceb}{}\label{node__mgmt_8c_acf51e20b7c532fa59603c44c8afb0ceb}
+Reads a node from memory. If the node does not have a proper user id, g should be considered undefined 
+\begin{DoxyParams}{Parameters}
+{\em g} & Storage for the node from memory \\
+\hline
+{\em node\+Address} & The address to read in memory \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!read\+Node\+Data\+Block\+From\+Flash@{read\+Node\+Data\+Block\+From\+Flash}}
+\index{read\+Node\+Data\+Block\+From\+Flash@{read\+Node\+Data\+Block\+From\+Flash}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{read\+Node\+Data\+Block\+From\+Flash(uint16\+\_\+t address, void $\ast$data)}{readNodeDataBlockFromFlash(uint16_t address, void *data)}}]{\setlength{\rightskip}{0pt plus 5cm}read\+Node\+Data\+Block\+From\+Flash (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{address, }
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a6e020a169d365fb597ba3f9802a77e8f}{}\label{node__mgmt_8c_a6e020a169d365fb597ba3f9802a77e8f}
+
+
+Read a node data block to flash. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em address} & Where to read \\
+\hline
+{\em data} & Pointer to the data \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!read\+Parent\+Node@{read\+Parent\+Node}}
+\index{read\+Parent\+Node@{read\+Parent\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{read\+Parent\+Node(p\+Node $\ast$p, uint16\+\_\+t parent\+Node\+Address)}{readParentNode(pNode *p, uint16_t parentNodeAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Parent\+Node (
+\begin{DoxyParamCaption}
+\item[{p\+Node $\ast$}]{p, }
+\item[{uint16\+\_\+t}]{parent\+Node\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_ad3834806e3f57c31f0bf967d1213cf7e}{}\label{node__mgmt_8c_ad3834806e3f57c31f0bf967d1213cf7e}
+Reads a parent node from memory. If the node does not have a proper user id, p should be considered undefined 
+\begin{DoxyParams}{Parameters}
+{\em p} & Storage for the node from memory \\
+\hline
+{\em parent\+Node\+Address} & The address to read in memory \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!read\+Profile\+Ctr@{read\+Profile\+Ctr}}
+\index{read\+Profile\+Ctr@{read\+Profile\+Ctr}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{read\+Profile\+Ctr(void $\ast$buf)}{readProfileCtr(void *buf)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Profile\+Ctr (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{buf}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a15c5dcf6d0a612f69a3e23aa74bd0109}{}\label{node__mgmt_8c_a15c5dcf6d0a612f69a3e23aa74bd0109}
+Reads the users base C\+TR from the user profile flash memory 
+\begin{DoxyParams}{Parameters}
+{\em buf} & The buffer to store the read C\+TR \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!set\+Current\+Date@{set\+Current\+Date}}
+\index{set\+Current\+Date@{set\+Current\+Date}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{set\+Current\+Date(uint16\+\_\+t date)}{setCurrentDate(uint16_t date)}}]{\setlength{\rightskip}{0pt plus 5cm}set\+Current\+Date (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{date}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a331173c6c9675413cdfb331d69112f61}{}\label{node__mgmt_8c_a331173c6c9675413cdfb331d69112f61}
+
+
+Set current date. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em date} & The correctly formatted date (16 bits encoding\+: 15 dn 9 -\/$>$ Year (2010 + val), 8 dn 5 -\/$>$ Month, 4 dn 0 -\/$>$ Day of Month) \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!set\+Data\+Starting\+Parent@{set\+Data\+Starting\+Parent}}
+\index{set\+Data\+Starting\+Parent@{set\+Data\+Starting\+Parent}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{set\+Data\+Starting\+Parent(uint16\+\_\+t data\+Parent\+Address)}{setDataStartingParent(uint16_t dataParentAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Data\+Starting\+Parent (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{data\+Parent\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a6ffe90ffbdcbdd0689ec0eeb7f48c340}{}\label{node__mgmt_8c_a6ffe90ffbdcbdd0689ec0eeb7f48c340}
+Sets the users starting data parent node both in the handle and user profile memory portion of flash 
+\begin{DoxyParams}{Parameters}
+{\em data\+Parent\+Address} & The constructed address of the users data starting parent node (alphabetically) \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!set\+Fav@{set\+Fav}}
+\index{set\+Fav@{set\+Fav}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{set\+Fav(uint8\+\_\+t fav\+Id, uint16\+\_\+t parent\+Address, uint16\+\_\+t child\+Address)}{setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Fav (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{fav\+Id, }
+\item[{uint16\+\_\+t}]{parent\+Address, }
+\item[{uint16\+\_\+t}]{child\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a34ce41b795596485c03b0fc898bcb9dd}{}\label{node__mgmt_8c_a34ce41b795596485c03b0fc898bcb9dd}
+Sets a user favorite in the user profile 
+\begin{DoxyParams}{Parameters}
+{\em fav\+Id} & The id number of the fav record \\
+\hline
+{\em parent\+Address} & The parent node address of the fav \\
+\hline
+{\em child\+Address} & The child node address of the fav \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!set\+Profile\+Ctr@{set\+Profile\+Ctr}}
+\index{set\+Profile\+Ctr@{set\+Profile\+Ctr}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{set\+Profile\+Ctr(void $\ast$buf)}{setProfileCtr(void *buf)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Profile\+Ctr (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{buf}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a27b9184bd261b396adf8c9aa232b6e8c}{}\label{node__mgmt_8c_a27b9184bd261b396adf8c9aa232b6e8c}
+Sets the users base C\+TR in the user profile flash memory 
+\begin{DoxyParams}{Parameters}
+{\em buf} & The buffer containing C\+TR \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!set\+Starting\+Parent@{set\+Starting\+Parent}}
+\index{set\+Starting\+Parent@{set\+Starting\+Parent}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{set\+Starting\+Parent(uint16\+\_\+t parent\+Address)}{setStartingParent(uint16_t parentAddress)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Starting\+Parent (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{parent\+Address}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_adcf9db384524e2413b9cd7d60260c45b}{}\label{node__mgmt_8c_adcf9db384524e2413b9cd7d60260c45b}
+Sets the users starting parent node both in the handle and user profile memory portion of flash 
+\begin{DoxyParams}{Parameters}
+{\em parent\+Address} & The constructed address of the users starting parent node (alphabetically) \\
+\hline
+\end{DoxyParams}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!update\+Child\+Node@{update\+Child\+Node}}
+\index{update\+Child\+Node@{update\+Child\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{update\+Child\+Node(p\+Node $\ast$p, c\+Node $\ast$c, uint16\+\_\+t p\+Addr, uint16\+\_\+t c\+Addr)}{updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE update\+Child\+Node (
+\begin{DoxyParamCaption}
+\item[{p\+Node $\ast$}]{p, }
+\item[{c\+Node $\ast$}]{c, }
+\item[{uint16\+\_\+t}]{p\+Addr, }
+\item[{uint16\+\_\+t}]{c\+Addr}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a767967886d2d924bf54413bac24a95df}{}\label{node__mgmt_8c_a767967886d2d924bf54413bac24a95df}
+Updates a child or child start of data node in memory. Handles alphabetical reorder of nodes. Scans for next\+Free\+Child\+Node after completion. Modifies the node management handle 
+\begin{DoxyParams}{Parameters}
+{\em p} & Parent Node of the Child Node \\
+\hline
+{\em c} & Contents of node to update \\
+\hline
+{\em p\+Addr} & The address to the parent node of the child \\
+\hline
+{\em c\+Addr} & The address to the child node to update \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Handles necessary doubly linked list management 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!user\+Profile\+Starting\+Offset@{user\+Profile\+Starting\+Offset}}
+\index{user\+Profile\+Starting\+Offset@{user\+Profile\+Starting\+Offset}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{user\+Profile\+Starting\+Offset(uint8\+\_\+t uid, uint16\+\_\+t $\ast$page, uint16\+\_\+t $\ast$page\+Offset)}{userProfileStartingOffset(uint8_t uid, uint16_t *page, uint16_t *pageOffset)}}]{\setlength{\rightskip}{0pt plus 5cm}void user\+Profile\+Starting\+Offset (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{uid, }
+\item[{uint16\+\_\+t $\ast$}]{page, }
+\item[{uint16\+\_\+t $\ast$}]{page\+Offset}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_a40d724d8687961cf0c05cf1f6a3dabf5}{}\label{node__mgmt_8c_a40d724d8687961cf0c05cf1f6a3dabf5}
+Obtains page and page offset for a given user id 
+\begin{DoxyParams}{Parameters}
+{\em uid} & The id of the user to perform that profile page and offset calculation (0 up to N\+O\+D\+E\+\_\+\+M\+A\+X\+\_\+\+U\+ID) \\
+\hline
+{\em page} & The page containing the user profile \\
+\hline
+{\em page\+Offset} & The offset of the page that indicates the start of the user profile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Calculation will take place even if the uid is not valid (no starting parent) 
+
+uid must be in range 
+\end{DoxyNote}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!write\+New\+Data\+Node@{write\+New\+Data\+Node}}
+\index{write\+New\+Data\+Node@{write\+New\+Data\+Node}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{write\+New\+Data\+Node(uint16\+\_\+t context\+\_\+parent\+\_\+node\+\_\+addr, p\+Node $\ast$parent\+\_\+node\+\_\+ptr, d\+Node $\ast$data\+\_\+node\+\_\+ptr, uint8\+\_\+t first\+\_\+data\+\_\+block\+\_\+flag, uint8\+\_\+t last\+\_\+packet\+\_\+flag)}{writeNewDataNode(uint16_t context_parent_node_addr, pNode *parent_node_ptr, dNode *data_node_ptr, uint8_t first_data_block_flag, uint8_t last_packet_flag)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE write\+New\+Data\+Node (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{context\+\_\+parent\+\_\+node\+\_\+addr, }
+\item[{p\+Node $\ast$}]{parent\+\_\+node\+\_\+ptr, }
+\item[{d\+Node $\ast$}]{data\+\_\+node\+\_\+ptr, }
+\item[{uint8\+\_\+t}]{first\+\_\+data\+\_\+block\+\_\+flag, }
+\item[{uint8\+\_\+t}]{last\+\_\+packet\+\_\+flag}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_aadd2e11753a9aa888fe8b629c2b4e868}{}\label{node__mgmt_8c_aadd2e11753a9aa888fe8b629c2b4e868}
+Writes a new data node to memory (next free via handle) (in alphabetical order). 
+\begin{DoxyParams}{Parameters}
+{\em context\+\_\+parent\+\_\+node\+\_\+addr} & Address to the parent node \\
+\hline
+{\em parent\+\_\+node\+\_\+ptr} & Parent node pointer \\
+\hline
+{\em data\+\_\+node\+\_\+ptr} & Data node pointer \\
+\hline
+{\em first\+\_\+data\+\_\+block\+\_\+flag} & Flag to see if it is the first data block \\
+\hline
+{\em last\+\_\+packet\+\_\+flag} & Flag to know if it is the last block \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\index{node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}!write\+Node\+Data\+Block\+To\+Flash@{write\+Node\+Data\+Block\+To\+Flash}}
+\index{write\+Node\+Data\+Block\+To\+Flash@{write\+Node\+Data\+Block\+To\+Flash}!node\+\_\+mgmt.\+c@{node\+\_\+mgmt.\+c}}
+\subsubsection[{\texorpdfstring{write\+Node\+Data\+Block\+To\+Flash(uint16\+\_\+t address, void $\ast$data)}{writeNodeDataBlockToFlash(uint16_t address, void *data)}}]{\setlength{\rightskip}{0pt plus 5cm}write\+Node\+Data\+Block\+To\+Flash (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{address, }
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)}\hypertarget{node__mgmt_8c_ab59790f9ff3deddce9a52ef0844e5db0}{}\label{node__mgmt_8c_ab59790f9ff3deddce9a52ef0844e5db0}
+
+
+Write a node data block to flash. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em address} & Where to write \\
+\hline
+{\em data} & Pointer to the data \\
+\hline
+\end{DoxyParams}

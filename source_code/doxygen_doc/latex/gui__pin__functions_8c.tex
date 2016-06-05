@@ -1,0 +1,72 @@
+\hypertarget{gui__pin__functions_8c}{}\section{src/\+G\+U\+I/gui\+\_\+pin\+\_\+functions.c File Reference}
+\label{gui__pin__functions_8c}\index{src/\+G\+U\+I/gui\+\_\+pin\+\_\+functions.\+c@{src/\+G\+U\+I/gui\+\_\+pin\+\_\+functions.\+c}}
+
+
+General user interface -\/ pin functions Created\+: 22/6/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}smart\+\_\+card\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}touch\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+screen\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+basic\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb\+\_\+cmd\+\_\+parser.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oled\+\_\+wrapper.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}mini\+\_\+inputs.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}delays.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}anim.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries gui\+Display\+Pin\+On\+Pin\+Entering\+Screen} (uint8\+\_\+t $\ast$current\+\_\+pin, uint8\+\_\+t selected\+\_\+digit, uint8\+\_\+t string\+ID)\hypertarget{gui__pin__functions_8c_a875b6e795fa918db143dc316d9e6caa8}{}\label{gui__pin__functions_8c_a875b6e795fa918db143dc316d9e6caa8}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{gui__pin__functions_8c_a24f871bb2cb0ec35e5b55f78bcb0ea5b}{gui\+Get\+Pin\+From\+User} (volatile uint16\+\_\+t $\ast$pin\+\_\+code, uint8\+\_\+t string\+ID)
+\begin{DoxyCompactList}\small\item\em Ask the user to enter a P\+IN. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{gui__pin__functions_8c_ae7f5e6208e6eb5e2b0a8ba27b757518a}{gui\+Card\+Unlocking\+Process} (void)
+\begin{DoxyCompactList}\small\item\em Function called for the user to unlock his smartcard. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+General user interface -\/ pin functions Created\+: 22/6/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{gui\+\_\+pin\+\_\+functions.\+c@{gui\+\_\+pin\+\_\+functions.\+c}!gui\+Card\+Unlocking\+Process@{gui\+Card\+Unlocking\+Process}}
+\index{gui\+Card\+Unlocking\+Process@{gui\+Card\+Unlocking\+Process}!gui\+\_\+pin\+\_\+functions.\+c@{gui\+\_\+pin\+\_\+functions.\+c}}
+\subsubsection[{\texorpdfstring{gui\+Card\+Unlocking\+Process(void)}{guiCardUnlockingProcess(void)}}]{\setlength{\rightskip}{0pt plus 5cm}gui\+Card\+Unlocking\+Process (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__pin__functions_8c_ae7f5e6208e6eb5e2b0a8ba27b757518a}{}\label{gui__pin__functions_8c_ae7f5e6208e6eb5e2b0a8ba27b757518a}
+
+
+Function called for the user to unlock his smartcard. 
+
+\begin{DoxyReturn}{Returns}
+success status 
+\end{DoxyReturn}
+\index{gui\+\_\+pin\+\_\+functions.\+c@{gui\+\_\+pin\+\_\+functions.\+c}!gui\+Get\+Pin\+From\+User@{gui\+Get\+Pin\+From\+User}}
+\index{gui\+Get\+Pin\+From\+User@{gui\+Get\+Pin\+From\+User}!gui\+\_\+pin\+\_\+functions.\+c@{gui\+\_\+pin\+\_\+functions.\+c}}
+\subsubsection[{\texorpdfstring{gui\+Get\+Pin\+From\+User(volatile uint16\+\_\+t $\ast$pin\+\_\+code, uint8\+\_\+t string\+I\+D)}{guiGetPinFromUser(volatile uint16_t *pin_code, uint8_t stringID)}}]{\setlength{\rightskip}{0pt plus 5cm}gui\+Get\+Pin\+From\+User (
+\begin{DoxyParamCaption}
+\item[{volatile uint16\+\_\+t $\ast$}]{pin\+\_\+code, }
+\item[{uint8\+\_\+t}]{string\+ID}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__pin__functions_8c_a24f871bb2cb0ec35e5b55f78bcb0ea5b}{}\label{gui__pin__functions_8c_a24f871bb2cb0ec35e5b55f78bcb0ea5b}
+
+
+Ask the user to enter a P\+IN. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pin\+\_\+code} & Pointer to where to store the pin code \\
+\hline
+{\em string\+ID} & String ID \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+If the user approved the request 
+\end{DoxyReturn}

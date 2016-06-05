@@ -320,7 +320,6 @@ uint16_t getFreeNodeAddress(void)
 /**
  * Initializes the Node Management Handle.
  *   Check userIdNum in range,  reads users profile to get the starting parent node, scans memory for the next free parent and child nodes.
- * @param   h               The user allocated node management handle
  * @param   userIdNum       The user id to initialize the handle for (0->NODE_MAX_UID)
  */
 void initNodeManagementHandle(uint8_t userIdNum)
@@ -349,7 +348,6 @@ void initNodeManagementHandle(uint8_t userIdNum)
 
 /**
  * Sets the users starting parent node both in the handle and user profile memory portion of flash
- * @param   h               The user allocated node management handle
  * @param   parentAddress   The constructed address of the users starting parent node (alphabetically) 
  */
 void setStartingParent(uint16_t parentAddress)
@@ -363,7 +361,6 @@ void setStartingParent(uint16_t parentAddress)
 
 /**
  * Sets the users starting data parent node both in the handle and user profile memory portion of flash
- * @param   h                   The user allocated node management handle
  * @param   dataParentAddress   The constructed address of the users data starting parent node (alphabetically) 
  */
 void setDataStartingParent(uint16_t dataParentAddress)
@@ -414,7 +411,6 @@ uint16_t getStartingDataParentAddress(void)
 
 /**
  * Sets a user favorite in the user profile
- * @param   h               The user allocated node management handle
  * @param   favId           The id number of the fav record
  * @param   parentAddress   The parent node address of the fav
  * @param   childAddress    The child node address of the fav
@@ -434,7 +430,6 @@ void setFav(uint8_t favId, uint16_t parentAddress, uint16_t childAddress)
 
 /**
  * Reads a user favorite from the user profile
- * @param   h               The user allocated node management handle
  * @param   favId           The id number of the fav record
  * @param   parentAddress   The parent node address of the fav
  * @param   childAddress    The child node address of the fav
@@ -469,7 +464,6 @@ void readFav(uint8_t favId, uint16_t* parentAddress, uint16_t* childAddress)
 
 /**
  * Sets the users base CTR in the user profile flash memory
- * @param   h               The user allocated node management handle
  * @param   buf             The buffer containing CTR
  */
 void setProfileCtr(void *buf)
@@ -480,7 +474,6 @@ void setProfileCtr(void *buf)
 
 /**
  * Reads the users base CTR from the user profile flash memory
- * @param   h               The user allocated node management handle
  * @param   buf             The buffer to store the read CTR
  */
 void readProfileCtr(void *buf)
@@ -594,7 +587,7 @@ RET_TYPE createParentNode(pNode* p, uint8_t type)
 /**
  * Writes a child node to memory (next free via handle) (in alphabetical order).
  * @param   pAddr           The parent node address of the child
- * @param   p               The child node to write to memory (nextFreeChildNode)
+ * @param   c               The child node to write to memory (nextFreeChildNode)
  * @return  success status
  * @note    Handles necessary doubly linked list management
  */
@@ -695,9 +688,11 @@ RET_TYPE writeNewDataNode(uint16_t context_parent_node_addr, pNode* parent_node_
 
 /**
  * Writes a generic node to memory (next free via handle) (in alphabetical order).
- * @param   p                   The parent node to write to memory (nextFreeParentNode)
- * @param   firstNodeAddress    Address of the first node of its kind
- * @param   newFirstNodeAddress If the firstNodeAddress changed, this var will store the new value
+ * @param   g                       The node to write to memory (nextFreeParentNode)
+ * @param   firstNodeAddress        Address of the first node of its kind
+ * @param   newFirstNodeAddress     If the firstNodeAddress changed, this var will store the new value
+ * @param   comparisonFieldOffset   The offset used to do the comparison used for the sorting
+ * @param   comparisonFieldLength   The length of the field used for comparison
  * @return  success status
  * @note    Handles necessary doubly linked list management
  */
@@ -884,6 +879,45 @@ void populateServicesLut(void)
     }
 }
 
+/*! \fn     getPreviousNextFirstLetterForGivenLetter(char c, char* array)
+*   \brief  Get the previous and next letter around a given letter
+*   \param  c       The first letter
+*   \param  array   Three char array to store the previous and next one
+*   \note   In the array, all letters will be higher case
+*/
+void getPreviousNextFirstLetterForGivenLetter(char c, char* array)
+{
+    // Set #s by default
+    memset(array, '-', 3);
+
+    // Store c
+    if ((c >= 'a') && (c <= 'z'))
+    {
+        array[1] = c - 'a' + 'A';
+    } 
+    else
+    {
+        array[1] = c;
+    }
+
+    // Loop through our LUT
+    for (uint8_t i = 0; i < sizeof(currentNodeMgmtHandle.servicesLut)/sizeof(currentNodeMgmtHandle.servicesLut[0]); i++)
+    {
+        if (currentNodeMgmtHandle.servicesLut[i] != NODE_ADDR_NULL)
+        {
+            if ((i + 'a') < c)
+            {
+                array[0] = i + 'A';
+            }
+            if ((i + 'a') > c)
+            {
+                array[2] = i + 'A';
+                return;
+            }
+        }
+    }
+}
+
 /*! \fn     getParentNodeForLetter(uint8_t letter, uint8_t empty_mode)
 *   \brief  Use the LUT to find the first parent node for a given letter
 *   \note   If we don't know the letter, the first previous one will be returned
@@ -1054,7 +1088,6 @@ void deleteCurrentUserFromFlash(void)
 /**
  * Updates a child or child start of data node in memory. Handles alphabetical reorder of nodes.
  *   Scans for nextFreeChildNode after completion.  Modifies the node management handle
- * @param   h               The user allocated node management handle
  * @param   p               Parent Node of the Child Node
  * @param   c               Contents of node to update
  * @param   pAddr           The address to the parent node of the child
@@ -1113,10 +1146,8 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
 
 /**
  * Deletes a child node from memory. Handles reorder of nodes and update to parent if needed.
- * @param   h               The user allocated node management handle
  * @param   pAddr           The address of the parent of the child
  * @param   cAddr           The address of the child
- * @param   policy          How to handle the delete @ref deletePolicy
  * @return  success status
  * @note    Handles necessary doubly linked list management
  */

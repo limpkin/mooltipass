@@ -26,6 +26,7 @@
 #include "mini_inputs.h"
 #include "interrupts.h"
 #include "smartcard.h"
+#include "mini_leds.h"
 
 // Number of milliseconds since power up
 #ifdef ENABLE_MILLISECOND_DBG_TIMER
@@ -42,6 +43,9 @@ ISR(TIMER1_COMPA_vect)                                              // Match on 
     timerManagerTick();                                             // Our timer manager
     #if defined(MINI_VERSION)
         scanMiniInputsDetect();                                     // Scan mini inputs
+    #endif
+    #if defined(HARDWARE_MINI_CLICK_V2)
+        miniLedsAnimationTick();                                    // LED animation
     #endif
     #ifdef ENABLE_MILLISECOND_DBG_TIMER
         msecTicks++;                                                // Increment ms timer

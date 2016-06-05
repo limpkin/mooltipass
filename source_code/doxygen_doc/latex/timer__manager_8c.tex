@@ -1,0 +1,102 @@
+\hypertarget{timer__manager_8c}{}\section{src/timer\+\_\+manager.c File Reference}
+\label{timer__manager_8c}\index{src/timer\+\_\+manager.\+c@{src/timer\+\_\+manager.\+c}}
+
+
+Timer logic Created\+: 12/8/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include \char`\"{}timer\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$util/atomic.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{timer__manager_8c_aeb027f4c749beeecdd789644436d107c}{timer\+Manager\+Tick} (void)\hypertarget{timer__manager_8c_aeb027f4c749beeecdd789644436d107c}{}\label{timer__manager_8c_aeb027f4c749beeecdd789644436d107c}
+
+\begin{DoxyCompactList}\small\item\em Function called by interrupt every ms. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries has\+Timer\+Expired} (uint8\+\_\+t uid, uint8\+\_\+t clear)\hypertarget{timer__manager_8c_a3408a0cf2aabad59bab6300fe953eb91}{}\label{timer__manager_8c_a3408a0cf2aabad59bab6300fe953eb91}
+
+\item 
+void \hyperlink{timer__manager_8c_a53cefd75ee497fb939c5f6dcc9bffd85}{activate\+Timer} (uint8\+\_\+t uid, uint16\+\_\+t val)
+\begin{DoxyCompactList}\small\item\em Activate timer. \end{DoxyCompactList}\item 
+uint16\+\_\+t \hyperlink{timer__manager_8c_ae479c54ad885c076ace0e33437d0e177}{get\+Timer\+Val} (uint8\+\_\+t uid)
+\begin{DoxyCompactList}\small\item\em Get current timer val. \end{DoxyCompactList}\item 
+void \hyperlink{timer__manager_8c_aae7a9e4e952df57ed704bddf929f89c2}{timer\+Based\+Delay\+Ms} (uint16\+\_\+t ms)
+\begin{DoxyCompactList}\small\item\em Timer based ms delay. \end{DoxyCompactList}\item 
+void \hyperlink{timer__manager_8c_a85f17f0c1c7c116407ee71ea62764d9b}{timer\+Based130\+Ms\+Delay} (void)\hypertarget{timer__manager_8c_a85f17f0c1c7c116407ee71ea62764d9b}{}\label{timer__manager_8c_a85f17f0c1c7c116407ee71ea62764d9b}
+
+\begin{DoxyCompactList}\small\item\em Many times in our code such delay is needed. \end{DoxyCompactList}\item 
+void \hyperlink{timer__manager_8c_aebff4878771c9bb81033a57c891c3851}{timer\+Based500\+Ms\+Delay} (void)\hypertarget{timer__manager_8c_aebff4878771c9bb81033a57c891c3851}{}\label{timer__manager_8c_aebff4878771c9bb81033a57c891c3851}
+
+\begin{DoxyCompactList}\small\item\em Many times in our code such delay is needed. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+volatile \hyperlink{structtimer_entry__t}{timer\+Entry\+\_\+t} {\bfseries context\+\_\+timers} \mbox{[}T\+O\+T\+A\+L\+\_\+\+N\+U\+M\+B\+E\+R\+\_\+\+O\+F\+\_\+\+T\+I\+M\+E\+RS\mbox{]}\hypertarget{timer__manager_8c_a6ebc0b3e5a68b2a0cb96f502b5f50e52}{}\label{timer__manager_8c_a6ebc0b3e5a68b2a0cb96f502b5f50e52}
+
+\item 
+volatile uint16\+\_\+t {\bfseries timer\+\_\+divider}\hypertarget{timer__manager_8c_abb5f7b3a51b3dec10126519de10c0d43}{}\label{timer__manager_8c_abb5f7b3a51b3dec10126519de10c0d43}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Timer logic Created\+: 12/8/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{timer\+\_\+manager.\+c@{timer\+\_\+manager.\+c}!activate\+Timer@{activate\+Timer}}
+\index{activate\+Timer@{activate\+Timer}!timer\+\_\+manager.\+c@{timer\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{activate\+Timer(uint8\+\_\+t uid, uint16\+\_\+t val)}{activateTimer(uint8_t uid, uint16_t val)}}]{\setlength{\rightskip}{0pt plus 5cm}activate\+Timer (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{uid, }
+\item[{uint16\+\_\+t}]{val}
+\end{DoxyParamCaption}
+)}\hypertarget{timer__manager_8c_a53cefd75ee497fb939c5f6dcc9bffd85}{}\label{timer__manager_8c_a53cefd75ee497fb939c5f6dcc9bffd85}
+
+
+Activate timer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em uid} & Unique ID \\
+\hline
+{\em val} & Delay \\
+\hline
+\end{DoxyParams}
+\index{timer\+\_\+manager.\+c@{timer\+\_\+manager.\+c}!get\+Timer\+Val@{get\+Timer\+Val}}
+\index{get\+Timer\+Val@{get\+Timer\+Val}!timer\+\_\+manager.\+c@{timer\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{get\+Timer\+Val(uint8\+\_\+t uid)}{getTimerVal(uint8_t uid)}}]{\setlength{\rightskip}{0pt plus 5cm}get\+Timer\+Val (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{uid}
+\end{DoxyParamCaption}
+)}\hypertarget{timer__manager_8c_ae479c54ad885c076ace0e33437d0e177}{}\label{timer__manager_8c_ae479c54ad885c076ace0e33437d0e177}
+
+
+Get current timer val. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em uid} & Unique ID \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the timer val 
+\end{DoxyReturn}
+\index{timer\+\_\+manager.\+c@{timer\+\_\+manager.\+c}!timer\+Based\+Delay\+Ms@{timer\+Based\+Delay\+Ms}}
+\index{timer\+Based\+Delay\+Ms@{timer\+Based\+Delay\+Ms}!timer\+\_\+manager.\+c@{timer\+\_\+manager.\+c}}
+\subsubsection[{\texorpdfstring{timer\+Based\+Delay\+Ms(uint16\+\_\+t ms)}{timerBasedDelayMs(uint16_t ms)}}]{\setlength{\rightskip}{0pt plus 5cm}timer\+Based\+Delay\+Ms (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{ms}
+\end{DoxyParamCaption}
+)}\hypertarget{timer__manager_8c_aae7a9e4e952df57ed704bddf929f89c2}{}\label{timer__manager_8c_aae7a9e4e952df57ed704bddf929f89c2}
+
+
+Timer based ms delay. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ms} & Number of ms \\
+\hline
+\end{DoxyParams}

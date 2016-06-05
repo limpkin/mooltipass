@@ -56,7 +56,7 @@
           <JtagDbgClock>249000</JtagDbgClock>
           <SwdClock>249000</SwdClock>
           <JtagProgClock>1000000</JtagProgClock>
-          <IspClock>1000000</IspClock>
+          <IspClock>2000000</IspClock>
           <JtagInChain>false</JtagInChain>
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagDevicesBefore>0</JtagDevicesBefore>
@@ -109,7 +109,7 @@
     <ExternalProgrammingToolCommand />
     <avrtoolserialnumber>000200200870</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9587</avrdeviceexpectedsignature>
-    <avrtoolinterfaceclock>1000000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -153,6 +153,7 @@
           </ListValues>
         </avrgcc.compiler.directories.IncludePaths>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.OtherFlags>-fno-inline-small-functions</avrgcc.compiler.optimization.OtherFlags>
         <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
         <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
         <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
@@ -339,6 +340,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\LOGIC\logic_smartcard.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\mini_leds.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\mini_leds.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\NODEMGMT\node_mgmt.c">

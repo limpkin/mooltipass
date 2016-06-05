@@ -54,7 +54,11 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     0x21,               // TOUCH_WHEEL_OS_PARAM2                Set touch wheel oversample (one bit gain)
     TRUE,               // FLASH_SCREEN_PARAM                   Enable flashy screen by default
     FALSE,              // USER_REQ_CANCEL_PARAM                Disable the possibility to cancel user requests from USB
+#ifdef POST_KICKSTARTER_UPDATE_SETUP
+    FALSE,              // TUTORIAL_BOOL_PARAM                  Disable the tutorial by default
+#else
     TRUE,               // TUTORIAL_BOOL_PARAM                  Enable the tutorial by default
+#endif
     15,                 // SCREEN_SAVER_SPEED_PARAM             Speed of the screen saver
     TRUE,               // LUT_BOOT_POPULATING                  Allow credential LUT populating at card insert
     TRUE,               // KEY_AFTER_LOGIN_SEND_BOOL_PARAM      Allow key sending after login is manually entered
@@ -62,7 +66,7 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     FALSE,              // KEY_AFTER_PASS_SEND_BOOL_PARAM       Allow key sending after password is manually entered
     KEY_RETURN,         // KEY_AFTER_PASS_SEND_PARAM            The key to be sent after password is manually entered
     FALSE,              // DELAY_AFTER_KEY_ENTRY_BOOL_PARAM     Bool to know if we add an extra delay when a character is typed
-    0,                  // DELAY_AFTER_KEY_ENTRY_PARAM          How many ms are added after a key is typed
+    5,                  // DELAY_AFTER_KEY_ENTRY_PARAM          How many ms are added after a key is typed
     FALSE,              // WHEEL_DIRECTION_REVERSE_PARAM        Reverse wheel direction
     0x80,               // MINI_OLED_CONTRAST_CURRENT_PARAM     Default contrast current for the mini oled display
 };
@@ -167,7 +171,7 @@ void deleteUserIdFromSMCUIDLUT(uint8_t userid)
 
 /*! \fn     findAvailableUserId(uint8_t* userid)
 *   \brief  Find an available user ID
-*   \param  Pointer where to store the found user id
+*   \param  userid  Pointer where to store the found user id
 *   \return Success status of the operation
 */
 RET_TYPE findAvailableUserId(uint8_t* userid)

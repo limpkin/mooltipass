@@ -37,6 +37,7 @@ mooltipass.device.interface.metaCommands = [
 ];
 
 mooltipass.device.interface.send = function(inputObject) {
+    //console.log(inputObject);
     var command = mooltipass.device.interface['_'+inputObject.command];
     if(!command && !contains(mooltipass.device.interface.metaCommands, inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 80, 'unknown command: ' + inputObject.command);
@@ -48,7 +49,7 @@ mooltipass.device.interface.send = function(inputObject) {
         return;
     }
 
-    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassParameter', 'jumpToBootloader', 'setMooltipassParameter', 'getMooltipassStatus', 'getMooltipassUID', 'startSingleCommunicationMode', 'resetCard'], inputObject.command)) {
+    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getMooltipassParameter', 'jumpToBootloader', 'setMooltipassParameter', 'getMooltipassStatus', 'getVersion', 'getMooltipassUID', 'startSingleCommunicationMode', 'resetCard'], inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 71, 'device is locked');
         return;
     }
@@ -265,13 +266,15 @@ mooltipass.device.interface._getCredentials = function(inputObject) {
         mooltipass.device.interface._returnError(inputObject, 103, 'missing context for getting credentials');
         return;
     }
-
+    
+    //console.log(inputObject);
+    
     var firstContext = contexts.splice(0, 1);
 
     mooltipass.device.addToQueue(
         'setContext',
         [firstContext[0]],
-        {'contexts': contexts, 'requestType': 'getCredentials'},
+        {'contexts': contexts, 'requestType': 'getCredentials', 'reqid': inputObject.reqid},
         inputObject.callbackFunction,
         inputObject.callbackParameters,
         inputObject.timeout

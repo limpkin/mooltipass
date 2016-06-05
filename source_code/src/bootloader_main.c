@@ -22,6 +22,7 @@
  *  Copyright [2016] [Mathieu Stephan]
  */
 #include <avr/interrupt.h>
+#include <util/atomic.h>
 #include <avr/eeprom.h>
 #include <avr/boot.h>
 #include <stdlib.h>
@@ -50,7 +51,7 @@
 static void boot_program_page(uint16_t page, uint8_t* buf)  __attribute__ ((section (".spmfunc"))) __attribute__((noinline));
 static void boot_program_page(uint16_t page, uint8_t* buf)
 {
-    uint16_t i;
+    uint16_t i, w;
 
     // Check we are not overwriting this particular routine
     if ((page >= (FLASHEND - SPM_PAGESIZE + 1)) || ((page & SPM_PAGE_SIZE_BYTES_BM) != 0))
@@ -58,23 +59,26 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
         return;
     }
 
-    // Erase page, wait for memories to be ready
-    boot_page_erase(page);
-    boot_spm_busy_wait();
-
-    // Fill the bootloader temporary page buffer
-    for (i=0; i < SPM_PAGESIZE; i+=2)
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        // Set up little-endian word.
-        uint16_t w = *buf++;
-        w += (*buf++) << 8;
-        boot_page_fill(page + i, w);
-    }
+        // Erase page, wait for memories to be ready
+        boot_page_erase(page);
+        boot_spm_busy_wait();
 
-    // Store buffer in flash page, wait until the memory is written, re-enable RWW section
-    boot_page_write(page);
-    boot_spm_busy_wait();
-    boot_rww_enable();
+        // Fill the bootloader temporary page buffer
+        for (i = 0; i < SPM_PAGESIZE; i+=2)
+        {
+            // Set up little-endian word.
+            w = (*buf++) & 0x00FF;
+            w |= (((uint16_t)(*buf++)) << 8) & 0xFF00;
+            boot_page_fill(page + i, w);
+        }
+
+        // Store buffer in flash page, wait until the memory is written, re-enable RWW section
+        boot_page_write(page);
+        boot_spm_busy_wait();
+        boot_rww_enable();
+    }
 }
 
 /*! \fn     sideChannelSafeMemCmp(uint8_t* dataA, uint8_t* dataB, uint8_t size)
@@ -114,7 +118,7 @@ int main(void)
     uint16_t firmware_start_address = UINT16_MAX - MAX_FIRMWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;   // Start address of firmware in external memory
     uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;                         // End address of firmware in external memory
 
-    
+
     /* Just in case we are going to disable the watch dog timer and disable interrupts */
     cli();
     wdt_reset();
@@ -133,30 +137,44 @@ int main(void)
     {
         start_firmware();
     }
-    
+
     /* Check if the device is booting normally, if the bootloader was called, or unknown state */
     if (current_bootkey_val == CORRECT_BOOTKEY)
     {
-        // Security system set, correct bootkey for firmware
+        /* Security system set, correct bootkey for firmware */
         start_firmware();
     }
     else if (current_bootkey_val != BOOTLOADER_BOOTKEY)
     {
+        /* Security system set, bootkey isn't the bootloader one nor the main fw one... */
         while(1);
     }
 
     /* By default, brick the device so it's an all or nothing update procedure */
     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
-    /* Enable USB 3.3V LDO, Initialize SPI controller, Check flash presence */
-    UHWCON = 0x01;
-    spiUsartBegin();
+    /* Init IOs */
+    UHWCON = 0x01;                          // Enable USB 3.3V LDO
+    initFlashIOs();                         // Init EXT Flash IOs
+    spiUsartBegin();                        // Init SPI Controller    
+    DDR_ACC_SS |= (1 << PORTID_ACC_SS);     // Setup PORT for the Accelerometer SS
+    PORT_ACC_SS |= (1 << PORTID_ACC_SS);    // Setup PORT for the Accelerometer SS    
+    DDR_OLED_SS |= (1 << PORTID_OLED_SS);   // Setup PORT for the OLED SS
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);  // Setup PORT for the OLED SS
     for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
-    flash_init_result = initFlash();
+
+    /* Disable I2C block of the Accelerometer */
+    PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
+    spiUsartTransfer(0x23);
+    spiUsartTransfer(0x02);
+    PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+
+    /* Check Flash */
+    flash_init_result = checkFlashID();
     if (flash_init_result != RETURN_OK)
     {
         while(1);
-    }    
+    }
 
     for (uint8_t pass_number = 0; pass_number < 2; pass_number++)
     {
@@ -213,7 +231,7 @@ int main(void)
             {
                 // Otherwise, next pass!
             }
-        } 
+        }
         else
         {
             // Second pass, compare CBCMAC and then update AES keys
@@ -237,5 +255,5 @@ int main(void)
                 while(1);
             }
         }
-    }    
+    }
 }

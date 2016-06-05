@@ -114,7 +114,6 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
         }
     #endif
 
-    uint8_t incomingData[RAWHID_TX_SIZE];
     RET_TYPE touch_detect_result;
     
     // Switch on lights
@@ -139,19 +138,11 @@ int8_t getTouchedPositionAnswer(uint8_t led_mask)
             return -1;
         }
         // Read usb comms as the plugin could ask to cancel the request
-        if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
+        if (usbCancelRequestReceived() == RETURN_OK)
         {
-            if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
-            {
-                // Request cancelled
-                return -1;
-            }
-            else
-            {
-                // Another packet (that shouldn't be sent!), ask to retry later...
-                usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
-            }
+            return -1;
         }
+
         touch_detect_result = touchDetectionRoutine(led_mask) & TOUCH_PRESS_MASK & additional_mask;
     }
     while (!touch_detect_result);
@@ -270,9 +261,6 @@ RET_TYPE getYesNoAnswerInput(uint8_t blocking)
         
         // Clear possible remaining detection
         miniWheelClearDetections();
-        #ifdef MINI_JOYSTICK
-            miniDirectionClearJoystickDetections();
-        #endif
     }
     
     // Wait for a touch press
@@ -305,12 +293,10 @@ RET_TYPE getYesNoAnswerInput(uint8_t blocking)
         {
             return MINI_INPUT_RET_YES;
         }
-        #ifdef MINI_JOYSTICK
-        if (isMiniDirectionPressed(PORTID_JOY_RIGHT) == RETURN_JDETECT)
+        else if (detect_result == WHEEL_ACTION_LONG_CLICK)
         {
-            return MINI_INPUT_RET_YES;
+            return MINI_INPUT_RET_BACK;
         }
-        #endif
     }
     while(blocking != FALSE);
     
@@ -371,14 +357,20 @@ void guiMainLoop(void)
         if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
         {
             screenSaverOn = TRUE;
-            oledWriteInactiveBuffer();
-            oledClear();
-            oledDisplayOtherBuffer();
-            oledClear();
+            #ifndef MINI_VERSION
+                oledWriteInactiveBuffer();
+                oledClear();
+                oledDisplayOtherBuffer();
+                oledClear();
+            #endif
         } 
         else
         {
-            oledDisplayOtherBuffer();
+            #ifndef MINI_VERSION
+                oledDisplayOtherBuffer();
+            #else
+                guiGetBackToCurrentScreen();
+            #endif
             oledOff();
         }
     }
@@ -396,31 +388,15 @@ void guiMainLoop(void)
             guiScreenLoop(input_interface_result);
         }
     #elif defined(MINI_VERSION)
-        #ifdef MINI_JOYSTICK
-            uint8_t joystick_interface_result = getMiniDirectionJustPressed();
-        #endif
-
         // If there was some activity and we are showing the screen saver
-        #ifdef MINI_JOYSTICK
-        if (((input_interface_result != WHEEL_ACTION_NONE) || (joystick_interface_result != 0)) && (screenSaverOnCopy == TRUE))
-        #else
         if ((input_interface_result != WHEEL_ACTION_NONE) && (screenSaverOnCopy == TRUE))
-        #endif
         {
             guiGetBackToCurrentScreen();
         }
-    
-        #ifdef MINI_JOYSTICK
-        // If the screen just got turned on, don't call the guiScreenLoop() function
-        if (((input_interface_result != WHEEL_ACTION_NONE) || (joystick_interface_result != 0)) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
-        {
-            guiScreenLoop((joystick_interface_result << 4) | input_interface_result);
-        }
-        #else
+
         if ((input_interface_result != WHEEL_ACTION_NONE) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
         {
             guiScreenLoop(input_interface_result);
         }
-        #endif
     #endif
 }

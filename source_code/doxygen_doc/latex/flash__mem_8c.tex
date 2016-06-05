@@ -1,147 +1,310 @@
-\hypertarget{flash__mem_8c}{\section{src/\+F\+L\+A\+S\+H/flash\+\_\+mem.c File Reference}
+\hypertarget{flash__mem_8c}{}\section{src/\+F\+L\+A\+S\+H/flash\+\_\+mem.c File Reference}
 \label{flash__mem_8c}\index{src/\+F\+L\+A\+S\+H/flash\+\_\+mem.\+c@{src/\+F\+L\+A\+S\+H/flash\+\_\+mem.\+c}}
-}
 
 
-Mooltipass Flash I\+C Library Created\+: 31/3/2014 Author\+: Michael Neiderhauser.  
+Mooltipass Flash IC Library Created\+: 31/3/2014 Author\+: Michael Neiderhauser.  
 
 
 {\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb.\+h\char`\"{}}\\*
 {\ttfamily \#include $<$avr/io.\+h$>$}\\*
 {\ttfamily \#include $<$stdint.\+h$>$}\\*
 {\ttfamily \#include $<$spi.\+h$>$}\\*
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{flash__mem_8c_aa58e16776fe4909cffdcd269c30383bc}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries send\+Data\+To\+Flash} (uint8\+\_\+t opcode\+Size, void $\ast$opcode, uint16\+\_\+t buffer\+Size, void $\ast$buffer)}\label{flash__mem_8c_aa58e16776fe4909cffdcd269c30383bc}
+void \hyperlink{flash__mem_8c_a16b55fb93f651339d910eab9dc914c1f}{memory\+Boundary\+Error\+Callback} (void)\hypertarget{flash__mem_8c_a16b55fb93f651339d910eab9dc914c1f}{}\label{flash__mem_8c_a16b55fb93f651339d910eab9dc914c1f}
 
+\begin{DoxyCompactList}\small\item\em Function called when a memory boundary issue occurs. \end{DoxyCompactList}\item 
+void \hyperlink{flash__mem_8c_aeb534896d432fd07ac0fec3fdca842e1}{send\+Data\+To\+Flash\+With\+Four\+Bytes\+Opcode} (uint8\+\_\+t $\ast$opcode, uint8\+\_\+t $\ast$buffer, uint16\+\_\+t buffer\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Send data with a four bytes opcode to flash. \end{DoxyCompactList}\item 
+void \hyperlink{flash__mem_8c_a93d91e39d124846088ebcb2282c06e1c}{wait\+For\+Flash} (void)
 \item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}{wait\+For\+Flash} (void)
-\begin{DoxyCompactList}\small\item\em Wait for the flash to be ready (poll status register) \end{DoxyCompactList}\item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a80d6fcc1bf2a1dbdc4f6462cac22c219}{check\+Flash\+I\+D} (void)
-\begin{DoxyCompactList}\small\item\em Check the presence of the flash (manf info) \end{DoxyCompactList}\item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a555b58a0dfede24e6ed8b169b24ffc64}{init\+Flash} (void)
-\begin{DoxyCompactList}\small\item\em Initialize the flash memory (Sets up S\+P\+I) \end{DoxyCompactList}\item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a5c3e6a183eb517d31fd9f5a3c7aca486}{sector\+Zero\+Erase} (uint8\+\_\+t sector\+Number)
-\begin{DoxyCompactList}\small\item\em Deletes sub-\/section of sector 0\+X (see datasheet) \end{DoxyCompactList}\item 
-\hypertarget{flash__mem_8c_a2077f00817a9a75b9c20056fcdb388ce}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries sector\+Erase} (uint8\+\_\+t sector\+Number)}\label{flash__mem_8c_a2077f00817a9a75b9c20056fcdb388ce}
-
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{flash__mem_8c_a23152d785146fd401f60e95e9a4e02d7}{check\+Flash\+ID} (void)
 \item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_a6fc8592cb75ed97e2fd999031e33060f}{block\+Erase} (uint16\+\_\+t block\+Number)
-\begin{DoxyCompactList}\small\item\em Erases a block of flash memory (see datasheet) \end{DoxyCompactList}\item 
-R\+E\+T\+\_\+\+T\+Y\+P\+E \hyperlink{flash__mem_8c_ab94e1181e052b66db48980b21504f39b}{page\+Erase} (uint16\+\_\+t page\+Number)
-\begin{DoxyCompactList}\small\item\em Erases a page of flash memory (see datasheet) \end{DoxyCompactList}\item 
-\hypertarget{flash__mem_8c_a4386898d9384e4a0f4252e87dda60ddc}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries write\+Data\+To\+Flash} (uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)}\label{flash__mem_8c_a4386898d9384e4a0f4252e87dda60ddc}
-
+void \hyperlink{flash__mem_8c_a8570fe140a95c15a17219524fba9f166}{init\+Flash\+I\+Os} (void)
 \item 
-\hypertarget{flash__mem_8c_a564706fa7a89ff4c63f1da38033865ac}{R\+E\+T\+\_\+\+T\+Y\+P\+E {\bfseries read\+Data\+From\+Flash} (uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)}\label{flash__mem_8c_a564706fa7a89ff4c63f1da38033865ac}
-
+void \hyperlink{flash__mem_8c_a093c59776c8537e2fab23f29d626c195}{sector\+Zero\+Erase} (uint8\+\_\+t sector\+Number)
+\item 
+void \hyperlink{flash__mem_8c_ab9cebed1463b0f06b73c2c2728f67504}{sector\+Erase} (uint8\+\_\+t sector\+Number)
+\item 
+void \hyperlink{flash__mem_8c_a0254f9726077ea001ad0f1eb6b8e9a83}{chip\+Erase} (void)
+\item 
+void \hyperlink{flash__mem_8c_aee062ca9323162e3a202af0d57ebf829}{block\+Erase} (uint16\+\_\+t block\+Number)
+\item 
+void \hyperlink{flash__mem_8c_a19038854aa8b20047de5defc1be2d64b}{page\+Erase} (uint16\+\_\+t page\+Number)
+\item 
+void \hyperlink{flash__mem_8c_ae4cd3fb94106b40c8850dbee3fe1a538}{format\+Flash} (void)
+\item 
+void \hyperlink{flash__mem_8c_a325616c6dce4bcac0a910e36bbae77d5}{load\+Page\+To\+Internal\+Buffer} (uint16\+\_\+t page\+Number)
+\item 
+void \hyperlink{flash__mem_8c_a66ef8c9d56c17c6f40f5fb10508e29ee}{write\+Data\+To\+Flash} (uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)
+\item 
+void \hyperlink{flash__mem_8c_a53fcd75fd9efe91e4b6f40afef0857e9}{read\+Data\+From\+Flash} (uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)
+\item 
+void \hyperlink{flash__mem_8c_a85c789391be74052b3f70109e615116a}{flash\+Raw\+Read} (uint8\+\_\+t $\ast$datap, uint16\+\_\+t addr, uint16\+\_\+t size)
+\item 
+void \hyperlink{flash__mem_8c_a602354171d9cebfbe0fed7ff3ad6a98b}{flash\+Write\+Buffer} (uint8\+\_\+t $\ast$datap, uint16\+\_\+t offset, uint16\+\_\+t size)
+\item 
+void \hyperlink{flash__mem_8c_a978de9a36ee65ae50ab2fe611b6de226}{flash\+Write\+Buffer\+To\+Page} (uint16\+\_\+t page)
 \end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
-Mooltipass Flash I\+C Library Created\+: 31/3/2014 Author\+: Michael Neiderhauser. 
+Mooltipass Flash IC Library Created\+: 31/3/2014 Author\+: Michael Neiderhauser. 
 
 
 
 \subsection{Function Documentation}
-\hypertarget{flash__mem_8c_a6fc8592cb75ed97e2fd999031e33060f}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!block\+Erase@{block\+Erase}}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!block\+Erase@{block\+Erase}}
 \index{block\+Erase@{block\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
-\subsubsection[{block\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}block\+Erase (
+\subsubsection[{\texorpdfstring{block\+Erase(uint16\+\_\+t block\+Number)}{blockErase(uint16_t blockNumber)}}]{\setlength{\rightskip}{0pt plus 5cm}void block\+Erase (
 \begin{DoxyParamCaption}
 \item[{uint16\+\_\+t}]{block\+Number}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_a6fc8592cb75ed97e2fd999031e33060f}
-
-
-Erases a block of flash memory (see datasheet) 
-
-
+)}\hypertarget{flash__mem_8c_aee062ca9323162e3a202af0d57ebf829}{}\label{flash__mem_8c_aee062ca9323162e3a202af0d57ebf829}
+Erases block block\+Number (0 up to B\+L\+O\+C\+K\+\_\+\+C\+O\+U\+NT valid). 
 \begin{DoxyParams}{Parameters}
-{\em block\+Number} & The block number in flash to erase \\
+{\em block\+Number} & The block to erase \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if parameters are out of range. Otherwise will return R\+E\+T\+U\+R\+N\+\_\+\+O\+K. 
+success status 
 \end{DoxyReturn}
-\hypertarget{flash__mem_8c_a80d6fcc1bf2a1dbdc4f6462cac22c219}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!check\+Flash\+I\+D@{check\+Flash\+I\+D}}
-\index{check\+Flash\+I\+D@{check\+Flash\+I\+D}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
-\subsubsection[{check\+Flash\+I\+D}]{\setlength{\rightskip}{0pt plus 5cm}check\+Flash\+I\+D (
+\begin{DoxyNote}{Note}
+Sets all bits in block to Logic 1 (High) 
+\end{DoxyNote}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!check\+Flash\+ID@{check\+Flash\+ID}}
+\index{check\+Flash\+ID@{check\+Flash\+ID}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{check\+Flash\+I\+D(void)}{checkFlashID(void)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE check\+Flash\+ID (
 \begin{DoxyParamCaption}
 \item[{void}]{}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_a80d6fcc1bf2a1dbdc4f6462cac22c219}
-
-
-Check the presence of the flash (manf info) 
-
+)}\hypertarget{flash__mem_8c_a23152d785146fd401f60e95e9a4e02d7}{}\label{flash__mem_8c_a23152d785146fd401f60e95e9a4e02d7}
+Attempts to read the Manufacturers Information Register. \begin{DoxyNote}{Note}
+Performs a comparison to verify the size of the flash chip 
+\end{DoxyNote}
 \begin{DoxyReturn}{Returns}
-Success status 
+success status 
 \end{DoxyReturn}
-\hypertarget{flash__mem_8c_a555b58a0dfede24e6ed8b169b24ffc64}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!init\+Flash@{init\+Flash}}
-\index{init\+Flash@{init\+Flash}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
-\subsubsection[{init\+Flash}]{\setlength{\rightskip}{0pt plus 5cm}init\+Flash (
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!chip\+Erase@{chip\+Erase}}
+\index{chip\+Erase@{chip\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{chip\+Erase(void)}{chipErase(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void chip\+Erase (
 \begin{DoxyParamCaption}
 \item[{void}]{}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_a555b58a0dfede24e6ed8b169b24ffc64}
-
-
-Initialize the flash memory (Sets up S\+P\+I) 
-
-\begin{DoxyReturn}{Returns}
-Success status\+D\+D 
-\end{DoxyReturn}
-\hypertarget{flash__mem_8c_ab94e1181e052b66db48980b21504f39b}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!page\+Erase@{page\+Erase}}
-\index{page\+Erase@{page\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
-\subsubsection[{page\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}page\+Erase (
+)}\hypertarget{flash__mem_8c_a0254f9726077ea001ad0f1eb6b8e9a83}{}\label{flash__mem_8c_a0254f9726077ea001ad0f1eb6b8e9a83}
+Erase the complete memory (filled with 1s) \index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!flash\+Raw\+Read@{flash\+Raw\+Read}}
+\index{flash\+Raw\+Read@{flash\+Raw\+Read}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{flash\+Raw\+Read(uint8\+\_\+t $\ast$datap, uint16\+\_\+t addr, uint16\+\_\+t size)}{flashRawRead(uint8_t *datap, uint16_t addr, uint16_t size)}}]{\setlength{\rightskip}{0pt plus 5cm}void flash\+Raw\+Read (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{datap, }
+\item[{uint16\+\_\+t}]{addr, }
+\item[{uint16\+\_\+t}]{size}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_a85c789391be74052b3f70109e615116a}{}\label{flash__mem_8c_a85c789391be74052b3f70109e615116a}
+Contiguous data read across flash page boundaries with a max 65k bytes addressing space 
+\begin{DoxyParams}{Parameters}
+{\em datap} & pointer to the buffer to store the read data \\
+\hline
+{\em addr} & byte offset in the flash \\
+\hline
+{\em size} & the number of bytes to read \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+bypasses the memory buffer 
+\end{DoxyNote}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!flash\+Write\+Buffer@{flash\+Write\+Buffer}}
+\index{flash\+Write\+Buffer@{flash\+Write\+Buffer}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{flash\+Write\+Buffer(uint8\+\_\+t $\ast$datap, uint16\+\_\+t offset, uint16\+\_\+t size)}{flashWriteBuffer(uint8_t *datap, uint16_t offset, uint16_t size)}}]{\setlength{\rightskip}{0pt plus 5cm}void flash\+Write\+Buffer (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{datap, }
+\item[{uint16\+\_\+t}]{offset, }
+\item[{uint16\+\_\+t}]{size}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_a602354171d9cebfbe0fed7ff3ad6a98b}{}\label{flash__mem_8c_a602354171d9cebfbe0fed7ff3ad6a98b}
+Write data into the internal memory buffer 
+\begin{DoxyParams}{Parameters}
+{\em datap} & pointer to data to write \\
+\hline
+{\em offset} & offset to start writing to in the internal memory buffer \\
+\hline
+{\em size} & the number of bytes to write \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+if the end of the internal buffer is reached then writing will wrap to the start of the internal buffer. 
+\end{DoxyNote}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!flash\+Write\+Buffer\+To\+Page@{flash\+Write\+Buffer\+To\+Page}}
+\index{flash\+Write\+Buffer\+To\+Page@{flash\+Write\+Buffer\+To\+Page}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{flash\+Write\+Buffer\+To\+Page(uint16\+\_\+t page)}{flashWriteBufferToPage(uint16_t page)}}]{\setlength{\rightskip}{0pt plus 5cm}void flash\+Write\+Buffer\+To\+Page (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{page}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_a978de9a36ee65ae50ab2fe611b6de226}{}\label{flash__mem_8c_a978de9a36ee65ae50ab2fe611b6de226}
+write the contents of the internal memory buffer to a page in flash 
+\begin{DoxyParams}{Parameters}
+{\em page} & the page to store the buffer in \\
+\hline
+\end{DoxyParams}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!format\+Flash@{format\+Flash}}
+\index{format\+Flash@{format\+Flash}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{format\+Flash(void)}{formatFlash(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void format\+Flash (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_ae4cd3fb94106b40c8850dbee3fe1a538}{}\label{flash__mem_8c_ae4cd3fb94106b40c8850dbee3fe1a538}
+Erases the entirety of spi flash memory by calling the appropriate erase functions. \begin{DoxyNote}{Note}
+Sets all bits in spi flash memory to Logic 1 (High) 
+\end{DoxyNote}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!init\+Flash\+I\+Os@{init\+Flash\+I\+Os}}
+\index{init\+Flash\+I\+Os@{init\+Flash\+I\+Os}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{init\+Flash\+I\+Os(void)}{initFlashIOs(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void init\+Flash\+I\+Os (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_a8570fe140a95c15a17219524fba9f166}{}\label{flash__mem_8c_a8570fe140a95c15a17219524fba9f166}
+Initializes I\+Os for the Flash Chip \index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!load\+Page\+To\+Internal\+Buffer@{load\+Page\+To\+Internal\+Buffer}}
+\index{load\+Page\+To\+Internal\+Buffer@{load\+Page\+To\+Internal\+Buffer}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{load\+Page\+To\+Internal\+Buffer(uint16\+\_\+t page\+Number)}{loadPageToInternalBuffer(uint16_t pageNumber)}}]{\setlength{\rightskip}{0pt plus 5cm}void load\+Page\+To\+Internal\+Buffer (
 \begin{DoxyParamCaption}
 \item[{uint16\+\_\+t}]{page\+Number}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_ab94e1181e052b66db48980b21504f39b}
-
-
-Erases a page of flash memory (see datasheet) 
-
-
+)}\hypertarget{flash__mem_8c_a325616c6dce4bcac0a910e36bbae77d5}{}\label{flash__mem_8c_a325616c6dce4bcac0a910e36bbae77d5}
+Load a given page in the flash internal buffer 
 \begin{DoxyParams}{Parameters}
-{\em page\+Number} & The page number if flash to erase \\
+{\em page\+Number} & The target page number of flash memory \\
+\hline
+\end{DoxyParams}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!page\+Erase@{page\+Erase}}
+\index{page\+Erase@{page\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{page\+Erase(uint16\+\_\+t page\+Number)}{pageErase(uint16_t pageNumber)}}]{\setlength{\rightskip}{0pt plus 5cm}void page\+Erase (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{page\+Number}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_a19038854aa8b20047de5defc1be2d64b}{}\label{flash__mem_8c_a19038854aa8b20047de5defc1be2d64b}
+Erases page page\+Number (0 up to P\+A\+G\+E\+\_\+\+C\+O\+U\+NT valid). 
+\begin{DoxyParams}{Parameters}
+{\em page\+Number} & The page to erase \\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if parameters are out of range. Otherwise will return R\+E\+T\+U\+R\+N\+\_\+\+O\+K. 
+success status 
 \end{DoxyReturn}
-\hypertarget{flash__mem_8c_a5c3e6a183eb517d31fd9f5a3c7aca486}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!sector\+Zero\+Erase@{sector\+Zero\+Erase}}
-\index{sector\+Zero\+Erase@{sector\+Zero\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
-\subsubsection[{sector\+Zero\+Erase}]{\setlength{\rightskip}{0pt plus 5cm}sector\+Zero\+Erase (
+\begin{DoxyNote}{Note}
+Sets all bits in page to Logic 1 (High) 
+\end{DoxyNote}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!read\+Data\+From\+Flash@{read\+Data\+From\+Flash}}
+\index{read\+Data\+From\+Flash@{read\+Data\+From\+Flash}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{read\+Data\+From\+Flash(uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)}{readDataFromFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)}}]{\setlength{\rightskip}{0pt plus 5cm}void read\+Data\+From\+Flash (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{page\+Number, }
+\item[{uint16\+\_\+t}]{offset, }
+\item[{uint16\+\_\+t}]{data\+Size, }
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_a53fcd75fd9efe91e4b6f40afef0857e9}{}\label{flash__mem_8c_a53fcd75fd9efe91e4b6f40afef0857e9}
+Reads a data buffer of flash memory. The data is read starting at offset of a page. 
+\begin{DoxyParams}{Parameters}
+{\em page\+Number} & The target page number of flash memory \\
+\hline
+{\em offset} & The starting byte offset to begin reading in page\+Number \\
+\hline
+{\em data\+Size} & The number of bytes to read from the flash memory into the data buffer (assuming the data buffer is sufficiently large) \\
+\hline
+{\em data} & The buffer used to store the data read from flash \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Function does not allow crossing page boundaries. 
+\end{DoxyNote}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!sector\+Erase@{sector\+Erase}}
+\index{sector\+Erase@{sector\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{sector\+Erase(uint8\+\_\+t sector\+Number)}{sectorErase(uint8_t sectorNumber)}}]{\setlength{\rightskip}{0pt plus 5cm}void sector\+Erase (
 \begin{DoxyParamCaption}
 \item[{uint8\+\_\+t}]{sector\+Number}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_a5c3e6a183eb517d31fd9f5a3c7aca486}
+)}\hypertarget{flash__mem_8c_ab9cebed1463b0f06b73c2c2728f67504}{}\label{flash__mem_8c_ab9cebed1463b0f06b73c2c2728f67504}
+Erases sector sector\+Number (S\+E\+C\+T\+O\+R\+\_\+\+S\+T\+A\+RT -\/$>$ S\+E\+C\+T\+O\+R\+\_\+\+E\+ND inclusive valid). 
+\begin{DoxyParams}{Parameters}
+{\em sector\+Number} & The sector to erase \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Sets all bits in sector to Logic 1 (High) 
+\end{DoxyNote}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!sector\+Zero\+Erase@{sector\+Zero\+Erase}}
+\index{sector\+Zero\+Erase@{sector\+Zero\+Erase}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{sector\+Zero\+Erase(uint8\+\_\+t sector\+Number)}{sectorZeroErase(uint8_t sectorNumber)}}]{\setlength{\rightskip}{0pt plus 5cm}void sector\+Zero\+Erase (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{sector\+Number}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_a093c59776c8537e2fab23f29d626c195}{}\label{flash__mem_8c_a093c59776c8537e2fab23f29d626c195}
+Erases sector 0a if sector\+Number is F\+L\+A\+S\+H\+\_\+\+S\+E\+C\+T\+O\+R\+\_\+\+Z\+E\+R\+O\+\_\+\+A\+\_\+\+C\+O\+DE. Deletes sector 0b if sector\+Number is F\+L\+A\+S\+H\+\_\+\+S\+E\+C\+T\+O\+R\+\_\+\+Z\+E\+R\+O\+\_\+\+B\+\_\+\+C\+O\+DE. 
+\begin{DoxyParams}{Parameters}
+{\em sector\+Number} & The sector to erase \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Sets all bits in sector to Logic 1 (High) 
+\end{DoxyNote}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!send\+Data\+To\+Flash\+With\+Four\+Bytes\+Opcode@{send\+Data\+To\+Flash\+With\+Four\+Bytes\+Opcode}}
+\index{send\+Data\+To\+Flash\+With\+Four\+Bytes\+Opcode@{send\+Data\+To\+Flash\+With\+Four\+Bytes\+Opcode}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{send\+Data\+To\+Flash\+With\+Four\+Bytes\+Opcode(uint8\+\_\+t $\ast$opcode, uint8\+\_\+t $\ast$buffer, uint16\+\_\+t buffer\+\_\+size)}{sendDataToFlashWithFourBytesOpcode(uint8_t *opcode, uint8_t *buffer, uint16_t buffer_size)}}]{\setlength{\rightskip}{0pt plus 5cm}send\+Data\+To\+Flash\+With\+Four\+Bytes\+Opcode (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{opcode, }
+\item[{uint8\+\_\+t $\ast$}]{buffer, }
+\item[{uint16\+\_\+t}]{buffer\+\_\+size}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_aeb534896d432fd07ac0fec3fdca842e1}{}\label{flash__mem_8c_aeb534896d432fd07ac0fec3fdca842e1}
 
 
-Deletes sub-\/section of sector 0\+X (see datasheet) 
+Send data with a four bytes opcode to flash. 
 
 
 \begin{DoxyParams}{Parameters}
-{\em sector\+Number} & The sub-\/section of sector 0 to erase (0 for 0a, 1 for 0b) \\
+{\em opcode} & Pointer to 4 bytes long opcode \\
+\hline
+{\em buffer} & Pointer to the buffer of data \\
+\hline
+{\em buffer\+\_\+size} & Length of the buffer \\
 \hline
 \end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-Success status. Will return R\+E\+T\+U\+R\+N\+\_\+\+N\+O\+K if sector\+Number is not 0 or 1 
-\end{DoxyReturn}
-\hypertarget{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}{\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!wait\+For\+Flash@{wait\+For\+Flash}}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!wait\+For\+Flash@{wait\+For\+Flash}}
 \index{wait\+For\+Flash@{wait\+For\+Flash}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
-\subsubsection[{wait\+For\+Flash}]{\setlength{\rightskip}{0pt plus 5cm}wait\+For\+Flash (
+\subsubsection[{\texorpdfstring{wait\+For\+Flash(void)}{waitForFlash(void)}}]{\setlength{\rightskip}{0pt plus 5cm}void wait\+For\+Flash (
 \begin{DoxyParamCaption}
 \item[{void}]{}
 \end{DoxyParamCaption}
-)}}\label{flash__mem_8c_a1e8a5c9034044f422af36e4033deeb65}
-
-
-Wait for the flash to be ready (poll status register) 
-
-\begin{DoxyReturn}{Returns}
-Success status 
+)}\hypertarget{flash__mem_8c_a93d91e39d124846088ebcb2282c06e1c}{}\label{flash__mem_8c_a93d91e39d124846088ebcb2282c06e1c}
+Waits for the flash to be ready (polls the flash chip status register) \begin{DoxyReturn}{Returns}
+success status 
 \end{DoxyReturn}
+\index{flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}!write\+Data\+To\+Flash@{write\+Data\+To\+Flash}}
+\index{write\+Data\+To\+Flash@{write\+Data\+To\+Flash}!flash\+\_\+mem.\+c@{flash\+\_\+mem.\+c}}
+\subsubsection[{\texorpdfstring{write\+Data\+To\+Flash(uint16\+\_\+t page\+Number, uint16\+\_\+t offset, uint16\+\_\+t data\+Size, void $\ast$data)}{writeDataToFlash(uint16_t pageNumber, uint16_t offset, uint16_t dataSize, void *data)}}]{\setlength{\rightskip}{0pt plus 5cm}void write\+Data\+To\+Flash (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{page\+Number, }
+\item[{uint16\+\_\+t}]{offset, }
+\item[{uint16\+\_\+t}]{data\+Size, }
+\item[{void $\ast$}]{data}
+\end{DoxyParamCaption}
+)}\hypertarget{flash__mem_8c_a66ef8c9d56c17c6f40f5fb10508e29ee}{}\label{flash__mem_8c_a66ef8c9d56c17c6f40f5fb10508e29ee}
+Writes a data buffer to flash memory. The data is written starting at offset of a page. 
+\begin{DoxyParams}{Parameters}
+{\em page\+Number} & The target page number of flash memory \\
+\hline
+{\em offset} & The starting byte offset to begin writing in page\+Number \\
+\hline
+{\em data\+Size} & The number of bytes to write from the data buffer (assuming the data buffer is sufficiently large) \\
+\hline
+{\em data} & The buffer containing the data to write to flash memory \\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+The buffer will be destroyed. 
+
+Function does not allow crossing page boundaries. 
+\end{DoxyNote}

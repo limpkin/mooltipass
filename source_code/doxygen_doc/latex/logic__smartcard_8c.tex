@@ -1,0 +1,72 @@
+\hypertarget{logic__smartcard_8c}{}\section{src/\+L\+O\+G\+I\+C/logic\+\_\+smartcard.c File Reference}
+\label{logic__smartcard_8c}\index{src/\+L\+O\+G\+I\+C/logic\+\_\+smartcard.\+c@{src/\+L\+O\+G\+I\+C/logic\+\_\+smartcard.\+c}}
+
+
+Firmware logic -\/ smartcard related tasks Created\+: 18/08/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}smart\+\_\+card\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+smartcard\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+fwflash\+\_\+storage.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+screen\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+aes\+\_\+and\+\_\+comms.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+pin\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+smartcard.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes256\+\_\+ctr.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}rng.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}delays.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__smartcard_8c_a38148d2f48e4c3e8ed532851c24bf8dd}{handle\+Smartcard\+Inserted} (void)
+\begin{DoxyCompactList}\small\item\em Here is where are handled all smartcard insertion logic. \end{DoxyCompactList}\item 
+void \hyperlink{logic__smartcard_8c_a16ab33b74f62c72aed53dc25816ec398}{handle\+Smartcard\+Removed} (void)\hypertarget{logic__smartcard_8c_a16ab33b74f62c72aed53dc25816ec398}{}\label{logic__smartcard_8c_a16ab33b74f62c72aed53dc25816ec398}
+
+\begin{DoxyCompactList}\small\item\em Function called when smartcard is removed. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__smartcard_8c_ad96468ee717b9ae7eaf9c3a3af3250a7}{remove\+Card\+And\+Re\+Auth\+User} (void)
+\begin{DoxyCompactList}\small\item\em Re-\/authentication process. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries valid\+Card\+Detected\+Function} (uint16\+\_\+t $\ast$suggested\+\_\+pin)\hypertarget{logic__smartcard_8c_ac21677e8f8ad24a5f8e12a4fbcdacda9}{}\label{logic__smartcard_8c_ac21677e8f8ad24a5f8e12a4fbcdacda9}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries clone\+Smart\+Card\+Process} (volatile uint16\+\_\+t $\ast$pincode)\hypertarget{logic__smartcard_8c_a6e036c7d55d2e8faa45b39d18c612d55}{}\label{logic__smartcard_8c_a6e036c7d55d2e8faa45b39d18c612d55}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Firmware logic -\/ smartcard related tasks Created\+: 18/08/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{logic\+\_\+smartcard.\+c@{logic\+\_\+smartcard.\+c}!handle\+Smartcard\+Inserted@{handle\+Smartcard\+Inserted}}
+\index{handle\+Smartcard\+Inserted@{handle\+Smartcard\+Inserted}!logic\+\_\+smartcard.\+c@{logic\+\_\+smartcard.\+c}}
+\subsubsection[{\texorpdfstring{handle\+Smartcard\+Inserted(void)}{handleSmartcardInserted(void)}}]{\setlength{\rightskip}{0pt plus 5cm}handle\+Smartcard\+Inserted (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__smartcard_8c_a38148d2f48e4c3e8ed532851c24bf8dd}{}\label{logic__smartcard_8c_a38148d2f48e4c3e8ed532851c24bf8dd}
+
+
+Here is where are handled all smartcard insertion logic. 
+
+\begin{DoxyReturn}{Returns}
+R\+E\+T\+U\+R\+N\+\_\+\+OK if user is authenticated 
+\end{DoxyReturn}
+\index{logic\+\_\+smartcard.\+c@{logic\+\_\+smartcard.\+c}!remove\+Card\+And\+Re\+Auth\+User@{remove\+Card\+And\+Re\+Auth\+User}}
+\index{remove\+Card\+And\+Re\+Auth\+User@{remove\+Card\+And\+Re\+Auth\+User}!logic\+\_\+smartcard.\+c@{logic\+\_\+smartcard.\+c}}
+\subsubsection[{\texorpdfstring{remove\+Card\+And\+Re\+Auth\+User(void)}{removeCardAndReAuthUser(void)}}]{\setlength{\rightskip}{0pt plus 5cm}remove\+Card\+And\+Re\+Auth\+User (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__smartcard_8c_ad96468ee717b9ae7eaf9c3a3af3250a7}{}\label{logic__smartcard_8c_ad96468ee717b9ae7eaf9c3a3af3250a7}
+
+
+Re-\/authentication process. 
+
+\begin{DoxyReturn}{Returns}
+success or not 
+\end{DoxyReturn}

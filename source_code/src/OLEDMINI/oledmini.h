@@ -78,7 +78,7 @@
 #define SSD1305_X_OFFSET                            4           // X offset between the screen frame buffer and the display
 #define SSD1305_Y_BUFFER_HEIGHT                     64          // Screen frame buffer is 64 pixels high
 #define SSD1305_Y_BUFFER_HEIGHT_BITMASK             0x3F        // Bitmask for 64
-#define SSD1305_SCROLL_SPEED_MS                     10          // Scrolling speed in ms
+#define SSD1305_SCROLL_SPEED_MS                     5           // Scrolling speed in ms
 #define SSD1305_SCREEN_PAGE_HEIGHT                  4           // 4 pages is one screen height
 #define SSD1305_SCREEN_PAGE_HEIGHT_BITMASK          0x03        // Bitmask for 4
 #define SSD1305_TOTAL_PAGE_HEIGHT                   8           // 8 pages is one screen buffer height
@@ -105,9 +105,11 @@ void miniOledResetMaxTextY(void);
 void miniOledBegin(uint8_t font);
 RET_TYPE miniOledIsScreenOn(void);
 void miniOledDumpCurrentFont(void);
+uint8_t miniOledGlyphWidth(char ch);
 void miniOledClearFrameBuffer(void);
 void miniOledWriteActiveBuffer(void);
 void miniOledDisplayOtherBuffer(void);
+void miniOledSetMinTextY(uint8_t minY);
 void miniOledSetMaxTextY(uint8_t maxY);
 void miniOledWriteInactiveBuffer(void);
 uint8_t miniOledPutstr(const char* str);
@@ -123,10 +125,10 @@ void miniOledDontFlushWrittenTextToDisplay(void);
 void miniOledSetContrastCurrent(uint8_t current);
 uint8_t miniOledPutCenteredString(uint8_t y, char* string);
 uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch);
-void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs);
+void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs);
 void miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t nbBytes);
 uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str);
-void miniOledBitmapDrawFlash(uint8_t x, int8_t y, uint8_t fileId, uint8_t options);
+void miniOledBitmapDrawFlash(int8_t x, int8_t y, uint8_t fileId, uint8_t options);
 void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, uint8_t yend);
 void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t full);
 

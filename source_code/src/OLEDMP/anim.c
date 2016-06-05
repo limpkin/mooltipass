@@ -43,6 +43,86 @@
 #include "oled_wrapper.h"
 #include "oledmp.h"
 #include "anim.h"
+#ifdef MINI_VERSION
+#define PAC_WIDTH           30
+#define LOCK_WIDTH          18
+#define LOCK_HEIGHT         24
+#define PAC_SIZE_DIVIDER    2
+#define LOCK_BLINK_DIVIDER  2
+uint8_t lock_bitmap_id = BITMAP_LOCK_FULL;
+int8_t pac_bitmap_id = BITMAP_PAC_FULL;
+int8_t pac_position = -(2*PAC_WIDTH);
+int8_t lock_position = -(PAC_WIDTH);
+uint8_t full_lock_bitmap = TRUE;
+uint8_t pac_bmp_id_counter = 0;
+uint8_t lock_blink_counter = 0;
+int8_t pac_bmp_id_inc = 1;
+
+// pacman animation
+void animScreenSaver(void)
+{
+    uint8_t lock_bitmap = TRUE;
+    oledClear();
+
+    // Is the mini locked?
+    if (getSmartCardInsertedUnlocked() == TRUE)
+    {
+        lock_bitmap = FALSE;
+    }
+
+    // Increment positions
+    if (++pac_position == SSD1305_OLED_WIDTH-1)
+    {
+        pac_position = -PAC_WIDTH;
+    }
+    if (++lock_position == SSD1305_OLED_WIDTH-1)
+    {
+        lock_position = -PAC_WIDTH;
+    }
+
+    // Display lock bitmap if needed
+    if (lock_bitmap != FALSE)
+    {
+        if (lock_blink_counter++ == LOCK_BLINK_DIVIDER)
+        {
+            if (full_lock_bitmap != FALSE)
+            {
+                lock_bitmap_id = BITMAP_LOCK_FULL;
+            }
+            else
+            {
+                lock_bitmap_id = BITMAP_LOCK_EMPTY;
+            }
+            full_lock_bitmap = !full_lock_bitmap;
+            lock_blink_counter = 0;
+        }
+        oledBitmapDrawFlash((uint8_t)lock_position, 1, lock_bitmap_id, 0);
+    }
+
+    // Display pacman bitmap
+    if (pac_bmp_id_counter++ == PAC_SIZE_DIVIDER)
+    {
+        pac_bitmap_id += pac_bmp_id_inc;
+
+        if (pac_bitmap_id == BITMAP_PAC_FULL - 1)
+        {
+            pac_bitmap_id = BITMAP_PAC_FULL;
+            pac_bmp_id_inc = 1;
+        } 
+        else if (pac_bitmap_id == BITMAP_PAC_RIGHT2 + 1)
+        {
+            pac_bitmap_id = BITMAP_PAC_RIGHT2;
+            pac_bmp_id_inc = -1;
+        }
+        pac_bmp_id_counter = 0;
+    }
+    oledBitmapDrawFlash((uint8_t)pac_position, 1, pac_bitmap_id, 0);
+
+    timerBasedDelayMs(getMooltipassParameterInEeprom(SCREEN_SAVER_SPEED_PARAM));
+    miniOledFlushEntireBufferToDisplay();
+}
+
+#else
 int16_t screensaver_anim_last_x=0, screensaver_anim_last_y=15;
 int8_t screensaver_anim_xvel=3, screensaver_anim_yvel=2;
 int16_t screensaver_anim_x=0, screensaver_anim_y=0;
@@ -87,3 +167,4 @@ void animScreenSaver(void)
     screensaver_anim_last_x = screensaver_anim_x;
     screensaver_anim_last_y = screensaver_anim_y;
 }
+#endif

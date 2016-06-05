@@ -62,9 +62,12 @@
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
  *
  *  MINI_PREPRODUCTION_SETUP
- *  => mooltipass mini pre-production units
+ *  => mooltipass mini pre-production units, no accelerometer
+ *
+ *  MINI_PREPRODUCTION_SETUP_ACC
+ *  => mooltipass mini pre-production units, with accelerometer
 */
-#define MINI_PREPRODUCTION_SETUP
+#define MINI_PREPRODUCTION_SETUP_ACC
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)
@@ -119,11 +122,7 @@
 #elif defined(MINI_CLICK_BETATESTERS_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
-    //#define MINI_WHEEL_NOT_ACTIVE
-    //#define MINI_JOYSTICK
-    //#define NO_PIN_CODE_REQUIRED
     #define FLASH_CHIP_4M
-    #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_MINI_CLICK_V1
     #define AVR_BOOTLOADER_PROGRAMMING
@@ -131,14 +130,15 @@
 #elif defined(MINI_PREPRODUCTION_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
-    //#define MINI_WHEEL_NOT_ACTIVE
-    //#define MINI_JOYSTICK
-    //#define NO_PIN_CODE_REQUIRED
     #define FLASH_CHIP_4M
-    #define DEV_PLUGIN_COMMS
-    #define JTAG_FUSE_ENABLED
-    #define HARDWARE_MINI_CLICK_V1
-    #define AVR_BOOTLOADER_PROGRAMMING
+    #define NO_ACCELEROMETER
+    #define HARDWARE_MINI_CLICK_V2
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(MINI_PREPRODUCTION_SETUP_ACC)
+    #define STACK_DEBUG
+    #define MINI_VERSION
+    #define FLASH_CHIP_4M
+    #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif
 
@@ -210,10 +210,6 @@
 /************** LOW LEVEL MEMORY BOUNDARY CHECKS ***************/
 #define MEMORY_BOUNDARY_CHECKS
 
-/************** IMPORT/EXPORT MODE FOR PLUGIN COMMS ***************/
-//#define FLASH_BLOCK_IMPORT_EXPORT
-#define NODE_BLOCK_IMPORT_EXPORT
-
 /************** TESTS ENABLING ***************/
 // Comment to disable test calls
 //#define TESTS_ENABLED
@@ -244,12 +240,13 @@ enum button_return_t            {LEFT_BUTTON = 0, RIGHT_BUTTON = 1, GUARD_BUTTON
 enum service_compare_mode_t     {COMPARE_MODE_MATCH = 0, COMPARE_MODE_COMPARE = 1};
 enum service_type_t             {SERVICE_CRED_TYPE = 0, SERVICE_DATA_TYPE = 1};
 enum timer_flag_t               {TIMER_EXPIRED = 0, TIMER_RUNNING = 1};
-enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0};
+enum return_type_t              {RETURN_NOK = -1, RETURN_OK = 0, RETURN_BACK = 2};
 enum flash_ret_t                {RETURN_INVALID_PARAM = -2, RETURN_WRITE_ERR = -3, RETURN_READ_ERR = -4, RETURN_NO_MATCH = -5};
 enum justify_t                  {OLED_LEFT  = 0, OLED_RIGHT = 1, OLED_CENTRE = 2};
 enum scrolling_flag_t           {OLED_SCROLL_NONE = 0, OLED_SCROLL_UP = 1, OLED_SCROLL_DOWN = 2, OLED_SCROLL_FLIP = 3};
 enum wheel_action_ret_t         {WHEEL_ACTION_NONE = 0, WHEEL_ACTION_UP = 1, WHEEL_ACTION_DOWN = 2, WHEEL_ACTION_SHORT_CLICK = 3, WHEEL_ACTION_LONG_CLICK = 4, WHEEL_ACTION_CLICK_UP = 5, WHEEL_ACTION_CLICK_DOWN = 6};
-enum mini_input_yes_no_ret_t    {MINI_INPUT_RET_TIMEOUT = -1, MINI_INPUT_RET_NONE = 0, MINI_INPUT_RET_NO = 1, MINI_INPUT_RET_YES = 2};
+enum mini_input_yes_no_ret_t    {MINI_INPUT_RET_TIMEOUT = -1, MINI_INPUT_RET_NONE = 0, MINI_INPUT_RET_NO = 1, MINI_INPUT_RET_YES = 2, MINI_INPUT_RET_BACK = 3};
+enum led_animation_type_t       {ANIM_NONE = 0x00, ANIM_FADE_IN_FADE_OUT_1_TIME = 0x01, ANIM_PULSE_UP_RAMP_DOWN = 0x02, ANIM_TURN_AROUND = 0x04};
 
 /**************** TYPEDEFS ****************/
 typedef void (*bootloader_f_ptr_type)(void);
@@ -343,7 +340,7 @@ typedef int8_t RET_TYPE;
     #define DDR_TOUCH_C     DDRF
     #define PIN_TOUCH_C     PINF
 #endif
-#ifdef  HARDWARE_MINI_CLICK_V1
+#if defined(HARDWARE_MINI_CLICK_V1) || defined(HARDWARE_MINI_CLICK_V2)
     // SPIs
     #define SPI_SMARTCARD   SPI_NATIVE
     #define SPI_FLASH       SPI_USART
@@ -396,30 +393,65 @@ typedef int8_t RET_TYPE;
     #define PORTID_OLED_POW PORTE2
     #define PORT_OLED_POW   PORTE
     #define DDR_OLED_POW    DDRE
-    // 5 direction joystick
-    #ifdef MINI_JOYSTICK
-    #define PORTID_JOY_RIGHT    PORTF1
-    #define PORTID_JOY_UP       PORTF4
-    #define PORTID_JOY_LEFT     PORTF5
-    #define PORTID_JOY_DOWN     PORTF7
-    #define PORTID_JOY_CENTER   PORTF6
-    #define PORT_JOYSTICK       PORTF
-    #define DDR_JOYSTICK        DDRF
-    #define PIN_JOYSTICK        PINF
-    #endif
+    
     // Click wheel
-    #define PORTID_WHEEL_A      PORTC6
-    #define PIN_WHEEL_A         PINC
-    #define PORTID_WHEEL_B      PORTB6
-    #define PIN_WHEEL_B         PINB
-    #define PORT_WHEEL_A        PORTC
-    #define PORT_WHEEL_B        PORTB
-    #define DDR_WHEEL_A         DDRC
-    #define DDR_WHEEL_B         DDRB
-    #define PORTID_CLICK        PORTE6
-    #define PORT_CLICK          PORTE
-    #define DDR_CLICK           DDRE
-    #define PIN_CLICK           PINE
+    #ifdef HARDWARE_MINI_CLICK_V1
+        #define PORTID_WHEEL_A      PORTC6
+        #define PIN_WHEEL_A         PINC
+        #define PORTID_WHEEL_B      PORTB6
+        #define PIN_WHEEL_B         PINB
+        #define PORT_WHEEL_A        PORTC
+        #define PORT_WHEEL_B        PORTB
+        #define DDR_WHEEL_A         DDRC
+        #define DDR_WHEEL_B         DDRB
+        #define PORTID_CLICK        PORTE6
+        #define PORT_CLICK          PORTE
+        #define DDR_CLICK           DDRE
+        #define PIN_CLICK           PINE
+    #elif defined(HARDWARE_MINI_CLICK_V2)
+        #define PORTID_WHEEL_A      PORTF1
+        #define PIN_WHEEL_A         PINF
+        #define PORTID_WHEEL_B      PORTF5
+        #define PIN_WHEEL_B         PINF
+        #define PORT_WHEEL_A        PORTF
+        #define PORT_WHEEL_B        PORTF
+        #define DDR_WHEEL_A         DDRF
+        #define DDR_WHEEL_B         DDRF
+        #define PORTID_CLICK        PORTF4
+        #define PORT_CLICK          PORTF
+        #define DDR_CLICK           DDRF
+        #define PIN_CLICK           PINF
+    #endif
+
+    // Accelerometer
+    #if defined(HARDWARE_MINI_CLICK_V2)
+        #define PORTID_ACC_INT      PORTD0
+        #define PORT_ACC_INT        PORTD
+        #define DDR_ACC_INT         DDRD
+        #define PIN_ACC_INT         PIND
+        #define PORTID_ACC_SS       PORTD1
+        #define PORT_ACC_SS         PORTD
+        #define DDR_ACC_SS          DDRD
+    #endif
+
+    // LEDs
+    #if defined(HARDWARE_MINI_CLICK_V2)
+        #define PORTID_LED_MOS      PORTC6
+        #define PORT_LED_MOS        PORTC
+        #define DDR_LED_MOS         DDRC
+        #define PORTID_LED_1        PORTE6
+        #define PORT_LED_1          PORTE
+        #define DDR_LED_1           DDRE
+        #define PORTID_LED_2        PORTB6
+        #define PORT_LED_2          PORTB
+        #define DDR_LED_2           DDRB
+        #define PORTID_LED_3        PORTF6
+        #define PORT_LED_3          PORTF
+        #define DDR_LED_3           DDRF
+        #define PORTID_LED_4        PORTF7
+        #define PORT_LED_4          PORTF
+        #define DDR_LED_4           DDRF
+    #endif
 #endif
 
 #endif /* DEFINES_H_ */

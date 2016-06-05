@@ -1,0 +1,177 @@
+\hypertarget{gui__screen__functions_8h}{}\section{src/\+G\+U\+I/gui\+\_\+screen\+\_\+functions.h File Reference}
+\label{gui__screen__functions_8h}\index{src/\+G\+U\+I/gui\+\_\+screen\+\_\+functions.\+h@{src/\+G\+U\+I/gui\+\_\+screen\+\_\+functions.\+h}}
+
+
+General user interface -\/ screen functions Created\+: 22/6/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries gui\+Ask\+For\+Confirmation} (uint8\+\_\+t nb\+\_\+args, \hyperlink{structconfirmation_text__t}{confirmation\+Text\+\_\+t} $\ast$text\+\_\+object)\hypertarget{gui__screen__functions_8h_a539627182e026e270738738954fe0547}{}\label{gui__screen__functions_8h_a539627182e026e270738738954fe0547}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries gui\+Ask\+For\+New\+Pin} (volatile uint16\+\_\+t $\ast$new\+\_\+pin, uint8\+\_\+t message\+\_\+id)\hypertarget{gui__screen__functions_8h_a0ac95f4e5ebb7dc92d7bc97f9b706106}{}\label{gui__screen__functions_8h_a0ac95f4e5ebb7dc92d7bc97f9b706106}
+
+\item 
+void \hyperlink{gui__screen__functions_8h_a3a0ce02f0df0fe66a5d39103c57f3dd0}{gui\+Display\+Information\+On\+Screen\+And\+Wait} (uint8\+\_\+t string\+ID)
+\begin{DoxyCompactList}\small\item\em Display text information on screen, wait a few seconds. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_aed14ded1e55451e419e57d179c250752}{gui\+Display\+Smartcard\+Unlocked\+Screen} (uint8\+\_\+t $\ast$username)
+\begin{DoxyCompactList}\small\item\em Display the smartcard unlocked screen. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_a360fbc1023c224d6fba05248479ef274}{gui\+Display\+Information\+On\+Screen} (uint8\+\_\+t string\+ID)
+\begin{DoxyCompactList}\small\item\em Display text information on screen. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_a7a585fc668a3f13f92d69a0e34f62cd4}{gui\+Display\+Login\+Or\+Password\+On\+Screen} (char $\ast$text)
+\begin{DoxyCompactList}\small\item\em Display a login or password on screen. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_accd772f01e8464fbb129a82bde852060}{gui\+Screen\+Loop} (uint8\+\_\+t touch\+\_\+detect\+\_\+result)
+\begin{DoxyCompactList}\small\item\em Function called to handle screen changes. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_a123bf932106969be6cde7bb24eb6fd89}{gui\+Display\+Raw\+String} (uint8\+\_\+t string\+ID)
+\begin{DoxyCompactList}\small\item\em Display raw text at current position on string. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_a7db0979ef947d217ffce38ec4537b6e4}{gui\+Set\+Current\+Screen} (uint8\+\_\+t screen)
+\begin{DoxyCompactList}\small\item\em Set current screen. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_a585bdadbe86779e93a53364302e03251}{gui\+Display\+Processing\+Screen} (void)\hypertarget{gui__screen__functions_8h_a585bdadbe86779e93a53364302e03251}{}\label{gui__screen__functions_8h_a585bdadbe86779e93a53364302e03251}
+
+\begin{DoxyCompactList}\small\item\em Inform the user the mooltipass is busy. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_afd6e243045dc3daef32ef14010327feb}{gui\+Get\+Back\+To\+Current\+Screen} (void)\hypertarget{gui__screen__functions_8h_afd6e243045dc3daef32ef14010327feb}{}\label{gui__screen__functions_8h_afd6e243045dc3daef32ef14010327feb}
+
+\begin{DoxyCompactList}\small\item\em Get back to the current screen. \end{DoxyCompactList}\item 
+void \hyperlink{gui__screen__functions_8h_ad3b7b785dc648e719af354238585a9d7}{gui\+Display\+Going\+To\+Sleep} (void)\hypertarget{gui__screen__functions_8h_ad3b7b785dc648e719af354238585a9d7}{}\label{gui__screen__functions_8h_ad3b7b785dc648e719af354238585a9d7}
+
+\begin{DoxyCompactList}\small\item\em Going to sleep code. \end{DoxyCompactList}\item 
+uint8\+\_\+t \hyperlink{gui__screen__functions_8h_aaf0a9067f1567f519a07a3933eb6bb85}{get\+Current\+Screen} (void)
+\begin{DoxyCompactList}\small\item\em Get the current screen. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+General user interface -\/ screen functions Created\+: 22/6/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}!get\+Current\+Screen@{get\+Current\+Screen}}
+\index{get\+Current\+Screen@{get\+Current\+Screen}!gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{get\+Current\+Screen(void)}{getCurrentScreen(void)}}]{\setlength{\rightskip}{0pt plus 5cm}uint8\+\_\+t get\+Current\+Screen (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__screen__functions_8h_aaf0a9067f1567f519a07a3933eb6bb85}{}\label{gui__screen__functions_8h_aaf0a9067f1567f519a07a3933eb6bb85}
+
+
+Get the current screen. 
+
+\begin{DoxyReturn}{Returns}
+The current screen 
+\end{DoxyReturn}
+\index{gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}!gui\+Display\+Information\+On\+Screen@{gui\+Display\+Information\+On\+Screen}}
+\index{gui\+Display\+Information\+On\+Screen@{gui\+Display\+Information\+On\+Screen}!gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Display\+Information\+On\+Screen(uint8\+\_\+t string\+I\+D)}{guiDisplayInformationOnScreen(uint8_t stringID)}}]{\setlength{\rightskip}{0pt plus 5cm}void gui\+Display\+Information\+On\+Screen (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{string\+ID}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__screen__functions_8h_a360fbc1023c224d6fba05248479ef274}{}\label{gui__screen__functions_8h_a360fbc1023c224d6fba05248479ef274}
+
+
+Display text information on screen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em string\+ID} & String ID to display \\
+\hline
+\end{DoxyParams}
+\index{gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}!gui\+Display\+Information\+On\+Screen\+And\+Wait@{gui\+Display\+Information\+On\+Screen\+And\+Wait}}
+\index{gui\+Display\+Information\+On\+Screen\+And\+Wait@{gui\+Display\+Information\+On\+Screen\+And\+Wait}!gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Display\+Information\+On\+Screen\+And\+Wait(uint8\+\_\+t string\+I\+D)}{guiDisplayInformationOnScreenAndWait(uint8_t stringID)}}]{\setlength{\rightskip}{0pt plus 5cm}void gui\+Display\+Information\+On\+Screen\+And\+Wait (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{string\+ID}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__screen__functions_8h_a3a0ce02f0df0fe66a5d39103c57f3dd0}{}\label{gui__screen__functions_8h_a3a0ce02f0df0fe66a5d39103c57f3dd0}
+
+
+Display text information on screen, wait a few seconds. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em string\+ID} & String ID to display \\
+\hline
+\end{DoxyParams}
+\index{gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}!gui\+Display\+Login\+Or\+Password\+On\+Screen@{gui\+Display\+Login\+Or\+Password\+On\+Screen}}
+\index{gui\+Display\+Login\+Or\+Password\+On\+Screen@{gui\+Display\+Login\+Or\+Password\+On\+Screen}!gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Display\+Login\+Or\+Password\+On\+Screen(char $\ast$text)}{guiDisplayLoginOrPasswordOnScreen(char *text)}}]{\setlength{\rightskip}{0pt plus 5cm}void gui\+Display\+Login\+Or\+Password\+On\+Screen (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{text}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__screen__functions_8h_a7a585fc668a3f13f92d69a0e34f62cd4}{}\label{gui__screen__functions_8h_a7a585fc668a3f13f92d69a0e34f62cd4}
+
+
+Display a login or password on screen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em text} & Text to display \\
+\hline
+\end{DoxyParams}
+\index{gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}!gui\+Display\+Raw\+String@{gui\+Display\+Raw\+String}}
+\index{gui\+Display\+Raw\+String@{gui\+Display\+Raw\+String}!gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Display\+Raw\+String(uint8\+\_\+t string\+I\+D)}{guiDisplayRawString(uint8_t stringID)}}]{\setlength{\rightskip}{0pt plus 5cm}void gui\+Display\+Raw\+String (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{string\+ID}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__screen__functions_8h_a123bf932106969be6cde7bb24eb6fd89}{}\label{gui__screen__functions_8h_a123bf932106969be6cde7bb24eb6fd89}
+
+
+Display raw text at current position on string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em string\+ID} & String ID to display \\
+\hline
+\end{DoxyParams}
+\index{gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}!gui\+Display\+Smartcard\+Unlocked\+Screen@{gui\+Display\+Smartcard\+Unlocked\+Screen}}
+\index{gui\+Display\+Smartcard\+Unlocked\+Screen@{gui\+Display\+Smartcard\+Unlocked\+Screen}!gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Display\+Smartcard\+Unlocked\+Screen(uint8\+\_\+t $\ast$username)}{guiDisplaySmartcardUnlockedScreen(uint8_t *username)}}]{\setlength{\rightskip}{0pt plus 5cm}void gui\+Display\+Smartcard\+Unlocked\+Screen (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{username}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__screen__functions_8h_aed14ded1e55451e419e57d179c250752}{}\label{gui__screen__functions_8h_aed14ded1e55451e419e57d179c250752}
+
+
+Display the smartcard unlocked screen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em username} & The username (if there\textquotesingle{}s one) \\
+\hline
+\end{DoxyParams}
+\index{gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}!gui\+Screen\+Loop@{gui\+Screen\+Loop}}
+\index{gui\+Screen\+Loop@{gui\+Screen\+Loop}!gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Screen\+Loop(uint8\+\_\+t touch\+\_\+detect\+\_\+result)}{guiScreenLoop(uint8_t touch_detect_result)}}]{\setlength{\rightskip}{0pt plus 5cm}void gui\+Screen\+Loop (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{input\+\_\+interface\+\_\+result}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__screen__functions_8h_accd772f01e8464fbb129a82bde852060}{}\label{gui__screen__functions_8h_accd772f01e8464fbb129a82bde852060}
+
+
+Function called to handle screen changes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em input\+\_\+interface\+\_\+result} & Touch detection result \\
+\hline
+\end{DoxyParams}
+\index{gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}!gui\+Set\+Current\+Screen@{gui\+Set\+Current\+Screen}}
+\index{gui\+Set\+Current\+Screen@{gui\+Set\+Current\+Screen}!gui\+\_\+screen\+\_\+functions.\+h@{gui\+\_\+screen\+\_\+functions.\+h}}
+\subsubsection[{\texorpdfstring{gui\+Set\+Current\+Screen(uint8\+\_\+t screen)}{guiSetCurrentScreen(uint8_t screen)}}]{\setlength{\rightskip}{0pt plus 5cm}void gui\+Set\+Current\+Screen (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{screen}
+\end{DoxyParamCaption}
+)}\hypertarget{gui__screen__functions_8h_a7db0979ef947d217ffce38ec4537b6e4}{}\label{gui__screen__functions_8h_a7db0979ef947d217ffce38ec4537b6e4}
+
+
+Set current screen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em screen} & The screen \\
+\hline
+\end{DoxyParams}

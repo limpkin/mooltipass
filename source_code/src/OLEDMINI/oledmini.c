@@ -70,6 +70,8 @@ uint8_t miniOledFlushText = FALSE;
 uint8_t miniOledTextWritingYIncrement = FALSE;
 // Maximum Y when printing text (used for truncating)
 uint8_t miniOledMaxTextY = SSD1305_OLED_WIDTH;
+// Minimum Y when printing text
+uint8_t miniOledMinTextY = 0;
 
 // OLED initialization sequence
 #define OLEDMINI_ALT_INIT_CODE
@@ -601,7 +603,7 @@ void miniOledSetFont(uint8_t fontIndex)
  *  \param  y       y position for the bitmap (0=top, 63=bottom)
  *  \param  bs      pointer to the bitstream object
  */
-void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
+void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs)
 {
     // Computing bitshifts, start/end pages...
     uint8_t end_ypixel = (miniOledBufferYOffset + y + bs->height - 1);
@@ -611,7 +613,30 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
     uint8_t data_lbitshift = (8 - data_rbitshift) & 0x07;
     uint8_t cur_pixels = 0, prev_pixels = 0;
     uint8_t end_x = x + bs->width - 1;
-    uint8_t start_x = x;
+    uint8_t start_x;
+
+    // Check if x is < 0
+    if (x < 0)
+    {
+        // Are we actually drawing in screen?
+        if ((uint8_t)(-x) > bs->width)
+        {
+            return;
+        }
+
+        // Remove the unused pixels
+        uint16_t nb_bytes_to_remove = (uint16_t)(-x) * (((uint16_t)bs->height + 7) >> 3);
+        while (nb_bytes_to_remove--)
+        {
+            miniBistreamGetNextByte(bs);
+        }
+
+        start_x = 0;
+    } 
+    else
+    {
+        start_x = x;
+    }
     
     // glyph data offsets are from the end of the glyph header array
     OLEDDEBUGPRINTF_P(PSTR("Draw raw: xs %d xe %d ps %d pe %d rbits %d lbits %d"), start_x, end_x, start_page, end_page, data_rbitshift, data_lbitshift);
@@ -619,14 +644,8 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
     // Bitmasks
     uint8_t rbitmask[] = {0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE};
     //uint8_t lbitmask[] = {0xFF, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F};
-        
-    // Check that we're not displaying off-screen
-    if (end_x >= SSD1305_OLED_WIDTH)
-    {
-        return;
-    }
     
-    for (uint8_t x = start_x; x <= end_x; x++)
+    for (uint8_t x = start_x; (x <= end_x) && (x < SSD1305_OLED_WIDTH); x++)
     {
         int16_t buffer_shift = (((uint16_t)end_page % SSD1305_OLED_BUFFER_PAGE_HEIGHT) << SSD1305_WIDTH_BIT_SHIFT);
         uint8_t pixels_to_be_displayed = bs->height;
@@ -697,7 +716,7 @@ void miniOledBitmapDrawRaw(uint8_t x, uint8_t y, bitstream_mini_t* bs)
  *                  OLED_SCROLL_DOWN - scroll bitmap down
  *                  0 - don't make bitmap active (unless already drawing to active buffer)
  */
-void miniOledBitmapDrawFlash(uint8_t x, int8_t y, uint8_t fileId, uint8_t options)
+void miniOledBitmapDrawFlash(int8_t x, int8_t y, uint8_t fileId, uint8_t options)
 {
     bitstream_mini_t bs;
     bitmap_t bitmap;
@@ -806,7 +825,7 @@ uint8_t miniOledGlyphWidth(char ch)
         if ((uint16_t)glyph.glyph == 0xFFFF)
         {
             // If there's no glyph data, it is the space!
-            return (glyph.width >> 1); // space character is always too large...
+            return (glyph.width >> 1) + 1; // space character is always too large...
         }
         else
         {
@@ -886,6 +905,7 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
     if ((uint16_t)glyph.glyph == 0xFFFF)
     {
         // space character, just fill in the gddram buffer and output background pixels
+        glyph.xoffset = 0;
         glyph_width = glyph.width >> 1; // space character is always too large...
         glyph_height = miniOledCurrentFont.height;
         OLEDDEBUGPRINTF_P(PSTR("    space character width %u height %u\n"), glyph_width, glyph_height);
@@ -906,7 +926,7 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
         
         // Initialize bitstream & draw the character
         miniBistreamInit(&bs, glyph_height, glyph_width, gaddr);   
-        miniOledBitmapDrawRaw(x, y, &bs);
+        miniOledBitmapDrawRaw((int8_t)x, y, &bs);
     }
     
     return (uint8_t)(glyph_width + glyph.xoffset) + 1;
@@ -1035,7 +1055,9 @@ void miniOledResetXY(void)
  */
 uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
 {
+    uint8_t miniOledMaxTextYCpy = miniOledMaxTextY;
     uint16_t width = miniOledStrWidth(str);
+    uint8_t return_val;
 
     // Compute where to start displaying the string
     if (justify == OLED_CENTRE)
@@ -1047,13 +1069,17 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
     } 
     else if (justify == OLED_RIGHT)
     {
-        if (x >= width) 
+        if (x < miniOledMaxTextY)
+        {
+            miniOledMaxTextY = x;
+        }
+        if (x >= (width + miniOledMinTextY)) 
         {
             x -= width;
         } 
-        else if (width >= miniOledMaxTextY)
+        else if ((width + miniOledMinTextY) >= miniOledMaxTextY)
         {
-            x = 0;
+            x = miniOledMinTextY;
         }
         else 
         {
@@ -1066,7 +1092,11 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
     miniOledTextCurY = y;
 
     // Display string
-    return miniOledPutstr(str);
+    return_val = miniOledPutstr(str);
+    miniOledMaxTextY = miniOledMaxTextYCpy;
+
+    // Return the number of characters printed
+    return return_val;
 }
 
 /*! \fn     miniOledPutCenteredString(uint8_t y, char* string)
@@ -1082,11 +1112,20 @@ uint8_t miniOledPutCenteredString(uint8_t y, char* string)
 
 /*! \fn     miniOledSetMaxTextY(uint8_t maxY)
  *  \brief  Set the max Y coordinate when printing text
- *  \param  y       y coordinate
+ *  \param  maxY       y coordinate
  */
 void miniOledSetMaxTextY(uint8_t maxY)
 {
     miniOledMaxTextY = maxY;
+}
+
+/*! \fn     miniOledSetMinTextY(uint8_t minY)
+ *  \brief  Set the min Y coordinate when printing text
+ *  \param  minY       y coordinate
+ */
+void miniOledSetMinTextY(uint8_t minY)
+{
+    miniOledMinTextY = minY;
 }
 
 /*! \fn     miniOledSetMaxTextY(void)

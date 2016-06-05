@@ -1,0 +1,272 @@
+\hypertarget{logic__eeprom_8h}{}\section{src/\+L\+O\+G\+I\+C/logic\+\_\+eeprom.h File Reference}
+\label{logic__eeprom_8h}\index{src/\+L\+O\+G\+I\+C/logic\+\_\+eeprom.\+h@{src/\+L\+O\+G\+I\+C/logic\+\_\+eeprom.\+h}}
+
+
+Firmware logic -\/ eeprom related tasks Created\+: 18/08/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include \char`\"{}eeprom\+\_\+addresses.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes256\+\_\+ctr.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}smartcard.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{logic__eeprom_8h_a61747da94f512be96147a141df4c36ec}{S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH}~(1 + S\+M\+A\+R\+T\+C\+A\+R\+D\+\_\+\+C\+P\+Z\+\_\+\+L\+E\+N\+G\+TH + A\+E\+S256\+\_\+\+C\+T\+R\+\_\+\+L\+E\+N\+G\+TH)
+\item 
+\#define {\bfseries N\+B\+\_\+\+M\+A\+X\+\_\+\+S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+I\+ES}~((E\+E\+P\+R\+O\+M\+\_\+\+S\+I\+ZE -\/ E\+E\+P\+\_\+\+S\+M\+C\+\_\+\+I\+C\+\_\+\+U\+S\+E\+R\+\_\+\+M\+A\+T\+C\+H\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR -\/ E\+E\+P\+R\+O\+M\+\_\+\+E\+N\+D\+\_\+\+R\+E\+S\+E\+R\+V\+ED)/\hyperlink{logic__eeprom_8h_a61747da94f512be96147a141df4c36ec}{S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH})\hypertarget{logic__eeprom_8h_ada2755f6a6d36803a3f74b6e424e6036}{}\label{logic__eeprom_8h_ada2755f6a6d36803a3f74b6e424e6036}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+P\+A\+R\+A\+M\+\_\+\+C\+O\+R\+R\+E\+C\+T\+\_\+\+I\+N\+I\+T\+\_\+\+K\+EY}~0x\+E2\hypertarget{logic__eeprom_8h_aabc19cc664c9e7315be1e590d8f0095f}{}\label{logic__eeprom_8h_aabc19cc664c9e7315be1e590d8f0095f}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+P\+A\+R\+A\+M\+\_\+\+I\+N\+I\+T\+\_\+\+K\+E\+Y\+\_\+\+P\+A\+R\+AM}~0\hypertarget{logic__eeprom_8h_a4980f66bfad82d159256796dfb600771}{}\label{logic__eeprom_8h_a4980f66bfad82d159256796dfb600771}
+
+\item 
+\#define {\bfseries K\+E\+Y\+B\+O\+A\+R\+D\+\_\+\+L\+A\+Y\+O\+U\+T\+\_\+\+P\+A\+R\+AM}~1\hypertarget{logic__eeprom_8h_a76011fe798ef1498a703048ddcc5b1f3}{}\label{logic__eeprom_8h_a76011fe798ef1498a703048ddcc5b1f3}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+I\+N\+T\+E\+R\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+P\+A\+R\+AM}~2\hypertarget{logic__eeprom_8h_a5011b3a5499197689f36a190d3d517bf}{}\label{logic__eeprom_8h_a5011b3a5499197689f36a190d3d517bf}
+
+\item 
+\#define {\bfseries L\+O\+C\+K\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+E\+N\+A\+B\+L\+E\+\_\+\+P\+A\+R\+AM}~3\hypertarget{logic__eeprom_8h_a82f37089ef5c23a75caac1fbe9b96bae}{}\label{logic__eeprom_8h_a82f37089ef5c23a75caac1fbe9b96bae}
+
+\item 
+\#define {\bfseries L\+O\+C\+K\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+P\+A\+R\+AM}~4\hypertarget{logic__eeprom_8h_ac9dc1cbbdccbdf1aca5c53d584491d75}{}\label{logic__eeprom_8h_ac9dc1cbbdccbdf1aca5c53d584491d75}
+
+\item 
+\#define {\bfseries T\+O\+U\+C\+H\+\_\+\+D\+I\+\_\+\+P\+A\+R\+AM}~5\hypertarget{logic__eeprom_8h_ac05f0dae2b30cb242a896aff8850ae73}{}\label{logic__eeprom_8h_ac05f0dae2b30cb242a896aff8850ae73}
+
+\item 
+\#define {\bfseries T\+O\+U\+C\+H\+\_\+\+W\+H\+E\+E\+L\+\_\+\+O\+S\+\_\+\+P\+A\+R\+A\+M\+\_\+\+O\+LD}~6\hypertarget{logic__eeprom_8h_aa30478ee36ce44e51f57fe50c82997c8}{}\label{logic__eeprom_8h_aa30478ee36ce44e51f57fe50c82997c8}
+
+\item 
+\#define {\bfseries T\+O\+U\+C\+H\+\_\+\+P\+R\+O\+X\+\_\+\+O\+S\+\_\+\+P\+A\+R\+AM}~7\hypertarget{logic__eeprom_8h_a60526430b67b9d61b1ef9442d67b52b1}{}\label{logic__eeprom_8h_a60526430b67b9d61b1ef9442d67b52b1}
+
+\item 
+\#define {\bfseries O\+F\+F\+L\+I\+N\+E\+\_\+\+M\+O\+D\+E\+\_\+\+P\+A\+R\+AM}~8\hypertarget{logic__eeprom_8h_ac607af76943840a48bb8542efba50c05}{}\label{logic__eeprom_8h_ac607af76943840a48bb8542efba50c05}
+
+\item 
+\#define {\bfseries S\+C\+R\+E\+E\+N\+S\+A\+V\+E\+R\+\_\+\+P\+A\+R\+AM}~9\hypertarget{logic__eeprom_8h_a7a6a74ff0d88a5e7cd85b3c0772398fe}{}\label{logic__eeprom_8h_a7a6a74ff0d88a5e7cd85b3c0772398fe}
+
+\item 
+\#define {\bfseries T\+O\+U\+C\+H\+\_\+\+C\+H\+A\+R\+G\+E\+\_\+\+T\+I\+M\+E\+\_\+\+P\+A\+R\+AM}~10\hypertarget{logic__eeprom_8h_a44943a4eee5394b27c0544633db3a2db}{}\label{logic__eeprom_8h_a44943a4eee5394b27c0544633db3a2db}
+
+\item 
+\#define {\bfseries T\+O\+U\+C\+H\+\_\+\+W\+H\+E\+E\+L\+\_\+\+O\+S\+\_\+\+P\+A\+R\+A\+M0}~11\hypertarget{logic__eeprom_8h_a0abfb287aa6b89e7bcff4b192baabc79}{}\label{logic__eeprom_8h_a0abfb287aa6b89e7bcff4b192baabc79}
+
+\item 
+\#define {\bfseries T\+O\+U\+C\+H\+\_\+\+W\+H\+E\+E\+L\+\_\+\+O\+S\+\_\+\+P\+A\+R\+A\+M1}~12\hypertarget{logic__eeprom_8h_a1af271109f9b9cab31e8cbd9569d83d5}{}\label{logic__eeprom_8h_a1af271109f9b9cab31e8cbd9569d83d5}
+
+\item 
+\#define {\bfseries T\+O\+U\+C\+H\+\_\+\+W\+H\+E\+E\+L\+\_\+\+O\+S\+\_\+\+P\+A\+R\+A\+M2}~13\hypertarget{logic__eeprom_8h_a59f1f66c4aa838b2e47ffb8b4686d515}{}\label{logic__eeprom_8h_a59f1f66c4aa838b2e47ffb8b4686d515}
+
+\item 
+\#define {\bfseries F\+L\+A\+S\+H\+\_\+\+S\+C\+R\+E\+E\+N\+\_\+\+P\+A\+R\+AM}~14\hypertarget{logic__eeprom_8h_adf11880e170b9085dd6388a7eba9a99d}{}\label{logic__eeprom_8h_adf11880e170b9085dd6388a7eba9a99d}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+R\+E\+Q\+\_\+\+C\+A\+N\+C\+E\+L\+\_\+\+P\+A\+R\+AM}~15\hypertarget{logic__eeprom_8h_abb1e3c251e5d9894f608fecf500afaa8}{}\label{logic__eeprom_8h_abb1e3c251e5d9894f608fecf500afaa8}
+
+\item 
+\#define {\bfseries T\+U\+T\+O\+R\+I\+A\+L\+\_\+\+B\+O\+O\+L\+\_\+\+P\+A\+R\+AM}~16\hypertarget{logic__eeprom_8h_ae47768a974e594df564ed0b5bc9df961}{}\label{logic__eeprom_8h_ae47768a974e594df564ed0b5bc9df961}
+
+\item 
+\#define {\bfseries S\+C\+R\+E\+E\+N\+\_\+\+S\+A\+V\+E\+R\+\_\+\+S\+P\+E\+E\+D\+\_\+\+P\+A\+R\+AM}~17\hypertarget{logic__eeprom_8h_a57a0137f1492ecc7d79ec5c746af04cc}{}\label{logic__eeprom_8h_a57a0137f1492ecc7d79ec5c746af04cc}
+
+\item 
+\#define {\bfseries L\+U\+T\+\_\+\+B\+O\+O\+T\+\_\+\+P\+O\+P\+U\+L\+A\+T\+I\+N\+G\+\_\+\+P\+A\+R\+AM}~18\hypertarget{logic__eeprom_8h_a02a206edcf3c03cd0b258f16ff1758ca}{}\label{logic__eeprom_8h_a02a206edcf3c03cd0b258f16ff1758ca}
+
+\item 
+\#define {\bfseries K\+E\+Y\+\_\+\+A\+F\+T\+E\+R\+\_\+\+L\+O\+G\+I\+N\+\_\+\+S\+E\+N\+D\+\_\+\+B\+O\+O\+L\+\_\+\+P\+A\+R\+AM}~19\hypertarget{logic__eeprom_8h_aaf5cbcdacc871bb52e65599494036c2f}{}\label{logic__eeprom_8h_aaf5cbcdacc871bb52e65599494036c2f}
+
+\item 
+\#define {\bfseries K\+E\+Y\+\_\+\+A\+F\+T\+E\+R\+\_\+\+L\+O\+G\+I\+N\+\_\+\+S\+E\+N\+D\+\_\+\+P\+A\+R\+AM}~20\hypertarget{logic__eeprom_8h_a09a76b659609b5b6ff7f39ef54b54e8a}{}\label{logic__eeprom_8h_a09a76b659609b5b6ff7f39ef54b54e8a}
+
+\item 
+\#define {\bfseries K\+E\+Y\+\_\+\+A\+F\+T\+E\+R\+\_\+\+P\+A\+S\+S\+\_\+\+S\+E\+N\+D\+\_\+\+B\+O\+O\+L\+\_\+\+P\+A\+R\+AM}~21\hypertarget{logic__eeprom_8h_a04c5e9a9bf6bd908ca5f052e368d29f4}{}\label{logic__eeprom_8h_a04c5e9a9bf6bd908ca5f052e368d29f4}
+
+\item 
+\#define {\bfseries K\+E\+Y\+\_\+\+A\+F\+T\+E\+R\+\_\+\+P\+A\+S\+S\+\_\+\+S\+E\+N\+D\+\_\+\+P\+A\+R\+AM}~22\hypertarget{logic__eeprom_8h_a51801f4400374795a131a97e7c286c70}{}\label{logic__eeprom_8h_a51801f4400374795a131a97e7c286c70}
+
+\item 
+\#define {\bfseries D\+E\+L\+A\+Y\+\_\+\+A\+F\+T\+E\+R\+\_\+\+K\+E\+Y\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+B\+O\+O\+L\+\_\+\+P\+A\+R\+AM}~23\hypertarget{logic__eeprom_8h_aa17344b692adc5d48bfbdb015967b324}{}\label{logic__eeprom_8h_aa17344b692adc5d48bfbdb015967b324}
+
+\item 
+\#define {\bfseries D\+E\+L\+A\+Y\+\_\+\+A\+F\+T\+E\+R\+\_\+\+K\+E\+Y\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+P\+A\+R\+AM}~24\hypertarget{logic__eeprom_8h_aa44bd8929ad09c3689bcc0ed7be0c07a}{}\label{logic__eeprom_8h_aa44bd8929ad09c3689bcc0ed7be0c07a}
+
+\item 
+\#define {\bfseries W\+H\+E\+E\+L\+\_\+\+D\+I\+R\+E\+C\+T\+I\+O\+N\+\_\+\+R\+E\+V\+E\+R\+S\+E\+\_\+\+P\+A\+R\+AM}~25\hypertarget{logic__eeprom_8h_ae95c598d5bc87b49d7dd65f5fcc399b1}{}\label{logic__eeprom_8h_ae95c598d5bc87b49d7dd65f5fcc399b1}
+
+\item 
+\#define {\bfseries M\+I\+N\+I\+\_\+\+O\+L\+E\+D\+\_\+\+C\+O\+N\+T\+R\+A\+S\+T\+\_\+\+C\+U\+R\+R\+E\+N\+T\+\_\+\+P\+A\+R\+AM}~26\hypertarget{logic__eeprom_8h_a185dfea996627c5dafd2da116fdf3b07}{}\label{logic__eeprom_8h_a185dfea996627c5dafd2da116fdf3b07}
+
+\item 
+\#define {\bfseries F\+I\+R\+S\+T\+\_\+\+U\+S\+E\+R\+\_\+\+P\+A\+R\+AM}~K\+E\+Y\+B\+O\+A\+R\+D\+\_\+\+L\+A\+Y\+O\+U\+T\+\_\+\+P\+A\+R\+AM\hypertarget{logic__eeprom_8h_a20497544dfc0592d2ae5b3643a8a6edc}{}\label{logic__eeprom_8h_a20497544dfc0592d2ae5b3643a8a6edc}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__eeprom_8h_a7cec985d2d958e3d6f1e2a78825ec6a4}{get\+User\+Id\+From\+Smart\+Card\+C\+PZ} (uint8\+\_\+t $\ast$buffer, uint8\+\_\+t $\ast$nonce, uint8\+\_\+t $\ast$userid)
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries write\+Smart\+Card\+C\+P\+Z\+For\+User\+Id} (uint8\+\_\+t $\ast$buffer, uint8\+\_\+t $\ast$nonce, uint8\+\_\+t userid)\hypertarget{logic__eeprom_8h_af8031a88828f026b2f5070f0d0bdbf2e}{}\label{logic__eeprom_8h_af8031a88828f026b2f5070f0d0bdbf2e}
+
+\item 
+uint8\+\_\+t \hyperlink{logic__eeprom_8h_ad616ba9ce3e9b207c0819dd0da5fd961}{control\+Eeprom\+Parameter} (uint8\+\_\+t val, uint8\+\_\+t lower\+Bound, uint8\+\_\+t upper\+Bound)
+\begin{DoxyCompactList}\small\item\em Control an Eeprom parameter. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries add\+New\+User\+For\+Existing\+Card} (uint8\+\_\+t $\ast$nonce, uint8\+\_\+t $\ast$user\+\_\+id)\hypertarget{logic__eeprom_8h_af99775c26845910589a24a33c28f8401}{}\label{logic__eeprom_8h_af99775c26845910589a24a33c28f8401}
+
+\item 
+void \hyperlink{logic__eeprom_8h_ad33db62047a48015ba92d50ee695cb53}{set\+Mooltipass\+Parameter\+In\+Eeprom} (uint8\+\_\+t param, uint8\+\_\+t val)
+\begin{DoxyCompactList}\small\item\em Set a Mooltipass parameter in eeprom. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__eeprom_8h_ab3522c1483d0283f766fc0a4b7968032}{add\+New\+User\+And\+New\+Smart\+Card} (volatile uint16\+\_\+t $\ast$pin\+\_\+code)
+\begin{DoxyCompactList}\small\item\em Add a new user with a new smart card. \end{DoxyCompactList}\item 
+uint8\+\_\+t \hyperlink{logic__eeprom_8h_ab3130e5c107d91163291afa10385c4bd}{get\+Mooltipass\+Parameter\+In\+Eeprom} (uint8\+\_\+t param)
+\begin{DoxyCompactList}\small\item\em Get a Mooltipass parameter from eeprom. \end{DoxyCompactList}\item 
+void \hyperlink{logic__eeprom_8h_a316882eef91b647eb7a894141050de6d}{output\+L\+U\+T\+Entries\+For\+Given\+User} (uint8\+\_\+t user\+ID)
+\begin{DoxyCompactList}\small\item\em output C\+PZ C\+TR entries to U\+SB for a given user \end{DoxyCompactList}\item 
+void \hyperlink{logic__eeprom_8h_ac2da000acfe8246a8b3e1fcfdbd5af63}{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT} (uint8\+\_\+t userid)
+\begin{DoxyCompactList}\small\item\em Delete all userid L\+UT entries. \end{DoxyCompactList}\item 
+void \hyperlink{logic__eeprom_8h_aabd13e56ed25a1ecac182cfe72329ff5}{first\+Time\+User\+Handling\+Init} (void)\hypertarget{logic__eeprom_8h_aabd13e56ed25a1ecac182cfe72329ff5}{}\label{logic__eeprom_8h_aabd13e56ed25a1ecac182cfe72329ff5}
+
+\begin{DoxyCompactList}\small\item\em First time required intialization. \end{DoxyCompactList}\item 
+void \hyperlink{logic__eeprom_8h_a988743992bf49dd2393db60c903429c2}{mooltipass\+Parameters\+Init} (void)\hypertarget{logic__eeprom_8h_a988743992bf49dd2393db60c903429c2}{}\label{logic__eeprom_8h_a988743992bf49dd2393db60c903429c2}
+
+\begin{DoxyCompactList}\small\item\em mooltipass parameters init \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Firmware logic -\/ eeprom related tasks Created\+: 18/08/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Macro Definition Documentation}
+\index{logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}!S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH@{S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH}}
+\index{S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH@{S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH}!logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}}
+\subsubsection[{\texorpdfstring{S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH}{SMCID_UID_MATCH_ENTRY_LENGTH}}]{\setlength{\rightskip}{0pt plus 5cm}\#define S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH~(1 + S\+M\+A\+R\+T\+C\+A\+R\+D\+\_\+\+C\+P\+Z\+\_\+\+L\+E\+N\+G\+TH + A\+E\+S256\+\_\+\+C\+T\+R\+\_\+\+L\+E\+N\+G\+TH)}\hypertarget{logic__eeprom_8h_a61747da94f512be96147a141df4c36ec}{}\label{logic__eeprom_8h_a61747da94f512be96147a141df4c36ec}
+Defines 
+
+\subsection{Function Documentation}
+\index{logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}!add\+New\+User\+And\+New\+Smart\+Card@{add\+New\+User\+And\+New\+Smart\+Card}}
+\index{add\+New\+User\+And\+New\+Smart\+Card@{add\+New\+User\+And\+New\+Smart\+Card}!logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}}
+\subsubsection[{\texorpdfstring{add\+New\+User\+And\+New\+Smart\+Card(volatile uint16\+\_\+t $\ast$pin\+\_\+code)}{addNewUserAndNewSmartCard(volatile uint16_t *pin_code)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE add\+New\+User\+And\+New\+Smart\+Card (
+\begin{DoxyParamCaption}
+\item[{volatile uint16\+\_\+t $\ast$}]{pin\+\_\+code}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8h_ab3522c1483d0283f766fc0a4b7968032}{}\label{logic__eeprom_8h_ab3522c1483d0283f766fc0a4b7968032}
+
+
+Add a new user with a new smart card. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pin\+\_\+code} & The new pin code \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+success or not 
+\end{DoxyReturn}
+\index{logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}!control\+Eeprom\+Parameter@{control\+Eeprom\+Parameter}}
+\index{control\+Eeprom\+Parameter@{control\+Eeprom\+Parameter}!logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}}
+\subsubsection[{\texorpdfstring{control\+Eeprom\+Parameter(uint8\+\_\+t val, uint8\+\_\+t lower\+Bound, uint8\+\_\+t upper\+Bound)}{controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound)}}]{\setlength{\rightskip}{0pt plus 5cm}uint8\+\_\+t control\+Eeprom\+Parameter (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{val, }
+\item[{uint8\+\_\+t}]{lower\+Bound, }
+\item[{uint8\+\_\+t}]{upper\+Bound}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8h_ad616ba9ce3e9b207c0819dd0da5fd961}{}\label{logic__eeprom_8h_ad616ba9ce3e9b207c0819dd0da5fd961}
+
+
+Control an Eeprom parameter. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em val} & The value to control \\
+\hline
+{\em lower\+Bound} & Minimum value \\
+\hline
+{\em upper\+Bound} & Max value \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Controlled value 
+\end{DoxyReturn}
+\index{logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}!delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT@{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT}}
+\index{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT@{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT}!logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}}
+\subsubsection[{\texorpdfstring{delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+U\+T(uint8\+\_\+t userid)}{deleteUserIdFromSMCUIDLUT(uint8_t userid)}}]{\setlength{\rightskip}{0pt plus 5cm}void delete\+User\+Id\+From\+S\+M\+C\+U\+I\+D\+L\+UT (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{userid}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8h_ac2da000acfe8246a8b3e1fcfdbd5af63}{}\label{logic__eeprom_8h_ac2da000acfe8246a8b3e1fcfdbd5af63}
+
+
+Delete all userid L\+UT entries. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em userid} & User ID to delete \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}!get\+Mooltipass\+Parameter\+In\+Eeprom@{get\+Mooltipass\+Parameter\+In\+Eeprom}}
+\index{get\+Mooltipass\+Parameter\+In\+Eeprom@{get\+Mooltipass\+Parameter\+In\+Eeprom}!logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}}
+\subsubsection[{\texorpdfstring{get\+Mooltipass\+Parameter\+In\+Eeprom(uint8\+\_\+t param)}{getMooltipassParameterInEeprom(uint8_t param)}}]{\setlength{\rightskip}{0pt plus 5cm}uint8\+\_\+t get\+Mooltipass\+Parameter\+In\+Eeprom (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{param}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8h_ab3130e5c107d91163291afa10385c4bd}{}\label{logic__eeprom_8h_ab3130e5c107d91163291afa10385c4bd}
+
+
+Get a Mooltipass parameter from eeprom. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em param} & The parameter (see our define) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parameter 
+\end{DoxyReturn}
+\index{logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}!get\+User\+Id\+From\+Smart\+Card\+C\+PZ@{get\+User\+Id\+From\+Smart\+Card\+C\+PZ}}
+\index{get\+User\+Id\+From\+Smart\+Card\+C\+PZ@{get\+User\+Id\+From\+Smart\+Card\+C\+PZ}!logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}}
+\subsubsection[{\texorpdfstring{get\+User\+Id\+From\+Smart\+Card\+C\+P\+Z(uint8\+\_\+t $\ast$buffer, uint8\+\_\+t $\ast$nonce, uint8\+\_\+t $\ast$userid)}{getUserIdFromSmartCardCPZ(uint8_t *buffer, uint8_t *nonce, uint8_t *userid)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE get\+User\+Id\+From\+Smart\+Card\+C\+PZ (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{buffer, }
+\item[{uint8\+\_\+t $\ast$}]{nonce, }
+\item[{uint8\+\_\+t $\ast$}]{userid}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8h_a7cec985d2d958e3d6f1e2a78825ec6a4}{}\label{logic__eeprom_8h_a7cec985d2d958e3d6f1e2a78825ec6a4}
+Prototypes \index{logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}!output\+L\+U\+T\+Entries\+For\+Given\+User@{output\+L\+U\+T\+Entries\+For\+Given\+User}}
+\index{output\+L\+U\+T\+Entries\+For\+Given\+User@{output\+L\+U\+T\+Entries\+For\+Given\+User}!logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}}
+\subsubsection[{\texorpdfstring{output\+L\+U\+T\+Entries\+For\+Given\+User(uint8\+\_\+t user\+I\+D)}{outputLUTEntriesForGivenUser(uint8_t userID)}}]{\setlength{\rightskip}{0pt plus 5cm}void output\+L\+U\+T\+Entries\+For\+Given\+User (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{user\+ID}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8h_a316882eef91b647eb7a894141050de6d}{}\label{logic__eeprom_8h_a316882eef91b647eb7a894141050de6d}
+
+
+output C\+PZ C\+TR entries to U\+SB for a given user 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+ID} & The user ID \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}!set\+Mooltipass\+Parameter\+In\+Eeprom@{set\+Mooltipass\+Parameter\+In\+Eeprom}}
+\index{set\+Mooltipass\+Parameter\+In\+Eeprom@{set\+Mooltipass\+Parameter\+In\+Eeprom}!logic\+\_\+eeprom.\+h@{logic\+\_\+eeprom.\+h}}
+\subsubsection[{\texorpdfstring{set\+Mooltipass\+Parameter\+In\+Eeprom(uint8\+\_\+t param, uint8\+\_\+t val)}{setMooltipassParameterInEeprom(uint8_t param, uint8_t val)}}]{\setlength{\rightskip}{0pt plus 5cm}void set\+Mooltipass\+Parameter\+In\+Eeprom (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{param, }
+\item[{uint8\+\_\+t}]{val}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__eeprom_8h_ad33db62047a48015ba92d50ee695cb53}{}\label{logic__eeprom_8h_ad33db62047a48015ba92d50ee695cb53}
+
+
+Set a Mooltipass parameter in eeprom. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em param} & The parameter (see \hyperlink{eeprom__addresses_8h}{eeprom\+\_\+addresses.\+h}) \\
+\hline
+{\em val} & Value of the parameter \\
+\hline
+\end{DoxyParams}

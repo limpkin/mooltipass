@@ -94,7 +94,8 @@ void initBuffer(uint8_t* buffer, uint16_t bufferSize, uint8_t policy)
 RET_TYPE flashInitTest(void)
 {
     // simply call initFlash
-    return initFlash();    
+    initFlashIOs();
+    return checkFlashID();    
 } // End flashInitTest
 
 /*!  \fn       flashWriteReadTest(uint8_t* bufferIn, uint8_t* bufferOut, uint16_t bufferSize)

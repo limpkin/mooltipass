@@ -1,0 +1,56 @@
+\hypertarget{anim_8c}{}\section{src/\+O\+L\+E\+D\+M\+P/anim.c File Reference}
+\label{anim_8c}\index{src/\+O\+L\+E\+D\+M\+P/anim.\+c@{src/\+O\+L\+E\+D\+M\+P/anim.\+c}}
+
+
+Animation support for oled bitmaps Created\+: 20/7/2014 Author\+: Darran Hunt.  
+
+
+{\ttfamily \#include $<$util/delay.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}touch\+\_\+higher\+\_\+level\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+aes\+\_\+and\+\_\+comms.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}timer\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oled\+\_\+wrapper.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}oledmp.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}anim.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries Z\+Z\+Z\+\_\+\+W\+I\+D\+TH}~20\hypertarget{anim_8c_a7024e7b0226148539223e5e9fd765e25}{}\label{anim_8c_a7024e7b0226148539223e5e9fd765e25}
+
+\item 
+\#define {\bfseries Z\+Z\+Z\+\_\+\+H\+E\+I\+G\+HT}~20\hypertarget{anim_8c_a6ec4ebc734b6ac5748c9f638974e2deb}{}\label{anim_8c_a6ec4ebc734b6ac5748c9f638974e2deb}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries anim\+Screen\+Saver} (void)\hypertarget{anim_8c_a5393ca92e03062d10669e7b90946b824}{}\label{anim_8c_a5393ca92e03062d10669e7b90946b824}
+
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+int16\+\_\+t {\bfseries screensaver\+\_\+anim\+\_\+last\+\_\+x} =0\hypertarget{anim_8c_a89104d5e2c1dbb85743e747479b626ba}{}\label{anim_8c_a89104d5e2c1dbb85743e747479b626ba}
+
+\item 
+int16\+\_\+t {\bfseries screensaver\+\_\+anim\+\_\+last\+\_\+y} =15\hypertarget{anim_8c_af948738f866b44043e6c01e655936bdc}{}\label{anim_8c_af948738f866b44043e6c01e655936bdc}
+
+\item 
+int8\+\_\+t {\bfseries screensaver\+\_\+anim\+\_\+xvel} =3\hypertarget{anim_8c_ac3239f953244bd549304ec2aec8981e4}{}\label{anim_8c_ac3239f953244bd549304ec2aec8981e4}
+
+\item 
+int8\+\_\+t {\bfseries screensaver\+\_\+anim\+\_\+yvel} =2\hypertarget{anim_8c_a5e54b6720750e063726b0c27157887e8}{}\label{anim_8c_a5e54b6720750e063726b0c27157887e8}
+
+\item 
+int16\+\_\+t {\bfseries screensaver\+\_\+anim\+\_\+x} =0\hypertarget{anim_8c_a457feed51d05f262b430be794bb5b818}{}\label{anim_8c_a457feed51d05f262b430be794bb5b818}
+
+\item 
+int16\+\_\+t {\bfseries screensaver\+\_\+anim\+\_\+y} =0\hypertarget{anim_8c_a63424d29d57e5d03dd0ca6d62db5fa6c}{}\label{anim_8c_a63424d29d57e5d03dd0ca6d62db5fa6c}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Animation support for oled bitmaps Created\+: 20/7/2014 Author\+: Darran Hunt. 
+

@@ -36,6 +36,9 @@
 #define MEDIA_BITMAP            1
 #define MEDIA_FONT              2
 
+// Buffer size
+#define TEXTBUFFERSIZE  32
+
 #if defined(HARDWARE_OLIVIER_V1)
     // Font IDs
     #define FONT_NONE           255
@@ -154,28 +157,40 @@
     #define FONT_NONE               255
     #define FONT_CC_REGULAR         1
     #define FONT_PROFONT_14         2
+    #define FONT_8BIT16             11
     #define FONT_DEFAULT            FONT_CC_REGULAR
 
-    // Bimap IDs
+    // Bitmap IDs
     #define BITMAP_MOOLTIPASS       0
     #define BITMAP_APPROVE          3
     #define BITMAP_DENY             4
-    #define BITMAP_MAIN_LOCK        5
-    #define BITMAP_MAIN_LOGIN       6
-    #define BITMAP_MAIN_FAVORITES   7
-    #define BITMAP_MAIN_SETTINGS    8
-    #define BITMAP_SETTINGS_PIN     9
-    #define BITMAP_SETTINGS_BACKUP  10
-    #define BITMAP_SETTINGS_HOME    11
-    #define BITMAP_SETTINGS_ERASE   12
-    #define BITMAP_INSERT_CARD      13
-    #define BITMAP_PIN_SLOT1        14
-    #define BITMAP_PIN_SLOT2        15
-    #define BITMAP_PIN_SLOT3        16
-    #define BITMAP_PIN_SLOT4        17
+    #define BITMAP_INSERT_CARD      5
+    #define BITMAP_PIN_SLOT1        6
+    #define BITMAP_PIN_SLOT2        7
+    #define BITMAP_PIN_SLOT3        8
+    #define BITMAP_PIN_SLOT4        9
+    #define BITMAP_SCROLL_WHEEL     10    
+    #define BITMAP_LOCK_FULL        40
+    #define BITMAP_LOCK_EMPTY       41
+    #define BITMAP_PAC_FULL         42
+    #define BITMAP_PAC_RIGHT        43
+    #define BITMAP_PAC_RIGHT2       44
+    #define BITMAP_PAC_BOT          45
+    #define BITMAP_PAC_BOT2         46
+    #define BITMAP_PAC_LEFT         47
+    #define BITMAP_PAC_LEFT2        48
+    #define BITMAP_PAC_UP           49
+    #define BITMAP_PAC_UP2          50
+    #define BITMAP_MAIN_LOCK        64
+    #define BITMAP_MAIN_LOGIN       68
+    #define BITMAP_MAIN_FAVORITES   72
+    #define BITMAP_MAIN_SETTINGS    76
+    #define BITMAP_SETTINGS_PIN     80
+    #define BITMAP_SETTINGS_BACKUP  84
+    #define BITMAP_SETTINGS_HOME    88
+    #define BITMAP_SETTINGS_ERASE   92
 
-    #define BITMAP_ZZZ            14
-    #define BITMAP_ZZZ_LOCKED     42
+    // To reintegrate?
     #define BITMAP_TUTORIAL_1     43
     #define BITMAP_TUTORIAL_2     44
     #define BITMAP_TUTORIAL_3     45
@@ -247,20 +262,17 @@
     #define ID_STRING_NO_CREDS          58
     #define ID_STRING_FUSE_PB           59
     #define ID_STRING_FUNC_TEST         60
-    #define ID_STRING_FUNC_TEST_INST    61
-    #define ID_STRING_FUNC_TEST_W       62
-    #define ID_STRING_FUNC_TEST_T       63
-    #define ID_STRING_FUNC_TEST_R       64
-    #define ID_STRING_FUNC_TEST_B       65
-    #define ID_STRING_FUNC_TEST_L       66
-    #define ID_STRING_FUNC_TEST_C       67
-    #define ID_STRING_FUNC_TEST_SCROLL  68
-    #define ID_STRING_PIN_COMPUTER      69
-    #define ID_STRING_SEND_PASS_FOR     70
-    #define ID_STRING_SELECT_CREDENTIAL 71
+    #define ID_STRING_FUNC_WHEEL        61
+    #define ID_STRING_FUNC_TEST_SCROLL  62
+    #define ID_STRING_PIN_COMPUTER      63
+    #define ID_STRING_SEND_PASS_FOR     64
+    #define ID_STRING_SELECT_CREDENTIAL 65
+    #define ID_STRING_INPUT_PB          66
+    #define ID_STRING_CHECK_LEDS        67
 
     #define ID_FIRST_STRING             0
-    #define ID_LAST_STRING              ID_STRING_SELECT_CREDENTIAL
+    #define ID_LAST_STRING              ID_STRING_CHECK_LEDS
+    #define NB_BMPS_PER_TRANSITION      4
 #endif
 
 // Keyboard LUTs
@@ -291,10 +303,15 @@
 #define ID_KEYB_SL_SL_LUT       BITMAP_ID_OFFSET+37
 #define ID_KEYB_FRDE_CH_LUT     BITMAP_ID_OFFSET+38
 #define ID_KEYB_EN_UK_LUT       BITMAP_ID_OFFSET+39
-#define ID_KEYB_CZ_QWERTY_LUT   BITMAP_ID_OFFSET+40
-#define ID_KEYB_EN_DV_LUT       BITMAP_ID_OFFSET+41
+#define ID_KEYB_CZ_QWERTY_LUT   BITMAP_ID_OFFSET+51
+#define ID_KEYB_EN_DV_LUT       BITMAP_ID_OFFSET+52
+#define ID_KEYB_FR_MAC_LUT      BITMAP_ID_OFFSET+53
+#define ID_KEYB_FR_CH_MAC_LUT   BITMAP_ID_OFFSET+54
+#define ID_KEYB_DE_CH_MAC_LUT   BITMAP_ID_OFFSET+55
+#define ID_KEYB_DE_MAC_LUT      BITMAP_ID_OFFSET+56
+#define ID_KEYB_US_MAC_LUT      BITMAP_ID_OFFSET+57
 #define FIRST_KEYB_LUT          ID_KEYB_EN_US_LUT
-#define LAST_KEYB_LUT           ID_KEYB_EN_UK_LUT
+#define LAST_KEYB_LUT           ID_KEYB_US_MAC_LUT
 
 // Prototypes
 uint8_t getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char);

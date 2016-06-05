@@ -12,7 +12,7 @@ Current commands
 ================
 Every sent packet will get one or more packets as an answer.
 Texts sent to and from the Mooltipass have payload length that include the terminating 0.
-In case the user currently is entering his PIN, the MP will only reply with a 0xB9 packet
+In case the user currently is entering his PIN, the MP will only reply with a 0xB9 packet.
 The following commands are currently implemented:
 
 0xA0: send debug message

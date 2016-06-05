@@ -1,0 +1,83 @@
+\hypertarget{eeprom__addresses_8h}{}\section{src/eeprom\+\_\+addresses.h File Reference}
+\label{eeprom__addresses_8h}\index{src/eeprom\+\_\+addresses.\+h@{src/eeprom\+\_\+addresses.\+h}}
+
+
+Data addresses in E\+E\+P\+R\+OM Created\+: 09/6/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include \char`\"{}usb\+\_\+cmd\+\_\+parser.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define {\bfseries C\+O\+R\+R\+E\+C\+T\+\_\+\+B\+O\+O\+T\+K\+EY}~0x\+D\+E\+AD\hypertarget{eeprom__addresses_8h_a29d46dd9433631638568852309310eb4}{}\label{eeprom__addresses_8h_a29d46dd9433631638568852309310eb4}
+
+\item 
+\#define {\bfseries B\+O\+O\+T\+L\+O\+A\+D\+E\+R\+\_\+\+B\+O\+O\+T\+K\+EY}~0x\+D0\+D0\hypertarget{eeprom__addresses_8h_ab529580bf09d56560d6b6d4c74c16179}{}\label{eeprom__addresses_8h_ab529580bf09d56560d6b6d4c74c16179}
+
+\item 
+\#define {\bfseries B\+R\+I\+C\+K\+E\+D\+\_\+\+B\+O\+O\+T\+K\+EY}~0x\+C\+A\+D0\hypertarget{eeprom__addresses_8h_af055d78794569754ff788528ef739d5a}{}\label{eeprom__addresses_8h_af055d78794569754ff788528ef739d5a}
+
+\item 
+\#define {\bfseries B\+O\+O\+T\+L\+O\+A\+D\+E\+R\+\_\+\+P\+W\+D\+O\+K\+\_\+\+K\+EY}~0x\+AB\hypertarget{eeprom__addresses_8h_a511bc5c90978f0fbf73e6adb9d6d80f3}{}\label{eeprom__addresses_8h_a511bc5c90978f0fbf73e6adb9d6d80f3}
+
+\item 
+\#define {\bfseries U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+O\+K\+\_\+\+K\+EY}~0x\+BB\hypertarget{eeprom__addresses_8h_ad867f78ba8c393b84ef1ed7637250297}{}\label{eeprom__addresses_8h_ad867f78ba8c393b84ef1ed7637250297}
+
+\item 
+\#define {\bfseries U\+S\+E\+R\+\_\+\+R\+E\+S\+E\+R\+V\+E\+D\+\_\+\+S\+P\+A\+C\+E\+\_\+\+I\+N\+\_\+\+E\+EP}~34\hypertarget{eeprom__addresses_8h_a0e736c9875429837bd8371992c53b056}{}\label{eeprom__addresses_8h_a0e736c9875429837bd8371992c53b056}
+
+\item 
+\#define {\bfseries E\+E\+P\+R\+O\+M\+\_\+\+S\+I\+ZE}~1024\hypertarget{eeprom__addresses_8h_ae3ef7bba113f663df6996f286b632a3f}{}\label{eeprom__addresses_8h_ae3ef7bba113f663df6996f286b632a3f}
+
+\item 
+\#define {\bfseries U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+E\+T\+\_\+\+B\+O\+O\+L\+\_\+\+S\+I\+ZE}~1\hypertarget{eeprom__addresses_8h_a521e1ce1049fdc0c37587183f2355148}{}\label{eeprom__addresses_8h_a521e1ce1049fdc0c37587183f2355148}
+
+\item 
+\#define {\bfseries U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+I\+ZE}~16\hypertarget{eeprom__addresses_8h_a474726cc6628ca8de437abb74bf181d4}{}\label{eeprom__addresses_8h_a474726cc6628ca8de437abb74bf181d4}
+
+\item 
+\#define {\bfseries U\+I\+D\+\_\+\+S\+I\+ZE}~6\hypertarget{eeprom__addresses_8h_a6703b5555de17066fe3c78f16b7bb397}{}\label{eeprom__addresses_8h_a6703b5555de17066fe3c78f16b7bb397}
+
+\item 
+\#define {\bfseries B\+O\+O\+T\+K\+E\+Y\+\_\+\+S\+I\+ZE}~2\hypertarget{eeprom__addresses_8h_ae3ef977c68bc2077d5ecdf5e65a33b30}{}\label{eeprom__addresses_8h_ae3ef977c68bc2077d5ecdf5e65a33b30}
+
+\item 
+\#define {\bfseries E\+E\+P\+R\+O\+M\+\_\+\+E\+N\+D\+\_\+\+R\+E\+S\+E\+R\+V\+ED}~(U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+E\+T\+\_\+\+B\+O\+O\+L\+\_\+\+S\+I\+ZE + U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+I\+ZE + U\+I\+D\+\_\+\+S\+I\+ZE + B\+O\+O\+T\+K\+E\+Y\+\_\+\+S\+I\+ZE)\hypertarget{eeprom__addresses_8h_acc502b409204090e2e1f669ed16b541b}{}\label{eeprom__addresses_8h_acc502b409204090e2e1f669ed16b541b}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+B\+O\+O\+T\+K\+E\+Y\+\_\+\+A\+D\+DR}~0\hypertarget{eeprom__addresses_8h_aafe6729574b9900bc03598ef65e93161}{}\label{eeprom__addresses_8h_aafe6729574b9900bc03598ef65e93161}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+B\+O\+O\+T\+\_\+\+P\+W\+D\+\_\+\+S\+ET}~(E\+E\+P\+\_\+\+B\+O\+O\+T\+K\+E\+Y\+\_\+\+A\+D\+DR + B\+O\+O\+T\+K\+E\+Y\+\_\+\+S\+I\+ZE)\hypertarget{eeprom__addresses_8h_aa2c650354b8daaa9a1e687249bd00b31}{}\label{eeprom__addresses_8h_aa2c650354b8daaa9a1e687249bd00b31}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+B\+O\+O\+T\+\_\+\+P\+WD}~(E\+E\+P\+\_\+\+B\+O\+O\+T\+\_\+\+P\+W\+D\+\_\+\+S\+ET + 1)\hypertarget{eeprom__addresses_8h_a5fce3dca0903e7e24bde1873853af28d}{}\label{eeprom__addresses_8h_a5fce3dca0903e7e24bde1873853af28d}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+U\+S\+E\+R\+\_\+\+D\+A\+T\+A\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}~(E\+E\+P\+\_\+\+B\+O\+O\+T\+\_\+\+P\+WD + P\+A\+C\+K\+E\+T\+\_\+\+E\+X\+P\+O\+R\+T\+\_\+\+S\+I\+ZE)\hypertarget{eeprom__addresses_8h_ad981a009d46711bbd84e2c6e046e358d}{}\label{eeprom__addresses_8h_ad981a009d46711bbd84e2c6e046e358d}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+S\+M\+C\+\_\+\+I\+C\+\_\+\+U\+S\+E\+R\+\_\+\+M\+A\+T\+C\+H\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}~(E\+E\+P\+\_\+\+U\+S\+E\+R\+\_\+\+D\+A\+T\+A\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR + U\+S\+E\+R\+\_\+\+R\+E\+S\+E\+R\+V\+E\+D\+\_\+\+S\+P\+A\+C\+E\+\_\+\+I\+N\+\_\+\+E\+EP)\hypertarget{eeprom__addresses_8h_a2d0fd1559cf8cb0926194f2a2315e9a8}{}\label{eeprom__addresses_8h_a2d0fd1559cf8cb0926194f2a2315e9a8}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+R\+E\+S\+E\+R\+V\+E\+D\+\_\+\+S\+P\+A\+C\+E\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR}~(E\+E\+P\+\_\+\+S\+M\+C\+\_\+\+I\+C\+\_\+\+U\+S\+E\+R\+\_\+\+M\+A\+T\+C\+H\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR + (N\+B\+\_\+\+M\+A\+X\+\_\+\+S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+I\+ES$\ast$\hyperlink{logic__eeprom_8h_a61747da94f512be96147a141df4c36ec}{S\+M\+C\+I\+D\+\_\+\+U\+I\+D\+\_\+\+M\+A\+T\+C\+H\+\_\+\+E\+N\+T\+R\+Y\+\_\+\+L\+E\+N\+G\+TH}))\hypertarget{eeprom__addresses_8h_a01e33ef8466250ec657eae8d260d4cc6}{}\label{eeprom__addresses_8h_a01e33ef8466250ec657eae8d260d4cc6}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+E\+T\+\_\+\+A\+D\+DR}~(E\+E\+P\+\_\+\+R\+E\+S\+E\+R\+V\+E\+D\+\_\+\+S\+P\+A\+C\+E\+\_\+\+S\+T\+A\+R\+T\+\_\+\+A\+D\+DR)\hypertarget{eeprom__addresses_8h_afd85066f58fe64b7aa33ce57a413736e}{}\label{eeprom__addresses_8h_afd85066f58fe64b7aa33ce57a413736e}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+A\+D\+DR}~(E\+E\+P\+\_\+\+U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+E\+T\+\_\+\+A\+D\+DR + U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+E\+T\+\_\+\+B\+O\+O\+L\+\_\+\+S\+I\+ZE)\hypertarget{eeprom__addresses_8h_a727768f63b8d8061baf783c89b7def7f}{}\label{eeprom__addresses_8h_a727768f63b8d8061baf783c89b7def7f}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+U\+I\+D\+\_\+\+A\+D\+DR}~(E\+E\+P\+\_\+\+U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+A\+D\+DR + U\+I\+D\+\_\+\+R\+E\+Q\+U\+E\+S\+T\+\_\+\+K\+E\+Y\+\_\+\+S\+I\+ZE)\hypertarget{eeprom__addresses_8h_aa24366eab7a89f0e495bf9bb02113996}{}\label{eeprom__addresses_8h_aa24366eab7a89f0e495bf9bb02113996}
+
+\item 
+\#define {\bfseries E\+E\+P\+\_\+\+B\+A\+C\+K\+U\+P\+\_\+\+B\+O\+O\+T\+K\+E\+Y\+\_\+\+A\+D\+DR}~(E\+E\+P\+\_\+\+U\+I\+D\+\_\+\+A\+D\+DR + U\+I\+D\+\_\+\+S\+I\+ZE)\hypertarget{eeprom__addresses_8h_a02e47f27d2908d74308a3bd1bcf2dbed}{}\label{eeprom__addresses_8h_a02e47f27d2908d74308a3bd1bcf2dbed}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Data addresses in E\+E\+P\+R\+OM Created\+: 09/6/2014 Author\+: Mathieu Stephan. 
+

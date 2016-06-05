@@ -1,0 +1,58 @@
+\hypertarget{functional__testing_8h}{}\section{src/functional\+\_\+testing.h File Reference}
+\label{functional__testing_8h}\index{src/functional\+\_\+testing.\+h@{src/functional\+\_\+testing.\+h}}
+
+
+Functional testing functions Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}.  
+
+
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{functional__testing_8h_a6f45f21600d1ff3f1f7535a1be88ae23}{electrical\+Jump\+To\+Bootloader\+Condition} (void)
+\begin{DoxyCompactList}\small\item\em Electrical condition to jump to the bootloader. \end{DoxyCompactList}\item 
+void \hyperlink{functional__testing_8h_a0f8b80196fabf3217afe1aaeb8dd8be4}{mooltipass\+Standard\+Electrical\+Test} (uint8\+\_\+t fuse\+\_\+ok)
+\begin{DoxyCompactList}\small\item\em Mooltipass standard electrical test. \end{DoxyCompactList}\item 
+void {\bfseries mooltipass\+Mini\+Functional\+Test} (uint16\+\_\+t current\+\_\+bootkey\+\_\+val, uint8\+\_\+t flash\+\_\+init\+\_\+result, uint8\+\_\+t fuse\+\_\+ok, uint8\+\_\+t mini\+\_\+inputs\+\_\+result)\hypertarget{functional__testing_8h_a33bc05612cdfb31735242b4923e70d85}{}\label{functional__testing_8h_a33bc05612cdfb31735242b4923e70d85}
+
+\item 
+void {\bfseries mooltipass\+Standard\+Functional\+Test} (uint16\+\_\+t current\+\_\+bootkey\+\_\+val, uint8\+\_\+t flash\+\_\+init\+\_\+result, uint8\+\_\+t touch\+\_\+init\+\_\+result, uint8\+\_\+t fuse\+\_\+ok)\hypertarget{functional__testing_8h_a29814cd1a373798388087652a8dbf28f}{}\label{functional__testing_8h_a29814cd1a373798388087652a8dbf28f}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Functional testing functions Copyright \mbox{[}2016\mbox{]} \mbox{[}Mathieu Stephan\mbox{]}. 
+
+
+
+\subsection{Function Documentation}
+\index{functional\+\_\+testing.\+h@{functional\+\_\+testing.\+h}!electrical\+Jump\+To\+Bootloader\+Condition@{electrical\+Jump\+To\+Bootloader\+Condition}}
+\index{electrical\+Jump\+To\+Bootloader\+Condition@{electrical\+Jump\+To\+Bootloader\+Condition}!functional\+\_\+testing.\+h@{functional\+\_\+testing.\+h}}
+\subsubsection[{\texorpdfstring{electrical\+Jump\+To\+Bootloader\+Condition(void)}{electricalJumpToBootloaderCondition(void)}}]{\setlength{\rightskip}{0pt plus 5cm}R\+E\+T\+\_\+\+T\+Y\+PE electrical\+Jump\+To\+Bootloader\+Condition (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{functional__testing_8h_a6f45f21600d1ff3f1f7535a1be88ae23}{}\label{functional__testing_8h_a6f45f21600d1ff3f1f7535a1be88ae23}
+
+
+Electrical condition to jump to the bootloader. 
+
+\begin{DoxyReturn}{Returns}
+Boolean to know if this condition is fullfilled 
+\end{DoxyReturn}
+\index{functional\+\_\+testing.\+h@{functional\+\_\+testing.\+h}!mooltipass\+Standard\+Electrical\+Test@{mooltipass\+Standard\+Electrical\+Test}}
+\index{mooltipass\+Standard\+Electrical\+Test@{mooltipass\+Standard\+Electrical\+Test}!functional\+\_\+testing.\+h@{functional\+\_\+testing.\+h}}
+\subsubsection[{\texorpdfstring{mooltipass\+Standard\+Electrical\+Test(uint8\+\_\+t fuse\+\_\+ok)}{mooltipassStandardElectricalTest(uint8_t fuse_ok)}}]{\setlength{\rightskip}{0pt plus 5cm}void mooltipass\+Standard\+Electrical\+Test (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{fuse\+\_\+ok}
+\end{DoxyParamCaption}
+)}\hypertarget{functional__testing_8h_a0f8b80196fabf3217afe1aaeb8dd8be4}{}\label{functional__testing_8h_a0f8b80196fabf3217afe1aaeb8dd8be4}
+
+
+Mooltipass standard electrical test. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fuse\+\_\+ok} & Bool to know if fuses set are ok \\
+\hline
+\end{DoxyParams}

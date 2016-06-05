@@ -1,0 +1,358 @@
+\hypertarget{logic__aes__and__comms_8c}{}\section{src/\+L\+O\+G\+I\+C/logic\+\_\+aes\+\_\+and\+\_\+comms.c File Reference}
+\label{logic__aes__and__comms_8c}\index{src/\+L\+O\+G\+I\+C/logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{src/\+L\+O\+G\+I\+C/logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+
+
+Firmware logic -\/ encryption and communications Created\+: 18/08/2014 Author\+: Mathieu Stephan.  
+
+
+{\ttfamily \#include $<$util/atomic.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+credentials\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+fwflash\+\_\+storage.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}gui\+\_\+screen\+\_\+functions.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+aes\+\_\+and\+\_\+comms.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb\+\_\+cmd\+\_\+parser.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}timer\+\_\+manager.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}logic\+\_\+eeprom.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}hid\+\_\+defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}aes256\+\_\+ctr.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}node\+\_\+mgmt.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}flash\+\_\+mem.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}defines.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}delays.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}usb.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}rng.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \hyperlink{logic__aes__and__comms_8c_af605926c53e38170c91ca278dd84ae66}{get\+Smart\+Card\+Inserted\+Unlocked} (void)
+\begin{DoxyCompactList}\small\item\em know if the smartcard is inserted and unlocked \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_aa23fbe207819d840f0a42b9da5ce1112}{set\+Smart\+Card\+Inserted\+Unlocked} (void)\hypertarget{logic__aes__and__comms_8c_aa23fbe207819d840f0a42b9da5ce1112}{}\label{logic__aes__and__comms_8c_aa23fbe207819d840f0a42b9da5ce1112}
+
+\begin{DoxyCompactList}\small\item\em set the smartcard is inserted and unlocked \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_a3e693658d71a156f5c87c89f47962050}{clear\+Smart\+Card\+Inserted\+Unlocked} (void)\hypertarget{logic__aes__and__comms_8c_a3e693658d71a156f5c87c89f47962050}{}\label{logic__aes__and__comms_8c_a3e693658d71a156f5c87c89f47962050}
+
+\begin{DoxyCompactList}\small\item\em set the smartcard is removed (called by interrupt!) \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_ad4185a8a95564978161535d5ca311cd2}{erase\+Flash\+Users\+Contents} (void)\hypertarget{logic__aes__and__comms_8c_ad4185a8a95564978161535d5ca311cd2}{}\label{logic__aes__and__comms_8c_ad4185a8a95564978161535d5ca311cd2}
+
+\begin{DoxyCompactList}\small\item\em Erase everything inside the flash. \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_a9cc73786e07d95f0a8eb1027c8b12f8b}{init\+Encryption\+Handling} (uint8\+\_\+t $\ast$aes\+\_\+key, uint8\+\_\+t $\ast$nonce)
+\begin{DoxyCompactList}\small\item\em Initialize our encryption/decryption part. \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_adfa8333245b42cbc18827c77b09fbabe}{init\+User\+Flash\+Context} (uint8\+\_\+t user\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Initialize our flash context. \end{DoxyCompactList}\item 
+uint16\+\_\+t {\bfseries search\+For\+Service\+Name} (uint8\+\_\+t $\ast$name, uint8\+\_\+t mode, uint8\+\_\+t type)\hypertarget{logic__aes__and__comms_8c_a36e48576e34a7d177f2e4d26ab754e69}{}\label{logic__aes__and__comms_8c_a36e48576e34a7d177f2e4d26ab754e69}
+
+\item 
+uint16\+\_\+t \hyperlink{logic__aes__and__comms_8c_ab745dd39d25124d24f134c82a7f92884}{search\+For\+Login\+In\+Given\+Parent} (uint16\+\_\+t parent\+\_\+addr, uint8\+\_\+t $\ast$name)
+\item 
+void \hyperlink{logic__aes__and__comms_8c_a35709638dca7acadeec3391a0e79cbcd}{ctr\+Pre\+Encryption\+Tasks} (void)\hypertarget{logic__aes__and__comms_8c_a35709638dca7acadeec3391a0e79cbcd}{}\label{logic__aes__and__comms_8c_a35709638dca7acadeec3391a0e79cbcd}
+
+\begin{DoxyCompactList}\small\item\em C\+TR pre encryption tasks. \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_a853f383eaf0065dfbdb3dbcfb3eca04b}{decrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag} (uint8\+\_\+t $\ast$data, uint8\+\_\+t $\ast$ctr)
+\begin{DoxyCompactList}\small\item\em Decrypt a block of data, clear credential\+\_\+timer\+\_\+valid. \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_abe78ac5d68297cef1ed356c0741840ab}{encrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag} (uint8\+\_\+t $\ast$data, uint8\+\_\+t $\ast$ctr)
+\begin{DoxyCompactList}\small\item\em Encrypt a block of data, clear credential\+\_\+timer\+\_\+valid. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__aes__and__comms_8c_ac858e3c344d7f63ca46362e88708c41e}{set\+Current\+Context} (uint8\+\_\+t $\ast$name, uint8\+\_\+t type)
+\begin{DoxyCompactList}\small\item\em Set our current context. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries add\+New\+Context} (uint8\+\_\+t $\ast$name, uint8\+\_\+t length, uint8\+\_\+t type)\hypertarget{logic__aes__and__comms_8c_ae22526bcee06cd313f9a3e126e86fcb7}{}\label{logic__aes__and__comms_8c_ae22526bcee06cd313f9a3e126e86fcb7}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries get\+Login\+For\+Context} (char $\ast$buffer)\hypertarget{logic__aes__and__comms_8c_a4b874d6b7f6e9eec80b191030da5fa6c}{}\label{logic__aes__and__comms_8c_a4b874d6b7f6e9eec80b191030da5fa6c}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries get\+Password\+For\+Context} (char $\ast$buffer)\hypertarget{logic__aes__and__comms_8c_a9097014a9a6278dd02ff4448cd2dfc94}{}\label{logic__aes__and__comms_8c_a9097014a9a6278dd02ff4448cd2dfc94}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries get\+Description\+For\+Context} (char $\ast$buffer)\hypertarget{logic__aes__and__comms_8c_a3c22892bb4d89ede68299edd4755858a}{}\label{logic__aes__and__comms_8c_a3c22892bb4d89ede68299edd4755858a}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__aes__and__comms_8c_a9c7c9fab57070ffc66fa6fcb64c0f6e0}{set\+Login\+For\+Context} (uint8\+\_\+t $\ast$name, uint8\+\_\+t length)
+\begin{DoxyCompactList}\small\item\em Set login for current context. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__aes__and__comms_8c_a13c7de9328d80459f78fa702bb0bd230}{set\+Password\+For\+Context} (uint8\+\_\+t $\ast$password, uint8\+\_\+t length)
+\begin{DoxyCompactList}\small\item\em Set password for current context. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE \hyperlink{logic__aes__and__comms_8c_acba821e3c7d55c66ac7672fe3776edbf}{add\+Data\+For\+Data\+Context} (uint8\+\_\+t $\ast$data, uint8\+\_\+t last\+\_\+packet\+\_\+flag)
+\begin{DoxyCompactList}\small\item\em Add 32 bytes of data to our current data parent. \end{DoxyCompactList}\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries get32\+Bytes\+Data\+For\+Current\+Service} (uint8\+\_\+t $\ast$buffer)\hypertarget{logic__aes__and__comms_8c_a1d3f3d204d12767f25eb6c32a34b5d43}{}\label{logic__aes__and__comms_8c_a1d3f3d204d12767f25eb6c32a34b5d43}
+
+\item 
+R\+E\+T\+\_\+\+T\+Y\+PE {\bfseries check\+Password\+For\+Context} (uint8\+\_\+t $\ast$password)\hypertarget{logic__aes__and__comms_8c_a8c0587ee01ee730da95ae2e2b257cca4}{}\label{logic__aes__and__comms_8c_a8c0587ee01ee730da95ae2e2b257cca4}
+
+\item 
+void \hyperlink{logic__aes__and__comms_8c_a0a33ec54fda2e3bddc3e2ada1ab41899}{ask\+User\+For\+Login\+And\+Password\+Keyb\+Output} (uint16\+\_\+t child\+\_\+address, char $\ast$service\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Ask the user to enter the login password of a given child. \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_a63ecc1b3ca1b4116bc129ba8339bf1cc}{favorite\+Picking\+Logic} (void)\hypertarget{logic__aes__and__comms_8c_a63ecc1b3ca1b4116bc129ba8339bf1cc}{}\label{logic__aes__and__comms_8c_a63ecc1b3ca1b4116bc129ba8339bf1cc}
+
+\begin{DoxyCompactList}\small\item\em Logic for picking a favorite\textquotesingle{}s credentials. \end{DoxyCompactList}\item 
+void \hyperlink{logic__aes__and__comms_8c_aa32f000bf83764ae5552c9027d8f8c8f}{login\+Select\+Logic} (void)\hypertarget{logic__aes__and__comms_8c_aa32f000bf83764ae5552c9027d8f8c8f}{}\label{logic__aes__and__comms_8c_aa32f000bf83764ae5552c9027d8f8c8f}
+
+\begin{DoxyCompactList}\small\item\em Logic for finding a given login. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t {\bfseries smartcard\+\_\+inserted\+\_\+unlocked} = F\+A\+L\+SE\hypertarget{logic__aes__and__comms_8c_a12d527d085c5c8eac20c653d516273f5}{}\label{logic__aes__and__comms_8c_a12d527d085c5c8eac20c653d516273f5}
+
+\item 
+uint8\+\_\+t {\bfseries current\+\_\+nonce} \mbox{[}A\+E\+S256\+\_\+\+C\+T\+R\+\_\+\+L\+E\+N\+G\+TH\mbox{]}\hypertarget{logic__aes__and__comms_8c_a4d3f926d333851c4bb7c348f15168217}{}\label{logic__aes__and__comms_8c_a4d3f926d333851c4bb7c348f15168217}
+
+\item 
+uint16\+\_\+t {\bfseries selected\+\_\+login\+\_\+child\+\_\+node\+\_\+addr}\hypertarget{logic__aes__and__comms_8c_a942c86acc4040f060bc85e5ccd0e6a07}{}\label{logic__aes__and__comms_8c_a942c86acc4040f060bc85e5ccd0e6a07}
+
+\item 
+uint8\+\_\+t {\bfseries selected\+\_\+login\+\_\+flag} = F\+A\+L\+SE\hypertarget{logic__aes__and__comms_8c_a07914f8f3d82c52a6cf6b1fcc70732c5}{}\label{logic__aes__and__comms_8c_a07914f8f3d82c52a6cf6b1fcc70732c5}
+
+\item 
+uint8\+\_\+t {\bfseries data\+\_\+context\+\_\+valid\+\_\+flag} = F\+A\+L\+SE\hypertarget{logic__aes__and__comms_8c_a251f84f88c5b061134c26ff13a3e494e}{}\label{logic__aes__and__comms_8c_a251f84f88c5b061134c26ff13a3e494e}
+
+\item 
+uint8\+\_\+t {\bfseries context\+\_\+valid\+\_\+flag} = F\+A\+L\+SE\hypertarget{logic__aes__and__comms_8c_ab689689ef283c40dc14cb0a9eef6c3b4}{}\label{logic__aes__and__comms_8c_ab689689ef283c40dc14cb0a9eef6c3b4}
+
+\item 
+uint8\+\_\+t {\bfseries current\+\_\+adding\+\_\+data\+\_\+flag} = F\+A\+L\+SE\hypertarget{logic__aes__and__comms_8c_a3fb26a5017ccf10f4f829bacac31429c}{}\label{logic__aes__and__comms_8c_a3fb26a5017ccf10f4f829bacac31429c}
+
+\item 
+uint8\+\_\+t {\bfseries currently\+\_\+adding\+\_\+data\+\_\+cntr} = 0\hypertarget{logic__aes__and__comms_8c_abf025b74811bbd8566306b9889bb0bbf}{}\label{logic__aes__and__comms_8c_abf025b74811bbd8566306b9889bb0bbf}
+
+\item 
+uint8\+\_\+t {\bfseries currently\+\_\+reading\+\_\+data\+\_\+cntr} = 0\hypertarget{logic__aes__and__comms_8c_aa2521d127f07a04b5dcacc3fa749c569}{}\label{logic__aes__and__comms_8c_aa2521d127f07a04b5dcacc3fa749c569}
+
+\item 
+uint8\+\_\+t {\bfseries currently\+\_\+writing\+\_\+first\+\_\+block} = F\+A\+L\+SE\hypertarget{logic__aes__and__comms_8c_af408365d698744c60ec26bebc07d6937}{}\label{logic__aes__and__comms_8c_af408365d698744c60ec26bebc07d6937}
+
+\item 
+uint16\+\_\+t {\bfseries next\+\_\+data\+\_\+node\+\_\+addr} = 0\hypertarget{logic__aes__and__comms_8c_ad3cdf7b15b21ae01c1124b951a202dee}{}\label{logic__aes__and__comms_8c_ad3cdf7b15b21ae01c1124b951a202dee}
+
+\item 
+uint8\+\_\+t {\bfseries data\+Node\+Ctr\+Val} \mbox{[}3\mbox{]}\hypertarget{logic__aes__and__comms_8c_ab8b2c5ac570778010ffda6fee9c8645b}{}\label{logic__aes__and__comms_8c_ab8b2c5ac570778010ffda6fee9c8645b}
+
+\item 
+uint8\+\_\+t {\bfseries next\+Ctr\+Val} \mbox{[}U\+S\+E\+R\+\_\+\+C\+T\+R\+\_\+\+S\+I\+ZE\mbox{]}\hypertarget{logic__aes__and__comms_8c_ae3f92b27415e0682faf15d0ee22612b3}{}\label{logic__aes__and__comms_8c_ae3f92b27415e0682faf15d0ee22612b3}
+
+\item 
+uint16\+\_\+t {\bfseries context\+\_\+parent\+\_\+node\+\_\+addr}\hypertarget{logic__aes__and__comms_8c_a08ae65e65ac9cf19efc7961293cf139c}{}\label{logic__aes__and__comms_8c_a08ae65e65ac9cf19efc7961293cf139c}
+
+\item 
+\hyperlink{structconfirmation_text__t}{confirmation\+Text\+\_\+t} {\bfseries conf\+\_\+text}\hypertarget{logic__aes__and__comms_8c_a04e3309f660d10929cd0c93662d60348}{}\label{logic__aes__and__comms_8c_a04e3309f660d10929cd0c93662d60348}
+
+\item 
+\hyperlink{structaes256_ctr_ctx__t}{aes256\+Ctr\+Ctx\+\_\+t} {\bfseries aesctx}\hypertarget{logic__aes__and__comms_8c_a256d08589d9ed67d91ec330152879420}{}\label{logic__aes__and__comms_8c_a256d08589d9ed67d91ec330152879420}
+
+\item 
+p\+Node {\bfseries temp\+\_\+pnode}\hypertarget{logic__aes__and__comms_8c_a52b223067ced03362bf5b08eaa63d2bd}{}\label{logic__aes__and__comms_8c_a52b223067ced03362bf5b08eaa63d2bd}
+
+\item 
+c\+Node {\bfseries temp\+\_\+cnode}\hypertarget{logic__aes__and__comms_8c_ad286199dd3852f5810fc1913178a20a6}{}\label{logic__aes__and__comms_8c_ad286199dd3852f5810fc1913178a20a6}
+
+\item 
+d\+Node $\ast$ {\bfseries temp\+\_\+dnode\+\_\+ptr} = (d\+Node$\ast$)\&temp\+\_\+cnode\hypertarget{logic__aes__and__comms_8c_a5fc562dd6f553cfe3736b1dbd4598193}{}\label{logic__aes__and__comms_8c_a5fc562dd6f553cfe3736b1dbd4598193}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Firmware logic -\/ encryption and communications Created\+: 18/08/2014 Author\+: Mathieu Stephan. 
+
+
+
+\subsection{Function Documentation}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!add\+Data\+For\+Data\+Context@{add\+Data\+For\+Data\+Context}}
+\index{add\+Data\+For\+Data\+Context@{add\+Data\+For\+Data\+Context}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{add\+Data\+For\+Data\+Context(uint8\+\_\+t $\ast$data, uint8\+\_\+t last\+\_\+packet\+\_\+flag)}{addDataForDataContext(uint8_t *data, uint8_t last_packet_flag)}}]{\setlength{\rightskip}{0pt plus 5cm}add\+Data\+For\+Data\+Context (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{data, }
+\item[{uint8\+\_\+t}]{last\+\_\+packet\+\_\+flag}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_acba821e3c7d55c66ac7672fe3776edbf}{}\label{logic__aes__and__comms_8c_acba821e3c7d55c66ac7672fe3776edbf}
+
+
+Add 32 bytes of data to our current data parent. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Block of data to add \\
+\hline
+{\em last\+\_\+packet\+\_\+flag} & Flag to know if it is our last packet \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Operation success or not 
+\end{DoxyReturn}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!ask\+User\+For\+Login\+And\+Password\+Keyb\+Output@{ask\+User\+For\+Login\+And\+Password\+Keyb\+Output}}
+\index{ask\+User\+For\+Login\+And\+Password\+Keyb\+Output@{ask\+User\+For\+Login\+And\+Password\+Keyb\+Output}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{ask\+User\+For\+Login\+And\+Password\+Keyb\+Output(uint16\+\_\+t child\+\_\+address, char $\ast$service\+\_\+name)}{askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char *service_name)}}]{\setlength{\rightskip}{0pt plus 5cm}ask\+User\+For\+Login\+And\+Password\+Keyb\+Output (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{child\+\_\+address, }
+\item[{char $\ast$}]{service\+\_\+name}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_a0a33ec54fda2e3bddc3e2ada1ab41899}{}\label{logic__aes__and__comms_8c_a0a33ec54fda2e3bddc3e2ada1ab41899}
+
+
+Ask the user to enter the login password of a given child. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em child\+\_\+address} & Address of the child \\
+\hline
+{\em service\+\_\+name} & Service name \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!decrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag@{decrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag}}
+\index{decrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag@{decrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{decrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag(uint8\+\_\+t $\ast$data, uint8\+\_\+t $\ast$ctr)}{decrypt32bBlockOfDataAndClearCTVFlag(uint8_t *data, uint8_t *ctr)}}]{\setlength{\rightskip}{0pt plus 5cm}decrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{data, }
+\item[{uint8\+\_\+t $\ast$}]{ctr}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_a853f383eaf0065dfbdb3dbcfb3eca04b}{}\label{logic__aes__and__comms_8c_a853f383eaf0065dfbdb3dbcfb3eca04b}
+
+
+Decrypt a block of data, clear credential\+\_\+timer\+\_\+valid. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Data to be decrypted \\
+\hline
+{\em ctr} & Ctr value for the data \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!encrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag@{encrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag}}
+\index{encrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag@{encrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{encrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag(uint8\+\_\+t $\ast$data, uint8\+\_\+t $\ast$ctr)}{encrypt32bBlockOfDataAndClearCTVFlag(uint8_t *data, uint8_t *ctr)}}]{\setlength{\rightskip}{0pt plus 5cm}encrypt32b\+Block\+Of\+Data\+And\+Clear\+C\+T\+V\+Flag (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{data, }
+\item[{uint8\+\_\+t $\ast$}]{ctr}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_abe78ac5d68297cef1ed356c0741840ab}{}\label{logic__aes__and__comms_8c_abe78ac5d68297cef1ed356c0741840ab}
+
+
+Encrypt a block of data, clear credential\+\_\+timer\+\_\+valid. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Data to be decrypted \\
+\hline
+{\em ctr} & Pointer to where to store the ctr \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!get\+Smart\+Card\+Inserted\+Unlocked@{get\+Smart\+Card\+Inserted\+Unlocked}}
+\index{get\+Smart\+Card\+Inserted\+Unlocked@{get\+Smart\+Card\+Inserted\+Unlocked}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{get\+Smart\+Card\+Inserted\+Unlocked(void)}{getSmartCardInsertedUnlocked(void)}}]{\setlength{\rightskip}{0pt plus 5cm}get\+Smart\+Card\+Inserted\+Unlocked (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_af605926c53e38170c91ca278dd84ae66}{}\label{logic__aes__and__comms_8c_af605926c53e38170c91ca278dd84ae66}
+
+
+know if the smartcard is inserted and unlocked 
+
+\begin{DoxyReturn}{Returns}
+The state 
+\end{DoxyReturn}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!init\+Encryption\+Handling@{init\+Encryption\+Handling}}
+\index{init\+Encryption\+Handling@{init\+Encryption\+Handling}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{init\+Encryption\+Handling(uint8\+\_\+t $\ast$aes\+\_\+key, uint8\+\_\+t $\ast$nonce)}{initEncryptionHandling(uint8_t *aes_key, uint8_t *nonce)}}]{\setlength{\rightskip}{0pt plus 5cm}init\+Encryption\+Handling (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{aes\+\_\+key, }
+\item[{uint8\+\_\+t $\ast$}]{nonce}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_a9cc73786e07d95f0a8eb1027c8b12f8b}{}\label{logic__aes__and__comms_8c_a9cc73786e07d95f0a8eb1027c8b12f8b}
+
+
+Initialize our encryption/decryption part. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em aes\+\_\+key} & Our A\+E\+S256 key \\
+\hline
+{\em nonce} & The nonce \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!init\+User\+Flash\+Context@{init\+User\+Flash\+Context}}
+\index{init\+User\+Flash\+Context@{init\+User\+Flash\+Context}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{init\+User\+Flash\+Context(uint8\+\_\+t user\+\_\+id)}{initUserFlashContext(uint8_t user_id)}}]{\setlength{\rightskip}{0pt plus 5cm}init\+User\+Flash\+Context (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t}]{user\+\_\+id}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_adfa8333245b42cbc18827c77b09fbabe}{}\label{logic__aes__and__comms_8c_adfa8333245b42cbc18827c77b09fbabe}
+
+
+Initialize our flash context. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em user\+\_\+id} & The user ID \\
+\hline
+\end{DoxyParams}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!search\+For\+Login\+In\+Given\+Parent@{search\+For\+Login\+In\+Given\+Parent}}
+\index{search\+For\+Login\+In\+Given\+Parent@{search\+For\+Login\+In\+Given\+Parent}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{search\+For\+Login\+In\+Given\+Parent(uint16\+\_\+t parent\+\_\+addr, uint8\+\_\+t $\ast$name)}{searchForLoginInGivenParent(uint16_t parent_addr, uint8_t *name)}}]{\setlength{\rightskip}{0pt plus 5cm}uint16\+\_\+t search\+For\+Login\+In\+Given\+Parent (
+\begin{DoxyParamCaption}
+\item[{uint16\+\_\+t}]{parent\+\_\+addr, }
+\item[{uint8\+\_\+t $\ast$}]{name}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_ab745dd39d25124d24f134c82a7f92884}{}\label{logic__aes__and__comms_8c_ab745dd39d25124d24f134c82a7f92884}
+Prototypes \index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!set\+Current\+Context@{set\+Current\+Context}}
+\index{set\+Current\+Context@{set\+Current\+Context}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{set\+Current\+Context(uint8\+\_\+t $\ast$name, uint8\+\_\+t type)}{setCurrentContext(uint8_t *name, uint8_t type)}}]{\setlength{\rightskip}{0pt plus 5cm}set\+Current\+Context (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{name, }
+\item[{uint8\+\_\+t}]{type}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_ac858e3c344d7f63ca46362e88708c41e}{}\label{logic__aes__and__comms_8c_ac858e3c344d7f63ca46362e88708c41e}
+
+
+Set our current context. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & Name of the desired service / website \\
+\hline
+{\em type} & Type of context (data or credential) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+If we found the context 
+\end{DoxyReturn}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!set\+Login\+For\+Context@{set\+Login\+For\+Context}}
+\index{set\+Login\+For\+Context@{set\+Login\+For\+Context}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{set\+Login\+For\+Context(uint8\+\_\+t $\ast$name, uint8\+\_\+t length)}{setLoginForContext(uint8_t *name, uint8_t length)}}]{\setlength{\rightskip}{0pt plus 5cm}set\+Login\+For\+Context (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{name, }
+\item[{uint8\+\_\+t}]{length}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_a9c7c9fab57070ffc66fa6fcb64c0f6e0}{}\label{logic__aes__and__comms_8c_a9c7c9fab57070ffc66fa6fcb64c0f6e0}
+
+
+Set login for current context. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & String containing the login \\
+\hline
+{\em length} & String length \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Operation success or not 
+\end{DoxyReturn}
+\index{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}!set\+Password\+For\+Context@{set\+Password\+For\+Context}}
+\index{set\+Password\+For\+Context@{set\+Password\+For\+Context}!logic\+\_\+aes\+\_\+and\+\_\+comms.\+c@{logic\+\_\+aes\+\_\+and\+\_\+comms.\+c}}
+\subsubsection[{\texorpdfstring{set\+Password\+For\+Context(uint8\+\_\+t $\ast$password, uint8\+\_\+t length)}{setPasswordForContext(uint8_t *password, uint8_t length)}}]{\setlength{\rightskip}{0pt plus 5cm}set\+Password\+For\+Context (
+\begin{DoxyParamCaption}
+\item[{uint8\+\_\+t $\ast$}]{password, }
+\item[{uint8\+\_\+t}]{length}
+\end{DoxyParamCaption}
+)}\hypertarget{logic__aes__and__comms_8c_a13c7de9328d80459f78fa702bb0bd230}{}\label{logic__aes__and__comms_8c_a13c7de9328d80459f78fa702bb0bd230}
+
+
+Set password for current context. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em password} & String containing the password \\
+\hline
+{\em length} & String length \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Operation success or not 
+\end{DoxyReturn}

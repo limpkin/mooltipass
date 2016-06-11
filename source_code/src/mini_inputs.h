@@ -33,8 +33,27 @@
 #define LONG_PRESS_MS           1000
 #endif
 
+/* MACROS */
+/*! \fn     isNewAccelerometerDataReady(void)
+*   \brief  Function used to check if there's new accelerometer data ready
+*   \return RETURN_OK if new data ready
+*/
+static inline RET_TYPE isNewAccelerometerDataReady(void)
+{
+    if (PIN_ACC_INT & (1 << PORTID_ACC_INT))
+    {
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
+
 /* PROTOTYPES */
 RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec);
+RET_TYPE getNewAccelerometerDataIfAvailable(uint8_t* buffer);
 RET_TYPE isMiniDirectionPressed(uint8_t direction);
 void miniDirectionClearJoystickDetections(void);
 RET_TYPE getMiniDirectionJustPressed(void);

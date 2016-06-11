@@ -765,7 +765,7 @@ void guiDisplayGoingToSleep(void)
 {
     #ifdef MINI_VERSION
         oledClear();
-        oledPutstrXY(24, 8, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+        oledPutstrXY(24, THREE_LINE_TEXT_SECOND_POS, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
         oledBitmapDrawFlash(4, 0, BITMAP_ZZZ, 0);
         miniOledFlushEntireBufferToDisplay();
     #else

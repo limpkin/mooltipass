@@ -230,16 +230,7 @@ RET_TYPE scanAndGetDoubleZTap(void)
         if (++acc_z_avg_counter == ACC_Z_AVG_NB_SAMPLES)
         {
             // Compute average
-            if (acc_z_added < 0)
-            {
-                acc_z_added = -acc_z_added;
-                acc_z_average = acc_z_added >> ACC_Z_AVG_BIT_SHIFT;
-                acc_z_average = -acc_z_average;
-            } 
-            else
-            {
-                acc_z_average = acc_z_added >> ACC_Z_AVG_BIT_SHIFT;
-            }
+            acc_z_average = acc_z_added/ACC_Z_AVG_NB_SAMPLES;
 
             // depending on the sum of the difference with avg, allow algo or not
             if (acc_z_cum_diff_avg > ACC_Z_MAX_AVG_SUM_DIFF)
@@ -258,7 +249,7 @@ RET_TYPE scanAndGetDoubleZTap(void)
         }
 
         // Current z axis corrected value
-        int16_t z_cor_data_val;
+        int8_t z_cor_data_val;
         if (z_data_val > acc_z_average)
         {
             z_cor_data_val = z_data_val - acc_z_average;

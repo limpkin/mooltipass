@@ -62,7 +62,7 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 	if hid_device is None:
 		if print_debug:
 			print "Device not found"
-		return None, None, None, None
+		return None, None, None, None, None
 
 	# Device found
 	if print_debug:
@@ -83,7 +83,7 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 		except Exception, e:
 			if print_debug:
 				print "Cannot set configuration the device:" , str(e)
-			return None, None, None, None
+			return None, None, None, None, None
 
 	#for cfg in hid_device:
 	#	print "configuration val:", str(cfg.bConfigurationValue)
@@ -100,15 +100,23 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 	epout = usb.util.find_descriptor(intf, custom_match = lambda e: usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_OUT)
 	if epout is None:
 		hid_device.reset()
-		return None, None, None, None
+		return None, None, None, None, None
 	#print "Selected OUT endpoint:", epout.bEndpointAddress
 
 	# Match the first IN endpoint
 	epin = usb.util.find_descriptor(intf, custom_match = lambda e: usb.util.endpoint_direction(e.bEndpointAddress) == usb.util.ENDPOINT_IN)
 	if epin is None:
 		hid_device.reset()
-		return None, None, None, None
+		return None, None, None, None, None
 	#print "Selected IN endpoint:", epin.bEndpointAddress
+	
+	# If platform already streaming values
+	try :
+		data = epin.read(epin.wMaxPacketSize, timeout=200)
+		if data and data[CMD_INDEX] == 0x9F:
+			return hid_device, intf, epin, epout, True
+	except usb.core.USBError as e:
+		print ""
 
 	# prepare ping packet
 	byte1 = random.randint(0, 255)
@@ -133,8 +141,6 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 					temp_bool = 1
 					if print_debug:
 						print "Mooltipass replied to our ping message"
-				elif data[CMD_INDEX] == 0x9F:
-					temp_bool = 1
 				else:
 					if print_debug:
 						print "Cleaning remaining input packets"
@@ -142,17 +148,17 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 			except usb.core.USBError as e:
 				if print_debug:
 					print e
-				return None, None, None, None
+				return None, None, None, None, None
 	except usb.core.USBError as e:
 		if print_debug:
 			print e
-		return None, None, None, None
+		return None, None, None, None, None
 
 	# Return device & endpoints
-	return hid_device, intf, epin, epout
+	return hid_device, intf, epin, epout, False
 	
 def collect():
-	global xcurve, ycurve, zcurve, xdata, ydata, zdata, last_second, sample_counter
+	global xcurve, ycurve, zcurve, xdata, ydata, zdata, zcordata, detectiondata, last_second, sample_counter, mutex
 
 	# data read
 	data = receiveHidPacketWithTimeout(epin)
@@ -169,36 +175,53 @@ def collect():
 	xvalue = data[DATA_INDEX] + data[DATA_INDEX+1]*256
 	yvalue = data[DATA_INDEX+2] + data[DATA_INDEX+3]*256
 	zvalue = data[DATA_INDEX+4] + data[DATA_INDEX+5]*256
+	zcorvalue = data[DATA_INDEX+6] + data[DATA_INDEX+7]*256
+	detvalue = data[DATA_INDEX+8] + data[DATA_INDEX+9]*256
 	
-	if xvalue > 32768:
+	if xvalue >= 32768:
 		xvalue = -((~xvalue & 0x7FFF) + 1)
-	if yvalue > 32768:
+	if yvalue >= 32768:
 		yvalue = -((~yvalue & 0x7FFF) + 1)
-	if zvalue > 32768:
+	if zvalue >= 32768:
 		zvalue = -((~zvalue & 0x7FFF) + 1)
+	if zcorvalue >= 32768:
+		zcorvalue = -((~zcorvalue & 0x7FFF) + 1)
 
 	# append to data list
 	xdata.append(float(xvalue))
 	ydata.append(float(yvalue))
 	zdata.append(float(zvalue))
+	zcordata.append(float(zcorvalue))
+	detectiondata.append(float(detvalue))
 
 	# plot 
+	mutex.lock()
 	xdata = xdata[-1000:]
 	ydata = ydata[-1000:]
 	zdata = zdata[-1000:]
+	zcordata = zcordata[-1000:]
+	detectiondata = detectiondata[-1000:]
+	mutex.unlock()
 
 def update():
-	global xcurve, ycurve, zcurve, xdata, ydata, zdata, last_second, sample_counter
+	global xcurve, ycurve, zcurve, xdata, ydata, zdata, zcordata, detectiondata, last_second, sample_counter, mutex
 	
+	mutex.lock()
 	xcurve.setData(xdata)
 	ycurve.setData(ydata)
 	zcurve.setData(zdata)
+	zcorcurve.setData(zcordata)
+	detectioncurve.setData(detectiondata)
+	mutex.unlock()
 	app.processEvents()	 
 
 app = QtGui.QApplication([])
+mutex = QtCore.QMutex()
 xdata = [0]
 ydata = [0]
 zdata = [0]
+zcordata = [0]
+detectiondata = [0]
 last_second = 0
 sample_counter = 0
 
@@ -210,14 +233,17 @@ graph.setInteractive(True)
 xcurve = graph.plot(pen=(255,0,0), name="X axis")
 ycurve = graph.plot(pen=(0,255,0), name="Y axis")
 zcurve = graph.plot(pen=(0,0,255), name="Z axis")
+zcorcurve = graph.plot(pen=(255,255,255), name="Z axis corrected")
+detectioncurve = graph.plot(pen=(255,0,255), name="Detections")
 
 # Search for the mooltipass and read hid data
-hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, True)
+hid_device, intf, epin, epout, isStreaming = findHIDDevice(USB_VID, USB_PID, True)
 if hid_device is None:
 	sys.exit(0)
 	
 # Start stream mode
-sendHidPacket(epout, 0x9F, 0, None)
+if isStreaming == False:
+	sendHidPacket(epout, 0x9F, 0, None)
 
 # Qt timers
 displaytimer = QtCore.QTimer()

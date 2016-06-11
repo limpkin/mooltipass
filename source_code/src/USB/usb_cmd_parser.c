@@ -959,6 +959,10 @@ void usbProcessIncoming(uint8_t caller_id)
                     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
                     miniOledSetContrastCurrent(getMooltipassParameterInEeprom(MINI_OLED_CONTRAST_CURRENT_PARAM));
                 #endif
+                #ifdef HARDWARE_MINI_CLICK_V2
+                    knock_detection_threshold = getMooltipassParameterInEeprom(MINI_KNOCK_THRES_PARAM);
+                    knock_detection_enabled = getMooltipassParameterInEeprom(MINI_KNOCK_DETECT_ENABLE_PARAM);
+                #endif
             }
             else
             {
@@ -1410,7 +1414,7 @@ void usbProcessIncoming(uint8_t caller_id)
 
         case CMD_STREAM_ACC_DATA:
         {
-            #ifdef MINI_PREPRODUCTION_SETUP_ACC
+            #ifdef HARDWARE_MINI_CLICK_V2
             // work in progress
             uint8_t temp_data[6];
             while(1)

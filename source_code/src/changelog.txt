@@ -6,8 +6,7 @@ Todo:
 mini:
 - re-integrate zzz bitmap
 - Display flip based on accelerometer
-chrome app:
-- cred generator options
+- knock wait/approve
 
 V1.1:
 - post-indiegogo firmware

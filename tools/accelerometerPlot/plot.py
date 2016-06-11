@@ -33,6 +33,26 @@ def receiveHidPacketWithTimeout(epin):
 		return data
 	except usb.core.USBError as e:
 		return None
+		
+def sendHidPacket(epout, cmd, len, data):
+	# data to send
+	arraytosend = array('B')
+
+	# if command copy it otherwise copy the data
+	if cmd != 0:
+		arraytosend.append(len)
+		arraytosend.append(cmd)
+
+	# add the data
+	if data is not None:
+		arraytosend.extend(data)
+
+	#print arraytosend
+	#print arraytosend
+
+	# send data
+	epout.write(arraytosend)
+
 
 def findHIDDevice(vendor_id, product_id, print_debug):
 	# Find our device
@@ -89,6 +109,44 @@ def findHIDDevice(vendor_id, product_id, print_debug):
 		hid_device.reset()
 		return None, None, None, None
 	#print "Selected IN endpoint:", epin.bEndpointAddress
+
+	# prepare ping packet
+	byte1 = random.randint(0, 255)
+	byte2 = random.randint(0, 255)
+	ping_packet = array('B')
+	ping_packet.append(2)
+	ping_packet.append(CMD_PING)
+	ping_packet.append(byte1)
+	ping_packet.append(byte2)
+
+	time.sleep(0.5)
+	try:
+		# try to send ping packet
+		epout.write(ping_packet)
+		# try to receive one answer
+		temp_bool = 0
+		while temp_bool == 0:
+			try :
+				# try to receive answer
+				data = epin.read(epin.wMaxPacketSize, timeout=2000)
+				if data[CMD_INDEX] == CMD_PING and data[DATA_INDEX] == byte1 and data[DATA_INDEX+1] == byte2 :
+					temp_bool = 1
+					if print_debug:
+						print "Mooltipass replied to our ping message"
+				elif data[CMD_INDEX] == 0x9F:
+					temp_bool = 1
+				else:
+					if print_debug:
+						print "Cleaning remaining input packets"
+				time.sleep(.5)
+			except usb.core.USBError as e:
+				if print_debug:
+					print e
+				return None, None, None, None
+	except usb.core.USBError as e:
+		if print_debug:
+			print e
+		return None, None, None, None
 
 	# Return device & endpoints
 	return hid_device, intf, epin, epout
@@ -157,6 +215,9 @@ zcurve = graph.plot(pen=(0,0,255), name="Z axis")
 hid_device, intf, epin, epout = findHIDDevice(USB_VID, USB_PID, True)
 if hid_device is None:
 	sys.exit(0)
+	
+# Start stream mode
+sendHidPacket(epout, 0x9F, 0, None)
 
 # Qt timers
 displaytimer = QtCore.QTimer()

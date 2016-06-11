@@ -1408,6 +1408,22 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
 
+        case CMD_STREAM_ACC_DATA:
+        {
+            #ifdef MINI_PREPRODUCTION_SETUP_ACC
+            // work in progress
+            uint8_t temp_data[6];
+            while(1)
+            {
+                if (getNewAccelerometerDataIfAvailable(temp_data) == RETURN_OK)
+                {
+                    usbSendMessage(CMD_STREAM_ACC_DATA, 6, temp_data);
+                }
+            }
+            #endif
+            break;       
+        }
+
         case CMD_SET_FONT :
         {
             #ifdef HARDWARE_OLIVIER_V1

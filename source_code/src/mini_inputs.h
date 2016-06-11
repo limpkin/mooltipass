@@ -35,7 +35,7 @@
 #define ACC_Z_AVG_NB_SAMPLES        256
 #define ACC_Z_AVG_BIT_SHIFT         8
 // The maximum sum of the difference between samples & avg to run the detection algo
-#define ACC_Z_MAX_AVG_SUM_DIFF      40000
+#define ACC_Z_MAX_AVG_SUM_DIFF      160
 // Nb samples to timeout a second knock detection
 #define ACC_Z_SECOND_KNOCK_MAX_NBS  300
 // Nb samples of silence for a second knock detection

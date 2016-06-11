@@ -55,13 +55,13 @@ uint8_t wheel_reverse_bool = FALSE;
 RET_TYPE last_detection_type_ret = WHEEL_ACTION_NONE;
 #ifdef HARDWARE_MINI_CLICK_V2
 // z added value
-int32_t acc_z_added;
+int16_t acc_z_added;
 // z average value
-int16_t acc_z_average;
+int8_t acc_z_average;
 // z counter for average
 uint16_t acc_z_avg_counter;
 // sum of the differences with the average
-uint16_t acc_z_cum_diff_avg;
+uint8_t acc_z_cum_diff_avg;
 // boolean to know if we should do the tap detection
 uint8_t acc_z_tap_detect_enabled = FALSE;
 // knock detection sm
@@ -196,6 +196,10 @@ RET_TYPE scanAndGetDoubleZTap(void)
     uint8_t acc_data[6];
     #endif
 
+    #ifdef NO_ACCELEROMETER
+        return RETURN_NOK;
+    #endif
+
     // Is the feature actually enabled?
     if (knock_detection_enabled == FALSE)
     {
@@ -205,14 +209,11 @@ RET_TYPE scanAndGetDoubleZTap(void)
     // Fetch data if there's data to be fetched
     if (getNewAccelerometerDataIfAvailable(acc_data) != RETURN_NOK)
     {
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wstrict-aliasing"
-        // Get z data acceleration value, knowing that avr8 is little endian
-        int16_t z_data_val = *((int16_t*)(&acc_data[4]));
-        #pragma GCC diagnostic pop
+        // Get z data acceleration value
+        int8_t z_data_val = (int8_t)acc_data[5];
 
         // Sum of the differences with the average
-        if (acc_z_cum_diff_avg < 40000)
+        if (acc_z_cum_diff_avg < 222)
         {
             if (z_data_val > acc_z_average)
             {
@@ -266,22 +267,16 @@ RET_TYPE scanAndGetDoubleZTap(void)
         {
             z_cor_data_val = acc_z_average - z_data_val;
         }
-
-        // Compute threshold value
-        int16_t threshold_val = ((uint16_t)knock_detection_threshold) << 8;
         
         // For debug purposes, send the raw value we use for our algo
         #ifdef ACC_DBG_OUTPUT
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wstrict-aliasing"
-        *((int16_t*)(&acc_data[6])) = z_cor_data_val;
-        #pragma GCC diagnostic pop
+        acc_data[7] = (uint8_t)z_cor_data_val;
         #endif
 
         // Knock detection algo
         if (knock_detect_sm == 0)
         {
-            if(z_cor_data_val > threshold_val)
+            if(z_cor_data_val > knock_detection_threshold)
             {
                 knock_detect_sm++;
                 knock_detect_counter = 0;
@@ -291,7 +286,7 @@ RET_TYPE scanAndGetDoubleZTap(void)
         else if (knock_detect_sm == 1)
         {
             // Check if second knock
-            if (z_cor_data_val > threshold_val)
+            if (z_cor_data_val > knock_detection_threshold)
             {
                 // If silence period is respected
                 if (((knock_detect_counter - knock_last_det_counter) > ACC_Z_SECOND_KNOCK_MIN_NBS) && (acc_z_tap_detect_enabled != FALSE))

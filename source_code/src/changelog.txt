@@ -4,7 +4,6 @@ Todo:
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
 mini:
-- re-integrate zzz bitmap
 - Display flip based on accelerometer
 - knock wait/approve
 

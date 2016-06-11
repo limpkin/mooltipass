@@ -170,7 +170,8 @@
     #define BITMAP_PIN_SLOT3        8
     #define BITMAP_PIN_SLOT4        9
     #define BITMAP_SCROLL_WHEEL     10   
-    #define BITMAP_LOGIN_LPANE      12 
+    #define BITMAP_LOGIN_LPANE      12
+    #define BITMAP_ZZZ              13 
     #define BITMAP_LOCK_FULL        40
     #define BITMAP_LOCK_EMPTY       41
     #define BITMAP_PAC_FULL         42

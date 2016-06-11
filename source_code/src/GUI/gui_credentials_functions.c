@@ -74,6 +74,36 @@ void displayCredentialAtSlot(uint8_t slot, char* text, uint8_t truncate_index)
     oledPutstrXY((slot & 0x01)*0xFF, 1 + (slot & 0x02)*24 + yoffset, (slot & 0x01)*OLED_RIGHT, temp_disptext);
 }
 
+/*! \fn     miniIncrementScrolledTexts(void)
+*   \brief  Change offset char for the currently displayed strings
+*/
+void miniIncrementScrolledTexts(void)
+{
+    for (uint8_t i = 0; i < sizeof(string_extra_chars); i++)
+    {
+        if (string_extra_chars[i] > 0)
+        {
+            if (string_offset_cntrs[i]++ == string_extra_chars[i])
+            {
+                string_offset_cntrs[i] = 0;
+            }
+        }
+    }
+}
+
+/*! \fn     miniDisplayCredentialAtPosition(uint8_t position, char* credential)
+*   \brief  Display a given credential at a position for the wheel picking menu
+*   \param  position    The position (0 to 2)
+*   \param  credential  Text to display
+*/
+void miniDisplayCredentialAtPosition(uint8_t position, char* credential)
+{
+    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
+    uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
+
+    string_extra_chars[position] = strlen(credential) - miniOledPutstrXY(x_coordinates[position], y_coordinates[position], OLED_RIGHT, (char*)credential + string_offset_cntrs[position]);
+}
+
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
 *   \brief  Ask for user login selection / approval
 *   \param  p                   Pointer to a parent node
@@ -245,10 +275,6 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             uint8_t nb_children = 0;
             RET_TYPE wheel_action;
 
-            // Variables for scrolling
-            uint8_t string_offset_cntrs[2];
-            uint8_t string_extra_chars[2];
-
             // Get number of children
             while(temp_child_address != NODE_ADDR_NULL)
             {
@@ -266,9 +292,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             activateTimer(TIMER_CAPS, SCROLLING_DEL);
         
             while (action_chosen == FALSE)
-            {
-                uint8_t i;
-                        
+            {                        
                 // If needed, re-compute the string offsets & extra chars
                 if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED))
                 {
@@ -280,16 +304,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                     else
                     {
                         // Implement scrolling
-                        for (i = 0; i < sizeof(string_offset_cntrs); i++)
-                        {
-                            if (string_extra_chars[i] > 0)
-                            {
-                                if (string_offset_cntrs[i]++ == string_extra_chars[i])
-                                {
-                                    string_offset_cntrs[i] = 0;
-                                }
-                            }
-                        }
+                        miniIncrementScrolledTexts();
                     }
 
                     // Scrolling timer expired
@@ -394,36 +409,6 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
     }
     
     return picked_child;
-}
-
-/*! \fn     miniIncrementScrolledTexts(void)
-*   \brief  Change offset char for the currently displayed strings
-*/
-void miniIncrementScrolledTexts(void)
-{
-    for (uint8_t i = 0; i < sizeof(string_extra_chars); i++)
-    {
-        if (string_extra_chars[i] > 0)
-        {
-            if (string_offset_cntrs[i]++ == string_extra_chars[i])
-            {
-                string_offset_cntrs[i] = 0;
-            }
-        }
-    }
-}
-
-/*! \fn     miniDisplayCredentialAtPosition(uint8_t position, char* credential)
-*   \brief  Display a given credential at a position for the wheel picking menu
-*   \param  position    The position (0 to 2)
-*   \param  credential  Text to display
-*/
-void miniDisplayCredentialAtPosition(uint8_t position, char* credential)
-{
-    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
-    uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
-
-    string_extra_chars[position] = strlen(credential) - miniOledPutstrXY(x_coordinates[position], y_coordinates[position], OLED_RIGHT, (char*)credential + string_offset_cntrs[position]);
 }
 
 /*! \fn     favoriteSelectionScreen(pNode* p, cNode* c)

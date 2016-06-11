@@ -899,7 +899,7 @@ uint16_t loginSelectionScreen(void)
             
             oledClear();
             miniOledSetMinTextY(16);
-            miniOledDrawRectangle(12, 0, 1, SSD1305_OLED_HEIGHT, TRUE);
+            oledBitmapDrawFlash(0, 0, BITMAP_LOGIN_LPANE, OLED_SCROLL_NONE);
             oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the parent nodes
             for (; (i < 3); i++)

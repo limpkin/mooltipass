@@ -939,9 +939,18 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             // Text scrolling
             if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (nb_args > 1))
             {
-                miniOledDrawRectangle(0, 0, SSD1305_OLED_WIDTH-15, SSD1305_OLED_HEIGHT, FALSE);
+                oledClear();
                 activateTimer(TIMER_CAPS, SCROLLING_DEL);
                 miniOledSetMaxTextY(SSD1305_OLED_WIDTH-15);
+                if(approve_selected == FALSE)
+                {
+                    oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_DENY, 0);
+                }
+                else
+                {
+                    oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
+                }
+
                 for (uint8_t i = 0; i < nb_args; i++)
                 {
                     if (string_extra_chars[i] > 0)

@@ -19,6 +19,7 @@
  */
 #include <util/atomic.h>
 #include <stdint.h>
+#include "logic_eeprom.h"
 #include "mini_leds.h"
 #include "defines.h"
 #include "pwm.h"
@@ -51,6 +52,9 @@ void miniInitLeds(void)
  */
 void miniLedsSetAnimation(uint8_t animation)
 {
+    // Apply animation mask in case user doesn't want this particular one
+    animation &= getMooltipassParameterInEeprom(MINI_LED_ANIM_MASK_PARAM);
+
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         // Reset global vars

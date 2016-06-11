@@ -39,11 +39,16 @@
 #include "anim.h"
 #include "gui.h"
 #include "usb.h"
-
 // Last first matching parent address we saw
 uint16_t last_matching_parent_addr = NODE_ADDR_NULL;
 // Last number of matching parent address
 uint8_t last_matching_parent_number = 0;
+#ifdef MINI_VERSION
+// String offset counters for scrolling
+uint8_t string_offset_cntrs[3];
+// Number of extra chars for current displayed string
+uint8_t string_extra_chars[3];
+#endif
 
 
 /*! \fn     displayCredentialAtSlot(uint8_t slot, const char* text)
@@ -391,6 +396,36 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
     return picked_child;
 }
 
+/*! \fn     miniIncrementScrolledTexts(void)
+*   \brief  Change offset char for the currently displayed strings
+*/
+void miniIncrementScrolledTexts(void)
+{
+    for (uint8_t i = 0; i < sizeof(string_extra_chars); i++)
+    {
+        if (string_extra_chars[i] > 0)
+        {
+            if (string_offset_cntrs[i]++ == string_extra_chars[i])
+            {
+                string_offset_cntrs[i] = 0;
+            }
+        }
+    }
+}
+
+/*! \fn     miniDisplayCredentialAtPosition(uint8_t position, char* credential)
+*   \brief  Display a given credential at a position for the wheel picking menu
+*   \param  position    The position (0 to 2)
+*   \param  credential  Text to display
+*/
+void miniDisplayCredentialAtPosition(uint8_t position, char* credential)
+{
+    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
+    uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
+
+    string_extra_chars[position] = strlen(credential) - miniOledPutstrXY(x_coordinates[position], y_coordinates[position], OLED_RIGHT, (char*)credential + string_offset_cntrs[position]);
+}
+
 /*! \fn     favoriteSelectionScreen(pNode* p, cNode* c)
 *   \brief  Screen displayed to let the user choose a favorite
 *   \param  p                   Pointer to a parent node
@@ -400,15 +435,11 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 {
 #if defined(MINI_VERSION)
-    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
-    uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
     uint8_t nbFavorites = 0, startIndex = 0, selectedIndex = 0;
     uint16_t cur_address_selected = NODE_ADDR_NULL;
     uint8_t string_refresh_needed = TRUE;
     uint16_t parentAddresses[USER_MAX_FAV];
     uint16_t childAddresses[USER_MAX_FAV];
-    uint8_t string_offset_cntrs[3];
-    uint8_t string_extra_chars[3];
     RET_TYPE wheel_action;
     uint8_t i, j;
     (void)c;
@@ -450,16 +481,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             else
             {
                 // Implement scrolling
-                for (i = 0; i < sizeof(string_extra_chars); i++)
-                {
-                    if (string_extra_chars[i] > 0)
-                    {
-                        if (string_offset_cntrs[i]++ == string_extra_chars[i])
-                        {
-                            string_offset_cntrs[i] = 0;
-                        }
-                    }
-                }
+                miniIncrementScrolledTexts();
             }
 
             // Scrolling timer expired
@@ -504,7 +526,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                     }
 
                     // Print service / username at the correct slot
-                    string_extra_chars[i] = strlen((char*)p->service) - miniOledPutstrXY(x_coordinates[i], y_coordinates[i], OLED_RIGHT, (char*)p->service + string_offset_cntrs[i]);
+                    miniDisplayCredentialAtPosition(i, (char*)p->service);                    
 
                     // Second favorite displayed is the chosen one
                     if (i == 1)
@@ -810,13 +832,9 @@ static inline uint8_t displayCurrentSearchLoginTexts(char* text, uint16_t* resul
 uint16_t loginSelectionScreen(void)
 {
 #if defined(MINI_VERSION)
-    uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
-    uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
     uint16_t first_address = getLastParentAddress();
     uint16_t cur_address_selected = NODE_ADDR_NULL;
     uint8_t string_refresh_needed = TRUE;
-    uint8_t string_offset_cntrs[3];
-    uint8_t string_extra_chars[3];
     uint16_t temp_parent_address;
     uint8_t nb_parent_nodes;
     char current_fchar = 0;
@@ -860,16 +878,7 @@ uint16_t loginSelectionScreen(void)
             else
             {
                 // Implement scrolling
-                for (i = 0; i < sizeof(string_extra_chars); i++)
-                {
-                    if (string_extra_chars[i] > 0)
-                    {
-                        if (string_offset_cntrs[i]++ == string_extra_chars[i])
-                        {
-                            string_offset_cntrs[i] = 0;
-                        }
-                    }
-                }
+                miniIncrementScrolledTexts();
             }
 
             // Scrolling timer expired
@@ -899,7 +908,7 @@ uint16_t loginSelectionScreen(void)
                 readParentNode(&temp_pnode, temp_parent_address);
                 
                 // Print Login at the correct slot
-                string_extra_chars[i] = strlen((char*)temp_pnode.service) - miniOledPutstrXY(x_coordinates[i], y_coordinates[i], OLED_RIGHT, (char*)temp_pnode.service + string_offset_cntrs[i]);
+                miniDisplayCredentialAtPosition(i, (char*)temp_pnode.service);                
 
                 // Second child displayed is the chosen one
                 if (i == 1)

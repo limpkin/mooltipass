@@ -259,8 +259,16 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
     /* Check if we have a pending credential request from that tab */    
     if (mooltipass.device.retrieveCredentialsQueue[0].tabid == tabId)
     {
-        /* Send a cancelling request if it is the tab from which we're waiting an answer */
-        chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}}); 
+        /* If the device is locked, the first request is actually pending to be sent to the app */
+        if (mooltipass.device._status.unlocked == false)
+        {
+            mooltipass.device.retrieveCredentialsQueue.splice(0,1);
+        }
+        else
+        {
+            /* Send a cancelling request if it is the tab from which we're waiting an answer */
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});             
+        }
     }
     else
     {        

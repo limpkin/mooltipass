@@ -3496,7 +3496,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					mooltipass.memmgmt.currentFavorite = 0;
 					mooltipass.memmgmt.favoriteAddresses = [];
 					mooltipass.memmgmt.clonedFavoriteAddresses = [];
-                    // Setting address to 0,0 won't trigger the code to explore the data nodes
+					// Setting address to 0,0 won't trigger the code to explore the data nodes
 					mooltipass.memmgmt.dataStartingParent = [0, 0];
 					mooltipass.memmgmt.consoleLog("Data starting parent is " + mooltipass.memmgmt.dataStartingParent);
 					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);

@@ -78,6 +78,7 @@ mooltipass.memmgmt.credentialArrayForGui = [];			// Credential array for GUI
 mooltipass.memmgmt.preferences = {"version": MGMT_PREFERENCES_VERSION, "backup_files": []};
 
 // State machines & temp variables
+mooltipass.memmgmt.version = null;                          // Mooltipass version
 mooltipass.memmgmt.syncFS = null;							// SyncFS
 mooltipass.memmgmt.syncFSOK = false;						// SyncFS state
 mooltipass.memmgmt.currentMode = MGMT_IDLE;					// Current mode
@@ -679,7 +680,7 @@ mooltipass.memmgmt.integrityCheck = function()
 	}	
 	 
 	// Check data service starting parent
-	if((mooltipass.memmgmt.curDataServiceNodes.length > 0) && !mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.curDataServiceNodes[0].address, mooltipass.memmgmt.dataStartingParent))
+	/*if((mooltipass.memmgmt.curDataServiceNodes.length > 0) && !mooltipass.memmgmt.isSameAddress(mooltipass.memmgmt.curDataServiceNodes[0].address, mooltipass.memmgmt.dataStartingParent))
 	{
 		// Starting parent different, try to see if we know the currently set starting parent
 		var current_starting_node = mooltipass.memmgmt.curDataServiceNodes.filter(function(obj){return mooltipass.memmgmt.isSameAddress(obj.address, mooltipass.memmgmt.dataStartingParent)});
@@ -698,7 +699,7 @@ mooltipass.memmgmt.integrityCheck = function()
 	else
 	{
 		mooltipass.memmgmt.consoleLog("Starting data parent address ok");
-	}
+	}*/
 	
 	// Because of our wonderful previous developer, we can have parent nodes having the same name (urgh...). In this case we find the node that is pointed to and delete the other
 	for(var i = mooltipass.memmgmt.clonedCurServiceNodes.length - 1; i >= 0; i--)
@@ -3429,7 +3430,9 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 		if(packet[1] == mooltipass.device.commands['getVersion'])
 		{
 			mooltipass.memmgmt.nbMb = packet[2];
-			mooltipass.memmgmt.consoleLog("Mooltipass is " + mooltipass.memmgmt.nbMb + "Mb");			
+			mooltipass.memmgmt.consoleLog("Mooltipass is " + mooltipass.memmgmt.nbMb + "Mb");	
+			mooltipass.memmgmt.version = mooltipass.device.convertMessageArrayToString(packet.subarray(3));
+			mooltipass.memmgmt.consoleLog("Mooltipass version is " + mooltipass.memmgmt.version);				
 			mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getCTR'], null);
 			mooltipass.memmgmt_hid._sendMsg();
 		}
@@ -3490,23 +3493,18 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				mooltipass.memmgmt.clonedStartingParent = [packet[2], packet[3]];
 				mooltipass.memmgmt.consoleLog("Starting parent is " + mooltipass.memmgmt.startingParent); 
 				
-				// Depending if we're on the mini or not
-				if (mooltipass.device.version.indexOf("mini") >= 0)
-				{
-					mooltipass.memmgmt.currentFavorite = 0;
-					mooltipass.memmgmt.favoriteAddresses = [];
-					mooltipass.memmgmt.clonedFavoriteAddresses = [];
-					// Setting address to 0,0 won't trigger the code to explore the data nodes
-					mooltipass.memmgmt.dataStartingParent = [0, 0];
-					mooltipass.memmgmt.consoleLog("Data starting parent is " + mooltipass.memmgmt.dataStartingParent);
-					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
-					mooltipass.memmgmt_hid._sendMsg();                    
-				}
-				else
-				{
-					mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
-					mooltipass.memmgmt_hid._sendMsg();	                    
-				}			
+				// We don't deal with data nodes here....
+				mooltipass.memmgmt.currentFavorite = 0;
+				mooltipass.memmgmt.favoriteAddresses = [];
+				mooltipass.memmgmt.dataStartingParent = [0, 0];
+				mooltipass.memmgmt.clonedFavoriteAddresses = [];
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
+				mooltipass.memmgmt_hid._sendMsg();	
+				
+				/* 				
+				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
+				mooltipass.memmgmt_hid._sendMsg();	  
+				*/		
 			}
 		}
 		else if(packet[1] == mooltipass.device.commands['getStartingDataParentAddress'])

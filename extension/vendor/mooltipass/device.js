@@ -302,6 +302,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     //TODO: Trigger unlock if device is connected but locked
     // Check that the Mooltipass is unlocked
     if(!event.isMooltipassUnlocked()) {
+        // Don't return if the device is locked, queue the request
         /*if(forceCallback) {
             callback([]);
         }
@@ -335,18 +336,25 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         }
     }
     
-    // If our retrieveCredentialsQueue is empty, send the request to the app. Otherwise, queue it
+    // If our retrieveCredentialsQueue is empty and the device is unlocked, send the request to the app. Otherwise, queue it
     mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter});
     mooltipass.device.retrieveCredentialsCounter++;
     mooltipass.device._asynchronous.inputCallback = callback;
-    if(mooltipass.device.retrieveCredentialsQueue.length == 1)
+    if(mooltipass.device.retrieveCredentialsQueue.length == 1 && mooltipass.device._status.unlocked == true)
     {
         chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
         console.log('sending to ' + mooltipass.device._app.id);
     }
     else
     {
-        console.log("Requests still in the queue, waiting for reply from the app");
+        if(!mooltipass.device._status.unlocked)
+        {
+            console.log("Mooltipass locked, waiting for unlock");
+        }
+        else
+        {
+            console.log("Requests still in the queue, waiting for reply from the app");
+        }        
     }
 };
 
@@ -374,18 +382,31 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
             'version': message.deviceStatus.version,
             'state' : message.deviceStatus.state
         };
-        if (!message.deviceStatus.connected || !message.deviceStatus.unlocked)
+        if (!message.deviceStatus.connected)
         {
-            if (mooltipass.device.wasPreviouslyUnlocked == true)
-            {
-                mooltipass.device.retrieveCredentialsQueue = [];
-                mooltipass.device.wasPreviouslyUnlocked = false;
-            }
-            //console.log("Emptying queue");
+                mooltipass.device.retrieveCredentialsQueue = [];            
         }
         else
         {
-            mooltipass.device.wasPreviouslyUnlocked = true;
+            if (!message.deviceStatus.unlocked)
+            {
+                if (mooltipass.device.wasPreviouslyUnlocked == true)
+                {
+                    // Cancel pending requests
+                    mooltipass.device.retrieveCredentialsQueue = [];
+                }
+                mooltipass.device.wasPreviouslyUnlocked = false;
+            }
+            else
+            {
+                // In case we have pending messages in the queue
+                if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
+                {
+                    chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
+                    console.log('sending to ' + mooltipass.device._app.id);
+                }                
+                mooltipass.device.wasPreviouslyUnlocked = true;
+            }            
         }
         //console.log(mooltipass.device._status)
     }

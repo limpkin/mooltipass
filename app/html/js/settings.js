@@ -113,6 +113,44 @@ mooltipass.ui.settings.initKeypressPasswordEnabled = function() {
     });
 };
 
+mooltipass.ui.settings.initKnockEnabled = function() {
+    $('#settings-knockEnabled').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'knockDetectEnable',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-knockEnabled');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Knock detection feature ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
+                }
+            }
+        });
+    });
+};
+
+mooltipass.ui.settings.getKnockEnabled = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'knockDetectEnable',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-knockEnabled').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-knockEnabled'), _response.msg);
+            }
+        }
+    });
+};
+
+
 mooltipass.ui.settings.getKeypressWaitEnabled = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
@@ -185,6 +223,43 @@ mooltipass.ui.settings.initKeypressWait = function() {
             },
             'callbackParameters': null
         });
+    });
+};
+
+mooltipass.ui.settings.initKnockSensitivity = function() {
+    $('#settings-knockSensitivity').change(function() {
+        $(this).data('old-value', $(this).val());
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'knockDetectThres',
+            'value': parseInt($(this).val()),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-knockSensitivity');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Knock detection sensitivity changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
+                }
+            },
+            'callbackParameters': null
+        });
+    });
+};
+
+mooltipass.ui.settings.getKnockSensitivity = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'knockDetectThres',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-knockSensitivity').val(_response.value);
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-knockSensitivity'), _response.msg);
+            }
+        }
     });
 };
 
@@ -721,6 +796,8 @@ mooltipass.ui.settings.getSettings = function() {
     mooltipass.ui.settings.getKeypressPassword();
     mooltipass.ui.settings.getKeypressWait();
     mooltipass.ui.settings.getScreenBrightness();
+    mooltipass.ui.settings.getKnockEnabled();
+    mooltipass.ui.settings.getKnockSensitivity();
 }
 
 
@@ -747,4 +824,6 @@ mooltipass.ui.settings.init = function() {
     mooltipass.ui.settings.initKeypressLogin();
     mooltipass.ui.settings.initKeypressWait();
     mooltipass.ui.settings.initScreenBrightness();
+    mooltipass.ui.settings.initKnockEnabled();
+    mooltipass.ui.settings.initKnockSensitivity();
 };

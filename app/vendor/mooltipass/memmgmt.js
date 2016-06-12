@@ -3489,8 +3489,23 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				mooltipass.memmgmt.startingParent = [packet[2], packet[3]];
 				mooltipass.memmgmt.clonedStartingParent = [packet[2], packet[3]];
 				mooltipass.memmgmt.consoleLog("Starting parent is " + mooltipass.memmgmt.startingParent); 
-				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
-				mooltipass.memmgmt_hid._sendMsg();				
+                
+                // Depending if we're on the mini or not
+                if (mooltipass.device.version.indexOf("mini") >= 0)
+                {
+                    mooltipass.memmgmt.currentFavorite = 0;
+                    mooltipass.memmgmt.favoriteAddresses = [];
+                    mooltipass.memmgmt.clonedFavoriteAddresses = [];
+                    mooltipass.memmgmt.dataStartingParent = [0, 0];
+                    mooltipass.memmgmt.consoleLog("Data starting parent is " + mooltipass.memmgmt.dataStartingParent);
+                    mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
+                    mooltipass.memmgmt_hid._sendMsg();                    
+                }
+                else
+                {
+                    mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getStartingDataParentAddress'], null);
+                    mooltipass.memmgmt_hid._sendMsg();	                    
+                }			
 			}
 		}
 		else if(packet[1] == mooltipass.device.commands['getStartingDataParentAddress'])
@@ -3507,7 +3522,6 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				mooltipass.memmgmt.dataStartingParent = [packet[2], packet[3]];
 				mooltipass.memmgmt.consoleLog("Data starting parent is " + mooltipass.memmgmt.dataStartingParent);
 				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['getFavorite'], [mooltipass.memmgmt.currentFavorite]);
-				//mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['setFavorite'], [1,0,0,0,0]);
 				mooltipass.memmgmt_hid._sendMsg();				
 			}
 		}

@@ -36,6 +36,11 @@ mooltipass.device._appName = 'Mooltipass App';
 mooltipass.device._intervalCheckConnection = 500;
 
 /**
+ * Boolean to know if we saw an unlocked device
+ */
+mooltipass.device.wasPreviouslyUnlocked = false;
+
+/**
  * Parameters manually set for ansynchronous requests
  */
 mooltipass.device._asynchronous = {
@@ -229,8 +234,6 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
 
     // unset error message
     page.tabs[tab.id].errorMessage = null;
-
-    //chrome.runtime.sendMessage({type: 'update', url: url, inputs: {login: {id: 0, name: 0, value: username}, password: { id: 1, name: 1, value: password }}});
     
     // Cancel possible pending request
     mooltipass.device.onTabClosed(tab.id, null);
@@ -278,14 +281,6 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
 mooltipass.device.onTabUpdated = function(tabId, removeInfo)
 {  
     mooltipass.device.onTabClosed(tabId, removeInfo);
-    /*for (var i = 0; i < mooltipass.device.retrieveCredentialsQueue.length; i++)
-    {
-        if (mooltipass.device.retrieveCredentialsQueue[i].tabid == tabId)
-        {
-            mooltipass.device.retrieveCredentialsQueue[i].tabupdated = true;
-            //console.log("Marking tab " + tabId + " updated");
-        }
-    }  */  
 }
 
 /**
@@ -307,10 +302,10 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     //TODO: Trigger unlock if device is connected but locked
     // Check that the Mooltipass is unlocked
     if(!event.isMooltipassUnlocked()) {
-        if(forceCallback) {
+        /*if(forceCallback) {
             callback([]);
         }
-        return;
+        return;*/
     }
 
     // parse url and check if it is valid
@@ -381,8 +376,16 @@ chrome.runtime.onMessageExternal.addListener(function(message, sender, sendRespo
         };
         if (!message.deviceStatus.connected || !message.deviceStatus.unlocked)
         {
-            mooltipass.device.retrieveCredentialsQueue = [];
+            if (mooltipass.device.wasPreviouslyUnlocked == true)
+            {
+                mooltipass.device.retrieveCredentialsQueue = [];
+                mooltipass.device.wasPreviouslyUnlocked = false;
+            }
             //console.log("Emptying queue");
+        }
+        else
+        {
+            mooltipass.device.wasPreviouslyUnlocked = true;
         }
         //console.log(mooltipass.device._status)
     }

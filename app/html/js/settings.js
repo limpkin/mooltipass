@@ -770,6 +770,10 @@ mooltipass.ui.settings.getFirmwareVersion = function() {
                 {
                     $(".show-if-mini-version").show();  
                 }
+                else
+                {
+                    $(".show-if-mini-version").hide();                     
+                }
             }
             else {
             }

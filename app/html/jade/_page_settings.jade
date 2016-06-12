@@ -88,12 +88,21 @@
     .column.small-3
       h3 Miscellaneous
     .column.small-9
-      label
-        input(type="checkbox", name="flashScreen", id="settings-flashScreen")
-        | &nbsp; Flash screen when input is required
+      .show-if-mini-version
+        label Configured screen brightness
+          select(name="screenBrightness", id="settings-screenBrightness")
+            option(value="51") 20%
+            option(value="89") 35%
+            option(value="128", selected="selected") 50%
+            option(value="166") 65%
+            option(value="204") 80%
+            option(value="255") 100%
       label
         input(type="checkbox", name="offlineMode", id="settings-offlineMode")
         | &nbsp; Allow boot without host (e.g. usb battery / charger)
+      label
+        input(type="checkbox", name="flashScreen", id="settings-flashScreen")
+        | &nbsp; Flash screen when input is required
       label
         input(type="checkbox", name="tutorialEnabled", id="settings-tutorialEnabled")
         | &nbsp; Enable device tutorial

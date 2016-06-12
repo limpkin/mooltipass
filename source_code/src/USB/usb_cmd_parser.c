@@ -307,7 +307,11 @@ void usbProcessIncoming(uint8_t caller_id)
         case CMD_VERSION :
         {            
             // Our Mooltipass version that will be returned to our application
-            const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION;
+            #ifndef MINI_VERSION
+                const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION;
+            #else
+                const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION "" "_mini";
+            #endif
             usbSendMessage(CMD_VERSION, sizeof(mooltipass_version), mooltipass_version);
             return;
         }

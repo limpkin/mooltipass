@@ -150,7 +150,6 @@ mooltipass.ui.settings.initKeypressWaitEnabled = function() {
     });
 };
 
-
 mooltipass.ui.settings.getKeypressWait = function() {
     mooltipass.device.interface.send({
         'command': 'getMooltipassParameter',
@@ -186,6 +185,43 @@ mooltipass.ui.settings.initKeypressWait = function() {
             },
             'callbackParameters': null
         });
+    });
+};
+
+mooltipass.ui.settings.initScreenBrightness = function() {
+    $('#settings-screenBrightness').change(function() {
+        $(this).data('old-value', $(this).val());
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'screenBrightness',
+            'value': parseInt($(this).val()),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-screenBrightness');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Screen brightness changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
+                }
+            },
+            'callbackParameters': null
+        });
+    });
+};
+
+mooltipass.ui.settings.getScreenBrightness = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'screenBrightness',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-screenBrightness').val(_response.value);
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-screenBrightness'), _response.msg);
+            }
+        }
     });
 };
 
@@ -427,7 +463,7 @@ mooltipass.ui.settings.getUserRequestCancel = function() {
                     }
                     // End quickfix
                 }
-                else if (mooltipass.ui._.getDeviceVersion() == "v1.1")
+                else if (mooltipass.ui._.getDeviceVersion().indexOf("v1.1") >= 0)
                 {
                     // Might put a dedicated checkbox for that in the future... but enable it if disabled
                     if (!Boolean(Number(_response.value))) {
@@ -638,7 +674,7 @@ mooltipass.ui.settings.getFirmwareVersion = function() {
                 }
                 
                 // Actions depending on the firmware version
-                if(firmware_version == "v1.1")
+                if (firmware_version.indexOf("v1.1") >= 0)
                 {
                     // They're not alphabetically sorted but heh... they're special.
                     $("#settings-keyboardLayout").append(new Option("cz_QW", "179"));
@@ -653,6 +689,11 @@ mooltipass.ui.settings.getFirmwareVersion = function() {
                 else
                 {
                     $(".show-if-v1.1-version").hide();  
+                }
+                
+                if (firmware_version.indexOf("mini") >= 0)
+                {
+                    $(".show-if-mini-version").show();  
                 }
             }
             else {
@@ -679,6 +720,7 @@ mooltipass.ui.settings.getSettings = function() {
     mooltipass.ui.settings.getKeypressLogin();
     mooltipass.ui.settings.getKeypressPassword();
     mooltipass.ui.settings.getKeypressWait();
+    mooltipass.ui.settings.getScreenBrightness();
 }
 
 
@@ -688,6 +730,7 @@ mooltipass.ui.settings.getSettings = function() {
  */
 mooltipass.ui.settings.init = function() {
     $(".show-if-v1.1-version").hide();  
+    $(".show-if-mini-version").hide();  
     mooltipass.ui.settings.initKeyboardLayout();
     mooltipass.ui.settings.initLockTimeoutEnabled();
     mooltipass.ui.settings.initLockTimeout();
@@ -703,4 +746,5 @@ mooltipass.ui.settings.init = function() {
     mooltipass.ui.settings.initKeypressPassword();
     mooltipass.ui.settings.initKeypressLogin();
     mooltipass.ui.settings.initKeypressWait();
+    mooltipass.ui.settings.initScreenBrightness();
 };

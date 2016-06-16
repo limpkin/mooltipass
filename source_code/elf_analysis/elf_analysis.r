@@ -4,9 +4,8 @@ draw_block: []
 temp_block: []
 maxfuncsize: 0
 linecount: 0
-infilename: %test.txt
-pngfilename: %test.png
-bmpfilename: %test.bmp
+infilename: %data_usage.txt
+pngfilename: %data_usage.png
 
 bold14: make face/font [style: 'bold size: 14]
 infile: read/lines infilename
@@ -49,4 +48,3 @@ foreach [ name size type ] temp_block [
     
 ]
 save/png pngfilename to-image layout draw_block
-save/bmp bmpfilename to-image layout draw_block

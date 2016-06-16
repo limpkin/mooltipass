@@ -6,8 +6,6 @@
     .row.margin-bottom
       .column.small-12
         h1#settings-tab-title Device Settings
-        p 
-          | For browser-specific settings, go to the options page of the extension.
 
     .row.margin-bottom
       .column.small-3
@@ -88,12 +86,29 @@
     .column.small-3
       h3 Miscellaneous
     .column.small-9
-      label
-        input(type="checkbox", name="flashScreen", id="settings-flashScreen")
-        | &nbsp; Flash screen when input is required
+      .show-if-mini-version
+        label Configured screen brightness
+          select(name="screenBrightness", id="settings-screenBrightness")
+            option(value="51") 20%
+            option(value="89") 35%
+            option(value="128", selected="selected") 50%
+            option(value="166") 65%
+            option(value="204") 80%
+            option(value="255") 100%
+        label
+          input(type="checkbox", name="knockEnabled", id="settings-knockEnabled")
+          | &nbsp; Enable knock detecting feature with 
+          select(name="knockSensitivity", id="settings-knockSensitivity")
+            option(value="11") low
+            option(value="8", selected="selected") medium
+            option(value="5") high
+          | sensitivity
       label
         input(type="checkbox", name="offlineMode", id="settings-offlineMode")
         | &nbsp; Allow boot without host (e.g. usb battery / charger)
+      label
+        input(type="checkbox", name="flashScreen", id="settings-flashScreen")
+        | &nbsp; Flash screen when input is required
       label
         input(type="checkbox", name="tutorialEnabled", id="settings-tutorialEnabled")
         | &nbsp; Enable device tutorial

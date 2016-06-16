@@ -31,6 +31,7 @@
 #define CMD_STACK_FREE          0x9C
 #define CMD_CLONE_SMARTCARD     0x9D
 #define CMD_MINI_FRAME_BUF_DATA 0x9E
+#define CMD_STREAM_ACC_DATA     0x9F
 // From here the commands are used
 #define CMD_DEBUG               0xA0
 #define CMD_PING                0xA1

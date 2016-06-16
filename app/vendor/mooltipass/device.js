@@ -99,7 +99,12 @@ mooltipass.device.parameters = {
     'keypressPasswordEnabled': 21,
     'keypressPassword': 22,
     'keybOutputDelayEnabled': 23,
-    'keybOutputDelay': 24
+    'keybOutputDelay': 24,
+    'wheelReverse': 25,
+    'screenBrightness': 26,
+    'ledAnimMask': 27,
+    'knockDetectEnable': 28,
+    'knockDetectThres': 29
 };
 
 mooltipass.device.status_parameters = {

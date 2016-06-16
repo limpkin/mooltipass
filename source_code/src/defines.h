@@ -67,7 +67,7 @@
  *  MINI_PREPRODUCTION_SETUP_ACC
  *  => mooltipass mini pre-production units, with accelerometer
 */
-#define MINI_PREPRODUCTION_SETUP_ACC
+#define MINI_CLICK_BETATESTERS_SETUP
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)
@@ -123,6 +123,7 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
+    #define NO_ACCELEROMETER
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_MINI_CLICK_V1
     #define AVR_BOOTLOADER_PROGRAMMING
@@ -135,9 +136,10 @@
     #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
-    #define STACK_DEBUG
+    //#define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
+    //#define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif

@@ -4,10 +4,9 @@ Todo:
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
 mini:
-- re-integrate zzz bitmap
 - Display flip based on accelerometer
-chrome app:
-- cred generator options
+- knock wait/approve
+- after going to sleep: move transition when screen off
 
 V1.1:
 - post-indiegogo firmware

@@ -307,7 +307,11 @@ void usbProcessIncoming(uint8_t caller_id)
         case CMD_VERSION :
         {            
             // Our Mooltipass version that will be returned to our application
-            const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION;
+            #ifndef MINI_VERSION
+                const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION;
+            #else
+                const char mooltipass_version[] = FLASH_CHIP_STR "" MOOLTIPASS_VERSION "" "_mini";
+            #endif
             usbSendMessage(CMD_VERSION, sizeof(mooltipass_version), mooltipass_version);
             return;
         }
@@ -341,6 +345,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // data context command
+        #ifndef MINI_VERSION
         case CMD_SET_DATA_SERVICE :
         {
             if (getSmartCardInsertedUnlocked() != TRUE)
@@ -360,6 +365,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
 
         // get login
         case CMD_GET_LOGIN :
@@ -483,6 +489,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Add data context
+        #ifndef MINI_VERSION
         case CMD_ADD_DATA_SERVICE :
         {
             if (addNewContext(msg->body.data, datalen, SERVICE_DATA_TYPE) == RETURN_OK)
@@ -499,8 +506,10 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
     
         // Append data
+        #ifndef MINI_VERSION
         case CMD_WRITE_32B_IN_DN :
         {
             if ((addDataForDataContext(&msg->body.data[1], msg->body.data[0]) == RETURN_OK) && (datalen == 1+DATA_NODE_BLOCK_SIZ))
@@ -514,9 +523,11 @@ void usbProcessIncoming(uint8_t caller_id)
                 USBPARSERDEBUGPRINTF_P(PSTR("set pass: failed\n"));
             }
             break;
-        }    
+        }
+        #endif
     
-        // get login
+        // read data
+        #ifndef MINI_VERSION
         case CMD_READ_32B_IN_DN :
         {
             if (get32BytesDataForCurrentService(incomingData) == RETURN_OK)
@@ -533,6 +544,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
 #endif
         // Read user profile in flash
         case CMD_START_MEMORYMGMT :
@@ -579,6 +591,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Read data starting parent
+        #ifndef MINI_VERSION
         case CMD_GET_DN_START_PARENT :
         {
             // Memory management mode check implemented before the switch
@@ -591,6 +604,7 @@ void usbProcessIncoming(uint8_t caller_id)
             // Return
             return;          
         }
+        #endif
         
         // Get free node addresses
         case CMD_GET_FREE_SLOTS_ADDR :
@@ -723,6 +737,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Set data starting parent
+        #ifndef MINI_VERSION
         case CMD_SET_DN_START_PARENT :
         {
             // Memory management mode check implemented before the switch
@@ -739,6 +754,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;            
         }
+        #endif
         
         // Set new CTR value
         case CMD_SET_CTRVALUE :
@@ -958,6 +974,10 @@ void usbProcessIncoming(uint8_t caller_id)
                 #ifdef MINI_VERSION
                     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
                     miniOledSetContrastCurrent(getMooltipassParameterInEeprom(MINI_OLED_CONTRAST_CURRENT_PARAM));
+                #endif
+                #ifdef HARDWARE_MINI_CLICK_V2
+                    knock_detection_threshold = getMooltipassParameterInEeprom(MINI_KNOCK_THRES_PARAM);
+                    knock_detection_enabled = getMooltipassParameterInEeprom(MINI_KNOCK_DETECT_ENABLE_PARAM);
                 #endif
             }
             else
@@ -1406,6 +1426,22 @@ void usbProcessIncoming(uint8_t caller_id)
                 miniOledWriteFrameBuffer(*temp_uint_ptr, msg->body.data + 2, datalen-2);
             #endif
             break;
+        }
+
+        case CMD_STREAM_ACC_DATA:
+        {
+            #ifdef HARDWARE_MINI_CLICK_V2
+            // work in progress
+            uint8_t temp_data[6];
+            while(1)
+            {
+                if (getNewAccelerometerDataIfAvailable(temp_data) == RETURN_OK)
+                {
+                    usbSendMessage(CMD_STREAM_ACC_DATA, 6, temp_data);
+                }
+            }
+            #endif
+            break;       
         }
 
         case CMD_SET_FONT :

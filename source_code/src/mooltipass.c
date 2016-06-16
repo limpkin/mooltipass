@@ -354,6 +354,13 @@ int main(void)
     #elif defined(HARDWARE_MINI_CLICK_V2)
         miniLedsSetAnimation(ANIM_FADE_IN_FADE_OUT_1_TIME);
     #endif
+
+    #ifdef MINI_PREPRODUCTION_SETUP_ACC
+    /*while (1)
+    {
+        scanAndGetDoubleZTap();
+    }*/
+    #endif
     
     // Inhibit touch inputs for the first 2 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 2000);
@@ -454,7 +461,6 @@ int main(void)
         if ((mp_timeout_enabled == TRUE) && (hasTimerExpired(SLOW_TIMER_LOCKOUT, TRUE) == TIMER_EXPIRED))
         {
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
-            leaveMemoryManagementMode();
             guiGetBackToCurrentScreen();
             handleSmartcardRemoved();
         }

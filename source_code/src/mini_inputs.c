@@ -53,6 +53,28 @@ uint8_t discard_release_event = FALSE;
 uint8_t wheel_reverse_bool = FALSE;
 // Last detection type returned (cleared when calling cleardetections)
 RET_TYPE last_detection_type_ret = WHEEL_ACTION_NONE;
+#ifdef HARDWARE_MINI_CLICK_V2
+// z added value
+int16_t acc_z_added;
+// z average value
+int8_t acc_z_average;
+// z counter for average
+uint16_t acc_z_avg_counter;
+// sum of the differences with the average
+uint8_t acc_z_cum_diff_avg;
+// boolean to know if we should do the tap detection
+uint8_t acc_z_tap_detect_enabled = FALSE;
+// knock detection sm
+uint8_t knock_detect_sm;
+// knock detection internal counter
+uint16_t knock_detect_counter;
+// time stamp of last detect
+uint16_t knock_last_det_counter;
+// knock detection feature enabled bool
+uint8_t knock_detection_enabled;
+// knock detection threshold
+uint8_t knock_detection_threshold;
+#endif
 
 
 /*! \fn     miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes)
@@ -89,13 +111,27 @@ RET_TYPE initMiniInputs(void)
     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
 
 #ifdef HARDWARE_MINI_CLICK_V2
-    // Setup PORT for the Accelerometer SS
+    // Setup PORT for the Accelerometer SS & INT
     DDR_ACC_SS |= (1 << PORTID_ACC_SS);
     PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+    DDR_ACC_INT &= ~(1 << PORTID_ACC_INT);
+    PORT_ACC_INT &= ~(1 << PORTID_ACC_INT);
 
-    // Send command to disable accelerometer I2C block
-    uint8_t disableI2cBlockCommand[] = {0x23, 0x02};
+    // Fetch settings
+    knock_detection_threshold = getMooltipassParameterInEeprom(MINI_KNOCK_THRES_PARAM);
+    knock_detection_enabled = getMooltipassParameterInEeprom(MINI_KNOCK_DETECT_ENABLE_PARAM);
+
+    // Send command to disable accelerometer I2C block and keep address inc
+    uint8_t disableI2cBlockCommand[] = {0x23, 0x06};
     miniAccelerometerSendReceiveSPIData(disableI2cBlockCommand, sizeof(disableI2cBlockCommand));
+
+    // Output data rate configuration to 400Hz, enable all axis
+    uint8_t setDataRateCommand[] = {0x20, 0x57};
+    miniAccelerometerSendReceiveSPIData(setDataRateCommand, sizeof(setDataRateCommand));
+
+    // Set data ready signal on INT1
+    uint8_t setDataReadyOnINT1[] = {0x22, 0x01};
+    miniAccelerometerSendReceiveSPIData(setDataReadyOnINT1, sizeof(setDataReadyOnINT1));
 
     // Query the accelerometer who am I register
     uint8_t whoAmIRequestData[] = {0x8F, 0x00};
@@ -119,6 +155,171 @@ RET_TYPE initMiniInputs(void)
     return RETURN_OK;
 #endif
 }
+
+#ifdef HARDWARE_MINI_CLICK_V2
+/*! \fn     getNewAccelerometerDataIfAvailable(uint8_t* buffer)
+*   \brief  Fetch new accelerometer data if there's some available
+*   \param  buffer      A 6 bytes buffer to store acceleration data
+*   \return RETURN_OK if the buffer was filled with new data
+*/
+RET_TYPE getNewAccelerometerDataIfAvailable(uint8_t* buffer)
+{
+    if (PIN_ACC_INT & (1 << PORTID_ACC_INT))
+    {
+        PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
+        spiUsartTransfer(0xA8);
+        for (uint8_t i = 0; i < 6; i++)
+        {
+            *buffer++ = spiUsartTransfer(0x00);
+        }
+        PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+        return RETURN_OK;
+    }
+    else
+    {
+        return RETURN_NOK;
+    }
+}
+
+/*! \fn     scanAndGetDoubleZTap(void)
+*   \brief  Fetch remaining accelerometer data and use it to detect double taps
+*   \return RETURN_OK if a double tap event was detected
+*/
+RET_TYPE scanAndGetDoubleZTap(void)
+{
+    //#define ACC_DBG_OUTPUT
+    #ifdef ACC_DBG_OUTPUT
+    uint8_t acc_data[10];
+    acc_data[8] = 0;
+    acc_data[9] = 0;
+    #else
+    uint8_t acc_data[6];
+    #endif
+
+    #ifdef NO_ACCELEROMETER
+        return RETURN_NOK;
+    #endif
+
+    // Is the feature actually enabled?
+    if (knock_detection_enabled == FALSE)
+    {
+        return RETURN_NOK;
+    }
+
+    // Fetch data if there's data to be fetched
+    if (getNewAccelerometerDataIfAvailable(acc_data) != RETURN_NOK)
+    {
+        // Get z data acceleration value
+        int8_t z_data_val = (int8_t)acc_data[5];
+
+        // Sum of the differences with the average
+        if (acc_z_cum_diff_avg < 222)
+        {
+            if (z_data_val > acc_z_average)
+            {
+                acc_z_cum_diff_avg += (z_data_val - acc_z_average);
+            }
+            else
+            {
+                acc_z_cum_diff_avg += (acc_z_average - z_data_val);
+            }
+        }
+
+        // Average calculations
+        acc_z_added += z_data_val;
+        if (++acc_z_avg_counter == ACC_Z_AVG_NB_SAMPLES)
+        {
+            // Compute average
+            acc_z_average = acc_z_added/ACC_Z_AVG_NB_SAMPLES;
+
+            // depending on the sum of the difference with avg, allow algo or not
+            if (acc_z_cum_diff_avg > ACC_Z_MAX_AVG_SUM_DIFF)
+            {
+                acc_z_tap_detect_enabled = FALSE;
+            } 
+            else
+            {
+                acc_z_tap_detect_enabled = TRUE;
+            }         
+            
+            // Reset vars
+            acc_z_added = 0;
+            acc_z_avg_counter = 0;
+            acc_z_cum_diff_avg = 0;
+        }
+
+        // Current z axis corrected value
+        int8_t z_cor_data_val;
+        if (z_data_val > acc_z_average)
+        {
+            z_cor_data_val = z_data_val - acc_z_average;
+        } 
+        else
+        {
+            z_cor_data_val = acc_z_average - z_data_val;
+        }
+        
+        // For debug purposes, send the raw value we use for our algo
+        #ifdef ACC_DBG_OUTPUT
+        acc_data[7] = (uint8_t)z_cor_data_val;
+        #endif
+
+        // Knock detection algo
+        if (knock_detect_sm == 0)
+        {
+            if(z_cor_data_val > knock_detection_threshold)
+            {
+                knock_detect_sm++;
+                knock_detect_counter = 0;
+                knock_last_det_counter = 0;
+            }
+        }
+        else if (knock_detect_sm == 1)
+        {
+            // Check if second knock
+            if (z_cor_data_val > knock_detection_threshold)
+            {
+                // If silence period is respected
+                if (((knock_detect_counter - knock_last_det_counter) > ACC_Z_SECOND_KNOCK_MIN_NBS) && (acc_z_tap_detect_enabled != FALSE))
+                {
+                    #ifdef ACC_DBG_OUTPUT
+                    acc_data[9] = 0xFF;
+                    usbSendMessage(CMD_STREAM_ACC_DATA, 10, acc_data);
+                    #endif
+
+                    // Return success
+                    knock_last_det_counter = 0;
+                    knock_detect_sm++;
+                    return RETURN_OK;
+                }
+                else
+                {
+                    knock_last_det_counter = knock_detect_counter;
+                }
+            }
+
+            // Second knock detection timeout
+            if (knock_detect_counter++ > ACC_Z_SECOND_KNOCK_MAX_NBS)
+            {
+                knock_detect_sm = 0;                
+            }
+        }
+        else if (knock_detect_sm == 2)
+        {
+            // Wait before retrigger
+            if (knock_last_det_counter++ > ACC_Z_KNOCK_REARM_WAIT)
+            {
+                knock_detect_sm = 0;
+            }
+        }
+    }
+    
+    #ifdef ACC_DBG_OUTPUT
+    usbSendMessage(CMD_STREAM_ACC_DATA, 10, acc_data);
+    #endif
+    return RETURN_NOK;
+}
+#endif
 
 /*! \fn     scanMiniInputsDetect(void)
 *   \brief  Joystick & wheel debounce called by 1ms interrupt

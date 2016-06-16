@@ -6,6 +6,7 @@ Todo:
 mini:
 - Display flip based on accelerometer
 - knock wait/approve
+- after going to sleep: move transition when screen off
 
 V1.1:
 - post-indiegogo firmware

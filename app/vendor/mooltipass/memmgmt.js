@@ -43,7 +43,7 @@ var MGMT_ERROR_CUR_EXITTING_MMM			= 27;			// Following an error, we're exiting M
 var MGMT_FORCE_EXIT_MMM					= 28;			// Force MMM exit
 
 // Debug log
-mooltipass.memmgmt.debugLog = false;					// Debug log in the console
+mooltipass.memmgmt.debugLog = true;					// Debug log in the console
  
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;							// Mooltipass memory size
@@ -89,6 +89,8 @@ mooltipass.memmgmt.scanPercentage = 0;						// Scanning percentage
 mooltipass.memmgmt.nodePacketId = 0;						// Packet number for node sending/receiving
 mooltipass.memmgmt.currentNode = [];						// Current node we're sending/receiving
 mooltipass.memmgmt.packetToSendBuffer = [];					// Packets we need to send at the end of the checks etc...
+mooltipass.memmgmt.origPacketToSendBufferLength = 0;		// Number of items inside the packet to send buffer when populated
+mooltipass.memmgmt.packetToSendCompletionPercentage = 0;	// Percentage of packets to send sent
 mooltipass.memmgmt.nextParentNodeTSAddress = [];			// Next parent node to scan address
 mooltipass.memmgmt.curNodeAddressRequested = [];			// The address of the current node we're requesting
 mooltipass.memmgmt.getPasswordCallback = null;				// Get password callback
@@ -2733,6 +2735,10 @@ mooltipass.memmgmt.generateMergePackets = function()
 			}
 		}
 	}
+	
+	// Store original packettosend buffer length for progress callback purposes
+	mooltipass.memmgmt.origPacketToSendBufferLength = mooltipass.memmgmt.packetToSendBuffer.length;
+	mooltipass.memmgmt.packetToSendCompletionPercentage = 0;
 
 	// Check that we didn't break our linked chain
 	return mooltipass.memmgmt.checkClonedParentList();
@@ -3234,6 +3240,17 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			mooltipass.memmgmt.requestFailHander("Couldn't send packet", MGMT_IDLE, 652);
 			mooltipass.memmgmt.consoleLog(mooltipass.util.arrayToHexStr(new Uint16Array(mooltipass.memmgmt.packetToSendBuffer[0])));
 		}
+		
+		// Progress bar update
+		if (mooltipass.memmgmt.currentMode == MGMT_DB_FILE_MERGE_PACKET_SENDING)
+		{
+			var temp_completion = Math.round(((mooltipass.memmgmt.origPacketToSendBufferLength - mooltipass.memmgmt.packetToSendBuffer.length) / mooltipass.memmgmt.origPacketToSendBufferLength)*100);
+			if (temp_completion != mooltipass.memmgmt.packetToSendCompletionPercentage)
+			{
+				mooltipass.memmgmt.packetToSendCompletionPercentage = temp_completion;
+				mooltipass.memmgmt.progressCallback({'progress': 50+(temp_completion/2), 'letter': 'z'});
+			}
+		}
 	}
 	else if(mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_INT_CHECK_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_DBFILE_MERGE_REQ || mooltipass.memmgmt.currentMode == MGMT_PARAM_LOAD_MEM_BACKUP_REQ)
 	{
@@ -3673,7 +3690,7 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 					 
 					if(nodeType == 'parent')
 					{
-						if((mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN || mooltipass.memmgmt.currentMode == MGMT_MEM_BACKUP_NORMAL_SCAN) && mooltipass.memmgmt.lastLetter != mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode).charAt(0))
+						if(mooltipass.memmgmt.lastLetter != mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode).charAt(0))
 						{
 							// Progress callback in case first letter changed
 							mooltipass.memmgmt.lastLetter = mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode).charAt(0);
@@ -3691,7 +3708,14 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 							{
 								tempCompletion = Math.round(((mooltipass.memmgmt.lastLetter.charCodeAt(0) - 'a'.charCodeAt(0)) / (('z'.charCodeAt(0) + 1) - 'a'.charCodeAt(0)))*100);
 							}
-							mooltipass.memmgmt.progressCallback({'progress': tempCompletion, 'letter': mooltipass.memmgmt.lastLetter});
+							if (mooltipass.memmgmt.currentMode == MGMT_DBFILE_MERGE_NORMAL_SCAN)
+							{
+								mooltipass.memmgmt.progressCallback({'progress': tempCompletion/2, 'letter': mooltipass.memmgmt.lastLetter});
+							}
+							else
+							{
+								mooltipass.memmgmt.progressCallback({'progress': tempCompletion, 'letter': mooltipass.memmgmt.lastLetter});
+							}
 						}
 						// Store names, addresses, nodes
 						mooltipass.memmgmt.curServiceNodes.push({'address': mooltipass.memmgmt.curNodeAddressRequested, 'name': mooltipass.memmgmt.getServiceName(mooltipass.memmgmt.currentNode), 'data': new Uint8Array(mooltipass.memmgmt.currentNode)});
@@ -4912,7 +4936,7 @@ mooltipass.memmgmt.mergeCsvCredentialFileToMooltipassStart = function(statusCall
 }
 
 // Merge credential file to current database
-mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function(statusCallback)
+mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function(statusCallback, progressCallback)
 {
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
@@ -4920,6 +4944,7 @@ mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function(statusCallbac
 		mooltipass.memmgmt.backupFromFileReq = true;
 		mooltipass.memmgmt.mergeFileTypeCsv = false;
 		mooltipass.memmgmt.statusCallback = statusCallback;
+		mooltipass.memmgmt.progressCallback = progressCallback;
 		mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_REQ;
 		mooltipass.memmgmt.importMemoryState();
 	}
@@ -4931,7 +4956,7 @@ mooltipass.memmgmt.mergeCredentialFileToMooltipassStart = function(statusCallbac
 }
 
 // Merge SyncFS credential file to current database
-mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusCallback)
+mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusCallback, progressCallback)
 {
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{		
@@ -4941,6 +4966,7 @@ mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart = function(statusC
 			// Store callback etc
 			mooltipass.memmgmt.backupFromFileReq = false;
 			mooltipass.memmgmt.statusCallback = statusCallback;
+			mooltipass.memmgmt.progressCallback = progressCallback;
 			
 			// First step is to query to user interaction timeout to set the correct packet timeout retry
 			mooltipass.memmgmt.currentMode = MGMT_PARAM_LOAD_DBFILE_MERGE_REQ;

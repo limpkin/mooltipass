@@ -43,7 +43,7 @@ var MGMT_ERROR_CUR_EXITTING_MMM			= 27;			// Following an error, we're exiting M
 var MGMT_FORCE_EXIT_MMM					= 28;			// Force MMM exit
 
 // Debug log
-mooltipass.memmgmt.debugLog = true;					// Debug log in the console
+mooltipass.memmgmt.debugLog = false;					// Debug log in the console
  
 // Mooltipass memory params
 mooltipass.memmgmt.nbMb = null;							// Mooltipass memory size

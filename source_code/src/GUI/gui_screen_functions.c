@@ -393,10 +393,10 @@ void guiScreenLoop(uint8_t input_interface_result)
                         }
                         else
                         {
-                            handleSmartcardRemoved();
                             currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
                         }
                         userViewDelay();
+                        handleSmartcardRemoved();
                         guiGetBackToCurrentScreen();
                         break;
                     }
@@ -528,10 +528,10 @@ void guiScreenLoop(uint8_t input_interface_result)
                 }
                 else
                 {
-                    handleSmartcardRemoved();
                     currentScreen = SCREEN_DEFAULT_INSERTED_LCK;                    
                 }
                 userViewDelay();
+                handleSmartcardRemoved();
                 guiGetBackToCurrentScreen();
             }
             else if (state_machine_val == (SCREEN_SETTINGS|TOUCHPOS_WHEEL_BRIGHT))

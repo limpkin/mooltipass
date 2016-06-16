@@ -8,6 +8,9 @@ mini:
 - knock wait/approve
 - after going to sleep: move transition when screen off
 
+V1.2:
+- handleSmartcardRemoved() call at the end of user erase routine
+
 V1.1:
 - post-indiegogo firmware
 - get description command

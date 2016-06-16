@@ -77,6 +77,7 @@ void displayCredentialAtSlot(uint8_t slot, char* text, uint8_t truncate_index)
 /*! \fn     miniIncrementScrolledTexts(void)
 *   \brief  Change offset char for the currently displayed strings
 */
+#ifdef MINI_VERSION
 void miniIncrementScrolledTexts(void)
 {
     for (uint8_t i = 0; i < sizeof(string_extra_chars); i++)
@@ -90,12 +91,14 @@ void miniIncrementScrolledTexts(void)
         }
     }
 }
+#endif
 
 /*! \fn     miniDisplayCredentialAtPosition(uint8_t position, char* credential)
 *   \brief  Display a given credential at a position for the wheel picking menu
 *   \param  position    The position (0 to 2)
 *   \param  credential  Text to display
 */
+#ifdef MINI_VERSION
 void miniDisplayCredentialAtPosition(uint8_t position, char* credential)
 {
     uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
@@ -103,6 +106,7 @@ void miniDisplayCredentialAtPosition(uint8_t position, char* credential)
 
     string_extra_chars[position] = strlen(credential) - miniOledPutstrXY(x_coordinates[position], y_coordinates[position], OLED_RIGHT, (char*)credential + string_offset_cntrs[position]);
 }
+#endif
 
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)
 *   \brief  Ask for user login selection / approval

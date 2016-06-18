@@ -374,12 +374,12 @@ void guiMainLoop(void)
         } 
         else
         {
+            oledOff();
             #ifndef MINI_VERSION
                 oledDisplayOtherBuffer();
             #else
                 guiGetBackToCurrentScreen();
             #endif
-            oledOff();
         }
     }
     

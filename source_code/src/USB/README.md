@@ -73,6 +73,16 @@ From plugin/app: add a new context inside the mooltipass
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0xAA: Set Bootloader Password
+-----------------------------
+From plugin/app: Mooltipass standard: set the 62bytes password used to unlock the bootloader.
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0xAB: Jump to Bootloader
+------------------------
+From plugin/app: Mooltipass standard: send the 62bytes password to unlock the bootloader on the device.
+
 0xAC: Get random number
 -----------------------
 From plugin/app: Ask 32 random bytes

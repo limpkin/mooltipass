@@ -7,6 +7,7 @@ mini:
 - Display flip based on accelerometer
 - knock wait/approve
 - after going to sleep: move transition when screen off
+- version check in bootloader
 
 V1.2:
 - handleSmartcardRemoved() call at the end of user erase routine

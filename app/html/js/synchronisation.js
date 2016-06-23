@@ -77,6 +77,16 @@ mooltipass.ui.sync.callbackExportToFile = function(_status) {
     mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };
 
+mooltipass.ui.sync.callbackImportProgress = function(_progress) {
+    $("#modal-confirm-on-device").hide();
+    $("#modal-import").show();
+
+    if (_progress.progress == 0) {
+        $("#modal-import").hide();
+        return;
+    }
+    $("#modal-import span.meter").css("width", _progress.progress + "%");
+};
 
 mooltipass.ui.sync.onClickImportFromFile = function(e) {
     e.preventDefault();
@@ -91,7 +101,7 @@ mooltipass.ui.sync.onClickImportFromFile = function(e) {
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
             mooltipass.device.singleCommunicationModeEntered = true;
-            mooltipass.memmgmt.mergeCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromFile);
+            mooltipass.memmgmt.mergeCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromFile, mooltipass.ui.sync.callbackImportProgress);
         }
     });
 };
@@ -107,6 +117,7 @@ mooltipass.ui.sync.callbackImportFromFile = function(_status) {
     }
 
     $("#modal-confirm-on-device").hide();
+    $("#modal-import").hide();
 
     mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };
@@ -156,7 +167,7 @@ mooltipass.ui.sync.onClickImportFromCloud = function(e) {
         'reason': 'synchronisationmode',
         'callbackFunctionStart': function() {
             mooltipass.device.singleCommunicationModeEntered = true;
-            mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromCloud);
+            mooltipass.memmgmt.mergeSyncFSCredentialFileToMooltipassStart(mooltipass.ui.sync.callbackImportFromCloud, mooltipass.ui.sync.callbackImportProgress);
         }
     });
 };
@@ -172,6 +183,7 @@ mooltipass.ui.sync.callbackImportFromCloud = function(_status) {
     }
 
     $("#modal-confirm-on-device").hide();
+    $("#modal-import").hide();
 
     mooltipass.device.endSingleCommunicationMode(_status.skipEndingSingleCommunicationMode);
 };

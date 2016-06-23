@@ -1,6 +1,18 @@
 var mooltipass = mooltipass || {};
 mooltipass.util = mooltipass.util || {};
 
+mooltipass.util.getFirmwareFunctionalityVersionFromVersionString = function(version)
+{
+	if (version.indexOf('_') == -1)
+	{
+		return version;
+	}
+	else
+	{
+		return version.substr(0, version.indexOf('_'));
+	}
+}
+
 mooltipass.util.extractDomainAndSubdomain = function (url) {
     var url_valid;
     var domain = null;

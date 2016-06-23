@@ -32,6 +32,9 @@ mooltipass.ui.developers.init = function () {
     $('#page-developers button.import').click(function() {
 
         $("#modal-confirm-on-device").show();
+		
+		// Quick hack to help debugging process for users...
+		mooltipass.memmgmt.debugLog = true;
 
         mooltipass.device.interface.send({
             'command': 'startSingleCommunicationMode',

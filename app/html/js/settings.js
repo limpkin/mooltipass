@@ -521,7 +521,7 @@ mooltipass.ui.settings.getUserRequestCancel = function() {
                 $('#settings-userRequestCancel').prop('checked', Boolean(Number(_response.value)));
                 
                 // Firmware v1.0 suffers a bug which prevents us from using the request cancel functionality
-                if (mooltipass.ui._.getDeviceVersion() == "v1.0")
+                if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(mooltipass.ui._.getDeviceVersion()) == "v1")
                 {
                     // Start quickfix: Set it to 0 if enabled
                     if (Boolean(Number(_response.value))) {
@@ -538,7 +538,7 @@ mooltipass.ui.settings.getUserRequestCancel = function() {
                     }
                     // End quickfix
                 }
-                else if (mooltipass.ui._.getDeviceVersion().indexOf("v1.1") >= 0)
+                else if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(mooltipass.ui._.getDeviceVersion()) >= "v1.1")
                 {
                     // Might put a dedicated checkbox for that in the future... but enable it if disabled
                     if (!Boolean(Number(_response.value))) {
@@ -749,7 +749,7 @@ mooltipass.ui.settings.getFirmwareVersion = function() {
                 }
                 
                 // Actions depending on the firmware version
-                if (firmware_version.indexOf("v1.1") >= 0)
+                if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(firmware_version) >= "v1.1")
                 {
                     // They're not alphabetically sorted but heh... they're special.
                     $("#settings-keyboardLayout").append(new Option("cz_QW", "179"));

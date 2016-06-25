@@ -13,6 +13,7 @@ OBJDUMP := $(CROSS)objdump
 SIZE    := $(CROSS)size
 AR      := $(CROSS)ar
 AS      := $(CROSS)as
+BOOTLOADER   = false
 
 # Mooltipass version: vMAJOR.MINOR
 VERSION := v0.8
@@ -28,16 +29,51 @@ ifneq (,$(git_hash))
 endif
 
 
-LIBS := -lm -lmooltipass
-
-LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
-LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
-
-MOOLTIPASS_LIB := build/libmooltipass.a
-
-OBJECTS := $(patsubst src/%.c,build/%.o, $(wildcard src/*.c))
+ifneq ($(BOOTLOADER), true)
 
 TARGET  := mooltipass
+
+# LTO is available in avr-gcc 4.9.2 of Ubuntu 16.04 and avr-gcc 5.3 of Arch
+CFLAGS  += -flto -fuse-linker-plugin
+LDFLAGS  += -flto -fuse-linker-plugin
+
+# Some helpers to get all the .c and .h files.
+# $(TARGET) is included inside $(OBJECTS).
+LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
+LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
+OBJECTS := $(patsubst src/%.c,build/%.o, $(filter-out src/bootloader_main.c, $(wildcard src/*.c)))
+
+else
+
+# Bootloader build settings
+TARGET  := mooltipass_bootloader
+OBJECTS := $(patsubst src/%.c,build/%.o, src/bootloader_main.c)
+LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
+OBJDIRS := $(patsubst src/%.c,build/%.o, $(addprefix src/, FLASH SPI AES))
+LIBOBJS := $(foreach lib, $(OBJDIRS), $(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
+
+# Special bootloader flags
+CC_FLAGS     += -DBOOT_START_ADDR=$(BOOT_START_OFFSET)
+LD_FLAGS     += -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLAGS)
+
+# Flash size and bootloader section sizes of the target, in KB. These must
+# match the target's total FLASH size and the bootloader size set in the
+# device's fuses.
+FLASH_SIZE_KB           := 32
+BOOT_SECTION_SIZE_KB    := 4
+
+# Bootloader address calculation formulas
+# Do not modify these macros, but rather modify the dependent values above.
+CALC_ADDRESS_IN_HEX   = $(shell printf "0x%X" $$(( $(1) )) )
+BOOT_START_OFFSET     = $(call CALC_ADDRESS_IN_HEX, ($(FLASH_SIZE_KB) - $(BOOT_SECTION_SIZE_KB)) * 1024 )
+BOOT_SEC_OFFSET       = $(call CALC_ADDRESS_IN_HEX, ($(FLASH_SIZE_KB) * 1024) - ($(strip $(1))) )
+
+# Bootloader linker section flags for relocating the API table sections to
+# known FLASH addresses - these should not normally be user-edited.
+BOOT_SECTION_LD_FLAG  = -Wl,--section-start=$(strip $(1))=$(call BOOT_SEC_OFFSET, $(3)) -Wl,--undefined=$(strip $(2))
+BOOT_API_LD_FLAGS    += $(call BOOT_SECTION_LD_FLAG, .spmfunc, spmfunc, 128)
+
+endif
 
 # Compiler and linker configuration.
 FORMAT  := ihex
@@ -46,16 +82,38 @@ MCU     := atmega32u4
 # Set CONFIG=DEBUG in the shell from which you invoke make to build a debug
 # build.
 CONFIG  ?= RELEASE
-DEFINES := F_CPU=16000000UL F_USB=16000000UL
+DEFINES := F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
 
-CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffunction-sections -fdata-sections
-CFLAGS  += -std=gnu99 -Werror -mcall-prologues -fno-tree-scev-cprop -fno-split-wide-types
-LDFLAGS := -Wl,--relax,--gc-sections
-
-CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS) $(AESDIRS))
-
+CFLAGS  += -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
+CFLAGS  += -fshort-enums -ffunction-sections
+#CFLAGS  += -fdata-sections
+#CFLAGS  += -Werror
+CFLAGS  += -std=gnu99
+CFLAGS  += -mcall-prologues
+CFLAGS  += -fno-tree-scev-cprop
+CFLAGS  += -fno-split-wide-types
+CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))
 #CFLAGS += -Wa,-adhln -g
-#-g -Wa,-adhls
+
+# new from dmbs
+CFLAGS  += -fno-inline-small-functions
+
+# not used normally
+CFLAGS  += -Wstrict-prototypes
+CFLAGS  += -fno-strict-aliasing
+CFLAGS  += -DARCH=ARCH_AVR8
+CFLAGS  += -mrelax
+CFLAGS  += -x c
+CFLAGS  += -MMD
+CFLAGS  += -MP
+CFLAGS  += -pipe
+CFLAGS  += -gdwarf-2
+CFLAGS  += -g2
+
+LDFLAGS += -Wl,--gc-sections -Wl,--relax
+LDFLAGS += -mmcu=$(MCU)
+LDFLAGS += -lm
+#LDFLAGS  += -Werror
 
 ifeq ($(CONFIG), RELEASE)
   DEFINES += NDEBUG
@@ -81,8 +139,6 @@ endif
 ifeq ($(findstring --mcu,$(SIZE_HELP)),--mcu)
   SIZEFLAGS += --mcu=$(MCU)
 endif
-
-CFLAGS += -DMOOLTIPASS_VERSION="\"$(VERSION)\""
 
 # Display the size of generated elf file
 .PHONY: size
@@ -112,11 +168,11 @@ build/%.o: src/%.S
 -include $(OBJECTS:.o=.d) $(LIBOBJS:.o=.d)
 
 # Target to link the object files into the final hex file.
-$(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
+$(TARGET).elf: $(OBJECTS) $(LIBOBJS)
 	@echo "objs: $(OBJECTS)"
 	@echo ""
 	@echo "Linking $@"
-	$(LD) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) -Lbuild $(LIBS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBOBJS)
 
 # Extract the sections that should be in the .hex file from the .elf file.
 %.hex: %.elf
@@ -129,9 +185,6 @@ $(TARGET).elf: $(OBJECTS) $(MOOLTIPASS_LIB)
 
 %.lss: %.elf
 	$(OBJDUMP) -h -S -z $< > $@
-
-$(MOOLTIPASS_LIB): $(LIBOBJS) $(AESOBJS)
-	$(AR) rcs $@ $?
 
 release: clean $(TARGET).hex
 	# tag the current git state with the next build number, then build that version

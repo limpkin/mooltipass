@@ -398,9 +398,10 @@ ISR(USB_COM_vect)
         }
         if (bRequest == SET_ADDRESS)
         {
+            UDADDR = wValue & 0x7F;
             usb_send_in();
             usb_wait_in_ready();
-            UDADDR = wValue | (1<<ADDEN);
+            UDADDR |= (1 << ADDEN);
             return;
         }
         if (bRequest == SET_CONFIGURATION && bmRequestType == 0)

@@ -6,13 +6,14 @@
 #
 
 CROSS   ?= avr-
-CC      := $(CROSS)gcc -flto -fuse-linker-plugin
-LD      := $(CROSS)gcc -flto -fuse-linker-plugin
+CC      := $(CROSS)gcc
+LD      := $(CROSS)gcc
 OBJCOPY := $(CROSS)objcopy
 OBJDUMP := $(CROSS)objdump
 SIZE    := $(CROSS)size
 AR      := $(CROSS)ar
 AS      := $(CROSS)as
+BOOTLOADER   = false
 
 # Mooltipass version: vMAJOR.MINOR
 VERSION := v0.8
@@ -27,12 +28,52 @@ ifneq (,$(git_hash))
   endif
 endif
 
-LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
-LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
 
-OBJECTS := $(patsubst src/%.c,build/%.o, $(wildcard src/*.c))
+ifneq ($(BOOTLOADER), true)
 
 TARGET  := mooltipass
+
+# LTO is available in avr-gcc 4.9.2 of Ubuntu 16.04 and avr-gcc 5.3 of Arch
+CFLAGS  += -flto -fuse-linker-plugin
+LDFLAGS  += -flto -fuse-linker-plugin
+
+# Some helpers to get all the .c and .h files.
+# $(TARGET) is included inside $(OBJECTS).
+LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
+LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
+OBJECTS := $(patsubst src/%.c,build/%.o, $(filter-out src/bootloader_main.c, $(wildcard src/*.c)))
+
+else
+
+# Bootloader build settings
+TARGET  := mooltipass_bootloader
+OBJECTS := $(patsubst src/%.c,build/%.o, src/bootloader_main.c)
+LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
+OBJDIRS := $(patsubst src/%.c,build/%.o, $(addprefix src/, FLASH SPI AES))
+LIBOBJS := $(foreach lib, $(OBJDIRS), $(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
+
+# Special bootloader flags
+CC_FLAGS     += -DBOOT_START_ADDR=$(BOOT_START_OFFSET)
+LD_FLAGS     += -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLAGS)
+
+# Flash size and bootloader section sizes of the target, in KB. These must
+# match the target's total FLASH size and the bootloader size set in the
+# device's fuses.
+FLASH_SIZE_KB           := 32
+BOOT_SECTION_SIZE_KB    := 4
+
+# Bootloader address calculation formulas
+# Do not modify these macros, but rather modify the dependent values above.
+CALC_ADDRESS_IN_HEX   = $(shell printf "0x%X" $$(( $(1) )) )
+BOOT_START_OFFSET     = $(call CALC_ADDRESS_IN_HEX, ($(FLASH_SIZE_KB) - $(BOOT_SECTION_SIZE_KB)) * 1024 )
+BOOT_SEC_OFFSET       = $(call CALC_ADDRESS_IN_HEX, ($(FLASH_SIZE_KB) * 1024) - ($(strip $(1))) )
+
+# Bootloader linker section flags for relocating the API table sections to
+# known FLASH addresses - these should not normally be user-edited.
+BOOT_SECTION_LD_FLAG  = -Wl,--section-start=$(strip $(1))=$(call BOOT_SEC_OFFSET, $(3)) -Wl,--undefined=$(strip $(2))
+BOOT_API_LD_FLAGS    += $(call BOOT_SECTION_LD_FLAG, .spmfunc, spmfunc, 128)
+
+endif
 
 # Compiler and linker configuration.
 FORMAT  := ihex
@@ -43,7 +84,7 @@ MCU     := atmega32u4
 CONFIG  ?= RELEASE
 DEFINES := F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
 
-CFLAGS  := -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
+CFLAGS  += -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
 CFLAGS  += -fshort-enums -ffunction-sections
 #CFLAGS  += -fdata-sections
 #CFLAGS  += -Werror
@@ -69,7 +110,7 @@ CFLAGS  += -pipe
 CFLAGS  += -gdwarf-2
 CFLAGS  += -g2
 
-LDFLAGS := -Wl,--gc-sections -Wl,--relax
+LDFLAGS += -Wl,--gc-sections -Wl,--relax
 LDFLAGS += -mmcu=$(MCU)
 LDFLAGS += -lm
 #LDFLAGS  += -Werror

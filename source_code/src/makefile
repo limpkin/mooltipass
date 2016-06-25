@@ -43,7 +43,7 @@ CC_FLAGS  += -fno-split-wide-types
 
 ifneq ($(BOOTLOADER), true)
 
-# LTO is available in avr-gcc 4.9.2 of Ubuntu 16.04
+# LTO is available in avr-gcc 4.9.2 of Ubuntu 16.04 and avr-gcc 5.3 of Arch
 CC_FLAGS  += -flto -fuse-linker-plugin
 LD_FLAGS  += -flto -fuse-linker-plugin
 

@@ -331,6 +331,32 @@ int main(void)
                 while(!(touchDetectionRoutine(tut_led_mask) & press_filter));
                 touchInhibitUntilRelease();
             }
+        #elif defined(MINI_VERSION)
+            uint8_t tutorial_user_action;
+            uint8_t tutorial_bmp_id = BITMAP_TUTORIAL_1;
+            uint8_t tutorial_scroll_direction = OLED_SCROLL_UP;
+            /* Activity detected routine, clear detections */
+            activityDetectedRoutine();
+            miniWheelClearDetections();
+            /* Display bitmaps one after the other & handle return */
+            while (tutorial_bmp_id <= BITMAP_TUTORIAL_5)
+            {
+                oledBitmapDrawFlash(0, 0, tutorial_bmp_id, tutorial_scroll_direction);
+                tutorial_user_action = miniGetWheelAction(TRUE, FALSE);
+                if ((tutorial_user_action == WHEEL_ACTION_LONG_CLICK) || (tutorial_user_action == WHEEL_ACTION_UP))
+                {
+                    if (tutorial_bmp_id != BITMAP_TUTORIAL_1)
+                    {
+                        tutorial_bmp_id--;
+                        tutorial_scroll_direction = OLED_SCROLL_FLIP;
+                    }
+                } 
+                else
+                {
+                    tutorial_bmp_id++;
+                    tutorial_scroll_direction = OLED_SCROLL_UP;
+                }
+            }
         #endif
         setMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM, FALSE);
     }

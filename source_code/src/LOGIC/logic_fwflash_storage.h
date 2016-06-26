@@ -183,6 +183,11 @@
     #define BITMAP_PAC_LEFT2        48
     #define BITMAP_PAC_UP           49
     #define BITMAP_PAC_UP2          50
+    #define BITMAP_TUTORIAL_1       59
+    #define BITMAP_TUTORIAL_2       60
+    #define BITMAP_TUTORIAL_3       61
+    #define BITMAP_TUTORIAL_4       62
+    #define BITMAP_TUTORIAL_5       63
     #define BITMAP_MAIN_LOCK        64
     #define BITMAP_MAIN_LOGIN       68
     #define BITMAP_MAIN_FAVORITES   72
@@ -193,12 +198,6 @@
     #define BITMAP_SETTINGS_ERASE   92
 
     // To reintegrate?
-    #define BITMAP_TUTORIAL_1     43
-    #define BITMAP_TUTORIAL_2     44
-    #define BITMAP_TUTORIAL_3     45
-    #define BITMAP_TUTORIAL_4     46
-    #define BITMAP_TUTORIAL_5     47
-    #define BITMAP_TUTORIAL_6     48
     #define BITMAP_EGG            49
     #define BITMAP_EGG_END        50
 

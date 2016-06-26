@@ -348,7 +348,7 @@ int main(void)
                     if (tutorial_bmp_id != BITMAP_TUTORIAL_1)
                     {
                         tutorial_bmp_id--;
-                        tutorial_scroll_direction = OLED_SCROLL_FLIP;
+                        tutorial_scroll_direction = OLED_SCROLL_DOWN;
                     }
                 } 
                 else

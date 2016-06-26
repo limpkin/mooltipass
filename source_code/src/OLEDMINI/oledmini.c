@@ -759,7 +759,7 @@ void miniOledBitmapDrawFlash(int8_t x, int8_t y, uint8_t fileId, uint8_t options
             while (((miniOledLastScreenYOffset++) & SSD1305_Y_BUFFER_HEIGHT_BITMASK) != miniOledScreenYOffset)
             {
                 timerBasedDelayMs(SSD1305_SCROLL_SPEED_MS);
-                miniOledWriteSimpleCommand(SSD1305_CMD_SET_DISPLAY_START_LINE | miniOledLastScreenYOffset);
+                miniOledWriteSimpleCommand(SSD1305_CMD_SET_DISPLAY_START_LINE | (miniOledLastScreenYOffset & SSD1305_Y_BUFFER_HEIGHT_BITMASK));
             }
             miniOledLastScreenYOffset = miniOledScreenYOffset;
         }
@@ -769,7 +769,7 @@ void miniOledBitmapDrawFlash(int8_t x, int8_t y, uint8_t fileId, uint8_t options
             while (((miniOledLastScreenYOffset--) & SSD1305_Y_BUFFER_HEIGHT_BITMASK) != miniOledScreenYOffset)
             {
                 timerBasedDelayMs(SSD1305_SCROLL_SPEED_MS);
-                miniOledWriteSimpleCommand(SSD1305_CMD_SET_DISPLAY_START_LINE | miniOledLastScreenYOffset);
+                miniOledWriteSimpleCommand(SSD1305_CMD_SET_DISPLAY_START_LINE | (miniOledLastScreenYOffset & SSD1305_Y_BUFFER_HEIGHT_BITMASK));
             }
             miniOledLastScreenYOffset = miniOledScreenYOffset;
         }

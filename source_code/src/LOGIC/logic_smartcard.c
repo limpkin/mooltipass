@@ -31,10 +31,12 @@
 #include "gui_pin_functions.h"
 #include "logic_smartcard.h"
 #include "logic_eeprom.h"
+#include "hid_defines.h"
 #include "aes256_ctr.h"
-#include "rng.h"
+#include "mooltipass.h"
 #include "defines.h"
 #include "delays.h"
+#include "rng.h"
 
 
 /*! \fn     handleSmartcardInserted(void)
@@ -102,8 +104,28 @@ RET_TYPE handleSmartcardInserted(void)
         // This a valid user smart card, we call a dedicated function for the user to unlock the card
         if (temp_return == RETURN_VCARD_OK)
         {
-            // Card successfully unlocked
             uint8_t loginString[SMARTCARD_MTP_LOGIN_LENGTH/8];
+            
+            // As we do buffer reuse, double check it here for possible evolutions...
+            #if (SMARTCARD_MTP_LOGIN_LENGTH/8) < C_NODE_PWD_SIZE
+                #error "Reused loginString buffer isn't big enough"
+            #endif
+
+            // See if the lock / unlock feature is enabled, type password if so
+            if (setCurrentContext((uint8_t*)"_unlock_", SERVICE_CRED_TYPE) == RETURN_OK)
+            {
+                mp_lock_unlock_shortcuts = TRUE;
+
+                if ((getLoginForContext("\x05\x00user") == RETURN_OK) && (getPasswordForContext((char*)loginString) == RETURN_OK) && isUsbConfigured())
+                {
+                    // If everything went well, type the password and press enter
+                    loginString[C_NODE_PWD_SIZE-1] = 0;
+                    usbKeybPutStr((char*)loginString);
+                    usbKeyboardPress(KEY_RETURN, 0);
+                }
+            }
+            
+            // Card successfully unlocked
             readMooltipassWebsiteLogin(loginString);
             guiDisplaySmartcardUnlockedScreen(loginString);
             next_screen = SCREEN_DEFAULT_INSERTED_NLCK;

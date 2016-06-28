@@ -361,7 +361,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     // Store the tab id, prevent a possible very close tabupdatevent action
     mooltipass.device.lastRetrieveReqTabId = tab.id;
     mooltipass.device.tabUpdatedEventPrevented = true;
-    setTimeout(function clearTabUpdatePrevent() {mooltipass.device.tabUpdatedEventPrevented = false;}, 300);
+    setTimeout(function clearTabUpdatePrevent() {mooltipass.device.tabUpdatedEventPrevented = false;}, 700);
     
     // If our retrieveCredentialsQueue is empty and the device is unlocked, send the request to the app. Otherwise, queue it
     mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter});

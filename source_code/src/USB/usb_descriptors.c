@@ -94,7 +94,7 @@ static const uint8_t PROGMEM keyboard_hid_report_desc[] =
     0x25, 0x68,                         //   Logical Maximum(104),
     0x05, 0x07,                         //   Usage Page (Key Codes),
     0x19, 0x00,                         //   Usage Minimum (0),
-    0x29, 0x68,                         //   Usage Maximum (104),
+    0x29, 0xe7,                         //   Usage Maximum (231),
     0x81, 0x00,                         //   Input (Data, Array),
     0xc0                                // End Collection
 };

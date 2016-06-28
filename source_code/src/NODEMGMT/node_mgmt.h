@@ -148,34 +148,37 @@ typedef struct __attribute__((packed)) parentNode {
 #define PNODE_COMPARISON_FIELD_OFFSET   8
 #define PNODE_LIB_FIELDS_LENGTH         8
 
+// Size of the password field inside the child node
+#define C_NODE_PWD_SIZE                 32
+
 /*!
 * Struct containing a child node
 */
 typedef struct __attribute__((packed)) childNode {
-    uint16_t flags;                 /*!< Child node flags (0b01 -> credential child node. 0b10 -> start of data sequence)
-                                    * 15 dn 14-> Node type
-                                    * 13 dn 13 -> Valid Bit
-                                    * 12 dn 8 -> User ID
-                                    * 7 dn 0 -> RESERVED
-                                    */
-    uint16_t prevChildAddress;      /*!< Previous child node address (Alaphabetically) */
-    uint16_t nextChildAddress;      /*!< Next child node address (Alphabetically) */
-    uint8_t description[24];        /*!< (ASCII) Text describing login credentials (wordpress login) */
-    uint16_t dateCreated;           /*!< The date the child node was added to mooltipass (requires plugin)
-                                    * Date Encoding:
-                                    * 15 dn 9 -> Year (2010 + value)
-                                    * 8 dn 5 -> Month
-                                    * 4 dn 0 -> Day
-                                    */
-    uint16_t dateLastUsed;          /*!< The date the child node was last used on the mooltipass (requires plugin)
-                                    * Date Encoding:
-                                    * 15 dn 9 -> Year (2010 + value)
-                                    * 8 dn 5 -> Month
-                                    * 4 dn 0 -> Day
-                                    */
-    uint8_t ctr[3];                 /*!< Encryption counter */
-    uint8_t login[63];              /*!< (ASCII) Text login name (username) */
-    uint8_t password[32];           /*!< Encrypted Password */
+    uint16_t flags;                     /*!< Child node flags (0b01 -> credential child node. 0b10 -> start of data sequence)
+                                        * 15 dn 14-> Node type
+                                        * 13 dn 13 -> Valid Bit
+                                        * 12 dn 8 -> User ID
+                                        * 7 dn 0 -> RESERVED
+                                        */
+    uint16_t prevChildAddress;          /*!< Previous child node address (Alaphabetically) */
+    uint16_t nextChildAddress;          /*!< Next child node address (Alphabetically) */
+    uint8_t description[24];            /*!< (ASCII) Text describing login credentials (wordpress login) */
+    uint16_t dateCreated;               /*!< The date the child node was added to mooltipass (requires plugin)
+                                        * Date Encoding:
+                                        * 15 dn 9 -> Year (2010 + value)
+                                        * 8 dn 5 -> Month
+                                        * 4 dn 0 -> Day
+                                        */
+    uint16_t dateLastUsed;              /*!< The date the child node was last used on the mooltipass (requires plugin)
+                                        * Date Encoding:
+                                        * 15 dn 9 -> Year (2010 + value)
+                                        * 8 dn 5 -> Month
+                                        * 4 dn 0 -> Day
+                                        */
+    uint8_t ctr[3];                     /*!< Encryption counter */
+    uint8_t login[63];                  /*!< (ASCII) Text login name (username) */
+    uint8_t password[C_NODE_PWD_SIZE];  /*!< Encrypted Password */
 } cNode;
 
 // flags + prevChildAddress + nextChildAddress + description + dateCreated + dateLastUsed + ctr

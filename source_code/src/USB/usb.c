@@ -189,6 +189,20 @@ RET_TYPE usbKeyboardPress(uint8_t key, uint8_t modifier)
     return usbKeyboardSend();
 }
 
+/*! \fn     usbSendLockShortcut(void)
+*   \brief  Send host lock shortcut
+*/
+void usbSendLockShortcut(void)
+{
+    keyboard_keys[0] = KEY_WIN_L;
+    usbKeyboardSend();
+    keyboard_keys[1] = getKeybLutEntryForLayout(getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM), 'l');
+    usbKeyboardSend();
+    keyboard_keys[0] = 0;
+    keyboard_keys[1] = 0;
+    usbKeyboardSend();
+}
+
 /*! \fn     getKeyboardLeds(void)
 *   \brief  Get keyboard leds
 *   \return The keyboard leds

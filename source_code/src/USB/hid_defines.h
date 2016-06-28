@@ -132,5 +132,6 @@ extern const uint8_t keyboardLUT_EN[95];
 #define KEY_F13                0x68
 #define KEY_F14                0x69
 #define KEY_F15                0x6A
+#define KEY_WIN_L              0xE3
 
 #endif /* HID_DEFINES_H_ */

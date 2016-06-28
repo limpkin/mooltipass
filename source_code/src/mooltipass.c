@@ -44,6 +44,7 @@
 #include "bitstreammini.h"
 #include "oled_wrapper.h"
 #include "logic_eeprom.h"
+#include "hid_defines.h"
 #include "mini_inputs.h"
 #include "mooltipass.h"
 #include "interrupts.h"
@@ -77,6 +78,8 @@ static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
 bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
 // Flag to inform if the caps lock timer is armed
 volatile uint8_t wasCapsLockTimerArmed = FALSE;
+// Boolean to know state of lock/unlock feature
+uint8_t mp_lock_unlock_shortcuts = FALSE;
 // Boolean to know if user timeout is enabled
 uint8_t mp_timeout_enabled = FALSE;
 // Flag set by anything to signal activity
@@ -454,6 +457,13 @@ int main(void)
             // Light up the Mooltipass and call the dedicated function
             activityDetectedRoutine();
             handleSmartcardRemoved();
+
+            // Lock shortcut, if enabled
+            if (mp_lock_unlock_shortcuts != FALSE)
+            {
+                usbSendLockShortcut();
+                mp_lock_unlock_shortcuts = FALSE;
+            }
             
             // Set correct screen
             guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_REMOVED);
@@ -461,7 +471,7 @@ int main(void)
             guiGetBackToCurrentScreen();
         }
         
-        //#define TWO_CAPS_TRICK
+        #define TWO_CAPS_TRICK
         #ifdef TWO_CAPS_TRICK
         // Two quick caps lock presses wakes up the device        
         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))

@@ -22,6 +22,7 @@
     #pragma message "UID request key address:" XSTR(EEP_UID_REQUEST_KEY_ADDR)
     #pragma message "UID address:" XSTR(EEP_UID_ADDR)
     #pragma message "Bootkey copy address:" XSTR(EEP_BACKUP_BOOTKEY_ADDR)
+    #pragma message "Number of user parameters:" XSTR(USER_RESERVED_SPACE_IN_EEP)
 #endif
 
 // Check bytes left in eeprom

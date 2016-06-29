@@ -72,6 +72,7 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     0xFF,               // MINI_LED_ANIM_MASK_PARAM             LED animation mask
     FALSE,              // MINI_KNOCK_DETECT_ENABLE_PARAM       Knock detection enable
     8,                  // MINI_KNOCK_THRES_PARAM               Threshold for knock detection
+    TRUE,               // LOCK_UNLOCK_FEATURE_PARAM            Computer lock/unlock feature
 };
 
 

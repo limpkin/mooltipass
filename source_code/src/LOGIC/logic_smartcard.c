@@ -112,11 +112,13 @@ RET_TYPE handleSmartcardInserted(void)
             #endif
 
             // See if the lock / unlock feature is enabled, type password if so
-            if (setCurrentContext((uint8_t*)"_unlock_", SERVICE_CRED_TYPE) == RETURN_OK)
+            if ((setCurrentContext((uint8_t*)"_unlock_", SERVICE_CRED_TYPE) == RETURN_OK) && (getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) != FALSE))
             {
                 mp_lock_unlock_shortcuts = TRUE;
 
-                if ((getLoginForContext("\x05\x00user") == RETURN_OK) && (getPasswordForContext((char*)loginString) == RETURN_OK))
+                // strcpy needed as getLoginForContext overwrites the buffer.
+                strcpy((char*)loginString, "\x05\x05user");
+                if ((getLoginForContext((char*)loginString) == RETURN_OK) && (getPasswordForContext((char*)loginString) == RETURN_OK))
                 {
                     // If everything went well, type the password and press enter
                     loginString[C_NODE_PWD_SIZE-1] = 0;

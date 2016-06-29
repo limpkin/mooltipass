@@ -22,6 +22,7 @@
 *    Created:  09/6/2014
 *    Author:   Miguel A. Borrego
 */
+#include "defines.h"
 #include "stack.h"
 
 /* External var, end of known static RAM (to be filled by linker) */

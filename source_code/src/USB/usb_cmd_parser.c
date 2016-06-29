@@ -345,7 +345,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // data context command
-        #ifndef MINI_VERSION
+        #ifdef DATA_STORAGE_EN
         case CMD_SET_DATA_SERVICE :
         {
             if (getSmartCardInsertedUnlocked() != TRUE)
@@ -489,7 +489,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Add data context
-        #ifndef MINI_VERSION
+        #ifdef DATA_STORAGE_EN
         case CMD_ADD_DATA_SERVICE :
         {
             if (addNewContext(msg->body.data, datalen, SERVICE_DATA_TYPE) == RETURN_OK)
@@ -509,7 +509,7 @@ void usbProcessIncoming(uint8_t caller_id)
         #endif
     
         // Append data
-        #ifndef MINI_VERSION
+        #ifdef DATA_STORAGE_EN
         case CMD_WRITE_32B_IN_DN :
         {
             if ((addDataForDataContext(&msg->body.data[1], msg->body.data[0]) == RETURN_OK) && (datalen == 1+DATA_NODE_BLOCK_SIZ))
@@ -527,7 +527,7 @@ void usbProcessIncoming(uint8_t caller_id)
         #endif
     
         // read data
-        #ifndef MINI_VERSION
+        #ifdef DATA_STORAGE_EN
         case CMD_READ_32B_IN_DN :
         {
             if (get32BytesDataForCurrentService(incomingData) == RETURN_OK)
@@ -591,7 +591,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Read data starting parent
-        #ifndef MINI_VERSION
+        #ifdef DATA_STORAGE_EN
         case CMD_GET_DN_START_PARENT :
         {
             // Memory management mode check implemented before the switch
@@ -737,7 +737,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Set data starting parent
-        #ifndef MINI_VERSION
+        #ifdef DATA_STORAGE_EN
         case CMD_SET_DN_START_PARENT :
         {
             // Memory management mode check implemented before the switch

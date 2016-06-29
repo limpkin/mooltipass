@@ -383,13 +383,6 @@ int main(void)
     #elif defined(HARDWARE_MINI_CLICK_V2)
         miniLedsSetAnimation(ANIM_FADE_IN_FADE_OUT_1_TIME);
     #endif
-
-    #ifdef MINI_PREPRODUCTION_SETUP_ACC
-    /*while (1)
-    {
-        scanAndGetDoubleZTap();
-    }*/
-    #endif
     
     // Inhibit touch inputs for the first 2 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 2000);
@@ -471,7 +464,6 @@ int main(void)
             guiGetBackToCurrentScreen();
         }
         
-        #define TWO_CAPS_TRICK
         #ifdef TWO_CAPS_TRICK
         // Two quick caps lock presses wakes up the device        
         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))

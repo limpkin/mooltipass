@@ -72,6 +72,8 @@
 
 #if defined(BETATESTERS_SETUP)
     #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
 	//#define FLASH_CHIP_32M
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
@@ -80,12 +82,16 @@
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(BETATESTERS_SETUP_PIN)
     #define FLASH_CHIP_32M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
     #define AVR_BOOTLOADER_PROGRAMMING
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(BETATESTERS_AUTOACCEPT_SETUP)
     #define FLASH_CHIP_32M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
     #define ALWAYS_ACCEPT_REQUESTS
@@ -93,12 +99,16 @@
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(PRODUCTION_SETUP)
     #define FLASH_CHIP_32M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
     // TO REMOVE IN THE FUTURE!!! //
     #define AVR_BOOTLOADER_PROGRAMMING
 #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
     #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
@@ -106,15 +116,21 @@
     #define AVR_BOOTLOADER_PROGRAMMING
 #elif defined(PRODUCTION_KICKSTARTER_SETUP)
     #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(POST_KICKSTARTER_UPDATE_SETUP)
     #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define HARDWARE_OLIVIER_V1
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(PRODUCTION_TEST_SETUP)
     //#define STACK_DEBUG
     #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
@@ -123,6 +139,8 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define NO_ACCELEROMETER
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_MINI_CLICK_V1
@@ -132,6 +150,8 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     #define NO_ACCELEROMETER
     #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
@@ -139,6 +159,8 @@
     //#define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    #define DATA_STORAGE_EN
     //#define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING

@@ -116,7 +116,7 @@ RET_TYPE handleSmartcardInserted(void)
             {
                 mp_lock_unlock_shortcuts = TRUE;
 
-                if ((getLoginForContext("\x05\x00user") == RETURN_OK) && (getPasswordForContext((char*)loginString) == RETURN_OK) && isUsbConfigured())
+                if ((getLoginForContext("\x05\x00user") == RETURN_OK) && (getPasswordForContext((char*)loginString) == RETURN_OK))
                 {
                     // If everything went well, type the password and press enter
                     loginString[C_NODE_PWD_SIZE-1] = 0;

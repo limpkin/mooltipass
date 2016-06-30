@@ -116,8 +116,8 @@ RET_TYPE handleSmartcardInserted(void)
             {
                 mp_lock_unlock_shortcuts = TRUE;
 
-                // strcpy needed as getLoginForContext overwrites the buffer.
-                strcpy((char*)loginString, "\x05\x05user");
+                // Set the first char to 0 as getLoginForContext uses it to know if there's a suggested login
+                loginString[0] = 0;
                 if ((getLoginForContext((char*)loginString) == RETURN_OK) && (getPasswordForContext((char*)loginString) == RETURN_OK))
                 {
                     // If everything went well, type the password and press enter

@@ -9,7 +9,7 @@ mini:
 - version check in bootloader
 
 V1.2:
-- adding an "_unlock_" service and a "user" login to enable computer lock/unlock feature
+- adding an "_unlock_" service to enable computer lock/unlock feature
 - handleSmartcardRemoved() call at the end of user erase routine
 - added "SE" to vendor id string, required by USB spec
 - changed USB keyboard Usage Maximum to allow win key

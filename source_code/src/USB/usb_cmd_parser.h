@@ -6,22 +6,8 @@
 #include "usb.h"
 
 /* USB mooltipass hid commands */
-/**************** The new command set has contiguous command IDs ****************/
-// The old import/export functions are put in the beginning as they aren't used.
-// This was for raw import/export, we now work with read/write nodes
-#define CMD_EXPORT_FLASH_START  0x8A
-#define CMD_EXPORT_FLASH        0x8B    // resp: 0x30 packets until 0x31
-#define CMD_EXPORT_FLASH_END    0x8C
-#define CMD_IMPORT_FLASH_BEGIN  0x8D    // confirmed by 0x32,0x01
-#define CMD_IMPORT_FLASH        0x8E    // send 4x60 byte + 1x24 byte packets, acked with 0x33,0x01
-#define CMD_IMPORT_FLASH_END    0x8F
-#define CMD_EXPORT_EEPROM_START 0x90
-#define CMD_EXPORT_EEPROM       0x91    // resp: 0x35 packets until 0x36
-#define CMD_EXPORT_EEPROM_END   0x92
-#define CMD_IMPORT_EEPROM_BEGIN 0x93    // confirmed by 0x37,0x01
-#define CMD_IMPORT_EEPROM       0x94    // send packet, acked with 0x38,0x01
-#define CMD_IMPORT_EEPROM_END   0x95
 // Developper plugin commands
+#define CMD_TEST_ACC_PRESENCE   0x95
 #define CMD_ERASE_EEPROM        0x96
 #define CMD_ERASE_FLASH         0x97
 #define CMD_ERASE_SMC           0x98

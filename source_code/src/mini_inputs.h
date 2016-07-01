@@ -78,6 +78,10 @@ void scanMiniInputsDetect(void);
 RET_TYPE isWheelClicked(void);
 RET_TYPE initMiniInputs(void);
 
+#ifdef HARDWARE_MINI_CLICK_V2
+void miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes);
+#endif
+
 /* GLOBAL VARS */
 extern uint8_t wheel_reverse_bool;
 #ifdef HARDWARE_MINI_CLICK_V2

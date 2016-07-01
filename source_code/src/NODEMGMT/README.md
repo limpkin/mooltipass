@@ -50,6 +50,7 @@ More Later
 
 ## Library Usage
 
+```cpp
 // Declare a return variable
 RET_TYPE ret = RETURN_NOK;
 
@@ -203,7 +204,7 @@ if(ret != RETURN_OK)
 
 // Other functions can be found in node_mgmt.h
 Note: Always check the return code
-
+```
 
 ## Flash Memory Testing
 Files:

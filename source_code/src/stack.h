@@ -4,6 +4,6 @@
 #include <stdio.h>
 #include "defines.h"
 
-uint16_t stackFree(void);
+uint16_t stackFree(void) __attribute__ ((noinline));
 
 #endif

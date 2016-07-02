@@ -53,7 +53,7 @@ extern uint8_t __stack;
 /*! \fn     stackInit(void)
 *   \brief  Function called at MCU start, to write a given value in the RAM
 */
-void stackInit(void) __attribute__ ((naked)) __attribute__ ((section (".init1")));
+void stackInit(void) __attribute__ ((naked, section (".init1"), used));
 
 void stackInit(void)
 {

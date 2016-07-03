@@ -181,6 +181,15 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
  */
 void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
 {
+    // Byte value to which USER_PARAM_INIT_KEY_PARAM should be set to go to the next customization step
+    uint8_t correct_param_init_key_val = 0x94;
+
+    // Uncomment below to force test procedure
+    /*current_bootkey_val = CORRECT_BOOTKEY + 1;
+    eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
+    setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, 0x00);
+    eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, FALSE);*/
+
     // Only launch the functional test if the boot key isn't valid
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
@@ -189,16 +198,35 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         RET_TYPE temp_rettype;
         
         // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
-        while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != 0x92)
+        while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != correct_param_init_key_val)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
         }
+        correct_param_init_key_val++;
         
         // Bundle uploaded, start the screen
         miniOledAllowTextWritingYIncrement();
         miniOledFlushWrittenTextToDisplay();
         miniOledBegin(FONT_DEFAULT);
         miniOledResetXY();
+
+        // LED functional test
+        #ifdef HARDWARE_MINI_CLICK_V2
+        setPwmDc(0xFFFF);
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            // Display current LED
+            guiDisplayRawString(ID_STRING_LED1+i);
+            miniSetLedStates(1 << i);
+
+            // Wait for tester to confirm on script
+            while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != correct_param_init_key_val)
+            {
+                usbProcessIncoming(USB_CALLER_MAIN);
+            }
+            correct_param_init_key_val++;
+        }
+        #endif
         
         // Check flash initialization
         if (flash_init_result != RETURN_OK)
@@ -217,7 +245,6 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         // Check mini inputs initialization
         if (mini_inputs_result != RETURN_OK)
         {
-            // Todo: use below func for next batch
             guiDisplayRawString(ID_STRING_INPUT_PB);
             test_result_ok = FALSE;
         }
@@ -230,26 +257,13 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             miniOledResetXY();oledClear();
         }
     
-        // Test description
+        // Test description, press wheel
         guiDisplayRawString(ID_STRING_FUNC_TEST);
     
-        // Wait for inputs
+        // Wait for wheel press
         miniWheelClearDetections();
         while(isWheelClicked() != RETURN_JDETECT);
         guiDisplayRawString(ID_STRING_FUNC_WHEEL);
-
-        #ifdef HARDWARE_MINI_CLICK_V2
-        // Switch on LEDs
-        setPwmDc(0xFFFF);
-        guiDisplayRawString(ID_STRING_CHECK_LEDS);
-        for (uint8_t i = 0; i < 4; i++)
-        {
-            miniOledPutch(i + '1');
-            miniSetLedStates(1 << i);
-            miniOledFlushEntireBufferToDisplay();
-            userViewDelay();
-        }
-        #endif
     
         // Test description
         oledClear();

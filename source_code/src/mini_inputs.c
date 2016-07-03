@@ -141,7 +141,12 @@ RET_TYPE initMiniInputs(void)
     #ifdef NO_ACCELEROMETER
         return RETURN_OK;
     #else
-        if (whoAmIRequestData[1] == 0x41)
+        // Give enough time for an interrupt to come
+        activateTimer(TIMER_WAIT_FUNCTS, 50);
+        while(hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) != TIMER_EXPIRED);
+
+        // Check for correct signature and for interrupt presence
+        if ((whoAmIRequestData[1] == 0x41) && (PIN_ACC_INT & (1 << PORTID_ACC_INT)))
         {
             return RETURN_OK;
         }

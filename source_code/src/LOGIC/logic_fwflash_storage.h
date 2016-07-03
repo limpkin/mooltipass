@@ -269,10 +269,13 @@
     #define ID_STRING_SEND_PASS_FOR     64
     #define ID_STRING_SELECT_CREDENTIAL 65
     #define ID_STRING_INPUT_PB          66
-    #define ID_STRING_CHECK_LEDS        67
+    #define ID_STRING_LED1              67
+    #define ID_STRING_LED2              68
+    #define ID_STRING_LED3              69
+    #define ID_STRING_LED4              70
 
     #define ID_FIRST_STRING             0
-    #define ID_LAST_STRING              ID_STRING_CHECK_LEDS
+    #define ID_LAST_STRING              ID_STRING_LED4
     #define NB_BMPS_PER_TRANSITION      4
 #endif
 

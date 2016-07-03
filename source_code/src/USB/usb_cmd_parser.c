@@ -883,6 +883,10 @@ void usbProcessIncoming(uint8_t caller_id)
             #if defined(DEV_PLUGIN_COMMS) || defined(AVR_BOOTLOADER_PROGRAMMING)
                 plugin_return_value = PLUGIN_BYTE_OK;
                 mediaFlashImportApproved = TRUE;
+            #if defined(MINI_VERSION)
+                // TODO: set authorizations
+                plugin_return_value = PLUGIN_BYTE_OK;
+                mediaFlashImportApproved = TRUE;
             #else            
                 // Mandatory wait for bruteforce
                 userViewDelay();

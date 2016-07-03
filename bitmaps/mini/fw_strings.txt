@@ -65,4 +65,7 @@ DON'T APPROVE THIS!
 Send Password For:
 Select Credential: 
 !!!Inputs PB!!!~~
-Check LEDs: 
+LED1,
+LED2,
+LED3,
+LED4~~

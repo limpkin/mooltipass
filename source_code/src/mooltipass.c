@@ -300,11 +300,10 @@ int main(void)
             (void)fuse_ok;
             while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
         #elif defined(MINI_PREPRODUCTION_SETUP)
-            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE) || (mini_inputs_result != RETURN_OK));
+            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
-            // TO REMOVE
-            fuse_ok = TRUE;
-            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE) || (mini_inputs_result != RETURN_OK));
+            // Do not hang if accelerometer not present... this isn't crucial...
+            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #else
             #error "Platform unknown!"
         #endif

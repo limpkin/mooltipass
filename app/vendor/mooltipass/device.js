@@ -17,6 +17,7 @@ mooltipass.device.payloadSize = mooltipass.device.packetSize - 2;
 
 // Available command codes for Mooltipass
 mooltipass.device.commands = {
+    'getStackFree'                  : 0x9C,
     'debug'                         : 0xA0,
     'ping'                          : 0xA1,
     'getVersion'                    : 0xA2,
@@ -759,6 +760,17 @@ mooltipass.device.responseEndMemoryManagementMode = function(queuedItem, msg) {
     };
 
     mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
+mooltipass.device.stackFree = function() {
+    mooltipass.device.addToQueue('getStackFree', null, null, function(){}, null, null, false, null);
+    mooltipass.device.processQueue();
+}
+
+mooltipass.device.responseGetStackFree = function(queuedItem, msg) {
+    console.log("Stack free: ", (msg[0] + msg[1]*256), " bytes");
     // Process next queued request
     mooltipass.device.processQueue();
 };

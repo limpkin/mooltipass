@@ -766,7 +766,6 @@ mooltipass.device.responseEndMemoryManagementMode = function(queuedItem, msg) {
 
 mooltipass.device.stackFree = function() {
     mooltipass.device.addToQueue('getStackFree', null, null, function(){}, null, null, false, null);
-    mooltipass.device.processQueue();
 }
 
 mooltipass.device.responseGetStackFree = function(queuedItem, msg) {

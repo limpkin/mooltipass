@@ -35,5 +35,4 @@ firmware. You can also compile the bootloader. Edit the `makefile` and set
 
 ### Legacy makefile
 The legacy makefile is located in `source_code`. Run `make` to
-compile the firmware. It might be outdated, as it is harder to maintain.
-Use DMBS if you run into any issues.
+compile the firmware.

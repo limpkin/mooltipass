@@ -25,6 +25,7 @@
 #include <util/atomic.h>
 #include <avr/eeprom.h>
 #include <avr/boot.h>
+#include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
 #include "eeprom_addresses.h"
@@ -161,7 +162,7 @@ int main(void)
     PORT_ACC_SS |= (1 << PORTID_ACC_SS);    // Setup PORT for the Accelerometer SS    
     DDR_OLED_SS |= (1 << PORTID_OLED_SS);   // Setup PORT for the OLED SS
     PORT_OLED_SS |= (1 << PORTID_OLED_SS);  // Setup PORT for the OLED SS
-    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");
+    _delay_ms(10);
 
     /* Disable I2C block of the Accelerometer */
     PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);

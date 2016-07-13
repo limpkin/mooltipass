@@ -49,7 +49,7 @@
  *  \note   typedef void (*boot_program_page_t)(uint16_t page, uint8_t* buf);
  *  \note   const boot_program_page_t boot_program_page = (boot_program_page_t)0x3FC0;
  */
-static void boot_program_page(uint16_t page, uint8_t* buf)  __attribute__ ((section (".spmfunc"))) __attribute__((noinline));
+static void boot_program_page(uint16_t page, uint8_t* buf)  __attribute__ ((section (".spmfunc"), noinline, used));
 static void boot_program_page(uint16_t page, uint8_t* buf)
 {
     uint16_t i, w;

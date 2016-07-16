@@ -7,7 +7,6 @@ mini:
 - Display flip based on accelerometer
 - knock wait/approve
 - version check in bootloader
-- implement key send related to idle rate
 - bug when having 2 successive prompt requests
 
 V1.2:

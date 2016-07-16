@@ -1436,13 +1436,9 @@ void usbProcessIncoming(uint8_t caller_id)
         {
             #ifdef HARDWARE_MINI_CLICK_V2
             // work in progress
-            uint8_t temp_data[6];
             while(1)
             {
-                if (getNewAccelerometerDataIfAvailable(temp_data) == RETURN_OK)
-                {
-                    usbSendMessage(CMD_STREAM_ACC_DATA, 6, temp_data);
-                }
+                scanAndGetDoubleZTap(TRUE);
             }
             #endif
             break;       

@@ -172,21 +172,45 @@ def collect():
 		sample_counter = 0
 	
 	# cast data
-	xvalue = data[DATA_INDEX] + data[DATA_INDEX+1]*256
-	yvalue = data[DATA_INDEX+2] + data[DATA_INDEX+3]*256
-	zvalue = data[DATA_INDEX+4] + data[DATA_INDEX+5]*256
-	zcorvalue = data[DATA_INDEX+6] + data[DATA_INDEX+7]*256
-	detvalue = data[DATA_INDEX+8] + data[DATA_INDEX+9]*256
+	#xvalue = data[DATA_INDEX] + data[DATA_INDEX+1]*256
+	#yvalue = data[DATA_INDEX+2] + data[DATA_INDEX+3]*256
+	#zvalue = data[DATA_INDEX+4] + data[DATA_INDEX+5]*256
+	#zcorvalue = data[DATA_INDEX+6] + data[DATA_INDEX+7]*256
+	#detvalue = data[DATA_INDEX+8] + data[DATA_INDEX+9]*256
+	#
+	#if xvalue >= 32768:
+	#	xvalue = -((~xvalue & 0x7FFF) + 1)
+	#if yvalue >= 32768:
+	#	yvalue = -((~yvalue & 0x7FFF) + 1)
+	#if zvalue >= 32768:
+	#	zvalue = -((~zvalue & 0x7FFF) + 1)
+	#if zcorvalue >= 32768:
+	#	zcorvalue = -((~zcorvalue & 0x7FFF) + 1)
 	
-	if xvalue >= 32768:
-		xvalue = -((~xvalue & 0x7FFF) + 1)
-	if yvalue >= 32768:
-		yvalue = -((~yvalue & 0x7FFF) + 1)
-	if zvalue >= 32768:
-		zvalue = -((~zvalue & 0x7FFF) + 1)
-	if zcorvalue >= 32768:
-		zcorvalue = -((~zcorvalue & 0x7FFF) + 1)
+	xvalue = data[DATA_INDEX+1]
+	yvalue = data[DATA_INDEX+3]
+	zvalue = data[DATA_INDEX+5]
+	zcorvalue = data[DATA_INDEX+7]
+	detvalue = data[DATA_INDEX+9]
+	
+	if detvalue == 20:
+		print "algo armed"
+	elif detvalue == 50:
+		print "------ pulse too large ------"
+	elif detvalue == 100:
+		print "algo disarmed"
+	elif detvalue == 255:
+		print "------ detection ------"
+	
+	if xvalue >= 128:
+		xvalue = -((~xvalue & 0x7F) + 1)
+	if yvalue >= 128:
+		yvalue = -((~yvalue & 0x7F) + 1)
+	if zvalue >= 128:
+		zvalue = -((~zvalue & 0x7F) + 1)
+	
 
+	mutex.lock()
 	# append to data list
 	xdata.append(float(xvalue))
 	ydata.append(float(yvalue))
@@ -195,7 +219,6 @@ def collect():
 	detectiondata.append(float(detvalue))
 
 	# plot 
-	mutex.lock()
 	xdata = xdata[-1000:]
 	ydata = ydata[-1000:]
 	zdata = zdata[-1000:]

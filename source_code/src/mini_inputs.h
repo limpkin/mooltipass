@@ -33,15 +33,16 @@
 #define LONG_PRESS_MS               1000
 // After how many z samples we compute the z axis average
 #define ACC_Z_AVG_NB_SAMPLES        256
-#define ACC_Z_AVG_BIT_SHIFT         8
 // The maximum sum of the difference between samples & avg to run the detection algo
-#define ACC_Z_MAX_AVG_SUM_DIFF      160
+#define ACC_Z_MAX_AVG_SUM_DIFF      2*ACC_Z_AVG_NB_SAMPLES
 // Nb samples to timeout a second knock detection
 #define ACC_Z_SECOND_KNOCK_MAX_NBS  300
 // Nb samples of silence for a second knock detection
 #define ACC_Z_SECOND_KNOCK_MIN_NBS  40
 // Nb samples to wait before retriggering another detection
 #define ACC_Z_KNOCK_REARM_WAIT      400
+// Maximum width of a knock
+#define ACC_Z_MAX_KNOCK_PULSE_WIDTH 20
 #endif
 
 /* MACROS */
@@ -66,13 +67,13 @@ static inline RET_TYPE isNewAccelerometerDataReady(void)
 /* PROTOTYPES */
 RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec);
 RET_TYPE getNewAccelerometerDataIfAvailable(uint8_t* buffer);
+RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output);
 RET_TYPE isMiniDirectionPressed(uint8_t direction);
 void miniDirectionClearJoystickDetections(void);
 RET_TYPE getMiniDirectionJustPressed(void);
 RET_TYPE miniGetLastReturnedAction(void);
 void miniDirectionClearDetections(void);
 int8_t getWheelCurrentIncrement(void);
-RET_TYPE scanAndGetDoubleZTap(void);
 void miniWheelClearDetections(void);
 void scanMiniInputsDetect(void);
 RET_TYPE isWheelClicked(void);

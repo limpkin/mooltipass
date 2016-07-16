@@ -140,6 +140,7 @@
       <Value>../src/GRAPHICS</Value>
       <Value>../src/GUI</Value>
       <Value>../src/LOGIC</Value>
+      <Value>../src/MINI</Value>
       <Value>../src/NODEMGMT</Value>
       <Value>../src/OLED</Value>
       <Value>../src/OLEDMINI</Value>
@@ -317,10 +318,16 @@
     <Compile Include="src\GUI\gui_smartcard_functions.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\mini_inputs.c">
+    <Compile Include="src\MINI\mini_inputs.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\mini_inputs.h">
+    <Compile Include="src\MINI\mini_inputs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MINI\mini_leds.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\MINI\mini_leds.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\LOGIC\logic_eeprom.c">
@@ -345,12 +352,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\LOGIC\logic_smartcard.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\mini_leds.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\mini_leds.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\NODEMGMT\node_mgmt.c">
@@ -523,6 +524,7 @@
     <Folder Include="src\AES" />
     <Folder Include="src\GUI" />
     <Folder Include="src\LOGIC" />
+    <Folder Include="src\MINI" />
     <Folder Include="src\NODEMGMT" />
     <Folder Include="src\OLEDMINI\" />
     <Folder Include="src\PWM\" />

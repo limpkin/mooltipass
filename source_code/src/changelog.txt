@@ -6,7 +6,6 @@ Todo:
 mini:
 - Display flip based on accelerometer
 - version check in bootloader
-- bug when having 2 successive prompt requests
 
 V1.2:
 - adding an "_unlock_" service to enable computer lock/unlock feature

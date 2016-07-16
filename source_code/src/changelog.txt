@@ -5,7 +5,6 @@ Todo:
 - bytes in eeprom to set shortcuts?
 mini:
 - Display flip based on accelerometer
-- knock wait/approve
 - version check in bootloader
 - bug when having 2 successive prompt requests
 

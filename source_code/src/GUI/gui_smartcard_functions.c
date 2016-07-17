@@ -84,7 +84,7 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
         #define BETA_TESTER_V
         #ifdef BETA_TESTER_V
             oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_NONE);
-            miniOledPutCenteredString(21, "beta v0.57");
+            miniOledPutCenteredString(21, "beta v0.58");
             miniOledFlushEntireBufferToDisplay();
         #else
             oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_FLIP);

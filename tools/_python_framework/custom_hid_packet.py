@@ -175,7 +175,7 @@ def	uploadBundle(hid_device, password):
 			mooltipass_password.append(0)
 		
 	# Success status boolean
-	success_status = 0
+	success_status = False
 	
 	# Send import media start packet
 	hid_device.sendHidPacket(mooltipass_password)
@@ -226,14 +226,14 @@ def	uploadBundle(hid_device, password):
 		if mooltipass_variant != "mini":
 			# Check ACK
 			if hid_device.receiveHidPacket()[DATA_INDEX] == 0x01:
-				success_status = 1
+				success_status = True
 		else:
-			success_status = 1
+			success_status = True
 		# Close file
 		bundlefile.close()
 		print "Done!"
 	else:
-		success_status = 0
+		success_status = False
 		print "fail!!!"
 		print "likely causes: mooltipass already setup"
 

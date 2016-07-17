@@ -1302,9 +1302,17 @@ void usbProcessIncoming(uint8_t caller_id)
         {            
             // Mandatory wait for bruteforce
             userViewDelay();
-            #if defined(DEV_PLUGIN_COMMS) || defined(AVR_BOOTLOADER_PROGRAMMING)
+
+            // Prepare asking confirmation screen
+            confirmationText_t temp_conf_text;
+            temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
+            temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
+                
+            if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE) && (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE) == TRUE))
+            {
                 // Write "jump to bootloader" key in eeprom
                 eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                eeprom_write_word((uint16_t*)EEP_BACKUP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
                 // Set bootloader password bool to FALSE
                 eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
                 // Use WDT to reset the device
@@ -1315,32 +1323,10 @@ void usbProcessIncoming(uint8_t caller_id)
                 wdt_enable_2s();
                 sei();
                 while(1);
-            #else
-               // Prepare asking confirmation screen
-                confirmationText_t temp_conf_text;
-                temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
-                temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
+            }
                 
-                if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE) && (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE) == TRUE))
-                {
-                    // Write "jump to bootloader" key in eeprom
-                    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
-                    eeprom_write_word((uint16_t*)EEP_BACKUP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
-                    // Set bootloader password bool to FALSE
-                    eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
-                    // Use WDT to reset the device
-                    cli();
-                    wdt_reset();
-                    wdt_clear_flag();
-                    wdt_change_enable();
-                    wdt_enable_2s();
-                    sei();
-                    while(1);
-                }
-                
-                // Return to last screen
-                guiGetBackToCurrentScreen();
-            #endif
+            // Return to last screen
+            guiGetBackToCurrentScreen();
         }
         #endif
 

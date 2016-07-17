@@ -63,26 +63,30 @@
 #include "rng.h"
 
 #if !defined(MINI_VERSION)
-// Tutorial led masks and touch filtering
-static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
-{
-    0,                              TOUCH_PRESS_MASK,       // Welcome screen
-    LED_MASK_WHEEL,                 RETURN_RIGHT_PRESSED,   // Show you around...
-    LED_MASK_WHEEL,                 RETURN_RIGHT_PRESSED,   // Display hints
-    LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Circular segments
-    LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Wheel interface
-    0,                              TOUCH_PRESS_MASK,       // That's all!
-};
+    /* Tutorial led masks and touch filtering */
+    static const uint8_t tutorial_masks[] __attribute__((__progmem__)) =
+    {
+        0,                              TOUCH_PRESS_MASK,       // Welcome screen
+        LED_MASK_WHEEL,                 RETURN_RIGHT_PRESSED,   // Show you around...
+        LED_MASK_WHEEL,                 RETURN_RIGHT_PRESSED,   // Display hints
+        LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Circular segments
+        LED_MASK_LEFT|LED_MASK_RIGHT,   RETURN_WHEEL_PRESSED,   // Wheel interface
+        0,                              TOUCH_PRESS_MASK,       // That's all!
+    };
 #endif
-// Define the bootloader function
-bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
-// Flag to inform if the caps lock timer is armed
-volatile uint8_t wasCapsLockTimerArmed = FALSE;
-// Boolean to know state of lock/unlock feature
+#if defined(AVR_BOOTLOADER_PROGRAMMING)
+    /* Define the bootloader function */
+    bootloader_f_ptr_type start_bootloader = (bootloader_f_ptr_type)0x3800;
+#endif
+#if defined(TWO_CAPS_TRICK)
+    /* Flag to inform if the caps lock timer is armed */
+    volatile uint8_t wasCapsLockTimerArmed = FALSE;
+#endif
+/* Boolean to know state of lock/unlock feature */
 uint8_t mp_lock_unlock_shortcuts = FALSE;
-// Boolean to know if user timeout is enabled
+/* Boolean to know if user timeout is enabled */
 uint8_t mp_timeout_enabled = FALSE;
-// Flag set by anything to signal activity
+/* Flag set by anything to signal activity */
 uint8_t act_detected_flag = FALSE;
 
 
@@ -94,10 +98,10 @@ int main(void)
     uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Fetch boot key from EEPROM
     #if defined(HARDWARE_OLIVIER_V1)                                                // Only the Mooltipass standard version has a touch panel
         RET_TYPE touch_init_result;                                                 // Touch initialization result
-    #endif                                                                          // ENDIF
-    #if defined(MINI_VERSION)                                                       // Dedicated to mooltipass mini
-        RET_TYPE mini_inputs_result;                                                // Mooltipass mini input init result
-    #endif                                                                          // ENDIF
+    #endif                                                                          //
+    #if defined(MINI_VERSION)                                                       // Dedicated to Mooltipass mini
+        RET_TYPE mini_inputs_result;                                                // Mooltipass mini input initialization result
+    #endif                                                                          //
     RET_TYPE flash_init_result;                                                     // Flash initialization result
     RET_TYPE card_detect_ret;                                                       // Card detection result
     uint8_t fuse_ok = TRUE;                                                         // Fuse check result
@@ -163,32 +167,7 @@ int main(void)
     /********************************************************************/
     #if defined(HARDWARE_OLIVIER_V1) && !defined(POST_KICKSTARTER_UPDATE_SETUP)
         mooltipassStandardElectricalTest(fuse_ok);
-    #endif    
-    
-    /********************************************************************/
-    /**               JUMPING TO BOOTLOADER AT BOOT                    **/
-    /*                                                                  */
-    /* In the non-production units that don't have the boot reset vector*/
-    /* enabled, the testers may choose to start the bootloader by       */
-    /* sending a USB command. Internally, we therefore reboot the MCU   */
-    /* and then jump to the bootloader.                                 */
-    /********************************************************************/
-    #if !defined(PRODUCTION_SETUP) && !defined(PRODUCTION_KICKSTARTER_SETUP) && !defined(POST_KICKSTARTER_UPDATE_SETUP) && !defined(MINI_PREPRODUCTION_SETUP) && !defined(MINI_PREPRODUCTION_SETUP_ACC)
-        // This code will only be used for developers and beta testers
-        // Check if we were reset and want to go to the bootloader
-        if (current_bootkey_val == BOOTLOADER_BOOTKEY)
-        {
-            // Disable WDT
-            wdt_reset();
-            wdt_clear_flag();
-            wdt_change_enable();
-            wdt_stop();
-            // Store correct bootkey
-            eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
-            // Jump to bootloader
-            start_bootloader();
-        }
-    #endif    
+    #endif 
 
     /********************************************************************/
     /**            EEPROM INITIALIZATIONS AT FIRST BOOT                **/
@@ -230,10 +209,10 @@ int main(void)
     /** HARDWARE INITIALIZATION **/
     #if defined(HARDWARE_OLIVIER_V1) || defined(HARDWARE_MINI_CLICK_V2)
         initPwm();                              // Initialize PWM controller for MP standard & mini v2
-    #endif                                      // ENDIF
+    #endif                                      //
     #if defined(HARDWARE_MINI_CLICK_V2)         // Only for the pre-production mini
         miniInitLeds();                         // Initialize the LEDs
-    #endif                                      // ENDIF
+    #endif                                      //
     initPortSMC();                              // Initialize smart card port
     initIRQ();                                  // Initialize interrupts
     powerSettlingDelay();                       // Let the power settle before enabling USB controller
@@ -241,14 +220,14 @@ int main(void)
     powerSettlingDelay();                       // Let the USB 3.3V LDO rise
     #if defined(HARDWARE_OLIVIER_V1)            // I2C is only used in the Mooltipass standard
         initI2cPort();                          // Initialize I2C interface
-    #endif                                      // ENDIF
+    #endif                                      //
     rngInit();                                  // Initialize avrentropy library
     oledInitIOs();                              // Initialize OLED inputs/outputs
     initFlashIOs();                             // Initialize Flash inputs/outputs
     spiUsartBegin();                            // Start USART SPI at 8MHz (standard) or 4MHz (mini)
     #if defined(MINI_VERSION)                   // For the Mooltipass Mini inputs
         mini_inputs_result = initMiniInputs();  // Initialize Mini Inputs
-    #endif                                      // ENDIF
+    #endif                                      //
 
     // If offline mode isn't enabled, wait for device to be enumerated
     if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
@@ -284,7 +263,7 @@ int main(void)
         // Test procedure to check that all HW is working
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
-    #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_PREPRODUCTION_SETUP) ||  defined(MINI_PREPRODUCTION_SETUP_ACC)
+    #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_PREPRODUCTION_SETUP) || defined(MINI_PREPRODUCTION_SETUP_ACC)
         mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok, mini_inputs_result);
     #endif
     
@@ -299,10 +278,8 @@ int main(void)
         #if defined(MINI_CLICK_BETATESTERS_SETUP)
             (void)fuse_ok;
             while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
-        #elif defined(MINI_PREPRODUCTION_SETUP)
-            while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
-        #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
-            // Do not hang if accelerometer not present... this isn't crucial...
+        #elif defined(MINI_PREPRODUCTION_SETUP) || defined(MINI_PREPRODUCTION_SETUP_ACC)
+            // We do not hang if accelerometer is not present as it isn't crucial, moreover we already tested it in the functional test 
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #else
             #error "Platform unknown!"

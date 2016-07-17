@@ -46,8 +46,14 @@ def main():
 		
 	# Print Mooltipass status
 	print "Mooltipass status:", custom_hid_packet.getMooltipassStatus(device)
-		
-	custom_hid_packet.uploadBundle(device, None)
+	print ""
+	
+	# See if args were passed
+	if len(sys.argv) > 1:
+		if sys.argv[1] == "uploadBundle":
+			custom_hid_packet.uploadBundle(device, None)
+			
+	custom_hid_packet.checkSecuritySettings(device)
 	#device.disconnect()
 
 if __name__ == "__main__":

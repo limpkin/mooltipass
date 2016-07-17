@@ -37,6 +37,22 @@ def textToByteArray(text):
 	ret_dat.extend(map(ord,text))
 	ret_dat.append(0)
 	return ret_dat
+	
+# Get a packet to send for a given command and payload
+def getPacketForCommand(cmd, len, data):
+	# data to send
+	arraytosend = array('B')
+
+	# if command copy it otherwise copy the data
+	if cmd != 0:
+		arraytosend.append(len)
+		arraytosend.append(cmd)
+
+	# add the data
+	if data is not None:
+		arraytosend.extend(data)
+		
+	return arraytosend
 
 # Create a ping packet to be sent to the device
 def createPingPacket():	
@@ -222,3 +238,74 @@ def	uploadBundle(hid_device, password):
 		print "likely causes: mooltipass already setup"
 
 	return success_status
+	
+def checkSecuritySettings(hid_device):
+	correct_password = raw_input("Enter mooltipass password: ")
+	correct_key = raw_input("Enter request key: ")
+	
+	# Get Mooltipass variant
+	mooltipass_variant = getMooltipassVersionAndVariant(hid_device)[2]
+	
+	# Mooltipass password to be set
+	mooltipass_password = array('B')
+	request_key_and_uid = array('B')
+	
+	print "Getting random bytes - 1/2 random password"
+	hid_device.sendHidPacket([0, CMD_GET_RANDOM_NUMBER])
+	data = hid_device.receiveHidPacket()
+	mooltipass_password.extend(data[DATA_INDEX:DATA_INDEX+32])
+	print "Getting random bytes - 2/2 random password"
+	hid_device.sendHidPacket([0, CMD_GET_RANDOM_NUMBER])
+	data2 = hid_device.receiveHidPacket()
+	mooltipass_password.extend(data2[DATA_INDEX:DATA_INDEX+30])
+	print "Getting random bytes - UID & request key"
+	hid_device.sendHidPacket([0, CMD_GET_RANDOM_NUMBER])
+	request_key_and_uid.extend(hid_device.receiveHidPacket()[DATA_INDEX:DATA_INDEX+22])	
+	print "Getting random bytes - 1/2 random password for jump command"
+	hid_device.sendHidPacket([0, CMD_GET_RANDOM_NUMBER])
+	random_data = hid_device.receiveHidPacket()[DATA_INDEX:DATA_INDEX+32]
+	print "Getting random bytes - 2/2 random password for jump command"
+	hid_device.sendHidPacket([0, CMD_GET_RANDOM_NUMBER])
+	random_data.extend(hid_device.receiveHidPacket()[DATA_INDEX:DATA_INDEX+30])
+	print "Done... starting test"
+	print ""
+			
+	hid_device.sendHidPacket(getPacketForCommand(CMD_SET_UID, 22, request_key_and_uid))
+	if hid_device.receiveHidPacket()[DATA_INDEX] == 0x01:
+		print "FAIL - Other UID set!"
+	else:
+		print "OK - Couldn't set new UID"
+		
+	hid_device.sendHidPacket(getPacketForCommand(CMD_GET_UID, 16, array('B', correct_key.decode("hex"))))
+	data = hid_device.receiveHidPacket()
+	if data[LEN_INDEX] == 0x01:
+		print "FAIL - Couln't fetch UID"
+	else:
+		print "OK - Fetched UID"
+		if data[DATA_INDEX:DATA_INDEX+6] == array('B', correct_key.decode("hex"))[16:16+6]:
+			print "OK - UID fetched is correct!"
+		else:
+			print "FAIL - UID fetched is different than the one provided!"
+			print data[DATA_INDEX:DATA_INDEX+6], "instead of", array('B', correct_key.decode("hex"))[16:16+6]
+	
+	hid_device.sendHidPacket(getPacketForCommand(CMD_GET_UID, 16, random_data[0:16]))
+	data = hid_device.receiveHidPacket()
+	if data[LEN_INDEX] == 0x01:
+		print "OK - Couldn't fetch UID with random key"
+	else:
+		print "FAIL - Fetched UID with random key"
+		
+	hid_device.sendHidPacket(getPacketForCommand(CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password))
+	if hid_device.receiveHidPacket()[DATA_INDEX] == 0x01:
+		print "FAIL - New Mooltipass password was set"
+	else:
+		print "OK - Couldn't set new Mooltipass password"
+	
+	if mooltipass_variant != "mini":
+		hid_device.sendHidPacket(getPacketForCommand(CMD_JUMP_TO_BOOTLOADER, 62, random_data))
+		print "Sending jump to bootloader with random password... did it work?"
+		raw_input("Press enter")
+		
+		hid_device.sendHidPacket(getPacketForCommand(CMD_JUMP_TO_BOOTLOADER, 62, array('B', correct_password.decode("hex"))))
+		print "Sending jump to bootloader with good password... did it work?"
+		raw_input("Press enter")

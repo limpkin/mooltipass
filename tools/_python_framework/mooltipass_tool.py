@@ -43,22 +43,30 @@ import usb.util
 import random
 import time
 import sys
+nonConnectionCommands = ["packAndSign"]
 
 def main():
-	# HID device constructor
-	device = custom_hid_device()	
+	skipConnection = False
 	
-	# Connect to device
-	if device.connect(True, custom_hid_packet.createPingPacket(), custom_hid_packet.checkPingAnswerPacket) == False:
-		sys.exit(0)
+	# If an arg is supplied and if the command doesn't require to connect to a device
+	if len(sys.argv) > 1 and sys.argv[1] in nonConnectionCommands:
+		skipConnection = True
+
+	if not skipConnection:
+		# HID device constructor
+		device = custom_hid_device()	
 		
-	# Get Mooltipass Version
-	version_data = custom_hid_packet.getMooltipassVersionAndVariant(device)
-	print "Mooltipass version: " + version_data[1] + ", variant: " + version_data[2] + ", " + str(version_data[0]) + "Mb of Flash"
-		
-	# Print Mooltipass status
-	print "Mooltipass status:", custom_hid_packet.getMooltipassStatus(device)
-	print ""
+		# Connect to device
+		if device.connect(True, custom_hid_packet.createPingPacket(), custom_hid_packet.checkPingAnswerPacket) == False:
+			sys.exit(0)
+			
+		# Get Mooltipass Version
+		version_data = custom_hid_packet.getMooltipassVersionAndVariant(device)
+		print "Mooltipass version: " + version_data[1] + ", variant: " + version_data[2] + ", " + str(version_data[0]) + "Mb of Flash"
+			
+		# Print Mooltipass status
+		print "Mooltipass status:", custom_hid_packet.getMooltipassStatus(device)
+		print ""
 	
 	# See if args were passed
 	if len(sys.argv) > 1:
@@ -89,7 +97,8 @@ def main():
 			
 			
 	#custom_hid_packet.checkSecuritySettings(device)
-	#device.disconnect()
+	#if not skipConnection:
+		#device.disconnect()
 
 if __name__ == "__main__":
 	main()

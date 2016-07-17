@@ -21,16 +21,17 @@
 # information: Portions Copyright [yyyy] [name of copyright owner]
 #
 # CDDL HEADER END
-############################################################################################
-#                                  COMMAND EXAMPLES                                        #
-#                                                                                          #
-# Upload new bundle to device: mooltipass_tool.py uploadBundle updatefile.img <password>   #
-# Generate signed firmware: mooltipass_tool.py packAndSign bundleName firmwareName oldAesKey newAesKey updateFileName #
-#                                                                                          #
-#                                                                                          #
-#                                                                                          #
-#                                                                                          #
-############################################################################################
+###############################################################################################################################
+#                                  COMMAND EXAMPLES                                                                           #
+#                                                                                                                             #
+# Upload new bundle to device: mooltipass_tool.py uploadBundle updatefile.img <password>                                      #
+# Generate signed firmware: mooltipass_tool.py packAndSign bundleName firmwareName oldAesKey newAesKey updateFileName         #
+# Generate and upload signed firmware: mooltipass_tool.py packSignUpload bundleName firmwareName oldAesKey newAesKey password #
+#                                                                                                                             #
+#                                                                                                                             #
+#                                                                                                                             #
+#                                                                                                                             #
+###############################################################################################################################
 from custom_hid_device import *
 import custom_hid_packet
 import firmwareBundlePackAndSign
@@ -77,7 +78,14 @@ def main():
 			if len(sys.argv) > 6:
 				firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
 			else:
-				print "packAndSign: not enough args!"			
+				print "packAndSign: not enough args!"	
+		if sys.argv[1] == "packSignUpload":
+			if len(sys.argv) > 6:
+				if firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], "updatefile.img") == True:
+					custom_hid_packet.uploadBundle(device, sys.argv[6], "updatefile.img")
+			else:
+				print "packAndSign: not enough args!"
+			
 			
 			
 	#custom_hid_packet.checkSecuritySettings(device)

@@ -49,13 +49,13 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		print "Bundle file found"
 	else:
 		print "Couldn't find bundle file"
-		return
+		return False
 		
 	if isfile(firmwareName):
 		print "Firmware file found"
 	else:
 		print "Couldn't find firmware file"
-		return
+		return False
 	
 	# Read bundle and firmware data
 	firmware = IntelHex(firmwareName)
@@ -66,18 +66,18 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	# Check that the firmware data actually starts at address 0
 	if firmware.minaddr() != 0:
 		print "Firmware start address isn't correct"
-		return
+		return False
 		
 	# Check that the bundle & firmware data aren't bigger than they should be
 	if len(bundle) > BUNDLE_MAX_LENGTH:
 		print "Bundle file too long:", len(bundle), "bytes long"
-		return
+		return False
 	else:	
 		print "Bundle file is ", len(bundle), "bytes long"
 		
 	if len(firmware) > FW_MAX_LENGTH:
 		print "Firmware file too long:", len(firmware), "bytes long"
-		return
+		return False
 	else:	
 		print "Firmware file is ", len(firmware), "bytes long"
 		
@@ -85,18 +85,18 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	new_aes_key = array('B', newAesKey.decode("hex"))
 	if len(new_aes_key) != AES_KEY_LENGTH:
 		print "Wrong New AES Key Length:", len(new_aes_key)
-		return
+		return False
 		
 	old_aes_key = array('B', oldAesKey.decode("hex"))
 	if len(old_aes_key) != AES_KEY_LENGTH:
 		print "Wrong Old AES Key Length:", len(oldAesKey)
-		return
+		return False
 		
 	cipher = AES.new(old_aes_key, AES.MODE_ECB, array('B',[0]*AES.block_size))	# IV ignored in ECB
 	enc_password = cipher.encrypt(new_aes_key)
 	if len(enc_password) != AES_KEY_LENGTH:
 		print "Encoded password is too long!"
-		return		
+		return False
 		
 	# Generate beginning of update file data: bundle | padding | firmware | new aes key encoded
 	update_file_data = array('B')
@@ -109,7 +109,7 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	# Check length
 	if len(update_file_data) != (STORAGE_SPACE - HASH_LENGH):
 		print "Problem with update file length!"
-		return
+		return False
 		
 	# Generate CBCMAC, IV is ZEROS
 	cipher = AES.new(old_aes_key, AES.MODE_CBC, array('B',[0]*AES.block_size))
@@ -121,13 +121,14 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	# Check length
 	if len(update_file_data) != STORAGE_SPACE:
 		print "Problem with update file length!"
-		return
+		return False
 		
 	# Write our update image file
 	data_fd = open(updateFileName, 'wb')
 	data_fd.write(update_file_data)
 	data_fd.close()
 	print "Update file written!"
+	return True
 	
 	# Re read our file to make sure of its length
 	#fd = open("updatefile.img", 'rb')

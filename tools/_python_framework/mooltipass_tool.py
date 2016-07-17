@@ -21,8 +21,19 @@
 # information: Portions Copyright [yyyy] [name of copyright owner]
 #
 # CDDL HEADER END
+############################################################################################
+#                                  COMMAND EXAMPLES                                        #
+#                                                                                          #
+# Upload new bundle to device: mooltipass_tool.py uploadBundle updatefile.img <password>   #
+# Generate signed firmware: mooltipass_tool.py packAndSign bundleName firmwareName oldAesKey newAesKey updateFileName #
+#                                                                                          #
+#                                                                                          #
+#                                                                                          #
+#                                                                                          #
+############################################################################################
 from custom_hid_device import *
 import custom_hid_packet
+import firmwareBundlePackAndSign
 from datetime import datetime
 from array import array
 import platform
@@ -51,9 +62,25 @@ def main():
 	# See if args were passed
 	if len(sys.argv) > 1:
 		if sys.argv[1] == "uploadBundle":
-			custom_hid_packet.uploadBundle(device, None)
+			# extract args
+			if len(sys.argv) > 2:
+				filename = sys.argv[2]
+			else:
+				filename = None
+			if len(sys.argv) > 3:
+				password = sys.argv[3]
+			else:
+				password = None
+			# start upload
+			custom_hid_packet.uploadBundle(device, password, filename)
+		if sys.argv[1] == "packAndSign":
+			if len(sys.argv) > 6:
+				firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
+			else:
+				print "packAndSign: not enough args!"			
 			
-	custom_hid_packet.checkSecuritySettings(device)
+			
+	#custom_hid_packet.checkSecuritySettings(device)
 	#device.disconnect()
 
 if __name__ == "__main__":

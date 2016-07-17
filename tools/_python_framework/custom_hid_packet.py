@@ -26,6 +26,7 @@ from array import array
 import struct
 import random
 import glob
+import os
 
 # Get text from byte array
 def getTextFromUsbPacket(usb_packet):
@@ -133,37 +134,49 @@ def sendCustomPacket(hid_device):
 		print "Packet #" + str(i) + " in hex: " + ' '.join(hex(x) for x in received_data)
 
 # Upload bundle
-def	uploadBundle(hid_device, password):	
+def	uploadBundle(hid_device, password, filename):	
 	password_set = False
 	mooltipass_variant = getMooltipassVersionAndVariant(hid_device)[2]
 	
-	# List available img files
-	file_list = glob.glob("*.img")
-	if len(file_list) == 0:
-		print "No img file available!"
-		return
-	elif len(file_list) == 1:
-		print "Using bundle file", file_list[0]
-		bundlefile = open(file_list[0], 'rb')
-	else:
-		for i in range(0, len(file_list)):
-			print str(i) + ": " + file_list[i]
-		picked_file = raw_input("Choose file: ")
-		if int(picked_file) >= len(file_list):
-			print "Out of bounds"
-			return
+	# Check if a file name was passed
+	if filename is not None:
+		if not os.path.isfile(filename):
+			print "Filename passed as arg isn't valid"
+			filename = None
 		else:
-			bundlefile = open(file_list[int(picked_file)], 'rb')
+			bundlefile = open(filename, 'rb')
+		
+	# List available img files
+	if filename is None:
+		file_list = glob.glob("*.img")
+		if len(file_list) == 0:
+			print "No img file available!"
+			return
+		elif len(file_list) == 1:
+			print "Using bundle file", file_list[0]
+			bundlefile = open(file_list[0], 'rb')
+		else:
+			for i in range(0, len(file_list)):
+				print str(i) + ": " + file_list[i]
+			picked_file = raw_input("Choose file: ")
+			if int(picked_file) >= len(file_list):
+				print "Out of bounds"
+				return
+			else:
+				bundlefile = open(file_list[int(picked_file)], 'rb')
 	
 	# Ask for Mooltipass password
 	if password is None:
 		mp_password = raw_input("Enter Mooltipass Password, press enter if None: ")
-		if len(mp_password) == DEVICE_PASSWORD_SIZE:
+		if len(mp_password) == DEVICE_PASSWORD_SIZE*2:
 			password_set = True
 		else:
 			print "Empty or erroneous password, using zeros"
+	else:
+		mp_password = password
 	
 	# Prepare the password
+	print "Starting upload..."
 	mooltipass_password = array('B')
 	mooltipass_password.append(DEVICE_PASSWORD_SIZE)
 	mooltipass_password.append(CMD_IMPORT_MEDIA_START)

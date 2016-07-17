@@ -32,10 +32,7 @@ from struct import *
 import sys
 import os
 
-def getAesKeyForMooltipass(mpId):
-	return array('B',[0]*32)
-
-def main():
+def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFileName):
 	# Rather than at the beginning of the files, constants are here
 	HASH_LENGH = 128/8									# Hash length (128 bits)
 	AES_KEY_LENGTH = 256/8								# AES key length (256 bits)
@@ -48,21 +45,21 @@ def main():
 	rng = Random.new()
 
 	# Check that all required files are here
-	if isfile("bundle.img"):
+	if isfile(bundleName):
 		print "Bundle file found"
 	else:
 		print "Couldn't find bundle file"
 		return
 		
-	if isfile("Mooltipass.hex"):
+	if isfile(firmwareName):
 		print "Firmware file found"
 	else:
 		print "Couldn't find firmware file"
 		return
 	
 	# Read bundle and firmware data
-	firmware = IntelHex("Mooltipass.hex")
-	fd = open("bundle.img", 'rb')
+	firmware = IntelHex(firmwareName)
+	fd = open(bundleName, 'rb')
 	bundle = fd.read()
 	fd.close()	
 	
@@ -77,16 +74,25 @@ def main():
 		return
 	else:	
 		print "Bundle file is ", len(bundle), "bytes long"
+		
 	if len(firmware) > FW_MAX_LENGTH:
 		print "Firmware file too long:", len(firmware), "bytes long"
 		return
 	else:	
 		print "Firmware file is ", len(firmware), "bytes long"
 		
-	# Generate new random AES key, encrypt it with the old one
-	new_aes_key = rng.read(AES_KEY_LENGTH)
-	new_aes_key = array('B',[0]*AES_KEY_LENGTH) # TO REMOVE!
-	cipher = AES.new(getAesKeyForMooltipass(0), AES.MODE_ECB, array('B',[0]*AES.block_size))	# IV ignored in ECB
+	# Convert & check the provided aes keys
+	new_aes_key = array('B', newAesKey.decode("hex"))
+	if len(new_aes_key) != AES_KEY_LENGTH:
+		print "Wrong New AES Key Length:", len(new_aes_key)
+		return
+		
+	old_aes_key = array('B', oldAesKey.decode("hex"))
+	if len(old_aes_key) != AES_KEY_LENGTH:
+		print "Wrong Old AES Key Length:", len(oldAesKey)
+		return
+		
+	cipher = AES.new(old_aes_key, AES.MODE_ECB, array('B',[0]*AES.block_size))	# IV ignored in ECB
 	enc_password = cipher.encrypt(new_aes_key)
 	if len(enc_password) != AES_KEY_LENGTH:
 		print "Encoded password is too long!"
@@ -106,7 +112,7 @@ def main():
 		return
 		
 	# Generate CBCMAC, IV is ZEROS
-	cipher = AES.new(getAesKeyForMooltipass(0), AES.MODE_CBC, array('B',[0]*AES.block_size))
+	cipher = AES.new(old_aes_key, AES.MODE_CBC, array('B',[0]*AES.block_size))
 	cbc_mac = cipher.encrypt(update_file_data)[-AES.block_size:]
 		
 	# Append it to update file data: bundle | padding | firmware | new aes key encoded | cbcmac
@@ -118,7 +124,7 @@ def main():
 		return
 		
 	# Write our update image file
-	data_fd = open("updatefile.img", 'wb')
+	data_fd = open(updateFileName, 'wb')
 	data_fd.write(update_file_data)
 	data_fd.close()
 	print "Update file written!"
@@ -129,6 +135,3 @@ def main():
 	#fd.close()	
 	#print "Update file length:", len(update_file), "bytes"
 	#return
-
-if __name__ == "__main__":
-	main()

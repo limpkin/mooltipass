@@ -359,10 +359,6 @@ int main(void)
     #elif defined(HARDWARE_MINI_CLICK_V2)
         miniLedsSetAnimation(ANIM_FADE_IN_FADE_OUT_1_TIME);
     #endif
-
-    uint8_t bla[(UID_REQUEST_KEY_SIZE + UID_SIZE)];
-    memset(bla, 0x00, (UID_REQUEST_KEY_SIZE + UID_SIZE))
-    eeprom_write_block((void*)msg->body.data, (void*)EEP_UID_REQUEST_KEY_ADDR, (UID_REQUEST_KEY_SIZE + UID_SIZE));
     
     // Inhibit touch inputs for the first 2 seconds
     activateTimer(TIMER_TOUCH_INHIBIT, 2000);

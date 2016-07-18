@@ -6,6 +6,7 @@ Todo:
 mini:
 - Display flip based on accelerometer
 - version check in bootloader
+- bootloader: if error during cbcmac check, erase graphics
 
 V1.2:
 - adding an "_unlock_" service to enable computer lock/unlock feature

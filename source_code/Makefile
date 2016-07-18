@@ -39,7 +39,7 @@ LDFLAGS  += -flto -fuse-linker-plugin
 
 # Some helpers to get all the .c and .h files.
 # $(TARGET) is included inside $(OBJECTS).
-LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
+LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI MINI)
 LIBOBJS := $(foreach lib, $(LIBDIRS),$(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
 OBJECTS := $(patsubst src/%.c,build/%.o, $(filter-out src/bootloader_main.c, $(wildcard src/*.c)))
 

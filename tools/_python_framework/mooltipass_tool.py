@@ -32,8 +32,7 @@
 #                                                                                                                             #
 #                                                                                                                             #
 ###############################################################################################################################
-from custom_hid_device import *
-import custom_hid_packet
+from mooltipass_hid_device import *
 import firmwareBundlePackAndSign
 from datetime import datetime
 from array import array
@@ -54,18 +53,18 @@ def main():
 
 	if not skipConnection:
 		# HID device constructor
-		device = custom_hid_device()	
+		mooltipass_device = mooltipass_hid_device()	
 		
 		# Connect to device
-		if device.connect(True, custom_hid_packet.createPingPacket(), custom_hid_packet.checkPingAnswerPacket) == False:
+		if mooltipass_device.connect() == False:
 			sys.exit(0)
 			
 		# Get Mooltipass Version
-		version_data = custom_hid_packet.getMooltipassVersionAndVariant(device)
+		version_data = mooltipass_device.getMooltipassVersionAndVariant()
 		print "Mooltipass version: " + version_data[1] + ", variant: " + version_data[2] + ", " + str(version_data[0]) + "Mb of Flash"
 			
 		# Print Mooltipass status
-		print "Mooltipass status:", custom_hid_packet.getMooltipassStatus(device)
+		print "Mooltipass status:", mooltipass_device.getMooltipassStatus()
 		print ""
 	
 	# See if args were passed
@@ -90,13 +89,14 @@ def main():
 		if sys.argv[1] == "packSignUpload":
 			if len(sys.argv) > 6:
 				if firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], "updatefile.img") == True:
-					custom_hid_packet.uploadBundle(device, sys.argv[6], "updatefile.img")
+					mooltipass_device.uploadBundle(sys.argv[6], "updatefile.img")
 			else:
 				print "packAndSign: not enough args!"
 			
 			
-			
-	#custom_hid_packet.checkSecuritySettings(device)
+		
+	#mooltipass_device.sendCustomPacket()
+	#mooltipass_device.checkSecuritySettings()
 	#if not skipConnection:
 		#device.disconnect()
 

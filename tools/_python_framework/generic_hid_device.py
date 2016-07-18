@@ -21,7 +21,6 @@
 # information: Portions Copyright [yyyy] [name of copyright owner]
 #
 # CDDL HEADER END
-from custom_hid_defines import *
 from datetime import datetime
 from array import array
 import platform
@@ -35,8 +34,9 @@ import sys
 # Set to true to get advanced debugging information
 HID_DEVICE_DEBUG	= False
 
-# Custom HID device class
-class custom_hid_device:
+# Generic HID device class
+class generic_hid_device:
+
 	# Device constructor
 	def __init__(self):
 		# Install SIGINT catcher
@@ -82,7 +82,7 @@ class custom_hid_device:
 
 		# read from endpoint
 		try :
-			data = self.epin.read(self.epin.wMaxPacketSize, timeout=USB_READ_TIMEOUT)
+			data = self.epin.read(self.epin.wMaxPacketSize, timeout=self.read_timeout)
 			if HID_DEVICE_DEBUG:
 				print "RX DBG data:", ' '.join(hex(x) for x in data)
 			return data
@@ -94,7 +94,7 @@ class custom_hid_device:
 	# Receive HID packet, return None when nothing is sent	
 	def receiveHidPacketWithTimeout(self):
 		try :
-			data = self.epin.read(self.epin.wMaxPacketSize, timeout=USB_READ_TIMEOUT)
+			data = self.epin.read(self.epin.wMaxPacketSize, timeout=self.read_timeout)
 			if HID_DEVICE_DEBUG:
 				print "RX DBG data:", ' '.join(hex(x) for x in data)
 			return data
@@ -104,9 +104,10 @@ class custom_hid_device:
 	# Try to connect to HID device. 
 	# ping_packet: an array containing a ping packet to send to the device over HID
 	# pong_check_func: a function which takes a ping packet and it's reply as parameters, replies True if OK
-	def connect(self, print_debug, ping_packet, pong_check_func):
+	def connect(self, print_debug, device_vid, device_pid, read_timeout, ping_packet, pong_check_func):
 		# Find our device
-		self.hid_device = usb.core.find(idVendor=USB_VID, idProduct=USB_PID)
+		self.hid_device = usb.core.find(idVendor=device_vid, idProduct=device_pid)
+		self.read_timeout = read_timeout
 
 		# Was it found?
 		if self.hid_device is None:

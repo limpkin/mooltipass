@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Copyright (c) 2016 Mathieu Stephan
 # All rights reserved.
@@ -91,7 +91,16 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	if len(old_aes_key) != AES_KEY_LENGTH:
 		print "Wrong Old AES Key Length:", len(oldAesKey)
 		return False
-		
+
+	# Get version number
+	for i in range(len(firmware) - 3):
+		if chr(firmware[i]) == 'v' and \
+		chr(firmware[i + 1]) >= '1' and chr(firmware[i + 1]) <= '9' and \
+		chr(firmware[i + 2]) == '.' and \
+		chr(firmware[i + 3]) >= '0' and chr(firmware[i + 3]) <= '9':
+			print "Found version at offset", i, "".join(chr(firmware[j]) for j in range(i, i + 4))
+			break;
+
 	cipher = AES.new(old_aes_key, AES.MODE_ECB, array('B',[0]*AES.block_size))	# IV ignored in ECB
 	enc_password = cipher.encrypt(new_aes_key)
 	if len(enc_password) != AES_KEY_LENGTH:

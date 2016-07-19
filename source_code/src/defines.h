@@ -67,7 +67,7 @@
  *  MINI_PREPRODUCTION_SETUP_ACC
  *  => mooltipass mini pre-production units, with accelerometer
 */
-#define MINI_CLICK_BETATESTERS_SETUP
+#define MINI_PREPRODUCTION_SETUP_ACC
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)

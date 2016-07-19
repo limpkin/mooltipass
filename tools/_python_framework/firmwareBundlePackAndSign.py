@@ -36,13 +36,17 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	# Rather than at the beginning of the files, constants are here
 	HASH_LENGH = 128/8									# Hash length (128 bits)
 	AES_KEY_LENGTH = 256/8								# AES key length (256 bits)
+	FW_VERSION_LENGTH = 4								# Length of the firmware version in the bundle
 	FW_MAX_LENGTH = 28672								# Maximum firmware length, depends on size allocated to bootloader
 	FLASH_SECTOR_0_LENGTH = 264*8						# Length in bytes of sector 0a in external flash (to change for 16Mb & 32Mb flash!)
 	STORAGE_SPACE = 65536 - FLASH_SECTOR_0_LENGTH		# Uint16_t addressing space - sector 0a length (dedicated to other storage...)
-	BUNDLE_MAX_LENGTH = STORAGE_SPACE - FW_MAX_LENGTH - HASH_LENGH - AES_KEY_LENGTH
+	BUNDLE_MAX_LENGTH = STORAGE_SPACE - FW_MAX_LENGTH - HASH_LENGH - AES_KEY_LENGTH - FW_VERSION_LENGTH
 	
 	# Robust RNG
 	rng = Random.new()
+	
+	# Extracted firmware version
+	firmware_version = None
 
 	# Check that all required files are here
 	if isfile(bundleName):
@@ -59,6 +63,7 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	
 	# Read bundle and firmware data
 	firmware = IntelHex(firmwareName)
+	firmware_bin = firmware.tobinarray()
 	fd = open(bundleName, 'rb')
 	bundle = fd.read()
 	fd.close()	
@@ -93,13 +98,19 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		return False
 
 	# Get version number
-	for i in range(len(firmware) - 3):
-		if chr(firmware[i]) == 'v' and \
-		chr(firmware[i + 1]) >= '1' and chr(firmware[i + 1]) <= '9' and \
-		chr(firmware[i + 2]) == '.' and \
-		chr(firmware[i + 3]) >= '0' and chr(firmware[i + 3]) <= '9':
-			print "Found version at offset", i, "".join(chr(firmware[j]) for j in range(i, i + 4))
+	for i in range(len(firmware_bin) - 3):
+		if chr(firmware_bin[i]) == 'v' and \
+		chr(firmware_bin[i + 1]) >= '1' and chr(firmware_bin[i + 1]) <= '9' and \
+		chr(firmware_bin[i + 2]) == '.' and \
+		chr(firmware_bin[i + 3]) >= '0' and chr(firmware_bin[i + 3]) <= '9':
+			firmware_version = firmware_bin[i:i+4]
+			print "Extracted firmware version:", "".join(chr(firmware_version[j]) for j in range(0, 4))
 			break;
+			
+	# Check if we extracted the firmware version and it has the correct length
+	if firmware_version == None or len(firmware_version) != FW_VERSION_LENGTH:
+		print "Problem while extracting firmware version"
+		return False
 
 	cipher = AES.new(old_aes_key, AES.MODE_ECB, array('B',[0]*AES.block_size))	# IV ignored in ECB
 	enc_password = cipher.encrypt(new_aes_key)
@@ -107,10 +118,11 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		print "Encoded password is too long!"
 		return False
 		
-	# Generate beginning of update file data: bundle | padding | firmware | new aes key encoded
+	# Generate beginning of update file data: bundle | padding | firmware version | firmware | new aes key encoded
 	update_file_data = array('B')
 	update_file_data.extend(bytearray(bundle))
-	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-FW_MAX_LENGTH-len(bundle))))
+	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-FW_MAX_LENGTH-FW_VERSION_LENGTH-len(bundle))))
+	update_file_data.extend(firmware_version)
 	update_file_data.extend(firmware.tobinarray())
 	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-len(update_file_data))))
 	update_file_data.extend(bytearray(enc_password))

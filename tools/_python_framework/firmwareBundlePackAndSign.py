@@ -102,12 +102,14 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	else:
 		print "Encrypting new AES key"
 		
-	# Convert & check the provided aes keys
-	new_aes_key = array('B', newAesKey.decode("hex"))
-	if len(new_aes_key) != AES_KEY_LENGTH:
-		print "Wrong New AES Key Length:", len(new_aes_key)
-		return False
+	# If needed, check the new aes key
+	if aes_key_update_bool == True:
+		new_aes_key = array('B', newAesKey.decode("hex"))
+		if len(new_aes_key) != AES_KEY_LENGTH:
+			print "Wrong New AES Key Length:", len(new_aes_key)
+			return False
 		
+	# Convert & check the old aes key
 	old_aes_key = array('B', oldAesKey.decode("hex"))
 	if len(old_aes_key) != AES_KEY_LENGTH:
 		print "Wrong Old AES Key Length:", len(oldAesKey)
@@ -128,11 +130,15 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		print "Problem while extracting firmware version"
 		return False
 
-	cipher = AES.new(old_aes_key, AES.MODE_ECB, array('B',[0]*AES.block_size))	# IV ignored in ECB
-	enc_password = cipher.encrypt(new_aes_key)
-	if len(enc_password) != AES_KEY_LENGTH:
-		print "Encoded password is too long!"
-		return False
+	# If needed, encrypt the new AES key with the old one
+	if aes_key_update_bool == True:
+		cipher = AES.new(old_aes_key, AES.MODE_ECB, array('B',[0]*AES.block_size))	# IV ignored in ECB
+		enc_password = cipher.encrypt(new_aes_key)
+		if len(enc_password) != AES_KEY_LENGTH:
+			print "Encoded password is too long!"
+			return False
+	else:
+		enc_password = [0]*AES_KEY_LENGTH
 		
 	# Generate beginning of update file data: bundle | padding | firmware version | new aes key bool | firmware | new aes key encoded
 	update_file_data = array('B')

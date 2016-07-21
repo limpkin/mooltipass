@@ -140,7 +140,7 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	else:
 		enc_password = [0]*AES_KEY_LENGTH
 		
-	# Generate beginning of update file data: bundle | padding | firmware version | new aes key bool | firmware | new aes key encoded
+	# Generate beginning of update file data: bundle | padding | firmware version | new aes key bool | firmware | padding | new aes key encoded
 	update_file_data = array('B')
 	update_file_data.extend(bytearray(bundle))
 	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-FW_MAX_LENGTH-FW_VERSION_LENGTH-AES_KEY_UPDATE_FLAG_LGTH-len(bundle))))
@@ -162,7 +162,7 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	cipher = AES.new(old_aes_key, AES.MODE_CBC, array('B',[0]*AES.block_size))
 	cbc_mac = cipher.encrypt(update_file_data)[-AES.block_size:]
 		
-	# Append it to update file data: bundle | padding | firmware | new aes key encoded | cbcmac
+	# Append it to update file data: bundle | padding | firmware version | new aes key bool | firmware | padding | new aes key encoded | cbcmac
 	update_file_data.extend(bytearray(cbc_mac))
 	
 	# Check length

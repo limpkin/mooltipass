@@ -21,17 +21,17 @@
 # information: Portions Copyright [yyyy] [name of copyright owner]
 #
 # CDDL HEADER END
-###############################################################################################################################
-#                                  COMMAND EXAMPLES                                                                           #
-#                                                                                                                             #
-# Upload new bundle to device: mooltipass_tool.py uploadBundle updatefile.img <password>                                      #
-# Generate signed firmware: mooltipass_tool.py packAndSign bundleName firmwareName oldAesKey newAesKey updateFileName         #
-# Generate and upload signed firmware: mooltipass_tool.py packSignUpload bundleName firmwareName oldAesKey newAesKey password #
-#                                                                                                                             #
-#                                                                                                                             #
-#                                                                                                                             #
-#                                                                                                                             #
-###############################################################################################################################
+#################################################################################################################################
+#                                  COMMAND EXAMPLES                                                                             #
+#                                                                                                                               #
+# Upload new bundle to device: mooltipass_tool.py uploadBundle updatefile.img <password>                                        #
+# Generate signed firmware: mooltipass_tool.py packAndSign bundleName firmwareName oldAesKey (newAesKey) updateFileName         #
+# Generate and upload signed firmware: mooltipass_tool.py packSignUpload bundleName firmwareName oldAesKey (newAesKey) password #
+#                                                                                                                               #
+#                                                                                                                               #
+#                                                                                                                               #
+#                                                                                                                               #
+#################################################################################################################################
 from mooltipass_hid_device import *
 import firmwareBundlePackAndSign
 from datetime import datetime
@@ -81,15 +81,30 @@ def main():
 				password = None
 			# start upload
 			custom_hid_packet.uploadBundle(device, password, filename)
+			
 		if sys.argv[1] == "packAndSign":
-			if len(sys.argv) > 6:
-				firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
+			if len(sys.argv) > 5:
+				# Depending on number of args, set a new password or not
+				if len(sys.argv) > 6:
+					firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
+				else:
+					firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], None, sys.argv[5])					
 			else:
-				print "packAndSign: not enough args!"	
+				print "packAndSign: not enough args!"
+				
 		if sys.argv[1] == "packSignUpload":
-			if len(sys.argv) > 6:
-				if firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], "updatefile.img") == True:
-					mooltipass_device.uploadBundle(sys.argv[6], "updatefile.img")
+			if len(sys.argv) > 5:
+				# Depending on number of args, set a new password or not
+				if len(sys.argv) > 6:
+					bundle_gen = firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], "updatefile.img")
+				else:
+					bundle_gen = firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], None, "updatefile.img")
+				# Did we generate the bundle?
+				if bundle_gen == True:
+					if len(sys.argv) > 6:
+						mooltipass_device.uploadBundle(sys.argv[6], "updatefile.img")
+					else:
+						mooltipass_device.uploadBundle(sys.argv[5], "updatefile.img")
 			else:
 				print "packAndSign: not enough args!"
 			

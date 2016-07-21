@@ -37,16 +37,20 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	HASH_LENGH = 128/8									# Hash length (128 bits)
 	AES_KEY_LENGTH = 256/8								# AES key length (256 bits)
 	FW_VERSION_LENGTH = 4								# Length of the firmware version in the bundle
+	AES_KEY_UPDATE_FLAG_LGTH = 1						# Length of the tag which specifies a firmware udpate
 	FW_MAX_LENGTH = 28672								# Maximum firmware length, depends on size allocated to bootloader
 	FLASH_SECTOR_0_LENGTH = 264*8						# Length in bytes of sector 0a in external flash (to change for 16Mb & 32Mb flash!)
 	STORAGE_SPACE = 65536 - FLASH_SECTOR_0_LENGTH		# Uint16_t addressing space - sector 0a length (dedicated to other storage...)
-	BUNDLE_MAX_LENGTH = STORAGE_SPACE - FW_MAX_LENGTH - HASH_LENGH - AES_KEY_LENGTH - FW_VERSION_LENGTH
+	BUNDLE_MAX_LENGTH = STORAGE_SPACE - FW_MAX_LENGTH - HASH_LENGH - AES_KEY_LENGTH - FW_VERSION_LENGTH - AES_KEY_UPDATE_FLAG_LGTH
 	
 	# Robust RNG
 	rng = Random.new()
 	
 	# Extracted firmware version
 	firmware_version = None
+	
+	# AES Key Update Bool
+	aes_key_update_bool = True
 
 	# Check that all required files are here
 	if isfile(bundleName):
@@ -86,6 +90,18 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	else:	
 		print "Firmware file is ", len(firmware), "bytes long"
 		
+	# Beta testers devices have their aes key set to 00000... and the bootloader will always perform a key update
+	if oldAesKey == "0000000000000000000000000000000000000000000000000000000000000000" and newAesKey == None:
+		print "Bundle update for beta testers unit, setting 00000... as new AES key"
+		newAesKey = "0000000000000000000000000000000000000000000000000000000000000000"
+		
+	# If no new aes key is specified, don't set the aes key update flag
+	if newAesKey == None:
+		print "No new AES key set"
+		aes_key_update_bool = False
+	else:
+		print "Encrypting new AES key"
+		
 	# Convert & check the provided aes keys
 	new_aes_key = array('B', newAesKey.decode("hex"))
 	if len(new_aes_key) != AES_KEY_LENGTH:
@@ -118,11 +134,15 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		print "Encoded password is too long!"
 		return False
 		
-	# Generate beginning of update file data: bundle | padding | firmware version | firmware | new aes key encoded
+	# Generate beginning of update file data: bundle | padding | firmware version | new aes key bool | firmware | new aes key encoded
 	update_file_data = array('B')
 	update_file_data.extend(bytearray(bundle))
-	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-FW_MAX_LENGTH-FW_VERSION_LENGTH-len(bundle))))
+	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-FW_MAX_LENGTH-FW_VERSION_LENGTH-AES_KEY_UPDATE_FLAG_LGTH-len(bundle))))
 	update_file_data.extend(firmware_version)
+	if aes_key_update_bool == True:
+		update_file_data.append(255)
+	else:
+		update_file_data.append(0)
 	update_file_data.extend(firmware.tobinarray())
 	update_file_data.extend(array('B',[0]*(STORAGE_SPACE-HASH_LENGH-AES_KEY_LENGTH-len(update_file_data))))
 	update_file_data.extend(bytearray(enc_password))

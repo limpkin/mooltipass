@@ -233,7 +233,9 @@
 //#define ENABLE_MILLISECOND_DBG_TIMER
 
 /************** LOW LEVEL MEMORY BOUNDARY CHECKS ***************/
+#ifndef MINI_BOOTLOADER
 #define MEMORY_BOUNDARY_CHECKS
+#endif
 
 /************** TESTS ENABLING ***************/
 // Comment to disable test calls

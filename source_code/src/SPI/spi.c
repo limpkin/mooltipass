@@ -55,3 +55,19 @@ void spiUsartSetRate(uint16_t rate)
     UBRR1 = rate;
 }
 
+#ifdef MINI_BOOTLOADER
+/**
+ * send and receive a byte of data via the SPI USART interface.
+ * @param data - the byte to send
+ * @returns the received byte
+ */
+uint8_t spiUsartTransfer(uint8_t data)
+{
+    /* Wait for empty transmit buffer */
+    while (!(UCSR1A & (1<<UDRE1)));
+    UDR1 = data;
+    /* Wait for data to be received */
+    while (!(UCSR1A & (1<<RXC1)));
+    return UDR1;
+}
+#endif

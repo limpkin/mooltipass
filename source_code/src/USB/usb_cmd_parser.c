@@ -883,10 +883,16 @@ void usbProcessIncoming(uint8_t caller_id)
             #if defined(DEV_PLUGIN_COMMS) || defined(AVR_BOOTLOADER_PROGRAMMING)
                 plugin_return_value = PLUGIN_BYTE_OK;
                 mediaFlashImportApproved = TRUE;
+                #ifdef MINI_VERSION
+                // Copy version ID into eeprom
+                eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
+                #endif
             #elif defined(MINI_VERSION)
                 // TODO: set authorizations
                 plugin_return_value = PLUGIN_BYTE_OK;
                 mediaFlashImportApproved = TRUE;
+                // Copy version ID into eeprom
+                eeprom_write_block(MOOLTIPASS_VERSION, EEP_USER_DATA_START_ADDR, 4);
             #else            
                 // Mandatory wait for bruteforce
                 userViewDelay();

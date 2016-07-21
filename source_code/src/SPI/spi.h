@@ -48,6 +48,7 @@
 void spiUsartBegin(void);
 void spiUsartSetRate(uint16_t rate);
 
+#ifndef MINI_BOOTLOADER
 /**
  * send and receive a byte of data via the SPI USART interface.
  * @param data - the byte to send
@@ -62,6 +63,10 @@ static inline uint8_t spiUsartTransfer(uint8_t data)
     while (!(UCSR1A & (1<<RXC1)));
     return UDR1;
 }
+#else
+uint8_t spiUsartTransfer(uint8_t data);
+#endif
+
 
 /**
  * this function is just meant to raise the RXC bit

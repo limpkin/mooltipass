@@ -298,11 +298,13 @@ void loadPageToInternalBuffer(uint16_t pageNumber)
 {
     uint8_t opcode[4];
     
-    // Error check the parameter pageNumber
-    if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
-    {
-        memoryBoundaryErrorCallback();
-    }
+    #ifdef MEMORY_BOUNDARY_CHECKS
+        // Error check the parameter pageNumber
+        if(pageNumber >= PAGE_COUNT) // Ex: 1M -> PAGE_COUNT = 512.. valid pageNumber 0-511
+        {
+            memoryBoundaryErrorCallback();
+        }
+    #endif
     
     // Load the page in the internal buffer
     opcode[0] = FLASH_OPCODE_MAINP_TO_BUF;

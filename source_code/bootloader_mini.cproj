@@ -96,6 +96,7 @@
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
   <avrgcc.compiler.warnings.ExtraWarnings>True</avrgcc.compiler.warnings.ExtraWarnings>
   <avrgcc.compiler.warnings.WarningsAsErrors>True</avrgcc.compiler.warnings.WarningsAsErrors>
+  <avrgcc.linker.general.DoNotUseStandardStartFiles>True</avrgcc.linker.general.DoNotUseStandardStartFiles>
   <avrgcc.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>

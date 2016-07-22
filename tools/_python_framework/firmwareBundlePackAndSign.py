@@ -82,13 +82,15 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		print "Bundle file too long:", len(bundle), "bytes long"
 		return False
 	else:	
-		print "Bundle file is ", len(bundle), "bytes long"
+		print "Bundle file is", len(bundle), "bytes long"
 		
 	if len(firmware) > FW_MAX_LENGTH:
 		print "Firmware file too long:", len(firmware), "bytes long"
 		return False
 	else:	
-		print "Firmware file is ", len(firmware), "bytes long"
+		print "Firmware file is", len(firmware), "bytes long"
+		
+	print "Remaining space in bundle:", STORAGE_SPACE - FW_MAX_LENGTH - HASH_LENGH - AES_KEY_LENGTH - FW_VERSION_LENGTH - AES_KEY_UPDATE_FLAG_LGTH - len(bundle), "bytes"
 		
 	# Beta testers devices have their aes key set to 00000... and the bootloader will always perform a key update
 	if oldAesKey == "0000000000000000000000000000000000000000000000000000000000000000" and newAesKey == None:

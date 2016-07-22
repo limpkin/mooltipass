@@ -28,6 +28,7 @@
 #include <avr/boot.h>
 #include <stdlib.h>
 #include <string.h>
+#include "logic_fwflash_storage.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
 #include "aes256_ctr.h"
@@ -40,6 +41,20 @@
 #define MAX_FIRMWARE_SIZE       28672
 #define SPM_PAGE_SIZE_BYTES_BM  (SPM_PAGESIZE - 1)
 
+
+/*! \fn     start(void)
+*   \brief  Function replacing the reset boot vector
+*   \note   This solution is compiled with the -nostartfiles flag, so no vectors or init routines are included in the final hex
+*           We therefore need to initialize the stack, launch the main()
+*/
+void start(void) __attribute__((naked,used,section(".vectors")));
+void start(void)
+{
+    SPH = (RAMEND) >> 8;                        // Initialize stack pointer
+    SPL = RAMEND & 0xFF;                        // Initialize stack pointer
+    asm volatile ( "clr __zero_reg__" );        // Set R1 to 0
+    asm("rjmp main");                           // Jump to Main
+}
 
 /*! \fn     boot_program_page(uint16_t page, uint8_t* buf)
  *  \brief  Flash a page of data to the MCU flash
@@ -113,6 +128,7 @@ int main(void)
     uint8_t cur_aes_key[AES_KEY_LENGTH/8];                                                                              // AES encryption key
     uint8_t firmware_data[SPM_PAGESIZE];                                                                                // One page of firmware data
     aes256_context temp_aes_context;                                                                                    // AES context
+    RET_TYPE flash_init_result;                                                                                         // Flash initialization result
     uint8_t cur_cbc_mac[16];                                                                                            // Current CBCMAC val
     uint8_t temp_data[16];                                                                                              // Temporary 16 bytes array
     uint8_t aes_key_update_bool;                                                                                        // Boolean specifying that we want to update the aes key
@@ -171,6 +187,13 @@ int main(void)
     spiUsartTransfer(0x23);
     spiUsartTransfer(0x02);
     PORT_ACC_SS |= (1 << PORTID_ACC_SS);
+
+    /* Check Flash */
+    flash_init_result = checkFlashID();
+    if (flash_init_result != RETURN_OK)
+    {
+        while(1);
+    }
 
     /* Update bundle composition: bundle | padding | firmware version | new aes key bool | firmware | padding | new aes key encoded | cbcmac */
     for (uint8_t pass_number = 0; pass_number < 2; pass_number++)
@@ -234,13 +257,14 @@ int main(void)
         {
             if (update_condition == FALSE)
             {
-                // Update condition error, start the main firmware and erase current graphics bundle
-                for (uint16_t page = GRAPHIC_ZONE_PAGE_START; page < GRAPHIC_ZONE_PAGE_END; page++)
-                {
-                    pageErase(page);
-                }
-                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
-                start_firmware();
+                /* Update condition error */
+                sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE);                                                                      // Erase graphics bundle
+                eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY); // Reset parameters we overwrote by passing the version ID
+                eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_US_LUT);               // Reset parameters we overwrote by passing the version ID
+                eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + USER_INTER_TIMEOUT_PARAM, 15);                           // Reset parameters we overwrote by passing the version ID
+                eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + LOCK_TIMEOUT_ENABLE_PARAM, 60);                          // Reset parameters we overwrote by passing the version ID
+                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);                                                // Allow starting of the main firmware
+                start_firmware();                                                                                               // Start firmware
             }
             else
             {

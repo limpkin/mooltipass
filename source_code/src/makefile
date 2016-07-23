@@ -60,6 +60,7 @@ LD_FLAGS     += -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLA
 
 # start() replaces the interrupt vectors
 LD_FLAGS     += -nostartfiles
+DEFINES += MINI_BOOTLOADER
 
 # Flash size and bootloader section sizes of the target, in KB. These must
 # match the target's total FLASH size and the bootloader size set in the

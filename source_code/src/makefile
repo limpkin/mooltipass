@@ -60,7 +60,7 @@ TARGET  = mooltipass_bootloader
 OBJECTS = bootloader_main.c
 LIBDIRS = $(addprefix ./, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI MINI)
 OBJDIRS = $(addprefix ./, FLASH SPI AES)
-LIBOBJS = $(foreach lib, $(OBJDIRS), $(wildcard $(lib)/*.c))
+LIBOBJS = $(filter-out ./FLASH/flash_test.c ./AES/aes256_nessie_test.c ./AES/aes256_ctr_test.c, $(foreach lib, $(OBJDIRS), $(wildcard $(lib)/*.c)))
 
 # Special bootloader flags
 CC_FLAGS     += -DBOOT_START_ADDR=$(BOOT_START_OFFSET)

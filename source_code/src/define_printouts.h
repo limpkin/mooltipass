@@ -16,6 +16,7 @@
     #pragma message "Bootkey address: " XSTR(EEP_BOOTKEY_ADDR)
     #pragma message "Boot pwd set bool address: " XSTR(EEP_BOOT_PWD_SET)
     #pragma message "Boot pwd address: " XSTR(EEP_BOOT_PWD)
+    #pragma message "Boot dev mode address: " XSTR(EEP_BOOT_DEV_ADDR)
     #pragma message "User data start address: " XSTR(EEP_USER_DATA_START_ADDR)
     #pragma message "User_id <> SMC_UID & Nonce start address: " XSTR(EEP_SMC_IC_USER_MATCH_START_ADDR)
     #pragma message "Number of possible LUT entries:" XSTR(NB_MAX_SMCID_UID_MATCH_ENTRIES)
@@ -26,7 +27,7 @@
 #endif
 
 // Check bytes left in eeprom
-#if (EEP_BACKUP_BOOTKEY_ADDR + BOOTKEY_SIZE) == EEPROM_SIZE
+#if (EEP_BOOT_DEV_ADDR + BOOTDEV_SIZE) >= EEPROM_SIZE
     #ifdef MEMORY_LAYOUT_PRINTOUT
         #pragma message "EEPROM memory full"
     #endif

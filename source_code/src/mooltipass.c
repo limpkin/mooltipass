@@ -387,7 +387,9 @@ int main(void)
         // If we are running the screen saver
         if (isScreenSaverOn() == TRUE)
         {
-            animScreenSaver();
+            #ifndef MINI_DEMO_VIDEO
+                animScreenSaver();
+            #endif
         }
         
         // If the USB bus is in suspend (computer went to sleep), lock device

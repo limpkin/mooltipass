@@ -241,6 +241,10 @@
 // Comment to disable test calls
 //#define TESTS_ENABLED
 
+/************** MOOLTIPASS DEMOS ***************/
+// Uncomment to set screen saver as default image
+//#define MINI_DEMO_VIDEO
+
 /**************** HW MACROS ****************/
 #define CPU_PRESCALE(n)         (CLKPR = 0x80, CLKPR = (n))
 

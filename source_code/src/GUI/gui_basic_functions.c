@@ -360,27 +360,31 @@ void guiMainLoop(void)
     // No activity, switch off screen
     if (hasTimerExpired(TIMER_SCREEN, TRUE) == TIMER_EXPIRED)
     {
-        guiDisplayGoingToSleep();
-        userViewDelay();
-        if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
-        {
-            screenSaverOn = TRUE;
-            #ifndef MINI_VERSION
+        #ifndef MINI_DEMO_VIDEO
+            guiDisplayGoingToSleep();
+            userViewDelay();
+            if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
+            {
+                screenSaverOn = TRUE;
+                #ifndef MINI_VERSION
                 oledWriteInactiveBuffer();
                 oledClear();
                 oledDisplayOtherBuffer();
                 oledClear();
-            #endif
-        } 
-        else
-        {
-            oledOff();
-            #ifndef MINI_VERSION
+                #endif
+            }
+            else
+            {
+                oledOff();
+                #ifndef MINI_VERSION
                 oledDisplayOtherBuffer();
-            #else
+                #else
                 guiGetBackToCurrentScreen();
-            #endif
-        }
+                #endif
+            }
+        #else
+            oledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+        #endif
     }
     
     #if defined(HARDWARE_OLIVIER_V1)

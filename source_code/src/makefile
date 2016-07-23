@@ -60,11 +60,15 @@ TARGET  = mooltipass_bootloader
 OBJECTS = bootloader_main.c
 LIBDIRS = $(addprefix ./, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI MINI)
 OBJDIRS = $(addprefix ./, FLASH SPI AES)
-LIBOBJS = $(foreach lib, $(OBJDIRS), $(wildcard $(lib)/*.c))
+LIBOBJS = $(filter-out ./FLASH/flash_test.c ./AES/aes256_nessie_test.c ./AES/aes256_ctr_test.c, $(foreach lib, $(OBJDIRS), $(wildcard $(lib)/*.c)))
 
 # Special bootloader flags
 CC_FLAGS     += -DBOOT_START_ADDR=$(BOOT_START_OFFSET)
 LD_FLAGS     += -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLAGS)
+
+# start() replaces the interrupt vectors
+LD_FLAGS     += -nostartfiles
+DEFINES += MINI_BOOTLOADER
 
 # Flash size and bootloader section sizes of the target, in KB. These must
 # match the target's total FLASH size and the bootloader size set in the
@@ -82,6 +86,7 @@ BOOT_SEC_OFFSET       = $(call CALC_ADDRESS_IN_HEX, ($(FLASH_SIZE_KB) * 1024) - 
 # known FLASH addresses - these should not normally be user-edited.
 BOOT_SECTION_LD_FLAG  = -Wl,--section-start=$(strip $(1))=$(call BOOT_SEC_OFFSET, $(3)) -Wl,--undefined=$(strip $(2))
 BOOT_API_LD_FLAGS    += $(call BOOT_SECTION_LD_FLAG, .spmfunc, spmfunc, 128)
+BOOT_API_LD_FLAGS    += $(call BOOT_SECTION_LD_FLAG, .bootversion, bootversion, 8)
 
 endif
 

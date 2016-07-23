@@ -26,8 +26,10 @@
 #include <util/delay.h>
 #include <avr/eeprom.h>
 #include <avr/boot.h>
+#include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "logic_fwflash_storage.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
@@ -38,7 +40,7 @@
 #include "aes.h"
 #include "spi.h"
 #define start_firmware()        asm volatile ("jmp 0x0000")
-#define MAX_FIRMWARE_SIZE       28672
+#define MAX_FIRMWARE_SIZE       (FLASHEND + 1UL - 4096UL)
 #define SPM_PAGE_SIZE_BYTES_BM  (SPM_PAGESIZE - 1)
 
 
@@ -64,10 +66,11 @@ void start(void)
  *  \note   typedef void (*boot_program_page_t)(uint16_t page, uint8_t* buf);
  *  \note   const boot_program_page_t boot_program_page = (boot_program_page_t)0x3FC0;
  */
-static void boot_program_page(uint16_t page, uint8_t* buf)  __attribute__ ((section (".spmfunc"))) __attribute__((noinline));
+static void boot_program_page(uint16_t page, uint8_t* buf)  __attribute__ ((section (".spmfunc"), noinline, used));
 static void boot_program_page(uint16_t page, uint8_t* buf)
 {
-    uint16_t i, w;
+    uint16_t* words = (uint16_t*)buf;
+    uint16_t PageWord;
 
     // Check we are not overwriting this particular routine
     if ((page >= (FLASHEND - SPM_PAGESIZE + 1)) || ((page & SPM_PAGE_SIZE_BYTES_BM) != 0))
@@ -82,12 +85,11 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
         boot_spm_busy_wait();
 
         // Fill the bootloader temporary page buffer
-        for (i = 0; i < SPM_PAGESIZE; i+=2)
+        for (PageWord = 0; PageWord < (SPM_PAGESIZE / 2); PageWord++)
         {
-            // Set up little-endian word.
-            w = (*buf++) & 0x00FF;
-            w |= (((uint16_t)(*buf++)) << 8) & 0xFF00;
-            boot_page_fill(page + i, w);
+            // Write the next data word to the FLASH page
+            boot_page_fill(page + ((uint16_t)PageWord << 1), *words);
+            words++;
         }
 
         // Store buffer in flash page, wait until the memory is written, re-enable RWW section
@@ -95,6 +97,30 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
         boot_spm_busy_wait();
         boot_rww_enable();
     }
+}
+
+/*! \fn     bootversionwrp
+ *  \brief  Small wrapper to save some bytes inside the last flash page
+ *  \brief  It also contains a jump table to call the boot_programm() function
+ *  \note   If the function needs to be called from the firmware:
+ *  \note   typedef void (*boot_program_page_t)(uint16_t page, uint8_t* buf);
+ *  \note   const boot_program_page_t boot_program_page = (boot_program_page_t)(FLASHEND-1);
+ */
+static void bootversionwrp(void) __attribute__ ((section (".bootversion"), used, noinline, naked));
+static void bootversionwrp(void)
+{
+    asm volatile (
+        ".section .bootversion, \"ax\"\n"
+        ".global bootversion\n"
+        "bootversion:\n"
+        ".byte 'M' \n" // Vendor (M = Mooltipass)
+        ".byte 'M' \n" // Hardware Type (M = Mini)
+        ".byte 'A' \n" // Hardware Extra (A = Accelerationsensor)
+        ".byte 'B' \n" // Hardware Rev Type (P = Prototype, B = Beta, F = Final)
+        ".byte '1' \n" // Hardware Rev
+        ".byte '1' \n" // Bootloader Version
+        "rjmp boot_program_page\n" // Jump to boot_programm() function
+    );
 }
 
 /*! \fn     sideChannelSafeMemCmp(uint8_t* dataA, uint8_t* dataB, uint8_t size)
@@ -136,7 +162,7 @@ int main(void)
     uint8_t new_version_number[4];                                                                                      // New firmware version identifier
     uint16_t firmware_start_address = UINT16_MAX - MAX_FIRMWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;   // Start address of firmware in external memory
     uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;                         // End address of firmware in external memory
-
+    uint8_t checkSignature = eeprom_read_byte((uint8_t*)EEP_BOOT_DEV_ADDR);                                             // Developer Mode can disable signature change
 
     /* The firmware uses the watchdog timer to get here */
     cli();
@@ -146,7 +172,10 @@ int main(void)
     wdt_stop();
 
     /* Check fuses: 2k words, SPIEN, BOD 4.3V, BOOTRST programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
-    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) ||
+        (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) ||
+        (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) ||
+        (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
     {
         while(1);
     }
@@ -175,12 +204,12 @@ int main(void)
     /* Init IOs */
     UHWCON = 0x01;                                              // Enable USB 3.3V LDO
     initFlashIOs();                                             // Init EXT Flash IOs
-    spiUsartBegin();                                            // Init SPI Controller    
+    spiUsartBegin();                                            // Init SPI Controller
     DDR_ACC_SS |= (1 << PORTID_ACC_SS);                         // Setup PORT for the Accelerometer SS
-    PORT_ACC_SS |= (1 << PORTID_ACC_SS);                        // Setup PORT for the Accelerometer SS    
+    PORT_ACC_SS |= (1 << PORTID_ACC_SS);                        // Setup PORT for the Accelerometer SS
     DDR_OLED_SS |= (1 << PORTID_OLED_SS);                       // Setup PORT for the OLED SS
     PORT_OLED_SS |= (1 << PORTID_OLED_SS);                      // Setup PORT for the OLED SS
-    for (uint16_t i = 0; i < 20000; i++) asm volatile ("NOP");  // Wait for 3.3V to come up
+    _delay_ms(10);                                              // Wait for 3.3V to come up
 
     /* Disable I2C block of the Accelerometer */
     PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
@@ -245,12 +274,15 @@ int main(void)
             aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
         }
 
-        // Read & compare CBCMAC, check that the version number is above or egal to our current one to set the update condition boolean
+        // Read & compare CBCMAC, check that the version number is above our current one to set the update condition boolean
         uint8_t update_condition = TRUE;
         flashRawRead(temp_data, (UINT16_MAX - sizeof(cur_cbc_mac) + 1), sizeof(cur_cbc_mac));
-        if ((sideChannelSafeMemCmp(temp_data, cur_cbc_mac, sizeof(cur_cbc_mac)) != 0) || (memcmp((void*)old_version_number, (void*)new_version_number, sizeof(new_version_number)) > 0))
+        if ((sideChannelSafeMemCmp(temp_data, cur_cbc_mac, sizeof(cur_cbc_mac)) != 0) ||
+            (memcmp((void*)old_version_number, (void*)new_version_number, sizeof(new_version_number)) >= 0))
         {
-            update_condition = FALSE;
+            if(checkSignature == TRUE){
+                update_condition = FALSE;
+            }
         }
 
         if (pass_number == 0)
@@ -277,12 +309,14 @@ int main(void)
             if (update_condition == TRUE)
             {
                 // Fetch the encrypted new aes key from flash, decrypt it, store it
-                if (aes_key_update_bool != FALSE)
+                if ((checkSignature == TRUE) && (aes_key_update_bool != FALSE))
                 {
                     aes256_decrypt_ecb(&temp_aes_context, new_aes_key);
                     aes256_decrypt_ecb(&temp_aes_context, new_aes_key+16);
                     eeprom_write_block((void*)new_aes_key, (void*)EEP_BOOT_PWD, sizeof(new_aes_key));
                 }
+
+                // Unbrick the device
                 eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
                 start_firmware();
             }

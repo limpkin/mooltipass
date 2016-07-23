@@ -99,6 +99,30 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
     }
 }
 
+/*! \fn     bootversionwrp
+ *  \brief  Small wrapper to save some bytes inside the last flash page
+ *  \brief  It also contains a jump table to call the boot_programm() function
+ *  \note   If the function needs to be called from the firmware:
+ *  \note   typedef void (*boot_program_page_t)(uint16_t page, uint8_t* buf);
+ *  \note   const boot_program_page_t boot_program_page = (boot_program_page_t)(FLASHEND-1);
+ */
+static void bootversionwrp(void) __attribute__ ((section (".bootversion"), used, noinline, naked));
+static void bootversionwrp(void)
+{
+    asm volatile (
+        ".section .bootversion, \"ax\"\n"
+        ".global bootversion\n"
+        "bootversion:\n"
+        ".byte 'M' \n" // Vendor (M = Mooltipass)
+        ".byte 'M' \n" // Hardware Type (M = Mini)
+        ".byte 'A' \n" // Hardware Extra (A = Accelerationsensor)
+        ".byte 'B' \n" // Hardware Rev Type (P = Prototype, B = Beta, F = Final)
+        ".byte '1' \n" // Hardware Rev
+        ".byte '1' \n" // Bootloader Version
+        "rjmp boot_program_page\n" // Jump to boot_programm() function
+    );
+}
+
 /*! \fn     sideChannelSafeMemCmp(uint8_t* dataA, uint8_t* dataB, uint8_t size)
 *   \brief  A side channel attack safe implementation of memcmp
 *   \param  dataA   First array

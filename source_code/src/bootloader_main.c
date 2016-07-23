@@ -249,10 +249,11 @@ int main(void)
             aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
         }
 
-        // Read & compare CBCMAC, check that the version number is above or egal to our current one to set the update condition boolean
+        // Read & compare CBCMAC, check that the version number is above our current one to set the update condition boolean
         uint8_t update_condition = TRUE;
         flashRawRead(temp_data, (UINT16_MAX - sizeof(cur_cbc_mac) + 1), sizeof(cur_cbc_mac));
-        if ((sideChannelSafeMemCmp(temp_data, cur_cbc_mac, sizeof(cur_cbc_mac)) != 0) || (memcmp((void*)old_version_number, (void*)new_version_number, sizeof(new_version_number)) > 0))
+        if ((sideChannelSafeMemCmp(temp_data, cur_cbc_mac, sizeof(cur_cbc_mac)) != 0) ||
+            (memcmp((void*)old_version_number, (void*)new_version_number, sizeof(new_version_number)) >= 0))
         {
             update_condition = FALSE;
         }

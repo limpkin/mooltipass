@@ -66,6 +66,9 @@ LIBOBJS = $(filter-out ./FLASH/flash_test.c ./AES/aes256_nessie_test.c ./AES/aes
 CC_FLAGS     += -DBOOT_START_ADDR=$(BOOT_START_OFFSET)
 LD_FLAGS     += -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLAGS)
 
+# start() replaces the interrupt vectors
+LD_FLAGS     += -nostartfiles
+
 # Flash size and bootloader section sizes of the target, in KB. These must
 # match the target's total FLASH size and the bootloader size set in the
 # device's fuses.

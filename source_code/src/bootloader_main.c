@@ -39,7 +39,7 @@
 #include "aes.h"
 #include "spi.h"
 #define start_firmware()        asm volatile ("jmp 0x0000")
-#define MAX_FIRMWARE_SIZE       (FLASHEND - 1UL + 4096UL)
+#define MAX_FIRMWARE_SIZE       (FLASHEND + 1UL - 4096UL)
 #define SPM_PAGE_SIZE_BYTES_BM  (SPM_PAGESIZE - 1)
 
 

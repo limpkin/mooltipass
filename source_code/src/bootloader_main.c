@@ -68,7 +68,8 @@ void start(void)
 static void boot_program_page(uint16_t page, uint8_t* buf)  __attribute__ ((section (".spmfunc"), noinline, used));
 static void boot_program_page(uint16_t page, uint8_t* buf)
 {
-    uint16_t i, w;
+    uint16_t* words = (uint16_t*)buf;
+    uint16_t PageWord;
 
     // Check we are not overwriting this particular routine
     if ((page >= (FLASHEND - SPM_PAGESIZE + 1)) || ((page & SPM_PAGE_SIZE_BYTES_BM) != 0))
@@ -83,12 +84,11 @@ static void boot_program_page(uint16_t page, uint8_t* buf)
         boot_spm_busy_wait();
 
         // Fill the bootloader temporary page buffer
-        for (i = 0; i < SPM_PAGESIZE; i+=2)
+        for (PageWord = 0; PageWord < (SPM_PAGESIZE / 2); PageWord++)
         {
-            // Set up little-endian word.
-            w = (*buf++) & 0x00FF;
-            w |= (((uint16_t)(*buf++)) << 8) & 0xFF00;
-            boot_page_fill(page + i, w);
+            // Write the next data word to the FLASH page
+            boot_page_fill(page + ((uint16_t)PageWord << 1), *words);
+            words++;
         }
 
         // Store buffer in flash page, wait until the memory is written, re-enable RWW section

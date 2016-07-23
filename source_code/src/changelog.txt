@@ -5,8 +5,8 @@ Todo:
 - bytes in eeprom to set shortcuts?
 mini:
 - Display flip based on accelerometer
-- knock wait/approve
 - version check in bootloader
+- bootloader: if error during cbcmac check, erase graphics
 
 V1.2:
 - adding an "_unlock_" service to enable computer lock/unlock feature

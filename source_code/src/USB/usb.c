@@ -269,7 +269,8 @@ RET_TYPE usbRawHidRecv(uint8_t *buffer)
 */
 ISR(USB_GEN_vect)
 {
-    uint8_t intbits;
+    static uint8_t div4 = 0;
+    uint8_t intbits, i;
 
     intbits = UDINT;
     UDINT = 0;
@@ -293,6 +294,26 @@ ISR(USB_GEN_vect)
             act_detected_flag = TRUE;
         }
         activateTimer(TIMER_USB_SUSPEND, 65000);
+
+        // Send keys if idle count too high (USB spec)
+        if (keyboard_idle_config && (++div4 & 3) == 0) 
+        {
+            UENUM = KEYBOARD_ENDPOINT;
+            if (UEINTX & (1<<RWAL)) 
+            {
+                keyboard_idle_count++;
+                if (keyboard_idle_count == keyboard_idle_config) 
+                {
+                    // There's no reason we keep pressing a key for that long, so just send 0s...
+                    for (i = 0; i < (sizeof(keyboard_modifier_keys) + sizeof(keyboard_keys)); i++) 
+                    {
+                        UEDATX = 0;
+                    }
+                    UEINTX = 0x3A;
+                    keyboard_idle_count = 0;
+                }
+            }
+        }
     }
 }
 

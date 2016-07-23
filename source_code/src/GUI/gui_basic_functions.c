@@ -340,7 +340,7 @@ void guiMainLoop(void)
     #endif
 
     #if defined(HARDWARE_MINI_CLICK_V2)
-    if ((oledIsOn() == FALSE) && (scanAndGetDoubleZTap() == RETURN_OK))
+    if ((oledIsOn() == FALSE) && (scanAndGetDoubleZTap(FALSE) == RETURN_OK))
     {
         // knock detecting algo to wakup the device
         activityDetectedRoutine();

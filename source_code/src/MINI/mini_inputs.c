@@ -61,7 +61,7 @@ int8_t acc_z_average;
 // z counter for average
 uint16_t acc_z_avg_counter;
 // sum of the differences with the average
-uint8_t acc_z_cum_diff_avg;
+uint16_t acc_z_cum_diff_avg;
 // boolean to know if we should do the tap detection
 uint8_t acc_z_tap_detect_enabled = FALSE;
 // knock detection sm
@@ -74,6 +74,8 @@ uint16_t knock_last_det_counter;
 uint8_t knock_detection_enabled;
 // knock detection threshold
 uint8_t knock_detection_threshold;
+// first knock width
+uint8_t first_knock_width;
 #endif
 
 
@@ -110,51 +112,55 @@ RET_TYPE initMiniInputs(void)
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
 
-#ifdef HARDWARE_MINI_CLICK_V2
+#if defined(HARDWARE_MINI_CLICK_V2) && !defined(NO_ACCELEROMETER)
+
     // Setup PORT for the Accelerometer SS & INT
     DDR_ACC_SS |= (1 << PORTID_ACC_SS);
     PORT_ACC_SS |= (1 << PORTID_ACC_SS);
     DDR_ACC_INT &= ~(1 << PORTID_ACC_INT);
-    PORT_ACC_INT &= ~(1 << PORTID_ACC_INT);
 
     // Fetch settings
     knock_detection_threshold = getMooltipassParameterInEeprom(MINI_KNOCK_THRES_PARAM);
     knock_detection_enabled = getMooltipassParameterInEeprom(MINI_KNOCK_DETECT_ENABLE_PARAM);
 
-    // Send command to disable accelerometer I2C block and keep address inc
-    uint8_t disableI2cBlockCommand[] = {0x23, 0x06};
-    miniAccelerometerSendReceiveSPIData(disableI2cBlockCommand, sizeof(disableI2cBlockCommand));
+    // Query the accelerometer who am I register
+    uint8_t whoAmIRequestData[] = {0x8F, 0x00};
+    miniAccelerometerSendReceiveSPIData(whoAmIRequestData, sizeof(whoAmIRequestData));
+
+    // Check Signature
+    if (whoAmIRequestData[1] != 0x41)
+    {
+        return RETURN_NOK;
+    }
+
+    // Check for absence of interrupt as we haven't enabled the ACC yet
+    if (PIN_ACC_INT & (1 << PORTID_ACC_INT))
+    {
+        return RETURN_NOK;
+    }
 
     // Output data rate configuration to 400Hz, enable all axis
-    uint8_t setDataRateCommand[] = {0x20, 0x57};
+    uint8_t setDataRateCommand[] = {0x20, 0x5F};
     miniAccelerometerSendReceiveSPIData(setDataRateCommand, sizeof(setDataRateCommand));
 
     // Set data ready signal on INT1
     uint8_t setDataReadyOnINT1[] = {0x22, 0x01};
     miniAccelerometerSendReceiveSPIData(setDataReadyOnINT1, sizeof(setDataReadyOnINT1));
 
-    // Query the accelerometer who am I register
-    uint8_t whoAmIRequestData[] = {0x8F, 0x00};
-    miniAccelerometerSendReceiveSPIData(whoAmIRequestData, sizeof(whoAmIRequestData));
+    // Send command to disable accelerometer I2C block and keep address inc
+    uint8_t disableI2cBlockCommand[] = {0x23, 0x06};
+    miniAccelerometerSendReceiveSPIData(disableI2cBlockCommand, sizeof(disableI2cBlockCommand));
 
-    // If we're running on the version that has the accelerometer, check the ID
-    #ifdef NO_ACCELEROMETER
-        return RETURN_OK;
-    #else
-        // Give enough time for an interrupt to come
-        activateTimer(TIMER_WAIT_FUNCTS, 50);
-        while(hasTimerExpired(TIMER_WAIT_FUNCTS, TRUE) != TIMER_EXPIRED);
+    // Give enough time for an interrupt to come
+    timerBased130MsDelay();
 
-        // Check for correct signature and for interrupt presence
-        if ((whoAmIRequestData[1] == 0x41) && (PIN_ACC_INT & (1 << PORTID_ACC_INT)))
-        {
-            return RETURN_OK;
-        }
-        else
-        {
-            return RETURN_NOK;
-        } 
-    #endif
+    // Check for interrupt presence
+    if (!(PIN_ACC_INT & (1 << PORTID_ACC_INT)))
+    {
+        return RETURN_NOK;
+    }
+
+    return RETURN_OK;
 #else
     // Earlier HW, always return OK
     return RETURN_OK;
@@ -186,20 +192,16 @@ RET_TYPE getNewAccelerometerDataIfAvailable(uint8_t* buffer)
     }
 }
 
-/*! \fn     scanAndGetDoubleZTap(void)
+/*! \fn     scanAndGetDoubleZTap(yubt)
 *   \brief  Fetch remaining accelerometer data and use it to detect double taps
+*   \param  stream_output   TRUE to send USB packets with the current data
 *   \return RETURN_OK if a double tap event was detected
 */
-RET_TYPE scanAndGetDoubleZTap(void)
+RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
 {
-    //#define ACC_DBG_OUTPUT
-    #ifdef ACC_DBG_OUTPUT
     uint8_t acc_data[10];
-    acc_data[8] = 0;
     acc_data[9] = 0;
-    #else
-    uint8_t acc_data[6];
-    #endif
+    acc_data[8] = 0;
 
     #ifdef NO_ACCELEROMETER
         return RETURN_NOK;
@@ -217,9 +219,10 @@ RET_TYPE scanAndGetDoubleZTap(void)
         // Get z data acceleration value
         int8_t z_data_val = (int8_t)acc_data[5];
 
-        // Sum of the differences with the average
-        if (acc_z_cum_diff_avg < 222)
+        // Make sure we're not getting an overflow
+        if (acc_z_cum_diff_avg < (UINT16_MAX - UINT8_MAX))
         {
+            // Sum of the differences with the average
             if (z_data_val > acc_z_average)
             {
                 acc_z_cum_diff_avg += (z_data_val - acc_z_average);
@@ -235,16 +238,24 @@ RET_TYPE scanAndGetDoubleZTap(void)
         if (++acc_z_avg_counter == ACC_Z_AVG_NB_SAMPLES)
         {
             // Compute average
-            acc_z_average = acc_z_added/ACC_Z_AVG_NB_SAMPLES;
+            acc_z_average = acc_z_added / ACC_Z_AVG_NB_SAMPLES;
 
             // depending on the sum of the difference with avg, allow algo or not
             if (acc_z_cum_diff_avg > ACC_Z_MAX_AVG_SUM_DIFF)
             {
                 acc_z_tap_detect_enabled = FALSE;
+                if (stream_output != FALSE)
+                {
+                    acc_data[9] = 100;
+                }
             } 
             else
             {
                 acc_z_tap_detect_enabled = TRUE;
+                if (stream_output != FALSE)
+                {
+                    acc_data[9] = 20;
+                }
             }         
             
             // Reset vars
@@ -265,9 +276,10 @@ RET_TYPE scanAndGetDoubleZTap(void)
         }
         
         // For debug purposes, send the raw value we use for our algo
-        #ifdef ACC_DBG_OUTPUT
-        acc_data[7] = (uint8_t)z_cor_data_val;
-        #endif
+        if (stream_output != FALSE)
+        {
+            acc_data[7] = (uint8_t)z_cor_data_val;
+        }
 
         // Knock detection algo
         if (knock_detect_sm == 0)
@@ -275,6 +287,7 @@ RET_TYPE scanAndGetDoubleZTap(void)
             if(z_cor_data_val > knock_detection_threshold)
             {
                 knock_detect_sm++;
+                first_knock_width = 0;
                 knock_detect_counter = 0;
                 knock_last_det_counter = 0;
             }
@@ -287,10 +300,11 @@ RET_TYPE scanAndGetDoubleZTap(void)
                 // If silence period is respected
                 if (((knock_detect_counter - knock_last_det_counter) > ACC_Z_SECOND_KNOCK_MIN_NBS) && (acc_z_tap_detect_enabled != FALSE))
                 {
-                    #ifdef ACC_DBG_OUTPUT
-                    acc_data[9] = 0xFF;
-                    usbSendMessage(CMD_STREAM_ACC_DATA, 10, acc_data);
-                    #endif
+                    if (stream_output != FALSE)
+                    {
+                        acc_data[9] = 0xFF;
+                        usbSendMessage(CMD_STREAM_ACC_DATA, 10, acc_data);
+                    }
 
                     // Return success
                     knock_last_det_counter = 0;
@@ -300,6 +314,17 @@ RET_TYPE scanAndGetDoubleZTap(void)
                 else
                 {
                     knock_last_det_counter = knock_detect_counter;
+                }
+
+                // Check that the time spent above the threshold isn't too long
+                if (first_knock_width++ > ACC_Z_MAX_KNOCK_PULSE_WIDTH)
+                {
+                    knock_detect_sm++;
+
+                    if (stream_output != FALSE)
+                    {
+                        acc_data[9] = 50;
+                    }
                 }
             }
 
@@ -317,11 +342,12 @@ RET_TYPE scanAndGetDoubleZTap(void)
                 knock_detect_sm = 0;
             }
         }
-    }
     
-    #ifdef ACC_DBG_OUTPUT
-    usbSendMessage(CMD_STREAM_ACC_DATA, 10, acc_data);
-    #endif
+        if (stream_output != FALSE)
+        {
+            usbSendMessage(CMD_STREAM_ACC_DATA, 10, acc_data);
+        }
+    }
     return RETURN_NOK;
 }
 #endif

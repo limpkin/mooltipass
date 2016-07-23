@@ -31,7 +31,7 @@
 // Number of values to be passed to Jenkins hash function
 #define TIMER_BUFFER_SIZE               32
 
-// Number of Random bytes to be saved in a Buffer
+// Number of Random uint32_t to be saved in a Buffer
 #if defined(HARDWARE_OLIVIER_V1)
     #define RNG_BUFFER_SIZE             64
 #elif defined(MINI_VERSION)

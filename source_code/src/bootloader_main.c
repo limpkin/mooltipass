@@ -23,11 +23,13 @@
  */
 #include <avr/interrupt.h>
 #include <util/atomic.h>
+#include <util/delay.h>
 #include <avr/eeprom.h>
 #include <avr/boot.h>
 #include <util/delay.h>
 #include <stdlib.h>
 #include <string.h>
+#include "logic_fwflash_storage.h"
 #include "eeprom_addresses.h"
 #include "watchdog_driver.h"
 #include "aes256_ctr.h"
@@ -40,6 +42,20 @@
 #define MAX_FIRMWARE_SIZE       (FLASHEND - 1UL + 4096UL)
 #define SPM_PAGE_SIZE_BYTES_BM  (SPM_PAGESIZE - 1)
 
+
+/*! \fn     start(void)
+*   \brief  Function replacing the reset boot vector
+*   \note   This solution is compiled with the -nostartfiles flag, so no vectors or init routines are included in the final hex
+*           We therefore need to initialize the stack, launch the main()
+*/
+void start(void) __attribute__((naked,used,section(".vectors")));
+void start(void)
+{
+    SPH = (RAMEND) >> 8;                        // Initialize stack pointer
+    SPL = RAMEND & 0xFF;                        // Initialize stack pointer
+    asm volatile ( "clr __zero_reg__" );        // Set R1 to 0
+    asm("rjmp main");                           // Jump to Main
+}
 
 /*! \fn     boot_program_page(uint16_t page, uint8_t* buf)
  *  \brief  Flash a page of data to the MCU flash
@@ -113,14 +129,17 @@ int main(void)
     uint8_t cur_aes_key[AES_KEY_LENGTH/8];                                                                              // AES encryption key
     uint8_t firmware_data[SPM_PAGESIZE];                                                                                // One page of firmware data
     aes256_context temp_aes_context;                                                                                    // AES context
+    RET_TYPE flash_init_result;                                                                                         // Flash initialization result
     uint8_t cur_cbc_mac[16];                                                                                            // Current CBCMAC val
     uint8_t temp_data[16];                                                                                              // Temporary 16 bytes array
-    RET_TYPE flash_init_result;                                                                                         // Flash initialization result
+    uint8_t aes_key_update_bool;                                                                                        // Boolean specifying that we want to update the aes key
+    uint8_t old_version_number[4];                                                                                      // Old firmware version identifier
+    uint8_t new_version_number[4];                                                                                      // New firmware version identifier
     uint16_t firmware_start_address = UINT16_MAX - MAX_FIRMWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;   // Start address of firmware in external memory
     uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;                         // End address of firmware in external memory
 
 
-    /* Just in case we are going to disable the watch dog timer and disable interrupts */
+    /* The firmware uses the watchdog timer to get here */
     cli();
     wdt_reset();
     wdt_clear_flag();
@@ -155,14 +174,14 @@ int main(void)
     eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
     /* Init IOs */
-    UHWCON = 0x01;                          // Enable USB 3.3V LDO
-    initFlashIOs();                         // Init EXT Flash IOs
-    spiUsartBegin();                        // Init SPI Controller    
-    DDR_ACC_SS |= (1 << PORTID_ACC_SS);     // Setup PORT for the Accelerometer SS
-    PORT_ACC_SS |= (1 << PORTID_ACC_SS);    // Setup PORT for the Accelerometer SS    
-    DDR_OLED_SS |= (1 << PORTID_OLED_SS);   // Setup PORT for the OLED SS
-    PORT_OLED_SS |= (1 << PORTID_OLED_SS);  // Setup PORT for the OLED SS
-    _delay_ms(10);
+    UHWCON = 0x01;                                              // Enable USB 3.3V LDO
+    initFlashIOs();                                             // Init EXT Flash IOs
+    spiUsartBegin();                                            // Init SPI Controller
+    DDR_ACC_SS |= (1 << PORTID_ACC_SS);                         // Setup PORT for the Accelerometer SS
+    PORT_ACC_SS |= (1 << PORTID_ACC_SS);                        // Setup PORT for the Accelerometer SS
+    DDR_OLED_SS |= (1 << PORTID_OLED_SS);                       // Setup PORT for the OLED SS
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);                      // Setup PORT for the OLED SS
+    _delay_ms(10);                                              // Wait for 3.3V to come up
 
     /* Disable I2C block of the Accelerometer */
     PORT_ACC_SS &= ~(1 << PORTID_ACC_SS);
@@ -177,19 +196,29 @@ int main(void)
         while(1);
     }
 
+    /* Update bundle composition: bundle | padding | firmware version | new aes key bool | firmware | padding | new aes key encoded | cbcmac */
     for (uint8_t pass_number = 0; pass_number < 2; pass_number++)
     {
-        /* Init CBCMAC encryption context*/
-        eeprom_read_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));
-        memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));
-        memset((void*)temp_data, 0x00, sizeof(temp_data));
-        aes256_init_ecb(&temp_aes_context, cur_aes_key);
+        /* Init CBCMAC encryption context and read current firmware version ID */
+        eeprom_read_block((void*)old_version_number, (void*)EEP_USER_DATA_START_ADDR, sizeof(old_version_number));      // Read old version number from eeprom (put there by firmware before jumping here)
+        eeprom_read_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));                                // Read current aes key from eeprom
+        memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));                                                          // Set IV for CBCMAC to 0
+        aes256_init_ecb(&temp_aes_context, cur_aes_key);                                                                // Init AES context
+        aes_key_update_bool = FALSE;                                                                                    // Set to False
 
         // Compute CBCMAC for between the start of the graphics zone until the max addressing space (65536) - the size of the CBCMAC
         for (uint16_t i = GRAPHIC_ZONE_START; i < (UINT16_MAX - sizeof(cur_cbc_mac) + 1); i += sizeof(cur_cbc_mac))
         {
             // Read data from external flash
             flashRawRead(temp_data, i, sizeof(temp_data));
+
+            // 16 bytes before the firmware
+            if (i == (firmware_start_address - 16))
+            {
+                // 16 bytes before the firmware: padding | version number (4 bytes) | aes key update bool (1 byte)
+                memcpy(new_version_number, temp_data + (16 - sizeof(aes_key_update_bool) - sizeof(new_version_number)), sizeof(new_version_number));
+                aes_key_update_bool = temp_data[16-sizeof(aes_key_update_bool)];
+            }
 
             // If we got to the part containing to firmware
             if ((i >= firmware_start_address) && (i < firmware_end_address))
@@ -217,16 +246,26 @@ int main(void)
             aes256_encrypt_ecb(&temp_aes_context, cur_cbc_mac);
         }
 
-        // Read CBCMAC in memory and compare it with the computed value
+        // Read & compare CBCMAC, check that the version number is above or egal to our current one to set the update condition boolean
+        uint8_t update_condition = TRUE;
         flashRawRead(temp_data, (UINT16_MAX - sizeof(cur_cbc_mac) + 1), sizeof(cur_cbc_mac));
+        if ((sideChannelSafeMemCmp(temp_data, cur_cbc_mac, sizeof(cur_cbc_mac)) != 0) || (memcmp((void*)old_version_number, (void*)new_version_number, sizeof(new_version_number)) > 0))
+        {
+            update_condition = FALSE;
+        }
+
         if (pass_number == 0)
         {
-            // First pass, compare CBCMAC and see if we do the next pass or start the firmware
-            if (sideChannelSafeMemCmp(temp_data, cur_cbc_mac, sizeof(cur_cbc_mac)) != 0)
+            if (update_condition == FALSE)
             {
-                // No match, start the main firmware
-                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
-                start_firmware();
+                /* Update condition error */
+                sectorZeroErase(FLASH_SECTOR_ZERO_B_CODE);                                                                      // Erase graphics bundle
+                eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY); // Reset parameters we overwrote by passing the version ID
+                eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + KEYBOARD_LAYOUT_PARAM, ID_KEYB_EN_US_LUT);               // Reset parameters we overwrote by passing the version ID
+                eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + USER_INTER_TIMEOUT_PARAM, 15);                           // Reset parameters we overwrote by passing the version ID
+                eeprom_write_byte((uint8_t*)EEP_USER_DATA_START_ADDR + LOCK_TIMEOUT_ENABLE_PARAM, 60);                          // Reset parameters we overwrote by passing the version ID
+                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);                                                // Allow starting of the main firmware
+                start_firmware();                                                                                               // Start firmware
             }
             else
             {
@@ -236,23 +275,21 @@ int main(void)
         else
         {
             // Second pass, compare CBCMAC and then update AES keys
-            if (sideChannelSafeMemCmp(temp_data, cur_cbc_mac, sizeof(cur_cbc_mac)) == 0)
+            if (update_condition == TRUE)
             {
                 // Fetch the encrypted new aes key from flash, decrypt it, store it
-                aes256_decrypt_ecb(&temp_aes_context, new_aes_key);
-                aes256_decrypt_ecb(&temp_aes_context, new_aes_key+16);
-                eeprom_write_block((void*)new_aes_key, (void*)EEP_BOOT_PWD, sizeof(new_aes_key));
+                if (aes_key_update_bool != FALSE)
+                {
+                    aes256_decrypt_ecb(&temp_aes_context, new_aes_key);
+                    aes256_decrypt_ecb(&temp_aes_context, new_aes_key+16);
+                    eeprom_write_block((void*)new_aes_key, (void*)EEP_BOOT_PWD, sizeof(new_aes_key));
+                }
                 eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
                 start_firmware();
             }
             else
             {
-                // Fail, erase everything! >> maybe just write a while(1) in the future?
-                for (uint16_t i = 0; i < MAX_FIRMWARE_SIZE; i += SPM_PAGESIZE)
-                {
-                    boot_page_erase(i);
-                    boot_spm_busy_wait();
-                }
+                // Fail, stay bricked!
                 while(1);
             }
         }

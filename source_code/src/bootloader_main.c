@@ -162,7 +162,7 @@ int main(void)
     uint8_t new_version_number[4];                                                                                      // New firmware version identifier
     uint16_t firmware_start_address = UINT16_MAX - MAX_FIRMWARE_SIZE - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;   // Start address of firmware in external memory
     uint16_t firmware_end_address = UINT16_MAX - sizeof(cur_cbc_mac) - sizeof(cur_aes_key) + 1;                         // End address of firmware in external memory
-    bool checkSignature = true;                                                                                         // Developer Mode can disable signature change
+    uint8_t checkSignature = eeprom_read_byte((uint8_t*)EEP_BOOT_DEV_ADDR);                                             // Developer Mode can disable signature change
 
     /* The firmware uses the watchdog timer to get here */
     cli();
@@ -191,11 +191,6 @@ int main(void)
     {
         /* Security system set, correct bootkey for firmware */
         start_firmware();
-    }
-    else if (current_bootkey_val != BOOTLOADER_DEV)
-    {
-        /* Developer mode */
-        checkSignature = false;
     }
     else if (current_bootkey_val != BOOTLOADER_BOOTKEY)
     {
@@ -285,7 +280,7 @@ int main(void)
         if ((sideChannelSafeMemCmp(temp_data, cur_cbc_mac, sizeof(cur_cbc_mac)) != 0) ||
             (memcmp((void*)old_version_number, (void*)new_version_number, sizeof(new_version_number)) >= 0))
         {
-            if(checkSignature){
+            if(checkSignature == TRUE){
                 update_condition = FALSE;
             }
         }
@@ -314,7 +309,7 @@ int main(void)
             if (update_condition == TRUE)
             {
                 // Fetch the encrypted new aes key from flash, decrypt it, store it
-                if (checkSignature && (aes_key_update_bool != FALSE))
+                if ((checkSignature == TRUE) && (aes_key_update_bool != FALSE))
                 {
                     aes256_decrypt_ecb(&temp_aes_context, new_aes_key);
                     aes256_decrypt_ecb(&temp_aes_context, new_aes_key+16);

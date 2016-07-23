@@ -31,7 +31,6 @@
 
 // EEPROM defines
 #define CORRECT_BOOTKEY                     0xDEAD
-#define BOOTLOADER_DEV                      0xD89F
 #define BOOTLOADER_BOOTKEY                  0xD0D0
 #define BRICKED_BOOTKEY                     0xCAD0
 #define BOOTLOADER_PWDOK_KEY                0xAB
@@ -46,6 +45,7 @@
 #define UID_REQUEST_KEY_SIZE                16
 #define UID_SIZE                            6
 #define BOOTKEY_SIZE                        2
+#define BOOTDEV_SIZE                        1
 #define EEPROM_END_RESERVED                 (UID_REQUEST_KEY_SET_BOOL_SIZE + UID_REQUEST_KEY_SIZE + UID_SIZE + BOOTKEY_SIZE)
 
 // Boot key, 2 bytes long
@@ -72,5 +72,7 @@
 #define EEP_UID_ADDR                        (EEP_UID_REQUEST_KEY_ADDR + UID_REQUEST_KEY_SIZE)
 // This is a copy of the bootkey
 #define EEP_BACKUP_BOOTKEY_ADDR             (EEP_UID_ADDR + UID_SIZE)
+// This enables developer mode in the bootloader, 1 byte long, boolean
+#define EEP_BOOT_DEV_ADDR                   (EEP_BACKUP_BOOTKEY_ADDR + BOOTKEY_SIZE)
 
 #endif /* EEPROM_ADDRESSES_H_ */

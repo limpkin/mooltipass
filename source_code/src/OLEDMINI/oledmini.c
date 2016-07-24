@@ -1062,9 +1062,9 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
     // Compute where to start displaying the string
     if (justify == OLED_CENTRE)
     {
-        if ((x + width) < miniOledMaxTextY)
+        if ((x + miniOledMinTextY + width) < miniOledMaxTextY)
         {
-            x = (miniOledMaxTextY + x - width)/2;
+            x = (miniOledMaxTextY + x + miniOledMinTextY - width)/2;
         }
     } 
     else if (justify == OLED_RIGHT)

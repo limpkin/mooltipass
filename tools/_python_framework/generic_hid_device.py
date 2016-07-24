@@ -205,7 +205,7 @@ class generic_hid_device:
 	# Disconnect from HID device
 	def disconnect(self):
 		# check that we're actually connected to a device
-		if self.connected == False:
+		if self.connected == False or self.hid_device == None:
 			print "Not connected to device"
 			return
 		else:

@@ -36,9 +36,18 @@ class mooltipass_hid_device:
 	def __init__(self):
 		# HID device constructor
 		self.device = generic_hid_device()
+	
+	# Try to connect to Mooltipass device
+	def connect(self, verbose):
+		return self.device.connect(verbose, USB_VID, USB_PID, USB_READ_TIMEOUT, self.createPingPacket(), self.checkPingAnswerPacket);
 		
-	def connect(self):
-		return self.device.connect(True, USB_VID, USB_PID, USB_READ_TIMEOUT, self.createPingPacket(), self.checkPingAnswerPacket);
+	# Get private device object
+	def getInternalDevice(self):
+		return self.device
+		
+	# Set private device object
+	def setInternalDevice(self, device):
+		self.device = device
 		
 	# Get text from byte array
 	def getTextFromUsbPacket(self, usb_packet):
@@ -78,10 +87,19 @@ class mooltipass_hid_device:
 
 	# Function that the pong matches with the ping sent
 	def checkPingAnswerPacket(self, pingSent, pongReceived):
+		if pongReceived == None:
+			return False
 		if pongReceived[CMD_INDEX] == CMD_PING and pongReceived[DATA_INDEX] == pingSent[DATA_INDEX] and pongReceived[DATA_INDEX+1] == pingSent[DATA_INDEX+1]:
 			return True
 		else:
 			return False
+			
+	# Ping device
+	def pingMooltipass(self):
+		ping_packet = self.createPingPacket()
+		self.device.sendHidPacket(ping_packet)
+		ping_answer = self.device.receiveHidPacketWithTimeout()
+		return self.checkPingAnswerPacket(ping_packet, ping_answer)
 			
 	# Get the Mooltipass version, returns [Flash Mb, Version, Variant]
 	def getMooltipassVersionAndVariant(self):
@@ -146,7 +164,7 @@ class mooltipass_hid_device:
 			print "Packet #" + str(i) + " in hex: " + ' '.join(hex(x) for x in received_data)
 
 	# Upload bundle
-	def	uploadBundle(self, password, filename):	
+	def	uploadBundle(self, password, filename, verbose):	
 		password_set = False
 		mooltipass_variant = self.getMooltipassVersionAndVariant()[2]
 		
@@ -163,7 +181,7 @@ class mooltipass_hid_device:
 			file_list = glob.glob("*.img")
 			if len(file_list) == 0:
 				print "No img file available!"
-				return
+				return False
 			elif len(file_list) == 1:
 				print "Using bundle file", file_list[0]
 				bundlefile = open(file_list[0], 'rb')
@@ -173,7 +191,7 @@ class mooltipass_hid_device:
 				picked_file = raw_input("Choose file: ")
 				if int(picked_file) >= len(file_list):
 					print "Out of bounds"
-					return
+					return False
 				else:
 					bundlefile = open(file_list[int(picked_file)], 'rb')
 		
@@ -188,7 +206,8 @@ class mooltipass_hid_device:
 			mp_password = password
 		
 		# Prepare the password
-		print "Starting upload..."
+		if verbose == True:
+			print "Starting upload..."
 		mooltipass_password = array('B')
 		mooltipass_password.append(DEVICE_PASSWORD_SIZE)
 		mooltipass_password.append(CMD_IMPORT_MEDIA_START)
@@ -256,7 +275,8 @@ class mooltipass_hid_device:
 				success_status = True
 			# Close file
 			bundlefile.close()
-			print "Done!"
+			if verbose == True:
+				print "Done!"
 		else:
 			success_status = False
 			print "fail!!!"

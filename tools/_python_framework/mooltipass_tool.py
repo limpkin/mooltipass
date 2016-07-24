@@ -27,12 +27,14 @@
 # Upload new bundle to device: mooltipass_tool.py uploadBundle updatefile.img <password>                                        #
 # Generate signed firmware: mooltipass_tool.py packAndSign bundleName firmwareName oldAesKey (newAesKey) updateFileName         #
 # Generate and upload signed firmware: mooltipass_tool.py packSignUpload bundleName firmwareName oldAesKey (newAesKey) password #
+# Initialize Mooltipass: mooltipass_tool.py init bundleName                                                                     #
 #                                                                                                                               #
 #                                                                                                                               #
 #                                                                                                                               #
 #                                                                                                                               #
 #################################################################################################################################
 from mooltipass_hid_device import *
+from mooltipass_init_proc import *
 import firmwareBundlePackAndSign
 from datetime import datetime
 from array import array
@@ -56,7 +58,7 @@ def main():
 		mooltipass_device = mooltipass_hid_device()	
 		
 		# Connect to device
-		if mooltipass_device.connect() == False:
+		if mooltipass_device.connect(True) == False:
 			sys.exit(0)
 			
 		# Get Mooltipass Version
@@ -80,7 +82,7 @@ def main():
 			else:
 				password = None
 			# start upload
-			custom_hid_packet.uploadBundle(device, password, filename)
+			mooltipass_device.uploadBundle(password, filename, True)
 			
 		if sys.argv[1] == "packAndSign":
 			if len(sys.argv) > 5:
@@ -102,11 +104,20 @@ def main():
 				# Did we generate the bundle?
 				if bundle_gen == True:
 					if len(sys.argv) > 6:
-						mooltipass_device.uploadBundle(sys.argv[6], "updatefile.img")
+						mooltipass_device.uploadBundle(sys.argv[6], "updatefile.img", True)
 					else:
-						mooltipass_device.uploadBundle(sys.argv[5], "updatefile.img")
+						mooltipass_device.uploadBundle(sys.argv[5], "updatefile.img", True)
 			else:
 				print "packAndSign: not enough args!"
+		
+		if sys.argv[1] == "init":
+			if len(sys.argv) > 2:
+				if version_data[2] == "mini":
+					mooltipassMiniInit(mooltipass_device)
+				else:
+					print "Device Not Supported"
+			else:
+				print "init: not enough args!"
 			
 			
 		

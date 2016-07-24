@@ -303,6 +303,10 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             {
                 usbProcessIncoming(USB_CALLER_MAIN);
             }
+
+            // Go to startup screen
+            guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
+            guiGetBackToCurrentScreen();
         }
         else
         {
@@ -314,7 +318,12 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
             
             // Inform script of failure
             usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);
-            while(1);
+        }
+
+        // Still process USB packets (needed for script)
+        while(1)
+        {
+            usbProcessIncoming(USB_CALLER_MAIN);
         }
     }    
 }

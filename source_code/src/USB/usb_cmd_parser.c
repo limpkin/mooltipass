@@ -884,10 +884,13 @@ void usbProcessIncoming(uint8_t caller_id)
                 eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
             #endif
 
-            // Non AVR bootloader minis: set jump to bootloader value, arm reboot timer
+            // Non AVR bootloader minis: set jump to bootloader value, arm reboot timer, only when security is in place
             #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
-                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
-                activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);
+                if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
+                {
+                    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                    activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);
+                }
             #endif
 
             // No check if dev comms
@@ -1242,19 +1245,35 @@ void usbProcessIncoming(uint8_t caller_id)
    
         // Set Mooltipass UID
         case CMD_SET_UID :
-        {            
-            // The packet should contain the UID request key and the UID
-            if ((datalen == (UID_REQUEST_KEY_SIZE + UID_SIZE)) && (eeprom_read_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR) != UID_REQUEST_KEY_OK_KEY))
-            {
-                // The request key and uid are adjacent in eeprom memory
-                eeprom_write_block((void*)msg->body.data, (void*)EEP_UID_REQUEST_KEY_ADDR, (UID_REQUEST_KEY_SIZE + UID_SIZE));
-                eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, UID_REQUEST_KEY_OK_KEY);
-                plugin_return_value = PLUGIN_BYTE_OK;
-            }
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+        {
+            #ifdef MINI_VERSION            
+                // The packet should contain the UID request key and the UID
+                if ((datalen == (UID_REQUEST_KEY_SIZE + UID_SIZE + BOOTKEY_SIZE)) && (eeprom_read_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR) != UID_REQUEST_KEY_OK_KEY))
+                {
+                    // The request key and uid are adjacent in eeprom memory
+                    eeprom_write_block(((void*)msg->body.data) + UID_REQUEST_KEY_SIZE + UID_SIZE, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, BOOTKEY_SIZE);
+                    eeprom_write_block((void*)msg->body.data, (void*)EEP_UID_REQUEST_KEY_ADDR, (UID_REQUEST_KEY_SIZE + UID_SIZE));
+                    eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, UID_REQUEST_KEY_OK_KEY);
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                }
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }
+            #else
+                // The packet should contain the UID request key and the UID
+                if ((datalen == (UID_REQUEST_KEY_SIZE + UID_SIZE)) && (eeprom_read_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR) != UID_REQUEST_KEY_OK_KEY))
+                {
+                    // The request key and uid are adjacent in eeprom memory
+                    eeprom_write_block((void*)msg->body.data, (void*)EEP_UID_REQUEST_KEY_ADDR, (UID_REQUEST_KEY_SIZE + UID_SIZE));
+                    eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, UID_REQUEST_KEY_OK_KEY);
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                }
+                else
+                {
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }
+            #endif
             break;
         }
         
@@ -1290,7 +1309,9 @@ void usbProcessIncoming(uint8_t caller_id)
             if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
             {
                 eeprom_write_block((void*)msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE);
-                eeprom_write_word((uint16_t*)EEP_BACKUP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
+                #ifndef MINI_VERSION
+                    eeprom_write_word((uint16_t*)EEP_BACKUP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
+                #endif
                 eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, BOOTLOADER_PWDOK_KEY);
                 plugin_return_value = PLUGIN_BYTE_OK;
             }

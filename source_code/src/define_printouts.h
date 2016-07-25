@@ -21,17 +21,31 @@
     #pragma message "Number of possible LUT entries:" XSTR(NB_MAX_SMCID_UID_MATCH_ENTRIES)
     #pragma message "UID request key address:" XSTR(EEP_UID_REQUEST_KEY_ADDR)
     #pragma message "UID address:" XSTR(EEP_UID_ADDR)
-    #pragma message "Bootkey copy address:" XSTR(EEP_BACKUP_BOOTKEY_ADDR)
+    #ifdef MINI_VERSION
+        #pragma message "Last two bytes of aes key2 address:" XSTR(EEP_LAST_AES_KEY2_2BYTES_ADDR)
+    #else
+        #pragma message "Bootkey copy address:" XSTR(EEP_BACKUP_BOOTKEY_ADDR)
+    #endif
     #pragma message "Number of user parameters:" XSTR(USER_RESERVED_SPACE_IN_EEP)
 #endif
 
 // Check bytes left in eeprom
-#if (EEP_BACKUP_BOOTKEY_ADDR + BOOTKEY_SIZE) == EEPROM_SIZE
-    #ifdef MEMORY_LAYOUT_PRINTOUT
-        #pragma message "EEPROM memory full"
+#ifdef MINI_VERSION
+    #if (EEP_LAST_AES_KEY2_2BYTES_ADDR + BOOTKEY_SIZE) == EEPROM_SIZE
+        #ifdef MEMORY_LAYOUT_PRINTOUT
+            #pragma message "EEPROM memory full"
+        #endif
+    #else
+        #error "Wrong EEPROM memory layout"
     #endif
 #else
-    #error "Wrong EEPROM memory layout"
+    #if (EEP_BACKUP_BOOTKEY_ADDR + BOOTKEY_SIZE) == EEPROM_SIZE
+        #ifdef MEMORY_LAYOUT_PRINTOUT
+            #pragma message "EEPROM memory full"
+        #endif
+    #else
+        #error "Wrong EEPROM memory layout"
+    #endif
 #endif
 
 #endif /* DEFINE_PRINTOUTS_H_ */

@@ -103,7 +103,7 @@ def mooltipassMiniInit(mooltipass_device):
 			#print "Getting random number for UID & request key"
 			request_key_and_uid = array('B')
 			mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_GET_RANDOM_NUMBER, 0, None))
-			request_key_and_uid.extend(mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()[DATA_INDEX:DATA_INDEX+22])
+			request_key_and_uid.extend(mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()[DATA_INDEX:DATA_INDEX+24])
 
 			# Check that we actually received data
 			if data == None or data2 == None:
@@ -201,7 +201,7 @@ def mooltipassMiniInit(mooltipass_device):
 				sys.stdout.flush()
 				# TO REMOVE
 				request_key_and_uid = [0]*22
-				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_UID, 22, request_key_and_uid))
+				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_UID, 24, request_key_and_uid))
 				if mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX] == 0x01:
 					# Update Success status
 					success_status = True
@@ -219,8 +219,13 @@ def mooltipassMiniInit(mooltipass_device):
 				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password))
 				#print mooltipass_password
 				if mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX] == 0x01:
-					# Write Mooltipass ID in file together with random bytes, flush write
-					string_export = str(mp_id)+"|"+"".join(format(x, "02x") for x in mooltipass_password)+"|"+"".join(format(x, "02x") for x in request_key_and_uid)+"\r\n"
+					# Write in file: Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
+					aes_key1 = "".join(format(x, "02x") for x in mooltipass_password[:32])
+					aes_key2 = "".join(format(x, "02x") for x in mooltipass_password[32:]) + "".join(format(x, "02x") for x in request_key_and_uid[22:])
+					request_uid_key = "".join(format(x, "02x") for x in request_key_and_uid[0:16])
+					uid = "".join(format(x, "02x") for x in request_key_and_uid[16:22])
+					string_export = str(mp_id)+"|"+ aes_key1 +"|"+ aes_key2 +"|"+ request_uid_key +"|"+ uid +"\r\n"
+					print string_export
 					pickle_write(public_key.encrypt(string_export, 32), time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mp_id)+".txt")
 					# Update Success status
 					success_status = True

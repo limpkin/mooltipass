@@ -69,7 +69,12 @@
 #define EEP_UID_REQUEST_KEY_ADDR            (EEP_UID_REQUEST_KEY_SET_ADDR + UID_REQUEST_KEY_SET_BOOL_SIZE)
 // This is the Mooltipass UID
 #define EEP_UID_ADDR                        (EEP_UID_REQUEST_KEY_ADDR + UID_REQUEST_KEY_SIZE)
-// This is a copy of the bootkey
-#define EEP_BACKUP_BOOTKEY_ADDR             (EEP_UID_ADDR + UID_SIZE)
+#ifdef MINI_VERSION
+    // Mooltipass mini: this is the last 2 bytes of AES key 2
+    #define EEP_LAST_AES_KEY2_2BYTES_ADDR       (EEP_UID_ADDR + UID_SIZE)
+#else
+    // This is a copy of the bootkey
+    #define EEP_BACKUP_BOOTKEY_ADDR             (EEP_UID_ADDR + UID_SIZE)
+#endif
 
 #endif /* EEPROM_ADDRESSES_H_ */

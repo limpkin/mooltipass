@@ -878,21 +878,26 @@ void usbProcessIncoming(uint8_t caller_id)
             // Set default addresses
             mediaFlashImportPage = GRAPHIC_ZONE_PAGE_START;
             mediaFlashImportOffset = 0;
-            
+
+            // Mini version: copy current firmware version in EEPROM
+            #ifdef MINI_VERSION
+                eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
+            #endif
+
+            // Non AVR bootloader minis: set jump to bootloader value, arm reboot timer
+            #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
+                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);
+            #endif
+
             // No check if dev comms
             #if defined(DEV_PLUGIN_COMMS) || defined(AVR_BOOTLOADER_PROGRAMMING)
                 plugin_return_value = PLUGIN_BYTE_OK;
                 mediaFlashImportApproved = TRUE;
-                #ifdef MINI_VERSION
-                // Copy version ID into eeprom
-                eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
-                #endif
             #elif defined(MINI_VERSION)
                 // TODO: set authorizations
                 plugin_return_value = PLUGIN_BYTE_OK;
                 mediaFlashImportApproved = TRUE;
-                // Copy version ID into eeprom
-                eeprom_write_block(MOOLTIPASS_VERSION, EEP_USER_DATA_START_ADDR, 4);
             #else            
                 // Mandatory wait for bruteforce
                 userViewDelay();
@@ -953,17 +958,11 @@ void usbProcessIncoming(uint8_t caller_id)
             plugin_return_value = PLUGIN_BYTE_OK;
             mediaFlashImportApproved = FALSE;
             
-            #if defined(MINI_PREPRODUCTION_SETUP) || defined(MINI_PREPRODUCTION_SETUP_ACC)
+            #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
             // At the end of the import media command if the security is set in place, we start the bootloader
             if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
-            {
-                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
-                cli();
-                wdt_reset();
-                wdt_clear_flag();
-                wdt_change_enable();
-                wdt_enable_2s();
-                while(1);
+            {                
+                reboot_platform();
             } 
             #endif
             break;

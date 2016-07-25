@@ -39,4 +39,7 @@ extern uint8_t mp_lock_unlock_shortcuts;
 extern uint8_t mp_timeout_enabled;
 extern uint8_t act_detected_flag;
 
+/* Function prototypes */
+void reboot_platform(void);
+
 #endif /* MOOLTIPASS_H_ */

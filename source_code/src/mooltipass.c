@@ -90,6 +90,19 @@ uint8_t mp_timeout_enabled = FALSE;
 uint8_t act_detected_flag = FALSE;
 
 
+/*! \fn     reboot_platform(void)
+*   \brief  Function to reboot the MCU using the WDT
+*/
+void reboot_platform(void)
+{
+    cli();
+    wdt_reset();
+    wdt_clear_flag();
+    wdt_change_enable();
+    wdt_enable_2s();
+    while(1);
+}
+
 /*! \fn     main(void)
 *   \brief  Main function
 */
@@ -243,6 +256,13 @@ int main(void)
     
     /** OLED INITIALIZATION **/
     oledBegin(FONT_DEFAULT);                    // Only do it now as we're enumerated
+
+    /** REBOOT TIMER INIT **/
+    #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
+        /* Mooltipass mini: disable reboot timer by default */
+        activateTimer(TIMER_REBOOT, 0);
+        hasTimerExpired(TIMER_REBOOT, TRUE);
+    #endif
     
     /** FIRST BOOT FLASH & EEPROM INITIALIZATIONS **/
     if (current_bootkey_val != CORRECT_BOOTKEY)
@@ -366,6 +386,14 @@ int main(void)
     {
         // Process possible incoming USB packets
         usbProcessIncoming(USB_CALLER_MAIN);
+
+        // Mooltipass mini: reboot platform if needed
+        #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
+            if(hasTimerExpired(TIMER_REBOOT, TRUE) == TIMER_EXPIRED)
+            {
+                reboot_platform();
+            }
+        #endif
         
         // Launch activity detected routine if flag is set
         if (act_detected_flag != FALSE)

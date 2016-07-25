@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include "usb.h"
 
+/* Timeout for bundle upload */
+#define BUNDLE_UPLOAD_TIMEOUT   60000
+
 /* USB mooltipass hid commands */
 // Developper plugin commands
 #define CMD_TEST_ACC_PRESENCE   0x95

@@ -29,7 +29,7 @@ From Mooltipass: same packet that the plugin/app sent
 ---------------------
 From Plugin/app: Mooltipass version request
 
-From Mooltipass: The first byte contains the FLASH_CHIP define which specifies how much memory the Mooltipass has. The rest is a string identifying the version
+From Mooltipass: The first byte contains the FLASH_CHIP define which specifies how much memory the Mooltipass has. The rest is a string identifying the version in the vX.X format. The Mooltipass Mini has "_mini" appended to the version string.
 
 0xA3: set context
 -----------------
@@ -39,7 +39,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the Mooltipass doesn't 
 
 0xA4: get login
 ---------------
-From plugin/app: request the login for the current context
+From plugin/app: request the login for the current context. Payload may contain the login we already want to select to directly get the user approval.
 
 From Mooltipass: the login if the user has approved the sending of credential / has been authorized, 1 byte 0x00 packet otherwise.
 
@@ -75,13 +75,13 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0xAA: Set Bootloader Password
 -----------------------------
-From plugin/app: Mooltipass standard: set the 62bytes password used to unlock the bootloader.
+From plugin/app: Mooltipass standard: set the 62bytes password used to unlock the bootloader. Mooltipass Mini: contains AES key 1 and 30 first bytes of AES key 2.
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
 0xAB: Jump to Bootloader
 ------------------------
-From plugin/app: Mooltipass standard: send the 62bytes password to unlock the bootloader on the device.
+From plugin/app: Mooltipass standard: send the 62bytes password to unlock the bootloader on the device. Mooltipass mini: not implemented.
 
 0xAC: Get random number
 -----------------------
@@ -97,7 +97,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0xAE: Media import start
 ------------------------
-From plugin/app: Request for media contents sending to Mooltipass.
+From plugin/app: Request for media contents sending to Mooltipass. Mooltipass standard: payload is the unique device password. Mooltipass mini: payload is aesenc_key2(version_number).
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
@@ -186,7 +186,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0xBC: Set Mooltipass UID
 ------------------------
-From plugin/app: Set the Mooltipass UID, 16 + 6 bytes packet with the request key and the UID
+From plugin/app: Set the Mooltipass UID. Mooltipass Standard: 16 + 6 bytes packet with the request key and the UID. Mooltipass Mini: 16 + 6 + 2 bytes packet with the request key, UID, and last 2 bytes of AES key 2. 
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
 
@@ -325,77 +325,11 @@ From plugin/app: Leave memory management mode
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-Obsolete commands
-=================
+0xD4: Get Current Login Description
+-----------------------------------
+From plugin/app: Request login description after the user approved credential sending
 
-0x8A: export flash start (for full import/export fw version)
-------------------------------------------------------------
-From plugin/app: Request for flash contents export to Mooltipass.
+From Mooltipass: the description if the user has approved the sending of credential, 1 byte 0x00 packet otherwise.
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0x8B: export flash (for full import/export fw version)
-------------------------------------------------------
-From plugin/app: request for a bunch of data
 
-From Mooltipass: the bunch of requested data
-
-0x8C: export flash end (for full import/export fw version)
-----------------------------------------------------------
-From plugin/app: stop flash export
-
-From Mooltipass: end of flash export
-
-0x8D: import flash start (for full import/export fw version)
-------------------------------------------------------------
-From plugin/app: Request for flash contents sending to Mooltipass. A 0x00 in parameter implies user space while a 0x01 specifies the graphics part of flash
-
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
-
-0x8E: import flash (for full import/export fw version)
-------------------------------------------------------
-From plugin/app: A bunch of data to store inside the flash, particularly formatted (see source files)
-
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
-
-0x8F: import flash end (for full import/export fw version)
-----------------------
-From plugin/app: Inform that we finished the flash import
-
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
-
-0x90: export eeprom start (for full import/export fw version)
--------------------------------------------------------------
-From plugin/app: Request for eeprom contents export to Mooltipass.
-
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
-
-0x91: export eeprom (for full import/export fw version)
--------------------------------------------------------
-From plugin/app: export eeprom contents request
-
-From Mooltipass: the bunch of requested data
-
-0x92: export eeprom end (for full import/export fw version)
------------------------------------------------------------
-From plugin/app: stop eeprom export
-
-From Mooltipass: end of eeprom export
-
-0x93: import eeprom start (for full import/export fw version)
--------------------------------------------------------------
-From plugin/app: Request for eeprom contents sending to Mooltipass.
-
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
-
-0x94: import eeprom (for full import/export fw version)
--------------------------------------------------------
-From plugin/app: A bunch of data to store inside the eeprom
-
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
-
-0x95: import eeprom end (for full import/export fw version)
------------------------------------------------------------
-From plugin/app: Inform that we finished the flash import
-
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so

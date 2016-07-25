@@ -200,7 +200,7 @@ def mooltipassMiniInit(mooltipass_device):
 				sys.stdout.write('Step 4... ')
 				sys.stdout.flush()
 				# TO REMOVE
-				request_key_and_uid = [0]*22
+				request_key_and_uid = [0]*24
 				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_UID, 24, request_key_and_uid))
 				if mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX] == 0x01:
 					# Update Success status
@@ -225,7 +225,7 @@ def mooltipassMiniInit(mooltipass_device):
 					request_uid_key = "".join(format(x, "02x") for x in request_key_and_uid[0:16])
 					uid = "".join(format(x, "02x") for x in request_key_and_uid[16:22])
 					string_export = str(mp_id)+"|"+ aes_key1 +"|"+ aes_key2 +"|"+ request_uid_key +"|"+ uid +"\r\n"
-					print string_export
+					#print string_export
 					pickle_write(public_key.encrypt(string_export, 32), time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mp_id)+".txt")
 					# Update Success status
 					success_status = True

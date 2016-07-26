@@ -76,6 +76,8 @@ uint8_t knock_detection_enabled;
 uint8_t knock_detection_threshold;
 // first knock width
 uint8_t first_knock_width;
+// accelerometer detected bool
+uint8_t acc_detected = FALSE;
 #endif
 
 
@@ -112,8 +114,7 @@ RET_TYPE initMiniInputs(void)
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
     wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
 
-#if defined(HARDWARE_MINI_CLICK_V2) && !defined(NO_ACCELEROMETER)
-
+#if defined(HARDWARE_MINI_CLICK_V2)
     // Setup PORT for the Accelerometer SS & INT
     DDR_ACC_SS |= (1 << PORTID_ACC_SS);
     PORT_ACC_SS |= (1 << PORTID_ACC_SS);
@@ -159,7 +160,8 @@ RET_TYPE initMiniInputs(void)
     {
         return RETURN_NOK;
     }
-
+    
+    acc_detected = TRUE;
     return RETURN_OK;
 #else
     // Earlier HW, always return OK
@@ -203,12 +205,8 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
     acc_data[9] = 0;
     acc_data[8] = 0;
 
-    #ifdef NO_ACCELEROMETER
-        return RETURN_NOK;
-    #endif
-
     // Is the feature actually enabled?
-    if (knock_detection_enabled == FALSE)
+    if (knock_detection_enabled == FALSE || acc_detected == FALSE)
     {
         return RETURN_NOK;
     }

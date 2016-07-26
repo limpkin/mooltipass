@@ -85,6 +85,7 @@ void miniAccelerometerSendReceiveSPIData(uint8_t* data, uint8_t nbBytes);
 
 /* GLOBAL VARS */
 extern uint8_t wheel_reverse_bool;
+extern uint8_t acc_detected;
 #ifdef HARDWARE_MINI_CLICK_V2
     extern uint8_t knock_detection_enabled;
     extern uint8_t knock_detection_threshold;

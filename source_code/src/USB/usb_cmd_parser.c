@@ -1489,15 +1489,10 @@ void usbProcessIncoming(uint8_t caller_id)
 
         case CMD_TEST_ACC_PRESENCE:
         {
-            // Query the accelerometer who am I register
-            uint8_t whoAmIRequestData[] = {0x8F, 0x00};
-            miniAccelerometerSendReceiveSPIData(whoAmIRequestData, sizeof(whoAmIRequestData));
-
-            // Check the ID
-            if (whoAmIRequestData[1] == 0x41)
+            if (acc_detected != FALSE)
             {
                 plugin_return_value = PLUGIN_BYTE_OK;
-            }
+            } 
             else
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;

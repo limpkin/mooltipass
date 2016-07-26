@@ -283,7 +283,7 @@ int main(void)
         // Test procedure to check that all HW is working
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
-    #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_PREPRODUCTION_SETUP) || defined(MINI_PREPRODUCTION_SETUP_ACC)
+    #if defined(MINI_VERSION)
         mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok, mini_inputs_result);
     #endif
     
@@ -298,7 +298,7 @@ int main(void)
         #if defined(MINI_CLICK_BETATESTERS_SETUP)
             (void)fuse_ok;
             while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
-        #elif defined(MINI_PREPRODUCTION_SETUP) || defined(MINI_PREPRODUCTION_SETUP_ACC)
+        #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
             // We do not hang if accelerometer is not present as it isn't crucial, moreover we already tested it in the functional test 
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #else

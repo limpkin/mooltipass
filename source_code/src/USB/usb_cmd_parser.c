@@ -1313,6 +1313,7 @@ void usbProcessIncoming(uint8_t caller_id)
                     eeprom_write_word((uint16_t*)EEP_BACKUP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
                 #endif
                 eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, BOOTLOADER_PWDOK_KEY);
+                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
                 plugin_return_value = PLUGIN_BYTE_OK;
             }
             else

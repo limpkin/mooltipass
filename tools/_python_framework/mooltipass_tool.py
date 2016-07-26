@@ -28,6 +28,7 @@
 # Generate signed firmware: mooltipass_tool.py packAndSign bundleName firmwareName oldAesKey (newAesKey) updateFileName         #
 # Generate and upload signed firmware: mooltipass_tool.py packSignUpload bundleName firmwareName oldAesKey (newAesKey) password #
 # Initialize Mooltipass: mooltipass_tool.py init bundleName                                                                     #
+# Launch security checks for mini: mooltipass_tool.py minicheck oldfirmware newfirmware bundlename                              #
 #                                                                                                                               #
 #                                                                                                                               #
 #                                                                                                                               #
@@ -35,6 +36,7 @@
 #################################################################################################################################
 from mooltipass_hid_device import *
 from mooltipass_init_proc import *
+import mooltipass_security_check 
 import firmwareBundlePackAndSign
 from datetime import datetime
 from array import array
@@ -88,9 +90,9 @@ def main():
 			if len(sys.argv) > 5:
 				# Depending on number of args, set a new password or not
 				if len(sys.argv) > 6:
-					firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
+					firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], True)
 				else:
-					firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], None, sys.argv[5])					
+					firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], None, sys.argv[5], True)					
 			else:
 				print "packAndSign: not enough args!"
 				
@@ -98,9 +100,9 @@ def main():
 			if len(sys.argv) > 5:
 				# Depending on number of args, set a new password or not
 				if len(sys.argv) > 6:
-					bundle_gen = firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], "updatefile.img")
+					bundle_gen = firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], "updatefile.img", True)
 				else:
-					bundle_gen = firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], None, "updatefile.img")
+					bundle_gen = firmwareBundlePackAndSign.bundlePackAndSign(sys.argv[2], sys.argv[3], sys.argv[4], None, "updatefile.img", True)
 				# Did we generate the bundle?
 				if bundle_gen == True:
 					if len(sys.argv) > 6:
@@ -109,6 +111,12 @@ def main():
 						mooltipass_device.uploadBundle(sys.argv[5], "updatefile.img", True)
 			else:
 				print "packAndSign: not enough args!"
+				
+		if sys.argv[1] == "minicheck":
+			if len(sys.argv) > 3:
+				mooltipass_security_check.mooltipassMiniSecCheck(mooltipass_device, sys.argv[2], sys.argv[3], sys.argv[4])
+			else:
+				print "minicheck: not enough args!"
 		
 		if sys.argv[1] == "init":
 			if len(sys.argv) > 2:

@@ -306,12 +306,6 @@ int main(void)
         #endif
     #endif
     
-    /** CORRECT BOOKEY WRITE **/
-    if (current_bootkey_val != CORRECT_BOOTKEY)
-    {
-        eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, CORRECT_BOOTKEY);
-    }
-    
     // Write inactive buffer by default
     oledWriteInactiveBuffer();    
     

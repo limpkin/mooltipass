@@ -32,7 +32,7 @@ from struct import *
 import sys
 import os
 
-def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFileName):
+def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFileName, verbose):
 	# Rather than at the beginning of the files, constants are here
 	HASH_LENGH = 128/8									# Hash length (128 bits)
 	AES_KEY_LENGTH = 256/8								# AES key length (256 bits)
@@ -54,13 +54,15 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 
 	# Check that all required files are here
 	if isfile(bundleName):
-		print "Bundle file found"
+		if verbose == True:
+			print "Bundle file found"
 	else:
 		print "Couldn't find bundle file"
 		return False
 		
 	if isfile(firmwareName):
-		print "Firmware file found"
+		if verbose == True:
+			print "Firmware file found"
 	else:
 		print "Couldn't find firmware file"
 		return False
@@ -82,19 +84,23 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		print "Bundle file too long:", len(bundle), "bytes long"
 		return False
 	else:	
-		print "Bundle file is", len(bundle), "bytes long"
+		if verbose == True:
+			print "Bundle file is", len(bundle), "bytes long"
 		
 	if len(firmware) > FW_MAX_LENGTH:
 		print "Firmware file too long:", len(firmware), "bytes long"
 		return False
 	else:	
-		print "Firmware file is", len(firmware), "bytes long"
-		
-	print "Remaining space in bundle:", STORAGE_SPACE - FW_MAX_LENGTH - HASH_LENGH - AES_KEY_LENGTH - FW_VERSION_LENGTH - AES_KEY_UPDATE_FLAG_LGTH - len(bundle), "bytes"
+		if verbose == True:
+			print "Firmware file is", len(firmware), "bytes long"
+	
+	if verbose == True:
+		print "Remaining space in bundle:", STORAGE_SPACE - FW_MAX_LENGTH - HASH_LENGH - AES_KEY_LENGTH - FW_VERSION_LENGTH - AES_KEY_UPDATE_FLAG_LGTH - len(bundle), "bytes"
 		
 	# Beta testers devices have their aes key set to 00000... and the bootloader will always perform a key update
 	if oldAesKey == "0000000000000000000000000000000000000000000000000000000000000000" and newAesKey == None:
-		print "Bundle update for beta testers unit, setting 00000... as new AES key"
+		if verbose == True:
+			print "Bundle update for beta testers unit, setting 00000... as new AES key"
 		newAesKey = "0000000000000000000000000000000000000000000000000000000000000000"
 		
 	# If no new aes key is specified, don't set the aes key update flag
@@ -102,7 +108,8 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		print "No new AES key set"
 		aes_key_update_bool = False
 	else:
-		print "Encrypting new AES key"
+		if verbose == True:
+			print "Encrypting new AES key"
 		
 	# If needed, check the new aes key
 	if aes_key_update_bool == True:
@@ -124,7 +131,8 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		chr(firmware_bin[i + 2]) == '.' and \
 		chr(firmware_bin[i + 3]) >= '0' and chr(firmware_bin[i + 3]) <= '9':
 			firmware_version = firmware_bin[i:i+4]
-			print "Extracted firmware version:", "".join(chr(firmware_version[j]) for j in range(0, 4))
+			if verbose == True:
+				print "Extracted firmware version:", "".join(chr(firmware_version[j]) for j in range(0, 4))
 			break;
 			
 	# Check if we extracted the firmware version and it has the correct length
@@ -176,7 +184,8 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 	data_fd = open(updateFileName, 'wb')
 	data_fd.write(update_file_data)
 	data_fd.close()
-	print "Update file written!"
+	if verbose == True:
+		print "Update file written!"
 	return True
 	
 	# Re read our file to make sure of its length

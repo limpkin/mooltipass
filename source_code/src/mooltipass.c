@@ -151,21 +151,21 @@ int main(void)
     /* aren't correctly set                                             */
     /********************************************************************/
     #if defined(MINI_CLICK_BETATESTERS_SETUP)
-        // no fuse verification for the beta testers units
+        /* no fuse verification for the beta testers units */
     #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
-        // 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        /* 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
         }
     #elif defined(PRODUCTION_TEST_SETUP)
-        // 2k words, SPIEN, BOD 4.3V, no checks on programming fuses >> http://www.engbedded.com/fusecalc/
+        /* 2k words, SPIEN, BOD 4.3V, no checks on programming fuses >> http://www.engbedded.com/fusecalc/ */
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8))
         {
             fuse_ok = FALSE;
         }
     #else
-        // boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/
+        /* boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
         if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
@@ -190,9 +190,9 @@ int main(void)
     /********************************************************************/
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
-        // Erase Mooltipass parameters
+        /* Erase Mooltipass parameters */
         mooltipassParametersInit();
-        // Set bootloader password bool to FALSE
+        /* Set bootloader password bool to FALSE */
         eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
     }
         
@@ -242,13 +242,13 @@ int main(void)
         mini_inputs_result = initMiniInputs();  // Initialize Mini Inputs
     #endif                                      //
 
-    // If offline mode isn't enabled, wait for device to be enumerated
+    /* If offline mode isn't enabled, wait for device to be enumerated */
     if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
     {
         while(!isUsbConfigured());              // Wait for host to set configuration
     }    
     
-    // Set correct timeout_enabled val
+    /* Set correct timeout_enabled val */
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
     
     /** FLASH INITIALIZATION **/
@@ -280,7 +280,7 @@ int main(void)
     /** FUNCTIONAL TESTING **/
     //#define FORCE_PROD_TEST
     #if defined(PRODUCTION_SETUP) || defined(PRODUCTION_KICKSTARTER_SETUP) || defined(FORCE_PROD_TEST)
-        // Test procedure to check that all HW is working
+        /* Test procedure to check that all HW is working */
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
     #if defined(MINI_VERSION)
@@ -299,17 +299,17 @@ int main(void)
             (void)fuse_ok;
             while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
         #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
-            // We do not hang if accelerometer is not present as it isn't crucial, moreover we already tested it in the functional test 
+            /* We do not hang if accelerometer is not present as it isn't crucial, moreover we already tested it in the functional test */
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #else
             #error "Platform unknown!"
         #endif
     #endif
     
-    // Write inactive buffer by default
+    /* Write inactive buffer by default */
     oledWriteInactiveBuffer();    
     
-    // Display tutorial if needed
+    /* Display tutorial if needed */
     if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
     {
         #if defined(HARDWARE_OLIVIER_V1)
@@ -354,13 +354,13 @@ int main(void)
         setMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM, FALSE);
     }
 
-    // Go to startup screen
+    /* Go to startup screen */
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
     guiGetBackToCurrentScreen();
     
-    // LED fade-in for standard version & mini v2/3
+    /* LED fade-in for standard version & mini v2/3 */
     #if defined(HARDWARE_OLIVIER_V1)
-        // Let's fade in the LEDs
+        /* Let's fade in the LEDs */
         touchDetectionRoutine(0);
         for (uint16_t i = 0; i < MAX_PWM_VAL; i++)
         {
@@ -374,17 +374,17 @@ int main(void)
         miniLedsSetAnimation(ANIM_FADE_IN_FADE_OUT_1_TIME);
     #endif
     
-    // Inhibit touch inputs for the first 2 seconds
+    /* Inhibit touch inputs for the first 2 seconds */
     #if defined(HARDWARE_OLIVIER_V1)
         activateTimer(TIMER_TOUCH_INHIBIT, 2000);
     #endif
 
     while (1)
     {
-        // Process possible incoming USB packets
+        /* Process possible incoming USB packets */
         usbProcessIncoming(USB_CALLER_MAIN);
 
-        // Mooltipass mini: reboot platform if needed
+        /* Mooltipass mini: reboot platform if needed */
         #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
             if(hasTimerExpired(TIMER_REBOOT, TRUE) == TIMER_EXPIRED)
             {
@@ -392,7 +392,7 @@ int main(void)
             }
         #endif
         
-        // Launch activity detected routine if flag is set
+        /* Launch activity detected routine if flag is set */
         if (act_detected_flag != FALSE)
         {
             if (isScreenSaverOn() == TRUE)
@@ -404,7 +404,7 @@ int main(void)
         }
         
         #if defined(HARDWARE_OLIVIER_V1)
-            // Call GUI routine once the touch input inhibit timer is finished
+            /* Call GUI routine once the touch input inhibit timer is finished */
             if (hasTimerExpired(TIMER_TOUCH_INHIBIT, FALSE) == TIMER_EXPIRED)
             {
                 guiMainLoop();
@@ -413,7 +413,7 @@ int main(void)
             guiMainLoop();
         #endif
         
-        // If we are running the screen saver
+        /* If we are running the screen saver */
         if (isScreenSaverOn() == TRUE)
         {
             #ifndef MINI_DEMO_VIDEO
@@ -421,13 +421,13 @@ int main(void)
             #endif
         }
         
-        // If the USB bus is in suspend (computer went to sleep), lock device
+        /* If the USB bus is in suspend (computer went to sleep), lock device */
         if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && (getSmartCardInsertedUnlocked() == TRUE))
         {
             handleSmartcardRemoved();
             guiDisplayInformationOnScreenAndWait(ID_STRING_PC_SLEEP);
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
-            // If the screen saver is on, clear screen contents
+            /* If the screen saver is on, clear screen contents */
             if(isScreenSaverOn() == TRUE)
             {
                 #ifndef MINI_VERSION
@@ -442,37 +442,37 @@ int main(void)
             }
         }
         
-        // Check if a card just got inserted / removed
+        /* Check if a card just got inserted / removed */
         card_detect_ret = isCardPlugged();
         
-        // Do appropriate actions on smartcard insertion / removal
+        /* Do appropriate actions on smartcard insertion / removal */
         if (card_detect_ret == RETURN_JDETECT)
         {
-            // Light up the Mooltipass and call the dedicated function
+            /* Light up the Mooltipass and call the dedicated function */
             activityDetectedRoutine();
             handleSmartcardInserted();
         }
         else if (card_detect_ret == RETURN_JRELEASED)
         {
-            // Light up the Mooltipass and call the dedicated function
+            /* Light up the Mooltipass and call the dedicated function */
             activityDetectedRoutine();
             handleSmartcardRemoved();
 
-            // Lock shortcut, if enabled
+            /* Lock shortcut, if enabled */
             if ((mp_lock_unlock_shortcuts != FALSE) && (getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) != FALSE))
             {
                 usbSendLockShortcut();
                 mp_lock_unlock_shortcuts = FALSE;
             }
             
-            // Set correct screen
+            /* Set correct screen */
             guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_REMOVED);
             guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
             guiGetBackToCurrentScreen();
         }
         
         #ifdef TWO_CAPS_TRICK
-        // Two quick caps lock presses wakes up the device        
+        /* Two quick caps lock presses wakes up the device */
         if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (getKeyboardLeds() & HID_CAPS_MASK) && (wasCapsLockTimerArmed == FALSE))
         {
             wasCapsLockTimerArmed = TRUE;
@@ -492,7 +492,7 @@ int main(void)
         }
         #endif
         
-        // If we have a timeout lock
+        /* If we have a timeout lock */
         if ((mp_timeout_enabled == TRUE) && (hasTimerExpired(SLOW_TIMER_LOCKOUT, TRUE) == TIMER_EXPIRED))
         {
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);

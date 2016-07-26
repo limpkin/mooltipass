@@ -108,6 +108,7 @@ void miniOledDumpCurrentFont(void);
 uint8_t miniOledGlyphWidth(char ch);
 void miniOledClearFrameBuffer(void);
 void miniOledWriteActiveBuffer(void);
+void miniInvertBufferAndFlushIt(void);
 void miniOledDisplayOtherBuffer(void);
 void miniOledSetMinTextY(uint8_t minY);
 void miniOledSetMaxTextY(uint8_t maxY);

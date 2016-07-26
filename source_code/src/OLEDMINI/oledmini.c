@@ -277,6 +277,18 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
     PORT_OLED_SS |= (1 << PORTID_OLED_SS); 
 }
 
+/*! \fn     miniInvertBufferAndFlushIt(void)
+ *  \brief  Invert the buffer and flush it to the display
+ */
+void miniInvertBufferAndFlushIt(void)
+{
+    for (uint16_t i = 0; i < sizeof(miniOledFrameBuffer); i++)
+    {
+        miniOledFrameBuffer[i] = ~miniOledFrameBuffer[i];
+    }
+    miniOledFlushEntireBufferToDisplay();
+}
+
 /*! \fn     miniOledFlushEntireBufferToDisplay(void)
  *  \brief  Flush buffer contents to the display
  *  \notes  timed at 1.6ms!

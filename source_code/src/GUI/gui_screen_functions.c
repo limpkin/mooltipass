@@ -875,17 +875,33 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     #endif
 
     // In case the display inverted, set it correctly
-    if (flash_flag == TRUE)
-    {
-        activityDetectedRoutine();
-        oledInvertedDisplay();
-        timerBased500MsDelay();
-        oledNormalDisplay();
-        timerBased500MsDelay();
-        oledInvertedDisplay();
-        timerBased500MsDelay();
-        oledNormalDisplay();
-    }
+    #if defined(HARDWARE_OLIVIER_V1)
+        if (flash_flag == TRUE)
+        {
+            activityDetectedRoutine();
+            oledInvertedDisplay();
+            timerBased500MsDelay();
+            oledNormalDisplay();
+            timerBased500MsDelay();
+            oledInvertedDisplay();
+            timerBased500MsDelay();
+            oledNormalDisplay();
+        }
+    #elif defined(MINI_VERSION)
+        if (flash_flag == TRUE)
+        {
+            activityDetectedRoutine();
+            miniInvertBufferAndFlushIt();
+            timerBased500MsDelay();
+            miniInvertBufferAndFlushIt();
+            timerBased500MsDelay();
+            miniInvertBufferAndFlushIt();
+            timerBased500MsDelay();
+            miniInvertBufferAndFlushIt();
+        }
+    #else
+        #error "unknown platform for gui_screen"
+    #endif
     
     // Wait for user input
     #if defined(HARDWARE_OLIVIER_V1)

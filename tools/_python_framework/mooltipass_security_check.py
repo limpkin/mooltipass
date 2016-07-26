@@ -240,5 +240,10 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 	else:
 		print "OK - Older firmware upload with good AES key 1 & AES key 2"
 	
+	# Timeout test for media upload
+	mooltipass_device.getInternalDevice().sendHidPacket(mpmSecGetPacketForCommand(CMD_IMPORT_MEDIA_START, 62, [0]*62))
+	print "Testing timeout... please wait 60 seconds"
+	mpmSecWaitForDeviceDisconRecon(mooltipass_device)
+	print "OK - Timeout Test"
 	
 	

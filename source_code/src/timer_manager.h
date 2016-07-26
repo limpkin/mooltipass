@@ -47,20 +47,35 @@ typedef struct
 } timerEntry_t;
 
 // Defines
-#define NUMBER_OF_FAST_TIMERS   10
-#define TIMER_LIGHT             0
-#define TIMER_SCREEN            1
-#define TIMER_USERINT           2
-#define TIMER_CAPS              3
-#define TIMER_CREDENTIALS       4
-#define TIMER_PASS_CHECK        5
-#define TIMER_WAIT_FUNCTS       6
-#define TIMER_TOUCH_INHIBIT     7
-#define TIMER_USB_SUSPEND       8
-#define TIMER_REBOOT            9
+#ifdef MINI_VERSION
+    #define NUMBER_OF_FAST_TIMERS   8
+    #define TIMER_SCREEN            0
+    #define TIMER_USERINT           1
+    #define TIMER_CAPS              2
+    #define TIMER_CREDENTIALS       3
+    #define TIMER_PASS_CHECK        4
+    #define TIMER_WAIT_FUNCTS       5
+    #define TIMER_USB_SUSPEND       6
+    #define TIMER_REBOOT            7
 
-#define NUMBER_OF_SLOW_TIMERS   1
-#define SLOW_TIMER_LOCKOUT      10
+    #define NUMBER_OF_SLOW_TIMERS   1
+    #define SLOW_TIMER_LOCKOUT      8
+#else
+    #define NUMBER_OF_FAST_TIMERS   10
+    #define TIMER_LIGHT             0
+    #define TIMER_SCREEN            1
+    #define TIMER_USERINT           2
+    #define TIMER_CAPS              3
+    #define TIMER_CREDENTIALS       4
+    #define TIMER_PASS_CHECK        5
+    #define TIMER_WAIT_FUNCTS       6
+    #define TIMER_TOUCH_INHIBIT     7
+    #define TIMER_USB_SUSPEND       8
+    #define TIMER_REBOOT            9
+
+    #define NUMBER_OF_SLOW_TIMERS   1
+    #define SLOW_TIMER_LOCKOUT      10
+#endif
 
 #define TOTAL_NUMBER_OF_TIMERS  (NUMBER_OF_FAST_TIMERS+NUMBER_OF_SLOW_TIMERS)
 

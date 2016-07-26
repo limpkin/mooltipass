@@ -64,7 +64,9 @@ uint8_t isScreenSaverOn(void)
 void activityDetectedRoutine(void)
 {    
     // Activate timers for automatic switch off & user interaction timeout
-    activateTimer(TIMER_LIGHT, LIGHT_TIMER_DEL);
+    #if defined(HARDWARE_OLIVIER_V1)
+        activateTimer(TIMER_LIGHT, LIGHT_TIMER_DEL);
+    #endif
     activateTimer(TIMER_SCREEN, SCREEN_TIMER_DEL);
     activateTimer(SLOW_TIMER_LOCKOUT, getMooltipassParameterInEeprom(LOCK_TIMEOUT_PARAM));
     activateTimer(TIMER_USERINT, ((uint16_t)controlEepromParameter(getMooltipassParameterInEeprom(USER_INTER_TIMEOUT_PARAM), MIN_USER_INTER_DEL/1000, MAX_USER_INTER_DEL/1000)) << 10);

@@ -375,7 +375,10 @@ int main(void)
     #endif
     
     // Inhibit touch inputs for the first 2 seconds
-    activateTimer(TIMER_TOUCH_INHIBIT, 2000);
+    #if defined(HARDWARE_OLIVIER_V1)
+        activateTimer(TIMER_TOUCH_INHIBIT, 2000);
+    #endif
+
     while (1)
     {
         // Process possible incoming USB packets
@@ -400,11 +403,15 @@ int main(void)
             act_detected_flag = FALSE;
         }
         
-        // Call GUI routine once the touch input inhibit timer is finished
-        if (hasTimerExpired(TIMER_TOUCH_INHIBIT, FALSE) == TIMER_EXPIRED)
-        {
+        #if defined(HARDWARE_OLIVIER_V1)
+            // Call GUI routine once the touch input inhibit timer is finished
+            if (hasTimerExpired(TIMER_TOUCH_INHIBIT, FALSE) == TIMER_EXPIRED)
+            {
+                guiMainLoop();
+            }
+        #else
             guiMainLoop();
-        }
+        #endif
         
         // If we are running the screen saver
         if (isScreenSaverOn() == TRUE)

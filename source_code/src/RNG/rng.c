@@ -35,7 +35,7 @@
 #if defined(HARDWARE_OLIVIER_V1)
     #define RNG_BUFFER_SIZE             64
 #elif defined(MINI_VERSION)
-    #define RNG_BUFFER_SIZE             32
+    #define RNG_BUFFER_SIZE             16
 #endif
 
 // Typedefs

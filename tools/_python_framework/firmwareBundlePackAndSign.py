@@ -105,7 +105,8 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		
 	# If no new aes key is specified, don't set the aes key update flag
 	if newAesKey == None:
-		print "No new AES key set"
+		if verbose == True:
+			print "No new AES key set"
 		aes_key_update_bool = False
 	else:
 		if verbose == True:
@@ -148,7 +149,7 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 			print "Encoded password is too long!"
 			return False
 	else:
-		enc_password = [0]*AES_KEY_LENGTH
+		enc_password = [255]*AES_KEY_LENGTH
 		
 	# Generate beginning of update file data: bundle | padding | firmware version | new aes key bool | firmware | padding | new aes key encoded
 	update_file_data = array('B')

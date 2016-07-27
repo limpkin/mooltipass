@@ -200,6 +200,17 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 		
 	# Todo: implement password upload check
 		
+	# Test nominal firmware update with good aes key and good password, no new key flag
+	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, mooltipass_aes_key1, None, "updatefile.img", False)
+	mooltipass_device.uploadBundle("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "updatefile.img", False)
+	mpmSecWaitForDeviceDisconRecon(mooltipass_device)
+	usr_answer = raw_input("Tutorial displayed? [y/n]: ")
+	if usr_answer == "y":
+		print "OK - Same firmware upload with good AES key 1 & AES key 2 - no new key flag"
+	else:
+		print "FAIL - Same firmware upload with good AES key 1 & AES key 2 - no new key flag"
+	# Still mooltipass_aes_key1
+		
 	# Test nominal firmware update with good aes key and good password 
 	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, mooltipass_aes_key1, rand_aes_key1_string, "updatefile.img", False)
 	mooltipass_device.uploadBundle("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "updatefile.img", False)
@@ -209,6 +220,7 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 		print "OK - Same firmware upload with good AES key 1 & AES key 2"
 	else:
 		print "FAIL - Same firmware upload with good AES key 1 & AES key 2"
+	# Changed to rand_aes_key1_string
 		
 	# Test nominal firmware update with bad aes key and good password 
 	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, mooltipass_aes_key1, rand_aes_key1_string, "updatefile.img", False)
@@ -219,6 +231,7 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 		print "FAIL - Same firmware upload with bad AES key 1 & good AES key 2"
 	else:
 		print "OK - Same firmware upload with bad AES key 1 & good AES key 2"
+	# Still rand_aes_key1_string
 		
 	# Test nominal firmware update with good aes key and good password 
 	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, new_firmware, rand_aes_key1_string, mooltipass_aes_key1, "updatefile.img", False)
@@ -229,6 +242,7 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 		print "OK - Newer firmware upload with good AES key 1 & AES key 2"
 	else:
 		print "FAIL - Newer firmware upload with good AES key 1 & AES key 2"
+	# Changed to mooltipass_aes_key1
 		
 	# Test nominal firmware update with good aes key and good password but older firmware
 	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, mooltipass_aes_key1, mooltipass_aes_key1, "updatefile.img", False)
@@ -239,6 +253,7 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 		print "FAIL - Older firmware upload with good AES key 1 & AES key 2"
 	else:
 		print "OK - Older firmware upload with good AES key 1 & AES key 2"
+	# Still mooltipass_aes_key1
 	
 	# Timeout test for media upload
 	mooltipass_device.getInternalDevice().sendHidPacket(mpmSecGetPacketForCommand(CMD_IMPORT_MEDIA_START, 62, [0]*62))

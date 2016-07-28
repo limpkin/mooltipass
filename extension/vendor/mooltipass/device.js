@@ -3,8 +3,80 @@ if (typeof mooltipass == 'undefined') {
     mooltipass = {};
 }
 
+// Probably we should move this to a new file.
+mooltipass.emulator = mooltipass.emulator || {};
+
+mooltipass.emulator.updateCredentials = function(callback, tab, entryId, username, password, url) {
+    console.log('STORING CREDENTIALS *************************************************');
+    if (mooltipass.backend.isBlacklisted(url)) {
+        console.log('notify: ignoring blacklisted url',url);
+        if (callback) {
+            callback('failure');
+        }
+        return;
+    }
+
+    // unset error message
+    page.tabs[tab.id].errorMessage = null;
+    
+    // Cancel possible pending request
+    mooltipass.device.onTabClosed(tab.id, null);
+
+    request = {context: url, Login: username, Password: password};
+    credentials = JSON.parse(localStorage.getItem("mooltipass_emulator")) || {};
+    credentials[url] = request;
+
+    localStorage.setItem("mooltipass_emulator", JSON.stringify(credentials) );
+    if (callback) {
+        callback('failure');
+    }
+}
+
+mooltipass.emulator.retrieveCredentials = function(callback, tab, url, submiturl, forceCallback, triggerUnlock) {
+    console.log('RETRIEVING CREDENTIALS *************************************************');
+    var parsed_url = mooltipass.backend.extractDomainAndSubdomain(submiturl);
+    if(!parsed_url.valid) {
+        if(forceCallback) {
+            callback([]);
+        }
+        return;
+    }
+
+    if(parsed_url.domain && mooltipass.backend.isBlacklisted(parsed_url.domain)) {
+        return;
+    }
+
+    if(parsed_url.subdomain && mooltipass.backend.isBlacklisted(parsed_url.subdomain)) {
+        return;
+    }
+    
+    // Check if we don't already have a request from this tab
+    for (var i = 0; i < mooltipass.device.retrieveCredentialsQueue.length; i++)
+    {
+        if (mooltipass.device.retrieveCredentialsQueue[i].tabid == tab.id && mooltipass.device.retrieveCredentialsQueue[i].tabupdated == false)
+        {
+            console.log("Not storing this new credential request as one is already in the buffer!");
+            return;
+        }
+    }
+    
+    credentials = JSON.parse(localStorage.getItem("mooltipass_emulator")) || {};
+    if ( 'undefined' !== typeof(credentials[parsed_url.subdomain + '.' + parsed_url.domain]) ) {
+        console.log('Found credentials for subdomain ' + parsed_url.subdomain + '.' + parsed_url.domain);
+        callback ( [ credentials[parsed_url.subdomain + '.' + parsed_url.domain] ] );
+    } else if ( 'undefined' !== typeof(credentials[parsed_url.domain]) ) {
+        console.log('Found credentials for domain ' + parsed_url.domain);
+        callback ([ credentials[parsed_url.domain] ]);
+    } else callback([]);
+}
+
 mooltipass.device = mooltipass.device || {};
 
+/**
+ * Boolean, allows to develop without a device
+ * Emulate connection with the app/device
+*/
+mooltipass.device.emulate = true;
 
 /**
  * Information about connected Mooltipass app
@@ -133,11 +205,20 @@ mooltipass.device.onSearchForApp = function(ext) {
  * @returns {{connectedToApp: boolean, connectedToDevice: boolean, deviceUnlocked: boolean}}
  */
 mooltipass.device.getStatus = function() {
-    return {
-        'connectedToApp': mooltipass.device._app ? true : false,
-        'connectedToDevice': mooltipass.device._status.connected,
-        'deviceUnlocked': mooltipass.device._status.unlocked
-    };
+    if ( 'undefined' !== typeof mooltipass.device.emulate && true === mooltipass.device.emulate ) {
+        return {
+            'connectedToApp': true,
+            'connectedToDevice': true,
+            'deviceUnlocked': true
+        };
+    } else {
+        return {
+            'connectedToApp': mooltipass.device._app ? true : false,
+            'connectedToDevice': mooltipass.device._status.connected,
+            'deviceUnlocked': mooltipass.device._status.unlocked
+        };    
+    }
+    
 };
 
 /**
@@ -225,6 +306,13 @@ mooltipass.device.addCredentials = function(callback, tab, username, password, u
  * @param url
  */
 mooltipass.device.updateCredentials = function(callback, tab, entryId, username, password, url) {
+
+    // Emulation part
+    if ( 'undefined' !== typeof mooltipass.device.emulate && true === mooltipass.device.emulate ) {
+        mooltipass.emulator.updateCredentials(callback, tab, entryId, username, password, url);
+        return;
+    }
+
     //TODO: Trigger unlock if device is connected but locked
     // Check that the Mooltipass is unlocked
     if(!event.isMooltipassUnlocked()) {
@@ -320,6 +408,12 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
 
     // unset error message
     page.tabs[tab.id].errorMessage = null;
+
+    // Emulation part
+    if ( 'undefined' !== typeof mooltipass.device.emulate && true === mooltipass.device.emulate ) {
+        mooltipass.emulator.retrieveCredentials(callback, tab, url, submiturl, forceCallback, triggerUnlock);
+        return;
+    }
 
     //TODO: Trigger unlock if device is connected but locked
     // Check that the Mooltipass is unlocked

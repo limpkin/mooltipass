@@ -31,7 +31,6 @@
 #ifdef MINI_VERSION
 
 int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result);
-int8_t getYesNoAnswerInput(uint8_t blocking);
 void activityDetectedRoutine(void);
 uint8_t isScreenSaverOn(void);
 void guiMainLoop(void);

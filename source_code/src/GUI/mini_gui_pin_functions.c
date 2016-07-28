@@ -36,11 +36,11 @@
 #ifdef MINI_VERSION
 
 
-/*! \fn     guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
+/*! \fn     guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit, uint8_t stringID)
 *   \brief  Overwrite the digits on the current pin entering screen
 *   \param  current_pin     Array containing the pin
 *   \param  selected_digit  Currently selected digit
-*   \param  stringID        String ID for text qu
+*   \param  stringID        String ID for text query
 */
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit, uint8_t stringID)
 {

@@ -61,7 +61,7 @@ void activityDetectedRoutine(void)
     // If the screen was off, turn it on!
     if (miniOledIsScreenOn() == FALSE)
     {
-        miniOledIsScreenOn();
+        miniOledOn();
         screenComingOnDelay();
     }
     
@@ -71,71 +71,6 @@ void activityDetectedRoutine(void)
         screenSaverOn = FALSE;
     }
 }
-
-/*! \fn     getYesNoAnswerInput(uint8_t blocking)
-*   \brief  Use the input interface to get user input
-*   \param  blocking    Boolean to know if we should wait for input or timeout
-*   \note   In case of a non blocking call, caller must call activityDetectedRoutine() & miniWheelClearDetections()
-*   \return see mini_input_yes_no_ret_t
-*/
-RET_TYPE getYesNoAnswerInput(uint8_t blocking)
-{
-    #if defined(ALWAYS_ACCEPT_REQUESTS)
-        return MINI_INPUT_RET_YES;
-    #endif
-
-    uint8_t incomingData[RAWHID_TX_SIZE];
-    RET_TYPE detect_result;
-    
-    if (blocking == TRUE)
-    {
-        // Switch on lights
-        activityDetectedRoutine();
-        
-        // Clear possible remaining detection
-        miniWheelClearDetections();
-    }
-    
-    // Wait for a touch press
-    do
-    {
-        // User interaction timeout or smartcard removed
-        if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
-        {
-            return MINI_INPUT_RET_TIMEOUT;
-        }
-        
-        // Read usb comms as the plugin could ask to cancel the request
-        if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
-        {
-            if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
-            {
-                // Request canceled
-                return MINI_INPUT_RET_TIMEOUT;
-            }
-            else
-            {
-                // Another packet (that shouldn't be sent!), ask to retry later...
-                usbSendMessage(CMD_PLEASE_RETRY, 0, incomingData);
-            }
-        }
-        
-        // Check if something has been pressed
-        detect_result = miniGetWheelAction(FALSE, TRUE);
-        if (detect_result == WHEEL_ACTION_SHORT_CLICK)
-        {
-            return MINI_INPUT_RET_YES;
-        }
-        else if (detect_result == WHEEL_ACTION_LONG_CLICK)
-        {
-            return MINI_INPUT_RET_BACK;
-        }
-    }
-    while(blocking != FALSE);
-    
-    // Return MINI_INPUT_RET_NONE if nothing was pressed and no timeout occurred
-    return MINI_INPUT_RET_NONE;
-}    
 
 /*! \fn     guiMainLoop(void)
 *   \brief  Main user interface loop

@@ -50,72 +50,26 @@
 RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
 {
     RET_TYPE card_detect_ret = RETURN_JRELEASED;
-        
-    //#define KEYBOARD_LAYOUT_TEST
-    #ifdef KEYBOARD_LAYOUT_TEST
-    for (uint8_t i = ' '; i <= '~'; i++)
-    {
-        usbKeybPutChar(i);
-        usbKeybPutChar(i);
-        timerBasedDelayMs(20);
-        usbKeybPutChar(' ');
-    }
-    //setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM)+1);
-    //if (getMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM) > LAST_KEYB_LUT)
-    //{
-    //    setMooltipassParameterInEeprom(KEYBOARD_LAYOUT_PARAM, FIRST_KEYB_LUT);
-    //}        
-    #endif
-    
-    //#define EASTER_EGG
-    #if !defined(FLASH_CHIP_1M) && defined(EASTER_EGG)
-        uint8_t easter_egg_cnt = 0;
-    #endif
     
     // Switch on lights
     activityDetectedRoutine();
 
     // Draw insert bitmap
-    oledClear();
-    #if defined(HARDWARE_OLIVIER_V1)
-        oledBitmapDrawFlash(0, 16, BITMAP_INSERT, 0);
-        oledDisplayOtherBuffer();
-    #elif defined(MINI_VERSION)        
-        #define BETA_TESTER_V
-        #ifdef BETA_TESTER_V
-            oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_NONE);
-            miniOledPutCenteredString(21, "beta v0.57");
-            miniOledFlushEntireBufferToDisplay();
-        #else
-            oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_FLIP);
-        #endif
+    oledClear();    
+    #define BETA_TESTER_V
+    #ifdef BETA_TESTER_V
+        oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_NONE);
+        miniOledPutCenteredString(21, "beta v0.57");
+        miniOledFlushEntireBufferToDisplay();
+    #else
+        oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_FLIP);
     #endif
     
     // Wait for either timeout or for the user to insert his smartcard
     while ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_RUNNING) && (card_detect_ret != RETURN_JDETECT))
     {
         card_detect_ret = isCardPlugged();
-        // Easter Egg
-        #if !defined(FLASH_CHIP_1M) && defined(EASTER_EGG)
-            if (touchDetectionRoutine(0) & RETURN_RIGHT_PRESSED)
-            {
-                if (easter_egg_cnt++ == 20)
-                {
-                    oledSetScrollSpeed(100);
-                    oledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
-                    oledBitmapDrawFlash(0, 0, BITMAP_EGG, OLED_SCROLL_UP);
-                    oledBitmapDrawFlash(0, 0, BITMAP_EGG_END, OLED_SCROLL_UP);
-                    oledSetScrollSpeed(3);
-                    userViewDelay();
-                }
-            }
-        #else
-            #if defined(HARDWARE_OLIVIER_V1)
-                touchDetectionRoutine(0);
-            #elif defined(MINI_VERSION)
-                miniGetWheelAction(FALSE, FALSE);
-            #endif
-        #endif
+        miniGetWheelAction(FALSE, FALSE);
     }
     
     // If the user didn't insert his smart card

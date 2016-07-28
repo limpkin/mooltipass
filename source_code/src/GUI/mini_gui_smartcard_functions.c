@@ -30,11 +30,11 @@
 #include "logic_aes_and_comms.h"
 #include "logic_smartcard.h"
 #include "timer_manager.h"
-#include "oled_wrapper.h"
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
 #include "hid_defines.h"
 #include "aes256_ctr.h"
+#include "oledmini.h"
 #include "defines.h"
 #include "delays.h"
 #include "anim.h"
@@ -55,14 +55,14 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     activityDetectedRoutine();
 
     // Draw insert bitmap
-    oledClear();    
+    miniOledClearFrameBuffer();    
     #define BETA_TESTER_V
     #ifdef BETA_TESTER_V
-        oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_NONE);
+        miniOledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_NONE);
         miniOledPutCenteredString(21, "beta v0.57");
         miniOledFlushEntireBufferToDisplay();
     #else
-        oledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_FLIP);
+        miniOledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_FLIP);
     #endif
     
     // Wait for either timeout or for the user to insert his smartcard

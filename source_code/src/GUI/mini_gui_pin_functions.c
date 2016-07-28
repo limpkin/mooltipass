@@ -28,8 +28,8 @@
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
 #include "usb_cmd_parser.h"
-#include "oled_wrapper.h"
 #include "mini_inputs.h"
+#include "oledmini.h"
 #include "defines.h"
 #include "delays.h"
 #include "anim.h"
@@ -45,33 +45,33 @@
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit, uint8_t stringID)
 {
     // Display bitmap
-    oledBitmapDrawFlash(0, 0, selected_digit+BITMAP_PIN_SLOT1, 0);
+    miniOledBitmapDrawFlash(0, 0, selected_digit+BITMAP_PIN_SLOT1, 0);
     miniOledSetMaxTextY(62);
     miniOledAllowTextWritingYIncrement();
     miniOledPutCenteredString(TWO_LINE_TEXT_FIRST_POS, readStoredStringToBuffer(stringID));
     miniOledPreventTextWritingYIncrement();
     miniOledResetMaxTextY();
-    oledSetFont(FONT_PROFONT_14);
+    miniOledSetFont(FONT_PROFONT_14);
     for (uint8_t i = 0; i < 4; i++)
     {
-        oledSetXY(64+17*i, 6);
+        miniOledSetXY(64+17*i, 6);
         if (i != selected_digit)
         {
-            oledPutch('*');
+            miniOledPutch('*');
         }
         else
         {
             if (current_pin[i] >= 0x0A)
             {
-                oledPutch(current_pin[i]+'A'-0x0A);
+                miniOledPutch(current_pin[i]+'A'-0x0A);
             }
             else
             {
-                oledPutch(current_pin[i]+'0');
+                miniOledPutch(current_pin[i]+'0');
             }
         }
     }
-    oledSetFont(FONT_DEFAULT);
+    miniOledSetFont(FONT_DEFAULT);
     miniOledFlushEntireBufferToDisplay();
 }
 
@@ -178,7 +178,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     
     // Set current pin to 0000 & set default font
     memset((void*)current_pin, 0, 4);
-    oledSetFont(FONT_DEFAULT);
+    miniOledSetFont(FONT_DEFAULT);
     
     // Return success status
     return ret_val;

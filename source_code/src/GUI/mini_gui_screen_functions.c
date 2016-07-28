@@ -33,12 +33,11 @@
 #include "gui_pin_functions.h"
 #include "logic_smartcard.h"
 #include "timer_manager.h"
-#include "oled_wrapper.h"
 #include "logic_eeprom.h"
-#include "mini_inputs.h"
 #include "mini_inputs.h"
 #include "mini_leds.h"
 #include "node_mgmt.h"
+#include "oledmini.h"
 #include "defines.h"
 #include "delays.h"
 #include "anim.h"
@@ -77,7 +76,7 @@ void guiGetBackToCurrentScreen(void)
         case SCREEN_DEFAULT_NINSERTED:
         case SCREEN_DEFAULT_INSERTED_LCK:
         {
-            oledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
+            miniOledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
             break;
         }            
         case SCREEN_DEFAULT_INSERTED_INVALID:
@@ -94,7 +93,7 @@ void guiGetBackToCurrentScreen(void)
         case SCREEN_SETTINGS_HOME:
         case SCREEN_SETTINGS_ERASE:
         {
-            oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+            miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
             break;
         }
         case SCREEN_MEMORY_MGMT:
@@ -166,7 +165,7 @@ void guiScreenLoop(uint8_t input_interface_result)
             // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
             for (uint8_t i = 0; i < NB_BMPS_PER_TRANSITION; i++)
             {
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+NB_BMPS_PER_TRANSITION-1-i, OLED_SCROLL_FLIP);
+                miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+NB_BMPS_PER_TRANSITION-1-i, OLED_SCROLL_FLIP);
                 timerBasedDelayMs(12);
             }
         }
@@ -175,7 +174,7 @@ void guiScreenLoop(uint8_t input_interface_result)
             // We can do that because of defines and bitmap order (see logic_fw_flash_storage and gui.h)
             for (uint8_t i = 0; i < NB_BMPS_PER_TRANSITION-1; i++)
             {
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+1+i, OLED_SCROLL_FLIP);
+                miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK+1+i, OLED_SCROLL_FLIP);
                 timerBasedDelayMs(12);
             }
             if (currentScreen == SCREEN_SETTINGS)
@@ -190,7 +189,7 @@ void guiScreenLoop(uint8_t input_interface_result)
             {
                 currentScreen++;
             }
-            oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);              
+            miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_FLIP);              
         }
         else if (input_interface_result == WHEEL_ACTION_LONG_CLICK)
         {
@@ -198,7 +197,7 @@ void guiScreenLoop(uint8_t input_interface_result)
             if ((currentScreen >= SCREEN_SETTINGS_CHANGE_PIN) && (currentScreen <= SCREEN_SETTINGS_ERASE))
             {
                 currentScreen = SCREEN_LOGIN;
-                oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
             }
         }
         else if (input_interface_result == WHEEL_ACTION_SHORT_CLICK)
@@ -237,13 +236,13 @@ void guiScreenLoop(uint8_t input_interface_result)
                 case SCREEN_SETTINGS:
                 {
                     currentScreen = SCREEN_SETTINGS_CHANGE_PIN;
-                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                    miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                     break;
                 }
                 case SCREEN_SETTINGS_HOME:
                 {
                     currentScreen = SCREEN_LOGIN;
-                    oledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                    miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
                     break;
                 }
                 case SCREEN_SETTINGS_CHANGE_PIN:
@@ -422,7 +421,7 @@ void guiDisplayProcessingScreen(void)
 */
 void guiDisplayTextInformationOnScreen(char* text)
 {
-    oledClear();
+    miniOledClearFrameBuffer();
     miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, text);
     miniOledFlushEntireBufferToDisplay();
 }
@@ -452,7 +451,7 @@ void guiDisplayInformationOnScreenAndWait(uint8_t stringID)
 */
 void guiDisplayRawString(uint8_t stringID)
 {
-    oledPutstr(readStoredStringToBuffer(stringID));
+    miniOledPutstr(readStoredStringToBuffer(stringID));
 }
 
 /*! \fn     guiDisplayLoginOrPasswordOnScreen(char* text)
@@ -474,7 +473,7 @@ void guiDisplaySmartcardUnlockedScreen(uint8_t* username)
     uint8_t temp_Y = THREE_LINE_TEXT_SECOND_POS;
     
     // Clear screen, check that the username is valid
-    oledClear();
+    miniOledClearFrameBuffer();
     if ((username[0] != 0) && (username[0] != 0xFF))
     {
         temp_Y = THREE_LINE_TEXT_FIRST_POS;
@@ -491,9 +490,9 @@ void guiDisplaySmartcardUnlockedScreen(uint8_t* username)
 */
 void guiDisplayGoingToSleep(void)
 {
-    oledClear();
-    oledPutstrXY(24, THREE_LINE_TEXT_SECOND_POS, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
-    oledBitmapDrawFlash(4, 0, BITMAP_ZZZ, 0);
+    miniOledClearFrameBuffer();
+    miniOledPutstrXY(24, THREE_LINE_TEXT_SECOND_POS, OLED_CENTRE, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+    miniOledBitmapDrawFlash(4, 0, BITMAP_ZZZ, 0);
     miniOledFlushEntireBufferToDisplay();
 }
 
@@ -531,12 +530,12 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     uint8_t approve_selected = TRUE;
         
     // Draw asking bitmap
-    oledClear();
+    miniOledClearFrameBuffer();
     miniOledSetMaxTextY(SSD1305_OLED_WIDTH-15);
-    oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
+    miniOledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
         
     // Display lines. 
-    // Note: line are truncated at the oled driver level when miniOledTextWritingYIncrement is set to FALSE (default)
+    // Note: line are truncated at the miniOled driver level when miniOledTextWritingYIncrement is set to FALSE (default)
     if (nb_args == 1)
     {
         miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, (char*)text_object);
@@ -628,16 +627,16 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         // Text scrolling
         if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (nb_args > 1))
         {
-            oledClear();
+            miniOledClearFrameBuffer();
             activateTimer(TIMER_CAPS, SCROLLING_DEL);
             miniOledSetMaxTextY(SSD1305_OLED_WIDTH-15);
             if(approve_selected == FALSE)
             {
-                oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_DENY, 0);
+                miniOledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_DENY, 0);
             }
             else
             {
-                oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
+                miniOledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
             }
 
             for (uint8_t i = 0; i < nb_args; i++)
@@ -665,11 +664,11 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         {
             if(approve_selected == FALSE)
             {
-                oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
+                miniOledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_APPROVE, 0);
             }
             else
             {
-                oledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_DENY, 0);
+                miniOledBitmapDrawFlash(SSD1305_OLED_WIDTH-15, 0, BITMAP_DENY, 0);
             }
             approve_selected = !approve_selected;
             miniOledFlushEntireBufferToDisplay();

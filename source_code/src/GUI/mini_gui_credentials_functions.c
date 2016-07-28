@@ -30,10 +30,10 @@
 #include "gui_basic_functions.h"
 #include "logic_aes_and_comms.h"
 #include "timer_manager.h"
-#include "oled_wrapper.h"
 #include "mini_inputs.h"
 #include "node_mgmt.h"
 #include "node_mgmt.h"
+#include "oledmini.h"
 #include "defines.h"
 #include "delays.h"
 #include "anim.h"
@@ -178,7 +178,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 activateTimer(TIMER_CAPS, SCROLLING_DEL);      
 
                 // Clear LCD, init temporary vars
-                oledClear();
+                miniOledClearFrameBuffer();
                 char temp_string[10];
                 memset(temp_string, 0x00, sizeof(temp_string));
                 char* select_cred_line = readStoredStringToBuffer(ID_STRING_SELECT_CREDENTIAL);
@@ -350,8 +350,8 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                 i = 0;
             }
             
-            oledClear();
-            oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
+            miniOledClearFrameBuffer();
+            miniOledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the favorites
             while(i != 3)
             {
@@ -529,10 +529,10 @@ uint16_t loginSelectionScreen(void)
                 i = 0;
             }
             
-            oledClear();
+            miniOledClearFrameBuffer();
             miniOledSetMinTextY(16);
-            oledBitmapDrawFlash(0, 0, BITMAP_LOGIN_LPANE, OLED_SCROLL_NONE);
-            oledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
+            miniOledBitmapDrawFlash(0, 0, BITMAP_LOGIN_LPANE, OLED_SCROLL_NONE);
+            miniOledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the parent nodes
             for (; (i < 3); i++)
             {

@@ -17,22 +17,23 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_pin_functions.h
-*    \brief    General user interface - pin functions
+/*!  \file     standard_gui_credentials_functions.h
+*    \brief    General user interface - credentials functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
 
 
-#ifndef GUI_PIN_FUNCTIONS_H_
-#define GUI_PIN_FUNCTIONS_H_
+#ifndef STANDARD_GUI_CREDENTIALS_FUNCTIONS_H_
+#define STANDARD_GUI_CREDENTIALS_FUNCTIONS_H_
 
+#include "node_mgmt.h"
 #include "defines.h"
-#ifdef MINI_VERSION
-    #include "mini_gui_pin_functions.h"
-#elif defined(HARDWARE_OLIVIER_V1)
-    #include "standard_gui_pin_functions.h"
-#endif
 
+#define SEARCHTEXT_MAX_LENGTH   4
 
-#endif /* GUI_PIN_FUNCTIONS_H_ */
+uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, uint8_t bypass_confirmation);
+uint16_t favoriteSelectionScreen(pNode* p, cNode* c);
+uint16_t loginSelectionScreen(void);
+
+#endif /* STANDARD_GUI_CREDENTIALS_FUNCTIONS_H_ */

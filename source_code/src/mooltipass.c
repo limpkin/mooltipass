@@ -379,6 +379,11 @@ int main(void)
         activateTimer(TIMER_TOUCH_INHIBIT, 2000);
     #endif
 
+    /* Mini: clear potential detections */
+    #ifdef MINI_VERSION
+        miniWheelClearDetections();
+    #endif
+
     while (1)
     {
         /* Process possible incoming USB packets */

@@ -17,22 +17,19 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_pin_functions.h
-*    \brief    General user interface - pin functions
+/*!  \file     mini_gui_smartcard_functions.h
+*    \brief    General user interface - smartcard functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
 
 
-#ifndef GUI_PIN_FUNCTIONS_H_
-#define GUI_PIN_FUNCTIONS_H_
+#ifndef MINI_GUI_SMARTCARD_FUNCTIONS_H_
+#define MINI_GUI_SMARTCARD_FUNCTIONS_H_
 
 #include "defines.h"
-#ifdef MINI_VERSION
-    #include "mini_gui_pin_functions.h"
-#elif defined(HARDWARE_OLIVIER_V1)
-    #include "standard_gui_pin_functions.h"
-#endif
+
+RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
 
 
-#endif /* GUI_PIN_FUNCTIONS_H_ */
+#endif /* MINI_GUI_SMARTCARD_FUNCTIONS_H_ */

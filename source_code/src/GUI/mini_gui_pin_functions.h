@@ -17,22 +17,20 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_pin_functions.h
+/*!  \file     mini_gui_pin_functions.h
 *    \brief    General user interface - pin functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
 
 
-#ifndef GUI_PIN_FUNCTIONS_H_
-#define GUI_PIN_FUNCTIONS_H_
-
-#include "defines.h"
-#ifdef MINI_VERSION
-    #include "mini_gui_pin_functions.h"
-#elif defined(HARDWARE_OLIVIER_V1)
-    #include "standard_gui_pin_functions.h"
-#endif
+#ifndef MINI_GUI_PIN_FUNCTIONS_H_
+#define MINI_GUI_PIN_FUNCTIONS_H_
 
 
-#endif /* GUI_PIN_FUNCTIONS_H_ */
+void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit, uint8_t stringID);
+RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID);
+RET_TYPE guiCardUnlockingProcess(void);
+
+
+#endif /* MINI_GUI_PIN_FUNCTIONS_H_ */

@@ -28,34 +28,12 @@
 #define GUI_SCREEN_FUNCTIONS_H_
 
 #include "defines.h"
-#include "gui.h"
 
-// Global vars
 #ifdef MINI_VERSION
-    #define THREE_LINE_TEXT_FIRST_POS       0
-    #define THREE_LINE_TEXT_SECOND_POS      10
-    #define THREE_LINE_TEXT_THIRD_POS       21
-    #define TWO_LINE_TEXT_FIRST_POS         5
-    #define TWO_LINE_TEXT_SECOND_POS        16
-    #define SCROLL_LINE_TEXT_FIRST_XPOS     121
-    #define SCROLL_LINE_TEXT_SECOND_XPOS    116
-    #define SCROLL_LINE_TEXT_THIRD_XPOS     121
+    #include "mini_gui_screen_functions.h"
+#elif defined(HARDWARE_OLIVIER_V1)
+    #include "standard_gui_screen_functions.h"
 #endif
-
-// Prototypes
-RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object);
-RET_TYPE guiAskForNewPin(volatile uint16_t* new_pin, uint8_t message_id);
-void guiDisplayInformationOnScreenAndWait(uint8_t stringID);
-void guiDisplaySmartcardUnlockedScreen(uint8_t* username);
-void guiDisplayInformationOnScreen(uint8_t stringID);
-void guiDisplayLoginOrPasswordOnScreen(char* text);
-void guiScreenLoop(uint8_t touch_detect_result);
-void guiDisplayRawString(uint8_t stringID);
-void guiSetCurrentScreen(uint8_t screen);
-void guiDisplayProcessingScreen(void);
-void guiGetBackToCurrentScreen(void);
-void guiDisplayGoingToSleep(void);
-uint8_t getCurrentScreen(void);
 
 
 #endif /* GUI_SCREEN_FUNCTIONS_H_ */

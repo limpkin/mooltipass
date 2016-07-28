@@ -17,7 +17,7 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_screen_functions.c
+/*!  \file     mini_gui_screen_functions.c
 *    \brief    General user interface - screen functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
@@ -43,6 +43,7 @@
 #include "delays.h"
 #include "anim.h"
 #include "gui.h"
+#ifdef MINI_VERSION
 
 // Our current screen
 uint8_t currentScreen = SCREEN_DEFAULT_NINSERTED;
@@ -1037,3 +1038,4 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         }
     #endif
 }
+#endif

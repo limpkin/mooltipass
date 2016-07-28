@@ -1,4 +1,4 @@
-/* CDDL HEADER START
+ /* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,7 +17,7 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_pin_functions.c
+/*!  \file     standard_gui_pin_functions.c
 *    \brief    General user interface - pin functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
@@ -33,7 +33,7 @@
 #include "defines.h"
 #include "delays.h"
 #include "anim.h"
-
+#ifdef HARDWARE_OLIVIER_V1
 
 /*! \fn     guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit)
 *   \brief  Overwrite the digits on the current pin entering screen
@@ -370,3 +370,4 @@ RET_TYPE guiCardUnlockingProcess(void)
         }
     }
 }
+#endif

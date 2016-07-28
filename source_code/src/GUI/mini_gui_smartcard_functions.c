@@ -17,7 +17,7 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_smartcard_functions.c
+/*!  \file     mini_gui_smartcard_functions.c
 *    \brief    General user interface - smartcard functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
@@ -40,7 +40,7 @@
 #include "anim.h"
 #include "aes.h"
 #include "gui.h"
-
+#ifdef MINI_VERSION
 
 
 /*! \fn     guiDisplayInsertSmartCardScreenAndWait(void)
@@ -130,3 +130,4 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
         return handleSmartcardInserted();
     }
 }
+#endif

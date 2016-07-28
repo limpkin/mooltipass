@@ -1,3 +1,4 @@
+
 /* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
@@ -17,22 +18,22 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_pin_functions.h
-*    \brief    General user interface - pin functions
+/*!  \file     standard_gui_basic_functions.h
+*    \brief    General user interface - basic functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
 
 
-#ifndef GUI_PIN_FUNCTIONS_H_
-#define GUI_PIN_FUNCTIONS_H_
+#ifndef STANDARD_GUI_BASIC_FUNCTIONS_H_
+#define STANDARD_GUI_BASIC_FUNCTIONS_H_
 
 #include "defines.h"
-#ifdef MINI_VERSION
-    #include "mini_gui_pin_functions.h"
-#elif defined(HARDWARE_OLIVIER_V1)
-    #include "standard_gui_pin_functions.h"
-#endif
 
+int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result);
+int8_t getTouchedPositionAnswer(uint8_t led_mask);
+void activityDetectedRoutine(void);
+uint8_t isScreenSaverOn(void);
+void guiMainLoop(void);
 
-#endif /* GUI_PIN_FUNCTIONS_H_ */
+#endif /* STANDARD_GUI_BASIC_FUNCTIONS_H_ */

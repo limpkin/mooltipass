@@ -1,4 +1,4 @@
-/* CDDL HEADER START
+ /* CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License (the "License").
@@ -17,7 +17,7 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_credentials_functions.c
+/*!  \file     standard_gui_credentials_functions.c
 *    \brief    General user interface - credentials functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
@@ -39,6 +39,7 @@
 #include "anim.h"
 #include "gui.h"
 #include "usb.h"
+#ifdef HARDWARE_OLIVIER_V1
 // Last first matching parent address we saw
 uint16_t last_matching_parent_addr = NODE_ADDR_NULL;
 // Last number of matching parent address
@@ -1118,3 +1119,4 @@ uint16_t loginSelectionScreen(void)
     return ret_val;
 #endif
 }    
+#endif

@@ -17,22 +17,23 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_pin_functions.h
-*    \brief    General user interface - pin functions
+/*!  \file     standard_gui_smartcard_functions.h
+*    \brief    General user interface - smartcard functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
 */
 
 
-#ifndef GUI_PIN_FUNCTIONS_H_
-#define GUI_PIN_FUNCTIONS_H_
+#ifndef STANDARD_GUI_SMARTCARD_FUNCTIONS_H_
+#define STANDARD_GUI_SMARTCARD_FUNCTIONS_H_
 
 #include "defines.h"
+
 #ifdef MINI_VERSION
-    #include "mini_gui_pin_functions.h"
+    #include "mini_gui_smartcard_functions.h"
 #elif defined(HARDWARE_OLIVIER_V1)
-    #include "standard_gui_pin_functions.h"
+    #include "standard_gui_smartcard_functions.h"
 #endif
 
 
-#endif /* GUI_PIN_FUNCTIONS_H_ */
+#endif /* STANDARD_GUI_SMARTCARD_FUNCTIONS_H_ */

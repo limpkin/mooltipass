@@ -17,7 +17,7 @@
  *
  * CDDL HEADER END
  */
-/*!  \file     gui_basic_functions.c
+/*!  \file     standard_gui_basic_functions.c
 *    \brief    General user interface - basic functions
 *    Created:  22/6/2014
 *    Author:   Mathieu Stephan
@@ -33,6 +33,7 @@
 #include "anim.h"
 #include "pwm.h"
 #include "gui.h"
+#ifdef HARDWARE_OLIVIER_V1
 
 // Unique variables for the Mooltipass standard version
 #if defined (HARDWARE_OLIVIER_V1)
@@ -414,3 +415,4 @@ void guiMainLoop(void)
         }
     #endif
 }
+#endif

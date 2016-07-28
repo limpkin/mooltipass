@@ -29,14 +29,10 @@
 
 #include "defines.h"
 
-#if defined(HARDWARE_OLIVIER_V1)
-    int8_t getTouchedPositionAnswer(uint8_t led_mask);
-#elif defined(MINI_VERSION)
-    int8_t getYesNoAnswerInput(uint8_t blocking);
+#if defined(MINI_VERSION)
+    #include "mini_gui_basic_functions.h"
+#elif defined(HARDWARE_OLIVIER_V1)
+    #include "standard_gui_basic_functions.h"
 #endif
-int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result);
-void activityDetectedRoutine(void);
-uint8_t isScreenSaverOn(void);
-void guiMainLoop(void);
 
 #endif /* GUI_BASIC_FUNCTIONS_H_ */

@@ -95,6 +95,9 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 			print "Firmware file is", len(firmware), "bytes long"
 	
 	if verbose == True:
+		print "Remaining space in MCU flash:", FW_MAX_LENGTH - len(firmware), "bytes"
+	
+	if verbose == True:
 		print "Remaining space in bundle:", STORAGE_SPACE - FW_MAX_LENGTH - HASH_LENGH - AES_KEY_LENGTH - FW_VERSION_LENGTH - AES_KEY_UPDATE_FLAG_LGTH - len(bundle), "bytes"
 		
 	# Beta testers devices have their aes key set to 00000... and the bootloader will always perform a key update

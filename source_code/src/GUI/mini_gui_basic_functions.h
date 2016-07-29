@@ -30,7 +30,6 @@
 #include "defines.h"
 #ifdef MINI_VERSION
 
-int8_t touchWheelIntefaceLogic(RET_TYPE touch_detection_result);
 void activityDetectedRoutine(void);
 uint8_t isScreenSaverOn(void);
 void guiMainLoop(void);

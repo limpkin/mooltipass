@@ -481,7 +481,6 @@ void guiDisplaySmartcardUnlockedScreen(uint8_t* username)
         miniOledPutCenteredString(THREE_LINE_TEXT_THIRD_POS, (char*)username);
     }
     miniOledPutCenteredString(temp_Y, readStoredStringToBuffer(ID_STRING_CARD_UNLOCKED));
-    //oledBitmapDrawFlash(2, 17, BITMAP_INFO, 0);
     miniOledFlushEntireBufferToDisplay();   
 }
 
@@ -568,13 +567,13 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     if (flash_flag == TRUE)
     {
         activityDetectedRoutine();
-        miniInvertBufferAndFlushIt();
+        miniOledInvertedDisplay();
         timerBased500MsDelay();
-        miniInvertBufferAndFlushIt();
+        miniOledNormalDisplay();
         timerBased500MsDelay();
-        miniInvertBufferAndFlushIt();
+        miniOledInvertedDisplay();
         timerBased500MsDelay();
-        miniInvertBufferAndFlushIt();
+        miniOledNormalDisplay();
     }
     
     // Wait for user input

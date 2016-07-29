@@ -122,6 +122,7 @@ void guiMainLoop(void)
         guiGetBackToCurrentScreen();
     }
 
+    // Run the main gui screen loop only if we didn't just wake up the display
     if ((input_interface_result != WHEEL_ACTION_NONE) && (((isScreenOnCopy != FALSE) && (screenSaverOnCopy == FALSE)) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_LCK)))
     {
         guiScreenLoop(input_interface_result);

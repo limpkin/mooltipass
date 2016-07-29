@@ -40,10 +40,6 @@
 #include "gui.h"
 #include "usb.h"
 #ifdef MINI_VERSION
-// Last first matching parent address we saw
-uint16_t last_matching_parent_addr = NODE_ADDR_NULL;
-// Last number of matching parent address
-uint8_t last_matching_parent_number = 0;
 // String offset counters for scrolling
 uint8_t string_offset_cntrs[3];
 // Number of extra chars for current displayed string
@@ -64,6 +60,14 @@ void miniIncrementScrolledTexts(void)
             }
         }
     }
+}
+
+/*! \fn     miniResetStringOffsetCounters(void)
+*   \brief  Reset offset counter of the currently displayed strings
+*/
+void miniResetStringOffsetCounters(void)
+{
+     memset((void*)string_offset_cntrs, 0x00, sizeof(string_offset_cntrs));
 }
 
 /*! \fn     miniDisplayCredentialAtPosition(uint8_t position, char* credential)
@@ -166,7 +170,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 if(string_refresh_needed != FALSE)
                 {
                     // Reset counters
-                    memset((void*)string_offset_cntrs, 0x00, sizeof(string_offset_cntrs));
+                    miniResetStringOffsetCounters();
                 }
                 else
                 {
@@ -325,8 +329,8 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         {
             if(string_refresh_needed != FALSE)
             {
-                // Reset counters
-                memset((void*)string_offset_cntrs, 0x00, sizeof(string_offset_cntrs));
+                // Reset counters                
+                miniResetStringOffsetCounters();
             }
             else
             {
@@ -505,7 +509,7 @@ uint16_t loginSelectionScreen(void)
             if(string_refresh_needed != FALSE)
             {
                 // Reset counters
-                memset((void*)string_offset_cntrs, 0x00, sizeof(string_offset_cntrs));
+                miniResetStringOffsetCounters();
             }
             else
             {
@@ -564,21 +568,11 @@ uint16_t loginSelectionScreen(void)
             }
 
             // Display first letters
-            uint8_t glyph_width;
             getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array);
-            miniOledSetFont(FONT_8BIT16);
-            glyph_width = miniOledGlyphWidth(fchar_array[0]);
-            miniOledSetXY(5-(glyph_width>>1), 1);
-            miniOledPutch(fchar_array[0]);
-            glyph_width = miniOledGlyphWidth(fchar_array[2]);
-            miniOledSetXY(5-(glyph_width>>1), 26);
-            miniOledPutch(fchar_array[2]);
-            miniOledSetFont(FONT_PROFONT_14);
-            glyph_width = miniOledGlyphWidth(fchar_array[1]);
-            miniOledSetXY(5-(glyph_width>>1), 6);
-            miniOledPutch(fchar_array[1]);
+            displayCenteredCharAtPosition(fchar_array[0], 5, 1, FONT_8BIT16);
+            displayCenteredCharAtPosition(fchar_array[1], 5, 6, FONT_PROFONT_14);
+            displayCenteredCharAtPosition(fchar_array[2], 5, 26, FONT_8BIT16);
             miniOledFlushEntireBufferToDisplay();
-            miniOledSetFont(FONT_DEFAULT);
             string_refresh_needed = FALSE;
             miniOledSetMinTextY(0);
         }

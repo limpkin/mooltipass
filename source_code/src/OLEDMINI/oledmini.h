@@ -128,6 +128,7 @@ uint8_t miniOledPutCenteredString(uint8_t y, char* string);
 uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch);
 void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs);
 void miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t nbBytes);
+void displayCenteredCharAtPosition(char c, uint8_t x, uint8_t y, uint8_t font);
 uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str);
 void miniOledBitmapDrawFlash(int8_t x, int8_t y, uint8_t fileId, uint8_t options);
 void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, uint8_t yend);

@@ -29,7 +29,7 @@
 
 #include "defines.h"
 
-#ifdef MINI_VERSION
+#if defined(MINI_VERSION)
     #include "mini_gui_screen_functions.h"
 #elif defined(HARDWARE_OLIVIER_V1)
     #include "standard_gui_screen_functions.h"

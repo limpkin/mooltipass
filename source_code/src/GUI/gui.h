@@ -28,18 +28,26 @@
 #define GUI_H_
 
 /* DEFINES */
-// Wheel interface
-#define WHEEL_TICK_INCREMENT            32
-// Timers
+// Time out to switch off screen
 #define SCREEN_TIMER_DEL                60000
-#define LIGHT_TIMER_DEL                 16000
-#define TAP_MAX_DEL                     300
-#define TAP_MIN_DEL                     100
+// Minimum interaction delay for a prompt
 #define MIN_USER_INTER_DEL              7000
+// Maximum interaction delay for a prompt
 #define MAX_USER_INTER_DEL              25000
-#define SCROLLING_DEL                   500
+
 // Screen defines
 #if defined(HARDWARE_OLIVIER_V1)
+    // Wheel interface: radius for a position increment
+    #define WHEEL_TICK_INCREMENT                32
+    
+    // LEDs: timeout for switch off 
+    #define LIGHT_TIMER_DEL                     16000
+    
+    // Touch interface: min max length to recognize a tap
+    #define TAP_MIN_DEL                         100
+    #define TAP_MAX_DEL                         300
+
+    // Screen defines
     #define SCREEN_DEFAULT_NINSERTED            0x00
     #define SCREEN_DEFAULT_INSERTED_LCK         0x10
     #define SCREEN_DEFAULT_INSERTED_NLCK        0x20
@@ -47,8 +55,13 @@
     #define SCREEN_SETTINGS                     0x40
     #define SCREEN_MEMORY_MGMT                  0x50
     #define SCREEN_DEFAULT_INSERTED_UNKNOWN     0x60
-// Change for mini version
+    
+    // Truncate defines
+    #define INDEX_TRUNCATE_SERVICE_SEARCH       14
+    #define INDEX_TRUNCATE_LOGIN_FAV            15
+    #define INDEX_TRUNCATE_SERVICE_CENTER       14
 #elif defined(MINI_VERSION)
+    // Screen defines
     #define SCREEN_LOCK                         0
     #define SCREEN_LOGIN                        1
     #define SCREEN_FAVORITES                    2
@@ -63,11 +76,10 @@
     #define SCREEN_DEFAULT_INSERTED_NLCK        SCREEN_LOGIN
     #define SCREEN_DEFAULT_INSERTED_INVALID     11
     #define SCREEN_DEFAULT_INSERTED_UNKNOWN     12
+    
+    // Delay when scrolling a text
+    #define SCROLLING_DEL                       500
 #endif
-// Truncate defines
-#define INDEX_TRUNCATE_SERVICE_SEARCH   14
-#define INDEX_TRUNCATE_LOGIN_FAV        15
-#define INDEX_TRUNCATE_SERVICE_CENTER   14
 
 /* STRUCTS */
 typedef struct

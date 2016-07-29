@@ -27,10 +27,9 @@
 #ifndef GUI_CREDENTIALS_FUNCTIONS_H_
 #define GUI_CREDENTIALS_FUNCTIONS_H_
 
-#include "node_mgmt.h"
 #include "defines.h"
 
-#ifdef MINI_VERSION
+#if defined(MINI_VERSION)
     #include "mini_gui_credentials_functions.h"
 #elif defined(HARDWARE_OLIVIER_V1)
     #include "standard_gui_credentials_functions.h"

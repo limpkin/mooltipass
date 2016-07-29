@@ -29,7 +29,11 @@
 
 #include "defines.h"
 
-RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void);
+#if defined(MINI_VERSION)
+    #include "mini_gui_smartcard_functions.h"
+#elif defined(HARDWARE_OLIVIER_V1)
+    #include "standard_gui_smartcard_functions.h"
+#endif
 
 
 #endif /* GUI_SMARTCARD_FUNCTIONS_H_ */

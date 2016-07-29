@@ -1122,6 +1122,32 @@ uint8_t miniOledPutCenteredString(uint8_t y, char* string)
     return miniOledPutstrXY(0, y, OLED_CENTRE, string);
 }
 
+/*! \fn     displayCenteredCharAtPosition(char c, uint8_t x, uint8_t y, uint8_t font)
+ *  \brief  Display a X centered char at a given position
+ *  \param  c       The char
+ *  \param  x       Center X position
+ *  \param  y       Y position
+ *  \param  font    Font ID
+ */
+void displayCenteredCharAtPosition(char c, uint8_t x, uint8_t y, uint8_t font)
+{
+    // Save current font
+    uint8_t prev_font = miniOledFontId;
+
+    // Set new font
+     miniOledSetFont(font);
+    
+    // Get char glyph width
+    uint8_t glyph_width = miniOledGlyphWidth(c);
+
+    // Print the char in the buffer
+    miniOledSetXY(x-(glyph_width>>1), y);
+    miniOledPutch(c);
+
+    // Set the previous font
+    miniOledSetFont(prev_font);    
+}
+
 /*! \fn     miniOledSetMaxTextY(uint8_t maxY)
  *  \brief  Set the max Y coordinate when printing text
  *  \param  maxY       y coordinate

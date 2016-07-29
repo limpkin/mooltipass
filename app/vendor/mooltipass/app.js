@@ -55,7 +55,13 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         responseObject.deviceStatus.version = mooltipass.device.version;
         responseObject.deviceStatus.connected = mooltipass.device.isConnected;
         responseObject.deviceStatus.unlocked = mooltipass.device.isUnlocked;
-        if(mooltipass.device.status == 'no-card') {
+        
+        if ( true === mooltipass.emulator.active ) {
+            responseObject.deviceStatus.version = '1.1_emul';
+            responseObject.deviceStatus.connected = true;
+            responseObject.deviceStatus.unlocked = true;
+            responseObject.deviceStatus.state = 'Unlocked';
+        } else if(mooltipass.device.status == 'no-card') {
             responseObject.deviceStatus.state = 'NoCard';
         }
         else if(mooltipass.device.status == 'locked') {
@@ -74,7 +80,6 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
             responseObject.deviceStatus.state = 'Error';
         }
 
-        //console.log('Response Status:', responseObject);
         chrome.runtime.sendMessage(senderId, responseObject, function() {
             if(chrome.runtime.lastError) {
                 // TODO: Chrome 49 returns this error which does not affect the functionality. No real solution found yet (2016-03-18)
@@ -92,7 +97,7 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         console.log("Cancel request for reqid " + inputObject.reqid);
         
         // Cancel request only implemented in v1.1
-        if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(mooltipass.device.version) >= "v1.1" && mooltipass.device.currentReqid == inputObject.reqid)
+        if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(mooltipass.device.version?mooltipass.device.version:'0') >= "v1.1" && mooltipass.device.currentReqid == inputObject.reqid)
         {
             // The cancel message doesn't generate any reply from the device, so we can just send it as is
             chrome.hid.send(mooltipass.device.connectionId, 0, mooltipass.device.createPacket(mooltipass.device.commands['cancelUserRequest'], null), function(){});
@@ -206,7 +211,7 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_response) 
     output.credentials = null;
     output.noCredentials = null;
     output.updateComplete = null;
-
+    
     if(_response.success && command == 'getRandomNumber') {
         output.random = _response.value;
     }

@@ -519,9 +519,8 @@ RET_TYPE getLoginForContext(char* buffer)
         // If the user just approved!
         if ((hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING) && (selected_login_flag == TRUE))
         {
-            // Read selected child node
+            // Read selected child node, guaranteed to be null terminated by readchildnode function
             readChildNode(&temp_cnode, selected_login_child_node_addr);
-            temp_cnode.login[NODE_CHILD_SIZE_OF_LOGIN-1] = 0;
             strcpy((char*)buffer, (char*)temp_cnode.login);
             return RETURN_OK;
         }
@@ -568,8 +567,7 @@ RET_TYPE getDescriptionForContext(char* buffer)
         // Fetch description from selected login and send it over USB
         readChildNode(&temp_cnode, selected_login_child_node_addr);
         
-        // Store the description
-        temp_cnode.description[NODE_CHILD_SIZE_OF_DESCRIPTION-1] = 0;
+        // Store the description, guaranteed to be null terminated by readchildnode function
         strcpy((char*)buffer, (char*)temp_cnode.description);
         
         // Return
@@ -998,6 +996,7 @@ RET_TYPE askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* serv
             }
         
             decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
+            temp_cnode.password[sizeof(temp_cnode.password)-1] = 0;
             // Ask the user if he wants to output the password
             if (isUsbConfigured())
             {

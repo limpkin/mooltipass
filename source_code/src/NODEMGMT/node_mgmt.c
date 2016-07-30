@@ -507,6 +507,7 @@ void readNode(gNode* g, uint16_t nodeAddress)
 void readParentNode(pNode* p, uint16_t parentNodeAddress)
 {
     readNode((gNode*)p, parentNodeAddress);
+    p->service[sizeof(p->service)-1] = 0;
 }
 
 /**
@@ -526,6 +527,9 @@ void readChildNode(cNode *c, uint16_t childNodeAddress)
         writeNodeDataBlockToFlash(childNodeAddress, c);
         readNode((gNode*)c, childNodeAddress);
     }
+
+    c->description[sizeof(c->description)-1] = 0;
+    c->login[sizeof(c->login)-1] = 0;
 }
 
 /**

@@ -372,9 +372,8 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                         // trick because the start of the login field isn't the start of the service node
                         #pragma GCC diagnostic push
                         #pragma GCC diagnostic ignored "-Warray-bounds"
+                        // Login and service are guaranteed to be 0 terminated because of the readchild / readparent functions
                         c->login[-1] = '/';
-                        c->login[sizeof(c->login)-1] = 0;
-                        p->service[sizeof(p->service)-1] = 0;
                         strncat((char*)p->service, (char*)&(c->login[-1]), sizeof(p->service) - 1 - strnlen((char*)&(p->service[-1]), sizeof(p->service)));
                         #pragma GCC diagnostic pop
                     }

@@ -46,14 +46,18 @@ mooltipass.emulator._getCredentials = function(inputObject) {
     
     var firstContext = contexts.splice(0, 1);
 
-    console.log('Context:', firstContext, firstContext[0] );
+    console.log('Context:', firstContext[0] );
 	if ( 'undefined' !== typeof( firstContext[0] ) ) {
 		chrome.storage.local.get('mooltipass_emulator', function(result) {
 			console.log('mooltipass_emulator:', result.mooltipass_emulator );
 			credentials = result.mooltipass_emulator?JSON.parse(result.mooltipass_emulator):{};
 			var creds = {};
-			if ( 'undefined' !== typeof credentials[ firstContext[0] ] ) creds = credentials[ firstContext[0] ];
-			creds.success = true;
+			if ( 'undefined' !== typeof credentials[ firstContext[0] ] ) {
+				creds = credentials[ firstContext[0] ];
+				creds.success = true;
+			} else {
+				creds.success = false;
+			}
 			console.log( 'credentials: ', creds );
 			inputObject.callbackFunction ( creds );
 		})

@@ -1453,7 +1453,7 @@ cip.doSubmit = function doSubmit(pass)
 }
 
 cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
-	if (!credentials) credentials = [];
+	if (!credentials) return;
 	cipDebug.debugLog('cip.retrieveCredentialsCallback()')
 
     if (cipFields.combinations.length > 0) {

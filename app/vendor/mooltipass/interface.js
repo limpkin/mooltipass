@@ -37,8 +37,15 @@ mooltipass.device.interface.metaCommands = [
 ];
 
 mooltipass.device.interface.send = function(inputObject) {
-    //console.log(inputObject);
-    var command = mooltipass.device.interface['_'+inputObject.command];
+    // console.log(inputObject);
+    var command = mooltipass.device.interface['_' + inputObject.command];
+
+    // Emulation part
+    if ( 'undefined' !== typeof mooltipass.emulator.active && true === mooltipass.emulator.active ) {
+        mooltipass.device.interface['_' + inputObject.command](inputObject);
+        return;
+    }
+
     if(!command && !contains(mooltipass.device.interface.metaCommands, inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 80, 'unknown command: ' + inputObject.command);
         return;
@@ -260,6 +267,12 @@ mooltipass.device.interface._setMooltipassParameter = function(inputObject) {
  * @private
  */
 mooltipass.device.interface._getCredentials = function(inputObject) {
+    // Emulation part
+    if ( 'undefined' !== typeof mooltipass.emulator.active && true === mooltipass.emulator.active ) {
+        mooltipass.emulator._getCredentials(inputObject);
+        return;
+    }
+
     var contexts = inputObject.contexts;
 
     if(contexts.length < 1) {
@@ -287,6 +300,12 @@ mooltipass.device.interface._addCredentials = function(inputObject) {
 };
 
 mooltipass.device.interface._updateCredentials = function(inputObject) {
+    // Emulation part
+    if ( 'undefined' !== typeof mooltipass.emulator.active && true === mooltipass.emulator.active ) {
+        mooltipass.emulator._updateCredentials(inputObject);
+        return;
+    }
+
     var context = inputObject.context;
     var username = inputObject.username;
     var password = inputObject.password;

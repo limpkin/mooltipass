@@ -55,7 +55,13 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         responseObject.deviceStatus.version = mooltipass.device.version;
         responseObject.deviceStatus.connected = mooltipass.device.isConnected;
         responseObject.deviceStatus.unlocked = mooltipass.device.isUnlocked;
-        if(mooltipass.device.status == 'no-card') {
+        
+        if ( true === mooltipass.emulator.active ) {
+            responseObject.deviceStatus.version = '1.2_emul';
+            responseObject.deviceStatus.connected = true;
+            responseObject.deviceStatus.unlocked = true;
+            responseObject.deviceStatus.state = 'Unlocked';
+        } else if(mooltipass.device.status == 'no-card') {
             responseObject.deviceStatus.state = 'NoCard';
         }
         else if(mooltipass.device.status == 'locked') {
@@ -74,7 +80,6 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
             responseObject.deviceStatus.state = 'Error';
         }
 
-        //console.log('Response Status:', responseObject);
         chrome.runtime.sendMessage(senderId, responseObject, function() {
             if(chrome.runtime.lastError) {
                 // TODO: Chrome 49 returns this error which does not affect the functionality. No real solution found yet (2016-03-18)
@@ -206,7 +211,7 @@ mooltipass.app.translateResponseForBackwardsCompatibility = function(_response) 
     output.credentials = null;
     output.noCredentials = null;
     output.updateComplete = null;
-
+    
     if(_response.success && command == 'getRandomNumber') {
         output.random = _response.value;
     }

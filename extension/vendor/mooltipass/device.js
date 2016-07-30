@@ -5,7 +5,6 @@ if (typeof mooltipass == 'undefined') {
 
 mooltipass.device = mooltipass.device || {};
 
-
 /**
  * Information about connected Mooltipass app
  * Set on mooltipass.device.onSearchForApp()
@@ -137,7 +136,8 @@ mooltipass.device.getStatus = function() {
         'connectedToApp': mooltipass.device._app ? true : false,
         'connectedToDevice': mooltipass.device._status.connected,
         'deviceUnlocked': mooltipass.device._status.unlocked
-    };
+    };    
+
 };
 
 /**
@@ -241,7 +241,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
 
     // unset error message
     page.tabs[tab.id].errorMessage = null;
-    
+
     // Cancel possible pending request
     mooltipass.device.onTabClosed(tab.id, null);
 
@@ -274,7 +274,7 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
         else
         {
             /* Send a cancelling request if it is the tab from which we're waiting an answer */
-            chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});             
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
         }
     }
     else

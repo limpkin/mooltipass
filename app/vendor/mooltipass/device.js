@@ -135,7 +135,7 @@ mooltipass.device.status_parameters = {
 mooltipass.device.connectionId = null;
 
 // Version of the connected device
-mooltipass.device.version = null;
+mooltipass.device.version = 'v1';
 
 // FlashChip ID of the connected device
 mooltipass.device.flashChipId = null;

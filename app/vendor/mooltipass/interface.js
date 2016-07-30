@@ -37,6 +37,7 @@ mooltipass.device.interface.metaCommands = [
 ];
 
 mooltipass.device.interface.send = function(inputObject) {
+    // console.log(inputObject);
     var command = mooltipass.device.interface['_' + inputObject.command];
 
     // Emulation part

@@ -57,7 +57,7 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         responseObject.deviceStatus.unlocked = mooltipass.device.isUnlocked;
         
         if ( true === mooltipass.emulator.active ) {
-            responseObject.deviceStatus.version = '1.1_emul';
+            responseObject.deviceStatus.version = '1.2_emul';
             responseObject.deviceStatus.connected = true;
             responseObject.deviceStatus.unlocked = true;
             responseObject.deviceStatus.state = 'Unlocked';
@@ -97,7 +97,7 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         console.log("Cancel request for reqid " + inputObject.reqid);
         
         // Cancel request only implemented in v1.1
-        if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(mooltipass.device.version?mooltipass.device.version:'0') >= "v1.1" && mooltipass.device.currentReqid == inputObject.reqid)
+        if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(mooltipass.device.version) >= "v1.1" && mooltipass.device.currentReqid == inputObject.reqid)
         {
             // The cancel message doesn't generate any reply from the device, so we can just send it as is
             chrome.hid.send(mooltipass.device.connectionId, 0, mooltipass.device.createPacket(mooltipass.device.commands['cancelUserRequest'], null), function(){});

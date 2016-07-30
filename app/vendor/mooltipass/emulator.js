@@ -5,7 +5,7 @@ mooltipass.emulator = mooltipass.emulator || {};
  * Boolean, allows to develop without a device
  * Emulate connection with the app/device
 */
-mooltipass.emulator.active = true;
+mooltipass.emulator.active = false;
 
 mooltipass.emulator._updateCredentials = function(inputObject) {
     console.log('STORING CREDENTIALS *************************************************');

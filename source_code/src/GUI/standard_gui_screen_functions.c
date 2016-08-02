@@ -962,7 +962,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             #endif
             
             // Text scrolling
-            if ((hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED) && (nb_args > 1))
+            if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (nb_args > 1))
             {
                 oledClear();
                 activateTimer(TIMER_CAPS, SCROLLING_DEL);

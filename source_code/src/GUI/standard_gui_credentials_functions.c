@@ -299,7 +299,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             while (action_chosen == FALSE)
             {                        
                 // If needed, re-compute the string offsets & extra chars
-                if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED))
+                if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED))
                 {
                     if(string_refresh_needed != FALSE)
                     {
@@ -461,7 +461,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     while(1)
     {
         // If needed, re-compute the string offsets & extra chars
-        if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED))
+        if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED))
         {
             if(string_refresh_needed != FALSE)
             {
@@ -856,7 +856,7 @@ uint16_t loginSelectionScreen(void)
     while(1)
     {
         // If needed, re-compute the string offsets & extra chars
-        if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED))
+        if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED))
         {
             if(string_refresh_needed != FALSE)
             {

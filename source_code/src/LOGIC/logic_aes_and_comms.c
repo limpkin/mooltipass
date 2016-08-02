@@ -42,17 +42,17 @@
 #include "rng.h"
 
 // Know if the smart card is inserted and unlocked
-uint8_t smartcard_inserted_unlocked = FALSE;
+volatile uint8_t smartcard_inserted_unlocked = FALSE;
 // Current nonce for our AES256 encryption
 uint8_t current_nonce[AES256_CTR_LENGTH];
 // Selected login child node address
 uint16_t selected_login_child_node_addr;
 // Selected login flag (the plugin selected a login)
-uint8_t selected_login_flag = FALSE;
+volatile uint8_t selected_login_flag = FALSE;
+// Context valid flag (service / website selected)
+volatile uint8_t context_valid_flag = FALSE;
 // Data context valid flag (we know the current data service)
 uint8_t data_context_valid_flag = FALSE;
-// Context valid flag (eg we know the current service / website)
-uint8_t context_valid_flag = FALSE;
 // Currently adding data flag
 uint8_t current_adding_data_flag = FALSE;
 // Counter for our current data node written bytes

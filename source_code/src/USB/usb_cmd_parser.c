@@ -54,7 +54,7 @@
 #include "rng.h"
 
 // Bool to know if the user approved memory management mode
-uint8_t memoryManagementModeApproved = FALSE;
+volatile uint8_t memoryManagementModeApproved = FALSE;
 // Bool to know if we can import in the media part of flash
 uint8_t mediaFlashImportApproved = FALSE;
 // Current node we're writing

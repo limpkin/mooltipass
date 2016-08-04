@@ -274,8 +274,45 @@
     #define ID_STRING_LED3              69
     #define ID_STRING_LED4              70
 
+#ifdef ENABLE_CREDENTIAL_MANAGEMENT
+    #define ID_STRING_MGMT_CREATE                71
+    #define ID_STRING_MGMT_EDIT                  72
+    #define ID_STRING_MGMT_RENEW                 73
+    #define ID_STRING_MGMT_DELETE                74
+    #define ID_STRING_MGMT_TYPE_SVCNAME          75
+    #define ID_STRING_MGMT_TYPE_LOGIN            76
+    #define ID_STRING_MGMT_ENABLE_ALPHA_UPPERQ   77
+    #define ID_STRING_MGMT_ENABLE_ALPHA_LOWERQ   78
+    #define ID_STRING_MGMT_ENABLE_NUMQ           79
+    #define ID_STRING_MGMT_ENABLE_SPECIALSQ      80
+    #define ID_STRING_MGMT_ENABLE_SPACEQ         81
+    #define ID_STRING_MGMT_CHARSET_ALPHA_UPPER   82
+    #define ID_STRING_MGMT_CHARSET_ALPHA_LOWER   83
+    #define ID_STRING_MGMT_CHARSET_NUM           84
+    #define ID_STRING_MGMT_CHARSET_SPECIALS1     85
+    #define ID_STRING_MGMT_CHARSET_SPECIALS2     86
+    #define ID_STRING_MGMT_CHARSET_SPECIALS3     87
+    #define ID_STRING_MGMT_CHARSET_SPECIALS4     88
+    #define ID_STRING_MGMT_ENTER_OLDPASSQ        89
+    #define ID_STRING_MGMT_ENTER_NEWPASSQ        90
+    #define ID_STRING_MGMT_ENTER_NEWPASS_AGAINQ  91
+    #define ID_STRING_MGMT_GENERATE_NEW_PASSQ    92
+    #define ID_STRING_MGMT_EDIT_SVCNAMEQ         93
+    #define ID_STRING_MGMT_EDIT_LOGINQ           94
+    #define ID_STRING_MGMT_EDIT_CHARSETQ         95
+    #define ID_STRING_MGMT_DELETE_CREDSQ         96
+    #define ID_STRING_MGMT_AREYOUSUREQ           97
+    #define ID_STRING_MGMT_OPSUCCESS             98
+    #define ID_STRING_MGMT_OPFAILURE             99
+    #define ID_STRING_MGMT_SAVETOFLASHQ         100
+    #define ID_STRING_MGMT_PASSWORDLENGTHQ      101
+
+    #define ID_FIRST_STRING             0
+    #define ID_LAST_STRING              ID_STRING_MGMT_PASSWORDLENGTHQ
+#else
     #define ID_FIRST_STRING             0
     #define ID_LAST_STRING              ID_STRING_LED4
+#endif
     #define NB_BMPS_PER_TRANSITION      4
 #endif
 

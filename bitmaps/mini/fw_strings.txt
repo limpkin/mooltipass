@@ -69,3 +69,34 @@ LED1,
 LED2,
 LED3,
 LED4~~
+Create Credentials
+Edit Credentials
+Renew Credentials
+Delete Credentials
+Type Service Name:
+Type Login:
+Enable A-Z?
+Enable a-z?
+Enable 0-9?
+Enable Special chars?
+Enable Space?
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789
+?!,.:;*+-=/
+()[]{}<>
+\"'`^|~
+_#$%&@
+Enter old Password?
+Enter new Password?
+Enter Password Again?
+Generate Password?
+Edit Service Name?
+Edit Login?
+Edit Allowed Charset?
+Delete Credentials?
+Are you sure?
+Operation successful
+Operation failed
+Save changes?
+Password length?

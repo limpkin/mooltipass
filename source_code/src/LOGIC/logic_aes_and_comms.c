@@ -429,7 +429,15 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type)
         }
     }
     
+    #ifdef ENABLE_CREDENTIAL_MANAGEMENT
+    /* disable menu animation when managing credentials as we have more questions */
+    if(management_mode_state == MGMT_ACTION_NONE)
+    {
+        guiGetBackToCurrentScreen();
+    }
+    #else
     guiGetBackToCurrentScreen();
+    #endif
     return ret_val;
 }
 
@@ -1475,8 +1483,28 @@ void loginManagementSelectLogic(void)
     uint16_t chosen_service_addr;
     uint16_t chosen_login_addr;
     uint8_t state_machine = 0;
-    uint8_t tmplogin[63]; /* buffer for text input */
-    uint8_t newpasslen;   /* requested password length */
+    uint8_t strbuffer[NODE_CHILD_SIZE_OF_LOGIN];    /* buffer for text input */
+    uint8_t newpasslen;                             /* requested password length */
+
+    /* First ask if the user wants to add a new service */
+    if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_CREATENEWSERVICEQ)) == RETURN_OK)
+    {
+        if(miniTextEntry((char *)strbuffer, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_SVCNAME)) == RETURN_OK)
+        {
+            if (addNewContext(strbuffer, NODE_CHILD_SIZE_OF_LOGIN, SERVICE_CRED_TYPE) == RETURN_OK)
+            {
+                guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPSUCCESS);
+            } else {
+                guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPFAILURE);
+            }
+        }
+    }
+
+    if (getStartingParentAddress() == NODE_ADDR_NULL)
+    {
+        guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_NOSERVICEAVAILABLE);
+        return;
+    }
 
     while (TRUE)
     {
@@ -1506,10 +1534,10 @@ void loginManagementSelectLogic(void)
             if(management_mode_state == MGMT_ACTION_CREATE)
             {
                 /* Ask for new login */
-                if(miniTextEntry((char *)tmplogin, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_LOGIN)) == RETURN_OK)
+                if(miniTextEntry((char *)strbuffer, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_LOGIN)) == RETURN_OK)
                 {
                     /* create login entry, with temporary random password */
-                    if(setLoginForContext(tmplogin, strlen((char *)tmplogin)) == RETURN_OK)
+                    if(setLoginForContext(strbuffer, strlen((char *)strbuffer)) == RETURN_OK)
                     {
                         /* retrieve newly created child node */
                         chosen_login_addr = selected_login_child_node_addr;
@@ -1624,7 +1652,6 @@ void loginManagementSelectLogic(void)
                     break;
             }
             management_mode_state = MGMT_ACTION_NONE; /* exit credential management */
-            //guiGetBackToCurrentScreen();
             return;
         }
     }

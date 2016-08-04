@@ -306,9 +306,11 @@
     #define ID_STRING_MGMT_OPFAILURE             99
     #define ID_STRING_MGMT_SAVETOFLASHQ         100
     #define ID_STRING_MGMT_PASSWORDLENGTHQ      101
+    #define ID_STRING_MGMT_CREATENEWSERVICEQ    102
+    #define ID_STRING_MGMT_NOSERVICEAVAILABLE   103
 
     #define ID_FIRST_STRING             0
-    #define ID_LAST_STRING              ID_STRING_MGMT_PASSWORDLENGTHQ
+    #define ID_LAST_STRING              ID_STRING_MGMT_NOSERVICEAVAILABLE
 #else
     #define ID_FIRST_STRING             0
     #define ID_LAST_STRING              ID_STRING_LED4

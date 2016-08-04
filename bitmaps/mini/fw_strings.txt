@@ -100,3 +100,5 @@ Operation successful
 Operation failed
 Save changes?
 Password length?
+Create new Service?
+No Stored Service

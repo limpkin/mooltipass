@@ -460,7 +460,13 @@ void guiDisplayRawString(uint8_t stringID)
 */
 void guiDisplayLoginOrPasswordOnScreen(char* text)
 {
+    #ifdef MINI_VERSION
+    miniOledAllowTextWritingYIncrement();
+    #endif
     guiDisplayTextInformationOnScreen(text);
+    #ifdef MINI_VERSION
+    miniOledPreventTextWritingYIncrement();
+    #endif
     while (miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE);
 }
 

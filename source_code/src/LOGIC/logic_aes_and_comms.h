@@ -65,5 +65,33 @@ void ctrPreEncryptionTasks(void);
 void favoritePickingLogic(void);
 void loginSelectLogic(void);
 
+#ifdef ENABLE_CREDENTIAL_MANAGEMENT
+/* charset bitfield significance */
+#define CHARSET_BIT_ALPHA_UPPER 0x0080 /* A-Z */
+#define CHARSET_BIT_ALPHA_LOWER 0x0040 /* a-z */
+#define CHARSET_BIT_NUM         0x0020 /* 0-9 */
+#define CHARSET_BIT_SPECIALS1   0x0010 /* ?!,.:;*+-=/ */
+#define CHARSET_BIT_SPECIALS2   0x0008 /* ()[]{}<> */
+#define CHARSET_BIT_SPECIALS3   0x0004 /* \"'`^|~ */
+#define CHARSET_BIT_SPECIALS4   0x0002 /* _#$%&@ */
+#define CHARSET_BIT_SPACE       0x0001 /* 'whitespace' */
+
+/* charset sizes */
+#define CHARSET_SIZE_ALPHA_UPPER 26
+#define CHARSET_SIZE_ALPHA_LOWER 26
+#define CHARSET_SIZE_NUM         10
+#define CHARSET_SIZE_SPECIALS1   11
+#define CHARSET_SIZE_SPECIALS2   8
+#define CHARSET_SIZE_SPECIALS3   7
+#define CHARSET_SIZE_SPECIALS4   6
+#define CHARSET_SIZE_SPACE       1
+
+void managementActionPickingLogic(void);
+RET_TYPE askUserToSaveToFlash(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
+uint16_t askUserToSelectCharset(uint16_t original_flags);
+RET_TYPE generateRandomPassword(uint8_t *password, uint8_t length, uint16_t flags);
+void sendOrDisplayString(char * str, uint8_t is_password);
+void loginManagementSelectLogic(void);
+#endif
 
 #endif /* LOGIC_ENCRYPTION_H_ */

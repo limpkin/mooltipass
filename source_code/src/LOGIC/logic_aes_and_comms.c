@@ -27,6 +27,7 @@
 #include "gui_credentials_functions.h"
 #include "logic_fwflash_storage.h"
 #include "gui_screen_functions.h"
+#include "gui_basic_functions.h"
 #include "logic_aes_and_comms.h"
 #include "usb_cmd_parser.h"
 #include "timer_manager.h"
@@ -80,6 +81,10 @@ cNode temp_cnode;
 // Data node ptr;
 dNode* temp_dnode_ptr = (dNode*)&temp_cnode;
 
+#ifdef ENABLE_CREDENTIAL_MANAGEMENT
+// management mode state for login selection state machine
+uint8_t management_mode_state = MGMT_ACTION_NONE;
+#endif
 
 /*! \fn     getSmartCardInsertedUnlocked(void)
 *   \brief  know if the smartcard is inserted and unlocked
@@ -655,7 +660,15 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
         }
     }
     
+    #ifdef ENABLE_CREDENTIAL_MANAGEMENT
+    /* disable menu animation when managing credentials as we have more questions */
+    if(management_mode_state == MGMT_ACTION_NONE)
+    {
+        guiGetBackToCurrentScreen();
+    }
+    #else
     guiGetBackToCurrentScreen();
+    #endif
     return ret_val;
 }
 
@@ -704,8 +717,16 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         #endif
         {
             // Get back to current screen
+            #ifdef ENABLE_CREDENTIAL_MANAGEMENT
+            /* disable menu animation when managing credentials as we have more questions */
+            if(management_mode_state == MGMT_ACTION_NONE)
+            {
+                guiGetBackToCurrentScreen();
+            }
+            #else
             guiGetBackToCurrentScreen();
-            
+            #endif
+
             // Encrypt the password
             encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
             
@@ -720,8 +741,16 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         else
         {
             // Get back to current screen
+            #ifdef ENABLE_CREDENTIAL_MANAGEMENT
+            /* disable menu animation when managing credentials as we have more questions */
+            if(management_mode_state == MGMT_ACTION_NONE)
+            {
+                guiGetBackToCurrentScreen();
+            }
+            #else
             guiGetBackToCurrentScreen();
-            
+            #endif
+
             return RETURN_NOK;
         }
     }
@@ -1213,3 +1242,387 @@ void loginSelectLogic(void)
         askUserForLoginAndPasswordKeybOutput(guiAskForLoginSelect(&temp_pnode, &temp_cnode, loginSelectionScreen(), TRUE), (char*)temp_pnode.service);
     #endif
 }
+
+#ifdef ENABLE_CREDENTIAL_MANAGEMENT
+/*! \fn     managementActionPickingLogic(void)
+*   \brief  Logic for picking a credential management action
+*/
+void managementActionPickingLogic(void)
+{
+    while (TRUE)
+    {
+        /* display selection screen */
+        management_mode_state = managementActionSelectionScreen();
+
+        /* process chosen action */
+        switch(management_mode_state) {
+            case MGMT_ACTION_CREATE:
+                /* preliminary tasks could be added here */
+            case MGMT_ACTION_EDIT:
+            case MGMT_ACTION_RENEW:
+            case MGMT_ACTION_DELETE:
+                /* run management logic */
+                loginManagementSelectLogic();
+            case MGMT_ACTION_NONE:
+            default:
+                return;
+        }
+    }
+}
+
+/*! \fn     askUserToSaveToFlash(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
+*   \brief  Asks the user for applicable charsets
+*   \param  p       parent node
+*   \param  c       child node
+*   \param  pAddr   parent node address
+*   \param  cAddr   child node address
+*   \return RETURN_OK if update was successful, RETURN_NOK otherwise
+*/
+RET_TYPE askUserToSaveToFlash(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
+{
+    /* prevent saving out of credential management actions, then ask for confirmation */
+    if((management_mode_state != MGMT_ACTION_NONE) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_SAVETOFLASHQ)) == RETURN_OK))
+    {
+        /* commit changes to external flash */
+        if(updateChildNode(p, c, pAddr, cAddr) == RETURN_OK)
+        {
+            guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPSUCCESS);
+            return RETURN_OK;
+        } else {
+            /* revert to previous child node state */
+            readChildNode(&temp_cnode, cAddr);
+            guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPFAILURE);
+            return RETURN_NOK;
+        }
+    } else {
+        return RETURN_NOK;
+    }
+}
+
+/*! \fn     selectCharset(void)
+*   \brief  Asks the user for applicable charsets
+*
+*   Asks the user to select allowed charsets.
+*   \param  original_flags   original flag values (childNode.flags) to modify and return.
+*   \return Charset bitfield to be stored in RESERVED bitfield of credential child node.
+*/
+uint16_t askUserToSelectCharset(uint16_t original_flags)
+{
+    uint16_t flags = original_flags & ~NODE_F_CHILD_USERFLAGS_MASK; /* reset allowed charset */
+
+    if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_EDIT_CHARSETQ)) == RETURN_OK)
+    {
+        do {
+        /* Enable charset? A-Z */
+        if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_ALPHA_UPPERQ)) == RETURN_OK)
+            flags |= CHARSET_BIT_ALPHA_UPPER;
+
+        /* Enable charset? a-z */
+        if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_ALPHA_LOWERQ)) == RETURN_OK)
+            flags |= CHARSET_BIT_ALPHA_LOWER;
+
+        /* Enable charset? 0-9 */
+        if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_NUMQ)) == RETURN_OK)
+            flags |= CHARSET_BIT_NUM;
+
+        /* Enable charset? specials: ?!,.:;*+-=/ */
+        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
+        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS1);
+        if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+            flags |= CHARSET_BIT_SPECIALS1;
+
+        /* Enable charset? specials: ()[]{}<> */
+        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
+        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS2);
+        if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+            flags |= CHARSET_BIT_SPECIALS2;
+
+        /* Enable charset? specials: \"'`^|~ */
+        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
+        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS3);
+        if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+            flags |= CHARSET_BIT_SPECIALS3;
+
+        /* Enable charset? specials: _#$%&@ */
+        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
+        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS4);
+        if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+            flags |= CHARSET_BIT_SPECIALS4;
+
+        /* Enable charset? space */
+        if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPACEQ)) == RETURN_OK)
+            flags |= CHARSET_BIT_SPACE;
+        } while ((flags & NODE_F_CHILD_USERFLAGS_MASK) == 0x00); /* ask again until the user picks at least one charset */
+
+        return flags;
+    } else {
+        return original_flags;
+    }
+}
+
+/*! \fn     generateRandomPassword(uint8_t *password, uint8_t length, uint16_t flags)
+*   \brief  generates a new random password according to allowed charset
+*
+*           Generates a new random password according to a provided allowed charset bitfield.
+*           If no allowed charset are defined, defaults to all charsets but the 'space' character,
+*           to prevent confusing passwords where the space could not be easily detected (i.e. at
+*           the beginning or end of a password).
+*   \param  password    password buffer to fill
+*   \param  length      requested password length
+*   \param  flags       child node flags (allowed charset)
+*   \return RETURN_OK if generation was successful, RETURN_NOK otherwise
+*/
+RET_TYPE generateRandomPassword(uint8_t *password, uint8_t length, uint16_t flags)
+{
+    /* allowed charset flags */
+    uint16_t charsetflags = flags & NODE_F_CHILD_USERFLAGS_MASK;
+    /* list of charset sizes */
+    uint8_t charset_sizes[8] = {CHARSET_SIZE_SPACE, CHARSET_SIZE_SPECIALS4, CHARSET_SIZE_SPECIALS3, CHARSET_SIZE_SPECIALS2,
+        CHARSET_SIZE_SPECIALS1, CHARSET_SIZE_NUM, CHARSET_SIZE_ALPHA_LOWER, CHARSET_SIZE_ALPHA_UPPER};
+    /* list of charset string IDs. 'space' is an exception */
+    uint8_t charset_strings[8] = {0, ID_STRING_MGMT_CHARSET_SPECIALS4, ID_STRING_MGMT_CHARSET_SPECIALS3, ID_STRING_MGMT_CHARSET_SPECIALS2, ID_STRING_MGMT_CHARSET_SPECIALS1,
+        ID_STRING_MGMT_CHARSET_NUM, ID_STRING_MGMT_CHARSET_ALPHA_LOWER, ID_STRING_MGMT_CHARSET_ALPHA_UPPER};
+    /* final allowed charset size */
+    uint8_t charset_final_size = 0;
+    char * current_charset; /* temporary pointer to charset loaded from external flash */
+    char cs[96];            /* final charset, null-terminated */
+
+    /* exit if inconsistent length */
+    if(length > (NODE_CHILD_SIZE_OF_PASSWORD - 1))
+        return RETURN_NOK;
+
+    /* force all charsets but space if none are allowed */
+    if(charsetflags == 0x0000)
+        charsetflags = (NODE_F_CHILD_USERFLAGS_MASK & ~CHARSET_BIT_SPACE);
+
+    /* calculate allowed charset size from bitfield */
+    for (uint8_t i = 0; i < 8; ++i)
+    {
+        if((charsetflags & (1 << i)) > 0)
+        {
+            if(i == 0)
+                cs[i] = ' ';
+            else
+            {
+                current_charset = readStoredStringToBuffer(charset_strings[i]);
+                strcpy(cs+charset_final_size, current_charset);
+            }
+            charset_final_size += charset_sizes[i];
+        }
+    }
+
+    /* force null-termination */
+    cs[95] = '\0';
+    cs[charset_final_size] = '\0';
+
+    /* pre-fill password with random numbers */
+    fillArrayWithRandomBytes(password, NODE_CHILD_SIZE_OF_PASSWORD - 1);
+    password[NODE_CHILD_SIZE_OF_PASSWORD-1] = 0;
+
+    /* use each random number as a character index to pick from the allowed charset */
+    for (uint8_t i = 0; i < NODE_CHILD_SIZE_OF_PASSWORD; ++i)
+    {
+        /* truncate after desired length, but keep random data as padding */
+        if(i >= length)
+        {
+            password[i] = '\0';
+            break;
+        }
+
+        /* FIXME: WARNING, using modulus to generate random values within a range
+         * introduces a cryptographic bias, as it breaks range uniformity */
+        password[i] = cs[(password[i] % charset_final_size)];
+    }
+    /* display picked password */
+    guiDisplayLoginOrPasswordOnScreen((char *)password);
+
+    return RETURN_OK;
+}
+
+/*! \fn     sendOrDisplayString(char * str, uint8_t is_password)
+*   \brief  sends a string as keystrokes over USB, or display it on screen otherwise
+*   \param  str         string to send over USB keypresses or display
+*   \param  is_password send key after password if != 0, key after login otherwise
+*/
+void sendOrDisplayString(char * str, uint8_t is_password)
+{
+    if (isUsbConfigured())
+    {
+        usbKeybPutStr(str);
+
+        if(is_password) {
+            if (getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_BOOL_PARAM) != FALSE)
+            {
+                usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_PARAM), 0);
+            }
+        } else {
+            if (getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_BOOL_PARAM) != FALSE)
+            {
+                usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_PARAM), 0);
+            }
+        }
+    } else {
+        guiDisplayLoginOrPasswordOnScreen(str);
+    }
+}
+
+/*! \fn     loginManagementSelectLogic(void)
+*   \brief  Logic for finding a given login in credential management mode.
+*           Performs credential edition/renewal/deletion.
+*/
+void loginManagementSelectLogic(void)
+{
+    uint16_t chosen_service_addr;
+    uint16_t chosen_login_addr;
+    uint8_t state_machine = 0;
+    uint8_t tmplogin[63]; /* buffer for text input */
+    uint8_t newpasslen;   /* requested password length */
+
+    while (TRUE)
+    {
+        if (state_machine == 0)
+        {
+            // Ask user to select a service
+            chosen_service_addr = loginSelectionScreen();
+
+            // No service was chosen
+            if (chosen_service_addr == NODE_ADDR_NULL)
+            {
+                return;
+            }
+
+            state_machine++;
+        }
+        else if (state_machine == 1)
+        {
+            /* the user asked to create new credentials */
+            if(management_mode_state == MGMT_ACTION_CREATE)
+            {
+                /* set context to selected service name */
+                setCurrentContext(temp_pnode.service, SERVICE_CRED_TYPE);
+
+                /* Ask for new login */
+                if(miniTextEntry((char *)tmplogin, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_LOGIN)) == RETURN_OK)
+                {
+                    /* create login entry, with temporary random password */
+                    if(setLoginForContext(tmplogin, strlen((char *)tmplogin)) == RETURN_OK)
+                    {
+                        /* retrieve newly created child node */
+                        chosen_login_addr = selected_login_child_node_addr;
+                        readChildNode(&temp_cnode, chosen_login_addr);
+
+                        /* set allowed charset for password */
+                        temp_cnode.flags = askUserToSelectCharset(temp_cnode.flags);
+
+                        /* ask for desired password length and generate it */
+                        if(miniTextEntry((char *)&newpasslen, 1, 0, 1, NODE_CHILD_SIZE_OF_PASSWORD-1, readStoredStringToBuffer(ID_STRING_MGMT_PASSWORDLENGTHQ)) == RETURN_OK)
+                        {
+                            generateRandomPassword(temp_cnode.password, newpasslen, temp_cnode.flags);
+                            encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
+                        }
+                        /* save modified child node to external flash */
+                        askUserToSaveToFlash(&temp_pnode, &temp_cnode, chosen_service_addr, chosen_login_addr);
+                    }
+
+                }
+                management_mode_state = MGMT_ACTION_NONE; /* exit credential management */
+                return;
+            }
+
+            // If there are different logins for this service, ask the user to pick one
+            chosen_login_addr = guiAskForLoginSelect(&temp_pnode, &temp_cnode, chosen_service_addr, TRUE);
+
+            // In case the user went back
+            if ((chosen_login_addr == NODE_ADDR_NULL) && (miniGetLastReturnedAction() == WHEEL_ACTION_LONG_CLICK))
+            {
+                state_machine = 0;
+            }
+            else
+            {
+                state_machine++;
+            }
+        }
+        else if (state_machine == 2)
+        {
+            /* load selected credentials */
+            readChildNode(&temp_cnode, chosen_login_addr);
+
+            /* the user has selected a specific login */
+            switch(management_mode_state)
+            {
+                case MGMT_ACTION_EDIT:
+                    /* edit login string */
+                    if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_EDIT_LOGINQ)) == RETURN_OK)
+                    {
+                        if(miniTextEntry((char *)&temp_cnode.login, NODE_CHILD_SIZE_OF_LOGIN, strlen((char *)&temp_cnode.login), 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_LOGIN)) != RETURN_OK)
+                        {
+                            /* revert to previous child node state */
+                            readChildNode(&temp_cnode, chosen_login_addr);
+                        }
+                    }
+                    /* edit allowed charset */
+                    temp_cnode.flags = askUserToSelectCharset(temp_cnode.flags);
+
+                    /* save modified data */
+                    askUserToSaveToFlash(&temp_pnode, &temp_cnode, chosen_service_addr, chosen_login_addr);
+                    break;
+                case MGMT_ACTION_RENEW:
+                    /* Display or send login as keystrokes */
+                    if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK)
+                    {
+                        sendOrDisplayString((char*)temp_cnode.login, 0);
+                    }
+
+                    /* Display or send current password as keystrokes */
+                    if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENTER_OLDPASSQ)) == RETURN_OK)
+                    {
+                        decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
+                        sendOrDisplayString((char*)temp_cnode.password, 1);
+                    }
+
+                    /* Confirm password renewal */
+                    if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_GENERATE_NEW_PASSQ)) == RETURN_OK)
+                    {
+                        /* Ask for new password length */
+                        if(miniTextEntry((char *)&newpasslen, 1, 0, 1, NODE_CHILD_SIZE_OF_PASSWORD-1, readStoredStringToBuffer(ID_STRING_MGMT_PASSWORDLENGTHQ)) == RETURN_OK)
+                        {
+                            /* generate new password */
+                            generateRandomPassword(temp_cnode.password, newpasslen, temp_cnode.flags);
+                            encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
+
+                            /* Ask to save to flash */
+                            if(askUserToSaveToFlash(&temp_pnode, &temp_cnode, chosen_service_addr, chosen_login_addr) == RETURN_OK)
+                            {
+                                /* ask to display or send the new password as keystrokes */
+                                decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
+                                if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENTER_NEWPASSQ)) == RETURN_OK)
+                                {
+                                    sendOrDisplayString((char*)temp_cnode.password, 1);
+
+                                    /* eventually repeat the new password */
+                                    if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENTER_NEWPASS_AGAINQ)) == RETURN_OK)
+                                    {
+                                        sendOrDisplayString((char*)temp_cnode.password, 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case MGMT_ACTION_DELETE:
+                    /* ask twice for confirmation */
+                    if((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_DELETE_CREDSQ)) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_AREYOUSUREQ)) == RETURN_OK))
+                    {
+                        deleteChildNode(chosen_service_addr, chosen_login_addr);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            management_mode_state = MGMT_ACTION_NONE; /* exit credential management */
+            //guiGetBackToCurrentScreen();
+            return;
+        }
+    }
+}
+#endif

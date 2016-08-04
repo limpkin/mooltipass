@@ -1491,6 +1491,13 @@ void loginManagementSelectLogic(void)
                 return;
             }
 
+            /* manually set context */
+            context_parent_node_addr = chosen_service_addr;
+            context_valid_flag = TRUE;
+
+            /* load selected service parent node */
+            readParentNode(&temp_pnode, chosen_service_addr);
+
             state_machine++;
         }
         else if (state_machine == 1)
@@ -1498,9 +1505,6 @@ void loginManagementSelectLogic(void)
             /* the user asked to create new credentials */
             if(management_mode_state == MGMT_ACTION_CREATE)
             {
-                /* set context to selected service name */
-                setCurrentContext(temp_pnode.service, SERVICE_CRED_TYPE);
-
                 /* Ask for new login */
                 if(miniTextEntry((char *)tmplogin, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_LOGIN)) == RETURN_OK)
                 {

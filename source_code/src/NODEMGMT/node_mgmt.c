@@ -1111,7 +1111,11 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
         readChildNode(ic, cAddr);
         
         // Do not allow the user to change linked list links, or change child link (will be done internally)
-        if ((memcmp((void*)p, (void*)ip, PNODE_LIB_FIELDS_LENGTH) != 0) || (memcmp((void*)c, (void*)ic, CNODE_LIB_FIELDS_LENGTH) != 0))
+        if ((memcmp((void*)p, (void*)ip, PNODE_LIB_FIELDS_LENGTH) != 0)
+            || (memcmp( ((void*)c)  + sizeof(c->flags),                     /* skip flags comparison */
+                        ((void*)ic) + sizeof(ic->flags),                    /* skip flags comparison */
+                        CNODE_LIB_FIELDS_LENGTH - sizeof(ic->flags)) != 0 ) /* reduce compared size by that of the flags */
+            || ((c->flags & ~NODE_F_CHILD_USERFLAGS_MASK) != (ic->flags & ~NODE_F_CHILD_USERFLAGS_MASK)) ) /* compare non-reserved flag bits */
         {
             return RETURN_NOK;
         }

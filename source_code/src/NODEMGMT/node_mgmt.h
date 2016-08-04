@@ -67,6 +67,8 @@ typedef enum _nodeType
 //#define NODE_F_CRED_TYPE_MASK 0
 //#define NODE_F_CRED_TYPE_MASK_FINAL 0x000f
 
+#define NODE_F_CHILD_USERFLAGS_MASK 0x00ff // reserved bits in child node left available to user data (credential charset)
+
 #define NODE_F_DATA_SEQ_NUM_MASK 0x00ff
 
 #define NODE_ADDR_SHMT 3
@@ -159,7 +161,7 @@ typedef struct __attribute__((packed)) childNode {
                                         * 15 dn 14-> Node type
                                         * 13 dn 13 -> Valid Bit
                                         * 12 dn 8 -> User ID
-                                        * 7 dn 0 -> RESERVED
+                                        * 7 dn 0 -> RESERVED / User-available flags: if credential management is enabled, stores allowed charset for credentials
                                         */
     uint16_t prevChildAddress;          /*!< Previous child node address (Alaphabetically) */
     uint16_t nextChildAddress;          /*!< Next child node address (Alphabetically) */

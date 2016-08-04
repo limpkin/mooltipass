@@ -30,6 +30,23 @@
 #include "defines.h"
 #ifdef MINI_VERSION
 
+#define ENTRY_LONGCLICK_ERASE 2
+#define ENTRY_FIRST_CHAR      36 /* 33+3 : 'A' */
+#define ENTRY_CHARSET_LENGTH  95 /* 95 total chars in charset */
+#define ENTRY_CHARSET_MAX     ENTRY_CHARSET_LENGTH - 1
+#define ENTRY_NB_SPECIAL_CHAR 3 /* 3 special chars */
+#define ENTRY_NB_CHAR         ENTRY_CHARSET_LENGTH + ENTRY_NB_SPECIAL_CHAR /* charset + special chars */
+#define ENTRY_LAST_CHAR       ENTRY_NB_CHAR - 1
+
+#define ENTRY_CHAR_OK        ENTRY_CHARSET_LENGTH
+#define ENTRY_CHAR_CANCEL    ENTRY_CHARSET_LENGTH + 1
+#define ENTRY_CHAR_BACKSPACE ENTRY_CHARSET_LENGTH + 2
+
+#define ENTRY_CHAR_OK_STR        "OK"
+#define ENTRY_CHAR_CANCEL_STR    "XX"
+#define ENTRY_CHAR_BACKSPACE_STR "<-"
+
+RET_TYPE miniTextEntry(char * dst, uint8_t buflen, uint8_t filled_len, uint8_t min, uint8_t max, char * question);
 void activityDetectedRoutine(void);
 uint8_t isScreenSaverOn(void);
 void guiMainLoop(void);

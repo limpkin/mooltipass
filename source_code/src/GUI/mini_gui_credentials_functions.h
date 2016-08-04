@@ -36,4 +36,16 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c);
 uint16_t loginSelectionScreen(void);
 
+#ifdef ENABLE_CREDENTIAL_MANAGEMENT
+#define MGMT_ACTION_NB 4
+
+#define MGMT_ACTION_CREATE 0
+#define MGMT_ACTION_EDIT   1
+#define MGMT_ACTION_RENEW  2
+#define MGMT_ACTION_DELETE 3
+#define MGMT_ACTION_NONE   UINT8_MAX
+
+uint8_t managementActionSelectionScreen(void);
+#endif
+
 #endif /* MINI_GUI_CREDENTIALS_FUNCTIONS_H_ */

@@ -95,39 +95,39 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 {
     uint16_t first_child_address, temp_child_address;
     uint16_t picked_child = NODE_ADDR_NULL;
-    
+
     // Check parent node address
     if (parentNodeAddress == NODE_ADDR_NULL)
     {
         return NODE_ADDR_NULL;
     }
-    
+
     // Read the parent node
     readParentNode(p, parentNodeAddress);
-    
+
     // Read its first child address
     first_child_address = p->nextChildAddress;
-    
+
     // Check if there are stored credentials
     if (first_child_address == NODE_ADDR_NULL)
     {
         guiDisplayInformationOnScreenAndWait(ID_STRING_NO_CREDS);
         return NODE_ADDR_NULL;
     }
-    
+
     // Read child node
     readChildNode(c, first_child_address);
-    
+
     // Check if there's only one child, that's a confirmation screen
     if (c->nextChildAddress == NODE_ADDR_NULL)
     {
         confirmationText_t temp_conf_text;
-        
+
         // Prepare asking confirmation screen
         temp_conf_text.lines[0] = (char*)p->service;
         temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_CONFACCESSTO);
         temp_conf_text.lines[2] = (char*)c->login;
-        
+
         // Prompt user for confirmation, flash the screen
         if ((bypass_confirmation == TRUE) || (guiAskForConfirmation(0xF0 | 3, &temp_conf_text) == RETURN_OK))
         {
@@ -135,7 +135,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
         }
     }
     else
-    {       
+    {
         // Temp variables
         uint16_t last_child_address = first_child_address;
         temp_child_address = first_child_address;
@@ -161,9 +161,9 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 
         // Arm timer for scrolling (caps timer that isn't relevant here)
         activateTimer(TIMER_CAPS, SCROLLING_DEL);
-        
+
         while (action_chosen == FALSE)
-        {                        
+        {
             // If needed, re-compute the string offsets & extra chars
             if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED))
             {
@@ -179,7 +179,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 }
 
                 // Scrolling timer expired
-                activateTimer(TIMER_CAPS, SCROLLING_DEL);      
+                activateTimer(TIMER_CAPS, SCROLLING_DEL);
 
                 // Clear LCD, init temporary vars
                 miniOledClearFrameBuffer();
@@ -195,20 +195,20 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 temp_string[strlen(temp_string)] = '/';
                 itoa(nb_children, temp_string+strlen(temp_string), 10);
                 strncat(select_cred_line, temp_string, TEXTBUFFERSIZE - strlen(select_cred_line) - 1);
-                miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, select_cred_line);     
-                    
-                // Third line: chosen credential   
+                miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, select_cred_line);
+
+                // Third line: chosen credential
                 readChildNode(c, picked_child);
                 string_extra_chars[1] = strlen((char*)c->login) - miniOledPutCenteredString(THREE_LINE_TEXT_THIRD_POS, (char*)c->login + string_offset_cntrs[1]);
-                    
+
                 // Flush to display
                 miniOledFlushEntireBufferToDisplay();
                 string_refresh_needed = FALSE;
             }
-            
+
             // Get wheel action
             wheel_action = miniGetWheelAction(FALSE, FALSE);
-            
+
             // Check its validity, knowing that by default we will return NODE_ADDR_NULL
             if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
             {
@@ -230,33 +230,33 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 if (cur_children_nb == 1)
                 {
                     cur_children_nb = nb_children;
-                } 
+                }
                 else
                 {
                     cur_children_nb--;
                 }
             }
             else if (wheel_action == WHEEL_ACTION_UP)
-            {                 
-                // Move to the previous credential    
-                string_refresh_needed = TRUE;                    
+            {
+                // Move to the previous credential
+                string_refresh_needed = TRUE;
 
                 // Loop or go to previous
                 picked_child = c->nextChildAddress;
                 if (picked_child == NODE_ADDR_NULL)
                 {
                     picked_child = first_child_address;
-                }  
+                }
 
                 // Update status display
                 if (cur_children_nb == nb_children)
                 {
                     cur_children_nb = 1;
-                } 
+                }
                 else
                 {
                     cur_children_nb++;
-                }                  
+                }
             }
             else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
             {
@@ -277,7 +277,7 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
             }
         }
     }
-    
+
     return picked_child;
 }
 
@@ -297,13 +297,13 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     RET_TYPE wheel_action;
     uint8_t i, j;
     (void)c;
-    
+
     // Browse through the favorites
     for (i = 0; i < USER_MAX_FAV; i++)
     {
         // Read favorite
         readFav(i, &parentAddresses[i], &childAddresses[i]);
-        
+
         // If so, store it in our know addresses
         if (parentAddresses[i] != NODE_ADDR_NULL)
         {
@@ -311,7 +311,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             nbFavorites++;
         }
     }
-    
+
     // If no favorite, return
     if (nbFavorites == 0)
     {
@@ -329,7 +329,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
         {
             if(string_refresh_needed != FALSE)
             {
-                // Reset counters                
+                // Reset counters
                 miniResetStringOffsetCounters();
             }
             else
@@ -353,7 +353,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             {
                 i = 0;
             }
-            
+
             miniOledClearFrameBuffer();
             miniOledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
             // Display the favorites
@@ -365,7 +365,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                     // Read parent & child node to get service & username
                     readParentNode(p, parentAddresses[j]);
                     readChildNode(c, childAddresses[j]);
-                    
+
                     // Construct the string "service / username"
                     if (c->login[0] != 0)
                     {
@@ -379,7 +379,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
                     }
 
                     // Print service / username at the correct slot
-                    miniDisplayCredentialAtPosition(i, (char*)p->service);                    
+                    miniDisplayCredentialAtPosition(i, (char*)p->service);
 
                     // Second favorite displayed is the chosen one
                     if (i == 1)
@@ -416,7 +416,7 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 
         // Get wheel action
         wheel_action = miniGetWheelAction(FALSE, FALSE);
-        
+
         // User validated the selected credential
         if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
         {
@@ -440,13 +440,13 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             // Move to the previous credential
             string_refresh_needed = TRUE;
 
-            do 
+            do
             {
                 if (--startIndex == UINT8_MAX)
                 {
                     startIndex = USER_MAX_FAV - 1;
                 }
-            } 
+            }
             while (parentAddresses[startIndex] == NODE_ADDR_NULL);
         }
         else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
@@ -526,12 +526,12 @@ uint16_t loginSelectionScreen(void)
             if (nb_parent_nodes < 3)
             {
                 i = 1;
-            } 
+            }
             else
             {
                 i = 0;
             }
-            
+
             miniOledClearFrameBuffer();
             miniOledSetMinTextY(16);
             miniOledBitmapDrawFlash(0, 0, BITMAP_LOGIN_LPANE, OLED_SCROLL_NONE);
@@ -541,9 +541,9 @@ uint16_t loginSelectionScreen(void)
             {
                 // Read child node to get login
                 readParentNode(&temp_pnode, temp_parent_address);
-                
+
                 // Print Login at the correct slot
-                miniDisplayCredentialAtPosition(i, (char*)temp_pnode.service);                
+                miniDisplayCredentialAtPosition(i, (char*)temp_pnode.service);
 
                 // Second child displayed is the chosen one
                 if (i == 1)
@@ -551,7 +551,7 @@ uint16_t loginSelectionScreen(void)
                     cur_address_selected = temp_parent_address;
                     current_fchar = temp_pnode.service[0];
                 }
-                
+
                 // Fetch next address
                 temp_parent_address = temp_pnode.nextParentAddress;
                 if (temp_parent_address == NODE_ADDR_NULL)
@@ -578,7 +578,7 @@ uint16_t loginSelectionScreen(void)
 
         // Get wheel action
         wheel_action = miniGetWheelAction(FALSE, FALSE);
-        
+
         // User validated the selected credential
         if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
         {
@@ -629,5 +629,108 @@ uint16_t loginSelectionScreen(void)
             return NODE_ADDR_NULL;
         }
     }
-}    
+}
+
+#ifdef ENABLE_CREDENTIAL_MANAGEMENT
+/*! \fn     managementActionSelectionScreen(void)
+*   \brief  Screen displayed to let the user choose a management action
+*   \return Management action ID
+*/
+uint8_t managementActionSelectionScreen(void)
+{
+    uint8_t string_refresh_needed = TRUE;
+    RET_TYPE wheel_action;
+    uint8_t i, j;
+
+    uint8_t action_selected = 0;
+
+    // Arm timer for scrolling (caps timer that isn't relevant here)
+    activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+    while(1)
+    {
+        // If needed, re-compute the string offsets & extra chars
+        if ((string_refresh_needed != FALSE) || (hasTimerExpired(TIMER_CAPS, TRUE) == TIMER_EXPIRED))
+        {
+            if(string_refresh_needed != FALSE)
+            {
+                // Reset counters
+                memset((void*)string_offset_cntrs, 0x00, sizeof(string_offset_cntrs));
+            }
+            else
+            {
+                // Implement scrolling
+                miniIncrementScrolledTexts();
+            }
+
+            // Scrolling timer expired
+            activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+            // Start looping, starting from the first displayed management action
+            j = action_selected - 1;
+            if(action_selected == 0)
+                j = MGMT_ACTION_NB - 1;
+            i = 0;
+
+            miniOledClearFrameBuffer();
+            miniOledBitmapDrawFlash(121, 0, BITMAP_SCROLL_WHEEL, OLED_SCROLL_NONE);
+            // Display the possible actions
+            while(i != 3)
+            {
+
+                // Print management action at the correct slot
+                miniDisplayCredentialAtPosition(i, readStoredStringToBuffer(ID_STRING_MGMT_CREATE + j)/* mgmt_actions[j] */);
+
+                // Second action displayed is the chosen one
+                if (i == 1)
+                {
+                    action_selected = j;
+                }
+
+                // Visit next slot
+                j = (j+1) % MGMT_ACTION_NB;
+                i++;
+            }
+
+            miniOledFlushEntireBufferToDisplay();
+            string_refresh_needed = FALSE;
+        }
+
+        // Get wheel action
+        wheel_action = miniGetWheelAction(FALSE, FALSE);
+
+        // User validated the selected action
+        if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
+        {
+            return action_selected;
+        }
+        else if (wheel_action == WHEEL_ACTION_DOWN)
+        {
+            // Move to the next menu entry
+            string_refresh_needed = TRUE;
+            action_selected = (action_selected + 1) % MGMT_ACTION_NB;
+        }
+        else if (wheel_action == WHEEL_ACTION_UP)
+        {
+            // Move to the previous menu entry
+            string_refresh_needed = TRUE;
+
+            if (--action_selected == UINT8_MAX)
+            {
+                action_selected = MGMT_ACTION_NB - 1;
+            }
+        }
+        else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
+        {
+            return MGMT_ACTION_NONE;
+        }
+
+        if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
+        {
+            return MGMT_ACTION_NONE;
+        }
+    }
+}
+#endif
+
 #endif

@@ -83,7 +83,7 @@ dNode* temp_dnode_ptr = (dNode*)&temp_cnode;
 
 #ifdef ENABLE_CREDENTIAL_MANAGEMENT
 // management mode state for login selection state machine
-uint8_t management_mode_state = MGMT_ACTION_NONE;
+uint8_t ondevice_cred_mgmt_action = MGMT_ACTION_NONE;
 #endif
 
 /*! \fn     getSmartCardInsertedUnlocked(void)
@@ -431,7 +431,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type)
     
     #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* disable menu animation when managing credentials as we have more questions */
-    if(management_mode_state == MGMT_ACTION_NONE)
+    if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
     {
         guiGetBackToCurrentScreen();
     }
@@ -670,7 +670,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
     
     #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* disable menu animation when managing credentials as we have more questions */
-    if(management_mode_state == MGMT_ACTION_NONE)
+    if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
     {
         guiGetBackToCurrentScreen();
     }
@@ -727,7 +727,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             // Get back to current screen
             #ifdef ENABLE_CREDENTIAL_MANAGEMENT
             /* disable menu animation when managing credentials as we have more questions */
-            if(management_mode_state == MGMT_ACTION_NONE)
+            if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
             {
                 guiGetBackToCurrentScreen();
             }
@@ -751,7 +751,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             // Get back to current screen
             #ifdef ENABLE_CREDENTIAL_MANAGEMENT
             /* disable menu animation when managing credentials as we have more questions */
-            if(management_mode_state == MGMT_ACTION_NONE)
+            if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
             {
                 guiGetBackToCurrentScreen();
             }
@@ -1260,21 +1260,12 @@ void managementActionPickingLogic(void)
     while (TRUE)
     {
         /* display selection screen */
-        management_mode_state = managementActionSelectionScreen();
+        ondevice_cred_mgmt_action = managementActionSelectionScreen();
 
-        /* process chosen action */
-        switch(management_mode_state) {
-            case MGMT_ACTION_CREATE:
-                /* preliminary tasks could be added here */
-            case MGMT_ACTION_EDIT:
-            case MGMT_ACTION_RENEW:
-            case MGMT_ACTION_DELETE:
-                /* run management logic */
-                loginManagementSelectLogic();
-            case MGMT_ACTION_NONE:
-            default:
-                return;
-        }
+        if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
+            return;
+
+        loginManagementSelectLogic();
     }
 }
 
@@ -1289,7 +1280,7 @@ void managementActionPickingLogic(void)
 RET_TYPE askUserToSaveToFlash(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
 {
     /* prevent saving out of credential management actions, then ask for confirmation */
-    if((management_mode_state != MGMT_ACTION_NONE) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_SAVETOFLASHQ)) == RETURN_OK))
+    if((ondevice_cred_mgmt_action != MGMT_ACTION_NONE) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_SAVETOFLASHQ)) == RETURN_OK))
     {
         /* commit changes to external flash */
         if(updateChildNode(p, c, pAddr, cAddr) == RETURN_OK)
@@ -1531,7 +1522,7 @@ void loginManagementSelectLogic(void)
         else if (state_machine == 1)
         {
             /* the user asked to create new credentials */
-            if(management_mode_state == MGMT_ACTION_CREATE)
+            if(ondevice_cred_mgmt_action == MGMT_ACTION_CREATE)
             {
                 /* Ask for new login */
                 if(miniTextEntry((char *)strbuffer, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_LOGIN)) == RETURN_OK)
@@ -1557,7 +1548,7 @@ void loginManagementSelectLogic(void)
                     }
 
                 }
-                management_mode_state = MGMT_ACTION_NONE; /* exit credential management */
+                ondevice_cred_mgmt_action = MGMT_ACTION_NONE; /* exit credential management */
                 return;
             }
 
@@ -1580,7 +1571,7 @@ void loginManagementSelectLogic(void)
             readChildNode(&temp_cnode, chosen_login_addr);
 
             /* the user has selected a specific login */
-            switch(management_mode_state)
+            switch(ondevice_cred_mgmt_action)
             {
                 case MGMT_ACTION_EDIT:
                     /* edit login string */
@@ -1651,7 +1642,7 @@ void loginManagementSelectLogic(void)
                 default:
                     break;
             }
-            management_mode_state = MGMT_ACTION_NONE; /* exit credential management */
+            ondevice_cred_mgmt_action = MGMT_ACTION_NONE; /* exit credential management */
             return;
         }
     }

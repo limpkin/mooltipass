@@ -1481,16 +1481,20 @@ void loginManagementSelectLogic(void)
     uint8_t strbuffer[NODE_CHILD_SIZE_OF_LOGIN];    /* buffer for text input */
     uint8_t newpasslen;                             /* requested password length */
 
-    /* First ask if the user wants to add a new service */
-    if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_CREATENEWSERVICEQ)) == RETURN_OK)
+    /* if the user wants to add credentials, we might have to create a new service */
+    if(ondevice_cred_mgmt_action == ONDEVICE_CRED_MGMT_ACTION_CREATE)
     {
-        if(miniTextEntry((char *)strbuffer, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_SVCNAME)) == RETURN_OK)
+        /* First ask if the user wants to add a new service. Force adding a new service if none exists. */
+        if((getStartingParentAddress() == NODE_ADDR_NULL) || (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_CREATENEWSERVICEQ)) == RETURN_OK))
         {
-            if (addNewContext(strbuffer, NODE_CHILD_SIZE_OF_LOGIN, SERVICE_CRED_TYPE) == RETURN_OK)
+            if(miniTextEntry((char *)strbuffer, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_SVCNAME)) == RETURN_OK)
             {
-                guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPSUCCESS);
-            } else {
-                guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPFAILURE);
+                if (addNewContext(strbuffer, NODE_CHILD_SIZE_OF_LOGIN, SERVICE_CRED_TYPE) == RETURN_OK)
+                {
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPSUCCESS);
+                } else {
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPFAILURE);
+                }
             }
         }
     }

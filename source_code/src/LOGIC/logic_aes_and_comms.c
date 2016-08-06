@@ -83,7 +83,7 @@ dNode* temp_dnode_ptr = (dNode*)&temp_cnode;
 
 #ifdef ENABLE_CREDENTIAL_MANAGEMENT
 // management mode state for login selection state machine
-uint8_t ondevice_cred_mgmt_action = MGMT_ACTION_NONE;
+uint8_t ondevice_cred_mgmt_action = ONDEVICE_CRED_MGMT_ACTION_NONE;
 #endif
 
 /*! \fn     getSmartCardInsertedUnlocked(void)
@@ -431,7 +431,7 @@ RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type)
     
     #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* disable menu animation when managing credentials as we have more questions */
-    if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
+    if(ondevice_cred_mgmt_action == ONDEVICE_CRED_MGMT_ACTION_NONE)
     {
         guiGetBackToCurrentScreen();
     }
@@ -670,7 +670,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
     
     #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* disable menu animation when managing credentials as we have more questions */
-    if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
+    if(ondevice_cred_mgmt_action == ONDEVICE_CRED_MGMT_ACTION_NONE)
     {
         guiGetBackToCurrentScreen();
     }
@@ -727,7 +727,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             // Get back to current screen
             #ifdef ENABLE_CREDENTIAL_MANAGEMENT
             /* disable menu animation when managing credentials as we have more questions */
-            if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
+            if(ondevice_cred_mgmt_action == ONDEVICE_CRED_MGMT_ACTION_NONE)
             {
                 guiGetBackToCurrentScreen();
             }
@@ -751,7 +751,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             // Get back to current screen
             #ifdef ENABLE_CREDENTIAL_MANAGEMENT
             /* disable menu animation when managing credentials as we have more questions */
-            if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
+            if(ondevice_cred_mgmt_action == ONDEVICE_CRED_MGMT_ACTION_NONE)
             {
                 guiGetBackToCurrentScreen();
             }
@@ -1262,7 +1262,7 @@ void managementActionPickingLogic(void)
         /* display selection screen */
         ondevice_cred_mgmt_action = managementActionSelectionScreen();
 
-        if(ondevice_cred_mgmt_action == MGMT_ACTION_NONE)
+        if(ondevice_cred_mgmt_action == ONDEVICE_CRED_MGMT_ACTION_NONE)
             return;
 
         loginManagementSelectLogic();
@@ -1280,14 +1280,16 @@ void managementActionPickingLogic(void)
 RET_TYPE askUserToSaveToFlash(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
 {
     /* prevent saving out of credential management actions, then ask for confirmation */
-    if((ondevice_cred_mgmt_action != MGMT_ACTION_NONE) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_SAVETOFLASHQ)) == RETURN_OK))
+    if((ondevice_cred_mgmt_action != ONDEVICE_CRED_MGMT_ACTION_NONE) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_SAVETOFLASHQ)) == RETURN_OK))
     {
         /* commit changes to external flash */
         if(updateChildNode(p, c, pAddr, cAddr) == RETURN_OK)
         {
             guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPSUCCESS);
             return RETURN_OK;
-        } else {
+        }
+        else
+        {
             /* revert to previous child node state */
             readChildNode(&temp_cnode, cAddr);
             guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPFAILURE);
@@ -1311,47 +1313,49 @@ uint16_t askUserToSelectCharset(uint16_t original_flags)
 
     if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_EDIT_CHARSETQ)) == RETURN_OK)
     {
-        do {
-        /* Enable charset? A-Z */
-        if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_ALPHA_UPPERQ)) == RETURN_OK)
-            flags |= CHARSET_BIT_ALPHA_UPPER;
+        do
+        {
+            /* Enable charset? A-Z */
+            if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_ALPHA_UPPERQ)) == RETURN_OK)
+                flags |= CHARSET_BIT_ALPHA_UPPER;
 
-        /* Enable charset? a-z */
-        if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_ALPHA_LOWERQ)) == RETURN_OK)
-            flags |= CHARSET_BIT_ALPHA_LOWER;
+            /* Enable charset? a-z */
+            if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_ALPHA_LOWERQ)) == RETURN_OK)
+                flags |= CHARSET_BIT_ALPHA_LOWER;
 
-        /* Enable charset? 0-9 */
-        if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_NUMQ)) == RETURN_OK)
-            flags |= CHARSET_BIT_NUM;
+            /* Enable charset? 0-9 */
+            if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_NUMQ)) == RETURN_OK)
+                flags |= CHARSET_BIT_NUM;
 
-        /* Enable charset? specials: ?!,.:;*+-=/ */
-        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
-        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS1);
-        if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
-            flags |= CHARSET_BIT_SPECIALS1;
+            /* Enable charset? specials: ?!,.:;*+-=/ */
+            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
+            conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS1);
+            if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+                flags |= CHARSET_BIT_SPECIALS1;
 
-        /* Enable charset? specials: ()[]{}<> */
-        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
-        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS2);
-        if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
-            flags |= CHARSET_BIT_SPECIALS2;
+            /* Enable charset? specials: ()[]{}<> */
+            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
+            conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS2);
+            if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+                flags |= CHARSET_BIT_SPECIALS2;
 
-        /* Enable charset? specials: \"'`^|~ */
-        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
-        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS3);
-        if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
-            flags |= CHARSET_BIT_SPECIALS3;
+            /* Enable charset? specials: \"'`^|~ */
+            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
+            conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS3);
+            if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+                flags |= CHARSET_BIT_SPECIALS3;
 
-        /* Enable charset? specials: _#$%&@ */
-        conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
-        conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS4);
-        if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
-            flags |= CHARSET_BIT_SPECIALS4;
+            /* Enable charset? specials: _#$%&@ */
+            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
+            conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS4);
+            if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+                flags |= CHARSET_BIT_SPECIALS4;
 
-        /* Enable charset? space */
-        if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPACEQ)) == RETURN_OK)
-            flags |= CHARSET_BIT_SPACE;
-        } while ((flags & NODE_F_CHILD_USERFLAGS_MASK) == 0x00); /* ask again until the user picks at least one charset */
+            /* Enable charset? space */
+            if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPACEQ)) == RETURN_OK)
+                flags |= CHARSET_BIT_SPACE;
+        }
+        while ((flags & NODE_F_CHILD_USERFLAGS_MASK) == 0x00); /* ask again until the user picks at least one charset */
 
         return flags;
     } else {
@@ -1522,7 +1526,7 @@ void loginManagementSelectLogic(void)
         else if (state_machine == 1)
         {
             /* the user asked to create new credentials */
-            if(ondevice_cred_mgmt_action == MGMT_ACTION_CREATE)
+            if(ondevice_cred_mgmt_action == ONDEVICE_CRED_MGMT_ACTION_CREATE)
             {
                 /* Ask for new login */
                 if(miniTextEntry((char *)strbuffer, NODE_CHILD_SIZE_OF_LOGIN, 0, 0, 0, readStoredStringToBuffer(ID_STRING_MGMT_TYPE_LOGIN)) == RETURN_OK)
@@ -1548,7 +1552,7 @@ void loginManagementSelectLogic(void)
                     }
 
                 }
-                ondevice_cred_mgmt_action = MGMT_ACTION_NONE; /* exit credential management */
+                ondevice_cred_mgmt_action = ONDEVICE_CRED_MGMT_ACTION_NONE; /* exit credential management */
                 return;
             }
 
@@ -1573,7 +1577,7 @@ void loginManagementSelectLogic(void)
             /* the user has selected a specific login */
             switch(ondevice_cred_mgmt_action)
             {
-                case MGMT_ACTION_EDIT:
+                case ONDEVICE_CRED_MGMT_ACTION_EDIT:
                     /* edit login string */
                     if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_EDIT_LOGINQ)) == RETURN_OK)
                     {
@@ -1589,7 +1593,7 @@ void loginManagementSelectLogic(void)
                     /* save modified data */
                     askUserToSaveToFlash(&temp_pnode, &temp_cnode, chosen_service_addr, chosen_login_addr);
                     break;
-                case MGMT_ACTION_RENEW:
+                case ONDEVICE_CRED_MGMT_ACTION_RENEW:
                     /* Display or send login as keystrokes */
                     if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_ENTERLOGINQ)) == RETURN_OK)
                     {
@@ -1632,7 +1636,7 @@ void loginManagementSelectLogic(void)
                         }
                     }
                     break;
-                case MGMT_ACTION_DELETE:
+                case ONDEVICE_CRED_MGMT_ACTION_DELETE:
                     /* ask twice for confirmation */
                     if((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_DELETE_CREDSQ)) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_AREYOUSUREQ)) == RETURN_OK))
                     {
@@ -1642,7 +1646,7 @@ void loginManagementSelectLogic(void)
                 default:
                     break;
             }
-            ondevice_cred_mgmt_action = MGMT_ACTION_NONE; /* exit credential management */
+            ondevice_cred_mgmt_action = ONDEVICE_CRED_MGMT_ACTION_NONE; /* exit credential management */
             return;
         }
     }

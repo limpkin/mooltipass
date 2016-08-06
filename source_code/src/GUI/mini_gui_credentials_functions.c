@@ -669,7 +669,7 @@ uint8_t managementActionSelectionScreen(void)
             // Start looping, starting from the first displayed management action
             j = action_selected - 1;
             if(action_selected == 0)
-                j = MGMT_ACTION_NB - 1;
+                j = ONDEVICE_CRED_MGMT_ACTION_NB - 1;
             i = 0;
 
             miniOledClearFrameBuffer();
@@ -688,7 +688,7 @@ uint8_t managementActionSelectionScreen(void)
                 }
 
                 // Visit next slot
-                j = (j+1) % MGMT_ACTION_NB;
+                j = (j+1) % ONDEVICE_CRED_MGMT_ACTION_NB;
                 i++;
             }
 
@@ -708,7 +708,7 @@ uint8_t managementActionSelectionScreen(void)
         {
             // Move to the next menu entry
             string_refresh_needed = TRUE;
-            action_selected = (action_selected + 1) % MGMT_ACTION_NB;
+            action_selected = (action_selected + 1) % ONDEVICE_CRED_MGMT_ACTION_NB;
         }
         else if (wheel_action == WHEEL_ACTION_UP)
         {
@@ -717,17 +717,17 @@ uint8_t managementActionSelectionScreen(void)
 
             if (--action_selected == UINT8_MAX)
             {
-                action_selected = MGMT_ACTION_NB - 1;
+                action_selected = ONDEVICE_CRED_MGMT_ACTION_NB - 1;
             }
         }
         else if (wheel_action == WHEEL_ACTION_LONG_CLICK)
         {
-            return MGMT_ACTION_NONE;
+            return ONDEVICE_CRED_MGMT_ACTION_NONE;
         }
 
         if ((hasTimerExpired(TIMER_USERINT, TRUE) == TIMER_EXPIRED) || (isSmartCardAbsent() == RETURN_OK))
         {
-            return MGMT_ACTION_NONE;
+            return ONDEVICE_CRED_MGMT_ACTION_NONE;
         }
     }
 }

@@ -314,7 +314,15 @@ clear_entry:
                         miniOledNormalDisplay();
                         return RETURN_NOK;
                     case ENTRY_CHAR_BACKSPACE:
-                        goto backspace;
+                        /* erase previous char */
+                        pos--;
+                        dst[pos] = '\0';
+
+                        /* flash screen for 50 ms */
+                        miniOledInvertedDisplay();
+                        timerBasedDelayMs(50);
+                        miniOledNormalDisplay();
+                        continue;
                 }
 
                 /* ignore input if maximum length was reached */
@@ -346,10 +354,13 @@ clear_entry:
                 if(long_click_ctr >= ENTRY_LONGCLICK_ERASE)
                 {
                     long_click_ctr = 0;
-                    goto clear_entry;
+                    for(i = 0; i < buflen; ++i)
+                    {
+                        dst[i] = 0;
+                    }
+                    pos = 0;
                 }
                 /* handle default behaviour: backspace */
-backspace:
                 pos--;
                 dst[pos] = '\0';
 

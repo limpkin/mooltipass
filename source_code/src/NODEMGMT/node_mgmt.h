@@ -161,7 +161,7 @@ typedef struct __attribute__((packed)) childNode {
                                         * 15 dn 14-> Node type
                                         * 13 dn 13 -> Valid Bit
                                         * 12 dn 8 -> User ID
-                                        * 7 dn 0 -> RESERVED / User-available flags: if credential management is enabled, stores allowed charset for credentials
+                                        * 7 dn 0 -> User-available flags: if credential management is enabled, stores allowed charset for credentials
                                         */
     uint16_t prevChildAddress;          /*!< Previous child node address (Alaphabetically) */
     uint16_t nextChildAddress;          /*!< Next child node address (Alphabetically) */

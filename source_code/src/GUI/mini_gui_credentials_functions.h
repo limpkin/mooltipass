@@ -37,13 +37,15 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c);
 uint16_t loginSelectionScreen(void);
 
 #ifdef ENABLE_CREDENTIAL_MANAGEMENT
-#define MGMT_ACTION_NB 4
+/* On-device credential management defines, used by menus and logic */
 
-#define MGMT_ACTION_CREATE 0
-#define MGMT_ACTION_EDIT   1
-#define MGMT_ACTION_RENEW  2
-#define MGMT_ACTION_DELETE 3
-#define MGMT_ACTION_NONE   UINT8_MAX
+#define ONDEVICE_CRED_MGMT_ACTION_NB 4                /* number of credential management actions */
+
+#define ONDEVICE_CRED_MGMT_ACTION_CREATE 0            /* create new credentials and services */
+#define ONDEVICE_CRED_MGMT_ACTION_EDIT   1            /* edit credentials: edit login + password charset */
+#define ONDEVICE_CRED_MGMT_ACTION_RENEW  2            /* renew password */
+#define ONDEVICE_CRED_MGMT_ACTION_DELETE 3            /* delete credentials */
+#define ONDEVICE_CRED_MGMT_ACTION_NONE   UINT8_MAX    /* invalid action */
 
 uint8_t managementActionSelectionScreen(void);
 #endif

@@ -1263,7 +1263,9 @@ void managementActionPickingLogic(void)
         ondevice_cred_mgmt_action = managementActionSelectionScreen();
 
         if(ondevice_cred_mgmt_action == ONDEVICE_CRED_MGMT_ACTION_NONE)
+        {
             return;
+        }
 
         loginManagementSelectLogic();
     }
@@ -1317,43 +1319,59 @@ uint16_t askUserToSelectCharset(uint16_t original_flags)
         {
             /* Enable charset? A-Z */
             if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_ALPHA_UPPERQ)) == RETURN_OK)
+            {
                 flags |= CHARSET_BIT_ALPHA_UPPER;
+            }
 
             /* Enable charset? a-z */
             if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_ALPHA_LOWERQ)) == RETURN_OK)
+            {
                 flags |= CHARSET_BIT_ALPHA_LOWER;
+            }
 
             /* Enable charset? 0-9 */
             if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_NUMQ)) == RETURN_OK)
+            {
                 flags |= CHARSET_BIT_NUM;
+            }
 
             /* Enable charset? specials: ?!,.:;*+-=/ */
             conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
             conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS1);
             if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+            {
                 flags |= CHARSET_BIT_SPECIALS1;
+            }
 
             /* Enable charset? specials: ()[]{}<> */
             conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
             conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS2);
             if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+            {
                 flags |= CHARSET_BIT_SPECIALS2;
+            }
 
             /* Enable charset? specials: \"'`^|~ */
             conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
             conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS3);
             if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+            {
                 flags |= CHARSET_BIT_SPECIALS3;
+            }
 
             /* Enable charset? specials: _#$%&@ */
             conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPECIALSQ);
             conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_MGMT_CHARSET_SPECIALS4);
             if(guiAskForConfirmation(2, &conf_text) == RETURN_OK)
+            {
                 flags |= CHARSET_BIT_SPECIALS4;
+            }
 
             /* Enable charset? space */
             if(guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_ENABLE_SPACEQ)) == RETURN_OK)
+            {
                 flags |= CHARSET_BIT_SPACE;
+            }
         }
         while ((flags & NODE_F_CHILD_USERFLAGS_MASK) == 0x00); /* ask again until the user picks at least one charset */
 
@@ -1392,11 +1410,15 @@ RET_TYPE generateRandomPassword(uint8_t *password, uint8_t length, uint16_t flag
 
     /* exit if inconsistent length */
     if(length > (NODE_CHILD_SIZE_OF_PASSWORD - 1))
+    {
         return RETURN_NOK;
+    }
 
     /* force all charsets but space if none are allowed */
     if(charsetflags == 0x0000)
+    {
         charsetflags = (NODE_F_CHILD_USERFLAGS_MASK & ~CHARSET_BIT_SPACE);
+    }
 
     /* calculate allowed charset size from bitfield */
     for (uint8_t i = 0; i < 8; ++i)
@@ -1404,7 +1426,9 @@ RET_TYPE generateRandomPassword(uint8_t *password, uint8_t length, uint16_t flag
         if((charsetflags & (1 << i)) > 0)
         {
             if(i == 0)
+            {
                 cs[i] = ' ';
+            }
             else
             {
                 current_charset = readStoredStringToBuffer(charset_strings[i]);
@@ -1492,7 +1516,9 @@ void loginManagementSelectLogic(void)
                 if (addNewContext(strbuffer, NODE_CHILD_SIZE_OF_LOGIN, SERVICE_CRED_TYPE) == RETURN_OK)
                 {
                     guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPSUCCESS);
-                } else {
+                }
+                else
+                {
                     guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPFAILURE);
                 }
             }

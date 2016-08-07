@@ -668,8 +668,12 @@ uint8_t managementActionSelectionScreen(void)
 
             // Start looping, starting from the first displayed management action
             j = action_selected - 1;
+
             if(action_selected == 0)
+            {
                 j = ONDEVICE_CRED_MGMT_ACTION_NB - 1;
+            }
+
             i = 0;
 
             miniOledClearFrameBuffer();

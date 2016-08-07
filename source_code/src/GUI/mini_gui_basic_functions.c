@@ -184,17 +184,22 @@ RET_TYPE miniTextEntry(char * dst, uint8_t buflen, uint8_t filled_len, uint8_t m
     RET_TYPE wheel_action;  /* detected wheel action */
 
     if(filled_len) /* truncate destination string if pre-filled */
+    {
         dst[filled_len] = '\0';
+    }
     else /* erase string to prevent leakage */
-clear_entry:
+    {
         for(i = 0; i < buflen; ++i)
         {
             dst[i] = 0;
         }
+    }
 
     /* force minimum offset (initially displayed character) in text-mode */
     if(max == 0)
+    {
         min = 0;
+    }
 
     offset         = ((max > 0) ? max : min);   /* offset relative to 'A', including special characters */
     pos            = filled_len;                /* set current cursor position */
@@ -238,19 +243,29 @@ clear_entry:
 
         /* print question text */
         if(max > 0)
-            miniOledPutstrXY(0, THREE_LINE_TEXT_SECOND_POS, OLED_LEFT, question);
+        {
+                miniOledPutstrXY(0, THREE_LINE_TEXT_SECOND_POS, OLED_LEFT, question);
+        }
         else
+        {
             miniOledPutstrXY(0, 0, OLED_LEFT, question);
+        }
 
         /* display offset value in text-entry mode */
         if(max == 0)
+        {
             miniOledPutstrXY(108, 0, OLED_RIGHT, ctr);
+        }
 
         /* display current (possibly pre-filled) user input */
         if(strlen(dst) > 18)
+        {
             miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, dst + strlen(dst) - 18);
+        }
         else
+        {
             miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, dst);
+        }
 
         /* disable multi-line wrap */
         miniOledPreventTextWritingYIncrement();
@@ -278,7 +293,9 @@ clear_entry:
             miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, special[(offset - ENTRY_CHARSET_LENGTH)]);
         }
         else /* in text entry mode, display standard character */
+        {
             miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, sel);
+        }
 
         /* reset text boundaries */
         miniOledSetMinTextY(0);
@@ -289,7 +306,9 @@ clear_entry:
 
         /* invert screen if maximum allowed length was reached in text entry mode */
         if(!(buflen-pos-1) && (max == 0))
+        {
             miniOledInvertedDisplay();
+        }
 
         /* handle wheel actions */
         wheel_action = miniGetWheelAction(TRUE, FALSE);
@@ -327,7 +346,9 @@ clear_entry:
 
                 /* ignore input if maximum length was reached */
                 if(!(buflen-pos-1))
+                {
                     continue;
+                }
 
                 /* in test entry mode, compute character code, increment cursor, null-terminate and reset long click tracker */
                 dst[pos] = '\x20' + ((ENTRY_FIRST_CHAR + offset - ENTRY_NB_SPECIAL_CHAR) % ENTRY_CHARSET_LENGTH);
@@ -372,9 +393,14 @@ clear_entry:
             case WHEEL_ACTION_UP:
                 /* handle offset increment */
                 if((max == 0 && offset >= ENTRY_LAST_CHAR) || (max > 0 && offset >= max)) /* wrap around */
+                {
                     offset = min;
+                }
                 else
+                {
                     offset++;
+                }
+
                 /* render new selected character */
                 sel[0] = '\x20' + ((ENTRY_FIRST_CHAR + offset - ENTRY_NB_SPECIAL_CHAR) % ENTRY_CHARSET_LENGTH);
                 sel[1] = '\0';
@@ -382,9 +408,14 @@ clear_entry:
             case WHEEL_ACTION_DOWN:
                 /* handle offset decrement */
                 if(offset == min) /* wrap around */
+                {
                     offset = (max > 0) ? max : ENTRY_LAST_CHAR;
+                }
                 else
+                {
                     offset--;
+                }
+
                 /* render new selected character */
                 sel[0] = '\x20' + ((ENTRY_FIRST_CHAR + offset - ENTRY_NB_SPECIAL_CHAR) % ENTRY_CHARSET_LENGTH);
                 sel[1] = '\0';

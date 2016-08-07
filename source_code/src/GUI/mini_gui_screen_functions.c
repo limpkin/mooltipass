@@ -229,7 +229,11 @@ void guiScreenLoop(uint8_t input_interface_result)
                 case SCREEN_FAVORITES:
                 {
                     // User wants to go to the favorite menu
-                    favoritePickingLogic();
+                    #if defined(ENABLE_CREDENTIAL_MANAGEMENT) && defined(REPLACE_FAVORITES_WITH_CREDENTIAL_MANAGEMENT)
+                        managementActionPickingLogic();
+                    #else
+                        favoritePickingLogic();
+                    #endif
                     guiGetBackToCurrentScreen();
                     break;
                 }
@@ -460,7 +464,13 @@ void guiDisplayRawString(uint8_t stringID)
 */
 void guiDisplayLoginOrPasswordOnScreen(char* text)
 {
+    #ifdef MINI_VERSION
+    miniOledAllowTextWritingYIncrement();
+    #endif
     guiDisplayTextInformationOnScreen(text);
+    #ifdef MINI_VERSION
+    miniOledPreventTextWritingYIncrement();
+    #endif
     while (miniGetWheelAction(FALSE,FALSE) == WHEEL_ACTION_NONE);
 }
 

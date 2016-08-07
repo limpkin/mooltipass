@@ -36,4 +36,18 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
 uint16_t favoriteSelectionScreen(pNode* p, cNode* c);
 uint16_t loginSelectionScreen(void);
 
+#ifdef ENABLE_CREDENTIAL_MANAGEMENT
+/* On-device credential management defines, used by menus and logic */
+
+#define ONDEVICE_CRED_MGMT_ACTION_NB 4                /* number of credential management actions */
+
+#define ONDEVICE_CRED_MGMT_ACTION_CREATE 0            /* create new credentials and services */
+#define ONDEVICE_CRED_MGMT_ACTION_EDIT   1            /* edit credentials: edit login + password charset */
+#define ONDEVICE_CRED_MGMT_ACTION_RENEW  2            /* renew password */
+#define ONDEVICE_CRED_MGMT_ACTION_DELETE 3            /* delete credentials */
+#define ONDEVICE_CRED_MGMT_ACTION_NONE   UINT8_MAX    /* invalid action */
+
+uint8_t managementActionSelectionScreen(void);
+#endif
+
 #endif /* MINI_GUI_CREDENTIALS_FUNCTIONS_H_ */

@@ -143,6 +143,19 @@
     #define HARDWARE_MINI_CLICK_V1
     #define AVR_BOOTLOADER_PROGRAMMING
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(MINI_CREDENTIAL_MANAGEMENT)
+    #define MINI_CLICK_BETATESTERS_SETUP
+//    #define STACK_DEBUG
+    #define MINI_VERSION
+    #define FLASH_CHIP_4M
+//    #define TWO_CAPS_TRICK
+//    #define DATA_STORAGE_EN
+    #define JTAG_FUSE_ENABLED
+    #define HARDWARE_MINI_CLICK_V1
+    #define AVR_BOOTLOADER_PROGRAMMING
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+    #define ENABLE_CREDENTIAL_MANAGEMENT                    // WARNING: requires a new resource bundle.img with additional strings
+    #define REPLACE_FAVORITES_WITH_CREDENTIAL_MANAGEMENT    // replaces favorites selection menu with creds management menu
 #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
     #define STACK_DEBUG
     #define MINI_VERSION

@@ -274,8 +274,57 @@
     #define ID_STRING_LED3              69
     #define ID_STRING_LED4              70
 
+#ifdef ENABLE_CREDENTIAL_MANAGEMENT
+    /* reserved for main firmware branch usage
+     * can be removed as they are added above */
+    #define ID_STRING_MGMT_RESERVED1            71
+    #define ID_STRING_MGMT_RESERVED2            72
+    #define ID_STRING_MGMT_RESERVED3            73
+    #define ID_STRING_MGMT_RESERVED4            74
+    #define ID_STRING_MGMT_RESERVED5            75
+
+    /* on-device credential management strings */
+    #define ID_STRING_MGMT_CREATE               76
+    #define ID_STRING_MGMT_EDIT                 77
+    #define ID_STRING_MGMT_RENEW                78
+    #define ID_STRING_MGMT_DELETE               79
+    #define ID_STRING_MGMT_TYPE_SVCNAME         80
+    #define ID_STRING_MGMT_TYPE_LOGIN           81
+    #define ID_STRING_MGMT_ENABLE_ALPHA_UPPERQ  82
+    #define ID_STRING_MGMT_ENABLE_ALPHA_LOWERQ  83
+    #define ID_STRING_MGMT_ENABLE_NUMQ          84
+    #define ID_STRING_MGMT_ENABLE_SPECIALSQ     85
+    #define ID_STRING_MGMT_ENABLE_SPACEQ        86
+    #define ID_STRING_MGMT_CHARSET_ALPHA_UPPER  87
+    #define ID_STRING_MGMT_CHARSET_ALPHA_LOWER  88
+    #define ID_STRING_MGMT_CHARSET_NUM          89
+    #define ID_STRING_MGMT_CHARSET_SPECIALS1    90
+    #define ID_STRING_MGMT_CHARSET_SPECIALS2    91
+    #define ID_STRING_MGMT_CHARSET_SPECIALS3    92
+    #define ID_STRING_MGMT_CHARSET_SPECIALS4    93
+    #define ID_STRING_MGMT_ENTER_OLDPASSQ       94
+    #define ID_STRING_MGMT_ENTER_NEWPASSQ       95
+    #define ID_STRING_MGMT_ENTER_NEWPASS_AGAINQ 96
+    #define ID_STRING_MGMT_GENERATE_NEW_PASSQ   97
+    #define ID_STRING_MGMT_EDIT_SVCNAMEQ        98
+    #define ID_STRING_MGMT_EDIT_LOGINQ          99
+    #define ID_STRING_MGMT_EDIT_CHARSETQ        100
+    #define ID_STRING_MGMT_DELETE_CREDSQ        101
+    #define ID_STRING_MGMT_AREYOUSUREQ          102
+    #define ID_STRING_MGMT_OPSUCCESS            103
+    #define ID_STRING_MGMT_OPFAILURE            104
+    #define ID_STRING_MGMT_SAVETOFLASHQ         105
+    #define ID_STRING_MGMT_PASSWORDLENGTHQ      106
+    #define ID_STRING_MGMT_CREATENEWSERVICEQ    107
+    #define ID_STRING_MGMT_NOSERVICEAVAILABLE   108
+
+    /* string ID boundaries */
+    #define ID_FIRST_STRING             0
+    #define ID_LAST_STRING              ID_STRING_MGMT_NOSERVICEAVAILABLE
+#else
     #define ID_FIRST_STRING             0
     #define ID_LAST_STRING              ID_STRING_LED4
+#endif
     #define NB_BMPS_PER_TRANSITION      4
 #endif
 

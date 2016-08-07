@@ -1481,7 +1481,8 @@ void sendOrDisplayString(char * str, uint8_t is_password)
     {
         usbKeybPutStr(str);
 
-        if(is_password) {
+        if(is_password)
+        {
             if (getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_BOOL_PARAM) != FALSE)
             {
                 usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_PARAM), 0);

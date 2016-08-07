@@ -3,16 +3,13 @@ Todo:
 - display aes(bootloader_pwd) with user nonce when card inserted
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
-mini:
-- Display flip based on accelerometer
-- version check in bootloader
-- bootloader: if error during cbcmac check, erase graphics
 
 V1.2:
 - adding an "_unlock_" service to enable computer lock/unlock feature
 - handleSmartcardRemoved() call at the end of user erase routine
 - added "SE" to vendor id string, required by USB spec
 - changed USB keyboard Usage Maximum to allow win key
+- display flip based on accelerometer
 - back functionality on mini
 
 V1.1:

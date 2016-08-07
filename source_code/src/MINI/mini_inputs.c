@@ -27,6 +27,7 @@
 #include "gui_basic_functions.h"
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
+#include "oledmini.h"
 #include "defines.h"
 #include "delays.h"
 #include "pwm.h"
@@ -78,6 +79,8 @@ uint8_t knock_detection_threshold;
 uint8_t first_knock_width;
 // accelerometer detected bool
 uint8_t acc_detected = FALSE;
+// accumulation for y axis
+int16_t acc_y_cumulated;
 #endif
 
 
@@ -112,7 +115,6 @@ RET_TYPE initMiniInputs(void)
     PORT_WHEEL_A |= (1 << PORTID_WHEEL_A);
     DDR_WHEEL_B &= ~(1 << PORTID_WHEEL_B);
     PORT_WHEEL_B |= (1 << PORTID_WHEEL_B);
-    wheel_reverse_bool = getMooltipassParameterInEeprom(WHEEL_DIRECTION_REVERSE_PARAM);
 
 #if defined(HARDWARE_MINI_CLICK_V2)
     // Setup PORT for the Accelerometer SS & INT
@@ -206,7 +208,7 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
     acc_data[8] = 0;
 
     // Is the feature actually enabled?
-    if (knock_detection_enabled == FALSE || acc_detected == FALSE)
+    if (acc_detected == FALSE)
     {
         return RETURN_NOK;
     }
@@ -233,8 +235,22 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
 
         // Average calculations
         acc_z_added += z_data_val;
+        acc_y_cumulated += (int8_t)acc_data[3];
         if (++acc_z_avg_counter == ACC_Z_AVG_NB_SAMPLES)
         {
+            // Check if we need to reverse the screen
+            if ((acc_y_cumulated > ACC_Y_TOTAL_NREVERSE) && (miniOledIsDisplayReversed() != FALSE))
+            {
+                miniOledUnReverseDisplay();
+                wheel_reverse_bool = FALSE;
+            } 
+            else if ((acc_y_cumulated < ACC_Y_TOTAL_REVERSE) && (miniOledIsDisplayReversed() == FALSE))
+            {
+                miniOledReverseDisplay();
+                wheel_reverse_bool = TRUE;
+            }
+            acc_y_cumulated = 0;
+
             // Compute average
             acc_z_average = acc_z_added / ACC_Z_AVG_NB_SAMPLES;
 
@@ -296,7 +312,7 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
             if (z_cor_data_val > knock_detection_threshold)
             {
                 // If silence period is respected
-                if (((knock_detect_counter - knock_last_det_counter) > ACC_Z_SECOND_KNOCK_MIN_NBS) && (acc_z_tap_detect_enabled != FALSE))
+                if (((knock_detect_counter - knock_last_det_counter) > ACC_Z_SECOND_KNOCK_MIN_NBS) && (acc_z_tap_detect_enabled != FALSE) && (knock_detection_enabled != FALSE))
                 {
                     if (stream_output != FALSE)
                     {

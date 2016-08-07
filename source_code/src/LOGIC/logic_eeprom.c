@@ -67,7 +67,7 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     KEY_RETURN,         // KEY_AFTER_PASS_SEND_PARAM            The key to be sent after password is manually entered
     FALSE,              // DELAY_AFTER_KEY_ENTRY_BOOL_PARAM     Bool to know if we add an extra delay when a character is typed
     5,                  // DELAY_AFTER_KEY_ENTRY_PARAM          How many ms are added after a key is typed
-    FALSE,              // WHEEL_DIRECTION_REVERSE_PARAM        Reverse wheel direction
+    FALSE,              // TOBEREUSED!
     0x80,               // MINI_OLED_CONTRAST_CURRENT_PARAM     Default contrast current for the mini oled display
     0xFF,               // MINI_LED_ANIM_MASK_PARAM             LED animation mask
     FALSE,              // MINI_KNOCK_DETECT_ENABLE_PARAM       Knock detection enable

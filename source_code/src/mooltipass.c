@@ -220,10 +220,10 @@ int main(void)
     #endif
 
     /** HARDWARE INITIALIZATION **/
-    #if defined(HARDWARE_OLIVIER_V1) || defined(HARDWARE_MINI_CLICK_V2)
+    #if defined(HARDWARE_OLIVIER_V1) || defined(LEDS_ENABLED_MINI)
         initPwm();                              // Initialize PWM controller for MP standard & mini v2
     #endif                                      //
-    #if defined(HARDWARE_MINI_CLICK_V2)         // Only for the pre-production mini
+    #if defined(LEDS_ENABLED_MINI)              // Only for the pre-production mini
         miniInitLeds();                         // Initialize the LEDs
     #endif                                      //
     initPortSMC();                              // Initialize smart card port
@@ -307,7 +307,7 @@ int main(void)
     #endif
     
     /* Write inactive buffer by default */
-    oledWriteInactiveBuffer();    
+    oledWriteInactiveBuffer();
     
     /* Display tutorial if needed */
     if (getMooltipassParameterInEeprom(TUTORIAL_BOOL_PARAM) != FALSE)
@@ -370,7 +370,7 @@ int main(void)
         activityDetectedRoutine();
         launchCalibrationCycle();
         touchClearCurrentDetections();
-    #elif defined(HARDWARE_MINI_CLICK_V2)
+    #elif defined(LEDS_ENABLED_MINI)
         miniLedsSetAnimation(ANIM_FADE_IN_FADE_OUT_1_TIME);
     #endif
     

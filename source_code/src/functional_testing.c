@@ -211,7 +211,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         miniOledResetXY();
 
         // LED functional test
-        #ifdef HARDWARE_MINI_CLICK_V2
+        #ifdef LEDS_ENABLED_MINI
         setPwmDc(0xFFFF);
         for (uint8_t i = 0; i < 4; i++)
         {

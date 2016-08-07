@@ -208,6 +208,8 @@ def collect():
 		yvalue = -((~yvalue & 0x7F) + 1)
 	if zvalue >= 128:
 		zvalue = -((~zvalue & 0x7F) + 1)
+		
+	#print yvalue
 	
 
 	mutex.lock()

@@ -29,7 +29,7 @@
 #include "gui.h"
 /***************************************************************/
 /*  This file is only used for the Mooltipass standard version */
-#if defined(HARDWARE_OLIVIER_V1) || defined(HARDWARE_MINI_CLICK_V2)
+#if defined(HARDWARE_OLIVIER_V1) || defined(LEDS_ENABLED_MINI)
 
 
 /*! \fn     initPwm()
@@ -47,7 +47,7 @@ void initPwm(void)
         TCCR4A = (1 << COM4A1) | (1 << COM4A0) |  (1 << PWM4A); // Enhanced fast PWM mode, set OC4A on Compare Match, clear OC4A at BOTTOM
         TCCR4E = (1 << ENHC4);                                  // Enhanced (11 bits) PWM mode
         TCCR4B = (1 << CS40);                                   // No prescaling
-    #elif defined(HARDWARE_MINI_CLICK_V2)        
+    #elif defined(LEDS_ENABLED_MINI)        
         OCR3A = 0xFFFF;                                         // Output off by default
         ICR3 = 0xFFFF;                                          // Set TOP to max value (0xFFFF)
         TCCR3A = (1 << COM3A0) | (1 << COM3A1) | (1 << WGM31);  // Enhanced fast PWM mode, set OC3A on Compare Match, clear OC3A at BOTTOM
@@ -66,7 +66,7 @@ void setPwmDc(uint16_t pwm_value)
     #if defined(HARDWARE_OLIVIER_V1)
         TC4H = ~(pwm_value >> 8);
         OCR4A = ~pwm_value;
-    #elif defined(HARDWARE_MINI_CLICK_V2)
+    #elif defined(LEDS_ENABLED_MINI)
         OCR3A = ~pwm_value;
     #endif
 }

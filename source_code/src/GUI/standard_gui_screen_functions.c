@@ -788,7 +788,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     uint8_t flash_flag = FALSE;
 
     // LED animation
-    #ifdef HARDWARE_MINI_CLICK_V2
+    #ifdef LEDS_ENABLED_MINI
         miniLedsSetAnimation(ANIM_PULSE_UP_RAMP_DOWN);
     #endif
     
@@ -1015,7 +1015,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         if ((input_answer == MINI_INPUT_RET_YES) && (approve_selected != FALSE))
         {
             // LED animation
-            #ifdef HARDWARE_MINI_CLICK_V2
+            #ifdef LEDS_ENABLED_MINI
                 miniLedsSetAnimation(ANIM_NONE);
             #endif
             return RETURN_OK;
@@ -1023,7 +1023,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         else if (input_answer == MINI_INPUT_RET_BACK)
         {
             // LED animation
-            #ifdef HARDWARE_MINI_CLICK_V2
+            #ifdef LEDS_ENABLED_MINI
                 miniLedsSetAnimation(ANIM_NONE);
             #endif
             return RETURN_BACK;
@@ -1031,7 +1031,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         else
         {
             // LED animation
-            #ifdef HARDWARE_MINI_CLICK_V2
+            #ifdef LEDS_ENABLED_MINI
                 miniLedsSetAnimation(ANIM_NONE);
             #endif
             return RETURN_NOK;

@@ -72,6 +72,8 @@ uint8_t miniOledTextWritingYIncrement = FALSE;
 uint8_t miniOledMaxTextY = SSD1305_OLED_WIDTH;
 // Minimum Y when printing text
 uint8_t miniOledMinTextY = 0;
+// X offset between frame buffer and display
+uint8_t miniOledXOffset = SSD1305_X_OFFSET;
 
 // OLED initialization sequence
 #define OLEDMINI_ALT_INIT_CODE
@@ -119,6 +121,52 @@ void miniOledWriteFrameBuffer(uint16_t offset, uint8_t* data, uint8_t nbBytes)
     miniOledFlushEntireBufferToDisplay();
 }
 #endif
+
+/*! \fn     miniOledReverseDisplay(void)
+ *  \brief  Reverse the display for these left-handed gents out there
+ */
+void miniOledReverseDisplay(void)
+{
+    uint8_t old_buffer_y_offset = miniOledBufferYOffset;
+
+    miniOledXOffset = 0;
+    miniOledWriteSimpleCommand(SSD1305_CMD_COM_OUTPUT_NORMAL);
+    miniOledWriteSimpleCommand(SSD1305_CMD_SET_SEGMENT_REMAP_COL_0);
+    miniOledBufferYOffset = (old_buffer_y_offset + SSD1305_OLED_BUFFER_HEIGHT - SSD1305_OLED_HEIGHT) % SSD1305_OLED_BUFFER_HEIGHT;
+    miniOledFlushEntireBufferToDisplay();
+    miniOledBufferYOffset = miniOledBufferYOffset;
+}
+
+/*! \fn     miniOledUnReverseDisplay(void)
+ *  \brief  Unreverse the display for the normal right-handed gents out there
+ */
+void miniOledUnReverseDisplay(void)
+{
+    uint8_t old_buffer_y_offset = miniOledBufferYOffset;
+
+    miniOledXOffset = SSD1305_X_OFFSET;
+    miniOledWriteSimpleCommand(SSD1305_CMD_COM_OUTPUT_REVERSED);
+    miniOledWriteSimpleCommand(SSD1305_CMD_SET_SEGMENT_REMAP_COL_131);
+    miniOledBufferYOffset = (old_buffer_y_offset + SSD1305_OLED_BUFFER_HEIGHT - SSD1305_OLED_HEIGHT) % SSD1305_OLED_BUFFER_HEIGHT;
+    miniOledFlushEntireBufferToDisplay();
+    miniOledBufferYOffset = miniOledBufferYOffset;
+}
+
+/*! \fn     miniOledIsDisplayReversed(void)
+ *  \brief  Know if the display is reversed
+ *  \return TRUE or FALSE
+ */
+RET_TYPE miniOledIsDisplayReversed(void)
+{
+    if (miniOledXOffset != 0)
+    {
+        return FALSE;
+    } 
+    else
+    {
+        return TRUE;
+    }
+}
 
 /*! \fn     miniOledFlushWrittenTextToDisplay(void)
  *  \brief  Bool setting to flush written text to display
@@ -207,7 +255,7 @@ void miniOledWriteData(uint8_t* data, uint16_t nbBytes)
  */
 void miniOledSetColumnAddress(uint8_t columnStart, uint8_t columnEnd)
 {
-    uint8_t data[3] = {SSD1305_CMD_SET_COLUMN_ADDR, columnStart + SSD1305_X_OFFSET, columnEnd + SSD1305_X_OFFSET};
+    uint8_t data[3] = {SSD1305_CMD_SET_COLUMN_ADDR, columnStart + miniOledXOffset, columnEnd + miniOledXOffset};
     miniOledWriteCommand(data, sizeof(data));
 }
 
@@ -296,7 +344,7 @@ void miniInvertBufferAndFlushIt(void)
 void miniOledFlushEntireBufferToDisplay(void)
 {
     // Display window: starting & ending X
-    uint8_t set_x_window_command[3] = {SSD1305_CMD_SET_COLUMN_ADDR, SSD1305_X_OFFSET, SSD1305_OLED_WIDTH + SSD1305_X_OFFSET - 1};
+    uint8_t set_x_window_command[3] = {SSD1305_CMD_SET_COLUMN_ADDR, miniOledXOffset, SSD1305_OLED_WIDTH + miniOledXOffset - 1};
     
     // Display window: starting & ending page
     uint8_t current_page = miniOledScreenYOffset >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;

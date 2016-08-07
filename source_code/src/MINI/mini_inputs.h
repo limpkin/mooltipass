@@ -33,6 +33,10 @@
 #define LONG_PRESS_MS               1000
 // After how many z samples we compute the z axis average
 #define ACC_Z_AVG_NB_SAMPLES        256
+// Minimum sum of the y access to reverse the display (accumulated over ACC_Z_AVG_NB_SAMPLES)
+#define ACC_Y_TOTAL_NREVERSE        58*ACC_Z_AVG_NB_SAMPLES
+// Same thing, but the other way around ;)
+#define ACC_Y_TOTAL_REVERSE         -58*ACC_Z_AVG_NB_SAMPLES
 // The maximum sum of the difference between samples & avg to run the detection algo
 #define ACC_Z_MAX_AVG_SUM_DIFF      2*ACC_Z_AVG_NB_SAMPLES
 // Nb samples to timeout a second knock detection

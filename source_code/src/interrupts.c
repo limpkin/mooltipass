@@ -44,7 +44,7 @@ ISR(TIMER1_COMPA_vect)                                              // Match on 
     #if defined(MINI_VERSION)
         scanMiniInputsDetect();                                     // Scan mini inputs
     #endif
-    #if defined(HARDWARE_MINI_CLICK_V2)
+    #if defined(LEDS_ENABLED_MINI)
         miniLedsAnimationTick();                                    // LED animation
     #endif
     #ifdef ENABLE_MILLISECOND_DBG_TIMER

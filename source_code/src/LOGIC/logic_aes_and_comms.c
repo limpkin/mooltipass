@@ -1297,7 +1297,9 @@ RET_TYPE askUserToSaveToFlash(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr
             guiDisplayInformationOnScreenAndWait(ID_STRING_MGMT_OPFAILURE);
             return RETURN_NOK;
         }
-    } else {
+    }
+    else
+    {
         return RETURN_NOK;
     }
 }
@@ -1376,7 +1378,9 @@ uint16_t askUserToSelectCharset(uint16_t original_flags)
         while ((flags & NODE_F_CHILD_USERFLAGS_MASK) == 0x00); /* ask again until the user picks at least one charset */
 
         return flags;
-    } else {
+    } 
+    else
+    {
         return original_flags;
     }
 }
@@ -1482,13 +1486,17 @@ void sendOrDisplayString(char * str, uint8_t is_password)
             {
                 usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_PARAM), 0);
             }
-        } else {
+        }
+        else
+        {
             if (getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_BOOL_PARAM) != FALSE)
             {
                 usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_LOGIN_SEND_PARAM), 0);
             }
         }
-    } else {
+    }
+    else
+    {
         guiDisplayLoginOrPasswordOnScreen(str);
     }
 }

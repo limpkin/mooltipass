@@ -11,9 +11,13 @@ browserAction.show = function(callback, tab) {
 	}
 
 	if(data.popup) {
-		chrome.browserAction.setPopup({
-			tabId: tab.id,
-			popup: "popups/" + data.popup
+		chrome.tabs.get(tab.id, function() {
+			if (!chrome.runtime.lastError) {
+				chrome.browserAction.setPopup({
+					tabId: tab.id,
+					popup: "popups/" + data.popup
+				});
+    		}
 		});
 	}
 }

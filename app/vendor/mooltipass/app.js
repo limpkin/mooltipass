@@ -95,9 +95,11 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
     else if(inputObject.command == 'cancelGetCredentials')
     {
         console.log("Cancel request for reqid " + inputObject.reqid);
-        
-        // Cancel request only implemented in v1.1
-        if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(mooltipass.device.version) >= "v1.1" && mooltipass.device.currentReqid == inputObject.reqid)
+        if ( 'undefined' !== typeof mooltipass.emulator.active && true === mooltipass.emulator.active ) 
+        {
+            mooltipass.emulator._cancelRequest( inputObject );
+        } 
+        else if (mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(mooltipass.device.version) >= "v1.1" && mooltipass.device.currentReqid == inputObject.reqid)
         {
             // The cancel message doesn't generate any reply from the device, so we can just send it as is
             chrome.hid.send(mooltipass.device.connectionId, 0, mooltipass.device.createPacket(mooltipass.device.commands['cancelUserRequest'], null), function(){});

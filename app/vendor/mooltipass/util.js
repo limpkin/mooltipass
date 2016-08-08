@@ -3,6 +3,8 @@ mooltipass.util = mooltipass.util || {};
 
 mooltipass.util.getFirmwareFunctionalityVersionFromVersionString = function(version)
 {
+    if (!version) return 'error';
+    //console.log('Version:', version );
 	if (version.indexOf('_') == -1)
 	{
 		return version;

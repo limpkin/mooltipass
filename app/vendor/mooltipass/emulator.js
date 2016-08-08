@@ -48,20 +48,27 @@ mooltipass.emulator._getCredentials = function(inputObject) {
 
     console.log('Context:', firstContext[0] );
 	if ( 'undefined' !== typeof( firstContext[0] ) ) {
-		chrome.storage.local.get('mooltipass_emulator', function(result) {
-			console.log('mooltipass_emulator:', result.mooltipass_emulator );
-			credentials = result.mooltipass_emulator?JSON.parse(result.mooltipass_emulator):{};
-			var creds = {};
-			if ( 'undefined' !== typeof credentials[ firstContext[0] ] ) {
-				creds = credentials[ firstContext[0] ];
-				creds.success = true;
-			} else {
-				creds.success = false;
+		chrome.storage.local.get('mooltipass_emulator', function( result ) {
+			var creds = { success: false };
+			if ( result ) {
+				credentials = result.mooltipass_emulator?JSON.parse(result.mooltipass_emulator):{};
+				if ( 'undefined' !== typeof credentials[ firstContext[0] ] ) {
+					creds = credentials[ firstContext[0] ];
+					creds.success = true;
+				} 
 			}
-			console.log( 'credentials: ', creds );
-			inputObject.callbackFunction ( creds );
-		})
+			
+			this.timeout = setTimeout( function() { 
+				console.log( 'credentials for ' + firstContext[0] + ':', creds );
+				inputObject.callbackFunction ( creds );
+			},5000);
+		}.bind(this) );
 	} else {
 		inputObject.callbackFunction ( inputObject.callbackParameters );
 	}
 };
+
+mooltipass.emulator._cancelRequest = function(inputObject) {
+	console.log('CANCEL RETRIEVING CREDENTIALS *************************************************');
+	clearTimeout( this.timeout );
+}

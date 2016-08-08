@@ -336,6 +336,7 @@ RET_TYPE miniTextEntry(char * dst, uint8_t buflen, uint8_t filled_len, uint8_t m
                         /* erase previous char */
                         pos--;
                         dst[pos] = '\0';
+                        long_click_ctr=0;
 
                         /* flash screen for 50 ms */
                         miniOledInvertedDisplay();

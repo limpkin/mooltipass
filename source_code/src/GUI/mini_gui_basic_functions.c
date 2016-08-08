@@ -336,6 +336,7 @@ RET_TYPE miniTextEntry(char * dst, uint8_t buflen, uint8_t filled_len, uint8_t m
                         /* erase previous char */
                         pos--;
                         dst[pos] = '\0';
+                        long_click_ctr=0;
 
                         /* flash screen for 50 ms */
                         miniOledInvertedDisplay();
@@ -371,6 +372,11 @@ RET_TYPE miniTextEntry(char * dst, uint8_t buflen, uint8_t filled_len, uint8_t m
                     miniOledNormalDisplay();
                     return RETURN_NOK;
                 }
+
+                /* handle default behaviour: backspace */
+                pos--;
+                dst[pos] = '\0';
+
                 /* clear text input and reset tracker if we have reached the required count of long clicks */
                 if(long_click_ctr >= ENTRY_LONGCLICK_ERASE)
                 {
@@ -381,9 +387,6 @@ RET_TYPE miniTextEntry(char * dst, uint8_t buflen, uint8_t filled_len, uint8_t m
                     }
                     pos = 0;
                 }
-                /* handle default behaviour: backspace */
-                pos--;
-                dst[pos] = '\0';
 
                 /* flash screen for 50 ms */
                 miniOledInvertedDisplay();

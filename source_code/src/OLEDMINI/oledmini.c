@@ -134,7 +134,7 @@ void miniOledReverseDisplay(void)
     miniOledWriteSimpleCommand(SSD1305_CMD_SET_SEGMENT_REMAP_COL_0);
     miniOledBufferYOffset = (old_buffer_y_offset + SSD1305_OLED_BUFFER_HEIGHT - SSD1305_OLED_HEIGHT) % SSD1305_OLED_BUFFER_HEIGHT;
     miniOledFlushEntireBufferToDisplay();
-    miniOledBufferYOffset = miniOledBufferYOffset;
+    miniOledBufferYOffset = old_buffer_y_offset;
 }
 
 /*! \fn     miniOledUnReverseDisplay(void)
@@ -149,7 +149,7 @@ void miniOledUnReverseDisplay(void)
     miniOledWriteSimpleCommand(SSD1305_CMD_SET_SEGMENT_REMAP_COL_131);
     miniOledBufferYOffset = (old_buffer_y_offset + SSD1305_OLED_BUFFER_HEIGHT - SSD1305_OLED_HEIGHT) % SSD1305_OLED_BUFFER_HEIGHT;
     miniOledFlushEntireBufferToDisplay();
-    miniOledBufferYOffset = miniOledBufferYOffset;
+    miniOledBufferYOffset = old_buffer_y_offset;
 }
 
 /*! \fn     miniOledIsDisplayReversed(void)

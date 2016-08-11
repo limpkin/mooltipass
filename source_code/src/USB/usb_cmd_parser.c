@@ -879,48 +879,93 @@ void usbProcessIncoming(uint8_t caller_id)
             mediaFlashImportPage = GRAPHIC_ZONE_PAGE_START;
             mediaFlashImportOffset = 0;
 
-            // Mini version: copy current firmware version in EEPROM
-            #ifdef MINI_VERSION
-                eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
-            #endif
+            // Things are different between the mini & the standard Mooltipass
+            #if defined(MINI_VERSION)
+                #define DELIBERATE_BUNDLE_PASSWORD_CHECK_SKIP
+                #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_CREDENTIAL_MANAGEMENT) || defined(DELIBERATE_BUNDLE_PASSWORD_CHECK_SKIP)
+                    /* For the versions that use the AVR bootloader, or when deliberately skipping it: no prompts, just accept it */
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                    mediaFlashImportApproved = TRUE;
 
-            // Non AVR bootloader minis: set jump to bootloader value, arm reboot timer, only when security is in place
-            #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
-                if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
-                {
-                    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
-                    activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);
-                }
-            #endif
+                    #if defined(DELIBERATE_BUNDLE_PASSWORD_CHECK_SKIP)
+                        /* Version with custom bootloader: copy version in eeprom */
+                        eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
 
-            // No check if dev comms
-            #if defined(DEV_PLUGIN_COMMS) || defined(AVR_BOOTLOADER_PROGRAMMING)
-                plugin_return_value = PLUGIN_BYTE_OK;
-                mediaFlashImportApproved = TRUE;
-            #elif defined(MINI_VERSION)
-                // TODO: set authorizations
-                plugin_return_value = PLUGIN_BYTE_OK;
-                mediaFlashImportApproved = TRUE;
-            #else            
-                // Mandatory wait for bruteforce
-                userViewDelay();
-                
-                // Compare with our password if it is set
-                if (datalen == PACKET_EXPORT_SIZE)
-                {                    
-                    // Prepare asking confirmation screen
-                    confirmationText_t temp_conf_text;
-                    temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
-                    temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
-                    
-                    // Allow bundle update if password is not set
-                    if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE) == TRUE)))
+                        /* If security is in place: set jump to bootloader key */
+                        if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
+                        {
+                            eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                            activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);
+                        }
+                    #endif
+                #else
+                    /* Security set value */
+                    uint8_t boot_pwd_set_val = eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET);
+
+                    if((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_INVALID) || (boot_pwd_set_val != BOOTLOADER_PWDOK_KEY))
                     {
-                        plugin_return_value = PLUGIN_BYTE_OK;
-                        mediaFlashImportApproved = TRUE;
+                        /* Normal mini versions: update only available when the card is inserted backwards */
+
+                        // Mandatory wait for bruteforce
+                        userViewDelay();
+
+                        // Prepare asking confirmation screen
+                        confirmationText_t temp_conf_text;
+                        temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
+                        temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
+
+                        // TODO: implement sec check !
+                        
+                        // Allow bundle update if password is not set
+                        if ((boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (TRUE == TRUE)))
+                        {
+                            /* Approve bundle upload request */
+                            plugin_return_value = PLUGIN_BYTE_OK;
+                            mediaFlashImportApproved = TRUE;
+
+                            /* Copy firmware version in eeprom */
+                            eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
+
+                            /* When security is in place: set jump to bootloader bool, activate timer for reboot */
+                            if(boot_pwd_set_val == BOOTLOADER_PWDOK_KEY)
+                            {
+                                eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
+                                activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);                                
+                            }
+                        }
+                        guiGetBackToCurrentScreen();
                     }
-                    guiGetBackToCurrentScreen();
-                }
+                    else
+                    {
+                        plugin_return_value = PLUGIN_BYTE_ERROR;
+                    }
+                #endif
+            #else            
+                // No check if dev comms
+                #if defined(DEV_PLUGIN_COMMS) || defined(AVR_BOOTLOADER_PROGRAMMING)
+                    plugin_return_value = PLUGIN_BYTE_OK;
+                    mediaFlashImportApproved = TRUE;
+                #else            
+                    // Mandatory wait for bruteforce
+                    userViewDelay();
+                
+                    // Compare with our password if it is set
+                    if (datalen == PACKET_EXPORT_SIZE)
+                    {                    
+                        // Prepare asking confirmation screen
+                        confirmationText_t temp_conf_text;
+                        temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
+                        temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
+                    
+                        // Allow bundle update if password is not set
+                        if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (checkMooltipassPassword(msg->body.data, (void*)EEP_BOOT_PWD, PACKET_EXPORT_SIZE) == TRUE)))
+                        {
+                            plugin_return_value = PLUGIN_BYTE_OK;
+                            mediaFlashImportApproved = TRUE;
+                        }
+                        guiGetBackToCurrentScreen();
+                    }
+                #endif
             #endif            
             break;
         }
@@ -961,7 +1006,7 @@ void usbProcessIncoming(uint8_t caller_id)
             plugin_return_value = PLUGIN_BYTE_OK;
             mediaFlashImportApproved = FALSE;
             
-            #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
+            #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP) && !defined(MINI_CREDENTIAL_MANAGEMENT)
             // At the end of the import media command if the security is set in place, we start the bootloader
             if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
             {                

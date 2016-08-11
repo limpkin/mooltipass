@@ -82,7 +82,8 @@ MCU     := atmega32u4
 # Set CONFIG=DEBUG in the shell from which you invoke make to build a debug
 # build.
 CONFIG  ?= RELEASE
-DEFINES := F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
+DEFINES := F_CPU=16000000UL F_USB=16000000UL
+#DEFINES := F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
 
 CFLAGS  += -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
 CFLAGS  += -fshort-enums -ffunction-sections

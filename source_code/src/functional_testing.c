@@ -182,7 +182,7 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
 void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
 {
     // Byte value to which USER_PARAM_INIT_KEY_PARAM should be set to go to the next customization step
-    uint8_t correct_param_init_key_val = 0x94;
+    uint8_t correct_param_init_key_val = 0xBB;
 
     // Uncomment below to force test procedure
     /*current_bootkey_val = CORRECT_BOOTKEY + 1;

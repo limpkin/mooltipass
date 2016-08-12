@@ -162,7 +162,7 @@ class mooltipass_hid_device:
 		for i in range(0, packetstoreceive):
 			received_data = self.device.receiveHidPacket()
 			print "Packet #" + str(i) + " in hex: " + ' '.join(hex(x) for x in received_data)
-
+			
 	# Upload bundle
 	def	uploadBundle(self, password, filename, verbose):	
 		password_set = False

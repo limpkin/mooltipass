@@ -46,7 +46,7 @@ import usb.util
 import random
 import time
 import sys
-nonConnectionCommands = ["packAndSign"]
+nonConnectionCommands = ["packAndSign", "decrypt_mini_prod"]
 
 def main():
 	skipConnection = False
@@ -126,8 +126,9 @@ def main():
 					print "Device Not Supported"
 			else:
 				print "init: not enough args!"
-			
-			
+				
+		if sys.argv[1] == "decrypt_mini_prod":
+			decryptMiniProdFile()		
 		
 	#mooltipass_device.sendCustomPacket()
 	#mooltipass_device.checkSecuritySettings()

@@ -1,8 +1,11 @@
 from mooltipass_hid_device import *
 from Crypto.PublicKey import RSA
 from mooltipass_defines import *
+from os.path import isfile, join
 from array import array
 from time import sleep
+from os import listdir
+import pyqrcode
 import platform
 import usb.core
 import usb.util
@@ -27,6 +30,61 @@ def pickle_read(filename):
 	data = pickle.load(f)
 	f.close()
 	return data
+	
+# Decrypt production file
+def decryptMiniProdFile():
+	# Check for key file
+	if not os.path.isfile("key.bin"):
+		print "Decryption key file key.bin isn't found"
+		return
+	else:
+		print "Decryption key file key.bin found"
+		
+	# Import key
+	key = RSA.importKey(pickle_read("key.bin"))
+	
+	# List files in the export folder
+	export_file_names = [f for f in listdir("export/") if isfile(join("export/", f))]
+		
+	# Ask for Mooltipass ID
+	mooltipass_id = raw_input("Enter Mooltipass ID: ")
+	
+	# Find Mooltipass ID in files
+	for file_name in export_file_names:
+		if mooltipass_id in file_name:
+			print "Found export file:", file_name
+			data = pickle_read(join("export/",file_name))
+			decrypted_data = key.decrypt(data)
+			items = decrypted_data.split('|')
+			#print decrypted_data
+			# Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
+			
+			# key1
+			key1 = items[1]
+			key1_qr = pyqrcode.create(key1)
+			print ""
+			print "AES key 1:", key1
+			print(key1_qr.terminal(quiet_zone=1))
+			
+			# key2
+			key2 = items[2]
+			key2_qr = pyqrcode.create(key2)
+			print ""
+			print "AES key 1:", key2
+			print(key2_qr.terminal(quiet_zone=1))
+			
+			# Request UID
+			request = items[3]
+			request_qr = pyqrcode.create(request)
+			print "Request UID key:", request
+			print(request_qr.terminal(quiet_zone=1))
+			
+			# UID
+			request = items[4]
+			request_qr = pyqrcode.create(request)
+			print "UID :", request
+			print(request_qr.terminal(quiet_zone=1))
+
 		
 # Get a packet to send for a given command and payload
 def mpmInitGetPacketForCommand(cmd, len, data):
@@ -44,15 +102,7 @@ def mpmInitGetPacketForCommand(cmd, len, data):
 		
 	return arraytosend
 
-def mooltipassMiniInit(mooltipass_device):
-	# Ask for Mooltipass ID
-	try :
-		mp_id = int(raw_input("Enter Mooltipass ID: MP01-"))
-		print ""
-	except ValueError :
-		mp_id = 0
-		print ""
-	
+def mooltipassMiniInit(mooltipass_device):	
 	# Check for public key
 	if not os.path.isfile("publickey.bin"):
 		print "Couldn't find public key!"
@@ -138,7 +188,7 @@ def mooltipassMiniInit(mooltipass_device):
 				sys.stdout.flush()
 				magic_key = array('B')
 				magic_key.append(0)
-				magic_key.append(148)
+				magic_key.append(187)
 				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
 				if mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX] == 0x01:
 					success_status = True
@@ -148,32 +198,33 @@ def mooltipassMiniInit(mooltipass_device):
 					print "fail!!!"
 					print "likely causes: none"
 			
-			if success_status == True:
-				# Force tester to look at the LEDs
-				raw_input("Press enter if LED1 is on: ")
-				magic_key = array('B')
-				magic_key.append(0)
-				magic_key.append(149)
-				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
-				mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX]
-				raw_input("Press enter if LED2 is on: ")
-				magic_key = array('B')
-				magic_key.append(0)
-				magic_key.append(150)
-				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
-				mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX]
-				raw_input("Press enter if LED3 is on: ")
-				magic_key = array('B')
-				magic_key.append(0)
-				magic_key.append(151)
-				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
-				mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX]
-				raw_input("Press enter if LED4 is on: ")
-				magic_key = array('B')
-				magic_key.append(0)
-				magic_key.append(152)
-				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
-				mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX]
+			# Mooltipass Mini doesn't have LEDs anymore
+			#if success_status == True:
+			#	# Force tester to look at the LEDs
+			#	raw_input("Press enter if LED1 is on: ")
+			#	magic_key = array('B')
+			#	magic_key.append(0)
+			#	magic_key.append(149)
+			#	mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
+			#	mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX]
+			#	raw_input("Press enter if LED2 is on: ")
+			#	magic_key = array('B')
+			#	magic_key.append(0)
+			#	magic_key.append(150)
+			#	mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
+			#	mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX]
+			#	raw_input("Press enter if LED3 is on: ")
+			#	magic_key = array('B')
+			#	magic_key.append(0)
+			#	magic_key.append(151)
+			#	mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
+			#	mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX]
+			#	raw_input("Press enter if LED4 is on: ")
+			#	magic_key = array('B')
+			#	magic_key.append(0)
+			#	magic_key.append(152)
+			#	mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_MOOLTIPASS_PARM, 2, magic_key))
+			#	mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX]
 
 			# Wait for the mooltipass to inform the script that the test was successfull
 			if success_status == True:
@@ -212,13 +263,21 @@ def mooltipassMiniInit(mooltipass_device):
 
 			# Send set password packet
 			if success_status == True:
-				sys.stdout.write('Step 5... ')
+				sys.stdout.write('Step 5...\r\n')
 				sys.stdout.flush()
 				# TO REMOVE
 				mooltipass_password = [0]*62
 				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password))
 				#print mooltipass_password
 				if mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX] == 0x01:
+					# Set password success, ask mooltipass id
+					mp_id = None
+					while mp_id == None:
+						try :
+							mp_id = int(raw_input("Enter Mooltipass ID: MPM-"))
+						except ValueError :
+							mp_id = None
+							print "Wrong entered value, please try again"
 					# Write in file: Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
 					aes_key1 = "".join(format(x, "02x") for x in mooltipass_password[:32])
 					aes_key2 = "".join(format(x, "02x") for x in mooltipass_password[32:]) + "".join(format(x, "02x") for x in request_key_and_uid[22:])
@@ -229,7 +288,6 @@ def mooltipassMiniInit(mooltipass_device):
 					pickle_write(public_key.encrypt(string_export, 32), time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mp_id)+".txt")
 					# Update Success status
 					success_status = True
-					print ""
 				else:
 					success_status = False
 					print "fail!!!"
@@ -237,15 +295,14 @@ def mooltipassMiniInit(mooltipass_device):
 
 			if success_status == True:
 				# Let the user know it is done
-				print "Setting up Mooltipass MP01-"+str(mp_id).zfill(4)+" DONE"
-				print "PLEASE ATTACH STICKER MP01-"+str(mp_id).zfill(4)+" ON THE MOOLTIPASS"
+				print "Setting up Mooltipass MPM-"+str(mp_id).zfill(4)+" DONE"
 				# Increment Mooltipass ID
 				mp_id = mp_id + 1
 			else:
 				print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
 				print "|---------------------------------------------------------|"
 				print "|---------------------------------------------------------|"
-				print "|Setting up Mooltipass MP01-"+str(mp_id).zfill(4)+" FAILED                   |"
+				print "|Setting up Mooltipass MPM-"+str(mp_id).zfill(4)+" FAILED                  |"
 				print "|                                                         |"                     
 				print "|           PLEASE PUT AWAY THIS MOOLTIPASS!!!!           |"                     
 				print "|---------------------------------------------------------|"

@@ -23,25 +23,12 @@ DEFINES += NDEBUG
 DEFINES += F_USB=16000000UL
 DEFINES += MOOLTIPASS_VERSION="\"v1.1\""
 
-# Avrdude settings Arduino as ISP
-#AVRDUDE_PORT       = /dev/ttyACM0
-#AVRDUDE_PROGRAMMER = stk500v1
-#AVRDUDE_FLAGS      = -b 19200 -e -Ulock:w:0x3F:m -Uefuse:w:0xFB:m -Uhfuse:w:0xD9:m -Ulfuse:w:0xFF:m
-# AVRDUDE_HFUSE      = 0xD8
-# AVRDUDE_EFUSE      = 0xF8
-# AVRDUDE_LFUSE      = 0xFF
-# AVRDUDE_LOCK       = 0x3C
-
-# Avrdude settings Arduino Bootloader
-AVRDUDE_PORT       = /dev/ttyACM0
-AVRDUDE_PROGRAMMER = avr109
-AVRDUDE_FLAGS      = -b 115200
-
 # Special optimization (most important at the top)
 CC_FLAGS  += -mcall-prologues
 CC_FLAGS  += -fno-split-wide-types
 
 ifneq ($(BOOTLOADER), true)
+# Firmware build settings
 
 # LTO is available in avr-gcc 4.9.2 of Ubuntu 16.04 and avr-gcc 5.3 of Arch
 CC_FLAGS  += -flto -fuse-linker-plugin
@@ -52,6 +39,11 @@ LD_FLAGS  += -flto -fuse-linker-plugin
 LIBDIRS := $(addprefix ./, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI MINI)
 LIBOBJS := $(foreach lib, $(LIBDIRS), $(wildcard $(lib)/*.c))
 OBJECTS := $(filter-out ./bootloader_main.c, $(wildcard ./*.c))
+
+# Avrdude settings Arduino Bootloader
+AVRDUDE_PORT       = /dev/ttyACM0
+AVRDUDE_PROGRAMMER = avr109
+AVRDUDE_FLAGS      = -b 1200
 
 else
 
@@ -85,6 +77,15 @@ BOOT_SEC_OFFSET       = $(call CALC_ADDRESS_IN_HEX, ($(FLASH_SIZE_KB) * 1024) - 
 # known FLASH addresses - these should not normally be user-edited.
 BOOT_SECTION_LD_FLAG  = -Wl,--section-start=$(strip $(1))=$(call BOOT_SEC_OFFSET, $(3)) -Wl,--undefined=$(strip $(2))
 BOOT_API_LD_FLAGS    += $(call BOOT_SECTION_LD_FLAG, .spmfunc, spmfunc, 128)
+
+# Avrdude settings Arduino as ISP
+AVRDUDE_PORT       = /dev/ttyACM0
+AVRDUDE_PROGRAMMER = stk500v1
+AVRDUDE_FLAGS      = -b 19200 -e -Ulock:w:0x3F:m -Uefuse:w:0xFB:m -Uhfuse:w:0xD9:m -Ulfuse:w:0xFF:m
+# AVRDUDE_HFUSE      = 0xD8
+# AVRDUDE_EFUSE      = 0xF8
+# AVRDUDE_LFUSE      = 0xFF
+# AVRDUDE_LOCK       = 0x3C
 
 endif
 

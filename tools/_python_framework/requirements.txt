@@ -1,0 +1,4 @@
+crypto
+pyusb
+intelhex
+pyqrcode

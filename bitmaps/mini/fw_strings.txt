@@ -60,7 +60,7 @@ No Stored Credentials
 !!!FUSE PB!!!~~
 Func Test, press wheel~~
 Wheel pressed~~
-Scroll To 10
+Scroll To 'z'
 DON'T APPROVE THIS!
 Send Password For:
 Select Credential: 
@@ -69,7 +69,7 @@ LED1,
 LED2,
 LED3,
 LED4~~
-RESERVED_1
+Scroll Back To 'a'
 RESERVED_2
 RESERVED_3
 RESERVED_4

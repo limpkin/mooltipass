@@ -196,7 +196,7 @@ RET_TYPE getNewAccelerometerDataIfAvailable(uint8_t* buffer)
     }
 }
 
-/*! \fn     scanAndGetDoubleZTap(yubt)
+/*! \fn     scanAndGetDoubleZTap(uint8_t stream_output)
 *   \brief  Fetch remaining accelerometer data and use it to detect double taps
 *   \param  stream_output   TRUE to send USB packets with the current data
 *   \return RETURN_OK if a double tap event was detected
@@ -210,7 +210,7 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
     // Is the feature actually enabled?
     if (acc_detected == FALSE)
     {
-        return RETURN_NOK;
+        return ACC_RET_NOTHING;
     }
 
     // Fetch data if there's data to be fetched
@@ -323,7 +323,7 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
                     // Return success
                     knock_last_det_counter = 0;
                     knock_detect_sm++;
-                    return RETURN_OK;
+                    return ACC_RET_KNOCK;
                 }
                 else
                 {
@@ -362,7 +362,16 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
             usbSendMessage(CMD_STREAM_ACC_DATA, 10, acc_data);
         }
     }
-    return RETURN_NOK;
+
+    // Depending on the threshold, return movement or nothing
+    if (acc_z_cum_diff_avg > ACC_Z_MOVEMENT_AVG_SUM_DIFF)
+    {
+        return ACC_RET_MOVEMENT;
+    } 
+    else
+    {
+        return ACC_RET_NOTHING;
+    }
 }
 #endif
 

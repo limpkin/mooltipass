@@ -514,6 +514,7 @@ void guiDisplayGoingToSleep(void)
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
 {    
     uint8_t flash_flag = FALSE;
+    uint8_t flash_sm = 0;
 
     // LED animation
     #ifdef LEDS_ENABLED_MINI
@@ -574,7 +575,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     miniOledResetMaxTextY();
 
     // In case the display inverted, set it correctly
-    if (flash_flag == TRUE)
+    /*if (flash_flag == TRUE)
     {
         activityDetectedRoutine();
         miniOledInvertedDisplay();
@@ -584,7 +585,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         miniOledInvertedDisplay();
         timerBased500MsDelay();
         miniOledNormalDisplay();
-    }
+    }*/
     
     // Wait for user input
     RET_TYPE input_answer = MINI_INPUT_RET_NONE;
@@ -598,6 +599,9 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         
     // Arm timer for scrolling (caps timer that isn't relevant here)
     activateTimer(TIMER_CAPS, SCROLLING_DEL);
+
+    // Arm timer for flashing
+    activateTimer(TIMER_FLASHING, 500);
         
     // Loop while no timeout occurs or no button is pressed
     while (input_answer == MINI_INPUT_RET_NONE)
@@ -613,6 +617,22 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         {
             input_answer = MINI_INPUT_RET_TIMEOUT;
         }
+
+        // Screen flashing logic
+        if ((hasTimerExpired(TIMER_FLASHING, TRUE) == TIMER_EXPIRED) && (flash_flag == TRUE) && (flash_sm < 4))
+        {
+            // Look at the flash_sm LSb to know what is the display state
+            if ((flash_sm++ & 0x01) != 0x00)
+            {
+                miniOledNormalDisplay();
+            } 
+            else
+            {
+                miniOledInvertedDisplay();
+            }
+            // Re-arm timer
+            activateTimer(TIMER_FLASHING, 500);
+        }
             
         // Check if something has been pressed
         detect_result = miniGetWheelAction(FALSE, TRUE);
@@ -627,7 +647,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
 
         // Knock to approve
         #if defined(HARDWARE_MINI_CLICK_V2)
-        if (scanAndGetDoubleZTap(FALSE) != RETURN_NOK)
+        if (scanAndGetDoubleZTap(FALSE) == ACC_RET_KNOCK)
         {
             input_answer = MINI_INPUT_RET_YES;
         }
@@ -682,7 +702,10 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             approve_selected = !approve_selected;
             miniOledFlushEntireBufferToDisplay();
         }
-    }   
+    } 
+    
+    // In case display was inverted, set it normally
+    miniOledNormalDisplay();  
     
     if ((input_answer == MINI_INPUT_RET_YES) && (approve_selected != FALSE))
     {

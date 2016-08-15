@@ -276,14 +276,6 @@ void guiMainLoop(void)
     #elif defined(MINI_VERSION)
         input_interface_result = miniGetWheelAction(FALSE, FALSE);
     #endif
-
-    #if defined(HARDWARE_MINI_CLICK_V2)
-    if ((oledIsOn() == FALSE) && (scanAndGetDoubleZTap(FALSE) == RETURN_OK))
-    {
-        // knock detecting algo to wakup the device
-        activityDetectedRoutine();
-    }
-    #endif
     
     #if defined(HARDWARE_OLIVIER_V1)
         // No activity, switch off LEDs and activate prox detection

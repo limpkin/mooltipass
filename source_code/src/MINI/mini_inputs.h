@@ -39,6 +39,8 @@
 #define ACC_Y_TOTAL_REVERSE         -58*ACC_Z_AVG_NB_SAMPLES
 // The maximum sum of the difference between samples & avg to run the detection algo
 #define ACC_Z_MAX_AVG_SUM_DIFF      2*ACC_Z_AVG_NB_SAMPLES
+// The minimum sum of the difference between samples & avg to notify there's movement
+#define ACC_Z_MOVEMENT_AVG_SUM_DIFF ACC_Z_AVG_NB_SAMPLES*2
 // Nb samples to timeout a second knock detection
 #define ACC_Z_SECOND_KNOCK_MAX_NBS  300
 // Nb samples of silence for a second knock detection

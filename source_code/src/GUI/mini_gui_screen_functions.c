@@ -573,19 +573,6 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         
     miniOledFlushEntireBufferToDisplay();
     miniOledResetMaxTextY();
-
-    // In case the display inverted, set it correctly
-    /*if (flash_flag == TRUE)
-    {
-        activityDetectedRoutine();
-        miniOledInvertedDisplay();
-        timerBased500MsDelay();
-        miniOledNormalDisplay();
-        timerBased500MsDelay();
-        miniOledInvertedDisplay();
-        timerBased500MsDelay();
-        miniOledNormalDisplay();
-    }*/
     
     // Wait for user input
     RET_TYPE input_answer = MINI_INPUT_RET_NONE;

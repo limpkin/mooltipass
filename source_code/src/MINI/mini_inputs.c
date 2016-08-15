@@ -137,7 +137,7 @@ RET_TYPE initMiniInputs(void)
     }
 
     // Check for absence of interrupt as we haven't enabled the ACC yet
-    if (PIN_ACC_INT & (1 << PORTID_ACC_INT))
+    if ((PIN_ACC_INT & (1 << PORTID_ACC_INT)) != 0)
     {
         return RETURN_NOK;
     }
@@ -158,7 +158,7 @@ RET_TYPE initMiniInputs(void)
     timerBased130MsDelay();
 
     // Check for interrupt presence
-    if (!(PIN_ACC_INT & (1 << PORTID_ACC_INT)))
+    if ((PIN_ACC_INT & (1 << PORTID_ACC_INT)) == 0)
     {
         return RETURN_NOK;
     }

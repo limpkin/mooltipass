@@ -1026,6 +1026,15 @@ void usbProcessIncoming(uint8_t caller_id)
                 setMooltipassParameterInEeprom(msg->body.data[0], msg->body.data[1]);
                 mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
                 plugin_return_value = PLUGIN_BYTE_OK;
+
+                #ifdef MINI_PREPRODUCTION_SETUP_ACC
+                    // For this particular defines, platforms may or may not have an accelerometer. So we return a fail if the accelerometer is not present if the user is trying to enable the knock feature
+                    if ((msg->body.data[0] == MINI_KNOCK_DETECT_ENABLE_PARAM) && (acc_detected == FALSE))
+                    {
+                        plugin_return_value = PLUGIN_BYTE_ERROR;
+                    }
+                #endif
+
                 //initTouchSensing();
                 //launchCalibrationCycle();
                 #ifdef MINI_VERSION
@@ -1533,14 +1542,10 @@ void usbProcessIncoming(uint8_t caller_id)
 
         case CMD_TEST_ACC_PRESENCE:
         {
-            if (acc_detected != FALSE)
-            {
-                plugin_return_value = PLUGIN_BYTE_OK;
-            } 
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+            msg->body.data[0] = 0x8F;
+            msg->body.data[2] = acc_detected;
+            miniAccelerometerSendReceiveSPIData(msg->body.data, 2);
+            usbSendMessage(CMD_TEST_ACC_PRESENCE, 3, msg->body.data);
             break;
         }
 #endif

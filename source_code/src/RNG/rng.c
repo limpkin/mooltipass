@@ -53,7 +53,6 @@ typedef struct
 // Local vars
 volatile uint32_t rng_buffer[RNG_BUFFER_SIZE];
 volatile uint8_t rng_buffer_last_valid_value;
-volatile uint8_t rng_buffer_count_bytes;
 uint8_t timer_buffer[TIMER_BUFFER_SIZE];
 volatile uint8_t timer_buffer_index;
 volatile uint8_t rng_buffer_index;

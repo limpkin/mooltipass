@@ -16,17 +16,17 @@ AS      := $(CROSS)as
 BOOTLOADER   = false
 
 # Mooltipass version: vMAJOR.MINOR
-VERSION := v0.8
+#VERSION := v0.8
 
 # If we are in a git controlled dir, let (matching) tag override version
-git_hash := $(shell git rev-parse --verify --short HEAD 2>/dev/null)
-ifneq (,$(git_hash))
-  VERSION := $(shell git describe --tags --match $(VERSION)* --dirty 2>/dev/null)
-  ifeq (,$(VERSION))
-    # Oops, no matching tags, fall back to git hash
-    VERSION := g$(git_hash)
-  endif
-endif
+#git_hash := $(shell git rev-parse --verify --short HEAD 2>/dev/null)
+#ifneq (,$(git_hash))
+#  VERSION := $(shell git describe --tags --match $(VERSION)* --dirty 2>/dev/null)
+#  ifeq (,$(VERSION))
+#    # Oops, no matching tags, fall back to git hash
+#    VERSION := g$(git_hash)
+#  endif
+#endif
 
 
 ifneq ($(BOOTLOADER), true)
@@ -86,13 +86,13 @@ DEFINES := F_CPU=16000000UL F_USB=16000000UL
 #DEFINES := F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
 
 CFLAGS  += -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
-CFLAGS  += -fshort-enums -ffunction-sections
+CFLAGS  += -fshort-enums -ffunction-sections -fdata-sections
 #CFLAGS  += -fdata-sections
 #CFLAGS  += -Werror
-CFLAGS  += -std=gnu99
+CFLAGS  += -std=gnu99 -Os
 CFLAGS  += -mcall-prologues
-CFLAGS  += -fno-tree-scev-cprop
-CFLAGS  += -fno-split-wide-types
+#CFLAGS  += -fno-tree-scev-cprop
+#CFLAGS  += -fno-split-wide-types
 CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))
 #CFLAGS += -Wa,-adhln -g
 
@@ -105,15 +105,16 @@ CFLAGS  += -fno-strict-aliasing
 CFLAGS  += -DARCH=ARCH_AVR8
 CFLAGS  += -mrelax
 CFLAGS  += -x c
-CFLAGS  += -MMD
+CFLAGS  += -MD
 CFLAGS  += -MP
 CFLAGS  += -pipe
 CFLAGS  += -gdwarf-2
 CFLAGS  += -g2
 
-LDFLAGS += -Wl,--gc-sections -Wl,--relax
+LDFLAGS += -Wl,--gc-sections -mrelax
 LDFLAGS += -mmcu=$(MCU)
-LDFLAGS += -lm
+LDFLAGS += -Wl,-lm
+LDFLAGS += -Wl,-Map="mooltipass.map" 
 #LDFLAGS  += -Werror
 
 ifeq ($(CONFIG), RELEASE)

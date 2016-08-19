@@ -132,6 +132,7 @@ void guiScreenLoop(uint8_t input_interface_result)
         // Currently in memory management mode, tell the user to finish it via the plugin/app
         guiDisplayInformationOnScreenAndWait(ID_STRING_CLOSEMEMMGMT);
         guiGetBackToCurrentScreen();
+        miniWheelClearDetections();
     }
     else if (currentScreen == SCREEN_DEFAULT_INSERTED_LCK)
     {

@@ -78,7 +78,6 @@ RET_TYPE isMiniDirectionPressed(uint8_t direction);
 void miniDirectionClearJoystickDetections(void);
 RET_TYPE getMiniDirectionJustPressed(void);
 RET_TYPE miniGetLastReturnedAction(void);
-void miniDirectionClearDetections(void);
 int8_t getWheelCurrentIncrement(void);
 void miniWheelClearDetections(void);
 void scanMiniInputsDetect(void);

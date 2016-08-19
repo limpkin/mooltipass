@@ -11,6 +11,7 @@ sudo python mooltipass_tool.py
 ### Downloads
 - Python 2.7.x from https://www.python.org/downloads/
 - libusb-win32 from https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/1.2.6.0/libusb-win32-devel-filter-1.2.6.0.exe/download
+
 ### Python Installation
 - Double click on the .msi installation package.
 - Install for all users
@@ -18,9 +19,11 @@ sudo python mooltipass_tool.py
 - In the customize python page, select the 'Add python.exe to Path' option (entire feature...)
 - Click 'Next' and 'Finish'
 - Reboot the computer
+
 ### Python Modules Install
 - start a command prompt inside the directory
 - type 'pip install -r requirements.txt'
+
 ### Libusb Install
 - Connect the Mooltipass to your computer
 - Double click on the .exe installation package

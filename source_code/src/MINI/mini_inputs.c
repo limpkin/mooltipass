@@ -243,11 +243,13 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
             {
                 miniOledUnReverseDisplay();
                 wheel_reverse_bool = FALSE;
+                setMooltipassParameterInEeprom(INVERTED_SCREEN_AT_BOOT_PARAM, FALSE);
             } 
             else if ((acc_y_cumulated < ACC_Y_TOTAL_REVERSE) && (miniOledIsDisplayReversed() == FALSE))
             {
                 miniOledReverseDisplay();
                 wheel_reverse_bool = TRUE;
+                setMooltipassParameterInEeprom(INVERTED_SCREEN_AT_BOOT_PARAM, TRUE);
             }
             acc_y_cumulated = 0;
 

@@ -256,6 +256,13 @@ int main(void)
     
     /** OLED INITIALIZATION **/
     oledBegin(FONT_DEFAULT);                    // Only do it now as we're enumerated
+    #ifdef MINI_VERSION
+    if (getMooltipassParameterInEeprom(INVERTED_SCREEN_AT_BOOT_PARAM) != FALSE)
+    {        
+        miniOledReverseDisplay();
+        wheel_reverse_bool = TRUE;
+    }
+    #endif
 
     /** REBOOT TIMER INIT **/
     #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)

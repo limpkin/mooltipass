@@ -559,6 +559,7 @@ RET_TYPE getPasswordForContext(char* buffer)
         decrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
         temp_cnode.password[NODE_CHILD_SIZE_OF_PASSWORD-1] = 0;
         strcpy((char*)buffer, (char*)temp_cnode.password);
+        memset((void*)temp_cnode.password, 0x00, NODE_CHILD_SIZE_OF_PASSWORD);
         
         // Timer fired, return
         return RETURN_OK;
@@ -1042,6 +1043,7 @@ RET_TYPE askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* serv
                 if (confirmation_result == RETURN_OK)
                 {
                     usbKeybPutStr((char*)temp_cnode.password);
+                    memset((void*)temp_cnode.password, 0x00, NODE_CHILD_SIZE_OF_PASSWORD);
                     if (getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_BOOL_PARAM) != FALSE)
                     {
                         usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_PARAM), 0);
@@ -1071,6 +1073,7 @@ RET_TYPE askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* serv
                 if (confirmation_result == RETURN_OK)
                 {
                     guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.password);
+                    memset((void*)temp_cnode.password, 0x00, NODE_CHILD_SIZE_OF_PASSWORD);
                     return RETURN_OK;
                 }
                 else if (confirmation_result == RETURN_BACK)
@@ -1125,6 +1128,7 @@ RET_TYPE askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* serv
             if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
             {
                 usbKeybPutStr((char*)temp_cnode.password);
+                memset((void*)temp_cnode.password, 0x00, NODE_CHILD_SIZE_OF_PASSWORD);
                 if (getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_BOOL_PARAM) != FALSE)
                 {
                     usbKeyboardPress(getMooltipassParameterInEeprom(KEY_AFTER_PASS_SEND_PARAM), 0);
@@ -1137,6 +1141,7 @@ RET_TYPE askUserForLoginAndPasswordKeybOutput(uint16_t child_address, char* serv
             if (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK)
             {
                 guiDisplayLoginOrPasswordOnScreen((char*)temp_cnode.password);
+                memset((void*)temp_cnode.password, 0x00, NODE_CHILD_SIZE_OF_PASSWORD);
             }
         }
         #endif

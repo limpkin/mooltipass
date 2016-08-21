@@ -334,7 +334,7 @@ void initNodeManagementHandle(uint8_t userIdNum)
     currentNodeMgmtHandle.firstDataParentNode = getStartingDataParentAddress();
     currentNodeMgmtHandle.firstParentNode = getStartingParentAddress();
     currentNodeMgmtHandle.currentUserId = userIdNum;
-    currentNodeMgmtHandle.flags = 0;
+    currentNodeMgmtHandle.dbChanged = FALSE;
     
     // scan for next free parent and child nodes from the start of the memory
     if (findFreeNodes(1, &currentNodeMgmtHandle.nextFreeNode, 0, 0) == 0)
@@ -345,6 +345,31 @@ void initNodeManagementHandle(uint8_t userIdNum)
     // populate services LUT
     populateServicesLut();
 }
+
+
+/**
+ * Function called to inform that the DB has been changed
+ * Currently called on password change & add, 32B data write
+ */
+void userDBChangedActions(void)
+{
+    if (currentNodeMgmtHandle.dbChanged == FALSE)
+    {
+        // If the DB wasn't marked as changed, update the user db changed number
+        uint8_t current_db_change_nb;
+
+        // Read current user db change number
+        readProfileUserDbChangeNumber((void*)&current_db_change_nb);
+
+        // Add one and set it
+        current_db_change_nb++;
+        setProfileUserDbChangeNumber(&current_db_change_nb);
+
+        // Set boolean
+        currentNodeMgmtHandle.dbChanged = TRUE;
+    }
+}
+
 
 /**
  * Sets the users starting parent node both in the handle and user profile memory portion of flash
@@ -480,6 +505,26 @@ void readProfileCtr(void *buf)
 {
     // User CTR is at the end
     readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_PROFILE_SIZE - USER_RES_CTR, USER_CTR_SIZE, buf);
+}
+
+/**
+ * Sets the user DB change number in the user profile flash memory
+ * @param   buf             The buffer containing the user db change number
+ */
+void setProfileUserDbChangeNumber(void *buf)
+{    
+    // User CTR is at the end
+    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_PROFILE_SIZE - USER_DB_CHANGE_NB_SIZE, USER_DB_CHANGE_NB_SIZE, buf);
+}
+
+/**
+ * Reads the user DB change number
+ * @param   buf             The buffer to store the user db change number
+ */
+void readProfileUserDbChangeNumber(void *buf)
+{
+    // User CTR is at the end
+    readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_PROFILE_SIZE - USER_DB_CHANGE_NB_SIZE, USER_DB_CHANGE_NB_SIZE, buf);
 }
 
 /**

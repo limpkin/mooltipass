@@ -545,6 +545,38 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         #endif
+
+        // Read user db change number
+        case CMD_GET_USER_CHANGE_NB :
+        {
+            if (getSmartCardInsertedUnlocked() != TRUE)
+            {
+                incomingData[0] = PLUGIN_BYTE_ERROR;
+            }
+            else
+            {
+                incomingData[0] = PLUGIN_BYTE_OK;
+                readProfileUserDbChangeNumber(&incomingData[1]);
+            }
+            usbSendMessage(CMD_GET_USER_CHANGE_NB, 2, incomingData);
+            break;
+        }
+
+        // Set the user db change number
+        case CMD_SET_USER_CHANGE_NB :
+        {
+            // Command only used in MMM
+            if (datalen == 1)
+            {
+                setProfileUserDbChangeNumber(&msg->body.data[0]);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            } 
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
 #endif
         // Read user profile in flash
         case CMD_START_MEMORYMGMT :
@@ -1109,7 +1141,8 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
-        // Unlock the card using a PIN sent through USB (only used as last resort, if screen breaks!)
+        // Unlock the card using a PIN sent through USB (only used as last resort for standard version, if screen breaks!)
+        #ifndef MINI_VERSION
         case CMD_UNLOCK_WITH_PIN :
         {
             uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
@@ -1127,6 +1160,7 @@ void usbProcessIncoming(uint8_t caller_id)
             guiGetBackToCurrentScreen();    
             break;
         }
+        #endif
         
         // Add current unknown smartcard
         case CMD_ADD_UNKNOWN_CARD :

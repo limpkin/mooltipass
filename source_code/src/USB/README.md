@@ -234,6 +234,18 @@ From plugin/app: cancel input request from user
 ------------------
 From Mooltipass: Message informing the app to re-send the previous packet
 
+0xD5: Get Current Login Description
+-----------------------------------
+From plugin/app: Request login description after the user approved credential sending
+
+From Mooltipass: the description if the user has approved the sending of credential, 1 byte 0x00 packet otherwise.
+
+0xD6: Get user change number
+----------------------------
+From plugin/app: Request the user db change number
+
+From Mooltipass: 2 bytes data packet, first byte is 0x00 for failure & 0x01 for success, second byte is the db change number if success
+
 Commands in data management mode
 ================================
 
@@ -325,11 +337,11 @@ From plugin/app: Leave memory management mode
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0xD4: Get Current Login Description
------------------------------------
-From plugin/app: Request login description after the user approved credential sending
+0xD4: Set user change number
+----------------------------
+From plugin/app: One byte payload containing the new user db change number
 
-From Mooltipass: the description if the user has approved the sending of credential, 1 byte 0x00 packet otherwise.
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
 
 

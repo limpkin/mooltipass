@@ -744,6 +744,9 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             {
                 return RETURN_NOK;
             }
+
+            // Inform that the db has changed
+            userDBChangedActions();
             
             return RETURN_OK;
         }
@@ -798,6 +801,7 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
                 currently_reading_data_cntr = 0;
                 current_adding_data_flag = TRUE;
                 currently_adding_data_cntr = 0;
+                userDBChangedActions();
             }            
             guiGetBackToCurrentScreen(); 
         }

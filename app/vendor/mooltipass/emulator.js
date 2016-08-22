@@ -61,7 +61,7 @@ mooltipass.emulator._getCredentials = function(inputObject) {
 			this.timeout = setTimeout( function() { 
 				console.log( 'credentials for ' + firstContext[0] + ':', creds );
 				inputObject.callbackFunction ( creds );
-			},5000);
+			},1000);
 		}.bind(this) );
 	} else {
 		inputObject.callbackFunction ( inputObject.callbackParameters );

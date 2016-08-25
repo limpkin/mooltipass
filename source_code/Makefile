@@ -94,6 +94,7 @@ CFLAGS  += -fshort-enums -ffunction-sections -fdata-sections
 CFLAGS  += -Werror
 CFLAGS  += -std=gnu99
 CFLAGS  += -mcall-prologues
+CFLAGS  += -fno-jump-tables
 CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))
 
 # new from dmbs

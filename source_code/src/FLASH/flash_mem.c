@@ -42,9 +42,7 @@
 void memoryBoundaryErrorCallback(void)
 {
     // We'll add more debug later if needed
-#ifndef MINI_BOOTLOADER
     usbPutstr("#MBE");
-#endif
     while(1);
 }
 

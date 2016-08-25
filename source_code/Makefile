@@ -48,13 +48,17 @@ else
 # Bootloader build settings
 TARGET  := mooltipass_bootloader
 OBJECTS := $(patsubst src/%.c,build/%.o, src/bootloader_main.c)
-LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI)
+LIBDIRS := $(addprefix src/, GUI CARD FLASH USB SPI OLEDMP UTILS AES NODEMGMT RNG PWM TOUCH LOGIC OLEDMINI MINI)
 OBJDIRS := $(patsubst src/%.c,build/%.o, $(addprefix src/, FLASH SPI AES))
-LIBOBJS := $(foreach lib, $(OBJDIRS), $(patsubst src/%.c,build/%.o, $(wildcard $(lib)/*.c)))
+LIBOBJS := $(patsubst src/%.c,build/%.o, $(filter-out src/FLASH/flash_test.c src/AES/aes256_nessie_test.c src/AES/aes256_ctr_test.c, $(foreach lib, $(OBJDIRS),$(wildcard $(lib)/*.c))))
 
 # Special bootloader flags
-CC_FLAGS     += -DBOOT_START_ADDR=$(BOOT_START_OFFSET)
-LD_FLAGS     += -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLAGS)
+CCFLAGS     += -DBOOT_START_ADDR=$(BOOT_START_OFFSET)
+LDFLAGS     += -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLAGS)
+
+# start() replaces the interrupt vectors
+LDFLAGS     += -nostartfiles
+DEFINES     += MINI_BOOTLOADER
 
 # Flash size and bootloader section sizes of the target, in KB. These must
 # match the target's total FLASH size and the bootloader size set in the
@@ -82,8 +86,8 @@ MCU     := atmega32u4
 # Set CONFIG=DEBUG in the shell from which you invoke make to build a debug
 # build.
 CONFIG  ?= RELEASE
-DEFINES := F_CPU=16000000UL F_USB=16000000UL
-#DEFINES := F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
+DEFINES += F_CPU=16000000UL F_USB=16000000UL
+#DEFINES += F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
 
 CFLAGS  += -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
 CFLAGS  += -fshort-enums -ffunction-sections -fdata-sections
@@ -106,7 +110,7 @@ CFLAGS  += -MP
 LDFLAGS += -Wl,--gc-sections -mrelax
 LDFLAGS += -mmcu=$(MCU)
 LDFLAGS += -Wl,--start-group -Wl,-lm -Wl,--end-group
-LDFLAGS += -Wl,-Map="mooltipass.map" 
+LDFLAGS += -Wl,-Map="mooltipass.map"
 #LDFLAGS  += -Werror
 
 ifeq ($(CONFIG), RELEASE)

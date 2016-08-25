@@ -54,6 +54,7 @@ LIBOBJS := $(patsubst src/%.c,build/%.o, $(filter-out src/FLASH/flash_test.c src
 
 # Special bootloader flags
 CCFLAGS     += -DBOOT_START_ADDR=$(BOOT_START_OFFSET)
+CFLAGS  += -fno-split-wide-types
 LDFLAGS     += -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLAGS)
 
 # start() replaces the interrupt vectors

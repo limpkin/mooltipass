@@ -16,7 +16,7 @@ AS      := $(CROSS)as
 BOOTLOADER   = false
 
 # Mooltipass version: vMAJOR.MINOR
-VERSION := v0.8
+VERSION := v1.1
 
 # If we are in a git controlled dir, let (matching) tag override version
 git_hash := $(shell git rev-parse --verify --short HEAD 2>/dev/null)

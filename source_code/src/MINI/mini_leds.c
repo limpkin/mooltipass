@@ -24,7 +24,7 @@
 #include "defines.h"
 #include "pwm.h"
 
-#if defined(HARDWARE_MINI_CLICK_V2)
+#if defined(LEDS_ENABLED_MINI)
 volatile uint16_t led_animation_var1;
 volatile uint8_t led_animation_var2;
 volatile uint8_t led_animation_var3;

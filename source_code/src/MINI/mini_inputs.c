@@ -137,7 +137,7 @@ RET_TYPE initMiniInputs(void)
     }
 
     // Check for absence of interrupt as we haven't enabled the ACC yet
-    if (PIN_ACC_INT & (1 << PORTID_ACC_INT))
+    if ((PIN_ACC_INT & (1 << PORTID_ACC_INT)) != 0)
     {
         return RETURN_NOK;
     }
@@ -158,7 +158,7 @@ RET_TYPE initMiniInputs(void)
     timerBased130MsDelay();
 
     // Check for interrupt presence
-    if (!(PIN_ACC_INT & (1 << PORTID_ACC_INT)))
+    if ((PIN_ACC_INT & (1 << PORTID_ACC_INT)) == 0)
     {
         return RETURN_NOK;
     }
@@ -196,7 +196,7 @@ RET_TYPE getNewAccelerometerDataIfAvailable(uint8_t* buffer)
     }
 }
 
-/*! \fn     scanAndGetDoubleZTap(yubt)
+/*! \fn     scanAndGetDoubleZTap(uint8_t stream_output)
 *   \brief  Fetch remaining accelerometer data and use it to detect double taps
 *   \param  stream_output   TRUE to send USB packets with the current data
 *   \return RETURN_OK if a double tap event was detected
@@ -210,7 +210,7 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
     // Is the feature actually enabled?
     if (acc_detected == FALSE)
     {
-        return RETURN_NOK;
+        return ACC_RET_NOTHING;
     }
 
     // Fetch data if there's data to be fetched
@@ -243,11 +243,13 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
             {
                 miniOledUnReverseDisplay();
                 wheel_reverse_bool = FALSE;
+                setMooltipassParameterInEeprom(INVERTED_SCREEN_AT_BOOT_PARAM, FALSE);
             } 
             else if ((acc_y_cumulated < ACC_Y_TOTAL_REVERSE) && (miniOledIsDisplayReversed() == FALSE))
             {
                 miniOledReverseDisplay();
                 wheel_reverse_bool = TRUE;
+                setMooltipassParameterInEeprom(INVERTED_SCREEN_AT_BOOT_PARAM, TRUE);
             }
             acc_y_cumulated = 0;
 
@@ -323,7 +325,7 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
                     // Return success
                     knock_last_det_counter = 0;
                     knock_detect_sm++;
-                    return RETURN_OK;
+                    return ACC_RET_KNOCK;
                 }
                 else
                 {
@@ -362,7 +364,16 @@ RET_TYPE scanAndGetDoubleZTap(uint8_t stream_output)
             usbSendMessage(CMD_STREAM_ACC_DATA, 10, acc_data);
         }
     }
-    return RETURN_NOK;
+
+    // Depending on the threshold, return movement or nothing
+    if (acc_z_cum_diff_avg > ACC_Z_MOVEMENT_AVG_SUM_DIFF)
+    {
+        return ACC_RET_MOVEMENT;
+    } 
+    else
+    {
+        return ACC_RET_NOTHING;
+    }
 }
 #endif
 

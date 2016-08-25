@@ -86,34 +86,27 @@ DEFINES := F_CPU=16000000UL F_USB=16000000UL
 #DEFINES := F_CPU=16000000UL F_USB=16000000UL MOOLTIPASS_VERSION="\"$(VERSION)\""
 
 CFLAGS  += -Wall -mmcu=$(MCU) -funsigned-char -funsigned-bitfields -fpack-struct
-CFLAGS  += -fshort-enums -ffunction-sections
-#CFLAGS  += -fdata-sections
-#CFLAGS  += -Werror
+CFLAGS  += -fshort-enums -ffunction-sections -fdata-sections
+CFLAGS  += -Werror
 CFLAGS  += -std=gnu99
 CFLAGS  += -mcall-prologues
-CFLAGS  += -fno-tree-scev-cprop
-CFLAGS  += -fno-split-wide-types
 CFLAGS  += -Isrc $(addprefix -I , $(LIBDIRS))
-#CFLAGS += -Wa,-adhln -g
 
 # new from dmbs
 CFLAGS  += -fno-inline-small-functions
 
 # not used normally
-CFLAGS  += -Wstrict-prototypes
-CFLAGS  += -fno-strict-aliasing
-CFLAGS  += -DARCH=ARCH_AVR8
+#CFLAGS  += -Wstrict-prototypes
+#CFLAGS  += -fno-strict-aliasing
 CFLAGS  += -mrelax
 CFLAGS  += -x c
-CFLAGS  += -MMD
+CFLAGS  += -MD
 CFLAGS  += -MP
-CFLAGS  += -pipe
-CFLAGS  += -gdwarf-2
-CFLAGS  += -g2
 
-LDFLAGS += -Wl,--gc-sections -Wl,--relax
+LDFLAGS += -Wl,--gc-sections -mrelax
 LDFLAGS += -mmcu=$(MCU)
-LDFLAGS += -lm
+LDFLAGS += -Wl,--start-group -Wl,-lm -Wl,--end-group
+LDFLAGS += -Wl,-Map="mooltipass.map" 
 #LDFLAGS  += -Werror
 
 ifeq ($(CONFIG), RELEASE)

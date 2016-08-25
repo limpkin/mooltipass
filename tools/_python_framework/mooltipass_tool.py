@@ -129,6 +129,15 @@ def main():
 				
 		if sys.argv[1] == "decrypt_mini_prod":
 			decryptMiniProdFile()		
+				
+		if sys.argv[1] == "read_user_db_change_nb":
+			mooltipass_device.getMooltipassUserDbChangeNumber()		
+				
+		if sys.argv[1] == "set_user_db_change_nb":
+			if len(sys.argv) > 2:
+				mooltipass_device.setMooltipassUserDbChangeNumber(int(sys.argv[2]))		
+			else:
+				print "set_user_db_change_nb: not enough args!"
 		
 	#mooltipass_device.sendCustomPacket()
 	#mooltipass_device.checkSecuritySettings()

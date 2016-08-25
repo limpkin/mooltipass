@@ -279,6 +279,7 @@ enum scrolling_flag_t           {OLED_SCROLL_NONE = 0, OLED_SCROLL_UP = 1, OLED_
 enum wheel_action_ret_t         {WHEEL_ACTION_NONE = 0, WHEEL_ACTION_UP = 1, WHEEL_ACTION_DOWN = 2, WHEEL_ACTION_SHORT_CLICK = 3, WHEEL_ACTION_LONG_CLICK = 4, WHEEL_ACTION_CLICK_UP = 5, WHEEL_ACTION_CLICK_DOWN = 6};
 enum mini_input_yes_no_ret_t    {MINI_INPUT_RET_TIMEOUT = -1, MINI_INPUT_RET_NONE = 0, MINI_INPUT_RET_NO = 1, MINI_INPUT_RET_YES = 2, MINI_INPUT_RET_BACK = 3};
 enum led_animation_type_t       {ANIM_NONE = 0x00, ANIM_FADE_IN_FADE_OUT_1_TIME = 0x01, ANIM_PULSE_UP_RAMP_DOWN = 0x02, ANIM_TURN_AROUND = 0x04};
+enum acc_algo_ret_t             {ACC_RET_NOTHING = 0, ACC_RET_MOVEMENT, ACC_RET_KNOCK};
 
 /**************** TYPEDEFS ****************/
 typedef void (*bootloader_f_ptr_type)(void);

@@ -48,7 +48,7 @@ typedef struct
 
 // Defines
 #ifdef MINI_VERSION
-    #define NUMBER_OF_FAST_TIMERS   8
+    #define NUMBER_OF_FAST_TIMERS   9
     #define TIMER_SCREEN            0
     #define TIMER_USERINT           1
     #define TIMER_CAPS              2
@@ -57,9 +57,10 @@ typedef struct
     #define TIMER_WAIT_FUNCTS       5
     #define TIMER_USB_SUSPEND       6
     #define TIMER_REBOOT            7
+    #define TIMER_FLASHING          8
 
     #define NUMBER_OF_SLOW_TIMERS   1
-    #define SLOW_TIMER_LOCKOUT      8
+    #define SLOW_TIMER_LOCKOUT      9
 #else
     #define NUMBER_OF_FAST_TIMERS   10
     #define TIMER_LIGHT             0

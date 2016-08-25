@@ -194,7 +194,7 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
     if (current_bootkey_val != CORRECT_BOOTKEY)
     {
         uint8_t test_result_ok = TRUE;        
-        char temp_string[] = {'0', 0};
+        char temp_string[] = {'a', 0};
         RET_TYPE temp_rettype;
         
         // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
@@ -271,11 +271,23 @@ void mooltipassMiniFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_in
         guiDisplayRawString(ID_STRING_FUNC_TEST_SCROLL);
     
         // Wait for scroll
-        while(temp_string[0] != ':')
+        while(temp_string[0] != 'z')
         {
             temp_string[0] += getWheelCurrentIncrement();
-            oledPutstrXY(0,15,0,temp_string);
-            oledFillXY(0,15,15,15,FALSE);
+            oledPutstrXY(70,15,0,temp_string);
+            oledFillXY(70,15,15,15,FALSE);
+        }
+
+        oledClear();
+        miniOledResetXY();
+        guiDisplayRawString(ID_STRING_FUNC_TEST_SCROLL2);
+    
+        // Wait for scroll
+        while(temp_string[0] != 'a')
+        {
+            temp_string[0] += getWheelCurrentIncrement();
+            oledPutstrXY(70,15,0,temp_string);
+            oledFillXY(70,15,15,15,FALSE);
         }
         
         // Insert card

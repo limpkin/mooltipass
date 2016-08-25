@@ -168,10 +168,15 @@ def main():
 		
 	sendHidPacket(epout, 0x95, 0, None)
 	data = epin.read(epin.wMaxPacketSize, timeout=2000)
-	if data[DATA_INDEX] == 0x01 :
-		print "Accelerometer present"
+	if data[DATA_INDEX+2] == 0x01 :
+		print "Firmware bool: Accelerometer present"
 	else:
-		print "No accelerometer"
+		print "Firmware bool: No accelerometer"
+		
+	if data[DATA_INDEX+1] == 0x41 :
+		print "Real hardware: Accelerometer present"
+	else:
+		print "Real hardware: No accelerometer"
 		
 	#hid_device.reset()
 

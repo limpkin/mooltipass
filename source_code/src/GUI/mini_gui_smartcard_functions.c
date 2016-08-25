@@ -60,9 +60,9 @@ RET_TYPE guiDisplayInsertSmartCardScreenAndWait(void)
     #ifdef BETA_TESTER_V
         miniOledBitmapDrawFlash(0, 0, BITMAP_INSERT_CARD, OLED_SCROLL_NONE);
         #ifdef MINI_CREDENTIAL_MANAGEMENT
-        miniOledPutCenteredString(21, "alt-beta v0.59");
+        miniOledPutCenteredString(21, "alt-beta v0.60");
         #else
-        miniOledPutCenteredString(21, "beta v0.59");
+        miniOledPutCenteredString(21, "beta v0.60");
         #endif
         miniOledFlushEntireBufferToDisplay();
     #else

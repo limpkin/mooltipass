@@ -545,6 +545,38 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         #endif
+
+        // Read user db change number
+        case CMD_GET_USER_CHANGE_NB :
+        {
+            if (getSmartCardInsertedUnlocked() != TRUE)
+            {
+                incomingData[0] = PLUGIN_BYTE_ERROR;
+            }
+            else
+            {
+                incomingData[0] = PLUGIN_BYTE_OK;
+                readProfileUserDbChangeNumber(&incomingData[1]);
+            }
+            usbSendMessage(CMD_GET_USER_CHANGE_NB, 2, incomingData);
+            break;
+        }
+
+        // Set the user db change number
+        case CMD_SET_USER_CHANGE_NB :
+        {
+            // Command only used in MMM
+            if (datalen == 1)
+            {
+                setProfileUserDbChangeNumber(&msg->body.data[0]);
+                plugin_return_value = PLUGIN_BYTE_OK;
+            } 
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
 #endif
         // Read user profile in flash
         case CMD_START_MEMORYMGMT :
@@ -1026,6 +1058,15 @@ void usbProcessIncoming(uint8_t caller_id)
                 setMooltipassParameterInEeprom(msg->body.data[0], msg->body.data[1]);
                 mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
                 plugin_return_value = PLUGIN_BYTE_OK;
+
+                #ifdef MINI_PREPRODUCTION_SETUP_ACC
+                    // For this particular defines, platforms may or may not have an accelerometer. So we return a fail if the accelerometer is not present if the user is trying to enable the knock feature
+                    if ((msg->body.data[0] == MINI_KNOCK_DETECT_ENABLE_PARAM) && (acc_detected == FALSE))
+                    {
+                        plugin_return_value = PLUGIN_BYTE_ERROR;
+                    }
+                #endif
+
                 //initTouchSensing();
                 //launchCalibrationCycle();
                 #ifdef MINI_VERSION
@@ -1100,7 +1141,8 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
-        // Unlock the card using a PIN sent through USB (only used as last resort, if screen breaks!)
+        // Unlock the card using a PIN sent through USB (only used as last resort for standard version, if screen breaks!)
+        #ifndef MINI_VERSION
         case CMD_UNLOCK_WITH_PIN :
         {
             uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
@@ -1118,6 +1160,7 @@ void usbProcessIncoming(uint8_t caller_id)
             guiGetBackToCurrentScreen();    
             break;
         }
+        #endif
         
         // Add current unknown smartcard
         case CMD_ADD_UNKNOWN_CARD :
@@ -1533,14 +1576,10 @@ void usbProcessIncoming(uint8_t caller_id)
 
         case CMD_TEST_ACC_PRESENCE:
         {
-            if (acc_detected != FALSE)
-            {
-                plugin_return_value = PLUGIN_BYTE_OK;
-            } 
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
+            msg->body.data[0] = 0x8F;
+            msg->body.data[2] = acc_detected;
+            miniAccelerometerSendReceiveSPIData(msg->body.data, 2);
+            usbSendMessage(CMD_TEST_ACC_PRESENCE, 3, msg->body.data);
             break;
         }
 #endif

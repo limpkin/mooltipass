@@ -1,20 +1,21 @@
 // contains already called method names
 var _called = {};
-var content_debug_msg = false;
+var content_debug_msg = true;
 
 var cipDebug = {};
-cipDebug.debugLog = function(message)
-{
-	if(content_debug_msg)
-	{
-		console.log(message);
+if (content_debug_msg) {
+	cipDebug.debugLog = function( message ) {
+		this.log( message );
 	}
-}
+	cipDebug.log = console.log.bind(window.console);
+	cipDebug.warn = console.warn.bind(window.console);
+	cipDebug.trace = console.trace.bind(window.console);
+} else cipDebug.debugLog = function() {}
 
 chrome.runtime.onMessage.addListener(function(req, sender, callback) {
-    cipDebug.debugLog(req);
+    //cipDebug.log(req);
 	if ('action' in req) {
-		cipDebug.debugLog(req.action);
+		cipDebug.log(req.action);
 		if(req.action == "fill_user_pass_with_specific_login") {
             if(cip.credentials[req.id]) {
 				var combination = null;
@@ -130,7 +131,7 @@ cipPassword.init = function() {
 }
 
 cipPassword.initField = function(field, inputs, pos) {
-    cipDebug.debugLog("init pw field");
+    cipDebug.log("init pw field");
     if(!field || field.length != 1) {
 		return;
 	}
@@ -928,6 +929,25 @@ cipFields.setUniqueId = function(field) {
 	}
 }
 
+cipFields.setFormUniqueId = function(field) {
+	if(field && !field.attr("data-mp-id")) {
+		// use ID of field if it is unique
+		// yes, it should be, but there are many bad developers outside...
+		var fieldId = field.attr("id");
+		if(fieldId) {
+			var foundIds = mpJQ("form#" + cipFields.prepareId(fieldId));
+			if(foundIds.length == 1) {
+				field.attr("data-mp-id", fieldId);
+				return;
+			}
+		}
+
+		// create own ID if no ID is set for this field
+		cipFields.uniqueNumber += 1;
+		field.attr("data-mp-id", "mpJQ"+String(cipFields.uniqueNumber));
+	}
+}
+
 cipFields.prepareId = function(id) {
 	return id.replace(/[:#.,\[\]\(\)' "]/g, function(m) {
 												return "\\"+m
@@ -993,6 +1013,150 @@ cipFields.isAvailableField = function($field) {
         );
 }
 
+cipFields.detectTypeofForm = function( inputs ) {
+	// Clone inputs var
+	var localInputs = $.extend(inputs,{});
+	var localForms = { 'noform': [] };
+
+	// Enclose fields in forms.
+	localInputs.forEach( function( field ) {
+		containerForm = field.closest('form');
+		if ( !containerForm ) localForms.noform.push( field ); // Field isn't in a form 
+		else {
+			// Contained in a form
+			if ( !containerForm.data('mp-id') ) {
+				cipFields.setFormUniqueId( containerForm );
+				localForms[ containerForm.data('mp-id') ] = [];
+			} else if ( !localForms[ containerForm.data('mp-id') ] ) {
+				localForms[ containerForm.data('mp-id') ] = [];
+			}
+			localForms[ containerForm.data('mp-id') ].push( field );
+		}
+	});
+
+		
+	window.localInputs = localInputs; // For debugging purposes.
+
+	// Detection Object. You can add more here to match special cases.
+	var possibleCombinations = [ 
+		{
+			combinationId: 'loginform001',
+			combinationName: 'Simple Login Form with Email',
+			requiredFields: [
+				{
+					selector: 'input[type=email]',
+					mapsTo: 'username'
+				},
+				{
+					selector: 'input[type=password]',
+					mapsTo: 'password'
+				},
+			],
+			scorePerMatch: 50,
+			score: 0,
+			autoSubmit: true,
+			maxfields: 3
+		},
+		{
+			combinationId: 'loginform002',
+			combinationName: 'Simple Login Form with Text',
+			requiredFields: [
+				{
+					selector: 'input[type=text]',
+					mapsTo: 'username'
+				},
+				{
+					selector: 'input[type=password]',
+					mapsTo: 'password'
+				},
+			],
+			scorePerMatch: 50,
+			score: 0,
+			autoSubmit: true,
+			maxfields: 3
+		},
+		{
+			combinationId: 'passwordreset001',
+			combinationName: 'Password Reset without Confirmation',
+			requiredFields: [
+				{
+					selector: 'input[type=password]'
+				},
+				{
+					selector: 'input[type=password]'
+				},
+			],
+			scorePerMatch: 50,
+			score: 0,
+			autoSubmit: false
+		},
+		{
+			combinationId: 'passwordreset002',
+			combinationName: 'Password Reset with Confirmation',
+			requiredFields: [
+				{
+					selector: 'input[type=password]',
+					mapsTo: 'password'
+				},
+				{
+					selector: 'input[type=password]'
+				},
+				{
+					selector: 'input[type=password]'
+				},
+			],
+			scorePerMatch: 25,
+			score: 0,
+			autoSubmit: false
+		}
+	];
+	
+	// Check for matching combinations
+	var localCombinations = $.extend(possibleCombinations, {});
+	localCombinations.forEach( function( combination ) {
+		// In detected forms
+		for( form in localForms ) {
+			if ( combination.maxfields && Object.keys( localForms[form] ).length > combination.maxfields ) continue;
+			var neededRequirements = combination.requiredFields.length;
+			combination.score = 0;
+			localForms[form].forEach( function( field ) {
+				for ( var I = 0; I < combination.requiredFields.length; I++ ) {
+					var requirement = combination.requiredFields[I].selector;
+					if ( field.is( requirement ) ) {
+						neededRequirements--;
+						combination.score += combination.scorePerMatch;
+						if ( combination.requiredFields[I].mapsTo ) {
+							if (!combination.fields) combination.fields = {};
+							combination.fields[ combination.requiredFields[I].mapsTo ] = field;
+						}
+						return;
+					}
+				}
+			});
+		};
+	});
+
+	// Then select the best combination
+	var lastScore = 0;
+	var selectedCombination = possibleCombinations.filter( function( combination ) {
+		if ( combination.fields && combination.requiredFields.length > Object.keys(combination.fields).length ) { // Didn't find all the required fields. 
+			return false;
+		}
+		if ( combination.score > 100 ) { // Something fishy here. Found more fields that it is supposed to find.
+			return false;
+		}
+
+		if ( combination.score <= lastScore) { // A previous combination scores the same of more than this one.
+			return false;
+		}
+
+		lastScore = combination.score;
+		return true;
+	}.bind(this) );
+
+	return selectedCombination[0];
+}
+
 cipFields.getAllCombinations = function(inputs) {
 	var fields = [];
 	var uField = null;
@@ -1004,8 +1168,7 @@ cipFields.getAllCombinations = function(inputs) {
 		}
 		else
 		{
-			cipDebug.debugLog("examining input:");
-			cipDebug.debugLog(inputs[i]);
+			cipDebug.log("examining input: ", inputs[i]);
 		}
 
 		if((inputs[i].attr("type") && inputs[i].attr("type").toLowerCase() == "password") || (inputs[i].attr("data-placeholder-type") && inputs[i].attr("data-placeholder-type").toLowerCase() == "password")){
@@ -1213,8 +1376,7 @@ cipFields.getPasswordField = function(usernameId, checkDisabled) {
 }
 
 cipFields.prepareCombinations = function(combinations) {
-	cipDebug.debugLog("prepareCombinations");
-	cipDebug.debugLog("combinations.length: " + combinations.length);
+	cipDebug.log("prepareCombinations, length: " + combinations.length);
 	for(var i = 0; i < combinations.length; i++) {
 		// disable autocomplete for username field
 		if(_f(combinations[i].username)) {
@@ -1300,6 +1462,9 @@ cip.trapSubmit = true;
 
 cip.visibleInputsHash = 0;
 
+//Auto-submit form
+cip.autoSubmit = true;
+
 mpJQ(function() {
 	cip.init();
 });
@@ -1322,7 +1487,7 @@ cip.initCredentialFields = function(forceCall) {
 	_called.initCredentialFields = true;
 
 	var inputs = cipFields.getAllFields();
-    cipDebug.debugLog('initCredentialFields(): ' + inputs.length + ' input fields found');
+    cipDebug.log('initCredentialFields(): ' + inputs.length + ' input fields found');
 
     cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 
@@ -1346,6 +1511,22 @@ cip.initCredentialFields = function(forceCall) {
         cipFields.combinations = [];
         cipFields.combinations.push(twoPageCombination);
     }
+	var inputs = cipFields.getAllFields();
+    var winningCombination = cipFields.detectTypeofForm( inputs );
+    if ( winningCombination ) {
+    	cipDebug.warn( winningCombination );
+		// cip.autoSubmit = winningCombination.maxfields && inputs.length > winningCombination.maxfields?false:winningCombination.autoSubmit;
+
+    	if ( winningCombination.fields ) {
+    		cipFields.combinations = Array({
+    			'username': winningCombination.fields.username.data('mp-id'),
+    			'password': winningCombination.fields.password.data('mp-id')
+    		});
+    		searchForAllCombinations = false;
+    	}
+    }
+    console.log('Would autoSubmit? ' + cip.autoSubmit );
+    //cip.autoSubmit = false; // Temporarily forbid auto-submition
 
     if(searchForAllCombinations) {
 		// get all combinations of username + password fields
@@ -1353,6 +1534,7 @@ cip.initCredentialFields = function(forceCall) {
 	}
 	cipFields.prepareCombinations(cipFields.combinations);
 
+	cipDebug.log('Combinations found:', cipFields.combinations );
 	if(cipFields.combinations.length == 0) {
 		chrome.runtime.sendMessage({
 			'action': 'show_default_browseraction'
@@ -1454,7 +1636,7 @@ cip.doSubmit = function doSubmit(pass)
 
 cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 	if (!credentials) return;
-	cipDebug.debugLog('cip.retrieveCredentialsCallback()')
+	cipDebug.log('cip.retrieveCredentialsCallback()');
 
     if (cipFields.combinations.length > 0) {
 		cip.u = _f(cipFields.combinations[0].username);
@@ -1462,12 +1644,14 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
         cipTwoPageLogin.resetFilledIn();
 	}
 
+	cipDebug.log( credentials );
+
 	if (credentials.length > 0) {
 		cip.credentials = credentials;
 		cip.prepareFieldsForCredentials(!Boolean(dontAutoFillIn));
 
-        if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput) {
-            cipDebug.debugLog('do-submit');
+        if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput && cip.autoSubmit) {
+            cipDebug.log('do-submit');
 
             cip.doSubmit(cip.p);
         }

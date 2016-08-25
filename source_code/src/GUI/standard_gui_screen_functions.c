@@ -952,14 +952,6 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
             {
                 input_answer = MINI_INPUT_RET_BACK;
             }
-
-            // Knock to approve
-            #if defined(HARDWARE_MINI_CLICK_V2)
-            if (scanAndGetDoubleZTap(FALSE) != RETURN_NOK)
-            {
-                input_answer = MINI_INPUT_RET_YES;
-            }
-            #endif
             
             // Text scrolling
             if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && (nb_args > 1))

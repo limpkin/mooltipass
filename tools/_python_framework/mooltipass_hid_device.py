@@ -113,6 +113,34 @@ class mooltipass_hid_device:
 			variant = version.split('_', 1)[1]
 			version = version.split('_', 1)[0]
 		return [nbMb, version, variant]
+		
+	# Get the user database change db
+	def getMooltipassUserDbChangeNumber(self):
+		self.device.sendHidPacket([0, CMD_GET_USER_CHANGE_NB])
+		user_change_db_answer = self.device.receiveHidPacket()[DATA_INDEX:]
+		if user_change_db_answer[0] == 0:
+			print "User not logged in!"
+		else:
+			print "User db change number is", user_change_db_answer[1]
+			
+	def setMooltipassUserDbChangeNumber(self, number):
+		# Go to MMM
+		self.device.sendHidPacket([0, CMD_START_MEMORYMGMT])
+		data = self.device.receiveHidPacket()[DATA_INDEX:]
+		if data[0] == 0:
+			print "Couldn't go to MMM!"
+			return		
+		
+		self.device.sendHidPacket([1, CMD_SET_USER_CHANGE_NB, number])
+		user_change_db_answer = self.device.receiveHidPacket()[DATA_INDEX:]
+		if user_change_db_answer[0] == 0:
+			print "Fail!"
+		else:
+			print "Success!"
+			
+		# Leave MMM
+		self.device.sendHidPacket([0, CMD_END_MEMORYMGMT])
+		data = self.device.receiveHidPacket()[DATA_INDEX:]		
 
 	# Query the Mooltipass status
 	def getMooltipassStatus(self):

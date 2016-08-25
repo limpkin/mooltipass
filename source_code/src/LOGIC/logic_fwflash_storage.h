@@ -273,6 +273,7 @@
     #define ID_STRING_LED2              68
     #define ID_STRING_LED3              69
     #define ID_STRING_LED4              70
+    #define ID_STRING_FUNC_TEST_SCROLL2 71
 
 #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* reserved for main firmware branch usage

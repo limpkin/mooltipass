@@ -101,7 +101,8 @@ typedef enum _nodeType
 #define USER_DATA_START_NODE_SIZE_RES 4
 #define USER_RES_CTR 4
 #define USER_PROFILE_SIZE (USER_START_NODE_SIZE+(USER_MAX_FAV*USER_FAV_SIZE)+USER_DATA_START_NODE_SIZE_RES+USER_RES_CTR)
-#define USER_CTR_SIZE 3 // Have 1 byte remaining.. Not included in USER_PROFILE_SIZE
+#define USER_CTR_SIZE 3             // USER_RES_CTR is set to 4 but the actual CTR is 3 bytes long and the last byte is for the user DB change number
+#define USER_DB_CHANGE_NB_SIZE  1
 
 #define GRAPHIC_ZONE_START          (8*BYTES_PER_PAGE)
 #define GRAPHIC_ZONE_PAGE_START     (8)
@@ -212,11 +213,7 @@ typedef struct __attribute__((packed)) dataNode {
 */
 typedef struct __attribute__((packed)) nodeMgmtH
 {
-    uint16_t flags;
-    /*
-    15 dn 0 Free
-    */
-
+    uint8_t dbChanged;              /*!< Boolean to indicate if the user DB has changed since user login */
     uint8_t currentUserId;          /*!< The users ID */
     uint16_t pageUserProfile;       /*!< The page of the user profile */
     uint16_t offsetUserProfile;     /*!< The offset of the user profile */
@@ -341,8 +338,11 @@ RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr);
 void readNode(gNode* g, uint16_t nodeAddress);
 
 uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray, uint16_t startPage, uint8_t startNode);
+void setProfileUserDbChangeNumber(void *buf);
+void readProfileUserDbChangeNumber(void *buf);
 void scanNodeUsage(void);
 
 void setCurrentDate(uint16_t date);
+void userDBChangedActions(void);
 
 #endif /* NODE_MGMT_H_ */

@@ -161,7 +161,7 @@ RET_TYPE usbCancelRequestReceived(void)
     uint8_t incomingData[RAWHID_TX_SIZE];
 
     // Read usb comms as the plugin could ask to cancel the request
-    if ((getMooltipassParameterInEeprom(USER_REQ_CANCEL_PARAM) != FALSE) && (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK))
+    if (usbRawHidRecv(incomingData) == RETURN_COM_TRANSF_OK)
     {
         if (incomingData[HID_TYPE_FIELD] == CMD_CANCEL_REQUEST)
         {

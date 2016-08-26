@@ -53,7 +53,7 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     0x21,               // TOUCH_WHEEL_OS_PARAM1                Set touch wheel oversample (one bit gain)
     0x21,               // TOUCH_WHEEL_OS_PARAM2                Set touch wheel oversample (one bit gain)
     TRUE,               // FLASH_SCREEN_PARAM                   Enable flashy screen by default
-    TRUE,               // USER_REQ_CANCEL_PARAM                Enable the possibility to cancel user requests from USB
+    TRUE,               // USER_REQ_CANCEL_PARAM                Enable the possibility to cancel user requests from USB (NOT USED ANYMORE, but keep it until the apps don't use it anymore for its old puropose)
 #ifdef POST_KICKSTARTER_UPDATE_SETUP
     FALSE,              // TUTORIAL_BOOL_PARAM                  Disable the tutorial by default
 #else

@@ -5,6 +5,7 @@ Todo:
 
 V1.2:
 - added a "user db change number" updated upon db changes, to make sync notifications
+- added new command to know how many free slots for new users there are
 - adding an "_unlock_" service to enable computer lock/unlock feature
 - handleSmartcardRemoved() call at the end of user erase routine
 - added "SE" to vendor id string, required by USB spec

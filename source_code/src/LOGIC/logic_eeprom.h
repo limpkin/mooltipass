@@ -79,6 +79,7 @@
 RET_TYPE getUserIdFromSmartCardCPZ(uint8_t* buffer, uint8_t* nonce, uint8_t* userid);
 RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t userid);
 uint8_t controlEepromParameter(uint8_t val, uint8_t lowerBound, uint8_t upperBound);
+RET_TYPE findAvailableUserId(uint8_t* userid, uint8_t* nb_users_free);
 RET_TYPE addNewUserForExistingCard(uint8_t* nonce, uint8_t* user_id);
 void setMooltipassParameterInEeprom(uint8_t param, uint8_t val);
 RET_TYPE addNewUserAndNewSmartCard(volatile uint16_t* pin_code);

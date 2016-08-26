@@ -82,7 +82,8 @@
 /******* COMMANDS ADDED AFTER v1 firmware *******/
 #define CMD_GET_DESCRIPTION     0xD5
 #define CMD_GET_USER_CHANGE_NB  0xD6
-#define CMD_UNLOCK_WITH_PIN     0xD7
+#define CMD_GET_FREE_NB_USR_SLT 0xD7
+#define CMD_UNLOCK_WITH_PIN     0xD8
 
 
 /* Packet format defines     */

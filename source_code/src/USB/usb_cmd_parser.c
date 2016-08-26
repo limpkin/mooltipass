@@ -1409,6 +1409,14 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+
+        // get number of free slots for new users
+        case CMD_GET_FREE_NB_USR_SLT:
+        {
+            // Second parameter, which is returned by the code by default, is the number of free user slots
+            findAvailableUserId(msg->body.data, &plugin_return_value);
+            break;
+        }
         
         #ifndef MINI_VERSION
         // Jump to bootloader

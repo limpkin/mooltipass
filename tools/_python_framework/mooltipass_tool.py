@@ -138,6 +138,10 @@ def main():
 				mooltipass_device.setMooltipassUserDbChangeNumber(int(sys.argv[2]))		
 			else:
 				print "set_user_db_change_nb: not enough args!"
+				
+		if sys.argv[1] == "get_free_user_slots":
+			mooltipass_device.getFreeUserSlots()
+		
 		
 	#mooltipass_device.sendCustomPacket()
 	#mooltipass_device.checkSecuritySettings()

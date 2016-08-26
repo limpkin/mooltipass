@@ -175,10 +175,11 @@ void deleteUserIdFromSMCUIDLUT(uint8_t userid)
 
 /*! \fn     findAvailableUserId(uint8_t* userid)
 *   \brief  Find an available user ID
-*   \param  userid  Pointer where to store the found user id
+*   \param  userid          Pointer to where to store the found user id
+*   \param  nb_users_free   Pointer to where to store the number of free users slot
 *   \return Success status of the operation
 */
-RET_TYPE findAvailableUserId(uint8_t* userid)
+RET_TYPE findAvailableUserId(uint8_t* userid, uint8_t* nb_users_free)
 {
     uint8_t userIdArray[NODE_MAX_UID];
     uint8_t temp_userid;
@@ -197,6 +198,16 @@ RET_TYPE findAvailableUserId(uint8_t* userid)
         if (temp_userid < NODE_MAX_UID)
         {
             userIdArray[temp_userid] = TRUE;
+        }
+    }
+
+    // Browse through the found user IDs and count number of free user slots
+    *nb_users_free = 0;
+    for (i = 0; i < NODE_MAX_UID; i++)
+    {
+        if (userIdArray[i] == FALSE)
+        {
+            *nb_users_free = (*nb_users_free) + 1;
         }
     }
     
@@ -344,9 +355,10 @@ RET_TYPE writeSmartCardCPZForUserId(uint8_t* buffer, uint8_t* nonce, uint8_t use
 RET_TYPE addNewUserForExistingCard(uint8_t* nonce, uint8_t* user_id)
 {
     uint8_t temp_buffer[SMARTCARD_CPZ_LENGTH];
+    uint8_t temp_val;
     
     // Get new user id if possible
-    if (findAvailableUserId(user_id) == RETURN_NOK)
+    if (findAvailableUserId(user_id, &temp_val) == RETURN_NOK)
     {
         return RETURN_NOK;
     }
@@ -378,7 +390,7 @@ RET_TYPE addNewUserAndNewSmartCard(volatile uint16_t* pin_code)
 {
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     uint8_t temp_nonce[AES256_CTR_LENGTH];
-    uint8_t new_user_id;
+    uint8_t new_user_id, temp_val;
     
     // When inserting a new user and a new card, we need to setup the following elements
     // - AES encryption key, stored in the smartcard
@@ -390,7 +402,7 @@ RET_TYPE addNewUserAndNewSmartCard(volatile uint16_t* pin_code)
     guiDisplayProcessingScreen();
     
     // Get new user id if possible
-    if (findAvailableUserId(&new_user_id) == RETURN_NOK)
+    if (findAvailableUserId(&new_user_id, &temp_val) == RETURN_NOK)
     {
         return RETURN_NOK;
     }

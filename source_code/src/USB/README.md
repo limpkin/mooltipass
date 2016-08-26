@@ -246,6 +246,12 @@ From plugin/app: Request the user db change number
 
 From Mooltipass: 2 bytes data packet, first byte is 0x00 for failure & 0x01 for success, second byte is the db change number if success
 
+0xD7: Get free users slots
+--------------------------
+From plugin/app: Request the number of slots available for new users
+
+From Mooltipass: 1 byte data packet with the answer
+
 Commands in data management mode
 ================================
 

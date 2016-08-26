@@ -191,6 +191,11 @@ class mooltipass_hid_device:
 			received_data = self.device.receiveHidPacket()
 			print "Packet #" + str(i) + " in hex: " + ' '.join(hex(x) for x in received_data)
 			
+	# Get number of free slots for new users
+	def getFreeUserSlots(self):
+		self.device.sendHidPacket([0, CMD_GET_FREE_NB_USR_SLT])
+		print self.device.receiveHidPacket()[DATA_INDEX], "slots for new users available"
+			
 	# Upload bundle
 	def	uploadBundle(self, password, filename, verbose):	
 		password_set = False

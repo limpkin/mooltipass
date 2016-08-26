@@ -1,10 +1,10 @@
 Todo:
-- display description when choosing user
 - display aes(bootloader_pwd) with user nonce when card inserted
 - shortcut to generate random password in device
 - bytes in eeprom to set shortcuts?
 
 V1.2:
+- added a "user db change number" updated upon db changes, to make sync notifications
 - adding an "_unlock_" service to enable computer lock/unlock feature
 - handleSmartcardRemoved() call at the end of user erase routine
 - added "SE" to vendor id string, required by USB spec

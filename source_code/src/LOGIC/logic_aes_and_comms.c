@@ -648,10 +648,9 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 // Display processing screen
                 guiDisplayProcessingScreen();
                 
-                // Set temp cnode to zeroes, generate random password, store the node in flash
+                // Set temp cnode to zeroes: we're not setting a random password as a plain text attack would suggest the attacker having control on the device
+                // So instead of not setting a password, he'd just put a 31 known plaintext...
                 memset((void*)&temp_cnode, 0x00, NODE_SIZE);
-                fillArrayWithRandomBytes(temp_cnode.password, NODE_CHILD_SIZE_OF_PASSWORD - 1);
-                temp_cnode.password[NODE_CHILD_SIZE_OF_PASSWORD-1] = 0;
                 encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
                 memcpy((void*)temp_cnode.login, (void*)name, length);
                 

@@ -469,6 +469,7 @@ uint16_t loginSelectionScreen(void)
 {
     uint16_t first_address = getLastParentAddress();
     uint16_t cur_address_selected = NODE_ADDR_NULL;
+    uint16_t prev_next_fletter_parents_addr[3];
     uint8_t string_refresh_needed = TRUE;
     uint16_t temp_parent_address;
     uint8_t nb_parent_nodes;
@@ -567,7 +568,7 @@ uint16_t loginSelectionScreen(void)
             }
 
             // Display first letters
-            getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array);
+            getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array, prev_next_fletter_parents_addr);
             displayCenteredCharAtPosition(fchar_array[0], 5, 1, FONT_8BIT16);
             displayCenteredCharAtPosition(fchar_array[1], 5, 6, FONT_PROFONT_14);
             displayCenteredCharAtPosition(fchar_array[2], 5, 26, FONT_8BIT16);
@@ -616,6 +617,37 @@ uint16_t loginSelectionScreen(void)
             else
             {
                 readParentNode(&temp_pnode, first_address);
+                first_address = temp_pnode.prevParentAddress;
+            }
+        }
+        else if (wheel_action == WHEEL_ACTION_CLICK_UP)
+        {
+            if ((nb_parent_nodes >= 3) && (prev_next_fletter_parents_addr[0] != NODE_ADDR_NULL))
+            {
+                // Move to the previous first letter credential
+                string_refresh_needed = TRUE;
+
+                // Read previous letter first node, first displayed parent is the previous node
+                readParentNode(&temp_pnode, prev_next_fletter_parents_addr[0]);
+                if (temp_pnode.prevParentAddress != NODE_ADDR_NULL)
+                {
+                    first_address = temp_pnode.prevParentAddress;
+                } 
+                else
+                {
+                    first_address = getLastParentAddress();
+                }
+            }
+        }
+        else if (wheel_action == WHEEL_ACTION_CLICK_DOWN)
+        {
+            if ((nb_parent_nodes >= 3) && (prev_next_fletter_parents_addr[2] != NODE_ADDR_NULL))
+            {
+                // Move to the next first letter credential
+                string_refresh_needed = TRUE;
+
+                // Read next letter first node, first displayed parent is the previous node
+                readParentNode(&temp_pnode, prev_next_fletter_parents_addr[2]);
                 first_address = temp_pnode.prevParentAddress;
             }
         }

@@ -308,7 +308,7 @@ uint16_t getStartingDataParentAddress(void);
 uint16_t getStartingParentAddress(void);
 uint16_t getLastParentAddress(void);
 
-void getPreviousNextFirstLetterForGivenLetter(char c, char* array);
+void getPreviousNextFirstLetterForGivenLetter(char c, char* array, uint16_t* parent_addresses);
 uint16_t getParentNodeForLetter(uint8_t letter);
 void populateServicesLut(void);
 

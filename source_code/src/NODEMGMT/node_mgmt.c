@@ -928,18 +928,21 @@ void populateServicesLut(void)
     }
 }
 
-/*! \fn     getPreviousNextFirstLetterForGivenLetter(char c, char* array)
+/*! \fn     getPreviousNextFirstLetterForGivenLetter(char c, char* array, uint16_t* parent_addresses)
 *   \brief  Get the previous and next letter around a given letter
-*   \param  c       The first letter
-*   \param  array   Three char array to store the previous and next one
+*   \param  c                   The first letter
+*   \param  array               Three char array to store the previous and next one
+*   \param  parent_addresses    Three uint16_t array to store the corresponding parent addresses
 *   \note   In the array, all letters will be higher case
 */
-void getPreviousNextFirstLetterForGivenLetter(char c, char* array)
+void getPreviousNextFirstLetterForGivenLetter(char c, char* array, uint16_t* parent_addresses)
 {
-    // Set #s by default
+    // Set -s by default
     memset(array, '-', 3);
+    parent_addresses[0] = NODE_ADDR_NULL;
+    parent_addresses[2] = NODE_ADDR_NULL;
 
-    // Store c
+    // Store the provided char as first letter for the current credential
     if ((c >= 'a') && (c <= 'z'))
     {
         array[1] = c - 'a' + 'A';
@@ -954,13 +957,17 @@ void getPreviousNextFirstLetterForGivenLetter(char c, char* array)
     {
         if (currentNodeMgmtHandle.servicesLut[i] != NODE_ADDR_NULL)
         {
-            if ((i + 'a') < c)
+            if (((i + 'a') < c) && (array[0] != (i + 'A')))
             {
+                // First letter before the current one, only run once for each letter
                 array[0] = i + 'A';
+                parent_addresses[0] = currentNodeMgmtHandle.servicesLut[i];
             }
             if ((i + 'a') > c)
             {
+                // First letter after the current one
                 array[2] = i + 'A';
+                parent_addresses[2] = currentNodeMgmtHandle.servicesLut[i];
                 return;
             }
         }

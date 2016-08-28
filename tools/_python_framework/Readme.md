@@ -1,12 +1,5 @@
 # Mooltipass Python Tool
 
-## Installation on Ubuntu 16.04
-```
-sudo apt-get install python python-pip python-crypto
-pip install -r requirements.txt
-sudo python mooltipass_tool.py
-```
-
 ## Installation on Windows
 ### Downloads
 - Python 2.7.x from https://www.python.org/downloads/
@@ -33,14 +26,36 @@ sudo python mooltipass_tool.py
 - Select the 'vid:16d0 pid:09a0 rev:0100 mi:00' device, click 'Install'
 - Close the window
 
-## Arch Linux
+## Installation on Linux
+
+To access the device as normal user make sure you have set up the correct [udev rules](https://www.themooltipass.com/udev_rule.txt).
+
+### Ubuntu 16.04
+```
+sudo apt-get install python python-pip python-crypto
+pip install -r requirements.txt
+./mooltipass_tool.py
+```
+
+### Arch Linux
 
 From official repositories:
 ```
-python2 python2-crypto
+sudo pacman -S --needed python2 python2-crypto
 ```
 
 From AUR:
 ```
 python2-pyusb python2-intelhex python2-pyqrcode
+```
+
+### Other Linux Distributions
+
+Install `python2` and `pip` for you linux distribution.
+It is named `python2` or `python2` and `python2-pip` or `python-pip` in most cases.
+Then install all dependencies via pip:
+
+```
+pip install -r requirements.txt
+./mooltipass_tool.py
 ```

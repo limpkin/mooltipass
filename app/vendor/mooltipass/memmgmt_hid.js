@@ -5,6 +5,7 @@ mooltipass.memmgmt_hid.responseCallback = null;		// Response callback
 mooltipass.memmgmt_hid.timeoutCallback = null;		// Timeout callback
 mooltipass.memmgmt_hid.nbSendRetries = 3;			// Nb send retries
 mooltipass.memmgmt_hid.receiveTempHash = 0;			// Temp hash for receive
+mooltipass.memmgmt_hid.packetDebug = false;			// Packet printout
 
 mooltipass.memmgmt_hid.request = 
 {
@@ -35,6 +36,10 @@ mooltipass.memmgmt_hid._sendMsg = function(nb_retries)
 					}, mooltipass.memmgmt_hid.request.milliseconds);
 	}
 
+	if(mooltipass.memmgmt_hid.packetDebug)
+	{
+		console.log('mmm send', new Uint8Array(mooltipass.memmgmt_hid.request.packet));
+	}
 	chrome.hid.send(mooltipass.device.connectionId, 0, mooltipass.memmgmt_hid.request.packet, mooltipass.memmgmt_hid._onSendMsg);
 };
 
@@ -160,6 +165,11 @@ mooltipass.memmgmt_hid._onDataReceived = function(reportId, data)
 	// Extract data
 	var bytes = new Uint8Array(data);
 	//console.log(bytes);
+	
+	if(mooltipass.memmgmt_hid.packetDebug)
+	{
+		console.log('mmm receive', new Uint8Array(data));
+	}
 
 	// Invoke callback function
 	if(mooltipass.memmgmt_hid.responseCallback) 

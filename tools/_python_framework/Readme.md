@@ -14,7 +14,7 @@
 - Reboot the computer
 
 ### Python Modules Install
-- start a command prompt inside the directory
+- start a command prompt inside this directory
 - type 'pip install -r requirements.txt'
 
 ### Libusb Install
@@ -28,13 +28,14 @@
 
 ## Installation on Linux
 
-To access the device as normal user make sure you have set up the correct [udev rules](https://www.themooltipass.com/udev_rule.txt).
+To access the device as normal user make sure you have set up the correct [udev rules](https://www.themooltipass.com/udev_rule.txt). If you're not willing to and are feeling adventurous, you may run mooltipass_tool.py with sudo.
 
 ### Ubuntu 16.04
 ```
 sudo apt-get install python python-pip python-crypto
 pip install -r requirements.txt
-./mooltipass_tool.py
+./mooltipass_tool.py (when udev rules are installed)
+sudo python mooltipass_tool.py (when no udev rules are installed)
 ```
 
 ### Arch Linux

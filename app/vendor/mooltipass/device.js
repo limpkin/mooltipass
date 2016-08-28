@@ -5,6 +5,7 @@ mooltipass.device = mooltipass.device || {};
 
 // Debug mode
 mooltipass.device.debug = false;
+mooltipass.device.packet_debug = false;
 
 // Mooltipass device info
 mooltipass.device.deviceInfo = { 'vendorId': 0x16d0, 'productId': 0x09a0 };
@@ -227,11 +228,11 @@ mooltipass.device.connect = function() {
  */
 mooltipass.device.onDeviceFound = function(devices) {
     if (!devices || !devices.length) 
-	{
-		if(mooltipass.device.debug)
-		{
-			console.log('No compatible devices found.');
-		}
+    {
+        if(mooltipass.device.debug)
+        {
+            console.log('No compatible devices found.');
+        }
         mooltipass.device.restartProcessingQueue();
         return;
     }
@@ -330,16 +331,16 @@ mooltipass.device.createPacket = function(_command, _payload) {
                         console.error('Packet size exceeded! Cannot insert complete data into one packet:', _payload);
                         break;
                     }
-					
-					// Don't allow unicode, replace with '?'
-					if (_payload[i].charCodeAt(z) > 254)
-					{
-						bufferView[index] = 63;
-					}
-					else
-					{
-						bufferView[index] = _payload[i].charCodeAt(z);
-					}
+                    
+                    // Don't allow unicode, replace with '?'
+                    if (_payload[i].charCodeAt(z) > 254)
+                    {
+                        bufferView[index] = 63;
+                    }
+                    else
+                    {
+                        bufferView[index] = _payload[i].charCodeAt(z);
+                    }
                     
                     index += 1;
                 }
@@ -586,6 +587,12 @@ mooltipass.device._sendMsg = function(queuedItem) {
             mooltipass.device._retrySendMsg();
         }, queuedItem.timeout.milliseconds)
     }
+    
+    if(mooltipass.device.packet_debug)
+    {
+        console.log('send queuedItem', queuedItem);
+        console.log('send packet', new Uint8Array(queuedItem.packet));      
+    }
 
     chrome.hid.send(mooltipass.device.connectionId, 0, queuedItem.packet, mooltipass.device.onSendMsg);
 
@@ -691,9 +698,9 @@ mooltipass.device.onDataReceived = function(reportId, data) {
     var command = mooltipass.device.commandsReverse[cmd];
 
     if(mooltipass.device.debug)
-	{
-		console.log('mooltipass.device.onDataReceived(', command, ')');
-	}	
+    {
+        console.log('mooltipass.device.onDataReceived(', command, ')');
+    }   
 
     var queuedItem = mooltipass.device.getFromQueue(command);
     if(!queuedItem) {
@@ -705,33 +712,36 @@ mooltipass.device.onDataReceived = function(reportId, data) {
     }
 
     var handlerName = 'response' + capitalizeFirstLetter(command);
-    /*
-    console.log('reportId', reportId);
-    console.log('queuedItem', queuedItem);
-    console.log('data', data);
-    console.log('bytes', bytes);
-    console.log('msg', msg);
-    console.log('len', len);
-    console.log('cmd', cmd);
-    console.log('command', command);
-    */
+    
+    if(mooltipass.device.packet_debug)
+    {
+        console.log('reportId', reportId);
+        console.log('queuedItem', queuedItem);
+        console.log('data', data);
+        console.log('bytes', bytes);
+        console.log('msg', msg);
+        console.log('len', len);
+        console.log('cmd', cmd);
+        console.log('command', command);
+    }
+    
 
     // Invoke function to process message
     if(handlerName in mooltipass.device) {
         mooltipass.device[handlerName].apply(this, [queuedItem, msg]);
     }
     else {
-		if(command == 'debug')
-		{
-			console.log("Debug message received: " + mooltipass.util.arrayToStr(msg));
-			mooltipass.device.processQueue();	
-		}
-		else
-		{
-			mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, []);
-			// Process next queued request
-			mooltipass.device.processQueue();			
-		}
+        if(command == 'debug')
+        {
+            console.log("Debug message received: " + mooltipass.util.arrayToStr(msg));
+            mooltipass.device.processQueue();   
+        }
+        else
+        {
+            mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, []);
+            // Process next queued request
+            mooltipass.device.processQueue();           
+        }
     }
 };
 
@@ -989,10 +999,10 @@ mooltipass.device.responseSetContext = function(queuedItem, msg) {
                 }
                 else {
                     // Add context
-					if(mooltipass.device.debug)
-					{
-						console.log('add context:', params.context);
-					}
+                    if(mooltipass.device.debug)
+                    {
+                        console.log('add context:', params.context);
+                    }
                     mooltipass.device.addToQueue('addContext', [params.context], params, queuedItem.callbackFunction, queuedItem.callbackParameters, queuedItem.timeout, true, queuedItem.additionalArguments);
                     mooltipass.device.processQueue();
                     return;

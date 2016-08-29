@@ -1,0 +1,14 @@
+1) Firmware version
+post v1.0:
+- cancel request (0xC3) enabled by default
+- added get description command (0xD5)
+- eeprom param: add adjustable delay after manual typing
+- for MMM: allow the get_login command to already specify the login
+- eeprom param: allow customization of key sent after login AND password manual entry
+post v1.1:
+- added a "user db change number" updated upon db changes, to make sync notifications (can be read/written using 0xD6 & 0xD4)
+- added new command to know how many free slots for new users there are (0xD7)
+
+2) Device specific
+- eeprom param: knock detection enable & sensitivity
+- eeprom param: screen luminosity

@@ -1155,7 +1155,8 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
 {
         RET_TYPE ret = RETURN_OK;
         pNode* ip = (pNode*)&(currentNodeMgmtHandle.tempgNode);
-        cNode* ic = &(currentNodeMgmtHandle.child.child);
+        cNode temp_cnode;
+        cNode* ic = &temp_cnode;
         
         // read the node at parentNodeAddress
         // userID check and valid Check performed in readParent
@@ -1188,7 +1189,7 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
         else
         {            
             // delete node in memory
-            ret = deleteChildNode(pAddr, cAddr);
+            ret = deleteChildNode(pAddr, cAddr, ic);
             if(ret != RETURN_OK)
             {
                 return ret;
@@ -1208,13 +1209,13 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
  * Deletes a child node from memory. Handles reorder of nodes and update to parent if needed.
  * @param   pAddr           The address of the parent of the child
  * @param   cAddr           The address of the child
+ * @param   ic              Pointer to a temporary childNode for buffer purposes
  * @return  success status
  * @note    Handles necessary doubly linked list management
  */
-RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
+RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr, cNode *ic)
 {
     pNode *ip = (pNode*)&(currentNodeMgmtHandle.tempgNode);
-    cNode *ic = &(currentNodeMgmtHandle.child.child);
     uint16_t prevAddress, nextAddress;
     
     // read parent node of child to delete

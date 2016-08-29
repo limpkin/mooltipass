@@ -1272,3 +1272,35 @@ RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
     scanNodeUsage();
     return RETURN_OK;
 }
+
+/**
+ * Updates the password field of a given child node
+ * @param   c               Pointer to a temporary child node for buffer purposes
+ * @param   cAddr           The address to the child node to update
+ * @param   password        Contents of the new password field, NODE_CHILD_SIZE_OF_PASSWORD long
+ * @param   ctr_value       New CTR value
+ * @note    cNode will be filled with the child node in case it may be useful....
+ * @return  success status
+ */
+RET_TYPE updateChildNodePassword(cNode* c, uint16_t cAddr, uint8_t* password, uint8_t* ctr_value)
+{    
+    // userID check and valid check performed in readChild
+    readChildNode(c, cAddr);
+    
+    // Write date created & used fields
+    c->dateCreated = currentDate;
+    c->dateLastUsed = currentDate;
+
+    // Update password & ctr fields
+    memcpy(c->password, password, NODE_CHILD_SIZE_OF_PASSWORD);
+    memcpy(c->ctr, ctr_value, USER_CTR_SIZE);
+
+    // service is identical just rewrite the node
+    writeNodeDataBlockToFlash(cAddr, c);
+    
+    // write is destructive.. read
+    readChildNode(c, cAddr);
+    
+    return RETURN_OK;
+}
+

@@ -688,6 +688,9 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
 */
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 {
+    // Temp CTR value
+    uint8_t temp_ctr[3];
+
     if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
     {
         // Login not set
@@ -697,13 +700,12 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
     {
         // Read parent node
         readParentNode(&temp_pnode, context_parent_node_addr);
-        
+
         // Read child node
         readChildNode(&temp_cnode, selected_login_child_node_addr);
         
-        // Copy the password and put random bytes after the final 0
-        memcpy((void*)temp_cnode.password, (void*)password, length);
-        fillArrayWithRandomBytes(temp_cnode.password + length, NODE_CHILD_SIZE_OF_PASSWORD - length);
+        // Put random bytes after the final 0
+        fillArrayWithRandomBytes(password + length, NODE_CHILD_SIZE_OF_PASSWORD - length);
         
         // Prepare password changing approval text
         #if defined(HARDWARE_OLIVIER_V1)
@@ -736,10 +738,10 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             #endif
 
             // Encrypt the password
-            encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
+            encrypt32bBlockOfDataAndClearCTVFlag(password, temp_ctr);
             
             // Update child node to store password
-            if (updateChildNode(&temp_pnode, &temp_cnode, context_parent_node_addr, selected_login_child_node_addr) != RETURN_OK)
+            if(updateChildNodePassword(&temp_cnode, selected_login_child_node_addr, password, temp_ctr) != RETURN_OK)
             {
                 return RETURN_NOK;
             }

@@ -1155,8 +1155,8 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
 {
         RET_TYPE ret = RETURN_OK;
         pNode* ip = (pNode*)&(currentNodeMgmtHandle.tempgNode);
-        cNode temp_cnode;
-        cNode* ic = &temp_cnode;
+        cNode buf_cnode;
+        cNode* ic = &buf_cnode;
         
         // read the node at parentNodeAddress
         // userID check and valid Check performed in readParent

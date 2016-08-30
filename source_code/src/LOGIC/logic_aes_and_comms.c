@@ -1689,7 +1689,8 @@ void loginManagementSelectLogic(void)
                     /* ask twice for confirmation */
                     if((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_DELETE_CREDSQ)) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_MGMT_AREYOUSUREQ)) == RETURN_OK))
                     {
-                        deleteChildNode(chosen_service_addr, chosen_login_addr);
+                        cNode buf_cnode;
+                        deleteChildNode(chosen_service_addr, chosen_login_addr, &buf_cnode);
                     }
                     break;
                 default:

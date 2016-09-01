@@ -84,9 +84,11 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 /**
  * Retrieve Credentials and try auto-login for HTTPAuth requests
  */
-chrome.webRequest.onAuthRequired.addListener(httpAuth.handleRequest,
-	{ urls: ["<all_urls>"] }, ["asyncBlocking"]
-);
+if ( chrome.webRequest.onAuthRequired ) {
+	chrome.webRequest.onAuthRequired.addListener(httpAuth.handleRequest,
+		{ urls: ["<all_urls>"] }, ["asyncBlocking"]
+	);	
+}
 
 /**
  * Interaction between background-script and front-script

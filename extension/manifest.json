@@ -27,6 +27,7 @@
       "background/httpauth.js",
       "background/browserAction.js",
       "background/page.js",
+      "vendor/mooltipass/messaging.js",
       "vendor/mooltipass/device.js",
       "vendor/mooltipass/backend.js",
       "background/event.js",

@@ -43,8 +43,6 @@ mooltipass.backend._updateStatusIcon = function() {
     mooltipass.backend.updateStatusIcon();
     setTimeout(mooltipass.backend._updateStatusIcon, 500);
 }
-mooltipass.backend._updateStatusIcon();
-
 
 /**
  * Load the backend settings of this extension
@@ -182,3 +180,4 @@ mooltipass.backend.extractDomainAndSubdomain = function (url) {
 
     return {valid: url_valid, domain: domain, subdomain: subdomain}
 }
+

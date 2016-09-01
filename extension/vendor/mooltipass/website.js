@@ -75,9 +75,10 @@ mooltipass.website.reportError = function(callback) {
         } else {
             var url = "not-set";
         }
+        
         callback("https://docs.google.com/forms/d/1lFKaTR3LQxySyGsZwtHudVE6aGErGU2DHfn-YpuW8aE/viewform?entry.449375470=" + url);
         return;
-
+        /* commenting this code to avoid warnings at Firefox
         // not currently required, but loads html source and sends it to a custom error reporting tool
         if ("html" in response) {
             var html = response.html;
@@ -92,6 +93,7 @@ mooltipass.website.reportError = function(callback) {
         }, function(response) {
             callback(response.url);
         });
+		*/
     });     
 }
 

@@ -19,6 +19,7 @@ html {
 /* line 11, ../scss/_pure.scss */
 body {
   margin: 0;
+  font-size: 75%;
 }
 
 /* line 11, ../scss/_pure.scss */
@@ -72,6 +73,8 @@ dfn {
 h1 {
   font-size: 2em;
   margin: .67em 0;
+  -moz-margin-start: 0.67em;
+    -moz-margin-end: 0.67em;
 }
 
 /* line 11, ../scss/_pure.scss */

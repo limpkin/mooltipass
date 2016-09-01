@@ -1,10 +1,9 @@
 Mooltipass Project Repository
 =============================
 <p align="center">
-  <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/pictures/standard/prototypes/holder_with_mooltipass_small.JPG" alt="Mooltipass first prototype"/>
+  <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/pictures/mini/prototypes/mini_alum_final_small_cropped.JPG" alt="Mooltipass first prototype"/>
 </p>
-This is the GitHub repository dedicated to the Mooltipass device. It contains all the resources that were used and generated for this community driven product since the project was first started back in December 2013. You may find all the articles detailing its different life steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.  
-Our <a href="https://www.indiegogo.com/projects/mooltipass-open-source-offline-password-keeper">crowdfunding campaign</a> achieved its goal by raising around $125k in December 2014. You may now order a Mooltipass device <b><a href="https://www.tindie.com/products/limpkin/mooltipass-offline-password-keeper/">on our Tindie store</a></b>.  
+This is the GitHub repository dedicated to the Mooltipass device family. It contains all the resources that were used and generated for this community driven product line since the project was first started back in December 2013. You may order a Mooltipass device <b><a href="https://www.tindie.com/products/limpkin/mooltipass-offline-password-keeper/">on our Tindie store</a></b>.  
 
 What is the Mooltipass Project?
 -------------------------------
@@ -149,3 +148,9 @@ Finally our awesome beta testers who paid for their (expensive) beta units and p
 - Erik M. - USA
 - Josh W. - USA
 - Don F. - USA
+
+Device History
+--------------
+1) Mooltipass Standard
+You may find all the articles detailing the Mooltipass Standard different life steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.  
+Our <a href="https://www.indiegogo.com/projects/mooltipass-open-source-offline-password-keeper">crowdfunding campaign</a> achieved its goal by raising around $125k in December 2014.

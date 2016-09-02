@@ -3,7 +3,7 @@ Mooltipass Project Repository
 <p align="center">
   <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/pictures/mini/prototypes/mini_alum_final_small_cropped.JPG" alt="Mooltipass first prototype"/>
 </p>
-This is the GitHub repository dedicated to the Mooltipass device family. It contains all the resources that were used and made for this community driven product line since the project was first started back in December 2013. 
+This is the GitHub repository dedicated to the Mooltipass device family. It contains all the resources that were used and made for this community driven product line since the project was first started back in December 2013.  
 You may order a Mooltipass device <b><a href="https://www.tindie.com/products/limpkin/mooltipass-offline-password-keeper/">on our Tindie store</a></b> and find the hidden link in <b><a href="https://www.themooltipass.com">our official web page</a></b> to be notified of the upcoming Mooltipass Mini crowdfunding campaign launch.  
 
 What is the Mooltipass Project?
@@ -18,7 +18,7 @@ It is extremely simple to use our device:
 
 Advantages over software-based solutions
 ----------------------------------------
-A software-based password keeper uses a passphrase to decrypt a credentials database located inside a device (computer, smartphone...). As at a given moment your passphrase and your database are stored inside your device's memory, a malicious program with access to both elements could **compromise all your passwords at once** [1]. In some cases, security flaws on software-based solutions can lead to entire unencrypted databases beeing extracted by visiting a simple website [2].
+A software-based password keeper uses a passphrase to decrypt a credentials database located inside a device (computer, smartphone...). As at a given moment your passphrase and your database are stored inside your device's memory, a malicious program with access to both elements could **compromise all your passwords at once** [1]. In some cases, security flaws on software-based solutions can lead to entire unencrypted databases beeing extracted by visiting a simple website [2].  
 We therefore offer the following advantages:  
 - **stronger security**: we reduce the number of attack vectors by basically having our device type your passwords for you. 
 - a **non-proprietary device**: as our product is open anyone can develop new tools for it. There will never be fees for the services we offer.  
@@ -39,6 +39,21 @@ Data Safety
 -----------
 Safety is a primary concern for the Mooltipass development team, which is why we offer several **secure** ways to backup your credentials.  
 The smart card containing the AES key used for encrypting the passwords can be **cloned** using the Mooltipass, copying its PIN code as well. The encrypted credentials stored in the Mooltipass internal flash can be **exported** to the official Mooltipass website or simply somewhere on your local computer.
+
+A Brief History of Security Flaws and Breaches
+----------------------------------------------
+We often think that the devices and websites we use are exempt of security flaws. We compiled a brief list of major security breaches and vulnerabilities found during the last few years:  
+- 06/2016 <a href="http://www.independent.co.uk/life-style/gadgets-and-tech/news/ios-933-iphone-users-urged-to-update-after-apple-fixes-huge-password-vulnerability-a7149851.html">iOS bug allows attackers to gain full remote access to an iPhone by sending a simple iMesssage</a>  
+- 06/2016 <a href="http://www.theregister.co.uk/2016/06/01/teamviewer_mass_breach_report/">Teamviewer hacked, users' Paypal account drained</a>  
+- 06/2016 <a href="https://yro.slashdot.org/story/16/06/16/2035205/github-presses-big-red-password-reset-button-after-third-party-breach">GitHub Presses Big Red Password Reset Button After Third-Party Breach </a>  
+- 05/2016 <a href="https://it.slashdot.org/story/16/05/27/1845202/hackers-claim-to-have-427-million-myspace-passwords">Hackers Claim to Have 427 Million Myspace Passwords</a>  
+- 05/2016 <a href="https://it.slashdot.org/story/16/05/30/1227252/hackers-stole-65-million-passwords-from-tumblr">Hackers Stole 65 Million Passwords From Tumblr</a>  
+- 06/2016 <a href="https://techcrunch.com/2016/06/08/twitter-hack/">Passwords for 32M Twitter accounts may have been hacked and leaked</a>  
+- 06/2016 <a href="https://bits-please.blogspot.fr/2016/06/extracting-qualcomms-keymaster-keys.html">Android Full Disk Encryption Can Be Broken</a>  
+- 07/2016 <a href="https://labs.bitdefender.com/2016/07/new-mac-backdoor-nukes-os-x-systems/">New Backdoor Allows Full Access to Mac Systems</a>  
+- 08/2016 <a href="http://arstechnica.com/security/2016/08/qualcomm-chip-flaws-expose-900-million-android-devices/">Qualcomm security flaw allows a malicious app to gain root access</a>  
+- 06/2016 <a href="https://it.slashdot.org/story/16/08/13/0325204/new-cache-attack-can-monitor-keystrokes-on-android-phones">New Cache Attack Can Monitor Keystrokes On Android Phones </a>  
+- 08/2016 <a href="http://mashable.com/2016/08/26/iphone-malware-platform-secure">iPhone malware that steals your data is a reminder no platform is ever safe</a>  
 
 Frequently Asked Questions
 --------------------------
@@ -102,6 +117,7 @@ Thanks and Acknowledgement
 None of this would have been possible without the help of many people located all over the globe. Here is a non exhaustive list:
 - Darran H. (graphics, plugin, comms, general development and more) - New Zealand
 - Pierre C. (GUI, encryption implementation supervision, pen testing) - France
+- Raoul H. (cross platform daemon, browser extensions - France
 - Henryk P. (encryption implementation supervision) - Unknown
 - Olivier G. (mecanics, project advisor) - Switzerland
 - Josh W. (mechanics, plugin, fw supervision) - USA
@@ -147,5 +163,5 @@ Our <a href="https://www.indiegogo.com/projects/mooltipass-open-source-offline-p
 
 References
 ----------
-[1] http://thehackernews.com/2014/11/new-citadel-trojan-targets-your.html
-[2] http://www.theregister.co.uk/2016/07/27/zero_day_hole_can_pwn_millions_of_lastpass_users_who_visit_a_site
+[1] http://thehackernews.com/2014/11/new-citadel-trojan-targets-your.html  
+[2] http://www.theregister.co.uk/2016/07/27/zero_day_hole_can_pwn_millions_of_lastpass_users_who_visit_a_site  

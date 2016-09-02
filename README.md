@@ -9,8 +9,8 @@ You may order a Mooltipass device <b><a href="https://www.tindie.com/products/li
 What is the Mooltipass Project?
 -------------------------------
 With time, logins and passwords have become critical elements we need to remember to access the different websites and services we use daily. If we want to achieve good security, each of these credential sets should be unique.  
-We therefore created the Mooltipass, a physical password keeper that remembers and encrypts your credentials so you don't have to. With this device, you can generate and safely store long and complex passwords. A personal PIN locked smartcard allows the decryption of your credentials and ensures that only you have access to them. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required. The Mooltipass is a standalone device connected through USB, is completely driver-less and is compatible with all major operating systems on PCs, Macs and Smartphones.  
-It is extremely simple to use our device:  
+We therefore created the Mooltipass, a physical password keeper that remembers and encrypts your credentials so you don't have to. With this device, you can generate and safely store long and complex passwords. A personal PIN locked smartcard allows the decryption of your credentials and ensures that only you have access to them. Simply visit a website and the device will ask for your confirmation to enter your credentials when login is required.  
+The Mooltipass is a standalone device connected through USB, is completely driver-less and is compatible with all major operating systems on PCs, Macs and Smartphones. It therefore is extremely simple to use our device:  
 - Plug the Mooltipass to your computer/tablet/phone, no driver installation required.  
 - Insert your smartcard, unlock it with your PIN. Without the PIN, the card is useless.  
 - Visit the website that needs a login. If using our browser plugin the Mooltipass asks your permission to send the stored name and password, or asks you to save/generate new credentials if you are logging in for the first time.  
@@ -18,7 +18,7 @@ It is extremely simple to use our device:
 
 Advantages over software-based solutions
 ----------------------------------------
-A software-based password keeper uses a passphrase to decrypt a credentials database located inside a device (computer, smartphone...). As at a given moment your passphrase and your database are stored inside your device's memory, a malicious program with access to both elements could <b><a href="http://thehackernews.com/2014/11/new-citadel-trojan-targets-your.html">compromise all your passwords at once</a></b>. In some cases, security flaws of software-based solutions can lead to entire unencrypted databases beeing extracted by <b><a href="http://www.theregister.co.uk/2016/07/27/zero_day_hole_can_pwn_millions_of_lastpass_users_who_visit_a_site">visiting a simple website</a></b>.  
+A software-based password keeper uses a passphrase to decrypt a credentials database located inside a device (computer, smartphone...). As at a given moment your passphrase and your database are stored inside your device's memory, a malicious program with access to both elements could <b><a href="http://thehackernews.com/2014/11/new-citadel-trojan-targets-your.html">compromise all your passwords at once</a></b>. In some cases, security flaws of software-based solutions can also lead to entire unencrypted databases beeing extracted by <b><a href="http://www.theregister.co.uk/2016/07/27/zero_day_hole_can_pwn_millions_of_lastpass_users_who_visit_a_site">visiting a simple website</a></b>.  
 We therefore offer the following advantages:  
 - **Stronger security**: we reduce the number of attack vectors by basically having our device type your passwords for you. 
 - A **non-proprietary device**: as our product is open anyone can develop new tools for it. There will never be fees for the services we offer.  
@@ -43,8 +43,8 @@ The smart card containing the AES key used for encrypting the passwords can be *
 A Brief History of Security Flaws and Breaches
 ----------------------------------------------
 We often think that the devices and websites we use are exempt of security flaws.  
-You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>  
-We compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
+You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
+We also compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
 - 06/2016 <a href="http://www.independent.co.uk/life-style/gadgets-and-tech/news/ios-933-iphone-users-urged-to-update-after-apple-fixes-huge-password-vulnerability-a7149851.html">iOS bug allows attackers to gain full remote access to an iPhone by sending a simple iMesssage</a>  
 - 06/2016 <a href="http://www.theregister.co.uk/2016/06/01/teamviewer_mass_breach_report/">Teamviewer hacked, users' Paypal account drained</a>  
 - 06/2016 <a href="https://yro.slashdot.org/story/16/06/16/2035205/github-presses-big-red-password-reset-button-after-third-party-breach">GitHub Presses Big Red Password Reset Button After Third-Party Breach </a>  

@@ -237,7 +237,7 @@ def mooltipassMiniInit(mooltipass_device):
 				sys.stdout.write('Step 4... ')
 				sys.stdout.flush()
 				# TO REMOVE
-				request_key_and_uid = [0]*24
+				#request_key_and_uid = [0]*24
 				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_UID, 24, request_key_and_uid))
 				if mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX] == 0x01:
 					# Update Success status
@@ -252,7 +252,7 @@ def mooltipassMiniInit(mooltipass_device):
 				sys.stdout.write('Step 5...\r\n')
 				sys.stdout.flush()
 				# TO REMOVE
-				mooltipass_password = [0]*62
+				#mooltipass_password = [0]*62
 				mooltipass_device.getInternalDevice().sendHidPacket(mpmInitGetPacketForCommand(CMD_SET_BOOTLOADER_PWD, 62, mooltipass_password))
 				#print mooltipass_password
 				if mooltipass_device.getInternalDevice().receiveHidPacket()[DATA_INDEX] == 0x01:

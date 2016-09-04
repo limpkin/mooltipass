@@ -95,6 +95,10 @@ void guiMainLoop(void)
     if ((scanAndGetDoubleZTap(FALSE) == ACC_RET_MOVEMENT) && (miniOledIsScreenOn() == FALSE))
     {
         // knock detecting algo to wakup the device
+        if (isScreenSaverOn() == TRUE)
+        {
+            guiGetBackToCurrentScreen();
+        }
         activityDetectedRoutine();
     }
     #endif

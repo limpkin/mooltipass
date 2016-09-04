@@ -36,17 +36,7 @@ def pickle_read(filename):
 	return data
 	
 # Decrypt production file
-def decryptMiniProdFile():
-	# Check for key file
-	if not os.path.isfile("key.bin"):
-		print "Decryption key file key.bin isn't found"
-		return
-	else:
-		print "Decryption key file key.bin found"
-		
-	# Import key
-	key = pickle_read("key.bin")
-	
+def decryptMiniProdFile(key):	
 	# List files in the export folder
 	export_file_names = [f for f in listdir("export/") if isfile(join("export/", f))]
 		
@@ -74,7 +64,7 @@ def decryptMiniProdFile():
 			key2 = items[2]
 			key2_qr = pyqrcode.create(key2)
 			print ""
-			print "AES key 1:", key2
+			print "AES key 2:", key2
 			print(key2_qr.terminal(quiet_zone=1))
 			
 			# Request UID

@@ -32,7 +32,7 @@ To access the device as normal user make sure you have set up the correct [udev 
 
 ### Ubuntu 16.04
 ```
-sudo apt-get install -y python python-pip python-crypto python-dev libgmp3-dev build-essential
+sudo apt-get install python python-pip python-crypto python-dev libgmp3-dev build-essential
 pip install -r requirements.txt
 pip install seccure
 ./mooltipass_tool.py (when udev rules are installed)

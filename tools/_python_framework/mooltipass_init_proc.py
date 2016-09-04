@@ -5,6 +5,10 @@ from os.path import isfile, join
 from array import array
 from time import sleep
 from os import listdir
+try:
+	import seccure
+except ImportError:
+	pass
 import pyqrcode
 import platform
 import usb.core
@@ -41,7 +45,7 @@ def decryptMiniProdFile():
 		print "Decryption key file key.bin found"
 		
 	# Import key
-	key = RSA.importKey(pickle_read("key.bin"))
+	key = pickle_read("key.bin")
 	
 	# List files in the export folder
 	export_file_names = [f for f in listdir("export/") if isfile(join("export/", f))]
@@ -53,8 +57,8 @@ def decryptMiniProdFile():
 	for file_name in export_file_names:
 		if mooltipass_id in file_name:
 			print "Found export file:", file_name
-			data = pickle_read(join("export/",file_name))
-			decrypted_data = key.decrypt(data)
+			data = pickle_read(join("export/",file_name))			
+			decrypted_data = seccure.decrypt(data, key, curve='secp521r1/nistp521')
 			items = decrypted_data.split('|')
 			#print decrypted_data
 			# Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
@@ -106,15 +110,7 @@ def mooltipassMiniInit(mooltipass_device):
 	# Check for public key
 	if not os.path.isfile("publickey.bin"):
 		print "Couldn't find public key!"
-		gen_answer = raw_input("Do you want to generate it? [y/n]: ")
-		if gen_answer == "y":
-			key = RSA.generate(4096)
-			pickle_write(key.exportKey('DER'), "key.bin")
-			pickle_write(key.publickey().exportKey('DER'), "publickey.bin")
-			print "Key generated and exported"
-		else:
-			print "No public key, exciting..."
-			return
+		return
 			
 	# Check for export folder
 	if not os.path.isdir("export"):
@@ -127,7 +123,7 @@ def mooltipassMiniInit(mooltipass_device):
 		return
 			
 	# Read public key
-	public_key = RSA.importKey(pickle_read("publickey.bin"))
+	public_key = pickle_read("publickey.bin")
 
 	# Loop
 	try:
@@ -285,7 +281,7 @@ def mooltipassMiniInit(mooltipass_device):
 					uid = "".join(format(x, "02x") for x in request_key_and_uid[16:22])
 					string_export = str(mp_id)+"|"+ aes_key1 +"|"+ aes_key2 +"|"+ request_uid_key +"|"+ uid +"\r\n"
 					#print string_export
-					pickle_write(public_key.encrypt(string_export, 32), time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mp_id)+".txt")
+					pickle_write(seccure.encrypt(string_export, public_key, curve='secp521r1/nistp521'), time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mp_id)+".txt")					
 					# Update Success status
 					success_status = True
 				else:

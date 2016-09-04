@@ -38,7 +38,6 @@
 #include "delays.h"
 #include "rng.h"
 
-
 /*! \fn     handleSmartcardInserted(void)
 *   \brief  Here is where are handled all smartcard insertion logic
 *   \return RETURN_OK if user is authenticated
@@ -162,7 +161,7 @@ void handleSmartcardRemoved(void)
 {
     uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
-    
+
     // Remove power and flags
     removeFunctionSMC();
     clearSmartCardInsertedUnlocked();

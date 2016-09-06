@@ -28,6 +28,8 @@
       "background/browserAction.js",
       "background/page.js",
       "vendor/mooltipass/messaging.js",
+      "vendor/reconnecting-websocket.js",
+      "vendor/mooltipass/moolticute.js",
       "vendor/mooltipass/device.js",
       "vendor/mooltipass/backend.js",
       "background/event.js",

@@ -234,7 +234,7 @@ event.isMooltipassUnlocked = function()
 	var noteId = 'mpNotUnlocked.'+event.notificationCount.toString();
 
 	// Check that the Mooltipass app is installed and enabled
-	if (!mooltipass.device._app || mooltipass.device._app['enabled'] !== true)
+	if (!mooltipass.connectedToApp || !mooltipass.device._app || mooltipass.device._app['enabled'] !== true)
 	{
 		console.log('notify: mooltipass app not ready');
 
@@ -306,13 +306,18 @@ event.isMooltipassUnlocked = function()
 
 		noteId = "mpNotUnlockedStaticMooltipassDeviceInManagementMode";
 
+		var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+		var notification = {   
+			type: 'basic',
+			title: 'Mooltipass in Management Mode!',
+			message: 'Please leave management mode in the App',
+			iconUrl: '/icons/warning_icon.png'
+		};
+
+		if (!isFirefox) notification.buttons = [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}];
+
 		// Create notification to inform user
-		chrome.notifications.create(noteId,
-				{   type: 'basic',
-					title: 'Mooltipass in Management Mode!',
-					message: 'Please leave management mode in the App',
-					iconUrl: '/icons/warning_icon.png',
-					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
+		chrome.notifications.create(noteId,notification);
 					
 		return false;
 	}

@@ -288,7 +288,7 @@ def mooltipassMiniInit(mooltipass_device):
 				print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
 				print "|---------------------------------------------------------|"
 				print "|---------------------------------------------------------|"
-				print "|Setting up Mooltipass MPM-"+str(mp_id).zfill(4)+" FAILED                  |"
+				print "|Setting up Mooltipass MPM-"+"XXXX"+" FAILED                  |"
 				print "|                                                         |"                     
 				print "|           PLEASE PUT AWAY THIS MOOLTIPASS!!!!           |"                     
 				print "|---------------------------------------------------------|"

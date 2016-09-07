@@ -1073,10 +1073,7 @@ cipFields.detectTypeofForm = function( inputs ) {
 			scorePerMatch: 50,
 			score: 0,
 			autoSubmit: true,
-			maxfields: 3,
-			extraFunction: function( fields ) {
-				if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
-			}
+			maxfields: 3
 		},
 		{
 			combinationId: 'passwordreset001',
@@ -1131,10 +1128,7 @@ cipFields.detectTypeofForm = function( inputs ) {
 						if ( combination.requiredFields[I].mapsTo ) {
 							if (!combination.fields) combination.fields = {};
 							combination.fields[ combination.requiredFields[I].mapsTo ] = field;
-							combination.requiredFields[I].mapsTo = null;
 						}
-						if ( combination.extraFunction )
-							combination.extraFunction.call( this, localForms[form] );
 						return;
 					}
 				}

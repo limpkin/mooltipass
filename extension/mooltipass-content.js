@@ -1075,6 +1075,7 @@ cipFields.detectTypeofForm = function( inputs ) {
 			autoSubmit: true,
 			maxfields: 3,
 			extraFunction: function( fields ) {
+				/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
 				if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
 			}
 		},
@@ -1128,11 +1129,13 @@ cipFields.detectTypeofForm = function( inputs ) {
 					if ( field.is( requirement ) ) {
 						neededRequirements--;
 						combination.score += combination.scorePerMatch;
+						/* Check if the combination has mapped fields */
 						if ( combination.requiredFields[I].mapsTo ) {
 							if (!combination.fields) combination.fields = {};
 							combination.fields[ combination.requiredFields[I].mapsTo ] = field;
 							combination.requiredFields[I].mapsTo = null;
 						}
+						/* Check if the combination has a specific function, and run it! */
 						if ( combination.extraFunction )
 							combination.extraFunction.call( this, localForms[form] );
 						return;

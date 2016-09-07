@@ -1141,6 +1141,11 @@ cipFields.detectTypeofForm = function( inputs ) {
 						return;
 					}
 				}
+
+				/* If we found the right combination, then just return it */
+				if ( combination.score == 100 ) {
+					return combination;
+				}
 			});
 		};
 	});

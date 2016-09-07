@@ -1055,7 +1055,11 @@ cipFields.detectTypeofForm = function( inputs ) {
 			scorePerMatch: 50,
 			score: 0,
 			autoSubmit: true,
-			maxfields: 3
+			maxfields: 3,
+			extraFunction: function( fields ) {
+				/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+				if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+			}
 		},
 		{
 			combinationId: 'loginform002',

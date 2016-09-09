@@ -1,3 +1,0 @@
-- keep sense lines as small as possible, width 0.2mm
-- space between sense lines to be (front panel width)/2 minimum+
-- guard ring spaced 2mm from touch keys

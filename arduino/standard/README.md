@@ -57,7 +57,7 @@ File > Preferences > tick show verbose output during compilation & upload
 Pinout
 ------
 <p align="center">
-  <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/arduino/pinout_small.jpg" alt="Arduino pinout"/>
+  <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/arduino/standard/pinout_small.jpg" alt="Arduino pinout"/>
 </p>
 
 Warning!

@@ -41,7 +41,7 @@ The output file is 0_HaD_Mooltipass_4bit.h, and the bitmap data structure in the
 ###Example with run-length compression:
 
 Use gimp to convert this:
-![alt text](https://github.com/limpkin/mooltipass/raw/master/bitmaps/0_HaD_Mooltipass.png "Hackaday Mooltipass Logo") into [HaD_Mooltipass.h](https://github.com/limpkin/mooltipass/blob/master/bitmaps/HaD_Mooltipass.h).
+![alt text](https://github.com/limpkin/mooltipass/raw/master/bitmaps/standard/0_Mooltipass.png "Hackaday Mooltipass Logo") into [HaD_Mooltipass.h](https://github.com/limpkin/mooltipass/blob/master/bitmaps/HaD_Mooltipass.h).
 
 Then use the [bitmap.py](https://github.com/limpkin/mooltipass/blob/master/bitmaps/bitmap.py) python script to convert [HaD_Mooltipass.h](https://github.com/limpkin/mooltipass/blob/master/bitmaps/HaD_Mooltipass.h) into [had_mooltipass.h](https://github.com/limpkin/mooltipass/blob/master/source_code/src/had_mooltipass.h)
 ```

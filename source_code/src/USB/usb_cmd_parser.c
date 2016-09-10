@@ -63,6 +63,10 @@ uint16_t currentNodeWritten = NODE_ADDR_NULL;
 uint16_t mediaFlashImportPage;
 // Media flash import temp offset
 uint16_t mediaFlashImportOffset;
+/* External var, addr of bottom of stack (usually located at end of RAM)*/
+extern uint8_t __stack;
+/* External var, end of known static RAM (to be filled by linker) */
+extern uint8_t _end;
 
 /*! \fn     checkMooltipassPassword(uint8_t* data)
 *   \brief  Check that the provided bytes is the mooltipass password
@@ -1456,8 +1460,11 @@ void usbProcessIncoming(uint8_t caller_id)
 #ifdef STACK_DEBUG
         case CMD_STACK_FREE:
         {
-            uint16_t freebytes = stackFree();
-            usbSendMessage(CMD_STACK_FREE, sizeof(freebytes), &freebytes);
+            // Return current amount of free stack and amount of free stack at boot
+            uint16_t answer[2];
+            answer[0] = stackFree();
+            answer[1] = &__stack - &_end;
+            usbSendMessage(CMD_STACK_FREE, sizeof(answer), &answer);
             return;
         }
 #endif

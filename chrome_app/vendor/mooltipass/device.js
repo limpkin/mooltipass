@@ -780,6 +780,7 @@ mooltipass.device.stackFree = function() {
 
 mooltipass.device.responseGetStackFree = function(queuedItem, msg) {
     console.log("Stack free: ", (msg[0] + msg[1]*256), " bytes");
+    console.log("Stack at boot: ", (msg[2] + msg[3]*256), " bytes");
     // Process next queued request
     mooltipass.device.processQueue();
 };

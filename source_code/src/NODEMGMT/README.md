@@ -19,7 +19,7 @@ Nodes are stored in a stack and heap layout.  All nodes are doubly linked.
 A parent node and child node (child node start of data, or data node) can co-exist on the same memory page.
 
 The Node Management library requires the user to provide allocated space of a handle.  The user should not directly modify this handle.
-The Node Management library also implements support for basic user profiles.  A user profile is used to store the users first parent node (credential) and is used to allow a user to store 'favourite' credentials.  There are a maximum of 16 favourites allowed and a total of 16 possible users.
+The Node Management library also implements support for basic user profiles.  A user profile is used to store the users first parent node (credential) and is used to allow a user to store 'favourite' credentials.  There are a maximum of 14 favourites allowed and a total of 16 possible users.
 
 ## Node Details
 ### Parent Node

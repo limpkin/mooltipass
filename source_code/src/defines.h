@@ -160,7 +160,7 @@
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
-    #define TWO_CAPS_TRICK
+    //#define TWO_CAPS_TRICK
     //#define LEDS_ENABLED_MINI
     #define DATA_STORAGE_EN
     #define DEV_PLUGIN_COMMS
@@ -251,6 +251,7 @@
 
 /**************** DEFINES FIRMWARE ****************/
 #define AES_KEY_LENGTH          256
+#define AES_BLOCK_SIZE          128
 #define FALSE                   0
 #define TRUE                    (!FALSE)
 

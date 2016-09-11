@@ -1155,7 +1155,8 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
 {
         RET_TYPE ret = RETURN_OK;
         pNode* ip = (pNode*)&(currentNodeMgmtHandle.tempgNode);
-        cNode* ic = &(currentNodeMgmtHandle.child.child);
+        cNode buf_cnode;
+        cNode* ic = &buf_cnode;
         
         // read the node at parentNodeAddress
         // userID check and valid Check performed in readParent
@@ -1188,7 +1189,7 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
         else
         {            
             // delete node in memory
-            ret = deleteChildNode(pAddr, cAddr);
+            ret = deleteChildNode(pAddr, cAddr, ic);
             if(ret != RETURN_OK)
             {
                 return ret;
@@ -1208,13 +1209,13 @@ RET_TYPE updateChildNode(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr)
  * Deletes a child node from memory. Handles reorder of nodes and update to parent if needed.
  * @param   pAddr           The address of the parent of the child
  * @param   cAddr           The address of the child
+ * @param   ic              Pointer to a temporary childNode for buffer purposes
  * @return  success status
  * @note    Handles necessary doubly linked list management
  */
-RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
+RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr, cNode *ic)
 {
     pNode *ip = (pNode*)&(currentNodeMgmtHandle.tempgNode);
-    cNode *ic = &(currentNodeMgmtHandle.child.child);
     uint16_t prevAddress, nextAddress;
     
     // read parent node of child to delete
@@ -1272,3 +1273,35 @@ RET_TYPE deleteChildNode(uint16_t pAddr, uint16_t cAddr)
     scanNodeUsage();
     return RETURN_OK;
 }
+
+/**
+ * Updates the password field of a given child node
+ * @param   c               Pointer to a temporary child node for buffer purposes
+ * @param   cAddr           The address to the child node to update
+ * @param   password        Contents of the new password field, NODE_CHILD_SIZE_OF_PASSWORD long
+ * @param   ctr_value       New CTR value
+ * @note    cNode will be filled with the child node in case it may be useful....
+ * @return  success status
+ */
+RET_TYPE updateChildNodePassword(cNode* c, uint16_t cAddr, uint8_t* password, uint8_t* ctr_value)
+{    
+    // userID check and valid check performed in readChild
+    readChildNode(c, cAddr);
+    
+    // Write date created & used fields
+    c->dateCreated = currentDate;
+    c->dateLastUsed = currentDate;
+
+    // Update password & ctr fields
+    memcpy(c->password, password, NODE_CHILD_SIZE_OF_PASSWORD);
+    memcpy(c->ctr, ctr_value, USER_CTR_SIZE);
+
+    // service is identical just rewrite the node
+    writeNodeDataBlockToFlash(cAddr, c);
+    
+    // write is destructive.. read
+    readChildNode(c, cAddr);
+    
+    return RETURN_OK;
+}
+

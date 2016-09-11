@@ -1,9 +1,10 @@
 source_code/Debug/
 source_code/Release/
-booltoader_mini/Debug/
-booltoader_mini/Release/
 production/cards/Mooltipass-smartcard-template-comm_v2.svg
 measurements/
+user_manuals/
+trademark/
+fcc/
 *Thumbs.db
 *~
 *.hex

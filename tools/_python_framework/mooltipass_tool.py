@@ -128,7 +128,10 @@ def main():
 				print "init: not enough args!"
 				
 		if sys.argv[1] == "decrypt_mini_prod":
-			decryptMiniProdFile()		
+			if len(sys.argv) > 2:
+				decryptMiniProdFile(sys.argv[2])		
+			else:
+				print "decrypt_mini_prod: not enough args!"
 				
 		if sys.argv[1] == "read_user_db_change_nb":
 			mooltipass_device.getMooltipassUserDbChangeNumber()		

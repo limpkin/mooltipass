@@ -1,3 +1,4 @@
+Mooltipass Standard:
 - After production a custom test rig is used to program the Mooltipass firmware & fuses
 - The test rig also pulls PB5 low, enabling electrical testing (see production\_programming_and_test\electrical_test.txt)
 - During this test the IOs not used by the Mooltipass peripherals are tested, as well as the correct fuse settings
@@ -11,3 +12,16 @@
 - Tester needs to insert card
 - If functional test OK the Mooltipass logo will be displayed and correct value will be stored at EEP_BOOTKEY_ADDR
 - All successive boots will check the fuse settings
+
+Mooltipass Mini:
+- The MCUs are programmed (flash & fuses) before assembly
+- The fuses are set in such a way that the bootloader is started at device boot
+- The bootloader checks if the security is set in place by checking the value of EEP_BOOT_PWD_SET in EEPROM
+- If it isn't correctly set, it will start the firmware
+- The firmware will check for first boot by checking the value of CORRECT_BOOTKEY in EEPROM
+- This initializes default Mooltipass settings and formats the external Flash
+- Functional testing is then entered
+- Mooltipass bundle is set, AES keys are set
+- Functional testing includes flash, accelerometer, wheel/click, smartcard slot and screen checks
+- For further firmware upgrades, the main firmware sets EEP_BOOTKEY_ADDR to BOOTLOADER_BOOTKEY
+- The device then reboots, the bootloader checks for this value and performs the upgrade

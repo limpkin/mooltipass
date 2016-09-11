@@ -92,9 +92,13 @@ void guiMainLoop(void)
     input_interface_result = miniGetWheelAction(FALSE, FALSE);
 
     #if defined(HARDWARE_MINI_CLICK_V2)
-    if ((scanAndGetDoubleZTap(FALSE) == ACC_RET_MOVEMENT) && (miniOledIsScreenOn() == FALSE))
+    if (scanAndGetDoubleZTap(FALSE) == ACC_RET_MOVEMENT)
     {
         // knock detecting algo to wakup the device
+        if (isScreenSaverOn() == TRUE)
+        {
+            guiGetBackToCurrentScreen();
+        }
         activityDetectedRoutine();
     }
     #endif

@@ -37,8 +37,10 @@
 #include "aes256_ctr.h"
 #include "node_mgmt.h"
 #include "flash_mem.h"
+#include "oledmini.h"
 #include "defines.h"
 #include "delays.h"
+#include "utils.h"
 #include "usb.h"
 #include "rng.h"
 
@@ -294,6 +296,50 @@ static inline void ctrPostEncryptionTasks(void)
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
 }
+
+/*! \fn     computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data)
+*   \brief  Encrypt a block of data using a given aes key, display it on the screen and wait for user action
+*   \param  aes_key     AES key
+*   \param  data        Data to encrypt, one AES block size long (128bits) untouched by the routine
+*   \param  stringId    String ID to display on the screen
+*   \note   aes_key is emptied after use!
+*   \note   This function uses the AES context of the current user, so DO NOT call it when a user is logged in!
+*/
+#ifdef MINI_VERSION
+void computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data)
+{
+    // Buffer to store a copy of the data to encrypt
+    uint8_t data_copy[AES_BLOCK_SIZE/8];
+
+    // Get the text to display on the screen
+    miniOledClearFrameBuffer();
+    miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+
+    // Initialize AES context & encrypt data
+    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
+    memcpy((void*)data_copy, (void*)data, AES256_CTR_LENGTH);
+    aes256_init_ecb(&(aesctx.aesCtx), aes_key);
+    aes256_encrypt_ecb(&(aesctx.aesCtx), data_copy);
+    while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
+
+    // Format and display hash
+    for (uint8_t i = 0; i < AES256_CTR_LENGTH / 2; i++)
+    {
+        hexachar_to_string((char)data_copy[i], (char*)&textBuffer1[i*2]);
+        hexachar_to_string((char)data_copy[i+(AES_BLOCK_SIZE/8/2)], (char*)&textBuffer2[i*2]);
+    }
+    miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, (char*)textBuffer1);
+    miniOledPutCenteredString(THREE_LINE_TEXT_THIRD_POS, (char*)textBuffer2);
+    miniOledFlushEntireBufferToDisplay();
+
+    // Delete vars
+    memset((void*)&aesctx, 0x00, sizeof(aesctx));
+    memset((void*)aes_key, 0x00, AES_KEY_LENGTH/8);
+
+    // Wait for action before next screen
+    miniGetWheelAction(TRUE, FALSE);
+}
+#endif
 
 /*! \fn     decrypt32bBlockOfDataAndClearCTVFlag(uint8_t* data, uint8_t* ctr)
 *   \brief  Decrypt a block of data, clear credential_timer_valid

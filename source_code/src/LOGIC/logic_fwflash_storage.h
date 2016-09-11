@@ -372,4 +372,8 @@ uint8_t getKeybLutEntryForLayout(uint8_t layout, uint8_t ascii_char);
 RET_TYPE getStoredFileAddr(uint16_t fileId, uint16_t* addr);
 char* readStoredStringToBuffer(uint8_t stringID);
 
+// Global variables
+extern uint8_t textBuffer1[TEXTBUFFERSIZE];
+extern uint8_t textBuffer2[TEXTBUFFERSIZE];
+
 #endif /* LOGIC_FWFLASH_STORAGE_H_ */

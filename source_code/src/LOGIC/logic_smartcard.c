@@ -32,8 +32,10 @@
 #include "logic_smartcard.h"
 #include "logic_eeprom.h"
 #include "hid_defines.h"
+#include <avr/eeprom.h>
 #include "aes256_ctr.h"
 #include "mooltipass.h"
+#include "oledmini.h"
 #include "defines.h"
 #include "delays.h"
 #include "rng.h"
@@ -214,11 +216,14 @@ RET_TYPE removeCardAndReAuthUser(void)
 
 /*! \fn     validCardDetectedFunction(void)
 *   \brief  Function called when a valid mooltipass card is detected
-*   \param  suggested_pin   If different than 0, try to unlock with this PIN (pointer)
+*   \param  suggested_pin   If different than 0 or 0xFFFF, try to unlock with this PIN (pointer)
 *   \return Unlock status (see valid_card_det_return_t)
 */
 RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin)
 {
+    #ifdef MINI_VERSION
+        uint8_t plateform_aes_key[AES_KEY_LENGTH/8];
+    #endif
     uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t temp_buffer[AES_KEY_LENGTH/8];
     uint8_t temp_user_id;
@@ -239,15 +244,43 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin)
         #ifdef GENERAL_LOGIC_OUTPUT_USB
             usbPrintf_P(PSTR("Card ID found with user %d\r\n"), temp_user_id);
         #endif
+
+        // Display AESenc(CTR) if desired
+        #ifdef MINI_VERSION
+        if(TRUE)
+        {
+            // Fetch AES key from eeprom: 30 bytes after the first 32bytes of EEP_BOOT_PWD, then last 2 bytes at EEP_LAST_AES_KEY2_2BYTES_ADDR
+            eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
+            eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
+
+            // Display AESenc(CTRVAL)
+            computeAndDisplayBlockSizeEncryptionResult(plateform_aes_key, temp_ctr_val);
+        }
+        #endif
         
         // Ask the user to enter his PIN and check it
-        if (((suggested_pin != 0) && (mooltipassDetectedRoutine(suggested_pin) == RETURN_MOOLTIPASS_4_TRIES_LEFT )) || ((suggested_pin == 0) && (guiCardUnlockingProcess() == RETURN_OK)))
+        if (((suggested_pin != 0) && (mooltipassDetectedRoutine(suggested_pin) == RETURN_MOOLTIPASS_4_TRIES_LEFT)) || ((suggested_pin == 0) && (guiCardUnlockingProcess() == RETURN_OK)))
         {
             // Unlocking succeeded
             readAES256BitsKey(temp_buffer);
+            
+            // Display AESenc(AESkey) if desired
+            #ifdef MINI_VERSION
+            if(TRUE)
+            {
+                // Fetch AES key from eeprom: 30 bytes after the first 32bytes of EEP_BOOT_PWD, then last 2 bytes at EEP_LAST_AES_KEY2_2BYTES_ADDR
+                eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
+                eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
+
+                // Display AESenc(CTRVAL)
+                computeAndDisplayBlockSizeEncryptionResult(plateform_aes_key, temp_buffer);
+            }
+            #endif
+
+            // Init user flash context and encryption handling, set smartcard unlocked flag
             initUserFlashContext(temp_user_id);
             initEncryptionHandling(temp_buffer, temp_ctr_val);
-            setSmartCardInsertedUnlocked();
+            setSmartCardInsertedUnlocked();            
             return RETURN_VCARD_OK;
         }
         else

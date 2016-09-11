@@ -72,6 +72,7 @@
 #define MINI_KNOCK_DETECT_ENABLE_PARAM      28
 #define MINI_KNOCK_THRES_PARAM              29
 #define LOCK_UNLOCK_FEATURE_PARAM           30
+#define HASH_DISPLAY_FEATURE_PARAM          31
 // ... we can go until 33 ;)
 #define FIRST_USER_PARAM                    KEYBOARD_LAYOUT_PARAM
 

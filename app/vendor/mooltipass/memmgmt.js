@@ -2339,8 +2339,8 @@ mooltipass.memmgmt.generateMergeOperations = function()
 				// We have a match, let's try to see where to fit that node
 				var prev_child_node_index = null;
 				var next_child_node_index = null;
-				var temp_child_node_address = mooltipass.memmgmt.clonedCurServiceNodes[i].tempFirstChildAddress;			
-				
+				var temp_child_node_address = mooltipass.memmgmt.clonedCurServiceNodes[i].tempChildAddress;
+
 				// First child might be a virtual one
 				if(temp_child_node_address == null)
 				{
@@ -2406,7 +2406,7 @@ mooltipass.memmgmt.generateMergeOperations = function()
 				{
 					// First child node, we need to update the parent and we set our prev address to 0
 					//mooltipass.memmgmt.consoleLog(mooltipass.memmgmt.clonedCurServiceNodes[i].name + " : " + new_children_for_existing_parents[j].name + " will fit in front of the other children");
-					mooltipass.memmgmt.clonedCurServiceNodes[i]["tempFirstChildAddress"] = temp_new_login_address;
+					mooltipass.memmgmt.clonedCurServiceNodes[i]["tempChildAddress"] = temp_new_login_address;
 					mooltipass.memmgmt.changePrevAddress(new_children_for_existing_parents[j].data, [0,0]);
 				}
 				else

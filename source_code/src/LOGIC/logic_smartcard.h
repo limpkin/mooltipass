@@ -30,7 +30,7 @@
 
 #include "defines.h"
 
-RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin);
+RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_flag);
 RET_TYPE cloneSmartCardProcess(volatile uint16_t* pincode);
 RET_TYPE handleSmartcardInserted(void);
 RET_TYPE removeCardAndReAuthUser(void);

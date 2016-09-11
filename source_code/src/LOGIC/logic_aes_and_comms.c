@@ -297,7 +297,7 @@ static inline void ctrPostEncryptionTasks(void)
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
 }
 
-/*! \fn     computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data)
+/*! \fn     computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data, uint8_t stringId)
 *   \brief  Encrypt a block of data using a given aes key, display it on the screen and wait for user action
 *   \param  aes_key     AES key
 *   \param  data        Data to encrypt, one AES block size long (128bits) untouched by the routine
@@ -306,14 +306,14 @@ static inline void ctrPostEncryptionTasks(void)
 *   \note   This function uses the AES context of the current user, so DO NOT call it when a user is logged in!
 */
 #ifdef MINI_VERSION
-void computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data)
+void computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data, uint8_t stringId)
 {
     // Buffer to store a copy of the data to encrypt
     uint8_t data_copy[AES_BLOCK_SIZE/8];
 
     // Get the text to display on the screen
     miniOledClearFrameBuffer();
-    miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, readStoredStringToBuffer(ID_STRING_GOINGTOSLEEP));
+    miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, readStoredStringToBuffer(stringId));
 
     // Initialize AES context & encrypt data
     activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);

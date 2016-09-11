@@ -100,7 +100,7 @@ RET_TYPE handleSmartcardInserted(void)
     else if (detection_result == RETURN_MOOLTIPASS_USER)
     {
         // Call valid card detection function
-        uint8_t temp_return = validCardDetectedFunction(0);
+        uint8_t temp_return = validCardDetectedFunction(0, TRUE);
         
         // This a valid user smart card, we call a dedicated function for the user to unlock the card
         if (temp_return == RETURN_VCARD_OK)
@@ -193,7 +193,7 @@ RET_TYPE removeCardAndReAuthUser(void)
     timerBased130MsDelay();
     
     // Launch Unlocking process
-    if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0) == RETURN_VCARD_OK))
+    if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0, FALSE) == RETURN_VCARD_OK))
     {
         // Read other CPZ
         readCodeProtectedZone(temp_cpz2);
@@ -214,12 +214,13 @@ RET_TYPE removeCardAndReAuthUser(void)
     }
 }
 
-/*! \fn     validCardDetectedFunction(void)
+/*! \fn     validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_flag)
 *   \brief  Function called when a valid mooltipass card is detected
-*   \param  suggested_pin   If different than 0 or 0xFFFF, try to unlock with this PIN (pointer)
+*   \param  suggested_pin   If different than 0, try to unlock with this PIN (pointer)
+*   \param  hash_allow_flag Set to allow hash display if option is enabled
 *   \return Unlock status (see valid_card_det_return_t)
 */
-RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin)
+RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_flag)
 {
     #ifdef MINI_VERSION
         uint8_t plateform_aes_key[AES_KEY_LENGTH/8];
@@ -247,14 +248,14 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin)
 
         // Display AESenc(CTR) if desired
         #ifdef MINI_VERSION
-        if(TRUE)
+        if ((getMooltipassParameterInEeprom(HASH_DISPLAY_FEATURE_PARAM) != FALSE) && (hash_allow_flag != FALSE))
         {
             // Fetch AES key from eeprom: 30 bytes after the first 32bytes of EEP_BOOT_PWD, then last 2 bytes at EEP_LAST_AES_KEY2_2BYTES_ADDR
             eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
             eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
 
             // Display AESenc(CTRVAL)
-            computeAndDisplayBlockSizeEncryptionResult(plateform_aes_key, temp_ctr_val);
+            computeAndDisplayBlockSizeEncryptionResult(plateform_aes_key, temp_ctr_val, ID_STRING_HASH1);
         }
         #endif
         
@@ -266,14 +267,14 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin)
             
             // Display AESenc(AESkey) if desired
             #ifdef MINI_VERSION
-            if(TRUE)
+            if ((getMooltipassParameterInEeprom(HASH_DISPLAY_FEATURE_PARAM) != FALSE) && (hash_allow_flag != FALSE))
             {
                 // Fetch AES key from eeprom: 30 bytes after the first 32bytes of EEP_BOOT_PWD, then last 2 bytes at EEP_LAST_AES_KEY2_2BYTES_ADDR
                 eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
                 eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
 
                 // Display AESenc(CTRVAL)
-                computeAndDisplayBlockSizeEncryptionResult(plateform_aes_key, temp_buffer);
+                computeAndDisplayBlockSizeEncryptionResult(plateform_aes_key, temp_buffer, ID_STRING_HASH2);
             }
             #endif
 

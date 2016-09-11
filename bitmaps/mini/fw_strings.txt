@@ -70,8 +70,8 @@ LED2,
 LED3,
 LED4~~
 Scroll Back To 'a'
-RESERVED_2
-RESERVED_3
+Hash #1
+Hash #2
 RESERVED_4
 RESERVED_5
 Create Credentials

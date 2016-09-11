@@ -43,7 +43,7 @@
 #endif
 
 /** Prototypes **/
-void computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data);
+void computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data, uint8_t stringId);
 uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name);
 uint16_t searchForServiceName(uint8_t* name, uint8_t mode, uint8_t type);
 RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag);

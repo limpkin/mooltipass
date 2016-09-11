@@ -265,7 +265,7 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_f
             // Unlocking succeeded
             readAES256BitsKey(temp_buffer);
             
-            // Display AESenc(AESkey) if desired
+            // Display AESenc(AESkey) if desired: as this check is made to make sure the device isn't compromised, it is OK to display it.
             #ifdef MINI_VERSION
             if ((getMooltipassParameterInEeprom(HASH_DISPLAY_FEATURE_PARAM) != FALSE) && (hash_allow_flag != FALSE))
             {

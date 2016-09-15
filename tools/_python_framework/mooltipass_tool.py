@@ -144,6 +144,12 @@ def main():
 				
 		if sys.argv[1] == "get_free_user_slots":
 			mooltipass_device.getFreeUserSlots()
+			
+		if sys.argv[1] == "change_login_description":
+			mooltipass_device.changeLoginDescription()
+			
+		if sys.argv[1] == "add_credential":
+			mooltipass_device.addCredential()
 		
 		
 	#mooltipass_device.sendCustomPacket()

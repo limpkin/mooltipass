@@ -72,7 +72,7 @@ LED4~~
 Scroll Back To 'a'
 Hash #1
 Hash #2
-RESERVED_4
+Change Description For:
 RESERVED_5
 Create Credentials
 Edit Credentials
@@ -107,4 +107,3 @@ Save changes?
 Password length?
 Create new Service?
 No Stored Service
-Change Description For:

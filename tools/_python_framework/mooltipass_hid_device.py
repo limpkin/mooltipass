@@ -195,6 +195,63 @@ class mooltipass_hid_device:
 	def getFreeUserSlots(self):
 		self.device.sendHidPacket([0, CMD_GET_FREE_NB_USR_SLT])
 		print self.device.receiveHidPacket()[DATA_INDEX], "slots for new users available"
+		
+	# Change description for given login
+	def changeLoginDescription(self):
+		context = raw_input("Context: ")
+		login = raw_input("Login: ")
+		desc = raw_input("Description: ")
+		
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_CONTEXT, len(context)+1, self.textToByteArray(context)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set context"
+			return
+		
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_LOGIN, len(login)+1, self.textToByteArray(login)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set login"
+			return
+		
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_DESCRIPTION, len(desc)+1, self.textToByteArray(desc)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set description"
+			return
+		
+		print "Description changed!"
+		
+	# Add new credential
+	def addCredential(self):
+		context = raw_input("Context: ")
+		login = raw_input("Login: ")
+		desc = raw_input("Description: ")
+		password = raw_input("Password: ")
+				
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_ADD_CONTEXT, len(context)+1, self.textToByteArray(context)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set context"
+			return
+			
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_CONTEXT, len(context)+1, self.textToByteArray(context)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set context"
+			return
+		
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_LOGIN, len(login)+1, self.textToByteArray(login)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set login"
+			return
+		
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_DESCRIPTION, len(desc)+1, self.textToByteArray(desc)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set description"
+			return
+		
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_PASSWORD, len(password)+1, self.textToByteArray(password)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set password"
+			return			
+		
+		print "Done!"
 			
 	# Upload bundle
 	def	uploadBundle(self, password, filename, verbose):	

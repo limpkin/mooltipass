@@ -3,6 +3,9 @@ var page = {};
 // special information for every tab
 page.tabs = {};
 
+// Check for complete load and rendering before trying to act
+page.allLoaded = false;
+
 page.currentTabId = -1;
 page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
 page.blockedTabs = {};

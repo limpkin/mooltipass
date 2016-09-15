@@ -67,14 +67,17 @@ moolticute.askPassword = function(_ctx, _login, _cb) {
         login: _login
     };
 
-    moolticute._ws.send(JSON.stringify({
+    var message = {
         msg: 'ask_password',
         client_id: id,
         data: {
             service: _ctx,
             login: _login,
         }
-    }));
+    };
+
+    console.log('About to send to moolticuted:', message);
+    moolticute._ws.send(JSON.stringify(message));
 }
 
 /**
@@ -93,11 +96,27 @@ moolticute.askPassword = function(_ctx, _login, _cb) {
     }));
  }
 
+/* Raw send request */
+moolticute.sendRequest = function( request ) {
+    console.log( 'Sending request -> ', request);
+    if ( request.update ) {
+        var message = {
+            "msg": "set_credential",
+            "data": {
+                "service": request.update.context,
+                "login": request.update.login,
+                "password": request.update.password,
+                "description": 'Set by Mooltipass Extension/Websocket'
+            }
+        };
+        moolticute._ws.send(JSON.stringify( message ));    
+    }
+}
+
 /**
  * Process message from moolticute daemon
  */
 moolticute._ws.onmessage = function(ev) {
-
     var d = ev.data;
     try {
         var recvMsg = JSON.parse(d);
@@ -154,7 +173,8 @@ moolticute._ws.onmessage = function(ev) {
         }
         moolticute.fireEvent('statusChange');
     }
-    else if (recvMsg.msg == 'ask_passwork' || recvMsg.msg == 'get_random_numbers') {
+    else if (recvMsg.msg == 'ask_password' || recvMsg.msg == 'get_random_numbers') {
+        console.log('here 2222');
         if (moolticute._qCallbacks.hasOwnProperty(recvMsg.client_id)) {
             moolticute._qCallbacks[recvMsg.client_id].callback(recvMsg.data);
             delete moolticute._qCallbacks[recvMsg.client_id];

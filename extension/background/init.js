@@ -157,7 +157,8 @@ window.setInterval(function() {
 }, _interval);
 
 window.setInterval(function() {
-	if(page.currentTabId && page.currentTabId > 0) {
+	if(page.currentTabId && page.currentTabId > 0 && page.allLoaded) {
+		console.log('checking ' + page.currentTabId);
 		chrome.tabs.sendMessage(page.currentTabId, {
 			action: "check_for_new_input_fields"
 		});

@@ -46,7 +46,7 @@
         "mooltipass-content.js"
       ],
       "css": ["vendor/jquery-ui-1.11.4.custom/jquery-ui.min.css", "vendor/bootstrap-btn.css", "bootstrap-btn.css", "mooltipass-content.css"],
-      "run_at": "document_idle",
+      "run_at": "document_end",
       "all_frames": true
     }
   ],

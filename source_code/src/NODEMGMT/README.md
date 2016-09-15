@@ -28,19 +28,19 @@ Used to store the base 'service' of a credential.
 - nextChildAddress (Node Address of the parents first child)
 - prevParentAddress (Used to implement the linked list)
 - nextParentAddress (Used to implement the linked list)
-- service[58] (Used to indicate the 'service' of the credential ex 'hackaday.io')
+- service 58B (Used to indicate the 'service' of the credential e.g. 'hackaday.io')
 
 ### Child Node
 Used to store the user name and password of a credential
-flags (used internally to indicate validity and type of the node)
-prevChildAddress (Used to implement the linked list)
-nextChildAddress (Used to implement the linked list)
-description[24] (Plain-text description of the credential)
-dateCreated (Date the credential was first added to the Mooltipass. plug-in required)
-dateLastUsed (Date the credential was last used. plug-in required)
-ctr[3] (Used for encryption)
-login[63] (Plain-text user name)
-password[32] (encrypted password)
+ - flags (used internally to indicate validity and type of the node)
+ - prevChildAddress (Used to implement the linked list)
+ - nextChildAddress (Used to implement the linked list)
+ - description 24B (Plain-text description of the credential)
+ - dateCreated (Date the credential was first added to the Mooltipass. plug-in required)
+ - dateLastUsed (Date the credential was last used. plug-in required)
+ - ctr 3B (Used for encryption)
+ - login 63B (Plain-text user name)
+ - password 32B (encrypted password)
 
 ### Child start of data Node
 More later

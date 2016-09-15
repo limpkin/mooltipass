@@ -54,6 +54,8 @@ uint16_t selected_login_child_node_addr;
 volatile uint8_t selected_login_flag = FALSE;
 // Context valid flag (service / website selected)
 volatile uint8_t context_valid_flag = FALSE;
+// Login just added flag
+volatile uint8_t login_just_added_flag = FALSE;
 // Data context valid flag (we know the current data service)
 uint8_t data_context_valid_flag = FALSE;
 // Currently adding data flag
@@ -115,6 +117,7 @@ void clearSmartCardInsertedUnlocked(void)
 {
     context_valid_flag = FALSE;
     selected_login_flag = FALSE;
+    login_just_added_flag = FALSE;
     leaveMemoryManagementMode();
     activateTimer(TIMER_CREDENTIALS, 0);
     smartcard_inserted_unlocked = FALSE;
@@ -404,6 +407,7 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t type)
     {
         context_valid_flag = FALSE;
         selected_login_flag = FALSE;
+        login_just_added_flag = FALSE;
         data_context_valid_flag = FALSE;
         current_adding_data_flag = FALSE;
         activateTimer(TIMER_CREDENTIALS, 0);
@@ -707,6 +711,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 if(createChildNode(context_parent_node_addr, &temp_cnode) == RETURN_OK)
                 {
                     selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name);
+                    login_just_added_flag = TRUE;
                     selected_login_flag = TRUE;
                     ret_val = RETURN_OK;
                 }
@@ -724,6 +729,64 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
     guiGetBackToCurrentScreen();
     #endif
     return ret_val;
+}
+
+/*! \fn     setDescriptionForContext(uint8_t* description)
+*   \brief  Set description for current context
+*   \param  description String containing the description
+*   \param  length      String length
+*   \return Operation success or not
+*/
+RET_TYPE setDescriptionForContext(uint8_t* description)
+{
+    if ((selected_login_flag == FALSE) || (context_valid_flag == FALSE))
+    {
+        // Login not set
+        return RETURN_NOK;
+    }
+    else
+    {
+        // Read parent node
+        readParentNode(&temp_pnode, context_parent_node_addr);
+
+        // Read child node
+        readChildNode(&temp_cnode, selected_login_child_node_addr);
+
+        // If we haven't just added the login, ask for permission
+        if (login_just_added_flag == FALSE)
+        {
+            // Prepare password changing approval text
+            #if defined(HARDWARE_OLIVIER_V1)
+                conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_CHANGE_DESC_FOR);
+                conf_text.lines[1] = (char*)temp_cnode.login;
+                conf_text.lines[2] = readStoredStringToBuffer(ID_STRING_ON);
+                conf_text.lines[3] = (char*)temp_pnode.service;
+            #elif defined(MINI_VERSION)
+                conf_text.lines[0] = (char*)temp_pnode.service;
+                conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_CHANGE_DESC_FOR);
+                conf_text.lines[2] = (char*)temp_cnode.login;
+            #endif
+
+            // Ask for password changing approval
+            #if defined(HARDWARE_OLIVIER_V1)
+            if (guiAskForConfirmation(4, &conf_text) != RETURN_OK)
+            #elif defined(MINI_VERSION)
+            if (guiAskForConfirmation(3, &conf_text) != RETURN_OK)
+            #endif
+            {
+                guiGetBackToCurrentScreen();
+                return RETURN_NOK;
+            }
+
+            guiGetBackToCurrentScreen();
+        }
+
+        // Update the description field
+        updateChildNodeDescription(&temp_cnode, selected_login_child_node_addr, description);
+        login_just_added_flag = FALSE;
+
+        return RETURN_OK;
+    }
 }
 
 /*! \fn     setPasswordForContext(uint8_t* password, uint8_t length)

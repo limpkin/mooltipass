@@ -1305,3 +1305,28 @@ RET_TYPE updateChildNodePassword(cNode* c, uint16_t cAddr, uint8_t* password, ui
     return RETURN_OK;
 }
 
+/**
+ * Updates the description field of a given child node
+ * @param   c               Pointer to a temporary child node for buffer purposes
+ * @param   cAddr           The address to the child node to update
+ * @param   description     Contents of the new description field, NODE_CHILD_SIZE_OF_DESCRIPTION long
+ * @note    cNode will be filled with the child node in case it may be useful....
+ * @return  success status
+ */
+RET_TYPE updateChildNodeDescription(cNode* c, uint16_t cAddr, uint8_t* description)
+{    
+    // userID check and valid check performed in readChild
+    readChildNode(c, cAddr);
+
+    // Update description field
+    memcpy(c->description, description, NODE_CHILD_SIZE_OF_DESCRIPTION);
+
+    // service is identical just rewrite the node
+    writeNodeDataBlockToFlash(cAddr, c);
+    
+    // write is destructive.. read
+    readChildNode(c, cAddr);
+    
+    return RETURN_OK;
+}
+

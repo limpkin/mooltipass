@@ -163,7 +163,7 @@
     //#define TWO_CAPS_TRICK
     //#define LEDS_ENABLED_MINI
     #define DATA_STORAGE_EN
-    #define DEV_PLUGIN_COMMS
+    //#define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif

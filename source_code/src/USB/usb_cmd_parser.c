@@ -269,6 +269,10 @@ void usbProcessIncoming(uint8_t caller_id)
     {
         max_text_size = SMARTCARD_MTP_PASS_LENGTH/8;
     }
+    else if (datacmd == CMD_SET_DESCRIPTION)
+    {
+        max_text_size = NODE_CHILD_SIZE_OF_DESCRIPTION;
+    }
     else
     {
         text_field_check_needed = FALSE;
@@ -435,6 +439,20 @@ void usbProcessIncoming(uint8_t caller_id)
             {
                 plugin_return_value = PLUGIN_BYTE_ERROR;
                 USBPARSERDEBUGPRINTF_P(PSTR("set login: \"%s\" failed\n"),msg->body.data);
+            }
+            break;
+        }
+
+        // set description
+        case CMD_SET_DESCRIPTION :
+        {
+            if (setDescriptionForContext(msg->body.data) == RETURN_OK)
+            {
+                plugin_return_value = PLUGIN_BYTE_OK;
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
             }
             break;
         }

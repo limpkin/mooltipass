@@ -152,6 +152,7 @@
     #define ID_STRING_FUSE_PB           73
     #define ID_STRING_PIN_COMPUTER      74
     #define ID_STRING_SEND_PASS_FOR     75
+    #define ID_STRING_CHANGE_DESC_FOR   76
 #elif defined(MINI_VERSION)
     // Font IDs
     #define FONT_NONE               255
@@ -276,14 +277,11 @@
     #define ID_STRING_FUNC_TEST_SCROLL2 71
     #define ID_STRING_HASH1             72
     #define ID_STRING_HASH2             73
+    #define ID_STRING_CHANGE_DESC_FOR   74
 
 #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* reserved for main firmware branch usage
      * can be removed as they are added above */
-    #define ID_STRING_MGMT_RESERVED1            71
-    #define ID_STRING_MGMT_RESERVED2            72
-    #define ID_STRING_MGMT_RESERVED3            73
-    #define ID_STRING_MGMT_RESERVED4            74
     #define ID_STRING_MGMT_RESERVED5            75
 
     /* on-device credential management strings */

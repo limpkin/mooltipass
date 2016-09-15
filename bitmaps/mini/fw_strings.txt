@@ -107,3 +107,4 @@ Save changes?
 Password length?
 Create new Service?
 No Stored Service
+Change Description For:

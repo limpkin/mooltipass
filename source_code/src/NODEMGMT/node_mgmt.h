@@ -335,6 +335,7 @@ void readNode(gNode* g, uint16_t nodeAddress);
 
 uint8_t findFreeNodes(uint8_t nbNodes, uint16_t* nodeArray, uint16_t startPage, uint8_t startNode);
 RET_TYPE updateChildNodePassword(cNode* c, uint16_t cAddr, uint8_t* password, uint8_t* ctr_value);
+RET_TYPE updateChildNodeDescription(cNode* c, uint16_t cAddr, uint8_t* description);
 void setProfileUserDbChangeNumber(void *buf);
 void readProfileUserDbChangeNumber(void *buf);
 void scanNodeUsage(void);

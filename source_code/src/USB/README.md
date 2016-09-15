@@ -57,7 +57,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0xA7: set password
 ------------------
-From plugin/app: set the password for the current context
+From plugin/app: set the password for the current login
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
@@ -251,6 +251,12 @@ From Mooltipass: 2 bytes data packet, first byte is 0x00 for failure & 0x01 for 
 From plugin/app: Request the number of slots available for new users
 
 From Mooltipass: 1 byte data packet with the answer
+
+0xD8: Set Current Login Description
+-----------------------------------
+From plugin/app: Set the description for the current login
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
 Commands in data management mode
 ================================

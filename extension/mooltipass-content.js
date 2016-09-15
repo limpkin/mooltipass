@@ -1056,7 +1056,11 @@ cipFields.detectTypeofForm = function( inputs ) {
 			scorePerMatch: 50,
 			score: 0,
 			autoSubmit: true,
-			maxfields: 3
+			maxfields: 3,
+			extraFunction: function( fields ) {
+				/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+				if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+			}
 		},
 		{
 			combinationId: 'loginform002',
@@ -1074,7 +1078,11 @@ cipFields.detectTypeofForm = function( inputs ) {
 			scorePerMatch: 50,
 			score: 0,
 			autoSubmit: true,
-			maxfields: 3
+			maxfields: 3,
+			extraFunction: function( fields ) {
+				/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+				if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+			}
 		},
 		{
 			combinationId: 'passwordreset001',
@@ -1114,24 +1122,35 @@ cipFields.detectTypeofForm = function( inputs ) {
 	
 	// Check for matching combinations
 	var localCombinations = $.extend(possibleCombinations, {});
-	localCombinations.forEach( function( combination ) {
+	var selectedCombination = localCombinations.forEach( function( combination ) {
 		// In detected forms
 		for( form in localForms ) {
 			if ( combination.maxfields && Object.keys( localForms[form] ).length > combination.maxfields ) continue;
 			var neededRequirements = combination.requiredFields.length;
-			combination.score = 0;
+			combination.score = combination.score?combination.score:0;
 			localForms[form].forEach( function( field ) {
 				for ( var I = 0; I < combination.requiredFields.length; I++ ) {
 					var requirement = combination.requiredFields[I].selector;
 					if ( field.is( requirement ) ) {
 						neededRequirements--;
 						combination.score += combination.scorePerMatch;
+						/* Check if the combination has mapped fields */
 						if ( combination.requiredFields[I].mapsTo ) {
 							if (!combination.fields) combination.fields = {};
 							combination.fields[ combination.requiredFields[I].mapsTo ] = field;
+							combination.requiredFields[I].mapsTo = null;
 						}
+						/* Check if the combination has a specific function, and run it! */
+						if ( combination.extraFunction )
+							combination.extraFunction.call( this, localForms[form] );
 						return;
 					}
+				}
+
+				//console.log ( combination );
+				/* If we found the right combination, then just return it */
+				if ( combination.score == 100 ) {
+					return combination;
 				}
 			});
 		};
@@ -1526,8 +1545,8 @@ cip.initCredentialFields = function(forceCall) {
     		searchForAllCombinations = false;
     	}
     }
-    console.log('Would autoSubmit? ' + cip.autoSubmit );
-    //cip.autoSubmit = false; // Temporarily forbid auto-submition
+    //console.log('Would autoSubmit? ' + cip.autoSubmit );
+    //cip.autoSubmit = true; // Temporarily forbid auto-submition
 
     if(searchForAllCombinations) {
 		// get all combinations of username + password fields
@@ -1535,7 +1554,7 @@ cip.initCredentialFields = function(forceCall) {
 	}
 	cipFields.prepareCombinations(cipFields.combinations);
 
-	cipDebug.log('Combinations found:', cipFields.combinations );
+	//cipDebug.log('Combinations found:', cipFields.combinations );
 	if(cipFields.combinations.length == 0) {
 		chrome.runtime.sendMessage({
 			'action': 'show_default_browseraction'

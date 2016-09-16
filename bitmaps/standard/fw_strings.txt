@@ -74,3 +74,4 @@ No Stored Credentials
 !!!FUSE PB!!!~~
 /!\ USE PIN FROM COMPUTER?
 Send Password For:
+Change Description For:

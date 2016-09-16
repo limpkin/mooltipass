@@ -1,13 +1,19 @@
 var event = {};
 
 event.onMessage = function(request, sender, callback) {
+	console.log("onMessage(" + request.action + ") for #" + sender.tab.id);
+
+	if (request.action == 'content_script_loaded') {
+		console.log('setting allLoaded to true ' + sender.tab.id)
+		page.allLoaded.push()
+	}
+
 	if (request.action in event.messageHandlers) {
 
 		if(!sender.hasOwnProperty('tab') || sender.tab.id < 1) {
 			sender.tab = {};
 			sender.tab.id = page.currentTabId;
 		}
-		console.log("onMessage(" + request.action + ") for #" + sender.tab.id);
 
 		event.invoke(event.messageHandlers[request.action], callback, sender.tab.id, request.args);
 
@@ -182,7 +188,7 @@ event.onNotifyButtonClick = function(id, buttonIndex)
 			if (buttonIndex == 0) 
 			{
 				// Store credentials
-				console.log('notification update',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
+				console.log('notification update with subdomain',event.mpUpdate[id].username,'on',event.mpUpdate[id].url);
 				mooltipass.device.updateCredentials(null, event.mpUpdate[id].tab, 0, event.mpUpdate[id].username, event.mpUpdate[id].password, event.mpUpdate[id].url);
 			} 
 			else 
@@ -306,13 +312,18 @@ event.isMooltipassUnlocked = function()
 
 		noteId = "mpNotUnlockedStaticMooltipassDeviceInManagementMode";
 
+		var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+		var notification = {   
+			type: 'basic',
+			title: 'Mooltipass in Management Mode!',
+			message: 'Please leave management mode in the App',
+			iconUrl: '/icons/warning_icon.png'
+		};
+
+		if (!isFirefox) notification.buttons = [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}];
+
 		// Create notification to inform user
-		chrome.notifications.create(noteId,
-				{   type: 'basic',
-					title: 'Mooltipass in Management Mode!',
-					message: 'Please leave management mode in the App',
-					iconUrl: '/icons/warning_icon.png',
-					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
+		chrome.notifications.create(noteId,notification);
 					
 		return false;
 	}
@@ -367,7 +378,7 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 					iconUrl: '/icons/warning_icon.png'});
 			return;
 		}
-		
+
 		if(subdomain == null)
 		{
 			// Single domain
@@ -418,17 +429,22 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 				// Store our event
 				event.mpUpdate[noteId] = { tab: tab, username: username, password: password, url: domain, url2: subdomain + "." + domain, type: "subdomainadd"};
 
-				// Create notification to blacklist
-				chrome.notifications.create(noteId,
-						{   type: 'basic',
-							title: 'Subdomain Detected!',
-							message: 'What domain do you want to store?',
-							iconUrl: '/icons/question.png',
-							buttons: [{title: 'Store ' + domain}, {title: 'Store ' + subdomain + '.' + domain}]},
-							function(id) 
-							{
-								console.log('notification created for',id);
-							});
+				var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+				var notification = {   
+					type: 'basic',
+					title: 'Subdomain Detected!',
+					message: 'What domain do you want to store?',
+					iconUrl: '/icons/question.png',
+				};
+
+				// Firefox doesn't support buttons on notifications
+				if (!isFirefox) notification.buttons = [{title: 'Store ' + domain}, {title: 'Store ' + subdomain + '.' + domain}];
+				else {
+					// Firefox: Use domain (we should check against subdomain and later domain if missing tho...)
+					mooltipass.device.updateCredentials(null, tab, 0, username, password, domain);
+				}
+
+				chrome.notifications.create(noteId,notification);
 			}
 		}		
 	}	

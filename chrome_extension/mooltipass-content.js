@@ -377,6 +377,7 @@ cipPassword.onRequestPassword = function() {
 }
 
 cipPassword.checkObservedElements = function() {
+	if ( typeof(mpJQ) === undefined) return;
 	if(cipPassword.observingLock) {
 		return;
 	}
@@ -2123,8 +2124,6 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 
 	return false;
 };
-
-
 
 cipEvents = {};
 

@@ -84,9 +84,11 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 /**
  * Retrieve Credentials and try auto-login for HTTPAuth requests
  */
-chrome.webRequest.onAuthRequired.addListener(httpAuth.handleRequest,
-	{ urls: ["<all_urls>"] }, ["asyncBlocking"]
-);
+if ( chrome.webRequest.onAuthRequired ) {
+	chrome.webRequest.onAuthRequired.addListener(httpAuth.handleRequest,
+		{ urls: ["<all_urls>"] }, ["asyncBlocking"]
+	);	
+}
 
 /**
  * Interaction between background-script and front-script
@@ -155,7 +157,7 @@ window.setInterval(function() {
 }, _interval);
 
 window.setInterval(function() {
-	if(page.currentTabId && page.currentTabId > 0) {
+	if(page.currentTabId && page.currentTabId > 0 && page.allLoaded) {
 		chrome.tabs.sendMessage(page.currentTabId, {
 			action: "check_for_new_input_fields"
 		});

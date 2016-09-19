@@ -32,19 +32,21 @@ mooltipass.backend.updateStatusIcon = function() {
     } else {
         iconName = "cross";
     }
-    chrome.notifications.getPermissionLevel(function(response) {
-        if (response == 'denied') {
-            iconName += "_warning";
-        }
-        mooltipass.backend.setStatusIcon(iconName);
-    });
+    
+    if ( typeof chrome.notifications.getPermissionLevel == 'function') {
+        chrome.notifications.getPermissionLevel(function(response) {
+            if (response == 'denied') {
+                iconName += "_warning";
+            }
+            mooltipass.backend.setStatusIcon(iconName);
+        });    
+    }
+    
 }
 mooltipass.backend._updateStatusIcon = function() {
     mooltipass.backend.updateStatusIcon();
     setTimeout(mooltipass.backend._updateStatusIcon, 500);
 }
-mooltipass.backend._updateStatusIcon();
-
 
 /**
  * Load the backend settings of this extension
@@ -182,3 +184,5 @@ mooltipass.backend.extractDomainAndSubdomain = function (url) {
 
     return {valid: url_valid, domain: domain, subdomain: subdomain}
 }
+
+mooltipass.backend._updateStatusIcon();

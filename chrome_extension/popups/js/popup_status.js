@@ -68,12 +68,15 @@ function updateStatusInfo() {
         }
     });
 
-    // Check if notifications are enabled
-    chrome.notifications.getPermissionLevel(function(response) {
-        if (response == 'denied') {
-            $("#notifications-disabled").show();
-        }
-    });    
+    if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {
+        // Check if notifications are enabled
+        chrome.notifications.getPermissionLevel(function(response) {
+            if (response == 'denied') {
+                $("#notifications-disabled").show();
+            }
+        });        
+    }
+    
 }
 
 function _updateStatusInfo() {

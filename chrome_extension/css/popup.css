@@ -861,6 +861,8 @@ td, th {
 
 /* line 11, ../scss/_pure.scss */
 .pure-menu-list, .pure-menu-item {
+  font-family: sans-serif;
+  font-size: 12px;
   position: relative;
 }
 

@@ -263,13 +263,16 @@ class mooltipass_hid_device:
 			return
 		
 		self.device.sendHidPacket(self.getPacketForCommand(CMD_GET_LOGIN, 0, None))
-		print "Don't touch the device!"
-		
+		print "Don't touch the device!"		
 		
 		self.device.sendHidPacket(self.getPacketForCommand(CMD_GET_LOGIN, 0, None))
 		data = self.device.receiveHidPacket()
 		if data[CMD_INDEX] == CMD_PLEASE_RETRY:
 			print "Please retry received!"
+			
+			self.device.sendHidPacket(self.getPacketForCommand(CMD_CANCEL_REQUEST, 0, None))
+			print "Cancel request sent!"
+			data = self.device.receiveHidPacket()			
 		else:
 			print "Didn't receive please retry!"
 			print "Received data:", ' '.join(hex(x) for x in data)

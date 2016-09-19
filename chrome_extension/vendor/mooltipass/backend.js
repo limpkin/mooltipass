@@ -32,12 +32,16 @@ mooltipass.backend.updateStatusIcon = function() {
     } else {
         iconName = "cross";
     }
-    chrome.notifications.getPermissionLevel(function(response) {
-        if (response == 'denied') {
-            iconName += "_warning";
-        }
-        mooltipass.backend.setStatusIcon(iconName);
-    });
+    
+    if ( typeof chrome.notifications.getPermissionLevel == 'function') {
+        chrome.notifications.getPermissionLevel(function(response) {
+            if (response == 'denied') {
+                iconName += "_warning";
+            }
+            mooltipass.backend.setStatusIcon(iconName);
+        });    
+    }
+    
 }
 mooltipass.backend._updateStatusIcon = function() {
     mooltipass.backend.updateStatusIcon();

@@ -9,7 +9,7 @@ mooltipass.device = mooltipass.device || {};
  * Information about connected Mooltipass app
  * Set on mooltipass.device.onSearchForApp()
  */
-mooltipass.device._app = page.settings.useMoolticute? { enabled: true  } : null;
+mooltipass.device._app = null;
 
 /**
  * Contains status information about the device
@@ -466,9 +466,8 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
  * Initially start searching for the Mooltipass app
  * This also triggers the status request to the device
  */
-if (!page.settings.useMoolticute) {
-    chrome.management.getAll(mooltipass.device.onSearchForApp);
-}
+if (page.settings.useMoolticute) mooltipass.device._app = { enabled: true  };
+else chrome.management.getAll(mooltipass.device.onSearchForApp);
 
 /**
  * Process messages from the Mooltipass app

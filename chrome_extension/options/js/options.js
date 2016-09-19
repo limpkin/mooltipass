@@ -1,3 +1,6 @@
+// Detect if we're dealing with Firefox or Chrome
+var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
 if (mpJQ) {
     var $ = mpJQ.noConflict(true);
 }
@@ -14,6 +17,7 @@ $(function () {
 var options = options || {};
 
 options.settings = typeof(localStorage.settings) == 'undefined' ? {} : JSON.parse(localStorage.settings);
+if (isFirefox) options.settings.useMoolticute = true;
 options.keyRing = typeof(localStorage.keyRing) == 'undefined' ? {} : JSON.parse(localStorage.keyRing);
 
 options.initGeneralSettings = function () {

@@ -1,3 +1,6 @@
+// Detect if we're dealing with Firefox or Chrome
+var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
 var page = {};
 
 // special information for every tab
@@ -8,6 +11,8 @@ page.allLoaded = false;
 
 page.currentTabId = -1;
 page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
+if (isFirefox) page.settings.useMoolticute = true;
+
 page.blockedTabs = {};
 
 page.initSettings = function() {

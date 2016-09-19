@@ -1,11 +1,12 @@
 var event = {};
 
 event.onMessage = function(request, sender, callback) {
-	console.log("onMessage(" + request.action + ") for #" + sender.tab.id);
+	console.log("onMessage(" + request.action + ")");
 
 	if (request.action == 'content_script_loaded') {
-		console.log('setting allLoaded to true ' + sender.tab.id)
-		page.allLoaded.push()
+		console.log('setting allLoaded to true ');
+		page.allLoaded = true;
+		return {response: "response from background script"};
 	}
 
 	if (request.action in event.messageHandlers) {
@@ -99,6 +100,7 @@ event.onShowAlert = function(callback, tab, message) {
 
 event.onLoadSettings = function(callback, tab) {
 	page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
+	if (isFirefox) page.settings.useMoolticute = true;
     mooltipass.backend.loadSettings();
     //console.log('onLoadSettings: page.settings = ', page.settings);
 }

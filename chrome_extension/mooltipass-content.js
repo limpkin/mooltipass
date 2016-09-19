@@ -1485,18 +1485,18 @@ cip.visibleInputsHash = 0;
 //Auto-submit form
 cip.autoSubmit = true;
 
-mpJQ(function() {
-	cip.init();
-});
-
 cip.init = function() {
+	console.log('Starting CIP');
 	chrome.runtime.sendMessage({
 		"action": "get_settings",
 	}, function(response) {
-		cip.settings = response.data;
-        cipDebug.debugLog(cip.settings.status);
-        if (cip.settings.status.unlocked) cip.initCredentialFields();
-		
+		if ( typeof(response) !== 'undefined') {
+			cip.settings = response.data;
+        	cipDebug.debugLog(cip.settings.status);
+        	if (cip.settings.status.unlocked) cip.initCredentialFields();	
+		} else {
+			console.warn('Get settings returned empty!');
+		}
 	});
 };
 
@@ -2144,3 +2144,7 @@ cipEvents.triggerActivatedTab = function() {
 		}, cip.retrieveCredentialsCallback);
 	}
 }
+
+mpJQ(function() {
+	cip.init();
+});

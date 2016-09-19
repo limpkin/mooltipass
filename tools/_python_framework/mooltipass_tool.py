@@ -150,6 +150,9 @@ def main():
 			
 		if sys.argv[1] == "add_credential":
 			mooltipass_device.addCredential()
+			
+		if sys.argv[1] == "test_please_retry":
+			mooltipass_device.testPleaseRetry()
 		
 		
 	#mooltipass_device.sendCustomPacket()

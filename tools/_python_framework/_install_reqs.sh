@@ -13,4 +13,4 @@ wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_pytho
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/updatefile.img
 sudo pip install -r requirements.txt
 sudo pip install seccure
-mkdir export
+mkdir -p export

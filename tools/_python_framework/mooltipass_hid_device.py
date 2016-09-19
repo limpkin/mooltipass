@@ -252,6 +252,27 @@ class mooltipass_hid_device:
 			return			
 		
 		print "Done!"
+		
+	# Test please retry MPM feature
+	def testPleaseRetry(self):
+		context = raw_input("Context: ")
+			
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_CONTEXT, len(context)+1, self.textToByteArray(context)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set context"
+			return
+		
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_GET_LOGIN, 0, None))
+		print "Don't touch the device!"
+		
+		
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_GET_LOGIN, 0, None))
+		data = self.device.receiveHidPacket()
+		if data[CMD_INDEX] == CMD_PLEASE_RETRY:
+			print "Please retry received!"
+		else:
+			print "Didn't receive please retry!"
+			print "Received data:", ' '.join(hex(x) for x in data)
 			
 	# Upload bundle
 	def	uploadBundle(self, password, filename, verbose):	

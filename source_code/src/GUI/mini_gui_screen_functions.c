@@ -513,7 +513,8 @@ void guiDisplayGoingToSleep(void)
 *   \return User confirmation or not
 */
 RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
-{    
+{
+    uint8_t flash_flag_set = FALSE;
     uint8_t flash_flag = FALSE;
     uint8_t flash_sm = 0;
 
@@ -525,6 +526,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
     // Check if we want to flash the screen
     if ((nb_args & 0xF0) != 0)
     {
+        flash_flag_set = TRUE;
         nb_args = nb_args & 0x0F;
         // Check that the user didn't disable it
         if (getMooltipassParameterInEeprom(FLASH_SCREEN_PARAM) != FALSE)
@@ -635,7 +637,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
 
         // Knock to approve
         #if defined(HARDWARE_MINI_CLICK_V2)
-        if ((scanAndGetDoubleZTap(FALSE) == ACC_RET_KNOCK) && (flash_flag != FALSE))
+        if ((scanAndGetDoubleZTap(FALSE) == ACC_RET_KNOCK) && (flash_flag_set != FALSE))
         {
             input_answer = MINI_INPUT_RET_YES;
         }

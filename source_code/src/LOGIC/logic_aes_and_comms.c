@@ -69,7 +69,7 @@ uint8_t currently_writing_first_block = FALSE;
 // Address of the next data node for reading
 uint16_t next_data_node_addr = 0;
 // Current CTR value used for data node decryption
-uint8_t dataNodeCtrVal[3];
+uint8_t dataNodeCtrVal[USER_CTR_SIZE];
 // Next CTR value for our AES encryption
 uint8_t nextCtrVal[USER_CTR_SIZE];
 // Current context parent node address

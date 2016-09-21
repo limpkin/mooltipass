@@ -15,7 +15,7 @@ if (content_debug_msg) {
 chrome.runtime.onMessage.addListener(function(req, sender, callback) {
     //cipDebug.log(req);
 	if ('action' in req) {
-		cipDebug.log(req.action);
+		//cipDebug.log(req.action);
 		if(req.action == "fill_user_pass_with_specific_login") {
             if(cip.credentials[req.id]) {
 				var combination = null;
@@ -911,6 +911,119 @@ cipFields.uniqueNumber = 342845638;
 // objects with combination of username + password fields
 cipFields.combinations = [];
 
+// Detection Array. You can add more here to match special cases.
+// TODO: We should probably move this into a database if it keeps growing
+cipFields.possibleCombinations = [
+	{
+		// Seen at icloud.com, seems to comform to an Apple's proprietary identity management system (IDMS)
+		combinationId: 'canFieldBased',
+		combinationName: 'Login Form with can-field properties',
+		requiredFields: [
+			{
+				selector: 'input[can-field=accountName]',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[can-field=password]',
+				mapsTo: 'password'	
+			}
+		],
+		scorePerMatch: 50,
+		score: 0,
+		maxfields: 3,
+		postFunction: function( fields ) {
+			console.log( fields.username.val(), fields[0]);
+			if ( fields.username.val() != '' && fields.password.val() != '' ) {
+				// Wait 1 second, Apple checks the time it took you to fill in the form
+				setTimeout( function() {
+					console.log( 'aaaa');
+					var submitButton = document.getElementById('sign-in');
+					console.log( submitButton );
+					cipFields.eventFire(submitButton, 'click');	
+				},1000);
+			}
+		}
+	},
+	{
+		combinationId: 'loginform001',
+		combinationName: 'Simple Login Form with Email',
+		requiredFields: [
+			{
+				selector: 'input[type=email]',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+		],
+		scorePerMatch: 50,
+		score: 0,
+		autoSubmit: true,
+		maxfields: 3,
+		extraFunction: function( fields ) {
+			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+			if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+		}
+	},
+	{
+		combinationId: 'loginform002',
+		combinationName: 'Simple Login Form with Text',
+		requiredFields: [
+			{
+				selector: 'input[type=text]',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+		],
+		scorePerMatch: 50,
+		score: 0,
+		autoSubmit: true,
+		maxfields: 3,
+		extraFunction: function( fields ) {
+			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+			if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+		}
+	},
+	{
+		combinationId: 'passwordreset001',
+		combinationName: 'Password Reset without Confirmation',
+		requiredFields: [
+			{
+				selector: 'input[type=password]'
+			},
+			{
+				selector: 'input[type=password]'
+			},
+		],
+		scorePerMatch: 50,
+		score: 0,
+		autoSubmit: false
+	},
+	{
+		combinationId: 'passwordreset002',
+		combinationName: 'Password Reset with Confirmation',
+		requiredFields: [
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+			{
+				selector: 'input[type=password]'
+			},
+			{
+				selector: 'input[type=password]'
+			},
+		],
+		scorePerMatch: 25,
+		score: 0,
+		autoSubmit: false
+	}
+];
+
 cipFields.setUniqueId = function(field) {
 	if(field && !field.attr("data-mp-id")) {
 		// use ID of field if it is unique
@@ -1022,7 +1135,7 @@ cipFields.detectTypeofForm = function( inputs ) {
 	// Enclose fields in forms.
 	localInputs.forEach( function( field ) {
 		containerForm = field.closest('form');
-		if ( !containerForm ) localForms.noform.push( field ); // Field isn't in a form 
+		if ( containerForm.length == 0 ) localForms.noform.push( field ); // Field isn't in a form 
 		else {
 			// Contained in a form
 			if ( !containerForm.data('mp-id') ) {
@@ -1037,91 +1150,10 @@ cipFields.detectTypeofForm = function( inputs ) {
 
 		
 	window.localInputs = localInputs; // For debugging purposes.
-
-	// Detection Object. You can add more here to match special cases.
-	var possibleCombinations = [ 
-		{
-			combinationId: 'loginform001',
-			combinationName: 'Simple Login Form with Email',
-			requiredFields: [
-				{
-					selector: 'input[type=email]',
-					mapsTo: 'username'
-				},
-				{
-					selector: 'input[type=password]',
-					mapsTo: 'password'
-				},
-			],
-			scorePerMatch: 50,
-			score: 0,
-			autoSubmit: true,
-			maxfields: 3,
-			extraFunction: function( fields ) {
-				/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
-				if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
-			}
-		},
-		{
-			combinationId: 'loginform002',
-			combinationName: 'Simple Login Form with Text',
-			requiredFields: [
-				{
-					selector: 'input[type=text]',
-					mapsTo: 'username'
-				},
-				{
-					selector: 'input[type=password]',
-					mapsTo: 'password'
-				},
-			],
-			scorePerMatch: 50,
-			score: 0,
-			autoSubmit: true,
-			maxfields: 3,
-			extraFunction: function( fields ) {
-				/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
-				if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
-			}
-		},
-		{
-			combinationId: 'passwordreset001',
-			combinationName: 'Password Reset without Confirmation',
-			requiredFields: [
-				{
-					selector: 'input[type=password]'
-				},
-				{
-					selector: 'input[type=password]'
-				},
-			],
-			scorePerMatch: 50,
-			score: 0,
-			autoSubmit: false
-		},
-		{
-			combinationId: 'passwordreset002',
-			combinationName: 'Password Reset with Confirmation',
-			requiredFields: [
-				{
-					selector: 'input[type=password]',
-					mapsTo: 'password'
-				},
-				{
-					selector: 'input[type=password]'
-				},
-				{
-					selector: 'input[type=password]'
-				},
-			],
-			scorePerMatch: 25,
-			score: 0,
-			autoSubmit: false
-		}
-	];
+	window.localForms = localForms; // Make it available globally
 	
 	// Check for matching combinations
-	var localCombinations = $.extend(possibleCombinations, {});
+	var localCombinations = $.extend(cipFields.possibleCombinations, {});
 	var selectedCombination = localCombinations.forEach( function( combination ) {
 		// In detected forms
 		for( form in localForms ) {
@@ -1158,7 +1190,7 @@ cipFields.detectTypeofForm = function( inputs ) {
 
 	// Then select the best combination
 	var lastScore = 0;
-	var selectedCombination = possibleCombinations.filter( function( combination ) {
+	var selectedCombination = cipFields.possibleCombinations.filter( function( combination ) {
 		if ( combination.fields && combination.requiredFields.length > Object.keys(combination.fields).length ) { // Didn't find all the required fields. 
 			return false;
 		}
@@ -1433,6 +1465,20 @@ cipFields.prepareCombinations = function(combinations) {
 	}
 }
 
+/* 
+  Fires an event of etype on the DOM object el 
+  sample: eventFire( document.getElementById('submit-button'), 'click')
+*/
+cipFields.eventFire = function(el, etype) {
+	if (el.fireEvent) {
+		el.fireEvent('on' + etype);
+	} else {
+		var evObj = document.createEvent('Events');
+		evObj.initEvent(etype, true, false);
+		el.dispatchEvent(evObj);
+	}
+}
+
 cipFields.useDefinedCredentialFields = function() {
 	if(cip.settings["defined-credential-fields"] && cip.settings["defined-credential-fields"][document.location.origin]) {
 		var creds = cip.settings["defined-credential-fields"][document.location.origin];
@@ -1534,6 +1580,7 @@ cip.initCredentialFields = function(forceCall) {
 	var inputs = cipFields.getAllFields();
     var winningCombination = cipFields.detectTypeofForm( inputs );
     if ( winningCombination ) {
+    	cip.winningCombination = winningCombination;
     	cipDebug.warn( winningCombination );
 		// cip.autoSubmit = winningCombination.maxfields && inputs.length > winningCombination.maxfields?false:winningCombination.autoSubmit;
 
@@ -1670,7 +1717,11 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 		cip.credentials = credentials;
 		cip.prepareFieldsForCredentials(!Boolean(dontAutoFillIn));
 
-        if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput && cip.autoSubmit) {
+		if ( cip.winningCombination ) {
+			if ( cip.winningCombination.postFunction ) cip.winningCombination.postFunction.call( this, cip.winningCombination.fields );
+		} 
+
+		if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput && cip.autoSubmit) {
             cipDebug.log('do-submit');
 
             cip.doSubmit(cip.p);
@@ -2146,5 +2197,7 @@ cipEvents.triggerActivatedTab = function() {
 }
 
 mpJQ(function() {
-	cip.init();
+	chrome.runtime.sendMessage({'action': 'content_script_loaded' }, function() {
+		cip.init();
+	});
 });

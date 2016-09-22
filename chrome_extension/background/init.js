@@ -80,6 +80,27 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     mooltipass.device.onTabUpdated(tabId, changeInfo);
 });
 
+/**
+ * Detect POST requests and call the content script to check if it is waiting for it
+ */
+
+// Firefox 50+ allows requestBody in the options
+if ( isFirefox && typeof( Symbol.hasInstance ) == 'undefined' ) var webRequestOptions = ['blocking'];
+else var webRequestOptions = ['blocking','requestBody'];
+
+chrome.webRequest.onBeforeRequest.addListener( function (details) {
+
+	// Test for captcha calls (we don't want to submit if there's a captcha)
+	var b = new RegExp('recaptcha');
+	if (b.test(details.url)) {
+		chrome.tabs.sendMessage( details.tabId, {action: 'captcha_detected', details: details});
+	}
+
+	// Intercept posts
+	if (details.method == "POST") {
+		chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', details: details});
+	}
+}, { urls: ["<all_urls>"]},webRequestOptions);
 
 /**
  * Retrieve Credentials and try auto-login for HTTPAuth requests

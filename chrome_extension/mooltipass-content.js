@@ -76,6 +76,12 @@ chrome.runtime.onMessage.addListener(function(req, sender, callback) {
             };
             callback(data);
         }
+        else if (req.action == "post_detected") {
+        	if ( cip.winningCombination ) cip.postDetected( req.details );
+        }
+        else if (req.action == "captcha_detected") {
+        	cip.formHasCaptcha = true;
+        }
 	}
 });
 
@@ -1528,8 +1534,14 @@ cip.trapSubmit = true;
 
 cip.visibleInputsHash = 0;
 
+// Post could be either by form submit or XHR. Either way, we wait for it.
+cip.waitingForPost = true;
+
 //Auto-submit form
 cip.autoSubmit = true;
+
+// If the form has captcha, we can't autosubmit.
+cip.formHasCaptcha = false;
 
 cip.init = function() {
 	console.log('Starting CIP');
@@ -1545,6 +1557,32 @@ cip.init = function() {
 		}
 	});
 };
+
+cip.postDetected = function( details ) {
+	// Just act if we're waiting for a post
+	if ( this.waitingForPost ) {
+		// Most posts will fail, enclosing in a try/catch to avoid console messages
+		try {
+			this.waitingForPost = false;
+			var storedUsernameValue = this.winningCombination.savedFields.username.value;
+			var storedPasswordValue = this.winningCombination.savedFields.password.value;
+
+			var usernameValue = details.requestBody.formData[ this.winningCombination.savedFields.username.name ][0];
+			var passwordValue = details.requestBody.formData[ this.winningCombination.savedFields.password.name ][0];
+			var url = document.location.origin;
+
+			console.log('Stored: ', storedUsernameValue, storedPasswordValue);
+			console.log('Received: ', usernameValue, passwordValue);
+			// Only update if they differ from our database values
+			if ( storedUsernameValue != usernameValue || storedPasswordValue != passwordValue) {
+				chrome.runtime.sendMessage({
+					'action': 'update_notify',
+					'args': [usernameValue, passwordValue, url]
+				});		
+			}
+		} catch(e) {}
+	}
+}
 
 cip.initCredentialFields = function(forceCall) {
 	if(_called.initCredentialFields && !forceCall) {
@@ -1593,7 +1631,8 @@ cip.initCredentialFields = function(forceCall) {
     	}
     }
     //console.log('Would autoSubmit? ' + cip.autoSubmit );
-    //cip.autoSubmit = true; // Temporarily forbid auto-submition
+	// cip.autoSubmit = false; // Temporarily forbid auto-submition for development
+    if ( cip.formHasCaptcha) cip.autoSubmit = false; 
 
     if(searchForAllCombinations) {
 		// get all combinations of username + password fields
@@ -1718,8 +1757,18 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 		cip.prepareFieldsForCredentials(!Boolean(dontAutoFillIn));
 
 		if ( cip.winningCombination ) {
+			// Associate the fields to the winning combination (just in case they dissapear)
+			cip.winningCombination.savedFields = {};
+			for (field in cip.winningCombination.fields) {
+				cip.winningCombination.savedFields[field] = {
+					name: cip.winningCombination.fields[field].prop('name'),
+					value: cip.winningCombination.fields[field].val()
+				}
+			}
+
+			// Check if WinningCombination wants to run something after values have been filled
 			if ( cip.winningCombination.postFunction ) cip.winningCombination.postFunction.call( this, cip.winningCombination.fields );
-		} 
+		}
 
 		if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput && cip.autoSubmit) {
             cipDebug.log('do-submit');

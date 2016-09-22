@@ -89,6 +89,7 @@ if ( isFirefox && typeof( Symbol.hasInstance ) == 'undefined' ) var webRequestOp
 else var webRequestOptions = ['blocking','requestBody'];
 
 chrome.webRequest.onBeforeRequest.addListener( function (details) {
+	console.log( details );
 
 	// Test for captcha calls (we don't want to submit if there's a captcha)
 	var b = new RegExp('recaptcha');
@@ -98,7 +99,14 @@ chrome.webRequest.onBeforeRequest.addListener( function (details) {
 
 	// Intercept posts
 	if (details.method == "POST") {
-		chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', details: details});
+		// Deal both with RAW DATA and FORM DATA
+		if (details && details.type === "xmlhttprequest") {
+			var buffer = details.requestBody.raw[0].bytes;
+			var parsed = arrayBufferToData.toJSON(buffer);
+			chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', post_data: parsed });
+		} else {
+			chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', details: details});	
+		}
 	}
 }, { urls: ["<all_urls>"]},webRequestOptions);
 
@@ -184,3 +192,28 @@ window.setInterval(function() {
 		});
 	}
 }, _intervalCheckForNewInputs);
+
+// ArrayBuffer to JSON (by Gaston)
+var arrayBufferToData = {
+	toBase64: function (arrayBuffer) {
+		var binary = '';
+		var bytes = new Uint8Array(arrayBuffer);
+		var len = bytes.byteLength;
+		for (var i = 0; i < len; i++) {
+			binary += String.fromCharCode(bytes[i]);
+		}
+		return window.btoa(binary);
+	},
+	toString: function (arrayBuffer) {
+		var base64 = this.toBase64(arrayBuffer);
+		return decodeURIComponent(escape(window.atob(base64)));
+	},
+	toJSON: function (arrayBuffer) {
+		try {
+			var string = this.toString(arrayBuffer);
+			return JSON.parse(string);
+		} catch (e) {
+			return {};
+		}
+	}
+};

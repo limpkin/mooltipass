@@ -77,7 +77,7 @@ chrome.runtime.onMessage.addListener(function(req, sender, callback) {
             callback(data);
         }
         else if (req.action == "post_detected") {
-        	if ( cip.winningCombination ) cip.postDetected( req.details );
+        	if ( cip.winningCombination ) cip.postDetected( req.details?req.details:req.post_data );
         }
         else if (req.action == "captcha_detected") {
         	cip.formHasCaptcha = true;
@@ -927,10 +927,12 @@ cipFields.possibleCombinations = [
 		requiredFields: [
 			{
 				selector: 'input[can-field=accountName]',
+				submitPropertyName: 'can-field',
 				mapsTo: 'username'
 			},
 			{
 				selector: 'input[can-field=password]',
+				submitPropertyName: 'can-field',
 				mapsTo: 'password'	
 			}
 		],
@@ -945,7 +947,8 @@ cipFields.possibleCombinations = [
 					console.log( 'aaaa');
 					var submitButton = document.getElementById('sign-in');
 					console.log( submitButton );
-					cipFields.eventFire(submitButton, 'click');	
+					si-button
+					//cipFields.eventFire(submitButton, 'click');	
 				},1000);
 			}
 		}
@@ -1174,6 +1177,12 @@ cipFields.detectTypeofForm = function( inputs ) {
 						combination.score += combination.scorePerMatch;
 						/* Check if the combination has mapped fields */
 						if ( combination.requiredFields[I].mapsTo ) {
+							if (!combination.savedFields) combination.savedFields = {};
+							combination.savedFields[ combination.requiredFields[I].mapsTo] = {
+								value: '',
+								submitPropertyName: combination.requiredFields[I].submitPropertyName
+							};
+
 							if (!combination.fields) combination.fields = {};
 							combination.fields[ combination.requiredFields[I].mapsTo ] = field;
 							combination.requiredFields[I].mapsTo = null;
@@ -1561,26 +1570,32 @@ cip.init = function() {
 cip.postDetected = function( details ) {
 	// Just act if we're waiting for a post
 	if ( this.waitingForPost ) {
-		// Most posts will fail, enclosing in a try/catch to avoid console messages
-		try {
-			this.waitingForPost = false;
-			var storedUsernameValue = this.winningCombination.savedFields.username.value;
-			var storedPasswordValue = this.winningCombination.savedFields.password.value;
+		console.log('Received:', details );
 
+		var storedUsernameValue = this.winningCombination.savedFields.username.value;
+		var storedPasswordValue = this.winningCombination.savedFields.password.value;
+
+		var url = document.location.origin;
+
+		// Client sent a RAW request.
+		if ( details.requestBody ) { // Form sent FORM DATA 
 			var usernameValue = details.requestBody.formData[ this.winningCombination.savedFields.username.name ][0];
 			var passwordValue = details.requestBody.formData[ this.winningCombination.savedFields.password.name ][0];
-			var url = document.location.origin;
+		} else { // Form sent RAW DATA
+			var usernameValue = details[ cip.winningCombination.savedFields.username.name ];
+			var passwordValue = details[ cip.winningCombination.savedFields.password.name ];	
+		}
+		
+		console.log('Stored: ', storedUsernameValue, storedPasswordValue);
+		console.log('Received: ', usernameValue, passwordValue);
 
-			console.log('Stored: ', storedUsernameValue, storedPasswordValue);
-			console.log('Received: ', usernameValue, passwordValue);
-			// Only update if they differ from our database values
-			if ( storedUsernameValue != usernameValue || storedPasswordValue != passwordValue) {
-				chrome.runtime.sendMessage({
-					'action': 'update_notify',
-					'args': [usernameValue, passwordValue, url]
-				});		
-			}
-		} catch(e) {}
+		// Only update if they differ from our database values (and if new values are filled in)
+		if ( storedUsernameValue != usernameValue || storedPasswordValue != passwordValue && (usernameValue != '' && passwordValue != '') ) {
+			chrome.runtime.sendMessage({
+				'action': 'update_notify',
+				'args': [usernameValue, passwordValue, url]
+			});		
+		}
 	}
 }
 
@@ -1752,18 +1767,23 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 
 	cipDebug.log( credentials );
 
+	if ( cip.winningCombination ) {
+		// Associate the fields to the winning combination (just in case they dissapear -> Now with values!!!!)
+		for (field in cip.winningCombination.fields) {
+			cip.winningCombination.savedFields[field] = {
+				name: cip.winningCombination.fields[field].attr( cip.winningCombination.savedFields[field].submitPropertyName?cip.winningCombination.savedFields[field].submitPropertyName:'name' ),
+			}
+		}
+	}
+
 	if (credentials.length > 0) {
 		cip.credentials = credentials;
 		cip.prepareFieldsForCredentials(!Boolean(dontAutoFillIn));
 
 		if ( cip.winningCombination ) {
-			// Associate the fields to the winning combination (just in case they dissapear)
-			cip.winningCombination.savedFields = {};
+			// Associate the fields to the winning combination (just in case they dissapear -> Now with values!!!!)
 			for (field in cip.winningCombination.fields) {
-				cip.winningCombination.savedFields[field] = {
-					name: cip.winningCombination.fields[field].prop('name'),
-					value: cip.winningCombination.fields[field].val()
-				}
+				cip.winningCombination.savedFields[field].value = cip.winningCombination.fields[field].val();
 			}
 
 			// Check if WinningCombination wants to run something after values have been filled

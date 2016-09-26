@@ -991,7 +991,7 @@ cipFields.possibleCombinations = [
 		scorePerMatch: 50,
 		score: 0,
 		autoSubmit: true,
-		maxfields: 3,
+		maxfields: 4,
 		extraFunction: function( fields ) {
 			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
 			if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
@@ -1002,10 +1002,10 @@ cipFields.possibleCombinations = [
 		combinationName: 'Password Reset without Confirmation',
 		requiredFields: [
 			{
-				selector: 'input[type=password]'
+				selector: 'input[type=password]:visible'
 			},
 			{
-				selector: 'input[type=password]'
+				selector: 'input[type=password]:visible'
 			},
 		],
 		scorePerMatch: 50,
@@ -2174,7 +2174,7 @@ cip.contextMenuRememberCredentials = function() {
 
 
 cip.rememberCredentials = function(event, usernameField, usernameValue, passwordField, passwordValue) {
-    cipDebug.debugLog('rememberCredentials()');
+    cipDebug.log('rememberCredentials()', arguments);
 	// no password given or field cleaned by a site-running script
 	// --> no password to save
 	if(passwordValue == "") {
@@ -2239,7 +2239,7 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 
 		return true;
 	} else {
-        cipDebug.debugLog('rememberCredentials - nothing changed');
+        cipDebug.log('rememberCredentials - nothing changed');
     }
 
 	return false;

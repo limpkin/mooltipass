@@ -38,10 +38,10 @@ chrome.runtime.onMessage.addListener(function(req, sender, callback) {
 			// selection may be requested.
 		}
 		else if (req.action == "fill_user_pass") {
-			cip.fillInFromActiveElement(false);
+			cip.retrieveAndFillUserAndPassword();
 		}
 		else if (req.action == "fill_pass_only") {
-			cip.fillInFromActiveElementPassOnly(false);
+			cip.retrieveAndFillPassword();
 		}
 		else if (req.action == "activate_password_generator") {
 			cip.initPasswordGenerator(cipFields.getAllFields());
@@ -1260,7 +1260,8 @@ cipFields.getAllCombinations = function(inputs) {
 }
 
 cipFields.getCombination = function(givenType, fieldId) {
-	cipDebug.debugLog("cipFields.getCombination");
+	cipDebug.log("cipFields.getCombination");
+
 	if(cipFields.combinations.length == 0) {
 		if(cipFields.useDefinedCredentialFields()) {
 			return cipFields.combinations[0];
@@ -1552,6 +1553,9 @@ cip.autoSubmit = true;
 // If the form has captcha, we can't autosubmit.
 cip.formHasCaptcha = false;
 
+// Flag setting that we only wish to fill in the password
+cip.fillPasswordOnly = false;
+
 cip.init = function() {
 	console.log('Starting CIP');
 	chrome.runtime.sendMessage({
@@ -1559,8 +1563,8 @@ cip.init = function() {
 	}, function(response) {
 		if ( typeof(response) !== 'undefined') {
 			cip.settings = response.data;
-        	cipDebug.debugLog(cip.settings.status);
-        	if (cip.settings.status.unlocked) cip.initCredentialFields();	
+        	cipDebug.log('Status is: ', cip.settings.status);
+        	if (cip.settings.status.unlocked) cip.initCredentialFields();
 		} else {
 			console.warn('Get settings returned empty!');
 		}
@@ -1606,7 +1610,7 @@ cip.initCredentialFields = function(forceCall) {
 	_called.initCredentialFields = true;
 
 	var inputs = cipFields.getAllFields();
-    cipDebug.log('initCredentialFields(): ' + inputs.length + ' input fields found');
+    cipDebug.trace('initCredentialFields(): ' + inputs.length + ' input fields found');
 
     cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 
@@ -1645,7 +1649,7 @@ cip.initCredentialFields = function(forceCall) {
     		searchForAllCombinations = false;
     	}
     }
-    //console.log('Would autoSubmit? ' + cip.autoSubmit );
+    // console.log('Would autoSubmit? ' + cip.autoSubmit );
 	// cip.autoSubmit = false; // Temporarily forbid auto-submition for development
     if ( cip.formHasCaptcha) cip.autoSubmit = false; 
 
@@ -1684,6 +1688,7 @@ cip.initCredentialFields = function(forceCall) {
 	cip.url = document.location.origin;
 	cip.submitUrl = cip.getFormActionUrl(cipFields.combinations[0]);
 
+	console.log( 'retr creds');
 	chrome.runtime.sendMessage({
 		'action': 'retrieve_credentials',
 		'args': [ cip.url, cip.submitUrl, true, true]
@@ -1707,13 +1712,11 @@ cip.initPasswordGenerator = function(inputs) {
  */
 cip.checkForNewInputs = function() {
     var fields = cipFields.getAllFields();
-
     var hash = cipFields.getHashForVisibleFields(fields);
-
 
     if(hash != cip.visibleInputsHash) {
         //cipDebug.debugLog(fields.length, cip.visibleInputsHash);
-        cip.initCredentialFields(true);
+        if (cip.settings.status.unlocked) cip.initCredentialFields( true );
     }
 }
 
@@ -1757,6 +1760,7 @@ cip.doSubmit = function doSubmit(pass)
 
 cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 	if (!credentials) return;
+
 	cipDebug.log('cip.retrieveCredentialsCallback()');
 
     if (cipFields.combinations.length > 0) {
@@ -1779,6 +1783,7 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 	if (credentials.length > 0) {
 		cip.credentials = credentials;
 		cip.prepareFieldsForCredentials(!Boolean(dontAutoFillIn));
+
 
 		if ( cip.winningCombination ) {
 			// Associate the fields to the winning combination (just in case they dissapear -> Now with values!!!!)
@@ -1812,7 +1817,7 @@ cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
 
     var twoPageCombination = cipTwoPageLogin.getPageCombinationForCurrentOrigin();
 
-    if (cip.u) {
+    if (cip.u && cip.fillPasswordOnly === false) {
         if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('username')) {
             cipTwoPageLogin.setFilledIn('username');
             cip.u.val(cip.credentials[0].Login);
@@ -1828,6 +1833,7 @@ cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
 			cip.p[0].dispatchEvent(new Event('change'));
         }
     }
+    cip.fillPasswordOnly = false;
 }
 
 cip.getFormActionUrl = function(combination) {
@@ -1893,6 +1899,21 @@ cip.fillInCredentials = function(combination, onlyPassword, suppressWarnings) {
 			cip.fillIn(combination, onlyPassword, suppressWarnings);
 		});
 	}
+}
+
+/*
+	Function called from context menu, to retrieve and show credentials
+*/
+cip.retrieveAndFillUserAndPassword = function() {
+	this.initCredentialFields(true);
+}
+
+/*
+	Called from context meny, to retrieve credentials and show password only
+*/
+cip.retrieveAndFillPassword = function() {
+	cip.fillPasswordOnly = true;
+	this.initCredentialFields(true);
 }
 
 cip.fillInFromActiveElement = function(suppressWarnings) {

@@ -1,6 +1,6 @@
 // contains already called method names
 var _called = {};
-var content_debug_msg = true;
+var content_debug_msg = false;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -940,7 +940,6 @@ cipFields.possibleCombinations = [
 		score: 0,
 		maxfields: 3,
 		postFunction: function( fields ) {
-			console.log( fields.username.val(), fields[0]);
 			if ( fields.username.val() != '' && fields.password.val() != '' ) {
 				// Wait 1 second, Apple checks the time it took you to fill in the form
 				setTimeout( function() {

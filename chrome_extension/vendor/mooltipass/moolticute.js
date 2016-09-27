@@ -26,7 +26,7 @@ moolticute._currCallbackId = 0;
 
 /*
     Allows to have a delayed response
-    Set to false for normal operation
+    Set to false for normal operation or timeout in millisecs
 */
 moolticute.delayResponse = false;
 
@@ -196,9 +196,16 @@ moolticute._ws.onmessage = function(ev, delayed) {
     }
 }
 
-moolticute.cancelRequest = function( tabId ) {
+moolticute.cancelRequest = function( reqid, domain, subdomain ) {
     // TODO: need to clean up the Callbacks otherwise it might get crowded here.
     console.log('Cancel Request:', moolticute._qCallbacks );
+
+    moolticute._ws.send(JSON.stringify({
+        'msg': 'cancelGetInputs',
+        'reqid': reqid, 
+        'domain': domain, 
+        'subdomain': subdomain
+    }));
 }
 
 /* Simple event listener for events sent by moolticute

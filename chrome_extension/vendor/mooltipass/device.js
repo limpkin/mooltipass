@@ -99,6 +99,7 @@ mooltipass.device.checkConnection = function() {
  * Triggers ping to device if app is found and sets mooltipass.device._app
  */
 mooltipass.device.onSearchForApp = function(ext) {
+    // 
     if (page.settings.useMoolticute) {
         return;
     }
@@ -275,11 +276,11 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
 
     // Cancel possible pending request
     mooltipass.device.onTabClosed(tab.id, null);
+    mooltipass.device._asynchronous.updateCallback = callback;
 
     if (page.settings.useMoolticute) {
         moolticute.sendRequest( request );
     } else {
-        mooltipass.device._asynchronous.updateCallback = callback;
         chrome.runtime.sendMessage(mooltipass.device._app.id, request);    
     }
 
@@ -304,10 +305,6 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
 mooltipass.device.onTabClosed = function(tabId, removeInfo)
 {
     console.log("Tab closed: " + tabId + " remove info: ", removeInfo);
-    if (page.settings.useMoolticute) {
-        moolticute.cancelRequest( tabId );
-        return;
-    }
     
     // Return if queue empty
     if(mooltipass.device.retrieveCredentialsQueue.length == 0)
@@ -326,7 +323,11 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
         else
         {
             /* Send a cancelling request if it is the tab from which we're waiting an answer */
-            chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
+            if (page.settings.useMoolticute) {
+                moolticute.cancelRequest( mooltipass.device.retrieveCredentialsQueue[0].reqid, mooltipass.device.retrieveCredentialsQueue[0].domain, mooltipass.device.retrieveCredentialsQueue[0].subdomain );
+            } else {
+                chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});    
+            }
         }
     }
     else
@@ -401,6 +402,20 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     mooltipass.device.lastRetrieveReqTabId = tab.id;
     mooltipass.device.tabUpdatedEventPrevented = true;
 
+    // Check if we don't already have a request from this tab
+    for (var i = 0; i < mooltipass.device.retrieveCredentialsQueue.length; i++)
+    {
+        if (mooltipass.device.retrieveCredentialsQueue[i].tabid == tab.id && mooltipass.device.retrieveCredentialsQueue[i].tabupdated == false)
+        {
+            console.log("Not storing this new credential request as one is already in the buffer!");
+            return;
+        }
+    }
+    
+    // If our retrieveCredentialsQueue is empty and the device is unlocked, send the request to the app. Otherwise, queue it
+    mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter});
+    mooltipass.device.retrieveCredentialsCounter++;
+    mooltipass.device._asynchronous.inputCallback = callback;
     if (page.settings.useMoolticute) {
         var srv = '';
         if (parsed_url.domain && parsed_url.subdomain) {
@@ -425,20 +440,6 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
             }
         });
     } else {
-        // Check if we don't already have a request from this tab
-        for (var i = 0; i < mooltipass.device.retrieveCredentialsQueue.length; i++)
-        {
-            if (mooltipass.device.retrieveCredentialsQueue[i].tabid == tab.id && mooltipass.device.retrieveCredentialsQueue[i].tabupdated == false)
-            {
-                console.log("Not storing this new credential request as one is already in the buffer!");
-                return;
-            }
-        }
-        
-        // If our retrieveCredentialsQueue is empty and the device is unlocked, send the request to the app. Otherwise, queue it
-        mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter});
-        mooltipass.device.retrieveCredentialsCounter++;
-        mooltipass.device._asynchronous.inputCallback = callback;
         if(mooltipass.device.retrieveCredentialsQueue.length == 1 && mooltipass.device._status.unlocked == true)
         {
             chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
@@ -454,7 +455,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
             {
                 console.log("Requests still in the queue, waiting for reply from the app");
             }        
-        }
+        }    
     }
 };
 

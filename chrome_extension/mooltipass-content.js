@@ -1796,8 +1796,8 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 		}
 
 		if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput && cip.autoSubmit) {
+			cip.waitingForPost = false;
             cipDebug.log('do-submit');
-
             cip.doSubmit(cip.p);
         }
 	}

@@ -89,7 +89,7 @@ if ( isFirefox && typeof( Symbol.hasInstance ) == 'undefined' ) var webRequestOp
 else var webRequestOptions = ['blocking','requestBody'];
 
 chrome.webRequest.onBeforeRequest.addListener( function (details) {
-	console.log( details );
+	//console.log( details );
 
 	// Test for captcha calls (we don't want to submit if there's a captcha)
 	var b = new RegExp('recaptcha');

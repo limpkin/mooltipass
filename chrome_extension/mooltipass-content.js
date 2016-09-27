@@ -471,6 +471,7 @@ cipForm.setInputFields = function(form, credentialFields) {
 }
 
 cipForm.onSubmit = function(event) {
+	cip.waitingForPost = false;
 	var usernameId = mpJQ(this).data("cipUsername");
 	var passwordId = mpJQ(this).data("cipPassword");
 
@@ -1557,6 +1558,9 @@ cip.formHasCaptcha = false;
 // Flag setting that we only wish to fill in the password
 cip.fillPasswordOnly = false;
 
+// Enable or disable the experimental detection of credentials by post added to the onSubmit
+cip.postDetectionFeature = false;
+
 cip.init = function() {
 	cipDebug.log('Starting CIP');
 	chrome.runtime.sendMessage({
@@ -1574,7 +1578,7 @@ cip.init = function() {
 
 cip.postDetected = function( details ) {
 	// Just act if we're waiting for a post
-	if ( this.waitingForPost ) {
+	if ( this.waitingForPost && this.postDetectionFeature) {
 		cipDebug.log('Received:', details );
 
 		var storedUsernameValue = this.winningCombination.savedFields.username.value;

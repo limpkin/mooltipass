@@ -10,7 +10,12 @@ if (content_debug_msg) {
 	cipDebug.log = console.log.bind(window.console);
 	cipDebug.warn = console.warn.bind(window.console);
 	cipDebug.trace = console.trace.bind(window.console);
-} else cipDebug.debugLog = function() {}
+} else {
+	cipDebug.debugLog = function() {}
+	cipDebug.log = function() {}
+	cipDebug.warn = function() {}
+	cipDebug.trace = function() {}
+}
 
 chrome.runtime.onMessage.addListener(function(req, sender, callback) {
     //cipDebug.log(req);
@@ -237,10 +242,10 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		try {
 			var successful = document.execCommand('copy');
 			var msg = successful ? 'successful' : 'unsuccessful';
-			console.info('Copying password to clipboard was ' + msg);
+			cipDebug.info('Copying password to clipboard was ' + msg);
 			$(this).addClass("mooltipass-button-success");
 		} catch(err) {
-			console.warn('Unable to copy password to clipboard');
+			cipDebug.warn('Unable to copy password to clipboard');
 			$(this).addClass("mooltipass-button-error");
 		}
 
@@ -943,10 +948,7 @@ cipFields.possibleCombinations = [
 			if ( fields.username.val() != '' && fields.password.val() != '' ) {
 				// Wait 1 second, Apple checks the time it took you to fill in the form
 				setTimeout( function() {
-					console.log( 'aaaa');
 					var submitButton = document.getElementById('sign-in');
-					console.log( submitButton );
-					si-button
 					//cipFields.eventFire(submitButton, 'click');	
 				},1000);
 			}
@@ -1556,7 +1558,7 @@ cip.formHasCaptcha = false;
 cip.fillPasswordOnly = false;
 
 cip.init = function() {
-	console.log('Starting CIP');
+	cipDebug.log('Starting CIP');
 	chrome.runtime.sendMessage({
 		"action": "get_settings",
 	}, function(response) {
@@ -1565,7 +1567,7 @@ cip.init = function() {
         	cipDebug.log('Status is: ', cip.settings.status);
         	if (cip.settings.status.unlocked) cip.initCredentialFields();
 		} else {
-			console.warn('Get settings returned empty!');
+			cipDebug.warn('Get settings returned empty!');
 		}
 	});
 };
@@ -1573,7 +1575,7 @@ cip.init = function() {
 cip.postDetected = function( details ) {
 	// Just act if we're waiting for a post
 	if ( this.waitingForPost ) {
-		console.log('Received:', details );
+		cipDebug.log('Received:', details );
 
 		var storedUsernameValue = this.winningCombination.savedFields.username.value;
 		var storedPasswordValue = this.winningCombination.savedFields.password.value;
@@ -1589,8 +1591,8 @@ cip.postDetected = function( details ) {
 			var passwordValue = details[ cip.winningCombination.savedFields.password.name ];	
 		}
 		
-		console.log('Stored: ', storedUsernameValue, storedPasswordValue);
-		console.log('Received: ', usernameValue, passwordValue);
+		cipDebug.log('Stored: ', storedUsernameValue, storedPasswordValue);
+		cipDebug.log('Received: ', usernameValue, passwordValue);
 
 		// Only update if they differ from our database values (and if new values are filled in)
 		if ( storedUsernameValue != usernameValue || storedPasswordValue != passwordValue && (usernameValue != '' && passwordValue != '') ) {
@@ -1687,7 +1689,6 @@ cip.initCredentialFields = function(forceCall) {
 	cip.url = document.location.origin;
 	cip.submitUrl = cip.getFormActionUrl(cipFields.combinations[0]);
 
-	console.log( 'retr creds');
 	chrome.runtime.sendMessage({
 		'action': 'retrieve_credentials',
 		'args': [ cip.url, cip.submitUrl, true, true]

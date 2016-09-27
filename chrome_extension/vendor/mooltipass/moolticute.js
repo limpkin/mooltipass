@@ -201,7 +201,7 @@ moolticute.cancelRequest = function( reqid, domain, subdomain ) {
     console.log('Cancel Request:', moolticute._qCallbacks );
 
     moolticute._ws.send(JSON.stringify({
-        'msg': 'cancelGetInputs',
+        'msg': 'cancel_request',
         'reqid': reqid, 
         'domain': domain, 
         'subdomain': subdomain

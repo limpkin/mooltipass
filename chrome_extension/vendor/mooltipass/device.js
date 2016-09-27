@@ -141,7 +141,6 @@ mooltipass.device.onSearchForApp = function(ext) {
  * @returns {{connectedToApp: boolean, connectedToDevice: boolean, deviceUnlocked: boolean}}
  */
 mooltipass.device.getStatus = function() {
-
     if (page.settings.useMoolticute) {
         return {
             'connectedToApp': moolticute.connectedToDaemon,
@@ -274,11 +273,12 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
 
     request = {update: {context: url, login: username, password: password}};
 
+    // Cancel possible pending request
+    mooltipass.device.onTabClosed(tab.id, null);
+
     if (page.settings.useMoolticute) {
         moolticute.sendRequest( request );
     } else {
-        // Cancel possible pending request
-        mooltipass.device.onTabClosed(tab.id, null);
         mooltipass.device._asynchronous.updateCallback = callback;
         chrome.runtime.sendMessage(mooltipass.device._app.id, request);    
     }
@@ -305,6 +305,7 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
 {
     console.log("Tab closed: " + tabId + " remove info: ", removeInfo);
     if (page.settings.useMoolticute) {
+        moolticute.cancelRequest( tabId );
         return;
     }
     
@@ -396,6 +397,10 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         return;
     }
 
+    // Store the tab id, prevent a possible very close tabupdatevent action
+    mooltipass.device.lastRetrieveReqTabId = tab.id;
+    mooltipass.device.tabUpdatedEventPrevented = true;
+
     if (page.settings.useMoolticute) {
         var srv = '';
         if (parsed_url.domain && parsed_url.subdomain) {
@@ -429,11 +434,6 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
                 return;
             }
         }
-        
-        // Store the tab id, prevent a possible very close tabupdatevent action
-        mooltipass.device.lastRetrieveReqTabId = tab.id;
-        mooltipass.device.tabUpdatedEventPrevented = true;
-        //setTimeout(function clearTabUpdatePrevent() {mooltipass.device.tabUpdatedEventPrevented = false;}, 700);
         
         // If our retrieveCredentialsQueue is empty and the device is unlocked, send the request to the app. Otherwise, queue it
         mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter});

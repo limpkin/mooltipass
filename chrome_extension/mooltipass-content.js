@@ -1715,8 +1715,8 @@ cip.checkForNewInputs = function() {
     var hash = cipFields.getHashForVisibleFields(fields);
 
     if(hash != cip.visibleInputsHash) {
-        //cipDebug.debugLog(fields.length, cip.visibleInputsHash);
-        if (cip.settings.status.unlocked) cip.initCredentialFields( true );
+        //cipDebug.log(fields.length, cip.settings);
+        cip.initCredentialFields( true );
     }
 }
 

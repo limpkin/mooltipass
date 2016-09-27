@@ -24,6 +24,12 @@ moolticute._qCallbacks = {};
 //create a unique id to map requests to responses
 moolticute._currCallbackId = 0;
 
+/*
+    Allows to have a delayed response
+    Set to false for normal operation
+*/
+moolticute.delayResponse = false;
+
 moolticute._getCallbackId = function() {
     moolticute._currCallbackId += 1;
     if (moolticute._currCallbackId > 1000000) {
@@ -116,7 +122,16 @@ moolticute.sendRequest = function( request ) {
 /**
  * Process message from moolticute daemon
  */
-moolticute._ws.onmessage = function(ev) {
+moolticute._ws.onmessage = function(ev, delayed) {
+    // Check if we want a delayed response from moolticute
+    // Emulated from here
+    if ( moolticute.delayResponse && !delayed) {
+        setTimeout( function() {
+            moolticute._ws.onmessage(ev, true);
+        }, moolticute.delayResponse);
+        return;
+    }
+
     var d = ev.data;
     try {
         var recvMsg = JSON.parse(d);
@@ -174,12 +189,16 @@ moolticute._ws.onmessage = function(ev) {
         moolticute.fireEvent('statusChange');
     }
     else if (recvMsg.msg == 'ask_password' || recvMsg.msg == 'get_random_numbers') {
-        console.log('here 2222');
         if (moolticute._qCallbacks.hasOwnProperty(recvMsg.client_id)) {
             moolticute._qCallbacks[recvMsg.client_id].callback(recvMsg.data);
             delete moolticute._qCallbacks[recvMsg.client_id];
         }
     }
+}
+
+moolticute.cancelRequest = function( tabId ) {
+    // TODO: need to clean up the Callbacks otherwise it might get crowded here.
+    console.log('Cancel Request:', moolticute._qCallbacks );
 }
 
 /* Simple event listener for events sent by moolticute

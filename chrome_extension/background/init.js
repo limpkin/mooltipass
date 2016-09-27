@@ -101,9 +101,11 @@ chrome.webRequest.onBeforeRequest.addListener( function (details) {
 	if (details.method == "POST") {
 		// Deal both with RAW DATA and FORM DATA
 		if (details && details.type === "xmlhttprequest") {
-			var buffer = details.requestBody.raw[0].bytes;
-			var parsed = arrayBufferToData.toJSON(buffer);
-			chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', post_data: parsed });
+			if ( details.requestBody && details.requestBody.raw ) {
+				var buffer = details.requestBody.raw[0].bytes;
+				var parsed = arrayBufferToData.toJSON(buffer);
+				chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', post_data: parsed });	
+			} 
 		} else {
 			chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', details: details});	
 		}

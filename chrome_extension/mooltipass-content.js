@@ -1654,9 +1654,15 @@ cip.initCredentialFields = function(forceCall) {
     		searchForAllCombinations = false;
     	}
     }
-    // console.log('Would autoSubmit? ' + cip.autoSubmit );
-	// cip.autoSubmit = false; // Temporarily forbid auto-submition for development
+
+    // If we detected a captcha procedure in the form, we will prevent auto-submit
     if ( cip.formHasCaptcha) cip.autoSubmit = false; 
+
+    /*
+     * Uncomment next 2 lines of code for development tests (will prevent forms to auto-submit)
+    */
+	// console.log('Would autoSubmit? ' + cip.autoSubmit );
+	// cip.autoSubmit = false; // Temporarily forbid auto-submit
 
     if(searchForAllCombinations) {
 		// get all combinations of username + password fields

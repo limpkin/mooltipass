@@ -28,7 +28,7 @@ moolticute._currCallbackId = 0;
     Allows to have a delayed response
     Set to false for normal operation or timeout in millisecs
 */
-moolticute.delayResponse = 5000;
+moolticute.delayResponse = false;
 
 moolticute._getCallbackId = function() {
     moolticute._currCallbackId += 1;
@@ -43,7 +43,11 @@ moolticute._getCallbackId = function() {
  * TODO: make this configurable in settings page
  */
 moolticute._ws = page.settings.useMoolticute? new ReconnectingWebSocket('ws://127.0.0.1:30035'):{};
-moolticute._ws.debug = true;
+
+/* 
+ * Set this to true to see websocked input and output at the console
+*/
+moolticute._ws.debug = false;
 
 moolticute._ws.onopen = function() {
     console.log("Moolticute daemon connected");

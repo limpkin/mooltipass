@@ -1,6 +1,6 @@
 // contains already called method names
 var _called = {};
-var content_debug_msg = true;
+var content_debug_msg = false;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -1763,10 +1763,8 @@ cip.doSubmit = function doSubmit(pass)
 }
 
 cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
-	console.log('retr creds callback', credentials);
+	cipDebug.log('cip.retrieveCredentialsCallback()', credentials);
 	if (!credentials) return;
-
-	cipDebug.log('cip.retrieveCredentialsCallback()');
 
     if (cipFields.combinations.length > 0) {
 		cip.u = _f(cipFields.combinations[0].username);

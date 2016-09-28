@@ -100,10 +100,10 @@ moolticute.askPassword = function( request ) {
  moolticute.getRandomNumbers = function() {
     var id = moolticute._getCallbackId();
 
-    // moolticute._ws.send(JSON.stringify({
-    //     msg: 'get_random_numbers',
-    //     client_id: id
-    // }));
+    moolticute._ws.send(JSON.stringify({
+        msg: 'get_random_numbers',
+        client_id: id
+    }));
  }
 
 /* Raw send request */

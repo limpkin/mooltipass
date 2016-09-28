@@ -1,6 +1,6 @@
 // contains already called method names
 var _called = {};
-var content_debug_msg = false;
+var content_debug_msg = true;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -1763,6 +1763,7 @@ cip.doSubmit = function doSubmit(pass)
 }
 
 cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
+	console.log('retr creds callback', credentials);
 	if (!credentials) return;
 
 	cipDebug.log('cip.retrieveCredentialsCallback()');

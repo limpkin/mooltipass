@@ -1918,7 +1918,7 @@ cip.retrieveAndFillUserAndPassword = function() {
 }
 
 /*
-	Called from context meny, to retrieve credentials and show password only
+	Called from context menu, to retrieve credentials and show password only
 */
 cip.retrieveAndFillPassword = function() {
 	cip.fillPasswordOnly = true;

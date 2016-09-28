@@ -449,7 +449,9 @@ else chrome.management.getAll(mooltipass.device.onSearchForApp);
 /**
  * Process messages from the Mooltipass app
  */
-if (!page.settings.useMoolticute) chrome.runtime.onMessageExternal.addListener( mooltipass.device.messageListener );
+if (!page.settings.useMoolticute) chrome.runtime.onMessageExternal.addListener( function(message, sender, sendResponse) {
+    mooltipass.device.messageListener(message, sender, sendResponse);
+} );
 
 mooltipass.device.messageListener = function(message, sender, sendResponse) {
 

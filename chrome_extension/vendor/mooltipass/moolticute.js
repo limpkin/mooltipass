@@ -116,7 +116,7 @@ moolticute.sendRequest = function( request ) {
                 "service": request.update.context,
                 "login": request.update.login,
                 "password": request.update.password,
-                "description": 'Set by Mooltipass Extension/Websocket'
+                "description": 'None'
             }
         };
 

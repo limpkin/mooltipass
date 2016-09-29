@@ -181,7 +181,7 @@ moolticute._ws.onmessage = function(ev, delayed) {
             else {
                 wrapped.credentials = {
                     login: recvMsg.data.login,
-                    Password: recvMsg.data.password,
+                    password: recvMsg.data.password,
                 };
             }
             break;

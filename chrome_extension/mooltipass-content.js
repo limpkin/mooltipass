@@ -1,6 +1,6 @@
 // contains already called method names
 var _called = {};
-var content_debug_msg = false;
+var content_debug_msg = true;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -1813,7 +1813,7 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 }
 
 cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
-    cipDebug.debugLog('cip.prepareFieldsForCredentials()');
+    cipDebug.log('cip.prepareFieldsForCredentials()',cipFields.combinations[0], cip.credentials);
 
 	// only one login returned by mooltipass
     var combination = null;

@@ -47,7 +47,7 @@ moolticute._ws = page.settings.useMoolticute? new ReconnectingWebSocket('ws://12
 /* 
  * Set this to true to see websocked input and output at the console
 */
-moolticute._ws.debug = false;
+moolticute._ws.debug = true;
 
 moolticute._ws.onopen = function() {
     console.log("Moolticute daemon connected");

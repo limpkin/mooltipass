@@ -1,6 +1,10 @@
+
+// Detect if we're dealing with Firefox or Chrome
+var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
 // contains already called method names
 var _called = {};
-var content_debug_msg = false;
+var content_debug_msg = true;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -111,7 +115,6 @@ window.addEventListener('focus', function() {
     });
 });
 
-
 function _f(fieldId) {
 	var field = (fieldId) ? mpJQ("input[data-mp-id='"+fieldId+"']:first") : [];
 	return (field.length > 0) ? field : null;
@@ -130,6 +133,7 @@ cipPassword.observedIcons = [];
 cipPassword.observingLock = false;
 
 cipPassword.init = function() {
+	console.log('cipPassword.init');
 	if("initPasswordGenerator" in _called) {
 		return;
 	}
@@ -283,6 +287,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
 
 cipPassword.createIcon = function(field) {
+	console.log('Create Icon');
 	var $className = (field.outerHeight() > 28) ? "mp-icon-key-big" : "mp-icon-key-small";
 	var $size = (field.outerHeight() > 28) ? 24 : 16;
 	var $offset = Math.floor((field.outerHeight() - $size) / 3);
@@ -388,7 +393,7 @@ cipPassword.onRequestPassword = function() {
 }
 
 cipPassword.checkObservedElements = function() {
-	if ( typeof(mpJQ) === undefined) return;
+	if ( typeof(mpJQ) === 'undefined') return;
 	if(cipPassword.observingLock) {
 		return;
 	}
@@ -426,22 +431,22 @@ var cipForm = {};
 cipForm.init = function(form, credentialFields) {
 	// TODO: could be called multiple times --> update credentialFields
 	
-	cipDebug.debugLog("cipForm init");
+	cipDebug.log("cipForm init");
 	if(form.data("cipForm-initialized"))
 	{
-		cipDebug.debugLog("form initialized true");
+		cipDebug.log("form initialized true");
 	}
 	else
 	{
-		cipDebug.debugLog("form initialized false");
+		cipDebug.log("form initialized false");
 	}
 	if(credentialFields.password)
 	{
-		cipDebug.debugLog("cred_password: true");
+		cipDebug.log("cred_password: true");
 	}
 	else
 	{
-		cipDebug.debugLog("cred_password: false");
+		cipDebug.log("cred_password: false");
 	}	
 
 	// not already initialized && password-field is not null
@@ -1227,6 +1232,7 @@ cipFields.detectTypeofForm = function( inputs ) {
 }
 
 cipFields.getAllCombinations = function(inputs) {
+	cipDebug.log('cipFields.getAllCombinations');
 	var fields = [];
 	var uField = null;
 	for(var i = 0; i < inputs.length; i++) {
@@ -1394,6 +1400,7 @@ cipFields.getUsernameField = function(passwordId, checkDisabled) {
 * return the password field or null if it not exists
 */
 cipFields.getPasswordField = function(usernameId, checkDisabled) {
+	cipDebug.log('cipFields.getPasswordField');
 	var usernameField = _f(usernameId);
 	if(!usernameField) {
 		return null;
@@ -1468,12 +1475,12 @@ cipFields.prepareCombinations = function(combinations) {
 		if(field) {
 			var form = field.closest("form");
 			if(form && form.length > 0) {
+				cipDebug.log("cipForm.init call");
 				cipForm.init(form, combinations[i]);
-				cipDebug.debugLog("cipForm.init call");
 			}
 			else
 			{
-				cipDebug.debugLog("couldn't find closest form");
+				cipDebug.log("couldn't find closest form");
 			}
 		}
 		else
@@ -1571,7 +1578,7 @@ cip.init = function() {
         	cipDebug.log('Status is: ', cip.settings.status);
         	if (cip.settings.status.unlocked) cip.initCredentialFields();
 		} else {
-			cipDebug.warn('Get settings returned empty!');
+			cipDebug.warn('Get settings returned empty!', runtime.lastError);
 		}
 	});
 };
@@ -1609,17 +1616,19 @@ cip.postDetected = function( details ) {
 }
 
 cip.initCredentialFields = function(forceCall) {
+	console.log( 'cip.initCredentialFields', forceCall );
 	if(_called.initCredentialFields && !forceCall) {
 		return;
 	}
 	_called.initCredentialFields = true;
 
 	var inputs = cipFields.getAllFields();
-    cipDebug.trace('initCredentialFields(): ' + inputs.length + ' input fields found');
+    cipDebug.log('initCredentialFields(): ' + inputs.length + ' input fields found');
 
     cip.visibleInputsHash = cipFields.getHashForVisibleFields(inputs);
 
     cipFields.prepareVisibleFieldsWithID("select");
+    cipDebug.log('about to start pwd gen');
     cip.initPasswordGenerator(inputs);
 
     // Initialize credential field combinations on multiple pages
@@ -1725,8 +1734,8 @@ cip.checkForNewInputs = function() {
     var hash = cipFields.getHashForVisibleFields(fields);
 
     if(hash != cip.visibleInputsHash) {
-        //cipDebug.log(fields.length, cip.settings);
-        cip.initCredentialFields( true );
+    	// WAIT for Mooltipass App or Moolticute to answer before sending init to fields.
+    	if ( cip.settings.status ) cip.initCredentialFields( true );
     }
 }
 
@@ -2295,8 +2304,14 @@ cipEvents.triggerActivatedTab = function() {
 	}
 }
 
-mpJQ(function() {
-	chrome.runtime.sendMessage({'action': 'content_script_loaded' }, function() {
-		cip.init();
-	});
+/* Delay execution a bit if JQuery isn't ready yet ~happens 1/1000, but still worth it~ */
+while( !mpJQ ) {}
+
+chrome.runtime.sendMessage({'action': 'content_script_loaded' }, function(r) {
+	var lastError = chrome.runtime.lastError;
+    if (lastError) {
+        console.log(lastError.message);
+        return;
+    }
+	cip.init();
 });

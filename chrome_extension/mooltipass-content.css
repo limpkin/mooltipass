@@ -217,6 +217,7 @@
 	height: 24px;
 	background-image: url(chrome-extension://__MSG_@@extension_id__/images/icon_password_24.png);
 }
+
 .mp-genpw-password-frame {
 	margin-top: 5px !important;
 	margin-bottom: 5px !important;
@@ -898,4 +899,22 @@ input.mp-hover-password {
 #mp-bt-btn-dismiss:hover,
 #mp-bt-btn-again:hover {
 	color: #60B1C7 !important;	
+}
+
+/* Only rendered by Firefox */
+@-moz-document url-prefix() { 
+    .mp-genpw-icon.mp-icon-key-small {
+        width: 16px;
+        height: 16px;
+        background-image: url(images/icon_password_16.png);
+    }
+    .mp-ui-dialog-titlebar.mp-ui-widget-header.mp-ui-corner-all.mp-ui-helper-clearfix {
+      border-radius: 0;
+      border: none;
+    }
+    .mp-genpw-icon.mp-icon-key-big {
+        width: 24px;
+        height: 24px;
+        background-image: url(images/icon_password_24.png);
+    }
 }

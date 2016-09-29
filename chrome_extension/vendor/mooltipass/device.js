@@ -531,7 +531,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
                     Login: message.credentials.login,
                     Name: '<name>',
                     Uuid: '<Uuid>',
-                    Password: message.credentials.Password,
+                    Password: message.credentials.password,
                     StringFields: []
                 }
             ]);

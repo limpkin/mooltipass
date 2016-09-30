@@ -45,6 +45,9 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
+- 09/2016 <a href="https://it.slashdot.org/story/16/09/22/095255/yahoo-confirms-massive-data-breach-500-million-users-impacted-updated">Yahoo Confirms Massive Data Breach, 500 Million Users Impacted</a>  
+- 09/2016 <a href="https://yro.slashdot.org/story/16/09/24/0548206/97-of-the-top-companies-have-leaked-credentials-online">97% of the Top Companies Have Leaked Credentials Online</a>  
+- 09/2016 <a href="https://it.slashdot.org/story/16/09/26/1942208/as-we-speak-teen-social-site-is-leaking-millions-of-plaintext-passwords">As We Speak, Teen Social Site Is Leaking Millions Of Plaintext Passwords</a>  
 - 06/2016 <a href="http://www.independent.co.uk/life-style/gadgets-and-tech/news/ios-933-iphone-users-urged-to-update-after-apple-fixes-huge-password-vulnerability-a7149851.html">iOS bug allows attackers to gain full remote access to an iPhone by sending a simple iMesssage</a>  
 - 06/2016 <a href="http://www.theregister.co.uk/2016/06/01/teamviewer_mass_breach_report/">Teamviewer hacked, users' Paypal account drained</a>  
 - 06/2016 <a href="https://yro.slashdot.org/story/16/06/16/2035205/github-presses-big-red-password-reset-button-after-third-party-breach">GitHub Presses Big Red Password Reset Button After Third-Party Breach </a>  

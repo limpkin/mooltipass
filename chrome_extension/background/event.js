@@ -1,12 +1,12 @@
 var event = {};
 
 event.onMessage = function(request, sender, callback) {
-	console.log("onMessage(" + request.action + ")");
+	console.log("onMessage(" + request.action + ")", request);
 
 	if (request.action == 'content_script_loaded') {
 		console.log('setting allLoaded to true ');
 		page.allLoaded = true;
-		return {response: "response from background script"};
+		callback({response: "response from background script"});
 	}
 
 	if (request.action in event.messageHandlers) {

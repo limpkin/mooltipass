@@ -1076,21 +1076,28 @@ void usbProcessIncoming(uint8_t caller_id)
             // Check that args are supplied
             if (datalen == 2)
             {
+                #ifdef MINI_KICKSTARTER_SETUP
+                    // For security reasons knock parameter can only changed when no card is inserted
+                    if ((msg->body.data[0] == MINI_KNOCK_DETECT_ENABLE_PARAM) && (isSmartCardAbsent() != RETURN_OK))
+                    {
+                        plugin_return_value = PLUGIN_BYTE_ERROR;
+                        break;
+                    }
+                #endif
+
                 // Set correct value in eeprom and refresh parameters that need refreshing
                 setMooltipassParameterInEeprom(msg->body.data[0], msg->body.data[1]);
                 mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
                 plugin_return_value = PLUGIN_BYTE_OK;
 
                 #ifdef MINI_PREPRODUCTION_SETUP_ACC
-                    // For this particular defines, platforms may or may not have an accelerometer. So we return a fail if the accelerometer is not present if the user is trying to enable the knock feature
+                    // For this particular define, platforms may or may not have an accelerometer. So we return a fail if the accelerometer is not present if the user is trying to enable the knock feature
                     if ((msg->body.data[0] == MINI_KNOCK_DETECT_ENABLE_PARAM) && (acc_detected == FALSE))
                     {
                         plugin_return_value = PLUGIN_BYTE_ERROR;
                     }
                 #endif
 
-                //initTouchSensing();
-                //launchCalibrationCycle();
                 #ifdef MINI_VERSION
                     miniOledSetContrastCurrent(getMooltipassParameterInEeprom(MINI_OLED_CONTRAST_CURRENT_PARAM));
                 #endif
@@ -1098,6 +1105,10 @@ void usbProcessIncoming(uint8_t caller_id)
                     knock_detection_threshold = getMooltipassParameterInEeprom(MINI_KNOCK_THRES_PARAM);
                     knock_detection_enabled = getMooltipassParameterInEeprom(MINI_KNOCK_DETECT_ENABLE_PARAM);
                 #endif
+
+                // Lines below were commented as the app doesn't change touch parameters for the mooltipass standard
+                //initTouchSensing();
+                //launchCalibrationCycle();
             }
             else
             {

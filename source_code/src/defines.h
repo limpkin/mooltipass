@@ -63,8 +63,11 @@
  *
  *  MINI_PREPRODUCTION_SETUP_ACC
  *  => mooltipass mini pre-production units, with or without accelerometer
+ *
+ *  MINI_KICKSTARTER_SETUP
+ *  => mooltipass mini kickstarter version
 */
-#define MINI_PREPRODUCTION_SETUP_ACC
+#define MINI_KICKSTARTER_SETUP
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)
@@ -164,6 +167,13 @@
     //#define LEDS_ENABLED_MINI
     #define DATA_STORAGE_EN
     //#define DEV_PLUGIN_COMMS
+    #define HARDWARE_MINI_CLICK_V2
+    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+#elif defined(MINI_KICKSTARTER_SETUP)
+    #define STACK_DEBUG
+    #define MINI_VERSION
+    #define FLASH_CHIP_4M
+    #define DATA_STORAGE_EN
     #define HARDWARE_MINI_CLICK_V2
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif

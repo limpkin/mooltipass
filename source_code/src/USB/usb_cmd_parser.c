@@ -935,13 +935,12 @@ void usbProcessIncoming(uint8_t caller_id)
 
             // Things are different between the mini & the standard Mooltipass
             #if defined(MINI_VERSION)
-                #define DELIBERATE_BUNDLE_PASSWORD_CHECK_SKIP
-                #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_CREDENTIAL_MANAGEMENT) || defined(DELIBERATE_BUNDLE_PASSWORD_CHECK_SKIP)
+                #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_CREDENTIAL_MANAGEMENT) || defined(MINI_PREPRODUCTION_SETUP_ACC)
                     /* For the versions that use the AVR bootloader, or when deliberately skipping it: no prompts, just accept it */
                     plugin_return_value = PLUGIN_BYTE_OK;
                     mediaFlashImportApproved = TRUE;
 
-                    #if defined(DELIBERATE_BUNDLE_PASSWORD_CHECK_SKIP)
+                    #if defined(MINI_PREPRODUCTION_SETUP_ACC)
                         /* Version with custom bootloader: copy version in eeprom */
                         eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
 
@@ -1077,7 +1076,7 @@ void usbProcessIncoming(uint8_t caller_id)
             if (datalen == 2)
             {
                 #ifdef MINI_KICKSTARTER_SETUP
-                    // For security reasons knock parameter can only changed when no card is inserted
+                    // For security reasons knock parameter can only be changed when no card is inserted
                     if ((msg->body.data[0] == MINI_KNOCK_DETECT_ENABLE_PARAM) && (isSmartCardAbsent() != RETURN_OK))
                     {
                         plugin_return_value = PLUGIN_BYTE_ERROR;

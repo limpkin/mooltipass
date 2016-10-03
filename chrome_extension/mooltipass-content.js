@@ -987,7 +987,7 @@ cipFields.possibleCombinations = [
 		combinationName: 'Simple Login Form with Text',
 		requiredFields: [
 			{
-				selector: 'input[type=text]',
+				selector: 'input[type=text],input:not([type])',
 				mapsTo: 'username'
 			},
 			{
@@ -1777,7 +1777,8 @@ cip.doSubmit = function doSubmit(pass)
         $('form').submit();
 
         setTimeout( function() {
-        	mpJQ('#sign-in').click();
+        	// Last resource: try common btn ID and classes
+        	mpJQ('#sign-in, .btn-submit').click();
         },1500);
     }
 }
@@ -1820,8 +1821,10 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 
 		if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput && cip.autoSubmit) {
 			cip.waitingForPost = false;
-            cipDebug.log('do-submit');
-            cip.doSubmit(cip.p);
+			setTimeout( function() {
+				cipDebug.log('do-submit');
+            	cip.doSubmit(cip.p);	
+			},500);
         }
 	}
 }

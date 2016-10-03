@@ -440,10 +440,12 @@ event.onUpdateNotify = function(callback, tab, username, password, url, username
 				};
 
 				// Firefox doesn't support buttons on notifications
-				if (!isFirefox) notification.buttons = [{title: 'Store ' + domain}, {title: 'Store ' + subdomain + '.' + domain}];
-				else {
+				if (!isFirefox) {
+					notification.buttons = [{title: 'Store ' + domain}, {title: 'Store ' + subdomain + '.' + domain}];
+				} else {
 					// Firefox: Use domain (we should check against subdomain and later domain if missing tho...)
-					mooltipass.device.updateCredentials(null, tab, 0, username, password, domain);
+					notification.message = 'Please approve Domain storage';
+					mooltipass.device.updateCredentials(null, tab, 0, username, password, subdomain + '.' + domain);
 				}
 
 				chrome.notifications.create(noteId,notification);

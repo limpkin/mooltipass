@@ -42,6 +42,7 @@
         "vendor/jquery-2.1.4.min.js",
         "vendor/jquery-ui-1.11.4.custom/jquery-ui.min.js",
         "vendor/mooltipass/website.js",
+        "vendor/sendkeys.js",
         "mooltipass-content.js"
       ],
       "css": ["vendor/jquery-ui-1.11.4.custom/jquery-ui.min.css", "vendor/bootstrap-btn.css", "bootstrap-btn.css", "mooltipass-content.css"],

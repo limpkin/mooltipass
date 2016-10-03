@@ -47,7 +47,7 @@ moolticute._ws = page.settings.useMoolticute? new ReconnectingWebSocket('ws://12
 /* 
  * Set this to true to see websocked input and output at the console
 */
-moolticute._ws.debug = true;
+moolticute._ws.debug = false;
 
 moolticute._ws.onopen = function() {
     console.log("Moolticute daemon connected");
@@ -72,13 +72,14 @@ moolticute._ws.onerror = function() {
 moolticute.askPassword = function( request ) {
     console.log("Moolticute asking for password");
     var id = moolticute._getCallbackId();
-    // Legacy, probably will be deleted
 
     var context = '';
     if( request.subdomain && request.domain ) {
         context = request.subdomain + '.' + request.domain;
+        subcontext = request.domain;
     } else {
         context = request.domain;
+        subcontext = null;
     }
 
     var message = {
@@ -86,6 +87,7 @@ moolticute.askPassword = function( request ) {
         client_id: id,
         data: {
             service: context,
+            fallback_service: subcontext,
             login: '',
         }
     };

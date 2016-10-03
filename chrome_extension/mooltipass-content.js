@@ -4,7 +4,7 @@ var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 // contains already called method names
 var _called = {};
-var content_debug_msg = true;
+var content_debug_msg = false;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -1566,7 +1566,7 @@ cip.formHasCaptcha = false;
 cip.fillPasswordOnly = false;
 
 // Enable or disable the experimental detection of credentials by post added to the onSubmit
-cip.postDetectionFeature = false;
+cip.postDetectionFeature = true;
 
 cip.init = function() {
 	cipDebug.log('Starting CIP');
@@ -1585,7 +1585,7 @@ cip.init = function() {
 
 cip.postDetected = function( details ) {
 	// Just act if we're waiting for a post
-	if ( this.waitingForPost && this.postDetectionFeature) {
+	if ( this.waitingForPost && this.postDetectionFeature && this.winningCombination.savedFields) {
 		cipDebug.log('Received:', details );
 
 		var storedUsernameValue = this.winningCombination.savedFields.username.value;
@@ -1671,7 +1671,7 @@ cip.initCredentialFields = function(forceCall) {
      * Uncomment next 2 lines of code for development tests (will prevent forms to auto-submit)
     */
 	// console.log('Would autoSubmit? ' + cip.autoSubmit );
-	// cip.autoSubmit = false; // Temporarily forbid auto-submit
+	//cip.autoSubmit = false; // Temporarily forbid auto-submit
 
     if(searchForAllCombinations) {
 		// get all combinations of username + password fields
@@ -1771,9 +1771,14 @@ cip.doSubmit = function doSubmit(pass)
 			}
         }
     } else {
+    	// uh? No forms... what are we trying to submit?
         cipDebug.debugLog('submitting default form '+$('form').id);
 		cipDebug.debugLog($('form'));		
         $('form').submit();
+
+        setTimeout( function() {
+        	mpJQ('#sign-in').click();
+        },1500);
     }
 }
 
@@ -1838,7 +1843,9 @@ cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
     if (cip.u && cip.fillPasswordOnly === false) {
         if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('username')) {
             cipTwoPageLogin.setFilledIn('username');
-            cip.u.val(cip.credentials[0].Login);
+			cip.u.val('');
+            cip.u.sendkeys(cip.credentials[0].Login);
+            //cip.u.val(cip.credentials[0].Login);
 			// Due to browser extension sand-boxing, and basic jQuery functionality, you cannot trigger a non-jQuery click event with trigger or click.
 			cip.u[0].dispatchEvent(new Event('change'));
         }
@@ -1846,7 +1853,8 @@ cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
     if (cip.p) {
         if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('password')) {
             cipTwoPageLogin.setFilledIn('password');
-            cip.p.val(cip.credentials[0].Password);
+            cip.p.val('');
+            cip.p.sendkeys(cip.credentials[0].Password);
 			// Due to browser extension sand-boxing, and basic jQuery functionality, you cannot trigger a non-jQuery click event with trigger or click.
 			cip.p[0].dispatchEvent(new Event('change'));
         }
@@ -2038,7 +2046,6 @@ cip.fillIn = function(combination, onlyPassword, suppressWarnings) {
 	}
 
 	var uField = _f(combination.username);
-	var pField = _f(combination.password);
 	var pField = _f(combination.password);
 
 	// exactly one pair of credentials available

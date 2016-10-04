@@ -1824,7 +1824,7 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 			setTimeout( function() {
 				cipDebug.log('do-submit');
             	cip.doSubmit(cip.p);	
-			},500);
+			},300);
         }
 	}
 }

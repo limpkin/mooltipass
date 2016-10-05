@@ -215,7 +215,9 @@ var arrayBufferToData = {
 			var string = this.toString(arrayBuffer);
 			return JSON.parse(string);
 		} catch (e) {
-			return {};
+			// Failed to parse as JSON, try as URI encoded:
+			var string = this.toString(arrayBuffer);
+			return JSON.parse('{"' + decodeURI(string).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
 		}
 	}
 };

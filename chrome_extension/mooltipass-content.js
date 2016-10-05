@@ -1163,16 +1163,23 @@ cipFields.detectTypeofForm = function( inputs ) {
 			localForms[ containerForm.data('mp-id') ].push( field );
 		}
 	});
-
-		
-	window.localInputs = localInputs; // For debugging purposes.
-	window.localForms = localForms; // Make it available globally
+	
+	// Set those two vars globaly if we're debugging
+	if ( content_debug_msg ) {
+		window.localInputs = localInputs; // For debugging purposes.
+		window.localForms = localForms; // Make it available globally	
+	}
 	
 	// Check for matching combinations
-	var localCombinations = $.extend(cipFields.possibleCombinations, {});
-	var selectedCombination = localCombinations.forEach( function( combination ) {
+	var selectedCombination = cipFields.possibleCombinations.forEach( function( combination_data, index ) {
 		// In detected forms
 		for( form in localForms ) {
+			// Clone the original combination for each form
+			var aCombinations = [];
+			$.extend( true, aCombinations, cipFields.possibleCombinations);
+			var combination = aCombinations[index];
+			combination.score = 0;
+
 			if ( combination.maxfields && Object.keys( localForms[form] ).length > combination.maxfields ) continue;
 			var neededRequirements = combination.requiredFields.length;
 			combination.score = combination.score?combination.score:0;
@@ -1746,11 +1753,11 @@ cip.doSubmit = function doSubmit(pass)
 {
     cip.trapSubmit = false; // don't trap this submit, let it through
 
-    cipDebug.debugLog('doSubmit: pass field');
+    cipDebug.log('doSubmit: pass field');
 
     // locate best submit option
     var forms = $(pass).closest('form');
-	cipDebug.debugLog("forms length: " + forms.length);
+	cipDebug.log("forms length: " + forms.length);
     if (forms.length > 0) {		
 		cipDebug.debugLog($(forms[0]));
         var submits = forms.find(':submit');
@@ -1762,12 +1769,14 @@ cip.doSubmit = function doSubmit(pass)
         } else {
             if(!$(forms[0]).action)
 			{
-				cipDebug.debugLog("Not submitting form due to empty action");
+				// This is wrong, if there's no action, submits to the same page. it is known... 
+				cipDebug.log("Submitting an empty action form");
+				$(forms[0]).submit();
 			}
 			else
 			{
 				cipDebug.debugLog('submitting form '+forms[0].id);
-				$(forms[0]).submit();				
+				$(forms[0]).submit();		
 			}
         }
     } else {

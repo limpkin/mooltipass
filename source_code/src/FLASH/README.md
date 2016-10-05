@@ -15,12 +15,12 @@ The Flash Library allows usage of a subset of the Adesto family of SPI flash chi
 - 4M   (AT45DB041E) - (2048 Pages at 264 Bytes Per Page)
 - 8M   (AT45DB081E) - (4096 Pages at 264 Bytes Per Page)
 - 16M  (AT45DB161E) - (4096 Pages at 528 Bytes Per Page)
-- 32M  (AT45DB321E) - (8192 Pages at 264 Bytes Per Page)
+- 32M  (AT45DB321E) - (8192 Pages at 528 Bytes Per Page)
 
 To select a chip. Open the flash_mem.h file and change the FLASH_CHIP define.
 
 The library currently implements the following:
-- Initialise the Flash (sets up SPI communications)
+- Initialize the Flash (sets up SPI communications)
 - Send SPI data to the FLASH (R/W)
 - Check the Flash Chip 'Ready' Register
 - Check the Manf. Flash ID

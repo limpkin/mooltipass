@@ -89,7 +89,7 @@ if ( isFirefox && typeof( Symbol.hasInstance ) == 'undefined' ) var webRequestOp
 else var webRequestOptions = ['blocking','requestBody'];
 
 chrome.webRequest.onBeforeRequest.addListener( function (details) {
-	//console.log( details );
+	console.log('Post intercepted:', details );
 
 	// Test for captcha calls (we don't want to submit if there's a captcha)
 	var b = new RegExp('recaptcha');
@@ -100,13 +100,13 @@ chrome.webRequest.onBeforeRequest.addListener( function (details) {
 	// Intercept posts
 	if (details.method == "POST") {
 		// Deal both with RAW DATA and FORM DATA
-		if (details && details.type === "xmlhttprequest") {
+		if (details && details.type === "xmlhttprequest") { // Raw data (multipart posts, etc)
 			if ( details.requestBody && details.requestBody.raw ) {
 				var buffer = details.requestBody.raw[0].bytes;
 				var parsed = arrayBufferToData.toJSON(buffer);
 				chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', post_data: parsed });	
 			} 
-		} else {
+		} else { // Standard POST
 			chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', details: details});	
 		}
 	}
@@ -215,9 +215,14 @@ var arrayBufferToData = {
 			var string = this.toString(arrayBuffer);
 			return JSON.parse(string);
 		} catch (e) {
-			// Failed to parse as JSON, try as URI encoded:
+			// Failed to parse as JSON, try a few options:
 			var string = this.toString(arrayBuffer);
-			return JSON.parse('{"' + decodeURI(string).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+			if ( string.substr(0,1) == '<' ) { // Posibly XML
+				return string;
+			} else {
+				return JSON.parse('{"' + decodeURI(string).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');	
+			}
+			
 		}
 	}
 };

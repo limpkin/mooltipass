@@ -14,11 +14,13 @@ if (content_debug_msg) {
 	cipDebug.log = console.log.bind(window.console);
 	cipDebug.warn = console.warn.bind(window.console);
 	cipDebug.trace = console.trace.bind(window.console);
+	cipDebug.error = console.error.bind(window.console);
 } else {
 	cipDebug.debugLog = function() {}
 	cipDebug.log = function() {}
 	cipDebug.warn = function() {}
 	cipDebug.trace = function() {}
+	cipDebug.error = function() {}
 }
 
 chrome.runtime.onMessage.addListener(function(req, sender, callback) {
@@ -1163,16 +1165,24 @@ cipFields.detectTypeofForm = function( inputs ) {
 			localForms[ containerForm.data('mp-id') ].push( field );
 		}
 	});
-
-		
-	window.localInputs = localInputs; // For debugging purposes.
-	window.localForms = localForms; // Make it available globally
+	
+	// Set those two vars globaly if we're debugging
+	if ( content_debug_msg ) {
+		window.localInputs = localInputs; // For debugging purposes.
+		window.localForms = localForms; // Make it available globally	
+	}
 	
 	// Check for matching combinations
-	var localCombinations = $.extend(cipFields.possibleCombinations, {});
-	var selectedCombination = localCombinations.forEach( function( combination ) {
+	var selectedCombinations = [];
+	cipFields.possibleCombinations.forEach( function( combination_data, index ) {
 		// In detected forms
 		for( form in localForms ) {
+			// Clone the original combination for each form
+			var aCombinations = [];
+			$.extend( true, aCombinations, cipFields.possibleCombinations);
+			var combination = aCombinations[index];
+			combination.score = 0;
+
 			if ( combination.maxfields && Object.keys( localForms[form] ).length > combination.maxfields ) continue;
 			var neededRequirements = combination.requiredFields.length;
 			combination.score = combination.score?combination.score:0;
@@ -1197,22 +1207,22 @@ cipFields.detectTypeofForm = function( inputs ) {
 						/* Check if the combination has a specific function, and run it! */
 						if ( combination.extraFunction )
 							combination.extraFunction.call( this, localForms[form] );
-						return;
+
+						if ( combination.score == 100 ) {
+							selectedCombinations.push( combination );
+						}
 					}
 				}
-
-				//console.log ( combination );
-				/* If we found the right combination, then just return it */
-				if ( combination.score == 100 ) {
-					return combination;
-				}
-			});
+			}.bind(this));
 		};
 	});
 
+	// Return false it there are no viable combinations
+	if ( selectedCombinations.length < 1 ) return false;
+
 	// Then select the best combination
 	var lastScore = 0;
-	var selectedCombination = cipFields.possibleCombinations.filter( function( combination ) {
+	var selectedCombination = selectedCombinations.filter( function( combination ) {
 		if ( combination.fields && combination.requiredFields.length > Object.keys(combination.fields).length ) { // Didn't find all the required fields. 
 			return false;
 		}
@@ -1569,7 +1579,7 @@ cip.fillPasswordOnly = false;
 cip.postDetectionFeature = true;
 
 cip.init = function() {
-	cipDebug.log('Starting CIP');
+	cipDebug.warn('Starting CIP');
 	chrome.runtime.sendMessage({
 		"action": "get_settings",
 	}, function(response) {
@@ -1595,8 +1605,18 @@ cip.postDetected = function( details ) {
 
 		// Client sent a RAW request.
 		if ( details.requestBody ) { // Form sent FORM DATA 
-			var usernameValue = details.requestBody.formData[ this.winningCombination.savedFields.username.name ][0];
-			var passwordValue = details.requestBody.formData[ this.winningCombination.savedFields.password.name ][0];
+			var usernameValue = details.requestBody.formData[ this.winningCombination.savedFields.username.name ];
+			var passwordValue = details.requestBody.formData[ this.winningCombination.savedFields.password.name ];
+
+			// If we got POST DATA, but not the expected one, try to clean up a bit and find it
+			// (IE: BankOfAmerica sends userID1 and we expect userID )
+			if (!usernameValue && !passwordValue) {
+				var usernameValue = details.requestBody.formData[ this.winningCombination.savedFields.username.name.match('[a-zA-Z]*') ];
+				var passwordValue = details.requestBody.formData[ this.winningCombination.savedFields.password.name.match('[a-zA-Z]*') ];
+			}
+
+			if ( usernameValue ) usernameValue = usernameValue[0];
+			if ( passwordValue ) passwordValue = passwordValue[0];
 		} else { // Form sent RAW DATA
 			var usernameValue = details[ cip.winningCombination.savedFields.username.name ];
 			var passwordValue = details[ cip.winningCombination.savedFields.password.name ];	
@@ -1662,6 +1682,8 @@ cip.initCredentialFields = function(forceCall) {
     		});
     		searchForAllCombinations = false;
     	}
+    } else {
+    	cipDebug.error(' Could not find viable combinations ');
     }
 
     // If we detected a captcha procedure in the form, we will prevent auto-submit
@@ -1746,11 +1768,11 @@ cip.doSubmit = function doSubmit(pass)
 {
     cip.trapSubmit = false; // don't trap this submit, let it through
 
-    cipDebug.debugLog('doSubmit: pass field');
+    cipDebug.log('doSubmit: pass field');
 
     // locate best submit option
     var forms = $(pass).closest('form');
-	cipDebug.debugLog("forms length: " + forms.length);
+	cipDebug.log("forms length: " + forms.length);
     if (forms.length > 0) {		
 		cipDebug.debugLog($(forms[0]));
         var submits = forms.find(':submit');
@@ -1762,12 +1784,14 @@ cip.doSubmit = function doSubmit(pass)
         } else {
             if(!$(forms[0]).action)
 			{
-				cipDebug.debugLog("Not submitting form due to empty action");
+				// This is wrong, if there's no action, submits to the same page. it is known... 
+				cipDebug.log("Submitting an empty action form");
+				$(forms[0]).submit();
 			}
 			else
 			{
 				cipDebug.debugLog('submitting form '+forms[0].id);
-				$(forms[0]).submit();				
+				$(forms[0]).submit();		
 			}
         }
     } else {
@@ -2322,6 +2346,7 @@ chrome.runtime.sendMessage({'action': 'content_script_loaded' }, function(r) {
     if (lastError) {
         console.log(lastError.message);
         return;
+    } else {
+    	cip.init();	
     }
-	cip.init();
 });

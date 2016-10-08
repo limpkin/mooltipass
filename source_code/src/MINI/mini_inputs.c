@@ -573,9 +573,9 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
         {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
-                if (wheel_click_duration_counter > LONG_PRESS_MS)
+                if ((wheel_click_duration_counter > LONG_PRESS_MS) && (discard_release_event == FALSE))
                 {
-                    return_val =  WHEEL_ACTION_LONG_CLICK;
+                    return_val = WHEEL_ACTION_LONG_CLICK;
                 }
                 else if (wheel_click_return == RETURN_JRELEASED)
                 {                    
@@ -616,13 +616,17 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
 
                 // Clear detections
                 wheel_click_duration_counter = 0;
-                if ((return_val != WHEEL_ACTION_CLICK_DOWN) && (return_val != WHEEL_ACTION_CLICK_UP))
+                if ((return_val == WHEEL_ACTION_CLICK_DOWN) && (return_val == WHEEL_ACTION_CLICK_UP))
                 {
-                    wheel_click_return = RETURN_REL;
+                    discard_release_event = TRUE;
+                }
+                else if(return_val == WHEEL_ACTION_NONE)
+                {
+                    // User has been scrolling then keeping the wheel pressed: do not do anything
                 }
                 else
                 {
-                    discard_release_event = TRUE;
+                    wheel_click_return = RETURN_REL;
                 }
                 if (ignore_incdec == FALSE)
                 {

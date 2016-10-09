@@ -584,6 +584,7 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
                         if (discard_release_event != FALSE)
                         {
                             discard_release_event = FALSE;
+                            return_val = WHEEL_ACTION_DISCARDED;
                         } 
                         else
                         {
@@ -616,7 +617,7 @@ RET_TYPE miniGetWheelAction(uint8_t wait_for_action, uint8_t ignore_incdec)
 
                 // Clear detections
                 wheel_click_duration_counter = 0;
-                if ((return_val == WHEEL_ACTION_CLICK_DOWN) && (return_val == WHEEL_ACTION_CLICK_UP))
+                if ((return_val == WHEEL_ACTION_CLICK_DOWN) || (return_val == WHEEL_ACTION_CLICK_UP))
                 {
                     discard_release_event = TRUE;
                 }

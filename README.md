@@ -4,7 +4,7 @@ Mooltipass Project Repository
   <img src="https://raw.githubusercontent.com/limpkin/mooltipass/master/pictures/mini/prototypes/mini_alum_final_small_cropped.JPG" alt="Mooltipass first prototype"/>
 </p>
 This is the GitHub repository dedicated to the Mooltipass device family. It contains all the resources that were used and made for this community driven product line since the project was first started back in December 2013.  
-You may order a Mooltipass device <b><a href="https://www.tindie.com/products/limpkin/mooltipass-offline-password-keeper/">on our Tindie store</a></b> our back our crowdfunding campaign <b><a href="https://www.kickstarter.com/projects/limpkin/mooltipass-mini-your-passwords-on-the-go">for the Mooltipass Mini</a></b>.  
+You may order a Mooltipass device <b><a href="https://www.tindie.com/products/limpkin/mooltipass-offline-password-keeper/">on our Tindie store</a></b> or back our <b><a href="https://www.kickstarter.com/projects/limpkin/mooltipass-mini-your-passwords-on-the-go">Mooltipass Mini crowdfunding campaign</a></b>.  
 
 What is the Mooltipass Project?
 -------------------------------

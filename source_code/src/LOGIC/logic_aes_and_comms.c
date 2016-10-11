@@ -583,6 +583,7 @@ RET_TYPE getLoginForContext(char* buffer)
         if ((hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING) && (selected_login_flag == TRUE))
         {
             // Read selected child node, guaranteed to be null terminated by readchildnode function
+            // Note: the buffer here is 64 bytes, temp_cnode.login is null terminated at the 63th byte worst case
             readChildNode(&temp_cnode, selected_login_child_node_addr);
             strcpy((char*)buffer, (char*)temp_cnode.login);
             return RETURN_OK;

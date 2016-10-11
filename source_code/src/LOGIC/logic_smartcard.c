@@ -105,10 +105,10 @@ RET_TYPE handleSmartcardInserted(void)
         // This a valid user smart card, we call a dedicated function for the user to unlock the card
         if (temp_return == RETURN_VCARD_OK)
         {
-            uint8_t loginString[SMARTCARD_MTP_LOGIN_LENGTH/8];
+            uint8_t loginString[NODE_CHILD_SIZE_OF_LOGIN];
             
             // As we do buffer reuse, double check it here for possible evolutions...
-            #if (SMARTCARD_MTP_LOGIN_LENGTH/8) < C_NODE_PWD_SIZE
+            #if (SMARTCARD_MTP_LOGIN_LENGTH/8) > NODE_CHILD_SIZE_OF_LOGIN
                 #error "Reused loginString buffer isn't big enough"
             #endif
 

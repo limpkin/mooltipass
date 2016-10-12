@@ -23,104 +23,6 @@ if (content_debug_msg) {
 	cipDebug.error = function() {}
 }
 
-/*
-* Receive a message from WS_SOCKET or MooltiPass APP
-*/
-chrome.runtime.onMessage.addListener(function(req, sender, callback) {
-	if (content_debug_msg > 4) cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
-
-	// TODO: change IF for SWITCH
-	if ('action' in req) {
-		if(req.action == "fill_user_pass_with_specific_login") {
-			if(cip.credentials[req.id]) {
-				var combination = null;
-				if (cip.u) {
-					cip.u.val(cip.credentials[req.id].Login);
-					combination = cipFields.getCombination("username", cip.u);
-					cip.u.focus();
-				}
-				if (cip.p) {
-					cip.p.val(cip.credentials[req.id].Password);
-					combination = cipFields.getCombination("password", cip.p);
-				}
-
-				var list = {};
-				if(cip.fillInStringFields(combination.fields, cip.credentials[req.id].StringFields, list)) {
-					cipForm.destroy(false, {"password": list.list[0], "username": list.list[1]});
-				}
-			}
-			// wish I could clear out _logins and _u, but a subsequent
-			// selection may be requested.
-		}
-		else if (req.action == "fill_user_pass") {
-			cip.retrieveAndFillUserAndPassword();
-		}
-		else if (req.action == "fill_pass_only") {
-			cip.retrieveAndFillPassword();
-		}
-		else if (req.action == "activate_password_generator") {
-			cip.initPasswordGenerator(cipFields.getAllFields());
-		}
-		else if(req.action == "remember_credentials") {
-			cip.contextMenuRememberCredentials();
-		}
-		else if (req.action == "choose_credential_fields") {
-			cipDefine.init();
-		}
-		else if (req.action == "clear_credentials") {
-			cipEvents.clearCredentials();
-		}
-		else if (req.action == "activated_tab") {
-			cipEvents.triggerActivatedTab();
-		}
-		else if (req.action == "check_for_new_input_fields") {
-			cip.checkForNewInputs();
-		}
-		else if (req.action == "redetect_fields") {
-			chrome.runtime.sendMessage({
-				"action": "get_settings",
-			}, function(response) {
-				cip.settings = response.data;
-				cip.initCredentialFields(true);
-			});
-		}
-		else if (req.action == "get_website_info") {
-			data = {
-				"url" : window.location.href,
-				"html" : mpJQ("html").html()
-			};
-			callback(data);
-		}
-		else if (req.action == "post_detected") {
-			if ( cip.winningCombination ) cip.postDetected( req.details?req.details:req.post_data );
-		}
-		else if (req.action == "captcha_detected") {
-			cip.formHasCaptcha = true;
-		}
-	}
-});
-
-// Hotkeys for every page
-// ctrl + shift + p = fill only password
-// ctrl + shift + u = fill username + password
-window.addEventListener("keydown", function(e) {
-	if (e.ctrlKey && e.shiftKey) {
-		if (e.keyCode == 80) { // P
-			e.preventDefault();
-			cip.fillInFromActiveElementPassOnly(false);
-		} else if (e.keyCode == 85) { // U
-			e.preventDefault();
-			cip.fillInFromActiveElement(false);
-		}
-	}
-}, false);
-
-window.addEventListener('focus', function() {
-	chrome.runtime.sendMessage({
-		"action": "set_current_tab",
-	});
-});
-
 // Deprecated code
 function _f(fieldId) {
 	var field = (fieldId) ? mpJQ("input[data-mp-id='"+fieldId+"']:first") : [];
@@ -155,9 +57,22 @@ cipPassword.initField = function(field, inputs, pos) {
 	if(!field || field.length != 1) {
 		return;
 	}
+
 	if(field.data("mp-password-generator")) {
 		return;
 	}
+
+	// Prevent showing icon if password field is hidden by width or height.
+	if ( field[0].clientWidth < 2 || field[0].clientHeight < 2 ) {
+		return;
+	}
+
+	// Prevent showing icon if the password field has a tabIndex of -1 
+	if ( field.prop('tabindex') == -1) {
+		return;
+	}
+
+	console.log( field, field.prop('tabindex') );
 
 	field.data("mp-password-generator", true);
 
@@ -933,118 +848,6 @@ cipFields.uniqueNumber = 342845638;
 // objects with combination of username + password fields
 cipFields.combinations = [];
 
-// Detection Array. You can add more here to match special cases.
-// TODO: We should probably move this into a database if it keeps growing
-cipFields.possibleCombinations = [
-	{
-		// Seen at icloud.com, seems to comform to an Apple's proprietary identity management system (IDMS)
-		combinationId: 'canFieldBased',
-		combinationName: 'Login Form with can-field properties',
-		requiredFields: [
-			{
-				selector: 'input[can-field=accountName]',
-				submitPropertyName: 'can-field',
-				mapsTo: 'username'
-			},
-			{
-				selector: 'input[can-field=password]',
-				submitPropertyName: 'can-field',
-				mapsTo: 'password'	
-			}
-		],
-		scorePerMatch: 50,
-		score: 0,
-		maxfields: 3,
-		postFunction: function( fields ) {
-			if ( fields.username.val() != '' && fields.password.val() != '' ) {
-				// Wait 1 second, Apple checks the time it took you to fill in the form
-				setTimeout( function() {
-					var submitButton = document.getElementById('sign-in');
-					//cipFields.eventFire(submitButton, 'click');	
-				},1000);
-			}
-		}
-	},
-	{
-		combinationId: 'loginform001',
-		combinationName: 'Simple Login Form with Email',
-		requiredFields: [
-			{
-				selector: 'input[type=email]',
-				mapsTo: 'username'
-			},
-			{
-				selector: 'input[type=password]',
-				mapsTo: 'password'
-			},
-		],
-		scorePerMatch: 50,
-		score: 0,
-		autoSubmit: true,
-		maxfields: 3,
-		extraFunction: function( fields ) {
-			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
-			if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
-		}
-	},
-	{
-		combinationId: 'loginform002',
-		combinationName: 'Simple Login Form with Text',
-		requiredFields: [
-			{
-				selector: 'input[type=text],input:not([type])',
-				mapsTo: 'username'
-			},
-			{
-				selector: 'input[type=password]',
-				mapsTo: 'password'
-			},
-		],
-		scorePerMatch: 50,
-		score: 0,
-		autoSubmit: true,
-		maxfields: 4,
-		extraFunction: function( fields ) {
-			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
-			if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
-		}
-	},
-	{
-		combinationId: 'passwordreset001',
-		combinationName: 'Password Reset without Confirmation',
-		requiredFields: [
-			{
-				selector: 'input[type=password]:visible'
-			},
-			{
-				selector: 'input[type=password]:visible'
-			},
-		],
-		scorePerMatch: 50,
-		score: 0,
-		autoSubmit: false
-	},
-	{
-		combinationId: 'passwordreset002',
-		combinationName: 'Password Reset with Confirmation',
-		requiredFields: [
-			{
-				selector: 'input[type=password]',
-				mapsTo: 'password'
-			},
-			{
-				selector: 'input[type=password]'
-			},
-			{
-				selector: 'input[type=password]'
-			},
-		],
-		scorePerMatch: 25,
-		score: 0,
-		autoSubmit: false
-	}
-];
-
 cipFields.setUniqueId = function(field) {
 	if(field && !field.attr("data-mp-id")) {
 		// use ID of field if it is unique
@@ -1146,102 +949,6 @@ cipFields.isAvailableField = function($field) {
 			&& mpJQ($field).css("visibility") != "collapsed"
 			&& mpJQ($field).css("visibility") != "collapsed"
 		);
-}
-
-cipFields.detectTypeofForm = function( inputs ) {
-	// Clone inputs var
-	var localInputs = $.extend(inputs,{});
-	var localForms = { 'noform': [] };
-
-	// Enclose fields in forms.
-	localInputs.forEach( function( field ) {
-		containerForm = field.closest('form');
-		if ( containerForm.length == 0 ) localForms.noform.push( field ); // Field isn't in a form 
-		else {
-			// Contained in a form
-			if ( !containerForm.data('mp-id') ) {
-				// cipFields.setFormUniqueId( containerForm ); mcCombinations took over
-				localForms[ containerForm.data('mp-id') ] = [];
-			} else if ( !localForms[ containerForm.data('mp-id') ] ) {
-				localForms[ containerForm.data('mp-id') ] = [];
-			}
-			localForms[ containerForm.data('mp-id') ].push( field );
-		}
-	});
-	
-	// Set those two vars globaly if we're debugging
-	if ( content_debug_msg ) {
-		window.localInputs = localInputs; // For debugging purposes.
-		window.localForms = localForms; // Make it available globally	
-	}
-	
-	// Check for matching combinations
-	var selectedCombinations = [];
-	cipFields.possibleCombinations.forEach( function( combination_data, index ) {
-		// In detected forms
-		for( form in localForms ) {
-			// Clone the original combination for each form
-			var aCombinations = [];
-			$.extend( true, aCombinations, cipFields.possibleCombinations);
-			var combination = aCombinations[index];
-			combination.score = 0;
-
-			if ( combination.maxfields && Object.keys( localForms[form] ).length > combination.maxfields ) continue;
-			var neededRequirements = combination.requiredFields.length;
-			combination.score = combination.score?combination.score:0;
-			localForms[form].forEach( function( field ) {
-				for ( var I = 0; I < combination.requiredFields.length; I++ ) {
-					var requirement = combination.requiredFields[I].selector;
-					if ( field.is( requirement ) ) {
-						neededRequirements--;
-						combination.score += combination.scorePerMatch;
-						/* Check if the combination has mapped fields */
-						if ( combination.requiredFields[I].mapsTo ) {
-							if (!combination.savedFields) combination.savedFields = {};
-							combination.savedFields[ combination.requiredFields[I].mapsTo] = {
-								value: '',
-								submitPropertyName: combination.requiredFields[I].submitPropertyName
-							};
-
-							if (!combination.fields) combination.fields = {};
-							combination.fields[ combination.requiredFields[I].mapsTo ] = field;
-							combination.requiredFields[I].mapsTo = null;
-						}
-						/* Check if the combination has a specific function, and run it! */
-						if ( combination.extraFunction )
-							combination.extraFunction.call( this, localForms[form] );
-
-						if ( combination.score == 100 ) {
-							selectedCombinations.push( combination );
-						}
-					}
-				}
-			}.bind(this));
-		};
-	});
-
-	// Return false it there are no viable combinations
-	if ( selectedCombinations.length < 1 ) return false;
-
-	// Then select the best combination
-	var lastScore = 0;
-	var selectedCombination = selectedCombinations.filter( function( combination ) {
-		if ( combination.fields && combination.requiredFields.length > Object.keys(combination.fields).length ) { // Didn't find all the required fields. 
-			return false;
-		}
-		if ( combination.score > 100 ) { // Something fishy here. Found more fields that it is supposed to find.
-			return false;
-		}
-
-		if ( combination.score <= lastScore) { // A previous combination scores the same of more than this one.
-			return false;
-		}
-
-		lastScore = combination.score;
-		return true;
-	}.bind(this) );
-
-	return selectedCombination[0];
 }
 
 cipFields.getAllCombinations = function(inputs) {
@@ -1503,20 +1210,6 @@ cipFields.prepareCombinations = function(combinations) {
 	}
 }
 
-/* 
-  Fires an event of etype on the DOM object el 
-  sample: eventFire( document.getElementById('submit-button'), 'click')
-*/
-cipFields.eventFire = function(el, etype) {
-	if (el.fireEvent) {
-		el.fireEvent('on' + etype);
-	} else {
-		var evObj = document.createEvent('Events');
-		evObj.initEvent(etype, true, false);
-		el.dispatchEvent(evObj);
-	}
-}
-
 cipFields.useDefinedCredentialFields = function() {
 	if(cip.settings["defined-credential-fields"] && cip.settings["defined-credential-fields"][document.location.origin]) {
 		var creds = cip.settings["defined-credential-fields"][document.location.origin];
@@ -1578,9 +1271,6 @@ cip.formHasCaptcha = false;
 // Flag setting that we only wish to fill in the password
 cip.fillPasswordOnly = false;
 
-// Enable or disable the experimental detection of credentials by post added to the onSubmit
-cip.postDetectionFeature = true;
-
 cip.init = function() {
 	cipDebug.warn('Starting CIP');
 	// Grab settings from mcCombinations.
@@ -1588,50 +1278,8 @@ cip.init = function() {
 	cip.initCredentialFields();
 };
 
-cip.postDetected = function( details ) {
-	// Just act if we're waiting for a post
-	if ( this.waitingForPost && this.postDetectionFeature && this.winningCombination.savedFields) {
-		cipDebug.log('Received:', details );
-
-		var storedUsernameValue = this.winningCombination.savedFields.username.value;
-		var storedPasswordValue = this.winningCombination.savedFields.password.value;
-
-		var url = document.location.origin;
-
-		// Client sent a RAW request.
-		if ( details.requestBody ) { // Form sent FORM DATA 
-			var usernameValue = details.requestBody.formData[ this.winningCombination.savedFields.username.name ];
-			var passwordValue = details.requestBody.formData[ this.winningCombination.savedFields.password.name ];
-
-			// If we got POST DATA, but not the expected one, try to clean up a bit and find it
-			// (IE: BankOfAmerica sends userID1 and we expect userID )
-			if (!usernameValue && !passwordValue) {
-				var usernameValue = details.requestBody.formData[ this.winningCombination.savedFields.username.name.match('[a-zA-Z]*') ];
-				var passwordValue = details.requestBody.formData[ this.winningCombination.savedFields.password.name.match('[a-zA-Z]*') ];
-			}
-
-			if ( usernameValue ) usernameValue = usernameValue[0];
-			if ( passwordValue ) passwordValue = passwordValue[0];
-		} else { // Form sent RAW DATA
-			var usernameValue = details[ cip.winningCombination.savedFields.username.name ];
-			var passwordValue = details[ cip.winningCombination.savedFields.password.name ];	
-		}
-		
-		cipDebug.log('Stored: ', storedUsernameValue, storedPasswordValue);
-		cipDebug.log('Received: ', usernameValue, passwordValue);
-
-		// Only update if they differ from our database values (and if new values are filled in)
-		if ( storedUsernameValue != usernameValue || storedPasswordValue != passwordValue && (usernameValue != '' && passwordValue != '') ) {
-			chrome.runtime.sendMessage({
-				'action': 'update_notify',
-				'args': [usernameValue, passwordValue, url]
-			});		
-		}
-	}
-}
-
 cip.initCredentialFields = function(forceCall) {
-	console.log( 'cip.initCredentialFields', forceCall );
+	console.trace( 'cip.initCredentialFields', forceCall );
 	if(_called.initCredentialFields && !forceCall) {
 		return;
 	}
@@ -1664,23 +1312,7 @@ cip.initCredentialFields = function(forceCall) {
 		cipFields.combinations.push(twoPageCombination);
 	}
 	var inputs = cipFields.getAllFields();
-	var winningCombination = cipFields.detectTypeofForm( inputs );
-	if ( winningCombination ) {
-		cip.winningCombination = winningCombination;
-		cipDebug.warn( winningCombination );
-		// cip.autoSubmit = winningCombination.maxfields && inputs.length > winningCombination.maxfields?false:winningCombination.autoSubmit;
-
-		if ( winningCombination.fields ) {
-			cipFields.combinations = Array({
-				'username': winningCombination.fields.username.data('mp-id'),
-				'password': winningCombination.fields.password.data('mp-id')
-			});
-			searchForAllCombinations = false;
-		}
-	} else {
-		cipDebug.error(' Could not find viable combinations ');
-	}
-
+	
 	// If we detected a captcha procedure in the form, we will prevent auto-submit
 	if ( cip.formHasCaptcha) cip.autoSubmit = false; 
 
@@ -1690,10 +1322,9 @@ cip.initCredentialFields = function(forceCall) {
 	// console.log('Would autoSubmit? ' + cip.autoSubmit );
 	//cip.autoSubmit = false; // Temporarily forbid auto-submit
 
-	if(searchForAllCombinations) {
-		// get all combinations of username + password fields
-		cipFields.combinations = cipFields.getAllCombinations(inputs);
-	}
+	// get all combinations of username + password fields
+	cipFields.combinations = cipFields.getAllCombinations(inputs);
+
 	cipFields.prepareCombinations(cipFields.combinations);
 
 	//cipDebug.log('Combinations found:', cipFields.combinations );
@@ -1752,15 +1383,20 @@ cip.checkForNewInputs = function() {
 
 	if(hash != cip.visibleInputsHash) {
 		// WAIT for Mooltipass App or Moolticute to answer before sending init to fields.
-		if ( cip.settings.status ) cip.initCredentialFields( true );
+		if ( cip.settings.status ) {
+			//cip.initCredentialFields( true );
+			cip.visibleInputsHash = hash;
+
+			// TODO: Probably move all of this to mcCombinations
+			mcCombs.detectCombination();
+		}
 	}
 }
 
 /**
  * Submit the credentials to the server
  */
-cip.doSubmit = function doSubmit(pass)
-{
+cip.doSubmit = function (pass) {
 	cip.trapSubmit = false; // don't trap this submit, let it through
 
 	cipDebug.log('doSubmit: pass field');
@@ -1803,7 +1439,7 @@ cip.doSubmit = function doSubmit(pass)
 }
 
 cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
-	cipDebug.log('cip.retrieveCredentialsCallback()', credentials);
+	cipDebug.trace('cip.retrieveCredentialsCallback()', credentials);
 	if (!credentials) return;
 
 	if (cipFields.combinations.length > 0) {
@@ -2240,7 +1876,6 @@ cip.contextMenuRememberCredentials = function() {
 	}
 };
 
-
 cip.rememberCredentials = function(event, usernameField, usernameValue, passwordField, passwordValue) {
 	cipDebug.log('rememberCredentials()', arguments);
 	// no password given or field cleaned by a site-running script
@@ -2315,18 +1950,129 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 
 cipEvents = {};
 
+/*
+* Starts listening for messages, keypresses, and other events.
+*/
+cipEvents.startEventHandling = function() {
+	/*
+	* Receive a message from WS_SOCKET or MooltiPass APP
+	*/
+	chrome.runtime.onMessage.addListener(function(req, sender, callback) {
+		if (content_debug_msg > 5) cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
+		else if (content_debug_msg > 4 && req.action != 'check_for_new_input_fields') cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
+
+		// TODO: change IF for SWITCH
+		if ('action' in req) {
+			if(req.action == "fill_user_pass_with_specific_login") {
+				if(cip.credentials[req.id]) {
+					var combination = null;
+					if (cip.u) {
+						cip.u.val(cip.credentials[req.id].Login);
+						combination = cipFields.getCombination("username", cip.u);
+						cip.u.focus();
+					}
+					if (cip.p) {
+						cip.p.val(cip.credentials[req.id].Password);
+						combination = cipFields.getCombination("password", cip.p);
+					}
+
+					var list = {};
+					if(cip.fillInStringFields(combination.fields, cip.credentials[req.id].StringFields, list)) {
+						cipForm.destroy(false, {"password": list.list[0], "username": list.list[1]});
+					}
+				}
+				// wish I could clear out _logins and _u, but a subsequent
+				// selection may be requested.
+			}
+			else if (req.action == "fill_user_pass") {
+				cip.retrieveAndFillUserAndPassword();
+			}
+			else if (req.action == "fill_pass_only") {
+				cip.retrieveAndFillPassword();
+			}
+			else if (req.action == "activate_password_generator") {
+				cip.initPasswordGenerator(cipFields.getAllFields());
+			}
+			else if(req.action == "remember_credentials") {
+				cip.contextMenuRememberCredentials();
+			}
+			else if (req.action == "choose_credential_fields") {
+				cipDefine.init();
+			}
+			else if (req.action == "clear_credentials") {
+				cipEvents.clearCredentials();
+			}
+			else if (req.action == "activated_tab") {
+				cipEvents.triggerActivatedTab();
+			}
+			else if (req.action == "check_for_new_input_fields") {
+				cip.checkForNewInputs();
+			}
+			else if (req.action == "redetect_fields") {
+				chrome.runtime.sendMessage({
+					"action": "get_settings",
+				}, function(response) {
+					cip.settings = response.data;
+					cip.initCredentialFields(true);
+				});
+			}
+			else if (req.action == "get_website_info") {
+				data = {
+					"url" : window.location.href,
+					"html" : mpJQ("html").html()
+				};
+				callback(data);
+			}
+			else if (req.action == "post_detected") {
+				mcCombs.postDetected( req.details?req.details:req.post_data );
+			}
+			else if (req.action == "captcha_detected") {
+				cip.formHasCaptcha = true;
+			}
+		}
+	});
+
+	// Hotkeys for every page
+	// ctrl + shift + p = fill only password
+	// ctrl + shift + u = fill username + password
+	window.addEventListener('keydown.mooltipass', function(e) {
+		if (e.ctrlKey && e.shiftKey) {
+			if (e.keyCode == 80) { // P
+				e.preventDefault();
+				cip.fillInFromActiveElementPassOnly(false);
+			} else if (e.keyCode == 85) { // U
+				e.preventDefault();
+				cip.fillInFromActiveElement(false);
+			}
+		}
+	}, false);
+
+	window.addEventListener('focus.mooltipass', function() {
+		chrome.runtime.sendMessage({ "action": "set_current_tab" });
+	});
+}
+
+/*
+* Clears cached credentials
+*/
 cipEvents.clearCredentials = function() {
 	cip.credentials = [];
 }
 
+/*
+* Triggered when a tab becomes active
+*/
 cipEvents.triggerActivatedTab = function() {
 	mcCombs.init();
 }
 
 /* Delay execution a bit if JQuery isn't ready yet ~happens 1/1000, but still worth it~ */
 while( !mpJQ ) {};
+
+cipEvents.startEventHandling();
+
 var mcCombs = new mcCombinations();
-mcCombs.settings.debugLevel = 0;
+mcCombs.settings.debugLevel = content_debug_msg;
 
 chrome.runtime.sendMessage({'action': 'content_script_loaded' }, function(r) {
 	var lastError = chrome.runtime.lastError;

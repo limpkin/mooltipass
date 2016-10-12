@@ -8,7 +8,7 @@ var content_debug_msg = false;
 
 var cipDebug = {};
 if (content_debug_msg) {
-	cipDebug.debugLog = function( message ) {
+	cipDebug.log = function( message ) {
 		this.log( message );
 	}
 	cipDebug.log = console.log.bind(window.console);
@@ -16,7 +16,7 @@ if (content_debug_msg) {
 	cipDebug.trace = console.trace.bind(window.console);
 	cipDebug.error = console.error.bind(window.console);
 } else {
-	cipDebug.debugLog = function() {}
+	cipDebug.log = function() {}
 	cipDebug.log = function() {}
 	cipDebug.warn = function() {}
 	cipDebug.trace = function() {}
@@ -285,7 +285,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 	});
 
 	$("#mooltipass-select-custom").click(function(){
-		cipDebug.debugLog("mooltipass-select-custom");
+		cipDebug.log("mooltipass-select-custom");
 		cipDefine.init();
 	});
 }
@@ -458,7 +458,7 @@ cipForm.init = function(form, credentialFields) {
 	if(!form.data("cipForm-initialized") && credentialFields.password) {
 		form.data("cipForm-initialized", true);
 		cipForm.setInputFields(form, credentialFields);
-		form.submit(cipForm.onSubmit);
+		// form.submit(cipForm.onSubmit); mcCombinations took charge now.
 	}
 }
 
@@ -1090,7 +1090,7 @@ cipFields.prepareId = function(id) {
 }
 
 cipFields.getAllFields = function() {
-	//cipDebug.debugLog('field call!');
+	//cipDebug.log('field call!');
 	var fields = [];
 	// get all input fields which are text, email or password and visible
 	mpJQ(cipFields.inputQueryPattern).each(function() {
@@ -1100,7 +1100,7 @@ cipFields.getAllFields = function() {
 		if(cipFields.isAvailableField(this)) {
 			cipFields.setUniqueId(mpJQ(this));
 			fields.push(mpJQ(this));
-			//cipDebug.debugLog('field detection!', mpJQ(this));
+			//cipDebug.log('field detection!', mpJQ(this));
 		}
 	});
 
@@ -1160,7 +1160,7 @@ cipFields.detectTypeofForm = function( inputs ) {
 		else {
 			// Contained in a form
 			if ( !containerForm.data('mp-id') ) {
-				cipFields.setFormUniqueId( containerForm );
+				// cipFields.setFormUniqueId( containerForm ); mcCombinations took over
 				localForms[ containerForm.data('mp-id') ] = [];
 			} else if ( !localForms[ containerForm.data('mp-id') ] ) {
 				localForms[ containerForm.data('mp-id') ] = [];
@@ -1250,8 +1250,8 @@ cipFields.getAllCombinations = function(inputs) {
 	var uField = null;
 	for(var i = 0; i < inputs.length; i++) {
 		if(!inputs[i] || inputs[i].length < 1) {
-			cipDebug.debugLog("input discredited:");
-			cipDebug.debugLog(inputs[i]);
+			cipDebug.log("input discredited:");
+			cipDebug.log(inputs[i]);
 			continue;
 		}
 		else
@@ -1498,7 +1498,7 @@ cipFields.prepareCombinations = function(combinations) {
 		}
 		else
 		{
-			cipDebug.debugLog("field set to false");
+			cipDebug.log("field set to false");
 		}
 	}
 }
@@ -1769,12 +1769,12 @@ cip.doSubmit = function doSubmit(pass)
 	var forms = $(pass).closest('form');
 	cipDebug.log("forms length: " + forms.length);
 	if (forms.length > 0) {		
-		cipDebug.debugLog($(forms[0]));
+		cipDebug.log($(forms[0]));
 		var submits = forms.find(':submit');
-		cipDebug.debugLog("submits length: " + submits.length);
+		cipDebug.log("submits length: " + submits.length);
 		if (submits.length > 0) {
-			cipDebug.debugLog('submitting form '+forms[0].id+' via ',submits[0]);
-			cipDebug.debugLog($(submits[0]));
+			cipDebug.log('submitting form '+forms[0].id+' via ',submits[0]);
+			cipDebug.log($(submits[0]));
 			$(submits[0]).click();
 		} else {
 			if(!$(forms[0]).action)
@@ -1785,14 +1785,14 @@ cip.doSubmit = function doSubmit(pass)
 			}
 			else
 			{
-				cipDebug.debugLog('submitting form '+forms[0].id);
+				cipDebug.log('submitting form '+forms[0].id);
 				$(forms[0]).submit();		
 			}
 		}
 	} else {
 		// uh? No forms... what are we trying to submit?
-		cipDebug.debugLog('submitting default form '+$('form').id);
-		cipDebug.debugLog($('form'));		
+		cipDebug.log('submitting default form '+$('form').id);
+		cipDebug.log($('form'));		
 		$('form').submit();
 
 		setTimeout( function() {
@@ -1902,7 +1902,7 @@ cip.getFormActionUrl = function(combination) {
 		action = document.location.origin + document.location.pathname;
 	}
 	
-	cipDebug.debugLog("action url: " + action);
+	cipDebug.log("action url: " + action);
 	return action;
 }
 
@@ -1942,7 +1942,7 @@ cip.fillInCredentials = function(combination, onlyPassword, suppressWarnings) {
 			'action': 'retrieve_credentials',
 			'args': [ cip.url, cip.submitUrl, true, true]
 		}, function(credentials) {
-			cipDebug.debugLog('cip.fillInCredentials()');
+			cipDebug.log('cip.fillInCredentials()');
 			cip.retrieveCredentialsCallback(credentials, true);
 			cip.fillIn(combination, onlyPassword, suppressWarnings);
 		});
@@ -2037,7 +2037,7 @@ cip.setValue = function(field, value) {
 }
 
 cip.fillInStringFields = function(fields, StringFields, filledInFields) {
-	cipDebug.debugLog('cip.fillInStringFields()');
+	cipDebug.log('cip.fillInStringFields()');
 	var $filledIn = false;
 
 	filledInFields.list = [];
@@ -2246,12 +2246,12 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 	// no password given or field cleaned by a site-running script
 	// --> no password to save
 	if(passwordValue == "") {
-		cipDebug.debugLog('rememberCredentials() no password value');
+		cipDebug.log('rememberCredentials() no password value');
 		return false;
 	}
 
 	if (!cip.trapSubmit) {
-		cipDebug.debugLog('rememberCredentials() trap disabled');
+		cipDebug.log('rememberCredentials() trap disabled');
 		cip.trapSubmit = true;
 		return false;
 	}
@@ -2299,7 +2299,7 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 			}
 		}
 		
-		cipDebug.debugLog('rememberCredentials - sending update_notify');
+		cipDebug.log('rememberCredentials - sending update_notify');
 		chrome.runtime.sendMessage({
 			'action': 'update_notify',
 			'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]

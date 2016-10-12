@@ -261,6 +261,11 @@ mcCombinations.prototype.detectForms = function() {
 			}.bind(this));
 			return matching;
 		}.bind(this));
+
+		if ( currentForm.combination.score < 100 ) {
+			currentForm.combination = false;
+			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
+		}
 	}
 	return;
 }
@@ -298,6 +303,7 @@ mcCombinations.prototype.getAllForms = function() {
 						fields: [],
 						element: containerForm
 					};
+					containerForm.submit( $.proxy(this.onSubmit,this) );
 				}
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
@@ -308,6 +314,32 @@ mcCombinations.prototype.getAllForms = function() {
 
 	return found;
 };
+
+/*
+* Intercept form submit
+*/
+mcCombinations.prototype.onSubmit = function( event ) {
+	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c onSubmit','background-color: #c3c6b4','color: #333333');
+	this.waitingForPost = false;
+
+	// Legacy compatibility (temporary line / remove)
+	cip.waitingForPost = false;
+
+	// Check if there's a difference between what we retrieved and what is being submitted
+	var currentForm = this.forms[ $(event.target).data('mp-id') ];
+
+	var storedUsernameValue = currentForm.combination.savedFields.username?currentForm.combination.savedFields.username.value:'';
+	var storedPasswordValue = currentForm.combination.savedFields.password?currentForm.combination.savedFields.password.value:'';
+
+	var submittedUsernameValue = currentForm.combination.fields.username.val();
+	var submittedPasswordValue = currentForm.combination.fields.password.val();
+
+	if ( storedUsernameValue != submittedUsernameValue || storedPasswordValue != submittedPasswordValue ) { // Only save when they differ
+		cip.rememberCredentials( event, 'unused', submittedUsernameValue, 'unused', submittedPasswordValue);
+	}
+}
+
+
 
 /*
 * Check if a field is visible and ready to get input
@@ -333,11 +365,8 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 	if(element && !element.attr("data-mp-id")) {
 		var elementId = element.attr("id");
 		if( elementId ) {
-			var foundIds = mpJQ( "input#" + cipFields.prepareId( elementId ) );
-			if(foundIds.length == 1) {
-				element.attr("data-mp-id", elementId);
-				return;
-			}
+			element.attr("data-mp-id", elementId);
+			return;
 		} else {
 			// create own ID if no ID is set for this field
 			this.uniqueNumber += 1;
@@ -360,6 +389,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials, do
 	if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form','background-color: #c3c6b4','color: #FF0000');
 	for( form in this.forms ) {
 		currentForm = this.forms[ form ];
+		if ( !currentForm.combination || !currentForm.combination.fields ) continue;
 
 		// Unsure about this restriction. Probably should always make a retrieve credentials call (need to think about it)
 		if ( currentForm.combination ) {

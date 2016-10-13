@@ -23,8 +23,9 @@ httpAuth.handleRequest = function (details, callback) {
 httpAuth.processPendingCallbacks = function (details) {
     httpAuth.callback = httpAuth.pendingCallbacks.pop();
 
+    var status = mooltipass.device.getStatus();
     // Check whether the mooltipass app is connected and directly send callback to trigger login prompt
-    if(!mooltipass.device.connectedToApp || ! mooltipass.device._app) {
+    if(!status.connectedToApp) {
         httpAuth.callback({});
         return;
     }
@@ -42,7 +43,7 @@ httpAuth.processPendingCallbacks = function (details) {
     // chrome.tabs.get(tabId, callback) <-- but what should callback be?
 
     var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
-    console.log('httpAuth: isProxy', httpAuth.isProxy, ' proxyUrl:', httpAuth.proxyUrl, 'url:', httpAuth.url);
+    //console.log('httpAuth: isProxy', httpAuth.isProxy, ' proxyUrl:', httpAuth.proxyUrl, 'url:', httpAuth.url);
 
     mooltipass.device.retrieveCredentials(httpAuth.loginOrShowCredentials, {"id": details.tabId}, url, url, true);
 }
@@ -51,7 +52,7 @@ httpAuth.loginOrShowCredentials = function (logins) {
     // at least one login found --> use first to login
     if (logins.length > 0) {
         var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
-        event.onHTTPAuthPopup(null, {"id": httpAuth.tabId}, {"logins": logins, "url": url});
+        masqEvent.onHTTPAuthPopup(null, {"id": httpAuth.tabId}, {"logins": logins, "url": url});
         //generate popup-list for HTTP Auth usernames + descriptions
 
         if (page.settings.autoFillAndSend) {

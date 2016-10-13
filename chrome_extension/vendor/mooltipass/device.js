@@ -523,7 +523,6 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     // Returned on successfully requesting credentials for a specific URL
     else if (message.credentials !== null) 
     {
-        console.log( message.credentials );
         try
         {
             mooltipass.device.retrieveCredentialsQueue[0].callback([

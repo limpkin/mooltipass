@@ -212,9 +212,9 @@ moolticute.cancelRequest = function( reqid, domain, subdomain ) {
 
     moolticute._ws.send(JSON.stringify({
         'msg': 'cancel_request',
-        'request_id': reqid, //this id is the one that was sent with ask_password
-        'domain': domain,
-        'subdomain': subdomain
+        'data': {
+            'request_id': reqid //this id is the one that was sent with ask_password
+        }
     }));
 }
 

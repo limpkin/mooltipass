@@ -44,7 +44,7 @@ moolticute._getCallbackId = function() {
  */
 moolticute._ws = page.settings.useMoolticute? new ReconnectingWebSocket('ws://127.0.0.1:30035'):{};
 
-/* 
+/*
  * Set this to true to see websocked input and output at the console
 */
 moolticute._ws.debug = false;
@@ -89,6 +89,7 @@ moolticute.askPassword = function( request ) {
             service: context,
             fallback_service: subcontext,
             login: '',
+            request_id: request.reqid //this id is for a potential cancel of this request
         }
     };
 
@@ -123,7 +124,7 @@ moolticute.sendRequest = function( request ) {
         };
 
         console.log('the message is:', message);
-        moolticute._ws.send(JSON.stringify( message ));    
+        moolticute._ws.send(JSON.stringify( message ));
     }
 }
 
@@ -211,8 +212,8 @@ moolticute.cancelRequest = function( reqid, domain, subdomain ) {
 
     moolticute._ws.send(JSON.stringify({
         'msg': 'cancel_request',
-        'reqid': reqid, 
-        'domain': domain, 
+        'request_id': reqid, //this id is the one that was sent with ask_password
+        'domain': domain,
         'subdomain': subdomain
     }));
 }

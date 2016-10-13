@@ -475,42 +475,44 @@ mcCombinations.prototype.postDetected = function( details ) {
 		// Loop throught the forms and check if we've got a match
 		for( form in this.forms ) {
 			currentForm = this.forms[ form ];
-			currentCombination = currentForm.combination;
+			if ( currentForm.combination ) {
+				currentCombination = currentForm.combination;
 
-			// Use the right field attribute
-			var attrUsername = 'name';
-			var attrPassword = 'name';
-			if ( currentCombination.savedFields.username.submitPropertyName ) {
-				attrUsername = currentCombination.savedFields.username.submitPropertyName;
-			}
+				// Use the right field attribute
+				var attrUsername = 'name';
+				var attrPassword = 'name';
+				if ( currentCombination.savedFields.username.submitPropertyName ) {
+					attrUsername = currentCombination.savedFields.username.submitPropertyName;
+				}
 
-			if ( currentCombination.savedFields.password.submitPropertyName ) {
-				var attrPassword = currentCombination.savedFields.password.submitPropertyName;	
-			}
+				if ( currentCombination.savedFields.password.submitPropertyName ) {
+					var attrPassword = currentCombination.savedFields.password.submitPropertyName;	
+				}
 
-			if ( details.requestBody ) { // Form sent FORM DATA
-				var usernameValue = details.requestBody.formData[ currentCombination.fields.username.attr( attrUsername ) ];
-				var passwordValue = details.requestBody.formData[ currentCombination.fields.password.attr( attrPassword ) ];
-			} else { // Client sent a RAW request.
-				var usernameValue = details[ currentCombination.fields.username.attr( attrUsername ) ];
-				var passwordValue = details[ currentCombination.fields.password.attr( attrPassword ) ];
-			}
+				if ( details.requestBody ) { // Form sent FORM DATA
+					var usernameValue = details.requestBody.formData[ currentCombination.fields.username.attr( attrUsername ) ];
+					var passwordValue = details.requestBody.formData[ currentCombination.fields.password.attr( attrPassword ) ];
+				} else { // Client sent a RAW request.
+					var usernameValue = details[ currentCombination.fields.username.attr( attrUsername ) ];
+					var passwordValue = details[ currentCombination.fields.password.attr( attrPassword ) ];
+				}
 
-			var storedUsernameValue = currentCombination.savedFields.username.value;
-			var storedPasswordValue = currentCombination.savedFields.password.value;
+				var storedUsernameValue = currentCombination.savedFields.username.value;
+				var storedPasswordValue = currentCombination.savedFields.password.value;
 
-			if (this.settings.debugLevel > 3) {
-				cipDebug.log('%c mcCombinations: %c postDetected - Stored: ', 'background-color: #c3c6b4','color: #333333', storedUsernameValue, storedPasswordValue);
-				cipDebug.log('%c mcCombinations: %c postDetected - Received: ','background-color: #c3c6b4','color: #333333', usernameValue, passwordValue);
-			}
+				if (this.settings.debugLevel > 3) {
+					cipDebug.log('%c mcCombinations: %c postDetected - Stored: ', 'background-color: #c3c6b4','color: #333333', storedUsernameValue, storedPasswordValue);
+					cipDebug.log('%c mcCombinations: %c postDetected - Received: ','background-color: #c3c6b4','color: #333333', usernameValue, passwordValue);
+				}
 
-			// Only update if they differ from our database values (and if new values are filled in)
-			if ( storedUsernameValue != usernameValue || storedPasswordValue != passwordValue && (usernameValue != '' && passwordValue != '') ) {
-				var url = document.location.origin;
-				chrome.runtime.sendMessage({
-					'action': 'update_notify',
-					'args': [usernameValue, passwordValue, url]
-				});
+				// Only update if they differ from our database values (and if new values are filled in)
+				if ( storedUsernameValue != usernameValue || storedPasswordValue != passwordValue && (usernameValue != '' && passwordValue != '') ) {
+					var url = document.location.origin;
+					chrome.runtime.sendMessage({
+						'action': 'update_notify',
+						'args': [usernameValue, passwordValue, url]
+					});
+				}
 			}
 		}
 		return;

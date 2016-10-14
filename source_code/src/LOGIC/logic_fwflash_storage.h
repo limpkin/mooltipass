@@ -279,11 +279,11 @@
     #define ID_STRING_HASH2             73
     #define ID_STRING_CHANGE_DESC_FOR   74
     #define ID_STRING_DO_NOT_UNPLUG     75
+    #define ID_STRING_LAST_PIN_TRY      76
 
 #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* reserved for main firmware branch usage
      * can be removed as they are added above */
-    #define ID_STRING_MGMT_RESERVED6            76
     #define ID_STRING_MGMT_RESERVED7            77
     #define ID_STRING_MGMT_RESERVED8            78
     #define ID_STRING_MGMT_RESERVED9            79

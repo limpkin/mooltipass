@@ -190,8 +190,16 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
 */
 RET_TYPE guiCardUnlockingProcess(void)
 {
+    uint8_t warning_displayed = FALSE;
     volatile uint16_t temp_pin;
     RET_TYPE temp_rettype;
+
+    /* Display warning if only one security try left */
+    if (getNumberOfSecurityCodeTriesLeft() == 1)
+    {
+        guiDisplayInformationOnScreenAndWait(ID_STRING_LAST_PIN_TRY);
+        warning_displayed = TRUE;
+    }
     
     while (1)
     {
@@ -212,6 +220,15 @@ RET_TYPE guiCardUnlockingProcess(void)
                 {
                     guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_BLOCKED);
                     return RETURN_NOK;
+                }
+                case RETURN_MOOLTIPASS_1_TRIES_LEFT :
+                {
+                    /* If after a wrong try there's only one try left, ask user to remove his card as a security */
+                    guiDisplayInformationOnScreenAndWait(ID_STRING_WRONGPIN1LEFT);
+                    if(warning_displayed == FALSE)
+                    {
+                        return RETURN_NOK;
+                    }
                 }
                 case RETURN_MOOLTIPASS_PB :
                 {

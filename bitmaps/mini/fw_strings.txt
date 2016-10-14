@@ -74,7 +74,7 @@ Hash #1
 Hash #2
 Change Description For:
 Do Not Unplug The Mini!
-RESERVED_6
+One Try Remaining!
 RESERVED_7
 RESERVED_8
 RESERVED_9

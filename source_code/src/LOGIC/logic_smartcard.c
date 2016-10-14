@@ -134,6 +134,8 @@ RET_TYPE handleSmartcardInserted(void)
                         usbKeybPutStr((char*)loginString);
                     }
 
+                    /* Todo: implement back functionality? */
+
                     /* Fetch the password */
                     if (getPasswordForContext((char*)loginString) == RETURN_OK)
                     {

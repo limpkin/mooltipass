@@ -641,6 +641,8 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         {
             input_answer = MINI_INPUT_RET_YES;
         }
+        #else
+        (void)flash_flag_set;
         #endif
             
         // Text scrolling

@@ -357,9 +357,8 @@ RET_TYPE cloneSmartCardProcess(volatile uint16_t* pincode)
     writeApplicationZone1(temp_az1);
     writeApplicationZone2(temp_az2);
     
-    // Write random bytes in the code protected zone
-    fillArrayWithRandomBytes(temp_az1, SMARTCARD_CPZ_LENGTH);
-    writeCodeProtectedZone(temp_az1);
+    // 14/10/2016: we now copy the CPZ into the cloned card as well, as there's no need to uniquely identify the cards (and the solution doesn't handle that case)
+    writeCodeProtectedZone(temp_cpz);
     
     // Add smart card to our database
     writeSmartCardCPZForUserId(temp_az1, temp_ctr_val, temp_user_id);

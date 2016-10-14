@@ -1,5 +1,4 @@
 from mooltipass_hid_device import *
-from Crypto.PublicKey import RSA
 from mooltipass_defines import *
 import firmwareBundlePackAndSign
 from intelhex import IntelHex
@@ -110,7 +109,8 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 		return
 		
 	# Read private key
-	key = RSA.importKey(mpmSecPickleRead("key.bin"))
+	# to fix! we don't use rsa anymore!
+	#key = RSA.importKey(mpmSecPickleRead("key.bin"))
 	
 	# Ask user to choose export file
 	file_list = glob.glob("export/*.txt")

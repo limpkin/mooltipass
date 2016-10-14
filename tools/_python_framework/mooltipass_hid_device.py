@@ -196,6 +196,15 @@ class mooltipass_hid_device:
 		self.device.sendHidPacket([0, CMD_GET_FREE_NB_USR_SLT])
 		print self.device.receiveHidPacket()[DATA_INDEX], "slots for new users available"
 		
+	# Get card CPZ (can only be queried when inserted card is unknown)
+	def getCardCpz(self):
+		self.device.sendHidPacket([0, CMD_GET_CUR_CPZ])
+		data = self.device.receiveHidPacket()
+		if data[LEN_INDEX] == 1:
+			print "Couldn't query CPZ"
+		else:
+			print "CPZ: " + ' '.join(hex(x) for x in data[DATA_INDEX:DATA_INDEX+data[LEN_INDEX]])
+		
 	# Change description for given login
 	def changeLoginDescription(self):
 		context = raw_input("Context: ")

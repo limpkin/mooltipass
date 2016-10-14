@@ -33,6 +33,9 @@
 #include "smartcard.h"
 #include "defines.h"
 
+/** Enums **/
+enum lock_feature_t                         {LF_EN_MASK = 0x01, LF_ENT_KEY_MASK = 0x02, LF_LOGIN_MASK = 0x04, LF_WIN_L_SEND_MASK = 0x08};
+
 /** Defines **/
 // The entry is stored as User ID -> CPZ -> CTR (25 bytes)
 #define SMCID_UID_MATCH_ENTRY_LENGTH    (1 + SMARTCARD_CPZ_LENGTH + AES256_CTR_LENGTH)

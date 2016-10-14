@@ -39,41 +39,41 @@
 // eeprom parameters init
 static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
 {
-    ID_KEYB_EN_US_LUT,  // KEYBOARD_LAYOUT_PARAM                Set English keyboard by default
-    15,                 // USER_INTER_TIMEOUT_PARAM             Set 15secs user interaction timeout by default
-    FALSE,              // LOCK_TIMEOUT_ENABLE_PARAM            Disable timeout by default
-    60,                 // LOCK_TIMEOUT_PARAM                   Set a 1 hour timeout
-    6,                  // TOUCH_DI_PARAM                       Set default detection integrator (6 consecutive samples)
-    0,                  // TOUCH_WHEEL_OS_PARAM_OLD             Not used anymore
-    0x73,               // TOUCH_PROX_OS_PARAM                  Set proximity sensing key settings
-    FALSE,              // OFFLINE_MODE_PARAM                   Disable offline mode by default
-    FALSE,              // SCREENSAVER_PARAM                    Disable screen saver by default
-    0,                  // TOUCH_CHARGE_TIME_PARAM              Set datasheet default value for charge time
-    0x21,               // TOUCH_WHEEL_OS_PARAM0                Set touch wheel oversample (one bit gain)
-    0x21,               // TOUCH_WHEEL_OS_PARAM1                Set touch wheel oversample (one bit gain)
-    0x21,               // TOUCH_WHEEL_OS_PARAM2                Set touch wheel oversample (one bit gain)
-    TRUE,               // FLASH_SCREEN_PARAM                   Enable flashy screen by default
-    TRUE,               // USER_REQ_CANCEL_PARAM                Enable the possibility to cancel user requests from USB (NOT USED ANYMORE, but keep it until the apps don't use it anymore for its old puropose)
+    ID_KEYB_EN_US_LUT,      // KEYBOARD_LAYOUT_PARAM                Set English keyboard by default
+    15,                     // USER_INTER_TIMEOUT_PARAM             Set 15secs user interaction timeout by default
+    FALSE,                  // LOCK_TIMEOUT_ENABLE_PARAM            Disable timeout by default
+    60,                     // LOCK_TIMEOUT_PARAM                   Set a 1 hour timeout
+    6,                      // TOUCH_DI_PARAM                       Set default detection integrator (6 consecutive samples)
+    0,                      // TOUCH_WHEEL_OS_PARAM_OLD             Not used anymore
+    0x73,                   // TOUCH_PROX_OS_PARAM                  Set proximity sensing key settings
+    FALSE,                  // OFFLINE_MODE_PARAM                   Disable offline mode by default
+    FALSE,                  // SCREENSAVER_PARAM                    Disable screen saver by default
+    0,                      // TOUCH_CHARGE_TIME_PARAM              Set datasheet default value for charge time
+    0x21,                   // TOUCH_WHEEL_OS_PARAM0                Set touch wheel oversample (one bit gain)
+    0x21,                   // TOUCH_WHEEL_OS_PARAM1                Set touch wheel oversample (one bit gain)
+    0x21,                   // TOUCH_WHEEL_OS_PARAM2                Set touch wheel oversample (one bit gain)
+    TRUE,                   // FLASH_SCREEN_PARAM                   Enable flashy screen by default
+    TRUE,                   // USER_REQ_CANCEL_PARAM                Enable the possibility to cancel user requests from USB (NOT USED ANYMORE, but keep it until the apps don't use it anymore for its old puropose)
 #ifdef POST_KICKSTARTER_UPDATE_SETUP
-    FALSE,              // TUTORIAL_BOOL_PARAM                  Disable the tutorial by default
+    FALSE,                  // TUTORIAL_BOOL_PARAM                  Disable the tutorial by default
 #else
-    TRUE,               // TUTORIAL_BOOL_PARAM                  Enable the tutorial by default
+    TRUE,                   // TUTORIAL_BOOL_PARAM                  Enable the tutorial by default
 #endif
-    15,                 // SCREEN_SAVER_SPEED_PARAM             Speed of the screen saver
-    TRUE,               // LUT_BOOT_POPULATING                  Allow credential LUT populating at card insert
-    TRUE,               // KEY_AFTER_LOGIN_SEND_BOOL_PARAM      Allow key sending after login is manually entered
-    KEY_TAB,            // KEY_AFTER_LOGIN_SEND_PARAM           The key to be sent after login is manually entered
-    FALSE,              // KEY_AFTER_PASS_SEND_BOOL_PARAM       Allow key sending after password is manually entered
-    KEY_RETURN,         // KEY_AFTER_PASS_SEND_PARAM            The key to be sent after password is manually entered
-    FALSE,              // DELAY_AFTER_KEY_ENTRY_BOOL_PARAM     Bool to know if we add an extra delay when a character is typed
-    5,                  // DELAY_AFTER_KEY_ENTRY_PARAM          How many ms are added after a key is typed
-    FALSE,              // INVERTED_SCREEN_AT_BOOT_PARAM        If we should invert the screen at boot
-    0x80,               // MINI_OLED_CONTRAST_CURRENT_PARAM     Default contrast current for the mini oled display
-    0xFF,               // MINI_LED_ANIM_MASK_PARAM             LED animation mask
-    FALSE,              // MINI_KNOCK_DETECT_ENABLE_PARAM       Knock detection enable
-    8,                  // MINI_KNOCK_THRES_PARAM               Threshold for knock detection
-    TRUE,               // LOCK_UNLOCK_FEATURE_PARAM            Computer lock/unlock feature
-    FALSE,              // HASH_DISPLAY_FEATURE_PARAM           Display hash when unlocking the card
+    15,                     // SCREEN_SAVER_SPEED_PARAM             Speed of the screen saver
+    TRUE,                   // LUT_BOOT_POPULATING                  Allow credential LUT populating at card insert
+    TRUE,                   // KEY_AFTER_LOGIN_SEND_BOOL_PARAM      Allow key sending after login is manually entered
+    KEY_TAB,                // KEY_AFTER_LOGIN_SEND_PARAM           The key to be sent after login is manually entered
+    FALSE,                  // KEY_AFTER_PASS_SEND_BOOL_PARAM       Allow key sending after password is manually entered
+    KEY_RETURN,             // KEY_AFTER_PASS_SEND_PARAM            The key to be sent after password is manually entered
+    FALSE,                  // DELAY_AFTER_KEY_ENTRY_BOOL_PARAM     Bool to know if we add an extra delay when a character is typed
+    5,                      // DELAY_AFTER_KEY_ENTRY_PARAM          How many ms are added after a key is typed
+    FALSE,                  // INVERTED_SCREEN_AT_BOOT_PARAM        If we should invert the screen at boot
+    0x80,                   // MINI_OLED_CONTRAST_CURRENT_PARAM     Default contrast current for the mini oled display
+    0xFF,                   // MINI_LED_ANIM_MASK_PARAM             LED animation mask
+    FALSE,                  // MINI_KNOCK_DETECT_ENABLE_PARAM       Knock detection enable
+    8,                      // MINI_KNOCK_THRES_PARAM               Threshold for knock detection
+    LF_EN_MASK,             // LOCK_UNLOCK_FEATURE_PARAM            Computer lock/unlock feature: enabled without win-l
+    FALSE,                  // HASH_DISPLAY_FEATURE_PARAM           Display hash when unlocking the card
 };
 
 

@@ -471,7 +471,7 @@ int main(void)
             handleSmartcardRemoved();
 
             /* Lock shortcut, if enabled */
-            if ((mp_lock_unlock_shortcuts != FALSE) && (getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) != FALSE))
+            if ((mp_lock_unlock_shortcuts != FALSE) && ((getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) & LF_WIN_L_SEND_MASK) != 0))
             {
                 usbSendLockShortcut();
                 mp_lock_unlock_shortcuts = FALSE;

@@ -73,7 +73,11 @@ Scroll Back To 'a'
 Hash #1
 Hash #2
 Change Description For:
-RESERVED_5
+Do Not Unplug The Mini!
+RESERVED_6
+RESERVED_7
+RESERVED_8
+RESERVED_9
 Create Credentials
 Edit Credentials
 Renew Credentials

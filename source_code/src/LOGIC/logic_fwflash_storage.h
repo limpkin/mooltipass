@@ -278,46 +278,50 @@
     #define ID_STRING_HASH1             72
     #define ID_STRING_HASH2             73
     #define ID_STRING_CHANGE_DESC_FOR   74
+    #define ID_STRING_DO_NOT_UNPLUG     75
 
 #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* reserved for main firmware branch usage
      * can be removed as they are added above */
-    #define ID_STRING_MGMT_RESERVED5            75
+    #define ID_STRING_MGMT_RESERVED6            76
+    #define ID_STRING_MGMT_RESERVED7            77
+    #define ID_STRING_MGMT_RESERVED8            78
+    #define ID_STRING_MGMT_RESERVED9            79
 
     /* on-device credential management strings */
-    #define ID_STRING_MGMT_CREATE               76
-    #define ID_STRING_MGMT_EDIT                 77
-    #define ID_STRING_MGMT_RENEW                78
-    #define ID_STRING_MGMT_DELETE               79
-    #define ID_STRING_MGMT_TYPE_SVCNAME         80
-    #define ID_STRING_MGMT_TYPE_LOGIN           81
-    #define ID_STRING_MGMT_ENABLE_ALPHA_UPPERQ  82
-    #define ID_STRING_MGMT_ENABLE_ALPHA_LOWERQ  83
-    #define ID_STRING_MGMT_ENABLE_NUMQ          84
-    #define ID_STRING_MGMT_ENABLE_SPECIALSQ     85
-    #define ID_STRING_MGMT_ENABLE_SPACEQ        86
-    #define ID_STRING_MGMT_CHARSET_ALPHA_UPPER  87
-    #define ID_STRING_MGMT_CHARSET_ALPHA_LOWER  88
-    #define ID_STRING_MGMT_CHARSET_NUM          89
-    #define ID_STRING_MGMT_CHARSET_SPECIALS1    90
-    #define ID_STRING_MGMT_CHARSET_SPECIALS2    91
-    #define ID_STRING_MGMT_CHARSET_SPECIALS3    92
-    #define ID_STRING_MGMT_CHARSET_SPECIALS4    93
-    #define ID_STRING_MGMT_ENTER_OLDPASSQ       94
-    #define ID_STRING_MGMT_ENTER_NEWPASSQ       95
-    #define ID_STRING_MGMT_ENTER_NEWPASS_AGAINQ 96
-    #define ID_STRING_MGMT_GENERATE_NEW_PASSQ   97
-    #define ID_STRING_MGMT_EDIT_SVCNAMEQ        98
-    #define ID_STRING_MGMT_EDIT_LOGINQ          99
-    #define ID_STRING_MGMT_EDIT_CHARSETQ        100
-    #define ID_STRING_MGMT_DELETE_CREDSQ        101
-    #define ID_STRING_MGMT_AREYOUSUREQ          102
-    #define ID_STRING_MGMT_OPSUCCESS            103
-    #define ID_STRING_MGMT_OPFAILURE            104
-    #define ID_STRING_MGMT_SAVETOFLASHQ         105
-    #define ID_STRING_MGMT_PASSWORDLENGTHQ      106
-    #define ID_STRING_MGMT_CREATENEWSERVICEQ    107
-    #define ID_STRING_MGMT_NOSERVICEAVAILABLE   108
+    #define ID_STRING_MGMT_CREATE               80
+    #define ID_STRING_MGMT_EDIT                 81
+    #define ID_STRING_MGMT_RENEW                82
+    #define ID_STRING_MGMT_DELETE               83
+    #define ID_STRING_MGMT_TYPE_SVCNAME         84
+    #define ID_STRING_MGMT_TYPE_LOGIN           85
+    #define ID_STRING_MGMT_ENABLE_ALPHA_UPPERQ  86
+    #define ID_STRING_MGMT_ENABLE_ALPHA_LOWERQ  87
+    #define ID_STRING_MGMT_ENABLE_NUMQ          88
+    #define ID_STRING_MGMT_ENABLE_SPECIALSQ     89
+    #define ID_STRING_MGMT_ENABLE_SPACEQ        90
+    #define ID_STRING_MGMT_CHARSET_ALPHA_UPPER  91
+    #define ID_STRING_MGMT_CHARSET_ALPHA_LOWER  92
+    #define ID_STRING_MGMT_CHARSET_NUM          93
+    #define ID_STRING_MGMT_CHARSET_SPECIALS1    94
+    #define ID_STRING_MGMT_CHARSET_SPECIALS2    95
+    #define ID_STRING_MGMT_CHARSET_SPECIALS3    96
+    #define ID_STRING_MGMT_CHARSET_SPECIALS4    97
+    #define ID_STRING_MGMT_ENTER_OLDPASSQ       98
+    #define ID_STRING_MGMT_ENTER_NEWPASSQ       99
+    #define ID_STRING_MGMT_ENTER_NEWPASS_AGAINQ 100
+    #define ID_STRING_MGMT_GENERATE_NEW_PASSQ   101
+    #define ID_STRING_MGMT_EDIT_SVCNAMEQ        102
+    #define ID_STRING_MGMT_EDIT_LOGINQ          103
+    #define ID_STRING_MGMT_EDIT_CHARSETQ        104
+    #define ID_STRING_MGMT_DELETE_CREDSQ        105
+    #define ID_STRING_MGMT_AREYOUSUREQ          106
+    #define ID_STRING_MGMT_OPSUCCESS            107
+    #define ID_STRING_MGMT_OPFAILURE            108
+    #define ID_STRING_MGMT_SAVETOFLASHQ         109
+    #define ID_STRING_MGMT_PASSWORDLENGTHQ      110
+    #define ID_STRING_MGMT_CREATENEWSERVICEQ    111
+    #define ID_STRING_MGMT_NOSERVICEAVAILABLE   112
 
     /* string ID boundaries */
     #define ID_FIRST_STRING             0

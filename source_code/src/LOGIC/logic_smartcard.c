@@ -127,6 +127,13 @@ RET_TYPE handleSmartcardInserted(void)
                         usbKeyboardPress(KEY_RETURN, 0);
                     }
 
+                    /* If enabled, enter login: works because it takes less than 1s */
+                    if ((getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) & LF_LOGIN_MASK) != 0)
+                    {
+                        loginString[NODE_CHILD_SIZE_OF_LOGIN-1] = 0;
+                        usbKeybPutStr((char*)loginString);
+                    }
+
                     /* Fetch the password */
                     if (getPasswordForContext((char*)loginString) == RETURN_OK)
                     {

@@ -1456,6 +1456,22 @@ void usbProcessIncoming(uint8_t caller_id)
             findAvailableUserId(msg->body.data, &plugin_return_value);
             break;
         }
+
+        // lock device if unlocked
+        case CMD_LOCK_DEVICE:
+        {
+            if (getSmartCardInsertedUnlocked() == TRUE)
+            {
+                guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
+                guiGetBackToCurrentScreen();
+                handleSmartcardRemoved();
+            }
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
         
         #ifndef MINI_VERSION
         // Jump to bootloader

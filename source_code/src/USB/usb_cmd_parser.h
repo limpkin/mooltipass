@@ -84,7 +84,8 @@
 #define CMD_GET_USER_CHANGE_NB  0xD6
 #define CMD_GET_FREE_NB_USR_SLT 0xD7
 #define CMD_SET_DESCRIPTION     0xD8
-#define CMD_UNLOCK_WITH_PIN     0xD9
+#define CMD_LOCK_DEVICE         0xD9
+#define CMD_UNLOCK_WITH_PIN     0xDA
 
 
 /* Packet format defines     */

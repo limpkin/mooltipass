@@ -205,6 +205,11 @@ class mooltipass_hid_device:
 		else:
 			print "CPZ: " + ' '.join(hex(x) for x in data[DATA_INDEX:DATA_INDEX+data[LEN_INDEX]])
 		
+	# Lock device
+	def lock(self):
+		self.device.sendHidPacket([0, CMD_LOCK_DEVICE])
+		self.device.receiveHidPacket()
+		
 	# Change description for given login
 	def changeLoginDescription(self):
 		context = raw_input("Context: ")

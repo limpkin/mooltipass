@@ -258,6 +258,12 @@ From plugin/app: Set the description for the current login
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0xD9: Lock Device
+-----------------
+From plugin/app: Lock Mooltipass Device
+
+From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
 Commands in data management mode
 ================================
 

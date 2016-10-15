@@ -335,12 +335,14 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_f
 */
 RET_TYPE cloneSmartCardProcess(volatile uint16_t* pincode)
 {
+    /* 14/10/2016: we now copy the CPZ into the cloned card as well, as there's no need to uniquely identify the cards (and the software solution doesn't handle that case anyway) */
+    
     // Temp buffers to store AZ1 & AZ2
     uint8_t temp_az1[SMARTCARD_AZ_BIT_LENGTH/8];
     uint8_t temp_az2[SMARTCARD_AZ_BIT_LENGTH/8];    
-    uint8_t temp_ctr_val[AES256_CTR_LENGTH];
+    //uint8_t temp_ctr_val[AES256_CTR_LENGTH];
     uint8_t temp_cpz[SMARTCARD_CPZ_LENGTH];
-    uint8_t temp_user_id;
+    //uint8_t temp_user_id;
     
     // Check that the current smart card is unlocked
     if (getSmartCardInsertedUnlocked() != TRUE)
@@ -352,10 +354,10 @@ RET_TYPE cloneSmartCardProcess(volatile uint16_t* pincode)
     readCodeProtectedZone(temp_cpz);
     
     // Retrieve nonce & user id
-    if (getUserIdFromSmartCardCPZ(temp_cpz, temp_ctr_val, &temp_user_id) != RETURN_OK)
+    /*if (getUserIdFromSmartCardCPZ(temp_cpz, temp_ctr_val, &temp_user_id) != RETURN_OK)
     {
         return RETURN_NOK;
-    }
+    }*/
     
     // Extract current AZ1 & AZ2
     readApplicationZone1(temp_az1);
@@ -384,14 +386,12 @@ RET_TYPE cloneSmartCardProcess(volatile uint16_t* pincode)
     eraseApplicationZone1NZone2SMC(FALSE);
     eraseApplicationZone1NZone2SMC(TRUE);
     
-    // Write AZ1 & AZ2
+    // Write AZ1 & AZ2 & CPZ
     writeApplicationZone1(temp_az1);
-    writeApplicationZone2(temp_az2);
-    
-    // 14/10/2016: we now copy the CPZ into the cloned card as well, as there's no need to uniquely identify the cards (and the solution doesn't handle that case)
+    writeApplicationZone2(temp_az2);   
     writeCodeProtectedZone(temp_cpz);
     
-    // So no need to add smart card to our database
+    // No need to add smart card to our database as it is a perfect clone
     //writeSmartCardCPZForUserId(temp_az1, temp_ctr_val, temp_user_id);
     
     // Write new password

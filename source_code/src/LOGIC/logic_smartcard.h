@@ -35,6 +35,7 @@ RET_TYPE cloneSmartCardProcess(volatile uint16_t* pincode);
 RET_TYPE handleSmartcardInserted(void);
 RET_TYPE removeCardAndReAuthUser(void);
 void handleSmartcardRemoved(void);
+void unlockFeatureCheck(void);
 
 
 #endif /* LOGIC_SMARTCARD_H_ */

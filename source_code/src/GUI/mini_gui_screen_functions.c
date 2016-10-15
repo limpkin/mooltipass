@@ -140,6 +140,8 @@ void guiScreenLoop(uint8_t input_interface_result)
         if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (validCardDetectedFunction(0, TRUE) == RETURN_VCARD_OK))
         {
             // User approved his pin
+            unlockFeatureCheck();
+            userViewDelay();
             currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
         }
             

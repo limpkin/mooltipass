@@ -364,6 +364,7 @@ int main(void)
     /* Go to startup screen */
     guiSetCurrentScreen(SCREEN_DEFAULT_NINSERTED);
     guiGetBackToCurrentScreen();
+    activityDetectedRoutine();
     
     /* LED fade-in for standard version & mini v2/3 */
     #if defined(HARDWARE_OLIVIER_V1)

@@ -231,7 +231,7 @@ RET_TYPE guiCardUnlockingProcess(void)
                         guiDisplayInformationOnScreen(ID_STRING_REMOVE_CARD);
                         
                         // Wait for the user to remove his smart card
-                        while (isCardPlugged() != RETURN_JRELEASED);
+                        while(isSmartCardAbsent() != RETURN_OK);
                         
                         return RETURN_NOK;
                     }

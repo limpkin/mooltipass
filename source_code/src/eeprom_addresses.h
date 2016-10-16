@@ -35,7 +35,8 @@
 #define BRICKED_BOOTKEY                     0xCAD0
 #define BOOTLOADER_PWDOK_KEY                0xAB
 #define UID_REQUEST_KEY_OK_KEY              0xBB
-#define USER_RESERVED_SPACE_IN_EEP          34
+#define MASS_PROD_FBOOT_OK_KEY              0xCD
+#define USER_RESERVED_SPACE_IN_EEP          33
 
 // Eeprom size
 #define EEPROM_SIZE                         1024
@@ -55,8 +56,10 @@
 #define EEP_BOOT_PWD                        (EEP_BOOT_PWD_SET + 1)
 // This is the beginning of the zone containing various variables, USER_RESERVED_SPACE_IN_EEP long
 #define EEP_USER_DATA_START_ADDR            (EEP_BOOT_PWD + PACKET_EXPORT_SIZE)
+// This is the address of a boolean used in the mass production run: it is set for the first boot to erase the external flash, reset the Mooltipass parameters, allow media import without confirmation
+#define EEP_MASS_PROD_FBOOT_BOOL_ADDR       (EEP_USER_DATA_START_ADDR + USER_RESERVED_SPACE_IN_EEP)
 // This is the EEPROM address where we start to store user_id <> smart card id & AES nonce matches, one entry is SMCID_UID_MATCH_ENTRY_LENGTH long
-#define EEP_SMC_IC_USER_MATCH_START_ADDR    (EEP_USER_DATA_START_ADDR + USER_RESERVED_SPACE_IN_EEP)
+#define EEP_SMC_IC_USER_MATCH_START_ADDR    (EEP_MASS_PROD_FBOOT_BOOL_ADDR + 1)
 
 // Number of user_id <> smart card id & AES nonce entries is computed in this .h file
 #include "logic_eeprom.h"

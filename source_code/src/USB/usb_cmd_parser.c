@@ -953,6 +953,7 @@ void usbProcessIncoming(uint8_t caller_id)
                     #endif
                 #else
                     /* Security set value */
+                    uint8_t massprod_fboot_val = eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR);
                     uint8_t boot_pwd_set_val = eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET);
 
                     if((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_INVALID) || (boot_pwd_set_val != BOOTLOADER_PWDOK_KEY))
@@ -970,7 +971,7 @@ void usbProcessIncoming(uint8_t caller_id)
                         // TODO: implement sec check !
                         
                         // Allow bundle update if password is not set
-                        if ((boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_DO_NOT_UNPLUG)) == RETURN_OK) && (TRUE == TRUE)))
+                        if ((boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_DO_NOT_UNPLUG)) == RETURN_OK) && (TRUE == TRUE)))
                         {
                             /* Erase screen */
                             miniOledClearFrameBuffer();
@@ -983,8 +984,8 @@ void usbProcessIncoming(uint8_t caller_id)
                             /* Copy firmware version in eeprom */
                             eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
 
-                            /* When security is in place: set jump to bootloader bool, activate timer for reboot */
-                            if(boot_pwd_set_val == BOOTLOADER_PWDOK_KEY)
+                            /* When security is in place and it isn't the first mass production boot: set jump to bootloader bool, activate timer for reboot */
+                            if ((boot_pwd_set_val == BOOTLOADER_PWDOK_KEY) && (massprod_fboot_val != MASS_PROD_FBOOT_OK_KEY))
                             {
                                 eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
                                 activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);                                
@@ -1067,8 +1068,8 @@ void usbProcessIncoming(uint8_t caller_id)
             mediaFlashImportApproved = FALSE;
             
             #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP) && !defined(MINI_CREDENTIAL_MANAGEMENT)
-            // At the end of the import media command if the security is set in place, we start the bootloader
-            if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
+            // At the end of the import media command if the security is set in place and it isn't the first mass production boot, we start the bootloader
+            if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR) != MASS_PROD_FBOOT_OK_KEY))
             {                
                 reboot_platform();
             } 

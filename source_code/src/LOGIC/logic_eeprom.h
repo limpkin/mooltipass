@@ -77,7 +77,7 @@ enum lock_feature_t                         {LF_EN_MASK = 0x01, LF_ENT_KEY_MASK 
 #define LOCK_UNLOCK_FEATURE_PARAM           30
 #define HASH_DISPLAY_FEATURE_PARAM          31
 #define RANDOM_INIT_PIN_PARAM               32
-// ... we can go until 33 ;)
+// we are full.
 #define FIRST_USER_PARAM                    KEYBOARD_LAYOUT_PARAM
 
 /** Prototypes **/

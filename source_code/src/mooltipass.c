@@ -108,16 +108,17 @@ void reboot_platform(void)
 */
 int main(void)
 {
-    uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);   // Fetch boot key from EEPROM
-    #if defined(HARDWARE_OLIVIER_V1)                                                // Only the Mooltipass standard version has a touch panel
-        RET_TYPE touch_init_result;                                                 // Touch initialization result
-    #endif                                                                          //
-    #if defined(MINI_VERSION)                                                       // Dedicated to Mooltipass mini
-        RET_TYPE mini_inputs_result;                                                // Mooltipass mini input initialization result
-    #endif                                                                          //
-    RET_TYPE flash_init_result;                                                     // Flash initialization result
-    RET_TYPE card_detect_ret;                                                       // Card detection result
-    uint8_t fuse_ok = TRUE;                                                         // Fuse check result
+    uint8_t massprod_fboot_val = eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR); // Fetch boot indicating if it's the first boot of a mass produced unit
+    uint16_t current_bootkey_val = eeprom_read_word((uint16_t*)EEP_BOOTKEY_ADDR);           // Fetch boot key from EEPROM
+    #if defined(HARDWARE_OLIVIER_V1)                                                        // Only the Mooltipass standard version has a touch panel
+        RET_TYPE touch_init_result;                                                         // Touch initialization result
+    #endif                                                                                  //
+    #if defined(MINI_VERSION)                                                               // Dedicated to Mooltipass mini
+        RET_TYPE mini_inputs_result;                                                        // Mooltipass mini input initialization result
+    #endif                                                                                  //
+    RET_TYPE flash_init_result;                                                             // Flash initialization result
+    RET_TYPE card_detect_ret;                                                               // Card detection result
+    uint8_t fuse_ok = TRUE;                                                                 // Fuse check result
     
     /********************************************************************/
     /**                     JTAG FUSE ACTIONS                          **/
@@ -201,7 +202,7 @@ int main(void)
     /*                                                                  */
     /* An easy but not often used way to reset the Mooltipass settings  */
     /********************************************************************/
-    if (getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY)
+    if ((getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != USER_PARAM_CORRECT_INIT_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY))
     {
         mooltipassParametersInit();
         setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
@@ -272,7 +273,7 @@ int main(void)
     #endif
     
     /** FIRST BOOT FLASH & EEPROM INITIALIZATIONS **/
-    if (current_bootkey_val != CORRECT_BOOTKEY)
+    if ((current_bootkey_val != CORRECT_BOOTKEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY))
     {        
         chipErase();                            // Erase everything in flash        
         firstTimeUserHandlingInit();            // Erase # of cards and # of users
@@ -291,7 +292,16 @@ int main(void)
         mooltipassStandardFunctionalTest(current_bootkey_val, flash_init_result, touch_init_result, fuse_ok);
     #endif
     #if defined(MINI_VERSION)
-        mooltipassMiniFunctionalTest(current_bootkey_val, flash_init_result, fuse_ok, mini_inputs_result);
+        // Uncomment below to force test procedure
+        /*current_bootkey_val = CORRECT_BOOTKEY + 1;
+        eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
+        setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, 0x00);
+        eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, FALSE);*/
+    
+        if ((current_bootkey_val != CORRECT_BOOTKEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY))
+        {
+            mooltipassMiniFunctionalTest(flash_init_result, fuse_ok, mini_inputs_result);            
+        }
     #endif
     
     /** BOOT STOP IF ERRORS **/

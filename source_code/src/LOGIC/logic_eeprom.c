@@ -74,6 +74,7 @@ static const uint8_t eeprom_param_init[] __attribute__((__progmem__)) =
     8,                      // MINI_KNOCK_THRES_PARAM               Threshold for knock detection
     LF_EN_MASK,             // LOCK_UNLOCK_FEATURE_PARAM            Computer lock/unlock feature: enabled without win-l
     FALSE,                  // HASH_DISPLAY_FEATURE_PARAM           Display hash when unlocking the card
+    FALSE,                  // RANDOM_INIT_PIN_PARAM                Random PIN when card inserted
 };
 
 

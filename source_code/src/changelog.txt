@@ -3,10 +3,11 @@ Todo:
 - bytes in eeprom to set shortcuts?
 
 V1.2:
+- added option to display security hashes to the user before and after card unlock (configurable by settings)
+- adding an "_unlock_" service to enable computer lock/unlock feature (configurable by settings)
+- added function to randomize the PIN displayed upon card insertion (configurable by settings)
 - added a "user db change number" updated upon db changes, to make sync notifications
-- added option to display security hashes to the user before and after card unlock
 - added new command to know how many free slots for new users there are
-- adding an "_unlock_" service to enable computer lock/unlock feature
 - handleSmartcardRemoved() call at the end of user erase routine
 - mini: implemented click + scroll for faster cred. browsing
 - added "SE" to vendor id string, required by USB spec
@@ -15,8 +16,8 @@ V1.2:
 - copying CPZ during card cloning process
 - display flip based on accelerometer
 - USB command to lock the mini
+- get/set description commands
 - back functionality on mini
-- set description command
 
 V1.1:
 - post-indiegogo firmware

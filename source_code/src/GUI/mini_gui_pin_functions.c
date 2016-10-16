@@ -28,11 +28,13 @@
 #include "gui_screen_functions.h"
 #include "gui_basic_functions.h"
 #include "usb_cmd_parser.h"
+#include "logic_eeprom.h"
 #include "mini_inputs.h"
 #include "oledmini.h"
 #include "defines.h"
 #include "delays.h"
 #include "anim.h"
+#include "rng.h"
 #ifdef MINI_VERSION
 
 
@@ -95,8 +97,19 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     uint8_t finished = FALSE;
     uint8_t current_pin[4];
     
-    // Set current pin to 0000
-    memset((void*)current_pin, 0, 4);
+    // Set current pin to 0000 or random
+    if (getMooltipassParameterInEeprom(RANDOM_INIT_PIN_PARAM) == FALSE)
+    {
+        memset((void*)current_pin, 0, 4);
+    } 
+    else
+    {
+        fillArrayWithRandomBytes(current_pin, sizeof(current_pin));
+        for (uint8_t i = 0; i < sizeof(current_pin); i++)
+        {
+            current_pin[i] &= 0x0F;
+        }
+    }
         
     // Clear current detections
     miniWheelClearDetections();

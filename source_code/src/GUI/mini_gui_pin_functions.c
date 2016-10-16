@@ -227,6 +227,12 @@ RET_TYPE guiCardUnlockingProcess(void)
                     guiDisplayInformationOnScreenAndWait(ID_STRING_WRONGPIN1LEFT);
                     if(warning_displayed == FALSE)
                     {
+                        // Inform the user to remove his smart card
+                        guiDisplayInformationOnScreen(ID_STRING_REMOVE_CARD);
+                        
+                        // Wait for the user to remove his smart card
+                        while (isCardPlugged() != RETURN_JRELEASED);
+                        
                         return RETURN_NOK;
                     }
                 }

@@ -1,3 +1,27 @@
+// Detect if we're dealing with Firefox or Chrome
+var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
+// contains already called method names
+var _called = {};
+var background_debug_msg = false;
+
+var mpDebug = {};
+if (background_debug_msg) {
+    mpDebug.log = function( message ) {
+        this.log( message );
+    }
+    mpDebug.log = console.log.bind(window.console);
+    mpDebug.warn = console.warn.bind(window.console);
+    mpDebug.trace = console.trace.bind(window.console);
+    mpDebug.error = console.error.bind(window.console);
+} else {
+    mpDebug.log = function() {}
+    mpDebug.log = function() {}
+    mpDebug.warn = function() {}
+    mpDebug.trace = function() {}
+    mpDebug.error = function() {}
+}
+
 /* Initialize mooltipass lib */
 if (typeof mooltipass == 'undefined') {
     mooltipass = {};

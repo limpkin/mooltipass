@@ -100,7 +100,7 @@ mcCombinations.prototype.possibleCombinations = [
 		scorePerMatch: 50,
 		score: 0,
 		autoSubmit: true,
-		maxfields: 3,
+		maxfields: 2,
 		extraFunction: function( fields ) {
 			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
 			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
@@ -147,6 +147,7 @@ mcCombinations.prototype.possibleCombinations = [
 		scorePerMatch: 33,
 		score: 1,
 		autoSubmit: false,
+		usePasswordGenerator: true,
 		extraFunction: function( fields ) {
 			// We need LOGIN information. Try to retrieve credentials from cache.
 			chrome.runtime.sendMessage({'action': 'cache_retrieve' }, function( r ) {
@@ -187,6 +188,7 @@ mcCombinations.prototype.possibleCombinations = [
 	},
 	{
 		combinationId: 'passwordreset001',
+		usePasswordGenerator: true,
 		combinationName: 'Password Reset without Confirmation',
 		requiredFields: [
 			{
@@ -200,9 +202,11 @@ mcCombinations.prototype.possibleCombinations = [
 		],
 		scorePerMatch: 50,
 		score: 0,
+		maxfields: 2,
 		autoSubmit: false
 	},
 	{
+		usePasswordGenerator: true,
 		combinationId: 'enterpassword',
 		combinationName: 'A password fill-in form',
 		requiredFields: [
@@ -212,8 +216,9 @@ mcCombinations.prototype.possibleCombinations = [
 			}
 		],
 		scorePerMatch: 100,
+		maxfields: 1,
 		score: 0,
-		autoSubmit: true
+		autoSubmit: false
 	}
 ];
 
@@ -268,6 +273,7 @@ mcCombinations.prototype.getFormActionUrl = function( formElement ) {
 */
 mcCombinations.prototype.detectForms = function() {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c detectTypeofForm','background-color: #c3c6b4','color: #333333');
+	var combinations = 0;
 	
 	// Traverse Forms
 	for( form in this.forms ) {
@@ -313,6 +319,7 @@ mcCombinations.prototype.detectForms = function() {
 						// Check current score
 						if ( currentForm.combination.score == 100 ) {
 							this.waitingForPost = true;
+							combinations++;
 							if (this.settings.debugLevel > 3) cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c Combination Match!','background-color: #c3c6b4','color: #800000', currentForm.combination.combinationName );
 							return true;
 						}
@@ -328,6 +335,12 @@ mcCombinations.prototype.detectForms = function() {
 			currentForm.combination = false;
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
 		}
+	}
+
+	// If there are no combinations detected, init the password generator as always
+	if ( combinations == 0 && mcCombs.settings.usePasswordGenerator ) {
+		var inputs = cipFields.getAllFields();
+		cip.initPasswordGenerator(inputs);
 	}
 	return;
 }
@@ -445,16 +458,25 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 * Parses the credentials obtained
 */
 mcCombinations.prototype.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
-	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c retrieveCredentialsCallback','background-color: #c3c6b4','color: #333333');
+	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c retrieveCredentialsCallback','background-color: #c3c6b4','color: #333333', credentials);
 
 	if (!credentials || credentials.length < 1) {
 		if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c retrieveCredentialsCallback returned empty','background-color: #c3c6b4','color: #FF0000');
 		return;
 	}
 
-	if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form','background-color: #c3c6b4','color: #FF0000');
+	// Store retrieved username as a cache
+	chrome.runtime.sendMessage({'action': 'cache_login', 'args': [ credentials[0].Login ] }, function( r ) {
+		var lastError = chrome.runtime.lastError;
+		if (lastError) {
+			if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
+			return;
+		}
+	});
+
 	for( form in this.forms ) {
 		currentForm = this.forms[ form ];
+		if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form','background-color: #c3c6b4','color: #FF0000', currentForm);
 		if ( !currentForm.combination || !currentForm.combination.fields ) continue;
 
 		// Unsure about this restriction. Probably should always make a retrieve credentials call (need to think about it)
@@ -465,16 +487,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials, do
 				currentForm.combination.fields.username.val('');
 				currentForm.combination.fields.username.sendkeys( credentials[0].Login );
 				currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
-				currentForm.combination.savedFields.username.value = credentials[0].Login;	
-
-				// Store retrieved username as a cache
-				chrome.runtime.sendMessage({'action': 'cache_login', 'args': [ credentials[0].Login ] }, function( r ) {
-					var lastError = chrome.runtime.lastError;
-					if (lastError) {
-						if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
-						return;
-					}
-				});
+				currentForm.combination.savedFields.username.value = credentials[0].Login;
 			}
 			
 			if ( credentials[0].Password && currentForm.combination.fields.password ) {
@@ -491,8 +504,19 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials, do
 				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running ExtraFunction for combination','background-color: #c3c6b4','color: #333333');
 				currentForm.combination.extraFunction( currentForm.combination.fields );
 			}
-			if ( currentForm.combination.autoSubmit ) this.doSubmit( currentForm );
-			return;
+
+			if ( currentForm.combination.usePasswordGenerator && mcCombs.settings.usePasswordGenerator ) {
+				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running Password generator for combination','background-color: #c3c6b4','color: #333333');
+				var inputs = cipFields.getAllFields();
+				cip.initPasswordGenerator(inputs);
+			}
+			if ( currentForm.combination.autoSubmit ) {
+				this.doSubmit( currentForm );
+
+				// Stop processing forms if we're going to submit
+				// TODO: Weight the importance of each form and submit the most important, not the first!
+				return;
+			}
 		}
 	}
 }
@@ -558,30 +582,49 @@ mcCombinations.prototype.postDetected = function( details ) {
 		// Loop throught the forms and check if we've got a match
 		for( form in this.forms ) {
 			currentForm = this.forms[ form ];
-			if ( currentForm.combination ) {
-				currentCombination = currentForm.combination;
+			if ( currentForm.combination && currentForm.combination.savedFields ) {
+				var currentCombination = currentForm.combination;
+				var sent = details.requestBody?details.requestBody:details;
+				var storedUsernameValue = false, usernameValue = false;
+				var storedPasswordValue = false, passwordValue = false;
 
-				// Use the right field attribute
-				var attrUsername = 'name';
-				var attrPassword = 'name';
-				if ( currentCombination.savedFields.username.submitPropertyName ) {
-					attrUsername = currentCombination.savedFields.username.submitPropertyName;
+				// Username parsing
+				if ( currentCombination.savedFields.username ) {
+					if ( typeof currentCombination.savedFields.username == 'string') {
+						usernameValue = currentCombination.savedFields.username;
+						storedUsernameValue = currentCombination.savedFields.username;
+					} else {
+						var attrUsername = 'name';
+						if ( currentCombination.savedFields.username.submitPropertyName ) {
+							attrUsername = currentCombination.savedFields.username.submitPropertyName;
+						}
+
+						if ( sent.formData ) { // Form sent FORM DATA
+							usernameValue = sent.formData[ currentCombination.fields.username.attr( attrUsername ) ];
+						} else { // Client sent a RAW request.
+							usernameValue = sent[ currentCombination.fields.username.attr( attrUsername ) ];
+						}
+
+						storedUsernameValue = currentCombination.savedFields.username.value;
+					}
+					
 				}
+				
+				// Password parsing
+				if ( currentCombination.savedFields.password ) {
+					var attrPassword = 'name';
+					if ( currentCombination.savedFields.password.submitPropertyName ) {
+						var attrPassword = currentCombination.savedFields.password.submitPropertyName;	
+					}
 
-				if ( currentCombination.savedFields.password.submitPropertyName ) {
-					var attrPassword = currentCombination.savedFields.password.submitPropertyName;	
+					if ( sent.formData ) { // Form sent FORM DATA
+						passwordValue = sent.formData[ currentCombination.fields.password.attr( attrPassword ) ];
+					} else { // Client sent a RAW request.
+						passwordValue = sent[ currentCombination.fields.password.attr( attrPassword ) ];
+					}
+
+					storedPasswordValue = currentCombination.savedFields.password.value;
 				}
-
-				if ( details.requestBody ) { // Form sent FORM DATA
-					var usernameValue = details.requestBody.formData[ currentCombination.fields.username.attr( attrUsername ) ];
-					var passwordValue = details.requestBody.formData[ currentCombination.fields.password.attr( attrPassword ) ];
-				} else { // Client sent a RAW request.
-					var usernameValue = details[ currentCombination.fields.username.attr( attrUsername ) ];
-					var passwordValue = details[ currentCombination.fields.password.attr( attrPassword ) ];
-				}
-
-				var storedUsernameValue = currentCombination.savedFields.username.value;
-				var storedPasswordValue = currentCombination.savedFields.password.value;
 
 				if (this.settings.debugLevel > 3) {
 					cipDebug.log('%c mcCombinations: %c postDetected - Stored: ', 'background-color: #c3c6b4','color: #333333', storedUsernameValue, storedPasswordValue);

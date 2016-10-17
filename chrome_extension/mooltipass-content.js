@@ -4,7 +4,7 @@ var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 // contains already called method names
 var _called = {};
-var content_debug_msg = 5;
+var content_debug_msg = false;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -40,7 +40,7 @@ cipPassword.observedIcons = [];
 cipPassword.observingLock = false;
 
 cipPassword.init = function() {
-	console.log('cipPassword.init');
+	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c init','background-color: #ff8e1b','color: #333333');
 	if("initPasswordGenerator" in _called) {
 		return;
 	}
@@ -53,7 +53,7 @@ cipPassword.init = function() {
 }
 
 cipPassword.initField = function(field, inputs, pos) {
-	cipDebug.log("init pw field");
+	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c initField','background-color: #ff8e1b','color: #333333', field);
 	if(!field || field.length != 1) {
 		return;
 	}
@@ -71,8 +71,6 @@ cipPassword.initField = function(field, inputs, pos) {
 	if ( field.prop('tabindex') == -1) {
 		return;
 	}
-
-	console.log( field, field.prop('tabindex') );
 
 	field.data("mp-password-generator", true);
 
@@ -206,7 +204,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
 
 cipPassword.createIcon = function(field) {
-	console.log('Create Icon');
+	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c createIcon','background-color: #ff8e1b','color: #333333', field);
 	var $className = (field.outerHeight() > 28) ? "mp-icon-key-big" : "mp-icon-key-small";
 	var $size = (field.outerHeight() > 28) ? 24 : 16;
 	var $offset = Math.floor((field.outerHeight() - $size) / 3);
@@ -1362,12 +1360,15 @@ cip.initCredentialFields = function(forceCall) {
 } // end function init
 
 cip.initPasswordGenerator = function(inputs) {
+	if (content_debug_msg > 4) cipDebug.log('%c cip: %c initPasswordGenerator','background-color: #b78e1b','color: #333333');
 	if(mcCombs.settings.usePasswordGenerator) {
 		cipPassword.init();
 
 		for(var i = 0; i < inputs.length; i++) {
 			if(inputs[i] && inputs[i].attr("type") && inputs[i].attr("type").toLowerCase() == "password") {
-				cipPassword.initField(inputs[i], inputs, i);
+				if ( !mpJQ(inputs[i]).hasClass('mooltipass-password-do-not-update') ) {
+					cipPassword.initField(inputs[i], inputs, i);	
+				}
 			}
 		}
 	}
@@ -2081,8 +2082,8 @@ chrome.runtime.sendMessage({'action': 'content_script_loaded' }, function(r) {
 	} else {
 		mcCombs.init( function() {
 			cip.settings = mcCombs.settings;
-			var inputs = cipFields.getAllFields();
-			cip.initPasswordGenerator(inputs);
+			//var inputs = cipFields.getAllFields();
+			//cip.initPasswordGenerator(inputs);
 		});
 	}
 });

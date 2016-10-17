@@ -6,7 +6,7 @@ var mooltipassEvent = {};
 var event = mooltipassEvent;
 
 mooltipassEvent.onMessage = function(request, sender, callback) {
-	console.log("onMessage(" + request.action + ")", request);
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onMessage ' + request.action,'background-color: #e2eef9','color: #246', arguments);
 
 	if (request.action == 'content_script_loaded') {
 		console.log('setting allLoaded to true ');
@@ -336,9 +336,8 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	return true;
 }
 
-mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) 
-{
-	// Don't show notifications right now
+mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) {
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onUpdateNotify','background-color: #e2eef9','color: #246', arguments);
 
 	// Parse URL
 	var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);

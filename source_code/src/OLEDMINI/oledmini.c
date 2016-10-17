@@ -714,7 +714,16 @@ void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs)
             if (page == end_page)
             {
                 cur_pixels = miniBistreamGetNextByte(bs);
-                miniOledFrameBuffer[buffer_shift+x] &= rbitmask[data_rbitshift];
+                // Special case if we are only writing to a single page:
+                // Also keep the bits above(LSB) the pixels we write not only the one below.
+                if(end_page == start_page)
+                {
+                    miniOledFrameBuffer[buffer_shift+x] &= rbitmask[data_rbitshift] | ~rbitmask[data_rbitshift + pixels_to_be_displayed];
+                }
+                else
+                {
+                    miniOledFrameBuffer[buffer_shift+x] &= rbitmask[data_rbitshift];
+                }
                 miniOledFrameBuffer[buffer_shift+x] |= cur_pixels >> data_rbitshift;
                 pixels_to_be_displayed -= (8 - data_rbitshift);
             }

@@ -461,6 +461,19 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
     }
 }
 
+/*! \fn     upper(char c)
+*   \brief  Simple function to convert characters to upper case
+*   \param  c Input character to convert
+*   \return   Output character in upper case
+*/
+static char upper(char c){
+    if( c >= 'a' && c <= 'z')
+    {
+        return (c = c +'A' - 'a');
+    }
+    return c;
+}
+
 /*! \fn     loginSelectionScreen(void)
 *   \brief  Screen displayed to let the user choose/find a login
 *   \return Valid parent node address or 0 otherwise
@@ -569,9 +582,9 @@ uint16_t loginSelectionScreen(void)
 
             // Display first letters
             getPreviousNextFirstLetterForGivenLetter(current_fchar, fchar_array, prev_next_fletter_parents_addr);
-            displayCenteredCharAtPosition(fchar_array[0], 5, 1, FONT_8BIT16);
-            displayCenteredCharAtPosition(fchar_array[1], 5, 6, FONT_PROFONT_14);
-            displayCenteredCharAtPosition(fchar_array[2], 5, 26, FONT_8BIT16);
+            displayCenteredCharAtPosition(upper(fchar_array[0]), 5, 1, FONT_8BIT16);
+            displayCenteredCharAtPosition(upper(fchar_array[1]), 5, 6, FONT_PROFONT_14);
+            displayCenteredCharAtPosition(upper(fchar_array[2]), 5, 26, FONT_8BIT16);
             miniOledFlushEntireBufferToDisplay();
             string_refresh_needed = FALSE;
             miniOledSetMinTextY(0);

@@ -125,8 +125,16 @@ RET_TYPE handleSmartcardInserted(void)
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLANK)
     {
+        // Check if we have one more user slot available before we promt for a new pin
+        uint8_t userid, users_free;
+        if(findAvailableUserId(&userid, &users_free) != RETURN_OK)
+        {
+            // "No more free user slot!"
+            guiDisplayInformationOnScreen(ID_STRING_USER_NFREE);
+        }
+
         // This is a user free card, we can ask the user to create a new user inside the Mooltipass
-        if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_NEWMP_USER)) == RETURN_OK)
+        else if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_NEWMP_USER)) == RETURN_OK)
         {
             volatile uint16_t pin_code;
             

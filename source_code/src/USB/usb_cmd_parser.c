@@ -1371,6 +1371,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }      
    
         // Set Mooltipass UID
+        #ifndef DISABLE_PASSWORD_SET_FUNCTIONS
         case CMD_SET_UID :
         {
             #ifdef MINI_VERSION            
@@ -1403,6 +1404,7 @@ void usbProcessIncoming(uint8_t caller_id)
             #endif
             break;
         }
+        #endif
         
         // Get Mooltipass UID
         case CMD_GET_UID :
@@ -1431,6 +1433,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }       
         
         // set password bootkey
+        #ifndef DISABLE_PASSWORD_SET_FUNCTIONS
         case CMD_SET_BOOTLOADER_PWD :
         {
             if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))
@@ -1449,6 +1452,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
 
         // get number of free slots for new users
         case CMD_GET_FREE_NB_USR_SLT:

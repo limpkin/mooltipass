@@ -168,6 +168,7 @@
     #define DATA_STORAGE_EN
     //#define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_PASSWORD_SET_FUNCTIONS
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(MINI_KICKSTARTER_SETUP)
     #define STACK_DEBUG
@@ -175,6 +176,7 @@
     #define FLASH_CHIP_4M
     #define DATA_STORAGE_EN
     #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_PASSWORD_SET_FUNCTIONS
     #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #endif
 
@@ -239,6 +241,10 @@
 /************** SMARTCARD FORMATING **************/
 // Comment to prevent mooltipass card formatting (for production)
 //#define ENABLE_MOOLTIPASS_CARD_FORMATTING
+
+/************** SET PASSWORD FUNCTIONS **************/
+// Uncomment to remove set password functions (for mass production)
+//#define DISABLE_PASSWORD_SET_FUNCTIONS
 
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER

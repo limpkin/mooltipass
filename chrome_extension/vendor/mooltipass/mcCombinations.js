@@ -338,7 +338,7 @@ mcCombinations.prototype.detectForms = function() {
 	}
 
 	// If there are no combinations detected, init the password generator as always
-	if ( combinations == 0 && mcCombs.settings.usePasswordGenerator ) {
+	if ( mcCombs.settings.usePasswordGenerator ) {
 		var inputs = cipFields.getAllFields();
 		cip.initPasswordGenerator(inputs);
 	}

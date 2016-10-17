@@ -77,7 +77,12 @@ mcCombinations.prototype.possibleCombinations = [
 		],
 		scorePerMatch: 50,
 		score: 0,
-		maxfields: 3
+		maxfields: 3,
+		extraFunction: function( fields ) {
+			setTimeout( function() {
+				mpJQ('#sign-in, .btn-submit').click();
+			},500);
+		}
 	},
 	{
 		combinationId: 'loginform001',
@@ -98,7 +103,7 @@ mcCombinations.prototype.possibleCombinations = [
 		maxfields: 3,
 		extraFunction: function( fields ) {
 			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
-			if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
 		}
 	},
 	{
@@ -117,10 +122,67 @@ mcCombinations.prototype.possibleCombinations = [
 		scorePerMatch: 50,
 		score: 0,
 		autoSubmit: true,
-		maxfields: 4,
+		maxfields: 2,
 		extraFunction: function( fields ) {
 			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
-			if ( fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+		}
+	},
+	{
+		combinationId: 'passwordreset002',
+		combinationName: 'Password Reset with Confirmation',
+		combinationDescription: 'Searches for 3 password fields in the form, retrieves password for the first one, stores the value from the second',
+		requiredFields: [
+			{
+				selector: 'input[type=password]:eq(0)',
+				mapsTo: 'password'
+			},
+			{
+				selector: 'input[type=password]:eq(1)',
+			},
+			{
+				selector: 'input[type=password]:eq(2)'
+			},
+		],
+		scorePerMatch: 33,
+		score: 1,
+		autoSubmit: false,
+		extraFunction: function( fields ) {
+			// We need LOGIN information. Try to retrieve credentials from cache.
+			chrome.runtime.sendMessage({'action': 'cache_retrieve' }, function( r ) {
+				if (mcCombs.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Extra function, retrieve cache','background-color: #c3c6b4','color: #800000', r );
+				var lastError = chrome.runtime.lastError;
+				if (lastError) {
+					if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
+					return;
+				} else {
+					if ( r.Login ) { // We got a login!
+						this.savedFields.username = r.Login;
+						this.fields.username = r.Login;
+					} else { // No login information. Just ask the user.
+						var currentForm = this.fields.password.parents('form');
+						var url = document.location.origin;
+						var submitUrl = currentForm?mcCombs.getFormActionUrl( currentForm ):url;
+						chrome.runtime.sendMessage({
+							'action': 'retrieve_credentials',
+							'args': [ url, submitUrl, true, true]
+						}, $.proxy(function( response ) {
+							if ( response[0] && response[0].Login ) {
+								this.savedFields.username = response[0].Login;
+								this.fields.username = response[0].Login;	
+							}
+						},this));
+					}
+				}
+
+				// We also change the password field for the next one (as we retrieve in the first field, but store the value from the second!)
+				this.fields.password = this.fields.password.parents('form').find("input[type='password']:not('.mooltipass-password-do-not-update')");
+			}.bind(this));	
+	
+			for( field in fields ) {
+				fields[field].addClass('mooltipass-password-do-not-update');	
+			}
+			
 		}
 	},
 	{
@@ -137,25 +199,6 @@ mcCombinations.prototype.possibleCombinations = [
 			},
 		],
 		scorePerMatch: 50,
-		score: 0,
-		autoSubmit: false
-	},
-	{
-		combinationId: 'passwordreset002',
-		combinationName: 'Password Reset with Confirmation',
-		requiredFields: [
-			{
-				selector: 'input[type=password]',
-				mapsTo: 'password'
-			},
-			{
-				selector: 'input[type=password]'
-			},
-			{
-				selector: 'input[type=password]'
-			},
-		],
-		scorePerMatch: 25,
 		score: 0,
 		autoSubmit: false
 	},
@@ -351,11 +394,11 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	// Check if there's a difference between what we retrieved and what is being submitted
 	var currentForm = this.forms[ $(event.target).data('mp-id') ];
 
-	var storedUsernameValue = currentForm.combination.savedFields.username?currentForm.combination.savedFields.username.value:'';
-	var storedPasswordValue = currentForm.combination.savedFields.password?currentForm.combination.savedFields.password.value:'';
+	var storedUsernameValue = this.parseElement( currentForm.combination.savedFields.username, 'value');
+	var storedPasswordValue = this.parseElement( currentForm.combination.savedFields.password, 'value');
 
-	var submittedUsernameValue = currentForm.combination.fields.username.val();
-	var submittedPasswordValue = currentForm.combination.fields.password.val();
+	var submittedUsernameValue = this.parseElement( currentForm.combination.fields.username, 'value');
+	var submittedPasswordValue = this.parseElement( currentForm.combination.fields.password, 'value');
 
 	if ( storedUsernameValue != submittedUsernameValue || storedPasswordValue != submittedPasswordValue ) { // Only save when they differ
 		cip.rememberCredentials( event, 'unused', submittedUsernameValue, 'unused', submittedPasswordValue);
@@ -423,6 +466,15 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials, do
 				currentForm.combination.fields.username.sendkeys( credentials[0].Login );
 				currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
 				currentForm.combination.savedFields.username.value = credentials[0].Login;	
+
+				// Store retrieved username as a cache
+				chrome.runtime.sendMessage({'action': 'cache_login', 'args': [ credentials[0].Login ] }, function( r ) {
+					var lastError = chrome.runtime.lastError;
+					if (lastError) {
+						if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
+						return;
+					}
+				});
 			}
 			
 			if ( credentials[0].Password && currentForm.combination.fields.password ) {
@@ -434,7 +486,12 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials, do
 				currentForm.combination.savedFields.password.value = credentials[0].Password;	
 			}
 
-			this.doSubmit( currentForm );
+
+			if ( currentForm.combination.extraFunction ) {
+				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running ExtraFunction for combination','background-color: #c3c6b4','color: #333333');
+				currentForm.combination.extraFunction( currentForm.combination.fields );
+			}
+			if ( currentForm.combination.autoSubmit ) this.doSubmit( currentForm );
 			return;
 		}
 	}
@@ -465,6 +522,32 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
     }
 }
 
+
+/*
+* Parses an element and data and tries to retrieve value from it.
+* Element: String or DOM Object, or jQuery Object containing a reference to the element. If string is given , it is used as the value.
+* Data: Object containing the data to retrieve from
+*/
+mcCombinations.prototype.parseElement = function( element, data ) {
+	if ( !element ) { // Just a false call
+		return false;
+	}
+	
+	// If it is a string, we stored the value, so return it.
+	if ( typeof( element ) == 'string' ) return element;
+
+	var attribute = 'name';
+	if ( typeof ( element.submitPropertyName) != 'undefined' ) attribute = element.submitPropertyName;
+
+	// We're searching for a property of the element
+	if ( typeof ( data ) == 'string' ) {
+		if ( data == 'value' && typeof( element.val ) == 'function' ) return element.val();
+		return element[ data ];
+	}
+
+	// Fallback to standard:  data [ element.attribute ]
+	return element?data[ element.attr( attribute ) ]:false;
+}
 /*
 * When a POST request is detected, we check it in case there's our info
 */

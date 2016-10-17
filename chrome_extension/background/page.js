@@ -75,6 +75,20 @@ page.initSettings = function() {
     }
 }
 
+/*
+* Store previously used logins
+*/
+page.cacheLogin = function( callback, tab, arguments ) {
+	page.tabs[ tab.id ].loginList = {'Login': arguments };
+}
+
+/*
+* Retrieve cached login information
+*/
+page.cacheRetrieve = function( callback, tab, arguments ) {
+	callback( page.tabs[ tab.id ].loginList );
+}
+
 page.initOpenedTabs = function() {
 	chrome.tabs.query({}, function(tabs) {
 		for(var i = 0; i < tabs.length; i++) {

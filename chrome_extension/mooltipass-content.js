@@ -4,7 +4,7 @@ var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 // contains already called method names
 var _called = {};
-var content_debug_msg = false;
+var content_debug_msg = 5;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -153,8 +153,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
 	$("#mooltipass-use-as-password").click(function(e){
 		var password = $("#mooltipass-password-generator").val();
-		$("input[type='password']").val(password);
-
+		$("input[type='password']:not('.mooltipass-password-do-not-update')").val(password);
 		e.preventDefault();
 	});
 
@@ -179,16 +178,16 @@ cipPassword.createDialog = function(inputs, $pwField) {
 	$userField = cipFields.getUsernameField($pwField.data("mp-id"));
 
 	$("#mooltipass-store-credentials").hover(function(){
-		$userField.addClass("mp-hover-username");
+		if ( $userField ) $userField.addClass("mp-hover-username");
 		$pwField.addClass("mp-hover-password");
 	}, function(){
-		$userField.removeClass("mp-hover-username");
+		if ( $userField ) $userField.removeClass("mp-hover-username");
 		$pwField.removeClass("mp-hover-password");
 	})
 	.click(function(){
 		var url = (document.URL.split("://")[1]).split("/")[0];
 		$userField.removeClass("mp-hover-username");
-		$pwField.removeClass("mp-hover-password");        
+		$pwField.removeClass("mp-hover-password");
 		var username = $userField.val();
 		var password = $pwField.val();
 

@@ -118,6 +118,7 @@ mooltipassEvent.onGetSettings = function(callback, tab) {
 	mooltipassEvent.onLoadSettings();
 	var settings = page.settings;
 	settings.status = mooltipass.device._status;
+	settings.tabId = tab.id;
 	callback({ data: settings });
 }
 
@@ -228,9 +229,6 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	if(typeof mooltipass.device._status.state == 'undefined'){
 		return false;
 	}
-
-	// Don't show notifications right now
-	console.log(mooltipass.device._status.state);
 
 	// If the device is not connected and not unlocked and the user disabled the notifications, return
 	if (mooltipass.device._status.state != 'Unlocked')
@@ -525,4 +523,6 @@ mooltipassEvent.messageHandlers = {
 	'stack_add': browserAction.stackAdd,
 	'generate_password': mooltipass.device.generatePassword,
     'set_current_tab': page.setCurrentTab,
+    'cache_login': page.cacheLogin,
+    'cache_retrieve': page.cacheRetrieve
 };

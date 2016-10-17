@@ -36,6 +36,7 @@ sudo is not recommended as it is dangerous and can cause serious problems.**
 ```
 sudo apt-get install python python-pip python-crypto python-dev libgmp3-dev build-essential
 pip install -r requirements.txt
+mkdir -p export
 ./mooltipass_tool.py (when udev rules are installed)
 sudo ./mooltipass_tool.py (when no udev rules are installed)
 ```
@@ -55,6 +56,12 @@ python2-pyusb python2-intelhex python2-pyqrcode
 pip install seccure
 ```
 
+Running the program:
+```
+mkdir -p export
+./mooltipass_tool.py
+```
+
 ### Other Linux Distributions
 
 Install `python2` and `pip` for you linux distribution.
@@ -63,5 +70,6 @@ Then install all dependencies via pip:
 
 ```
 pip install -r requirements.txt
+mkdir -p export
 ./mooltipass_tool.py
 ```

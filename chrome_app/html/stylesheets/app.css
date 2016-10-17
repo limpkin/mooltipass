@@ -10111,30 +10111,38 @@ input.inline {
   margin: 0;
 }
 /* line 362, ../scss/app.scss */
+#page-experts #settings-lockUnlock {
+  display: inline;
+  width: 225px;
+  margin-right: 8px;
+  margin-left: 8px;
+  margin-bottom: 8px;
+}
+/* line 370, ../scss/app.scss */
 #page-experts #experts-uid-response {
   margin-left: 0.6rem;
   font-size: 0.9rem;
 }
-/* line 366, ../scss/app.scss */
+/* line 374, ../scss/app.scss */
 #page-experts #experts-uid-response.alert {
   color: #f04124 !important;
 }
-/* line 370, ../scss/app.scss */
+/* line 378, ../scss/app.scss */
 #page-experts #experts-uid-response.success {
   color: #43AC6A !important;
 }
 
-/* line 377, ../scss/app.scss */
+/* line 385, ../scss/app.scss */
 #page-developers #resetCardCheckbox {
   margin-right: 5px;
 }
 
-/* line 383, ../scss/app.scss */
+/* line 391, ../scss/app.scss */
 button:focus, .button:focus {
   outline: none;
 }
 
-/* line 388, ../scss/app.scss */
+/* line 396, ../scss/app.scss */
 #splash-screen {
   transition: opacity ease 800ms;
   background: white;
@@ -10143,24 +10151,24 @@ button:focus, .button:focus {
   position: absolute;
   z-index: 1000;
 }
-/* line 396, ../scss/app.scss */
+/* line 404, ../scss/app.scss */
 #splash-screen .row {
   width: 20rem;
   margin-top: 13rem;
   margin-left: 13rem;
 }
-/* line 402, ../scss/app.scss */
+/* line 410, ../scss/app.scss */
 #splash-screen i {
   margin-top: 0.3rem;
   font-size: 3.5rem;
   color: #60B1C7;
 }
 
-/* line 410, ../scss/app.scss */
+/* line 418, ../scss/app.scss */
 nav li {
   position: relative;
 }
-/* line 413, ../scss/app.scss */
+/* line 421, ../scss/app.scss */
 nav li .lock {
   background: transparent;
   width: 100%;
@@ -10172,18 +10180,18 @@ nav li .lock {
   cursor: not-allowed;
 }
 
-/* line 426, ../scss/app.scss */
+/* line 434, ../scss/app.scss */
 .tooltipster-base {
   border: 0;
   border-radius: 0;
 }
-/* line 430, ../scss/app.scss */
+/* line 438, ../scss/app.scss */
 .tooltipster-base .tooltipster-content {
   font-size: 0.8rem;
   font-family: inherit;
 }
 
-/* line 436, ../scss/app.scss */
+/* line 444, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
 }

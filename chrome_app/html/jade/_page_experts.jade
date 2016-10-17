@@ -30,3 +30,23 @@
             .column.small-9
                 p Import your credentials from a CSV file. The CSV file should have 3 columns: website,login,password
                 button.small#experts-import-csv-file Import from CSV file
+        .row.margin-bottom                
+            .column.small-3
+              h3 Advanced Settings
+            .column.small-9
+              .show-if-mini-version
+                label
+                  input(type="checkbox", name="hashDisplay", id="settings-hashDisplay")
+                  | &nbsp; Hash Display Feature
+                label
+                  input(type="checkbox", name="randomPin", id="settings-randomPin")
+                  | &nbsp; Random Starting Pin
+                label Lock Unlock Feature: 
+                  select(name="lockUnlock", id="settings-lockUnlock")
+                    option(value="0") Disabled
+                    option(value="1") Password Only
+                    option(value="5") Login and Password
+                    option(value="3") Enter + Password
+                    option(value="9") Password + Win L
+                    option(value="13") Login, Pass, Win L
+                    option(value="11") Enter, Pass, Win L

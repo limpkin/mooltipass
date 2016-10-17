@@ -107,7 +107,9 @@ mooltipass.device.parameters = {
     'ledAnimMask': 27,
     'knockDetectEnable': 28,
     'knockDetectThres': 29,
-	'hashDisplayEnable': 31
+    'lockUnlock': 30,
+	'hashDisplayEnable': 31,
+    'randomPin':32
 };
 
 mooltipass.device.status_parameters = {

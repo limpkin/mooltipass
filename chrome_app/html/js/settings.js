@@ -733,6 +733,117 @@ mooltipass.ui.settings.initTutorialEnabled = function() {
     });
 };
 
+mooltipass.ui.settings.getRandomPin = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'randomPin',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-randomPin').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-randomPin'), _response.msg);
+            }
+        }
+    });
+};
+
+mooltipass.ui.settings.initRandomPin = function() {
+    $('#settings-randomPin').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'randomPin',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-randomPin');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Random Pin ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
+                }
+            }
+        });
+    });
+};
+
+mooltipass.ui.settings.getHashDisplayEnable = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'hashDisplayEnable',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-hashDisplay').prop('checked', Boolean(Number(_response.value)));
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-hashDisplay'), _response.msg);
+            }
+        }
+    });
+};
+
+mooltipass.ui.settings.initHashDisplayEnable = function() {
+    $('#settings-hashDisplay').change(function() {
+        $(this).data('old-value', $(this).prop('checked'));
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'hashDisplayEnable',
+            'value': Number($(this).prop('checked')),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-hashDisplay');
+                var enabledDisabled = ($field.prop('checked')) ? 'enabled' : 'disabled';
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Hash Display ' + enabledDisabled);
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.prop('checked', $field.data('old-value'));
+                }
+            }
+        });
+    });
+};
+
+mooltipass.ui.settings.initLockUnlock = function() {
+    $('#settings-lockUnlock').change(function() {
+        $(this).data('old-value', $(this).val());
+        mooltipass.device.interface.send({
+            'command': 'setMooltipassParameter',
+            'parameter': 'lockUnlock',
+            'value': parseInt($(this).val()),
+            'callbackFunction': function(_response) {
+                var $field = $('#settings-lockUnlock');
+                if(_response.success) {
+                    mooltipass.ui.status.success($field, 'Parameters changed');
+                }
+                else {
+                    mooltipass.ui.status.error($field, _response.msg);
+                    $field.val($field.data('old-value'));
+                }
+            },
+            'callbackParameters': null
+        });
+    });
+};
+
+mooltipass.ui.settings.getLockUnlock = function() {
+    mooltipass.device.interface.send({
+        'command': 'getMooltipassParameter',
+        'parameter': 'lockUnlock',
+        'callbackFunction': function(_response) {
+            if(_response.success) {
+                $('#settings-lockUnlock').val(_response.value);
+            }
+            else {
+                mooltipass.ui.status.error($('#settings-lockUnlock'), _response.msg);
+            }
+        }
+    });
+};
+
 mooltipass.ui.settings.getFirmwareVersion = function() {
     mooltipass.device.interface.send({
         'command': 'getVersion',
@@ -802,6 +913,9 @@ mooltipass.ui.settings.getSettings = function() {
     mooltipass.ui.settings.getScreenBrightness();
     mooltipass.ui.settings.getKnockEnabled();
     mooltipass.ui.settings.getKnockSensitivity();
+    mooltipass.ui.settings.getRandomPin();
+    mooltipass.ui.settings.getHashDisplayEnable();
+    mooltipass.ui.settings.getLockUnlock();
 }
 
 
@@ -830,4 +944,7 @@ mooltipass.ui.settings.init = function() {
     mooltipass.ui.settings.initScreenBrightness();
     mooltipass.ui.settings.initKnockEnabled();
     mooltipass.ui.settings.initKnockSensitivity();
+    mooltipass.ui.settings.initRandomPin();
+    mooltipass.ui.settings.initHashDisplayEnable();
+    mooltipass.ui.settings.initLockUnlock();
 };

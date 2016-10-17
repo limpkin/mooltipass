@@ -201,7 +201,7 @@ moolticute._ws.onmessage = function(ev, delayed) {
         default:
             console.warn('Unknown message: ', recvMsg.msg, recvMsg );
     }
-
+    
     mooltipass.device.messageListener( wrapped );
     return;
 }

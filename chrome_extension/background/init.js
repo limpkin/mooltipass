@@ -89,7 +89,7 @@ if ( isFirefox && typeof( Symbol.hasInstance ) == 'undefined' ) var webRequestOp
 else var webRequestOptions = ['blocking','requestBody'];
 
 chrome.webRequest.onBeforeRequest.addListener( function (details) {
-	console.log('Post intercepted:', details );
+	if (background_debug_msg > 4) mpDebug.log('%c init: onBeforeRequest - Post Interception','background-color: #4CAF50; color: #FFF', details);
 
 	// Test for captcha calls (we don't want to submit if there's a captcha)
 	var b = new RegExp('recaptcha');
@@ -208,7 +208,13 @@ var arrayBufferToData = {
 	},
 	toString: function (arrayBuffer) {
 		var base64 = this.toBase64(arrayBuffer);
-		return decodeURIComponent(escape(window.atob(base64)));
+		try {
+			var decoded = decodeURIComponent(escape(window.atob(base64)));	
+		} catch( e ) {
+			if (background_debug_msg != false) mpDebug.error( e, window.atob(base64) );
+			var decoded = false;
+		}
+		return decoded;
 	},
 	toJSON: function (arrayBuffer) {
 		try {

@@ -77,7 +77,7 @@ uint8_t miniOledXOffset = SSD1305_X_OFFSET;
 
 // OLED initialization sequence
 #define OLEDMINI_ALT_INIT_CODE
-static const uint8_t mini_oled_init[] __attribute__((__progmem__)) = 
+static const uint8_t mini_oled_init[] __attribute__((__progmem__)) =
 {
     1,  SSD1305_CMD_DISPLAY_OFF,                                        // Display Off
     #ifndef OLEDMINI_ALT_INIT_CODE
@@ -90,7 +90,7 @@ static const uint8_t mini_oled_init[] __attribute__((__progmem__)) =
     1,  SSD1305_CMD_SET_DISPLAY_START_LINE,                             // Display start line 0
     2,  SSD1305_CMD_SET_MASTER_CONFIGURATION,   0x8E,                   // Select external Vcc supply
     2,  SSD1305_CMD_SET_AREA_COLOR_MODE,        0x05,                   // Set low power display mode
-    1,  SSD1305_CMD_SET_SEGMENT_REMAP_COL_131,                          // Column address 131 is mapped to SEG0 
+    1,  SSD1305_CMD_SET_SEGMENT_REMAP_COL_131,                          // Column address 131 is mapped to SEG0
     1,  SSD1305_CMD_COM_OUTPUT_REVERSED,                                // Remapped mode. Scan from COM[N~1] to COM0
     2,  SSD1305_CMD_SET_MEM_ADDRESSING_MODE,    0x00,                   // Horizontal addressing mode
     2,  SSD1305_CMD_SET_COM_PINS_CONF,          0x12,                   // Alternative COM pin configuration
@@ -161,7 +161,7 @@ RET_TYPE miniOledIsDisplayReversed(void)
     if (miniOledXOffset != 0)
     {
         return FALSE;
-    } 
+    }
     else
     {
         return TRUE;
@@ -305,10 +305,10 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
     // Compute page start & page end
     uint8_t page_start = ystart >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     uint8_t page_end = yend >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
-    
+
     // Set the correct display window
     miniOledSetWindow(xstart, xend, page_start, page_end);
-    
+
     // Send data, we go low level to have better speed
     spiUsartDummyWrite();
     PORT_OLED_SS &= ~(1 << PORTID_OLED_SS);
@@ -322,7 +322,7 @@ void miniOledFlushBufferContents(uint8_t xstart, uint8_t xend, uint8_t ystart, u
         }
     }
     spiUsartWaitEndSendTransfer();
-    PORT_OLED_SS |= (1 << PORTID_OLED_SS); 
+    PORT_OLED_SS |= (1 << PORTID_OLED_SS);
 }
 
 /*! \fn     miniInvertBufferAndFlushIt(void)
@@ -345,11 +345,11 @@ void miniOledFlushEntireBufferToDisplay(void)
 {
     // Display window: starting & ending X
     uint8_t set_x_window_command[3] = {SSD1305_CMD_SET_COLUMN_ADDR, miniOledXOffset, SSD1305_OLED_WIDTH + miniOledXOffset - 1};
-    
+
     // Display window: starting & ending page
     uint8_t current_page = miniOledScreenYOffset >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     uint8_t set_page_command[3] = {SSD1305_CMD_SET_PAGE_ADDR, current_page, current_page};
-      
+
     // Unfortunately the SSD1305 controller doesn't accept a starting page bigger than the ending page, so we need to send page by page
     uint16_t offset = (((miniOledBufferYOffset + 7) % SSD1305_OLED_BUFFER_HEIGHT) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT) << SSD1305_WIDTH_BIT_SHIFT;
     for (uint8_t i = 0; i < SSD1305_SCREEN_PAGE_HEIGHT; i++)
@@ -357,15 +357,15 @@ void miniOledFlushEntireBufferToDisplay(void)
         // Set window
         miniOledWriteCommand(set_x_window_command, sizeof(set_x_window_command));
         miniOledWriteCommand(set_page_command, sizeof(set_page_command));
-        
+
         // Send one page of data
         //OLEDDEBUGPRINTF_P(PSTR("Frame buffer offset %d\n"),offset);
         miniOledWriteData(miniOledFrameBuffer + offset, SSD1305_OLED_WIDTH);
         offset = (offset + SSD1305_OLED_WIDTH) % sizeof(miniOledFrameBuffer);
-        
+
         // Compute page
         current_page = (current_page+1) & SSD1305_TOTAL_PAGE_HEIGHT_BITMASK;
-        set_page_command[1] = current_page;set_page_command[2] = current_page;      
+        set_page_command[1] = current_page;set_page_command[2] = current_page;
     }
 }
 
@@ -407,13 +407,13 @@ void miniOledInit(void)
 {
     uint8_t dataBuffer[10];
     uint8_t dataSize, i;
-    
+
     // Parse initialization sequence
-    for (uint8_t ind=0; ind<sizeof(mini_oled_init);) 
+    for (uint8_t ind=0; ind<sizeof(mini_oled_init);)
     {
         i = 0;
         dataSize = pgm_read_byte(&mini_oled_init[ind++]);
-        while (dataSize--) 
+        while (dataSize--)
         {
             dataBuffer[i++] = pgm_read_byte(&mini_oled_init[ind++]);
         }
@@ -451,14 +451,14 @@ void miniOledInitIOs(void)
     /* Setup OLED slave select as output, high */
     DDR_OLED_SS |= (1 << PORTID_OLED_SS);
     PORT_OLED_SS |= (1 << PORTID_OLED_SS);
-    
+
     /*  Setup OLED Data/nCommand as output */
     DDR_OLED_DnC |= (1 << PORTID_OLED_DnC);
-    
+
     /* Setup OLED Reset */
     DDR_OLED_nR |= (1 << PORTID_OLED_nR);
     miniOledReset();
-    
+
     /* Setup Oled power, high */
     DDR_OLED_POW |= (1 << PORTID_OLED_POW);
     PORT_OLED_POW |= (1 << PORTID_OLED_POW);
@@ -515,13 +515,13 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
     // Compute page start & page end
     uint8_t page_start = (miniOledBufferYOffset + y) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
     uint8_t page_end = (miniOledBufferYOffset + y + height - 1) >> SSD1305_PAGE_HEIGHT_BIT_SHIFT;
-    
+
     // Compute mask settings
     uint8_t f_bitshift_mask[] = {0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF};
     uint8_t f_bitshift = (y + height - 1) & 0x07;
     uint8_t l_bitshift_mask[] = {0xFF, 0xFE, 0xFC, 0xF8, 0xF0, 0xE0, 0xC0, 0x80};
     uint8_t l_bitshift = y & 0x07;
-    
+
     for(uint8_t page = page_start; page <= page_end; page++)
     {
         uint16_t buffer_shift = (((uint16_t)page) % SSD1305_OLED_BUFFER_PAGE_HEIGHT) << SSD1305_WIDTH_BIT_SHIFT;
@@ -538,7 +538,7 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
                 else
                 {
                     and_mask = ~l_bitshift_mask[l_bitshift];
-                }                
+                }
             }
             if(page == page_end)
             {
@@ -579,7 +579,7 @@ void miniOledDrawRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, 
  */
 void miniOledClearFrameBuffer(void)
 {
-    memset(miniOledFrameBuffer, 0x00, sizeof(miniOledFrameBuffer));    
+    memset(miniOledFrameBuffer, 0x00, sizeof(miniOledFrameBuffer));
 }
 
 /*! \fn     miniOledDumpCurrentFont(void)
@@ -588,7 +588,7 @@ void miniOledClearFrameBuffer(void)
 void miniOledDumpCurrentFont(void)
 {
     miniOledTextWritingYIncrement = TRUE;
-    
+
     char temp_string[34];
     for(uint8_t i = 0; i < (256/32); i++)
     {
@@ -598,13 +598,13 @@ void miniOledDumpCurrentFont(void)
         }
         temp_string[0] = '0' + i;
         temp_string[33] = 0;
-        
+
         miniOledClearFrameBuffer();
         miniOledPutstrXY(0, 0, OLED_LEFT, temp_string);
         miniOledFlushEntireBufferToDisplay();
         timerBasedDelayMs(5000);
-    } 
-    
+    }
+
     miniOledTextWritingYIncrement = FALSE;
 }
 
@@ -623,7 +623,7 @@ int16_t miniOledGetFileAddr(uint8_t fileId, uint16_t* addr)
     {
         return -1;
     }
-    
+
     flashRawRead((uint8_t *)&type, *addr, sizeof(type));
     *addr += sizeof(type);
     OLEDDEBUGPRINTF_P(PSTR("oledGetFileAddr file %d type 0x%x addr 0x%04x\n"), fileId, type, *addr);
@@ -638,15 +638,15 @@ int16_t miniOledGetFileAddr(uint8_t fileId, uint16_t* addr)
 void miniOledSetFont(uint8_t fontIndex)
 {
     if (miniOledGetFileAddr(fontIndex, &miniOledFontAddr) != MEDIA_FONT)
-    {        
+    {
         OLEDDEBUGPRINTF_P(PSTR("oled failed to set font %d\n"), fontIndex);
         return;
     }
-    
+
     // Read the font header
     miniOledFontId = fontIndex;
     flashRawRead((uint8_t *)&miniOledCurrentFont, miniOledFontAddr, sizeof(miniOledCurrentFont));
-    
+
     // Check the bit depth
     if (miniOledCurrentFont.depth != 1)
     {
@@ -672,7 +672,7 @@ void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs)
     uint8_t data_rbitshift = 7 - (end_ypixel & 0x07);
     uint8_t data_lbitshift = (8 - data_rbitshift) & 0x07;
     uint8_t cur_pixels = 0, prev_pixels = 0;
-    uint8_t end_x = x + bs->width - 1;
+    uint8_t end_x = x + bs->width;
     uint8_t start_x;
 
     // Check if x is < 0
@@ -692,25 +692,26 @@ void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs)
         }
 
         start_x = 0;
-    } 
+    }
     else
     {
         start_x = x;
     }
-    
+
     // glyph data offsets are from the end of the glyph header array
     OLEDDEBUGPRINTF_P(PSTR("Draw raw: xs %d xe %d ps %d pe %d rbits %d lbits %d"), start_x, end_x, start_page, end_page, data_rbitshift, data_lbitshift);
-    
+
     // Bitmasks
     uint8_t rbitmask[] = {0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE};
     //uint8_t lbitmask[] = {0xFF, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F};
-    
-    for (uint8_t x = start_x; (x <= end_x) && (x < SSD1305_OLED_WIDTH); x++)
+
+    for (uint8_t x = start_x; (x < end_x) && (x < SSD1305_OLED_WIDTH); x++)
     {
         int16_t buffer_shift = (((uint16_t)end_page % SSD1305_OLED_BUFFER_PAGE_HEIGHT) << SSD1305_WIDTH_BIT_SHIFT);
         uint8_t pixels_to_be_displayed = bs->height;
-        for (int8_t page = end_page; page >= start_page; page--)
-        {                     
+        uint8_t page = end_page;
+        while(true)
+        {
             if (page == end_page)
             {
                 cur_pixels = miniBistreamGetNextByte(bs);
@@ -738,13 +739,13 @@ void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs)
                 else
                 {
                     miniOledFrameBuffer[buffer_shift+x] &= ~rbitmask[pixels_to_be_displayed];
-                    
+
                     if (pixels_to_be_displayed > (8 - data_lbitshift))
                     {
                         cur_pixels = miniBistreamGetNextByte(bs);
-                        miniOledFrameBuffer[buffer_shift+x] |= cur_pixels >> data_rbitshift; 
+                        miniOledFrameBuffer[buffer_shift+x] |= cur_pixels >> data_rbitshift;
                     }
-                    
+
                     miniOledFrameBuffer[buffer_shift+x] |= prev_pixels << data_lbitshift;
                 }
             }
@@ -759,20 +760,28 @@ void miniOledBitmapDrawRaw(int8_t x, uint8_t y, bitstream_mini_t* bs)
                 else
                 {
                     miniOledFrameBuffer[buffer_shift+x] = prev_pixels << data_lbitshift;
-                    miniOledFrameBuffer[buffer_shift+x] |= cur_pixels >> data_rbitshift;                    
+                    miniOledFrameBuffer[buffer_shift+x] |= cur_pixels >> data_rbitshift;
                 }
                 pixels_to_be_displayed -= 8;
             }
             prev_pixels = cur_pixels;
             buffer_shift -= ((uint16_t)1 << SSD1305_WIDTH_BIT_SHIFT);
-            
+
             // Check if the buffer shift isn't negative because of the buffer y offset
             if (buffer_shift < 0)
             {
                 buffer_shift = ((uint16_t)(SSD1305_OLED_BUFFER_PAGE_HEIGHT-1) << SSD1305_WIDTH_BIT_SHIFT);
             }
+
+            // Last page written, return now
+            if (page == start_page)
+            {
+                break;
+            }
+
+            page--;
         }
-    }  
+    }
 }
 
 /*! \fn     miniOledBitmapDrawFlash(uint8_t x, int8_t y, uint8_t fileId, uint8_t options)
@@ -799,10 +808,10 @@ void miniOledBitmapDrawFlash(int8_t x, int8_t y, uint8_t fileId, uint8_t options
 
     // Read bitmap header
     flashRawRead((uint8_t*)&bitmap, addr, sizeof(bitmap));
-    
+
     // Initialize bitstream (pixel data starts right after the header)
     miniBistreamInit(&bs, bitmap.height, bitmap.width, addr+sizeof(bitmap));
-    
+
     // Draw the bitmap
     if (y >= 0)
     {
@@ -861,31 +870,31 @@ uint8_t miniOledGlyphWidth(char ch)
 {
     glyph_t glyph;
     uint8_t gind;
-    
+
     // Check that a font was actually chosen
-    if (miniOledFontId != FONT_NONE) 
-    {        
+    if (miniOledFontId != FONT_NONE)
+    {
         // We only support characters after ' '
         if (ch < ' ')
         {
             return 0;
-        }     
-        
+        }
+
         // Convert character to glyph index
         flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
-        
+
         // Check that we know this glyph
         if(gind == 0xFF)
         {
             // If we don't know this character, try again with '?'
             ch = '?';
             flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
-            
+
             // If we still don't know it, return 0
             if (gind == 0xFF)
             {
                 return 0;
-            }            
+            }
         }
 
         // Read the beginning of the glyph
@@ -901,7 +910,7 @@ uint8_t miniOledGlyphWidth(char ch)
             return glyph.xrect + glyph.xoffset + 1;
         }
     }
-    else 
+    else
     {
         return 0;
     }
@@ -915,7 +924,7 @@ uint8_t miniOledGlyphWidth(char ch)
 uint16_t miniOledStrWidth(const char* str)
 {
     uint16_t width=0;
-    for (uint8_t ind=0; (str[ind] != 0) && (str[ind] != '\r'); ind++) 
+    for (uint8_t ind=0; (str[ind] != 0) && (str[ind] != '\r'); ind++)
     {
         width += miniOledGlyphWidth(str[ind]);
     }
@@ -936,7 +945,7 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
     uint8_t glyph_width;                // Glyph width
     glyph_t glyph;                      // Glyph header
     uint8_t gind;                       // Glyph index
-    
+
     // Check that a font is set
     if (miniOledFontId == FONT_NONE)
     {
@@ -948,29 +957,29 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
     {
         return 0;
     }
-    
+
     // Convert character to glyph index
     flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
-    
+
     // Check that we know this glyph
     if(gind == 0xFF)
     {
         // If we don't know this character, try again with '?'
         ch = '?';
         flashRawRead(&gind, miniOledFontAddr + (uint16_t)&miniOledFontp->map[ch - ' '], sizeof(gind));
-        
+
         // If we still don't know it, return 0
         if (gind == 0xFF)
         {
             return 0;
         }
     }
-    
+
     // Get the glyph header data
     flashRawRead((uint8_t*)&glyph, miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[gind], sizeof(glyph_t));
-    
+
     OLEDDEBUGPRINTF_P(PSTR("    glyph_t addr 0x%04x\n"), miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[gind]);
-    
+
     if ((uint16_t)glyph.glyph == 0xFFFF)
     {
         // space character, just fill in the gddram buffer and output background pixels
@@ -986,20 +995,20 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
         glyph_height = glyph.yrect;
         x += glyph.xoffset;
         y += glyph.yoffset;
-        
+
         // Compute glyph data address
         uint16_t gaddr = miniOledFontAddr + (uint16_t)&miniOledFontp->glyph[miniOledCurrentFont.count] + (uint16_t)glyph.glyph;
-        
+
         // glyph data offsets are from the end of the glyph header array
         OLEDDEBUGPRINTF_P(PSTR("    glyph '%c' width %d height %d xoffset %d yoffset %d addr 0x%04x\n"), ch, glyph_width, glyph_height, glyph.xoffset, glyph.yoffset, gaddr);
-        
+
         // Initialize bitstream & draw the character
-        miniBistreamInit(&bs, glyph_height, glyph_width, gaddr);   
+        miniBistreamInit(&bs, glyph_height, glyph_width, gaddr);
         miniOledBitmapDrawRaw((int8_t)x, y, &bs);
     }
-    
+
     return (uint8_t)(glyph_width + glyph.xoffset) + 1;
-}    
+}
 
 /*! \fn     miniOledPutch(char ch)
  *  \brief  Print an character on the screen at the current X and Y position. X and Y position is updated after the print operation, with X wrapping if necessary
@@ -1008,7 +1017,7 @@ uint8_t miniOledGlyphDraw(uint8_t x, uint8_t y, char ch)
  *  \return Success state
  */
 RET_TYPE miniOledPutch(char ch)
-{    
+{
     if (isprint(ch))
     {
         OLEDDEBUGPRINTF_P(PSTR("oledPutch('%c') x=%d, y=%d, oled_offset=%d, buf=%d, height=%u\n"), ch, miniOledTextCurX, miniOledTextCurY, 0, 0, miniOledCurrentFont.height);
@@ -1017,7 +1026,7 @@ RET_TYPE miniOledPutch(char ch)
     {
         OLEDDEBUGPRINTF_P(PSTR("oledPutch('0x%02x') x=%d, y=%d, oled_offset=%d, buf=%d\n"), ch, miniOledTextCurX, miniOledTextCurY, 0, 0);
     }
-    
+
     if ((ch == '\n') && (miniOledTextWritingYIncrement != FALSE))
     {
         miniOledTextCurY += miniOledCurrentFont.height;
@@ -1030,7 +1039,7 @@ RET_TYPE miniOledPutch(char ch)
     else
     {
         uint8_t width = miniOledGlyphWidth(ch);
-        
+
         // Check if we're not larger than the screen
         if ((width + miniOledTextCurX) > miniOledMaxTextY)
         {
@@ -1044,17 +1053,17 @@ RET_TYPE miniOledPutch(char ch)
                 return RETURN_NOK;
             }
         }
-        
+
         // Check that we're not writing text after the screen edge
         if ((miniOledTextCurY + miniOledCurrentFont.height) > SSD1305_OLED_HEIGHT)
         {
             return RETURN_NOK;
         }
-        
+
         // Display the text
         miniOledTextCurX += miniOledGlyphDraw(miniOledTextCurX, miniOledTextCurY, ch);
     }
-    
+
     return RETURN_OK;
 }
 
@@ -1064,9 +1073,9 @@ RET_TYPE miniOledPutch(char ch)
  *  \return How many characters were printed
  */
 uint8_t miniOledPutstr(const char* str)
-{    
+{
     uint8_t nb_printed_chars = 0;
-    
+
     // Write chars until we find final 0
     while (*str)
     {
@@ -1084,13 +1093,13 @@ uint8_t miniOledPutstr(const char* str)
             nb_printed_chars++;
         }
     }
-    
+
     // Flush to display if needed
     if (miniOledFlushText != FALSE)
     {
         miniOledFlushEntireBufferToDisplay();
     }
-    
+
     return nb_printed_chars;
 }
 
@@ -1102,7 +1111,7 @@ uint8_t miniOledPutstr(const char* str)
 void miniOledSetXY(uint8_t x, int8_t y)
 {
     miniOledTextCurX = x;
-    miniOledTextCurY = y;    
+    miniOledTextCurY = y;
 }
 
 /*! \fn     miniOledResetXY(void)
@@ -1111,7 +1120,7 @@ void miniOledSetXY(uint8_t x, int8_t y)
 void miniOledResetXY(void)
 {
     miniOledTextCurX = 0;
-    miniOledTextCurY = 0;    
+    miniOledTextCurY = 0;
 }
 
 /*! \fn     miniOledPutstrXY(int16_t x, uint8_t y, uint8_t justify, const char* str)
@@ -1135,27 +1144,27 @@ uint8_t miniOledPutstrXY(uint8_t x, uint8_t y, uint8_t justify, const char* str)
         {
             x = (miniOledMaxTextY + x + miniOledMinTextY - width)/2;
         }
-    } 
+    }
     else if (justify == OLED_RIGHT)
     {
         if (x < miniOledMaxTextY)
         {
             miniOledMaxTextY = x;
         }
-        if (x >= (width + miniOledMinTextY)) 
+        if (x >= (width + miniOledMinTextY))
         {
             x -= width;
-        } 
+        }
         else if ((width + miniOledMinTextY) >= miniOledMaxTextY)
         {
             x = miniOledMinTextY;
         }
-        else 
+        else
         {
             x = miniOledMaxTextY - width;
         }
     }
-    
+
     // Store text x & y position
     miniOledTextCurX = x;
     miniOledTextCurY = y;
@@ -1193,7 +1202,7 @@ void displayCenteredCharAtPosition(char c, uint8_t x, uint8_t y, uint8_t font)
 
     // Set new font
      miniOledSetFont(font);
-    
+
     // Get char glyph width
     uint8_t glyph_width = miniOledGlyphWidth(c);
 
@@ -1202,7 +1211,7 @@ void displayCenteredCharAtPosition(char c, uint8_t x, uint8_t y, uint8_t font)
     miniOledPutch(c);
 
     // Set the previous font
-    miniOledSetFont(prev_font);    
+    miniOledSetFont(prev_font);
 }
 
 /*! \fn     miniOledSetMaxTextY(uint8_t maxY)
@@ -1238,13 +1247,13 @@ void miniOledResetMaxTextY(void)
 void miniOledCheckFlashStringsWidth(void)
 {
     char temp_string[4];
-    
+
     // Clear screen, write wrong IDs on the screen
     miniOledTextCurX = 0;
     miniOledTextCurY = 0;
     miniOledTextWritingYIncrement = TRUE;
     miniOledClearFrameBuffer();
-    
+
     miniOledPutstr("> 113px: ");
     for (uint8_t i = ID_FIRST_STRING; i <= ID_LAST_STRING; i++)
     {
@@ -1267,7 +1276,7 @@ void miniOledCheckFlashStringsWidth(void)
             miniOledPutstr(" ");
         }
     }
-    
+
     miniOledFlushEntireBufferToDisplay();
 }
 

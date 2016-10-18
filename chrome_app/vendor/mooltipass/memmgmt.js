@@ -4917,7 +4917,7 @@ mooltipass.memmgmt.integrityCheckStart = function(progressCallback, statusCallba
 }
 
 // Merge CSV credential file to current database
-mooltipass.memmgmt.mergeCsvCredentialFileToMooltipassStart = function(statusCallback)
+mooltipass.memmgmt.mergeCsvCredentialFileToMooltipassStart = function(statusCallback, progressCallback)
 {
 	if(mooltipass.memmgmt.currentMode == MGMT_IDLE)
 	{
@@ -4925,6 +4925,7 @@ mooltipass.memmgmt.mergeCsvCredentialFileToMooltipassStart = function(statusCall
 		mooltipass.memmgmt.mergeFileTypeCsv = true;
 		mooltipass.memmgmt.backupFromFileReq = true;
 		mooltipass.memmgmt.statusCallback = statusCallback;
+		mooltipass.memmgmt.progressCallback = progressCallback;
 		mooltipass.memmgmt.currentMode = MGMT_DBFILE_MERGE_REQ;
 		mooltipass.memmgmt.importMemoryState();
 	}

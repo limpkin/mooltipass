@@ -937,13 +937,14 @@ void populateServicesLut(void)
 */
 void getPreviousNextFirstLetterForGivenLetter(char c, char* array, uint16_t* parent_addresses)
 {
-    // Set -s by default
-    memset(array, '-', 3);
+    // Store the provided char as first letter for the current credential
+    // Set '-' by default for the start and end
+    array[0] = '-';
+    array[1] = c;
+    array[2] = '-';
+
     parent_addresses[0] = NODE_ADDR_NULL;
     parent_addresses[2] = NODE_ADDR_NULL;
-
-    // Store the provided char as first letter for the current credential
-    array[1] = c;
 
     // Go through all nodes and find the previous and following chracter nodes
     pNode node;

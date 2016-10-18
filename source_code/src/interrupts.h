@@ -27,7 +27,7 @@
 
 void initIRQ(void);
 #ifdef ENABLE_MILLISECOND_DBG_TIMER
-    uint32_t millis();
+    uint32_t millis(void);
 #else
     #define millis()    0
 #endif

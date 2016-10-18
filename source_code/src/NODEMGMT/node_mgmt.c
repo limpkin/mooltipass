@@ -32,6 +32,7 @@
 #include "node_mgmt.h"
 #include "defines.h"
 #include "usb.h"
+#include "utils.h"
 
 // Current node management handle
 mgmtHandle currentNodeMgmtHandle;
@@ -928,6 +929,71 @@ void populateServicesLut(void)
     }
 }
 
+/*! \fn     getPreviousNextFirstCharAddressForNode(uint16_t nodeAddress, char c, bool next)
+*   \brief  Get the previous or next letter around a given addr + letter
+*   \param  nodeAddress     The address of the node to start searching from
+*   \param  c               The first letter of the input node
+*   \param  next            Boolean to search forward (true) or backwards (false)
+*   \ret    Struture of the found node address and its first character
+*   \note   The end and start will be marked with a '-' character and the address NODE_ADDR_NULL.
+*/
+nodeFirstCharAddr_t getPreviousNextFirstCharAddressForNode(uint16_t nodeAddress, char c, bool next)
+{
+    char firstChar = 0x00;
+    uint16_t addr = NODE_ADDR_NULL;
+
+    // Find next/previous node address with a different starting character
+    while(nodeAddress != NODE_ADDR_NULL)
+    {
+        // Get node
+        pNode node;
+        readParentNode(&node, nodeAddress);
+
+        // Get first character of node
+        char thisChar = node.service[0];
+
+        // Get next node
+        if(next)
+        {
+            // Stop if we found the next node with a new starting letter
+            if(thisChar > c)
+            {
+                firstChar = thisChar;
+                addr = nodeAddress;
+                break;
+            }
+            nodeAddress = node.nextParentAddress;
+        }
+        else
+        {
+            if(thisChar < c)
+            {
+                // Abort if we already found the first character
+                if(thisChar < firstChar)
+                {
+                    break;
+                }
+                // Safe new possible first character
+                firstChar = thisChar;
+                addr = nodeAddress;
+            }
+            nodeAddress = node.prevParentAddress;
+        }
+    }
+
+    // If no firstChar was found it is the start/end, where '-' is used as identifier.
+    if(!firstChar)
+    {
+        firstChar = '-';
+    }
+
+    // Return nodes first character and its address
+    nodeFirstCharAddr_t ret;
+    ret.firstChar = firstChar;
+    ret.addr = addr;
+    return ret;
+}
+
 /*! \fn     getPreviousNextFirstLetterForGivenLetter(char c, char* array, uint16_t* parent_addresses)
 *   \brief  Get the previous and next letter around a given letter
 *   \param  c                   The first letter
@@ -939,42 +1005,17 @@ void getPreviousNextFirstLetterForGivenLetter(char c, char* array, uint16_t* par
 {
     // Store the provided char as first letter for the current credential
     // Set '-' by default for the start and end
-    array[0] = '-';
-    array[1] = c;
-    array[2] = '-';
+    array[1] = upper(c);
 
-    parent_addresses[0] = NODE_ADDR_NULL;
-    parent_addresses[2] = NODE_ADDR_NULL;
+    // Get previous node address and first character relative to the input node
+    nodeFirstCharAddr_t node = getPreviousNextFirstCharAddressForNode(parent_addresses[1], c, false);
+    parent_addresses[0] = node.addr;
+    array[0] = upper(node.firstChar);
 
-    // Go through all nodes and find the previous and following chracter nodes
-    pNode node;
-    uint16_t nodeAddress = currentNodeMgmtHandle.firstParentNode;
-    while(nodeAddress)
-    {
-        // Get next node
-        readParentNode(&node, nodeAddress);
-
-        // Get first character of node
-        char currentChar = node.service[0];
-
-        // Check if letter is before the target character
-        if((currentChar < c) && array[0] != currentChar)
-        {
-            array[0] = currentChar;
-            parent_addresses[0] = nodeAddress;
-        }
-
-        // Check if we found a character after the target character
-        if(currentChar > c)
-        {
-            array[2] = currentChar;
-            parent_addresses[2] = nodeAddress;
-            break;
-        }
-
-        // Get next address
-        nodeAddress = node.nextParentAddress;
-    }
+    // Get next node address and first character relative to the input node
+    node = getPreviousNextFirstCharAddressForNode(parent_addresses[1], c, true);
+    parent_addresses[2] = node.addr;
+    array[2] = upper(node.firstChar);
 }
 
 /*! \fn     getParentNodeForLetter(uint8_t letter, uint8_t empty_mode)

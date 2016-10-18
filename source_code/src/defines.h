@@ -235,6 +235,10 @@
 // Uncomment to remove USB set UID & device password functions (example: UID & KEY flashed by programmer at mass production)
 //#define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
 
+/************** CREDENTIALS ON CARD FUNCTIONS **************/
+// Uncomment to disable single credential storage on the card itself
+//#define DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
+
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER
 

@@ -1240,6 +1240,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Read card login
+        #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
         case CMD_READ_CARD_LOGIN :
         {
             if (getSmartCardInsertedUnlocked() == TRUE)
@@ -1255,8 +1256,10 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
         
         // Read card stored password
+        #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
         case CMD_READ_CARD_PASS :
         {
             if (getSmartCardInsertedUnlocked() == TRUE)
@@ -1281,8 +1284,10 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
         
         // Set card login
+        #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
         case CMD_SET_CARD_LOGIN :
         {
             if (getSmartCardInsertedUnlocked() == TRUE)
@@ -1316,8 +1321,10 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
         
         // Set card stored password
+        #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
         case CMD_SET_CARD_PASS :
         {
             if (getSmartCardInsertedUnlocked() == TRUE)
@@ -1351,6 +1358,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
         
         // Get 32 random bytes
         case CMD_GET_RANDOM_NUMBER :

@@ -39,6 +39,7 @@
 #include "anim.h"
 #include "gui.h"
 #include "usb.h"
+#include "utils.h"
 #ifdef MINI_VERSION
 // String offset counters for scrolling
 uint8_t string_offset_cntrs[3];
@@ -459,19 +460,6 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             return NODE_ADDR_NULL;
         }
     }
-}
-
-/*! \fn     upper(char c)
-*   \brief  Simple function to convert characters to upper case
-*   \param  c Input character to convert
-*   \return   Output character in upper case
-*/
-static char upper(char c){
-    if( c >= 'a' && c <= 'z')
-    {
-        return (c = c +'A' - 'a');
-    }
-    return c;
 }
 
 /*! \fn     loginSelectionScreen(void)

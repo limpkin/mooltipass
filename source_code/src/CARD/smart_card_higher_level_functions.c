@@ -377,7 +377,7 @@ RET_TYPE cardDetectedRoutine(void)
         // Detect if the card is blank by checking that the manufacturer zone is different from FFFF
         if (swap16(*(uint16_t*)readManufacturerZone(temp_buffer)) == 0xFFFF)
         {
-            #ifdef ENABLE_MOOLTIPASS_CARD_FORMATTING
+            #ifndef DISABLE_MOOLTIPASS_CARD_FORMATTING
                 // Card is new - transform into mooltipass
                 #ifdef DEBUG_SMC_USB_PRINT
                     usbPutstr_P(PSTR("Blank card, transforming...\r\n"));

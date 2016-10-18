@@ -1371,7 +1371,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }      
    
         // Set Mooltipass UID
-        #ifndef DISABLE_PASSWORD_SET_FUNCTIONS
+        #ifndef DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
         case CMD_SET_UID :
         {
             #ifdef MINI_VERSION            
@@ -1433,7 +1433,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }       
         
         // set password bootkey
-        #ifndef DISABLE_PASSWORD_SET_FUNCTIONS
+        #ifndef DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
         case CMD_SET_BOOTLOADER_PWD :
         {
             if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY) && (datalen == PACKET_EXPORT_SIZE))

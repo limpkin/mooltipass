@@ -79,7 +79,6 @@
     #define HARDWARE_OLIVIER_V1
     #define NO_PIN_CODE_REQUIRED
     #define AVR_BOOTLOADER_PROGRAMMING
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(BETATESTERS_SETUP_PIN)
     #define FLASH_CHIP_32M
     #define TWO_CAPS_TRICK
@@ -87,7 +86,6 @@
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
     #define AVR_BOOTLOADER_PROGRAMMING
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(BETATESTERS_AUTOACCEPT_SETUP)
     #define FLASH_CHIP_32M
     #define TWO_CAPS_TRICK
@@ -96,13 +94,11 @@
     #define HARDWARE_OLIVIER_V1
     #define ALWAYS_ACCEPT_REQUESTS
     #define AVR_BOOTLOADER_PROGRAMMING
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(PRODUCTION_SETUP)
     #define FLASH_CHIP_32M
     #define TWO_CAPS_TRICK
     #define DATA_STORAGE_EN
     #define HARDWARE_OLIVIER_V1
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
     // TO REMOVE IN THE FUTURE!!! //
     #define AVR_BOOTLOADER_PROGRAMMING
 #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
@@ -111,7 +107,6 @@
     #define DATA_STORAGE_EN
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
     // TO REMOVE IN THE FUTURE!!! //
     #define AVR_BOOTLOADER_PROGRAMMING
 #elif defined(PRODUCTION_KICKSTARTER_SETUP)
@@ -119,13 +114,11 @@
     #define TWO_CAPS_TRICK
     #define DATA_STORAGE_EN
     #define HARDWARE_OLIVIER_V1
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(POST_KICKSTARTER_UPDATE_SETUP)
     #define FLASH_CHIP_4M
     #define TWO_CAPS_TRICK
     #define DATA_STORAGE_EN
     #define HARDWARE_OLIVIER_V1
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(PRODUCTION_TEST_SETUP)
     //#define STACK_DEBUG
     #define FLASH_CHIP_4M
@@ -134,7 +127,6 @@
     #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(MINI_CLICK_BETATESTERS_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
@@ -145,7 +137,6 @@
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_MINI_CLICK_V1
     #define AVR_BOOTLOADER_PROGRAMMING
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
 #elif defined(MINI_CREDENTIAL_MANAGEMENT)
     #define MINI_CLICK_BETATESTERS_SETUP
 //    #define STACK_DEBUG
@@ -156,7 +147,6 @@
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_MINI_CLICK_V1
     #define AVR_BOOTLOADER_PROGRAMMING
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
     #define ENABLE_CREDENTIAL_MANAGEMENT                    // WARNING: requires a new resource bundle.img with additional strings
     #define REPLACE_FAVORITES_WITH_CREDENTIAL_MANAGEMENT    // replaces favorites selection menu with creds management menu
 #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
@@ -168,16 +158,14 @@
     #define DATA_STORAGE_EN
     //#define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
-    #define DISABLE_PASSWORD_SET_FUNCTIONS
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
 #elif defined(MINI_KICKSTARTER_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
     #define DATA_STORAGE_EN
     #define HARDWARE_MINI_CLICK_V2
-    #define DISABLE_PASSWORD_SET_FUNCTIONS
-    #define ENABLE_MOOLTIPASS_CARD_FORMATTING
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
 #endif
 
 /**************** DEBUG PRINTS ****************/
@@ -227,31 +215,32 @@
 #define STR(x) #x
 
 /**************** PROGRAMMING HARDWARE ****************/
-// Uncomment to go to the original boot loader when smart card inserted at boot
+// Mooltipass standard: Uncomment to go to the original boot loader when smart card inserted at boot
+// Mooltipass mini: Uncomment to go to the original boot loader when wheel is pressed
 //#define AVR_BOOTLOADER_PROGRAMMING
 
 /**************** SMARTCARD FUSE VERSION ****************/
-// First smart card sent to the first contributors
+// First smart card sent to the first contributors: should not be uncommented but left for reference
 //#define SMARTCARD_FUSE_V1
 
 /**************** PIN HANDLING ******************/
-// Comment to let the user enter his PIN
+// Uncomment to have the GUI pin routines return SMARTCARD_DEFAULT_PIN as a PIN
 //#define NO_PIN_CODE_REQUIRED
 
 /************** SMARTCARD FORMATING **************/
-// Comment to prevent mooltipass card formatting (for production)
-//#define ENABLE_MOOLTIPASS_CARD_FORMATTING
+// Uncomment to prevent mooltipass card formatting (done once when the card is blank and inserted in the mooltipass)
+//#define DISABLE_MOOLTIPASS_CARD_FORMATTING
 
 /************** SET PASSWORD FUNCTIONS **************/
-// Uncomment to remove set password functions (for mass production)
-//#define DISABLE_PASSWORD_SET_FUNCTIONS
+// Uncomment to remove USB set UID & device password functions (example: UID & KEY flashed by programmer at mass production)
+//#define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
 
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER
 
 /************** LOW LEVEL MEMORY BOUNDARY CHECKS ***************/
 #ifndef MINI_BOOTLOADER
-#define MEMORY_BOUNDARY_CHECKS
+    #define MEMORY_BOUNDARY_CHECKS
 #endif
 
 /************** TESTS ENABLING ***************/

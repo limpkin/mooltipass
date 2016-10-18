@@ -462,7 +462,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     if ( typeof( message.updateComplete ) === "undefined" ) message.updateComplete = null;
     
     
-    console.log('messageListener:', message );
+    //console.log('messageListener:', message );
     // Returned on a PING, contains the status of the device
     if (message.deviceStatus !== null) 
     {

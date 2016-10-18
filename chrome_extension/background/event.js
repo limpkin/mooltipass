@@ -339,6 +339,9 @@ mooltipassEvent.isMooltipassUnlocked = function()
 mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url, usernameExists, credentialsList) {
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onUpdateNotify','background-color: #e2eef9','color: #246', arguments);
 
+	// No password? Return
+	if ( !password ) return;
+
 	// Parse URL
 	var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);
 	var valid_url = false;

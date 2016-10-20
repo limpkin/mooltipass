@@ -129,6 +129,28 @@ mcCombinations.prototype.possibleCombinations = [
 		}
 	},
 	{
+		combinationId: 'loginform003',
+		combinationName: 'Login Form with Text and 3 fields instead of 2',
+		requiredFields: [
+			{
+				selector: 'input[type=text],input:not([type])',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+		],
+		scorePerMatch: 50,
+		score: 0,
+		autoSubmit: false,
+		maxfields: 3,
+		extraFunction: function( fields ) {
+			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+		}
+	},
+	{
 		combinationId: 'passwordreset002',
 		combinationName: 'Password Reset with Confirmation',
 		combinationDescription: 'Searches for 3 password fields in the form, retrieves password for the first one, stores the value from the second',
@@ -242,11 +264,17 @@ mcCombinations.prototype.detectCombination = function() {
 				var url = document.location.origin;
 				var submitUrl = currentForm.element?this.getFormActionUrl( currentForm.element ):url;
 				
-				if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c Retrieving credentials', 'background-color: #c3c6b4','color: #777777', currentForm.element );
-				chrome.runtime.sendMessage({
-					'action': 'retrieve_credentials',
-					'args': [ url, submitUrl, true, true]
-				}, $.proxy(this.retrieveCredentialsCallback,this));
+				if ( this.credentialsCache ) {
+					// Sometimes the form changes when typing in. Issuing a new detectCombination.. we use a temporary cache to avoid double request in the device
+					if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c Using credentials from cache', 'background-color: #c3c6b4','color: #777777', currentForm.element );
+					this.retrieveCredentialsCallback( this.credentialsCache );
+				} else {
+					if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c Retrieving credentials', 'background-color: #c3c6b4','color: #777777', currentForm.element );
+					chrome.runtime.sendMessage({
+						'action': 'retrieve_credentials',
+						'args': [ url, submitUrl, true, true]
+					}, $.proxy(this.retrieveCredentialsCallback,this));
+				}
 			}
 		}
 	}
@@ -460,7 +488,9 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 /*
 * Parses the credentials obtained
 */
-mcCombinations.prototype.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
+mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
+	this.credentialsCache = credentials;
+
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c retrieveCredentialsCallback','background-color: #c3c6b4','color: #333333', credentials);
 
 	if (!credentials || credentials.length < 1) {

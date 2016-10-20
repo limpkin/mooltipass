@@ -321,7 +321,7 @@ RET_TYPE createParentNode(pNode* p, uint8_t type);
 void readParentNode(pNode *p, uint16_t parentNodeAddress);
 RET_TYPE updateParentNode(pNode *p, uint16_t parentNodeAddress);
 RET_TYPE deleteParentNode(uint16_t parentNodeAddress);
-void deleteDataNodeChain(uint16_t dataNodeAddress);
+void deleteDataNodeChain(uint16_t dataNodeAddress, dNode* data_node_ptr);
 
 RET_TYPE createChildNode(uint16_t pAddr, cNode *c);
 RET_TYPE createChildStartOfDataNode(uint16_t pAddr, cNode *c, uint8_t dataNodeCount);

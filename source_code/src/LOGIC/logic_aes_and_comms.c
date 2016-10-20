@@ -903,9 +903,13 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
             // First packet... ask for permission
             // Prepare data adding approval text
             if (temp_pnode.nextChildAddress != NODE_ADDR_NULL)
+            {
                 conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_UPDATE_DATA_FOR);
+            }
             else
+            {
                 conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_ADD_DATA_FOR);
+            }
             conf_text.lines[1] = (char*)temp_pnode.service;
             
             // Ask for data adding approval
@@ -914,7 +918,7 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
                 //In case this context already contains data child nodes,
                 // delete all of them before adding the first new block of data
                 // calling deleteDataNodeChain is safe even if the address is NULL
-                deleteDataNodeChain(temp_pnode.nextChildAddress);
+                deleteDataNodeChain(temp_pnode.nextChildAddress, temp_dnode_ptr);
 
                 memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
                 currently_writing_first_block = TRUE;

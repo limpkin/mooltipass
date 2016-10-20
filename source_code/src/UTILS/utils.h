@@ -47,5 +47,6 @@ unsigned char chr_strlen(char* string);
 unsigned int int_strlen(char* string);
 char numchar_to_char(unsigned char c);
 uint16_t swap16(uint16_t val);
+char upper(char c);
 
 #endif /* UTILS_H_ */

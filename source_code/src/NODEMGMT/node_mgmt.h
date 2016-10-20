@@ -31,6 +31,7 @@
 #define NODE_MGMT_H_
 
 #include "defines.h"
+#include <stdbool.h>
 
 typedef enum _nodeType
 {
@@ -146,6 +147,12 @@ typedef struct __attribute__((packed)) parentNode {
     uint8_t service[NODE_SIZE - 4*sizeof(uint16_t) - 3*sizeof(uint8_t)];            /*!< (ASCII) Text describing service (domain name eg hackaday.com). Used for sorting and searching. */
     uint8_t startDataCtr[3];       /*!< Encryption counter in case the child is a data node */
 } pNode;
+
+typedef struct  __attribute__((packed))
+{
+    char firstChar;
+    uint16_t addr;
+} nodeFirstCharAddr_t;
 
 // flags + prevParentAddress + nextParentAddress + nextChildAddress
 #define PNODE_COMPARISON_FIELD_OFFSET   8
@@ -304,6 +311,7 @@ uint16_t getStartingDataParentAddress(void);
 uint16_t getStartingParentAddress(void);
 uint16_t getLastParentAddress(void);
 
+nodeFirstCharAddr_t getPreviousNextFirstCharAddressForNode(uint16_t nodeAddress, char c, bool next);
 void getPreviousNextFirstLetterForGivenLetter(char c, char* array, uint16_t* parent_addresses);
 uint16_t getParentNodeForLetter(uint8_t letter);
 void populateServicesLut(void);

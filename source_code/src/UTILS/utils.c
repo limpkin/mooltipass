@@ -226,6 +226,19 @@ void int_to_string(unsigned int value, char* string)
     string[index] = 0x00;
 }
 
+/*! \fn     upper(char c)
+*   \brief  Simple function to convert characters to upper case
+*   \param  c Input character to convert
+*   \return   Output character in upper case
+*/
+char upper(char c){
+    if( c >= 'a' && c <= 'z')
+    {
+        return (c = c +'A' - 'a');
+    }
+    return c;
+}
+
 /*! \fn		hm_uint8_strncmp(uint8_t* buffer1, uint8_t* buffer2, uint8_t nb_chars)
 *   \brief  A simplified strncmp
 *   \param  buffer1   First buffer to compare

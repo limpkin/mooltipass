@@ -39,6 +39,7 @@
 #include "anim.h"
 #include "gui.h"
 #include "usb.h"
+#include "utils.h"
 #ifdef MINI_VERSION
 // String offset counters for scrolling
 uint8_t string_offset_cntrs[3];
@@ -468,8 +469,8 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
 uint16_t loginSelectionScreen(void)
 {
     uint16_t first_address = getLastParentAddress();
-    uint16_t cur_address_selected = NODE_ADDR_NULL;
     uint16_t prev_next_fletter_parents_addr[3];
+    prev_next_fletter_parents_addr[1] = NODE_ADDR_NULL;
     uint8_t string_refresh_needed = TRUE;
     uint16_t temp_parent_address;
     uint8_t nb_parent_nodes;
@@ -549,7 +550,7 @@ uint16_t loginSelectionScreen(void)
                 // Second child displayed is the chosen one
                 if (i == 1)
                 {
-                    cur_address_selected = temp_parent_address;
+                    prev_next_fletter_parents_addr[1] = temp_parent_address;
                     current_fchar = temp_pnode.service[0];
                 }
 
@@ -583,13 +584,13 @@ uint16_t loginSelectionScreen(void)
         // User validated the selected credential
         if (wheel_action == WHEEL_ACTION_SHORT_CLICK)
         {
-            return cur_address_selected;
+            return prev_next_fletter_parents_addr[1];
         }
         else if (wheel_action == WHEEL_ACTION_DOWN)
         {
             // Move to the next credential
             string_refresh_needed = TRUE;
-            first_address = cur_address_selected;
+            first_address = prev_next_fletter_parents_addr[1];
 
             // Special case when there are only 2 credentials
             if (nb_parent_nodes == 2)
@@ -632,7 +633,7 @@ uint16_t loginSelectionScreen(void)
                 if (temp_pnode.prevParentAddress != NODE_ADDR_NULL)
                 {
                     first_address = temp_pnode.prevParentAddress;
-                } 
+                }
                 else
                 {
                     first_address = getLastParentAddress();

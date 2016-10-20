@@ -73,6 +73,7 @@ void unlockFeatureCheck(void)
             {
                 loginString[NODE_CHILD_SIZE_OF_LOGIN-1] = 0;
                 usbKeybPutStr((char*)loginString);
+                usbKeyboardPress(KEY_RETURN, 0);
             }
 
             /* Todo: implement back functionality? */

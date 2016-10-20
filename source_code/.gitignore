@@ -7,3 +7,4 @@
 *.sym
 *.map
 *.bin
+**/.vs/

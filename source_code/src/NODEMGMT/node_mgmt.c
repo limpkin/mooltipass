@@ -1330,3 +1330,28 @@ RET_TYPE updateChildNodeDescription(cNode* c, uint16_t cAddr, uint8_t* descripti
     return RETURN_OK;
 }
 
+/**
+ * Delete all data nodes child starting from firstChildNodeAddress
+ * @param dataNodeAddress     The address of the first child in the chain
+ * @note it is safe to call this function even with a NULL address (nothing is done)
+ */
+void deleteDataNodeChain(uint16_t dataNodeAddress, dNode* data_node_ptr)
+{
+    uint16_t nextAddress;
+
+    while (dataNodeAddress != NODE_ADDR_NULL)
+    {
+        //read the actual block pointed by the given address
+        readNode((gNode *)data_node_ptr, dataNodeAddress);
+
+        //save the next address for deleting the next block
+        nextAddress = data_node_ptr->nextDataAddress;
+
+        // Set child contents to FF and write it back to flash
+        memset((void*)data_node_ptr, 0xFF, NODE_SIZE);
+        writeNodeDataBlockToFlash(dataNodeAddress, data_node_ptr);
+
+        dataNodeAddress = nextAddress;
+    }
+}
+

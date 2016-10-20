@@ -280,6 +280,7 @@
     #define ID_STRING_CHANGE_DESC_FOR   74
     #define ID_STRING_DO_NOT_UNPLUG     75
     #define ID_STRING_LAST_PIN_TRY      76
+    #define ID_STRING_USER_NFREE        77
 
 #ifdef ENABLE_CREDENTIAL_MANAGEMENT
     /* reserved for main firmware branch usage

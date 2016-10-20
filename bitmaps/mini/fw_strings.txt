@@ -75,7 +75,7 @@ Hash #2
 Change Description For:
 Do Not Unplug The Mini!
 One Try Remaining!
-RESERVED_7
+No more free user slot!
 RESERVED_8
 RESERVED_9
 Create Credentials

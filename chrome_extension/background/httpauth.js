@@ -25,7 +25,6 @@ httpAuth.processPendingCallbacks = function (details) {
 
     var status = mooltipass.device.getStatus();
     // Check whether the mooltipass app is connected and directly send callback to trigger login prompt
-    console.log( status );
     if(!status.connectedToApp || !status.deviceUnlocked ) {
         httpAuth.callback({});
         return;

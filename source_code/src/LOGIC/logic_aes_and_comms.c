@@ -885,28 +885,37 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 *   \param  last_packet_flag    Flag to know if it is our last packet
 *   \return Operation success or not
 */
+
 RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
 {
     uint8_t temp_ctr[3];
-    
+
     if (data_context_valid_flag == FALSE)
     {
-        // Login not set
+        // context not set
         return RETURN_NOK;
     }
     else
     {
         // Check if we haven't already setup a child data node, parent node is already in our memory when flag is set
-        if ((temp_pnode.nextChildAddress == NODE_ADDR_NULL) && (current_adding_data_flag == FALSE))
+        if (current_adding_data_flag == FALSE)
         {
-            // No child... ask for permission
+            // First packet... ask for permission
             // Prepare data adding approval text
-            conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_ADD_DATA_FOR);
+            if (temp_pnode.nextChildAddress != NODE_ADDR_NULL)
+                conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_UPDATE_DATA_FOR);
+            else
+                conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_ADD_DATA_FOR);
             conf_text.lines[1] = (char*)temp_pnode.service;
             
             // Ask for data adding approval
             if (guiAskForConfirmation(2, &conf_text) == RETURN_OK)
             {
+                //In case this context already contains data child nodes,
+                // delete all of them before adding the first new block of data
+                // calling deleteDataNodeChain is safe even if the address is NULL
+                deleteDataNodeChain(temp_pnode.nextChildAddress);
+
                 memset((void*)temp_dnode_ptr, 0, NODE_SIZE);
                 currently_writing_first_block = TRUE;
                 currently_reading_data_cntr = 0;

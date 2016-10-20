@@ -87,13 +87,6 @@ void unlockFeatureCheck(void)
             }
         }
     }
-    
-    if (isSmartCardAbsent() != RETURN_OK)
-    {
-        // Display user name if there's one
-        readMooltipassWebsiteLogin(loginString);
-        guiDisplaySmartcardUnlockedScreen(loginString);
-    }
 }
 
 /*! \fn     handleSmartcardInserted(void)
@@ -112,14 +105,14 @@ RET_TYPE handleSmartcardInserted(void)
     if ((detection_result == RETURN_MOOLTIPASS_PB) || (detection_result == RETURN_MOOLTIPASS_INVALID))
     {
         // Either it is not a card or our Manufacturer Test Zone write/read test failed
-        guiDisplayInformationOnScreen(ID_STRING_PB_CARD);
+        guiDisplayInformationOnScreenAndWait(ID_STRING_PB_CARD);
         printSmartCardInfo();
         removeFunctionSMC();
     }
     else if (detection_result == RETURN_MOOLTIPASS_BLOCKED)
     {
         // The card is blocked, no pin code tries are remaining
-        guiDisplayInformationOnScreen(ID_STRING_CARD_BLOCKED);
+        guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_BLOCKED);
         printSmartCardInfo();
         removeFunctionSMC();
     }
@@ -133,7 +126,7 @@ RET_TYPE handleSmartcardInserted(void)
             // Create a new user with his new smart card
             if ((guiAskForNewPin(&pin_code, ID_STRING_PIN_NEW_CARD) == RETURN_NEW_PIN_OK) && (addNewUserAndNewSmartCard(&pin_code) == RETURN_OK))
             {
-                guiDisplayInformationOnScreen(ID_STRING_USER_ADDED);
+                guiDisplayInformationOnScreenAndWait(ID_STRING_USER_ADDED);
                 next_screen = SCREEN_DEFAULT_INSERTED_NLCK;
                 setSmartCardInsertedUnlocked();
                 return_value = RETURN_OK;
@@ -141,7 +134,7 @@ RET_TYPE handleSmartcardInserted(void)
             else
             {
                 // Something went wrong, user wasn't added
-                guiDisplayInformationOnScreen(ID_STRING_USER_NADDED);
+                guiDisplayInformationOnScreenAndWait(ID_STRING_USER_NADDED);
             }
             pin_code = 0x0000;
         }
@@ -181,7 +174,6 @@ RET_TYPE handleSmartcardInserted(void)
         printSmartCardInfo();
     }
     
-    userViewDelay();
     guiSetCurrentScreen(next_screen);
     guiGetBackToCurrentScreen();
     return return_value;

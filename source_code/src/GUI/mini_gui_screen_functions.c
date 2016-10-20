@@ -141,7 +141,6 @@ void guiScreenLoop(uint8_t input_interface_result)
         {
             // User approved his pin
             unlockFeatureCheck();
-            userViewDelay();
             currentScreen = SCREEN_DEFAULT_INSERTED_NLCK;
         }
             

@@ -210,6 +210,7 @@ Range.prototype = {
 		});
 		this.bounds(this.data().sendkeysBounds);
 		this.dispatch({type: 'sendkeys', which: text});
+		this.dispatch({type: 'keyup'});
 		return this;
 	},
 	top: function(){

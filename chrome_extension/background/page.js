@@ -79,6 +79,7 @@ page.initSettings = function() {
 * Store previously used logins
 */
 page.cacheLogin = function( callback, tab, arguments ) {
+	if (background_debug_msg > 4) mpDebug.log('%c page: %c cacheLogin ','background-color: #ffeef9','color: #246', arguments);
 	page.tabs[ tab.id ].loginList = {'Login': arguments };
 }
 

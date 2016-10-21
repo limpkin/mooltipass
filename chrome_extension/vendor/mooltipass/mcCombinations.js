@@ -156,14 +156,14 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationDescription: 'Searches for 3 password fields in the form, retrieves password for the first one, stores the value from the second',
 		requiredFields: [
 			{
-				selector: 'input[type=password]:eq(0)',
+				selector: 'input[type=password]:visible',
 				mapsTo: 'password'
 			},
 			{
-				selector: 'input[type=password]:eq(1)',
+				selector: 'input[type=password]:visible',
 			},
 			{
-				selector: 'input[type=password]:eq(2)'
+				selector: 'input[type=password]:visible'
 			},
 		],
 		scorePerMatch: 33,
@@ -205,7 +205,10 @@ mcCombinations.prototype.possibleCombinations = [
 			for( field in fields ) {
 				fields[field].addClass('mooltipass-password-do-not-update');	
 			}
-			
+
+			// Use password generated for both new password fields
+			// Disabled feature, uncomment to have mooltipass pre-fill your new password for you
+			// mpJQ('input[type=password]:visible:not(".mooltipass-password-do-not-update")').val('').sendkeys( mpJQ('#mooltipass-password-generator').val() );
 		}
 	},
 	{
@@ -218,14 +221,46 @@ mcCombinations.prototype.possibleCombinations = [
 				mapsTo: 'password'
 			},
 			{
-				selector: 'input[type=password]:visible',
-				mapsTo: 'password'
+				selector: 'input[type=password]:visible'
 			},
 		],
 		scorePerMatch: 50,
 		score: 0,
 		maxfields: 2,
-		autoSubmit: false
+		autoSubmit: false,
+		extraFunction: function( fields ) {
+			// We need LOGIN information. Try to retrieve credentials from cache.
+			chrome.runtime.sendMessage({'action': 'cache_retrieve' }, function( r ) {
+				if (mcCombs.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Extra function, retrieve cache','background-color: #c3c6b4','color: #800000', r );
+				var lastError = chrome.runtime.lastError;
+				if (lastError) {
+					if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
+					return;
+				} else {
+					if ( r.Login ) { // We got a login!
+						this.savedFields.username = r.Login;
+						this.fields.username = r.Login;
+					} else { // No login information. Just ask the user.
+						var currentForm = this.fields.password.parents('form');
+						var url = document.location.origin;
+						var submitUrl = currentForm?mcCombs.getFormActionUrl( currentForm ):url;
+						chrome.runtime.sendMessage({
+							'action': 'retrieve_credentials',
+							'args': [ url, submitUrl, true, true]
+						}, $.proxy(function( response ) {
+							if ( response[0] && response[0].Login ) {
+								this.savedFields.username = response[0].Login;
+								this.fields.username = response[0].Login;	
+							}
+						},this));
+					}
+				}
+
+				// Use password generated for both password fields
+				// Disabled feature, uncomment to have mooltipass pre-fill your new password for you
+				// fields.password.closest('form').find('input[type=password]:visible').val('').sendkeys( mpJQ('#mooltipass-password-generator').val() );
+			}.bind(this));
+		}
 	},
 	{
 		usePasswordGenerator: true,
@@ -264,12 +299,12 @@ mcCombinations.prototype.detectCombination = function() {
 				var url = document.location.origin;
 				var submitUrl = currentForm.element?this.getFormActionUrl( currentForm.element ):url;
 				
-				if ( this.credentialsCache ) {
+				if ( this.credentialsCache && this.credentialsCache.length > 0) {
 					// Sometimes the form changes when typing in. Issuing a new detectCombination.. we use a temporary cache to avoid double request in the device
 					if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c Using credentials from cache', 'background-color: #c3c6b4','color: #777777', currentForm.element );
 					this.retrieveCredentialsCallback( this.credentialsCache );
 				} else {
-					if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c Retrieving credentials', 'background-color: #c3c6b4','color: #777777', currentForm.element );
+					if (this.settings.debugLevel > 1) cipDebug.trace('%c mcCombinations - %c Retrieving credentials', 'background-color: #c3c6b4','color: #777777', currentForm.element );
 					chrome.runtime.sendMessage({
 						'action': 'retrieve_credentials',
 						'args': [ url, submitUrl, true, true]
@@ -438,6 +473,10 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	// Check if there's a difference between what we retrieved and what is being submitted
 	var currentForm = this.forms[ $(event.target).data('mp-id') ];
 
+	if ( !currentForm.combination.savedFields.username && this.credentialsCache ) {
+		currentForm.combination.savedFields.username = this.credentialsCache.Login;
+	}
+
 	var storedUsernameValue = this.parseElement( currentForm.combination.savedFields.username, 'value');
 	var storedPasswordValue = this.parseElement( currentForm.combination.savedFields.password, 'value');
 
@@ -504,8 +543,10 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		if (lastError) {
 			if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
 			return;
+		} else {
+			if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c retrieveCredentialsCallback Cache: ','background-color: #c3c6b4','color: #333333', r);
 		}
-	});
+	}.bind(this));
 
 	for( form in this.forms ) {
 		currentForm = this.forms[ form ];

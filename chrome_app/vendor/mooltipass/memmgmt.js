@@ -1102,7 +1102,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 						{
 							chosen_url = parsing_result.subdomain + "." + parsing_result.domain;
 						}
-						mooltipass.memmgmt.memmgmtAddData.push({"context": chosen_url.substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH)});
+						mooltipass.memmgmt.memmgmtAddData.push({"context": chosen_url.substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": "Imported by CSV"});
 					}
 				}				
 			}

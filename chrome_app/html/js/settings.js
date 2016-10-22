@@ -56,7 +56,7 @@ mooltipass.ui.settings.getKeypressLoginEnabled = function() {
 
 mooltipass.ui.settings.initKeypressLoginEnabled = function() {
     $('#settings-keypressLoginEnabled').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'keypressLoginEnabled',
@@ -93,7 +93,7 @@ mooltipass.ui.settings.getKeypressPasswordEnabled = function() {
 
 mooltipass.ui.settings.initKeypressPasswordEnabled = function() {
     $('#settings-keypressPasswordEnabled').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'keypressPasswordEnabled',
@@ -115,7 +115,7 @@ mooltipass.ui.settings.initKeypressPasswordEnabled = function() {
 
 mooltipass.ui.settings.initKnockEnabled = function() {
     $('#settings-knockEnabled').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'knockDetectEnable',
@@ -127,7 +127,7 @@ mooltipass.ui.settings.initKnockEnabled = function() {
                     mooltipass.ui.status.success($field, 'Knock detection feature ' + enabledDisabled);
                 }
                 else {
-                    mooltipass.ui.status.error($field, _response.msg);
+                    mooltipass.ui.status.error($field, 'For security reasons, remove your card and try again');
                     $field.prop('checked', $field.data('old-value'));
                 }
             }
@@ -168,7 +168,7 @@ mooltipass.ui.settings.getKeypressWaitEnabled = function() {
 
 mooltipass.ui.settings.initKeypressWaitEnabled = function() {
     $('#settings-keypressWaitEnabled').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'keybOutputDelayEnabled',
@@ -395,7 +395,7 @@ mooltipass.ui.settings.getLockTimeoutEnabled = function() {
 
 mooltipass.ui.settings.initLockTimeoutEnabled = function() {
     $('#settings-lockTimeoutEnabled').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'lockTimeoutEnabled',
@@ -491,7 +491,7 @@ mooltipass.ui.settings.getScreensaver = function() {
 
 mooltipass.ui.settings.initScreensaver = function() {
     $('#settings-screensaver').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'screensaver',
@@ -565,7 +565,7 @@ mooltipass.ui.settings.getUserRequestCancel = function() {
 
 mooltipass.ui.settings.initUserRequestCancel = function() {
     $('#settings-userRequestCancel').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'userRequestCancel',
@@ -639,7 +639,7 @@ mooltipass.ui.settings.getFlashScreen = function() {
 
 mooltipass.ui.settings.initFlashScreen = function() {
     $('#settings-flashScreen').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'flashScreen',
@@ -676,7 +676,7 @@ mooltipass.ui.settings.getOfflineMode = function() {
 
 mooltipass.ui.settings.initOfflineMode = function() {
     $('#settings-offlineMode').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'offlineMode',
@@ -713,7 +713,7 @@ mooltipass.ui.settings.getTutorialEnabled = function() {
 
 mooltipass.ui.settings.initTutorialEnabled = function() {
     $('#settings-tutorialEnabled').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'tutorialEnabled',
@@ -750,7 +750,7 @@ mooltipass.ui.settings.getRandomPin = function() {
 
 mooltipass.ui.settings.initRandomPin = function() {
     $('#settings-randomPin').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'randomPin',
@@ -787,7 +787,7 @@ mooltipass.ui.settings.getHashDisplayEnable = function() {
 
 mooltipass.ui.settings.initHashDisplayEnable = function() {
     $('#settings-hashDisplay').change(function() {
-        $(this).data('old-value', $(this).prop('checked'));
+        $(this).data('old-value', !$(this).prop('checked'));
         mooltipass.device.interface.send({
             'command': 'setMooltipassParameter',
             'parameter': 'hashDisplayEnable',

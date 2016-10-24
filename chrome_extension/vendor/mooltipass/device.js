@@ -332,9 +332,8 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
 /*
  * Function called when a tab is updated
  */
-mooltipass.device.onTabUpdated = function(tabId, removeInfo)
-{
-    console.log('On Tab Updated', tabId,  mooltipass.device.lastRetrieveReqTabId, removeInfo );
+mooltipass.device.onTabUpdated = function(tabId, removeInfo) {
+    if (background_debug_msg > 4) mpDebug.log('%c device: %c onTabUpdated ','background-color: #e244ff','color: #484848', 'Tab ID: ' + tabId, ' / Last Retrieve Tab ID: ' + mooltipass.device.lastRetrieveReqTabId, 'Remove info: ',removeInfo );
     if ( tabId == mooltipass.device.lastRetrieveReqTabId && removeInfo.status && removeInfo.status == "loading" && removeInfo.url )
     {
         mooltipass.device.onNavigatedAway(tabId, removeInfo);
@@ -357,31 +356,23 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     // unset error message
     page.tabs[tab.id].errorMessage = null;
 
-    //TODO: Trigger unlock if device is connected but locked
-    // Check that the Mooltipass is unlocked
-    if(!event.isMooltipassUnlocked()) {
-        // Don't return if the device is locked, queue the request
-        /*if(forceCallback) {
-            callback([]);
-        }
-        return;*/
-    }
-
-    // parse url and check if it is valid
+    // parse url and check if it is valid and not blacklisted
     var parsed_url = mooltipass.backend.extractDomainAndSubdomain(submiturl);
-    if(!parsed_url.valid) {
+    if( !parsed_url.valid || parsed_url.blacklisted ) {
         if(forceCallback) {
             callback([]);
         }
         return;
     }
 
-    if(parsed_url.domain && mooltipass.backend.isBlacklisted(parsed_url.domain)) {
-        return;
-    }
-
-    if(parsed_url.subdomain && mooltipass.backend.isBlacklisted(parsed_url.subdomain)) {
-        return;
+    //TODO: Trigger unlock if device is connected but locked
+    // Check that the Mooltipass is unlocked
+    if( !event.isMooltipassUnlocked() ) {
+        // Don't return if the device is locked, queue the request
+        /*if(forceCallback) {
+            callback([]);
+        }
+        return;*/
     }
 
     // Store the tab id, prevent a possible very close tabupdatevent action
@@ -447,7 +438,8 @@ if (!page.settings.useMoolticute) chrome.runtime.onMessageExternal.addListener( 
 } );
 
 mooltipass.device.messageListener = function(message, sender, sendResponse) {
-    if (background_debug_msg > 4) mpDebug.log('%c device: %c messageListener ','background-color: #e244ff','color: #484848', message);
+    if (background_debug_msg > 5) mpDebug.log('%c device: %c messageListener ','background-color: #e244ff','color: #484848', message);
+    else if (background_debug_msg > 4 && !message.deviceStatus) mpDebug.log('%c device: %c messageListener ','background-color: #e244ff','color: #484848', message);
 
     if ( typeof( message.deviceStatus ) === "undefined" ) message.deviceStatus = null;
     if ( typeof( message.random ) === "undefined" ) message.random = null;

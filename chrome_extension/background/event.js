@@ -226,13 +226,12 @@ mooltipassEvent.mpUpdate = {};
 mooltipassEvent.isMooltipassUnlocked = function()
 {
 	// prevents "Failed to send to device: Transfer failed" error when device is suddenly unplugged
-	if(typeof mooltipass.device._status.state == 'undefined'){
+	if(typeof mooltipass.device._status.state == 'undefined') {
 		return false;
 	}
 
 	// If the device is not connected and not unlocked and the user disabled the notifications, return
-	if (mooltipass.device._status.state != 'Unlocked')
-	{
+	if (mooltipass.device._status.state != 'Unlocked') {
 		if (mooltipass.backend.disableNonUnlockedNotifications)
 		{
 			console.log('Not showing a notification as they are disabled');

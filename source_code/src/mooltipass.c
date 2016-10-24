@@ -315,7 +315,7 @@ int main(void)
         #if defined(MINI_CLICK_BETATESTERS_SETUP)
             (void)fuse_ok;
             while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
-        #elif (defined(MINI_PREPRODUCTION_SETUP_ACC) || defined(MINI_KICKSTARTER_SETUP))
+        #elif (defined(MINI_PREPRODUCTION_SETUP_ACC) || defined(MINI_PREPROD_KICKSTARTER_SETUP))
             /* We do not hang if accelerometer is not present as it isn't crucial, moreover we already tested it in the functional test */
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #else

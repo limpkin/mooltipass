@@ -191,7 +191,6 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
     {
         usbProcessIncoming(USB_CALLER_MAIN);
     }
-    correct_param_init_key_val++;
         
     // Bundle uploaded, start the screen
     miniOledAllowTextWritingYIncrement();
@@ -202,6 +201,7 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
     // LED functional test
     #ifdef LEDS_ENABLED_MINI
     setPwmDc(0xFFFF);
+    correct_param_init_key_val++;
     for (uint8_t i = 0; i < 4; i++)
     {
         // Display current LED
@@ -298,12 +298,14 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
     {
         // Inform script of success
         usbSendMessage(CMD_FUNCTIONAL_TEST_RES, 1, &script_return);            
-            
+        
+        #ifndef DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS    
         // Wait for password to be set
         while(eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) != BOOTLOADER_PWDOK_KEY)
         {
             usbProcessIncoming(USB_CALLER_MAIN);
         }
+        #endif
         
         // Functional test passed, remove fboot flag
         eeprom_write_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR, 0);

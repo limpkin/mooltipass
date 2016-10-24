@@ -164,6 +164,7 @@
     #define DATA_STORAGE_EN
     #define HARDWARE_MINI_CLICK_V2
     #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
 #endif
 
 /**************** DEBUG PRINTS ****************/
@@ -236,6 +237,11 @@
 /************** CREDENTIALS ON CARD FUNCTIONS **************/
 // Uncomment to disable single credential storage on the card itself
 //#define DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
+
+/************** KNOCK SETTING PROTECTION **************/
+// Uncomment to prevent knock settings changes when card is inserted
+//#define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+
 
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER

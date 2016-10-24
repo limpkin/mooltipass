@@ -1083,7 +1083,7 @@ void usbProcessIncoming(uint8_t caller_id)
             // Check that args are supplied
             if (datalen == 2)
             {
-                #ifdef MINI_KICKSTARTER_SETUP
+                #ifdef KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
                     // For security reasons knock parameter can only be changed when no card is inserted
                     if ((msg->body.data[0] == MINI_KNOCK_DETECT_ENABLE_PARAM) && (isSmartCardAbsent() != RETURN_OK))
                     {

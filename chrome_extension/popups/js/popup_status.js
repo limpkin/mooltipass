@@ -8,6 +8,7 @@ function initSettings() {
             url: "/options/options.html"
         })
     });
+
     $("#btn-open-app").click(function(e) {
         e.preventDefault();
         close();
@@ -30,9 +31,19 @@ function initSettings() {
     });
 
     $("#btn-add-site-to-blacklist").click(function() {
-        chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
+        chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
             chrome.runtime.sendMessage({
                 action: 'blacklist_url',
+                args: [tabs[0].url]
+            }, function() {});
+        });
+        close();
+    });
+
+    $("#btn-remove-site-from-blacklist").click(function() {
+        chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+            chrome.runtime.sendMessage({
+                action: 'unblacklist_url',
                 args: [tabs[0].url]
             }, function() {});
         });
@@ -65,6 +76,14 @@ function updateStatusInfo() {
         // Unknown error
         else {
             $('#unknown-error').show();
+        }
+
+        if ( object.blacklisted ) {
+            $('#btn-remove-site-from-blacklist').show();
+            $('#btn-add-site-to-blacklist').hide();
+        } else {
+            $('#btn-add-site-to-blacklist').show();
+            $('#btn-remove-site-from-blacklist').hide();
         }
     });
 

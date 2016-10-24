@@ -132,6 +132,46 @@ mooltipass.backend.handlerBlacklistUrl = function(callback, tab, url) {
 }
 
 /**
+ * Removes an URL from the blacklist
+ * @access backend
+ * @param url
+ */
+mooltipass.backend.unblacklistUrl = function(url) {
+    console.log('got blacklist removal req. for', url);
+
+    if(url.indexOf('://') > -1) {
+        var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);
+        var subdomain;
+        var domain;
+
+        // See if our script detected a valid domain & subdomain
+        if(!parsed_url.valid)
+        {
+            console.error('Invalid URL for blacklisting given:', url);
+            return;
+        }
+
+        domain = parsed_url.domain;
+        subdomain = parsed_url.subdomain;
+
+        url = domain;
+        if(subdomain != null) {
+            url = subdomain;
+        }
+    }
+
+    delete mooltipass.backend._blacklist[url]
+    localStorage.mpBlacklist = JSON.stringify(mooltipass.backend._blacklist);
+    console.log('updated blacklist store');
+};
+
+mooltipass.backend.handlerUnBlacklistUrl = function(callback, tab, url) {
+    console.log('remove from backlist:', url);
+    mooltipass.backend.unblacklistUrl(url);
+    callback(true);
+}
+
+/**
  * Extract domain and subdomain from a given URL and checks whether the URL is valid at all
  * @access backend
  * @param url

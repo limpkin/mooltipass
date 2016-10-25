@@ -87,6 +87,7 @@ mooltipass.backend.loadSettings = function() {
  * @returns {boolean}
  */
 mooltipass.backend.isBlacklisted = function(url) {
+    if (background_debug_msg > 4) mpDebug.log('%c backend: %c isBlacklisted ','background-color: #ffc107','color: #000', url, url in mooltipass.backend._blacklist);
     return url in mooltipass.backend._blacklist;
 }
 
@@ -131,82 +132,103 @@ mooltipass.backend.handlerBlacklistUrl = function(callback, tab, url) {
 }
 
 /**
+ * Removes an URL from the blacklist
+ * @access backend
+ * @param url
+ */
+mooltipass.backend.unblacklistUrl = function(url) {
+    console.log('got blacklist removal req. for', url);
+
+    if(url.indexOf('://') > -1) {
+        var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);
+        var subdomain;
+        var domain;
+
+        // See if our script detected a valid domain & subdomain
+        if(!parsed_url.valid)
+        {
+            console.error('Invalid URL for blacklisting given:', url);
+            return;
+        }
+
+        domain = parsed_url.domain;
+        subdomain = parsed_url.subdomain;
+
+        url = domain;
+        if(subdomain != null) {
+            url = subdomain;
+        }
+    }
+
+    delete mooltipass.backend._blacklist[url]
+    localStorage.mpBlacklist = JSON.stringify(mooltipass.backend._blacklist);
+    console.log('updated blacklist store');
+};
+
+mooltipass.backend.handlerUnBlacklistUrl = function(callback, tab, url) {
+    console.log('remove from backlist:', url);
+    mooltipass.backend.unblacklistUrl(url);
+    callback(true);
+}
+
+/**
  * Extract domain and subdomain from a given URL and checks whether the URL is valid at all
  * @access backend
  * @param url
  * @returns {{valid: {boolean}, domain: {string|null}, subdomain: {string|null}}}
  */
-mooltipass.backend.extractDomainAndSubdomain = function (url) {
-    var url_valid;
-    var domain = null;
-    var subdomain = null;
+mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
+    if (background_debug_msg > 4) mpDebug.log('%c backend: %c extractDomainAndSubdomain ','background-color: #ffc107','color: #000', url);
 
-    url = url.replace('www.', 'wWw.');
-    console.log("Parsing ", url);
+    var toReturn = { url: url, valid: false, domain: null, subdomain: null, blacklisted: false };
+    
+    // Don't know why this is here, leaving it just in case
+    toReturn.url = toReturn.url.replace('www.', 'wWw.');
 
     // URL trimming
     // Remove possible www.
-    url = url.replace(/:\/\/www./ig, '://');
-    url = url.replace(/^www\./ig, '');
+    toReturn.url = toReturn.url.replace(/:\/\/www./ig, '://');
+    toReturn.url = toReturn.url.replace(/^www\./ig, '');
     // Remove everything before ://
     //    also ensure that only the first :// is used
     //    (negative example: https://id.atlassian.com/login?continue=https://my.atlassian.com&application=mac)
-    url = url.replace(/^[^:]+:\/\//ig, "");
+    toReturn.url = toReturn.url.replace(/^[^:]+:\/\//ig, "");
     // Remove everything after first /
-    var n = url.indexOf('/');
-    url = url.substring(0, n != -1 ? n : url.length);
+    var n = toReturn.url.indexOf('/');
+    toReturn.url = toReturn.url.substring(0, n != -1 ? n : url.length);
     // Remove everything after first :
-    var n = url.indexOf(':');
-    url = url.substring(0, n != -1 ? n : url.length);
+    var n = toReturn.url.indexOf(':');
+    toReturn.url = toReturn.url.substring(0, n != -1 ? n : toReturn.url.length);
 	// Remove possible starting '.', (residual from www[number] urls)
-	if((url.length > 0) && (url.charAt(0) == '.'))
-	{
-		url = url.substring(1);
+	if((toReturn.url.length > 0) && (toReturn.url.charAt(0) == '.')) {
+		toReturn.url = toReturn.url.substring(1);
 	}
-    console.log("Trimmed URL: ", url)
 
-    if(psl.isValid(url))
-    {
+    if(psl.isValid(toReturn.url)) {
         // Managed to extract a domain using the public suffix list
-        console.log("valid URL detected")
-
-        url_valid = true;
-        var parsed = psl.parse(String(url))
-        domain = parsed.domain;
-        subdomain = parsed.subdomain;
-
-        console.log("Extracted domain: ", domain);
-        console.log("Extracted subdomain: ", subdomain);
-    }
-    else
-    {
+        toReturn.valid = true;
+        var parsed = psl.parse( String(toReturn.url) );
+        toReturn.domain = parsed.domain;
+        toReturn.subdomain = parsed.subdomain;
+    } else {
         // Check if it is an ip address
         var ipV4Pattern = /^\s*(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\s*$/;
         var ipV6Pattern = /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/;
-        var ipV4Array = url.match(ipV4Pattern);
-        var ipV6Array = url.match(ipV6Pattern);
-        if(ipV4Array != null)
-        {
-            url_valid = true;
-            domain = url;
-            subdomain = null;
-            console.log("ip v4 address detected")
-        }
-        else if(ipV6Array != null)
-        {
-            url_valid = true;
-            domain = url;
-            subdomain = null;
-            console.log("ip v6 address detected")
-        }
-        else
-        {
-            url_valid = false;
-            console.log("invalid URL detected")
+        var ipV4Array = toReturn.url.match(ipV4Pattern);
+        var ipV6Array = toReturn.url.match(ipV6Pattern);
+        if(ipV4Array != null || ipV6Array != null) {
+            toReturn.valid = true;
+            toReturn.domain = toReturn.url;
+            toReturn.subdomain = null;
         }
     }
 
-    return {valid: url_valid, domain: domain, subdomain: subdomain}
+    if ( mooltipass.backend.isBlacklisted( toReturn.domain ) || mooltipass.backend.isBlacklisted( toReturn.subdomain ) ) {
+        toReturn.blacklisted = true;
+    }
+
+    if (background_debug_msg > 3) mpDebug.log('%c backend: %c extractDomainAndSubdomain results for: ' + url ,'background-color: #ffc107','color: #000', toReturn);
+    return toReturn;
 }
 
 mooltipass.backend._updateStatusIcon();

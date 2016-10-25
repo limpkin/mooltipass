@@ -128,15 +128,23 @@ mooltipassEvent.onSaveSettings = function(callback, tab, settings) {
 }
 
 mooltipassEvent.onGetStatus = function(callback, tab) {
-    console.log('mooltipassEvent.onGetStatus()');
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onGetStatus','background-color: #e2eef9','color: #246', tab);
 
 	browserAction.showDefault(null, tab);
     page.tabs[tab.id].errorMessage = undefined;  // XXX debug
 
-	callback({
+    var toReturn = {
 		status: mooltipass.device.getStatus(),
-		error: page.tabs[tab.id].errorMessage
-	});
+		error: page.tabs[tab.id].errorMessage,
+		blacklisted: false
+	};
+
+    if ( tab.url ) {
+    	var tabStatus = mooltipass.backend.extractDomainAndSubdomain( tab.url );
+    	toReturn.blacklisted = tabStatus.blacklisted;
+    }
+
+	callback( toReturn );
 }
 
 mooltipassEvent.onPopStack = function(callback, tab) {
@@ -226,13 +234,12 @@ mooltipassEvent.mpUpdate = {};
 mooltipassEvent.isMooltipassUnlocked = function()
 {
 	// prevents "Failed to send to device: Transfer failed" error when device is suddenly unplugged
-	if(typeof mooltipass.device._status.state == 'undefined'){
+	if(typeof mooltipass.device._status.state == 'undefined') {
 		return false;
 	}
 
 	// If the device is not connected and not unlocked and the user disabled the notifications, return
-	if (mooltipass.device._status.state != 'Unlocked')
-	{
+	if (mooltipass.device._status.state != 'Unlocked') {
 		if (mooltipass.backend.disableNonUnlockedNotifications)
 		{
 			console.log('Not showing a notification as they are disabled');
@@ -505,6 +512,7 @@ mooltipassEvent.messageHandlers = {
 	'update': mooltipassEvent.onUpdate,
 	'add_credentials': mooltipass.device.addCredentials,
 	'blacklist_url': mooltipass.backend.handlerBlacklistUrl,
+	'unblacklist_url': mooltipass.backend.handlerUnBlacklistUrl,
 	'blacklistUrl': mooltipass.backend.blacklistUrl,
 	'alert': mooltipassEvent.onShowAlert,
 	'get_connected_database': mooltipassEvent.onGetConnectedDatabase,

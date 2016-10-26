@@ -187,11 +187,16 @@ mooltipass.device.queueHash = null;
  * triggered by mooltipass.app.init()
  */
 mooltipass.device.init = function() {
-    mooltipass.device._forceEndMemoryManagementModeLock = false;
-    // Initial start processing queue
-    mooltipass.device.restartProcessingQueue();
+    // only init if moolticute isn't running.
+    var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
+    moolticuteSocket.onerror = function() {
+        mooltipass.device._forceEndMemoryManagementModeLock = false;
+        
+        // Initial start processing queue
+        mooltipass.device.restartProcessingQueue();
 
-    setInterval(mooltipass.device.checkStatus, 1000);
+        setInterval(mooltipass.device.checkStatus, 1000);
+    };
 };
 
 
@@ -214,7 +219,6 @@ mooltipass.device.reset = function() {
  */
 mooltipass.device.connect = function() {
     //console.log('mooltipass.device.connect()');
-
     if (mooltipass.device.isConnected) {
         return false;
     }

@@ -1,9 +1,9 @@
-(kicad_pcb (version 4) (host pcbnew 4.0.2-stable)
+(kicad_pcb (version 4) (host pcbnew 4.0.4-stable)
 
   (general
     (links 206)
     (no_connects 0)
-    (area 95.845 67.335476 177.000001 100.305)
+    (area 96.095 67.424999 177.000001 100.405)
     (thickness 1.6)
     (drawings 23)
     (tracks 854)
@@ -21,7 +21,7 @@
     (34 B.Paste user)
     (35 F.Paste user)
     (36 B.SilkS user)
-    (37 F.SilkS user hide)
+    (37 F.SilkS user)
     (38 B.Mask user)
     (39 F.Mask user)
     (40 Dwgs.User user)

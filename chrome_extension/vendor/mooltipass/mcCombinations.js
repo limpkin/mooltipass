@@ -21,7 +21,7 @@ function mcCombinations() {}
 mcCombinations.prototype = ( function() {
 	return {
 		constructor:mcCombinations,
-		inputQueryPattern: "input[type='text'], input[type='email'], input[type='password'], input[type='tel'], input[type='number'], input:not([type])",
+		inputQueryPattern: "input[type='text'], input[type='email'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type])",
 		forms: {
 			noform: { fields: [] }
 		},

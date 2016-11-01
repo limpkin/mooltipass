@@ -156,7 +156,7 @@
     #define DATA_STORAGE_EN
     //#define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
-    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    //#define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS       // Uncomment if you were to make your own mooltipass
 #elif defined(MINI_PREPROD_KICKSTARTER_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION

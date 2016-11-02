@@ -114,6 +114,12 @@ class mooltipass_hid_device:
 			version = version.split('_', 1)[0]
 		return [nbMb, version, variant]
 		
+	# Get the Mooltipass Mini Serial number (for kickstarter versions only)
+	def getMooltipassMiniSerial(self):
+		self.device.sendHidPacket([0, CMD_GET_MINI_SERIAL]);
+		serial_data = self.device.receiveHidPacket()[DATA_INDEX:DATA_INDEX+4]
+		return serial_data	
+		
 	# Get the user database change db
 	def getMooltipassUserDbChangeNumber(self):
 		self.device.sendHidPacket([0, CMD_GET_USER_CHANGE_NB])

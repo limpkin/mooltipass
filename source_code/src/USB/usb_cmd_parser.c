@@ -1486,6 +1486,17 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
+        // get the mini serial number located at address 0x7F7C (4 bytes before the bootloader flashing routine)
+        #ifdef MINI_VERSION
+        case CMD_GET_MINI_SERIAL:
+        {
+            uint8_t mini_serial[4];
+            memcpy_PF(mini_serial, (uint_farptr_t)0x7F7C, sizeof(mini_serial));
+            usbSendMessage(CMD_GET_MINI_SERIAL, sizeof(mini_serial), mini_serial);
+            break;
+        }
+        #endif
+        
         #ifndef MINI_VERSION
         // Jump to bootloader
         case CMD_JUMP_TO_BOOTLOADER :

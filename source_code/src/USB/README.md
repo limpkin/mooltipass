@@ -264,6 +264,12 @@ From plugin/app: Lock Mooltipass Device
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
+0xDA: Get Mooltipass Mini Serial
+--------------------------------
+From plugin/app: Query the Mini serial number
+
+From Mooltipass: 4 bytes data packet containing the unique serial number (stored at 0x7F7C in Flash)
+
 Commands in data management mode
 ================================
 

@@ -66,6 +66,9 @@
  *
  *  MINI_PREPROD_KICKSTARTER_SETUP
  *  => mooltipass mini pre production kickstarter version (4Mb instead of the 8Mb)
+ *
+ *  MINI_KICKSTARTER_SETUP
+ *  => mooltipass mini production kickstarter version (8Mb)
 */
 #define MINI_PREPRODUCTION_SETUP_ACC
 //#define POST_KICKSTARTER_UPDATE_SETUP
@@ -156,11 +159,18 @@
     #define DATA_STORAGE_EN
     //#define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
-    //#define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS       // Uncomment if you were to make your own mooltipass
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS       // Comment if you were to make your own mooltipass
 #elif defined(MINI_PREPROD_KICKSTARTER_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
+    #define DATA_STORAGE_EN
+    #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+#elif defined(MINI_KICKSTARTER_SETUP)
+    #define MINI_VERSION
+    #define FLASH_CHIP_8M
     #define DATA_STORAGE_EN
     #define HARDWARE_MINI_CLICK_V2
     #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS

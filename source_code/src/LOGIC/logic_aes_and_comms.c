@@ -708,7 +708,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 guiDisplayProcessingScreen();
                 
                 // Set temp cnode to zeroes: we're not setting a random password as a plain text attack would suggest the attacker having control on the device
-                // So instead of not setting a password, he'd just put a 31 known plaintext...
+                // So instead of not setting a password, he'd just put a 31 chars known plaintext...
                 memset((void*)&temp_cnode, 0x00, NODE_SIZE);
                 encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
                 memcpy((void*)temp_cnode.login, (void*)name, length);
@@ -792,7 +792,6 @@ RET_TYPE setDescriptionForContext(uint8_t* description)
 
         // Update the description field
         updateChildNodeDescription(&temp_cnode, selected_login_child_node_addr, description);
-        login_just_added_flag = FALSE;
 
         return RETURN_OK;
     }
@@ -839,9 +838,9 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         
         // Ask for password changing approval
         #if defined(HARDWARE_OLIVIER_V1)
-        if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
+        if ((login_just_added_flag == TRUE) || (guiAskForConfirmation(4, &conf_text) == RETURN_OK))
         #elif defined(MINI_VERSION)
-        if (guiAskForConfirmation(3, &conf_text) == RETURN_OK)
+        if ((login_just_added_flag == TRUE) || (guiAskForConfirmation(3, &conf_text) == RETURN_OK))
         #endif
         {
             // Get back to current screen
@@ -852,7 +851,10 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
                 guiGetBackToCurrentScreen();
             }
             #else
-            guiGetBackToCurrentScreen();
+            if (login_just_added_flag == FALSE)
+            {
+                guiGetBackToCurrentScreen();
+            }
             #endif
 
             // Encrypt the password
@@ -884,6 +886,9 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 
             return RETURN_NOK;
         }
+        
+        // Remove login just added flag
+        login_just_added_flag = FALSE;
     }
 }
 

@@ -856,6 +856,9 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
                 guiGetBackToCurrentScreen();
             }
             #endif
+            
+            // Remove login just added flag
+            login_just_added_flag = FALSE;
 
             // Encrypt the password
             encrypt32bBlockOfDataAndClearCTVFlag(password, temp_ctr);
@@ -886,9 +889,6 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
 
             return RETURN_NOK;
         }
-        
-        // Remove login just added flag
-        login_just_added_flag = FALSE;
     }
 }
 

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Author</key>
+	<string>Gaston Gorosterrazu</string>
+	<key>Builder Version</key>
+	<string>11601.3.9</string>
+	<key>CFBundleDisplayName</key>
+	<string>Mooltipass 2</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.yourcompany.mooltipass</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>Chrome</key>
+	<dict>
+		<key>Database Quota</key>
+		<integer>52428800</integer>
+		<key>Global Page</key>
+		<string>global.html</string>
+		<key>Popovers</key>
+		<array>
+			<dict>
+				<key>Filename</key>
+				<string>popups/popup_status.html</string>
+				<key>Height</key>
+				<integer>249</integer>
+				<key>Identifier</key>
+				<string>options</string>
+				<key>Width</key>
+				<integer>289</integer>
+			</dict>
+		</array>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Identifier</key>
+				<string>Mooltipass.Extension</string>
+				<key>Image</key>
+				<string>images/icon_normal_128.png</string>
+				<key>Include By Default</key>
+				<true/>
+				<key>Label</key>
+				<string>Mooltipass Extension</string>
+				<key>Popover</key>
+				<string>options</string>
+				<key>Tool Tip</key>
+				<string>Mooltipass Extension</string>
+			</dict>
+		</array>
+	</dict>
+	<key>Content</key>
+	<dict>
+		<key>Scripts</key>
+		<dict>
+			<key>End</key>
+			<array>
+				<string>vendor/jquery-2.1.4.min.js</string>
+				<string>vendor/mooltipass/mcCombinations.js</string>
+				<string>vendor/sendkeys.js</string>
+				<string>vendor/mooltipass/website.js</string>
+				<string>mooltipass-content.js</string>
+				<string>vendor/jquery-ui-1.11.4.custom/jquery-ui.min.js</string>
+			</array>
+		</dict>
+		<key>Stylesheets</key>
+		<array>
+			<string>mooltipass-content.css</string>
+			<string>vendor/jquery-ui-1.11.4.custom/jquery-ui.min.css</string>
+			<string>vendor/bootstrap-btn.css</string>
+		</array>
+	</dict>
+	<key>DeveloperIdentifier</key>
+	<string>0000000000</string>
+	<key>ExtensionInfoDictionaryVersion</key>
+	<string>1.0</string>
+	<key>Permissions</key>
+	<dict>
+		<key>Website Access</key>
+		<dict>
+			<key>Include Secure Pages</key>
+			<true/>
+			<key>Level</key>
+			<string>All</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

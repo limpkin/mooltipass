@@ -1,10 +1,18 @@
 
-// Detect if we're dealing with Firefox or Chrome
+// Detect if we're dealing with Firefox, Safari, or Chrome
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+var isSafari = typeof(safari) == 'object'?true:false;
+
+// Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
+function messaging( message ) {
+	if (content_debug_msg > 4) cipDebug.log('%c Sending message to background:','background-color: #0000FF; color: #FFF; padding: 5px; ', message, safari);
+	if ( isSafari ) safari.self.tab.dispatchMessage("messageFromContent", message);
+	else chrome.runtime.sendMessage( message );
+};
 
 // contains already called method names
 var _called = {};
-var content_debug_msg = false;
+var content_debug_msg = 6;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -143,9 +151,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
 	$("#mooltipass-new-password").click(function(e){
 		e.preventDefault();
-		mooltipass.website.generatePassword(cip.settings['usePasswordGeneratorLength'], function(randomPassword){
-			$("#mooltipass-password-generator").val(randomPassword);
-		});
+		cipPassword.generatePassword();
 	}).trigger('click');
 
 
@@ -202,6 +208,28 @@ cipPassword.createDialog = function(inputs, $pwField) {
 	});
 }
 
+cipPassword.generatePassword = function() {
+	messaging( { action: 'generate_password', args: [ cip.settings['usePasswordGeneratorLength'] ] } );
+}
+
+cipPassword.generatePasswordFromSettings = function( passwordSettings ) {
+	var charactersLowercase = 'abcdefghijklmnopqrstuvwxyz';
+	var charactersUppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	var charactersNumbers = '1234567890';
+	var charactersSpecial = '!$%*()_+{}-[]:"|;\'?,./';
+	var hash = "";
+	var possible = "";
+
+	if( passwordSettings.settings["usePasswordGeneratorLowercase"] ) possible += charactersLowercase;
+	if( passwordSettings.settings["usePasswordGeneratorUppercase"]) possible += charactersUppercase;
+	if( passwordSettings.settings["usePasswordGeneratorNumbers"]) possible += charactersNumbers;
+	if( passwordSettings.settings["usePasswordGeneratorSpecial"]) possible += charactersSpecial;
+        
+	for( var i = 0; i < length; i++ ) {
+		hash += possible.charAt( Math.floor(passwordSettings.seeds[i] * possible.length) );
+	}
+	return hash;
+} 
 
 cipPassword.createIcon = function(field) {
 	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c createIcon','background-color: #ff8e1b','color: #333333', field);
@@ -1935,7 +1963,7 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 		}
 		
 		cipDebug.log('rememberCredentials - sending update_notify');
-		chrome.runtime.sendMessage({
+		messaging({
 			'action': 'update_notify',
 			'args': [usernameValue, passwordValue, url, usernameExists, credentialsList]
 		});
@@ -1957,9 +1985,29 @@ cipEvents.startEventHandling = function() {
 	/*
 	* Receive a message from WS_SOCKET or MooltiPass APP
 	*/
-	chrome.runtime.onMessage.addListener(function(req, sender, callback) {
+	listenerCallback = function(req, sender, callback) {
+		if ( isSafari ) req = req.message;
 		if (content_debug_msg > 5) cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
 		else if (content_debug_msg > 4 && req.action != 'check_for_new_input_fields') cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
+
+		// Safari Specific
+		switch(req.action) {
+			case 'response-content_script_loaded':
+				mcCombs.init( function() {
+					cip.settings = mcCombs.settings;
+				});
+				break;
+			case 'response-get_settings':
+				mcCombs.gotSettings( req.data );
+				break;
+			case 'response-retrieve_credentials':
+				mcCombs.retrieveCredentialsCallback( req.data );
+				break;
+			case 'response-generate_password':
+				var randomPassword = cipPassword.generatePasswordFromSettings( req.data );
+				$("#mooltipass-password-generator").val(randomPassword);
+				break;
+		}
 
 		// TODO: change IF for SWITCH
 		if ('action' in req) {
@@ -2030,7 +2078,10 @@ cipEvents.startEventHandling = function() {
 				cip.formHasCaptcha = true;
 			}
 		}
-	});
+	};
+
+	if ( isSafari ) safari.self.addEventListener("message", listenerCallback ,false);
+	else chrome.runtime.onMessage.addListener( listenerCallback );
 
 	// Hotkeys for every page
 	// ctrl + shift + p = fill only password
@@ -2074,16 +2125,5 @@ cipEvents.startEventHandling();
 var mcCombs = new mcCombinations();
 mcCombs.settings.debugLevel = content_debug_msg;
 
-chrome.runtime.sendMessage({'action': 'content_script_loaded' }, function(r) {
-	var lastError = chrome.runtime.lastError;
-	if (lastError) {
-		console.log(lastError.message);
-		return;
-	} else {
-		mcCombs.init( function() {
-			cip.settings = mcCombs.settings;
-			//var inputs = cipFields.getAllFields();
-			//cip.initPasswordGenerator(inputs);
-		});
-	}
-});
+console.log('I have been loaded');
+messaging( {'action': 'content_script_loaded' } );

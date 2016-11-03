@@ -1,5 +1,19 @@
+
+// Detect if we're dealing with Firefox, Safari, or Chrome
+var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+var isSafari = typeof(safari) == 'object'?true:false;
+
 var $ = mpJQ.noConflict(true);
 var _settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
+
+if ( isSafari ) messaging = safari.extension.globalPage.contentWindow.messaging;
+
+// Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
+function messaging( message ) {
+    if (content_debug_msg > 4) cipDebug.log('%c Sending message to background:','background-color: #0000FF; color: #FFF; padding: 5px; ', message);
+    if ( isSafari ) safari.self.tab.dispatchMessage("messageFromContent", message);
+    else chrome.runtime.sendMessage( message );
+};
 
 function initSettings() {
     $("#btn-settings").click(function() {
@@ -51,51 +65,54 @@ function initSettings() {
     });
 }
 
-function updateStatusInfo() {
-    chrome.runtime.sendMessage({
-        action: "get_status"
-    }, function(object) {
-        $('#status-bar .status > span').hide();
+function getStatusCallback( object ) {
+     $('#status-bar .status > span').hide();
 
-        // Connection to app established, device connected and unlocked
-        if (object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
-            $('#device-unlocked').show();
-        }
-        // Connection to app established, device connected but locked
-        else if (!object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
-            $('#device-locked').show();
-        }
-        // Connection to app established, but no device connected
-        else if (!object.status.connectedToDevice && object.status.connectedToApp) {
-            $('#device-disconnected').show();
-        }
-        // No app found
-        else if(!object.status.connectedToApp) {
-            $('#app-missing').show();
-        }
-        // Unknown error
-        else {
-            $('#unknown-error').show();
-        }
-
-        if ( object.blacklisted ) {
-            $('#btn-remove-site-from-blacklist').show();
-            $('#btn-add-site-to-blacklist').hide();
-        } else {
-            $('#btn-add-site-to-blacklist').show();
-            $('#btn-remove-site-from-blacklist').hide();
-        }
-    });
-
-    if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {
-        // Check if notifications are enabled
-        chrome.notifications.getPermissionLevel(function(response) {
-            if (response == 'denied') {
-                $("#notifications-disabled").show();
-            }
-        });        
+    // Connection to app established, device connected and unlocked
+    if (object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
+        $('#device-unlocked').show();
     }
-    
+    // Connection to app established, device connected but locked
+    else if (!object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
+        $('#device-locked').show();
+    }
+    // Connection to app established, but no device connected
+    else if (!object.status.connectedToDevice && object.status.connectedToApp) {
+        $('#device-disconnected').show();
+    }
+    // No app found
+    else if(!object.status.connectedToApp) {
+        $('#app-missing').show();
+    }
+    // Unknown error
+    else {
+        $('#unknown-error').show();
+    }
+
+    if ( object.blacklisted ) {
+        $('#btn-remove-site-from-blacklist').show();
+        $('#btn-add-site-to-blacklist').hide();
+    } else {
+        $('#btn-add-site-to-blacklist').show();
+        $('#btn-remove-site-from-blacklist').hide();
+    }
+}
+
+function updateStatusInfo() {
+    if( isSafari ) {
+        safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
+    } else {
+        messaging( { action: "get_status" }, getStatusCallback );    
+
+        if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {
+            // Check if notifications are enabled
+            chrome.notifications.getPermissionLevel(function(response) {
+                if (response == 'denied') {
+                    $("#notifications-disabled").show();
+                }
+            });        
+        }
+    }    
 }
 
 function _updateStatusInfo() {
@@ -104,7 +121,7 @@ function _updateStatusInfo() {
 }
 
 $(function() {
-    initSettings();
+    //initSettings();
     $('#status-bar .status > span').hide();
     $('#initial-state').show();
         

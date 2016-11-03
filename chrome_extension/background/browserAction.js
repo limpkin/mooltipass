@@ -1,6 +1,7 @@
 var browserAction = {};
 
 browserAction.show = function(callback, tab) {
+	if (background_debug_msg > 4) mpDebug.log('%c browserAction: show ', mpDebug.css('FFD389') , tab );
 	var data = {};
 	if(!page.tabs[tab.id] || page.tabs[tab.id].stack.length == 0) {
 		browserAction.showDefault(callback, tab);
@@ -55,23 +56,26 @@ browserAction.update = function(interval) {
 }
 
 browserAction.showDefault = function(callback, tab) {
+	if (background_debug_msg > 5) mpDebug.log('%c browserAction: showDefault ', mpDebug.css('FFD389') , tab );
 	var stackData = {
 		level: 1,
 		iconType: "normal",
 		popup: "popup_status.html"
 	}
+	
 	if(!mooltipass.device.isUnlocked() || page.tabs[tab.id].errorMessage) {
 		stackData.iconType = "cross";
 	}
 
-    if(page.tabs[tab.id].loginList.length > 0) {
+    if( typeof( page.tabs[tab.id] ) != 'undefined' && page.tabs[tab.id].loginList.length > 0) {
         stackData.iconType = "questionmark";
         stackData.popup = "popup_login.html";
     }
 
-	browserAction.stackUnshift(stackData, tab.id);
-
-	browserAction.show(null, tab);
+    if ( tab.id != 'safari' ) { 
+    	browserAction.stackUnshift(stackData, tab.id); 
+    	browserAction.show(null, tab);
+    }
 }
 
 browserAction.stackAdd = function(callback, tab, icon, popup, level, push, visibleForMilliSeconds, dontShow) {

@@ -1,7 +1,7 @@
 var mooltipass = mooltipass || {};
 mooltipass.memmgmt = mooltipass.memmgmt || {};
 
-// Next error code available 701
+// Next error code available 702
 
 // Defines
 var NODE_SIZE							= 132;			// Node size
@@ -124,6 +124,7 @@ mooltipass.memmgmt.currentLoginForRequestedPassword = "";	// The login for which
 mooltipass.memmgmt.tempPassword = [];						// Temp password to unlock upload functionality
 mooltipass.memmgmt.byteCounter = 0;							// Current byte counter
 mooltipass.memmgmt.mediaBundle = [];						// Media bundle contents
+mooltipass.memmgmt.mediaImportEndPacketSent = false;		// Media Import End packet sent
 
 // Variables used for statistics
 mooltipass.memmgmt.statsLastDataReceivedTime = new Date().getTime();// Time at which our last packet was received
@@ -2808,7 +2809,17 @@ mooltipass.memmgmt.dataSendTimeOutCallback = function()
 {
 	mooltipass.memmgmt.consoleLog("Data send timeout");
 	mooltipass.memmgmt.currentMode = MGMT_IDLE;
-	applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 696, 'msg': "Problem with USB comms"});
+	
+	// Mooltipass mini doesn't reply the import media end packet
+	if(mooltipass.memmgmt.mediaImportEndPacketSent == true)
+	{
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 701, 'msg': "Firmware Uploaded, DO NOT UNPLUG YOUR MINI!!!!!"});
+	}
+	else
+	{
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 696, 'msg': "Problem with USB comms"});		
+	}
+	mooltipass.memmgmt.mediaImportEndPacketSent = false;
 	mooltipass.device.processQueue();
 }
  
@@ -4144,6 +4155,7 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 				// We finished sending data
 				mooltipass.memmgmt.consoleLog("Last packet sent!");
 				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMediaImport'], null);
+				mooltipass.memmgmt.mediaImportEndPacketSent = true;
 				mooltipass.memmgmt_hid._sendMsg();
 			}
 			else
@@ -4158,6 +4170,7 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 	}
 	else if(packet[1] == mooltipass.device.commands['endMediaImport'])
 	{
+		mooltipass.memmgmt.mediaImportEndPacketSent = false;
 		mooltipass.memmgmt.currentMode = MGMT_IDLE;
 		if(packet[2] == 0)
 		{
@@ -4167,7 +4180,7 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 		}
 		else
 		{
-			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 695, 'msg': "Bundle successfully uploaded"});
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 695, 'msg': "Media bundle imported successfully"});
 			mooltipass.device.processQueue();		
 		}
 	}

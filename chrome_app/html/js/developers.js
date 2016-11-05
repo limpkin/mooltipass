@@ -96,7 +96,7 @@ mooltipass.ui.developers.progressImportMediaBundle = function(_progress) {
 
 mooltipass.ui.developers.callbackImportMediaBundle = function(_statusObject) {
     if(_statusObject.success) {
-        mooltipass.ui.status.success($('#page-developers button.import'), 'Media bundle imported successfully');
+        mooltipass.ui.status.success($('#page-developers button.import'), _statusObject.msg);
     }
     else {
         mooltipass.ui.status.error($('#page-developers button.import'), _statusObject.msg);

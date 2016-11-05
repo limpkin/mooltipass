@@ -60,7 +60,7 @@ mcCombinations.prototype.gotSettings = function( response ) {
 		if (this.settings.debugLevel > 0) cipDebug.warn('mcCombinations: Status is: ', this.settings.status);
 
 		if ( this.callback ) this.callback.apply( this, response );
-		if (this.settings.status.unlocked) this.detectCombination();
+		this.detectCombination();
 	} else {
 		if (this.settings.debugLevel > 0) cipDebug.warn('Get settings returned empty!', runtime.lastError);
 	}

@@ -67,11 +67,9 @@ if ( isSafari ) {
 		//browserAction.removeRememberPopup(null, {"id": page.currentTabId}, true);
 
 		chrome.tabs.get(activeInfo.tabId, function(info) {
-			//console.log(info.id + ": " + info.url);
 			if(info && info.id) {
 				page.currentTabId = info.id;
 				if(info.status == "complete") {
-					//console.log("event.invoke(page.switchTab, null, "+info.id + ", []);");
 					event.invoke(page.switchTab, null, info.id, []);
 				}
 			}

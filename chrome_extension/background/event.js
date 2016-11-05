@@ -6,6 +6,22 @@ function messaging( message, tab ) {
 	else chrome.tabs.sendMessage( typeof(tab) == 'number'?tab:tab.id, message, function(response) {});
 };
 
+if (!isSafari) {
+	chrome.notifications.onButtonClicked.addListener(mooltipassEvent.onNotifyButtonClick);
+	chrome.notifications.onClosed.addListener(mooltipassEvent.onNotifyClosed);
+}
+
+function cross_notification( notificationId, options ) {
+	if ( isSafari ) {
+		options.tag = notificationId;
+		options.body = options.message;
+		var n = new Notification( options.title, options );
+		n.onclose = mooltipassEvent.onNotifyClosed;
+	} else {
+		chrome.notifications.create( notificationId, options );
+	}
+}
+
 // Masquerade event var into a different variable name ( while event is not reserved, many websites use it and creates problems )
 var mooltipassEvent = {};
 
@@ -18,7 +34,6 @@ var event = mooltipassEvent;
  * @sender {object} Tab object sending the message
 **/
 mooltipassEvent.onMessage = function( request, sender ) {
-	console.log( request.callback );
 	if ( isSafari ) { // Safari sends an EVENT
 		sender = request.target;
 		request = request.message;
@@ -58,7 +73,6 @@ mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime
 	// Preppend the tab and the callback function to the arguments list
 	args.unshift(senderTab);
 	args.unshift(callback);
-
 	handler.apply(this, args);
 	return;
 
@@ -246,17 +260,12 @@ mooltipassEvent.onNotifyClosed = function(id) {
     delete mooltipassEvent.mpUpdate[id];
 }
 
-if (!isSafari) {
-	chrome.notifications.onButtonClicked.addListener(mooltipassEvent.onNotifyButtonClick);
-	chrome.notifications.onClosed.addListener(mooltipassEvent.onNotifyClosed);	
-}
-
-
 mooltipassEvent.notificationCount = 0;
 mooltipassEvent.mpUpdate = {};
 
 mooltipassEvent.isMooltipassUnlocked = function()
 {
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c isMooltipassUnlocked','background-color: #e2eef9','color: #246', arguments);
 	// prevents "Failed to send to device: Transfer failed" error when device is suddenly unplugged
 	if(typeof mooltipass.device._status.state == 'undefined') {
 		return false;
@@ -283,7 +292,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 		noteId = "mpNotUnlockedStaticMooltipassAppNotReady";
 
 		// Create notification to inform user
-		chrome.notifications.create(noteId,
+		cross_notification(noteId,
 			{   type: 'basic',
 				title: 'Mooltipass App not ready!',
 				message: 'The Mooltipass app is not installed or disabled',
@@ -301,7 +310,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 		noteId = "mpNotUnlockedStaticMooltipassNotConnected";
 
 		// Create notification to inform user
-		chrome.notifications.create(noteId,
+		cross_notification(noteId,
 			{   type: 'basic',
 				title: 'Mooltipass Not Connected!',
 				message: 'Please Connect Your Mooltipass',
@@ -316,14 +325,14 @@ mooltipassEvent.isMooltipassUnlocked = function()
 
 		noteId = "mpNotUnlockedStaticMooltipassDeviceLocked";
 
-		// Create notification to inform user
-		chrome.notifications.create(noteId,
-				{   type: 'basic',
-					title: 'Mooltipass Locked!',
-					message: 'Please Unlock Your Mooltipass',
-					iconUrl: '/icons/warning_icon.png',
-					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
-					
+		cross_notification( noteId, {
+			type: 'basic',
+			title: 'Mooltipass Locked!',
+			message: 'Please Unlock Your Mooltipass',
+			iconUrl: '/icons/warning_icon.png',
+			buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]
+		});
+
 		return false;
 	}
 	else if (mooltipass.device._status.state == 'NoCard')
@@ -333,7 +342,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 		noteId = "mpNotUnlockedStaticMooltipassDeviceWithoutCard";
 
 		// Create notification to inform user
-		chrome.notifications.create(noteId,
+		cross_notification(noteId,
 				{   type: 'basic',
 					title: 'No Card in Mooltipass!',
 					message: 'Please Insert Your Smartcard and Enter Your PIN',
@@ -359,7 +368,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 		if (!isFirefox) notification.buttons = [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}];
 
 		// Create notification to inform user
-		chrome.notifications.create(noteId,notification);
+		cross_notification(noteId,notification);
 					
 		return false;
 	}
@@ -409,7 +418,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 		{		
 			var noteId = 'mpPasswordTooLong.'+ mooltipassEvent.notificationCount.toString();
 			
-			chrome.notifications.create(noteId,
+			cross_notification(noteId,
 				{   type: 'basic',
 					title: 'Password Too Long!',
 					message: "We are sorry, Mooltipass only supports passwords that are less than 31 characters",
@@ -434,7 +443,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 
 				// Create notification to blacklist
 				if (mooltipass.device._status.unlocked) {
-					chrome.notifications.create(noteId,
+					cross_notification(noteId,
 						{   type: 'basic',
 							title: 'Credentials Detected!',
 							message: 'Please Approve their Storage on the Mooltipass',
@@ -484,7 +493,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 					mooltipass.device.updateCredentials(null, tab, 0, username, password, subdomain + '.' + domain);
 				}
 
-				chrome.notifications.create(noteId,notification);
+				cross_notification(noteId,notification);
 			}
 		}		
 	}	

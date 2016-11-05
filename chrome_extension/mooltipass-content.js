@@ -5,7 +5,7 @@ var isSafari = typeof(safari) == 'object'?true:false;
 
 // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
 function messaging( message ) {
-	if (content_debug_msg > 4) cipDebug.log('%c Sending message to background:','background-color: #0000FF; color: #FFF; padding: 5px; ', message, safari);
+	if (content_debug_msg > 4) cipDebug.log('%c Sending message to background:','background-color: #0000FF; color: #FFF; padding: 5px; ', message);
 	if ( isSafari ) safari.self.tab.dispatchMessage("messageFromContent", message);
 	else chrome.runtime.sendMessage( message );
 };

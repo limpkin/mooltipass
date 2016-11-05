@@ -7,13 +7,14 @@ var $ = mpJQ.noConflict(true);
 var _settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
 
 if ( isSafari ) messaging = safari.extension.globalPage.contentWindow.messaging;
-
-// Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
-function messaging( message ) {
-    if (content_debug_msg > 4) cipDebug.log('%c Sending message to background:','background-color: #0000FF; color: #FFF; padding: 5px; ', message);
-    if ( isSafari ) safari.self.tab.dispatchMessage("messageFromContent", message);
-    else chrome.runtime.sendMessage( message );
-};
+else {
+    // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
+    function messaging( message ) {
+        if (content_debug_msg > 4) cipDebug.log('%c Sending message to background:','background-color: #0000FF; color: #FFF; padding: 5px; ', message);
+        if ( isSafari ) safari.self.tab.dispatchMessage("messageFromContent", message);
+        else chrome.runtime.sendMessage( message );
+    };    
+}
 
 function initSettings() {
     $("#btn-settings").click(function() {

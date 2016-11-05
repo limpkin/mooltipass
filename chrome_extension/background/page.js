@@ -110,6 +110,7 @@ page.isValidProtocol = function(url) {
 }
 
 page.switchTab = function(callback, tab) {
+	if ( typeof(tab) == 'number' ) tab = { id: tab };
 	if (background_debug_msg > 4) mpDebug.log('%c page: %c switchTab ', mpDebug.css('ffeef9'), tab );
 	browserAction.showDefault(null, tab);
 

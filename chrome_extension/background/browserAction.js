@@ -2,6 +2,7 @@ var browserAction = {};
 
 browserAction.show = function(callback, tab) {
 	if (background_debug_msg > 4) mpDebug.log('%c browserAction: show ', mpDebug.css('FFD389') , tab );
+	
 	var data = {};
 	if(!page.tabs[tab.id] || page.tabs[tab.id].stack.length == 0) {
 		browserAction.showDefault(callback, tab);
@@ -18,6 +19,8 @@ browserAction.show = function(callback, tab) {
 					tabId: tab.id,
 					popup: "popups/" + data.popup
 				});
+    		} else {
+    			console.log( chrome.runtime.lastError );
     		}
 		});
 	}
@@ -56,7 +59,7 @@ browserAction.update = function(interval) {
 }
 
 browserAction.showDefault = function(callback, tab) {
-	if (background_debug_msg > 5) mpDebug.log('%c browserAction: showDefault ', mpDebug.css('FFD389') , tab );
+	if (background_debug_msg > 4) mpDebug.log('%c browserAction: showDefault ', mpDebug.css('FFD389') , tab );
 	var stackData = {
 		level: 1,
 		iconType: "normal",
@@ -113,7 +116,7 @@ browserAction.stackAdd = function(callback, tab, icon, popup, level, push, visib
 
 browserAction.removeLevelFromStack = function(callback, tab, level, type, dontShow) {
 	if(!page.tabs[tab.id]) {
-        console.log('browserAction.removeLevelFromStack() no tab.id');
+        console.log('browserAction.removeLevelFromStack() no tab.id', tab);
 		return;
 	}
 

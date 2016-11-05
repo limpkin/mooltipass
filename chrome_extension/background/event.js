@@ -6,11 +6,6 @@ function messaging( message, tab ) {
 	else chrome.tabs.sendMessage( typeof(tab) == 'number'?tab:tab.id, message, function(response) {});
 };
 
-if (!isSafari) {
-	chrome.notifications.onButtonClicked.addListener(mooltipassEvent.onNotifyButtonClick);
-	chrome.notifications.onClosed.addListener(mooltipassEvent.onNotifyClosed);
-}
-
 function cross_notification( notificationId, options ) {
 	if ( isSafari ) {
 		options.tag = notificationId;
@@ -33,7 +28,7 @@ var event = mooltipassEvent;
  * @request {object}  The request received from content. Varies if it comes from Safari or Chrome/FF
  * @sender {object} Tab object sending the message
 **/
-mooltipassEvent.onMessage = function( request, sender ) {
+mooltipassEvent.onMessage = function( request, sender, callback ) {
 	if ( isSafari ) { // Safari sends an EVENT
 		sender = request.target;
 		request = request.message;
@@ -45,9 +40,12 @@ mooltipassEvent.onMessage = function( request, sender ) {
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: onMessage ' + request.action, mpDebug.css('e2eef9'), tab, arguments);
 
 	if (request.action in mooltipassEvent.messageHandlers) {
-		var callback = function( data, tab ) {
-			messaging( { 'action': 'response-' + request.action, 'data': data }, tab );
-		};
+		if ( tab ) {
+			console.log('here');
+			var callback = function( data, tab ) {
+				messaging( { 'action': 'response-' + request.action, 'data': data }, tab );
+			};	
+		}
 
 		mooltipassEvent.invoke(mooltipassEvent.messageHandlers[request.action], callback, tab, request.args);
 	}
@@ -165,16 +163,18 @@ mooltipassEvent.onSaveSettings = function(callback, tab, settings) {
 mooltipassEvent.onGetStatus = function(callback, tab) {
 	if (background_debug_msg > 5) mpDebug.log('%c mooltipassEvent: %c onGetStatus','background-color: #e2eef9','color: #246', tab);
 
-	browserAction.showDefault(null, tab);
-    page.tabs[tab.id].errorMessage = undefined;  // XXX debug
+	if ( tab ) {
+		browserAction.showDefault(null, tab);
+    	page.tabs[tab.id].errorMessage = undefined;  // XXX debug
+    }
 
     var toReturn = {
 		status: mooltipass.device.getStatus(),
-		error: page.tabs[tab.id].errorMessage,
+		error: undefined,
 		blacklisted: false
 	};
 
-    if ( tab.url ) {
+    if ( tab && tab.url ) {
     	var tabStatus = mooltipass.backend.extractDomainAndSubdomain( tab.url );
     	toReturn.blacklisted = tabStatus.blacklisted;
     }
@@ -570,3 +570,8 @@ mooltipassEvent.messageHandlers = {
     'cache_retrieve': page.cacheRetrieve,
     'content_script_loaded': page.setAllLoaded
 };
+
+if (!isSafari) {
+	chrome.notifications.onButtonClicked.addListener(mooltipassEvent.onNotifyButtonClick);
+	chrome.notifications.onClosed.addListener(mooltipassEvent.onNotifyClosed);
+}

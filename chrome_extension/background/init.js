@@ -32,6 +32,10 @@ if ( isSafari ) {
 	safari.application.addEventListener("open", function(tab) {
 		console.log( tab );
 	}, true);
+
+	safari.application.addEventListener("activate", function( evt ) {
+		page.currentTabId = evt.target.activeTab;
+	}, true);
 } else {
 	chrome.tabs.onCreated.addListener(function(tab) {
 		if(tab.id > 0) {
@@ -199,10 +203,8 @@ window.setInterval(function() {
 }, _interval);
 
 window.setInterval(function() {
-	if(page.currentTabId && page.currentTabId > 0 && page.allLoaded) {
-		chrome.tabs.sendMessage(page.currentTabId, {
-			action: "check_for_new_input_fields"
-		});
+	if(page.currentTabId && page.currentTabId != -1 && page.allLoaded) {
+		messaging( { action: "check_for_new_input_fields" }, page.currentTabId );
 	}
 }, _intervalCheckForNewInputs);
 

@@ -119,7 +119,7 @@ page.switchTab = function(callback, tab) {
 
 page.setAllLoaded = function( callback, tab ) {
 	if (background_debug_msg > 4) mpDebug.log('%c page: setAllLoaded ', mpDebug.css('ffeef9'));
-	this.allLoaded = true;
+	page.allLoaded = true;
 	callback({}, tab );
 }
 

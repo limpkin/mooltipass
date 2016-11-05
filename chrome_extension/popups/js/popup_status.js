@@ -9,10 +9,8 @@ var _settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(loc
 if ( isSafari ) messaging = safari.extension.globalPage.contentWindow.messaging;
 else {
     // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
-    function messaging( message ) {
-        if (content_debug_msg > 4) cipDebug.log('%c Sending message to background:','background-color: #0000FF; color: #FFF; padding: 5px; ', message);
-        if ( isSafari ) safari.self.tab.dispatchMessage("messageFromContent", message);
-        else chrome.runtime.sendMessage( message );
+    function messaging( message, callback ) {
+        chrome.runtime.sendMessage( message, callback );
     };    
 }
 
@@ -67,6 +65,7 @@ function initSettings() {
 }
 
 function getStatusCallback( object ) {
+    console.log( object );
      $('#status-bar .status > span').hide();
 
     // Connection to app established, device connected and unlocked
@@ -103,6 +102,7 @@ function updateStatusInfo() {
     if( isSafari ) {
         safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
     } else {
+        console.log('here 2');
         messaging( { action: "get_status" }, getStatusCallback );    
 
         if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {
@@ -122,7 +122,7 @@ function _updateStatusInfo() {
 }
 
 $(function() {
-    //initSettings();
+    initSettings();
     $('#status-bar .status > span').hide();
     $('#initial-state').show();
         

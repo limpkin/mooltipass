@@ -2125,5 +2125,4 @@ cipEvents.startEventHandling();
 var mcCombs = new mcCombinations();
 mcCombs.settings.debugLevel = content_debug_msg;
 
-console.log('I have been loaded');
 messaging( {'action': 'content_script_loaded' } );

@@ -28,15 +28,17 @@
 
 ## Installation on Linux
 
-To access the device as normal user make sure you have set up the correct [udev rules](https://www.themooltipass.com/udev_rule.txt). If you're not willing to and are feeling adventurous, you may run mooltipass_tool.py with sudo.
+To access the device as normal user make sure you have set up the correct [udev rules](https://www.themooltipass.com/udev_rule.txt). If you're not willing to
+and are feeling adventurous, you may run mooltipass_tool.py with sudo. **Using
+sudo is not recommended as it is dangerous and can cause serious problems.**
 
 ### Ubuntu 16.04
 ```
 sudo apt-get install python python-pip python-crypto python-dev libgmp3-dev build-essential
 pip install -r requirements.txt
-pip install seccure
+mkdir -p export
 ./mooltipass_tool.py (when udev rules are installed)
-sudo python mooltipass_tool.py (when no udev rules are installed)
+sudo ./mooltipass_tool.py (when no udev rules are installed)
 ```
 
 ### Arch Linux
@@ -49,6 +51,15 @@ sudo pacman -S --needed python2 python2-crypto
 From AUR:
 ```
 python2-pyusb python2-intelhex python2-pyqrcode
+
+# Not on aur (yet):
+pip install seccure
+```
+
+Running the program:
+```
+mkdir -p export
+./mooltipass_tool.py
 ```
 
 ### Other Linux Distributions
@@ -59,5 +70,6 @@ Then install all dependencies via pip:
 
 ```
 pip install -r requirements.txt
+mkdir -p export
 ./mooltipass_tool.py
 ```

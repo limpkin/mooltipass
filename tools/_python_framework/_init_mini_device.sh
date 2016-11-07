@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo python mooltipass_tool.py init updatefile.img
+./mooltipass_tool.py init updatefile.img

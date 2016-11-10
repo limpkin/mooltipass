@@ -206,6 +206,12 @@ int main(void)
     {
         mooltipassParametersInit();
         setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, USER_PARAM_CORRECT_INIT_KEY);
+        
+        /* TO REMOVE */
+        /*uint8_t temp_buffer[UID_REQUEST_KEY_SIZE + UID_SIZE];
+        memset((void*)temp_buffer, 0, UID_REQUEST_KEY_SIZE + UID_SIZE);
+        eeprom_write_block((void*)temp_buffer, (void*)EEP_UID_REQUEST_KEY_ADDR, (UID_REQUEST_KEY_SIZE + UID_SIZE));
+        eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, UID_REQUEST_KEY_OK_KEY);*/
     }
 
    /********************************************************************/

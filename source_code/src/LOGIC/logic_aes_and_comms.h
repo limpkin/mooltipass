@@ -48,6 +48,7 @@ uint16_t searchForLoginInGivenParent(uint16_t parent_addr, uint8_t* name);
 uint16_t searchForServiceName(uint8_t* name, uint8_t mode, uint8_t type);
 RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag);
 RET_TYPE addNewContext(uint8_t* name, uint8_t length, uint8_t type);
+void encryptOneAesBlockWithKeyEcb(uint8_t* aes_key, uint8_t* data);
 RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length);
 void initEncryptionHandling(uint8_t* aes_key, uint8_t* nonce);
 RET_TYPE setLoginForContext(uint8_t* name, uint8_t length);
@@ -88,11 +89,11 @@ void loginSelectLogic(void);
 #define CHARSET_SIZE_SPECIALS4   6
 #define CHARSET_SIZE_SPACE       1
 
-void managementActionPickingLogic(void);
 RET_TYPE askUserToSaveToFlash(pNode *p, cNode *c, uint16_t pAddr, uint16_t cAddr);
 uint16_t askUserToSelectCharset(uint16_t original_flags);
 RET_TYPE generateRandomPassword(uint8_t *password, uint8_t length, uint16_t flags);
-void sendOrDisplayString(char * str, uint8_t is_password);
+void sendOrDisplayString(char* str, uint8_t is_password);
+void managementActionPickingLogic(void);
 void loginManagementSelectLogic(void);
 #endif
 

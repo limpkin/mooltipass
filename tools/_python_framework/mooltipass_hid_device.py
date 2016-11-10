@@ -332,12 +332,19 @@ class mooltipass_hid_device:
 		# Ask for Mooltipass password
 		if password is None:
 			mp_password = raw_input("Enter Mooltipass Password, press enter if None: ")
-			if len(mp_password) == DEVICE_PASSWORD_SIZE*2:
+			if len(mp_password) == DEVICE_PASSWORD_SIZE*2 or len(mp_password) == MINI_DEVICE_PASSWORD_SIZE*2:
+				password_len = len(mp_password)/2
 				password_set = True
 			else:
 				print "Empty or erroneous password, using zeros"
 		else:
-			mp_password = password
+			if len(password) == DEVICE_PASSWORD_SIZE*2 or len(password) == MINI_DEVICE_PASSWORD_SIZE*2:
+				password_len = len(password)/2
+				mp_password = password
+				password_set = True
+			else:
+				print "Erroneous password length for password:", len(password)/2
+				return False
 		
 		# Prepare the password
 		if verbose == True:
@@ -346,7 +353,7 @@ class mooltipass_hid_device:
 		mooltipass_password.append(DEVICE_PASSWORD_SIZE)
 		mooltipass_password.append(CMD_IMPORT_MEDIA_START)
 		if password_set:
-			for i in range(DEVICE_PASSWORD_SIZE):
+			for i in range(password_len):
 				mooltipass_password.append(int(mp_password[i*2:i*2+2], 16))
 		else:
 			for i in range(DEVICE_PASSWORD_SIZE):

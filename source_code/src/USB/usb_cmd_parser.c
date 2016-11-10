@@ -931,7 +931,7 @@ void usbProcessIncoming(uint8_t caller_id)
         {            
             // Set default addresses
             mediaFlashImportPage = GRAPHIC_ZONE_PAGE_START;
-            mediaFlashImportOffset = 0;
+            mediaFlashImportOffset = 0;        
 
             // Things are different between the mini & the standard Mooltipass
             #if defined(MINI_VERSION)
@@ -955,23 +955,43 @@ void usbProcessIncoming(uint8_t caller_id)
                     /* Security set value */
                     uint8_t massprod_fboot_val = eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR);
                     uint8_t boot_pwd_set_val = eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET);
+                    
+                    // Bruteforce delay
+                    userViewDelay();
 
-                    if((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_INVALID) || (boot_pwd_set_val != BOOTLOADER_PWDOK_KEY))
+                    if((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_INVALID) || (boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY))
                     {
                         /* Normal mini versions: update only available when the card is inserted backwards */
-
-                        // Mandatory wait for bruteforce
-                        userViewDelay();
 
                         // Prepare asking confirmation screen
                         confirmationText_t temp_conf_text;
                         temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
                         temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
-
-                        // TODO: implement sec check !
+                        
+                        // Buffer which will contain version number + UID (4+6bytes total)
+                        uint8_t password_buffer[AES_BLOCK_SIZE/8];
+                        memset((void*)password_buffer, 0, sizeof(password_buffer));
+                        strcpy((char*)password_buffer, MOOLTIPASS_VERSION);
+                        eeprom_read_block(password_buffer + sizeof(MOOLTIPASS_VERSION) - 1, (void*)EEP_UID_ADDR, UID_SIZE);
+                        
+                        // Fetch the platform AES key
+                        uint8_t plateform_aes_key[AES_KEY_LENGTH/8];
+                        eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
+                        eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
+                        
+                        // Encrypt [version number + UID] with platform AES key
+                        encryptOneAesBlockWithKeyEcb(plateform_aes_key, password_buffer);
+                        
+                        // Compare the result with the provided password
+                        uint8_t compare_result = 0x00;
+                        for (uint8_t i = 0; i < sizeof(password_buffer); i++)
+                        {
+                            compare_result |= password_buffer[i] ^ msg->body.data[i];
+                        }
+                        memset((void*)password_buffer, 0, sizeof(password_buffer));
                         
                         // Allow bundle update if password is not set
-                        if ((boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_DO_NOT_UNPLUG)) == RETURN_OK) && (TRUE == TRUE)))
+                        if ((boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY) || ((compare_result == 0x00) && (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_DO_NOT_UNPLUG)) == RETURN_OK)))
                         {
                             /* Erase screen */
                             miniOledClearFrameBuffer();

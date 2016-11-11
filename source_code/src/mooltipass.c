@@ -299,10 +299,8 @@ int main(void)
     #endif
     #if defined(MINI_VERSION)
         // Uncomment below to force test procedure
-        /*current_bootkey_val = CORRECT_BOOTKEY + 1;
-        eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
-        setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, 0x00);
-        eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, FALSE);*/
+        //massprod_fboot_val = MASS_PROD_FBOOT_OK_KEY;
+        //eeprom_write_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR, MASS_PROD_FBOOT_OK_KEY);
     
         if ((current_bootkey_val != CORRECT_BOOTKEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY))
         {
@@ -365,6 +363,10 @@ int main(void)
                     {
                         tutorial_bmp_id--;
                         tutorial_scroll_direction = OLED_SCROLL_DOWN;
+                    }
+                    else
+                    {
+                        tutorial_scroll_direction = OLED_SCROLL_FLIP;
                     }
                 } 
                 else

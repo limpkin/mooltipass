@@ -265,7 +265,7 @@
     #define ID_STRING_NO_CREDS          58
     #define ID_STRING_FUSE_PB           59
     #define ID_STRING_FUNC_TEST         60
-    #define ID_STRING_FUNC_WHEEL        61
+    #define ID_STRING_RESERVED2         61
     #define ID_STRING_FUNC_TEST_SCROLL  62
     #define ID_STRING_PIN_COMPUTER      63
     #define ID_STRING_SEND_PASS_FOR     64
@@ -275,7 +275,7 @@
     #define ID_STRING_LED2              68
     #define ID_STRING_LED3              69
     #define ID_STRING_LED4              70
-    #define ID_STRING_FUNC_TEST_SCROLL2 71
+    #define ID_STRING_RESERVED          71
     #define ID_STRING_HASH1             72
     #define ID_STRING_HASH2             73
     #define ID_STRING_CHANGE_DESC_FOR   74

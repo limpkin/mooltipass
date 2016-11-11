@@ -3,7 +3,7 @@ import hashlib
 import os
 
 
-def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNumber, AESKey1, AESKey2, UIDKey, UID, newFlashHex, newBootloaderHex, verbose):
+def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNumber, AESKey1, AESKey2, UIDKey, UID, newFlashHexName, newBootloaderHex, verbose):
 	FW_MAX_LENGTH = 28672
 	BL_MAX_LENGTH = 4096
 	
@@ -41,8 +41,15 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	# Print hash if need
 	if verbose == True:
 		print "Original Firmware/Bootloader Hash:", hashlib.sha1(flashHex.tobinarray()).hexdigest()
+
+	# Include serial number in the hex to be flashed
+	flashHex[0x7F7C] = (serialNumber >> 24) & 0x000000FF
+	flashHex[0x7F7D] = (serialNumber >> 16) & 0x000000FF
+	flashHex[0x7F7E] = (serialNumber >> 8) & 0x000000FF
+	flashHex[0x7F7F] = (serialNumber >> 0) & 0x000000FF
 	
-	#one.tofile("comb.hex", format="hex")
+	# Write production firmware file
+	flashHex.tofile(newFlashHexName, format="hex")
 
 		
 generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", 323232, [2,2,2], [2,2,2], [2,2,2], [2,2,2], "newflash.hex", "newbooltoaderhex.hex", True)

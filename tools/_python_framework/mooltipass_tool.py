@@ -34,6 +34,7 @@
 #                                                                                                                               #
 #                                                                                                                               #
 #################################################################################################################################
+from mooltipass_mass_prod_init_proc import *
 from mooltipass_hid_device import *
 from mooltipass_init_proc import *
 import mooltipass_security_check 
@@ -118,14 +119,17 @@ def main():
 			else:
 				print "minicheck: not enough args!"
 		
-		if sys.argv[1] == "init":
-			if len(sys.argv) > 2:
-				if version_data[2] == "mini":
-					mooltipassMiniInit(mooltipass_device)
-				else:
-					print "Device Not Supported"
+		if sys.argv[1] == "initproc":
+			if version_data[2] == "mini":
+				mooltipassMiniInit(mooltipass_device)
 			else:
-				print "init: not enough args!"
+				print "Device Not Supported"
+				
+		if sys.argv[1] == "massprodinit":
+			if version_data[2] == "mini":
+				mooltipassMiniMassProdInit(mooltipass_device)
+			else:
+				print "Device Not Supported"			
 				
 		if sys.argv[1] == "get_serial":
 			if version_data[2] == "mini":

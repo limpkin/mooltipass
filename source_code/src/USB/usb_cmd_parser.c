@@ -581,7 +581,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 readProfileUserDbChangeNumber(&incomingData[1]);
             }
             usbSendMessage(CMD_GET_USER_CHANGE_NB, 2, incomingData);
-            break;
+            return;
         }
 
         // Set the user db change number
@@ -959,7 +959,7 @@ void usbProcessIncoming(uint8_t caller_id)
                     // Bruteforce delay
                     userViewDelay();
 
-                    if((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_INVALID) || (boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY))
+                    if ((datalen == (AES_BLOCK_SIZE/8)) && ((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_INVALID) || (boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY)))
                     {
                         /* Normal mini versions: update only available when the card is inserted backwards */
 
@@ -1513,7 +1513,7 @@ void usbProcessIncoming(uint8_t caller_id)
             uint8_t mini_serial[4];
             memcpy_PF(mini_serial, (uint_farptr_t)0x7F7C, sizeof(mini_serial));
             usbSendMessage(CMD_GET_MINI_SERIAL, sizeof(mini_serial), mini_serial);
-            break;
+            return;
         }
         #endif
         
@@ -1690,7 +1690,7 @@ void usbProcessIncoming(uint8_t caller_id)
             msg->body.data[2] = acc_detected;
             miniAccelerometerSendReceiveSPIData(msg->body.data, 2);
             usbSendMessage(CMD_TEST_ACC_PRESENCE, 3, msg->body.data);
-            break;
+            return;
         }
 #endif
 

@@ -366,7 +366,10 @@ class mooltipass_hid_device:
 		if verbose == True:
 			print "Starting upload..."
 		mooltipass_password = array('B')
-		mooltipass_password.append(DEVICE_PASSWORD_SIZE)
+		if mooltipass_variant == "mini":
+			mooltipass_password.append(MINI_DEVICE_PASSWORD_SIZE)
+		else:
+			mooltipass_password.append(DEVICE_PASSWORD_SIZE)
 		mooltipass_password.append(CMD_IMPORT_MEDIA_START)
 		if password_set:
 			for i in range(password_len):

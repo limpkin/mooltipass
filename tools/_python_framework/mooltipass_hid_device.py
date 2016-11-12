@@ -118,7 +118,23 @@ class mooltipass_hid_device:
 	def getMooltipassMiniSerial(self):
 		self.device.sendHidPacket([0, CMD_GET_MINI_SERIAL]);
 		serial_data = self.device.receiveHidPacket()[DATA_INDEX:DATA_INDEX+4]
-		return serial_data	
+		return serial_data
+		
+	# Get the Mooltipass UID
+	def getUID(self, req_key):
+		key = array('B', req_key.decode("hex"))
+		if len(key) != UID_REQUEST_KEY_SIZE:
+			print "Wrong UID Req Key Length:", len(key)
+			return None
+			
+		# send packet
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_GET_UID, UID_REQUEST_KEY_SIZE, key))
+		data = self.device.receiveHidPacket()
+		if data[LEN_INDEX] == 1:
+			print "Couldn't get UID (wrong password?)"
+			return None
+		else:
+			return data[DATA_INDEX:DATA_INDEX+data[LEN_INDEX]]
 		
 	# Get the user database change db
 	def getMooltipassUserDbChangeNumber(self):

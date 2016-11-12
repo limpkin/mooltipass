@@ -131,13 +131,21 @@ def main():
 			if version_data[2] == "mini":
 				serial_number = mooltipass_device.getMooltipassMiniSerial()
 				print "Serial number in hex:", "".join(format(x, "02x") for x in serial_number)
-				print "Serial number in decimal:", serial_number[0]*16777216 + serial_number[0]*65536 + serial_number[2]*256 + serial_number[3]*1
+				print "Serial number in decimal:", serial_number[0]*16777216 + serial_number[1]*65536 + serial_number[2]*256 + serial_number[3]*1
 			else:
 				print "Device Not Supported"		
 				
 		if sys.argv[1] == "decrypt_mini_prod":
 			if len(sys.argv) > 2:
 				decryptMiniProdFile(sys.argv[2])		
+			else:
+				print "decrypt_mini_prod: not enough args!"
+				
+		if sys.argv[1] == "get_uid":
+			if len(sys.argv) > 2:
+				uid = mooltipass_device.getUID(sys.argv[2])
+				if uid != None:
+					print "UID:", "".join(format(x, "02x") for x in uid)
 			else:
 				print "decrypt_mini_prod: not enough args!"
 				

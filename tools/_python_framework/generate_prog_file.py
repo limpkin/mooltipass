@@ -106,10 +106,18 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	eepromHex[0x400-2] = AESKey2[30]
 	eepromHex[0x400-1] = AESKey2[31]
 	
-		
-	eepromHex.tofile("pouet.hex", format="hex")
+	# Write new eeprom file
+	eepromHex.tofile(newEeepromHex, format="hex")
 
 		
-generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", 323232, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,1,2,3,4,5], "newflash.hex", "neweeprom.hex", True)
-
+generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", 323232, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0], "newflash.hex", "neweeprom.hex", True)
+key1 = []
+key2 = []
+for i in range(32):
+	key1.append(i)
+	key2.append(32+i)
+uidreq = []
+for i in range(16):
+	uidreq.append(i)
+#generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", 323232, key1, key2, uidreq, [0,1,2,3,4,5], "newflash.hex", "neweeprom.hex", True)
 

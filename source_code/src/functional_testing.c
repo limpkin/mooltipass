@@ -261,7 +261,6 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
         hexachar_to_string((char)temp_uint, temp_string);
         miniOledPutCenteredString(15, temp_string);
         temp_uint += getWheelCurrentIncrement();
-        //oledFillXY(70,15,15,15,FALSE);
     }
         
     // Insert card

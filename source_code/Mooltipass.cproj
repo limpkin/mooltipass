@@ -27,22 +27,22 @@
     <BootSegment>2</BootSegment>
     <AsfFrameworkConfig>
       <framework-data>
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.28.1" />
-  </dependencies>
-</framework-data>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.28.1" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
     <avrtoolinterface>ISP</avrtoolinterface>
     <avrtool>com.atmel.avrdbg.tool.ispmk2</avrtool>
     <com_atmel_avrdbg_tool_ispmk2>
       <ToolType>com.atmel.avrdbg.tool.ispmk2</ToolType>
       <ToolName>AVRISP mkII</ToolName>
-      <ToolNumber>0000A0014774</ToolNumber>
+      <ToolNumber>000200200870</ToolNumber>
       <StimuliFile>
       </StimuliFile>
       <Channel>
@@ -107,7 +107,7 @@
     </com_atmel_avrdbg_tool_jtagicemkii>
     <preserveEEPROM>false</preserveEEPROM>
     <ExternalProgrammingToolCommand />
-    <avrtoolserialnumber>0000A0014774</avrtoolserialnumber>
+    <avrtoolserialnumber>000200200870</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9587</avrdeviceexpectedsignature>
     <avrtoolinterfaceclock>1000000</avrtoolinterfaceclock>
   </PropertyGroup>

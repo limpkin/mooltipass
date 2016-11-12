@@ -29,7 +29,7 @@
 
 #include "usb_cmd_parser.h"
 
-// EEPROM defines
+// EEPROM defines: DO NOT change these values except if changing them in generate_prog_file.py as well!
 #define CORRECT_BOOTKEY                     0xDEAD
 #define BOOTLOADER_BOOTKEY                  0xD0D0
 #define BRICKED_BOOTKEY                     0xCAD0

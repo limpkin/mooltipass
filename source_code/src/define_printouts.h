@@ -17,6 +17,7 @@
     #pragma message "Boot pwd set bool address: " XSTR(EEP_BOOT_PWD_SET)
     #pragma message "Boot pwd address: " XSTR(EEP_BOOT_PWD)
     #pragma message "User data start address: " XSTR(EEP_USER_DATA_START_ADDR)
+    #pragma message "Mass prod bool address: " XSTR(EEP_MASS_PROD_FBOOT_BOOL_ADDR)
     #pragma message "User_id <> SMC_UID & Nonce start address: " XSTR(EEP_SMC_IC_USER_MATCH_START_ADDR)
     #pragma message "Number of possible LUT entries:" XSTR(NB_MAX_SMCID_UID_MATCH_ENTRIES)
     #pragma message "UID request key address:" XSTR(EEP_UID_REQUEST_KEY_ADDR)

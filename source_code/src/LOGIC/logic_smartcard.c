@@ -66,6 +66,7 @@ void unlockFeatureCheck(void)
             if ((getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) & LF_ENT_KEY_MASK) != 0)
             {
                 usbKeyboardPress(KEY_RETURN, 0);
+                timerBasedDelayMs(300);
             }
 
             /* If enabled, enter login: works because it takes less than 1s */
@@ -73,7 +74,7 @@ void unlockFeatureCheck(void)
             {
                 loginString[NODE_CHILD_SIZE_OF_LOGIN-1] = 0;
                 usbKeybPutStr((char*)loginString);
-                usbKeyboardPress(KEY_RETURN, 0);
+                usbKeyboardPress(KEY_TAB, 0);
             }
 
             /* Todo: implement back functionality? */
@@ -297,7 +298,7 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_f
                 eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
                 eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
 
-                // Display AESenc(CTRVAL)
+                // Display AESenc(AESkey)
                 computeAndDisplayBlockSizeEncryptionResult(plateform_aes_key, temp_buffer, ID_STRING_HASH2);
             }
             #endif

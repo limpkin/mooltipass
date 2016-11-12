@@ -3,19 +3,19 @@ import hashlib
 import os
 
 
-def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNumber, AESKey1, AESKey2, UIDKey, UID, newFlashHexName, newBootloaderHex, verbose):
+def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNumber, AESKey1, AESKey2, UIDKey, UID, newFlashHexName, newEeepromHex, verbose):
 	FW_MAX_LENGTH = 28672
 	BL_MAX_LENGTH = 4096
 	
 	# Check for original firmware file presence
 	if not os.path.isfile(originalFlashHexName):
 		print "Couldn't find firmware hex file", originalFlashHexName
-		return
+		return False
 				
 	# Check for bootloader file presence
 	if not os.path.isfile(bootloaderHexName):
 		print "Couldn't find bootloader hex file", bootloaderHexName
-		return
+		return False
 		
 	# Read firmware Hex
 	flashHex = IntelHex(originalFlashHexName)
@@ -41,6 +41,11 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	# Print hash if need
 	if verbose == True:
 		print "Original Firmware/Bootloader Hash:", hashlib.sha1(flashHex.tobinarray()).hexdigest()
+		
+	# Check there's nothing where we want to put the serial number
+	if flashHex[0x7F7C] != 0xFF:
+		print "No space to write serial number inside the bootloader hex!"
+		return False
 
 	# Include serial number in the hex to be flashed
 	flashHex[0x7F7C] = (serialNumber >> 24) & 0x000000FF
@@ -50,6 +55,15 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	
 	# Write production firmware file
 	flashHex.tofile(newFlashHexName, format="hex")
+	
+	# Generate blank eeprom file
+	eepromHex = IntelHex()
+	for i in range(0x400):
+		eepromHex[i] = 0xFF
+		
+	eepromHex.tofile("pouet.hex", format="hex")
 
 		
 generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", 323232, [2,2,2], [2,2,2], [2,2,2], [2,2,2], "newflash.hex", "newbooltoaderhex.hex", True)
+
+

@@ -29,7 +29,7 @@ def create_raster_file(label_size, in_file, out_file):
 	with open(out_file, 'wb') as f:
 		f.write(qlr.data)
 		
-def getMpmColorForSerialNumber(serial_number)
+def getMpmColorForSerialNumber(serial_number):
 	# To be implemented later
 	return "Red"
 		

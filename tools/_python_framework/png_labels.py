@@ -3,10 +3,7 @@
 # pip install viivakoodi
 import barcode
 from barcode.writer import ImageWriter
-try:
-    import Image,ImageDraw, ImageFont
-except ImportError:
-    from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 CODE128 = barcode.get_barcode_class('code128')
 FONT = "Helvetica.ttf"

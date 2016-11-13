@@ -3,3 +3,4 @@ pyusb
 intelhex
 pyqrcode
 viivakoodi
+pillow

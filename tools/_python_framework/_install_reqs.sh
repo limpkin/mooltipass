@@ -1,6 +1,7 @@
 #!/bin/bash
 sudo apt-get update
-sudo apt-get -y --force-yes install python python-pip python-crypto python-dev libgmp3-dev build-essential python-numpy python-matplotlib python-wheel < /dev/null
+sudo apt-get -y --force-yes install python python-pip python-crypto python-dev libgmp3-dev build-essential python-numpy python-matplotlib python-wheel libjpeg-dev < /dev/null
+sudo apt-get -y --force-yes remove python-pil < /dev/null
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/firmwareBundlePackAndSign.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/generic_hid_device.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_defines.py

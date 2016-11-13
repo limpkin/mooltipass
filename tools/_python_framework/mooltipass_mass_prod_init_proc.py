@@ -25,9 +25,9 @@ if platform.system() == "Linux":
 	logging.basicConfig(level='ERROR')
 
 
-def create_raster_file(label_size, in_file, out_file):
+def create_raster_file(label_size, in_file, out_file, cut=True):
 	qlr = brother_ql.BrotherQLRaster(PRINTER_MODEL)
-	brother_ql.create_label(qlr, in_file, label_size)
+	brother_ql.create_label(qlr, in_file, label_size, cut=cut)
 	with open(out_file, 'wb') as f:
 		f.write(qlr.data)
 		

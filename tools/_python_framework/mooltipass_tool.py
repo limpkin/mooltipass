@@ -37,6 +37,7 @@
 from mooltipass_mass_prod_init_proc import *
 from mooltipass_hid_device import *
 from mooltipass_init_proc import *
+from generate_prog_file import *
 import mooltipass_security_check 
 import firmwareBundlePackAndSign
 from datetime import datetime
@@ -47,7 +48,7 @@ import usb.util
 import random
 import time
 import sys
-nonConnectionCommands = ["packAndSign", "decrypt_mini_prod"]
+nonConnectionCommands = ["packAndSign", "decrypt_mini_prod", "generate_mass_prod_file"]
 
 def main():
 	skipConnection = False
@@ -129,7 +130,14 @@ def main():
 			if version_data[2] == "mini":
 				mooltipassMiniMassProdInit(mooltipass_device)
 			else:
-				print "Device Not Supported"			
+				print "Device Not Supported"		
+
+		# Generate a mass production file 
+		if sys.argv[1] == "generate_mass_prod_file":
+			if len(sys.argv) == (2 + 2):
+				# Only firmware hex + bootloader hex are passed as args: 0s for aes keys and uids
+				print "Generating blank mass production file with 0s for AES keys and UID"
+				generateFlashAndEepromHex(sys.argv[2], sys.argv[3], 12345, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0], "newflash.hex", "neweeprom.hex", True)
 				
 		if sys.argv[1] == "get_serial":
 			if version_data[2] == "mini":

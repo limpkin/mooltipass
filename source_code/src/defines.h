@@ -70,7 +70,7 @@
  *  MINI_KICKSTARTER_SETUP
  *  => mooltipass mini production kickstarter version (8Mb)
 */
-#define MINI_PREPRODUCTION_SETUP_ACC
+#define MINI_PREPROD_KICKSTARTER_SETUP
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)

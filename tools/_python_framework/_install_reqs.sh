@@ -13,6 +13,8 @@ wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_pytho
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/updatefile.img
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_mass_prod_init_proc.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/png_labels.py
+wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/generate_prog_file.py
+wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/Helvetica.ttf
 sudo pip install -r requirements.txt
 sudo pip install seccure
 sudo pip install https://github.com/pklaus/brother_ql/archive/bef9cea.zip

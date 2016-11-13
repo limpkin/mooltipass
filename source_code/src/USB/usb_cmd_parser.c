@@ -951,6 +951,10 @@ void usbProcessIncoming(uint8_t caller_id)
                             activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);
                         }
                     #endif
+                    
+                    activityDetectedRoutine();
+                    guiSetCurrentScreen(SCREEN_DEFAULT_UPDATING);
+                    guiGetBackToCurrentScreen();
                 #else
                     /* Security set value */
                     uint8_t massprod_fboot_val = eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR);
@@ -1007,6 +1011,10 @@ void usbProcessIncoming(uint8_t caller_id)
                             /* When security is in place and it isn't the first mass production boot: set jump to bootloader bool, activate timer for reboot */
                             if ((boot_pwd_set_val == BOOTLOADER_PWDOK_KEY) && (massprod_fboot_val != MASS_PROD_FBOOT_OK_KEY))
                             {
+                                /* Set updating screen */
+                                guiSetCurrentScreen(SCREEN_DEFAULT_UPDATING);
+                                guiGetBackToCurrentScreen();
+                                /* set jump to bootloader bool, activate timer for reboot */
                                 eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
                                 activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);                                
                             }

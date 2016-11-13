@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo apt-get update
-sudo apt-get -y --force-yes install python python-pip python-crypto python-dev libgmp3-dev build-essential < /dev/null
+sudo apt-get -y --force-yes install python python-pip python-crypto python-dev libgmp3-dev build-essential python-numpy python-pil python-wheel < /dev/null
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/firmwareBundlePackAndSign.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/generic_hid_device.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_defines.py
@@ -12,6 +12,7 @@ wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_pytho
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/requirements.txt
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/updatefile.img
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_mass_prod_init_proc.py
+sudo pip install --upgrade https://github.com/pklaus/brother_ql/archive/bef9cea.zip
 sudo pip install -r requirements.txt
 sudo pip install seccure
 mkdir -p export

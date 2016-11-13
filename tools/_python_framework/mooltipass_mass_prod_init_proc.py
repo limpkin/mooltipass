@@ -1,9 +1,11 @@
+from png_labels import create_label_type1, create_label_type2
 from mooltipass_hid_device import *
 from mooltipass_defines import *
 from os.path import isfile, join
 from array import array
 from time import sleep
 from os import listdir
+import brother_ql
 import platform
 import usb.core
 import usb.util
@@ -16,7 +18,13 @@ import copy
 import time
 import sys
 import os
+MODEL = "QL-700"
 
+def create_raster_file(label_size, in_file, out_file):
+	qlr = brother_ql.BrotherQLRaster(MODEL)
+	brother_ql.create_label(qlr, in_file, label_size)
+	with open(out_file, 'wb') as f:
+		f.write(qlr.data)
 		
 # Get a packet to send for a given command and payload
 def mpmMassProdInitGetPacketForCommand(cmd, len, data):
@@ -39,6 +47,20 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 	if not os.path.isfile("updatefile.img"):
 		print "Couldn't find data file!"
 		return
+		
+	label_size = "17x87"
+	barcode_value = "MPM-RED-12345"
+	line1, line2, line3 = "Mooltipass Mini", "Color: Red", "Serial Number: 12345"
+	out_file = "label1_17x87_12345.bin"
+	im = create_label_type1(label_size, barcode_value, line1, line2, line3)
+	create_raster_file(label_size, im, out_file)
+	os.system("cat "+out_file+" > /dev/usb/lp0")
+	
+	label_size, text = "17x87", "MPM-RED-12345"
+	out_file = "label2_17x87_12345.bin"
+	im = create_label_type2(label_size, text, font_size=16)
+	create_raster_file(label_size, im, out_file)
+	os.system("cat "+out_file+" > /dev/usb/lp0")
 
 	# Loop
 	try:

@@ -2,3 +2,4 @@ crypto
 pyusb
 intelhex
 pyqrcode
+viivakoodi

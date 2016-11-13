@@ -18,6 +18,6 @@ wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_pytho
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/Helvetica.ttf
 sudo pip install -r requirements.txt
 sudo pip install seccure
-sudo pip install https://github.com/pklaus/brother_ql/archive/bef9cea.zip
-sudo pip install --upgrade --no-deps https://github.com/pklaus/brother_ql/archive/bef9cea.zip
+sudo pip install https://github.com/pklaus/brother_ql/archive/7a3c638.zip
+sudo pip install --upgrade --no-deps https://github.com/pklaus/brother_ql/archive/7a3c638.zip
 mkdir -p export

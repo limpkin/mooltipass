@@ -141,7 +141,7 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 					out_file = "label_number_1.bin"
 					# Create label with content
 					im = create_label_type1(label_size, barcode_value, line1, line2, line3)
-					create_raster_file(label_size, im, out_file)
+					create_raster_file(label_size, im, out_file, cut=False)
 					# Use cat to print label
 					os.system("cat "+out_file+" > /dev/usb/lp0")
 					
@@ -150,7 +150,7 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 					out_file = "label_number_2.bin"
 					# Create label with content
 					im = create_label_type2(label_size, text, font_size=16)
-					create_raster_file(label_size, im, out_file)
+					create_raster_file(label_size, im, out_file, cut=True)
 					# Use cat to print label
 					os.system("cat "+out_file+" > /dev/usb/lp0")
 				

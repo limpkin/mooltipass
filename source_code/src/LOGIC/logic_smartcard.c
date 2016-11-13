@@ -276,7 +276,7 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_f
         if ((getMooltipassParameterInEeprom(HASH_DISPLAY_FEATURE_PARAM) != FALSE) && (hash_allow_flag != FALSE))
         {
             // Fetch AES key from eeprom: 30 bytes after the first 32bytes of EEP_BOOT_PWD, then last 2 bytes at EEP_LAST_AES_KEY2_2BYTES_ADDR
-            eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
+            eeprom_read_block(plateform_aes_key, (void*)(EEP_BOOT_PWD+(AES_KEY_LENGTH/8)), 30);
             eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
 
             // Display AESenc(CTRVAL)
@@ -295,7 +295,7 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_f
             if ((getMooltipassParameterInEeprom(HASH_DISPLAY_FEATURE_PARAM) != FALSE) && (hash_allow_flag != FALSE))
             {
                 // Fetch AES key from eeprom: 30 bytes after the first 32bytes of EEP_BOOT_PWD, then last 2 bytes at EEP_LAST_AES_KEY2_2BYTES_ADDR
-                eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
+                eeprom_read_block(plateform_aes_key, (void*)(EEP_BOOT_PWD+(AES_KEY_LENGTH/8)), 30);
                 eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
 
                 // Display AESenc(AESkey)

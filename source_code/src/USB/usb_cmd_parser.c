@@ -976,7 +976,7 @@ void usbProcessIncoming(uint8_t caller_id)
                         
                         // Fetch the platform AES key
                         uint8_t plateform_aes_key[AES_KEY_LENGTH/8];
-                        eeprom_read_block(plateform_aes_key, (void*)EEP_BOOT_PWD, 30);
+                        eeprom_read_block(plateform_aes_key, (void*)(EEP_BOOT_PWD+(AES_KEY_LENGTH/8)), 30);
                         eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
                         
                         // Encrypt [version number + UID] with platform AES key

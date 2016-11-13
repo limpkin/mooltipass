@@ -19,15 +19,19 @@ import os
 if platform.system() == "Linux":
 	# Barcode printing only implemented for linux
 	from png_labels import create_label_type1, create_label_type2
-	import brother_ql
-	
-PRINTER_MODEL = "QL-700"
+	PRINTER_MODEL = "QL-700"
+	import brother_ql	
+
 
 def create_raster_file(label_size, in_file, out_file):
 	qlr = brother_ql.BrotherQLRaster(PRINTER_MODEL)
 	brother_ql.create_label(qlr, in_file, label_size)
 	with open(out_file, 'wb') as f:
 		f.write(qlr.data)
+		
+def getMpmColorForSerialNumber(serial_number)
+	# To be implemented later
+	return "Red"
 		
 # Get a packet to send for a given command and payload
 def mpmMassProdInitGetPacketForCommand(cmd, len, data):
@@ -52,18 +56,27 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 		return
 		
 	if platform.system() == "Linux":
+		serial_number = 32
+		# 17*87mm label size
 		label_size = "17x87"
-		barcode_value = "MPM-RED-12345"
-		line1, line2, line3 = "Mooltipass Mini", "Color: Red", "Serial Number: 12345"
-		out_file = "label1_17x87_12345.bin"
+		# Bar code value: MPM - Color - Serial
+		barcode_value = "MPM-"+getMpmColorForSerialNumber(serial_number).upper()+"-"+str(serial_number)
+		# Text: Mooltipass Mini / Color: XXX / Serial number: XXXX
+		line1, line2, line3 = "Mooltipass Mini", "Color: "+getMpmColorForSerialNumber(serial_number), "Serial Number: "+str(serial_number)
+		out_file = "label_number_1.bin"
+		# Create label with content
 		im = create_label_type1(label_size, barcode_value, line1, line2, line3)
 		create_raster_file(label_size, im, out_file)
+		# Use cat to print label
 		os.system("cat "+out_file+" > /dev/usb/lp0")
 		
-		label_size, text = "17x87", "MPM-RED-12345"
-		out_file = "label2_17x87_12345.bin"
+		# 17*87mm label size, text value: MPM - Color - Serial		
+		label_size, text = "17x87", "MPM-"+getMpmColorForSerialNumber(serial_number).upper()+"-"+str(serial_number)
+		out_file = "label_number_2.bin"
+		# Create label with content
 		im = create_label_type2(label_size, text, font_size=16)
 		create_raster_file(label_size, im, out_file)
+		# Use cat to print label
 		os.system("cat "+out_file+" > /dev/usb/lp0")
 
 	# Loop

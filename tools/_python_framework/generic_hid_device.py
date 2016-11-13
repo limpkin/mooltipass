@@ -100,6 +100,10 @@ class generic_hid_device:
 			return data
 		except usb.core.USBError as e:
 			return None
+	
+	# Set new read timeout
+	def setReadTimeout(self, read_timeout):
+		self.read_timeout = read_timeout
 		
 	# Try to connect to HID device. 
 	# ping_packet: an array containing a ping packet to send to the device over HID

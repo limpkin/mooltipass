@@ -114,8 +114,8 @@ def main():
 				print "packAndSign: not enough args!"
 				
 		if sys.argv[1] == "minicheck":
-			if len(sys.argv) > 3:
-				mooltipass_security_check.mooltipassMiniSecCheck(mooltipass_device, sys.argv[2], sys.argv[3], sys.argv[4])
+			if len(sys.argv) > 7:
+				mooltipass_security_check.mooltipassMiniSecCheck(mooltipass_device, sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
 			else:
 				print "minicheck: not enough args!"
 		

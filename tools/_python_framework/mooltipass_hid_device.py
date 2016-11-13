@@ -439,8 +439,9 @@ class mooltipass_hid_device:
 				print "Done!"
 		else:
 			success_status = False
-			print "fail!!!"
-			print "likely causes: mooltipass already setup"
+			if verbose:
+				print "fail!!!"
+				print "likely causes: mooltipass already setup"
 
 		return success_status
 		

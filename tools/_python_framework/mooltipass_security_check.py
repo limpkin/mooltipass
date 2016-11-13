@@ -90,7 +90,7 @@ def generateBundlePasswordUpload(firmware_version, UIDKey, AESKey):
 	for i in range(len(encrypted)):
 		password.append(ord(encrypted[i]))
 	text_password = "".join(format(x, "02x") for x in password)
-	print text_password
+	#print text_password
 	return text_password
 
 def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphics_bundle, AESKey1, AESKey2, UIDReqKey, UIDKey):	
@@ -133,6 +133,7 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 	UIDKey_array = array('B', UIDKey.decode("hex"))
 	
 	# Start requesting random data from the MP
+	print "Fetching random numbers..."
 	rand_aes_key1 = array('B')
 	rand_aes_key2 = array('B')
 	rand_req_uid_key = array('B')
@@ -150,6 +151,7 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 	set_mooltipass_password_random_payload.extend(rand_aes_key2[0:30])
 	rand_aes_key1_string = "".join(format(x, "02x") for x in rand_aes_key1)
 	rand_aes_key2_string = "".join(format(x, "02x") for x in rand_aes_key2)
+	print "Starting test, please make sure a card is inserted in reverse inside the mini!"
 	
 	# Set read timeouts
 	mooltipass_device.getInternalDevice().setReadTimeout(3333)
@@ -190,27 +192,38 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 		print "OK - Couldn't set new Mooltipass password"
 	else:
 		print "FAIL - New Mooltipass password was set"
+		
+	# Set read timeouts
+	mooltipass_device.getInternalDevice().setReadTimeout(30000)
+		
+	# Test bundle upload with wrong password
+	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, AESKey1, None, "updatefile.img", False)
+	result = mooltipass_device.uploadBundle("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "updatefile.img", False)
+	if result == False:
+		print "OK - Couldn't start bundle upload with wrong password"
+	else:
+		print "FAIL - Could start bundle upload with wrong password"
 	
 	# Generate password for bundle upload
 	text_password = generateBundlePasswordUpload(mooltipass_device.getMooltipassVersionAndVariant()[1], UIDKey_array, AESKey2_array)
 		
 	# Test nominal firmware update with good aes key and good password, no new key flag
-	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, mooltipass_aes_key1, None, "updatefile.img", False)
-	mooltipass_device.uploadBundle("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "updatefile.img", False)
+	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, AESKey1, None, "updatefile.img", False)
+	mooltipass_device.uploadBundle(text_password, "updatefile.img", False)
 	mpmSecWaitForDeviceDisconRecon(mooltipass_device)
 	usr_answer = raw_input("Tutorial displayed? [y/n]: ")
 	if usr_answer == "y":
 		print "OK - Same firmware upload with good AES key 1 & AES key 2 - no new key flag"
 	else:
 		print "FAIL - Same firmware upload with good AES key 1 & AES key 2 - no new key flag"
-	# Still mooltipass_aes_key1
+	# Still AESKey1
 	
 	# Generate password for bundle upload
 	text_password = generateBundlePasswordUpload(mooltipass_device.getMooltipassVersionAndVariant()[1], UIDKey_array, AESKey2_array)
 		
 	# Test nominal firmware update with good aes key and good password 
-	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, mooltipass_aes_key1, rand_aes_key1_string, "updatefile.img", False)
-	mooltipass_device.uploadBundle("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "updatefile.img", False)
+	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, AESKey1, rand_aes_key1_string, "updatefile.img", False)
+	mooltipass_device.uploadBundle(text_password, "updatefile.img", False)
 	mpmSecWaitForDeviceDisconRecon(mooltipass_device)
 	usr_answer = raw_input("Tutorial displayed? [y/n]: ")
 	if usr_answer == "y":
@@ -223,8 +236,8 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 	text_password = generateBundlePasswordUpload(mooltipass_device.getMooltipassVersionAndVariant()[1], UIDKey_array, AESKey2_array)
 		
 	# Test nominal firmware update with bad aes key and good password 
-	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, mooltipass_aes_key1, rand_aes_key1_string, "updatefile.img", False)
-	mooltipass_device.uploadBundle("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "updatefile.img", False)
+	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, AESKey1, rand_aes_key1_string, "updatefile.img", False)
+	mooltipass_device.uploadBundle(text_password, "updatefile.img", False)
 	mpmSecWaitForDeviceDisconRecon(mooltipass_device)
 	usr_answer = raw_input("Tutorial displayed? [y/n]: ")
 	if usr_answer == "y":
@@ -237,29 +250,29 @@ def mooltipassMiniSecCheck(mooltipass_device, old_firmware, new_firmware, graphi
 	text_password = generateBundlePasswordUpload(mooltipass_device.getMooltipassVersionAndVariant()[1], UIDKey_array, AESKey2_array)
 		
 	# Test nominal firmware update with good aes key and good password 
-	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, new_firmware, rand_aes_key1_string, mooltipass_aes_key1, "updatefile.img", False)
-	mooltipass_device.uploadBundle("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "updatefile.img", False)
+	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, new_firmware, rand_aes_key1_string, AESKey1, "updatefile.img", False)
+	mooltipass_device.uploadBundle(text_password, "updatefile.img", False)
 	mpmSecWaitForDeviceDisconRecon(mooltipass_device)
 	usr_answer = raw_input("Tutorial displayed? [y/n]: ")
 	if usr_answer == "y":
 		print "OK - Newer firmware upload with good AES key 1 & AES key 2"
 	else:
 		print "FAIL - Newer firmware upload with good AES key 1 & AES key 2"
-	# Changed to mooltipass_aes_key1
+	# Changed to AESKey1
 	
 	# Generate password for bundle upload
 	text_password = generateBundlePasswordUpload(mooltipass_device.getMooltipassVersionAndVariant()[1], UIDKey_array, AESKey2_array)
 		
 	# Test nominal firmware update with good aes key and good password but older firmware
-	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, mooltipass_aes_key1, mooltipass_aes_key1, "updatefile.img", False)
-	mooltipass_device.uploadBundle("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "updatefile.img", False)
+	firmwareBundlePackAndSign.bundlePackAndSign(graphics_bundle, old_firmware, AESKey1, AESKey1, "updatefile.img", False)
+	mooltipass_device.uploadBundle(text_password, "updatefile.img", False)
 	mpmSecWaitForDeviceDisconRecon(mooltipass_device)
 	usr_answer = raw_input("Tutorial displayed? [y/n]: ")
 	if usr_answer == "y":
 		print "FAIL - Older firmware upload with good AES key 1 & AES key 2"
 	else:
 		print "OK - Older firmware upload with good AES key 1 & AES key 2"
-	# Still mooltipass_aes_key1
+	# Still AESKey1
 	
 	# Timeout test for media upload
 	mooltipass_device.getInternalDevice().sendHidPacket(mpmSecGetPacketForCommand(CMD_IMPORT_MEDIA_START, 62, [0]*62))

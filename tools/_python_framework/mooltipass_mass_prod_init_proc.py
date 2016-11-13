@@ -122,7 +122,7 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 				print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
 				print "|---------------------------------------------------------|"
 				print "|---------------------------------------------------------|"
-				print "|Setting up Mooltipass MPM-"+str(serial_number).zfill(4)+" FAILED                  |"
+				print "| Setting up Mooltipass MPM-"+str(serial_number).zfill(4)+" FAILED                  |"
 				print "|                                                         |"                     
 				print "|           PLEASE PUT AWAY THIS MOOLTIPASS!!!!           |"                     
 				print "|---------------------------------------------------------|"

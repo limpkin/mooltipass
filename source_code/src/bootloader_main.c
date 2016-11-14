@@ -169,9 +169,6 @@ int main(void)
         while(1);
     }
 
-    /* By default, brick the device so it's an all or nothing update procedure */
-    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
-
     /* Init IOs */
     UHWCON = 0x01;                                              // Enable USB 3.3V LDO
     initFlashIOs();                                             // Init EXT Flash IOs
@@ -194,6 +191,9 @@ int main(void)
     {
         while(1);
     }
+
+    /* By default, brick the device so it's an all or nothing update procedure */
+    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
     /* Update bundle composition: bundle | padding | firmware version | new aes key bool | firmware | padding | new aes key encoded | cbcmac */
     for (uint8_t pass_number = 0; pass_number < 2; pass_number++)

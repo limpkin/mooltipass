@@ -174,6 +174,7 @@
     #define BITMAP_SCROLL_WHEEL     10   
     #define BITMAP_LOGIN_LPANE      12
     #define BITMAP_ZZZ              13 
+    #define BITMAP_UPDATING         14
     #define BITMAP_LOCK_FULL        40
     #define BITMAP_LOCK_EMPTY       41
     #define BITMAP_PAC_FULL         42

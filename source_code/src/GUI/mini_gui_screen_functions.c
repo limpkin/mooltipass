@@ -108,6 +108,7 @@ void guiGetBackToCurrentScreen(void)
         }
         case SCREEN_DEFAULT_UPDATING:
         {
+            miniOledBitmapDrawFlash(0, 0, BITMAP_UPDATING, OLED_SCROLL_FLIP);
             break;
         }
         default: break;

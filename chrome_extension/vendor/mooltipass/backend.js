@@ -3,7 +3,7 @@ var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 // contains already called method names
 var _called = {};
-var background_debug_msg = 5;
+var background_debug_msg = false;
 
 var mpDebug = {
     css: function( backgroundColor ) {

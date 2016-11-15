@@ -12,7 +12,7 @@ function messaging( message ) {
 
 // contains already called method names
 var _called = {};
-var content_debug_msg = 6;
+var content_debug_msg = false;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -1354,7 +1354,7 @@ cip.initCredentialFields = function(forceCall) {
 
 	//cipDebug.log('Combinations found:', cipFields.combinations );
 	if(cipFields.combinations.length == 0) {
-		chrome.runtime.sendMessage({
+		if ( !isSafari ) chrome.runtime.sendMessage({
 			'action': 'show_default_browseraction'
 		});
 		return;

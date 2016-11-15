@@ -41,7 +41,6 @@ mooltipassEvent.onMessage = function( request, sender, callback ) {
 
 	if (request.action in mooltipassEvent.messageHandlers) {
 		if ( tab ) {
-			console.log('here');
 			var callback = function( data, tab ) {
 				messaging( { 'action': 'response-' + request.action, 'data': data }, tab );
 			};	

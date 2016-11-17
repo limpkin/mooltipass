@@ -33,7 +33,8 @@ def create_raster_file(label_size, in_file, out_file, cut=True):
 		
 def getMpmColorForSerialNumber(serial_number):
 	# To be implemented later
-	return "Red"
+	return ["Purple", "PUR"]
+	return ["Red", "RED"]
 		
 # Get a packet to send for a given command and payload
 def mpmMassProdInitGetPacketForCommand(cmd, len, data):
@@ -135,9 +136,9 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 					# 17*87mm label size
 					label_size = "17x87"
 					# Bar code value: MPM - Color - Serial
-					barcode_value = "MPM-"+getMpmColorForSerialNumber(serial_number).upper()+"-"+str(serial_number).zfill(5)
+					barcode_value = "MPM-"+getMpmColorForSerialNumber(serial_number)[1]+"-"+str(serial_number).zfill(5)
 					# Text: Mooltipass Mini / Color: XXX / Serial number: XXXX
-					line1, line2, line3 = "Mooltipass Mini", "Color: "+getMpmColorForSerialNumber(serial_number), "Serial Number: "+str(serial_number).zfill(5)
+					line1, line2, line3 = "Mooltipass Mini", "Color: "+getMpmColorForSerialNumber(serial_number)[0], "Serial Number: "+str(serial_number).zfill(5)
 					out_file = "label_number_1.bin"
 					# Create label with content
 					im = create_label_type1(label_size, barcode_value, line1, line2, line3)
@@ -146,7 +147,7 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 					os.system("cat "+out_file+" > /dev/usb/lp0")
 					
 					# 17*87mm label size, text value: MPM - Color - Serial		
-					label_size, text = "17x87", "MPM-"+getMpmColorForSerialNumber(serial_number).upper()+"-"+str(serial_number).zfill(5)
+					label_size, text = "17x87", "MPM-"+getMpmColorForSerialNumber(serial_number)[1]+"-"+str(serial_number).zfill(5)
 					out_file = "label_number_2.bin"
 					# Create label with content
 					im = create_label_type2(label_size, text, font_size=16)

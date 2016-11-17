@@ -194,6 +194,7 @@ class generic_hid_device:
 							print "Cleaning remaining input packets"
 					time.sleep(.5)
 				except usb.core.USBError as e:
+					self.hid_device.reset()
 					if print_debug:
 						print e
 					return False

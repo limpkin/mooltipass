@@ -64,7 +64,7 @@ Scroll to '80'
 DON'T APPROVE THIS!
 Send Password For:
 Select Credential: 
-!!!Inputs PB!!!~~
+LIS2HH12 PB!!!~~
 LED1,
 LED2,
 LED3,

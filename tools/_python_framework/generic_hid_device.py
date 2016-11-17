@@ -181,7 +181,7 @@ class generic_hid_device:
 			while temp_bool:
 				try :
 					# try to receive answer
-					data = self.epin.read(self.epin.wMaxPacketSize, timeout=2000)
+					data = self.epin.read(self.epin.wMaxPacketSize, timeout=200)
 					if HID_DEVICE_DEBUG:
 						print "RX DBG data:", ' '.join(hex(x) for x in data)
 					# check that the received data is correct

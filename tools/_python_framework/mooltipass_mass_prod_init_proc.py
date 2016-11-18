@@ -51,6 +51,34 @@ def mpmMassProdInitGetPacketForCommand(cmd, len, data):
 		arraytosend.extend(data)
 		
 	return arraytosend
+	
+# Check print status
+def checkPrintStatus():
+	CHECK_MAX_SECONDS = 4
+	data_received        = False
+	print_successful     = False
+	end_of_media_reached = False
+
+	dev = os.open("/dev/usb/lp0", os.O_RDWR)
+	try:
+		start = time.time()
+		while time.time() - start < CHECK_MAX_SECONDS:
+			data = os.read(dev, 32)
+			if len(data) == 32:
+				data_received = True
+				error_bytes = ord(data[8]), ord(data[9])
+				if (error_bytes[0] & 0x2) or (error_bytes[1] & 0x40):
+					end_of_media_reached = True
+					break
+				if ord(data[18]) == 0x06 and ord(data[19]) == 0x00:
+					print_successful = True
+					break
+	except KeyboardInterrupt:
+		pass
+	finally:
+		os.close(dev)
+		
+	return [data_received, print_successful, end_of_media_reached]
 
 def mooltipassMiniMassProdInit(mooltipass_device):		
 	# Check for update bundle
@@ -133,6 +161,7 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 			if success_status == True:
 				if platform.system() == "Linux":
 					print "printing labels"
+					
 					# 17*87mm label size
 					label_size = "17x87"
 					# Bar code value: MPM - Color - Serial
@@ -154,6 +183,24 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 					create_raster_file(label_size, im, out_file, cut=True)
 					# Use cat to print label
 					os.system("cat "+out_file+" > /dev/usb/lp0")
+					
+					# Check print status
+					status = checkPrintStatus()
+					if status[0] == True:
+						if status[1] == True:
+							print "Print successful"
+						else
+							print "Error during printing"
+						if status[2] == True:
+							print ""
+							print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
+							print "|---------------------------------------------------------|"
+							print "|---------------------------------------------------------|"                  
+							print "|                 CHANGE PRINTER LABEL ROLL!!!!           |"                     
+							print "|---------------------------------------------------------|"
+							print "|---------------------------------------------------------|"
+							print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
+							raw_input("Press enter once done:")
 				
 				# Let the user know it is done
 				print "Setting up Mooltipass MPM-"+str(serial_number).zfill(4)+" DONE"

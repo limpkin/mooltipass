@@ -77,9 +77,21 @@ def checkPrintStatus():
 		pass
 	finally:
 		os.close(dev)
-		
-	return [data_received, print_successful, end_of_media_reached]
-
+	
+	# Check for print success
+	if print_successful == True:
+		print "Print successful"
+	elif end_of_media_reached == True:
+		print ""
+		print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
+		print "|---------------------------------------------------------|"
+		print "|---------------------------------------------------------|"                  
+		print "|                 CHANGE PRINTER LABEL ROLL!!!!           |"                     
+		print "|---------------------------------------------------------|"
+		print "|---------------------------------------------------------|"
+		print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
+		raw_input("Press enter once done:")
+							
 def mooltipassMiniMassProdInit(mooltipass_device):		
 	# Check for update bundle
 	if not os.path.isfile("updatefile.img"):
@@ -141,7 +153,7 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 			# Wait for the mooltipass to inform the script that the test was successfull
 			if success_status == True:
 				temp_bool2 = False
-				sys.stdout.write('Please follow the instructions on the mooltipass screen...')
+				sys.stdout.write('Please follow the instructions on the mooltipass screen... ')
 				sys.stdout.flush()
 				while temp_bool2 != True:
 					test_result = mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
@@ -160,7 +172,8 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 
 			if success_status == True:
 				if platform.system() == "Linux":
-					print "printing labels"
+					sys.stdout.write('printing label 1... ')
+					sys.stdout.flush()
 					
 					# 17*87mm label size
 					label_size = "17x87"
@@ -175,6 +188,11 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 					# Use cat to print label
 					os.system("cat "+out_file+" > /dev/usb/lp0")
 					
+					# Check print status
+					checkPrintStatus()
+					
+					sys.stdout.write('printing label 2... ')
+					sys.stdout.flush()
 					# 17*87mm label size, text value: MPM - v1 - 8Mb - Color		
 					label_size, text = "17x87", "MPM-v1-8Mb-"+getMpmColorForSerialNumber(serial_number)[1]
 					out_file = "label_number_2.bin"
@@ -185,22 +203,7 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 					os.system("cat "+out_file+" > /dev/usb/lp0")
 					
 					# Check print status
-					status = checkPrintStatus()
-					if status[0] == True:
-						if status[1] == True:
-							print "Print successful"
-						else
-							print "Error during printing"
-						if status[2] == True:
-							print ""
-							print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
-							print "|---------------------------------------------------------|"
-							print "|---------------------------------------------------------|"                  
-							print "|                 CHANGE PRINTER LABEL ROLL!!!!           |"                     
-							print "|---------------------------------------------------------|"
-							print "|---------------------------------------------------------|"
-							print "|!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|"
-							raw_input("Press enter once done:")
+					checkPrintStatus()
 				
 				# Let the user know it is done
 				print "Setting up Mooltipass MPM-"+str(serial_number).zfill(4)+" DONE"

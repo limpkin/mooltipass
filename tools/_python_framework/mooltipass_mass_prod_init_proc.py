@@ -146,8 +146,8 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 					# Use cat to print label
 					os.system("cat "+out_file+" > /dev/usb/lp0")
 					
-					# 17*87mm label size, text value: MPM - Color - Serial		
-					label_size, text = "17x87", "MPM-"+getMpmColorForSerialNumber(serial_number)[1]+"-"+str(serial_number).zfill(5)
+					# 17*87mm label size, text value: MPM - v1 - 8Mb - Color		
+					label_size, text = "17x87", "MPM-v1-8Mb-"+getMpmColorForSerialNumber(serial_number)[1]
 					out_file = "label_number_2.bin"
 					# Create label with content
 					im = create_label_type2(label_size, text, font_size=16)

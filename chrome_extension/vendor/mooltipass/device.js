@@ -89,6 +89,7 @@ mooltipass.device.checkConnection = function() {
         return;
     }
 
+    // This sendMessage left here because it will be only reachable by Chrome while APP is still alive
     chrome.runtime.sendMessage(mooltipass.device._app.id, { ping: [] });
     setTimeout(mooltipass.device.checkConnection, mooltipass.device._intervalCheckConnection);
 };
@@ -170,7 +171,7 @@ mooltipass.device.isUnlocked = function() {
  * @param length of the password
  */
 mooltipass.device.generatePassword = function(callback, tab, length) {
-    console.log('mooltipass.generatePassword()', 'length =', length);
+    if (background_debug_msg > 4) mpDebug.log('%c device: %c generatePassword ','background-color: #e244ff','color: #484848', arguments);
 
     // unset error message
     page.tabs[tab.id].errorMessage = null;
@@ -179,9 +180,9 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
     // The requested random string is used to salt Math.random() again
     var currentDate = new Date();
     var currentDayMinute = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
-    if(!mooltipass.device._latestRandomStringRequest || mooltipass.device._latestRandomStringRequest != currentDayMinute) {
+    if(!mooltipass.device._latestRandomStringRequest || mooltipass.device._latestRandomStringRequest != currentDayMinute) {    
         mooltipass.device._asynchronous.randomCallback = callback;
-        mooltipass.device._asynchronous.randomParameters = {'length': length};
+        mooltipass.device._asynchronous.randomParameters = {'length': length, tab: tab};
         mooltipass.device._latestRandomStringRequest = currentDayMinute;
 
         console.log('mooltipass.generatePassword()', 'request random string from app');
@@ -195,7 +196,7 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
     }
 
     console.log('mooltipass.generatePassword()', 'use current seed for another password');
-    callback({'seeds': mooltipass.device.generateRandomNumbers(length), 'settings': page.settings});
+    callback( {'seeds': mooltipass.device.generateRandomNumbers(length), 'settings': page.settings}, tab );
 };
 
 /**
@@ -333,7 +334,7 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
  * Function called when a tab is updated
  */
 mooltipass.device.onTabUpdated = function(tabId, removeInfo) {
-    if (background_debug_msg > 4) mpDebug.log('%c device: %c onTabUpdated ','background-color: #e244ff','color: #484848', 'Tab ID: ' + tabId, ' / Last Retrieve Tab ID: ' + mooltipass.device.lastRetrieveReqTabId, 'Remove info: ',removeInfo );
+    if (background_debug_msg > 4) mpDebug.log('%c device: onTabUpdated ', mpDebug.css('e244ff') , 'Tab ID: ' + tabId );
     if ( tabId == mooltipass.device.lastRetrieveReqTabId && removeInfo.status && removeInfo.status == "loading" && removeInfo.url )
     {
         mooltipass.device.onNavigatedAway(tabId, removeInfo);
@@ -351,10 +352,12 @@ mooltipass.device.onTabUpdated = function(tabId, removeInfo) {
  * @param triggerUnlock
  */
 mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, forceCallback, triggerUnlock) {
-    if (background_debug_msg > 3) mpDebug.log('%c device: %c retrieveCredentials ','background-color: #e244ff','color: #484848', tab.id, url, submiturl, forceCallback);
+    if (background_debug_msg > 3) mpDebug.log('%c device: %c retrieveCredentials ','background-color: #e244ff','color: #484848', arguments);
+
+    if (!tab.id) tab.id = 'safari';
 
     // unset error message
-    page.tabs[tab.id].errorMessage = null;
+    //page.tabs[tab.id].errorMessage = null;
 
     // parse url and check if it is valid and not blacklisted
     var parsed_url = mooltipass.backend.extractDomainAndSubdomain(submiturl);
@@ -390,7 +393,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     }
     
     // If our retrieveCredentialsQueue is empty and the device is unlocked, send the request to the app. Otherwise, queue it
-    mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter});
+    mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter, 'tab': tab});
     mooltipass.device.retrieveCredentialsCounter++;
     mooltipass.device._asynchronous.inputCallback = callback;
 
@@ -423,23 +426,26 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
 
 /* Initialize device specific settings */
 
-/**
- * Initially start searching for the Mooltipass app
- * This also triggers the status request to the device
- */
-if (page.settings.useMoolticute) mooltipass.device._app = { enabled: true  };
-else chrome.management.getAll(mooltipass.device.onSearchForApp);
+setTimeout( function() {
+    /**
+    * Initially start searching for the Mooltipass app
+    * This also triggers the status request to the device
+    */
+    if (page.settings.useMoolticute) mooltipass.device._app = { enabled: true  };
+    else chrome.management.getAll(mooltipass.device.onSearchForApp);
 
-/**
- * Process messages from the Mooltipass app
- */
-if (!page.settings.useMoolticute) chrome.runtime.onMessageExternal.addListener( function(message, sender, sendResponse) {
-    mooltipass.device.messageListener(message, sender, sendResponse);
-} );
+    /**
+     * Process messages from the Mooltipass app
+     */
+    if (!page.settings.useMoolticute) chrome.runtime.onMessageExternal.addListener( function(message, sender, sendResponse) {
+        mooltipass.device.messageListener(message, sender, sendResponse);
+    } );
+ },100);
+
 
 mooltipass.device.messageListener = function(message, sender, sendResponse) {
-    if (background_debug_msg > 5) mpDebug.log('%c device: %c messageListener ','background-color: #e244ff','color: #484848', message);
-    else if (background_debug_msg > 4 && !message.deviceStatus) mpDebug.log('%c device: %c messageListener ','background-color: #e244ff','color: #484848', message);
+    if (background_debug_msg > 5) mpDebug.log('%c device: message from device: ', mpDebug.css('e244ff'), message);
+    else if (background_debug_msg > 4 && !message.deviceStatus) mpDebug.log('%c device: message from device: ', mpDebug.css('e244ff'), message);
 
     if ( typeof( message.deviceStatus ) === "undefined" ) message.deviceStatus = null;
     if ( typeof( message.random ) === "undefined" ) message.random = null;
@@ -503,7 +509,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
             mooltipass.device._asynchronous.randomCallback({
                 'seeds': mooltipass.device.generateRandomNumbers(mooltipass.device._asynchronous.randomParameters.length),
                 'settings': page.settings,
-            });
+            }, mooltipass.device._asynchronous.randomParameters.tab );
         }
     }
     // Returned on successfully requesting credentials for a specific URL
@@ -519,7 +525,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
                     Password: message.credentials.password,
                     StringFields: []
                 }
-            ]);
+            ], mooltipass.device.retrieveCredentialsQueue[0].tabid == 'safari'?mooltipass.device.retrieveCredentialsQueue[0].tab:mooltipass.device.retrieveCredentialsQueue[0].tabid );
         }
         catch(err)
         {
@@ -598,16 +604,4 @@ mooltipass.device.checkInterference = function() {
     }
 }
 
-mooltipass.device.checkInterference();
-
-
-moolticute.on('statusChange', function(type, data) {
-    console.log('moolticute statusChange event received');
-    mooltipass.device._status = {
-        'connected': moolticute.status.connected,
-        'unlocked': moolticute.status.unlocked,
-        'version': moolticute.status.version,
-        'state' : moolticute.status.state
-    };
-    mooltipass.connectedToApp = moolticute.connectedToDaemon;
-});
+//mooltipass.device.checkInterference();

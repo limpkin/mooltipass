@@ -1,5 +1,6 @@
-// Detect if we're dealing with Firefox or Chrome
+// Detect if we're dealing with Firefox, Safari, or Chrome
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+var isSafari = typeof(safari) == 'object'?true:false;
 
 var page = {};
 
@@ -11,7 +12,7 @@ page.allLoaded = false;
 
 page.currentTabId = -1;
 page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
-if (isFirefox) page.settings.useMoolticute = true;
+if (isFirefox || isSafari) page.settings.useMoolticute = true;
 
 page.blockedTabs = {};
 
@@ -91,11 +92,15 @@ page.cacheRetrieve = function( callback, tab, arguments ) {
 }
 
 page.initOpenedTabs = function() {
-	chrome.tabs.query({}, function(tabs) {
-		for(var i = 0; i < tabs.length; i++) {
-			page.createTabEntry(tabs[i].id);
-		}
-	});
+	if ( isSafari ) { // Safari doesn't use tab ids, just create one placeholder
+		page.createTabEntry('safari');
+	} else {
+		chrome.tabs.query({}, function(tabs) {
+			for(var i = 0; i < tabs.length; i++) {
+				page.createTabEntry(tabs[i].id);
+			}
+		});	
+	}
 }
 
 page.isValidProtocol = function(url) {
@@ -105,9 +110,17 @@ page.isValidProtocol = function(url) {
 }
 
 page.switchTab = function(callback, tab) {
+	if ( typeof(tab) == 'number' ) tab = { id: tab };
+	if (background_debug_msg > 4) mpDebug.log('%c page: %c switchTab ', mpDebug.css('ffeef9'), tab );
 	browserAction.showDefault(null, tab);
 
 	chrome.tabs.sendMessage(tab.id, {action: "activated_tab"});
+}
+
+page.setAllLoaded = function( callback, tab ) {
+	if (background_debug_msg > 4) mpDebug.log('%c page: setAllLoaded ', mpDebug.css('ffeef9'));
+	page.allLoaded = true;
+	callback({}, tab );
 }
 
 page.setCurrentTab = function(callback, tab) {

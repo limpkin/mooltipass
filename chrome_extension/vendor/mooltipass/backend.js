@@ -5,7 +5,12 @@ var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 var _called = {};
 var background_debug_msg = false;
 
-var mpDebug = {};
+var mpDebug = {
+    css: function( backgroundColor ) {
+        return 'background-color: #' + backgroundColor + '; padding: 3px 10px;';
+    }
+};
+
 if (background_debug_msg) {
     mpDebug.log = function( message ) {
         this.log( message );
@@ -57,14 +62,17 @@ mooltipass.backend.updateStatusIcon = function() {
         iconName = "cross";
     }
     
-    if ( typeof chrome.notifications.getPermissionLevel == 'function') {
-        chrome.notifications.getPermissionLevel(function(response) {
-            if (response == 'denied') {
-                iconName += "_warning";
-            }
-            mooltipass.backend.setStatusIcon(iconName);
-        });    
+    if ( !isSafari ) {
+        if ( typeof chrome.notifications.getPermissionLevel == 'function') {
+            chrome.notifications.getPermissionLevel(function(response) {
+                if (response == 'denied') {
+                    iconName += "_warning";
+                }
+                mooltipass.backend.setStatusIcon(iconName);
+            });    
+        }    
     }
+    
     
 }
 mooltipass.backend._updateStatusIcon = function() {

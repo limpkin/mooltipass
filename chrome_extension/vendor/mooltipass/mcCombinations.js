@@ -39,21 +39,32 @@ mcCombinations.prototype = ( function() {
 */
 mcCombinations.prototype.init = function( callback ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Init','background-color: #c3c6b4','color: #333333');
-	chrome.runtime.sendMessage({
-		"action": "get_settings",
-	}, function(response) {
-		if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations: %c Got settings', 'background-color: #c3c6b4','color: #FF0000',response);
-		if ( typeof(response) !== 'undefined') {
-			mpJQ.extend(this.settings, response.data);
-			if (this.settings.debugLevel > 0) cipDebug.warn('mcCombinations: Status is: ', this.settings.status);
 
-			if ( callback ) callback();
-			if (this.settings.status.unlocked) this.detectCombination();
-		} else {
-			if (this.settings.debugLevel > 0) cipDebug.warn('Get settings returned empty!', runtime.lastError);
-		}
-	}.bind(this));
+	this.callback = callback;
+	messaging( { "action": "get_settings" } );
+	// 	safari.self.tab.dispatchMessage("get_settings",  );
+	// } else {
+	// 	chrome.runtime.sendMessage({
+	// 		"action": "get_settings",
+	// 	}, this.gotSettings.bind(this));
+	// }
 };
+
+/*
+ * Parse settings received from background script
+*/
+mcCombinations.prototype.gotSettings = function( response ) {
+	if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations: %c Got settings', 'background-color: #c3c6b4','color: #FF0000',response);
+	if ( typeof(response) !== 'undefined') {
+		mpJQ.extend(this.settings, response.data);
+		if (this.settings.debugLevel > 0) cipDebug.warn('mcCombinations: Status is: ', this.settings.status);
+
+		if ( this.callback ) this.callback.apply( this, response );
+		this.detectCombination();
+	} else {
+		if (this.settings.debugLevel > 0) cipDebug.warn('Get settings returned empty!', runtime.lastError);
+	}
+}
 
 /*
 * Array containing all the possible combinations we support
@@ -305,10 +316,7 @@ mcCombinations.prototype.detectCombination = function() {
 					this.retrieveCredentialsCallback( this.credentialsCache );
 				} else {
 					if (this.settings.debugLevel > 1) cipDebug.trace('%c mcCombinations - %c Retrieving credentials', 'background-color: #c3c6b4','color: #777777', currentForm.element );
-					chrome.runtime.sendMessage({
-						'action': 'retrieve_credentials',
-						'args': [ url, submitUrl, true, true]
-					}, $.proxy(this.retrieveCredentialsCallback,this));
+					messaging({ 'action': 'retrieve_credentials', 'args': [ url, submitUrl, true, true] });
 				}
 			}
 		}
@@ -537,17 +545,19 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		return;
 	}
 
-	// Store retrieved username as a cache
-	chrome.runtime.sendMessage({'action': 'cache_login', 'args': [ credentials[0].Login ] }, function( r ) {
-		var lastError = chrome.runtime.lastError;
-		if (lastError) {
-			if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
-			return;
-		} else {
-			if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c retrieveCredentialsCallback Cache: ','background-color: #c3c6b4','color: #333333', r);
-		}
-	}.bind(this));
-
+	if (!isSafari) {
+		// Store retrieved username as a cache
+		chrome.runtime.sendMessage({'action': 'cache_login', 'args': [ credentials[0].Login ] }, function( r ) {
+			var lastError = chrome.runtime.lastError;
+			if (lastError) {
+				if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
+				return;
+			} else {
+				if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c retrieveCredentialsCallback Cache: ','background-color: #c3c6b4','color: #333333', r);
+			}
+		}.bind(this));	
+	}
+	
 	for( form in this.forms ) {
 		currentForm = this.forms[ form ];
 		if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form','background-color: #c3c6b4','color: #FF0000', currentForm);

@@ -50,19 +50,20 @@ moolticute._ws = page.settings.useMoolticute? new ReconnectingWebSocket('ws://12
 moolticute._ws.debug = false;
 
 moolticute._ws.onopen = function() {
-    console.log("Moolticute daemon connected");
+    if (background_debug_msg > 4) mpDebug.log('%c Moolticute daemon connected', mpDebug.css('FFC6A0'));
+    console.log();
     moolticute.connectedToDaemon = true;
     moolticute.fireEvent('statusChange');
 }
 
 moolticute._ws.onclose = function() {
-    console.log("Moolticute daemon disconnected");
+    if (background_debug_msg > 4) mpDebug.log('%c Moolticute daemon disconnected', mpDebug.css('FFC6A0'));
     moolticute.connectedToDaemon = false;
     moolticute.fireEvent('statusChange');
 }
 
 moolticute._ws.onerror = function() {
-    console.log("Moolticute daemon connection error");
+    if (background_debug_msg > 4) mpDebug.log('%c Moolticute daemon connection error', mpDebug.css('FFC6A0'));
     moolticute.connectedToDaemon = false;
 }
 
@@ -70,7 +71,7 @@ moolticute._ws.onerror = function() {
  * Ask for a password
  */
 moolticute.askPassword = function( request ) {
-    console.log("Moolticute asking for password");
+    if (background_debug_msg > 4) mpDebug.log('%c Moolticute asking for password', mpDebug.css('FFC6A0'));
     var id = moolticute._getCallbackId();
 
     var context = '';
@@ -93,7 +94,7 @@ moolticute.askPassword = function( request ) {
         }
     };
 
-    console.log('About to send to moolticuted:', message);
+    if (background_debug_msg > 4) mpDebug.log('%c About to send to moolticuted:', mpDebug.css('FFC6A0'), message);
     moolticute._ws.send(JSON.stringify(message));
 }
 
@@ -101,6 +102,7 @@ moolticute.askPassword = function( request ) {
  + * Get random numbers
  + */
  moolticute.getRandomNumbers = function() {
+    if (background_debug_msg > 4) mpDebug.log('%c Moolticute getRandomNumbers', mpDebug.css('FFC6A0'));
     var id = moolticute._getCallbackId();
 
     moolticute._ws.send(JSON.stringify({
@@ -111,7 +113,7 @@ moolticute.askPassword = function( request ) {
 
 /* Raw send request */
 moolticute.sendRequest = function( request ) {
-    console.log( 'Sending request -> ', request);
+    if (background_debug_msg > 4) mpDebug.log('%c Moolticute sendRequest', mpDebug.css('FFC6A0'), request);
     if ( request.update ) {
         var message = {
             "msg": "set_credential",
@@ -123,7 +125,6 @@ moolticute.sendRequest = function( request ) {
             }
         };
 
-        console.log('the message is:', message);
         moolticute._ws.send(JSON.stringify( message ));
     }
 }
@@ -135,17 +136,16 @@ moolticute._ws.onmessage = function(ev, delayed) {
     var d = ev.data;
     try {
         var recvMsg = JSON.parse(d);
-        console.log("Received message:", recvMsg );
+        if (background_debug_msg > 4) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
     }
     catch (e) {
-        console.log("Error in received message: " + e);
+        if (background_debug_msg > 4) mpDebug.log('%c Moolticute Error in received message: ', mpDebug.css('FFC6A0'), e, d );
         return;
     }
 
     if ( moolticute.delayResponse && !delayed && recvMsg.msg == 'ask_password') {
         // Check if we want a delayed response from moolticute
         // Emulated from here
-
         setTimeout( function() {
             moolticute._ws.onmessage(ev, true);
         }, moolticute.delayResponse);
@@ -250,3 +250,14 @@ moolticute.fireEvent = function(type, data) {
          handler.method.call(handler.scope, type, data);
      }
 }
+
+moolticute.on('statusChange', function(type, data) {
+    if (background_debug_msg > 4) mpDebug.log('%c Moolticute statusChange event received', mpDebug.css('FFC6A0'));
+    mooltipass.device._status = {
+        'connected': moolticute.status.connected,
+        'unlocked': moolticute.status.unlocked,
+        'version': moolticute.status.version,
+        'state' : moolticute.status.state
+    };
+    mooltipass.connectedToApp = moolticute.connectedToDaemon;
+});

@@ -1,34 +1,55 @@
 
+// Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
+function messaging( message, tab ) {
+	if (background_debug_msg > 4) mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
+	if ( isSafari ) tab.page.dispatchMessage("messageFromBackground", message);
+	else chrome.tabs.sendMessage( typeof(tab) == 'number'?tab:tab.id, message, function(response) {});
+};
+
+function cross_notification( notificationId, options ) {
+	if ( isSafari ) {
+		options.tag = notificationId;
+		options.body = options.message;
+		var n = new Notification( options.title, options );
+		n.onclose = mooltipassEvent.onNotifyClosed;
+	} else {
+		chrome.notifications.create( notificationId, options );
+	}
+}
+
 // Masquerade event var into a different variable name ( while event is not reserved, many websites use it and creates problems )
 var mooltipassEvent = {};
 
 // Keep event for backwards compatibility
 var event = mooltipassEvent;
 
-mooltipassEvent.onMessage = function(request, sender, callback) {
-	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onMessage ' + request.action,'background-color: #e2eef9','color: #246', arguments);
-
-	if (request.action == 'content_script_loaded') {
-		console.log('setting allLoaded to true ');
-		page.allLoaded = true;
-		callback({response: "response from background script"});
+/**
+ * Message listener - Handles the messages from the content script
+ * @request {object}  The request received from content. Varies if it comes from Safari or Chrome/FF
+ * @sender {object} Tab object sending the message
+**/
+mooltipassEvent.onMessage = function( request, sender, callback ) {
+	if ( isSafari ) { // Safari sends an EVENT
+		sender = request.target;
+		request = request.message;
+		tab = sender;
+	} else { // Chrome and FF sends Request and Sender separately
+		tab = sender.tab;
 	}
+
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: onMessage ' + request.action, mpDebug.css('e2eef9'), tab, arguments);
 
 	if (request.action in mooltipassEvent.messageHandlers) {
-
-		if(!sender.hasOwnProperty('tab') || sender.tab.id < 1) {
-			sender.tab = {};
-			sender.tab.id = page.currentTabId;
+		if ( tab ) {
+			var callback = function( data, tab ) {
+				messaging( { 'action': 'response-' + request.action, 'data': data }, tab );
+			};	
 		}
 
-		mooltipassEvent.invoke(mooltipassEvent.messageHandlers[request.action], callback, sender.tab.id, request.args);
-
-		// onMessage closes channel for callback automatically
-		// if this method does not return true
-		if(callback) {
-			return true;
-		}
+		mooltipassEvent.invoke(mooltipassEvent.messageHandlers[request.action], callback, tab, request.args);
 	}
+
+	return true;
 }
 
 /**
@@ -42,60 +63,70 @@ mooltipassEvent.onMessage = function(request, sender, callback) {
  * @param {bool} secondTime
  * @returns null (asynchronous)
  */
-mooltipassEvent.invoke = function(handler, callback, senderTabId, args, secondTime) {
-	if(senderTabId < 1) {
-		return;
-	}
+mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime) {
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: invoke ', mpDebug.css('e2eef9'), arguments);
 
-	if(!page.tabs[senderTabId]) {
-		page.createTabEntry(senderTabId);
-	}
+	args = args || [];
+	// Preppend the tab and the callback function to the arguments list
+	args.unshift(senderTab);
+	args.unshift(callback);
+	handler.apply(this, args);
+	return;
 
-	// remove information from no longer existing tabs
-	page.removePageInformationFromNotExistingTabs();
+	// Old functions, leaving them there as I'm expecting special cases (like the window.open one mentioned down below)
+	// if(senderTabId < 1) {
+	// 	return;
+	// }
 
-	chrome.tabs.get(senderTabId, function(tab) {
-        if (chrome.runtime.lastError) {
-            console.log('failed to invoke function for tab: '+chrome.runtime.lastError);
-            return;
-        }
+	// if(!page.tabs[senderTabId]) {
+	// 	page.createTabEntry(senderTabId);
+	// }
 
-	//chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}, function(tabs) {
-		//if (tabs.length === 0)
-		//	return; // For example: only the background devtools or a popup are opened
-		//var tab = tabs[0];
+	// // remove information from no longer existing tabs
+	// page.removePageInformationFromNotExistingTabs();
 
-		if(!tab) {
-			return;
-		}
+	// chrome.tabs.get(senderTabId, function(tab) {
+ //        if (chrome.runtime.lastError) {
+ //            console.log('failed to invoke function for tab: '+chrome.runtime.lastError);
+ //            return;
+ //        }
 
-		if (!tab.url) {
-			// Issue 6877: tab URL is not set directly after you opened a window
-			// using window.open()
-			if (!secondTime) {
-				window.setTimeout(function() {
-					mooltipassEvent.invoke(handler, callback, senderTabId, args, true);
-				}, 250);
-			}
-			return;
-		}
+	// //chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}, function(tabs) {
+	// 	//if (tabs.length === 0)
+	// 	//	return; // For example: only the background devtools or a popup are opened
+	// 	//var tab = tabs[0];
 
-		if(!page.tabs[tab.id]) {
-			page.createTabEntry(tab.id);
-		}
+	// 	if(!tab) {
+	// 		return;
+	// 	}
 
-		args = args || [];
+	// 	if (!tab.url) {
+	// 		// Issue 6877: tab URL is not set directly after you opened a window
+	// 		// using window.open()
+	// 		if (!secondTime) {
+	// 			window.setTimeout(function() {
+	// 				mooltipassEvent.invoke(handler, callback, senderTabId, args, true);
+	// 			}, 250);
+	// 		}
+	// 		return;
+	// 	}
 
-		args.unshift(tab);
-		args.unshift(callback);
+	// 	if(!page.tabs[tab.id]) {
+	// 		page.createTabEntry(tab.id);
+	// 	}
 
-		if(handler) {
-			handler.apply(this, args);
-		}
-		else {
-			console.log("undefined handler for tab " + tab.id);
-		}
-	});
+	// 	args = args || [];
+
+	// 	args.unshift(tab);
+	// 	args.unshift(callback);
+
+	// 	if(handler) {
+	// 		handler.apply(this, args);
+	// 	}
+	// 	else {
+	// 		console.log("undefined handler for tab " + tab.id);
+	// 	}
+	// });
 }
 
 
@@ -105,9 +136,8 @@ mooltipassEvent.onShowAlert = function(callback, tab, message) {
 
 mooltipassEvent.onLoadSettings = function(callback, tab) {
 	page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
-	if (isFirefox) page.settings.useMoolticute = true;
+	if (isFirefox || isSafari) page.settings.useMoolticute = true;
     mooltipass.backend.loadSettings();
-    //console.log('onLoadSettings: page.settings = ', page.settings);
 }
 
 mooltipassEvent.onLoadKeyRing = function(callback, tab) {
@@ -115,11 +145,13 @@ mooltipassEvent.onLoadKeyRing = function(callback, tab) {
 }
 
 mooltipassEvent.onGetSettings = function(callback, tab) {
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onGetSettings','background-color: #e2eef9','color: #246', tab);
 	mooltipassEvent.onLoadSettings();
 	var settings = page.settings;
+	
 	settings.status = mooltipass.device._status;
 	settings.tabId = tab.id;
-	callback({ data: settings });
+	callback({ data: settings }, tab );
 }
 
 mooltipassEvent.onSaveSettings = function(callback, tab, settings) {
@@ -128,18 +160,20 @@ mooltipassEvent.onSaveSettings = function(callback, tab, settings) {
 }
 
 mooltipassEvent.onGetStatus = function(callback, tab) {
-	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onGetStatus','background-color: #e2eef9','color: #246', tab);
+	if (background_debug_msg > 5) mpDebug.log('%c mooltipassEvent: %c onGetStatus','background-color: #e2eef9','color: #246', tab);
 
-	browserAction.showDefault(null, tab);
-    page.tabs[tab.id].errorMessage = undefined;  // XXX debug
+	if ( tab ) {
+		browserAction.showDefault(null, tab);
+    	page.tabs[tab.id].errorMessage = undefined;  // XXX debug
+    }
 
     var toReturn = {
 		status: mooltipass.device.getStatus(),
-		error: page.tabs[tab.id].errorMessage,
+		error: undefined,
 		blacklisted: false
 	};
 
-    if ( tab.url ) {
+    if ( tab && tab.url ) {
     	var tabStatus = mooltipass.backend.extractDomainAndSubdomain( tab.url );
     	toReturn.blacklisted = tabStatus.blacklisted;
     }
@@ -225,14 +259,12 @@ mooltipassEvent.onNotifyClosed = function(id) {
     delete mooltipassEvent.mpUpdate[id];
 }
 
-chrome.notifications.onButtonClicked.addListener(mooltipassEvent.onNotifyButtonClick);
-chrome.notifications.onClosed.addListener(mooltipassEvent.onNotifyClosed);
-
 mooltipassEvent.notificationCount = 0;
 mooltipassEvent.mpUpdate = {};
 
 mooltipassEvent.isMooltipassUnlocked = function()
 {
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c isMooltipassUnlocked','background-color: #e2eef9','color: #246', arguments);
 	// prevents "Failed to send to device: Transfer failed" error when device is suddenly unplugged
 	if(typeof mooltipass.device._status.state == 'undefined') {
 		return false;
@@ -259,7 +291,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 		noteId = "mpNotUnlockedStaticMooltipassAppNotReady";
 
 		// Create notification to inform user
-		chrome.notifications.create(noteId,
+		cross_notification(noteId,
 			{   type: 'basic',
 				title: 'Mooltipass App not ready!',
 				message: 'The Mooltipass app is not installed or disabled',
@@ -277,7 +309,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 		noteId = "mpNotUnlockedStaticMooltipassNotConnected";
 
 		// Create notification to inform user
-		chrome.notifications.create(noteId,
+		cross_notification(noteId,
 			{   type: 'basic',
 				title: 'Mooltipass Not Connected!',
 				message: 'Please Connect Your Mooltipass',
@@ -292,14 +324,14 @@ mooltipassEvent.isMooltipassUnlocked = function()
 
 		noteId = "mpNotUnlockedStaticMooltipassDeviceLocked";
 
-		// Create notification to inform user
-		chrome.notifications.create(noteId,
-				{   type: 'basic',
-					title: 'Mooltipass Locked!',
-					message: 'Please Unlock Your Mooltipass',
-					iconUrl: '/icons/warning_icon.png',
-					buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
-					
+		cross_notification( noteId, {
+			type: 'basic',
+			title: 'Mooltipass Locked!',
+			message: 'Please Unlock Your Mooltipass',
+			iconUrl: '/icons/warning_icon.png',
+			buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]
+		});
+
 		return false;
 	}
 	else if (mooltipass.device._status.state == 'NoCard')
@@ -309,7 +341,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 		noteId = "mpNotUnlockedStaticMooltipassDeviceWithoutCard";
 
 		// Create notification to inform user
-		chrome.notifications.create(noteId,
+		cross_notification(noteId,
 				{   type: 'basic',
 					title: 'No Card in Mooltipass!',
 					message: 'Please Insert Your Smartcard and Enter Your PIN',
@@ -335,7 +367,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 		if (!isFirefox) notification.buttons = [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}];
 
 		// Create notification to inform user
-		chrome.notifications.create(noteId,notification);
+		cross_notification(noteId,notification);
 					
 		return false;
 	}
@@ -385,7 +417,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 		{		
 			var noteId = 'mpPasswordTooLong.'+ mooltipassEvent.notificationCount.toString();
 			
-			chrome.notifications.create(noteId,
+			cross_notification(noteId,
 				{   type: 'basic',
 					title: 'Password Too Long!',
 					message: "We are sorry, Mooltipass only supports passwords that are less than 31 characters",
@@ -410,7 +442,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 
 				// Create notification to blacklist
 				if (mooltipass.device._status.unlocked) {
-					chrome.notifications.create(noteId,
+					cross_notification(noteId,
 						{   type: 'basic',
 							title: 'Credentials Detected!',
 							message: 'Please Approve their Storage on the Mooltipass',
@@ -452,7 +484,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 				};
 
 				// Firefox doesn't support buttons on notifications
-				if (!isFirefox) {
+				if (!isFirefox && !isSafari) {
 					notification.buttons = [{title: 'Store ' + domain}, {title: 'Store ' + subdomain + '.' + domain}];
 				} else {
 					// Firefox: Use domain (we should check against subdomain and later domain if missing tho...)
@@ -460,7 +492,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 					mooltipass.device.updateCredentials(null, tab, 0, username, password, subdomain + '.' + domain);
 				}
 
-				chrome.notifications.create(noteId,notification);
+				cross_notification(noteId,notification);
 			}
 		}		
 	}	
@@ -534,5 +566,11 @@ mooltipassEvent.messageHandlers = {
 	'generate_password': mooltipass.device.generatePassword,
     'set_current_tab': page.setCurrentTab,
     'cache_login': page.cacheLogin,
-    'cache_retrieve': page.cacheRetrieve
+    'cache_retrieve': page.cacheRetrieve,
+    'content_script_loaded': page.setAllLoaded
 };
+
+if (!isSafari) {
+	chrome.notifications.onButtonClicked.addListener(mooltipassEvent.onNotifyButtonClick);
+	chrome.notifications.onClosed.addListener(mooltipassEvent.onNotifyClosed);
+}

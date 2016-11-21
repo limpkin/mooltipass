@@ -298,7 +298,9 @@ int main(void)
     
         if ((current_bootkey_val != CORRECT_BOOTKEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY))
         {
+            #ifndef DISABLE_FUNCTIONAL_TEST
             mooltipassMiniFunctionalTest(flash_init_result, fuse_ok, mini_inputs_result);            
+            #endif
         }
     #endif
     

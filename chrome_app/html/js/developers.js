@@ -32,9 +32,10 @@ mooltipass.ui.developers.init = function () {
     $('#page-developers button.import').click(function() {
 
         $("#modal-confirm-on-device").show();
+		pass_copy = $('#importMediaBundlePassword').val();
 		
 		// Quick hack to help debugging process for users...
-		mooltipass.memmgmt.debugLog = true;
+		mooltipass.memmgmt.debugLog = true;		
 
         mooltipass.device.interface.send({
             'command': 'startSingleCommunicationMode',
@@ -42,12 +43,11 @@ mooltipass.ui.developers.init = function () {
             'reason': 'mediabundlerupload',
             'callbackFunctionStart': function() {
                 mooltipass.device.singleCommunicationModeEntered = true;
-
-                var password = $('#importMediaBundlePassword').val();
-                mooltipass.memmgmt.mediaBundlerUpload(mooltipass.ui.developers.callbackImportMediaBundle, password, mooltipass.ui.developers.progressImportMediaBundle);
+                mooltipass.memmgmt.mediaBundlerUpload(mooltipass.ui.developers.callbackImportMediaBundle, pass_copy, mooltipass.ui.developers.progressImportMediaBundle);
             }
         });
-
+		
+		$('#importMediaBundlePassword').val("");
     });
 
     $('#page-developers button.jump').click(function() {
@@ -97,6 +97,11 @@ mooltipass.ui.developers.progressImportMediaBundle = function(_progress) {
 mooltipass.ui.developers.callbackImportMediaBundle = function(_statusObject) {
     if(_statusObject.success) {
         mooltipass.ui.status.success($('#page-developers button.import'), _statusObject.msg);
+		if("updating" in _statusObject)
+		{
+			$('#modal-mooltipass-updating').show();
+			$("#splash-screen").show();
+		}
     }
     else {
         mooltipass.ui.status.error($('#page-developers button.import'), _statusObject.msg);

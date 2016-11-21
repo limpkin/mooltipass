@@ -2813,7 +2813,7 @@ mooltipass.memmgmt.dataSendTimeOutCallback = function()
 	// Mooltipass mini doesn't reply the import media end packet
 	if(mooltipass.memmgmt.mediaImportEndPacketSent == true)
 	{
-		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 701, 'msg': "Firmware Uploaded, DO NOT UNPLUG YOUR MINI!!!!!"});
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 701, 'updating' : true, 'msg': "Firmware Uploaded, DO NOT UNPLUG YOUR MINI!!!!!"});
 	}
 	else
 	{
@@ -4224,7 +4224,7 @@ mooltipass.memmgmt.mediaBundlerUpload = function(callback, password, progressCal
 	mooltipass.memmgmt.statusCallback = callback;
 	
 	// Check password length
-	if(password.length != 124)
+	if((password.length != 124) && (password.length != 32))
 	{
 		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 691, 'msg': "Wrong password length!"});
 		mooltipass.device.processQueue();
@@ -4232,7 +4232,7 @@ mooltipass.memmgmt.mediaBundlerUpload = function(callback, password, progressCal
 	}
 	
 	// Convert the password
-	mooltipass.memmgmt.tempPassword = new Uint8Array(62);
+	mooltipass.memmgmt.tempPassword = new Uint8Array(password.length/2);
 	for(var i = 0; i < password.length; i+= 2)
 	{
 		mooltipass.memmgmt.tempPassword[i/2] = parseInt(password.substr(i, 2), 16);

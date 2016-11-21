@@ -64,6 +64,7 @@ mooltipass.ui._.reset = function() {
     $("#modal-load-credentials").hide();
     $("#modal-export").hide();
     $("#modal-confirm-on-device").hide();
+	$('#modal-mooltipass-updating').hide();
     mooltipass.ui._.showSplashScreen();   
 }
 

@@ -580,7 +580,7 @@ void usbProcessIncoming(uint8_t caller_id)
                 incomingData[0] = PLUGIN_BYTE_OK;
                 readProfileUserDbChangeNumber(&incomingData[1]);
             }
-            usbSendMessage(CMD_GET_USER_CHANGE_NB, 2, incomingData);
+            usbSendMessage(CMD_GET_USER_CHANGE_NB, 3, incomingData);
             return;
         }
 
@@ -588,7 +588,7 @@ void usbProcessIncoming(uint8_t caller_id)
         case CMD_SET_USER_CHANGE_NB :
         {
             // Command only used in MMM
-            if (datalen == 1)
+            if (datalen == 2)
             {
                 setProfileUserDbChangeNumber(&msg->body.data[0]);
                 plugin_return_value = PLUGIN_BYTE_OK;

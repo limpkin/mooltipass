@@ -244,7 +244,7 @@ From Mooltipass: the description if the user has approved the sending of credent
 ----------------------------
 From plugin/app: Request the user db change number
 
-From Mooltipass: 2 bytes data packet, first byte is 0x00 for failure & 0x01 for success, second byte is the db change number if success
+From Mooltipass: 3 bytes data packet, first byte is 0x00 for failure & 0x01 for success, second & third bytes are the standard credentials & data change numbers if success
 
 0xD7: Get free users slots
 --------------------------
@@ -363,7 +363,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0xD4: Set user change number
 ----------------------------
-From plugin/app: One byte payload containing the new user db change number
+From plugin/app: Two bytes payload containing the standard credentials & data change numbers
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 

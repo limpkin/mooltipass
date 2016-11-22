@@ -95,14 +95,22 @@ typedef enum _nodeType
 #define NODE_MAX_CRED_TYPE 16
 #define NODE_MAX_DATA 256
 
+/* User profile layout:
+- 2B: user start node
+- 4*14B: favorites
+- 2B: user data start node
+- 2B: user db change number (1B for cred DB, 1B for data DB)
+- 3B: user CTR
+- 1B: reserved
+*/
 #define USER_START_NODE_SIZE 2
 #define USER_FAV_SIZE 4
 #define USER_MAX_FAV 14
-#define USER_DATA_START_NODE_SIZE_RES 4
+#define USER_DATA_START_NODE_SIZE 2
+#define USER_DB_CHANGE_NB_SIZE 2
 #define USER_RES_CTR 4
-#define USER_PROFILE_SIZE (USER_START_NODE_SIZE+(USER_MAX_FAV*USER_FAV_SIZE)+USER_DATA_START_NODE_SIZE_RES+USER_RES_CTR)
-#define USER_CTR_SIZE 3             // USER_RES_CTR is set to 4 but the actual CTR is 3 bytes long and the last byte is for the user DB change number
-#define USER_DB_CHANGE_NB_SIZE  1
+#define USER_PROFILE_SIZE (USER_START_NODE_SIZE + (USER_MAX_FAV*USER_FAV_SIZE) + USER_DATA_START_NODE_SIZE + USER_DB_CHANGE_NB_SIZE + USER_RES_CTR)
+#define USER_CTR_SIZE 3             // USER_RES_CTR is set to 4 but the actual CTR is 3 bytes long and the last byte is reserved for later
 
 #define GRAPHIC_ZONE_START          (8*BYTES_PER_PAGE)
 #define GRAPHIC_ZONE_PAGE_START     (8)
@@ -213,6 +221,7 @@ typedef struct __attribute__((packed)) dataNode {
 */
 typedef struct __attribute__((packed)) nodeMgmtH
 {
+    uint8_t datadbChanged;          /*!< Boolean to indicate if the user data DB has changed since user login */
     uint8_t dbChanged;              /*!< Boolean to indicate if the user DB has changed since user login */
     uint8_t currentUserId;          /*!< The users ID */
     uint16_t pageUserProfile;       /*!< The page of the user profile */
@@ -339,6 +348,6 @@ void readProfileUserDbChangeNumber(void *buf);
 void scanNodeUsage(void);
 
 void setCurrentDate(uint16_t date);
-void userDBChangedActions(void);
+void userDBChangedActions(uint8_t dataChanged);
 
 #endif /* NODE_MGMT_H_ */

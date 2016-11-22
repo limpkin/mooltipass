@@ -166,7 +166,7 @@ def main():
 				
 		if sys.argv[1] == "set_user_db_change_nb":
 			if len(sys.argv) > 2:
-				mooltipass_device.setMooltipassUserDbChangeNumber(int(sys.argv[2]))		
+				mooltipass_device.setMooltipassUserDbChangeNumber(int(sys.argv[2]), int(sys.argv[3]))		
 			else:
 				print "set_user_db_change_nb: not enough args!"
 				

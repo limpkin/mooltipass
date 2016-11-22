@@ -143,9 +143,9 @@ class mooltipass_hid_device:
 		if user_change_db_answer[0] == 0:
 			print "User not logged in!"
 		else:
-			print "User db change number is", user_change_db_answer[1]
+			print "User db change number is", user_change_db_answer[1], "and", user_change_db_answer[2]
 			
-	def setMooltipassUserDbChangeNumber(self, number):
+	def setMooltipassUserDbChangeNumber(self, number, number2):
 		# Go to MMM
 		self.device.sendHidPacket([0, CMD_START_MEMORYMGMT])
 		data = self.device.receiveHidPacket()[DATA_INDEX:]
@@ -153,7 +153,7 @@ class mooltipass_hid_device:
 			print "Couldn't go to MMM!"
 			return		
 		
-		self.device.sendHidPacket([1, CMD_SET_USER_CHANGE_NB, number])
+		self.device.sendHidPacket([2, CMD_SET_USER_CHANGE_NB, number, number2])
 		user_change_db_answer = self.device.receiveHidPacket()[DATA_INDEX:]
 		if user_change_db_answer[0] == 0:
 			print "Fail!"

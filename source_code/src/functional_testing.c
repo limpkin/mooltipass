@@ -175,10 +175,9 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
 /*! \fn     mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
  *  \brief  Mooltipass standard functional test
  *  \param  flash_init_result       Result of the flash initialization procedure
- *  \param  fuse_ok                 Bool to know if fuses set are ok
  *  \param  mini_inputs_result      Bool to know if inputs are ok
  */
-void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
+void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t mini_inputs_result)
 {
     // Byte value to which USER_PARAM_INIT_KEY_PARAM should be set to go to the next customization step
     uint8_t correct_param_init_key_val = 0xBB;
@@ -223,13 +222,6 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
         guiDisplayRawString(ID_STRING_TEST_FLASH_PB);
         test_result_ok = FALSE;
     }
-        
-    // Check fuse setting
-    if (fuse_ok != TRUE)
-    {
-        guiDisplayRawString(ID_STRING_FUSE_PB);
-        test_result_ok = FALSE;
-    }
 
     // Check mini inputs initialization
     if (mini_inputs_result != RETURN_OK)
@@ -237,6 +229,8 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
         guiDisplayRawString(ID_STRING_INPUT_PB);
         test_result_ok = FALSE;
     }
+    
+    // Do not check fuses as the platform won't boot if the fuses aren't correctly set
         
     // Check that the card is removed
     if (isSmartCardAbsent() == RETURN_NOK)

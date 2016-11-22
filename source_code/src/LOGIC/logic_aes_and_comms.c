@@ -418,17 +418,14 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t type)
     // Look for name inside our flash
     context_parent_node_addr = searchForServiceName(name, COMPARE_MODE_MATCH, type);
     
-    // Clear all flags
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        context_valid_flag = FALSE;
-        selected_login_flag = FALSE;
-        login_just_added_flag = FALSE;
-        data_context_valid_flag = FALSE;
-        current_adding_data_flag = FALSE;
-        activateTimer(TIMER_CREDENTIALS, 0);
-        currently_writing_first_block = FALSE;
-    }
+    // Clear all flags: no need for an ATOMIC_BLOCK as the clearSmartCardInsertedUnlocked() interrupt sets the following variables to the same values
+    context_valid_flag = FALSE;
+    selected_login_flag = FALSE;
+    login_just_added_flag = FALSE;
+    data_context_valid_flag = FALSE;
+    current_adding_data_flag = FALSE;
+    activateTimer(TIMER_CREDENTIALS, 0);
+    currently_writing_first_block = FALSE;
     
     // Do we know this context ?
     if ((context_parent_node_addr != NODE_ADDR_NULL) && (smartcard_inserted_unlocked == TRUE))
@@ -522,12 +519,9 @@ RET_TYPE getLoginForContext(char* buffer)
     }
     else
     {
-	    // Clear current flags
-	    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-	    {
-		    selected_login_flag = FALSE;
-		    login_just_added_flag = FALSE;
-	    }
+	    // Clear current flags: no need for an ATOMIC_BLOCK as the clearSmartCardInsertedUnlocked() interrupt sets the following variables to the same values
+		selected_login_flag = FALSE;
+		login_just_added_flag = FALSE;
 		
         // Credential timer off, ask for user to choose: implemented to avoid trapping the user with 2 successive prompts for a get login
         if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_EXPIRED)
@@ -683,13 +677,10 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
     }
     else
     {
-        // Clear current flags
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            selected_login_flag = FALSE;
-            login_just_added_flag = FALSE;
-            activateTimer(TIMER_CREDENTIALS, 0);
-        }
+        // Clear current flags: no need for an ATOMIC_BLOCK as the clearSmartCardInsertedUnlocked() interrupt sets the following variables to the same values
+        selected_login_flag = FALSE;
+        login_just_added_flag = FALSE;
+        activateTimer(TIMER_CREDENTIALS, 0);
         
         // Look for given login in the flash
         selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name);

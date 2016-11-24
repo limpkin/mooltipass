@@ -66,6 +66,10 @@ mooltipassEvent.onMessage = function( request, sender, callback ) {
 mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime) {
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: invoke ', mpDebug.css('e2eef9'), arguments);
 
+	if ( senderTab.id ) {
+		page.createTabEntry( senderTab.id );
+	};
+	
 	args = args || [];
 	// Preppend the tab and the callback function to the arguments list
 	args.unshift(senderTab);

@@ -72,7 +72,6 @@ if ( isSafari ) {
 
 		chrome.tabs.get(activeInfo.tabId, function(info) {
 			if(info && info.id) {
-				console.log( info.status  );
 				page.currentTabId = info.id;
 				if(info.status == "complete") {
 					event.invoke(page.switchTab, null, info.id, []);

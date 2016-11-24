@@ -134,12 +134,6 @@ if ( isSafari ) {
 	}
 }
 
-/**
- * Interaction between background-script and front-script
- */
-if ( isSafari ) safari.application.addEventListener( "message", mooltipassEvent.onMessage, false );
-else chrome.runtime.onMessage.addListener( mooltipassEvent.onMessage );
-
 if ( !isSafari ) {
 	/**
 	 * Add context menu entry for filling in username + password

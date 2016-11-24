@@ -18,7 +18,9 @@ function cross_notification( notificationId, options ) {
 }
 
 // Masquerade event var into a different variable name ( while event is not reserved, many websites use it and creates problems )
-var mooltipassEvent = {};
+var mooltipassEvent = {
+	eventLoaded: true
+};
 
 // Keep event for backwards compatibility
 var event = mooltipassEvent;
@@ -66,10 +68,10 @@ mooltipassEvent.onMessage = function( request, sender, callback ) {
 mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime) {
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: invoke ', mpDebug.css('e2eef9'), arguments);
 
-	if ( senderTab.id ) {
+	if ( senderTab.id && !page.tabs[senderTab.id]) {
 		page.createTabEntry( senderTab.id );
 	};
-	
+
 	args = args || [];
 	// Preppend the tab and the callback function to the arguments list
 	args.unshift(senderTab);
@@ -578,9 +580,3 @@ if (!isSafari) {
 	chrome.notifications.onButtonClicked.addListener(mooltipassEvent.onNotifyButtonClick);
 	chrome.notifications.onClosed.addListener(mooltipassEvent.onNotifyClosed);
 }
-
-/**
- * Interaction between background-script and front-script
- */
-if ( isSafari ) safari.application.addEventListener( "message", mooltipassEvent.onMessage, false );
-else chrome.runtime.onMessage.addListener( mooltipassEvent.onMessage );

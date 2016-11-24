@@ -2,7 +2,9 @@
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 var isSafari = typeof(safari) == 'object'?true:false;
 
-var page = {};
+var page = {
+	pageLoaded: true
+};
 
 // special information for every tab
 page.tabs = {};
@@ -150,7 +152,7 @@ page.clearCredentials = function(tabId, complete) {
 }
 
 page.createTabEntry = function(tabId) {
-	//console.log("page.createTabEntry("+tabId+")");
+	if (background_debug_msg > 4) mpDebug.log('%c page: createTabEntry ', mpDebug.css('ffeef9'), tabId );
 	page.tabs[tabId] = {
 		"stack": [],
 		"errorMessage": null,

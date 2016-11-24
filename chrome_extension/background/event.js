@@ -1,7 +1,9 @@
 
 // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
 function messaging( message, tab ) {
-	if (background_debug_msg > 4) mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
+	if (background_debug_msg > 5) mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
+	else if (background_debug_msg > 4 && message.action != 'check_for_new_input_fields') mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
+
 	if ( isSafari ) tab.page.dispatchMessage("messageFromBackground", message);
 	else chrome.tabs.sendMessage( typeof(tab) == 'number'?tab:tab.id, message, function(response) {});
 };
@@ -67,6 +69,7 @@ mooltipassEvent.onMessage = function( request, sender, callback ) {
  */
 mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime) {
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: invoke ', mpDebug.css('e2eef9'), arguments);
+	if ( typeof(senderTab) == 'number' ) senderTab = { id: senderTab };
 
 	if ( senderTab.id && !page.tabs[senderTab.id]) {
 		page.createTabEntry( senderTab.id );

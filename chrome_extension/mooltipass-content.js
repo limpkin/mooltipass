@@ -219,6 +219,7 @@ cipPassword.generatePasswordFromSettings = function( passwordSettings ) {
 	var charactersSpecial = '!$%*()_+{}-[]:"|;\'?,./';
 	var hash = "";
 	var possible = "";
+	var length = cip.settings['usePasswordGeneratorLength'];
 
 	if( passwordSettings.settings["usePasswordGeneratorLowercase"] ) possible += charactersLowercase;
 	if( passwordSettings.settings["usePasswordGeneratorUppercase"]) possible += charactersUppercase;

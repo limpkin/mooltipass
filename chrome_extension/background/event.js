@@ -574,3 +574,9 @@ if (!isSafari) {
 	chrome.notifications.onButtonClicked.addListener(mooltipassEvent.onNotifyButtonClick);
 	chrome.notifications.onClosed.addListener(mooltipassEvent.onNotifyClosed);
 }
+
+/**
+ * Interaction between background-script and front-script
+ */
+if ( isSafari ) safari.application.addEventListener( "message", mooltipassEvent.onMessage, false );
+else chrome.runtime.onMessage.addListener( mooltipassEvent.onMessage );

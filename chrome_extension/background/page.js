@@ -131,20 +131,22 @@ page.setCurrentTab = function(callback, tab) {
 }
 
 page.clearCredentials = function(tabId, complete) {
+	if (background_debug_msg > 4) mpDebug.log('%c page: clearCredentials ', mpDebug.css('ffeef9'));
 	if(!page.tabs[tabId]) {
 		return;
 	}
 
-	page.tabs[tabId].credentials = {};
-	delete page.tabs[tabId].credentials;
+	if ( page.tabs[tabId].credentials ) {
+		page.tabs[tabId].credentials = {};
+		delete page.tabs[tabId].credentials;
 
-    if(complete) {
-        page.tabs[tabId].loginList = [];
-
-        chrome.tabs.sendMessage(tabId, {
-            action: "clear_credentials"
-        });
-    }
+	    if(complete) {
+	        page.tabs[tabId].loginList = [];
+	        chrome.tabs.sendMessage(tabId, {
+	            action: "clear_credentials"
+	        });
+	    }
+	}
 }
 
 page.createTabEntry = function(tabId) {

@@ -102,7 +102,6 @@ function updateStatusInfo() {
     if( isSafari ) {
         safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
     } else {
-        console.log('here 2');
         messaging( { action: "get_status" }, getStatusCallback );    
 
         if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {

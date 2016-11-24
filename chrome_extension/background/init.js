@@ -72,6 +72,7 @@ if ( isSafari ) {
 
 		chrome.tabs.get(activeInfo.tabId, function(info) {
 			if(info && info.id) {
+				console.log( info.status  );
 				page.currentTabId = info.id;
 				if(info.status == "complete") {
 					event.invoke(page.switchTab, null, info.id, []);
@@ -133,12 +134,6 @@ if ( isSafari ) {
 		);	
 	}
 }
-
-/**
- * Interaction between background-script and front-script
- */
-if ( isSafari ) safari.application.addEventListener( "message", mooltipassEvent.onMessage, false );
-else chrome.runtime.onMessage.addListener( mooltipassEvent.onMessage );
 
 if ( !isSafari ) {
 	/**

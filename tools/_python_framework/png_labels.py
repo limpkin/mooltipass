@@ -9,7 +9,7 @@ except ImportError:
 	from PIL import Image, ImageDraw, ImageFont
 
 CODE128 = barcode.get_barcode_class('code128')
-FONT = "Helvetica.ttf"
+FONT = "FreeSans.ttf"
 
 options = {
   "module_width":   0.254, # 3 dots / 300 dpi * 25.4mm/in
@@ -33,14 +33,14 @@ def create_label_type1(label_size, barcode_value, line1=None, line2=None, line3=
     barcode_im = CODE128(barcode_value, writer=ImageWriter()).render(options)
     im.paste(barcode_im, (2, -5))
     x_off = barcode_im.size[0] + 30
-    font = ImageFont.truetype(FONT, int(12 * 4.2))
+    font = ImageFont.truetype(FONT, 52)
     width, height = font.getsize(line1)
-    y_pos = 11
+    y_pos = 5
     draw.text((x_off, y_pos), line1, font=font, fill=0)
     draw.line((x_off, y_pos+height) + (x_off + width, y_pos+height), fill=0)
-    font = ImageFont.truetype(FONT, int(9 * 4.2))
-    draw.text((x_off,  75), line2, font=font, fill=0)
-    draw.text((x_off, 120), line3, font=font, fill=0)
+    font = ImageFont.truetype(FONT, 37)
+    draw.text((x_off,  70), line2, font=font, fill=0)
+    draw.text((x_off, 115), line3, font=font, fill=0)
     return im
 
 def create_label_type2(label_size, text=None, font_size=11):

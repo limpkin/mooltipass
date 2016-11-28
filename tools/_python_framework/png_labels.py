@@ -49,7 +49,7 @@ def create_label_type2(label_size, text=None, font_size=11):
     font = ImageFont.truetype(FONT, int(font_size * 4.2))
     width, height = font.getsize(text)
     x_pos = int((im.size[0]-width)/2)
-    y_pos = int((im.size[1]-height)/2)
+    y_pos = int((im.size[1]-height)/2-3)
     draw.text((x_pos, y_pos), text, font=font, fill=0)
     return im
 

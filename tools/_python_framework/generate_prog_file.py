@@ -49,6 +49,29 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	else:	
 		if verbose == True:
 			print "Firmware file is", len(flashHex), "bytes long"
+			
+	# Get fw version number
+	firmware_bin = flashHex.tobinarray()
+	for i in range(len(firmware_bin) - 3):
+		if chr(firmware_bin[i]) == 'v' and \
+		chr(firmware_bin[i + 1]) >= '1' and chr(firmware_bin[i + 1]) <= '9' and \
+		chr(firmware_bin[i + 2]) == '.' and \
+		chr(firmware_bin[i + 3]) >= '0' and chr(firmware_bin[i + 3]) <= '9':
+			firmware_version = firmware_bin[i:i+4]
+			if verbose == True:
+				print "Extracted firmware version:", "".join(chr(firmware_version[j]) for j in range(0, 4))
+			break;
+			
+	# Check there's nothing where we want to put the fw version number
+	if flashHex[FW_MAX_LENGTH-4] != 0xFF:
+		print "No space to write serial number inside the bootloader hex!"
+		return False
+		
+	# Write the fw version number in the last 4 bytes of the firmware hex
+	flashHex[FW_MAX_LENGTH-4] = firmware_version[0]
+	flashHex[FW_MAX_LENGTH-3] = firmware_version[1]
+	flashHex[FW_MAX_LENGTH-2] = firmware_version[2]
+	flashHex[FW_MAX_LENGTH-1] = firmware_version[3]
 	
 	# Read bootloader hex
 	bootloaderHex = IntelHex(bootloaderHexName)

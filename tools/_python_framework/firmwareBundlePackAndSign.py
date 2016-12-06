@@ -34,6 +34,7 @@ import os
 
 def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFileName, verbose):
 	# Rather than at the beginning of the files, constants are here
+	VERSION_LENGTH = 4									# FW version length
 	HASH_LENGH = 128/8									# Hash length (128 bits)
 	AES_KEY_LENGTH = 256/8								# AES key length (256 bits)
 	FW_VERSION_LENGTH = 4								# Length of the firmware version in the bundle
@@ -87,7 +88,7 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 		if verbose == True:
 			print "Bundle file is", len(bundle), "bytes long"
 		
-	if len(firmware) > FW_MAX_LENGTH:
+	if len(firmware) > FW_MAX_LENGTH-VERSION_LENGTH:
 		print "Firmware file too long:", len(firmware), "bytes long"
 		return False
 	else:	
@@ -138,6 +139,12 @@ def bundlePackAndSign(bundleName, firmwareName, oldAesKey, newAesKey, updateFile
 			if verbose == True:
 				print "Extracted firmware version:", "".join(chr(firmware_version[j]) for j in range(0, 4))
 			break;
+			
+	# Write it in the last 4 bytes of the firmware hex
+	firmware[FW_MAX_LENGTH-4] = firmware_version[0]
+	firmware[FW_MAX_LENGTH-3] = firmware_version[1]
+	firmware[FW_MAX_LENGTH-2] = firmware_version[2]
+	firmware[FW_MAX_LENGTH-1] = firmware_version[3]
 			
 	# Check if we extracted the firmware version and it has the correct length
 	if firmware_version == None or len(firmware_version) != FW_VERSION_LENGTH:

@@ -42,7 +42,9 @@
 void memoryBoundaryErrorCallback(void)
 {
     // We'll add more debug later if needed
-    usbPutstr("#MBE");
+    #ifdef USB_MESSAGES_FOR_CRITICAL_CALLBACKS
+        usbPutstr("#MBE");
+    #endif
     while(1);
 }
 

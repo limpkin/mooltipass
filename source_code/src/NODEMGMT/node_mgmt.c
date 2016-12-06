@@ -44,7 +44,9 @@ uint16_t currentDate;
 */
 void nodeMgmtCriticalErrorCallback(void)
 {
-    usbPutstr("#NM");
+    #ifdef USB_MESSAGES_FOR_CRITICAL_CALLBACKS
+        usbPutstr("#NM");
+    #endif
     while(1);
 }
 
@@ -53,7 +55,9 @@ void nodeMgmtCriticalErrorCallback(void)
 */
 void nodeMgmtPermissionValidityErrorCallback(void)
 {
-    usbPutstr("#NMP");
+    #ifdef USB_MESSAGES_FOR_CRITICAL_CALLBACKS
+        usbPutstr("#NMP");
+    #endif
     while(1);
 }
 

@@ -259,6 +259,9 @@
 // Uncomment to prevent knock settings changes when card is inserted
 //#define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
 
+/***************** CRITICAL CALLBACKS *****************/
+// Uncomment to allow sending messages through USB for critical callbacks (memoryBoundaryErrorCallback and such)
+//#define USB_MESSAGES_FOR_CRITICAL_CALLBACKS
 
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER

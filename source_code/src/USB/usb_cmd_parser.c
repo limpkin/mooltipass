@@ -939,6 +939,12 @@ void usbProcessIncoming(uint8_t caller_id)
                     /* For the versions that use the AVR bootloader, or when deliberately skipping it: no prompts, just accept it */
                     plugin_return_value = PLUGIN_BYTE_OK;
                     mediaFlashImportApproved = TRUE;
+                    
+                    /* Version with custom bootloader: copy version in eeprom */
+                    /* As of 06/12/2016 this is obsolete as the bootloader fetches the firmware version from the flash */
+                    /* However, this is still useful as it forces a complete param reset at restart */
+                    /* Do not remove as some units still have a bootloader that fetches the firmware version using that */
+                    eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
 
                     #if defined(MINI_PREPRODUCTION_SETUP_ACC)
                         /* If security is in place: set jump to bootloader key */
@@ -1001,6 +1007,12 @@ void usbProcessIncoming(uint8_t caller_id)
                             /* Approve bundle upload request */
                             plugin_return_value = PLUGIN_BYTE_OK;
                             mediaFlashImportApproved = TRUE;
+                            
+                            /* Version with custom bootloader: copy version in eeprom */
+                            /* As of 06/12/2016 this is obsolete as the bootloader fetches the firmware version from the flash */
+                            /* However, this is still useful as it forces a complete param reset at restart */
+                            /* Do not remove as some units still have a bootloader that fetches the firmware version using that */
+                            eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
 
                             /* When security is in place and it isn't the first mass production boot: set jump to bootloader bool, activate timer for reboot */
                             if ((boot_pwd_set_val == BOOTLOADER_PWDOK_KEY) && (massprod_fboot_val != MASS_PROD_FBOOT_OK_KEY))

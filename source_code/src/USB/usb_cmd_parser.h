@@ -42,8 +42,8 @@
 #define CMD_SET_MOOLTIPASS_PARM 0xB1
 #define CMD_GET_MOOLTIPASS_PARM 0xB2
 #define CMD_RESET_CARD          0xB3
-#define CMD_READ_CARD_LOGIN     0xB4
-#define CMD_READ_CARD_PASS      0xB5
+#define CMD_READ_CARD_CREDS     0xB4
+#define CMD_RESERVED            0xB5
 #define CMD_SET_CARD_LOGIN      0xB6
 #define CMD_SET_CARD_PASS       0xB7
 #define CMD_ADD_UNKNOWN_CARD    0xB8
@@ -86,8 +86,7 @@
 #define CMD_SET_DESCRIPTION     0xD8
 #define CMD_LOCK_DEVICE         0xD9
 #define CMD_GET_MINI_SERIAL     0xDA
-#define CMD_GET_CARD_CREDS_LCK  0xDB
-#define CMD_UNLOCK_WITH_PIN     0xDC
+#define CMD_UNLOCK_WITH_PIN     0xDB
 
 
 /* Packet format defines     */

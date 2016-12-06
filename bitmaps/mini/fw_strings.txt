@@ -36,9 +36,9 @@ Credentials Management
 Use App To Exit
 Created By The Plugin
 No Stored Favorites
-Send Card Data?
+Send Card Credential?
 Change Card Login?
-Change Card Data?
+Change Card Passwd?
 Username:
 Show Login?
 Show Password?

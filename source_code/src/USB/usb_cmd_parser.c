@@ -1273,79 +1273,34 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
-        // Read card login
+        // Read card credentials
         #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
-        case CMD_READ_CARD_LOGIN :
+        case CMD_READ_CARD_CREDS:
         {
-            if (getSmartCardInsertedUnlocked() == TRUE)
+            #if SMARTCARD_MTP_PASS_LENGTH > SMARTCARD_MTP_LOGIN_LENGTH
+                #error "SMARTCARD_MTP_LOGIN_LENGTH too big to fit in temp_data"
+            #endif
+            uint8_t temp_data[SMARTCARD_MTP_LOGIN_LENGTH/8];
+            
+            if ((getSmartCardInsertedUnlocked() == TRUE) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN))
             {
-                uint8_t temp_data[SMARTCARD_MTP_LOGIN_LENGTH/8];
-                readMooltipassWebsiteLogin(temp_data);
-                usbSendMessage(CMD_READ_CARD_LOGIN, sizeof(temp_data), (void*)temp_data);
-                return;
-            } 
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;
-        }
-        #endif
-        
-        // Read card stored password
-        #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
-        case CMD_READ_CARD_PASS :
-        {
-            if (getSmartCardInsertedUnlocked() == TRUE)
-            {
-                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SEND_SMC_PASS)) == RETURN_OK)
-                {
-                    uint8_t temp_data[SMARTCARD_MTP_PASS_LENGTH/8];
-                    readMooltipassWebsitePassword(temp_data);
-                    usbSendMessage(CMD_READ_CARD_PASS, sizeof(temp_data), (void*)temp_data);
-                    guiGetBackToCurrentScreen();
-                    return;
-                } 
-                else
-                {
-                    guiGetBackToCurrentScreen();
-                    plugin_return_value = PLUGIN_BYTE_ERROR;
-                }
-            } 
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;
-        }
-        #endif
-        
-        // Unknown card: get card login & password
-        #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
-        case CMD_GET_CARD_CREDS_LCK:
-        {
-            if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
-            {
-                // Ask the user to unlock the card
-                activityDetectedRoutine();
-                if (guiCardUnlockingProcess() == RETURN_OK)
-                {
-                    #if SMARTCARD_MTP_PASS_LENGTH > SMARTCARD_MTP_LOGIN_LENGTH
-                        #error "SMARTCARD_MTP_LOGIN_LENGTH too big to fit in temp_data"
-                    #endif                     
-                    uint8_t temp_data[SMARTCARD_MTP_LOGIN_LENGTH/8];
-                    
+                /* Ask permission to the user, unlock the card if the card is unknown */
+                if ((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SEND_SMC_CREDS)) == RETURN_OK) && ((getSmartCardInsertedUnlocked() == TRUE) || (guiCardUnlockingProcess() == RETURN_OK)))
+                {                    
                     /* Read card login & password, send 2 packets */
                     guiGetBackToCurrentScreen();
                     readMooltipassWebsiteLogin(temp_data);
-                    usbSendMessage(CMD_GET_CARD_CREDS_LCK, sizeof(temp_data), (void*)temp_data);
+                    usbSendMessage(CMD_READ_CARD_CREDS, sizeof(temp_data), (void*)temp_data);
                     readMooltipassWebsitePassword(temp_data);
-                    usbSendMessage(CMD_GET_CARD_CREDS_LCK, sizeof(temp_data), (void*)temp_data); 
+                    usbSendMessage(CMD_READ_CARD_CREDS, sizeof(temp_data), (void*)temp_data); 
                     
-                    /* Power off & on the card to log off: we're not checking the return values of cardDetectedRoutine & validCardDetectedFunction as they should be the same and nothing can be gained from this scenario */    
-                    handleSmartcardRemoved();
-                    timerBased130MsDelay();
-                    cardDetectedRoutine();
+                    if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
+                    {
+                        /* Power off & on the card to log off: we're not checking the return values of cardDetectedRoutine & validCardDetectedFunction as they should be the same and nothing can be gained from this scenario */
+                        handleSmartcardRemoved();
+                        timerBased130MsDelay();
+                        cardDetectedRoutine();                        
+                    }
                     return;               
                 }
                 else

@@ -39,9 +39,9 @@ Memory Management Mode
 Exit Mode In Application
 Created by the plugin
 No Stored Favorites
-Send Card Stored Data?
+Send Card Credentials
 Change Card Login?
-Change Card Stored Data?
+Change Card Password?
 username:
 Show Login?
 Show Password?

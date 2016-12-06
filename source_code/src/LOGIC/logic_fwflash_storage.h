@@ -117,7 +117,7 @@
     #define ID_STRING_CLOSEMEMMGMT      38
     #define ID_STRING_CREATEDBYPLUG     39
     #define ID_STRING_NOSTOREDFAV       40
-    #define ID_STRING_SEND_SMC_PASS     41
+    #define ID_STRING_SEND_SMC_CREDS    41
     #define ID_STRING_SET_SMC_LOGIN     42
     #define ID_STRING_SET_SMC_PASS      43
     #define ID_STRING_YOUR_USERNAME     44
@@ -243,7 +243,7 @@
     #define ID_STRING_CLOSEMEMMGMT      35
     #define ID_STRING_CREATEDBYPLUG     36
     #define ID_STRING_NOSTOREDFAV       37
-    #define ID_STRING_SEND_SMC_PASS     38
+    #define ID_STRING_SEND_SMC_CREDS    38
     #define ID_STRING_SET_SMC_LOGIN     39
     #define ID_STRING_SET_SMC_PASS      40
     #define ID_STRING_YOUR_USERNAME     41

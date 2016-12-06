@@ -131,17 +131,17 @@ From plugin/app: Reset inserted card
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0xB4: Read Card Login
----------------------
-From plugin/app: Read login stored inside the smartcard (no confirmation asked from the user)
+0xB4: Read Card Credentials
+---------------------------
+From plugin/app: Read credentials stored inside the smartcard (confirmation asked from the user)
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
+From Mooltipass: Either one packet with a one byte payload (0x00) indicating request failure, or two successive packets: one with the login as payload, the other with the password as payload
 
-0xB5: Read Card Password
-------------------------
-From plugin/app: Read password stored inside the smartcard (confirmation asked to the user)
+0xB5: Reserved
+--------------
+From plugin/app: 
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
+From Mooltipass:
 
 0xB6: Set Card Login
 --------------------

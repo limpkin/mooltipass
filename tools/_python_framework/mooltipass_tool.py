@@ -187,12 +187,27 @@ def main():
 			
 		if sys.argv[1] == "lock":
 			mooltipass_device.lock()
+			
+		if sys.argv[1] == "get_card_creds":
+			mooltipass_device.getCardCreds()
+				
+		if sys.argv[1] == "set_card_login":
+			if len(sys.argv) > 2:
+				mooltipass_device.setCardLogin(sys.argv[2])		
+			else:
+				print "set_card_login: not enough args!"
+				
+		if sys.argv[1] == "set_card_password":
+			if len(sys.argv) > 2:
+				mooltipass_device.setCardPassword(sys.argv[2])		
+			else:
+				print "set_card_password: not enough args!"
 		
 		
 	#mooltipass_device.sendCustomPacket()
 	#mooltipass_device.checkSecuritySettings()
 	#if not skipConnection:
-		#device.disconnect()
+	#	mooltipass_device.disconnect()
 
 if __name__ == "__main__":
 	main()

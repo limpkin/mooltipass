@@ -7,6 +7,7 @@ V1.2:
 - adding an "_unlock_" service to enable computer lock/unlock feature (configurable by settings)
 - added function to randomize the PIN displayed upon card insertion (configurable by settings)
 - added a "user db change number" updated upon db changes, to make sync notifications
+- read card login/password commands replaced with a single read credentials one
 - added new command to know how many free slots for new users there are
 - handleSmartcardRemoved() call at the end of user erase routine
 - do not prompt for change password when adding new credential

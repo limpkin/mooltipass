@@ -41,6 +41,10 @@ class mooltipass_hid_device:
 	def connect(self, verbose):
 		return self.device.connect(verbose, USB_VID, USB_PID, USB_READ_TIMEOUT, self.createPingPacket(), self.checkPingAnswerPacket);
 		
+	# Disconnect
+	def disconnect(self):
+		self.device.disconnect()
+		
 	# Get private device object
 	def getInternalDevice(self):
 		return self.device
@@ -231,6 +235,33 @@ class mooltipass_hid_device:
 	def lock(self):
 		self.device.sendHidPacket([0, CMD_LOCK_DEVICE])
 		self.device.receiveHidPacket()
+		
+	# Get card credentials:
+	def getCardCreds(self):		
+		self.device.sendHidPacket([0, CMD_READ_CARD_CREDS])
+		data = self.device.receiveHidPacket()
+		if data[LEN_INDEX] == 1:
+			print "Couldn't get card credentials!"
+		else:
+			data[len(data)-1] = 0
+			print "Login:", self.getTextFromUsbPacket(data)
+			data = self.device.receiveHidPacket()
+			data[len(data)-1] = 0
+			print "Password:", self.getTextFromUsbPacket(data)		
+	
+	# Set card login
+	def setCardLogin(self, login):
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_CARD_LOGIN, len(login)+1, self.textToByteArray(login)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set login"
+			return
+	
+	# Set card password
+	def setCardPassword(self, password):
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_CARD_PASS, len(password)+1, self.textToByteArray(password)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set password"
+			return
 		
 	# Change description for given login
 	def changeLoginDescription(self):

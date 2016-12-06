@@ -199,7 +199,7 @@ int main(void)
     for (uint8_t pass_number = 0; pass_number < 2; pass_number++)
     {
         /* Init CBCMAC encryption context and read current firmware version ID */
-        eeprom_read_block((void*)old_version_number, (void*)EEP_USER_DATA_START_ADDR, sizeof(old_version_number));      // Read old version number from eeprom (put there by firmware before jumping here)
+        memcpy_PF(old_version_number, (uint_farptr_t)0x6FFC, sizeof(old_version_number));                               // Read old version number from flash
         eeprom_read_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));                                // Read current aes key from eeprom
         memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));                                                          // Set IV for CBCMAC to 0
         aes256_init_ecb(&temp_aes_context, cur_aes_key);                                                                // Init AES context

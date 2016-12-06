@@ -64,7 +64,7 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 			
 	# Check there's nothing where we want to put the fw version number
 	if flashHex[FW_MAX_LENGTH-4] != 0xFF:
-		print "No space to write serial number inside the bootloader hex!"
+		print "No space to write fw version number inside the firmware hex!"
 		return False
 		
 	# Write the fw version number in the last 4 bytes of the firmware hex

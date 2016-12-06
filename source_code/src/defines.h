@@ -179,6 +179,11 @@
     #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
 #endif
 
+/* Features depending on the mooltipass version */
+#ifndef MINI_VERSION
+    #define UNLOCK_WITH_PIN_FUNCTIONALITY
+#endif
+
 /**************** DEBUG PRINTS ****************/
 // Used for smart card testing
 //#define DEBUG_SMC_DUMP_USB_PRINT

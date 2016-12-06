@@ -415,6 +415,7 @@ int main(void)
         #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP)
             if(hasTimerExpired(TIMER_REBOOT, TRUE) == TIMER_EXPIRED)
             {
+                /* Copy firmware version in eeprom and reboot */
                 reboot_platform();
             }
         #endif

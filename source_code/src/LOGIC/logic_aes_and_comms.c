@@ -519,9 +519,9 @@ RET_TYPE getLoginForContext(char* buffer)
     }
     else
     {
-	    // Clear current flags: no need for an ATOMIC_BLOCK as the clearSmartCardInsertedUnlocked() interrupt sets the following variables to the same values
-		selected_login_flag = FALSE;
-		login_just_added_flag = FALSE;
+        // Clear current flags: no need for an ATOMIC_BLOCK as the clearSmartCardInsertedUnlocked() interrupt sets the following variables to the same values
+        selected_login_flag = FALSE;
+        login_just_added_flag = FALSE;
 		
         // Credential timer off, ask for user to choose: implemented to avoid trapping the user with 2 successive prompts for a get login
         if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_EXPIRED)

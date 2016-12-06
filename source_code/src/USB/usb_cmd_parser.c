@@ -941,9 +941,6 @@ void usbProcessIncoming(uint8_t caller_id)
                     mediaFlashImportApproved = TRUE;
 
                     #if defined(MINI_PREPRODUCTION_SETUP_ACC)
-                        /* Version with custom bootloader: copy version in eeprom */
-                        eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
-
                         /* If security is in place: set jump to bootloader key */
                         if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
                         {
@@ -1004,9 +1001,6 @@ void usbProcessIncoming(uint8_t caller_id)
                             /* Approve bundle upload request */
                             plugin_return_value = PLUGIN_BYTE_OK;
                             mediaFlashImportApproved = TRUE;
-
-                            /* Copy firmware version in eeprom */
-                            eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
 
                             /* When security is in place and it isn't the first mass production boot: set jump to bootloader bool, activate timer for reboot */
                             if ((boot_pwd_set_val == BOOTLOADER_PWDOK_KEY) && (massprod_fboot_val != MASS_PROD_FBOOT_OK_KEY))
@@ -1098,7 +1092,7 @@ void usbProcessIncoming(uint8_t caller_id)
             #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP) && !defined(MINI_CREDENTIAL_MANAGEMENT)
             // At the end of the import media command if the security is set in place and it isn't the first mass production boot, we start the bootloader
             if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR) != MASS_PROD_FBOOT_OK_KEY))
-            {                
+            {
                 reboot_platform();
             } 
             #endif
@@ -1210,7 +1204,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Unlock the card using a PIN sent through USB (only used as last resort for standard version, if screen breaks!)
-        #ifndef MINI_VERSION
+        #ifdef UNLOCK_WITH_PIN_FUNCTIONALITY
         case CMD_UNLOCK_WITH_PIN :
         {
             uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
@@ -1313,6 +1307,48 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         #endif
+        
+        // Unknown card: get card login & password
+        #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
+        case CMD_GET_CARD_CREDS_LCK:
+        {
+            if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
+            {
+                // Ask the user to unlock the card
+                activityDetectedRoutine();
+                if (guiCardUnlockingProcess() == RETURN_OK)
+                {
+                    #if SMARTCARD_MTP_PASS_LENGTH > SMARTCARD_MTP_LOGIN_LENGTH
+                        #error "SMARTCARD_MTP_LOGIN_LENGTH too big to fit in temp_data"
+                    #endif                     
+                    uint8_t temp_data[SMARTCARD_MTP_LOGIN_LENGTH/8];
+                    
+                    /* Read card login & password, send 2 packets */
+                    guiGetBackToCurrentScreen();
+                    readMooltipassWebsiteLogin(temp_data);
+                    usbSendMessage(CMD_GET_CARD_CREDS_LCK, sizeof(temp_data), (void*)temp_data);
+                    readMooltipassWebsitePassword(temp_data);
+                    usbSendMessage(CMD_GET_CARD_CREDS_LCK, sizeof(temp_data), (void*)temp_data); 
+                    
+                    /* Power off & on the card to log off: we're not checking the return values of cardDetectedRoutine & validCardDetectedFunction as they should be the same and nothing can be gained from this scenario */    
+                    handleSmartcardRemoved();
+                    timerBased130MsDelay();
+                    cardDetectedRoutine();
+                    return;               
+                }
+                else
+                {
+                    guiGetBackToCurrentScreen();
+                    plugin_return_value = PLUGIN_BYTE_ERROR;
+                }
+            } 
+            else
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+            }
+            break;
+        }
+        #endif           
         
         // Set card login
         #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE

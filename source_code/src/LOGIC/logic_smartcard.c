@@ -46,6 +46,7 @@
 */
 void unlockFeatureCheck(void)
 {
+    uint8_t lock_unlock_feature_uint = getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM);
     uint8_t loginString[NODE_CHILD_SIZE_OF_LOGIN];
     
     // As we do buffer reuse, double check it here for possible evolutions...
@@ -54,7 +55,7 @@ void unlockFeatureCheck(void)
     #endif
 
     // See if the lock / unlock feature is enabled, type password if so
-    if ((setCurrentContext((uint8_t*)"_unlock_", SERVICE_CRED_TYPE) == RETURN_OK) && ((getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) & LF_EN_MASK) != 0))
+    if ((setCurrentContext((uint8_t*)"_unlock_", SERVICE_CRED_TYPE) == RETURN_OK) && ((lock_unlock_feature_uint & LF_EN_MASK) != 0))
     {
         mp_lock_unlock_shortcuts = TRUE;
 
@@ -63,21 +64,26 @@ void unlockFeatureCheck(void)
         if (getLoginForContext((char*)loginString) == RETURN_OK)
         {
             /* We fetched the login (user approved), enter "enter" if feature enabled */
-            if ((getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) & LF_ENT_KEY_MASK) != 0)
+            if ((lock_unlock_feature_uint & LF_ENT_KEY_MASK) != 0)
             {
                 usbKeyboardPress(KEY_RETURN, 0);
                 timerBasedDelayMs(300);
             }
+            
+            /* We fetched the login (user approved), enter ctrl-alt-del if feature enabled */
+            if ((lock_unlock_feature_uint & LF_CTRL_ALT_DEL_MASK) != 0)
+            {
+                usbKeyboardPress(KEY_DELETE, KEY_RIGHT_ALT|KEY_CTRL);
+                timerBasedDelayMs(300);
+            }
 
             /* If enabled, enter login: works because it takes less than 1s */
-            if ((getMooltipassParameterInEeprom(LOCK_UNLOCK_FEATURE_PARAM) & LF_LOGIN_MASK) != 0)
+            if ((lock_unlock_feature_uint & LF_LOGIN_MASK) != 0)
             {
                 loginString[NODE_CHILD_SIZE_OF_LOGIN-1] = 0;
                 usbKeybPutStr((char*)loginString);
                 usbKeyboardPress(KEY_TAB, 0);
             }
-
-            /* Todo: implement back functionality? */
 
             /* Fetch the password */
             if (getPasswordForContext((char*)loginString) == RETURN_OK)
@@ -285,7 +291,12 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_f
         #endif
         
         // Ask the user to enter his PIN and check it
+        #ifdef UNLOCK_WITH_PIN_FUNCTIONALITY
         if (((suggested_pin != 0) && (mooltipassDetectedRoutine(suggested_pin) == RETURN_MOOLTIPASS_4_TRIES_LEFT)) || ((suggested_pin == 0) && (guiCardUnlockingProcess() == RETURN_OK)))
+        #else
+        (void)suggested_pin;
+        if (guiCardUnlockingProcess() == RETURN_OK)
+        #endif
         {
             // Unlocking succeeded
             readAES256BitsKey(temp_buffer);

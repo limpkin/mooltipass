@@ -86,7 +86,8 @@
 #define CMD_SET_DESCRIPTION     0xD8
 #define CMD_LOCK_DEVICE         0xD9
 #define CMD_GET_MINI_SERIAL     0xDA
-#define CMD_UNLOCK_WITH_PIN     0xDB
+#define CMD_GET_CARD_CREDS_LCK  0xDB
+#define CMD_UNLOCK_WITH_PIN     0xDC
 
 
 /* Packet format defines     */

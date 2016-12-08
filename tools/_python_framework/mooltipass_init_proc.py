@@ -49,7 +49,7 @@ def decryptMiniProdFile(key):
 	# Find Mooltipass ID in files
 	for mooltipass_id in mooltipass_ids_list:
 		for file_name in export_file_names:
-			if "Mooltipass-" + mooltipass_id in file_name:
+			if "Mooltipass-" + mooltipass_id + ".txt" in file_name:
 				print "Found export file:", file_name
 				data = pickle_read(join("export/",file_name))			
 				decrypted_data = seccure.decrypt(data, key, curve='secp521r1/nistp521')
@@ -59,8 +59,8 @@ def decryptMiniProdFile(key):
 				
 				if True:
 					# Print Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID (might get quite big)
-					data_qr = pyqrcode.create(decrypted_data)
-					print(key1_qr.terminal(quiet_zone=1))
+					data_qr = pyqrcode.create(decrypted_data, error="L")
+					print(data_qr.terminal(quiet_zone=1))
 					raw_input("Press enter:")
 				else:
 					# This is just here in case you need it....

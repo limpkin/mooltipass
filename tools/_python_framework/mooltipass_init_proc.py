@@ -61,6 +61,7 @@ def decryptMiniProdFile(key):
 					# Print Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID (might get quite big)
 					data_qr = pyqrcode.create(decrypted_data)
 					print(key1_qr.terminal(quiet_zone=1))
+					raw_input("Press enter:")
 				else:
 					# This is just here in case you need it....
 					# key1

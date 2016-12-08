@@ -41,43 +41,53 @@ def decryptMiniProdFile(key):
 	export_file_names = [f for f in listdir("export/") if isfile(join("export/", f))]
 		
 	# Ask for Mooltipass ID
-	mooltipass_id = raw_input("Enter Mooltipass ID: ")
+	mooltipass_ids = raw_input("Enter Mooltipass ID: ")
+	
+	# Generate a list with Mooltipass IDs
+	mooltipass_ids_list = mooltipass_ids.split(' ')
 	
 	# Find Mooltipass ID in files
-	for file_name in export_file_names:
-		if mooltipass_id in file_name:
-			print "Found export file:", file_name
-			data = pickle_read(join("export/",file_name))			
-			decrypted_data = seccure.decrypt(data, key, curve='secp521r1/nistp521')
-			items = decrypted_data.split('|')
-			#print decrypted_data
-			# Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
-			
-			# key1
-			key1 = items[1]
-			key1_qr = pyqrcode.create(key1)
-			print ""
-			print "AES key 1:", key1
-			print(key1_qr.terminal(quiet_zone=1))
-			
-			# key2
-			key2 = items[2]
-			key2_qr = pyqrcode.create(key2)
-			print ""
-			print "AES key 2:", key2
-			print(key2_qr.terminal(quiet_zone=1))
-			
-			# Request UID
-			request = items[3]
-			request_qr = pyqrcode.create(request)
-			print "Request UID key:", request
-			print(request_qr.terminal(quiet_zone=1))
-			
-			# UID
-			request = items[4]
-			request_qr = pyqrcode.create(request)
-			print "UID :", request
-			print(request_qr.terminal(quiet_zone=1))
+	for mooltipass_id in mooltipass_ids_list:
+		for file_name in export_file_names:
+			if "Mooltipass-" + mooltipass_id in file_name:
+				print "Found export file:", file_name
+				data = pickle_read(join("export/",file_name))			
+				decrypted_data = seccure.decrypt(data, key, curve='secp521r1/nistp521')
+				items = decrypted_data.split('|')
+				#print decrypted_data
+				# Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
+				
+				if True:
+					# Print Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID (might get quite big)
+					data_qr = pyqrcode.create(decrypted_data)
+					print(key1_qr.terminal(quiet_zone=1))
+				else:
+					# This is just here in case you need it....
+					# key1
+					key1 = items[1]
+					key1_qr = pyqrcode.create(key1)
+					print ""
+					print "AES key 1:", key1
+					print(key1_qr.terminal(quiet_zone=1))
+					
+					# key2
+					key2 = items[2]
+					key2_qr = pyqrcode.create(key2)
+					print ""
+					print "AES key 2:", key2
+					print(key2_qr.terminal(quiet_zone=1))
+					
+					# Request UID
+					request = items[3]
+					request_qr = pyqrcode.create(request)
+					print "Request UID key:", request
+					print(request_qr.terminal(quiet_zone=1))
+					
+					# UID
+					request = items[4]
+					request_qr = pyqrcode.create(request)
+					print "UID :", request
+					print(request_qr.terminal(quiet_zone=1))
 
 		
 # Get a packet to send for a given command and payload

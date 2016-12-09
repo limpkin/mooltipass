@@ -1090,8 +1090,8 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			{
 				if(imported_data.data[i].length == 3)
 				{
-					// Use the public suffix list to check for valid URLs
-					var parsing_result = mooltipass.util.extractDomainAndSubdomain(imported_data.data[i][0].toLowerCase());
+					// OUTDATED from 09/12/2016: Use the public suffix list to check for valid URLs
+					/*var parsing_result = mooltipass.util.extractDomainAndSubdomain(imported_data.data[i][0].toLowerCase());
 					if(parsing_result.valid)
 					{
 						var chosen_url;
@@ -1104,7 +1104,8 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 							chosen_url = parsing_result.subdomain + "." + parsing_result.domain;
 						}
 						mooltipass.memmgmt.memmgmtAddData.push({"context": chosen_url.substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": "Imported by CSV"});
-					}
+					}*/
+					mooltipass.memmgmt.memmgmtAddData.push({"context": imported_data.data[i][0].toLowerCase().substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": "Imported by CSV"});
 				}				
 			}
 			mooltipass.memmgmt.totalAddressesRequired = mooltipass.memmgmt.memmgmtAddData.length*2;

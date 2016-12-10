@@ -62,8 +62,20 @@ def pickle_read(filename):
 def main():
 	print "Mooltipass Mass Programming Tool"
 	
+	# Check for firmware file presence
+	if not os.path.isfile("Mooltipass.hex"):
+		print "Couldn't find Mooltipass.hex"
+		sys.exit(0)
+	
+	# Check for bootloader file presence
+	if not os.path.isfile("bootloader_mini.hex"):
+		print "Couldn't find bootloader_mini.hex"
+		sys.exit(0)
+	
 	# Temp vars
 	prog_socket_states = [PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE]
+	next_available_mooltipass_id = 1
+	mooltipass_ids_to_take = []
 	temp_counter = 0
 	
 	# Random bytes buffer
@@ -82,6 +94,14 @@ def main():
 	# Check for random numbers file presence
 	if os.path.isfile("rng.bin"):
 		random_bytes_buffer = pickle_read("rng.bin")
+	
+	# Check for next mooltipass id file
+	if os.path.isfile("mooltipass_id.bin"):
+		next_available_mooltipass_id = pickle_read("mooltipass_id.bin")
+		
+	# Check for available mooltipass ids file
+	if os.path.isfile("mooltipass_av_ids.bin"):
+		mooltipass_ids_to_take = pickle_read("mooltipass_av_ids.bin")
 		
 	# Main loop
 	while True:
@@ -122,9 +142,25 @@ def main():
 				if prog_socket_states[i] == PROG_SOCKET_PENDING:
 					print "Starting programming for socket", i
 					
-					# Generate programming file
+					# Generate new mooltipass ID
+					if len(mooltipass_ids_to_take) > 0:
+						pass
+					else:
+						# No ids to take, take the next available one
+						mooltipass_id = next_available_mooltipass_id
+						next_available_mooltipass_id = next_available_mooltipass_id + 1
+						# Store the new id in file
+						pickle_write(next_available_mooltipass_id, "mooltipass_id.bin")
 					
-					#generateFlashAndEepromHex(sys.argv[2], sys.argv[3], 12345, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0], "newflash.hex", "neweeprom.hex", True)
+					# Generate keys from the random bytes buffer
+					aes_key1 = random_bytes_buffer[0:AES_KEY_LENGTH]
+					aes_key2 = random_bytes_buffer[AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH]
+					uid_key = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH]
+					uid = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH]
+					del(random_bytes_buffer[0:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH])
+					
+					# Generate programming file					
+					generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "flash_"+str(mooltipass_id)+".hex", "eeprom_"+str(mooltipass_id)+".hex", True)
 					
 					# Change state to programming
 					prog_socket_states[i] = PROG_SOCKET_PROGRAMMING

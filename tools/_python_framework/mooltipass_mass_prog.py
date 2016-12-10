@@ -26,6 +26,10 @@ from generate_prog_file import *
 import firmwareBundlePackAndSign
 from datetime import datetime
 from array import array
+try:
+	import seccure
+except ImportError:
+	pass
 import threading
 import pickle
 import time
@@ -106,6 +110,11 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
 def main():
 	print "Mooltipass Mass Programming Tool"
 	
+	# Check for public key
+	if not os.path.isfile("publickey.bin"):
+		print "Couldn't find public key!"
+		return
+	
 	# Check for firmware file presence
 	if not os.path.isfile("Mooltipass.hex"):
 		print "Couldn't find Mooltipass.hex"
@@ -148,6 +157,14 @@ def main():
 	# Check for available mooltipass ids file
 	if os.path.isfile("mooltipass_av_ids.bin"):
 		mooltipass_ids_to_take = pickle_read("mooltipass_av_ids.bin")
+			
+	# Read public key
+	public_key = pickle_read("publickey.bin")
+	
+	# Display text on screen
+	add_line_on_screen(mooltipass_device, "Python Script Started")
+	add_line_on_screen(mooltipass_device, "---------------------")
+	add_line_on_screen(mooltipass_device, "You may start")
 		
 	# Main loop
 	while True:
@@ -205,6 +222,18 @@ def main():
 					uid_key = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH]
 					uid = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH]
 					del(random_bytes_buffer[0:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH])
+					
+					# Write in file: Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write					
+					aes_key1_text =  "".join(format(x, "02x") for x in aes_key1)
+					aes_key2_text =  "".join(format(x, "02x") for x in aes_key2)
+					uid_key_text = "".join(format(x, "02x") for x in uid_key)
+					uid_text = "".join(format(x, "02x") for x in uid)					
+					string_export = str(mooltipass_id)+"|"+ aes_key1_text +"|"+ aes_key2_text +"|"+ uid_key_text +"|"+ uid_text+"\r\n"
+					#print string_export
+					try:
+						pickle_write(seccure.encrypt(string_export, public_key, curve='secp521r1/nistp521'), time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mooltipass_id)+".txt")	
+					except NameError:
+						pass
 					
 					# Generate programming file					
 					generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "flash_"+str(mooltipass_id)+".hex", "eeprom_"+str(mooltipass_id)+".hex", True)

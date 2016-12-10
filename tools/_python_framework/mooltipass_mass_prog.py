@@ -26,6 +26,7 @@ from generate_prog_file import *
 import firmwareBundlePackAndSign
 from datetime import datetime
 from array import array
+import threading
 import pickle
 import time
 import sys
@@ -53,6 +54,19 @@ PROG_SOCKET_PENDING		= 1
 PROG_SOCKET_PROGRAMMING	= 2
 
 
+class FuncThread(threading.Thread):
+	def __init__(self, target, *args):
+		self._target = target
+		self._args = args
+		threading.Thread.__init__(self)
+
+	def run(self):
+		self._return = self._target(*self._args)
+		
+	def join(self):
+		threading.Thread.join(self)
+		return self._return
+
 def pickle_write(data, outfile):
 	f = open(outfile, "w+b")
 	pickle.dump(data, f)
@@ -63,6 +77,15 @@ def pickle_read(filename):
 	data = pickle.load(f)
 	f.close()
 	return data
+	
+def start_programming(socket_id, flashFile, EepromFile):
+	print "Programming socket", socket_id, "with flash file", flashFile, "and eeprom file", EepromFile
+	print "Start : %s" % time.ctime()
+	time.sleep(5)
+	print "End : %s" % time.ctime()
+	
+	# Return success state
+	return [False]
 
 def main():
 	print "Mooltipass Mass Programming Tool"
@@ -79,6 +102,7 @@ def main():
 	
 	# Temp vars
 	prog_socket_states = [PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE]
+	programming_threads = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 	next_available_mooltipass_id = 1
 	mooltipass_ids_to_take = []
 	displayed_texts = []
@@ -179,9 +203,38 @@ def main():
 						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_DISPLAY_LINE1+i, len(displayed_texts[i])+1, mooltipass_device.textToByteArray(displayed_texts[i])))
 						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
 					
-					# Here we should launch a programming thread
-					mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_DONE, 1, [socket_id]))
-					mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+					# Launch a programming thread
+					programming_threads[socket_id] = FuncThread(start_programming, socket_id, "flash_"+str(mooltipass_id)+".hex", "eeprom_"+str(mooltipass_id)+".hex")
+					programming_threads[socket_id].start()
+					
+					
+		# Check for thread end
+		for socket_id in range(0, 9):
+			# Check if we're currently programming
+			if prog_socket_states[socket_id] == PROG_SOCKET_PROGRAMMING:
+				# Check if the thread ended
+				if not programming_threads[socket_id].is_alive():
+					print "Thread for socket", socket_id, "ended"
+					
+					# Fetch the return data
+					return_data = programming_threads[socket_id].join()
+					
+					# Check success state
+					if return_data[0] :
+						print "Programming for socket", socket_id, "succeeded"
+						
+						# Inform programming platform of success state
+						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_DONE, 1, [socket_id]))
+						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+					else:
+						print "Programming for socket", socket_id, "failed"
+						
+						# Inform programming platform of success state
+						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_FAILURE, 1, [socket_id]))
+						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+					
+					# Reset prog state
+					prog_socket_states[socket_id] = PROG_SOCKET_IDLE
 
 if __name__ == "__main__":
 	main()

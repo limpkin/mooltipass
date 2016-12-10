@@ -42,6 +42,11 @@ UID_KEY_LENGTH 			= 6
 # Custom packets
 CMD_BUTTON_PRESSED		= 0x80
 CMD_GET_RNG_B_AVAIL		= 0x81
+CMD_PROG_DONE			= 0x82
+CMD_PROG_FAILURE		= 0x83
+CMD_DISPLAY_LINE1       = 0x84
+CMD_DISPLAY_LINE2       = 0x85
+CMD_DISPLAY_LINE3       = 0x86
 # State machine
 PROG_SOCKET_IDLE		= 0
 PROG_SOCKET_PENDING		= 1
@@ -76,6 +81,7 @@ def main():
 	prog_socket_states = [PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE]
 	next_available_mooltipass_id = 1
 	mooltipass_ids_to_take = []
+	displayed_texts = []
 	temp_counter = 0
 	
 	# Random bytes buffer
@@ -138,9 +144,9 @@ def main():
 		# If we have enough random bytes and a button was pressed, program the MCU
 		if len(random_bytes_buffer) >= AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH:
 			# Check if a button was pressed
-			for i in range(0, 9):
-				if prog_socket_states[i] == PROG_SOCKET_PENDING:
-					print "Starting programming for socket", i
+			for socket_id in range(0, 9):
+				if prog_socket_states[socket_id] == PROG_SOCKET_PENDING:
+					print "Starting programming for socket", socket_id
 					
 					# Generate new mooltipass ID
 					if len(mooltipass_ids_to_take) > 0:
@@ -163,7 +169,19 @@ def main():
 					generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "flash_"+str(mooltipass_id)+".hex", "eeprom_"+str(mooltipass_id)+".hex", True)
 					
 					# Change state to programming
-					prog_socket_states[i] = PROG_SOCKET_PROGRAMMING
+					prog_socket_states[socket_id] = PROG_SOCKET_PROGRAMMING
+					
+					# Display info on display
+					displayed_texts.append("#"+str(socket_id)+": prog, id "+str(mooltipass_id))
+					if len(displayed_texts) > 3:
+						del(displayed_texts[0])
+					for i in range(0, len(displayed_texts)):
+						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_DISPLAY_LINE1+i, len(displayed_texts[i])+1, mooltipass_device.textToByteArray(displayed_texts[i])))
+						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+					
+					# Here we should launch a programming thread
+					mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_DONE, 1, [socket_id]))
+					mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
 
 if __name__ == "__main__":
 	main()

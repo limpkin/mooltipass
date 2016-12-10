@@ -31,6 +31,7 @@ try:
 except ImportError:
 	pass
 import threading
+import commands
 import pickle
 import time
 import sys
@@ -96,9 +97,37 @@ def add_line_on_screen(mooltipass_device, line):
 	
 def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
 	print "Programming socket", socket_id, "with flash file", flashFile, "and eeprom file", EepromFile
-	print "Start : %s" % time.ctime()
-	time.sleep(5)
-	print "End : %s" % time.ctime()
+	
+	# Read fuses using avrdude
+	commands.getstatusoutput("avrdude -c avrisp2 -p m32u4 -U lfuse:r:low_fuse_val_"+str(socket_id)+".hex:r -U hfuse:r:high_fuse_val_"+str(socket_id)+".hex:r -U efuse:r:extended_fuse_val_"+str(socket_id)+".hex:r -U lock:r:lock_fuse_val_"+str(socket_id)+".hex:r")
+	
+	# Read generated files
+	file = open("low_fuse_val_"+str(socket_id)+".hex", 'rb')
+	low_fuse = struct.unpack('B', file.read(1))[0]
+	file.close()
+	file = open("high_fuse_val_"+str(socket_id)+".hex", 'rb')
+	high_fuse = struct.unpack('B', file.read(1))[0]
+	file.close()
+	file = open("extended_fuse_val_"+str(socket_id)+".hex", 'rb')
+	extended_fuse = struct.unpack('B', file.read(1))[0]
+	file.close()
+	file = open("lock_fuse_val_"+str(socket_id)+".hex", 'rb')
+	lock_fuse = struct.unpack('B', file.read(1))[0]
+	file.close()
+	
+	# Print values and delete temporary values
+	print "Low fuse:", hex(low_fuse)
+	print "High fuse:", hex(high_fuse)
+	print "Extended fuse:", hex(extended_fuse)
+	print "Lock fuse:", hex(lock_fuse)
+	os.remove("low_fuse_val_"+str(socket_id)+".hex")
+	os.remove("high_fuse_val_"+str(socket_id)+".hex")
+	os.remove("extended_fuse_val_"+str(socket_id)+".hex")
+	os.remove("lock_fuse_val_"+str(socket_id)+".hex")
+	
+	#print "Start : %s" % time.ctime()
+	#time.sleep(5)
+	#print "End : %s" % time.ctime()
 	
 	success_state = False
 	if mooltipass_id % 2 == 0:
@@ -149,6 +178,13 @@ def main():
 	# Check for random numbers file presence
 	if os.path.isfile("rng.bin"):
 		random_bytes_buffer = pickle_read("rng.bin")
+		
+	# Set to true to export the random bytes
+	if False:		
+		f = open('randombytes.bin', 'wb')
+		random_bytes_buffer.tofile(f)
+		f.flush()
+		f.close()
 	
 	# Check for next mooltipass id file
 	if os.path.isfile("mooltipass_id.bin"):

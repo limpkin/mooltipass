@@ -53,6 +53,9 @@ PROG_SOCKET_IDLE		= 0
 PROG_SOCKET_PENDING		= 1
 PROG_SOCKET_PROGRAMMING	= 2
 
+# Lines currently displayed on the screen
+displayed_texts = []
+
 
 class FuncThread(threading.Thread):
 	def __init__(self, target, *args):
@@ -78,14 +81,27 @@ def pickle_read(filename):
 	f.close()
 	return data
 	
-def start_programming(socket_id, flashFile, EepromFile):
+def add_line_on_screen(mooltipass_device, line):
+	global displayed_texts
+	displayed_texts.append(line)
+	if len(displayed_texts) > 3:
+		del(displayed_texts[0])
+	for i in range(0, len(displayed_texts)):
+		mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_DISPLAY_LINE1+i, len(displayed_texts[i])+1, mooltipass_device.textToByteArray(displayed_texts[i])))
+		mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+	
+def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
 	print "Programming socket", socket_id, "with flash file", flashFile, "and eeprom file", EepromFile
 	print "Start : %s" % time.ctime()
 	time.sleep(5)
 	print "End : %s" % time.ctime()
 	
+	success_state = False
+	if mooltipass_id % 2 == 0:
+		success_state = True
+	
 	# Return success state
-	return [False]
+	return [success_state, mooltipass_id, flashFile, EepromFile, "super bla"]
 
 def main():
 	print "Mooltipass Mass Programming Tool"
@@ -105,7 +121,7 @@ def main():
 	programming_threads = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 	next_available_mooltipass_id = 1
 	mooltipass_ids_to_take = []
-	displayed_texts = []
+	global displayed_texts
 	temp_counter = 0
 	
 	# Random bytes buffer
@@ -174,7 +190,8 @@ def main():
 					
 					# Generate new mooltipass ID
 					if len(mooltipass_ids_to_take) > 0:
-						pass
+						mooltipass_id = mooltipass_ids_to_take[0]
+						del(mooltipass_ids_to_take[0])
 					else:
 						# No ids to take, take the next available one
 						mooltipass_id = next_available_mooltipass_id
@@ -196,15 +213,10 @@ def main():
 					prog_socket_states[socket_id] = PROG_SOCKET_PROGRAMMING
 					
 					# Display info on display
-					displayed_texts.append("#"+str(socket_id)+": prog, id "+str(mooltipass_id))
-					if len(displayed_texts) > 3:
-						del(displayed_texts[0])
-					for i in range(0, len(displayed_texts)):
-						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_DISPLAY_LINE1+i, len(displayed_texts[i])+1, mooltipass_device.textToByteArray(displayed_texts[i])))
-						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+					add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": programming id "+str(mooltipass_id))
 					
 					# Launch a programming thread
-					programming_threads[socket_id] = FuncThread(start_programming, socket_id, "flash_"+str(mooltipass_id)+".hex", "eeprom_"+str(mooltipass_id)+".hex")
+					programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "flash_"+str(mooltipass_id)+".hex", "eeprom_"+str(mooltipass_id)+".hex")
 					programming_threads[socket_id].start()
 					
 					
@@ -219,19 +231,32 @@ def main():
 					# Fetch the return data
 					return_data = programming_threads[socket_id].join()
 					
+					# Delete the temporary programming files
+					os.remove(return_data[2])
+					os.remove(return_data[3])
+					
 					# Check success state
 					if return_data[0] :
-						print "Programming for socket", socket_id, "succeeded"
+						print "Programming for socket", socket_id, "succeeded (mooltipass id:", str(return_data[1]) + ")"
+						
+						# Save our mooltipass pool in case it was an id to take
+						pickle_write(mooltipass_ids_to_take, "mooltipass_av_ids.bin")
 						
 						# Inform programming platform of success state
 						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_DONE, 1, [socket_id]))
 						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+						add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": "+return_data[4])
 					else:
-						print "Programming for socket", socket_id, "failed"
+						print "Programming for socket", socket_id, "failed (mooltipass id:", str(return_data[1]) + ")"
+						
+						# Put the mooltipass id back in the pool
+						mooltipass_ids_to_take.append(return_data[1])
+						pickle_write(mooltipass_ids_to_take, "mooltipass_av_ids.bin")
 						
 						# Inform programming platform of success state
 						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_FAILURE, 1, [socket_id]))
 						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+						add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": "+return_data[4])
 					
 					# Reset prog state
 					prog_socket_states[socket_id] = PROG_SOCKET_IDLE

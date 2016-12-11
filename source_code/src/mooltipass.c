@@ -155,19 +155,19 @@ int main(void)
         /* no fuse verification for the beta testers units */
     #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
         /* 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
-        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || ((boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) | 0xF0) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
         }
     #elif defined(PRODUCTION_TEST_SETUP)
         /* 2k words, SPIEN, BOD 4.3V, no checks on programming fuses >> http://www.engbedded.com/fusecalc/ */
-        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8))
+        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || ((boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) | 0xF0) != 0xF8))
         {
             fuse_ok = FALSE;
         }
     #else
         /* boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
-        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || ((boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) | 0xF0) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
         }

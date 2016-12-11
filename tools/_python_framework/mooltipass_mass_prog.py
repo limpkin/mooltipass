@@ -100,6 +100,15 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile, encrypted
 	
 	# todo: check that the fuse values aren't the ones we already programmed, make array of path vs socket id
 	
+	# If needed: test mode
+	testMode = False
+	if testMode:	
+		time.sleep(10)	
+		success_state = False		
+		if mooltipass_id % 2 == 0:		
+			success_state = True
+		return [success_state, mooltipass_id, flashFile, EepromFile, "test mode", encryptedKeysFile]
+	
 	# Read fuses using avrdude
 	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -U lfuse:r:/tmp/low_fuse_val_"+str(socket_id)+".hex:r -U hfuse:r:/tmp/high_fuse_val_"+str(socket_id)+".hex:r -U efuse:r:/tmp/extended_fuse_val_"+str(socket_id)+".hex:r -U lock:r:/tmp/lock_fuse_val_"+str(socket_id)+".hex:r"
 	output_avrdude = commands.getstatusoutput(avrdude_command)
@@ -182,6 +191,7 @@ def main():
 	prog_socket_states = [PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE, PROG_SOCKET_IDLE]
 	programming_threads = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 	next_available_mooltipass_id = 1
+	mooltipass_ids_pending = []
 	mooltipass_ids_to_take = []
 	global displayed_texts
 	temp_counter = 0
@@ -217,6 +227,13 @@ def main():
 	# Check for available mooltipass ids file
 	if os.path.isfile("mooltipass_av_ids.bin"):
 		mooltipass_ids_to_take = pickle_read("mooltipass_av_ids.bin")
+		
+	# Check for available mooltipass ids file
+	if os.path.isfile("mooltipass_pending_ids.bin"):
+		mooltipass_ids_pending = pickle_read("mooltipass_pending_ids.bin")
+		if len(mooltipass_ids_pending) > 0:
+			mooltipass_ids_to_take.extend(mooltipass_ids_pending)
+			print "Adding previously pending ids:", mooltipass_ids_pending
 			
 	# Read public key
 	public_key = pickle_read("publickey.bin")
@@ -306,6 +323,8 @@ def main():
 					add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": programming id "+str(mooltipass_id))
 					
 					# Launch a programming thread
+					mooltipass_ids_pending.append(mooltipass_id)
+					pickle_write(mooltipass_ids_pending, "mooltipass_pending_ids.bin")
 					programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", pickle_file_name)
 					programming_threads[socket_id].start()
 					
@@ -350,6 +369,10 @@ def main():
 						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_FAILURE, 1, [socket_id]))
 						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
 						add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": "+return_data[4])
+						
+					# Remove id from pending ones					
+					mooltipass_ids_pending.remove(return_data[1])
+					pickle_write(mooltipass_ids_pending, "mooltipass_pending_ids.bin")
 					
 					# Reset prog state
 					prog_socket_states[socket_id] = PROG_SOCKET_IDLE

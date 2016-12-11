@@ -95,7 +95,7 @@ def add_line_on_screen(mooltipass_device, line):
 		mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_DISPLAY_LINE1+i, len(displayed_texts[i])+1, mooltipass_device.textToByteArray(displayed_texts[i])))
 		mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
 	
-def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
+def start_programming(socket_id, mooltipass_id, flashFile, EepromFile, encryptedKeysFile):
 	print "Programming socket", socket_id, "with flash file", flashFile, "and eeprom file", EepromFile
 	
 	# todo: check that the fuse values aren't the ones we already programmed, make array of path vs socket id
@@ -109,7 +109,7 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
 		print "Couldn't read fuse files"
 		print "Avrdude command", avrdude_command
 		print "Output:", output_avrdude
-		return [False, mooltipass_id, flashFile, EepromFile, "avrdude error!"]
+		return [False, mooltipass_id, flashFile, EepromFile, "avrdude error!", encryptedKeysFile]
 		
 	# Read generated files
 	file = open("/tmp/low_fuse_val_"+str(socket_id)+".hex", 'rb')
@@ -137,7 +137,7 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
 	
 	# Check if it wasn't already programmed
 	if low_fuse == 0xFF and high_fuse == 0xD8 and extended_fuse == 0xC8 and lock_fuse == 0x3C:
-		return [False, mooltipass_id, flashFile, EepromFile, "already programmed!"]
+		return [False, mooltipass_id, flashFile, EepromFile, "already programmed!", encryptedKeysFile]
 		
 	# Erase device
 	commands.getstatusoutput("avrdude -c avrisp2 -p m32u4 -B 10 -e")
@@ -156,9 +156,9 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
 	
 	# Return success state
 	if "failed" in output_avrdude_prog_fuse or "failed" in output_avrdude_flash or "failed" in output_avrdude_prog_lock:
-		return [False, mooltipass_id, flashFile, EepromFile, "couldn't program!"]
+		return [False, mooltipass_id, flashFile, EepromFile, "couldn't program!", encryptedKeysFile]
 	else:
-		return [True, mooltipass_id, flashFile, EepromFile, "programmed"]
+		return [True, mooltipass_id, flashFile, EepromFile, "programmed", encryptedKeysFile]
 
 def main():
 	print "Mooltipass Mass Programming Tool"
@@ -291,9 +291,10 @@ def main():
 					string_export = str(mooltipass_id)+"|"+ aes_key1_text +"|"+ aes_key2_text +"|"+ uid_key_text +"|"+ uid_text+"\r\n"
 					#print string_export
 					try:
-						pickle_write(seccure.encrypt(string_export, public_key, curve='secp521r1/nistp521'), time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mooltipass_id)+".txt")	
+						pickle_file_name = time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mooltipass_id)+".txt"
+						pickle_write(seccure.encrypt(string_export, public_key, curve='secp521r1/nistp521'), pickle_file_name)	
 					except NameError:
-						pass
+						pickle_file_name = "test"
 					
 					# Generate programming file					
 					generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", True)
@@ -305,7 +306,7 @@ def main():
 					add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": programming id "+str(mooltipass_id))
 					
 					# Launch a programming thread
-					programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex")
+					programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", pickle_file_name)
 					programming_threads[socket_id].start()
 					
 					
@@ -341,6 +342,9 @@ def main():
 						# Put the mooltipass id back in the pool
 						mooltipass_ids_to_take.append(return_data[1])
 						pickle_write(mooltipass_ids_to_take, "mooltipass_av_ids.bin")
+						
+						# Delete encrypted keys file
+						os.remove(return_data[5])
 						
 						# Inform programming platform of success state
 						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_FAILURE, 1, [socket_id]))

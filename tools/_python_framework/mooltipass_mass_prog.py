@@ -98,32 +98,57 @@ def add_line_on_screen(mooltipass_device, line):
 def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
 	print "Programming socket", socket_id, "with flash file", flashFile, "and eeprom file", EepromFile
 	
-	# Read fuses using avrdude
-	commands.getstatusoutput("avrdude -c avrisp2 -p m32u4 -U lfuse:r:low_fuse_val_"+str(socket_id)+".hex:r -U hfuse:r:high_fuse_val_"+str(socket_id)+".hex:r -U efuse:r:extended_fuse_val_"+str(socket_id)+".hex:r -U lock:r:lock_fuse_val_"+str(socket_id)+".hex:r")
+	# todo: check that the fuse values aren't the ones we already programmed, make array of path vs socket id
 	
+	# Read fuses using avrdude
+	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -U lfuse:r:/tmp/low_fuse_val_"+str(socket_id)+".hex:r -U hfuse:r:/tmp/high_fuse_val_"+str(socket_id)+".hex:r -U efuse:r:/tmp/extended_fuse_val_"+str(socket_id)+".hex:r -U lock:r:/tmp/lock_fuse_val_"+str(socket_id)+".hex:r"
+	output_avrdude = commands.getstatusoutput(avrdude_command)
+	
+	# Check for generated files
+	if not os.path.isfile("/tmp/low_fuse_val_"+str(socket_id)+".hex"):
+		print "Couldn't read fuse files"
+		print "Avrdude command", avrdude_command
+		print "Output:", output_avrdude
+		return [False, mooltipass_id, flashFile, EepromFile, "avrdude error!"]
+		
 	# Read generated files
-	file = open("low_fuse_val_"+str(socket_id)+".hex", 'rb')
+	file = open("/tmp/low_fuse_val_"+str(socket_id)+".hex", 'rb')
 	low_fuse = struct.unpack('B', file.read(1))[0]
 	file.close()
-	file = open("high_fuse_val_"+str(socket_id)+".hex", 'rb')
+	file = open("/tmp/high_fuse_val_"+str(socket_id)+".hex", 'rb')
 	high_fuse = struct.unpack('B', file.read(1))[0]
 	file.close()
-	file = open("extended_fuse_val_"+str(socket_id)+".hex", 'rb')
+	file = open("/tmp/extended_fuse_val_"+str(socket_id)+".hex", 'rb')
 	extended_fuse = struct.unpack('B', file.read(1))[0]
 	file.close()
-	file = open("lock_fuse_val_"+str(socket_id)+".hex", 'rb')
+	file = open("/tmp/lock_fuse_val_"+str(socket_id)+".hex", 'rb')
 	lock_fuse = struct.unpack('B', file.read(1))[0]
 	file.close()
 	
 	# Print values and delete temporary values
-	print "Low fuse:", hex(low_fuse)
-	print "High fuse:", hex(high_fuse)
-	print "Extended fuse:", hex(extended_fuse)
-	print "Lock fuse:", hex(lock_fuse)
-	os.remove("low_fuse_val_"+str(socket_id)+".hex")
-	os.remove("high_fuse_val_"+str(socket_id)+".hex")
-	os.remove("extended_fuse_val_"+str(socket_id)+".hex")
-	os.remove("lock_fuse_val_"+str(socket_id)+".hex")
+	#print "Low fuse:", hex(low_fuse)
+	#print "High fuse:", hex(high_fuse)
+	#print "Extended fuse:", hex(extended_fuse)
+	#print "Lock fuse:", hex(lock_fuse)
+	os.remove("/tmp/low_fuse_val_"+str(socket_id)+".hex")
+	os.remove("/tmp/high_fuse_val_"+str(socket_id)+".hex")
+	os.remove("/tmp/extended_fuse_val_"+str(socket_id)+".hex")
+	os.remove("/tmp/lock_fuse_val_"+str(socket_id)+".hex")
+	
+	# Check if it wasn't already programmed
+	if low_fuse == 0xFF and high_fuse == 0xD8 and extended_fuse == 0xC8 and lock_fuse == 0x3C:
+		return [False, mooltipass_id, flashFile, EepromFile, "already programmed!"]
+		
+	# Erase device
+	commands.getstatusoutput("avrdude -c avrisp2 -p m32u4 -B 10 -e")
+	
+	# Program all fuses except lock fuse
+	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -U lfuse:w:0xFF:m -U hfuse:w:0xD8:m -U efuse:w:0xC8:m"
+	output_avrdude = commands.getstatusoutput(avrdude_command)
+	
+	# Program lock fuse
+	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -U lock:w:0x3C:m"
+	output_avrdude = commands.getstatusoutput(avrdude_command)	
 	
 	#print "Start : %s" % time.ctime()
 	#time.sleep(5)

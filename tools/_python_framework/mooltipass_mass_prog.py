@@ -144,22 +144,21 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile):
 	
 	# Program all fuses except lock fuse
 	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -U lfuse:w:0xFF:m -U hfuse:w:0xD8:m -U efuse:w:0xC8:m"
-	output_avrdude = commands.getstatusoutput(avrdude_command)
+	output_avrdude_prog_fuse = commands.getstatusoutput(avrdude_command)
+	
+	# Program flash & eeprom
+	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -U flash:w:"+flashFile+":i -U eeprom:w:"+EepromFile+":i"
+	output_avrdude_flash = commands.getstatusoutput(avrdude_command)
 	
 	# Program lock fuse
 	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -U lock:w:0x3C:m"
-	output_avrdude = commands.getstatusoutput(avrdude_command)	
-	
-	#print "Start : %s" % time.ctime()
-	#time.sleep(5)
-	#print "End : %s" % time.ctime()
-	
-	success_state = False
-	if mooltipass_id % 2 == 0:
-		success_state = True
+	output_avrdude_prog_lock = commands.getstatusoutput(avrdude_command)	
 	
 	# Return success state
-	return [success_state, mooltipass_id, flashFile, EepromFile, "super bla"]
+	if "failed" in output_avrdude_prog_fuse or "failed" in output_avrdude_flash or "failed" in output_avrdude_prog_lock:
+		return [False, mooltipass_id, flashFile, EepromFile, "couldn't program!"]
+	else:
+		return [True, mooltipass_id, flashFile, EepromFile, "programmed"]
 
 def main():
 	print "Mooltipass Mass Programming Tool"
@@ -297,7 +296,7 @@ def main():
 						pass
 					
 					# Generate programming file					
-					generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "flash_"+str(mooltipass_id)+".hex", "eeprom_"+str(mooltipass_id)+".hex", True)
+					generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", True)
 					
 					# Change state to programming
 					prog_socket_states[socket_id] = PROG_SOCKET_PROGRAMMING
@@ -306,7 +305,7 @@ def main():
 					add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": programming id "+str(mooltipass_id))
 					
 					# Launch a programming thread
-					programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "flash_"+str(mooltipass_id)+".hex", "eeprom_"+str(mooltipass_id)+".hex")
+					programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex")
 					programming_threads[socket_id].start()
 					
 					

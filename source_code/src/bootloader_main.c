@@ -146,7 +146,7 @@ int main(void)
     wdt_stop();
 
     /* Check fuses: 2k words, SPIEN, BOD 4.3V, BOOTRST programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
-    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || ((boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) | 0xF0) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
     {
         while(1);
     }

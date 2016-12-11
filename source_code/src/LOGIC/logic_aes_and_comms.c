@@ -539,7 +539,7 @@ RET_TYPE getLoginForContext(char* buffer)
             if (buffer[HID_LEN_FIELD] != 0)
             {
                 // Check that the payload length is correct
-                if (checkTextField((uint8_t*)(buffer + HID_DATA_START), buffer[HID_LEN_FIELD], NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
+                if (checkTextField((uint8_t*)(buffer + HID_DATA_START), buffer[HID_LEN_FIELD], (RAWHID_RX_SIZE-HID_DATA_START)) == RETURN_NOK)
                 {
                     return RETURN_NOK;
                 }

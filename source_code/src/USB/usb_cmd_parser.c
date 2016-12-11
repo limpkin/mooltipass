@@ -140,7 +140,7 @@ void lowerCaseString(uint8_t* data)
 RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
 {    
     // Check that the advertised length is correct, that it is not null and isn't bigger than a data packet
-    if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1) || (len > (RAWHID_RX_SIZE-HID_DATA_START)))
+    if ((len > max_len) || (len == 0) || (len != strnlen((char*)data, max_len)+1))
     {
         return RETURN_NOK;
     }
@@ -276,6 +276,12 @@ void usbProcessIncoming(uint8_t caller_id)
     else
     {
         text_field_check_needed = FALSE;
+    }
+    
+    // Check that the maximum text size isn't bigger than the packet payload
+    if (max_text_size > (RAWHID_RX_SIZE-HID_DATA_START))
+    {
+        max_text_size = (RAWHID_RX_SIZE-HID_DATA_START);
     }
     
     // Perform the text field check

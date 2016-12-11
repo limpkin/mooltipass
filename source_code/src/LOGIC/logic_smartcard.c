@@ -55,7 +55,7 @@ void unlockFeatureCheck(void)
     #endif
 
     // See if the lock / unlock feature is enabled, type password if so
-    if ((setCurrentContext((uint8_t*)"_unlock_", SERVICE_CRED_TYPE) == RETURN_OK) && ((lock_unlock_feature_uint & LF_EN_MASK) != 0))
+    if ((setCurrentContext((uint8_t*)"_unlock_", SERVICE_CRED_TYPE) == RETURN_OK) && ((lock_unlock_feature_uint & LF_EN_MASK) != 0) && isUsbConfigured())
     {
         mp_lock_unlock_shortcuts = TRUE;
 

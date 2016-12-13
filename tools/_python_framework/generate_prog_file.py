@@ -88,9 +88,9 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	# Merge firmware with bootloader	
 	flashHex.merge(bootloaderHex)
 	
-	# Print hash if need
+	# Generate hash, print it if need
+	merged_fw_bl_sha1_hash = hashlib.sha1(flashHex.tobinarray()).hexdigest()
 	if verbose == True:
-		merged_fw_bl_sha1_hash = hashlib.sha1(flashHex.tobinarray()).hexdigest()
 		print "Original Firmware/Bootloader Hash:", merged_fw_bl_sha1_hash
 		
 	# Check there's nothing where we want to put the serial number
@@ -136,4 +136,5 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	# Write new eeprom file
 	eepromHex.tofile(newEeepromHex, format="hex")
 	
+	# Return success and hash
 	return [True, merged_fw_bl_sha1_hash]

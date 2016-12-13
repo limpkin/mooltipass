@@ -325,7 +325,7 @@ void guiScreenLoop(uint8_t input_interface_result)
                                 }
                                 else
                                 {
-                                    currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                                    currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
                                     guiDisplayInformationOnScreen(ID_STRING_TGT_CARD_NBL);
                                 }
                                 pin_code = 0x0000;

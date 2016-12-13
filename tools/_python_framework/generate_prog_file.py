@@ -11,41 +11,44 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	UID_REQUEST_KEY_LENGTH = 16
 	UID_KEY_LENGTH = 6
 	
+	# Merged bootloader and firmware sha1 hash
+	merged_fw_bl_sha1_hash = ""
+	
 	# Check for original firmware file presence
 	if not os.path.isfile(originalFlashHexName):
 		print "Couldn't find firmware hex file", originalFlashHexName
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 				
 	# Check for bootloader file presence
 	if not os.path.isfile(bootloaderHexName):
 		print "Couldn't find bootloader hex file", bootloaderHexName
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 		
 	# Check AES Key Length
 	if len(AESKey1) != AES_KEY_LENGTH:
 		print "Wrong AES Key1 length!"
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 		
 	# Check AES Key Length
 	if len(AESKey2) != AES_KEY_LENGTH:
 		print "Wrong AES Key2 length!"
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 		
 	# Check UID Req Key Length
 	if len(UIDKey) != UID_REQUEST_KEY_LENGTH:
 		print "Wrong UID request key length!"
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 		
 	# Check UID Key Length
 	if len(UID) != UID_KEY_LENGTH:
 		print "Wrong UID key length!"
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 		
 	# Read firmware Hex
 	flashHex = IntelHex(originalFlashHexName)
 	if len(flashHex) > FW_MAX_LENGTH:
 		print "Firmware file too long:", len(flashHex), "bytes long"
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 	else:	
 		if verbose == True:
 			print "Firmware file is", len(flashHex), "bytes long"
@@ -65,7 +68,7 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	# Check there's nothing where we want to put the fw version number
 	if flashHex[FW_MAX_LENGTH-4] != 0xFF:
 		print "No space to write fw version number inside the firmware hex!"
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 		
 	# Write the fw version number in the last 4 bytes of the firmware hex
 	flashHex[FW_MAX_LENGTH-4] = firmware_version[0]
@@ -77,7 +80,7 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	bootloaderHex = IntelHex(bootloaderHexName)
 	if len(bootloaderHex) > BL_MAX_LENGTH:
 		print "Bootloader file too long:", len(bootloaderHex), "bytes long"
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 	else:	
 		if verbose == True:
 			print "Bootloader file is", len(bootloaderHex), "bytes long"
@@ -87,12 +90,13 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	
 	# Print hash if need
 	if verbose == True:
-		print "Original Firmware/Bootloader Hash:", hashlib.sha1(flashHex.tobinarray()).hexdigest()
+		merged_fw_bl_sha1_hash = hashlib.sha1(flashHex.tobinarray()).hexdigest()
+		print "Original Firmware/Bootloader Hash:", merged_fw_bl_sha1_hash
 		
 	# Check there's nothing where we want to put the serial number
 	if flashHex[0x7F7C] != 0xFF:
 		print "No space to write serial number inside the bootloader hex!"
-		return False
+		return [False, merged_fw_bl_sha1_hash]
 
 	# Include serial number in the hex to be flashed
 	flashHex[0x7F7C] = (serialNumber >> 24) & 0x000000FF
@@ -131,3 +135,5 @@ def generateFlashAndEepromHex(originalFlashHexName, bootloaderHexName, serialNum
 	
 	# Write new eeprom file
 	eepromHex.tofile(newEeepromHex, format="hex")
+	
+	return [True, merged_fw_bl_sha1_hash]

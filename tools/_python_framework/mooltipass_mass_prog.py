@@ -209,6 +209,16 @@ def main():
 	# Change defaut time out to 300ms
 	mooltipass_device.getInternalDevice().setReadTimeout(300)
 	
+	# Generate a blank firmware to see if we actually can generate it and then print the hash
+	return_gen = generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", 12345, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0], "/tmp/test_flash.hex", "/tmp/test_eeprom.hex", True)
+	os.remove("/tmp/test_flash.hex")
+	os.remove("/tmp/test_eeprom.hex")
+	
+	# Check the success status
+	if return_gen[0] == False:
+		print "Couldn't generate a template flash hex!"
+		sys.exit(0)
+	
 	# Check for random numbers file presence
 	if os.path.isfile("rng.bin"):
 		random_bytes_buffer = pickle_read("rng.bin")
@@ -240,8 +250,8 @@ def main():
 	
 	# Display text on screen
 	add_line_on_screen(mooltipass_device, "Python Script Started")
-	add_line_on_screen(mooltipass_device, "---------------------")
-	add_line_on_screen(mooltipass_device, "You may start")
+	add_line_on_screen(mooltipass_device, return_gen[1][0:20])
+	add_line_on_screen(mooltipass_device, return_gen[1][20:])
 		
 	# Main loop
 	while True:

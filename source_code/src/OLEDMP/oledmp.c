@@ -1112,9 +1112,11 @@ uint16_t oledGetTextWidth(char *fmt, ...)
 
     if (vsnprintf(buf, sizeof(buf), fmt, ap) > 0) 
     {
+        va_end(ap);
         return oledStrWidth(buf);
     }
 
+    va_end(ap);
     return 0;
 } 
 /**
@@ -1131,9 +1133,11 @@ uint16_t oledGetTextWidth_P(char *fmt, ...)
 
     if (vsnprintf_P(buf, sizeof(buf), fmt, ap) > 0) 
     {
+        va_end(ap);
         return oledStrWidth(buf);
     }
 
+    va_end(ap);
     return 0;
 } 
 

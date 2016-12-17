@@ -8,6 +8,7 @@ wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_pytho
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_hid_device.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_init_proc.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_security_check.py
+wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_mass_prog.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_tool.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/publickey.bin
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/requirements.txt

@@ -936,10 +936,12 @@ RET_TYPE usbPutstr(const char *str)
 
         if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
         {
+            va_end(ap);
             return 0;
         }
         else
         {
+            va_end(ap);
             return ret;
         }
     }
@@ -961,10 +963,12 @@ RET_TYPE usbPutstr(const char *str)
 
         if(usbPutstr(printBuf) != RETURN_COM_TRANSF_OK)
         {
+            va_end(ap);
             return 0;
         }
         else
         {
+            va_end(ap);
             return ret;
         }
     }

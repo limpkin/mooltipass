@@ -66,6 +66,9 @@
  *
  *  MINI_PREPROD_KICKSTARTER_SETUP
  *  => mooltipass mini pre production kickstarter version (4Mb instead of the 8Mb)
+ *
+ *  MINI_KICKSTARTER_SETUP
+ *  => mooltipass mini production kickstarter version (8Mb)
 */
 #define MINI_PREPRODUCTION_SETUP_ACC
 //#define POST_KICKSTARTER_UPDATE_SETUP
@@ -146,8 +149,10 @@
 //    #define DATA_STORAGE_EN
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_MINI_CLICK_V1
+    #define DISABLE_FUNCTIONAL_TEST
     #define AVR_BOOTLOADER_PROGRAMMING
     #define ENABLE_CREDENTIAL_MANAGEMENT                    // WARNING: requires a new resource bundle.img with additional strings
+    #define DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
     #define REPLACE_FAVORITES_WITH_CREDENTIAL_MANAGEMENT    // replaces favorites selection menu with creds management menu
 #elif defined(MINI_PREPRODUCTION_SETUP_ACC)
     #define STACK_DEBUG
@@ -156,15 +161,27 @@
     #define DATA_STORAGE_EN
     //#define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
-    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS       // Comment if you were to make your own mooltipass
 #elif defined(MINI_PREPROD_KICKSTARTER_SETUP)
-    #define STACK_DEBUG
+    //#define STACK_DEBUG
     #define MINI_VERSION
     #define FLASH_CHIP_4M
     #define DATA_STORAGE_EN
     #define HARDWARE_MINI_CLICK_V2
     #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
     #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+#elif defined(MINI_KICKSTARTER_SETUP)
+    #define MINI_VERSION
+    #define FLASH_CHIP_8M
+    #define DATA_STORAGE_EN
+    #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+#endif
+
+/* Features depending on the mooltipass version */
+#ifndef MINI_VERSION
+    #define UNLOCK_WITH_PIN_FUNCTIONALITY
 #endif
 
 /**************** DEBUG PRINTS ****************/
@@ -242,6 +259,9 @@
 // Uncomment to prevent knock settings changes when card is inserted
 //#define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
 
+/***************** CRITICAL CALLBACKS *****************/
+// Uncomment to allow sending messages through USB for critical callbacks (memoryBoundaryErrorCallback and such)
+//#define USB_MESSAGES_FOR_CRITICAL_CALLBACKS
 
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER

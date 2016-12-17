@@ -100,6 +100,10 @@ class generic_hid_device:
 			return data
 		except usb.core.USBError as e:
 			return None
+	
+	# Set new read timeout
+	def setReadTimeout(self, read_timeout):
+		self.read_timeout = read_timeout
 		
 	# Try to connect to HID device. 
 	# ping_packet: an array containing a ping packet to send to the device over HID
@@ -177,7 +181,7 @@ class generic_hid_device:
 			while temp_bool:
 				try :
 					# try to receive answer
-					data = self.epin.read(self.epin.wMaxPacketSize, timeout=2000)
+					data = self.epin.read(self.epin.wMaxPacketSize, timeout=200)
 					if HID_DEVICE_DEBUG:
 						print "RX DBG data:", ' '.join(hex(x) for x in data)
 					# check that the received data is correct
@@ -190,6 +194,7 @@ class generic_hid_device:
 							print "Cleaning remaining input packets"
 					time.sleep(.5)
 				except usb.core.USBError as e:
+					self.hid_device.reset()
 					if print_debug:
 						print e
 					return False

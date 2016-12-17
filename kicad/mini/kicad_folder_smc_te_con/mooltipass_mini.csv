@@ -1,0 +1,67 @@
+Source,C:/Users/limpkin/Dropbox/Projets/mooltipass_mini/kicad_mini/mooltipass_mini.sch
+Kicad Rev,Eeschema 4.0.2-stable
+Generated Date,09/04/2016 22:17:47
+
+Title,Mooltipass Mini Schematics (Licensed under CERN OHL V1.2)
+Company,Stephan Electronics
+Revision,B
+Date Issue,2016-04-09
+
+Reference,Value,Library,Library Ref
+X1,16MHz,limpkins_lib,CRYSTAL_4
+U6,ATMEGA32U4_QFN,limpkins_lib,ATMEGA32U4_QFN
+FB1,FILTER,device,FILTER
+C8,1uF,device,C_Small
+C9,10uF,device,C_Small
+C25,1uF,device,C_Small
+C23,18pF,device,C_Small
+C24,18pF,device,C_Small
+R7,22,device,R
+R8,22,device,R
+CON1,CON_10118194-0001LF,limpkins_lib,USB-MICRO-B2
+U4,CON_SMARTCARD2,limpkins_lib,CON_SMARTCARD2
+R1,10k,device,R
+Q2,MOS_N,device,Q_NMOS_GSD
+U5,AT45DB011D,limpkins_lib,AT45DB011D
+C20,100nF,device,C_Small
+U2,ST662ACD,limpkins_lib,ST662ACD
+C6,220nF,device,C_Small
+C1,100nF,device,C_Small
+C7,220nF,device,C_Small
+C4,100nF,device,C_Small
+Q1,MOS_P,device,Q_PMOS_GSD
+C5,4.7uF,device,C_Small
+C3,4.7uF,device,C_Small
+Q3,MOS_P,device,Q_PMOS_GSD
+C21,100nF,device,C_Small
+C22,100nF,device,C_Small
+C10,100nF,device,C_Small
+C11,100nF,device,C_Small
+C12,100nF,device,C_Small
+C13,100nF,device,C_Small
+C14,100nF,device,C_Small
+C15,100nF,device,C_Small
+U3,CON_UGM128032A6B01,limpkins_lib,CON_UGM128032A6B01
+C16,22uF,device,C_Small
+C19,4.7uF,device,C_Small
+R2,910k,device,R
+C17,22uF,device,C_Small
+C18,100nF,device,C_Small
+C2,100nF,device,C_Small
+R3,2k2,limpkins_lib,RNET8
+R5,10k,device,R
+R4,4k7,limpkins_lib,RNET8
+U1,IP4234CZ6,125,limpkins_lib,IP4234CZ6,125
+U8,TS005_WHEEL_CLICK,limpkin,TS005_ENC_WHEEL_CLICK
+D1,TVS,device,D_Schottky_x2_ACom_KKA
+R6,10k,device,R
+D2,LED,device,LED
+D3,LED,device,LED
+D4,LED,device,LED
+D5,LED,device,LED
+Q4,MOS_N,device,Q_NMOS_GSD
+R9,91,device,R
+R10,91,device,R
+R11,91,device,R
+R12,91,device,R
+R13,10k,device,R

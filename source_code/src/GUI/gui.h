@@ -76,6 +76,7 @@
     #define SCREEN_DEFAULT_INSERTED_NLCK        SCREEN_LOGIN
     #define SCREEN_DEFAULT_INSERTED_INVALID     11
     #define SCREEN_DEFAULT_INSERTED_UNKNOWN     12
+    #define SCREEN_DEFAULT_UPDATING             13
     
     // Delay when scrolling a text
     #define SCROLLING_DEL                       500

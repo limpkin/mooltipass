@@ -41,6 +41,10 @@ class mooltipass_hid_device:
 	def connect(self, verbose):
 		return self.device.connect(verbose, USB_VID, USB_PID, USB_READ_TIMEOUT, self.createPingPacket(), self.checkPingAnswerPacket);
 		
+	# Disconnect
+	def disconnect(self):
+		self.device.disconnect()
+		
 	# Get private device object
 	def getInternalDevice(self):
 		return self.device
@@ -114,6 +118,28 @@ class mooltipass_hid_device:
 			version = version.split('_', 1)[0]
 		return [nbMb, version, variant]
 		
+	# Get the Mooltipass Mini Serial number (for kickstarter versions only)
+	def getMooltipassMiniSerial(self):
+		self.device.sendHidPacket([0, CMD_GET_MINI_SERIAL]);
+		serial_data = self.device.receiveHidPacket()[DATA_INDEX:DATA_INDEX+4]
+		return serial_data
+		
+	# Get the Mooltipass UID
+	def getUID(self, req_key):
+		key = array('B', req_key.decode("hex"))
+		if len(key) != UID_REQUEST_KEY_SIZE:
+			print "Wrong UID Req Key Length:", len(key)
+			return None
+			
+		# send packet
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_GET_UID, UID_REQUEST_KEY_SIZE, key))
+		data = self.device.receiveHidPacket()
+		if data[LEN_INDEX] == 1:
+			print "Couldn't get UID (wrong password?)"
+			return None
+		else:
+			return data[DATA_INDEX:DATA_INDEX+data[LEN_INDEX]]
+		
 	# Get the user database change db
 	def getMooltipassUserDbChangeNumber(self):
 		self.device.sendHidPacket([0, CMD_GET_USER_CHANGE_NB])
@@ -121,9 +147,9 @@ class mooltipass_hid_device:
 		if user_change_db_answer[0] == 0:
 			print "User not logged in!"
 		else:
-			print "User db change number is", user_change_db_answer[1]
+			print "User db change number is", user_change_db_answer[1], "and", user_change_db_answer[2]
 			
-	def setMooltipassUserDbChangeNumber(self, number):
+	def setMooltipassUserDbChangeNumber(self, number, number2):
 		# Go to MMM
 		self.device.sendHidPacket([0, CMD_START_MEMORYMGMT])
 		data = self.device.receiveHidPacket()[DATA_INDEX:]
@@ -131,7 +157,7 @@ class mooltipass_hid_device:
 			print "Couldn't go to MMM!"
 			return		
 		
-		self.device.sendHidPacket([1, CMD_SET_USER_CHANGE_NB, number])
+		self.device.sendHidPacket([2, CMD_SET_USER_CHANGE_NB, number, number2])
 		user_change_db_answer = self.device.receiveHidPacket()[DATA_INDEX:]
 		if user_change_db_answer[0] == 0:
 			print "Fail!"
@@ -209,6 +235,33 @@ class mooltipass_hid_device:
 	def lock(self):
 		self.device.sendHidPacket([0, CMD_LOCK_DEVICE])
 		self.device.receiveHidPacket()
+		
+	# Get card credentials:
+	def getCardCreds(self):		
+		self.device.sendHidPacket([0, CMD_READ_CARD_CREDS])
+		data = self.device.receiveHidPacket()
+		if data[LEN_INDEX] == 1:
+			print "Couldn't get card credentials!"
+		else:
+			data[len(data)-1] = 0
+			print "Login:", self.getTextFromUsbPacket(data)
+			data = self.device.receiveHidPacket()
+			data[len(data)-1] = 0
+			print "Password:", self.getTextFromUsbPacket(data)		
+	
+	# Set card login
+	def setCardLogin(self, login):
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_CARD_LOGIN, len(login)+1, self.textToByteArray(login)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set login"
+			return
+	
+	# Set card password
+	def setCardPassword(self, password):
+		self.device.sendHidPacket(self.getPacketForCommand(CMD_SET_CARD_PASS, len(password)+1, self.textToByteArray(password)))
+		if self.device.receiveHidPacket()[DATA_INDEX] == 0x00:
+			print "Couldn't set password"
+			return
 		
 	# Change description for given login
 	def changeLoginDescription(self):
@@ -326,21 +379,31 @@ class mooltipass_hid_device:
 		# Ask for Mooltipass password
 		if password is None:
 			mp_password = raw_input("Enter Mooltipass Password, press enter if None: ")
-			if len(mp_password) == DEVICE_PASSWORD_SIZE*2:
+			if len(mp_password) == DEVICE_PASSWORD_SIZE*2 or len(mp_password) == MINI_DEVICE_PASSWORD_SIZE*2:
+				password_len = len(mp_password)/2
 				password_set = True
 			else:
 				print "Empty or erroneous password, using zeros"
 		else:
-			mp_password = password
+			if len(password) == DEVICE_PASSWORD_SIZE*2 or len(password) == MINI_DEVICE_PASSWORD_SIZE*2:
+				password_len = len(password)/2
+				mp_password = password
+				password_set = True
+			else:
+				print "Erroneous password length for password:", len(password)/2
+				return False
 		
 		# Prepare the password
 		if verbose == True:
 			print "Starting upload..."
 		mooltipass_password = array('B')
-		mooltipass_password.append(DEVICE_PASSWORD_SIZE)
+		if mooltipass_variant == "mini":
+			mooltipass_password.append(MINI_DEVICE_PASSWORD_SIZE)
+		else:
+			mooltipass_password.append(DEVICE_PASSWORD_SIZE)
 		mooltipass_password.append(CMD_IMPORT_MEDIA_START)
 		if password_set:
-			for i in range(DEVICE_PASSWORD_SIZE):
+			for i in range(password_len):
 				mooltipass_password.append(int(mp_password[i*2:i*2+2], 16))
 		else:
 			for i in range(DEVICE_PASSWORD_SIZE):
@@ -407,8 +470,9 @@ class mooltipass_hid_device:
 				print "Done!"
 		else:
 			success_status = False
-			print "fail!!!"
-			print "likely causes: mooltipass already setup"
+			if verbose:
+				print "fail!!!"
+				print "likely causes: mooltipass already setup"
 
 		return success_status
 		

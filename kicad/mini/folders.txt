@@ -1,0 +1,2 @@
+- kicad_folder_smc_chinese_con : chinese smartcard connector
+- kicad_folder_smc_te_con: 5145300-3 TE smartcard connector

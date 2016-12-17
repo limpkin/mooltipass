@@ -40,6 +40,7 @@ parser.add_option('', '--debug', help='enable debug output', action='store_true'
 (options, args) = parser.parse_args()
 
 CHAR_EURO = 0x20ac		# Euro currency sign, not yet supported
+ccRegular12Hack = False	# Set to true to enable some manual tweaks with cc regular 12 font
 
 if options.name == None or options.png == None or options.xml == None:
 	parser.error('name, png, and xml options are required')
@@ -151,6 +152,10 @@ def generateHeader(fontName, pngFilename, xmlFilename):
 			print >> outfd, ' /* [{}] */'.format(patt)
 		print >> outfd, '};\n'
 	print >> outfd, ''
+	
+	if ccRegular12Hack:
+		# change upper case I
+		glyphData[73] = [0x82, 0xFE, 0x82]
 
 	# font header:
 	#
@@ -181,6 +186,9 @@ def generateHeader(fontName, pngFilename, xmlFilename):
 			print 'skipping extended character 0x{:x}'.format(char)
 			glyphCount -= 1
 
+	if ccRegular12Hack:
+		# reduce font height
+		root.attrib['height'] = 10
 	print '{} glyphs'.format(glyphCount)
 	header = pack('=BBBB', int(root.attrib['height']), fixedWidth, options.depth, glyphCount)
 	bfd.write(header)
@@ -200,7 +208,11 @@ def generateHeader(fontName, pngFilename, xmlFilename):
 			index += 1
 			glyph = glyphd[ch]
 			rect = [int(x) for x in glyph['rect'].split()]
-			offset = [int(x) for x in glyph['offset'].split()]
+			offset = [int(x) for x in glyph['offset'].split()]			
+			if ccRegular12Hack and ch == 73:
+				# change upper case I
+				glyph['width'] = 4
+				rect[2] = 3
 			if ch == ord(' '):
 				glyphHeaderStr += "	   {{ {:>2}, {:>2}, {:>2}, {:>2}, {:>2}, -1 }}, /* '{}' */\n".format(glyph['width'],
 					rect[2], rect[3], offset[0], offset[1], glyph['code'])

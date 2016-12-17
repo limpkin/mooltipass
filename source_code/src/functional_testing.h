@@ -28,7 +28,7 @@
 
 RET_TYPE electricalJumpToBootloaderCondition(void);
 void mooltipassStandardElectricalTest(uint8_t fuse_ok);
-void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result);
+void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t mini_inputs_result);
 void mooltipassStandardFunctionalTest(uint16_t current_bootkey_val, uint8_t flash_init_result, uint8_t touch_init_result, uint8_t fuse_ok);
 
 #endif

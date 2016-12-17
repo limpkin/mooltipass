@@ -36,9 +36,9 @@ Credentials Management
 Use App To Exit
 Created By The Plugin
 No Stored Favorites
-Send Card Data?
+Send Card Credential?
 Change Card Login?
-Change Card Data?
+Change Card Passwd?
 Username:
 Show Login?
 Show Password?
@@ -51,7 +51,7 @@ Allow Mini Update?
 Computer Went To Sleep
 Confirm New Data Service:
 Add Data For:
-Get Data For:
+Send Data For:
 PIN Codes Differ!
 Target Card Isn't Blank!
 Enter~~    New PIN
@@ -59,17 +59,17 @@ Also Erase The Card?
 No Stored Credentials
 !!!FUSE PB!!!~~
 Func Test, press wheel~~
-Wheel pressed~~
-Scroll To 'z'
+RESERVED~~
+Scroll to '80'
 DON'T APPROVE THIS!
 Send Password For:
 Select Credential: 
-!!!Inputs PB!!!~~
+LIS2HH12 PB!!!~~
 LED1,
 LED2,
 LED3,
 LED4~~
-Scroll Back To 'a'
+RESERVED
 Hash #1
 Hash #2
 Change Description For:

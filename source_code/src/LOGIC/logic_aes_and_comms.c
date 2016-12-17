@@ -57,15 +57,15 @@ volatile uint8_t context_valid_flag = FALSE;
 // Login just added flag
 volatile uint8_t login_just_added_flag = FALSE;
 // Data context valid flag (we know the current data service)
-uint8_t data_context_valid_flag = FALSE;
+volatile uint8_t data_context_valid_flag = FALSE;
 // Currently adding data flag
-uint8_t current_adding_data_flag = FALSE;
+volatile uint8_t current_adding_data_flag = FALSE;
 // Counter for our current data node written bytes
 uint8_t currently_adding_data_cntr = 0;
 // Counter for our current offset when reading data
 uint8_t currently_reading_data_cntr = 0;
 // Flag to know if we are writing the first block of data
-uint8_t currently_writing_first_block = FALSE;
+volatile uint8_t currently_writing_first_block = FALSE;
 // Address of the next data node for reading
 uint16_t next_data_node_addr = 0;
 // Current CTR value used for data node decryption
@@ -119,8 +119,11 @@ void clearSmartCardInsertedUnlocked(void)
     selected_login_flag = FALSE;
     login_just_added_flag = FALSE;
     leaveMemoryManagementMode();
+    data_context_valid_flag = FALSE;
+    current_adding_data_flag = FALSE;
     activateTimer(TIMER_CREDENTIALS, 0);
     smartcard_inserted_unlocked = FALSE;
+    currently_writing_first_block = FALSE;
 }
 
 /*! \fn     eraseFlashUsersContents(void)
@@ -300,6 +303,27 @@ static inline void ctrPostEncryptionTasks(void)
     aesIncrementCtr(nextCtrVal, USER_CTR_SIZE);
 }
 
+#ifdef MINI_VERSION
+/*! \fn     encryptOneAesBlockWithKeyEcb(uint8_t* aes_key, uint8_t* data)
+*   \brief  Encrypt a block of data using a given AES key in ECB mode
+*   \param  aes_key         AES key
+*   \param  data            Data to encrypt, one AES block size long (128bits)
+*   \note   aes_key is emptied after use!
+*   \note   This function uses the AES context of the current user, so DO NOT call it when a user is logged in!
+*/
+void encryptOneAesBlockWithKeyEcb(uint8_t* aes_key, uint8_t* data)
+{
+    // Initialize AES context & encrypt data
+    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
+    aes256_init_ecb(&(aesctx.aesCtx), aes_key);
+    aes256_encrypt_ecb(&(aesctx.aesCtx), data);
+    while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
+
+    // Delete vars
+    memset((void*)&aesctx, 0x00, sizeof(aesctx));
+    memset((void*)aes_key, 0x00, AES_KEY_LENGTH/8);    
+}
+
 /*! \fn     computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data, uint8_t stringId)
 *   \brief  Encrypt a block of data using a given aes key, display it on the screen and wait for user action
 *   \param  aes_key     AES key
@@ -308,7 +332,6 @@ static inline void ctrPostEncryptionTasks(void)
 *   \note   aes_key is emptied after use!
 *   \note   This function uses the AES context of the current user, so DO NOT call it when a user is logged in!
 */
-#ifdef MINI_VERSION
 void computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data, uint8_t stringId)
 {
     // Buffer to store a copy of the data to encrypt
@@ -318,12 +341,9 @@ void computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data,
     miniOledClearFrameBuffer();
     miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, readStoredStringToBuffer(stringId));
 
-    // Initialize AES context & encrypt data
-    activateTimer(TIMER_CREDENTIALS, AES_ENCR_DECR_TIMER_VAL);
-    memcpy((void*)data_copy, (void*)data, AES256_CTR_LENGTH);
-    aes256_init_ecb(&(aesctx.aesCtx), aes_key);
-    aes256_encrypt_ecb(&(aesctx.aesCtx), data_copy);
-    while (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_RUNNING);
+    // Encrypt data
+    memcpy((void*)data_copy, (void*)data, sizeof(data_copy));
+    encryptOneAesBlockWithKeyEcb(aes_key, data_copy);
 
     // Format and display hash
     for (uint8_t i = 0; i < AES256_CTR_LENGTH / 2; i++)
@@ -334,10 +354,6 @@ void computeAndDisplayBlockSizeEncryptionResult(uint8_t* aes_key, uint8_t* data,
     miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, (char*)textBuffer1);
     miniOledPutCenteredString(THREE_LINE_TEXT_THIRD_POS, (char*)textBuffer2);
     miniOledFlushEntireBufferToDisplay();
-
-    // Delete vars
-    memset((void*)&aesctx, 0x00, sizeof(aesctx));
-    memset((void*)aes_key, 0x00, AES_KEY_LENGTH/8);
 
     // Wait for action before next screen
     miniGetWheelAction(TRUE, FALSE);
@@ -402,17 +418,14 @@ RET_TYPE setCurrentContext(uint8_t* name, uint8_t type)
     // Look for name inside our flash
     context_parent_node_addr = searchForServiceName(name, COMPARE_MODE_MATCH, type);
     
-    // Clear all flags
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        context_valid_flag = FALSE;
-        selected_login_flag = FALSE;
-        login_just_added_flag = FALSE;
-        data_context_valid_flag = FALSE;
-        current_adding_data_flag = FALSE;
-        activateTimer(TIMER_CREDENTIALS, 0);
-        currently_writing_first_block = FALSE;
-    }
+    // Clear all flags: no need for an ATOMIC_BLOCK as the clearSmartCardInsertedUnlocked() interrupt sets the following variables to the same values
+    context_valid_flag = FALSE;
+    selected_login_flag = FALSE;
+    login_just_added_flag = FALSE;
+    data_context_valid_flag = FALSE;
+    current_adding_data_flag = FALSE;
+    activateTimer(TIMER_CREDENTIALS, 0);
+    currently_writing_first_block = FALSE;
     
     // Do we know this context ?
     if ((context_parent_node_addr != NODE_ADDR_NULL) && (smartcard_inserted_unlocked == TRUE))
@@ -506,7 +519,11 @@ RET_TYPE getLoginForContext(char* buffer)
     }
     else
     {
-        // Credential timer off, ask for user to choose
+        // Clear current flags: no need for an ATOMIC_BLOCK as the clearSmartCardInsertedUnlocked() interrupt sets the following variables to the same values
+        selected_login_flag = FALSE;
+        login_just_added_flag = FALSE;
+		
+        // Credential timer off, ask for user to choose: implemented to avoid trapping the user with 2 successive prompts for a get login
         if (hasTimerExpired(TIMER_CREDENTIALS, FALSE) == TIMER_EXPIRED)
         {
             // Read context parent node
@@ -522,7 +539,7 @@ RET_TYPE getLoginForContext(char* buffer)
             if (buffer[HID_LEN_FIELD] != 0)
             {
                 // Check that the payload length is correct
-                if (checkTextField((uint8_t*)(buffer + HID_DATA_START), buffer[HID_LEN_FIELD], NODE_CHILD_SIZE_OF_LOGIN) == RETURN_NOK)
+                if (checkTextField((uint8_t*)(buffer + HID_DATA_START), buffer[HID_LEN_FIELD], (RAWHID_RX_SIZE-HID_DATA_START)) == RETURN_NOK)
                 {
                     return RETURN_NOK;
                 }
@@ -660,12 +677,10 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
     }
     else
     {
-        // Clear current flags
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            selected_login_flag = FALSE;
-            activateTimer(TIMER_CREDENTIALS, 0);
-        }
+        // Clear current flags: no need for an ATOMIC_BLOCK as the clearSmartCardInsertedUnlocked() interrupt sets the following variables to the same values
+        selected_login_flag = FALSE;
+        login_just_added_flag = FALSE;
+        activateTimer(TIMER_CREDENTIALS, 0);
         
         // Look for given login in the flash
         selected_login_child_node_addr = searchForLoginInGivenParent(context_parent_node_addr, name);
@@ -700,7 +715,7 @@ RET_TYPE setLoginForContext(uint8_t* name, uint8_t length)
                 guiDisplayProcessingScreen();
                 
                 // Set temp cnode to zeroes: we're not setting a random password as a plain text attack would suggest the attacker having control on the device
-                // So instead of not setting a password, he'd just put a 31 known plaintext...
+                // So instead of not setting a password, he'd just put a 31 chars known plaintext...
                 memset((void*)&temp_cnode, 0x00, NODE_SIZE);
                 encrypt32bBlockOfDataAndClearCTVFlag(temp_cnode.password, temp_cnode.ctr);
                 memcpy((void*)temp_cnode.login, (void*)name, length);
@@ -784,7 +799,6 @@ RET_TYPE setDescriptionForContext(uint8_t* description)
 
         // Update the description field
         updateChildNodeDescription(&temp_cnode, selected_login_child_node_addr, description);
-        login_just_added_flag = FALSE;
 
         return RETURN_OK;
     }
@@ -831,9 +845,9 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
         
         // Ask for password changing approval
         #if defined(HARDWARE_OLIVIER_V1)
-        if (guiAskForConfirmation(4, &conf_text) == RETURN_OK)
+        if ((login_just_added_flag == TRUE) || (guiAskForConfirmation(4, &conf_text) == RETURN_OK))
         #elif defined(MINI_VERSION)
-        if (guiAskForConfirmation(3, &conf_text) == RETURN_OK)
+        if ((login_just_added_flag == TRUE) || (guiAskForConfirmation(3, &conf_text) == RETURN_OK))
         #endif
         {
             // Get back to current screen
@@ -844,8 +858,14 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
                 guiGetBackToCurrentScreen();
             }
             #else
-            guiGetBackToCurrentScreen();
+            if (login_just_added_flag == FALSE)
+            {
+                guiGetBackToCurrentScreen();
+            }
             #endif
+            
+            // Remove login just added flag
+            login_just_added_flag = FALSE;
 
             // Encrypt the password
             encrypt32bBlockOfDataAndClearCTVFlag(password, temp_ctr);
@@ -857,7 +877,7 @@ RET_TYPE setPasswordForContext(uint8_t* password, uint8_t length)
             }
 
             // Inform that the db has changed
-            userDBChangedActions();
+            userDBChangedActions(FALSE);
             
             return RETURN_OK;
         }
@@ -925,7 +945,7 @@ RET_TYPE addDataForDataContext(uint8_t* data, uint8_t last_packet_flag)
                 currently_reading_data_cntr = 0;
                 current_adding_data_flag = TRUE;
                 currently_adding_data_cntr = 0;
-                userDBChangedActions();
+                userDBChangedActions(TRUE);
             }            
             guiGetBackToCurrentScreen(); 
         }

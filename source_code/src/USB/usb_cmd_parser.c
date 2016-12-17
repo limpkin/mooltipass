@@ -140,7 +140,7 @@ void lowerCaseString(uint8_t* data)
 RET_TYPE checkTextField(uint8_t* data, uint8_t len, uint8_t max_len)
 {    
     // Check that the advertised length is correct, that it is not null and isn't bigger than a data packet
-    if ((len > max_len) || (len == 0) || (len != strlen((char*)data)+1) || (len > (RAWHID_RX_SIZE-HID_DATA_START)))
+    if ((len > max_len) || (len == 0) || (len != strnlen((char*)data, max_len)+1))
     {
         return RETURN_NOK;
     }
@@ -276,6 +276,12 @@ void usbProcessIncoming(uint8_t caller_id)
     else
     {
         text_field_check_needed = FALSE;
+    }
+    
+    // Check that the maximum text size isn't bigger than the packet payload
+    if (max_text_size > (RAWHID_RX_SIZE-HID_DATA_START))
+    {
+        max_text_size = (RAWHID_RX_SIZE-HID_DATA_START);
     }
     
     // Perform the text field check
@@ -580,15 +586,15 @@ void usbProcessIncoming(uint8_t caller_id)
                 incomingData[0] = PLUGIN_BYTE_OK;
                 readProfileUserDbChangeNumber(&incomingData[1]);
             }
-            usbSendMessage(CMD_GET_USER_CHANGE_NB, 2, incomingData);
-            break;
+            usbSendMessage(CMD_GET_USER_CHANGE_NB, 3, incomingData);
+            return;
         }
 
         // Set the user db change number
         case CMD_SET_USER_CHANGE_NB :
         {
             // Command only used in MMM
-            if (datalen == 1)
+            if (datalen == 2)
             {
                 setProfileUserDbChangeNumber(&msg->body.data[0]);
                 plugin_return_value = PLUGIN_BYTE_OK;
@@ -931,7 +937,7 @@ void usbProcessIncoming(uint8_t caller_id)
         {            
             // Set default addresses
             mediaFlashImportPage = GRAPHIC_ZONE_PAGE_START;
-            mediaFlashImportOffset = 0;
+            mediaFlashImportOffset = 0;        
 
             // Things are different between the mini & the standard Mooltipass
             #if defined(MINI_VERSION)
@@ -939,11 +945,14 @@ void usbProcessIncoming(uint8_t caller_id)
                     /* For the versions that use the AVR bootloader, or when deliberately skipping it: no prompts, just accept it */
                     plugin_return_value = PLUGIN_BYTE_OK;
                     mediaFlashImportApproved = TRUE;
+                    
+                    /* Version with custom bootloader: copy version in eeprom */
+                    /* As of 06/12/2016 this is obsolete as the bootloader fetches the firmware version from the flash */
+                    /* However, this is still useful as it forces a complete param reset at restart */
+                    /* Do not remove as some units still have a bootloader that fetches the firmware version using that */
+                    eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
 
                     #if defined(MINI_PREPRODUCTION_SETUP_ACC)
-                        /* Version with custom bootloader: copy version in eeprom */
-                        eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
-
                         /* If security is in place: set jump to bootloader key */
                         if (eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY)
                         {
@@ -951,27 +960,51 @@ void usbProcessIncoming(uint8_t caller_id)
                             activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);
                         }
                     #endif
+                    
+                    activityDetectedRoutine();
+                    guiSetCurrentScreen(SCREEN_DEFAULT_UPDATING);
+                    guiGetBackToCurrentScreen();
                 #else
                     /* Security set value */
                     uint8_t massprod_fboot_val = eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR);
                     uint8_t boot_pwd_set_val = eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET);
+                    
+                    // Bruteforce delay
+                    userViewDelay();
 
-                    if((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_INVALID) || (boot_pwd_set_val != BOOTLOADER_PWDOK_KEY))
+                    if ((datalen == (AES_BLOCK_SIZE/8)) && ((getCurrentScreen() == SCREEN_DEFAULT_INSERTED_INVALID) || (boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY)))
                     {
                         /* Normal mini versions: update only available when the card is inserted backwards */
-
-                        // Mandatory wait for bruteforce
-                        userViewDelay();
 
                         // Prepare asking confirmation screen
                         confirmationText_t temp_conf_text;
                         temp_conf_text.lines[0] = readStoredStringToBuffer(ID_STRING_WARNING);
                         temp_conf_text.lines[1] = readStoredStringToBuffer(ID_STRING_ALLOW_UPDATE);
-
-                        // TODO: implement sec check !
+                        
+                        // Buffer which will contain version number + UID (4+6bytes total)
+                        uint8_t password_buffer[AES_BLOCK_SIZE/8];
+                        memset((void*)password_buffer, 0, sizeof(password_buffer));
+                        strcpy((char*)password_buffer, MOOLTIPASS_VERSION);
+                        eeprom_read_block(password_buffer + sizeof(MOOLTIPASS_VERSION) - 1, (void*)EEP_UID_ADDR, UID_SIZE);
+                        
+                        // Fetch the platform AES key
+                        uint8_t plateform_aes_key[AES_KEY_LENGTH/8];
+                        eeprom_read_block(plateform_aes_key, (void*)(EEP_BOOT_PWD+(AES_KEY_LENGTH/8)), 30);
+                        eeprom_read_block(plateform_aes_key+30, (void*)EEP_LAST_AES_KEY2_2BYTES_ADDR, 2);
+                        
+                        // Encrypt [version number + UID] with platform AES key
+                        encryptOneAesBlockWithKeyEcb(plateform_aes_key, password_buffer);
+                        
+                        // Compare the result with the provided password
+                        uint8_t compare_result = 0x00;
+                        for (uint8_t i = 0; i < sizeof(password_buffer); i++)
+                        {
+                            compare_result |= password_buffer[i] ^ msg->body.data[i];
+                        }
+                        memset((void*)password_buffer, 0, sizeof(password_buffer));
                         
                         // Allow bundle update if password is not set
-                        if ((boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY) || ((guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_DO_NOT_UNPLUG)) == RETURN_OK) && (TRUE == TRUE)))
+                        if ((boot_pwd_set_val != BOOTLOADER_PWDOK_KEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY) || ((compare_result == 0x00) && (guiAskForConfirmation(2, &temp_conf_text) == RETURN_OK) && (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_DO_NOT_UNPLUG)) == RETURN_OK)))
                         {
                             /* Erase screen */
                             miniOledClearFrameBuffer();
@@ -980,13 +1013,20 @@ void usbProcessIncoming(uint8_t caller_id)
                             /* Approve bundle upload request */
                             plugin_return_value = PLUGIN_BYTE_OK;
                             mediaFlashImportApproved = TRUE;
-
-                            /* Copy firmware version in eeprom */
+                            
+                            /* Version with custom bootloader: copy version in eeprom */
+                            /* As of 06/12/2016 this is obsolete as the bootloader fetches the firmware version from the flash */
+                            /* However, this is still useful as it forces a complete param reset at restart */
+                            /* Do not remove as some units still have a bootloader that fetches the firmware version using that */
                             eeprom_write_block(MOOLTIPASS_VERSION, (void*)EEP_USER_DATA_START_ADDR, 4);
 
                             /* When security is in place and it isn't the first mass production boot: set jump to bootloader bool, activate timer for reboot */
                             if ((boot_pwd_set_val == BOOTLOADER_PWDOK_KEY) && (massprod_fboot_val != MASS_PROD_FBOOT_OK_KEY))
                             {
+                                /* Set updating screen */
+                                guiSetCurrentScreen(SCREEN_DEFAULT_UPDATING);
+                                guiGetBackToCurrentScreen();
+                                /* set jump to bootloader bool, activate timer for reboot */
                                 eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BOOTLOADER_BOOTKEY);
                                 activateTimer(TIMER_REBOOT, BUNDLE_UPLOAD_TIMEOUT);                                
                             }
@@ -1070,7 +1110,7 @@ void usbProcessIncoming(uint8_t caller_id)
             #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP) && !defined(MINI_CREDENTIAL_MANAGEMENT)
             // At the end of the import media command if the security is set in place and it isn't the first mass production boot, we start the bootloader
             if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR) != MASS_PROD_FBOOT_OK_KEY))
-            {                
+            {
                 reboot_platform();
             } 
             #endif
@@ -1182,7 +1222,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
         
         // Unlock the card using a PIN sent through USB (only used as last resort for standard version, if screen breaks!)
-        #ifndef MINI_VERSION
+        #ifdef UNLOCK_WITH_PIN_FUNCTIONALITY
         case CMD_UNLOCK_WITH_PIN :
         {
             uint16_t* temp_uint_ptr = (uint16_t*)msg->body.data;
@@ -1239,39 +1279,36 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
-        // Read card login
+        // Read card credentials
         #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
-        case CMD_READ_CARD_LOGIN :
+        case CMD_READ_CARD_CREDS:
         {
-            if (getSmartCardInsertedUnlocked() == TRUE)
+            #if SMARTCARD_MTP_PASS_LENGTH > SMARTCARD_MTP_LOGIN_LENGTH
+                #error "SMARTCARD_MTP_LOGIN_LENGTH too big to fit in temp_data"
+            #endif
+            uint8_t temp_data[SMARTCARD_MTP_LOGIN_LENGTH/8];
+            
+            if ((getSmartCardInsertedUnlocked() == TRUE) || (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN))
             {
-                uint8_t temp_data[SMARTCARD_MTP_LOGIN_LENGTH/8];
-                readMooltipassWebsiteLogin(temp_data);
-                usbSendMessage(CMD_READ_CARD_LOGIN, sizeof(temp_data), (void*)temp_data);
-                return;
-            } 
-            else
-            {
-                plugin_return_value = PLUGIN_BYTE_ERROR;
-            }
-            break;
-        }
-        #endif
-        
-        // Read card stored password
-        #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
-        case CMD_READ_CARD_PASS :
-        {
-            if (getSmartCardInsertedUnlocked() == TRUE)
-            {
-                if (guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SEND_SMC_PASS)) == RETURN_OK)
-                {
-                    uint8_t temp_data[SMARTCARD_MTP_PASS_LENGTH/8];
-                    readMooltipassWebsitePassword(temp_data);
-                    usbSendMessage(CMD_READ_CARD_PASS, sizeof(temp_data), (void*)temp_data);
+                /* Ask permission to the user, unlock the card if the card is unknown */
+                if ((guiAskForConfirmation(1, (confirmationText_t*)readStoredStringToBuffer(ID_STRING_SEND_SMC_CREDS)) == RETURN_OK) && ((getSmartCardInsertedUnlocked() == TRUE) || (guiCardUnlockingProcess() == RETURN_OK)))
+                {                    
+                    /* Read card login & password, send 2 packets */
                     guiGetBackToCurrentScreen();
-                    return;
-                } 
+                    readMooltipassWebsiteLogin(temp_data);
+                    usbSendMessage(CMD_READ_CARD_CREDS, sizeof(temp_data), (void*)temp_data);
+                    readMooltipassWebsitePassword(temp_data);
+                    usbSendMessage(CMD_READ_CARD_CREDS, sizeof(temp_data), (void*)temp_data); 
+                    
+                    if (getCurrentScreen() == SCREEN_DEFAULT_INSERTED_UNKNOWN)
+                    {
+                        /* Power off & on the card to log off: we're not checking the return values of cardDetectedRoutine & validCardDetectedFunction as they should be the same and nothing can be gained from this scenario */
+                        handleSmartcardRemoved();
+                        timerBased130MsDelay();
+                        cardDetectedRoutine();                        
+                    }
+                    return;               
+                }
                 else
                 {
                     guiGetBackToCurrentScreen();
@@ -1284,7 +1321,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
-        #endif
+        #endif           
         
         // Set card login
         #ifndef DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
@@ -1486,6 +1523,17 @@ void usbProcessIncoming(uint8_t caller_id)
             break;
         }
         
+        // get the mini serial number located at address 0x7F7C (4 bytes before the bootloader flashing routine)
+        #ifdef MINI_VERSION
+        case CMD_GET_MINI_SERIAL:
+        {
+            uint8_t mini_serial[4];
+            memcpy_PF(mini_serial, (uint_farptr_t)0x7F7C, sizeof(mini_serial));
+            usbSendMessage(CMD_GET_MINI_SERIAL, sizeof(mini_serial), mini_serial);
+            return;
+        }
+        #endif
+        
         #ifndef MINI_VERSION
         // Jump to bootloader
         case CMD_JUMP_TO_BOOTLOADER :
@@ -1659,7 +1707,7 @@ void usbProcessIncoming(uint8_t caller_id)
             msg->body.data[2] = acc_detected;
             miniAccelerometerSendReceiveSPIData(msg->body.data, 2);
             usbSendMessage(CMD_TEST_ACC_PRESENCE, 3, msg->body.data);
-            break;
+            return;
         }
 #endif
 

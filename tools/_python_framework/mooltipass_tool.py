@@ -34,8 +34,10 @@
 #                                                                                                                               #
 #                                                                                                                               #
 #################################################################################################################################
+from mooltipass_mass_prod_init_proc import *
 from mooltipass_hid_device import *
 from mooltipass_init_proc import *
+from generate_prog_file import *
 import mooltipass_security_check 
 import firmwareBundlePackAndSign
 from datetime import datetime
@@ -46,7 +48,7 @@ import usb.util
 import random
 import time
 import sys
-nonConnectionCommands = ["packAndSign", "decrypt_mini_prod"]
+nonConnectionCommands = ["packAndSign", "decrypt_mini_prod", "generate_mass_prod_file"]
 
 def main():
 	skipConnection = False
@@ -113,23 +115,49 @@ def main():
 				print "packAndSign: not enough args!"
 				
 		if sys.argv[1] == "minicheck":
-			if len(sys.argv) > 3:
-				mooltipass_security_check.mooltipassMiniSecCheck(mooltipass_device, sys.argv[2], sys.argv[3], sys.argv[4])
+			if len(sys.argv) > 7:
+				mooltipass_security_check.mooltipassMiniSecCheck(mooltipass_device, sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
 			else:
 				print "minicheck: not enough args!"
 		
-		if sys.argv[1] == "init":
-			if len(sys.argv) > 2:
-				if version_data[2] == "mini":
-					mooltipassMiniInit(mooltipass_device)
-				else:
-					print "Device Not Supported"
+		if sys.argv[1] == "initproc":
+			if version_data[2] == "mini":
+				mooltipassMiniInit(mooltipass_device)
 			else:
-				print "init: not enough args!"
+				print "Device Not Supported"
+				
+		if sys.argv[1] == "massprodinit":
+			if version_data[2] == "mini":
+				mooltipassMiniMassProdInit(mooltipass_device)
+			else:
+				print "Device Not Supported"		
+
+		# Generate a mass production file 
+		if sys.argv[1] == "generate_mass_prod_file":
+			if len(sys.argv) == (2 + 2):
+				# Only firmware hex + bootloader hex are passed as args: 0s for aes keys and uids
+				print "Generating blank mass production file with 0s for AES keys and UID"
+				generateFlashAndEepromHex(sys.argv[2], sys.argv[3], 12345, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0], "newflash.hex", "neweeprom.hex", True)
+				
+		if sys.argv[1] == "get_serial":
+			if version_data[2] == "mini":
+				serial_number = mooltipass_device.getMooltipassMiniSerial()
+				print "Serial number in hex:", "".join(format(x, "02x") for x in serial_number)
+				print "Serial number in decimal:", serial_number[0]*16777216 + serial_number[1]*65536 + serial_number[2]*256 + serial_number[3]*1
+			else:
+				print "Device Not Supported"		
 				
 		if sys.argv[1] == "decrypt_mini_prod":
 			if len(sys.argv) > 2:
 				decryptMiniProdFile(sys.argv[2])		
+			else:
+				print "decrypt_mini_prod: not enough args!"
+				
+		if sys.argv[1] == "get_uid":
+			if len(sys.argv) > 2:
+				uid = mooltipass_device.getUID(sys.argv[2])
+				if uid != None:
+					print "UID:", "".join(format(x, "02x") for x in uid)
 			else:
 				print "decrypt_mini_prod: not enough args!"
 				
@@ -138,7 +166,7 @@ def main():
 				
 		if sys.argv[1] == "set_user_db_change_nb":
 			if len(sys.argv) > 2:
-				mooltipass_device.setMooltipassUserDbChangeNumber(int(sys.argv[2]))		
+				mooltipass_device.setMooltipassUserDbChangeNumber(int(sys.argv[2]), int(sys.argv[3]))		
 			else:
 				print "set_user_db_change_nb: not enough args!"
 				
@@ -159,12 +187,27 @@ def main():
 			
 		if sys.argv[1] == "lock":
 			mooltipass_device.lock()
+			
+		if sys.argv[1] == "get_card_creds":
+			mooltipass_device.getCardCreds()
+				
+		if sys.argv[1] == "set_card_login":
+			if len(sys.argv) > 2:
+				mooltipass_device.setCardLogin(sys.argv[2])		
+			else:
+				print "set_card_login: not enough args!"
+				
+		if sys.argv[1] == "set_card_password":
+			if len(sys.argv) > 2:
+				mooltipass_device.setCardPassword(sys.argv[2])		
+			else:
+				print "set_card_password: not enough args!"
 		
 		
 	#mooltipass_device.sendCustomPacket()
 	#mooltipass_device.checkSecuritySettings()
 	#if not skipConnection:
-		#device.disconnect()
+	#	mooltipass_device.disconnect()
 
 if __name__ == "__main__":
 	main()

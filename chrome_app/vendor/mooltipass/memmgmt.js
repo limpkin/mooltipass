@@ -1,7 +1,7 @@
 var mooltipass = mooltipass || {};
 mooltipass.memmgmt = mooltipass.memmgmt || {};
 
-// Next error code available 701
+// Next error code available 702
 
 // Defines
 var NODE_SIZE							= 132;			// Node size
@@ -124,6 +124,7 @@ mooltipass.memmgmt.currentLoginForRequestedPassword = "";	// The login for which
 mooltipass.memmgmt.tempPassword = [];						// Temp password to unlock upload functionality
 mooltipass.memmgmt.byteCounter = 0;							// Current byte counter
 mooltipass.memmgmt.mediaBundle = [];						// Media bundle contents
+mooltipass.memmgmt.mediaImportEndPacketSent = false;		// Media Import End packet sent
 
 // Variables used for statistics
 mooltipass.memmgmt.statsLastDataReceivedTime = new Date().getTime();// Time at which our last packet was received
@@ -1089,8 +1090,8 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			{
 				if(imported_data.data[i].length == 3)
 				{
-					// Use the public suffix list to check for valid URLs
-					var parsing_result = mooltipass.util.extractDomainAndSubdomain(imported_data.data[i][0].toLowerCase());
+					// OUTDATED from 09/12/2016: Use the public suffix list to check for valid URLs
+					/*var parsing_result = mooltipass.util.extractDomainAndSubdomain(imported_data.data[i][0].toLowerCase());
 					if(parsing_result.valid)
 					{
 						var chosen_url;
@@ -1103,7 +1104,8 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 							chosen_url = parsing_result.subdomain + "." + parsing_result.domain;
 						}
 						mooltipass.memmgmt.memmgmtAddData.push({"context": chosen_url.substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": "Imported by CSV"});
-					}
+					}*/
+					mooltipass.memmgmt.memmgmtAddData.push({"context": imported_data.data[i][0].toLowerCase().substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": "Imported by CSV"});
 				}				
 			}
 			mooltipass.memmgmt.totalAddressesRequired = mooltipass.memmgmt.memmgmtAddData.length*2;
@@ -2808,7 +2810,17 @@ mooltipass.memmgmt.dataSendTimeOutCallback = function()
 {
 	mooltipass.memmgmt.consoleLog("Data send timeout");
 	mooltipass.memmgmt.currentMode = MGMT_IDLE;
-	applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 696, 'msg': "Problem with USB comms"});
+	
+	// Mooltipass mini doesn't reply the import media end packet
+	if(mooltipass.memmgmt.mediaImportEndPacketSent == true)
+	{
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 701, 'updating' : true, 'msg': "Firmware Uploaded, DO NOT UNPLUG YOUR MINI!!!!!"});
+	}
+	else
+	{
+		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 696, 'msg': "Problem with USB comms"});		
+	}
+	mooltipass.memmgmt.mediaImportEndPacketSent = false;
 	mooltipass.device.processQueue();
 }
  
@@ -4144,6 +4156,7 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 				// We finished sending data
 				mooltipass.memmgmt.consoleLog("Last packet sent!");
 				mooltipass.memmgmt_hid.request['packet'] = mooltipass.device.createPacket(mooltipass.device.commands['endMediaImport'], null);
+				mooltipass.memmgmt.mediaImportEndPacketSent = true;
 				mooltipass.memmgmt_hid._sendMsg();
 			}
 			else
@@ -4158,6 +4171,7 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 	}
 	else if(packet[1] == mooltipass.device.commands['endMediaImport'])
 	{
+		mooltipass.memmgmt.mediaImportEndPacketSent = false;
 		mooltipass.memmgmt.currentMode = MGMT_IDLE;
 		if(packet[2] == 0)
 		{
@@ -4167,7 +4181,7 @@ mooltipass.memmgmt.mediaBundleDataReceivedCallback = function(packet)
 		}
 		else
 		{
-			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 695, 'msg': "Bundle successfully uploaded"});
+			applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'code': 695, 'msg': "Media bundle imported successfully"});
 			mooltipass.device.processQueue();		
 		}
 	}
@@ -4211,7 +4225,7 @@ mooltipass.memmgmt.mediaBundlerUpload = function(callback, password, progressCal
 	mooltipass.memmgmt.statusCallback = callback;
 	
 	// Check password length
-	if(password.length != 124)
+	if((password.length != 124) && (password.length != 32))
 	{
 		applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': false, 'code': 691, 'msg': "Wrong password length!"});
 		mooltipass.device.processQueue();
@@ -4219,7 +4233,7 @@ mooltipass.memmgmt.mediaBundlerUpload = function(callback, password, progressCal
 	}
 	
 	// Convert the password
-	mooltipass.memmgmt.tempPassword = new Uint8Array(62);
+	mooltipass.memmgmt.tempPassword = new Uint8Array(password.length/2);
 	for(var i = 0; i < password.length; i+= 2)
 	{
 		mooltipass.memmgmt.tempPassword[i/2] = parseInt(password.substr(i, 2), 16);

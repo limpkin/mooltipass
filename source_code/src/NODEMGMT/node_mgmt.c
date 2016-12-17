@@ -44,7 +44,9 @@ uint16_t currentDate;
 */
 void nodeMgmtCriticalErrorCallback(void)
 {
-    usbPutstr("#NM");
+    #ifdef USB_MESSAGES_FOR_CRITICAL_CALLBACKS
+        usbPutstr("#NM");
+    #endif
     while(1);
 }
 
@@ -53,7 +55,9 @@ void nodeMgmtCriticalErrorCallback(void)
 */
 void nodeMgmtPermissionValidityErrorCallback(void)
 {
-    usbPutstr("#NMP");
+    #ifdef USB_MESSAGES_FOR_CRITICAL_CALLBACKS
+        usbPutstr("#NMP");
+    #endif
     while(1);
 }
 
@@ -334,6 +338,7 @@ void initNodeManagementHandle(uint8_t userIdNum)
     currentNodeMgmtHandle.firstDataParentNode = getStartingDataParentAddress();
     currentNodeMgmtHandle.firstParentNode = getStartingParentAddress();
     currentNodeMgmtHandle.currentUserId = userIdNum;
+    currentNodeMgmtHandle.datadbChanged = FALSE;
     currentNodeMgmtHandle.dbChanged = FALSE;
     
     // scan for next free parent and child nodes from the start of the memory
@@ -350,23 +355,32 @@ void initNodeManagementHandle(uint8_t userIdNum)
 /**
  * Function called to inform that the DB has been changed
  * Currently called on password change & add, 32B data write
+ * @param   dataChanged  FALSE when a standard credential is changed, something else when it is a data node that is changed
  */
-void userDBChangedActions(void)
+void userDBChangedActions(uint8_t dataChanged)
 {
-    if (currentNodeMgmtHandle.dbChanged == FALSE)
+    if (((currentNodeMgmtHandle.dbChanged == FALSE) && (dataChanged == FALSE)) || ((currentNodeMgmtHandle.datadbChanged == FALSE) && (dataChanged != FALSE)))
     {
         // If the DB wasn't marked as changed, update the user db changed number
-        uint8_t current_db_change_nb;
+        uint8_t current_db_change_nb[2];
 
         // Read current user db change number
         readProfileUserDbChangeNumber((void*)&current_db_change_nb);
 
-        // Add one and set it
-        current_db_change_nb++;
-        setProfileUserDbChangeNumber(&current_db_change_nb);
+        // Increment the correct byte
+        if (dataChanged == FALSE)
+        {
+            current_db_change_nb[0]++;
+            currentNodeMgmtHandle.dbChanged = TRUE;
+        } 
+        else
+        {
+            current_db_change_nb[1]++;
+            currentNodeMgmtHandle.datadbChanged = TRUE;
+        }
 
-        // Set boolean
-        currentNodeMgmtHandle.dbChanged = TRUE;
+        // Store updated db change number
+        setProfileUserDbChangeNumber(&current_db_change_nb);
     }
 }
 
@@ -514,7 +528,7 @@ void readProfileCtr(void *buf)
 void setProfileUserDbChangeNumber(void *buf)
 {    
     // User CTR is at the end
-    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_PROFILE_SIZE - USER_DB_CHANGE_NB_SIZE, USER_DB_CHANGE_NB_SIZE, buf);
+    writeDataToFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_START_NODE_SIZE + (USER_MAX_FAV*USER_FAV_SIZE) + USER_DATA_START_NODE_SIZE, USER_DB_CHANGE_NB_SIZE, buf);
 }
 
 /**
@@ -524,7 +538,7 @@ void setProfileUserDbChangeNumber(void *buf)
 void readProfileUserDbChangeNumber(void *buf)
 {
     // User CTR is at the end
-    readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_PROFILE_SIZE - USER_DB_CHANGE_NB_SIZE, USER_DB_CHANGE_NB_SIZE, buf);
+    readDataFromFlash(currentNodeMgmtHandle.pageUserProfile, currentNodeMgmtHandle.offsetUserProfile + USER_START_NODE_SIZE + (USER_MAX_FAV*USER_FAV_SIZE) + USER_DATA_START_NODE_SIZE, USER_DB_CHANGE_NB_SIZE, buf);
 }
 
 /**

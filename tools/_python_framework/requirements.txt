@@ -2,3 +2,5 @@ crypto
 pyusb
 intelhex
 pyqrcode
+viivakoodi
+pillow

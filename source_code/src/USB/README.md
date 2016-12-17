@@ -131,17 +131,17 @@ From plugin/app: Reset inserted card
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 
-0xB4: Read Card Login
----------------------
-From plugin/app: Read login stored inside the smartcard (no confirmation asked from the user)
+0xB4: Read Card Credentials
+---------------------------
+From plugin/app: Read credentials stored inside the smartcard (confirmation asked from the user)
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
+From Mooltipass: Either one packet with a one byte payload (0x00) indicating request failure, or two successive packets: one with the login as payload, the other with the password as payload
 
-0xB5: Read Card Password
-------------------------
-From plugin/app: Read password stored inside the smartcard (confirmation asked to the user)
+0xB5: Reserved
+--------------
+From plugin/app: 
 
-From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, data otherwise
+From Mooltipass:
 
 0xB6: Set Card Login
 --------------------
@@ -244,7 +244,7 @@ From Mooltipass: the description if the user has approved the sending of credent
 ----------------------------
 From plugin/app: Request the user db change number
 
-From Mooltipass: 2 bytes data packet, first byte is 0x00 for failure & 0x01 for success, second byte is the db change number if success
+From Mooltipass: 3 bytes data packet, first byte is 0x00 for failure & 0x01 for success, second & third bytes are the standard credentials & data change numbers if success
 
 0xD7: Get free users slots
 --------------------------
@@ -263,6 +263,12 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 From plugin/app: Lock Mooltipass Device
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
+
+0xDA: Get Mooltipass Mini Serial
+--------------------------------
+From plugin/app: Query the Mini serial number
+
+From Mooltipass: 4 bytes data packet containing the unique serial number (stored at 0x7F7C in Flash)
 
 Commands in data management mode
 ================================
@@ -357,7 +363,7 @@ From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't perf
 
 0xD4: Set user change number
 ----------------------------
-From plugin/app: One byte payload containing the new user db change number
+From plugin/app: Two bytes payload containing the standard credentials & data change numbers
 
 From Mooltipass: 1 byte data packet, 0x00 indicates that the request wasn't performed, 0x01 if so
 

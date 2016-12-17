@@ -336,6 +336,9 @@ uint16_t favoriteSelectionScreen(pNode* p, cNode* c)
             {
                 // Implement scrolling
                 miniIncrementScrolledTexts();
+                // 10/11/2016: only scroll selected line
+                string_offset_cntrs[0] = 0;
+                string_offset_cntrs[2] = 0;
             }
 
             // Scrolling timer expired
@@ -514,7 +517,10 @@ uint16_t loginSelectionScreen(void)
             else
             {
                 // Implement scrolling
-                miniIncrementScrolledTexts();
+                miniIncrementScrolledTexts();                
+                // 10/11/2016: only scroll selected line
+                string_offset_cntrs[0] = 0;
+                string_offset_cntrs[2] = 0;
             }
 
             // Scrolling timer expired

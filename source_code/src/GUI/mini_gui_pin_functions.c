@@ -91,6 +91,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         return RETURN_OK;
     #endif    
     
+    uint8_t random_pin_feature_enabled = getMooltipassParameterInEeprom(RANDOM_INIT_PIN_PARAM);
     RET_TYPE ret_val = RETURN_NOK;
     uint8_t detection_result = 0;
     uint8_t selected_digit = 0;
@@ -98,7 +99,7 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
     uint8_t current_pin[4];
     
     // Set current pin to 0000 or random
-    if (getMooltipassParameterInEeprom(RANDOM_INIT_PIN_PARAM) == FALSE)
+    if (random_pin_feature_enabled == FALSE)
     {
         memset((void*)current_pin, 0, 4);
     } 
@@ -160,9 +161,18 @@ RET_TYPE guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)
         {
             if (selected_digit > 0)
             {
-                // When going back set pin digit to 0
-                current_pin[selected_digit] = 0;
-                current_pin[--selected_digit] = 0;
+                if (random_pin_feature_enabled == FALSE)
+                {
+                    // When going back set pin digit to 0
+                    current_pin[selected_digit] = 0;
+                    current_pin[--selected_digit] = 0;                    
+                }
+                else
+                {
+                    fillArrayWithRandomBytes(&current_pin[selected_digit-1], 2);
+                    current_pin[selected_digit] &= 0x0F;
+                    current_pin[--selected_digit] &= 0x0F;
+                }
             }
             else
             {

@@ -175,16 +175,16 @@ void mooltipassStandardElectricalTest(uint8_t fuse_ok)
 /*! \fn     mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
  *  \brief  Mooltipass standard functional test
  *  \param  flash_init_result       Result of the flash initialization procedure
- *  \param  fuse_ok                 Bool to know if fuses set are ok
  *  \param  mini_inputs_result      Bool to know if inputs are ok
  */
-void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, uint8_t mini_inputs_result)
+void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t mini_inputs_result)
 {
     // Byte value to which USER_PARAM_INIT_KEY_PARAM should be set to go to the next customization step
     uint8_t correct_param_init_key_val = 0xBB;
-    uint8_t test_result_ok = TRUE;        
-    char temp_string[] = {'a', 0};
+    uint8_t test_result_ok = TRUE;   
     RET_TYPE temp_rettype;
+    char temp_string[3];
+    uint8_t temp_uint;
         
     // Wait for USB host to upload bundle, which then sets USER_PARAM_INIT_KEY_PARAM
     while(getMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM) != correct_param_init_key_val)
@@ -196,7 +196,6 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
     miniOledAllowTextWritingYIncrement();
     miniOledFlushWrittenTextToDisplay();
     miniOledBegin(FONT_DEFAULT);
-    miniOledResetXY();
 
     // LED functional test
     #ifdef LEDS_ENABLED_MINI
@@ -223,13 +222,6 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
         guiDisplayRawString(ID_STRING_TEST_FLASH_PB);
         test_result_ok = FALSE;
     }
-        
-    // Check fuse setting
-    if (fuse_ok != TRUE)
-    {
-        guiDisplayRawString(ID_STRING_FUSE_PB);
-        test_result_ok = FALSE;
-    }
 
     // Check mini inputs initialization
     if (mini_inputs_result != RETURN_OK)
@@ -237,8 +229,10 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
         guiDisplayRawString(ID_STRING_INPUT_PB);
         test_result_ok = FALSE;
     }
+    
+    // Do not check fuses as the platform won't boot if the fuses aren't correctly set
         
-    // Check that card is removed
+    // Check that the card is removed
     if (isSmartCardAbsent() == RETURN_NOK)
     {
         guiDisplayRawString(ID_STRING_REMOVE_CARD);
@@ -246,37 +240,21 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t fuse_ok, ui
         miniOledResetXY();oledClear();
     }
     
-    // Test description, press wheel
+    // Test description, wait for wheel press
     guiDisplayRawString(ID_STRING_FUNC_TEST);
-    
-    // Wait for wheel press
     miniWheelClearDetections();
     while(isWheelClicked() != RETURN_JDETECT);
-    guiDisplayRawString(ID_STRING_FUNC_WHEEL);
-    
-    // Test description
-    oledClear();
-    miniOledResetXY();
-    guiDisplayRawString(ID_STRING_FUNC_TEST_SCROLL);
     
     // Wait for scroll
-    while(temp_string[0] != 'z')
+    temp_uint = 0;
+    while(temp_uint != 0x80)
     {
-        temp_string[0] += getWheelCurrentIncrement();
-        oledPutstrXY(70,15,0,temp_string);
-        oledFillXY(70,15,15,15,FALSE);
-    }
-
-    oledClear();
-    miniOledResetXY();
-    guiDisplayRawString(ID_STRING_FUNC_TEST_SCROLL2);
-    
-    // Wait for scroll
-    while(temp_string[0] != 'a')
-    {
-        temp_string[0] += getWheelCurrentIncrement();
-        oledPutstrXY(70,15,0,temp_string);
-        oledFillXY(70,15,15,15,FALSE);
+        oledClear();
+        miniOledResetXY();
+        guiDisplayRawString(ID_STRING_FUNC_TEST_SCROLL);
+        hexachar_to_string((char)temp_uint, temp_string);
+        miniOledPutCenteredString(15, temp_string);
+        temp_uint += getWheelCurrentIncrement();
     }
         
     // Insert card

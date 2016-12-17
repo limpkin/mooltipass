@@ -106,6 +106,11 @@ void guiGetBackToCurrentScreen(void)
             guiDisplayInformationOnScreen(ID_STRING_CARDID_NFOUND);
             break;
         }
+        case SCREEN_DEFAULT_UPDATING:
+        {
+            miniOledBitmapDrawFlash(0, 0, BITMAP_UPDATING, OLED_SCROLL_FLIP);
+            break;
+        }
         default: break;
     }
 }
@@ -117,7 +122,7 @@ void guiGetBackToCurrentScreen(void)
 void guiScreenLoop(uint8_t input_interface_result)
 {
     // If no press, you can return!
-    if ((input_interface_result == WHEEL_ACTION_NONE) || (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID) || (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN))
+    if ((input_interface_result == WHEEL_ACTION_NONE) || (currentScreen == SCREEN_DEFAULT_INSERTED_INVALID) || (currentScreen == SCREEN_DEFAULT_INSERTED_UNKNOWN) || (currentScreen == SCREEN_DEFAULT_UPDATING))
     {
         return;
     }
@@ -302,7 +307,7 @@ void guiScreenLoop(uint8_t input_interface_result)
                             }
                             else
                             {
-                                currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
+                                currentScreen = SCREEN_DEFAULT_INSERTED_INVALID;
                                 guiDisplayInformationOnScreen(ID_STRING_TGT_CARD_NBL);
                             }
                             pin_code = 0x0000;

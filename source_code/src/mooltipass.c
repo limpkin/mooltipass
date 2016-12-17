@@ -155,19 +155,19 @@ int main(void)
         /* no fuse verification for the beta testers units */
     #elif defined(PREPRODUCTION_KICKSTARTER_SETUP)
         /* 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
-        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || ((boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) | 0xF0) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
         }
     #elif defined(PRODUCTION_TEST_SETUP)
         /* 2k words, SPIEN, BOD 4.3V, no checks on programming fuses >> http://www.engbedded.com/fusecalc/ */
-        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8))
+        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD9) || ((boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) | 0xF0) != 0xF8))
         {
             fuse_ok = FALSE;
         }
     #else
         /* boot reset vector, 2k words, SPIEN, BOD 4.3V, programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
-        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+        if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || ((boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) | 0xF0) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
         {
             fuse_ok = FALSE;
         }
@@ -293,14 +293,14 @@ int main(void)
     #endif
     #if defined(MINI_VERSION)
         // Uncomment below to force test procedure
-        /*current_bootkey_val = CORRECT_BOOTKEY + 1;
-        eeprom_write_byte((uint8_t*)EEP_BOOT_PWD_SET, FALSE);
-        setMooltipassParameterInEeprom(USER_PARAM_INIT_KEY_PARAM, 0x00);
-        eeprom_write_byte((uint8_t*)EEP_UID_REQUEST_KEY_SET_ADDR, FALSE);*/
+        //massprod_fboot_val = MASS_PROD_FBOOT_OK_KEY;
+        //eeprom_write_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR, MASS_PROD_FBOOT_OK_KEY);
     
         if ((current_bootkey_val != CORRECT_BOOTKEY) || (massprod_fboot_val == MASS_PROD_FBOOT_OK_KEY))
         {
-            mooltipassMiniFunctionalTest(flash_init_result, fuse_ok, mini_inputs_result);            
+            #ifndef DISABLE_FUNCTIONAL_TEST
+            mooltipassMiniFunctionalTest(flash_init_result, mini_inputs_result);            
+            #endif
         }
     #endif
     
@@ -315,7 +315,7 @@ int main(void)
         #if defined(MINI_CLICK_BETATESTERS_SETUP)
             (void)fuse_ok;
             while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
-        #elif (defined(MINI_PREPRODUCTION_SETUP_ACC) || defined(MINI_PREPROD_KICKSTARTER_SETUP))
+        #elif (defined(MINI_PREPRODUCTION_SETUP_ACC) || defined(MINI_PREPROD_KICKSTARTER_SETUP) || defined(MINI_KICKSTARTER_SETUP))
             /* We do not hang if accelerometer is not present as it isn't crucial, moreover we already tested it in the functional test */
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
         #else
@@ -359,6 +359,10 @@ int main(void)
                     {
                         tutorial_bmp_id--;
                         tutorial_scroll_direction = OLED_SCROLL_DOWN;
+                    }
+                    else
+                    {
+                        tutorial_scroll_direction = OLED_SCROLL_FLIP;
                     }
                 } 
                 else

@@ -146,7 +146,7 @@ int main(void)
     wdt_stop();
 
     /* Check fuses: 2k words, SPIEN, BOD 4.3V, BOOTRST programming & ver disabled >> http://www.engbedded.com/fusecalc/ */
-    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || (boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
+    if ((boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS) != 0xFF) || (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) != 0xD8) || ((boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS) | 0xF0) != 0xF8) || (boot_lock_fuse_bits_get(GET_LOCK_BITS) != 0xFC))
     {
         while(1);
     }
@@ -168,9 +168,6 @@ int main(void)
         /* Security system set, bootkey isn't the bootloader one nor the main fw one... */
         while(1);
     }
-
-    /* By default, brick the device so it's an all or nothing update procedure */
-    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
 
     /* Init IOs */
     UHWCON = 0x01;                                              // Enable USB 3.3V LDO
@@ -195,11 +192,14 @@ int main(void)
         while(1);
     }
 
+    /* By default, brick the device so it's an all or nothing update procedure */
+    eeprom_write_word((uint16_t*)EEP_BOOTKEY_ADDR, BRICKED_BOOTKEY);
+
     /* Update bundle composition: bundle | padding | firmware version | new aes key bool | firmware | padding | new aes key encoded | cbcmac */
     for (uint8_t pass_number = 0; pass_number < 2; pass_number++)
     {
         /* Init CBCMAC encryption context and read current firmware version ID */
-        eeprom_read_block((void*)old_version_number, (void*)EEP_USER_DATA_START_ADDR, sizeof(old_version_number));      // Read old version number from eeprom (put there by firmware before jumping here)
+        memcpy_PF(old_version_number, (uint_farptr_t)0x6FFC, sizeof(old_version_number));                               // Read old version number from flash
         eeprom_read_block((void*)cur_aes_key, (void*)EEP_BOOT_PWD, sizeof(cur_aes_key));                                // Read current aes key from eeprom
         memset((void*)cur_cbc_mac, 0x00, sizeof(cur_cbc_mac));                                                          // Set IV for CBCMAC to 0
         aes256_init_ecb(&temp_aes_context, cur_aes_key);                                                                // Init AES context

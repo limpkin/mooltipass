@@ -146,7 +146,7 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile, encrypted
 	os.remove("/tmp/lock_fuse_val_"+str(socket_id)+".hex")
 	
 	# Check if it wasn't already programmed
-	if low_fuse == 0xFF and high_fuse == 0xD8 and extended_fuse == 0xC8 and lock_fuse == 0x3C and False:
+	if low_fuse == 0xFF and high_fuse == 0xD8 and extended_fuse == 0xC8 and lock_fuse == 0x3C and True:
 		return [False, mooltipass_id, flashFile, EepromFile, "already programmed!", encryptedKeysFile]
 		
 	# Erase device

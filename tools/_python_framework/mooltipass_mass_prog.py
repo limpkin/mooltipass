@@ -207,8 +207,8 @@ def main():
 	if mooltipass_device.connect(True) == False:
 		sys.exit(0)
 		
-	# Change defaut time out to 300ms
-	mooltipass_device.getInternalDevice().setReadTimeout(300)
+	# Change defaut time out to 500ms
+	mooltipass_device.getInternalDevice().setReadTimeout(500)
 	
 	# Generate a blank firmware to see if we actually can generate it and then print the hash
 	return_gen = generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", 12345, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0], "/tmp/test_flash.hex", "/tmp/test_eeprom.hex", True)
@@ -222,7 +222,12 @@ def main():
 	
 	# Check for random numbers file presence
 	if os.path.isfile("rng.bin"):
-		random_bytes_buffer = pickle_read("rng.bin")
+		try:
+			random_bytes_buffer = pickle_read("rng.bin")
+		except EOFError:
+			# This happens when the file is corrupted
+			random_bytes_buffer = []
+			os.remove("rng.bin")
 		
 	# Set to true to export the random bytes
 	if False:		
@@ -245,6 +250,10 @@ def main():
 		if len(mooltipass_ids_pending) > 0:
 			mooltipass_ids_to_take.extend(mooltipass_ids_pending)
 			print "Adding previously pending ids:", mooltipass_ids_pending
+	
+	# Remove possible duplicates
+	mooltipass_ids_to_take = list(set(mooltipass_ids_to_take))
+	print "Mooltipass IDs to take:", mooltipass_ids_to_take
 			
 	# Read public key
 	public_key = pickle_read("publickey.bin")
@@ -256,19 +265,17 @@ def main():
 		
 	# Main loop
 	while True:
-		# Try to receive data from the device
-		received_data = mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+		time.sleep(.3)
 		temp_counter = temp_counter + 1
 		
-		# Check if we received something
-		if received_data != None:
-			if received_data[CMD_INDEX] == CMD_BUTTON_PRESSED:
-				# Pushed button extraction
-				pushed_button_id = received_data[DATA_INDEX]
-				
+		# Check if a button is pressed
+		mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_BUTTON_PRESSED, 0, None))
+		received_data = mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
+		for i in range(0,9):
+			if received_data[DATA_INDEX+i] != 0:				
 				# Programming button was pressed on the bench
-				print "Button", pushed_button_id, "pressed"
-				prog_socket_states[pushed_button_id] = PROG_SOCKET_PENDING
+				print "Button", i, "pressed"
+				prog_socket_states[i] = PROG_SOCKET_PENDING
 		
 		# Get number of available random bytes
 		mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_GET_RNG_B_AVAIL, 0, None))
@@ -287,57 +294,55 @@ def main():
 			#print random_bytes_buffer
 			
 		# If we have enough random bytes and a button was pressed, program the MCU
-		if len(random_bytes_buffer) >= AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH:
-			# Check if a button was pressed
-			for socket_id in range(0, 9):
-				if prog_socket_states[socket_id] == PROG_SOCKET_PENDING:
-					print "Starting programming for socket", socket_id
-					
-					# Generate new mooltipass ID
-					if len(mooltipass_ids_to_take) > 0:
-						mooltipass_id = mooltipass_ids_to_take[0]
-						del(mooltipass_ids_to_take[0])
-					else:
-						# No ids to take, take the next available one
-						mooltipass_id = next_available_mooltipass_id
-						next_available_mooltipass_id = next_available_mooltipass_id + 1
-						# Store the new id in file
-						pickle_write(next_available_mooltipass_id, "mooltipass_id.bin")
-					
-					# Generate keys from the random bytes buffer
-					aes_key1 = random_bytes_buffer[0:AES_KEY_LENGTH]
-					aes_key2 = random_bytes_buffer[AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH]
-					uid_key = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH]
-					uid = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH]
-					del(random_bytes_buffer[0:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH])
-					
-					# Write in file: Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write					
-					aes_key1_text =  "".join(format(x, "02x") for x in aes_key1)
-					aes_key2_text =  "".join(format(x, "02x") for x in aes_key2)
-					uid_key_text = "".join(format(x, "02x") for x in uid_key)
-					uid_text = "".join(format(x, "02x") for x in uid)					
-					string_export = str(mooltipass_id)+"|"+ aes_key1_text +"|"+ aes_key2_text +"|"+ uid_key_text +"|"+ uid_text+"\r\n"
-					#print string_export
-					try:
-						pickle_file_name = time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mooltipass_id)+".txt"
-						pickle_write(seccure.encrypt(string_export, public_key, curve='secp521r1/nistp521'), pickle_file_name)	
-					except NameError:
-						pickle_file_name = "test"
-					
-					# Generate programming file					
-					generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", True)
-					
-					# Change state to programming
-					prog_socket_states[socket_id] = PROG_SOCKET_PROGRAMMING
-					
-					# Display info on display
-					add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": programming id "+str(mooltipass_id))
-					
-					# Launch a programming thread
-					mooltipass_ids_pending.append(mooltipass_id)
-					pickle_write(mooltipass_ids_pending, "mooltipass_pending_ids.bin")
-					programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", pickle_file_name)
-					programming_threads[socket_id].start()
+		for socket_id in range(0, 9):
+			if prog_socket_states[socket_id] == PROG_SOCKET_PENDING and len(random_bytes_buffer) >= AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH:
+				print "Starting programming for socket", socket_id
+				
+				# Generate new mooltipass ID
+				if len(mooltipass_ids_to_take) > 0:
+					mooltipass_id = mooltipass_ids_to_take[0]
+					del(mooltipass_ids_to_take[0])
+				else:
+					# No ids to take, take the next available one
+					mooltipass_id = next_available_mooltipass_id
+					next_available_mooltipass_id = next_available_mooltipass_id + 1
+					# Store the new id in file
+					pickle_write(next_available_mooltipass_id, "mooltipass_id.bin")
+				
+				# Generate keys from the random bytes buffer
+				aes_key1 = random_bytes_buffer[0:AES_KEY_LENGTH]
+				aes_key2 = random_bytes_buffer[AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH]
+				uid_key = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH]
+				uid = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH]
+				del(random_bytes_buffer[0:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH])
+				
+				# Write in file: Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write					
+				aes_key1_text =  "".join(format(x, "02x") for x in aes_key1)
+				aes_key2_text =  "".join(format(x, "02x") for x in aes_key2)
+				uid_key_text = "".join(format(x, "02x") for x in uid_key)
+				uid_text = "".join(format(x, "02x") for x in uid)					
+				string_export = str(mooltipass_id)+"|"+ aes_key1_text +"|"+ aes_key2_text +"|"+ uid_key_text +"|"+ uid_text+"\r\n"
+				#print string_export
+				try:
+					pickle_file_name = time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mooltipass_id)+".txt"
+					pickle_write(seccure.encrypt(string_export, public_key, curve='secp521r1/nistp521'), pickle_file_name)	
+				except NameError:
+					pickle_file_name = "test"
+				
+				# Generate programming file					
+				generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", False)
+				
+				# Change state to programming
+				prog_socket_states[socket_id] = PROG_SOCKET_PROGRAMMING
+				
+				# Display info on display
+				add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": programming id "+str(mooltipass_id))
+				
+				# Launch a programming thread
+				mooltipass_ids_pending.append(mooltipass_id)
+				pickle_write(mooltipass_ids_pending, "mooltipass_pending_ids.bin")
+				programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", pickle_file_name)
+				programming_threads[socket_id].start()
 					
 					
 		# Check for thread end

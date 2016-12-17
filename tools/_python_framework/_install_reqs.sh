@@ -19,7 +19,9 @@ wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_pytho
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/FreeSans.ttf
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/_mass_prog.sh
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/_prod_init.sh
+wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/bitmaps/mini/bundle.img
 sudo chmod +x _mass_prog.sh
+sudo chmod +x _prod_init.sh
 sudo pip install -r requirements.txt
 sudo pip install seccure
 sudo pip install https://github.com/pklaus/brother_ql/archive/7a3c638.zip

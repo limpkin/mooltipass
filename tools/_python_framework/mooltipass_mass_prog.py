@@ -98,7 +98,8 @@ def add_line_on_screen(mooltipass_device, line):
 def start_programming(socket_id, mooltipass_id, flashFile, EepromFile, encryptedKeysFile):
 	print "Programming socket", socket_id, "with flash file", flashFile, "and eeprom file", EepromFile
 	
-	# todo: check that the fuse values aren't the ones we already programmed, make array of path vs socket id
+	# Socket ID to programmer serial number Look Up Table
+	socket_id_to_programmer_serial = ["1230", "1231", "1232", "1233", "1234", "1235", "1236", "1237", "1238"]
 	
 	# If needed: test mode
 	testMode = False
@@ -110,7 +111,7 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile, encrypted
 		return [success_state, mooltipass_id, flashFile, EepromFile, "test mode", encryptedKeysFile]
 	
 	# Read fuses using avrdude
-	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -U lfuse:r:/tmp/low_fuse_val_"+str(socket_id)+".hex:r -U hfuse:r:/tmp/high_fuse_val_"+str(socket_id)+".hex:r -U efuse:r:/tmp/extended_fuse_val_"+str(socket_id)+".hex:r -U lock:r:/tmp/lock_fuse_val_"+str(socket_id)+".hex:r"
+	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -P usb:"+socket_id_to_programmer_serial[socket_id]+" -U lfuse:r:/tmp/low_fuse_val_"+str(socket_id)+".hex:r -U hfuse:r:/tmp/high_fuse_val_"+str(socket_id)+".hex:r -U efuse:r:/tmp/extended_fuse_val_"+str(socket_id)+".hex:r -U lock:r:/tmp/lock_fuse_val_"+str(socket_id)+".hex:r"
 	output_avrdude = commands.getstatusoutput(avrdude_command)
 	
 	# Check for generated files
@@ -145,22 +146,22 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile, encrypted
 	os.remove("/tmp/lock_fuse_val_"+str(socket_id)+".hex")
 	
 	# Check if it wasn't already programmed
-	if low_fuse == 0xFF and high_fuse == 0xD8 and extended_fuse == 0xC8 and lock_fuse == 0x3C:
+	if low_fuse == 0xFF and high_fuse == 0xD8 and extended_fuse == 0xC8 and lock_fuse == 0x3C and False:
 		return [False, mooltipass_id, flashFile, EepromFile, "already programmed!", encryptedKeysFile]
 		
 	# Erase device
-	commands.getstatusoutput("avrdude -c avrisp2 -p m32u4 -B 10 -e")
+	commands.getstatusoutput("avrdude -c avrisp2 -p m32u4 -B 10 -P usb:"+socket_id_to_programmer_serial[socket_id]+" -e")
 	
 	# Program all fuses except lock fuse
-	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -U lfuse:w:0xFF:m -U hfuse:w:0xD8:m -U efuse:w:0xC8:m"
+	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -P usb:"+socket_id_to_programmer_serial[socket_id]+" -U lfuse:w:0xFF:m -U hfuse:w:0xD8:m -U efuse:w:0xC8:m"
 	output_avrdude_prog_fuse = commands.getstatusoutput(avrdude_command)
 	
 	# Program flash & eeprom
-	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -U flash:w:"+flashFile+":i -U eeprom:w:"+EepromFile+":i"
+	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -P usb:"+socket_id_to_programmer_serial[socket_id]+" -U flash:w:"+flashFile+":i -U eeprom:w:"+EepromFile+":i"
 	output_avrdude_flash = commands.getstatusoutput(avrdude_command)
 	
 	# Program lock fuse
-	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -U lock:w:0x3C:m"
+	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -P usb:"+socket_id_to_programmer_serial[socket_id]+" -U lock:w:0x3C:m"
 	output_avrdude_prog_lock = commands.getstatusoutput(avrdude_command)	
 	
 	# Return success state

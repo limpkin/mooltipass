@@ -34,7 +34,6 @@ def create_raster_file(label_size, in_file, out_file, cut=True):
 def getMpmColorForSerialNumber(serial_number):
 	# To be implemented later
 	return ["Purple", "PUR"]
-	return ["Red", "RED"]
 		
 # Get a packet to send for a given command and payload
 def mpmMassProdInitGetPacketForCommand(cmd, len, data):

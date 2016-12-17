@@ -16,8 +16,9 @@ wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_pytho
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/mooltipass_mass_prod_init_proc.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/png_labels.py
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/generate_prog_file.py
-wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/Helvetica.ttf
+wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/FreeSans.ttf
 wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/_mass_prog.sh
+wget -N https://raw.githubusercontent.com/limpkin/mooltipass/master/tools/_python_framework/_prod_init.sh
 sudo chmod +x _mass_prog.sh
 sudo pip install -r requirements.txt
 sudo pip install seccure

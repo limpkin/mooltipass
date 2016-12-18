@@ -93,7 +93,7 @@ def checkPrintStatus():
 							
 def mooltipassMiniMassProdInit(mooltipass_device):		
 	# Check for update bundle
-	if not os.path.isfile("updatefile.img"):
+	if not os.path.isfile("bundle.img"):
 		print "Couldn't find data file!"
 		return		
 
@@ -120,7 +120,7 @@ def mooltipassMiniMassProdInit(mooltipass_device):
 				sys.stdout.flush()
 				
 				# Upload bundle, password is not used in that context
-				success_status = mooltipass_device.uploadBundle("00000000000000000000000000000000", "updatefile.img", False)
+				success_status = mooltipass_device.uploadBundle("00000000000000000000000000000000", "bundle.img", False)
 				
 				# For the mini version this procedure doesn't check the last return packet because in normal mode the device reboots
 				if success_status == True:

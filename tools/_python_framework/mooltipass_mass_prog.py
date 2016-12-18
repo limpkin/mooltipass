@@ -206,9 +206,6 @@ def main():
 	# Connect to device
 	if mooltipass_device.connect(True) == False:
 		sys.exit(0)
-		
-	# Change defaut time out to 500ms
-	mooltipass_device.getInternalDevice().setReadTimeout(500)
 	
 	# Generate a blank firmware to see if we actually can generate it and then print the hash
 	return_gen = generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", 12345, [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0], "/tmp/test_flash.hex", "/tmp/test_eeprom.hex", True)

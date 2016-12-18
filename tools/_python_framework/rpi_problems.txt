@@ -1,0 +1,1 @@
+set dwc_otg.fiq_split_enable=0 in /boot/cmdline.txt

@@ -71,7 +71,7 @@ class generic_hid_device:
 			print "TX DBG data:", ' '.join(hex(x) for x in arraytosend)
 
 		# send data
-		self.epout.write(arraytosend)
+		self.epout.write(arraytosend, 10000)
 	
 	# Receive HID packet, crash when nothing is sent
 	def receiveHidPacket(self):

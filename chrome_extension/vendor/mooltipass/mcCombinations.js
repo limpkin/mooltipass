@@ -200,7 +200,7 @@ mcCombinations.prototype.possibleCombinations = [
 						chrome.runtime.sendMessage({
 							'action': 'retrieve_credentials',
 							'args': [ url, submitUrl, true, true]
-						}, $.proxy(function( response ) {
+						}, mpJQ.proxy(function( response ) {
 							if ( response[0] && response[0].Login ) {
 								this.savedFields.username = response[0].Login;
 								this.fields.username = response[0].Login;	
@@ -258,7 +258,7 @@ mcCombinations.prototype.possibleCombinations = [
 						chrome.runtime.sendMessage({
 							'action': 'retrieve_credentials',
 							'args': [ url, submitUrl, true, true]
-						}, $.proxy(function( response ) {
+						}, mpJQ.proxy(function( response ) {
 							if ( response[0] && response[0].Login ) {
 								this.savedFields.username = response[0].Login;
 								this.fields.username = response[0].Login;	
@@ -457,7 +457,7 @@ mcCombinations.prototype.getAllForms = function() {
 						fields: [],
 						element: containerForm
 					};
-					containerForm.submit( $.proxy(this.onSubmit,this) );
+					containerForm.submit( mpJQ.proxy(this.onSubmit,this) );
 				}
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
@@ -479,7 +479,7 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	this.waitingForPost = false;
 
 	// Check if there's a difference between what we retrieved and what is being submitted
-	var currentForm = this.forms[ $(event.target).data('mp-id') ];
+	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ];
 
 	if ( !currentForm.combination.savedFields.username && this.credentialsCache ) {
 		currentForm.combination.savedFields.username = this.credentialsCache.Login;

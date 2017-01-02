@@ -71,7 +71,7 @@ mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: invoke ', mpDebug.css('e2eef9'), arguments);
 	if ( typeof(senderTab) == 'number' ) senderTab = { id: senderTab };
 
-	if ( senderTab.id && !page.tabs[senderTab.id]) {
+	if ( senderTab && senderTab.id && !page.tabs[senderTab.id]) {
 		page.createTabEntry( senderTab.id );
 	};
 

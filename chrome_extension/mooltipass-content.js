@@ -1305,7 +1305,6 @@ cip.init = function() {
 };
 
 cip.initCredentialFields = function(forceCall) {
-	console.trace( 'cip.initCredentialFields', forceCall );
 	if(_called.initCredentialFields && !forceCall) {
 		return;
 	}

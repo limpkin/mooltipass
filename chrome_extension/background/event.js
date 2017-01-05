@@ -150,7 +150,7 @@ mooltipassEvent.onLoadSettings = function(callback, tab) {
 }
 
 mooltipassEvent.onLoadKeyRing = function(callback, tab) {
-    console.log('mooltipassEvent.onLoadKeyRing()');
+    //console.log('mooltipassEvent.onLoadKeyRing()');
 }
 
 mooltipassEvent.onGetSettings = function(callback, tab) {
@@ -202,7 +202,7 @@ mooltipassEvent.onGetTabInformation = function(callback, tab) {
 }
 
 mooltipassEvent.onGetConnectedDatabase = function(callback, tab) {
-    console.log('mooltipassEvent.onGetConnectedDatabase()');
+    // console.log('mooltipassEvent.onGetConnectedDatabase()');
 	callback({
 		"count": 10,
 		"identifier": 'my_mp_db_id'
@@ -217,12 +217,12 @@ mooltipassEvent.onRemoveCredentialsFromTabInformation = function(callback, tab) 
 
 mooltipassEvent.onNotifyButtonClick = function(id, buttonIndex) 
 {
-    console.log('notification',id,'button',buttonIndex,'clicked');
+    //console.log('notification',id,'button',buttonIndex,'clicked');
 	
 	// Check the kind of notification
 	if (id.indexOf('mpNotConnected') == 0 || id.indexOf('mpNotUnlocked') == 0)
 	{
-		console.log('Disabling not unlocked notifications');
+		//console.log('Disabling not unlocked notifications');
 		mooltipass.backend.disableNonUnlockedNotifications = true;
 	}
 	else
@@ -234,7 +234,7 @@ mooltipassEvent.onNotifyButtonClick = function(id, buttonIndex)
 			if (buttonIndex == 0) 
 			{
 				// Blacklist
-				console.log('notification blacklist ',mooltipassEvent.mpUpdate[id].url);
+				//console.log('notification blacklist ',mooltipassEvent.mpUpdate[id].url);
 				mooltipass.backend.blacklistUrl(mooltipassEvent.mpUpdate[id].url);
 			} 
 			else 
@@ -247,13 +247,13 @@ mooltipassEvent.onNotifyButtonClick = function(id, buttonIndex)
 			if (buttonIndex == 0) 
 			{
 				// Store credentials
-				console.log('notification update with subdomain',mooltipassEvent.mpUpdate[id].username,'on',mooltipassEvent.mpUpdate[id].url);
+				//console.log('notification update with subdomain',mooltipassEvent.mpUpdate[id].username,'on',mooltipassEvent.mpUpdate[id].url);
 				mooltipass.device.updateCredentials(null, mooltipassEvent.mpUpdate[id].tab, 0, mooltipassEvent.mpUpdate[id].username, mooltipassEvent.mpUpdate[id].password, mooltipassEvent.mpUpdate[id].url);
 			} 
 			else 
 			{
 				// Store credentials
-				console.log('notification update',mooltipassEvent.mpUpdate[id].username,'on',mooltipassEvent.mpUpdate[id].url2);
+				//console.log('notification update',mooltipassEvent.mpUpdate[id].username,'on',mooltipassEvent.mpUpdate[id].url2);
 				mooltipass.device.updateCredentials(null, mooltipassEvent.mpUpdate[id].tab, 0, mooltipassEvent.mpUpdate[id].username, mooltipassEvent.mpUpdate[id].password, mooltipassEvent.mpUpdate[id].url2);
 			}
 		}
@@ -283,7 +283,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	if (mooltipass.device._status.state != 'Unlocked') {
 		if (mooltipass.backend.disableNonUnlockedNotifications)
 		{
-			console.log('Not showing a notification as they are disabled');
+			//console.log('Not showing a notification as they are disabled');
 			return false;
 		}
 	}
@@ -295,7 +295,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	// Check that the Mooltipass app is installed and enabled
 	if (!mooltipass.device._app || mooltipass.device._app['enabled'] !== true)
 	{
-		console.log('notify: mooltipass app not ready');
+		//console.log('notify: mooltipass app not ready');
 
 		noteId = "mpNotUnlockedStaticMooltipassAppNotReady";
 
@@ -313,7 +313,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	// Check that our device actually is connected
 	if (mooltipass.device._status.state == 'NotConnected')
 	{
-		console.log('notify: device not connected');
+		//console.log('notify: device not connected');
 
 		noteId = "mpNotUnlockedStaticMooltipassNotConnected";
 
@@ -329,7 +329,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	}
 	else if (mooltipass.device._status.state == 'Locked')
 	{
-		console.log('notify: device locked');
+		//console.log('notify: device locked');
 
 		noteId = "mpNotUnlockedStaticMooltipassDeviceLocked";
 
@@ -345,7 +345,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	}
 	else if (mooltipass.device._status.state == 'NoCard')
 	{
-		console.log('notify: device without card');
+		//console.log('notify: device without card');
 
 		noteId = "mpNotUnlockedStaticMooltipassDeviceWithoutCard";
 
@@ -361,7 +361,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	}
 	else if (mooltipass.device._status.state == 'ManageMode')
 	{
-		console.log('notify: management mode');
+		//console.log('notify: management mode');
 
 		noteId = "mpNotUnlockedStaticMooltipassDeviceInManagementMode";
 
@@ -396,7 +396,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 	var subdomain;
 	var domain;
 
-	console.log('onUpdateNotify', 'parsed_url', parsed_url);
+	//console.log('onUpdateNotify', 'parsed_url', parsed_url);
 	
 	// See if our script detected a valid domain & subdomain
 	if(parsed_url.valid == true)
@@ -412,7 +412,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 		// Check if blacklisted
 		if (mooltipass.backend.isBlacklisted(domain))
 		{
-			console.log('notify: ignoring blacklisted url',url);
+			//console.log('notify: ignoring blacklisted url',url);
 			return;
 		}
 		
@@ -459,7 +459,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 							buttons: [{title: 'Black list this website', iconUrl: '/icons/forbidden-icon.png'}] },
 							function(id) 
 							{
-								console.log('notification created for',id);
+								//console.log('notification created for',id);
 							});
 				}
 			}
@@ -474,7 +474,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 			// first let's check to make sure the device is connected
 			if(mooltipass.device._status.state == 'NotConnected')
 			{
-				console.log('mooltipass not connected - do not ask which domain to store');
+				//console.log('mooltipass not connected - do not ask which domain to store');
 			}
 			else{
 

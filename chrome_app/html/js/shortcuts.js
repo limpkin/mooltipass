@@ -17,6 +17,10 @@ $(document.body).on("keydown keyup", function(e){
   pressedKeys[e.keyCode] = (e.type == 'keydown');
 });
 
+$(document.body).on('keyup', function(e) {
+  pressedKeys = [];
+});
+
 $(document.body).on("keydown", function(e){
   $('*[mp-show-for-hotkey]').each(function(){
     keys = $(this).attr('mp-show-for-hotkey').split(",");

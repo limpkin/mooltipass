@@ -768,7 +768,7 @@ mooltipass.ui.credentials.quickAddSubmit = function()
     });
 
     // Empty form fields again
-    $(".quickcredentialadd input").val("");
+    $(".quickcredentialadd input:not('.pwgen-slider,.pwgen-length')").val("");
     $(".quickcredentialadd input:visible:first").focus();
 };
 

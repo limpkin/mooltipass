@@ -21,6 +21,7 @@
 # information: Portions Copyright [yyyy] [name of copyright owner]
 #
 # CDDL HEADER END
+# TODO: investigate the avrdude outputs when more than 6 buttons are pressed at the same time: not sure all of them are programmed.
 from mooltipass_hid_device import *
 from generate_prog_file import *
 import firmwareBundlePackAndSign
@@ -245,12 +246,14 @@ def main():
 	if os.path.isfile("mooltipass_pending_ids.bin"):
 		mooltipass_ids_pending = pickle_read("mooltipass_pending_ids.bin")
 		if len(mooltipass_ids_pending) > 0:
+			os.remove("mooltipass_pending_ids.bin")
 			mooltipass_ids_to_take.extend(mooltipass_ids_pending)
 			print "Adding previously pending ids:", mooltipass_ids_pending
 	
 	# Remove possible duplicates
 	mooltipass_ids_to_take = list(set(mooltipass_ids_to_take))
 	print "Mooltipass IDs to take:", mooltipass_ids_to_take
+	pickle_write(mooltipass_ids_to_take, "mooltipass_av_ids.bin")
 			
 	# Read public key
 	public_key = pickle_read("publickey.bin")

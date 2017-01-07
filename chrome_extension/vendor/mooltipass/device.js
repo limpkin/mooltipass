@@ -120,12 +120,12 @@ mooltipass.device.onSearchForApp = function(ext) {
         // Send ping which triggers status response from device
         chrome.runtime.sendMessage(mooltipass.device._app.id, { ping: [] });
 
-        console.log('found mooltipass app "' + mooltipass.device._app.shortName + '" id=' + mooltipass.device._app.id,' app: ', mooltipass.device._app);
+        //console.log('found mooltipass app "' + mooltipass.device._app.shortName + '" id=' + mooltipass.device._app.id,' app: ', mooltipass.device._app);
     }
     else {
         mooltipass.device.connectedToApp = false;
         mooltipass.device._status = {};
-        console.log('No mooltipass app found');
+        //console.log('No mooltipass app found');
     }
 
     setTimeout(mooltipass.device.checkConnection, mooltipass.device._intervalCheckConnection);
@@ -185,7 +185,7 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
         mooltipass.device._asynchronous.randomParameters = {'length': length, tab: tab};
         mooltipass.device._latestRandomStringRequest = currentDayMinute;
 
-        console.log('mooltipass.generatePassword()', 'request random string from app');
+        //console.log('mooltipass.generatePassword()', 'request random string from app');
         if (page.settings.useMoolticute) {
             moolticute.getRandomNumbers();
         } else {
@@ -195,7 +195,7 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
         return;
     }
 
-    console.log('mooltipass.generatePassword()', 'use current seed for another password');
+    //console.log('mooltipass.generatePassword()', 'use current seed for another password');
     callback( {'seeds': mooltipass.device.generateRandomNumbers(length), 'settings': page.settings}, tab );
 };
 
@@ -249,7 +249,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
     }
 
     if (mooltipass.backend.isBlacklisted(url)) {
-        console.log('notify: ignoring blacklisted url',url);
+        //console.log('notify: ignoring blacklisted url',url);
         if (callback) {
             callback('failure');
         }
@@ -279,7 +279,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
  */
  mooltipass.device.onNavigatedAway = function(tabId, navigationInfo)
  {
-    console.log("Navigated away before retrieving credentials for tab: " + tabId);
+    //console.log("Navigated away before retrieving credentials for tab: " + tabId);
     mooltipass.device.lastRetrieveReqTabId = null;
 
     mooltipass.device.onTabClosed(tabId, navigationInfo );
@@ -291,7 +291,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
  */
 mooltipass.device.onTabClosed = function(tabId, removeInfo)
 {
-    console.log("Tab closed: " + tabId + " remove info: ", removeInfo);
+    //console.log("Tab closed: " + tabId + " remove info: ", removeInfo);
     
     // Return if queue empty
     if(mooltipass.device.retrieveCredentialsQueue.length == 0)
@@ -387,7 +387,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     {
         if (mooltipass.device.retrieveCredentialsQueue[i].tabid == tab.id && mooltipass.device.retrieveCredentialsQueue[i].tabupdated == false)
         {
-            console.log("Not storing this new credential request as one is already in the buffer!");
+            //console.log("Not storing this new credential request as one is already in the buffer!");
             return;
         }
     }
@@ -413,11 +413,11 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     {
         if(!mooltipass.device._status.unlocked)
         {
-            console.log("Mooltipass locked, waiting for unlock");
+            //console.log("Mooltipass locked, waiting for unlock");
         }
         else
         {
-            console.log("Requests still in the queue, waiting for reply from the app");
+            //console.log("Requests still in the queue, waiting for reply from the app");
         }        
     }
 };
@@ -485,7 +485,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
                 // In case we have pending messages in the queue
                 if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
                 {
-                    console.log('sending to ' + mooltipass.device._app.id);
+                    //console.log('sending to ' + mooltipass.device._app.id);
                     if (page.settings.useMoolticute) {
                         moolticute.askPassword({
                             'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
@@ -529,13 +529,13 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         }
         catch(err)
         {
-            console.log( err );
+            //console.log( err );
         }
         // Treat other pending requests
         mooltipass.device.retrieveCredentialsQueue.shift();
         if(mooltipass.device.retrieveCredentialsQueue.length > 0)
         {
-            console.log('sending to ' + mooltipass.device._app.id);
+            //console.log('sending to ' + mooltipass.device._app.id);
             if (page.settings.useMoolticute) {
                 moolticute.askPassword({
                     'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
@@ -562,7 +562,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         mooltipass.device.retrieveCredentialsQueue.shift();
         if(mooltipass.device.retrieveCredentialsQueue.length > 0)
         {
-            console.log('sending to ' + mooltipass.device._app.id);
+            //console.log('sending to ' + mooltipass.device._app.id);
             if (page.settings.useMoolticute) {
                 moolticute.askPassword({
                     'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
@@ -580,7 +580,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
             try {
                 mooltipass.device._asynchronous.updateCallback('success');
             } catch (e) {
-                console.log("Error: " + e);
+                //console.log("Error: " + e);
             }
             mooltipass.device._asynchronous.updateCallback = null;
         }

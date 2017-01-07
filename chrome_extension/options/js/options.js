@@ -1,8 +1,10 @@
 // Detect if we're dealing with Firefox or Chrome
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
-if (mpJQ) {
+if ( typeof(mpJQ) !== 'undefined') {
     var $ = mpJQ.noConflict(true);
+} else if (jQuery) {
+    var $ = jQuery.noConflict(true);   
 }
 
 $(function () {

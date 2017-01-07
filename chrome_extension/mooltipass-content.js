@@ -126,7 +126,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		.attr("id", "mp-genpw-dialog").append($dialog2);
 
 	$dialog.hide();
-	$("body").append($dialog);
+	mpJQ("body").append($dialog);
 	$dialog.dialog({
 		closeText: "×",
 		autoOpen: false,
@@ -135,34 +135,34 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		minWidth: 280,
 		title: "Credential Storage",
 		open: function(event, ui) {
-			$(".mp-ui-widget-overlay").click(function() {
-				$("#mp-genpw-dialog:first").dialog("close");
+			mpJQ(".mp-ui-widget-overlay").click(function() {
+				mpJQ("#mp-genpw-dialog:first").dialog("close");
 			});
 
-			if($("#mooltipass-password-generator").val() == "") {
-				$("#mooltipass-new-password").click();
+			if(mpJQ("#mooltipass-password-generator").val() == "") {
+				mpJQ("#mooltipass-new-password").click();
 			}
 
-			$("#mooltipass-copy-to-clipboard")
+			mpJQ("#mooltipass-copy-to-clipboard")
 				.removeClass("mooltipass-button-success")
 				.removeClass("mooltipass-button-error");
 		}
 	});
 
-	$("#mooltipass-new-password").click(function(e){
+	mpJQ("#mooltipass-new-password").click(function(e){
 		e.preventDefault();
 		cipPassword.generatePassword();
 	}).trigger('click');
 
 
-	$("#mooltipass-use-as-password").click(function(e){
-		var password = $("#mooltipass-password-generator").val();
-		$("input[type='password']:not('.mooltipass-password-do-not-update')").val(password);
+	mpJQ("#mooltipass-use-as-password").click(function(e){
+		var password = mpJQ("#mooltipass-password-generator").val();
+		mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')").val(password);
 		e.preventDefault();
 	});
 
 
-	$("#mooltipass-copy-to-clipboard").click(function(e){
+	mpJQ("#mooltipass-copy-to-clipboard").click(function(e){
 		var copyInput = document.querySelector('#mooltipass-password-generator');
 		copyInput.select();
 
@@ -170,10 +170,10 @@ cipPassword.createDialog = function(inputs, $pwField) {
 			var successful = document.execCommand('copy');
 			var msg = successful ? 'successful' : 'unsuccessful';
 			cipDebug.info('Copying password to clipboard was ' + msg);
-			$(this).addClass("mooltipass-button-success");
+			mpJQ(this).addClass("mooltipass-button-success");
 		} catch(err) {
 			cipDebug.warn('Unable to copy password to clipboard');
-			$(this).addClass("mooltipass-button-error");
+			mpJQ(this).addClass("mooltipass-button-error");
 		}
 
 		e.preventDefault();
@@ -181,7 +181,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
 	$userField = cipFields.getUsernameField($pwField.data("mp-id"));
 
-	$("#mooltipass-store-credentials").hover(function(){
+	mpJQ("#mooltipass-store-credentials").hover(function(){
 		if ( $userField ) $userField.addClass("mp-hover-username");
 		$pwField.addClass("mp-hover-password");
 	}, function(){
@@ -195,14 +195,14 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		var username = $userField.val();
 		var password = $pwField.val();
 
-		$("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
+		mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
 
 		if(cip.rememberCredentials(null, $userField, username, $pwField, password)) {
-			$("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Credentials are added to your Mooltipass KeyCard</p>');
+			mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Credentials are added to your Mooltipass KeyCard</p>');
 		}
 	});
 
-	$("#mooltipass-select-custom").click(function(){
+	mpJQ("#mooltipass-select-custom").click(function(){
 		cipDebug.log("mooltipass-select-custom");
 		cipDefine.init();
 	});
@@ -673,13 +673,13 @@ cipDefine.initDescription = function() {
 				cipDefine.selection.username = null;
 				cipDefine.prepareStep2();
 				cipDefine.markAllPasswordFields(mpJQ("#mp-bt-cipDefine-fields"));
-				$("#mp-bt-btn-again").hide();
+				mpJQ("#mp-bt-btn-again").hide();
 			}
 			else if(mpJQ(this).data("step") == 2) {
 				cipDefine.selection.password = null;
 				cipDefine.prepareStep3();
 				cipDefine.markAllStringFields(mpJQ("#mp-bt-cipDefine-fields"));
-				$("#mp-bt-btn-again").show();
+				mpJQ("#mp-bt-btn-again").show();
 			}
 		});
 	var $btnAgain = mpJQ("<a>").text("Undo").attr("id", "mp-bt-btn-again").attr("href",'#')
@@ -1305,7 +1305,6 @@ cip.init = function() {
 };
 
 cip.initCredentialFields = function(forceCall) {
-	console.trace( 'cip.initCredentialFields', forceCall );
 	if(_called.initCredentialFields && !forceCall) {
 		return;
 	}
@@ -1431,34 +1430,34 @@ cip.doSubmit = function (pass) {
 	cipDebug.log('doSubmit: pass field');
 
 	// locate best submit option
-	var forms = $(pass).closest('form');
+	var forms = mpJQ(pass).closest('form');
 	cipDebug.log("forms length: " + forms.length);
 	if (forms.length > 0) {		
-		cipDebug.log($(forms[0]));
+		cipDebug.log(mpJQ(forms[0]));
 		var submits = forms.find(':submit');
 		cipDebug.log("submits length: " + submits.length);
 		if (submits.length > 0) {
 			cipDebug.log('submitting form '+forms[0].id+' via ',submits[0]);
-			cipDebug.log($(submits[0]));
-			$(submits[0]).click();
+			cipDebug.log(mpJQ(submits[0]));
+			mpJQ(submits[0]).click();
 		} else {
-			if(!$(forms[0]).action)
+			if(!mpJQ(forms[0]).action)
 			{
 				// This is wrong, if there's no action, submits to the same page. it is known... 
 				cipDebug.log("Submitting an empty action form");
-				$(forms[0]).submit();
+				mpJQ(forms[0]).submit();
 			}
 			else
 			{
 				cipDebug.log('submitting form '+forms[0].id);
-				$(forms[0]).submit();		
+				mpJQ(forms[0]).submit();		
 			}
 		}
 	} else {
 		// uh? No forms... what are we trying to submit?
-		cipDebug.log('submitting default form '+$('form').id);
-		cipDebug.log($('form'));		
-		$('form').submit();
+		cipDebug.log('submitting default form '+mpJQ('form').id);
+		cipDebug.log(mpJQ('form'));		
+		mpJQ('form').submit();
 
 		setTimeout( function() {
 			// Last resource: try common btn ID and classes
@@ -2006,7 +2005,7 @@ cipEvents.startEventHandling = function() {
 				break;
 			case 'response-generate_password':
 				var randomPassword = cipPassword.generatePasswordFromSettings( req.data );
-				$("#mooltipass-password-generator").val(randomPassword);
+				mpJQ("#mooltipass-password-generator").val(randomPassword);
 				break;
 		}
 

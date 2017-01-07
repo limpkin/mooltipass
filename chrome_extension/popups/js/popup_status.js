@@ -3,7 +3,6 @@
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 var isSafari = typeof(safari) == 'object'?true:false;
 
-var $ = mpJQ.noConflict(true);
 var _settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
 
 if ( isSafari ) messaging = safari.extension.globalPage.contentWindow.messaging;

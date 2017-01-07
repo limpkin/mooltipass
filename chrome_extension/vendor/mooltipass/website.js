@@ -64,7 +64,7 @@ mooltipass.website.reportError = function(callback) {
         action: "get_website_info"
     },
     function(response){
-        var $ = mpJQError.noConflict(true);
+        var $ = jQuery.noConflict(true);
         if ("url" in response) {
             var url = response.url;
         } else {

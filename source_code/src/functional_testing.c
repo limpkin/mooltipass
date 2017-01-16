@@ -224,11 +224,15 @@ void mooltipassMiniFunctionalTest(uint8_t flash_init_result, uint8_t mini_inputs
     }
 
     // Check mini inputs initialization
-    if (mini_inputs_result != RETURN_OK)
-    {
-        guiDisplayRawString(ID_STRING_INPUT_PB);
-        test_result_ok = FALSE;
-    }
+    #ifndef MINI_PREPRODUCTION_SETUP_ACC
+        if (mini_inputs_result != RETURN_OK)
+        {
+            guiDisplayRawString(ID_STRING_INPUT_PB);
+            test_result_ok = FALSE;
+        }
+    #else
+        (void)mini_inputs_result;
+    #endif
     
     // Do not check fuses as the platform won't boot if the fuses aren't correctly set
         

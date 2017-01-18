@@ -179,7 +179,11 @@ mooltipass.device.queue = [];
 // Hash for command timeout to verify same command
 mooltipass.device.queueHash = null;
 
+// Variable to keep track of the interval for checkStatus
+mooltipass.device.interval = null;
 
+// If moolticute is available, favor it on top of the app
+mooltipass.device.usingMoolticute = false;
 /*********************************************************************************************************************/
 
 /**
@@ -188,15 +192,24 @@ mooltipass.device.queueHash = null;
  */
 mooltipass.device.init = function() {
     // only init if moolticute isn't running.
-    var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
+    var moolticuteSocket = new ReconnectingWebSocket('ws://127.0.0.1:30035');
     moolticuteSocket.onerror = function() {
+        mooltipass.device.usingMoolticute = false;
+
         mooltipass.device._forceEndMemoryManagementModeLock = false;
         
         // Initial start processing queue
         mooltipass.device.restartProcessingQueue();
 
-        setInterval(mooltipass.device.checkStatus, 1000);
+        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 1000);
     };
+
+    moolticuteSocket.onopen = function() {
+        // Try to disconnect
+        mooltipass.device.usingMoolticute = true;
+        clearInterval( mooltipass.device.interval );
+        chrome.hid.disconnect(mooltipass.device.connectionId);
+    }
 };
 
 
@@ -219,7 +232,7 @@ mooltipass.device.reset = function() {
  */
 mooltipass.device.connect = function() {
     //console.log('mooltipass.device.connect()');
-    if (mooltipass.device.isConnected) {
+    if (mooltipass.device.isConnected || mooltipass.device.usingMoolticute) {
         return false;
     }
 

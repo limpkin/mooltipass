@@ -126,7 +126,7 @@ startMooltipass = function() {
 			if (details.method == "POST") {
 				// Deal both with RAW DATA and FORM DATA
 				if (details && details.type === "xmlhttprequest") { // Raw data (multipart posts, etc)
-					if ( details.requestBody && details.requestBody.raw ) {
+					if ( details.requestBody && details.requestBody.raw && details.requestBody.raw[0]) {
 						var buffer = details.requestBody.raw[0].bytes;
 						var parsed = arrayBufferToData.toJSON(buffer);
 						chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', post_data: parsed });	

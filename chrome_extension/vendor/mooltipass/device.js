@@ -144,6 +144,7 @@ mooltipass.device.onSearchForApp = function(ext) {
  */
 mooltipass.device.getStatus = function() {
     if (moolticute.connectedToDaemon) {
+        if ( mooltipass.device.usingApp ) mooltipass.device.stopUsingApp();
         return {
             'connectedToApp': moolticute.connectedToDaemon,
             'connectedToDevice': moolticute.status.connected,

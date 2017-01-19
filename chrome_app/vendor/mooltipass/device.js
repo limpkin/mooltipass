@@ -195,7 +195,7 @@ mooltipass.device.checkForMoolticute = function() {
     dummySocket.onopen = function() {
         mooltipass.device.usingMoolticute = true;
         clearInterval( mooltipass.device.interval );
-        chrome.hid.disconnect(mooltipass.device.connectionId);
+        if (mooltipass.device.connectionId) chrome.hid.disconnect(mooltipass.device.connectionId);
     };
     dummySocket.onerror = function() {
         mooltipass.device.usingMoolticute = false;
@@ -227,7 +227,7 @@ mooltipass.device.init = function() {
         // Try to disconnect
         mooltipass.device.usingMoolticute = true;
         clearInterval( mooltipass.device.interval );
-        chrome.hid.disconnect(mooltipass.device.connectionId);
+        if (mooltipass.device.connectionId) chrome.hid.disconnect(mooltipass.device.connectionId);
     }
 };
 

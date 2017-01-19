@@ -15,10 +15,9 @@ else {
 
 function initSettings() {
     $("#btn-settings").click(function() {
-        close();
         chrome.tabs.create({
             url: "/options/options.html"
-        })
+        });
     });
 
     $("#btn-open-app").click(function(e) {
@@ -64,7 +63,6 @@ function initSettings() {
 }
 
 function getStatusCallback( object ) {
-    console.log( object );
      $('#status-bar .status > span').hide();
 
     // Connection to app established, device connected and unlocked

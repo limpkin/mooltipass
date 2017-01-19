@@ -42,7 +42,7 @@ moolticute._getCallbackId = function() {
  * websocket object for communicating with moolticute daemon
  * TODO: make this configurable in settings page
  */
-moolticute._ws = page.settings.useMoolticute? new ReconnectingWebSocket('ws://127.0.0.1:30035'):{};
+moolticute._ws = new ReconnectingWebSocket('ws://127.0.0.1:30035');
 
 /*
  * Set this to true to see websocked input and output at the console
@@ -51,7 +51,6 @@ moolticute._ws.debug = false;
 
 moolticute._ws.onopen = function() {
     if (background_debug_msg > 4) mpDebug.log('%c Moolticute daemon connected', mpDebug.css('FFC6A0'));
-    console.log();
     moolticute.connectedToDaemon = true;
     moolticute.fireEvent('statusChange');
 }

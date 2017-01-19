@@ -17,3 +17,4 @@ cp -Rf css CleanVersion/
 cp -Rf options CleanVersion/
 cp -Rf background CleanVersion/
 cp -Rf images CleanVersion/
+cp -Rf icons CleanVersion/

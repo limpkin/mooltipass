@@ -481,7 +481,7 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	// Check if there's a difference between what we retrieved and what is being submitted
 	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ];
 
-	if ( !currentForm.combination.savedFields.username && this.credentialsCache ) {
+	if ( !currentForm.combination.savedFields.username && this.credentialsCache && this.credentialsCache.Login ) {
 		currentForm.combination.savedFields.username = this.credentialsCache.Login;
 	}
 

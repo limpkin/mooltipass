@@ -187,14 +187,33 @@ mooltipass.device.usingMoolticute = false;
 /*********************************************************************************************************************/
 
 /**
+ * Check for websocket in a different thread
+ * 
+*/
+mooltipass.device.checkForMoolticute = function() {
+    var dummySocket = new ReconnectingWebSocket('ws://127.0.0.1:30035');
+    dummySocket.onopen = function() {
+        mooltipass.device.usingMoolticute = true;
+        clearInterval( mooltipass.device.interval );
+        chrome.hid.disconnect(mooltipass.device.connectionId);
+    };
+    dummySocket.onerror = function() {
+        mooltipass.device.usingMoolticute = false;
+        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 1000);
+    }
+}
+
+/**
  * Initialize function
  * triggered by mooltipass.app.init()
  */
 mooltipass.device.init = function() {
+    console.log('running init');
     // only init if moolticute isn't running.
-    var moolticuteSocket = new ReconnectingWebSocket('ws://127.0.0.1:30035');
+    var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
     moolticuteSocket.onerror = function() {
         mooltipass.device.usingMoolticute = false;
+        mooltipass.device.checkForMoolticute();
 
         mooltipass.device._forceEndMemoryManagementModeLock = false;
         

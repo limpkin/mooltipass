@@ -45,6 +45,16 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
+- 01/2017 <a href="http://arstechnica.co.uk/security/2017/01/google-plugs-severe-android-bootmode-vulnerability/">Google plugs severe Android bootmode vuln that exposed devices to spying</a>
+- 12/2016 <a href="https://linux.slashdot.org/story/16/12/16/0229207/zero-days-hitting-fedora-and-ubuntu-open-desktops-to-a-world-of-hurt">Zero-Days Hitting Fedora and Ubuntu Open Desktops To a World of Hurt </a>
+- 12/2016 <a href="https://techcrunch.com/2016/12/14/yahoo-discloses-hack-of-1-billion-accounts/">Yahoo discloses hack of 1 billion accounts</a>
+- 12/2016 <a href="https://it.slashdot.org/story/16/12/13/1611243/malware-found-in-the-firmware-of-26-low-cost-android-models">Malware Found In the Firmware of 26 Low-Cost Android Models </a>
+- 11/2016 <a href="https://tech.slashdot.org/story/16/11/30/1720202/more-than-1-million-android-devices-rooted-by-gooligan-malware">More Than 1 Million Android Devices Rooted By Gooligan Malware</a>
+- 11/2016 <a href="https://it.slashdot.org/story/16/11/20/0043259/second-chinese-firm-in-a-week-found-hiding-a-backdoor-in-android-firmware">Second Chinese Firm In a Week Found Hiding a Backdoor In Android Firmware </a>
+- 10/2016 <a href="https://news.slashdot.org/story/16/10/24/2232220/rowhammer-attack-can-now-root-android-devices">Rowhammer Attack Can Now Root Android Devices</a>
+- 10/2016 <a href="https://it.slashdot.org/story/16/10/24/1356255/china-electronics-firm-to-recall-some-us-products-after-hacking-attack">China Electronics Firm To Recall Some US Products After Hacking Attack </a>
+- 10/2016 <a href="https://news.slashdot.org/story/16/10/13/2059232/android-devices-that-contain-foxconn-firmware-may-have-a-secret-backdoor">Android Devices That Contain Foxconn Firmware May Have a Secret Backdoor </a>
+- 09/2016 <a href="https://it.slashdot.org/story/16/09/26/1942208/as-we-speak-teen-social-site-is-leaking-millions-of-plaintext-passwords">As We Speak, Teen Social Site Is Leaking Millions Of Plaintext Passwords </a>
 - 09/2016 <a href="https://it.slashdot.org/story/16/09/22/095255/yahoo-confirms-massive-data-breach-500-million-users-impacted-updated">Yahoo Confirms Massive Data Breach, 500 Million Users Impacted</a>  
 - 09/2016 <a href="https://yro.slashdot.org/story/16/09/24/0548206/97-of-the-top-companies-have-leaked-credentials-online">97% of the Top Companies Have Leaked Credentials Online</a>  
 - 09/2016 <a href="https://it.slashdot.org/story/16/09/26/1942208/as-we-speak-teen-social-site-is-leaking-millions-of-plaintext-passwords">As We Speak, Teen Social Site Is Leaking Millions Of Plaintext Passwords</a>  

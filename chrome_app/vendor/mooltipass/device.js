@@ -211,7 +211,7 @@ mooltipass.device.init = function() {
     console.log('running init');
     // only init if moolticute isn't running.
     var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
-    moolticuteSocket.onerror = function() {
+    moolticuteSocket.onerror = moolticuteSocket.onclose = function() {
         mooltipass.device.usingMoolticute = false;
         mooltipass.device.checkForMoolticute();
 

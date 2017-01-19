@@ -64,8 +64,8 @@ mooltipass.ui._.reset = function() {
     $("#modal-load-credentials").hide();
     $("#modal-export").hide();
     $("#modal-confirm-on-device").hide();
-	$('#modal-mooltipass-updating').hide();
-	$('#modal-moolticute-used').hide();
+    $('#modal-mooltipass-updating').hide();
+    $('#modal-moolticute-used').hide();
     mooltipass.ui._.showSplashScreen();   
 }
 
@@ -210,7 +210,7 @@ mooltipass.ui._.hasCard = function () {
 }
 
 mooltipass.ui._.moolticutePresent = function() {
-	return mooltipass.device.usingMoolticute;
+    return mooltipass.device.usingMoolticute;
 }
 
 mooltipass.ui._.isDeviceInMMM = function () {
@@ -249,17 +249,19 @@ update_device_status_classes = function () {
         $("#page-developers #resetCardCheckbox").prop("disabled", true);
     }
 
-	if(mooltipass.ui._.moolticutePresent()) {
-		$('#modal-moolticute-used').show();
-	}
+    if(mooltipass.ui._.moolticutePresent()) {
+        $('#modal-moolticute-used').show();
+        $(".show-if-connected").hide();
+        $(".hide-if-connected").hide();
+    }
     else if (mooltipass.ui._.isDeviceConnected()) {
-		$('#modal-moolticute-used').hide();
+        $('#modal-moolticute-used').hide();
         $(".show-if-connected").show();
         $(".hide-if-connected").hide();
     } else {
         $(".show-if-connected").hide();
         $(".hide-if-connected").show();
-		$('#modal-moolticute-used').hide();
+        $('#modal-moolticute-used').hide();
 
         return
     }    

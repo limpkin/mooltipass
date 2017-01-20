@@ -199,7 +199,7 @@ mooltipass.device.checkForMoolticute = function() {
     };
     dummySocket.onerror = function() {
         mooltipass.device.usingMoolticute = false;
-        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 1000);
+        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
     }
 }
 
@@ -220,7 +220,7 @@ mooltipass.device.init = function() {
         // Initial start processing queue
         mooltipass.device.restartProcessingQueue();
 
-        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 1000);
+        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
     };
 
     moolticuteSocket.onopen = function() {

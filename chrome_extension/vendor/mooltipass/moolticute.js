@@ -125,6 +125,8 @@ moolticute.sendRequest = function( request ) {
         };
 
         moolticute._ws.send(JSON.stringify( message ));
+    } else {
+        moolticute._ws.send(JSON.stringify( request ));
     }
 }
 
@@ -196,6 +198,9 @@ moolticute._ws.onmessage = function(ev, delayed) {
             break;
         case 'get_random_numbers':
             wrapped.random = recvMsg.data;
+            break;
+        case 'show_app':
+            // Just discard response, as we don't need it.
             break;
         default:
             console.warn('Unknown message: ', recvMsg.msg, recvMsg );

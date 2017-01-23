@@ -231,7 +231,7 @@ mcCombinations.prototype.possibleCombinations = [
 				if (mcCombs.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Extra function, retrieve cache','background-color: #c3c6b4','color: #800000', r );
 				var lastError = chrome.runtime.lastError;
 				if (lastError) {
-					if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
+					if (mcCombs.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
 					return;
 				} else {
 					if ( r.Login ) { // We got a login!

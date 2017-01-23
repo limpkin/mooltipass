@@ -1,4 +1,40 @@
 /*
+ * Extendable object for special cases
+ *
+ */
+var extendedCombinations = {
+	google: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[type=password]:visible').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.password = mpJQ('input[type=password]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[type=email]:visible').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.username = mpJQ('input[type=email]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	}
+};
+
+/*
 / Form Detection by combinations.
 / Searches the DOM for a predefined set of combinations and retrieves credentials or prepares everything to be saved
 / This will, eventually, replace cip.* 
@@ -71,6 +107,12 @@ mcCombinations.prototype.gotSettings = function( response ) {
 */
 mcCombinations.prototype.possibleCombinations = [
 	{
+		combinationId: 'googleTwoPageAuth',
+		combinationName: 'Google Two Page Login Procedure',
+		requiredUrl: 'accounts.google.com',
+		callback: extendedCombinations.google
+	},
+	{
 		// Seen at icloud.com, seems to comform to an Apple's proprietary identity management system (IDMS)
 		combinationId: 'canFieldBased',
 		combinationName: 'Login Form with can-field properties',
@@ -101,10 +143,12 @@ mcCombinations.prototype.possibleCombinations = [
 		requiredFields: [
 			{
 				selector: 'input[type=email]',
+				submitPropertyName: 'name',
 				mapsTo: 'username'
 			},
 			{
 				selector: 'input[type=password]',
+				submitPropertyName: 'name',
 				mapsTo: 'password'
 			},
 		],
@@ -300,10 +344,27 @@ mcCombinations.prototype.detectCombination = function() {
 	if (this.settings.debugLevel > 1) cipDebug.log('detectCombination has found ' + numberOfFields + ' fields.');
 
 	if ( numberOfFields > 0 ) {
+		// Check for special cases first 
+		for (var I = 0; I < this.possibleCombinations.length; I++) {
+			if ( this.possibleCombinations[I].requiredUrl && this.possibleCombinations[I].requiredUrl == window.location.hostname ) { // Found a special case
+				this.possibleCombinations[I].callback( this.forms );
+
+				var url = document.location.origin;
+				var submitUrl = url;
+				if ( this.credentialsCache && this.credentialsCache.length > 0 && this.credentialsCache[0].Login) {
+					if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c Using credentials from cache', 'background-color: #c3c6b4','color: #777777' );
+					this.retrieveCredentialsCallback( this.credentialsCache );
+				} else {
+					messaging({ 'action': 'retrieve_credentials', 'args': [ url, submitUrl, true, true] });	
+				}
+				return;
+			}
+		}
+	
 		this.detectForms();	
 
 		for( form in this.forms ) {
-			currentForm = this.forms[ form ];
+			var currentForm = this.forms[ form ];
 
 			// Unsure about this restriction. Probably should always make a retrieve credentials call (need to think about it)
 			if ( currentForm.combination ) {
@@ -348,12 +409,16 @@ mcCombinations.prototype.detectForms = function() {
 	
 	// Traverse Forms
 	for( form in this.forms ) {
-		currentForm = this.forms[ form ];
+		var currentForm = this.forms[ form ];
 		if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - Form Detection: %c Traversing forms ','background-color: #c3c6b4','color: #777777', currentForm);
 		if ( currentForm.fields.length == 0 ) continue; // Form has no fields.
 
 		// Check combination against current form
 		this.possibleCombinations.some( function( combination_data, index ) {
+			if ( combination_data.requiredUrl ) { // Combination is a special case.
+				return false;
+			}
+
 			if (this.settings.debugLevel > 3) cipDebug.log('\t %c mcCombinations  - Form Detection: %c Checking combination ' + combination_data.combinationName,'background-color: #c3c6b4','color: #777777; font-weight: bold;');
 			if ( combination_data.maxfields && combination_data.maxfields < currentForm.fields.length ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('\t %c mcCombinations  - Form Detection: %c Form has more fields than expected ', 'background-color: #c3c6b4','color: #777777;');
@@ -363,6 +428,13 @@ mcCombinations.prototype.detectForms = function() {
 
 			// Assign the combination to the form
 			currentForm.combination = mpJQ.extend( true, {}, combination_data);
+
+			// Check against the existence of extra selectors
+			if (currentForm.combination.addFields) {
+				if ( currentForm.element.find( currentForm.combination.addFields ).length == 1 ) {
+					currentForm.combination.score += currentForm.combination.scorePerMatch;
+				}
+			}
 
 			// Traverse fields in form and match against combination
 			var matching = currentForm.fields.some( function( field ) {
@@ -379,7 +451,7 @@ mcCombinations.prototype.detectForms = function() {
 							if (!currentForm.combination.savedFields) currentForm.combination.savedFields = {};
 							currentForm.combination.savedFields[ requiredField.mapsTo ] = {
 								value: '',
-								submitPropertyName: requiredField.submitPropertyName
+								submitPropertyName: typeof(requiredField.submitPropertyName) == 'function'?requiredField.submitPropertyName( field ):requiredField.submitPropertyName
 							};
 
 							if (!currentForm.combination.fields) currentForm.combination.fields = {};
@@ -475,14 +547,25 @@ mcCombinations.prototype.getAllForms = function() {
 * Intercept form submit
 */
 mcCombinations.prototype.onSubmit = function( event ) {
-	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c onSubmit','background-color: #c3c6b4','color: #333333');
+	if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c onSubmit','background-color: #c3c6b4','color: #333333');
 	this.waitingForPost = false;
 
 	// Check if there's a difference between what we retrieved and what is being submitted
 	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ];
 
-	if ( !currentForm.combination.savedFields.username && this.credentialsCache && this.credentialsCache.Login ) {
-		currentForm.combination.savedFields.username = this.credentialsCache.Login;
+	if ( !currentForm.combination.savedFields.username && this.credentialsCache) {
+		if ( this.credentialsCache[0].TempLogin ) {
+			this.credentialsCache[0].Login = this.credentialsCache[0].TempLogin
+		}
+		if ( this.credentialsCache[0].Login ) {
+			currentForm.combination.savedFields.username = this.credentialsCache[0].Login;
+			if ( !currentForm.combination.fields.username ) currentForm.combination.fields.username = this.credentialsCache[0].Login;
+		}
+	}
+
+	if ( !currentForm.combination.savedFields.password && this.credentialsCache && this.credentialsCache[0].Password ) {
+		currentForm.combination.savedFields.password = this.credentialsCache[0].Password;
+		if ( !currentForm.combination.fields.password ) currentForm.combination.fields.password = this.credentialsCache[0].Password;
 	}
 
 	var storedUsernameValue = this.parseElement( currentForm.combination.savedFields.username, 'value');
@@ -490,6 +573,10 @@ mcCombinations.prototype.onSubmit = function( event ) {
 
 	var submittedUsernameValue = this.parseElement( currentForm.combination.fields.username, 'value');
 	var submittedPasswordValue = this.parseElement( currentForm.combination.fields.password, 'value');
+
+	if ( !storedUsernameValue && !this.credentialsCache && submittedUsernameValue) { // In case there's a 2 pages login. Store the username in cache
+		this.credentialsCache = [{ TempLogin: submittedUsernameValue, Login: false, Password: false }];
+	}
 
 	if ( storedUsernameValue != submittedUsernameValue || storedPasswordValue != submittedPasswordValue ) { // Only save when they differ
 		cip.rememberCredentials( event, 'unused', submittedUsernameValue, 'unused', submittedPasswordValue);
@@ -580,7 +667,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				currentForm.combination.fields.password.val('');
 				currentForm.combination.fields.password.sendkeys( credentials[0].Password );
 				currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
-				currentForm.combination.savedFields.password.value = credentials[0].Password;	
+				currentForm.combination.savedFields.password.value = credentials[0].Password;
 			}
 
 
@@ -660,7 +747,7 @@ mcCombinations.prototype.parseElement = function( element, data ) {
 * When a POST request is detected, we check it in case there's our info
 */
 mcCombinations.prototype.postDetected = function( details ) {
-	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c postDetected','background-color: #c3c6b4','color: #333333');
+	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c postDetected','background-color: #c3c6b4','color: #333333', details);
 	// Just act if we're waiting for a post
 	if ( this.waitingForPost && this.settings.postDetectionFeature) {
 		// Loop throught the forms and check if we've got a match
@@ -682,6 +769,9 @@ mcCombinations.prototype.postDetected = function( details ) {
 						if ( currentCombination.savedFields.username.submitPropertyName ) {
 							attrUsername = currentCombination.savedFields.username.submitPropertyName;
 						}
+
+						// Some servers send DATA instead of FORMDATA
+						if ( sent.data && !sent.formData ) sent.formData = sent.data;
 
 						if ( sent.formData ) { // Form sent FORM DATA
 							usernameValue = sent.formData[ currentCombination.fields.username.attr( attrUsername ) ];

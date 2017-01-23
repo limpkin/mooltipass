@@ -109,8 +109,9 @@ startMooltipass = function() {
 		 * Detect POST requests and call the content script to check if it is waiting for it
 		 */
 
-		// Firefox 50+ allows requestBody in the options
-		if ( isFirefox && typeof( Symbol.hasInstance ) == 'undefined' ) var webRequestOptions = ['blocking'];
+		// Firefox 50+ allows requestBody in the options (not, because of a bug, once fixed, switch the following IF statements)
+		//if ( isFirefox && typeof( Symbol.hasInstance ) == 'undefined' ) var webRequestOptions = ['blocking'];
+		if ( isFirefox ) var webRequestOptions = ['blocking'];
 		else var webRequestOptions = ['blocking','requestBody'];
 
 		chrome.webRequest.onBeforeRequest.addListener( function (details) {

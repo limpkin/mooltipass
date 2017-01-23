@@ -548,6 +548,19 @@ mooltipassEvent.onMultipleFieldsPopup = function(callback, tab) {
 	browserAction.show(null, tab);
 }
 
+/*
+ * Open either Chrome App or Moolticute Interface
+ *
+ */
+mooltipassEvent.showApp = function() {
+	if (moolticute.connectedToDaemon) {
+		moolticute.sendRequest( {"msg": "show_app"} );
+	} else {
+		var global = chrome.extension.getBackgroundPage();
+        chrome.runtime.sendMessage(global.mooltipass.device._app.id, { 'show': true });
+	}
+}
+
 // all methods named in this object have to be declared BEFORE this!
 mooltipassEvent.messageHandlers = {
 	'update': mooltipassEvent.onUpdate,
@@ -576,7 +589,8 @@ mooltipassEvent.messageHandlers = {
     'set_current_tab': page.setCurrentTab,
     'cache_login': page.cacheLogin,
     'cache_retrieve': page.cacheRetrieve,
-    'content_script_loaded': page.setAllLoaded
+    'content_script_loaded': page.setAllLoaded,
+    'show_app': mooltipassEvent.showApp
 };
 
 if (!isSafari) {

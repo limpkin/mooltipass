@@ -22,9 +22,8 @@ function initSettings() {
 
     $("#btn-open-app").click(function(e) {
         e.preventDefault();
+        messaging( { action: "show_app" }, function() {} );
         close();
-        var global = chrome.extension.getBackgroundPage();
-        chrome.runtime.sendMessage(global.mooltipass.device._app.id, { 'show': true });
     });
 
     $("#btn-report-error").click(function() {

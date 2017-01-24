@@ -227,39 +227,36 @@ mcCombinations.prototype.possibleCombinations = [
 		usePasswordGenerator: true,
 		extraFunction: function( fields ) {
 			// We need LOGIN information. Try to retrieve credentials from cache.
-			chrome.runtime.sendMessage({'action': 'cache_retrieve' }, function( r ) {
-				if (mcCombs.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Extra function, retrieve cache','background-color: #c3c6b4','color: #800000', r );
-				var lastError = chrome.runtime.lastError;
-				if (lastError) {
-					if (mcCombs.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
-					return;
-				} else {
-					if ( r.Login ) { // We got a login!
-						this.savedFields.username = r.Login;
-						this.fields.username = r.Login;
-					} else { // No login information. Just ask the user.
-						var currentForm = this.fields.password.parents('form');
-						var url = document.location.origin;
-						var submitUrl = currentForm?mcCombs.getFormActionUrl( currentForm ):url;
-						chrome.runtime.sendMessage({
-							'action': 'retrieve_credentials',
-							'args': [ url, submitUrl, true, true]
-						}, mpJQ.proxy(function( response ) {
-							if ( response[0] && response[0].Login ) {
-								this.savedFields.username = response[0].Login;
-								this.fields.username = response[0].Login;	
-							}
-						},this));
-					}
-				}
+			cipEvents.temporaryActions['response-cache_retrieve'] = function( response ) {
+				var r = response.data;
 
-				// We also change the password field for the next one (as we retrieve in the first field, but store the value from the second!)
-				this.fields.password = this.fields.password.parents('form').find("input[type='password']:not('.mooltipass-password-do-not-update')");
-			}.bind(this));	
+				if ( r.Login ) { // We got a login!
+					this.savedFields.username = r.Login;
+					this.fields.username = r.Login;
+				} else { // No login information. Just ask the user.
+					var currentForm = this.fields.password.parents('form');
+					var url = document.location.origin;
+					var submitUrl = currentForm?mcCombs.getFormActionUrl( currentForm ):url;
+
+					cipEvents.temporaryActions['response-retrieve_credentials'] = function( response ) {
+						var r = response.data;
+						if ( r[0] && r[0].Login ) {
+							this.savedFields.username = r[0].Login;
+							this.fields.username = r[0].Login;
+						}
+					}.bind(this);
+					messaging({ 'action': 'retrieve_credentials', 'args': [ url, submitUrl, true, true] });	
+				}
+			}.bind(this);
+			messaging({'action': 'cache_retrieve' });
+
+			mpJQ(this.fields.password[0]).addClass('mooltipass-password-do-not-update');
+			// We also change the password field for the next one (as we retrieve in the first field, but store the value from the second!)
+			this.fields.password = this.fields.password.parents('form').find("input[type='password']:not('.mooltipass-password-do-not-update')");
 	
-			for( field in fields ) {
-				fields[field].addClass('mooltipass-password-do-not-update');	
-			}
+			// for( field in fields ) {
+			// 	fields[field].addClass('mooltipass-password-do-not-update');	
+			// }
 
 			// Use password generated for both new password fields
 			// Disabled feature, uncomment to have mooltipass pre-fill your new password for you
@@ -285,36 +282,28 @@ mcCombinations.prototype.possibleCombinations = [
 		autoSubmit: false,
 		extraFunction: function( fields ) {
 			// We need LOGIN information. Try to retrieve credentials from cache.
-			chrome.runtime.sendMessage({'action': 'cache_retrieve' }, function( r ) {
-				if (mcCombs.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Extra function, retrieve cache','background-color: #c3c6b4','color: #800000', r );
-				var lastError = chrome.runtime.lastError;
-				if (lastError) {
-					if (this.settings.debugLevel > 0) cipDebug.log('%c mcCombinations: %c Error: ','background-color: #c3c6b4','color: #333333', lastError.message);
-					return;
-				} else {
-					if ( r.Login ) { // We got a login!
-						this.savedFields.username = r.Login;
-						this.fields.username = r.Login;
-					} else { // No login information. Just ask the user.
-						var currentForm = this.fields.password.parents('form');
-						var url = document.location.origin;
-						var submitUrl = currentForm?mcCombs.getFormActionUrl( currentForm ):url;
-						chrome.runtime.sendMessage({
-							'action': 'retrieve_credentials',
-							'args': [ url, submitUrl, true, true]
-						}, mpJQ.proxy(function( response ) {
-							if ( response[0] && response[0].Login ) {
-								this.savedFields.username = response[0].Login;
-								this.fields.username = response[0].Login;	
-							}
-						},this));
-					}
-				}
+			cipEvents.temporaryActions['response-cache_retrieve'] = function( response ) {
+				var r = response.data;
 
-				// Use password generated for both password fields
-				// Disabled feature, uncomment to have mooltipass pre-fill your new password for you
-				// fields.password.closest('form').find('input[type=password]:visible').val('').sendkeys( mpJQ('#mooltipass-password-generator').val() );
-			}.bind(this));
+				if ( r.Login ) { // We got a login!
+					this.savedFields.username = r.Login;
+					this.fields.username = r.Login;
+				} else { // No login information. Just ask the user.
+					var currentForm = this.fields.password.parents('form');
+					var url = document.location.origin;
+					var submitUrl = currentForm?mcCombs.getFormActionUrl( currentForm ):url;
+
+					cipEvents.temporaryActions['response-retrieve_credentials'] = function( response ) {
+						var r = response.data;
+						if ( r[0] && r[0].Login ) {
+							this.savedFields.username = r[0].Login;
+							this.fields.username = r[0].Login;
+						}
+					}.bind(this);
+					messaging({ 'action': 'retrieve_credentials', 'args': [ url, submitUrl, true, true] });	
+				}
+			}.bind(this);
+			messaging({'action': 'cache_retrieve' });
 		}
 	},
 	{

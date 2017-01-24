@@ -191,7 +191,7 @@ mooltipass.device.usingMoolticute = false;
  * 
 */
 mooltipass.device.checkForMoolticute = function() {
-    var dummySocket = new ReconnectingWebSocket('ws://127.0.0.1:30035');
+    var dummySocket = new ReconnectingWebSocket('ws://127.0.0.1:30035', null, { reconnectInterval: 100, maxReconnectInterval: 100, timeoutInterval: 4000 });
     dummySocket.onopen = function() {
         mooltipass.device.usingMoolticute = true;
         clearInterval( mooltipass.device.interval );
@@ -199,7 +199,7 @@ mooltipass.device.checkForMoolticute = function() {
     };
     dummySocket.onerror = function() {
         mooltipass.device.usingMoolticute = false;
-        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
+        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 1000);
     }
 }
 
@@ -220,7 +220,7 @@ mooltipass.device.init = function() {
         // Initial start processing queue
         mooltipass.device.restartProcessingQueue();
 
-        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
+        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 1000);
     };
 
     moolticuteSocket.onopen = function() {

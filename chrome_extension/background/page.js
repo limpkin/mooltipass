@@ -90,7 +90,7 @@ page.cacheLogin = function( callback, tab, arguments ) {
 * Retrieve cached login information
 */
 page.cacheRetrieve = function( callback, tab, arguments ) {
-	callback( page.tabs[ tab.id ].loginList );
+	callback( page.tabs[ tab.id ].loginList, tab );
 }
 
 page.initOpenedTabs = function() {

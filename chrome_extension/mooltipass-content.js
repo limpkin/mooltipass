@@ -1979,6 +1979,13 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 cipEvents = {};
 
 /*
+ * CipEvents is action based. Sometimes we need to either catch the normal path, or add one.
+ * temporaryActions does that. just add an object with the action name and the callback.
+ * temporaryActions.ACTIONNAME = function( REQ ) {}. After usage, it gets cleaned automagically
+ */
+cipEvents.temporaryActions = {};
+
+/*
 * Starts listening for messages, keypresses, and other events.
 */
 cipEvents.startEventHandling = function() {
@@ -1989,6 +1996,13 @@ cipEvents.startEventHandling = function() {
 		if ( isSafari ) req = req.message;
 		if (content_debug_msg > 5) cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
 		else if (content_debug_msg > 4 && req.action != 'check_for_new_input_fields') cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
+
+		// Check if we want to catch the standard path
+		if ( cipEvents.temporaryActions[req.action] ) {
+			cipEvents.temporaryActions[req.action]( req );
+			delete cipEvents.temporaryActions[req.action];
+			return;
+		}
 
 		// Safari Specific
 		switch(req.action) {

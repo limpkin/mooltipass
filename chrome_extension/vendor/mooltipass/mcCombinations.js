@@ -250,6 +250,7 @@ mcCombinations.prototype.possibleCombinations = [
 			}.bind(this);
 			messaging({'action': 'cache_retrieve' });
 
+			mpJQ(this.fields.password[0]).addClass('mooltipass-password-do-not-update');
 			// We also change the password field for the next one (as we retrieve in the first field, but store the value from the second!)
 			this.fields.password = this.fields.password.parents('form').find("input[type='password']:not('.mooltipass-password-do-not-update')");
 	

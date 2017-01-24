@@ -191,7 +191,7 @@ mooltipass.device.usingMoolticute = false;
  * 
 */
 mooltipass.device.checkForMoolticute = function() {
-    var dummySocket = new ReconnectingWebSocket('ws://127.0.0.1:30035', null, { reconnectInterval: 100, maxReconnectInterval: 100, timeoutInterval: 4000 });
+    var dummySocket = new ReconnectingWebSocket('ws://127.0.0.1:30035', null, { reconnectInterval: 500, maxReconnectInterval: 500, timeoutInterval: 4000 });
     dummySocket.onopen = function() {
         mooltipass.device.usingMoolticute = true;
         clearInterval( mooltipass.device.interval );

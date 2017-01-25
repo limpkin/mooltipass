@@ -31,6 +31,35 @@ var extendedCombinations = {
 				}
 			}
 		}
+	},
+	yahoo: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('#login-passwd').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.password = mpJQ('#login-passwd');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('#login-username').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.username = mpJQ('#login-username');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
 	}
 };
 
@@ -78,12 +107,6 @@ mcCombinations.prototype.init = function( callback ) {
 
 	this.callback = callback;
 	messaging( { "action": "get_settings" } );
-	// 	safari.self.tab.dispatchMessage("get_settings",  );
-	// } else {
-	// 	chrome.runtime.sendMessage({
-	// 		"action": "get_settings",
-	// 	}, this.gotSettings.bind(this));
-	// }
 };
 
 /*
@@ -111,6 +134,12 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Google Two Page Login Procedure',
 		requiredUrl: 'accounts.google.com',
 		callback: extendedCombinations.google
+	},
+	{
+		combinationId: 'googleTwoPageAuth',
+		combinationName: 'Google Two Page Login Procedure',
+		requiredUrl: 'login.yahoo.com',
+		callback: extendedCombinations.yahoo
 	},
 	{
 		// Seen at icloud.com, seems to comform to an Apple's proprietary identity management system (IDMS)

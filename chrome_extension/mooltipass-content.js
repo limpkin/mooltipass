@@ -459,99 +459,6 @@ cipForm.onSubmit = function(event) {
 };
 
 
-/*************************************************************************************************
- * cipTwoPageLogin
- * Select credential fields distributed on 2 pages
- */
-var cipTwoPageLogin = {};
-
-
-// Identifier for stored selections in extension settings - DO NOT CHANGE!
-cipTwoPageLogin.identifier = 'defined-two-pages-credential-fields';
-
-// Fill-in the input fields only once
-cipTwoPageLogin.usernameFilledIn = false;
-cipTwoPageLogin.passwordFilledIn = false;
-
-// Initialize cipTwoPageLogin on the current page
-// Currently, the settings for Google are hard-coded
-cipTwoPageLogin.init = function() {
-	cip.settings[cipTwoPageLogin.identifier] = {
-		'https://accounts.google.com/ServiceLogin': {
-			'username': 'Email',
-			'password': 'Passwd',
-		},
-		'https://accounts.google.com/ServiceLoginAuth': {
-			'username': 'Email',
-			'password': 'Passwd',
-		}
-	};
-};
-
-// Reset filled-in information for username and password
-cipTwoPageLogin.resetFilledIn = function() {
-	cipTwoPageLogin.usernameFilledIn = false;
-	cipTwoPageLogin.passwordFilledIn = false;
-}
-
-// If credentials are filled-in, set the corresponding credential part to filled-in
-cipTwoPageLogin.setFilledIn = function(fieldType) {
-	cipTwoPageLogin[fieldType + 'FilledIn'] = true;
-}
-
-// Checks whether, the current credential part was already filled-in into an input field
-cipTwoPageLogin.alreadyFilledIn = function(fieldType) {
-	return cipTwoPageLogin[fieldType + 'FilledIn'];
-}
-
-// Uses the current location to return the combination of credential fields
-cipTwoPageLogin.getPageCombinationForCurrentOrigin = function() {
-	return cipTwoPageLogin.getPageCombinationForOrigin(document.location.origin + document.location.pathname);
-};
-
-// Returns the combination of credential fields for a two-page login page based on the given URL
-cipTwoPageLogin.getPageCombinationForOrigin = function(url) {
-	if(!cip.settings || !cip.settings[cipTwoPageLogin.identifier] || ! cip.settings[cipTwoPageLogin.identifier][url]) {
-		return null;
-	}
-
-	return cip.settings[cipTwoPageLogin.identifier][url];
-}
-
-/**
- * Stores the identifier for the given field type to a corresponding URL
- * @param url
- * @param fieldType 'username' or 'password'
- * @param fieldId ID of the input field
- */
-cipTwoPageLogin.storeFieldInformation = function (url, fieldType, fieldId) {
-	if(!cip.settings[cipTwoPageLogin.identifier]) {
-		cip.settings[cipTwoPageLogin.identifier] = {};
-	}
-
-	if(!cip.settings[cipTwoPageLogin.identifier][url]) {
-		cip.settings[cipTwoPageLogin.identifier][url] = {'url': url};
-	}
-
-	cip.settings[cipTwoPageLogin.identifier][url][fieldType] = fieldId;
-
-	chrome.runtime.sendMessage({
-		action: 'save_settings',
-		args: [cip.settings]
-	});
-};
-
-// Removes the input information for a stored two-page login page from the extension settings
-cipTwoPageLogin.removeFieldInformation = function(url) {
-	delete cip.settings[cipTwoPageLogin.identifier][url];
-	chrome.runtime.sendMessage({
-		action: 'save_settings',
-		args: [cip.settings]
-	});
-};
-
-
-
 /***********************************************
  * Workarounds for getting the correct values before sending credentials to the device
  * e.g. forms clear their input fields before submit and store the values in hidden inputs
@@ -1026,12 +933,6 @@ cipFields.getCombination = function(givenType, fieldId) {
 		return cipFields.combinations[0];
 	}
 
-	// use 2-page input fields
-	var twoPageCombination = cipTwoPageLogin.getPageCombinationForCurrentOrigin();
-	if(twoPageCombination) {
-		return twoPageCombination;
-	}
-
 	for(var i = 0; i < cipFields.combinations.length; i++) {
 		if(cipFields.combinations[i][givenType] == fieldId) {
 			return cipFields.combinations[i];
@@ -1319,9 +1220,6 @@ cip.initCredentialFields = function(forceCall) {
 	cipDebug.log('about to start pwd gen');
 	cip.initPasswordGenerator(inputs);
 
-	// Initialize credential field combinations on multiple pages
-	cipTwoPageLogin.init();
-
 	var searchForAllCombinations = true;
 	var manualSpecifiedFields = false;
 	if(cipFields.useDefinedCredentialFields()) {
@@ -1329,13 +1227,6 @@ cip.initCredentialFields = function(forceCall) {
 		manualSpecifiedFields = true;
 	}
 
-	var twoPageCombination = cipTwoPageLogin.getPageCombinationForCurrentOrigin();
-	if(twoPageCombination) {
-		searchForAllCombinations = false;
-		manualSpecifiedFields = true;
-		cipFields.combinations = [];
-		cipFields.combinations.push(twoPageCombination);
-	}
 	var inputs = cipFields.getAllFields();
 	
 	// If we detected a captcha procedure in the form, we will prevent auto-submit
@@ -1369,11 +1260,6 @@ cip.initCredentialFields = function(forceCall) {
 			chrome.runtime.sendMessage({
 				'action': 'show_default_browseraction'
 			});
-			return;
-		}
-
-		if(twoPageCombination && cip.credentials && cip.credentials.length > 0 && (cipFields.isSpecifiedFieldAvailable(cipFields.combinations[0].username) || cipFields.isSpecifiedFieldAvailable(cipFields.combinations[0].password))) {
-			cip.prepareFieldsForCredentials();
 			return;
 		}
 	}
@@ -1473,10 +1359,7 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 	if (cipFields.combinations.length > 0) {
 		cip.u = _f(cipFields.combinations[0].username);
 		cip.p = _f(cipFields.combinations[0].password);
-		cipTwoPageLogin.resetFilledIn();
 	}
-
-	cipDebug.log( credentials );
 
 	if ( cip.winningCombination ) {
 		// Associate the fields to the winning combination (just in case they dissapear -> Now with values!!!!)
@@ -1501,14 +1384,6 @@ cip.retrieveCredentialsCallback = function (credentials, dontAutoFillIn) {
 			// Check if WinningCombination wants to run something after values have been filled
 			if ( cip.winningCombination.postFunction ) cip.winningCombination.postFunction.call( this, cip.winningCombination.fields );
 		}
-
-		if (cip.p && !cipTwoPageLogin.getPageCombinationForCurrentOrigin() && !cip.settings.dontAddLinebreakAfterInput && cip.autoSubmit) {
-			cip.waitingForPost = false;
-			setTimeout( function() {
-				cipDebug.log('do-submit');
-				cip.doSubmit(cip.p);	
-			},300);
-		}
 	}
 }
 
@@ -1524,26 +1399,20 @@ cip.prepareFieldsForCredentials = function(autoFillInForSingle) {
 		cip.p = _f(cipFields.combinations[0].password);
 	}
 
-	var twoPageCombination = cipTwoPageLogin.getPageCombinationForCurrentOrigin();
-
 	if (cip.u && cip.fillPasswordOnly === false) {
-		if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('username')) {
-			cipTwoPageLogin.setFilledIn('username');
+		
 			cip.u.val('');
 			cip.u.sendkeys(cip.credentials[0].Login);
 			//cip.u.val(cip.credentials[0].Login);
 			// Due to browser extension sand-boxing, and basic jQuery functionality, you cannot trigger a non-jQuery click event with trigger or click.
 			cip.u[0].dispatchEvent(new Event('change'));
-		}
+		
 	}
 	if (cip.p) {
-		if(!twoPageCombination || !cipTwoPageLogin.alreadyFilledIn('password')) {
-			cipTwoPageLogin.setFilledIn('password');
 			cip.p.val('');
 			cip.p.sendkeys(cip.credentials[0].Password);
 			// Due to browser extension sand-boxing, and basic jQuery functionality, you cannot trigger a non-jQuery click event with trigger or click.
 			cip.p[0].dispatchEvent(new Event('change'));
-		}
 	}
 	cip.fillPasswordOnly = false;
 }

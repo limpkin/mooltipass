@@ -222,6 +222,11 @@ class mooltipass_hid_device:
 		self.device.sendHidPacket([0, CMD_GET_FREE_NB_USR_SLT])
 		print self.device.receiveHidPacket()[DATA_INDEX], "slots for new users available"
 		
+	# Enable tutorial
+	def enableTutorial(self):
+		self.device.sendHidPacket([2, CMD_SET_MOOLTIPASS_PARM, 16, 1])
+		self.device.receiveHidPacket()[DATA_INDEX]	
+		
 	# Get card CPZ (can only be queried when inserted card is unknown)
 	def getCardCpz(self):
 		self.device.sendHidPacket([0, CMD_GET_CUR_CPZ])

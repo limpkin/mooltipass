@@ -145,7 +145,16 @@ def main():
 				print "Serial number in hex:", "".join(format(x, "02x") for x in serial_number)
 				print "Serial number in decimal:", serial_number[0]*16777216 + serial_number[1]*65536 + serial_number[2]*256 + serial_number[3]*1
 			else:
-				print "Device Not Supported"		
+				print "Device Not Supported"
+				
+		if sys.argv[1] == "get_serial_set_tutorial":
+			if version_data[2] == "mini":
+				serial_number = mooltipass_device.getMooltipassMiniSerial()
+				print "Serial number in hex:", "".join(format(x, "02x") for x in serial_number)
+				print "Serial number in decimal:", serial_number[0]*16777216 + serial_number[1]*65536 + serial_number[2]*256 + serial_number[3]*1
+			else:
+				print "Device Not Supported"	
+			mooltipass_device.enableTutorial()
 				
 		if sys.argv[1] == "decrypt_mini_prod":
 			if len(sys.argv) > 2:

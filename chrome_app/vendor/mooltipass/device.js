@@ -223,7 +223,9 @@ mooltipass.device.checkForMoolticute = function() {
  * triggered by mooltipass.app.init()
  */
 mooltipass.device.init = function() {
-    mooltipass.device.usingMoolticute = true;
+    mooltipass.device.usingMoolticute = false;
+    mooltipass.device._forceEndMemoryManagementModeLock = false;
+    mooltipass.device.restartProcessingQueue();
     this.checkForMoolticute();
     // only init if moolticute isn't running.
     // var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');

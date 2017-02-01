@@ -184,6 +184,9 @@ mooltipass.device.interval = null;
 
 // If moolticute is available, favor it on top of the app
 mooltipass.device.usingMoolticute = false;
+
+// Increasing timeout for checking for moolticute (starts at 300ms, goes up to 3000ms)
+mooltipass.device.timeoutMoolticute = 300;
 /*********************************************************************************************************************/
 
 /**
@@ -191,15 +194,27 @@ mooltipass.device.usingMoolticute = false;
  * 
 */
 mooltipass.device.checkForMoolticute = function() {
-    var dummySocket = new ReconnectingWebSocket('ws://127.0.0.1:30035');
-    dummySocket.onopen = function() {
+
+    var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
+    moolticuteSocket.onopen = function() {
         mooltipass.device.usingMoolticute = true;
         clearInterval( mooltipass.device.interval );
         if (mooltipass.device.connectionId) chrome.hid.disconnect(mooltipass.device.connectionId);
     };
-    dummySocket.onerror = function() {
+    moolticuteSocket.onclose = function() {
+        if ( mooltipass.device.usingMoolticute == true ) {
+            mooltipass.device._forceEndMemoryManagementModeLock = false;
+        
+            // Initial start processing queue
+            mooltipass.device.restartProcessingQueue();
+        }
+
         mooltipass.device.usingMoolticute = false;
+
+        clearInterval( mooltipass.device.interval );
         mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
+        mooltipass.device.timeoutMoolticute = mooltipass.device.timeoutMoolticute >= 3000?3000:mooltipass.device.timeoutMoolticute + 300;
+        setTimeout( mooltipass.device.checkForMoolticute,mooltipass.device.timeoutMoolticute );
     }
 }
 
@@ -208,27 +223,28 @@ mooltipass.device.checkForMoolticute = function() {
  * triggered by mooltipass.app.init()
  */
 mooltipass.device.init = function() {
-    console.log('running init');
+    mooltipass.device.usingMoolticute = true;
+    this.checkForMoolticute();
     // only init if moolticute isn't running.
-    var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
-    moolticuteSocket.onclose = function() {
-        mooltipass.device.usingMoolticute = false;
-        mooltipass.device.checkForMoolticute();
+    // var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
+    // moolticuteSocket.onclose = function() {
+    //     mooltipass.device.usingMoolticute = false;
+    //     mooltipass.device.checkForMoolticute();
 
-        mooltipass.device._forceEndMemoryManagementModeLock = false;
+    //     mooltipass.device._forceEndMemoryManagementModeLock = false;
         
-        // Initial start processing queue
-        mooltipass.device.restartProcessingQueue();
+    //     // Initial start processing queue
+    //     mooltipass.device.restartProcessingQueue();
+    //     clearInterval( mooltipass.device.interval );
+    //     mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 500);
+    // };
 
-        mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
-    };
-
-    moolticuteSocket.onopen = function() {
-        // Try to disconnect
-        mooltipass.device.usingMoolticute = true;
-        clearInterval( mooltipass.device.interval );
-        if (mooltipass.device.connectionId) chrome.hid.disconnect(mooltipass.device.connectionId);
-    }
+    // moolticuteSocket.onopen = function() {
+    //     // Try to disconnect
+    //     mooltipass.device.usingMoolticute = true;
+    //     clearInterval( mooltipass.device.interval );
+    //     if (mooltipass.device.connectionId) chrome.hid.disconnect(mooltipass.device.connectionId);
+    // }
 };
 
 
@@ -535,7 +551,7 @@ mooltipass.device.setQueueHash = function() {
 
 mooltipass.device.restartProcessingQueue = function() {
     //console.log('mooltipass.device.restartProcessingQueue()');
-    setTimeout(mooltipass.device.processQueue, 150);
+    setTimeout(mooltipass.device.processQueue, 300);
 };
 
 mooltipass.device.callbackAllQueuedCommandsInSingleCommunicationMode = function() {

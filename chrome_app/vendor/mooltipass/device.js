@@ -187,6 +187,12 @@ mooltipass.device.usingMoolticute = false;
 
 // Increasing timeout for checking for moolticute (starts at 300ms, goes up to 3000ms)
 mooltipass.device.timeoutMoolticute = 300;
+
+// Socket connection string
+mooltipass.device.socketString = 'ws://127.0.0.1:30035'
+
+// Global var for moolticuteSocket
+mooltipass.device.moolticuteSocket = null;
 /*********************************************************************************************************************/
 
 /**
@@ -194,22 +200,21 @@ mooltipass.device.timeoutMoolticute = 300;
  * 
 */
 mooltipass.device.checkForMoolticute = function() {
+    this.moolticuteSocket = new WebSocket( mooltipass.device.socketString );
 
-    var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
-    moolticuteSocket.onopen = function() {
+    this.moolticuteSocket.onopen = function() {
         mooltipass.device.usingMoolticute = true;
         clearInterval( mooltipass.device.interval );
         if (mooltipass.device.connectionId) chrome.hid.disconnect(mooltipass.device.connectionId);
     };
-    moolticuteSocket.onclose = function() {
+
+    this.moolticuteSocket.onclose = function() {
         if ( mooltipass.device.usingMoolticute == true ) {
             mooltipass.device._forceEndMemoryManagementModeLock = false;
         
             // Initial start processing queue
             mooltipass.device.restartProcessingQueue();
         }
-
-        mooltipass.device.usingMoolticute = false;
 
         clearInterval( mooltipass.device.interval );
         mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
@@ -227,26 +232,6 @@ mooltipass.device.init = function() {
     mooltipass.device._forceEndMemoryManagementModeLock = false;
     mooltipass.device.restartProcessingQueue();
     this.checkForMoolticute();
-    // only init if moolticute isn't running.
-    // var moolticuteSocket = new WebSocket('ws://127.0.0.1:30035');
-    // moolticuteSocket.onclose = function() {
-    //     mooltipass.device.usingMoolticute = false;
-    //     mooltipass.device.checkForMoolticute();
-
-    //     mooltipass.device._forceEndMemoryManagementModeLock = false;
-        
-    //     // Initial start processing queue
-    //     mooltipass.device.restartProcessingQueue();
-    //     clearInterval( mooltipass.device.interval );
-    //     mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 500);
-    // };
-
-    // moolticuteSocket.onopen = function() {
-    //     // Try to disconnect
-    //     mooltipass.device.usingMoolticute = true;
-    //     clearInterval( mooltipass.device.interval );
-    //     if (mooltipass.device.connectionId) chrome.hid.disconnect(mooltipass.device.connectionId);
-    // }
 };
 
 

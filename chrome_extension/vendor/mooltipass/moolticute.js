@@ -39,34 +39,6 @@ moolticute._getCallbackId = function() {
 }
 
 /**
- * websocket object for communicating with moolticute daemon
- * TODO: make this configurable in settings page
- */
-moolticute._ws = new ReconnectingWebSocket('ws://127.0.0.1:30035');
-
-/*
- * Set this to true to see websocked input and output at the console
-*/
-moolticute._ws.debug = false;
-
-moolticute._ws.onopen = function() {
-    if (background_debug_msg > 4) mpDebug.log('%c Moolticute daemon connected', mpDebug.css('FFC6A0'));
-    moolticute.connectedToDaemon = true;
-    moolticute.fireEvent('statusChange');
-}
-
-moolticute._ws.onclose = function() {
-    if (background_debug_msg > 4) mpDebug.log('%c Moolticute daemon disconnected', mpDebug.css('FFC6A0'));
-    moolticute.connectedToDaemon = false;
-    moolticute.fireEvent('statusChange');
-}
-
-moolticute._ws.onerror = function() {
-    if (background_debug_msg > 4) mpDebug.log('%c Moolticute daemon connection error', mpDebug.css('FFC6A0'));
-    moolticute.connectedToDaemon = false;
-}
-
-/**
  * Ask for a password
  */
 moolticute.askPassword = function( request ) {
@@ -94,7 +66,7 @@ moolticute.askPassword = function( request ) {
     };
 
     if (background_debug_msg > 4) mpDebug.log('%c About to send to moolticuted:', mpDebug.css('FFC6A0'), message);
-    moolticute._ws.send(JSON.stringify(message));
+    moolticute.websocket.send(JSON.stringify(message));
 }
 
 /**
@@ -104,7 +76,7 @@ moolticute.askPassword = function( request ) {
     if (background_debug_msg > 4) mpDebug.log('%c Moolticute getRandomNumbers', mpDebug.css('FFC6A0'));
     var id = moolticute._getCallbackId();
 
-    moolticute._ws.send(JSON.stringify({
+    moolticute.websocket.send(JSON.stringify({
         msg: 'get_random_numbers',
         client_id: id
     }));
@@ -124,97 +96,18 @@ moolticute.sendRequest = function( request ) {
             }
         };
 
-        moolticute._ws.send(JSON.stringify( message ));
+        moolticute.websocket.send(JSON.stringify( message ));
     } else {
-        moolticute._ws.send(JSON.stringify( request ));
+        moolticute.websocket.send(JSON.stringify( request ));
     }
 }
 
-/**
- * Process message from moolticute daemon
- */
-moolticute._ws.onmessage = function(ev, delayed) {
-    var d = ev.data;
-    try {
-        var recvMsg = JSON.parse(d);
-        if (background_debug_msg > 4) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
-    }
-    catch (e) {
-        if (background_debug_msg > 4) mpDebug.log('%c Moolticute Error in received message: ', mpDebug.css('FFC6A0'), e, d );
-        return;
-    }
-
-    if ( moolticute.delayResponse && !delayed && recvMsg.msg == 'ask_password') {
-        // Check if we want a delayed response from moolticute
-        // Emulated from here
-        setTimeout( function() {
-            moolticute._ws.onmessage(ev, true);
-        }, moolticute.delayResponse);
-        return;
-    }
-
-    var wrapped = {};
-
-    switch( recvMsg.msg ) {
-        case 'mp_connected':
-            moolticute.status.connected = true;
-            wrapped.deviceStatus = moolticute.status;
-            break;
-        case 'mp_disconnected':
-            moolticute.status.connected = false;
-            moolticute.status.state = 'NotConnected';
-            wrapped.deviceStatus = moolticute.status;
-            break;
-        case 'param_changed':
-            break;
-        case 'status_changed':
-            moolticute.status.unlocked = recvMsg.data == 'Unlocked';
-            moolticute.status.realState = recvMsg.data;
-            moolticute.status.state = recvMsg.data;
-
-            //Keep compatibility with mooltipass chrome App
-            if (recvMsg.data == 'NoCardInserted' || recvMsg.data == 'UnkownSmartcad') {
-                moolticute.status.state = 'NoCard';
-            } else if (recvMsg.data == 'LockedScreen') {
-                moolticute.status.state = 'Locked';
-            }
-            wrapped.deviceStatus = moolticute.status;
-            break;
-        case 'ask_password':
-            if ( recvMsg.data.failed == true ) wrapped.noCredentials = true;
-            else {
-                wrapped.credentials = {
-                    login: recvMsg.data.login,
-                    password: recvMsg.data.password,
-                };
-            }
-            break;
-        case 'version_changed':
-            moolticute.status.version = recvMsg.data;
-            wrapped.deviceStatus = moolticute.status;
-            break;
-        case 'set_credential':
-            wrapped.updateComplete = true;
-            break;
-        case 'get_random_numbers':
-            wrapped.random = recvMsg.data;
-            break;
-        case 'show_app':
-            // Just discard response, as we don't need it.
-            break;
-        default:
-            console.warn('Unknown message: ', recvMsg.msg, recvMsg );
-    }
-    
-    mooltipass.device.messageListener( wrapped );
-    return;
-}
 
 moolticute.cancelRequest = function( reqid, domain, subdomain ) {
     // TODO: need to clean up the Callbacks otherwise it might get crowded here.
     console.log('Cancel Request');
 
-    moolticute._ws.send(JSON.stringify({
+    moolticute.websocket.send(JSON.stringify({
         'msg': 'cancel_request',
         'data': {
             'request_id': reqid //this id is the one that was sent with ask_password
@@ -265,3 +158,109 @@ moolticute.on('statusChange', function(type, data) {
     };
     mooltipass.connectedToApp = moolticute.connectedToDaemon;
 });
+
+// Encapsulation for websocket
+moolticute.websocket = {
+    tries: 0,
+    debug: false,
+    _ws: false,
+    onOpen: function() {
+        if (background_debug_msg > 2) mpDebug.log('%c Moolticute daemon connected', mpDebug.css('FFC6A0'));
+        moolticute.connectedToDaemon = true;
+        moolticute.fireEvent('statusChange');
+
+        this.tries = 0;
+    },
+    onClose: function( event  ) {
+        if (background_debug_msg > 2) mpDebug.log('%c Moolticute daemon disconnected', mpDebug.css('FFC6A0'), this);
+
+        moolticute.connectedToDaemon = false;
+        moolticute.fireEvent('statusChange');
+
+        this.tries = this.tries > 3?this.tries:this.tries + 1;
+
+        setTimeout( function() {
+            this.connect();
+        }.bind(this), this.tries * 1000 );
+    },
+    onMessage: function( ev ) {
+        var d = ev.data;
+        try {
+            var recvMsg = JSON.parse(d);
+            if (background_debug_msg > 4) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
+        }
+        catch (e) {
+            if (background_debug_msg > 4) mpDebug.log('%c Moolticute Error in received message: ', mpDebug.css('FFC6A0'), e, d );
+            return;
+        }
+
+        var wrapped = {};
+
+        switch( recvMsg.msg ) {
+            case 'mp_connected':
+                moolticute.status.connected = true;
+                wrapped.deviceStatus = moolticute.status;
+                break;
+            case 'mp_disconnected':
+                moolticute.status.connected = false;
+                moolticute.status.state = 'NotConnected';
+                wrapped.deviceStatus = moolticute.status;
+                break;
+            case 'param_changed':
+                break;
+            case 'status_changed':
+                moolticute.status.unlocked = recvMsg.data == 'Unlocked';
+                moolticute.status.realState = recvMsg.data;
+                moolticute.status.state = recvMsg.data;
+
+                //Keep compatibility with mooltipass chrome App
+                if (recvMsg.data == 'NoCardInserted' || recvMsg.data == 'UnkownSmartcad') {
+                    moolticute.status.state = 'NoCard';
+                } else if (recvMsg.data == 'LockedScreen') {
+                    moolticute.status.state = 'Locked';
+                }
+                wrapped.deviceStatus = moolticute.status;
+                break;
+            case 'ask_password':
+                if ( recvMsg.data.failed == true ) wrapped.noCredentials = true;
+                else {
+                    wrapped.credentials = {
+                        login: recvMsg.data.login,
+                        password: recvMsg.data.password,
+                    };
+                }
+                break;
+            case 'version_changed':
+                moolticute.status.version = recvMsg.data;
+                wrapped.deviceStatus = moolticute.status;
+                break;
+            case 'set_credential':
+                wrapped.updateComplete = true;
+                break;
+            case 'get_random_numbers':
+                wrapped.random = recvMsg.data;
+                break;
+            case 'show_app':
+                // Just discard response, as we don't need it.
+                break;
+            default:
+                console.warn('Unknown message: ', recvMsg.msg, recvMsg );
+        }
+        
+        mooltipass.device.messageListener( wrapped );
+        return;
+    },
+    send: function( message ) {
+        if (background_debug_msg > 4) mpDebug.log('%c Moolticute Send message: ', mpDebug.css('FFC6A0'), message );
+        this._ws.send( message );
+    },
+    connect: function() {
+        this._ws = new WebSocket( 'ws://127.0.0.1:30035' );
+        this._ws.onopen = this.onOpen.bind(this);
+        this._ws.onclose = this.onClose.bind(this);
+        this._ws.onmessage = this.onMessage.bind(this);
+
+        moolticute._ws = this._ws;
+    }
+};
+moolticute.websocket.connect();

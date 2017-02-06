@@ -183,10 +183,10 @@ moolticute.websocket = {
             this.connect();
         }.bind(this), this.tries * 1000 );
     },
-    onMessage: function( ev ) {
-        var d = ev.data;
+    onMessage: function( event ) {
+        var data = event.data;
         try {
-            var recvMsg = JSON.parse(d);
+            var recvMsg = JSON.parse(data);
             if (background_debug_msg > 4) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
         }
         catch (e) {
@@ -255,12 +255,11 @@ moolticute.websocket = {
         this._ws.send( message );
     },
     connect: function() {
+        if (background_debug_msg > 4) mpDebug.log('%c Moolticute Connect', mpDebug.css('FFC6A0') );
         this._ws = new WebSocket( 'ws://127.0.0.1:30035' );
         this._ws.onopen = this.onOpen.bind(this);
         this._ws.onclose = this.onClose.bind(this);
         this._ws.onmessage = this.onMessage.bind(this);
-
-        moolticute._ws = this._ws;
     }
 };
 moolticute.websocket.connect();

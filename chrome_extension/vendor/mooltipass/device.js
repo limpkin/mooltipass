@@ -383,7 +383,8 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         /*if(forceCallback) {
             callback([]);
         }
-        return;*/
+        */
+        return;
     }
 
     // Store the tab id, prevent a possible very close tabupdatevent action
@@ -395,7 +396,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     {
         if (mooltipass.device.retrieveCredentialsQueue[i].tabid == tab.id && mooltipass.device.retrieveCredentialsQueue[i].tabupdated == false)
         {
-            //console.log("Not storing this new credential request as one is already in the buffer!");
+            if (background_debug_msg > 3) mpDebug.log("Not storing this new credential request as one is already in the buffer!");
             return;
         }
     }
@@ -421,11 +422,11 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     {
         if(!mooltipass.device._status.unlocked)
         {
-            //console.log("Mooltipass locked, waiting for unlock");
+            if (background_debug_msg > 3) mpDebug.log("Mooltipass locked, waiting for unlock");
         }
         else
         {
-            //console.log("Requests still in the queue, waiting for reply from the app");
+            if (background_debug_msg > 3) mpDebug.log("Requests still in the queue, waiting for reply from the app");
         }        
     }
 };

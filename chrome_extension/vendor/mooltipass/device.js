@@ -383,8 +383,9 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         /*if(forceCallback) {
             callback([]);
         }
-        */
         return;
+        */
+        
     }
 
     // Store the tab id, prevent a possible very close tabupdatevent action

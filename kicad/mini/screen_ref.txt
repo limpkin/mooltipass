@@ -1,0 +1,3 @@
+This screen has many different references on the internet
+If you were to buy it, look for "2.23 inch Blue OLED screen" and look inside the datasheets/mini folder for its datasheet.
+All that is important is that it has a SSD1305Z controller

@@ -239,4 +239,6 @@ mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
     return toReturn;
 }
 
-mooltipass.backend._updateStatusIcon();
+setTimeout( function() {
+    mooltipass.backend._updateStatusIcon();
+},500);

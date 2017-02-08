@@ -543,6 +543,9 @@ mcCombinations.prototype.getAllForms = function() {
 			else {
 				if ( !containerForm.data('mp-id') ) {
 					this.setUniqueId( containerForm );
+				}
+
+				if ( !this.forms[ containerForm.data('mp-id') ] ) {
 					this.forms[ containerForm.data('mp-id') ] = {
 						fields: [],
 						element: containerForm

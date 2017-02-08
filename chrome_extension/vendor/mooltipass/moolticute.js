@@ -3,6 +3,8 @@
  * (c) Raoul Hecky
  */
 
+if ( typeof background_debug_msg === 'undefined') background_debug_msg = false;
+
 var moolticute = moolticute || {};
 
 moolticute.status = {

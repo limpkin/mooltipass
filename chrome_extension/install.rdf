@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>{da36041e-5ce1-4c8a-9dc5-406cc98f0a23}</em:id>
+    <em:name>Mooltipass Extension</em:name>
+    <em:version>1.1.59</em:version>
+    <em:type>2</em:type>
+    <em:description>Retrieve and store Mooltipass credentials easily from websites</em:description>
+    <em:homepageURL>https://www.themooltipass.com/setup</em:homepageURL>
+    <em:creator>limpkin</em:creator>
+    <em:developer>The mooltipass team</em:developer>
+    <em:multiprocessComptabile>true</em:multiprocessComptabile>
+    <em:optionsType>2</em:optionsType>
+    <em:skinnable>false</em:skinnable>
+    <em:unpack>false</em:unpack>
+  </Description>
+
+  <!-- Firefox -->
+  <em:targetApplication>
+    <Description>
+      <em:id>{{ec8030f7-c20a-464f-9b0e-13a3a9e97384}}</em:id>
+      <em:minVersion>48.0</em:minVersion>
+      <em:maxVersion>*</em:maxVersion>
+    </Description>
+  </em:targetApplication>
+</RDF>

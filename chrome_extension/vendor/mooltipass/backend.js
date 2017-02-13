@@ -56,7 +56,8 @@ mooltipass.backend.setStatusIcon = function(icon_name) {
 }
 
 mooltipass.backend.updateStatusIcon = function() {
-    if (mooltipass.device.getStatus()['deviceUnlocked']) {
+    var status = mooltipass.device.getStatus();
+    if (status['deviceUnlocked']) {
         iconName = "normal";
     } else {
         iconName = "cross";

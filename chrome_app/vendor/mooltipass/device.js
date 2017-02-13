@@ -210,11 +210,13 @@ mooltipass.device.checkForMoolticute = function() {
 
     this.moolticuteSocket.onclose = function() {
         if ( mooltipass.device.usingMoolticute == true ) {
-            mooltipass.device._forceEndMemoryManagementModeLock = false;
-        
-            // Initial start processing queue
-            mooltipass.device.restartProcessingQueue();
+            mooltipass.device.usingMoolticute = false;
         }
+        //     mooltipass.device._forceEndMemoryManagementModeLock = false;
+        
+        //     // Initial start processing queue
+        //     mooltipass.device.restartProcessingQueue();
+        // }
 
         clearInterval( mooltipass.device.interval );
         mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
@@ -231,6 +233,7 @@ mooltipass.device.init = function() {
     mooltipass.device.usingMoolticute = false;
     mooltipass.device._forceEndMemoryManagementModeLock = false;
     mooltipass.device.restartProcessingQueue();
+    mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
     this.checkForMoolticute();
 };
 
@@ -738,6 +741,9 @@ mooltipass.device.onDataReceived = function(reportId, data) {
     var cmd = bytes[1];
 
     var command = mooltipass.device.commandsReverse[cmd];
+
+    // Stop processing if we get an unknown command
+    if ( typeof command == undefined) return;
 
     if(mooltipass.device.debug)
     {

@@ -366,6 +366,34 @@ mooltipass.memmgmt.getNodesPerPage = function(nbMb)
 		return 2;
 	}
 }
+
+mooltipass.memmgmt.getStartPage = function(nbMb)
+{
+	if(nbMb == 1)
+	{
+		return 128;
+	}
+	else if(nbMb == 2)
+	{
+		return 128;
+	}
+	else if(nbMb == 4)
+	{
+		return 256;
+	}
+	else if(nbMb == 8)
+	{
+		return 256;
+	}
+	else if(nbMb == 16)
+	{
+		return 256;
+	}
+	else if(nbMb == 32)
+	{
+		return 128;
+	}
+}
  
 // Compare addresses
 mooltipass.memmgmt.isSameAddress = function(addressA, addressB)

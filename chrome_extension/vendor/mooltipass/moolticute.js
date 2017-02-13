@@ -152,13 +152,16 @@ moolticute.fireEvent = function(type, data) {
 
 moolticute.on('statusChange', function(type, data) {
     if (background_debug_msg > 4) mpDebug.log('%c Moolticute statusChange event received', mpDebug.css('FFC6A0'));
-    mooltipass.device._status = {
-        'connected': moolticute.status.connected,
-        'unlocked': moolticute.status.unlocked,
-        'version': moolticute.status.version,
-        'state' : moolticute.status.state
-    };
-    mooltipass.connectedToApp = moolticute.connectedToDaemon;
+    if ( moolticute.connectedToDaemon ) {
+        mooltipass.device._status = {
+            'connected': moolticute.status.connected,
+            'unlocked': moolticute.status.unlocked,
+            'version': moolticute.status.version,
+            'state' : moolticute.status.state
+        };    
+    }
+    
+    mooltipass.connectedToApp = !moolticute.connectedToDaemon;
 });
 
 // Encapsulation for websocket

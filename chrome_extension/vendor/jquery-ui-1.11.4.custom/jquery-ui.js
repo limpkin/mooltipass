@@ -1,5 +1,3 @@
-window.mpJQ = jQuery.noConflict(true);
-
 /*! jQuery UI - v1.11.4 - 2015-07-07
 * http://jqueryui.com
 * Includes: core.js, widget.js, mouse.js, position.js, draggable.js, resizable.js, autocomplete.js, button.js, dialog.js, menu.js

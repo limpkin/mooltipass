@@ -1,3 +1,5 @@
+window.mpJQ = jQuery.noConflict(true);
+
 if (typeof mooltipass == 'undefined') {
 	mooltipass = {};
 }

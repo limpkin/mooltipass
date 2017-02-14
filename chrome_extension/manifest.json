@@ -40,8 +40,8 @@
       "js": [
         "mooltipass-pre-jquery.js",
         "vendor/jquery-2.1.4.js",
-        "vendor/jquery-ui-1.11.4.custom/jquery-ui.js",
         "vendor/mooltipass/website.js",
+        "vendor/jquery-ui-1.11.4.custom/jquery-ui.js",
         "vendor/sendkeys.js",
         "vendor/mooltipass/mcCombinations.js",
         "mooltipass-content.js"

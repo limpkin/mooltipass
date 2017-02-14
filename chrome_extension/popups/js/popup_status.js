@@ -14,19 +14,19 @@ else {
 }
 
 function initSettings() {
-    $("#btn-settings").click(function() {
+    mpJQ("#btn-settings").click(function() {
         chrome.tabs.create({
             url: "/options/options.html"
         });
     });
 
-    $("#btn-open-app").click(function(e) {
+    mpJQ("#btn-open-app").click(function(e) {
         e.preventDefault();
         messaging( { action: "show_app" }, function() {} );
         close();
     });
 
-    $("#btn-report-error").click(function() {
+    mpJQ("#btn-report-error").click(function() {
         mooltipass.website.reportError(function(target_url){
             chrome.tabs.create({
                 url: target_url
@@ -34,13 +34,13 @@ function initSettings() {
         });        
     });
 
-    $("#btn-select-credential-fields").click(function() {
+    mpJQ("#btn-select-credential-fields").click(function() {
         var global = chrome.extension.getBackgroundPage();
         mooltipass.website.chooseCredentialFields();
         close();
     });
 
-    $("#btn-add-site-to-blacklist").click(function() {
+    mpJQ("#btn-add-site-to-blacklist").click(function() {
         chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
             chrome.runtime.sendMessage({
                 action: 'blacklist_url',
@@ -50,7 +50,7 @@ function initSettings() {
         close();
     });
 
-    $("#btn-remove-site-from-blacklist").click(function() {
+    mpJQ("#btn-remove-site-from-blacklist").click(function() {
         chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
             chrome.runtime.sendMessage({
                 action: 'unblacklist_url',
@@ -62,35 +62,35 @@ function initSettings() {
 }
 
 function getStatusCallback( object ) {
-     $('#status-bar .status > span').hide();
+     mpJQ('#status-bar .status > span').hide();
 
     // Connection to app established, device connected and unlocked
     if (object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
-        $('#device-unlocked').show();
+        mpJQ('#device-unlocked').show();
     }
     // Connection to app established, device connected but locked
     else if (!object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
-        $('#device-locked').show();
+        mpJQ('#device-locked').show();
     }
     // Connection to app established, but no device connected
     else if (!object.status.connectedToDevice && object.status.connectedToApp) {
-        $('#device-disconnected').show();
+        mpJQ('#device-disconnected').show();
     }
     // No app found
     else if(!object.status.connectedToApp) {
-        $('#app-missing').show();
+        mpJQ('#app-missing').show();
     }
     // Unknown error
     else {
-        $('#unknown-error').show();
+        mpJQ('#unknown-error').show();
     }
 
     if ( object.blacklisted ) {
-        $('#btn-remove-site-from-blacklist').show();
-        $('#btn-add-site-to-blacklist').hide();
+        mpJQ('#btn-remove-site-from-blacklist').show();
+        mpJQ('#btn-add-site-to-blacklist').hide();
     } else {
-        $('#btn-add-site-to-blacklist').show();
-        $('#btn-remove-site-from-blacklist').hide();
+        mpJQ('#btn-add-site-to-blacklist').show();
+        mpJQ('#btn-remove-site-from-blacklist').hide();
     }
 }
 
@@ -104,7 +104,7 @@ function updateStatusInfo() {
             // Check if notifications are enabled
             chrome.notifications.getPermissionLevel(function(response) {
                 if (response == 'denied') {
-                    $("#notifications-disabled").show();
+                    mpJQ("#notifications-disabled").show();
                 }
             });        
         }
@@ -116,10 +116,10 @@ function _updateStatusInfo() {
     setTimeout(_updateStatusInfo, 1000);
 }
 
-$(function() {
+mpJQ(function() {
     initSettings();
-    $('#status-bar .status > span').hide();
-    $('#initial-state').show();
+    mpJQ('#status-bar .status > span').hide();
+    mpJQ('#initial-state').show();
         
     _updateStatusInfo();
 });

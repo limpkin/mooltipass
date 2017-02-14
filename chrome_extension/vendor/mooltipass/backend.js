@@ -106,7 +106,7 @@ mooltipass.backend.isBlacklisted = function(url) {
  * @param url
  */
 mooltipass.backend.blacklistUrl = function(url) {
-    console.log('got blacklist req. for', url);
+    if (background_debug_msg > 4) mpDebug.log('%c backend: %c got blacklist req. for ','background-color: #ffc107','color: #000', url);
 
     if(url.indexOf('://') > -1) {
         var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);
@@ -116,7 +116,7 @@ mooltipass.backend.blacklistUrl = function(url) {
         // See if our script detected a valid domain & subdomain
         if(!parsed_url.valid)
         {
-            console.error('Invalid URL for blacklisting given:', url);
+            if (background_debug_msg > 4) mpDebug.log('%c backend: %c Invalid URL for blacklisting given','background-color: #ffc107','color: #000', url);
             return;
         }
 
@@ -131,13 +131,13 @@ mooltipass.backend.blacklistUrl = function(url) {
 
     mooltipass.backend._blacklist[url] = true;
     localStorage.mpBlacklist = JSON.stringify(mooltipass.backend._blacklist);
-    console.log('updated blacklist store');
 };
 
 mooltipass.backend.handlerBlacklistUrl = function(callback, tab, url) {
-    console.log('backlist:', url);
+    if (background_debug_msg > 4) mpDebug.log('%c backend: %c handlerBlacklistUrl','background-color: #ffc107','color: #000', url);
     mooltipass.backend.blacklistUrl(url);
     callback(true);
+    if (background_debug_msg > 4) mpDebug.log('%c backend: %c updated blacklist store ','background-color: #ffc107','color: #000', url);
 }
 
 /**
@@ -146,7 +146,7 @@ mooltipass.backend.handlerBlacklistUrl = function(callback, tab, url) {
  * @param url
  */
 mooltipass.backend.unblacklistUrl = function(url) {
-    console.log('got blacklist removal req. for', url);
+    if (background_debug_msg > 4) mpDebug.log('%c backend: %c got blacklist removal req. for','background-color: #ffc107','color: #000', url);
 
     if(url.indexOf('://') > -1) {
         var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);
@@ -156,7 +156,7 @@ mooltipass.backend.unblacklistUrl = function(url) {
         // See if our script detected a valid domain & subdomain
         if(!parsed_url.valid)
         {
-            console.error('Invalid URL for blacklisting given:', url);
+            if (background_debug_msg > 4) mpDebug.log('%c backend: %c Invalid URL for blacklisting given:','background-color: #ffc107','color: #000', url);
             return;
         }
 
@@ -169,13 +169,12 @@ mooltipass.backend.unblacklistUrl = function(url) {
         }
     }
 
-    delete mooltipass.backend._blacklist[url]
+    delete mooltipass.backend._blacklist[url];
     localStorage.mpBlacklist = JSON.stringify(mooltipass.backend._blacklist);
-    console.log('updated blacklist store');
+    if (background_debug_msg > 4) mpDebug.log('%c backend: %c updated blacklist store ','background-color: #ffc107','color: #000', url);
 };
 
 mooltipass.backend.handlerUnBlacklistUrl = function(callback, tab, url) {
-    console.log('remove from backlist:', url);
     mooltipass.backend.unblacklistUrl(url);
     callback(true);
 }

@@ -1,3 +1,5 @@
+window.mpJQ = jQuery.noConflict(true);
+
 if (typeof mooltipass == 'undefined') {
 	mooltipass = {};
 }
@@ -7,7 +9,6 @@ mooltipass.website = mooltipass.website || {};
 
 
 mooltipass.website.generatePassword = function(length, callback) {
-    //console.log('mooltipass.website.generatePassword()');
     // Return a random password with given length
     chrome.runtime.sendMessage({
         action: 'generate_password',

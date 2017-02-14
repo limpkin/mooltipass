@@ -41,7 +41,7 @@ startMooltipass = function() {
 		safari.application.addEventListener( "message", mooltipassEvent.onMessage, false );
 
 		safari.application.addEventListener("open", function(tab) {
-			console.log( tab );
+			// TODO: Gaston, this can be removed
 		}, true);
 
 		safari.application.addEventListener("activate", function( evt ) {

@@ -963,21 +963,6 @@ cipFields.prepareCombinations = function(combinations) {
 		// initialize form-submit for remembering credentials
 		var fieldId = combinations[i].password || combinations[i].username;
 		var field = _f(fieldId);
-		if(field) {
-			var form = field.closest("form");
-			if(form && form.length > 0) {
-				cipDebug.log("cipForm.init call");
-				cipForm.init(form, combinations[i]);
-			}
-			else
-			{
-				cipDebug.log("couldn't find closest form");
-			}
-		}
-		else
-		{
-			cipDebug.log("field set to false");
-		}
 	}
 }
 
@@ -1077,9 +1062,8 @@ cip.initCredentialFields = function(forceCall) {
 	if ( cip.formHasCaptcha) cip.autoSubmit = false; 
 
 	/*
-	 * Uncomment next 2 lines of code for development tests (will prevent forms to auto-submit)
+	 * Uncomment next line of code for development tests (will prevent forms to auto-submit)
 	*/
-	// console.log('Would autoSubmit? ' + cip.autoSubmit );
 	//cip.autoSubmit = false; // Temporarily forbid auto-submit
 
 	// get all combinations of username + password fields
@@ -1293,12 +1277,6 @@ cip.fillInCredentials = function(combination, onlyPassword, suppressWarnings) {
 		// initialize form-submit for remembering credentials
 		var fieldId = combination.password || combination.username;
 		var field = _f(fieldId);
-		if(field) {
-			var form2 = field.closest("form");
-			if(form2 && form2.length > 0) {
-				cipForm.init(form2, combination);
-			}
-		}
 	}
 
 	if(u) {
@@ -1463,7 +1441,6 @@ cip.fillIn = function(combination, onlyPassword, suppressWarnings) {
 
 		var list = {};
 		if(cip.fillInStringFields(combination.fields, cip.credentials[0].StringFields, list)) {
-			cipForm.destroy(false, {"password": list.list[0], "username": list.list[1]});
 			filledIn = true;
 		}
 
@@ -1493,7 +1470,6 @@ cip.fillIn = function(combination, onlyPassword, suppressWarnings) {
 
 		var list = {};
 		if(cip.fillInStringFields(combination.fields, cip.credentials[combination.loginId].StringFields, list)) {
-			cipForm.destroy(false, {"password": list.list[0], "username": list.list[1]});
 			filledIn = true;
 		}
 
@@ -1544,9 +1520,6 @@ cip.fillIn = function(combination, onlyPassword, suppressWarnings) {
 				}
 
 				var list = {};
-				if(cip.fillInStringFields(combination.fields, valStringFields, list)) {
-					cipForm.destroy(false, {"password": list.list[0], "username": list.list[1]});
-				}
 			}
 
 			// user has to select correct credentials by himself
@@ -1752,9 +1725,6 @@ cipEvents.startEventHandling = function() {
 					}
 
 					var list = {};
-					if(cip.fillInStringFields(combination.fields, cip.credentials[req.id].StringFields, list)) {
-						cipForm.destroy(false, {"password": list.list[0], "username": list.list[1]});
-					}
 				}
 				// wish I could clear out _logins and _u, but a subsequent
 				// selection may be requested.

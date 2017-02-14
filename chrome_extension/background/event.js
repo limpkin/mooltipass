@@ -81,61 +81,6 @@ mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime
 	args.unshift(callback);
 	handler.apply(this, args);
 	return;
-
-	// Old functions, leaving them there as I'm expecting special cases (like the window.open one mentioned down below)
-	// if(senderTabId < 1) {
-	// 	return;
-	// }
-
-	// if(!page.tabs[senderTabId]) {
-	// 	page.createTabEntry(senderTabId);
-	// }
-
-	// // remove information from no longer existing tabs
-	// page.removePageInformationFromNotExistingTabs();
-
-	// chrome.tabs.get(senderTabId, function(tab) {
- //        if (chrome.runtime.lastError) {
- //            console.log('failed to invoke function for tab: '+chrome.runtime.lastError);
- //            return;
- //        }
-
-	// //chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}, function(tabs) {
-	// 	//if (tabs.length === 0)
-	// 	//	return; // For example: only the background devtools or a popup are opened
-	// 	//var tab = tabs[0];
-
-	// 	if(!tab) {
-	// 		return;
-	// 	}
-
-	// 	if (!tab.url) {
-	// 		// Issue 6877: tab URL is not set directly after you opened a window
-	// 		// using window.open()
-	// 		if (!secondTime) {
-	// 			window.setTimeout(function() {
-	// 				mooltipassEvent.invoke(handler, callback, senderTabId, args, true);
-	// 			}, 250);
-	// 		}
-	// 		return;
-	// 	}
-
-	// 	if(!page.tabs[tab.id]) {
-	// 		page.createTabEntry(tab.id);
-	// 	}
-
-	// 	args = args || [];
-
-	// 	args.unshift(tab);
-	// 	args.unshift(callback);
-
-	// 	if(handler) {
-	// 		handler.apply(this, args);
-	// 	}
-	// 	else {
-	// 		console.log("undefined handler for tab " + tab.id);
-	// 	}
-	// });
 }
 
 
@@ -150,7 +95,7 @@ mooltipassEvent.onLoadSettings = function(callback, tab) {
 }
 
 mooltipassEvent.onLoadKeyRing = function(callback, tab) {
-    //console.log('mooltipassEvent.onLoadKeyRing()');
+    //TODO: Gaston: I think this can be removed
 }
 
 mooltipassEvent.onGetSettings = function(callback, tab) {
@@ -202,7 +147,6 @@ mooltipassEvent.onGetTabInformation = function(callback, tab) {
 }
 
 mooltipassEvent.onGetConnectedDatabase = function(callback, tab) {
-    // console.log('mooltipassEvent.onGetConnectedDatabase()');
 	callback({
 		"count": 10,
 		"identifier": 'my_mp_db_id'
@@ -217,12 +161,9 @@ mooltipassEvent.onRemoveCredentialsFromTabInformation = function(callback, tab) 
 
 mooltipassEvent.onNotifyButtonClick = function(id, buttonIndex) 
 {
-    //console.log('notification',id,'button',buttonIndex,'clicked');
-	
 	// Check the kind of notification
 	if (id.indexOf('mpNotConnected') == 0 || id.indexOf('mpNotUnlocked') == 0)
 	{
-		//console.log('Disabling not unlocked notifications');
 		mooltipass.backend.disableNonUnlockedNotifications = true;
 	}
 	else

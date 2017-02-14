@@ -107,7 +107,7 @@ moolticute.sendRequest = function( request ) {
 
 moolticute.cancelRequest = function( reqid, domain, subdomain ) {
     // TODO: need to clean up the Callbacks otherwise it might get crowded here.
-    console.log('Cancel Request');
+    if (background_debug_msg > 4) mpDebug.log('%c Moolticute Cancel Request', mpDebug.css('FFC6A0'), reqid);
 
     moolticute.websocket.send(JSON.stringify({
         'msg': 'cancel_request',
@@ -249,7 +249,7 @@ moolticute.websocket = {
                 // Just discard response, as we don't need it.
                 break;
             default:
-                console.warn('Unknown message: ', recvMsg.msg, recvMsg );
+                if (background_debug_msg > 1) mpDebug.log('%c Unknown message:  ', mpDebug.css('FFC6A0'), recvMsg.msg, recvMsg  );
         }
         
         mooltipass.device.messageListener( wrapped );

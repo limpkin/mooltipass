@@ -20,7 +20,7 @@ browserAction.show = function(callback, tab) {
 					popup: "popups/" + data.popup
 				});
     		} else {
-    			console.log( chrome.runtime.lastError );
+    			if (background_debug_msg > 1) mpDebug.log('%c Chrome runtime error ', mpDebug.css('FFD389') , chrome.runtime.lastError );
     		}
 		});
 	}
@@ -116,7 +116,7 @@ browserAction.stackAdd = function(callback, tab, icon, popup, level, push, visib
 
 browserAction.removeLevelFromStack = function(callback, tab, level, type, dontShow) {
 	if(!page.tabs[tab.id]) {
-        console.log('browserAction.removeLevelFromStack() no tab.id', tab);
+		if (background_debug_msg > 4) mpDebug.log('%c browserAction.removeLevelFromStack() no tab.id ', mpDebug.css('FFD389') , tab );
 		return;
 	}
 
@@ -142,7 +142,7 @@ browserAction.removeLevelFromStack = function(callback, tab, level, type, dontSh
 	page.tabs[tab.id].stack = newStack;
 
 	if(!dontShow) {
-        console.log('browserAction.removeLevelFromStack() showing tab');
+		if (background_debug_msg > 4) mpDebug.log('%c browserAction.removeLevelFromStack() showing tab ', mpDebug.css('FFD389') );
 		browserAction.show(callback, tab);
 	}
 }
@@ -156,7 +156,7 @@ browserAction.stackPop = function(tabId) {
 browserAction.stackPush = function(data, tabId) {
 	var id = tabId || page.currentTabId;
 
-    console.log('browserAction.stackPush()');
+	if (background_debug_msg > 4) mpDebug.log('%c browserAction: stackPush', mpDebug.css('FFD389') );
 	browserAction.removeLevelFromStack(null, {"id": id}, data.level, "<=", true);
 	page.tabs[id].stack.push(data);
 };
@@ -190,7 +190,7 @@ browserAction.removeRememberPopup = function(callback, tab, removeImmediately) {
 browserAction.setRememberPopup = function(tabId, username, password, url, usernameExists, credentialsList) {
 	var id = tabId || page.currentTabId;
 
-    console.log('browserAction.setRememberPopup()');
+	if (background_debug_msg > 4) mpDebug.log('%c browserAction: setRememberPopup ', mpDebug.css('FFD389') );
 	var stackData = {
         visibleForMilliSeconds: 7500,
 		level: 10,

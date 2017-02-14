@@ -1062,9 +1062,8 @@ cip.initCredentialFields = function(forceCall) {
 	if ( cip.formHasCaptcha) cip.autoSubmit = false; 
 
 	/*
-	 * Uncomment next 2 lines of code for development tests (will prevent forms to auto-submit)
+	 * Uncomment next line of code for development tests (will prevent forms to auto-submit)
 	*/
-	// console.log('Would autoSubmit? ' + cip.autoSubmit );
 	//cip.autoSubmit = false; // Temporarily forbid auto-submit
 
 	// get all combinations of username + password fields

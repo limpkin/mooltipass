@@ -75,7 +75,20 @@ function _inject_scripts()
 # inject scripts for Firefox
 function _inject_firefox_scripts()
 {
+    local extension_ver
+
+    if [ ! -f "${CWD}/install.rdf" ]; then
+        echo "Firefox extension install.rdf missing" 1>&2
+        return 1
+    fi
+
     cp "${CWD}/install.rdf" "${OUTPUT_DIR}/"
+    extension_ver=$(sed -n 's/[[:space:]]*\"version\":[[:space:]]*"\(.*\)",/\1/p' "${CWD}/manifest.json")
+    if [ -z "$extension_ver" ]; then
+        echo "[WARNING] cannot found version from manifest.json" 1&>2
+    fi
+
+    sed -i "s;\([[:space:]]*<em:version>\).*\(</em:version>.*\);\1${extension_ver}\2;" "${OUTPUT_DIR}/install.rdf"
 }
 
 # print usage message on stderr

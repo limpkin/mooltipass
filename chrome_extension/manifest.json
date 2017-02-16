@@ -38,7 +38,6 @@
     {
       "matches": ["http://*/*", "https://*/*"],
       "js": [
-        "mooltipass-pre-jquery.js",
         "vendor/jquery-2.1.4.js",
         "vendor/mooltipass/website.js",
         "vendor/jquery-ui-1.11.4.custom/jquery-ui.js",

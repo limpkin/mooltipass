@@ -161,7 +161,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 	mpJQ("#mooltipass-use-as-password").click(function(e){
 		var password = mpJQ("#mooltipass-password-generator").val();
 
-		var a = $("input[type='password']:not('.mooltipass-password-do-not-update')");
+		var a = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
 
 		a.sendkeys( password );
 		a.trigger('change');

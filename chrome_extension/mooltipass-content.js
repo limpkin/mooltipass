@@ -1,3 +1,5 @@
+// Adding this here just in case.
+window.mpJQ = $;
 
 // Detect if we're dealing with Firefox, Safari, or Chrome
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
@@ -117,7 +119,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		<p style="font-size:12px !important; margin-bottom: 12px !important;">You can store your entered credentials in the Mooltipass device to securely store and easily access them.</p> \
 		<p class="mooltipass-text-right" style="margin-bottom: 12px !important;"><button id="mooltipass-store-credentials" class="mooltipass-button">Store or update current credentials</button><br /><a href="#" style="margin-top: 5px !important; display: inline-block !important; font-size: 12px !important;" id="mooltipass-select-custom">Select custom credential fields</a></p>  \
 	  </div> \
-	  <div class="mp-ui-dialog-titlebar mp-ui-widget-header mp-ui-corner-all mp-ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="mp-ui-id-2" class="mp-ui-dialog-title">Password Generator</span></div> \
+	  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="ui-id-2" class="ui-dialog-title">Password Generator</span></div> \
 	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
 	  <p class="mooltipass-text-right" style="margin-bottom:0.5rem !important;"><a href="" id="mooltipass-new-password">Re-generate</a><button id="mooltipass-use-as-password" class="mooltipass-button">Copy to all password fields</button></p> \
 	  <p class="mooltipass-text-right"><button id="mooltipass-copy-to-clipboard" class="mooltipass-button">Copy to clipboard</button></p> \
@@ -136,7 +138,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		minWidth: 280,
 		title: "Credential Storage",
 		open: function(event, ui) {
-			mpJQ(".mp-ui-widget-overlay").click(function() {
+			mpJQ(".ui-widget-overlay").click(function() {
 				mpJQ("#mp-genpw-dialog:first").dialog("close");
 			});
 
@@ -159,7 +161,10 @@ cipPassword.createDialog = function(inputs, $pwField) {
 	mpJQ("#mooltipass-use-as-password").click(function(e){
 		var password = mpJQ("#mooltipass-password-generator").val();
 
-		mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')").sendkeys( password ).dispatchEvent(new Event('change'));
+		var a = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
+
+		a.sendkeys( password );
+		a.trigger('change');
 		e.preventDefault();
 	});
 

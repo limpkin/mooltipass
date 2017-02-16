@@ -790,4 +790,4 @@ $.event.special.keydown._default = function (evt){
 	}
 	return false;
 }
-})(mpJQ);
+})($);

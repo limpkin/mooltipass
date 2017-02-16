@@ -1,7 +1,7 @@
-.mp-ui-dialog, .mp-ui-dialog * {
+.ui-dialog, .ui-dialog * {
     box-sizing: content-box !important;    
 }
-.mp-ui-autocomplete li.mp-ui-menu-item {
+.ui-autocomplete li.ui-menu-item {
 	text-align: left !important;
 	font-size: 12px !important;
 	font-weight: normal !important;
@@ -9,14 +9,14 @@
 	font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
 	color: #222222 !important;
 }
-.mp-ui-dialog-titlebar-close {
+.ui-dialog-titlebar-close {
 	visibility: hidden !important;
 }
-.mp-ui-widget-overlay {
+.ui-widget-overlay {
 	background: none !important;
 	z-index: 2147483601 !important;
 }
-.mp-ui-dialog {
+.ui-dialog {
   z-index: 2147483602 !important;
   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.1);
   border-radius: 0;
@@ -24,7 +24,7 @@
   padding: 0;	
   font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
 }
-.mp-ui-dialog .mp-ui-dialog-title {
+.ui-dialog .ui-dialog-title {
     background-attachment: scroll !important;
     background-clip: border-box !important;
     background-color: rgba(0, 0, 0, 0) !important;
@@ -75,7 +75,7 @@
     white-space: nowrap !important;
     width: 248.390625px !important;
 }
-.mp-ui-dialog .mp-ui-dialog-titlebar {
+.ui-dialog .ui-dialog-titlebar {
     background-attachment: scroll !important;
     background-clip: border-box !important;
     background-color: rgb(255, 255, 255) !important;
@@ -128,14 +128,14 @@
     vertical-align: baseline !important;
     width: 276px !important;
 }
-.mp-ui-dialog-content {
+.ui-dialog-content {
 	font-size: .9em !important;
 }
 
 #mp-genpw-dialog {
     background-attachment: scroll !important;
     background-clip: border-box !important;
-    background-color: rgba(0, 0, 0, 0) !important;
+    background-color: rgba(255, 255, 255, 1) !important;
     background-image: none !important;
     background-origin: padding-box !important;
     background-size: auto !important;
@@ -183,7 +183,7 @@
     vertical-align: baseline !important;
     width: 276.25px !important;
 }
-#mp-genpw-dialog .mp-ui-dialog-titlebar {
+#mp-genpw-dialog .ui-dialog-titlebar {
     margin-left: -12px !important;
     margin-right: -12px !important;
     border-top: 1px solid #DDD !important;
@@ -208,7 +208,7 @@
 	height: 16px;
 	background-image: url(chrome-extension://__MSG_@@extension_id__/images/icon_password_16.png);
 }
-.mp-ui-dialog-titlebar.mp-ui-widget-header.mp-ui-corner-all.mp-ui-helper-clearfix {
+.ui-dialog-titlebar.ui-widget-header.ui-corner-all.ui-helper-clearfix {
   border-radius: 0;
   border: none;
 }
@@ -831,7 +831,7 @@ input.mp-hover-password {
     background: rgba(255,40,40,0.39) !important;
 }
 
-.mp-ui-dialog p {
+.ui-dialog p {
 	margin-bottom: 1rem !important;
 }
 
@@ -908,7 +908,7 @@ input.mp-hover-password {
         height: 16px;
         background-image: url(images/icon_password_16.png);
     }
-    .mp-ui-dialog-titlebar.mp-ui-widget-header.mp-ui-corner-all.mp-ui-helper-clearfix {
+    .ui-dialog-titlebar.ui-widget-header.ui-corner-all.ui-helper-clearfix {
       border-radius: 0;
       border: none;
     }

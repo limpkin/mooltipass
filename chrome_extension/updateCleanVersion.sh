@@ -81,6 +81,7 @@ function _inject_firefox_scripts()
         return 1
     fi
 
+	rm "${OUTPUT_DIR}/manifest.json"
     cp "${CWD}/install.rdf" "${OUTPUT_DIR}/"
     extension_ver=$(sed -n 's/[[:space:]]*\"version\":[[:space:]]*"\(.*\)",/\1/p' "${CWD}/manifest.json")
     if [ -z "$extension_ver" ]; then

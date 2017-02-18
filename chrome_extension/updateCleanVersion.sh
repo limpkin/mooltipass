@@ -2,33 +2,50 @@
 readonly CWD="$(cd "$(dirname "$0")" && pwd)"
 readonly OUTPUT_DIR="${CWD}/CleanVersion"
 
+EXTENSION_NAME='mooltipass-extension'
+
 trap _clean_wd INT TERM
+trap _clean_chrome EXIT
 
 # main
 #
 # $@: argv
 function main()
 {
-    local -i build_firefox
     local -i test_only
+    local chrome_sign_key
 
-    build_firefox=0
     test_only=0
-
-    if [ $# -gt 3 ]; then
-        _usage "$0"
-    fi
+    chrome_sign_key=''
 
     while [ $# -gt 0 ]; do
         case "$1" in
+            '--extension-name')
+                if [ $# -lt 2 ]; then
+                    _usage "$0" "must proviate the name of the generated extension"
+                fi
+                EXTENSION_NAME="$2"
+                shift 2
+                ;;
+            '--sign-key')
+                if [ $# -lt 2 ]; then
+                    _usage "$0" "must provide the chrome key signature pathname"
+                fi
+
+                chrome_sign_key="$2"
+                shift 2
+                ;;
              '--target')
                  if [ $# -lt 2 ]; then
                      _usage "$0" "must provide a target"
                  fi
 
+                 echo "[INFO] Specific target build not implemented yet"
+                 exit 4
+
                  case "$2" in
                      'firefox')
-                         build_firefox=1
+                         :
                          ;;
                      *)
                          _usage "$0" "unknown target $2"
@@ -46,6 +63,10 @@ function main()
         esac
     done
 
+    if [ -z "${chrome_sign_key}" ]; then
+        _usage "$0" "must provide the chrome key signature pathname"
+    fi
+
     _clean_wd
 
     if [ ! -d "$OUTPUT_DIR" ]; then
@@ -53,60 +74,139 @@ function main()
     fi
 
     _inject_scripts
-
-    [ $build_firefox != 0 ] && _inject_firefox_scripts
-
-    _test "$build_firefox"
-
-    if [ "$test_only" == 0 ]; then
-        _build "$build_firefox"
-    fi
+    _test
+    [ "$test_only" == 0 ] && _build "${chrome_sign_key}"
 }
 
 # create the tarball to send to the store
 #
-# $1: boolean set if we are building Firefox add-on/web extension
+# $1: chrome signing key
 function _build()
 {
-    local -i build_firefox
+    local zip_file="${CWD}/${EXTENSION_NAME}.zip"
 
-    build_firefox=$1
-
-    case "$build_firefox" in
-        1)
-            _build_firefox_xpi
-            ;;
-        *)
-            echo "[WARNING] Build for this target is not implemented"
-            exit 2
-            ;;
-    esac
-}
-
-# build the Firefox XPI from ${OUTPUT_DIR}
-function _build_firefox_xpi()
-{
-    local extension_id
-    local xpi_file
-
-    # the final grep is to remove the Firefox id from the list
-    # I don't manage to remove it from sed :/
-    extension_id='mooltipass@themooltipass'
-    xpi_file="${CWD}/${extension_id}.xpi"
-
-    if [ -f "${xpi_file}" ]; then
-        echo "[INFO] ${xpi_file} already exist will overwrite"
+    if [ -f "${zip_file}" ]; then
+        echo "[INFO] ${zip_file} already exist will overwrite"
     fi
 
     (
         cd "${OUTPUT_DIR}" || exit 1
-        if ! zip -1 -qr "${xpi_file}" ./*; then
-            echo "[ERROR] ${xpi_file} generation failed"
+        if ! zip -1 -qr "${zip_file}" ./*; then
+            echo "[ERROR] ${zip_file} generation failed"
+            exit 1
+        fi
+    )
+
+    _build_firefox_xpi "${zip_file}"
+    _build_chromium_crx "${zip_file}" "${1}"
+}
+
+# build the Chromium CRX file from the generated ZIP file.
+#
+# following code is extracted from https://developer.chrome.com/extensions/crx
+#
+# $1: base ZIP file
+# $2: path to private key for signin Chromium extensions
+function _build_chromium_crx()
+{
+    local base_zip
+    local zip_file
+    local chrome_sign_key
+    local crx_file
+    # temporary generated file
+    local sig
+    local pub
+    local pub_len_hex
+    local sig_len_hex
+
+    readonly CRMAGIC_HEX="4372 3234" # Cr24
+    readonly VERSION_HEX="0200 0000" # 2
+
+    zip_file="$1"
+    chrome_sign_key="$2"
+    base_zip="$(basename "${zip_file}")"
+    crx_file="${base_zip//.zip/.crx}"
+    sig="${base_zip//.zip/.sig}"
+    pub="${base_zip//.zip/.pub}"
+
+    _file_present "${zip_file}"
+    _file_present "${chrome_sign_key}"
+
+    # signature
+    openssl sha1 -sha1 -binary -sign "${chrome_sign_key}" < "${zip_file}" > "${sig}"
+
+    # public key
+    openssl rsa -pubout -outform DER < "${chrome_sign_key}" > "${pub}" 2>/dev/null
+
+    pub_len_hex=$(_byte_swap "$(printf '%08x\n' "$(ls -l "$pub" | awk '{print $5}')")")
+    sig_len_hex=$(_byte_swap "$(printf '%08x\n' "$(ls -l "$sig" | awk '{print $5}')")")
+
+    (
+        echo "${CRMAGIC_HEX} ${VERSION_HEX} ${pub_len_hex} ${sig_len_hex}" | xxd -r -p
+        cat "${pub}" "${sig}" "${zip_file}"
+    ) > "${crx_file}"
+}
+
+# build the Firefox XPI from ${OUTPUT_DIR}
+#
+# The XPI file is expected to be a symlink to the ZIP file
+#
+# $1: pathname of the base zip file
+function _build_firefox_xpi()
+{
+    local dir_zip
+    local base_zip
+    local zip_file
+    local xpi_file
+
+    zip_file="$1"
+
+    _file_present "${zip_file}"
+
+    dir_zip="$(dirname "${zip_file}")"
+    base_zip="$(basename "${zip_file}")"
+    xpi_file="${base_zip//.zip/.xpi}"
+    (
+        cd "${dir_zip}" || exit 1
+        if ! ln -fs "${base_zip}" "${xpi_file}"; then
+            echo "[ERROR] Cannot generate link ${xpi_file} to ${base_zip}"
             exit 1
         fi
     )
 }
 
+# Swaping algorithm for CRX
+#
+# Take "abcdefgh" and return it as "ghefcdab"
+#
+# $1: input byte stream
+function _byte_swap()
+{
+    echo "${1:6:2}${1:4:2}${1:2:2}${1:0:2}"
+}
+
+
+# assert that the given file is present on FS
+#
+# $1: file path
+function _file_present()
+{
+    local f
+
+    f="${1}"
+
+    if [ ! -f "${f}" ]; then
+        echo "[ERROR] ${f} does not exists" 1>&2
+        exit 2
+    fi
+}
+
+# clean temp file from chrome build
+function _clean_chrome()
+{
+    rm -f "${CWD}/${EXTENSION_NAME}.sig"        \
+       "${CWD}/${EXTENSION_NAME}.pub"
+}
 
 # clean working directory
 function _clean_wd()
@@ -128,40 +228,23 @@ function _inject_scripts()
     done
 }
 
-# inject scripts for Firefox
-function _inject_firefox_scripts()
-{
-    if [ -f "${CWD}/install.rdf" ]; then
-        echo "[WARNING] Firefox add-on is planed to be deprecated at end of 2017 consider creating WebExtensions" 1>&2
-        return 1
-    fi
-}
-
 # performs a list of tests on the extension archive directory
-#
-# $1: build_firefox
 function _test()
 {
-    local -i build_firefox
-
-    build_firefox=$1
-
     if [ -f "${OUTPUT_DIR}/install.rdf" ] && [ -f "${OUTPUT_DIR}/manifest.json" ]; then
         echo "[ERROR] Both an install.rdf and manifest.json are provided" 1>&2
         exit 1
     fi
 
-    [ "$build_firefox" != 0 ] && _test_firefox
+    _test_firefox
 }
 
 # specific tests for Firefox
 function _test_firefox()
 {
-    if [ -f "${OUTPUT_DIR}/manifest.json" ]; then
-        echo "[WARNING] The Firefox store will handle this extension as an WebExtension"
-    elif [ -f "${OUTPUT_DIR}/install.rdf" ]; then
-        echo "[WARNING] The Firefox store will handle this extension as add-on"
-        python3 "${CWD}/tools/validate_rdf.py" --input "${OUTPUT_DIR}/install.rdf"
+    if [ -f "${OUTPUT_DIR}/install.rdf" ]; then
+        echo "[ERROR] The Firefox store will handle this extension as add-on"
+        exit 3
     fi
 }
 
@@ -182,11 +265,13 @@ EOF
     fi
 
     cat <<EOF 1>&2
-Usage: $prog_name [--target TARGET] [--test]
+Usage: $prog_name --sign-key SIGN_KEY [--extension-name NAME] [--target TARGET] [--test]
 where TARGET := {chromium | firefox}
 
-      --target     create a clean directory for the given target chromium(default)
-      --test       only perform test, no packaging is performed
+      --extension-name  name of the generated extension files
+      --sign-key        path to signature key file
+      --target          create a clean directory for the given target chromium(default)
+      --test            only perform test, no packaging is performed
 EOF
 
     exit 1

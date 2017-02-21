@@ -7,6 +7,8 @@ mooltipass.device = mooltipass.device || {};
 mooltipass.device.debug = false;
 mooltipass.device.packet_debug = false;
 
+// Check for moolticute
+mooltipass.device.shouldCheckForMoolticute = true;
 // Mooltipass device info
 mooltipass.device.deviceInfo = { 'vendorId': 0x16d0, 'productId': 0x09a0 };
 
@@ -221,7 +223,7 @@ mooltipass.device.checkForMoolticute = function() {
         clearInterval( mooltipass.device.interval );
         mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
         mooltipass.device.timeoutMoolticute = mooltipass.device.timeoutMoolticute >= 3000?3000:mooltipass.device.timeoutMoolticute + 300;
-        setTimeout( mooltipass.device.checkForMoolticute,mooltipass.device.timeoutMoolticute );
+        if ( mooltipass.device.shouldCheckForMoolticute ) setTimeout( mooltipass.device.checkForMoolticute,mooltipass.device.timeoutMoolticute );
     }
 }
 
@@ -234,7 +236,7 @@ mooltipass.device.init = function() {
     mooltipass.device._forceEndMemoryManagementModeLock = false;
     mooltipass.device.restartProcessingQueue();
     mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
-    this.checkForMoolticute();
+    if ( mooltipass.device.shouldCheckForMoolticute ) this.checkForMoolticute();
 };
 
 

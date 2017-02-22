@@ -58,6 +58,9 @@
  *  POST_KICKSTARTER_UPDATE_SETUP
  *  => firmware to flash to the kickstarter units to update them, doesn't contain functional & electrical tests
  *
+ *  MINI_AVRISP_PROG_TEST_SETUP
+ *  => mooltipass mini 4Mb programmed using an avrisp, no security, no check on fuses
+ *
  *  MINI_CLICK_BETATESTERS_SETUP
  *  => mini beta testing units with click scroll wheel, sent to the beta testers
  *
@@ -130,6 +133,18 @@
     #define DEV_PLUGIN_COMMS
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_OLIVIER_V1
+#elif defined(MINI_AVRISP_PROG_TEST_SETUP)
+    #define STACK_DEBUG
+    #define MINI_VERSION
+    #define SKIP_TUTORIAL
+    #define FLASH_CHIP_4M
+    #define TWO_CAPS_TRICK
+    //#define DATA_STORAGE_EN
+    #define NO_ACCELEROMETER
+    #define DEV_PLUGIN_COMMS
+    #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_FUNCTIONAL_TEST
+    #define AVR_BOOTLOADER_PROGRAMMING
 #elif defined(MINI_CLICK_BETATESTERS_SETUP)
     #define STACK_DEBUG
     #define MINI_VERSION

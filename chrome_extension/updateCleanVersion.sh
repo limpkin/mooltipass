@@ -1,8 +1,15 @@
 #!/bin/bash
 readonly CWD="$(cd "$(dirname "$0")" && pwd)"
 readonly OUTPUT_DIR="${CWD}/CleanVersion"
+readonly FIREFOX_TARGET='firefox'
+readonly CHROMIUM_TARGET='chromium'
 
 EXTENSION_NAME='mooltipass-extension'
+
+BUILD_FIREFOX=0
+BUILD_CHROMIUM=0
+
+declare -A BUILD_METADATA
 
 trap _clean_wd INT TERM
 trap _clean_chrome EXIT
@@ -14,6 +21,7 @@ function main()
 {
     local -i test_only
     local chrome_sign_key
+    local cur_target
 
     test_only=0
     chrome_sign_key=''
@@ -27,31 +35,33 @@ function main()
                 EXTENSION_NAME="$2"
                 shift 2
                 ;;
-            '--sign-key')
-                if [ $# -lt 2 ]; then
-                    _usage "$0" "must provide the chrome key signature pathname"
-                fi
-
-                chrome_sign_key="$2"
-                shift 2
-                ;;
              '--target')
-                 if [ $# -lt 2 ]; then
-                     _usage "$0" "must provide a target"
+                 if [ $# -lt 4 ]; then
+                     _usage "$0" "must provide a target and the signature key file"
                  fi
 
-                 echo "[INFO] Specific target build not implemented yet"
-                 exit 4
-
                  case "$2" in
-                     'firefox')
+                     "$FIREFOX_TARGET")
                          :
+                         BUILD_FIREFOX=1
+                         cur_target="$FIREFOX_TARGET"
+                         ;;
+                     'chrome'|"$CHROMIUM_TARGET")
+                         BUILD_CHROMIUM=1
+                         cur_target="$CHROMIUM_TARGET"
                          ;;
                      *)
                          _usage "$0" "unknown target $2"
                          ;;
                  esac
-                 shift 2
+
+                 if [ "$3" != '--sign-key' ]; then
+                     _usage "$0" "must prorivde the key signature file for target $cur_target"
+                 fi
+
+                 BUILD_METADATA[${cur_target}]="$4"
+
+                 shift 4
                  ;;
              '--test')
                  test_only=1
@@ -63,10 +73,6 @@ function main()
         esac
     done
 
-    if [ -z "${chrome_sign_key}" ]; then
-        _usage "$0" "must provide the chrome key signature pathname"
-    fi
-
     _clean_wd
 
     if [ ! -d "$OUTPUT_DIR" ]; then
@@ -75,12 +81,10 @@ function main()
 
     _inject_scripts
     _test
-    [ "$test_only" == 0 ] && _build "${chrome_sign_key}"
+    [ "$test_only" == 0 ] && _build
 }
 
 # create the tarball to send to the store
-#
-# $1: chrome signing key
 function _build()
 {
     local zip_file="${CWD}/${EXTENSION_NAME}.zip"
@@ -97,8 +101,8 @@ function _build()
         fi
     )
 
-    _build_firefox_xpi "${zip_file}"
-    _build_chromium_crx "${zip_file}" "${1}"
+    [ "$BUILD_FIREFOX" == 1 ] &&_build_firefox_xpi "${zip_file}" "${BUILD_METADATA[${FIREFOX_TARGET}]}"
+    [ "$BUILD_CHROMIUM" == 1 ] &&_build_chromium_crx "${zip_file}" "${BUILD_METADATA[CHROMIUM_TARGET]}"
 }
 
 # build the Chromium CRX file from the generated ZIP file.
@@ -152,20 +156,24 @@ function _build_chromium_crx()
 # The XPI file is expected to be a symlink to the ZIP file
 #
 # $1: pathname of the base zip file
+# $2: path to private key for signin Firefox extension
 function _build_firefox_xpi()
 {
     local dir_zip
     local base_zip
     local zip_file
     local xpi_file
+    local firefox_sign_key
 
     zip_file="$1"
+    firefox_sign_key="$2"
 
     _file_present "${zip_file}"
+    _file_present "${firefox_sign_key}"
 
     dir_zip="$(dirname "${zip_file}")"
     base_zip="$(basename "${zip_file}")"
-    xpi_file="${base_zip//.zip/.xpi}"
+    xpi_file="${base_zip//.zip/-unsigned.xpi}"
     (
         cd "${dir_zip}" || exit 1
         if ! ln -fs "${base_zip}" "${xpi_file}"; then
@@ -265,11 +273,11 @@ EOF
     fi
 
     cat <<EOF 1>&2
-Usage: $prog_name --sign-key SIGN_KEY [--extension-name NAME] [--target TARGET] [--test]
-where TARGET := {chromium | firefox}
+Usage: $prog_name [--extension-name NAME] [ TARGET ] [--test]
+where TARGET := --target {chrome | chromium | firefox} --sign-key SIGN_KEY
 
       --extension-name  name of the generated extension files
-      --sign-key        path to signature key file
+      --sign-key        path to signature key file for the specific target (ie: Chromium, Firefox...)
       --target          create a clean directory for the given target chromium(default)
       --test            only perform test, no packaging is performed
 EOF

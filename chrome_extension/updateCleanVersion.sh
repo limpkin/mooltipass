@@ -181,6 +181,8 @@ function _build_firefox_xpi()
             exit 1
         fi
     )
+
+    echo '[WARNING] Building signed XPI file for Firefox is not implemnted yet'
 }
 
 # Swaping algorithm for CRX

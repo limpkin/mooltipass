@@ -142,8 +142,8 @@ function _build_chromium_crx()
     # public key
     openssl rsa -pubout -outform DER < "${chrome_sign_key}" > "${pub}" 2>/dev/null
 
-    pub_len_hex=$(_byte_swap "$(printf '%08x\n' "$(ls -l "$pub" | awk '{print $5}')")")
-    sig_len_hex=$(_byte_swap "$(printf '%08x\n' "$(ls -l "$sig" | awk '{print $5}')")")
+    pub_len_hex=$(_byte_swap "$(printf '%08x\n' "$(find . -type f -name "${pub}" -printf '%s\n')")")
+    sig_len_hex=$(_byte_swap "$(printf '%08x\n' "$(find . -type f -name "${sig}" -printf '%s\n')")")
 
     (
         echo "${CRMAGIC_HEX} ${VERSION_HEX} ${pub_len_hex} ${sig_len_hex}" | xxd -r -p

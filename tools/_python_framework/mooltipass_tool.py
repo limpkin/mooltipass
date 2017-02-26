@@ -35,6 +35,7 @@
 #                                                                                                                               #
 #################################################################################################################################
 from mooltipass_mass_prod_init_proc import *
+from mooltipass_security_check import *
 from mooltipass_hid_device import *
 from mooltipass_init_proc import *
 from generate_prog_file import *
@@ -212,6 +213,30 @@ def main():
 			else:
 				print "set_card_password: not enough args!"
 		
+		if sys.argv[1] == "get_upload_password":
+			if len(sys.argv) > 3:
+				AESKey2 = sys.argv[3]
+				UIDReqKey = sys.argv[2]
+				
+				# Check Key sizes
+				if len(AESKey2) != AES_KEY_SIZE*2:
+					print "Wrong AES Key 2 size"
+					return
+				if len(UIDReqKey) != UID_REQUEST_KEY_SIZE*2:
+					print "Wrong UID request key size"
+					return
+				
+				# Convert string into arrays
+				AESKey2_array = array('B', AESKey2.decode("hex"))
+				
+				uid = mooltipass_device.getUID(UIDReqKey)
+				if uid != None:
+					print "Device UID (make sure it's correct):", "".join(format(x, "02x") for x in uid)
+					text_password = generateBundlePasswordUpload(version_data[1], uid, AESKey2_array)
+					print "Your upload password is:",text_password
+			else:
+				print "get_upload_password: not enough args!"
+				print "get_upload_password <UID Request Key> <AES Key 2>"
 		
 	#mooltipass_device.sendCustomPacket()
 	#mooltipass_device.checkSecuritySettings()

@@ -169,7 +169,7 @@ def main():
 				if uid != None:
 					print "UID:", "".join(format(x, "02x") for x in uid)
 			else:
-				print "decrypt_mini_prod: not enough args!"
+				print "get_uid: not enough args!"
 				
 		if sys.argv[1] == "read_user_db_change_nb":
 			mooltipass_device.getMooltipassUserDbChangeNumber()		

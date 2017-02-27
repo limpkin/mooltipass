@@ -140,7 +140,6 @@
     #define FLASH_CHIP_4M
     #define TWO_CAPS_TRICK
     //#define DATA_STORAGE_EN
-    #define NO_ACCELEROMETER
     #define DEV_PLUGIN_COMMS
     #define HARDWARE_MINI_CLICK_V2
     #define DISABLE_FUNCTIONAL_TEST
@@ -151,7 +150,6 @@
     #define FLASH_CHIP_4M
     #define TWO_CAPS_TRICK
     #define DATA_STORAGE_EN
-    #define NO_ACCELEROMETER
     #define JTAG_FUSE_ENABLED
     #define HARDWARE_MINI_CLICK_V1
     #define AVR_BOOTLOADER_PROGRAMMING
@@ -277,6 +275,10 @@
 /***************** CRITICAL CALLBACKS *****************/
 // Uncomment to allow sending messages through USB for critical callbacks (memoryBoundaryErrorCallback and such)
 //#define USB_MESSAGES_FOR_CRITICAL_CALLBACKS
+
+/***************** ACCELEROMETER RELATED FUNCTIONALITIES *****************/
+// Uncomment to disable accelerometer related functionalities
+//#define NO_ACCELEROMETER_FUNCTIONALITIES
 
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER

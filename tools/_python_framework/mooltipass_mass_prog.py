@@ -166,7 +166,7 @@ def start_programming(socket_id, mooltipass_id, flashFile, EepromFile, encrypted
 	output_avrdude_prog_lock = commands.getstatusoutput(avrdude_command)	
 	
 	# Return success state
-	if "failed" in output_avrdude_prog_fuse or "failed" in output_avrdude_flash or "failed" in output_avrdude_prog_lock or "failed," in output_avrdude_prog_fuse or "failed," in output_avrdude_flash or "failed," in output_avrdude_prog_lock:
+	if "failed" in output_avrdude_prog_fuse[1] or "failed" in output_avrdude_flash[1] or "failed" in output_avrdude_prog_lock[1]:
 		return [False, mooltipass_id, flashFile, EepromFile, "couldn't program!", encryptedKeysFile]
 	else:
 		return [True, mooltipass_id, flashFile, EepromFile, "programmed", encryptedKeysFile]

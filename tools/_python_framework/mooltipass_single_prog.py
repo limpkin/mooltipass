@@ -87,7 +87,7 @@ def pickle_read(filename):
 	return data
 	
 def start_programming(mooltipass_id, flashFile, EepromFile, encryptedKeysFile):
-	print "Programming socket with flash file", flashFile, "and eeprom file", EepromFile
+	print "Programming with flash file", flashFile, "and eeprom file", EepromFile
 	
 	# Read fuses using avrdude
 	socket_id = 0
@@ -235,7 +235,7 @@ def main():
 			pickle_write(random_bytes_buffer, "rng.bin")
 		
 		# If a serial number was entered
-		if serial_entered == True:
+		if serial_entered == True and len(random_bytes_buffer) >= AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH:
 			# Store serial number to program
 			mooltipass_id = serial_to_program
 			
@@ -273,138 +273,6 @@ def main():
 			# Free waiting thread
 			serial_entered = False
 			ic_programmed = True
-	
-	sys.exit(0)
-	
-	# Main loop
-	while True:
-		time.sleep(.3)
-		temp_counter = temp_counter + 1
-		
-		# Check if a button is pressed
-		mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_BUTTON_PRESSED, 0, None))
-		received_data = mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
-		for i in range(0,9):
-			if received_data[DATA_INDEX+i] != 0:				
-				# Programming button was pressed on the bench
-				print "Button", i, "pressed"
-				prog_socket_states[i] = PROG_SOCKET_PENDING
-		
-		# Get number of available random bytes
-		mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_GET_RNG_B_AVAIL, 0, None))
-		nb_random_bytes_available = mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()[DATA_INDEX]
-		
-		# If more than 32 bytes, fetch them
-		if nb_random_bytes_available >= 32:
-			mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_GET_RANDOM_NUMBER, 0, None))
-			random_bytes = mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()[DATA_INDEX:DATA_INDEX+32]
-			random_bytes_buffer.extend(random_bytes)
-			
-		# Store random bytes buffer every now and then
-		if temp_counter % 30 == 0:
-			pickle_write(random_bytes_buffer, "rng.bin")
-			print "Random bytes buffer saved:", len(random_bytes_buffer), "bytes available"
-			#print random_bytes_buffer
-			
-		# If we have enough random bytes and a button was pressed, program the MCU
-		for socket_id in range(0, 9):
-			if prog_socket_states[socket_id] == PROG_SOCKET_PENDING and len(random_bytes_buffer) >= AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH:
-				print "Starting programming for socket", socket_id
-				
-				# Generate new mooltipass ID
-				if len(mooltipass_ids_to_take) > 0:
-					mooltipass_id = mooltipass_ids_to_take[0]
-					del(mooltipass_ids_to_take[0])
-				else:
-					# No ids to take, take the next available one
-					mooltipass_id = next_available_mooltipass_id
-					next_available_mooltipass_id = next_available_mooltipass_id + 1
-					# Store the new id in file
-					pickle_write(next_available_mooltipass_id, "mooltipass_id.bin")
-				
-				# Generate keys from the random bytes buffer
-				aes_key1 = random_bytes_buffer[0:AES_KEY_LENGTH]
-				aes_key2 = random_bytes_buffer[AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH]
-				uid_key = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH]
-				uid = random_bytes_buffer[AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH]
-				del(random_bytes_buffer[0:AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH])
-				
-				# Write in file: Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write					
-				aes_key1_text =  "".join(format(x, "02x") for x in aes_key1)
-				aes_key2_text =  "".join(format(x, "02x") for x in aes_key2)
-				uid_key_text = "".join(format(x, "02x") for x in uid_key)
-				uid_text = "".join(format(x, "02x") for x in uid)					
-				string_export = str(mooltipass_id)+"|"+ aes_key1_text +"|"+ aes_key2_text +"|"+ uid_key_text +"|"+ uid_text+"\r\n"
-				#print string_export
-				try:
-					pickle_file_name = time.strftime("export/%Y-%m-%d-%H-%M-%S-Mooltipass-")+str(mooltipass_id)+".txt"
-					pickle_write(seccure.encrypt(string_export, public_key, curve='secp521r1/nistp521'), pickle_file_name)	
-				except NameError:
-					pickle_file_name = "test"
-				
-				# Generate programming file					
-				generateFlashAndEepromHex("Mooltipass.hex", "bootloader_mini.hex", mooltipass_id, aes_key1, aes_key2, uid_key, uid, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", False)
-				
-				# Change state to programming
-				prog_socket_states[socket_id] = PROG_SOCKET_PROGRAMMING
-				
-				# Display info on display
-				add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": programming id "+str(mooltipass_id))
-				
-				# Launch a programming thread
-				mooltipass_ids_pending.append(mooltipass_id)
-				pickle_write(mooltipass_ids_pending, "mooltipass_pending_ids.bin")
-				programming_threads[socket_id] = FuncThread(start_programming, socket_id, mooltipass_id, "/tmp/flash_"+str(mooltipass_id)+".hex", "/tmp/eeprom_"+str(mooltipass_id)+".hex", pickle_file_name)
-				programming_threads[socket_id].start()
-					
-					
-		# Check for thread end
-		for socket_id in range(0, 9):
-			# Check if we're currently programming
-			if prog_socket_states[socket_id] == PROG_SOCKET_PROGRAMMING:
-				# Check if the thread ended
-				if not programming_threads[socket_id].is_alive():
-					print "Thread for socket", socket_id, "ended"
-					
-					# Fetch the return data
-					return_data = programming_threads[socket_id].join()
-					
-					# Delete the temporary programming files
-					os.remove(return_data[2])
-					os.remove(return_data[3])
-					
-					# Check success state
-					if return_data[0] :
-						print "Programming for socket", socket_id, "succeeded (mooltipass id:", str(return_data[1]) + ")"
-						
-						# Save our mooltipass pool in case it was an id to take
-						pickle_write(mooltipass_ids_to_take, "mooltipass_av_ids.bin")
-						
-						# Inform programming platform of success state
-						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_DONE, 1, [socket_id]))
-						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
-						add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": "+return_data[4])
-					else:
-						print "Programming for socket", socket_id, "failed (mooltipass id:", str(return_data[1]) + ")"
-						
-						# Put the mooltipass id back in the pool
-						mooltipass_ids_to_take.append(return_data[1])
-						pickle_write(mooltipass_ids_to_take, "mooltipass_av_ids.bin")
-						
-						# Delete encrypted keys file
-						os.remove(return_data[5])
-						
-						# Inform programming platform of success state
-						mooltipass_device.getInternalDevice().sendHidPacket(mooltipass_device.getPacketForCommand(CMD_PROG_FAILURE, 1, [socket_id]))
-						mooltipass_device.getInternalDevice().receiveHidPacketWithTimeout()
-						add_line_on_screen(mooltipass_device, "#"+str(socket_id)+": "+return_data[4])
-						
-					# Remove id from pending ones					
-					mooltipass_ids_pending.remove(return_data[1])
-					pickle_write(mooltipass_ids_pending, "mooltipass_pending_ids.bin")
-					
-					# Reset prog state
-					prog_socket_states[socket_id] = PROG_SOCKET_IDLE
 
 if __name__ == "__main__":
 	main()

@@ -38,6 +38,7 @@ import time
 import sys
 import os
 
+avrdude_command_verbose = True
 # TLV Field indexes
 LEN_INDEX               = 0x00
 CMD_INDEX               = 0x01
@@ -135,14 +136,20 @@ def start_programming(mooltipass_id, flashFile, EepromFile, encryptedKeysFile):
 	# Program all fuses except lock fuse
 	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 10 -U lfuse:w:0xFF:m -U hfuse:w:0xD8:m -U efuse:w:0xC8:m"
 	output_avrdude_prog_fuse = commands.getstatusoutput(avrdude_command)
+	if avrdude_command_verbose:
+		print output_avrdude_prog_fuse
 	
 	# Program flash & eeprom
 	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -U flash:w:"+flashFile+":i -U eeprom:w:"+EepromFile+":i"
 	output_avrdude_flash = commands.getstatusoutput(avrdude_command)
+	if avrdude_command_verbose:
+		print output_avrdude_flash
 	
 	# Program lock fuse
 	avrdude_command = "avrdude -c avrisp2 -p m32u4 -B 1 -U lock:w:0x3C:m"
 	output_avrdude_prog_lock = commands.getstatusoutput(avrdude_command)	
+	if avrdude_command_verbose:
+		print output_avrdude_prog_lock
 	
 	# Return success state
 	if "failed" in output_avrdude_prog_fuse or "failed" in output_avrdude_flash or "failed" in output_avrdude_prog_lock:

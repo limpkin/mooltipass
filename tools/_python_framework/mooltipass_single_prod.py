@@ -231,7 +231,7 @@ def main():
 			
 		# Store buffer every minute
 		if last_second % 60 == 0:
-			print "Random bytes buffer saved:", len(random_bytes_buffer), "bytes available"
+			#print "Random bytes buffer saved:", len(random_bytes_buffer), "bytes available"
 			pickle_write(random_bytes_buffer, "rng.bin")
 		
 		# If a serial number was entered

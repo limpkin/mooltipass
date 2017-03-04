@@ -64,6 +64,7 @@ def user_input_loop():
 	while main_program_running:
 		# Ask user for serial number to input
 		serial_to_program = raw_input("Enter Serial Number or Press Enter to Exit: ")
+		ic_programmed = False
 		
 		# Check for program exit
 		if serial_to_program == "":

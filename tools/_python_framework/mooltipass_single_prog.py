@@ -153,7 +153,7 @@ def start_programming(mooltipass_id, flashFile, EepromFile, encryptedKeysFile):
 		print output_avrdude_prog_lock
 	
 	# Return success state
-	if "failed" in output_avrdude_prog_fuse or "failed" in output_avrdude_flash or "failed" in output_avrdude_prog_lock:
+	if "failed" in output_avrdude_prog_fuse or "failed" in output_avrdude_flash or "failed" in output_avrdude_prog_lock or "failed," in output_avrdude_prog_fuse or "failed," in output_avrdude_flash or "failed," in output_avrdude_prog_lock:
 		return [False, mooltipass_id, flashFile, EepromFile, "couldn't program!", encryptedKeysFile]
 	else:
 		return [True, mooltipass_id, flashFile, EepromFile, "programmed", encryptedKeysFile]

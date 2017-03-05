@@ -75,7 +75,7 @@ def user_input_loop():
 			serial_entered = True
 			# Wait for programming thread to finish
 			while ic_programmed == False:
-				pass	
+				time.sleep(.1)	
 
 def pickle_write(data, outfile):
 	f = open(outfile, "w+b")
@@ -160,10 +160,14 @@ def start_programming(mooltipass_id, flashFile, EepromFile, encryptedKeysFile):
 
 def main():
 	print "Mooltipass Programming Tool"
+	rng_buf_save_armed = True
 	global main_program_running
 	global serial_to_program
 	global serial_entered
 	global ic_programmed
+	
+	# Delete temp .hex file that might have been left there
+	commands.getstatusoutput("rm /tmp/*.hex")
 	
 	# Check for public key
 	if not os.path.isfile("publickey.bin"):
@@ -227,6 +231,7 @@ def main():
 	# Main loop
 	last_second = int(time.time())
 	while main_program_running:
+		time.sleep(.1)
 	
 		# Our generator generates 8 bytes per second
 		ts = int(time.time())
@@ -238,9 +243,13 @@ def main():
 			last_second = ts
 			
 		# Store buffer every minute
-		if last_second % 60 == 0:
-			#print "Random bytes buffer saved:", len(random_bytes_buffer), "bytes available"
-			pickle_write(random_bytes_buffer, "rng.bin")
+		if datetime.now().second == 0:
+			if rng_buf_save_armed:
+				#print "Random bytes buffer saved:", len(random_bytes_buffer), "bytes available"
+				pickle_write(random_bytes_buffer, "rng.bin")
+				rng_buf_save_armed = False
+		else:
+			rng_buf_save_armed = True
 		
 		# If a serial number was entered
 		if serial_entered == True and len(random_bytes_buffer) >= AES_KEY_LENGTH+AES_KEY_LENGTH+UID_REQUEST_KEY_LENGTH+UID_KEY_LENGTH:

@@ -1,0 +1,24 @@
+/* Add styles for your app here */
+
+/* Use UI System fonts and colors,
+   see: https://www.sitepoint.com/css-system-styles/ */
+body {
+    font: caption;
+    color: WindowText;
+    background-color: Window;
+}
+
+/* Hide printers box by default */
+.printer-list {
+    display: none;
+}
+
+/* Activate printers box, dynamically added by printers.js */
+.printer-list-active {
+    display: initial;
+}
+
+/* Make UI Text not selectable */
+.ui-text {
+    -webkit-user-select: none;
+}

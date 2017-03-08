@@ -127,7 +127,7 @@ mooltipass.ui.settings.initKnockEnabled = function() {
                     mooltipass.ui.status.success($field, 'Knock detection feature ' + enabledDisabled);
                 }
                 else {
-                    mooltipass.ui.status.error($field, 'For security reasons, remove your card and try again');
+                    mooltipass.ui.status.error($field, 'Change Not Allowed When a Card is Inserted');
                     $field.prop('checked', $field.data('old-value'));
                 }
             }

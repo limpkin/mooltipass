@@ -312,7 +312,7 @@ int main(void)
             while ((flash_init_result != RETURN_OK) || (touch_init_result != RETURN_OK));
         #endif
     #elif defined(MINI_VERSION)
-        #if defined(MINI_CLICK_BETATESTERS_SETUP)
+        #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_AVRISP_PROG_TEST_SETUP)
             (void)fuse_ok;
             while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
         #elif (defined(MINI_PREPRODUCTION_SETUP_ACC) || defined(MINI_PREPROD_KICKSTARTER_SETUP) || defined(MINI_KICKSTARTER_SETUP))
@@ -341,7 +341,7 @@ int main(void)
                 while(!(touchDetectionRoutine(tut_led_mask) & press_filter));
                 touchInhibitUntilRelease();
             }
-        #elif defined(MINI_VERSION)
+        #elif defined(MINI_VERSION) && !defined(SKIP_TUTORIAL)
             uint8_t tutorial_user_action;
             uint8_t tutorial_bmp_id = BITMAP_TUTORIAL_1;
             uint8_t tutorial_scroll_direction = OLED_SCROLL_UP;

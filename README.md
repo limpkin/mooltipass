@@ -45,6 +45,11 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
+- 03/2017 <a href="https://wikileaks.org/ciav7p1/">Vault 7: CIA Hacking Tools Revealed</a> : "These techniques permit the CIA to bypass the encryption of WhatsApp, Signal, Telegram, Wiebo, Confide and Cloackman by hacking the "smart" phones that they run on and collecting audio and message traffic before encryption is applied."
+- 03/2017 <a href="https://it.slashdot.org/story/17/03/06/1838223/huge-database-leak-reveals-137-billion-email-addresses-and-exposes-illegal-spam-operation">Huge Database Leak Reveals 1.37 Billion Email Addresses and Exposes Illegal Spam Operation</a>
+- 02/2017 <a href="https://it.slashdot.org/story/17/02/24/0319243/cloudflare-leaks-sensitive-user-data-across-the-web">Cloudflare Leaks Sensitive User Data Across the Web</a>
+- 01/2017 <a href="https://www.schneier.com/blog/archives/2017/02/cryptkeeper_bug.html">Cryptkeeper Bug: the single-character decryption key "p" decrypts everything</a>
+- 01/2017 <a href="https://it.slashdot.org/story/17/01/31/1425259/netgear-exploit-found-in-31-models-lets-hackers-turn-your-router-into-a-botnet">Netgear Exploit Found in 31 Models Lets Hackers Turn Your Router Into a Botnet</a>
 - 01/2017 <a href="http://arstechnica.co.uk/security/2017/01/google-plugs-severe-android-bootmode-vulnerability/">Google plugs severe Android bootmode vuln that exposed devices to spying</a>
 - 12/2016 <a href="https://linux.slashdot.org/story/16/12/16/0229207/zero-days-hitting-fedora-and-ubuntu-open-desktops-to-a-world-of-hurt">Zero-Days Hitting Fedora and Ubuntu Open Desktops To a World of Hurt </a>
 - 12/2016 <a href="https://techcrunch.com/2016/12/14/yahoo-discloses-hack-of-1-billion-accounts/">Yahoo discloses hack of 1 billion accounts</a>

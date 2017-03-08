@@ -1,0 +1,22 @@
+I) Example on a debian based distribution
+
+a) clone this repository
+
+b) add the udev rule (or run the remaining of this tutorial as sudo): https://www.themooltipass.com/udev_rule.txt
+
+c) in your favorite terminal:
+- sudo apt-get update
+- sudo apt-get install python python-pip python-crypto
+- navigate to this very directory
+- sudo pip install -r requirements.txt
+
+d) generating and uploading your bundle
+- connect your mooltipass mini
+- insert a mooltipass mini card backwards
+- run: python mooltipass_tool.py packSignUpload ../../bitmaps/mini/bundle.img  ../../source_code/Release/Mooltipass.hex (or the path to your firmware) <your_aes_key1> <uploading_password>
+- approve the prompt on the device, DO NOT DISCONNECT THE MOOLTIPASS WHEN THE SCREEN IS OFF. Wait 5 minutes.
+
+II) Required informations
+a) AES key 1, AES key 2 and UID request key: will be sent to you in person through a secured and authenticated communication channel. The Mooltipass Team declines all responsibility for loss of data or damaged unit once this key is sent to the customer.
+b) Uploading Password: the password is current_firmware_version (as a string, for example "v1.2") concatenated with the device UID key (which is 6 bytes long). This string is then encrypted using the device AES key 2. For example on how to generate the uploading password, please check out generateBundlePasswordUpload() in mooltipass_security_check.py . For information, this password is just meant as a way to protect against DoS.
+   The uploading password can be generated with the following command with the MPM plugged: python mooltipass_tool.py get_upload_password <your_uid_request_key> <your_aes_key2>

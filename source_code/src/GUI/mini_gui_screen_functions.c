@@ -642,7 +642,7 @@ RET_TYPE guiAskForConfirmation(uint8_t nb_args, confirmationText_t* text_object)
         }
 
         // Knock to approve
-        #if defined(HARDWARE_MINI_CLICK_V2)
+        #if defined(HARDWARE_MINI_CLICK_V2) && !defined(NO_ACCELEROMETER_FUNCTIONALITIES)
         if ((scanAndGetDoubleZTap(FALSE) == ACC_RET_KNOCK) && (flash_flag_set != FALSE))
         {
             input_answer = MINI_INPUT_RET_YES;

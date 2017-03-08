@@ -91,7 +91,7 @@ void guiMainLoop(void)
     /* Get possible wheel action */
     input_interface_result = miniGetWheelAction(FALSE, FALSE);
 
-    #if defined(HARDWARE_MINI_CLICK_V2)
+    #if defined(HARDWARE_MINI_CLICK_V2) && !defined(NO_ACCELEROMETER_FUNCTIONALITIES)
     if (scanAndGetDoubleZTap(FALSE) == ACC_RET_MOVEMENT)
     {
         // knock detecting algo to wakup the device

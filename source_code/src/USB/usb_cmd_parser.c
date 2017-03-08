@@ -941,7 +941,7 @@ void usbProcessIncoming(uint8_t caller_id)
 
             // Things are different between the mini & the standard Mooltipass
             #if defined(MINI_VERSION)
-                #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_CREDENTIAL_MANAGEMENT) || defined(MINI_PREPRODUCTION_SETUP_ACC)
+                #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_AVRISP_PROG_TEST_SETUP) || defined(MINI_CREDENTIAL_MANAGEMENT) || defined(MINI_PREPRODUCTION_SETUP_ACC)
                     /* For the versions that use the AVR bootloader, or when deliberately skipping it: no prompts, just accept it */
                     plugin_return_value = PLUGIN_BYTE_OK;
                     mediaFlashImportApproved = TRUE;
@@ -1107,7 +1107,7 @@ void usbProcessIncoming(uint8_t caller_id)
             plugin_return_value = PLUGIN_BYTE_OK;
             mediaFlashImportApproved = FALSE;
             
-            #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP) && !defined(MINI_CREDENTIAL_MANAGEMENT)
+            #if defined(MINI_VERSION) && !defined(MINI_CLICK_BETATESTERS_SETUP) && !defined(MINI_CREDENTIAL_MANAGEMENT) &&! defined(MINI_AVRISP_PROG_TEST_SETUP)
             // At the end of the import media command if the security is set in place and it isn't the first mass production boot, we start the bootloader
             if ((eeprom_read_byte((uint8_t*)EEP_BOOT_PWD_SET) == BOOTLOADER_PWDOK_KEY) && (eeprom_read_byte((uint8_t*)EEP_MASS_PROD_FBOOT_BOOL_ADDR) != MASS_PROD_FBOOT_OK_KEY))
             {

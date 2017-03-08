@@ -199,6 +199,8 @@ moolticute.websocket = {
             return;
         }
 
+        recvMsg = this.messageTranslator( recvMsg );
+
         var wrapped = {};
 
         switch( recvMsg.msg ) {
@@ -265,6 +267,27 @@ moolticute.websocket = {
         this._ws.onopen = this.onOpen.bind(this);
         this._ws.onclose = this.onClose.bind(this);
         this._ws.onmessage = this.onMessage.bind(this);
+    },
+    /* Translate messages received from MooltiApp to MooltiCute format */
+    messageTranslator: function( msg ) {
+        var output = { data: {} };
+        if ( msg.command && msg.command == 'getCredentials' ) {
+            output.msg = 'ask_password',
+            output.data.failed = msg.success?false:true,
+            output.data.login = msg.credentials.login,
+            output.data.password = msg.credentials.password
+        } else if ( msg.command && msg.command == 'getRandomNumber') {
+            output.msg = 'get_random_numbers',
+            output.data = msg.random
+        } else if ( msg.command && msg.command == 'getMooltipassStatus') {
+            output.msg = 'status_changed';
+            if ( msg.value == 'unlocked' ) output.data = 'Unlocked';
+            moolticute.status.connected = msg.connected;
+        } else {
+            output = msg;    
+        }
+        
+        return output;
     }
 };
 moolticute.websocket.connect();

@@ -58,9 +58,6 @@ function initialize () {
   var shouldQuit = makeSingleInstance()
   if (shouldQuit) return app.quit()
 
-  // Use printer utility lib (requires printer module, see README)
-  // require('./lib/printer')
-
   function onClosed () {
     // Dereference used windows
     // for multiple windows store them in an array
@@ -152,7 +149,6 @@ function initialize () {
   app.on('ready', () => {
     tray = new Tray( path.join(__dirname, '/chrome_app/images/icons/icon_cross_16.png') );
 
-    Menu.setApplicationMenu(createMenu())
     mainWindow = createMainWindow()
 
     // Manage automatic updates
@@ -221,10 +217,6 @@ function makeSingleInstance () {
       mainWindow.focus()
     }
   })
-}
-
-function createMenu () {
-  return Menu.buildFromTemplate(require('./lib/menu'))
 }
 
 // Manage Squirrel startup event (Windows)

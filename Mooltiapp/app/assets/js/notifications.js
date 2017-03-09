@@ -1,3 +1,5 @@
+// DISPLAYS NOTIFICATIONS. While not used now, it will come handy.
+
 // Boilerplate code for notification management
 const electron = require('electron')
 const ipc = electron.ipcRenderer

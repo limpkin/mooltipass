@@ -126,7 +126,6 @@ chrome.hid = { // https://developer.chrome.com/apps/hid
 	devices: [],
 	options: false,
 	getDevices(options, callback) {
-		console.log('get devices');
 		var output = [];
 		this.options = options;
 		this.devices = HID.devices();
@@ -154,7 +153,6 @@ chrome.hid = { // https://developer.chrome.com/apps/hid
 			} );
 		} catch(e) {
 			chrome.runtime.lastError = e;
-			console.log('Can not connect to device', e, this.devices);
 		}
 		callback ( this.connection );
 	},
@@ -174,7 +172,6 @@ chrome.hid = { // https://developer.chrome.com/apps/hid
 		});
 	},
 	send(connectionId, reportId, data, callback) {
-		if ( buf2hex( data )[1] != 185) console.log('Sending', buf2hex( data ) );
 		if (!connectionId) connectionId = this.connection;
 		try {
 			connectionId.write( buf2hex( data ) );	
@@ -237,8 +234,6 @@ function buf2str(uint8Array) {
     }
     return output;
 };
-
-
 
 var WebSocketServer = require('websocket').server;
 var http = require('http');

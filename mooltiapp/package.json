@@ -1,0 +1,106 @@
+{
+  "name": "SkelEktron",
+  "description": "Unofficial Electron Template Application",
+  "version": "0.0.6",
+  "author": {
+    "name": "Vito Tardia / BZ Coding",
+    "email": "vito@bzcoding.com",
+    "url": "https://bzcoding.com/"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BZCoding/SkelEktron.git"
+  },
+  "main": "main.js",
+  "scripts": {
+    "test": "standard && mocha --recursive",
+    "unit": "standard && mocha test/unit --recursive",
+    "integration": "standard && mocha test/integration --recursive",
+    "coverage": "istanbul cover node_modules/.bin/_mocha -- --recursive",
+    "depcheck": "dependency-check app --entry main.js --unused --no-dev",
+    "lint": "standard",
+    "start": "electron ./app/main",
+    "clean:linux": "rimraf dist/linux* dist/*.deb dist/*.AppImage",
+    "clean:osx": "rimraf dist/mac",
+    "clean:win": "rimraf dist/win*",
+    "clean": "npm run clean:linux && npm run clean:win && npm run clean:osx",
+    "pack:osx": "build --dir --mac",
+    "pack:win": "build --dir --win32 --x64",
+    "pack:linux": "build --dir --linux --x64",
+    "pack": "build --dir",
+    "prebuild": "node build/target.js",
+    "build:osx": "npm run prebuild && build --mac && npm run postbuild",
+    "build:win": "npm run prebuild && build --win --x64 && npm run postbuild",
+    "build:linux": "npm run prebuild && build --linux deb AppImage --x64 && npm run postbuild",
+    "build": "build",
+    "postbuild": "node build/target.js --clean",
+    "postinstall": "install-app-deps && electron-rebuild --force"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "after",
+      "it",
+      "before",
+      "beforeEach",
+      "afterEach",
+      "rm",
+      "cp"
+    ]
+  },
+  "pre-commit": [
+    "lint",
+    "unit"
+  ],
+  "keywords": [
+    "electron-app",
+    "electron",
+    "boilerplate"
+  ],
+  "build": {
+    "appId": "com.bzcoding.skelektron",
+    "productName": "Mooltipass",
+    "dmg": {
+      "iconSize": 120,
+      "iconTextSize": 14,
+      "contents": [
+        {
+          "x": 478,
+          "y": 170,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 170,
+          "type": "file"
+        }
+      ]
+    },
+    "mac": {
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "category": "Development"
+    },
+    "win": {}
+  },
+  "devDependencies": {
+    "async": "^2",
+    "dependency-check": "^2",
+    "electron": "^1.6",
+    "electron-builder": "^7",
+    "electron-chromedriver": "^1.6.0",
+    "electron-rebuild": "^1.5.7",
+    "pre-commit": "^1",
+    "rimraf": "^2",
+    "shelljs": "^0.7",
+    "spectron": "^3",
+    "standard": "^8"
+  },
+  "dependencies": {
+    "node-hid": "^0.5.4",
+    "websocket": "^1.0.24"
+  }
+}

@@ -82,7 +82,7 @@ function initialize () {
       'show': false, // Hide your application until your page has loaded
       'webPreferences': {
         'nodeIntegration': pjson.config.nodeIntegration || true, // Disabling node integration allows to use libraries such as jQuery/React, etc
-        'preload': path.resolve(path.join(__dirname, 'preload_test.js'))
+        'preload': path.resolve(path.join(__dirname, 'preload.js'))
       }
     })
 

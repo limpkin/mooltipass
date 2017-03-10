@@ -17,5 +17,6 @@ I also ran with problems building websocket, my solution was: inside app/node_mo
 
 For Windows:
 
+npm install
 npm install -g electron-prebuilt 
 npm run build:win

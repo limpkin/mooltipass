@@ -243,7 +243,7 @@ mooltipass.device.init = function() {
     mooltipass.device._forceEndMemoryManagementModeLock = false;
     mooltipass.device.restartProcessingQueue();
     mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
-    if ( mooltipass.device.shouldCheckForMoolticute ) this.checkForMoolticute();
+    if ( mooltipass.device.shouldCheckForMoolticute ) setTimeout( mooltipass.device.checkForMoolticute, 200 );
 };
 
 
@@ -748,7 +748,7 @@ mooltipass.device.onDataReceived = function(reportId, data) {
 
     if ( mooltipass.device.usingMooltiApp ) var msg = data.slice(2);
     else var msg = new Uint8Array(data, 2);
-    
+
     var len = bytes[0];
     var cmd = bytes[1];
 

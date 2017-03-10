@@ -8,16 +8,6 @@ body {
     background-color: Window;
 }
 
-/* Hide printers box by default */
-.printer-list {
-    display: none;
-}
-
-/* Activate printers box, dynamically added by printers.js */
-.printer-list-active {
-    display: initial;
-}
-
 /* Make UI Text not selectable */
 .ui-text {
     -webkit-user-select: none;

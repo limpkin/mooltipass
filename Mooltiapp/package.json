@@ -88,15 +88,11 @@
   },
   "devDependencies": {
     "async": "^2",
-    "chai": "^3",
-    "chai-as-promised": "^6",
     "dependency-check": "^2",
     "electron": "^1.6",
     "electron-builder": "^7",
     "electron-chromedriver": "^1.6.0",
     "electron-rebuild": "^1.5.7",
-    "istanbul": "^0.4",
-    "mocha": "^3",
     "pre-commit": "^1",
     "rimraf": "^2",
     "shelljs": "^0.7",
@@ -105,7 +101,6 @@
   },
   "dependencies": {
     "node-hid": "^0.5.4",
-    "usb": "^1.2.0",
     "websocket": "^1.0.24"
   }
 }

@@ -163,7 +163,6 @@ function buf2hex(buf) {
   var uint = new Uint8Array(buf);
 
   for( var i = 0; i < uint.length; i++) {
-    if ( uint[i] == 0 && output.length > 0) continue;
     if ( i == 0 && uint[0] == 0) output.push(0);
     output.push( uint[i] );
   }

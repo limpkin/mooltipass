@@ -1,0 +1,14 @@
+/* Add styles for your app here */
+
+/* Use UI System fonts and colors,
+   see: https://www.sitepoint.com/css-system-styles/ */
+body {
+    font: caption;
+    color: WindowText;
+    background-color: Window;
+}
+
+/* Make UI Text not selectable */
+.ui-text {
+    -webkit-user-select: none;
+}

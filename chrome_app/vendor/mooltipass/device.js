@@ -9,6 +9,11 @@ mooltipass.device.packet_debug = false;
 
 // Check for moolticute
 mooltipass.device.shouldCheckForMoolticute = true;
+
+// Using MooltiApp
+mooltipass.device.usingMooltiApp = false;
+
+
 // Mooltipass device info
 mooltipass.device.deviceInfo = { 'vendorId': 0x16d0, 'productId': 0x09a0 };
 
@@ -110,7 +115,7 @@ mooltipass.device.parameters = {
     'knockDetectEnable': 28,
     'knockDetectThres': 29,
     'lockUnlock': 30,
-	'hashDisplayEnable': 31,
+    'hashDisplayEnable': 31,
     'randomPin':32
 };
 
@@ -202,6 +207,8 @@ mooltipass.device.moolticuteSocket = null;
  * 
 */
 mooltipass.device.checkForMoolticute = function() {
+    if ( !mooltipass.device.shouldCheckForMoolticute ) return;
+
     this.moolticuteSocket = new WebSocket( mooltipass.device.socketString );
 
     this.moolticuteSocket.onopen = function() {
@@ -236,7 +243,7 @@ mooltipass.device.init = function() {
     mooltipass.device._forceEndMemoryManagementModeLock = false;
     mooltipass.device.restartProcessingQueue();
     mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
-    if ( mooltipass.device.shouldCheckForMoolticute ) this.checkForMoolticute();
+    if ( mooltipass.device.shouldCheckForMoolticute ) setTimeout( mooltipass.device.checkForMoolticute, 200 );
 };
 
 
@@ -738,7 +745,10 @@ mooltipass.device.onDataReceived = function(reportId, data) {
     mooltipass.device.setQueueHash();
 
     var bytes = new Uint8Array(data);
-    var msg = new Uint8Array(data, 2);
+
+    if ( mooltipass.device.usingMooltiApp ) var msg = data.slice(2);
+    else var msg = new Uint8Array(data, 2);
+
     var len = bytes[0];
     var cmd = bytes[1];
 

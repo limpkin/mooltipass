@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+  </head>
+  <body>
+    <div class="container">
+      <button id="list_devices" onClick="listdevices()">List devices</button>
+      <div id="output"></div>
+      <button onClick="disconnect()">Disconnect</button>
+      <button onClick="setBlocking()">Blocking</button>
+      <button onClick="stopBlocking()">Non Blocking</button>
+      <button onClick="ondata()">Start Listening For Data</button>
+      <button onClick="getVersion()">Get Version</button>
+      
+      <button onClick="setContext()">Set Context</button>
+      <button onClick="getLogin()">Get Login</button>
+      
+      <button onClick="syncRead()">Sync Read</button>
+      <textarea id="error-log"></textarea>
+    </div>
+  </body>
+  <script>
+    // You can also require other files to run in this process
+    require('./assets/js/ex-links.js')
+    require('./assets/js/notifications.js')
+    require('./assets/js/actions/zoom.js')
+    require('./assets/js/context-menu.js')
+  </script>
+</html>
+<script>
+
+var HID = require('node-hid');
+var output = document.getElementById('output');
+var connection = false;
+
+function listdevices() {
+  var devices = HID.devices();
+  output.innerHTML = '';
+  for ( device in devices ) {
+    var button = document.createElement('button');
+    button.innerHTML = 'Connect ' + devices[device].path;
+    button.path = btoa(devices[device].path);
+    button.addEventListener('click', function() {
+      connection = new HID.HID( atob(this.path) );
+      console.log( connection.getDeviceInfo() );
+      connection.setNonBlocking(0);
+      connection.readTimeout(500);
+      connection.on('error', function(error) {
+        console.log('got error from device', error );
+      } );
+    });
+    output.appendChild( button );
+  }
+  
+  console.log( devices );
+}
+
+function disconnect() {
+  connection.close();
+  connection = false;
+}
+
+function getVersion() {
+  var packet = buf2hex( createPacket(0xA2) );
+  console.log( packet )
+  try {
+    connection.write( packet );
+  } catch(e) {
+    console.log( e );
+  }
+}
+
+function setContext() {
+  var packet = buf2hex( createPacket(0xA3,'limpkin.fr') );
+  console.log( packet )
+  try {
+    connection.write( packet );
+  } catch(e) {
+    console.log( e );
+  }
+}
+
+function getLogin() {
+  var packet = buf2hex( createPacket(0xA4) );
+  console.log( packet )
+  try {
+    connection.write( packet );
+  } catch(e) {
+    console.log( e );
+  }
+}
+
+function syncRead() {
+  connection.read( function( err, response) {
+    console.log( err, response );
+  });
+}
+
+function ondata() {
+  connection.on('data', function( data ) {
+    console.log('Received', data, new Uint8Array(data) );
+  });
+}
+
+function setBlocking() {
+  connection.setNonBlocking(0);
+}
+
+function stopBlocking() {
+  connection.setNonBlocking(1);
+}
+
+function createPacket(_command, _payload) {
+  var buffer = new ArrayBuffer(64);
+  var bufferView = new Uint8Array(buffer);
+  
+  var length = 0;
+  if(_payload) {
+    var containStrings = false;
+    for(var i = 0; i < _payload.length; i++) {
+      if(typeof _payload[i] === 'string' || _payload[i] instanceof String) {
+        length += _payload[i].length;
+        containStrings = true;
+      } else {
+        length += 1;
+      }
+    }
+    if(containStrings) {
+      length += 1;
+    }
+  }
+
+  bufferView[0] = length;
+  bufferView[1] = _command;
+
+  if(_payload) {
+    var index = 2;
+    for (var i = 0; i < _payload.length; i++) {
+      if (typeof _payload[i] === 'string' || _payload[i] instanceof String) {
+        for (var z = 0; z < _payload[i].length; z++) {
+          if (_payload[i].charCodeAt(z) > 254) {
+            bufferView[index] = 63;
+          } else {
+            bufferView[index] = _payload[i].charCodeAt(z);
+          }
+          index += 1;
+        }
+      } else {
+        bufferView[index] = _payload[i];
+        index += 1;
+      }
+    }
+  }
+  
+  return buffer;
+};
+
+function buf2hex(buf) {
+  var output = [];
+  var uint = new Uint8Array(buf);
+
+  for( var i = 0; i < uint.length; i++) {
+    if ( i == 0 ) output.push(0);
+    output.push( uint[i] );
+  }
+  
+  return output;
+}
+
+function buf2hexOld(buf) {
+  var uint = new Uint8Array(buf);
+  return uint;
+  var output = [];
+  // var output = [ 0x01 ];
+    
+      //if ( uint[i] == 0 && output.length > 0) continue;
+    
+    
+
+    //if ( output[1] == 164 || output[1] == 165) return output;
+
+    if (output[0] == 0 ) {
+      output[0] = 1;
+    }
+    return output;
+}
+
+// console.log = (function (old_function, div_log) { 
+//     return function (text) {
+//         old_function(text);
+//         div_log.value += text + "\n";
+//     };
+// } (console.log.bind(console), document.getElementById("error-log")));
+
+</script>

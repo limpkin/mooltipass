@@ -1,17 +1,8 @@
 {
-  "name": "SkelEktron",
-  "description": "Unofficial Electron Template Application",
-  "version": "0.0.6",
-  "author": {
-    "name": "Vito Tardia / BZ Coding",
-    "email": "vito@bzcoding.com",
-    "url": "https://bzcoding.com/"
-  },
+  "name": "MooltiApp",
+  "description": "Mooltipass password manager client",
+  "version": "0.0.1",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/BZCoding/SkelEktron.git"
-  },
   "main": "main.js",
   "scripts": {
     "test": "standard && mocha --recursive",
@@ -53,13 +44,8 @@
     "lint",
     "unit"
   ],
-  "keywords": [
-    "electron-app",
-    "electron",
-    "boilerplate"
-  ],
   "build": {
-    "appId": "com.bzcoding.skelektron",
+    "appId": "com.limpkin.mooltiapp",
     "productName": "Mooltipass",
     "dmg": {
       "iconSize": 120,
@@ -84,7 +70,8 @@
     "linux": {
       "category": "Development"
     },
-    "win": {}
+    "win": {},
+    "iconUrl": "https://github.com/limpkin/mooltipass/blob/master/chrome_app/images/icons/Plain_128.png?raw=true"
   },
   "devDependencies": {
     "async": "^2",

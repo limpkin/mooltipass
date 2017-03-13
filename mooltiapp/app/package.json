@@ -19,7 +19,7 @@
     "node-hid": "^0.5.4"
   },
   "config": {
-    "url": "chrome_app/html/index.html",
+    "url": "../chrome_app/html/index.html",
     "update": {
       "url": false
     }

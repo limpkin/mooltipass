@@ -1,3 +1,7 @@
+html, body {
+  overflow: hidden;
+}
+
 $border-color: #DDD;
 .border-top { border-top: 1px solid $border-color; }
 .border-right { border-right: 1px solid $border-color; }

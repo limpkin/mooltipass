@@ -205,6 +205,15 @@ process.once('loaded', () => {
   	global.mooltipass.device.usingMoolticute = false;
   	serverStartListening();
   	global.mooltipass.ui._.reset();
+
+  	var head = document.head;
+  	var link = document.createElement('link');
+
+  	link.type = 'text/css';
+  	link.rel = 'stylesheet';
+  	link.href = 'stylesheets/mooltiapp.css';
+
+  	head.appendChild(link);
   },500);
   // global.nodeRequire = _require; // in case node binding is disabled
 })

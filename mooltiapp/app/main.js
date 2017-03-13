@@ -68,7 +68,7 @@ function initialize () {
     // Load the previous window state with fallback to defaults
     let mainWindowState = windowStateKeeper({
       defaultWidth: 820,
-      defaultHeight: 572,
+      defaultHeight: 620,
       resizable: false
     })
 
@@ -89,7 +89,7 @@ function initialize () {
     // works only on Windows and Linux
     win.setMenu(null);
     win.setResizable(false);
-    win.setSize(820, 572);
+    win.setSize(820, 620);
 
     // Let us register listeners on the window, so we can update the state
     // automatically (the listeners will be removed when the window is closed)

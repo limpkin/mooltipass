@@ -3,7 +3,6 @@
 const electron = require('electron')
 const app = electron.app
 const Tray = electron.Tray;
-const Menu = require('electron').Menu
 const dialog = require('electron').dialog
 const ipc = require('electron').ipcMain
 const path = require('path')
@@ -69,7 +68,8 @@ function initialize () {
     // Load the previous window state with fallback to defaults
     let mainWindowState = windowStateKeeper({
       defaultWidth: 1024,
-      defaultHeight: 768
+      defaultHeight: 768,
+      resizable: false
     })
 
     const win = new electron.BrowserWindow({
@@ -84,7 +84,10 @@ function initialize () {
         'nodeIntegration': pjson.config.nodeIntegration || true, // Disabling node integration allows to use libraries such as jQuery/React, etc
         'preload': path.resolve(path.join(__dirname, 'preload.js'))
       }
-    })
+    });
+
+    // works only on Windows and Linux
+    win.setMenu(null);
 
     // Let us register listeners on the window, so we can update the state
     // automatically (the listeners will be removed when the window is closed)
@@ -147,7 +150,7 @@ function initialize () {
 
   let tray = null;
   app.on('ready', () => {
-    tray = new Tray( path.join(__dirname, '/chrome_app/images/icons/icon_cross_16.png') );
+    tray = new Tray( path.join(__dirname, '../chrome_app/images/icons/icon_cross_16.png') );
 
     mainWindow = createMainWindow()
 

@@ -130,10 +130,8 @@ chrome.hid = { // https://developer.chrome.com/apps/hid
 		this.options = options;
 		this.devices = HID.devices();
 		for ( var I = 0; I < this.devices.length; I++ ) {
-			let populate = false;
-			if ( options.productId && options.productId === this.devices[I].productId ) populate = true;
-			if ( options.vendorId && options.vendorId === this.devices[I].vendorId ) populate = true;
-			if ( populate ) {
+			if (options.filters[0].productId === this.devices[I].productId && options.filters[0].vendorId === this.devices[I].vendorId && options.filters[0].usagePage === this.devices[I].usagePage) {
+				console.log(this.devices[I])
 				this.devices[I].deviceId = I;
 				output.push(this.devices[I]);
 			}
@@ -205,6 +203,15 @@ process.once('loaded', () => {
   	global.mooltipass.device.usingMoolticute = false;
   	serverStartListening();
   	global.mooltipass.ui._.reset();
+
+  	var head = document.head;
+  	var link = document.createElement('link');
+
+  	link.type = 'text/css';
+  	link.rel = 'stylesheet';
+  	link.href = 'stylesheets/mooltiapp.css';
+
+  	head.appendChild(link);
   },500);
   // global.nodeRequire = _require; // in case node binding is disabled
 })
@@ -303,6 +310,12 @@ wsServer.on('request', function(request) {
             		context: json.data.service,
             		username: json.data.login,
             		password: json.data.password
+            	};
+            	chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
+            } else if ( json.msg == 'cancel_request') {
+            	var newMessage = {
+            		command: 'cancelGetCredentials',
+            		reqid: json.data.request_id
             	};
             	chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
             } else {

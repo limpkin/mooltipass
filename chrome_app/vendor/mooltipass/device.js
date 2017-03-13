@@ -15,7 +15,8 @@ mooltipass.device.usingMooltiApp = false;
 
 
 // Mooltipass device info
-mooltipass.device.deviceInfo = { 'vendorId': 0x16d0, 'productId': 0x09a0 };
+//mooltipass.device.deviceInfo = { 'vendorId': 0x16d0, 'productId': 0x09a0 };
+mooltipass.device.deviceInfo = { 'filters': [{'vendorId': 0x16d0, 'productId': 0x09a0, 'usagePage': 0xFF31}] };
 
 // Number of bytes of a packet transferred over USB is fixed to 64
 mooltipass.device.packetSize = 64;

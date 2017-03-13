@@ -305,6 +305,12 @@ wsServer.on('request', function(request) {
             		password: json.data.password
             	};
             	chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
+            } else if ( json.msg == 'cancel_request') {
+            	var newMessage = {
+            		command: 'cancelGetCredentials',
+            		reqid: json.data.request_id
+            	};
+            	chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
             } else {
 				chrome.runtime.dispatchOnExternalMessage( json, json.client_id);	
             }

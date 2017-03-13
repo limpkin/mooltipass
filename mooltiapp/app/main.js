@@ -88,6 +88,7 @@ function initialize () {
 
     // works only on Windows and Linux
     win.setMenu(null);
+    win.setResizable(false);
 
     // Let us register listeners on the window, so we can update the state
     // automatically (the listeners will be removed when the window is closed)

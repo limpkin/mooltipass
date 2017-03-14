@@ -8,19 +8,24 @@ Starting / Building the App - Windows
 - (from a shell with admin rights) npm install -g electron
 - (from a shell with admin rights) npm install -g node-gyp
 - (standard shell, inside the mooltiapp folder) npm install
+
 To run the app:
+
 - npm start
+
 To build the app (NOT WORKING AT THE MOMENT):
+
 - inside app/node_modules/websocket/, edited package.json install script to "install": "node-gyp rebuild".
 - npm run build:win
+
 
 Starting / Building the App - MAC
 ---------------------------------
 
-1) npm install -g electron
-2) npm install
-3) inside app/node_modules/websocket/, edited package.json install script to "install": "node-gyp rebuild".
-4) "npm run build:osx" or "npm start"
+- npm install -g electron
+- npm install
+- inside app/node_modules/websocket/, edited package.json install script to "install": "node-gyp rebuild".
+- "npm run build:osx" or "npm start"
 
 Notes
 -----

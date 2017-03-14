@@ -1,8 +1,3 @@
-
-window.onbeforeunload = function(event) {
-	chrome.hid.disconnect();
-}
-
 const {dialog} = require('electron').remote;
 const fs = require('fs');
 var HID = require('node-hid');
@@ -25,6 +20,7 @@ var portSchema = { __proto__: null, name: 'port', $ref: 'runtime.Port' };
 var messageSchema = { __proto__: null, name: 'message', type: 'any', optional: true };
 var options = { __proto__: null, unmanaged: true };
 
+// Simulate Chrome and set it global in Electron Environment
 var chrome = global.chrome = {
 	runtime: {
 		onMessageExternal: new Event( null, [messageSchema, portSchema], options),
@@ -36,11 +32,18 @@ var chrome = global.chrome = {
 			this.onMessageExternal.externalListeners[0].callback( arguments[0], arguments[1], arguments[2] );
 		},
 		sendMessage () {
-			if ( arguments[1] && arguments[1].command && arguments[1].command != 'getMooltipassStatus') console.log('runtime.sendMessage', arguments.length, arguments[1] );
+			// Send Message can come with different arguments. 
+			// https://developer.chrome.com/extensions/runtime#method-sendMessage
+			// [string extensionId], any message, object options, [function callback]
+			// Also, it could be used to send a message from the emulated background script in the APP to the APP content script OR
+			// from the APP to the extension. 
 
+			// if ( arguments[1] && arguments[1].command && arguments[1].command != 'getMooltipassStatus') console.log('runtime.sendMessage', arguments.length, arguments[1] );
+
+			// If we have 'source' (added from onMessageExternal) pass it to the APP
 			if ( arguments[0] && arguments[0].source) { // comes from external
 				this.dispatchOnMessage( arguments[0] );
-			} else { // goes to extension
+			} else { // If we don't have a 'source', it means it goes to extension
 				//console.log( (new Date()) + ' Connection send.', arguments );
 				connections[ arguments[0] ].send( JSON.stringify( arguments[1] ) );
 			}
@@ -152,11 +155,14 @@ chrome.runtime.getPlatformInfo = function (callback)
 	}
 }
 
-chrome.hid = { // https://developer.chrome.com/apps/hid
+// Emulate the HID interface management of Chrome by wrapping it to NODE
+// https://developer.chrome.com/apps/hid
+chrome.hid = {
 	connection: false,
 	devices: [],
 	options: false,
 	getDevices(options, callback) {
+		// Returns an array of matching devices, more info here: https://developer.chrome.com/apps/hid#method-getDevices
 		var output = [];
 		this.options = options;
 		this.devices = HID.devices();
@@ -170,10 +176,11 @@ chrome.hid = { // https://developer.chrome.com/apps/hid
 		}
 		callback ( output );
 	},
-	getUserSelectedDevices(options, callback) {
+	getUserSelectedDevices(options, callback) { // Not implemented as we are not using it
 	},
 	connect(deviceId, callback) {
-		console.log( 'connect', this.devices[deviceId].deviceId );
+		// Open a connection to an HID device for communication: https://developer.chrome.com/apps/hid#method-connect
+		//console.log( 'connect', this.devices[deviceId].deviceId );
 		try {
 			this.connection = new HID.HID( this.devices[deviceId].path );
 			this.connection.setNonBlocking(0);
@@ -229,13 +236,14 @@ var _remote = require('electron').remote
 process.once('loaded', () => {
   global.REMOTE = _remote;
 
-  // Disable moolticute check after load
+  // Disable moolticute check after load (wait 500ms for security)
   setTimeout( function() {
 	global.mooltipass.device.shouldCheckForMoolticute = false;
 	global.mooltipass.device.usingMoolticute = false;
 	serverStartListening();
 	global.mooltipass.ui._.reset();
 
+	// Insert a CSS file for Electron without touching the original CHROME_APP
 	var head = document.head;
 	var link = document.createElement('link');
 
@@ -249,6 +257,8 @@ process.once('loaded', () => {
 })
 
 
+// Converts buffer data into a string. 
+// Adds a 0 as the first byte (required by USB driver)
 function buf2hex(buf) {
   var output = [];
   var uint = new Uint8Array(buf);
@@ -261,6 +271,7 @@ function buf2hex(buf) {
   return output;
 }
 
+// Not being used at the moment, Converts buffer data into a string
 function buf2str(uint8Array) {
 	var output = '';
 	for (var i=0; i < uint8Array.length; i++) {
@@ -274,6 +285,7 @@ function buf2str(uint8Array) {
 	return output;
 };
 
+// Create the listening server
 var WebSocketServer = require('websocket').server;
 var http = require('http');
 
@@ -299,12 +311,14 @@ var wsServer = new WebSocketServer({
 
 function originIsAllowed(origin) {
   // put logic here to detect whether the specified origin is allowed.
+  // We're accepting every origin here.
   return true;
 }
 
 var connection;
 var connections = [];
 
+// Socket server messaging 
 wsServer.on('request', function(request) {
 	if (!originIsAllowed(request.origin)) {
 	  request.reject();
@@ -312,10 +326,13 @@ wsServer.on('request', function(request) {
 	  return;
 	}
 
+	// Store the connection in an Array so we can reference it later
 	connection = request.accept();
 	var connectionIndex = connections.length;
 	connections[ connectionIndex ] = connection;
+
 	console.log((new Date()) + ' Connection accepted.', connectionIndex);
+
 	connection.on('message', function(message) {
 		//console.log('message from extension', message );
 		if (message.type === 'utf8') {
@@ -325,6 +342,7 @@ wsServer.on('request', function(request) {
 			// console.log('Message from extension:', json );
 
 			// Keeping a close look at every command here
+			// When we receive a message, we need to translate it to a format the APP will understand (as the extension is thinking it is connected with moolticute)
 			if ( json.msg == 'ask_password' ) {
 				var newMessage = {
 					command: 'getCredentials',
@@ -360,15 +378,23 @@ wsServer.on('request', function(request) {
 			connection.sendBytes(message.binaryData);
 		}
 	});
+
+	// Shoot when the connection from the extension to the MooltiApp is closed.
 	connection.on('close', function(reasonCode, description) {
 		console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
 	});
 });
 
-
-
+// Send message internally, emulating init from the APP adding the 'source' into the message to easier identification of source
+// Basically: we got a message from the EXTENSION and we send it to the APP
+// We are emulating the doings of init.js script that's available in a Chrome_APP but not in Electron
 chrome.runtime.onMessageExternal.addExternalListener( function(message, sender, callbackFunction) {
 	//console.log('chrome.runtime.onMessageExternal (' + sender + '):', message);
 	var data = {'id': sender, 'message': message, 'source': 'external'};
 	chrome.runtime.sendMessage(data, callbackFunction);
 });
+
+// Disconnect from the HID device
+window.onbeforeunload = function(event) {
+	chrome.hid.disconnect();
+}

@@ -36,12 +36,13 @@ var chrome = global.chrome = {
 			this.onMessageExternal.externalListeners[0].callback( arguments[0], arguments[1], arguments[2] );
 		},
 		sendMessage () {
-			// console.log('runtime.sendMessage', arguments.length, arguments[1] );
+			if ( arguments[1] && arguments[1].command && arguments[1].command != 'getMooltipassStatus') console.log('runtime.sendMessage', arguments.length, arguments[1] );
 
 			if ( arguments[0] && arguments[0].source) { // comes from external
 				this.dispatchOnMessage( arguments[0] );
 			} else { // goes to extension
-				connection.send( JSON.stringify( arguments[1] ) );
+				//console.log( (new Date()) + ' Connection send.', arguments );
+				connections[ arguments[0] ].send( JSON.stringify( arguments[1] ) );
 			}
 		},
 		lastError: false
@@ -196,7 +197,7 @@ chrome.hid = { // https://developer.chrome.com/apps/hid
 	receive(connectionId, callback) {
 		if (!connectionId) connectionId = this.connection;
 		connectionId.read( function( err, response) {
-			if ( response[1] != 185 ) console.log('Received', response );
+			//if ( response[1] != 185 ) console.log('Received', response );
 			if (response.length > 0 ) callback(0, response );
 		});
 	},
@@ -301,8 +302,9 @@ function originIsAllowed(origin) {
   return true;
 }
 
-var clients = {};
 var connection;
+var connections = [];
+
 wsServer.on('request', function(request) {
 	if (!originIsAllowed(request.origin)) {
 	  request.reject();
@@ -311,16 +313,16 @@ wsServer.on('request', function(request) {
 	}
 
 	connection = request.accept();
-	console.log((new Date()) + ' Connection accepted.');
+	var connectionIndex = connections.length;
+	connections[ connectionIndex ] = connection;
+	console.log((new Date()) + ' Connection accepted.', connectionIndex);
 	connection.on('message', function(message) {
 		//console.log('message from extension', message );
 		if (message.type === 'utf8') {
 			var json = JSON.parse( message.utf8Data );
-			if ( !clients[ json.client_id ] ) clients[ json.client_id ] = {
-				connection: connection
-			};
+			json.client_id = connectionIndex;
 
-			console.log('Message from extension:', json );
+			// console.log('Message from extension:', json );
 
 			// Keeping a close look at every command here
 			if ( json.msg == 'ask_password' ) {

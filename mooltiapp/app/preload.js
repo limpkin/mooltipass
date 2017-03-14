@@ -102,11 +102,11 @@ var chrome = global.chrome = {
 							var fileReader = new FileReader();
 							var FileWritencallback = arguments[3];
 							fileReader.onload = function() {
-    							arrayBuffer = this.result;
-    							var buf = new Buffer(arrayBuffer); // decode
-    							// fs.writeFile( fileName , String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)) );
-    							fs.writeFile( fileName, buf );
-    							FileWritencallback(true);
+								arrayBuffer = this.result;
+								var buf = new Buffer(arrayBuffer); // decode
+								// fs.writeFile( fileName , String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)) );
+								fs.writeFile( fileName, buf );
+								FileWritencallback(true);
 							};
 
 							fileReader.readAsArrayBuffer(arguments[2]);
@@ -121,6 +121,36 @@ var chrome = global.chrome = {
 
 chrome.storage.local = chrome.storage.sync;
 
+chrome.runtime.getPlatformInfo = function (callback)
+{
+	/* not implemented in nodejs: android / cros */
+	running_os = require('os').platform();
+	if (running_os == "darwin")
+	{
+		callback({"os":"mac"});
+	}
+	else if (running_os == "freebsd")
+	{
+		callback({"os":"openbsd"});
+	}
+	else if (running_os == "linux")
+	{
+		callback({"os":"linux"});
+	}
+	else if (running_os == "sunos")
+	{
+		callback({"os":"linux"});
+	}
+	else if (running_os == "win32")
+	{
+		callback({"os":"win"});
+	}
+	else
+	{
+		callback({"os":"win"});
+	}
+}
+
 chrome.hid = { // https://developer.chrome.com/apps/hid
 	connection: false,
 	devices: [],
@@ -130,8 +160,9 @@ chrome.hid = { // https://developer.chrome.com/apps/hid
 		this.options = options;
 		this.devices = HID.devices();
 		for ( var I = 0; I < this.devices.length; I++ ) {
-			if (options.filters[0].productId === this.devices[I].productId && options.filters[0].vendorId === this.devices[I].vendorId && options.filters[0].usagePage === this.devices[I].usagePage) {
-				console.log(this.devices[I])
+			if (options.filters[0].productId === this.devices[I].productId && options.filters[0].vendorId === this.devices[I].vendorId && (mooltipass.app.os == "linux" || options.filters[0].usagePage === this.devices[I].usagePage)) {
+				/* see https://github.com/signal11/hidapi/pull/6 for linux */
+				//console.log(this.devices[I])
 				this.devices[I].deviceId = I;
 				output.push(this.devices[I]);
 			}
@@ -199,19 +230,19 @@ process.once('loaded', () => {
 
   // Disable moolticute check after load
   setTimeout( function() {
-  	global.mooltipass.device.shouldCheckForMoolticute = false;
-  	global.mooltipass.device.usingMoolticute = false;
-  	serverStartListening();
-  	global.mooltipass.ui._.reset();
+	global.mooltipass.device.shouldCheckForMoolticute = false;
+	global.mooltipass.device.usingMoolticute = false;
+	serverStartListening();
+	global.mooltipass.ui._.reset();
 
-  	var head = document.head;
-  	var link = document.createElement('link');
+	var head = document.head;
+	var link = document.createElement('link');
 
-  	link.type = 'text/css';
-  	link.rel = 'stylesheet';
-  	link.href = 'stylesheets/mooltiapp.css';
+	link.type = 'text/css';
+	link.rel = 'stylesheet';
+	link.href = 'stylesheets/mooltiapp.css';
 
-  	head.appendChild(link);
+	head.appendChild(link);
   },500);
   // global.nodeRequire = _require; // in case node binding is disabled
 })
@@ -222,33 +253,33 @@ function buf2hex(buf) {
   var uint = new Uint8Array(buf);
 
   for( var i = 0; i < uint.length; i++) {
-    if ( i == 0 ) output.push(0);
-    output.push( uint[i] );
+	if ( i == 0 ) output.push(0);
+	output.push( uint[i] );
   }
   
   return output;
 }
 
 function buf2str(uint8Array) {
-    var output = '';
-    for (var i=0; i < uint8Array.length; i++) {
-        if (uint8Array[i] == 0) {
-            return output;
-        }
-        else {
-            output += String.fromCharCode( uint8Array[i] );
-        }
-    }
-    return output;
+	var output = '';
+	for (var i=0; i < uint8Array.length; i++) {
+		if (uint8Array[i] == 0) {
+			return output;
+		}
+		else {
+			output += String.fromCharCode( uint8Array[i] );
+		}
+	}
+	return output;
 };
 
 var WebSocketServer = require('websocket').server;
 var http = require('http');
 
 var server = http.createServer(function(request, response) {
-    console.log((new Date()) + ' Received request for ' + request.url);
-    response.writeHead(404);
-    response.end();
+	console.log((new Date()) + ' Received request for ' + request.url);
+	response.writeHead(404);
+	response.end();
 }).on('error', (err) => {
   // handle errors here
   setTimeout( serverStartListening, 500);
@@ -261,8 +292,8 @@ serverStartListening = function() {
 };
 
 var wsServer = new WebSocketServer({
-    httpServer: server,
-    autoAcceptConnections: false
+	httpServer: server,
+	autoAcceptConnections: false
 });
 
 function originIsAllowed(origin) {
@@ -273,63 +304,63 @@ function originIsAllowed(origin) {
 var clients = {};
 var connection;
 wsServer.on('request', function(request) {
-    if (!originIsAllowed(request.origin)) {
-      request.reject();
-      console.log( (new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-      return;
-    }
+	if (!originIsAllowed(request.origin)) {
+	  request.reject();
+	  console.log( (new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+	  return;
+	}
 
-    connection = request.accept();
-    console.log((new Date()) + ' Connection accepted.');
-    connection.on('message', function(message) {
-    	//console.log('message from extension', message );
-        if (message.type === 'utf8') {
-            var json = JSON.parse( message.utf8Data );
-            if ( !clients[ json.client_id ] ) clients[ json.client_id ] = {
-            	connection: connection
-            };
+	connection = request.accept();
+	console.log((new Date()) + ' Connection accepted.');
+	connection.on('message', function(message) {
+		//console.log('message from extension', message );
+		if (message.type === 'utf8') {
+			var json = JSON.parse( message.utf8Data );
+			if ( !clients[ json.client_id ] ) clients[ json.client_id ] = {
+				connection: connection
+			};
 
-            console.log('Message from extension:', json );
+			console.log('Message from extension:', json );
 
-            // Keeping a close look at every command here
-            if ( json.msg == 'ask_password' ) {
-            	var newMessage = {
-            		command: 'getCredentials',
-            		contexts: [ json.data.service, json.data.fallback_service ],
-            		reqid: json.data.request_id
-            	};
-            	chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
-            } else if ( json.msg == 'get_random_numbers' ) {
-            	var newMessage = {
-            		command: 'getRandomNumber'
-            	};
-            	chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
-            } else if ( json.msg == 'set_credential') {
-            	var newMessage = {
-            		command: 'updateCredentials',
-            		context: json.data.service,
-            		username: json.data.login,
-            		password: json.data.password
-            	};
-            	chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
-            } else if ( json.msg == 'cancel_request') {
-            	var newMessage = {
-            		command: 'cancelGetCredentials',
-            		reqid: json.data.request_id
-            	};
-            	chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
-            } else {
+			// Keeping a close look at every command here
+			if ( json.msg == 'ask_password' ) {
+				var newMessage = {
+					command: 'getCredentials',
+					contexts: [ json.data.service, json.data.fallback_service ],
+					reqid: json.data.request_id
+				};
+				chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
+			} else if ( json.msg == 'get_random_numbers' ) {
+				var newMessage = {
+					command: 'getRandomNumber'
+				};
+				chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
+			} else if ( json.msg == 'set_credential') {
+				var newMessage = {
+					command: 'updateCredentials',
+					context: json.data.service,
+					username: json.data.login,
+					password: json.data.password
+				};
+				chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
+			} else if ( json.msg == 'cancel_request') {
+				var newMessage = {
+					command: 'cancelGetCredentials',
+					reqid: json.data.request_id
+				};
+				chrome.runtime.dispatchOnExternalMessage( newMessage, json.client_id);
+			} else {
 				chrome.runtime.dispatchOnExternalMessage( json, json.client_id);	
-            }
-        }
-        else if (message.type === 'binary') {
-            console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-            connection.sendBytes(message.binaryData);
-        }
-    });
-    connection.on('close', function(reasonCode, description) {
-        console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    });
+			}
+		}
+		else if (message.type === 'binary') {
+			console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
+			connection.sendBytes(message.binaryData);
+		}
+	});
+	connection.on('close', function(reasonCode, description) {
+		console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+	});
 });
 
 

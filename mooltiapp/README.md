@@ -27,6 +27,7 @@ Starting / Building the App - Ubuntu
 - sudo npm install -g electron
 - sudo npm install -g node-gyp
 - (inside the mooltiapp folder) npm install
+- add the udev rule: see https://www.themooltipass.com/udev_rule.txt
 
 To run the app:
 

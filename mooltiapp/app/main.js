@@ -183,7 +183,7 @@ function initialize () {
         } }
     ]);
 
-    tray.setToolTip('Electron.js App');
+    tray.setToolTip('Open or Quit MooltiApp');
     tray.setContextMenu(contextMenu);
 
     // Manage automatic updates

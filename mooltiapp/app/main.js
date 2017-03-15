@@ -8,10 +8,13 @@ const ipc = require('electron').ipcMain
 const path = require('path')
 const pjson = require('./package.json')
 const _ = require('lodash')
-const windowStateKeeper = require('electron-window-state')
+const windowStateKeeper = require('electron-window-state');
+
+const Menu = require('electron').Menu; 
 
 // Use system log facility, should work on Windows too
-require('./lib/log')(pjson.productName || 'SkelEktron')
+require('./lib/log')(pjson.productName || 'SkelEktron');
+
 
 // Manage unhandled exceptions as early as possible
 process.on('uncaughtException', (e) => {
@@ -19,6 +22,7 @@ process.on('uncaughtException', (e) => {
   dialog.showErrorBox('Caught unhandled exception', e.message || 'Unknown error message')
   app.quit()
 })
+
 
 // Load build target configuration file
 try {
@@ -48,9 +52,6 @@ require('electron-debug')({
 // Prevent window being garbage collected
 let mainWindow
 
-// Other windows we may need
-let infoWindow = null
-
 app.setName(pjson.productName || 'Mooltipass')
 
 function initialize () {
@@ -61,7 +62,6 @@ function initialize () {
     // Dereference used windows
     // for multiple windows store them in an array
     mainWindow = null;
-    infoWindow = null;
   }
 
   function createMainWindow () {
@@ -94,7 +94,23 @@ function initialize () {
     // Let us register listeners on the window, so we can update the state
     // automatically (the listeners will be removed when the window is closed)
     // and restore the maximized or full screen state
-    mainWindowState.manage(win)
+    mainWindowState.manage(win);
+
+    // EXPERIMENTAL: Minimize to tray
+    win.on('minimize',function(event){
+      event.preventDefault();
+      win.hide();
+    });
+
+    // EXPERIMENTAL: Minimize to tray
+    win.on('close', function (event) {
+      if( !app.isQuiting ) {
+        event.preventDefault()
+        win.hide();
+        app.dock.hide();
+      }
+      return false;
+    });
 
     win.loadURL(`file://${__dirname}/${pjson.config.url}`, {})
 
@@ -152,9 +168,23 @@ function initialize () {
 
   let tray = null;
   app.on('ready', () => {
+    mainWindow = createMainWindow();
+
     tray = new Tray( path.join(__dirname, '../chrome_app/images/icons/icon_cross_16.png') );
 
-    mainWindow = createMainWindow()
+    var contextMenu = Menu.buildFromTemplate([
+        { label: 'Show App', click:  function(){
+            mainWindow.show();
+            app.dock.show();
+        } },
+        { label: 'Quit', click:  function(){
+            app.isQuiting = true;
+            app.quit();
+        } }
+    ]);
+
+    tray.setToolTip('Electron.js App');
+    tray.setContextMenu(contextMenu);
 
     // Manage automatic updates
     try {
@@ -190,22 +220,6 @@ function initialize () {
   })
 
   app.on('will-quit', () => { })
-
-  ipc.on('open-info-window', () => {
-    if (infoWindow) {
-      return
-    }
-    infoWindow = new electron.BrowserWindow({
-      width: 600,
-      height: 600,
-      resizable: false
-    })
-    infoWindow.loadURL(`file://${__dirname}/info.html`)
-
-    infoWindow.on('closed', () => {
-      infoWindow = null
-    })
-  })
 }
 
 // Make this app a single instance app.
@@ -226,3 +240,4 @@ function makeSingleInstance () {
 
 // Manage Squirrel startup event (Windows)
 require('./lib/auto-update/startup')(initialize)
+

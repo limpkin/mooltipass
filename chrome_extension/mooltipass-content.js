@@ -163,7 +163,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
 		var a = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
 
-		a.sendkeys( password );
+		a.val('').sendkeys( password );
 		a.trigger('change');
 		e.preventDefault();
 	});

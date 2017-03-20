@@ -192,7 +192,10 @@ moolticute.websocket = {
         var data = event.data;
         try {
             var recvMsg = JSON.parse(data);
-            if (background_debug_msg > 4) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
+            if (background_debug_msg > 4 && recvMsg.command !== 'getMooltipassStatus') mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
+            else if (background_debug_msg > 5) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
+            
+
         }
         catch (e) {
             if (background_debug_msg > 4) mpDebug.log('%c Moolticute Error in received message: ', mpDebug.css('FFC6A0'), e, d );

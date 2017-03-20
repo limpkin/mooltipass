@@ -3,6 +3,36 @@
  *
  */
 var extendedCombinations = {
+	autodesk: function( forms ) {
+		console.log('autodesk combination');
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[type=password]:visible').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.password = mpJQ('input[type=password]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[type=text]:visible').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.username = mpJQ('input[type=text]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	google: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -95,7 +125,7 @@ mcCombinations.prototype = ( function() {
 			debugLevel: 0,
 			postDetectionFeature: true
 		}
-    };
+	};
 })();
 
 /*
@@ -129,6 +159,13 @@ mcCombinations.prototype.gotSettings = function( response ) {
 * Array containing all the possible combinations we support
 */
 mcCombinations.prototype.possibleCombinations = [
+	{
+		combinationId: 'autodeskTwoPageAuth',
+		combinationName: 'Autodesk Two Page Login Procedure',
+		requiredUrl: 'accounts.autodesk.com',
+		callback: extendedCombinations.autodesk
+		
+	},
 	{
 		combinationId: 'googleTwoPageAuth',
 		combinationName: 'Google Two Page Login Procedure',
@@ -595,6 +632,10 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	var submittedUsernameValue = this.parseElement( currentForm.combination.fields.username, 'value');
 	var submittedPasswordValue = this.parseElement( currentForm.combination.fields.password, 'value');
 
+	if ( mpJQ('#mooltipass-username').val() && mpJQ('#mooltipass-username').val() !== submittedUsernameValue ) {
+		submittedUsernameValue = mpJQ('#mooltipass-username').val();
+	}
+
 	if ( !storedUsernameValue && !this.credentialsCache && submittedUsernameValue) { // In case there's a 2 pages login. Store the username in cache
 		this.credentialsCache = [{ TempLogin: submittedUsernameValue, Login: false, Password: false }];
 	}
@@ -653,6 +694,9 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		return;
 	}
 
+	mpJQ('#mooltipass-login-info').show();
+	mpJQ('#mooltipass-username').val( credentials[0].Login );
+
 	if (!isSafari) {
 		// Store retrieved username as a cache
 		chrome.runtime.sendMessage({'action': 'cache_login', 'args': [ credentials[0].Login ] }, function( r ) {
@@ -676,10 +720,12 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			if ( credentials[0].Login && currentForm.combination.fields.username ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form - Username','background-color: #c3c6b4','color: #FF0000');
 				// Fill-in Username
-				currentForm.combination.fields.username.val('');
-				currentForm.combination.fields.username.sendkeys( credentials[0].Login );
-				currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
-				currentForm.combination.savedFields.username.value = credentials[0].Login;
+				if ( currentForm.combination.fields.username ) {
+					currentForm.combination.fields.username.val('');
+					currentForm.combination.fields.username.sendkeys( credentials[0].Login );
+					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
+					currentForm.combination.savedFields.username.value = credentials[0].Login;	
+				}
 			}
 			
 			if ( credentials[0].Password && currentForm.combination.fields.password ) {
@@ -718,24 +764,24 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 */
 mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
-    
-    if ( currentForm.element ) {
-    	// Try to click the submit element
-	    var submitButton = currentForm.element.find(':submit');
-	    if ( submitButton.length > 0 ) { 
-	    	// Add timeout to allow form check procedures to run
-	    	setTimeout( function() {
-	    		submitButton[0].click();
-	    	},100);
-	    } else if (formElement.element ) {
-	    	// If no submit button is found, just submit the form
-	    	formElement.submit();
-	    }
-    } else { // There is no FORM element. Click stuff around
+	
+	if ( currentForm.element ) {
+		// Try to click the submit element
+		var submitButton = currentForm.element.find(':submit');
+		if ( submitButton.length > 0 ) { 
+			// Add timeout to allow form check procedures to run
+			setTimeout( function() {
+				submitButton[0].click();
+			},100);
+		} else if (formElement.element ) {
+			// If no submit button is found, just submit the form
+			formElement.submit();
+		}
+	} else { // There is no FORM element. Click stuff around
 		setTimeout( function() {
-        	mpJQ('#sign-in, .btn-submit').click();
-        },1500);
-    }
+			mpJQ('#sign-in, .btn-submit').click();
+		},1500);
+	}
 }
 
 

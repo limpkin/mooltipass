@@ -167,7 +167,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
     //  Delete credentials
     $(".fa-trash-o").off('click').on('click', function (e) {
         if(mooltipass.ui.credentials.isActiveEdit()) {
-            return;
+            return false;
         }
 
         var $parent = $(this).parents("tr");
@@ -191,12 +191,17 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         if ($parent.hasClass("active"))
             $(".credential-details").remove();
 
-        CREDENTIALS_TABLE.fnDeleteRow($parent[0], null, true);
+        // Don't redraw to not cause scroll.
+        CREDENTIALS_TABLE.fnDeleteRow($parent[0], null, false);
+
+        // Delete the row manually
+        $($parent[0]).remove();
 
         $('#button-placeholder').hide();
         $('#unsaved-changes-warning').fadeIn();
 
         e.stopPropagation();
+        return false;
     });
 
     //  Edit credentials

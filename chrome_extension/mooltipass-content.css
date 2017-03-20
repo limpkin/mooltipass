@@ -1,4 +1,4 @@
-.ui-dialog, .ui-dialog * {
+.mp-dialog, .mp-dialog * {
     box-sizing: content-box !important;    
 }
 .ui-autocomplete li.ui-menu-item {
@@ -16,7 +16,7 @@
 	background: none !important;
 	z-index: 2147483601 !important;
 }
-.ui-dialog {
+.mp-dialog {
   z-index: 2147483602 !important;
   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.1);
   border-radius: 0;
@@ -24,7 +24,7 @@
   padding: 0;	
   font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
 }
-.ui-dialog .ui-dialog-title {
+.mp-dialog .ui-dialog-title {
     background-attachment: scroll !important;
     background-clip: border-box !important;
     background-color: rgba(0, 0, 0, 0) !important;
@@ -75,7 +75,8 @@
     white-space: nowrap !important;
     width: 248.390625px !important;
 }
-.ui-dialog .ui-dialog-titlebar {
+
+.mp-dialog .ui-dialog-titlebar {
     background-attachment: scroll !important;
     background-clip: border-box !important;
     background-color: rgb(255, 255, 255) !important;
@@ -831,7 +832,7 @@ input.mp-hover-password {
     background: rgba(255,40,40,0.39) !important;
 }
 
-.ui-dialog p {
+.mp-dialog p {
 	margin-bottom: 1rem !important;
 }
 

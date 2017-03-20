@@ -131,6 +131,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 	$dialog.hide();
 	mpJQ("body").append($dialog);
 	$dialog.dialog({
+		dialogClass: 'mp-dialog',
 		closeText: "×",
 		autoOpen: false,
 		modal: true,
@@ -186,7 +187,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		e.preventDefault();
 	});
 
-	$userField = cipFields.getUsernameField($pwField.data("mp-id"));
+	$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
 
 	mpJQ("#mooltipass-store-credentials").hover(function(){
 		if ( $userField ) $userField.addClass("mp-hover-username");
@@ -1133,8 +1134,6 @@ cip.checkForNewInputs = function() {
 		if ( cip.settings.status ) {
 			//cip.initCredentialFields( true );
 			cip.visibleInputsHash = hash;
-
-			// TODO: Probably move all of this to mcCombinations
 			mcCombs.detectCombination();
 		}
 	}

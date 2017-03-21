@@ -337,7 +337,11 @@
 	background-color:rgba(30,144,255,0.4);
 }
 
-#mooltipass-password-generator {
+#mooltipass-login-info {
+    display: none;
+}
+
+#mooltipass-password-generator, #mooltipass-username {
     -webkit-appearance: none !important;
     -webkit-rtl-ordering: logical !important;
     -webkit-user-select: text !important;

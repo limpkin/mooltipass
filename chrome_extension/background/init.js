@@ -130,7 +130,7 @@ startMooltipass = function() {
 					if ( details.requestBody && details.requestBody.raw && details.requestBody.raw[0]) {
 						var buffer = details.requestBody.raw[0].bytes;
 						var parsed = arrayBufferToData.toJSON(buffer);
-						chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', post_data: parsed });	
+						if ( details.tabId ) chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', post_data: parsed });	
 					} 
 				} else { // Standard POST
 					chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', details: details});	

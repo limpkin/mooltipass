@@ -119,7 +119,12 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		<p style="font-size:12px !important; margin-bottom: 12px !important;">You can store your entered credentials in the Mooltipass device to securely store and easily access them.</p> \
 		<p class="mooltipass-text-right" style="margin-bottom: 12px !important;"><button id="mooltipass-store-credentials" class="mooltipass-button">Store or update current credentials</button><br /><a href="#" style="margin-top: 5px !important; display: inline-block !important; font-size: 12px !important;" id="mooltipass-select-custom">Select custom credential fields</a></p>  \
 	  </div> \
-	  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="ui-id-2" class="ui-dialog-title">Password Generator</span></div> \
+	  <div id="mooltipass-login-info"> \
+	  	<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="ui-id-2" class="ui-dialog-title">Current Login</span></div> \
+	  	<p style="font-size:12px !important; margin-bottom: 12px !important;">Login specification</p> \
+	  	<p><input type="text" id="mooltipass-username" class="mooltipass-input" /></p> \
+	  </div> \
+	  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span class="ui-dialog-title">Password Generator</span></div> \
 	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
 	  <p class="mooltipass-text-right" style="margin-bottom:0.5rem !important;"><a href="" id="mooltipass-new-password">Re-generate</a><button id="mooltipass-use-as-password" class="mooltipass-button">Copy to all password fields</button></p> \
 	  <p class="mooltipass-text-right"><button id="mooltipass-copy-to-clipboard" class="mooltipass-button">Copy to clipboard</button></p> \
@@ -189,19 +194,27 @@ cipPassword.createDialog = function(inputs, $pwField) {
 
 	$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
 
-	mpJQ("#mooltipass-store-credentials").hover(function(){
+	mpJQ("#mooltipass-store-credentials").hover( function() {
+		if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
+		$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
 		if ( $userField ) $userField.addClass("mp-hover-username");
+
 		$pwField.addClass("mp-hover-password");
-	}, function(){
-		if ( $userField ) $userField.removeClass("mp-hover-username");
-		$pwField.removeClass("mp-hover-password");
+	}, function() {
+		mpJQ(".mp-hover-username").removeClass("mp-hover-username");
+		mpJQ(".mp-hover-password").removeClass("mp-hover-password");
 	})
 	.click(function(){
 		var url = (document.URL.split("://")[1]).split("/")[0];
-		$userField.removeClass("mp-hover-username");
-		$pwField.removeClass("mp-hover-password");
+
+		if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
+		$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
+
 		var username = $userField.val();
 		var password = $pwField.val();
+
+		mpJQ(".mp-hover-username").removeClass("mp-hover-username");
+		mpJQ(".mp-hover-password").removeClass("mp-hover-password");
 
 		mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
 
@@ -242,6 +255,18 @@ cipPassword.generatePasswordFromSettings = function( passwordSettings ) {
 
 cipPassword.createIcon = function(field) {
 	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c createIcon','background-color: #ff8e1b','color: #333333', field);
+
+	// Check if there are other icons in the page
+	var currentIcons = mpJQ('.mp-genpw-icon');
+	var iconIndex = currentIcons.length;
+	if ( iconIndex > 0 ) {
+		for ( var I = 0; I < iconIndex; I++ ) {
+			if ( field.data("mp-id") === mpJQ(currentIcons[I]).data('mp-genpw-field-id') ) { // An icon for this field already exists
+				mpJQ(currentIcons[I]).remove();
+			}
+		}
+	}
+
 	var $className = (field.outerHeight() > 28) ? "mp-icon-key-big" : "mp-icon-key-small";
 	var $size = (field.outerHeight() > 28) ? 24 : 16;
 	var $offset = Math.floor((field.outerHeight() - $size) / 3);
@@ -273,11 +298,14 @@ cipPassword.createIcon = function(field) {
 		.css("z-index", $zIndex)
 		.data("size", $size)
 		.data("offset", $offset)
+		.data("index", iconIndex)
 		.data("mp-genpw-field-id", field.data("mp-id"));
 	cipPassword.setIconPosition($icon, field);
 	$icon.click(function(e) {
 		e.preventDefault();
 
+		// Use event target for cases when there are more than 1 password in the screen
+		var field = $(e.target);
 		if(!field.is(":visible")) {
 			$icon.remove();
 			field.removeData("mp-password-generator");
@@ -840,6 +868,10 @@ cipFields.getUsernameField = function(passwordId, checkDisabled) {
 		return null;
 	}
 
+	if ( cipDefine.selection && cipDefine.selection.username !== null ) {
+		return mpJQ('#' + cipDefine.selection.username);
+	}
+
 	var form = passwordField.closest("form")[0];
 	var usernameField = null;
 
@@ -901,6 +933,10 @@ cipFields.getPasswordField = function(usernameId, checkDisabled) {
 	var usernameField = _f(usernameId);
 	if(!usernameField) {
 		return null;
+	}
+
+	if ( cipDefine.selection && cipDefine.selection.password !== null ) {
+		return mpJQ('#' + cipDefine.selection.password);
 	}
 
 	var form = usernameField.closest("form")[0];
@@ -1782,7 +1818,10 @@ cipEvents.startEventHandling = function() {
 	};
 
 	if ( isSafari ) safari.self.addEventListener("message", listenerCallback ,false);
-	else chrome.runtime.onMessage.addListener( listenerCallback );
+	else {
+		chrome.runtime.onMessage.removeListener( listenerCallback );
+		chrome.runtime.onMessage.addListener( listenerCallback );
+	}
 
 	// Hotkeys for every page
 	// ctrl + shift + p = fill only password

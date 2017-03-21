@@ -292,6 +292,8 @@ mcCombinations.prototype.possibleCombinations = [
 		autoSubmit: false,
 		usePasswordGenerator: true,
 		extraFunction: function( fields ) {
+			mpJQ(this.fields.password[0]).addClass('mooltipass-password-do-not-update');
+
 			// We need LOGIN information. Try to retrieve credentials from cache.
 			cipEvents.temporaryActions['response-cache_retrieve'] = function( response ) {
 				var r = response.data;
@@ -316,7 +318,7 @@ mcCombinations.prototype.possibleCombinations = [
 			}.bind(this);
 			messaging({'action': 'cache_retrieve' });
 
-			mpJQ(this.fields.password[0]).addClass('mooltipass-password-do-not-update');
+			
 			// We also change the password field for the next one (as we retrieve in the first field, but store the value from the second!)
 			this.fields.password = this.fields.password.parents('form').find("input[type='password']:not('.mooltipass-password-do-not-update')");
 	
@@ -694,6 +696,8 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		return;
 	}
 
+	// Credentials callback gets called when there's a hashChange in the fields. If we modified the username, keep the modified one
+	if ( mpJQ('#mooltipass-username').val() ) credentials[0].Login = mpJQ('#mooltipass-username').val();
 	mpJQ('#mooltipass-login-info').show();
 	mpJQ('#mooltipass-username').val( credentials[0].Login );
 
@@ -720,7 +724,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			if ( credentials[0].Login && currentForm.combination.fields.username ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form - Username','background-color: #c3c6b4','color: #FF0000');
 				// Fill-in Username
-				if ( currentForm.combination.fields.username ) {
+				if ( currentForm.combination.fields.username && typeof currentForm.combination.fields.username !== 'string' ) {
 					currentForm.combination.fields.username.val('');
 					currentForm.combination.fields.username.sendkeys( credentials[0].Login );
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
@@ -731,10 +735,12 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			if ( credentials[0].Password && currentForm.combination.fields.password ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form - Password','background-color: #c3c6b4','color: #FF0000');
 				// Fill-in Password
-				currentForm.combination.fields.password.val('');
-				currentForm.combination.fields.password.sendkeys( credentials[0].Password );
-				currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
-				currentForm.combination.savedFields.password.value = credentials[0].Password;
+				if ( typeof currentForm.combination.fields.password === 'object' && currentForm.combination.fields.password.length > 0 && !currentForm.combination.fields.password.hasClass('mooltipass-password-do-not-update')) {
+					currentForm.combination.fields.password.val('');
+					currentForm.combination.fields.password.sendkeys( credentials[0].Password );
+					currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
+					currentForm.combination.savedFields.password.value = credentials[0].Password;
+				}
 			}
 
 

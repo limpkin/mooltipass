@@ -115,14 +115,14 @@ cipPassword.createDialog = function(inputs, $pwField) {
 	}
 
 	$dialog2 = mpJQ.parseHTML(' \
+	  <div id="mooltipass-login-info"> \
+	  	<p style="font-size:12px !important; margin-bottom: 12px !important;">If not correct, modify it below</p> \
+	  	<p><input type="text" id="mooltipass-username" class="mooltipass-input" /></p> \
+	  </div> \
+	  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="ui-id-2" class="ui-dialog-title">Credential Storage</span></div> \
 	  <div id="mp-update-credentials-wrap"> \
 		<p style="font-size:12px !important; margin-bottom: 12px !important;">You can store your entered credentials in the Mooltipass device to securely store and easily access them.</p> \
 		<p class="mooltipass-text-right" style="margin-bottom: 12px !important;"><button id="mooltipass-store-credentials" class="mooltipass-button">Store or update current credentials</button><br /><a href="#" style="margin-top: 5px !important; display: inline-block !important; font-size: 12px !important;" id="mooltipass-select-custom">Select custom credential fields</a></p>  \
-	  </div> \
-	  <div id="mooltipass-login-info"> \
-	  	<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="ui-id-2" class="ui-dialog-title">Current Login</span></div> \
-	  	<p style="font-size:12px !important; margin-bottom: 12px !important;">Login specification</p> \
-	  	<p><input type="text" id="mooltipass-username" class="mooltipass-input" /></p> \
 	  </div> \
 	  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span class="ui-dialog-title">Password Generator</span></div> \
 	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
@@ -142,7 +142,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		modal: true,
 		resizable: false,
 		minWidth: 280,
-		title: "Credential Storage",
+		title: "Current Login",
 		open: function(event, ui) {
 			mpJQ(".ui-widget-overlay").click(function() {
 				mpJQ("#mp-genpw-dialog:first").dialog("close");

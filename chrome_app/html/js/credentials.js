@@ -443,6 +443,55 @@ mooltipass.ui.credentials.initializeTableActions = function () {
     }
     $(".fa-times").off('click').on("click", discard_credential_changes);
 
+    // Returns a TR with credentials details
+    var generate_details_view = function( credentials ) {
+        var context = credentials.context;
+        var username = credentials.username;
+
+        var credential_details = get_credential_infos(context, username);
+
+        var description = credential_details.description || '- empty -';
+
+        var now = new Date();
+        var date = new Date(credential_details.date_lastused);
+        var last_used = MONTH_NAMES[date.getMonth()] + " " + date.getDate();
+        if (now - date > 365 * 24 * 60 * 60 * 1000) {
+            last_used += ", " + date.getFullYear();
+        }
+        if (isNaN(date.getFullYear()) || date.getFullYear() < 2013) {
+            last_used = '- never -';
+        }
+
+        var date = new Date(credential_details.date_modified);
+        var last_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDate();
+        if (now - date > 365 * 24 * 60 * 60 * 1000) {
+            last_modified += ", " + date.getFullYear();
+        }
+        if (isNaN(date.getFullYear()) || date.getFullYear() < 2013) {
+            last_modified = '- never -';
+        }
+
+        var $tr = $('<tr class="credential-details"><td colspan=2></td><td class="labels">\
+            <p>Last used</p>\
+            <p>Last modified</p>\
+            <p>Description</p>\
+            </td><td colspan=2>\
+            <p class="last_used"></p>\
+            <p class="last_modified"></p>\
+            <p class="description"><span class="value"></span></p>\
+            </td></tr>');
+
+        $('.last_used', $tr).text(last_used);
+        $('.last_modified', $tr).text(last_modified);
+        $('.description span', $tr).data('value', description).text(description);
+
+        $(".description span", $tr).off('dblclick')
+            .on('dblclick', edit_credentials)
+            .on('dblclick', dblclick_last_500ms);
+
+        return $tr;
+    }
+
     //  View details (description / last used / last modified)
     var update_details_view = function () {
         if(mooltipass.ui.credentials.isActiveEdit()) {
@@ -452,53 +501,25 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         $(".credential-details").remove();
         if ($(".active").length > 0) {
             var credentials = get_credentials_from_row($(".active"));
-            var context = credentials.context;
-            var username = credentials.username;
-
-            var credential_details = get_credential_infos(context, username);
-
-            var description = credential_details.description || '- empty -';
-
-            var now = new Date();
-            var date = new Date(credential_details.date_lastused);
-            var last_used = MONTH_NAMES[date.getMonth()] + " " + date.getDate();
-            if (now - date > 365 * 24 * 60 * 60 * 1000) {
-                last_used += ", " + date.getFullYear();
-            }
-            if (isNaN(date.getFullYear()) || date.getFullYear() < 2013) {
-                last_used = '- never -';
-            }
-
-            var date = new Date(credential_details.date_modified);
-            var last_modified = MONTH_NAMES[date.getMonth()] + " " + date.getDate();
-            if (now - date > 365 * 24 * 60 * 60 * 1000) {
-                last_modified += ", " + date.getFullYear();
-            }
-            if (isNaN(date.getFullYear()) || date.getFullYear() < 2013) {
-                last_modified = '- never -';
-            }
-
-            var $tr = $('<tr class="active credential-details"><td colspan=2></td><td class="labels">\
-<p>Last used</p>\
-<p>Last modified</p>\
-<p>Description</p>\
-</td><td colspan=2>\
-<p class="last_used"></p>\
-<p class="last_modified"></p>\
-<p class="description"><span class="value"></span></p>\
-</td></tr>');
-
-            $('.last_used', $tr).text(last_used);
-            $('.last_modified', $tr).text(last_modified);
-            $('.description span', $tr).data('value', description).text(description);
-
+            var $tr = generate_details_view( credentials );
+            $tr.addClass('active');
             $(".active").after($tr);
-
-            $(".description span", $tr).off('dblclick')
-                .on('dblclick', edit_credentials)
-                .on('dblclick', dblclick_last_500ms);
         }
     };
+
+    var display_all_details = function(e) {
+        // Cleanup previous actions
+        $(".credential-details").remove();
+        $(".active").removeClass("active").removeClass("edit");
+
+        // Add details for every row
+        $('#credentials tbody tr').each( function() { 
+            var credentials = get_credentials_from_row( $(this) );
+            var $tr = generate_details_view( credentials );
+            $(this).after($tr)
+        } );
+    }
+
     var display_details = function (e) {
         if(mooltipass.ui.credentials.isActiveEdit()) {
             return;
@@ -521,6 +542,7 @@ mooltipass.ui.credentials.initializeTableActions = function () {
         e.stopPropagation();
     };
     $("tbody tr").off('click').on('click', display_details);
+    $(".expandContractLink").off('click').on('click', display_all_details);
 };
 
 mooltipass.ui.credentials.onKeyUpInputMax = function(e) {

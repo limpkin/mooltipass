@@ -3,6 +3,36 @@
  *
  */
 var extendedCombinations = {
+	skype: function( forms ) {
+		console.log('skype combination');
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[type=password]').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.password = mpJQ('input[type=password]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[name=loginfmt]').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.username = mpJQ('input[name=loginfmt]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	autodesk: function( forms ) {
 		console.log('autodesk combination');
 		if ( mcCombs.getAllForms() == 0 ) return;
@@ -159,6 +189,14 @@ mcCombinations.prototype.gotSettings = function( response ) {
 * Array containing all the possible combinations we support
 */
 mcCombinations.prototype.possibleCombinations = [
+
+	{
+		combinationId: 'skypeTwoPageAuth',
+		combinationName: 'Skype Two Page Login Procedure',
+		requiredUrl: 'login.live.com',
+		callback: extendedCombinations.skype
+		
+	},
 	{
 		combinationId: 'autodeskTwoPageAuth',
 		combinationName: 'Autodesk Two Page Login Procedure',
@@ -247,6 +285,28 @@ mcCombinations.prototype.possibleCombinations = [
 		extraFunction: function( fields ) {
 			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
 			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+		}
+	},
+	{
+		combinationId: 'loginform004',
+		combinationName: 'Login Form mixed with Registration Form (ie: showroomprive.com)',
+		requiredFields: [
+			{
+				selector: 'input[type=email]',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+		],
+		scorePerMatch: 50,
+		score: 0,
+		autoSubmit: false,
+		enterFromPassword: true,
+		maxfields: 12,
+		extraFunction: function( fields ) {
+			this.fields.username = cipFields.getUsernameField( fields.password.prop('id') );
 		}
 	},
 	{
@@ -726,6 +786,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				// Fill-in Username
 				if ( currentForm.combination.fields.username && typeof currentForm.combination.fields.username !== 'string' ) {
 					currentForm.combination.fields.username.val('');
+					currentForm.combination.fields.username.click();
 					currentForm.combination.fields.username.sendkeys( credentials[0].Login );
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.username.value = credentials[0].Login;	
@@ -737,6 +798,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				// Fill-in Password
 				if ( typeof currentForm.combination.fields.password === 'object' && currentForm.combination.fields.password.length > 0 && !currentForm.combination.fields.password.hasClass('mooltipass-password-do-not-update')) {
 					currentForm.combination.fields.password.val('');
+					currentForm.combination.fields.password.click();
 					currentForm.combination.fields.password.sendkeys( credentials[0].Password );
 					currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.password.value = credentials[0].Password;
@@ -760,6 +822,8 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				// Stop processing forms if we're going to submit
 				// TODO: Weight the importance of each form and submit the most important, not the first!
 				return;
+			} else if ( currentForm.combination.enterFromPassword ) { // Try to send the enter key while focused on password
+				currentForm.combination.fields.password.focus().sendkeys( "\n" );
 			}
 		}
 	}
@@ -773,19 +837,21 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	
 	if ( currentForm.element ) {
 		// Try to click the submit element
-		var submitButton = currentForm.element.find(':submit');
+		var submitButton = currentForm.element.find(':submit:visible');
 		if ( submitButton.length > 0 ) { 
 			// Add timeout to allow form check procedures to run
 			setTimeout( function() {
 				submitButton[0].click();
 			},100);
-		} else if (formElement.element ) {
+		} else if ( mpJQ('#verify_user_btn').length > 0 ) { // Exclusive else/if for Autodesk.com (probably it could be used in more 2 steps login procedures)
+			mpJQ('#verify_user_btn').click();
+		} else if ( currentForm.element ) {
 			// If no submit button is found, just submit the form
-			formElement.submit();
+			currentForm.element.submit();
 		}
 	} else { // There is no FORM element. Click stuff around
 		setTimeout( function() {
-			mpJQ('#sign-in, .btn-submit').click();
+			mpJQ('#sign-in, .btn-submit, #verify_user_btn').click();
 		},1500);
 	}
 }

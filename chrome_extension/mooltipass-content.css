@@ -16,7 +16,7 @@
 	background: none !important;
 	z-index: 2147483601 !important;
 }
-.mp-dialog {
+.ui-dialog.mp-dialog {
   z-index: 2147483602 !important;
   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.1);
   border-radius: 0;
@@ -337,9 +337,7 @@
 	background-color:rgba(30,144,255,0.4);
 }
 
-#mooltipass-login-info {
-    display: none;
-}
+#mooltipass-login-info { }
 
 #mooltipass-password-generator, #mooltipass-username {
     -webkit-appearance: none !important;

@@ -444,3 +444,14 @@ nav {
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
     border: none;
 }
+
+.inline {
+    float: left;
+}
+
+.inline.expandContractLink {
+    margin-left: 20px;
+    line-height: 30px;
+    font-size: 11px;
+    cursor: pointer;
+}

@@ -89,6 +89,10 @@ uint8_t mp_timeout_enabled = FALSE;
 /* Flag set by anything to signal activity */
 uint8_t act_detected_flag = FALSE;
 
+/* On the MINI, flag set by pressing the wheel at boot-time */
+#if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
+uint8_t mini_button_at_boot = FALSE;
+#endif
 
 /*! \fn     reboot_platform(void)
 *   \brief  Function to reboot the MCU using the WDT
@@ -218,6 +222,19 @@ int main(void)
         {
             start_bootloader();
         }
+    #endif
+
+    /********************************************************************/
+    /**           ENABLE BOOT-TIME BUTTON PRESS DETECTION              **/
+    /*                                                                  */
+    /* On mini units, a button pressed at boot enables additional       */
+    /* features or hardening                                            */
+    /********************************************************************/
+    #if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
+    if(electricalJumpToBootloaderCondition() == TRUE)
+    {
+        mini_button_at_boot = TRUE;
+    }
     #endif
 
     /** HARDWARE INITIALIZATION **/

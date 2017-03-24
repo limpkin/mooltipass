@@ -329,6 +329,9 @@
 // Uncomment to globally enable all cleanup & hardening features
 //#define MINI_HARDENED_FW
 
+// Uncomment to allow detection of button press at boot-time
+//#define MINI_BUTTON_AT_BOOT
+
 // set all hardening and cleanup features at once
 #if defined(MINI_VERSION) && defined(MINI_HARDENED_FW)
     /* features from stock firmware */
@@ -336,6 +339,9 @@
     #define DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
     #define DISABLE_FUNCTIONAL_TEST
     #define SKIP_TUTORIAL
+
+    /* specific cleanup & hardening features */
+    #define MINI_BUTTON_AT_BOOT
 #endif
 
 /**************** HW MACROS ****************/

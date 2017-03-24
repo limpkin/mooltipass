@@ -332,6 +332,9 @@
 // Uncomment to allow detection of button press at boot-time
 //#define MINI_BUTTON_AT_BOOT
 
+// Uncomment to disable screensaver
+//#define DISABLE_SCREENSAVER
+
 // set all hardening and cleanup features at once
 #if defined(MINI_VERSION) && defined(MINI_HARDENED_FW)
     /* features from stock firmware */
@@ -342,6 +345,7 @@
 
     /* specific cleanup & hardening features */
     #define MINI_BUTTON_AT_BOOT
+    #define DISABLE_SCREENSAVER
 #endif
 
 /**************** HW MACROS ****************/

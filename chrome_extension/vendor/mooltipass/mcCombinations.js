@@ -1,5 +1,5 @@
 /*
- * Extendable object for special cases
+ * Extendable objects for special cases
  *
  */
 var extendedCombinations = {
@@ -123,6 +123,23 @@ var extendedCombinations = {
 	}
 };
 
+var extendedPost = {
+	'techmania.ch': function( details ) {
+		if ( details.requestParams && details.requestParams.login ) {
+			details.usernameValue = details.requestParams.login;
+			details.passwordValue = details.requestParams.password;
+		}
+		return details;
+	},
+	'seeedstudio.com': function( details ) {
+		if ( details.email && details.password ) {
+			details.usernameValue = details.email;
+			details.passwordValue = details.password;
+		}
+		return details;
+	}
+}
+
 /*
 / Form Detection by combinations.
 / Searches the DOM for a predefined set of combinations and retrieves credentials or prepares everything to be saved
@@ -189,13 +206,11 @@ mcCombinations.prototype.gotSettings = function( response ) {
 * Array containing all the possible combinations we support
 */
 mcCombinations.prototype.possibleCombinations = [
-
 	{
 		combinationId: 'skypeTwoPageAuth',
 		combinationName: 'Skype Two Page Login Procedure',
 		requiredUrl: 'login.live.com',
 		callback: extendedCombinations.skype
-		
 	},
 	{
 		combinationId: 'autodeskTwoPageAuth',
@@ -282,6 +297,31 @@ mcCombinations.prototype.possibleCombinations = [
 		score: 0,
 		autoSubmit: true,
 		maxfields: 2,
+		extraFunction: function( fields ) {
+			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+		}
+	},
+	{
+		combinationId: 'registerformsimple',
+		combinationName: 'Simple Registration (1 username, 2 passwords)',
+		requiredFields: [
+			{
+				selector: 'input[type=text],input[type=email],input:not([type])',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+			{
+				selector: 'input[type=password]:visible',
+			}
+		],
+		scorePerMatch: 33,
+		score: 1,
+		autoSubmit: true,
+		maxfields: 3,
 		extraFunction: function( fields ) {
 			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
 			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
@@ -716,6 +756,7 @@ mcCombinations.prototype.onSubmit = function( event ) {
 */
 mcCombinations.prototype.isAvailableField = function($field) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c isAvailableField','background-color: #c3c6b4','color: #333333');
+
 	return (
 		$field.is(":visible")
 		&& $field.css("visibility") != "hidden"
@@ -823,7 +864,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				// TODO: Weight the importance of each form and submit the most important, not the first!
 				return;
 			} else if ( currentForm.combination.enterFromPassword ) { // Try to send the enter key while focused on password
-				currentForm.combination.fields.password.focus().sendkeys( "\n" );
+				currentForm.combination.fields.password.focus().sendkeys( "{enter}" );
 			}
 		}
 	}
@@ -835,6 +876,9 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
+	// Do not autosubmit forms with Captcha
+	if ( cip.formHasCaptcha ) return;
+
 	if ( currentForm.element ) {
 		// Try to click the submit element
 		var submitButton = currentForm.element.find(':submit:visible');
@@ -887,6 +931,14 @@ mcCombinations.prototype.parseElement = function( element, data ) {
 */
 mcCombinations.prototype.postDetected = function( details ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c postDetected','background-color: #c3c6b4','color: #333333', details);
+
+	// Run special cases
+	for ( specialCase in extendedPost ) {
+		if ( window.location.hostname.indexOf( specialCase ) > -1 ) {
+			details = extendedPost[specialCase]( details );
+		}
+	}
+
 	// Just act if we're waiting for a post
 	if ( this.waitingForPost && this.settings.postDetectionFeature) {
 		// Loop throught the forms and check if we've got a match
@@ -895,8 +947,10 @@ mcCombinations.prototype.postDetected = function( details ) {
 			if ( currentForm.combination && currentForm.combination.savedFields ) {
 				var currentCombination = currentForm.combination;
 				var sent = details.requestBody?details.requestBody:details;
-				var storedUsernameValue = false, usernameValue = false;
-				var storedPasswordValue = false, passwordValue = false;
+				var storedUsernameValue = false;
+				var usernameValue = details.usernameValue?details.usernameValue:false;
+				var storedPasswordValue = false;
+				var passwordValue = details.passwordValue?details.passwordValue:false;
 
 				// Username parsing
 				if ( currentCombination.savedFields.username ) {
@@ -904,37 +958,42 @@ mcCombinations.prototype.postDetected = function( details ) {
 						usernameValue = currentCombination.savedFields.username;
 						storedUsernameValue = currentCombination.savedFields.username;
 					} else {
-						var attrUsername = 'name';
-						if ( currentCombination.savedFields.username.submitPropertyName ) {
-							attrUsername = currentCombination.savedFields.username.submitPropertyName;
-						}
+						// Special cases handle the usernameValue var.
+						if ( usernameValue === false) {
+							var attrUsername = 'name';
+							if ( currentCombination.savedFields.username.submitPropertyName ) {
+								attrUsername = currentCombination.savedFields.username.submitPropertyName;
+							}
 
-						// Some servers send DATA instead of FORMDATA
-						if ( sent.data && !sent.formData ) sent.formData = sent.data;
+							// Some servers send DATA instead of FORMDATA
+							if ( sent.data && !sent.formData ) sent.formData = sent.data;
 
-						if ( sent.formData ) { // Form sent FORM DATA
-							usernameValue = sent.formData[ currentCombination.fields.username.attr( attrUsername ) ];
-						} else { // Client sent a RAW request.
-							usernameValue = sent[ currentCombination.fields.username.attr( attrUsername ) ];
+							if ( sent.formData ) { // Form sent FORM DATA
+								usernameValue = sent.formData[ currentCombination.fields.username.attr( attrUsername ) ];
+							} else { // Client sent a RAW request.
+								usernameValue = sent[ currentCombination.fields.username.attr( attrUsername ) ];
+							}	
 						}
 
 						storedUsernameValue = currentCombination.savedFields.username.value;
 					}
-					
 				}
 				
 				// Password parsing
 				if ( currentCombination.savedFields.password ) {
-					var attrPassword = 'name';
-					if ( currentCombination.savedFields.password.submitPropertyName ) {
-						var attrPassword = currentCombination.savedFields.password.submitPropertyName;	
-					}
+					// Special cases handle the passwordValue var.
+					if ( passwordValue === false ) {
+						var attrPassword = 'name';
+						if ( currentCombination.savedFields.password.submitPropertyName ) {
+							var attrPassword = currentCombination.savedFields.password.submitPropertyName;	
+						}
 
-					if ( sent.formData ) { // Form sent FORM DATA
-						passwordValue = sent.formData[ currentCombination.fields.password.attr( attrPassword ) ];
-					} else { // Client sent a RAW request.
-						passwordValue = sent[ currentCombination.fields.password.attr( attrPassword ) ];
-					}
+						if ( sent.formData ) { // Form sent FORM DATA
+							passwordValue = sent.formData[ currentCombination.fields.password.attr( attrPassword ) ];
+						} else { // Client sent a RAW request.
+							passwordValue = sent[ currentCombination.fields.password.attr( attrPassword ) ];
+						}
+					} 
 
 					storedPasswordValue = currentCombination.savedFields.password.value;
 				}

@@ -73,7 +73,8 @@
  *  MINI_KICKSTARTER_SETUP
  *  => mooltipass mini production kickstarter version (8Mb)
 */
-#define MINI_PREPRODUCTION_SETUP_ACC
+#define MINI_PREPROD_KICKSTARTER_SETUP_HARDENED_CREDENTIAL_MANAGEMENT
+//#define MINI_PREPRODUCTION_SETUP_ACC
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)
@@ -183,6 +184,18 @@
     #define HARDWARE_MINI_CLICK_V2
     #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
     #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+#elif defined(MINI_PREPROD_KICKSTARTER_SETUP_HARDENED_CREDENTIAL_MANAGEMENT)
+    //#define STACK_DEBUG
+    #define MINI_VERSION
+    #define FLASH_CHIP_4M
+    //#define DATA_STORAGE_EN
+    #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+
+    #define MINI_PREPROD_KICKSTARTER_SETUP
+    #define ENABLE_CREDENTIAL_MANAGEMENT                    // WARNING: requires a new resource bundle.img with additional strings
+    #define REPLACE_FAVORITES_WITH_CREDENTIAL_MANAGEMENT    // replaces favorites selection menu with creds management menu
 #elif defined(MINI_KICKSTARTER_SETUP)
     #define MINI_VERSION
     #define FLASH_CHIP_8M
@@ -190,6 +203,18 @@
     #define HARDWARE_MINI_CLICK_V2
     #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
     #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+#elif defined(MINI_KICKSTARTER_SETUP_HARDENED_CREDENTIAL_MANAGEMENT)
+    //#define STACK_DEBUG
+    #define MINI_VERSION
+    #define FLASH_CHIP_8M
+    //#define DATA_STORAGE_EN
+    #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+
+    #define MINI_PREPROD_KICKSTARTER_SETUP
+    #define ENABLE_CREDENTIAL_MANAGEMENT                    // WARNING: requires a new resource bundle.img with additional strings
+    #define REPLACE_FAVORITES_WITH_CREDENTIAL_MANAGEMENT    // replaces favorites selection menu with creds management menu
 #endif
 
 /* Features depending on the mooltipass version */

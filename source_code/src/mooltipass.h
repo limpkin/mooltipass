@@ -40,7 +40,7 @@ extern uint8_t mp_timeout_enabled;
 extern uint8_t act_detected_flag;
 
 #if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
-uint8_t mini_button_at_boot;
+extern uint8_t mini_button_at_boot;
 #endif
 
 /* Function prototypes */

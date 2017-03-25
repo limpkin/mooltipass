@@ -617,6 +617,14 @@ void usbProcessIncoming(uint8_t caller_id)
         // Read user profile in flash
         case CMD_START_MEMORYMGMT :
         {            
+            #if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT) && defined(MINI_RESTRICT_MEMORYMGMT)
+            // Only allow memory management if the device was specifically booted with the wheel pressed
+            if(mini_button_at_boot == FALSE)
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                break;
+            }
+            #endif
             // Check that the smartcard is unlocked
             if (getSmartCardInsertedUnlocked() == TRUE)
             {

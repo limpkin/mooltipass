@@ -2893,11 +2893,11 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 				{
 					if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE_NO_CHANGES)
 					{
-						applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "No changes were applied"});
+						applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "No Changes Were Applied"});
 					}
 					else if(mooltipass.memmgmt.currentMode == MGMT_USER_CHANGES_PACKET_SENDING)
 					{
-						applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Changes were applied"});				
+						applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Changes Were Applied"});				
 					}	
 					mooltipass.memmgmt.currentMode = MGMT_IDLE;
 					mooltipass.device.processQueue();
@@ -2911,19 +2911,19 @@ mooltipass.memmgmt.dataReceivedCallback = function(packet)
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_NORMAL_SCAN_DONE)
 			{
-				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Memory management mode exit"});	
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Credentials Management Mode Left"});	
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_SCAN)
 			{
-				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Memory OK, no changes to make!"});	
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Memory OK, No Changes To Make!"});	
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();
 			}
 			else if(mooltipass.memmgmt.currentMode == MGMT_INT_CHECK_PACKET_SENDING)
 			{
-				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Memory OK, found problems fixed"});				
+				applyCallback(mooltipass.memmgmt.statusCallback, null, {'success': true, 'msg': "Memory OK, Found Problems Fixed"});				
 				mooltipass.memmgmt.currentMode = MGMT_IDLE;
 				mooltipass.device.processQueue();	
 			}

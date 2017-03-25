@@ -338,6 +338,9 @@
 // Uncomment to disable password compare over USB
 // #define DISABLE_USB_CMD_CHECK_PASSWORD
 
+// Uncomment to disable RNG over USB
+// #define DISABLE_USB_CMD_GET_RANDOM_NUMBER
+
 // Uncomment to restrict memory management mode to a device booted 
 // with the wheel pressed
 // #define MINI_RESTRICT_MEMORYMGMT // Requires MINI_BUTTON_AT_BOOT
@@ -356,6 +359,7 @@
 
     /* USB command support hardening */
     #define DISABLE_USB_CMD_CHECK_PASSWORD      // saves about 152 bytes
+    #define DISABLE_USB_CMD_GET_RANDOM_NUMBER   // saves about 20 bytes
 
     /* USB command restriction to boot with wheel pressed */
     #define MINI_RESTRICT_MEMORYMGMT

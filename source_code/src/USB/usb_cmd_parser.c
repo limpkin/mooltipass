@@ -210,8 +210,10 @@ void usbProcessIncoming(uint8_t caller_id)
     uint8_t datacmd = msg->cmd;
 
 #ifdef USB_FEATURE_PLUGIN_COMMS
+    #ifndef DISABLE_USB_CMD_CHECK_PASSWORD
     // Temp ret_type
     RET_TYPE temp_rettype;
+    #endif
 #endif
 
     // Debug comms
@@ -257,7 +259,11 @@ void usbProcessIncoming(uint8_t caller_id)
     {
         max_text_size = NODE_CHILD_SIZE_OF_LOGIN;
     }
+#ifndef DISABLE_USB_CMD_CHECK_PASSWORD
     else if ((datacmd == CMD_SET_PASSWORD) || (datacmd == CMD_CHECK_PASSWORD))
+#else
+    else if (datacmd == CMD_SET_PASSWORD)
+#endif
     {
         max_text_size = NODE_CHILD_SIZE_OF_PASSWORD;
     }
@@ -480,6 +486,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
 
         // check password
+        #ifndef DISABLE_USB_CMD_CHECK_PASSWORD
         case CMD_CHECK_PASSWORD :
         {
             temp_rettype = checkPasswordForContext(msg->body.data);
@@ -497,6 +504,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
 
         // Add credential context
         case CMD_ADD_CONTEXT :

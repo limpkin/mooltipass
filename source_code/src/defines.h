@@ -338,6 +338,10 @@
 // Uncomment to disable password compare over USB
 // #define DISABLE_USB_CMD_CHECK_PASSWORD
 
+// Uncomment to restrict memory management mode to a device booted 
+// with the wheel pressed
+// #define MINI_RESTRICT_MEMORYMGMT // Requires MINI_BUTTON_AT_BOOT
+
 // set all hardening and cleanup features at once
 #if defined(MINI_VERSION) && defined(MINI_HARDENED_FW)
     /* features from stock firmware */
@@ -352,6 +356,14 @@
 
     /* USB command support hardening */
     #define DISABLE_USB_CMD_CHECK_PASSWORD      // saves about 152 bytes
+
+    /* USB command restriction to boot with wheel pressed */
+    #define MINI_RESTRICT_MEMORYMGMT
+#endif
+
+// enforce feature requirements
+#if defined(MINI_RESTRICT_MEMORYMGMT)
+    #define MINI_BUTTON_AT_BOOT
 #endif
 
 /**************** HW MACROS ****************/

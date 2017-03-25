@@ -68,6 +68,10 @@ extern uint8_t __stack;
 /* External var, end of known static RAM (to be filled by linker) */
 extern uint8_t _end;
 
+#if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
+extern uint8_t mini_button_at_boot;
+#endif
+
 /*! \fn     checkMooltipassPassword(uint8_t* data)
 *   \brief  Check that the provided bytes is the mooltipass password
 *   \param  data            Password to be checked
@@ -617,6 +621,14 @@ void usbProcessIncoming(uint8_t caller_id)
         // Read user profile in flash
         case CMD_START_MEMORYMGMT :
         {            
+            #if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT) && defined(MINI_RESTRICT_MEMORYMGMT)
+            // Only allow memory management if the device was specifically booted with the wheel pressed
+            if(mini_button_at_boot == FALSE)
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                break;
+            }
+            #endif
             // Check that the smartcard is unlocked
             if (getSmartCardInsertedUnlocked() == TRUE)
             {

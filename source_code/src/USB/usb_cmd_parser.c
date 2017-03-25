@@ -68,10 +68,6 @@ extern uint8_t __stack;
 /* External var, end of known static RAM (to be filled by linker) */
 extern uint8_t _end;
 
-#if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
-extern uint8_t mini_button_at_boot;
-#endif
-
 /*! \fn     checkMooltipassPassword(uint8_t* data)
 *   \brief  Check that the provided bytes is the mooltipass password
 *   \param  data            Password to be checked

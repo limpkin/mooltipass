@@ -172,6 +172,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		a.val('').sendkeys( password );
 		a.trigger('change');
 		e.preventDefault();
+		e.stopPropagation();
 	});
 
 
@@ -190,6 +191,7 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		}
 
 		e.preventDefault();
+		e.stopPropagation();
 	});
 
 	$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
@@ -303,6 +305,7 @@ cipPassword.createIcon = function(field) {
 	cipPassword.setIconPosition($icon, field);
 	$icon.click(function(e) {
 		e.preventDefault();
+		e.stopPropagation();
 
 		// Use event target for cases when there are more than 1 password in the screen
 		var field = $(e.target);
@@ -331,10 +334,14 @@ cipPassword.createIcon = function(field) {
 
 	cipPassword.observedIcons.push($icon);
 
+	// TODO: Move icons to the field area instead of the body
+	// $icon.insertAfter( field ); 
 	mpJQ("body").append($icon);
 }
 
 cipPassword.setIconPosition = function($icon, $field) {
+	// TODO: Move icons to the field area instead of the body
+	// $icon.css('left', $field.outerWidth() - $icon.data("size") );
 	$icon.css("top", $field.offset().top + $icon.data("offset") + 1)
 		.css("left", $field.offset().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset"))
 }

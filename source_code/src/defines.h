@@ -348,21 +348,21 @@
 // set all hardening and cleanup features at once
 #if defined(MINI_VERSION) && defined(MINI_HARDENED_FW)
     /* features from stock firmware */
-    #define NO_ACCELEROMETER_FUNCTIONALITIES
-    #define DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE
-    #define DISABLE_FUNCTIONAL_TEST
-    #define SKIP_TUTORIAL
+    #define NO_ACCELEROMETER_FUNCTIONALITIES          // saves about 782 bytes
+    #define DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE // saves about 168 bytes
+    #define DISABLE_FUNCTIONAL_TEST                   // saves about 466 bytes
+    #define SKIP_TUTORIAL                             // saves about 62 bytes
 
     /* specific cleanup & hardening features */
-    #define MINI_BUTTON_AT_BOOT
-    #define DISABLE_SCREENSAVER
+    #define MINI_BUTTON_AT_BOOT                 // uses about 40 bytes
+    #define DISABLE_SCREENSAVER                 // saves about 368 bytes
 
     /* USB command support hardening */
     #define DISABLE_USB_CMD_CHECK_PASSWORD      // saves about 152 bytes
     #define DISABLE_USB_CMD_GET_RANDOM_NUMBER   // saves about 20 bytes
 
     /* USB command restriction to boot with wheel pressed */
-    #define MINI_RESTRICT_MEMORYMGMT
+    #define MINI_RESTRICT_MEMORYMGMT            // uses about 10 bytes
 #endif
 
 // enforce feature requirements

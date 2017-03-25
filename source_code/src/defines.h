@@ -335,6 +335,9 @@
 // Uncomment to disable screensaver
 //#define DISABLE_SCREENSAVER
 
+// Uncomment to disable password compare over USB
+// #define DISABLE_USB_CMD_CHECK_PASSWORD
+
 // set all hardening and cleanup features at once
 #if defined(MINI_VERSION) && defined(MINI_HARDENED_FW)
     /* features from stock firmware */
@@ -346,6 +349,9 @@
     /* specific cleanup & hardening features */
     #define MINI_BUTTON_AT_BOOT
     #define DISABLE_SCREENSAVER
+
+    /* USB command support hardening */
+    #define DISABLE_USB_CMD_CHECK_PASSWORD      // saves about 152 bytes
 #endif
 
 /**************** HW MACROS ****************/

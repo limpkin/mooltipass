@@ -113,7 +113,7 @@ int main(void)
     #if defined(HARDWARE_OLIVIER_V1)                                                        // Only the Mooltipass standard version has a touch panel
         RET_TYPE touch_init_result;                                                         // Touch initialization result
     #endif                                                                                  //
-    #if defined(MINI_VERSION)                                                               // Dedicated to Mooltipass mini
+    #if defined(MINI_VERSION) && !defined(DISABLE_FUNCTIONAL_TEST) // Dedicated to Mooltipass mini
         RET_TYPE mini_inputs_result;                                                        // Mooltipass mini input initialization result
     #endif                                                                                  //
     RET_TYPE flash_init_result;                                                             // Flash initialization result
@@ -240,7 +240,11 @@ int main(void)
     initFlashIOs();                             // Initialize Flash inputs/outputs
     spiUsartBegin();                            // Start USART SPI at 8MHz (standard) or 4MHz (mini)
     #if defined(MINI_VERSION)                   // For the Mooltipass Mini inputs
-        mini_inputs_result = initMiniInputs();  // Initialize Mini Inputs
+        #if !defined(DISABLE_FUNCTIONAL_TEST) // mini_input_result is not used if functional test is disabled, triggering -Werror=unused-but-set-variable at compilation
+            mini_inputs_result = initMiniInputs();  // Initialize Mini Inputs
+        #else
+            initMiniInputs();  // Initialize Mini Inputs
+        #endif
     #endif                                      //
 
     /* If offline mode isn't enabled, wait for device to be enumerated */
@@ -314,7 +318,11 @@ int main(void)
     #elif defined(MINI_VERSION)
         #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_AVRISP_PROG_TEST_SETUP)
             (void)fuse_ok;
-            while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
+            #if !defined(DISABLE_FUNCTIONAL_TEST) // to accomodate -Werror=unused-but-set-variable
+                while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
+            #else
+                while (flash_init_result != RETURN_OK);
+            #endif
         #elif (defined(MINI_PREPRODUCTION_SETUP_ACC) || defined(MINI_PREPROD_KICKSTARTER_SETUP) || defined(MINI_KICKSTARTER_SETUP))
             /* We do not hang if accelerometer is not present as it isn't crucial, moreover we already tested it in the functional test */
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));

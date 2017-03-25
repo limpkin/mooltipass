@@ -73,7 +73,7 @@
  *  MINI_KICKSTARTER_SETUP
  *  => mooltipass mini production kickstarter version (8Mb)
 */
-#define MINI_PREPRODUCTION_SETUP_ACC
+#define MINI_PREPROD_KICKSTARTER_SETUP_HARDENED_CREDENTIAL_MANAGEMENT
 //#define MINI_PREPRODUCTION_SETUP_ACC
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
@@ -332,6 +332,9 @@
 // Uncomment to allow detection of button press at boot-time
 //#define MINI_BUTTON_AT_BOOT
 
+// Uncomment to disable screensaver
+//#define DISABLE_SCREENSAVER
+
 // set all hardening and cleanup features at once
 #if defined(MINI_VERSION) && defined(MINI_HARDENED_FW)
     /* features from stock firmware */
@@ -342,6 +345,7 @@
 
     /* specific cleanup & hardening features */
     #define MINI_BUTTON_AT_BOOT
+    #define DISABLE_SCREENSAVER
 #endif
 
 /**************** HW MACROS ****************/

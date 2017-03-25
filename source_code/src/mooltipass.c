@@ -89,10 +89,6 @@ uint8_t mp_timeout_enabled = FALSE;
 /* Flag set by anything to signal activity */
 uint8_t act_detected_flag = FALSE;
 
-/* On the MINI, flag set by pressing the wheel at boot-time */
-#if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
-uint8_t mini_button_at_boot = FALSE;
-#endif
 
 /*! \fn     reboot_platform(void)
 *   \brief  Function to reboot the MCU using the WDT
@@ -222,19 +218,6 @@ int main(void)
         {
             start_bootloader();
         }
-    #endif
-
-    /********************************************************************/
-    /**           ENABLE BOOT-TIME BUTTON PRESS DETECTION              **/
-    /*                                                                  */
-    /* On mini units, a button pressed at boot enables additional       */
-    /* features or hardening                                            */
-    /********************************************************************/
-    #if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
-    if(electricalJumpToBootloaderCondition() == TRUE)
-    {
-        mini_button_at_boot = TRUE;
-    }
     #endif
 
     /** HARDWARE INITIALIZATION **/
@@ -447,12 +430,10 @@ int main(void)
         /* Launch activity detected routine if flag is set */
         if (act_detected_flag != FALSE)
         {
-            #if !defined(DISABLE_SCREENSAVER)
             if (isScreenSaverOn() == TRUE)
             {
                 guiGetBackToCurrentScreen();
             }
-            #endif
             activityDetectedRoutine();
             act_detected_flag = FALSE;
         }
@@ -468,14 +449,12 @@ int main(void)
         #endif
         
         /* If we are running the screen saver */
-        #if !defined(DISABLE_SCREENSAVER)
         if (isScreenSaverOn() == TRUE)
         {
             #ifndef MINI_DEMO_VIDEO
                 animScreenSaver();
             #endif
         }
-        #endif
         
         /* If the USB bus is in suspend (computer went to sleep), lock device */
         if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && (getSmartCardInsertedUnlocked() == TRUE))
@@ -484,7 +463,6 @@ int main(void)
             guiDisplayInformationOnScreenAndWait(ID_STRING_PC_SLEEP);
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
             /* If the screen saver is on, clear screen contents */
-            #if !defined(DISABLE_SCREENSAVER)
             if(isScreenSaverOn() == TRUE)
             {
                 #ifndef MINI_VERSION
@@ -497,9 +475,6 @@ int main(void)
             {
                 guiGetBackToCurrentScreen();                
             }
-            #else /* DISABLE_SCREENSAVER */
-            guiGetBackToCurrentScreen();
-            #endif
         }
         
         /* Check if a card just got inserted / removed */
@@ -540,12 +515,10 @@ int main(void)
         }
         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
-            #if !defined(DISABLE_SCREENSAVER)
             if (isScreenSaverOn() == TRUE)
             {
                 guiGetBackToCurrentScreen();
             }
-            #endif
             activityDetectedRoutine();
         }
         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && !(getKeyboardLeds() & HID_CAPS_MASK))

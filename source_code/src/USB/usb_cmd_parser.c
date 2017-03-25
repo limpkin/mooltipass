@@ -1414,6 +1414,7 @@ void usbProcessIncoming(uint8_t caller_id)
         #endif
         
         // Get 32 random bytes
+        #ifndef DISABLE_USB_CMD_GET_RANDOM_NUMBER
         case CMD_GET_RANDOM_NUMBER :
         {
             uint8_t randomBytes[32];
@@ -1421,6 +1422,7 @@ void usbProcessIncoming(uint8_t caller_id)
             usbSendMessage(CMD_GET_RANDOM_NUMBER, 32, randomBytes);
             return;
         }  
+        #endif
         
         // Set current date
         case CMD_SET_DATE :

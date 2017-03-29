@@ -172,7 +172,8 @@ moolticute.websocket = {
     onOpen: function() {
         if (background_debug_msg > 2) mpDebug.log('%c Moolticute daemon connected', mpDebug.css('FFC6A0'));
         moolticute.connectedToDaemon = true;
-        moolticute.fireEvent('statusChange');
+        moolticute.sendRequest( { ping: [] } );
+        //moolticute.fireEvent('statusChange');
 
         this.tries = 0;
     },
@@ -194,8 +195,6 @@ moolticute.websocket = {
             var recvMsg = JSON.parse(data);
             if (background_debug_msg > 4 && recvMsg.command !== 'getMooltipassStatus') mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
             else if (background_debug_msg > 5) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
-            
-
         }
         catch (e) {
             if (background_debug_msg > 4) mpDebug.log('%c Moolticute Error in received message: ', mpDebug.css('FFC6A0'), e, d );
@@ -203,6 +202,8 @@ moolticute.websocket = {
         }
 
         recvMsg = this.messageTranslator( recvMsg );
+        // Some messages are processed internally (like status messages from Chrome App)
+        if ( !recvMsg ) return;
 
         var wrapped = {};
 
@@ -274,7 +275,14 @@ moolticute.websocket = {
     /* Translate messages received from MooltiApp to MooltiCute format */
     messageTranslator: function( msg ) {
         var output = { data: {} };
-        if ( msg.command && msg.command == 'getCredentials' ) {
+        if ( msg.deviceStatus ) {
+            moolticute.status.connected = msg.deviceStatus.connected;
+            moolticute.status.unlocked = msg.deviceStatus.state == 'Unlocked'?true:false;
+            moolticute.status.version = msg.deviceStatus.version;
+            moolticute.status.state = msg.deviceStatus.state;
+            mooltipass.device._status = moolticute.status;
+            return false;
+        } else if ( msg.command && msg.command == 'getCredentials' ) {
             output.msg = 'ask_password';
             output.data.failed = msg.success?false:true;
             if ( msg.success ) {
@@ -288,6 +296,9 @@ moolticute.websocket = {
             output.msg = 'status_changed';
             if ( msg.value == 'unlocked' ) output.data = 'Unlocked';
             moolticute.status.connected = msg.connected;
+
+            // Asume Moolticute if no middleware message
+            moolticute.status.middleware = msg.middleware?msg.middleware:'Moolticute';
         } else {
             output = msg;    
         }

@@ -910,6 +910,7 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
         'noCard': noCard,
         'unknownCard': unknownCard,
         'version': mooltipass.device.version,
+        'middleware': 'Chrome App'
     };
 
     if(queuedItem && queuedItem.callbackFunction) {

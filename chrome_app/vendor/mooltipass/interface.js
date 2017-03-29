@@ -56,7 +56,7 @@ mooltipass.device.interface.send = function(inputObject) {
         return;
     }
 
-    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getRandomNumber', 'setCurrentDate', 'endMemoryManagementMode', 'getMooltipassParameter', 'jumpToBootloader', 'setMooltipassParameter', 'getMooltipassStatus', 'getVersion', 'getMooltipassUID', 'startSingleCommunicationMode', 'resetCard'], inputObject.command)) {
+    if(!mooltipass.device.isUnlocked && !contains(['ping', 'getRandomNumber', 'setCurrentDate', 'endMemoryManagementMode', 'getMooltipassParameter', 'jumpToBootloader', 'setMooltipassParameter', 'getMooltipassStatus', 'getVersion', 'getMooltipassUID', 'startSingleCommunicationMode', 'resetCard', 'getMooltipassSerial'], inputObject.command)) {
         mooltipass.device.interface._returnError(inputObject, 71, 'device is locked');
         return;
     }
@@ -196,6 +196,18 @@ mooltipass.device.interface._getRandomNumber = function(inputObject) {
 
 
 mooltipass.device.interface._getVersion = function(inputObject) {
+    mooltipass.device.addToQueue(
+        inputObject.command,
+        [],
+        inputObject.responseParameters,
+        inputObject.callbackFunction,
+        inputObject.callbackParameters,
+        inputObject.timeout
+    );
+};
+
+
+mooltipass.device.interface._getMooltipassSerial = function(inputObject) {
     mooltipass.device.addToQueue(
         inputObject.command,
         [],

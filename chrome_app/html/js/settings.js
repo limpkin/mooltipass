@@ -880,6 +880,18 @@ mooltipass.ui.settings.getFirmwareVersion = function() {
                 if (firmware_version.indexOf("mini") >= 0)
                 {
                     $(".show-if-mini-version").show();  
+                    
+                    /* Query serial */
+                    mooltipass.device.interface.send({
+                        'command': 'getMooltipassSerial',
+                        'payload': [],
+                        'callbackFunction': function(_response) {
+                            if(_response.success) {
+                                mooltipass.ui.deviceSerial = _response.value;
+                                $('#settings-tab-title').text("Device Settings - Mooltipass Mini (" + mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(firmware_version) + " #" + _response.value + ")");
+                            }
+                        }
+                    });
                 }
                 else
                 {

@@ -76,6 +76,7 @@ mooltipass.device.commands = {
     'getStartingDataParentAddress'  : 0xD1,
     'setStartingDataParentAddress'  : 0xD2,
     'endMemoryManagementMode'       : 0xD3,
+    'getMooltipassSerial'           : 0xDA,
     'jumpToBootloader'              : 0xAB
 };
 
@@ -147,7 +148,10 @@ mooltipass.device.status_parameters = {
 mooltipass.device.connectionId = null;
 
 // Version of the connected device
+mooltipass.device.serial = 0;
+mooltipass.device.isMini = false;
 mooltipass.device.version = 'v1';
+mooltipass.device.fwversion = 'v1';
 
 // FlashChip ID of the connected device
 mooltipass.device.flashChipId = null;
@@ -846,15 +850,48 @@ mooltipass.device.responseGetStackFree = function(queuedItem, msg) {
     mooltipass.device.processQueue();
 };
 
+mooltipass.device.responseGetMooltipassSerial = function(queuedItem, msg) {
+    mooltipass.device.serial = msg[3] + msg[2]*256 + msg[1] * 65536 + msg[0]* 16777216;
+    
+    var responseObject = {
+        'command': queuedItem.command,
+        'success': true,
+        'value': mooltipass.device.serial
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
 mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     var flashChipId = msg[0];
     var version = mooltipass.device.convertMessageArrayToString(msg.subarray(1));
 
     mooltipass.device.version = version;
     mooltipass.device.flashChipId = flashChipId;
+    mooltipass.device.fwversion = version.split('_')[0]    
+    if (version.indexOf('mini') > -1)
+    {
+        console.log("Mooltipass Mini connected");
+        mooltipass.device.isMini = true;
+    }
+    else
+    {
+        mooltipass.device.isMini = false;
+    }
     
-    console.log("Firmware Version:", version);
+    console.log("Firmware Version:", mooltipass.device.fwversion);
 
+    /* If we're dealing with a mini, query serial */
+    if (mooltipass.device.isMini)
+    {
+        mooltipass.device.interface.send({
+            'command': 'getMooltipassSerial',
+            'payload': []
+        });
+    }    
+    
     var responseObject = {
         'command': queuedItem.command,
         'success': true,

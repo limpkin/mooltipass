@@ -86,10 +86,9 @@ mooltipass.device.checkConnection = function() {
     // When using moolticute, don't lookup for app
     if (moolticute.connectedToDaemon) {
         mooltipass.device.stopUsingApp();
-        return;
     }
 
-    if(!mooltipass.device.connectedToApp) {
+    if(!mooltipass.device.connectedToApp && !moolticute.connectedToDaemon) {
         // Search for Mooltipass App
         chrome.management.getAll(mooltipass.device.onSearchForApp);
         return;
@@ -393,7 +392,6 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         }
         return;
         */
-        
     }
 
     // Store the tab id, prevent a possible very close tabupdatevent action

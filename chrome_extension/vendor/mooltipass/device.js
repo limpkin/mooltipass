@@ -83,11 +83,6 @@ mooltipass.device.usingApp = false;
  * Periodically sends PING to device which returns current status of device
  */
 mooltipass.device.checkConnection = function() {
-    // When using moolticute, don't lookup for app
-    if (moolticute.connectedToDaemon) {
-        mooltipass.device.stopUsingApp();
-    }
-
     if(!mooltipass.device.connectedToApp && !moolticute.connectedToDaemon) {
         // Search for Mooltipass App
         chrome.management.getAll(mooltipass.device.onSearchForApp);
@@ -410,6 +405,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     
     // If our retrieveCredentialsQueue is empty and the device is unlocked, send the request to the app. Otherwise, queue it
     mooltipass.device.retrieveCredentialsQueue.push({'tabid': tab.id, 'callback': callback, 'domain': parsed_url.domain, 'subdomain': parsed_url.subdomain, 'tabupdated': false, 'reqid': mooltipass.device.retrieveCredentialsCounter, 'tab': tab});
+
     mooltipass.device.retrieveCredentialsCounter++;
     mooltipass.device._asynchronous.inputCallback = callback;
 

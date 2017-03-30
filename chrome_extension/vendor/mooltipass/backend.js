@@ -49,7 +49,13 @@ mooltipass.backend.disableNonUnlockedNotifications = false;
 
 
 mooltipass.backend.setStatusIcon = function(icon_name) {
-    chrome.browserAction.setIcon({
+    if ( isFirefox ) {
+        var theFunction = browser.browserAction.setIcon;    
+    } else {
+        var theFunction = chrome.browserAction.setIcon;
+    }
+    
+    theFunction({
         tabId: page.currentTabId,
         path: "/images/icon_" + icon_name + "_19.png"
     });    
@@ -57,6 +63,7 @@ mooltipass.backend.setStatusIcon = function(icon_name) {
 
 mooltipass.backend.updateStatusIcon = function() {
     var status = mooltipass.device.getStatus();
+    console.log( status );
     if (status['deviceUnlocked']) {
         iconName = "normal";
     } else {
@@ -69,9 +76,9 @@ mooltipass.backend.updateStatusIcon = function() {
                 if (response == 'denied') {
                     iconName += "_warning";
                 }
-                mooltipass.backend.setStatusIcon(iconName);
-            });    
-        }    
+            });  
+        }
+        mooltipass.backend.setStatusIcon(iconName);
     }
     
     
@@ -207,10 +214,10 @@ mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
     // Remove everything after first :
     var n = toReturn.url.indexOf(':');
     toReturn.url = toReturn.url.substring(0, n != -1 ? n : toReturn.url.length);
-	// Remove possible starting '.', (residual from www[number] urls)
-	if((toReturn.url.length > 0) && (toReturn.url.charAt(0) == '.')) {
-		toReturn.url = toReturn.url.substring(1);
-	}
+    // Remove possible starting '.', (residual from www[number] urls)
+    if((toReturn.url.length > 0) && (toReturn.url.charAt(0) == '.')) {
+        toReturn.url = toReturn.url.substring(1);
+    }
 
     if(psl.isValid(toReturn.url)) {
         // Managed to extract a domain using the public suffix list

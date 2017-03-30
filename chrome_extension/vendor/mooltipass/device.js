@@ -605,6 +605,7 @@ mooltipass.device.stopUsingApp = function() {
     mooltipass.device.usingApp = false;
     mooltipass.device._app = { enabled: true  };
     if ( !isFirefox && !isSafari ) chrome.runtime.onMessageExternal.removeListener( mooltipass.device.messageListener );
+    mooltipass.device.checkConnection();
 }
 
 /* Initialize device specific settings */

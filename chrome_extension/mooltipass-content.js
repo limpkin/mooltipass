@@ -302,7 +302,9 @@ cipPassword.createIcon = function(field) {
 		.data("offset", $offset)
 		.data("index", iconIndex)
 		.data("mp-genpw-field-id", field.data("mp-id"));
+
 	cipPassword.setIconPosition($icon, field);
+
 	$icon.click(function(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -328,6 +330,22 @@ cipPassword.createIcon = function(field) {
 		mpJQ("input#mp-genpw-checkbox-next-field:first")
 			.attr("checked", $bool)
 			.attr("disabled", !$bool);
+
+		// Check if the current form has a combination associated to it
+		var associatedInput = mpJQ('#' + mpJQ(e.target).data('mp-genpw-field-id') );
+		var containerForm = associatedInput.closest('form');
+		var comb = false;
+
+		// Search for combination departing from FORM (probably refactor to be a sole function in mcCombs)
+		if ( containerForm.length == 0 ) comb = mcCombs.forms.noform.combination;
+		else {
+			for (form in mcCombs.forms) {
+				if ( form === containerForm.prop('id') ) { // Match found
+					comb = mcCombs.forms[form].combination;
+				}
+			}
+		}
+		if ( comb.isPasswordOnly ) $dialog.data("mp-password-only-combination", true );
 
 		$dialog.dialog("open");
 	});
@@ -438,8 +456,18 @@ cipDefine.init = function () {
 	cipDefine.initDescription();
 
 	cipDefine.resetSelection();
-	cipDefine.prepareStep1();
-	cipDefine.markAllUsernameFields($chooser);
+
+	if ( $('#mp-genpw-dialog').data('mpPasswordOnlyCombination') ) {
+		cipDefine.selection.username = 'mooltipass-username';
+		cipDefine.prepareStep2();
+		cipDefine.markAllPasswordFields($chooser);
+		return;
+	} else {
+		cipDefine.prepareStep1();
+		cipDefine.markAllUsernameFields($chooser);
+	}
+
+	
 }
 
 cipDefine.initDescription = function() {
@@ -457,8 +485,8 @@ cipDefine.initDescription = function() {
 			mpJQ("div#mp-bt-backdrop").remove();
 			mpJQ("div#mp-bt-cipDefine-fields").remove();
 		});
+
 	var $btnSkip = mpJQ("<button>").text("Skip").attr("id", "mp-bt-btn-skip")
-		
 		.css("margin-right", "5px")
 		.click(function() {
 			if(mpJQ(this).data("step") == 1) {

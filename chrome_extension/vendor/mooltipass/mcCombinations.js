@@ -305,6 +305,7 @@ mcCombinations.prototype.possibleCombinations = [
 	{
 		combinationId: 'registerformsimple',
 		combinationName: 'Simple Registration (1 username, 2 passwords)',
+		mustFollowOrder: true,
 		requiredFields: [
 			{
 				selector: 'input[type=text],input[type=email],input:not([type])',
@@ -354,13 +355,14 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Login Form with Text and 3 fields instead of 2',
 		requiredFields: [
 			{
-				selector: 'input[type=text],input:not([type])',
-				mapsTo: 'username'
-			},
-			{
 				selector: 'input[type=password]',
 				mapsTo: 'password'
 			},
+			{
+				selector: 'input[type=text],input:not([type])',
+				mapsTo: 'username',
+				closeToPrevious: true,
+			}
 		],
 		scorePerMatch: 50,
 		score: 0,
@@ -387,13 +389,15 @@ mcCombinations.prototype.possibleCombinations = [
 				selector: 'input[type=password]:visible'
 			},
 		],
+		isPasswordOnly: true,
 		scorePerMatch: 33,
 		score: 1,
 		autoSubmit: false,
 		usePasswordGenerator: true,
-		extraFunction: function( fields ) {
+		preExtraFunction: function() { // Pre-extra is run before retrieving credentials
 			mpJQ(this.fields.password[0]).addClass('mooltipass-password-do-not-update');
-
+		},
+		extraFunction: function( fields ) {
 			// We need LOGIN information. Try to retrieve credentials from cache.
 			cipEvents.temporaryActions['response-cache_retrieve'] = function( response ) {
 				var r = response.data;
@@ -447,6 +451,7 @@ mcCombinations.prototype.possibleCombinations = [
 		scorePerMatch: 50,
 		score: 0,
 		maxfields: 2,
+		isPasswordOnly: true,
 		autoSubmit: false,
 		extraFunction: function( fields ) {
 			// We need LOGIN information. Try to retrieve credentials from cache.
@@ -476,6 +481,7 @@ mcCombinations.prototype.possibleCombinations = [
 	},
 	{
 		usePasswordGenerator: true,
+		isPasswordOnly: true,
 		combinationId: 'enterpassword',
 		combinationName: 'A password fill-in form',
 		requiredFields: [
@@ -596,10 +602,31 @@ mcCombinations.prototype.detectForms = function() {
 			// Traverse fields in form and match against combination
 			var matching = currentForm.fields.some( function( field ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('\t\t %c mcCombinations - Form Detection: %c Checking field ','background-color: #c3c6b4','color: #777777', field.prop('type') );
-				var matching = currentForm.combination.requiredFields.some( function( requiredField ) {
-					if ( requiredField.found ) return false;
-					if ( field.is( requiredField.selector ) ) {
+
+				// Initialize field as not passed
+				field.data('passed', false);
+				
+				// Traverve required fields in combination to find a match
+				var matching = currentForm.combination.requiredFields.some( function( requiredField, index, theArray ) {
+					console.log( 'matching ', combination_data.combinationName, field.is( requiredField.selector ), field[0].name, requiredField.selector, requiredField.mapsTo, requiredField.found, field.data('passed') );
+					
+					// Check if we already matched this field with another requirement
+					if( field.data('passed') == true ) return false;
+
+
+					// if ( requiredField.found ) {
+					// 	// Check if we're looking for a close match
+					// 	if ( !requiredField.closeToPrevious ) {
+					// 		// return false;
+					// 	} else { // We found the field, let's check if this one is closer
+					// 		console.log('index', index, theArray );
+					// 	}
+					// }
+
+					if ( field.is( requiredField.selector ) && !requiredField.found) {
 						requiredField.found = true;
+						requiredField.index = index;
+						field.data('passed', true);
 						currentForm.combination.score += currentForm.combination.scorePerMatch;
 						if (this.settings.debugLevel > 3) cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c Field Match! Combination Score set to ','background-color: #c3c6b4','color: #777777', currentForm.combination.score );
 
@@ -624,6 +651,12 @@ mcCombinations.prototype.detectForms = function() {
 							return true;
 						}
 						return false;
+					} else {
+						// If field doesn't match, and combination requires a specific order, then just leave.
+						if ( combination_data.mustFollowOrder ) {
+							currentForm.combination.score = -100;
+							return false;
+						}
 					}
 				}.bind(this));
 				return matching;
@@ -634,6 +667,10 @@ mcCombinations.prototype.detectForms = function() {
 		if ( currentForm.combination.score < 100 ) {
 			currentForm.combination = false;
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
+		} else if ( currentForm.combination.preExtraFunction ) {
+			if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
+			console.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
+			currentForm.combination.preExtraFunction( currentForm.combination.fields );
 		}
 	}
 
@@ -837,7 +874,11 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			if ( credentials[0].Password && currentForm.combination.fields.password ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form - Password','background-color: #c3c6b4','color: #FF0000');
 				// Fill-in Password
-				if ( typeof currentForm.combination.fields.password === 'object' && currentForm.combination.fields.password.length > 0 && !currentForm.combination.fields.password.hasClass('mooltipass-password-do-not-update')) {
+				if ( 
+					typeof currentForm.combination.fields.password === 'object' &&  // It is a field and not a string
+					currentForm.combination.fields.password.length > 0 // && // It exists
+					// !currentForm.combination.fields.password.hasClass('mooltipass-password-do-not-update')
+				) {
 					currentForm.combination.fields.password.val('');
 					currentForm.combination.fields.password.click();
 					currentForm.combination.fields.password.sendkeys( credentials[0].Password );
@@ -846,7 +887,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				}
 			}
 
-
+			console.log( currentForm.combination );
 			if ( currentForm.combination.extraFunction ) {
 				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running ExtraFunction for combination','background-color: #c3c6b4','color: #333333');
 				currentForm.combination.extraFunction( currentForm.combination.fields );

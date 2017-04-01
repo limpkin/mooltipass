@@ -183,7 +183,7 @@ moolticute.websocket = {
         moolticute.connectedToDaemon = false;
         moolticute.fireEvent('statusChange');
 
-        if ( mooltipass && mooltipass.device ) mooltipass.device.retrieveCredentialsQueue = [];
+        if ( mooltipass && mooltipass.device && mooltipass.device.usingApp === false ) mooltipass.device.retrieveCredentialsQueue = [];
 
         this.tries = this.tries > 3?this.tries:this.tries + 1;
 

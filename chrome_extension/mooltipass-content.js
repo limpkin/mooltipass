@@ -212,7 +212,13 @@ cipPassword.createDialog = function(inputs, $pwField) {
 		if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
 		$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
 
-		var username = $userField.val();
+		if ( mpJQ('#mooltipass-username').val() ) {
+			var username = mpJQ('#mooltipass-username').val();
+		} else if ( $userField.length ) {
+			var username = $userField.val();	
+		} else {
+			var username = '';
+		}
 		var password = $pwField.val();
 
 		mpJQ(".mp-hover-username").removeClass("mp-hover-username");

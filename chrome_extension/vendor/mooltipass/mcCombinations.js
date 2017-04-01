@@ -4,7 +4,7 @@
  */
 var extendedCombinations = {
 	skype: function( forms ) {
-		console.log('skype combination');
+		//console.log('skype combination');
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
 			var currentForm = forms[ form ];
@@ -34,7 +34,7 @@ var extendedCombinations = {
 		}
 	},
 	autodesk: function( forms ) {
-		console.log('autodesk combination');
+		//console.log('autodesk combination');
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
 			var currentForm = forms[ form ];
@@ -608,7 +608,7 @@ mcCombinations.prototype.detectForms = function() {
 				
 				// Traverve required fields in combination to find a match
 				var matching = currentForm.combination.requiredFields.some( function( requiredField, index, theArray ) {
-					console.log( 'matching ', combination_data.combinationName, field.is( requiredField.selector ), field[0].name, requiredField.selector, requiredField.mapsTo, requiredField.found, field.data('passed') );
+					//console.log( 'matching ', combination_data.combinationName, field.is( requiredField.selector ), field[0].name, requiredField.selector, requiredField.mapsTo, requiredField.found, field.data('passed') );
 					
 					// Check if we already matched this field with another requirement
 					if( field.data('passed') == true ) return false;
@@ -669,7 +669,6 @@ mcCombinations.prototype.detectForms = function() {
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
 		} else if ( currentForm.combination.preExtraFunction ) {
 			if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
-			console.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
 			currentForm.combination.preExtraFunction( currentForm.combination.fields );
 		}
 	}
@@ -887,7 +886,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				}
 			}
 
-			console.log( currentForm.combination );
+			//console.log( currentForm.combination );
 			if ( currentForm.combination.extraFunction ) {
 				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running ExtraFunction for combination','background-color: #c3c6b4','color: #333333');
 				currentForm.combination.extraFunction( currentForm.combination.fields );

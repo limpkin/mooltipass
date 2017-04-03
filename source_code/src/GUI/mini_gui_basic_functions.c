@@ -91,14 +91,16 @@ void guiMainLoop(void)
     /* Get possible wheel action */
     input_interface_result = miniGetWheelAction(FALSE, FALSE);
 
-    #if defined(HARDWARE_MINI_CLICK_V2)
+    #if defined(HARDWARE_MINI_CLICK_V2) && !defined(NO_ACCELEROMETER_FUNCTIONALITIES)
     if (scanAndGetDoubleZTap(FALSE) == ACC_RET_MOVEMENT)
     {
         // knock detecting algo to wakup the device
+        #if !defined(DISABLE_SCREENSAVER)
         if (isScreenSaverOn() == TRUE)
         {
             guiGetBackToCurrentScreen();
         }
+        #endif
         activityDetectedRoutine();
     }
     #endif
@@ -109,15 +111,19 @@ void guiMainLoop(void)
         #ifndef MINI_DEMO_VIDEO
             guiDisplayGoingToSleep();
             userViewDelay();
+            #if !defined(DISABLE_SCREENSAVER)
             if (getMooltipassParameterInEeprom(SCREENSAVER_PARAM) != FALSE)
             {
                 screenSaverOn = TRUE;
             }
             else
             {
+            #endif
                 miniOledOff();
                 guiGetBackToCurrentScreen();
+            #if !defined(DISABLE_SCREENSAVER)
             }
+            #endif
         #else
             miniOledBitmapDrawFlash(0, 0, BITMAP_MOOLTIPASS, OLED_SCROLL_UP);
         #endif

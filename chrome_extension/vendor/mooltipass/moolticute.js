@@ -172,7 +172,8 @@ moolticute.websocket = {
     onOpen: function() {
         if (background_debug_msg > 2) mpDebug.log('%c Moolticute daemon connected', mpDebug.css('FFC6A0'));
         moolticute.connectedToDaemon = true;
-        moolticute.fireEvent('statusChange');
+        moolticute.sendRequest( { ping: [] } );
+        //moolticute.fireEvent('statusChange');
 
         this.tries = 0;
     },
@@ -181,6 +182,8 @@ moolticute.websocket = {
 
         moolticute.connectedToDaemon = false;
         moolticute.fireEvent('statusChange');
+
+        if ( mooltipass && mooltipass.device && mooltipass.device.usingApp === false ) mooltipass.device.retrieveCredentialsQueue = [];
 
         this.tries = this.tries > 3?this.tries:this.tries + 1;
 
@@ -192,12 +195,17 @@ moolticute.websocket = {
         var data = event.data;
         try {
             var recvMsg = JSON.parse(data);
-            if (background_debug_msg > 4) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
+            if (background_debug_msg > 4 && recvMsg.command !== 'getMooltipassStatus') mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
+            else if (background_debug_msg > 5) mpDebug.log('%c Moolticute Received message: ', mpDebug.css('FFC6A0'), recvMsg );
         }
         catch (e) {
             if (background_debug_msg > 4) mpDebug.log('%c Moolticute Error in received message: ', mpDebug.css('FFC6A0'), e, d );
             return;
         }
+
+        recvMsg = this.messageTranslator( recvMsg );
+        // Some messages are processed internally (like status messages from Chrome App)
+        if ( !recvMsg ) return;
 
         var wrapped = {};
 
@@ -265,6 +273,39 @@ moolticute.websocket = {
         this._ws.onopen = this.onOpen.bind(this);
         this._ws.onclose = this.onClose.bind(this);
         this._ws.onmessage = this.onMessage.bind(this);
+    },
+    /* Translate messages received from MooltiApp to MooltiCute format */
+    messageTranslator: function( msg ) {
+        var output = { data: {} };
+        if ( msg.deviceStatus ) {
+            moolticute.status.connected = msg.deviceStatus.connected;
+            moolticute.status.unlocked = msg.deviceStatus.state == 'Unlocked'?true:false;
+            moolticute.status.version = msg.deviceStatus.version;
+            moolticute.status.state = msg.deviceStatus.state;
+            mooltipass.device._status = moolticute.status;
+            return false;
+        } else if ( msg.command && msg.command == 'getCredentials' ) {
+            output.msg = 'ask_password';
+            output.data.failed = msg.success?false:true;
+            if ( msg.success ) {
+                output.data.login = msg.credentials.login;
+                output.data.password = msg.credentials.password;    
+            }
+        } else if ( msg.command && msg.command == 'getRandomNumber') {
+            output.msg = 'get_random_numbers';
+            output.data = msg.random;
+        } else if ( msg.command && msg.command == 'getMooltipassStatus') {
+            output.msg = 'status_changed';
+            if ( msg.value == 'unlocked' ) output.data = 'Unlocked';
+            moolticute.status.connected = msg.connected;
+
+            // Asume Moolticute if no middleware message
+            moolticute.status.middleware = msg.middleware?msg.middleware:'Moolticute';
+        } else {
+            output = msg;    
+        }
+        
+        return output;
     }
 };
 moolticute.websocket.connect();

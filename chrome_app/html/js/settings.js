@@ -127,7 +127,7 @@ mooltipass.ui.settings.initKnockEnabled = function() {
                     mooltipass.ui.status.success($field, 'Knock detection feature ' + enabledDisabled);
                 }
                 else {
-                    mooltipass.ui.status.error($field, 'For security reasons, remove your card and try again');
+                    mooltipass.ui.status.error($field, 'Change Not Allowed When a Card is Inserted');
                     $field.prop('checked', $field.data('old-value'));
                 }
             }
@@ -880,6 +880,18 @@ mooltipass.ui.settings.getFirmwareVersion = function() {
                 if (firmware_version.indexOf("mini") >= 0)
                 {
                     $(".show-if-mini-version").show();  
+                    
+                    /* Query serial */
+                    mooltipass.device.interface.send({
+                        'command': 'getMooltipassSerial',
+                        'payload': [],
+                        'callbackFunction': function(_response) {
+                            if(_response.success) {
+                                mooltipass.ui.deviceSerial = _response.value;
+                                $('#settings-tab-title').text("Device Settings - Mooltipass Mini (" + mooltipass.util.getFirmwareFunctionalityVersionFromVersionString(firmware_version) + " #" + _response.value + ")");
+                            }
+                        }
+                    });
                 }
                 else
                 {

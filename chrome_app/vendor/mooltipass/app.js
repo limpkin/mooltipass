@@ -4,6 +4,8 @@ mooltipass.app = mooltipass.app || {};
 
 // Is app already initialized
 mooltipass.app._isInitializedLock = false;
+// Platform running the app
+mooltipass.app.os = "";
 
 
 chrome.runtime.onMessage.addListener(
@@ -20,6 +22,9 @@ mooltipass.app.init = function() {
     if(mooltipass.app._isInitializedLock) {
         return false;
     }
+    
+    /* Find out the OS */
+    chrome.runtime.getPlatformInfo(function(info) { mooltipass.app.os = info.os; });
 
     mooltipass.app._isInitializedLock = true;
 
@@ -79,6 +84,8 @@ mooltipass.app.onMessage = function(senderId, data, callbackFunction) {
         else {
             responseObject.deviceStatus.state = 'Error';
         }
+
+        responseObject.deviceStatus.middleware = 'Chrome App';
 
         chrome.runtime.sendMessage(senderId, responseObject, function() {
             if(chrome.runtime.lastError) {

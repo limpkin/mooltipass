@@ -65,6 +65,7 @@ meta.foundation-data-attribute-namespace {
 /* line 422, ../bower_components/foundation/scss/foundation/components/_global.scss */
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 
 /* line 425, ../bower_components/foundation/scss/foundation/components/_global.scss */
@@ -10212,4 +10213,15 @@ nav li .lock {
 /* line 444, ../scss/app.scss */
 .tooltipster-default .tooltipster-arrow .tooltipster-arrow-border {
   border: none;
+}
+
+.inline {
+  float: left;
+}
+
+.inline.expandContractLink {
+  margin-left: 20px;
+  line-height: 30px;
+  font-size: 11px;
+  cursor: pointer;
 }

@@ -1,8 +1,68 @@
 /*
- * Extendable object for special cases
+ * Extendable objects for special cases
  *
  */
 var extendedCombinations = {
+	skype: function( forms ) {
+		//console.log('skype combination');
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[type=password]').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.password = mpJQ('input[type=password]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[name=loginfmt]').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.username = mpJQ('input[name=loginfmt]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
+	autodesk: function( forms ) {
+		//console.log('autodesk combination');
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[type=password]:visible').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.password = mpJQ('input[type=password]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[type=text]:visible').length > 0 ) { // Step 1: Email
+					currentForm.combination.fields.username = mpJQ('input[type=text]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	google: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -63,6 +123,23 @@ var extendedCombinations = {
 	}
 };
 
+var extendedPost = {
+	'techmania.ch': function( details ) {
+		if ( details.requestParams && details.requestParams.login ) {
+			details.usernameValue = details.requestParams.login;
+			details.passwordValue = details.requestParams.password;
+		}
+		return details;
+	},
+	'seeedstudio.com': function( details ) {
+		if ( details.email && details.password ) {
+			details.usernameValue = details.email;
+			details.passwordValue = details.password;
+		}
+		return details;
+	}
+}
+
 /*
 / Form Detection by combinations.
 / Searches the DOM for a predefined set of combinations and retrieves credentials or prepares everything to be saved
@@ -95,7 +172,7 @@ mcCombinations.prototype = ( function() {
 			debugLevel: 0,
 			postDetectionFeature: true
 		}
-    };
+	};
 })();
 
 /*
@@ -129,6 +206,19 @@ mcCombinations.prototype.gotSettings = function( response ) {
 * Array containing all the possible combinations we support
 */
 mcCombinations.prototype.possibleCombinations = [
+	{
+		combinationId: 'skypeTwoPageAuth',
+		combinationName: 'Skype Two Page Login Procedure',
+		requiredUrl: 'login.live.com',
+		callback: extendedCombinations.skype
+	},
+	{
+		combinationId: 'autodeskTwoPageAuth',
+		combinationName: 'Autodesk Two Page Login Procedure',
+		requiredUrl: 'accounts.autodesk.com',
+		callback: extendedCombinations.autodesk
+		
+	},
 	{
 		combinationId: 'googleTwoPageAuth',
 		combinationName: 'Google Two Page Login Procedure',
@@ -213,17 +303,66 @@ mcCombinations.prototype.possibleCombinations = [
 		}
 	},
 	{
-		combinationId: 'loginform003',
-		combinationName: 'Login Form with Text and 3 fields instead of 2',
+		combinationId: 'registerformsimple',
+		combinationName: 'Simple Registration (1 username, 2 passwords)',
+		mustFollowOrder: true,
 		requiredFields: [
 			{
-				selector: 'input[type=text],input:not([type])',
+				selector: 'input[type=text],input[type=email],input:not([type])',
 				mapsTo: 'username'
 			},
 			{
 				selector: 'input[type=password]',
 				mapsTo: 'password'
 			},
+			{
+				selector: 'input[type=password]:visible',
+			}
+		],
+		scorePerMatch: 33,
+		score: 1,
+		autoSubmit: true,
+		maxfields: 3,
+		extraFunction: function( fields ) {
+			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+		}
+	},
+	{
+		combinationId: 'loginform004',
+		combinationName: 'Login Form mixed with Registration Form (ie: showroomprive.com)',
+		requiredFields: [
+			{
+				selector: 'input[type=email]',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+		],
+		scorePerMatch: 50,
+		score: 0,
+		autoSubmit: false,
+		enterFromPassword: true,
+		maxfields: 12,
+		extraFunction: function( fields ) {
+			this.fields.username = cipFields.getUsernameField( fields.password.prop('id') );
+		}
+	},
+	{
+		combinationId: 'loginform003',
+		combinationName: 'Login Form with Text and 3 fields instead of 2',
+		requiredFields: [
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+			{
+				selector: 'input[type=text],input:not([type])',
+				mapsTo: 'username',
+				closeToPrevious: true,
+			}
 		],
 		scorePerMatch: 50,
 		score: 0,
@@ -250,10 +389,14 @@ mcCombinations.prototype.possibleCombinations = [
 				selector: 'input[type=password]:visible'
 			},
 		],
+		isPasswordOnly: true,
 		scorePerMatch: 33,
 		score: 1,
 		autoSubmit: false,
 		usePasswordGenerator: true,
+		preExtraFunction: function() { // Pre-extra is run before retrieving credentials
+			mpJQ(this.fields.password[0]).addClass('mooltipass-password-do-not-update');
+		},
 		extraFunction: function( fields ) {
 			// We need LOGIN information. Try to retrieve credentials from cache.
 			cipEvents.temporaryActions['response-cache_retrieve'] = function( response ) {
@@ -279,7 +422,7 @@ mcCombinations.prototype.possibleCombinations = [
 			}.bind(this);
 			messaging({'action': 'cache_retrieve' });
 
-			mpJQ(this.fields.password[0]).addClass('mooltipass-password-do-not-update');
+			
 			// We also change the password field for the next one (as we retrieve in the first field, but store the value from the second!)
 			this.fields.password = this.fields.password.parents('form').find("input[type='password']:not('.mooltipass-password-do-not-update')");
 	
@@ -308,6 +451,7 @@ mcCombinations.prototype.possibleCombinations = [
 		scorePerMatch: 50,
 		score: 0,
 		maxfields: 2,
+		isPasswordOnly: true,
 		autoSubmit: false,
 		extraFunction: function( fields ) {
 			// We need LOGIN information. Try to retrieve credentials from cache.
@@ -337,6 +481,7 @@ mcCombinations.prototype.possibleCombinations = [
 	},
 	{
 		usePasswordGenerator: true,
+		isPasswordOnly: true,
 		combinationId: 'enterpassword',
 		combinationName: 'A password fill-in form',
 		requiredFields: [
@@ -457,10 +602,31 @@ mcCombinations.prototype.detectForms = function() {
 			// Traverse fields in form and match against combination
 			var matching = currentForm.fields.some( function( field ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('\t\t %c mcCombinations - Form Detection: %c Checking field ','background-color: #c3c6b4','color: #777777', field.prop('type') );
-				var matching = currentForm.combination.requiredFields.some( function( requiredField ) {
-					if ( requiredField.found ) return false;
-					if ( field.is( requiredField.selector ) ) {
+
+				// Initialize field as not passed
+				field.data('passed', false);
+				
+				// Traverve required fields in combination to find a match
+				var matching = currentForm.combination.requiredFields.some( function( requiredField, index, theArray ) {
+					//console.log( 'matching ', combination_data.combinationName, field.is( requiredField.selector ), field[0].name, requiredField.selector, requiredField.mapsTo, requiredField.found, field.data('passed') );
+					
+					// Check if we already matched this field with another requirement
+					if( field.data('passed') == true ) return false;
+
+
+					// if ( requiredField.found ) {
+					// 	// Check if we're looking for a close match
+					// 	if ( !requiredField.closeToPrevious ) {
+					// 		// return false;
+					// 	} else { // We found the field, let's check if this one is closer
+					// 		console.log('index', index, theArray );
+					// 	}
+					// }
+
+					if ( field.is( requiredField.selector ) && !requiredField.found) {
 						requiredField.found = true;
+						requiredField.index = index;
+						field.data('passed', true);
 						currentForm.combination.score += currentForm.combination.scorePerMatch;
 						if (this.settings.debugLevel > 3) cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c Field Match! Combination Score set to ','background-color: #c3c6b4','color: #777777', currentForm.combination.score );
 
@@ -485,6 +651,12 @@ mcCombinations.prototype.detectForms = function() {
 							return true;
 						}
 						return false;
+					} else {
+						// If field doesn't match, and combination requires a specific order, then just leave.
+						if ( combination_data.mustFollowOrder ) {
+							currentForm.combination.score = -100;
+							return false;
+						}
 					}
 				}.bind(this));
 				return matching;
@@ -495,6 +667,9 @@ mcCombinations.prototype.detectForms = function() {
 		if ( currentForm.combination.score < 100 ) {
 			currentForm.combination = false;
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
+		} else if ( currentForm.combination.preExtraFunction ) {
+			if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
+			currentForm.combination.preExtraFunction( currentForm.combination.fields );
 		}
 	}
 
@@ -595,6 +770,10 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	var submittedUsernameValue = this.parseElement( currentForm.combination.fields.username, 'value');
 	var submittedPasswordValue = this.parseElement( currentForm.combination.fields.password, 'value');
 
+	if ( mpJQ('#mooltipass-username').val() && mpJQ('#mooltipass-username').val() !== submittedUsernameValue ) {
+		submittedUsernameValue = mpJQ('#mooltipass-username').val();
+	}
+
 	if ( !storedUsernameValue && !this.credentialsCache && submittedUsernameValue) { // In case there's a 2 pages login. Store the username in cache
 		this.credentialsCache = [{ TempLogin: submittedUsernameValue, Login: false, Password: false }];
 	}
@@ -613,6 +792,7 @@ mcCombinations.prototype.onSubmit = function( event ) {
 */
 mcCombinations.prototype.isAvailableField = function($field) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c isAvailableField','background-color: #c3c6b4','color: #333333');
+
 	return (
 		$field.is(":visible")
 		&& $field.css("visibility") != "hidden"
@@ -653,6 +833,11 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		return;
 	}
 
+	// Credentials callback gets called when there's a hashChange in the fields. If we modified the username, keep the modified one
+	if ( mpJQ('#mooltipass-username').val() ) credentials[0].Login = mpJQ('#mooltipass-username').val();
+	mpJQ('#mooltipass-login-info').show();
+	mpJQ('#mooltipass-username').val( credentials[0].Login );
+
 	if (!isSafari) {
 		// Store retrieved username as a cache
 		chrome.runtime.sendMessage({'action': 'cache_login', 'args': [ credentials[0].Login ] }, function( r ) {
@@ -676,22 +861,32 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			if ( credentials[0].Login && currentForm.combination.fields.username ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form - Username','background-color: #c3c6b4','color: #FF0000');
 				// Fill-in Username
-				currentForm.combination.fields.username.val('');
-				currentForm.combination.fields.username.sendkeys( credentials[0].Login );
-				currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
-				currentForm.combination.savedFields.username.value = credentials[0].Login;
+				if ( currentForm.combination.fields.username && typeof currentForm.combination.fields.username !== 'string' ) {
+					currentForm.combination.fields.username.val('');
+					currentForm.combination.fields.username.click();
+					currentForm.combination.fields.username.sendkeys( credentials[0].Login );
+					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
+					currentForm.combination.savedFields.username.value = credentials[0].Login;	
+				}
 			}
 			
 			if ( credentials[0].Password && currentForm.combination.fields.password ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form - Password','background-color: #c3c6b4','color: #FF0000');
 				// Fill-in Password
-				currentForm.combination.fields.password.val('');
-				currentForm.combination.fields.password.sendkeys( credentials[0].Password );
-				currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
-				currentForm.combination.savedFields.password.value = credentials[0].Password;
+				if ( 
+					typeof currentForm.combination.fields.password === 'object' &&  // It is a field and not a string
+					currentForm.combination.fields.password.length > 0 // && // It exists
+					// !currentForm.combination.fields.password.hasClass('mooltipass-password-do-not-update')
+				) {
+					currentForm.combination.fields.password.val('');
+					currentForm.combination.fields.password.click();
+					currentForm.combination.fields.password.sendkeys( credentials[0].Password );
+					currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
+					currentForm.combination.savedFields.password.value = credentials[0].Password;
+				}
 			}
 
-
+			//console.log( currentForm.combination );
 			if ( currentForm.combination.extraFunction ) {
 				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running ExtraFunction for combination','background-color: #c3c6b4','color: #333333');
 				currentForm.combination.extraFunction( currentForm.combination.fields );
@@ -708,6 +903,8 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				// Stop processing forms if we're going to submit
 				// TODO: Weight the importance of each form and submit the most important, not the first!
 				return;
+			} else if ( currentForm.combination.enterFromPassword ) { // Try to send the enter key while focused on password
+				currentForm.combination.fields.password.focus().sendkeys( "{enter}" );
 			}
 		}
 	}
@@ -718,24 +915,29 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 */
 mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
-    
-    if ( currentForm.element ) {
-    	// Try to click the submit element
-	    var submitButton = currentForm.element.find(':submit');
-	    if ( submitButton.length > 0 ) { 
-	    	// Add timeout to allow form check procedures to run
-	    	setTimeout( function() {
-	    		submitButton[0].click();
-	    	},100);
-	    } else if (formElement.element ) {
-	    	// If no submit button is found, just submit the form
-	    	formElement.submit();
-	    }
-    } else { // There is no FORM element. Click stuff around
+	
+	// Do not autosubmit forms with Captcha
+	if ( cip.formHasCaptcha ) return;
+
+	if ( currentForm.element ) {
+		// Try to click the submit element
+		var submitButton = currentForm.element.find(':submit:visible');
+		if ( submitButton.length > 0 ) { 
+			// Add timeout to allow form check procedures to run
+			setTimeout( function() {
+				submitButton[0].click();
+			},100);
+		} else if ( mpJQ('#verify_user_btn').length > 0 ) { // Exclusive else/if for Autodesk.com (probably it could be used in more 2 steps login procedures)
+			mpJQ('#verify_user_btn').click();
+		} else if ( currentForm.element ) {
+			// If no submit button is found, just submit the form
+			currentForm.element.submit();
+		}
+	} else { // There is no FORM element. Click stuff around
 		setTimeout( function() {
-        	mpJQ('#sign-in, .btn-submit').click();
-        },1500);
-    }
+			mpJQ('#sign-in, .btn-submit, #verify_user_btn').click();
+		},1500);
+	}
 }
 
 
@@ -769,6 +971,14 @@ mcCombinations.prototype.parseElement = function( element, data ) {
 */
 mcCombinations.prototype.postDetected = function( details ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c postDetected','background-color: #c3c6b4','color: #333333', details);
+
+	// Run special cases
+	for ( specialCase in extendedPost ) {
+		if ( window.location.hostname.indexOf( specialCase ) > -1 ) {
+			details = extendedPost[specialCase]( details );
+		}
+	}
+
 	// Just act if we're waiting for a post
 	if ( this.waitingForPost && this.settings.postDetectionFeature) {
 		// Loop throught the forms and check if we've got a match
@@ -777,8 +987,10 @@ mcCombinations.prototype.postDetected = function( details ) {
 			if ( currentForm.combination && currentForm.combination.savedFields ) {
 				var currentCombination = currentForm.combination;
 				var sent = details.requestBody?details.requestBody:details;
-				var storedUsernameValue = false, usernameValue = false;
-				var storedPasswordValue = false, passwordValue = false;
+				var storedUsernameValue = false;
+				var usernameValue = details.usernameValue?details.usernameValue:false;
+				var storedPasswordValue = false;
+				var passwordValue = details.passwordValue?details.passwordValue:false;
 
 				// Username parsing
 				if ( currentCombination.savedFields.username ) {
@@ -786,37 +998,42 @@ mcCombinations.prototype.postDetected = function( details ) {
 						usernameValue = currentCombination.savedFields.username;
 						storedUsernameValue = currentCombination.savedFields.username;
 					} else {
-						var attrUsername = 'name';
-						if ( currentCombination.savedFields.username.submitPropertyName ) {
-							attrUsername = currentCombination.savedFields.username.submitPropertyName;
-						}
+						// Special cases handle the usernameValue var.
+						if ( usernameValue === false) {
+							var attrUsername = 'name';
+							if ( currentCombination.savedFields.username.submitPropertyName ) {
+								attrUsername = currentCombination.savedFields.username.submitPropertyName;
+							}
 
-						// Some servers send DATA instead of FORMDATA
-						if ( sent.data && !sent.formData ) sent.formData = sent.data;
+							// Some servers send DATA instead of FORMDATA
+							if ( sent.data && !sent.formData ) sent.formData = sent.data;
 
-						if ( sent.formData ) { // Form sent FORM DATA
-							usernameValue = sent.formData[ currentCombination.fields.username.attr( attrUsername ) ];
-						} else { // Client sent a RAW request.
-							usernameValue = sent[ currentCombination.fields.username.attr( attrUsername ) ];
+							if ( sent.formData ) { // Form sent FORM DATA
+								usernameValue = sent.formData[ currentCombination.fields.username.attr( attrUsername ) ];
+							} else { // Client sent a RAW request.
+								usernameValue = sent[ currentCombination.fields.username.attr( attrUsername ) ];
+							}	
 						}
 
 						storedUsernameValue = currentCombination.savedFields.username.value;
 					}
-					
 				}
 				
 				// Password parsing
 				if ( currentCombination.savedFields.password ) {
-					var attrPassword = 'name';
-					if ( currentCombination.savedFields.password.submitPropertyName ) {
-						var attrPassword = currentCombination.savedFields.password.submitPropertyName;	
-					}
+					// Special cases handle the passwordValue var.
+					if ( passwordValue === false ) {
+						var attrPassword = 'name';
+						if ( currentCombination.savedFields.password.submitPropertyName ) {
+							var attrPassword = currentCombination.savedFields.password.submitPropertyName;	
+						}
 
-					if ( sent.formData ) { // Form sent FORM DATA
-						passwordValue = sent.formData[ currentCombination.fields.password.attr( attrPassword ) ];
-					} else { // Client sent a RAW request.
-						passwordValue = sent[ currentCombination.fields.password.attr( attrPassword ) ];
-					}
+						if ( sent.formData ) { // Form sent FORM DATA
+							passwordValue = sent.formData[ currentCombination.fields.password.attr( attrPassword ) ];
+						} else { // Client sent a RAW request.
+							passwordValue = sent[ currentCombination.fields.password.attr( attrPassword ) ];
+						}
+					} 
 
 					storedPasswordValue = currentCombination.savedFields.password.value;
 				}

@@ -9,8 +9,14 @@ mooltipass.device.packet_debug = false;
 
 // Check for moolticute
 mooltipass.device.shouldCheckForMoolticute = true;
+
+// Using MooltiApp
+mooltipass.device.usingMooltiApp = false;
+
+
 // Mooltipass device info
-mooltipass.device.deviceInfo = { 'vendorId': 0x16d0, 'productId': 0x09a0 };
+//mooltipass.device.deviceInfo = { 'vendorId': 0x16d0, 'productId': 0x09a0 };
+mooltipass.device.deviceInfo = { 'filters': [{'vendorId': 0x16d0, 'productId': 0x09a0, 'usagePage': 0xFF31}] };
 
 // Number of bytes of a packet transferred over USB is fixed to 64
 mooltipass.device.packetSize = 64;
@@ -70,6 +76,7 @@ mooltipass.device.commands = {
     'getStartingDataParentAddress'  : 0xD1,
     'setStartingDataParentAddress'  : 0xD2,
     'endMemoryManagementMode'       : 0xD3,
+    'getMooltipassSerial'           : 0xDA,
     'jumpToBootloader'              : 0xAB
 };
 
@@ -110,7 +117,7 @@ mooltipass.device.parameters = {
     'knockDetectEnable': 28,
     'knockDetectThres': 29,
     'lockUnlock': 30,
-	'hashDisplayEnable': 31,
+    'hashDisplayEnable': 31,
     'randomPin':32
 };
 
@@ -141,7 +148,10 @@ mooltipass.device.status_parameters = {
 mooltipass.device.connectionId = null;
 
 // Version of the connected device
+mooltipass.device.serial = 0;
+mooltipass.device.isMini = false;
 mooltipass.device.version = 'v1';
+mooltipass.device.fwversion = 'v1';
 
 // FlashChip ID of the connected device
 mooltipass.device.flashChipId = null;
@@ -202,6 +212,8 @@ mooltipass.device.moolticuteSocket = null;
  * 
 */
 mooltipass.device.checkForMoolticute = function() {
+    if ( !mooltipass.device.shouldCheckForMoolticute ) return;
+
     this.moolticuteSocket = new WebSocket( mooltipass.device.socketString );
 
     this.moolticuteSocket.onopen = function() {
@@ -236,7 +248,7 @@ mooltipass.device.init = function() {
     mooltipass.device._forceEndMemoryManagementModeLock = false;
     mooltipass.device.restartProcessingQueue();
     mooltipass.device.interval = setInterval(mooltipass.device.checkStatus, 350);
-    if ( mooltipass.device.shouldCheckForMoolticute ) this.checkForMoolticute();
+    if ( mooltipass.device.shouldCheckForMoolticute ) setTimeout( mooltipass.device.checkForMoolticute, 200 );
 };
 
 
@@ -738,7 +750,10 @@ mooltipass.device.onDataReceived = function(reportId, data) {
     mooltipass.device.setQueueHash();
 
     var bytes = new Uint8Array(data);
-    var msg = new Uint8Array(data, 2);
+
+    if ( mooltipass.device.usingMooltiApp ) var msg = data.slice(2);
+    else var msg = new Uint8Array(data, 2);
+
     var len = bytes[0];
     var cmd = bytes[1];
 
@@ -835,15 +850,48 @@ mooltipass.device.responseGetStackFree = function(queuedItem, msg) {
     mooltipass.device.processQueue();
 };
 
+mooltipass.device.responseGetMooltipassSerial = function(queuedItem, msg) {
+    mooltipass.device.serial = msg[3] + msg[2]*256 + msg[1] * 65536 + msg[0]* 16777216;
+    
+    var responseObject = {
+        'command': queuedItem.command,
+        'success': true,
+        'value': mooltipass.device.serial
+    };
+
+    mooltipass.device.applyCallback(queuedItem.callbackFunction, queuedItem.callbackParameters, [responseObject]);
+    // Process next queued request
+    mooltipass.device.processQueue();
+};
+
 mooltipass.device.responseGetVersion = function(queuedItem, msg) {
     var flashChipId = msg[0];
     var version = mooltipass.device.convertMessageArrayToString(msg.subarray(1));
 
     mooltipass.device.version = version;
     mooltipass.device.flashChipId = flashChipId;
+    mooltipass.device.fwversion = version.split('_')[0]    
+    if (version.indexOf('mini') > -1)
+    {
+        console.log("Mooltipass Mini connected");
+        mooltipass.device.isMini = true;
+    }
+    else
+    {
+        mooltipass.device.isMini = false;
+    }
     
-    console.log("Firmware Version:", version);
+    console.log("Firmware Version:", mooltipass.device.fwversion);
 
+    /* If we're dealing with a mini, query serial */
+    if (mooltipass.device.isMini)
+    {
+        mooltipass.device.interface.send({
+            'command': 'getMooltipassSerial',
+            'payload': []
+        });
+    }    
+    
     var responseObject = {
         'command': queuedItem.command,
         'success': true,
@@ -899,6 +947,7 @@ mooltipass.device.responseGetMooltipassStatus = function(queuedItem, msg) {
         'noCard': noCard,
         'unknownCard': unknownCard,
         'version': mooltipass.device.version,
+        'middleware': 'Chrome App'
     };
 
     if(queuedItem && queuedItem.callbackFunction) {

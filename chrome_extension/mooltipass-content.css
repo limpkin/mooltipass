@@ -1,6 +1,4 @@
-.mp-dialog, .mp-dialog * {
-    box-sizing: content-box !important;    
-}
+
 .ui-autocomplete li.ui-menu-item {
 	text-align: left !important;
 	font-size: 12px !important;
@@ -16,190 +14,7 @@
 	background: none !important;
 	z-index: 2147483601 !important;
 }
-.ui-dialog.mp-dialog {
-  z-index: 2147483602 !important;
-  box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.1);
-  border-radius: 0;
-  border: none;
-  padding: 0;	
-  font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
-}
-.mp-dialog .ui-dialog-title {
-    background-attachment: scroll !important;
-    background-clip: border-box !important;
-    background-color: rgba(0, 0, 0, 0) !important;
-    background-image: none !important;
-    background-origin: padding-box !important;
-    background-size: auto !important;
-    border-bottom-color: rgb(0, 0, 0) !important;
-    border-bottom-style: none !important;
-    border-bottom-width: 0px !important;
-    border-image-outset: 0px !important;
-    border-image-repeat: stretch !important;
-    border-image-slice: 100% !important;
-    border-image-source: none !important;
-    border-image-width: 1 !important;
-    border-left-color: rgb(0, 0, 0) !important;
-    border-left-style: none !important;
-    border-left-width: 0px !important;
-    border-right-color: rgb(0, 0, 0) !important;
-    border-right-style: none !important;
-    border-right-width: 0px !important;
-    border-top-color: rgb(0, 0, 0) !important;
-    border-top-style: none !important;
-    border-top-width: 0px !important;
-    color: rgb(0, 0, 0) !important;
-    cursor: move !important;
-    display: block !important;
-    float: left !important;
-    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
-    font-size: 11.8800001144409px !important;
-    font-style: normal !important;
-    font-variant: normal !important;
-    font-weight: 600 !important;
-    height: 15px !important;
-    line-height: normal !important;
-    list-style-type: none !important;
-    margin-bottom: 1.18799996376038px !important;
-    margin-left: 0px !important;
-    margin-right: 0px !important;
-    margin-top: 1.18799996376038px !important;
-    overflow-x: hidden !important;
-    overflow-y: hidden !important;
-    padding-bottom: 0px !important;
-    padding-left: 0px !important;
-    padding-right: 0px !important;
-    padding-top: 0px !important;
-    text-overflow: ellipsis !important;
-    vertical-align: baseline !important;
-    white-space: nowrap !important;
-    width: 248.390625px !important;
-}
 
-.mp-dialog .ui-dialog-titlebar {
-    background-attachment: scroll !important;
-    background-clip: border-box !important;
-    background-color: rgb(255, 255, 255) !important;
-    background-image: none !important;
-    background-origin: padding-box !important;
-    background-size: auto !important;
-    border-bottom-color: rgb(221, 221, 221) !important;
-    border-bottom-left-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
-    border-bottom-style: solid !important;
-    border-bottom-width: 1px !important;
-    border-image-outset: 0px !important;
-    border-image-repeat: stretch !important;
-    border-image-slice: 100% !important;
-    border-image-source: none !important;
-    border-image-width: 1 !important;
-    border-left-color: rgb(0, 0, 0) !important;
-    border-left-style: none !important;
-    border-left-width: 0px !important;
-    border-right-color: rgb(0, 0, 0) !important;
-    border-right-style: none !important;
-    border-right-width: 0px !important;
-    border-top-color: rgb(0, 0, 0) !important;
-    border-top-left-radius: 0px !important;
-    border-top-right-radius: 0px !important;
-    border-top-style: none !important;
-    border-top-width: 0px !important;
-    color: rgb(0, 0, 0) !important;
-    cursor: move !important;
-    display: block !important;
-    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
-    font-size: 13.1999998092651px !important;
-    font-style: normal !important;
-    font-variant: normal !important;
-    font-weight: 600 !important;
-    height: 17.375px !important;
-    line-height: normal !important;
-    list-style-type: none !important;
-    margin-bottom: 0px !important;
-    margin-left: 0px !important;
-    margin-right: 0px !important;
-    margin-top: 0px !important;
-    min-height: 0px !important;
-    padding-bottom: 6px !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    padding-top: 6px !important;
-    position: relative !important;
-    touch-action: none !important;
-    vertical-align: baseline !important;
-    width: 276px !important;
-}
-.ui-dialog-content {
-	font-size: .9em !important;
-}
-
-#mp-genpw-dialog2 {
-    background-attachment: scroll !important;
-    background-clip: border-box !important;
-    background-color: rgba(255, 255, 255, 1) !important;
-    background-image: none !important;
-    background-origin: padding-box !important;
-    background-size: auto !important;
-    border-bottom-color: rgb(34, 34, 34) !important;
-    border-bottom-style: none !important;
-    border-bottom-width: 0px !important;
-    border-image-outset: 0px !important;
-    border-image-repeat: stretch !important;
-    border-image-slice: 100% !important;
-    border-image-source: none !important;
-    border-image-width: 1 !important;
-    border-left-color: rgb(34, 34, 34) !important;
-    border-left-style: none !important;
-    border-left-width: 0px !important;
-    border-right-color: rgb(34, 34, 34) !important;
-    border-right-style: none !important;
-    border-right-width: 0px !important;
-    border-top-color: rgb(34, 34, 34) !important;
-    border-top-style: none !important;
-    border-top-width: 0px !important;
-    color: rgb(34, 34, 34) !important;
-    display: block !important;
-    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
-    font-size: 11.8800001144409px !important;
-    font-style: normal !important;
-    font-variant: normal !important;
-    font-weight: normal !important;
-    height: auto !important;
-    line-height: normal !important;
-    list-style-type: none !important;
-    margin-bottom: 0px !important;
-    margin-left: 0px !important;
-    margin-right: 0px !important;
-    margin-top: 0px !important;
-    max-height: none !important;
-    min-height: 0px !important;
-    overflow-x: auto !important;
-    overflow-y: auto !important;
-    padding-bottom: 5.94000005722046px !important;
-    padding-left: 11.8800001144409px !important;
-    padding-right: 11.8800001144409px !important;
-    padding-top: 12px !important;
-    position: relative !important;
-    text-align: left !important;
-    vertical-align: baseline !important;
-    width: 276.25px !important;
-}
-#mp-genpw-dialog2 .ui-dialog-titlebar {
-    margin-left: -12px !important;
-    margin-right: -12px !important;
-    border-top: 1px solid #DDD !important;
-    margin-bottom: 6px !important;    
-}
-
-#mp-genpw-dialog2 button {
-	height: 26px !important;
-}
-.mp-genpw-clearfix:after {
-	clear: both;
-	line-height: 0;
-	content: "";
-	display: table;
-}
 .mp-genpw-icon {
 	position: absolute;
 	cursor: pointer;
@@ -1066,4 +881,8 @@ input.mp-hover-password {
     margin: 0px 5px 0px 0px !important;
     box-sizing: border-box !important;
     height: 40px !important;    
+}
+
+.mp-genpw-dialog .login-area {
+    display: none;
 }

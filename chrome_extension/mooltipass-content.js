@@ -86,7 +86,7 @@ cipPassword.initField = function(field, inputs, pos) {
 	field.data("mp-password-generator", true);
 
 	cipPassword.createIcon(field);
-	cipPassword.createDialog(inputs, field);
+	mpDialog.precreate( inputs, field );
 
 	var $found = false;
 	if(inputs) {
@@ -101,140 +101,6 @@ cipPassword.initField = function(field, inputs, pos) {
 	}
 
 	field.data("mp-genpw-next-field-exists", $found);
-}
-
-cipPassword.createDialog = function(inputs, $pwField) {
-	if("passwordCreateDialog" in _called) {
-		return;
-	}
-	_called.passwordCreateDialog = true;
-
-	var $ = mpJQ;
-
-	if(cip.settings.usePasswordGenerator) {
-	}
-
-	$dialog2 = mpJQ.parseHTML(' \
-	  <div id="mooltipass-login-info"> \
-	  	<p style="font-size:12px !important; margin-bottom: 12px !important;">If not correct, modify it below</p> \
-	  	<p><input type="text" id="mooltipass-username" class="mooltipass-input" /></p> \
-	  </div> \
-	  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span id="ui-id-2" class="ui-dialog-title">Credential Storage</span></div> \
-	  <div id="mp-update-credentials-wrap"> \
-		<p style="font-size:12px !important; margin-bottom: 12px !important;">You can store your entered credentials in the Mooltipass device to securely store and easily access them.</p> \
-		<p class="mooltipass-text-right" style="margin-bottom: 12px !important;"><button id="mooltipass-store-credentials" class="mooltipass-button">Store or update current credentials</button><br /><a href="#" style="margin-top: 5px !important; display: inline-block !important; font-size: 12px !important;" id="mooltipass-select-custom">Select custom credential fields</a></p>  \
-	  </div> \
-	  <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="margin-bottom: 12px !important;"><span class="ui-dialog-title">Password Generator</span></div> \
-	  <p><input type="text" id="mooltipass-password-generator" class="mooltipass-input" /></p> \
-	  <p class="mooltipass-text-right" style="margin-bottom:0.5rem !important;"><a href="" id="mooltipass-new-password">Re-generate</a><button id="mooltipass-use-as-password" class="mooltipass-button">Copy to all password fields</button></p> \
-	  <p class="mooltipass-text-right"><button id="mooltipass-copy-to-clipboard" class="mooltipass-button">Copy to clipboard</button></p> \
-	  ');
-
-	var $dialog = mpJQ("<div>")
-		.attr("id", "mp-genpw-dialog").append($dialog2);
-
-	$dialog.hide();
-	mpJQ("body").append($dialog);
-	$dialog.dialog({
-		dialogClass: 'mp-dialog',
-		closeText: "×",
-		autoOpen: false,
-		modal: true,
-		resizable: false,
-		minWidth: 280,
-		title: "Current Login",
-		open: function(event, ui) {
-			mpJQ(".ui-widget-overlay").click(function() {
-				mpJQ("#mp-genpw-dialog:first").dialog("close");
-			});
-
-			if(mpJQ("#mooltipass-password-generator").val() == "") {
-				mpJQ("#mooltipass-new-password").click();
-			}
-
-			mpJQ("#mooltipass-copy-to-clipboard")
-				.removeClass("mooltipass-button-success")
-				.removeClass("mooltipass-button-error");
-		}
-	});
-
-	mpJQ("#mooltipass-new-password").click(function(e){
-		e.preventDefault();
-		cipPassword.generatePassword();
-	}).trigger('click');
-
-
-	mpJQ("#mooltipass-use-as-password").click(function(e){
-		var password = mpJQ("#mooltipass-password-generator").val();
-
-		var a = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
-
-		a.val('').sendkeys( password );
-		a.trigger('change');
-		e.preventDefault();
-		e.stopPropagation();
-	});
-
-
-	mpJQ("#mooltipass-copy-to-clipboard").click(function(e){
-		var copyInput = document.querySelector('#mooltipass-password-generator');
-		copyInput.select();
-
-		try {
-			var successful = document.execCommand('copy');
-			var msg = successful ? 'successful' : 'unsuccessful';
-			cipDebug.info('Copying password to clipboard was ' + msg);
-			mpJQ(this).addClass("mooltipass-button-success");
-		} catch(err) {
-			cipDebug.warn('Unable to copy password to clipboard');
-			mpJQ(this).addClass("mooltipass-button-error");
-		}
-
-		e.preventDefault();
-		e.stopPropagation();
-	});
-
-	$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
-
-	mpJQ("#mooltipass-store-credentials").hover( function() {
-		if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
-		$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
-		if ( $userField ) $userField.addClass("mp-hover-username");
-
-		$pwField.addClass("mp-hover-password");
-	}, function() {
-		mpJQ(".mp-hover-username").removeClass("mp-hover-username");
-		mpJQ(".mp-hover-password").removeClass("mp-hover-password");
-	})
-	.click(function(){
-		var url = (document.URL.split("://")[1]).split("/")[0];
-
-		if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
-		$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
-
-		if ( mpJQ('#mooltipass-username').val() ) {
-			var username = mpJQ('#mooltipass-username').val();
-		} else if ( $userField.length ) {
-			var username = $userField.val();	
-		} else {
-			var username = '';
-		}
-		var password = $pwField.val();
-
-		mpJQ(".mp-hover-username").removeClass("mp-hover-username");
-		mpJQ(".mp-hover-password").removeClass("mp-hover-password");
-
-		mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
-
-		if(cip.rememberCredentials(null, $userField, username, $pwField, password)) {
-			mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Credentials are added to your Mooltipass KeyCard</p>');
-		}
-	});
-
-	mpJQ("#mooltipass-select-custom").click(function(){
-		cipDebug.log("mooltipass-select-custom");
-		cipDefine.init();
-	});
 }
 
 cipPassword.generatePassword = function() {
@@ -323,19 +189,21 @@ cipPassword.createIcon = function(field) {
 			return;
 		}
 
-		var $dialog = mpJQ("#mp-genpw-dialog");
-		if($dialog.dialog("isOpen")) {
-			$dialog.dialog("close");
-		}
-		$dialog.dialog("option", "position", { my: "left-10px top", at: "center bottom", of: mpJQ(this) });
-		$dialog.data("mp-genpw-field-id", field.data("mp-id"));
-		$dialog.data("mp-genpw-next-field-id", field.data("mp-genpw-next-field-id"));
-		$dialog.data("mp-genpw-next-is-password-field", field.data("mp-genpw-next-is-password-field"));
+		mpDialog.toggle( e );
 
-		var $bool = Boolean(field.data("mp-genpw-next-field-exists"));
-		mpJQ("input#mp-genpw-checkbox-next-field:first")
-			.attr("checked", $bool)
-			.attr("disabled", !$bool);
+		// var $dialog = mpJQ("#mp-genpw-dialog");
+		// if($dialog.dialog("isOpen")) {
+		// 	$dialog.dialog("close");
+		// }
+		// $dialog.dialog("option", "position", { my: "left-10px top", at: "center bottom", of: mpJQ(this) });
+		// $dialog.data("mp-genpw-field-id", field.data("mp-id"));
+		// $dialog.data("mp-genpw-next-field-id", field.data("mp-genpw-next-field-id"));
+		// $dialog.data("mp-genpw-next-is-password-field", field.data("mp-genpw-next-is-password-field"));
+
+		// var $bool = Boolean(field.data("mp-genpw-next-field-exists"));
+		// mpJQ("input#mp-genpw-checkbox-next-field:first")
+		// 	.attr("checked", $bool)
+		// 	.attr("disabled", !$bool);
 
 		// Check if the current form has a combination associated to it
 		var associatedInput = mpJQ('#' + mpJQ(e.target).data('mp-genpw-field-id') );
@@ -351,9 +219,9 @@ cipPassword.createIcon = function(field) {
 				}
 			}
 		}
-		if ( comb.isPasswordOnly ) $dialog.data("mp-password-only-combination", true );
+		if ( comb && comb.isPasswordOnly ) $dialog.data("mp-password-only-combination", true );
 
-		$dialog.dialog("open");
+		// $dialog.dialog("open");
 	});
 
 	cipPassword.observedIcons.push($icon);
@@ -749,7 +617,7 @@ cipFields.getAllFields = function() {
 	var fields = [];
 	// get all input fields which are text, email or password and visible
 	mpJQ(cipFields.inputQueryPattern).each(function() {
-		if(mpJQ(this).attr('id') == 'mooltipass-password-generator') {
+		if( mpJQ(this).hasClass('mooltipass-hash-ignore') ) {
 			return;
 		}
 		if(cipFields.isAvailableField(this)) {
@@ -776,7 +644,7 @@ cipFields.isSpecifiedFieldAvailable = function(fieldId) {
 cipFields.getHashForVisibleFields = function(fields) {
 	var hash = '';
 	for (var i = 0; i < fields.length; i++) {
-		if(fields[i].data('mp-id') == 'mooltipass-password-generator') {
+		if( mpJQ(this).hasClass('mooltipass-hash-ignore') ) {
 			continue;
 		}
 		hash += fields[i].data('mp-id');
@@ -1786,7 +1654,7 @@ cipEvents.startEventHandling = function() {
 				break;
 			case 'response-generate_password':
 				var randomPassword = cipPassword.generatePasswordFromSettings( req.data );
-				mpJQ("#mooltipass-password-generator").val(randomPassword);
+				mpJQ(".mooltipass-password-generator").val(randomPassword);
 				break;
 		}
 
@@ -1907,3 +1775,192 @@ var mcCombs = new mcCombinations();
 mcCombs.settings.debugLevel = content_debug_msg;
 
 messaging( {'action': 'content_script_loaded' } );
+
+var mpDialog = {
+	shown: false,
+	dialog: false,
+	$pwField: false,
+	inputs: false,
+	created: false,
+	toggle: function( event ) {
+		if ( this.shown ) this.hide();
+		else this.show( event );
+	},
+	precreate: function( inputs, $pwField ) {
+		this.inputs = inputs;
+		this.$pwField = $pwField;
+	},
+	create: function( inputs, $pwField ) {
+		var overlay = mpJQ('<div>').addClass('mp-genpw-overlay');
+		var dom = this.domDialog( $pwField );
+		this.dialog = mpJQ("<div>").addClass('mp-genpw-dialog').append( overlay, dom );
+		mpJQ("body").append( this.dialog );
+
+		// $dialog.dialog({
+		// 	dialogClass: 'mp-dialog',
+		// 	closeText: "×",
+		// 	autoOpen: false,
+		// 	modal: true,
+		// 	resizable: false,
+		// 	minWidth: 280,
+		// 	title: "Current Login",
+		// 	open: function(event, ui) {
+		// 		mpJQ(".ui-widget-overlay").click(function() {
+		// 			mpJQ("#mp-genpw-dialog:first").dialog("close");
+		// 		});
+
+		// 		if(mpJQ("#mooltipass-password-generator").val() == "") {
+		// 			mpJQ("#mooltipass-new-password").click();
+		// 		}
+
+		// 		mpJQ("#mooltipass-copy-to-clipboard")
+		// 			.removeClass("mooltipass-button-success")
+		// 			.removeClass("mooltipass-button-error");
+		// 	}
+		// });
+	},
+	show: function( event ) {
+		if ( !this.created ) {
+			this.create( this.inputs, this.$pwField );
+		}
+
+		var posX = event.clientX + 20;
+		var posY = event.clientY - 20;
+
+		this.dialog.find('.mp-genpw-overlay').on('click.mooltipass', function( e ) {
+			if ( mpJQ(e.target).hasClass('mp-genpw-overlay') ) this.hide();
+		}.bind(this));
+
+		this.dialog.find('.mooltipass-box').css({ top: posY, left: posX });
+		this.dialog.show( function() {
+			var mpBox = this.dialog.find('.mooltipass-box');
+
+			// Generate password if empty
+			if ( mpBox.find('.mooltipass-password-generator').val() === '' ) {
+				cipPassword.generatePassword();
+			}
+
+			// Move dialog if exceeding bottom
+			var exceedingBottom = ( posY + mpBox.innerHeight() ) - mpJQ( window.top ).innerHeight();
+			if ( exceedingBottom > 0 ) mpBox.css({ top: mpBox.position().top - exceedingBottom + 'px' });
+
+			// Move Arrows to the right place
+			if ( exceedingBottom > 0 ) mpBox.find('.mp-triangle-in, .mp-triangle-out').css({ top: 8 + exceedingBottom + 'px' });
+
+		}.bind(this));
+		this.shown = true;
+	},
+	hide: function() {
+		this.dialog.hide();
+		this.dialog.find('.mp-genpw-overlay').off('click.mooltipass');
+		this.shown = false;
+	},
+	domDialog: function( $pwField ) {
+		var output = document.createElement('div');
+		output.className = 'mooltipass-box';
+
+		// Triangle
+		mpJQ('<div>').addClass('mp-triangle-out').appendTo( output );
+		mpJQ('<div>').addClass('mp-triangle-in').appendTo( output );
+
+		// Current Login information + field
+		var oTitle = mpJQ('<div>').addClass('mp-title').text('Current Login');
+		var oText = mpJQ('<p>').text('If not correct, modify it below');
+		var oInput = mpJQ('<input>').prop('type','text').addClass('mooltipass-hash-ignore').prop('id','mooltipass-username');
+		mpJQ('<div>').addClass('mp-area').addClass('mp-first').append(oTitle, oText, oInput).appendTo( output );
+
+		// Credentials Actions
+		oTitle = mpJQ('<div>').addClass('mp-title').text('Credential Storage');
+		oText = mpJQ('<p>').text('You can store your entered credentials in the Mooltipass device to securely store and easily access them.');
+		var oButton = mpJQ('<button>').prop('id','mooltipass-store-credentials').addClass('mooltipass-button').text('Store or update current credentials');
+		var oLink = mpJQ('<a>').addClass('mooltipass-select-custom').text('Select custom credential fields');
+		var oEncloser = mpJQ('<div>').addClass('mp-encloser').append(oButton, oLink);
+		mpJQ('<div>').addClass('mp-area').append(oTitle, oText, oEncloser).appendTo( output );
+
+		// Credential Actions Event Listeners
+		oButton.hover( function() {
+			if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
+			$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
+			
+			if ( $userField ) $userField.addClass("mp-hover-username");
+			if ( $pwField ) $pwField.addClass("mp-hover-password");
+		}, function() {
+			mpJQ(".mp-hover-username").removeClass("mp-hover-username");
+			mpJQ(".mp-hover-password").removeClass("mp-hover-password");
+		}).click( function( e ) {
+			e.preventDefault();
+
+			var url = (document.URL.split("://")[1]).split("/")[0];
+			if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
+			$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
+
+			if ( mpJQ('#mooltipass-username').val() ) {
+				var username = mpJQ('#mooltipass-username').val();
+			} else if ( $userField.length ) {
+				var username = $userField.val();	
+			} else {
+				var username = '';
+			}
+			var password = $pwField.val();
+
+			mpJQ(".mp-hover-username").removeClass("mp-hover-username");
+			mpJQ(".mp-hover-password").removeClass("mp-hover-password");
+
+			mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
+
+			if(cip.rememberCredentials(null, $userField, username, $pwField, password)) {
+				mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Credentials are added to your Mooltipass KeyCard</p>');
+			}
+		});
+
+		oLink.on('click.mooltipass', function( e ) {
+			e.preventDefault();
+			cipDefine.init();
+		});
+
+		// Password Generator
+		oTitle = mpJQ('<div>').addClass('mp-title').text('Password Generator');
+		oInput = mpJQ('<input>').prop('type','text').addClass('mooltipass-password-generator').addClass('mooltipass-hash-ignore');
+		oLink = mpJQ('<a>').addClass('mooltipass-new-password').text('Re-generate');
+		oButton = mpJQ('<button>').addClass('mp-bottom-button').text('Copy to all password fields');
+		var oButtonB = mpJQ('<button>').addClass('mp-bottom-button').text('Copy to Clipboard');
+		mpJQ('<div>').addClass('mp-area').append(oTitle, oInput, oLink, oButton, oButtonB).appendTo( output );
+
+		// Password Generator Event Listeners
+		oLink.on('click.mooltipass', function( e ) {
+			e.preventDefault();
+			cipPassword.generatePassword();
+		});
+
+		oButton.on('click.mooltipass', function( e ) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			var password = mpJQ(".mooltipass-password-generator").val();
+			var passwordFields = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
+
+			passwordFields.val('').sendkeys( password );
+			passwordFields.trigger('change');
+		});
+
+		oButtonB.on('click.mooltipass', function( e ) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			var copyInput = document.querySelector('.mooltipass-password-generator');
+			copyInput.select();
+
+			try {
+				var successful = document.execCommand('copy');
+				var msg = successful ? 'successful' : 'unsuccessful';
+				cipDebug.info('Copying password to clipboard was ' + msg);
+				mpJQ(this).addClass("mooltipass-button-success");
+			} catch(err) {
+				cipDebug.warn('Unable to copy password to clipboard');
+				mpJQ(this).addClass("mooltipass-button-error");
+			}
+		});
+
+		return output;
+	}
+}

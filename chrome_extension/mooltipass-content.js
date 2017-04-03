@@ -191,20 +191,6 @@ cipPassword.createIcon = function(field) {
 
 		mpDialog.toggle( e );
 
-		// var $dialog = mpJQ("#mp-genpw-dialog");
-		// if($dialog.dialog("isOpen")) {
-		// 	$dialog.dialog("close");
-		// }
-		// $dialog.dialog("option", "position", { my: "left-10px top", at: "center bottom", of: mpJQ(this) });
-		// $dialog.data("mp-genpw-field-id", field.data("mp-id"));
-		// $dialog.data("mp-genpw-next-field-id", field.data("mp-genpw-next-field-id"));
-		// $dialog.data("mp-genpw-next-is-password-field", field.data("mp-genpw-next-is-password-field"));
-
-		// var $bool = Boolean(field.data("mp-genpw-next-field-exists"));
-		// mpJQ("input#mp-genpw-checkbox-next-field:first")
-		// 	.attr("checked", $bool)
-		// 	.attr("disabled", !$bool);
-
 		// Check if the current form has a combination associated to it
 		var associatedInput = mpJQ('#' + mpJQ(e.target).data('mp-genpw-field-id') );
 		var containerForm = associatedInput.closest('form');
@@ -219,9 +205,7 @@ cipPassword.createIcon = function(field) {
 				}
 			}
 		}
-		if ( comb && comb.isPasswordOnly ) $dialog.data("mp-password-only-combination", true );
-
-		// $dialog.dialog("open");
+		if ( comb && comb.isPasswordOnly ) mpDialog.showLoginArea();
 	});
 
 	cipPassword.observedIcons.push($icon);
@@ -259,7 +243,6 @@ cipPassword.callbackGeneratedPassword = function(entries) {
 		if(mpJQ("div#mp-genpw-error:first").length == 0) {
 			mpJQ("button#mp-genpw-btn-generate:first").after("<div style='block' id='mp-genpw-error'>Cannot receive generated password.<br />Is your version of KeePassHttp up-to-date?<br /><br /><a href='https://github.com/pfn/keepasshttp/'>Please visit the KeePassHttp homepage</a></div>");
 			mpJQ("input#mp-genpw-textfield-password:first").parent().hide();
-			mpJQ("input#mp-genpw-checkbox-next-field:first").parent("label").hide();
 			mpJQ("button#mp-genpw-btn-generate").hide();
 			mpJQ("button#mp-genpw-btn-clipboard").hide();
 			mpJQ("button#mp-genpw-btn-fillin").hide();
@@ -290,7 +273,6 @@ cipPassword.checkObservedElements = function() {
 			}
 			else if(!field.is(":visible")) {
 				iconField.hide();
-				//field.removeData("mp-password-generator");
 			}
 			else if(field.is(":visible")) {
 				iconField.show();
@@ -425,7 +407,6 @@ cipDefine.initDescription = function() {
 
 	$description.append($h1);
 	$description.append($btnDismiss);
-	// $description.append($help);
 	
 	$buttonWrap.append($btnAgain);
 
@@ -438,6 +419,7 @@ cipDefine.initDescription = function() {
 
 	$description.append($buttonWrap);
 
+	// Last piece of jquery-ui
 	mpJQ("div#mp-bt-cipDefine-description").draggable();
 }
 
@@ -1795,29 +1777,10 @@ var mpDialog = {
 		var dom = this.domDialog( $pwField );
 		this.dialog = mpJQ("<div>").addClass('mp-genpw-dialog').append( overlay, dom );
 		mpJQ("body").append( this.dialog );
-
-		// $dialog.dialog({
-		// 	dialogClass: 'mp-dialog',
-		// 	closeText: "×",
-		// 	autoOpen: false,
-		// 	modal: true,
-		// 	resizable: false,
-		// 	minWidth: 280,
-		// 	title: "Current Login",
-		// 	open: function(event, ui) {
-		// 		mpJQ(".ui-widget-overlay").click(function() {
-		// 			mpJQ("#mp-genpw-dialog:first").dialog("close");
-		// 		});
-
-		// 		if(mpJQ("#mooltipass-password-generator").val() == "") {
-		// 			mpJQ("#mooltipass-new-password").click();
-		// 		}
-
-		// 		mpJQ("#mooltipass-copy-to-clipboard")
-		// 			.removeClass("mooltipass-button-success")
-		// 			.removeClass("mooltipass-button-error");
-		// 	}
-		// });
+	},
+	showLoginArea: function() {
+		this.dialog.find('.mp-first').removeClass('mp-first');
+		this.dialog.find('.login-area').addClass('mp-first').show();
 	},
 	show: function( event ) {
 		if ( !this.created ) {
@@ -1867,7 +1830,7 @@ var mpDialog = {
 		var oTitle = mpJQ('<div>').addClass('mp-title').text('Current Login');
 		var oText = mpJQ('<p>').text('If not correct, modify it below');
 		var oInput = mpJQ('<input>').prop('type','text').addClass('mooltipass-hash-ignore').prop('id','mooltipass-username');
-		mpJQ('<div>').addClass('mp-area').addClass('mp-first').append(oTitle, oText, oInput).appendTo( output );
+		mpJQ('<div>').addClass('login-area').addClass('mp-area').append(oTitle, oText, oInput).appendTo( output );
 
 		// Credentials Actions
 		oTitle = mpJQ('<div>').addClass('mp-title').text('Credential Storage');
@@ -1875,7 +1838,7 @@ var mpDialog = {
 		var oButton = mpJQ('<button>').prop('id','mooltipass-store-credentials').addClass('mooltipass-button').text('Store or update current credentials');
 		var oLink = mpJQ('<a>').addClass('mooltipass-select-custom').text('Select custom credential fields');
 		var oEncloser = mpJQ('<div>').addClass('mp-encloser').append(oButton, oLink);
-		mpJQ('<div>').addClass('mp-area').append(oTitle, oText, oEncloser).appendTo( output );
+		mpJQ('<div>').addClass('mp-area').addClass('mp-first').append(oTitle, oText, oEncloser).appendTo( output );
 
 		// Credential Actions Event Listeners
 		oButton.hover( function() {

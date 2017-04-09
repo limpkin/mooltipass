@@ -65,7 +65,6 @@ meta.foundation-data-attribute-namespace {
 /* line 422, ../bower_components/foundation/scss/foundation/components/_global.scss */
 html, body {
   height: 100%;
-  overflow: hidden;
 }
 
 /* line 425, ../bower_components/foundation/scss/foundation/components/_global.scss */
@@ -9440,86 +9439,91 @@ th.hide-for-touch {
     display: none !important;
   }
 }
-/* line 2, ../scss/_layout.scss */
+/* line 1, ../scss/_layout.scss */
+html, body {
+  overflow: hidden;
+}
+
+/* line 6, ../scss/_layout.scss */
 .border-top {
   border-top: 1px solid #DDD;
 }
 
-/* line 3, ../scss/_layout.scss */
+/* line 7, ../scss/_layout.scss */
 .border-right {
   border-right: 1px solid #DDD;
 }
 
-/* line 4, ../scss/_layout.scss */
+/* line 8, ../scss/_layout.scss */
 .border-bottom {
   border-bottom: 1px solid #DDD;
 }
 
-/* line 5, ../scss/_layout.scss */
+/* line 9, ../scss/_layout.scss */
 .border-left {
   border-left: 1px solid #DDD;
 }
 
-/* line 7, ../scss/_layout.scss */
+/* line 11, ../scss/_layout.scss */
 .comment {
   color: #DDD;
 }
 
-/* line 13, ../scss/_layout.scss */
+/* line 17, ../scss/_layout.scss */
 nav ul li a img {
   max-height: 1.7rem;
   margin-left: 0.5rem;
 }
 
-/* line 20, ../scss/_layout.scss */
+/* line 24, ../scss/_layout.scss */
 .margin-bottom {
   margin-bottom: 1rem !important;
 }
 
-/* line 21, ../scss/_layout.scss */
+/* line 25, ../scss/_layout.scss */
 .no-margin-bottom {
   margin-bottom: 0rem !important;
 }
 
-/* line 22, ../scss/_layout.scss */
+/* line 26, ../scss/_layout.scss */
 .big-margin-right {
   margin-right: 2rem !important;
 }
 
-/* line 24, ../scss/_layout.scss */
+/* line 28, ../scss/_layout.scss */
 .content {
   padding: 0.5rem 0rem;
   overflow-y: auto;
   font-size: 0.8rem;
   height: 530px;
 }
-/* line 30, ../scss/_layout.scss */
+/* line 34, ../scss/_layout.scss */
 .content p, .content label {
   font-size: inherit;
 }
-/* line 34, ../scss/_layout.scss */
+/* line 38, ../scss/_layout.scss */
 .content h1, .content h2 {
   font-size: 1rem;
 }
-/* line 37, ../scss/_layout.scss */
+/* line 41, ../scss/_layout.scss */
 .content h3, .content h4 {
   font-size: 0.9rem;
 }
-/* line 40, ../scss/_layout.scss */
+/* line 44, ../scss/_layout.scss */
 .content h5, .content h6 {
   font-size: inherit;
 }
 
-/* line 45, ../scss/_layout.scss */
+/* line 49, ../scss/_layout.scss */
 .alert-modal {
   margin-top: 5rem;
 }
-/* line 47, ../scss/_layout.scss */
+/* line 51, ../scss/_layout.scss */
 .alert-modal h1 {
   margin-top: 0;
 }
 
-/* line 55, ../scss/_layout.scss */
+/* line 59, ../scss/_layout.scss */
 .progress {
   border: none;
   height: 1.2rem;
@@ -10132,7 +10136,7 @@ input.inline {
 /* line 362, ../scss/app.scss */
 #page-experts #settings-lockUnlock {
   display: inline;
-  width: 225px;
+  width: 300px;
   margin-right: 8px;
   margin-left: 8px;
   margin-bottom: 8px;
@@ -10215,10 +10219,12 @@ nav li .lock {
   border: none;
 }
 
+/* line 448, ../scss/app.scss */
 .inline {
   float: left;
 }
 
+/* line 452, ../scss/app.scss */
 .inline.expandContractLink {
   margin-left: 20px;
   line-height: 30px;

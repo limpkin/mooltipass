@@ -155,7 +155,7 @@ mooltipass.filehandler.selectAndSaveFileContents = function(name, contents, writ
 																														}
 																													};
 																								writer.write(contents);
-																							}, mooltipass.filehandler.errorHandler);
+																							}, mooltipass.filehandler.errorHandler, contents, writeEndCallback);
 														}
 													});
 }

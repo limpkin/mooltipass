@@ -742,6 +742,11 @@ input.mp-hover-password {
 
 .mp-genpw-dialog {
     display: none;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+         -o-user-select: none;
+            user-select: none;
 }
 
 .mp-genpw-overlay {

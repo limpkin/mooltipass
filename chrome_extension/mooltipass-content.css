@@ -7,9 +7,7 @@
 	font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
 	color: #222222 !important;
 }
-.ui-dialog-titlebar-close {
-	visibility: hidden !important;
-}
+
 .ui-widget-overlay {
 	background: none !important;
 	z-index: 2147483601 !important;

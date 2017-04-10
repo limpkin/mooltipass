@@ -161,6 +161,9 @@ mooltipass.ui.credentials.initializeTableActions = function () {
             }
         }
         $(this).toggleClass("fa-star-o fa-star");
+        
+        $('#button-placeholder').hide();
+        $('#unsaved-changes-warning').fadeIn();
 
         e.stopPropagation();
     });

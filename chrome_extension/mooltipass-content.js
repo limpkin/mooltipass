@@ -1819,6 +1819,7 @@ var mpDialog = {
 		this.shown = false;
 	},
 	domDialog: function( $pwField ) {
+		// DomDialog creates the dialog upon request (No dialog is created if the user doesn't click on the blue-key)
 		var output = document.createElement('div');
 		output.className = 'mooltipass-box';
 
@@ -1832,6 +1833,9 @@ var mpDialog = {
 		var oInput = mpJQ('<input>').prop('type','text').addClass('mooltipass-hash-ignore').prop('id','mooltipass-username');
 		mpJQ('<div>').addClass('login-area').addClass('mp-area').append(oTitle, oText, oInput).appendTo( output );
 
+		// Check if we retreived credentials
+		if ( mcCombs.credentialsCache[0] && mcCombs.credentialsCache[0].Login ) oInput.val( mcCombs.credentialsCache[0].Login );
+		
 		// Credentials Actions
 		oTitle = mpJQ('<div>').addClass('mp-title').text('Credential Storage');
 		oText = mpJQ('<p>').text('You can store your entered credentials in the Mooltipass device to securely store and easily access them.');

@@ -1834,7 +1834,7 @@ var mpDialog = {
 		mpJQ('<div>').addClass('login-area').addClass('mp-area').append(oTitle, oText, oInput).appendTo( output );
 
 		// Check if we retreived credentials
-		if ( mcCombs.credentialsCache[0] && mcCombs.credentialsCache[0].Login ) oInput.val( mcCombs.credentialsCache[0].Login );
+		if ( mcCombs.credentialsCache && mcCombs.credentialsCache.length && mcCombs.credentialsCache[0].Login ) oInput.val( mcCombs.credentialsCache[0].Login );
 		
 		// Credentials Actions
 		oTitle = mpJQ('<div>').addClass('mp-title').text('Credential Storage');

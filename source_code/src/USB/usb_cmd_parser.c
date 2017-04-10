@@ -210,8 +210,10 @@ void usbProcessIncoming(uint8_t caller_id)
     uint8_t datacmd = msg->cmd;
 
 #ifdef USB_FEATURE_PLUGIN_COMMS
+    #ifndef DISABLE_USB_CMD_CHECK_PASSWORD
     // Temp ret_type
     RET_TYPE temp_rettype;
+    #endif
 #endif
 
     // Debug comms
@@ -257,7 +259,11 @@ void usbProcessIncoming(uint8_t caller_id)
     {
         max_text_size = NODE_CHILD_SIZE_OF_LOGIN;
     }
+#ifndef DISABLE_USB_CMD_CHECK_PASSWORD
     else if ((datacmd == CMD_SET_PASSWORD) || (datacmd == CMD_CHECK_PASSWORD))
+#else
+    else if (datacmd == CMD_SET_PASSWORD)
+#endif
     {
         max_text_size = NODE_CHILD_SIZE_OF_PASSWORD;
     }
@@ -480,6 +486,7 @@ void usbProcessIncoming(uint8_t caller_id)
         }
 
         // check password
+        #ifndef DISABLE_USB_CMD_CHECK_PASSWORD
         case CMD_CHECK_PASSWORD :
         {
             temp_rettype = checkPasswordForContext(msg->body.data);
@@ -497,6 +504,7 @@ void usbProcessIncoming(uint8_t caller_id)
             }
             break;
         }
+        #endif
 
         // Add credential context
         case CMD_ADD_CONTEXT :
@@ -609,6 +617,14 @@ void usbProcessIncoming(uint8_t caller_id)
         // Read user profile in flash
         case CMD_START_MEMORYMGMT :
         {            
+            #if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT) && defined(MINI_RESTRICT_MEMORYMGMT)
+            // Only allow memory management if the device was specifically booted with the wheel pressed
+            if(mini_button_at_boot == FALSE)
+            {
+                plugin_return_value = PLUGIN_BYTE_ERROR;
+                break;
+            }
+            #endif
             // Check that the smartcard is unlocked
             if (getSmartCardInsertedUnlocked() == TRUE)
             {
@@ -1398,6 +1414,7 @@ void usbProcessIncoming(uint8_t caller_id)
         #endif
         
         // Get 32 random bytes
+        #ifndef DISABLE_USB_CMD_GET_RANDOM_NUMBER
         case CMD_GET_RANDOM_NUMBER :
         {
             uint8_t randomBytes[32];
@@ -1405,6 +1422,7 @@ void usbProcessIncoming(uint8_t caller_id)
             usbSendMessage(CMD_GET_RANDOM_NUMBER, 32, randomBytes);
             return;
         }  
+        #endif
         
         // Set current date
         case CMD_SET_DATE :

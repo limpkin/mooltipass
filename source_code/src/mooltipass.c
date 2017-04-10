@@ -89,6 +89,10 @@ uint8_t mp_timeout_enabled = FALSE;
 /* Flag set by anything to signal activity */
 uint8_t act_detected_flag = FALSE;
 
+/* On the MINI, flag set by pressing the wheel at boot-time */
+#if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
+uint8_t mini_button_at_boot = FALSE;
+#endif
 
 /*! \fn     reboot_platform(void)
 *   \brief  Function to reboot the MCU using the WDT
@@ -113,7 +117,7 @@ int main(void)
     #if defined(HARDWARE_OLIVIER_V1)                                                        // Only the Mooltipass standard version has a touch panel
         RET_TYPE touch_init_result;                                                         // Touch initialization result
     #endif                                                                                  //
-    #if defined(MINI_VERSION)                                                               // Dedicated to Mooltipass mini
+    #if defined(MINI_VERSION) && !defined(DISABLE_FUNCTIONAL_TEST) // Dedicated to Mooltipass mini
         RET_TYPE mini_inputs_result;                                                        // Mooltipass mini input initialization result
     #endif                                                                                  //
     RET_TYPE flash_init_result;                                                             // Flash initialization result
@@ -220,6 +224,19 @@ int main(void)
         }
     #endif
 
+    /********************************************************************/
+    /**           ENABLE BOOT-TIME BUTTON PRESS DETECTION              **/
+    /*                                                                  */
+    /* On mini units, a button pressed at boot enables additional       */
+    /* features or hardening                                            */
+    /********************************************************************/
+    #if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
+    if(electricalJumpToBootloaderCondition() == TRUE)
+    {
+        mini_button_at_boot = TRUE;
+    }
+    #endif
+
     /** HARDWARE INITIALIZATION **/
     #if defined(HARDWARE_OLIVIER_V1) || defined(LEDS_ENABLED_MINI)
         initPwm();                              // Initialize PWM controller for MP standard & mini v2
@@ -240,7 +257,11 @@ int main(void)
     initFlashIOs();                             // Initialize Flash inputs/outputs
     spiUsartBegin();                            // Start USART SPI at 8MHz (standard) or 4MHz (mini)
     #if defined(MINI_VERSION)                   // For the Mooltipass Mini inputs
-        mini_inputs_result = initMiniInputs();  // Initialize Mini Inputs
+        #if !defined(DISABLE_FUNCTIONAL_TEST) // mini_input_result is not used if functional test is disabled, triggering -Werror=unused-but-set-variable at compilation
+            mini_inputs_result = initMiniInputs();  // Initialize Mini Inputs
+        #else
+            initMiniInputs();  // Initialize Mini Inputs
+        #endif
     #endif                                      //
 
     /* If offline mode isn't enabled, wait for device to be enumerated */
@@ -314,7 +335,11 @@ int main(void)
     #elif defined(MINI_VERSION)
         #if defined(MINI_CLICK_BETATESTERS_SETUP) || defined(MINI_AVRISP_PROG_TEST_SETUP)
             (void)fuse_ok;
-            while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
+            #if !defined(DISABLE_FUNCTIONAL_TEST) // to accomodate -Werror=unused-but-set-variable
+                while ((flash_init_result != RETURN_OK) || (mini_inputs_result != RETURN_OK));
+            #else
+                while (flash_init_result != RETURN_OK);
+            #endif
         #elif (defined(MINI_PREPRODUCTION_SETUP_ACC) || defined(MINI_PREPROD_KICKSTARTER_SETUP) || defined(MINI_KICKSTARTER_SETUP))
             /* We do not hang if accelerometer is not present as it isn't crucial, moreover we already tested it in the functional test */
             while ((flash_init_result != RETURN_OK) || (fuse_ok != TRUE));
@@ -422,10 +447,12 @@ int main(void)
         /* Launch activity detected routine if flag is set */
         if (act_detected_flag != FALSE)
         {
+            #if !defined(DISABLE_SCREENSAVER)
             if (isScreenSaverOn() == TRUE)
             {
                 guiGetBackToCurrentScreen();
             }
+            #endif
             activityDetectedRoutine();
             act_detected_flag = FALSE;
         }
@@ -441,12 +468,14 @@ int main(void)
         #endif
         
         /* If we are running the screen saver */
+        #if !defined(DISABLE_SCREENSAVER)
         if (isScreenSaverOn() == TRUE)
         {
             #ifndef MINI_DEMO_VIDEO
                 animScreenSaver();
             #endif
         }
+        #endif
         
         /* If the USB bus is in suspend (computer went to sleep), lock device */
         if ((hasTimerExpired(TIMER_USB_SUSPEND, TRUE) == TIMER_EXPIRED) && (getSmartCardInsertedUnlocked() == TRUE))
@@ -455,6 +484,7 @@ int main(void)
             guiDisplayInformationOnScreenAndWait(ID_STRING_PC_SLEEP);
             guiSetCurrentScreen(SCREEN_DEFAULT_INSERTED_LCK);
             /* If the screen saver is on, clear screen contents */
+            #if !defined(DISABLE_SCREENSAVER)
             if(isScreenSaverOn() == TRUE)
             {
                 #ifndef MINI_VERSION
@@ -467,6 +497,9 @@ int main(void)
             {
                 guiGetBackToCurrentScreen();                
             }
+            #else /* DISABLE_SCREENSAVER */
+            guiGetBackToCurrentScreen();
+            #endif
         }
         
         /* Check if a card just got inserted / removed */
@@ -507,10 +540,12 @@ int main(void)
         }
         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_RUNNING) && !(getKeyboardLeds() & HID_CAPS_MASK))
         {
+            #if !defined(DISABLE_SCREENSAVER)
             if (isScreenSaverOn() == TRUE)
             {
                 guiGetBackToCurrentScreen();
             }
+            #endif
             activityDetectedRoutine();
         }
         else if ((hasTimerExpired(TIMER_CAPS, FALSE) == TIMER_EXPIRED) && !(getKeyboardLeds() & HID_CAPS_MASK))

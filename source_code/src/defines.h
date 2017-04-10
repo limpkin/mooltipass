@@ -73,7 +73,8 @@
  *  MINI_KICKSTARTER_SETUP
  *  => mooltipass mini production kickstarter version (8Mb)
 */
-#define MINI_PREPRODUCTION_SETUP_ACC
+#define MINI_PREPROD_KICKSTARTER_SETUP_HARDENED_CREDENTIAL_MANAGEMENT
+//#define MINI_PREPRODUCTION_SETUP_ACC
 //#define POST_KICKSTARTER_UPDATE_SETUP
 
 #if defined(BETATESTERS_SETUP)
@@ -183,6 +184,19 @@
     #define HARDWARE_MINI_CLICK_V2
     #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
     #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+#elif defined(MINI_PREPROD_KICKSTARTER_SETUP_HARDENED_CREDENTIAL_MANAGEMENT)
+    //#define STACK_DEBUG
+    #define MINI_VERSION
+    #define FLASH_CHIP_4M
+    //#define DATA_STORAGE_EN
+    #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+
+    #define MINI_PREPROD_KICKSTARTER_SETUP
+    #define ENABLE_CREDENTIAL_MANAGEMENT                    // WARNING: requires a new resource bundle.img with additional strings
+    #define REPLACE_FAVORITES_WITH_CREDENTIAL_MANAGEMENT    // replaces favorites selection menu with creds management menu
+    #define MINI_HARDENED_FW
 #elif defined(MINI_KICKSTARTER_SETUP)
     #define MINI_VERSION
     #define FLASH_CHIP_8M
@@ -190,6 +204,19 @@
     #define HARDWARE_MINI_CLICK_V2
     #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
     #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+#elif defined(MINI_KICKSTARTER_SETUP_HARDENED_CREDENTIAL_MANAGEMENT)
+    //#define STACK_DEBUG
+    #define MINI_VERSION
+    #define FLASH_CHIP_8M
+    //#define DATA_STORAGE_EN
+    #define HARDWARE_MINI_CLICK_V2
+    #define DISABLE_USB_SET_UID_DEV_PASSWORD_COMMANDS
+    #define KNOCK_SETTINGS_CHANGE_PREVENT_WHEN_CARD_INSERTED
+
+    #define MINI_PREPROD_KICKSTARTER_SETUP
+    #define ENABLE_CREDENTIAL_MANAGEMENT                    // WARNING: requires a new resource bundle.img with additional strings
+    #define REPLACE_FAVORITES_WITH_CREDENTIAL_MANAGEMENT    // replaces favorites selection menu with creds management menu
+    #define MINI_HARDENED_FW
 #endif
 
 /* Features depending on the mooltipass version */
@@ -295,6 +322,53 @@
 /************** MOOLTIPASS DEMOS ***************/
 // Uncomment to set screen saver as default image
 //#define MINI_DEMO_VIDEO
+
+/************** FIRMWARE HARDENING ***************/
+// Various hardening-related features
+
+// Uncomment to globally enable all cleanup & hardening features
+//#define MINI_HARDENED_FW
+
+// Uncomment to allow detection of button press at boot-time
+//#define MINI_BUTTON_AT_BOOT
+
+// Uncomment to disable screensaver
+//#define DISABLE_SCREENSAVER
+
+// Uncomment to disable password compare over USB
+// #define DISABLE_USB_CMD_CHECK_PASSWORD
+
+// Uncomment to disable RNG over USB
+// #define DISABLE_USB_CMD_GET_RANDOM_NUMBER
+
+// Uncomment to restrict memory management mode to a device booted 
+// with the wheel pressed
+// #define MINI_RESTRICT_MEMORYMGMT // Requires MINI_BUTTON_AT_BOOT
+
+// set all hardening and cleanup features at once
+#if defined(MINI_VERSION) && defined(MINI_HARDENED_FW)
+    /* features from stock firmware */
+    #define NO_ACCELEROMETER_FUNCTIONALITIES          // saves about 782 bytes
+    #define DISABLE_SINGLE_CREDENTIAL_ON_CARD_STORAGE // saves about 168 bytes
+    #define DISABLE_FUNCTIONAL_TEST                   // saves about 466 bytes
+    #define SKIP_TUTORIAL                             // saves about 62 bytes
+
+    /* specific cleanup & hardening features */
+    #define MINI_BUTTON_AT_BOOT                 // uses about 40 bytes
+    #define DISABLE_SCREENSAVER                 // saves about 368 bytes
+
+    /* USB command support hardening */
+    #define DISABLE_USB_CMD_CHECK_PASSWORD      // saves about 152 bytes
+    #define DISABLE_USB_CMD_GET_RANDOM_NUMBER   // saves about 20 bytes
+
+    /* USB command restriction to boot with wheel pressed */
+    #define MINI_RESTRICT_MEMORYMGMT            // uses about 10 bytes
+#endif
+
+// enforce feature requirements
+#if defined(MINI_RESTRICT_MEMORYMGMT)
+    #define MINI_BUTTON_AT_BOOT
+#endif
 
 /**************** HW MACROS ****************/
 #define CPU_PRESCALE(n)         (CLKPR = 0x80, CLKPR = (n))

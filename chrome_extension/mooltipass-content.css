@@ -7,9 +7,7 @@
 	font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
 	color: #222222 !important;
 }
-.ui-dialog-titlebar-close {
-	visibility: hidden !important;
-}
+
 .ui-widget-overlay {
 	background: none !important;
 	z-index: 2147483601 !important;
@@ -742,6 +740,11 @@ input.mp-hover-password {
 
 .mp-genpw-dialog {
     display: none;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+         -o-user-select: none;
+            user-select: none;
 }
 
 .mp-genpw-overlay {

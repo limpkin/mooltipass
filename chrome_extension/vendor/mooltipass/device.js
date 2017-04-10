@@ -252,6 +252,7 @@ mooltipass.device.addCredentials = function(callback, tab, username, password, u
  * @param url
  */
 mooltipass.device.updateCredentials = function(callback, tab, entryId, username, password, url) {
+    if (background_debug_msg > 2) mpDebug.log('%c device: updateCredentials ', mpDebug.css('e244ff') , 'Userame:' + username + ' / Password:' + password );
     //TODO: Trigger unlock if device is connected but locked
     // Check that the Mooltipass is unlocked
     if(!event.isMooltipassUnlocked()) {
@@ -268,6 +269,9 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
 
     // unset error message
     page.tabs[tab.id].errorMessage = null;
+
+    if ( typeof username === 'object') username = username[0];
+    if ( typeof password === 'object') password = password[0];
 
     request = {update: {context: url, login: username, password: password}};
 

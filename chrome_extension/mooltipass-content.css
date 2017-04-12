@@ -8,11 +8,6 @@
 	color: #222222 !important;
 }
 
-.ui-widget-overlay {
-	background: none !important;
-	z-index: 2147483601 !important;
-}
-
 .mp-genpw-icon {
 	position: absolute;
 	cursor: pointer;
@@ -754,6 +749,7 @@ input.mp-hover-password {
     right: 0px;
     bottom: 0px;
     background: rgba(33,33,33,0.3);
+    z-index: 2147483601 !important;
 }
 
 .mp-genpw-dialog .mooltipass-box {
@@ -768,6 +764,9 @@ input.mp-hover-password {
     box-sizing: border-box;
     border-radius: 2px;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15);
+    z-index: 2147483602 !important;
+    color: black;
+    text-align: left;
 }
 
 .mp-genpw-dialog .mp-triangle-out {
@@ -788,6 +787,18 @@ input.mp-hover-password {
     left: -19px;
 }
 
+.mp-genpw-dialog .inverted-triangle .mp-triangle-out {
+    left: auto;
+    border-color: transparent transparent transparent rgb(30,30,30);
+    right: -20px;
+}
+
+.mp-genpw-dialog .inverted-triangle .mp-triangle-in {
+    left: auto;
+    border-color: transparent transparent transparent white;
+    right: -19px;
+}
+
 .mp-genpw-dialog .mp-area {
     margin-top: 10px;
 }
@@ -800,6 +811,11 @@ input.mp-hover-password {
     background: linear-gradient(to right, rgba(125,185,232,0) 0%, rgba(30,87,153,0.5) 100%);
     margin: 0px -6px 7px -12px;
     padding: 7px 7px 7px 15px;
+}
+
+.mp-genpw-dialog .inverted-triangle .mp-title {
+    background: linear-gradient(to right, rgba(30,87,153,0.5) 0%, rgba(125,185,232,0) 100%);
+    margin: 0px -6px 7px -6px;
 }
 
 .mp-genpw-dialog .mp-encloser {

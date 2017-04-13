@@ -241,10 +241,7 @@ moolticute.websocket = {
                                 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
                                 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
                             });
-                        } else {
-                            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
                         }
-                        
                     }                
                     mooltipass.device.wasPreviouslyUnlocked = true;
                 }            

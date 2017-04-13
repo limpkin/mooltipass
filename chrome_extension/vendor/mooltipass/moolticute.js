@@ -203,6 +203,55 @@ moolticute.websocket = {
             return;
         }
 
+        var message = recvMsg;
+        if (message.deviceStatus !== null) 
+        {
+            mooltipass.device._status = 
+            {
+                'connected': message.deviceStatus.connected,
+                'unlocked': message.deviceStatus.unlocked,
+                'version': message.deviceStatus.version,
+                'state' : message.deviceStatus.state,
+                'middleware' : message.deviceStatus.middleware?message.deviceStatus.middleware:'unknown'
+            };
+            if (!message.deviceStatus.connected)
+            {
+                    mooltipass.device.retrieveCredentialsQueue = [];            
+            }
+            else
+            {
+                if (!message.deviceStatus.unlocked)
+                {
+                    if (mooltipass.device.wasPreviouslyUnlocked == true)
+                    {
+                        // Cancel pending requests
+                        mooltipass.device.retrieveCredentialsQueue = [];
+                    }
+                    mooltipass.device.wasPreviouslyUnlocked = false;
+                }
+                else
+                {
+                    // In case we have pending messages in the queue
+                    if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
+                    {
+                        //console.log('sending to ' + mooltipass.device._app.id);
+                        if (moolticute.connectedToDaemon) {
+                            moolticute.askPassword({
+                                'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
+                                'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
+                                'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
+                            });
+                        } else {
+                            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
+                        }
+                        
+                    }                
+                    mooltipass.device.wasPreviouslyUnlocked = true;
+                }            
+            }
+            //console.log(mooltipass.device._status)
+        }
+
         recvMsg = this.messageTranslator( recvMsg );
         // Some messages are processed internally (like status messages from Chrome App)
         if ( !recvMsg ) return;

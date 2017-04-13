@@ -174,7 +174,7 @@ moolticute.websocket = {
         moolticute.connectedToDaemon = true;
         moolticute.sendRequest( { ping: [] } );
         //moolticute.fireEvent('statusChange');
-        setTimeout( mooltipass.device.processQueue, 500 );
+
         this.tries = 0;
     },
     onClose: function( event  ) {

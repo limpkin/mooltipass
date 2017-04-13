@@ -203,24 +203,23 @@ moolticute.websocket = {
             return;
         }
 
-        var message = recvMsg;
-        if (message.deviceStatus !== null) 
+        if (recvMsg.deviceStatus !== null) 
         {
             mooltipass.device._status = 
             {
-                'connected': message.deviceStatus.connected,
-                'unlocked': message.deviceStatus.unlocked,
-                'version': message.deviceStatus.version,
-                'state' : message.deviceStatus.state,
-                'middleware' : message.deviceStatus.middleware?message.deviceStatus.middleware:'unknown'
+                'connected': recvMsg.deviceStatus.connected,
+                'unlocked': recvMsg.deviceStatus.unlocked,
+                'version': recvMsg.deviceStatus.version,
+                'state' : recvMsg.deviceStatus.state,
+                'middleware' : recvMsg.deviceStatus.middleware?recvMsg.deviceStatus.middleware:'unknown'
             };
-            if (!message.deviceStatus.connected)
+            if (!recvMsg.deviceStatus.connected)
             {
                     mooltipass.device.retrieveCredentialsQueue = [];            
             }
             else
             {
-                if (!message.deviceStatus.unlocked)
+                if (!recvMsg.deviceStatus.unlocked)
                 {
                     if (mooltipass.device.wasPreviouslyUnlocked == true)
                     {
@@ -234,14 +233,11 @@ moolticute.websocket = {
                     // In case we have pending messages in the queue
                     if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
                     {
-                        //console.log('sending to ' + mooltipass.device._app.id);
-                        if (moolticute.connectedToDaemon) {
-                            moolticute.askPassword({
-                                'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                                'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                                'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-                            });
-                        }
+                        moolticute.askPassword({
+                            'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
+                            'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
+                            'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
+                        });
                     }                
                     mooltipass.device.wasPreviouslyUnlocked = true;
                 }            

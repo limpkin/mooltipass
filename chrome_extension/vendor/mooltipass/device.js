@@ -486,16 +486,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
                 if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
                 {
                     //console.log('sending to ' + mooltipass.device._app.id);
-                    if (moolticute.connectedToDaemon) {
-                        moolticute.askPassword({
-                            'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                            'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                            'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-                        });
-                    } else {
-                        chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});        
-                    }
-                    
+                    chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
                 }                
                 mooltipass.device.wasPreviouslyUnlocked = true;
             }            
@@ -536,16 +527,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         if(mooltipass.device.retrieveCredentialsQueue.length > 0)
         {
             //console.log('sending to ' + mooltipass.device._app.id);
-            if (moolticute.connectedToDaemon) {
-                moolticute.askPassword({
-                    'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                    'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                    'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-                });
-            } else {
-                chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});       
-            }
-            
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
         }
     }
     // Returned on requesting credentials for a specific URL, but no credentials were found
@@ -563,15 +545,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         if(mooltipass.device.retrieveCredentialsQueue.length > 0)
         {
             //console.log('sending to ' + mooltipass.device._app.id);
-            if (moolticute.connectedToDaemon) {
-                moolticute.askPassword({
-                    'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                    'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                    'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-                });
-            } else {
-                chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});   
-            }
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
         }
     }
     // Returned on a completed update of credentials on the device

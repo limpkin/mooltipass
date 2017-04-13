@@ -203,6 +203,48 @@ moolticute.websocket = {
             return;
         }
 
+        if (recvMsg.deviceStatus !== null) 
+        {
+            mooltipass.device._status = 
+            {
+                'connected': recvMsg.deviceStatus.connected,
+                'unlocked': recvMsg.deviceStatus.unlocked,
+                'version': recvMsg.deviceStatus.version,
+                'state' : recvMsg.deviceStatus.state,
+                'middleware' : recvMsg.deviceStatus.middleware?recvMsg.deviceStatus.middleware:'unknown'
+            };
+            if (!recvMsg.deviceStatus.connected)
+            {
+                    mooltipass.device.retrieveCredentialsQueue = [];            
+            }
+            else
+            {
+                if (!recvMsg.deviceStatus.unlocked)
+                {
+                    if (mooltipass.device.wasPreviouslyUnlocked == true)
+                    {
+                        // Cancel pending requests
+                        mooltipass.device.retrieveCredentialsQueue = [];
+                    }
+                    mooltipass.device.wasPreviouslyUnlocked = false;
+                }
+                else
+                {
+                    // In case we have pending messages in the queue
+                    if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
+                    {
+                        moolticute.askPassword({
+                            'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
+                            'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
+                            'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
+                        });
+                    }                
+                    mooltipass.device.wasPreviouslyUnlocked = true;
+                }            
+            }
+            //console.log(mooltipass.device._status)
+        }
+
         recvMsg = this.messageTranslator( recvMsg );
         // Some messages are processed internally (like status messages from Chrome App)
         if ( !recvMsg ) return;

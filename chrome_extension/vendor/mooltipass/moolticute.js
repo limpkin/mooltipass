@@ -181,6 +181,8 @@ moolticute.websocket = {
         if (background_debug_msg > 2) mpDebug.log('%c Moolticute daemon disconnected', mpDebug.css('FFC6A0'), this);
 
         moolticute.connectedToDaemon = false;
+        mooltipass.device.wasPreviouslyUnlocked = false;
+        moolticute.status.unlocked = false;
         moolticute.fireEvent('statusChange');
 
         if ( mooltipass && mooltipass.device && mooltipass.device.usingApp === false ) mooltipass.device.retrieveCredentialsQueue = [];

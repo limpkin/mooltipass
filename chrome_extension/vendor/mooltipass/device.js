@@ -587,6 +587,20 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     }
 };
 
+mooltipass.device.processQueue = function() {
+    for (var i = 0; i < mooltipass.device.retrieveCredentialsQueue.length; i++) {
+        if (moolticute.connectedToDaemon) {
+            moolticute.askPassword({
+                'reqid': mooltipass.device.retrieveCredentialsQueue[i].reqid, 
+                'domain': mooltipass.device.retrieveCredentialsQueue[i].domain, 
+                'subdomain': mooltipass.device.retrieveCredentialsQueue[i].subdomain
+            });
+        } else {
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[i].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[i].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[i].subdomain}});
+        }
+    }
+}
+
 /*
  * Starts listening for messages from the APP
  * 

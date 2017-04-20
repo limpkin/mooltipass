@@ -20,6 +20,7 @@ import string
 import pickle
 import copy
 import time
+import csv
 import sys
 import os
 	
@@ -43,52 +44,66 @@ def decryptMiniProdFile(key):
 	# Ask for Mooltipass ID
 	mooltipass_ids = raw_input("Enter Mooltipass ID: ")
 	
-	# Generate a list with Mooltipass IDs
-	mooltipass_ids_list = mooltipass_ids.split(' ')
-	
-	# Find Mooltipass ID in files
-	for mooltipass_id in mooltipass_ids_list:
+	# If "uid_export" is entered, generate a csv export
+	if mooltipass_ids == "uid_export":
+		csvexport = csv.writer(open("uid_export.tsv", "wb"), delimiter='	', quoting=csv.QUOTE_NONNUMERIC)
+		csvexport.writerow(["Serial Number", "UID Req Code", "UID"])
 		for file_name in export_file_names:
-			if "Mooltipass-" + mooltipass_id + ".txt" in file_name:
-				print "Found export file:", file_name
-				data = pickle_read(join("export/",file_name))			
-				decrypted_data = seccure.decrypt(data, key, curve='secp521r1/nistp521')
-				items = decrypted_data.split('|')
-				#print decrypted_data
-				# Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
-				
-				if True:
-					# Print Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID (might get quite big)
-					data_qr = pyqrcode.create(decrypted_data, error="L")
-					print(data_qr.terminal(quiet_zone=1))
-					raw_input("Press enter:")
-				else:
-					# This is just here in case you need it....
-					# key1
-					key1 = items[1]
-					key1_qr = pyqrcode.create(key1)
-					print ""
-					print "AES key 1:", key1
-					print(key1_qr.terminal(quiet_zone=1))
+			print "Trackling export file:", file_name
+			data = pickle_read(join("export/",file_name))			
+			decrypted_data = seccure.decrypt(data, key, curve='secp521r1/nistp521')
+			items = decrypted_data.split('|')
+			#print decrypted_data
+			# Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
+			csvexport.writerow([items[0],items[3],items[4])
+			
+	else:	
+		# Generate a list with Mooltipass IDs
+		mooltipass_ids_list = mooltipass_ids.split(' ')
+		
+		# Find Mooltipass ID in files
+		for mooltipass_id in mooltipass_ids_list:
+			for file_name in export_file_names:
+				if "Mooltipass-" + mooltipass_id + ".txt" in file_name:
+					print "Found export file:", file_name
+					data = pickle_read(join("export/",file_name))			
+					decrypted_data = seccure.decrypt(data, key, curve='secp521r1/nistp521')
+					items = decrypted_data.split('|')
+					#print decrypted_data
+					# Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
 					
-					# key2
-					key2 = items[2]
-					key2_qr = pyqrcode.create(key2)
-					print ""
-					print "AES key 2:", key2
-					print(key2_qr.terminal(quiet_zone=1))
-					
-					# Request UID
-					request = items[3]
-					request_qr = pyqrcode.create(request)
-					print "Request UID key:", request
-					print(request_qr.terminal(quiet_zone=1))
-					
-					# UID
-					request = items[4]
-					request_qr = pyqrcode.create(request)
-					print "UID :", request
-					print(request_qr.terminal(quiet_zone=1))
+					if True:
+						# Print Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID (might get quite big)
+						data_qr = pyqrcode.create(decrypted_data, error="L")
+						print(data_qr.terminal(quiet_zone=1))
+						raw_input("Press enter:")
+					else:
+						# This is just here in case you need it....
+						# key1
+						key1 = items[1]
+						key1_qr = pyqrcode.create(key1)
+						print ""
+						print "AES key 1:", key1
+						print(key1_qr.terminal(quiet_zone=1))
+						
+						# key2
+						key2 = items[2]
+						key2_qr = pyqrcode.create(key2)
+						print ""
+						print "AES key 2:", key2
+						print(key2_qr.terminal(quiet_zone=1))
+						
+						# Request UID
+						request = items[3]
+						request_qr = pyqrcode.create(request)
+						print "Request UID key:", request
+						print(request_qr.terminal(quiet_zone=1))
+						
+						# UID
+						request = items[4]
+						request_qr = pyqrcode.create(request)
+						print "UID :", request
+						print(request_qr.terminal(quiet_zone=1))
 
 		
 # Get a packet to send for a given command and payload

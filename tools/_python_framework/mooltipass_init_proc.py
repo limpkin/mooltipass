@@ -55,7 +55,7 @@ def decryptMiniProdFile(key):
 			items = decrypted_data.split('|')
 			#print decrypted_data
 			# Mooltipass ID | aes key 1 | aes key 2 | request ID key | UID, flush write
-			csvexport.writerow([items[0],items[3],items[4])
+			csvexport.writerow([items[0],items[3],items[4]])
 			
 	else:	
 		# Generate a list with Mooltipass IDs

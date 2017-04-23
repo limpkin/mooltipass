@@ -402,7 +402,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     {
         if (mooltipass.device.retrieveCredentialsQueue[i].tabid == tab.id && mooltipass.device.retrieveCredentialsQueue[i].tabupdated == false)
         {
-            if (background_debug_msg > 3) mpDebug.log("Not storing this new credential request as one is already in the buffer!");
+            if (background_debug_msg > 3) mpDebug.log("%c Not storing this new credential request as one is already in the buffer!", mpDebug.css('ff0000'));
             return;
         }
     }

@@ -864,7 +864,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				if ( currentForm.combination.fields.username && typeof currentForm.combination.fields.username !== 'string' ) {
 					currentForm.combination.fields.username.val('');
 					currentForm.combination.fields.username.click();
-					currentForm.combination.fields.username.sendkeys( credentials[0].Login );
+					try {currentForm.combination.fields.username.sendkeys( credentials[0].Login );} catch (e) {}					
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.username.value = credentials[0].Login;	
 				}

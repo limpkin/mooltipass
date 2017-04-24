@@ -15,7 +15,7 @@ function messaging( message ) {
 // contains already called method names
 var _called = {};
 
-var content_debug_msg = false;
+var content_debug_msg = 5;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -396,7 +396,7 @@ cipDefine.initDescription = function() {
 				"fields": fieldIds
 			};
 
-			chrome.runtime.sendMessage({
+			messaging({
 				action: 'save_settings',
 				args: [cip.settings]
 			});
@@ -1612,6 +1612,7 @@ cipEvents.startEventHandling = function() {
 	* Receive a message from WS_SOCKET or MooltiPass APP
 	*/
 	listenerCallback = function(req, sender, callback) {
+		console.log( 'callback callback callback', req.message );
 		if ( isSafari ) req = req.message;
 		if (content_debug_msg > 5) cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
 		else if (content_debug_msg > 4 && req.action != 'check_for_new_input_fields') cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');

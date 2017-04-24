@@ -10,3 +10,4 @@ cp -Rf background Mooltipass.safariextension/
 cp -Rf images Mooltipass.safariextension/
 cp -Rf css Mooltipass.safariextension/
 cp -Rf popups Mooltipass.safariextension/
+cp -Rf fonts Mooltipass.safariextension/

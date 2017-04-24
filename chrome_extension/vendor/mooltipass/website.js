@@ -1,5 +1,3 @@
-window.mpJQ = $;
-
 if (typeof mooltipass == 'undefined') {
 	mooltipass = {};
 }
@@ -52,11 +50,15 @@ mooltipass.website.hasCredentialFields = function(callback) {
 }
 
 mooltipass.website.chooseCredentialFields = function() {
-	var global = chrome.extension.getBackgroundPage();
+    if ( isSafari ) {
+        messaging({ action: "choose_credential_fields" }, safari.application.activeBrowserWindow.activeTab );
+    } else {
+        var global = chrome.extension.getBackgroundPage();
 
-	chrome.tabs.sendMessage(global.page.currentTabId, {
-		action: "choose_credential_fields"
-	});	
+        chrome.tabs.sendMessage(global.page.currentTabId, {
+            action: "choose_credential_fields"
+        });     
+    }
 }
 
 mooltipass.website.reportError = function(callback) {
@@ -93,9 +95,4 @@ mooltipass.website.reportError = function(callback) {
     });     
 }
 
-
-
-
-
-
-
+if ( typeof($) == 'function') window.mpJQ = $;

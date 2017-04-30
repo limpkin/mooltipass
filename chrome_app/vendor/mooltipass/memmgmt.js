@@ -1102,7 +1102,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 				}
 				return;
 			}
-			if((imported_data.data[0].length != 3) || (imported_data.data[0].length != 4))
+			if((imported_data.data[0].length != 3) && (imported_data.data[0].length != 4))
 			{
 				if(mooltipass.memmgmt.currentMode != MGMT_IDLE)
 				{

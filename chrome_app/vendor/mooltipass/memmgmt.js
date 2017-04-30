@@ -10,6 +10,7 @@ var MEDIA_BUNDLE_CHUNK_SIZE				= 33;			// How many bytes we send per chunk
 var MGMT_PREFERENCES_VERSION			= 0;			// Preferences version
 var MAX_CONTEXT_LENGTH					= 61;			// Context maximum length
 var MAX_PASSWORD_LENGTH					= 31;			// Password maximum length
+var MAX_DESCRIPTION_LENGTH				= 23;			// Description maximum length
 	
 // State machine modes	
 var MGMT_IDLE							= 0;			// Idle mode
@@ -1101,11 +1102,11 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 				}
 				return;
 			}
-			if(imported_data.data[0].length != 3)
+			if((imported_data.data[0].length != 3) || (imported_data.data[0].length != 4))
 			{
 				if(mooltipass.memmgmt.currentMode != MGMT_IDLE)
 				{
-					mooltipass.memmgmt.requestFailHander("CSV file should have 3 rows: website, login and password", null, 699);
+					mooltipass.memmgmt.requestFailHander("CSV file should have 3 or 4 rows: website, login and password (description)", null, 699);
 				}
 				return;
 			}
@@ -1134,7 +1135,26 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 						mooltipass.memmgmt.memmgmtAddData.push({"context": chosen_url.substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": "Imported by CSV"});
 					}*/
 					mooltipass.memmgmt.memmgmtAddData.push({"context": imported_data.data[i][0].toLowerCase().substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": "Imported by CSV"});
-				}				
+				}	
+				else if(imported_data.data[i].length == 4)
+				{
+					// OUTDATED from 09/12/2016: Use the public suffix list to check for valid URLs
+					/*var parsing_result = mooltipass.util.extractDomainAndSubdomain(imported_data.data[i][0].toLowerCase());
+					if(parsing_result.valid)
+					{
+						var chosen_url;
+						if(parsing_result.subdomain == null)
+						{
+							chosen_url = parsing_result.domain;
+						}
+						else
+						{
+							chosen_url = parsing_result.subdomain + "." + parsing_result.domain;
+						}
+						mooltipass.memmgmt.memmgmtAddData.push({"context": chosen_url.substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": "Imported by CSV"});
+					}*/
+					mooltipass.memmgmt.memmgmtAddData.push({"context": imported_data.data[i][0].toLowerCase().substring(0, MAX_CONTEXT_LENGTH), "username": imported_data.data[i][1].substring(0, MAX_CONTEXT_LENGTH), "password": imported_data.data[i][2].substring(0, MAX_PASSWORD_LENGTH), "description": imported_data.data[i][3].toLowerCase().substring(0, MAX_DESCRIPTION_LENGTH)});
+				}
 			}
 			mooltipass.memmgmt.totalAddressesRequired = mooltipass.memmgmt.memmgmtAddData.length*2;
 			

@@ -416,6 +416,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
     if(mooltipass.device.retrieveCredentialsQueue.length == 1 && mooltipass.device._status.unlocked == true)
     {
         // We are about to send a message: put the follow var to true to prevent message sending by status change
+        if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), parsed_url.domain);
         mooltipass.device.wasPreviouslyUnlocked = true;
         if (moolticute.connectedToDaemon) {
             moolticute.askPassword({

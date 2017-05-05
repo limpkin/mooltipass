@@ -21,10 +21,7 @@ page.blockedTabs = {};
 page.initSettings = function() {
 	event.onLoadSettings();
     var changed = false;
-	if(!("checkUpdateKeePassHttp" in page.settings)) {
-		page.settings.checkUpdateKeePassHttp = 3;
-        changed = true;
-	}
+	
 	if(!("autoCompleteUsernames" in page.settings)) {
 		page.settings.autoCompleteUsernames = 1;
         changed = true;
@@ -71,6 +68,10 @@ page.initSettings = function() {
         page.settings.usePasswordGeneratorSpecial = true;
         changed = true;
     }
+	if(!("doNotSubmitAfterFill" in page.settings)) {
+		page.settings.doNotSubmitAfterFill = false;
+        changed = true;
+	}
 
     if(changed) {
         localStorage.settings = JSON.stringify(page.settings);

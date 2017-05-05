@@ -897,7 +897,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				var inputs = cipFields.getAllFields();
 				cip.initPasswordGenerator(inputs);
 			}
-			if ( currentForm.combination.autoSubmit ) {
+			if ( currentForm.combination.autoSubmit && !this.settings.doNotSubmitAfterFill) {
 				this.doSubmit( currentForm );
 
 				// Stop processing forms if we're going to submit

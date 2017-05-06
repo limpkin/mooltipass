@@ -1775,10 +1775,13 @@ var mpDialog = {
 		this.$pwField = $pwField;
 	},
 	create: function( inputs, $pwField ) {
+		if(this.created)
+			return;
 		var overlay = mpJQ('<div>').addClass('mp-genpw-overlay');
 		var dom = this.domDialog( $pwField );
 		this.dialog = mpJQ("<div>").addClass('mp-genpw-dialog').append( overlay, dom );
 		mpJQ("body").append( this.dialog );
+		this.created = true;
 	},
 	showLoginArea: function() {
 		this.dialog.find('.mp-first').removeClass('mp-first');

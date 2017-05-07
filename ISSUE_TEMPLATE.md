@@ -11,7 +11,8 @@ Use one of the two templates below and delete the rest. All issues not following
 Mention if you are using either:
 - Windows 7/10
 - Debian Based Distribution
-- MacOS
+- MacOS  
+  
 Other operating systems are not supported.
 
 ### Mooltipass Extension

@@ -7,8 +7,29 @@ Use one of the two templates below and delete the rest. All issues not following
 
 ### Step by step guide to reproduce the problem
 
-### Mooltipass version
-Which Mooltipass do you use? What is its firmware version? You may see the firmware version by going to the settings tab of our official App.
+### Operating System
+Mention if you are using either:
+- Windows 7/10
+- Debian Based Distribution
+- MacOS  
+  
+Other operating systems are not supported.
+
+### Mooltipass Extension
+Mention if you are using either:
+- the chrome extension: which version? Can be found in chrome://extensions/
+- the firefox extension: which version? Can be found in about:addons , Extensions tab
+- the Safari extension: which version? Can be found in the safari menu
+
+### Mooltipass Application
+Mention if you are using either:
+- the chrome application: which version? Can be found in chrome://extensions/
+- MooltiApp: if using Windows or MacOS, you have the latest version. If using Linux, please update to the latest version (https://themooltipass.com/setup.php)
+
+### Mooltipass Device
+Mention if you are using either:
+- The Mooltipass Standard
+- The Mooltipass Mini
 
 8<------------------------ END BUG REPORT -------------------------------------
 

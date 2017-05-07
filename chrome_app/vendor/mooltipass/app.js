@@ -184,6 +184,10 @@ mooltipass.app.translateRequestForBackwardsCompatibility = function(_request) {
     }
     else if('getInputs' in _request) {
         // { getInputs : {context: parsed_url.domain, domain: parsed_url.domain, subdomain: parsed_url.subdomain} }
+        if (_request.getInputs.domain)
+        {
+            console.log("Credential request for " + _request.getInputs.domain + ", req id: ", _request.getInputs.reqid);
+        }
         output.command = 'getCredentials';
         output.contexts = [];
         if(_request.getInputs.subdomain && _request.getInputs.domain) {

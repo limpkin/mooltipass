@@ -208,7 +208,7 @@ moolticute.websocket = {
             return;
         }
 
-        if (recvMsg.deviceStatus !== null) 
+        if (recvMsg.deviceStatus != null) 
         {
             mooltipass.device._status = 
             {

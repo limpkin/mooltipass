@@ -510,6 +510,7 @@ mcCombinations.prototype.detectCombination = function() {
 		// Check for special cases first 
 		for (var I = 0; I < this.possibleCombinations.length; I++) {
 			if ( this.possibleCombinations[I].requiredUrl && this.possibleCombinations[I].requiredUrl == window.location.hostname ) { // Found a special case
+                if (this.settings.debugLevel > 1) cipDebug.log('Dealing with special case for ' + window.location.hostname);
 				this.possibleCombinations[I].callback( this.forms );
 
 				var url = document.location.origin;
@@ -904,7 +905,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				// TODO: Weight the importance of each form and submit the most important, not the first!
 				return;
 			} else if ( currentForm.combination.enterFromPassword ) { // Try to send the enter key while focused on password
-				currentForm.combination.fields.password.focus().sendkeys( "{enter}" );
+				try {currentForm.combination.fields.password.focus().sendkeys( "{enter}" );} catch(e){}
 			}
 		}
 	}
@@ -929,7 +930,16 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 			},100);
 		} else if ( mpJQ('#verify_user_btn').length > 0 ) { // Exclusive else/if for Autodesk.com (probably it could be used in more 2 steps login procedures)
 			mpJQ('#verify_user_btn').click();
-		} else if ( currentForm.element ) {
+		} else if (window.location.hostname == 'accounts.google.com') { // Special case for google
+            if (mpJQ('#identifierNext').length > 0)
+            {
+                mpJQ('#identifierNext').click();
+            }
+            if (mpJQ('#passwordNext').length > 0)
+            {
+                mpJQ('#passwordNext').click();
+            }            
+        } else if ( currentForm.element ) {
 			// If no submit button is found, just submit the form
 			currentForm.element.submit();
 		}

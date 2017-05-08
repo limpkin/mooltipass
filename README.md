@@ -45,6 +45,8 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
+- 05/2017 <a href="https://hardware.slashdot.org/story/17/05/07/2034245/intels-remote-hijacking-flaw-was-worse-than-anyone-thought">Intel AMT bug that allows hackers to remotely gain administrative control over huge fleets of computers without entering a password</a>
+- 03/2017 <a href="https://it.slashdot.org/story/17/03/19/0126257/edge-vmware-safari-and-ubuntu-linux-hacked-at-pwn2own-2017">Edge, VMWare, Safari, And Ubuntu Linux Hacked at Pwn2Own 2017</a>
 - 03/2017 <a href="https://wikileaks.org/ciav7p1/">Vault 7: CIA Hacking Tools Revealed</a> : "These techniques permit the CIA to bypass the encryption of WhatsApp, Signal, Telegram, Wiebo, Confide and Cloackman by hacking the "smart" phones that they run on and collecting audio and message traffic before encryption is applied."
 - 03/2017 <a href="https://it.slashdot.org/story/17/03/06/1838223/huge-database-leak-reveals-137-billion-email-addresses-and-exposes-illegal-spam-operation">Huge Database Leak Reveals 1.37 Billion Email Addresses and Exposes Illegal Spam Operation</a>
 - 02/2017 <a href="https://it.slashdot.org/story/17/02/24/0319243/cloudflare-leaks-sensitive-user-data-across-the-web">Cloudflare Leaks Sensitive User Data Across the Web</a>

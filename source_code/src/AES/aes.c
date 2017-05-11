@@ -1,6 +1,6 @@
-/*  
+/*
 *   Byte-oriented AES-256 implementation.
-*   All lookup tables replaced with 'on the fly' calculations. 
+*   All lookup tables replaced with 'on the fly' calculations.
 *
 *   Copyright (c) 2007-2009 Ilya O. Levin, http://www.literatecode.com
 *   Other contributors: Hal Finney
@@ -22,10 +22,13 @@
 #define F(x)   (((x)<<1) ^ ((((x)>>7) & 1) * 0x1b))
 #define FD(x)  (((x) >> 1) ^ (((x) & 1) ? 0x8d : 0))
 
-#define BACK_TO_TABLES
 #ifdef BACK_TO_TABLES
 
-const uint8_t sbox[256] __attribute__ ((__progmem__)) = {		// forward s-box
+#if defined(__AVR__)
+const uint8_t sbox[256] __attribute__ ((__progmem__)) = {        // forward s-box
+#else
+const uint8_t sbox[256] = {        // forward s-box
+#endif
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
     0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0,
@@ -59,7 +62,12 @@ const uint8_t sbox[256] __attribute__ ((__progmem__)) = {		// forward s-box
     0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68,
     0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
 };
+
+#if defined(__AVR__)
 const uint8_t sboxinv[256] __attribute__ ((__progmem__)) = {
+#else
+const uint8_t sboxinv[256] = {
+#endif
     0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38,
     0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
     0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87,
@@ -94,8 +102,13 @@ const uint8_t sboxinv[256] __attribute__ ((__progmem__)) = {
     0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 };
 
-#define rj_sbox(x)     (pgm_read_byte(&sbox[x]))
-#define rj_sbox_inv(x) (pgm_read_byte(&sboxinv[x]))
+#if defined(__AVR__)
+  #define rj_sbox(x)     (pgm_read_byte(&sbox[x]))
+  #define rj_sbox_inv(x) (pgm_read_byte(&sboxinv[x]))
+#else
+  #define rj_sbox(x)     (sbox[x])
+  #define rj_sbox_inv(x) (sboxinv[x])
+#endif
 
 #else /* tableless subroutines */
 
@@ -130,19 +143,19 @@ uint8_t gf_mulinv(uint8_t x) // calculate multiplicative inverse
 } /* gf_mulinv */
 
 /* -------------------------------------------------------------------------- */
-uint8_t rj_sbox(uint8_t x)
+uint8_t rj_sbox_calc(uint8_t x)
 {
     uint8_t y, sb;
 
     sb = y = gf_mulinv(x);
-    y = (y<<1)|(y>>7); sb ^= y;  y = (y<<1)|(y>>7); sb ^= y; 
+    y = (y<<1)|(y>>7); sb ^= y;  y = (y<<1)|(y>>7); sb ^= y;
     y = (y<<1)|(y>>7); sb ^= y;  y = (y<<1)|(y>>7); sb ^= y;
 
     return (sb ^ 0x63);
 } /* rj_sbox */
 
 /* -------------------------------------------------------------------------- */
-uint8_t rj_sbox_inv(uint8_t x)
+uint8_t rj_sbox_inv_calc(uint8_t x)
 {
     uint8_t y, sb;
 
@@ -153,10 +166,40 @@ uint8_t rj_sbox_inv(uint8_t x)
     return gf_mulinv(sb);
 } /* rj_sbox_inv */
 
+#ifdef STARTUP_TABLES
+
+uint8_t sbox[256];
+uint8_t sboxinv[256];
+
+#define rj_sbox(x)     (sbox[x])
+#define rj_sbox_inv(x) (sboxinv[x])
+
+/* -------------------------------------------------------------------------- */
+void aes256_init_sboxes(void) // pregenerate tables at startup
+{
+  uint8_t i = 0;
+  do {
+    sbox[i] = rj_sbox_calc(i);
+    i++;
+  } while (i);
+  i = 0;
+  do {
+    sboxinv[i] = rj_sbox_inv_calc(i);
+    i++;
+  } while (i);
+} /* aes256_init_sboxes */
+
+#else
+
+#define rj_sbox(x)     (rj_sbox_calc(x))
+#define rj_sbox_inv(x) (rj_sbox_inv_calc(x))
+
+#endif
+
 #endif
 
 /* -------------------------------------------------------------------------- */
-uint8_t rj_xtime(uint8_t x) 
+uint8_t rj_xtime(uint8_t x)
 {
     return (x & 0x80) ? ((x << 1) ^ 0x1b) : (x << 1);
 } /* rj_xtime */
@@ -249,7 +292,7 @@ void aes_mixColumns_inv(uint8_t *buf)
 } /* aes_mixColumns_inv */
 
 /* -------------------------------------------------------------------------- */
-void aes_expandEncKey(uint8_t *k, uint8_t *rc) 
+void aes_expandEncKey(uint8_t *k, uint8_t *rc)
 {
     register uint8_t i;
 
@@ -272,7 +315,7 @@ void aes_expandEncKey(uint8_t *k, uint8_t *rc)
 } /* aes_expandEncKey */
 
 /* -------------------------------------------------------------------------- */
-void aes_expandDecKey(uint8_t *k, uint8_t *rc) 
+void aes_expandDecKey(uint8_t *k, uint8_t *rc)
 {
     uint8_t i;
 
@@ -330,7 +373,7 @@ void aes256_encrypt_ecb(aes256_context *ctx, uint8_t *buf)
     }
     aes_subBytes(buf);
     aes_shiftRows(buf);
-    aes_expandEncKey(ctx->key, &rcon); 
+    aes_expandEncKey(ctx->key, &rcon);
     aes_addRoundKey(buf, ctx->key);
 } /* aes256_encrypt */
 
@@ -345,7 +388,7 @@ void aes256_decrypt_ecb(aes256_context *ctx, uint8_t *buf)
 
     for (i = 14, rcon = 0x80; --i;)
     {
-        if( ( i & 1 ) )           
+        if( ( i & 1 ) )
         {
             aes_expandDecKey(ctx->key, &rcon);
             aes_addRoundKey(buf, &ctx->key[16]);
@@ -355,5 +398,5 @@ void aes256_decrypt_ecb(aes256_context *ctx, uint8_t *buf)
         aes_shiftRows_inv(buf);
         aes_subBytes_inv(buf);
     }
-    aes_addRoundKey( buf, ctx->key); 
+    aes_addRoundKey( buf, ctx->key);
 } /* aes256_decrypt */

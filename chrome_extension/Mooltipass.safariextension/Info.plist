@@ -7,7 +7,7 @@
 	<key>Builder Version</key>
 	<string>11602.2.14.0.7</string>
 	<key>CFBundleDisplayName</key>
-	<string>Mooltipass 2</string>
+	<string>Mooltipass Extension</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.stephanelectronics.mooltipass</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -73,6 +73,8 @@
 			<string>vendor/bootstrap-btn.css</string>
 		</array>
 	</dict>
+	<key>Description</key>
+	<string>Provides Mooltipass Native Integration With Safari</string>
 	<key>DeveloperIdentifier</key>
 	<string>0000000000</string>
 	<key>ExtensionInfoDictionaryVersion</key>

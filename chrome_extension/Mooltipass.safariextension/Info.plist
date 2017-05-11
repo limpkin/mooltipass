@@ -5,11 +5,11 @@
 	<key>Author</key>
 	<string>Stephan Electronics</string>
 	<key>Builder Version</key>
-	<string>11601.3.9</string>
+	<string>11602.2.14.0.7</string>
 	<key>CFBundleDisplayName</key>
 	<string>Mooltipass 2</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.mooltipass</string>
+	<string>com.stephanelectronics.mooltipass</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
@@ -70,7 +70,6 @@
 		<key>Stylesheets</key>
 		<array>
 			<string>mooltipass-content.css</string>
-			<string>vendor/jquery-ui-1.11.4.custom/jquery-ui.min.css</string>
 			<string>vendor/bootstrap-btn.css</string>
 		</array>
 	</dict>
@@ -88,5 +87,7 @@
 			<string>All</string>
 		</dict>
 	</dict>
+	<key>Update From Gallery</key>
+	<true/>
 </dict>
 </plist>

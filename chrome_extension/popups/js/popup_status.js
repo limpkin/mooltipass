@@ -5,8 +5,10 @@ var isSafari = typeof(safari) == 'object'?true:false;
 
 var _settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
 
-if ( isSafari ) messaging = safari.extension.globalPage.contentWindow.messaging;
-else {
+if ( isSafari ) {
+    if ( safari.extension.globalPage ) messaging = safari.extension.globalPage.contentWindow.messaging;
+    else messaging = function() {}
+} else {
     // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
     function messaging( message, callback ) {
         chrome.runtime.sendMessage( message, callback );
@@ -14,40 +16,71 @@ else {
 }
 
 function initSettings() {
-    mpJQ("#btn-settings").click(function() {
-        chrome.tabs.create({
-            url: "/options/options.html"
+    if ( isSafari ) {
+        // Safari new method requires this to open a link
+        mpJQ('#btn-link').click(function() {
+            safari.application.activeBrowserWindow.openTab().url = "http://themooltipass.com/";
+            return false;
         });
+    }
+
+    mpJQ("#btn-settings").click(function( e ) {
+        if ( isSafari ) {
+            e.preventDefault();
+            safari.application.activeBrowserWindow.openTab().url = safari.extension.baseURI + "options/options.html";
+            return false;
+        } else {
+            chrome.tabs.create({
+                url: "/options/options.html"
+            });    
+        }
     });
 
     mpJQ("#btn-open-app").click(function(e) {
         e.preventDefault();
         messaging( { action: "show_app" }, function() {} );
-        close();
+        if ( !isSafari ) close();
     });
 
     mpJQ("#btn-report-error").click(function() {
-        mooltipass.website.reportError(function(target_url){
-            chrome.tabs.create({
-                url: target_url
-            })
-        });        
+        if ( isSafari ) {
+            safari.application.activeBrowserWindow.openTab().url = "https://docs.google.com/forms/d/1lFKaTR3LQxySyGsZwtHudVE6aGErGU2DHfn-YpuW8aE/viewform?entry.449375470=" + safari.application.activeBrowserWindow.activeTab.url;
+            return false;
+        } else {
+            mooltipass.website.reportError( function(target_url){
+                chrome.tabs.create({
+                    url: target_url
+                })
+            });
+        }
     });
 
-    mpJQ("#btn-select-credential-fields").click(function() {
-        var global = chrome.extension.getBackgroundPage();
-        mooltipass.website.chooseCredentialFields();
-        close();
+    mpJQ("#btn-select-credential-fields").click(function( e ) {
+        if ( isSafari ) {
+            e.preventDefault();
+            var global = safari.extension.globalPage.contentWindow;
+            global.mooltipass.website.chooseCredentialFields();
+        } else {
+            var global = chrome.extension.getBackgroundPage();
+            mooltipass.website.chooseCredentialFields();
+            close();    
+        }
     });
 
-    mpJQ("#btn-add-site-to-blacklist").click(function() {
-        chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
-            chrome.runtime.sendMessage({
-                action: 'blacklist_url',
-                args: [tabs[0].url]
-            }, function() {});
-        });
-        close();
+    mpJQ("#btn-add-site-to-blacklist").click(function( e ) {
+        if ( isSafari ) {
+            e.preventDefault();
+            var message = { action: "blacklist_url", args: [safari.application.activeBrowserWindow.activeTab.url] };
+            messaging( message, function() {} );
+        } else {
+            chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+                chrome.runtime.sendMessage({
+                    action: 'blacklist_url',
+                    args: [tabs[0].url]
+                }, function() {});
+            });
+            close();    
+        }
     });
 
     mpJQ("#btn-remove-site-from-blacklist").click(function() {
@@ -96,7 +129,7 @@ function getStatusCallback( object ) {
 
 function updateStatusInfo() {
     if( isSafari ) {
-        safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
+        if ( safari.extension.globalPage ) safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
     } else {
         messaging( { action: "get_status" }, getStatusCallback );    
 

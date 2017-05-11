@@ -1,5 +1,16 @@
 // Detect if we're dealing with Firefox or Chrome
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+var isSafari = typeof(safari) == 'object'?true:false;
+
+if ( isSafari ) {
+    if ( safari.extension.globalPage ) messaging = safari.extension.globalPage.contentWindow.messaging;
+    else messaging = function() {}
+} else {
+    // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
+    function messaging( message, callback ) {
+        chrome.runtime.sendmessage( message, callback );
+    };    
+}
 
 if ( typeof(mpJQ) !== 'undefined') {
     var $ = mpJQ.noConflict(true);
@@ -31,7 +42,7 @@ options.initGeneralSettings = function () {
         options.settings[$(this).attr("name")] = $(this).is(':checked');
         localStorage.settings = JSON.stringify(options.settings);
 
-        chrome.runtime.sendMessage({
+        messaging({
             action: 'load_settings'
         });
     });
@@ -46,7 +57,7 @@ options.initGeneralSettings = function () {
         options.settings[$(this).attr("name")] = $(this).val();
         localStorage.settings = JSON.stringify(options.settings);
 
-        chrome.runtime.sendMessage({
+        messaging({
             action: 'load_settings'
         });
     });
@@ -120,7 +131,7 @@ options.showBlacklistedUrls = function() {
             var url = $(this).closest('tr').attr('data-url');
             delete options.blacklist[url];
             localStorage.mpBlacklist = JSON.stringify(options.blacklist);
-            chrome.runtime.sendMessage({action: 'load_settings'});
+            messaging({action: 'load_settings'});
 
             $(this).closest('tr').remove();
 
@@ -136,7 +147,7 @@ options.showBlacklistedUrls = function() {
             $('#tab-blacklist #' + id).remove();
             delete options.blacklist[url];
             localStorage.mpBlacklist = JSON.stringify(options.blacklist);
-            chrome.runtime.sendMessage({action: 'load_settings'});
+            messaging({action: 'load_settings'});
         });
 
         var trClone = $("#tab-blacklist table tr.clone:first").clone(true);
@@ -184,7 +195,7 @@ options.initCredentialList = function () {
 
             delete options.settings["defined-credential-fields"][url];
             localStorage.settings = JSON.stringify(options.settings);
-            chrome.runtime.sendMessage({action: 'load_settings'});
+            messaging({action: 'load_settings'});
 
             $(this).closest('tr').remove();
 
@@ -226,7 +237,7 @@ options.initPasswordGeneratorSettings = function () {
         options.settings[$(this).attr("name")] = $(this).val();
         localStorage.settings = JSON.stringify(options.settings);
 
-        chrome.runtime.sendMessage({
+        messaging({
             action: 'load_settings'
         });
     });

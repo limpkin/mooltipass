@@ -154,7 +154,7 @@ mooltipass.device.getStatus = function() {
         }
     }
 
-    if (! mooltipass.device.usingApp ) mooltipass.device.useApp();
+    if (! mooltipass.device.usingApp && !isSafari) mooltipass.device.useApp();
     return {
         'connectedToApp': mooltipass.device._app ? true : false,
         'connectedToDevice': mooltipass.device._status.connected,

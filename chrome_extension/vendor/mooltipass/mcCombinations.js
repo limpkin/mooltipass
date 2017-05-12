@@ -163,7 +163,7 @@ function mcCombinations() {}
 mcCombinations.prototype = ( function() {
 	return {
 		constructor:mcCombinations,
-		inputQueryPattern: "input[type='text'], input[type='email'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type])",
+		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type])",
 		forms: {
 			noform: { fields: [] }
 		},
@@ -923,10 +923,28 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if ( currentForm.element ) {
 		// Try to click the submit element
 		var submitButton = currentForm.element.find(':submit:visible');
+		// Check if we found a button
+		if ( submitButton.length > 0 )
+		{
+			var selectedButton = submitButton[0];
+			// If there are multiple buttons
+			if (submitButton.length > 1)
+			{
+				// Simply discard buttons that may have "search" in their ids
+				for (i = 0; i < submitButton.length; i++)
+				{
+					if (submitButton[i].id && !submitButton[i].id.includes("search") && !submitButton[i].id.includes("Search"))
+					{
+						selectedButton = submitButton[i];
+						break;
+					}
+				}
+			}
+		}
 		if ( submitButton.length > 0 ) { 
 			// Add timeout to allow form check procedures to run
 			setTimeout( function() {
-				submitButton[0].click();
+				selectedButton.click();
 			},100);
 		} else if ( mpJQ('#verify_user_btn').length > 0 ) { // Exclusive else/if for Autodesk.com (probably it could be used in more 2 steps login procedures)
 			mpJQ('#verify_user_btn').click();

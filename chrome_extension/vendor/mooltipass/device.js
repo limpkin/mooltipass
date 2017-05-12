@@ -159,7 +159,7 @@ mooltipass.device.getStatus = function() {
         }
     }
 
-    if (! mooltipass.device.usingApp && !isSafari) mooltipass.device.useApp();
+    if (! mooltipass.device.usingApp && !isSafari && !isFirefox) mooltipass.device.useApp();
     return {
         'connectedToApp': mooltipass.device._app ? true : false,
         'connectedToDevice': mooltipass.device._status.connected,
@@ -328,7 +328,7 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
         }
         else
         {
-			if (background_debug_msg > 4) mpDebug.log('%c device: onTabClosed ', mpDebug.css('ffff00') , 'Sending cancel request for ' + mooltipass.device.retrieveCredentialsQueue[0].domain + ', reqid: ' +  mooltipass.device.retrieveCredentialsQueue[0].reqid);
+            if (background_debug_msg > 4) mpDebug.log('%c device: onTabClosed ', mpDebug.css('ffff00') , 'Sending cancel request for ' + mooltipass.device.retrieveCredentialsQueue[0].domain + ', reqid: ' +  mooltipass.device.retrieveCredentialsQueue[0].reqid);
             /* Send a cancelling request if it is the tab from which we're waiting an answer */
             if (moolticute.connectedToDaemon) {
                 moolticute.cancelRequest( mooltipass.device.retrieveCredentialsQueue[0].reqid, mooltipass.device.retrieveCredentialsQueue[0].domain, mooltipass.device.retrieveCredentialsQueue[0].subdomain );

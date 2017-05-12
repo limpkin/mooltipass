@@ -12,5 +12,8 @@ cp -Rf css Mooltipass.safariextension/
 cp -Rf popups Mooltipass.safariextension/
 cp -Rf fonts Mooltipass.safariextension/
 
+# Fixes image paths for content styles
+find ./Mooltipass.safariextension -name "*.css" -type f -print0 | xargs -0 sed -i '' 's/chrome-extension:\/\/__MSG_@@extension_id__\/images/images/g'
+
 python updateSafariVersion.py
 

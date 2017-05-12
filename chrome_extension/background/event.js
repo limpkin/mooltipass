@@ -1,11 +1,16 @@
 
 // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
-function messaging( message, tab ) {
+function messaging( message, tab, callback ) {
 	if (background_debug_msg > 5) mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
 	else if (background_debug_msg > 4 && message.action != 'check_for_new_input_fields') mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
 
-	if ( isSafari ) tab.page.dispatchMessage("messageFromBackground", message);
-	else chrome.tabs.sendMessage( typeof(tab) == 'number'?tab:tab.id, message, function(response) {});
+	console.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
+
+	if ( isSafari ) {
+		console.log( tab, tab.page );
+		if ( tab && tab.page ) tab.page.dispatchMessage("messageFromBackground", message);
+		else mooltipassEvent.onMessage( { message: message } , 1, tab);
+	} else chrome.tabs.sendMessage( typeof(tab) == 'number'?tab:tab.id, message, function(response) {});
 };
 
 function cross_notification( notificationId, options ) {
@@ -49,7 +54,6 @@ mooltipassEvent.onMessage = function( request, sender, callback ) {
 				messaging( { 'action': 'response-' + request.action, 'data': data }, tab );
 			};	
 		}
-
 		mooltipassEvent.invoke(mooltipassEvent.messageHandlers[request.action], callback, tab, request.args);
 	}
 
@@ -79,6 +83,7 @@ mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime
 	// Preppend the tab and the callback function to the arguments list
 	args.unshift(senderTab);
 	args.unshift(callback);
+	console.log( handler );
 	handler.apply(this, args);
 	return;
 }
@@ -494,6 +499,7 @@ mooltipassEvent.onMultipleFieldsPopup = function(callback, tab) {
  *
  */
 mooltipassEvent.showApp = function() {
+	console.log('here');
 	if (moolticute.connectedToDaemon) {
 		moolticute.sendRequest( {"msg": "show_app"} );
 	} else {

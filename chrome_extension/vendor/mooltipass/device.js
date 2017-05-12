@@ -84,8 +84,13 @@ mooltipass.device.usingApp = false;
  */
 mooltipass.device.checkConnection = function() {
     if(!mooltipass.device.connectedToApp && !moolticute.connectedToDaemon) {
-        // Search for Mooltipass App
-        chrome.management.getAll(mooltipass.device.onSearchForApp);
+        if ( !isFirefox && !isSafari ) {
+            // Search for Mooltipass App
+            chrome.management.getAll(mooltipass.device.onSearchForApp);
+        } else {
+            mooltipass.device.onSearchForApp([]);
+        }
+
         return;
     }
 
@@ -154,7 +159,7 @@ mooltipass.device.getStatus = function() {
         }
     }
 
-    if (! mooltipass.device.usingApp ) mooltipass.device.useApp();
+    if (! mooltipass.device.usingApp && !isSafari) mooltipass.device.useApp();
     return {
         'connectedToApp': mooltipass.device._app ? true : false,
         'connectedToDevice': mooltipass.device._status.connected,

@@ -117,13 +117,12 @@ mooltipass.backend.isBlacklisted = function(url) {
  */
 mooltipass.backend.blacklistUrl = function(url) {
     if (background_debug_msg > 4) mpDebug.log('%c backend: %c got blacklist req. for ','background-color: #ffc107','color: #000', url);
-    console.log('here', url );
+
     if(url.indexOf('://') > -1) {
         var parsed_url = mooltipass.backend.extractDomainAndSubdomain(url);
         var subdomain;
         var domain;
 
-        console.log( parsed_url.valid );
         // See if our script detected a valid domain & subdomain
         if(!parsed_url.valid)
         {
@@ -140,7 +139,7 @@ mooltipass.backend.blacklistUrl = function(url) {
         }
     }
 
-    console.log( mooltipass.backend._blacklist );
+    //console.log( mooltipass.backend._blacklist );
 
     mooltipass.backend._blacklist[url] = true;
     localStorage.mpBlacklist = JSON.stringify(mooltipass.backend._blacklist);

@@ -7,7 +7,7 @@ function messaging( message, tab, callback ) {
 	console.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
 
 	if ( isSafari ) {
-		console.log( tab, tab.page );
+		//console.log( tab, tab.page );
 		if ( tab && tab.page ) tab.page.dispatchMessage("messageFromBackground", message);
 		else mooltipassEvent.onMessage( { message: message } , 1, tab);
 	} else chrome.tabs.sendMessage( typeof(tab) == 'number'?tab:tab.id, message, function(response) {});
@@ -83,7 +83,7 @@ mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime
 	// Preppend the tab and the callback function to the arguments list
 	args.unshift(senderTab);
 	args.unshift(callback);
-	console.log( handler );
+	//console.log( handler );
 	handler.apply(this, args);
 	return;
 }
@@ -499,7 +499,7 @@ mooltipassEvent.onMultipleFieldsPopup = function(callback, tab) {
  *
  */
 mooltipassEvent.showApp = function() {
-	console.log('here');
+
 	if (moolticute.connectedToDaemon) {
 		moolticute.sendRequest( {"msg": "show_app"} );
 	} else {

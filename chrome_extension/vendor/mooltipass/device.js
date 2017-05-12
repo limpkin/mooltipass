@@ -84,8 +84,13 @@ mooltipass.device.usingApp = false;
  */
 mooltipass.device.checkConnection = function() {
     if(!mooltipass.device.connectedToApp && !moolticute.connectedToDaemon) {
-        // Search for Mooltipass App
-        chrome.management.getAll(mooltipass.device.onSearchForApp);
+        if ( !isFirefox && !isSafari ) {
+            // Search for Mooltipass App
+            chrome.management.getAll(mooltipass.device.onSearchForApp);
+        } else {
+            mooltipass.device.onSearchForApp([]);
+        }
+
         return;
     }
 

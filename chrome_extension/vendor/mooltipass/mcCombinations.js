@@ -922,13 +922,13 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 
 	if ( currentForm.element ) {
 		// Sites like Steam use a button outside the form:
-		if ( mpJQ('button:submit').length == 1 ) {
+		/*if ( mpJQ('button:submit').length == 1 ) {
 			// Make sure it is the button we're looking for:
 			if ( mpJQ('button:submit').find('span').length == 1 ) {
 				mpJQ('button:submit').find('span').click();
 				return;	
 			}
-		}
+		}*/
 
 		// Try to click the submit element
 		var submitButton = currentForm.element.find(':submit:visible');

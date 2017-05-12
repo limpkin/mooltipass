@@ -8,7 +8,7 @@ if ( isSafari ) {
 } else {
     // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
     function messaging( message, callback ) {
-        chrome.runtime.sendmessage( message, callback );
+        chrome.runtime.sendMessage( message, callback );
     };    
 }
 

@@ -210,55 +210,16 @@ moolticute.websocket = {
             return;
         }
 
-        if (recvMsg.deviceStatus != null) 
-        {
-            mooltipass.device._status = 
-            {
-                'connected': recvMsg.deviceStatus.connected,
-                'unlocked': recvMsg.deviceStatus.unlocked,
-                'version': recvMsg.deviceStatus.version,
-                'state' : recvMsg.deviceStatus.state,
-                'middleware' : recvMsg.deviceStatus.middleware?recvMsg.deviceStatus.middleware:'unknown'
-            };
-            if (!recvMsg.deviceStatus.connected)
-            {
-                    mooltipass.device.retrieveCredentialsQueue = [];            
-            }
-            else
-            {
-                if (!recvMsg.deviceStatus.unlocked)
-                {
-                    if (mooltipass.device.wasPreviouslyUnlocked == true)
-                    {
-                        // Cancel pending requests
-                        mooltipass.device.retrieveCredentialsQueue = [];
-                    }
-                    mooltipass.device.wasPreviouslyUnlocked = false;
-                }
-                else
-                {
-                    // In case we have pending messages in the queue
-                    if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
-                    {
-                        moolticute.askPassword({
-                            'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                            'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                            'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-                        });
-                    }                
-                    mooltipass.device.wasPreviouslyUnlocked = true;
-                }            
-            }
-            //console.log(mooltipass.device._status)
-        }
-
+        // Translate message to what device.js message parser can understand
         recvMsg = this.messageTranslator( recvMsg );
-        // Some messages are processed internally (like status messages from Chrome App)
-        if ( !recvMsg ) return;
 
+        // Create wrapper
         var wrapped = {};
 
-        switch( recvMsg.msg ) {
+        switch(recvMsg.msg ) {
+            case 'device_status':
+                wrapped.deviceStatus = recvMsg.data;
+                break;
             case 'mp_connected':
                 moolticute.status.connected = true;
                 wrapped.deviceStatus = moolticute.status;
@@ -327,12 +288,12 @@ moolticute.websocket = {
     messageTranslator: function( msg ) {
         var output = { data: {} };
         if ( msg.deviceStatus ) {
+            output.msg = 'device_status';
+            output.data = msg.deviceStatus;
             moolticute.status.connected = msg.deviceStatus.connected;
             moolticute.status.unlocked = msg.deviceStatus.state == 'Unlocked'?true:false;
             moolticute.status.version = msg.deviceStatus.version;
             moolticute.status.state = msg.deviceStatus.state;
-            mooltipass.device._status = moolticute.status;
-            return false;
         } else if ( msg.command && msg.command == 'getCredentials' ) {
             output.msg = 'ask_password';
             output.data.failed = msg.success?false:true;

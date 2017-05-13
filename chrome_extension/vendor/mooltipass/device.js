@@ -39,11 +39,11 @@ if (window.chrome && chrome.runtime && chrome.runtime.id)
  */
 mooltipass.device._status = 
 {
-    connected: false,           // If device connected to computer
-    unlocked: false,            // If device unlocked
-    version: "unknown",         // Firmware running on the device
-    state: "unknown",           // Device state in details
-    middleware: "unkown",       // String for the middleware 
+    connected: false,               // If device connected to computer
+    unlocked: false,                // If device unlocked
+    state: "unknown",               // Device state in details
+    middleware: "unkown",           // String for the middleware 
+    firmware_version: "unknown",    // Firmware version
 };
 
 /**
@@ -122,9 +122,9 @@ mooltipass.device.resetDeviceStatus = function()
     {
         connected: false,
         unlocked: false,
-        version: "unknown",
         state: "unknown",
         middleware: "unkown",
+        firmware_version: "unknown",
     };
 }
 
@@ -604,9 +604,9 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         {
             'connected': message.deviceStatus.connected,
             'unlocked': message.deviceStatus.unlocked,
-            'version': message.deviceStatus.version,
             'state' : message.deviceStatus.state,
-            'middleware' : message.deviceStatus.middleware?message.deviceStatus.middleware:'unknown'
+            'middleware' : message.deviceStatus.middleware?message.deviceStatus.middleware:'unknown',
+            'firmware_version': message.deviceStatus.version?message.deviceStatus.version:'unknown'
         };
         if (!message.deviceStatus.connected)
         {

@@ -14,8 +14,9 @@ moolticute.status = {
         flash_size: 0,
         hw_version: '0'
     },
-    state: 'UnknownStatus',     //state for mooltipass ext compat
-    realState: 'UnknownStatus'
+    state: 'unknown',           //state for mooltipass ext compat
+    realState: 'unknown',
+    middleware: 'unknown'
 }
 
 moolticute.connectedToDaemon = false;
@@ -31,6 +32,22 @@ moolticute._currCallbackId = 0;
     Set to false for normal operation or timeout in millisecs
 */
 moolticute.delayResponse = false;
+
+
+moolticute.resetCurrentStatus = function()
+{
+    moolticute.status = {
+        connected: false,
+        unlocked: false,
+        version: {
+            flash_size: 0,
+            hw_version: '0'
+        },
+        state: 'unknown',       //state for mooltipass ext compat
+        realState: 'unknown',
+        middleware: 'unknown'
+    }
+}
 
 moolticute._getCallbackId = function() {
     moolticute._currCallbackId += 1;
@@ -173,7 +190,6 @@ moolticute.websocket = {
         if (background_debug_msg > 2) mpDebug.log('%c Moolticute daemon connected', mpDebug.css('FFC6A0'));
         mooltipass.device.switchToExternalApp();
         moolticute.connectedToDaemon = true;
-        moolticute.sendRequest( { ping: [] } );
         //moolticute.fireEvent('statusChange');
 
         this.tries = 0;
@@ -184,13 +200,8 @@ moolticute.websocket = {
         mooltipass.device.switchToInternalApp();
         moolticute.connectedToDaemon = false;        
         moolticute.status.unlocked = false;
+        moolticute.resetCurrentStatus();
         //moolticute.fireEvent('statusChange');
-
-        if ( mooltipass && mooltipass.device && mooltipass.device.usingExternalApp === false ) 
-        {
-            mooltipass.device.retrieveCredentialsQueue = [];
-            mooltipass.device.wasPreviouslyUnlocked = false;
-        }
 
         this.tries = this.tries > 3?this.tries:this.tries + 1;
 
@@ -291,9 +302,10 @@ moolticute.websocket = {
             output.msg = 'device_status';
             output.data = msg.deviceStatus;
             moolticute.status.connected = msg.deviceStatus.connected;
-            moolticute.status.unlocked = msg.deviceStatus.state == 'Unlocked'?true:false;
+            moolticute.status.unlocked = msg.deviceStatus.unlocked;
             moolticute.status.version = msg.deviceStatus.version;
             moolticute.status.state = msg.deviceStatus.state;
+            moolticute.status.middleware = msg.deviceStatus.middleware;
         } else if ( msg.command && msg.command == 'getCredentials' ) {
             output.msg = 'ask_password';
             output.data.failed = msg.success?false:true;

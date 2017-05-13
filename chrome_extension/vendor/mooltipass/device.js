@@ -150,6 +150,7 @@ mooltipass.device.switchToInternalApp = function()
         if (background_debug_msg > 4) mpDebug.log('%c Stopping to use external app !', mpDebug.css('00ffff'));
         mooltipass.device.connectedToExternalApp = false;
         mooltipass.device.wasPreviouslyUnlocked = false;
+        mooltipass.device.retrieveCredentialsQueue = [];
         mooltipass.device.resetDeviceStatus();
     }
 }

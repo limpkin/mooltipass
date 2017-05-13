@@ -149,6 +149,7 @@ mooltipass.device.switchToInternalApp = function()
     {
         if (background_debug_msg > 4) mpDebug.log('%c Stopping to use external app !', mpDebug.css('00ffff'));
         mooltipass.device.connectedToExternalApp = false;
+        mooltipass.device.wasPreviouslyUnlocked = false;
         mooltipass.device.resetDeviceStatus();
     }
 }
@@ -243,7 +244,36 @@ mooltipass.device.sendPing = function()
         
     // Send ping which triggers status response from device (only to MooltiApp or ChromeApp)
     //if ( mooltipass.device._status.middleware === 'MooltiApp' || mooltipass.device._status.middleware === 'Chrome App' )
-}
+};
+
+/**
+ * Send a credential request packet from the current queue
+ */
+mooltipass.device.sendCredentialRequestMessageFromQueue = function()
+{
+    if ((mooltipass.device.retrieveCredentialsQueue.length > 0) && (mooltipass.device._status.unlocked == true))
+    {
+        if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), mooltipass.device.retrieveCredentialsQueue[0].domain);
+        
+        // We are about to send a message: put the follow var to true to prevent message sending by status change
+        mooltipass.device.wasPreviouslyUnlocked = true;
+        
+        // Send the message
+        if (mooltipass.device.connectedToExternalApp) 
+        {
+            moolticute.askPassword(
+            {
+                'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
+                'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
+                'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
+            });
+        } 
+        else 
+        {
+            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
+        }
+    }     
+};
 
 /**
  * Returns the current status of the connection to the device
@@ -279,7 +309,6 @@ mooltipass.device.getStatus = function()
 mooltipass.device.isUnlocked = function() {
     return mooltipass.device.getStatus()['deviceUnlocked'];
 };
-
 
 /**
  * Generate a random password based on a random string returned from device
@@ -556,18 +585,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
 
     if(mooltipass.device.retrieveCredentialsQueue.length == 1 && mooltipass.device._status.unlocked == true)
     {
-        // We are about to send a message: put the follow var to true to prevent message sending by status change
-        if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), parsed_url.domain);
-        mooltipass.device.wasPreviouslyUnlocked = true;
-        if (mooltipass.device.connectedToExternalApp) {
-            moolticute.askPassword({
-                'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-            });
-        } else {
-            chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
-        }
+        mooltipass.device.sendCredentialRequestMessageFromQueue();
     }
     else
     {
@@ -628,21 +646,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
                 // In case we have pending messages in the queue
                 if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
                 {
-                    //console.log('sending to ' + mooltipass.device._app.id);
-                    if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), mooltipass.device.retrieveCredentialsQueue[0].domain);
-                    if (mooltipass.device.connectedToExternalApp) 
-                    {
-                        moolticute.askPassword(
-                        {
-                            'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                            'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                            'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-                        });
-                    } 
-                    else 
-                    {
-                        chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
-                    }
+                    mooltipass.device.sendCredentialRequestMessageFromQueue();
                 }                
                 mooltipass.device.wasPreviouslyUnlocked = true;
             }            
@@ -681,24 +685,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         }
         // Treat other pending requests
         mooltipass.device.retrieveCredentialsQueue.shift();
-        if(mooltipass.device.retrieveCredentialsQueue.length > 0)
-        {
-            //console.log('sending to ' + mooltipass.device._app.id);
-            if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), mooltipass.device.retrieveCredentialsQueue[0].domain);
-            if (mooltipass.device.connectedToExternalApp) 
-            {
-                moolticute.askPassword(
-                {
-                    'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                    'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                    'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-                });
-            } 
-            else 
-            {
-                chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
-            }
-        }
+        mooltipass.device.sendCredentialRequestMessageFromQueue();
     }
     // Returned on requesting credentials for a specific URL, but no credentials were found
     else if (message.noCredentials !== null) 
@@ -713,24 +700,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         }
         // Treat other pending requests
         mooltipass.device.retrieveCredentialsQueue.shift();
-        if(mooltipass.device.retrieveCredentialsQueue.length > 0)
-        {
-            //console.log('sending to ' + mooltipass.device._app.id);
-            if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), mooltipass.device.retrieveCredentialsQueue[0].domain);
-            if (mooltipass.device.connectedToExternalApp) 
-            {
-                moolticute.askPassword(
-                {
-                    'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
-                    'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
-                    'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain
-                });
-            } 
-            else 
-            {
-                chrome.runtime.sendMessage(mooltipass.device._app.id, {'getInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});
-            }
-        }
+        mooltipass.device.sendCredentialRequestMessageFromQueue();
     }
     // Returned on a completed update of credentials on the device
     else if (message.updateComplete !== null) {

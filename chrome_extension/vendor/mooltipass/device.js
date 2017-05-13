@@ -136,6 +136,7 @@ mooltipass.device.switchToExternalApp = function()
 {
     if (background_debug_msg > 4) mpDebug.log('%c Starting to use external app !', mpDebug.css('00ffff'));
     mooltipass.device.connectedToExternalApp = true;
+    mooltipass.device.resetDeviceStatus();
 }
 
 /**
@@ -148,6 +149,7 @@ mooltipass.device.switchToInternalApp = function()
     {
         if (background_debug_msg > 4) mpDebug.log('%c Stopping to use external app !', mpDebug.css('00ffff'));
         mooltipass.device.connectedToExternalApp = false;
+        mooltipass.device.resetDeviceStatus();
     }
 }
 
@@ -286,7 +288,8 @@ mooltipass.device.isUnlocked = function() {
  * @param tab current tab object with tab.id
  * @param length of the password
  */
-mooltipass.device.generatePassword = function(callback, tab, length) {
+mooltipass.device.generatePassword = function(callback, tab, length) 
+{
     if (background_debug_msg > 4) mpDebug.log('%c device: %c generatePassword ','background-color: #e244ff','color: #484848', arguments);
 
     // unset error message
@@ -296,15 +299,20 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
     // The requested random string is used to salt Math.random() again
     var currentDate = new Date();
     var currentDayMinute = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
-    if(!mooltipass.device._latestRandomStringRequest || mooltipass.device._latestRandomStringRequest != currentDayMinute) {    
+    
+    if(!mooltipass.device._latestRandomStringRequest || mooltipass.device._latestRandomStringRequest != currentDayMinute) 
+    {    
         mooltipass.device._asynchronous.randomCallback = callback;
         mooltipass.device._asynchronous.randomParameters = {'length': length, tab: tab};
         mooltipass.device._latestRandomStringRequest = currentDayMinute;
 
         //console.log('mooltipass.generatePassword()', 'request random string from app');
-        if (mooltipass.device.connectedToExternalApp) {
+        if (mooltipass.device.connectedToExternalApp) 
+        {
             moolticute.getRandomNumbers();
-        } else {
+        } 
+        else 
+        {
             var request = { getRandom : [] };
             chrome.runtime.sendMessage(mooltipass.device._app.id, request);
         }
@@ -322,8 +330,10 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
  * @returns {Array} array of Numbers
  */
 mooltipass.device.generateRandomNumbers = function(length) {
+    
     var seeds = [];
-    for(var i = 0; i < length; i++) {
+    for(var i = 0; i < length; i++) 
+    {
         seeds.push(Math.random());
     }
 
@@ -340,7 +350,8 @@ mooltipass.device.generateRandomNumbers = function(length) {
  * @param password
  * @param url
  */
-mooltipass.device.addCredentials = function(callback, tab, username, password, url) {
+mooltipass.device.addCredentials = function(callback, tab, username, password, url) 
+{
     mooltipass.device.updateCredentials(callback, tab, null, username, password, url);
 };
 
@@ -357,17 +368,22 @@ mooltipass.device.addCredentials = function(callback, tab, username, password, u
  * @param password
  * @param url
  */
-mooltipass.device.updateCredentials = function(callback, tab, entryId, username, password, url) {
+mooltipass.device.updateCredentials = function(callback, tab, entryId, username, password, url) 
+{
     if (background_debug_msg > 2) mpDebug.log('%c device: updateCredentials ', mpDebug.css('e244ff') , 'Userame:' + username + ' / Password:' + password );
-    //TODO: Trigger unlock if device is connected but locked
-    // Check that the Mooltipass is unlocked
-    if(!event.isMooltipassUnlocked()) {
+
+    // Check that the Mooltipass is unlocked, returns false if it is anything but unlocked
+    if(!event.isMooltipassUnlocked()) 
+    {
         return;
     }
 
-    if (mooltipass.backend.isBlacklisted(url)) {
-        //console.log('notify: ignoring blacklisted url',url);
-        if (callback) {
+    // Check for blacklisted
+    if (mooltipass.backend.isBlacklisted(url)) 
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Blacklisted website:', mpDebug.css('ff0000'), url);
+        if (callback) 
+        {
             callback('failure');
         }
         return;
@@ -385,13 +401,14 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
     mooltipass.device.onTabClosed(tab.id, null);
     mooltipass.device._asynchronous.updateCallback = callback;
 
-    if (mooltipass.device.connectedToExternalApp) {
+    if (mooltipass.device.connectedToExternalApp) 
+    {
         moolticute.sendRequest( request );
-    } else {
+    } 
+    else 
+    {
         chrome.runtime.sendMessage(mooltipass.device._app.id, request);    
-    }
-
-    
+    }   
 };
 
 /* 
@@ -402,7 +419,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
     //console.log("Navigated away before retrieving credentials for tab: " + tabId);
     mooltipass.device.lastRetrieveReqTabId = null;
 
-    mooltipass.device.onTabClosed(tabId, navigationInfo );
+    mooltipass.device.onTabClosed(tabId, navigationInfo);
     mooltipass.device.retrieveCredentialsQueue.splice(0,1);
  }
 
@@ -431,9 +448,12 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
         {
             if (background_debug_msg > 4) mpDebug.log('%c device: onTabClosed ', mpDebug.css('ffff00') , 'Sending cancel request for ' + mooltipass.device.retrieveCredentialsQueue[0].domain + ', reqid: ' +  mooltipass.device.retrieveCredentialsQueue[0].reqid);
             /* Send a cancelling request if it is the tab from which we're waiting an answer */
-            if (mooltipass.device.connectedToExternalApp) {
+            if (mooltipass.device.connectedToExternalApp) 
+            {
                 moolticute.cancelRequest( mooltipass.device.retrieveCredentialsQueue[0].reqid, mooltipass.device.retrieveCredentialsQueue[0].domain, mooltipass.device.retrieveCredentialsQueue[0].subdomain );
-            } else {
+            } 
+            else 
+            {
                 chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});    
             }
         }
@@ -454,9 +474,10 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
 /*
  * Function called when a tab is updated
  */
-mooltipass.device.onTabUpdated = function(tabId, removeInfo) {
+mooltipass.device.onTabUpdated = function(tabId, removeInfo) 
+{
     if (background_debug_msg > 4) mpDebug.log('%c device: onTabUpdated ', mpDebug.css('e244ff') , 'Tab ID: ' + tabId );
-    if ( tabId == mooltipass.device.lastRetrieveReqTabId && removeInfo.status && removeInfo.status == "loading" && removeInfo.url )
+    if ( tabId == mooltipass.device.lastRetrieveReqTabId && removeInfo.status && removeInfo.status == "loading" && removeInfo.url)
     {
         mooltipass.device.onNavigatedAway(tabId, removeInfo);
     }
@@ -472,7 +493,8 @@ mooltipass.device.onTabUpdated = function(tabId, removeInfo) {
  * @param forceCallback
  * @param triggerUnlock
  */
-mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, forceCallback, triggerUnlock) {
+mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, forceCallback, triggerUnlock) 
+{
     if (background_debug_msg > 3) mpDebug.log('%c device: %c retrieveCredentials ','background-color: #e244ff','color: #484848', arguments);
 
     if (!tab.id) tab.id = 'safari';
@@ -482,16 +504,28 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
 
     // parse url and check if it is valid and not blacklisted
     var parsed_url = mooltipass.backend.extractDomainAndSubdomain(submiturl);
-    if( !parsed_url.valid || parsed_url.blacklisted ) {
-        if(forceCallback) {
+    if(!parsed_url.valid)
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Invalid URL:', mpDebug.css('ff0000'), submiturl);
+        if(forceCallback) 
+        {
+            callback([]);
+        }
+        return;
+    }
+    else if(parsed_url.blacklisted) 
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Blacklisted website:', mpDebug.css('ff0000'), submiturl);
+        if(forceCallback) 
+        {
             callback([]);
         }
         return;
     }
 
-    //TODO: Trigger unlock if device is connected but locked
     // Check that the Mooltipass is unlocked
-    if( !event.isMooltipassUnlocked() ) {
+    if(!event.isMooltipassUnlocked()) 
+    {
         // Don't return if the device is locked, queue the request
         /*if(forceCallback) {
             callback([]);

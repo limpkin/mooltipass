@@ -42,7 +42,7 @@ mooltipass.device._status =
     connected: false,               // If device connected to computer
     unlocked: false,                // If device unlocked
     state: "unknown",               // Device state in details
-    middleware: "unkown",           // String for the middleware 
+    middleware: "unknown",          // String for the middleware 
     firmware_version: "unknown",    // Firmware version
 };
 
@@ -123,7 +123,7 @@ mooltipass.device.resetDeviceStatus = function()
         connected: false,
         unlocked: false,
         state: "unknown",
-        middleware: "unkown",
+        middleware: "unknown",
         firmware_version: "unknown",
     };
 }
@@ -137,6 +137,7 @@ mooltipass.device.switchToExternalApp = function()
     if (background_debug_msg > 4) mpDebug.log('%c Starting to use external app !', mpDebug.css('00ffff'));
     mooltipass.device.connectedToExternalApp = true;
     mooltipass.device.resetDeviceStatus();
+    mooltipass.device.sendPing();           // Needed for MooltiApp to get middleware string
 }
 
 /**
@@ -176,7 +177,11 @@ mooltipass.device.checkConnection = function()
     }
     else
     {
-        mooltipass.device.sendPing();
+        if (mooltipass.device._status.middleware != "unknown")
+        {
+            // Ping only when the middleware is known (mooltiapp)
+            mooltipass.device.sendPing();
+        }
         setTimeout(mooltipass.device.checkConnection, mooltipass.device._intervalCheckConnection);
     }
 };

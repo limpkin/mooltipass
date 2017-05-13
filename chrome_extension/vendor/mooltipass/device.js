@@ -745,29 +745,6 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     }
 };
 
-/*
- * Starts listening for messages from the APP
- * 
-*/
-mooltipass.device.useApp = function() {
-    if (background_debug_msg > 3) mpDebug.log('%c device: useApp ', mpDebug.css('e244ff') );
-    mooltipass.device.connectedToExternalApp = true;
-    chrome.management.getAll(mooltipass.device.onSearchForApp);
-    chrome.runtime.onMessageExternal.addListener( mooltipass.device.messageListener );
-}
-
-/*
- * Stops using the APP and goes with Moolticute
- * 
-*/
-mooltipass.device.stopUsingApp = function() {
-    if (background_debug_msg > 3) mpDebug.log('%c device: stopUsingApp ', mpDebug.css('e244ff') );
-    mooltipass.device.connectedToExternalApp = false;
-    mooltipass.device._app = { enabled: true  };
-    if ( !isFirefox && !isSafari ) chrome.runtime.onMessageExternal.removeListener( mooltipass.device.messageListener );
-    mooltipass.device.checkConnection();
-}
-
 /* Register message listener for chrome */
 if (mooltipass.device.browser == "chrome")
 {

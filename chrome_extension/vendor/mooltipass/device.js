@@ -283,9 +283,11 @@ mooltipass.device.sendCredentialRequestMessageFromQueue = function()
 mooltipass.device.getStatus = function() 
 {
     return {
-        'connectedToApp': mooltipass.device._app ? true : false,
+        'connectedToApp': mooltipass.device.connectedToExternalApp || mooltipass.device.connectedToApp,
         'connectedToDevice': mooltipass.device._status.connected,
-        'deviceUnlocked': mooltipass.device._status.unlocked
+        'deviceUnlocked': mooltipass.device._status.unlocked,
+        'usingChromeApp': mooltipass.device.connectedToApp,
+        'usingExternalApp': mooltipass.device.connectedToExternalApp
     }; 
 };
 

@@ -282,23 +282,11 @@ mooltipass.device.sendCredentialRequestMessageFromQueue = function()
  */
 mooltipass.device.getStatus = function() 
 {
-    if (mooltipass.device.connectedToExternalApp) 
-    {
-        /* TODO: remove all moolticute vars and use local ones instead */
-        return {
-            'connectedToApp': mooltipass.device.connectedToExternalApp,
-            'connectedToDevice': moolticute.status.connected,
-            'deviceUnlocked': moolticute.status.unlocked
-        };
-    }
-    else
-    {
-        return {
-            'connectedToApp': mooltipass.device._app ? true : false,
-            'connectedToDevice': mooltipass.device._status.connected,
-            'deviceUnlocked': mooltipass.device._status.unlocked
-        }; 
-    }
+    return {
+        'connectedToApp': mooltipass.device._app ? true : false,
+        'connectedToDevice': mooltipass.device._status.connected,
+        'deviceUnlocked': mooltipass.device._status.unlocked
+    }; 
 };
 
 /**
@@ -306,8 +294,9 @@ mooltipass.device.getStatus = function()
  * @access backend
  * @returns boolean
  */
-mooltipass.device.isUnlocked = function() {
-    return mooltipass.device.getStatus()['deviceUnlocked'];
+mooltipass.device.isUnlocked = function() 
+{
+    return mooltipass.device._status.unlocked;
 };
 
 /**
@@ -644,7 +633,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
             else
             {
                 // In case we have pending messages in the queue
-                if ((mooltipass.device.wasPreviouslyUnlocked == false) && (mooltipass.device.retrieveCredentialsQueue.length > 0))
+                if (mooltipass.device.wasPreviouslyUnlocked == false)
                 {
                     mooltipass.device.sendCredentialRequestMessageFromQueue();
                 }                

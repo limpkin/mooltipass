@@ -1,8 +1,10 @@
+/* TODO: define mpDebug debug levels (no magic numbers) */
+
 /* Initialize mooltipass lib */
-if (typeof mooltipass == 'undefined') {
+if (typeof mooltipass == 'undefined') 
+{
     mooltipass = {};
 }
-
 mooltipass.device = mooltipass.device || {};
 
 /**
@@ -11,17 +13,49 @@ mooltipass.device = mooltipass.device || {};
  */
 mooltipass.device._app = null;
 
+/** 
+ * Know which browser we're running on: no 'else' to detect odd cases in console
+ */
+mooltipass.device.browser = "unknown";
+if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+{
+    if (background_debug_msg > 4) mpDebug.log('%c Extension running in Firefox', mpDebug.css('00ffff'));
+    mooltipass.device.browser = "firefox";
+}
+if (typeof(safari) == 'object')
+{
+    if (background_debug_msg > 4) mpDebug.log('%c Extension running in Safari', mpDebug.css('00ffff'));
+    mooltipass.device.browser = "safari";
+}
+if (window.chrome && chrome.runtime && chrome.runtime.id)
+{
+    if (background_debug_msg > 4) mpDebug.log('%c Extension running in Chrome', mpDebug.css('00ffff'));
+    mooltipass.device.browser = "chrome";
+}
+
 /**
  * Contains status information about the device
  * Properties: connected, unlocked, version, state
  */
-mooltipass.device._status = {};
+mooltipass.device._status = 
+{
+    connected: false,           // If device connected to computer
+    unlocked: false,            // If device unlocked
+    version: "unknown",         // Firmware running on the device
+    state: "unknown",           // Device state in details
+    middleware: "unkown",       // String for the middleware 
+};
 
 /**
- * Boolean information whether the Mooltipass app was found and is connected
+ * Boolean information whether the Mooltipass Chrome App was found and is connected
  * Used to speedup periodical requests
  */
 mooltipass.device.connectedToApp = false;
+
+/**
+ * Flag var to let us know if we're using the chrome app or external App (MooltiApp or Moolticute). Starts false.
+ */
+mooltipass.device.connectedToExternalApp = false;
 
 /**
  * On initial load, the extension looks for the app to communicate with based on the exact app name
@@ -35,6 +69,10 @@ mooltipass.device._appName = 'Mooltipass App';
 mooltipass.device._intervalCheckConnection = 500;
 
 /**
+ * TODO: Ping logic to detect timeouts
+ */
+
+/**
  * Boolean to know if we saw an unlocked device
  */
 mooltipass.device.wasPreviouslyUnlocked = false;
@@ -42,7 +80,8 @@ mooltipass.device.wasPreviouslyUnlocked = false;
 /**
  * Parameters manually set for ansynchronous requests
  */
-mooltipass.device._asynchronous = {
+mooltipass.device._asynchronous = 
+{
     // Callback function for returned random string
     'randomCallback': null,
     // Additional parameters for callback function, null or {}
@@ -73,40 +112,86 @@ mooltipass.device._latestRandomStringRequest = null;
 mooltipass.device.lastRetrieveReqTabId = null;
 mooltipass.device.tabUpdatedEventPrevented = false;
 
-/**
- * Flag var to let us know if we're using the APP or Moolticute. Starts false.
- */
-mooltipass.device.usingApp = false;
 
 /**
- * Checks for connected app and triggers search for app otherwise
+ * Reset Mooltipass device status 
+ */
+mooltipass.device.resetDeviceStatus = function()
+{
+    mooltipass.device._status = 
+    {
+        connected: false,
+        unlocked: false,
+        version: "unknown",
+        state: "unknown",
+        middleware: "unkown",
+    };
+}
+
+/**
+ * Called to inform our logic that the external app is connected and will 
+ * be in charge of calling mooltipass.device.messageListener() with the correct message
+ */
+mooltipass.device.switchToExternalApp = function()
+{
+    if (background_debug_msg > 4) mpDebug.log('%c Starting to use external app !', mpDebug.css('00ffff'));
+    mooltipass.device.connectedToExternalApp = true;
+}
+
+/**
+ * Called to inform our logic that the external app is disconnected
+ */
+mooltipass.device.switchToInternalApp = function()
+{
+    /* May be called several times in a row even when already disconnected */
+    if (mooltipass.device.connectedToExternalApp)
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Stopping to use external app !', mpDebug.css('00ffff'));
+        mooltipass.device.connectedToExternalApp = false;
+    }
+}
+
+/**
+ * Checks for connected app and triggers search for chrome app otherwise
  * Periodically sends PING to device which returns current status of device
  */
-mooltipass.device.checkConnection = function() {
-    if(!mooltipass.device.connectedToApp && !moolticute.connectedToDaemon) {
-        if ( !isFirefox && !isSafari ) {
+mooltipass.device.checkConnection = function() 
+{
+    if(!mooltipass.device.connectedToApp && !mooltipass.device.connectedToExternalApp) 
+    {
+        if (mooltipass.device.browser == "chrome") 
+        {
             // Search for Mooltipass App
             chrome.management.getAll(mooltipass.device.onSearchForApp);
-        } else {
-            mooltipass.device.onSearchForApp([]);
+        } 
+        else 
+        {
+            // Call again this function a bit later to send a ping if we get connected
+            setTimeout(mooltipass.device.checkConnection, mooltipass.device._intervalCheckConnection);
         }
-
-        return;
     }
-
-    mooltipass.device.sendPing();
-    setTimeout(mooltipass.device.checkConnection, mooltipass.device._intervalCheckConnection);
+    else
+    {
+        mooltipass.device.sendPing();
+        setTimeout(mooltipass.device.checkConnection, mooltipass.device._intervalCheckConnection);
+    }
 };
 
 /**
  * Searches for mooltipass app in all available chrome apps
  * Triggers ping to device if app is found and sets mooltipass.device._app
  */
-mooltipass.device.onSearchForApp = function(ext) {
+mooltipass.device.onSearchForApp = function(ext) 
+{
     var foundApp = false;
-    for (var i = 0; i < ext.length; i++) {
-        if (ext[i].shortName == mooltipass.device._appName) {
-            if(ext[i]['enabled'] !== true) {
+    
+    // Look for the string describing our app
+    for (var i = 0; i < ext.length; i++)
+    {
+        if (ext[i].shortName == mooltipass.device._appName) 
+        {
+            if(ext[i]['enabled'] !== true) 
+            {
                 continue;
             }
             mooltipass.device._app = ext[i];
@@ -115,33 +200,47 @@ mooltipass.device.onSearchForApp = function(ext) {
         }
     }
 
-    if(!foundApp) {
+    // Didn't find our app, delete id
+    if(!foundApp) 
+    {
         mooltipass.device._app = null;
     }
 
-    if (mooltipass.device._app != null) {
+    // We found the app, let's talk to it!
+    if (mooltipass.device._app != null) 
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Found Mooltipass Chrome App', mpDebug.css('00ffff'), mooltipass.device._app.shortName + '" id=' + mooltipass.device._app.id,' app: ', mooltipass.device._app);
         mooltipass.device.connectedToApp = true;
-        mooltipass.device.sendPing();
-        //console.log('found mooltipass app "' + mooltipass.device._app.shortName + '" id=' + mooltipass.device._app.id,' app: ', mooltipass.device._app);
     }
-    else {
+    else 
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Did not find Mooltipass Chrome App', mpDebug.css('00ffff'));
         mooltipass.device.connectedToApp = false;
-        mooltipass.device._status = {};
-        //console.log('No mooltipass app found');
     }
 
+    // Try again later
     setTimeout(mooltipass.device.checkConnection, mooltipass.device._intervalCheckConnection);
 };
 
-mooltipass.device.sendPing = function() {
+/**
+ * Send ping which triggers status response from device (only to MooltiApp or ChromeApp)
+ */
+mooltipass.device.sendPing = function() 
+{
+    /* TODO: when middleware is moolticute, do not send pings */
+    if (mooltipass.device.connectedToExternalApp) 
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Sending ping to external app ', mpDebug.css('ffeef9'));
+        moolticute.sendRequest( { ping: [] } );
+    } 
+    else if (mooltipass.device.connectedToApp && mooltipass.device._app.id) 
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Sending ping to chrome app ', mpDebug.css('ffeef9'));
+        chrome.runtime.sendMessage(mooltipass.device._app.id, { ping: [] });
+    }
+        
     // Send ping which triggers status response from device (only to MooltiApp or ChromeApp)
-    //if ( mooltipass.device._status.middleware === 'MooltiApp' || mooltipass.device._status.middleware === 'Chrome App' ) {
-        if (moolticute.connectedToDaemon) {
-            moolticute.sendRequest( { ping: [] } );
-        } else if ( mooltipass.device._app && mooltipass.device._app.id ) {
-            chrome.runtime.sendMessage(mooltipass.device._app.id, { ping: [] });
-        }
-    //}
+    //if ( mooltipass.device._status.middleware === 'MooltiApp' || mooltipass.device._status.middleware === 'Chrome App' )
 }
 
 /**
@@ -149,23 +248,25 @@ mooltipass.device.sendPing = function() {
  * @access backend
  * @returns {{connectedToApp: boolean, connectedToDevice: boolean, deviceUnlocked: boolean}}
  */
-mooltipass.device.getStatus = function() {
-    if (moolticute.connectedToDaemon) {
-        if ( mooltipass.device.usingApp ) mooltipass.device.stopUsingApp();
+mooltipass.device.getStatus = function() 
+{
+    if (mooltipass.device.connectedToExternalApp) 
+    {
+        /* TODO: remove all moolticute vars and use local ones instead */
         return {
-            'connectedToApp': moolticute.connectedToDaemon,
+            'connectedToApp': mooltipass.device.connectedToExternalApp,
             'connectedToDevice': moolticute.status.connected,
             'deviceUnlocked': moolticute.status.unlocked
-        }
+        };
     }
-
-    if (! mooltipass.device.usingApp && !isSafari && !isFirefox) mooltipass.device.useApp();
-    return {
-        'connectedToApp': mooltipass.device._app ? true : false,
-        'connectedToDevice': mooltipass.device._status.connected,
-        'deviceUnlocked': mooltipass.device._status.unlocked
-    };    
-
+    else
+    {
+        return {
+            'connectedToApp': mooltipass.device._app ? true : false,
+            'connectedToDevice': mooltipass.device._status.connected,
+            'deviceUnlocked': mooltipass.device._status.unlocked
+        }; 
+    }
 };
 
 /**
@@ -201,7 +302,7 @@ mooltipass.device.generatePassword = function(callback, tab, length) {
         mooltipass.device._latestRandomStringRequest = currentDayMinute;
 
         //console.log('mooltipass.generatePassword()', 'request random string from app');
-        if (moolticute.connectedToDaemon) {
+        if (mooltipass.device.connectedToExternalApp) {
             moolticute.getRandomNumbers();
         } else {
             var request = { getRandom : [] };
@@ -284,7 +385,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
     mooltipass.device.onTabClosed(tab.id, null);
     mooltipass.device._asynchronous.updateCallback = callback;
 
-    if (moolticute.connectedToDaemon) {
+    if (mooltipass.device.connectedToExternalApp) {
         moolticute.sendRequest( request );
     } else {
         chrome.runtime.sendMessage(mooltipass.device._app.id, request);    
@@ -330,7 +431,7 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
         {
             if (background_debug_msg > 4) mpDebug.log('%c device: onTabClosed ', mpDebug.css('ffff00') , 'Sending cancel request for ' + mooltipass.device.retrieveCredentialsQueue[0].domain + ', reqid: ' +  mooltipass.device.retrieveCredentialsQueue[0].reqid);
             /* Send a cancelling request if it is the tab from which we're waiting an answer */
-            if (moolticute.connectedToDaemon) {
+            if (mooltipass.device.connectedToExternalApp) {
                 moolticute.cancelRequest( mooltipass.device.retrieveCredentialsQueue[0].reqid, mooltipass.device.retrieveCredentialsQueue[0].domain, mooltipass.device.retrieveCredentialsQueue[0].subdomain );
             } else {
                 chrome.runtime.sendMessage(mooltipass.device._app.id, {'cancelGetInputs' : {'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 'subdomain': mooltipass.device.retrieveCredentialsQueue[0].subdomain}});    
@@ -424,7 +525,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         // We are about to send a message: put the follow var to true to prevent message sending by status change
         if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), parsed_url.domain);
         mooltipass.device.wasPreviouslyUnlocked = true;
-        if (moolticute.connectedToDaemon) {
+        if (mooltipass.device.connectedToExternalApp) {
             moolticute.askPassword({
                 'reqid': mooltipass.device.retrieveCredentialsQueue[0].reqid, 
                 'domain': mooltipass.device.retrieveCredentialsQueue[0].domain, 
@@ -464,6 +565,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     // Returned on a PING, contains the status of the device
     if (message.deviceStatus !== null) 
     {
+        if (background_debug_msg > 5) mpDebug.log('%c device: status from device: ', mpDebug.css('e244ff'), message.deviceStatus);
         mooltipass.device._status = 
         {
             'connected': message.deviceStatus.connected,
@@ -494,7 +596,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
                 {
                     //console.log('sending to ' + mooltipass.device._app.id);
                     if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), mooltipass.device.retrieveCredentialsQueue[0].domain);
-                    if (moolticute.connectedToDaemon) 
+                    if (mooltipass.device.connectedToExternalApp) 
                     {
                         moolticute.askPassword(
                         {
@@ -526,7 +628,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     // Returned on successfully requesting credentials for a specific URL
     else if (message.credentials !== null) 
     {
-		if (background_debug_msg > 4) mpDebug.log('%c device: received credentials from app', mpDebug.css('00ff00'));
+        if (background_debug_msg > 4) mpDebug.log('%c device: received credentials from app', mpDebug.css('00ff00'));
         try
         {
             mooltipass.device.retrieveCredentialsQueue[0].callback([
@@ -549,7 +651,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         {
             //console.log('sending to ' + mooltipass.device._app.id);
             if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), mooltipass.device.retrieveCredentialsQueue[0].domain);
-            if (moolticute.connectedToDaemon) 
+            if (mooltipass.device.connectedToExternalApp) 
             {
                 moolticute.askPassword(
                 {
@@ -567,7 +669,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     // Returned on requesting credentials for a specific URL, but no credentials were found
     else if (message.noCredentials !== null) 
     {
-		if (background_debug_msg > 4) mpDebug.log('%c device: received empty credentials from app', mpDebug.css('00ff00'));
+        if (background_debug_msg > 4) mpDebug.log('%c device: received empty credentials from app', mpDebug.css('00ff00'));
         try
         {
             mooltipass.device.retrieveCredentialsQueue[0].callback([]);
@@ -581,7 +683,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         {
             //console.log('sending to ' + mooltipass.device._app.id);
             if (background_debug_msg > 3) mpDebug.log("%c Asking credentials for %s", mpDebug.css('00ff00'), mooltipass.device.retrieveCredentialsQueue[0].domain);
-            if (moolticute.connectedToDaemon) 
+            if (mooltipass.device.connectedToExternalApp) 
             {
                 moolticute.askPassword(
                 {
@@ -615,7 +717,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
 */
 mooltipass.device.useApp = function() {
     if (background_debug_msg > 3) mpDebug.log('%c device: useApp ', mpDebug.css('e244ff') );
-    mooltipass.device.usingApp = true;
+    mooltipass.device.connectedToExternalApp = true;
     chrome.management.getAll(mooltipass.device.onSearchForApp);
     chrome.runtime.onMessageExternal.addListener( mooltipass.device.messageListener );
 }
@@ -626,15 +728,17 @@ mooltipass.device.useApp = function() {
 */
 mooltipass.device.stopUsingApp = function() {
     if (background_debug_msg > 3) mpDebug.log('%c device: stopUsingApp ', mpDebug.css('e244ff') );
-    mooltipass.device.usingApp = false;
+    mooltipass.device.connectedToExternalApp = false;
     mooltipass.device._app = { enabled: true  };
     if ( !isFirefox && !isSafari ) chrome.runtime.onMessageExternal.removeListener( mooltipass.device.messageListener );
     mooltipass.device.checkConnection();
 }
 
-/* Initialize device specific settings */
-setTimeout( function() {
-    // Try to use the app at first.
-    if ( !isFirefox && !isSafari ) mooltipass.device.useApp();
-    else mooltipass.device.stopUsingApp();
- },100);
+/* Register message listener for chrome */
+if (mooltipass.device.browser == "chrome")
+{
+    chrome.runtime.onMessageExternal.addListener(mooltipass.device.messageListener);
+}
+
+/* First call to check connection() */
+setTimeout(function() {mooltipass.device.checkConnection();}, 1000);

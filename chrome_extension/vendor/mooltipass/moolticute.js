@@ -171,6 +171,7 @@ moolticute.websocket = {
     _ws: false,
     onOpen: function() {
         if (background_debug_msg > 2) mpDebug.log('%c Moolticute daemon connected', mpDebug.css('FFC6A0'));
+        mooltipass.device.switchToExternalApp();
         moolticute.connectedToDaemon = true;
         moolticute.sendRequest( { ping: [] } );
         //moolticute.fireEvent('statusChange');
@@ -180,11 +181,12 @@ moolticute.websocket = {
     onClose: function( event  ) {
         if (background_debug_msg > 2) mpDebug.log('%c Moolticute daemon disconnected', mpDebug.css('FFC6A0'), this);
 
+        mooltipass.device.switchToInternalApp();
         moolticute.connectedToDaemon = false;        
         moolticute.status.unlocked = false;
-        moolticute.fireEvent('statusChange');
+        //moolticute.fireEvent('statusChange');
 
-        if ( mooltipass && mooltipass.device && mooltipass.device.usingApp === false ) 
+        if ( mooltipass && mooltipass.device && mooltipass.device.usingExternalApp === false ) 
         {
             mooltipass.device.retrieveCredentialsQueue = [];
             mooltipass.device.wasPreviouslyUnlocked = false;

@@ -239,7 +239,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	var noteId = 'mpNotUnlocked.'+mooltipassEvent.notificationCount.toString();
 
 	// Check that the Mooltipass app is installed and enabled
-	if (!mooltipass.device._app || mooltipass.device._app['enabled'] !== true)
+	if (!mooltipass.device.connectedToExternalApp && (!mooltipass.device._app || mooltipass.device._app['enabled'] !== true))
 	{
 		//console.log('notify: mooltipass app not ready');
 

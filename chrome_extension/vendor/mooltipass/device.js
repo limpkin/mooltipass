@@ -44,6 +44,7 @@ mooltipass.device._status =
     state: "unknown",               // Device state in details
     middleware: "unknown",          // String for the middleware 
     firmware_version: "unknown",    // Firmware version
+    middleware_version: "unkown"    // Middleware version
 };
 
 /**
@@ -125,6 +126,7 @@ mooltipass.device.resetDeviceStatus = function()
         state: "unknown",
         middleware: "unknown",
         firmware_version: "unknown",
+        middleware_version: "unkown"
     };
 }
 
@@ -137,6 +139,7 @@ mooltipass.device.switchToExternalApp = function()
     if (background_debug_msg > 4) mpDebug.log('%c Starting to use external app !', mpDebug.css('00ffff'));
     mooltipass.device.connectedToExternalApp = true;
     mooltipass.device.resetDeviceStatus();
+    mooltipass.device.sendGetMiddlewareId();
     mooltipass.device.sendPing();           // Needed for MooltiApp to get middleware string
 }
 
@@ -177,7 +180,7 @@ mooltipass.device.checkConnection = function()
     }
     else
     {
-        if (mooltipass.device._status.middleware != "unknown")
+        if (mooltipass.device._status.middleware != "moolticute")
         {
             // Ping only when the middleware is known (mooltiapp)
             mooltipass.device.sendPing();
@@ -250,6 +253,19 @@ mooltipass.device.sendPing = function()
         
     // Send ping which triggers status response from device (only to MooltiApp or ChromeApp)
     //if ( mooltipass.device._status.middleware === 'MooltiApp' || mooltipass.device._status.middleware === 'Chrome App' )
+};
+
+/**
+ * Get the middleware ID
+ */
+mooltipass.device.sendGetMiddlewareId = function()
+{
+    /* Mooltiapp / Chrome App: middleware ID sent back using a ping packet */
+    if (mooltipass.device.connectedToExternalApp) 
+    {
+        if (background_debug_msg > 4) mpDebug.log('%c Sending getmiddlewareid to external app ', mpDebug.css('ffeef9'));
+        moolticute.sendRequest( { msg:'get_application_id' } );
+    } 
 };
 
 /**
@@ -621,7 +637,8 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
             'unlocked': message.deviceStatus.unlocked,
             'state' : message.deviceStatus.state,
             'middleware' : message.deviceStatus.middleware?message.deviceStatus.middleware:'unknown',
-            'firmware_version': message.deviceStatus.version?message.deviceStatus.version:'unknown'
+            'firmware_version': message.deviceStatus.version?message.deviceStatus.version:'unknown',
+            'middleware_version': message.deviceStatus.middleware_version?message.deviceStatus.middleware_version:'unknown'
         };
         if (!message.deviceStatus.connected)
         {

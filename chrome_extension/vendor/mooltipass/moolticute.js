@@ -16,7 +16,8 @@ moolticute.status = {
     },
     state: 'unknown',           //state for mooltipass ext compat
     realState: 'unknown',
-    middleware: 'unknown'
+    middleware: 'unknown',
+    middleware_version: 'unknown'
 }
 
 moolticute.connectedToDaemon = false;
@@ -45,7 +46,8 @@ moolticute.resetCurrentStatus = function()
         },
         state: 'unknown',       //state for mooltipass ext compat
         realState: 'unknown',
-        middleware: 'unknown'
+        middleware: 'unknown',
+        middleware_version: 'unknown'
     }
 }
 
@@ -274,6 +276,10 @@ moolticute.websocket = {
             case 'get_random_numbers':
                 wrapped.random = recvMsg.data;
                 break;
+            case 'get_application_id':
+                moolticute.status.middleware = recvMsg.data.application_name;
+                moolticute.status.middleware_version = recvMsg.data.application_version;
+                wrapped.deviceStatus = moolticute.status;
             case 'show_app':
                 // Just discard response, as we don't need it.
                 break;
@@ -303,7 +309,7 @@ moolticute.websocket = {
             output.data = msg.deviceStatus;
             moolticute.status.connected = msg.deviceStatus.connected;
             moolticute.status.unlocked = msg.deviceStatus.unlocked;
-            moolticute.status.version = msg.deviceStatus.version;
+            moolticute.status.version = {hw_version: msg.deviceStatus.version};
             moolticute.status.state = msg.deviceStatus.state;
             moolticute.status.middleware = msg.deviceStatus.middleware;
         } else if ( msg.command && msg.command == 'getCredentials' ) {

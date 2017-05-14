@@ -44,7 +44,7 @@ mooltipass.device._status =
     state: "unknown",               // Device state in details
     middleware: "unknown",          // String for the middleware 
     firmware_version: "unknown",    // Firmware version
-    middleware_version: "unkown"    // Middleware version
+    middleware_version: "unknown"    // Middleware version
 };
 
 /**
@@ -126,7 +126,7 @@ mooltipass.device.resetDeviceStatus = function()
         state: "unknown",
         middleware: "unknown",
         firmware_version: "unknown",
-        middleware_version: "unkown"
+        middleware_version: "unknown"
     };
 }
 

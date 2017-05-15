@@ -20,19 +20,23 @@ function initSettings() {
         // Safari new method requires this to open a link
         mpJQ('#btn-link').click(function() {
             safari.application.activeBrowserWindow.openTab().url = "http://themooltipass.com/";
-            return false;
         });
     }
+
+    mpJQ(".pure-menu-list .pure-menu-item").click(function() {
+        if (isSafari) {
+            safari.self.hide();
+        }
+    });
 
     mpJQ("#btn-settings").click(function( e ) {
         if ( isSafari ) {
             e.preventDefault();
             safari.application.activeBrowserWindow.openTab().url = safari.extension.baseURI + "options/options.html";
-            return false;
         } else {
             chrome.tabs.create({
                 url: "/options/options.html"
-            });    
+            });
         }
     });
 
@@ -42,10 +46,10 @@ function initSettings() {
         if ( !isSafari ) close();
     });
 
-    mpJQ("#btn-report-error").click(function() {
+    mpJQ("#btn-report-error").click(function(e) {
         if ( isSafari ) {
+            e.preventDefault();
             safari.application.activeBrowserWindow.openTab().url = "https://docs.google.com/forms/d/1lFKaTR3LQxySyGsZwtHudVE6aGErGU2DHfn-YpuW8aE/viewform?entry.449375470=" + safari.application.activeBrowserWindow.activeTab.url;
-            return false;
         } else {
             mooltipass.website.reportError( function(target_url){
                 chrome.tabs.create({
@@ -63,7 +67,7 @@ function initSettings() {
         } else {
             var global = chrome.extension.getBackgroundPage();
             mooltipass.website.chooseCredentialFields();
-            close();    
+            close();
         }
     });
 
@@ -79,7 +83,7 @@ function initSettings() {
                     args: [tabs[0].url]
                 }, function() {});
             });
-            close();    
+            close();
         }
     });
 

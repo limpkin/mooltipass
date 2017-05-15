@@ -309,7 +309,10 @@ mooltipass.device.getStatus = function()
         'connectedToDevice': mooltipass.device._status.connected,
         'deviceUnlocked': mooltipass.device._status.unlocked,
         'usingChromeApp': mooltipass.device.connectedToApp,
-        'usingExternalApp': mooltipass.device.connectedToExternalApp
+        'usingExternalApp': mooltipass.device.connectedToExternalApp,
+        'middleware': mooltipass.device.middleware,
+        'firmware_version': mooltipass.device.firmware_version,
+        'middleware_version': mooltipass.device.middleware_version
     }; 
 };
 
@@ -321,6 +324,16 @@ mooltipass.device.getStatus = function()
 mooltipass.device.isUnlocked = function() 
 {
     return mooltipass.device._status.unlocked;
+};
+
+/**
+ * Checks if we are connected to an external app
+ * @access backend
+ * @returns boolean
+ */
+mooltipass.device.isConnectedToExternalApp = function() 
+{
+    return mooltipass.device.connectedToExternalApp;
 };
 
 /**

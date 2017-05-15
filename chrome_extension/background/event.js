@@ -500,7 +500,7 @@ mooltipassEvent.onMultipleFieldsPopup = function(callback, tab) {
  */
 mooltipassEvent.showApp = function() {
 
-	if (moolticute.connectedToDaemon) {
+	if (mooltipass.device.isConnectedToExternalApp()) {
 		moolticute.sendRequest( {"msg": "show_app"} );
 	} else {
 		var global = chrome.extension.getBackgroundPage();

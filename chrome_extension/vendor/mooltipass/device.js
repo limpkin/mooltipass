@@ -552,7 +552,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
 {
     if (background_debug_msg > 3) mpDebug.log('%c device: %c retrieveCredentials ','background-color: #e244ff','color: #484848', arguments);
 
-    if (!tab.id) tab.id = 'safari';
+    if (!tab.hasOwnProperty('id')) tab.id = 'safari';
 
     // unset error message
     //page.tabs[tab.id].errorMessage = null;

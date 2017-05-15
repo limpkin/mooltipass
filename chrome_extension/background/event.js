@@ -1,10 +1,8 @@
 
 // Unify messaging method - And eliminate callbacks (a message is replied with another message instead)
 function messaging( message, tab, callback ) {
-	if (background_debug_msg > 5) mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
+	if (background_debug_msg > 5) mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message, tab);
 	else if (background_debug_msg > 4 && message.action != 'check_for_new_input_fields') mpDebug.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
-
-	console.log('%c Sending message to content:','background-color: #0000FF; color: #FFF; padding: 3px; ', message);
 
 	if ( isSafari ) {
 		//console.log( tab, tab.page );
@@ -44,14 +42,22 @@ mooltipassEvent.onMessage = function( request, sender, callback ) {
 		tab = sender;
 	} else { // Chrome and FF sends Request and Sender separately
 		tab = sender.tab;
-	}
+        
+        /* trade lightly below: for getStatus message ONLY we allow overwrite of the current tab object as the sender url is marked as "chrome-extension://" */
+        /* worst case: another extension may ask if a given website is blacklisted */
+        if (request.action == 'get_status' && sender.url.startsWith("chrome-extension://"))
+        {
+            //tab = request.overwrite_tab;
+            // to investigate: enabling above code prevents callback with valid object
+        }
+	}   
 
-	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: onMessage ' + request.action, mpDebug.css('e2eef9'), tab, arguments);
+	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: onMessage ' + request.action, mpDebug.css('e2eef9'), sender);
 
 	if (request.action in mooltipassEvent.messageHandlers) {
 		if ( tab ) {
 			var callback = function( data, tab ) {
-				messaging( { 'action': 'response-' + request.action, 'data': data }, tab );
+				//messaging( { 'action': 'response-' + request.action, 'data': data }, tab );
 			};	
 		}
 		mooltipassEvent.invoke(mooltipassEvent.messageHandlers[request.action], callback, tab, request.args);
@@ -119,8 +125,6 @@ mooltipassEvent.onSaveSettings = function(callback, tab, settings) {
 }
 
 mooltipassEvent.onGetStatus = function(callback, tab) {
-	if (background_debug_msg > 5) mpDebug.log('%c mooltipassEvent: %c onGetStatus','background-color: #e2eef9','color: #246', tab);
-
 	if ( tab ) {
 		browserAction.showDefault(null, tab);
     	page.tabs[tab.id].errorMessage = undefined;  // XXX debug
@@ -137,6 +141,7 @@ mooltipassEvent.onGetStatus = function(callback, tab) {
     	toReturn.blacklisted = tabStatus.blacklisted;
     }
 
+    if (background_debug_msg > 5) mpDebug.log('%c mooltipassEvent: %c onGetStatus','background-color: #e2eef9','color: #246', tab, toReturn);
 	callback( toReturn );
 }
 

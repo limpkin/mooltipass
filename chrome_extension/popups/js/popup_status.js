@@ -88,6 +88,7 @@ function initSettings() {
     });
 
     mpJQ("#btn-remove-site-from-blacklist").click(function() {
+        // why is the safari method not here????
         chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
             chrome.runtime.sendMessage({
                 action: 'unblacklist_url',
@@ -100,6 +101,7 @@ function initSettings() {
 
 function getStatusCallback( object ) {
      mpJQ('#status-bar .status > span').hide();
+     console.log(object)
 
     // Connection to app established, device connected and unlocked
     if (object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
@@ -137,7 +139,9 @@ function updateStatusInfo() {
             safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
         }
     } else {
-        messaging( { action: "get_status" }, getStatusCallback );
+        chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+            messaging( { action: "get_status", overwrite_tab: tabs[0]}, getStatusCallback);
+        }); 
 
         if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {
             // Check if notifications are enabled

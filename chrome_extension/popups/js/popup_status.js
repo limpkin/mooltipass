@@ -129,9 +129,11 @@ function getStatusCallback( object ) {
 
 function updateStatusInfo() {
     if( isSafari ) {
-        if ( safari.extension.globalPage ) safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
+        if ( safari.extension.globalPage && safari.extension.globalPage.contentWindow.mooltipassEvent) {
+            safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
+        }
     } else {
-        messaging( { action: "get_status" }, getStatusCallback );    
+        messaging( { action: "get_status" }, getStatusCallback );
 
         if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {
             // Check if notifications are enabled

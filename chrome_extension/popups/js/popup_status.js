@@ -82,8 +82,8 @@ function initSettings() {
                     action: 'blacklist_url',
                     args: [tabs[0].url]
                 }, function() {});
+                close();
             });
-            close();
         }
     });
 
@@ -98,8 +98,8 @@ function initSettings() {
                     action: 'unblacklist_url',
                     args: [tabs[0].url]
                 }, function() {});
+                close();
             });
-            close();
         }
     });
 }
@@ -148,7 +148,7 @@ function updateStatusInfo() {
         }
     } else {
         chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
-            messaging( { action: "get_status", overwrite_tab: tabs[0]}, getStatusCallback);
+            messaging( { action: "get_status", overwrite_tab: tabs[0] }, getStatusCallback);
         }); 
 
         if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {

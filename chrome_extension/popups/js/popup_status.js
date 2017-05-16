@@ -82,8 +82,8 @@ function initSettings() {
                     action: 'blacklist_url',
                     args: [tabs[0].url]
                 }, function() {});
+                close();
             });
-            close();
         }
     });
 
@@ -98,8 +98,8 @@ function initSettings() {
                     action: 'unblacklist_url',
                     args: [tabs[0].url]
                 }, function() {});
+                close();
             });
-            close();
         }
     });
 }

@@ -87,15 +87,20 @@ function initSettings() {
         }
     });
 
-    mpJQ("#btn-remove-site-from-blacklist").click(function() {
-        // why is the safari method not here????
-        chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
-            chrome.runtime.sendMessage({
-                action: 'unblacklist_url',
-                args: [tabs[0].url]
-            }, function() {});
-        });
-        close();
+    mpJQ("#btn-remove-site-from-blacklist").click(function(e) {
+        if ( isSafari ) {
+            e.preventDefault();
+            var message = { action: "unblacklist_url", args: [safari.application.activeBrowserWindow.activeTab.url] };
+            messaging( message, function() {} );
+        } else {
+            chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+                chrome.runtime.sendMessage({
+                    action: 'unblacklist_url',
+                    args: [tabs[0].url]
+                }, function() {});
+            });
+            close();
+        }
     });
 }
 
@@ -136,7 +141,10 @@ function getStatusCallback( object ) {
 function updateStatusInfo() {
     if( isSafari ) {
         if ( safari.extension.globalPage && safari.extension.globalPage.contentWindow.mooltipassEvent) {
-            safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, { id: 'safari' });
+            safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, {
+                id: 'safari',
+                url: safari.application.activeBrowserWindow.activeTab.url
+            });
         }
     } else {
         chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
@@ -149,9 +157,9 @@ function updateStatusInfo() {
                 if (response == 'denied') {
                     mpJQ("#notifications-disabled").show();
                 }
-            });        
+            });
         }
-    }    
+    }
 }
 
 function _updateStatusInfo() {

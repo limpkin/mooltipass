@@ -42,12 +42,19 @@ mooltipassEvent.onMessage = function( request, sender, callback ) {
 		tab = sender;
 	} else { // Chrome and FF sends Request and Sender separately
 		tab = sender.tab;
+
+		/* trade lightly below: for getStatus message ONLY we allow overwrite of the current tab object as the sender url is marked as "chrome-extension://" */
+		/* worst case: another extension may ask if a given website is blacklisted */
+		if (request.action == 'get_status' && (sender.url.startsWith("chrome-extension://") || sender.url.startsWith("moz-extension://")))
+		{
+			tab = request.overwrite_tab;
+		}
 	}
 
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: onMessage ' + request.action, mpDebug.css('e2eef9'), sender);
 
 	if (request.action in mooltipassEvent.messageHandlers) {
-		if ( tab ) {
+		if ( tab && request.action !== 'get_status' ) {
 			var callback = function( data, tab ) {
 				messaging( { 'action': 'response-' + request.action, 'data': data }, tab );
 			};	
@@ -116,7 +123,7 @@ mooltipassEvent.onSaveSettings = function(callback, tab, settings) {
 	mooltipassEvent.onLoadSettings();
 }
 
-mooltipassEvent.onGetStatus = function(callback, senderTab, tab) {
+mooltipassEvent.onGetStatus = function(callback, tab) {
 	if ( tab ) {
 		browserAction.showDefault(null, tab);
     	page.tabs[tab.id].errorMessage = undefined;  // XXX debug

@@ -141,14 +141,14 @@ function getStatusCallback( object ) {
 function updateStatusInfo() {
     if( isSafari ) {
         if ( safari.extension.globalPage && safari.extension.globalPage.contentWindow.mooltipassEvent) {
-            safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, null, {
+            safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, {
                 id: 'safari',
                 url: safari.application.activeBrowserWindow.activeTab.url
             });
         }
     } else {
         chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
-            messaging( { action: "get_status", args: [tabs[0]]}, getStatusCallback);
+            messaging( { action: "get_status", overwrite_tab: tabs[0] }, getStatusCallback);
         }); 
 
         if ( typeof chrome.notifications.getPermissionLevel == 'function' ) {

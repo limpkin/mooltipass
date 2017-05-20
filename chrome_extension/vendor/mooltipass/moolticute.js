@@ -336,4 +336,5 @@ moolticute.websocket = {
         return output;
     }
 };
-moolticute.websocket.connect();
+/* First call to connect */
+setTimeout(function() {if(!mooltipass.device.emulation_mode) moolticute.websocket.connect();}, 1000);

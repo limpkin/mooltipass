@@ -8,6 +8,13 @@ if (typeof mooltipass == 'undefined')
 mooltipass.device = mooltipass.device || {};
 
 /**
+ * Mooltipass emulation vars
+ */
+mooltipass.device.emulation_mode = true
+mooltipass.device.emulation_credentials = []
+//mooltipass.device.emulation_credentials.push({"domain":"limpkin.fr", "login":"lapin", "password":"test"});
+
+/**
  * Information about connected Mooltipass app
  * Set on mooltipass.device.onSearchForApp()
  */
@@ -39,12 +46,12 @@ if (window.chrome && chrome.runtime && chrome.runtime.id)
  */
 mooltipass.device._status = 
 {
-    connected: false,               // If device connected to computer
-    unlocked: false,                // If device unlocked
-    state: "unknown",               // Device state in details
-    middleware: "unknown",          // String for the middleware 
-    firmware_version: "unknown",    // Firmware version
-    middleware_version: "unknown"    // Middleware version
+    connected: mooltipass.device.emulation_mode? true:false,                // If device connected to computer
+    unlocked: mooltipass.device.emulation_mode? true:false,                 // If device unlocked
+    state: mooltipass.device.emulation_mode? "unlocked":"unknown",          // Device state in details
+    middleware: mooltipass.device.emulation_mode? "emulator":"unknown",     // String for the middleware 
+    firmware_version: "unknown",                                            // Firmware version
+    middleware_version: "unknown"                                           // Middleware version
 };
 
 /**
@@ -121,10 +128,10 @@ mooltipass.device.resetDeviceStatus = function()
 {
     mooltipass.device._status = 
     {
-        connected: false,
-        unlocked: false,
-        state: "unknown",
-        middleware: "unknown",
+        connected: mooltipass.device.emulation_mode? true:false,
+        unlocked: mooltipass.device.emulation_mode? true:false,
+        state: mooltipass.device.emulation_mode? "unlocked":"unknown",
+        middleware: mooltipass.device.emulation_mode? "emulator":"unknown",
         firmware_version: "unknown",
         middleware_version: "unknown"
     };
@@ -136,6 +143,7 @@ mooltipass.device.resetDeviceStatus = function()
  */
 mooltipass.device.switchToExternalApp = function()
 {
+    if (mooltipass.device.emulation_mode) return;
     if (background_debug_msg > 4) mpDebug.log('%c Starting to use external app !', mpDebug.css('00ffff'));
     mooltipass.device.connectedToExternalApp = true;
     mooltipass.device.resetDeviceStatus();
@@ -148,6 +156,8 @@ mooltipass.device.switchToExternalApp = function()
  */
 mooltipass.device.switchToInternalApp = function()
 {
+    if (mooltipass.device.emulation_mode) return;
+    
     /* May be called several times in a row even when already disconnected */
     if (mooltipass.device.connectedToExternalApp)
     {
@@ -165,6 +175,8 @@ mooltipass.device.switchToInternalApp = function()
  */
 mooltipass.device.checkConnection = function() 
 {
+    if (mooltipass.device.emulation_mode) return;
+    
     if(!mooltipass.device.connectedToApp && !mooltipass.device.connectedToExternalApp) 
     {
         if (mooltipass.device.browser == "chrome") 
@@ -281,7 +293,41 @@ mooltipass.device.sendCredentialRequestMessageFromQueue = function()
         mooltipass.device.wasPreviouslyUnlocked = true;
         
         // Send the message
-        if (mooltipass.device.connectedToExternalApp) 
+        if (mooltipass.device.emulation_mode)
+        {
+            for (var i = 0; i < mooltipass.device.emulation_credentials.length; i++)
+            {
+                if (mooltipass.device.emulation_credentials[i]["domain"] == mooltipass.device.retrieveCredentialsQueue[0].domain)
+                {
+                    if (background_debug_msg > 3) mpDebug.log("%c Emulation mode: found credential in buffer:", mpDebug.css('00ff00'), mooltipass.device.emulation_credentials[i]);
+                    setTimeout(function() 
+                    {
+                        try
+                        {
+                            mooltipass.device.retrieveCredentialsQueue[0].callback([
+                                {
+                                    Login: mooltipass.device.emulation_credentials[i]["login"],
+                                    Name: '<name>',
+                                    Uuid: '<Uuid>',
+                                    Password: mooltipass.device.emulation_credentials[i]["password"],
+                                    StringFields: []
+                                }
+                            ], mooltipass.device.retrieveCredentialsQueue[0].tabid == 'safari'?mooltipass.device.retrieveCredentialsQueue[0].tab:mooltipass.device.retrieveCredentialsQueue[0].tabid );
+                        }
+                        catch(err)
+                        {
+                            //console.log( err );
+                        }
+                        // Treat other pending requests
+                        mooltipass.device.retrieveCredentialsQueue.shift();
+                        mooltipass.device.sendCredentialRequestMessageFromQueue();
+                    }, 2000);
+                    return;
+                }
+            }
+            if (background_debug_msg > 3) mpDebug.log("%c Emulation mode: nothing in buffer!", mpDebug.css('00ff00'));
+        }
+        else if (mooltipass.device.connectedToExternalApp) 
         {
             moolticute.askPassword(
             {
@@ -305,11 +351,12 @@ mooltipass.device.sendCredentialRequestMessageFromQueue = function()
 mooltipass.device.getStatus = function() 
 {
     return {
-        'connectedToApp': mooltipass.device.connectedToExternalApp || mooltipass.device.connectedToApp,
+        'connectedToApp': mooltipass.device.emulation_mode? true:mooltipass.device.connectedToExternalApp || mooltipass.device.connectedToApp,
         'connectedToDevice': mooltipass.device._status.connected,
         'deviceUnlocked': mooltipass.device._status.unlocked,
         'usingChromeApp': mooltipass.device.connectedToApp,
         'usingExternalApp': mooltipass.device.connectedToExternalApp,
+        'emulationMode':mooltipass.device.emulation_mode,
         'middleware': mooltipass.device.middleware,
         'firmware_version': mooltipass.device.firmware_version,
         'middleware_version': mooltipass.device.middleware_version
@@ -355,7 +402,7 @@ mooltipass.device.generatePassword = function(callback, tab, length)
     var currentDate = new Date();
     var currentDayMinute = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
     
-    if(!mooltipass.device._latestRandomStringRequest || mooltipass.device._latestRandomStringRequest != currentDayMinute) 
+    if((!mooltipass.device._latestRandomStringRequest || mooltipass.device._latestRandomStringRequest != currentDayMinute) && !mooltipass.device.emulation_mode)
     {    
         mooltipass.device._asynchronous.randomCallback = callback;
         mooltipass.device._asynchronous.randomParameters = {'length': length, tab: tab};
@@ -456,7 +503,12 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
     mooltipass.device.onTabClosed(tab.id, null);
     mooltipass.device._asynchronous.updateCallback = callback;
 
-    if (mooltipass.device.connectedToExternalApp) 
+    if (mooltipass.device.emulation_mode)
+    {
+        if (background_debug_msg > 3) mpDebug.log("%c Emulation mode: storing credential in buffer for domain %s", mpDebug.css('00ff00'), url);
+        mooltipass.device.emulation_credentials.push({"domain":url, "login":username, "password":password});
+    }
+    else if (mooltipass.device.connectedToExternalApp) 
     {
         moolticute.sendRequest( request );
     } 
@@ -503,7 +555,10 @@ mooltipass.device.onTabClosed = function(tabId, removeInfo)
         {
             if (background_debug_msg > 4) mpDebug.log('%c device: onTabClosed ', mpDebug.css('ffff00') , 'Sending cancel request for ' + mooltipass.device.retrieveCredentialsQueue[0].domain + ', reqid: ' +  mooltipass.device.retrieveCredentialsQueue[0].reqid);
             /* Send a cancelling request if it is the tab from which we're waiting an answer */
-            if (mooltipass.device.connectedToExternalApp) 
+            if (mooltipass.device.emulation_mode)
+            {
+            }
+            else if (mooltipass.device.connectedToExternalApp) 
             {
                 moolticute.cancelRequest( mooltipass.device.retrieveCredentialsQueue[0].reqid, mooltipass.device.retrieveCredentialsQueue[0].domain, mooltipass.device.retrieveCredentialsQueue[0].subdomain );
             } 

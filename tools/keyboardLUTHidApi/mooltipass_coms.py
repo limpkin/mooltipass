@@ -8,9 +8,14 @@ import struct
 import string
 import copy
 import time
-import hid
 import sys
 import os
+
+if platform.system() == "Windows":
+	from pywinusb import hid
+	using_pywinusb = True
+else:
+	import hid
 
 USB_VID                 = 0x16D0
 USB_PID                 = 0x09A0
@@ -257,19 +262,29 @@ if __name__ == '__main__':
 	print ""
 	print "Mooltipass Keyboard LUT Generation Tool"
 	
-	# Open device
-	try:
-		hid_device = hid.device(vendor_id=0x16d0, product_id=0x09a0)
-		hid_device.open(vendor_id=0x16d0, product_id=0x09a0)
-	except IOError, ex:
-		print ex
-		sys.exit(0)
+	if using_pywinusb:
+		filter = hid.HidDeviceFilter(vendor_id = 0x16d0, product_id = 0x09a0)
+		hid_device = filter.get_devices()
+		device = hid_device[0]
+		device.open()
+		
+		report = device.find_output_reports()
+		print(report)
+		print(report[0])
+	else:
+		# Open device
+		try:
+			hid_device = hid.device(vendor_id=0x16d0, product_id=0x09a0)
+			hid_device.open(vendor_id=0x16d0, product_id=0x09a0)
+		except IOError, ex:
+			print ex
+			sys.exit(0)
 
-	print "Device Found and Opened"
-	print "Manufacturer: %s" % hid_device.get_manufacturer_string()
-	print "Product: %s" % hid_device.get_product_string()
-	print "Serial No: %s" % hid_device.get_serial_number_string()
-	print ""
+		print "Device Found and Opened"
+		print "Manufacturer: %s" % hid_device.get_manufacturer_string()
+		print "Product: %s" % hid_device.get_product_string()
+		print "Serial No: %s" % hid_device.get_serial_number_string()
+		print ""
 		
 	sendHidPacket(hid_device, CMD_PING, 4, [0,1,2,3])
 	if receiveHidPacket(hid_device):

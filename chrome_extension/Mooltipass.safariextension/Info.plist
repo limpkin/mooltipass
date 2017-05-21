@@ -91,5 +91,7 @@
 	</dict>
 	<key>Update From Gallery</key>
 	<true/>
+	<key>Website</key>
+	<string>https://www.themooltipass.com</string>
 </dict>
 </plist>

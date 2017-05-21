@@ -225,12 +225,14 @@ mooltipassEvent.isMooltipassUnlocked = function()
 {
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c isMooltipassUnlocked','background-color: #e2eef9','color: #246', arguments);
 	// prevents "Failed to send to device: Transfer failed" error when device is suddenly unplugged
-	if(typeof mooltipass.device._status.state == 'undefined') {
+	if(typeof mooltipass.device._status.state == 'undefined') 
+	{
 		return false;
 	}
 
 	// If the device is not connected and not unlocked and the user disabled the notifications, return
-	if (mooltipass.device._status.state != 'Unlocked') {
+	if (!(mooltipass.device._status.connected && mooltipass.device._status.unlocked))
+	{
 		if (mooltipass.backend.disableNonUnlockedNotifications)
 		{
 			//console.log('Not showing a notification as they are disabled');
@@ -243,17 +245,16 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	var noteId = 'mpNotUnlocked.'+mooltipassEvent.notificationCount.toString();
 
 	// Check that the Mooltipass app is installed and enabled
-	if (!mooltipass.device.emulation_mode && !mooltipass.device.connectedToExternalApp && (!mooltipass.device._app || mooltipass.device._app['enabled'] !== true))
+	if (!mooltipass.device.emulation_mode && !mooltipass.device.connectedToExternalApp && !mooltipass.device.connectedToApp)
 	{
 		//console.log('notify: mooltipass app not ready');
-
 		noteId = "mpNotUnlockedStaticMooltipassAppNotReady";
 
 		// Create notification to inform user
 		cross_notification(noteId,
 			{   type: 'basic',
-				title: 'Mooltipass App not ready!',
-				message: 'The Mooltipass app is not installed or disabled',
+				title: 'No Mooltipass App Installed',
+				message: 'Please Install our Application on www.themooltipass.com/setup',
 				iconUrl: '/icons/warning_icon.png',
 				buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
 
@@ -261,31 +262,29 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	}
 
 	// Check that our device actually is connected
-	if (mooltipass.device._status.state == 'NotConnected')
+	if (!mooltipass.device._status.connected)
 	{
 		//console.log('notify: device not connected');
-
 		noteId = "mpNotUnlockedStaticMooltipassNotConnected";
 
 		// Create notification to inform user
 		cross_notification(noteId,
 			{   type: 'basic',
-				title: 'Mooltipass Not Connected!',
+				title: 'Mooltipass Not Connected',
 				message: 'Please Connect Your Mooltipass',
 				iconUrl: '/icons/warning_icon.png',
 				buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]});
 
 		return false;
 	}
-	else if (mooltipass.device._status.state == 'Locked')
+	else if (!mooltipass.device._status.unlocked)
 	{
 		//console.log('notify: device locked');
-
 		noteId = "mpNotUnlockedStaticMooltipassDeviceLocked";
 
 		cross_notification( noteId, {
 			type: 'basic',
-			title: 'Mooltipass Locked!',
+			title: 'Mooltipass Locked',
 			message: 'Please Unlock Your Mooltipass',
 			iconUrl: '/icons/warning_icon.png',
 			buttons: [{title: 'Don\'t show these notifications', iconUrl: '/icons/forbidden-icon.png'}]
@@ -378,7 +377,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 			
 			cross_notification(noteId,
 				{   type: 'basic',
-					title: 'Password Too Long!',
+					title: 'Password Too Long',
 					message: "We are sorry, Mooltipass only supports passwords that are less than 31 characters",
 					iconUrl: '/icons/warning_icon.png'});
 			return;

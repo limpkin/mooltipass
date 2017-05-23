@@ -16,6 +16,10 @@ if platform.system() == "Windows":
 	using_pywinusb = True
 else:
 	import hid
+	using_pywinusb = False
+
+# Buffer containing the received data, filled asynchronously
+pywinusb_received_data = None
 
 USB_VID                 = 0x16D0
 USB_PID                 = 0x09A0
@@ -230,32 +234,60 @@ def keyboardTest(epout):
 	text_file = open("keymap_"+fileName+".c", "w")
 	text_file.write(hid_define_str)
 	text_file.close()
+
+def data_handler(data):
+	#print("Raw data: {0}".format(data))
+	global pywinusb_received_data
+	pywinusb_received_data = data[1:]
 		
 def receiveHidPacket(epin):
-	try :
-		data = epin.read(64, timeout_ms=15000)
-		return data
-	except :
-		sys.exit("Mooltipass didn't send a packet")
+	global pywinusb_received_data
+	if using_pywinusb:
+		while pywinusb_received_data == None:
+			time.sleep(0.01)
+		data_copy = pywinusb_received_data
+		pywinusb_received_data = None
+		return data_copy
+	else:
+		try :
+			data = epin.read(64, timeout_ms=15000)
+			return data
+		except :
+			sys.exit("Mooltipass didn't send a packet")
 
-def sendHidPacket(epout, cmd, len, data):
-	# data to send
-	arraytosend = array('B')
+def sendHidPacket(epout, cmd, length, data):
+	if using_pywinusb:
+		buffer = [0x00]*65
+		buffer[0] = 0
+		
+		# if command copy it otherwise copy the data
+		if cmd != 0:
+			buffer[1] = length
+			buffer[2] = cmd
+			buffer[3:3+len(data)] = data[:]
+		else:
+			buffer[1:1+len(data)] = data[:]
+			
+		epout.set_raw_data(buffer)
+		epout.send()
+	else:		
+		# data to send
+		arraytosend = array('B')
 
-	# if command copy it otherwise copy the data
-	if cmd != 0:
-		arraytosend.append(len)
-		arraytosend.append(cmd)
+		# if command copy it otherwise copy the data
+		if cmd != 0:
+			arraytosend.append(length)
+			arraytosend.append(cmd)
 
-	# add the data
-	if data is not None:
-		arraytosend.extend(data)
+		# add the data
+		if data is not None:
+			arraytosend.extend(data)
 
-	#print arraytosend
-	#print arraytosend
+		#print arraytosend
+		#print arraytosend
 
-	# send data
-	epout.write(arraytosend)
+		# send data
+		epout.write(arraytosend)
 
 if __name__ == '__main__':
 	# Main function
@@ -263,16 +295,26 @@ if __name__ == '__main__':
 	print "Mooltipass Keyboard LUT Generation Tool"
 	
 	if using_pywinusb:
+		# Look for our device
 		filter = hid.HidDeviceFilter(vendor_id = 0x16d0, product_id = 0x09a0)
 		hid_device = filter.get_devices()
+		
+		if len(hid_device) == 0:
+			print "Mooltipass device not found"
+			sys.exit(0)
+			
+		# Open device
+		print "Mooltipass device found"
 		device = hid_device[0]
 		device.open()
+		device.set_raw_data_handler(data_handler)		
+		report = device.find_output_reports()		
 		
-		report = device.find_output_reports()
-		print(report)
-		print(report[0])
+		# Set data sending object
+		data_sending_object = report[0]
+		data_receiving_object = None
 	else:
-		# Open device
+		# Look for our device and open it
 		try:
 			hid_device = hid.device(vendor_id=0x16d0, product_id=0x09a0)
 			hid_device.open(vendor_id=0x16d0, product_id=0x09a0)
@@ -286,12 +328,20 @@ if __name__ == '__main__':
 		print "Serial No: %s" % hid_device.get_serial_number_string()
 		print ""
 		
-	sendHidPacket(hid_device, CMD_PING, 4, [0,1,2,3])
-	if receiveHidPacket(hid_device):
+		# Set data sending object
+		data_sending_object = hid_device
+		data_receiving_object = hid_device
+		
+	sendHidPacket(data_sending_object, CMD_PING, 4, [0,1,2,3])
+	if receiveHidPacket(data_receiving_object)[CMD_INDEX] == CMD_PING:
 		print "Device responded to our ping"
+	else:
+		print "Bad answer to ping"
+		sys.exit(0)
 		
 	keyboardTest(hid_device)
 	
-	# Close device
-	hid_device.close()
+	if not using_pywinusb:
+		# Close device
+		data_sending_object.close()
 

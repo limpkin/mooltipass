@@ -72,6 +72,20 @@ startMooltipass = function() {
 			}
 		    mooltipass.device.onTabClosed(tabId, removeInfo);
 		});
+		
+		/**
+		 * Set active tab if switched to another window.
+		 */
+		chrome.windows.onFocusChanged.addListener(function() {
+			chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) {
+				if (tabs && tabs[0] && tabs[0].id) {
+					page.currentTabId = tabs[0].id;
+					if(tabs[0].status === "complete") {
+						event.invoke(page.switchTab, null, tabs[0].id, []);
+					}
+				}
+			});
+		});
 
 		/**
 		 * Remove stored credentials on switching tabs.

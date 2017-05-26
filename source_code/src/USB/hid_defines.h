@@ -28,7 +28,8 @@ extern const uint8_t keyboardLUT_EN[95];
 #define KEY_RIGHT_CTRL         0x10
 #define KEY_RIGHT_SHIFT        0x20
 #define KEY_RIGHT_ALT          0x40
-#define KEY_RIGHT_GUI          0x80#define KEY_NONE               0x00
+#define KEY_RIGHT_GUI          0x80
+#define KEY_NONE               0x00
 #define KEY_A                  0x04
 #define KEY_B                  0x05
 #define KEY_C                  0x06

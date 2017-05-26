@@ -123,7 +123,10 @@ def keyboardTestKey(epout, KEY, MODIFIER):
 	string = raw_input()
 	if (string == ''):
 		return string
-	return string[0]
+	elif string[0] != string[1]:
+		return ''
+	else:	
+		return string[0]
 
 def keyboardKeyMap(epout, key):
 	if ( (key & 0x3F) == KEY_EUROPE_2 ):
@@ -152,47 +155,51 @@ def keyboardTest(epout):
 	fileName = raw_input("Name of the Keyboard (example: ES): ");
 
 	# dictionary to store the
-	Layout_dict = dict()
+	Layout_dict = {}
 
 	# No modifier combinations
 	for bruteforce in range(KEY_EUROPE_2, KEY_SLASH+1):
 		output = keyboardKeyMap(epout, bruteforce)
 		if (output == ''): continue
 		if output in Layout_dict:
-			print "Already stored"
-			print bruteforce
+			print "'" + output + "'" + " already stored"
+			Layout_dict[output].append(bruteforce)
 		else:
-			Layout_dict.update({output: bruteforce})
+			Layout_dict[output] = []
+			Layout_dict[output].append(bruteforce)
 
 	# SHIFT combinations
 	for bruteforce in range(KEY_EUROPE_2, KEY_SLASH+1):
 		output = keyboardKeyMap(epout, SHIFT_MASK|bruteforce)
 		if (output == ''): continue
 		if output in Layout_dict:
-			print "Already stored"
-			print SHIFT_MASK|bruteforce
+			print "'" + output + "'" + " already stored"
+			Layout_dict[output].append(SHIFT_MASK|bruteforce)
 		else:
-			Layout_dict.update({output : SHIFT_MASK|bruteforce})
+			Layout_dict[output] = []
+			Layout_dict[output].append(SHIFT_MASK|bruteforce)
 
 	# ALTGR combinations
 	for bruteforce in range(KEY_EUROPE_2, KEY_SLASH+1):
 		output = keyboardKeyMap(epout, ALTGR_MASK|bruteforce)
 		if (output == ''): continue
 		if output in Layout_dict:
-			print "Already stored"
-			print ALTGR_MASK|bruteforce
+			print "'" + output + "'" + " already stored"
+			Layout_dict[output].append(ALTGR_MASK|bruteforce)
 		else:
-			Layout_dict.update({output : ALTGR_MASK|bruteforce})
+			Layout_dict[output] = []
+			Layout_dict[output].append(ALTGR_MASK|bruteforce)
 
 	# ALTGR + SHIFT combinations
 	for bruteforce in range(KEY_EUROPE_2, KEY_SLASH+1):
 		output = keyboardKeyMap(epout, SHIFT_MASK|ALTGR_MASK|bruteforce)
 		if (output == ''): continue
 		if output in Layout_dict:
-			print "Already stored"
-			print SHIFT_MASK|ALTGR_MASK|bruteforce
+			print "'" + output + "'" + " already stored"
+			Layout_dict[output].append(SHIFT_MASK|ALTGR_MASK|bruteforce)
 		else:
-			Layout_dict.update({output : SHIFT_MASK|ALTGR_MASK|bruteforce})
+			Layout_dict[output] = []
+			Layout_dict[output].append(SHIFT_MASK|ALTGR_MASK|bruteforce)
 
 
 	hid_define_str = "const uint8_t PROGMEM keyboardLUT_"+fileName+"[95] = \n{\n"
@@ -201,15 +208,33 @@ def keyboardTest(epout):
 	for key in KeyboardAscii:
 		if(key not in Layout_dict):
 			#print key + " Not found"
-			Layout_dict.update({key:0})
+			Layout_dict[key] = [0]
 		#else:
 			#print "BruteForced: " + key
+			
+		if len(Layout_dict[key]) > 1:
+			print "Multiple keys for '" + key + "'"
+			i = 0
+			for x in Layout_dict[key]:
+				if x & (SHIFT_MASK|ALTGR_MASK) == (SHIFT_MASK|ALTGR_MASK):
+					print str(i) + ": Shift + Altgr + ", key_val_to_key_text[x & ~SHIFT_MASK & ~ALTGR_MASK]
+				elif x & (SHIFT_MASK) == (SHIFT_MASK):
+					print str(i) + ": Shift + ", key_val_to_key_text[x & ~SHIFT_MASK & ~ALTGR_MASK]
+				elif x & (ALTGR_MASK) == (ALTGR_MASK):
+					print str(i) + ": Altgr + ", key_val_to_key_text[x & ~SHIFT_MASK & ~ALTGR_MASK]
+				else:
+					print str(i) + ": " + key_val_to_key_text[x & ~SHIFT_MASK & ~ALTGR_MASK]
+				i += 1
+				
+			choice = input("Please select correct combination: ")
+		else:
+			choice = 0
 
 		""" Format C code """
-		keycode = hex(Layout_dict[key])+","
+		keycode = hex(Layout_dict[key][choice])+","
 
 		# Write img file
-		img_contents.append(Layout_dict[key])
+		img_contents.append(Layout_dict[key][choice])
 
 		# Handle special case
 		if(key == '\\'):
@@ -339,7 +364,7 @@ if __name__ == '__main__':
 		print "Bad answer to ping"
 		sys.exit(0)
 		
-	keyboardTest(hid_device)
+	keyboardTest(data_sending_object)
 	
 	if not using_pywinusb:
 		# Close device

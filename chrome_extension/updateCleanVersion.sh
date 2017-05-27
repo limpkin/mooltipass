@@ -9,6 +9,9 @@ EXTENSION_NAME='mooltipass-extension'
 BUILD_FIREFOX=0
 BUILD_CHROMIUM=0
 
+# Array to store different information used during building different extension package.
+# Typically it is expected to found path to key used to sign extension before sending
+# them to the store.
 declare -A BUILD_METADATA
 
 trap _clean_wd INT TERM
@@ -156,7 +159,7 @@ function _build_chromium_crx()
 # The XPI file is expected to be a symlink to the ZIP file
 #
 # $1: pathname of the base zip file
-# $2: path to private key for signin Firefox extension
+# $2: path to private key for signin Firefox extension (optional)
 function _build_firefox_xpi()
 {
     local dir_zip
@@ -166,10 +169,12 @@ function _build_firefox_xpi()
     local firefox_sign_key
 
     zip_file="$1"
-    firefox_sign_key="$2"
-
     _file_present "${zip_file}"
-    _file_present "${firefox_sign_key}"
+
+    if [ $# -eq 2 ]; then
+        firefox_sign_key="$2"
+        _file_present "${firefox_sign_key}"
+    fi
 
     dir_zip="$(dirname "${zip_file}")"
     base_zip="$(basename "${zip_file}")"
@@ -205,7 +210,7 @@ function _file_present()
 
     f="${1}"
 
-    if [ ! -f "${f}" ]; then
+    if [ ! -r "${f}" ]; then
         echo "[ERROR] ${f} does not exists" 1>&2
         exit 2
     fi
@@ -275,14 +280,14 @@ EOF
     fi
 
     cat <<EOF 1>&2
-Usage: $prog_name [--extension-name NAME] [ TARGET ] [--test]
+Usage: $prog_name [--extension-name NAME] [TARGET] [--test]
 where TARGET := --target {chrome | chromium | firefox} --sign-key SIGN_KEY
 
       --extension-name  name of the generated extension files
       --help            print this help message
       --sign-key        path to signature key file for the specific target (ie: Chromium, Firefox...)
       --target          create a clean directory for the given target chromium(default)
-      --test            only perform test, no packaging is performed
+      --test            only perform test, no packages are created
 EOF
 
     exit 1

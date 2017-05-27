@@ -287,7 +287,7 @@ where TARGET := --target {chrome | chromium | firefox} --sign-key SIGN_KEY
       --help            print this help message
       --sign-key        path to signature key file for the specific target (ie: Chromium, Firefox...)
       --target          create a clean directory for the given target chromium(default)
-      --test            only perform test, no packages are create
+      --test            only perform test, no packages are created
 EOF
 
     exit 1

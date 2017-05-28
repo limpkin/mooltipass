@@ -23,6 +23,7 @@
 *    Author:   Mathieu Stephan
 */ 
 #include "timer_manager.h"
+#include "mini_inputs.h"
 
 /*! \fn     userViewDelay(void)
 *   \brief  2secs delay for the user to view information
@@ -30,6 +31,11 @@
 void userViewDelay(void)
 {
     timerBasedDelayMs(2000);
+
+#ifdef MINI_VERSION
+    // Discard user wheel input
+    miniWheelClearDetections();
+#endif
 }
 
 /*! \fn     smallForLoopBasedDelay(void)

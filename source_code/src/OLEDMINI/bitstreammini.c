@@ -45,8 +45,7 @@ void miniBistreamInit(bitstream_mini_t* bs, uint8_t height, uint16_t width, uint
     bs->width = width;
     bs->height = height;
     bs->dataCounter = 0;
-    bs->bufferInd = sizeof(bs->buffer);
-    bs->dataSize = (uint16_t)width * (((uint16_t)height+7) >> BITSTREAM_PIXELS_PER_BYTE_BITSHIFT);
+    bs->dataSize = (uint16_t)width * (((uint16_t)height+7) / BITSTREAM_PIXELS_PER_BYTE);
 }
 
 /*! \fn     bsGetNextByte(bitstream_mini_t* bs)
@@ -54,29 +53,28 @@ void miniBistreamInit(bitstream_mini_t* bs, uint8_t height, uint16_t width, uint
  *  \param  bs      pointer to initialized bitstream context to get the next word from
  *  \return next data word, or 0 if end of data reached
  */
-uint8_t miniBistreamGetNextByte(bitstream_mini_t* bs)
-{
-    // Are you requesting bytes when you've already read everything?
-    if (bs->dataCounter < bs->dataSize) 
-    {
-        bs->dataCounter++;
-        
-        // Check if we need to fetch new data from the SPI flash
-        if(bs->bufferInd >= sizeof(bs->buffer))
-        {
-            // Fetch new data from external flash
-            flashRawRead(bs->buffer, bs->addr, sizeof(bs->buffer));
-            bs->addr += sizeof(bs->buffer);
-            bs->bufferInd = 0;
-            //usbPrintf_P(PSTR("bistream buffer: %02x %02x %02x %02x %02x %02x"), bs->buffer[0], bs->buffer[1], bs->buffer[2], bs->buffer[3], bs->buffer[4], bs->buffer[5]);
-        }
-        
-         return bs->buffer[bs->bufferInd++];
-    }
-    else
-    {
-        return 0;
-    }
-}
+ uint8_t miniBistreamGetNextByte(bitstream_mini_t* bs)
+ {
+     // Are you requesting bytes when you've already read everything?
+     if (bs->dataCounter < bs->dataSize)
+     {
+         uint16_t buffer_index = bs->dataCounter % sizeof(bs->buffer);
+
+         // Check if we need to fetch new data from the SPI flash
+         if(buffer_index == 0)
+         {
+             // Fetch new data from external flash
+             flashRawRead(bs->buffer, bs->addr + bs->dataCounter, sizeof(bs->buffer));
+             //usbPrintf_P(PSTR("bistream buffer: %02x %02x %02x %02x %02x %02x"), bs->buffer[0], bs->buffer[1], bs->buffer[2], bs->buffer[3], bs->buffer[4], bs->buffer[5]);
+         }
+         bs->dataCounter++;
+
+         return bs->buffer[buffer_index];
+     }
+     else
+     {
+         return 0;
+     }
+ }
 #endif
 /***************************************************************/

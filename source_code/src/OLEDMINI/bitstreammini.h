@@ -30,7 +30,7 @@
 
 /** BIT STREAM DEFINES **/
 #define BITSTREAM_BUFFER_SIZE               16  // Bitstream buffer size
-#define BITSTREAM_PIXELS_PER_BYTE_BITSHIFT  3   // Number of pixels per byte
+#define BITSTREAM_PIXELS_PER_BYTE            8  // Number of pixels per byte
 
 /** STRUCTS **/
 typedef struct
@@ -41,7 +41,6 @@ typedef struct
     uint16_t dataCounter;       // current counter
     uint16_t addr;              // address of data in SPI FLASH store
     uint8_t buffer[16];         // read ahead buffer
-    uint8_t bufferInd;          // read ahead buffer index
 } bitstream_mini_t;
 
 /** PROTOTYPES **/

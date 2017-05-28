@@ -191,9 +191,9 @@ uint16_t guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress, ui
                 string_extra_chars[0] = strlen((char*)p->service) - miniOledPutCenteredString(THREE_LINE_TEXT_FIRST_POS, (char*)p->service + string_offset_cntrs[0]);
 
                 // Second line: "select credential" + x/total
-                itoa(cur_children_nb, temp_string, 10);
+                int_to_string(cur_children_nb, temp_string);
                 temp_string[strlen(temp_string)] = '/';
-                itoa(nb_children, temp_string+strlen(temp_string), 10);
+                int_to_string(nb_children, temp_string+strlen(temp_string));
                 strncat(select_cred_line, temp_string, TEXTBUFFERSIZE - strlen(select_cred_line) - 1);
                 miniOledPutCenteredString(THREE_LINE_TEXT_SECOND_POS, select_cred_line);
 

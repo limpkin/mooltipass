@@ -1612,7 +1612,7 @@ cipEvents.startEventHandling = function() {
 	* Receive a message from WS_SOCKET or MooltiPass APP
 	*/
 	listenerCallback = function(req, sender, callback) {
-		console.log( 'callback callback callback', req.message );
+		//console.log( 'callback callback callback', req.message );
 		if ( isSafari ) req = req.message;
 		if (content_debug_msg > 5) cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');
 		else if (content_debug_msg > 4 && req.action != 'check_for_new_input_fields') cipDebug.log('%c onMessage: %c ' + req.action,'background-color: #68b5dc','color: #000000');

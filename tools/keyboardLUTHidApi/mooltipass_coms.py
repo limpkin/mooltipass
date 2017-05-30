@@ -119,6 +119,8 @@ def keyboardTestKey(epout, KEY, MODIFIER):
 	if( KEY in KEYTEST_BAN_LIST ): return ''
 	keyboardSend(epout, KEY, MODIFIER)
 	keyboardSend(epout, KEY, MODIFIER)
+	keyboardSend(epout, KEY, MODIFIER)
+	keyboardSend(epout, KEY, MODIFIER)
 	keyboardSend(epout, KEY_RETURN, 0)
 	string = raw_input()
 	if (string == ''):

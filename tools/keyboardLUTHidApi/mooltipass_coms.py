@@ -123,6 +123,8 @@ def keyboardTestKey(epout, KEY, MODIFIER):
 	string = raw_input()
 	if (string == ''):
 		return string
+	elif len(string) < 2:
+		return ''
 	elif string[0] != string[1]:
 		return ''
 	else:	

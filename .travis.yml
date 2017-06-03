@@ -1,5 +1,8 @@
 language: java
 jdk:
   - oraclejdk8
-before_install: cd sauce_labs_tests
+before_install: 
+- cd sauce_labs_tests
+- bash updateCleanVersion.sh
+- mv mooltipass-extension-zip mooltipass.crx
 script: mvn install -B 

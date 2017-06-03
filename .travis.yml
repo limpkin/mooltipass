@@ -4,6 +4,7 @@ jdk:
 before_install: 
 - cd chrome_extension
 - chmod +x updateCleanVersion.sh
+- ./updateCleanVersion.sh
 - mv mooltipass-extension-zip ./../sauce_labs_tests/mooltipass.crx
 - cd ..
 - cd sauce_labs_tests

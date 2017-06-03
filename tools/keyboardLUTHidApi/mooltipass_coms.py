@@ -119,10 +119,14 @@ def keyboardTestKey(epout, KEY, MODIFIER):
 	if( KEY in KEYTEST_BAN_LIST ): return ''
 	keyboardSend(epout, KEY, MODIFIER)
 	keyboardSend(epout, KEY, MODIFIER)
+	keyboardSend(epout, KEY, MODIFIER)
+	keyboardSend(epout, KEY, MODIFIER)
 	keyboardSend(epout, KEY_RETURN, 0)
 	string = raw_input()
 	if (string == ''):
 		return string
+	elif len(string) < 2:
+		return ''
 	elif string[0] != string[1]:
 		return ''
 	else:	
@@ -204,10 +208,12 @@ def keyboardTest(epout):
 
 	hid_define_str = "const uint8_t PROGMEM keyboardLUT_"+fileName+"[95] = \n{\n"
 	img_contents = array('B')
+	final_keyb_dict = {}
 
 	for key in KeyboardAscii:
 		if(key not in Layout_dict):
 			#print key + " Not found"
+			final_keyb_dict[key] = 0
 			Layout_dict[key] = [0]
 		#else:
 			#print "BruteForced: " + key
@@ -229,12 +235,27 @@ def keyboardTest(epout):
 			choice = input("Please select correct combination: ")
 		else:
 			choice = 0
-
+			
+		# Store choice
+		final_keyb_dict[key] = Layout_dict[key][choice]
+				
+	# Double check our generated LUT
+	print "Double checking keys..."
+	for key in KeyboardAscii:
+		output = keyboardKeyMap(epout, final_keyb_dict[key])
+		if output != key:
+			print "Non matching keys:", "\"" + output + "\"", "instead of \"" + key + "\""
+			return
+	print "Check complete!"
+		
+	
+	# Generate expot file
+	for key in KeyboardAscii:
 		""" Format C code """
-		keycode = hex(Layout_dict[key][choice])+","
+		keycode = hex(final_keyb_dict[key])+","
 
 		# Write img file
-		img_contents.append(Layout_dict[key][choice])
+		img_contents.append(final_keyb_dict[key])
 
 		# Handle special case
 		if(key == '\\'):

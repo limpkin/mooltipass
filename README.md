@@ -45,6 +45,8 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
+- 06/2017 <a href="http://www.zdnet.com/article/onelogin-hit-by-data-breached-exposing-sensitive-customer-data/">Password manager OneLogin hacked, exposing sensitive customer data</a>
+- 05/2017 <a href="http://www.zdnet.com/pictures/biggest-hacks-leaks-and-data-breaches-2017/2/">2017 biggest hacks: Bell Canada, Edmodo, HipChat, Wonga, DaFont, PoliceOne hacked</a>
 - 05/2017 <a href="http://www.wired.co.uk/article/kodi-vlc-subtitles-hack-risk-security">Kodi and VLC users at risk of viruses hidden in subtitles</a>
 - 05/2017 <a href="https://hardware.slashdot.org/story/17/05/07/2034245/intels-remote-hijacking-flaw-was-worse-than-anyone-thought">Intel AMT bug that allows hackers to remotely gain administrative control over huge fleets of computers without entering a password</a>
 - 03/2017 <a href="https://it.slashdot.org/story/17/03/19/0126257/edge-vmware-safari-and-ubuntu-linux-hacked-at-pwn2own-2017">Edge, VMWare, Safari, And Ubuntu Linux Hacked at Pwn2Own 2017</a>

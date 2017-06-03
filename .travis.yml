@@ -1,4 +1,5 @@
 language: java
+sudo: enabled
 jdk:
   - oraclejdk8
 before_script: ./chrome_extension/updateCleanVersion.sh 

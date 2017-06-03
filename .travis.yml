@@ -3,7 +3,7 @@ jdk:
   - oraclejdk8
 before_install: 
 - cd chrome_extension
-- bash updateCleanVersion.sh
+- sh updateCleanVersion.sh
 - mv mooltipass-extension-zip ../sauce_labs_tests/mooltipass.crx
 - cd ..
 - cd sauce_labs_tests

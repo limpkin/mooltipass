@@ -31,8 +31,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
-
-
+import org.openqa.selenium.firefox.XpiDriverService;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.LocalFileDetector;
@@ -67,29 +66,29 @@ public class WebDriverFactory {
 	}
 	
 	//for local testing on firefox
-	private static WebDriver firefox(){
+	private static WebDriver firefox(String extension){
 		System.setProperty("webdriver.gecko.driver","src/test/resources/geckodriver.exe");
 		FirefoxOptions options = new FirefoxOptions();
 		FirefoxProfile profile = new FirefoxProfile();
-		profile.addExtension(new File("/path_to_extension"));
+		profile.addExtension(new File("C:\\Users\\mohamed\\Downloads\\mooltipass_extension-1.1.81-an+fx-windows.xpi"));
 		driver = new FirefoxDriver(profile);
 		driver.get("about:addons");
-
+		
 		return driver;
 	}
 	//for local testing on chrome
-	private static WebDriver chrome(){
+	private static WebDriver chrome(String extension){
 		System.setProperty("webdriver.chrome.driver","src/test/resources/chromedriver.exe");
 		ChromeOptions options = new ChromeOptions();
 		//options.addArguments("load-extension=");
-		options.addExtensions(new File("path_to_extension"));
+		options.addExtensions(new File(extension));
 		driver = new ChromeDriver(options);
 		driver.get("chrome://extensions/");
 		
 		return driver;
 	}
 
-	private static WebDriver remoteChrome(String sauceLabsURL,String extensionPath)
+	private static WebDriver remoteChrome(String sauceLabsUser,String sauceLabsKey,String extensionPath)
 	{
 		
 		ChromeOptions options = new ChromeOptions();
@@ -118,7 +117,7 @@ public class WebDriverFactory {
 		caps.setCapability(ChromeOptions.CAPABILITY, options);
 		URL url = null;
 		try {
-			url = new URL(sauceLabsURL);
+			url = new URL("http://"+sauceLabsUser+":"+sauceLabsKey+"@ondemand.saucelabs.com:80/wd/hub");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -129,7 +128,7 @@ public class WebDriverFactory {
 		return driver;
 		
 	}
-	private static WebDriver remoteFirefox(String sauceLabsURL,String extensionPath)
+	private static WebDriver remoteFirefox(String sauceLabsUser,String sauceLabsKey,String extensionPath)
 	{
 
 		FirefoxProfile profile = new FirefoxProfile();
@@ -153,7 +152,7 @@ public class WebDriverFactory {
 		caps.setCapability(FirefoxDriver.PROFILE, profile);
 		URL url = null;
 		try {
-			url = new URL(sauceLabsURL);
+			url = new URL("http://"+sauceLabsUser+":"+sauceLabsKey+"@ondemand.saucelabs.com:80/wd/hub");
 
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -166,16 +165,17 @@ public class WebDriverFactory {
 	
 	private static WebDriver createDriver() {
 		Configuration config = ConfigFactory.get();
-		String sauceLabsURL = config.getString("SAUCELABS");
+		String sauceLabsUser = config.getString("SAUCE_USERNAME");
+		String sauceLabsKey = config.getString("SAUCE_ACCESS_KEY");
 		String chromeExtension = config.getString("CHROME_EXTENSION");
 		String firefoxExtension = config.getString("FIREFOX_EXTENSION");
 		String browser = config.getString("BROWSER");
 		WebDriver driver;
-		
-		if(browser.equals("firefox"))
-			driver = remoteFirefox(sauceLabsURL,firefoxExtension);
-		else
-			driver=remoteChrome(sauceLabsURL,chromeExtension);
+		driver =chrome(chromeExtension);
+//		if(browser.equals("firefox"))
+//			driver = remoteFirefox(sauceLabsUser,sauceLabsKey,firefoxExtension);
+//		else
+		//	driver=remoteChrome(sauceLabsUser,sauceLabsKey,chromeExtension);
 
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		logger = Logger.getLogger("WebDriverFactory");

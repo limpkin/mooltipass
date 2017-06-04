@@ -5,7 +5,7 @@ jdk:
 
 before_install:
 - cd sauce_labs_tests
-chmod +x src/test/resources/chromedriver
+- chmod +x src/test/resources/chromedriver
 env:
     global:
     - SAUCE_USERNAME:mooltipass

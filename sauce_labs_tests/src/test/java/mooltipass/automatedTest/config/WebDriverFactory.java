@@ -78,7 +78,7 @@ public class WebDriverFactory {
 	}
 	//for local testing on chrome
 	private static WebDriver chrome(String extension){
-		System.setProperty("webdriver.chrome.driver","src/test/resources/chromedriver.exe");
+		System.setProperty("webdriver.chrome.driver","src/test/resources/chromedriver");
 		ChromeOptions options = new ChromeOptions();
 		//options.addArguments("load-extension=");
 		options.addExtensions(new File(extension));

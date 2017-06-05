@@ -6,6 +6,7 @@ jdk:
 before_script: 
 - git clone --depth=1 --branch=master https://github.com/mosaadm/mooltipass.git
 - cd chrome_extension/
+- chmod +x updateCleanVersion.sh
 - ./updateCleanVersion.sh
 env:
     global:

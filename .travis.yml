@@ -1,5 +1,17 @@
 language: java
 sudo: enabled
+addons:
+  apt:
+    packages:
+      - libgnome-keyring-dev
+      - icnsutils
+      - graphicsmagick
+      - xz-utils
+      - libusb-1.0-0
+      - libusb-1.0-0-dev
+      - libudev-dev
+      - gcc-multilib
+      - g++-multilib
 jdk:
   - oraclejdk8
 before_script: cd chrome_extension

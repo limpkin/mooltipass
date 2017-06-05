@@ -9,7 +9,7 @@ EXTENSION_NAME='mooltipass-extension'
 BUILD_FIREFOX=0
 BUILD_CHROMIUM=0
 
-# Array to store different information used during building different extension package.
+# Array to  store different information used during building different extension package.
 # Typically it is expected to found path to key used to sign extension before sending
 # them to the store.
 declare -A BUILD_METADATA

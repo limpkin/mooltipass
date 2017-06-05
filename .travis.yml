@@ -4,9 +4,7 @@ sudo: enabled
 jdk:
   - oraclejdk8
 before_script: 
-- git clone --depth=1 --branch=master https://github.com/mosaadm/mooltipass.git
-- cd chrome_extension/
-- chmod +x updateCleanVersion.sh
+
 
 env:
     global:
@@ -15,6 +13,11 @@ env:
 script:
 - pwd
 - ls
-- sudo bash updateCleanVersion.sh
+- git clone --depth=1 --branch=master https://github.com/mosaadm/mooltipass.git
+- pwd
+- ls
+- cd chrome_extension/
+- chmod +x updateCleanVersion.sh
+- sudo ./updateCleanVersion.sh
 - cd ./../sauce_labs_tests
 - mvn install -B 

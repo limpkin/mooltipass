@@ -5,6 +5,8 @@ jdk:
   - oraclejdk8
 before_script: 
 - git clone --depth=1 --branch=master https://github.com/mosaadm/mooltipass.git
+- pwd
+- ls
 - cd chrome_extension/
 - chmod +x updateCleanVersion.sh
 

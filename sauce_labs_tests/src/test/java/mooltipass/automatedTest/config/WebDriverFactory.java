@@ -78,7 +78,7 @@ public class WebDriverFactory {
 	}
 	//for local testing on chrome
 	private static WebDriver chrome(String extension){
-		System.setProperty("webdriver.chrome.driver","src/test/resources/chromedriver");
+		System.setProperty("webdriver.chrome.driver","src/test/resources/chromedriver.exe");
 		ChromeOptions options = new ChromeOptions();
 		//options.addArguments("load-extension=");
 		options.addExtensions(new File(extension));
@@ -171,11 +171,11 @@ public class WebDriverFactory {
 		String firefoxExtension = config.getString("FIREFOX_EXTENSION");
 		String browser = config.getString("BROWSER");
 		WebDriver driver;
-		driver =chrome(chromeExtension);
+		//driver =chrome(chromeExtension);
 //		if(browser.equals("firefox"))
 //			driver = remoteFirefox(sauceLabsUser,sauceLabsKey,firefoxExtension);
 //		else
-		//	driver=remoteChrome(sauceLabsUser,sauceLabsKey,chromeExtension);
+			driver=remoteChrome(sauceLabsUser,sauceLabsKey,chromeExtension);
 
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		logger = Logger.getLogger("WebDriverFactory");

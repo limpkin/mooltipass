@@ -15,6 +15,6 @@ env:
 script:
 - pwd
 - ls
--  sudo bash updateCleanVersion.sh
+- sudo bash updateCleanVersion.sh
 - cd ./../sauce_labs_tests
 - mvn install -B 

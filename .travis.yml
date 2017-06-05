@@ -7,7 +7,8 @@ before_install:
 - sudo apt-get install dos2unix
 before_script: 
 - cd chrome_extension/
-- bash -x test.sh
+- bash -x updateCleanVersion.sh --target firefox --sign-key /wat
+
 
 env:
     global:

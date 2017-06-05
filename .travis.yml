@@ -2,7 +2,7 @@ language: java
 sudo: enabled
 jdk:
   - oraclejdk8
-
+before_script: chrome_extension/updateCleanVersion.sh
 before_install:
 - cd sauce_labs_tests
 - chmod +x src/test/resources/chromedriver

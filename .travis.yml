@@ -7,7 +7,7 @@ before_install:
 - sudo apt-get install dos2unix
 before_script: 
 - cd chrome_extension/
-- bash -x updateCleanVersion.sh
+- bash -x test.sh
 
 env:
     global:

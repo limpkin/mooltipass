@@ -427,6 +427,12 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 			}
 			else if(mooltipass.device.emulation_mode)
 			{
+				var notification = {   
+					type: 'basic',
+					title: 'Subdomain Detected!',
+					message: 'What domain do you want to store?',
+					iconUrl: '/icons/question.png',
+				};
 				notification.message = 'Please approve Domain storage';
 				mooltipass.device.updateCredentials(null, tab, 0, username, password, domain);
 				cross_notification(noteId,notification);				

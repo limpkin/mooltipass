@@ -425,6 +425,12 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 			{
 				//console.log('mooltipass not connected - do not ask which domain to store');
 			}
+			else if(mooltipass.device.emulation_mode)
+			{
+				notification.message = 'Please approve Domain storage';
+				mooltipass.device.updateCredentials(null, tab, 0, username, password, subdomain + '.' + domain);
+				cross_notification(noteId,notification);				
+			}
 			else{
 
 				// Unknown user

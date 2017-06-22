@@ -428,7 +428,7 @@ mooltipassEvent.onUpdateNotify = function(callback, tab, username, password, url
 			else if(mooltipass.device.emulation_mode)
 			{
 				notification.message = 'Please approve Domain storage';
-				mooltipass.device.updateCredentials(null, tab, 0, username, password, subdomain + '.' + domain);
+				mooltipass.device.updateCredentials(null, tab, 0, username, password, domain);
 				cross_notification(noteId,notification);				
 			}
 			else{

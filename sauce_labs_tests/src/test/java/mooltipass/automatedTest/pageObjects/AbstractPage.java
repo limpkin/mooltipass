@@ -1,9 +1,13 @@
 package mooltipass.automatedTest.pageObjects;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 
@@ -16,7 +20,7 @@ public class AbstractPage {
 		wait = new WebDriverWait(driver, 30);
 	}
 
-	protected static void sleep(int ms) {
+	public static void sleep(int ms) {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
@@ -43,6 +47,41 @@ public class AbstractPage {
 	
 	protected void click(WebElement element) {
 		element.click();
+	}
+	
+	protected void waitUntilAppears(By by){
+		WebDriverWait wait = new WebDriverWait(driver, 10);
+		wait.until(ExpectedConditions.elementToBeClickable(by));
+	}
+	protected boolean waitUntilAppears(WebElement element){
+		try{
+			WebDriverWait wait = new WebDriverWait(driver, 10);
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+			return true;
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+     }
+	
+	protected void clickWithAction(WebElement element)
+	{
+		Actions actions = new Actions(driver);
+		actions.moveToElement(element).click().perform();
+	}
+	
+	protected void hover(WebElement element)
+	{
+		
+		Actions actions = new Actions(driver);
+		actions.moveToElement(element).build().perform();
+	}
+	
+	protected void clickWithJS(WebElement element){
+
+		JavascriptExecutor executor = (JavascriptExecutor) driver;
+		executor.executeScript("arguments[0].click();", element);
 	}
 }
 

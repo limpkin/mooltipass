@@ -31,7 +31,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.firefox.XpiDriverService;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.LocalFileDetector;
@@ -41,6 +40,8 @@ import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.google.common.base.Predicate;
+
+import cucumber.api.Scenario;
 import gherkin.deps.net.iharder.Base64;
 
 
@@ -50,7 +51,7 @@ public class WebDriverFactory {
 	public static final long PAGE_LOAD_TIMEOUT_SEC = 30;
 	protected static Logger logger;
 	private static WebDriver driver = null;
-
+	private static String scenarioName="";
 	public static WebDriver get() {
 		if (driver != null && isAlive(driver)) {
 			return driver;
@@ -58,6 +59,11 @@ public class WebDriverFactory {
 			driver = createDriver();
 			return driver;
 		}
+	}
+	public static WebDriver get(String name){
+		scenarioName=name;
+		driver = createDriver();
+		return driver;
 	}
 
 
@@ -82,6 +88,11 @@ public class WebDriverFactory {
 		ChromeOptions options = new ChromeOptions();
 		//options.addArguments("load-extension=");
 		options.addExtensions(new File(extension));
+		Map<String, Object> prefs = new HashMap<String, Object>();
+		prefs.put("credentials_enable_service", false);
+		prefs.put("profile.password_manager_enabled", false);
+
+		options.setExperimentalOption("prefs", prefs);
 		driver = new ChromeDriver(options);
 		driver.get("chrome://extensions/");
 		
@@ -108,13 +119,20 @@ public class WebDriverFactory {
 		options.addArguments("--disable-infobars");
 		options.addArguments("--test-type");
 		options.addArguments("--ignore-certificate-errors");
+		Map<String, Object> prefs = new HashMap<String, Object>();
+		prefs.put("credentials_enable_service", false);
+		prefs.put("profile.password_manager_enabled", false);
+
+		options.setExperimentalOption("prefs", prefs);
+		
 		DesiredCapabilities caps = new DesiredCapabilities();
 		caps.setBrowserName("chrome");
-		caps.setVersion("57");
-	
+		caps.setVersion("58");
+		caps.setCapability("screenResolution", "1280x1024");
 		caps.setCapability(CapabilityType.PLATFORM,
 				"Windows 10");
 		caps.setCapability(ChromeOptions.CAPABILITY, options);
+		caps.setCapability("name", scenarioName+" "+System.currentTimeMillis());
 		URL url = null;
 		try {
 			url = new URL("http://"+sauceLabsUser+":"+sauceLabsKey+"@ondemand.saucelabs.com:80/wd/hub");
@@ -171,13 +189,14 @@ public class WebDriverFactory {
 		String firefoxExtension = config.getString("FIREFOX_EXTENSION");
 		String browser = config.getString("BROWSER");
 		WebDriver driver;
-		//driver =chrome(chromeExtension);
+//		driver =chrome(chromeExtension);
 //		if(browser.equals("firefox"))
 //			driver = remoteFirefox(sauceLabsUser,sauceLabsKey,firefoxExtension);
 //		else
 			driver=remoteChrome(sauceLabsUser,sauceLabsKey,chromeExtension);
 
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.manage().window().maximize();
 		logger = Logger.getLogger("WebDriverFactory");
 		return driver;
 	}

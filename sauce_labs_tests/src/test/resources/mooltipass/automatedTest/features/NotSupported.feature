@@ -137,7 +137,7 @@ When I logout microchipdirect
 And I go to microchipdirect login page
 Then I should be logged in microchipdirect
 
-@notsupported
+@notsupported @ignore
 Scenario: Testing http://www.metacritic.com/
 Given I navigate to 'http://www.metacritic.com/'
 When I login metacritic with 'citesting@themooltipass.com' and 'Testpass123'

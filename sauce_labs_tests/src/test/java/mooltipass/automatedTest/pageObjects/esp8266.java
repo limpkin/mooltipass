@@ -57,6 +57,7 @@ public class esp8266 extends AbstractPage{
 		
 	}
 	public void logout(){
+		waitUntilAppears(logoutBtn);
 		logoutBtn.click();
 	}
 	

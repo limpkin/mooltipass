@@ -727,10 +727,22 @@ mcCombinations.prototype.getAllForms = function() {
 						element: containerForm
 					};
 					containerForm.submit( mpJQ.proxy(this.onSubmit,this) );
+
+					// Fire submit event for accounts.google.com when "Next" buttons is clicked
+					// and when return key is pressed inside input.
+					// It's good to move this quirk to universal method in extendedCombinations,
+					// something like "handleSubmit".
+					if (window.location.hostname == 'accounts.google.com') {
+						containerForm.find('[role=button]').click( this.onSubmit.bind(this, { target: containerForm }) );
+						containerForm.find('input').keypress(function(event) {
+							if (event.which == 13) {
+								this.onSubmit.call(this, { target: containerForm });
+							}
+						}.bind(this));
+					}
 				}
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
-
 			currentForm.fields.push( field );
 		} else {
 			if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations: %c Unavailable Field ', 'background-color: #c3c6b4','color: #FF0000', field[0]);

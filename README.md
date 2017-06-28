@@ -45,6 +45,10 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
+- 06/2017 <a href="https://it.slashdot.org/story/17/06/24/1825235/researcher-finds-critical-openvpn-bug-using-fuzzing">Researcher Finds Critical OpenVPN Bug Using Fuzzing </a>
+- 06/2017 <a href="https://it.slashdot.org/story/17/06/23/1943245/wikileaks-doc-dump-reveals-cia-tools-for-hacking-air-gapped-pcs">WikiLeaks Doc Dump Reveals CIA Tools For Hacking Air-Gapped PCs</a>
+- 06/2017 <a href="http://www.zdnet.com/article/zero-day-skype-flaw-causes-crashes-remote-code-execution/">Zero-day Skype flaw causes crashes, remote code execution</a>
+- 06/2017 <a href="https://arstechnica.com/security/2017/06/advanced-cia-firmware-turns-home-routers-into-covert-listening-posts/">Advanced CIA firmware has been infecting Wi-Fi routers for years</a>
 - 06/2017 <a href="http://www.zdnet.com/article/onelogin-hit-by-data-breached-exposing-sensitive-customer-data/">Password manager OneLogin hacked, exposing sensitive customer data</a>
 - 05/2017 <a href="http://www.zdnet.com/pictures/biggest-hacks-leaks-and-data-breaches-2017/2/">2017 biggest hacks: Bell Canada, Edmodo, HipChat, Wonga, DaFont, PoliceOne hacked</a>
 - 05/2017 <a href="http://www.wired.co.uk/article/kodi-vlc-subtitles-hack-risk-security">Kodi and VLC users at risk of viruses hidden in subtitles</a>

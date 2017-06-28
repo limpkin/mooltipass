@@ -36,7 +36,14 @@ public class AliBaba extends AbstractPage{
 	
 	@FindBy(xpath="//input[@type='checkbox']")
 	private WebElement rememberMe;
+	
+	@FindBy(xpath="//input[@value='Access Now']")
+	private WebElement accessNow;
 
+	@FindBy(xpath="//span[contains(text(),'Loading')]")
+	private WebElement loading;
+
+	
 	public void enterEmail(String value){
 		driver.switchTo().frame(driver.findElement(By.id("alibaba-login-box" )));
 		email.sendKeys(value);
@@ -50,6 +57,12 @@ public class AliBaba extends AbstractPage{
 	public void goToLogin(){
 		waitUntilAppears(loginBtn);
 		loginBtn.click();
+	}
+	
+	public void clickAccessNow(){
+		driver.switchTo().frame(driver.findElement(By.id("alibaba-login-box" )));
+		waitUntilAppears(accessNow);
+		accessNow.click();
 	}
 	
 	public void submit(){
@@ -66,7 +79,8 @@ public class AliBaba extends AbstractPage{
 	public void logout(){
 		waitUntilAppears(logoutBtn);
 		logoutBtn.click();
-		sleep(9000);
+		while(isElementPresent(By.xpath("//span[contains(text(),'Loading')]")))
+			sleep(1000);
 	}
 	
 	public boolean checkLogin(){

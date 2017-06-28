@@ -65,7 +65,7 @@ When I logout GitHub
 And I go to GitHub login page
 Then I should be logged in GitHub
 
-@supported
+@supported  
 Scenario: Testing hackaday.io
 Given I navigate to 'https://hackaday.io/'
 When I login HackADay with 'citesting@themooltipass.com' and 'testpass123'
@@ -164,4 +164,12 @@ Then I should be logged in komoot
 When I logout komoot
 Then I should be logged in komoot
 
-
+@subdomain @supported
+Scenario: Testing alibaba.com
+Given I navigate to 'http://www.alibaba.com/'
+When I login AliBaba with 'citesting@themooltipass.com' and 'testpass123'
+Then I should be logged in AliBaba
+When I confirm login to Alibaba
+When I logout AliBaba
+And I go to AliBaba login page
+Then I should be logged in AliBaba

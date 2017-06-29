@@ -10,7 +10,7 @@ When I logout StackOverFlow
 And I go to StackOverFlow login page
 Then I should be logged in StackOverFlow
 
-@supported @run 
+@supported 
 Scenario: Testing dropbox.com
 Given I navigate to 'https://www.dropbox.com/'
 When I login DropBox with 'citesting@themooltipass.com'

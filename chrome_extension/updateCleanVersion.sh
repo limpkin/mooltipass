@@ -293,7 +293,7 @@ EOF
     fi
 
     cat <<EOF 1>&2
-Usage: $prog_name [--extension-name NAME] [TARGET] [--test]
+Usage: $prog_name [OPTION]... [--extension-name NAME] [TARGET] [--test]
 where TARGET := --target {chrome | chromium | firefox} --sign-key SIGN_KEY
 
       --extension-name  name of the generated extension files
@@ -301,6 +301,11 @@ where TARGET := --target {chrome | chromium | firefox} --sign-key SIGN_KEY
       --sign-key        path to signature key file for the specific target (ie: Chromium, Firefox...)
       --target          create a clean directory for the given target chromium(default)
       --test            only perform test, no packages are created
+
+options:
+        --emulation-mode        This will set the emulate mode in the base archive
+                                (see mooltipass.device.emulation_mode under device.js)
+
 EOF
 
     exit 1

@@ -31,7 +31,7 @@ public class StackOverflow extends AbstractPage{
 	@FindBy(xpath = "//input[@value='Log Out']")
 	private WebElement submitLogoutBtn;
 	
-	@FindBy(xpath = "//a[@title='A list of all 167 Stack Exchange sites']")
+	@FindBy(xpath = "//a[contains(@title,'A list of all')]")
 	private WebElement expandBtn;
 
 
@@ -48,10 +48,12 @@ public class StackOverflow extends AbstractPage{
 	}
 	
 	public void submit(){
+		waitUntilAppears(submitLogin);
 		submitLogin.click();
 	}
 	
 	public boolean checkLogin(){
+		waitUntilAppears(By.xpath("//div[@title='your reputation: 1']"));
 		return isElementPresent(By.xpath("//div[@title='your reputation: 1']"));
 	}
 	
@@ -59,5 +61,9 @@ public class StackOverflow extends AbstractPage{
 		expandBtn.click();
 		logoutBtn.click();
 		submitLogoutBtn.click();
+	}
+	
+	public boolean checkAtLoginPage(){
+		return isElementPresent(By.id("email"));
 	}
 }

@@ -9,6 +9,8 @@ EXTENSION_NAME='mooltipass-extension'
 BUILD_FIREFOX=0
 BUILD_CHROMIUM=0
 
+ENABLE_EMULTATION_MODE=0
+
 # Array to store different information used during building different extension package.
 # Typically it is expected to found path to key used to sign extension before sending
 # them to the store.
@@ -68,6 +70,10 @@ function main()
                  ;;
              '--test')
                  test_only=1
+                 shift
+                 ;;
+             '--emulation-mode')
+                 ENABLE_EMULTATION_MODE=1
                  shift
                  ;;
              *)
@@ -241,6 +247,13 @@ function _inject_scripts()
     for ext_dir in vendor popups css options background images icons; do
         cp -Rf "${CWD}/${ext_dir}" "${OUTPUT_DIR}/"
     done
+
+    if [ "${ENABLE_EMULTATION_MODE}" != '0' ] && [ -f "${CWD}/vendor/mooltipass/device.js" ]; then
+        if ! sed -i 's/mooltipass.device.emulation_mode = false/mooltipass.device.emulation_mode = true/' \
+             "${OUTPUT_DIR}/vendor/mooltipass/device.js"; then
+            echo "[ERROR] Cannot set emulation mode" 1>&2
+        fi
+    fi
 }
 
 # performs a list of tests on the extension archive directory

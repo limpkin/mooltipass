@@ -511,7 +511,7 @@ mooltipass.device.updateCredentials = function(callback, tab, entryId, username,
 
     if (mooltipass.device.emulation_mode)
     {
-        if (background_debug_msg > 3) mpDebug.log("%c Emulation mode: storing credential in buffer for domain %s", mpDebug.css('00ff00'), url);
+        if (background_debug_msg > 3) mpDebug.log("%c Emulation mode: storing credential in buffer for domain %s : %s & %s", mpDebug.css('00ff00'), url, username, password);
         mooltipass.device.emulation_credentials.push({"domain":url, "login":username, "password":password});
     }
     else if (mooltipass.device.connectedToExternalApp) 

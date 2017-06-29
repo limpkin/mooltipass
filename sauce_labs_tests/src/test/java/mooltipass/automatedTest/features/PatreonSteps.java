@@ -13,7 +13,7 @@ public class PatreonSteps {
 	public void login(String username){
 		patreon.goToLogin();
 		patreon.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		patreon.enterPassword(password);
 		patreon.submit();
 		

@@ -13,7 +13,7 @@ public class ProtonMailSteps {
 	public void login(String username){
 		proton.goToLogin();
 		proton.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		proton.enterPassword(password);
 		proton.submit();
 		

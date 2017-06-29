@@ -13,7 +13,7 @@ public class TindieSteps {
 	public void login(String username){
 		tindie.goToLogin();
 		tindie.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		tindie.enterPassword(password);
 		tindie.submit();
 		

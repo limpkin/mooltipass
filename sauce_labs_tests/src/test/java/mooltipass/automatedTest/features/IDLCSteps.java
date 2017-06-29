@@ -13,7 +13,7 @@ public class IDLCSteps {
 	public void login(String username){
 		idlc.goToLogin();
 		idlc.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		idlc.enterPassword(password);
 		idlc.submit();
 		

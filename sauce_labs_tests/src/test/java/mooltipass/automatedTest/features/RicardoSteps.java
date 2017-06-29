@@ -13,7 +13,7 @@ public class RicardoSteps {
 	public void login(String username){
 		ricardo.goToLogin();
 		ricardo.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		ricardo.enterPassword(password);
 		ricardo.submit();
 		

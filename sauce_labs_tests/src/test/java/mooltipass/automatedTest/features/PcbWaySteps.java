@@ -13,7 +13,7 @@ public class PcbWaySteps {
 	public void login(String username){
 		pcb.goToLogin();
 		pcb.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		pcb.enterPassword(password);
 		pcb.submit();
 		

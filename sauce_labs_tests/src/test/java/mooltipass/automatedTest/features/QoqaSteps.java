@@ -14,7 +14,7 @@ public class QoqaSteps {
 	public void login(String username){
 		qoqa.goToLogin();
 		qoqa.enterEmail(username);
-		String password="Testpass123";
+		String password=System.getenv().get("PASS3");
 		qoqa.enterPassword(password);
 		qoqa.submit();
 		

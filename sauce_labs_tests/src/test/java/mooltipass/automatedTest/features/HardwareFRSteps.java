@@ -13,7 +13,7 @@ public class HardwareFRSteps {
 	public void login(String username){
 		hFR.goToLogin();
 		hFR.enterEmail(username);
-		String password ="0b18d348fd";
+		String password =System.getenv().get("PASS4");
 		hFR.enterPassword(password);
 		hFR.submit();
 		

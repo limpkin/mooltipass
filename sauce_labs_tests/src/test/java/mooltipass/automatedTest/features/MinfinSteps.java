@@ -15,7 +15,7 @@ public class MinfinSteps {
 			minfin.closePopUpIfOpen();
 			minfin.goToLogin();
 			minfin.enterEmail(username);
-			String password ="testpass123";
+			String password =System.getenv().get("PASS1");
 			minfin.enterPassword(password);
 			minfin.submit();
 			

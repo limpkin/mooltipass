@@ -14,7 +14,7 @@ public class AnibisSteps {
 	public void login(String username){
 		anibis.goToLogin();
 		anibis.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		anibis.enterPassword(password);
 		anibis.submit();
 		

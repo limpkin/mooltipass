@@ -19,7 +19,7 @@ public class MicrospotSteps {
 	public void login(String username){
 		microspot.goToLogin();
 		microspot.enterEmail(username);
-		String password = "Mooltipass123";
+		String password = System.getenv().get("PASS5");
 		microspot.enterPassword(password);
 		microspot.submit();
 		

@@ -19,7 +19,7 @@ public class GmailSteps {
 	public void login(String email){
 		gmail.enterEmail(email);
 		gmail.emailNextClick();
-		String password = "!Mooltipass123";
+		String password =System.getenv().get("PASS5");
 		gmail.enterPassword(password);
 		gmail.passwordNextClick();
 	}

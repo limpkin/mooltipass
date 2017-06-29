@@ -13,7 +13,7 @@ public class PcOstschweizSteps {
 	@When("I login pc-ostschweiz with '(.*)'")
 	public void login(String username){
 		pcOstschweiz.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		pcOstschweiz.enterPassword(password);
 		pcOstschweiz.submit();
 		

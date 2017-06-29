@@ -13,7 +13,7 @@ public class LinkedInSteps {
 	public void login(String username){
 
 		link.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		link.enterPassword(password);
 		link.submit();
 		

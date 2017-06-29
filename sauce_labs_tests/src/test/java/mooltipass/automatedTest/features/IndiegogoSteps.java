@@ -13,7 +13,7 @@ public class IndiegogoSteps {
 	public void login(String username){
 		ind.goToLogin();
 		ind.enterEmail(username);
-		String password="testpass123";
+		String password=System.getenv().get("PASS1");
 		ind.enterPassword(password);
 		ind.submit();
 		

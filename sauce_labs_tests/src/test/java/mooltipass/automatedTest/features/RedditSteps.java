@@ -13,7 +13,7 @@ public class RedditSteps {
 	@When("I login reddit with '(.*)'")
 	public void login(String username){
 		reddit.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		reddit.enterPassword(password);
 		reddit.submit();
 		

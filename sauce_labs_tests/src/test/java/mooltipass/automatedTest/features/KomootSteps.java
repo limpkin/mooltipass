@@ -14,7 +14,7 @@ public class KomootSteps {
 	public void login(String username){
 		komoot.goToLogin();
 		komoot.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		komoot.enterPassword(password);
 		komoot.submit();
 		

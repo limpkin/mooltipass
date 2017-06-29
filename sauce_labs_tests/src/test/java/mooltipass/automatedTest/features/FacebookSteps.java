@@ -14,7 +14,7 @@ public class FacebookSteps {
 
 		facebook.enterEmail(username);
 		facebook.submit();
-		String password="testpass123";
+		String password=System.getenv().get("PASS1");
 		facebook.enterPassword(password);
 		facebook.submit();
 		

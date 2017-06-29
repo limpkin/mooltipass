@@ -14,7 +14,7 @@ public class FarnelSteps {
 		farnel.clickContinue();
 		farnel.goToLogin();
 		farnel.enterEmail(username);
-		String password="Testpass123";
+		String password=System.getenv().get("PASS3");
 		farnel.enterPassword(password);
 		farnel.submit();
 		

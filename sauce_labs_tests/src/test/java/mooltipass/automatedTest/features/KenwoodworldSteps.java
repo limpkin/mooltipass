@@ -13,7 +13,7 @@ public class KenwoodworldSteps {
 	public void login(String username){
 		kenwoodworld.goToLogin();
 		kenwoodworld.enterEmail(username);
-		String password ="testpass123";
+		String password =System.getenv().get("PASS1");
 		kenwoodworld.enterPassword(password);
 		kenwoodworld.submit();
 		

@@ -6,6 +6,7 @@
   <properties>
 		<junit.version>4.12</junit.version>
 		<selenium.version>3.4.0</selenium.version>
+		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
 	</properties>
   <dependencies>
 		<dependency>

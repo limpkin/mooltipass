@@ -9,7 +9,7 @@ EXTENSION_NAME='mooltipass-extension'
 BUILD_FIREFOX=0
 BUILD_CHROMIUM=0
 
-# Array to store different information used during building different extension package.
+# Array to  store different information used during building different extension package.
 # Typically it is expected to found path to key used to sign extension before sending
 # them to the store.
 declare -A BUILD_METADATA
@@ -105,7 +105,7 @@ function _build()
     )
 
     [ "$BUILD_FIREFOX" == 1 ] &&_build_firefox_xpi "${zip_file}" "${BUILD_METADATA[${FIREFOX_TARGET}]}"
-    [ "$BUILD_CHROMIUM" == 1 ] &&_build_chromium_crx "${zip_file}" "${BUILD_METADATA[${CHROMIUM_TARGET}]}"
+    [ "$BUILD_CHROMIUM" == 1 ] &&_build_chromium_crx "${zip_file}" "${BUILD_METADATA[${CHROMIUM_TARGET}]}"|| true
 }
 
 # build the Chromium CRX file from the generated ZIP file.

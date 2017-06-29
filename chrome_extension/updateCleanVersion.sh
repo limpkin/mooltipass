@@ -9,7 +9,9 @@ EXTENSION_NAME='mooltipass-extension'
 BUILD_FIREFOX=0
 BUILD_CHROMIUM=0
 
-# Array to  store different information used during building different extension package.
+ENABLE_EMULTATION_MODE=0
+
+# Array to store different information used during building different extension package.
 # Typically it is expected to found path to key used to sign extension before sending
 # them to the store.
 declare -A BUILD_METADATA
@@ -70,6 +72,10 @@ function main()
                  test_only=1
                  shift
                  ;;
+             '--emulation-mode')
+                 ENABLE_EMULTATION_MODE=1
+                 shift
+                 ;;
              *)
                  _usage "$0"
                  ;;
@@ -105,7 +111,7 @@ function _build()
     )
 
     [ "$BUILD_FIREFOX" == 1 ] &&_build_firefox_xpi "${zip_file}" "${BUILD_METADATA[${FIREFOX_TARGET}]}"
-    [ "$BUILD_CHROMIUM" == 1 ] &&_build_chromium_crx "${zip_file}" "${BUILD_METADATA[${CHROMIUM_TARGET}]}"|| true
+    [ "$BUILD_CHROMIUM" == 1 ] &&_build_chromium_crx "${zip_file}" "${BUILD_METADATA[${CHROMIUM_TARGET}]}"
 }
 
 # build the Chromium CRX file from the generated ZIP file.
@@ -241,6 +247,13 @@ function _inject_scripts()
     for ext_dir in vendor popups css options background images icons; do
         cp -Rf "${CWD}/${ext_dir}" "${OUTPUT_DIR}/"
     done
+
+    if [ "${ENABLE_EMULTATION_MODE}" != '0' ] && [ -f "${CWD}/vendor/mooltipass/device.js" ]; then
+        if ! sed -i 's/mooltipass.device.emulation_mode = false/mooltipass.device.emulation_mode = true/' \
+             "${OUTPUT_DIR}/vendor/mooltipass/device.js"; then
+            echo "[ERROR] Cannot set emulation mode" 1>&2
+        fi
+    fi
 }
 
 # performs a list of tests on the extension archive directory
@@ -280,7 +293,7 @@ EOF
     fi
 
     cat <<EOF 1>&2
-Usage: $prog_name [--extension-name NAME] [TARGET] [--test]
+Usage: $prog_name [OPTION]... [--extension-name NAME] [TARGET] [--test]
 where TARGET := --target {chrome | chromium | firefox} --sign-key SIGN_KEY
 
       --extension-name  name of the generated extension files
@@ -288,6 +301,11 @@ where TARGET := --target {chrome | chromium | firefox} --sign-key SIGN_KEY
       --sign-key        path to signature key file for the specific target (ie: Chromium, Firefox...)
       --target          create a clean directory for the given target chromium(default)
       --test            only perform test, no packages are created
+
+options:
+        --emulation-mode        This will set the emulate mode in the base archive
+                                (see mooltipass.device.emulation_mode under device.js)
+
 EOF
 
     exit 1

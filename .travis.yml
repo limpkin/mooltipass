@@ -6,7 +6,7 @@ jdk:
 
 before_script: 
 - cd chrome_extension/
-- bash -x updateCleanVersion.sh
+- bash -x updateCleanVersion.sh --emulation-mode
 
 
 env:

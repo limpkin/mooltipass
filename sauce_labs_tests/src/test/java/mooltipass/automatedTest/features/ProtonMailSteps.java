@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.ProtonMail;
 public class ProtonMailSteps {
 	ProtonMail proton= new ProtonMail(WebDriverFactory.get());
 
-	@When("I login ProtonMail with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login ProtonMail with '(.*)'")
+	public void login(String username){
 		proton.goToLogin();
 		proton.enterEmail(username);
+		String password ="testpass123";
 		proton.enterPassword(password);
 		proton.submit();
 		

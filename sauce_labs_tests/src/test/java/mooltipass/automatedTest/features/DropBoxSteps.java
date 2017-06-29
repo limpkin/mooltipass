@@ -10,10 +10,11 @@ public class DropBoxSteps {
 
 	DropBox dropBox= new DropBox(WebDriverFactory.get());
 
-	@When("I login DropBox with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login DropBox with '(.*)'")
+	public void login(String username){
 		dropBox.goToLogin();
 		dropBox.enterEmail(username);
+		String password =System.getenv().get("PASS1");
 		dropBox.enterPassword(password);
 		dropBox.submit();
 		

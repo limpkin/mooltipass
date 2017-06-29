@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.Firefox;
 public class FirefoxSteps {
 	Firefox firefox= new Firefox(WebDriverFactory.get());
 
-	@When("I login firefox with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login firefox with '(.*)'")
+	public void login(String username){
 		firefox.goToLogin();
 		firefox.enterEmail(username);
+		String password ="testpass123";
 		firefox.enterPassword(password);
 		firefox.submit();
 		

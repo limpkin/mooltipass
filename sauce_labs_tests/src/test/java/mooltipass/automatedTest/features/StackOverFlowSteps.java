@@ -22,9 +22,10 @@ public class StackOverFlowSteps {
 		stackOverFlow.sleep(1000);
 	}
 	
-	@When("I log in StackOverFlow with '(.*)' and '(.*)'")
-	public void login(String email,String password){
+	@When("I log in StackOverFlow with '(.*)'")
+	public void login(String email){
 		stackOverFlow.enterEmail(email);
+		String password ="!Pass12345";
 		stackOverFlow.enterPassword(password);
 		stackOverFlow.submit();
 	}

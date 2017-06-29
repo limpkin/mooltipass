@@ -10,10 +10,11 @@ public class TripadvisorSteps {
 
 	Tripadvisor tripadvisor = new Tripadvisor(WebDriverFactory.get());
 	
-	@When("I login tripadvisor with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login tripadvisor with '(.*)'")
+	public void login(String username){
 		tripadvisor.goToLogin();
 		tripadvisor.enterEmail(username);
+		String password ="testpass123";
 		tripadvisor.enterPassword(password);
 		tripadvisor.submit();
 		

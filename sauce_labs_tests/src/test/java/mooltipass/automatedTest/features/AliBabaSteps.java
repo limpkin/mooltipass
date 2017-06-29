@@ -8,11 +8,12 @@ import mooltipass.automatedTest.pageObjects.AliBaba;
 public class AliBabaSteps {
 	AliBaba alibaba= new AliBaba(WebDriverFactory.get());
 
-		@When("I login AliBaba with '(.*)' and '(.*)'")
-		public void login(String username,String password){
+		@When("I login AliBaba with '(.*)'")
+		public void login(String username){
 			alibaba.goTodDashboard();
 			alibaba.goToLogin();
 			alibaba.enterEmail(username);
+			String password ="testpass123";
 			alibaba.enterPassword(password);
 			alibaba.submit();
 			

@@ -15,10 +15,11 @@ public class MicrospotSteps {
 	Microspot microspot= new Microspot(WebDriverFactory.get());
 	
 	
-	@When("I login Microspot with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login Microspot with '(.*)'")
+	public void login(String username){
 		microspot.goToLogin();
 		microspot.enterEmail(username);
+		String password = "Mooltipass123";
 		microspot.enterPassword(password);
 		microspot.submit();
 		

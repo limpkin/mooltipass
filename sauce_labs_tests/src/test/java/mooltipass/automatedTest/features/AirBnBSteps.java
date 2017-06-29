@@ -13,10 +13,11 @@ public class AirBnBSteps {
 	
 	AirBnB airbnb= new AirBnB(WebDriverFactory.get());
 
-	@When("I login airBnB with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login airBnB with '(.*)'")
+	public void login(String username){
 		airbnb.goToLogin();
 		airbnb.enterEmail(username);
+		String password = "Testpass123";
 		airbnb.enterPassword(password);
 		airbnb.submit();
 		

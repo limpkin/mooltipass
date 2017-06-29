@@ -10,10 +10,11 @@ public class KomootSteps {
 
 	Komoot komoot = new Komoot(WebDriverFactory.get());
 	
-	@When("I login komoot with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login komoot with '(.*)'")
+	public void login(String username){
 		komoot.goToLogin();
 		komoot.enterEmail(username);
+		String password ="testpass123";
 		komoot.enterPassword(password);
 		komoot.submit();
 		

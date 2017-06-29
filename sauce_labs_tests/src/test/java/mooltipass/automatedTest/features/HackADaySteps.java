@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.HackADay;
 public class HackADaySteps {
 	HackADay hAD= new HackADay(WebDriverFactory.get());
 
-	@When("I login HackADay with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login HackADay with '(.*)'")
+	public void login(String username){
 		hAD.goToLogin();
 		hAD.enterEmail(username);
+		String password ="testpass123";
 		hAD.enterPassword(password);
 		hAD.submit();
 		

@@ -10,10 +10,11 @@ public class AnibisSteps {
 
 	Anibis anibis= new Anibis(WebDriverFactory.get());
 
-	@When("I login Anibis with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login Anibis with '(.*)'")
+	public void login(String username){
 		anibis.goToLogin();
 		anibis.enterEmail(username);
+		String password ="testpass123";
 		anibis.enterPassword(password);
 		anibis.submit();
 		

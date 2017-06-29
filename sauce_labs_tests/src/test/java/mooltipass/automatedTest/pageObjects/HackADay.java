@@ -15,6 +15,7 @@ public class HackADay extends AbstractPage{
 
 	@FindBy(xpath = "//a[contains(text(),'Log In')]")
 	private WebElement loginBtn;
+	
 	@FindBy(xpath = "//input[@name='email']")
 	private WebElement email;
 
@@ -30,6 +31,7 @@ public class HackADay extends AbstractPage{
 	
 	@FindBy(xpath = "//img[@class='user-image']")
 	private WebElement dashBoard;
+	
 	public void enterEmail(String value){
 		email.sendKeys(value);
 	}
@@ -40,6 +42,7 @@ public class HackADay extends AbstractPage{
 	}
 	
 	public void goToLogin(){
+		waitUntilAppears(loginBtn);
 		loginBtn.click();
 	}
 	
@@ -48,10 +51,12 @@ public class HackADay extends AbstractPage{
 	}
 	public void goTodDashboard()
 	{
+		waitUntilAppears(dashBoard);
 		hover(dashBoard);
 		
 	}
 	public void logout(){
+		waitUntilAppears(logoutBtn);
 		logoutBtn.click();
 	}
 	

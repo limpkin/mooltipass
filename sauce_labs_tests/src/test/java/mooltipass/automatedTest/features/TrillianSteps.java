@@ -12,9 +12,10 @@ public class TrillianSteps {
 
 	Trillian trillian= new Trillian(WebDriverFactory.get());
 
-	@When("I login trillian with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login trillian with '(.*)'")
+	public void login(String username){
 		trillian.enterEmail(username);
+		String password ="testpass123";
 		trillian.enterPassword(password);
 		trillian.submit();
 		

@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.Indiegogo;
 public class IndiegogoSteps {
 	Indiegogo ind= new Indiegogo(WebDriverFactory.get());
 
-	@When("I login Indiegogo with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login Indiegogo with '(.*)'")
+	public void login(String username){
 		ind.goToLogin();
 		ind.enterEmail(username);
+		String password="testpass123";
 		ind.enterPassword(password);
 		ind.submit();
 		

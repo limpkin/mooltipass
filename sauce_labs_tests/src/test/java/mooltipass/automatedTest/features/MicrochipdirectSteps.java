@@ -10,10 +10,11 @@ public class MicrochipdirectSteps {
 
 	Microchipdirect microchipdirect= new Microchipdirect(WebDriverFactory.get());
 
-	@When("I login microchipdirect with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login microchipdirect with '(.*)'")
+	public void login(String username){
 		microchipdirect.goToLogin();
 		microchipdirect.enterEmail(username);
+		String password ="testpass123";
 		microchipdirect.enterPassword(password);
 		microchipdirect.submit();
 		

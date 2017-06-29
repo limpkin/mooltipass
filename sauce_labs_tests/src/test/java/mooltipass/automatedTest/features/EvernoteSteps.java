@@ -9,11 +9,12 @@ import mooltipass.automatedTest.pageObjects.Evernote;
 public class EvernoteSteps {
 	Evernote evernote= new Evernote(WebDriverFactory.get());
 
-		@When("I login Evernote with '(.*)' and '(.*)'")
-		public void login(String username,String password){
+		@When("I login Evernote with '(.*)'")
+		public void login(String username){
 			//evernote.goToLogin();
 			evernote.enterEmail(username);
 			evernote.submit();
+			String password ="testpass123";
 			evernote.enterPassword(password);
 			evernote.submit();
 			

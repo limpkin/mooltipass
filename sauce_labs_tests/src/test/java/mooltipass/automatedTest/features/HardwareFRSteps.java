@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.HardwareFR;
 public class HardwareFRSteps {
 	HardwareFR hFR= new HardwareFR(WebDriverFactory.get());
 
-	@When("I login HardwareFR with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login HardwareFR with '(.*)'")
+	public void login(String username){
 		hFR.goToLogin();
 		hFR.enterEmail(username);
+		String password ="0b18d348fd";
 		hFR.enterPassword(password);
 		hFR.submit();
 		

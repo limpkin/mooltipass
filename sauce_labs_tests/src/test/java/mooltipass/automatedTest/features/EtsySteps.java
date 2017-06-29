@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.Etsy;
 public class EtsySteps {
 	Etsy etsy= new Etsy(WebDriverFactory.get());
 
-		@When("I login Etsy with '(.*)' and '(.*)'")
-		public void login(String username,String password){
+		@When("I login Etsy with '(.*)'")
+		public void login(String username){
 			etsy.goToLogin();
 			etsy.enterEmail(username);
+			String password ="testpass123";
 			etsy.enterPassword(password);
 			etsy.submit();
 			

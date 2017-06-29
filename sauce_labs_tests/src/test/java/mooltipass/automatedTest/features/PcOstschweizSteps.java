@@ -10,9 +10,10 @@ public class PcOstschweizSteps {
 
 	PcOstschweiz pcOstschweiz = new PcOstschweiz(WebDriverFactory.get());
 	
-	@When("I login pc-ostschweiz with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login pc-ostschweiz with '(.*)'")
+	public void login(String username){
 		pcOstschweiz.enterEmail(username);
+		String password ="testpass123";
 		pcOstschweiz.enterPassword(password);
 		pcOstschweiz.submit();
 		

@@ -9,11 +9,12 @@ import mooltipass.automatedTest.pageObjects.Facebook;
 public class FacebookSteps {
 	Facebook facebook= new Facebook(WebDriverFactory.get());
 
-	@When("I login Facebook with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login Facebook with '(.*)'")
+	public void login(String username){
 
 		facebook.enterEmail(username);
 		facebook.submit();
+		String password="testpass123";
 		facebook.enterPassword(password);
 		facebook.submit();
 		

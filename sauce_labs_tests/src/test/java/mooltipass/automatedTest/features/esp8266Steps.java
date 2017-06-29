@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.esp8266;;
 public class esp8266Steps {
 	 esp8266 esp8266= new esp8266(WebDriverFactory.get());
 
-		@When("I login esp8266 with '(.*)' and '(.*)'")
-		public void login(String username,String password){
+		@When("I login esp8266 with '(.*)'")
+		public void login(String username){
 			esp8266.goToLogin();
 			esp8266.enterEmail(username);
+			String password ="testpass123";
 			esp8266.enterPassword(password);
 			esp8266.submit();
 			

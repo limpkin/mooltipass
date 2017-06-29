@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.GitHub;
 public class GitHubSteps {
 	GitHub github= new GitHub(WebDriverFactory.get());
 
-	@When("I login GitHub with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login GitHub with '(.*)'")
+	public void login(String username){
 		github.goToLogin();
 		github.enterEmail(username);
+		String password ="testpass123";
 		github.enterPassword(password);
 		github.submit();
 		

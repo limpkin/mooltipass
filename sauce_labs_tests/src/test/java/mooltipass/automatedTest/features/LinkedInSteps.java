@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.LinkedIn;
 public class LinkedInSteps {
 	LinkedIn link= new LinkedIn(WebDriverFactory.get());
 
-	@When("I login LinkedIn with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login LinkedIn with '(.*)'")
+	public void login(String username){
 
 		link.enterEmail(username);
+		String password ="testpass123";
 		link.enterPassword(password);
 		link.submit();
 		

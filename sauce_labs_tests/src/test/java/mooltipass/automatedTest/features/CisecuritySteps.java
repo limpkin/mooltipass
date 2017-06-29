@@ -11,9 +11,10 @@ public class CisecuritySteps {
 
 	Cisecurity cisecurity= new Cisecurity(WebDriverFactory.get());
 	
-	@When("I login cisecurity with '(.*)' and '(.*)'")
-	public void login(String email,String password){
+	@When("I login cisecurity with '(.*)'")
+	public void login(String email){
 		cisecurity.enterEmail(email);
+		String password="Testpass123456";
 		cisecurity.enterPassword(password);
 		cisecurity.submit();
 	}

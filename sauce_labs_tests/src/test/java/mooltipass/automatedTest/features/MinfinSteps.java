@@ -10,11 +10,12 @@ public class MinfinSteps {
 
 	Minfin minfin= new Minfin(WebDriverFactory.get());
 
-		@When("I login minfin with '(.*)' and '(.*)'")
-		public void login(String username,String password){
+		@When("I login minfin with '(.*)'")
+		public void login(String username){
 			minfin.closePopUpIfOpen();
 			minfin.goToLogin();
 			minfin.enterEmail(username);
+			String password ="testpass123";
 			minfin.enterPassword(password);
 			minfin.submit();
 			

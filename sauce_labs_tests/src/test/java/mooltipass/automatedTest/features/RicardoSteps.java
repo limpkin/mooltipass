@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.Ricardo;
 public class RicardoSteps {
 	Ricardo ricardo = new Ricardo(WebDriverFactory.get());
 	
-	@When("I login ricardo with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login ricardo with '(.*)'")
+	public void login(String username){
 		ricardo.goToLogin();
 		ricardo.enterEmail(username);
+		String password ="testpass123";
 		ricardo.enterPassword(password);
 		ricardo.submit();
 		

@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.IDLC;
 public class IDLCSteps {
 	IDLC idlc= new IDLC(WebDriverFactory.get());
 
-	@When("I login IDLC with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login IDLC with '(.*)'")
+	public void login(String username){
 		idlc.goToLogin();
 		idlc.enterEmail(username);
+		String password ="testpass123";
 		idlc.enterPassword(password);
 		idlc.submit();
 		

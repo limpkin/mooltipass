@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.Tindie;
 public class TindieSteps {
 	Tindie tindie = new Tindie(WebDriverFactory.get());
 	
-	@When("I login tindie with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login tindie with '(.*)'")
+	public void login(String username){
 		tindie.goToLogin();
 		tindie.enterEmail(username);
+		String password ="testpass123";
 		tindie.enterPassword(password);
 		tindie.submit();
 		

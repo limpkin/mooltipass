@@ -7,6 +7,6 @@ import cucumber.api.junit.Cucumber;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(format = { "pretty", "html:target/test-report",
-"json:target/test-report.json", "junit:target/test-report.xml"} ,tags = { "~@ignore"})
+"json:target/test-report.json", "junit:target/test-report.xml"} ,tags = { "@run"})
 public class RunCukesTest {
 }

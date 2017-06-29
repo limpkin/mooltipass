@@ -19,8 +19,8 @@ public class AirBnB extends AbstractPage{
 
 	@FindBy(id = "email-login-password")
 	private WebElement password;
-
-	@FindBy(xpath = "//button[@class='container_1l26xld-o_O-container_rounded_sa8zo9-o_O-container_block_zdxht7-o_O-container_sizeRegular_1flp9iz-o_O-container_1hd6v8d']")
+			
+	@FindBy(xpath = "//button[@type='submit']//span[text()='Log in']")
 	private WebElement submitLogin;
 	
 

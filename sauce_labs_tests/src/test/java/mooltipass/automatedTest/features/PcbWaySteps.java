@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.PcbWay;
 public class PcbWaySteps {
 	PcbWay pcb= new PcbWay(WebDriverFactory.get());
 
-	@When("I login PcbWay with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login PcbWay with '(.*)'")
+	public void login(String username){
 		pcb.goToLogin();
 		pcb.enterEmail(username);
+		String password ="testpass123";
 		pcb.enterPassword(password);
 		pcb.submit();
 		

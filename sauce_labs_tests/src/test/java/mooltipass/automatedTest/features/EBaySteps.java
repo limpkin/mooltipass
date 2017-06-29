@@ -10,10 +10,11 @@ public class EBaySteps {
 
    EBay ebay= new EBay(WebDriverFactory.get());
 
-	@When("I login EBay with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login EBay with '(.*)'")
+	public void login(String username){
 		ebay.goToLogin();
 		ebay.enterEmail(username);
+		String password ="testpass123";
 		ebay.enterPassword(password);
 		ebay.submit();
 		

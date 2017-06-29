@@ -9,11 +9,12 @@ import mooltipass.automatedTest.pageObjects.Farnel;
 public class FarnelSteps {
 	Farnel farnel= new Farnel(WebDriverFactory.get());
 
-	@When("I login Farnel with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login Farnel with '(.*)'")
+	public void login(String username){
 		farnel.clickContinue();
 		farnel.goToLogin();
 		farnel.enterEmail(username);
+		String password="Testpass123";
 		farnel.enterPassword(password);
 		farnel.submit();
 		

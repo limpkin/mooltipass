@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.Kenwoodworld;
 public class KenwoodworldSteps {
 	Kenwoodworld kenwoodworld = new Kenwoodworld(WebDriverFactory.get());
 	
-	@When("I login kenwoodworld with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login kenwoodworld with '(.*)'")
+	public void login(String username){
 		kenwoodworld.goToLogin();
 		kenwoodworld.enterEmail(username);
+		String password ="testpass123";
 		kenwoodworld.enterPassword(password);
 		kenwoodworld.submit();
 		

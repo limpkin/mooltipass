@@ -13,7 +13,7 @@ public class Patreon extends AbstractPage{
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(xpath = "//a[contains(text(),'Log In')]")
+	@FindBy(xpath = "//div[@class='sc-hEsumM fNaNJw']//a[contains(text(),'Log In')]")
 	private WebElement loginBtn;
 	@FindBy(xpath = "//input[@name='email']")
 	private WebElement email;
@@ -28,7 +28,7 @@ public class Patreon extends AbstractPage{
 	@FindBy(xpath = "//a[contains(@href,'logout')]")
 	private WebElement logoutBtn;
 									
-	@FindBy(xpath = "//div[@data-reactid='.0.0.1.2.1.1:2.0.0']")
+	@FindBy(xpath = "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']")
 	private WebElement dashBoard;
 	
 	public void enterEmail(String value){
@@ -58,8 +58,8 @@ public class Patreon extends AbstractPage{
 	}
 	
 	public boolean checkLogin(){
-		waitUntilAppears(By.xpath( "//div[@class='_3Dg-components-Avatar--xs _3ba-styles-shared--roundImage _2kC-components-Avatar--avatarBackground']"));
-		return isElementPresent(By.xpath( "//div[@class='_3Dg-components-Avatar--xs _3ba-styles-shared--roundImage _2kC-components-Avatar--avatarBackground']"));
+		waitUntilAppears(By.xpath( "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']"));
+		return isElementPresent(By.xpath( "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']"));
 	}
 	public boolean checkAtLoginPage(){
 		waitUntilAppears(By.xpath("//input[@name='email']"));

@@ -12,10 +12,11 @@ public class TechmaniaSteps {
 	Techmania techmania= new Techmania(WebDriverFactory.get());
 	
 	
-	@When("I log in Techmania with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I log in Techmania with '(.*)'")
+	public void login(String username){
 		techmania.clickloginLink();
 		techmania.enterUsername(username);
+		String password = "!Pass12345";
 		techmania.enterPassword(password);
 		techmania.submit();
 	}

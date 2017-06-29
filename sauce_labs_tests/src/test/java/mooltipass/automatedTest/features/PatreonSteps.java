@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.Patreon;
 public class PatreonSteps {
 	Patreon patreon= new Patreon(WebDriverFactory.get());
 
-	@When("I login Patreon with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login Patreon with '(.*)'")
+	public void login(String username){
 		patreon.goToLogin();
 		patreon.enterEmail(username);
+		String password ="testpass123";
 		patreon.enterPassword(password);
 		patreon.submit();
 		

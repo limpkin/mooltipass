@@ -15,10 +15,11 @@ public class GmailSteps {
 	Gmail gmail= new Gmail(WebDriverFactory.get());
 	
 
-	@When("I login Gmail with '(.*)' and '(.*)'")
-	public void login(String email,String password){
+	@When("I login Gmail with '(.*)'")
+	public void login(String email){
 		gmail.enterEmail(email);
 		gmail.emailNextClick();
+		String password = "!Mooltipass123";
 		gmail.enterPassword(password);
 		gmail.passwordNextClick();
 	}

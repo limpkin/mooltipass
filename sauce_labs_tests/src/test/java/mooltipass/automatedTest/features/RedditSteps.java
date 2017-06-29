@@ -10,9 +10,10 @@ public class RedditSteps {
 
 	Reddit reddit = new Reddit(WebDriverFactory.get());
 	
-	@When("I login reddit with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login reddit with '(.*)'")
+	public void login(String username){
 		reddit.enterEmail(username);
+		String password ="testpass123";
 		reddit.enterPassword(password);
 		reddit.submit();
 		

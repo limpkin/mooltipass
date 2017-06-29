@@ -10,10 +10,11 @@ public class QoqaSteps {
 
 	Qoqa qoqa = new Qoqa(WebDriverFactory.get());
 	
-	@When("I login qoqa with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login qoqa with '(.*)'")
+	public void login(String username){
 		qoqa.goToLogin();
 		qoqa.enterEmail(username);
+		String password="Testpass123";
 		qoqa.enterPassword(password);
 		qoqa.submit();
 		

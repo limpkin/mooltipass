@@ -10,10 +10,11 @@ public class MetacriticSteps {
 
 	Metacritic metacritic = new Metacritic(WebDriverFactory.get());
 	
-	@When("I login metacritic with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login metacritic with '(.*)'")
+	public void login(String username){
 		metacritic.goToLogin();
 		metacritic.enterEmail(username);
+		String password="Testpass123";
 		metacritic.enterPassword(password);
 		metacritic.submit();
 		

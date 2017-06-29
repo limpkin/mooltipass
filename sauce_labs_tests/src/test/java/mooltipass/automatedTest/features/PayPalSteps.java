@@ -9,10 +9,11 @@ import mooltipass.automatedTest.pageObjects.PayPal;
 public class PayPalSteps {
 	PayPal paypal= new PayPal(WebDriverFactory.get());
 
-	@When("I login PayPal with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login PayPal with '(.*)'")
+	public void login(String username){
 		paypal.goToLogin();
 		paypal.enterEmail(username);
+		String password ="testpass123";
 		paypal.enterPassword(password);
 		paypal.submit();
 		

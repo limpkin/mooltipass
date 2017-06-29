@@ -10,11 +10,12 @@ import mooltipass.automatedTest.pageObjects.EBookers;
 public class EBookersSteps {
 	EBookers ebookers= new EBookers(WebDriverFactory.get());
 
-	@When("I login EBookers with '(.*)' and '(.*)'")
-	public void login(String username,String password){
+	@When("I login EBookers with '(.*)'")
+	public void login(String username){
 		ebookers.goTodDashboard();
 		ebookers.goToLogin();
 		ebookers.enterEmail(username);
+		String password="testpass123";
 		ebookers.enterPassword(password);
 		ebookers.submit();
 		

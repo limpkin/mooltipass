@@ -105,7 +105,7 @@ function _build()
     )
 
     [ "$BUILD_FIREFOX" == 1 ] &&_build_firefox_xpi "${zip_file}" "${BUILD_METADATA[${FIREFOX_TARGET}]}"
-    [ "$BUILD_CHROMIUM" == 1 ] &&_build_chromium_crx "${zip_file}" "${BUILD_METADATA[${CHROMIUM_TARGET}]}"|| true
+    [ "$BUILD_CHROMIUM" == 1 ] &&_build_chromium_crx "${zip_file}" "${BUILD_METADATA[${CHROMIUM_TARGET}]}"
 }
 
 # build the Chromium CRX file from the generated ZIP file.

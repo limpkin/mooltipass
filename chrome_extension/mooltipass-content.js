@@ -1063,7 +1063,9 @@ cip.checkForNewInputs = function() {
 		if ( cip.settings.status ) {
 			//cip.initCredentialFields( true );
 			cip.visibleInputsHash = hash;
-			mcCombs.detectCombination();
+			// Somehow dynamically created input doesn't show up in detectCombination,
+			// even when inputs hash is changed.
+			setTimeout(function() { mcCombs.detectCombination() }, 500);
 		}
 	}
 }

@@ -25,7 +25,7 @@ public class StackOverFlowSteps {
 	@When("I log in StackOverFlow with '(.*)'")
 	public void login(String email){
 		stackOverFlow.enterEmail(email);
-		String password =System.getenv().get("PASS2");
+		String password =System.getenv().get("STACKPASS");
 		stackOverFlow.enterPassword(password);
 		stackOverFlow.submit();
 	}

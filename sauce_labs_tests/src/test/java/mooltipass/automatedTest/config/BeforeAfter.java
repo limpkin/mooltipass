@@ -25,13 +25,13 @@ public class BeforeAfter {
 
 	@After
 	public void afterScenario(Scenario scenario) {
-		if (scenario.isFailed()) {
-			try {
-				takeScreenshot(scenario.getName(), scenario.getId());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+//		if (scenario.isFailed()) {
+//			try {
+//				takeScreenshot(scenario.getName(), scenario.getId());
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
 		closeBrowser();
 	}
 

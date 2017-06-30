@@ -76,7 +76,7 @@ public class WebDriverFactory {
 		System.setProperty("webdriver.gecko.driver","src/test/resources/geckodriver.exe");
 		FirefoxOptions options = new FirefoxOptions();
 		FirefoxProfile profile = new FirefoxProfile();
-		profile.addExtension(new File("C:\\Users\\mohamed\\Downloads\\mooltipass_extension-1.1.81-an+fx-windows.xpi"));
+		profile.addExtension(new File("path"));
 		driver = new FirefoxDriver(profile);
 		driver.get("about:addons");
 		
@@ -190,9 +190,9 @@ public class WebDriverFactory {
 		String browser = config.getString("BROWSER");
 		WebDriver driver;
 //		driver =chrome(chromeExtension);
-//		if(browser.equals("firefox"))
-//			driver = remoteFirefox(sauceLabsUser,sauceLabsKey,firefoxExtension);
-//		else
+		if(browser.equals("firefox"))
+			driver = remoteFirefox(sauceLabsUser,sauceLabsKey,firefoxExtension);
+		else
 			driver=remoteChrome(sauceLabsUser,sauceLabsKey,chromeExtension);
 
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);

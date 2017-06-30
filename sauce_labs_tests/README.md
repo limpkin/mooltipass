@@ -7,5 +7,6 @@ Setting up Travis, encrypting gloval vars
 - go to https://github.com/settings/tokens/new and generate a token with scopes user:email read:org repo_deployment repo:status write:repo_hook
 - (git terminal) gem install travis
 - (git terminal) travis login --github-token <generated token>
-- (git terminal) travis encrypt SAUCE_ACCESS_KEY="saucelabspassword" (do not forget escaping special chars)
-- 
+- (git terminal) travis encrypt SAUCE_ACCESS_KEY="saucelabsaccesskey" (do not forget escaping special chars)
+- add the output to .travis.yml, under SAUCE_USERNAME
+-

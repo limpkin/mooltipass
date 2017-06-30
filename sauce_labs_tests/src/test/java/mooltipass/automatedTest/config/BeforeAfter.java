@@ -18,20 +18,20 @@ public class BeforeAfter {
 	protected static WebDriver driver;
 
 	@Before
-	public void beforeScenario() {
-		getNewBrowser();
+	public void beforeScenario(Scenario scenario) {
+		getNewBrowser(scenario.getName());
 
 	}
 
 	@After
 	public void afterScenario(Scenario scenario) {
-		if (scenario.isFailed()) {
+//		if (scenario.isFailed()) {
 //			try {
 //				takeScreenshot(scenario.getName(), scenario.getId());
 //			} catch (IOException e) {
 //				e.printStackTrace();
 //			}
-		}
+//		}
 		closeBrowser();
 	}
 
@@ -40,8 +40,8 @@ public class BeforeAfter {
 	/**
 	 * Opens a new browser window and returns a new driver.
 	 */
-	protected static void getNewBrowser() {
-		driver = WebDriverFactory.get();
+	protected static void getNewBrowser(String name) {
+		driver = WebDriverFactory.get(name);
 		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 	}
 
@@ -54,17 +54,14 @@ public class BeforeAfter {
 	}
 
 
-	protected static void deleteCookies() {
-		// driver.manage().deleteCookieNamed("track.mycookie");
-	}
+
 
 	protected void takeScreenshot(String scenarioName, String scenarioId)
 			throws IOException {
-		File scrFile = ((TakesScreenshot) driver)
-				.getScreenshotAs(OutputType.FILE);
-		// Now you can do whatever you need to do with it, for example copy
-		// somewhere
-		scrFile.renameTo(new File("C:\\temp",
+		driver = WebDriverFactory.get();
+		File scrFile = ( (TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		
+		scrFile.renameTo(new File("./screenshots/",
 				Long.toHexString(System.currentTimeMillis())+scenarioName + "[" + scenarioId + "]_screenshot.png"));
 		
 	}

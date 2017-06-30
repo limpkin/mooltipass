@@ -6,64 +6,64 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class StackOverflow extends AbstractPage{
+public class Indiegogo extends AbstractPage{
 	
-	public StackOverflow(WebDriver driver) {
+	public Indiegogo (WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(id = "email")
+	@FindBy(xpath = "//span[contains(text(),'Log In')]")
+	private WebElement loginBtn;
+	@FindBy(id = "account_email")
 	private WebElement email;
 
-	@FindBy(id = "password")
+	@FindBy(id = "account_password")
 	private WebElement password;
-
-	@FindBy(id = "submit-button")
+	
+	@FindBy(xpath = "//input[@value='Log In']")
 	private WebElement submitLogin;
 	
-	@FindBy(xpath = "//a[@class='login-link btn-clear']")
-	private WebElement loginBtn;
 	
-	@FindBy(xpath = "//a[text()='log out']")
+	@FindBy(xpath = "//a[contains(text(),'Log Out')]")
 	private WebElement logoutBtn;
-
-	@FindBy(xpath = "//input[@value='Log Out']")
-	private WebElement submitLogoutBtn;
 	
-	@FindBy(xpath = "//a[contains(@title,'A list of all')]")
-	private WebElement expandBtn;
-
-
+	@FindBy(xpath = "//a[@class='siteHeader-link siteHeader-link--name ng-scope']")
+	private WebElement dashBoard;
+	
 	public void enterEmail(String value){
 		email.sendKeys(value);
 	}
-	
+
 	public void enterPassword(String value){
+		waitUntilAppears(password);
 		password.sendKeys(value);
 	}
 	
 	public void goToLogin(){
+		waitUntilAppears(loginBtn);
 		loginBtn.click();
 	}
 	
 	public void submit(){
+
 		waitUntilAppears(submitLogin);
 		submitLogin.click();
 	}
+	public void goTodDashboard()
+	{
+		dashBoard.click();	
+	}
+	public void logout(){
+		logoutBtn.click();
+	}
 	
 	public boolean checkLogin(){
-		waitUntilAppears(By.xpath("//div[@title='your reputation: 1']"));
-		return isElementPresent(By.xpath("//div[@title='your reputation: 1']"));
+		waitUntilAppears(By.xpath( "//a[@gogo-test='logged_in_name']"));
+		return isElementPresent(By.xpath( "//a[@gogo-test='logged_in_name']"));
 	}
-	
-	public void logout(){
-		expandBtn.click();
-		logoutBtn.click();
-		submitLogoutBtn.click();
-	}
-	
 	public boolean checkAtLoginPage(){
-		return isElementPresent(By.id("email"));
+		return isElementPresent(By.id("account_email"));
 	}
+
 }

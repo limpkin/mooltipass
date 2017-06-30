@@ -1,5 +1,7 @@
 package mooltipass.automatedTest.features;
 
+import java.util.concurrent.TimeUnit;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -17,17 +19,21 @@ public class StackOverFlowSteps {
 	@Given("I navigate to '(.*)'")
 	public void navigateToURL(String url){
 		WebDriverFactory.get().get(url);
+		stackOverFlow.sleep(1000);
 	}
 	
-	@When("I log in StackOverFlow with '(.*)' and '(.*)'")
-	public void login(String email,String password){
+	@When("I log in StackOverFlow with '(.*)'")
+	public void login(String email){
 		stackOverFlow.enterEmail(email);
+		String password =System.getenv().get("PASS2");
 		stackOverFlow.enterPassword(password);
 		stackOverFlow.submit();
 	}
 	@When("I go to StackOverFlow login page")
 	public void pressLogin(){
 		stackOverFlow.goToLogin();
+		Assert.assertTrue("Expected to be at login page", stackOverFlow.checkAtLoginPage());
+		
 	}
 	
 	@Then("I should be logged in StackOverFlow")

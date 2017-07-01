@@ -71,6 +71,7 @@ public class EBay extends AbstractPage{
 		return isElementPresent(By.xpath("//a[@class='gh-ua gh-control']"));
 	}
 	public boolean checkAtLoginPage(){
+		waitUntilAppears(By.id("sgnBt"));
 		return isElementPresent(By.id("sgnBt"));
 	}
 	

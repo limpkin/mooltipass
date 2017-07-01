@@ -13,7 +13,7 @@ public class AliBabaSteps {
 			alibaba.goTodDashboard();
 			alibaba.goToLogin();
 			alibaba.enterEmail(username);
-			String password =System.getenv().get("PASS1");
+			String password =System.getenv().get("ALIPASS");
 			alibaba.enterPassword(password);
 			alibaba.submit();
 			

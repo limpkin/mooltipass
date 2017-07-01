@@ -55,6 +55,7 @@ When I login firefox with 'citesting@themooltipass.com'
 Then I should be logged in firefox
 When I logout firefox
 And I go to firefox login page
+And I click the sign in button
 Then I should be logged in firefox
 
 @notsupported

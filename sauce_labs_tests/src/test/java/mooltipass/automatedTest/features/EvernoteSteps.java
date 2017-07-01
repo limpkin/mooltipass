@@ -14,7 +14,7 @@ public class EvernoteSteps {
 			//evernote.goToLogin();
 			evernote.enterEmail(username);
 			evernote.submit();
-			String password =System.getenv().get("PASS1");
+			String password =System.getenv().get("EVERPASS");
 			evernote.enterPassword(password);
 			evernote.submit();
 			

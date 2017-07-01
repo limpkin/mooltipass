@@ -13,7 +13,7 @@ public class EtsySteps {
 		public void login(String username){
 			etsy.goToLogin();
 			etsy.enterEmail(username);
-			String password =System.getenv().get("PASS1");
+			String password =System.getenv().get("ETSYPASS");
 			etsy.enterPassword(password);
 			etsy.submit();
 			

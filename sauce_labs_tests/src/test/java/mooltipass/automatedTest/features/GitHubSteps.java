@@ -13,7 +13,7 @@ public class GitHubSteps {
 	public void login(String username){
 		github.goToLogin();
 		github.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("GITPASS");
 		github.enterPassword(password);
 		github.submit();
 		

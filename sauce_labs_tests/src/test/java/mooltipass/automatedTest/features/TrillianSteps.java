@@ -15,7 +15,7 @@ public class TrillianSteps {
 	@When("I login trillian with '(.*)'")
 	public void login(String username){
 		trillian.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("TRILLIANPASS");
 		trillian.enterPassword(password);
 		trillian.submit();
 		

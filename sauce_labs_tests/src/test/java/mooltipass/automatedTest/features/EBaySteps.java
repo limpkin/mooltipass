@@ -14,7 +14,7 @@ public class EBaySteps {
 	public void login(String username){
 		ebay.goToLogin();
 		ebay.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("EBAYPASS");
 		ebay.enterPassword(password);
 		ebay.submit();
 		

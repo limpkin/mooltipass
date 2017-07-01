@@ -13,7 +13,7 @@ public class esp8266Steps {
 		public void login(String username){
 			esp8266.goToLogin();
 			esp8266.enterEmail(username);
-			String password =System.getenv().get("PASS1");
+			String password =System.getenv().get("ESPPASS");
 			esp8266.enterPassword(password);
 			esp8266.submit();
 			

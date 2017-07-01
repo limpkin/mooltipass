@@ -13,7 +13,7 @@ public class HackADaySteps {
 	public void login(String username){
 		hAD.goToLogin();
 		hAD.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("HACKPASS");
 		hAD.enterPassword(password);
 		hAD.submit();
 		

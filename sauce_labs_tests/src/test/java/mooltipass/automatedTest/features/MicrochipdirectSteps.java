@@ -14,7 +14,7 @@ public class MicrochipdirectSteps {
 	public void login(String username){
 		microchipdirect.goToLogin();
 		microchipdirect.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("MICROCHIPPASS");
 		microchipdirect.enterPassword(password);
 		microchipdirect.submit();
 		

@@ -21,8 +21,6 @@ public class FarnelSteps {
 	}
 	@When("I go to Farnel login page")
 	public void pressLogin(){
-		farnel.goToLogin();
-		//Assert.assertTrue("Expected to be at login page", farnel.checkAtLoginPage());
 		
 	}
 	@Then("I should be logged in Farnel")

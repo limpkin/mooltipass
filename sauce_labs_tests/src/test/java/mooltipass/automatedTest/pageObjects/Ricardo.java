@@ -30,6 +30,7 @@ public class Ricardo extends AbstractPage{
 	
 	
 	public void goToLogin(){
+		waitUntilAppears(loginBtn);
 		loginBtn.click();
 	}
 	

@@ -13,7 +13,7 @@ public class Patreon extends AbstractPage{
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(xpath = "//div[@class='sc-hEsumM fNaNJw']//a[contains(text(),'Log In')]")
+	@FindBy(xpath = "//div[@data-reactid='.0.0.2.2.1']//a[contains(text(),'Log In')]")
 	private WebElement loginBtn;
 	@FindBy(xpath = "//input[@name='email']")
 	private WebElement email;
@@ -41,6 +41,7 @@ public class Patreon extends AbstractPage{
 	}
 	
 	public void goToLogin(){
+		waitUntilAppears(loginBtn);
 		loginBtn.click();
 	}
 	

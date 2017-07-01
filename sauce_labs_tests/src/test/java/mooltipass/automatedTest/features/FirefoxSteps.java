@@ -24,6 +24,12 @@ public class FirefoxSteps {
 		Assert.assertTrue("Expected to be at login page", firefox.checkAtLoginPage());
 		
 	}
+	
+	@When("I click the sign in button")
+	public void pressSignIn(){
+		firefox.submit();
+	}
+	
 	@Then("I should be logged in firefox")
 	public void checkLogin(){
 		Assert.assertTrue("Expected User to be logged in",firefox.checkLogin());

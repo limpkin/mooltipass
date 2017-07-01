@@ -13,7 +13,7 @@ public class FirefoxSteps {
 	public void login(String username){
 		firefox.goToLogin();
 		firefox.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("MOZPASS");
 		firefox.enterPassword(password);
 		firefox.submit();
 		

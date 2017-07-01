@@ -27,7 +27,7 @@ public class FirefoxSteps {
 	
 	@When("I click the sign in button")
 	public void pressSignIn(){
-		firefox.sleep(2000);
+		firefox.sleep(4000);
 		firefox.submit();
 	}
 	

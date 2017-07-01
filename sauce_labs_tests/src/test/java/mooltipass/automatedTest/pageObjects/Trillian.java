@@ -49,8 +49,8 @@ public class Trillian extends AbstractPage{
 	
 	public boolean checkLogin(){
 
-		waitUntilAppears(By.xpath("//*[text()='Good Afternoon, mooltipass!']"));
-		return isElementPresent(By.xpath("//*[text()='Good Afternoon, mooltipass!']"));
+		waitUntilAppears(By.xpath("//*[contains(text(),', mooltipass!')]"));
+		return isElementPresent(By.xpath("//*[contains(text()=', mooltipass!')]"));
 	}
 
 

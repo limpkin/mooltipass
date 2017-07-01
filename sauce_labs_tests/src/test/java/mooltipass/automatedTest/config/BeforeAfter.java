@@ -32,6 +32,7 @@ public class BeforeAfter {
 //				e.printStackTrace();
 //			}
 //		}
+		System.out.println(scenario.getName()+" RUNNING AT: https://saucelabs.com/beta/tests/"+((RemoteWebDriver) driver).getSessionId().toString());	
 		closeBrowser();
 	}
 

@@ -142,7 +142,6 @@ public class WebDriverFactory {
 		driver = new RemoteWebDriver(url, caps);
 		((RemoteWebDriver) driver).setFileDetector(new LocalFileDetector());
 		driver.get("chrome://extensions/");
-		System.out.println("TEST OF "+scenarioName+" RUNNING AT: https://saucelabs.com/beta/tests/"+((RemoteWebDriver) driver).getSessionId().toString());
 		return driver;
 		
 	}

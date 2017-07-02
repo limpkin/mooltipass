@@ -3,9 +3,10 @@ Feature: Supported Websites
 @supported
 Scenario: Testing icloud
 Given I navigate to 'https://www.icloud.com'
-When I log in icloud with 'citesting@themooltipass.com'
+When I login icloud with 'citesting@themooltipass.com'
 Then I should be logged in icloud
 When I logout icloud
+When I go to login page
 Then I should be logged in icloud
 
 @supported

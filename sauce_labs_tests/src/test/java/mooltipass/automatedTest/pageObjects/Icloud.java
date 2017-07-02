@@ -23,10 +23,10 @@ public class Icloud extends AbstractPage{
 	@FindBy(xpath = "//button[@id='sign-in']//i[@class='icon icon_sign_in']")
 	private WebElement submitLogin;
 	
-	@FindBy(xpath = "//div[@id='sc2006']")
+	@FindBy(xpath = "//div[@title='iCloud Settings & Sign Out']")
 	private WebElement menuDiv;
 	
-	@FindBy(xpath = "//div[@id='sc4100']")
+	@FindBy(xpath = "//span[text()='Sign Out']")
 	private WebElement logoutDiv;
 	
 	@FindBy(xpath = "//a[@aria-label='Close']")
@@ -34,6 +34,7 @@ public class Icloud extends AbstractPage{
 	
 			
 	public void enterEmail(String value){
+		driver.switchTo().frame(driver.findElement(By.id("auth-frame")));
 		waitUntilAppears(email);
 		email.sendKeys(value);
 	}
@@ -45,7 +46,8 @@ public class Icloud extends AbstractPage{
 	}
 	
 	public void submit(){
-	submitLogin.click();
+		waitUntilAppears(submitLogin);
+		clickWithJS(submitLogin);
 	}
 	
 	public void logout(){
@@ -54,9 +56,16 @@ public class Icloud extends AbstractPage{
 		logoutDiv.click();
 	}
 	
-	public boolean checkLogin(){
+	public boolean checkAtLoginPage(){
+		driver.switchTo().frame(driver.findElement(By.id("auth-frame")));
+		waitUntilAppears(email);
+		return isElementPresent(By.xpath("//input[@id='appleId']"));
+	}
 
-		waitUntilAppears(By.xpath("//a[@href='https://www.icloud.com/#contacts']"));
-		return isElementPresent(By.xpath("//a[@href='https://www.icloud.com/#contacts']"));
+	
+	public boolean checkLogin(){
+		driver.switchTo().defaultContent();
+		waitUntilAppears(By.xpath("//div[@title='iCloud Settings & Sign Out']"));
+		return isElementPresent(By.xpath("//div[@title='iCloud Settings & Sign Out']"));
 	}
 }

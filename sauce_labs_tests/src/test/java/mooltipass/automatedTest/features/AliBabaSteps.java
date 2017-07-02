@@ -27,10 +27,10 @@ public class AliBabaSteps {
 		}
 		@When("I confirm login to Alibaba")
 		public void confirmLogin(){
-			alibaba.goTodDashboard();
-			alibaba.goToLogin();
-			alibaba.clickAccessNow();
-			
+			if(alibaba.confirmRequired()){
+				alibaba.goToLogin();
+				alibaba.clickAccessNow();
+			}
 		}
 		@Then("I should be logged in AliBaba")
 		public void checkLogin(){

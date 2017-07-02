@@ -23,6 +23,11 @@ public class IcloudSteps {
 		Assert.assertTrue("Expected User to be logged in",icloud.checkLogin());
 	}
 	
+	@When("I go to login page")
+	public void loginPage(){
+		Assert.assertTrue("Expected User to be logged in",icloud.checkAtLoginPage());
+	}
+	
 	@When("I logout icloud")
 	public void pressLogout(){
 		icloud.logout();

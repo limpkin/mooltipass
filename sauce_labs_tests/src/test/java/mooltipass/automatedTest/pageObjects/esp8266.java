@@ -27,7 +27,7 @@ public class esp8266 extends AbstractPage{
 	@FindBy(xpath = "//button[contains(text(),'Log me in')]")
 	private WebElement submitLogin;
 	
-	@FindBy(xpath = "//a[contains(text(),'Logout')][@class='btn btn-default btn-sm pull-right']")
+	@FindBy(xpath = "//div[@class='navbar-footer-content']//a[contains(text(),'Logout')]")
 	private WebElement logoutBtn;
 	
 	@FindBy(xpath = "//ul[@class='nav navbar-nav navbar-right navbar-nav-fancy']//li[@class='dropdown dropdown-avatar']")

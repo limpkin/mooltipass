@@ -59,8 +59,8 @@ public class Patreon extends AbstractPage{
 	}
 	
 	public boolean checkLogin(){
-		waitUntilAppears(By.xpath( "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']"));
-		return isElementPresent(By.xpath( "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']"));
+		waitUntilAppears(By.xpath( "//div[contains(text(),'mooltipass')]"));
+		return isElementPresent(By.xpath( "//div[contains(text(),'mooltipass')]"));
 	}
 	public boolean checkAtLoginPage(){
 		waitUntilAppears(By.xpath("//input[@name='email']"));

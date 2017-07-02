@@ -31,6 +31,7 @@ public class AliBabaSteps {
 				alibaba.goToLogin();
 				alibaba.clickAccessNow();
 			}
+		}
 		@Then("I should be logged in AliBaba")
 		public void checkLogin(){
 			Assert.assertTrue("Expected User to be logged in",alibaba.checkLogin());

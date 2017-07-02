@@ -51,7 +51,7 @@ public class AbstractPage {
 	
 	protected void waitUntilAppears(By by){
 		try{
-			WebDriverWait wait = new WebDriverWait(driver, 10);
+			WebDriverWait wait = new WebDriverWait(driver, 12);
 			wait.until(ExpectedConditions.elementToBeClickable(by));
 		}catch(Exception e)
 		{
@@ -60,7 +60,7 @@ public class AbstractPage {
 	}
 	protected boolean waitUntilAppears(WebElement element){
 		try{
-			WebDriverWait wait = new WebDriverWait(driver, 10);
+			WebDriverWait wait = new WebDriverWait(driver, 12);
 			wait.until(ExpectedConditions.elementToBeClickable(element));
 			return true;
 		}

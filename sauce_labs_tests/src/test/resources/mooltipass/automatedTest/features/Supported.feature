@@ -177,7 +177,7 @@ Scenario: Testing alibaba.com
 Given I navigate to 'http://www.alibaba.com/'
 When I login AliBaba with 'citesting@themooltipass.com'
 Then I should be logged in AliBaba
-When I confirm login to Alibaba
+#When I confirm login to Alibaba
 When I logout AliBaba
 And I go to AliBaba login page
 Then I should be logged in AliBaba

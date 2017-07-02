@@ -58,8 +58,8 @@ public class IDLC extends AbstractPage{
 	}
 	
 	public boolean checkLogin(){
-		waitUntilAppears(By.xpath( "//span[@class='lblNomPrenom']"));
-		return isElementPresent(By.xpath( "//span[@class='lblNomPrenom']"));
+		waitUntilAppears(By.xpath( "//span[text()='Bonjour mooltipass']"));
+		return isElementPresent(By.xpath( "//span[text()='Bonjour mooltipass']"));
 	}
 	public boolean checkAtLoginPage(){
 		return isElementPresent(By.id("frmMiniLogin"));

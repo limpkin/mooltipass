@@ -32,8 +32,12 @@ public class Qoqa extends AbstractPage{
 	@FindBy(xpath = "//a[text()='Se déconnecter']")
 	private WebElement logoutBtn;
 	
+	@FindBy(xpath = "//button[text()='Ça marche !']")
+	private WebElement popup;
 	
 	public void goToLogin(){
+		if(waitUntilAppears(popup))
+			popup.click();
 		menuBtn.click();
 		waitUntilAppears(loginBtn);
 		loginBtn.click();

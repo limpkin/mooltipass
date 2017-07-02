@@ -13,13 +13,13 @@ public class Ricardo extends AbstractPage{
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(id = "it_OverlayLogin")
+	@FindBy(xpath = "//li/*[contains(text(),'Einloggen')]")
 	private WebElement loginBtn;
 
-	@FindBy(xpath = "//input[@id='Login']")
+	@FindBy(xpath = "//section[@id='it_LoginSection']//input[@type='text']")
 	private WebElement email;
 
-	@FindBy(xpath = "//input[@id='Password']")
+	@FindBy(xpath = "//input[@type='password']")
 	private WebElement password;
 
 	@FindBy(xpath = "//button[@id='modalsubmit']")
@@ -35,8 +35,11 @@ public class Ricardo extends AbstractPage{
 	}
 	
 	public void enterEmail(String value){
-		waitUntilAppears(email);
-		email.sendKeys(value);
+
+		if(waitUntilAppears(email))
+				email.sendKeys(value);
+		else
+			driver.findElement(By.xpath("//input[@name='username']")).sendKeys(value);
 	}
 
 	public void enterPassword(String value){
@@ -44,7 +47,10 @@ public class Ricardo extends AbstractPage{
 	}
 	
 	public void submit(){
-		submitLogin.click();
+		if(waitUntilAppears(submitLogin))
+			submitLogin.click();
+		else
+			driver.findElement(By.xpath("//input[@type='submit']")).click();
 		}
 	
 	public boolean checkLogin(){
@@ -55,7 +61,7 @@ public class Ricardo extends AbstractPage{
 
 
 	public boolean checkAtLoginPage(){
-		return isElementPresent(By.xpath("//input[@id='Login']"));
+		return isElementPresent(By.xpath("//input[@type='password']"));
 	}
 	
 	public void logout(){

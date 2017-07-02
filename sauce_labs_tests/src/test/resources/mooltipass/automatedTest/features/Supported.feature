@@ -1,6 +1,14 @@
 Feature: Supported Websites
 
 @supported
+Scenario: Testing icloud
+Given I navigate to 'https://www.icloud.com'
+When I log in icloud with 'citesting@themooltipass.com'
+Then I should be logged in icloud
+When I logout icloud
+Then I should be logged in icloud
+
+@supported
 Scenario: Testing stackoverflow
 Given I navigate to 'https://stackoverflow.com'
 When I go to StackOverFlow login page

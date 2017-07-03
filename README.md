@@ -45,7 +45,8 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months:  
-- 06/2017 <a href="https://it.slashdot.org/story/17/06/24/1825235/researcher-finds-critical-openvpn-bug-using-fuzzing">Researcher Finds Critical OpenVPN Bug Using Fuzzing </a>
+- 07/2017 <a href="https://it.slashdot.org/story/17/07/03/0343258/severe-systemd-bug-allowed-remote-code-execution-for-two-years">Severe Systemd Bug Allowed Remote Code Execution For Two Years</a>
+- 06/2017 <a href="https://it.slashdot.org/story/17/06/24/1825235/researcher-finds-critical-openvpn-bug-using-fuzzing">Researcher Finds Critical OpenVPN Bug Using Fuzzing</a>
 - 06/2017 <a href="https://it.slashdot.org/story/17/06/23/1943245/wikileaks-doc-dump-reveals-cia-tools-for-hacking-air-gapped-pcs">WikiLeaks Doc Dump Reveals CIA Tools For Hacking Air-Gapped PCs</a>
 - 06/2017 <a href="http://www.zdnet.com/article/zero-day-skype-flaw-causes-crashes-remote-code-execution/">Zero-day Skype flaw causes crashes, remote code execution</a>
 - 06/2017 <a href="https://arstechnica.com/security/2017/06/advanced-cia-firmware-turns-home-routers-into-covert-listening-posts/">Advanced CIA firmware has been infecting Wi-Fi routers for years</a>

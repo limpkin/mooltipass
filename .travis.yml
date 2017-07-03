@@ -59,6 +59,6 @@ script: mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedT
 deploy:
    provider: script
    on:
-        tags: true
+        tags: false
         all_branches: true
    

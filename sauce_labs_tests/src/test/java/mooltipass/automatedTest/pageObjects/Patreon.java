@@ -52,6 +52,7 @@ public class Patreon extends AbstractPage{
 	}
 	public void goTodDashboard()
 	{
+		waitUntilAppears(dashBoard);
 		hover(dashBoard);	
 	}
 	public void logout(){

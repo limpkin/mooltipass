@@ -1,8 +1,7 @@
 language: java
 jdk:
 - oraclejdk8
-on:
-    condition: $TRAVIS_COMMIT_MESSAGE =^.*EXT-CI.*$
+conditions: $TRAVIS_COMMIT_MESSAGE =^.*EXT-CI.*$
 before_script:
 - cd chrome_extension/
 - bash updateCleanVersion.sh --emulation-mode

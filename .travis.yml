@@ -3,8 +3,6 @@ jdk:
 - oraclejdk8
 
 before_script:
-  on:
-        condition: "$TRAVIS_COMMIT = a"
 - cd chrome_extension/
 - bash updateCleanVersion.sh --emulation-mode
 - mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx

@@ -4,7 +4,7 @@ jdk:
 on:
     tags: true
     all_branches: true
-    condition: "$TRAVIS_COMMIT_MESSAGE =~ ^.*\[EXT-CI\].*$"
+    condition: "$TRAVIS_COMMIT_MESSAGE =~ ^.*[EXT-CI].*$"
 before_script:
 - cd chrome_extension/
 - bash updateCleanVersion.sh --emulation-mode

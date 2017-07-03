@@ -59,5 +59,6 @@ deploy:
    provider: script
    script: mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedTest/features/$TEST_SUITE"
    on:
+        tags: true
         condition: "$SAUCE_USERNAME = a"
    

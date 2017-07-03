@@ -28,7 +28,7 @@ public class Patreon extends AbstractPage{
 	@FindBy(xpath = "//a[contains(@href,'logout')]")
 	private WebElement logoutBtn;
 									
-	@FindBy(xpath = "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']")
+	@FindBy(xpath = "//div[contains(@style,'https://c8.patreon.com/2/100/6446993')]")
 	private WebElement dashBoard;
 	
 	public void enterEmail(String value){
@@ -52,6 +52,7 @@ public class Patreon extends AbstractPage{
 	}
 	public void goTodDashboard()
 	{
+		waitUntilAppears(dashBoard);
 		hover(dashBoard);	
 	}
 	public void logout(){

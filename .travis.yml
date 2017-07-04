@@ -14,7 +14,7 @@ env:
    TEST_SUITE=NotSupported.feature
    TEST_SUITE=Supported.feature
    TEST_SUITE=CIFails.feature
-   fi;
+   fi;'
   global:
   - 'if [[ $TRAVIS_COMMIT_MESSAGE == *"trigger"* ]]; then
    SAUCE_USERNAME: mooltipass

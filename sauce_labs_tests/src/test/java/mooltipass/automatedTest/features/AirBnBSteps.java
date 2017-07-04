@@ -17,7 +17,7 @@ public class AirBnBSteps {
 	public void login(String username){
 		airbnb.goToLogin();
 		airbnb.enterEmail(username);
-		String password = System.getenv().get("PASS3");
+		String password = System.getenv().get("AIRBNBPASS");
 		airbnb.enterPassword(password);
 		airbnb.submit();
 		

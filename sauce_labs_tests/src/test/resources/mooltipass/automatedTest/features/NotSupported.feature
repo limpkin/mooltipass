@@ -1,6 +1,15 @@
 Feature: Not supported Websites
 
 @notsupported
+Scenario: Testing ldlc.ch
+Given I navigate to 'http://www.ldlc.ch/'
+When I login IDLC with 'citesting@themooltipass.com'
+Then I should be logged in IDLC
+When I logout IDLC
+And I go to IDLC login page
+Then I should be logged in IDLC
+
+@notsupported
 Scenario: Testing Techmania
 Given I navigate to 'https://techmania.ch/'
 When I log in Techmania with 'mooltipass'
@@ -8,14 +17,6 @@ Then I should be logged in Techmania
 When I logout Techmania
 When I go to Techmania login page
 Then I should be logged in Techmania
-
-@notsupported
-Scenario: Testing gmail
-Given I navigate to 'https://gmail.com/'
-When I login Gmail with 'Mooltipasstest@gmail.com'
-Then I should be logged in Gmail
-When I logout Gmail
-Then I should be logged in Gmail
 
 @notsupported
 Scenario: Testing Microspot
@@ -26,7 +27,6 @@ Then I should be logged in Microspot
 When I logout Microspot
 When I go to Microspot login page
 Then I should be logged in Microspot
-
 
 #password is wrong from mooltipass
 @notsupported 
@@ -46,16 +46,6 @@ Then I should be logged in Evernote
 When I logout Evernote
 And I go to Evernote login page
 Then I should be logged in Evernote
-
-@subdomain
-@notsupported
-Scenario: Testing firefox.com
-Given I navigate to 'https://addons.mozilla.org'
-When I login firefox with 'citesting@themooltipass.com'
-Then I should be logged in firefox
-When I logout firefox
-And I go to firefox login page
-Then I should be logged in firefox
 
 @notsupported
 Scenario: Testing protonmail.com

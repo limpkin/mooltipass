@@ -14,7 +14,7 @@ public class TripadvisorSteps {
 	public void login(String username){
 		tripadvisor.goToLogin();
 		tripadvisor.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("TRIPPASS");
 		tripadvisor.enterPassword(password);
 		tripadvisor.submit();
 		

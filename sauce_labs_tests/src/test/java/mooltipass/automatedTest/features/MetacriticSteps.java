@@ -14,7 +14,7 @@ public class MetacriticSteps {
 	public void login(String username){
 		metacritic.goToLogin();
 		metacritic.enterEmail(username);
-		String password=System.getenv().get("PASS3");
+		String password=System.getenv().get("METAPASS");
 		metacritic.enterPassword(password);
 		metacritic.submit();
 		

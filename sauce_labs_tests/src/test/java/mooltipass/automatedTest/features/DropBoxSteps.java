@@ -14,7 +14,7 @@ public class DropBoxSteps {
 	public void login(String username){
 		dropBox.goToLogin();
 		dropBox.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("DROPBOXPASS");
 		dropBox.enterPassword(password);
 		dropBox.submit();
 		

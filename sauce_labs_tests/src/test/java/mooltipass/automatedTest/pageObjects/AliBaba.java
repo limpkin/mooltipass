@@ -59,6 +59,11 @@ public class AliBaba extends AbstractPage{
 		loginBtn.click();
 	}
 	
+	public boolean confirmRequired(){
+		goTodDashboard();
+		return waitUntilAppears(loginBtn);
+		
+	}
 	public void clickAccessNow(){
 		driver.switchTo().frame(driver.findElement(By.id("alibaba-login-box" )));
 		waitUntilAppears(accessNow);

@@ -15,7 +15,7 @@ public class EBookersSteps {
 		ebookers.goTodDashboard();
 		ebookers.goToLogin();
 		ebookers.enterEmail(username);
-		String password=System.getenv().get("PASS1");
+		String password=System.getenv().get("EBOOKPASS");
 		ebookers.enterPassword(password);
 		ebookers.submit();
 		

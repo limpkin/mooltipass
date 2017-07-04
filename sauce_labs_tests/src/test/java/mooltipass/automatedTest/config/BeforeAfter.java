@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
-
+import org.openqa.selenium.remote.RemoteWebDriver;
 import cucumber.api.Scenario;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -32,6 +32,7 @@ public class BeforeAfter {
 //				e.printStackTrace();
 //			}
 //		}
+		System.out.println(scenario.getName()+" RUNNING AT: https://saucelabs.com/beta/tests/"+((RemoteWebDriver) driver).getSessionId().toString());	
 		closeBrowser();
 	}
 

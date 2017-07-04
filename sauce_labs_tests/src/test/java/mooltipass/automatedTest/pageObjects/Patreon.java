@@ -13,7 +13,7 @@ public class Patreon extends AbstractPage{
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(xpath = "//div[@class='sc-hEsumM fNaNJw']//a[contains(text(),'Log In')]")
+	@FindBy(xpath = "//div[@data-reactid='.0.0.2.2.1']//a[contains(text(),'Log In')]")
 	private WebElement loginBtn;
 	@FindBy(xpath = "//input[@name='email']")
 	private WebElement email;
@@ -28,7 +28,7 @@ public class Patreon extends AbstractPage{
 	@FindBy(xpath = "//a[contains(@href,'logout')]")
 	private WebElement logoutBtn;
 									
-	@FindBy(xpath = "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']")
+	@FindBy(xpath = "//div[contains(@style,'https://c8.patreon.com/2/100/6446993')]")
 	private WebElement dashBoard;
 	
 	public void enterEmail(String value){
@@ -41,6 +41,7 @@ public class Patreon extends AbstractPage{
 	}
 	
 	public void goToLogin(){
+		waitUntilAppears(loginBtn);
 		loginBtn.click();
 	}
 	
@@ -51,6 +52,7 @@ public class Patreon extends AbstractPage{
 	}
 	public void goTodDashboard()
 	{
+		waitUntilAppears(dashBoard);
 		hover(dashBoard);	
 	}
 	public void logout(){
@@ -58,8 +60,8 @@ public class Patreon extends AbstractPage{
 	}
 	
 	public boolean checkLogin(){
-		waitUntilAppears(By.xpath( "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']"));
-		return isElementPresent(By.xpath( "//div[@data-reactid='.0.0.2.2.1.1:2.0.0']"));
+		waitUntilAppears(By.xpath( "//div[contains(text(),'mooltipass')]"));
+		return isElementPresent(By.xpath( "//div[contains(text(),'mooltipass')]"));
 	}
 	public boolean checkAtLoginPage(){
 		waitUntilAppears(By.xpath("//input[@name='email']"));

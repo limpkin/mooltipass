@@ -16,7 +16,7 @@ public class TechmaniaSteps {
 	public void login(String username){
 		techmania.clickloginLink();
 		techmania.enterUsername(username);
-		String password = System.getenv().get("PASS2");
+		String password = System.getenv().get("TECHPASS");
 		techmania.enterPassword(password);
 		techmania.submit();
 	}

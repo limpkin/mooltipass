@@ -18,8 +18,7 @@ Then I should be logged in DropBox
 When I logout DropBox
 Then I should be logged in DropBox
 
-@subdomain
-@supported 
+@subdomain @supported 
 Scenario: Testing farnell.com
 Given I navigate to 'https://ch.farnell.com/'
 When I login Farnel with 'Mooltipass'
@@ -28,8 +27,7 @@ When I logout Farnel
 And I go to Farnel login page
 Then I should be logged in Farnel
 
-@subdomain
-@supported 
+@subdomain @supported 
 Scenario: Testing ebay.com
 Given I navigate to 'http://www.ebay.com'
 When I login EBay with 'citesting@themooltipass.com'
@@ -56,6 +54,16 @@ When I logout Etsy
 And I go to Etsy login page
 Then I should be logged in Etsy
 
+@subdomain @supported
+Scenario: Testing firefox.com
+Given I navigate to 'https://addons.mozilla.org'
+When I login firefox with 'citesting@themooltipass.com'
+Then I should be logged in firefox
+When I logout firefox
+And I go to firefox login page
+And I click the sign in button
+Then I should be logged in firefox
+
 @supported
 Scenario: Testing github.com
 Given I navigate to 'https://github.com/'
@@ -64,6 +72,14 @@ Then I should be logged in GitHub
 When I logout GitHub
 And I go to GitHub login page
 Then I should be logged in GitHub
+
+@supported
+Scenario: Testing gmail
+Given I navigate to 'https://gmail.com/'
+When I login Gmail with 'Mooltipasstest@gmail.com'
+Then I should be logged in Gmail
+When I logout Gmail
+Then I should be logged in Gmail
 
 @supported  
 Scenario: Testing hackaday.io
@@ -74,9 +90,7 @@ When I logout HackADay
 And I go to HackADay login page
 Then I should be logged in HackADay
 
-
-@subdomain
-@supported
+@subdomain @supported
 Scenario: Testing forum.hardware.fr
 Given I navigate to 'http://forum.hardware.fr/'
 When I login HardwareFR with 'mooltipass'
@@ -84,16 +98,6 @@ Then I should be logged in HardwareFR
 When I logout HardwareFR
 And I go to HardwareFR login page
 Then I should be logged in HardwareFR
-
-
-@supported
-Scenario: Testing ldlc.ch
-Given I navigate to 'http://www.ldlc.ch/'
-When I login IDLC with 'citesting@themooltipass.com'
-Then I should be logged in IDLC
-When I logout IDLC
-And I go to IDLC login page
-Then I should be logged in IDLC
 
 @supported
 Scenario: Testing linkedin.com
@@ -169,7 +173,7 @@ Scenario: Testing alibaba.com
 Given I navigate to 'http://www.alibaba.com/'
 When I login AliBaba with 'citesting@themooltipass.com'
 Then I should be logged in AliBaba
-When I confirm login to Alibaba
+#When I confirm login to Alibaba
 When I logout AliBaba
 And I go to AliBaba login page
 Then I should be logged in AliBaba

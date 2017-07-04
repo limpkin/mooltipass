@@ -14,7 +14,7 @@ public class CisecuritySteps {
 	@When("I login cisecurity with '(.*)'")
 	public void login(String email){
 		cisecurity.enterEmail(email);
-		String password=System.getenv().get("PASS6");
+		String password=System.getenv().get("CISPASS");
 		cisecurity.enterPassword(password);
 		cisecurity.submit();
 	}

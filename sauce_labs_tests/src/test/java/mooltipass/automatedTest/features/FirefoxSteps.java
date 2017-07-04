@@ -13,7 +13,7 @@ public class FirefoxSteps {
 	public void login(String username){
 		firefox.goToLogin();
 		firefox.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("MOZPASS");
 		firefox.enterPassword(password);
 		firefox.submit();
 		
@@ -24,6 +24,13 @@ public class FirefoxSteps {
 		Assert.assertTrue("Expected to be at login page", firefox.checkAtLoginPage());
 		
 	}
+	
+	@When("I click the sign in button")
+	public void pressSignIn(){
+		firefox.sleep(4000);
+		firefox.submit();
+	}
+	
 	@Then("I should be logged in firefox")
 	public void checkLogin(){
 		Assert.assertTrue("Expected User to be logged in",firefox.checkLogin());

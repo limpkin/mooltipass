@@ -14,7 +14,7 @@ public class DropBox extends AbstractPage{
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(id = "sign-in")
+	@FindBy(xpath = "//a[text()='Sign in']")
 	private WebElement loginBtn;
 	
 	@FindBy(xpath = "//input[@name='login_email']")

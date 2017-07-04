@@ -13,7 +13,7 @@ public class PayPalSteps {
 	public void login(String username){
 		paypal.goToLogin();
 		paypal.enterEmail(username);
-		String password =System.getenv().get("PASS1");
+		String password =System.getenv().get("PAYPALPASS");
 		paypal.enterPassword(password);
 		paypal.submit();
 		

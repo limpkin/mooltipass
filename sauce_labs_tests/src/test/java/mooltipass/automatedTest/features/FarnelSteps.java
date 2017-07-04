@@ -14,15 +14,13 @@ public class FarnelSteps {
 		farnel.clickContinue();
 		farnel.goToLogin();
 		farnel.enterEmail(username);
-		String password=System.getenv().get("PASS3");
+		String password=System.getenv().get("FARNELLPASS");
 		farnel.enterPassword(password);
 		farnel.submit();
 		
 	}
 	@When("I go to Farnel login page")
 	public void pressLogin(){
-		farnel.goToLogin();
-		//Assert.assertTrue("Expected to be at login page", farnel.checkAtLoginPage());
 		
 	}
 	@Then("I should be logged in Farnel")

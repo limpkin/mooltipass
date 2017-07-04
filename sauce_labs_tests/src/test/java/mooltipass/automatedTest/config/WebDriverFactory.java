@@ -62,7 +62,7 @@ public class WebDriverFactory {
 	}
 	public static WebDriver get(String name){
 		scenarioName=name;
-		driver = createDriver();
+		driver = get();
 		return driver;
 	}
 
@@ -142,7 +142,6 @@ public class WebDriverFactory {
 		driver = new RemoteWebDriver(url, caps);
 		((RemoteWebDriver) driver).setFileDetector(new LocalFileDetector());
 		driver.get("chrome://extensions/");
-		System.out.println("TEST RUNNING AT: https://saucelabs.com/beta/tests/"+((RemoteWebDriver) driver).getSessionId().toString());
 		return driver;
 		
 	}

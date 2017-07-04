@@ -1,6 +1,6 @@
 language: java
 jdk:
-- oraclejdk8
+- if [[ $TRAVIS_COMMIT_MESSAGE == .*trigger.* ]]; then oraclejdk8; fi;
 before_script:
 - 'if [[ $TRAVIS_COMMIT_MESSAGE == .*trigger.* ]]; then
  cd chrome_extension/;

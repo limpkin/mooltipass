@@ -140,6 +140,15 @@ var extendedPost = {
 	}
 }
 
+var extendedSubmitButton = {
+	'vodafone.de': function(form) {
+		return form.parent().parent().find('#loginBtn')
+	},
+	'nordinary-com.netcup-mail.de': function(form) {
+		return form.find('#submit')
+	},
+}
+
 /*
 / Form Detection by combinations.
 / Searches the DOM for a predefined set of combinations and retrieves credentials or prepares everything to be saved
@@ -941,9 +950,17 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 				return;	
 			}
 		}*/
-
+		
 		// Try to click the submit element
 		var submitButton = currentForm.element.find(':submit:visible');
+		
+		// Run special cases
+		for ( specialCase in extendedSubmitButton ) {
+			if ( window.location.hostname.indexOf( specialCase ) > -1 ) {
+				submitButton = extendedSubmitButton[specialCase](currentForm.element);
+			}
+		}
+		
 		// Check if we found a button
 		if ( submitButton.length > 0 )
 		{

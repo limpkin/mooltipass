@@ -2,14 +2,14 @@ language: java
 jdk:
 - oraclejdk8
 before_script:
-- 'if [[ $TRAVIS_COMMIT_MESSAGE == .*trigger.* ]]; then
+- 'if [[ $TRAVIS_COMMIT_MESSAGE == *"trigger"* ]]; then
  cd chrome_extension/;
  bash updateCleanVersion.sh --emulation-mode;
  mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx;
  cd ./../sauce_labs_tests;
 fi;'
 env:
-- 'if [[ $TRAVIS_COMMIT_MESSAGE == .*trigger.* ]]; then
+- 'if [[ $TRAVIS_COMMIT_MESSAGE == *"trigger"* ]]; then
   matrix:
   - TEST_SUITE=NotSupported.feature
   - TEST_SUITE=Supported.feature
@@ -58,4 +58,4 @@ env:
   - secure: ki53D2RgYiHQ0x+8APgPtx18FnARQPOu/CXqZTGEPWTvrlkIZBvRrLsDkJEEPaL/I/t3Gt/YY3GjILnqi6G0Yjlchz6qXJee8WxQS8pskeJhKHYa7vKwTRR4E78yFI52KXANmq2Yzm3esv11yJecDZCCS4tA1FIV8fXi2ukCiQ5PLNkDpW6/o2Wayuvek65V7osnNUrBmTQKDyyGkhb6uKtNBWk5pUxrGB/xCagZoJRl/0SXcML/FGBzJZVdq2oFiPfx1YsfYFjljd6bccgCzrKBT9w7H4PkK4vdgo9KDrVA87NKCOg3igxpSOEDc46fI8Jdx+NiqC4uF7lL4t6uJtMEg6cwr1XTQHAlo/cp9TiTQab/8o3MsvDJTKT4qceAJ7MX6JLMgy8YbG9OFuxHh0sX02fRtB9pZO5ZSh9xAG88m8N3W+qSb43XhBuRz0wRwPRw3alHzjgQcE542tWF/qKaY0QH5Qb2Kdhhmi+am4GPKoXebfBaCGDxCMlzKs/UOkE4ZlUxzGe+H/juOLRJvAY/8Gnpvn/T6yB5rRyafbEYKQZ2wEqyQEoWn5ErweCXeQsdcPk8yj0KTdLQrgOvqp/Wy53/wr2Gc7YH7PBu/EHvK2W+yibAyA65zjsooKcHCAgCjQLdraSbPwnnC1+wC9XSyqB7pKmbkJ01dGt5R6s=
   - secure: rd9U/FvIIUk5v1xJJZiqaJjCm7Z2e93sr5Y06k3iTp0egbOJ6M8jfEbI9Q/3ne0UGkLdh70jl+Rn8fLSNTUQRjuWc2K8vCf6GBkQjYo+9u1n5IgWswkjTWKtV3gFWlKiDEdyQU4+Ikttev1LnVCHZSz/JYhYOwCBXc4AKPPO+lPwJ7FAJFindHNpgTkKEHvY8OC3XbOMkV3klhhbEQredDJArbNVqjNjZQh/fgrIkVbRU7DEGG4vyvgFXWU0mO2cllGBrva3FR4gykYgY3H36ryLYekVU3p601XL3Gt1rjLRiWIbpSng0VSuqaWwmZT08iKsm1c8VQEvf6LNnK5IhQq/yI+tTQiYyt+LZMM+H+XEwQR4HbH+7l2uavSHhiKqPMROdZQv3xpyhjGGFVvBe5oEviKz4iYLUBebUyyn4ScRk/7qLMTQ7EIK9oLupAf8PMJTFDAYZwpesA3CYgSj0sCNATHu4SJ0nDOdRxVX07bKfZkxSdvvwYoJY0XfNiveXmfbxWyiYWvINrOWmDapbCuLUcjduTJ1ywkPY6SLztHiY64lVMZhDQW9fxx0eK96/zYUGuRO3HrQ9ltgTkdiyHM8/6gUCiPE2qPkLYdMo331JyO2O6rX8oBbb/uQOFgUW4BwlyEpy4vIQ7ZfyCLcUlOMImXCOzAzP3xmEjoRncY=
    fi;'
-script: if [[ $TRAVIS_COMMIT_MESSAGE == .*trigger.* ]]; then mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedTest/features/$TEST_SUITE"; fi ; 
+script: if [[ $TRAVIS_COMMIT_MESSAGE == *"trigger"* ]]; then mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedTest/features/$TEST_SUITE"; fi ; 

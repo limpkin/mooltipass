@@ -2,12 +2,12 @@ language: java
 jdk:
 - oraclejdk8
 
-before_script: - if [[ $TRAVIS_COMMIT_MESSAGE == .*trigger.* ]]; then
- cd chrome_extension/
- bash updateCleanVersion.sh --emulation-mode
- mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx
- cd ./../sauce_labs_tests
-fi;
+before_script: - 'if [[ $TRAVIS_COMMIT_MESSAGE == .*trigger.* ]]; then
+ cd chrome_extension/;
+ bash updateCleanVersion.sh --emulation-mode;
+ mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx;
+ cd ./../sauce_labs_tests;
+fi;'
 env:
   matrix:
   - TEST_SUITE=NotSupported.feature

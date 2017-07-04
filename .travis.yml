@@ -10,9 +10,11 @@ before_script:
 fi;'
 env:
   matrix:
-  - TEST_SUITE=NotSupported.feature
-  - TEST_SUITE=Supported.feature
-  - TEST_SUITE=CIFails.feature
+  - 'if [[ $TRAVIS_COMMIT_MESSAGE == .*trigger.* ]]; then
+    TEST_SUITE=NotSupported.feature;
+    TEST_SUITE=Supported.feature;
+    TEST_SUITE=CIFails.feature;
+    fi;'
   global:
   - SAUCE_USERNAME: mooltipass
   - secure: Ol3PBuPiaqAwfNXzSs7j7FwX0dN7hpMkwbGEtLa/Jth1ogsRfpVX8JHcIQ1Iwg1vJBmLUK+8X4l+syRekMzErSz/ri+TKlY5NtNpH9I1lcSLt2H91m1bHT2axynTS+AjVI//WunaPluNJYy0PLu294y5S2IzzMUeuoZlwBnXp1RyGhXWJR56Na6ms2dybYjPqfQljzRD3onte8DSareJLOHM/H1f+q7W9t+vYtNLwXsJ2nTrs49+iicunjflNMh1T8aTXPkju8d6TMJ4DVBJy9QIa3/iMSyecp9Qu2zRawetnjmPROH5rHn6F5uIlUrR+HPeWJPabXe2siBMvhULFBZIz5I2MYiSij60npqM2kp9We8Vx4JzlPu2sXLaVlbmZv+bj6Mw4fh41wKJ6cUEkyGaIMR3FVBZeRKYQDhK7WBXnGZeW+oPXxLUxqYFrU3cf/1ackEdbdPlwMnVkKaqLSQILNbtLlwx0F9EdO+yJY31pMfz1jE9YTPFLwCsU6NH8ZGgTeuQJmPIuczip1s5jeQcGjXi3byPdZENSXC+MBUg98SdiBLGC455LFXHI6yBaqi4QbxIiRjX8gDu5wsP/ctbLOMgfpcFGRhrou+G1TqWy90KH2jGKqCvQJvvv299Czqx0DzVjVy2ppohBBZ1NPGiOklxxwztKtpCCyl01PI=

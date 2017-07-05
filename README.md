@@ -143,7 +143,7 @@ Not at all. Having our code open source allows everyone to check our security im
 
 Contact us
 ----------
-You may contact the development team via <a href="https://groups.google.com/forum/?hl=en#!forum/Mooltipass">the official Google group</a>.
+You may contact the development team via <a href="https://groups.google.com/forum/?hl=en#!forum/Mooltipass">the official Google group</a> or ask for support at support[at]themooltipass[dot]com
 
 Thanks and Acknowledgement
 --------------------------

@@ -523,6 +523,20 @@ mooltipassEvent.showApp = function() {
 	}
 }
 
+/*
+ * Notify httpAuth when custom HTTP Auth form is submitted.
+ */
+mooltipassEvent.onHttpAuthSubmit = function(callback, tab, credentials) {
+	httpAuth.onSubmit(credentials)
+}
+
+/*
+ * Notify httpAuth when custom HTTP Auth is cancelled.
+ */
+mooltipassEvent.onHttpAuthCancel = function(callback, tab, credentials) {
+	httpAuth.onCancel()
+}
+
 // all methods named in this object have to be declared BEFORE this!
 mooltipassEvent.messageHandlers = {
 	'update': mooltipassEvent.onUpdate,
@@ -547,6 +561,8 @@ mooltipassEvent.messageHandlers = {
 	'save_settings': mooltipassEvent.onSaveSettings,
 	'update_notify': mooltipassEvent.onUpdateNotify,
 	'stack_add': browserAction.stackAdd,
+	'http_auth_submit': mooltipassEvent.onHttpAuthSubmit,
+	'http_auth_cancel': mooltipassEvent.onHttpAuthCancel,
 	'generate_password': mooltipass.device.generatePassword,
     'set_current_tab': page.setCurrentTab,
     'cache_login': page.cacheLogin,

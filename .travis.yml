@@ -2,10 +2,12 @@ language: java
 jdk:
 - oraclejdk8
 before_script:
-- cd chrome_extension/
-- bash updateCleanVersion.sh --emulation-mode
-- mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx
-- cd ./../sauce_labs_tests
+- 'if [[ $TRAVIS_COMMIT_MESSAGE == *"[ci-ext]"* ]]; then
+ cd chrome_extension/;
+ bash updateCleanVersion.sh --emulation-mode;
+ mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx;
+ cd ./../sauce_labs_tests;
+fi;'
 env:
   matrix:
   - TEST_SUITE=NotSupported.feature
@@ -53,4 +55,4 @@ env:
   - secure: PBH9mF3uBRQqPdAzljf8CHVqGLM7vZ8QXbhE3+FwojYsfXj66zqmhLtBrBGPjM6h3q3V0ClfQxQma8gcshaQTeG9YRNoPxZeVqUuhbMAZG8s7Ag/AUaPMBhoGcBH5TI3tykWPVJua65JFibGFFsobhkglTcbTUwuSO14RmNT2MWHc40MxUIzVcJik7Ubf56yRCGlqrspLtegtI8sLEeB0+iQm5rZ7E5usefGxyF/1ipzeQ90CD3dqT5k7wrkTUA421r1wK4+kvd99dpNy0WJsFPpNITp6ypAtboCW8QVVlU7h+foV967UvZcEVpHyAr2Oo2x9uyOfAIz2vok6FkbjxiADnbhrwQyOwQLCLHs9cOaggnsWgwI/e28iL1Q/yJ4Xc+jZ3+qpu972yac9VsvidPA1m3rYMwuoz9nHXhfcQHRkvBEJBwED/O2UZUnWb0R4z+xPvmGtSuV7eKRO4YZXAMzV1JgNpYdgL0/HnoeVGGoe3JHEalML/BfVR9tr6Tfgu7+K7FKrYC/yue2XgeWV5wwKO7TFh33R8uUhj5WF3RbIYs2NYhpmSkh8MCD4CWCuLUBpUfXUIu8jaqmL+Qw36s13hLqZlE3dFiCJypuSCs5CzQq+yykfxDIgZTXVk4AaD1cS9xJkv/9ol0iZCIPAHw/bsNPYFPWLyGpojKne08=
   - secure: QzyK8ZHk7b0E827tkikrBiFplwlvzxFtoOHXFsfokGrSndhWcwtJG28mVMiLd/Dgkn7fV7V2ZiadrsagGcgkKZ+V+bjbDYOuJTN6ZMZLlscOIJFTvCTIo4IZG24SoBflKyyRdK4GwDuyq6GOCdyKCx//llndDeoAWpPf73/p1qH8xWc3+jBovdb6sWZUtvXIIosymhjliqhFsQ0JRIqQdA00jf9k6llJyg8y+Ra2lnQ4Sdhidfgg323m3EhMpiZ6t4uhTfVQsni9dWGtQWfILhC+uaMSbG7pUImqD38df79IIgR7wwPTU4d6REJs91V2s6XlPYHyUio45imAATCwOXkrzx5IXkqiqqihAy79kanz8I09+D4Q6LziTqsf1qYnoe2XKmIJmkw6ZE5Ki/oX0Z3aeaf9mTj0lkaGBkA+9Z6aWdDFpU2ZgAWiFWfGFAq5pvKur3VOT7kUz03jcarQVW/nCrhOEnGrP46cQxgrmimfuGk9wJy3aT2lIJ1c4SEWaYd85nl9RBX6mf0qupgFBLVqyd9nLHTTVc6DMTRZZSEXoJLAQIUCuuxawWE8VakirsPPzvn3GsNHP9Eb4fwWrn0WS+2kdGEbzooRoyQnUoS4XayitqxPW0mWZkCOFAyg9atXlt4nYPZPxdgH7HtvyZ+LIS5toj8qyxB69wpXoTY=
   - secure: JYUgRwLijf3GxHxXkoXayHYZ+H7V9YThKghMKyMwmqAResOLTgJrSBkk8PvYa7dW4XHLkkxRuTCEuawUiPmezBCz/jHFdmsf/9UCIlE5lGfKqiXRHEtGvhwsmrzifL/clQIMI4CHt1Q4iooNNN3OH4CbuFRvkCetNvwlUj32+rLPv6keazPssNF79MoVu/9JrpW3Ppz/fDqV39X17OFYX9fFaWjOaro1FyNgKJyNSyDWHLz/NYiHIcJqg0tXSZlaV4HNh3ZqgsOWq7J8ejOwqX7v943sgpdX5EkgYNjbJ2zCcsjuu8mk/aca5ESSltzHW1cs/SxCidnGWK7hOXoBqAd1nNOlUTAR2JwR8FM3ohlr9u9lJlXExBkjJgbuUL0EMvGRGD71gUeGBU3dw9cDrQiiTM5HxmUCFhkLJL5/pF5foIJNRr6QXFH7Xhv5C/KvuzvnemNhUV3JZBLALOJvwciGO1AZ00QkfIn5xFTTda8c1eaqSpKSbtNZEyMV8fvpcULePLGeH7WtI1IouhmEofBFw6L02Md++ewBo0lbq9YArrZ7S25DEbcFdIIw8vQAdIzVj0uxSq3tSDqMFCcU8zPm1kQj7FO7dsg9UwvoBjpi0Cc+yNmQAv/8RFAkZXVzDmf+Dfj3W3WWwjxMaKDyHow8P3YL24PrI54SP/+tQ3I=
-script: mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedTest/features/$TEST_SUITE"
+script: if [[ $TRAVIS_COMMIT_MESSAGE == *"[ci-ext]"* ]]; then mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedTest/features/$TEST_SUITE"; fi ; 

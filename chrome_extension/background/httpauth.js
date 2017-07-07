@@ -1,74 +1,42 @@
 var httpAuth = httpAuth || {};
 
-httpAuth.pendingCallbacks = [];
-httpAuth.requestId = "";
 httpAuth.callback = null;
-httpAuth.tabId = 0;
-httpAuth.url = null;
-httpAuth.isProxy = false;
-httpAuth.proxyUrl = null;
 
+httpAuth.onSubmit = function(credentials) {
+  httpAuth.callback({
+      authCredentials: {
+          username: credentials.login,
+          password: credentials.password
+      }
+  });
+};
 
-httpAuth.handleRequest = function (details, callback) {
-    if (httpAuth.requestId == details.requestId || !page.tabs[details.tabId]) {
-        callback({});
+httpAuth.onCancel = function() {
+  httpAuth.callback({ cancel: true });
+};
+
+httpAuth.handleRequest = function(details, callback) {
+    // Cancel requests which are initiated not from tabs.
+    if (!page.tabs[details.tabId]) {
+      callback({ cancel: true })
+      // Firefox expects this object on return.
+      return { cancel: true }
     }
-    else {
-        httpAuth.requestId = details.requestId;
-        httpAuth.pendingCallbacks.push(callback);
-        httpAuth.processPendingCallbacks(details);
-    }
-}
-
-httpAuth.processPendingCallbacks = function (details) {
-    httpAuth.callback = httpAuth.pendingCallbacks.pop();
-
-    var status = mooltipass.device.getStatus();
-    // Check whether the mooltipass app is connected and directly send callback to trigger login prompt
-    if(!status.connectedToApp || !status.deviceUnlocked ) {
-        httpAuth.callback({});
-        return;
-    }
-
-    httpAuth.tabId = details.tabId;
-    httpAuth.url = details.url;
-    httpAuth.isProxy = details.isProxy;
-
-    if (details.challenger) {
-        httpAuth.proxyUrl = details.challenger.host;
-    }
-
-    // WORKAROUND: second parameter should be tab, but is an own object with tab-id
-    // but in background.js only tab.id is used. To get tabs we could use
-    // chrome.tabs.get(tabId, callback) <-- but what should callback be?
-
-    var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
-    //console.log('httpAuth: isProxy', httpAuth.isProxy, ' proxyUrl:', httpAuth.proxyUrl, 'url:', httpAuth.url);
-
-    mooltipass.device.retrieveCredentials(httpAuth.loginOrShowCredentials, {"id": details.tabId}, url, url, true);
-}
-
-httpAuth.loginOrShowCredentials = function (logins) {
-    // at least one login found --> use first to login
-    if (logins.length > 0) {
-        var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
-        mooltipassEvent.onHTTPAuthPopup(null, {"id": httpAuth.tabId}, {"logins": logins, "url": url});
-        //generate popup-list for HTTP Auth usernames + descriptions
-
-        if (page.settings.autoFillAndSend) {
-            httpAuth.callback({
-                authCredentials: {
-                    username: logins[0].Login,
-                    password: logins[0].Password
-                }
-            });
+    
+    httpAuth.callback = callback
+    messaging({
+      action: "show_http_auth",
+      args: [{
+        isProxy: details.isProxy,
+        proxyURL: 'proxy://' + details.challenger.host + ':' + details.challenger.port
+      }]
+    }, details.tabId);
+    
+    if (isFirefox) {
+      return new Promise(function(resolve) {
+        httpAuth.callback = function(credentials) {
+          resolve(credentials);
         }
-        else {
-            httpAuth.callback({});
-        }
-    }
-    // no logins found
-    else {
-        httpAuth.callback({});
+      })
     }
 }

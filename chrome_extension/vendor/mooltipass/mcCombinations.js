@@ -931,61 +931,40 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	
 	// Do not autosubmit forms with Captcha
 	if ( cip.formHasCaptcha ) return;
-
-	if ( currentForm.element ) {
-		// Sites like Steam use a button outside the form:
-		/*if ( mpJQ('button:submit').length == 1 ) {
-			// Make sure it is the button we're looking for:
-			if ( mpJQ('button:submit').find('span').length == 1 ) {
-				mpJQ('button:submit').find('span').click();
-				return;	
+	
+	// Trying to find submit button and trigger click event.
+	
+	var ACCEPT_PATTERNS = [/submit/i, /login/i, /identifierNext/i, /passwordNext/i, /verify_user_btn/i],
+			IGNORE_PATTERNS = [/id=".*?search.*?"/i],
+			BUTTON_SELECTOR = 'button:visible, [type="submit"]:visible, a:visible, [role="button"]:visible'
+			
+	// Check that form element is in DOM. There are cases when form has been reattached.
+	var $root = mpJQ(mpJQ.contains(document, currentForm.element[0]) ? currentForm.element : mpJQ('body')),
+			submitButton = null
+	
+	// Traversing DOM from form element to top in case there is a button outside the form.
+	while (!submitButton && $root[0] != mpJQ('html')[0]) {
+		submitButton = $root.find(BUTTON_SELECTOR).filter(function(index, button) {
+			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
+				if (button.outerHTML.match(IGNORE_PATTERNS[i])) return false
 			}
-		}*/
-
-		// Try to click the submit element
-		var submitButton = currentForm.element.find(':submit:visible');
-		// Check if we found a button
-		if ( submitButton.length > 0 )
-		{
-			var selectedButton = submitButton[0];
-			// If there are multiple buttons
-			if (submitButton.length > 1)
-			{
-				// Simply discard buttons that may have "search" in their ids
-				for (i = 0; i < submitButton.length; i++)
-				{
-					if (submitButton[i].id && !submitButton[i].id.includes("search") && !submitButton[i].id.includes("Search"))
-					{
-						selectedButton = submitButton[i];
-						break;
-					}
-				}
+			
+			for (var i = 0; i < ACCEPT_PATTERNS.length; i++) {
+				if (button.outerHTML.match(ACCEPT_PATTERNS[i])) return true
 			}
-		}
-		if ( submitButton.length > 0 ) { 
-			// Add timeout to allow form check procedures to run
-			setTimeout( function() {
-				selectedButton.click();
-			},100);
-		} else if ( mpJQ('#verify_user_btn').length > 0 ) { // Exclusive else/if for Autodesk.com (probably it could be used in more 2 steps login procedures)
-			mpJQ('#verify_user_btn').click();
-		} else if (window.location.hostname == 'accounts.google.com') { // Special case for google
-            if (mpJQ('#identifierNext').length > 0)
-            {
-                mpJQ('#identifierNext').click();
-            }
-            if (mpJQ('#passwordNext').length > 0)
-            {
-                mpJQ('#passwordNext').click();
-            }            
-        } else if ( currentForm.element ) {
-			// If no submit button is found, just submit the form
-			currentForm.element.submit();
-		}
-	} else { // There is no FORM element. Click stuff around
-		setTimeout( function() {
-			mpJQ('#sign-in, .btn-submit, #verify_user_btn').click();
-		},1500);
+		})[0]
+		
+		$root = $($root.parent()[0] || mpJQ('body'))
+	}
+	
+	if (submitButton) {
+		// Select innermost element to trigger click. Event will be propagated anyway.
+		submitButton = mpJQ(submitButton).find(':not(:has(*))')[0] || submitButton
+		
+		mpJQ(submitButton).trigger('click')
+	} else {
+		// If we haven't found submit button, let's trigger submit event on the form.
+		mpJQ(currentForm.element).trigger('submit')
 	}
 }
 

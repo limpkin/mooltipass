@@ -934,17 +934,24 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	
 	// Trying to find submit button and trigger click event.
 	
-	var ACCEPT_PATTERNS = [/submit/i, /login/i, /identifierNext/i, /passwordNext/i, /verify_user_btn/i],
+	var ACCEPT_PATTERNS = [/submit/i, /login/i, /sign/i, /identifierNext/i, /passwordNext/i, /verify_user_btn/i],
 			IGNORE_PATTERNS = [/id=".*?search.*?"/i],
-			BUTTON_SELECTOR = 'button:visible, [type="submit"]:visible, [role="button"]:visible'
+			// Selectors are ordered by priority, first ones are more important.
+			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div:visible']
 			
-	// Check that form element is in DOM. There are cases when form has been reattached.
-	var $root = mpJQ(mpJQ.contains(document, currentForm.element[0]) ? currentForm.element : mpJQ('body')),
+	// Check that form element exists and in DOM. There are cases when form has been reattached.
+	var $root = mpJQ((currentForm.element && mpJQ.contains(document, currentForm.element[0])) ? currentForm.element : mpJQ('body')),
 			submitButton = null
 	
 	// Traversing DOM from form element to top in case there is a button outside the form.
 	while (!submitButton && $root[0] != mpJQ('html')[0]) {
-		submitButton = $root.find(BUTTON_SELECTOR).filter(function(index, button) {
+		var discoveredButtons = []
+		
+		BUTTON_SELECTORS.forEach(function(selector) {
+			jQuery.merge(discoveredButtons, $root.find(selector))
+		})
+		
+		submitButton = discoveredButtons.filter(function(button) {
 			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
 				if (button.outerHTML.match(IGNORE_PATTERNS[i])) return false
 			}
@@ -958,7 +965,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	}
 	
 	if (submitButton) {
-		// Select innermost element to trigger click. Event will be propagated anyway.
+		// Select innermost element to trigger click because handler can be on it.
+		// Event will be propagated anyway.
 		submitButton = mpJQ(submitButton).find(':not(:has(*))')[0] || submitButton
 		
 		// Button can be disabled, waiting for update.

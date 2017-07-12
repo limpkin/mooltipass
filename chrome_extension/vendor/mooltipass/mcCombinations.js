@@ -936,7 +936,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	
 	var ACCEPT_PATTERNS = [/submit/i, /login/i, /identifierNext/i, /passwordNext/i, /verify_user_btn/i],
 			IGNORE_PATTERNS = [/id=".*?search.*?"/i],
-			BUTTON_SELECTOR = 'button:visible, [type="submit"]:visible, a:visible, [role="button"]:visible'
+			BUTTON_SELECTOR = 'button:visible, [type="submit"]:visible, [role="button"]:visible'
 			
 	// Check that form element is in DOM. There are cases when form has been reattached.
 	var $root = mpJQ(mpJQ.contains(document, currentForm.element[0]) ? currentForm.element : mpJQ('body')),
@@ -961,7 +961,10 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 		// Select innermost element to trigger click. Event will be propagated anyway.
 		submitButton = mpJQ(submitButton).find(':not(:has(*))')[0] || submitButton
 		
-		mpJQ(submitButton).trigger('click')
+		// Button can be disabled, waiting for update.
+		setTimeout(function() {
+			mpJQ(submitButton).trigger('click')
+		}, 100)
 	} else {
 		// If we haven't found submit button, let's trigger submit event on the form.
 		mpJQ(currentForm.element).trigger('submit')

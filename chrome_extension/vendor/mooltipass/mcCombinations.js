@@ -934,13 +934,24 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	
 	// Trying to find submit button and trigger click event.
 	
-	var ACCEPT_PATTERNS = [/submit/i, /login/i, /sign/i, /identifierNext/i, /passwordNext/i, /verify_user_btn/i],
+	var ACCEPT_PATTERNS = [
+				// Common patterns.
+				/submit/i, /login/i, /sign/i,
+				
+				// Special cases.
+				/identifierNext/i,
+				/passwordNext/i,
+				/verify_user_btn/i],
+				
 			IGNORE_PATTERNS = [/id=".*?search.*?"/i],
+			
 			// Selectors are ordered by priority, first ones are more important.
 			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div:visible']
 			
 	// Check that form element exists and in DOM. There are cases when form has been reattached.
-	var $root = mpJQ((currentForm.element && mpJQ.contains(document, currentForm.element[0])) ? currentForm.element : mpJQ('body')),
+	var $root = currentForm.element && mpJQ.contains(document, currentForm.element[0])
+						? currentForm.element
+						: mpJQ('body'),
 			submitButton = null
 	
 	// Traversing DOM from form element to top in case there is a button outside the form.

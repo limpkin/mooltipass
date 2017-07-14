@@ -941,9 +941,13 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 				// Special cases.
 				/identifierNext/i,
 				/passwordNext/i,
-				/verify_user_btn/i],
-				
-			IGNORE_PATTERNS = [/id=".*?search.*?"/i],
+				/verify_user_btn/i
+			],
+			
+			IGNORE_PATTERNS = [
+				/forgotpassword/i,
+				/id=".*?search.*?"/i
+			],
 			
 			// Selectors are ordered by priority, first ones are more important.
 			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div:visible']

@@ -10,7 +10,7 @@ mooltipass.device = mooltipass.device || {};
 /**
  * Mooltipass emulation vars
  */
-mooltipass.device.emulation_mode = false
+mooltipass.device.emulation_mode = true
 mooltipass.device.emulation_credentials = []
 //mooltipass.device.emulation_credentials.push({"domain":"limpkin.fr", "login":"lapin", "password":"test"});
 

@@ -253,6 +253,26 @@ mcCombinations.prototype.gotSettings = function( response ) {
 */
 mcCombinations.prototype.possibleCombinations = [
 	{
+		combinationId: 'trillianLogin',
+		combinationName: 'Simple Trillian Login',
+		requiredUrl: 'www.trillian.im',
+		requiredFields: [
+            		{
+                		selector: 'input[type=text],input:not([type])',
+                		mapsTo: 'username'
+            		},
+            		{
+                		selector: 'input[type=password]',
+                		mapsTo: 'password'
+            		},
+        	],
+        	scorePerMatch: 50,
+        	score: 0,
+        	autoSubmit: true,
+        	maxfields: 2,
+		callback: extendedCombinations.trillian
+	},
+	{
 		combinationId: 'skypeTwoPageAuth',
 		combinationName: 'Skype Two Page Login Procedure',
 		requiredUrl: 'login.live.com',
@@ -918,7 +938,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
         	if (currentForm.combination.submitHandler) currentForm.combination.submitHandler(credentials[0]);		
 
 		// Unsure about this restriction. Probably should always make a retrieve credentials call (need to think about it)
-		if ( currentForm.combination ) {
+		else if ( currentForm.combination ) {
 			if ( credentials[0].Login && currentForm.combination.fields.username ) {
 				if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form - Username','background-color: #c3c6b4','color: #FF0000');
 				// Fill-in Username

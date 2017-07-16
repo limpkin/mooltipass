@@ -8,7 +8,7 @@ var extendedCombinations = {
             		var username = mpJQ('#x_loginUsername')[0].value;
             		var password = mpJQ('#x_loginPassword')[0].value;
             		if (username.length > 0 && password.length > 0) {
-                		chrome.runtime.sendMessage({
+                		messaging({
                     			'action': 'update_notify',
                     			'args': [username, 
 						password, 

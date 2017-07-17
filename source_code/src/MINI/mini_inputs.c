@@ -51,7 +51,7 @@ volatile uint8_t last_wheel_sm;
 // index for wheel current state buffer
 volatile uint8_t wheel_log_buffer_index;
 // buffer containing the last wheel raw state
-volatile uint8_t wheel_log_buffer[8];
+volatile uint8_t wheel_log_buffer[2];
 // To get wheel action, discard release event
 uint8_t discard_release_event = FALSE;
 // Wheel direction reverse bool
@@ -391,9 +391,9 @@ void scanMiniInputsDetect(void)
     // Wheel encoder
     wheel_state = ((PIN_WHEEL_A & (1 << PORTID_WHEEL_A)) >> PORTID_WHEEL_A) | ((PIN_WHEEL_B & (1 << PORTID_WHEEL_B)) >> (PORTID_WHEEL_B-1));
     // Store it in our log
-    wheel_log_buffer[(wheel_log_buffer_index++) & 0x07];
+    wheel_log_buffer[(wheel_log_buffer_index++) & 0x01] = wheel_state;
     // Only if the last x samples are the same that we are going into this scan routine...
-    for (uint8_t i = 1; i < 8; i++)
+    for (uint8_t i = 1; i < 2; i++)
     {
         if (wheel_log_buffer[i] != wheel_log_buffer[0])
         {

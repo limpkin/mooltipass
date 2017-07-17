@@ -946,7 +946,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 			
 			IGNORE_PATTERNS = [
 				/forgotpassword/i,
-				/id=".*?search.*?"/i
+				/id=".*?search.*?"/i,
+				/showpassword/i
 			],
 			
 			// Selectors are ordered by priority, first ones are more important.

@@ -123,7 +123,7 @@ options.showBlacklistedUrls = function() {
 
         $(this).html("");
         for (var url in options.blacklist) {
-            $element = $("<tr data-url='" + url + "'><td><span class='value'>" + url + "</span><span class='remove'><i class='fa fa-times'></i></span></td>");
+            $element = $("<tr data-url='" + url + "'><td><span class='value'>" + url + '</span><span class="remove"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="11" height="14" viewBox="0 0 22 28" data-code="61453" data-tags="close,remove,times"><g fill="#BBB" transform="scale(0.02734375 0.02734375)"><path d="M741.714 755.429c0 14.286-5.714 28.571-16 38.857l-77.714 77.714c-10.286 10.286-24.571 16-38.857 16s-28.571-5.714-38.857-16l-168-168-168 168c-10.286 10.286-24.571 16-38.857 16s-28.571-5.714-38.857-16l-77.714-77.714c-10.286-10.286-16-24.571-16-38.857s5.714-28.571 16-38.857l168-168-168-168c-10.286-10.286-16-24.571-16-38.857s5.714-28.571 16-38.857l77.714-77.714c10.286-10.286 24.571-16 38.857-16s28.571 5.714 38.857 16l168 168 168-168c10.286-10.286 24.571-16 38.857-16s28.571 5.714 38.857 16l77.714 77.714c10.286 10.286 16 24.571 16 38.857s-5.714 28.571-16 38.857l-168 168 168 168c10.286 10.286 16 24.571 16 38.857z"></path></g></svg></span></td>');
             $element.appendTo($(this));
         }
 
@@ -186,7 +186,7 @@ options.initCredentialList = function () {
 
         $(this).html("");
         for (var url in options.settings["defined-credential-fields"]) {
-            $element = $("<tr data-url='" + url + "'><td><span class='value'>" + url + "</span><span class='remove'><i class='fa fa-times'></i></span></td>");
+            $element = $("<tr data-url='" + url + "'><td><span class='value'>" + url + '</span><span class="remove"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="11" height="14" viewBox="0 0 22 28" data-code="61453" data-tags="close,remove,times"><g fill="#BBB" transform="scale(0.02734375 0.02734375)"><path d="M741.714 755.429c0 14.286-5.714 28.571-16 38.857l-77.714 77.714c-10.286 10.286-24.571 16-38.857 16s-28.571-5.714-38.857-16l-168-168-168 168c-10.286 10.286-24.571 16-38.857 16s-28.571-5.714-38.857-16l-77.714-77.714c-10.286-10.286-16-24.571-16-38.857s5.714-28.571 16-38.857l168-168-168-168c-10.286-10.286-16-24.571-16-38.857s5.714-28.571 16-38.857l77.714-77.714c10.286-10.286 24.571-16 38.857-16s28.571 5.714 38.857 16l168 168 168-168c10.286-10.286 24.571-16 38.857-16s28.571 5.714 38.857 16l77.714 77.714c10.286 10.286 16 24.571 16 38.857s-5.714 28.571-16 38.857l-168 168 168 168c10.286 10.286 16 24.571 16 38.857z"></path></g></svg></span></td>');
             $element.appendTo($(this));
         }
 

@@ -933,10 +933,12 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	for( form in this.forms ) {
 		currentForm = this.forms[ form ];
 		if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form','background-color: #c3c6b4','color: #FF0000', currentForm);
-		if (!currentForm.combination.submitHandler && (!currentForm.combination || !currentForm.combination.fields)) continue;
+		if (!currentForm.combination || !currentForm.combination.fields) continue;
 
-        	if (currentForm.combination.submitHandler) currentForm.combination.submitHandler(credentials[0]);		
-
+		if (currentForm.combination && currentForm.combination.submitHandler)
+		{
+			currentForm.combination.submitHandler(credentials[0]);
+		}
 		// Unsure about this restriction. Probably should always make a retrieve credentials call (need to think about it)
 		else if ( currentForm.combination ) {
 			if ( credentials[0].Login && currentForm.combination.fields.username ) {

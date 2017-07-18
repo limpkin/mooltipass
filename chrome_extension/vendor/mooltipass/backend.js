@@ -200,7 +200,7 @@ mooltipass.backend.handlerUnBlacklistUrl = function(callback, tab, url) {
 mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
     if (background_debug_msg > 4) mpDebug.log('%c backend: %c extractDomainAndSubdomain ','background-color: #ffc107','color: #000', url);
 
-    var toReturn = { url: url, valid: false, domain: null, subdomain: null, blacklisted: false };
+    var toReturn = { url: url, valid: false, domain: null, subdomain: null, blacklisted: false, port: null };
     
     // Don't know why this is here, leaving it just in case
     toReturn.url = toReturn.url.replace('www.', 'wWw.');
@@ -216,8 +216,9 @@ mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
     // Remove everything after first /
     var n = toReturn.url.indexOf('/');
     toReturn.url = toReturn.url.substring(0, n != -1 ? n : url.length);
-    // Remove everything after first :
+    // Remove everything after first : and save as port.
     var n = toReturn.url.indexOf(':');
+    toReturn.port = toReturn.url.substring(n != -1 ? n + 1 : toReturn.url.length);
     toReturn.url = toReturn.url.substring(0, n != -1 ? n : toReturn.url.length);
     // Remove possible starting '.', (residual from www[number] urls)
     if((toReturn.url.length > 0) && (toReturn.url.charAt(0) == '.')) {
@@ -228,7 +229,7 @@ mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
         // Managed to extract a domain using the public suffix list
         toReturn.valid = true;
         var parsed = psl.parse( String(toReturn.url) );
-        toReturn.domain = parsed.domain;
+        toReturn.domain = parsed.domain + (toReturn.port ? ':' + toReturn.port : '');
         toReturn.subdomain = parsed.subdomain;
     } else {
         // Check if it is an ip address or localhost.
@@ -238,7 +239,7 @@ mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
         var ipV6Array = toReturn.url.match(ipV6Pattern);
         if(ipV4Array != null || ipV6Array != null || toReturn.url == 'localhost') {
             toReturn.valid = true;
-            toReturn.domain = toReturn.url;
+            toReturn.domain = toReturn.url + (toReturn.port ? ':' + toReturn.port : '');
             toReturn.subdomain = null;
         }
     }

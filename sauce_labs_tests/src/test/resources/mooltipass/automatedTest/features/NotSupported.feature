@@ -115,3 +115,12 @@ Then I should be logged in airBnB
 When I logout airBnB
 And I go to airBnB login page
 Then I should be logged in airBnB
+
+@notsupported
+Scenario: Testing Steam
+Given I navigate to 'https://store.steampowered.com/'
+When I login Steam with 'citesting'
+Then I should be logged in Steam
+When I logout Steam
+When I go to Steam login page
+Then I should be logged in Steam

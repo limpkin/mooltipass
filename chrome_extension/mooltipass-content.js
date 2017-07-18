@@ -1809,15 +1809,24 @@ cipEvents.triggerActivatedTab = function() {
 	mcCombs.init();
 }
 
-/* Delay execution a bit if JQuery isn't ready yet ~happens 1/1000, but still worth it~ */
-while( !mpJQ ) {};
+// Don't initialize in user targeting iframes, captchas, etc.
+var stopInitialization = 
+	window.self != window.top && (
+		mpJQ('body').text().trim() == '' ||
+		mpJQ('body').width() == 0 ||
+		mpJQ('body').height() == 0 ||
+		window.location.href.match('recaptcha') ||
+		window.location.href.match('youtube')
+	)
 
-cipEvents.startEventHandling();
+if (!stopInitialization) {
+	cipEvents.startEventHandling();
 
-var mcCombs = new mcCombinations();
-mcCombs.settings.debugLevel = content_debug_msg;
+	var mcCombs = new mcCombinations();
+	mcCombs.settings.debugLevel = content_debug_msg;
 
-messaging( {'action': 'content_script_loaded' } );
+	messaging( {'action': 'content_script_loaded' } );
+}
 
 var mpDialog = {
 	shown: false,

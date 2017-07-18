@@ -1,15 +1,5 @@
 Feature: Supported Websites
 
-@supported
-Scenario: Testing stackoverflow
-Given I navigate to 'https://stackoverflow.com'
-When I go to StackOverFlow login page
-When I log in StackOverFlow with 'mooltipass@discard.email'
-Then I should be logged in StackOverFlow
-When I logout StackOverFlow
-And I go to StackOverFlow login page
-Then I should be logged in StackOverFlow
-
 @supported 
 Scenario: Testing dropbox.com
 Given I navigate to 'https://www.dropbox.com/'
@@ -117,15 +107,6 @@ And I go to Patreon login page
 Then I should be logged in Patreon
 
 @supported
-Scenario: Testing paypal.com
-Given I navigate to 'https://www.paypal.com/at/home'
-When I login PayPal with 'citesting@themooltipass.com'
-Then I should be logged in PayPal
-When I logout PayPal
-And I go to PayPal login page
-Then I should be logged in PayPal
-
-@supported
 Scenario: Testing pcbway.com
 Given I navigate to 'https://www.pcbway.com'
 When I login PcbWay with 'citesting@themooltipass.com'
@@ -177,3 +158,40 @@ Then I should be logged in AliBaba
 When I logout AliBaba
 And I go to AliBaba login page
 Then I should be logged in AliBaba
+
+@supported
+Scenario: Testing Microspot
+Given I navigate to 'https://www.microspot.ch/'
+When I go to Microspot login page
+When I login Microspot with 'mooltipasstest@gmail.com'
+Then I should be logged in Microspot
+When I logout Microspot
+When I go to Microspot login page
+Then I should be logged in Microspot
+
+@supported 
+Scenario: Testing ebookers.fr
+Given I navigate to 'https://www.ebookers.fr/'
+When I login EBookers with 'citesting@themooltipass.com'
+Then I should be logged in EBookers
+When I logout EBookers
+And I go to EBookers login page
+Then I should be logged in EBookers
+
+@supported
+Scenario: Testing ricardo.ch
+Given I navigate to 'https://www.ricardo.ch'
+When I login ricardo with 'citesting@themooltipass.com'
+Then I should be logged in ricardo
+When I logout ricardo
+And I go to ricardo login page
+Then I should be logged in ricardo
+
+@supported 
+Scenario: Testing http://www.metacritic.com/
+Given I navigate to 'http://www.metacritic.com/'
+When I login metacritic with 'citesting@themooltipass.com'
+Then I should be logged in metacritic
+When I logout metacritic
+And I go to metacritic login page
+Then I should be logged in metacritic

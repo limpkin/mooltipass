@@ -1,6 +1,6 @@
 {
   "name": "Mooltipass Extension",
-  "version": "1.1.82",
+  "version": "1.1.84",
   "manifest_version": 2,
   "description": "Retrieve and store Mooltipass credentials easily from websites",
   "icons": {
@@ -53,7 +53,8 @@
   "web_accessible_resources": [
     "jquery.min.map",
     "images/icon_password_16.png",
-    "images/icon_password_24.png"
+    "images/icon_password_24.png",
+    "images/logo_inverted.png"
   ],
   "permissions": [
     "contextMenus",

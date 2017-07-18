@@ -298,39 +298,37 @@ mooltipass.device.sendCredentialRequestMessageFromQueue = function()
             // Put everything in a timeout to avoid duplicate requests
             setTimeout(function()
             {
+                var credentials = [];
+                
                 for (var i = 0; i < mooltipass.device.emulation_credentials.length; i++)
                 {
                     if (mooltipass.device.emulation_credentials[i]["domain"] == mooltipass.device.retrieveCredentialsQueue[0].domain)
                     {
                         if (background_debug_msg > 3) mpDebug.log("%c Emulation mode: found credential in buffer:", mpDebug.css('00ff00'), mooltipass.device.emulation_credentials[i]);
-                        setTimeout(function() 
-                        {
-                            try
-                            {
-                                mooltipass.device.retrieveCredentialsQueue[0].callback([
-                                    {
-                                        Login: mooltipass.device.emulation_credentials[i]["login"],
-                                        Name: '<name>',
-                                        Uuid: '<Uuid>',
-                                        Password: mooltipass.device.emulation_credentials[i]["password"],
-                                        StringFields: []
-                                    }
-                                ], mooltipass.device.retrieveCredentialsQueue[0].tabid == 'safari'?mooltipass.device.retrieveCredentialsQueue[0].tab:mooltipass.device.retrieveCredentialsQueue[0].tabid );
-                            }
-                            catch(err)
-                            {
-                                //console.log( err );
-                            }
-                            // Treat other pending requests
-                            mooltipass.device.retrieveCredentialsQueue.shift();
-                            mooltipass.device.sendCredentialRequestMessageFromQueue();
-                        }, 2000);
-                        return;
+                        credentials.push(
+                          {
+                              Login: mooltipass.device.emulation_credentials[i]["login"],
+                              Name: '<name>',
+                              Uuid: '<Uuid>',
+                              Password: mooltipass.device.emulation_credentials[i]["password"],
+                              StringFields: []
+                          }
+                        );
                     }
                 }
                 if (background_debug_msg > 3) mpDebug.log("%c Emulation mode: nothing in buffer!", mpDebug.css('00ff00'));
-                mooltipass.device.retrieveCredentialsQueue.shift();
-                mooltipass.device.sendCredentialRequestMessageFromQueue();
+                
+                setTimeout(function()
+                {
+                    try {
+                        mooltipass.device.retrieveCredentialsQueue[0].callback(credentials,
+                          mooltipass.device.retrieveCredentialsQueue[0].tabid == 'safari'?mooltipass.device.retrieveCredentialsQueue[0].tab:mooltipass.device.retrieveCredentialsQueue[0].tabid );
+                    } catch(err) {}
+                    
+                    // Treat other pending requests
+                    mooltipass.device.retrieveCredentialsQueue.shift();
+                    mooltipass.device.sendCredentialRequestMessageFromQueue();
+                }, 2000);
             }, 300);
         }
         else if (mooltipass.device.connectedToExternalApp) 

@@ -728,6 +728,9 @@ input.mp-hover-password {
         height: 24px;
         background-image: url(images/icon_password_24.png);
     }
+		.mp-popup-http-auth__logo {
+				background-image: url(images/logo_inverted.png) !important;
+		}
 }
 
 
@@ -904,4 +907,149 @@ input.mp-hover-password {
 
 .mp-genpw-dialog .login-area {
     display: none;
+}
+
+/* HTTP Auth popup */
+
+.mp-popup-http-auth {
+	position: fixed;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	z-index: 9999;
+	overflow: auto;
+	font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+	background-color: rgba(0, 0, 0, 0.45);
+}
+
+.mp-popup-http-auth__content {
+	margin: 100px auto;
+	padding: 50px;
+	max-width: 350px;
+	background-color: white;
+	border: solid 1px #666666;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.mp-popup-http-auth__form {
+	max-width: 300px;
+	margin: auto;
+}
+
+input.mp-popup-http-auth__input {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	border-radius: 0;
+	background-color: #FFFFFF;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #cccccc;
+	border-radius: 0;
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+	color: rgba(0, 0, 0, 0.75);
+	display: block;
+	font-family: inherit;
+	font-size: 14px;
+	height: 37px;
+	margin: 0 0 16px 0;
+	padding: 8px;
+	width: 100%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-transition: border-color 0.15s linear, background 0.15s linear;
+	-moz-transition: border-color 0.15s linear, background 0.15s linear;
+	-ms-transition: border-color 0.15s linear, background 0.15s linear;
+	-o-transition: border-color 0.15s linear, background 0.15s linear;
+	transition: border-color 0.15s linear, background 0.15s linear;
+}
+
+input.mp-popup-http-auth__input:focus {
+	background: #fafafa;
+	border-color: #999999;
+	outline: none;
+}
+
+input.mp-popup-http-auth__input:focus {
+	outline: none;
+	border: 1px solid #CCC !important;
+}
+	
+.mp-popup-http-auth__logo {
+	margin: auto;
+	width: 215px;
+	height: 64px;
+	margin-bottom: 50px;
+	background-image: url(chrome-extension://__MSG_@@extension_id__/images/logo_inverted.png);
+}
+
+.mp-popup-http-auth__button {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	border-radius: 0;
+	border-style: solid;
+	border-width: 0;
+	cursor: pointer;
+	font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+	font-weight: normal;
+	line-height: normal;
+	margin: 0 0 20px;
+	padding: 10px 20px 11px 20px;
+	font-size: 12px;
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	background-color: #60B1C7;
+	border-color: #3d96af;
+	color: #FFFFFF;
+	transition: background-color 300ms ease-out;
+}
+
+.mp-popup-http-auth__button:hover, .mp-popup-http-auth__button:focus {
+  background-color: #3d96af;
+  color: #FFFFFF;
+}
+
+.mp-popup-http-auth__button.mp-popup-http-auth__button--secondary {
+  background-color: #e7e7e7;
+  border-color: #b9b9b9;
+  color: #333333;
+}
+
+.mp-popup-http-auth__button--secondary:hover, .mp-popup-http-auth__button--secondary.secondary:focus {
+  background-color: #b9b9b9;
+  color: #333333;
+}
+
+.mp-popup-http-auth__label {
+	color: #4d4d4d;
+	cursor: pointer;
+	display: block;
+	font-size: 14px;
+	font-weight: normal;
+	line-height: 1.5;
+	margin-bottom: 0;
+	text-align: left;
+}
+
+.mp-popup-http-auth__submit {
+	float: right;
+}
+
+.mp-popup-http-auth__cancel {
+	margin-right: 20px;
+}
+
+.mp-popup-http-auth__controls {
+	text-align: right;
+}
+
+.mp-popup-http-auth__notice {
+	display: none;
+	color: #f18888;
+	margin-bottom: 10px;
+	text-align: center;
+	font-size: 14px;
 }

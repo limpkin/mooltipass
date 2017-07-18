@@ -200,7 +200,7 @@ mooltipass.backend.handlerUnBlacklistUrl = function(callback, tab, url) {
 mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
     if (background_debug_msg > 4) mpDebug.log('%c backend: %c extractDomainAndSubdomain ','background-color: #ffc107','color: #000', url);
 
-    var toReturn = { url: url, valid: false, domain: null, subdomain: null, blacklisted: false };
+    var toReturn = { url: url, valid: false, domain: null, subdomain: null, blacklisted: false, port: null };
     
     // Don't know why this is here, leaving it just in case
     toReturn.url = toReturn.url.replace('www.', 'wWw.');
@@ -216,8 +216,9 @@ mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
     // Remove everything after first /
     var n = toReturn.url.indexOf('/');
     toReturn.url = toReturn.url.substring(0, n != -1 ? n : url.length);
-    // Remove everything after first :
+    // Remove everything after first : and save as port.
     var n = toReturn.url.indexOf(':');
+    toReturn.port = toReturn.url.substring(n != -1 ? n + 1 : toReturn.url.length);
     toReturn.url = toReturn.url.substring(0, n != -1 ? n : toReturn.url.length);
     // Remove possible starting '.', (residual from www[number] urls)
     if((toReturn.url.length > 0) && (toReturn.url.charAt(0) == '.')) {
@@ -228,17 +229,17 @@ mooltipass.backend.extractDomainAndSubdomain = function ( url ) {
         // Managed to extract a domain using the public suffix list
         toReturn.valid = true;
         var parsed = psl.parse( String(toReturn.url) );
-        toReturn.domain = parsed.domain;
+        toReturn.domain = parsed.domain + (toReturn.port ? ':' + toReturn.port : '');
         toReturn.subdomain = parsed.subdomain;
     } else {
-        // Check if it is an ip address
+        // Check if it is an ip address or localhost.
         var ipV4Pattern = /^\s*(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\s*$/;
         var ipV6Pattern = /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/;
         var ipV4Array = toReturn.url.match(ipV4Pattern);
         var ipV6Array = toReturn.url.match(ipV6Pattern);
-        if(ipV4Array != null || ipV6Array != null) {
+        if(ipV4Array != null || ipV6Array != null || toReturn.url == 'localhost') {
             toReturn.valid = true;
-            toReturn.domain = toReturn.url;
+            toReturn.domain = toReturn.url + (toReturn.port ? ':' + toReturn.port : '');
             toReturn.subdomain = null;
         }
     }

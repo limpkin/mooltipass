@@ -1178,11 +1178,11 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			}
 			 
 			// Check data format
-			if(imported_data === undefined || imported_data.length != 10)
+			if(imported_data === undefined || !(imported_data.length == 10 || imported_data.length == 14))
 			{
 				if(mooltipass.memmgmt.currentMode != MGMT_IDLE)
 				{
-					mooltipass.memmgmt.requestFailHander("Wrong data format!", null, 667);
+					mooltipass.memmgmt.requestFailHander("Wrong data format: incorrect length or undefined contents", null, 667);
 				}
 				return;
 			}
@@ -1200,7 +1200,7 @@ mooltipass.memmgmt.processReadProgressEvent = function(e)
 			var checkString = imported_data[9];
 			 
 			// Check data format
-			if(checkString != "mooltipass")
+			if(!(checkString == "mooltipass" || checkString == "moolticute"))
 			{
 				console.log("Wrong data format!");
 				if(mooltipass.memmgmt.currentMode != MGMT_IDLE)

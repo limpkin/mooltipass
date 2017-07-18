@@ -19,26 +19,6 @@ When I go to Techmania login page
 Then I should be logged in Techmania
 
 @notsupported
-Scenario: Testing Microspot
-Given I navigate to 'https://www.microspot.ch/'
-When I go to Microspot login page
-When I login Microspot with 'Mooltipasstest@gmail.com'
-Then I should be logged in Microspot
-When I logout Microspot
-When I go to Microspot login page
-Then I should be logged in Microspot
-
-#password is wrong from mooltipass
-@notsupported 
-Scenario: Testing ebookers.fr
-Given I navigate to 'https://www.ebookers.fr/'
-When I login EBookers with 'citesting@themooltipass.com'
-Then I should be logged in EBookers
-When I logout EBookers
-And I go to EBookers login page
-Then I should be logged in EBookers
-
-@notsupported
 Scenario: Testing evernote.com
 Given I navigate to 'https://www.evernote.com/Login.action'
 When I login Evernote with 'citesting@themooltipass.com'
@@ -55,15 +35,6 @@ Then I should be logged in ProtonMail
 When I logout ProtonMail
 And I go to ProtonMail login page
 Then I should be logged in ProtonMail
-
-@notsupported
-Scenario: Testing ricardo.ch
-Given I navigate to 'https://www.ricardo.ch'
-When I login ricardo with 'citesting@themooltipass.com'
-Then I should be logged in ricardo
-When I logout ricardo
-And I go to ricardo login page
-Then I should be logged in ricardo
 
 @notsupported
 Scenario: Testing tripadvisor.com
@@ -126,15 +97,6 @@ Then I should be logged in microchipdirect
 When I logout microchipdirect
 And I go to microchipdirect login page
 Then I should be logged in microchipdirect
-
-@notsupported 
-Scenario: Testing http://www.metacritic.com/
-Given I navigate to 'http://www.metacritic.com/'
-When I login metacritic with 'citesting@themooltipass.com'
-Then I should be logged in metacritic
-When I logout metacritic
-And I go to metacritic login page
-Then I should be logged in metacritic
 
 @notsupported
 Scenario: Testing anibis.ch

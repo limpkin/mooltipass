@@ -140,12 +140,13 @@ startMooltipass = function() {
 			// Intercept posts
 			if (details.method == "POST") {
 				// Deal both with RAW DATA and FORM DATA
-				if (details && details.type === "xmlhttprequest") { // Raw data (multipart posts, etc)
-					if ( details.requestBody && details.requestBody.raw && details.requestBody.raw[0]) {
+				// If we notice the extension being slow because of it intercepting too much data, uncomment the following line
+				//if (details && details.type === "xmlhttprequest") { // Raw data (multipart posts, etc)
+					if (details && details.requestBody && details.requestBody.raw && details.requestBody.raw[0]) {
 						var buffer = details.requestBody.raw[0].bytes;
 						var parsed = arrayBufferToData.toJSON(buffer);
 						if ( details.tabId ) chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', post_data: parsed });	
-					} 
+					//} 
 				} else { // Standard POST
 					chrome.tabs.sendMessage( details.tabId, {action: 'post_detected', details: details});	
 				}
@@ -157,7 +158,7 @@ startMooltipass = function() {
 		 */
 		if ( chrome.webRequest.onAuthRequired ) {
 			chrome.webRequest.onAuthRequired.addListener(httpAuth.handleRequest,
-				{ urls: ["<all_urls>"] }, ["asyncBlocking"]
+				{ urls: ["<all_urls>"] }, [isFirefox ? "blocking" : "asyncBlocking"]
 			);	
 		}
 	}

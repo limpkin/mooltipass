@@ -806,6 +806,16 @@ mcCombinations.prototype.getAllForms = function() {
 							}
 						}.bind(this));
 					}
+					
+					// Fire submit event for store.steampowered when "Submit" buttons is clicked.
+					// Later we will handle clicking on submit button in general, so we
+					// can remove this code as well as above code for accounts.google.com.
+					if (window.location.hostname == 'store.steampowered.com') {
+						mpJQ(containerForm)
+							.closest('.loginbox')
+							.find('#login_btn_signin button')
+							.click( this.onSubmit.bind(this, { target: containerForm }) );
+					}
 				}
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
@@ -997,10 +1007,14 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 * Submits the form!
 */
 mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
-	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
-	
 	// Do not autosubmit forms with Captcha
 	if ( cip.formHasCaptcha ) return;
+	
+	// Do not autosubmit form with two-factor auth for Steam.
+	if (window.location.hostname.match(/steamcommunity.com|steampowered.com/) &&
+		  mpJQ('#authcode:visible').length) return
+			
+	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
 	
@@ -1017,7 +1031,9 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 			IGNORE_PATTERNS = [
 				/forgotpassword/i,
 				/id=".*?search.*?"/i,
-				/showpassword/i
+				/showpassword/i,
+				/class="login_row"/i,
+				/remember_login/i
 			],
 			
 			// Selectors are ordered by priority, first ones are more important.

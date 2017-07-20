@@ -806,6 +806,16 @@ mcCombinations.prototype.getAllForms = function() {
 							}
 						}.bind(this));
 					}
+					
+					// Fire submit event for store.steampowered when "Submit" buttons is clicked.
+					// Later we will handle clicking on submit button in general, so we
+					// can remove this code as well as above code for accounts.google.com.
+					if (window.location.hostname == 'store.steampowered.com') {
+						mpJQ(containerForm)
+							.closest('.loginbox')
+							.find('#login_btn_signin button')
+							.click( this.onSubmit.bind(this, { target: containerForm }) );
+					}
 				}
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
@@ -1017,7 +1027,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 			IGNORE_PATTERNS = [
 				/forgotpassword/i,
 				/id=".*?search.*?"/i,
-				/showpassword/i
+				/showpassword/i,
+				/class="login_row"/i
 			],
 			
 			// Selectors are ordered by priority, first ones are more important.

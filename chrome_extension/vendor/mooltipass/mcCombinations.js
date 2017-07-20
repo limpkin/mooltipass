@@ -1007,10 +1007,14 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 * Submits the form!
 */
 mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
-	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
-	
 	// Do not autosubmit forms with Captcha
 	if ( cip.formHasCaptcha ) return;
+	
+	// Do not autosubmit form with two-factor auth for Steam.
+	if (window.location.hostname.match(/steamcommunity.com|steampowered.com/) &&
+		  mpJQ('#authcode:visible').length) return
+			
+	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
 	
@@ -1028,7 +1032,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 				/forgotpassword/i,
 				/id=".*?search.*?"/i,
 				/showpassword/i,
-				/class="login_row"/i
+				/class="login_row"/i,
+				/remember_login/i
 			],
 			
 			// Selectors are ordered by priority, first ones are more important.

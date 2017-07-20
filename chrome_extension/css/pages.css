@@ -1788,6 +1788,10 @@ footer .logo {
 .app-page .settings .pure-table tr span.remove:hover {
   color: #888;
 }
+/* line 149, ../scss/pages.scss */
+.app-page .settings .pure-table tr span.remove:hover g {
+  fill: #888;
+}
 /* line 152, ../scss/pages.scss */
 .app-page .settings .pure-table tr:hover {
   background-color: #E4ECF7;

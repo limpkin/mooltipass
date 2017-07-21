@@ -14,7 +14,7 @@ ENABLE_EMULTATION_MODE=0
 # Array to store different information used during building different extension package.
 # Typically it is expected to found path to key used to sign extension before sending
 # them to the store.
-declare -a BUILD_METADATA
+declare -A BUILD_METADATA
 
 trap _clean_wd INT TERM
 trap _clean_chrome EXIT

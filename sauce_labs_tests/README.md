@@ -30,6 +30,7 @@ Testing locally on MacOS
 ```
 brew cask install java
 brew install maven
+brew install bash
 brew install chromedriver
 ```
 2. Change Chrome Driver path in _WebDriverFactory.java_ to _/usr/local/bin/chromedriver_ and comment remote driver
@@ -44,7 +45,7 @@ driver = chrome(chromeExtension);
 4. Pack extension
 ```
 cd chrome_extension
-updateCleanVersion.sh
+/usr/local/bin/bash updateCleanVersion.sh
 mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx
 ```
 5. Run tests

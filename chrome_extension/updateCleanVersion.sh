@@ -249,7 +249,7 @@ function _inject_scripts()
     done
 
     if [ "${ENABLE_EMULTATION_MODE}" != '0' ] && [ -f "${CWD}/vendor/mooltipass/device.js" ]; then
-        if ! sed -i '' 's/mooltipass.device.emulation_mode = false/mooltipass.device.emulation_mode = true/' \
+        if ! sed -i 's/mooltipass.device.emulation_mode = false/mooltipass.device.emulation_mode = true/' \
              "${OUTPUT_DIR}/vendor/mooltipass/device.js"; then
             echo "[ERROR] Cannot set emulation mode" 1>&2
         fi

@@ -41,6 +41,16 @@ driver = chrome(chromeExtension);
 //   driver=remoteChrome(sauceLabsUser,sauceLabsKey,chromeExtension);
 ```
 3. Replace `System.getenv().get("SERVICEPASS")` invocation with password string
+4. Pack extension
+```
+cd chrome_extension
+updateCleanVersion.sh
+mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx
+```
+5. Run tests
+```
+mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedTest/features"
+```
 
 Pull Requests
 -------------

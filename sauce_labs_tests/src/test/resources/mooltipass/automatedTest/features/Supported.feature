@@ -195,3 +195,31 @@ Then I should be logged in metacritic
 When I logout metacritic
 And I go to metacritic login page
 Then I should be logged in metacritic
+
+@supported
+Scenario: Testing anibis.ch
+Given I navigate to 'https://anibis.ch'
+When I login Anibis with 'citesting@themooltipass.com'
+Then I should be logged in Anibis
+When I logout Anibis
+And I go to Anibis login page
+Then I should be logged in Anibis
+
+@supported
+Scenario: Testing Steam
+Given I navigate to 'https://store.steampowered.com/'
+When I login Steam with 'citesting'
+Then I should be logged in Steam
+When I logout Steam
+When I go to Steam login page
+Then I should be logged in Steam
+
+@supported
+Scenario: Testing protonmail.com
+Given I navigate to 'https://www.protonmail.com'
+When I login ProtonMail with 'mooltipas'
+Then I should be logged in ProtonMail
+When I logout ProtonMail
+And I go to ProtonMail login page
+Then I should be logged in ProtonMail
+

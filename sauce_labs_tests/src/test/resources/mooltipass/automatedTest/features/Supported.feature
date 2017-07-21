@@ -98,15 +98,6 @@ When I logout LinkedIn
 Then I should be logged in LinkedIn
 
 @supported
-Scenario: Testing patreon.com
-Given I navigate to 'https://www.patreon.com'
-When I login Patreon with 'citesting@themooltipass.com'
-Then I should be logged in Patreon
-When I logout Patreon
-And I go to Patreon login page
-Then I should be logged in Patreon
-
-@supported
 Scenario: Testing pcbway.com
 Given I navigate to 'https://www.pcbway.com'
 When I login PcbWay with 'citesting@themooltipass.com'

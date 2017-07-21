@@ -98,15 +98,6 @@ When I logout microchipdirect
 And I go to microchipdirect login page
 Then I should be logged in microchipdirect
 
-@notsupported
-Scenario: Testing anibis.ch
-Given I navigate to 'https://anibis.ch'
-When I login Anibis with 'citesting@themooltipass.com'
-Then I should be logged in Anibis
-When I logout Anibis
-And I go to Anibis login page
-Then I should be logged in Anibis
-
 @notsupported 
 Scenario: Testing airbnb
 Given I navigate to 'https://www.airbnb.com/'
@@ -115,12 +106,3 @@ Then I should be logged in airBnB
 When I logout airBnB
 And I go to airBnB login page
 Then I should be logged in airBnB
-
-@notsupported
-Scenario: Testing Steam
-Given I navigate to 'https://store.steampowered.com/'
-When I login Steam with 'citesting'
-Then I should be logged in Steam
-When I logout Steam
-When I go to Steam login page
-Then I should be logged in Steam

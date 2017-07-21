@@ -213,3 +213,13 @@ Then I should be logged in Steam
 When I logout Steam
 When I go to Steam login page
 Then I should be logged in Steam
+
+@supported
+Scenario: Testing protonmail.com
+Given I navigate to 'https://www.protonmail.com'
+When I login ProtonMail with 'mooltipas'
+Then I should be logged in ProtonMail
+When I logout ProtonMail
+And I go to ProtonMail login page
+Then I should be logged in ProtonMail
+

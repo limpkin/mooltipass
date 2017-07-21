@@ -863,7 +863,7 @@ mcCombinations.prototype.onSubmit = function( event ) {
 		submittedUsernameValue = mpJQ('#mooltipass-username').val();
 	}
 
-	if ( !storedUsernameValue && !this.credentialsCache && submittedUsernameValue) { // In case there's a 2 pages login. Store the username in cache
+	if ( !storedUsernameValue && !this.credentialsCache && submittedUsernameValue && !submittedPasswordValue) { // In case there's a 2 pages login. Store the username in cache
 		this.credentialsCache = [{ TempLogin: submittedUsernameValue, Login: false, Password: false }];
 	}
 

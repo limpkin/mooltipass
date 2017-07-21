@@ -28,15 +28,6 @@ And I go to Evernote login page
 Then I should be logged in Evernote
 
 @notsupported
-Scenario: Testing protonmail.com
-Given I navigate to 'https://www.protonmail.com'
-When I login ProtonMail with 'mooltipas'
-Then I should be logged in ProtonMail
-When I logout ProtonMail
-And I go to ProtonMail login page
-Then I should be logged in ProtonMail
-
-@notsupported
 Scenario: Testing tripadvisor.com
 Given I navigate to 'https://www.tripadvisor.com'
 When I login tripadvisor with 'citesting@themooltipass.com'

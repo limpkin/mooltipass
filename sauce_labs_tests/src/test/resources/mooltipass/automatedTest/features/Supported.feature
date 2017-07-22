@@ -77,7 +77,7 @@ Given I navigate to 'https://hackaday.io/'
 When I login HackADay with 'citesting@themooltipass.com'
 Then I should be logged in HackADay
 When I logout HackADay
-And I go to HackADay login page
+#And I go to HackADay login page
 Then I should be logged in HackADay
 
 @subdomain @supported

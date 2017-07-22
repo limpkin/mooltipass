@@ -55,6 +55,7 @@ public class Anibis extends AbstractPage{
 		return isElementPresent(By.id("ctl00_Header1_ctlHeaderActionBar_ctlMemberNavigation_divLogout"));
 	}
 	public boolean checkAtLoginPage(){
+		waitUntilAppears(By.id("ctl00_phlContent_txtUsername"));
 		return isElementPresent(By.id("ctl00_phlContent_txtUsername"));
 	}
 	

@@ -417,6 +417,32 @@ mcCombinations.prototype.possibleCombinations = [
 		}
 	},
 	{
+		combinationId: 'loginform005',
+		combinationName: 'Login Form with Text and Search field',
+		requiredFields: [
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+			{
+				selector: 'input[type=text]:not([name*=Search]),input:not([type])',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[type=text][name*=Search]',
+				mapsTo: 'search'
+			}
+		],
+		scorePerMatch: 33,
+		score: 1,
+		autoSubmit: true,
+		maxfields: 3,
+		extraFunction: function( fields ) {
+			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
+		}
+	},
+	{
 		combinationId: 'loginform003',
 		combinationName: 'Login Form with Text and 3 fields instead of 2',
 		requiredFields: [
@@ -1020,7 +1046,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	
 	var ACCEPT_PATTERNS = [
 				// Common patterns.
-				/submit/i, /login/i, /sign/i,
+				/submit/i, /login/i, /sign/i, /connexion/i,
 				
 				// Special cases.
 				/identifierNext/i,
@@ -1031,6 +1057,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 			IGNORE_PATTERNS = [
 				/forgotpassword/i,
 				/id=".*?search.*?"/i,
+				/href=".*?loginpage.*?"/i,
+				/lostlogin/i,
 				/showpassword/i,
 				/class="login_row"/i,
 				/remember_login/i

@@ -1100,7 +1100,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 			],
 			
 			// Selectors are ordered by priority, first ones are more important.
-			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div:visible']
+			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div[onclick]:visible', 'div:visible']
 			
 	// Check that form element exists and in DOM. There are cases when form has been reattached.
 	var $root = currentForm.element && mpJQ.contains(document, currentForm.element[0])

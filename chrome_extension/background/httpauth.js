@@ -24,10 +24,13 @@ httpAuth.handleRequest = function(details, callback) {
       return { cancel: true }
     }
     
-    !httpAuth.contentReady && chrome.tabs.update(details.tabId, { url: chrome.extension.getURL('http-auth.html') }, function() {
+    // For the first HTTP Auth request we are opening http-auth.html with auth popup
+    // and then redirecting user to the requested url again.
+    if (!httpAuth.contentReady) {
+      chrome.tabs.update(details.tabId, { url: chrome.extension.getURL('http-auth.html') })
       httpAuth.contentReady = true
       
-      // Waiting when content scripts are loaded. This callback fires before this event.
+      // Waiting when content scripts are loaded.
       setTimeout(function() {
         chrome.tabs.update(details.tabId, { url: details.url })
         
@@ -45,7 +48,11 @@ httpAuth.handleRequest = function(details, callback) {
           }]
         }, details.tabId);
       }, 100)
-    })
+      
+      callback({ cancel: true })
+      // Firefox expects this object on return.
+      return { cancel: true }
+    }
     
     httpAuth.callback = callback
     if (isFirefox) {

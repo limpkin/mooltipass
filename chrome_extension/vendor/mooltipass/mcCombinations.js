@@ -238,7 +238,7 @@ function mcCombinations() {}
 mcCombinations.prototype = ( function() {
 	return {
 		constructor:mcCombinations,
-		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type])",
+		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='login'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type])",
 		forms: {
 			noform: { fields: [] }
 		},
@@ -386,7 +386,7 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Simple Login Form with Text',
 		requiredFields: [
 			{
-				selector: 'input[type=text],input:not([type])',
+				selector: 'input[type=text],input[type=login],input:not([type])',
 				mapsTo: 'username'
 			},
 			{

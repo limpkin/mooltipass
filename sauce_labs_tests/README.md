@@ -1,7 +1,7 @@
 Mooltipass Extension Automated Testing
 ======================================
 
-Setting up Travis, encrypting gloval vars
+Setting up Travis, encrypting global vars
 -----------------------------------------
 - Download & install ruby from https://rubyinstaller.org/downloads/  
 - go to https://github.com/settings/tokens/new and generate a token with scopes user:email read:org repo_deployment repo:status write:repo_hook
@@ -23,6 +23,35 @@ Adding support for a new website
 - in src\test\resources\mooltipass\automatedTest\features open the file of your choice and add a cucumber scenario (get inspired from the other scenarios)
 - in src\test\java\mooltipass\automatedTest\pageObjects create your own .java with a class that should contain the different buttons and elements that need to be clicked/interacted with. There are different ways of identifying the elements such as using the element id or xpath.
 - in src\test\java\mooltipass\automatedTest\features create a java file defining a method for each step of your scenario and using the page objects to interact with the website
+
+Testing locally on MacOS
+-------------
+1. Install dependencies
+```
+brew cask install java
+brew install maven
+brew install bash
+brew install chromedriver
+```
+2. Change Chrome Driver path in _WebDriverFactory.java_ to _/usr/local/bin/chromedriver_ and comment remote driver
+```
+driver = chrome(chromeExtension);
+// if(browser.equals("firefox"))
+//   driver = remoteFirefox(sauceLabsUser,sauceLabsKey,firefoxExtension);
+// else
+//   driver=remoteChrome(sauceLabsUser,sauceLabsKey,chromeExtension);
+```
+3. Replace `System.getenv().get("SERVICEPASS")` invocation with password string
+4. Pack extension
+```
+cd chrome_extension
+/usr/local/bin/bash updateCleanVersion.sh
+mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx
+```
+5. Run tests
+```
+mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedTest/features"
+```
 
 Pull Requests
 -------------

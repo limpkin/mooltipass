@@ -20,3 +20,13 @@ Then I should be logged in PayPal
 When I logout PayPal
 And I go to PayPal login page
 Then I should be logged in PayPal
+
+@supported
+Scenario: Testing patreon.com
+Possible problem: captcha on login page
+Given I navigate to 'https://www.patreon.com'
+When I login Patreon with 'citesting@themooltipass.com'
+Then I should be logged in Patreon
+When I logout Patreon
+And I go to Patreon login page
+Then I should be logged in Patreon

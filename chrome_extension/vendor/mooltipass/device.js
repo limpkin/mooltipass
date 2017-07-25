@@ -623,7 +623,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         if (background_debug_msg > 4) mpDebug.log('%c Invalid URL:', mpDebug.css('ff0000'), submiturl);
         if(forceCallback) 
         {
-            callback([]);
+            callback([], tab.id);
         }
         return;
     }
@@ -632,7 +632,7 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
         if (background_debug_msg > 4) mpDebug.log('%c Blacklisted website:', mpDebug.css('ff0000'), submiturl);
         if(forceCallback) 
         {
-            callback([]);
+            callback([], tab.id);
         }
         return;
     }

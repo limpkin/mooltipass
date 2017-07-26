@@ -1744,11 +1744,9 @@ cipEvents.startEventHandling = function() {
 					'</div>'
 				)
 				
-				// Set proxy address as action attribute of the form, so mcCombs will
+				// Set url as action attribute of the form, so mcCombs will
 				// save credentials for the right url.
-				if (req.args[0].isProxy) {
-					mpJQ('.mp-popup-http-auth__form').attr('action', req.args[0].proxyURL)
-				}
+				mpJQ('.mp-popup-http-auth__form').attr('action', req.args[0].url)
 				
 				mpJQ('.mp-popup-http-auth__form').on('submit', function(event) {
 					event.preventDefault();

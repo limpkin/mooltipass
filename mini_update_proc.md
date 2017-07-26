@@ -6,6 +6,7 @@ Requirements
 - Make a backup of your database using the application of your choice (see User Manual)  
 - Close any Moolticute or MooltiApp instances you may have running  
 - Install Google Chrome and our Google App here: https://chrome.google.com/webstore/detail/mooltipass-app/cdifokahonpfaoldibbjmbkdhhelblpj  
+- Once again, **do not use MooltiApp for this procedure**, only our Chrome App.
 - Make sure your computer is not doing any other heavy tasks  
   
 Updating Procedure

@@ -1572,7 +1572,7 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 			});
 		}
 
-		var url = mpJQ(event.target)[0].action;
+		var url = mpJQ(event.target)[0] && mpJQ(event.target)[0].action;
 		if(!url) {
 			url = document.location.href;
 			if(url.indexOf("?") > 0) {

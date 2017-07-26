@@ -868,7 +868,7 @@ mcCombinations.prototype.getAllForms = function() {
 						}.bind(this));
 					}
 					
-					// Fire submit event for store.steampowered when "Submit" buttons is clicked.
+					// Fire submit event for store.steampowered.com when "Submit" buttons is clicked.
 					// Later we will handle clicking on submit button in general, so we
 					// can remove this code as well as above code for accounts.google.com.
 					if (window.location.hostname == 'store.steampowered.com') {
@@ -881,6 +881,18 @@ mcCombinations.prototype.getAllForms = function() {
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
 			currentForm.fields.push( field );
+			
+			// Fire submit event for techmania.ch when "Submit" buttons is clicked.
+			// Later we will handle clicking on submit button in general, so we
+			// can remove this code as well as above code for accounts.google.com.
+			if (window.location.hostname == 'www.techmania.ch') {
+				mpJQ('#ibLogin').unbind('click.mooltipass').on('click.mooltipass',  this.onSubmit.bind(this, { target: currentForm }) );
+				mpJQ('#txtPasswordBox').unbind('keypress.mooltipass').on('keypress.mooltipass', function(event) {
+					if (event.which == 13) {
+						this.onSubmit.call(this, { target: containerForm });
+					}
+				}.bind(this));
+			}
 		} else {
 			if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations: %c Unavailable Field ', 'background-color: #c3c6b4','color: #FF0000', field[0]);
 		}
@@ -897,7 +909,7 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	this.waitingForPost = false;
 
 	// Check if there's a difference between what we retrieved and what is being submitted
-	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ];
+	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ] || this.forms['noform'];
 
 	if ( currentForm.combination && !currentForm.combination.savedFields.username && this.credentialsCache) {
 		if ( this.credentialsCache[0].TempLogin ) {
@@ -1080,23 +1092,27 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	// Trying to find submit button and trigger click event.
 	
 	var ACCEPT_PATTERNS = [
-				// Common patterns.
-				/submit/i, /login/i, /sign/i, /connexion/i,
-				
-				// Special cases.
+				/submit/i,
+				/login/i,
+				/sign/i,
+				/connexion/i,
 				/identifierNext/i,
 				/passwordNext/i,
-				/verify_user_btn/i
+				/verify_user_btn/i,
 			],
 			
 			IGNORE_PATTERNS = [
 				/forgotpassword/i,
-				/id=".*?search.*?"/i,
-				/href=".*?loginpage.*?"/i,
 				/lostlogin/i,
 				/showpassword/i,
+				/remember_login/i,
+				/id=".*?search.*?"/i,
+				/id="btnLoadMoreProducts"/i,
+				/id="loginLink"/i,
+				/class=".*?search.*?"/i,
 				/class="login_row"/i,
-				/remember_login/i
+				/href=".*?loginpage.*?"/i,
+				/href="http.*?"/i,
 			],
 			
 			// Selectors are ordered by priority, first ones are more important.
@@ -1136,7 +1152,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 		
 		// Button can be disabled, waiting for update.
 		setTimeout(function() {
-			mpJQ(submitButton).trigger('click')
+			submitButton.click()
 		}, 100)
 	} else {
 		// If we haven't found submit button, let's trigger submit event on the form.

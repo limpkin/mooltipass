@@ -266,7 +266,7 @@
     #define ID_STRING_NO_CREDS          58
     #define ID_STRING_FUSE_PB           59
     #define ID_STRING_FUNC_TEST         60
-    #define ID_STRING_RESERVED2         61
+    #define ID_STRING_ADMIN_PIN         61
     #define ID_STRING_FUNC_TEST_SCROLL  62
     #define ID_STRING_PIN_COMPUTER      63
     #define ID_STRING_SEND_PASS_FOR     64

@@ -35,6 +35,7 @@
 #include "gui_basic_functions.h"
 #include "logic_aes_and_comms.h"
 #include "functional_testing.h"
+#include "gui_pin_functions.h"
 #include "eeprom_addresses.h"
 #include "define_printouts.h"
 #include "watchdog_driver.h"
@@ -82,6 +83,10 @@
     /* Flag to inform if the caps lock timer is armed */
     volatile uint8_t wasCapsLockTimerArmed = FALSE;
 #endif
+#if defined(MINI_VERSION) && defined(PASSWORD_FOR_USB_AND_ADMIN_FUNCS)
+    /* Flag to enable USB and admin funcs */
+    uint8_t admin_usb_functs_enabled = FALSE;
+#endif
 /* Boolean to know state of lock/unlock feature */
 uint8_t mp_lock_unlock_shortcuts = FALSE;
 /* Boolean to know if user timeout is enabled */
@@ -117,7 +122,7 @@ int main(void)
     #if defined(HARDWARE_OLIVIER_V1)                                                        // Only the Mooltipass standard version has a touch panel
         RET_TYPE touch_init_result;                                                         // Touch initialization result
     #endif                                                                                  //
-    #if defined(MINI_VERSION) && !defined(DISABLE_FUNCTIONAL_TEST) // Dedicated to Mooltipass mini
+    #if defined(MINI_VERSION) && !defined(DISABLE_FUNCTIONAL_TEST)                          // Dedicated to Mooltipass mini
         RET_TYPE mini_inputs_result;                                                        // Mooltipass mini input initialization result
     #endif                                                                                  //
     RET_TYPE flash_init_result;                                                             // Flash initialization result
@@ -246,8 +251,8 @@ int main(void)
     #endif                                      //
     initPortSMC();                              // Initialize smart card port
     initIRQ();                                  // Initialize interrupts
-    powerSettlingDelay();                       // Let the power settle before enabling USB controller
-    initUsb();                                  // Initialize USB controller
+    powerSettlingDelay();                       // Let the power settle before enabling USB 3V3
+    ENABLE_USB_3V3();                           // Enable USB 3V3
     powerSettlingDelay();                       // Let the USB 3.3V LDO rise
     #if defined(HARDWARE_OLIVIER_V1)            // I2C is only used in the Mooltipass standard
         initI2cPort();                          // Initialize I2C interface
@@ -257,18 +262,12 @@ int main(void)
     initFlashIOs();                             // Initialize Flash inputs/outputs
     spiUsartBegin();                            // Start USART SPI at 8MHz (standard) or 4MHz (mini)
     #if defined(MINI_VERSION)                   // For the Mooltipass Mini inputs
-        #if !defined(DISABLE_FUNCTIONAL_TEST) // mini_input_result is not used if functional test is disabled, triggering -Werror=unused-but-set-variable at compilation
+        #if !defined(DISABLE_FUNCTIONAL_TEST)   // mini_input_result is not used if functional test is disabled, triggering -Werror=unused-but-set-variable at compilation
             mini_inputs_result = initMiniInputs();  // Initialize Mini Inputs
         #else
-            initMiniInputs();  // Initialize Mini Inputs
+            initMiniInputs();                   // Initialize Mini Inputs
         #endif
-    #endif                                      //
-
-    /* If offline mode isn't enabled, wait for device to be enumerated */
-    if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
-    {
-        while(!isUsbConfigured());              // Wait for host to set configuration
-    }    
+    #endif
     
     /* Set correct timeout_enabled val */
     mp_timeout_enabled = getMooltipassParameterInEeprom(LOCK_TIMEOUT_ENABLE_PARAM);
@@ -304,6 +303,30 @@ int main(void)
     #if defined(HARDWARE_OLIVIER_V1)
         touch_init_result = initTouchSensing();
         activateProxDetection();
+    #endif
+
+    /* USB Enabling */
+    #if defined(MINI_VERSION) && defined(PASSWORD_FOR_USB_AND_ADMIN_FUNCS)
+        /* there is a 130ms delay in initMiniInputs so no need to add one to get wheel press state */
+        volatile uint16_t temp_pin;
+        oledWriteInactiveBuffer();
+
+        /* if wheel pressed and correct pin entered */
+        if ((isWheelClicked() == RETURN_JDETECT) && (guiGetPinFromUser(&temp_pin, ID_STRING_ADMIN_PIN) != RETURN_NOK) && (temp_pin == 0xABCD))
+        {
+            admin_usb_functs_enabled = TRUE;
+            initUsb();
+        }
+    #else
+        initUsb();                              // Initialize USB controller
+    #endif
+
+    /* If offline mode isn't enabled, wait for device to be enumerated */
+    #if !defined(PASSWORD_FOR_USB_AND_ADMIN_FUNCS)
+    if (getMooltipassParameterInEeprom(OFFLINE_MODE_PARAM) == FALSE)
+    {
+        while(!isUsbConfigured());              // Wait for host to set configuration
+    }
     #endif
     
     /** FUNCTIONAL TESTING **/

@@ -1730,7 +1730,6 @@ cipEvents.startEventHandling = function() {
 									
 								'<div class="mp-popup-http-auth__controls">' +
 									'<button class="mp-popup-http-auth__button mp-popup-http-auth__submit" type="submit">Login</button>' +
-									'<button class="mp-popup-http-auth__button mp-popup-http-auth__button--secondary mp-popup-http-auth__cancel">Cancel</button>' +
 								'</div>' +
 							'</form>' +
 						'</div>' +
@@ -1739,8 +1738,16 @@ cipEvents.startEventHandling = function() {
 				
 				// Set url as action attribute of the form, so mcCombs will
 				// save credentials for the right url.
-				mpJQ('.mp-popup-http-auth__form').attr('action', req.args[0].url)
-				mpJQ('.mp-popup-http-auth__notice span').text((new URL(req.args[0].url).hostname))
+				mpJQ('.mp-popup-http-auth__form').attr('action', 
+					req.args[0].isProxy
+					? 'proxy://' + req.args[0].proxy
+					: req.args[0].url
+				)
+				mpJQ('.mp-popup-http-auth__notice span').text(
+					req.args[0].isProxy
+						? req.args[0].proxy
+						: new URL(req.args[0].url).hostname
+				)
 				
 				mpJQ('.mp-popup-http-auth__form').on('submit', function(event) {
 					event.preventDefault();
@@ -1752,10 +1759,6 @@ cipEvents.startEventHandling = function() {
 							password: mpJQ('.mp-popup-http-auth__form [name="password"]').val()
 						}]
 					});
-				})
-				
-				mpJQ('.mp-popup-http-auth__cancel').on('click', function() {
-					messaging({ action: 'http_auth_cancel' });
 				})
 			}
 		}

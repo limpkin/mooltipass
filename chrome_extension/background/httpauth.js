@@ -1,12 +1,9 @@
 var httpAuth = httpAuth || {}
 
 httpAuth.credentials = null
-httpAuth.url = null
-httpAuth.tabId = null
 
 httpAuth.onSubmit = function(credentials) {
   httpAuth.credentials = credentials
-  chrome.tabs.update(httpAuth.tabId, { url: httpAuth.url })
 }
 
 httpAuth.handleRequest = function(details, callback) {
@@ -46,22 +43,13 @@ httpAuth.handleRequest = function(details, callback) {
     
     // For the first HTTP Auth request we are opening http-auth.html with auth popup
     // and redirecting user to the requested url after form is submitted.
-    chrome.tabs.update(details.tabId, { url: chrome.extension.getURL('http-auth.html') })
-    
-    httpAuth.url = details.url
-    httpAuth.tabId = details.tabId
-    
-    // Waiting when content scripts are loaded.
-    setTimeout(function() {
-      messaging({
-        action: "show_http_auth",
-        args: [{
-          isProxy: details.isProxy,
-          proxy: isFirefox ? details.ip : details.challenger.host + ':' + details.challenger.port,
-          url:  details.url
-        }]
-      }, details.tabId);
-    }, 500)
+    chrome.tabs.update(details.tabId, {
+      url: chrome.extension.getURL('http-auth.html') + '?' + encodeURIComponent(JSON.stringify({
+        isProxy: details.isProxy,
+        proxy: isFirefox ? details.ip : details.challenger.host + ':' + details.challenger.port,
+        url:  details.url
+      }))
+    })
     
     if (!isFirefox) {
       callback({ cancel: true })

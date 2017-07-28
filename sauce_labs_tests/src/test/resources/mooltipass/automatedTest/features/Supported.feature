@@ -77,7 +77,7 @@ Given I navigate to 'https://hackaday.io/'
 When I login HackADay with 'citesting@themooltipass.com'
 Then I should be logged in HackADay
 When I logout HackADay
-And I go to HackADay login page
+#And I go to HackADay login page
 Then I should be logged in HackADay
 
 @subdomain @supported
@@ -96,15 +96,6 @@ When I login LinkedIn with 'citesting@themooltipass.com'
 Then I should be logged in LinkedIn
 When I logout LinkedIn
 Then I should be logged in LinkedIn
-
-@supported
-Scenario: Testing patreon.com
-Given I navigate to 'https://www.patreon.com'
-When I login Patreon with 'citesting@themooltipass.com'
-Then I should be logged in Patreon
-When I logout Patreon
-And I go to Patreon login page
-Then I should be logged in Patreon
 
 @supported
 Scenario: Testing pcbway.com

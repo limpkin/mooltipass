@@ -109,6 +109,35 @@ var extendedCombinations = {
 			}
 		}
 	},
+	evernote: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[type=text]:visible').length > 0 ) {
+					currentForm.combination.fields.username = mpJQ('input[type=text]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[type=password]:visible').length > 0 ) {
+					currentForm.combination.fields.password = mpJQ('input[type=password]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	google: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -292,6 +321,12 @@ mcCombinations.prototype.possibleCombinations = [
 		callback: extendedCombinations.google
 	},
 	{
+		combinationId: 'evernoteTwoPageAuth',
+		combinationName: 'Evernote Two Page Login Procedure',
+		requiredUrl: 'www.evernote.com',
+		callback: extendedCombinations.evernote
+	},
+	{
 		combinationId: 'googleTwoPageAuth',
 		combinationName: 'Google Two Page Login Procedure',
 		requiredUrl: 'login.yahoo.com',
@@ -414,6 +449,32 @@ mcCombinations.prototype.possibleCombinations = [
 		maxfields: 12,
 		extraFunction: function( fields ) {
 			this.fields.username = cipFields.getUsernameField( fields.password.prop('id') );
+		}
+	},
+	{
+		combinationId: 'loginform005',
+		combinationName: 'Login Form with Text and Search field',
+		requiredFields: [
+			{
+				selector: 'input[type=password]',
+				mapsTo: 'password'
+			},
+			{
+				selector: 'input[type=text]:not([name*=Search]),input:not([type])',
+				mapsTo: 'username'
+			},
+			{
+				selector: 'input[type=text][name*=Search]',
+				mapsTo: 'search'
+			}
+		],
+		scorePerMatch: 33,
+		score: 1,
+		autoSubmit: true,
+		maxfields: 3,
+		extraFunction: function( fields ) {
+			/* This function will be called if the combination is found, in this case: enable any disabled field in the form */
+			if ( fields[0] && fields[0].closest ) fields[0].closest('form').find('input:disabled').prop('disabled',false);
 		}
 	},
 	{
@@ -1020,7 +1081,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	
 	var ACCEPT_PATTERNS = [
 				// Common patterns.
-				/submit/i, /login/i, /sign/i,
+				/submit/i, /login/i, /sign/i, /connexion/i,
 				
 				// Special cases.
 				/identifierNext/i,
@@ -1031,13 +1092,15 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 			IGNORE_PATTERNS = [
 				/forgotpassword/i,
 				/id=".*?search.*?"/i,
+				/href=".*?loginpage.*?"/i,
+				/lostlogin/i,
 				/showpassword/i,
 				/class="login_row"/i,
 				/remember_login/i
 			],
 			
 			// Selectors are ordered by priority, first ones are more important.
-			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div:visible']
+			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div[onclick]:visible', 'div:visible']
 			
 	// Check that form element exists and in DOM. There are cases when form has been reattached.
 	var $root = currentForm.element && mpJQ.contains(document, currentForm.element[0])

@@ -30,6 +30,7 @@ Testing locally on MacOS
 ```
 brew cask install java
 brew install maven
+brew install bash
 brew install chromedriver
 ```
 2. Change Chrome Driver path in _WebDriverFactory.java_ to _/usr/local/bin/chromedriver_ and comment remote driver
@@ -41,6 +42,16 @@ driver = chrome(chromeExtension);
 //   driver=remoteChrome(sauceLabsUser,sauceLabsKey,chromeExtension);
 ```
 3. Replace `System.getenv().get("SERVICEPASS")` invocation with password string
+4. Pack extension
+```
+cd chrome_extension
+/usr/local/bin/bash updateCleanVersion.sh
+mv mooltipass-extension.zip ./../sauce_labs_tests/chrome_extension.crx
+```
+5. Run tests
+```
+mvn install -Dcucumber.options="src/test/resources/mooltipass/automatedTest/features"
+```
 
 Pull Requests
 -------------

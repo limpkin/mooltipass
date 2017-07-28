@@ -1711,18 +1711,11 @@ cipEvents.startEventHandling = function() {
 				cip.formHasCaptcha = true;
 			}
 			else if (req.action == "show_http_auth") {
-				// Return if we already created HTTP Auth popup. It occurs when
-				// credentials are wrong and user need to enter new ones.
-				if (mpJQ('.mp-popup-http-auth').length > 0) {
-					mpJQ('.mp-popup-http-auth__notice').fadeIn()
-					return
-				}
-				
 				mpJQ('body').append(
 					'<div class="mp-popup-http-auth">' +
 						'<div class="mp-popup-http-auth__content">' +
 							'<div class="mp-popup-http-auth__logo"></div>' +
-							'<div class="mp-popup-http-auth__notice">Wrong credentials!</div>' +
+							'<div class="mp-popup-http-auth__notice">Authorizing at <span></span></div>' +
 							
 							'<form class="mp-popup-http-auth__form">' +
 								'<div class="mp-popup-http-auth__form-row">' +
@@ -1744,11 +1737,10 @@ cipEvents.startEventHandling = function() {
 					'</div>'
 				)
 				
-				// Set proxy address as action attribute of the form, so mcCombs will
+				// Set url as action attribute of the form, so mcCombs will
 				// save credentials for the right url.
-				if (req.args[0].isProxy) {
-					mpJQ('.mp-popup-http-auth__form').attr('action', req.args[0].proxyURL)
-				}
+				mpJQ('.mp-popup-http-auth__form').attr('action', req.args[0].url)
+				mpJQ('.mp-popup-http-auth__notice span').text((new URL(req.args[0].url).hostname))
 				
 				mpJQ('.mp-popup-http-auth__form').on('submit', function(event) {
 					event.preventDefault();

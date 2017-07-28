@@ -39,6 +39,10 @@ extern uint8_t mp_lock_unlock_shortcuts;
 extern uint8_t mp_timeout_enabled;
 extern uint8_t act_detected_flag;
 
+#if defined(MINI_VERSION) && defined(PASSWORD_FOR_USB_AND_ADMIN_FUNCS)
+extern uint8_t admin_usb_functs_enabled;
+#endif
+
 #if defined(MINI_VERSION) && defined(MINI_BUTTON_AT_BOOT)
 extern uint8_t mini_button_at_boot;
 #endif

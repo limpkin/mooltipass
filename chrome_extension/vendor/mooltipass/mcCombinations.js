@@ -855,10 +855,9 @@ mcCombinations.prototype.getAllForms = function() {
 					};
 					containerForm.submit( mpJQ.proxy(this.onSubmit,this) );
 
-					// Fire submit event for accounts.google.com when "Next" buttons is clicked
-					// and when return key is pressed inside input.
-					// It's good to move this quirk to universal method in extendedCombinations,
-					// something like "handleSubmit".
+					// Fire submit event for accounts.google.com when "Submit" button is clicked.
+					// Later we will handle clicking on submit button in general, so we
+					// can remove this code.
 					if (window.location.hostname == 'accounts.google.com') {
 						containerForm.find('[role=button]').click( this.onSubmit.bind(this, { target: containerForm }) );
 						containerForm.find('input').keypress(function(event) {
@@ -868,26 +867,45 @@ mcCombinations.prototype.getAllForms = function() {
 						}.bind(this));
 					}
 					
-					// Fire submit event for store.steampowered.com when "Submit" buttons is clicked.
+					// Fire submit event for store.steampowered.com when "Submit" button is clicked.
 					// Later we will handle clicking on submit button in general, so we
-					// can remove this code as well as above code for accounts.google.com.
+					// can remove this code.
 					if (window.location.hostname == 'store.steampowered.com') {
 						mpJQ(containerForm)
 							.closest('.loginbox')
 							.find('#login_btn_signin button')
 							.click( this.onSubmit.bind(this, { target: containerForm }) );
 					}
+					
+					// Fire submit event for pc-ostschweiz.ch when "Submit" button is clicked.
+					// Later we will handle clicking on submit button in general, so we
+					// can remove this code.
+					if (window.location.hostname == 'www.pc-ostschweiz.ch') {
+						mpJQ('#accLogin').unbind('click.mooltipass').on('click.mooltipass',  this.onSubmit.bind(this, { target: containerForm }) );
+					}
 				}
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
 			currentForm.fields.push( field );
 			
-			// Fire submit event for techmania.ch when "Submit" buttons is clicked.
+			// Fire submit event for techmania.ch when "Submit" button is clicked.
 			// Later we will handle clicking on submit button in general, so we
-			// can remove this code as well as above code for accounts.google.com.
+			// can remove this code.
 			if (window.location.hostname == 'www.techmania.ch') {
 				mpJQ('#ibLogin').unbind('click.mooltipass').on('click.mooltipass',  this.onSubmit.bind(this, { target: currentForm }) );
 				mpJQ('#txtPasswordBox').unbind('keypress.mooltipass').on('keypress.mooltipass', function(event) {
+					if (event.which == 13) {
+						this.onSubmit.call(this, { target: containerForm });
+					}
+				}.bind(this));
+			}
+			
+			// Fire submit event for techmania.ch when "Submit" button is clicked.
+			// Later we will handle clicking on submit button in general, so we
+			// can remove this code.
+			if (window.location.hostname == 'www.tripadvisor.com') {
+				mpJQ('.regSubmitBtn').unbind('click.mooltipass').on('click.mooltipass',  this.onSubmit.bind(this, { target: currentForm }) );
+				mpJQ('#regSignIn.password').unbind('keypress.mooltipass').on('keypress.mooltipass', function(event) {
 					if (event.which == 13) {
 						this.onSubmit.call(this, { target: containerForm });
 					}
@@ -1109,6 +1127,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 				/id=".*?search.*?"/i,
 				/id="btnLoadMoreProducts"/i,
 				/id="loginLink"/i,
+				/id=".*?Header1_lnkMyAccount"/i,
+				/id=".*?Header1_lnkLogin"/i,
 				/class=".*?search.*?"/i,
 				/class="login_row"/i,
 				/href=".*?loginpage.*?"/i,

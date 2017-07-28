@@ -1572,8 +1572,9 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 			});
 		}
 
-		var url = mpJQ(event.target)[0] && mpJQ(event.target)[0].action;
-		if(!url) {
+		var url = event.target && event.target.action;
+		// Action property can be DOM element with name="action".
+		if (!url || typeof url != 'string') {
 			url = document.location.href;
 			if(url.indexOf("?") > 0) {
 				url = url.substring(0, url.indexOf("?"));

@@ -311,6 +311,10 @@
 // Uncomment to request password at boot when wheel is pressed to enable USB & admin functionalities
 //#define PASSWORD_FOR_USB_AND_ADMIN_FUNCS
 
+/***************** AESTHETICS *****************/
+// Uncomment to left align logins when browsing the login & favorites menu
+//#define LOGIN_FAV_MENU_LEFT_ALIGN
+
 /************** MILLISECOND DEBUG TIMER ***************/
 //#define ENABLE_MILLISECOND_DBG_TIMER
 

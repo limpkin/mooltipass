@@ -795,9 +795,26 @@ mcCombinations.prototype.detectForms = function() {
 		if ( currentForm.combination.score < 100 ) {
 			currentForm.combination = false;
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
-		} else if ( currentForm.combination.preExtraFunction ) {
-			if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
-			currentForm.combination.preExtraFunction( currentForm.combination.fields );
+		} else {
+			
+			if ( currentForm.combination.preExtraFunction ) {
+				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
+				currentForm.combination.preExtraFunction( currentForm.combination.fields );
+			}
+			
+			// Handle sumbit event on submit button click or return keypress.
+			var submitButton = this.detectSubmitButton(currentForm.element, currentForm.combination.fields.username)
+			mpJQ(submitButton)
+				.unbind('click.mooltipass')
+				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
+				
+			mpJQ()
+				.add(currentForm.combination.fields.username)
+				.add(currentForm.combination.fields.password)
+				.unbind('keypress.mooltipass')
+				.on('keypress.mooltipass', function(event) {
+					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
+				}.bind(this))
 		}
 	}
 
@@ -860,17 +877,6 @@ mcCombinations.prototype.getAllForms = function() {
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
 			currentForm.fields.push( field );
-			
-			// Handle sumbit event on submit button click or return keypress.
-			var submitButton = this.detectSubmitButton(containerForm[0])
-			mpJQ(submitButton)
-				.unbind('click.mooltipass')
-				.on('click.mooltipass', this.onSubmit.bind(this, { target: containerForm }))
-			mpJQ(field)
-				.unbind('keypress.mooltipass')
-				.on('keypress.mooltipass', function(event) {
-					if (event.which == 13) { this.onSubmit.call(this, { target: containerForm }) }
-				}.bind(this))
 		} else {
 			if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations: %c Unavailable Field ', 'background-color: #c3c6b4','color: #FF0000', field[0]);
 		}
@@ -883,6 +889,9 @@ mcCombinations.prototype.getAllForms = function() {
 * Intercept form submit
 */
 mcCombinations.prototype.onSubmit = function( event ) {
+	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ] || this.forms['noform'];
+	if (!currentForm.combination) return
+	
 	// Return if onSubmit has been already triggered by other events.
 	if (this.onSubmitInProgress) return
 	this.onSubmitInProgress = true
@@ -894,10 +903,6 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	this.waitingForPost = false;
 
 	// Check if there's a difference between what we retrieved and what is being submitted
-	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ] || this.forms['noform'];
-	
-	if (!currentForm.combination) return
-
 	if ( !currentForm.combination.savedFields.username && this.credentialsCache) {
 		if ( this.credentialsCache[0].TempLogin ) {
 			this.credentialsCache[0].Login = this.credentialsCache[0].TempLogin
@@ -1064,12 +1069,13 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 }
 
 /*
- * Detect submit button near given field.
+ * Detect submit button for the given form and field.
  *
- * @param  form {DOM node}
- * @return submitButton {DOM node}
+ * @param  form {jQuery object}
+ * @param  field {jQuery object}
+ * @return submitButton {DOM node} or undefined
  */
- mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(form) {
+ mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(form, field) {
 	var ACCEPT_PATTERNS = [
 		/submit/i,
 		/login/i,
@@ -1103,31 +1109,14 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		'div[onclick]:visible',
 		'div:visible'
 	]
-			
-	// Check that form element exists and in DOM. There are cases when form has been reattached.
-	var $root = form && mpJQ.contains(document, form) ? mpJQ(form) : mpJQ('body'),
-			submitButton = null
 	
-	// Traversing DOM from form element to top in case there is a button outside the form.
-	while (!submitButton && $root[0] != mpJQ('html')[0]) {
-		var discoveredButtons = []
+	var submitButton = null
+	form = form.length ? form : mpJQ('body')
+	
+	for (var selectorIndex = 0; selectorIndex < BUTTON_SELECTORS.length; selectorIndex++) {
+		var selector = BUTTON_SELECTORS[selectorIndex]
 		
-		BUTTON_SELECTORS.forEach(function(selector) {
-			// Sort buttons by how deep they are in container.
-			var buttons = $root.find(selector)
-			buttons.each(function(index, button) {
-				var deep = 0,
-						outer = button
-				
-				while ((outer = mpJQ(outer).parent())[0] != mpJQ('html')[0]) deep++
-				button.deep = deep
-			})
-			buttons.sort(function(a, b) { return a.deep < b.deep ? 1 : -1 })
-			
-			mpJQ.merge(discoveredButtons, buttons)
-		})
-		
-		submitButton = discoveredButtons.filter(function(button) {
+		var buttons = form.find(selector).filter(function(index, button) {
 			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
 				if (mpJQ(button).clone().empty()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
 			}
@@ -1135,12 +1124,26 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			for (var i = 0; i < ACCEPT_PATTERNS.length; i++) {
 				if (mpJQ(button).clone().empty()[0].outerHTML.match(ACCEPT_PATTERNS[i])) return true
 			}
-		})[0]
+		})
 		
-		$root = mpJQ($root.parent()[0] || mpJQ('body'))
+		// Sort buttons by how nearest they are from the field.
+		buttons.each(function(index, button) {
+			var deep = 0,
+					outer = field
+			
+			while (!mpJQ.contains((outer = outer.parent())[0], button) &&
+			       outer[0] != mpJQ('html')[0]) deep++
+			button.deep = deep
+		})
+		buttons.sort(function(a, b) { return a.deep >= b.deep ? 1 : -1 })
+		
+		if (buttons.length > 0) return buttons[0]
 	}
-	 
-	return submitButton
+	
+	// If we haven't detected submit button for form, try to find from body.
+	if (form[0] != mpJQ('body')[0]) {
+		return this.detectSubmitButton(mpJQ('body'), field)
+	}
  }
 
 /*
@@ -1157,7 +1160,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
-	var submitButton = this.detectSubmitButton(currentForm.element)
+	var submitButton = this.detectSubmitButton(currentForm.element, currentForm.combination.fields.username)
 	
 	if (submitButton) {
 		// Select innermost element to trigger click because handler can be on it.

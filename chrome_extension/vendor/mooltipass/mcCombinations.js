@@ -842,8 +842,9 @@ mcCombinations.prototype.getAllForms = function() {
 
 			// Store fields in FORMS
 			containerForm = field.closest('form');
-			if ( containerForm.length == 0 ) var currentForm = this.forms.noform; // Field isn't in a Form
-			else {
+			if ( containerForm.length == 0 ) {
+				var currentForm = this.forms.noform; // Field isn't in a Form
+			} else {
 				if ( !containerForm.data('mp-id') ) {
 					this.setUniqueId( containerForm );
 				}
@@ -853,64 +854,23 @@ mcCombinations.prototype.getAllForms = function() {
 						fields: [],
 						element: containerForm
 					};
+					
 					containerForm.submit( mpJQ.proxy(this.onSubmit,this) );
-
-					// Fire submit event for accounts.google.com when "Submit" button is clicked.
-					// Later we will handle clicking on submit button in general, so we
-					// can remove this code.
-					if (window.location.hostname == 'accounts.google.com') {
-						containerForm.find('[role=button]').click( this.onSubmit.bind(this, { target: containerForm }) );
-						containerForm.find('input').keypress(function(event) {
-							if (event.which == 13) {
-								this.onSubmit.call(this, { target: containerForm });
-							}
-						}.bind(this));
-					}
-					
-					// Fire submit event for store.steampowered.com when "Submit" button is clicked.
-					// Later we will handle clicking on submit button in general, so we
-					// can remove this code.
-					if (window.location.hostname == 'store.steampowered.com') {
-						mpJQ(containerForm)
-							.closest('.loginbox')
-							.find('#login_btn_signin button')
-							.click( this.onSubmit.bind(this, { target: containerForm }) );
-					}
-					
-					// Fire submit event for pc-ostschweiz.ch when "Submit" button is clicked.
-					// Later we will handle clicking on submit button in general, so we
-					// can remove this code.
-					if (window.location.hostname == 'www.pc-ostschweiz.ch') {
-						mpJQ('#accLogin').unbind('click.mooltipass').on('click.mooltipass',  this.onSubmit.bind(this, { target: containerForm }) );
-					}
 				}
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
 			currentForm.fields.push( field );
 			
-			// Fire submit event for techmania.ch when "Submit" button is clicked.
-			// Later we will handle clicking on submit button in general, so we
-			// can remove this code.
-			if (window.location.hostname == 'www.techmania.ch') {
-				mpJQ('#ibLogin').unbind('click.mooltipass').on('click.mooltipass',  this.onSubmit.bind(this, { target: currentForm }) );
-				mpJQ('#txtPasswordBox').unbind('keypress.mooltipass').on('keypress.mooltipass', function(event) {
-					if (event.which == 13) {
-						this.onSubmit.call(this, { target: containerForm });
-					}
-				}.bind(this));
-			}
-			
-			// Fire submit event for techmania.ch when "Submit" button is clicked.
-			// Later we will handle clicking on submit button in general, so we
-			// can remove this code.
-			if (window.location.hostname == 'www.tripadvisor.com') {
-				mpJQ('.regSubmitBtn').unbind('click.mooltipass').on('click.mooltipass',  this.onSubmit.bind(this, { target: currentForm }) );
-				mpJQ('#regSignIn.password').unbind('keypress.mooltipass').on('keypress.mooltipass', function(event) {
-					if (event.which == 13) {
-						this.onSubmit.call(this, { target: containerForm });
-					}
-				}.bind(this));
-			}
+			// Handle sumbit event on submit button click or return keypress.
+			var submitButton = this.detectSubmitButton(containerForm[0])
+			mpJQ(submitButton)
+				.unbind('click.mooltipass')
+				.on('click.mooltipass', this.onSubmit.bind(this, { target: containerForm }))
+			mpJQ(field)
+				.unbind('keypress.mooltipass')
+				.on('keypress.mooltipass', function(event) {
+					if (event.which == 13) { this.onSubmit.call(this, { target: containerForm }) }
+				}.bind(this))
 		} else {
 			if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations: %c Unavailable Field ', 'background-color: #c3c6b4','color: #FF0000', field[0]);
 		}
@@ -923,13 +883,22 @@ mcCombinations.prototype.getAllForms = function() {
 * Intercept form submit
 */
 mcCombinations.prototype.onSubmit = function( event ) {
+	// Return if onSubmit has been already triggered by other events.
+	if (this.onSubmitInProgress) return
+	this.onSubmitInProgress = true
+	setTimeout(function() {
+		this.onSubmitInProgress = false
+	}.bind(this), 100)
+	
 	if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c onSubmit','background-color: #c3c6b4','color: #333333');
 	this.waitingForPost = false;
 
 	// Check if there's a difference between what we retrieved and what is being submitted
 	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ] || this.forms['noform'];
+	
+	if (!currentForm.combination) return
 
-	if ( currentForm.combination && !currentForm.combination.savedFields.username && this.credentialsCache) {
+	if ( !currentForm.combination.savedFields.username && this.credentialsCache) {
 		if ( this.credentialsCache[0].TempLogin ) {
 			this.credentialsCache[0].Login = this.credentialsCache[0].TempLogin
 		}
@@ -1095,6 +1064,86 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 }
 
 /*
+ * Detect submit button near given field.
+ *
+ * @param  form {DOM node}
+ * @return submitButton {DOM node}
+ */
+ mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(form) {
+	var ACCEPT_PATTERNS = [
+		/submit/i,
+		/login/i,
+		/sign/i,
+		/connexion/i,
+		/identifierNext/i,
+		/passwordNext/i,
+		/verify_user_btn/i,
+	],
+	
+	IGNORE_PATTERNS = [
+		/forgotpassword/i,
+		/lostlogin/i,
+		/showpassword/i,
+		/remember_login/i,
+		/id=".*?search.*?"/i,
+		/id="btnLoadMoreProducts"/i,
+		/id="loginLink"/i,
+		/class=".*?search.*?"/i,
+		/class="login_row"/i,
+		/href=".*?loginpage.*?"/i,
+		/href="http.*?"/i,
+	],
+	
+	// Selectors are ordered by priority, first ones are more important.
+	BUTTON_SELECTORS = [
+		'button:visible',
+		'[type="submit"]:visible',
+		'[role="button"]:visible',
+		'a:visible',
+		'div[onclick]:visible',
+		'div:visible'
+	]
+			
+	// Check that form element exists and in DOM. There are cases when form has been reattached.
+	var $root = form && mpJQ.contains(document, form) ? mpJQ(form) : mpJQ('body'),
+			submitButton = null
+	
+	// Traversing DOM from form element to top in case there is a button outside the form.
+	while (!submitButton && $root[0] != mpJQ('html')[0]) {
+		var discoveredButtons = []
+		
+		BUTTON_SELECTORS.forEach(function(selector) {
+			// Sort buttons by how deep they are in container.
+			var buttons = $root.find(selector)
+			buttons.each(function(index, button) {
+				var deep = 0,
+						outer = button
+				
+				while ((outer = mpJQ(outer).parent())[0] != mpJQ('html')[0]) deep++
+				button.deep = deep
+			})
+			buttons.sort(function(a, b) { return a.deep < b.deep ? 1 : -1 })
+			
+			mpJQ.merge(discoveredButtons, buttons)
+		})
+		
+		submitButton = discoveredButtons.filter(function(button) {
+			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
+				if (mpJQ(button).clone().empty()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
+			}
+			
+			for (var i = 0; i < ACCEPT_PATTERNS.length; i++) {
+				if (mpJQ(button).clone().empty()[0].outerHTML.match(ACCEPT_PATTERNS[i])) return true
+			}
+		})[0]
+		
+		$root = mpJQ($root.parent()[0] || mpJQ('body'))
+	}
+	 
+	return submitButton
+ }
+
+/*
 * Submits the form!
 */
 mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
@@ -1108,62 +1157,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
-	
-	var ACCEPT_PATTERNS = [
-				/submit/i,
-				/login/i,
-				/sign/i,
-				/connexion/i,
-				/identifierNext/i,
-				/passwordNext/i,
-				/verify_user_btn/i,
-			],
-			
-			IGNORE_PATTERNS = [
-				/forgotpassword/i,
-				/lostlogin/i,
-				/showpassword/i,
-				/remember_login/i,
-				/id=".*?search.*?"/i,
-				/id="btnLoadMoreProducts"/i,
-				/id="loginLink"/i,
-				/id=".*?Header1_lnkMyAccount"/i,
-				/id=".*?Header1_lnkLogin"/i,
-				/class=".*?search.*?"/i,
-				/class="login_row"/i,
-				/href=".*?loginpage.*?"/i,
-				/href="http.*?"/i,
-			],
-			
-			// Selectors are ordered by priority, first ones are more important.
-			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div[onclick]:visible', 'div:visible']
-			
-	// Check that form element exists and in DOM. There are cases when form has been reattached.
-	var $root = currentForm.element && mpJQ.contains(document, currentForm.element[0])
-						? currentForm.element
-						: mpJQ('body'),
-			submitButton = null
-	
-	// Traversing DOM from form element to top in case there is a button outside the form.
-	while (!submitButton && $root[0] != mpJQ('html')[0]) {
-		var discoveredButtons = []
-		
-		BUTTON_SELECTORS.forEach(function(selector) {
-			jQuery.merge(discoveredButtons, $root.find(selector))
-		})
-		
-		submitButton = discoveredButtons.filter(function(button) {
-			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
-				if (button.outerHTML.match(IGNORE_PATTERNS[i])) return false
-			}
-			
-			for (var i = 0; i < ACCEPT_PATTERNS.length; i++) {
-				if (button.outerHTML.match(ACCEPT_PATTERNS[i])) return true
-			}
-		})[0]
-		
-		$root = $($root.parent()[0] || mpJQ('body'))
-	}
+	var submitButton = this.detectSubmitButton(currentForm.element)
 	
 	if (submitButton) {
 		// Select innermost element to trigger click because handler can be on it.

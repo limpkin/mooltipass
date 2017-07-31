@@ -639,6 +639,26 @@ mcCombinations.prototype.detectCombination = function() {
 			if ( this.possibleCombinations[I].requiredUrl && this.possibleCombinations[I].requiredUrl == window.location.hostname ) { // Found a special case
                 if (this.settings.debugLevel > 1) cipDebug.log('Dealing with special case for ' + window.location.hostname);
 				this.possibleCombinations[I].callback( this.forms );
+				
+				// Handle sumbit event on submit button click or return keypress.
+				for (form in this.forms) {
+					var currentForm = this.forms[form]
+					if (currentForm.element) {
+						var submitButton = this.detectSubmitButton(currentForm.element,
+							currentForm.combination.fields.username || currentForm.combination.fields.password)
+						mpJQ(submitButton)
+							.unbind('click.mooltipass')
+							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
+							
+						mpJQ()
+							.add(currentForm.combination.fields.username)
+							.add(currentForm.combination.fields.password)
+							.unbind('keypress.mooltipass')
+							.on('keypress.mooltipass', function(event) {
+								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
+							}.bind(this))
+					}
+				}
 
 				var url = document.location.origin;
 				var submitUrl = url;
@@ -803,7 +823,8 @@ mcCombinations.prototype.detectForms = function() {
 			}
 			
 			// Handle sumbit event on submit button click or return keypress.
-			var submitButton = this.detectSubmitButton(currentForm.element, currentForm.combination.fields.username)
+			var submitButton = this.detectSubmitButton(currentForm.element,
+				currentForm.combination.fields.username || currentForm.combination.fields.password)
 			mpJQ(submitButton)
 				.unbind('click.mooltipass')
 				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
@@ -1135,7 +1156,11 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			       outer[0] != mpJQ('html')[0]) deep++
 			button.deep = deep
 		})
-		buttons.sort(function(a, b) { return a.deep >= b.deep ? 1 : -1 })
+		buttons.sort(function(a, b) {
+			if (a.deep > b.deep) return 1
+			if (a.deep < b.deep) return -1
+			if (a.deep == b.deep) return 0
+		})
 		
 		if (buttons.length > 0) return buttons[0]
 	}
@@ -1160,7 +1185,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
-	var submitButton = this.detectSubmitButton(currentForm.element, currentForm.combination.fields.username)
+	var submitButton = this.detectSubmitButton(currentForm.element,
+		currentForm.combination.fields.username || currentForm.combination.fields.password)
 	
 	if (submitButton) {
 		// Select innermost element to trigger click because handler can be on it.

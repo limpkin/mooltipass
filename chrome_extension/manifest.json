@@ -54,7 +54,8 @@
     "jquery.min.map",
     "images/icon_password_16.png",
     "images/icon_password_24.png",
-    "images/logo_inverted.png"
+    "images/logo_inverted.png",
+    "http-auth.html"
   ],
   "permissions": [
     "contextMenus",

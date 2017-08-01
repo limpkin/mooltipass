@@ -640,7 +640,7 @@ mcCombinations.prototype.detectCombination = function() {
                 if (this.settings.debugLevel > 1) cipDebug.log('Dealing with special case for ' + window.location.hostname);
 				this.possibleCombinations[I].callback( this.forms );
 				
-				// Handle sumbit event on submit button click or return keypress.
+				// Handle sumbit event on submit button click or return keydown.
 				for (form in this.forms) {
 					var currentForm = this.forms[form]
 					if (currentForm.element) {
@@ -653,8 +653,8 @@ mcCombinations.prototype.detectCombination = function() {
 						mpJQ()
 							.add(currentForm.combination.fields.username)
 							.add(currentForm.combination.fields.password)
-							.unbind('keypress.mooltipass')
-							.on('keypress.mooltipass', function(event) {
+							.unbind('keydown.mooltipass')
+							.on('keydown.mooltipass', function(event) {
 								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
 							}.bind(this))
 					}
@@ -822,7 +822,7 @@ mcCombinations.prototype.detectForms = function() {
 				currentForm.combination.preExtraFunction( currentForm.combination.fields );
 			}
 			
-			// Handle sumbit event on submit button click or return keypress.
+			// Handle sumbit event on submit button click or return keydown.
 			var submitButton = this.detectSubmitButton(currentForm.element,
 				currentForm.combination.fields.username || currentForm.combination.fields.password)
 			mpJQ(submitButton)
@@ -832,8 +832,8 @@ mcCombinations.prototype.detectForms = function() {
 			mpJQ()
 				.add(currentForm.combination.fields.username)
 				.add(currentForm.combination.fields.password)
-				.unbind('keypress.mooltipass')
-				.on('keypress.mooltipass', function(event) {
+				.unbind('keydown.mooltipass')
+				.on('keydown.mooltipass', function(event) {
 					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
 				}.bind(this))
 		}
@@ -1123,6 +1123,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	
 	// Selectors are ordered by priority, first ones are more important.
 	BUTTON_SELECTORS = [
+		'a[href^="javascript:"]',
 		'button:visible',
 		'[type="submit"]:visible',
 		'[role="button"]:visible',

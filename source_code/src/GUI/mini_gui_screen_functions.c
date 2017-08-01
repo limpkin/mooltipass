@@ -35,6 +35,7 @@
 #include "timer_manager.h"
 #include "logic_eeprom.h"
 #include "mini_inputs.h"
+#include "mooltipass.h"
 #include "mini_leds.h"
 #include "node_mgmt.h"
 #include "oledmini.h"
@@ -246,8 +247,16 @@ void guiScreenLoop(uint8_t input_interface_result)
                 }
                 case SCREEN_SETTINGS:
                 {
+                    #if defined(MINI_VERSION) && defined(PASSWORD_FOR_USB_AND_ADMIN_FUNCS)
+                    if (admin_usb_functs_enabled != FALSE)
+                    {
+                        currentScreen = SCREEN_SETTINGS_CHANGE_PIN;
+                        miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                    }
+                    #else
                     currentScreen = SCREEN_SETTINGS_CHANGE_PIN;
                     miniOledBitmapDrawFlash(0, 0, (currentScreen-SCREEN_LOCK)*NB_BMPS_PER_TRANSITION+BITMAP_MAIN_LOCK, OLED_SCROLL_UP);
+                    #endif
                     break;
                 }
                 case SCREEN_SETTINGS_HOME:

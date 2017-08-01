@@ -59,7 +59,7 @@ Also Erase The Card?
 No Stored Credentials
 !!!FUSE PB!!!~~
 Func Test, press wheel~~
-RESERVED~~
+Admin~~        PIN
 Scroll to '80'
 DON'T APPROVE THIS!
 Send Password For:

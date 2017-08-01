@@ -57,6 +57,7 @@
 #define MSB(n) ((n >> 8) & 255)
 #define HW_CONFIG() (UHWCON = 0x01)
 #define PLL_CONFIG() (PLLCSR = 0x12)
+#define ENABLE_USB_3V3() (UHWCON = 0x01)
 #define USB_CONFIG() (USBCON = ((1<<USBE)|(1<<OTGPADE)))
 #define USB_FREEZE() (USBCON = ((1<<USBE)|(1<<FRZCLK)))
 

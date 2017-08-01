@@ -80,7 +80,14 @@ void miniDisplayCredentialAtPosition(uint8_t position, char* credential)
     uint8_t x_coordinates[] = {SCROLL_LINE_TEXT_FIRST_XPOS, SCROLL_LINE_TEXT_SECOND_XPOS, SCROLL_LINE_TEXT_THIRD_XPOS};
     uint8_t y_coordinates[] = {THREE_LINE_TEXT_FIRST_POS, THREE_LINE_TEXT_SECOND_POS, THREE_LINE_TEXT_THIRD_POS};
 
-    string_extra_chars[position] = strlen(credential) - miniOledPutstrXY(x_coordinates[position], y_coordinates[position], OLED_RIGHT, (char*)credential + string_offset_cntrs[position]);
+    #ifndef LOGIN_FAV_MENU_LEFT_ALIGN
+        string_extra_chars[position] = strlen(credential) - miniOledPutstrXY(x_coordinates[position], y_coordinates[position], OLED_RIGHT, (char*)credential + string_offset_cntrs[position]);
+    #else
+        // In the future we may want to add an extra parameter to specify if we shift or not to 17 to gain a few pixels
+        miniOledSetMaxTextY(x_coordinates[position]);
+        string_extra_chars[position] = strlen(credential) - miniOledPutstrXY(17, y_coordinates[position], OLED_LEFT, (char*)credential + string_offset_cntrs[position]);  
+        miniOledResetMaxTextY();      
+    #endif
 }
 
 /*! \fn     guiAskForLoginSelect(pNode* p, cNode* c, uint16_t parentNodeAddress)

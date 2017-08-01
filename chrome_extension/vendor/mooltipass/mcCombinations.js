@@ -646,6 +646,7 @@ mcCombinations.prototype.detectCombination = function() {
 					if (currentForm.element) {
 						var submitButton = this.detectSubmitButton(currentForm.element,
 							currentForm.combination.fields.username || currentForm.combination.fields.password)
+							
 						mpJQ(submitButton)
 							.unbind('click.mooltipass')
 							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
@@ -825,6 +826,7 @@ mcCombinations.prototype.detectForms = function() {
 			// Handle sumbit event on submit button click or return keydown.
 			var submitButton = this.detectSubmitButton(currentForm.element,
 				currentForm.combination.fields.username || currentForm.combination.fields.password)
+				
 			mpJQ(submitButton)
 				.unbind('click.mooltipass')
 				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
@@ -1123,9 +1125,8 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	
 	// Selectors are ordered by priority, first ones are more important.
 	BUTTON_SELECTORS = [
-		'a[href^="javascript:"]',
+		'[type="submit"]:visible, a[href^="javascript:"]:visible',
 		'button:visible',
-		'[type="submit"]:visible',
 		'[role="button"]:visible',
 		'a:visible',
 		'div[onclick]:visible',

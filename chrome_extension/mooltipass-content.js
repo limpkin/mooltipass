@@ -1758,10 +1758,11 @@ cipEvents.triggerActivatedTab = function() {
 var stopInitialization = 
 	window.self != window.top && (
 		mpJQ('body').text().trim() == '' ||
-		mpJQ('body').width() == 0 ||
-		mpJQ('body').height() == 0 ||
+		mpJQ('body').width() <= 1 ||
+		mpJQ('body').height() <= 1 ||
 		window.location.href.match('recaptcha') ||
-		window.location.href.match('youtube')
+		window.location.href.match('youtube') ||
+		window.location.href.match('pixel')
 	)
 
 if (!stopInitialization) {

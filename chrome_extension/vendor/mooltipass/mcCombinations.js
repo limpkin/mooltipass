@@ -1132,7 +1132,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	]
 	
 	var submitButton = null
-	form = form.length ? form : mpJQ('body')
+	form = form && form.length ? form : mpJQ('body')
 	
 	for (var selectorIndex = 0; selectorIndex < BUTTON_SELECTORS.length; selectorIndex++) {
 		var selector = BUTTON_SELECTORS[selectorIndex]

@@ -998,6 +998,73 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 }
 
 /*
+ * Trigger change event with new value for input.
+ * Used to update value for fields handled by React.
+ * https://github.com/vitalyq/react-trigger-change
+ *
+ * @param  node {DOM node}
+ * @param  value {String}
+ * @return undefined
+ */
+mcCombinations.prototype.triggerChangeEvent = function(node, value) {
+  // React 16
+  // Cache artificial value property descriptor.
+  // Property doesn't exist in React <16, descriptor is undefined.
+  descriptor = Object.getOwnPropertyDescriptor(node, 'value');
+
+  // React 0.14: IE9
+  // React 15: IE9-IE11
+  // React 16: IE9
+  // Dispatch focus.
+  event = document.createEvent('UIEvents');
+  event.initEvent('focus', false, false);
+  node.dispatchEvent(event);
+
+  // React 0.14: IE9
+  // React 15: IE9-IE11
+  // React 16
+  // In IE9-10 imperative change of node value triggers propertychange event.
+  // Update inputValueTracking cached value.
+  // Remove artificial value property.
+  // Restore initial value to trigger event with it.
+  initialValue = node.value;
+  node.value = value + '#';
+  deletePropertySafe(node, 'value');
+  node.value = value;
+
+  // React 15: IE11
+  // For unknown reason React 15 added listener for propertychange with addEventListener.
+  // This doesn't work, propertychange events are deprecated in IE11,
+  // but allows us to dispatch fake propertychange which is handled by IE11.
+  event = document.createEvent('HTMLEvents');
+  event.initEvent('propertychange', false, false);
+  event.propertyName = 'value';
+  node.dispatchEvent(event);
+
+  // React 0.14: IE10-IE11, non-IE
+  // React 15: non-IE
+  // React 16: IE10-IE11, non-IE
+  event = document.createEvent('HTMLEvents');
+  event.initEvent('input', true, false);
+  node.dispatchEvent(event);
+
+  // React 16
+  // Restore artificial value property descriptor.
+  if (descriptor) {
+    Object.defineProperty(node, 'value', descriptor);
+  }
+  
+  // Do not try to delete non-configurable properties.
+  // Value and checked properties on DOM elements are non-configurable in PhantomJS.
+  function deletePropertySafe(elem, prop) {
+    var desc = Object.getOwnPropertyDescriptor(elem, prop);
+    if (desc && desc.configurable) {
+      delete elem[prop];
+    }
+  }
+}
+	
+/*
 * Parses the credentials obtained
 */
 mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
@@ -1045,7 +1112,10 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				if ( currentForm.combination.fields.username && typeof currentForm.combination.fields.username !== 'string' ) {
 					currentForm.combination.fields.username.val('');
 					currentForm.combination.fields.username.click();
-					try {currentForm.combination.fields.username.sendkeys( credentials[0].Login );} catch (e) {}					
+					try {
+						currentForm.combination.fields.username.sendkeys( credentials[0].Login );
+						this.triggerChangeEvent(currentForm.combination.fields.username[0], credentials[0].Login)
+					} catch (e) {}					
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.username.value = credentials[0].Login;	
 				}
@@ -1061,7 +1131,10 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				) {
 					currentForm.combination.fields.password.val('');
 					currentForm.combination.fields.password.click();
-					currentForm.combination.fields.password.sendkeys( credentials[0].Password );
+					try {
+						currentForm.combination.fields.password.sendkeys( credentials[0].Password );
+						this.triggerChangeEvent(currentForm.combination.fields.password[0], credentials[0].Password)
+					} catch (e) {}					
 					currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.password.value = credentials[0].Password;
 				}

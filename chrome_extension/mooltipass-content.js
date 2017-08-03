@@ -1572,8 +1572,9 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 			});
 		}
 
-		var url = mpJQ(event.target)[0].action;
-		if(!url) {
+		var url = event.target && event.target.action;
+		// Action property can be DOM element with name="action".
+		if (!url || typeof url != 'string') {
 			url = document.location.href;
 			if(url.indexOf("?") > 0) {
 				url = url.substring(0, url.indexOf("?"));
@@ -1757,10 +1758,11 @@ cipEvents.triggerActivatedTab = function() {
 var stopInitialization = 
 	window.self != window.top && (
 		mpJQ('body').text().trim() == '' ||
-		mpJQ('body').width() == 0 ||
-		mpJQ('body').height() == 0 ||
+		mpJQ('body').width() <= 1 ||
+		mpJQ('body').height() <= 1 ||
 		window.location.href.match('recaptcha') ||
-		window.location.href.match('youtube')
+		window.location.href.match('youtube') ||
+		window.location.href.match('pixel')
 	)
 
 if (!stopInitialization) {

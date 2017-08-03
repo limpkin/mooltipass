@@ -31,7 +31,6 @@ fields: A reference to every field in the combination that has relationship with
 
 
 
-
 ## Combination Matching
 
 Combinations are selected in order from top to bottom, so the process is abandoned as soon as a viable combination is found.
@@ -39,7 +38,18 @@ Combinations are selected in order from top to bottom, so the process is abandon
 A combination is viable if: All the required fields have been found, and the score reached 100. 
 
 
+## Intercepting and submitting form
 
+We catch form submit by the following ways:
+* Handling click on submit button
+* Handling return keypress on form fields
+* Handling submit event on form
+
+For submit button detection _detectSubmitButton()_ function is used. It uses flexible set of selectors to prioritize available buttons. Also accept and ignore patterns are used for filtering.
+
+Form submit is done by the following ways:
+* Clicking on submit button 
+* Triggering submit event on form
 
 ## Combination structure
 
@@ -68,7 +78,7 @@ Each combination has a specific structure in JSON format, and properties are as 
 
 ## Example
 
-It is easy to explaing this method by analyzing one of the first combinations: 'canFieldBased'. As the combinationName says: 'Login Form with can-field properties' some websites opperate with a CMS that generate input fields with 'can-field' as a property.
+It is easy to explain this method by analyzing one of the first combinations: 'canFieldBased'. As the combinationName says: 'Login Form with can-field properties' some websites opperate with a CMS that generate input fields with 'can-field' as a property.
 
 The required fields are indicates it is looking for two fields: input[can-field=accountName] and input[can-field=password] with mapping to username and password respectively.
 

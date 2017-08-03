@@ -238,7 +238,7 @@ function mcCombinations() {}
 mcCombinations.prototype = ( function() {
 	return {
 		constructor:mcCombinations,
-		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type])",
+		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='login'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type])",
 		forms: {
 			noform: { fields: [] }
 		},
@@ -386,7 +386,7 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Simple Login Form with Text',
 		requiredFields: [
 			{
-				selector: 'input[type=text],input:not([type])',
+				selector: 'input[type=text],input[type=login],input:not([type])',
 				mapsTo: 'username'
 			},
 			{
@@ -639,6 +639,27 @@ mcCombinations.prototype.detectCombination = function() {
 			if ( this.possibleCombinations[I].requiredUrl && this.possibleCombinations[I].requiredUrl == window.location.hostname ) { // Found a special case
                 if (this.settings.debugLevel > 1) cipDebug.log('Dealing with special case for ' + window.location.hostname);
 				this.possibleCombinations[I].callback( this.forms );
+				
+				// Handle sumbit event on submit button click or return keydown.
+				for (form in this.forms) {
+					var currentForm = this.forms[form]
+					if (currentForm.element) {
+						var submitButton = this.detectSubmitButton(currentForm.element,
+							currentForm.combination.fields.username || currentForm.combination.fields.password)
+							
+						mpJQ(submitButton)
+							.unbind('click.mooltipass')
+							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
+							
+						mpJQ()
+							.add(currentForm.combination.fields.username)
+							.add(currentForm.combination.fields.password)
+							.unbind('keydown.mooltipass')
+							.on('keydown.mooltipass', function(event) {
+								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
+							}.bind(this))
+					}
+				}
 
 				var url = document.location.origin;
 				var submitUrl = url;
@@ -795,9 +816,28 @@ mcCombinations.prototype.detectForms = function() {
 		if ( currentForm.combination.score < 100 ) {
 			currentForm.combination = false;
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
-		} else if ( currentForm.combination.preExtraFunction ) {
-			if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
-			currentForm.combination.preExtraFunction( currentForm.combination.fields );
+		} else {
+			
+			if ( currentForm.combination.preExtraFunction ) {
+				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
+				currentForm.combination.preExtraFunction( currentForm.combination.fields );
+			}
+			
+			// Handle sumbit event on submit button click or return keydown.
+			var submitButton = this.detectSubmitButton(currentForm.element,
+				currentForm.combination.fields.username || currentForm.combination.fields.password)
+				
+			mpJQ(submitButton)
+				.unbind('click.mooltipass')
+				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
+				
+			mpJQ()
+				.add(currentForm.combination.fields.username)
+				.add(currentForm.combination.fields.password)
+				.unbind('keydown.mooltipass')
+				.on('keydown.mooltipass', function(event) {
+					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
+				}.bind(this))
 		}
 	}
 
@@ -842,8 +882,9 @@ mcCombinations.prototype.getAllForms = function() {
 
 			// Store fields in FORMS
 			containerForm = field.closest('form');
-			if ( containerForm.length == 0 ) var currentForm = this.forms.noform; // Field isn't in a Form
-			else {
+			if ( containerForm.length == 0 ) {
+				var currentForm = this.forms.noform; // Field isn't in a Form
+			} else {
 				if ( !containerForm.data('mp-id') ) {
 					this.setUniqueId( containerForm );
 				}
@@ -853,30 +894,8 @@ mcCombinations.prototype.getAllForms = function() {
 						fields: [],
 						element: containerForm
 					};
-					containerForm.submit( mpJQ.proxy(this.onSubmit,this) );
-
-					// Fire submit event for accounts.google.com when "Next" buttons is clicked
-					// and when return key is pressed inside input.
-					// It's good to move this quirk to universal method in extendedCombinations,
-					// something like "handleSubmit".
-					if (window.location.hostname == 'accounts.google.com') {
-						containerForm.find('[role=button]').click( this.onSubmit.bind(this, { target: containerForm }) );
-						containerForm.find('input').keypress(function(event) {
-							if (event.which == 13) {
-								this.onSubmit.call(this, { target: containerForm });
-							}
-						}.bind(this));
-					}
 					
-					// Fire submit event for store.steampowered when "Submit" buttons is clicked.
-					// Later we will handle clicking on submit button in general, so we
-					// can remove this code as well as above code for accounts.google.com.
-					if (window.location.hostname == 'store.steampowered.com') {
-						mpJQ(containerForm)
-							.closest('.loginbox')
-							.find('#login_btn_signin button')
-							.click( this.onSubmit.bind(this, { target: containerForm }) );
-					}
+					containerForm.submit( mpJQ.proxy(this.onSubmit,this) );
 				}
 				var currentForm = this.forms[ containerForm.data('mp-id') ];
 			}
@@ -893,13 +912,21 @@ mcCombinations.prototype.getAllForms = function() {
 * Intercept form submit
 */
 mcCombinations.prototype.onSubmit = function( event ) {
+	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ] || this.forms['noform'];
+	if (!currentForm.combination) return
+	
+	// Return if onSubmit has been already triggered by other events.
+	if (this.onSubmitInProgress) return
+	this.onSubmitInProgress = true
+	setTimeout(function() {
+		this.onSubmitInProgress = false
+	}.bind(this), 100)
+	
 	if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c onSubmit','background-color: #c3c6b4','color: #333333');
 	this.waitingForPost = false;
 
 	// Check if there's a difference between what we retrieved and what is being submitted
-	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ];
-
-	if ( currentForm.combination && !currentForm.combination.savedFields.username && this.credentialsCache) {
+	if ( !currentForm.combination.savedFields.username && this.credentialsCache) {
 		if ( this.credentialsCache[0].TempLogin ) {
 			this.credentialsCache[0].Login = this.credentialsCache[0].TempLogin
 		}
@@ -971,6 +998,73 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 }
 
 /*
+ * Trigger change event with new value for input.
+ * Used to update value for fields handled by React.
+ * https://github.com/vitalyq/react-trigger-change
+ *
+ * @param  node {DOM node}
+ * @param  value {String}
+ * @return undefined
+ */
+mcCombinations.prototype.triggerChangeEvent = function(node, value) {
+  // React 16
+  // Cache artificial value property descriptor.
+  // Property doesn't exist in React <16, descriptor is undefined.
+  descriptor = Object.getOwnPropertyDescriptor(node, 'value');
+
+  // React 0.14: IE9
+  // React 15: IE9-IE11
+  // React 16: IE9
+  // Dispatch focus.
+  event = document.createEvent('UIEvents');
+  event.initEvent('focus', false, false);
+  node.dispatchEvent(event);
+
+  // React 0.14: IE9
+  // React 15: IE9-IE11
+  // React 16
+  // In IE9-10 imperative change of node value triggers propertychange event.
+  // Update inputValueTracking cached value.
+  // Remove artificial value property.
+  // Restore initial value to trigger event with it.
+  initialValue = node.value;
+  node.value = value + '#';
+  deletePropertySafe(node, 'value');
+  node.value = value;
+
+  // React 15: IE11
+  // For unknown reason React 15 added listener for propertychange with addEventListener.
+  // This doesn't work, propertychange events are deprecated in IE11,
+  // but allows us to dispatch fake propertychange which is handled by IE11.
+  event = document.createEvent('HTMLEvents');
+  event.initEvent('propertychange', false, false);
+  event.propertyName = 'value';
+  node.dispatchEvent(event);
+
+  // React 0.14: IE10-IE11, non-IE
+  // React 15: non-IE
+  // React 16: IE10-IE11, non-IE
+  event = document.createEvent('HTMLEvents');
+  event.initEvent('input', true, false);
+  node.dispatchEvent(event);
+
+  // React 16
+  // Restore artificial value property descriptor.
+  if (descriptor) {
+    Object.defineProperty(node, 'value', descriptor);
+  }
+  
+  // Do not try to delete non-configurable properties.
+  // Value and checked properties on DOM elements are non-configurable in PhantomJS.
+  function deletePropertySafe(elem, prop) {
+    var desc = Object.getOwnPropertyDescriptor(elem, prop);
+    if (desc && desc.configurable) {
+      delete elem[prop];
+    }
+  }
+}
+	
+/*
 * Parses the credentials obtained
 */
 mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
@@ -1018,7 +1112,10 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				if ( currentForm.combination.fields.username && typeof currentForm.combination.fields.username !== 'string' ) {
 					currentForm.combination.fields.username.val('');
 					currentForm.combination.fields.username.click();
-					try {currentForm.combination.fields.username.sendkeys( credentials[0].Login );} catch (e) {}					
+					try {
+						currentForm.combination.fields.username.sendkeys( credentials[0].Login );
+						this.triggerChangeEvent(currentForm.combination.fields.username[0], credentials[0].Login)
+					} catch (e) {}					
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.username.value = credentials[0].Login;	
 				}
@@ -1034,7 +1131,10 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				) {
 					currentForm.combination.fields.password.val('');
 					currentForm.combination.fields.password.click();
-					currentForm.combination.fields.password.sendkeys( credentials[0].Password );
+					try {
+						currentForm.combination.fields.password.sendkeys( credentials[0].Password );
+						this.triggerChangeEvent(currentForm.combination.fields.password[0], credentials[0].Password)
+					} catch (e) {}					
 					currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.password.value = credentials[0].Password;
 				}
@@ -1065,6 +1165,88 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 }
 
 /*
+ * Detect submit button for the given form and field.
+ *
+ * @param  form {jQuery object}
+ * @param  field {jQuery object}
+ * @return submitButton {DOM node} or undefined
+ */
+ mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(form, field) {
+	var ACCEPT_PATTERNS = [
+		/submit/i,
+		/login/i,
+		/sign/i,
+		/connexion/i,
+		/identifierNext/i,
+		/passwordNext/i,
+		/verify_user_btn/i,
+	],
+	
+	IGNORE_PATTERNS = [
+		/forgotpassword/i,
+		/lostlogin/i,
+		/showpassword/i,
+		/remember_login/i,
+		/id=".*?search.*?"/i,
+		/id="btnLoadMoreProducts"/i,
+		/id="loginLink"/i,
+		/class=".*?search.*?"/i,
+		/class="login_row"/i,
+		/href=".*?loginpage.*?"/i,
+		/href="http.*?"/i,
+	],
+	
+	// Selectors are ordered by priority, first ones are more important.
+	BUTTON_SELECTORS = [
+		'[type="submit"]:visible, a[href^="javascript:"]:visible',
+		'button:visible',
+		'[role="button"]:visible',
+		'a:visible',
+		'div[onclick]:visible',
+		'div:visible'
+	]
+	
+	var submitButton = null
+	form = form && form.length ? form : mpJQ('body')
+	
+	for (var selectorIndex = 0; selectorIndex < BUTTON_SELECTORS.length; selectorIndex++) {
+		var selector = BUTTON_SELECTORS[selectorIndex]
+		
+		var buttons = form.find(selector).filter(function(index, button) {
+			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
+				if (mpJQ(button).clone().empty()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
+			}
+			
+			for (var i = 0; i < ACCEPT_PATTERNS.length; i++) {
+				if (mpJQ(button).clone().empty()[0].outerHTML.match(ACCEPT_PATTERNS[i])) return true
+			}
+		})
+		
+		// Sort buttons by how nearest they are from the field.
+		buttons.each(function(index, button) {
+			var deep = 0,
+					outer = field
+			
+			while (!mpJQ.contains((outer = outer.parent())[0], button) &&
+			       outer[0] != mpJQ('html')[0]) deep++
+			button.deep = deep
+		})
+		buttons.sort(function(a, b) {
+			if (a.deep > b.deep) return 1
+			if (a.deep < b.deep) return -1
+			if (a.deep == b.deep) return 0
+		})
+		
+		if (buttons.length > 0) return buttons[0]
+	}
+	
+	// If we haven't detected submit button for form, try to find from body.
+	if (form[0] != mpJQ('body')[0]) {
+		return this.detectSubmitButton(mpJQ('body'), field)
+	}
+ }
+
+/*
 * Submits the form!
 */
 mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
@@ -1078,56 +1260,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
-	
-	var ACCEPT_PATTERNS = [
-				// Common patterns.
-				/submit/i, /login/i, /sign/i, /connexion/i,
-				
-				// Special cases.
-				/identifierNext/i,
-				/passwordNext/i,
-				/verify_user_btn/i
-			],
-			
-			IGNORE_PATTERNS = [
-				/forgotpassword/i,
-				/id=".*?search.*?"/i,
-				/href=".*?loginpage.*?"/i,
-				/lostlogin/i,
-				/showpassword/i,
-				/class="login_row"/i,
-				/remember_login/i
-			],
-			
-			// Selectors are ordered by priority, first ones are more important.
-			BUTTON_SELECTORS = ['button:visible', '[type="submit"]:visible', '[role="button"]:visible', 'a:visible', 'div[onclick]:visible', 'div:visible']
-			
-	// Check that form element exists and in DOM. There are cases when form has been reattached.
-	var $root = currentForm.element && mpJQ.contains(document, currentForm.element[0])
-						? currentForm.element
-						: mpJQ('body'),
-			submitButton = null
-	
-	// Traversing DOM from form element to top in case there is a button outside the form.
-	while (!submitButton && $root[0] != mpJQ('html')[0]) {
-		var discoveredButtons = []
-		
-		BUTTON_SELECTORS.forEach(function(selector) {
-			jQuery.merge(discoveredButtons, $root.find(selector))
-		})
-		
-		submitButton = discoveredButtons.filter(function(button) {
-			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
-				if (button.outerHTML.match(IGNORE_PATTERNS[i])) return false
-			}
-			
-			for (var i = 0; i < ACCEPT_PATTERNS.length; i++) {
-				if (button.outerHTML.match(ACCEPT_PATTERNS[i])) return true
-			}
-		})[0]
-		
-		$root = $($root.parent()[0] || mpJQ('body'))
-	}
+	var submitButton = this.detectSubmitButton(currentForm.element,
+		currentForm.combination.fields.username || currentForm.combination.fields.password)
 	
 	if (submitButton) {
 		// Select innermost element to trigger click because handler can be on it.
@@ -1136,7 +1270,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 		
 		// Button can be disabled, waiting for update.
 		setTimeout(function() {
-			mpJQ(submitButton).trigger('click')
+			submitButton.click()
 		}, 100)
 	} else {
 		// If we haven't found submit button, let's trigger submit event on the form.

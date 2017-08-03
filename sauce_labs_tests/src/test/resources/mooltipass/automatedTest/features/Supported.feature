@@ -214,3 +214,56 @@ When I logout ProtonMail
 And I go to ProtonMail login page
 Then I should be logged in ProtonMail
 
+@supported
+Scenario: Testing ldlc.ch
+Given I navigate to 'http://www.ldlc.ch/'
+When I login IDLC with 'citesting@themooltipass.com'
+Then I should be logged in IDLC
+When I logout IDLC
+And I go to IDLC login page
+Then I should be logged in IDLC
+
+@supported
+Scenario: Testing evernote.com
+Given I navigate to 'https://www.evernote.com/Login.action'
+When I login Evernote with 'citesting@themooltipass.com'
+Then I should be logged in Evernote
+When I logout Evernote
+And I go to Evernote login page
+Then I should be logged in Evernote
+
+@supported
+Scenario: Testing pc-ostschweiz.ch
+Given I navigate to 'https://www.pc-ostschweiz.ch'
+When I login pc-ostschweiz with 'mooltipass'
+Then I should be logged in pc-ostschweiz
+When I logout pc-ostschweiz
+Then I should be logged in pc-ostschweiz
+
+@supported
+Scenario: Testing https://www.kenwoodworld.com/uk/account/sign-in#
+Given I navigate to 'https://www.kenwoodworld.com/uk/account/sign-in'
+When I login kenwoodworld with 'citesting@themooltipass.com'
+Then I should be logged in kenwoodworld
+When I logout kenwoodworld
+And I go to kenwoodworld login page
+Then I should be logged in kenwoodworld
+
+@subdomain
+@supported
+Scenario: Testing https://workbench.cisecurity.org/
+Given I navigate to 'https://workbench.cisecurity.org/'
+When I login cisecurity with 'citesting@themooltipass.com'
+Then I should be logged in cisecurity
+When I logout cisecurity
+And I go to cisecurity login page
+Then I should be logged in cisecurity
+
+@supported
+Scenario: Testing https://www.microchipdirect.com/
+Given I navigate to 'https://www.microchipdirect.com/'
+When I login microchipdirect with 'citesting@themooltipass.com'
+Then I should be logged in microchipdirect
+When I logout microchipdirect
+And I go to microchipdirect login page
+Then I should be logged in microchipdirect

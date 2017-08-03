@@ -9,6 +9,7 @@ env:
   matrix:
   - TEST_SUITE=NotSupported.feature
   - TEST_SUITE=Supported.feature
+  - TEST_SUITE=Supported2.feature
   - TEST_SUITE=CIFails.feature
   - TEST_SUITE=Blinking.feature
   global:

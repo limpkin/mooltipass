@@ -1034,22 +1034,16 @@ input.mp-popup-http-auth__input:focus {
 	text-align: left;
 }
 
-.mp-popup-http-auth__submit {
-	float: right;
-}
-
-.mp-popup-http-auth__cancel {
-	margin-right: 20px;
-}
-
 .mp-popup-http-auth__controls {
 	text-align: right;
 }
 
 .mp-popup-http-auth__notice {
-	display: none;
-	color: #f18888;
-	margin-bottom: 10px;
 	text-align: center;
-	font-size: 14px;
+	margin-bottom: 10px;
+	font-size: 12px;
+}
+
+.mp-popup-http-auth__notice span {
+	font-weight: bold;
 }

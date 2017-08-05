@@ -1572,8 +1572,9 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 			});
 		}
 
-		var url = mpJQ(event.target)[0].action;
-		if(!url) {
+		var url = event.target && event.target.action;
+		// Action property can be DOM element with name="action".
+		if (!url || typeof url != 'string') {
 			url = document.location.href;
 			if(url.indexOf("?") > 0) {
 				url = url.substring(0, url.indexOf("?"));
@@ -1710,62 +1711,6 @@ cipEvents.startEventHandling = function() {
 			else if (req.action == "captcha_detected") {
 				cip.formHasCaptcha = true;
 			}
-			else if (req.action == "show_http_auth") {
-				// Return if we already created HTTP Auth popup. It occurs when
-				// credentials are wrong and user need to enter new ones.
-				if (mpJQ('.mp-popup-http-auth').length > 0) {
-					mpJQ('.mp-popup-http-auth__notice').fadeIn()
-					return
-				}
-				
-				mpJQ('body').append(
-					'<div class="mp-popup-http-auth">' +
-						'<div class="mp-popup-http-auth__content">' +
-							'<div class="mp-popup-http-auth__logo"></div>' +
-							'<div class="mp-popup-http-auth__notice">Wrong credentials!</div>' +
-							
-							'<form class="mp-popup-http-auth__form">' +
-								'<div class="mp-popup-http-auth__form-row">' +
-									'<div class="mp-popup-http-auth__label">Login</div>' +
-									'<input class="mp-popup-http-auth__input" type="text" name="login">' +
-								'</div>' +
-									
-								'<div class="mp-popup-http-auth__form-row">' +
-									'<div class="mp-popup-http-auth__label">Password</div>' +
-									'<input class="mp-popup-http-auth__input" type="password" name="password">' +
-								'</div>' +
-									
-								'<div class="mp-popup-http-auth__controls">' +
-									'<button class="mp-popup-http-auth__button mp-popup-http-auth__submit" type="submit">Login</button>' +
-									'<button class="mp-popup-http-auth__button mp-popup-http-auth__button--secondary mp-popup-http-auth__cancel">Cancel</button>' +
-								'</div>' +
-							'</form>' +
-						'</div>' +
-					'</div>'
-				)
-				
-				// Set proxy address as action attribute of the form, so mcCombs will
-				// save credentials for the right url.
-				if (req.args[0].isProxy) {
-					mpJQ('.mp-popup-http-auth__form').attr('action', req.args[0].proxyURL)
-				}
-				
-				mpJQ('.mp-popup-http-auth__form').on('submit', function(event) {
-					event.preventDefault();
-					
-					messaging({
-						action: 'http_auth_submit',
-						args: [{
-							login: mpJQ('.mp-popup-http-auth__form [name="login"]').val(),
-							password: mpJQ('.mp-popup-http-auth__form [name="password"]').val()
-						}]
-					});
-				})
-				
-				mpJQ('.mp-popup-http-auth__cancel').on('click', function() {
-					messaging({ action: 'http_auth_cancel' });
-				})
-			}
 		}
 	};
 
@@ -1813,10 +1758,11 @@ cipEvents.triggerActivatedTab = function() {
 var stopInitialization = 
 	window.self != window.top && (
 		mpJQ('body').text().trim() == '' ||
-		mpJQ('body').width() == 0 ||
-		mpJQ('body').height() == 0 ||
+		mpJQ('body').width() <= 1 ||
+		mpJQ('body').height() <= 1 ||
 		window.location.href.match('recaptcha') ||
-		window.location.href.match('youtube')
+		window.location.href.match('youtube') ||
+		window.location.href.match('pixel')
 	)
 
 if (!stopInitialization) {
@@ -1826,6 +1772,44 @@ if (!stopInitialization) {
 	mcCombs.settings.debugLevel = content_debug_msg;
 
 	messaging( {'action': 'content_script_loaded' } );
+	
+	handleHTTPAuth()
+}
+
+function handleHTTPAuth() {
+	// We need to execute only when http-auth.html is opened.
+	if (window.location.origin + window.location.pathname != chrome.extension.getURL('http-auth.html')) return
+	
+	$(function() {
+		var data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
+		
+		// Set url as action attribute of the form, so mcCombs will
+		// save credentials for the right url.
+		mpJQ('.mp-popup-http-auth__form').attr('action', 
+			data.isProxy
+			? 'proxy://' + data.proxy
+			: data.url
+		)
+		mpJQ('.mp-popup-http-auth__notice span').text(
+			data.isProxy
+				? data.proxy
+				: new URL(data.url).hostname
+		)
+		
+		mpJQ('.mp-popup-http-auth__form').on('submit', function(event) {
+			event.preventDefault();
+			
+			messaging({
+				action: 'http_auth_submit',
+				args: [{
+					login: mpJQ('.mp-popup-http-auth__form [name="login"]').val(),
+					password: mpJQ('.mp-popup-http-auth__form [name="password"]').val()
+				}]
+			});
+			
+			window.location.href = data.url
+		})
+	})
 }
 
 var mpDialog = {

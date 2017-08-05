@@ -4,6 +4,7 @@
 
 cp mooltipass-content.js Mooltipass.safariextension/mooltipass-content.js
 cp mooltipass-content.css Mooltipass.safariextension/mooltipass-content.css
+cp http-auth.html Mooltipass.safariextension/http-auth.html
 cp -Rf options Mooltipass.safariextension/ 
 cp -Rf vendor Mooltipass.safariextension/
 cp -Rf background Mooltipass.safariextension/

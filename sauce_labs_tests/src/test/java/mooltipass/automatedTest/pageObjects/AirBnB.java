@@ -36,7 +36,7 @@ public class AirBnB extends AbstractPage{
 	@FindBy(xpath = "//a[@href='/logout']")
 	private WebElement logoutBtn;
 
-	@FindBy(xpath = "//a[@class='container_ov54o4-o_O-container_notBlock_1xdomts-o_O-container_sizeRegular_1t4vkpr-o_O-container_z4957l']")
+	@FindBy(xpath = "//div/a[@href='/logout']")
 	private WebElement logoutApprove;
 
 	public void enterEmail(String value){

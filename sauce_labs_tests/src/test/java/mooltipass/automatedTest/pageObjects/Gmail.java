@@ -27,8 +27,8 @@ public class Gmail  extends AbstractPage{
 	
 	@FindBy(id = "gb_71")
 	private WebElement logoutBtn;
-	
-	@FindBy(xpath = "//a[@class='gb_b gb_db gb_R']")
+								
+	@FindBy(xpath = "//a[contains(@href,'https://accounts.google.com/SignOutOptions')]")
 	private WebElement expandBtn;
 
 
@@ -51,14 +51,14 @@ public class Gmail  extends AbstractPage{
 	}
 	public void logout()
 	{
-		waitUntilAppears((By.xpath( "//a[@class='gb_b gb_db gb_R']")));
+		waitUntilAppears((By.xpath( "//a[contains(@href,'https://accounts.google.com/SignOutOptions')]")));
 		expandBtn.click();
 		waitUntilAppears((By.id("gb_71")));
 		logoutBtn.click();
 		
 	}
 	public boolean checkLogin(){
-		//waitUntilAppears((By.xpath("//a[@href='https://accounts.google.com/SignOutOptions?hl=en&continue=https://mail.google.com/mail&service=mail']")));
+		waitUntilAppears((By.xpath("//a[@href='https://accounts.google.com/SignOutOptions?hl=en&continue=https://mail.google.com/mail&service=mail']")));
 		return isElementPresent(By.xpath("//a[@href='https://accounts.google.com/SignOutOptions?hl=en&continue=https://mail.google.com/mail&service=mail']"));
 	}
 	public boolean checkAtLoginPage(){

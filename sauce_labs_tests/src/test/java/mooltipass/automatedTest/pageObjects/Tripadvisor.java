@@ -13,7 +13,7 @@ public class Tripadvisor extends AbstractPage{
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(className = "login-button")
+	@FindBy(xpath = "//a[@class='login-button' and @title='Profile']")
 	private WebElement loginBtn;
 
 	@FindBy(xpath = "//input[@id='regSignIn.email']")

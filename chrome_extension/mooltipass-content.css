@@ -1034,14 +1034,6 @@ input.mp-popup-http-auth__input:focus {
 	text-align: left;
 }
 
-.mp-popup-http-auth__submit {
-	float: right;
-}
-
-.mp-popup-http-auth__cancel {
-	margin-right: 20px;
-}
-
 .mp-popup-http-auth__controls {
 	text-align: right;
 }

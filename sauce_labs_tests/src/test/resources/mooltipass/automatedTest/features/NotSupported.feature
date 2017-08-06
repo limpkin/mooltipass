@@ -2,24 +2,6 @@ Feature: Not supported Websites
 
 
 @notsupported
-Scenario: Testing Techmania
-Given I navigate to 'https://techmania.ch/'
-When I log in Techmania with 'mooltipass'
-Then I should be logged in Techmania
-When I logout Techmania
-When I go to Techmania login page
-Then I should be logged in Techmania
-
-@notsupported
-Scenario: Testing tripadvisor.com
-Given I navigate to 'https://www.tripadvisor.com'
-When I login tripadvisor with 'citesting@themooltipass.com'
-Then I should be logged in tripadvisor
-When I logout tripadvisor
-And I go to tripadvisor login page
-Then I should be logged in tripadvisor
-
-@notsupported
 Scenario: Testing https://www.trillian.im/web/4.0/
 Given I navigate to 'https://www.trillian.im/web/4.0/'
 When I login trillian with 'mooltipass'

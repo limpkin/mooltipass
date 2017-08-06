@@ -168,3 +168,12 @@ Then I should be logged in EBookers
 When I logout EBookers
 And I go to EBookers login page
 Then I should be logged in EBookers
+
+@supported
+Scenario: Testing Techmania
+Given I navigate to 'https://techmania.ch/'
+When I log in Techmania with 'mooltipass'
+Then I should be logged in Techmania
+When I logout Techmania
+When I go to Techmania login page
+Then I should be logged in Techmania

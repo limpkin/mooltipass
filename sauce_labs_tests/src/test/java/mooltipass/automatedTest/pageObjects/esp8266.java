@@ -1,6 +1,7 @@
 package mooltipass.automatedTest.pageObjects;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Action;
@@ -30,7 +31,7 @@ public class esp8266 extends AbstractPage{
 	@FindBy(xpath = "//div[@class='navbar-footer-content']//a[contains(text(),'Logout')]")
 	private WebElement logoutBtn;
 	
-	@FindBy(xpath = "//ul[@class='nav navbar-nav navbar-right navbar-nav-fancy']//li[@class='dropdown dropdown-avatar']")
+	@FindBy(xpath = "//ul[@class='nav navbar-nav navbar-right navbar-nav-fancy']//li[contains(@class,'dropdown dropdown-avatar')]")
 	private WebElement dashBoard;
 	
 	public void enterEmail(String value){
@@ -58,7 +59,13 @@ public class esp8266 extends AbstractPage{
 	}
 	public void logout(){
 		waitUntilAppears(logoutBtn);
-		logoutBtn.click();
+		try{
+			logoutBtn.click();
+		}catch(ElementNotVisibleException e){
+			dashBoard.click();
+			logoutBtn.click();
+		}
+		
 	}
 	
 	public boolean checkLogin(){

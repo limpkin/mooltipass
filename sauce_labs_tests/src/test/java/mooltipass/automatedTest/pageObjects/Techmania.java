@@ -48,14 +48,17 @@ public class Techmania extends AbstractPage{
 		loginLink.click();
 	}
 	public boolean checkLogin(){
-		//waitUntilAppears(By.xpath("//span[text()='moolti pass']"));
+		waitUntilAppears(By.xpath("//span[text()='moolti pass']"));
 		return isElementPresent(By.xpath("//span[text()='moolti pass']"));
 	}
 	
+	public boolean checkLoginPage(){
+		return isElementPresent(By.id("txtLoginBox"));
+	}
 	public void logout(){
 		waitUntilAppears(expandBtn);
 		expandBtn.click();
-		sleep(500);
+		waitUntilAppears(logoutBtn);
 		logoutBtn.click();
 	
 	}

@@ -30,7 +30,7 @@ public class TechmaniaSteps {
 	@When("I go to Techmania login page")
 	public void pressLogin(){
 		techmania.clickloginLink();
-		Assert.assertFalse("Expected to be at login page", techmania.checkLogin());
+		Assert.assertTrue("Expected to be at login page", techmania.checkLoginPage());
 		
 	}
 	@When("I logout Techmania")

@@ -68,7 +68,7 @@ public class Minfin extends AbstractPage{
 	public void closePopUpIfOpen(){
 		waitUntilAppears(By.xpath("//w-div[@role='dialog']//span"));
 		if(isElementPresent(By.xpath("//w-div[@role='dialog']//span"))){
-				driver.findElement(By.xpath("(//w-div[@role='dialog']//span)[4]")).click();
+				driver.findElement(By.xpath("(//w-div[@role='dialog']//span)[3]")).click();
 				sleep(2000);
 		}
 		

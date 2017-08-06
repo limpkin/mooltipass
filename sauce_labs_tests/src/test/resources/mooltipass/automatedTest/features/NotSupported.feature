@@ -26,3 +26,12 @@ Then I should be logged in airBnB
 When I logout airBnB
 And I go to airBnB login page
 Then I should be logged in airBnB
+
+@notsupported
+Scenario: Testing Turkish airlines
+Given I navigate to 'https://p.turkishairlines.com/'
+When I login turkish airlines with '441928383'
+Then I should be logged in turkish airlines
+When I logout turkish airlines
+And I go to turkish airlines login page
+Then I should be logged in turkish airlines

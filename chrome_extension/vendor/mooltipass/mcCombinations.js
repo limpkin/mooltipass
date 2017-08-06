@@ -438,7 +438,7 @@ mcCombinations.prototype.possibleCombinations = [
 				mapsTo: 'username'
 			},
 			{
-				selector: 'input[type=password]',
+				selector: 'input[type=password], input[type=text].DocControlPassword',
 				mapsTo: 'password'
 			},
 		],
@@ -1348,7 +1348,9 @@ mcCombinations.prototype.postDetected = function( details ) {
 							if ( sent.data && !sent.formData ) sent.formData = sent.data;
 
 							if ( sent.formData ) { // Form sent FORM DATA
-								usernameValue = sent.formData[ currentCombination.fields.username.attr( attrUsername ) ];
+								usernameValue = sent.formData[
+									currentCombination.fields.username && currentCombination.fields.username.attr( attrUsername )
+								];
 							} else { // Client sent a RAW request.
 								usernameValue = sent[ currentCombination.fields.username.attr( attrUsername ) ];
 							}	

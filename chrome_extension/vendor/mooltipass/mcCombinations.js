@@ -434,7 +434,7 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Login Form mixed with Registration Form (ie: showroomprive.com)',
 		requiredFields: [
 			{
-				selector: 'input[type=email]',
+				selector: 'input[type=email], input[type=text]',
 				mapsTo: 'username'
 			},
 			{

@@ -1187,6 +1187,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/lostlogin/i,
 		/showpassword/i,
 		/remember_login/i,
+		/sign up/i,
 		/id=".*?search.*?"/i,
 		/id="btnLoadMoreProducts"/i,
 		/id="loginLink"/i,
@@ -1214,11 +1215,11 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		
 		var buttons = form.find(selector).filter(function(index, button) {
 			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
-				if (mpJQ(button).clone().empty()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
+				if (mpJQ(button).clone().children().remove().end()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
 			}
 			
 			for (var i = 0; i < ACCEPT_PATTERNS.length; i++) {
-				if (mpJQ(button).clone().empty()[0].outerHTML.match(ACCEPT_PATTERNS[i])) return true
+				if (mpJQ(button).clone().children().remove().end()[0].outerHTML.match(ACCEPT_PATTERNS[i])) return true
 			}
 		})
 		

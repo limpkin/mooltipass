@@ -631,7 +631,7 @@ cipFields.getHashForVisibleFields = function(fields) {
 		if( mpJQ(this).hasClass('mooltipass-hash-ignore') ) {
 			continue;
 		}
-		hash += fields[i].data('mp-id');
+		hash += fields[i].attr('type') + fields[i].data('mp-id');
 	};
 
 	return hash;

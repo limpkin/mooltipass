@@ -15,7 +15,7 @@ function messaging( message ) {
 // contains already called method names
 var _called = {};
 
-var content_debug_msg = (window.chrome && chrome.runtime && !('update_url' in chrome.runtime.getManifest()))? 55 : false;;
+var content_debug_msg = (chrome.runtime && !('update_url' in chrome.runtime.getManifest()))? 55 : false;;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -631,7 +631,7 @@ cipFields.getHashForVisibleFields = function(fields) {
 		if( mpJQ(this).hasClass('mooltipass-hash-ignore') ) {
 			continue;
 		}
-		hash += fields[i].data('mp-id');
+		hash += fields[i].attr('type') + fields[i].data('mp-id');
 	};
 
 	return hash;

@@ -434,11 +434,11 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Login Form mixed with Registration Form (ie: showroomprive.com)',
 		requiredFields: [
 			{
-				selector: 'input[type=email]',
+				selector: 'input[type=email], input[type=text]',
 				mapsTo: 'username'
 			},
 			{
-				selector: 'input[type=password]',
+				selector: 'input[type=password], input[type=text].DocControlPassword',
 				mapsTo: 'password'
 			},
 		],
@@ -1187,6 +1187,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/lostlogin/i,
 		/showpassword/i,
 		/remember_login/i,
+		/sign up/i,
 		/id=".*?search.*?"/i,
 		/id="btnLoadMoreProducts"/i,
 		/id="loginLink"/i,
@@ -1214,11 +1215,11 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		
 		var buttons = form.find(selector).filter(function(index, button) {
 			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
-				if (mpJQ(button).clone().empty()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
+				if (mpJQ(button).clone().children().remove().end()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
 			}
 			
 			for (var i = 0; i < ACCEPT_PATTERNS.length; i++) {
-				if (mpJQ(button).clone().empty()[0].outerHTML.match(ACCEPT_PATTERNS[i])) return true
+				if (mpJQ(button).clone().children().remove().end()[0].outerHTML.match(ACCEPT_PATTERNS[i])) return true
 			}
 		})
 		
@@ -1347,7 +1348,9 @@ mcCombinations.prototype.postDetected = function( details ) {
 							if ( sent.data && !sent.formData ) sent.formData = sent.data;
 
 							if ( sent.formData ) { // Form sent FORM DATA
-								usernameValue = sent.formData[ currentCombination.fields.username.attr( attrUsername ) ];
+								usernameValue = sent.formData[
+									currentCombination.fields.username && currentCombination.fields.username.attr( attrUsername )
+								];
 							} else { // Client sent a RAW request.
 								usernameValue = sent[ currentCombination.fields.username.attr( attrUsername ) ];
 							}	

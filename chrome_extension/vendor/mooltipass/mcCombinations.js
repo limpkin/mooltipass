@@ -869,8 +869,9 @@ mcCombinations.prototype.getAllForms = function() {
 	mpJQ( this.inputQueryPattern ).each( function( index, field ) {
 		field = mpJQ( field );
 
-		// Ignore our field(s)
-		if( field.attr('id') == 'mooltipass-password-generator') {
+		// Ignore our fields and search fields.
+		if (field.attr('id') == 'mooltipass-password-generator' ||
+				field.clone().children().remove().end()[0].outerHTML.match(/search/i)) {
 			return;
 		}
 		

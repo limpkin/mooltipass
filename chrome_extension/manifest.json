@@ -45,7 +45,7 @@
         "vendor/mooltipass/mcCombinations.js",
         "mooltipass-content.js"
       ],
-      "css": ["vendor/bootstrap-btn.css", "mooltipass-content.css"],
+      "css": ["mooltipass-content.css"],
       "run_at": "document_idle",
       "all_frames": true
     }

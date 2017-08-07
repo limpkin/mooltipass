@@ -8,7 +8,7 @@ httpAuth.onSubmit = function(credentials) {
 
 httpAuth.handleRequest = function(details, callback) {
     // Cancel requests which are initiated not from tabs.
-    if (!page.tabs[details.tabId]) {
+    if (details.tabId == -1) {
       if (!isFirefox) {
         callback({ cancel: true })
         return

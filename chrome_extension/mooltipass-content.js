@@ -128,10 +128,12 @@ cipPassword.generatePasswordFromSettings = function( passwordSettings ) {
 } 
 
 cipPassword.createIcon = function(field) {
+	var ICON_SELECTOR = '.mp-ui-password-dialog-toggle';
+	
 	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c createIcon','background-color: #ff8e1b','color: #333333', field);
 
 	// Check if there are other icons in the page
-	var currentIcons = mpJQ('.mp-genpw-icon');
+	var currentIcons = mpJQ(ICON_SELECTOR);
 	var iconIndex = currentIcons.length;
 	if ( iconIndex > 0 ) {
 		for ( var I = 0; I < iconIndex; I++ ) {
@@ -167,7 +169,10 @@ cipPassword.createIcon = function(field) {
 	}
 	$zIndex += 1;
 
-	var $icon = mpJQ("<div>").addClass("mp-genpw-icon")
+	var iframe = document.createElement('iframe');
+	iframe.src = chrome.extension.getURL('ui/password-dialog-toggle/password-dialog-toggle.html');
+	
+	var $icon = $(iframe).addClass(ICON_SELECTOR.slice(1))
 		.addClass($className)
 		.css("z-index", $zIndex)
 		.data("size", $size)

@@ -1047,3 +1047,13 @@ input.mp-popup-http-auth__input:focus {
 .mp-popup-http-auth__notice span {
 	font-weight: bold;
 }
+
+iframe {
+	border: 0;
+}
+
+.mp-ui-password-dialog-toggle {
+	position: fixed;
+	width: 24px;
+	height: 24px;
+}

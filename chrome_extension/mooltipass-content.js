@@ -1858,8 +1858,8 @@ var mpDialog = {
 			this.create( this.inputs, this.$pwField );
 		}
 
-		var posX = target.offset().left + target.width() + 20;
-		var posY = target.offset().top + target.height() / 2 - 20;
+		var posX = target.offset().left - $(window).scrollLeft() + target.width() + 20;
+		var posY = target.offset().top - $(window).scrollTop() + target.height() / 2 - 20;
 
 		this.dialog.find('.mp-genpw-overlay').on('click.mooltipass', function( e ) {
 			if ( mpJQ(e.target).hasClass('mp-genpw-overlay') ) this.hide();

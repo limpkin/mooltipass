@@ -530,6 +530,16 @@ mooltipassEvent.onHttpAuthSubmit = function(callback, tab, credentials) {
 	httpAuth.onSubmit(credentials)
 }
 
+/*
+ * Recreate action based on arguments. Used for tab and iframe communication.
+ */
+mooltipassEvent.createAction = function(callback, tab, data) {
+	messaging({
+		action: data.action,
+		args: data.args
+	}, tab)
+}
+
 // all methods named in this object have to be declared BEFORE this!
 mooltipassEvent.messageHandlers = {
 	'update': mooltipassEvent.onUpdate,
@@ -556,11 +566,12 @@ mooltipassEvent.messageHandlers = {
 	'stack_add': browserAction.stackAdd,
 	'http_auth_submit': mooltipassEvent.onHttpAuthSubmit,
 	'generate_password': mooltipass.device.generatePassword,
-    'set_current_tab': page.setCurrentTab,
-    'cache_login': page.cacheLogin,
-    'cache_retrieve': page.cacheRetrieve,
-    'content_script_loaded': page.setAllLoaded,
-    'show_app': mooltipassEvent.showApp
+	'set_current_tab': page.setCurrentTab,
+	'cache_login': page.cacheLogin,
+	'cache_retrieve': page.cacheRetrieve,
+	'content_script_loaded': page.setAllLoaded,
+	'show_app': mooltipassEvent.showApp,
+	'create_action': mooltipassEvent.createAction
 };
 
 if (!isSafari) {

@@ -1002,8 +1002,8 @@ mcCombinations.prototype.setUniqueId = function( element ) {
  * Used to update value for fields handled by React.
  * https://github.com/vitalyq/react-trigger-change
  *
- * @param  node {DOM node}
- * @param  value {String}
+ * @param node {DOM node}
+ * @param value {String}
  * @return undefined
  */
 mcCombinations.prototype.triggerChangeEvent = function(node, value) {
@@ -1167,8 +1167,8 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 /*
  * Detect submit button for the given form and field.
  *
- * @param  form {jQuery object}
- * @param  field {jQuery object}
+ * @param form {jQuery object}
+ * @param field {jQuery object}
  * @return submitButton {DOM node} or undefined
  */
  mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(form, field) {

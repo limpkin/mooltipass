@@ -15,7 +15,7 @@ function messaging( message ) {
 // contains already called method names
 var _called = {};
 
-var content_debug_msg = (chrome.runtime && !('update_url' in chrome.runtime.getManifest()))? 55 : false;;
+var content_debug_msg = ((window.chrome || isFirefox) && chrome.runtime && !('update_url' in chrome.runtime.getManifest()))? 55 : false;;
 
 var cipDebug = {};
 if (content_debug_msg) {
@@ -128,12 +128,13 @@ cipPassword.generatePasswordFromSettings = function( passwordSettings ) {
 } 
 
 cipPassword.createIcon = function(field) {
-	var ICON_SELECTOR = '.mp-ui-password-dialog-toggle';
+	var PREFIX = 'mp-ui-password-dialog-toggle',
+			SELECTOR = '.' + PREFIX;
 	
 	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c createIcon','background-color: #ff8e1b','color: #333333', field);
 
 	// Check if there are other icons in the page
-	var currentIcons = mpJQ(ICON_SELECTOR);
+	var currentIcons = mpJQ(SELECTOR);
 	var iconIndex = currentIcons.length;
 	if ( iconIndex > 0 ) {
 		for ( var I = 0; I < iconIndex; I++ ) {
@@ -143,7 +144,9 @@ cipPassword.createIcon = function(field) {
 		}
 	}
 
-	var $className = (field.outerHeight() > 28) ? "mp-icon-key-big" : "mp-icon-key-small";
+	var $className = (field.outerHeight() > 28)
+			? PREFIX + '__big'
+			: PREFIX + '__small';
 	var $size = (field.outerHeight() > 28) ? 24 : 16;
 	var $offset = Math.floor((field.outerHeight() - $size) / 3);
 	$offset = ($offset < 0) ? 0 : $offset;
@@ -170,9 +173,15 @@ cipPassword.createIcon = function(field) {
 	$zIndex += 1;
 
 	var iframe = document.createElement('iframe');
-	iframe.src = chrome.extension.getURL('ui/password-dialog-toggle/password-dialog-toggle.html');
+	iframe.src = chrome.extension.getURL('ui/password-dialog-toggle/password-dialog-toggle.html') + '?' +
+		encodeURIComponent(JSON.stringify({
+			type: $size == 16 ? 'small' : 'big',
+			iconId: PREFIX + '-' + field.data('mp-id')
+		}));
 	
-	var $icon = $(iframe).addClass(ICON_SELECTOR.slice(1))
+	var $icon = $(iframe)
+		.attr('id', PREFIX + '-' + field.data('mp-id'))
+		.addClass(PREFIX)
 		.addClass($className)
 		.css("z-index", $zIndex)
 		.data("size", $size)
@@ -182,44 +191,41 @@ cipPassword.createIcon = function(field) {
 
 	cipPassword.setIconPosition($icon, field);
 
-	$icon.click(function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-
-		// Use event target for cases when there are more than 1 password in the screen
-		var field = $(e.target);
-		if(!field.is(":visible")) {
-			$icon.remove();
-			field.removeData("mp-password-generator");
-			return;
-		}
-
-		mpDialog.toggle( e );
-
-		// Check if the current form has a combination associated to it
-		var fieldID = mpJQ(e.target).data('mp-genpw-field-id');
-
-		var associatedInput = mpJQ('#' + fieldID + ',input[data-mp-id=' + fieldID + ']' );
-		var containerForm = associatedInput.closest('form');
-		var comb = false;
-
-		// Search for combination departing from FORM (probably refactor to be a sole function in mcCombs)
-		if ( containerForm.length == 0 ) comb = mcCombs.forms.noform.combination;
-		else {
-			for (form in mcCombs.forms) {
-				if ( form === containerForm.prop('id') || form === containerForm.data('mp-id') ) { // Match found
-					comb = mcCombs.forms[form].combination;
-				}
-			}
-		}
-		if ( comb && comb.isPasswordOnly ) mpDialog.showLoginArea();
-	});
-
 	cipPassword.observedIcons.push($icon);
 
 	// TODO: Move icons to the field area instead of the body
 	// $icon.insertAfter( field ); 
 	mpJQ("body").append($icon);
+}
+
+cipPassword.onIconClick = function(iconId) {
+	target = $('#' + iconId)
+	
+	if(!target.is(":visible")) {
+		$icon.remove();
+		target.removeData("mp-password-generator");
+		return;
+	}
+
+	mpDialog.toggle(target);
+
+	// Check if the current form has a combination associated to it
+	var fieldID = target.data('mp-genpw-field-id');
+
+	var associatedInput = mpJQ('#' + fieldID + ',input[data-mp-id=' + fieldID + ']' );
+	var containerForm = associatedInput.closest('form');
+	var comb = false;
+
+	// Search for combination departing from FORM (probably refactor to be a sole function in mcCombs)
+	if ( containerForm.length == 0 ) comb = mcCombs.forms.noform.combination;
+	else {
+		for (form in mcCombs.forms) {
+			if ( form === containerForm.prop('id') || form === containerForm.data('mp-id') ) { // Match found
+				comb = mcCombs.forms[form].combination;
+			}
+		}
+	}
+	if ( comb && comb.isPasswordOnly ) mpDialog.showLoginArea();
 }
 
 cipPassword.setIconPosition = function($icon, $field) {
@@ -1716,6 +1722,9 @@ cipEvents.startEventHandling = function() {
 			else if (req.action == "captcha_detected") {
 				cip.formHasCaptcha = true;
 			}
+			else if (req.action == "password_dialog_toggle_click") {
+				cipPassword.onIconClick(req.args.iconId)
+			}
 		}
 	};
 
@@ -1823,9 +1832,9 @@ var mpDialog = {
 	$pwField: false,
 	inputs: false,
 	created: false,
-	toggle: function( event ) {
+	toggle: function(target) {
 		if ( this.shown ) this.hide();
-		else this.show( event );
+		else this.show(target);
 	},
 	precreate: function( inputs, $pwField ) {
 		this.inputs = inputs;
@@ -1844,13 +1853,13 @@ var mpDialog = {
 		this.dialog.find('.mp-first').removeClass('mp-first');
 		this.dialog.find('.login-area').addClass('mp-first').show();
 	},
-	show: function( event ) {
+	show: function(target) {
 		if ( !this.created ) {
 			this.create( this.inputs, this.$pwField );
 		}
 
-		var posX = event.clientX + 20;
-		var posY = event.clientY - 20;
+		var posX = target.offset().left + target.width() + 20;
+		var posY = target.offset().top + target.height() / 2 - 20;
 
 		this.dialog.find('.mp-genpw-overlay').on('click.mooltipass', function( e ) {
 			if ( mpJQ(e.target).hasClass('mp-genpw-overlay') ) this.hide();

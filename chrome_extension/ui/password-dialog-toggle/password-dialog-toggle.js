@@ -13,7 +13,6 @@ $(function() {
 	
 	$('.icon').addClass('icon__' + data.type)
 	$('.icon').on('click', function() {
-		console.log('sending create_action')
 		messaging({
 			action: 'create_action',
 			args: [{

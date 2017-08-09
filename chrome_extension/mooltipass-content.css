@@ -734,181 +734,6 @@ input.mp-hover-password {
 }
 
 
-/* Dialog */
-
-.mp-genpw-dialog {
-    display: none;
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-         -o-user-select: none;
-            user-select: none;
-}
-
-.mp-genpw-overlay {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background: rgba(33,33,33,0.3);
-    z-index: 2147483647 !important;
-}
-
-.mp-genpw-dialog .mooltipass-box {
-    position: fixed;
-    background-color: rgba(255, 255, 255, 1);
-    border: 1px solid rgb(30,30,30);
-    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
-    font-size: 11px;
-    padding: 0px 6px 12px 6px;
-    width: 290px;
-    margin: 0px;
-    box-sizing: border-box;
-    border-radius: 2px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15);
-    z-index: 2147483647 !important;
-    color: black;
-    text-align: left;
-}
-
-.mp-genpw-dialog .mp-triangle-out {
-    position: absolute;
-    border-width: 10px;
-    border-style: solid;
-    border-color: transparent rgb(30,30,30) transparent transparent;
-    top: 8px;
-    left: -20px;
-}
-
-.mp-genpw-dialog .mp-triangle-in {
-    position: absolute;
-    border-width: 10px;
-    border-style: solid;
-    border-color: transparent white transparent transparent;
-    top: 8px;
-    left: -19px;
-}
-
-.mp-genpw-dialog .inverted-triangle .mp-triangle-out {
-    left: auto;
-    border-color: transparent transparent transparent rgb(30,30,30);
-    right: -20px;
-}
-
-.mp-genpw-dialog .inverted-triangle .mp-triangle-in {
-    left: auto;
-    border-color: transparent transparent transparent white;
-    right: -19px;
-}
-
-.mp-genpw-dialog .mp-area {
-    margin-top: 10px;
-}
-
-.mp-genpw-dialog .mp-area.mp-first {
-    margin-top: 0px;
-} 
-
-.mp-genpw-dialog .mp-title {
-    background: linear-gradient(to right, rgba(125,185,232,0) 0%, rgba(30,87,153,0.5) 100%);
-    margin: 0px -6px 7px -12px;
-    padding: 7px 7px 7px 15px;
-}
-
-.mp-genpw-dialog .inverted-triangle .mp-title {
-    background: linear-gradient(to right, rgba(30,87,153,0.5) 0%, rgba(125,185,232,0) 100%);
-    margin: 0px -6px 7px -6px;
-}
-
-.mp-genpw-dialog .mp-encloser {
-    text-align: center;
-}
-
-.mp-genpw-dialog .mooltipass-select-custom,
-.mp-genpw-dialog .mooltipass-new-password {
-    display: inline-block;
-    cursor: pointer;
-    vertical-align: top;
-}
-
-.mp-genpw-dialog .mooltipass-password-generator {
-    -webkit-appearance: none !important;
-    -webkit-rtl-ordering: logical !important;
-    -webkit-user-select: text !important;
-    background-color: rgb(255, 255, 255) !important;
-    border-bottom-color: rgb(221, 221, 221) !important;
-    border-bottom-left-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
-    border-bottom-style: solid !important;
-    border-bottom-width: 1px !important;
-    border-image-outset: 0px !important;
-    border-image-repeat: stretch !important;
-    border-image-slice: 100% !important;
-    border-image-source: none !important;
-    border-image-width: 1 !important;
-    border-left-color: rgb(221, 221, 221) !important;
-    border-left-style: solid !important;
-    border-left-width: 1px !important;
-    border-right-color: rgb(221, 221, 221) !important;
-    border-right-style: solid !important;
-    border-right-width: 1px !important;
-    border-top-color: rgb(221, 221, 221) !important;
-    border-top-left-radius: 0px !important;
-    border-top-right-radius: 0px !important;
-    border-top-style: solid !important;
-    border-top-width: 1px !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    color: rgb(68, 68, 68) !important;
-    cursor: auto !important;
-    display: inline-block !important;
-    font-family: Verdana, Arial, Helvetica, sans-serif !important;
-    font-size: 12px !important;
-    font-stretch: normal !important;
-    font-style: normal !important;
-    font-variant: normal !important;
-    font-weight: normal !important;
-    height: 27px !important;
-    letter-spacing: normal !important;
-    line-height: normal !important;
-    list-style-type: none !important;
-    margin-bottom: 10px !important;
-    margin-left: 0px !important;
-    margin-right: 12px !important;
-    margin-top: 0px !important;
-    min-height: 24px !important;
-    outline-color: rgb(68, 68, 68) !important;
-    outline-style: none !important;
-    outline-width: 0px !important;
-    padding-bottom: 5px !important;
-    padding-left: 5px !important;
-    padding-right: 5px !important;
-    padding-top: 5px !important;
-    text-align: start !important;
-    text-indent: 0px !important;
-    text-rendering: auto !important;
-    text-shadow: none !important;
-    text-transform: none !important;
-    vertical-align: middle !important;
-    width: 60% !important;
-    word-spacing: 0px !important;
-    writing-mode: lr-tb !important;
-    -webkit-writing-mode: horizontal-tb !important;
-}
-
-.mp-genpw-dialog .mp-bottom-button {
-    vertical-align: top !important;
-    width: 132px !important;
-    margin: 0px 5px 0px 0px !important;
-    box-sizing: border-box !important;
-    height: 40px !important;    
-}
-
-.mp-genpw-dialog .login-area {
-    display: none;
-}
-
 /* HTTP Auth popup */
 
 .mp-popup-http-auth {
@@ -1052,8 +877,14 @@ iframe {
 	border: 0;
 }
 
+/* ui-password-dialog-toggle */
 .mp-ui-password-dialog-toggle {
 	position: absolute;
+}
+
+.mp-ui-password-dialog-toggle__small {
+	width: 16px;
+	height: 16px;
 }
 
 .mp-ui-password-dialog-toggle__big {
@@ -1061,7 +892,14 @@ iframe {
 	height: 24px;
 }
 
-.mp-ui-password-dialog-toggle__small {
-	width: 16px;
-	height: 16px;
+/* ui-password-dialog */
+.mp-ui-password-dialog {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 9999;
 }

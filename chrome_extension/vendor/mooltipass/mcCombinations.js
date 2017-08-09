@@ -649,14 +649,14 @@ mcCombinations.prototype.detectCombination = function() {
 							
 						mpJQ(submitButton)
 							.unbind('click.mooltipass')
-							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
+							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element[0] }))
 							
 						mpJQ()
 							.add(currentForm.combination.fields.username)
 							.add(currentForm.combination.fields.password)
 							.unbind('keydown.mooltipass')
 							.on('keydown.mooltipass', function(event) {
-								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
+								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element[0] }) }
 							}.bind(this))
 					}
 				}
@@ -829,14 +829,14 @@ mcCombinations.prototype.detectForms = function() {
 				
 			mpJQ(submitButton)
 				.unbind('click.mooltipass')
-				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
+				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element[0] }))
 				
 			mpJQ()
 				.add(currentForm.combination.fields.username)
 				.add(currentForm.combination.fields.password)
 				.unbind('keydown.mooltipass')
 				.on('keydown.mooltipass', function(event) {
-					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
+					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element[0] }) }
 				}.bind(this))
 		}
 	}

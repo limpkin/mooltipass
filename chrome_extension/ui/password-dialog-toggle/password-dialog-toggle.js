@@ -8,9 +8,9 @@
  * @param target {jQuery object} iFrame element
  */
 
+window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
+
 $(function() {
-	var data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
-	
 	$('.icon').addClass('icon__' + data.type)
 	$('.icon').on('click', function() {
 		messaging({

@@ -63,88 +63,6 @@
 	margin-right: 5px;
 }
 
-.mp-bt-modal-backdrop {
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	z-index: 2147483645;
-}
-.mp-bt-modal-backdrop:after {
-	content:'';
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background-color: #000000;
-	opacity: 0.8;
-	filter: alpha(opacity=80);
-}
-#mp-bt-cipDefine-fields {
-	z-index: 2147483646;
-}
-#mp-bt-cipDefine-description {
-	z-index: 2147483646;
-	color: #efefef;
-	border: 2px solid #555555;
-	padding: 7px 5px;
-	position: absolute;
-	top: 100px;
-	left: 150px;
-	text-align: left;
-	cursor: pointer;
-	background-color:rgba(255,255,255,0.3);
-	font-size: 15px;
-}
-#mp-bt-cipDefine-description div:first-of-type {
-	margin-top: 0;
-	padding-top: 0;
-	text-align: left;
-	color: #efefef;
-	padding-bottom: 8px;
-	font-weight: bold;
-	font-size: 160%;
-}
-#mp-bt-cipDefine-description p {
-    background: #FFA500 !important;
-    color: #FFF !important;
-    font-size: 12px !important;
-    padding: 6px 12px !important;    
-}
-#mp-bt-help {
-	margin-bottom: 3px;
-}
-.mp-bt-fixed-field {
-	position: absolute;
-	border: 2px solid #efefef;
-	cursor: pointer;
-	z-index: 2147483646;
-	text-align: left;
-	font-weight: bold;
-	background-color:rgba(239,239,239,0.4);
-}
-.mp-bt-fixed-hover-field {
-	border: 2px solid orange;
-	background-color:rgba(255,165,239,0.4);
-}
-.mp-bt-fixed-password-field {
-	border: 2px solid red;
-	color: #efefef;
-	background-color:rgba(255,0,0,0.4);
-}
-.mp-bt-fixed-username-field {
-	border: 2px solid limegreen;
-	color: #efefef;
-	background-color:rgba(50,205,50,0.4);
-}
-.mp-bt-fixed-string-field {
-	border: 2px solid deepskyblue;
-	color: #efefef;
-	background-color:rgba(30,144,255,0.4);
-}
-
 #mooltipass-login-info { }
 
 #mooltipass-password-generator, #mooltipass-username {
@@ -256,21 +174,6 @@
   padding: 3px;
   outline: none;
   padding-bottom: 4px;	
-}
-
-div#mp-bt-cipDefine-description {
-    background: #FFF !important;
-    border: none !important;
-    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 1px !important;   
-    padding: 0 !important; 
-}
-
-.mp-bt-chooser-headline {
-    color: #000 !important;
-    font-size: 12px !important;
-    padding: 6px 12px !important;
-    border-bottom: 1px solid #DDD !important;
-    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
 }
 
 div#mp-bt-buttonWrap {
@@ -894,6 +797,18 @@ iframe {
 
 /* ui-password-dialog */
 .mp-ui-password-dialog {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 9999;
+}
+
+/* ui-custom-credentials-selection */
+.mp-ui-custom-credentials-selection {
 	position: fixed;
 	top: 0;
 	right: 0;

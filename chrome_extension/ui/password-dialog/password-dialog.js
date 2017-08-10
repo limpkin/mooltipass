@@ -9,10 +9,10 @@
  *
  * @param *** {***}
  */
+ 
+window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
 
 $(function() {
-	var data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
-	
 	startEventHandling()
 	onShow(data)
 	$('#mooltipass-username').val(data.login);

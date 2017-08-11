@@ -242,7 +242,6 @@ mcCombinations.prototype = ( function() {
 		forms: {
 			noform: { fields: [] }
 		},
-		uniqueNumber: 342845638,
 		settings: {
 			debugLevel: 0,
 			postDetectionFeature: true
@@ -1000,10 +999,8 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 			element.attr("data-mp-id", elementId);
 			return;
 		} else {
-			// create own ID if no ID is set for this field
-			this.uniqueNumber += 1;
-			console.error('setting unique id to', element, this.uniqueNumber)
-			element.attr( "data-mp-id", "mpJQ" + String( this.uniqueNumber ) );
+			cipFields.uniqueNumber += 1;
+			element.attr( "data-mp-id", "mpJQ" + String( cipFields.uniqueNumber ) );
 		}
 	}
 }

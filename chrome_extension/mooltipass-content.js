@@ -207,8 +207,6 @@ cipPassword.onIconClick = function(iconId) {
 		return;
 	}
 
-	mpDialog.toggle(target);
-
 	// Check if the current form has a combination associated to it
 	var fieldID = target.data('mp-genpw-field-id');
 
@@ -225,7 +223,8 @@ cipPassword.onIconClick = function(iconId) {
 			}
 		}
 	}
-	if ( comb && comb.isPasswordOnly ) mpDialog.showLoginArea();
+	
+	mpDialog.toggle(target, comb && comb.isPasswordOnly);
 }
 
 cipPassword.setIconPosition = function($icon, $field) {
@@ -301,17 +300,65 @@ cipPassword.checkObservedElements = function() {
 }
 
 cipDefine = {
-	selection: {}
+	selection: {
+		username: null,
+		password: null,
+		fields: {}
+	}
 }
 
 cipDefine.show = function() {
 	var iframe = document.createElement('iframe');
 	iframe.src = chrome.extension.getURL('ui/custom-credentials-selection/custom-credentials-selection.html') + '?' +
 		encodeURIComponent(JSON.stringify({
-			settings: cip.settings
+			settings: cip.settings,
+			origin: document.location.origin
 		}));
 	$(iframe).addClass('mp-ui-custom-credentials-selection')
 	mpJQ("body").append(iframe);
+}
+
+cipDefine.hide = function() {
+	$('.mp-ui-custom-credentials-selection').remove()
+}
+
+cipDefine.isFieldSelected = function($cipId) {
+	return (
+		$cipId == cipDefine.selection.username ||
+		$cipId == cipDefine.selection.password ||
+		$cipId in cipDefine.selection.fields
+	);
+}
+
+cipDefine.retrieveMarkFields = function(pattern) {
+	var fields = []
+	
+	mpJQ(pattern).each(function() {
+		if(cipDefine.isFieldSelected(mpJQ(this).data("mp-id"))) {
+			//continue
+			return true;
+		}
+
+		if(mpJQ(this).is(":visible") && mpJQ(this).css("visibility") != "hidden" && mpJQ(this).css("visibility") != "collapsed") {
+			fields.push({
+				top: mpJQ(this).offset().top,
+				left: mpJQ(this).offset().left,
+				width: mpJQ(this).outerWidth(),
+				height: mpJQ(this).outerHeight(),
+				id: mpJQ(this).attr("data-mp-id")
+			})
+		}
+	});
+	
+	messaging({
+		action: 'create_action',
+		args: [{
+			action: 'custom_credentials_selection_mark_fields_data',
+			args: {
+				fields: fields
+			}
+		}]
+	});
 }
 
 cipFields = {}
@@ -532,7 +579,7 @@ cipFields.getUsernameField = function(passwordId, checkDisabled) {
 	}
 
 	if ( cipDefine.selection && cipDefine.selection.username !== null ) {
-		return mpJQ('#' + cipDefine.selection.username);
+		return _f(cipDefine.selection.username);
 	}
 
 	var form = passwordField.closest("form")[0];
@@ -599,7 +646,7 @@ cipFields.getPasswordField = function(usernameId, checkDisabled) {
 	}
 
 	if ( cipDefine.selection && cipDefine.selection.password !== null ) {
-		return mpJQ('#' + cipDefine.selection.password);
+		return _f(cipDefine.selection.password);
 	}
 
 	var form = usernameField.closest("form")[0];
@@ -1402,6 +1449,11 @@ cipEvents.startEventHandling = function() {
 			case 'response-content_script_loaded':
 				mcCombs.init( function() {
 					cip.settings = mcCombs.settings;
+					
+					var definedCredentialFields = cip.settings["defined-credential-fields"][document.location.origin]
+					cipDefine.selection.username = definedCredentialFields ? definedCredentialFields.username : null
+					cipDefine.selection.password = definedCredentialFields ? definedCredentialFields.password : null
+					cipDefine.selection.fields = definedCredentialFields ? definedCredentialFields.fields : null
 				});
 				break;
 			case 'response-get_settings':
@@ -1510,6 +1562,28 @@ cipEvents.startEventHandling = function() {
 			else if (req.action == "password_dialog_custom_credentials_selection") {
 				mpDialog.onCustomCredentialsSelection()
 			}
+			else if (req.action == "custom_credentials_selection_hide") {
+				cipDefine.hide()
+			}
+			else if (req.action == "custom_credentials_selection_request_mark_fields_data") {
+				cipDefine.retrieveMarkFields(req.args.pattern)
+			}
+			else if (req.action == "custom_credentials_selection_selected") {
+				cipDefine.selection = {
+					username: req.args.username || cipDefine.selection.username,
+					password: req.args.password || cipDefine.selection.password,
+					fields: req.args.fields || cipDefine.selection.fields
+				}
+				
+				cip.settings["defined-credential-fields"][document.location.origin] =
+					cip.settings["defined-credential-fields"][document.location.origin] ||
+					{}
+					
+				var definedCredentialFields = cip.settings["defined-credential-fields"][document.location.origin]
+				definedCredentialFields.username = req.args.username || definedCredentialFields.username
+				definedCredentialFields.password = req.args.password || definedCredentialFields.password
+				definedCredentialFields.fields = req.args.fieldsIds || definedCredentialFields.fields
+			}
 		}
 	};
 
@@ -1617,16 +1691,16 @@ var mpDialog = {
 	$pwField: false,
 	inputs: false,
 	created: false,
-	toggle: function(target) {
+	toggle: function(target, isPasswordOnly) {
 		if ( this.shown ) this.hide();
-		else this.show(target);
+		else this.show(target, isPasswordOnly);
 	},
 	precreate: function( inputs, $pwField ) {
 		this.inputs = inputs;
 		this.$pwField = $pwField;
 	},
 	
-	create: function(target) {
+	create: function(target, isPasswordOnly) {
 		var iframe = document.createElement('iframe');
 		iframe.src = chrome.extension.getURL('ui/password-dialog/password-dialog.html') + '?' +
 			encodeURIComponent(JSON.stringify({
@@ -1634,7 +1708,8 @@ var mpDialog = {
 							 ? mcCombs.credentialsCache[0].Login
 							 : null,
 				offsetLeft: target.offset().left - $(window).scrollLeft() + target.width() + 20,
-				offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20
+				offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
+				isPasswordOnly: isPasswordOnly
 			}));
 			
 		$(iframe).addClass('mp-ui-password-dialog')
@@ -1644,13 +1719,9 @@ var mpDialog = {
 		this.created = true
 	},
 	
-	showLoginArea: function() {
-		this.dialog.find('.mp-first').removeClass('mp-first');
-		this.dialog.find('.login-area').addClass('mp-first').show();
-	},
-	show: function(target) {
+	show: function(target, isPasswordOnly) {
 		if (!this.created) {
-			this.create(target);
+			this.create(target, isPasswordOnly);
 		}
 		
 		messaging({
@@ -1659,7 +1730,8 @@ var mpDialog = {
 				action: 'password_dialog_show',
 				args: {
 					offsetLeft: target.offset().left - $(window).scrollLeft() + target.width() + 20,
-					offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20
+					offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
+					isPasswordOnly: isPasswordOnly
 				}
 			}]
 		});
@@ -1673,7 +1745,7 @@ var mpDialog = {
 	
 	onHighlightFields: function(highlight) {
 		if (highlight) {
-			if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
+			if ( cipDefine.selection.password ) this.$pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
 			$userField = cipFields.getUsernameField( this.$pwField.data("mp-id") );
 			
 			if ( $userField ) $userField.addClass("mp-hover-username");

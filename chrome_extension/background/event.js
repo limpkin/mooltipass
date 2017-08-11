@@ -104,10 +104,6 @@ mooltipassEvent.onLoadSettings = function(callback, tab) {
     mooltipass.backend.loadSettings();
 }
 
-mooltipassEvent.onLoadKeyRing = function(callback, tab) {
-    //TODO: Gaston: I think this can be removed
-}
-
 mooltipassEvent.onGetSettings = function(callback, tab) {
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onGetSettings','background-color: #e2eef9','color: #246', tab);
 	mooltipassEvent.onLoadSettings();
@@ -552,7 +548,6 @@ mooltipassEvent.messageHandlers = {
 	'get_settings': mooltipassEvent.onGetSettings,
 	'get_status': mooltipassEvent.onGetStatus,
 	'get_tab_information': mooltipassEvent.onGetTabInformation,
-	'load_keyring': mooltipassEvent.onLoadKeyRing,
 	'load_settings': mooltipassEvent.onLoadSettings,
 	'pop_stack': mooltipassEvent.onPopStack,
 	'popup_login': mooltipassEvent.onLoginPopup,

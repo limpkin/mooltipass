@@ -719,6 +719,17 @@ mcCombinations.prototype.detectForms = function() {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c detectTypeofForm','background-color: #c3c6b4','color: #333333');
 	var combinations = 0;
 	
+	// Check for custom fields.
+	var definedCredentialFields = this.settings["defined-credential-fields"][document.location.origin]
+	if (definedCredentialFields) {
+		this.forms['noform'].customFields = true
+		this.forms['noform'].fields = [
+			$('[data-mp-id=' + definedCredentialFields.username + ']'),
+			$('[data-mp-id=' + definedCredentialFields.password + ']')
+		]
+	}
+		
+	
 	// Traverse Forms
 	for( form in this.forms ) {
 		var currentForm = this.forms[ form ];
@@ -813,11 +824,10 @@ mcCombinations.prototype.detectForms = function() {
 			return matching;
 		}.bind(this));
 
-		if ( currentForm.combination.score < 100 ) {
+		if (currentForm.combination.score < 100 /*&& !currentForm.customFields*/) {
 			currentForm.combination = false;
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
 		} else {
-			
 			if ( currentForm.combination.preExtraFunction ) {
 				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
 				currentForm.combination.preExtraFunction( currentForm.combination.fields );
@@ -829,14 +839,14 @@ mcCombinations.prototype.detectForms = function() {
 				
 			mpJQ(submitButton)
 				.unbind('click.mooltipass')
-				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element[0] }))
+				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element && currentForm.element[0] }))
 				
 			mpJQ()
 				.add(currentForm.combination.fields.username)
 				.add(currentForm.combination.fields.password)
 				.unbind('keydown.mooltipass')
 				.on('keydown.mooltipass', function(event) {
-					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element[0] }) }
+					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element && currentForm.element[0] }) }
 				}.bind(this))
 		}
 	}
@@ -992,6 +1002,7 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 		} else {
 			// create own ID if no ID is set for this field
 			this.uniqueNumber += 1;
+			console.error('setting unique id to', element, this.uniqueNumber)
 			element.attr( "data-mp-id", "mpJQ" + String( this.uniqueNumber ) );
 		}
 	}

@@ -176,10 +176,6 @@
   padding-bottom: 4px;	
 }
 
-div#mp-bt-buttonWrap {
-    padding: 6px 12px !important;
-}
-
 .mooltipass-input:focus {
     -webkit-appearance: none !important;
     -webkit-rtl-ordering: logical !important;
@@ -804,7 +800,7 @@ iframe {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	z-index: 9999;
+	z-index: 2147483646;
 }
 
 /* ui-custom-credentials-selection */
@@ -816,5 +812,5 @@ iframe {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	z-index: 9999;
+	z-index: 2147483647;
 }

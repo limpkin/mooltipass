@@ -136,11 +136,16 @@ $(function() {
 		}
 
 		// Move dialog if exceeding bottom
-		var exceedingBottom = ( data.offsetTop + mpBox.innerHeight() ) - $(window.top).innerHeight();
+		var exceedingBottom = ( data.offsetTop + mpBox.innerHeight() ) - $(window).innerHeight();
 		if ( exceedingBottom > 0 ) mpBox.css({ top: mpBox.position().top - exceedingBottom + 'px' });
 
 		// Move Arrows to the right place
 		if ( exceedingBottom > 0 ) mpBox.find('.mp-triangle-in, .mp-triangle-out').css({ top: 8 + exceedingBottom + 'px' });
+    
+    if (data.isPasswordOnly) {
+  		mpBox.find('.mp-first').removeClass('mp-first');
+  		mpBox.find('.login-area').addClass('mp-first').show();
+    }
 		
 		$('.mp-genpw-dialog').show()
 	}

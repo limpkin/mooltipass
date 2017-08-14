@@ -719,7 +719,8 @@ mcCombinations.prototype.detectForms = function() {
 	var combinations = 0;
 	
 	// Check for custom fields.
-	var definedCredentialFields = this.settings["defined-credential-fields"][document.location.origin]
+	var definedCredentialFields =
+		this.settings["defined-credential-fields"] && this.settings["defined-credential-fields"][document.location.origin]
 	if (definedCredentialFields) {
 		this.forms['noform'].customFields = true
 		this.forms['noform'].fields = [

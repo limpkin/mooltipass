@@ -385,6 +385,12 @@ cipFields.setUniqueId = function(field) {
 		// create own ID if no ID is set for this field
 		cipFields.uniqueNumber += 1;
 		field.attr("data-mp-id", "mpJQ"+String(cipFields.uniqueNumber));
+
+		// Set unique id for form also.
+		containerForm = field.closest('form');
+		if (!containerForm.data('mp-id')) {
+			cipFields.setUniqueId(containerForm);
+		}
 	}
 }
 

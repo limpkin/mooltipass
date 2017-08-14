@@ -553,7 +553,6 @@ cipDefine.initDescription = function() {
 				}]
 			});
 			
-			debugger
 			messaging({
 				action: 'save_settings',
 				args: [data.settings]
@@ -620,7 +619,7 @@ cipDefine.markAllUsernameFields = function() {
 	});
 }
 
-cipDefine.markAllPasswordFields = function($chooser) {
+cipDefine.markAllPasswordFields = function() {
 	cipDefine.eventFieldClick = function(e) {
 		cipDefine.selection.password = mpJQ(this).data("mp-id");
 		messaging({
@@ -649,7 +648,7 @@ cipDefine.markAllPasswordFields = function($chooser) {
 	});
 }
 
-cipDefine.markAllStringFields = function($chooser) {
+cipDefine.markAllStringFields = function() {
 	cipDefine.eventFieldClick = function(e) {
 		cipDefine.selection.fields[mpJQ(this).data("mp-id")] = true;
 		var count = Object.keys(cipDefine.selection.fields).length;

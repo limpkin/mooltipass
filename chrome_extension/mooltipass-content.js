@@ -338,11 +338,6 @@ cipDefine.retrieveMarkFields = function(pattern) {
 	var fields = []
 	
 	mpJQ(pattern).each(function() {
-		if(cipDefine.isFieldSelected(mpJQ(this).data("mp-id"))) {
-			//continue
-			return true;
-		}
-
 		if(mpJQ(this).is(":visible") && mpJQ(this).css("visibility") != "hidden" && mpJQ(this).css("visibility") != "collapsed") {
 			fields.push({
 				top: mpJQ(this).offset().top,

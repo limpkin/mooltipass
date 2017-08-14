@@ -61,6 +61,10 @@ cipPassword.init = function() {
 	window.setInterval(function() {
 		cipPassword.checkObservedElements();
 	}, 400);
+	
+	$(window).on('resize', function() {
+		cipPassword.checkObservedElements();
+	})
 }
 
 cipPassword.initField = function(field, inputs, pos) {
@@ -148,7 +152,7 @@ cipPassword.createIcon = function(field) {
 			? PREFIX + '__big'
 			: PREFIX + '__small';
 	var $size = (field.outerHeight() > 28) ? 24 : 16;
-	var $offset = Math.floor((field.outerHeight() - $size) / 3);
+	var $offset = Math.floor((field.outerHeight() - $size) / 2);
 	$offset = ($offset < 0) ? 0 : $offset;
 
 	var $zIndex = 0;
@@ -190,12 +194,8 @@ cipPassword.createIcon = function(field) {
 		.data("mp-genpw-field-id", field.data("mp-id"));
 
 	cipPassword.setIconPosition($icon, field);
-
 	cipPassword.observedIcons.push($icon);
-
-	// TODO: Move icons to the field area instead of the body
-	// $icon.insertAfter( field ); 
-	mpJQ("body").append($icon);
+	$icon.insertAfter( field ); 
 }
 
 cipPassword.onIconClick = function(iconId) {
@@ -228,10 +228,15 @@ cipPassword.onIconClick = function(iconId) {
 }
 
 cipPassword.setIconPosition = function($icon, $field) {
-	// TODO: Move icons to the field area instead of the body
-	// $icon.css('left', $field.outerWidth() - $icon.data("size") );
-	$icon.css("top", $field.offset().top + $icon.data("offset") + 1)
-		.css("left", $field.offset().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset"))
+	// Get scroll offset of the relative container.
+	var $parent = $field.parent()
+	while (!$parent.is('body') && $parent.css('position') == 'static') $parent = $parent.parent()
+	scrollTop = $parent.scrollTop()
+	scrollLeft = $parent.scrollLeft()
+	
+	$icon
+		.css("top", $field.position().top + $icon.data("offset") + scrollTop)
+		.css("left", $field.position().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset") + scrollLeft)
 }
 
 cipPassword.callbackPasswordCopied = function(bool) {

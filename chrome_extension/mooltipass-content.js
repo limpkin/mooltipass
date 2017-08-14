@@ -202,8 +202,7 @@ cipPassword.onIconClick = function(iconId) {
 	target = $('#' + iconId)
 	
 	if(!target.is(":visible")) {
-		$icon.remove();
-		target.removeData("mp-password-generator");
+		target.remove();
 		return;
 	}
 
@@ -229,13 +228,13 @@ cipPassword.onIconClick = function(iconId) {
 
 cipPassword.setIconPosition = function($icon, $field) {
 	// Get scroll offset of the relative container.
-	var $parent = $field.parent()
+	var scrollTop, scrollleft, $parent = $field.parent()
 	while (!$parent.is('body') && $parent.css('position') == 'static') $parent = $parent.parent()
 	scrollTop = $parent.scrollTop()
 	scrollLeft = $parent.scrollLeft()
 	
 	$icon
-		.css("top", $field.position().top + $icon.data("offset") + scrollTop)
+		.css("top", $field.position().top + $icon.data("offset") + 1 + scrollTop)
 		.css("left", $field.position().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset") + scrollLeft)
 }
 

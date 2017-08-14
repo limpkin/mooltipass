@@ -457,19 +457,6 @@ cipDefine.initDescription = function() {
 
 	var $buttonWrap = mpJQ("<div>").attr("id", "mp-bt-buttonWrap").addClass("mooltipass-text-right")
 
-	var $btnDismiss = mpJQ("<a>").text("Dismiss").attr("id", "mp-bt-btn-dismiss").attr("href",'#')
-		.click(function(e) {
-			messaging({
-				action: 'create_action',
-				args: [{
-					action: 'custom_credentials_selection_hide',
-					args: {
-						highlight: true
-					}
-				}]
-			});
-		});
-
 	var $btnSkip = mpJQ("<button>").text("Skip").attr("id", "mp-bt-btn-skip")
 		.css("margin-right", "5px")
 		.click(function() {
@@ -488,7 +475,6 @@ cipDefine.initDescription = function() {
 				
 				cipDefine.prepareStep2();
 				cipDefine.markAllPasswordFields(mpJQ("#mp-bt-cipDefine-fields"));
-				mpJQ("#mp-bt-btn-again").hide();
 			}
 			else if(mpJQ(this).data("step") == 2) {
 				cipDefine.selection.password = null;
@@ -505,17 +491,35 @@ cipDefine.initDescription = function() {
 				
 				cipDefine.prepareStep3();
 				cipDefine.markAllStringFields(mpJQ("#mp-bt-cipDefine-fields"));
-				mpJQ("#mp-bt-btn-again").show();
 			}
 		});
-	var $btnAgain = mpJQ("<button>").text("Undo").attr("id", "mp-bt-btn-again").attr("href",'#')
+	var $btnCancel = mpJQ("<button class='alert tiny'>").text("Cancel").attr("id", "mp-bt-btn-cancel").attr("href",'#')
 		.click(function(e) {
-			cipDefine.resetSelection();
-			cipDefine.prepareStep1();
-			cipDefine.markAllUsernameFields(mpJQ("#mp-bt-cipDefine-fields"));
+			data.settings["defined-credential-fields"][data.origin] = null
+			
+			messaging({
+				action: 'create_action',
+				args: [{
+					action: 'custom_credentials_selection_cancelled',
+					args: {}
+				}]
+			});
+			
+			messaging({
+				action: 'save_settings',
+				args: [data.settings]
+			});
+			
+			messaging({
+				action: 'create_action',
+				args: [{
+					action: 'custom_credentials_selection_hide',
+					args: {} 
+				}]
+			});
 		})
-		.hide();
-	var $btnConfirm = mpJQ("<button>").text("Confirm").attr("id", "mp-bt-btn-confirm")
+		
+	var $btnConfirm = mpJQ("<button class='success tiny'>").text("Confirm").attr("id", "mp-bt-btn-confirm")
 		.css("margin-right", "15px")
 		.hide()
 		.click(function(e) {
@@ -558,24 +562,19 @@ cipDefine.initDescription = function() {
 				args: [data.settings]
 			});
 
-			mpJQ("#mp-bt-btn-dismiss").click();
+			messaging({
+				action: 'create_action',
+				args: [{
+					action: 'custom_credentials_selection_hide',
+					args: {}
+				}]
+			});
 		})
 		.hide();
 
-	$h1.append($btnDismiss);
-
 	$description.append($h1);
-	$description.append($btnDismiss);
-	
-	$buttonWrap.append($btnAgain);
-
 	$buttonWrap.append($btnConfirm);
-
-	if(data.settings["defined-credential-fields"] && data.settings["defined-credential-fields"][data.origin]) {
-		var $p = mpJQ("<p id='mp-already-existent-message'>").html("For this page credential fields are already selected and will be overwritten.");
-		$description.append($p);
-	}
-
+	$buttonWrap.append($btnCancel);
 	$description.append($buttonWrap);
 
 	// Last piece of jquery-ui
@@ -691,7 +690,6 @@ cipDefine.prepareStep1 = function() {
 	mpJQ("div:first", mpJQ("div#mp-bt-cipDefine-description")).text("1. Choose a username field");
 	mpJQ("button#mp-bt-btn-skip:first").data("step", "1").show();
 	mpJQ("button#mp-bt-btn-confirm:first").hide();
-	mpJQ("button#mp-bt-btn-again:first").hide();
 }
 
 cipDefine.prepareStep2 = function() {
@@ -699,7 +697,6 @@ cipDefine.prepareStep2 = function() {
 	mpJQ("div.mp-bt-fixed-field:not(.mp-bt-fixed-username-field)", mpJQ("div#mp-bt-cipDefine-fields")).remove();
 	mpJQ("div:first", mpJQ("div#mp-bt-cipDefine-description")).text("2. Now choose a password field");
 	mpJQ("button#mp-bt-btn-skip:first").data("step", "2");
-	mpJQ("button#mp-bt-btn-again:first").show();
 }
 
 cipDefine.prepareStep3 = function() {

@@ -109,8 +109,6 @@ $(function() {
 					args: {}
 				}]
 			});
-			
-			$('.mp-genpw-dialog').removeClass('show')
 		}
 	})
 	
@@ -146,8 +144,6 @@ $(function() {
   		mpBox.find('.mp-first').removeClass('mp-first');
   		mpBox.find('.login-area').addClass('mp-first').show();
     }
-		
-		$('.mp-genpw-dialog').addClass('show')
 	}
 	
 	function startEventHandling() {

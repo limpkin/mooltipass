@@ -227,15 +227,9 @@ cipPassword.onIconClick = function(iconId) {
 }
 
 cipPassword.setIconPosition = function($icon, $field) {
-	// Get scroll offset of the relative container.
-	var scrollTop, scrollleft, $parent = $field.parent()
-	while (!$parent.is('body') && $parent.css('position') == 'static') $parent = $parent.parent()
-	scrollTop = $parent.scrollTop()
-	scrollLeft = $parent.scrollLeft()
-	
 	$icon
-		.css("top", $field.position().top + $icon.data("offset") + 1 + scrollTop)
-		.css("left", $field.position().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset") + scrollLeft)
+		.css("top", $field.position().top + $icon.data("offset") + 1)
+		.css("left", $field.position().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset"))
 }
 
 cipPassword.callbackPasswordCopied = function(bool) {
@@ -1589,6 +1583,14 @@ cipEvents.startEventHandling = function() {
 				definedCredentialFields.password = req.args.password || definedCredentialFields.password
 				definedCredentialFields.fields = req.args.fieldsIds || definedCredentialFields.fields
 			}
+			else if (req.action == "custom_credentials_selection_cancelled") {
+				cip.settings["defined-credential-fields"][document.location.origin] = null
+				cipDefine.selection = {
+					username: null,
+					password: null,
+					fields: {}
+				}
+			}
 		}
 	};
 
@@ -1717,8 +1719,9 @@ var mpDialog = {
 				isPasswordOnly: isPasswordOnly
 			}));
 			
-		$(iframe).addClass('mp-ui-password-dialog')
+		$(iframe).addClass('mp-ui-password-dialog').hide()
 		mpJQ("body").append(iframe)
+		$(iframe).fadeIn(100)
 	
 		this.dialog = $(iframe)
 		this.created = true
@@ -1727,28 +1730,32 @@ var mpDialog = {
 	show: function(target, isPasswordOnly) {
 		if (!this.created) {
 			this.create(target, isPasswordOnly);
+		} else {
+			this.dialog.fadeIn(100)
+			messaging({
+				action: 'create_action',
+				args: [{
+					action: 'password_dialog_show',
+					args: {
+						offsetLeft: target.offset().left - $(window).scrollLeft() + target.width() + 20,
+						offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
+						isPasswordOnly: isPasswordOnly
+					}
+				}]
+			});
 		}
-		
-		messaging({
-			action: 'create_action',
-			args: [{
-				action: 'password_dialog_show',
-				args: {
-					offsetLeft: target.offset().left - $(window).scrollLeft() + target.width() + 20,
-					offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
-					isPasswordOnly: isPasswordOnly
-				}
-			}]
-		});
-		this.dialog.show()
 	},
 	
 	hide: function() {
-		this.dialog.hide();
+		this.dialog.fadeOut(100);
 		this.shown = false;
 	},
 	
 	onHighlightFields: function(highlight) {
+		// Highlight only user selected fields. To highlight detected ones we need
+		// to retrieve them from mcCombs. Postpone it for now.
+		if (!cipDefine.selection.password) return
+		
 		if (highlight) {
 			if ( cipDefine.selection.password ) this.$pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
 			$userField = cipFields.getUsernameField( this.$pwField.data("mp-id") );

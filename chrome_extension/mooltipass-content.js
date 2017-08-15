@@ -312,12 +312,15 @@ cipDefine.show = function() {
 			settings: cip.settings,
 			origin: document.location.origin
 		}));
-	$(iframe).addClass('mp-ui-custom-credentials-selection')
+	$(iframe).addClass('mp-ui-custom-credentials-selection').hide()
 	mpJQ("body").append(iframe);
+	$(iframe).fadeIn(100)
 }
 
 cipDefine.hide = function() {
-	$('.mp-ui-custom-credentials-selection').remove()
+	$('.mp-ui-custom-credentials-selection').fadeOut(100, function() {
+		$(this).remove()
+	})
 }
 
 cipDefine.isFieldSelected = function($cipId) {
@@ -1720,8 +1723,8 @@ var mpDialog = {
 			}));
 			
 		$(iframe).addClass('mp-ui-password-dialog').hide()
-		$(iframe).fadeIn(100)
 		mpJQ("body").append(iframe)
+		$(iframe).fadeIn(100)
 	
 		this.dialog = $(iframe)
 		this.created = true

@@ -886,8 +886,9 @@ mcCombinations.prototype.getAllForms = function() {
 	mpJQ( this.inputQueryPattern ).each( function( index, field ) {
 		field = mpJQ( field );
 
-		// Ignore our field(s)
-		if( field.attr('id') == 'mooltipass-password-generator') {
+		// Ignore our fields and search fields.
+		if (field.attr('id') == 'mooltipass-password-generator' ||
+				field.clone().children().remove().end()[0].outerHTML.match(/search/i)) {
 			return;
 		}
 		
@@ -1272,7 +1273,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	
 	// Do not autosubmit form with two-factor auth for Steam.
 	if (window.location.hostname.match(/steamcommunity.com|steampowered.com/) &&
-		  mpJQ('#authcode:visible').length) return
+		  mpJQ('#authcode:visible, #twofactorcode_entry:visible').length) return
 			
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	

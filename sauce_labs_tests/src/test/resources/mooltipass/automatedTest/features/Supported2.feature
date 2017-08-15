@@ -98,3 +98,22 @@ Then I should be logged in microchipdirect
 When I logout microchipdirect
 And I go to microchipdirect login page
 Then I should be logged in microchipdirect
+
+
+@supported 
+Scenario: Testing airbnb
+Given I navigate to 'https://www.airbnb.com/'
+When I login airBnB with 'citesting@themooltipass.com'
+Then I should be logged in airBnB
+When I logout airBnB
+And I go to airBnB login page
+Then I should be logged in airBnB
+
+@supported
+Scenario: Testing Turkish airlines
+Given I navigate to 'https://p.turkishairlines.com/'
+When I login turkish airlines with '441928383'
+Then I should be logged in turkish airlines
+When I logout turkish airlines
+And I go to turkish airlines login page
+Then I should be logged in turkish airlines

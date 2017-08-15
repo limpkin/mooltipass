@@ -1661,7 +1661,9 @@ if (!stopInitialization) {
 
 function handleHTTPAuth() {
 	// We need to execute only when http-auth.html is opened.
-	if (window.location.origin + window.location.pathname != chrome.extension.getURL('http-auth.html')) return
+	// Compare only pathname because Safari doesn't support chrome.extension.getURL
+	// in content script. Moving initialization to a separate script later is a good idea.
+	if (window.location.pathname != '/http-auth.html') return
 	
 	$(function() {
 		var data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))

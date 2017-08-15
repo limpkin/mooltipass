@@ -1,13 +1,10 @@
 /*
  * Password dialog.
  * 
- * Emits following actions:
- * - ***
- *
- * Receives following actions:
- * - 
- *
- * @param *** {***}
+ * @param login {String}
+ * @param offsetLeft {Number}
+ * @param offsetTop {Number}
+ * @param isPasswordOnly {Boolean}
  */
  
 window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))

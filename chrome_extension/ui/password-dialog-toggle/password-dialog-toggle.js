@@ -1,9 +1,6 @@
 /*
  * Icon for toggling password dialog.
  * 
- * Emits following actions:
- * - password_dialog_toggle_click
- *
  * @param type (small | big) {String}
  * @param target {jQuery object} iFrame element
  */

@@ -1,13 +1,8 @@
 /*
  * Custom credentials selection overlay.
  * 
- * Emits following actions:
- * - ***
- *
- * Receives following actions:
- * - 
- *
- * @param *** {***}
+ * @param settings {Object}
+ * @param origin {String}
  */
 
 window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))

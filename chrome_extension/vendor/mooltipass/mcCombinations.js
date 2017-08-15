@@ -242,6 +242,8 @@ mcCombinations.prototype = ( function() {
 		forms: {
 			noform: { fields: [] }
 		},
+		usernameFieldId: null,
+		passwordFieldId: null,
 		settings: {
 			debugLevel: 0,
 			postDetectionFeature: true
@@ -646,6 +648,9 @@ mcCombinations.prototype.detectCombination = function() {
 						var submitButton = this.detectSubmitButton(currentForm.element,
 							currentForm.combination.fields.username || currentForm.combination.fields.password)
 							
+						this.usernameFieldId = curerentForm.combination.fields.username.data('mp-id')
+						this.passwordFieldId = curerentForm.combination.fields.password.data('mp-id')
+					
 						mpJQ(submitButton)
 							.unbind('click.mooltipass')
 							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element[0] }))
@@ -722,7 +727,6 @@ mcCombinations.prototype.detectForms = function() {
 	var definedCredentialFields =
 		this.settings["defined-credential-fields"] && this.settings["defined-credential-fields"][document.location.origin]
 	if (definedCredentialFields) {
-		this.forms['noform'].customFields = true
 		this.forms['noform'].fields = [
 			$('[data-mp-id=' + definedCredentialFields.username + ']'),
 			$('[data-mp-id=' + definedCredentialFields.password + ']')
@@ -824,7 +828,7 @@ mcCombinations.prototype.detectForms = function() {
 			return matching;
 		}.bind(this));
 
-		if (currentForm.combination.score < 100 /*&& !currentForm.customFields*/) {
+		if (currentForm.combination.score < 100) {
 			currentForm.combination = false;
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
 		} else {
@@ -837,6 +841,9 @@ mcCombinations.prototype.detectForms = function() {
 			var submitButton = this.detectSubmitButton(currentForm.element,
 				currentForm.combination.fields.username || currentForm.combination.fields.password)
 				
+			this.usernameFieldId = currentForm.combination.fields.username.data('mp-id')
+			this.passwordFieldId = currentForm.combination.fields.password.data('mp-id')
+			
 			mpJQ(submitButton)
 				.unbind('click.mooltipass')
 				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element && currentForm.element[0] }))

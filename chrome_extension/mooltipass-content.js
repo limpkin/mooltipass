@@ -1755,16 +1755,12 @@ var mpDialog = {
 	},
 	
 	onHighlightFields: function(highlight) {
-		// Highlight only user selected fields. To highlight detected ones we need
-		// to retrieve them from mcCombs. Postpone it for now.
-		if (!cipDefine.selection.password) return
-		
 		if (highlight) {
-			if ( cipDefine.selection.password ) this.$pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
-			$userField = cipFields.getUsernameField( this.$pwField.data("mp-id") );
-			
-			if ( $userField ) $userField.addClass("mp-hover-username");
-			if ( this.$pwField ) this.$pwField.addClass("mp-hover-password");
+			var usernameFieldId = cipDefine.selection.username || mcCombs.usernameFieldId,
+					passwordFieldId = cipDefine.selection.password || mcCombs.passwordFieldId
+					
+			$('[data-mp-id=' + usernameFieldId + ']').addClass('mp-hover-username')
+			$('[data-mp-id=' + passwordFieldId + ']').addClass('mp-hover-password')
 		} else {
 			mpJQ(".mp-hover-username").removeClass("mp-hover-username");
 			mpJQ(".mp-hover-password").removeClass("mp-hover-password");
@@ -1772,12 +1768,13 @@ var mpDialog = {
 	},
 	
 	onStoreCredentials: function(username) {
-		var url = (document.URL.split("://")[1]).split("/")[0],
-				$pwField = this.$pwField;
+		var url = (document.URL.split("://")[1]).split("/")[0]
 				
-		if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
-		$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
-
+		var usernameFieldId = cipDefine.selection.username || mcCombs.usernameFieldId,
+				passwordFieldId = cipDefine.selection.password || mcCombs.passwordFieldId,
+				$userField = $('[data-mp-id=' + usernameFieldId + ']'),
+				$pwField = $('[data-mp-id=' + passwordFieldId + ']')
+				
 		if (!username) {
 			if ($userField.length) {
 				var username = $userField.val();	

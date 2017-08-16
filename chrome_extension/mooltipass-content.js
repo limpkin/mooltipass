@@ -228,8 +228,8 @@ cipPassword.onIconClick = function(iconId) {
 
 cipPassword.setIconPosition = function($icon, $field) {
 	$icon
-		.css("top", $field.position().top + $icon.data("offset") + 1)
-		.css("left", $field.position().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset"))
+		.css("top", $field.position().top + parseInt($field.css('margin-top')) + $icon.data("offset"))
+		.css("left", $field.position().left + parseInt($field.css('margin-left')) + $field.outerWidth() - $icon.data("size") - $icon.data("offset"))
 }
 
 cipPassword.callbackPasswordCopied = function(bool) {

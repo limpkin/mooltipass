@@ -384,7 +384,7 @@ cipFields.setUniqueId = function(field) {
 
 		// Set unique id for form also.
 		containerForm = field.closest('form');
-		if (!containerForm.data('mp-id')) {
+		if (containerForm.length && !containerForm.data('mp-id')) {
 			cipFields.setUniqueId(containerForm);
 		}
 	}

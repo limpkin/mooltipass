@@ -648,8 +648,12 @@ mcCombinations.prototype.detectCombination = function() {
 						var submitButton = this.detectSubmitButton(currentForm.element,
 							currentForm.combination.fields.username || currentForm.combination.fields.password)
 							
-						this.usernameFieldId = currentForm.combination.fields.username.data('mp-id')
-						this.passwordFieldId = currentForm.combination.fields.password.data('mp-id')
+						this.usernameFieldId =
+							currentForm.combination.fields.username &&
+							currentForm.combination.fields.username.data('mp-id')
+						this.passwordFieldId =
+							currentForm.combination.fields.password &&
+							currentForm.combination.fields.password.data('mp-id')
 					
 						mpJQ(submitButton)
 							.unbind('click.mooltipass')
@@ -844,7 +848,9 @@ mcCombinations.prototype.detectForms = function() {
 			this.usernameFieldId =
 				currentForm.combination.fields.username &&
 				currentForm.combination.fields.username.data('mp-id')
-			this.passwordFieldId = currentForm.combination.fields.password.data('mp-id')
+			this.passwordFieldId =
+				currentForm.combination.fields.password &&
+				currentForm.combination.fields.password.data('mp-id')
 			
 			mpJQ(submitButton)
 				.unbind('click.mooltipass')

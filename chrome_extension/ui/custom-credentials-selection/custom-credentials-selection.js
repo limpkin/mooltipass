@@ -445,7 +445,7 @@ cipDefine.init = function () {
 }
 
 cipDefine.initDescription = function() {
-	var $description = mpJQ("div#mp-bt-cipDefine-description").css("min-width", "300px");
+	var $description = mpJQ("div#mp-bt-cipDefine-description");
 	var $h1 = mpJQ("<div>").addClass("mp-bt-chooser-headline");
 	
 	var $help = mpJQ("<div>").addClass("mp-bt-chooser-help").attr("id", "mp-bt-help");

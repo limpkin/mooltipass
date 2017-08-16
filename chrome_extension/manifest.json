@@ -55,10 +55,7 @@
     "images/icon_password_16.png",
     "images/icon_password_24.png",
     "images/logo_inverted.png",
-    "ui/password-dialog-toggle/password-dialog-toggle.html",
-    "ui/password-dialog/password-dialog.html",
-    "ui/custom-credentials-selection/custom-credentials-selection.html",
-    "http-auth.html"
+    "ui/*"
   ],
   "permissions": [
     "contextMenus",

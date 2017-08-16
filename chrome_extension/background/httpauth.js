@@ -44,7 +44,7 @@ httpAuth.handleRequest = function(details, callback) {
     // For the first HTTP Auth request we are opening http-auth.html with auth popup
     // and redirecting user to the requested url after form is submitted.
     chrome.tabs.update(details.tabId, {
-      url: chrome.extension.getURL('http-auth.html') + '?' + encodeURIComponent(JSON.stringify({
+      url: chrome.extension.getURL('ui/http-auth/http-auth.html') + '?' + encodeURIComponent(JSON.stringify({
         isProxy: details.isProxy,
         proxy: isFirefox ? details.ip : details.challenger.host + ':' + details.challenger.port,
         url:  details.url

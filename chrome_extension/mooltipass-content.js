@@ -1655,46 +1655,6 @@ if (!stopInitialization) {
 	mcCombs.settings.debugLevel = content_debug_msg;
 
 	messaging( {'action': 'content_script_loaded' } );
-	
-	handleHTTPAuth()
-}
-
-function handleHTTPAuth() {
-	// We need to execute only when http-auth.html is opened.
-	// Compare only pathname because Safari doesn't support chrome.extension.getURL
-	// in content script. Moving initialization to a separate script later is a good idea.
-	if (window.location.pathname != '/http-auth.html') return
-	
-	$(function() {
-		var data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
-		
-		// Set url as action attribute of the form, so mcCombs will
-		// save credentials for the right url.
-		mpJQ('.mp-popup-http-auth__form').attr('action', 
-			data.isProxy
-			? 'proxy://' + data.proxy
-			: data.url
-		)
-		mpJQ('.mp-popup-http-auth__notice span').text(
-			data.isProxy
-				? data.proxy
-				: new URL(data.url).hostname
-		)
-		
-		mpJQ('.mp-popup-http-auth__form').on('submit', function(event) {
-			event.preventDefault();
-			
-			messaging({
-				action: 'http_auth_submit',
-				args: [{
-					login: mpJQ('.mp-popup-http-auth__form [name="login"]').val(),
-					password: mpJQ('.mp-popup-http-auth__form [name="password"]').val()
-				}]
-			});
-			
-			window.location.href = data.url
-		})
-	})
 }
 
 var mpDialog = {

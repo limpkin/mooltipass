@@ -307,14 +307,17 @@ cipDefine = {
 
 cipDefine.show = function() {
 	var iframe = document.createElement('iframe');
+	iframe.onload = function() {
+		$(iframe).fadeIn(100)
+	}
 	iframe.src = chrome.extension.getURL('ui/custom-credentials-selection/custom-credentials-selection.html') + '?' +
 		encodeURIComponent(JSON.stringify({
 			settings: cip.settings,
 			origin: document.location.origin
 		}));
+		
 	$(iframe).addClass('mp-ui-custom-credentials-selection').hide()
-	mpJQ("body").append(iframe);
-	$(iframe).fadeIn(100)
+	mpJQ("body").append(iframe)
 }
 
 cipDefine.hide = function() {
@@ -1674,6 +1677,9 @@ var mpDialog = {
 	
 	create: function(target, isPasswordOnly) {
 		var iframe = document.createElement('iframe');
+		iframe.onload = function() {
+			$(iframe).fadeIn(100)
+		}
 		iframe.src = chrome.extension.getURL('ui/password-dialog/password-dialog.html') + '?' +
 			encodeURIComponent(JSON.stringify({
 				login: mcCombs.credentialsCache && mcCombs.credentialsCache.length && mcCombs.credentialsCache[0].Login
@@ -1686,8 +1692,7 @@ var mpDialog = {
 			
 		$(iframe).addClass('mp-ui-password-dialog').hide()
 		mpJQ("body").append(iframe)
-		$(iframe).fadeIn(100)
-	
+			
 		this.dialog = $(iframe)
 		this.created = true
 	},

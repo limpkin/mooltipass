@@ -111,6 +111,8 @@ mooltipassEvent.onGetSettings = function(callback, tab) {
 	
 	settings.status = mooltipass.device._status;
 	settings.tabId = tab.id;
+	settings['defined-credential-fields'] = settings['defined-credential-fields'] || {}
+	
 	callback({ data: settings }, tab );
 }
 

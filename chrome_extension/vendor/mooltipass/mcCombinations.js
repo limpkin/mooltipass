@@ -1224,6 +1224,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	
 	// Selectors are ordered by priority, first ones are more important.
 	BUTTON_SELECTORS = [
+		'td.custom-button-center',
 		'[type="submit"]:visible, a[href^="javascript:"]:visible',
 		'button:visible',
 		'[role="button"]:visible',

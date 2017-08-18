@@ -1,4 +1,3 @@
-
 .ui-autocomplete li.ui-menu-item {
 	text-align: left !important;
 	font-size: 12px !important;
@@ -61,88 +60,6 @@
 }
 #mp-genpw-btn-fillin {
 	margin-right: 5px;
-}
-
-.mp-bt-modal-backdrop {
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	z-index: 2147483645;
-}
-.mp-bt-modal-backdrop:after {
-	content:'';
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background-color: #000000;
-	opacity: 0.8;
-	filter: alpha(opacity=80);
-}
-#mp-bt-cipDefine-fields {
-	z-index: 2147483646;
-}
-#mp-bt-cipDefine-description {
-	z-index: 2147483646;
-	color: #efefef;
-	border: 2px solid #555555;
-	padding: 7px 5px;
-	position: absolute;
-	top: 100px;
-	left: 150px;
-	text-align: left;
-	cursor: pointer;
-	background-color:rgba(255,255,255,0.3);
-	font-size: 15px;
-}
-#mp-bt-cipDefine-description div:first-of-type {
-	margin-top: 0;
-	padding-top: 0;
-	text-align: left;
-	color: #efefef;
-	padding-bottom: 8px;
-	font-weight: bold;
-	font-size: 160%;
-}
-#mp-bt-cipDefine-description p {
-    background: #FFA500 !important;
-    color: #FFF !important;
-    font-size: 12px !important;
-    padding: 6px 12px !important;    
-}
-#mp-bt-help {
-	margin-bottom: 3px;
-}
-.mp-bt-fixed-field {
-	position: absolute;
-	border: 2px solid #efefef;
-	cursor: pointer;
-	z-index: 2147483646;
-	text-align: left;
-	font-weight: bold;
-	background-color:rgba(239,239,239,0.4);
-}
-.mp-bt-fixed-hover-field {
-	border: 2px solid orange;
-	background-color:rgba(255,165,239,0.4);
-}
-.mp-bt-fixed-password-field {
-	border: 2px solid red;
-	color: #efefef;
-	background-color:rgba(255,0,0,0.4);
-}
-.mp-bt-fixed-username-field {
-	border: 2px solid limegreen;
-	color: #efefef;
-	background-color:rgba(50,205,50,0.4);
-}
-.mp-bt-fixed-string-field {
-	border: 2px solid deepskyblue;
-	color: #efefef;
-	background-color:rgba(30,144,255,0.4);
 }
 
 #mooltipass-login-info { }
@@ -256,25 +173,6 @@
   padding: 3px;
   outline: none;
   padding-bottom: 4px;	
-}
-
-div#mp-bt-cipDefine-description {
-    background: #FFF !important;
-    border: none !important;
-    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 5px 1px !important;   
-    padding: 0 !important; 
-}
-
-.mp-bt-chooser-headline {
-    color: #000 !important;
-    font-size: 12px !important;
-    padding: 6px 12px !important;
-    border-bottom: 1px solid #DDD !important;
-    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
-}
-
-div#mp-bt-buttonWrap {
-    padding: 6px 12px !important;
 }
 
 .mooltipass-input:focus {
@@ -728,322 +626,46 @@ input.mp-hover-password {
         height: 24px;
         background-image: url(images/icon_password_24.png);
     }
-		.mp-popup-http-auth__logo {
-				background-image: url(images/logo_inverted.png) !important;
-		}
 }
 
-
-/* Dialog */
-
-.mp-genpw-dialog {
-    display: none;
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-         -o-user-select: none;
-            user-select: none;
+/* ui-password-dialog-toggle */
+.mp-ui-password-dialog-toggle {
+	position: absolute;
+	border: 0;
 }
 
-.mp-genpw-overlay {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background: rgba(33,33,33,0.3);
-    z-index: 2147483647 !important;
+.mp-ui-password-dialog-toggle__small {
+	width: 16px;
+	height: 16px;
 }
 
-.mp-genpw-dialog .mooltipass-box {
-    position: fixed;
-    background-color: rgba(255, 255, 255, 1);
-    border: 1px solid rgb(30,30,30);
-    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif !important;
-    font-size: 11px;
-    padding: 0px 6px 12px 6px;
-    width: 290px;
-    margin: 0px;
-    box-sizing: border-box;
-    border-radius: 2px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15);
-    z-index: 2147483647 !important;
-    color: black;
-    text-align: left;
+.mp-ui-password-dialog-toggle__big {
+	width: 24px;
+	height: 24px;
 }
 
-.mp-genpw-dialog .mp-triangle-out {
-    position: absolute;
-    border-width: 10px;
-    border-style: solid;
-    border-color: transparent rgb(30,30,30) transparent transparent;
-    top: 8px;
-    left: -20px;
-}
-
-.mp-genpw-dialog .mp-triangle-in {
-    position: absolute;
-    border-width: 10px;
-    border-style: solid;
-    border-color: transparent white transparent transparent;
-    top: 8px;
-    left: -19px;
-}
-
-.mp-genpw-dialog .inverted-triangle .mp-triangle-out {
-    left: auto;
-    border-color: transparent transparent transparent rgb(30,30,30);
-    right: -20px;
-}
-
-.mp-genpw-dialog .inverted-triangle .mp-triangle-in {
-    left: auto;
-    border-color: transparent transparent transparent white;
-    right: -19px;
-}
-
-.mp-genpw-dialog .mp-area {
-    margin-top: 10px;
-}
-
-.mp-genpw-dialog .mp-area.mp-first {
-    margin-top: 0px;
-} 
-
-.mp-genpw-dialog .mp-title {
-    background: linear-gradient(to right, rgba(125,185,232,0) 0%, rgba(30,87,153,0.5) 100%);
-    margin: 0px -6px 7px -12px;
-    padding: 7px 7px 7px 15px;
-}
-
-.mp-genpw-dialog .inverted-triangle .mp-title {
-    background: linear-gradient(to right, rgba(30,87,153,0.5) 0%, rgba(125,185,232,0) 100%);
-    margin: 0px -6px 7px -6px;
-}
-
-.mp-genpw-dialog .mp-encloser {
-    text-align: center;
-}
-
-.mp-genpw-dialog .mooltipass-select-custom,
-.mp-genpw-dialog .mooltipass-new-password {
-    display: inline-block;
-    cursor: pointer;
-    vertical-align: top;
-}
-
-.mp-genpw-dialog .mooltipass-password-generator {
-    -webkit-appearance: none !important;
-    -webkit-rtl-ordering: logical !important;
-    -webkit-user-select: text !important;
-    background-color: rgb(255, 255, 255) !important;
-    border-bottom-color: rgb(221, 221, 221) !important;
-    border-bottom-left-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
-    border-bottom-style: solid !important;
-    border-bottom-width: 1px !important;
-    border-image-outset: 0px !important;
-    border-image-repeat: stretch !important;
-    border-image-slice: 100% !important;
-    border-image-source: none !important;
-    border-image-width: 1 !important;
-    border-left-color: rgb(221, 221, 221) !important;
-    border-left-style: solid !important;
-    border-left-width: 1px !important;
-    border-right-color: rgb(221, 221, 221) !important;
-    border-right-style: solid !important;
-    border-right-width: 1px !important;
-    border-top-color: rgb(221, 221, 221) !important;
-    border-top-left-radius: 0px !important;
-    border-top-right-radius: 0px !important;
-    border-top-style: solid !important;
-    border-top-width: 1px !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    color: rgb(68, 68, 68) !important;
-    cursor: auto !important;
-    display: inline-block !important;
-    font-family: Verdana, Arial, Helvetica, sans-serif !important;
-    font-size: 12px !important;
-    font-stretch: normal !important;
-    font-style: normal !important;
-    font-variant: normal !important;
-    font-weight: normal !important;
-    height: 27px !important;
-    letter-spacing: normal !important;
-    line-height: normal !important;
-    list-style-type: none !important;
-    margin-bottom: 10px !important;
-    margin-left: 0px !important;
-    margin-right: 12px !important;
-    margin-top: 0px !important;
-    min-height: 24px !important;
-    outline-color: rgb(68, 68, 68) !important;
-    outline-style: none !important;
-    outline-width: 0px !important;
-    padding-bottom: 5px !important;
-    padding-left: 5px !important;
-    padding-right: 5px !important;
-    padding-top: 5px !important;
-    text-align: start !important;
-    text-indent: 0px !important;
-    text-rendering: auto !important;
-    text-shadow: none !important;
-    text-transform: none !important;
-    vertical-align: middle !important;
-    width: 60% !important;
-    word-spacing: 0px !important;
-    writing-mode: lr-tb !important;
-    -webkit-writing-mode: horizontal-tb !important;
-}
-
-.mp-genpw-dialog .mp-bottom-button {
-    vertical-align: top !important;
-    width: 132px !important;
-    margin: 0px 5px 0px 0px !important;
-    box-sizing: border-box !important;
-    height: 40px !important;    
-}
-
-.mp-genpw-dialog .login-area {
-    display: none;
-}
-
-/* HTTP Auth popup */
-
-.mp-popup-http-auth {
+/* ui-password-dialog */
+.mp-ui-password-dialog {
 	position: fixed;
 	top: 0;
 	right: 0;
-	left: 0;
 	bottom: 0;
-	z-index: 9999;
-	overflow: auto;
-	font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-	background-color: rgba(0, 0, 0, 0.45);
-}
-
-.mp-popup-http-auth__content {
-	margin: 100px auto;
-	padding: 50px;
-	max-width: 350px;
-	background-color: white;
-	border: solid 1px #666666;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-}
-
-.mp-popup-http-auth__form {
-	max-width: 300px;
-	margin: auto;
-}
-
-input.mp-popup-http-auth__input {
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	border-radius: 0;
-	background-color: #FFFFFF;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #cccccc;
-	border-radius: 0;
-	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-	color: rgba(0, 0, 0, 0.75);
-	display: block;
-	font-family: inherit;
-	font-size: 14px;
-	height: 37px;
-	margin: 0 0 16px 0;
-	padding: 8px;
+	left: 0;
 	width: 100%;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	-webkit-transition: border-color 0.15s linear, background 0.15s linear;
-	-moz-transition: border-color 0.15s linear, background 0.15s linear;
-	-ms-transition: border-color 0.15s linear, background 0.15s linear;
-	-o-transition: border-color 0.15s linear, background 0.15s linear;
-	transition: border-color 0.15s linear, background 0.15s linear;
+	height: 100%;
+	z-index: 2147483646;
+	border: 0;
 }
 
-input.mp-popup-http-auth__input:focus {
-	background: #fafafa;
-	border-color: #999999;
-	outline: none;
-}
-
-input.mp-popup-http-auth__input:focus {
-	outline: none;
-	border: 1px solid #CCC !important;
-}
-	
-.mp-popup-http-auth__logo {
-	margin: auto;
-	width: 215px;
-	height: 64px;
-	margin-bottom: 50px;
-	background-image: url(chrome-extension://__MSG_@@extension_id__/images/logo_inverted.png);
-}
-
-.mp-popup-http-auth__button {
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	border-radius: 0;
-	border-style: solid;
-	border-width: 0;
-	cursor: pointer;
-	font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-	font-weight: normal;
-	line-height: normal;
-	margin: 0 0 20px;
-	padding: 10px 20px 11px 20px;
-	font-size: 12px;
-	position: relative;
-	text-align: center;
-	text-decoration: none;
-	display: inline-block;
-	background-color: #60B1C7;
-	border-color: #3d96af;
-	color: #FFFFFF;
-	transition: background-color 300ms ease-out;
-}
-
-.mp-popup-http-auth__button:hover, .mp-popup-http-auth__button:focus {
-  background-color: #3d96af;
-  color: #FFFFFF;
-}
-
-.mp-popup-http-auth__button.mp-popup-http-auth__button--secondary {
-  background-color: #e7e7e7;
-  border-color: #b9b9b9;
-  color: #333333;
-}
-
-.mp-popup-http-auth__button--secondary:hover, .mp-popup-http-auth__button--secondary.secondary:focus {
-  background-color: #b9b9b9;
-  color: #333333;
-}
-
-.mp-popup-http-auth__label {
-	color: #4d4d4d;
-	cursor: pointer;
-	display: block;
-	font-size: 14px;
-	font-weight: normal;
-	line-height: 1.5;
-	margin-bottom: 0;
-	text-align: left;
-}
-
-.mp-popup-http-auth__controls {
-	text-align: right;
-}
-
-.mp-popup-http-auth__notice {
-	text-align: center;
-	margin-bottom: 10px;
-	font-size: 12px;
-}
-
-.mp-popup-http-auth__notice span {
-	font-weight: bold;
+/* ui-custom-credentials-selection */
+.mp-ui-custom-credentials-selection {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2147483647;
+	border: 0;
 }

@@ -104,10 +104,6 @@ mooltipassEvent.onLoadSettings = function(callback, tab) {
     mooltipass.backend.loadSettings();
 }
 
-mooltipassEvent.onLoadKeyRing = function(callback, tab) {
-    //TODO: Gaston: I think this can be removed
-}
-
 mooltipassEvent.onGetSettings = function(callback, tab) {
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: %c onGetSettings','background-color: #e2eef9','color: #246', tab);
 	mooltipassEvent.onLoadSettings();
@@ -115,6 +111,8 @@ mooltipassEvent.onGetSettings = function(callback, tab) {
 	
 	settings.status = mooltipass.device._status;
 	settings.tabId = tab.id;
+	settings['defined-credential-fields'] = settings['defined-credential-fields'] || {}
+	
 	callback({ data: settings }, tab );
 }
 
@@ -530,6 +528,16 @@ mooltipassEvent.onHttpAuthSubmit = function(callback, tab, credentials) {
 	httpAuth.onSubmit(credentials)
 }
 
+/*
+ * Recreate action based on arguments. Used for tab and iframe communication.
+ */
+mooltipassEvent.createAction = function(callback, tab, data) {
+	messaging({
+		action: data.action,
+		args: data.args
+	}, tab)
+}
+
 // all methods named in this object have to be declared BEFORE this!
 mooltipassEvent.messageHandlers = {
 	'update': mooltipassEvent.onUpdate,
@@ -542,7 +550,6 @@ mooltipassEvent.messageHandlers = {
 	'get_settings': mooltipassEvent.onGetSettings,
 	'get_status': mooltipassEvent.onGetStatus,
 	'get_tab_information': mooltipassEvent.onGetTabInformation,
-	'load_keyring': mooltipassEvent.onLoadKeyRing,
 	'load_settings': mooltipassEvent.onLoadSettings,
 	'pop_stack': mooltipassEvent.onPopStack,
 	'popup_login': mooltipassEvent.onLoginPopup,
@@ -556,11 +563,12 @@ mooltipassEvent.messageHandlers = {
 	'stack_add': browserAction.stackAdd,
 	'http_auth_submit': mooltipassEvent.onHttpAuthSubmit,
 	'generate_password': mooltipass.device.generatePassword,
-    'set_current_tab': page.setCurrentTab,
-    'cache_login': page.cacheLogin,
-    'cache_retrieve': page.cacheRetrieve,
-    'content_script_loaded': page.setAllLoaded,
-    'show_app': mooltipassEvent.showApp
+	'set_current_tab': page.setCurrentTab,
+	'cache_login': page.cacheLogin,
+	'cache_retrieve': page.cacheRetrieve,
+	'content_script_loaded': page.setAllLoaded,
+	'show_app': mooltipassEvent.showApp,
+	'create_action': mooltipassEvent.createAction
 };
 
 if (!isSafari) {

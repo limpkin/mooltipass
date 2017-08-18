@@ -242,7 +242,8 @@ mcCombinations.prototype = ( function() {
 		forms: {
 			noform: { fields: [] }
 		},
-		uniqueNumber: 342845638,
+		usernameFieldId: null,
+		passwordFieldId: null,
 		settings: {
 			debugLevel: 0,
 			postDetectionFeature: true
@@ -647,16 +648,23 @@ mcCombinations.prototype.detectCombination = function() {
 						var submitButton = this.detectSubmitButton(currentForm.element,
 							currentForm.combination.fields.username || currentForm.combination.fields.password)
 							
+						this.usernameFieldId =
+							currentForm.combination.fields.username &&
+							currentForm.combination.fields.username.data('mp-id')
+						this.passwordFieldId =
+							currentForm.combination.fields.password &&
+							currentForm.combination.fields.password.data('mp-id')
+					
 						mpJQ(submitButton)
 							.unbind('click.mooltipass')
-							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
+							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element[0] }))
 							
 						mpJQ()
 							.add(currentForm.combination.fields.username)
 							.add(currentForm.combination.fields.password)
 							.unbind('keydown.mooltipass')
 							.on('keydown.mooltipass', function(event) {
-								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
+								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element[0] }) }
 							}.bind(this))
 					}
 				}
@@ -718,6 +726,17 @@ mcCombinations.prototype.getFormActionUrl = function( formElement ) {
 mcCombinations.prototype.detectForms = function() {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c detectTypeofForm','background-color: #c3c6b4','color: #333333');
 	var combinations = 0;
+	
+	// Check for custom fields.
+	var definedCredentialFields =
+		this.settings["defined-credential-fields"] && this.settings["defined-credential-fields"][document.location.origin]
+	if (definedCredentialFields) {
+		this.forms['noform'].fields = [
+			$('[data-mp-id=' + definedCredentialFields.username + ']'),
+			$('[data-mp-id=' + definedCredentialFields.password + ']')
+		]
+	}
+		
 	
 	// Traverse Forms
 	for( form in this.forms ) {
@@ -813,11 +832,10 @@ mcCombinations.prototype.detectForms = function() {
 			return matching;
 		}.bind(this));
 
-		if ( currentForm.combination.score < 100 ) {
+		if (currentForm.combination.score < 100) {
 			currentForm.combination = false;
 			cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c No viable combination found!','background-color: #c3c6b4','color: #800000');
 		} else {
-			
 			if ( currentForm.combination.preExtraFunction ) {
 				if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Running PreExtraFunction for combination','background-color: #c3c6b4','color: #333333');
 				currentForm.combination.preExtraFunction( currentForm.combination.fields );
@@ -827,16 +845,23 @@ mcCombinations.prototype.detectForms = function() {
 			var submitButton = this.detectSubmitButton(currentForm.element,
 				currentForm.combination.fields.username || currentForm.combination.fields.password)
 				
+			this.usernameFieldId =
+				currentForm.combination.fields.username &&
+				currentForm.combination.fields.username.data('mp-id')
+			this.passwordFieldId =
+				currentForm.combination.fields.password &&
+				currentForm.combination.fields.password.data('mp-id')
+			
 			mpJQ(submitButton)
 				.unbind('click.mooltipass')
-				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element }))
+				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element && currentForm.element[0] }))
 				
 			mpJQ()
 				.add(currentForm.combination.fields.username)
 				.add(currentForm.combination.fields.password)
 				.unbind('keydown.mooltipass')
 				.on('keydown.mooltipass', function(event) {
-					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element }) }
+					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element && currentForm.element[0] }) }
 				}.bind(this))
 		}
 	}
@@ -991,9 +1016,8 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 			element.attr("data-mp-id", elementId);
 			return;
 		} else {
-			// create own ID if no ID is set for this field
-			this.uniqueNumber += 1;
-			element.attr( "data-mp-id", "mpJQ" + String( this.uniqueNumber ) );
+			cipFields.uniqueNumber += 1;
+			element.attr( "data-mp-id", "mpJQ" + String( cipFields.uniqueNumber ) );
 		}
 	}
 }
@@ -1003,8 +1027,8 @@ mcCombinations.prototype.setUniqueId = function( element ) {
  * Used to update value for fields handled by React.
  * https://github.com/vitalyq/react-trigger-change
  *
- * @param  node {DOM node}
- * @param  value {String}
+ * @param node {DOM node}
+ * @param value {String}
  * @return undefined
  */
 mcCombinations.prototype.triggerChangeEvent = function(node, value) {
@@ -1168,8 +1192,8 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 /*
  * Detect submit button for the given form and field.
  *
- * @param  form {jQuery object}
- * @param  field {jQuery object}
+ * @param form {jQuery object}
+ * @param field {jQuery object}
  * @return submitButton {DOM node} or undefined
  */
  mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(form, field) {

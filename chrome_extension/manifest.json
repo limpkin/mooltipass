@@ -45,7 +45,7 @@
         "vendor/mooltipass/mcCombinations.js",
         "mooltipass-content.js"
       ],
-      "css": ["vendor/bootstrap-btn.css", "mooltipass-content.css"],
+      "css": ["mooltipass-content.css"],
       "run_at": "document_idle",
       "all_frames": true
     }
@@ -55,7 +55,7 @@
     "images/icon_password_16.png",
     "images/icon_password_24.png",
     "images/logo_inverted.png",
-    "http-auth.html"
+    "ui/*"
   ],
   "permissions": [
     "contextMenus",

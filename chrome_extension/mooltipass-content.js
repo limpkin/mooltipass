@@ -61,6 +61,10 @@ cipPassword.init = function() {
 	window.setInterval(function() {
 		cipPassword.checkObservedElements();
 	}, 400);
+	
+	$(window).on('resize', function() {
+		cipPassword.checkObservedElements();
+	})
 }
 
 cipPassword.initField = function(field, inputs, pos) {
@@ -128,10 +132,13 @@ cipPassword.generatePasswordFromSettings = function( passwordSettings ) {
 } 
 
 cipPassword.createIcon = function(field) {
+	var PREFIX = 'mp-ui-password-dialog-toggle',
+			SELECTOR = '.' + PREFIX;
+	
 	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c createIcon','background-color: #ff8e1b','color: #333333', field);
 
 	// Check if there are other icons in the page
-	var currentIcons = mpJQ('.mp-genpw-icon');
+	var currentIcons = mpJQ(SELECTOR);
 	var iconIndex = currentIcons.length;
 	if ( iconIndex > 0 ) {
 		for ( var I = 0; I < iconIndex; I++ ) {
@@ -141,9 +148,11 @@ cipPassword.createIcon = function(field) {
 		}
 	}
 
-	var $className = (field.outerHeight() > 28) ? "mp-icon-key-big" : "mp-icon-key-small";
+	var $className = (field.outerHeight() > 28)
+			? PREFIX + '__big'
+			: PREFIX + '__small';
 	var $size = (field.outerHeight() > 28) ? 24 : 16;
-	var $offset = Math.floor((field.outerHeight() - $size) / 3);
+	var $offset = Math.floor((field.outerHeight() - $size) / 2);
 	$offset = ($offset < 0) ? 0 : $offset;
 
 	var $zIndex = 0;
@@ -167,7 +176,16 @@ cipPassword.createIcon = function(field) {
 	}
 	$zIndex += 1;
 
-	var $icon = mpJQ("<div>").addClass("mp-genpw-icon")
+	var iframe = document.createElement('iframe');
+	iframe.src = chrome.extension.getURL('ui/password-dialog-toggle/password-dialog-toggle.html') + '?' +
+		encodeURIComponent(JSON.stringify({
+			type: $size == 16 ? 'small' : 'big',
+			iconId: PREFIX + '-' + field.data('mp-id')
+		}));
+	
+	var $icon = $(iframe)
+		.attr('id', PREFIX + '-' + field.data('mp-id'))
+		.addClass(PREFIX)
 		.addClass($className)
 		.css("z-index", $zIndex)
 		.data("size", $size)
@@ -176,52 +194,42 @@ cipPassword.createIcon = function(field) {
 		.data("mp-genpw-field-id", field.data("mp-id"));
 
 	cipPassword.setIconPosition($icon, field);
+	cipPassword.observedIcons.push($icon);
+	$icon.insertAfter( field ); 
+}
 
-	$icon.click(function(e) {
-		e.preventDefault();
-		e.stopPropagation();
+cipPassword.onIconClick = function(iconId) {
+	target = $('#' + iconId)
+	
+	if(!target.is(":visible")) {
+		target.remove();
+		return;
+	}
 
-		// Use event target for cases when there are more than 1 password in the screen
-		var field = $(e.target);
-		if(!field.is(":visible")) {
-			$icon.remove();
-			field.removeData("mp-password-generator");
-			return;
-		}
+	// Check if the current form has a combination associated to it
+	var fieldID = target.data('mp-genpw-field-id');
 
-		mpDialog.toggle( e );
+	var associatedInput = mpJQ('#' + fieldID + ',input[data-mp-id=' + fieldID + ']' );
+	var containerForm = associatedInput.closest('form');
+	var comb = false;
 
-		// Check if the current form has a combination associated to it
-		var fieldID = mpJQ(e.target).data('mp-genpw-field-id');
-
-		var associatedInput = mpJQ('#' + fieldID + ',input[data-mp-id=' + fieldID + ']' );
-		var containerForm = associatedInput.closest('form');
-		var comb = false;
-
-		// Search for combination departing from FORM (probably refactor to be a sole function in mcCombs)
-		if ( containerForm.length == 0 ) comb = mcCombs.forms.noform.combination;
-		else {
-			for (form in mcCombs.forms) {
-				if ( form === containerForm.prop('id') || form === containerForm.data('mp-id') ) { // Match found
-					comb = mcCombs.forms[form].combination;
-				}
+	// Search for combination departing from FORM (probably refactor to be a sole function in mcCombs)
+	if ( containerForm.length == 0 ) comb = mcCombs.forms.noform.combination;
+	else {
+		for (form in mcCombs.forms) {
+			if ( form === containerForm.prop('id') || form === containerForm.data('mp-id') ) { // Match found
+				comb = mcCombs.forms[form].combination;
 			}
 		}
-		if ( comb && comb.isPasswordOnly ) mpDialog.showLoginArea();
-	});
-
-	cipPassword.observedIcons.push($icon);
-
-	// TODO: Move icons to the field area instead of the body
-	// $icon.insertAfter( field ); 
-	mpJQ("body").append($icon);
+	}
+	
+	mpDialog.toggle(target, comb && comb.isPasswordOnly);
 }
 
 cipPassword.setIconPosition = function($icon, $field) {
-	// TODO: Move icons to the field area instead of the body
-	// $icon.css('left', $field.outerWidth() - $icon.data("size") );
-	$icon.css("top", $field.offset().top + $icon.data("offset") + 1)
-		.css("left", $field.offset().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset"))
+	$icon
+		.css("top", $field.position().top + parseInt($field.css('margin-top')) + $icon.data("offset"))
+		.css("left", $field.position().left + parseInt($field.css('margin-left')) + $field.outerWidth() - $icon.data("size") - $icon.data("offset"))
 }
 
 cipPassword.callbackPasswordCopied = function(bool) {
@@ -289,148 +297,33 @@ cipPassword.checkObservedElements = function() {
 	cipPassword.observingLock = false;
 }
 
-var cipDefine = {};
-
-cipDefine.selection = {
-	"username": null,
-	"password": null,
-	"fields": {}
-};
-cipDefine.eventFieldClick = null;
-
-cipDefine.init = function () {
-	var $backdrop = mpJQ("<div>").attr("id", "mp-bt-backdrop").addClass("mp-bt-modal-backdrop");
-	mpJQ("body").append($backdrop);
-
-	var $chooser = mpJQ("<div>").attr("id", "mp-bt-cipDefine-fields");
-	mpJQ("body").append($chooser);
-
-	var $description = mpJQ("<div>").attr("id", "mp-bt-cipDefine-description");
-	$backdrop.append($description);
-
-	cipFields.getAllFields();
-	cipFields.prepareVisibleFieldsWithID("select");
-
-	cipDefine.initDescription();
-
-	cipDefine.resetSelection();
-
-	if ( $('#mp-genpw-dialog').data('mpPasswordOnlyCombination') ) {
-		cipDefine.selection.username = 'mooltipass-username';
-		cipDefine.prepareStep2();
-		cipDefine.markAllPasswordFields($chooser);
-		return;
-	} else {
-		cipDefine.prepareStep1();
-		cipDefine.markAllUsernameFields($chooser);
-	}
-
-	
-}
-
-cipDefine.initDescription = function() {
-	var $description = mpJQ("div#mp-bt-cipDefine-description").css("min-width", "300px");
-	var $h1 = mpJQ("<div>").addClass("mp-bt-chooser-headline");
-	
-	var $help = mpJQ("<div>").addClass("mp-bt-chooser-help").attr("id", "mp-bt-help");
-
-	var $buttonWrap = mpJQ("<div>").attr("id", "mp-bt-buttonWrap")
-						.addClass("mooltipass-text-right")
-						.hide();
-
-	var $btnDismiss = mpJQ("<a>").text("Dismiss").attr("id", "mp-bt-btn-dismiss").attr("href",'#')
-		.click(function(e) {
-			mpJQ("div#mp-bt-backdrop").remove();
-			mpJQ("div#mp-bt-cipDefine-fields").remove();
-		});
-
-	var $btnSkip = mpJQ("<button>").text("Skip").attr("id", "mp-bt-btn-skip")
-		.css("margin-right", "5px")
-		.click(function() {
-			if(mpJQ(this).data("step") == 1) {
-				cipDefine.selection.username = null;
-				cipDefine.prepareStep2();
-				cipDefine.markAllPasswordFields(mpJQ("#mp-bt-cipDefine-fields"));
-				mpJQ("#mp-bt-btn-again").hide();
-			}
-			else if(mpJQ(this).data("step") == 2) {
-				cipDefine.selection.password = null;
-				cipDefine.prepareStep3();
-				cipDefine.markAllStringFields(mpJQ("#mp-bt-cipDefine-fields"));
-				mpJQ("#mp-bt-btn-again").show();
-			}
-		});
-	var $btnAgain = mpJQ("<a>").text("Undo").attr("id", "mp-bt-btn-again").attr("href",'#')
-		.click(function(e) {
-			cipDefine.resetSelection();
-			cipDefine.prepareStep1();
-			cipDefine.markAllUsernameFields(mpJQ("#mp-bt-cipDefine-fields"));
-		})
-		.hide();
-	var $btnConfirm = mpJQ("<button>").text("Confirm").attr("id", "mp-bt-btn-confirm")
-		.css("margin-right", "15px")
-		.hide()
-		.click(function(e) {
-			if(!cip.settings["defined-credential-fields"]) {
-				cip.settings["defined-credential-fields"] = {};
-			}
-
-			if(cipDefine.selection.username) {
-				cipDefine.selection.username = cipFields.prepareId(cipDefine.selection.username);
-			}
-
-			var passwordId = mpJQ("div#mp-bt-cipDefine-fields").data("password");
-			if(cipDefine.selection.password) {
-				cipDefine.selection.password = cipFields.prepareId(cipDefine.selection.password);
-			}
-
-			var fieldIds = [];
-			var fieldKeys = Object.keys(cipDefine.selection.fields);
-			for(var i = 0; i < fieldKeys.length; i++) {
-				fieldIds.push(cipFields.prepareId(fieldKeys[i]));
-			}
-
-			cip.settings["defined-credential-fields"][document.location.origin] = {
-				"username": cipDefine.selection.username,
-				"password": cipDefine.selection.password,
-				"fields": fieldIds
-			};
-
-			messaging({
-				action: 'save_settings',
-				args: [cip.settings]
-			});
-
-			mpJQ("#mp-bt-btn-dismiss").click();
-		})
-		.hide();
-
-	$h1.append($btnDismiss);
-
-	$description.append($h1);
-	$description.append($btnDismiss);
-	
-	$buttonWrap.append($btnAgain);
-
-	$buttonWrap.append($btnConfirm);
-
-	if(cip.settings["defined-credential-fields"] && cip.settings["defined-credential-fields"][document.location.origin]) {
-		var $p = mpJQ("<p id='mp-already-existent-message'>").html("For this page credential fields are already selected and will be overwritten.");
-		$description.append($p);
-	}
-
-	$description.append($buttonWrap);
-
-	// Last piece of jquery-ui
-	mpJQ("div#mp-bt-cipDefine-description").draggable();
-}
-
-cipDefine.resetSelection = function() {
-	cipDefine.selection = {
+cipDefine = {
+	selection: {
 		username: null,
 		password: null,
 		fields: {}
-	};
+	}
+}
+
+cipDefine.show = function() {
+	var iframe = document.createElement('iframe');
+	iframe.onload = function() {
+		$(iframe).fadeIn(100)
+	}
+	iframe.src = chrome.extension.getURL('ui/custom-credentials-selection/custom-credentials-selection.html') + '?' +
+		encodeURIComponent(JSON.stringify({
+			settings: cip.settings,
+			origin: document.location.origin
+		}));
+		
+	$(iframe).addClass('mp-ui-custom-credentials-selection').hide()
+	mpJQ("body").append(iframe)
+}
+
+cipDefine.hide = function() {
+	$('.mp-ui-custom-credentials-selection').fadeOut(100, function() {
+		$(this).remove()
+	})
 }
 
 cipDefine.isFieldSelected = function($cipId) {
@@ -441,108 +334,31 @@ cipDefine.isFieldSelected = function($cipId) {
 	);
 }
 
-cipDefine.markAllUsernameFields = function($chooser) {
-	cipDefine.eventFieldClick = function(e) {
-		cipDefine.selection.username = mpJQ(this).data("mp-id");
-		mpJQ(this).addClass("mp-bt-fixed-username-field").text("Username").unbind("click");
-		cipDefine.prepareStep2();
-		cipDefine.markAllPasswordFields(mpJQ("#mp-bt-cipDefine-fields"));
-	};
-	cipDefine.markFields($chooser, cipFields.inputQueryPattern);
-}
-
-cipDefine.markAllPasswordFields = function($chooser) {
-	cipDefine.eventFieldClick = function(e) {
-		cipDefine.selection.password = mpJQ(this).data("mp-id");
-		mpJQ(this).addClass("mp-bt-fixed-password-field").text("Password").unbind("click");
-		cipDefine.prepareStep3();
-		cipDefine.markAllStringFields(mpJQ("#mp-bt-cipDefine-fields"));
-	};
-	cipDefine.markFields($chooser, "input[type='password']");
-}
-
-cipDefine.markAllStringFields = function($chooser) {
-	cipDefine.eventFieldClick = function(e) {
-		cipDefine.selection.fields[mpJQ(this).data("mp-id")] = true;
-		var count = Object.keys(cipDefine.selection.fields).length;
-		mpJQ(this).addClass("mp-bt-fixed-string-field").text("String field #"+count.toString()).unbind("click");
-
-		mpJQ("button#mp-bt-btn-confirm:first").addClass("mp-bt-btn-primary").attr("disabled", false);
-	};
-	cipDefine.markFields($chooser, cipFields.inputQueryPattern + ", select");
-}
-
-cipDefine.markFields = function ($chooser, $pattern) {
-	//var $found = false;
-	mpJQ($pattern).each(function() {
-		if(cipDefine.isFieldSelected(mpJQ(this).data("mp-id"))) {
-			//continue
-			return true;
-		}
-
+cipDefine.retrieveMarkFields = function(pattern) {
+	var fields = []
+	
+	mpJQ(pattern).each(function() {
 		if(mpJQ(this).is(":visible") && mpJQ(this).css("visibility") != "hidden" && mpJQ(this).css("visibility") != "collapsed") {
-			var $field = mpJQ("<div>").addClass("mp-bt-fixed-field")
-				.css("top", mpJQ(this).offset().top)
-				.css("left", mpJQ(this).offset().left)
-				.css("width", mpJQ(this).outerWidth())
-				.css("height", mpJQ(this).outerHeight())
-				.attr("data-mp-id", mpJQ(this).attr("data-mp-id"))
-				.click(cipDefine.eventFieldClick)
-				.hover(function() {mpJQ(this).addClass("mp-bt-fixed-hover-field");}, function() {mpJQ(this).removeClass("mp-bt-fixed-hover-field");});
-			$chooser.append($field);
-			//$found = true;
+			fields.push({
+				top: mpJQ(this).offset().top,
+				left: mpJQ(this).offset().left,
+				width: mpJQ(this).outerWidth(),
+				height: mpJQ(this).outerHeight(),
+				id: mpJQ(this).attr("data-mp-id")
+			})
 		}
 	});
-
-	/* skip step if no entry was found
-	if(!$found) {
-		alert("No username field found.\nContinue with choosing a password field.");
-		mpJQ("button#mp-bt-btn-skip").click();
-	}
-	*/
+	
+	messaging({
+		action: 'create_action',
+		args: [{
+			action: 'custom_credentials_selection_mark_fields_data',
+			args: {
+				fields: fields
+			}
+		}]
+	});
 }
-
-cipDefine.prepareStep1 = function() {
-	mpJQ("div#mp-bt-help").text("").css("margin-bottom", 0);
-	mpJQ("div#mp-bt-cipDefine-fields").removeData("username");
-	mpJQ("div#mp-bt-cipDefine-fields").removeData("password");
-	mpJQ("div.mp-bt-fixed-field", mpJQ("div#mp-bt-cipDefine-fields")).remove();
-	mpJQ("div:first", mpJQ("div#mp-bt-cipDefine-description")).text("1. Choose a username field");
-	mpJQ("button#mp-bt-btn-skip:first").data("step", "1").show();
-	mpJQ("button#mp-bt-btn-confirm:first").hide();
-	mpJQ("button#mp-bt-btn-again:first").hide();
-}
-
-cipDefine.prepareStep2 = function() {
-	mpJQ("div#mp-bt-help").text("").css("margin-bottom", 0);
-	mpJQ("div.mp-bt-fixed-field:not(.mp-bt-fixed-username-field)", mpJQ("div#mp-bt-cipDefine-fields")).remove();
-	mpJQ("div:first", mpJQ("div#mp-bt-cipDefine-description")).text("2. Now choose a password field");
-	mpJQ("button#mp-bt-btn-skip:first").data("step", "2");
-	mpJQ("button#mp-bt-btn-again:first").show();
-}
-
-cipDefine.prepareStep3 = function() {
-	/* skip step if no entry was found
-	if(!mpJQ("div#mp-bt-cipDefine-fields").data("username") && !mpJQ("div#mp-bt-cipDefine-fields").data("password")) {
-		alert("Neither an username field nor a password field were selected.\nNothing will be changed and chooser will be closed now.");
-		mpJQ("button#mp-bt-btn-dismiss").click();
-		return;
-	}
-	 */
-
-	if(!cipDefine.selection.username && !cipDefine.selection.password) {
-		mpJQ("button#mp-bt-btn-confirm:first").removeClass("mp-bt-btn-primary").attr("disabled", true);
-	}
-
-	mpJQ("div#mp-bt-help").html("Please confirm your selection or choose more fields as <em>String fields</em>.").css("margin-bottom", "5px");
-	mpJQ("div.mp-bt-fixed-field:not(.mp-bt-fixed-password-field,.mp-bt-fixed-username-field)", mpJQ("div#mp-bt-cipDefine-fields")).remove();
-	mpJQ("button#mp-bt-btn-confirm:first").show();
-	mpJQ("div#mp-bt-buttonWrap").show();
-	mpJQ("button#mp-bt-btn-skip:first").data("step", "3").hide();
-	mpJQ("div:first", mpJQ("div#mp-bt-cipDefine-description")).text("3. Confirm selection");
-}
-
-
 
 cipFields = {}
 
@@ -568,6 +384,12 @@ cipFields.setUniqueId = function(field) {
 		// create own ID if no ID is set for this field
 		cipFields.uniqueNumber += 1;
 		field.attr("data-mp-id", "mpJQ"+String(cipFields.uniqueNumber));
+
+		// Set unique id for form also.
+		containerForm = field.closest('form');
+		if (containerForm.length && !containerForm.data('mp-id')) {
+			cipFields.setUniqueId(containerForm);
+		}
 	}
 }
 
@@ -762,7 +584,7 @@ cipFields.getUsernameField = function(passwordId, checkDisabled) {
 	}
 
 	if ( cipDefine.selection && cipDefine.selection.username !== null ) {
-		return mpJQ('#' + cipDefine.selection.username);
+		return _f(cipDefine.selection.username);
 	}
 
 	var form = passwordField.closest("form")[0];
@@ -829,7 +651,7 @@ cipFields.getPasswordField = function(usernameId, checkDisabled) {
 	}
 
 	if ( cipDefine.selection && cipDefine.selection.password !== null ) {
-		return mpJQ('#' + cipDefine.selection.password);
+		return _f(cipDefine.selection.password);
 	}
 
 	var form = usernameField.closest("form")[0];
@@ -1632,6 +1454,11 @@ cipEvents.startEventHandling = function() {
 			case 'response-content_script_loaded':
 				mcCombs.init( function() {
 					cip.settings = mcCombs.settings;
+					
+					var definedCredentialFields = cip.settings["defined-credential-fields"][document.location.origin]
+					cipDefine.selection.username = definedCredentialFields ? definedCredentialFields.username : null
+					cipDefine.selection.password = definedCredentialFields ? definedCredentialFields.password : null
+					cipDefine.selection.fields = definedCredentialFields ? definedCredentialFields.fields : null
 				});
 				break;
 			case 'response-get_settings':
@@ -1642,7 +1469,15 @@ cipEvents.startEventHandling = function() {
 				break;
 			case 'response-generate_password':
 				var randomPassword = cipPassword.generatePasswordFromSettings( req.data );
-				mpJQ(".mooltipass-password-generator").val(randomPassword);
+				messaging({
+					action: 'create_action',
+					args: [{
+						action: 'password_dialog_generated_password',
+						args: {
+							password: randomPassword
+						}
+					}]
+				});
 				break;
 		}
 
@@ -1679,7 +1514,7 @@ cipEvents.startEventHandling = function() {
 				cip.contextMenuRememberCredentials();
 			}
 			else if (req.action == "choose_credential_fields") {
-				cipDefine.init();
+				cipDefine.show();
 			}
 			else if (req.action == "clear_credentials") {
 				cipEvents.clearCredentials();
@@ -1710,6 +1545,57 @@ cipEvents.startEventHandling = function() {
 			}
 			else if (req.action == "captcha_detected") {
 				cip.formHasCaptcha = true;
+			}
+			else if (req.action == "password_dialog_toggle_click") {
+				cipPassword.onIconClick(req.args.iconId)
+			}
+			else if (req.action == "password_dialog_hide") {
+				mpDialog.hide()
+			}
+			else if (req.action == "password_dialog_highlight_fields") {
+				mpDialog.onHighlightFields(req.args.highlight)
+			}
+			else if (req.action == "password_dialog_generate_password") {
+				mpDialog.onGeneratePassword()
+			}
+			else if (req.action == "password_dialog_copy_password_to_fields") {
+				mpDialog.onCopyPasswordToFields(req.args.password)
+			}
+			else if (req.action == "password_dialog_store_credentials") {
+				mpDialog.onStoreCredentials(req.args.username)
+			}
+			else if (req.action == "password_dialog_custom_credentials_selection") {
+				mpDialog.onCustomCredentialsSelection()
+			}
+			else if (req.action == "custom_credentials_selection_hide") {
+				cipDefine.hide()
+			}
+			else if (req.action == "custom_credentials_selection_request_mark_fields_data") {
+				cipDefine.retrieveMarkFields(req.args.pattern)
+			}
+			else if (req.action == "custom_credentials_selection_selected") {
+				cipDefine.selection = {
+					username: req.args.username || cipDefine.selection.username,
+					password: req.args.password || cipDefine.selection.password,
+					fields: req.args.fields || cipDefine.selection.fields
+				}
+				
+				cip.settings["defined-credential-fields"][document.location.origin] =
+					cip.settings["defined-credential-fields"][document.location.origin] ||
+					{}
+					
+				var definedCredentialFields = cip.settings["defined-credential-fields"][document.location.origin]
+				definedCredentialFields.username = req.args.username || definedCredentialFields.username
+				definedCredentialFields.password = req.args.password || definedCredentialFields.password
+				definedCredentialFields.fields = req.args.fieldsIds || definedCredentialFields.fields
+			}
+			else if (req.action == "custom_credentials_selection_cancelled") {
+				cip.settings["defined-credential-fields"][document.location.origin] = null
+				cipDefine.selection = {
+					username: null,
+					password: null,
+					fields: {}
+				}
 			}
 		}
 	};
@@ -1772,46 +1658,6 @@ if (!stopInitialization) {
 	mcCombs.settings.debugLevel = content_debug_msg;
 
 	messaging( {'action': 'content_script_loaded' } );
-	
-	handleHTTPAuth()
-}
-
-function handleHTTPAuth() {
-	// We need to execute only when http-auth.html is opened.
-	// Compare only pathname because Safari doesn't support chrome.extension.getURL
-	// in content script. Moving initialization to a separate script later is a good idea.
-	if (window.location.pathname != '/http-auth.html') return
-	
-	$(function() {
-		var data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
-		
-		// Set url as action attribute of the form, so mcCombs will
-		// save credentials for the right url.
-		mpJQ('.mp-popup-http-auth__form').attr('action', 
-			data.isProxy
-			? 'proxy://' + data.proxy
-			: data.url
-		)
-		mpJQ('.mp-popup-http-auth__notice span').text(
-			data.isProxy
-				? data.proxy
-				: new URL(data.url).hostname
-		)
-		
-		mpJQ('.mp-popup-http-auth__form').on('submit', function(event) {
-			event.preventDefault();
-			
-			messaging({
-				action: 'http_auth_submit',
-				args: [{
-					login: mpJQ('.mp-popup-http-auth__form [name="login"]').val(),
-					password: mpJQ('.mp-popup-http-auth__form [name="password"]').val()
-				}]
-			});
-			
-			window.location.href = data.url
-		})
-	})
 }
 
 var mpDialog = {
@@ -1820,179 +1666,117 @@ var mpDialog = {
 	$pwField: false,
 	inputs: false,
 	created: false,
-	toggle: function( event ) {
+	toggle: function(target, isPasswordOnly) {
 		if ( this.shown ) this.hide();
-		else this.show( event );
+		else this.show(target, isPasswordOnly);
 	},
 	precreate: function( inputs, $pwField ) {
 		this.inputs = inputs;
 		this.$pwField = $pwField;
 	},
-	create: function( inputs, $pwField ) {
-		if(this.created)
-			return;
-		var overlay = mpJQ('<div>').addClass('mp-genpw-overlay');
-		var dom = this.domDialog( $pwField );
-		this.dialog = mpJQ("<div>").addClass('mp-genpw-dialog').append( overlay, dom );
-		mpJQ("body").append( this.dialog );
-		this.created = true;
-	},
-	showLoginArea: function() {
-		this.dialog.find('.mp-first').removeClass('mp-first');
-		this.dialog.find('.login-area').addClass('mp-first').show();
-	},
-	show: function( event ) {
-		if ( !this.created ) {
-			this.create( this.inputs, this.$pwField );
+	
+	create: function(target, isPasswordOnly) {
+		var iframe = document.createElement('iframe');
+		iframe.onload = function() {
+			$(iframe).fadeIn(100)
 		}
-
-		var posX = event.clientX + 20;
-		var posY = event.clientY - 20;
-
-		this.dialog.find('.mp-genpw-overlay').on('click.mooltipass', function( e ) {
-			if ( mpJQ(e.target).hasClass('mp-genpw-overlay') ) this.hide();
-		}.bind(this));
-
-		this.dialog.find('.mooltipass-box').css({ top: posY, left: posX });
-		this.dialog.show( function() {
-			var mpBox = this.dialog.find('.mooltipass-box');
-
-			// Generate password if empty
-			if ( mpBox.find('.mooltipass-password-generator').val() === '' ) {
-				cipPassword.generatePassword();
-			}
-
-			// Move dialog if exceeding right area
-			if ( posX + mpBox.outerWidth() > window.innerWidth ) {
-				mpBox.css({ left: posX - mpBox.outerWidth() - 50 + 'px' });
-				mpBox.addClass('inverted-triangle');
-			}
-
-			// Move dialog if exceeding bottom
-			var exceedingBottom = ( posY + mpBox.innerHeight() ) - mpJQ( window.top ).innerHeight();
-			if ( exceedingBottom > 0 ) mpBox.css({ top: mpBox.position().top - exceedingBottom + 'px' });
-
-			// Move Arrows to the right place
-			if ( exceedingBottom > 0 ) mpBox.find('.mp-triangle-in, .mp-triangle-out').css({ top: 8 + exceedingBottom + 'px' });
-
-		}.bind(this));
-		this.shown = true;
+		iframe.src = chrome.extension.getURL('ui/password-dialog/password-dialog.html') + '?' +
+			encodeURIComponent(JSON.stringify({
+				login: mcCombs.credentialsCache && mcCombs.credentialsCache.length && mcCombs.credentialsCache[0].Login
+							 ? mcCombs.credentialsCache[0].Login
+							 : null,
+				offsetLeft: target.offset().left - $(window).scrollLeft() + target.width() + 20,
+				offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
+				isPasswordOnly: isPasswordOnly
+			}));
+			
+		$(iframe).addClass('mp-ui-password-dialog').hide()
+		mpJQ("body").append(iframe)
+			
+		this.dialog = $(iframe)
+		this.created = true
 	},
+	
+	show: function(target, isPasswordOnly) {
+		if (!this.created) {
+			this.create(target, isPasswordOnly);
+		} else {
+			this.dialog.fadeIn(100)
+			messaging({
+				action: 'create_action',
+				args: [{
+					action: 'password_dialog_show',
+					args: {
+						offsetLeft: target.offset().left - $(window).scrollLeft() + target.width() + 20,
+						offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
+						isPasswordOnly: isPasswordOnly
+					}
+				}]
+			});
+		}
+	},
+	
 	hide: function() {
-		this.dialog.hide();
-		this.dialog.find('.mp-genpw-overlay').off('click.mooltipass');
+		this.dialog.fadeOut(100);
 		this.shown = false;
 	},
-	domDialog: function( $pwField ) {
-		// DomDialog creates the dialog upon request (No dialog is created if the user doesn't click on the blue-key)
-		var output = document.createElement('div');
-		output.className = 'mooltipass-box';
-
-		// Triangle
-		mpJQ('<div>').addClass('mp-triangle-out').appendTo( output );
-		mpJQ('<div>').addClass('mp-triangle-in').appendTo( output );
-
-		// Current Login information + field
-		var oTitle = mpJQ('<div>').addClass('mp-title').text('Current Login');
-		var oText = mpJQ('<p>').text('If not correct, modify it below');
-		var oInput = mpJQ('<input>').prop('type','text').addClass('mooltipass-hash-ignore').prop('id','mooltipass-username');
-		mpJQ('<div>').addClass('login-area').addClass('mp-area').append(oTitle, oText, oInput).appendTo( output );
-
-		// Check if we retreived credentials
-		if ( mcCombs.credentialsCache && mcCombs.credentialsCache.length && mcCombs.credentialsCache[0].Login ) oInput.val( mcCombs.credentialsCache[0].Login );
-		
-		// Credentials Actions
-		oTitle = mpJQ('<div>').addClass('mp-title').text('Credential Storage');
-		oText = mpJQ('<p>').text('You can store your entered credentials in the Mooltipass device to securely store and easily access them.');
-		var oButton = mpJQ('<button>').prop('id','mooltipass-store-credentials').addClass('mooltipass-button').text('Store or update current credentials');
-		var oLink = mpJQ('<a>').addClass('mooltipass-select-custom').text('Select custom credential fields');
-		var oEncloser = mpJQ('<div>').addClass('mp-encloser').append(oButton, oLink);
-		mpJQ('<div>').addClass('mp-area').addClass('mp-first').append(oTitle, oText, oEncloser).appendTo( output );
-
-		// Credential Actions Event Listeners
-		oButton.hover( function() {
-			if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
-			$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
-			
-			if ( $userField ) $userField.addClass("mp-hover-username");
-			if ( $pwField ) $pwField.addClass("mp-hover-password");
-		}, function() {
+	
+	onHighlightFields: function(highlight) {
+		if (highlight) {
+			var usernameFieldId = cipDefine.selection.username || mcCombs.usernameFieldId,
+					passwordFieldId = cipDefine.selection.password || mcCombs.passwordFieldId
+					
+			$('[data-mp-id=' + usernameFieldId + ']').addClass('mp-hover-username')
+			$('[data-mp-id=' + passwordFieldId + ']').addClass('mp-hover-password')
+		} else {
 			mpJQ(".mp-hover-username").removeClass("mp-hover-username");
 			mpJQ(".mp-hover-password").removeClass("mp-hover-password");
-		}).click( function( e ) {
-			e.preventDefault();
-
-			var url = (document.URL.split("://")[1]).split("/")[0];
-			if ( cipDefine.selection.password ) $pwField = cipFields.getPasswordField( cipDefine.selection.password , true);
-			$userField = cipFields.getUsernameField( $pwField.data("mp-id") );
-
-			if ( mpJQ('#mooltipass-username').val() ) {
-				var username = mpJQ('#mooltipass-username').val();
-			} else if ( $userField.length ) {
+		}
+	},
+	
+	onStoreCredentials: function(username) {
+		var url = (document.URL.split("://")[1]).split("/")[0]
+				
+		var usernameFieldId = cipDefine.selection.username || mcCombs.usernameFieldId,
+				passwordFieldId = cipDefine.selection.password || mcCombs.passwordFieldId,
+				$userField = $('[data-mp-id=' + usernameFieldId + ']'),
+				$pwField = $('[data-mp-id=' + passwordFieldId + ']')
+				
+		if (!username) {
+			if ($userField.length) {
 				var username = $userField.val();	
 			} else {
 				var username = '';
 			}
-			var password = $pwField.val();
+		}
+		var password = $pwField.val();
 
-			mpJQ(".mp-hover-username").removeClass("mp-hover-username");
-			mpJQ(".mp-hover-password").removeClass("mp-hover-password");
+		mpJQ(".mp-hover-username").removeClass("mp-hover-username");
+		mpJQ(".mp-hover-password").removeClass("mp-hover-password");
 
-			mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
+		mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Follow the instructions on your Mooltipass device to store the credentials.</p>');
 
-			if(cip.rememberCredentials(null, $userField, username, $pwField, password)) {
-				mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Credentials are added to your Mooltipass KeyCard</p>');
-			}
-		});
+		if(cip.rememberCredentials({ target: $userField.closest('form')[0] }, $userField, username, $pwField, password)) {
+			mpJQ("#mp-update-credentials-wrap").html('<p style="font-size: 12px !important;">Credentials are added to your Mooltipass KeyCard</p>');
+		}
+	},
+	
+	onCustomCredentialsSelection: function() {
+		cipDefine.show()
+	},
+	
+	onGeneratePassword: function() {
+		cipPassword.generatePassword();
+	},
+	
+	onCopyPasswordToFields: function(password) {
+		var passwordFields = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
 
-		oLink.on('click.mooltipass', function( e ) {
-			e.preventDefault();
-			cipDefine.init();
-		});
-
-		// Password Generator
-		oTitle = mpJQ('<div>').addClass('mp-title').text('Password Generator');
-		oInput = mpJQ('<input>').prop('type','text').addClass('mooltipass-password-generator').addClass('mooltipass-hash-ignore');
-		oLink = mpJQ('<a>').addClass('mooltipass-new-password').text('Re-generate');
-		oButton = mpJQ('<button>').addClass('mp-bottom-button').text('Copy to all password fields');
-		var oButtonB = mpJQ('<button>').addClass('mp-bottom-button').text('Copy to Clipboard');
-		mpJQ('<div>').addClass('mp-area').append(oTitle, oInput, oLink, oButton, oButtonB).appendTo( output );
-
-		// Password Generator Event Listeners
-		oLink.on('click.mooltipass', function( e ) {
-			e.preventDefault();
-			cipPassword.generatePassword();
-		});
-
-		oButton.on('click.mooltipass', function( e ) {
-			e.preventDefault();
-			e.stopPropagation();
-
-			var password = mpJQ(".mooltipass-password-generator").val();
-			var passwordFields = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
-
-			passwordFields.val('').sendkeys( password );
-			passwordFields.trigger('change');
-		});
-
-		oButtonB.on('click.mooltipass', function( e ) {
-			e.preventDefault();
-			e.stopPropagation();
-
-			var copyInput = document.querySelector('.mooltipass-password-generator');
-			copyInput.select();
-
-			try {
-				var successful = document.execCommand('copy');
-				var msg = successful ? 'successful' : 'unsuccessful';
-				cipDebug.info('Copying password to clipboard was ' + msg);
-				mpJQ(this).addClass("mooltipass-button-success");
-			} catch(err) {
-				cipDebug.warn('Unable to copy password to clipboard');
-				mpJQ(this).addClass("mooltipass-button-error");
-			}
-		});
-
-		return output;
+		passwordFields.val('').sendkeys( password );
+		passwordFields.trigger('change');
+	},
+	
+	onHideDialog: function() {
+		this.hide()
 	}
 }

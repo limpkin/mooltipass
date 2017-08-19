@@ -1,4 +1,5 @@
 Use one of the two templates below and delete the rest. All issues not following a template will be directly closed.
+We apologize in advance if we ever take <a href="https://hackernoon.com/why-i-havent-fixed-your-issue-yet-a24ab4bc0d55">too long</a> to resolve your issue. This is due to the fact that Mooltipass mostly is a contributor based project.
 
 8<------------------------ BUG REPORT -----------------------------------------
 ### Expected behavior
@@ -30,6 +31,9 @@ Mention if you are using either:
 Mention if you are using either:
 - The Mooltipass Standard
 - The Mooltipass Mini
+
+### Website support
+If your issue is related to website support, please use the "Report incompatibilities with this website" item in the extension menu. You may still use a GitHub issue if you notice a major bug that impacts multiple websites at once.
 
 8<------------------------ END BUG REPORT -------------------------------------
 

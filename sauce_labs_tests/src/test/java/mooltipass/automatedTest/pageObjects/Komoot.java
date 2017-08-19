@@ -24,7 +24,7 @@ public class Komoot extends AbstractPage{
 	@FindBy(xpath = "//input[@id='password']")
 	private WebElement password;
 
-	@FindBy(xpath = "//button[text()='Anmelden']")
+	@FindBy(xpath = "//span[text()='Anmelden']")
 	private WebElement submitLogin;
 	
 	@FindBy(xpath = "//a[text()='Abmelden']")

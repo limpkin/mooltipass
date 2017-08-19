@@ -22,7 +22,7 @@ public class DropBox extends AbstractPage{
 
 	@FindBy(xpath = "//input[@name='login_password']")
 	private WebElement password;
-	@FindBy(xpath = "//form[@action='/ajax_login']//button[@class='login-button button-primary']//div[@class='sign-in-text']")
+	@FindBy(xpath = "//form[@action='/ajax_login']//button[@type='submit']//div[@class='sign-in-text']")
 	private WebElement submitLogin;
 	
 	@FindBy(xpath = "//button[@aria-label='Account menu']")

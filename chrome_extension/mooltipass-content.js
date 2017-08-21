@@ -185,6 +185,7 @@ cipPassword.createIcon = function(field) {
 	
 	var $icon = $(iframe)
 		.attr('id', PREFIX + '-' + field.data('mp-id'))
+		.attr('tabindex', -1)
 		.addClass(PREFIX)
 		.addClass($className)
 		.css("z-index", $zIndex)
@@ -1776,8 +1777,9 @@ var mpDialog = {
 	onCopyPasswordToFields: function(password) {
 		var passwordFields = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
 
-		passwordFields.val('').sendkeys( password );
-		passwordFields.trigger('change');
+		passwordFields.each(function(index, field) {
+			mcCombs.triggerChangeEvent(field, password)
+		})
 	},
 	
 	onHideDialog: function() {

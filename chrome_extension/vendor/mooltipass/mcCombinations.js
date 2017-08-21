@@ -387,7 +387,7 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Simple Login Form with Text',
 		requiredFields: [
 			{
-				selector: 'input[type=text],input[type=login],input:not([type])',
+				selector: 'input[type=text],input[type=login],input[type=tel],input:not([type])',
 				mapsTo: 'username'
 			},
 			{
@@ -663,9 +663,9 @@ mcCombinations.prototype.detectCombination = function() {
 							.add(currentForm.combination.fields.username)
 							.add(currentForm.combination.fields.password)
 							.unbind('keydown.mooltipass')
-							.on('keydown.mooltipass', function(event) {
+							.on('keydown.mooltipass', function(currentForm, event) {
 								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element[0] }) }
-							}.bind(this))
+							}.bind(this, currentForm))
 					}
 				}
 
@@ -860,9 +860,9 @@ mcCombinations.prototype.detectForms = function() {
 				.add(currentForm.combination.fields.username)
 				.add(currentForm.combination.fields.password)
 				.unbind('keydown.mooltipass')
-				.on('keydown.mooltipass', function(event) {
+				.on('keydown.mooltipass', function(currentForm, event) {
 					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element && currentForm.element[0] }) }
-				}.bind(this))
+				}.bind(this, currentForm))
 		}
 	}
 
@@ -1176,7 +1176,10 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				var inputs = cipFields.getAllFields();
 				cip.initPasswordGenerator(inputs);
 			}
-			if ( currentForm.combination.autoSubmit && !this.settings.doNotSubmitAfterFill) {
+			if (currentForm.combination.autoSubmit &&
+				  !this.settings.doNotSubmitAfterFill &&
+				  (!currentForm.combination.fields.username || mpJQ.contains(document, currentForm.combination.fields.username[0])) &&
+				  (!currentForm.combination.fields.password || mpJQ.contains(document, currentForm.combination.fields.password[0]))) {
 				this.doSubmit( currentForm );
 
 				// Stop processing forms if we're going to submit
@@ -1224,6 +1227,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	
 	// Selectors are ordered by priority, first ones are more important.
 	BUTTON_SELECTORS = [
+		'td.custom-button-center',
 		'[type="submit"]:visible, a[href^="javascript:"]:visible',
 		'button:visible',
 		'[role="button"]:visible',
@@ -1251,10 +1255,12 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		// Sort buttons by how nearest they are from the field.
 		buttons.each(function(index, button) {
 			var deep = 0,
-					outer = field
+					outer = field.parent()
 			
-			while (!mpJQ.contains((outer = outer.parent())[0], button) &&
-			       outer[0] != mpJQ('html')[0]) deep++
+			while (!mpJQ.contains(outer[0], button) && outer[0] != mpJQ('html')[0]) {
+				outer = outer.parent().length ? outer.parent() : mpJQ('html')
+				deep++
+			}
 			button.deep = deep
 		})
 		buttons.sort(function(a, b) {

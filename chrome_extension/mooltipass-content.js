@@ -1687,7 +1687,9 @@ var mpDialog = {
 							 : null,
 				offsetLeft: target.offset().left - $(window).scrollLeft() + target.width() + 20,
 				offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
-				isPasswordOnly: isPasswordOnly
+				isPasswordOnly: isPasswordOnly,
+				windowWidth: window.innerWidth,
+				windowHeight: window.innerHeight
 			}));
 			
 		$(iframe).addClass('mp-ui-password-dialog').hide()
@@ -1709,7 +1711,9 @@ var mpDialog = {
 					args: {
 						offsetLeft: target.offset().left - $(window).scrollLeft() + target.width() + 20,
 						offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
-						isPasswordOnly: isPasswordOnly
+						isPasswordOnly: isPasswordOnly,
+						windowWidth: window.innerWidth,
+						windowHeight: window.innerHeight
 					}
 				}]
 			});
@@ -1717,7 +1721,7 @@ var mpDialog = {
 	},
 	
 	hide: function() {
-		this.dialog.fadeOut(100);
+		this.dialog && this.dialog.fadeOut(100);
 		this.shown = false;
 	},
 	
@@ -1762,7 +1766,7 @@ var mpDialog = {
 	},
 	
 	onCustomCredentialsSelection: function() {
-		cipDefine.show()
+		if ($('.mp-ui-password-dialog').length > 0) cipDefine.show()
 	},
 	
 	onGeneratePassword: function() {

@@ -5,6 +5,8 @@
  * @param offsetLeft {Number}
  * @param offsetTop {Number}
  * @param isPasswordOnly {Boolean}
+ * @param windowWidth {Number}
+ * @param windowHeight {Number}
  */
  
 window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
@@ -125,16 +127,13 @@ $(function() {
 		}
 
 		// Move dialog if exceeding right area
-		if (window.innerWidth > 0 && data.offsetLeft + mpBox.outerWidth() > window.innerWidth) {
+		if (data.offsetLeft + mpBox.outerWidth() > data.windowWidth) {
 			mpBox.css({ left: data.offsetLeft - mpBox.outerWidth() - 50 + 'px' });
 			mpBox.addClass('inverted-triangle');
 		}
 
 		// Move dialog if exceeding bottom
-		var exceedingBottom = window.innerHeight > 0
-      ? ( data.offsetTop + mpBox.innerHeight() ) - window.innerHeight
-      : 0
-    
+		var exceedingBottom = data.offsetTop + mpBox.innerHeight() - data.windowHeight
 		if ( exceedingBottom > 0 ) mpBox.css({ top: mpBox.position().top - exceedingBottom + 'px' });
 
 		// Move Arrows to the right place

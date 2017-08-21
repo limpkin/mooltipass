@@ -1772,8 +1772,9 @@ var mpDialog = {
 	onCopyPasswordToFields: function(password) {
 		var passwordFields = mpJQ("input[type='password']:not('.mooltipass-password-do-not-update')");
 
-		passwordFields.val('').sendkeys( password );
-		passwordFields.trigger('change');
+		passwordFields.each(function(index, field) {
+			mcCombs.triggerChangeEvent(field, password)
+		})
 	},
 	
 	onHideDialog: function() {

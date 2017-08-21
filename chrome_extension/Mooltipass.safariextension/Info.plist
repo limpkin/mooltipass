@@ -59,7 +59,7 @@
 		<dict>
 			<key>End</key>
 			<array>
-				<string>vendor/jquery-2.1.4.js</string>
+				<string>vendor/jquery-3.2.1.js</string>
 				<string>vendor/jquery-ui-1.11.4.custom/jquery-ui.js</string>
 				<string>vendor/mooltipass/mcCombinations.js</string>
 				<string>vendor/sendkeys.js</string>

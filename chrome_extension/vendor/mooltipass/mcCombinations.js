@@ -663,9 +663,9 @@ mcCombinations.prototype.detectCombination = function() {
 							.add(currentForm.combination.fields.username)
 							.add(currentForm.combination.fields.password)
 							.unbind('keydown.mooltipass')
-							.on('keydown.mooltipass', function(event) {
+							.on('keydown.mooltipass', function(currentForm, event) {
 								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element[0] }) }
-							}.bind(this))
+							}.bind(this, currentForm))
 					}
 				}
 
@@ -860,9 +860,9 @@ mcCombinations.prototype.detectForms = function() {
 				.add(currentForm.combination.fields.username)
 				.add(currentForm.combination.fields.password)
 				.unbind('keydown.mooltipass')
-				.on('keydown.mooltipass', function(event) {
+				.on('keydown.mooltipass', function(currentForm, event) {
 					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element && currentForm.element[0] }) }
-				}.bind(this))
+				}.bind(this, currentForm))
 		}
 	}
 

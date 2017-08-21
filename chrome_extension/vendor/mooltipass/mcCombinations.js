@@ -387,7 +387,7 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Simple Login Form with Text',
 		requiredFields: [
 			{
-				selector: 'input[type=text],input[type=login],input:not([type])',
+				selector: 'input[type=text],input[type=login],input[type=tel],input:not([type])',
 				mapsTo: 'username'
 			},
 			{

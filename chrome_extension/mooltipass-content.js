@@ -185,6 +185,7 @@ cipPassword.createIcon = function(field) {
 	
 	var $icon = $(iframe)
 		.attr('id', PREFIX + '-' + field.data('mp-id'))
+		.attr('tabindex', -1)
 		.addClass(PREFIX)
 		.addClass($className)
 		.css("z-index", $zIndex)

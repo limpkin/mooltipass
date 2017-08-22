@@ -426,7 +426,7 @@ mcCombinations.prototype.possibleCombinations = [
 				mapsTo: 'username'
 			},
 			{
-				selector: 'input[type=password]',
+				selector: 'input[type=password],input[realtype=password]',
 				mapsTo: 'password'
 			},
 		],

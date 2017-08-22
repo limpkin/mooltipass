@@ -167,6 +167,35 @@ var extendedCombinations = {
 			}
 		}
 	},
+	soundcloud: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[name=password]:visible').length > 0 ) {
+					currentForm.combination.fields.password = mpJQ('input[name=password]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[name=username]:visible').length > 0 ) {
+					currentForm.combination.fields.username = mpJQ('input[name=username]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	yahoo: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -320,6 +349,12 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Google Two Page Login Procedure',
 		requiredUrl: 'accounts.google.com',
 		callback: extendedCombinations.google
+	},
+	{
+		combinationId: 'soundcloudTwoPageAuth',
+		combinationName: 'SoundCloud Two Page Login Procedure',
+		requiredUrl: 'soundcloud.com',
+		callback: extendedCombinations.soundcloud
 	},
 	{
 		combinationId: 'evernoteTwoPageAuth',

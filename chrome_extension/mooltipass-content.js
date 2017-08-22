@@ -414,9 +414,7 @@ cipFields.setFormUniqueId = function(field) {
 }
 
 cipFields.prepareId = function(id) {
-	return id.replace(/[:#.,\[\]\(\)' "]/g, function(m) {
-												return "\\"+m
-											});
+	return id.replace(/[:#.,\[\]\(\)' "]/g, '');
 }
 
 cipFields.getAllFields = function() {

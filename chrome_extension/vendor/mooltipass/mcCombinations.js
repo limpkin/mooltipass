@@ -1013,6 +1013,7 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 	if(element && !element.attr("data-mp-id")) {
 		var elementId = element.attr("id");
 		if( elementId ) {
+			elementId = elementId.replace(/[:#.,\[\]\(\)' "]/g, '');
 			element.attr("data-mp-id", elementId);
 			return;
 		} else {

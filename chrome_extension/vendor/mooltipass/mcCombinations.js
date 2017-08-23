@@ -1248,7 +1248,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	],
 	
 	IGNORE_PATTERNS = [
-		/forgotpassword/i,
+		/forgot/i,
 		/lostlogin/i,
 		/showpassword/i,
 		/remember_login/i,

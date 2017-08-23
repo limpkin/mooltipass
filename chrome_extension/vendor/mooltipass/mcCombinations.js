@@ -1242,6 +1242,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/login/i,
 		/sign/i,
 		/connexion/i,
+		/connecter/i,
 		/identifierNext/i,
 		/passwordNext/i,
 		/verify_user_btn/i,

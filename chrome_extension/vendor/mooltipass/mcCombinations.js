@@ -1037,6 +1037,7 @@ mcCombinations.prototype.isAvailableField = function($field) {
 		&& !$field.is(':disabled')
 		&& $field.css("visibility") != "collapsed"
 		&& $field.css("visibility") != "collapsed"
+		&& $field.attr('aria-hidden') != 'true'
 	);
 }
 
@@ -1270,6 +1271,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		'button:visible',
 		'[role="button"]:visible',
 		'a:visible',
+		'input[onclick]:visible',
 		'div[onclick]:visible'
 	]
 	

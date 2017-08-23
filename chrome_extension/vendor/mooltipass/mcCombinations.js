@@ -680,8 +680,8 @@ mcCombinations.prototype.detectCombination = function() {
 				for (form in this.forms) {
 					var currentForm = this.forms[form]
 					if (currentForm.element) {
-						var submitButton = this.detectSubmitButton(currentForm.element,
-							currentForm.combination.fields.username || currentForm.combination.fields.password)
+						var field = currentForm.combination.fields.username || currentForm.combination.fields.password,
+								submitButton = this.detectSubmitButton(field, field.parent())
 							
 						this.usernameFieldId =
 							currentForm.combination.fields.username &&
@@ -877,8 +877,8 @@ mcCombinations.prototype.detectForms = function() {
 			}
 			
 			// Handle sumbit event on submit button click or return keydown.
-			var submitButton = this.detectSubmitButton(currentForm.element,
-				currentForm.combination.fields.username || currentForm.combination.fields.password)
+			var field = currentForm.combination.fields.username || currentForm.combination.fields.password,
+					submitButton = this.detectSubmitButton(field, field.parent())
 				
 			this.usernameFieldId =
 				currentForm.combination.fields.username &&
@@ -1229,13 +1229,13 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 }
 
 /*
- * Detect submit button for the given form and field.
+ * Detect submit button for the given field and container.
  *
- * @param form {jQuery object}
  * @param field {jQuery object}
+ * @param container {jQuery object}
  * @return submitButton {DOM node} or undefined
  */
- mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(form, field) {
+ mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(field, container) {
 	var ACCEPT_PATTERNS = [
 		/submit/i,
 		/login/i,
@@ -1273,13 +1273,12 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		'div[onclick]:visible'
 	]
 	
-	var submitButton = null
-	form = form && form.length ? form : mpJQ('body')
+	var submitButton
 	
 	for (var selectorIndex = 0; selectorIndex < BUTTON_SELECTORS.length; selectorIndex++) {
 		var selector = BUTTON_SELECTORS[selectorIndex]
 		
-		var buttons = form.find(selector).filter(function(index, button) {
+		var buttons = container.find(selector).filter(function(index, button) {
 			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
 				if (mpJQ(button).clone().children().remove().end()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
 			}
@@ -1290,16 +1289,19 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		})
 		
 		// Sort buttons by how nearest they are from the field.
+		var fieldTop = field.offset().top + field.height() / 2,
+				fieldLeft = field.offset().left + field.width() / 2
+
 		buttons.each(function(index, button) {
-			var deep = 0,
-					outer = field.parent()
+			var $button = $(button),
+					buttonTop = $button.offset().top + $button.height() / 2,
+					buttonLeft = $button.offset().left + $button.width() / 2
 			
-			while (!mpJQ.contains(outer[0], button) && outer[0] != mpJQ('html')[0]) {
-				outer = outer.parent().length ? outer.parent() : mpJQ('html')
-				deep++
-			}
-			button.deep = deep
+			button.deep = Math.sqrt(
+				Math.pow(fieldTop - buttonTop, 2) + Math.pow(fieldLeft - buttonLeft, 2)
+			)
 		})
+		
 		buttons.sort(function(a, b) {
 			if (a.deep > b.deep) return 1
 			if (a.deep < b.deep) return -1
@@ -1309,9 +1311,9 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		if (buttons.length > 0) return buttons[0]
 	}
 	
-	// If we haven't detected submit button for form, try to find from body.
-	if (form[0] != mpJQ('body')[0]) {
-		return this.detectSubmitButton(mpJQ('body'), field)
+	// If we haven't detected submit button yet, try to find it in parent container.
+	if (container[0] != mpJQ('body')[0]) {
+		return this.detectSubmitButton(field, container.parent())
 	}
  }
 
@@ -1329,8 +1331,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
-	var submitButton = this.detectSubmitButton(currentForm.element,
-		currentForm.combination.fields.username || currentForm.combination.fields.password)
+	var field = currentForm.combination.fields.username || currentForm.combination.fields.password,
+			submitButton = this.detectSubmitButton(field, field.parent())
 	
 	if (submitButton) {
 		// Select innermost element to trigger click because handler can be on it.

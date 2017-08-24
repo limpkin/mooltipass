@@ -3,52 +3,6 @@
  *
  */
 var extendedCombinations = {
-	trillian: function (forms) {
-        	var validateCredentials = function () {
-            		var username = mpJQ('#x_loginUsername')[0].value;
-            		var password = mpJQ('#x_loginPassword')[0].value;
-            		if (username.length > 0 && password.length > 0) {
-                		messaging({
-                    			'action': 'update_notify',
-                    			'args': [username, 
-						password, 
-						'https://www.trillian.im/api/user/0.1/index.php/signin'
-						]
-                		});
-            		}
-        	};
-        	mpJQ('#x_loginUsername').on('blur', validateCredentials);
-        	mpJQ('#x_loginPassword').on('blur', validateCredentials);
-        	for (form in forms) {
-            		var currentForm = forms[form];
-            		currentForm.combination = {
-                		special: true,
-                		fields: {
-                    			username: '',
-                    			password: ''
-                		},
-                		savedFields: {
-                    			username: '',
-                    			password: ''
-                		},
-                		autoSubmit: true,
-                		submitHandler: function (credentials) {
-                    			mpJQ('#x_loginUsername')[0].value = credentials.Login;
-                    			mpJQ('#x_loginPassword')[0].value = credentials.Password;
-                    			setTimeout(function () {
-                        			mpJQ('.button')[0].click();
-                    			}, 100);
-                		}
-            		};
-
-            		if (mpJQ('#x_loginUsername').length > 0) {
-                		currentForm.combination.fields.username = mpJQ('#x_loginUsername');
-            		}
-            		if (mpJQ('#x_loginPassword').length > 0) {
-                		currentForm.combination.fields.password = mpJQ('#x_loginPassword');
-            		}
-        	}
-    	},
 	skype: function( forms ) {
 		//console.log('skype combination');
 		if ( mcCombs.getAllForms() == 0 ) return;
@@ -311,26 +265,6 @@ mcCombinations.prototype.gotSettings = function( response ) {
 * Array containing all the possible combinations we support
 */
 mcCombinations.prototype.possibleCombinations = [
-	{
-		combinationId: 'trillianLogin',
-		combinationName: 'Simple Trillian Login',
-		requiredUrl: 'www.trillian.im',
-		requiredFields: [
-            		{
-                		selector: 'input[type=text],input:not([type])',
-                		mapsTo: 'username'
-            		},
-            		{
-                		selector: 'input[type=password]',
-                		mapsTo: 'password'
-            		},
-        	],
-        	scorePerMatch: 50,
-        	score: 0,
-        	autoSubmit: true,
-        	maxfields: 2,
-		callback: extendedCombinations.trillian
-	},
 	{
 		combinationId: 'skypeTwoPageAuth',
 		combinationName: 'Skype Two Page Login Procedure',
@@ -1175,7 +1109,6 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 					currentForm.combination.fields.username.val('');
 					currentForm.combination.fields.username.click();
 					try {
-						currentForm.combination.fields.username.sendkeys( credentials[0].Login );
 						this.triggerChangeEvent(currentForm.combination.fields.username[0], credentials[0].Login)
 					} catch (e) {}					
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
@@ -1274,7 +1207,8 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		'[role="button"]:visible',
 		'a:visible',
 		'input[onclick]:visible',
-		'div[onclick]:visible'
+		'div[onclick]:visible',
+		'div.button'
 	]
 	
 	var submitButton

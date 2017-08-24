@@ -1279,11 +1279,36 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
  }
 
 /*
+ * Captcha detection.
+ *
+ * @param form {jQuery object}
+ * @return {Boolean}
+ */
+mcCombinations.prototype.formHasCaptcha = function(form) {
+	form = form && form.length ? form : $('body')
+	
+	var hasCaptcha = false
+	form.find('[class*="captcha"]').each(function(index, element) {
+		var $element = $(element)
+		
+		if ($element.width() != 0 &&
+				$element.height() != 0 &&
+				$element.css('display') != 'none') {
+			hasCaptcha = true
+		}
+	})
+	
+	return hasCaptcha
+}
+
+/*
 * Submits the form!
 */
-mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
-	// Do not autosubmit forms with Captcha
-	if ( cip.formHasCaptcha ) return;
+mcCombinations.prototype.doSubmit = function doSubmit(currentForm) {
+	if (this.formHasCaptcha()) {
+		if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Captcha detected','background-color: #c3c6b4','color: #800000')
+		return
+	}
 	
 	// Do not autosubmit form with two-factor auth for Steam.
 	if (window.location.hostname.match(/steamcommunity.com|steampowered.com/) &&

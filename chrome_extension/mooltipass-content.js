@@ -779,9 +779,6 @@ cip.waitingForPost = true;
 //Auto-submit form
 cip.autoSubmit = true;
 
-// If the form has captcha, we can't autosubmit.
-cip.formHasCaptcha = false;
-
 // Flag setting that we only wish to fill in the password
 cip.fillPasswordOnly = false;
 
@@ -816,9 +813,6 @@ cip.initCredentialFields = function(forceCall) {
 
 	var inputs = cipFields.getAllFields();
 	
-	// If we detected a captcha procedure in the form, we will prevent auto-submit
-	if ( cip.formHasCaptcha) cip.autoSubmit = false; 
-
 	/*
 	 * Uncomment next line of code for development tests (will prevent forms to auto-submit)
 	*/
@@ -1543,9 +1537,6 @@ cipEvents.startEventHandling = function() {
 			}
 			else if (req.action == "post_detected") {
 				mcCombs.postDetected( req.details?req.details:req.post_data );
-			}
-			else if (req.action == "captcha_detected") {
-				cip.formHasCaptcha = true;
 			}
 			else if (req.action == "password_dialog_toggle_click") {
 				cipPassword.onIconClick(req.args.iconId)

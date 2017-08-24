@@ -614,7 +614,7 @@ mcCombinations.prototype.detectCombination = function() {
 				for (form in this.forms) {
 					var currentForm = this.forms[form]
 					if (currentForm.element) {
-						var field = currentForm.combination.fields.username || currentForm.combination.fields.password,
+						var field = currentForm.combination.fields.password || currentForm.combination.fields.username,
 								submitButton = this.detectSubmitButton(field, field.parent())
 							
 						this.usernameFieldId =
@@ -811,7 +811,7 @@ mcCombinations.prototype.detectForms = function() {
 			}
 			
 			// Handle sumbit event on submit button click or return keydown.
-			var field = currentForm.combination.fields.username || currentForm.combination.fields.password,
+			var field = currentForm.combination.fields.password || currentForm.combination.fields.username,
 					submitButton = this.detectSubmitButton(field, field.parent())
 				
 			this.usernameFieldId =
@@ -1268,7 +1268,7 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
-	var field = currentForm.combination.fields.username || currentForm.combination.fields.password,
+	var field = currentForm.combination.fields.password || currentForm.combination.fields.username,
 			submitButton = this.detectSubmitButton(field, field.parent())
 	
 	if (submitButton) {

@@ -1192,7 +1192,6 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/google/i,
 		/id=".*?search.*?"/i,
 		/id="btnLoadMoreProducts"/i,
-		/id="loginLink"/i,
 		/class=".*?search.*?"/i,
 		/class="login_row"/i,
 		/href=".*?loginpage.*?"/i,

@@ -131,12 +131,6 @@ startMooltipass = function() {
 		chrome.webRequest.onBeforeRequest.addListener( function (details) {
 			if ( details.method == 'POST' && background_debug_msg > 4) mpDebug.log('%c init: onBeforeRequest - Post Interception','background-color: #4CAF50; color: #FFF', details);
 
-			// Test for captcha calls (we don't want to submit if there's a captcha)
-			var b = new RegExp('recaptcha');
-			if (b.test(details.url)) {
-				chrome.tabs.sendMessage( details.tabId, {action: 'captcha_detected', details: details});
-			}
-
 			// Intercept posts
 			if (details.method == "POST") {
 				// Deal both with RAW DATA and FORM DATA

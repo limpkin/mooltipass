@@ -414,9 +414,7 @@ cipFields.setFormUniqueId = function(field) {
 }
 
 cipFields.prepareId = function(id) {
-	return id.replace(/[:#.,\[\]\(\)' "]/g, function(m) {
-												return "\\"+m
-											});
+	return id.replace(/[:#.,\[\]\(\)' "]/g, '');
 }
 
 cipFields.getAllFields = function() {
@@ -1589,6 +1587,9 @@ cipEvents.startEventHandling = function() {
 				definedCredentialFields.username = req.args.username || definedCredentialFields.username
 				definedCredentialFields.password = req.args.password || definedCredentialFields.password
 				definedCredentialFields.fields = req.args.fieldsIds || definedCredentialFields.fields
+				
+				// Trigger mcCombs to re-evaluate combinations.
+				mcCombs.init();
 			}
 			else if (req.action == "custom_credentials_selection_cancelled") {
 				cip.settings["defined-credential-fields"][document.location.origin] = null
@@ -1597,6 +1598,9 @@ cipEvents.startEventHandling = function() {
 					password: null,
 					fields: {}
 				}
+				
+				// Trigger mcCombs to re-evaluate combinations.
+				mcCombs.init();
 			}
 		}
 	};

@@ -3,52 +3,6 @@
  *
  */
 var extendedCombinations = {
-	trillian: function (forms) {
-        	var validateCredentials = function () {
-            		var username = mpJQ('#x_loginUsername')[0].value;
-            		var password = mpJQ('#x_loginPassword')[0].value;
-            		if (username.length > 0 && password.length > 0) {
-                		messaging({
-                    			'action': 'update_notify',
-                    			'args': [username, 
-						password, 
-						'https://www.trillian.im/api/user/0.1/index.php/signin'
-						]
-                		});
-            		}
-        	};
-        	mpJQ('#x_loginUsername').on('blur', validateCredentials);
-        	mpJQ('#x_loginPassword').on('blur', validateCredentials);
-        	for (form in forms) {
-            		var currentForm = forms[form];
-            		currentForm.combination = {
-                		special: true,
-                		fields: {
-                    			username: '',
-                    			password: ''
-                		},
-                		savedFields: {
-                    			username: '',
-                    			password: ''
-                		},
-                		autoSubmit: true,
-                		submitHandler: function (credentials) {
-                    			mpJQ('#x_loginUsername')[0].value = credentials.Login;
-                    			mpJQ('#x_loginPassword')[0].value = credentials.Password;
-                    			setTimeout(function () {
-                        			mpJQ('.button')[0].click();
-                    			}, 100);
-                		}
-            		};
-
-            		if (mpJQ('#x_loginUsername').length > 0) {
-                		currentForm.combination.fields.username = mpJQ('#x_loginUsername');
-            		}
-            		if (mpJQ('#x_loginPassword').length > 0) {
-                		currentForm.combination.fields.password = mpJQ('#x_loginPassword');
-            		}
-        	}
-    	},
 	skype: function( forms ) {
 		//console.log('skype combination');
 		if ( mcCombs.getAllForms() == 0 ) return;
@@ -167,6 +121,35 @@ var extendedCombinations = {
 			}
 		}
 	},
+	soundcloud: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[name=password]:visible').length > 0 ) {
+					currentForm.combination.fields.password = mpJQ('input[name=password]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[name=username]:visible').length > 0 ) {
+					currentForm.combination.fields.username = mpJQ('input[name=username]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	yahoo: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -238,7 +221,7 @@ function mcCombinations() {}
 mcCombinations.prototype = ( function() {
 	return {
 		constructor:mcCombinations,
-		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='login'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type])",
+		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='login'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type]), input[name='username']",
 		forms: {
 			noform: { fields: [] }
 		},
@@ -283,26 +266,6 @@ mcCombinations.prototype.gotSettings = function( response ) {
 */
 mcCombinations.prototype.possibleCombinations = [
 	{
-		combinationId: 'trillianLogin',
-		combinationName: 'Simple Trillian Login',
-		requiredUrl: 'www.trillian.im',
-		requiredFields: [
-            		{
-                		selector: 'input[type=text],input:not([type])',
-                		mapsTo: 'username'
-            		},
-            		{
-                		selector: 'input[type=password]',
-                		mapsTo: 'password'
-            		},
-        	],
-        	scorePerMatch: 50,
-        	score: 0,
-        	autoSubmit: true,
-        	maxfields: 2,
-		callback: extendedCombinations.trillian
-	},
-	{
 		combinationId: 'skypeTwoPageAuth',
 		combinationName: 'Skype Two Page Login Procedure',
 		requiredUrl: 'login.live.com',
@@ -320,6 +283,12 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Google Two Page Login Procedure',
 		requiredUrl: 'accounts.google.com',
 		callback: extendedCombinations.google
+	},
+	{
+		combinationId: 'soundcloudTwoPageAuth',
+		combinationName: 'SoundCloud Two Page Login Procedure',
+		requiredUrl: 'soundcloud.com',
+		callback: extendedCombinations.soundcloud
 	},
 	{
 		combinationId: 'evernoteTwoPageAuth',
@@ -387,11 +356,11 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Simple Login Form with Text',
 		requiredFields: [
 			{
-				selector: 'input[type=text],input[type=login],input[type=tel],input:not([type])',
+				selector: 'input[type=text],input[type=login],input[type=tel],input:not([type]),input[name=username]',
 				mapsTo: 'username'
 			},
 			{
-				selector: 'input[type=password]',
+				selector: 'input[type=password],input[realtype=password]',
 				mapsTo: 'password'
 			},
 		],
@@ -645,8 +614,8 @@ mcCombinations.prototype.detectCombination = function() {
 				for (form in this.forms) {
 					var currentForm = this.forms[form]
 					if (currentForm.element) {
-						var submitButton = this.detectSubmitButton(currentForm.element,
-							currentForm.combination.fields.username || currentForm.combination.fields.password)
+						var field = currentForm.combination.fields.password || currentForm.combination.fields.username,
+								submitButton = this.detectSubmitButton(field, field.parent())
 							
 						this.usernameFieldId =
 							currentForm.combination.fields.username &&
@@ -842,8 +811,8 @@ mcCombinations.prototype.detectForms = function() {
 			}
 			
 			// Handle sumbit event on submit button click or return keydown.
-			var submitButton = this.detectSubmitButton(currentForm.element,
-				currentForm.combination.fields.username || currentForm.combination.fields.password)
+			var field = currentForm.combination.fields.password || currentForm.combination.fields.username,
+					submitButton = this.detectSubmitButton(field, field.parent())
 				
 			this.usernameFieldId =
 				currentForm.combination.fields.username &&
@@ -1002,6 +971,7 @@ mcCombinations.prototype.isAvailableField = function($field) {
 		&& !$field.is(':disabled')
 		&& $field.css("visibility") != "collapsed"
 		&& $field.css("visibility") != "collapsed"
+		&& $field.attr('aria-hidden') != 'true'
 	);
 }
 
@@ -1013,6 +983,7 @@ mcCombinations.prototype.setUniqueId = function( element ) {
 	if(element && !element.attr("data-mp-id")) {
 		var elementId = element.attr("id");
 		if( elementId ) {
+			elementId = elementId.replace(/[:#.,\[\]\(\)' "]/g, '');
 			element.attr("data-mp-id", elementId);
 			return;
 		} else {
@@ -1138,7 +1109,6 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 					currentForm.combination.fields.username.val('');
 					currentForm.combination.fields.username.click();
 					try {
-						currentForm.combination.fields.username.sendkeys( credentials[0].Login );
 						this.triggerChangeEvent(currentForm.combination.fields.username[0], credentials[0].Login)
 					} catch (e) {}					
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
@@ -1176,6 +1146,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				var inputs = cipFields.getAllFields();
 				cip.initPasswordGenerator(inputs);
 			}
+			
 			if (currentForm.combination.autoSubmit &&
 				  !this.settings.doNotSubmitAfterFill &&
 				  (!currentForm.combination.fields.username || mpJQ.contains(document, currentForm.combination.fields.username[0])) &&
@@ -1193,32 +1164,34 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 }
 
 /*
- * Detect submit button for the given form and field.
+ * Detect submit button for the given field and container.
  *
- * @param form {jQuery object}
  * @param field {jQuery object}
+ * @param container {jQuery object}
  * @return submitButton {DOM node} or undefined
  */
- mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(form, field) {
+ mcCombinations.prototype.detectSubmitButton = function detectSubmitButton(field, container) {
 	var ACCEPT_PATTERNS = [
 		/submit/i,
 		/login/i,
 		/sign/i,
 		/connexion/i,
+		/connecter/i,
 		/identifierNext/i,
 		/passwordNext/i,
 		/verify_user_btn/i,
 	],
 	
 	IGNORE_PATTERNS = [
-		/forgotpassword/i,
+		/forgot/i,
 		/lostlogin/i,
 		/showpassword/i,
 		/remember_login/i,
 		/sign up/i,
+		/facebook/i,
+		/google/i,
 		/id=".*?search.*?"/i,
 		/id="btnLoadMoreProducts"/i,
-		/id="loginLink"/i,
 		/class=".*?search.*?"/i,
 		/class="login_row"/i,
 		/href=".*?loginpage.*?"/i,
@@ -1227,22 +1200,22 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	
 	// Selectors are ordered by priority, first ones are more important.
 	BUTTON_SELECTORS = [
-		'td.custom-button-center',
+		'td.custom-button-center:visible',
 		'[type="submit"]:visible, a[href^="javascript:"]:visible',
 		'button:visible',
 		'[role="button"]:visible',
 		'a:visible',
+		'input[onclick]:visible',
 		'div[onclick]:visible',
-		'div:visible'
+		'div.button'
 	]
 	
-	var submitButton = null
-	form = form && form.length ? form : mpJQ('body')
+	var submitButton
 	
 	for (var selectorIndex = 0; selectorIndex < BUTTON_SELECTORS.length; selectorIndex++) {
 		var selector = BUTTON_SELECTORS[selectorIndex]
 		
-		var buttons = form.find(selector).filter(function(index, button) {
+		var buttons = container.find(selector).filter(function(index, button) {
 			for (var i = 0; i < IGNORE_PATTERNS.length; i++) {
 				if (mpJQ(button).clone().children().remove().end()[0].outerHTML.match(IGNORE_PATTERNS[i])) return false
 			}
@@ -1253,16 +1226,19 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		})
 		
 		// Sort buttons by how nearest they are from the field.
+		var fieldTop = field.offset().top + field.height() / 2,
+				fieldLeft = field.offset().left + field.width() / 2
+
 		buttons.each(function(index, button) {
-			var deep = 0,
-					outer = field.parent()
+			var $button = $(button),
+					buttonTop = $button.offset().top + $button.height() / 2,
+					buttonLeft = $button.offset().left + $button.width() / 2
 			
-			while (!mpJQ.contains(outer[0], button) && outer[0] != mpJQ('html')[0]) {
-				outer = outer.parent().length ? outer.parent() : mpJQ('html')
-				deep++
-			}
-			button.deep = deep
+			button.deep = Math.sqrt(
+				Math.pow(fieldTop - buttonTop, 2) + Math.pow(fieldLeft - buttonLeft, 2)
+			)
 		})
+		
 		buttons.sort(function(a, b) {
 			if (a.deep > b.deep) return 1
 			if (a.deep < b.deep) return -1
@@ -1272,9 +1248,9 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		if (buttons.length > 0) return buttons[0]
 	}
 	
-	// If we haven't detected submit button for form, try to find from body.
-	if (form[0] != mpJQ('body')[0]) {
-		return this.detectSubmitButton(mpJQ('body'), field)
+	// If we haven't detected submit button yet, try to find it in parent container.
+	if (container[0] != mpJQ('body')[0]) {
+		return this.detectSubmitButton(field, container.parent())
 	}
  }
 
@@ -1292,8 +1268,8 @@ mcCombinations.prototype.doSubmit = function doSubmit( currentForm ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	
 	// Trying to find submit button and trigger click event.
-	var submitButton = this.detectSubmitButton(currentForm.element,
-		currentForm.combination.fields.username || currentForm.combination.fields.password)
+	var field = currentForm.combination.fields.password || currentForm.combination.fields.username,
+			submitButton = this.detectSubmitButton(field, field.parent())
 	
 	if (submitButton) {
 		// Select innermost element to trigger click because handler can be on it.

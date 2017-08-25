@@ -538,11 +538,11 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Password Reset without Confirmation',
 		requiredFields: [
 			{
-				selector: 'input[type=password]:visible',
-				mapsTo: 'password'
+				selector: 'input[type=password]:visible'
 			},
 			{
-				selector: 'input[type=password]:visible'
+				selector: 'input[type=password]:visible',
+				mapsTo: 'password'
 			},
 		],
 		scorePerMatch: 50,
@@ -554,7 +554,7 @@ mcCombinations.prototype.possibleCombinations = [
 			// We need LOGIN information. Try to retrieve credentials from cache.
 			cipEvents.temporaryActions['response-cache_retrieve'] = function( response ) {
 				var r = response.data;
-
+				
 				if ( r.Login ) { // We got a login!
 					this.savedFields.username = r.Login;
 					this.fields.username = r.Login;
@@ -1116,7 +1116,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				}
 			}
 			
-			if ( credentials[0].Password && currentForm.combination.fields.password ) {
+			if ( credentials[0].Password && currentForm.combination.fields.password && currentForm.combination.combinationId != 'passwordreset001') {
 				if (this.settings.debugLevel > 3) cipDebug.log('%c mcCombinations - %c retrieveCredentialsCallback filling form - Password','background-color: #c3c6b4','color: #FF0000');
 				// Fill-in Password
 				if ( 

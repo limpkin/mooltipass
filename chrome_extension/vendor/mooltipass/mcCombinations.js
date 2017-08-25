@@ -1180,6 +1180,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/identifierNext/i,
 		/passwordNext/i,
 		/verify_user_btn/i,
+		/change password/i,
 	],
 	
 	IGNORE_PATTERNS = [
@@ -1204,6 +1205,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		'[type="submit"]:visible, a[href^="javascript:"]:visible',
 		'button:visible',
 		'[role="button"]:visible',
+		'[role="button"]:visible span',
 		'a:visible',
 		'input[onclick]:visible',
 		'div[onclick]:visible',

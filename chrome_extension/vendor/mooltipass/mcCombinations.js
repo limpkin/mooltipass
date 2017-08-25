@@ -89,6 +89,9 @@ var extendedCombinations = {
 					currentForm.combination.fields.password = mpJQ('input[type=password]');
 					currentForm.combination.autoSubmit = true;
 				}
+
+				// Skip special combination for password restore form.
+				if ( mpJQ('input[type=password]:visible').length > 1 ) return 'skip'
 			}
 		}
 	},
@@ -607,8 +610,9 @@ mcCombinations.prototype.detectCombination = function() {
 		// Check for special cases first 
 		for (var I = 0; I < this.possibleCombinations.length; I++) {
 			if ( this.possibleCombinations[I].requiredUrl && this.possibleCombinations[I].requiredUrl == window.location.hostname ) { // Found a special case
-                if (this.settings.debugLevel > 1) cipDebug.log('Dealing with special case for ' + window.location.hostname);
-				this.possibleCombinations[I].callback( this.forms );
+				if (this.settings.debugLevel > 1) cipDebug.log('Dealing with special case for ' + window.location.hostname);
+
+				if (this.possibleCombinations[I].callback(this.forms) == 'skip') break
 				
 				// Handle sumbit event on submit button click or return keydown.
 				for (form in this.forms) {

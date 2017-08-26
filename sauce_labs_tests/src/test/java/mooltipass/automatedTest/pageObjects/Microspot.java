@@ -15,24 +15,20 @@ public class Microspot extends AbstractPage{
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(id = "loginForm:emailReg")
+	@FindBy(id = "email")
 	private WebElement email;
 
-	@FindBy(id = "loginForm:passwordReg")
+	@FindBy(id = "password")
 	private WebElement password;
 
-	@FindBy(xpath = "//div[contains(text(),'ANMELDEN')]")
+	@FindBy(xpath = "//button[.//span[contains(text(),'Anmelden')]]")
 	private WebElement submitLogin;
 	
-	/*
-	@FindBy(xpath = "//a[@href='/msp/pages/registration.jsf']")
-	private WebElement loginBtn;
-	 */
 
-	@FindBy(xpath = "//span[@class='headerLoginText']")
+	@FindBy(xpath = "//span[text()='Mein Konto']")
 	private WebElement loginBtn;
 	
-	@FindBy(xpath = "//form[@id='logoutForm']//a[@href='#']")
+	@FindBy(xpath = "//button[.//span[contains(text(),'Abmelden')]]")
 	private WebElement logoutBtn;
 	
 
@@ -64,11 +60,11 @@ public class Microspot extends AbstractPage{
 	}
 	public boolean checkLogin(){
 
-		waitUntilAppears(By.xpath("//a[contains(text(),'Abmelden')]"));
-		return isElementPresent(By.xpath("//a[contains(text(),'Abmelden')]"));
+		waitUntilAppears(By.xpath("//button[.//span[contains(text(),'Abmelden')]]"));
+		return isElementPresent(By.xpath("//button[.//span[contains(text(),'Abmelden')]]"));
 	}
 	public boolean checkAtLoginPage(){
-		return isElementPresent(By.id("loginForm:emailReg"));
+		return isElementPresent(By.id("email"));
 	}
 	
 }

@@ -15,6 +15,7 @@ public class GitHub extends AbstractPage{
 
 	@FindBy(xpath = "//a[@href='/login']")
 	private WebElement loginBtn;
+	
 	@FindBy(id = "login_field")
 	private WebElement email;
 
@@ -28,7 +29,7 @@ public class GitHub extends AbstractPage{
 	@FindBy(xpath = "//form[@class='logout-form']//button[@class='dropdown-item dropdown-signout']")
 	private WebElement logoutBtn;
 	
-	@FindBy(xpath = "//a[@class='header-navlink name tooltipped tooltipped-sw js-menu-target']")
+	@FindBy(xpath = "//details[@class='dropdown-details d-flex pl-2 flex-items-center']")
 	private WebElement dashBoard;
 	
 	public void enterEmail(String value){
@@ -58,8 +59,8 @@ public class GitHub extends AbstractPage{
 	}
 	
 	public boolean checkLogin(){		        
-		waitUntilAppears(By.xpath( "//a[@class='header-navlink name tooltipped tooltipped-sw js-menu-target']"));
-		return isElementPresent(By.xpath( "//a[@class='header-navlink name tooltipped tooltipped-sw js-menu-target']"));
+		waitUntilAppears(By.xpath( "//details[@class='dropdown-details d-flex pl-2 flex-items-center']"));
+		return isElementPresent(By.xpath( "//details[@class='dropdown-details d-flex pl-2 flex-items-center']"));
 	}
 	public boolean checkAtLoginPage(){
 		return isElementPresent(By.id("login_field"));

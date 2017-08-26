@@ -154,7 +154,7 @@ Then I should be logged in AliBaba
 Scenario: Testing Microspot
 Given I navigate to 'https://www.microspot.ch/'
 When I go to Microspot login page
-When I login Microspot with 'mooltipasstest@gmail.com'
+When I login Microspot with 'citesting@themooltipass.com'
 Then I should be logged in Microspot
 When I logout Microspot
 When I go to Microspot login page

@@ -109,9 +109,12 @@ mooltipassEvent.onGetSettings = function(callback, tab) {
 	mooltipassEvent.onLoadSettings();
 	var settings = page.settings;
 	
-	settings.status = mooltipass.device._status;
-	settings.tabId = tab.id;
+	settings['status'] = mooltipass.device._status;
+	settings['tabId'] = tab.id;
 	settings['defined-credential-fields'] = settings['defined-credential-fields'] || {}
+	settings['extension-base'] = isSafari
+		?	safari.extension.baseURI
+		: chrome.extension.getURL('/')
 	
 	callback({ data: settings }, tab );
 }

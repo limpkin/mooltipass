@@ -40,16 +40,11 @@ startMooltipass = function() {
 	if ( isSafari ) {
 		safari.application.addEventListener( "message", mooltipassEvent.onMessage, false );
 
-		safari.application.addEventListener("open", function(tab) {
-			// TODO: Gaston, this can be removed
-		}, true);
-
 		safari.application.addEventListener("activate", function( evt ) {
 			page.currentTabId = evt.target.activeTab;
 		}, true);
 	} else {
 		chrome.runtime.onMessage.addListener( mooltipassEvent.onMessage );
-
 
 		chrome.tabs.onCreated.addListener(function(tab) {
 			if(tab.id > 0) {

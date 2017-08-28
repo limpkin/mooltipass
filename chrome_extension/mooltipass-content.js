@@ -177,10 +177,11 @@ cipPassword.createIcon = function(field) {
 	$zIndex += 1;
 
 	var iframe = document.createElement('iframe');
-	iframe.src = chrome.extension.getURL('ui/password-dialog-toggle/password-dialog-toggle.html') + '?' +
+	iframe.src = cip.settings['extension-base'] + 'ui/password-dialog-toggle/password-dialog-toggle.html?' +
 		encodeURIComponent(JSON.stringify({
 			type: $size == 16 ? 'small' : 'big',
-			iconId: PREFIX + '-' + field.data('mp-id')
+			iconId: PREFIX + '-' + field.data('mp-id'),
+			settings: cip.settings
 		}));
 	
 	var $icon = $(iframe)
@@ -311,7 +312,7 @@ cipDefine.show = function() {
 	iframe.onload = function() {
 		$(iframe).fadeIn(100)
 	}
-	iframe.src = chrome.extension.getURL('ui/custom-credentials-selection/custom-credentials-selection.html') + '?' +
+	iframe.src = cip.settings['extension-base'] + 'ui/custom-credentials-selection/custom-credentials-selection.html?' +
 		encodeURIComponent(JSON.stringify({
 			settings: cip.settings,
 			origin: document.location.origin
@@ -1677,7 +1678,7 @@ var mpDialog = {
 		iframe.onload = function() {
 			$(iframe).fadeIn(100)
 		}
-		iframe.src = chrome.extension.getURL('ui/password-dialog/password-dialog.html') + '?' +
+		iframe.src = cip.settings['extension-base'] + 'ui/password-dialog/password-dialog.html?' +
 			encodeURIComponent(JSON.stringify({
 				login: mcCombs.credentialsCache && mcCombs.credentialsCache.length && mcCombs.credentialsCache[0].Login
 							 ? mcCombs.credentialsCache[0].Login

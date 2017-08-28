@@ -3,22 +3,25 @@
  * 
  * @param type (small | big) {String}
  * @param target {jQuery object} iFrame element
+ * @param settings {Object}
  */
 
 window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
 
 $(function() {
-	$('.icon').addClass('icon__' + data.type)
-	$('.icon').on('click', function() {
-		messaging({
-			action: 'create_action',
-			args: [{
-				action: 'password_dialog_toggle_click',
-				args: {
-					iconId: data.iconId
-				}
-			}]
-		});
+	$('.icon')
+		.addClass('icon__' + data.type)
+		.css('background-image', 'url(' + data.settings['extension-base'] + 'images/icon_password_128.png)')
+		.on('click', function() {
+			messaging({
+				action: 'create_action',
+				args: [{
+					action: 'password_dialog_toggle_click',
+					args: {
+						iconId: data.iconId
+					}
+				}]
+			});
 	});
 });
 

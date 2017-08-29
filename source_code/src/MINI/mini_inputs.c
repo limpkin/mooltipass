@@ -43,15 +43,12 @@ volatile uint8_t wheel_click_return;
 // State machine state
 uint8_t wheel_sm_states[] = {0b011, 0b001, 0b000, 0b010};
 // Boot to know if we allow next increment
-volatile uint8_t wheel_increment_armed = FALSE;
+volatile uint8_t wheel_increment_armed_up = FALSE;
+volatile uint8_t wheel_increment_armed_down = FALSE;
 // Wheel current increment for caller
 volatile int8_t wheel_cur_increment;
 // Last wheel state machine index
 volatile uint8_t last_wheel_sm;
-// index for wheel current state buffer
-volatile uint8_t wheel_log_buffer_index;
-// buffer containing the last wheel raw state
-volatile uint8_t wheel_log_buffer[2];
 // To get wheel action, discard release event
 uint8_t discard_release_event = FALSE;
 // Wheel direction reverse bool
@@ -390,16 +387,7 @@ void scanMiniInputsDetect(void)
     
     // Wheel encoder
     wheel_state = ((PIN_WHEEL_A & (1 << PORTID_WHEEL_A)) >> PORTID_WHEEL_A) | ((PIN_WHEEL_B & (1 << PORTID_WHEEL_B)) >> (PORTID_WHEEL_B-1));
-    // Store it in our log
-    wheel_log_buffer[(wheel_log_buffer_index++) & 0x01] = wheel_state;
-    // Only if the last x samples are the same that we are going into this scan routine...
-    for (uint8_t i = 1; i < 2; i++)
-    {
-        if (wheel_log_buffer[i] != wheel_log_buffer[0])
-        {
-            return;
-        }
-    }
+
     // Find the state matching the wheel state
     for (uint8_t i = 0; i < sizeof(wheel_sm_states); i++)
     {
@@ -410,11 +398,11 @@ void scanMiniInputsDetect(void)
     }
     if (wheel_sm == ((last_wheel_sm+1)&0x03))
     {
-        if (wheel_state == 0x00)
+        if (wheel_state == 0)
         {
-            wheel_increment_armed = TRUE;
+            wheel_increment_armed_up = TRUE;
         }
-        else if ((wheel_state == 0x03) && (wheel_increment_armed == TRUE))
+        else if ((wheel_state == 0x03) && (wheel_increment_armed_up == TRUE))
         {
             if (wheel_reverse_bool != FALSE)
             {
@@ -424,16 +412,18 @@ void scanMiniInputsDetect(void)
             {
                 wheel_cur_increment--;
             }
+            wheel_increment_armed_up = FALSE;
+            wheel_increment_armed_down = FALSE;
         }
         last_wheel_sm = wheel_sm;
     }
     else if (wheel_sm == ((last_wheel_sm-1)&0x03))
     {
-        if (wheel_state == 0x00)
+        if (wheel_state == 0)
         {
-            wheel_increment_armed = TRUE;
+            wheel_increment_armed_down = TRUE;
         }
-        else if ((wheel_state == 0x03) && (wheel_increment_armed == TRUE))
+        else if ((wheel_state == 0x03) && (wheel_increment_armed_down == TRUE))
         {
             if (wheel_reverse_bool != FALSE)
             {
@@ -443,6 +433,8 @@ void scanMiniInputsDetect(void)
             {
                 wheel_cur_increment++;
             }
+            wheel_increment_armed_up = FALSE;
+            wheel_increment_armed_down = FALSE;
         }
         last_wheel_sm = wheel_sm;
     }
@@ -540,9 +532,10 @@ void miniWheelClearDetections(void)
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         last_detection_type_ret = WHEEL_ACTION_NONE;
+        wheel_increment_armed_down = FALSE;
+        wheel_increment_armed_up = FALSE;
         wheel_click_duration_counter = 0;
         wheel_click_return = RETURN_REL;
-        wheel_increment_armed = FALSE;
         wheel_cur_increment = 0;
     }
 }

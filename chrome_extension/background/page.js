@@ -95,8 +95,10 @@ page.cacheRetrieve = function( callback, tab, arguments ) {
 }
 
 page.initOpenedTabs = function() {
-	if ( isSafari ) { // Safari doesn't use tab ids, just create one placeholder
-		page.createTabEntry('safari');
+	if (isSafari) {
+		for (var i = 0; i < safari.application.activeBrowserWindow.tabs.length; i++) {
+			page.createTabEntry(i)
+		}
 	} else {
 		chrome.tabs.query({}, function(tabs) {
 			for(var i = 0; i < tabs.length; i++) {
@@ -117,7 +119,7 @@ page.switchTab = function(callback, tab) {
 	if (background_debug_msg > 4) mpDebug.log('%c page: %c switchTab ', mpDebug.css('ffeef9'), tab );
 	browserAction.showDefault(null, tab);
 
-	chrome.tabs.sendMessage(tab.id, {action: "activated_tab"});
+	messaging({ action: 'activated_tab' }, tab)
 }
 
 page.setAllLoaded = function( callback, tab ) {

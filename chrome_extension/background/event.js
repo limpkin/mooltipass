@@ -11,6 +11,20 @@ function messaging( message, tab, callback ) {
 	} else chrome.tabs.sendMessage( typeof(tab) == 'number'?tab:tab.id, message, function(response) {});
 };
 
+/*
+ * Get tabId for Safari.
+ * 
+ * @param tab {Object}
+ * @return tabId {Integer}
+ */
+function getSafariTabId(tab) {
+	for (var i = 0; i < safari.application.activeBrowserWindow.tabs.length; i++) {
+		if (safari.application.activeBrowserWindow.tabs[i] == tab) {
+			return i
+		}
+	}
+}
+
 function cross_notification( notificationId, options ) {
 	if ( isSafari ) {
 		options.tag = notificationId;
@@ -80,7 +94,7 @@ mooltipassEvent.invoke = function(handler, callback, senderTab, args, secondTime
 	if (background_debug_msg > 4) mpDebug.log('%c mooltipassEvent: invoke ', mpDebug.css('e2eef9'), arguments);
 	if ( typeof(senderTab) == 'number' ) senderTab = { id: senderTab };
 
-	if ( senderTab && senderTab.id && !page.tabs[senderTab.id]) {
+	if ( senderTab && senderTab.id != undefined && !page.tabs[senderTab.id]) {
 		page.createTabEntry( senderTab.id );
 	};
 

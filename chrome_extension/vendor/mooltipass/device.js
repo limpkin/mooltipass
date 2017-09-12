@@ -321,8 +321,7 @@ mooltipass.device.sendCredentialRequestMessageFromQueue = function()
                 setTimeout(function()
                 {
                     try {
-                        mooltipass.device.retrieveCredentialsQueue[0].callback(credentials,
-                          mooltipass.device.retrieveCredentialsQueue[0].tabid == 'safari'?mooltipass.device.retrieveCredentialsQueue[0].tab:mooltipass.device.retrieveCredentialsQueue[0].tabid );
+                        mooltipass.device.retrieveCredentialsQueue[0].callback(credentials, mooltipass.device.retrieveCredentialsQueue[0].tab);
                     } catch(err) {}
                     
                     // Treat other pending requests
@@ -611,11 +610,6 @@ mooltipass.device.retrieveCredentials = function(callback, tab, url, submiturl, 
 {
     if (background_debug_msg > 3) mpDebug.log('%c device: %c retrieveCredentials ','background-color: #e244ff','color: #484848', arguments);
 
-    if (!tab.hasOwnProperty('id')) tab.id = 'safari';
-
-    // unset error message
-    //page.tabs[tab.id].errorMessage = null;
-
     // parse url and check if it is valid and not blacklisted
     var parsed_url = mooltipass.backend.extractDomainAndSubdomain(submiturl);
     if(!parsed_url.valid)
@@ -763,7 +757,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
                     Password: message.credentials.password,
                     StringFields: []
                 }
-            ], mooltipass.device.retrieveCredentialsQueue[0].tabid == 'safari'?mooltipass.device.retrieveCredentialsQueue[0].tab:mooltipass.device.retrieveCredentialsQueue[0].tabid );
+            ], mooltipass.device.retrieveCredentialsQueue[0].tab);
         }
         catch(err)
         {

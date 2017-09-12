@@ -41,7 +41,23 @@ startMooltipass = function() {
 		safari.application.addEventListener( "message", mooltipassEvent.onMessage, false );
 
 		safari.application.addEventListener("activate", function( evt ) {
-			page.currentTabId = evt.target.activeTab;
+			var activeTab = evt.target.activeTab || evt.target
+			
+			// remove possible credentials from old tab information
+	    page.clearCredentials(page.currentTabId, true)
+
+			activeTab.id = page.currentTabId = getSafariTabId(activeTab)
+			event.invoke(page.switchTab, null, activeTab, [])
+		}, true);
+		
+		safari.application.addEventListener("close", function( evt ) {
+			var tabId = getSafariTabId(evt.target)
+			
+			delete page.tabs[tabId];
+			if(page.currentTabId == tabId) {
+				page.currentTabId = -1;
+			}
+		    mooltipass.device.onTabClosed(tabId);
 		}, true);
 	} else {
 		chrome.runtime.onMessage.addListener( mooltipassEvent.onMessage );
@@ -89,8 +105,7 @@ startMooltipass = function() {
 		 */
 		chrome.tabs.onActivated.addListener(function(activeInfo) {
 			// remove possible credentials from old tab information
-		    page.clearCredentials(page.currentTabId, true);
-			//browserAction.removeRememberPopup(null, {"id": page.currentTabId}, true);
+	    page.clearCredentials(page.currentTabId, true);
 
 			chrome.tabs.get(activeInfo.tabId, function(info) {
 				if(info && info.id) {

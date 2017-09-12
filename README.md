@@ -45,6 +45,8 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months: 
+- 09/2017 <a href="https://arstechnica.com/information-technology/2017/09/bluetooth-bugs-open-billions-of-devices-to-attacks-no-clicking-required/">Billions of devices imperiled by new clickless Bluetooth attack</a>
+- 09/2017 <a href="https://techcrunch.com/2017/09/07/equifax-data-leak-could-involve-143-million-consumers/">Equifax data leak involves 143 million consumers</a>
 - 08/2017 <a href="https://blog.quarkslab.com/vulnerabilities-in-high-assurance-boot-of-nxp-imx-microprocessors.html">Vulnerabilities in High Assurance Boot of NXP i.MX microprocessors</a>
 - 08/2017 <a href="https://it.slashdot.org/story/17/08/01/206234/hackers-can-turn-amazon-echo-into-a-covert-listening-device">Hackers Can Turn Amazon Echo Into a Covert Listening Device</a>
 - 07/2017 <a href="https://tech.slashdot.org/story/17/07/18/2039238/flaw-in-iot-security-cameras-leaves-millions-of-devices-open-to-hackers">Flaw In IoT Security Cameras Leaves Millions of Devices Open To Hackers</a>

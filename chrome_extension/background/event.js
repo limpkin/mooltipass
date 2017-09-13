@@ -27,10 +27,11 @@ function getSafariTabId(tab) {
 
 function cross_notification( notificationId, options ) {
 	if ( isSafari ) {
-		options.tag = notificationId;
-		options.body = options.message;
-		var n = new Notification( options.title, options );
-		n.onclose = mooltipassEvent.onNotifyClosed;
+		// Don't show notifications for Safari to pass OS X Human Interface Guidelines.
+		// options.tag = notificationId;
+		// options.body = options.message;
+		// var n = new Notification( options.title, options );
+		// n.onclose = mooltipassEvent.onNotifyClosed;
 	} else {
 		chrome.notifications.create( notificationId, options );
 	}

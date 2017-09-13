@@ -26,11 +26,20 @@ function getSafariTabId(tab) {
 }
 
 function cross_notification( notificationId, options ) {
+	// Show notification about device status only once.
+	if (notificationId.indexOf('mpNotConnected') == 0 || notificationId.indexOf('mpNotUnlocked') == 0) {
+		mooltipass.backend.disableNonUnlockedNotifications = true;
+	}
+	
+	// Firefox doesn't support buttons in options and refuses to show notification.
+	if (isFirefox) delete options.buttons
+	
 	if ( isSafari ) {
-		options.tag = notificationId;
-		options.body = options.message;
-		var n = new Notification( options.title, options );
-		n.onclose = mooltipassEvent.onNotifyClosed;
+		// Don't show notifications for Safari to pass OS X Human Interface Guidelines.
+		// options.tag = notificationId;
+		// options.body = options.message;
+		// var n = new Notification( options.title, options );
+		// n.onclose = mooltipassEvent.onNotifyClosed;
 	} else {
 		chrome.notifications.create( notificationId, options );
 	}
@@ -263,7 +272,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	if (!mooltipass.device.emulation_mode && !mooltipass.device.connectedToExternalApp && !mooltipass.device.connectedToApp)
 	{
 		//console.log('notify: mooltipass app not ready');
-		noteId = "mpNotUnlockedStaticMooltipassAppNotReady";
+		noteId = "mpNotUnlockedStaticMooltipassAppNotReady." + mooltipassEvent.notificationCount.toString();
 
 		// Create notification to inform user
 		cross_notification(noteId,
@@ -280,7 +289,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	if (!mooltipass.device._status.connected)
 	{
 		//console.log('notify: device not connected');
-		noteId = "mpNotUnlockedStaticMooltipassNotConnected";
+		noteId = "mpNotUnlockedStaticMooltipassNotConnected." + mooltipassEvent.notificationCount.toString();
 
 		// Create notification to inform user
 		cross_notification(noteId,
@@ -295,7 +304,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	else if (!mooltipass.device._status.unlocked)
 	{
 		//console.log('notify: device locked');
-		noteId = "mpNotUnlockedStaticMooltipassDeviceLocked";
+		noteId = "mpNotUnlockedStaticMooltipassDeviceLocked." + mooltipassEvent.notificationCount.toString();
 
 		cross_notification( noteId, {
 			type: 'basic',
@@ -311,7 +320,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	{
 		//console.log('notify: device without card');
 
-		noteId = "mpNotUnlockedStaticMooltipassDeviceWithoutCard";
+		noteId = "mpNotUnlockedStaticMooltipassDeviceWithoutCard." + mooltipassEvent.notificationCount.toString();
 
 		// Create notification to inform user
 		cross_notification(noteId,
@@ -327,7 +336,7 @@ mooltipassEvent.isMooltipassUnlocked = function()
 	{
 		//console.log('notify: management mode');
 
-		noteId = "mpNotUnlockedStaticMooltipassDeviceInManagementMode";
+		noteId = "mpNotUnlockedStaticMooltipassDeviceInManagementMode." + mooltipassEvent.notificationCount.toString();
 
 		var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 		var notification = {   

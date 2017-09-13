@@ -142,7 +142,7 @@ function updateStatusInfo() {
     if( isSafari ) {
         if ( safari.extension.globalPage && safari.extension.globalPage.contentWindow.mooltipassEvent) {
             safari.extension.globalPage.contentWindow.mooltipassEvent.onGetStatus(getStatusCallback, {
-                id: getSafariTabId(safari.application.activeBrowserWindow.activeTab)
+                id: getSafariTabId(safari.application.activeBrowserWindow.activeTab),
                 url: safari.application.activeBrowserWindow.activeTab.url
             });
         }

@@ -1129,7 +1129,6 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 					// !currentForm.combination.fields.password.hasClass('mooltipass-password-do-not-update')
 				) {
 					currentForm.combination.fields.password.val('');
-					currentForm.combination.fields.password.click();
 					try {
 						currentForm.combination.fields.password.sendkeys( credentials[0].Password );
 						this.triggerChangeEvent(currentForm.combination.fields.password[0], credentials[0].Password)

@@ -15,7 +15,7 @@ function messaging( message ) {
 // contains already called method names
 var _called = {};
 
-var content_debug_msg = ((window.chrome || isFirefox) && chrome.runtime && !('update_url' in chrome.runtime.getManifest()))? 55 : false;;
+var content_debug_msg = (!isFirefox && !isSafari && chrome.runtime && !('update_url' in chrome.runtime.getManifest())) ? 55 : false;
 
 var cipDebug = {};
 if (content_debug_msg) {

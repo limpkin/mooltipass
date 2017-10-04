@@ -35,7 +35,7 @@ function messaging( message ) {
 
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 var isSafari = typeof(safari) == 'object'?true:false;
-var content_debug_msg = ((window.chrome || isFirefox) && chrome.runtime && !('update_url' in chrome.runtime.getManifest()))? 55 : false;;
+var content_debug_msg = (!isFirefox && !isSafari && chrome.runtime && !('update_url' in chrome.runtime.getManifest())) ? 55 : false;
 
 var cipDebug = {};
 if (content_debug_msg) {

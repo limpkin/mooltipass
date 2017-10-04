@@ -1194,6 +1194,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/lostlogin/i,
 		/showpassword/i,
 		/showhidepasswd/i,
+		/passwordreset/i,
 		/remember_login/i,
 		/sign up/i,
 		/facebook/i,

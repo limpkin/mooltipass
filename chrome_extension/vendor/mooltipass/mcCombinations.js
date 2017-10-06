@@ -1205,6 +1205,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/class="login_row"/i,
 		/href=".*?loginpage.*?"/i,
 		/href="http.*?"/i,
+		/\(Logged out\) Header/i,
 	],
 	
 	// Selectors are ordered by priority, first ones are more important.

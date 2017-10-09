@@ -1186,13 +1186,17 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/passwordNext/i,
 		/verify_user_btn/i,
 		/change password/i,
+		/continue/i,
 	],
 	
 	IGNORE_PATTERNS = [
 		/forgot/i,
+		/lost/i,
 		/lostlogin/i,
+		/troubleloggingin/i,
 		/showpassword/i,
 		/showhidepasswd/i,
+		/passwordreset/i,
 		/remember_login/i,
 		/sign up/i,
 		/facebook/i,
@@ -1203,6 +1207,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/class="login_row"/i,
 		/href=".*?loginpage.*?"/i,
 		/href="http.*?"/i,
+		/\(Logged out\) Header/i,
 	],
 	
 	// Selectors are ordered by priority, first ones are more important.

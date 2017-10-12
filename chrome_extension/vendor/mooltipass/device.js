@@ -709,6 +709,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         if (!message.deviceStatus.connected)
         {
                 mooltipass.device.retrieveCredentialsQueue = [];            
+                mooltipass.backend.disableNonUnlockedNotifications = false;
         }
         else
         {

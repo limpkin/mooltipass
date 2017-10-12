@@ -1676,7 +1676,7 @@ var mpDialog = {
 	create: function(target, isPasswordOnly) {
 		var iframe = document.createElement('iframe');
 		iframe.onload = function() {
-			setTimeout(() => $(iframe).fadeIn(100), 100)
+			$(iframe).fadeIn(100)
 		}
 		iframe.src = cip.settings['extension-base'] + 'ui/password-dialog/password-dialog.html?' +
 			encodeURIComponent(JSON.stringify({

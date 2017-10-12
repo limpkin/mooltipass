@@ -14,7 +14,7 @@ window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
 
 $(function() {
 	startEventHandling()
-	setTimeout(() => onShow(data), 100)
+	onShow(data)
 	$('#mooltipass-username').val(data.login);
 	
 	// Credential Actions Event Listeners

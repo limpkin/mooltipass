@@ -691,6 +691,10 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     if ( typeof( message.noCredentials ) === "undefined" ) message.noCredentials = null;
     if ( typeof( message.updateComplete ) === "undefined" ) message.updateComplete = null;
     
+    // Reenable notifications when device status changes.
+    if (mooltipass.device._status.connected != message.deviceStatus.connected) {
+      mooltipass.backend.disableNonUnlockedNotifications = false;
+    }
     
     //console.log('messageListener:', message );
     // Returned on a PING, contains the status of the device
@@ -708,8 +712,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
         };
         if (!message.deviceStatus.connected)
         {
-                mooltipass.device.retrieveCredentialsQueue = [];            
-                mooltipass.backend.disableNonUnlockedNotifications = false;
+                mooltipass.device.retrieveCredentialsQueue = [];
         }
         else
         {

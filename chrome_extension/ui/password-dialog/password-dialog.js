@@ -14,7 +14,7 @@ window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
 
 $(function() {
 	startEventHandling()
-	onShow(data)
+	setTimeout(() => onShow(data), 100)
 	$('#mooltipass-username').val(data.login);
 	
 	// Credential Actions Event Listeners
@@ -148,6 +148,13 @@ $(function() {
   		mpBox.find('.mp-first').removeClass('mp-first');
   		mpBox.find('.login-area').addClass('mp-first').show();
     }
+		
+		// Overflow password dialog.
+		if (mpBox.innerHeight() >= data.windowHeight) {
+			mpBox.css('overflow', 'auto')
+			mpBox.css('top', '0')
+			mpBox.css('max-height', '100vh')
+		}
 	}
 	
 	function startEventHandling() {

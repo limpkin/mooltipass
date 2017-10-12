@@ -605,6 +605,12 @@ mcCombinations.prototype.detectCombination = function() {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c detectCombination','background-color: #c3c6b4','color: #333333');
 	var numberOfFields = this.getAllForms();
 	if (this.settings.debugLevel > 1) cipDebug.log('detectCombination has found ' + numberOfFields + ' fields.');
+	
+	// Init the password generator as always.
+	if ( mcCombs.settings.usePasswordGenerator ) {
+		var inputs = cipFields.getAllFields();
+		cip.initPasswordGenerator(inputs);
+	}
 
 	if ( numberOfFields > 0 ) {
 		// Check for special cases first 
@@ -837,12 +843,6 @@ mcCombinations.prototype.detectForms = function() {
 					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element && currentForm.element[0] }) }
 				}.bind(this, currentForm))
 		}
-	}
-
-	// Init the password generator as always
-	if ( mcCombs.settings.usePasswordGenerator ) {
-		var inputs = cipFields.getAllFields();
-		cip.initPasswordGenerator(inputs);
 	}
 
 	// If there are no combinations detected, init the old method as well.

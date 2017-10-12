@@ -7,6 +7,7 @@
  * @param isPasswordOnly {Boolean}
  * @param windowWidth {Number}
  * @param windowHeight {Number}
+ * @param hideCustomCredentials {Boolean}
  */
  
 window.data = JSON.parse(decodeURIComponent(window.location.search.slice(1)))
@@ -139,6 +140,10 @@ $(function() {
 		// Move Arrows to the right place
 		if ( exceedingBottom > 0 ) mpBox.find('.mp-triangle-in, .mp-triangle-out').css({ top: 8 + exceedingBottom + 'px' });
     
+		if (data.hideCustomCredentials) {
+			mpBox.find('.mooltipass-select-custom').hide()
+		}
+		
     if (data.isPasswordOnly) {
   		mpBox.find('.mp-first').removeClass('mp-first');
   		mpBox.find('.login-area').addClass('mp-first').show();

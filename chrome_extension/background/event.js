@@ -148,6 +148,9 @@ mooltipassEvent.onSaveSettings = function(callback, tab, settings) {
 }
 
 mooltipassEvent.onGetStatus = function(callback, tab) {
+	// This list was taken from mcCombs special combinaions.
+	var twoPageAuthServices = ['login.live.com', 'accounts.autodesk.com', 'accounts.google.com', 'soundcloud.com', 'www.evernote.com', 'login.yahoo.com']
+	
 	if ( tab ) {
 		browserAction.showDefault(null, tab);
     	page.tabs[tab.id].errorMessage = undefined;  // XXX debug
@@ -156,7 +159,8 @@ mooltipassEvent.onGetStatus = function(callback, tab) {
     var toReturn = {
 		status: mooltipass.device.getStatus(),
 		error: undefined,
-		blacklisted: false
+		blacklisted: false,
+		hideCustomCredentials: twoPageAuthServices.includes(new URL(tab.url).hostname)
 	};
 
     if ( tab && tab.url ) {

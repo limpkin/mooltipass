@@ -175,7 +175,7 @@ cipPassword.createIcon = function(field) {
 		$zIndex = 1;
 	}
 	$zIndex += 1;
-
+	
 	var iframe = document.createElement('iframe');
 	iframe.src = cip.settings['extension-base'] + 'ui/password-dialog-toggle/password-dialog-toggle.html?' +
 		encodeURIComponent(JSON.stringify({
@@ -1687,7 +1687,10 @@ var mpDialog = {
 				offsetTop: target.offset().top - $(window).scrollTop() + target.height() / 2 - 20,
 				isPasswordOnly: isPasswordOnly,
 				windowWidth: window.innerWidth,
-				windowHeight: window.innerHeight
+				windowHeight: window.innerHeight,
+				hideCustomCredentials: mcCombs.possibleCombinations.some(combination =>
+					combination.requiredUrl == window.location.hostname
+				)
 			}));
 			
 		$(iframe).addClass('mp-ui-password-dialog').hide()
@@ -1728,8 +1731,8 @@ var mpDialog = {
 			var usernameFieldId = cipDefine.selection.username || mcCombs.usernameFieldId,
 					passwordFieldId = cipDefine.selection.password || mcCombs.passwordFieldId
 					
-			$('[data-mp-id=' + usernameFieldId + ']').addClass('mp-hover-username')
-			$('[data-mp-id=' + passwordFieldId + ']').addClass('mp-hover-password')
+			usernameFieldId && $('[data-mp-id=' + usernameFieldId + ']').addClass('mp-hover-username')
+			passwordFieldId && $('[data-mp-id=' + passwordFieldId + ']').addClass('mp-hover-password')
 		} else {
 			mpJQ(".mp-hover-username").removeClass("mp-hover-username");
 			mpJQ(".mp-hover-password").removeClass("mp-hover-password");

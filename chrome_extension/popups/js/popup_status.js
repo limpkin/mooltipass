@@ -60,8 +60,10 @@ function initSettings() {
     });
 
     mpJQ("#btn-select-credential-fields").click(function( e ) {
+        e.preventDefault()
+        if ($(this).hasClass('disabled')) return
+      
         if ( isSafari ) {
-            e.preventDefault();
             var global = safari.extension.globalPage.contentWindow;
             global.mooltipass.website.chooseCredentialFields();
         } else {
@@ -108,6 +110,8 @@ function getStatusCallback( object ) {
      mpJQ('#status-bar .status > span').hide();
      console.log(object)
 
+     mpJQ('#btn-select-credential-fields').toggleClass('disabled', object.hideCustomCredentials)
+     
     // Connection to app established, device connected and unlocked
     if (object.status.deviceUnlocked && object.status.connectedToDevice && object.status.connectedToApp) {
         mpJQ('#device-unlocked').show();

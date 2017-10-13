@@ -1349,3 +1349,15 @@ body > .pure-g {
 #status-bar {
   cursor: default;
 }
+
+.pure-menu-link.disabled {
+  border: 0;
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  filter: alpha(opacity=40);
+  -khtml-opacity: .4;
+  -moz-opacity: .4;
+  opacity: .4;
+  cursor: default;
+  box-shadow: none;
+}

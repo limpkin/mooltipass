@@ -134,7 +134,7 @@ $(function() {
 
 		// Move dialog if exceeding bottom
 		var exceedingBottom = data.offsetTop + mpBox.innerHeight() - data.windowHeight
-		if ( exceedingBottom > 0 ) mpBox.css({ top: mpBox.position().top - exceedingBottom + 'px' });
+		if ( exceedingBottom > 0 ) mpBox.css({ top: Math.max(0, mpBox.position().top - exceedingBottom) + 'px' });
 
 		// Move Arrows to the right place
 		if ( exceedingBottom > 0 ) mpBox.find('.mp-triangle-in, .mp-triangle-out').css({ top: 8 + exceedingBottom + 'px' });
@@ -143,6 +143,13 @@ $(function() {
   		mpBox.find('.mp-first').removeClass('mp-first');
   		mpBox.find('.login-area').addClass('mp-first').show();
     }
+		
+		// Overflow password dialog.
+		if (mpBox.innerHeight() >= data.windowHeight) {
+			mpBox.css('overflow', 'auto')
+			mpBox.css('top', '0')
+			mpBox.css('max-height', '100vh')
+		}
 	}
 	
 	function startEventHandling() {

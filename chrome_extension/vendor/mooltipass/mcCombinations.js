@@ -224,7 +224,7 @@ function mcCombinations() {}
 mcCombinations.prototype = ( function() {
 	return {
 		constructor:mcCombinations,
-		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='login'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type]), input[name='username']",
+		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='login'], input[type='password']:not(.notinview):not([tabindex='-1']), input[type='tel'], input[type='number'], input:not([type]), input[name='username']",
 		forms: {
 			noform: { fields: [] }
 		},

@@ -129,7 +129,7 @@ $(function() {
 
 		// Move dialog if exceeding right area
 		if (data.offsetLeft + mpBox.outerWidth() > data.windowWidth) {
-			mpBox.css({ left: data.offsetLeft - mpBox.outerWidth() - 50 + 'px' });
+			mpBox.css({ left: Math.max(0, data.offsetLeft - mpBox.outerWidth() - 50) + 'px' });
 			mpBox.addClass('inverted-triangle');
 		}
 

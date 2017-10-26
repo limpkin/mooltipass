@@ -182,6 +182,38 @@ var extendedCombinations = {
 			}
 		}
 	},
+	hsbc: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+				
+				var usernameSelector = 'input[name=u_UserID], input[name=userid]',
+						passwordSelector = 'input[type=password]'
+
+				if ( mpJQ(usernameSelector).length > 0 ) {
+					currentForm.combination.fields.username = mpJQ(usernameSelector);
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ(passwordSelector).length > 0 ) {
+					currentForm.combination.fields.password = mpJQ(passwordSelector);
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	yahoo: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -327,6 +359,12 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Evernote Two Page Login Procedure',
 		requiredUrl: 'www.evernote.com',
 		callback: extendedCombinations.evernote
+	},
+	{
+		combinationId: 'hsbcAuth',
+		combinationName: 'HSBC Login Procedure',
+		requiredUrl: 'hsbc.com',
+		callback: extendedCombinations.hsbc
 	},
 	{
 		combinationId: 'citiAuth',
@@ -650,7 +688,7 @@ mcCombinations.prototype.detectCombination = function() {
 	if ( numberOfFields > 0 ) {
 		// Check for special cases first 
 		for (var I = 0; I < this.possibleCombinations.length; I++) {
-			if ( this.possibleCombinations[I].requiredUrl && this.possibleCombinations[I].requiredUrl == window.location.hostname ) { // Found a special case
+			if ( this.possibleCombinations[I].requiredUrl &&  window.location.hostname.match(this.possibleCombinations[I].requiredUrl) ) { // Found a special case
 				if (this.settings.debugLevel > 1) cipDebug.log('Dealing with special case for ' + window.location.hostname);
 
 				if (this.possibleCombinations[I].callback(this.forms) == 'skip') break

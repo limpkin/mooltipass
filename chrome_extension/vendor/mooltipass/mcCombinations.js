@@ -1317,7 +1317,7 @@ mcCombinations.prototype.formHasCaptcha = function(form) {
 	form = form && form.length ? form : $('body')
 	
 	var hasCaptcha = false
-	form.find('[class*="captcha"], [id*="captcha"]').each(function(index, element) {
+	form.find('[class*="captcha"]:visible, [id*="captcha"]:visible').each(function(index, element) {
 		var $element = $(element)
 		
 		if ($element.width() != 0 &&

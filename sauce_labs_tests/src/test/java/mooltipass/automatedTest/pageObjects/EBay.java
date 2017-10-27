@@ -31,8 +31,9 @@ public class EBay extends AbstractPage{
 	private WebElement submitLogin;
 	
 
-	@FindBy(xpath = "//a[@class='gh-ua gh-control']")
+	@FindBy(xpath = "//button[@class='gh-ua gh-control']")
 	private WebElement dashBoard;
+		
 	@FindBy(xpath = "//a[@href='https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&lgout=1']")
 	private WebElement logoutBtn;
 	
@@ -67,8 +68,8 @@ public class EBay extends AbstractPage{
 	
 	public boolean checkLogin(){
 
-		waitUntilAppears(By.xpath("//a[@class='gh-ua gh-control']"));
-		return isElementPresent(By.xpath("//a[@class='gh-ua gh-control']"));
+		waitUntilAppears(By.xpath("//button[@class='gh-ua gh-control']"));
+		return isElementPresent(By.xpath("//button[@class='gh-ua gh-control']"));
 	}
 	public boolean checkAtLoginPage(){
 		//waitUntilAppears(By.id("sgnBt"));

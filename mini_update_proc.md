@@ -22,3 +22,5 @@ Updating Procedure
 - **Under no circumstances should you disconnect your Mooltipass Mini during the update procedure**  
 - The device screen will go black, wait 2 minutes  
 - The device should then boot again, showing the Mooltipass tutorial
+
+**Imporant Note**: after this update procedure, your Mooltipass Mini settings will be reset.

@@ -13,21 +13,23 @@ public class Ricardo extends AbstractPage{
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(xpath = "//li/*[contains(text(),'Einloggen')]")
+	@FindBy(xpath = "//span[text()='Anmelden']")
 	private WebElement loginBtn;
 
-	@FindBy(xpath = "//section[@id='it_LoginSection']//input[@type='text']")
+	@FindBy(xpath = "//input[@type='text']")
 	private WebElement email;
 
 	@FindBy(xpath = "//input[@type='password']")
 	private WebElement password;
 
-	@FindBy(xpath = "//button[@id='modalsubmit']")
+	@FindBy(xpath = "//input[@type='submit']")
 	private WebElement submitLogin;
 	
-	@FindBy(id = "hd-logout")
+	@FindBy(xpath = "//a[text()='Abmelden']")
 	private WebElement logoutBtn;
 	
+	@FindBy(id = "user-menu")
+	private WebElement menuBtn;
 	
 	public void goToLogin(){
 		waitUntilAppears(loginBtn);
@@ -55,8 +57,8 @@ public class Ricardo extends AbstractPage{
 	
 	public boolean checkLogin(){
 
-		waitUntilAppears(By.id("hd-logout"));
-		return isElementPresent(By.id("hd-logout"));
+		waitUntilAppears(By.id("user-menu"));
+		return isElementPresent(By.id("user-menu"));
 	}
 
 
@@ -65,6 +67,8 @@ public class Ricardo extends AbstractPage{
 	}
 	
 	public void logout(){
+		menuBtn.click();
+		waitUntilAppears(logoutBtn);
 		logoutBtn.click();
 
 	}

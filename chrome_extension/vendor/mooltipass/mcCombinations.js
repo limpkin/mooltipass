@@ -153,6 +153,67 @@ var extendedCombinations = {
 			}
 		}
 	},
+	citi: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[id=username]').length > 0 ) {
+					currentForm.combination.fields.username = mpJQ('input[id=username]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[id=password]').length > 0 ) {
+					currentForm.combination.fields.password = mpJQ('input[id=password]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
+	hsbc: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+				
+				var usernameSelector = 'input[name=u_UserID], input[name=userid]',
+						passwordSelector = 'input[type=password]'
+
+				if ( mpJQ(usernameSelector).length > 0 ) {
+					currentForm.combination.fields.username = mpJQ(usernameSelector);
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ(passwordSelector).length > 0 ) {
+					currentForm.combination.fields.password = mpJQ(passwordSelector);
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	yahoo: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -224,7 +285,7 @@ function mcCombinations() {}
 mcCombinations.prototype = ( function() {
 	return {
 		constructor:mcCombinations,
-		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='login'], input[type='password']:not(.notinview), input[type='tel'], input[type='number'], input:not([type]), input[name='username']",
+		inputQueryPattern: "input[type='text']:not([class='search']), input[type='email'], input[type='login'], input[type='password']:not(.notinview):not([tabindex='-1']), input[type='tel'], input[type='number'], input:not([type]), input[name='username']",
 		forms: {
 			noform: { fields: [] }
 		},
@@ -298,6 +359,18 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Evernote Two Page Login Procedure',
 		requiredUrl: 'www.evernote.com',
 		callback: extendedCombinations.evernote
+	},
+	{
+		combinationId: 'hsbcAuth',
+		combinationName: 'HSBC Login Procedure',
+		requiredUrl: 'hsbc.com',
+		callback: extendedCombinations.hsbc
+	},
+	{
+		combinationId: 'citiAuth',
+		combinationName: 'Citi Login Procedure',
+		requiredUrl: 'online.citi.com',
+		callback: extendedCombinations.citi
 	},
 	{
 		combinationId: 'googleTwoPageAuth',
@@ -615,7 +688,7 @@ mcCombinations.prototype.detectCombination = function() {
 	if ( numberOfFields > 0 ) {
 		// Check for special cases first 
 		for (var I = 0; I < this.possibleCombinations.length; I++) {
-			if ( this.possibleCombinations[I].requiredUrl && this.possibleCombinations[I].requiredUrl == window.location.hostname ) { // Found a special case
+			if ( this.possibleCombinations[I].requiredUrl &&  window.location.hostname.match(this.possibleCombinations[I].requiredUrl) ) { // Found a special case
 				if (this.settings.debugLevel > 1) cipDebug.log('Dealing with special case for ' + window.location.hostname);
 
 				if (this.possibleCombinations[I].callback(this.forms) == 'skip') break
@@ -1217,7 +1290,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	// Selectors are ordered by priority, first ones are more important.
 	BUTTON_SELECTORS = [
 		'td.custom-button-center:visible',
-		'[type="submit"]:visible, a[href^="javascript:"]:visible',
+		'[type="button"]:visible, [type="submit"]:visible, a[href^="javascript:"]:visible',
 		'button:visible',
 		'button:visible span',
 		'[role="button"]:visible',
@@ -1282,7 +1355,7 @@ mcCombinations.prototype.formHasCaptcha = function(form) {
 	form = form && form.length ? form : $('body')
 	
 	var hasCaptcha = false
-	form.find('[class*="captcha"]').each(function(index, element) {
+	form.find('[class*="captcha"]:visible, [id*="captcha"]:visible').each(function(index, element) {
 		var $element = $(element)
 		
 		if ($element.width() != 0 &&

@@ -126,6 +126,7 @@ mooltipass.device.tabUpdatedEventPrevented = false;
  */
 mooltipass.device.resetDeviceStatus = function()
 {
+    mooltipass.backend.disableNonUnlockedNotifications = false;
     mooltipass.device._status = 
     {
         connected: mooltipass.device.emulation_mode? true:false,
@@ -693,7 +694,7 @@ mooltipass.device.messageListener = function(message, sender, sendResponse) {
     
     // Reenable notifications when device status changes.
     if (mooltipass.device._status && message.deviceStatus &&
-        mooltipass.device._status.connected != message.deviceStatus.connected) {
+        !!mooltipass.device._status.connected != !!message.deviceStatus.connected) {
       mooltipass.backend.disableNonUnlockedNotifications = false;
     }
     

@@ -16,7 +16,7 @@ $(function() {
 		? 'proxy://' + data.proxy
 		: data.url
 	)
-	$('.notice span').text(
+	$('.notice span, .caution p span').text(
 		data.isProxy
 			? data.proxy
 			: new URL(data.url).hostname

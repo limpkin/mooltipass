@@ -433,7 +433,7 @@ cipDefine.init = function () {
 	mpJQ("body").append(cipDefine.$chooser);
 
 	var $description = mpJQ("<div>").attr("id", "mp-bt-cipDefine-description");
-	$backdrop.append($description);
+	mpJQ("body").append($description);
 
 	cipFields.getAllFields();
 	cipFields.prepareVisibleFieldsWithID("select");

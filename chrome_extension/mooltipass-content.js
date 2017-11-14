@@ -308,6 +308,9 @@ cipDefine = {
 }
 
 cipDefine.show = function() {
+	$('body').addClass('mp-overlay-opened')
+	$('.mp-ui-password-dialog').hide()
+	
 	var iframe = document.createElement('iframe');
 	iframe.onload = function() {
 		$(iframe).fadeIn(100)
@@ -325,6 +328,12 @@ cipDefine.show = function() {
 cipDefine.hide = function() {
 	$('.mp-ui-custom-credentials-selection').fadeOut(100, function() {
 		$(this).remove()
+		
+		if (cipDefine.source == 'password-dialog') {
+			$('.mp-ui-password-dialog').show()
+		} else {
+			$('body').removeClass('mp-overlay-opened')
+		}
 	})
 }
 
@@ -342,7 +351,7 @@ cipDefine.retrieveMarkFields = function(pattern) {
 	mpJQ(pattern).each(function() {
 		if(mpJQ(this).is(":visible") && mpJQ(this).css("visibility") != "hidden" && mpJQ(this).css("visibility") != "collapsed") {
 			fields.push({
-				top: mpJQ(this).offset().top,
+				top: mpJQ(this).offset().top - $(document).scrollTop(),
 				left: mpJQ(this).offset().left,
 				width: mpJQ(this).outerWidth(),
 				height: mpJQ(this).outerHeight(),
@@ -1508,6 +1517,7 @@ cipEvents.startEventHandling = function() {
 				cip.contextMenuRememberCredentials();
 			}
 			else if (req.action == "choose_credential_fields") {
+				cipDefine.source = 'popup-status'
 				cipDefine.show();
 			}
 			else if (req.action == "clear_credentials") {
@@ -1556,6 +1566,7 @@ cipEvents.startEventHandling = function() {
 				mpDialog.onStoreCredentials(req.args.username)
 			}
 			else if (req.action == "password_dialog_custom_credentials_selection") {
+				cipDefine.source = 'password-dialog'
 				mpDialog.onCustomCredentialsSelection()
 			}
 			else if (req.action == "custom_credentials_selection_hide") {
@@ -1701,6 +1712,8 @@ var mpDialog = {
 	},
 	
 	show: function(target, isPasswordOnly) {
+		$('body').addClass('mp-overlay-opened')
+		
 		if (!this.created) {
 			this.create(target, isPasswordOnly);
 		} else {
@@ -1722,6 +1735,7 @@ var mpDialog = {
 	},
 	
 	hide: function() {
+		$('body').removeClass('mp-overlay-opened')
 		this.dialog && this.dialog.fadeOut(100);
 		this.shown = false;
 	},

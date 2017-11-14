@@ -1187,6 +1187,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 					currentForm.combination.fields.username.click();
 					try {
 						this.triggerChangeEvent(currentForm.combination.fields.username[0], credentials[0].Login)
+						currentForm.combination.fields.username.trigger('blur')
 					} catch (e) {}					
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.username.value = credentials[0].Login;	
@@ -1210,6 +1211,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 					try {
 						currentForm.combination.fields.password.sendkeys( credentials[0].Password );
 						this.triggerChangeEvent(currentForm.combination.fields.password[0], credentials[0].Password)
+						currentForm.combination.fields.password.trigger('blur')
 					} catch (e) {}					
 					currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.password.value = credentials[0].Password;

@@ -9,13 +9,11 @@ body {
 
 .content {
 	margin: auto;
-	padding-right: 20px;
-	padding-left: 20px;
 	background-color: white;
+	max-width: 300px;
 }
 
 .form {
-	max-width: 300px;
 	margin: auto;
 }
 
@@ -47,12 +45,21 @@ label {
 	font-size: 12px;
 }
 
-.notice span {
+.notice span,
+.caution p span {
 	font-weight: bold;
 }
 
 button {
 	margin-bottom: 0;
+}
+
+h6 {
+	margin-top: 3em;
+}
+
+.caution p {
+	font-size: 12px;
 }
 
 @-moz-document url-prefix() {

@@ -1,3 +1,7 @@
+body.mp-overlay-opened {
+	overflow: hidden;
+}
+
 .ui-autocomplete li.ui-menu-item {
 	text-align: left !important;
 	font-size: 12px !important;
@@ -632,6 +636,7 @@ input.mp-hover-password {
 .mp-ui-password-dialog-toggle {
 	position: absolute;
 	border: 0;
+	visibility: visible !important;
 }
 
 .mp-ui-password-dialog-toggle__small {
@@ -655,6 +660,7 @@ input.mp-hover-password {
 	height: 100%;
 	z-index: 2147483646;
 	border: 0;
+	visibility: visible !important;
 }
 
 /* ui-custom-credentials-selection */
@@ -668,4 +674,5 @@ input.mp-hover-password {
 	height: 100%;
 	z-index: 2147483647;
 	border: 0;
+	visibility: visible !important;
 }

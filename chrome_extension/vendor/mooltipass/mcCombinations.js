@@ -182,6 +182,35 @@ var extendedCombinations = {
 			}
 		}
 	},
+	upwork: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[id=login_username]').length > 0 ) {
+					currentForm.combination.fields.username = mpJQ('input[id=login_username]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[id=login_password]').length > 0 ) {
+					currentForm.combination.fields.password = mpJQ('input[id=login_password]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	hsbc: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -371,6 +400,12 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Citi Login Procedure',
 		requiredUrl: 'online.citi.com',
 		callback: extendedCombinations.citi
+	},
+	{
+		combinationId: 'upworkAuth',
+		combinationName: 'Upwork Login Procedure',
+		requiredUrl: 'upwork.com',
+		callback: extendedCombinations.upwork
 	},
 	{
 		combinationId: 'googleTwoPageAuth',
@@ -1187,6 +1222,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 					currentForm.combination.fields.username.click();
 					try {
 						this.triggerChangeEvent(currentForm.combination.fields.username[0], credentials[0].Login)
+						currentForm.combination.fields.username.trigger('blur')
 					} catch (e) {}					
 					currentForm.combination.fields.username[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.username.value = credentials[0].Login;	
@@ -1210,6 +1246,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 					try {
 						currentForm.combination.fields.password.sendkeys( credentials[0].Password );
 						this.triggerChangeEvent(currentForm.combination.fields.password[0], credentials[0].Password)
+						currentForm.combination.fields.password.trigger('blur')
 					} catch (e) {}					
 					currentForm.combination.fields.password[0].dispatchEvent(new Event('change'));
 					currentForm.combination.savedFields.password.value = credentials[0].Password;
@@ -1274,6 +1311,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/showpassword/i,
 		/showhidepasswd/i,
 		/passwordreset/i,
+		/resetform/i,
 		/remember_login/i,
 		/sign up/i,
 		/facebook/i,

@@ -113,8 +113,10 @@ $(function() {
 	})
 	
 	function onShow(data) {
-		$('.mooltipass-box').css({ top: data.offsetTop, left: data.offsetLeft });
 		var mpBox = $('.mooltipass-box');
+		
+		mpBox.css({ top: data.offsetTop, left: data.offsetLeft });
+		mpBox.find('.mp-triangle-in, .mp-triangle-out').css('top', '')
 
 		// Generate password if empty
 		if ( mpBox.find('.mooltipass-password-generator').val() === '' ) {

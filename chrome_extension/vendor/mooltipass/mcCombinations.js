@@ -182,6 +182,35 @@ var extendedCombinations = {
 			}
 		}
 	},
+	upwork: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[id=login_username]').length > 0 ) {
+					currentForm.combination.fields.username = mpJQ('input[id=login_username]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[id=login_password]').length > 0 ) {
+					currentForm.combination.fields.password = mpJQ('input[id=login_password]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	hsbc: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -371,6 +400,12 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Citi Login Procedure',
 		requiredUrl: 'online.citi.com',
 		callback: extendedCombinations.citi
+	},
+	{
+		combinationId: 'upworkAuth',
+		combinationName: 'Upwork Login Procedure',
+		requiredUrl: 'upwork.com',
+		callback: extendedCombinations.upwork
 	},
 	{
 		combinationId: 'googleTwoPageAuth',

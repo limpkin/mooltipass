@@ -1333,10 +1333,11 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		'button:visible span',
 		'[role="button"]:visible',
 		'[role="button"]:visible span',
+		'input.button:visible',
 		'a:visible',
 		'input[onclick]:visible',
 		'div[onclick]:visible',
-		'div.button'
+		'div.button:visible'
 	]
 	
 	var submitButton

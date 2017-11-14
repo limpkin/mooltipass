@@ -1,3 +1,7 @@
+body.mp-overlay-opened {
+	overflow: hidden;
+}
+
 .ui-autocomplete li.ui-menu-item {
 	text-align: left !important;
 	font-size: 12px !important;

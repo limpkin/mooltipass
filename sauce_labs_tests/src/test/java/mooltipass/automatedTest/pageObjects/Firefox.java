@@ -24,11 +24,11 @@ public class Firefox extends AbstractPage{
 	@FindBy(xpath = "//a[contains(text(),'Log in')]")
 	private WebElement loginBtn;
 	
-	@FindBy(xpath = "//a[text()='Log out']")
+	@FindBy(xpath = "//button[text()='Log out']")
 	private WebElement logoutBtn;
 	
 
-	@FindBy(xpath = "//a[@title='citesting@themooltipass.com']")
+	@FindBy(xpath = "//button[@title='mootlipass']")
 	private WebElement user;
 
 
@@ -65,8 +65,8 @@ public class Firefox extends AbstractPage{
 	}
 	public boolean checkLogin(){
 
-		waitUntilAppears(By.xpath("//a[@title='citesting@themooltipass.com']"));
-		return isElementPresent(By.xpath("//a[@title='citesting@themooltipass.com']"));
+		waitUntilAppears(By.xpath("//button[@title='mootlipass']"));
+		return isElementPresent(By.xpath("//button[@title='mootlipass']"));
 	}
 	public boolean checkAtLoginPage(){
 		return isElementPresent(By.id("submit-btn"));

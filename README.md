@@ -177,3 +177,4 @@ Device History
 You may find all the articles detailing the Mooltipass Standard different life steps using <a href="http://hackaday.com/tag/developed-on-hackaday/">this link</a>.  
 Our <a href="https://www.indiegogo.com/projects/mooltipass-open-source-offline-password-keeper">crowdfunding campaign</a> achieved its goal by raising around $125k in December 2014.
 
+ 

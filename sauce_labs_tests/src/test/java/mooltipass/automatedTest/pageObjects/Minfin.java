@@ -28,7 +28,7 @@ public class Minfin extends AbstractPage{
 	@FindBy(xpath = "//div[@class='mfz-ud-notification mfz-ud-usermenu-btn']/a[@title='mooltipass']")
 	private WebElement user;
 	
-	@FindBy(xpath = "//a[@href='/signout/']")
+	@FindBy(xpath = "//a[contains(@href,'/signout/')]")
 	private WebElement logoutBtn;
 	
 	public void goToLogin(){

@@ -1065,6 +1065,9 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	if ( storedUsernameValue != submittedUsernameValue || storedPasswordValue != submittedPasswordValue ) { // Only save when they differ
 		cip.rememberCredentials( event, 'unused', submittedUsernameValue, 'unused', submittedPasswordValue);
 	}
+	
+	// Reset detected forms to prevent later usage.
+	this.forms = { noform: { fields: [] } }
 }
 
 
@@ -1433,8 +1436,9 @@ mcCombinations.prototype.doSubmit = function doSubmit(currentForm) {
 		
 		// Button can be disabled, waiting for update.
 		setTimeout(function() {
+			if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit:submitButton','background-color: #c3c6b4','color: #333333', submitButton);
 			submitButton.click()
-		}, 100)
+		}.bind(this), 100)
 	} else {
 		// If we haven't found submit button, let's trigger submit event on the form.
 		mpJQ(currentForm.element).trigger('submit')

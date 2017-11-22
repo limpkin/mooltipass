@@ -62,6 +62,10 @@ h6 {
 	font-size: 12px;
 }
 
+.caution h6 {
+	text-align: center;
+}
+
 @-moz-document url-prefix() {
 	.logo {
 			background-image: url(/images/logo_inverted.png) !important;

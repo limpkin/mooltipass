@@ -746,9 +746,7 @@ mcCombinations.prototype.detectCombination = function() {
 							.unbind('click.mooltipass')
 							.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element[0] }))
 							
-						mpJQ()
-							.add(currentForm.combination.fields.username)
-							.add(currentForm.combination.fields.password)
+						mpJQ(mpJQ.map(currentForm.fields, function (field) { return field.get() }))
 							.unbind('keydown.mooltipass')
 							.on('keydown.mooltipass', function(currentForm, event) {
 								if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element[0] }) }
@@ -943,9 +941,7 @@ mcCombinations.prototype.detectForms = function() {
 				.unbind('click.mooltipass')
 				.on('click.mooltipass', this.onSubmit.bind(this, { target: currentForm.element && currentForm.element[0] }))
 				
-			mpJQ()
-				.add(currentForm.combination.fields.username)
-				.add(currentForm.combination.fields.password)
+			mpJQ(mpJQ.map(currentForm.fields, function (field) { return field.get() }))
 				.unbind('keydown.mooltipass')
 				.on('keydown.mooltipass', function(currentForm, event) {
 					if (event.which == 13) { this.onSubmit.call(this, { target: currentForm.element && currentForm.element[0] }) }
@@ -1304,6 +1300,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/verify_user_btn/i,
 		/change password/i,
 		/continue/i,
+		/weiter/i,
 	],
 	
 	IGNORE_PATTERNS = [

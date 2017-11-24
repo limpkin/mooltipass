@@ -1291,6 +1291,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 	var ACCEPT_PATTERNS = [
 		/submit/i,
 		/login/i,
+		/log in/i,
 		/sign/i,
 		/connexion/i,
 		/connecter/i,

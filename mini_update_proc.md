@@ -3,7 +3,7 @@ Updating Your Mooltipass Mini
     
 Requirements
 ------------
-- Make a backup of your database using the application of your choice (see User Manual)  
+- Make a backup of your database **and of any user's on that device** using the application of your choice (see User Manual)  
 - Close any Moolticute or MooltiApp instances you may have running  
 - Install Google Chrome and our Google App here: https://chrome.google.com/webstore/detail/mooltipass-app/cdifokahonpfaoldibbjmbkdhhelblpj  
 - Once again, **do not use MooltiApp for this procedure**, only our Chrome App.

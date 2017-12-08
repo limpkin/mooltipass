@@ -515,11 +515,11 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Login Form mixed with Registration Form (ie: showroomprive.com)',
 		requiredFields: [
 			{
-				selector: 'input[type=email], input[type=text]',
+				selector: 'input[type=email], input[type=text]:not([name=fakeusernameremembered])',
 				mapsTo: 'username'
 			},
 			{
-				selector: 'input[type=password], input[type=text].DocControlPassword',
+				selector: 'input[type=password]:not([name=fakepasswordremembered]), input[type=text].DocControlPassword',
 				mapsTo: 'password'
 			},
 		],
@@ -529,6 +529,9 @@ mcCombinations.prototype.possibleCombinations = [
 		enterFromPassword: true,
 		maxfields: 12,
 		extraFunction: function( fields ) {
+			// Don't update username field for wasabisys.com.
+			if (window.location.hostname.match('wasabisys.com')) return
+			
 			this.fields.username = cipFields.getUsernameField( fields.password.prop('id') );
 		}
 	},
@@ -1027,7 +1030,7 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	
 	if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c onSubmit','background-color: #c3c6b4','color: #333333');
 	this.waitingForPost = false;
-
+	
 	// Check if there's a difference between what we retrieved and what is being submitted
 	if ( !currentForm.combination.savedFields.username && this.credentialsCache) {
 		if ( this.credentialsCache[0].TempLogin ) {

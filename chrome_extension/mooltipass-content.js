@@ -1651,7 +1651,8 @@ cipEvents.triggerActivatedTab = function() {
 // Don't initialize in user targeting iframes, captchas, etc.
 var stopInitialization = 
 	window.self != window.top &&
-	window.location.hostname != 'idmsa.apple.com' && (
+	!window.location.hostname.match('chase.com') &&
+	!window.location.hostname.match('apple.com') && (
 		mpJQ('body').text().trim() == '' ||
 		mpJQ('body').width() <= 1 ||
 		mpJQ('body').height() <= 1 ||

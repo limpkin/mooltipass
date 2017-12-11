@@ -1313,6 +1313,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/forgot/i,
 		/lost/i,
 		/lostlogin/i,
+		/vergessen/i,
 		/troubleloggingin/i,
 		/showpassword/i,
 		/showhidepasswd/i,

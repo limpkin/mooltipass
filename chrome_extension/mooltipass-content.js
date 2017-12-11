@@ -1399,7 +1399,7 @@ cip.rememberCredentials = function(event, usernameField, usernameValue, password
 
 		var url = event.target && event.target.action;
 		// Action property can be DOM element with name="action".
-		if (!url || typeof url != 'string') {
+		if (!url || typeof url != 'string' || url == 'javascript:void(0)') {
 			url = document.location.href;
 			if(url.indexOf("?") > 0) {
 				url = url.substring(0, url.indexOf("?"));

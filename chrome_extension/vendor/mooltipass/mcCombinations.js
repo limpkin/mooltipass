@@ -819,6 +819,7 @@ mcCombinations.prototype.detectForms = function() {
 	var definedCredentialFields =
 		this.settings["defined-credential-fields"] && this.settings["defined-credential-fields"][document.location.origin]
 	if (definedCredentialFields) {
+		this.forms['noform'].definedCredentialFields = true
 		this.forms['noform'].fields = [
 			$('[data-mp-id=' + definedCredentialFields.username + ']'),
 			$('[data-mp-id=' + definedCredentialFields.password + ']')
@@ -1268,6 +1269,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			}
 			
 			if (currentForm.combination.autoSubmit &&
+				  !currentForm.definedCredentialFields &&
 				  !this.settings.doNotSubmitAfterFill &&
 				  (!currentForm.combination.fields.username || mpJQ.contains(document, currentForm.combination.fields.username[0])) &&
 				  (!currentForm.combination.fields.password || mpJQ.contains(document, currentForm.combination.fields.password[0]))) {

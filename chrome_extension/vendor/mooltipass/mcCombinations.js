@@ -1020,6 +1020,7 @@ mcCombinations.prototype.getAllForms = function() {
 */
 mcCombinations.prototype.onSubmit = function( event ) {
 	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ] || this.forms['noform'];
+	if (this.forms['noform'].definedCredentialFields) currentForm = this.forms['noform']
 	if (!currentForm.combination) return
 	
 	// Return if onSubmit has been already triggered by other events.
@@ -1282,6 +1283,9 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				try {currentForm.combination.fields.password.focus().sendkeys( "{enter}" );} catch(e){}
 			}
 		}
+		
+		// Don't proceed other forms when we have defined credential fields.
+		if (this.forms['noform'].definedCredentialFields) break
 	}
 }
 

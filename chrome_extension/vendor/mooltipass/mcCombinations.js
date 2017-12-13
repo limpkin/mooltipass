@@ -95,6 +95,35 @@ var extendedCombinations = {
 			}
 		}
 	},
+	pwc: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[type=text]:visible').length > 0 ) {
+					currentForm.combination.fields.username = mpJQ('input[type=text]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[type=password]:visible').length > 0 ) {
+					currentForm.combination.fields.password = mpJQ('input[type=password]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	google: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -388,6 +417,12 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Evernote Two Page Login Procedure',
 		requiredUrl: 'www.evernote.com',
 		callback: extendedCombinations.evernote
+	},
+	{
+		combinationId: 'pwcTwoPageAuth',
+		combinationName: 'PWC Two Page Login Procedure',
+		requiredUrl: 'pwc.com',
+		callback: extendedCombinations.pwc
 	},
 	{
 		combinationId: 'hsbcAuth',

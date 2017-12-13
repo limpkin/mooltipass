@@ -421,7 +421,7 @@ mcCombinations.prototype.possibleCombinations = [
 	{
 		combinationId: 'pwcTwoPageAuth',
 		combinationName: 'PWC Two Page Login Procedure',
-		requiredUrl: 'pwc.com',
+		requiredUrl: 'mymobility.pwc.com',
 		callback: extendedCombinations.pwc
 	},
 	{

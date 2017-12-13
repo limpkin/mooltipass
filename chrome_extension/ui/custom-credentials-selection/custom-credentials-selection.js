@@ -485,7 +485,6 @@ cipDefine.initDescription = function() {
 				})
 				
 				cipDefine.prepareStep3();
-				cipDefine.markAllStringFields(mpJQ("#mp-bt-cipDefine-fields"));
 			}
 		});
 	var $btnCancel = mpJQ("<button class='alert tiny'>").text("Cancel").attr("id", "mp-bt-btn-cancel").attr("href",'#')
@@ -628,7 +627,6 @@ cipDefine.markAllPasswordFields = function() {
 		
 		mpJQ(this).addClass("mp-bt-fixed-password-field").text("Password").unbind("click");
 		cipDefine.prepareStep3();
-		cipDefine.markAllStringFields(mpJQ("#mp-bt-cipDefine-fields"));
 	};
 
 	messaging({
@@ -637,26 +635,6 @@ cipDefine.markAllPasswordFields = function() {
 			action: 'custom_credentials_selection_request_mark_fields_data',
 			args: {
 				pattern: "input[type='password']"
-			}
-		}]
-	});
-}
-
-cipDefine.markAllStringFields = function() {
-	cipDefine.eventFieldClick = function(e) {
-		cipDefine.selection.fields[mpJQ(this).data("mp-id")] = true;
-		var count = Object.keys(cipDefine.selection.fields).length;
-		mpJQ(this).addClass("mp-bt-fixed-string-field").text("String field #"+count.toString()).unbind("click");
-
-		mpJQ("button#mp-bt-btn-confirm:first").addClass("mp-bt-btn-primary").attr("disabled", false);
-	};
-	
-	messaging({
-		action: 'create_action',
-		args: [{
-			action: 'custom_credentials_selection_request_mark_fields_data',
-			args: {
-				pattern: cipFields.inputQueryPattern + ", select"
 			}
 		}]
 	});

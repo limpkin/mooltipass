@@ -28,7 +28,7 @@ public class Microspot extends AbstractPage{
 	@FindBy(xpath = "//span[text()='Mein Konto']")
 	private WebElement loginBtn;
 	
-	@FindBy(xpath = "//button[.//span[contains(text(),'Abmelden')]]")
+	@FindBy(xpath = "(//button[.//span[contains(text(),'Abmelden')]])[2]")
 	private WebElement logoutBtn;
 	
 
@@ -47,7 +47,9 @@ public class Microspot extends AbstractPage{
 	
 	public void goToLogin(){
 		waitUntilAppears(loginBtn);		
-		loginBtn.click();
+		Actions action = new Actions(driver);
+		action.moveToElement(loginBtn);
+		action.perform();
 	}
 	
 	public void submit(){
@@ -57,6 +59,7 @@ public class Microspot extends AbstractPage{
 	public void logout(){
 		waitUntilAppears(logoutBtn);
 		logoutBtn.click();
+		sleep(3000);
 	}
 	public boolean checkLogin(){
 

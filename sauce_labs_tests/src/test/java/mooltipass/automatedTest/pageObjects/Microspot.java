@@ -59,7 +59,7 @@ public class Microspot extends AbstractPage{
 	public void logout(){
 		waitUntilAppears(logoutBtn);
 		logoutBtn.click();
-		sleep(3000);
+		sleep(7000);
 	}
 	public boolean checkLogin(){
 

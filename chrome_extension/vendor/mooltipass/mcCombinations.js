@@ -564,10 +564,9 @@ mcCombinations.prototype.possibleCombinations = [
 		enterFromPassword: true,
 		maxfields: 12,
 		extraFunction: function( fields ) {
-			// Don't update username field for wasabisys.com.
-			if (window.location.hostname.match('wasabisys.com')) return
-			
-			this.fields.username = cipFields.getUsernameField( fields.password.prop('id') );
+			if (!this.fields.username) {
+				this.fields.username = cipFields.getUsernameField( fields.password.prop('id') );
+			}
 		}
 	},
 	{

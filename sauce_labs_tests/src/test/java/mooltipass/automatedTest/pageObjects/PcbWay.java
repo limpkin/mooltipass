@@ -3,6 +3,7 @@ package mooltipass.automatedTest.pageObjects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
@@ -31,16 +32,16 @@ public class PcbWay extends AbstractPage{
 	@FindBy(xpath = "//div[@class='nav-ubox']")
 	private WebElement dashBoard;
 	
-	@FindBy(xpath = "//div[@class='olark-top-bar-button']")
+	@FindBy(xpath = "//div[@class='olark-top-bar-button' and @aria-hidden='true']")
 	private WebElement popup;
+	
 	
 	public void goToLogin(){	
 		loginBtn.click();
 	}
 	
 	public void enterEmail(String value){
-		if(isElementPresent(By.xpath("//div[@class='olark-top-bar-button']")) && popup.isDisplayed())
-			popup.click();
+		waitUntilAppears(email);
 		email.sendKeys(value);
 	}
 
@@ -51,8 +52,12 @@ public class PcbWay extends AbstractPage{
 
 	
 	public void submit(){
-
+		try {
 		submitLogin.click();
+		}catch(WebDriverException e) {
+			popup.click();
+			submitLogin.click();
+		}
 	}
 
 	public void logout(){	

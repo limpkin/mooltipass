@@ -1422,7 +1422,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			if (a.deep == b.deep) return 0
 		})
 		
-		if (buttons.length > 0) return buttons[0]
+		if (buttons.length > 0 && buttons[0].deep < 150) return buttons[0]
 	}
 	
 	// If we haven't detected submit button yet, try to find it in parent container.

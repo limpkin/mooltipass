@@ -37,6 +37,10 @@ public class EBay extends AbstractPage{
 	@FindBy(xpath = "//a[@href='https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&lgout=1']")
 	private WebElement logoutBtn;
 	
+	@FindBy(xpath = "//a[text()='Maybe later']")
+	private WebElement maybeLaterBtn;
+	
+	
 	public void enterEmail(String value){
 		waitUntilAppears(email);
 		email.sendKeys(value);
@@ -67,7 +71,8 @@ public class EBay extends AbstractPage{
 	}
 	
 	public boolean checkLogin(){
-
+		if(waitUntilAppears(maybeLaterBtn))
+				maybeLaterBtn.click();
 		waitUntilAppears(By.xpath("//button[@class='gh-ua gh-control']"));
 		return isElementPresent(By.xpath("//button[@class='gh-ua gh-control']"));
 	}

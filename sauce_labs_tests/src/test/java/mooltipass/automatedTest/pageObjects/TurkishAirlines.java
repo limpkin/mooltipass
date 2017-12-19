@@ -38,6 +38,7 @@ public class TurkishAirlines extends AbstractPage{
 	}
 	
 	public void goToLogin(){
+		sleep(6000);
 		waitUntilAppears(loginBtn);
 		loginBtn.click();
 	}

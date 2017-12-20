@@ -95,6 +95,35 @@ var extendedCombinations = {
 			}
 		}
 	},
+	pwc: function( forms ) {
+		if ( mcCombs.getAllForms() == 0 ) return;
+		for( form in forms ) {
+			var currentForm = forms[ form ];
+			if ( currentForm.element ) { // Skip noform form
+				currentForm.combination = {
+					special: true,
+					fields: {
+						username: '',
+						password: ''
+					},
+					savedFields: {
+						username: '',
+						password: ''
+					},
+					autoSubmit: false
+				}
+
+				if ( mpJQ('input[type=text]:visible').length > 0 ) {
+					currentForm.combination.fields.username = mpJQ('input[type=text]');
+					currentForm.combination.autoSubmit = true;
+				} 
+				if ( mpJQ('input[type=password]:visible').length > 0 ) {
+					currentForm.combination.fields.password = mpJQ('input[type=password]');
+					currentForm.combination.autoSubmit = true;
+				}
+			}
+		}
+	},
 	google: function( forms ) {
 		if ( mcCombs.getAllForms() == 0 ) return;
 		for( form in forms ) {
@@ -390,6 +419,12 @@ mcCombinations.prototype.possibleCombinations = [
 		callback: extendedCombinations.evernote
 	},
 	{
+		combinationId: 'pwcTwoPageAuth',
+		combinationName: 'PWC Two Page Login Procedure',
+		requiredUrl: 'mymobility.pwc.com',
+		callback: extendedCombinations.pwc
+	},
+	{
 		combinationId: 'hsbcAuth',
 		combinationName: 'HSBC Login Procedure',
 		requiredUrl: 'hsbc.com',
@@ -515,11 +550,11 @@ mcCombinations.prototype.possibleCombinations = [
 		combinationName: 'Login Form mixed with Registration Form (ie: showroomprive.com)',
 		requiredFields: [
 			{
-				selector: 'input[type=email], input[type=text]',
+				selector: 'input[type=email], input[type=text]:not([name=fakeusernameremembered])',
 				mapsTo: 'username'
 			},
 			{
-				selector: 'input[type=password], input[type=text].DocControlPassword',
+				selector: 'input[type=password]:not([name=fakepasswordremembered]), input[type=text].DocControlPassword',
 				mapsTo: 'password'
 			},
 		],
@@ -529,7 +564,9 @@ mcCombinations.prototype.possibleCombinations = [
 		enterFromPassword: true,
 		maxfields: 12,
 		extraFunction: function( fields ) {
-			this.fields.username = cipFields.getUsernameField( fields.password.prop('id') );
+			if (!this.fields.username) {
+				this.fields.username = cipFields.getUsernameField( fields.password.prop('id') );
+			}
 		}
 	},
 	{
@@ -796,7 +833,7 @@ mcCombinations.prototype.getFormActionUrl = function( formElement ) {
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c getFormActionUrl','background-color: #c3c6b4','color: #333333');
 	var action = formElement[0].action;
 
-	if(typeof(action) != "string" || action == "" || action.indexOf('{') > -1) {
+	if(typeof(action) != "string" || action == "" || action.indexOf('{') > -1 || action == 'javascript:void(0)') {
 		action = document.location.origin + document.location.pathname;
 	}
 
@@ -816,6 +853,7 @@ mcCombinations.prototype.detectForms = function() {
 	var definedCredentialFields =
 		this.settings["defined-credential-fields"] && this.settings["defined-credential-fields"][document.location.origin]
 	if (definedCredentialFields) {
+		this.forms['noform'].definedCredentialFields = true
 		this.forms['noform'].fields = [
 			$('[data-mp-id=' + definedCredentialFields.username + ']'),
 			$('[data-mp-id=' + definedCredentialFields.password + ']')
@@ -1016,6 +1054,7 @@ mcCombinations.prototype.getAllForms = function() {
 */
 mcCombinations.prototype.onSubmit = function( event ) {
 	var currentForm = this.forms[ mpJQ(event.target).data('mp-id') ] || this.forms['noform'];
+	if (this.forms['noform'].definedCredentialFields) currentForm = this.forms['noform']
 	if (!currentForm.combination) return
 	
 	// Return if onSubmit has been already triggered by other events.
@@ -1027,7 +1066,7 @@ mcCombinations.prototype.onSubmit = function( event ) {
 	
 	if (this.settings.debugLevel > 1) cipDebug.log('%c mcCombinations: %c onSubmit','background-color: #c3c6b4','color: #333333');
 	this.waitingForPost = false;
-
+	
 	// Check if there's a difference between what we retrieved and what is being submitted
 	if ( !currentForm.combination.savedFields.username && this.credentialsCache) {
 		if ( this.credentialsCache[0].TempLogin ) {
@@ -1265,6 +1304,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 			}
 			
 			if (currentForm.combination.autoSubmit &&
+				  !currentForm.definedCredentialFields &&
 				  !this.settings.doNotSubmitAfterFill &&
 				  (!currentForm.combination.fields.username || mpJQ.contains(document, currentForm.combination.fields.username[0])) &&
 				  (!currentForm.combination.fields.password || mpJQ.contains(document, currentForm.combination.fields.password[0]))) {
@@ -1277,6 +1317,9 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 				try {currentForm.combination.fields.password.focus().sendkeys( "{enter}" );} catch(e){}
 			}
 		}
+		
+		// Don't proceed other forms when we have defined credential fields.
+		if (this.forms['noform'].definedCredentialFields) break
 	}
 }
 
@@ -1294,6 +1337,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/log in/i,
 		/sign/i,
 		/connexion/i,
+		/valider/i,
 		/connecter/i,
 		/anmelden/i,
 		/identifierNext/i,
@@ -1308,6 +1352,8 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/forgot/i,
 		/lost/i,
 		/lostlogin/i,
+		/closeModal/i,
+		/vergessen/i,
 		/troubleloggingin/i,
 		/showpassword/i,
 		/showhidepasswd/i,
@@ -1357,26 +1403,18 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		})
 		
 		// Sort buttons by how nearest they are from the field.
-		var fieldTop = field.offset().top + field.height() / 2,
-				fieldLeft = field.offset().left + field.width() / 2
-
 		buttons.each(function(index, button) {
-			var $button = $(button),
-					buttonTop = $button.offset().top + $button.height() / 2,
-					buttonLeft = $button.offset().left + $button.width() / 2
-			
-			button.deep = Math.sqrt(
-				Math.pow(fieldTop - buttonTop, 2) + Math.pow(fieldLeft - buttonLeft, 2)
-			)
+			button.distance = Math.abs($(button).offset().top - field.offset().top)
 		})
 		
 		buttons.sort(function(a, b) {
-			if (a.deep > b.deep) return 1
-			if (a.deep < b.deep) return -1
-			if (a.deep == b.deep) return 0
+			if (a.distance > b.distance) return 1
+			if (a.distance < b.distance) return -1
+			if (a.distance == b.distance) return 0
 		})
 		
-		if (buttons.length > 0) return buttons[0]
+		// Button shouldn't be far more than 150px from input.
+		if (buttons.length > 0 && buttons[0].distance < 150) return buttons[0]
 	}
 	
 	// If we haven't detected submit button yet, try to find it in parent container.

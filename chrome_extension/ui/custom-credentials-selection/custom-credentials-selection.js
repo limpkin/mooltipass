@@ -37,7 +37,7 @@ $(function() {
 
 cipFields = {}
 
-cipFields.inputQueryPattern = "input[type='text'], input[type='email'], input[type='password'], input[type='tel'], input[type='number'], input:not([type])";
+cipFields.inputQueryPattern = "input[type='text'], input[type='username'], input[type='email'], input[type='password'], input[type='tel'], input[type='number'], input:not([type])";
 // unique number as new IDs for input fields
 cipFields.uniqueNumber = 342845638;
 // objects with combination of username + password fields

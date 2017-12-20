@@ -1351,7 +1351,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/forgot/i,
 		/lost/i,
 		/lostlogin/i,
-		/cancel/i,
+		/closeModal/i,
 		/vergessen/i,
 		/troubleloggingin/i,
 		/showpassword/i,
@@ -1402,26 +1402,18 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		})
 		
 		// Sort buttons by how nearest they are from the field.
-		var fieldTop = field.offset().top + field.height() / 2,
-				fieldLeft = field.offset().left + field.width() / 2
-
 		buttons.each(function(index, button) {
-			var $button = $(button),
-					buttonTop = $button.offset().top + $button.height() / 2,
-					buttonLeft = $button.offset().left + $button.width() / 2
-			
-			button.deep = Math.sqrt(
-				Math.pow(fieldTop - buttonTop, 2) + Math.pow(fieldLeft - buttonLeft, 2)
-			)
+			button.distance = Math.abs($(button).offset().top - field.offset().top)
 		})
 		
 		buttons.sort(function(a, b) {
-			if (a.deep > b.deep) return 1
-			if (a.deep < b.deep) return -1
-			if (a.deep == b.deep) return 0
+			if (a.distance > b.distance) return 1
+			if (a.distance < b.distance) return -1
+			if (a.distance == b.distance) return 0
 		})
 		
-		if (buttons.length > 0 && buttons[0].deep < 150) return buttons[0]
+		// Button shouldn't be far more than 150px from input.
+		if (buttons.length > 0 && buttons[0].distance < 150) return buttons[0]
 	}
 	
 	// If we haven't detected submit button yet, try to find it in parent container.

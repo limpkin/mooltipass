@@ -1337,6 +1337,7 @@ mcCombinations.prototype.retrieveCredentialsCallback = function (credentials) {
 		/log in/i,
 		/sign/i,
 		/connexion/i,
+		/valider/i,
 		/connecter/i,
 		/anmelden/i,
 		/identifierNext/i,

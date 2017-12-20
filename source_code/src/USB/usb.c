@@ -175,18 +175,41 @@ RET_TYPE usbKeyboardSend(void)
 */
 RET_TYPE usbKeyboardPress(uint8_t key, uint8_t modifier)
 {
+    uint8_t delay_ms = 0;
     int8_t r;
+    
+    if (getMooltipassParameterInEeprom(DELAY_AFTER_KEY_ENTRY_BOOL_PARAM) != FALSE)
+    {
+        delay_ms = getMooltipassParameterInEeprom(DELAY_AFTER_KEY_ENTRY_PARAM);
+    }
 
+    // Send modifier
+    keyboard_modifier_keys = modifier;
+    keyboard_keys[0] = 0;
+    r = usbKeyboardSend();
+    if (r != RETURN_COM_TRANSF_OK)
+    {
+        return r;
+    }
+    timerBasedDelayMs(delay_ms);
+    
+    // Send modifier + key
     keyboard_modifier_keys = modifier;
     keyboard_keys[0] = key;
     r = usbKeyboardSend();
     if (r != RETURN_COM_TRANSF_OK)
     {
         return r;
-    }        
+    }   
+    timerBasedDelayMs(delay_ms);
+    
+    // Release all     
     keyboard_modifier_keys = 0;
     keyboard_keys[0] = 0;
-    return usbKeyboardSend();
+    r = usbKeyboardSend();
+    timerBasedDelayMs(delay_ms);
+
+    return r;
 }
 
 /*! \fn     usbSendLockShortcut(void)
@@ -1056,10 +1079,6 @@ RET_TYPE usbKeybPutStr(char* string)
     while((*string) && (temp_ret == RETURN_COM_TRANSF_OK))
     {
         temp_ret = usbKeybPutChar(*string++);
-        if (getMooltipassParameterInEeprom(DELAY_AFTER_KEY_ENTRY_BOOL_PARAM) != FALSE)
-        {
-            timerBasedDelayMs(getMooltipassParameterInEeprom(DELAY_AFTER_KEY_ENTRY_PARAM));
-        }
     }
     
     return temp_ret;

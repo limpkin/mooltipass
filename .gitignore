@@ -7,7 +7,6 @@ trademark/
 fcc/
 *Thumbs.db
 *~
-*.hex
 *.elf
 *.eep
 *.o

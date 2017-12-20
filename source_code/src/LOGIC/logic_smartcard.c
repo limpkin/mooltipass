@@ -67,13 +67,13 @@ void unlockFeatureCheck(void)
             {
                 /* We fetched the login (user approved), enter "enter" if feature enabled */
                 usbKeyboardPress(KEY_RETURN, 0);
-                timerBasedDelayMs(300);
+                timerBasedDelayMs(500);
             }            
             else if ((lock_unlock_feature_uint & LF_CTRL_ALT_DEL_MASK) != 0)
             {
                 /* We fetched the login (user approved), enter ctrl-alt-del if feature enabled */
                 usbKeyboardPress(KEY_DELETE, KEY_RIGHT_ALT|KEY_CTRL);
-                timerBasedDelayMs(300);
+                timerBasedDelayMs(500);
             }
 
             /* If enabled, enter login: works because it takes less than 1s */

@@ -45,6 +45,7 @@ A Brief History of Security Flaws and Breaches
 We often think that the devices and websites we use are exempt of security flaws.  
 You may see **if one of your accounts has already been compromised** by visiting <b><a href="https://haveibeenpwned.com/">this website</a></b>.  
 We also compiled a brief list of major security breaches and vulnerabilities found during the last few months: 
+- 12/2017 <a href="https://it.slashdot.org/story/17/12/17/0329223/windows-10-bundled-a-password-manager-with-a-security-flaw">Windows 10 Bundled a Password Manager with a Security Flaw </a>
 - 09/2017 <a href="https://arstechnica.com/information-technology/2017/09/bluetooth-bugs-open-billions-of-devices-to-attacks-no-clicking-required/">Billions of devices imperiled by new clickless Bluetooth attack</a>
 - 09/2017 <a href="https://techcrunch.com/2017/09/07/equifax-data-leak-could-involve-143-million-consumers/">Equifax data leak involves 143 million consumers</a>
 - 08/2017 <a href="https://blog.quarkslab.com/vulnerabilities-in-high-assurance-boot-of-nxp-imx-microprocessors.html">Vulnerabilities in High Assurance Boot of NXP i.MX microprocessors</a>

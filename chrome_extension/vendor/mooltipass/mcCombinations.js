@@ -22,11 +22,11 @@ var extendedCombinations = {
 					autoSubmit: false
 				}
 
-				if ( mpJQ('input[type=password]').length > 0 ) { // Step 1: Email
+				if ( mpJQ('input[type=password]:visible').length > 0 ) { // Step 1: Email
 					currentForm.combination.fields.password = mpJQ('input[type=password]');
 					currentForm.combination.autoSubmit = true;
 				} 
-				if ( mpJQ('input[name=loginfmt]').length > 0 ) { // Step 1: Email
+				if ( mpJQ('input[name=loginfmt]:visible').length > 0 ) { // Step 1: Email
 					currentForm.combination.fields.username = mpJQ('input[name=loginfmt]');
 					currentForm.combination.autoSubmit = true;
 				}
@@ -200,11 +200,11 @@ var extendedCombinations = {
 					autoSubmit: false
 				}
 
-				if ( mpJQ('input[id=username]').length > 0 ) {
+				if ( mpJQ('input[id=username]:visible').length > 0 ) {
 					currentForm.combination.fields.username = mpJQ('input[id=username]');
 					currentForm.combination.autoSubmit = true;
 				} 
-				if ( mpJQ('input[id=password]').length > 0 ) {
+				if ( mpJQ('input[id=password]:visible').length > 0 ) {
 					currentForm.combination.fields.password = mpJQ('input[id=password]');
 					currentForm.combination.autoSubmit = true;
 				}
@@ -229,11 +229,11 @@ var extendedCombinations = {
 					autoSubmit: false
 				}
 
-				if ( mpJQ('input[id=login_username]').length > 0 ) {
+				if ( mpJQ('input[id=login_username]:visible').length > 0 ) {
 					currentForm.combination.fields.username = mpJQ('input[id=login_username]');
 					currentForm.combination.autoSubmit = true;
 				} 
-				if ( mpJQ('input[id=login_password]').length > 0 ) {
+				if ( mpJQ('input[id=login_password]:visible').length > 0 ) {
 					currentForm.combination.fields.password = mpJQ('input[id=login_password]');
 					currentForm.combination.autoSubmit = true;
 				}
@@ -258,8 +258,8 @@ var extendedCombinations = {
 					autoSubmit: false
 				}
 				
-				var usernameSelector = 'input[name=u_UserID], input[name=userid]',
-						passwordSelector = 'input[type=password]'
+				var usernameSelector = 'input[name=u_UserID]:visible, input[name=userid]:visible',
+						passwordSelector = 'input[type=password]:visible'
 
 				if ( mpJQ(usernameSelector).length > 0 ) {
 					currentForm.combination.fields.username = mpJQ(usernameSelector);
@@ -290,11 +290,11 @@ var extendedCombinations = {
 					autoSubmit: false
 				}
 
-				if ( mpJQ('#login-passwd').length > 0 ) { // Step 1: Email
+				if ( mpJQ('#login-passwd:visible').length > 0 ) { // Step 1: Email
 					currentForm.combination.fields.password = mpJQ('#login-passwd');
 					currentForm.combination.autoSubmit = true;
 				} 
-				if ( mpJQ('#login-username').length > 0 ) { // Step 1: Email
+				if ( mpJQ('#login-username:visible').length > 0 ) { // Step 1: Email
 					currentForm.combination.fields.username = mpJQ('#login-username');
 					currentForm.combination.autoSubmit = true;
 				}

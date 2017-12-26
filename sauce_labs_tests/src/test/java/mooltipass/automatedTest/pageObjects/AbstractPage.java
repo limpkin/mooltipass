@@ -3,6 +3,8 @@ package mooltipass.automatedTest.pageObjects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -29,6 +31,16 @@ public class AbstractPage {
 		}
 	}
 
+	protected boolean waitUntilClickable(WebElement element) {
+		try {
+			WebDriverWait wait = new WebDriverWait(driver, 12);
+			wait.until(ExpectedConditions.elementToBeClickable(element));
+		} catch (TimeoutException | NoSuchElementException | StaleElementReferenceException e) {
+			return false;
+		}
+		return true;
+	}
+	
 	protected boolean isElementPresent(By by) {
 		try {
 			driver.findElement(by);
@@ -87,6 +99,21 @@ public class AbstractPage {
 
 		JavascriptExecutor executor = (JavascriptExecutor) driver;
 		executor.executeScript("arguments[0].click();", element);
+	}
+	
+	protected void scrollDown(int value) {
+		JavascriptExecutor jse = (JavascriptExecutor) driver;
+		jse.executeScript("window.scrollBy(0,arguments[0])", value);
+	}
+	
+	protected boolean waitUntilNotVisible(By by) {
+		try {
+			WebDriverWait wait = new WebDriverWait(driver, 12);
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(by));
+		} catch (TimeoutException | NoSuchElementException e) {
+			return false;
+		}
+		return true;
 	}
 }
 

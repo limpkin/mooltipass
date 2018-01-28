@@ -86,6 +86,11 @@ cipPassword.initField = function(field, inputs, pos) {
 	if ( field.prop('tabindex') == -1) {
 		return;
 	}
+  
+	// Prevent showing icon if password field is less than 100px by width.
+	if ( field[0].clientWidth < 100 ) {
+		return;
+	}
 
 	field.data("mp-password-generator", true);
 

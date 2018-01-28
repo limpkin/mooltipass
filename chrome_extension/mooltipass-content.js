@@ -1659,8 +1659,8 @@ var stopInitialization =
 	!window.location.hostname.match('chase.com') &&
 	!window.location.hostname.match('apple.com') && (
 		mpJQ('body').text().trim() == '' ||
-		mpJQ('body').width() <= 1 ||
-		mpJQ('body').height() <= 1 ||
+		window.innerWidth <= 1 ||
+		window.innerHeight <= 1 ||
 		window.location.href.match('recaptcha') ||
 		window.location.href.match('youtube') ||
 		window.location.href.match('pixel')

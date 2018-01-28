@@ -1450,6 +1450,8 @@ mcCombinations.prototype.formHasCaptcha = function(form) {
 * Submits the form!
 */
 mcCombinations.prototype.doSubmit = function doSubmit(currentForm) {
+	var DISABLE_AUTOSUBMIT_DOMAINS = ['gls-online-filiale.de']
+	
 	if (this.formHasCaptcha()) {
 		if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c Captcha detected','background-color: #c3c6b4','color: #800000')
 		return
@@ -1458,6 +1460,9 @@ mcCombinations.prototype.doSubmit = function doSubmit(currentForm) {
 	// Do not autosubmit form with two-factor auth for Steam.
 	if (window.location.hostname.match(/steamcommunity.com|steampowered.com/) &&
 		  mpJQ('#authcode:visible, #twofactorcode_entry:visible').length) return
+			
+	// Do not autosubmit form for different domains as exception.
+	if (window.location.hostname.match(new RegExp(DISABLE_AUTOSUBMIT_DOMAINS.join('|')))) return
 			
 	if (this.settings.debugLevel > 4) cipDebug.log('%c mcCombinations: %c doSubmit','background-color: #c3c6b4','color: #333333');
 	

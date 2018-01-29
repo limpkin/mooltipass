@@ -769,6 +769,8 @@ mcCombinations.prototype.detectCombination = function() {
 				for (form in this.forms) {
 					var currentForm = this.forms[form]
 					if (currentForm.element) {
+						cipPassword.createLoginIcon(currentForm.combination.fields.username);
+						
 						var field = currentForm.combination.fields.password || currentForm.combination.fields.username,
 								submitButton = this.detectSubmitButton(field, field.parent())
 							
@@ -850,6 +852,7 @@ mcCombinations.prototype.detectForms = function() {
 	var combinations = 0;
 	
 	// Check for custom fields.
+	this.forms['noform'].definedCredentialFields = false
 	var definedCredentialFields =
 		this.settings["defined-credential-fields"] && this.settings["defined-credential-fields"][document.location.origin]
 	if (definedCredentialFields) {
@@ -936,6 +939,12 @@ mcCombinations.prototype.detectForms = function() {
 
 						// Check current score
 						if ( currentForm.combination.score == 100 ) {
+							// Create login icon on field only when there is no defined credentials
+							// or make sure that we add icon to 'noform' in case user has defined credentials.
+							if (!this.forms['noform'].definedCredentialFields || this.forms['noform'] == currentForm) {
+								cipPassword.createLoginIcon(currentForm.combination.fields.username);
+							}
+							
 							this.waitingForPost = true;
 							combinations++;
 							if (this.settings.debugLevel > 3) cipDebug.log('\t\t\t %c mcCombinations - Form Detection: %c Combination Match!','background-color: #c3c6b4','color: #800000', currentForm.combination.combinationName );

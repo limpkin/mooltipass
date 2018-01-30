@@ -2,7 +2,7 @@
 // Wait until everything has loaded
 
 startMooltipass = function() {
-	if ( !mooltipassEvent || !mooltipassEvent.eventLoaded || !page || !page.pageLoaded ) {
+	if ( typeof mooltipassEvent == 'undefined' || !mooltipassEvent || !mooltipassEvent.eventLoaded || !page || !page.pageLoaded ) {
 		setTimeout( startMooltipass, 100 );
 		return;
 	}

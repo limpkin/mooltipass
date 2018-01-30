@@ -1786,9 +1786,9 @@ var mpDialog = {
 				isPasswordOnly: isPasswordOnly,
 				windowWidth: window.innerWidth,
 				windowHeight: window.innerHeight,
-				hideCustomCredentials: mcCombs.possibleCombinations.some(combination =>
-					combination.requiredUrl == window.location.hostname
-				)
+				hideCustomCredentials: mcCombs.possibleCombinations.some(function(combination) {
+					return combination.requiredUrl == window.location.hostname
+				})
 			}));
 			
 		$(iframe).addClass('mp-ui-password-dialog').hide()

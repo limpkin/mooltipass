@@ -1,0 +1,17 @@
+body {
+	margin: 0;
+}
+
+.icon {
+	background-size: contain;
+}
+
+.icon__small {
+	width: 16px;
+	height: 16px;
+}
+
+.icon__big {
+	width: 24px;
+	height: 24px;
+}

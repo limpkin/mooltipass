@@ -649,6 +649,23 @@ input.mp-hover-password {
 	height: 24px;
 }
 
+/* ui-login-icon */
+.mp-ui-login-icon {
+	position: absolute;
+	border: 0;
+	visibility: visible !important;
+}
+
+.mp-ui-login-icon__small {
+	width: 16px;
+	height: 16px;
+}
+
+.mp-ui-login-icon__big {
+	width: 24px;
+	height: 24px;
+}
+
 /* ui-password-dialog */
 .mp-ui-password-dialog {
 	position: fixed;

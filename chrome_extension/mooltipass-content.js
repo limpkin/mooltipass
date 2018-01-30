@@ -77,21 +77,6 @@ cipPassword.initField = function(field, inputs, pos) {
 		return;
 	}
 
-	// Prevent showing icon if password field is hidden by width or height.
-	if ( field[0].clientWidth < 2 || field[0].clientHeight < 2 ) {
-		return;
-	}
-
-	// Prevent showing icon if the password field has a tabIndex of -1 
-	if ( field.prop('tabindex') == -1) {
-		return;
-	}
-  
-	// Prevent showing icon if password field is less than 100px by width.
-	if ( field[0].clientWidth < 100 ) {
-		return;
-	}
-
 	field.data("mp-password-generator", true);
 
 	cipPassword.createIcon(field);
@@ -136,10 +121,110 @@ cipPassword.generatePasswordFromSettings = function( passwordSettings ) {
 	return hash;
 } 
 
+cipPassword.removeLoginIcons = function() {
+	var PREFIX = 'mp-ui-login-icon',
+			SELECTOR = '.' + PREFIX;
+			
+	mpJQ(SELECTOR).remove()
+}
+
+cipPassword.createLoginIcon = function(field) {
+	var PREFIX = 'mp-ui-login-icon',
+			SELECTOR = '.' + PREFIX;
+			
+	// Return if field isn't defined.
+	if (!field) return
+			
+	// Prevent showing icon if password field is less than 100px by width.
+	if (field[0].clientWidth < 100) return
+	
+	// Prevent showing icon if password field is hidden by width or height.
+	if (field[0].clientWidth < 2 || field[0].clientHeight < 2) return
+
+	// Prevent showing icon if the password field has a tabIndex of -1 
+	if (field.prop('tabindex') == -1) return
+	
+	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c createLoginIcon','background-color: #ff8e1b','color: #333333', field);
+
+	// Check if there are other icons in the page
+	var currentIcons = mpJQ(SELECTOR);
+	var iconIndex = currentIcons.length;
+	if ( iconIndex > 0 ) {
+		for ( var I = 0; I < iconIndex; I++ ) {
+			if ( field.data("mp-id") === mpJQ(currentIcons[I]).data('mp-genpw-field-id') ) { // An icon for this field already exists
+				return
+			}
+		}
+	}
+
+	var $className = (field.outerHeight() > 28)
+			? PREFIX + '__big'
+			: PREFIX + '__small';
+	var $size = (field.outerHeight() > 28) ? 24 : 16;
+	var $offset = Math.floor((field.outerHeight() - $size) / 2);
+	$offset = ($offset < 0) ? 0 : $offset;
+
+	var $zIndex = 0;
+	var $zIndexField = field;
+	var z;
+	var c = 0;
+	while($zIndexField.length > 0) {
+		if(c > 100 || $zIndexField[0].nodeName == "#document") {
+			break;
+		}
+		z = $zIndexField.css("z-index");
+		if(!isNaN(z) && parseInt(z) > $zIndex) {
+			$zIndex = parseInt(z);
+		}
+		$zIndexField = $zIndexField.parent();
+		c++;
+	}
+
+	if(isNaN($zIndex) || $zIndex < 1) {
+		$zIndex = 1;
+	}
+	$zIndex += 1;
+	
+	var iframe = document.createElement('iframe');
+	iframe.src = cip.settings['extension-base'] + 'ui/login-icon/login-icon.html?' +
+		encodeURIComponent(JSON.stringify({
+			type: $size == 16 ? 'small' : 'big',
+			iconId: PREFIX + '-' + field.data('mp-id'),
+			settings: cip.settings
+		}));
+	
+	var $icon = $(iframe)
+		.attr('id', PREFIX + '-' + field.data('mp-id'))
+		.attr('tabindex', -1)
+		.addClass(PREFIX)
+		.addClass($className)
+		.css("z-index", $zIndex)
+		.data("size", $size)
+		.data("offset", $offset)
+		.data("index", iconIndex)
+		.data("mp-genpw-field-id", field.data("mp-id"));
+
+	cipPassword.setIconPosition($icon, field);
+	cipPassword.observedIcons.push($icon);
+	$icon.insertAfter( field ); 
+}
+
 cipPassword.createIcon = function(field) {
 	var PREFIX = 'mp-ui-password-dialog-toggle',
 			SELECTOR = '.' + PREFIX;
+			
+	// Return if field isn't defined.
+	if (!field) return
+			
+	// Prevent showing icon if password field is less than 100px by width.
+	if (field[0].clientWidth < 100) return
 	
+	// Prevent showing icon if password field is hidden by width or height.
+	if (field[0].clientWidth < 2 || field[0].clientHeight < 2) return
+
+	// Prevent showing icon if the password field has a tabIndex of -1 
+	if (field.prop('tabindex') == -1) return
+
 	if (content_debug_msg > 4) cipDebug.log('%c cipPassword: %c createIcon','background-color: #ff8e1b','color: #333333', field);
 
 	// Check if there are other icons in the page
@@ -1575,7 +1660,9 @@ cipEvents.startEventHandling = function() {
 				mpDialog.onCustomCredentialsSelection()
 			}
 			else if (req.action == "custom_credentials_selection_hide") {
+				cipPassword.removeLoginIcons()
 				cipDefine.hide()
+				mcCombs.init();
 			}
 			else if (req.action == "custom_credentials_selection_request_mark_fields_data") {
 				cipDefine.retrieveMarkFields(req.args.pattern)
@@ -1595,9 +1682,6 @@ cipEvents.startEventHandling = function() {
 				definedCredentialFields.username = req.args.username || definedCredentialFields.username
 				definedCredentialFields.password = req.args.password || definedCredentialFields.password
 				definedCredentialFields.fields = req.args.fieldsIds || definedCredentialFields.fields
-				
-				// Trigger mcCombs to re-evaluate combinations.
-				mcCombs.init();
 			}
 			else if (req.action == "custom_credentials_selection_cancelled") {
 				cip.settings["defined-credential-fields"][document.location.origin] = null
@@ -1606,9 +1690,6 @@ cipEvents.startEventHandling = function() {
 					password: null,
 					fields: {}
 				}
-				
-				// Trigger mcCombs to re-evaluate combinations.
-				mcCombs.init();
 			}
 		}
 	};

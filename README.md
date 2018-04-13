@@ -36,7 +36,7 @@ A browser extension runs on the user's computer and sends the current website to
 
 Data Safety
 -----------
-Safety is a primary concern for the Mooltipass development team, which is why we offer several **secure** ways to back up your credentials.  
+Safety is a primary concern for the Mooltipass development team, which is why we offer several **secure** ways to backup your credentials.  
 The smart card containing the AES key used for encrypting the passwords can be **cloned** using the Mooltipass, copying its PIN code as well. The encrypted credentials stored in the Mooltipass internal flash can be **exported** to the official Mooltipass website or simply somewhere on your local computer.
 
 A Brief History of Security Flaws and Breaches

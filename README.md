@@ -18,7 +18,7 @@ The Mooltipass is a standalone device connected through USB, is completely drive
 Advantages over software-based solutions
 ----------------------------------------
 A software-based password keeper uses a passphrase to decrypt a credentials database located inside a device (computer, smartphone...). As at a given moment, your passphrase and your database are stored inside your device's memory, a malicious program with access to both elements could <b><a href="http://thehackernews.com/2014/11/new-citadel-trojan-targets-your.html">compromise all your passwords at once</a></b>. In some cases, security flaws of software-based solutions can also lead to entire unencrypted databases being extracted by <b><a href="http://www.theregister.co.uk/2016/07/27/zero_day_hole_can_pwn_millions_of_lastpass_users_who_visit_a_site">visiting a simple website</a></b>.  
-We, therefore, offer the following advantages:  
+We therefore offer the following advantages:  
 - **Stronger security**: we reduce the number of attack vectors by basically having our device type your passwords for you. 
 - A **non-proprietary device**: as our product is open anyone can develop new tools for it. There will never be fees for the services we offer.  
 - An **open-source platform**: all our source code can be viewed, allowing you to check that your credentials are only kept inside the device and not leaked to the outside  

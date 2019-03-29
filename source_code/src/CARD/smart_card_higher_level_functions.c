@@ -706,6 +706,23 @@ RET_TYPE checkAuthenticatedReadWriteAccessToZone1And2(void)
     }
 }
 
+/*! \fn     checkHiddenAESKeyContents(void)
+*   \brief  Function called to check that the AES key contents are indeed well hidden
+*   \return OK or NOK
+*/
+RET_TYPE checkHiddenAESKeyContents(void)
+{
+    for (uint8_t i = 0; i < 20; i++)
+    {
+        if (checkForConstValueInSMCArray((SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED + AES_KEY_LENGTH)/8, (SMARTCARD_AZ1_BIT_START + SMARTCARD_AZ1_BIT_RESERVED)/8, 0xFF) != RETURN_OK)
+        {
+            return RETURN_NOK;
+        }
+    }
+    
+    return RETURN_OK;
+}
+
 /*! \fn     printSMCDebugInfoToUSB(void)
 *   \brief  Print the card info
 */

@@ -630,6 +630,49 @@ uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_
     return return_val;
 }
 
+/*! \fn     checkForConstValueInSMCArray(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t value)
+*   \brief  Check if a given value is present in a contiguous space in the memory
+*   \param  nb_bytes_total_read     The number of bytes to be read
+*   \param  start_record_index      The index at which we start recording the answer
+*   \param  value                   Value to compare the array values with
+*   \return Comparison status
+*/
+RET_TYPE checkForConstValueInSMCArray(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t value)
+{
+    uint8_t i;
+
+    /* Set PGM / RST signals for operation */
+    clearPgmRstSignals();
+
+    for(i = 0; i < nb_bytes_total_read; i++)
+    {
+        /* Start transmission */
+        SPDR = 0x00;
+        /* Wait for transmission complete */
+        while((!(SPSR & (1<<SPIF))) && (isSmartCardAbsent() == RETURN_NOK));
+        /* Store data in buffer or discard it*/
+        if (i >= start_record_index)
+        {
+            /* Perform the check */
+            if (SPDR != value)
+            {
+                setPgmRstSignals();
+                return RETURN_NOK;
+            }
+        }
+        else
+        {
+            SPDR;
+        }
+    }
+
+    /* Set PGM / RST signals to standby mode */
+    setPgmRstSignals();
+ 
+    /* If we got there it means the comparison was OK */
+    return RETURN_OK;
+}
+
 /*! \fn     firstDetectFunctionSMC(void)
 *   \brief  functions performed once the smart card is detected
 *   \return The detection result (see card_detect_return_t)

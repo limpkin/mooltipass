@@ -76,7 +76,7 @@ Change Description For:
 Do Not Unplug The Mini!
 One Try Remaining!
 Update Data For:
-RESERVED_8
+Card Failing!
 RESERVED_9
 Create Credentials
 Edit Credentials

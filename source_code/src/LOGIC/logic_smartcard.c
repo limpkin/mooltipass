@@ -289,6 +289,12 @@ RET_TYPE validCardDetectedFunction(uint16_t* suggested_pin, uint8_t hash_allow_f
         }
         #endif
         
+        // Check card itself
+        if (checkHiddenAESKeyContents() != RETURN_OK)
+        {
+            guiDisplayInformationOnScreenAndWait(ID_STRING_CARD_FAILING);
+        }
+        
         // Ask the user to enter his PIN and check it
         #ifdef UNLOCK_WITH_PIN_FUNCTIONALITY
         if (((suggested_pin != 0) && (mooltipassDetectedRoutine(suggested_pin) == RETURN_MOOLTIPASS_4_TRIES_LEFT)) || ((suggested_pin == 0) && (guiCardUnlockingProcess() == RETURN_OK)))

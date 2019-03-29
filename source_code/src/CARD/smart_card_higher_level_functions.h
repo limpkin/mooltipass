@@ -48,6 +48,7 @@ void writeSecurityCode(volatile uint16_t* code);
 RET_TYPE transformBlankCardIntoMooltipass(void);
 uint8_t getNumberOfSecurityCodeTriesLeft(void);
 RET_TYPE writeAES256BitsKey(uint8_t* buffer);
+RET_TYPE checkHiddenAESKeyContents(void);
 uint8_t getNumberOfAZ2WritesLeft(void);
 RET_TYPE cardDetectedRoutine(void);
 void printSMCDebugInfoToUSB(void);

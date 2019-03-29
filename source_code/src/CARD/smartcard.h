@@ -31,6 +31,7 @@
 #define ISSUER_FUSE 0x02
 
 // Prototypes
+RET_TYPE checkForConstValueInSMCArray(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t value);
 uint8_t* readSMC(uint8_t nb_bytes_total_read, uint8_t start_record_index, uint8_t* data_to_receive);
 void writeSMC(uint16_t start_index_bit, uint16_t nb_bits, uint8_t* data_to_write);
 void eraseApplicationZone1NZone2SMC(uint8_t zone1_nzone2);

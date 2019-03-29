@@ -30,6 +30,7 @@
 #include "logic_aes_and_comms.h"
 #include "gui_pin_functions.h"
 #include "eeprom_addresses.h"
+#include "timer_manager.h"
 #include "logic_eeprom.h"
 #include "hid_defines.h"
 #include "node_mgmt.h"
@@ -440,5 +441,25 @@ RET_TYPE addNewUserAndNewSmartCard(volatile uint16_t* pin_code)
     // Write new pin code
     writeSecurityCode(pin_code);
     
-    return RETURN_OK;
+    // Remove power to smartcard
+    removeFunctionSMC();
+    
+    // Wait a few ms
+    timerBased130MsDelay();
+    
+    // Reconnect it, test the card
+    if ((cardDetectedRoutine() == RETURN_MOOLTIPASS_USER) && (checkHiddenAESKeyContents() == RETURN_OK) && (mooltipassDetectedRoutine(pin_code) == RETURN_MOOLTIPASS_4_TRIES_LEFT))
+    {    
+        return RETURN_OK;
+    }
+    else
+    {
+        // Reset smartcard and delete just created user
+        mooltipassDetectedRoutine(pin_code);
+        eraseSmartCard();
+        deleteUserIdFromSMCUIDLUT(new_user_id);
+        
+        // Report fail        
+        return RETURN_NOK;
+    }        
 }

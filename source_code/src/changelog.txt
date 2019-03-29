@@ -4,6 +4,7 @@ Todo:
 
 V1.3:
 - contents hiding feature check on smartcard
+- fw only update (as of 29/03/2019)
 
 V1.2:
 - added option to display security hashes to the user before and after card unlock (configurable by settings)

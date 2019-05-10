@@ -325,6 +325,7 @@ void guiScreenLoop(uint8_t input_interface_result)
                         {
                             currentScreen = SCREEN_DEFAULT_INSERTED_LCK;
                             guiDisplayInformationOnScreen(ID_STRING_PIN_DIFF);
+                            handleSmartcardRemoved();
                         }
                         else
                         {

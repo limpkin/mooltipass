@@ -46,35 +46,48 @@
 */
 void guiDisplayPinOnPinEnteringScreen(uint8_t* current_pin, uint8_t selected_digit, uint8_t stringID)
 {
+    volatile uint8_t displayed_pin_char = ' ';
+    
     // Display bitmap
-    miniOledBitmapDrawFlash(0, 0, selected_digit+BITMAP_PIN_SLOT1, 0);
+    miniOledClearFrameBuffer();
+    miniOledBitmapDrawFlash(62, 0, selected_digit+BITMAP_PIN_SLOT1, 0);
     miniOledSetMaxTextY(62);
     miniOledAllowTextWritingYIncrement();
     miniOledPutCenteredString(TWO_LINE_TEXT_FIRST_POS, readStoredStringToBuffer(stringID));
     miniOledPreventTextWritingYIncrement();
     miniOledResetMaxTextY();
+    
+    // Display selected number
     miniOledSetFont(FONT_PROFONT_14);
+    miniOledSetXY(64+17*selected_digit, 6);
+    if (current_pin[selected_digit] >= 0x0A)
+    {
+        displayed_pin_char = current_pin[selected_digit]+'A'-0x0A;
+    }
+    else
+    {
+        displayed_pin_char = current_pin[selected_digit]+'0';
+    }
+    miniOledPutch(displayed_pin_char);
+    
+    // Display complement and *
     for (uint8_t i = 0; i < 4; i++)
     {
         miniOledSetXY(64+17*i, 6);
-        if (i != selected_digit)
+        if ((i == selected_digit + 1) || (selected_digit == 3 && i == 2))
         {
-            miniOledPutch('*');
+            miniOledSetFont(FONT_PROFONT_COMP_14);
+            miniOledPutch(displayed_pin_char);
         }
-        else
+        else if (i != selected_digit)
         {
-            if (current_pin[i] >= 0x0A)
-            {
-                miniOledPutch(current_pin[i]+'A'-0x0A);
-            }
-            else
-            {
-                miniOledPutch(current_pin[i]+'0');
-            }
+            miniOledSetFont(FONT_PROFONT_14);
+            miniOledPutch('*');
         }
     }
     miniOledSetFont(FONT_DEFAULT);
     miniOledFlushEntireBufferToDisplay();
+    displayed_pin_char = ' ';
 }
 
 /*! \fn     guiGetPinFromUser(volatile uint16_t* pin_code, uint8_t stringID)

@@ -3,8 +3,10 @@ Todo:
 - bytes in eeprom to set shortcuts?
 
 V1.3:
+- new keyboard maps: 45 CA_FR, 46 CA_MAC, 47 DK_MAC, 48 MAC_UK, 49_POR
 - contents hiding feature check on smartcard
 - fw only update (as of 29/03/2019)
+- pixel compensation mode
 
 V1.2:
 - added option to display security hashes to the user before and after card unlock (configurable by settings)

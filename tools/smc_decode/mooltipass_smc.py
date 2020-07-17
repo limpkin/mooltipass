@@ -3,9 +3,9 @@
 # What to install:
 # - swig from http://www.swig.org/download.html 
 # Windows: download the archive, copy the contained folder to C:\Program Files (x86), add the folder to PATH
-# Ubuntu: sudo apt-get install swig libpcsclite-dev
+# Ubuntu: sudo apt-get install swig libpcsclite-dev pcscd 
 # - pyscard from http://sourceforge.net/projects/pyscard/files/pyscard/ or by "typing pip install pyscard" (official website: http://pyscard.sourceforge.net/)
-# - The MSI installer for PC/SC driver: http://www.acs.com.hk/en/products/4/acr38-smart-card-reader/#tab_downloads
+# - The MSI installer for PC/SC driver: https://www.acs.com.hk/en/driver/160/acr38u-n1-pocketmate-smart-card-reader-usb-type-a/
 from smartcard.CardRequest import CardRequest
 from smartcard.CardType import AnyCardType
 from smartcard.CardService import *
